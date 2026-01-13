@@ -79,6 +79,22 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(ExperimentMutation.ResubmitExperiment.class),
         @JsonSubTypes.Type(ExperimentMutation.Undo.class),
         @JsonSubTypes.Type(ExperimentMutation.Redo.class),
+
+        @JsonSubTypes.Type(ProjectMutation.CreateProject.class),
+        @JsonSubTypes.Type(ProjectMutation.EditProjectAttributes.class),
+        @JsonSubTypes.Type(ProjectMutation.EditProjectAccess.class),
+        @JsonSubTypes.Type(ProjectMutation.CreateProjectAttachment.class),
+        @JsonSubTypes.Type(ProjectMutation.DeleteProjectAttachment.class),
+        @JsonSubTypes.Type(ProjectMutation.ProjectUndo.class),
+        @JsonSubTypes.Type(ProjectMutation.ProjectRedo.class),
+
+        @JsonSubTypes.Type(NotebookMutation.CreateNotebook.class),
+        @JsonSubTypes.Type(NotebookMutation.EditNotebookAttributes.class),
+        @JsonSubTypes.Type(NotebookMutation.EditNotebookAccess.class),
+        @JsonSubTypes.Type(NotebookMutation.CreateNotebookAttachment.class),
+        @JsonSubTypes.Type(NotebookMutation.DeleteNotebookAttachment.class),
+        @JsonSubTypes.Type(NotebookMutation.NotebookUndo.class),
+        @JsonSubTypes.Type(NotebookMutation.NotebookRedo.class),
 })
 public interface Mutation {
 }

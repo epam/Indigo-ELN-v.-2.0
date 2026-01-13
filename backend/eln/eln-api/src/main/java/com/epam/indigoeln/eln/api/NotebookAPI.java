@@ -1,6 +1,7 @@
 package com.epam.indigoeln.eln.api;
 
 import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.reaction.model.patch.NotebookPatch;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -53,4 +54,8 @@ public interface NotebookAPI extends BaseAPI {
     @GET
     @Path("/notebooks/{notebookId}/nestedAccess")
     List<NestedACLEntryDTO> getNestedNotebookAccess(@PathParam("notebookId") UUID notebookId);
+
+    @GET
+    @Path("/notebooks/{notebookId}/revisions")
+    List<RevisionDetailsDTO<NotebookPatch>> getNotebookRevisions(@PathParam("notebookId") UUID notebookId);
 }

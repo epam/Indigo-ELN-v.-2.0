@@ -31,7 +31,7 @@ import java.util.function.Supplier;
 
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE;
 
-public abstract class AbstractMutationHandler<T extends Mutation, R extends MutationRedoInfo> implements MutationHandler<T, R> {
+public abstract class AbstractMutationHandler<T extends Mutation, R extends MutationRedoInfo> implements ExperimentMutationHandler<T, R> {
 
     @Inject
     Instance<IndigoAPI> indigoAPI;

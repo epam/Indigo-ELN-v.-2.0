@@ -8,6 +8,7 @@ import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
+import com.epam.indigoeln.reaction.model.patch.handler2.Patched;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
@@ -164,7 +165,7 @@ class ExperimentServiceTest extends ELNBaseTest {
     }
 
     @Test
-    void testEditExperimentNothingToEdit() {
+    void testEditExperimentNothingToUpdate() {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID
                 , "d"
                 , therapeuticAreas.getFirst()
@@ -172,7 +173,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         ));
         assertThatClientCall(() -> {
             experimentClient.editExperiment(experiment.getId(), new ExperimentEditRequest(null, null));
-        }).isBadRequest("No attributes to update");
+        }).isBadRequest("Nothing to update");
     }
 
     @Test
@@ -198,12 +199,12 @@ class ExperimentServiceTest extends ELNBaseTest {
                     assertThat(revision.getDatetime()).isEqualTo(modified.getModifiedAt());
                     assertThat(revision.getUser()).isEqualTo(getJohnUserRef());
                     assertThat(revision.getMutation()).isInstanceOf(ExperimentMutation.EditExperimentAttributes.class);
-                    assertThat(revision.getSummary()).matches("Edited attributes: set therapeutic area = .+, set project code = .+");
+                    assertThat(revision.getSummary()).matches("Edit: therapeutic area=.+, project code=.+");
                     assertThat(revision.getDiff()).satisfies(diff -> {
                         assertThat(diff.getAcl()).isNull();
                         assertThat(diff.getModel()).isNull();
-                        assertThat(diff.getTherapeuticArea().newValue()).isEqualTo(therapeuticAreas.get(1));
-                        assertThat(diff.getProjectCode().newValue()).isEqualTo(projectCodes.get(1));
+                        assertThat(diff.getTherapeuticArea()).isEqualTo(Patched.replaced(therapeuticAreas.get(0), therapeuticAreas.get(1)));
+                        assertThat(diff.getProjectCode()).isEqualTo(Patched.replaced(projectCodes.get(0), projectCodes.get(1)));
                         assertThat(diff.getDescription()).isNull();
                     });
                 });

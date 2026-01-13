@@ -14,6 +14,7 @@ CREATE TABLE Attachment (
 
 CREATE TABLE Project (
     id UUID PRIMARY KEY,
+    revision INT NOT NULL,
     created_by_id UUID NOT NULL,
     created_at TIMESTAMPTZ NOT NULL,
     modified_by_id UUID NOT NULL,
@@ -58,3 +59,19 @@ CREATE TABLE Project_ACL (
     CONSTRAINT project_acl_project_id_fk FOREIGN KEY (project_id) REFERENCES Project (id) ON DELETE CASCADE,
     CONSTRAINT project_acl_user_id_fk FOREIGN KEY (user_id) REFERENCES User_Account (id) ON DELETE CASCADE
 );
+
+CREATE TABLE Project_Revision (
+    project_id UUID NOT NULL,
+    revision INT NOT NULL,
+    user_id UUID NOT NULL,
+    datetime TIMESTAMPTZ NOT NULL,
+    summary VARCHAR(1000) NOT NULL,
+    mutation JSONB NOT NULL,
+    redo_info JSONB,
+    reverse_mutation JSONB,
+    diff JSONB NOT NULL,
+    CONSTRAINT project_revision_pk PRIMARY KEY (project_id, revision),
+    CONSTRAINT project_revision_experiment_id_fk FOREIGN KEY (project_id) REFERENCES Project (id)
+);
+
+ALTER TABLE Project ADD CONSTRAINT project_id_revision_fk FOREIGN KEY (id, revision) REFERENCES Project_Revision (project_id, revision) DEFERRABLE INITIALLY DEFERRED;

@@ -1,6 +1,7 @@
 package com.epam.indigoeln.eln.api;
 
 import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.reaction.model.patch.ProjectPatch;
 import jakarta.annotation.Nullable;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -54,4 +55,8 @@ public interface ProjectAPI extends BaseAPI {
     @GET
     @Path("/projects/{projectId}/nestedAccess")
     List<NestedACLEntryDTO> getNestedProjectAccess(@PathParam("projectId") UUID projectId);
+
+    @GET
+    @Path("/projects/{projectId}/revisions")
+    List<RevisionDetailsDTO<ProjectPatch>> getProjectRevisions(@PathParam("projectId") UUID projectId);
 }

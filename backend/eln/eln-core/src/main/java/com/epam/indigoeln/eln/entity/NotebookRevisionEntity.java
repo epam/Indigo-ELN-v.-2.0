@@ -11,26 +11,26 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "ExperimentRevision")
-public class ExperimentRevisionEntity extends BaseRevisionEntity {
+@Entity(name = "NotebookRevision")
+public class NotebookRevisionEntity extends BaseRevisionEntity {
 
     @EmbeddedId
-    private ExperimentRevisionID id;
+    private NotebookRevisionID id;
 
     @NotNull
-    @MapsId("experimentId")
+    @MapsId("notebookId")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(insertable = false, updatable = false)
-    private ExperimentEntity experiment;
+    private NotebookEntity notebook;
 
     @Embeddable
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class ExperimentRevisionID implements Serializable {
+    public static class NotebookRevisionID implements Serializable {
 
-        @Column(name = "experiment_id")
-        private UUID experimentId;
+        @Column(name = "notebook_id")
+        private UUID notebookId;
 
         @Column(name = "revision")
         private Integer revision;

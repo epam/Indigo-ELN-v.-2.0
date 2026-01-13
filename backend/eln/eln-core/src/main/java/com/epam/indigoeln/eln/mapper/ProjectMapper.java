@@ -2,33 +2,31 @@ package com.epam.indigoeln.eln.mapper;
 
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
 import com.epam.indigoeln.eln.entity.ProjectEntity;
+import com.epam.indigoeln.eln.entity.ProjectRevisionEntity;
 import com.epam.indigoeln.eln.entity.TotalCountsEntity;
 import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.service.RevisionService;
+import com.epam.indigoeln.reaction.model.mutation.ProjectMutation;
+import com.epam.indigoeln.reaction.model.patch.ProjectPatch;
+import jakarta.inject.Inject;
 import org.jspecify.annotations.Nullable;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.ReportingPolicy;
 
+import java.util.List;
 import java.util.Set;
 
 
 @Mapper(componentModel = "cdi", unmappedTargetPolicy = ReportingPolicy.ERROR, nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
 public abstract class ProjectMapper extends AbstractMapper {
 
-    @IgnoreBaseFields
-    @Mapping(target = "keywords", ignore = true)
-    @Mapping(target = "searchVector", ignore = true)
-    @Mapping(target = "aclEntities", expression = "java(java.util.Map.of())")
-    @Mapping(target = "shortACL", ignore = true)
-    @Mapping(target = "fullACL", ignore = true)
-    @Mapping(target = "attachments", expression = "java(java.util.List.of())")
-    @Mapping(target = "experiments", expression = "java(java.util.Set.of())")
-    @Mapping(target = "notebooks", expression = "java(java.util.Set.of())")
-    @Mapping(target = "calculatedInfo", ignore = true)
-    @Mapping(target = "notebookCount", ignore = true)
-    @Mapping(target = "experimentCount", ignore = true)
-    public abstract ProjectEntity requestToProject(ProjectRequest request);
+    @Inject
+    RevisionService revisionService;
+
+    public abstract ProjectMutation.CreateProject requestToMutation(ProjectRequest request);
+    public abstract ProjectMutation.EditProjectAttributes requestToMutation(ProjectEditRequest request);
 
     @Mapping(target = "acl", source = "shortACL")
     @Mapping(target = "aclCount", source = "calculatedInfo.aclCount")
@@ -45,5 +43,13 @@ public abstract class ProjectMapper extends AbstractMapper {
     @Nullable
     protected String dictionaryToString(@Nullable DictionaryItemEntity entity) {
         return entity != null ? entity.getName() : null;
+    }
+
+    @Mapping(target = "diff", expression = "java(convertPatch(entity))")
+    public abstract RevisionDetailsDTO<ProjectPatch> revisionToDTO(ProjectRevisionEntity entity);
+    public abstract List<RevisionDetailsDTO<ProjectPatch>> revisionToDTOList(List<ProjectRevisionEntity> entity);
+
+    protected ProjectPatch convertPatch(ProjectRevisionEntity entity) {
+        return revisionService.getPatch(entity);
     }
 }

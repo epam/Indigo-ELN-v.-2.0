@@ -74,6 +74,9 @@ public class NotebookEntity extends BaseEntity implements WithAttachments, WithA
     @Pattern(regexp = "^\\d{8}$", message = "Notebook Name is invalid, use 8 digits only")
     private String name;
 
+    @NotNull
+    private Integer revision;
+
     @Nullable
     @Basic(fetch = FetchType.LAZY)
     private String description;
@@ -101,13 +104,18 @@ public class NotebookEntity extends BaseEntity implements WithAttachments, WithA
     @NotNull
     @OneToMany(mappedBy = "notebook", cascade = CascadeType.ALL, orphanRemoval = true)
     @MapKeyJoinColumn(name = "user_id")
-    private Map<UserEntity, NotebookACLEntity> aclEntities;
+    private Map<UserEntity, NotebookACLEntity> aclEntities = new HashMap<>(0);
 
     @NotNull
     @ManyToMany()
     @JoinTable(name = "notebook_attachment", joinColumns = @JoinColumn(name = "notebook_id"), inverseJoinColumns = @JoinColumn(name = "attachment_id"))
     @OrderBy("createdAt")
     private List<AttachmentEntity> attachments = new ArrayList<>(0);
+
+    @NotNull
+    @OneToMany(mappedBy = "notebook")
+    @OrderBy("revision")
+    private List<NotebookRevisionEntity> revisions = new ArrayList<>(0);
 
     @Nullable
     @OneToOne(fetch = FetchType.LAZY)

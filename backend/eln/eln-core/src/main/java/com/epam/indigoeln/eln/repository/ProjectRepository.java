@@ -101,4 +101,15 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
                 })
                 .toList();
     }
+
+    public void persistRevision(ProjectRevisionEntity revision) {
+        em.persist(revision);
+    }
+
+    public ProjectRevisionEntity getRevision(ProjectEntity project, int revision) {
+        return em.createQuery("from ProjectRevision where project = :project and revision = :revision", ProjectRevisionEntity.class)
+                .setParameter("project", project)
+                .setParameter("revision", revision)
+                .getSingleResult();
+    }
 }

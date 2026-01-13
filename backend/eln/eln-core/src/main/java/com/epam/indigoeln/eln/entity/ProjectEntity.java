@@ -64,6 +64,9 @@ public class ProjectEntity extends BaseEntity implements WithAttachments, WithAC
     @NotEmpty
     private String name;
 
+    @NotNull
+    private Integer revision;
+
     @Nullable
     @Basic(fetch = FetchType.LAZY)
     private String literature;
@@ -91,7 +94,7 @@ public class ProjectEntity extends BaseEntity implements WithAttachments, WithAC
     @NotNull
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     @MapKeyJoinColumn(name = "user_id")
-    private Map<UserEntity, ProjectACLEntity> aclEntities;
+    private Map<UserEntity, ProjectACLEntity> aclEntities = new HashMap<>(0);
 
     @NotNull
     @ManyToMany
@@ -112,6 +115,11 @@ public class ProjectEntity extends BaseEntity implements WithAttachments, WithAC
     @JoinTable(name = "project_attachment", joinColumns = @JoinColumn(name = "project_id"), inverseJoinColumns = @JoinColumn(name = "attachment_id"))
     @OrderBy("createdAt")
     private List<AttachmentEntity> attachments = new ArrayList<>(0);
+
+    @NotNull
+    @OneToMany(mappedBy = "project")
+    @OrderBy("revision")
+    private List<ProjectRevisionEntity> revisions = new ArrayList<>(0);
 
     @Basic(fetch = FetchType.LAZY)
     @Column(insertable = false, updatable = false)

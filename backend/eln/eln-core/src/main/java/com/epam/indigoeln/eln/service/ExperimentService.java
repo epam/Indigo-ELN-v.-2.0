@@ -11,8 +11,8 @@ import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.NotebookEntity;
 import com.epam.indigoeln.eln.entity.UserInfo;
 import com.epam.indigoeln.eln.mapper.ExperimentMapper;
-import com.epam.indigoeln.eln.mapper.ExperimentSnapshotMapper;
 import com.epam.indigoeln.eln.mapper.ProjectMapper;
+import com.epam.indigoeln.eln.mapper.SnapshotMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
@@ -84,7 +84,7 @@ public class ExperimentService {
     @Inject
     ProjectRepository projectRepository;
     @Inject
-    ExperimentSnapshotMapper experimentSnapshotMapper;
+    SnapshotMapper snapshotMapper;
 
     public ExperimentDetailsDTO createExperiment(UUID notebookId, ExperimentRequest request) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
@@ -100,8 +100,7 @@ public class ExperimentService {
         experiment.setRevision(0);
         experiment.setStatus(ExperimentStatus.OPEN);
         experiment.setDeleted(false);
-        Mutation mutation = new ExperimentMutation.CreateExperiment(request.getTemplateID(), request.getDescription(), request.getTherapeuticArea(), request.getProjectCode());
-        experimentModelService.applyMutation(experiment, mutation);
+        experimentModelService.applyMutation(experiment, experimentMapper.requestToMutation(request));
         experimentRepository.flushAndRefresh(experiment);
         return getExperimentDetails(experiment);
     }
@@ -123,7 +122,7 @@ public class ExperimentService {
 
     public ExperimentSnapshot getExperimentSnapshot(UUID experimentId) {
         ExperimentEntity experiment = experimentRepository.load(experimentId);
-        return experimentSnapshotMapper.createSnapshot(experiment, MutationContext.createFull(), () -> experimentModelService.getModel(experiment));
+        return snapshotMapper.createSnapshot(experiment, MutationContext.createFull(), () -> experimentModelService.getModel(experiment));
     }
 
     public ExperimentDetailsDTO getExperimentDetails(ExperimentEntity experiment) {
@@ -135,8 +134,7 @@ public class ExperimentService {
     public ExperimentDetailsDTO editExperiment(UUID experimentId, ExperimentEditRequest request) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, ApplicationPermission.EDIT_EXPERIMENTS);
-        Mutation mutation = new ExperimentMutation.EditExperimentAttributes(request.getTherapeuticArea(), request.getProjectCode());
-        experimentModelService.applyMutation(experiment, mutation);
+        experimentModelService.applyMutation(experiment, experimentMapper.requestToMutation(request));
         experimentRepository.flushAndRefresh(experiment);
         return getExperimentDetails(experiment);
     }
@@ -238,7 +236,7 @@ public class ExperimentService {
         }
     }
 
-    public List<ExperimentRevisionDetailsDTO> getExperimentRevisions(UUID experimentId) {
+    public List<RevisionDetailsDTO<ExperimentPatch>> getExperimentRevisions(UUID experimentId) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
         return experimentMapper.revisionToDTOList(experiment.getRevisions());

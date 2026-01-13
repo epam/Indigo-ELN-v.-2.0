@@ -1,7 +1,6 @@
 package com.epam.indigoeln.reaction.service.mutation;
 
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.mutation.MutationRedoInfo;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
@@ -18,15 +17,15 @@ public class MutationHandlerRegistry {
 
     @Any
     @Inject
-    Instance<MutationHandler<?, ?>> handlers;
+    Instance<MutationHandler> handlers;
     
     @SuppressWarnings("unchecked")
-    public <M extends Mutation, R extends MutationRedoInfo> MutationHandler<M, R> findHandler(Mutation mutation) {
-        Instance<MutationHandler<?, ?>> selected = handlers.select(new MutationHandlerForLiteral(mutation.getClass()));
+    public <H extends MutationHandler> H findHandler(Mutation mutation) {
+        Instance<MutationHandler> selected = handlers.select(new MutationHandlerForLiteral(mutation.getClass()));
         if (selected.isUnsatisfied()) {
             throw new IllegalArgumentException("No handler found for: " + mutation.getClass().getName());
         }
-        return (MutationHandler<M, R>) selected.get();
+        return (H) selected.get();
     }
 }
 

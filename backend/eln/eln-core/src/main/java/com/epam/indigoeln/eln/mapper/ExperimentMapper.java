@@ -2,11 +2,10 @@ package com.epam.indigoeln.eln.mapper;
 
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
-import com.epam.indigoeln.eln.model.ApplicationPermission;
-import com.epam.indigoeln.eln.model.ExperimentDTO;
-import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
-import com.epam.indigoeln.eln.model.ExperimentRevisionDetailsDTO;
+import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.service.RevisionService;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
+import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import jakarta.inject.Inject;
@@ -23,7 +22,12 @@ public abstract class ExperimentMapper extends AbstractMapper {
 
     @Inject
     ExperimentModelService experimentModelService;
+    @Inject
+    RevisionService revisionService;
 
+    public abstract ExperimentMutation.CreateExperiment requestToMutation(ExperimentRequest request);
+    public abstract ExperimentMutation.EditExperimentAttributes requestToMutation(ExperimentEditRequest request);
+    
     @Mapping(target = "acl", source = "shortACL")
     @Mapping(target = "aclCount", source = "calculatedInfo.aclCount")
     @Mapping(target = "marked", source = "calculatedInfo.marked")
@@ -36,10 +40,10 @@ public abstract class ExperimentMapper extends AbstractMapper {
     public abstract ExperimentDetailsDTO entityToDetailsDTO(ExperimentEntity entity, ExperimentModel model, Set<ApplicationPermission> currentPermissions);
 
     @Mapping(target = "diff", expression = "java(convertPatch(entity))")
-    public abstract ExperimentRevisionDetailsDTO revisionToDTO(ExperimentRevisionEntity entity);
-    public abstract List<ExperimentRevisionDetailsDTO> revisionToDTOList(List<ExperimentRevisionEntity> entity);
+    public abstract RevisionDetailsDTO<ExperimentPatch> revisionToDTO(ExperimentRevisionEntity entity);
+    public abstract List<RevisionDetailsDTO<ExperimentPatch>> revisionToDTOList(List<ExperimentRevisionEntity> entity);
 
     protected ExperimentPatch convertPatch(ExperimentRevisionEntity entity) {
-        return experimentModelService.getPatch(entity);
+        return revisionService.getPatch(entity);
     }
 }

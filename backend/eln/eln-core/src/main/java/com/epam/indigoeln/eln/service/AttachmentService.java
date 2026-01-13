@@ -12,6 +12,8 @@ import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
+import com.epam.indigoeln.reaction.model.mutation.NotebookMutation;
+import com.epam.indigoeln.reaction.model.mutation.ProjectMutation;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -49,6 +51,10 @@ public class AttachmentService {
     AttachmentMapper attachmentMapper;
     @Inject
     ExperimentModelService experimentModelService;
+    @Inject
+    ProjectService projectService;
+    @Inject
+    NotebookService notebookService;
 
     public List<AttachmentDTO> createProjectAttachment(UUID projectId, FileUpload file) {
         return createProjectAttachment(projectId, file.fileName(), readFile(file));
@@ -58,8 +64,7 @@ public class AttachmentService {
         ProjectEntity project = projectRepository.get(projectId);
         aclService.ensureAccess(project, ApplicationPermission.EDIT_PROJECTS);
         AttachmentEntity attachment = doCreateAttachment(filename, content);
-        project.getAttachments().add(attachment);
-        attachment.getProjects().add(project);
+        projectService.applyMutation(project, new ProjectMutation.CreateProjectAttachment(attachment.getId()));
         return attachmentMapper.attachmentToDTOList(project.getAttachments());
     }
 
@@ -71,8 +76,7 @@ public class AttachmentService {
         NotebookEntity notebook = notebookRepository.get(notebookId);
         aclService.ensureAccess(notebook, ApplicationPermission.EDIT_NOTEBOOKS);
         AttachmentEntity attachment = doCreateAttachment(filename, content);
-        notebook.getAttachments().add(attachment);
-        attachment.getNotebooks().add(notebook);
+        notebookService.applyMutation(notebook, new NotebookMutation.CreateNotebookAttachment(attachment.getId()));
         return attachmentMapper.attachmentToDTOList(notebook.getAttachments());
     }
 
@@ -147,7 +151,7 @@ public class AttachmentService {
         aclService.ensureAccess(project, ApplicationPermission.EDIT_PROJECTS);
         AttachmentEntity attachment = attachmentRepository.load(attachmentId);
         ensureCorrectParent(attachment, attachment.getProjects(), project);
-        doDeleteAttachment(project, attachment.getProjects(), attachment);
+        projectService.applyMutation(project, new ProjectMutation.DeleteProjectAttachment(attachment.getId()));
     }
 
     public void deleteNotebookAttachment(UUID notebookId, UUID attachmentId) {
@@ -155,7 +159,7 @@ public class AttachmentService {
         aclService.ensureAccess(notebook, ApplicationPermission.EDIT_NOTEBOOKS);
         AttachmentEntity attachment = attachmentRepository.load(attachmentId);
         ensureCorrectParent(attachment, attachment.getNotebooks(), notebook);
-        doDeleteAttachment(notebook, attachment.getNotebooks(), attachment);
+        notebookService.applyMutation(notebook, new NotebookMutation.DeleteNotebookAttachment(attachment.getId()));
     }
 
     public void deleteExperimentAttachment(UUID experimentId, UUID attachmentId) {

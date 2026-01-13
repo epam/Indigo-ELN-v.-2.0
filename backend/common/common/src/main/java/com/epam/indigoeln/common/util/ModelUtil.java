@@ -2,19 +2,20 @@ package com.epam.indigoeln.common.util;
 
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 @UtilityClass
 public class ModelUtil {
 
-    public <T> @NonNull T firstNotNull(@Nullable T first, T second) {
+    public <T> T firstNotNull(@Nullable T first, T second) {
         return first != null ? first : second;
     }
 
@@ -34,10 +35,25 @@ public class ModelUtil {
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public <T> void editProperty(@Nullable Optional<T> property, Consumer<T> consumer) {
+        editProperty(property, consumer, null, (Function<T, String>) null);
+    }
+
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    public <T> void editProperty(@Nullable Optional<T> property, Consumer<T> consumer, @Nullable List<String> summaryList, String propertyName) {
+        editProperty(property, consumer, summaryList, v -> propertyName + "=" + v);
+    }
+
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    public <T> void editProperty(@Nullable Optional<T> property, Consumer<T> consumer, @Nullable List<String> summaryList, @Nullable Function<T, String> summaryFn) {
         //noinspection OptionalAssignedToNull
         if (property != null) {
+            T value = property.orElse(null);
             //noinspection DataFlowIssue
-            consumer.accept(property.orElse(null));
+            consumer.accept(value);
+            if (summaryList != null) {
+                String summary = summaryFn != null ? summaryFn.apply(value) : Objects.toString(value);
+                summaryList.add(summary);
+            }
         }
     }
 

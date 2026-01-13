@@ -7,7 +7,10 @@ import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.ExperimentService;
 import com.epam.indigoeln.eln.service.ExperimentWorkflowService;
-import com.epam.indigoeln.reaction.model.*;
+import com.epam.indigoeln.reaction.model.ExperimentModel;
+import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
+import com.epam.indigoeln.reaction.model.InputAnchor;
+import com.epam.indigoeln.reaction.model.ReactionAnchor;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import jakarta.annotation.Nullable;
@@ -169,7 +172,7 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
-    public List<ExperimentRevisionDetailsDTO> getExperimentRevisions(UUID experimentId) {
+    public List<RevisionDetailsDTO<ExperimentPatch>> getExperimentRevisions(UUID experimentId) {
         return experimentService.getExperimentRevisions(experimentId);
     }
 }

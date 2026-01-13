@@ -3,6 +3,7 @@ package com.epam.indigoeln.reaction.model.mutation;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 
@@ -32,7 +33,7 @@ public interface ExperimentMutation extends Mutation {
     }
 
     record EditExperimentAccess(
-            @NotNull List<AccessForm> edits
+            @NotEmpty List<AccessForm> edits
     ) implements ExperimentMutation {
     }
 
