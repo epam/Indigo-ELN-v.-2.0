@@ -27,7 +27,7 @@
     [amplify-button] {
       &.amplify-button--primary {
         border-radius: 8px;
-        margin-top: 38px;
+        margin-top: 42px;
         position: relative;
         &::after {
           width: 100%;
@@ -48,7 +48,8 @@
 }
 #rememberme {
   position: absolute;
-  bottom: 60px;
+  bottom: 62px;
   margin-left: 3px;
+  accent-color: var(--primary-500);
   // margin-bottom: 20px;
 }
