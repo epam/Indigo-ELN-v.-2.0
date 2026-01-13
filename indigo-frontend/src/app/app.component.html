@@ -1,4 +1,5 @@
 <amplify-authenticator [hideSignUp]="true">
+  <div class="Body"></div>
   <ng-template amplifySlot="header">
     <div
       class="mx-auto h-full"
@@ -15,7 +16,7 @@
     <router-outlet />
   </ng-template>
   <ng-template amplifySlot="sign-in-footer">
-    <div class="flex items-center gap-2 px-4 pb-4">
+    <div class="flex items-center gap-2 px-4 pb-4" id="rememberme">
       <input
         id="rememberMe"
         type="checkbox"
