@@ -94,12 +94,6 @@ export class TeamComponent implements OnInit {
 
   @ViewChild(NgSelectComponent) ngSelectComponent!: NgSelectComponent;
 
-  get addMemberLabelMap(): Record<string, string> {
-    return {
-      other: 'Add member',
-    };
-  }
-
   ngOnInit(): void {
     if (!this.entityId)
       console.warn('TeamComponent initialized without entityId');
