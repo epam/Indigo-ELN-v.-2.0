@@ -9,7 +9,8 @@ import { ExperimentModelService } from '@core/services/experiment/experiment-mod
 import { ButtonComponent } from '@core/components/common/button/button.component';
 import { ReactionViewComponent } from '@pages/experiment/stoichiometry/reaction-view/reaction-view.component';
 import { SampleSearchComponent } from '@pages/experiment/sample-search/sample-search.component';
-
+import { FormlyFieldConfig, FormlyModule } from '@ngx-formly/core';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 @Component({
   selector: 'eln-experiment-info',
   standalone: true,
@@ -21,6 +22,8 @@ import { SampleSearchComponent } from '@pages/experiment/sample-search/sample-se
     ReactionViewComponent,
     ButtonComponent,
     SampleSearchComponent,
+    FormlyModule,
+    ReactiveFormsModule
   ],
   providers: [ExperimentImageService],
   templateUrl: './experiment-info.component.html',
@@ -46,6 +49,55 @@ export class ExperimentInfoComponent implements OnInit {
     () => this.experimentImageService.isLoading() || this.isUpdating(),
   );
   imageError = computed(() => this.experimentImageService.hasError());
+
+  form = new FormGroup({});
+  fields: FormlyFieldConfig[] = [
+    {
+      type: "chip-grid",
+      key: "title",
+      name: "title",
+      wrappers: ['raw'],
+      props: {
+        label: "Experiment Title",
+        placeholder: "Experiment Title",
+      }
+    },
+    {
+      type: "select",
+      key: "therapeutic",
+      wrappers: ['raw'],
+      props: {
+        label: "Therapeutic Area",
+        placeholder: "Therapeutic Area",
+        items: [
+          { label: 'label1', value: 'value1' },
+          { label: 'label2', value: 'value2' },
+        ],
+      }
+    }, 
+    {
+      type: "select",
+      key: "code-and-name",
+      wrappers: ['raw'],
+      props: {
+        label: "Project Code & Name",
+        placeholder: "Project Code & Name",
+        items: [
+          { label: 'label1', value: 'value1' },
+          { label: 'label2', value: 'value2' },
+        ],
+      }
+    },
+    {
+      type: "input",
+      key: "literature",
+      wrappers: ['raw'],
+      props: {
+        label: "Literature Reference",
+        placeholder: "Literature Reference",
+      }
+    }
+  ]
 
   ngOnInit(): void {
     const experimentId = this.experiment()?.id;

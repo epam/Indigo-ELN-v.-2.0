@@ -18,6 +18,14 @@
         </button>
 
         @if (accordionItem.expanded) {
+          <form [formGroup]="form" class="mt-4">
+            <formly-form
+              [form]="form",
+              [fields]="fields"
+              [model]="model">
+            </formly-form>
+          </form>
+
           <div>
             <div class="flex gap-4 mt-2 text-sm">
               <h3>Name: {{ experiment().name }}</h3>

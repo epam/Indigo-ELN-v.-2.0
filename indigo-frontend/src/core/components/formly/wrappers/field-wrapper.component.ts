@@ -23,7 +23,7 @@ export interface FormlyFieldProps extends CoreFormlyFieldProps {
       <label
         *ngIf="props.label && props.hideLabel !== true"
         [attr.for]="id"
-        class="form-label block mb-2 text-xs"
+        class="form-label block mb-2 text-xs font-semibold leading-[1.5] text-gray-800"
       >
         {{ props.label }}
         <span
