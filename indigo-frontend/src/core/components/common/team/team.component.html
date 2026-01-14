@@ -59,8 +59,15 @@
   <div class="space-y-2 py-3">
     @for (member of teamVm(); track member.userId) {
       <div
-        class="grid grid-cols-[auto_1fr_auto_auto] gap-4 items-center p-2 hover:bg-neutral-100 rounded-lg text-neutral-1000"
+        class="grid grid-cols-[auto_1fr_1fr_auto] gap-4 items-center p-2 hover:bg-neutral-100 rounded-lg text-neutral-1000"
       >
+        <eln-avatar
+          classList="w-6 h-6"
+          [img]="
+            'https://ui-avatars.com/api/?name=' +
+            (member.username ?? member.displayName)
+          "
+        />
         <p class="text-neutral-1000">{{ member.displayName }}</p>
         <p
           class="text-neutral-800 overflow-hidden text-ellipsis whitespace-nowrap max-w-[148px] text-ellipsis"
