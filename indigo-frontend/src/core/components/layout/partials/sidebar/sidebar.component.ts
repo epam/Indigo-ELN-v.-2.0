@@ -43,6 +43,7 @@ export class SidebarComponent {
       name: 'Templates',
       icon: 'indicon-layers',
       path: '/templates',
+      requiredPermission: ApplicationPermission.MANAGE_TEMPLATES,
     },
     {
       name: 'Dictionaries',
