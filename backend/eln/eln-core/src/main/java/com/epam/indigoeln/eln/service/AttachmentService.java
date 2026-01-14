@@ -52,11 +52,6 @@ public class AttachmentService {
 
     public List<AttachmentDTO> createProjectAttachment(UUID projectId, String filename, byte[] content) {
         ProjectEntity project = projectRepository.get(projectId);
-
-        if (project == null) {
-            throw new EntityNotFoundException(EntityType.PROJECT, projectId);
-        }
-
         aclService.ensureAccess(project, ApplicationPermission.EDIT_PROJECTS);
         AttachmentEntity attachment = doCreateAttachment(filename, content);
         project.getAttachments().add(attachment);
@@ -70,11 +65,6 @@ public class AttachmentService {
 
     public List<AttachmentDTO> createNotebookAttachment(UUID notebookId, String filename, byte[] content) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
-
-        if (notebook == null) {
-            throw new EntityNotFoundException(EntityType.NOTEBOOK, notebookId);
-        }
-
         aclService.ensureAccess(notebook, ApplicationPermission.EDIT_NOTEBOOKS);
         AttachmentEntity attachment = doCreateAttachment(filename, content);
         notebook.getAttachments().add(attachment);
@@ -88,11 +78,6 @@ public class AttachmentService {
 
     public List<AttachmentDTO> createExperimentAttachment(UUID experimentId, String filename, byte[] content) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
-
-        if (experiment == null) {
-            throw new EntityNotFoundException(EntityType.EXPERIMENT, experimentId);
-        }
-
         createExperimentAttachment(experiment, filename, content);
         return attachmentMapper.attachmentToDTOList(experiment.getAttachments());
     }
@@ -122,11 +107,6 @@ public class AttachmentService {
 
     public Response downloadProjectAttachment(UUID projectId, UUID attachmentId) {
         ProjectEntity project = projectRepository.get(projectId);
-
-        if (project == null) {
-            throw new EntityNotFoundException(EntityType.PROJECT, projectId);
-        }
-
         aclService.ensureAccess(project, ApplicationPermission.VIEW_PROJECTS);
         AttachmentEntity attachment = attachmentRepository.load(attachmentId);
         ensureCorrectParent(attachment, attachment.getProjects(), project);
@@ -135,11 +115,6 @@ public class AttachmentService {
 
     public Response downloadNotebookAttachment(UUID notebookId, UUID attachmentId) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
-
-        if (notebook == null) {
-            throw new EntityNotFoundException(EntityType.PROJECT, notebookId);
-        }
-
         aclService.ensureAccess(notebook, ApplicationPermission.VIEW_NOTEBOOKS);
         AttachmentEntity attachment = attachmentRepository.load(attachmentId);
         ensureCorrectParent(attachment, attachment.getNotebooks(), notebook);
@@ -148,11 +123,6 @@ public class AttachmentService {
 
     public Response downloadExperimentAttachment(UUID experimentId, UUID attachmentId) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
-
-        if (experiment == null) {
-            throw new EntityNotFoundException(EntityType.PROJECT, experimentId);
-        }
-
         aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
         AttachmentEntity attachment = attachmentRepository.load(attachmentId);
         ensureCorrectParent(attachment, attachment.getExperiments(), experiment);
@@ -166,11 +136,6 @@ public class AttachmentService {
 
     public void deleteProjectAttachment(UUID projectId, UUID attachmentId) {
         ProjectEntity project = projectRepository.get(projectId);
-
-        if (project == null) {
-            throw new EntityNotFoundException(EntityType.PROJECT, projectId);
-        }
-
         aclService.ensureAccess(project, ApplicationPermission.EDIT_PROJECTS);
         AttachmentEntity attachment = attachmentRepository.load(attachmentId);
         ensureCorrectParent(attachment, attachment.getProjects(), project);
@@ -179,11 +144,6 @@ public class AttachmentService {
 
     public void deleteNotebookAttachment(UUID notebookId, UUID attachmentId) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
-
-        if (notebook == null) {
-            throw new EntityNotFoundException(EntityType.PROJECT, notebookId);
-        }
-
         aclService.ensureAccess(notebook, ApplicationPermission.EDIT_NOTEBOOKS);
         AttachmentEntity attachment = attachmentRepository.load(attachmentId);
         ensureCorrectParent(attachment, attachment.getNotebooks(), notebook);
@@ -192,11 +152,6 @@ public class AttachmentService {
 
     public void deleteExperimentAttachment(UUID experimentId, UUID attachmentId) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
-
-        if (experiment == null) {
-            throw new EntityNotFoundException(EntityType.PROJECT, experimentId);
-        }
-
         aclService.ensureAccess(experiment, ApplicationPermission.EDIT_EXPERIMENTS);
         AttachmentEntity attachment = attachmentRepository.load(attachmentId);
         ensureCorrectParent(attachment, attachment.getExperiments(), experiment);
