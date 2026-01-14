@@ -91,6 +91,7 @@ public abstract class MutationsTestBase extends ELNBaseTest {
         System.out.println("Applying mutation: " + mutation);
         reportBuilder.addMutation(mutation);
 
+        ExperimentSnapshot initialSnapshot = experimentClient.getExperimentSnapshot(experiment.getId());
         ExperimentPatch patch = experimentClient.mutateExperimentModel2(experiment.getId(), experiment.getRevision(), mutation);
         ExperimentDetailsDTO updatedExperiment = experimentClient.getExperiment(experiment.getId());
 
@@ -108,21 +109,20 @@ public abstract class MutationsTestBase extends ELNBaseTest {
         PatchTestUtil.verifyModelPatch(experiment, patch, updatedExperiment, reportBuilder);
         experiment = updatedExperiment;
 
-        // verify if undo/redo works and produces the same snapshot
         Integer initialRevision = experiment.getRevision();
         if (undoRedo) {
+            // verify if model after undo is the same as before initial mutation
             applyMutation(new ExperimentMutation.Undo(initialRevision), false);
+            ExperimentSnapshot snapshotAfterUndo = experimentClient.getExperimentSnapshot(experiment.getId());
+            PatchTestUtil.verifyModel(snapshotAfterUndo, initialSnapshot, reportBuilder, () -> "Model after undo (right) not equals to model before initial operation (left)");
+
+            // verify if undo+redo works and produces the same snapshot as initial mutation
             applyMutation(new ExperimentMutation.Redo(initialRevision), false);
+            experiment = experimentClient.getExperiment(experiment.getId());
+            ExperimentSnapshot snapshotAfterRedo = experimentClient.getExperimentSnapshot(experiment.getId());
+
+            PatchTestUtil.verifyModel(snapshotAfterRedo, updatedSnapshot, reportBuilder, () -> "Model after redo (right) not equals to model after initial operation (left)");
         }
-        experiment = experimentClient.getExperiment(experiment.getId());
-        ExperimentSnapshot snapshotAfterRedo = experimentClient.getExperimentSnapshot(experiment.getId());
-        // revision and rxnVersion will be different after redo, restore them
-        snapshotAfterRedo.setRevision(updatedSnapshot.getRevision());
-        Iterator<Reaction> updatedReaction = updatedSnapshot.getModel().getReactions().iterator();
-        for (Reaction value : snapshotAfterRedo.getModel().getReactions()) {
-            value.setRxnVersion(updatedReaction.next().getRxnVersion());
-        }
-        PatchTestUtil.verifyModel(snapshotAfterRedo, updatedSnapshot, reportBuilder);
 
         modelUpdated();
 

@@ -48,7 +48,6 @@ public class RevisionService {
     public void addRevision(ProjectEntity project, ZonedDateTime datetime, String summary, Mutation mutation, @org.jspecify.annotations.Nullable MutationRedoInfo redoInfo, @org.jspecify.annotations.Nullable Mutation reverseMutation, ProjectPatch diff) {
         ProjectRevisionEntity revision = new ProjectRevisionEntity();
         int newRevisionNo = project.getRevision() + 1;
-        revision.setId(new ProjectRevisionEntity.ProjectRevisionID(project.getId(), newRevisionNo));
         revision.setProject(project);
         doAddRevision(revision, newRevisionNo, datetime, summary, mutation, redoInfo, reverseMutation, doWritePatch(projectPatchWriter, diff));
         project.setRevision(newRevisionNo);
@@ -59,7 +58,6 @@ public class RevisionService {
     public void addRevision(NotebookEntity notebook, ZonedDateTime datetime, String summary, Mutation mutation, @org.jspecify.annotations.Nullable MutationRedoInfo redoInfo, @org.jspecify.annotations.Nullable Mutation reverseMutation, NotebookPatch diff) {
         NotebookRevisionEntity revision = new NotebookRevisionEntity();
         int newRevisionNo = notebook.getRevision() + 1;
-        revision.setId(new NotebookRevisionEntity.NotebookRevisionID(notebook.getId(), newRevisionNo));
         revision.setNotebook(notebook);
         doAddRevision(revision, newRevisionNo, datetime, summary, mutation, redoInfo, reverseMutation, doWritePatch(notebookPatchWriter, diff));
         notebook.setRevision(newRevisionNo);
@@ -67,19 +65,16 @@ public class RevisionService {
         notebookRepository.persistRevision(revision);
     }
 
-    public void addRevision(ExperimentEntity experiment, ZonedDateTime datetime, String summary, Mutation mutation, @org.jspecify.annotations.Nullable MutationRedoInfo redoInfo, @org.jspecify.annotations.Nullable Mutation reverseMutation, ExperimentPatch diff) {
+    public void addRevision(ExperimentEntity experiment, Integer newRevisionNo, ZonedDateTime datetime, String summary, Mutation mutation, @org.jspecify.annotations.Nullable MutationRedoInfo redoInfo, @org.jspecify.annotations.Nullable Mutation reverseMutation, ExperimentPatch diff) {
         ExperimentRevisionEntity revision = new ExperimentRevisionEntity();
-        int newRevisionNo = experiment.getRevision() + 1;
-        revision.setId(new ExperimentRevisionEntity.ExperimentRevisionID(experiment.getId(), newRevisionNo));
         revision.setExperiment(experiment);
         doAddRevision(revision, newRevisionNo, datetime, summary, mutation, redoInfo, reverseMutation, doWritePatch(experimentPatchWriter, diff));
-        experiment.setRevision(newRevisionNo);
         experiment.getRevisions().add(revision);
         experimentRepository.persistRevision(revision);
     }
 
-    private void doAddRevision(BaseRevisionEntity revision, Integer newRevisionNo, ZonedDateTime datetime, String summary, Mutation mutation, @org.jspecify.annotations.Nullable MutationRedoInfo redoInfo, @org.jspecify.annotations.Nullable Mutation reverseMutation, String diff) {
-        revision.setRevision(newRevisionNo);
+    private void doAddRevision(BaseRevisionEntity revision, Integer revisionNo, ZonedDateTime datetime, String summary, Mutation mutation, @org.jspecify.annotations.Nullable MutationRedoInfo redoInfo, @org.jspecify.annotations.Nullable Mutation reverseMutation, String diff) {
+        revision.setRevision(revisionNo);
         revision.setUser(userService.getCurrentUserEntity());
         revision.setDatetime(datetime);
         revision.setSummary(summary);

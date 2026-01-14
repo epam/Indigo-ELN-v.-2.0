@@ -12,9 +12,9 @@ import com.epam.indigoeln.reaction.model.mutation.MutationContext;
 import com.epam.indigoeln.reaction.model.mutation.MutationRedoInfo;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
+import com.epam.indigoeln.reaction.service.mutation.AbstractReactionMutationHandler;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
-import com.epam.indigoeln.reaction.service.mutation.AbstractReactionMutationHandler;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import one.util.streamex.EntryStream;
@@ -163,6 +163,7 @@ class UndoResolveInputsHandler extends AbstractReactionMutationHandler<ReactionM
                 sample.setRow(row);
             }
             row.setChemicalName(undo.chemicalName());
+            context.getAffectedRoles().add(row.getRole());
         });
         return new MutationResult("Undo resolve inputs"
                 , null
@@ -177,7 +178,7 @@ class UndoRemoveInputHandler extends AbstractReactionMutationHandler<ReactionMut
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.UndoRemoveInput mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
-        reaction.getInputs().add(mutation.input());
+        reaction.getInputs().add(mutation.position(), mutation.input());
         mutation.input().setReaction(reaction);
         for (ReactionInput input : reaction.getInputs()) {
             input.setLimiting(input.getAnchor().equals(mutation.limitingInput()));

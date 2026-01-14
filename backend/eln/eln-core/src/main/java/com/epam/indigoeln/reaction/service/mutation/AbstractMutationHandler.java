@@ -1,191 +1,204 @@
 package com.epam.indigoeln.reaction.service.mutation;
 
-import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.common.util.Pair;
-import com.epam.indigoeln.compound.entity.CompoundEntity;
-import com.epam.indigoeln.compound.entity.SampleEntity;
-import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
-import com.epam.indigoeln.eln.entity.SaltCodeInfo;
-import com.epam.indigoeln.eln.mapper.DictionaryMapper;
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
-import com.epam.indigoeln.eln.service.DictionaryService;
+import com.epam.indigoeln.eln.entity.ExperimentReferencedCompound;
+import com.epam.indigoeln.eln.mapper.SnapshotMapper;
+import com.epam.indigoeln.eln.repository.ExperimentRepository;
+import com.epam.indigoeln.eln.service.RevisionService;
+import com.epam.indigoeln.eln.service.UserService;
+import com.epam.indigoeln.eln.util.ExperimentModelUtil;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
-import com.epam.indigoeln.indigowrapper.IndigoMolecule;
+import com.epam.indigoeln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.mutation.MutationContext;
 import com.epam.indigoeln.reaction.model.mutation.MutationRedoInfo;
-import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
-import com.epam.indigoeln.reaction.model.units.*;
+import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
+import com.epam.indigoeln.reaction.service.ExperimentModelHelperService;
+import com.epam.indigoeln.reaction.service.ExperimentModelService;
+import com.epam.indigoeln.reaction.service.calculator.ReactionCalculator;
+import com.epam.indigoeln.reaction.util.StreamUtil;
 import com.google.common.base.Preconditions;
-import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
-import jakarta.validation.Valid;
-import org.apache.commons.lang3.StringUtils;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
+import lombok.extern.slf4j.Slf4j;
+import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.*;
 
-import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE;
+import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 
+@Slf4j
 public abstract class AbstractMutationHandler<T extends Mutation, R extends MutationRedoInfo> implements ExperimentMutationHandler<T, R> {
 
     @Inject
-    Instance<IndigoAPI> indigoAPI;
+    SnapshotMapper snapshotMapper;
     @Inject
-    CompoundService compoundService;
+    ExperimentModelService experimentModelService;
     @Inject
-    DictionaryService dictionaryService;
+    ExperimentModelHelperService experimentModelHelperService;
     @Inject
-    DictionaryMapper dictionaryMapper;
+    ReactionCalculator reactionCalculator;
+    @Inject
+    IndigoAPI indigoAPI;
+    @Inject
+    Validator validator;
+    @Inject
+    UserService userService;
+    @Inject
+    RevisionService revisionService;
+    @Inject
+    ExperimentRepository experimentRepository;
 
-    // !!! only allow non-null source for undo operations
-    public <U extends MeasurementUnit> EnteredValueUndo<U> setEnteredValue(Supplier<@Nullable EnteredValue<U>> getter, Consumer<@Nullable EnteredValue<U>> setter, @Nullable Double value, @Nullable U unit, @Nullable EnteredValueSource source) {
-        EnteredValue<U> ev = getter.get();
-        Double oldValue = ev != null ? ev.getValue() : null;
-        U oldUnit = ev != null ? ev.getUnit() : null;
-        EnteredValueSource oldSource = ev != null ? ev.getSource() : null;
-        if (value == null) { // remove old value
-            ev = null;
-        } else { // create or update value
-            Preconditions.checkArgument(unit != null);
-            ev = new EnteredValue<>(value, unit, source != null ? source : EnteredValueSource.USER_LAST_ENTERED);
+    @SuppressWarnings("DataFlowIssue")
+    private Set<Pair<ReactionRole, CompoundRef>> previousCompoundRefs = null;
+    @SuppressWarnings("DataFlowIssue")
+    private Map<ReactionAnchor, @Nullable String> previousRxnFiles = null;
+
+    protected boolean isAffectsAttachments() {
+        return false;
+    }
+
+    protected boolean isAffectsACL() {
+        return false;
+    }
+
+    protected boolean isAffectsModel() {
+        return false;
+    }
+
+    public Pair<ExperimentSnapshot, ExperimentPatch> applyMutation(ExperimentEntity experiment, T mutation) {
+        MutationContext context = new MutationContext();
+
+        ExperimentSnapshot snapshotBefore = doSnapshotBefore(experiment);
+
+        ExperimentModel model = isAffectsModel() ? experimentModelService.getModel(experiment) : null;
+        if (model != null) {
+            ExperimentModelUtil.prepareToRecalculate(model);
         }
-        setter.accept(ev);
-        return new EnteredValueUndo<>(oldValue, oldUnit, oldSource);
-    }
+        Integer revisionNo = experiment.getRevision() + 1;
+        experiment.setRevision(revisionNo);
+        MutationResult result = handle(experiment, model, mutation, null, context);
 
-    public String formatSetterSummary(String what, @Nullable Double value, @Nullable MeasurementUnit unit) {
-        if (value == null) {
-            return "Clear %s".formatted(what);
+        if (model != null) {
+            doRecalculateModel(experiment, model, context);
+            experimentModelService.setModel(experiment, model);
+            doValidateModel(experiment, model);
         }
-        if (unit == null) {
-            return "Set %s to %s".formatted(what, value);
+
+        updateDates(experiment, userService.getCurrentUserEntity());
+        if (experiment.getId() == null) {
+            experimentRepository.persist(experiment);
         }
-        return "Set %s to %s %s".formatted(what, value, unit);
+
+        ExperimentSnapshot snapshotAfter = doSnapshotAfter(experiment, model);
+        ExperimentPatch diff = experimentModelService.createPatch(snapshotBefore, snapshotAfter, context);
+
+        revisionService.addRevision(experiment, revisionNo, experiment.getModifiedAt(), result.summary(), mutation, result.redoInfo(), result.reverseMutation(), diff);
+
+        return Pair.of(snapshotAfter, diff);
     }
 
-    public String formatSetterSummary(String what, @Nullable Object value) {
-        if (value == null) {
-            return "Clear %s".formatted(what);
+    protected ExperimentSnapshot doSnapshotBefore(ExperimentEntity experiment) {
+        ExperimentModel model = isAffectsModel() ? experimentModelService.getModel(experiment) : null;
+        ExperimentSnapshot snapshot = snapshotMapper.createSnapshot(experiment, isAffectsAttachments(), isAffectsACL(), model);
+        if (model != null) {
+            previousCompoundRefs = ExperimentModelUtil.collectCompoundRefs(model);
+            previousRxnFiles = StreamEx.of(model.getReactions())
+                    .mapToEntry(Reaction::getAnchor, Reaction::getRxnfile)
+                    .nonNullValues()
+                    .toMap();
         }
-        return "Set %s to %s".formatted(what, StringUtils.abbreviate(value.toString(), 100));
+        return snapshot;
     }
 
-    public String formatSetterSummary(String what, @Nullable String value) {
-        if (value == null || value.isEmpty()) {
-            return "Clear %s".formatted(what);
-        }
-        return "Set %s to %s".formatted(what, StringUtils.abbreviate(value, 100));
+    protected ExperimentSnapshot doSnapshotAfter(ExperimentEntity experiment, @Nullable ExperimentModel model) {
+        return snapshotMapper.createSnapshot(experiment, isAffectsAttachments(), isAffectsACL(), model);
     }
 
-    public String formatSetterSummary(String what, @Nullable List<DictionaryItemRef> value) {
-        if (value == null || value.isEmpty()) {
-            return "Clear %s".formatted(what);
-        }
-        if (value.size() == 1) {
-            return "Set %s to [%s]".formatted(what, value.getFirst());
-        }
-        return "Set %s to [%s, ...]".formatted(what, value.getFirst());
-    }
+    protected void doRecalculateModel(ExperimentEntity experiment, ExperimentModel model, MutationContext context) {
+        reactionCalculator.recalculate(model);
 
-    public String formatSetterSummaryNoDetails(String what, boolean isPresent) {
-        if (!isPresent) {
-            return "Clear %s".formatted(what);
-        }
-        return "Updated %s".formatted(what);
-    }
-
-    @Nullable
-    public SaltCodeInfo saltCodeInfo(@Nullable DictionaryItemRef ref) {
-        return ref != null ? dictionaryService.getSaltInfo(ref.getId()) : null;
-    }
-
-    public Object getSampleIdentifier(SampleEntity sample) {
-        if (sample.getStrCode() != null) {
-            return sample.getStrCode();
-        }
-        return "unknown sample";
-    }
-
-    public ReactionMutation.UndoResolveInputs.RowUndo setInputLineSample(ReactionInput row, SampleEntity sample, MutationContext context, InputSampleAnchor anchor) {
-        CompoundRef oldCompound = row.getCompound();
-        row.setCompound(compoundService.realCompoundRef(sample.getCompound()));
-
-        ReactionInputSample reactionInputSample = ReactionInputSample.create(row, anchor);
-        reactionInputSample.setSampleId(sample.getId());
-        reactionInputSample.setStrCode(sample.getStrCode());
-        reactionInputSample.setDensity(EnteredValue.defaultValue(sample.getDensity(), DensityUnit.G_ML));
-        reactionInputSample.setMolarity(EnteredValue.defaultValue(sample.getMolarity(), sample.getMolarityUnit()));
-        reactionInputSample.setPurity(sample.getPurity() != null ? EnteredValue.defaultValue(sample.getPurity(), NoUnit.NO_UNIT) : DEFAULT_ONE);
-        reactionInputSample.setHealthHazards(dictionaryMapper.itemToRefList(sample.getHealthHazards()));
-        reactionInputSample.setComment(sample.getBatchComment());
-        reactionInputSample.setNbkBatchNumber(sample.getNbkBatchNumber());
-        List<ReactionInputSample> oldSamples = row.getSamples();
-        row.setSamples(List.of(reactionInputSample));
-        String oldChemicalName = row.getChemicalName();
-        row.setChemicalName(sample.getCompound().getChemicalName());
-
-        context.getAffectedRoles().add(row.getRole());
-
-        return new ReactionMutation.UndoResolveInputs.RowUndo(oldCompound, oldSamples, oldChemicalName);
-    }
-
-    public ReactionInput createInputLine(ExperimentEntity experiment, Reaction reaction, @Nullable IndigoMolecule molecule, ReactionRole role, @Nullable Pair<InputAnchor, InputSampleAnchor> anchors) {
-        ReactionInput row = ReactionInput.create(reaction, role, anchors != null ? anchors.a() : experiment.generateNextAnchor(InputAnchor.class));
-        row.setCompound(molecule != null
-                ? compoundService.virtualCompoundRef(molecule, null, null, null)
-                : compoundService.unknownCompoundRef());
-        row.setEq(DEFAULT_ONE);
-        ReactionInputSample reactionInputSample = ReactionInputSample.create(row, anchors != null ? anchors.b() : experiment.generateNextAnchor(InputSampleAnchor.class));
-        reactionInputSample.setPurity(DEFAULT_ONE);
-        row.setSamples(List.of(reactionInputSample));
-        return row;
-    }
-
-    public ReactionOutput createOutputLine(Reaction reaction, IndigoMolecule molecule, OutputAnchor anchor) {
-        ReactionOutput row = ReactionOutput.create(reaction, reaction.getFinalOutput() != null ? ReactionOutputType.BY_PRODUCT : ReactionOutputType.FINAL, anchor);
-        row.setOutputName(reaction.generateNextProductName());
-        row.setCompound(compoundService.virtualCompoundRef(molecule, null, null, null));
-        row.setEq(DEFAULT_ONE);
-        row.setSamples(List.of());
-        return row;
-    }
-
-    public void adjustLimitingInput(Reaction reaction) {
-        ReactionInput limiting = null;
-        for (@Valid ReactionInput input : reaction.getInputs()) {
-            if (input.isLimiting()) {
-                if (limiting == null) {
-                    limiting = input;
-                } else {
-                    input.setLimiting(false);
+        boolean anyRxnfileChanged = false;
+        for (Reaction reaction : model.getReactions()) {
+            if (!Objects.equals(reaction.getRxnfile(), previousRxnFiles.get(reaction.getAnchor())) || !context.getAffectedRoles().isEmpty()) {
+                anyRxnfileChanged = true;
+                IndigoReaction indigoReaction = reaction.getRxnfile() == null ? indigoAPI.createReaction() : indigoAPI.loadReaction(reaction.getRxnfile());
+                if (!context.getAffectedRoles().isEmpty()) {
+                    experimentModelHelperService.rebuildReactionRxnFile(experiment, reaction, context.getAffectedRoles(), indigoReaction);
                 }
+                experimentModelHelperService.rebuildReactionPicture(experiment, reaction, indigoReaction);
+                reaction.setRxnVersion(reaction.getRxnVersion() + 1);
             }
         }
-        if (limiting == null && !reaction.getInputs().isEmpty()) {
-            reaction.getInputs().getFirst().setLimiting(true);
+
+        if (anyRxnfileChanged) {
+            List<String> rxnFiles = StreamEx.of(model.getReactions())
+                    .map(Reaction::getRxnfile)
+                    .collect(StreamUtil.toListNotNull());
+            experiment.setRxnfiles(rxnFiles);
+        }
+
+        Set<Pair<ReactionRole, CompoundRef>> currentCompoundRefs = ExperimentModelUtil.collectCompoundRefs(model);
+        if (!previousCompoundRefs.equals(currentCompoundRefs)) {
+            Set<ExperimentReferencedCompound> ids = StreamEx.of(currentCompoundRefs)
+                    .filter(p -> p.b().getCompoundID() != null)
+                    .map(p -> new ExperimentReferencedCompound(p.a(), p.b().getCompoundID()))
+                    .toSet();
+            experiment.setReferencedCompounds(ids);
         }
     }
 
-    public CompoundRef doApplySetSaltCodeEQStereoisomerCode(ReactionRow row, @Nullable SaltCodeInfo saltCode, @Nullable Double saltEQ, @Nullable DictionaryItemRef stereoisomerCode) {
-        switch (row.getCompound()) {
-            case CompoundRef.Virtual v -> {
-                // normalize saltEQ
-                if (saltCode != null && saltEQ == null) {
-                    saltEQ = 1.0;
-                } else if (saltCode == null) {
-                    saltEQ = null;
+    protected void doValidateModel(ExperimentEntity experiment, ExperimentModel model) {
+        Set<ConstraintViolation<ExperimentModel>> violations = validator.validate(model);
+        if (!violations.isEmpty()) {
+            log.error("Mutation produced invalid model:\n{}", StreamEx.of(violations).joining("\n"));
+            throw new RuntimeException("Mutation produced invalid model:\n" + StreamEx.of(violations).joining("\n"));
+        }
+
+        try {
+            // check all parent links are correct
+            for (Reaction reaction : model.getReactions()) {
+                Preconditions.checkState(reaction.getModel() == model);
+                for (ReactionInput input : reaction.getInputs()) {
+                    Preconditions.checkState(input.getReaction() == reaction);
+                    for (ReactionInputSample sample : input.getSamples()) {
+                        Preconditions.checkState(sample.getRow() == input);
+                    }
                 }
-                CompoundEntity compound = compoundService.getCompound(v.getCompoundID());
-                IndigoMolecule molecule = indigoAPI.get().loadMolecule(compound.getMolFile());
-                return compoundService.virtualCompoundRef(molecule, stereoisomerCode, saltCode, saltEQ);
+                for (ReactionOutput output : reaction.getOutputs()) {
+                    Preconditions.checkState(output.getReaction() == reaction);
+                    for (ReactionOutputSample sample : output.getSamples()) {
+                        Preconditions.checkState(sample.getRow() == output);
+                    }
+                }
             }
-            case CompoundRef.Stored s -> throw new InvalidRequestException("Cannot modify saltCode/saltEQ/stereoisomerCode for registered compound");
-            case CompoundRef.Unknown u -> throw new InvalidRequestException("Cannot set saltCode/saltEQ/stereoisomerCode for unknown compound");
+            // check anchors are unique
+            Map<Integer, Integer> anchors = new HashMap<>();
+            for (Reaction reaction : model.getReactions()) {
+                anchors.merge(reaction.getAnchor().getNumber(), 1, Integer::sum);
+                for (ReactionInput input : reaction.getInputs()) {
+                    anchors.merge(input.getAnchor().getNumber(), 1, Integer::sum);
+                    for (ReactionInputSample sample : input.getSamples()) {
+                        anchors.merge(sample.getAnchor().getNumber(), 1, Integer::sum);
+                    }
+                }
+                for (ReactionOutput output : reaction.getOutputs()) {
+                    anchors.merge(output.getAnchor().getNumber(), 1, Integer::sum);
+                    for (ReactionOutputSample sample : output.getSamples()) {
+                        anchors.merge(sample.getAnchor().getNumber(), 1, Integer::sum);
+                    }
+                }
+            }
+            anchors.forEach((anchor, count) -> {
+                Preconditions.checkState(count <= 1, "Anchor %s used multiple times", anchor);
+                Preconditions.checkState(anchor <= experiment.getLastUsedAnchor());
+            });
+        } catch (Exception e) {
+            throw new RuntimeException("Mutation produced invalid model: " + e.getMessage(), e);
         }
     }
 }

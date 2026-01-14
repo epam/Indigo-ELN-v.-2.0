@@ -27,10 +27,10 @@ public class CompoundRefDiffHandler extends AbstractDiffHandler<CompoundRef, Com
         patch.setFormula(diff(updated, a, b, CompoundRef::getFormula));
         patch.setStereoisomerCode(diff(updated, a, b, CompoundRef::getStereoisomerCode));
         patch.setSaltCode(diff(updated, a, b, CompoundRef::getSaltCode));
-        patch.setSaltEQ(diff(updated, a, b, CompoundRef::getSaltEQ));
+        patch.setSaltEQ(diff(updated, a, b, CompoundRef::getSaltEQ, FloatDiffHandler.INSTANCE));
         patch.setCompoundKey(diff(updated, a, b, CompoundRef::getCompoundKey));
         patch.setMolWeight(diff(updated, a, b, CompoundRef::getMolWeight, EnteredValueDiffHandler.instance()));
-        patch.setExactMass(diff(updated, a, b, CompoundRef::getExactMass));
+        patch.setExactMass(diff(updated, a, b, CompoundRef::getExactMass, FloatDiffHandler.INSTANCE));
         patch.setCasNumber(diff(updated, a, b, CompoundRef::getCasNumber));
         patch.setCalculatedBatchMF(diff(updated, a, b, CompoundRef::getCalculatedBatchMF));
         return updated.isSet() ? Patched.updated(patch) : null;

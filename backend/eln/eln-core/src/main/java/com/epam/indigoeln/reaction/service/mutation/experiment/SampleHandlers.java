@@ -3,18 +3,18 @@ package com.epam.indigoeln.reaction.service.mutation.experiment;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.*;
-import com.epam.indigoeln.reaction.model.units.*;
+import com.epam.indigoeln.reaction.model.units.DensityUnit;
+import com.epam.indigoeln.reaction.model.units.MolarityUnit;
+import com.epam.indigoeln.reaction.model.units.NoUnit;
+import com.epam.indigoeln.reaction.model.units.VolumeUnit;
 import com.epam.indigoeln.reaction.service.mutation.*;
 import com.google.common.base.Preconditions;
 import jakarta.enterprise.context.Dependent;
-import jakarta.inject.Inject;
 import org.jspecify.annotations.Nullable;
-
-import static com.epam.indigoeln.reaction.model.units.EnteredValue.userLastEntered;
 
 @Dependent
 @MutationHandlerFor(ReactionInputSampleMutation.SetInputDensity.class)
-class SetInputDensityHandler extends ReactionInputSampleMutationHandler<ReactionInputSampleMutation.SetInputDensity, MutationRedoInfo> {
+class SetInputDensityHandler extends AbstractReactionInputSampleMutationHandler<ReactionInputSampleMutation.SetInputDensity, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputDensity mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
@@ -42,7 +42,7 @@ class SetOutputDensityHandler extends AbstractReactionOutputSampleMutationHandle
 
 @Dependent
 @MutationHandlerFor(ReactionInputSampleMutation.SetInputMolarity.class)
-class SetInputMolarityHandler extends ReactionInputSampleMutationHandler<ReactionInputSampleMutation.SetInputMolarity, MutationRedoInfo> {
+class SetInputMolarityHandler extends AbstractReactionInputSampleMutationHandler<ReactionInputSampleMutation.SetInputMolarity, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputMolarity mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
@@ -70,7 +70,7 @@ class SetOutputMolarityHandler extends AbstractReactionOutputSampleMutationHandl
 
 @Dependent
 @MutationHandlerFor(ReactionInputSampleMutation.SetInputPurity.class)
-class SetInputPurityHandler extends ReactionInputSampleMutationHandler<ReactionInputSampleMutation.SetInputPurity, MutationRedoInfo> {
+class SetInputPurityHandler extends AbstractReactionInputSampleMutationHandler<ReactionInputSampleMutation.SetInputPurity, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputPurity mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
@@ -98,7 +98,7 @@ class SetOutputPurityHandler extends AbstractReactionOutputSampleMutationHandler
 
 @Dependent
 @MutationHandlerFor(ReactionInputSampleMutation.SetInputVolume.class)
-class SetInputVolumeHandler extends ReactionInputSampleMutationHandler<ReactionInputSampleMutation.SetInputVolume, MutationRedoInfo> {
+class SetInputVolumeHandler extends AbstractReactionInputSampleMutationHandler<ReactionInputSampleMutation.SetInputVolume, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputVolume mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
@@ -132,12 +132,13 @@ class RemoveInputHandler extends AbstractReactionInputMutationHandler<ReactionIn
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.RemoveInput mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
         ReactionInput oldLimiting = reaction.getLimitingInput();
         Preconditions.checkState(oldLimiting != null);
+        int position = reaction.getInputs().indexOf(row);
         reaction.getInputs().remove(row);
         context.getAffectedRoles().add(row.getRole());
         adjustLimitingInput(reaction);
 
         return new MutationResult("Remove input"
                 , null
-                , new ReactionMutation.UndoRemoveInput(reaction.getAnchor(), row, oldLimiting.getAnchor()));
+                , new ReactionMutation.UndoRemoveInput(reaction.getAnchor(), row, position, oldLimiting.getAnchor()));
     }
 }

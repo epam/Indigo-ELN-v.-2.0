@@ -37,7 +37,8 @@ public interface ReactionOutputMutation extends Mutation {
 
     record SetOutputRowEQ(
             @NotNull OutputAnchor anchor,
-            @Nullable Double eq
+            @Nullable Double eq,
+            @Nullable EnteredValueSource source
     ) implements ReactionOutputMutation {
     }
 

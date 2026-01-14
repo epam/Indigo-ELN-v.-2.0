@@ -57,6 +57,7 @@ public interface ReactionMutation extends Mutation {
     record UndoRemoveInput (
         @NotNull ReactionAnchor anchor,
         @NotNull ReactionInput input,
+        @NotNull Integer position,
         @NotNull InputAnchor limitingInput
     ) implements ReactionMutation {
     }

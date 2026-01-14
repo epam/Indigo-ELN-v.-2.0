@@ -19,8 +19,9 @@ import java.time.ZonedDateTime;
 @MappedSuperclass
 public abstract class BaseRevisionEntity {
 
+    @Id
     @NotNull
-    @Column(insertable = false, updatable = false)
+    @Column(updatable = false)
     private Integer revision;
 
     @NotNull

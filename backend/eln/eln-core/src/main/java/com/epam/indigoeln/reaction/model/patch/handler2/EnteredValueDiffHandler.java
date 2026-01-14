@@ -34,7 +34,7 @@ public class EnteredValueDiffHandler<U extends MeasurementUnit> extends Abstract
     protected Patched<EnteredValue<U>, EnteredValuePatch<U>> doCompare(@Nullable EnteredValue<U> a, EnteredValue<U> b) {
         EnteredValuePatch<U> patch = new EnteredValuePatch<>();
         Flag updated = new Flag();
-        patch.setValue(diff(updated, a, b, EnteredValue::getValue)); // !!! precision???
+        patch.setValue(diff(updated, a, b, EnteredValue::getValue, FloatDiffHandler.INSTANCE));
         patch.setUnit(diff(updated, a, b, EnteredValue::getUnit));
         patch.setSource(diff(updated, a, b, EnteredValue::getSource));
         patch.setConflict(diff(updated, a, b, EnteredValue::isConflict, DefaultDiffHandler.DEFAULT_FALSE_INSTANCE));

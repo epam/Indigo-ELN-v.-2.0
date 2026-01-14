@@ -40,7 +40,7 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     ReactionOutputSample output2Sample2;
 
     @BeforeAll
-    void setUp(@TempDir Path tempDir) {
+    void setUpClass(@TempDir Path tempDir) {
         miscClient.loadCompoundsFromFileClient("compounds.sdf", tempDir, loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"));
         healthHazard = dictionaryClient.getDictionary(BuiltInDictionary.HEALTH_HAZARD).getFirst();
         withUser(JOHN_USERNAME, () -> {
@@ -137,7 +137,7 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     @Test
     @Order(600)
     void testSetInputEQ() {
-        applyMutation(new ReactionInputMutation.SetInputRowEQ(input2.getAnchor(), 2.0));
+        applyMutation(new ReactionInputMutation.SetInputRowEQ(input2.getAnchor(), 2.0, null));
     }
 
     @Test

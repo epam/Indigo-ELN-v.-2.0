@@ -12,7 +12,6 @@ import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
 import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
 import com.epam.indigoeln.reaction.service.mutation.*;
 import jakarta.enterprise.context.Dependent;
-import jakarta.inject.Inject;
 import org.jspecify.annotations.Nullable;
 
 import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;

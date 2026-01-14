@@ -60,7 +60,6 @@ public class ProjectService {
         return wrapConstraintViolation(() -> {
             aclService.ensureTopLevelAccess(ApplicationPermission.CREATE_PROJECTS);
             applyMutation(project, projectMapper.requestToMutation(request));
-            projectRepository.persist(project);
             projectRepository.flushAndRefresh(project);
             return getProject(project.getId());
         }, e -> mapConstraintToError(e, project));
@@ -115,6 +114,9 @@ public class ProjectService {
         MutationResult result = handler.handle(project, mutation, null, context);
 
         updateDates(project, userService.getCurrentUserEntity());
+        if (project.getId() == null) {
+            projectRepository.persist(project);
+        }
 
         ProjectSnapshot target = snapshotMapper.createSnapshot(project, context);
         ProjectPatch diff = createPatch(initial, target, context);

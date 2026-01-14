@@ -2,37 +2,29 @@ package com.epam.indigoeln.eln.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serializable;
-import java.util.UUID;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "NotebookRevision")
+@IdClass(NotebookRevisionEntity.CompositeID.class)
 public class NotebookRevisionEntity extends BaseRevisionEntity {
 
-    @EmbeddedId
-    private NotebookRevisionID id;
-
+    @Id
     @NotNull
-    @MapsId("notebookId")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(insertable = false, updatable = false)
     private NotebookEntity notebook;
 
-    @Embeddable
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class NotebookRevisionID implements Serializable {
-
-        @Column(name = "notebook_id")
-        private UUID notebookId;
-
-        @Column(name = "revision")
-        private Integer revision;
-    }
+    public record CompositeID(
+            NotebookEntity notebook,
+            Integer revision
+    ) implements Serializable {}
 }

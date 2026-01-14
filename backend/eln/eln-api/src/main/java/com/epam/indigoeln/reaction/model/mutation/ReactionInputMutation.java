@@ -51,7 +51,8 @@ public interface ReactionInputMutation extends Mutation {
 
     record SetInputRowEQ(
             @NotNull InputAnchor anchor,
-            @Nullable Double eq
+            @Nullable Double eq,
+            @Nullable EnteredValueSource source
     ) implements ReactionInputMutation {
     }
 

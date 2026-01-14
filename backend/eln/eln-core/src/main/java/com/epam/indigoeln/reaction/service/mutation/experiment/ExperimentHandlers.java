@@ -60,11 +60,6 @@ class CreateExperimentHandler extends AbstractExperimentMutationHandler<Experime
         int lastNumber = last == null ? 0 : Integer.parseInt(last.substring(last.lastIndexOf('-') + 1));
         return "%s-%04d".formatted(notebook.getName(), lastNumber + 1);
     }
-
-    @Override
-    public void initContext(ExperimentEntity experiment, ExperimentMutation.CreateExperiment mutation, MutationContext context) {
-        // nothing
-    }
 }
 
 @Dependent
@@ -97,11 +92,6 @@ class EditExperimentAttributesHandler extends AbstractExperimentMutationHandler<
         );
         return new MutationResult(entityMutationHelper.formatEditAttributesSummary(summaryList));
     }
-
-    @Override
-    public void initContext(ExperimentEntity experiment, ExperimentMutation.EditExperimentAttributes mutation, MutationContext context) {
-        // nothing
-    }
 }
 
 @Dependent
@@ -118,17 +108,17 @@ class EditExperimentAccessHandler extends AbstractExperimentMutationHandler<Expe
     EntityMutationHelper entityMutationHelper;
 
     @Override
+    protected boolean isAffectsACL() {
+        return true;
+    }
+
+    @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, ExperimentMutation.EditExperimentAccess mutation, MutationRedoInfo redoInfo, MutationContext context) {
         String summary = entityMutationHelper.formatEditAccessSummary(mutation.edits());
         projectRepository.lockProject(experiment.getProject());
         aclService.updateExperimentACL(experiment.getNotebook().getProject(), experiment.getNotebook(), experiment, mutation.edits());
         // !!! create revisions for notebook/project, if they are affected
         return new MutationResult(summary);
-    }
-
-    @Override
-    public void initContext(ExperimentEntity experiment, ExperimentMutation.EditExperimentAccess mutation, MutationContext context) {
-        context.setAffectsACL(true);
     }
 }
 
@@ -140,16 +130,16 @@ class CreateExperimentAttachmentHandler extends AbstractExperimentMutationHandle
     AttachmentRepository attachmentRepository;
 
     @Override
+    protected boolean isAffectsAttachments() {
+        return true;
+    }
+
+    @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, ExperimentMutation.CreateExperimentAttachment mutation, MutationRedoInfo redoInfo, MutationContext context) {
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
         experiment.getAttachments().add(attachment);
         attachment.getExperiments().add(experiment);
         return new MutationResult("Created attachment: %s, %d bytes".formatted(attachment.getName(), attachment.getSize()));
-    }
-
-    @Override
-    public void initContext(ExperimentEntity experiment, ExperimentMutation.CreateExperimentAttachment mutation, MutationContext context) {
-        context.setAffectsAttachments(true);
     }
 }
 
@@ -161,17 +151,17 @@ class DeleteExperimentAttachmentHandler extends AbstractExperimentMutationHandle
     AttachmentRepository attachmentRepository;
 
     @Override
+    protected boolean isAffectsAttachments() {
+        return true;
+    }
+
+    @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, ExperimentMutation.DeleteExperimentAttachment mutation, MutationRedoInfo redoInfo, MutationContext context) {
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
         experiment.getAttachments().remove(attachment);
         attachment.getExperiments().remove(experiment);
         attachment.setDeleted(true);
         return new MutationResult("Deleted attachment: " + attachment.getName());
-    }
-
-    @Override
-    public void initContext(ExperimentEntity experiment, ExperimentMutation.DeleteExperimentAttachment mutation, MutationContext context) {
-        context.setAffectsAttachments(true);
     }
 }
 
@@ -185,24 +175,30 @@ class UndoHandler extends AbstractExperimentMutationHandler<ExperimentMutation.U
     MutationHandlerRegistry mutationHandlerRegistry;
 
     @Override
+    protected boolean isAffectsAttachments() {
+        return true; // !!!
+    }
+
+    @Override
+    protected boolean isAffectsACL() {
+        return true; // !!!
+    }
+
+    @Override
+    protected boolean isAffectsModel() {
+        return true; // !!!
+    }
+
+    @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, ExperimentMutation.Undo mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
         ExperimentRevisionEntity initialRevision = experimentRepository.getRevision(experiment, mutation.revision());
         if (initialRevision.getReverseMutation() == null) {
             throw new MutationNotUndoableException("Cannot undo '%s'".formatted(initialRevision.getSummary()));
         }
         Mutation reverseMutation = initialRevision.getReverseMutation();
-        mutationHandlerRegistry.<ExperimentMutationHandler<Mutation, ?>>findHandler(reverseMutation).handle(experiment, model, reverseMutation, null, context);
+        ExperimentMutationHandler<Mutation, ?> handler = mutationHandlerRegistry.findHandler(reverseMutation);
+        handler.handle(experiment, model, reverseMutation, null, context);
         return new MutationResult("Undo: " + initialRevision.getSummary());
-    }
-
-    @Override
-    public void initContext(ExperimentEntity experiment, ExperimentMutation.Undo mutation, MutationContext context) {
-        ExperimentRevisionEntity initialRevision = experimentRepository.getRevision(experiment, mutation.revision());
-        if (initialRevision.getReverseMutation() == null) {
-            throw new MutationNotUndoableException("Cannot undo '%s'".formatted(initialRevision.getSummary()));
-        }
-        Mutation reverseMutation = initialRevision.getReverseMutation();
-        mutationHandlerRegistry.<ExperimentMutationHandler<Mutation, ?>>findHandler(reverseMutation).initContext(experiment, reverseMutation, context);
     }
 }
 
@@ -216,19 +212,27 @@ class RedoHandler extends AbstractExperimentMutationHandler<ExperimentMutation.R
     MutationHandlerRegistry mutationHandlerRegistry;
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, ExperimentMutation.Redo mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
-        ExperimentRevisionEntity initialRevision = experimentRepository.getRevision(experiment, mutation.revision());
-        // !!! verify revision was undone
-        Mutation initialMutation = initialRevision.getMutation();
-        mutationHandlerRegistry.<ExperimentMutationHandler<Mutation, MutationRedoInfo>>findHandler(initialMutation).handle(experiment, model, initialMutation, initialRevision.getRedoInfo(), context);
-        return new MutationResult("Redo: " + initialRevision.getSummary());
+    protected boolean isAffectsAttachments() {
+        return true; // !!!
     }
 
     @Override
-    public void initContext(ExperimentEntity experiment, ExperimentMutation.Redo mutation, MutationContext context) {
+    protected boolean isAffectsACL() {
+        return true; // !!!
+    }
+
+    @Override
+    protected boolean isAffectsModel() {
+        return true; // !!!
+    }
+
+    @Override
+    public MutationResult handle(ExperimentEntity experiment, @Nullable ExperimentModel model, ExperimentMutation.Redo mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
         ExperimentRevisionEntity initialRevision = experimentRepository.getRevision(experiment, mutation.revision());
         // !!! verify revision was undone
         Mutation initialMutation = initialRevision.getMutation();
-        mutationHandlerRegistry.<ExperimentMutationHandler<Mutation, ?>>findHandler(initialMutation).initContext(experiment, initialMutation, context);
+        ExperimentMutationHandler<Mutation, MutationRedoInfo> handler = mutationHandlerRegistry.findHandler(initialMutation);
+        handler.handle(experiment, model, initialMutation, initialRevision.getRedoInfo(), context);
+        return new MutationResult("Redo: " + initialRevision.getSummary());
     }
 }

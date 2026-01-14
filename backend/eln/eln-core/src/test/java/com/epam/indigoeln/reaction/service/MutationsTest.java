@@ -113,7 +113,7 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testSetInputRowEQ() {
         loadScheme();
-        applyMutation(new ReactionInputMutation.SetInputRowEQ(input1.getAnchor(), 2.0));
+        applyMutation(new ReactionInputMutation.SetInputRowEQ(input1.getAnchor(), 2.0, null));
         assertThat(input1.getEq().getValue()).isEqualTo(2.0);
     }
 
@@ -295,7 +295,7 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testSetOutputRowEQ() {
         loadScheme();
-        applyMutation(new ReactionOutputMutation.SetOutputRowEQ(output1.getAnchor(), 2.0));
+        applyMutation(new ReactionOutputMutation.SetOutputRowEQ(output1.getAnchor(), 2.0, null));
         assertThat(output1.getEq().getValue()).isEqualTo(2.0);
     }
 

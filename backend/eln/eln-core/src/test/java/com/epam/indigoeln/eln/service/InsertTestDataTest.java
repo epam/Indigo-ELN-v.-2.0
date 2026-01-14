@@ -133,7 +133,7 @@ class InsertTestDataTest {
         model = applyMutation(experiment, model, new ReactionInputSampleMutation.SetInputWeight(input1Sample1Anchor, 100.0, WeightUnit.G, null));
 
         // set input eq
-        model = applyMutation(experiment, model, new ReactionInputMutation.SetInputRowEQ(input2Anchor, 2.0));
+        model = applyMutation(experiment, model, new ReactionInputMutation.SetInputRowEQ(input2Anchor, 2.0, null));
 
         // add product sample
         model = applyMutation(experiment, model, new ReactionOutputMutation.AddProductSample(output2Anchor));

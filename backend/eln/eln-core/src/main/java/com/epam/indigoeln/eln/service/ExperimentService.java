@@ -21,12 +21,12 @@ import com.epam.indigoeln.eln.repository.TemplateRepository;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.mutation.MutationContext;
 import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import com.epam.indigoeln.reports.api.ReportsAPI;
 import com.epam.indigoeln.reports.api.ReportsClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Preconditions;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -122,7 +122,7 @@ public class ExperimentService {
 
     public ExperimentSnapshot getExperimentSnapshot(UUID experimentId) {
         ExperimentEntity experiment = experimentRepository.load(experimentId);
-        return snapshotMapper.createSnapshot(experiment, MutationContext.createFull(), () -> experimentModelService.getModel(experiment));
+        return snapshotMapper.createSnapshot(experiment, true, true, experimentModelService.getModel(experiment));
     }
 
     public ExperimentDetailsDTO getExperimentDetails(ExperimentEntity experiment) {
@@ -157,7 +157,7 @@ public class ExperimentService {
     public ExperimentModel mutateModel(UUID experimentId, Mutation mutation) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
-        return experimentModelService.applyMutation(experiment, mutation).a();
+        return Preconditions.checkNotNull(experimentModelService.applyMutation(experiment, mutation).a().getModel());
     }
 
     public ExperimentPatch mutateModel2(UUID experimentId, Integer revision, Mutation mutation) {

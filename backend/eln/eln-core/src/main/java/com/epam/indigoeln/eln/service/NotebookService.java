@@ -68,7 +68,6 @@ public class NotebookService {
             project.getNotebooks().add(notebook);
             notebook.setProject(project);
             applyMutation(notebook, notebookMapper.requestToMutation(request));
-            notebookRepository.persist(notebook);
             notebookRepository.flushAndRefresh(notebook);
             return getNotebook(notebook.getId());
         }, e -> mapConstraintToError(e, notebook));
@@ -120,6 +119,9 @@ public class NotebookService {
         MutationResult result = handler.handle(notebook, mutation, null, context);
 
         updateDates(notebook, userService.getCurrentUserEntity());
+        if (notebook.getId() == null) {
+            notebookRepository.persist(notebook);
+        }
 
         NotebookSnapshot target = snapshotMapper.createSnapshot(notebook, context);
         NotebookPatch diff = createPatch(initial, target, context);

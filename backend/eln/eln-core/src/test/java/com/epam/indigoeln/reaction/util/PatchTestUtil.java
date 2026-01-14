@@ -1,6 +1,7 @@
 package com.epam.indigoeln.reaction.util;
 
 import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
+import com.epam.indigoeln.flyway.util.JsonLocator;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import com.epam.indigoeln.test.FeignUtil;
@@ -9,21 +10,57 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.*;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.EntryStream;
+import org.apache.commons.math3.util.Precision;
 import org.jspecify.annotations.Nullable;
 
-import java.util.*;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 public class PatchTestUtil {
 
-    public static void verifyModel(ExperimentSnapshot actual, ExperimentSnapshot expected, @Nullable CalculationReportBuilder reportBuilder) throws Exception {
+    private static ObjectNode prepareForComparison(ObjectNode root) {
+        JsonNodeFactory nodeFactory = FeignUtil.OBJECT_MAPPER.getNodeFactory();
+        root.set("revision", nodeFactory.textNode("..."));
+        JsonLocator.<ObjectNode>findNodes(root, "model/reactions/*").forEach(reactionJSON -> {
+            reactionJSON.set("rxnVersion", nodeFactory.textNode("..."));
+            reactionJSON.set("rxnfile", nodeFactory.textNode("..."));
+        });
+        return (ObjectNode) cleanupNumbers(nodeFactory, root);
+    }
+
+    private static JsonNode cleanupNumbers(JsonNodeFactory nodeFactory, JsonNode node) {
+        return switch (node) {
+            case NumericNode number -> nodeFactory.numberNode(Precision.round(number.doubleValue(), 6));
+            case ObjectNode object -> {
+                ObjectNode cleaned = nodeFactory.objectNode();
+                object.properties().forEach(entry -> {
+                    cleaned.set(entry.getKey(), cleanupNumbers(nodeFactory, entry.getValue()));
+                });
+                yield cleaned;
+            }
+            case ArrayNode array -> {
+                ArrayNode cleaned = nodeFactory.arrayNode();
+                array.forEach(item -> cleaned.add(cleanupNumbers(nodeFactory, item)));
+                yield cleaned;
+            }
+            default -> node;
+        };
+    }
+
+    public static void verifyModel(ExperimentSnapshot actual, ExperimentSnapshot expected, @Nullable CalculationReportBuilder reportBuilder, Supplier<String> messageFn) throws Exception {
+        JsonNode actualJSON = FeignUtil.OBJECT_MAPPER.readTree(FeignUtil.OBJECT_MAPPER.writeValueAsBytes(actual));
+        JsonNode expectedJSON = FeignUtil.OBJECT_MAPPER.readTree(FeignUtil.OBJECT_MAPPER.writeValueAsBytes(expected));
+        actualJSON = prepareForComparison((ObjectNode) actualJSON);
+        expectedJSON = prepareForComparison((ObjectNode) expectedJSON);
         assertObjectsEqual(reportBuilder
                 , null
-                , FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(actual)
-                , FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(expected)
-                , "Model after undo/redo (right) not equals to model after initial operation (left)"
+                , actualJSON
+                , expectedJSON
+                , messageFn.get()
         );
     }
 
@@ -45,12 +82,12 @@ public class PatchTestUtil {
         String patchStr = FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(patch);
         JsonNode appliedWithJSON = JSONPatcher.EXPERIMENT_INSTANCE.apply(initialJSON.deepCopy(), FeignUtil.OBJECT_MAPPER.readTree(patchStr));
 
-        String expected = FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(minimizeJSON(updatedJSON.deepCopy()));
-        String applied = FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(minimizeJSON(appliedWithJSON.deepCopy()));
-        assertObjectsEqual(reportBuilder, patchStr, applied, expected, "Model (right) with applied patch (left) not equals to expected (middle)");
+        assertObjectsEqual(reportBuilder, patchStr, prepareForComparison((ObjectNode) minimizeJSON(appliedWithJSON)), prepareForComparison((ObjectNode) minimizeJSON(updatedJSON)), "Model (right) with applied patch (left) not equals to expected (middle)");
     }
 
-    private static void assertObjectsEqual(@Nullable CalculationReportBuilder reportBuilder, @Nullable String patch, String actual, String expected, String message) throws JsonProcessingException {
+    private static void assertObjectsEqual(@Nullable CalculationReportBuilder reportBuilder, @Nullable String patch, JsonNode actualJSON, JsonNode expectedJSON, String message) throws JsonProcessingException {
+        String expected = FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(minimizeJSON(expectedJSON.deepCopy()));
+        String actual = FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(minimizeJSON(actualJSON.deepCopy()));
         try {
             assertThat(actual).isEqualTo(expected);
         } catch (AssertionError e) {

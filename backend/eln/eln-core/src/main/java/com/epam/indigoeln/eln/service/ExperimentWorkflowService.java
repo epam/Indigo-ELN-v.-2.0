@@ -70,10 +70,8 @@ public class ExperimentWorkflowService {
 
     public ExperimentDetailsDTO completeAndSubmitExperiment(UUID experimentId, UUID signatureTemplateId) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
-        Mutation mutation1 = new ExperimentMutation.CompleteExperiment();
-        experimentModelService.applyMutation(experiment, mutation1);
-        Mutation mutation = new ExperimentMutation.SubmitExperiment(signatureTemplateId);
-        experimentModelService.applyMutation(experiment, mutation);
+        experimentModelService.applyMutation(experiment, new ExperimentMutation.CompleteExperiment());
+        experimentModelService.applyMutation(experiment, new ExperimentMutation.SubmitExperiment(signatureTemplateId));
         return experimentService.getExperimentDetails(experiment);
     }
 
