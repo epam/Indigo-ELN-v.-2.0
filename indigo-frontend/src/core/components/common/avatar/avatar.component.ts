@@ -10,6 +10,5 @@ import { Component, Input } from '@angular/core';
 })
 export class AvatarComponent {
   @Input() img = 'assets/avatar-placeholder.png';
-  // @Input() initials?: string;
   @Input() classList = '';
 }
