@@ -11,7 +11,9 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 import { toHTML } from 'ngx-editor';
 import { catchError, of } from 'rxjs';
 import { NOTEBOOK_NAME_LENGTH } from '../notebook.constants';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '@/core/services/notification/notification.service';
+import { NotificationType } from '@/core/types/notification.i';
+
 @Component({
   standalone: true,
   selector: 'eln-notebook-edit',
@@ -26,7 +28,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 })
 export class NotebookEditComponent {
   notebookId: string;
-  private snackBar = inject(MatSnackBar);
+  private notificationService = inject(NotificationService);
   dialogRef = inject(MatDialogRef);
   notebook: Partial<Notebook> = {};
   fields: FormlyFieldConfig[] = [
@@ -86,7 +88,12 @@ export class NotebookEditComponent {
           const errorMsg =
             editError.error[0]?.message ||
             'There was an error creating the notebook, please try again later.';
-          this.snackBar.open(errorMsg, 'Close', { duration: 5000 });
+
+          this.notificationService.notify({
+            message: errorMsg,
+            type: NotificationType.Error,
+            isInline: false,
+          });
           return of(null);
         }),
       )
