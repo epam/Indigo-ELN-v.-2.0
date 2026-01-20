@@ -19,6 +19,7 @@ import { NotebookAddComponent } from '@pages/notebook/notebook-add/notebook-add.
 import {
   ProjectOverviewWidgetDirective
 } from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 enum projectInfoModalEnum {
   EDIT = 'edit',
@@ -53,6 +54,7 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
   isUploadingAttachment = false;
 
   private destroy$ = new Subject<void>();
+  private snackBar = inject(MatSnackBar);
 
   projectTeamConfig: TeamComponentConfig = {
     title: 'Project Team',
@@ -162,6 +164,8 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
       .subscribe((result) => {
         if (result === 'refresh') {
           this.loadProject(this.project.id);
+          const errorMsg = "Project details successfully updated.";
+          this.snackBar.open(errorMsg, 'Close', { duration: 5000 });
         }
       });
   }
