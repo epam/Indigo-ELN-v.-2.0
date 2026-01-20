@@ -1,5 +1,10 @@
 import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
-import { UUID } from '@core/types/entities/experiments/experiment-shared.i';
+import {
+  ReactionRole,
+  UUID,
+} from '@core/types/entities/experiments/experiment-shared.i';
+import { ExperimentStatus } from '@core/enums/experiment-status.enum';
+import { UserMetadata } from '@core/types/entities/user.i';
 
 export enum StructuralSearchType {
   EXACT = 'EXACT',
@@ -68,7 +73,7 @@ export type NumericSearch =
 export interface FindSamplesRequest {
   quickSearch?: string;
   structure?: StructuralSearch;
-  strCode?: TextSearch;
+  compoundKey?: TextSearch;
   nbkBatchNumber?: TextSearch;
   casNumber?: TextSearch;
   externalNumber?: TextSearch;
@@ -105,4 +110,33 @@ export interface Sample {
   saltCode?: DictionaryItemRef;
   saltEQ?: number;
   compoundID: UUID;
+}
+
+export interface GlobalSearchRequest {
+  query?: string;
+  therapeuticArea?: DictionaryItemRef;
+  projectCode?: DictionaryItemRef;
+  experimentStatus?: ExperimentStatus[];
+  author?: UserMetadata[];
+  batchYield?: NumericSearch;
+  batchPurity?: NumericSearch;
+  moleculeStructure?: StructuralSearch;
+  reactionRole?: ReactionRole;
+  reactionStructure?: StructuralSearch;
+}
+
+export enum GlobalSearchEntityType {
+  PROJECT = 'PROJECT',
+  NOTEBOOK = 'NOTEBOOK',
+  EXPERIMENT = 'EXPERIMENT',
+}
+
+export interface GlobalSearchResult {
+  id: string;
+  createdBy: UserMetadata;
+  type: GlobalSearchEntityType;
+  name: string;
+  fragment?: string;
+  reactionRoles?: ReactionRole[];
+  experimentStatus?: ExperimentStatus;
 }

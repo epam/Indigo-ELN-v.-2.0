@@ -2,12 +2,12 @@ import { CommonModule } from '@angular/common';
 import {
   Component,
   DestroyRef,
-  inject,
-  OnInit,
-  ViewChild,
-  Input,
-  Output,
   EventEmitter,
+  inject,
+  Input,
+  OnInit,
+  Output,
+  ViewChild,
 } from '@angular/core';
 import {
   FormControl,
@@ -38,7 +38,7 @@ import {
   DictionaryItemRef,
 } from '@core/types/entities/dictionary.i';
 import { NumericSearchComponent } from '@core/components/common/numeric-search/numeric-search.component';
-import { DropdownValueComponent } from '@core/components/experiment/dropdown-value/dropdown-value.component';
+import { MatChipRow, MatChipSet } from '@angular/material/chips';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import {
   ColumnDefDirective,
@@ -61,6 +61,20 @@ import { MatTab, MatTabGroup } from '@angular/material/tabs';
 import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
+import { DictionarySelectComponent } from '@core/components/common/dictionary-select/dictionary-select.component';
+import {
+  dictionarySearchSummary,
+  isFormValueNotEmpty,
+  numericSearchSummary,
+  setEnabled,
+  textSearchSummary,
+} from '@core/utils/search.util';
+import { ButtonComponent } from '@core/components/common/button/button.component';
+
+export interface SampleSearchDialogData {
+  experimentId: UUID;
+  reactionAnchor: ReactionAnchor;
+}
 
 @Component({
   standalone: true,
@@ -78,7 +92,6 @@ import { MatButtonModule } from '@angular/material/button';
     MatExpansionPanelTitle,
     TextSearchComponent,
     NumericSearchComponent,
-    DropdownValueComponent,
     MatProgressSpinner,
     ExpandableTableComponent,
     ColumnDefDirective,
@@ -91,7 +104,11 @@ import { MatButtonModule } from '@angular/material/button';
     MatIcon,
     MatFormFieldModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    DictionarySelectComponent,
+    MatChipSet,
+    MatChipRow,
+    ButtonComponent,
   ],
   templateUrl: './sample-search.component.html',
 })
@@ -105,7 +122,7 @@ export class SampleSearchComponent implements OnInit {
 
   @ViewChild('advancedSearchPanel') advancedSearchPanel: MatExpansionPanel;
 
-  service = inject(ApiService);
+  apiService = inject(ApiService);
   destroyRef = inject(DestroyRef);
   dialog = inject(MatDialog);
   experimentModelService = inject(ExperimentModelService);
@@ -115,9 +132,10 @@ export class SampleSearchComponent implements OnInit {
   form = new FormGroup({
     quickSearch: new FormControl<string | null>(null),
     structureSearchType: new FormControl<StructuralSearchType>(
-      StructuralSearchType.EXACT,
+      StructuralSearchType.SUBSTRUCTURE,
     ),
-    strCode: new FormControl<TextSearch | null>(null),
+    structure: new FormControl<string | null>(null),
+    compoundKey: new FormControl<TextSearch | null>(null),
     nbkBatchNumber: new FormControl<TextSearch | null>(null),
     molecularFormula: new FormControl<TextSearch | null>(null),
     molWeight: new FormControl<NumericSearch | null>(null),
@@ -128,36 +146,32 @@ export class SampleSearchComponent implements OnInit {
     casNumber: new FormControl<TextSearch | null>(null),
     marked: new FormControl<boolean>(false),
   });
-  structureMolFile: string | null = null;
   structureImage: string | null = null;
+  formNotEmpty = false;
 
-  advancedSearchSummary: string[][] | null = null;
-  compoundStateOptions: DictionaryItemRef[];
-  healthHazardsOptions: DictionaryItemRef[];
+  advancedSearchSummary: string[] | null = null;
 
 
   ngOnInit(): void {
     this.loader = new InfiniteSearchLoader<FindSamplesRequest, Sample>(
       (searchParams, pageNo) =>
-        this.service.request(
+        this.apiService.request(
           'post',
           `samples/search?pageNo=${pageNo}&pageSize=20`,
           searchParams,
         ),
     );
-    this.service
-      .request<
-        DictionaryItemRef[]
-      >('get', `dictionaries/${BuiltInDictionary.COMPONENT_STATE}`)
-      .subscribe((list) => {
-        this.compoundStateOptions = list;
-      });
-    this.service
-      .request<
-        DictionaryItemRef[]
-      >('get', `dictionaries/${BuiltInDictionary.HEALTH_HAZARD}`)
-      .subscribe((list) => {
-        this.healthHazardsOptions = list;
+    this.form.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((formValues) => {
+        setEnabled(
+          this.form.get('structureSearchType'),
+          formValues.structure != null,
+          false,
+        );
+        this.formNotEmpty = Object.entries(formValues)
+          .filter(([k, _]) => k !== 'structureSearchType' && k !== 'marked')
+          .some(([_, v]) => isFormValueNotEmpty(v));
       });
 
     this.form.valueChanges
@@ -178,30 +192,24 @@ export class SampleSearchComponent implements OnInit {
   updateAdvancedSearchSummary(show: boolean) {
     if (show) {
       let parts = [
-        this.textSearchSummary('Compound ID', this.form.value.strCode),
-        this.textSearchSummary(
-          'NBK Batch Number',
-          this.form.value.nbkBatchNumber,
-        ),
-        this.textSearchSummary(
+        textSearchSummary('Compound ID', this.form.value.compoundKey),
+        textSearchSummary('NBK Batch Number', this.form.value.nbkBatchNumber),
+        textSearchSummary(
           'Molecular Formula',
           this.form.value.molecularFormula,
         ),
-        this.numericSearchSummary(
-          'Molecular Weight',
-          this.form.value.molWeight,
-        ),
-        this.textSearchSummary('Chemical Name', this.form.value.chemicalName),
-        this.dictionarySearchSummary(
+        numericSearchSummary('Molecular Weight', this.form.value.molWeight),
+        textSearchSummary('Chemical Name', this.form.value.chemicalName),
+        dictionarySearchSummary(
           'Compound State',
           this.form.value.compoundState,
         ),
-        this.textSearchSummary('Batch Comment', this.form.value.batchComment),
-        this.dictionarySearchSummary(
+        textSearchSummary('Batch Comment', this.form.value.batchComment),
+        dictionarySearchSummary(
           'Health Hazards',
           this.form.value.healthHazards,
         ),
-        this.textSearchSummary('CAS Number', this.form.value.casNumber),
+        textSearchSummary('CAS Number', this.form.value.casNumber),
       ];
       parts = parts.filter((part) => part != null);
       this.advancedSearchSummary = parts;
@@ -211,23 +219,42 @@ export class SampleSearchComponent implements OnInit {
   }
 
   performSearch() {
+    const formValue = this.form.value;
+    const {
+      compoundKey,
+      nbkBatchNumber,
+      molecularFormula,
+      molWeight,
+      chemicalName,
+      compoundState,
+      batchComment,
+      healthHazards,
+      casNumber,
+      marked,
+    } = formValue;
     const body: FindSamplesRequest = {
-      ...this.form.value,
-      quickSearch: this.form.value.quickSearch || null,
-      marked: this.form.value.marked ? true : null,
-      structure: this.structureMolFile
-        ? {
-            type: this.form.value.structureSearchType,
-            query: this.structureMolFile,
-          }
-        : null,
+      quickSearch: formValue.quickSearch || null,
+      structure:
+        formValue.structure != null
+          ? { type: formValue.structureSearchType, query: formValue.structure }
+          : null,
+      compoundKey,
+      nbkBatchNumber,
+      molecularFormula,
+      molWeight,
+      chemicalName,
+      compoundState,
+      batchComment,
+      healthHazards,
+      casNumber,
+      marked,
     };
     this.loader.search(body);
     this.advancedSearchPanel.close();
   }
 
   markSample(sample: Sample, mark: boolean) {
-    this.service
+    this.apiService
       .request<Sample>(
         'post',
         `samples/${sample.id}/${mark ? 'mark' : 'unmark'}`,
@@ -254,18 +281,16 @@ export class SampleSearchComponent implements OnInit {
       sampleId: sample.id,
     };
 
-    this.experimentModelService
-      .updateDataModel(mutation)
-      .subscribe({
-        next: () => {
-          console.log('Model updated with new sample');
+    this.experimentModelService.updateDataModel(mutation).subscribe({
+      next: () => {
+        console.log('Model updated with new sample');
 
-          this.close.emit();
-        },
-        error: (error) => {
-          console.error('Failed to update experiment model:', error);
-        },
-      });
+        this.close.emit();
+      },
+      error: (error) => {
+        console.error('Failed to update experiment model:', error);
+      },
+    });
   }
 
   editStructure() {
@@ -279,19 +304,19 @@ export class SampleSearchComponent implements OnInit {
         height: '600px',
         width: '100%',
         isReaction: false,
-        molFile: this.structureMolFile,
+        molFile: this.form.get('structure').value,
       },
     });
     dialogRef.afterClosed().subscribe((result) => {
       if (result?.success) {
-        this.structureMolFile = result.molFile;
+        this.form.get('structure').setValue(result.molFile);
         this.structureImage = URL.createObjectURL(result.molFileImage);
       }
     });
   }
 
   clearStructure() {
-    this.structureMolFile = null;
+    this.form.get('structure').setValue(null);
     this.structureImage = null;
   }
 
@@ -336,4 +361,6 @@ export class SampleSearchComponent implements OnInit {
   clearInput(inputName:string) {
     this.form.get(inputName)?.setValue(null);
   }
+
+  BuildInDictionary = BuiltInDictionary;
 }

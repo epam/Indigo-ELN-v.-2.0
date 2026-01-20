@@ -8,8 +8,8 @@ import { Project } from '@/core/types/entities/project.i';
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { of, Subject, take } from 'rxjs';
-import { catchError, takeUntil } from 'rxjs/operators';
+import { from, of, Subject, take } from 'rxjs';
+import { catchError, concatMap, takeUntil } from 'rxjs/operators';
 import { FileUploadComponent } from "@/core/components/common/file-upload/file-upload.component";
 import { Attachment } from '@/core/types/entities/attachment.i';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -55,7 +55,6 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   projectTeamConfig: TeamComponentConfig = {
-    title: 'Project Team',
     buildAccessEndpoint: (id: string) => `projects/${id}/access`,
   };
 
@@ -81,33 +80,34 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
     }
   }
 
-  onUpload(files: File[]): void {
+  onUpload(newFiles: File[]): void {
     this.isUploadingAttachment = true;
 
-    // Validate file existence
-    const file = files[0];
-    if (!file || !this.project) {
+    if (!newFiles.length || !this.project) {
       console.error('No project or file selected for upload');
       this.isUploadingAttachment = false;
       return;
     }
-    const formData = new FormData();
-    formData.append('file', file, file.name);
 
-    // Use the ApiService request method for file upload
-    this.service.request<Attachment[]>(
-      'post',
-      `projects/${this.project.id}/attachments`,
-      formData,
+    const formDatas = newFiles.map(file => {
+      const formData = new FormData();
+      formData.append('file', file, file.name);
+      return formData;
+    });
+
+    from(formDatas).pipe(
+      concatMap(formData => this.service.request<Attachment[]>(
+        'post',
+        `projects/${this.project!.id}/attachments`,
+        formData,
+      )),
+      catchError((err) => {
+        console.error('Failed to upload attachment:', err);
+        this.isUploadingAttachment = false;
+        return of(null);
+      }),
+      takeUntil(this.destroy$),
     )
-      .pipe(
-        takeUntil(this.destroy$),
-        catchError((err) => {
-          console.error('Failed to upload attachment:', err);
-          this.isUploadingAttachment = false;
-          return of(null);
-        })
-      )
       .subscribe({
         next: (attachments) => {
           if (this.project && attachments) this.project.attachments = attachments;

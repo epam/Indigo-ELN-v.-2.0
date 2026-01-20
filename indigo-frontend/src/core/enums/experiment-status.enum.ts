@@ -8,5 +8,16 @@ export enum ExperimentStatus {
   SIGNED = 'SIGNED',
   ARCHIVED = 'ARCHIVED',
   CANCELLED = 'CANCELLED',
-  WAITING_FOR_SIGNATURE = 'WAITING_FOR_SIGNATURE'
 }
+
+export const ExperimentStatusNames: Record<ExperimentStatus, string> = {
+  OPEN: 'Open',
+  REOPEN: 'Reopen',
+  COMPLETED: 'Completed',
+  SUBMITTED: 'Submitted',
+  SIGNING: 'Signing',
+  REJECTED: 'Rejected',
+  SIGNED: 'Signed',
+  ARCHIVED: 'Archived',
+  CANCELLED: 'Cancelled',
+};

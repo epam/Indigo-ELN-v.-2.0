@@ -1,0 +1,14 @@
+<form [formGroup]="form">
+  <div class="w-full">
+    <eln-autocomplete-select
+      formControlName="search"
+      [search]="search.bind(this)"
+      [display]="displayFn"
+    >
+      <ng-template #optionTemplate let-item>
+        <span class="font-medium text-gray-900">{{ item.displayName }}</span>
+        <span class="text-sm text-gray-500"> {{ item.username }}</span>
+      </ng-template>
+    </eln-autocomplete-select>
+  </div>
+</form>

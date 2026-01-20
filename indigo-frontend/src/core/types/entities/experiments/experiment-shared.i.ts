@@ -56,6 +56,13 @@ export enum ReactionRole {
   OUTPUT = 'OUTPUT',
 }
 
+export const ReactionRoleNames: Record<ReactionRole, string> = {
+  REACTANT: 'Reactant',
+  CATALYST: 'Catalyst',
+  SOLVENT: 'Solvent',
+  OUTPUT: 'Output',
+};
+
 export enum ReactionOutputType {
   FINAL = 'FINAL',
   BY_PRODUCT = 'BY_PRODUCT',

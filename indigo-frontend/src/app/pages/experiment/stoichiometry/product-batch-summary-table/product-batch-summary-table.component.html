@@ -1,0 +1,9 @@
+<eln-editable-data-table
+  title="Product Batch Summary"
+  [dataSource]="dataSource()"
+  [columns]="columns()"
+  [displayedColumns]="displayedColumns()"
+  emptyMessage="No batches added"
+  [showAddButton]="true"
+  (addRow)="addNewRow()"
+/>

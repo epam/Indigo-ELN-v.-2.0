@@ -1,0 +1,7 @@
+.idea
+.git
+.gradle
+build
+!build/lib
+!build/*runner*
+!build/function.zip

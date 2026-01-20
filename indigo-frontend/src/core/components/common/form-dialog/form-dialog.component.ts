@@ -46,6 +46,8 @@ export class FormDialogComponent {
   @Input() hideCancelButton = false;
   @Input() submitButtonText = 'Submit';
   @Input() cancelButtonText = 'Cancel';
+  @Input() submitEnabled = true;
+  @Input() closeOnBackdropClick = false;
   @Input() containerClass = '';
   @Output() formSubmit = new EventEmitter<any>();
   @ContentChild('modalHeader') modalHeader: TemplateRef<unknown> | null = null;
@@ -63,7 +65,10 @@ export class FormDialogComponent {
   }
 
   onBackdropClick(event: MouseEvent): void {
-    if ((event.target as HTMLElement).classList.contains('modal-backdrop')) {
+    if (
+      this.closeOnBackdropClick &&
+      (event.target as HTMLElement).classList.contains('modal-backdrop')
+    ) {
       this.dialogRef.close('backdrop');
     }
   }

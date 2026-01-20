@@ -26,12 +26,10 @@
                     <p class="text-sm text-neutral-800">{{ notebook?.name ?? '' }}</p>
                 </div>
 
-              @if (notebook?.description) {
                 <div>
                   <h3 class="text-neutral-800 mb-2 font-semibold">Notebook Description</h3>
                   <div class="text-sm text-neutral-800 whitespace-pre-line" [innerHTML]="notebook?.description"></div>
                 </div>
-              }
 
                 <!-- TODO: Attachments list and actions -->
             </div>

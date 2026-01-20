@@ -1,0 +1,24 @@
+<form [formGroup]="form">
+  <div>
+    @if (multiple) {
+      <eln-autocomplete-select
+        formControlName="multiple"
+        [search]="search.bind(this)"
+        [display]="displayFn"
+        [allowEmptySearch]="true"
+      >
+        <ng-template #optionTemplate let-item>
+          <span class="font-medium text-gray-900">{{ item.name }}</span>
+        </ng-template>
+      </eln-autocomplete-select>
+    } @else {
+      <div class="border">
+        <eln-dropdown-value
+          formControlName="single"
+          [allowNull]="allowEmpty"
+          [options]="allItems"
+        />
+      </div>
+    }
+  </div>
+</form>

@@ -1,6 +1,6 @@
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import {
   ControlValueAccessor,
   FormControl,
@@ -74,7 +74,7 @@ import { ChipComponent } from '../../common/chip/chip.component';
 })
 export class ChipGridFieldComponent
   extends FieldType<FieldTypeConfig>
-  implements ControlValueAccessor
+  implements ControlValueAccessor, OnInit
 {
   // Separator keys for adding chips
   readonly separatorKeyCodes = [ENTER, COMMA] as const;
@@ -87,6 +87,10 @@ export class ChipGridFieldComponent
 
   onChange = (value: string[]) => {};
   onTouched = () => {};
+
+  ngOnInit(): void {
+    this.items.set(this.field.defaultValue || []);
+  }
 
   // Add new chip from input
   addChipFromInput(event: KeyboardEvent, input: HTMLInputElement): void {

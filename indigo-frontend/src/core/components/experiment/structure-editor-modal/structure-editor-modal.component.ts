@@ -1,10 +1,6 @@
 import { Component, Inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  MAT_DIALOG_DATA,
-  MatDialogModule,
-  MatDialogRef,
-} from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { ButtonComponent } from '../../common/button/button.component';
 import { KetcherComponent } from '../../common/ketcher/ketcher.component';
@@ -15,7 +11,7 @@ import { Reaction } from '@/core/types/entities/experiments/experiment.i';
 interface ModalData {
   height?: string; // Editor height
   width?: string; // Editor width
-  isReaction: boolean; // Edit reaction if true, else edit molecule
+  isReaction?: boolean; // Edit reaction if true, else edit molecule, allow both if null
   reaction?: Reaction; // Reaction data containing rxnfile
   molFile?: string; // Initial molecule file if editing molecule
 }
@@ -56,7 +52,7 @@ export class StructureEditorModalComponent {
     this.ketcherInstance = ketcher;
 
     // Load initial structure from reaction if available
-    const initialStructure = this.data.isReaction
+    const initialStructure = this.data.isReaction === true
       ? this.data.reaction.rxnfile
       : this.data.molFile;
     if (initialStructure) {
@@ -76,7 +72,20 @@ export class StructureEditorModalComponent {
     }
 
     try {
-      if (this.data.isReaction) {
+      let molOrRxnFile: string;
+      if (this.data.isReaction === true) {
+        molOrRxnFile = await this.ketcherInstance.getRxn();
+      } else if (this.data.isReaction === false) {
+        molOrRxnFile = await this.ketcherInstance.getMolfile();
+      } else {
+        molOrRxnFile = this.ketcherInstance.containsReaction()
+            ? await this.ketcherInstance.getRxn()
+            : await this.ketcherInstance.getMolfile();
+      }
+      const image = await this.ketcherInstance.generateImage(molOrRxnFile, {
+        outputFormat: 'svg',
+      });
+      if (this.data.isReaction === true) {
         // Get reaction anchor from experiment model
         const reactionAnchor = this.data?.reaction?.anchor;
         const mutations = await this.mutationBuilder.buildMutationsFromKetcher(
@@ -87,16 +96,16 @@ export class StructureEditorModalComponent {
         this.dialogRef.close({
           success: true,
           mutations,
+          rxnFile: molOrRxnFile,
+          rxnFileImage: image,
         });
       } else {
-        const molFile = await this.ketcherInstance.getMolfile();
-        const image = await this.ketcherInstance.generateImage(molFile, {
-          outputFormat: 'svg',
-        });
         this.dialogRef.close({
           success: true,
-          molFile: molFile,
-          molFileImage: image,
+          ...(this.ketcherInstance.containsReaction()
+            ? { rxnFile: molOrRxnFile, rxnFileImage: image }
+            : { molFile: molOrRxnFile, molFileImage: image }
+          )
         });
       }
     } catch (error) {

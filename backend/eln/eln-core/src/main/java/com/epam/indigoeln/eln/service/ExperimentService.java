@@ -1,0 +1,285 @@
+package com.epam.indigoeln.eln.service;
+
+import com.epam.indigoeln.common.exception.IncorrectRevisionException;
+import com.epam.indigoeln.common.exception.InvalidRequestException;
+import com.epam.indigoeln.common.util.Pair;
+import com.epam.indigoeln.compound.entity.CompoundEntity;
+import com.epam.indigoeln.compound.model.FindSamplesRequest;
+import com.epam.indigoeln.compound.model.StructuralSearch;
+import com.epam.indigoeln.compound.service.CompoundService;
+import com.epam.indigoeln.eln.api.AccessForm;
+import com.epam.indigoeln.eln.config.DataAccess;
+import com.epam.indigoeln.eln.entity.ExperimentEntity;
+import com.epam.indigoeln.eln.entity.NotebookEntity;
+import com.epam.indigoeln.eln.entity.TemplateEntity;
+import com.epam.indigoeln.eln.entity.UserInfo;
+import com.epam.indigoeln.eln.mapper.ExperimentMapper;
+import com.epam.indigoeln.eln.mapper.ProjectMapper;
+import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.repository.ExperimentRepository;
+import com.epam.indigoeln.eln.repository.NotebookRepository;
+import com.epam.indigoeln.eln.repository.ProjectRepository;
+import com.epam.indigoeln.eln.repository.TemplateRepository;
+import com.epam.indigoeln.reaction.model.Anchor;
+import com.epam.indigoeln.reaction.model.ExperimentModel;
+import com.epam.indigoeln.reaction.model.Reaction;
+import com.epam.indigoeln.reaction.model.ReactionInput;
+import com.epam.indigoeln.reaction.model.mutation.Mutation;
+import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
+import com.epam.indigoeln.reaction.service.ExperimentModelPatchService;
+import com.epam.indigoeln.reaction.service.ExperimentModelService;
+import com.epam.indigoeln.reports.api.ReportsAPI;
+import com.epam.indigoeln.reports.api.ReportsClient;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+import jakarta.ws.rs.core.CacheControl;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.Response;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import one.util.streamex.StreamEx;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.jspecify.annotations.Nullable;
+
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static com.epam.indigoeln.common.util.ModelUtil.editProperty;
+import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
+import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
+
+@Slf4j
+@DataAccess
+@Transactional
+@ApplicationScoped
+public class ExperimentService {
+
+    static final byte[] EMPTY_PICTURE = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1\" height=\"1\"/>".getBytes(StandardCharsets.UTF_8);
+    public static final Pattern FILENAME_REGEX = Pattern.compile("filename\\s*=\\s*\"?([^\";]+)\"?", Pattern.CASE_INSENSITIVE);
+
+    @Inject
+    NotebookRepository notebookRepository;
+    @Inject
+    ExperimentRepository experimentRepository;
+    @Inject
+    ACLService aclService;
+    @Inject
+    ExperimentMapper experimentMapper;
+    @Inject
+    UserService userService;
+    @Inject
+    DictionaryService dictionaryService;
+    @Inject
+    ExperimentModelService experimentModelService;
+    @Inject
+    ExperimentModelPatchService experimentModelPatchService;
+    @Inject
+    TemplateRepository templateRepository;
+    @Inject
+    @RestClient
+    ReportsClient reportsClient;
+    @Inject
+    ProjectMapper projectMapper;
+    @Inject
+    ObjectMapper objectMapper;
+    @Inject
+    CompoundService compoundService;
+    @Inject
+    ProjectRepository projectRepository;
+
+    public ExperimentDetailsDTO createExperiment(UUID notebookId, ExperimentRequest request) {
+        NotebookEntity notebook = notebookRepository.get(notebookId);
+        aclService.ensureAccess(notebook, ApplicationPermission.CREATE_EXPERIMENTS);
+        ExperimentEntity experiment = experimentMapper.requestToExperiment(request, ExperimentStatus.OPEN);
+        TemplateEntity template = templateRepository.get(request.getTemplateID());
+        experiment.setName(generateExperimentName(notebook));
+        experiment.setTherapeuticArea(dictionaryService.lookup(BuiltInDictionary.THERAPEUTIC_AREA.name(), request.getTherapeuticArea()));
+        experiment.setProjectCode(dictionaryService.lookup(BuiltInDictionary.PROJECT_CODE.name(), request.getProjectCode()));
+        notebook.getProject().getExperiments().add(experiment);
+        notebook.getExperiments().add(experiment);
+        template.getExperiments().add(experiment);
+        experiment.setProject(notebook.getProject());
+        experiment.setNotebook(notebook);
+        experiment.setTemplate(template);
+        experiment.setModel(experimentModelService.createNewModel());
+        updateDates(experiment, userService.getCurrentUserEntity());
+        aclService.initExperimentACL(experiment);
+        experimentRepository.persist(experiment);
+        experimentRepository.flushAndRefresh(experiment);
+        return getExperimentDetails(experiment);
+    }
+
+    public Page<ExperimentDTO> getExperiments(@Nullable UUID projectId, @Nullable UUID notebookId, @Nullable SortOrder sort, @Nullable Boolean createdByMe, Paging paging) {
+        UserInfo currentUser = Boolean.TRUE.equals(createdByMe) ? userService.getCurrentUser() : null;
+        boolean showAll = userService.getCurrentUser().getPermissions().contains(ApplicationPermission.VIEW_EXPERIMENTS);
+        return experimentRepository.findAll(projectId, notebookId, sort, currentUser, paging, showAll);
+    }
+
+    public List<ExperimentDTO> getMarkedExperiments() {
+        return experimentRepository.findMarked();
+    }
+
+    public ExperimentDetailsDTO getExperiment(UUID experimentId) {
+        ExperimentEntity experiment = experimentRepository.load(experimentId);
+        return getExperimentDetails(experiment);
+    }
+
+    public ExperimentDetailsDTO getExperimentDetails(ExperimentEntity experiment) {
+        Set<ApplicationPermission> currentPermissions = aclService.getCurrentPermissions(experiment.getCalculatedInfo() != null ? experiment.getCalculatedInfo().getCurrentAccess() : null);
+        currentPermissions.retainAll(EnumSet.of(VIEW_EXPERIMENTS, EDIT_EXPERIMENTS, MANAGE_EXPERIMENT_ACCESS, DELETE_EXPERIMENTS, SUBMIT_EXPERIMENTS));
+        return experimentMapper.entityToDetailsDTO(experiment, currentPermissions);
+    }
+
+    public ExperimentDetailsDTO editExperiment(UUID experimentId, ExperimentEditRequest request) {
+        ExperimentEntity experiment = experimentRepository.get(experimentId);
+        aclService.ensureAccess(experiment, ApplicationPermission.EDIT_EXPERIMENTS);
+        editProperty(request.getTherapeuticArea(), v -> {
+            experiment.setTherapeuticArea(dictionaryService.lookup(BuiltInDictionary.THERAPEUTIC_AREA.name(), v));
+        });
+        editProperty(request.getProjectCode(), v -> {
+            experiment.setProjectCode(dictionaryService.lookup(BuiltInDictionary.PROJECT_CODE.name(), v));
+        });
+        updateDates(experiment, userService.getCurrentUserEntity());
+        experimentRepository.flushAndRefresh(experiment);
+        return getExperimentDetails(experiment);
+    }
+
+    public Boolean markExperiment(UUID experimentId, boolean isMarked) {
+        ExperimentEntity experiment = experimentRepository.get(experimentId);
+        aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
+        experimentRepository.markExperiment(experimentId, userService.getCurrentUserEntity(), isMarked);
+        return isMarked;
+    }
+
+    public List<ACLDetailsEntryDTO> updateExperimentAccess(UUID experimentId, List<AccessForm> form) {
+        ExperimentEntity experiment = experimentRepository.get(experimentId);
+        aclService.ensureAccess(experiment, ApplicationPermission.MANAGE_EXPERIMENT_ACCESS);
+        projectRepository.lockProject(experiment.getProject());
+        aclService.updateExperimentACL(experiment.getNotebook().getProject(), experiment.getNotebook(), experiment, form);
+        return experimentMapper.convertDetailsACLList(experiment.getFullACL());
+    }
+
+    public ExperimentModel getModel(UUID experimentId) {
+        ExperimentEntity experiment = experimentRepository.get(experimentId);
+        aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
+        return experiment.getModel();
+    }
+
+    public ExperimentModel mutateModel(UUID experimentId, ExperimentModel model, Mutation mutation) {
+        return doMutateModel(experimentId, model, mutation).a();
+    }
+
+    public ExperimentModelPatch mutateModel2(UUID experimentId, Integer revision, Mutation mutation) {
+        ExperimentEntity experiment = experimentRepository.get(experimentId);
+        ExperimentModel model = experiment.getModel();
+        if (!model.getRevision().equals(revision)) {
+            throw new IncorrectRevisionException(EntityType.EXPERIMENT, experimentId, revision, model.getRevision());
+        }
+        return doMutateModel(experimentId, model, mutation).b();
+    }
+
+    private Pair<ExperimentModel, ExperimentModelPatch> doMutateModel(UUID experimentId, ExperimentModel model, Mutation mutation) {
+        try {
+            // TODO use clone?
+            byte[] initialBytes = objectMapper.writeValueAsBytes(model);
+            ExperimentModel initial = objectMapper.readValue(initialBytes, ExperimentModel.class);
+
+            log.debug("Mutating model for experiment {} with mutation {}", experimentId, mutation);
+            ExperimentEntity experiment = experimentRepository.get(experimentId);
+            model = experimentModelService.applyMutation(experiment, model, mutation);
+            experiment.setModel(model);
+
+            return Pair.of(model, experimentModelPatchService.createPatch(initial, model));
+        } catch (Throwable e) {
+            log.error("Failed to mutate model for experiment {}: {}", experimentId, e.getMessage(), e);
+            throw new RuntimeException("Failed to mutate model: " + e.getMessage(), e);
+        }
+    }
+
+    public byte[] getExperimentPicture(UUID experimentId) {
+        ExperimentEntity experiment = experimentRepository.get(experimentId);
+        aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
+        return experiment.getPicture() != null ? experiment.getPicture() : EMPTY_PICTURE;
+    }
+
+    public Response getReactionPicture(UUID experimentId, Anchor.Reaction reactionAnchor, @Nullable Integer version) {
+        ExperimentEntity experiment = experimentRepository.get(experimentId);
+        aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
+        Reaction reaction = getModel(experimentId).locate(reactionAnchor);
+        CacheControl cacheControl = new CacheControl();
+        if (version != null) {
+            InvalidRequestException.validate(reaction.getRxnVersion() >= version, "Picture version " + version + " doesn't exist for reaction " + reactionAnchor);
+            cacheControl.setMaxAge(3_600 * 24 * 30);
+        }
+        return Response.ok(experiment.getPicture() != null ? experiment.getPicture() : EMPTY_PICTURE, "image/svg+xml")
+                .cacheControl(cacheControl)
+                .build();
+    }
+
+    public Map<Anchor.Input, @Nullable FindSamplesRequest> analyzeRXN(UUID experimentId, Anchor.Reaction reactionAnchor) {
+        ExperimentModel model = getModel(experimentId);
+        Reaction reaction = model.locate(reactionAnchor);
+        return StreamEx.of(reaction.getInputs())
+                .mapToEntry(ReactionInput::getAnchor, input -> {
+                    if (input.getCompound().getCompoundID() != null) {
+                        CompoundEntity compound = compoundService.getCompound(input.getCompound().getCompoundID());
+                        return new FindSamplesRequest()
+                                .withStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, compound.getMolFile()));
+                    }
+                    return null;
+                })
+                .toCustomMap(LinkedHashMap::new);
+    }
+
+    public Response printReport(UUID experimentId) {
+        ExperimentReportContent content = printReport(experimentRepository.loadForReport(experimentId));
+        return Response.ok(content.content)
+                .header(HttpHeaders.CONTENT_DISPOSITION, content.contentDisposition)
+                .header(HttpHeaders.CONTENT_TYPE, content.contentType)
+                .build();
+    }
+
+    @SneakyThrows
+    public ExperimentReportContent printReport(ExperimentEntity experiment) {
+        experimentRepository.loadForReport(experiment.getId());
+        ReportsAPI.ExperimentReportDataDTO data = new ReportsAPI.ExperimentReportDataDTO(
+                projectMapper.entityToDTO(experiment.getProject()),
+                experimentMapper.entityToDetailsDTO(experiment, Set.of()),
+                experiment.getPicture() != null ? new String(experiment.getPicture(), StandardCharsets.UTF_8) : null,
+                experiment.getModel()
+        );
+        try (Response response = reportsClient.generateExperimentReport(data)) {
+            String contentType = response.getHeaderString(HttpHeaders.CONTENT_TYPE);
+            String contentDisposition = response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION);
+            String filename = "report.pdf";
+            Matcher matcher = FILENAME_REGEX.matcher(contentDisposition);
+            if (matcher.find()) {
+                filename = matcher.group(1);
+            }
+            byte[] body = switch (response.getEntity()) {
+                case byte[] bytes -> bytes;
+                case InputStream is -> is.readAllBytes();
+                default -> throw new IllegalStateException("Unexpected response entity type: " + response.getEntity().getClass());
+            };
+            return new ExperimentReportContent(body, contentDisposition, contentType, filename);
+        }
+    }
+
+    private String generateExperimentName(NotebookEntity notebook) {
+        String last = experimentRepository.getLastExperimentName(notebook);
+        int lastNumber = last == null ? 0 : Integer.parseInt(last.substring(last.lastIndexOf('-') + 1));
+        return "%s-%04d".formatted(notebook.getName(), lastNumber + 1);
+    }
+
+    public record ExperimentReportContent (
+            byte[] content,
+            String contentDisposition,
+            String contentType,
+            String filename
+    ) {}
+}

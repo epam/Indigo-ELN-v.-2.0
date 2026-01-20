@@ -1,0 +1,104 @@
+package com.epam.indigoeln.eln.repository;
+
+import com.epam.indigoeln.eln.entity.*;
+import com.epam.indigoeln.eln.mapper.ProjectMapper;
+import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.service.ACLService;
+import com.epam.indigoeln.eln.util.Conditions;
+import com.google.common.base.MoreObjects;
+import io.quarkus.panache.common.Sort;
+import jakarta.annotation.Nullable;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.LockModeType;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Stream;
+
+import static com.epam.indigoeln.eln.model.ApplicationPermission.VIEW_PROJECTS;
+
+@ApplicationScoped
+public class ProjectRepository extends BaseRepository<ProjectEntity> {
+
+    @Inject
+    ProjectMapper projectMapper;
+    @Inject
+    ACLService aclService;
+
+    public ProjectRepository() {
+        super(EntityType.PROJECT);
+    }
+
+    public Page<ProjectDTO> findAll(@Nullable String search, @Nullable SortOrder sort, @Nullable UserEntity createdByUser, Paging paging, boolean showAll) {
+        Sort panacheSort = switch (MoreObjects.firstNonNull(sort, SortOrder.LATEST)) {
+            case EARLIEST -> Sort.ascending("modifiedAt");
+            case LATEST -> Sort.descending("modifiedAt");
+        };
+
+        Conditions conditions = new Conditions()
+                .addIf(!showAll, "calculatedInfo.currentAccess is not null")
+                .addIfNotNull("full_text_search(searchVector, websearch_to_tsquery('english', ?))", search)
+                .addIfNotNull("createdBy = ?", createdByUser);
+
+        return doFindWithTotals(
+                conditions,
+                paging,
+                panacheSort,
+                em.getEntityGraph("Project.list"),
+                projectMapper::entityToDTO
+        );
+    }
+
+    public ProjectEntity loadDetails(UUID id) {
+        ProjectEntity project = doLoadDetails(
+                id,
+                em.getEntityGraph("Project.details"),
+                Function.identity()
+        );
+        aclService.ensureAccess(project, VIEW_PROJECTS);
+        return project;
+    }
+
+    public TotalCounts getTotalCounts() {
+        TotalCountsEntity entity = em.createQuery("from TotalCounts", TotalCountsEntity.class).getSingleResult();
+        return projectMapper.convertTotalCounts(entity);
+    }
+
+    public void lockProject(ProjectEntity project) {
+        em.lock(project, LockModeType.PESSIMISTIC_WRITE);
+    }
+
+    public List<NestedACLEntryDTO> findNestedAccess(UUID projectId) {
+        @SuppressWarnings("unchecked")
+        Stream<Object[]> stream1 = em.createQuery("select n, a from Notebook n " +
+                        "join n.aclEntities a " +
+                        "join fetch a.user " +
+                        "where n.project.id = :projectId " +
+                        "and a.level != :implicitView"
+                )
+                .setParameter("projectId", projectId)
+                .setParameter("implicitView", AccessLevel.IMPLICIT_VIEW)
+                .getResultStream();
+        @SuppressWarnings("unchecked")
+        Stream<Object[]> stream2 = em.createQuery("select e, a from Experiment e " +
+                        "join e.aclEntities a " +
+                        "join fetch a.user " +
+                        "where e.project.id = :projectId " +
+                        "and a.level != :implicitView"
+               )
+                .setParameter("projectId", projectId)
+                .setParameter("implicitView", AccessLevel.IMPLICIT_VIEW)
+                .getResultStream();
+        return Stream.concat(stream1, stream2)
+                .map(arr -> {
+                    BaseEntity entity = (BaseEntity) arr[0];
+                    BaseACLEntity entry = (BaseACLEntity) arr[1];
+                    EntityType entityType = entity instanceof NotebookEntity ? EntityType.NOTEBOOK : EntityType.EXPERIMENT;
+                    String entityName = entity instanceof NotebookEntity ? ((NotebookEntity) entity).getName() : ((ExperimentEntity) entity).getName();
+                    return new NestedACLEntryDTO(entityType, entity.getId(), entityName, entry.getUser().getId(), entry.getUser().getDisplayName(), entry.getLevel());
+                })
+                .toList();
+    }
+}

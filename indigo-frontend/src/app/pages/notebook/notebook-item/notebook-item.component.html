@@ -4,7 +4,7 @@
       <h3
         class="flex items-center gap-x-2 font-semibold text-neutral-1000 text-base"
       >
-        <em class="text-primary-400 text-xl indicon-briefcase"></em>
+        <em class="text-primary-400 text-xl indicon-book"></em>
         {{ notebook.name }}
       </h3>
       <div class="relative -right-1">
@@ -40,35 +40,15 @@
         >
           <div class="text-neutral-1000 text-sm">Experiments</div>
           <div
-            class="flex items-center"
+            class="flex items-center gap-[0.6rem]"
             [ngClass]="{ 'ml-auto': variant === 'grid' }"
           >
-            @if (notebook['experimentCount'].OPEN) {
+            @if (notebook['experimentCountByStatus'].OPEN) {
               <span class="font-semibold text-h4 text-primary-400">{{
-                notebook['experimentCount'].OPEN
+                notebook['experimentCountByStatus'].OPEN
               }}</span>
             }
-            @if (notebook['experimentCount'].WAITING_FOR_SIGNATURE) {
-              <i class="text-neutral-500">/</i>
-              <span class="font-semibold text-h4 text-orange-200">{{
-                notebook['experimentCount'].WAITING_FOR_SIGNATURE
-              }}</span>
-            }
-            @if (notebook['experimentCount'].COMPLETED) {
-              <i class="text-neutral-500">/</i>
-              <span class="font-semibold text-green-200 text-h4">{{
-                notebook['experimentCount'].COMPLETED
-              }}</span>
-            }
-            @if (notebook['experimentCount'].REJECTED) {
-              <i class="text-neutral-500">/</i>
-              <span class="font-semibold text-h4 text-red-200">{{
-                notebook['experimentCount'].REJECTED
-              }}</span>
-            }
-            <span class="mx-3 font-thin text-neutral-500">|</span>
-            <!-- TODO -->
-            <span class="font-semibold text-h4 text-neutral-1000">145</span>
+            <span class="font-semibold text-h4 text-neutral-1000">{{ notebook.experimentCount }}</span>
           </div>
         </div>
 
@@ -80,14 +60,14 @@
           <div class="text-neutral-1000 text-sm">Members</div>
           <div class="flex items-center">
             <div class="flex -space-x-2">
-              @for (user of mock_users.slice(0, 3); track user) {
-                <eln-avatar classList="w-6 h-6" [img]="user" />
+              @for (user of notebook.acl.slice(0, 3); track user.userId) {
+                <eln-avatar classList="w-6 h-6" [img]="user.avatarUrl || 'assets/avatar-placeholder.png'" />
               }
-              @if (mock_users.length > 3) {
+              @if (notebook.aclCount > 3) {
                 <span
                   class="flex justify-center items-center bg-primary-400 rounded-full w-6 h-6 text-white text-xs"
                 >
-                  +{{ mock_users.length - 3 }}
+                  +{{ notebook.aclCount - 3 }}
                 </span>
               }
             </div>
@@ -123,19 +103,19 @@
         class="flex items-center mt-2 pt-3 border-t border-t-neutral-300 w-full"
       >
         <div class="flex -space-x-2">
-          @for (user of mock_users.slice(0, 3); track user) {
-            <eln-avatar classList="w-6 h-6" [img]="user" />
+          @for (user of notebook.acl.slice(0, 3); track user) {
+            <eln-avatar classList="w-6 h-6" [img]="user.avatarUrl || 'assets/avatar-placeholder.png'" />
           }
-          @if (mock_users.length > 3) {
+          @if (notebook.aclCount > 3) {
             <span
               class="flex justify-center items-center bg-primary-400 rounded-full w-6 h-6 text-white text-xs"
             >
-              +{{ mock_users.length - 3 }}
+              +{{ notebook.aclCount - 3 }}
             </span>
           }
         </div>
         <span class="ml-2 text-b2 text-neutral-1000"
-          >{{ mock_users.length }} Members</span
+          >{{ notebook.aclCount }} Members</span
         >
       </div>
     }

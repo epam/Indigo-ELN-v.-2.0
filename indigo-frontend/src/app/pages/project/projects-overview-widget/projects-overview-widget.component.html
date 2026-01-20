@@ -11,7 +11,7 @@
   "
 >
   <div class="flex items-center justify-between flex-wrap gap-4">
-    <div class="font-semibold text-lg">Projects</div>
+    <div class="font-semibold text-lg">All Projects</div>
     @for (ngTemplate of state.buttonTemplates; track ngTemplate) {
       <ng-container [ngTemplateOutlet]="ngTemplate"></ng-container>
     }
@@ -29,16 +29,22 @@
       >
         <em class="indicon-briefcase mr-1"></em>
         <span class="text-xl">{{ totalCounts()?.projects }}</span>
-        <p class="text-sm overflow-hidden text-ellipsis text-nowrap">
+        <p
+          class="text-sm overflow-hidden text-ellipsis text-nowrap"
+          [appTextOverflowTooltip]="'Projects'"
+        >
           Projects
         </p>
       </div>
       <div
         class="max-w-[140px] w-[140px] py-3 px-3 text-center sm:text-left sm:border-r sm:border-r-neutral overflow-hidden"
       >
-        <em class="indicon-briefcase mr-1"></em>
+        <em class="indicon-book mr-1"></em>
         <span class="text-xl">{{ totalCounts()?.notebooks }}</span>
-        <p class="text-sm overflow-hidden text-ellipsis text-nowrap">
+        <p
+          class="text-sm overflow-hidden text-ellipsis text-nowrap"
+          [appTextOverflowTooltip]="'Notebooks'"
+        >
           Notebooks
         </p>
       </div>
@@ -47,7 +53,10 @@
       >
         <em class="indicon-briefcase mr-1"></em>
         <span class="text-xl">{{ totalCounts()?.experiments }}</span>
-        <p class="text-sm overflow-hidden text-ellipsis text-nowrap">
+        <p
+          class="text-sm overflow-hidden text-ellipsis text-nowrap"
+          [appTextOverflowTooltip]="'Experiments'"
+        >
           Experiments
         </p>
       </div>
@@ -60,32 +69,52 @@
       <div
         class="max-w-[140px] w-[140px] overflow-hidden py-2 px-3 text-center sm:text-left sm:border-r sm:border-r-neutral-300"
       >
-        <span class="text-xl text-primary-400">{{ totalCounts()?.experimentsByStatus?.OPEN }}</span>
-        <p class="text-sm overflow-hidden text-ellipsis text-nowrap">
+        <span class="text-xl text-primary-400">{{
+          totalCounts()?.experimentsByStatus?.OPEN
+        }}</span>
+        <p
+          class="text-sm overflow-hidden text-ellipsis text-nowrap"
+          [appTextOverflowTooltip]="'Open Experiments'"
+        >
           Open Experiments
         </p>
       </div>
       <div
         class="max-w-[140px] w-[140px] overflow-hidden py-2 px-3 text-center sm:text-left sm:border-r sm:border-r-neutral-300"
       >
-        <span class="text-xl text-orange-200">{{ totalCounts()?.experimentsByStatus?.WAITING || 0 }}</span>
-        <p class="text-sm overflow-hidden text-ellipsis text-nowrap">
+        <span class="text-xl text-orange-200">{{
+          totalCounts()?.experimentsByStatus?.WAITING || 0
+        }}</span>
+        <p
+          class="text-sm overflow-hidden text-ellipsis text-nowrap"
+          [appTextOverflowTooltip]="'Waiting Signature'"
+        >
           Waiting Signature
         </p>
       </div>
       <div
         class="max-w-[140px] w-[140px] overflow-hidden py-2 px-3 text-center sm:text-left sm:border-r sm:border-r-neutral-300"
       >
-        <span class="text-xl text-green-200">{{ totalCounts()?.experimentsByStatus?.COMPLETED || 0 }}</span>
-        <p class="text-sm overflow-hidden text-ellipsis text-nowrap">
+        <span class="text-xl text-green-200">{{
+          totalCounts()?.experimentsByStatus?.COMPLETED || 0
+        }}</span>
+        <p
+          class="text-sm overflow-hidden text-ellipsis text-nowrap"
+          [appTextOverflowTooltip]="'Completed'"
+        >
           Completed
         </p>
       </div>
       <div
         class="max-w-[140px] w-[140px] overflow-hidden py-2 px-3 text-center sm:text-left"
       >
-        <span class="text-xl text-red-200">{{ totalCounts()?.experimentsByStatus?.REJECTED || 0 }}</span>
-        <p class="text-sm overflow-hidden text-ellipsis text-nowrap">
+        <span class="text-xl text-red-200">{{
+          totalCounts()?.experimentsByStatus?.REJECTED || 0
+        }}</span>
+        <p
+          class="text-sm overflow-hidden text-ellipsis text-nowrap"
+          [appTextOverflowTooltip]="'Rejected'"
+        >
           Rejected
         </p>
       </div>

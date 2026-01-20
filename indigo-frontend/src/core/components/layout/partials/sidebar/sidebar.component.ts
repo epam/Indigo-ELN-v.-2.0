@@ -4,13 +4,16 @@ import { Router, RouterModule } from '@angular/router';
 import { StarredExperimentsComponent } from './starred-experiments/starred-experiments.component';
 import { map, Observable } from 'rxjs';
 import { UserService } from '@/core/services/user.service';
-import { Role } from '@/core/types/entities/user.i';
+import {
+  ApplicationPermission,
+  CurrentUser,
+} from '@/core/types/entities/user.i';
 import { MatIconModule } from '@angular/material/icon';
 
 interface MenuItem {
   name: string;
   path: string;
-  requiredRole?: string;
+  requiredPermission?: string;
   icon?: string;
   materialIcon?: string;
 }
@@ -32,7 +35,7 @@ export class SidebarComponent {
 
   private fullMenu = [
     {
-      name: 'Projects',
+      name: 'All Projects',
       icon: 'indicon-briefcase',
       path: '/',
     },
@@ -40,21 +43,22 @@ export class SidebarComponent {
       name: 'Templates',
       icon: 'indicon-layers',
       path: '/templates',
+      requiredPermission: ApplicationPermission.MANAGE_TEMPLATES,
     },
     {
       name: 'Dictionaries',
       materialIcon: 'import_contacts',
       path: '/dictionary',
-      requiredRole: 'Dictionary editor',
+      requiredPermission: ApplicationPermission.MANAGE_DICTIONARIES,
     },
   ];
 
-  menu$: Observable<MenuItem[]> = this.userService.userRoles$.pipe(
-    map((roles: Role[]) => {
-      const roleNames = roles.map((role) => role.name);
+  menu$: Observable<MenuItem[]> = this.userService.user$.pipe(
+    map((user: CurrentUser) => {
       return this.fullMenu.filter(
         (menuItem) =>
-          !menuItem.requiredRole || roleNames.includes(menuItem.requiredRole),
+          !menuItem.requiredPermission ||
+          user.permissions.includes(menuItem.requiredPermission),
       );
     }),
   );
