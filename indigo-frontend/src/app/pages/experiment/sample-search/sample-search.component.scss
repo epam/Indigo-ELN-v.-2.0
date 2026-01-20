@@ -1,3 +1,7 @@
+.mat-expansion-panel{
+  background: #ffffff;
+}
+
 .advanced-search-box {
   ::ng-deep input {
     border-radius: 2px;
@@ -16,6 +20,8 @@
   ::ng-deep .relative .rounded-sm {
     border: #E8E8E8 solid 1px;
   }
+
+
 
   .header-column {
     display: flex;
