@@ -5,9 +5,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterLink } from '@angular/router';
-import { AvatarComponent } from '@core/components/common/avatar/avatar.component';
 import { CardComponent } from '@core/components/common/card/card.component';
-
+import { InitialsPipe } from '@/core/pipes/avatars.pipe';
 @Component({
   selector: 'eln-project-item',
   standalone: true,
@@ -17,10 +16,11 @@ import { CardComponent } from '@core/components/common/card/card.component';
     MatButtonModule,
     MatIconModule,
     MatMenuModule,
-    AvatarComponent,
     RouterLink,
+    InitialsPipe,
   ],
   templateUrl: './project-item.component.html',
+  styleUrls: ['./project-item.component.scss'],
 })
 export class ProjectItemComponent {
   mock_users = [
