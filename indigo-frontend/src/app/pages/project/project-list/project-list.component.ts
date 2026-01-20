@@ -117,7 +117,6 @@ export class ProjectListComponent
 
   onMyEntitiesOnlyChange(value: boolean) {
     this.filters['createdByMe'] = value;
-    this.pager.pageNo = 0;
     this.reload();
   }
 }
