@@ -59,7 +59,7 @@ import java.util.*;
         )
 )
 @DynamicUpdate
-public class ProjectEntity extends BaseEntity implements WithAttachments, WithACL<ProjectACLEntity> {
+public class ProjectEntity extends BaseEntity implements WithAttachments, WithACL<ProjectACLEntity>, WithRevision {
 
     @NotEmpty
     private String name;

@@ -6,13 +6,14 @@ import com.epam.indigoeln.eln.model.ExperimentStatus;
 import com.epam.indigoeln.reaction.model.*;
 import io.hypersistence.utils.hibernate.type.search.PostgreSQLTSVectorType;
 import jakarta.persistence.*;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.NamedEntityGraph;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
-import org.hibernate.annotations.*;
+import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.Type;
 import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
 import org.hibernate.type.SqlTypes;
 import org.jspecify.annotations.Nullable;
@@ -77,7 +78,7 @@ import java.util.*;
         }
 )
 @DynamicUpdate
-public class ExperimentEntity extends BaseEntity implements WithAttachments, WithACL<ExperimentACLEntity> {
+public class ExperimentEntity extends BaseEntity implements WithAttachments, WithACL<ExperimentACLEntity>, WithRevision {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)

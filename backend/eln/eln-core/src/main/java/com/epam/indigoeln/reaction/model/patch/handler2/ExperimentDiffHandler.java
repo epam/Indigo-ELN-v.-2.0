@@ -2,18 +2,16 @@ package com.epam.indigoeln.reaction.model.patch.handler2;
 
 import com.epam.indigoeln.reaction.metamodel.ExperimentMetamodel;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
-import com.epam.indigoeln.reaction.model.mutation.MutationContext;
 import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import com.epam.indigoeln.reaction.util.Flag;
 import org.jspecify.annotations.Nullable;
 
 public class ExperimentDiffHandler extends MetamodelDiffHandler<ExperimentSnapshot, ExperimentPatch> {
 
-    private final MutationContext context;
+    public static final ExperimentDiffHandler INSTANCE = new ExperimentDiffHandler();
 
-    public ExperimentDiffHandler(MutationContext context) {
+    private ExperimentDiffHandler() {
         super(ExperimentMetamodel.INSTANCE, ExperimentPatch::new);
-        this.context = context;
     }
 
     @Override

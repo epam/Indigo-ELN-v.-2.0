@@ -16,7 +16,6 @@ import com.epam.indigoeln.eln.mapper.SnapshotMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
-import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.eln.repository.TemplateRepository;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
@@ -25,7 +24,6 @@ import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import com.epam.indigoeln.reports.api.ReportsAPI;
 import com.epam.indigoeln.reports.api.ReportsClient;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -78,30 +76,18 @@ public class ExperimentService {
     @Inject
     ProjectMapper projectMapper;
     @Inject
-    ObjectMapper objectMapper;
-    @Inject
     CompoundService compoundService;
-    @Inject
-    ProjectRepository projectRepository;
     @Inject
     SnapshotMapper snapshotMapper;
 
     public ExperimentDetailsDTO createExperiment(UUID notebookId, ExperimentRequest request) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
-        aclService.ensureAccess(notebook, ApplicationPermission.CREATE_EXPERIMENTS);
         ExperimentEntity experiment = new ExperimentEntity();
-        experiment.setCreatedBy(userService.getCurrentUserEntity());
         notebook.getProject().getExperiments().add(experiment);
         notebook.getExperiments().add(experiment);
         experiment.setProject(notebook.getProject());
         experiment.setNotebook(notebook);
-        experiment.setLastUsedAnchor(0);
-        experimentModelService.setModel(experiment, experimentModelService.createNewModel(experiment));
-        experiment.setRevision(0);
-        experiment.setStatus(ExperimentStatus.OPEN);
-        experiment.setDeleted(false);
         experimentModelService.applyMutation(experiment, experimentMapper.requestToMutation(request));
-        experimentRepository.flushAndRefresh(experiment);
         return getExperimentDetails(experiment);
     }
 
@@ -133,9 +119,7 @@ public class ExperimentService {
 
     public ExperimentDetailsDTO editExperiment(UUID experimentId, ExperimentEditRequest request) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
-        aclService.ensureAccess(experiment, ApplicationPermission.EDIT_EXPERIMENTS);
         experimentModelService.applyMutation(experiment, experimentMapper.requestToMutation(request));
-        experimentRepository.flushAndRefresh(experiment);
         return getExperimentDetails(experiment);
     }
 
@@ -148,7 +132,6 @@ public class ExperimentService {
 
     public List<ACLDetailsEntryDTO> updateExperimentAccess(UUID experimentId, List<AccessForm> form) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
-        aclService.ensureAccess(experiment, ApplicationPermission.MANAGE_EXPERIMENT_ACCESS);
         Mutation mutation = new ExperimentMutation.EditExperimentAccess(form);
         experimentModelService.applyMutation(experiment, mutation);
         return experimentMapper.convertDetailsACLList(experiment.getFullACL());
@@ -156,13 +139,11 @@ public class ExperimentService {
 
     public ExperimentModel mutateModel(UUID experimentId, Mutation mutation) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
-        aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
         return Preconditions.checkNotNull(experimentModelService.applyMutation(experiment, mutation).a().getModel());
     }
 
     public ExperimentPatch mutateModel2(UUID experimentId, Integer revision, Mutation mutation) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
-        aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
         return experimentModelService.applyMutation(experiment, mutation).b();
     }
 

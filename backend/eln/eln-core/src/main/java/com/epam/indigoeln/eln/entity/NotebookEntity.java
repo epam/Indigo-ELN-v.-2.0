@@ -63,7 +63,7 @@ import java.util.*;
         }
 )
 @DynamicUpdate
-public class NotebookEntity extends BaseEntity implements WithAttachments, WithACL<NotebookACLEntity> {
+public class NotebookEntity extends BaseEntity implements WithAttachments, WithACL<NotebookACLEntity>, WithRevision {
 
     @NotNull
     @ManyToOne

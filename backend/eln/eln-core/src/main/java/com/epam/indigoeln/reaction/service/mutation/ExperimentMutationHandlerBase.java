@@ -14,10 +14,10 @@ import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.mutation.MutationContext;
 import com.epam.indigoeln.reaction.model.mutation.MutationRedoInfo;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.model.units.*;
+import com.epam.indigoeln.reaction.service.mutation.experiment.AbstractExperimentMutationHandler;
 import com.google.common.base.Preconditions;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
@@ -31,7 +31,7 @@ import java.util.function.Supplier;
 
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE;
 
-public abstract class ExperimentMutationHandlerBase<T extends Mutation, R extends MutationRedoInfo> extends AbstractMutationHandler<T, R> {
+public abstract class ExperimentMutationHandlerBase<T extends Mutation, R extends MutationRedoInfo> extends AbstractExperimentMutationHandler<T, R> {
 
     @Inject
     Instance<IndigoAPI> indigoAPI;
@@ -111,7 +111,7 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation, R extend
         return "unknown sample";
     }
 
-    public ReactionMutation.UndoResolveInputs.RowUndo setInputLineSample(ReactionInput row, SampleEntity sample, MutationContext context, InputSampleAnchor anchor) {
+    public ReactionMutation.UndoResolveInputs.RowUndo setInputLineSample(ReactionInput row, SampleEntity sample, InputSampleAnchor anchor) {
         CompoundRef oldCompound = row.getCompound();
         row.setCompound(compoundService.realCompoundRef(sample.getCompound()));
 
@@ -129,7 +129,7 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation, R extend
         String oldChemicalName = row.getChemicalName();
         row.setChemicalName(sample.getCompound().getChemicalName());
 
-        context.getAffectedRoles().add(row.getRole());
+        affectedRoles.add(row.getRole());
 
         return new ReactionMutation.UndoResolveInputs.RowUndo(oldCompound, oldSamples, oldChemicalName);
     }

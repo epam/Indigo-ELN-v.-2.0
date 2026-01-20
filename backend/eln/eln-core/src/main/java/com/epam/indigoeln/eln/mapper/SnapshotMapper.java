@@ -3,12 +3,8 @@ package com.epam.indigoeln.eln.mapper;
 import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.model.ACLDetailsEntryDTO;
 import com.epam.indigoeln.eln.model.AttachmentDTO;
-import com.epam.indigoeln.reaction.model.ExperimentModel;
-import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
-import com.epam.indigoeln.reaction.model.NotebookSnapshot;
-import com.epam.indigoeln.reaction.model.ProjectSnapshot;
-import com.epam.indigoeln.reaction.model.mutation.NotebookMutationContext;
-import com.epam.indigoeln.reaction.model.mutation.ProjectMutationContext;
+import com.epam.indigoeln.eln.util.ExperimentModelUtil;
+import com.epam.indigoeln.reaction.model.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.inject.Inject;
 import one.util.streamex.StreamEx;
@@ -30,6 +26,8 @@ public abstract class SnapshotMapper extends AbstractMapper {
     @Mapping(target = "attachments", ignore = true)
     @Mapping(target = "acl", ignore = true)
     @Mapping(target = "model", ignore = true)
+    @Mapping(target = "compoundRefs", ignore = true)
+    @Mapping(target = "rxnFiles", ignore = true)
     public abstract ExperimentSnapshot copyBasicFields(ExperimentEntity entity);
 
     @Mapping(target = "attachments", ignore = true)
@@ -59,26 +57,34 @@ public abstract class SnapshotMapper extends AbstractMapper {
             snapshot.setAcl(copyACL(experiment.getFullACL()));
         }
         snapshot.setModel(model);
+        if (model != null) {
+            snapshot.setCompoundRefs(ExperimentModelUtil.collectCompoundRefs(model));
+            snapshot.setRxnFiles(StreamEx.of(model.getReactions())
+                    .mapToEntry(Reaction::getAnchor, Reaction::getRxnfile)
+                    .nonNullValues()
+                    .toMap()
+            );
+        }
         return snapshot;
     }
 
-    public ProjectSnapshot createSnapshot(ProjectEntity project, ProjectMutationContext context) {
+    public ProjectSnapshot createSnapshot(ProjectEntity project, boolean copyAttachments, boolean copyACL) {
         ProjectSnapshot snapshot = copyBasicFields(project);
-        if (context.isAffectsAttachments()) {
+        if (copyAttachments) {
             snapshot.setAttachments(copyAttachments(project.getAttachments()));
         }
-        if (context.isAffectsACL()) {
+        if (copyACL) {
             snapshot.setAcl(copyACL(project.getFullACL()));
         }
         return snapshot;
     }
 
-    public NotebookSnapshot createSnapshot(NotebookEntity notebook, NotebookMutationContext context) {
+    public NotebookSnapshot createSnapshot(NotebookEntity notebook, boolean copyAttachments, boolean copyACL) {
         NotebookSnapshot snapshot = copyBasicFields(notebook);
-        if (context.isAffectsAttachments()) {
+        if (copyAttachments) {
             snapshot.setAttachments(copyAttachments(notebook.getAttachments()));
         }
-        if (context.isAffectsACL()) {
+        if (copyACL) {
             snapshot.setAcl(copyACL(notebook.getFullACL()));
         }
         return snapshot;

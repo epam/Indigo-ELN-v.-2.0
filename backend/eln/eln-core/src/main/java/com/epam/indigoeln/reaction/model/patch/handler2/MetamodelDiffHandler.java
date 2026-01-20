@@ -1,9 +1,9 @@
 package com.epam.indigoeln.reaction.model.patch.handler2;
 
+import com.epam.indigoeln.eln.util.PatchUtil;
 import com.epam.indigoeln.reaction.metamodel.property.Metamodel;
 import com.epam.indigoeln.reaction.metamodel.property.ModelProperty;
 import com.epam.indigoeln.reaction.util.Flag;
-import com.epam.indigoeln.eln.util.PatchUtil;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
@@ -29,12 +29,8 @@ public class MetamodelDiffHandler<T, P> extends AbstractDiffHandler<T, P> {
     protected void doCompareBase(Flag updated, @Nullable T a, T b, P patch) {
         for (ModelProperty<T, ?, P, ?> property : metamodel.getProperties()) {
             ModelProperty<T, Object, P, Object> simpleProperty = property.cast();
-            doCompareProperty(updated, a, b, patch, simpleProperty);
+            Patched<Object, Object> diffValue = PatchUtil.diff(updated, a, b, simpleProperty.getter(), simpleProperty.valueHandler());
+            simpleProperty.patchSet(patch, diffValue);
         }
-    }
-
-    protected void doCompareProperty(Flag updated, @Nullable T a, T b, P patch, ModelProperty<T, Object, P, Object> simpleProperty) {
-        Patched<Object, Object> diffValue = PatchUtil.diff(updated, a, b, simpleProperty.getter(), simpleProperty.valueHandler());
-        simpleProperty.patchSet(patch, diffValue);
     }
 }

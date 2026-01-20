@@ -12,7 +12,6 @@ import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.ReactionAnchor;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.mutation.MutationContext;
 import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import com.epam.indigoeln.reaction.model.patch.handler2.ExperimentDiffHandler;
 import com.epam.indigoeln.reaction.service.calculator.ReactionCalculator;
@@ -83,8 +82,8 @@ public class ExperimentModelService {
         return handler.applyMutation(experiment, mutation);
     }
 
-    public ExperimentPatch createPatch(ExperimentSnapshot a, ExperimentSnapshot b, MutationContext context) {
-        ExperimentDiffHandler valueHandler = new ExperimentDiffHandler(context);
+    public ExperimentPatch createPatch(ExperimentSnapshot a, ExperimentSnapshot b) {
+        ExperimentDiffHandler valueHandler = ExperimentDiffHandler.INSTANCE;
         //noinspection DataFlowIssue
         return valueHandler.compare(a, b).updatedValue();
     }

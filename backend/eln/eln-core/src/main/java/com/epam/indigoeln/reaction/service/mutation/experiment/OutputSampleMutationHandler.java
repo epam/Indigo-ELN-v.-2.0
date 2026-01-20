@@ -7,26 +7,26 @@ import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.reaction.model.*;
-import com.epam.indigoeln.reaction.model.mutation.MutationContext;
 import com.epam.indigoeln.reaction.model.mutation.MutationRedoInfo;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
-import com.epam.indigoeln.reaction.service.mutation.*;
+import com.epam.indigoeln.reaction.service.mutation.AbstractReactionOutputSampleMutationHandler;
+import com.epam.indigoeln.reaction.service.mutation.EnteredValueUndo;
+import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
+import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-import static com.epam.indigoeln.reaction.model.units.EnteredValue.userLastEntered;
-
 @Dependent
 @MutationHandlerFor(ReactionOutputSampleMutation.SetOutputHealthHazards.class)
 class SetOutputHealthHazardsHandler extends AbstractReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputHealthHazards, MutationRedoInfo> {
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputHealthHazards mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputHealthHazards mutation, @Nullable MutationRedoInfo redoInfo) {
         List<DictionaryItemRef> old = sample.getHealthHazards();
         sample.setHealthHazards(mutation.healthHazards());
         return new MutationResult(formatSetterSummary("batch health hazards", mutation.healthHazards())
@@ -41,7 +41,7 @@ class SetOutputHealthHazardsHandler extends AbstractReactionOutputSampleMutation
 class SetOutputActualMolHandler extends AbstractReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputActualMol, MutationRedoInfo> {
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputActualMol mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputActualMol mutation, @Nullable MutationRedoInfo redoInfo) {
         EnteredValueUndo<MolUnit> undo = setEnteredValue(sample::getActualMol, sample::setActualMol, mutation.actualMol(), mutation.unit(), mutation.source());
         return new MutationResult(formatSetterSummary("batch actual mol", mutation.actualMol(), mutation.unit())
                 , null
@@ -55,7 +55,7 @@ class SetOutputActualMolHandler extends AbstractReactionOutputSampleMutationHand
 class SetOutputActualWeightHandler extends AbstractReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputActualWeight, MutationRedoInfo> {
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputActualWeight mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputActualWeight mutation, @Nullable MutationRedoInfo redoInfo) {
         EnteredValueUndo<WeightUnit> undo = setEnteredValue(sample::getActualWeight, sample::setActualWeight, mutation.actualWeight(), mutation.unit(), mutation.source());
         return new MutationResult(formatSetterSummary("batch actual weight", mutation.actualWeight(), mutation.unit())
                 , null
@@ -72,7 +72,7 @@ class RegisterSampleHandler extends AbstractReactionOutputSampleMutationHandler<
     CompoundService compoundService;
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sampleRow, ReactionOutputSampleMutation.RegisterSample mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sampleRow, ReactionOutputSampleMutation.RegisterSample mutation, @Nullable MutationRedoInfo redoInfo) {
         if (sampleRow.getRegistrationStatus() != null) {
             throw new InvalidRequestException("Sample already sent for registration");
         }

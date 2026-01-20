@@ -1,7 +1,6 @@
 package com.epam.indigoeln.reaction.service;
 
 import com.epam.indigoeln.reaction.model.*;
-import com.epam.indigoeln.reaction.model.mutation.MutationContext;
 import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
@@ -120,7 +119,7 @@ class ExperimentModelPatchServiceTest {
     }
 
     private void makeAndVerifyPatch(@Language("JSON") String expectedPatchStr) throws Exception {
-        ExperimentPatch patch = service.createPatch(baseExperiment, experiment, MutationContext.createFull());
+        ExperimentPatch patch = service.createPatch(baseExperiment, experiment);
         String patchStr = FeignUtil.OBJECT_MAPPER.writeValueAsString(patch);
         System.out.println(expectedPatchStr.trim());
         System.out.println(patchStr);

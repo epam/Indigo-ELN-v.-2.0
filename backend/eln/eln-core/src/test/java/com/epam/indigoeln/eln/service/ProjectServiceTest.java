@@ -103,7 +103,7 @@ class ProjectServiceTest extends ELNBaseTest {
                     assertThat(revision.getDatetime()).isEqualTo(project.getCreatedAt());
                     assertThat(revision.getUser()).isEqualTo(getJohnUserRef());
                     assertThat(revision.getMutation()).isInstanceOf(ProjectMutation.CreateProject.class);
-                    assertThat(revision.getSummary()).isEqualTo("Project created");
+                    assertThat(revision.getSummary()).isEqualTo("Create project");
                 });
     }
 

@@ -3,11 +3,12 @@ package com.epam.indigoeln.reaction.service.mutation.experiment;
 import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.reaction.model.*;
-import com.epam.indigoeln.reaction.model.mutation.MutationContext;
 import com.epam.indigoeln.reaction.model.mutation.MutationRedoInfo;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
-import com.epam.indigoeln.reaction.service.mutation.*;
+import com.epam.indigoeln.reaction.service.mutation.AbstractReactionOutputMutationHandler;
+import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
+import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import jakarta.enterprise.context.Dependent;
 import org.jspecify.annotations.Nullable;
 
@@ -18,7 +19,7 @@ import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE;
 class AddProductSampleHandler extends AbstractReactionOutputMutationHandler<ReactionOutputMutation.AddProductSample, MutationRedoInfo.AddOutputSample> {
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.AddProductSample mutation, MutationRedoInfo.@Nullable AddOutputSample redoInfo, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.AddProductSample mutation, MutationRedoInfo.@Nullable AddOutputSample redoInfo) {
         OutputSampleAnchor anchor = redoInfo != null ? redoInfo.anchor() : experiment.generateNextAnchor(OutputSampleAnchor.class);
         ReactionOutputSample sample = ReactionOutputSample.create(row, experiment.getName(), anchor);
         sample.setPurity(DEFAULT_ONE);
@@ -35,7 +36,7 @@ class AddProductSampleHandler extends AbstractReactionOutputMutationHandler<Reac
 class SetOutputRowTypeHandler extends AbstractReactionOutputMutationHandler<ReactionOutputMutation.SetOutputRowType, MutationRedoInfo> {
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputRowType mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputRowType mutation, @Nullable MutationRedoInfo redoInfo) {
         ReactionOutputType oldType = row.getType();
         row.setType(mutation.outputType());
         // TODO add or remove to the next reaction, if changing to or from INTERMEDIATE type
@@ -51,7 +52,7 @@ class SetOutputRowTypeHandler extends AbstractReactionOutputMutationHandler<Reac
 class SetOutputRowNameHandler extends AbstractReactionOutputMutationHandler<ReactionOutputMutation.SetOutputRowName, MutationRedoInfo> {
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputRowName mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputRowName mutation, @Nullable MutationRedoInfo redoInfo) {
         for (ReactionOutput otherRow : row.getReaction().getOutputs()) {
             if (otherRow != row) {
                 InvalidRequestException.validate(!otherRow.getOutputName().equals(mutation.name()), "Output name " + mutation.name() + " is already used in this reaction");
@@ -71,7 +72,7 @@ class SetOutputRowNameHandler extends AbstractReactionOutputMutationHandler<Reac
 class UndoRemoveProductSampleHandler extends AbstractReactionOutputMutationHandler<ReactionOutputMutation.UndoRemoveProductSample, MutationRedoInfo> {
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.UndoRemoveProductSample mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.UndoRemoveProductSample mutation, @Nullable MutationRedoInfo redoInfo) {
         row.getSamples().add(mutation.sample());
         mutation.sample().setRow(row);
         return new MutationResult("Undo remove batch"

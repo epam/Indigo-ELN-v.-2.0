@@ -8,7 +8,6 @@ import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.reaction.model.*;
-import com.epam.indigoeln.reaction.model.mutation.MutationContext;
 import com.epam.indigoeln.reaction.model.mutation.MutationRedoInfo;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
@@ -30,7 +29,7 @@ class SetSchemeHandler extends AbstractReactionMutationHandler<ReactionMutation.
     @Inject
     IndigoAPI indigo;
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.SetScheme mutation, MutationRedoInfo.@Nullable SetScheme redoInfo, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.SetScheme mutation, MutationRedoInfo.@Nullable SetScheme redoInfo) {
         String previousRxnfile = reaction.getRxnfile();
 
         // TODO match into existing inputs/outputs
@@ -54,7 +53,7 @@ class SetSchemeHandler extends AbstractReactionMutationHandler<ReactionMutation.
                 , new ReactionMutation.SetScheme(reaction.getAnchor(), previousRxnfile));
     }
 
-    private List<Pair<InputAnchor, InputSampleAnchor>> createInputs(ExperimentEntity experiment, List<Pair<InputAnchor, InputSampleAnchor>> redoInfo, Iterable<IndigoMolecule> molecules, Reaction reaction, ReactionRole role) {
+    private List<Pair<InputAnchor, InputSampleAnchor>> createInputs(ExperimentEntity experiment, @Nullable List<Pair<InputAnchor, InputSampleAnchor>> redoInfo, Iterable<IndigoMolecule> molecules, Reaction reaction, ReactionRole role) {
         List<Pair<InputAnchor, InputSampleAnchor>> anchors = redoInfo != null
                 ? redoInfo
                 : StreamEx.of(molecules.iterator())
@@ -67,7 +66,7 @@ class SetSchemeHandler extends AbstractReactionMutationHandler<ReactionMutation.
         return anchors;
     }
 
-    private List<OutputAnchor> createOutputs(ExperimentEntity experiment, List<OutputAnchor> redoInfo, Iterable<IndigoMolecule> molecules, Reaction reaction) {
+    private List<OutputAnchor> createOutputs(ExperimentEntity experiment, @Nullable List<OutputAnchor> redoInfo, Iterable<IndigoMolecule> molecules, Reaction reaction) {
         List<OutputAnchor> anchors = redoInfo != null
                 ? redoInfo
                 : StreamEx.of(molecules.iterator())
@@ -87,11 +86,11 @@ class AddEmptyInputHandler extends AbstractReactionMutationHandler<ReactionMutat
 
     // !!! move common handler logic into services; make handlers just call services
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddEmptyInput mutation, MutationRedoInfo.@Nullable AddInput redoInfo, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddEmptyInput mutation, MutationRedoInfo.@Nullable AddInput redoInfo) {
         ReactionInput row = createInputLine(experiment, reaction, null, ReactionRole.REACTANT, redoInfo != null ? redoInfo.anchors() : null);
         reaction.getInputs().add(row);
         adjustLimitingInput(reaction);
-        context.getAffectedRoles().add(row.getRole());
+        affectedRoles.add(row.getRole());
         return new MutationResult("Add empty input"
                 , new MutationRedoInfo.AddInput(Pair.of(row.getAnchor(), row.getSamples().getFirst().getAnchor()))
                 , new ReactionInputMutation.RemoveInput(row.getAnchor())
@@ -107,11 +106,11 @@ class AddInputHandler extends AbstractReactionMutationHandler<ReactionMutation.A
     CompoundService compoundService;
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddInput mutation, MutationRedoInfo.@Nullable AddInput redoInfo, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddInput mutation, MutationRedoInfo.@Nullable AddInput redoInfo) {
         ReactionInput row = createInputLine(experiment, reaction, null, ReactionRole.REACTANT, redoInfo != null ? redoInfo.anchors() : null);
         reaction.getInputs().add(row);
         SampleEntity sample = compoundService.getSample(mutation.sampleId());
-        setInputLineSample(row, sample, context, redoInfo != null ? redoInfo.anchors().b() : experiment.generateNextAnchor(InputSampleAnchor.class));
+        setInputLineSample(row, sample, redoInfo != null ? redoInfo.anchors().b() : experiment.generateNextAnchor(InputSampleAnchor.class));
         adjustLimitingInput(reaction);
 
         return new MutationResult("Add input sample: " + getSampleIdentifier(sample)
@@ -129,7 +128,7 @@ class ResolveInputsHandler extends AbstractReactionMutationHandler<ReactionMutat
     CompoundService compoundService;
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.ResolveInputs mutation, MutationRedoInfo.@Nullable ResolveInputs redoInfo, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.ResolveInputs mutation, MutationRedoInfo.@Nullable ResolveInputs redoInfo) {
         Map<InputAnchor, InputSampleAnchor> sampleAnchors = redoInfo != null
                 ? redoInfo.sampleAnchors()
                 : EntryStream.of(mutation.inputSamples())
@@ -139,7 +138,7 @@ class ResolveInputsHandler extends AbstractReactionMutationHandler<ReactionMutat
         mutation.inputSamples().forEach((inputAnchor, sampleId) -> {
             ReactionInput row = model.locate(inputAnchor);
             SampleEntity sample = compoundService.getSample(sampleId);
-            var undo = setInputLineSample(row, sample, context, sampleAnchors.get(inputAnchor));
+            var undo = setInputLineSample(row, sample, sampleAnchors.get(inputAnchor));
             rowUndo.put(inputAnchor, undo);
         });
         return new MutationResult("Resolve input samples"
@@ -154,7 +153,7 @@ class ResolveInputsHandler extends AbstractReactionMutationHandler<ReactionMutat
 class UndoResolveInputsHandler extends AbstractReactionMutationHandler<ReactionMutation.UndoResolveInputs, MutationRedoInfo> {
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.UndoResolveInputs mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.UndoResolveInputs mutation, @Nullable MutationRedoInfo redoInfo) {
         mutation.rows().forEach((inputAnchor, undo) -> {
             ReactionInput row = model.locate(inputAnchor);
             row.setCompound(undo.compoundRef());
@@ -163,7 +162,7 @@ class UndoResolveInputsHandler extends AbstractReactionMutationHandler<ReactionM
                 sample.setRow(row);
             }
             row.setChemicalName(undo.chemicalName());
-            context.getAffectedRoles().add(row.getRole());
+            affectedRoles.add(row.getRole());
         });
         return new MutationResult("Undo resolve inputs"
                 , null
@@ -177,7 +176,7 @@ class UndoResolveInputsHandler extends AbstractReactionMutationHandler<ReactionM
 class UndoRemoveInputHandler extends AbstractReactionMutationHandler<ReactionMutation.UndoRemoveInput, MutationRedoInfo> {
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.UndoRemoveInput mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.UndoRemoveInput mutation, @Nullable MutationRedoInfo redoInfo) {
         reaction.getInputs().add(mutation.position(), mutation.input());
         mutation.input().setReaction(reaction);
         for (ReactionInput input : reaction.getInputs()) {

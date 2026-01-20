@@ -6,7 +6,6 @@ import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.ReactionInput;
 import com.epam.indigoeln.reaction.model.ReactionInputSample;
-import com.epam.indigoeln.reaction.model.mutation.MutationContext;
 import com.epam.indigoeln.reaction.model.mutation.MutationRedoInfo;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputSampleMutation;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
@@ -25,7 +24,7 @@ import java.util.List;
 class SetInputMolHandler extends AbstractReactionInputSampleMutationHandler<ReactionInputSampleMutation.SetInputMol, MutationRedoInfo> {
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputMol mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputMol mutation, @Nullable MutationRedoInfo redoInfo) {
         EnteredValueUndo<MolUnit> undo = setEnteredValue(sample::getMol, sample::setMol, mutation.mol(), mutation.unit(), mutation.source());
         return new MutationResult(formatSetterSummary("input sample mol", mutation.mol(), mutation.unit())
                 , null
@@ -39,7 +38,7 @@ class SetInputMolHandler extends AbstractReactionInputSampleMutationHandler<Reac
 class SetInputWeightHandler extends AbstractReactionInputSampleMutationHandler<ReactionInputSampleMutation.SetInputWeight, MutationRedoInfo> {
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputWeight mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputWeight mutation, @Nullable MutationRedoInfo redoInfo) {
         EnteredValueUndo<WeightUnit> undo = setEnteredValue(sample::getWeight, sample::setWeight, mutation.weight(), mutation.unit(), mutation.source());
         return new MutationResult(formatSetterSummary("input sample weight", mutation.weight(), mutation.unit())
                 , null
@@ -53,7 +52,7 @@ class SetInputWeightHandler extends AbstractReactionInputSampleMutationHandler<R
 class SetInputHealthHazardsHandler extends AbstractReactionInputSampleMutationHandler<ReactionInputSampleMutation.SetInputHealthHazards, MutationRedoInfo> {
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputHealthHazards mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputHealthHazards mutation, @Nullable MutationRedoInfo redoInfo) {
         List<DictionaryItemRef> oldValue = sample.getHealthHazards();
         sample.setHealthHazards(mutation.healthHazards());
         return new MutationResult(formatSetterSummary("input sample health hazards", mutation.healthHazards())
@@ -68,7 +67,7 @@ class SetInputHealthHazardsHandler extends AbstractReactionInputSampleMutationHa
 class SetInputCommentHandler extends AbstractReactionInputSampleMutationHandler<ReactionInputSampleMutation.SetInputComment, MutationRedoInfo> {
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputComment mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputComment mutation, @Nullable MutationRedoInfo redoInfo) {
         String oldValue = sample.getComment();
         sample.setComment(mutation.comment());
         return new MutationResult(formatSetterSummary("input sample comment", mutation.comment())

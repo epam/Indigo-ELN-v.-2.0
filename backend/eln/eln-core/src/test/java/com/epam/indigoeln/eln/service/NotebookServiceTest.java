@@ -89,7 +89,7 @@ class NotebookServiceTest extends ELNBaseTest {
                     assertThat(revision.getDatetime()).isEqualTo(notebook.getCreatedAt());
                     assertThat(revision.getUser()).isEqualTo(getJohnUserRef());
                     assertThat(revision.getMutation()).isInstanceOf(NotebookMutation.CreateNotebook.class);
-                    assertThat(revision.getSummary()).isEqualTo("Notebook created");
+                    assertThat(revision.getSummary()).isEqualTo("Create notebook");
                 });
     }
 
