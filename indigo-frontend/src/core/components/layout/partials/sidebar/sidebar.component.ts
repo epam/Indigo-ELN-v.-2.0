@@ -35,7 +35,7 @@ export class SidebarComponent {
 
   private fullMenu = [
     {
-      name: 'Projects',
+      name: 'All Projects',
       icon: 'indicon-briefcase',
       path: '/',
     },
