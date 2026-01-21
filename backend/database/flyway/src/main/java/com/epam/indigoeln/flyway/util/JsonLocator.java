@@ -32,7 +32,6 @@ public class JsonLocator {
 
     private static Stream<JsonNode> doFindNodes(Stream<JsonNode> stream, List<String> path) {
         List<JsonNode> temp = stream.toList();
-        System.out.println("doFindNodes: path=" + path + ", stream=" + temp);
         stream = temp.stream();
         if (path.isEmpty()) {
             return stream;

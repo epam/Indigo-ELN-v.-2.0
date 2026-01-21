@@ -3,7 +3,6 @@ package com.epam.indigoeln.eln.entity;
 import com.epam.indigoeln.eln.config.hibernate.ACLEntryArrayType;
 import com.epam.indigoeln.eln.model.AccessLevel;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
-import com.epam.indigoeln.reaction.model.*;
 import io.hypersistence.utils.hibernate.type.search.PostgreSQLTSVectorType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
@@ -151,9 +150,6 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     private Integer revision;
 
     @NotNull
-    private Integer lastUsedAnchor;
-
-    @NotNull
     @OneToMany(mappedBy = "experiment", cascade = CascadeType.ALL, orphanRemoval = true)
     @MapKeyJoinColumn(name = "user_id")
     private Map<UserEntity, ExperimentACLEntity> aclEntities = new HashMap<>(0);
@@ -200,24 +196,6 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @Transient
     public NotebookEntity getACLParent() {
         return notebook;
-    }
-
-    @SuppressWarnings("unchecked")
-    public <A extends Anchor> A generateNextAnchor(Class<A> klass) {
-        int number = ++lastUsedAnchor;
-        if (klass.equals(ReactionAnchor.class)) {
-            return (A) new ReactionAnchor(number);
-        } else if (klass.equals(InputAnchor.class)) {
-            return (A) new InputAnchor(number);
-        } else if (klass.equals(InputSampleAnchor.class)) {
-            return (A) new InputSampleAnchor(number);
-        } else if (klass.equals(OutputAnchor.class)) {
-            return (A) new OutputAnchor(number);
-        } else if (klass.equals(OutputSampleAnchor.class)) {
-            return (A) new OutputSampleAnchor(number);
-        } else {
-            throw new IllegalArgumentException(klass.getName());
-        }
     }
 
     @Getter

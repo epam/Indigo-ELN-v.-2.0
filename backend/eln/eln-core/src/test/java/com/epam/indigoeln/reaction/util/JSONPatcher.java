@@ -10,7 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.epam.indigoeln.reaction.config.PatchedSerializers.FIELD_NEW;
 import static com.epam.indigoeln.reaction.config.PatchedSerializers.FIELD_OLD;
@@ -43,10 +44,7 @@ public class JSONPatcher {
     }
 
     private JsonNode apply(JsonNode base, JsonNode patch, String path) {
-        System.out.printf("path=%s, base=%s, patch=%s\n", path, base, patch);
-        JsonNode result = doApply(base, patch, path);
-        System.out.printf("result=%s\n", result);
-        return result;
+        return doApply(base, patch, path);
     }
 
     private JsonNode doApply(JsonNode base, JsonNode patch, String path) {

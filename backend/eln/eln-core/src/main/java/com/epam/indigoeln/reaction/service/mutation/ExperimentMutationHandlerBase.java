@@ -1,11 +1,9 @@
 package com.epam.indigoeln.reaction.service.mutation;
 
 import com.epam.indigoeln.common.exception.InvalidRequestException;
-import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.service.CompoundService;
-import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.SaltCodeInfo;
 import com.epam.indigoeln.eln.mapper.DictionaryMapper;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
@@ -14,7 +12,6 @@ import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.mutation.MutationRedoInfo;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.model.units.*;
 import com.epam.indigoeln.reaction.service.mutation.experiment.AbstractExperimentMutationHandler;
@@ -31,7 +28,7 @@ import java.util.function.Supplier;
 
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE;
 
-public abstract class ExperimentMutationHandlerBase<T extends Mutation, R extends MutationRedoInfo> extends AbstractExperimentMutationHandler<T, R> {
+public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends AbstractExperimentMutationHandler<T> {
 
     @Inject
     Instance<IndigoAPI> indigoAPI;
@@ -134,13 +131,13 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation, R extend
         return new ReactionMutation.UndoResolveInputs.RowUndo(oldCompound, oldSamples, oldChemicalName);
     }
 
-    public ReactionInput createInputLine(ExperimentEntity experiment, Reaction reaction, @Nullable IndigoMolecule molecule, ReactionRole role, @Nullable Pair<InputAnchor, InputSampleAnchor> anchors) {
-        ReactionInput row = ReactionInput.create(reaction, role, anchors != null ? anchors.a() : experiment.generateNextAnchor(InputAnchor.class));
+    public ReactionInput createInputLine(Reaction reaction, @Nullable IndigoMolecule molecule, ReactionRole role, InputAnchor createdInputAnchor, InputSampleAnchor createdSampleAnchor) {
+        ReactionInput row = ReactionInput.create(reaction, role, createdInputAnchor);
         row.setCompound(molecule != null
                 ? compoundService.virtualCompoundRef(molecule, null, null, null)
                 : compoundService.unknownCompoundRef());
         row.setEq(DEFAULT_ONE);
-        ReactionInputSample reactionInputSample = ReactionInputSample.create(row, anchors != null ? anchors.b() : experiment.generateNextAnchor(InputSampleAnchor.class));
+        ReactionInputSample reactionInputSample = ReactionInputSample.create(row, createdSampleAnchor);
         reactionInputSample.setPurity(DEFAULT_ONE);
         row.setSamples(List.of(reactionInputSample));
         return row;

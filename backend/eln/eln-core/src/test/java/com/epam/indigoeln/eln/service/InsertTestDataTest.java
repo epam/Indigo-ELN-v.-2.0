@@ -1,7 +1,6 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.util.ModelUtil;
-import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.eln.api.MutateModelForm;
 import com.epam.indigoeln.eln.client.*;
 import com.epam.indigoeln.eln.model.*;
@@ -9,6 +8,7 @@ import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.*;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
+import com.epam.indigoeln.reaction.util.MutationsTestUtil;
 import com.epam.indigoeln.test.FeignUtil;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.*;
@@ -17,7 +17,6 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.net.URI;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -103,23 +102,15 @@ class InsertTestDataTest {
         ReactionAnchor reactionAnchor = model.getReactions().getFirst().getAnchor();
 
         // load reaction
-        String molFile = new String(ModelUtil.loadResource(getClass(), "/reaction.rxn"));
-        model = applyMutation(experiment, model, new ReactionMutation.SetScheme(reactionAnchor, molFile));
+        String rxnFile = new String(ModelUtil.loadResource(getClass(), "/reaction.rxn"));
+        model = applyMutation(experiment, model, experimentClient.analyzeScheme(experiment.getId(), reactionAnchor, rxnFile));
         InputAnchor input1Anchor = model.getReactions().getFirst().getInputs().get(0).getAnchor();
         InputAnchor input2Anchor = model.getReactions().getFirst().getInputs().get(1).getAnchor();
         OutputAnchor output1Anchor = model.getReactions().getFirst().getOutputs().get(0).getAnchor();
         OutputAnchor output2Anchor = model.getReactions().getFirst().getOutputs().get(1).getAnchor();
 
         // resolve inputs
-        ReactionMutation.ResolveInputs mutation = new ReactionMutation.ResolveInputs(reactionAnchor, new HashMap<>());
-        experimentClient.analyzeRXN(experiment.getId(), model.getReactions().getFirst().getAnchor()).forEach((anchor, request) -> {
-            if (request != null) {
-                Page<SampleDTO> samples = compoundClient.findSamples(request, Paging.DEFAULT);
-                if (samples.getTotalItems() != 0) {
-                    mutation.inputSamples().put(anchor, samples.getItems().getFirst().getId());
-                }
-            }
-        });
+        ReactionMutation.ResolveInputs mutation = MutationsTestUtil.prepareResolveInputs(experiment, reactionAnchor, experimentClient, compoundClient);
         model = applyMutation(experiment, model, mutation);
         InputSampleAnchor input1Sample1Anchor = model.getReactions().getFirst().getInputs().get(0).getSamples().get(0).getAnchor();
 

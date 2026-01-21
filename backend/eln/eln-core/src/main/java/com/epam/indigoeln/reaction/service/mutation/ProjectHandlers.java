@@ -12,7 +12,6 @@ import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.mutation.MutationRedoInfo;
 import com.epam.indigoeln.reaction.model.mutation.ProjectMutation;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
@@ -25,7 +24,7 @@ import static com.epam.indigoeln.common.util.ModelUtil.editProperty;
 
 @Dependent
 @MutationHandlerFor(ProjectMutation.CreateProject.class)
-class CreateProjectHandler extends AbstractProjectMutationHandler<ProjectMutation.CreateProject, MutationRedoInfo> {
+class CreateProjectHandler extends AbstractProjectMutationHandler<ProjectMutation.CreateProject> {
 
     @Inject
     DictionaryService dictionaryService;
@@ -36,7 +35,7 @@ class CreateProjectHandler extends AbstractProjectMutationHandler<ProjectMutatio
     }
 
     @Override
-    public MutationResult doHandle(ProjectEntity project, @Nullable Void model, ProjectMutation.CreateProject mutation, @Nullable MutationRedoInfo redoInfo) {
+    public MutationResult doHandle(ProjectEntity project, @Nullable Void model, ProjectMutation.CreateProject mutation) {
         project.setName(mutation.name());
         project.setLiterature(mutation.literature());
         project.setDescription(mutation.description());
@@ -46,19 +45,19 @@ class CreateProjectHandler extends AbstractProjectMutationHandler<ProjectMutatio
         project.setRevision(0);
         project.setCreatedBy(userService.getCurrentUserEntity());
         aclService.initProjectACL(project);
-        return new MutationResult("Create project");
+        return new MutationResult("Create project", null);
     }
 }
 
 @Dependent
 @MutationHandlerFor(ProjectMutation.EditProjectAttributes.class)
-class EditProjectAttributesHandler extends AbstractProjectMutationHandler<ProjectMutation.EditProjectAttributes, MutationRedoInfo> {
+class EditProjectAttributesHandler extends AbstractProjectMutationHandler<ProjectMutation.EditProjectAttributes> {
 
     @Inject
     DictionaryService dictionaryService;
 
     @Override
-    public MutationResult doHandle(ProjectEntity project, @Nullable Void model, ProjectMutation.EditProjectAttributes mutation, @Nullable MutationRedoInfo redoInfo) {
+    public MutationResult doHandle(ProjectEntity project, @Nullable Void model, ProjectMutation.EditProjectAttributes mutation) {
         List<String> summaryList = new ArrayList<>();
         editProperty(mutation.name(), project::setName, summaryList, "name");
         editProperty(mutation.keywords(), v -> {
@@ -66,13 +65,13 @@ class EditProjectAttributesHandler extends AbstractProjectMutationHandler<Projec
         }, summaryList, "keywords");
         editProperty(mutation.literature(), project::setLiterature, summaryList, "literature");
         editProperty(mutation.description(), project::setDescription, summaryList, "description");
-        return new MutationResult(entityMutationHelper.formatEditAttributesSummary(summaryList));
+        return new MutationResult(entityMutationHelper.formatEditAttributesSummary(summaryList), null);
     }
 }
 
 @Dependent
 @MutationHandlerFor(ProjectMutation.EditProjectAccess.class)
-class EditProjectAccessHandler extends AbstractProjectMutationHandler<ProjectMutation.EditProjectAccess, MutationRedoInfo> {
+class EditProjectAccessHandler extends AbstractProjectMutationHandler<ProjectMutation.EditProjectAccess> {
 
     @Inject
     ACLService aclService;
@@ -94,18 +93,18 @@ class EditProjectAccessHandler extends AbstractProjectMutationHandler<ProjectMut
     }
 
     @Override
-    public MutationResult doHandle(ProjectEntity project, @Nullable Void model, ProjectMutation.EditProjectAccess mutation, @Nullable MutationRedoInfo redoInfo) {
+    public MutationResult doHandle(ProjectEntity project, @Nullable Void model, ProjectMutation.EditProjectAccess mutation) {
         String summary = entityMutationHelper.formatEditAccessSummary(mutation.edits());
         projectRepository.lockProject(project);
         aclService.updateProjectACL(project, mutation.edits());
         // !!! create revisions for notebook/experiment, if they are affected
-        return new MutationResult(summary);
+        return new MutationResult(summary, null);
     }
 }
 
 @Dependent
 @MutationHandlerFor(ProjectMutation.CreateProjectAttachment.class)
-class CreateProjectAttachmentHandler extends AbstractProjectMutationHandler<ProjectMutation.CreateProjectAttachment, MutationRedoInfo> {
+class CreateProjectAttachmentHandler extends AbstractProjectMutationHandler<ProjectMutation.CreateProjectAttachment> {
 
     @Inject
     AttachmentRepository attachmentRepository;
@@ -116,17 +115,17 @@ class CreateProjectAttachmentHandler extends AbstractProjectMutationHandler<Proj
     }
 
     @Override
-    public MutationResult doHandle(ProjectEntity project, @Nullable Void model, ProjectMutation.CreateProjectAttachment mutation, @Nullable MutationRedoInfo redoInfo) {
+    public MutationResult doHandle(ProjectEntity project, @Nullable Void model, ProjectMutation.CreateProjectAttachment mutation) {
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
         project.getAttachments().add(attachment);
         attachment.getProjects().add(project);
-        return new MutationResult(entityMutationHelper.formatCreateAttachmentSummary(attachment));
+        return new MutationResult(entityMutationHelper.formatCreateAttachmentSummary(attachment), null);
     }
 }
 
 @Dependent
 @MutationHandlerFor(ProjectMutation.DeleteProjectAttachment.class)
-class DeleteProjectAttachmentHandler extends AbstractProjectMutationHandler<ProjectMutation.DeleteProjectAttachment, MutationRedoInfo> {
+class DeleteProjectAttachmentHandler extends AbstractProjectMutationHandler<ProjectMutation.DeleteProjectAttachment> {
 
     @Inject
     AttachmentRepository attachmentRepository;
@@ -137,18 +136,18 @@ class DeleteProjectAttachmentHandler extends AbstractProjectMutationHandler<Proj
     }
 
     @Override
-    public MutationResult doHandle(ProjectEntity project, @Nullable Void model, ProjectMutation.DeleteProjectAttachment mutation, @Nullable MutationRedoInfo redoInfo) {
+    public MutationResult doHandle(ProjectEntity project, @Nullable Void model, ProjectMutation.DeleteProjectAttachment mutation) {
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
         project.getAttachments().remove(attachment);
         attachment.getProjects().remove(project);
         attachment.setDeleted(true);
-        return new MutationResult("Deleted attachment: " + attachment.getName());
+        return new MutationResult("Deleted attachment: " + attachment.getName(), null);
     }
 }
 
 @Dependent
 @MutationHandlerFor(ProjectMutation.ProjectUndo.class)
-class ProjectUndoHandler extends AbstractProjectMutationHandler<ProjectMutation.ProjectUndo, MutationRedoInfo> {
+class ProjectUndoHandler extends AbstractProjectMutationHandler<ProjectMutation.ProjectUndo> {
 
     @Inject
     ProjectRepository projectRepository;
@@ -157,7 +156,7 @@ class ProjectUndoHandler extends AbstractProjectMutationHandler<ProjectMutation.
 
     ProjectRevisionEntity initialRevision;
     Mutation reverseMutation;
-    AbstractProjectMutationHandler<Mutation, ?> reverseHandler;
+    AbstractProjectMutationHandler<Mutation> reverseHandler;
 
     @Override
     public boolean isAffectsAttachments() {
@@ -185,15 +184,15 @@ class ProjectUndoHandler extends AbstractProjectMutationHandler<ProjectMutation.
     }
 
     @Override
-    public MutationResult doHandle(ProjectEntity project, @Nullable Void model, ProjectMutation.ProjectUndo mutation, @Nullable MutationRedoInfo redoInfo) {
-        reverseHandler.doHandle(project, model, reverseMutation, null);
-        return new MutationResult("Undo: " + initialRevision.getSummary());
+    public MutationResult doHandle(ProjectEntity project, @Nullable Void model, ProjectMutation.ProjectUndo mutation) {
+        reverseHandler.doHandle(project, model, reverseMutation);
+        return new MutationResult("Undo: " + initialRevision.getSummary(), null);
     }
 }
 
 @Dependent
 @MutationHandlerFor(ProjectMutation.ProjectRedo.class)
-class ProjectRedoHandler extends AbstractProjectMutationHandler<ProjectMutation.ProjectRedo, MutationRedoInfo> {
+class ProjectRedoHandler extends AbstractProjectMutationHandler<ProjectMutation.ProjectRedo> {
 
     @Inject
     ProjectRepository projectRepository;
@@ -202,7 +201,7 @@ class ProjectRedoHandler extends AbstractProjectMutationHandler<ProjectMutation.
 
     ProjectRevisionEntity initialRevision;
     Mutation initialMutation;
-    AbstractProjectMutationHandler<Mutation, MutationRedoInfo> initialHandler;
+    AbstractProjectMutationHandler<Mutation> initialHandler;
 
     @Override
     public boolean isAffectsAttachments() {
@@ -227,9 +226,9 @@ class ProjectRedoHandler extends AbstractProjectMutationHandler<ProjectMutation.
     }
 
     @Override
-    public MutationResult doHandle(ProjectEntity project, @Nullable Void model, ProjectMutation.ProjectRedo mutation, @Nullable MutationRedoInfo redoInfo) {
+    public MutationResult doHandle(ProjectEntity project, @Nullable Void model, ProjectMutation.ProjectRedo mutation) {
         // !!! verify revision was undone
-        initialHandler.doHandle(project, model, initialMutation, initialRevision.getRedoInfo());
-        return new MutationResult("Redo: " + initialRevision.getSummary());
+        initialHandler.doHandle(project, model, initialMutation);
+        return new MutationResult("Redo: " + initialRevision.getSummary(), null);
     }
 }

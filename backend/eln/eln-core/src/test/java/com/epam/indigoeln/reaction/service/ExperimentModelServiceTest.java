@@ -16,6 +16,7 @@ import com.epam.indigoeln.reaction.model.mutation.*;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
 import com.epam.indigoeln.reaction.util.CalculationReportBuilder;
+import com.epam.indigoeln.reaction.util.MutationsTestUtil;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import org.junit.jupiter.api.AfterAll;
@@ -64,14 +65,14 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     @Test
     @Order(100)
     void testLoadReaction() {
-        String molFile = new String(ModelUtil.loadResource(getClass(), "/reaction.rxn"));
-        applyMutation(new ReactionMutation.SetScheme(reaction.getAnchor(), molFile));
+        String rxnFile = new String(ModelUtil.loadResource(getClass(), "/reaction.rxn"));
+        applyMutation(experimentClient.analyzeScheme(experiment.getId(), reaction.getAnchor(), rxnFile));
     }
 
     @Test
     @Order(200)
     void testResolveInputs() {
-        ReactionMutation.ResolveInputs mutation = prepareResolveInputs();
+        ReactionMutation.ResolveInputs mutation = MutationsTestUtil.prepareResolveInputs(experiment, reaction.getAnchor(), experimentClient, compoundClient);
         applyMutation(mutation);
     }
 

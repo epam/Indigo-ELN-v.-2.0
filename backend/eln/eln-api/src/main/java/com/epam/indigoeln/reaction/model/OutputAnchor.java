@@ -2,14 +2,16 @@ package com.epam.indigoeln.reaction.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 
+import java.util.UUID;
+
 public class OutputAnchor extends Anchor {
 
-    public OutputAnchor(int number) {
-        super("O", number);
+    public OutputAnchor(UUID value) {
+        super(value);
     }
 
     @JsonCreator
-    OutputAnchor(String str) {
-        super("O", str);
+    public OutputAnchor(String str) {
+        super(str);
     }
 }

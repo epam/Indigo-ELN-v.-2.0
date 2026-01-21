@@ -17,9 +17,12 @@ import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.eln.repository.TemplateRepository;
+import com.epam.indigoeln.indigowrapper.IndigoAPI;
+import com.epam.indigoeln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import com.epam.indigoeln.reports.api.ReportsAPI;
@@ -79,6 +82,8 @@ public class ExperimentService {
     CompoundService compoundService;
     @Inject
     SnapshotMapper snapshotMapper;
+    @Inject
+    IndigoAPI indigoAPI;
 
     public ExperimentDetailsDTO createExperiment(UUID notebookId, ExperimentRequest request) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
@@ -221,6 +226,19 @@ public class ExperimentService {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
         return experimentMapper.revisionToDTOList(experiment.getRevisions());
+    }
+
+    public ReactionMutation.SetScheme analyzeScheme(UUID experimentId, ReactionAnchor reactionAnchor, String rxnFile) {
+        IndigoReaction reaction = indigoAPI.loadReaction(rxnFile);
+        return new ReactionMutation.SetScheme(
+                reactionAnchor,
+                rxnFile,
+                StreamEx.of(reaction.reactants().iterator()).map(x -> new InputAnchor(UUID.randomUUID())).toList(),
+                StreamEx.of(reaction.reactants().iterator()).map(x -> new InputSampleAnchor(UUID.randomUUID())).toList(),
+                StreamEx.of(reaction.catalysts().iterator()).map(x -> new InputAnchor(UUID.randomUUID())).toList(),
+                StreamEx.of(reaction.catalysts().iterator()).map(x -> new InputSampleAnchor(UUID.randomUUID())).toList(),
+                StreamEx.of(reaction.products().iterator()).map(x -> new OutputAnchor(UUID.randomUUID())).toList()
+        );
     }
 
     public record ExperimentReportContent (

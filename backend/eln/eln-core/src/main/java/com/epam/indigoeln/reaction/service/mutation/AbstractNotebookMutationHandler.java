@@ -10,7 +10,6 @@ import com.epam.indigoeln.eln.service.RevisionService;
 import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.reaction.model.NotebookSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.mutation.MutationRedoInfo;
 import com.epam.indigoeln.reaction.model.patch.NotebookPatch;
 import com.epam.indigoeln.reaction.model.patch.handler2.NotebookDiffHandler;
 import jakarta.inject.Inject;
@@ -20,7 +19,7 @@ import org.jspecify.annotations.Nullable;
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 import static com.epam.indigoeln.eln.util.ModelUtil.wrapConstraintViolation;
 
-public abstract class AbstractNotebookMutationHandler<T extends Mutation, R extends MutationRedoInfo> extends AbstractMutationHandler<T, Void, R, NotebookEntity, NotebookSnapshot, NotebookPatch> implements NotebookMutationHandler<T, R> {
+public abstract class AbstractNotebookMutationHandler<T extends Mutation> extends AbstractMutationHandler<T, Void, NotebookEntity, NotebookSnapshot, NotebookPatch> implements NotebookMutationHandler<T> {
 
     @Inject
     protected SnapshotMapper snapshotMapper;
@@ -76,7 +75,7 @@ public abstract class AbstractNotebookMutationHandler<T extends Mutation, R exte
 
     @Override
     protected final void doCreateRevision(NotebookEntity notebook, T mutation, MutationResult result, Integer revisionNo, NotebookPatch patch) {
-        revisionService.addRevision(notebook, revisionNo, notebook.getModifiedAt(), result.summary(), mutation, result.redoInfo(), result.reverseMutation(), patch);
+        revisionService.addRevision(notebook, revisionNo, notebook.getModifiedAt(), result.summary(), mutation, result.reverseMutation(), patch);
     }
 
     @Nullable

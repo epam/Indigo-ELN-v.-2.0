@@ -28,6 +28,7 @@ import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Transactional
@@ -68,9 +69,9 @@ public class ExperimentModelService {
     }
 
     @Valid
-    public ExperimentModel createNewModel(ExperimentEntity experiment) {
+    public ExperimentModel createNewModel() {
         ExperimentModel model = new ExperimentModel();
-        Reaction reaction = Reaction.create(model, experiment.generateNextAnchor(ReactionAnchor.class));
+        Reaction reaction = Reaction.create(model, new ReactionAnchor(UUID.randomUUID()));
         model.setReactions(List.of(reaction));
         model.setSchemaVersion(ExperimentModel.SCHEMA_VERSION);
         return model;
@@ -78,7 +79,7 @@ public class ExperimentModelService {
 
     public Pair<ExperimentSnapshot, ExperimentPatch> applyMutation(ExperimentEntity experiment, Mutation mutation) {
         log.debug("Mutating experiment {}: {}", experiment.getId(), mutation);
-        ExperimentMutationHandler<Mutation, ?> handler = mutationHandlerRegistry.findHandler(mutation);
+        ExperimentMutationHandler<Mutation> handler = mutationHandlerRegistry.findHandler(mutation);
         return handler.applyMutation(experiment, mutation);
     }
 

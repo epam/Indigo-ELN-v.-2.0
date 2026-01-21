@@ -91,7 +91,7 @@ public class NotebookService {
 
     public Pair<NotebookSnapshot, NotebookPatch> applyMutation(NotebookEntity notebook, NotebookMutation mutation) {
         log.debug("Mutating notebook {}: {}", notebook.getId(), mutation);
-        NotebookMutationHandler<Mutation, ?> handler = mutationHandlerRegistry.findHandler(mutation);
+        NotebookMutationHandler<Mutation> handler = mutationHandlerRegistry.findHandler(mutation);
         return handler.applyMutation(notebook, mutation);
     }
 

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.SIMPLE_NAME, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(ReactionMutation.SetScheme.class),
+        @JsonSubTypes.Type(ReactionMutation.UndoSetScheme.class),
         @JsonSubTypes.Type(ReactionMutation.ResolveInputs.class),
         @JsonSubTypes.Type(ReactionMutation.UndoResolveInputs.class),
         @JsonSubTypes.Type(ReactionMutation.AddEmptyInput.class),

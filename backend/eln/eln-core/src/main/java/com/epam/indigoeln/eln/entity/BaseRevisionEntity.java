@@ -1,9 +1,7 @@
 package com.epam.indigoeln.eln.entity;
 
 import com.epam.indigoeln.eln.config.hibernate.MutationConverter;
-import com.epam.indigoeln.eln.config.hibernate.MutationRedoInfoConverter;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.mutation.MutationRedoInfo;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -40,11 +38,6 @@ public abstract class BaseRevisionEntity {
     @JdbcTypeCode(SqlTypes.JSON)
     @Convert(converter = MutationConverter.class)
     private Mutation mutation;
-
-    @Nullable
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Convert(converter = MutationRedoInfoConverter.class)
-    private MutationRedoInfo redoInfo;
 
     @Nullable
     @JdbcTypeCode(SqlTypes.JSON)

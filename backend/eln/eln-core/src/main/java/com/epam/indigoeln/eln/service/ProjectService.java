@@ -85,7 +85,7 @@ public class ProjectService {
 
     public Pair<ProjectSnapshot, ProjectPatch> applyMutation(ProjectEntity project, ProjectMutation mutation) {
         log.debug("Mutating project {}: {}", project.getId(), mutation);
-        ProjectMutationHandler<Mutation, ?> handler = mutationHandlerRegistry.findHandler(mutation);
+        ProjectMutationHandler<Mutation> handler = mutationHandlerRegistry.findHandler(mutation);
         return handler.applyMutation(project, mutation);
     }
 

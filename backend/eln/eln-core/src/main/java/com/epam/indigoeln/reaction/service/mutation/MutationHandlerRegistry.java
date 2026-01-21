@@ -17,11 +17,11 @@ public class MutationHandlerRegistry {
 
     @Any
     @Inject
-    Instance<MutationHandler<?, ?, ?, ?, ?, ?>> handlers;
+    Instance<MutationHandler<?, ?, ?, ?, ?>> handlers;
     
     @SuppressWarnings("unchecked")
-    public <H extends MutationHandler<?, ?, ?, ?, ?, ?>> H findHandler(Mutation mutation) {
-        Instance<MutationHandler<?, ?, ?, ?, ?, ?>> selected = handlers.select(new MutationHandlerForLiteral(mutation.getClass()));
+    public <H extends MutationHandler<?, ?, ?, ?, ?>> H findHandler(Mutation mutation) {
+        Instance<MutationHandler<?, ?, ?, ?, ?>> selected = handlers.select(new MutationHandlerForLiteral(mutation.getClass()));
         if (selected.isUnsatisfied()) {
             throw new IllegalArgumentException("No handler found for: " + mutation.getClass().getName());
         }

@@ -13,6 +13,7 @@ import com.epam.indigoeln.reaction.model.mutation.*;
 import com.epam.indigoeln.reaction.model.outputsample.*;
 import com.epam.indigoeln.reaction.model.units.*;
 import com.epam.indigoeln.reaction.util.CalculationReportBuilder;
+import com.epam.indigoeln.reaction.util.MutationsTestUtil;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import org.assertj.core.data.Offset;
@@ -75,14 +76,14 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testUnknownField() {
         assertThatClientCall(() -> {
-            experimentClient.mutateExperimentModel2Raw(experiment.getId(), experiment.getRevision(), "{\"type\": \"AddEmptyInput\", \"anchor\": \"R1\", \"unknownField\": 123}");
+            experimentClient.mutateExperimentModel2Raw(experiment.getId(), experiment.getRevision(), "{\"type\": \"AddEmptyInput\", \"anchor\": \"00000000-0000-0000-0000-000000000001\", \"unknownField\": 123}");
         }).isBadRequest("Unrecognized field \"unknownField\"");
     }
 
     @Test
     void testLoadReaction() {
-        String molFile = new String(loadResource(getClass(), "/reaction.rxn"));
-        applyMutation(new ReactionMutation.SetScheme(reaction.getAnchor(), molFile));
+        String rxnFile = new String(loadResource(getClass(), "/reaction.rxn"));
+        applyMutation(experimentClient.analyzeScheme(experiment.getId(), reaction.getAnchor(), rxnFile));
         assertThat(input1).isNotNull();
         assertThat(input1.getCompound()).isInstanceOf(CompoundRef.Virtual.class);
         assertThat(input1Sample1).isNotNull();
@@ -492,8 +493,12 @@ public class MutationsTest extends MutationsTestBase {
     }
 
     private void loadScheme() {
-        String molFile = new String(ModelUtil.loadResource(getClass(), "/reaction.rxn"));
-        applyMutation(new ReactionMutation.SetScheme(reaction.getAnchor(), molFile), false);
+        String rxnFile = new String(ModelUtil.loadResource(getClass(), "/reaction.rxn"));
+        applyMutation(experimentClient.analyzeScheme(experiment.getId(), reaction.getAnchor(), rxnFile));
+    }
+
+    private ReactionMutation.ResolveInputs prepareResolveInputs() {
+        return MutationsTestUtil.prepareResolveInputs(experiment, reaction.getAnchor(), experimentClient, compoundClient);
     }
 
     private void addOutputSample() {

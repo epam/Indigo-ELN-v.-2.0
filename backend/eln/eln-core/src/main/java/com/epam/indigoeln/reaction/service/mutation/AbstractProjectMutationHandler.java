@@ -10,7 +10,6 @@ import com.epam.indigoeln.eln.service.RevisionService;
 import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.reaction.model.ProjectSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.mutation.MutationRedoInfo;
 import com.epam.indigoeln.reaction.model.patch.ProjectPatch;
 import com.epam.indigoeln.reaction.model.patch.handler2.ProjectDiffHandler;
 import jakarta.inject.Inject;
@@ -22,7 +21,7 @@ import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 import static com.epam.indigoeln.eln.util.ModelUtil.wrapConstraintViolation;
 
 @Slf4j
-public abstract class AbstractProjectMutationHandler<T extends Mutation, R extends MutationRedoInfo> extends AbstractMutationHandler<T, Void, R, ProjectEntity, ProjectSnapshot, ProjectPatch> implements ProjectMutationHandler<T, R> {
+public abstract class AbstractProjectMutationHandler<T extends Mutation> extends AbstractMutationHandler<T, Void, ProjectEntity, ProjectSnapshot, ProjectPatch> implements ProjectMutationHandler<T> {
 
     @Inject
     protected SnapshotMapper snapshotMapper;
@@ -78,7 +77,7 @@ public abstract class AbstractProjectMutationHandler<T extends Mutation, R exten
 
     @Override
     protected final void doCreateRevision(ProjectEntity project, T mutation, MutationResult result, Integer revisionNo, ProjectPatch patch) {
-        revisionService.addRevision(project, revisionNo, project.getModifiedAt(), result.summary(), mutation, result.redoInfo(), result.reverseMutation(), patch);
+        revisionService.addRevision(project, revisionNo, project.getModifiedAt(), result.summary(), mutation, result.reverseMutation(), patch);
     }
 
     @Nullable

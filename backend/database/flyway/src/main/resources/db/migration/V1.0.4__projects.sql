@@ -67,7 +67,6 @@ CREATE TABLE Project_Revision (
     datetime TIMESTAMPTZ NOT NULL,
     summary VARCHAR(1000) NOT NULL,
     mutation JSONB NOT NULL,
-    redo_info JSONB,
     reverse_mutation JSONB,
     diff JSONB NOT NULL,
     CONSTRAINT project_revision_pk PRIMARY KEY (project_id, revision),

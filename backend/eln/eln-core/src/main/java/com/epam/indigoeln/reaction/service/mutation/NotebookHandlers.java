@@ -11,7 +11,6 @@ import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.mutation.MutationRedoInfo;
 import com.epam.indigoeln.reaction.model.mutation.NotebookMutation;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
@@ -24,7 +23,7 @@ import static com.epam.indigoeln.common.util.ModelUtil.editProperty;
 
 @Dependent
 @MutationHandlerFor(NotebookMutation.CreateNotebook.class)
-class CreateNotebookHandler extends AbstractNotebookMutationHandler<NotebookMutation.CreateNotebook, MutationRedoInfo> {
+class CreateNotebookHandler extends AbstractNotebookMutationHandler<NotebookMutation.CreateNotebook> {
 
     @Inject
     UserService userService;
@@ -35,32 +34,32 @@ class CreateNotebookHandler extends AbstractNotebookMutationHandler<NotebookMuta
     }
 
     @Override
-    public MutationResult doHandle(NotebookEntity notebook, @Nullable Void model, NotebookMutation.CreateNotebook mutation, @Nullable MutationRedoInfo redoInfo) {
+    public MutationResult doHandle(NotebookEntity notebook, @Nullable Void model, NotebookMutation.CreateNotebook mutation) {
         notebook.setName(mutation.name());
         notebook.setDescription(mutation.description());
         notebook.setRevision(0);
         notebook.setCreatedBy(userService.getCurrentUserEntity());
         aclService.initNotebookACL(notebook);
-        return new MutationResult("Create notebook");
+        return new MutationResult("Create notebook", null);
     }
 }
 
 @Dependent
 @MutationHandlerFor(NotebookMutation.EditNotebookAttributes.class)
-class EditNotebookAttributesHandler extends AbstractNotebookMutationHandler<NotebookMutation.EditNotebookAttributes, MutationRedoInfo> {
+class EditNotebookAttributesHandler extends AbstractNotebookMutationHandler<NotebookMutation.EditNotebookAttributes> {
 
     @Override
-    public MutationResult doHandle(NotebookEntity notebook, @Nullable Void model, NotebookMutation.EditNotebookAttributes mutation, @Nullable MutationRedoInfo redoInfo) {
+    public MutationResult doHandle(NotebookEntity notebook, @Nullable Void model, NotebookMutation.EditNotebookAttributes mutation) {
         List<String> summaryList = new ArrayList<>();
         editProperty(mutation.name(), notebook::setName, summaryList, "name");
         editProperty(mutation.description(), notebook::setDescription, summaryList, "description");
-        return new MutationResult(entityMutationHelper.formatEditAttributesSummary(summaryList));
+        return new MutationResult(entityMutationHelper.formatEditAttributesSummary(summaryList), null);
     }
 }
 
 @Dependent
 @MutationHandlerFor(NotebookMutation.EditNotebookAccess.class)
-class EditNotebookAccessHandler extends AbstractNotebookMutationHandler<NotebookMutation.EditNotebookAccess, MutationRedoInfo> {
+class EditNotebookAccessHandler extends AbstractNotebookMutationHandler<NotebookMutation.EditNotebookAccess> {
 
     @Inject
     ACLService aclService;
@@ -82,18 +81,18 @@ class EditNotebookAccessHandler extends AbstractNotebookMutationHandler<Notebook
     }
 
     @Override
-    public MutationResult doHandle(NotebookEntity notebook, @Nullable Void model, NotebookMutation.EditNotebookAccess mutation, @Nullable MutationRedoInfo redoInfo) {
+    public MutationResult doHandle(NotebookEntity notebook, @Nullable Void model, NotebookMutation.EditNotebookAccess mutation) {
         String summary = entityMutationHelper.formatEditAccessSummary(mutation.edits());
         projectRepository.lockProject(notebook.getProject());
         aclService.updateNotebookACL(notebook.getProject(), notebook, mutation.edits());
         // !!! create revisions for project/experiment, if they are affected
-        return new MutationResult(summary);
+        return new MutationResult(summary, null);
     }
 }
 
 @Dependent
 @MutationHandlerFor(NotebookMutation.CreateNotebookAttachment.class)
-class CreateNotebookAttachmentHandler extends AbstractNotebookMutationHandler<NotebookMutation.CreateNotebookAttachment, MutationRedoInfo> {
+class CreateNotebookAttachmentHandler extends AbstractNotebookMutationHandler<NotebookMutation.CreateNotebookAttachment> {
 
     @Inject
     AttachmentRepository attachmentRepository;
@@ -104,17 +103,17 @@ class CreateNotebookAttachmentHandler extends AbstractNotebookMutationHandler<No
     }
 
     @Override
-    public MutationResult doHandle(NotebookEntity notebook, @Nullable Void model, NotebookMutation.CreateNotebookAttachment mutation, @Nullable MutationRedoInfo redoInfo) {
+    public MutationResult doHandle(NotebookEntity notebook, @Nullable Void model, NotebookMutation.CreateNotebookAttachment mutation) {
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
         notebook.getAttachments().add(attachment);
         attachment.getNotebooks().add(notebook);
-        return new MutationResult(entityMutationHelper.formatCreateAttachmentSummary(attachment));
+        return new MutationResult(entityMutationHelper.formatCreateAttachmentSummary(attachment), null);
     }
 }
 
 @Dependent
 @MutationHandlerFor(NotebookMutation.DeleteNotebookAttachment.class)
-class DeleteNotebookAttachmentHandler extends AbstractNotebookMutationHandler<NotebookMutation.DeleteNotebookAttachment, MutationRedoInfo> {
+class DeleteNotebookAttachmentHandler extends AbstractNotebookMutationHandler<NotebookMutation.DeleteNotebookAttachment> {
 
     @Inject
     AttachmentRepository attachmentRepository;
@@ -125,18 +124,18 @@ class DeleteNotebookAttachmentHandler extends AbstractNotebookMutationHandler<No
     }
 
     @Override
-    public MutationResult doHandle(NotebookEntity notebook, @Nullable Void model, NotebookMutation.DeleteNotebookAttachment mutation, @Nullable MutationRedoInfo redoInfo) {
+    public MutationResult doHandle(NotebookEntity notebook, @Nullable Void model, NotebookMutation.DeleteNotebookAttachment mutation) {
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
         notebook.getAttachments().remove(attachment);
         attachment.getNotebooks().remove(notebook);
         attachment.setDeleted(true);
-        return new MutationResult("Deleted attachment: " + attachment.getName());
+        return new MutationResult("Deleted attachment: " + attachment.getName(), null);
     }
 }
 
 @Dependent
 @MutationHandlerFor(NotebookMutation.NotebookUndo.class)
-class NotebookUndoHandler extends AbstractNotebookMutationHandler<NotebookMutation.NotebookUndo, MutationRedoInfo> {
+class NotebookUndoHandler extends AbstractNotebookMutationHandler<NotebookMutation.NotebookUndo> {
 
     @Inject
     NotebookRepository notebookRepository;
@@ -145,7 +144,7 @@ class NotebookUndoHandler extends AbstractNotebookMutationHandler<NotebookMutati
 
     NotebookRevisionEntity initialRevision;
     Mutation reverseMutation;
-    AbstractNotebookMutationHandler<Mutation, ?> reverseHandler;
+    AbstractNotebookMutationHandler<Mutation> reverseHandler;
 
     @Override
     public boolean isAffectsAttachments() {
@@ -173,15 +172,15 @@ class NotebookUndoHandler extends AbstractNotebookMutationHandler<NotebookMutati
     }
 
     @Override
-    public MutationResult doHandle(NotebookEntity notebook, @Nullable Void model, NotebookMutation.NotebookUndo mutation, @Nullable MutationRedoInfo redoInfo) {
-        reverseHandler.doHandle(notebook, model, reverseMutation, null);
-        return new MutationResult("Undo: " + initialRevision.getSummary());
+    public MutationResult doHandle(NotebookEntity notebook, @Nullable Void model, NotebookMutation.NotebookUndo mutation) {
+        reverseHandler.doHandle(notebook, model, reverseMutation);
+        return new MutationResult("Undo: " + initialRevision.getSummary(), null);
     }
 }
 
 @Dependent
 @MutationHandlerFor(NotebookMutation.NotebookRedo.class)
-class NotebookRedoHandler extends AbstractNotebookMutationHandler<NotebookMutation.NotebookRedo, MutationRedoInfo> {
+class NotebookRedoHandler extends AbstractNotebookMutationHandler<NotebookMutation.NotebookRedo> {
 
     @Inject
     NotebookRepository notebookRepository;
@@ -190,7 +189,7 @@ class NotebookRedoHandler extends AbstractNotebookMutationHandler<NotebookMutati
 
     NotebookRevisionEntity initialRevision;
     Mutation initialMutation;
-    AbstractNotebookMutationHandler<Mutation, MutationRedoInfo> initialHandler;
+    AbstractNotebookMutationHandler<Mutation> initialHandler;
 
     @Override
     public boolean isAffectsAttachments() {
@@ -215,9 +214,9 @@ class NotebookRedoHandler extends AbstractNotebookMutationHandler<NotebookMutati
     }
 
     @Override
-    public MutationResult doHandle(NotebookEntity notebook, @Nullable Void model, NotebookMutation.NotebookRedo mutation, @Nullable MutationRedoInfo redoInfo) {
+    public MutationResult doHandle(NotebookEntity notebook, @Nullable Void model, NotebookMutation.NotebookRedo mutation) {
         // !!! verify revision was undone
-        initialHandler.doHandle(notebook, model, initialMutation, initialRevision.getRedoInfo());
-        return new MutationResult("Redo: " + initialRevision.getSummary());
+        initialHandler.doHandle(notebook, model, initialMutation);
+        return new MutationResult("Redo: " + initialRevision.getSummary(), null);
     }
 }

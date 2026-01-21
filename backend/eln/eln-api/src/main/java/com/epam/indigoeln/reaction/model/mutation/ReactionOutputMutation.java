@@ -2,19 +2,26 @@ package com.epam.indigoeln.reaction.model.mutation;
 
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.reaction.model.OutputAnchor;
+import com.epam.indigoeln.reaction.model.OutputSampleAnchor;
 import com.epam.indigoeln.reaction.model.ReactionOutputSample;
 import com.epam.indigoeln.reaction.model.ReactionOutputType;
 import com.epam.indigoeln.reaction.model.units.EnteredValueSource;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.UUID;
+
 public interface ReactionOutputMutation extends Mutation {
 
     OutputAnchor anchor();
 
     record AddProductSample(
-            @NotNull OutputAnchor anchor
+            @NotNull OutputAnchor anchor,
+            @NotNull OutputSampleAnchor createdSampleAnchor
     ) implements ReactionOutputMutation {
+        public AddProductSample(@NotNull OutputAnchor anchor) {
+            this(anchor, new OutputSampleAnchor(UUID.randomUUID()));
+        }
     }
 
     record SetOutputRowType(

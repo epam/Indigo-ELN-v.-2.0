@@ -3,12 +3,11 @@ package com.epam.indigoeln.reaction.service.mutation;
 import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.eln.entity.WithRevision;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.mutation.MutationRedoInfo;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.jspecify.annotations.Nullable;
 
-public abstract class AbstractMutationHandler<T extends Mutation, M, R extends MutationRedoInfo, E extends WithRevision, S, P> implements MutationHandler<T, M, R, E, S, P> {
+public abstract class AbstractMutationHandler<T extends Mutation, M, E extends WithRevision, S, P> implements MutationHandler<T, M, E, S, P> {
 
     @PersistenceContext
     EntityManager em;
@@ -40,7 +39,7 @@ public abstract class AbstractMutationHandler<T extends Mutation, M, R extends M
         M model = doPrepareModel(entity);
         // perform the actual mutation;
         // undo/redo handlers must delegate to reverse/initial handler
-        MutationResult result = doHandle(entity, model, mutation, null);
+        MutationResult result = doHandle(entity, model, mutation);
         // flush database to make sure all constraints hold
         em.flush();
         // make snapshot of "after" state
@@ -67,7 +66,7 @@ public abstract class AbstractMutationHandler<T extends Mutation, M, R extends M
         return null;
     }
 
-    public abstract MutationResult doHandle(E entity, @Nullable M model, T mutation, @Nullable R redoInfo);
+    public abstract MutationResult doHandle(E entity, @Nullable M model, T mutation);
 
     protected abstract void doUpdateEntity(E entity, @Nullable M model, S snapshotBefore, S snapshotAfter);
 

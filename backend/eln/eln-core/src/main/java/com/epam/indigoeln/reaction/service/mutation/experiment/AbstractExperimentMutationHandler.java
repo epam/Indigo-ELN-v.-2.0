@@ -14,7 +14,6 @@ import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.mutation.MutationRedoInfo;
 import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import com.epam.indigoeln.reaction.service.ExperimentModelHelperService;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
@@ -37,7 +36,7 @@ import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Slf4j
-public abstract class AbstractExperimentMutationHandler<T extends Mutation, R extends MutationRedoInfo> extends AbstractMutationHandler<T, ExperimentModel, R, ExperimentEntity, ExperimentSnapshot, ExperimentPatch> implements ExperimentMutationHandler<T, R> {
+public abstract class AbstractExperimentMutationHandler<T extends Mutation> extends AbstractMutationHandler<T, ExperimentModel, ExperimentEntity, ExperimentSnapshot, ExperimentPatch> implements ExperimentMutationHandler<T> {
 
     @Inject
     SnapshotMapper snapshotMapper;
@@ -87,7 +86,7 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation, R ex
         if (model != null) {
             reactionCalculator.recalculate(model);
             doUpdateReferences(experiment, model,  snapshotBefore, snapshotAfter);
-            doValidateModel(experiment, model);
+            doValidateModel(model);
         }
         updateDates(experiment, userService.getCurrentUserEntity());
         if (model != null) {
@@ -107,7 +106,7 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation, R ex
 
     @Override
     protected final void doCreateRevision(ExperimentEntity experiment, T mutation, MutationResult result, Integer revisionNo, ExperimentPatch patch) {
-        revisionService.addRevision(experiment, revisionNo, experiment.getModifiedAt(), result.summary(), mutation, result.redoInfo(), result.reverseMutation(), patch);
+        revisionService.addRevision(experiment, revisionNo, experiment.getModifiedAt(), result.summary(), mutation, result.reverseMutation(), patch);
     }
 
     @Override
@@ -149,7 +148,7 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation, R ex
         }
     }
 
-    protected void doValidateModel(ExperimentEntity experiment, ExperimentModel model) {
+    protected void doValidateModel(ExperimentModel model) {
         Set<ConstraintViolation<ExperimentModel>> violations = validator.validate(model);
         if (!violations.isEmpty()) {
             log.error("Mutation produced invalid model:\n{}", StreamEx.of(violations).joining("\n"));
@@ -173,27 +172,6 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation, R ex
                     }
                 }
             }
-            // check anchors are unique
-            Map<Integer, Integer> anchors = new HashMap<>();
-            for (Reaction reaction : model.getReactions()) {
-                anchors.merge(reaction.getAnchor().getNumber(), 1, Integer::sum);
-                for (ReactionInput input : reaction.getInputs()) {
-                    anchors.merge(input.getAnchor().getNumber(), 1, Integer::sum);
-                    for (ReactionInputSample sample : input.getSamples()) {
-                        anchors.merge(sample.getAnchor().getNumber(), 1, Integer::sum);
-                    }
-                }
-                for (ReactionOutput output : reaction.getOutputs()) {
-                    anchors.merge(output.getAnchor().getNumber(), 1, Integer::sum);
-                    for (ReactionOutputSample sample : output.getSamples()) {
-                        anchors.merge(sample.getAnchor().getNumber(), 1, Integer::sum);
-                    }
-                }
-            }
-            anchors.forEach((anchor, count) -> {
-                Preconditions.checkState(count <= 1, "Anchor %s used multiple times", anchor);
-                Preconditions.checkState(anchor <= experiment.getLastUsedAnchor());
-            });
         } catch (Exception e) {
             throw new RuntimeException("Mutation produced invalid model: " + e.getMessage(), e);
         }

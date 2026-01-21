@@ -11,19 +11,25 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ExperimentModelPatchServiceTest {
 
+    ReactionAnchor REACTION = new ReactionAnchor(UUID.fromString("00000000-0000-0000-0000-000000000001"));
+    ReactionAnchor REACTION_2 = new ReactionAnchor(UUID.fromString("00000000-0000-0000-0000-000000000002"));
+    ReactionAnchor REACTION_3 = new ReactionAnchor(UUID.fromString("00000000-0000-0000-0000-000000000003"));
+    InputAnchor INPUT = new InputAnchor(UUID.fromString("00000000-0000-0000-0000-000000000010"));
+
     ExperimentModelService service = new ExperimentModelService(FeignUtil.OBJECT_MAPPER);
 
     ExperimentSnapshot baseExperiment = new ExperimentSnapshot();
     ExperimentModel baseModel = new ExperimentModel();
-    Reaction baseReaction = Reaction.create(baseModel, new ReactionAnchor(1));
+    Reaction baseReaction = Reaction.create(baseModel, REACTION);
     ExperimentSnapshot experiment = new ExperimentSnapshot();
     ExperimentModel model = new ExperimentModel();
-    Reaction reaction = Reaction.create(model, new ReactionAnchor(1));
+    Reaction reaction = Reaction.create(model, REACTION);
 
     @BeforeEach
     void setUp() {
@@ -42,10 +48,10 @@ class ExperimentModelPatchServiceTest {
 
     @Test
     void testReactionAdded() throws Exception {
-        Reaction reaction2 = Reaction.create(model, new ReactionAnchor(10));
+        Reaction reaction2 = Reaction.create(model, REACTION_2);
         model.setReactions(List.of(reaction, reaction2));
         makeAndVerifyPatch("""
-                {"model": {"reactions": {">1": {"$new": {"anchor": "R10", "rxnVersion": 0, "inputs": [], "outputs": [], "precursorReactantIds": []}}}}}
+                {"model": {"reactions": {">1": {"$new": {"anchor": "00000000-0000-0000-0000-000000000002", "rxnVersion": 0, "inputs": [], "outputs": [], "precursorReactantIds": []}}}}}
         """);
     }
 
@@ -59,20 +65,20 @@ class ExperimentModelPatchServiceTest {
 
     @Test
     void testReactionDeleted() throws Exception {
-        Reaction reaction2 = Reaction.create(model, new ReactionAnchor(10));
+        Reaction reaction2 = Reaction.create(model, REACTION_2);
         baseModel.setReactions(List.of(reaction, reaction2));
         model.setReactions(List.of(reaction));
         makeAndVerifyPatch("""
-                {"model": {"reactions": {"1>": {"$old": {"anchor": "R10", "rxnVersion": 0, "inputs": [], "outputs": [], "precursorReactantIds": []}}}}}
+                {"model": {"reactions": {"1>": {"$old": {"anchor": "00000000-0000-0000-0000-000000000002", "rxnVersion": 0, "inputs": [], "outputs": [], "precursorReactantIds": []}}}}}
         """);
     }
 
     @Test
     void testReactionMovedAndChanged() throws Exception {
-        Reaction baseReaction2 = Reaction.create(baseModel, new ReactionAnchor(2));
-        Reaction baseReaction3 = Reaction.create(baseModel, new ReactionAnchor(3));
-        Reaction reaction2 = Reaction.create(model, new ReactionAnchor(2));
-        Reaction reaction3 = Reaction.create(model, new ReactionAnchor(3));
+        Reaction baseReaction2 = Reaction.create(baseModel, REACTION_2);
+        Reaction baseReaction3 = Reaction.create(baseModel, REACTION_3);
+        Reaction reaction2 = Reaction.create(model, REACTION_2);
+        Reaction reaction3 = Reaction.create(model, REACTION_3);
         reaction.setRxnfile("new");
         baseModel.setReactions(List.of(baseReaction, baseReaction2, baseReaction3));
         model.setReactions(List.of(reaction2, reaction, reaction3));
@@ -83,9 +89,9 @@ class ExperimentModelPatchServiceTest {
 
     @Test
     void testEnteredValueCreated() throws Exception {
-        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, new InputAnchor(10));
+        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT);
         baseReaction.setInputs(List.of(baseInput));
-        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, new InputAnchor(10));
+        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT);
         reaction.setInputs(List.of(input));
         input.setMol(EnteredValue.userEntered(10.0, MolUnit.MMOL, 1));
         makeAndVerifyPatch("""
@@ -95,9 +101,9 @@ class ExperimentModelPatchServiceTest {
 
     @Test
     void testEnteredValueChanged() throws Exception {
-        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, new InputAnchor(10));
+        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT);
         baseReaction.setInputs(List.of(baseInput));
-        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, new InputAnchor(10));
+        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT);
         reaction.setInputs(List.of(input));
         baseInput.setMol(EnteredValue.userEntered(15.0, MolUnit.MMOL, 1));
         input.setMol(EnteredValue.userEntered(10.0, MolUnit.MMOL, 1));
@@ -108,9 +114,9 @@ class ExperimentModelPatchServiceTest {
 
     @Test
     void testEnteredValueDeleted() throws Exception {
-        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, new InputAnchor(10));
+        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT);
         baseReaction.setInputs(List.of(baseInput));
-        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, new InputAnchor(10));
+        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT);
         reaction.setInputs(List.of(input));
         baseInput.setMol(EnteredValue.userEntered(15.0, MolUnit.MMOL, 1));
         makeAndVerifyPatch("""

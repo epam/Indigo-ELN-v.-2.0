@@ -15,7 +15,12 @@ public interface ReactionMutation extends Mutation {
 
     record SetScheme (
         @NotNull ReactionAnchor anchor,
-        @Nullable String molFile
+        @Nullable String rxnFile,
+        @NotNull List<InputAnchor> createdReactantAnchors,
+        @NotNull List<InputSampleAnchor> createdReactantSampleAnchors,
+        @NotNull List<InputAnchor> createdCatalystAnchors,
+        @NotNull List<InputSampleAnchor> createdCatalystSampleAnchors,
+        @NotNull List<OutputAnchor> createdProductAnchors
     ) implements ReactionMutation {
 
         @Override
@@ -26,9 +31,18 @@ public interface ReactionMutation extends Mutation {
         }
     }
 
+    record UndoSetScheme (
+            @NotNull ReactionAnchor anchor,
+            @Nullable String rxnFile,
+            @NotNull List<ReactionInput> inputs,
+            @NotNull List<ReactionOutput> outputs
+    ) implements ReactionMutation {
+    }
+
     record ResolveInputs (
             @NotNull ReactionAnchor anchor,
-            @NotEmpty Map<InputAnchor, UUID> inputSamples // anchor -> sampleID
+            @NotEmpty Map<InputAnchor, UUID> inputSamples, // anchor -> sampleID
+            @NotEmpty Map<InputAnchor, InputSampleAnchor> createdSampleAnchors
     ) implements ReactionMutation {
     }
 
@@ -44,14 +58,24 @@ public interface ReactionMutation extends Mutation {
     }
 
     record AddEmptyInput (
-        @NotNull ReactionAnchor anchor
+        @NotNull ReactionAnchor anchor,
+        @NotNull InputAnchor createdInputAnchor,
+        @NotNull InputSampleAnchor createdSampleAnchor
     ) implements ReactionMutation {
+        public AddEmptyInput(@NotNull ReactionAnchor anchor) {
+            this(anchor, new InputAnchor(UUID.randomUUID()), new InputSampleAnchor(UUID.randomUUID()));
+        }
     }
 
     record AddInput (
         @NotNull ReactionAnchor anchor,
-        @NotNull UUID sampleId
+        @NotNull UUID sampleId,
+        @NotNull InputAnchor createdInputAnchor,
+        @NotNull InputSampleAnchor createdSampleAnchor
     ) implements ReactionMutation {
+        public AddInput(@NotNull ReactionAnchor anchor, @NotNull UUID sampleId) {
+            this(anchor, sampleId, new InputAnchor(UUID.randomUUID()), new InputSampleAnchor(UUID.randomUUID()));
+        }
     }
 
     record UndoRemoveInput (

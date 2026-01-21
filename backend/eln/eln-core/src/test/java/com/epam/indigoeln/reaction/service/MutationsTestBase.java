@@ -1,13 +1,10 @@
 package com.epam.indigoeln.reaction.service;
 
-import com.epam.indigoeln.compound.model.FindSamplesRequest;
-import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import com.epam.indigoeln.reaction.util.CalculationReportBuilder;
 import com.epam.indigoeln.reaction.util.PatchTestUtil;
@@ -21,7 +18,9 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInfo;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public abstract class MutationsTestBase extends ELNBaseTest {
 
@@ -128,19 +127,5 @@ public abstract class MutationsTestBase extends ELNBaseTest {
 
         modelSizes.add(FeignUtil.OBJECT_MAPPER.writeValueAsBytes(updatedExperiment).length);
         patchSizes.add(FeignUtil.OBJECT_MAPPER.writeValueAsBytes(patch).length);
-    }
-
-    protected ReactionMutation.ResolveInputs prepareResolveInputs() {
-        ReactionMutation.ResolveInputs mutation = new ReactionMutation.ResolveInputs(reaction.getAnchor(), new HashMap<>());
-        Map<InputAnchor, @Nullable FindSamplesRequest> requests = experimentClient.analyzeRXN(experiment.getId(), experiment.getModel().getReactions().getFirst().getAnchor());
-        requests.forEach((anchor, request) -> {
-            if (request != null) {
-                Page<SampleDTO> samples = compoundClient.findSamples(request, Paging.DEFAULT);
-                if (!samples.getItems().isEmpty()) {
-                    mutation.inputSamples().put(anchor, samples.getItems().getFirst().getId());
-                }
-            }
-        });
-        return mutation;
     }
 }
