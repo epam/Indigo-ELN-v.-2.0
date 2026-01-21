@@ -110,7 +110,7 @@ import { MatButtonModule } from '@angular/material/button';
     ButtonComponent,
     MatFormFieldModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
   ],
   templateUrl: './sample-search.component.html',
 })
@@ -316,7 +316,7 @@ export class SampleSearchComponent implements OnInit {
     this.structureImage = null;
   }
 
-  clearInput(inputName:string) {
+  clearInput(inputName: string) {
     this.form.get(inputName)?.setValue(null);
   }
 
