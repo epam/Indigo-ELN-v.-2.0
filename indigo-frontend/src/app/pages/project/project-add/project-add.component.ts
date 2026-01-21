@@ -135,7 +135,7 @@ export class ProjectAddComponent implements OnInit {
           this.dialogRef.close('refresh');
 
           this.notificationService.notify({
-            message: `Project '${data.name}' has been successfully updated`,
+            message: `Project details successfully updated.`,
             type: NotificationType.Success,
             isInline: false,
           });
