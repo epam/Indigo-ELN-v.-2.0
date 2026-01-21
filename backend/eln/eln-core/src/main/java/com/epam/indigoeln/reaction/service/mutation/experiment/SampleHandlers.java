@@ -18,7 +18,7 @@ class SetInputDensityHandler extends AbstractReactionInputSampleMutationHandler<
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputDensity mutation, @Nullable MutationRedoInfo redoInfo) {
-        EnteredValueUndo<DensityUnit> undo = setEnteredValue(sample::getDensity, sample::setDensity, mutation.density(), mutation.unit(), mutation.source());
+        EnteredValueUndo<DensityUnit> undo = setEnteredValue(sample::getDensity, sample::setDensity, mutation.density(), mutation.unit(), mutation.source(), experiment.getRevision());
         return new MutationResult(formatSetterSummary("input sample density", mutation.density(), mutation.unit())
                 , null
                 , new ReactionInputSampleMutation.SetInputDensity(mutation.anchor(), undo.value(), undo.unit(), undo.source())
@@ -32,7 +32,7 @@ class SetOutputDensityHandler extends AbstractReactionOutputSampleMutationHandle
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputDensity mutation, @Nullable MutationRedoInfo redoInfo) {
-        EnteredValueUndo<DensityUnit> undo = setEnteredValue(sample::getDensity, sample::setDensity, mutation.density(), mutation.unit(), mutation.source());
+        EnteredValueUndo<DensityUnit> undo = setEnteredValue(sample::getDensity, sample::setDensity, mutation.density(), mutation.unit(), mutation.source(), experiment.getRevision());
         return new MutationResult(formatSetterSummary("batch density", mutation.density(), mutation.unit())
                 , null
                 , new ReactionOutputSampleMutation.SetOutputDensity(mutation.anchor(), undo.value(), undo.unit(), undo.source())
@@ -46,7 +46,7 @@ class SetInputMolarityHandler extends AbstractReactionInputSampleMutationHandler
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputMolarity mutation, @Nullable MutationRedoInfo redoInfo) {
-        EnteredValueUndo<MolarityUnit> undo = setEnteredValue(sample::getMolarity, sample::setMolarity, mutation.molarity(), mutation.unit(), mutation.source());
+        EnteredValueUndo<MolarityUnit> undo = setEnteredValue(sample::getMolarity, sample::setMolarity, mutation.molarity(), mutation.unit(), mutation.source(), experiment.getRevision());
         return new MutationResult(formatSetterSummary("input sample molarity", mutation.molarity(), mutation.unit())
                 , null
                 , new ReactionInputSampleMutation.SetInputMolarity(mutation.anchor(), undo.value(), undo.unit(), undo.source())
@@ -60,7 +60,7 @@ class SetOutputMolarityHandler extends AbstractReactionOutputSampleMutationHandl
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputMolarity mutation, @Nullable MutationRedoInfo redoInfo) {
-        EnteredValueUndo<MolarityUnit> undo = setEnteredValue(sample::getMolarity, sample::setMolarity, mutation.molarity(), mutation.unit(), mutation.source());
+        EnteredValueUndo<MolarityUnit> undo = setEnteredValue(sample::getMolarity, sample::setMolarity, mutation.molarity(), mutation.unit(), mutation.source(), experiment.getRevision());
         return new MutationResult(formatSetterSummary("batch molarity", mutation.molarity(), mutation.unit())
                 , null
                 , new ReactionOutputSampleMutation.SetOutputMolarity(mutation.anchor(), undo.value(), undo.unit(), undo.source())
@@ -74,7 +74,7 @@ class SetInputPurityHandler extends AbstractReactionInputSampleMutationHandler<R
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputPurity mutation, @Nullable MutationRedoInfo redoInfo) {
-        EnteredValueUndo<NoUnit> undo = setEnteredValue(sample::getPurity, sample::setPurity, mutation.purity(), NoUnit.NO_UNIT, mutation.source());
+        EnteredValueUndo<NoUnit> undo = setEnteredValue(sample::getPurity, sample::setPurity, mutation.purity(), NoUnit.NO_UNIT, mutation.source(), experiment.getRevision());
         return new MutationResult(formatSetterSummary("input sample purity", mutation.purity())
                 , null
                 , new ReactionInputSampleMutation.SetInputPurity(mutation.anchor(), undo.value(), undo.source())
@@ -88,7 +88,7 @@ class SetOutputPurityHandler extends AbstractReactionOutputSampleMutationHandler
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputPurity mutation, @Nullable MutationRedoInfo redoInfo) {
-        EnteredValueUndo<NoUnit> undo = setEnteredValue(sample::getPurity, sample::setPurity, mutation.purity(), NoUnit.NO_UNIT, mutation.source());
+        EnteredValueUndo<NoUnit> undo = setEnteredValue(sample::getPurity, sample::setPurity, mutation.purity(), NoUnit.NO_UNIT, mutation.source(), experiment.getRevision());
         return new MutationResult(formatSetterSummary("batch purity", mutation.purity())
                 , null
                 , new ReactionOutputSampleMutation.SetOutputPurity(mutation.anchor(), undo.value(), undo.source())
@@ -102,7 +102,7 @@ class SetInputVolumeHandler extends AbstractReactionInputSampleMutationHandler<R
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputVolume mutation, @Nullable MutationRedoInfo redoInfo) {
-        EnteredValueUndo<VolumeUnit> undo = setEnteredValue(sample::getVolume, sample::setVolume, mutation.volume(), mutation.unit(), mutation.source());
+        EnteredValueUndo<VolumeUnit> undo = setEnteredValue(sample::getVolume, sample::setVolume, mutation.volume(), mutation.unit(), mutation.source(), experiment.getRevision());
         return new MutationResult(formatSetterSummary("input sample volume", mutation.volume(), mutation.unit())
                 , null
                 , new ReactionInputSampleMutation.SetInputVolume(mutation.anchor(), undo.value(), undo.unit(), undo.source())
@@ -116,7 +116,7 @@ class SetOutputVolumeHandler extends AbstractReactionOutputSampleMutationHandler
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputVolume mutation, @Nullable MutationRedoInfo redoInfo) {
-        EnteredValueUndo<VolumeUnit> undo = setEnteredValue(sample::getVolume, sample::setVolume, mutation.volume(), mutation.unit(), mutation.source());
+        EnteredValueUndo<VolumeUnit> undo = setEnteredValue(sample::getVolume, sample::setVolume, mutation.volume(), mutation.unit(), mutation.source(), experiment.getRevision());
         return new MutationResult(formatSetterSummary("batch volume", mutation.volume(), mutation.unit())
                 , null
                 , new ReactionOutputSampleMutation.SetOutputVolume(mutation.anchor(), undo.value(), undo.unit(), undo.source())

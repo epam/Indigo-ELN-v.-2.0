@@ -114,7 +114,7 @@ class SetInputCompoundMolWeightHandler extends AbstractReactionInputMutationHand
     @Override
     public MutationResult doHandle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputCompoundMolWeight mutation, @Nullable MutationRedoInfo redoInfo) {
         if (row.getCompound() instanceof CompoundRef.Unknown c) {
-            EnteredValueUndo<MolWeightUnit> undo = setEnteredValue(c::getMolWeight, c::setMolWeight, mutation.molWeight(), MolWeightUnit.G_PER_MOL, mutation.source());
+            EnteredValueUndo<MolWeightUnit> undo = setEnteredValue(c::getMolWeight, c::setMolWeight, mutation.molWeight(), MolWeightUnit.G_PER_MOL, mutation.source(), experiment.getRevision());
             return new MutationResult(formatSetterSummary("input compound mol weight", mutation.molWeight(), MolWeightUnit.G_PER_MOL)
                 , null
                 , new ReactionInputMutation.SetInputCompoundMolWeight(mutation.anchor(), undo.value(), undo.source())
@@ -132,7 +132,7 @@ class SetOutputCompoundMolWeightHandler extends AbstractReactionOutputMutationHa
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputCompoundMolWeight mutation, @Nullable MutationRedoInfo redoInfo) {
         if (row.getCompound() instanceof CompoundRef.Unknown c) {
-            EnteredValueUndo<MolWeightUnit> undo = setEnteredValue(c::getMolWeight, c::setMolWeight, mutation.molWeight(), MolWeightUnit.G_PER_MOL, mutation.source());
+            EnteredValueUndo<MolWeightUnit> undo = setEnteredValue(c::getMolWeight, c::setMolWeight, mutation.molWeight(), MolWeightUnit.G_PER_MOL, mutation.source(), experiment.getRevision());
             return new MutationResult(formatSetterSummary("output compound mol weight", mutation.molWeight(), MolWeightUnit.G_PER_MOL)
                     , null
                     , new ReactionOutputMutation.SetOutputCompoundMolWeight(mutation.anchor(), undo.value(), undo.source())

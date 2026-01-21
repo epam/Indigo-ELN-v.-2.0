@@ -25,7 +25,7 @@ class SetInputMolHandler extends AbstractReactionInputSampleMutationHandler<Reac
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputMol mutation, @Nullable MutationRedoInfo redoInfo) {
-        EnteredValueUndo<MolUnit> undo = setEnteredValue(sample::getMol, sample::setMol, mutation.mol(), mutation.unit(), mutation.source());
+        EnteredValueUndo<MolUnit> undo = setEnteredValue(sample::getMol, sample::setMol, mutation.mol(), mutation.unit(), mutation.source(), experiment.getRevision());
         return new MutationResult(formatSetterSummary("input sample mol", mutation.mol(), mutation.unit())
                 , null
                 , new ReactionInputSampleMutation.SetInputMol(mutation.anchor(), undo.value(), undo.unit(), undo.source()
@@ -39,7 +39,7 @@ class SetInputWeightHandler extends AbstractReactionInputSampleMutationHandler<R
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputWeight mutation, @Nullable MutationRedoInfo redoInfo) {
-        EnteredValueUndo<WeightUnit> undo = setEnteredValue(sample::getWeight, sample::setWeight, mutation.weight(), mutation.unit(), mutation.source());
+        EnteredValueUndo<WeightUnit> undo = setEnteredValue(sample::getWeight, sample::setWeight, mutation.weight(), mutation.unit(), mutation.source(), experiment.getRevision());
         return new MutationResult(formatSetterSummary("input sample weight", mutation.weight(), mutation.unit())
                 , null
                 , new ReactionInputSampleMutation.SetInputWeight(mutation.anchor(), undo.value(), undo.unit(), undo.source())

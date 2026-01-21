@@ -71,15 +71,15 @@ public class JSONSerializationTest {
     @ParameterizedTest
     @MethodSource("mappers")
     void testSerializeEnteredValue(MapperType serializer, MapperType deserializer) throws Exception {
-        EnteredValue<WeightUnit> value = new EnteredValue<>(5.0, WeightUnit.G, EnteredValueSource.USER_ENTERED);
+        EnteredValue<WeightUnit> value = new EnteredValue<>(5.0, WeightUnit.G, EnteredValueSource.userEntered(1));
         String serialized = getMapper(serializer).writeValueAsString(value);
         assertThat(serialized).isEqualToIgnoringWhitespace("""
-                {"value":5.0,"unit":"G","source":"USER_ENTERED"}
+                {"value": 5.0, "unit": "G", "source": 1}
                 """);
         EnteredValue<WeightUnit> value2 = getMapper(deserializer).readValue(serialized, new TypeReference<>() {});
         assertThat(value2.getValue()).isEqualTo(5.0);
         assertThat(value2.getUnit()).isEqualTo(WeightUnit.G);
-        assertThat(value2.getSource()).isEqualTo(EnteredValueSource.USER_ENTERED);
+        assertThat(value2.getSource()).isEqualTo(EnteredValueSource.userEntered(1));
         assertThat(value2.isConflict()).isFalse();
     }
 
@@ -97,13 +97,13 @@ public class JSONSerializationTest {
     @MethodSource("mappers")
     void testSerializeCompoundRefPatch(MapperType serializer, MapperType deserializer) {
         CompoundRef.Unknown compoundRef = new CompoundRef.Unknown();
-        compoundRef.setMolWeight(EnteredValue.userLastEntered(10.0, MolWeightUnit.G_PER_MOL));
+        compoundRef.setMolWeight(EnteredValue.userEntered(10.0, MolWeightUnit.G_PER_MOL, 1));
         Patched<CompoundRef, CompoundRefPatch> value = Patched.created(compoundRef);
         JavaType type = getMapper(serializer).constructType(new TypeReference<Patched<CompoundRef, CompoundRefPatch>>() {});
         SerializerUtils.withRootType(type, () -> {
             String serialized = getMapper(serializer).writeValueAsString(value);
             assertThat(serialized).isEqualToIgnoringWhitespace("""
-                    {"$new": {"type": "UNKNOWN", "molWeight": {"value":10.0, "unit":"G_PER_MOL", "source":"USER_LAST_ENTERED"}}}
+                    {"$new": {"type": "UNKNOWN", "molWeight": {"value": 10.0, "unit": "G_PER_MOL", "source": 1}}}
                     """);
             Patched<CompoundRef, CompoundRefPatch> value2 = getMapper(deserializer).readValue(serialized, new TypeReference<>() {});
             assertThat(value2).isEqualTo(value);

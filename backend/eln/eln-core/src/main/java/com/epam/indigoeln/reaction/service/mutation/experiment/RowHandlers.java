@@ -19,7 +19,7 @@ class SetInputRowEQHandler extends AbstractReactionInputMutationHandler<Reaction
 
     @Override
     public MutationResult doHandle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowEQ mutation, @Nullable MutationRedoInfo redoInfo) {
-        EnteredValueUndo<NoUnit> undo = setEnteredValue(row::getEq, row::setEq, mutation.eq(), NoUnit.NO_UNIT, mutation.source());
+        EnteredValueUndo<NoUnit> undo = setEnteredValue(row::getEq, row::setEq, mutation.eq(), NoUnit.NO_UNIT, mutation.source(), experiment.getRevision());
         return new MutationResult(formatSetterSummary("input EQ", mutation.eq())
                 , null
                 , new ReactionInputMutation.SetInputRowEQ(mutation.anchor(), undo.value(), undo.source())
@@ -33,7 +33,7 @@ class SetOutputRowEQHandler extends AbstractReactionOutputMutationHandler<Reacti
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputRowEQ mutation, @Nullable MutationRedoInfo redoInfo) {
-        EnteredValueUndo<NoUnit> undo = setEnteredValue(row::getEq, row::setEq, mutation.eq(), NoUnit.NO_UNIT, mutation.source());
+        EnteredValueUndo<NoUnit> undo = setEnteredValue(row::getEq, row::setEq, mutation.eq(), NoUnit.NO_UNIT, mutation.source(), experiment.getRevision());
         return new MutationResult(formatSetterSummary("output EQ", mutation.eq())
                 , null
                 , new ReactionOutputMutation.SetOutputRowEQ(mutation.anchor(), undo.value(), undo.source())

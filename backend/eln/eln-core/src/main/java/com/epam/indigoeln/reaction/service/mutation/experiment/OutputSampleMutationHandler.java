@@ -42,7 +42,7 @@ class SetOutputActualMolHandler extends AbstractReactionOutputSampleMutationHand
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputActualMol mutation, @Nullable MutationRedoInfo redoInfo) {
-        EnteredValueUndo<MolUnit> undo = setEnteredValue(sample::getActualMol, sample::setActualMol, mutation.actualMol(), mutation.unit(), mutation.source());
+        EnteredValueUndo<MolUnit> undo = setEnteredValue(sample::getActualMol, sample::setActualMol, mutation.actualMol(), mutation.unit(), mutation.source(), experiment.getRevision());
         return new MutationResult(formatSetterSummary("batch actual mol", mutation.actualMol(), mutation.unit())
                 , null
                 , new ReactionOutputSampleMutation.SetOutputActualMol(mutation.anchor(), undo.value(), undo.unit(), undo.source())
@@ -56,7 +56,7 @@ class SetOutputActualWeightHandler extends AbstractReactionOutputSampleMutationH
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputActualWeight mutation, @Nullable MutationRedoInfo redoInfo) {
-        EnteredValueUndo<WeightUnit> undo = setEnteredValue(sample::getActualWeight, sample::setActualWeight, mutation.actualWeight(), mutation.unit(), mutation.source());
+        EnteredValueUndo<WeightUnit> undo = setEnteredValue(sample::getActualWeight, sample::setActualWeight, mutation.actualWeight(), mutation.unit(), mutation.source(), experiment.getRevision());
         return new MutationResult(formatSetterSummary("batch actual weight", mutation.actualWeight(), mutation.unit())
                 , null
                 , new ReactionOutputSampleMutation.SetOutputActualWeight(mutation.anchor(), undo.value(), undo.unit(), undo.source())

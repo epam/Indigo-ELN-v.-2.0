@@ -188,7 +188,7 @@ public class ReactionCalculator {
                     targetSetter.accept(result.getValue().cast());
                     updated = true;
                 } else {
-                    boolean resultIsMorePriority = result.getValue().getSource().ordinal() < (targetCurrent.getSource().ordinal());
+                    boolean resultIsMorePriority = result.getValue().getSource().getPriority() > targetCurrent.getSource().getPriority();
                     if (targetCurrent.valueEquals(result.getValue())) {
                         // reassign value to reflect priority change, but don't consider it an update because value didn't change
                         if (resultIsMorePriority) {

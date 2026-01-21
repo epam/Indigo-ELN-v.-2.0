@@ -143,7 +143,7 @@ public class MutationsTest extends MutationsTestBase {
         applyMutation(new ReactionMutation.AddEmptyInput(reaction.getAnchor()), false);
         applyMutation(new ReactionInputMutation.SetInputCompoundMolWeight(input1.getAnchor(), 100.0, null));
         assertThat(input1.getCompound().getMolWeight().getValue()).isEqualTo(100.0);
-        assertThat(input1.getCompound().getMolWeight().getSource()).isEqualTo(EnteredValueSource.USER_LAST_ENTERED);
+        assertThat(input1.getCompound().getMolWeight().getSource()).isEqualTo(EnteredValueSource.userEntered(experiment.getRevision()));
     }
 
     @Test

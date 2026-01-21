@@ -28,7 +28,7 @@ public class ExperimentModelSerializationTest {
 
         ReactionInput input1 = ReactionInput.create(reaction, ReactionRole.REACTANT, new InputAnchor(1));
         input1.setCompound(new CompoundRef.Stored(UUID.randomUUID(), EnteredValue.fixed(1.0, MolWeightUnit.G_PER_MOL), 1.1, "C", "compoundKey", null, "batchMF"));
-        input1.setEq(EnteredValue.userLastEntered(10.0, NoUnit.NO_UNIT));
+        input1.setEq(EnteredValue.userEntered(10.0, NoUnit.NO_UNIT, 1));
         ReactionInput input2 = ReactionInput.create(reaction, ReactionRole.REACTANT, new InputAnchor(1));
         input2.setCompound(new CompoundRef.Virtual(UUID.randomUUID(), "C", null, null, null, null, EnteredValue.fixed(1.0, MolWeightUnit.G_PER_MOL), 1.1, null, "batchMF"));
         ReactionInput input3 = ReactionInput.create(reaction, ReactionRole.REACTANT, new InputAnchor(1));

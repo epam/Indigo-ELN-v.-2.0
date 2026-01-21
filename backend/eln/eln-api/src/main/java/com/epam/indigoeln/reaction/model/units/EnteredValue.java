@@ -12,7 +12,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.function.Consumer;
 
-import static com.epam.indigoeln.reaction.model.units.EnteredValueSource.*;
+import static com.epam.indigoeln.reaction.model.units.EnteredValueSource.DEFAULT;
 import static com.google.common.base.MoreObjects.firstNonNull;
 
 @Getter
@@ -39,27 +39,25 @@ public final class EnteredValue<U extends MeasurementUnit> {
 
     @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> fixed(@Nullable Double value, U unit) {
-        return value != null ? new EnteredValue<>(value, unit, FIXED) : null;
+        return value != null ? new EnteredValue<>(value, unit, EnteredValueSource.FIXED) : null;
     }
 
     @Nullable
-    public static <U extends MeasurementUnit> EnteredValue<U> userLastEntered(@Nullable Double value, @Nullable U unit) {
-        return value != null && unit != null ? new EnteredValue<>(value, unit, USER_LAST_ENTERED) : null;
+    public static <U extends MeasurementUnit> EnteredValue<U> userEntered(@Nullable Double value, @Nullable U unit, int revision) {
+        return value != null && unit != null ? new EnteredValue<>(value, unit, EnteredValueSource.userEntered(revision)) : null;
     }
 
-    public static <U extends MeasurementUnit> EnteredValue<U> userLastEntered(@Nullable Double value, U unit, double defaultValue) {
-        return new EnteredValue<>(firstNonNull(value, defaultValue), unit, USER_LAST_ENTERED);
+    public static <U extends MeasurementUnit> EnteredValue<U> userEntered(@Nullable Double value, U unit, double defaultValue, int revision) {
+        return new EnteredValue<>(firstNonNull(value, defaultValue), unit, EnteredValueSource.userEntered(revision));
     }
 
-    public static <U extends MeasurementUnit> EnteredValue<U> userLastEntered(@Nullable Double value, @Nullable U unit, double defaultValue, U defaultUnit) {
-        return new EnteredValue<>(firstNonNull(value, defaultValue), firstNonNull(unit, defaultUnit), USER_LAST_ENTERED);
+    public static <U extends MeasurementUnit> EnteredValue<U> userEntered(@Nullable Double value, @Nullable U unit, double defaultValue, U defaultUnit, int revision) {
+        return new EnteredValue<>(firstNonNull(value, defaultValue), firstNonNull(unit, defaultUnit), EnteredValueSource.userEntered(revision));
     }
 
     @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> calculated(@Nullable Double value, U unit, EnteredValue<?> from1, EnteredValue<?> from2) {
-        boolean fromLastEntered = from1.source == USER_LAST_ENTERED || from1.source == CALCULATED_FROM_LAST_ENTERED
-                || from2.source == USER_LAST_ENTERED || from2.source == CALCULATED_FROM_LAST_ENTERED;
-        return value != null ? new EnteredValue<>(value, unit, fromLastEntered ? CALCULATED_FROM_LAST_ENTERED : CALCULATED) : null;
+        return value != null ? new EnteredValue<>(value, unit, EnteredValueSource.calculated(from1.source, from2.source)) : null;
     }
 
     @Nullable
@@ -73,11 +71,8 @@ public final class EnteredValue<U extends MeasurementUnit> {
 
     private static <U extends MeasurementUnit> void doPrepareToRecalculate(@Nullable EnteredValue<U> value, Consumer<@Nullable EnteredValue<U>> setter, @Nullable EnteredValue<U> defaultValue) {
         if (value != null) {
-            if (value.source == CALCULATED || value.source == CALCULATED_FROM_LAST_ENTERED) {
+            if (value.source.isCalculated()) {
                 setter.accept(defaultValue); // clear calculated values
-            }
-            if (value.source == USER_LAST_ENTERED) {
-                value.source = USER_ENTERED; // reset last entered to normal user entered
             }
             value.conflict = false;
         }
@@ -129,7 +124,7 @@ public final class EnteredValue<U extends MeasurementUnit> {
 
     @Override
     public String toString() {
-        String str = source.name().toLowerCase() + ": " + value + " " + unit;
+        String str = source + ": " + Precision.round(value, 6) + " " + unit;
         if (conflict) {
             str += " [CONFLICT]";
         }

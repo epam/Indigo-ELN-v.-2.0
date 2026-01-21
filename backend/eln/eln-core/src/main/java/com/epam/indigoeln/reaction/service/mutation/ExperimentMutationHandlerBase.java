@@ -43,7 +43,7 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation, R extend
     DictionaryMapper dictionaryMapper;
 
     // !!! only allow non-null source for undo operations
-    public <U extends MeasurementUnit> EnteredValueUndo<U> setEnteredValue(Supplier<@Nullable EnteredValue<U>> getter, Consumer<@Nullable EnteredValue<U>> setter, @Nullable Double value, @Nullable U unit, @Nullable EnteredValueSource source) {
+    public <U extends MeasurementUnit> EnteredValueUndo<U> setEnteredValue(Supplier<@Nullable EnteredValue<U>> getter, Consumer<@Nullable EnteredValue<U>> setter, @Nullable Double value, @Nullable U unit, @Nullable EnteredValueSource source, int revisionNo) {
         EnteredValue<U> ev = getter.get();
         Double oldValue = ev != null ? ev.getValue() : null;
         U oldUnit = ev != null ? ev.getUnit() : null;
@@ -52,7 +52,7 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation, R extend
             ev = null;
         } else { // create or update value
             Preconditions.checkArgument(unit != null);
-            ev = new EnteredValue<>(value, unit, source != null ? source : EnteredValueSource.USER_LAST_ENTERED);
+            ev = new EnteredValue<>(value, unit, source != null ? source : EnteredValueSource.userEntered(revisionNo));
         }
         setter.accept(ev);
         return new EnteredValueUndo<>(oldValue, oldUnit, oldSource);

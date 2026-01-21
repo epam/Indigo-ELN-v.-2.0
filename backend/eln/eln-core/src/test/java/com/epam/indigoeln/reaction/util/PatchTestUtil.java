@@ -29,12 +29,21 @@ public class PatchTestUtil {
             reactionJSON.set("rxnVersion", nodeFactory.textNode("..."));
             reactionJSON.set("rxnfile", nodeFactory.textNode("..."));
         });
+        JsonLocator.findNodes(root, "model/reactions/**").forEach(node -> {
+           if (node instanceof ObjectNode objectJSON
+                   && objectJSON.get("source") instanceof NumericNode sourceJSON
+                   && sourceJSON.isIntegralNumber()
+//                   && sourceJSON.intValue() == latestRevision
+           ) {
+                objectJSON.set("source", nodeFactory.textNode("$source"));
+           }
+        });
         return (ObjectNode) cleanupNumbers(nodeFactory, root);
     }
 
     private static JsonNode cleanupNumbers(JsonNodeFactory nodeFactory, JsonNode node) {
         return switch (node) {
-            case NumericNode number -> nodeFactory.numberNode(Precision.round(number.doubleValue(), 6));
+            case NumericNode number when number.isFloatingPointNumber() -> nodeFactory.numberNode(Precision.round(number.doubleValue(), 6));
             case ObjectNode object -> {
                 ObjectNode cleaned = nodeFactory.objectNode();
                 object.properties().forEach(entry -> {
