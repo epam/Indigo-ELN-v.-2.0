@@ -23,7 +23,7 @@ export interface FormlyFieldProps extends CoreFormlyFieldProps {
       <label
         *ngIf="props.label && props.hideLabel !== true"
         [attr.for]="id"
-        class="form-label block mb-2 text-xs font-semibold leading-[1.5] text-gray-800"
+        class="form-label block mb-2 text-xs"
       >
         {{ props.label }}
         <span
@@ -56,7 +56,7 @@ export interface FormlyFieldProps extends CoreFormlyFieldProps {
       </div>
 
       <small *ngIf="props.description" class="form-text text-muted">{{
-        props.description
+        props.description 
       }}</small>
     </div>
   `,

@@ -2,25 +2,20 @@ import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { FieldTypeConfig, FormlyModule, FieldType } from "@ngx-formly/core";
-import { SelectComponent } from "../../common/select/select.component";
+import { DictionarySelectComponent } from "../../common/dictionary-select/dictionary-select.component";
 
 @Component({
     selector: 'eln-formly-select',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, FormlyModule, SelectComponent],
+    imports: [CommonModule, ReactiveFormsModule, FormlyModule, DictionarySelectComponent],
     template: `
-        <eln-select
+        <eln-dictionary-select
+            [dictionaryId]="props['dictionaryId']"
             [formControl]="formControl"
             [formlyAttributes]="field"
-            [items]="props['items']"
-            [placeholder]="props.placeholder"
-            [required]="props.required"
             [multiple]="props['multiple']"
-            [renderChips]="props['renderChips']"
-            [suffixStyle]="props['suffixStyle']"
-            [hasError]="showError">
-            
-        </eln-select>
+            [required]="props['required']">        
+        </eln-dictionary-select>
     `
 })
 export class SelectFieldComponent extends FieldType<FieldTypeConfig> {}

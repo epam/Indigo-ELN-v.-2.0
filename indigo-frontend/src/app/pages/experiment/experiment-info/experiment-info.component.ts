@@ -10,7 +10,9 @@ import { ButtonComponent } from '@core/components/common/button/button.component
 import { ReactionViewComponent } from '@pages/experiment/stoichiometry/reaction-view/reaction-view.component';
 import { SampleSearchComponent } from '@pages/experiment/sample-search/sample-search.component';
 import { FormlyFieldConfig, FormlyModule } from '@ngx-formly/core';
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormControlName, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { DictionarySelectComponent } from '@/core/components/common/dictionary-select/dictionary-select.component';
+import { BuiltInDictionary } from '@/core/types/entities/dictionary.i';
 @Component({
   selector: 'eln-experiment-info',
   standalone: true,
@@ -23,7 +25,7 @@ import { FormGroup, ReactiveFormsModule } from '@angular/forms';
     ButtonComponent,
     SampleSearchComponent,
     FormlyModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
   ],
   providers: [ExperimentImageService],
   templateUrl: './experiment-info.component.html',
@@ -50,10 +52,12 @@ export class ExperimentInfoComponent implements OnInit {
   );
   imageError = computed(() => this.experimentImageService.hasError());
 
+  BuildInDictionary = BuiltInDictionary;
+
   form = new FormGroup({});
   fields: FormlyFieldConfig[] = [
     {
-      type: "chip-grid",
+      type: "input",
       key: "title",
       name: "title",
       wrappers: ['raw'],
@@ -68,11 +72,10 @@ export class ExperimentInfoComponent implements OnInit {
       wrappers: ['raw'],
       props: {
         label: "Therapeutic Area",
-        placeholder: "Therapeutic Area",
-        items: [
-          { label: 'label1', value: 'value1' },
-          { label: 'label2', value: 'value2' },
-        ],
+        dictionaryId: "THERAUPETIC_AREA",
+        multiple: false,
+        required: false,
+        dictioinaryId: this.BuildInDictionary.THERAPEUTIC_AREA
       }
     }, 
     {
@@ -81,11 +84,9 @@ export class ExperimentInfoComponent implements OnInit {
       wrappers: ['raw'],
       props: {
         label: "Project Code & Name",
-        placeholder: "Project Code & Name",
-        items: [
-          { label: 'label1', value: 'value1' },
-          { label: 'label2', value: 'value2' },
-        ],
+        placeholder: "PROJECT_CODE",
+        multiple: false,
+        required: false,
       }
     },
     {
