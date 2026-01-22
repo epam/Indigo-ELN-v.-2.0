@@ -4,7 +4,7 @@
       <h3
         class="flex items-center gap-x-2 font-semibold text-neutral-1000 text-base"
       >
-        <em class="text-primary-400 text-xl indicon-briefcase"></em>
+        <em class="text-primary-400 text-xl indicon-book"></em>
         {{ notebook.name }}
       </h3>
       <div class="relative -right-1">
@@ -48,7 +48,9 @@
                 notebook['experimentCountByStatus'].OPEN
               }}</span>
             }
-            <span class="font-semibold text-h4 text-neutral-1000">{{ notebook.experimentCount }}</span>
+            <span class="font-semibold text-h4 text-neutral-1000">{{
+              notebook.experimentCount
+            }}</span>
           </div>
         </div>
 
@@ -61,11 +63,15 @@
           <div class="flex items-center">
             <div class="flex -space-x-2">
               @for (user of notebook.acl.slice(0, 3); track user.userId) {
-                <eln-avatar classList="w-6 h-6" [img]="user.avatarUrl || 'assets/avatar-placeholder.png'" />
+                <div
+                  class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white"
+                >
+                  {{ user.displayName | initials }}
+                </div>
               }
               @if (notebook.aclCount > 3) {
                 <span
-                  class="flex justify-center items-center bg-primary-400 rounded-full w-6 h-6 text-white text-xs"
+                  class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-primary-400 text-white text-[0.75rem]"
                 >
                   +{{ notebook.aclCount - 3 }}
                 </span>
@@ -104,11 +110,15 @@
       >
         <div class="flex -space-x-2">
           @for (user of notebook.acl.slice(0, 3); track user) {
-            <eln-avatar classList="w-6 h-6" [img]="user.avatarUrl || 'assets/avatar-placeholder.png'" />
+            <div
+              class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white"
+            >
+              {{ user.displayName | initials }}
+            </div>
           }
           @if (notebook.aclCount > 3) {
             <span
-              class="flex justify-center items-center bg-primary-400 rounded-full w-6 h-6 text-white text-xs"
+              class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-primary-400 text-white text-[0.75rem]"
             >
               +{{ notebook.aclCount - 3 }}
             </span>

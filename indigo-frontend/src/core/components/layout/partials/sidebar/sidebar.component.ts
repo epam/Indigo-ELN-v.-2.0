@@ -35,7 +35,7 @@ export class SidebarComponent {
 
   private fullMenu = [
     {
-      name: 'Projects',
+      name: 'All Projects',
       icon: 'indicon-briefcase',
       path: '/',
     },
@@ -43,6 +43,7 @@ export class SidebarComponent {
       name: 'Templates',
       icon: 'indicon-layers',
       path: '/templates',
+      requiredPermission: ApplicationPermission.MANAGE_TEMPLATES,
     },
     {
       name: 'Dictionaries',

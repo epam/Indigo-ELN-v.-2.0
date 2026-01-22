@@ -11,6 +11,8 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 import { toHTML } from 'ngx-editor';
 import { catchError, of } from 'rxjs';
 import { NOTEBOOK_NAME_LENGTH } from '../notebook.constants';
+import { NotificationService } from '@/core/services/notification/notification.service';
+import { NotificationType } from '@/core/types/notification.i';
 
 @Component({
   standalone: true,
@@ -26,6 +28,7 @@ import { NOTEBOOK_NAME_LENGTH } from '../notebook.constants';
 })
 export class NotebookEditComponent {
   notebookId: string;
+  private notificationService = inject(NotificationService);
   dialogRef = inject(MatDialogRef);
   notebook: Partial<Notebook> = {};
   fields: FormlyFieldConfig[] = [
@@ -82,9 +85,15 @@ export class NotebookEditComponent {
       })
       .pipe(
         catchError((editError) => {
-          alert(
-            `Error: ${editError?.error[0].message || 'There was an error updating notebook, please try again later.'}`,
-          );
+          const errorMsg =
+            editError.error[0]?.message ||
+            'There was an error creating the notebook, please try again later.';
+
+          this.notificationService.notify({
+            message: errorMsg,
+            type: NotificationType.Error,
+            isInline: false,
+          });
           return of(null);
         }),
       )
