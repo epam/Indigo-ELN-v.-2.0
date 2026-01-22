@@ -76,6 +76,12 @@ public interface ExperimentMutation extends Mutation {
     ) implements ExperimentMutation {
     }
 
+    record ExperimentAccessUpdated(
+            @Nullable String projectName,
+            @Nullable String notebookName
+    ) implements ExperimentMutation {
+    }
+
     record Undo(
             @NotNull Integer revision
     ) implements ExperimentMutation {

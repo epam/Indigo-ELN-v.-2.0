@@ -3,6 +3,8 @@ package com.epam.indigoeln.eln.service;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
+import com.epam.indigoeln.reaction.model.mutation.NotebookMutation;
 import com.epam.indigoeln.reaction.model.mutation.ProjectMutation;
 import com.epam.indigoeln.reaction.model.patch.handler2.Patched;
 import io.quarkus.test.junit.QuarkusTest;
@@ -409,6 +411,8 @@ class ProjectServiceTest extends ELNBaseTest {
     @Test
     void testUpdateAccess() {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testUpdateAccess"));
+        NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         projectClient.updateProjectAccess(project.getId(), AccessForm.of(maggieUserID, AccessLevel.EDIT));
         assertThat(projectClient.getProjectRevisions(project.getId()))
                 .hasSize(2)
@@ -417,14 +421,25 @@ class ProjectServiceTest extends ELNBaseTest {
                     assertThat(revision.getUser()).isEqualTo(getJohnUserRef());
                     assertThat(revision.getMutation()).isInstanceOf(ProjectMutation.EditProjectAccess.class);
                     assertThat(revision.getSummary()).isEqualTo("Edited Team: granted maggie EDIT access");
-                    assertThat(revision.getDiff()).isNotNull(); // !!! verify diff old and new ACL
+                    assertThat(revision.getDiff().getAcl()).isEqualTo(Patched.updated(Map.of(MAGGIE_USERNAME, Patched.created(new ACLDetailsEntryDTO(maggieUserID, MAGGIE_DISPLAY_NAME, AccessLevel.EDIT, false, MAGGIE_USERNAME)))));
                 });
+        assertThat(notebookClient.getNotebookRevisions(notebook.getId()))
+                .last().satisfies(revision -> {
+                    assertThat(revision.getMutation()).isInstanceOf(NotebookMutation.NotebookAccessUpdated.class);
+                    assertThat(revision.getDiff().getAcl()).isEqualTo(Patched.updated(Map.of(MAGGIE_USERNAME, Patched.created(new ACLDetailsEntryDTO(maggieUserID, MAGGIE_DISPLAY_NAME, AccessLevel.EDIT, true, MAGGIE_USERNAME)))));
+                });
+        assertThat(experimentClient.getExperimentRevisions(experiment.getId()))
+                .last().satisfies(revision -> {
+                    assertThat(revision.getMutation()).isInstanceOf(ExperimentMutation.ExperimentAccessUpdated.class);
+                    assertThat(revision.getDiff().getAcl()).isEqualTo(Patched.updated(Map.of(MAGGIE_USERNAME, Patched.created(new ACLDetailsEntryDTO(maggieUserID, MAGGIE_DISPLAY_NAME, AccessLevel.EDIT, true, MAGGIE_USERNAME)))));
+                });
+
         projectClient.updateProjectAccess(project.getId(), AccessForm.of(maggieUserID, AccessLevel.NONE));
         assertThat(projectClient.getProjectRevisions(project.getId()))
                 .hasSize(3)
                 .last().satisfies(revision -> {
                     assertThat(revision.getSummary()).isEqualTo("Edited Team: removed maggie");
-                    assertThat(revision.getDiff()).isNotNull(); // !!! verify diff old and new ACL
+                    assertThat(revision.getDiff().getAcl()).isEqualTo(Patched.updated(Map.of(MAGGIE_USERNAME, Patched.deleted(new ACLDetailsEntryDTO(maggieUserID, MAGGIE_DISPLAY_NAME, AccessLevel.EDIT, false, MAGGIE_USERNAME)))));
                 });
     }
     

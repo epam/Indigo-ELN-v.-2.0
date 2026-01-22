@@ -146,6 +146,23 @@ class DeleteProjectAttachmentHandler extends AbstractProjectMutationHandler<Proj
 }
 
 @Dependent
+@MutationHandlerFor(ProjectMutation.ProjectAccessUpdated.class)
+class ProjectAccessUpdatedHandler extends AbstractProjectMutationHandler<ProjectMutation.ProjectAccessUpdated> {
+
+    @Override
+    public boolean isAffectsACL() {
+        return true;
+    }
+
+    @Override
+    public MutationResult doHandle(ProjectEntity project, @Nullable Void model, ProjectMutation.ProjectAccessUpdated mutation) {
+        aclService.recalculateACL(project);
+        String reason = mutation.notebookName() != null ? "notebook " + mutation.notebookName() : "experiment " + mutation.experimentName();
+        return new MutationResult("Access updated because of the changes in " + reason, null);
+    }
+}
+
+@Dependent
 @MutationHandlerFor(ProjectMutation.ProjectUndo.class)
 class ProjectUndoHandler extends AbstractProjectMutationHandler<ProjectMutation.ProjectUndo> {
 

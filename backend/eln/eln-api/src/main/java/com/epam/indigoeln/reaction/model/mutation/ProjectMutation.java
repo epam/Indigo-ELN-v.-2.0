@@ -45,6 +45,12 @@ public interface ProjectMutation extends Mutation {
     ) implements ProjectMutation {
     }
 
+    record ProjectAccessUpdated(
+            @Nullable String notebookName,
+            @Nullable String experimentName
+    ) implements ProjectMutation {
+    }
+
     record ProjectUndo(
             @NotNull Integer revision
     ) implements ProjectMutation {

@@ -40,6 +40,12 @@ public interface NotebookMutation extends Mutation {
     ) implements NotebookMutation {
     }
 
+    record NotebookAccessUpdated(
+            @Nullable String projectName,
+            @Nullable String experimentName
+    ) implements NotebookMutation {
+    }
+
     record NotebookUndo(
             @NotNull Integer revision
     ) implements NotebookMutation {

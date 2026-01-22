@@ -10,6 +10,10 @@ import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.model.EntityType;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
+import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
+import com.epam.indigoeln.reaction.model.mutation.NotebookMutation;
+import com.epam.indigoeln.reaction.model.mutation.ProjectMutation;
+import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -34,6 +38,14 @@ public class ACLService {
     NotebookRepository notebookRepository;
     @Inject
     ExperimentRepository experimentRepository;
+    @Inject
+    NotebookService notebookService;
+    @Inject
+    ProjectService projectService;
+    @Inject
+    ExperimentService experimentService;
+    @Inject
+    ExperimentModelService experimentModelService;
 
     public void ensureTopLevelAccess(ApplicationPermission operation) {
         if (isUserRolesAllow(operation)) {
@@ -93,7 +105,7 @@ public class ACLService {
         ProjectEntity project = notebook.getProject();
         recalculateACL(notebook);
         if (applyImplicitAccess(project, userService.getCurrentUserEntity(), IMPLICIT_VIEW, () -> true)) {
-            recalculateACL(project);
+            projectService.applyMutation(project, new ProjectMutation.ProjectAccessUpdated(notebook.getName(), null));
         }
     }
 
@@ -102,9 +114,9 @@ public class ACLService {
         NotebookEntity notebook = experiment.getNotebook();
         recalculateACL(experiment);
         if (applyImplicitAccess(notebook, userService.getCurrentUserEntity(), IMPLICIT_VIEW, () -> true)) {
-            recalculateACL(notebook);
+            notebookService.applyMutation(notebook, new NotebookMutation.NotebookAccessUpdated(null, experiment.getName()));
             if (applyImplicitAccess(project, userService.getCurrentUserEntity(), IMPLICIT_VIEW, () -> true)) {
-                recalculateACL(project);
+                projectService.applyMutation(project, new ProjectMutation.ProjectAccessUpdated(notebook.getName(), null));
             }
         }
     }
@@ -125,9 +137,9 @@ public class ACLService {
         if (updated) {
             recalculateACL(project);
             for (NotebookEntity notebook : project.getNotebooks()) {
-                recalculateACL(notebook);
+                notebookService.applyMutation(notebook, new NotebookMutation.NotebookAccessUpdated(project.getName(), null));
                 for (ExperimentEntity experiment : notebook.getExperiments()) {
-                    recalculateACL(experiment);
+                    experimentModelService.applyMutation(experiment, new ExperimentMutation.ExperimentAccessUpdated(project.getName(), null));
                 }
             }
         }
@@ -149,11 +161,11 @@ public class ACLService {
         if (updated) {
             recalculateACL(notebook);
             for (ExperimentEntity experiment : notebook.getExperiments()) {
-                recalculateACL(experiment);
+                experimentModelService.applyMutation(experiment, new ExperimentMutation.ExperimentAccessUpdated(null, notebook.getName()));
             }
         }
         if (updatedImplicitViewProject) {
-            recalculateACL(project);
+            projectService.applyMutation(project, new ProjectMutation.ProjectAccessUpdated(notebook.getName(), null));
         }
     }
 
@@ -176,10 +188,10 @@ public class ACLService {
             recalculateACL(experiment);
         }
         if (updatedImplicitViewNotebook) {
-            recalculateACL(notebook);
+            notebookService.applyMutation(notebook, new NotebookMutation.NotebookAccessUpdated(null, experiment.getName()));
         }
         if (updatedImplicitViewProject) {
-            recalculateACL(project);
+            projectService.applyMutation(project, new ProjectMutation.ProjectAccessUpdated(null, experiment.getName()));
         }
     }
 
@@ -198,7 +210,7 @@ public class ACLService {
         return false;
     }
 
-    private void recalculateACL(WithACL<?> child) {
+    public void recalculateACL(WithACL<?> child) {
         log.debug("recalculateACL: {}", child);
         Map<UserEntity, Pair<AccessLevel, Boolean>> users = new HashMap<>();
         users.put(child.getCreatedBy(), Pair.of(AUTHOR, false));
@@ -238,6 +250,10 @@ public class ACLService {
                 }
             });
         }
+        Map<UserEntity, Pair<AccessLevel, Boolean>> sortedUsers = EntryStream.of(users)
+                        .sorted(Comparator.<Map.Entry<UserEntity, Pair<AccessLevel, Boolean>>, Boolean>comparing(e -> e.getValue().b())
+                                .thenComparing(e -> e.getValue().a(), Comparator.reverseOrder()))
+                        .toCustomMap(LinkedHashMap::new);
         child.setFullACL(EntryStream.of(users)
                 .map(e -> new ACLEntry(e.getKey().getId(), e.getKey().getDisplayName(), e.getKey().getUsername(),  e.getValue().a(), e.getValue().b())).sortedBy(e -> - e.getLevel().ordinal()).toArray(ACLEntry[]::new)
         );

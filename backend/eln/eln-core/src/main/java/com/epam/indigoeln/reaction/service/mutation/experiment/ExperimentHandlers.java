@@ -182,6 +182,23 @@ class DeleteExperimentAttachmentHandler extends ExperimentMutationHandlerBase<Ex
 }
 
 @Dependent
+@MutationHandlerFor(ExperimentMutation.ExperimentAccessUpdated.class)
+class ExperimentAccessUpdatedHandler extends AbstractExperimentMutationHandler<ExperimentMutation.ExperimentAccessUpdated> {
+
+    @Override
+    public boolean isAffectsACL() {
+        return true;
+    }
+
+    @Override
+    public MutationResult doHandle(ExperimentEntity experiment, @Nullable ExperimentModel model, ExperimentMutation.ExperimentAccessUpdated mutation) {
+        aclService.recalculateACL(experiment);
+        String reason = mutation.projectName() != null ? "project " + mutation.projectName() : "notebook " + mutation.notebookName();
+        return new MutationResult("Access updated because of the changes in " + reason, null);
+    }
+}
+
+@Dependent
 @MutationHandlerFor(ExperimentMutation.Undo.class)
 class UndoHandler extends ExperimentMutationHandlerBase<ExperimentMutation.Undo> {
 
