@@ -7,6 +7,7 @@ import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.model.patch.handler2.Patched;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
@@ -300,7 +301,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         assertThat((byte[]) response.getEntity()).containsExactly(ExperimentService.EMPTY_PICTURE);
 
         String rxnFile = new String(loadResource(getClass(), "/reaction.rxn"));
-        experimentClient.mutateExperimentModel(experiment.getId(), new MutateModelForm(experiment.getModel(), experimentClient.analyzeScheme(experiment.getId(), model.getReactions().getFirst().getAnchor(), rxnFile)));
+        experimentClient.mutateExperimentModel(experiment.getId(), new MutateModelForm(experiment.getModel(), new ReactionMutation.SetScheme(model.getReactions().getFirst().getAnchor(), rxnFile)));
 
         model = experimentClient.getExperiment(experiment.getId()).getModel();
         reaction = model.getReactions().getFirst();

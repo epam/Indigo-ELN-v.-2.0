@@ -83,7 +83,7 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testLoadReaction() {
         String rxnFile = new String(loadResource(getClass(), "/reaction.rxn"));
-        applyMutation(experimentClient.analyzeScheme(experiment.getId(), reaction.getAnchor(), rxnFile));
+        applyMutation(new ReactionMutation.SetScheme(reaction.getAnchor(), rxnFile));
         assertThat(input1).isNotNull();
         assertThat(input1.getCompound()).isInstanceOf(CompoundRef.Virtual.class);
         assertThat(input1Sample1).isNotNull();
@@ -494,7 +494,7 @@ public class MutationsTest extends MutationsTestBase {
 
     private void loadScheme() {
         String rxnFile = new String(ModelUtil.loadResource(getClass(), "/reaction.rxn"));
-        applyMutation(experimentClient.analyzeScheme(experiment.getId(), reaction.getAnchor(), rxnFile));
+        applyMutation(new ReactionMutation.SetScheme(reaction.getAnchor(), rxnFile));
     }
 
     private ReactionMutation.ResolveInputs prepareResolveInputs() {

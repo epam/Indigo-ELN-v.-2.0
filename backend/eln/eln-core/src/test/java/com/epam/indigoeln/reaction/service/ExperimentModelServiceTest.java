@@ -66,7 +66,7 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     @Order(100)
     void testLoadReaction() {
         String rxnFile = new String(ModelUtil.loadResource(getClass(), "/reaction.rxn"));
-        applyMutation(experimentClient.analyzeScheme(experiment.getId(), reaction.getAnchor(), rxnFile));
+        applyMutation(new ReactionMutation.SetScheme(reaction.getAnchor(), rxnFile));
     }
 
     @Test

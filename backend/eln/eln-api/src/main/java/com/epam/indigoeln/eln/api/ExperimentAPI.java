@@ -7,7 +7,6 @@ import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.InputAnchor;
 import com.epam.indigoeln.reaction.model.ReactionAnchor;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import jakarta.annotation.Nullable;
 import jakarta.ws.rs.*;
@@ -100,11 +99,6 @@ public interface ExperimentAPI extends BaseAPI {
     @POST
     @Path("/experiments/{experimentId}/datamodel/reactions/{reactionAnchor}/analyzeRXN")
     Map<InputAnchor, @org.jspecify.annotations.Nullable FindSamplesRequest> analyzeRXN(@PathParam("experimentId") UUID experimentId, @PathParam("reactionAnchor") ReactionAnchor reactionAnchor);
-
-    @POST
-    @Path("/experiments/{experimentId}/datamodel/reactions/{reactionAnchor}/analyzeScheme")
-    @Consumes(MediaType.TEXT_PLAIN)
-    ReactionMutation.SetScheme analyzeScheme(@PathParam("experimentId") UUID experimentId, @PathParam("reactionAnchor") ReactionAnchor reactionAnchor, String rxnFile);
 
     @POST
     @Path("/experiments/{experimentId}/workflow/cancel")

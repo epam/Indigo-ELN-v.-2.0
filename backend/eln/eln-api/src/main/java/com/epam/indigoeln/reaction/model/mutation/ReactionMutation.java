@@ -16,12 +16,15 @@ public interface ReactionMutation extends Mutation {
     record SetScheme (
         @NotNull ReactionAnchor anchor,
         @Nullable String rxnFile,
-        @NotNull List<InputAnchor> createdReactantAnchors,
-        @NotNull List<InputSampleAnchor> createdReactantSampleAnchors,
-        @NotNull List<InputAnchor> createdCatalystAnchors,
-        @NotNull List<InputSampleAnchor> createdCatalystSampleAnchors,
-        @NotNull List<OutputAnchor> createdProductAnchors
+        @Nullable List<InputAnchor> createdReactantAnchors,
+        @Nullable List<InputSampleAnchor> createdReactantSampleAnchors,
+        @Nullable List<InputAnchor> createdCatalystAnchors,
+        @Nullable List<InputSampleAnchor> createdCatalystSampleAnchors,
+        @Nullable List<OutputAnchor> createdProductAnchors
     ) implements ReactionMutation {
+        public SetScheme(@NotNull ReactionAnchor anchor, @Nullable String rxnFile) {
+            this(anchor, rxnFile, null, null, null, null, null);
+        }
 
         @Override
         public String toString() {
@@ -42,8 +45,11 @@ public interface ReactionMutation extends Mutation {
     record ResolveInputs (
             @NotNull ReactionAnchor anchor,
             @NotEmpty Map<InputAnchor, UUID> inputSamples, // anchor -> sampleID
-            @NotEmpty Map<InputAnchor, InputSampleAnchor> createdSampleAnchors
+            @Nullable Map<InputAnchor, InputSampleAnchor> createdSampleAnchors
     ) implements ReactionMutation {
+        public ResolveInputs(ReactionAnchor anchor, Map<InputAnchor, UUID> inputSamples) {
+            this(anchor, inputSamples, null);
+        }
     }
 
     record UndoResolveInputs (
@@ -59,22 +65,22 @@ public interface ReactionMutation extends Mutation {
 
     record AddEmptyInput (
         @NotNull ReactionAnchor anchor,
-        @NotNull InputAnchor createdInputAnchor,
-        @NotNull InputSampleAnchor createdSampleAnchor
+        @Nullable InputAnchor createdInputAnchor,
+        @Nullable InputSampleAnchor createdSampleAnchor
     ) implements ReactionMutation {
         public AddEmptyInput(@NotNull ReactionAnchor anchor) {
-            this(anchor, new InputAnchor(UUID.randomUUID()), new InputSampleAnchor(UUID.randomUUID()));
+            this(anchor, null, null);
         }
     }
 
     record AddInput (
         @NotNull ReactionAnchor anchor,
         @NotNull UUID sampleId,
-        @NotNull InputAnchor createdInputAnchor,
-        @NotNull InputSampleAnchor createdSampleAnchor
+        @Nullable InputAnchor createdInputAnchor,
+        @Nullable InputSampleAnchor createdSampleAnchor
     ) implements ReactionMutation {
         public AddInput(@NotNull ReactionAnchor anchor, @NotNull UUID sampleId) {
-            this(anchor, sampleId, new InputAnchor(UUID.randomUUID()), new InputSampleAnchor(UUID.randomUUID()));
+            this(anchor, sampleId, null, null);
         }
     }
 

@@ -103,7 +103,7 @@ class InsertTestDataTest {
 
         // load reaction
         String rxnFile = new String(ModelUtil.loadResource(getClass(), "/reaction.rxn"));
-        model = applyMutation(experiment, model, experimentClient.analyzeScheme(experiment.getId(), reactionAnchor, rxnFile));
+        model = applyMutation(experiment, model, new ReactionMutation.SetScheme(reactionAnchor, rxnFile));
         InputAnchor input1Anchor = model.getReactions().getFirst().getInputs().get(0).getAnchor();
         InputAnchor input2Anchor = model.getReactions().getFirst().getInputs().get(1).getAnchor();
         OutputAnchor output1Anchor = model.getReactions().getFirst().getOutputs().get(0).getAnchor();

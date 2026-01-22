@@ -27,7 +27,7 @@ public abstract class AbstractMutationHandler<T extends Mutation, M, E extends W
     @Override
     public Pair<S, P> applyMutation(E entity, T mutation) {
         // do the very early preparation; currently only used by undo/redo handlers
-        doPrepare(entity, mutation); // !!! only used by undo/redo, remove?
+        doPrepare(entity, mutation);
         // validate user is allowed to do this mutation;
         // undo/redo handlers must delegate to reverse/initial handler
         doValidateAccess(entity, mutation);
@@ -37,6 +37,8 @@ public abstract class AbstractMutationHandler<T extends Mutation, M, E extends W
         Integer revisionNo = doGetRevisionNo(entity);
         // prepare model; only used for subset of experiment handlers that work with experiment model
         M model = doPrepareModel(entity);
+        // augment mutation if needed; for example, pre-assign anchors for created objects to make redo deterministic
+        mutation = doPrepareMutation(entity, mutation);
         // perform the actual mutation;
         // undo/redo handlers must delegate to reverse/initial handler
         MutationResult result = doHandle(entity, model, mutation);
@@ -64,6 +66,10 @@ public abstract class AbstractMutationHandler<T extends Mutation, M, E extends W
     @Nullable
     protected M doPrepareModel(E entity) {
         return null;
+    }
+
+    protected T doPrepareMutation(E entity, T mutation) {
+        return mutation;
     }
 
     public abstract MutationResult doHandle(E entity, @Nullable M model, T mutation);

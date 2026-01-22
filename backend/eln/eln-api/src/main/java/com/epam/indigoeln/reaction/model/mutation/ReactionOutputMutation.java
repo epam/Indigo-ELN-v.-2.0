@@ -9,18 +9,16 @@ import com.epam.indigoeln.reaction.model.units.EnteredValueSource;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 
-import java.util.UUID;
-
 public interface ReactionOutputMutation extends Mutation {
 
     OutputAnchor anchor();
 
     record AddProductSample(
             @NotNull OutputAnchor anchor,
-            @NotNull OutputSampleAnchor createdSampleAnchor
+            @Nullable OutputSampleAnchor createdSampleAnchor
     ) implements ReactionOutputMutation {
         public AddProductSample(@NotNull OutputAnchor anchor) {
-            this(anchor, new OutputSampleAnchor(UUID.randomUUID()));
+            this(anchor, null);
         }
     }
 

@@ -12,7 +12,6 @@ import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.InputAnchor;
 import com.epam.indigoeln.reaction.model.ReactionAnchor;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
@@ -125,11 +124,6 @@ public class ExperimentResource implements ExperimentAPI {
     @Override
     public Map<InputAnchor, @org.jspecify.annotations.Nullable FindSamplesRequest> analyzeRXN(UUID experimentId, ReactionAnchor reactionAnchor) {
         return experimentService.analyzeRXN(experimentId, reactionAnchor);
-    }
-
-    @Override
-    public ReactionMutation.SetScheme analyzeScheme(UUID experimentId, ReactionAnchor reactionAnchor, String rxnFile) {
-        return experimentService.analyzeScheme(experimentId, reactionAnchor, rxnFile);
     }
 
     @Override
