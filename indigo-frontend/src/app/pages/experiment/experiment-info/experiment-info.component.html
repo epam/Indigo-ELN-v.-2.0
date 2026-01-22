@@ -18,8 +18,9 @@
         </button>
 
         @if (accordionItem.expanded) {
-          <form [formGroup]="form" class="mt-4">
+          <form [formGroup]="form" class="mt-4" >
             <formly-form
+              className="grid grid-cols-2"
               [form]="form",
               [fields]="fields"
               [model]="model">

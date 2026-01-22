@@ -57,46 +57,73 @@ export class ExperimentInfoComponent implements OnInit {
   form = new FormGroup({});
   fields: FormlyFieldConfig[] = [
     {
-      type: "input",
-      key: "title",
-      name: "title",
-      wrappers: ['raw'],
-      props: {
-        label: "Experiment Title",
-        placeholder: "Experiment Title",
-      }
-    },
-    {
-      type: "select",
-      key: "therapeutic",
-      wrappers: ['raw'],
-      props: {
-        label: "Therapeutic Area",
-        dictionaryId: "THERAUPETIC_AREA",
-        multiple: false,
-        required: false,
-        dictioinaryId: this.BuildInDictionary.THERAPEUTIC_AREA
-      }
-    }, 
-    {
-      type: "select",
-      key: "code-and-name",
-      wrappers: ['raw'],
-      props: {
-        label: "Project Code & Name",
-        placeholder: "PROJECT_CODE",
-        multiple: false,
-        required: false,
-      }
-    },
-    {
-      type: "input",
-      key: "literature",
-      wrappers: ['raw'],
-      props: {
-        label: "Literature Reference",
-        placeholder: "Literature Reference",
-      }
+      fieldGroupClassName: "grid grid-col-2",
+      fieldGroup: [
+        {
+          type: "input",
+          key: "title",
+          name: "title",
+          props: {
+            label: "Experiment Title",
+            placeholder: "Experiment Title",
+          }
+        },
+        {
+          type: "chip-grid",
+          key: "linkedExperiment",
+          props: {
+            label: "Linked Experiment",
+            placeholder: "Linked Experiment",
+          }
+        },
+        {
+          type: "select",
+          key: "therapeutic",
+          props: {
+            label: "Therapeutic Area",
+            dictionaryId: "THERAUPETIC_AREA",
+            multiple: false,
+            required: false,
+            dictioinaryId: this.BuildInDictionary.THERAPEUTIC_AREA
+          }
+        }, 
+        {
+          type: "chip-grid",
+          key: "contToRxn",
+          props: {
+            label: "Cont. TO Rxn.",
+            placeholder: "Cont. TO Rxn."
+          }
+        },
+        {
+          type: "select",
+          key: "codeAndName",
+          props: {
+            label: "Project Code & Name",
+            placeholder: "PROJECT_CODE",
+            multiple: false,
+            required: false,
+          }
+        },
+        {
+          type: "chip-grid",
+          key: "contFromRxn",
+          props: {
+            label: "Cont. TO Rxn.",
+            placeholder: "Cont. TO Rxn."
+          }
+        },
+        {
+          type: "input",
+          key: "reference",
+          name: "reference",
+          className: "col-span-2",
+          props: {
+            label: "Literature Reference",
+            placeholder: "Literature Reference",
+          }
+        },
+      ]
     }
   ]
 
