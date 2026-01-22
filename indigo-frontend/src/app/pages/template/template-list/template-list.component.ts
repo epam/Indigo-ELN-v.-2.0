@@ -16,7 +16,7 @@ import { Subscription, take } from 'rxjs';
 import { DropdownMenuItem } from '@core/components/common/dropdown-menu/dropdown-menu.i';
 import { RouteAnimationType } from '@core/animations/route-animations';
 import { TemplateItemComponent } from '@core/components/template/template-item/template-item.component';
-import { ItemTemplate, RootTemplate } from '@core/types/entities/template.i';
+import { ItemTemplate } from '@core/types/entities/template.i';
 import { TemplateAddComponent } from '@pages/template/template-add/template-add.component';
 
 @Component({
@@ -59,12 +59,20 @@ export class TemplateListComponent
     this.setup({
       loadUrl: 'templates',
       sortOptions: [
-        { label: 'Sort by: Earliest', value: 'createdAt', defaultOrder: 'asc' },
-        { label: 'Sort by: Latest', value: 'createdAt', defaultOrder: 'desc' },
+        {
+          label: 'Sort by: Earliest',
+          value: 'createdAt',
+          defaultOrder: 'EARLIEST',
+        },
+        {
+          label: 'Sort by: Latest',
+          value: 'createdAt',
+          defaultOrder: 'LATEST',
+        },
       ],
       defaultSort: {
         sortBy: 'createdAt',
-        sortOrder: 'asc',
+        sort: 'EARLIEST',
       },
     });
 
@@ -75,7 +83,6 @@ export class TemplateListComponent
       icon: 'indicon-sort',
     }));
   }
-
 
   refreshList(): void {
     this.reload();
@@ -102,6 +109,6 @@ export class TemplateListComponent
   }
 
   onSortChange(event: SortChangeEvent) {
-    this.sort(event.sortBy, event.sortOrder);
+    this.sort(event.sortBy, event.sort);
   }
 }

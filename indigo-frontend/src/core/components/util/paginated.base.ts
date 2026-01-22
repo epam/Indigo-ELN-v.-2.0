@@ -33,8 +33,10 @@ export abstract class PaginatedBase<T> {
     pageNo: 0,
   };
 
-  protected currentSort: { sortBy: string; sortOrder: 'asc' | 'desc' } | null =
-    null;
+  protected currentSort: {
+    sortBy: string;
+    sort: 'EARLIEST' | 'LATEST';
+  } | null = null;
   protected sortOptions: SortOption[] = [];
 
   protected dataList$: Observable<PaginatedResponse<T>>;
@@ -56,7 +58,7 @@ export abstract class PaginatedBase<T> {
     if (config.defaultSort) {
       this.currentSort = config.defaultSort;
       this.pager.sortBy = config.defaultSort.sortBy;
-      this.pager.sortOrder = config.defaultSort.sortOrder;
+      this.pager.sort = config.defaultSort.sort;
     }
 
     this.initialize();
@@ -79,7 +81,7 @@ export abstract class PaginatedBase<T> {
                       // + 1 since pageNo 0 = Page 1
                       pageSize: (this.pager.pageNo + 1) * this.pager.pageSize,
                       sortBy: this.pager.sortBy,
-                      sortOrder: this.pager.sortOrder,
+                      sort: this.pager.sort,
                     }
                   : // For subsequent loads or restoration disabled, use standard pager
                     this.pager;
@@ -130,8 +132,8 @@ export abstract class PaginatedBase<T> {
                 // Handle special cases for pager properties
                 if (key === 'sortBy') {
                   this.pager[key] = queryFilters[key] as string;
-                } else if (key === 'sortOrder') {
-                  this.pager[key] = queryFilters[key] as 'asc' | 'desc';
+                } else if (key === 'sort') {
+                  this.pager[key] = queryFilters[key] as 'EARLIEST' | 'LATEST';
                 } else {
                   this.pager[key] = Number(queryFilters[key]);
                 }
@@ -143,7 +145,7 @@ export abstract class PaginatedBase<T> {
             if (params['sortBy']) {
               this.currentSort = {
                 sortBy: params['sortBy'] as string,
-                sortOrder: (params['sortOrder'] as 'asc' | 'desc') || 'asc',
+                sort: (params['sort'] as 'EARLIEST' | 'LATEST') || 'EARLIEST',
               };
             }
 
@@ -202,22 +204,22 @@ export abstract class PaginatedBase<T> {
     this.fetchDataAndUpdateQueryParams();
   }
 
-  public sort(sortBy: string, sortOrder?: 'asc' | 'desc') {
-    // If no sortOrder provided, determine it based on current sort
-    if (!sortOrder) {
+  public sort(sortBy: string, sort?: 'EARLIEST' | 'LATEST') {
+    // If no sort provided, determine it based on current sort
+    if (!sort) {
       if (this.currentSort?.sortBy === sortBy) {
         // Toggle sort order if same field
-        sortOrder = this.currentSort.sortOrder === 'asc' ? 'desc' : 'asc';
+        sort = this.currentSort.sort === 'EARLIEST' ? 'LATEST' : 'EARLIEST';
       } else {
-        // Use default order for new field or 'asc' as fallback
+        // Use default order for new field or 'EARLIEST' as fallback
         const option = this.sortOptions.find((opt) => opt.value === sortBy);
-        sortOrder = option?.defaultOrder || 'asc';
+        sort = option?.defaultOrder || 'EARLIEST';
       }
     }
 
-    this.currentSort = { sortBy, sortOrder };
+    this.currentSort = { sortBy, sort: sort };
     this.pager.sortBy = sortBy;
-    this.pager.sortOrder = sortOrder;
+    this.pager.sort = sort;
     this.pager.pageNo = 0; // Reset to first page when sorting
 
     this.fetchDataAndUpdateQueryParams();
@@ -226,7 +228,7 @@ export abstract class PaginatedBase<T> {
   public clearSort() {
     this.currentSort = null;
     delete this.pager.sortBy;
-    delete this.pager.sortOrder;
+    delete this.pager.sort;
     this.pager.pageNo = 0;
 
     this.fetchDataAndUpdateQueryParams();
@@ -244,7 +246,7 @@ export abstract class PaginatedBase<T> {
     return this.currentSort?.sortBy === sortBy;
   }
 
-  public getSortOrder(sortBy: string): 'asc' | 'desc' | null {
-    return this.isSortedBy(sortBy) ? this.currentSort!.sortOrder : null;
+  public getSortOrder(sortBy: string): 'EARLIEST' | 'LATEST' | null {
+    return this.isSortedBy(sortBy) ? this.currentSort!.sort : null;
   }
 }

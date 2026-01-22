@@ -9,18 +9,11 @@ export function getRequestParams(
 
   const filters = { ...filter, ...paging };
 
-  Object.keys(filters).forEach((key) => {
-    if (typeof filters[key] == 'number' || !!filters[key]) {
-      let value = filters[key];
-
-      if (key === 'sortOrder') {
-        key = 'sort';
-        value = filters['sortOrder'] === 'asc' ? 'EARLIEST' : 'LATEST';
-      }
-
-      params = params.append(key, value);
-    }
-  });
+  Object.keys(filters).forEach(
+    (key) =>
+      (typeof filters[key] == 'number' || !!filters[key]) &&
+      (params = params.append(key, filters[key])),
+  );
 
   return params;
 }

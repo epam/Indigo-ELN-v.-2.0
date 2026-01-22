@@ -24,7 +24,7 @@ import { ToggleComponent } from '../toggle/toggle.component';
 
 export interface SortChangeEvent {
   sortBy: string;
-  sortOrder: 'asc' | 'desc';
+  sort: 'EARLIEST' | 'LATEST';
 }
 
 @Component({
@@ -49,8 +49,10 @@ export interface SortChangeEvent {
 })
 export class ListHeaderComponent implements OnInit, OnChanges, OnDestroy {
   @Input() sortOptions: DropdownMenuItem[] = [];
-  @Input() currentSort: { sortBy: string; sortOrder: 'asc' | 'desc' } | null =
-    null;
+  @Input() currentSort: {
+    sortBy: string;
+    sort: 'EARLIEST' | 'LATEST';
+  } | null = null;
   @Input() enableViewToggle = true;
   @Input() enableSearch = true;
   @Input() enableSort = true;
@@ -104,10 +106,10 @@ export class ListHeaderComponent implements OnInit, OnChanges, OnDestroy {
   private updateSortControl() {
     if (this.currentSort && this.sortOptions.length > 0) {
       const matchingOption = this.sortOptions.find((option) => {
-        const [sortBy, sortOrder] = option.value.split(':');
+        const [sortBy, sort] = option.value.split(':');
         return (
           sortBy === this.currentSort!.sortBy &&
-          sortOrder === this.currentSort!.sortOrder
+          sort === this.currentSort!.sort
         );
       });
 
@@ -125,11 +127,11 @@ export class ListHeaderComponent implements OnInit, OnChanges, OnDestroy {
   onSortChange(value: string) {
     if (!value) return;
 
-    const [sortBy, sortOrder] = value.split(':');
-    if (sortBy && sortOrder) {
+    const [sortBy, sort] = value.split(':');
+    if (sortBy && sort) {
       this.sortChange.emit({
         sortBy,
-        sortOrder: sortOrder as 'asc' | 'desc',
+        sort: sort as 'EARLIEST' | 'LATEST',
       });
     }
   }
