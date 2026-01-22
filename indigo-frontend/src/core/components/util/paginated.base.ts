@@ -33,8 +33,10 @@ export abstract class PaginatedBase<T> {
     pageNo: 0,
   };
 
-  protected currentSort: { sortBy: string; sortOrder: 'asc' | 'desc' } | null =
-    null;
+  protected currentSort: {
+    sortBy: string;
+    sort: 'EARLIEST' | 'LATEST';
+  } | null = null;
   protected sortOptions: SortOption[] = [];
 
   protected dataList$: Observable<PaginatedResponse<T>>;
@@ -56,7 +58,7 @@ export abstract class PaginatedBase<T> {
     if (config.defaultSort) {
       this.currentSort = config.defaultSort;
       this.pager.sortBy = config.defaultSort.sortBy;
-      this.pager.sortOrder = config.defaultSort.sortOrder;
+      this.pager.sort = config.defaultSort.sort;
     }
 
     this.initialize();
@@ -69,91 +71,91 @@ export abstract class PaginatedBase<T> {
         return res
           ? of(res)
           : defer(() => {
-            this.isLoading = true;
+              this.isLoading = true;
 
-            const computedPager =
-              this.config.enableScrollRestoration && this.firstLoad
-                ? // On first load with restoration enabled, fetch all data up to current page
-                {
-                  pageNo: 0,
-                  // + 1 since pageNo 0 = Page 1
-                  pageSize: (this.pager.pageNo + 1) * this.pager.pageSize,
-                  sortBy: this.pager.sortBy,
-                  sortOrder: this.pager.sortOrder,
-                }
-                : // For subsequent loads or restoration disabled, use standard pager
-                this.pager;
-
-            return this.service
-              .getPaged(this.config.loadUrl, computedPager, this.filters)
-              .pipe(
-                tap({
-                  next: (res) => {
-                    this.firstLoad = false;
-                    this.total = res.totalItems;
-                    if (
-                      res &&
-                      res.items.length == 0 &&
-                      this.pager.pageNo > 0
-                    ) {
-                      this.pager.pageNo = res.totalPages;
-                      this.fetchDataAndUpdateQueryParams(false);
-
-                      this.dataSubject$.next(null);
-                    } else {
-                      this.dataSubject$.next(res);
+              const computedPager =
+                this.config.enableScrollRestoration && this.firstLoad
+                  ? // On first load with restoration enabled, fetch all data up to current page
+                    {
+                      pageNo: 0,
+                      // + 1 since pageNo 0 = Page 1
+                      pageSize: (this.pager.pageNo + 1) * this.pager.pageSize,
+                      sortBy: this.pager.sortBy,
+                      sort: this.pager.sort,
                     }
-                  },
-                }),
+                  : // For subsequent loads or restoration disabled, use standard pager
+                    this.pager;
 
-                finalize(() => {
-                  this.isLoading = false;
-                }),
-              );
-          });
+              return this.service
+                .getPaged(this.config.loadUrl, computedPager, this.filters)
+                .pipe(
+                  tap({
+                    next: (res) => {
+                      this.firstLoad = false;
+                      this.total = res.totalItems;
+                      if (
+                        res &&
+                        res.items.length == 0 &&
+                        this.pager.pageNo > 0
+                      ) {
+                        this.pager.pageNo = res.totalPages;
+                        this.fetchDataAndUpdateQueryParams(false);
+
+                        this.dataSubject$.next(null);
+                      } else {
+                        this.dataSubject$.next(res);
+                      }
+                    },
+                  }),
+
+                  finalize(() => {
+                    this.isLoading = false;
+                  }),
+                );
+            });
       }),
     );
 
     this.dataList$ = this.config.enableQueryParams
       ? this.activatedRoute.queryParams.pipe(
-        take(1),
-        switchMap((params) => {
-          const queryFilters = Object.keys(
-            params as Record<string, unknown>,
-          ).reduce((acc: Record<string, unknown>, curr) => {
-            acc[curr] = params[curr];
-            return acc;
-          }, {});
+          take(1),
+          switchMap((params) => {
+            const queryFilters = Object.keys(
+              params as Record<string, unknown>,
+            ).reduce((acc: Record<string, unknown>, curr) => {
+              acc[curr] = params[curr];
+              return acc;
+            }, {});
 
-          Object.keys(queryFilters).forEach((key) => {
-            if (key in this.pager) {
-              // Handle special cases for pager properties
-              if (key === 'sortBy') {
-                this.pager[key] = queryFilters[key] as string;
-              } else if (key === 'sortOrder') {
-                this.pager[key] = queryFilters[key] as 'asc' | 'desc';
-              } else {
-                this.pager[key] = Number(queryFilters[key]);
+            Object.keys(queryFilters).forEach((key) => {
+              if (key in this.pager) {
+                // Handle special cases for pager properties
+                if (key === 'sortBy') {
+                  this.pager[key] = queryFilters[key] as string;
+                } else if (key === 'sort') {
+                  this.pager[key] = queryFilters[key] as 'EARLIEST' | 'LATEST';
+                } else {
+                  this.pager[key] = Number(queryFilters[key]);
+                }
+                delete queryFilters[key];
               }
-              delete queryFilters[key];
+            });
+
+            // Handle sorting from query params
+            if (params['sortBy']) {
+              this.currentSort = {
+                sortBy: params['sortBy'] as string,
+                sort: (params['sort'] as 'EARLIEST' | 'LATEST') || 'EARLIEST',
+              };
             }
-          });
 
-          // Handle sorting from query params
-          if (params['sortBy']) {
-            this.currentSort = {
-              sortBy: params['sortBy'] as string,
-              sortOrder: (params['sortOrder'] as 'asc' | 'desc') || 'asc',
-            };
-          }
+            Object.assign(this.filters, queryFilters);
 
-          Object.assign(this.filters, queryFilters);
+            this.fetchDataAndUpdateQueryParams(false);
 
-          this.fetchDataAndUpdateQueryParams(false);
-
-          return dataLogic$;
-        }),
-      )
+            return dataLogic$;
+          }),
+        )
       : dataLogic$;
   }
 
@@ -202,22 +204,22 @@ export abstract class PaginatedBase<T> {
     this.fetchDataAndUpdateQueryParams();
   }
 
-  public sort(sortBy: string, sortOrder?: 'asc' | 'desc') {
-    // If no sortOrder provided, determine it based on current sort
-    if (!sortOrder) {
+  public sort(sortBy: string, sort?: 'EARLIEST' | 'LATEST') {
+    // If no sort provided, determine it based on current sort
+    if (!sort) {
       if (this.currentSort?.sortBy === sortBy) {
         // Toggle sort order if same field
-        sortOrder = this.currentSort.sortOrder === 'asc' ? 'desc' : 'asc';
+        sort = this.currentSort.sort === 'EARLIEST' ? 'LATEST' : 'EARLIEST';
       } else {
-        // Use default order for new field or 'asc' as fallback
+        // Use default order for new field or 'EARLIEST' as fallback
         const option = this.sortOptions.find((opt) => opt.value === sortBy);
-        sortOrder = option?.defaultOrder || 'asc';
+        sort = option?.defaultOrder || 'EARLIEST';
       }
     }
 
-    this.currentSort = { sortBy, sortOrder };
+    this.currentSort = { sortBy, sort: sort };
     this.pager.sortBy = sortBy;
-    this.pager.sortOrder = sortOrder;
+    this.pager.sort = sort;
     this.pager.pageNo = 0; // Reset to first page when sorting
 
     this.fetchDataAndUpdateQueryParams();
@@ -226,7 +228,7 @@ export abstract class PaginatedBase<T> {
   public clearSort() {
     this.currentSort = null;
     delete this.pager.sortBy;
-    delete this.pager.sortOrder;
+    delete this.pager.sort;
     this.pager.pageNo = 0;
 
     this.fetchDataAndUpdateQueryParams();
@@ -244,7 +246,7 @@ export abstract class PaginatedBase<T> {
     return this.currentSort?.sortBy === sortBy;
   }
 
-  public getSortOrder(sortBy: string): 'asc' | 'desc' | null {
-    return this.isSortedBy(sortBy) ? this.currentSort!.sortOrder : null;
+  public getSortOrder(sortBy: string): 'EARLIEST' | 'LATEST' | null {
+    return this.isSortedBy(sortBy) ? this.currentSort!.sort : null;
   }
 }

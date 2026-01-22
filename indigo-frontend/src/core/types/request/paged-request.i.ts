@@ -2,11 +2,11 @@ export interface PagedRequest {
   pageNo: number;
   pageSize: number;
   sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
+  sort?: 'EARLIEST' | 'LATEST';
 }
 
 export interface SortOption {
   label: string;
   value: string;
-  defaultOrder?: 'asc' | 'desc';
+  defaultOrder?: 'EARLIEST' | 'LATEST';
 }
