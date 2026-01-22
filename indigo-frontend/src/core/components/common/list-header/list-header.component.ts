@@ -108,8 +108,7 @@ export class ListHeaderComponent implements OnInit, OnChanges, OnDestroy {
       const matchingOption = this.sortOptions.find((option) => {
         const [sortBy, sort] = option.value.split(':');
         return (
-          sortBy === this.currentSort!.sortBy &&
-          sort === this.currentSort!.sort
+          sortBy === this.currentSort!.sortBy && sort === this.currentSort!.sort
         );
       });
 
