@@ -88,20 +88,12 @@ export class TeamComponent implements OnInit {
       disabled: isInmutableLevel(member.level) || updating.has(member.userId),
     }));
   });
-  //1
+
   aclLevelOptions = ELIGIBLE_ACL_LEVELS;
 
   private api = inject(ApiService);
 
   @ViewChild(NgSelectComponent) ngSelectComponent!: NgSelectComponent;
-
-  get addMemberLabelMap(): Record<string, string> {
-    return {
-      '=0': 'Add member',
-      '=1': 'Add member',
-      other: 'Add # members',
-    };
-  }
 
   ngOnInit(): void {
     if (!this.entityId)

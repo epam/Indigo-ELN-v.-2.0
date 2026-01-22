@@ -61,17 +61,17 @@ export class ProjectListComponent
         {
           label: 'Sorting by: Earliest',
           value: 'createdAt',
-          defaultOrder: 'asc',
+          defaultOrder: 'EARLIEST',
         },
         {
           label: 'Sorting by: Latest',
           value: 'createdAt',
-          defaultOrder: 'desc',
+          defaultOrder: 'LATEST',
         },
       ],
       defaultSort: {
         sortBy: 'createdAt',
-        sortOrder: 'asc',
+        sort: 'EARLIEST',
       },
     });
 
@@ -108,7 +108,7 @@ export class ProjectListComponent
   }
 
   onSortChange(event: SortChangeEvent) {
-    this.sort(event.sortBy, event.sortOrder);
+    this.sort(event.sortBy, event.sort);
   }
 
   onViewChange(view: string) {
@@ -117,7 +117,6 @@ export class ProjectListComponent
 
   onMyEntitiesOnlyChange(value: boolean) {
     this.filters['createdByMe'] = value;
-    this.dataBh.next([]);
-    this.fetchDataAndUpdateQueryParams();
+    this.reload();
   }
 }

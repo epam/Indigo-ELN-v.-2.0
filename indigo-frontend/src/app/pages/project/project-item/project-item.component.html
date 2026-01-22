@@ -19,10 +19,14 @@
         >
           <mat-icon>more_horiz</mat-icon>
         </button>
-        <mat-menu #menu="matMenu">
-          <button mat-menu-item>
-            <mat-icon>visibility</mat-icon>
-            <span>Action</span>
+        <mat-menu #menu="matMenu" class="project-item-custom-menu">
+          <button mat-menu-item class="relative flex items-center">
+            <em class="indicon-edit text-[20px] mr-2"></em>
+            <span class="absolute top-[14px] left-10">Rename</span>
+          </button>
+          <button mat-menu-item class="relative flex items-center">
+            <em class="indicon-delete text-[20px] mr-2"></em>
+            <span class="absolute top-[14px] left-10">Delete</span>
           </button>
         </mat-menu>
       </div>
@@ -77,8 +81,9 @@
               }}</span>
             }
             <span class="mx-3 font-thin text-neutral-500">|</span>
-            <!-- TODO -->
-            <span class="font-semibold text-h4 text-neutral-1000">{{project.experimentCount}}</span>
+            <span class="font-semibold text-h4 text-neutral-1000">{{
+              project.experimentCount
+            }}</span>
           </div>
         </div>
 
@@ -91,11 +96,15 @@
           <div class="flex items-center">
             <div class="flex -space-x-2">
               @for (member of project.acl.slice(0, 3); track member) {
-                <eln-avatar classList="w-6 h-6" [img]="'https://ui-avatars.com/api/?name=' + (member.username ?? member.displayName)" />
+                <div
+                  class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white"
+                >
+                  {{ member.username ?? member.displayName | initials }}
+                </div>
               }
               @if (project.aclCount > 3) {
                 <span
-                  class="flex justify-center items-center bg-primary-400 rounded-full w-6 h-6 text-white text-xs"
+                  class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-primary-400 text-white text-[0.75rem]"
                 >
                   +{{ project.aclCount - 3 }}
                 </span>
@@ -134,16 +143,21 @@
       >
         <div class="flex -space-x-2">
           @for (member of project.acl.slice(0, 3); track member) {
-            <eln-avatar classList="w-6 h-6" [img]="'https://ui-avatars.com/api/?name=' + (member.username ?? member.displayName)" />
+            <div
+              class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white"
+            >
+              {{ member.username ?? member.displayName | initials }}
+            </div>
           }
           @if (project.aclCount > 3) {
             <span
-              class="flex justify-center items-center bg-primary-400 rounded-full w-6 h-6 text-white text-xs"
+              class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-primary-400 text-white text-[0.75rem]"
             >
               +{{ project.aclCount - 3 }}
-            </span> 
+            </span>
           }
         </div>
+
         <span class="ml-2 text-b2 text-neutral-1000"
           >{{ project.aclCount }} Members</span
         >

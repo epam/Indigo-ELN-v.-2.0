@@ -307,6 +307,18 @@ class ProjectServiceTest extends ELNBaseTest {
     }
 
     @Test
+    void testUploadAttachmentToInvalidProject() {
+        UUID missingProjectId = UUID.randomUUID();
+
+        assertThatClientCall(() ->
+                projectClient.createProjectAttachment(missingProjectId, "file.txt", Path.of("."), "content".getBytes())
+        )
+                .isNotFound("PROJECT " + missingProjectId + " not found");
+    }
+
+
+
+    @Test
     void testSuggestKeywords() {
         projectClient.createProject(new ProjectRequest("testSuggestKeywords", List.of("k1", "K2", "k3", "keyword1", "Keyword2"), null, null));
         List<DictionaryItemRef> all = dictionaryClient.suggestDictionaryItems(BuiltInDictionary.PROJECT_KEYWORD, "");

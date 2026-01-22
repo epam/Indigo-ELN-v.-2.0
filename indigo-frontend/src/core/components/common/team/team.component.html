@@ -36,7 +36,7 @@
             </div>
             <div class="flex items-center">
               <span class="text-xs" [class.text-neutral-500]="item.added">{{
-                item.added ? 'Already added' : ''
+                item.added ? 'Already Added' : ''
               }}</span>
             </div>
           </div>
@@ -50,7 +50,7 @@
         [disabled]="selectedUserIds.length === 0 || loading().addingUsers"
       >
         <em class="indicon-plus"></em>
-        {{ selectedUserIds.length | i18nPlural: addMemberLabelMap }}
+        Add member
       </eln-button>
     </div>
   </div>

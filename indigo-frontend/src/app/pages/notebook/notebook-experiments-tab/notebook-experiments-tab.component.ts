@@ -11,9 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ActivatedRoute } from '@angular/router';
-import {
-  ProjectOverviewWidgetDirective
-} from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
+import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
 import { ExperimentItemComponent } from '@pages/experiment/experiment-item/experiment-item.component';
 
 @Component({
@@ -40,8 +38,7 @@ import { ExperimentItemComponent } from '@pages/experiment/experiment-item/exper
     ListHeaderComponent,
   ],
 })
-export class NotebookExperimentsTabComponent
-  extends InfiniteScrollBase<ExperimentDetail> {
+export class NotebookExperimentsTabComponent extends InfiniteScrollBase<ExperimentDetail> {
   dialog = inject(MatDialog);
   selectedView: 'grid' | 'list' = 'grid';
   notebookId: string;
@@ -49,7 +46,8 @@ export class NotebookExperimentsTabComponent
 
   constructor(activatedRoute: ActivatedRoute) {
     super();
-    const notebookId = activatedRoute.parent?.snapshot.paramMap.get('notebookId');
+    const notebookId =
+      activatedRoute.parent?.snapshot.paramMap.get('notebookId');
     const projectId = activatedRoute.parent?.snapshot.paramMap.get('projectId');
 
     this.notebookId = notebookId || '';
@@ -60,8 +58,8 @@ export class NotebookExperimentsTabComponent
       sortOptions: [
         { label: 'Name', value: 'name' },
         { label: 'Status', value: 'status' },
-        { label: 'Created Date', value: 'createdAt', defaultOrder: 'desc' },
-        { label: 'Modified Date', value: 'modifiedAt', defaultOrder: 'desc' },
+        { label: 'Created Date', value: 'createdAt', defaultOrder: 'LATEST' },
+        { label: 'Modified Date', value: 'modifiedAt', defaultOrder: 'LATEST' },
       ],
     });
   }
