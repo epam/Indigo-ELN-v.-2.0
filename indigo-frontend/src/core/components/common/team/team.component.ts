@@ -30,7 +30,7 @@ import { ButtonComponent } from '../button/button.component';
 import { NgSelectComponent, NgSelectModule } from '@ng-select/ng-select';
 import { FormsModule } from '@angular/forms';
 import { TeamComponentConfig } from './team.config';
-import { AvatarComponent } from '@core/components/common/avatar/avatar.component';
+import { InitialsPipe } from '../../../pipes/avatars.pipe';
 type UserSuggestionWithState = UserSuggestion & { added?: boolean };
 
 interface TeamLoadingState {
@@ -53,7 +53,7 @@ interface TeamLoadingState {
     ButtonComponent,
     NgSelectModule,
     FormsModule,
-    AvatarComponent,
+    InitialsPipe,
   ],
 })
 export class TeamComponent implements OnInit {

@@ -1,4 +1,3 @@
-import { AvatarComponent } from '@/core/components/common/avatar/avatar.component';
 import { CardComponent } from '@/core/components/common/card/card.component';
 import { Notebook } from '@/core/types/entities/notebook.i';
 import { CommonModule } from '@angular/common';
@@ -7,6 +6,7 @@ import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { InitialsPipe } from '../../../../core/pipes/avatars.pipe';
 
 @Component({
   selector: 'eln-notebook-item',
@@ -17,7 +17,7 @@ import { MatMenuModule } from '@angular/material/menu';
     MatButtonModule,
     MatIconModule,
     MatMenuModule,
-    AvatarComponent,
+    InitialsPipe,
   ],
   templateUrl: './notebook-item.component.html',
 })
