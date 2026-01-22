@@ -1,6 +1,9 @@
 import { ButtonComponent } from '@core/components/common/button/button.component';
 import { DropdownMenuItem } from '@core/components/common/dropdown-menu/dropdown-menu.i';
-import { ListHeaderComponent, SortChangeEvent } from '@core/components/common/list-header/list-header.component';
+import {
+  ListHeaderComponent,
+  SortChangeEvent,
+} from '@core/components/common/list-header/list-header.component';
 import { InfiniteLoaderComponent } from '@core/components/util/infinite-loader/infinite-loader.component';
 import { InfiniteScrollBase } from '@core/components/util/infinite-scroll.base';
 import { ClassPickerPipe } from '@core/pipes/classPicker.pipe';
@@ -15,9 +18,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Subscription, take } from 'rxjs';
 import { NotebookAddComponent } from '@pages/notebook/notebook-add/notebook-add.component';
 import { NotebookItemComponent } from '@pages/notebook/notebook-item/notebook-item.component';
-import {
-  ProjectOverviewWidgetDirective
-} from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
+import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
 
 @Component({
   selector: 'eln-notebook-list',
@@ -40,7 +41,7 @@ import {
     InfiniteLoaderComponent,
     ProjectOverviewWidgetDirective,
     ButtonComponent,
-    ListHeaderComponent
+    ListHeaderComponent,
   ],
 })
 export class NotebookListComponent
@@ -64,17 +65,17 @@ export class NotebookListComponent
           {
             label: 'Sort by: Earliest',
             value: 'createdAt',
-            defaultOrder: 'asc',
+            defaultOrder: 'EARLIEST',
           },
           {
             label: 'Sort by: Latest',
             value: 'createdAt',
-            defaultOrder: 'desc',
+            defaultOrder: 'LATEST',
           },
         ],
         defaultSort: {
           sortBy: 'createdAt',
-          sortOrder: 'asc',
+          sort: 'EARLIEST',
         },
       });
 
@@ -113,7 +114,7 @@ export class NotebookListComponent
   }
 
   onSortChange(event: SortChangeEvent) {
-    this.sort(event.sortBy, event.sortOrder);
+    this.sort(event.sortBy, event.sort);
   }
 
   onViewChange(view: string) {
@@ -122,7 +123,6 @@ export class NotebookListComponent
 
   onMyEntitiesOnlyChange(value: boolean) {
     this.filters['createdByMe'] = value;
-    this.dataBh.next([]);
-    this.fetchDataAndUpdateQueryParams();
+    this.reload();
   }
 }

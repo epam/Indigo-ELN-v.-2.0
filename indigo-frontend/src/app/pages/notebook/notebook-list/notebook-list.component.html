@@ -2,8 +2,8 @@
   [sortOptions]="headerSortOptions"
   [currentSort]="getCurrentSort()"
   (viewChange)="onViewChange($event)"
-  (sortChange)="onSortChange($event)"
   (searchChange)="onSearch($event)"
+  (sortChange)="onSortChange($event)"
   (myEntitiesOnlyChange)="onMyEntitiesOnlyChange($event)"
 />
 <div
@@ -16,7 +16,11 @@
   }"
 >
   @for (notebook of data; track notebook.id) {
-    <eln-notebook-item [notebook]="notebook" [variant]="selectedView" [projectId]="projectId" />
+    <eln-notebook-item
+      [notebook]="notebook"
+      [variant]="selectedView"
+      [projectId]="projectId"
+    />
   }
   <eln-infinite-loader
     [classNames]="
