@@ -49,7 +49,7 @@ public class ProjectResource implements ProjectAPI {
 
     @Override
     public List<AttachmentDTO> createProjectAttachment(UUID projectId, UploadForm form) {
-        return attachmentService.createProjectAttachment(projectId, form.getFile());
+        return attachmentService.createProjectAttachment(projectId, form.getFile(), true);
     }
 
     @Override

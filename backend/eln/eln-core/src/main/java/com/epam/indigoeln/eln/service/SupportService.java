@@ -59,7 +59,7 @@ public class SupportService {
             projectCount++;
             for (int attachmentNo = 1; attachmentNo <= random.nextInt(0, 2); attachmentNo++) {
                 System.out.println("\tattachment " + attachmentNo);
-                attachmentService.createProjectAttachment(project.getId(), "attachment" + attachmentNo + ".txt", "content".getBytes());
+                attachmentService.createProjectAttachment(project.getId(), "attachment" + attachmentNo + ".txt", "content".getBytes(), true);
                 attachmentCount++;
             }
             for (int notebookNo = 1; notebookNo <= random.nextInt(1, 4); notebookNo++) {
@@ -68,7 +68,7 @@ public class SupportService {
                 notebookCount++;
                 for (int attachmentNo = 1; attachmentNo <= random.nextInt(0, 4); attachmentNo++) {
                     System.out.println("\tattachment " + attachmentNo);
-                    attachmentService.createNotebookAttachment(notebook.getId(), "attachment" + attachmentNo + ".txt", "content".getBytes());
+                    attachmentService.createNotebookAttachment(notebook.getId(), "attachment" + attachmentNo + ".txt", "content".getBytes(), true);
                     attachmentCount++;
                 }
                 for (int experimentNo = 1; experimentNo <= random.nextInt(1, 12); experimentNo++) {
@@ -81,7 +81,7 @@ public class SupportService {
                     experimentCount++;
                     for (int attachmentNo = 1; attachmentNo <= random.nextInt(0, 4); attachmentNo++) {
                         System.out.println("\tattachment " + attachmentNo);
-                        attachmentService.createExperimentAttachment(experiment.getId(), "attachment" + attachmentNo + ".txt", "content".getBytes());
+                        attachmentService.createExperimentAttachment(experiment.getId(), "attachment" + attachmentNo + ".txt", "content".getBytes(), true);
                         attachmentCount++;
                     }
                 }

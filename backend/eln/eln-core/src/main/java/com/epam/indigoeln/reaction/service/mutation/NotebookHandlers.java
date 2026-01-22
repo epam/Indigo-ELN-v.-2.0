@@ -9,6 +9,7 @@ import com.epam.indigoeln.eln.repository.AttachmentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.eln.service.ACLService;
+import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.mutation.NotebookMutation;
@@ -96,6 +97,8 @@ class CreateNotebookAttachmentHandler extends AbstractNotebookMutationHandler<No
 
     @Inject
     AttachmentRepository attachmentRepository;
+    @Inject
+    AttachmentService attachmentService;
 
     @Override
     public boolean isAffectsAttachments() {
@@ -105,8 +108,7 @@ class CreateNotebookAttachmentHandler extends AbstractNotebookMutationHandler<No
     @Override
     public MutationResult doHandle(NotebookEntity notebook, @Nullable Void model, NotebookMutation.CreateNotebookAttachment mutation) {
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
-        notebook.getAttachments().add(attachment);
-        attachment.getNotebooks().add(notebook);
+        attachmentService.doAddNotebookAttachment(notebook, attachment);
         return new MutationResult(entityMutationHelper.formatCreateAttachmentSummary(attachment), null);
     }
 }

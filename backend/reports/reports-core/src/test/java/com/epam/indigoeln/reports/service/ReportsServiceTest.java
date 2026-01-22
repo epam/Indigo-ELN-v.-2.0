@@ -2,11 +2,9 @@ package com.epam.indigoeln.reports.service;
 
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reports.api.ReportsAPI;
 import com.epam.indigoeln.reports.api.ReportsClient;
 import com.epam.indigoeln.test.BaseTest;
-import com.epam.indigoeln.test.FeignUtil;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
@@ -52,8 +50,7 @@ public class ReportsServiceTest extends BaseTest {
         return List.of(new ReportsAPI.ExperimentReportDataDTO(
                 project,
                 experiment,
-                new String(ModelUtil.loadResource(ReportsServiceTest.class, "/experiment-image.svg"), StandardCharsets.UTF_8),
-                FeignUtil.OBJECT_MAPPER.readValue(ModelUtil.loadResource(ReportsServiceTest.class, "/experiment-model.json"), ExperimentModel.class)
+                new String(ModelUtil.loadResource(ReportsServiceTest.class, "/experiment-image.svg"), StandardCharsets.UTF_8)
         ));
 
         // Reaction Details, Experiment Subject / Title = O-acetylation of salicylic acid
@@ -65,7 +62,7 @@ public class ReportsServiceTest extends BaseTest {
 
     @Test
     void testReport() throws Exception {
-        ReportsAPI.ExperimentReportDataDTO data = new ReportsAPI.ExperimentReportDataDTO(null, null, null, null);
+        ReportsAPI.ExperimentReportDataDTO data = new ReportsAPI.ExperimentReportDataDTO(null, null, null);
         try (Response response = reportsClient.generateExperimentReport(fillExperimentDataForJasperReportsStudio().getFirst())) {
             Files.write(Paths.get("report.pdf"), response.readEntity(byte[].class));
         }

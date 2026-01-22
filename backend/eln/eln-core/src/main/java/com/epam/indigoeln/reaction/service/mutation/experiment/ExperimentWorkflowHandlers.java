@@ -85,11 +85,16 @@ class SubmitExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
     SignatureTemplateRepository signatureTemplateRepository;
 
     @Override
+    public boolean isAffectsAttachments() {
+        return true;
+    }
+
+    @Override
     public MutationResult doHandle(ExperimentEntity experiment, @Nullable ExperimentModel model, ExperimentMutation.SubmitExperiment mutation) {
         SignatureTemplateEntity signatureTemplate = signatureTemplateRepository.get(mutation.signatureTemplateID());
         helper.transition(experiment, SUBMITTED, SUBMIT_EXPERIMENTS, COMPLETED);
         ExperimentService.ExperimentReportContent report = experimentService.printReport(experiment);
-        AttachmentEntity attachment = attachmentService.createExperimentAttachment(experiment, report.filename(), report.content());
+        AttachmentEntity attachment = attachmentService.createExperimentAttachment(experiment, report.filename(), report.content(), false);
         experiment.setReportForSignature(attachment);
         experiment.getSignatures().clear();
         experiment.getSignatures().addAll(signatureTemplate.getBlocks().stream()

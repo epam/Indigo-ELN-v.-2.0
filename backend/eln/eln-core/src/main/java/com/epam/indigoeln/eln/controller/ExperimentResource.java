@@ -73,7 +73,7 @@ public class ExperimentResource implements ExperimentAPI {
 
     @Override
     public List<AttachmentDTO> createExperimentAttachment(UUID experimentId, UploadForm form) {
-        return attachmentService.createExperimentAttachment(experimentId, form.getFile());
+        return attachmentService.createExperimentAttachment(experimentId, form.getFile(), true);
     }
 
     @Override

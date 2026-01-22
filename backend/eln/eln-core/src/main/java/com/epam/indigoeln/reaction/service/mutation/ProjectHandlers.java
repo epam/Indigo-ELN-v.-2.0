@@ -9,6 +9,7 @@ import com.epam.indigoeln.eln.model.BuiltInDictionary;
 import com.epam.indigoeln.eln.repository.AttachmentRepository;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.eln.service.ACLService;
+import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
@@ -108,6 +109,8 @@ class CreateProjectAttachmentHandler extends AbstractProjectMutationHandler<Proj
 
     @Inject
     AttachmentRepository attachmentRepository;
+    @Inject
+    AttachmentService attachmentService;
 
     @Override
     public boolean isAffectsAttachments() {
@@ -117,8 +120,7 @@ class CreateProjectAttachmentHandler extends AbstractProjectMutationHandler<Proj
     @Override
     public MutationResult doHandle(ProjectEntity project, @Nullable Void model, ProjectMutation.CreateProjectAttachment mutation) {
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
-        project.getAttachments().add(attachment);
-        attachment.getProjects().add(project);
+        attachmentService.doAddProjectAttachment(project, attachment);
         return new MutationResult(entityMutationHelper.formatCreateAttachmentSummary(attachment), null);
     }
 }

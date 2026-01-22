@@ -10,6 +10,7 @@ import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.eln.repository.TemplateRepository;
 import com.epam.indigoeln.eln.service.ACLService;
+import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
@@ -144,6 +145,8 @@ class CreateExperimentAttachmentHandler extends ExperimentMutationHandlerBase<Ex
 
     @Inject
     AttachmentRepository attachmentRepository;
+    @Inject
+    AttachmentService attachmentService;
 
     @Override
     public boolean isAffectsAttachments() {
@@ -151,10 +154,9 @@ class CreateExperimentAttachmentHandler extends ExperimentMutationHandlerBase<Ex
     }
 
     @Override
-    public MutationResult doHandle(ExperimentEntity experiment, ExperimentModel model, ExperimentMutation.CreateExperimentAttachment mutation) {
+    public MutationResult doHandle(ExperimentEntity experiment, @Nullable ExperimentModel model, ExperimentMutation.CreateExperimentAttachment mutation) {
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
-        experiment.getAttachments().add(attachment);
-        attachment.getExperiments().add(experiment);
+        attachmentService.doAddExperimentAttachment(experiment, attachment);
         return new MutationResult("Created attachment: %s, %d bytes".formatted(attachment.getName(), attachment.getSize()), null);
     }
 }

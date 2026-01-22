@@ -51,7 +51,7 @@ public class NotebookResource implements NotebookAPI {
 
     @Override
     public List<AttachmentDTO> createNotebookAttachment(UUID notebookId, UploadForm form) {
-        return attachmentService.createNotebookAttachment(notebookId, form.getFile());
+        return attachmentService.createNotebookAttachment(notebookId, form.getFile(), true);
     }
 
     @Override
