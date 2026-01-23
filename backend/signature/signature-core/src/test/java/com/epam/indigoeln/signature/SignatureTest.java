@@ -5,6 +5,7 @@ import com.epam.indigoeln.signature.client.SignatureClient;
 import com.epam.indigoeln.signature.controller.SignatureResource;
 import com.epam.indigoeln.signature.model.*;
 import com.epam.indigoeln.signature.service.UserService;
+import com.epam.indigoeln.test.APICallException;
 import com.epam.indigoeln.test.BaseTest;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.common.http.TestHTTPResource;
@@ -14,7 +15,6 @@ import io.quarkus.test.security.jwt.Claim;
 import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
-import org.jboss.resteasy.reactive.ClientWebApplicationException;
 import org.junit.jupiter.api.*;
 
 import java.io.FileOutputStream;
@@ -53,8 +53,8 @@ class SignatureTest extends BaseTest {
     @Test
     void testCreateTemplateValidation() {
         assertThatThrownBy(() -> client.createTemplate(new TemplateRequest(null, List.of())))
-                .isInstanceOfSatisfying(ClientWebApplicationException.class, e -> {
-                    assertThat(e.getResponse().getStatus()).isEqualTo(400);
+                .isInstanceOfSatisfying(APICallException.class, e -> {
+                    assertThat(e.getStatusCode()).isEqualTo(400);
                 });
     }
 
@@ -88,7 +88,7 @@ class SignatureTest extends BaseTest {
     void testUploadDocument() throws Exception {
         assumeThat(templateID).isNotNull();
         Document document = client.uploadDocument(
-                new SignatureAPI.FileUploadForm(templateID, "document.pdf", getClass().getResourceAsStream("/Blank.pdf").readAllBytes())
+                new SignatureAPI.FileUploadForm(templateID, "document.pdf", getClass().getResourceAsStream("/document.pdf").readAllBytes())
         );
         documentID = document.getId();
         assertThat(document.getId()).isNotNull();
