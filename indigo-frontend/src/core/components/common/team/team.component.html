@@ -73,10 +73,11 @@
         >
           {{ member.username }}
         </p>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1 justify-self-end">
           <eln-copy [text]="member.username" />
           <eln-dropdown-menu
-            class="[&_.dd-trigger]:text-primary-400 [&_.dd-container]:min-w-34"
+            align="end"
+            class="[&_.dd-trigger]:pr-0 [&_.dd-trigger]:pl-2 [&_.dd-trigger]:text-primary-400 [&_.dd-container]:min-w-22"
             [controlled]="true"
             [selected]="member.level | normalizeLabel"
             [items]="aclLevelOptions"
