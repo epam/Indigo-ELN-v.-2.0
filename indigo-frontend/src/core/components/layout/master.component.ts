@@ -57,7 +57,7 @@ export class MasterComponent implements OnInit, OnDestroy {
       this.userName = `${user.displayName}`;
     });
 
-    (this.router.events as Observable<NavigationEnd>).pipe(filter((e) => e instanceof NavigationEnd))
+    (this.router.events as Observable<NavigationEnd>).pipe(filter((e) => e instanceof NavigationEnd), takeUntil(this.destroy$))
     .subscribe(() => {
       this.content.nativeElement.scrollTop = 0;
     })
