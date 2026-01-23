@@ -88,7 +88,7 @@ class SignatureTest extends BaseTest {
     void testUploadDocument() throws Exception {
         assumeThat(templateID).isNotNull();
         Document document = client.uploadDocument(
-                new SignatureAPI.FileUploadForm(templateID, "document.pdf", getClass().getResourceAsStream("/document.pdf").readAllBytes())
+                new SignatureAPI.FileUploadForm(templateID, "document.pdf", getClass().getResourceAsStream("/Blank.pdf").readAllBytes())
         );
         documentID = document.getId();
         assertThat(document.getId()).isNotNull();

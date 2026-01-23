@@ -45,7 +45,7 @@ public class DocumentEntity {
     @NotNull
     private ZonedDateTime lastModifiedDate;
     @NotEmpty
-    @OrderColumn(name = "index")
+    @OrderBy("index")
     @OneToMany(mappedBy = "document", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<DocumentSignatureBlockEntity> signatureBlocks;
     @Lob
