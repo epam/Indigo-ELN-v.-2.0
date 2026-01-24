@@ -7,10 +7,9 @@ export interface KetcherAnalysis {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class MutationBuilderService {
-
   /**
    * Analyzes Ketcher instance and extracts RXN data
    */
@@ -19,7 +18,7 @@ export class MutationBuilderService {
       const rxnData = await ketcher.getRxn();
 
       return {
-        rxnData
+        rxnData,
       };
     } catch (error) {
       console.error('Error analyzing Ketcher data:', error);
@@ -31,12 +30,12 @@ export class MutationBuilderService {
    * Builds SetScheme mutation from Ketcher data
    */
   async buildMutationsFromKetcher(
-    ketcher: Ketcher, 
-    reactionAnchor: string
+    ketcher: Ketcher,
+    reactionAnchor: string,
   ): Promise<Mutation[]> {
     // Get RXN data from Ketcher
     const analysis = await this.analyzeKetcher(ketcher);
-    
+
     // For now, only return SetScheme mutation
     const mutations: Mutation[] = [];
 
@@ -44,7 +43,7 @@ export class MutationBuilderService {
     mutations.push({
       type: 'SetScheme',
       anchor: reactionAnchor,
-      molFile: analysis.rxnData
+      rxnFile: analysis.rxnData,
     });
 
     return mutations;

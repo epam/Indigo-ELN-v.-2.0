@@ -45,8 +45,8 @@ export enum EnteredValueSource {
 export interface EnteredValue<U> {
   value: number;
   unit: U;
-  source: EnteredValueSource;
-  conflict: boolean;
+  source: number | 'fixed' | 'default';
+  conflict?: boolean;
 }
 
 export const REACTION_INPUT_ROLES = [

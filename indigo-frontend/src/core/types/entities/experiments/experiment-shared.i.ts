@@ -114,58 +114,6 @@ export enum SolubidityQualitativeType {
 }
 
 // ================================
-// 5. UTILITY INTERFACES - ENTERED VALUES
-// ================================
-export interface EnteredValueMolUnit {
-  value?: number;
-  unit?: MolUnit;
-  source?: EnteredValueSource;
-  conflict?: boolean;
-}
-
-export interface EnteredValueWeightUnit {
-  value?: number;
-  unit?: WeightUnit;
-  source?: EnteredValueSource;
-  conflict?: boolean;
-}
-
-export interface EnteredValueVolumeUnit {
-  value?: number;
-  unit?: VolumeUnit;
-  source?: EnteredValueSource;
-  conflict?: boolean;
-}
-
-export interface EnteredValueDensityUnit {
-  value?: number;
-  unit?: DensityUnit;
-  source?: EnteredValueSource;
-  conflict?: boolean;
-}
-
-export interface EnteredValueMolarityUnit {
-  value?: number;
-  unit?: MolarityUnit;
-  source?: EnteredValueSource;
-  conflict?: boolean;
-}
-
-export interface EnteredValueMolWeightUnit {
-  value?: number;
-  unit?: MolWeightUnit;
-  source?: EnteredValueSource;
-  conflict?: boolean;
-}
-
-export interface EnteredValueNoUnit {
-  value?: number;
-  unit?: NoUnit;
-  source?: EnteredValueSource;
-  conflict?: boolean;
-}
-
-// ================================
 // 6. REFERENCE INTERFACES
 // ================================
 export interface STRCodeCompound {

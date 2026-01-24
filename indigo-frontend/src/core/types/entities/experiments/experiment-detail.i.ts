@@ -2,6 +2,7 @@ import { BaseEntity } from '../base-entity.i';
 import { Attachment } from '../attachment.i';
 import { ProjectAcl } from '../acl.i';
 import { ExperimentStatus } from '@/core/enums/experiment-status.enum';
+import { ExperimentModel } from '@core/types/entities/experiments/experiment.i';
 
 export enum SignatureReason {
   AUTHOR = 'AUTHOR',
@@ -10,7 +11,7 @@ export enum SignatureReason {
 
 export enum SignatureStatus {
   APPROVED = 'APPROVED',
-  REJECTED = 'REJECTED'
+  REJECTED = 'REJECTED',
 }
 
 export interface TherapeuticArea {
@@ -47,4 +48,5 @@ export interface ExperimentDetail extends BaseEntity {
   attachments?: Attachment[];
   acl?: ProjectAcl[];
   signatures?: Signature[];
+  model: ExperimentModel;
 }
