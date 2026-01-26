@@ -3,18 +3,15 @@ package com.epam.indigoeln.eln.service;
 import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.*;
-import com.epam.indigoeln.eln.mapper.ExperimentMapper;
 import com.epam.indigoeln.eln.mapper.SignatureExperimentMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.SignatureTemplateRepository;
-import com.epam.indigoeln.reports.api.ReportsClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
@@ -35,16 +32,11 @@ public class ExperimentWorkflowService {
     @Inject
     ACLService aclService;
     @Inject
-    ExperimentMapper experimentMapper;
-    @Inject
     SignatureTemplateRepository signatureTemplateRepository;
     @Inject
     SignatureExperimentMapper signatureExperimentMapper;
     @Inject
     UserService userService;
-    @Inject
-    @RestClient
-    ReportsClient reportsClient;
     @Inject
     ExperimentService experimentService;
     @Inject
@@ -53,27 +45,27 @@ public class ExperimentWorkflowService {
     public ExperimentDetailsDTO cancelExperiment(UUID experimentId) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         transition(experiment, CANCELLED, SUBMIT_EXPERIMENTS, OPEN, REOPEN);
-        return experimentMapper.entityToDetailsDTO(experiment);
+        return experimentService.getExperimentDetails(experiment);
     }
 
     public ExperimentDetailsDTO reopenExperiment(UUID experimentId) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         transition(experiment, REOPEN, SUBMIT_EXPERIMENTS, CANCELLED, ARCHIVED, COMPLETED, SUBMITTED, REJECTED);
         experiment.getSignatures().clear();
-        return experimentMapper.entityToDetailsDTO(experiment);
+        return experimentService.getExperimentDetails(experiment);
     }
 
     public ExperimentDetailsDTO completeExperiment(UUID experimentId) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         doCompleteExperiment(experiment);
-        return experimentMapper.entityToDetailsDTO(experiment);
+        return experimentService.getExperimentDetails(experiment);
     }
 
     public ExperimentDetailsDTO submitExperiment(UUID experimentId, UUID signatureTemplateId) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         SignatureTemplateEntity signatureTemplate = signatureTemplateRepository.get(signatureTemplateId);
         doSubmitExperiment(experiment, signatureTemplate);
-        return experimentMapper.entityToDetailsDTO(experiment);
+        return experimentService.getExperimentDetails(experiment);
     }
 
     public ExperimentDetailsDTO completeAndSubmitExperiment(UUID experimentId, UUID signatureTemplateId) {
@@ -81,7 +73,7 @@ public class ExperimentWorkflowService {
         SignatureTemplateEntity signatureTemplate = signatureTemplateRepository.get(signatureTemplateId);
         doCompleteExperiment(experiment);
         doSubmitExperiment(experiment, signatureTemplate);
-        return experimentMapper.entityToDetailsDTO(experiment);
+        return experimentService.getExperimentDetails(experiment);
     }
 
     public ExperimentForSignatureDTO approveOrRejectExperiment(UUID experimentId, SignatureStatus status) {
@@ -105,7 +97,7 @@ public class ExperimentWorkflowService {
         for (ExperimentSignatureEntity signature : experiment.getSignatures()) {
             signature.setStatus(null);
         }
-        return experimentMapper.entityToDetailsDTO(experiment);
+        return experimentService.getExperimentDetails(experiment);
     }
 
     private void doCompleteExperiment(ExperimentEntity experiment) {

@@ -7,10 +7,11 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { toHTML } from 'ngx-editor';
-import { catchError, of, tap } from 'rxjs';
+import { catchError, EMPTY, tap } from 'rxjs';
 import { Project } from '@core/types/entities/project.i';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
+import { NotificationService } from '@core/services/notification/notification.service';
+import { NotificationType } from '@/core/types/notification.i';
 
 @Component({
   standalone: true,
@@ -51,7 +52,7 @@ export class ProjectAddComponent implements OnInit {
       },
     },
     {
-      type: 'input',
+      type: 'editor',
       key: 'literature',
       defaultValue: '',
       props: {
@@ -64,17 +65,16 @@ export class ProjectAddComponent implements OnInit {
       key: 'description',
       defaultValue: '',
       props: {
-        label: 'Description',
-        placeholder: 'Description',
+        label: 'Project Description',
+        placeholder: 'Project Description',
       },
     },
   ];
 
-  private snackBar = inject(MatSnackBar);
   private router = inject(Router);
+  private notificationService = inject(NotificationService);
 
-  constructor(protected service: ApiService<any>) {
-  }
+  constructor(protected service: ApiService<any>) {}
 
   ngOnInit(): void {
     this.project = this.data?.project || null;
@@ -102,17 +102,20 @@ export class ProjectAddComponent implements OnInit {
         tap((newProject: Project) => {
           this.dialogRef.close('refresh');
           this.router.navigate(['/projects', newProject.id]);
-          this.snackBar.open(
-            `Project '${data.name}' has been successfully created`,
-            'Close',
-            {
-              duration: 5000,
-            },
-          );
+
+          this.notificationService.notify({
+            message: `Project '${data.name}' has been successfully created`,
+            type: NotificationType.Success,
+            isInline: false,
+          });
         }),
         catchError((createError) => {
-          alert(createError.message);
-          return of(null);
+          this.notificationService.notify({
+            message: createError.message,
+            type: NotificationType.Error,
+            isInline: false,
+          });
+          return EMPTY;
         }),
       )
       .subscribe();
@@ -131,17 +134,20 @@ export class ProjectAddComponent implements OnInit {
         tap(() => {
           this.dialogRef.close('refresh');
 
-          this.snackBar.open(
-            `Project '${data.name}' has been successfully updated`,
-            'Close',
-            {
-              duration: 5000,
-            },
-          );
+          this.notificationService.notify({
+            message: `Project details successfully updated.`,
+            type: NotificationType.Success,
+            isInline: false,
+          });
         }),
         catchError((updateError) => {
-          alert(updateError.message);
-          return of(null);
+          this.notificationService.notify({
+            message: updateError.message,
+            type: NotificationType.Error,
+            isInline: false,
+          });
+
+          return EMPTY;
         }),
       )
       .subscribe();

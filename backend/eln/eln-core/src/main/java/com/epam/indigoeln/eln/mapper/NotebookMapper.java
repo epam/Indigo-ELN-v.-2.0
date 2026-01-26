@@ -1,6 +1,7 @@
 package com.epam.indigoeln.eln.mapper;
 
 import com.epam.indigoeln.eln.entity.NotebookEntity;
+import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.model.NotebookDTO;
 import com.epam.indigoeln.eln.model.NotebookDetailsDTO;
 import com.epam.indigoeln.eln.model.NotebookRequest;
@@ -8,6 +9,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.ReportingPolicy;
+
+import java.util.Set;
 
 @Mapper(componentModel = "cdi", unmappedTargetPolicy = ReportingPolicy.ERROR, nullValueCheckStrategy =  NullValueCheckStrategy.ALWAYS)
 public abstract class NotebookMapper extends AbstractMapper {
@@ -26,8 +29,10 @@ public abstract class NotebookMapper extends AbstractMapper {
 
     @Mapping(target = "acl", source = "shortACL")
     @Mapping(target = "aclCount", source = "calculatedInfo.aclCount")
+    @Mapping(target = "experimentCountByStatus", source = "entity.experimentCount")
     public abstract NotebookDTO entityToDTO(NotebookEntity entity);
 
-    @Mapping(target = "acl", source = "fullACL")
-    public abstract NotebookDetailsDTO entityToDetailsDTO(NotebookEntity entity);
+    @Mapping(target = "acl", source = "entity.fullACL")
+    @Mapping(target = "experimentCountByStatus", source = "entity.experimentCount")
+    public abstract NotebookDetailsDTO entityToDetailsDTO(NotebookEntity entity, Set<ApplicationPermission> currentPermissions);
 }

@@ -24,7 +24,7 @@
         <em class="indicon-bell text-neutral relative -top-1"></em>
       </button>
       <div
-        class="flex items-center gap-2 hover:bg-neutral p-2 rounded-sm cursor-pointer text-neutral hover:text-neutral-100"
+        class="flex items-center gap-2 p-2 rounded-sm text-neutral"
         [matMenuTriggerFor]="userMenu"
       >
         <img
@@ -35,8 +35,6 @@
         <span>{{ userName }}</span>
       </div>
       <mat-menu #userMenu="matMenu">
-        <button mat-menu-item>Profile</button>
-        <button mat-menu-item>Settings</button>
         <button mat-menu-item (click)="logout()">Logout</button>
       </mat-menu>
     </div>
@@ -45,7 +43,7 @@
   <div class="flex flex-1 gap-4 p-4 overflow-hidden min-h-0">
     <eln-sidebar></eln-sidebar>
 
-    <main class="flex-1 overflow-y-auto p-1">
+    <main #content class="flex-1 overflow-y-auto p-1">
       <router-outlet></router-outlet>
     </main>
   </div>

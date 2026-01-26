@@ -3,15 +3,14 @@ package com.epam.indigoeln.eln.mapper;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
 import com.epam.indigoeln.eln.entity.ProjectEntity;
 import com.epam.indigoeln.eln.entity.TotalCountsEntity;
-import com.epam.indigoeln.eln.model.ProjectDTO;
-import com.epam.indigoeln.eln.model.ProjectDetailsDTO;
-import com.epam.indigoeln.eln.model.ProjectRequest;
-import com.epam.indigoeln.eln.model.TotalCounts;
+import com.epam.indigoeln.eln.model.*;
 import org.jspecify.annotations.Nullable;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.ReportingPolicy;
+
+import java.util.Set;
 
 
 @Mapper(componentModel = "cdi", unmappedTargetPolicy = ReportingPolicy.ERROR, nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
@@ -33,17 +32,15 @@ public abstract class ProjectMapper extends AbstractMapper {
 
     @Mapping(target = "acl", source = "shortACL")
     @Mapping(target = "aclCount", source = "calculatedInfo.aclCount")
+    @Mapping(target = "experimentCountByStatus", source = "entity.experimentCount")
     public abstract ProjectDTO entityToDTO(ProjectEntity entity);
 
-    @Mapping(target = "acl", source = "fullACL")
-    public abstract ProjectDetailsDTO entityToDetailsDTO(ProjectEntity entity);
+    @Mapping(target = "acl", source = "entity.fullACL")
+    @Mapping(target = "experimentCountByStatus", source = "entity.experimentCount")
+    public abstract ProjectDetailsDTO entityToDetailsDTO(ProjectEntity entity, Set<ApplicationPermission> currentPermissions);
 
-    @Mapping(target = "experiments", expression = "java(convertTotalCountsSum(struct))")
+    @Mapping(target = "experiments", expression = "java(convertMapToTotalCount(struct.getExperimentsByStatus()))")
     public abstract TotalCounts convertTotalCounts(TotalCountsEntity struct);
-
-    protected Integer convertTotalCountsSum(TotalCountsEntity struct) {
-        return struct.getExperimentsByStatus().values().stream().mapToInt(Integer::intValue).sum();
-    }
 
     @Nullable
     protected String dictionaryToString(@Nullable DictionaryItemEntity entity) {

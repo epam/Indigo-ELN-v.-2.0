@@ -20,7 +20,13 @@ public class AccessForm {
     @NotNull
     private AccessLevel level;
 
+    private boolean deleteNested;
+
     public static List<AccessForm> of(UUID userID, AccessLevel level) {
-        return List.of(new AccessForm(userID, level));
+        return List.of(new AccessForm(userID, level, false));
+    }
+
+    public static List<AccessForm> of(UUID userID, AccessLevel level, boolean includeNested) {
+        return List.of(new AccessForm(userID, level, includeNested));
     }
 }

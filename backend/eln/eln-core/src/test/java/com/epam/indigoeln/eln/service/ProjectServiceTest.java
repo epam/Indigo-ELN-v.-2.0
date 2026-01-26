@@ -1,15 +1,14 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.eln.ELNBaseTest;
+import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.*;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Path;
@@ -18,6 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
 import static com.epam.indigoeln.eln.test.ACLListAssert.assertThatACL;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,24 +44,29 @@ class ProjectServiceTest extends ELNBaseTest {
 
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testCounters"));
         assertThat(project.getNotebookCount()).isZero();
-        assertThat(project.getExperimentCount()).isEmpty();
+        assertThat(project.getExperimentCount()).isZero();
+        assertThat(project.getExperimentCountByStatus()).isEmpty();
         expected.setProjects(1);
         assertThat(miscClient.getTotalCounts()).isEqualTo(expected);
 
         NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
-        assertThat(notebook.getExperimentCount()).isEmpty();
+        assertThat(notebook.getExperimentCount()).isZero();
+        assertThat(notebook.getExperimentCountByStatus()).isEmpty();
         project = projectClient.getProject(project.getId());
         assertThat(project.getNotebookCount()).isOne();
-        assertThat(project.getExperimentCount()).isEmpty();
+        assertThat(project.getExperimentCount()).isZero();
+        assertThat(project.getExperimentCountByStatus()).isEmpty();
         expected.setNotebooks(1);
         assertThat(miscClient.getTotalCounts()).isEqualTo(expected);
 
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         notebook = notebookClient.getNotebook(notebook.getId());
-        assertThat(notebook.getExperimentCount()).containsExactly(entry(ExperimentStatus.OPEN, 1));
+        assertThat(notebook.getExperimentCount()).isOne();
+        assertThat(notebook.getExperimentCountByStatus()).containsExactly(entry(ExperimentStatus.OPEN, 1));
         project = projectClient.getProject(project.getId());
         assertThat(project.getNotebookCount()).isOne();
-        assertThat(project.getExperimentCount()).containsExactly(entry(ExperimentStatus.OPEN, 1));
+        assertThat(project.getExperimentCount()).isOne();
+        assertThat(project.getExperimentCountByStatus()).containsExactly(entry(ExperimentStatus.OPEN, 1));
         expected.setExperiments(1);
         expected.setExperimentsByStatus(Map.of(ExperimentStatus.OPEN, 1));
         assertThat(miscClient.getTotalCounts()).isEqualTo(expected);
@@ -86,8 +91,10 @@ class ProjectServiceTest extends ELNBaseTest {
         assertThat(project.getLiterature()).isEqualTo("literature");
         assertThat(project.getDescription()).isEqualTo("description");
         assertThat(project.getNotebookCount()).isEqualTo(0);
-        assertThat(project.getExperimentCount()).isEmpty();
+        assertThat(project.getExperimentCount()).isZero();
+        assertThat(project.getExperimentCountByStatus()).isEmpty();
         assertThat(project.getAttachments()).isEmpty();
+        assertThat(project.getCurrentPermissions()).containsExactlyInAnyOrder(VIEW_PROJECTS, EDIT_PROJECTS, MANAGE_PROJECT_ACCESS, DELETE_PROJECTS);
         assertThatACL(project.getAcl()).containsOnly(JOHN_DISPLAY_NAME, AccessLevel.AUTHOR, false);
     }
 
@@ -125,7 +132,8 @@ class ProjectServiceTest extends ELNBaseTest {
             assertThat(project.getModifiedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME);
             assertThat(project.getModifiedAt()).isNotNull();
             assertThat(project.getNotebookCount()).isEqualTo(0);
-            assertThat(project.getExperimentCount()).isEmpty();
+            assertThat(project.getExperimentCount()).isZero();
+            assertThat(project.getExperimentCountByStatus()).isEmpty();
         });
     }
 
@@ -241,23 +249,29 @@ class ProjectServiceTest extends ELNBaseTest {
         Page<ProjectDTO> projects = projectClient.getProjects(null, null, null, paging);
         assertThat(projects.getItems()).filteredOn(p -> p.getId().equals(projectId)).singleElement().satisfies(p -> {
             assertThat(p.getNotebookCount()).isEqualTo(2);
-            assertThat(p.getExperimentCount()).contains(entry(ExperimentStatus.OPEN, 3));
+            assertThat(p.getExperimentCount()).isEqualTo(3);
+            assertThat(p.getExperimentCountByStatus()).contains(entry(ExperimentStatus.OPEN, 3));
         });
         ProjectDetailsDTO project = projectClient.getProject(projectId);
         assertThat(project.getNotebookCount()).isEqualTo(2);
-        assertThat(project.getExperimentCount()).contains(entry(ExperimentStatus.OPEN, 3));
+        assertThat(project.getExperimentCount()).isEqualTo(3);
+        assertThat(project.getExperimentCountByStatus()).contains(entry(ExperimentStatus.OPEN, 3));
 
         Page<NotebookDTO> notebooks = notebookClient.getProjectNotebooks(projectId, null, null, null, Paging.DEFAULT);
         assertThat(notebooks.getItems()).filteredOn(n -> n.getId().equals(notebook1Id)).singleElement().satisfies(n -> {
-            assertThat(n.getExperimentCount()).contains(entry(ExperimentStatus.OPEN, 2));
+            assertThat(n.getExperimentCount()).isEqualTo(2);
+            assertThat(n.getExperimentCountByStatus()).contains(entry(ExperimentStatus.OPEN, 2));
         });
         assertThat(notebooks.getItems()).filteredOn(n -> n.getId().equals(notebook2Id)).singleElement().satisfies(n -> {
-            assertThat(n.getExperimentCount()).contains(entry(ExperimentStatus.OPEN, 1));
+            assertThat(n.getExperimentCount()).isOne();
+            assertThat(n.getExperimentCountByStatus()).contains(entry(ExperimentStatus.OPEN, 1));
         });
         NotebookDetailsDTO notebook1 = notebookClient.getNotebook(notebook1Id);
-        assertThat(notebook1.getExperimentCount()).contains(entry(ExperimentStatus.OPEN, 2));
+        assertThat(notebook1.getExperimentCount()).isEqualTo(2);
+        assertThat(notebook1.getExperimentCountByStatus()).contains(entry(ExperimentStatus.OPEN, 2));
         NotebookDetailsDTO notebook2 = notebookClient.getNotebook(notebook2Id);
-        assertThat(notebook2.getExperimentCount()).contains(entry(ExperimentStatus.OPEN, 1));
+        assertThat(notebook2.getExperimentCount()).isOne();
+        assertThat(notebook2.getExperimentCountByStatus()).contains(entry(ExperimentStatus.OPEN, 1));
     }
 
     @Test
@@ -291,6 +305,18 @@ class ProjectServiceTest extends ELNBaseTest {
         project = projectClient.getProject(project.getId());
         assertThat(project.getAttachments()).isEmpty();
     }
+
+    @Test
+    void testUploadAttachmentToInvalidProject() {
+        UUID missingProjectId = UUID.randomUUID();
+
+        assertThatClientCall(() ->
+                projectClient.createProjectAttachment(missingProjectId, "file.txt", Path.of("."), "content".getBytes())
+        )
+                .isNotFound("PROJECT " + missingProjectId + " not found");
+    }
+
+
 
     @Test
     void testSuggestKeywords() {
@@ -330,5 +356,61 @@ class ProjectServiceTest extends ELNBaseTest {
 
         Page<ProjectDTO> result7 = projectClient.getProjects("QSNew", null, null, Paging.DEFAULT);
         assertThat(result7.getItems()).map(ProjectDTO::getName).containsExactly(p1);
+    }
+
+    @Nested
+    @JwtSecurity
+    @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    class TestNestedAccess {
+
+        ProjectDetailsDTO project;
+        NotebookDetailsDTO notebook;
+        ExperimentDetailsDTO experiment;
+
+        @BeforeEach
+        void setUp(TestInfo testInfo) {
+            withUser(JOHN_USERNAME, () -> {
+                project = projectClient.createProject(new ProjectRequest(testInfo.getTestMethod().get().getName()));
+                projectClient.updateProjectAccess(project.getId(), AccessForm.of(bartUserID, AccessLevel.EDIT));
+                notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+                notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(bartUserID, AccessLevel.ADMIN));
+                experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
+                experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(lisaUserID, AccessLevel.VIEW));
+            });
+        }
+
+        @Test
+        void testGetNestedAccess() {
+            assertThat(projectClient.getNestedProjectAccess(project.getId()))
+                    .containsExactly(
+                            new NestedACLEntryDTO(EntityType.NOTEBOOK, notebook.getId(), notebook.getName(), bartUserID, BART_DISPLAY_NAME, AccessLevel.ADMIN),
+                            new NestedACLEntryDTO(EntityType.EXPERIMENT, experiment.getId(), experiment.getName(), lisaUserID, LISA_DISPLAY_NAME, AccessLevel.VIEW)
+                    );
+        }
+
+        @Test
+        void testRemoveAccess() {
+            List<ACLDetailsEntryDTO> projectAccess = projectClient.updateProjectAccess(project.getId(), AccessForm.of(bartUserID, AccessLevel.NONE));
+            assertThatACL(projectAccess).containsOnly(
+                    JOHN_DISPLAY_NAME, AccessLevel.AUTHOR, false,
+                    BART_DISPLAY_NAME, AccessLevel.IMPLICIT_VIEW, false,
+                    LISA_DISPLAY_NAME, AccessLevel.IMPLICIT_VIEW, false
+            );
+        }
+
+        @Test
+        void testRemoveAccessIncludeNested() {
+            List<ACLDetailsEntryDTO> projectAccess = projectClient.updateProjectAccess(project.getId(), AccessForm.of(lisaUserID, AccessLevel.NONE, true));
+            assertThatACL(projectAccess).containsOnly(
+                    JOHN_DISPLAY_NAME, AccessLevel.AUTHOR, false,
+                    BART_DISPLAY_NAME, AccessLevel.EDIT, false
+            );
+            projectAccess = projectClient.updateProjectAccess(project.getId(), AccessForm.of(bartUserID, AccessLevel.NONE, true));
+            assertThatACL(projectAccess).containsOnly(
+                    JOHN_DISPLAY_NAME, AccessLevel.AUTHOR, false
+            );
+        }
     }
 }

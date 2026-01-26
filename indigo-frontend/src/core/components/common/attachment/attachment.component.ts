@@ -38,13 +38,16 @@ export class AttachmentComponent implements OnDestroy {
     const extension = this.attachment.name.split('.').pop();
     switch (extension) {
       case 'pdf':
-      case 'xlsx':
-      case 'xls':
       case 'doc':
       case 'docx':
         return 'indicon-file-text';
       case 'png':
+      case 'jpg':
+      case 'jpeg':
         return 'indicon-image';
+      case 'xls':
+      case 'xlsx':
+        return 'indicon-table';
       default:
         return 'indicon-file';
     }

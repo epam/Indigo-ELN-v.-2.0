@@ -17,9 +17,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Subscription, take } from 'rxjs';
 import { ProjectAddComponent } from '../project-add/project-add.component';
 import { ProjectItemComponent } from '@pages/project/project-item/project-item.component';
-import {
-  ProjectOverviewWidgetDirective
-} from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
+import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
 
 @Component({
   selector: 'eln-project-list',
@@ -60,12 +58,20 @@ export class ProjectListComponent
     this.setup({
       loadUrl: 'projects',
       sortOptions: [
-        { label: 'Sort by: Earliest', value: 'createdAt', defaultOrder: 'asc' },
-        { label: 'Sort by: Latest', value: 'createdAt', defaultOrder: 'desc' },
+        {
+          label: 'Sorting by: Earliest',
+          value: 'createdAt',
+          defaultOrder: 'EARLIEST',
+        },
+        {
+          label: 'Sorting by: Latest',
+          value: 'createdAt',
+          defaultOrder: 'LATEST',
+        },
       ],
       defaultSort: {
         sortBy: 'createdAt',
-        sortOrder: 'asc',
+        sort: 'EARLIEST',
       },
     });
 
@@ -102,7 +108,7 @@ export class ProjectListComponent
   }
 
   onSortChange(event: SortChangeEvent) {
-    this.sort(event.sortBy, event.sortOrder);
+    this.sort(event.sortBy, event.sort);
   }
 
   onViewChange(view: string) {
@@ -111,7 +117,6 @@ export class ProjectListComponent
 
   onMyEntitiesOnlyChange(value: boolean) {
     this.filters['createdByMe'] = value;
-    this.dataBh.next([]);
-    this.fetchDataAndUpdateQueryParams();
+    this.reload();
   }
 }

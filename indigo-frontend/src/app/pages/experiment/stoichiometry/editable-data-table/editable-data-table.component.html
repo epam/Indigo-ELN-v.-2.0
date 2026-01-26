@@ -1,0 +1,103 @@
+<div class="flex justify-between py-1">
+  <h3 class="text-sm font-semibold p-3">{{ title() }}</h3>
+  @if (showAddButton()) {
+  <div class="flex justify-between items-center">
+    <eln-button (click)="onAddRow()" variant="grey">
+      <mat-icon class="text-md">add</mat-icon>
+    </eln-button>
+  </div>
+  }
+</div>
+<div class="w-full overflow-x-auto border border-gray-300 rounded">
+  <table mat-table [dataSource]="dataSource()" class="w-full" style="background-color: white;">
+    @for (column of columns(); track column.id) {
+    <ng-container [matColumnDef]="column.id">
+      <th mat-header-cell *matHeaderCellDef
+        class="text-left !font-bold text-xs text-gray-900 p-1 border-b border-r !border-gray-200 last:border-r-0 min-w-32 overflow-hidden text-ellipsis whitespace-nowrap">
+        {{ column.header }}
+      </th>
+      <td mat-cell *matCellDef="let row"
+        class="text-xs p-0 border-b border-r !border-gray-200 min-w-32 overflow-visible" style="color: #3F50B5;">
+
+        <!-- Text Input -->
+        <input *ngIf="column.type === ColumnInputType.TEXT" type="text" placeholder="—" matInput style="outline: none;"
+          [value]="column.field(row) || ''" [disabled]="!(column.editable?.(row) ?? true)"
+          (blur)="column.onSave?.(row, $event)" (keydown.enter)="column.onSave?.(row, $event)" />
+
+        <!-- Number Input -->
+        <input *ngIf="column.type === ColumnInputType.NUMBER" type="number" placeholder="—" style="outline: none;"
+          [value]="column.field(row) || ''" [disabled]="!(column.editable?.(row) ?? true)"
+          (blur)="column.onSave?.(row, $event)" (keydown.enter)="column.onSave?.(row, $event)" />
+
+        <!-- Select -->
+        <mat-select *ngIf="column.type === ColumnInputType.SELECT" hideSingleSelectionIndicator
+          class="!w-full !h-full !text-xs capitalize" [value]="column.field(row)"
+          [disabled]="!(column.editable?.(row) ?? true)" (selectionChange)="column.onSave?.(row, $event.value)">
+          @for (option of column.options; track option.id) {
+          <mat-option [value]="option.id" style="font-size: 0.8rem" class="capitalize">{{ option.name }}</mat-option>
+          }
+        </mat-select>
+
+        <!-- Checkbox -->
+        <input *ngIf="column.type === ColumnInputType.CHECKBOX" type="checkbox" [checked]="column.field(row)"
+          [disabled]="!(column.editable?.(row) ?? true)" (change)="column.onSave?.(row, $event)" />
+
+        <!-- Unit Input (weight, volume, etc) -->
+        <div *ngIf="column.type === ColumnInputType.UNIT_INPUT" class="flex w-full h-full">
+          @let unitField = toUnitField(column.field(row));
+          <input #valueInput type="number" matInput placeholder="—" style="outline: none;"
+            [value]="unitField?.value ?? ''" [disabled]="!(column.editable?.(row) ?? true)"
+            (blur)="column.onSave?.(row, { value: $any($event.target).valueAsNumber, unit: unitField?.unit })"
+            (keydown.enter)="column.onSave?.(row, { value: $any($event.target).valueAsNumber, unit: unitField?.unit })" />
+          <mat-divider vertical style="opacity: 0.3;" />
+          <mat-select class="!h-full !text-xs" hideSingleSelectionIndicator style="min-width: 4rem; text-align: center;"
+            [value]="unitField?.unit" [disabled]="!(column.editable?.(row) ?? true)"
+            (selectionChange)="column.onSave?.(row, { value: valueInput.valueAsNumber, unit: $event.value })">
+            @for (unit of column.options; track unit.id) {
+            <mat-option [value]="unit.id" style="font-size: 0.8rem;">{{ unit.name }}</mat-option>
+            }
+          </mat-select>
+        </div>
+
+        <!-- Multi-Select -->
+        <mat-select #multiSelect *ngIf="column.type === ColumnInputType.MULTI_SELECT" multiple
+          hideSingleSelectionIndicator class="!w-full !h-full !text-xs capitalize" [value]="column.field(row)"
+          [compareWith]="compareDictionaryItems" [disabled]="!(column.editable?.(row) ?? true)"
+          (openedChange)="!$event && column.onSave?.(row, multiSelect.value)">
+          <mat-select-trigger>
+            <div class="flex items-center gap-1 min-h-6 overflow-x-auto no-scrollbar pr-4">
+              @for (hazard of multiSelect.value; track hazard.id) {
+              <span
+                class="px-1.5 py-0.5 rounded-full bg-primary-50 text-primary-700 border border-primary-200 text-[0.65rem] whitespace-nowrap">
+                {{ hazard.name }}
+              </span>
+              }
+            </div>
+          </mat-select-trigger>
+          @for (option of column.options; track option.id) {
+          <mat-option [value]="option" style="font-size: 0.8rem" class="capitalize">{{ option.name }}</mat-option>
+          }
+        </mat-select>
+
+        <!-- Button -->
+        <div *ngIf="column.type === ColumnInputType.BUTTON" class="p-2">
+          <button
+            class="px-3 py-1 text-xs font-medium text-primary-700 bg-primary-50 border border-primary-200 rounded hover:bg-primary-100 transition-colors"
+            (click)="column.onSave?.(row)">
+            {{ column.field(row) }}
+          </button>
+        </div>
+      </td>
+    </ng-container>
+    }
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns()" class="h-8 bg-white"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns()" class="h-10 bg-white hover:!bg-gray-50"></tr>
+  </table>
+
+  @if (dataSource().length === 0) {
+  <div class="flex flex-col items-center justify-center py-12 text-gray-600 border-t border-gray-300">
+    <div class="text-sm">{{ emptyMessage() }}</div>
+  </div>
+  }
+</div>

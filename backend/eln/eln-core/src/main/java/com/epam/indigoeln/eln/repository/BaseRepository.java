@@ -8,6 +8,7 @@ import com.epam.indigoeln.eln.model.Page;
 import com.epam.indigoeln.eln.model.Paging;
 import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.eln.util.Conditions;
+import com.epam.indigoeln.common.exception.EntityNotFoundException;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import io.quarkus.panache.common.Sort;
@@ -64,7 +65,11 @@ public abstract class BaseRepository<E extends IdentifiableEntity> implements Pa
     }
 
     public E get(UUID id) {
-        return findById(id);
+        E entity = findById(id);
+        if (entity == null) {
+            throw new EntityNotFoundException(entityType, id);
+        }
+        return entity;
     }
 
     public void flushAndRefresh(E entity) {
