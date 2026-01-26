@@ -1,0 +1,36 @@
+<eln-card classList="h-full">
+  <eln-expandable-table [dataSource]="revisions">
+    <ng-template
+      elnColumnDef="revision"
+      displayName="Revision No"
+      let-element
+    >
+      <span class="font-medium text-gray-900">{{ element.revision }}</span>
+    </ng-template>
+    <ng-template
+      elnColumnDef="datetime"
+      displayName="Date/Time"
+      let-element
+    >
+      <span class="font-medium text-gray-900">{{ element.datetime }}</span>
+    </ng-template>
+    <ng-template
+      elnColumnDef="user"
+      displayName="User"
+      let-element
+    >
+      <span class="font-medium text-gray-900">{{ element.user.displayName }}</span>
+    </ng-template>
+    <ng-template
+      elnColumnDef="summary"
+      displayName="Summary"
+      let-element
+    >
+      <span class="font-medium text-gray-900">{{ element.summary }}</span>
+    </ng-template>
+    <ng-template #details let-element>
+        <pre [innerHTML]="element.stringDiff" style="width: 100px">
+        </pre>
+    </ng-template>
+  </eln-expandable-table>
+</eln-card>

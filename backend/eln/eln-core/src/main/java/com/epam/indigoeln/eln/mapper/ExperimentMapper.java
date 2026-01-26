@@ -39,11 +39,8 @@ public abstract class ExperimentMapper extends AbstractMapper {
     @Mapping(target = "model", source = "model")
     public abstract ExperimentDetailsDTO entityToDetailsDTO(ExperimentEntity entity, ExperimentModel model, Set<ApplicationPermission> currentPermissions);
 
-    @Mapping(target = "diff", expression = "java(convertPatch(entity))")
+    @Mapping(target = "diff", expression = "java(revisionService.getPatch(entity))")
+    @Mapping(target = "stringDiff", expression = "java(revisionService.formatPatch(entity.getDiff()))")
     public abstract RevisionDetailsDTO<ExperimentPatch> revisionToDTO(ExperimentRevisionEntity entity);
     public abstract List<RevisionDetailsDTO<ExperimentPatch>> revisionToDTOList(List<ExperimentRevisionEntity> entity);
-
-    protected ExperimentPatch convertPatch(ExperimentRevisionEntity entity) {
-        return revisionService.getPatch(entity);
-    }
 }

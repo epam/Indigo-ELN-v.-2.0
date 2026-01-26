@@ -33,11 +33,8 @@ public abstract class NotebookMapper extends AbstractMapper {
     @Mapping(target = "experimentCountByStatus", source = "entity.experimentCount")
     public abstract NotebookDetailsDTO entityToDetailsDTO(NotebookEntity entity, Set<ApplicationPermission> currentPermissions);
 
-    @Mapping(target = "diff", expression = "java(convertPatch(entity))")
+    @Mapping(target = "diff", expression = "java(revisionService.getPatch(entity))")
+    @Mapping(target = "stringDiff", expression = "java(revisionService.formatPatch(entity.getDiff()))")
     public abstract RevisionDetailsDTO<NotebookPatch> revisionToDTO(NotebookRevisionEntity entity);
     public abstract List<RevisionDetailsDTO<NotebookPatch>> revisionToDTOList(List<NotebookRevisionEntity> entity);
-
-    protected NotebookPatch convertPatch(NotebookRevisionEntity entity) {
-        return revisionService.getPatch(entity);
-    }
 }

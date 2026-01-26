@@ -4,6 +4,7 @@ import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
+import com.epam.indigoeln.eln.util.PatchUtil;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import com.epam.indigoeln.reaction.model.patch.NotebookPatch;
@@ -35,6 +36,8 @@ public class RevisionService {
     ObjectWriter notebookPatchWriter;
     ObjectReader experimentPatchReader;
     ObjectWriter experimentPatchWriter;
+    @Inject
+    ObjectMapper objectMapper;
 
     RevisionService(ObjectMapper objectMapper) {
         projectPatchReader = objectMapper.readerFor(ProjectPatch.class);
@@ -92,6 +95,14 @@ public class RevisionService {
 
     public ExperimentPatch getPatch(ExperimentRevisionEntity revision) {
         return doGetPatch(experimentPatchReader, revision.getDiff());
+    }
+
+    public String formatPatch(String diff) {
+        try {
+            return PatchUtil.formatJSONDiff(objectMapper.readTree(diff));
+        } catch (Exception e) {
+            throw new RuntimeException("Cannot read patch: " + e.getMessage(), e);
+        }
     }
 
     private <T> T doGetPatch(ObjectReader patchReader, String revision) {

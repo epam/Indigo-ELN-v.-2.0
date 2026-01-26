@@ -1,11 +1,12 @@
 package com.epam.indigoeln.reaction.util;
 
 import com.epam.indigoeln.common.util.Pair;
+import com.epam.indigoeln.eln.util.PatchUtil;
 import com.epam.indigoeln.eln.util.ToStringUtil;
 import com.epam.indigoeln.reaction.metamodel.ExperimentMetamodel;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
+import com.epam.indigoeln.test.FeignUtil;
 import com.github.difflib.text.DiffRow;
 import com.github.difflib.text.DiffRowGenerator;
 import lombok.SneakyThrows;
@@ -53,8 +54,8 @@ public class CalculationReportBuilder implements AutoCloseable {
                             pre { margin: 0; }
                             h1 { margin-top: 64pt; }
                             h1.error { color: darkred; }
-                            .old { background-color: #f8d7da; }
-                            .new { background-color: #d4edda; }
+                            .diff-old { background-color: #f8d7da; }
+                            .diff-new { background-color: #d4edda; }
                         </style>
                     </head>
                 <body>""");
@@ -109,13 +110,9 @@ public class CalculationReportBuilder implements AutoCloseable {
         return Pair.of(leftContent, rightContent);
     }
 
+    @SneakyThrows
     private List<String> formatPatch(String patch) {
-        return patch
-                .replaceAll("(\"$old\")", "<span class='old'>$1</span>")
-                .replaceAll("(\"$new\")", "<span class='new'>$1</span>")
-                .replaceAll("(\"\\d+>\")", "<span class='old'>$1</span>")
-                .replaceAll("(\">\\d+\")", "<span class='new'>$1</span>")
-                .replaceAll("\"(\\d+)>(\\d+)\"", "\"<span class='old'>$1</span>&gt;<span class='new'>$2</span>\"")
+        return PatchUtil.formatJSONDiff(FeignUtil.OBJECT_MAPPER.readTree(patch))
                 .lines().toList();
     }
 
