@@ -23,7 +23,6 @@
     [data-amplify-form] {
       padding: 1rem;
     }
-
     [amplify-button] {
       &.amplify-button--primary {
         border-radius: 8px;
@@ -48,7 +47,7 @@
 }
 #rememberme {
   position: absolute;
-  bottom: 62px;
+  top: 250px;
   margin-left: 3px;
   accent-color: var(--primary-500);
 }
