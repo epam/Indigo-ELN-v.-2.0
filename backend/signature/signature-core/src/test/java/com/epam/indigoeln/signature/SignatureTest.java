@@ -5,6 +5,8 @@ import com.epam.indigoeln.signature.client.SignatureClient;
 import com.epam.indigoeln.signature.controller.SignatureResource;
 import com.epam.indigoeln.signature.model.*;
 import com.epam.indigoeln.signature.service.UserService;
+import com.epam.indigoeln.test.APICallException;
+import com.epam.indigoeln.test.BaseTest;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusTest;
@@ -13,8 +15,6 @@ import io.quarkus.test.security.jwt.Claim;
 import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
-import org.eclipse.microprofile.rest.client.RestClientBuilder;
-import org.jboss.resteasy.reactive.ClientWebApplicationException;
 import org.junit.jupiter.api.*;
 
 import java.io.FileOutputStream;
@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assumptions.assumeThat;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestSecurity(user = "john")
 @JwtSecurity(claims = {@Claim(key = "given_name", value = "John"), @Claim(key = "family_name", value = "Doe")})
-class SignatureTest {
+class SignatureTest extends BaseTest {
 
     @TestHTTPResource
     @TestHTTPEndpoint(SignatureResource.class)
@@ -46,15 +46,15 @@ class SignatureTest {
 
     @BeforeEach
     void setup() {
-        client = RestClientBuilder.newBuilder().baseUri(serverURL.resolve("/")).build(SignatureClient.class);
+        client = buildClient(SignatureClient.class);
         userService.getOrCreateUser("willow", "Willow", "Johnson");
     }
 
     @Test
     void testCreateTemplateValidation() {
         assertThatThrownBy(() -> client.createTemplate(new TemplateRequest(null, List.of())))
-                .isInstanceOfSatisfying(ClientWebApplicationException.class, e -> {
-                    assertThat(e.getResponse().getStatus()).isEqualTo(400);
+                .isInstanceOfSatisfying(APICallException.class, e -> {
+                    assertThat(e.getStatusCode()).isEqualTo(400);
                 });
     }
 

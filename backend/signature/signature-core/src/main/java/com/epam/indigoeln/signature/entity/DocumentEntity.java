@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.dialect.PostgreSQLEnumJdbcType;
+import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
 
 import java.sql.Types;
 import java.time.ZonedDateTime;
@@ -45,7 +45,7 @@ public class DocumentEntity {
     @NotNull
     private ZonedDateTime lastModifiedDate;
     @NotEmpty
-    @OrderColumn(name = "index")
+    @OrderBy("index")
     @OneToMany(mappedBy = "document", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<DocumentSignatureBlockEntity> signatureBlocks;
     @Lob
