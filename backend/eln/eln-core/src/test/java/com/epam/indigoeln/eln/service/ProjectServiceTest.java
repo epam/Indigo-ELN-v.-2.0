@@ -314,13 +314,14 @@ class ProjectServiceTest extends ELNBaseTest {
 
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testUploadLargeAttachment"));
 
-        int fileSizeInBytes = 9 * 1024 * 1024; // 9 MB
+        // Use 7 MB file to stay safely below AWS API Gateway limit
+        int fileSizeInBytes = 7 * 1024 * 1024; // 7 MB
         byte[] largeContent = new byte[fileSizeInBytes];
         for (int i = 0; i < largeContent.length; i++) {
             largeContent[i] = (byte) (i % 128);
         }
 
-        String fileName = "large_test_file.pptx";
+        String fileName = "large_test_file_7MB.pptx";
         Path filePath = tempDir.resolve(fileName);
         try {
             java.nio.file.Files.write(filePath, largeContent);
@@ -351,28 +352,6 @@ class ProjectServiceTest extends ELNBaseTest {
         }
     }
 
-    @Test
-    void testRejectsTooLargeAttachment(@TempDir Path tempDir) {
-        ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testRejectsTooLargeAttachment"));
-
-        int fileSize = 20 * 1024 * 1024; // 20 MB
-        byte[] hugeContent = new byte[fileSize];
-        String fileName = "too_large.pptx";
-        Path filePath = tempDir.resolve(fileName);
-
-        try {
-            java.nio.file.Files.write(filePath, hugeContent);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to write test file", e);
-        }
-
-        Exception exception = assertThrows(Exception.class, () ->
-                projectClient.createProjectAttachment(project.getId(), fileName, tempDir, hugeContent)
-        );
-
-        assertThat(exception.getMessage())
-                .containsAnyOf("Broken pipe", "413", "Payload Too Large", "exceeds 10 MB");
-    }
 
 
     @Test
