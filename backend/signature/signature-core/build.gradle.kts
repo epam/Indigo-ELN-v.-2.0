@@ -2,7 +2,6 @@ plugins {
     `java-library`
     `eln-conventions`
     id("io.quarkus")
-    id("org.flywaydb.flyway") version "11.20.1"
 }
 
 repositories {
@@ -15,9 +14,7 @@ dependencies {
     api("io.quarkus:quarkus-flyway")
     api("io.quarkus:quarkus-jdbc-postgresql")
     api("io.quarkus:quarkus-hibernate-orm")
-    api("io.quarkus:quarkus-hibernate-orm-panache")
     api("io.hypersistence:hypersistence-utils-hibernate-71:3.11.0")
-    api("org.flywaydb:flyway-database-postgresql")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.20.0")
 
     implementation("io.quarkus:quarkus-cache")
