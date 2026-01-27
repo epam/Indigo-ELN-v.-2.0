@@ -16,19 +16,21 @@ import { ProductImageService } from '@core/services/experiment/product-image.ser
 export class BatchDetailStructureViewComponent implements OnInit {
   private productImageService = inject(ProductImageService);
 
-  experimentId = input.required<string>();
+  compoundId = input.required<string | null>();
   batchAnchor = input.required<string>();
-  outputAnchor = input.required<string>();
 
   imageUrl = computed(() => this.productImageService.imageUrl());
   imageLoading = computed(() => this.productImageService.isLoading());
   imageError = computed(() => this.productImageService.hasError());
 
   ngOnInit(): void {
-    const experimentId = this.experimentId();
-    const outputAnchor = this.outputAnchor();
-    if (experimentId && outputAnchor) {
-      this.productImageService.load(experimentId, outputAnchor);
+    const compoundId = this.compoundId();
+    if (compoundId) {
+      this.productImageService.load(compoundId);
+    } else {
+      // No compoundId available - set error state
+      console.warn('No compoundId provided for structure view');
+      this.productImageService.setError(true);
     }
   }
 

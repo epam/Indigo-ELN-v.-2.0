@@ -10,40 +10,43 @@ export class ProductImageService {
   readonly isLoading = signal<boolean>(false);
   readonly hasError = signal<boolean>(false);
 
-  // TODO: Replace with actual endpoint once available
-  // Expected endpoint: GET /experiments/{experimentId}/outputs/{outputAnchor}/structure-image
-  load(experimentId: string, outputAnchor: string) {
-    console.log(`ProductImageService.load(${experimentId}, ${outputAnchor})`);
+  // Actual endpoint: GET /api/eln/compounds/{compoundID}/picture
+  // Returns JSON with image data (likely SVG string or base64)
+  load(compoundId: string) {
+    console.log(`ProductImageService.load(compoundId: ${compoundId})`);
     this.setLoading(true);
     this.setError(false);
 
-    // Using placeholder image for now
-    // TODO: Replace with actual API call when endpoint is available
-    setTimeout(() => {
-      // Placeholder: Using a generic chemical structure placeholder
-      this.setImageUrl('https://via.placeholder.com/300x300/f0f0f0/666666?text=Chemical+Structure');
-      this.setLoading(false);
-    }, 500);
-
-    /* Future implementation:
     this.service
-      .request<Blob>('get', `experiments/${experimentId}/outputs/${outputAnchor}/structure-image`, {
-        responseType: 'blob'
-      })
+      .request<any>('get', `compounds/${compoundId}/picture`)
       .subscribe({
-        next: (blob) => {
-          const objectUrl = URL.createObjectURL(blob);
-          this.setImageUrl(objectUrl);
+        next: (response) => {
+          // Response is JSON - could be SVG string, base64, or image URL
+          if (typeof response === 'string') {
+            // Direct SVG string or URL
+            this.setImageUrl(response);
+          } else if (response?.svg) {
+            // SVG in a property
+            const blob = new Blob([response.svg], { type: 'image/svg+xml' });
+            const objectUrl = URL.createObjectURL(blob);
+            this.setImageUrl(objectUrl);
+          } else if (response?.data) {
+            // Base64 or other data format
+            this.setImageUrl(response.data);
+          } else {
+            // Unknown format
+            console.warn('Unknown response format:', response);
+            this.setError(true);
+          }
           this.setLoading(false);
         },
         error: (error) => {
-          console.warn(`Error loading product structure image:`, error);
+          console.error(`Error loading compound structure image:`, error);
           this.setImageUrl(null);
           this.setError(true);
           this.setLoading(false);
         },
       });
-    */
   }
 
   // Setter methods
@@ -60,8 +63,8 @@ export class ProductImageService {
   }
 
   // Utility methods
-  refresh(experimentId: string, outputAnchor: string) {
-    this.load(experimentId, outputAnchor);
+  refresh(compoundId: string) {
+    this.load(compoundId);
   }
 
   reset() {

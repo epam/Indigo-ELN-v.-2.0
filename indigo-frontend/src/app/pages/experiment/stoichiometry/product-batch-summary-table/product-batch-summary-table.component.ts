@@ -9,7 +9,6 @@ import {
 import {
   VolumeUnit,
   WeightUnit,
-  MolWeightUnit,
   MolUnit,
   ReactionOutputType,
   SampleRegistrationStatus,
@@ -18,6 +17,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ExperimentModelService } from '@core/services/experiment/experiment-model.service';
 import { EditableDataTableComponent } from '../editable-data-table/editable-data-table.component';
 import { BatchDetailPanelComponent, BatchDetailData } from '../batch-detail-panel/batch-detail-panel.component';
+import { MOCK_OUTPUT_SAMPLES } from './product-batch-summary-table.mock';
 import {
   ColumnInputType,
   ColumnConfig,
@@ -47,79 +47,7 @@ export class ProductBatchSummaryTableComponent {
   experimentId = input<string | null>(null);
 
   // TODO: Remove mock data once backend provides real output samples
-  private mockOutputSamples = computed<OutputSampleRow[]>(() => {
-    // Create mock samples for demonstration (independent of real data)
-    const mockOutput1 = {
-      anchor: 'mock-output-1',
-      chemicalName: 'P1',
-      compound: {
-        strCode: 'P1',
-        formula: 'C10H12O2',
-        molWeight: { value: 164.2, unit: MolWeightUnit.G_PER_MOL },
-      },
-      type: ReactionOutputType.INTERMEDIATE,
-      eq: { value: 1 },
-      samples: [],
-    } as ReactionOutput;
-
-    const mockOutput2 = {
-      anchor: 'mock-output-2',
-      chemicalName: 'P2',
-      compound: {
-        strCode: 'P2',
-        formula: 'C8H10O',
-        molWeight: { value: 122.16, unit: MolWeightUnit.G_PER_MOL },
-      },
-      type: ReactionOutputType.BY_PRODUCT,
-      eq: { value: 1 },
-      samples: [],
-    } as ReactionOutput;
-
-    return [
-      {
-        output: mockOutput1,
-        sample: {
-          anchor: 'mock-sample-1',
-          nbkBatchNumber: '001',
-          actualWeight: { value: 2.46, unit: WeightUnit.MG },
-          volume: undefined,
-          actualMol: undefined,
-          yield: { value: 0.01 },
-          purity: { value: 0.04 },
-          registrationStatus: undefined,
-          healthHazards: [],
-          handlingPrecautions: [],
-          storageInstructions: [],
-          compoundProtection: [],
-          solubilityInSolvents: [],
-          residualSolvents: [],
-          purityCalculations: [],
-          precursorReactantIds: [],
-        } as ReactionOutputSample,
-      },
-      {
-        output: mockOutput2,
-        sample: {
-          anchor: 'mock-sample-2',
-          nbkBatchNumber: '002',
-          actualWeight: { value: 2.46, unit: WeightUnit.MG },
-          volume: undefined,
-          actualMol: undefined,
-          yield: { value: 0.01 },
-          purity: { value: 0.04 },
-          registrationStatus: undefined,
-          healthHazards: [],
-          handlingPrecautions: [],
-          storageInstructions: [],
-          compoundProtection: [],
-          solubilityInSolvents: [],
-          residualSolvents: [],
-          purityCalculations: [],
-          precursorReactantIds: [],
-        } as ReactionOutputSample,
-      },
-    ];
-  });
+  private mockOutputSamples = computed<OutputSampleRow[]>(() => MOCK_OUTPUT_SAMPLES);
 
   dataSource = computed(() => {
     // TODO: Replace mock data with real data from reaction outputs

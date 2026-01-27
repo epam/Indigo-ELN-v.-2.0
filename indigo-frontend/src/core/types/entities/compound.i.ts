@@ -1,4 +1,4 @@
-import { SaltCodeRef } from '@core/types/entities/dictionary.i';
+import { SaltCodeRef, DictionaryItemRef } from '@core/types/entities/dictionary.i';
 import { EnteredValue } from '@core/types/entities/values.i';
 import { MolWeightUnit } from '@core/types/entities/experiments/experiment-shared.i';
 
@@ -9,16 +9,19 @@ export enum CompoundType {
 }
 
 export interface CompoundRef {
+  compoundID?: string | null;
   molFile: string | null;
   formula: string | null;
   name: string | null;
   casNumber: string | null;
   type: CompoundType;
+  stereoisomerCode: DictionaryItemRef | null;
   saltCode: SaltCodeRef | null;
   saltEQ: number | null;
   strCode: string | null;
   molWeight: EnteredValue<MolWeightUnit> | null;
   exactMass: number | null;
+  calculatedBatchMF?: string | null;
 }
 
 export interface StoredCompoundRef extends CompoundRef {

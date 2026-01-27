@@ -12,13 +12,13 @@
 
       <div class="field-group">
         <label class="field-label">Calculated Batch MW</label>
-        <div class="field-value read-only">{{ sample().calculatedMolWeight || '—' }}</div>
+        <div class="field-value read-only">{{ output().compound?.molWeight?.value || '—' }}</div>
       </div>
 
       <!-- Row 2 -->
       <div class="field-group">
         <label class="field-label">Calculated Batch MF</label>
-        <div class="field-value read-only">{{ output().compound?.formula || '—' }}</div>
+        <div class="field-value read-only">{{ output().compound?.calculatedBatchMF || output().compound?.formula || '—' }}</div>
       </div>
 
       <div class="field-group">
@@ -42,7 +42,7 @@
         <label class="field-label">Salt Code & Name</label>
         <div class="field-value read-only">
           <!-- TODO: Implement editable select with salt codes when ready -->
-          —
+          {{ output().compound?.saltCode ? (output().compound.saltCode.code + ' - ' + output().compound.saltCode.name) : '—' }}
         </div>
       </div>
 
@@ -59,21 +59,21 @@
         <label class="field-label">Stereoisomer Code</label>
         <div class="field-value read-only">
           <!-- TODO: Implement editable select when ready -->
-          —
+          {{ output().compound?.stereoisomerCode?.name || '—' }}
         </div>
       </div>
 
       <!-- Row 5 -->
       <div class="field-group">
         <label class="field-label">Precursor/Reactant IDs</label>
-        <div class="field-value read-only">{{ formatPrecursorReactantIds(sample().precursorReactantIds) }}</div>
+        <div class="field-value read-only">{{ formatPrecursorReactantIds(output().reaction?.precursorReactantIds) }}</div>
       </div>
 
       <div class="field-group">
         <label class="field-label">Salt Equivalent</label>
         <div class="field-value read-only">
           <!-- TODO: Implement editable number input (conditional RW/RO) when ready -->
-          —
+          {{ output().compound?.saltEQ ?? '—' }}
         </div>
       </div>
 
@@ -81,16 +81,15 @@
       <div class="field-group">
         <label class="field-label">Conversational Batch Number</label>
         <div class="field-value read-only">
-          <!-- TODO: Populate from registration number -->
-          —
+          <!-- Sample STR code (e.g., "88888888-0001-P0-001") -->
+          {{ sample().strCode?.stringForm || '—' }}
         </div>
       </div>
 
       <div class="field-group">
         <label class="field-label">Theo. Weight</label>
         <div class="field-value read-only">
-          <!-- TODO: Get from Intended Reaction Products -->
-          —
+          {{ output().theoWeight?.value ? (output().theoWeight.value + ' ' + output().theoWeight.unit) : '—' }}
         </div>
       </div>
 
@@ -98,8 +97,7 @@
       <div class="field-group">
         <label class="field-label">Theo. Moles</label>
         <div class="field-value read-only">
-          <!-- TODO: Get from Intended Reaction Products -->
-          —
+          {{ output().theoMol?.value ? (output().theoMol.value + ' ' + output().theoMol.unit) : '—' }}
         </div>
       </div>
 
@@ -138,8 +136,8 @@
           <div class="field-group">
             <label class="field-label">Virtual Compound ID</label>
             <div class="field-value read-only">
-              <!-- TODO: Implement editable text input when ready -->
-              —
+              <!-- Shows compound strCode (e.g., "P0", "P1") -->
+              {{ output().compound?.strCode || '—' }}
             </div>
           </div>
 

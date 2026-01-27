@@ -12,7 +12,7 @@ import {
   PurityCalculation, 
   ResidualSolvent, 
   SolubidityInSolvent,
-  STRCodeCompound
+  STRCodeSample
 } from '@core/types/entities/experiments/experiment-shared.i';
 import { BuiltInDictionaryService } from '@core/services/health-hazards/built-in-dictionary.service';
 import { BuiltInDictionary, DictionaryItemRef } from '@core/types/entities/dictionary.i';
@@ -120,7 +120,7 @@ export class BatchDetailInfoPanelComponent implements OnInit {
     return items.map(p => `${p.type}: ${p.purity}`).join(', ');
   }
 
-  formatPrecursorReactantIds(ids: STRCodeCompound[]): string {
+  formatPrecursorReactantIds(ids?: STRCodeSample[]): string {
     if (!ids || ids.length === 0) return '—';
     return ids.map(id => id.stringForm || '—').join(', ');
   }

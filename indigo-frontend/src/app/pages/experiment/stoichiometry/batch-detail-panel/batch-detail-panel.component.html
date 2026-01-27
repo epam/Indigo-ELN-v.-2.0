@@ -1,9 +1,8 @@
 <div class="batch-detail-container">
   <div class="left-panel">
     <eln-batch-detail-structure-view 
-      [experimentId]="data().experimentId"
+      [compoundId]="data().output.compound?.compoundID"
       [batchAnchor]="data().sample.anchor"
-      [outputAnchor]="data().output.anchor"
     />
   </div>
   

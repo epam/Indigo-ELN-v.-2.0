@@ -73,9 +73,6 @@ export interface ReactionOutputSample {
   componentState?: DictionaryItemRef;
   batchComment?: string;
   structureComment?: string;
-  calculatedMolWeight?: number;
-  calculatedBatchMF?: string;
-  precursorReactantIds: STRCodeCompound[];
 }
 
 // ================================
@@ -111,6 +108,7 @@ export interface Reaction {
   rxnVersion: number;
   inputs: ReactionInput[];
   outputs: ReactionOutput[];
+  precursorReactantIds: STRCodeSample[];
 }
 
 // ================================
