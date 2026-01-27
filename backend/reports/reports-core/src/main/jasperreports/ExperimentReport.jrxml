@@ -10,7 +10,6 @@
 	<field name="project" class="com.epam.indigoeln.eln.model.ProjectDTO"/>
 	<field name="experiment" class="com.epam.indigoeln.eln.model.ExperimentDetailsDTO"/>
 	<field name="picture" class="java.lang.String"/>
-	<field name="model" class="com.epam.indigoeln.reaction.model.ExperimentModel"/>
 	<background splitType="Stretch"/>
 	<title height="79" splitType="Stretch"/>
 	<pageHeader height="165" splitType="Stretch">

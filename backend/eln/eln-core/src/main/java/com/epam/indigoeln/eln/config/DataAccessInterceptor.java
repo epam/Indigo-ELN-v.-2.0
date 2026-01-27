@@ -10,7 +10,9 @@ import jakarta.interceptor.InvocationContext;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.jpa.AvailableHints;
 
+import java.util.List;
 import java.util.Set;
 
 @Slf4j
@@ -32,6 +34,7 @@ public class DataAccessInterceptor {
         if (invoked.get() != Boolean.TRUE) {
             Set<ApplicationPermission> permissions = userService.getCurrentUser().getPermissions();
             em.createNativeQuery("SELECT SET_CONFIG('eln.currentUserId', CAST(? AS VARCHAR), TRUE), SET_CONFIG('eln.viewAllProjects', CAST(? AS VARCHAR), TRUE), SET_CONFIG('eln.viewAllNotebooks', CAST(? AS VARCHAR), TRUE), SET_CONFIG('eln.viewAllExperiments', CAST(? AS VARCHAR), TRUE)")
+                    .setHint(AvailableHints.HINT_NATIVE_SPACES, List.of("nothing")) // Hibernate assumes empty list as missing, so provide non-existent query space
                     .setParameter(1, userService.getCurrentUser().getId())
                     .setParameter(2, permissions.contains(ApplicationPermission.VIEW_PROJECTS))
                     .setParameter(3, permissions.contains(ApplicationPermission.VIEW_NOTEBOOKS))

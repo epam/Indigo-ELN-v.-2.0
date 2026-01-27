@@ -33,7 +33,8 @@ public class DictionaryItemRepository extends BaseRepository<DictionaryItemEntit
 
     public List<DictionaryItemEntity> list(UUID dictionaryID, boolean includeInactive) {
         Conditions conditions = new Conditions()
-                .add("dictionary.id=?", dictionaryID);
+                .add("dictionary.id=?", dictionaryID)
+                .add("not deleted");
         if (!includeInactive) {
             conditions.add("active");
         }
@@ -43,6 +44,7 @@ public class DictionaryItemRepository extends BaseRepository<DictionaryItemEntit
     public Map<String, DictionaryItemEntity> findByNames(UUID dictionaryID, Collection<String> names) {
         Conditions conditions = new Conditions()
                 .add("dictionary.id=?", dictionaryID)
+                .add("not deleted")
                 .add("name IN ?", names);
         return StreamEx.of(find(conditions.getQuery(), conditions.getValues()).stream())
                 .toMap(DictionaryItemEntity::getName, item -> item);
@@ -51,6 +53,7 @@ public class DictionaryItemRepository extends BaseRepository<DictionaryItemEntit
     public List<DictionaryItemRef> suggest(UUID dictionaryID, @Nullable String search) {
         Conditions conditions = new Conditions()
                 .add("dictionary.id=?", dictionaryID)
+                .add("not deleted")
                 .add("active");
         if (!Strings.isNullOrEmpty(search)) {
             conditions.add("LOWER(name) LIKE ?", search.toLowerCase() + "%");

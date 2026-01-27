@@ -2,10 +2,11 @@ package com.epam.indigoeln.reaction.model.patch;
 
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.model.NbkBatchNumber;
-import com.epam.indigoeln.eln.model.STRCodeSample;
-import com.epam.indigoeln.reaction.model.Anchor;
+import com.epam.indigoeln.reaction.model.OutputSampleAnchor;
 import com.epam.indigoeln.reaction.model.SampleRegistrationStatus;
 import com.epam.indigoeln.reaction.model.outputsample.*;
+import com.epam.indigoeln.reaction.model.patch.handler2.Patched;
+import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
@@ -14,80 +15,71 @@ import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-public class ReactionOutputSamplePatch extends AbstractReactionSamplePatch<Anchor.OutputSample> {
+public class ReactionOutputSamplePatch extends AbstractReactionSamplePatch<OutputSampleAnchor> {
+
+    private Patched<OutputSampleAnchor, OutputSampleAnchor> anchor;
 
     @Nullable
-    private Optional<NbkBatchNumber> nbkBatchNumber;
+    private Patched<NbkBatchNumber, NbkBatchNumber> nbkBatchNumber;
 
     @Nullable
-    private Optional<EnteredValuePatch<MolUnit>> actualMol;
+    private Patched<EnteredValue<MolUnit>, EnteredValuePatch<MolUnit>> actualMol;
 
     @Nullable
-    private Optional<EnteredValuePatch<WeightUnit>> actualWeight;
+    private Patched<EnteredValue<WeightUnit>, EnteredValuePatch<WeightUnit>> actualWeight;
 
     @Nullable
-    private Optional<EnteredValuePatch<NoUnit>> yield;
+    private Patched<EnteredValue<NoUnit>, EnteredValuePatch<NoUnit>> yield;
 
     @Nullable
-    private Optional<SampleRegistrationStatus> registrationStatus;
+    private Patched<SampleRegistrationStatus, SampleRegistrationStatus> registrationStatus;
 
     @Nullable
-    private Optional<String> registrationStatusMessage;
+    private Patched<String, String> registrationStatusMessage;
 
     @Nullable
-    private Optional<UUID> sampleId;
+    private Patched<UUID, UUID> sampleId;
 
     @Nullable
-    private Optional<List<DictionaryItemRef>> handlingPrecautions;
+    private Patched<List<DictionaryItemRef>, List<DictionaryItemRef>> handlingPrecautions;
 
     @Nullable
-    private Optional<List<DictionaryItemRef>> storageInstructions;
+    private Patched<List<DictionaryItemRef>, List<DictionaryItemRef>> storageInstructions;
 
     @Nullable
-    private Optional<List<DictionaryItemRef>> compoundProtection;
+    private Patched<List<DictionaryItemRef>, List<DictionaryItemRef>> compoundProtection;
 
     @Nullable
-    private Optional<List<SolubidityInSolvent>> solubilityInSolvents;
+    private Patched<List<SolubidityInSolvent>, List<SolubidityInSolvent>> solubilityInSolvents;
 
     @Nullable
-    private Optional<List<ResidualSolvent>> residualSolvents;
+    private Patched<List<ResidualSolvent>, List<ResidualSolvent>> residualSolvents;
 
     @Nullable
-    private Optional<MeltingPoint> meltingPoint;
+    private Patched<MeltingPoint, MeltingPoint> meltingPoint;
 
     @Nullable
-    private Optional<List<PurityCalculation>> purityCalculations;
+    private Patched<List<PurityCalculation>, List<PurityCalculation>> purityCalculations;
 
     @Nullable
-    private Optional<ExternalSupplier> externalSupplier;
+    private Patched<ExternalSupplier, ExternalSupplier> externalSupplier;
 
     @Nullable
-    private Optional<DictionaryItemRef> source;
+    private Patched<DictionaryItemRef, DictionaryItemRef> source;
 
     @Nullable
-    private Optional<DictionaryItemRef> sourceDetails;
+    private Patched<DictionaryItemRef, DictionaryItemRef> sourceDetails;
 
     @Nullable
-    private Optional<DictionaryItemRef> componentState;
+    private Patched<DictionaryItemRef, DictionaryItemRef> componentState;
 
     @Nullable
-    private Optional<String> batchComment;
+    private Patched<String, String> batchComment;
 
     @Nullable
-    private Optional<String> structureComment;
-
-    @Nullable
-    private Optional<Double> calculatedMolWeight;
-
-    @Nullable
-    private Optional<String> calculatedBatchMF;
-
-    @Nullable
-    private Optional<List<STRCodeSample>> precursorReactantIds;
+    private Patched<String, String> structureComment;
 }

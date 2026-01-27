@@ -2,78 +2,66 @@ package com.epam.indigoeln.reaction.model.outputsample;
 
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.reaction.model.ComparisonOperator;
-import com.epam.indigoeln.reaction.model.HasDictionaryRefs;
 import com.epam.indigoeln.reaction.model.units.DensityUnit;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.validation.constraints.AssertTrue;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
-import java.util.stream.Stream;
-
-@Data
-public class SolubidityInSolvent implements HasDictionaryRefs {
+@Getter
+@Setter
+@EqualsAndHashCode
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = SolubidityInSolvent.Quantitative.class, name = "QUANTITATIVE"),
+        @JsonSubTypes.Type(value = SolubidityInSolvent.Qualitative.class, name = "QUALITATIVE"),
+})
+public abstract class SolubidityInSolvent {
 
     @NotNull
-    private DictionaryItemRef solvent;
+    protected DictionaryItemRef solvent;
 
     @Nullable
-    private String comment;
+    protected String comment;
 
-    @NotNull
-    private SolubidityType solubidityType;
+    @Getter
+    @Setter
+    @EqualsAndHashCode(callSuper = true)
+    public static class Quantitative extends SolubidityInSolvent {
 
-    @Nullable
-    private ComparisonOperator operator;
+        @Nullable
+        private ComparisonOperator operator;
 
-    @Nullable
-    private Double value;
+        @Nullable
+        private Double value;
 
-    @Nullable
-    private DensityUnit unit;
+        @Nullable
+        private DensityUnit unit;
 
-    @Nullable
-    private SolubidityQualitativeType qualitativeType;
-
-    @Override
-    public Stream<@Nullable DictionaryItemRef> collectDictionaryRefs() {
-        return Stream.of(solvent);
+        public Quantitative(DictionaryItemRef solvent, @Nullable String comment, ComparisonOperator operator, Double value, DensityUnit unit) {
+            this.solvent = solvent;
+            this.comment = comment;
+            this.operator = operator;
+            this.value = value;
+            this.unit = unit;
+        }
     }
 
-    @JsonIgnore
-    @AssertTrue(message = "operator, value and unit are only allowed for quantitative solubidity")
-    public boolean isQuantitativeFieldsValid() {
-        if (solubidityType == SolubidityType.QUANTITATIVE) {
-            return qualitativeType == null;
-        }
-        return true;
-    }
+    @Getter
+    @Setter
+    @EqualsAndHashCode(callSuper = true)
+    public static class Qualitative extends SolubidityInSolvent {
 
-    @JsonIgnore
-    @AssertTrue(message = "operator, value and unit are required for quantitative solubidity")
-    public boolean isQuantitativeFieldsSet() {
-        if (solubidityType == SolubidityType.QUANTITATIVE) {
-            return operator != null && value != null && unit != null;
-        }
-        return true;
-    }
+        @Nullable
+        private SolubidityQualitativeType qualitativeType;
 
-    @JsonIgnore
-    @AssertTrue(message = "qualitativeType are only allowed for qualitative solubidity")
-    public boolean isQualitativeFieldsValid() {
-        if (solubidityType == SolubidityType.QUALITATIVE) {
-            return qualitativeType == null;
+        public Qualitative(DictionaryItemRef solvent, @Nullable String comment, SolubidityQualitativeType qualitativeType) {
+            this.solvent = solvent;
+            this.comment = comment;
+            this.qualitativeType = qualitativeType;
         }
-        return true;
-    }
-
-    @JsonIgnore
-    @AssertTrue(message = "operator, value and unit are required for quantitative solubidity")
-    public boolean isQualitativeFieldsSet() {
-        if (solubidityType == SolubidityType.QUALITATIVE) {
-            return qualitativeType != null;
-        }
-        return true;
     }
 }

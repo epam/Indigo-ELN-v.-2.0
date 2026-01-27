@@ -1,31 +1,35 @@
 package com.epam.indigoeln.reaction.model.patch;
 
-import com.epam.indigoeln.reaction.model.Anchor;
+import com.epam.indigoeln.reaction.model.InputAnchor;
+import com.epam.indigoeln.reaction.model.ReactionInputSample;
 import com.epam.indigoeln.reaction.model.ReactionRole;
+import com.epam.indigoeln.reaction.model.patch.handler2.Patched;
+import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Optional;
+import java.util.List;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-public class ReactionInputPatch extends AbstractReactionRowPatch<Anchor.Input> {
+public class ReactionInputPatch extends AbstractReactionRowPatch<InputAnchor> {
+
+    private Patched<InputAnchor, InputAnchor> anchor;
 
     @Nullable
-    private Optional<ReactionRole> role;
+    private Patched<ReactionRole, ReactionRole> role;
 
     @Nullable
-    private Optional<EnteredValuePatch<MolUnit>> mol;
+    private Patched<EnteredValue<MolUnit>, EnteredValuePatch<MolUnit>> mol;
 
     @Nullable
-    private Optional<String> chemicalName;
+    private Patched<String, String> chemicalName;
 
     @Nullable
-    private Optional<ListPatch<ReactionInputSamplePatch>> samples;
+    private Patched<List<ReactionInputSample>, ListPatch<ReactionInputSample, ReactionInputSamplePatch>> samples;
 
     @Nullable
-    private Optional<Boolean> limiting;
+    private Patched<Boolean, Boolean> limiting;
 }

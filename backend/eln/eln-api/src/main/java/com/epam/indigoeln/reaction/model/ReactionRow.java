@@ -1,7 +1,5 @@
 package com.epam.indigoeln.reaction.model;
 
-import com.epam.indigoeln.reaction.model.metamodel.Metamodel;
-import com.epam.indigoeln.reaction.model.patch.AbstractReactionRowPatch;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -13,12 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @EqualsAndHashCode(exclude = "reaction")
-public sealed abstract class ReactionRow implements ExperimentModelNode permits ReactionInput, ReactionOutput {
-
-    protected static <C extends ReactionRow, A extends Anchor, P extends AbstractReactionRowPatch<A>> void buildMetamodelBase(Metamodel<C, P> metamodel) {
-        metamodel.simpleProperty("compound", ReactionRow::getCompound, ReactionRow::setCompound, AbstractReactionRowPatch::getCompound, AbstractReactionRowPatch::setCompound);
-        metamodel.enteredValueProperty("eq", ReactionRow::getEq, ReactionRow::setEq, AbstractReactionRowPatch::getEq, AbstractReactionRowPatch::setEq);
-    }
+public sealed abstract class ReactionRow implements ExperimentNode permits ReactionInput, ReactionOutput {
 
     @JsonBackReference
     protected Reaction reaction;

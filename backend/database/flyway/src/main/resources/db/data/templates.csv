@@ -1,3 +1,3 @@
-name,content
-Default,"[{""name"": ""Main"", ""components"": [{""type"": ""experimentDetails""}, {""type"": ""experimentDescription""}, {""type"": ""attachments""}, {""type"": ""reactionScheme""}, {""type"": ""stoichiometryTable"", ""reactantsReagentsSolvents"":  true, ""reactionProducts"": true}, {""type"": ""batches""}]}]"
-Minimal,"[{""name"": ""Main"", ""components"": [{""type"": ""reactionScheme""}, {""type"": ""stoichiometryTable"", ""reactantsReagentsSolvents"":  true, ""reactionProducts"": true}, {""type"": ""batches""}]}]"
+id,name,content
+8dd312ac-4211-4ed1-9312-ac42111ed101,Default,"[{""name"": ""Main"", ""components"": [{""type"": ""experimentDetails""}, {""type"": ""experimentDescription""}, {""type"": ""attachments""}, {""type"": ""reactionScheme""}, {""type"": ""stoichiometryTable"", ""reactantsReagentsSolvents"":  true, ""reactionProducts"": true}, {""type"": ""batches""}]}]"
+001f697d-e64b-4770-9f69-7de64bf7706d,Minimal,"[{""name"": ""Main"", ""components"": [{""type"": ""reactionScheme""}, {""type"": ""stoichiometryTable"", ""reactantsReagentsSolvents"":  true, ""reactionProducts"": true}, {""type"": ""batches""}]}]"

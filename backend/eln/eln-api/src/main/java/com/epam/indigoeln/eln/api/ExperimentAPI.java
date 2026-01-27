@@ -2,10 +2,12 @@ package com.epam.indigoeln.eln.api;
 
 import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.reaction.model.Anchor;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
+import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
+import com.epam.indigoeln.reaction.model.InputAnchor;
+import com.epam.indigoeln.reaction.model.ReactionAnchor;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
+import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import jakarta.annotation.Nullable;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -27,6 +29,10 @@ public interface ExperimentAPI extends BaseAPI {
     @GET
     @Path("/experiments/{experimentId}")
     ExperimentDetailsDTO getExperiment(@PathParam("experimentId") UUID experimentId);
+
+    @GET
+    @Path("/experiments/{experimentId}/snapshot")
+    ExperimentSnapshot getExperimentSnapshot(@PathParam("experimentId") UUID experimentId);
 
     @GET
     @Path("/projects/{projectId}/experiments")
@@ -78,25 +84,21 @@ public interface ExperimentAPI extends BaseAPI {
     @Path("/experiments/{experimentId}/access")
     List<ACLDetailsEntryDTO> updateExperimentAccess(@PathParam("experimentId") UUID experimentId, List<AccessForm> form);
 
-    @GET
-    @Path("/experiments/{experimentId}/datamodel")
-    ExperimentModel getExperimentModel(@PathParam("experimentId") UUID experimentId);
-
     @POST
-    @Path("/experiments/{experimentId}/datamodel")
+    @Path("/experiments/{experimentId}/mutate")
     ExperimentModel mutateExperimentModel(@PathParam("experimentId") UUID experimentId, MutateModelForm modelAndMutation);
 
     @POST
     @Path("/experiments/{experimentId}/datamodel2")
-    ExperimentModelPatch mutateExperimentModel2(@PathParam("experimentId") UUID experimentId, @QueryParam("revision") Integer revision, Mutation mutation);
+    ExperimentPatch mutateExperimentModel2(@PathParam("experimentId") UUID experimentId, @QueryParam("revision") Integer revision, Mutation mutation);
 
     @GET
     @Path("/experiments/{experimentId}/datamodel/reactions/{reactionAnchor}/picture")
-    Response getReactionPicture(@PathParam("experimentId") UUID experimentId, @PathParam("reactionAnchor") Anchor.Reaction reactionAnchor, @Nullable @QueryParam("version") Integer version);
+    Response getReactionPicture(@PathParam("experimentId") UUID experimentId, @PathParam("reactionAnchor") ReactionAnchor reactionAnchor, @Nullable @QueryParam("version") Integer version);
 
     @POST
     @Path("/experiments/{experimentId}/datamodel/reactions/{reactionAnchor}/analyzeRXN")
-    Map<Anchor.Input, @org.jspecify.annotations.Nullable FindSamplesRequest> analyzeRXN(@PathParam("experimentId") UUID experimentId, @PathParam("reactionAnchor") Anchor.Reaction reactionAnchor);
+    Map<InputAnchor, @org.jspecify.annotations.Nullable FindSamplesRequest> analyzeRXN(@PathParam("experimentId") UUID experimentId, @PathParam("reactionAnchor") ReactionAnchor reactionAnchor);
 
     @POST
     @Path("/experiments/{experimentId}/workflow/cancel")
@@ -133,4 +135,8 @@ public interface ExperimentAPI extends BaseAPI {
     @POST
     @Path("/experiments/{experimentId}/print")
     Response printReport(@PathParam("experimentId") UUID experimentId);
+
+    @GET
+    @Path("/experiments/{experimentId}/revisions")
+    List<RevisionDetailsDTO<ExperimentPatch>> getExperimentRevisions(@PathParam("experimentId") UUID experimentId);
 }

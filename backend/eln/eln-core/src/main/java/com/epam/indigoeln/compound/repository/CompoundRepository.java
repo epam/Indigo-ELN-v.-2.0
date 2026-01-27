@@ -11,8 +11,11 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.QueryHint;
+import org.hibernate.jpa.AvailableHints;
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
 import java.util.function.Function;
 
 @ApplicationScoped
@@ -54,6 +57,8 @@ public class CompoundRepository extends BaseRepository<CompoundEntity> {
 
 
     public int getNextSTRCodeCompoundCode() {
-        return (Integer) em.createNativeQuery("SELECT nextval('compound_str_code_compound_seq')", Integer.class).getSingleResult();
+        return (Integer) em.createNativeQuery("SELECT nextval('compound_str_code_compound_seq')", Integer.class)
+                .setHint(AvailableHints.HINT_NATIVE_SPACES, List.of("nothing")) // Hibernate assumes empty list as missing, so provide non-existent query space
+                .getSingleResult();
     }
 }

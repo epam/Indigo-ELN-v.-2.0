@@ -1,26 +1,34 @@
 package com.epam.indigoeln.reaction.model.patch;
 
-import com.epam.indigoeln.reaction.model.Anchor;
+import com.epam.indigoeln.eln.model.STRCodeSample;
+import com.epam.indigoeln.reaction.model.ReactionAnchor;
+import com.epam.indigoeln.reaction.model.ReactionInput;
+import com.epam.indigoeln.reaction.model.ReactionOutput;
+import com.epam.indigoeln.reaction.model.patch.handler2.Patched;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Optional;
+import java.util.List;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-public class ReactionPatch extends AbstractListElementPatch<Anchor.Reaction> {
+public class ReactionPatch {
+
+    private Patched<ReactionAnchor, ReactionAnchor> anchor;
 
     @Nullable
-    private Optional<String> rxnfile;
+    private Patched<String, String> rxnfile;
 
     @Nullable
-    private Optional<Integer> rxnVersion; // TODO not needed with patch approach, remove when frontend is switched
+    private Patched<Integer, Integer> rxnVersion;
 
     @Nullable
-    private Optional<ListPatch<ReactionInputPatch>> inputs;
+    private Patched<List<ReactionInput>, ListPatch<ReactionInput, ReactionInputPatch>> inputs;
 
     @Nullable
-    private Optional<ListPatch<ReactionOutputPatch>> outputs;
+    private Patched<List<ReactionOutput>, ListPatch<ReactionOutput, ReactionOutputPatch>> outputs;
+
+    @Nullable
+    private Patched<List<STRCodeSample>, List<STRCodeSample>> precursorReactantIds;
 }

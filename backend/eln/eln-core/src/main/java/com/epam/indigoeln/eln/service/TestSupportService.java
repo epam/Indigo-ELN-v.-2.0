@@ -26,21 +26,16 @@ public class TestSupportService {
         }
         // experiments, notebooks, projects
         em.createNativeQuery("delete from Attachment").executeUpdate();
+        em.createNativeQuery("delete from Experiment_Revision").executeUpdate();
         em.createNativeQuery("delete from Experiment").executeUpdate();
+        em.createNativeQuery("delete from Notebook_Revision").executeUpdate();
         em.createNativeQuery("delete from Notebook").executeUpdate();
+        em.createNativeQuery("delete from Project_Revision").executeUpdate();
         em.createNativeQuery("delete from Project").executeUpdate();
-        em.createNativeQuery("delete from Template").executeUpdate();
-        em.createNativeQuery("delete from Signature_Template").executeUpdate();
         // samples, compounds
         em.createNativeQuery("delete from Sample").executeUpdate();
         em.createNativeQuery("delete from Compound").executeUpdate();
         em.createNativeQuery("alter sequence compound_str_code_compound_seq restart").executeUpdate();
-        // dictionaries
-        em.createNativeQuery("delete from Dictionary_Item").executeUpdate();
-        em.createNativeQuery("delete from Dictionary").executeUpdate();
-        em.createNativeQuery("delete from Salt_Code").executeUpdate();
-        // users
-        em.createNativeQuery("delete from User_Account where username not in ('admin')").executeUpdate();
 
         for (String cacheName : cacheManager.getCacheNames()) {
             cacheManager.getCache(cacheName).get().invalidateAll().await().indefinitely();

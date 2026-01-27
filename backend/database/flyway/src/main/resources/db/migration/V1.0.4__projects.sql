@@ -6,6 +6,7 @@ CREATE TABLE Attachment (
     modified_at TIMESTAMPTZ NOT NULL,
     name VARCHAR(256) NOT NULL,
     size BIGINT NOT NULL,
+    deleted BOOL NOT NULL,
     content BYTEA NOT NULL,
     CONSTRAINT attachment_created_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
     CONSTRAINT attachment_modified_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id)
@@ -13,6 +14,7 @@ CREATE TABLE Attachment (
 
 CREATE TABLE Project (
     id UUID PRIMARY KEY,
+    revision INT NOT NULL,
     created_by_id UUID NOT NULL,
     created_at TIMESTAMPTZ NOT NULL,
     modified_by_id UUID NOT NULL,
@@ -23,6 +25,8 @@ CREATE TABLE Project (
     search_vector TSVECTOR,
     full_acl ACL_Entry[] NOT NULL,
     short_acl ACL_Entry[] NOT NULL,
+    notebook_count INT NOT NULL DEFAULT 0,
+    experiment_count Experiment_Count[] NOT NULL DEFAULT '{}',
     CONSTRAINT project_created_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
     CONSTRAINT project_modified_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
     CONSTRAINT project_name_uq UNIQUE (name)
@@ -55,3 +59,18 @@ CREATE TABLE Project_ACL (
     CONSTRAINT project_acl_project_id_fk FOREIGN KEY (project_id) REFERENCES Project (id) ON DELETE CASCADE,
     CONSTRAINT project_acl_user_id_fk FOREIGN KEY (user_id) REFERENCES User_Account (id) ON DELETE CASCADE
 );
+
+CREATE TABLE Project_Revision (
+    project_id UUID NOT NULL,
+    revision INT NOT NULL,
+    user_id UUID NOT NULL,
+    datetime TIMESTAMPTZ NOT NULL,
+    summary VARCHAR(1000) NOT NULL,
+    mutation JSONB NOT NULL,
+    reverse_mutation JSONB,
+    diff JSONB NOT NULL,
+    CONSTRAINT project_revision_pk PRIMARY KEY (project_id, revision),
+    CONSTRAINT project_revision_experiment_id_fk FOREIGN KEY (project_id) REFERENCES Project (id)
+);
+
+ALTER TABLE Project ADD CONSTRAINT project_id_revision_fk FOREIGN KEY (id, revision) REFERENCES Project_Revision (project_id, revision) DEFERRABLE INITIALLY DEFERRED;

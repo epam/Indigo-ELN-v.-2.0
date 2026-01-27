@@ -98,7 +98,7 @@ class ResourceImpl implements ExtensionContext.Store.CloseableResource {
                 .directory(new File("../reports/reports-lambda").getAbsoluteFile())
                 .inheritIO()
                 .start();
-        if (!buildProcess.waitFor(30, TimeUnit.SECONDS)) {
+        if (!buildProcess.waitFor(10, TimeUnit.MINUTES)) {
             throw new RuntimeException("Reports image wasn't built");
         }
         if (buildProcess.exitValue() != 0) {

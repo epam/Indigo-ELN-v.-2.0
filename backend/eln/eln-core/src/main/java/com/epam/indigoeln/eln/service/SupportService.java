@@ -5,6 +5,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.output.MigrateResult;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -36,6 +37,14 @@ public class SupportService {
 
     private final Random random = new Random();
 
+    public Map<String, String> migrate() {
+        MigrateResult result = flyway.migrate();
+        return Map.of(
+                "migrations executed", Integer.toString(result.migrationsExecuted),
+                "total time", Long.toString(result.getTotalMigrationTime())
+        );
+    }
+
     @Transactional
     public Map<String, String> insertTestData() {
         List<DictionaryItemRef> therapeuticAreas = dictionaryService.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA.name());
@@ -50,7 +59,7 @@ public class SupportService {
             projectCount++;
             for (int attachmentNo = 1; attachmentNo <= random.nextInt(0, 2); attachmentNo++) {
                 System.out.println("\tattachment " + attachmentNo);
-                attachmentService.createProjectAttachment(project.getId(), "attachment" + attachmentNo + ".txt", "content".getBytes());
+                attachmentService.createProjectAttachment(project.getId(), "attachment" + attachmentNo + ".txt", "content".getBytes(), true);
                 attachmentCount++;
             }
             for (int notebookNo = 1; notebookNo <= random.nextInt(1, 4); notebookNo++) {
@@ -59,7 +68,7 @@ public class SupportService {
                 notebookCount++;
                 for (int attachmentNo = 1; attachmentNo <= random.nextInt(0, 4); attachmentNo++) {
                     System.out.println("\tattachment " + attachmentNo);
-                    attachmentService.createNotebookAttachment(notebook.getId(), "attachment" + attachmentNo + ".txt", "content".getBytes());
+                    attachmentService.createNotebookAttachment(notebook.getId(), "attachment" + attachmentNo + ".txt", "content".getBytes(), true);
                     attachmentCount++;
                 }
                 for (int experimentNo = 1; experimentNo <= random.nextInt(1, 12); experimentNo++) {
@@ -72,7 +81,7 @@ public class SupportService {
                     experimentCount++;
                     for (int attachmentNo = 1; attachmentNo <= random.nextInt(0, 4); attachmentNo++) {
                         System.out.println("\tattachment " + attachmentNo);
-                        attachmentService.createExperimentAttachment(experiment.getId(), "attachment" + attachmentNo + ".txt", "content".getBytes());
+                        attachmentService.createExperimentAttachment(experiment.getId(), "attachment" + attachmentNo + ".txt", "content".getBytes(), true);
                         attachmentCount++;
                     }
                 }

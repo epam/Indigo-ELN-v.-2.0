@@ -11,6 +11,10 @@ import com.epam.indigoeln.eln.repository.AttachmentRepository;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
+import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
+import com.epam.indigoeln.reaction.model.mutation.NotebookMutation;
+import com.epam.indigoeln.reaction.model.mutation.ProjectMutation;
+import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -45,49 +49,79 @@ public class AttachmentService {
     AttachmentRepository attachmentRepository;
     @Inject
     AttachmentMapper attachmentMapper;
+    @Inject
+    ExperimentModelService experimentModelService;
+    @Inject
+    ProjectService projectService;
+    @Inject
+    NotebookService notebookService;
 
-    public List<AttachmentDTO> createProjectAttachment(UUID projectId, FileUpload file) {
-        return createProjectAttachment(projectId, file.fileName(), readFile(file));
+    public List<AttachmentDTO> createProjectAttachment(UUID projectId, FileUpload file, boolean useMutation) {
+        return createProjectAttachment(projectId, file.fileName(), readFile(file), useMutation);
     }
 
-    public List<AttachmentDTO> createProjectAttachment(UUID projectId, String filename, byte[] content) {
+    public List<AttachmentDTO> createProjectAttachment(UUID projectId, String filename, byte[] content, boolean useMutation) {
         ProjectEntity project = projectRepository.get(projectId);
         aclService.ensureAccess(project, ApplicationPermission.EDIT_PROJECTS);
         AttachmentEntity attachment = doCreateAttachment(filename, content);
-        project.getAttachments().add(attachment);
-        attachment.getProjects().add(project);
+        if (useMutation) {
+            projectService.applyMutation(project, new ProjectMutation.CreateProjectAttachment(attachment.getId()));
+        } else {
+            doAddProjectAttachment(project, attachment);
+        }
         return attachmentMapper.attachmentToDTOList(project.getAttachments());
     }
 
-    public List<AttachmentDTO> createNotebookAttachment(UUID notebookId, FileUpload file) {
-        return createNotebookAttachment(notebookId, file.fileName(), readFile(file));
+    public List<AttachmentDTO> createNotebookAttachment(UUID notebookId, FileUpload file, boolean useMutation) {
+        return createNotebookAttachment(notebookId, file.fileName(), readFile(file), useMutation);
     }
 
-    public List<AttachmentDTO> createNotebookAttachment(UUID notebookId, String filename, byte[] content) {
+    public List<AttachmentDTO> createNotebookAttachment(UUID notebookId, String filename, byte[] content, boolean useMutation) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
         aclService.ensureAccess(notebook, ApplicationPermission.EDIT_NOTEBOOKS);
         AttachmentEntity attachment = doCreateAttachment(filename, content);
-        notebook.getAttachments().add(attachment);
-        attachment.getNotebooks().add(notebook);
+        if (useMutation) {
+            notebookService.applyMutation(notebook, new NotebookMutation.CreateNotebookAttachment(attachment.getId()));
+        } else {
+            doAddNotebookAttachment(notebook, attachment);
+        }
         return attachmentMapper.attachmentToDTOList(notebook.getAttachments());
     }
 
-    public List<AttachmentDTO> createExperimentAttachment(UUID experimentId, FileUpload file) {
-        return createExperimentAttachment(experimentId, file.fileName(), readFile(file));
+    public List<AttachmentDTO> createExperimentAttachment(UUID experimentId, FileUpload file, boolean useMutation) {
+        return createExperimentAttachment(experimentId, file.fileName(), readFile(file), useMutation);
     }
 
-    public List<AttachmentDTO> createExperimentAttachment(UUID experimentId, String filename, byte[] content) {
+    public List<AttachmentDTO> createExperimentAttachment(UUID experimentId, String filename, byte[] content, boolean useMutation) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
-        createExperimentAttachment(experiment, filename, content);
+        createExperimentAttachment(experiment, filename, content, useMutation);
         return attachmentMapper.attachmentToDTOList(experiment.getAttachments());
     }
 
-    public AttachmentEntity createExperimentAttachment(ExperimentEntity experiment, String filename, byte[] content) {
+    public AttachmentEntity createExperimentAttachment(ExperimentEntity experiment, String filename, byte[] content, boolean useMutation) {
         aclService.ensureAccess(experiment, ApplicationPermission.EDIT_EXPERIMENTS);
         AttachmentEntity attachment = doCreateAttachment(filename, content);
-        experiment.getAttachments().add(attachment);
-        attachment.getExperiments().add(experiment);
+        if (useMutation) {
+            experimentModelService.applyMutation(experiment, new ExperimentMutation.CreateExperimentAttachment(attachment.getId()));
+        } else {
+            doAddExperimentAttachment(experiment, attachment);
+        }
         return attachment;
+    }
+
+    public void doAddProjectAttachment(ProjectEntity entity, AttachmentEntity attachment) {
+        entity.getAttachments().add(attachment);
+        attachment.getProjects().add(entity);
+    }
+
+    public void doAddNotebookAttachment(NotebookEntity entity, AttachmentEntity attachment) {
+        entity.getAttachments().add(attachment);
+        attachment.getNotebooks().add(entity);
+    }
+
+    public void doAddExperimentAttachment(ExperimentEntity entity, AttachmentEntity attachment) {
+        entity.getAttachments().add(attachment);
+        attachment.getExperiments().add(entity);
     }
 
     private byte[] readFile(FileUpload file) {
@@ -99,7 +133,12 @@ public class AttachmentService {
     }
 
     private AttachmentEntity doCreateAttachment(String filename, byte[] content) {
-        AttachmentEntity attachment = attachmentMapper.requestToAttachment(filename, content);
+        AttachmentEntity attachment = new AttachmentEntity();
+        attachment.setName(filename);
+        attachment.setSize((long) content.length);
+        attachment.setDeleted(false);
+        attachment.setContent(content);
+
         updateDates(attachment, userService.getCurrentUserEntity());
         attachmentRepository.persist(attachment);
         return attachment;
@@ -139,7 +178,7 @@ public class AttachmentService {
         aclService.ensureAccess(project, ApplicationPermission.EDIT_PROJECTS);
         AttachmentEntity attachment = attachmentRepository.load(attachmentId);
         ensureCorrectParent(attachment, attachment.getProjects(), project);
-        doDeleteAttachment(project, attachment.getProjects(), attachment);
+        projectService.applyMutation(project, new ProjectMutation.DeleteProjectAttachment(attachment.getId()));
     }
 
     public void deleteNotebookAttachment(UUID notebookId, UUID attachmentId) {
@@ -147,21 +186,21 @@ public class AttachmentService {
         aclService.ensureAccess(notebook, ApplicationPermission.EDIT_NOTEBOOKS);
         AttachmentEntity attachment = attachmentRepository.load(attachmentId);
         ensureCorrectParent(attachment, attachment.getNotebooks(), notebook);
-        doDeleteAttachment(notebook, attachment.getNotebooks(), attachment);
+        notebookService.applyMutation(notebook, new NotebookMutation.DeleteNotebookAttachment(attachment.getId()));
     }
 
     public void deleteExperimentAttachment(UUID experimentId, UUID attachmentId) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, ApplicationPermission.EDIT_EXPERIMENTS);
-        AttachmentEntity attachment = attachmentRepository.load(attachmentId);
+        AttachmentEntity attachment = attachmentRepository.get(attachmentId);
         ensureCorrectParent(attachment, attachment.getExperiments(), experiment);
-        doDeleteAttachment(experiment, attachment.getExperiments(), attachment);
+        experimentModelService.applyMutation(experiment, new ExperimentMutation.DeleteExperimentAttachment(attachment.getId()));
     }
 
     public <E extends BaseEntity & WithAttachments> void doDeleteAttachment(E parent, Collection<E> parents, AttachmentEntity attachment) {
         parent.getAttachments().remove(attachment);
         parents.remove(parent);
-        attachmentRepository.delete(attachment);
+        attachment.setDeleted(false);
     }
 
     private <E extends BaseEntity> void ensureCorrectParent(AttachmentEntity attachment, Collection<E> parents, E expected) {

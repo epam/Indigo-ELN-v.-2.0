@@ -39,6 +39,9 @@ public class AttachmentEntity extends BaseEntity {
     @NotNull
     private Long size;
 
+    @NotNull
+    private Boolean deleted;
+
     @Basic(fetch = FetchType.LAZY)
     private byte @NotNull[] content;
 }

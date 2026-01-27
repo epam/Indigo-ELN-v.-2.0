@@ -17,17 +17,17 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Consumer;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResourceAsStream;
 import static com.epam.indigoeln.eln.model.AccessLevel.*;
@@ -37,6 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 
+@Slf4j
 @QuarkusTest
 @JwtSecurity
 @TestSecurity(user = ELNBaseTest.WILLOW_USERNAME)
@@ -56,6 +57,7 @@ class PermissionsTest extends ELNBaseTest {
     ACLService aclService;
 
     TemplateDetailsDTO template;
+    DictionaryItemRef therapeuticArea;
 
     List<TemplateComponent> components = List.of(new TemplateComponent.Attachments());
     List<TemplateTab> templateTabs = List.of(new TemplateTab("tabName", components));
@@ -78,58 +80,61 @@ class PermissionsTest extends ELNBaseTest {
     }
 
     @BeforeAll
-    @Transactional
-    void setupAll() {
+    void setupAll(@TempDir Path tempDir) {
         cleanupDatabase();
+        withUser(JOHN_USERNAME, () -> {
+            template = templateClient.createTemplate(new TemplateRequest("PermissionsTest", templateTabs));
+            therapeuticArea = dictionaryClient.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA).getFirst();
+            iterateRows(row -> {
+                row.projectId = projectClient.createProject(new ProjectRequest("project" + row.testId)).getId();
+                projectClient.createProjectAttachment(row.projectId, "attachment.txt", tempDir, new byte[0]);
+                if (row.project != NONE) {
+                    projectClient.updateProjectAccess(row.projectId, AccessForm.of(willowUserID, row.project));
+                }
+                row.projectDetails = projectClient.getProject(row.projectId);
+                row.notebookId = notebookClient.createNotebook(row.projectId, new NotebookRequest(nextNotebookName())).getId();
+                notebookClient.createNotebookAttachment(row.notebookId, "attachment.txt", tempDir, new byte[0]);
+                if (row.notebook != NONE) {
+                    notebookClient.updateNotebookAccess(row.notebookId, AccessForm.of(willowUserID, row.notebook));
+                }
+                row.notebookDetails = notebookClient.getNotebook(row.notebookId);
+                row.experimentId = experimentClient.createExperiment(row.notebookId, new ExperimentRequest(emptyTemplateID)).getId();
+                experimentClient.createExperimentAttachment(row.experimentId, "attachment.txt", tempDir, new byte[0]);
+                if (row.experiment != NONE) {
+                    experimentClient.updateExperimentAccess(row.experimentId, AccessForm.of(willowUserID, row.experiment));
+                }
+                row.experimentDetails = experimentClient.getExperiment(row.experimentId);
+            });
+        });
+    }
+
+    @AfterAll
+    void tearDownAll() {
+        withUser(ADMIN_USERNAME, () -> {
+            //noinspection ConstantValue
+            if (template != null) {
+                templateClient.deleteTemplate(template.getId());
+            }
+        });
     }
 
     @Test
-    @Order(-100)
-    @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
-    void insertTestData(@TempDir Path tempDir) {
-        template = templateClient.createTemplate(new TemplateRequest("template", templateTabs));
-        for (TestRow row : rows) {
-            row.projectId = projectClient.createProject(new ProjectRequest("project" + row.testId)).getId();
-            projectClient.createProjectAttachment(row.projectId, "attachment.txt", tempDir, new byte[0]);
-            if (row.project != NONE) {
-                projectClient.updateProjectAccess(row.projectId, AccessForm.of(willowUserID, row.project));
-            }
-            row.projectDetails = projectClient.getProject(row.projectId);
-            row.notebookId = notebookClient.createNotebook(row.projectId, new NotebookRequest(nextNotebookName())).getId();
-            notebookClient.createNotebookAttachment(row.notebookId, "attachment.txt", tempDir, new byte[0]);
-            if (row.notebook != NONE) {
-                notebookClient.updateNotebookAccess(row.notebookId, AccessForm.of(willowUserID, row.notebook));
-            }
-            row.notebookDetails = notebookClient.getNotebook(row.notebookId);
-            row.experimentId = experimentClient.createExperiment(row.notebookId, new ExperimentRequest(emptyTemplateID)).getId();
-            experimentClient.createExperimentAttachment(row.experimentId, "attachment.txt", tempDir, new byte[0]);
-            if (row.experiment != NONE) {
-                experimentClient.updateExperimentAccess(row.experimentId, AccessForm.of(willowUserID, row.experiment));
-            }
-            row.experimentDetails = experimentClient.getExperiment(row.experimentId);
-        }
-    }
-
-    TestRow[] rowsParameters() {
-        return rows.toArray(TestRow[]::new);
-    }
-
-    @ParameterizedTest
     @Order(-90)
     @DataAccess
     @Transactional
     @TestSecurity(user = WILLOW_USERNAME)
-    @MethodSource("rowsParameters")
-    void testCalculateAccessLevel(TestRow row) {
-        ProjectEntity project = projectRepository.get(row.projectId);
-        AccessLevel projectLevel = project.getCalculatedInfo() != null ? project.getCalculatedInfo().getCurrentAccess() : NONE;
-        NotebookEntity notebook = notebookRepository.get(row.notebookId);
-        AccessLevel notebookLevel = notebook.getCalculatedInfo() != null ? notebook.getCalculatedInfo().getCurrentAccess() : NONE;
-        ExperimentEntity experiment = experimentRepository.get(row.experimentId);
-        AccessLevel experimentLevel = experiment.getCalculatedInfo() != null ? experiment.getCalculatedInfo().getCurrentAccess() : NONE;
-        assertThat(tuple(projectLevel, notebookLevel, experimentLevel))
-                .as(row.toString())
-                .isEqualTo(tuple(row.effectiveProject, row.effectiveNotebook, row.effectiveExperiment));
+    void testCalculateAccessLevel() {
+        iterateRows(row -> {
+            ProjectEntity project = projectRepository.get(row.projectId);
+            AccessLevel projectLevel = project.getCalculatedInfo() != null ? project.getCalculatedInfo().getCurrentAccess() : NONE;
+            NotebookEntity notebook = notebookRepository.get(row.notebookId);
+            AccessLevel notebookLevel = notebook.getCalculatedInfo() != null ? notebook.getCalculatedInfo().getCurrentAccess() : NONE;
+            ExperimentEntity experiment = experimentRepository.get(row.experimentId);
+            AccessLevel experimentLevel = experiment.getCalculatedInfo() != null ? experiment.getCalculatedInfo().getCurrentAccess() : NONE;
+            assertThat(tuple(projectLevel, notebookLevel, experimentLevel))
+                    .as(row.toString())
+                    .isEqualTo(tuple(row.effectiveProject, row.effectiveNotebook, row.effectiveExperiment));
+        });
     }
 
     @Test
@@ -170,25 +175,25 @@ class PermissionsTest extends ELNBaseTest {
 
     @Test
     void testGetProject() {
-        for (TestRow row : rows) {
+        iterateRows(row -> {
             assertThatClientCall(() -> projectClient.getProject(row.projectId))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveProject.isSufficientFor(IMPLICIT_VIEW), "Operation not permitted");
-        }
+        });
     }
 
     @Test
     void testEditProject() {
-        for (TestRow row : rows) {
-            assertThatClientCall(() -> projectClient.editProject(row.projectId, new ProjectEditRequest()))
+        iterateRows(row -> {
+            assertThatClientCall(() -> projectClient.editProject(row.projectId, new ProjectEditRequest().withDescription(Optional.of("updated"))))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "Operation not permitted");
-        }
+        });
     }
 
     @Test
     void testProjectAttachments(@TempDir Path tempDir) {
-        for (TestRow row : rows) {
+        iterateRows(row -> {
             assertThatClientCall(() -> projectClient.createProjectAttachment(row.projectId, "a", tempDir, new byte[0]))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "Operation not permitted");
@@ -198,62 +203,62 @@ class PermissionsTest extends ELNBaseTest {
             assertThatClientCall(() -> projectClient.deleteProjectAttachment(row.projectId, row.projectDetails.getAttachments().getFirst().getId()))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "Operation not permitted");
-        }
+        });
     }
 
     @Test
     void testUpdateProjectAccess() {
-        for (TestRow row : rows) {
+        iterateRows(row -> {
             if (row.project != NONE) {
                 assertThatClientCall(() -> projectClient.updateProjectAccess(row.projectId, AccessForm.of(willowUserID, row.project)))
                         .isAllowedIf(row.effectiveProject.isSufficientFor(ADMIN), "Operation not permitted");
             }
-        }
+        });
     }
 
     @Test
     void testListNotebooks() {
-        for (TestRow row : rows) {
+        iterateRows(row -> {
             Page<NotebookDTO> notebooks = notebookClient.getProjectNotebooks(row.projectId, null, null, null, PAGING);
             if (row.effectiveNotebook != NONE) {
                 assertThat(notebooks.getItems()).extracting(NotebookDTO::getName).containsExactly(row.notebookDetails.getName());
             } else {
                 assertThat(notebooks.getItems()).isEmpty();
             }
-        }
+        });
     }
 
     // TODO assuming EDIT is required to create children
     @Test
     void testCreateNotebook() {
-        for (TestRow row : rows) {
+        iterateRows(row -> {
             assertThatClientCall(() -> notebookClient.createNotebook(row.projectId, new NotebookRequest(nextNotebookName())))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "Operation not permitted");
-        }
+        });
     }
 
     @Test
     void testGetNotebook() {
-        for (TestRow row : rows) {
+        iterateRows(row -> {
             assertThatClientCall(() -> notebookClient.getNotebook(row.notebookId))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveNotebook.isSufficientFor(IMPLICIT_VIEW), "Operation not permitted");
-        }
+        });
     }
 
     @Test
     void testEditNotebook() {
-        for (TestRow row : rows) {
-            assertThatClientCall(() -> notebookClient.editNotebook(row.notebookId, new NotebookEditRequest()))
+        iterateRows(row -> {
+            assertThatClientCall(() -> notebookClient.editNotebook(row.notebookId, new NotebookEditRequest().withDescription(Optional.of("updated"))))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "Operation not permitted");
-        }
+        });
     }
 
     @Test
     void testNotebookAttachments(@TempDir Path tempDir) {
-        for (TestRow row : rows) {
+        iterateRows(row -> {
             assertThatClientCall(() -> notebookClient.createNotebookAttachment(row.notebookId, "a", tempDir, new byte[0]))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "Operation not permitted");
@@ -263,61 +268,61 @@ class PermissionsTest extends ELNBaseTest {
             assertThatClientCall(() -> notebookClient.deleteNotebookAttachment(row.notebookId, row.notebookDetails.getAttachments().getFirst().getId()))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "Operation not permitted");
-        }
+        });
     }
 
     @Test
     void testUpdateNotebookAccess() {
-        for (TestRow row : rows) {
+        iterateRows(row -> {
             if (row.notebook != NONE) {
                 assertThatClientCall(() -> notebookClient.updateNotebookAccess(row.notebookId, AccessForm.of(willowUserID, row.notebook)))
                         .isAllowedIf(row.effectiveNotebook.isSufficientFor(ADMIN), "Operation not permitted");
             }
-        }
+        });
     }
 
     @Test
     void testCreateExperiment() {
-        for (TestRow row : rows) {
+        iterateRows(row -> {
             assertThatClientCall(() -> experimentClient.createExperiment(row.notebookId, new ExperimentRequest(emptyTemplateID)))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "Operation not permitted");
-        }
+        });
     }
 
     @Test
     void testListExperiments() {
-        for (TestRow row : rows) {
+        iterateRows(row -> {
             Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(row.notebookId, null, null, PAGING);
             if (row.effectiveExperiment != NONE) {
                 assertThat(experiments.getItems()).extracting(ExperimentDTO::getName).containsExactly(row.experimentDetails.getName());
             } else {
                 assertThat(experiments.getItems()).isEmpty();
             }
-        }
+        });
     }
 
     @Test
     void testGetExperiment() {
-        for (TestRow row : rows) {
+        iterateRows(row -> {
             assertThatClientCall(() -> experimentClient.getExperiment(row.experimentId))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveExperiment.isSufficientFor(IMPLICIT_VIEW), "Operation not permitted");
-        }
+        });
     }
 
     @Test
     void testEditExperiment() {
-        for (TestRow row : rows) {
-            assertThatClientCall(() -> experimentClient.editExperiment(row.experimentId, new ExperimentEditRequest()))
+        iterateRows(row -> {
+            assertThatClientCall(() -> experimentClient.editExperiment(row.experimentId, new ExperimentEditRequest(Optional.of(therapeuticArea), null)))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveExperiment.isSufficientFor(EDIT), "Operation not permitted");
-        }
+        });
     }
 
     @Test
     void testExperimentAttachments(@TempDir Path tempDir) {
-        for (TestRow row : rows) {
+        iterateRows(row -> {
             assertThatClientCall(() -> experimentClient.createExperimentAttachment(row.experimentId, "a", tempDir, "content".getBytes(StandardCharsets.UTF_8)))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveExperiment.isSufficientFor(EDIT), "Operation not permitted");
@@ -327,32 +332,32 @@ class PermissionsTest extends ELNBaseTest {
             assertThatClientCall(() -> experimentClient.deleteExperimentAttachment(row.experimentId, row.experimentDetails.getAttachments().getFirst().getId()))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveExperiment.isSufficientFor(EDIT), "Operation not permitted");
-        }
+        });
     }
 
     @Test
     void testMarkExperiment() {
-        for (TestRow row : rows) {
+        iterateRows(row -> {
             assertThatClientCall(() -> experimentClient.markExperiment(row.experimentId))
                     .isAllowedIf(row.effectiveExperiment.isSufficientFor(VIEW), "Operation not permitted");
-        }
+        });
     }
 
     @Test
     void testUpdateExperimentAccess() {
-        for (TestRow row : rows) {
+        iterateRows(row -> {
             if (row.experiment != NONE) {
                 assertThatClientCall(() -> experimentClient.updateExperimentAccess(row.experimentId, AccessForm.of(willowUserID, row.experiment)))
                         .isAllowedIf(row.effectiveExperiment.isSufficientFor(ADMIN), "Operation not permitted");
             }
-        }
+        });
     }
 
     @Test
     @TestSecurity(user = BART_USERNAME)
     void testContentEditorCanSeeEverything() {
         assertThat(projectClient.getProjects(null, null, null, PAGING).getTotalItems()).isEqualTo(rows.size());
-        for (TestRow row : rows) {
+        iterateRows(row -> {
             assertThatClientCall(() -> projectClient.getProject(row.projectId))
                     .isSuccessful();
             assertThatClientCall(() -> notebookClient.getProjectNotebooks(row.projectId, null, null, null, PAGING))
@@ -363,7 +368,7 @@ class PermissionsTest extends ELNBaseTest {
                     .isSuccessfulWithResult(p -> assertThat(p.getItems()).hasSize(1));
             assertThatClientCall(() -> experimentClient.getExperiment(row.experimentId))
                     .isSuccessful();
-        }
+        });
     }
 
     @Test
@@ -371,7 +376,7 @@ class PermissionsTest extends ELNBaseTest {
     @Transactional
     @TestSecurity(user = BART_USERNAME)
     void testContentEditorHasEditPermissions() {
-        for (TestRow row : rows) {
+        iterateRows(row -> {
             ProjectEntity project = projectRepository.get(row.projectId);
             for (ApplicationPermission operation : EnumSet.of(ApplicationPermission.VIEW_PROJECTS, ApplicationPermission.EDIT_PROJECTS, ApplicationPermission.CREATE_NOTEBOOKS)) {
                 aclService.ensureAccess(project, operation);
@@ -384,7 +389,7 @@ class PermissionsTest extends ELNBaseTest {
             for (ApplicationPermission operation : EnumSet.of(ApplicationPermission.VIEW_EXPERIMENTS, ApplicationPermission.EDIT_EXPERIMENTS)) {
                 aclService.ensureAccess(experiment, operation);
             }
-        }
+        });
     }
 
     @Test
@@ -392,14 +397,19 @@ class PermissionsTest extends ELNBaseTest {
     @Transactional
     @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
     void testAdminCanManageDictionaries() {
-        List<DictionaryItemDTO> items = dictionaryClient.addDictionaryItem(BuiltInDictionary.TEST, new DictionaryItemRequest("A", "Adescription"));
-        dictionaryClient.updateDictionaryItem(BuiltInDictionary.TEST, items.getFirst().getId(), new DictionaryItemEditRequest(
-                Optional.of("Anew"),
-                Optional.of("AdescriptionNew"),
-                Optional.of(1),
-                Optional.of(false)
-        ));
-        dictionaryClient.removeDictionaryItem(BuiltInDictionary.TEST, items.getFirst().getId());
+        DictionaryDTO dictionary = dictionaryClient.createDictionary(new DictionaryRequest("TEST", "Test", false, null));
+        try {
+            List<DictionaryItemDTO> items = dictionaryClient.addDictionaryItem(dictionary.getId().toString(), new DictionaryItemRequest("A", "Adescription"));
+            dictionaryClient.updateDictionaryItem(dictionary.getId().toString(), items.getFirst().getId(), new DictionaryItemEditRequest(
+                    Optional.of("Anew"),
+                    Optional.of("AdescriptionNew"),
+                    Optional.of(1),
+                    Optional.of(false)
+            ));
+            dictionaryClient.removeDictionaryItem(dictionary.getId().toString(), items.getFirst().getId());
+        } finally {
+            dictionaryClient.removeDictionary(dictionary.getId().toString());
+        }
     }
 
     @Test
@@ -407,12 +417,26 @@ class PermissionsTest extends ELNBaseTest {
     @Transactional
     @TestSecurity(user = BART_USERNAME)
     void testNotAdminCannotManageDictionaries() {
-        assertThatClientCall(() -> dictionaryClient.addDictionaryItem(BuiltInDictionary.TEST, new DictionaryItemRequest("A", "Adescription")))
+        assertThatClientCall(() -> dictionaryClient.createDictionary(new DictionaryRequest("TEST", "Test", false, null)))
                 .isForbidden("Operation not permitted");
-        assertThatClientCall(() -> dictionaryClient.updateDictionaryItem(BuiltInDictionary.TEST, UUID.randomUUID(), new DictionaryItemEditRequest(null, null, null, null)))
+        assertThatClientCall(() -> dictionaryClient.updateDictionary(BuiltInDictionary.SAMPLE_SOURCE.name(), new DictionaryEditRequest(Optional.of("TEST1"), null, null, null)))
                 .isForbidden("Operation not permitted");
-        assertThatClientCall(() -> dictionaryClient.removeDictionaryItem(BuiltInDictionary.TEST, UUID.randomUUID()))
+        assertThatClientCall(() -> dictionaryClient.removeDictionary(BuiltInDictionary.SAMPLE_SOURCE.name()))
                 .isForbidden("Operation not permitted");
+
+        assertThatClientCall(() -> dictionaryClient.addDictionaryItem(BuiltInDictionary.THERAPEUTIC_AREA, new DictionaryItemRequest("A", "Adescription")))
+                .isForbidden("Operation not permitted");
+        assertThatClientCall(() -> dictionaryClient.updateDictionaryItem(BuiltInDictionary.THERAPEUTIC_AREA, UUID.randomUUID(), new DictionaryItemEditRequest(null, null, null, null)))
+                .isForbidden("Operation not permitted");
+        assertThatClientCall(() -> dictionaryClient.removeDictionaryItem(BuiltInDictionary.THERAPEUTIC_AREA, UUID.randomUUID()))
+                .isForbidden("Operation not permitted"); // TODO
+    }
+
+    private void iterateRows(Consumer<TestRow> block) {
+        for (TestRow row : rows) {
+            log.info("Row: {}", row);
+            block.accept(row);
+        }
     }
 
     @Nested

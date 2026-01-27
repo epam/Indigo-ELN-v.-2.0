@@ -21,4 +21,8 @@ public class AttachmentRepository extends BaseRepository<AttachmentEntity> {
                 Function.identity()
         );
     }
+
+    public AttachmentEntity getReference(UUID id) {
+        return em.getReference(AttachmentEntity.class, id);
+    }
 }

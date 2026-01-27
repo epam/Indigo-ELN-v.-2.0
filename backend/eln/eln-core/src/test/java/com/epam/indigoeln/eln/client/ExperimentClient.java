@@ -2,7 +2,7 @@ package com.epam.indigoeln.eln.client;
 
 import com.epam.indigoeln.eln.api.ExperimentAPI;
 import com.epam.indigoeln.eln.model.AttachmentDTO;
-import com.epam.indigoeln.reaction.model.Anchor;
+import com.epam.indigoeln.reaction.model.ReactionAnchor;
 import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
 import jakarta.annotation.Nullable;
 import jakarta.ws.rs.*;
@@ -37,7 +37,7 @@ public interface ExperimentClient extends ExperimentAPI {
 
     @GET
     @Path("/experiments/{experimentId}/datamodel/reactions/{reactionAnchor}/picture")
-    Response getReactionPictureClient(@PathParam("experimentId") UUID experimentId, @PathParam("reactionAnchor") Anchor.Reaction reactionAnchor, @Nullable @QueryParam("version") Integer version);
+    Response getReactionPictureClient(@PathParam("experimentId") UUID experimentId, @PathParam("reactionAnchor") ReactionAnchor reactionAnchor, @Nullable @QueryParam("version") Integer version);
 
     @POST
     @Path("/experiments/{experimentId}/datamodel2")

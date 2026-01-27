@@ -11,6 +11,9 @@ import java.util.List;
 @Setter
 public class NotebookDetailsDTO extends BaseNotebookDTO {
 
+    @NotNull
+    Integer revision;
+
     @Nullable
     String description;
 

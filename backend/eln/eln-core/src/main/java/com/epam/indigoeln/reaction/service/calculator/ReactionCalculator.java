@@ -1,12 +1,10 @@
 package com.epam.indigoeln.reaction.service.calculator;
 
 import com.epam.indigoeln.reaction.model.*;
-import com.epam.indigoeln.reaction.model.units.EnteredValue;
-import com.epam.indigoeln.reaction.model.units.EnteredValueOpt;
-import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
-import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
+import com.epam.indigoeln.reaction.model.units.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
+import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
 import java.util.function.BooleanSupplier;
@@ -46,12 +44,12 @@ public class ReactionCalculator {
         EnteredValue<MolWeightUnit> molWeight = input.getCompound().getMolWeight();
         return updateCycle("input " + input.getAnchor(), () -> {
             boolean updated = false;
-            EnteredValueOpt mol = opt(ZERO_MOL);
+            EnteredValueOpt<MolUnit> mol = opt(ZERO_MOL);
             for (ReactionInputSample sample : input.getSamples()) {
                 mol = mol.add(sample.getMol());
             }
-            EnteredValueOpt mol2 = opt(null);
-            EnteredValueOpt eq = opt(null);
+            EnteredValueOpt<MolUnit> mol2 = opt(null);
+            EnteredValueOpt<NoUnit> eq = opt(null);
             if (!input.isLimiting()) {
                 ReactionInput limitingInput = input.getReaction().getLimitingInput();
                 if (limitingInput != null) {
@@ -80,16 +78,15 @@ public class ReactionCalculator {
     private boolean recalculateInputSample(ReactionInputSample sample, @Nullable EnteredValue<MolWeightUnit> molWeight) {
         return updateCycle("input sample " + sample.getAnchor(), () -> {
             boolean updated = false;
-            EnteredValueOpt mol = opt(sample.getRow().getMol());
-            for (ReactionInputSample otherSample : sample.getRow().getSamples()) {
-                if (otherSample != sample) {
-                    mol = mol.subtract(otherSample.getMol());
-                }
-            }
+            EnteredValueOpt<MolUnit> rowMol = opt(sample.getRow().getMol());
+            EnteredValueOpt<MolUnit> otherSamplesMol = StreamEx.of(sample.getRow().getSamples())
+                    .filter(s -> s != sample)
+                    .map(s -> EnteredValueOpt.opt(s.getMol()))
+                    .reduce(EnteredValueOpt.opt(ZERO_MOL), EnteredValueOpt::add);
             updated |= tryUpdate(
                     "inputSample.mol", sample.getMol(), sample::setMol,
                     // mol = molCompound - sum(molOtherSamples)
-                    mol,
+                    rowMol.subtract(otherSamplesMol),
                     // mol = weight * purity / molWeight
                     opt(sample.getWeight()).multiply(sample.getPurity()).divide(molWeight),
                     // mol = molarity * volume
@@ -117,8 +114,8 @@ public class ReactionCalculator {
         EnteredValue<MolWeightUnit> molWeight = output.getCompound().getMolWeight();
         return updateCycle("output " + output.getAnchor(), () -> {
             boolean updated = false;
-            EnteredValueOpt theoMol = opt(null);
-            EnteredValueOpt eq = opt(null);
+            EnteredValueOpt<MolUnit> theoMol = opt(null);
+            EnteredValueOpt<NoUnit> eq = opt(null);
             ReactionInput limitingInput = output.getReaction().getLimitingInput();
             if (limitingInput != null) {
                 theoMol = opt(limitingInput.getMol()).divide(limitingInput.getEq()).multiply(output.getEq());
@@ -179,18 +176,19 @@ public class ReactionCalculator {
         });
     }
 
-    private <R extends MeasurementUnit> boolean tryUpdate(String displayName, @Nullable EnteredValue<R> targetCurrent, Consumer<EnteredValue<R>> targetSetter, EnteredValueOpt... results) {
+    @SafeVarargs
+    private <R extends MeasurementUnit> boolean tryUpdate(String displayName, @Nullable EnteredValue<R> targetCurrent, Consumer<EnteredValue<R>> targetSetter, EnteredValueOpt<R>... results) {
         boolean updated = false;
         EnteredValue<R> original = targetCurrent;
 //        boolean checkConflicts = false;
-        for (EnteredValueOpt result : results) {
+        for (EnteredValueOpt<R> result : results) {
             if (result.getValue() != null) {
                 if (targetCurrent == null) {
                     log.debug("tryUpdate: {}: no previous value, set to {}", displayName, result.getValue());
                     targetSetter.accept(result.getValue().cast());
                     updated = true;
                 } else {
-                    boolean resultIsMorePriority = result.getValue().getSource().ordinal() < (targetCurrent.getSource().ordinal());
+                    boolean resultIsMorePriority = result.getValue().getSource().getPriority() > targetCurrent.getSource().getPriority();
                     if (targetCurrent.valueEquals(result.getValue())) {
                         // reassign value to reflect priority change, but don't consider it an update because value didn't change
                         if (resultIsMorePriority) {

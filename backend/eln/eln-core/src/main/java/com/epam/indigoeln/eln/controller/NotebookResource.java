@@ -8,6 +8,7 @@ import com.epam.indigoeln.eln.api.UploadForm;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.NotebookService;
+import com.epam.indigoeln.reaction.model.patch.NotebookPatch;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -50,7 +51,7 @@ public class NotebookResource implements NotebookAPI {
 
     @Override
     public List<AttachmentDTO> createNotebookAttachment(UUID notebookId, UploadForm form) {
-        return attachmentService.createNotebookAttachment(notebookId, form.getFile());
+        return attachmentService.createNotebookAttachment(notebookId, form.getFile(), true);
     }
 
     @Override
@@ -71,5 +72,10 @@ public class NotebookResource implements NotebookAPI {
     @Override
     public List<NestedACLEntryDTO> getNestedNotebookAccess(UUID notebookId) {
         return notebookService.getNestedNotebookAccess(notebookId);
+    }
+
+    @Override
+    public List<RevisionDetailsDTO<NotebookPatch>> getNotebookRevisions(UUID notebookId) {
+        return notebookService.getNotebookRevisions(notebookId);
     }
 }

@@ -1,10 +1,8 @@
 package com.epam.indigoeln.eln.entity;
 
 import com.epam.indigoeln.eln.config.hibernate.ACLEntryArrayType;
-import com.epam.indigoeln.eln.config.hibernate.ExperimentModelConverter;
 import com.epam.indigoeln.eln.model.AccessLevel;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
-import com.epam.indigoeln.reaction.model.ExperimentModel;
 import io.hypersistence.utils.hibernate.type.search.PostgreSQLTSVectorType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
@@ -53,6 +51,7 @@ import java.util.*;
                 @NamedAttributeNode("projectCode"),
                 @NamedAttributeNode("aclEntities"),
                 @NamedAttributeNode("signatures"),
+                @NamedAttributeNode("model"),
                 @NamedAttributeNode(value = "calculatedInfo", subgraph = "Experiment.calculatedInfo.details"),
         },
         subgraphs = @NamedSubgraph(
@@ -72,17 +71,13 @@ import java.util.*;
         }
 )
 @NamedEntityGraph(
-        name = "Experiment.forReport",
-        includeAllAttributes = true
-)
-@NamedEntityGraph(
         name = "Experiment.withACL",
         attributeNodes = {
                 @NamedAttributeNode("aclEntities"),
         }
 )
 @DynamicUpdate
-public class ExperimentEntity extends BaseEntity implements WithAttachments, WithACL<ExperimentACLEntity> {
+public class ExperimentEntity extends BaseEntity implements WithAttachments, WithACL<ExperimentACLEntity>, WithRevision {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -132,8 +127,8 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
 
     @NotNull
     @JdbcTypeCode(SqlTypes.JSON)
-    @Convert(converter = ExperimentModelConverter.class)
-    private ExperimentModel model;
+    @Basic(fetch = FetchType.LAZY)
+    private String model;
 
     @Basic(fetch = FetchType.LAZY)
     private byte @Nullable [] picture;
@@ -149,15 +144,26 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     private ACLEntry[] fullACL;
 
     @NotNull
+    private Boolean deleted;
+
+    @NotNull
+    private Integer revision;
+
+    @NotNull
     @OneToMany(mappedBy = "experiment", cascade = CascadeType.ALL, orphanRemoval = true)
     @MapKeyJoinColumn(name = "user_id")
-    private Map<UserEntity, ExperimentACLEntity> aclEntities;
+    private Map<UserEntity, ExperimentACLEntity> aclEntities = new HashMap<>(0);
 
     @NotNull
     @ManyToMany
     @JoinTable(name = "experiment_attachment", joinColumns = @JoinColumn(name = "experiment_id"), inverseJoinColumns = @JoinColumn(name = "attachment_id"))
     @OrderBy("createdAt")
     private List<AttachmentEntity> attachments = new ArrayList<>(0);
+
+    @NotNull
+    @OneToMany(mappedBy = "experiment")
+    @OrderBy("revision")
+    private List<ExperimentRevisionEntity> revisions = new ArrayList<>(0);
 
     @Nullable
     @OneToOne(fetch = FetchType.LAZY)
@@ -167,18 +173,12 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @NotNull
     @OrderColumn(name = "ordinal")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "experiment")
-    private List<ExperimentSignatureEntity> signatures = new ArrayList<>();
+    private List<ExperimentSignatureEntity> signatures = new ArrayList<>(0);
 
     @NotNull
     @ElementCollection
     @CollectionTable(name = "Experiment_Referenced_Compound", joinColumns = @JoinColumn(name = "experiment_id"))
     private Set<ExperimentReferencedCompound> referencedCompounds = new HashSet<>(0);
-
-    @NotNull
-    @ElementCollection
-    @CollectionTable(name = "Experiment_Referenced_Dictionary_Item", joinColumns = @JoinColumn(name = "experiment_id"))
-    @Column(name = "dictionary_item_id")
-    private Set<UUID> referencedDictionaryItemIDs = new HashSet<>(0);
 
     @NotNull
     @ElementCollection

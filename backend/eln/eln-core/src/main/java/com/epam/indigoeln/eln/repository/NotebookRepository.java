@@ -89,4 +89,15 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
                 })
                 .toList();
     }
+
+    public void persistRevision(NotebookRevisionEntity revision) {
+        em.persist(revision);
+    }
+
+    public NotebookRevisionEntity getRevision(NotebookEntity notebook, int revision) {
+        return em.createQuery("from NotebookRevision where notebook = :notebook and revision = :revision", NotebookRevisionEntity.class)
+                .setParameter("notebook", notebook)
+                .setParameter("revision", revision)
+                .getSingleResult();
+    }
 }

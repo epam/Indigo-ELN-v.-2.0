@@ -2,6 +2,7 @@ package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.exception.EntityNotFoundException;
 import com.epam.indigoeln.common.exception.InvalidRequestException;
+import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.DictionaryEntity;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
@@ -17,6 +18,8 @@ import io.quarkus.cache.CacheName;
 import io.quarkus.cache.CacheResult;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
@@ -56,8 +59,38 @@ public class DictionaryService {
     @CacheName("dictionary.items")
     Cache dictionaryItemsCache;
 
+    @PersistenceContext
+    EntityManager em;
+
     public List<DictionaryDTO> getDictionaries() {
         return dictionaryRepository.list();
+    }
+
+    public DictionaryDTO createDictionary(DictionaryRequest request) {
+        aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_DICTIONARIES);
+        DictionaryEntity dictionary = dictionaryMapper.requestToEntity(request);
+        updateDates(dictionary, userService.getCurrentUserEntity());
+        dictionaryRepository.persist(dictionary);
+        dictionaryRepository.flushAndRefresh(dictionary);
+        return dictionaryMapper.dictionaryToDTO(dictionary);
+    }
+
+    public DictionaryDTO updateDictionary(String dictionaryRef, DictionaryEditRequest request) {
+        aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_DICTIONARIES);
+        DictionaryEntity dictionary = dictionaryRepository.get(refToID(dictionaryRef));
+        InvalidRequestException.validate(!dictionary.getDeleted(), "Dictionary is deleted");
+        editProperty(request.getCode(), dictionary::setCode);
+        editProperty(request.getName(), dictionary::setName);
+        editProperty(request.getUserEditable(), dictionary::setUserEditable);
+        editProperty(request.getDescription(), dictionary::setDescription);
+        return dictionaryMapper.dictionaryToDTO(dictionary);
+    }
+
+    public void removeDictionary(String dictionaryRef) {
+        aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_DICTIONARIES);
+        DictionaryEntity dictionary = dictionaryRepository.get(refToID(dictionaryRef));
+        InvalidRequestException.validate(!dictionary.getDeleted(), "Dictionary is deleted");
+        dictionary.setDeleted(true);
     }
 
     public List<DictionaryItemRef> getDictionary(String dictionaryRef) {
@@ -108,6 +141,7 @@ public class DictionaryService {
         return dictionaryItemRepository.suggest(refToID(dictionaryRef), search);
     }
 
+    // TODO use cache
     public DictionaryItemEntity get(UUID id) {
         return dictionaryItemRepository.findById(id);
     }
@@ -143,7 +177,9 @@ public class DictionaryService {
             inserted.add(entity);
         }
         list.addAll(inserted);
-        renumberItems(list);
+        renumberItems(list, true);
+        em.flush();
+        renumberItems(list, false);
         dictionaryItemRepository.persist(inserted);
         dictionaryItemsCache.invalidate(refToID(dictionaryRef)).await().indefinitely();
         return list;
@@ -158,10 +194,15 @@ public class DictionaryService {
         editProperty(request.getDescription(), entity::setDescription);
         editProperty(request.getActive(), entity::setActive);
         editProperty(request.getOrdinal(), order -> {
-            renumberItems(list);
+            // assign items negative numbers first, to avoid unique index violations;
+            // if we had unique constraint, we could use deferred constraint, but we have to use partial unique index to cover only non-deleted items
+            renumberItems(list, true);
+            em.flush();
+            // reorder items, move item to new position and reorder again
+            renumberItems(list, false);
             list.remove(entity);
             list.add(order - 1, entity);
-            renumberItems(list);
+            renumberItems(list, false);
         });
         dictionaryItemsCache.invalidate(refToID(dictionaryRef)).await().indefinitely();
         return dictionaryMapper.itemToDTOList(list);
@@ -174,13 +215,14 @@ public class DictionaryService {
                 .orElseThrow(() -> new EntityNotFoundException(EntityType.DICTIONARY_ITEM, itemID + " of dictionary " + dictionaryRef));
         list.remove(entity);
         try {
-            dictionaryItemRepository.delete(entity);
-            dictionaryItemRepository.flush();
+            entity.setDeleted(true);
         } catch (ConstraintViolationException e) {
             log.error("Failed to delete dictionary item {}", itemID, e);
             throw new InvalidRequestException("This word is selected in other inputs. Please deactivate the word to remove it from available options of the inputs");
         }
-        renumberItems(list);
+        renumberItems(list, true);
+        em.flush();
+        renumberItems(list, false);
         dictionaryItemsCache.invalidate(refToID(dictionaryRef)).await().indefinitely();
         return dictionaryMapper.itemToDTOList(list);
     }
@@ -202,9 +244,9 @@ public class DictionaryService {
         return StreamEx.of(names).map(found::get).toList();
     }
 
-    private void renumberItems(List<DictionaryItemEntity> items) {
+    private void renumberItems(List<DictionaryItemEntity> items, boolean negative) {
         for (int i = 0; i < items.size(); i++) {
-            items.get(i).setOrdinal(i + 1);
+            items.get(i).setOrdinal((i + 1) * (negative ? -1 : 1));
         }
     }
 

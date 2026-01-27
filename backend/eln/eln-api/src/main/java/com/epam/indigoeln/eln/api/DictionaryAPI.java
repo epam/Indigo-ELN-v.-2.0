@@ -16,6 +16,18 @@ public interface DictionaryAPI extends BaseAPI {
     @Path("/dictionaries")
     List<DictionaryDTO> getDictionaries();
 
+    @POST
+    @Path("/dictionaries")
+    DictionaryDTO createDictionary(DictionaryRequest request);
+
+    @PATCH
+    @Path("/dictionaries/{dictionary}")
+    DictionaryDTO updateDictionary(@PathParam("dictionary") String dictionaryRef, DictionaryEditRequest request);
+
+    @DELETE
+    @Path("/dictionaries/{dictionary}")
+    void removeDictionary(@PathParam("dictionary") String dictionaryRef);
+
     @GET
     @Path("/dictionaries/{dictionary}")
     List<DictionaryItemRef> getDictionary(@PathParam("dictionary") String dictionaryRef);

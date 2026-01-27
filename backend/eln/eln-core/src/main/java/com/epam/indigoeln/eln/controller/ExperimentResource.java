@@ -7,10 +7,12 @@ import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.ExperimentService;
 import com.epam.indigoeln.eln.service.ExperimentWorkflowService;
-import com.epam.indigoeln.reaction.model.Anchor;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
+import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
+import com.epam.indigoeln.reaction.model.InputAnchor;
+import com.epam.indigoeln.reaction.model.ReactionAnchor;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
+import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -45,6 +47,11 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
+    public @NotNull @Valid ExperimentSnapshot getExperimentSnapshot(@NotNull UUID experimentId) {
+        return experimentService.getExperimentSnapshot(experimentId);
+    }
+
+    @Override
     public @NotNull @Valid Page<ExperimentDTO> getProjectExperiments(@NotNull UUID projectId, @Nullable SortOrder sort, @Nullable Boolean createdByMe, @Valid Paging paging) {
         return experimentService.getExperiments(projectId, null, sort, createdByMe, paging);
     }
@@ -66,7 +73,7 @@ public class ExperimentResource implements ExperimentAPI {
 
     @Override
     public List<AttachmentDTO> createExperimentAttachment(UUID experimentId, UploadForm form) {
-        return attachmentService.createExperimentAttachment(experimentId, form.getFile());
+        return attachmentService.createExperimentAttachment(experimentId, form.getFile(), true);
     }
 
     @Override
@@ -100,27 +107,22 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
-    public @Valid ExperimentModel getExperimentModel(@NotNull UUID experimentId) {
-        return experimentService.getModel(experimentId);
-    }
-
-    @Override
     public ExperimentModel mutateExperimentModel(UUID experimentId, MutateModelForm modelAndMutation) {
-        return experimentService.mutateModel(experimentId, modelAndMutation.getModel(), modelAndMutation.getMutation());
+        return experimentService.mutateModel(experimentId, modelAndMutation.getMutation());
     }
 
     @Override
-    public ExperimentModelPatch mutateExperimentModel2(UUID experimentId, Integer revision, Mutation mutation) {
+    public ExperimentPatch mutateExperimentModel2(UUID experimentId, Integer revision, Mutation mutation) {
         return experimentService.mutateModel2(experimentId, revision, mutation);
     }
 
     @Override
-    public Response getReactionPicture(UUID experimentId, Anchor.Reaction reactionAnchor, @Nullable Integer version) {
+    public Response getReactionPicture(UUID experimentId, ReactionAnchor reactionAnchor, @Nullable Integer version) {
         return experimentService.getReactionPicture(experimentId, reactionAnchor, version);
     }
 
     @Override
-    public Map<Anchor.Input, @org.jspecify.annotations.Nullable FindSamplesRequest> analyzeRXN(UUID experimentId, Anchor.Reaction reactionAnchor) {
+    public Map<InputAnchor, @org.jspecify.annotations.Nullable FindSamplesRequest> analyzeRXN(UUID experimentId, ReactionAnchor reactionAnchor) {
         return experimentService.analyzeRXN(experimentId, reactionAnchor);
     }
 
@@ -151,12 +153,12 @@ public class ExperimentResource implements ExperimentAPI {
 
     @Override
     public ExperimentForSignatureDTO approveExperiment(UUID experimentId) {
-        return experimentWorkflowService.approveOrRejectExperiment(experimentId, SignatureStatus.APPROVED);
+        return experimentWorkflowService.approveOrRejectExperiment(experimentId, false);
     }
 
     @Override
     public ExperimentForSignatureDTO rejectExperiment(UUID experimentId) {
-        return experimentWorkflowService.approveOrRejectExperiment(experimentId, SignatureStatus.REJECTED);
+        return experimentWorkflowService.approveOrRejectExperiment(experimentId, true);
     }
 
     @Override
@@ -167,5 +169,10 @@ public class ExperimentResource implements ExperimentAPI {
     @Override
     public Response printReport(UUID experimentId) {
         return experimentService.printReport(experimentId);
+    }
+
+    @Override
+    public List<RevisionDetailsDTO<ExperimentPatch>> getExperimentRevisions(UUID experimentId) {
+        return experimentService.getExperimentRevisions(experimentId);
     }
 }

@@ -3,19 +3,23 @@ package com.epam.indigoeln.eln.util;
 import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.eln.entity.BaseEntity;
 import com.epam.indigoeln.eln.entity.UserEntity;
+import com.epam.indigoeln.reaction.util.ThrowingRunnable;
+import lombok.SneakyThrows;
 import one.util.streamex.StreamEx;
 import org.hibernate.exception.ConstraintViolationException;
 import org.jspecify.annotations.Nullable;
 
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.concurrent.Callable;
 import java.util.function.Function;
 
 public class ModelUtil {
 
     public static void updateDates(BaseEntity model, UserEntity currentUser) {
         ZonedDateTime date = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
-        if (model.getCreatedBy() == null) {
+        //noinspection ConstantValue
+        if (model.getCreatedAt() == null) {
             model.setCreatedBy(currentUser);
             model.setCreatedAt(date);
         }
@@ -44,9 +48,10 @@ public class ModelUtil {
         return sb.toString();
     }
 
-    public static void wrapConstraintViolation(Runnable function, Function<ConstraintViolationException, @Nullable String> errorMapper) {
+    @SneakyThrows
+    public static <T> T wrapConstraintViolation(Callable<T> function, Function<ConstraintViolationException, @Nullable String> errorMapper) {
         try {
-            function.run();
+            return function.call();
         } catch (org.hibernate.exception.ConstraintViolationException e) {
             String error = errorMapper.apply(e);
             if (error != null) {
@@ -54,5 +59,9 @@ public class ModelUtil {
             }
             throw e;
         }
+    }
+
+    public static void wrapConstraintViolation(ThrowingRunnable function, Function<ConstraintViolationException, @Nullable String> errorMapper) {
+        wrapConstraintViolation(function.asCallable(), errorMapper);
     }
 }

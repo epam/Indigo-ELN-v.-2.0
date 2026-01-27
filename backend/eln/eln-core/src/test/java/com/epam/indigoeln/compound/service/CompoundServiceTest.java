@@ -89,8 +89,8 @@ public class CompoundServiceTest extends ELNBaseTest {
     void testRegisterSample() {
         SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(compound1)
                 .withNbkBatchNumber(new NbkBatchNumber("00000000-0000", 1))
-                .withDensity(EnteredValue.userLastEntered(10.0, DensityUnit.G_ML))
-                .withMolarity(EnteredValue.userLastEntered(20.0, MolarityUnit.MM))
+                .withDensity(EnteredValue.userEntered(10.0, DensityUnit.G_ML, 1))
+                .withMolarity(EnteredValue.userEntered(20.0, MolarityUnit.MM, 1))
                 .withPurity(0.50)
                 .withHealthHazards(List.of(healthHazard))
                 .withCompoundState(compoundState)

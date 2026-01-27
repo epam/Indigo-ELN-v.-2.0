@@ -1,35 +1,43 @@
 package com.epam.indigoeln.reaction.model.patch;
 
-import com.epam.indigoeln.reaction.config.ListPatchDeserializer;
-import com.epam.indigoeln.reaction.config.ListPatchSerializer;
+import com.epam.indigoeln.reaction.config.ListPatchSerializers;
+import com.epam.indigoeln.reaction.model.patch.handler2.Patched;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.AllArgsConstructor;
+import com.google.common.base.Preconditions;
 import lombok.Value;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.function.BiConsumer;
+import java.util.Arrays;
+import java.util.List;
 
 @Value
-@AllArgsConstructor
-@JsonSerialize(using = ListPatchSerializer.class)
-@JsonDeserialize(using = ListPatchDeserializer.class)
-public class ListPatch<T> {
+@JsonSerialize(using = ListPatchSerializers.Serializer.class)
+@JsonDeserialize(using = ListPatchSerializers.Deserializer.class)
+public class ListPatch<T, P> {
 
-    int size;
-    Map<Integer, @Nullable T> items;
+    public static final String FROM_FIELD = "$from";
 
-    public ListPatch(int size) {
-        this.size = size;
-        items = new TreeMap<>();
+    List<Item<T, P>> items;
+
+//    public void forEach(BiConsumer<K, @Nullable T> action) {
+//        for (Map.Entry<K, @Nullable T> entry : items.entrySet()) {
+//            action.accept(entry.getKey(), entry.getValue());
+//        }
+//    }
+
+    @SafeVarargs
+    public static <T, P> ListPatch<T, P> of(Item<T, P>... items) {
+        return new ListPatch<>(Arrays.asList(items));
     }
 
-    public void forEach(BiConsumer<Integer, @Nullable T> action) {
-        for (Map.Entry<Integer, @Nullable T> entry : items.entrySet()) {
-            action.accept(entry.getKey(), entry.getValue());
+    public record Item<T, P> (
+            @Nullable Integer oldIndex,
+            @Nullable Integer newIndex,
+            @Nullable Patched<T, P> value
+    ) {
+        public Item {
+            Preconditions.checkArgument(oldIndex != null || newIndex != null);
         }
     }
-
 }

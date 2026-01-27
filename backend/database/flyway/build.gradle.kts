@@ -6,6 +6,7 @@ plugins {
 
 dependencies {
     api(project(":common:common"))
+    api(project(":eln:eln-api"))
 
     api("io.quarkus:quarkus-flyway")
     api("io.quarkus:quarkus-jdbc-postgresql")

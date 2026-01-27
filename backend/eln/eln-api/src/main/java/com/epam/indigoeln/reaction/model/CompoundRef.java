@@ -3,10 +3,7 @@ package com.epam.indigoeln.reaction.model;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.*;
 import com.google.common.base.MoreObjects;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -21,6 +18,7 @@ import java.util.UUID;
         @JsonSubTypes.Type(value = CompoundRef.Virtual.class, name = CompoundRef.Virtual.TYPE),
         @JsonSubTypes.Type(value = CompoundRef.Unknown.class, name = CompoundRef.Unknown.TYPE)
 })
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virtual, CompoundRef.Unknown {
 
     @Nullable
@@ -54,11 +52,12 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
     String getCalculatedBatchMF();
 
     @Getter
+    @ToString
     @RequiredArgsConstructor
     @EqualsAndHashCode(of = {"compoundID"})
     final class Stored implements CompoundRef {
 
-        public static final String TYPE = "stored";
+        public static final String TYPE = "STORED";
 
         @NotNull
         private final UUID compoundID;
@@ -89,23 +88,15 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
 
         @NotNull
         private final String calculatedBatchMF;
-
-        @Override
-        public String toString() {
-            return MoreObjects.toStringHelper(this).omitNullValues()
-                    .add("compoundID", compoundID)
-                    .add("molWeight", molWeight)
-                    .add("formula", formula)
-                    .toString();
-        }
     }
 
     @Getter
+    @ToString
     @EqualsAndHashCode(of = {"compoundID"})
     @AllArgsConstructor(onConstructor_ = @JsonCreator)
     final class Virtual implements CompoundRef {
 
-        public static final String TYPE = "virtual";
+        public static final String TYPE = "VIRTUAL";
 
         @NotNull
         private final UUID compoundID;
@@ -137,24 +128,14 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
 
         @NotNull
         private final String calculatedBatchMF;
-
-        @Override
-        public String toString() {
-            return MoreObjects.toStringHelper(this).omitNullValues()
-                    .add("compoundID", compoundID)
-                    .add("formula", formula)
-                    .add("saltCode", saltCode)
-                    .add("saltEQ", saltEQ)
-                    .add("molWeight", molWeight)
-                    .toString();
-        }
     }
 
     @Getter
+    @ToString
     @EqualsAndHashCode
     final class Unknown implements CompoundRef {
 
-        public static final String TYPE = "unknown";
+        public static final String TYPE = "UNKNOWN";
 
         @Nullable
         private String formula;

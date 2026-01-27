@@ -3,6 +3,10 @@ package com.epam.indigoeln.eln.service;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
+import com.epam.indigoeln.reaction.model.mutation.NotebookMutation;
+import com.epam.indigoeln.reaction.model.mutation.ProjectMutation;
+import com.epam.indigoeln.reaction.model.patch.handler2.Patched;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
@@ -12,10 +16,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static com.epam.indigoeln.common.exception.InvalidRequestException.fail;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
@@ -98,6 +99,16 @@ class ProjectServiceTest extends ELNBaseTest {
         assertThat(project.getAttachments()).isEmpty();
         assertThat(project.getCurrentPermissions()).containsExactlyInAnyOrder(VIEW_PROJECTS, EDIT_PROJECTS, MANAGE_PROJECT_ACCESS, DELETE_PROJECTS);
         assertThatACL(project.getAcl()).containsOnly(JOHN_DISPLAY_NAME, AccessLevel.AUTHOR, false);
+        assertThat(project.getRevision()).isOne();
+        assertThat(projectClient.getProjectRevisions(project.getId()))
+                .hasSize(1)
+                .first().satisfies(revision -> {
+                    assertThat(revision.getRevision()).isOne();
+                    assertThat(revision.getDatetime()).isEqualTo(project.getCreatedAt());
+                    assertThat(revision.getUser()).isEqualTo(getJohnUserRef());
+                    assertThat(revision.getMutation()).isInstanceOf(ProjectMutation.CreateProject.class);
+                    assertThat(revision.getSummary()).isEqualTo("Create project");
+                });
     }
 
     @Test
@@ -219,10 +230,15 @@ class ProjectServiceTest extends ELNBaseTest {
     }
 
     @Test
+    void testEditProjectNoChanges() {
+        ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testEditProject", List.of("k1", "k2"), "l", "d"));
+        assertThatClientCall(() -> projectClient.editProject(project.getId(), new ProjectEditRequest(null, null, null, null)))
+                .isBadRequest("Nothing to update");
+    }
+
+    @Test
     void testEditProject() {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testEditProject", List.of("k1", "k2"), "l", "d"));
-        ProjectDetailsDTO notModified = projectClient.editProject(project.getId(), new ProjectEditRequest(null, null, null, null));
-        assertThat(notModified).usingRecursiveComparison(COMPARE_WITHOUT_MODIFIED_AT).isEqualTo(project);
         ProjectDetailsDTO modified = projectClient.editProject(project.getId(), new ProjectEditRequest(Optional.of("testEditProject_new"), Optional.of(List.of("k2", "k3")), Optional.of("l2"), Optional.of("d2")));
         assertThat(modified.getName()).isEqualTo("testEditProject_new");
         assertThat(modified.getKeywords()).containsExactly("k2", "k3");
@@ -230,6 +246,22 @@ class ProjectServiceTest extends ELNBaseTest {
         assertThat(modified.getDescription()).isEqualTo("d2");
         ProjectDetailsDTO saved = projectClient.getProject(project.getId());
         assertThat(saved).usingRecursiveComparison().isEqualTo(modified);
+        assertThat(projectClient.getProjectRevisions(project.getId()))
+                .hasSize(2)
+                .last().satisfies(revision -> {
+                    assertThat(revision.getRevision()).isEqualTo(2);
+                    assertThat(revision.getDatetime()).isEqualTo(modified.getModifiedAt());
+                    assertThat(revision.getUser()).isEqualTo(getJohnUserRef());
+                    assertThat(revision.getMutation()).isInstanceOf(ProjectMutation.EditProjectAttributes.class);
+                    assertThat(revision.getSummary()).matches("Edit: multiple attributes");
+                    assertThat(revision.getDiff()).satisfies(diff -> {
+                        assertThat(diff.getAcl()).isNull();
+                        assertThat(diff.getName()).isEqualTo(Patched.replaced("testEditProject", "testEditProject_new"));
+                        assertThat(diff.getKeywords()).isEqualTo(Patched.replaced(Set.of("k1", "k2"), Set.of("k2", "k3")));
+                        assertThat(diff.getLiterature()).isEqualTo(Patched.replaced("l", "l2"));
+                        assertThat(diff.getDescription()).isEqualTo(Patched.replaced("d", "d2"));
+                    });
+                });
     }
 
     @Test
@@ -288,6 +320,11 @@ class ProjectServiceTest extends ELNBaseTest {
             assertThat(a.getModifiedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME);
             assertThat(a.getModifiedAt()).isNotNull();
         });
+        assertThat(projectClient.getProjectRevisions(project.getId()))
+                .last().satisfies(revision -> {
+                    assertThat(revision.getMutation()).isInstanceOf(ProjectMutation.CreateProjectAttachment.class);
+                    assertThat(revision.getSummary()).isEqualTo("Created attachment: attachment.txt, 7 bytes");
+                });
     }
 
     @Test
@@ -306,6 +343,11 @@ class ProjectServiceTest extends ELNBaseTest {
         projectClient.deleteProjectAttachment(project.getId(), attachments.getFirst().getId());
         project = projectClient.getProject(project.getId());
         assertThat(project.getAttachments()).isEmpty();
+        assertThat(projectClient.getProjectRevisions(project.getId()))
+                .last().satisfies(revision -> {
+                    assertThat(revision.getMutation()).isInstanceOf(ProjectMutation.DeleteProjectAttachment.class);
+                    assertThat(revision.getSummary()).isEqualTo("Deleted attachment: attachment.txt");
+                });
     }
 
     @Test
@@ -404,6 +446,49 @@ class ProjectServiceTest extends ELNBaseTest {
         assertThat(result7.getItems()).map(ProjectDTO::getName).containsExactly(p1);
     }
 
+    @Test
+    void testAdminCanUpdateAccessForUserCreatedProject() {
+        ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testAdminCanUpdateAccessForUserCreatedProject"));
+        withUser(ADMIN_USERNAME, () -> {
+            projectClient.updateProjectAccess(project.getId(), AccessForm.of(bartUserID, AccessLevel.EDIT));
+        });
+    }
+
+    @Test
+    void testUpdateAccess() {
+        ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testUpdateAccess"));
+        NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
+        projectClient.updateProjectAccess(project.getId(), AccessForm.of(maggieUserID, AccessLevel.EDIT));
+        assertThat(projectClient.getProjectRevisions(project.getId()))
+                .hasSize(2)
+                .last().satisfies(revision -> {
+                    assertThat(revision.getRevision()).isEqualTo(2);
+                    assertThat(revision.getUser()).isEqualTo(getJohnUserRef());
+                    assertThat(revision.getMutation()).isInstanceOf(ProjectMutation.EditProjectAccess.class);
+                    assertThat(revision.getSummary()).isEqualTo("Edited Team: granted maggie EDIT access");
+                    assertThat(revision.getDiff().getAcl()).isEqualTo(Patched.updated(Map.of(MAGGIE_USERNAME, Patched.created(new ACLDetailsEntryDTO(maggieUserID, MAGGIE_DISPLAY_NAME, AccessLevel.EDIT, false, MAGGIE_USERNAME)))));
+                });
+        assertThat(notebookClient.getNotebookRevisions(notebook.getId()))
+                .last().satisfies(revision -> {
+                    assertThat(revision.getMutation()).isInstanceOf(NotebookMutation.NotebookAccessUpdated.class);
+                    assertThat(revision.getDiff().getAcl()).isEqualTo(Patched.updated(Map.of(MAGGIE_USERNAME, Patched.created(new ACLDetailsEntryDTO(maggieUserID, MAGGIE_DISPLAY_NAME, AccessLevel.EDIT, true, MAGGIE_USERNAME)))));
+                });
+        assertThat(experimentClient.getExperimentRevisions(experiment.getId()))
+                .last().satisfies(revision -> {
+                    assertThat(revision.getMutation()).isInstanceOf(ExperimentMutation.ExperimentAccessUpdated.class);
+                    assertThat(revision.getDiff().getAcl()).isEqualTo(Patched.updated(Map.of(MAGGIE_USERNAME, Patched.created(new ACLDetailsEntryDTO(maggieUserID, MAGGIE_DISPLAY_NAME, AccessLevel.EDIT, true, MAGGIE_USERNAME)))));
+                });
+
+        projectClient.updateProjectAccess(project.getId(), AccessForm.of(maggieUserID, AccessLevel.NONE));
+        assertThat(projectClient.getProjectRevisions(project.getId()))
+                .hasSize(3)
+                .last().satisfies(revision -> {
+                    assertThat(revision.getSummary()).isEqualTo("Edited Team: removed maggie");
+                    assertThat(revision.getDiff().getAcl()).isEqualTo(Patched.updated(Map.of(MAGGIE_USERNAME, Patched.deleted(new ACLDetailsEntryDTO(maggieUserID, MAGGIE_DISPLAY_NAME, AccessLevel.EDIT, false, MAGGIE_USERNAME)))));
+                });
+    }
+    
     @Nested
     @JwtSecurity
     @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)

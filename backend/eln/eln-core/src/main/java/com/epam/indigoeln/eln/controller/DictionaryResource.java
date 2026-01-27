@@ -26,6 +26,21 @@ public class DictionaryResource implements DictionaryAPI {
     }
 
     @Override
+    public DictionaryDTO createDictionary(DictionaryRequest request) {
+        return dictionaryService.createDictionary(request);
+    }
+
+    @Override
+    public DictionaryDTO updateDictionary(String dictionaryRef, DictionaryEditRequest request) {
+        return dictionaryService.updateDictionary(dictionaryRef, request);
+    }
+
+    @Override
+    public void removeDictionary(String dictionaryRef) {
+        dictionaryService.removeDictionary(dictionaryRef);
+    }
+
+    @Override
     public List<DictionaryItemRef> getDictionary(String dictionaryRef) {
         return dictionaryService.getDictionary(dictionaryRef);
     }

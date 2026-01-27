@@ -76,4 +76,10 @@ public class TemplateService {
 
         return getTemplate(templateId);
     }
+
+    public void deleteTemplate(UUID templateId) {
+        aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_TEMPLATES);
+        TemplateEntity template = templateRepository.get(templateId);
+        templateRepository.delete(template);
+    }
 }

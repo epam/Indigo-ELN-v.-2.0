@@ -12,6 +12,9 @@ import java.util.List;
 public class ProjectDetailsDTO extends BaseProjectDTO {
 
     @NotNull
+    Integer revision;
+
+    @NotNull
     List<String> keywords;
 
     @Nullable

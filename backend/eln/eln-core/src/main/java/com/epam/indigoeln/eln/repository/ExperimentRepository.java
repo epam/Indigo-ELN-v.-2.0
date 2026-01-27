@@ -58,14 +58,6 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
         return experiment;
     }
 
-    public ExperimentEntity loadForReport(UUID id) {
-        return doLoadDetails(
-                id,
-                em.getEntityGraph("Experiment.forReport"),
-                Function.identity()
-        );
-    }
-
     public void markExperiment(UUID experimentId, UserEntity user, boolean mark) {
         em.createNativeQuery("SELECT mark_experiment(?1, ?2, ?3)")
                 .setParameter(1, experimentId)
@@ -103,5 +95,16 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
                 .setParameter(1, notebook.getId())
                 .getResultList();
         return found.isEmpty() || found.getFirst() == null ? null : found.getFirst();
+    }
+
+    public void persistRevision(ExperimentRevisionEntity revision) {
+        em.persist(revision);
+    }
+
+    public ExperimentRevisionEntity getRevision(ExperimentEntity experiment, int revision) {
+        return em.createQuery("from ExperimentRevision where experiment = :experiment and revision = :revision", ExperimentRevisionEntity.class)
+                .setParameter("experiment", experiment)
+                .setParameter("revision", revision)
+                .getSingleResult();
     }
 }

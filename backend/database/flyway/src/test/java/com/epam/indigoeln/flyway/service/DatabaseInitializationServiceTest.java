@@ -4,6 +4,7 @@ package com.epam.indigoeln.flyway.service;
 import com.epam.indigoeln.test.BaseTest;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
+import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
@@ -11,17 +12,17 @@ import org.junit.jupiter.api.Test;
 class DatabaseInitializationServiceTest extends BaseTest {
 
     @Inject
-    DatabaseInitializationService databaseInitializationService;
+    Flyway flyway;
 
     @Test
     @Order(1)
     void testMigrate() {
-        databaseInitializationService.migrate();
+        flyway.migrate();
     }
 
     @Test
     @Order(2)
     void testSubsequentMigrate() {
-        databaseInitializationService.migrate();
+        flyway.migrate();
     }
 }

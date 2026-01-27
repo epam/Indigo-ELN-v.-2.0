@@ -6,10 +6,12 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.SIMPLE_NAME, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(ReactionMutation.SetScheme.class),
+        @JsonSubTypes.Type(ReactionMutation.UndoSetScheme.class),
         @JsonSubTypes.Type(ReactionMutation.ResolveInputs.class),
+        @JsonSubTypes.Type(ReactionMutation.UndoResolveInputs.class),
         @JsonSubTypes.Type(ReactionMutation.AddEmptyInput.class),
         @JsonSubTypes.Type(ReactionMutation.AddInput.class),
-        @JsonSubTypes.Type(ReactionMutation.RemoveInput.class),
+        @JsonSubTypes.Type(ReactionMutation.UndoRemoveInput.class),
 
         @JsonSubTypes.Type(ReactionInputMutation.SetInputRowRole.class),
         @JsonSubTypes.Type(ReactionInputMutation.SetInputRowMol.class),
@@ -20,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(ReactionInputMutation.SetInputRowEQ.class),
         @JsonSubTypes.Type(ReactionInputMutation.SetInputCompoundStereoisomerCode.class),
         @JsonSubTypes.Type(ReactionInputMutation.SetInputCompoundMolWeight.class),
+        @JsonSubTypes.Type(ReactionInputMutation.RemoveInput.class),
 
         @JsonSubTypes.Type(ReactionInputSampleMutation.SetInputDensity.class),
         @JsonSubTypes.Type(ReactionInputSampleMutation.SetInputMolarity.class),
@@ -38,6 +41,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(ReactionOutputMutation.SetOutputRowName.class),
         @JsonSubTypes.Type(ReactionOutputMutation.SetOutputCompoundStereoisomerCode.class),
         @JsonSubTypes.Type(ReactionOutputMutation.SetOutputCompoundMolWeight.class),
+        @JsonSubTypes.Type(ReactionOutputMutation.UndoRemoveProductSample.class),
 
         @JsonSubTypes.Type(ReactionOutputSampleMutation.SetOutputDensity.class),
         @JsonSubTypes.Type(ReactionOutputSampleMutation.SetOutputMolarity.class),
@@ -60,12 +64,41 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(ReactionOutputSampleMutation.SetOutputComponentState.class),
         @JsonSubTypes.Type(ReactionOutputSampleMutation.SetOutputBatchComment.class),
         @JsonSubTypes.Type(ReactionOutputSampleMutation.SetOutputStructureComment.class),
+        @JsonSubTypes.Type(ReactionOutputSampleMutation.RemoveProductSample.class),
+
+        @JsonSubTypes.Type(ExperimentMutation.CreateExperiment.class),
+        @JsonSubTypes.Type(ExperimentMutation.EditExperimentAttributes.class),
+        @JsonSubTypes.Type(ExperimentMutation.EditExperimentAccess.class),
+        @JsonSubTypes.Type(ExperimentMutation.CreateExperimentAttachment.class),
+        @JsonSubTypes.Type(ExperimentMutation.DeleteExperimentAttachment.class),
+        @JsonSubTypes.Type(ExperimentMutation.CancelExperiment.class),
+        @JsonSubTypes.Type(ExperimentMutation.ReopenExperiment.class),
+        @JsonSubTypes.Type(ExperimentMutation.CompleteExperiment.class),
+        @JsonSubTypes.Type(ExperimentMutation.SubmitExperiment.class),
+        @JsonSubTypes.Type(ExperimentMutation.ApproveExperiment.class),
+        @JsonSubTypes.Type(ExperimentMutation.RejectExperiment.class),
+        @JsonSubTypes.Type(ExperimentMutation.ResubmitExperiment.class),
+        @JsonSubTypes.Type(ExperimentMutation.ExperimentAccessUpdated.class),
+        @JsonSubTypes.Type(ExperimentMutation.Undo.class),
+        @JsonSubTypes.Type(ExperimentMutation.Redo.class),
+
+        @JsonSubTypes.Type(ProjectMutation.CreateProject.class),
+        @JsonSubTypes.Type(ProjectMutation.EditProjectAttributes.class),
+        @JsonSubTypes.Type(ProjectMutation.EditProjectAccess.class),
+        @JsonSubTypes.Type(ProjectMutation.CreateProjectAttachment.class),
+        @JsonSubTypes.Type(ProjectMutation.DeleteProjectAttachment.class),
+        @JsonSubTypes.Type(ProjectMutation.ProjectAccessUpdated.class),
+        @JsonSubTypes.Type(ProjectMutation.ProjectUndo.class),
+        @JsonSubTypes.Type(ProjectMutation.ProjectRedo.class),
+
+        @JsonSubTypes.Type(NotebookMutation.CreateNotebook.class),
+        @JsonSubTypes.Type(NotebookMutation.EditNotebookAttributes.class),
+        @JsonSubTypes.Type(NotebookMutation.EditNotebookAccess.class),
+        @JsonSubTypes.Type(NotebookMutation.CreateNotebookAttachment.class),
+        @JsonSubTypes.Type(NotebookMutation.DeleteNotebookAttachment.class),
+        @JsonSubTypes.Type(NotebookMutation.NotebookAccessUpdated.class),
+        @JsonSubTypes.Type(NotebookMutation.NotebookUndo.class),
+        @JsonSubTypes.Type(NotebookMutation.NotebookRedo.class),
 })
-public sealed interface Mutation permits
-        ReactionMutation,
-        ReactionInputMutation,
-        ReactionInputSampleMutation,
-        ReactionOutputMutation,
-        ReactionOutputSampleMutation
-{
+public interface Mutation {
 }
