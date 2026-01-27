@@ -18,23 +18,42 @@
         </button>
 
         @if (accordionItem.expanded) {
-          <form [formGroup]="form" class="mt-4" >
-            <formly-form
-              className="grid grid-cols-2"
-              [form]="form",
-              [fields]="fields"
-              [model]="model">
-            </formly-form>
+        <div class="grid grid-cols-2">
+          <eln-card>
+            <form [formGroup]="form" class="mt-4" >
+              <formly-form
+                className="grid grid-cols-2"
+                [form]="form",
+                [fields]="fields"
+                [model]="model">
+              </formly-form>
           </form>
+          </eln-card>
+
+          <eln-card>
+            <div class="flex flex-col gap-[16px]">
+              <div class="flex flex-col gap-[4px]">
+                <span class="font-xs font-semibold leading-[1.5] text-neutral-900">Experiment Name</span>
+                <span>00000000-00-0001</span>
+              </div>
+              <div class="flex flex-col gap-[4px]">
+                <span class="font-xs font-semibold leading-[1.5] text-neutral-900">Batch Creator</span>
+                <span>Kristin Watson</span>
+              </div>  
+              <div class="flex flex-col gap-[4px]">
+                <span class="font-xs font-semibold leading-[1.5] text-neutral-900">Created</span>
+                <span>08 Oct 2024 by John Doe</span>
+              </div>
+              <div class="flex flex-col gap-[4px]">
+                <span class="font-xs font-semibold leading-[1.5] text-neutral-900">Last Edited</span>
+                <span>14 Oct 2024 by Emmy Cooper</span>
+              </div>
+            </div>
+          </eln-card>
+        </div>
 
           <div>
-            <div class="flex gap-4 mt-2 text-sm">
-              <h3>Name: {{ experiment().name }}</h3>
-            </div>
-
             <div class="mt-6">
-              <div class="border-t border-gray-200 mb-4"></div>
-              <h3 class="text-sm mb-3">Experiment Picture:</h3>
               @if (imageLoading()) {
                 <div class="flex justify-center p-4">
                   <mat-spinner diameter="40" />
