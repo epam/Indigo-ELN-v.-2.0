@@ -19,6 +19,10 @@
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+
+  &.full-width {
+    grid-column: span 2;
+  }
 }
 
 .field-label {
@@ -91,4 +95,10 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.chip-uniform {
+  background-color: #DEE1F3;
+  color: #374151;
+  border: 1px solid #d1d5db;
 }

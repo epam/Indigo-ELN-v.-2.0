@@ -16,6 +16,7 @@ import {
 } from '@core/types/entities/experiments/experiment-shared.i';
 import { BuiltInDictionaryService } from '@core/services/health-hazards/built-in-dictionary.service';
 import { BuiltInDictionary, DictionaryItemRef } from '@core/types/entities/dictionary.i';
+import { ChipListComponent } from './chip-list.component';
 
 @Component({
   selector: 'eln-batch-detail-info-panel',
@@ -28,6 +29,7 @@ import { BuiltInDictionary, DictionaryItemRef } from '@core/types/entities/dicti
     MatInputModule,
     MatSelectModule,
     FormsModule,
+    ChipListComponent,
   ],
   standalone: true,
 })
@@ -128,5 +130,27 @@ export class BatchDetailInfoPanelComponent implements OnInit {
   formatCompoundProtection(items: DictionaryItemRef[]): string {
     if (!items || items.length === 0) return '—';
     return items.map(cp => cp.name).join(', ');
+  }
+
+  // Chip list helpers - transform arrays to string[] for chip-list component
+  getMeltingPointChips(): string[] {
+    const mp = this.sample().meltingPoint;
+    return mp ? [this.formatMeltingPoint(mp)] : [];
+  }
+
+  getStorageInstructionsChips(): string[] {
+    return this.sample().storageInstructions?.map(i => i.name) || [];
+  }
+
+  getHealthHazardsChips(): string[] {
+    return this.sample().healthHazards?.map(i => i.name) || [];
+  }
+
+  getSolubilityChips(): string[] {
+    return this.sample().solubilityInSolvents?.map(i => i.solvent?.name || '—') || [];
+  }
+
+  getHandlingPrecautionsChips(): string[] {
+    return this.sample().handlingPrecautions?.map(i => i.name) || [];
   }
 }

@@ -1,21 +1,14 @@
 <div class="info-panel-container">
   <div class="info-section">
-    <h4 class="text-sm font-semibold mb-4">Batch Information</h4>
+    <h4 class="text-sm font-semibold mb-4">Notebook Batch #: {{ sample().nbkBatchNumber || '—' }}</h4>
     
     <!-- Grid layout for fields -->
     <div class="fields-grid">
-      <!-- Row 1 -->
-      <div class="field-group">
-        <label class="field-label">Batch N°</label>
-        <div class="field-value read-only">{{ sample().nbkBatchNumber || '—' }}</div>
-      </div>
-
       <div class="field-group">
         <label class="field-label">Calculated Batch MW</label>
         <div class="field-value read-only">{{ output().compound?.molWeight?.value || '—' }}</div>
       </div>
 
-      <!-- Row 2 -->
       <div class="field-group">
         <label class="field-label">Calculated Batch MF</label>
         <div class="field-value read-only">{{ output().compound?.calculatedBatchMF || output().compound?.formula || '—' }}</div>
@@ -29,7 +22,6 @@
         </div>
       </div>
 
-      <!-- Row 3 -->
       <div class="field-group">
         <label class="field-label">Structure Comments</label>
         <div class="field-value read-only">
@@ -46,7 +38,6 @@
         </div>
       </div>
 
-      <!-- Row 4 -->
       <div class="field-group">
         <label class="field-label">Source Details</label>
         <div class="field-value read-only">
@@ -63,7 +54,6 @@
         </div>
       </div>
 
-      <!-- Row 5 -->
       <div class="field-group">
         <label class="field-label">Precursor/Reactant IDs</label>
         <div class="field-value read-only">{{ formatPrecursorReactantIds(output().reaction?.precursorReactantIds) }}</div>
@@ -77,7 +67,6 @@
         </div>
       </div>
 
-      <!-- Row 6 -->
       <div class="field-group">
         <label class="field-label">Conversational Batch Number</label>
         <div class="field-value read-only">
@@ -93,7 +82,6 @@
         </div>
       </div>
 
-      <!-- Row 7 -->
       <div class="field-group">
         <label class="field-label">Theo. Moles</label>
         <div class="field-value read-only">
@@ -101,7 +89,7 @@
         </div>
       </div>
 
-      <div class="field-group">
+      <div class="field-group full-width">
         <label class="field-label">Batch Comment</label>
         <div class="field-value read-only">
           <!-- TODO: Implement editable text area when ready -->
@@ -124,7 +112,6 @@
       @if (accordionItem.expanded) {
       <div class="accordion-content">
         <div class="fields-grid">
-          <!-- Row 1 -->
           <div class="field-group">
             <label class="field-label">Compound State</label>
             <div class="field-value read-only">
@@ -141,7 +128,6 @@
             </div>
           </div>
 
-          <!-- Row 2 -->
           <div class="field-group">
             <label class="field-label">Compound Protection</label>
             <div class="field-value read-only">
@@ -153,12 +139,10 @@
           <div class="field-group">
             <label class="field-label">Melting Point</label>
             <div class="field-value read-only">
-              <!-- TODO: Implement chips with popup editor when ready -->
-              {{ formatMeltingPoint(sample().meltingPoint) }}
+              <eln-chip-list [items]="getMeltingPointChips()" />
             </div>
           </div>
 
-          <!-- Row 3 -->
           <div class="field-group">
             <label class="field-label">Residual Solvents</label>
             <div class="field-value read-only">
@@ -168,36 +152,30 @@
           </div>
 
           <div class="field-group">
-            <label class="field-label">Health Hazards</label>
+            <label class="field-label">Storage Instructions</label>
             <div class="field-value read-only">
-              <!-- TODO: Implement multi-select chips when ready -->
-              {{ formatHealthHazards(sample().healthHazards) }}
+              <eln-chip-list [items]="getStorageInstructionsChips()" />
             </div>
           </div>
 
-          <!-- Row 4 -->
+          <div class="field-group">
+            <label class="field-label">Health Hazards</label>
+            <div class="field-value read-only">
+              <eln-chip-list [items]="getHealthHazardsChips()" />
+            </div>
+          </div>
+
           <div class="field-group">
             <label class="field-label">Solubility in Solvents</label>
             <div class="field-value read-only">
-              <!-- TODO: Implement chips with complex popup editor when ready -->
-              {{ formatSolubility(sample().solubilityInSolvents) }}
+              <eln-chip-list [items]="getSolubilityChips()" />
             </div>
           </div>
 
           <div class="field-group">
             <label class="field-label">Handling Precautions</label>
             <div class="field-value read-only">
-              <!-- TODO: Implement multi-select chips when ready -->
-              {{ formatHandlingPrecautions(sample().handlingPrecautions) }}
-            </div>
-          </div>
-
-          <!-- Row 5 -->
-          <div class="field-group">
-            <label class="field-label">Storage Instructions</label>
-            <div class="field-value read-only">
-              <!-- TODO: Implement multi-select chips when ready -->
-              {{ formatStorageInstructions(sample().storageInstructions) }}
+              <eln-chip-list [items]="getHandlingPrecautionsChips()" />
             </div>
           </div>
 
@@ -209,7 +187,6 @@
             </div>
           </div>
 
-          <!-- Row 6 -->
           <div class="field-group">
             <label class="field-label">Purity</label>
             <div class="field-value read-only">
