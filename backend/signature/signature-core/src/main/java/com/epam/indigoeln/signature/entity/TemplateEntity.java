@@ -28,7 +28,7 @@ public class TemplateEntity {
     @JoinColumn(name = "authorId")
     private UserEntity author;
     @OneToMany(mappedBy = "template", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @OrderColumn(name = "index")
+    @OrderBy("index")
     private List<TemplateSignatureBlockEntity> signatureBlocks;
     @NotNull
     private ZonedDateTime createdDate;
