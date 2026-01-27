@@ -1,0 +1,28 @@
+<div class="structure-view-container">
+  <div class="structure-section">
+    <h4 class="text-sm font-semibold mb-3">Structure</h4>
+    <div class="structure-image-wrapper">
+      @if (imageLoading()) {
+        <div class="flex justify-center items-center h-full">
+          <mat-spinner diameter="40" />
+        </div>
+      } @else if (imageError()) {
+        <div class="flex justify-center items-center h-full text-red-500">
+          <span class="text-sm">Error loading structure</span>
+        </div>
+      } @else if (imageUrl()) {
+        <img
+          [src]="imageUrl()"
+          alt="Batch structure"
+          class="structure-image"
+        />
+      }
+    </div>
+    <div class="mt-3">
+      <eln-button variant="grey" size="sm" (click)="onEditStructure()">
+        <mat-icon class="text-sm">edit</mat-icon>
+        <span class="ml-1">Edit</span>
+      </eln-button>
+    </div>
+  </div>
+</div>

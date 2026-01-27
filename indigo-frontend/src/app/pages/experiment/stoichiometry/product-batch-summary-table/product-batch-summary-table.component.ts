@@ -17,11 +17,13 @@ import {
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ExperimentModelService } from '@core/services/experiment/experiment-model.service';
 import { EditableDataTableComponent } from '../editable-data-table/editable-data-table.component';
+import { BatchDetailPanelComponent, BatchDetailData } from '../batch-detail-panel/batch-detail-panel.component';
 import {
   ColumnInputType,
   ColumnConfig,
   UnitInputChange,
   ColumnOption,
+  ExpandableConfig,
 } from '../shared/editable-table.types';
 
 interface OutputSampleRow {
@@ -242,6 +244,16 @@ export class ProductBatchSummaryTableComponent {
   ]);
 
   displayedColumns = computed(() => this.columns().map((col) => col.id));
+
+  expandableConfig = computed<ExpandableConfig<OutputSampleRow>>(() => ({
+    enabled: true,
+    component: BatchDetailPanelComponent,
+    getRowData: (row) => ({
+      sample: row.sample,
+      output: row.output,
+      experimentId: this.experimentId() || '',
+    } as BatchDetailData),
+  }));
 
   private formatReactionOutputType(type: ReactionOutputType): string {
     const typeMap: Record<ReactionOutputType, string> = {
