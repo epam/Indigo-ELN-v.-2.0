@@ -2,20 +2,18 @@
   <div class="flex items-center justify-center py-8">
     <span>Loading project...</span>
   </div>
-} @else if (hasError) {
+}
+@else if (hasError) {
   <div class="flex items-center justify-center py-8">
     <div class="text-center">
-      <span
-        >There was an error loading the project, please try again later</span
-      >
+      <span>There was an error loading the project, please try again later</span>
     </div>
   </div>
-} @else if (project) {
+}
+@else if (project) {
   <div class="grid grid-cols-[1fr_auto] gap-4 pt-4">
     <eln-card>
-      <div
-        class="flex items-center justify-between pb-3 border-b border-b-neutral-200"
-      >
+      <div class="flex items-center justify-between pb-3 border-b border-b-neutral-200">
         <h2 class="font-semibold text-base">About Project</h2>
         <eln-button
           variant="blue-outline"
@@ -28,6 +26,7 @@
       </div>
 
       <div class="space-y-6 mt-3 text-sm">
+
         <div>
           <h3 class="font-semibold text-neutral-800 mb-2">Project Name</h3>
           <p class="text-neutral-1000">{{ project.name }}</p>
@@ -47,13 +46,12 @@
           <p class="text-neutral-1000">{{ project.literature || '-' }}</p>
         </div>
 
-        @if (project.description || project.details) {
-          <div>
-            <h3 class="text-neutral-800 mb-2 font-semibold">Project Details</h3>
-            <p class="text-neutral-1000" [innerHTML]="project.description"></p>
-            <p class="text-neutral-1000 mt-4">{{ project.details }}</p>
-          </div>
-        }
+        <div>
+          <h3 class="text-neutral-800 mb-2 font-semibold">Project Details</h3>
+          <p class="text-neutral-1000" [innerHTML]="project.description"></p>
+          <p class="text-neutral-1000 mt-4">{{ project.details }}</p>
+        </div>
+
         @if (project.attachments.length > 0) {
           <div>
             <h3 class="text-neutral-800 mb-2 font-semibold">Attachments</h3>
@@ -68,18 +66,23 @@
             </div>
           </div>
         }
+
         <eln-file-upload
           (filesSelected)="onUpload($event)"
           [uploadingFile]="isUploadingAttachment"
           [withPreview]="false"
         />
+
       </div>
+
     </eln-card>
+
     <eln-team
       [team]="project.acl"
       [entityId]="project.id"
       [config]="projectTeamConfig"
     />
+
   </div>
 }
 

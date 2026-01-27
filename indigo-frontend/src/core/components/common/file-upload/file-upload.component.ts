@@ -11,6 +11,8 @@ import {
 import { take } from 'rxjs';
 import { FileSizePipe } from './file-size.pipe';
 import { fileTypeConfig } from './file-upload.config';
+import { NotificationService } from '@/core/services/notification/notification.service';
+import { NotificationType } from '@/core/types/notification.i';
 
 @Component({
   imports: [CommonModule, FileSizePipe],
@@ -33,6 +35,8 @@ export class FileUploadComponent implements OnInit {
   files: File[] = [];
   previews: string[] = [];
   today = Date.now();
+
+  private notificationService = inject(NotificationService);
 
   ngOnInit(): void {
     this.userService.user$.pipe(take(1)).subscribe((user) => {
@@ -58,15 +62,19 @@ export class FileUploadComponent implements OnInit {
   handleFiles(fileList: FileList) {
     const files = Array.from(fileList).map((file) => {
       if (this.mimeTypes.length && !this.mimeTypes.includes(file.type)) {
-        alert(
-          `Invalid file type: ${file.name}, Please upload files with extensions ${this.allowedTypes.join(', ')}`,
-        );
-        return null;
+        this.notificationService.notify({
+          type: NotificationType.Error,
+          message: `Invalid file type: ${file.name}, Please upload files with extensions ${this.allowedTypes.join(', ')}`,
+          isInline: false
+        })
       }
 
       if (file.size > this.maxSizeMB * 1024 * 1024) {
-        alert(`File too large: ${file.name} (Max: ${this.maxSizeMB}MB)`);
-        return null;
+        this.notificationService.notify({
+          type: NotificationType.Error,
+          message: `File '${file.name}' is too large. Max size is ${file.size}MB.`,
+          isInline: false
+        });
       }
 
       this.previewFile(file);

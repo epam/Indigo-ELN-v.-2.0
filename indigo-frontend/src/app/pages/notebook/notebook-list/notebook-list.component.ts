@@ -1,5 +1,9 @@
 import { ButtonComponent } from '@core/components/common/button/button.component';
-import { ListHeaderComponent } from '@core/components/common/list-header/list-header.component';
+import { DropdownMenuItem } from '@core/components/common/dropdown-menu/dropdown-menu.i';
+import {
+  ListHeaderComponent,
+  SortChangeEvent,
+} from '@core/components/common/list-header/list-header.component';
 import { InfiniteLoaderComponent } from '@core/components/util/infinite-loader/infinite-loader.component';
 import { InfiniteScrollBase } from '@core/components/util/infinite-scroll.base';
 import { ClassPickerPipe } from '@core/pipes/classPicker.pipe';
@@ -14,9 +18,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Subscription, take } from 'rxjs';
 import { NotebookAddComponent } from '@pages/notebook/notebook-add/notebook-add.component';
 import { NotebookItemComponent } from '@pages/notebook/notebook-item/notebook-item.component';
-import {
-  ProjectOverviewWidgetDirective
-} from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
+import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
 
 @Component({
   selector: 'eln-notebook-list',
@@ -39,7 +41,7 @@ import {
     InfiniteLoaderComponent,
     ProjectOverviewWidgetDirective,
     ButtonComponent,
-    ListHeaderComponent
+    ListHeaderComponent,
   ],
 })
 export class NotebookListComponent
@@ -50,14 +52,40 @@ export class NotebookListComponent
   selectedView: 'grid' | 'list' = 'grid';
   private refreshSub!: Subscription;
   projectId: string;
+  headerSortOptions: DropdownMenuItem[] = [];
 
   constructor(activatedRoute: ActivatedRoute) {
     super();
     activatedRoute.parent.params.pipe(take(1)).subscribe((params) => {
       this.projectId = params['id'];
       this.config.loadUrl = `projects/${this.projectId}/notebooks`;
-      this.initialize();
+      this.setup({
+        loadUrl: `projects/${this.projectId}/notebooks`,
+        sortOptions: [
+          {
+            label: 'Sort by: Earliest',
+            value: 'createdAt',
+            defaultOrder: 'EARLIEST',
+          },
+          {
+            label: 'Sort by: Latest',
+            value: 'createdAt',
+            defaultOrder: 'LATEST',
+          },
+        ],
+        defaultSort: {
+          sortBy: 'createdAt',
+          sort: 'EARLIEST',
+        },
+      });
+
+      this.headerSortOptions = this.getSortOptions().map((option) => ({
+        label: `${option.label}`,
+        value: `${option.value}:${option.defaultOrder}`,
+        icon: 'indicon-sort',
+      }));
     });
+    this.initialize();
   }
 
   refreshList(): void {
@@ -79,5 +107,22 @@ export class NotebookListComponent
           this.refreshList();
         }
       });
+  }
+
+  onSearch(value: string) {
+    this.search(value);
+  }
+
+  onSortChange(event: SortChangeEvent) {
+    this.sort(event.sortBy, event.sort);
+  }
+
+  onViewChange(view: string) {
+    this.selectedView = view as 'grid' | 'list';
+  }
+
+  onMyEntitiesOnlyChange(value: boolean) {
+    this.filters['createdByMe'] = value;
+    this.reload();
   }
 }

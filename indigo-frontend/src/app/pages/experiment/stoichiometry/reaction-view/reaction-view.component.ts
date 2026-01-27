@@ -2,6 +2,7 @@ import { Component, input, output, inject, computed, effect } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { ReactionInputsTableComponent } from '../reaction-inputs-table/reaction-inputs-table.component';
 import { ReactionProductsTableComponent } from '../reaction-products-table/reaction-products-table.component';
+import { ProductBatchSummaryTableComponent } from '../product-batch-summary-table/product-batch-summary-table.component';
 import { ExperimentModelService } from '@core/services/experiment/experiment-model.service';
 import {
   ReactionSchemeViewComponent
@@ -14,7 +15,8 @@ import {
     CommonModule,
     ReactionSchemeViewComponent,
     ReactionInputsTableComponent,
-    ReactionProductsTableComponent
+    ReactionProductsTableComponent,
+    ProductBatchSummaryTableComponent
   ],
   providers: [ExperimentModelService],
   templateUrl: './reaction-view.component.html',

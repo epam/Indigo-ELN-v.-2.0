@@ -3,7 +3,7 @@
     class="flex items-center justify-between border-b border-b-neutral-200 pb-3"
   >
     <div class="flex items-center gap-2">
-      <h2 class="font-semibold text-base">{{ config.title }}</h2>
+      <h2 class="font-semibold text-base">Team</h2>
       <eln-counter [count]="teamVm().length" variant="grey" size="large" />
     </div>
   </div>
@@ -36,7 +36,7 @@
             </div>
             <div class="flex items-center">
               <span class="text-xs" [class.text-neutral-500]="item.added">{{
-                item.added ? 'Already added' : ''
+                item.added ? 'Already Added' : ''
               }}</span>
             </div>
           </div>
@@ -50,7 +50,7 @@
         [disabled]="selectedUserIds.length === 0 || loading().addingUsers"
       >
         <em class="indicon-plus"></em>
-        {{ selectedUserIds.length | i18nPlural: addMemberLabelMap }}
+        Add member
       </eln-button>
     </div>
   </div>
@@ -59,18 +59,25 @@
   <div class="space-y-2 py-3">
     @for (member of teamVm(); track member.userId) {
       <div
-        class="grid grid-cols-[auto_1fr_auto_auto] gap-4 items-center p-2 hover:bg-neutral-100 rounded-lg text-neutral-1000"
+        class="grid grid-cols-[auto_1fr_1fr_auto] gap-4 items-center p-2 hover:bg-neutral-100 rounded-lg text-neutral-1000"
       >
+        <div
+          class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white"
+        >
+          {{ member.displayName | initials }}
+        </div>
+
         <p class="text-neutral-1000">{{ member.displayName }}</p>
         <p
           class="text-neutral-800 overflow-hidden text-ellipsis whitespace-nowrap max-w-[148px] text-ellipsis"
         >
           {{ member.username }}
         </p>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1 justify-self-end">
           <eln-copy [text]="member.username" />
           <eln-dropdown-menu
-            class="[&_.dd-trigger]:text-primary-400 [&_.dd-container]:min-w-34"
+            align="end"
+            class="[&_.dd-trigger]:pr-0 [&_.dd-trigger]:pl-2 [&_.dd-trigger]:text-primary-400 [&_.dd-container]:min-w-22"
             [controlled]="true"
             [selected]="member.level | normalizeLabel"
             [items]="aclLevelOptions"

@@ -351,6 +351,16 @@ class ProjectServiceTest extends ELNBaseTest {
             fail("Upload failed unexpectedly: " + e.getMessage());
         }
     }
+  
+    @Test
+    void testUploadAttachmentToInvalidProject() {
+        UUID missingProjectId = UUID.randomUUID();
+
+        assertThatClientCall(() ->
+                projectClient.createProjectAttachment(missingProjectId, "file.txt", Path.of("."), "content".getBytes())
+        )
+                .isNotFound("PROJECT " + missingProjectId + " not found");
+    }
 
 
 
