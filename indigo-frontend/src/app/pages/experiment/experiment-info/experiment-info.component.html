@@ -34,7 +34,7 @@
             <div class="flex flex-col gap-[16px]">
               <div class="flex flex-col gap-[4px]">
                 <span class="font-xs font-semibold leading-[1.5] text-neutral-900">Experiment Name</span>
-                <span>00000000-00-0001</span>
+                <span>{{ experiment().name }}</span>
               </div>
               <div class="flex flex-col gap-[4px]">
                 <span class="font-xs font-semibold leading-[1.5] text-neutral-900">Batch Creator</span>
@@ -42,11 +42,11 @@
               </div>  
               <div class="flex flex-col gap-[4px]">
                 <span class="font-xs font-semibold leading-[1.5] text-neutral-900">Created</span>
-                <span>08 Oct 2024 by John Doe</span>
+                <span>{{ experiment().createdAt | date: 'dd MMM yyyy' }} by {{ experiment().createdBy.displayName }}</span>
               </div>
               <div class="flex flex-col gap-[4px]">
                 <span class="font-xs font-semibold leading-[1.5] text-neutral-900">Last Edited</span>
-                <span>14 Oct 2024 by Emmy Cooper</span>
+                <span>{{ experiment().modifiedAt | date: 'dd MMM yyyy' }} by {{ experiment().modifiedBy.displayName }}</span>
               </div>
             </div>
           </eln-card>
