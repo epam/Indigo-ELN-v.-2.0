@@ -52,8 +52,6 @@ export class ExperimentInfoComponent implements OnInit {
   );
   imageError = computed(() => this.experimentImageService.hasError());
 
-  BuildInDictionary = BuiltInDictionary;
-
   form = new FormGroup({});
   fields: FormlyFieldConfig[] = [
     {
@@ -81,10 +79,9 @@ export class ExperimentInfoComponent implements OnInit {
           key: "therapeutic",
           props: {
             label: "Therapeutic Area",
-            dictionaryId: "THERAUPETIC_AREA",
             multiple: false,
             required: false,
-            dictioinaryId: this.BuildInDictionary.THERAPEUTIC_AREA
+            dictionaryId: BuiltInDictionary.THERAPEUTIC_AREA
           }
         }, 
         {
@@ -103,6 +100,7 @@ export class ExperimentInfoComponent implements OnInit {
             placeholder: "PROJECT_CODE",
             multiple: false,
             required: false,
+            dictionaryId: BuiltInDictionary.PROJECT_CODE
           }
         },
         {
