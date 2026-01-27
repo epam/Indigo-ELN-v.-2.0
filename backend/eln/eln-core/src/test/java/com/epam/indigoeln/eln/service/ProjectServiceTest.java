@@ -17,11 +17,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.epam.indigoeln.common.exception.InvalidRequestException.fail;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
 import static com.epam.indigoeln.eln.test.ACLListAssert.assertThatACL;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 @QuarkusTest
@@ -306,6 +308,50 @@ class ProjectServiceTest extends ELNBaseTest {
         assertThat(project.getAttachments()).isEmpty();
     }
 
+    @Test
+    void testUploadLargeAttachment(@TempDir Path tempDir) {
+        System.out.println("Max body size = " + System.getProperty("quarkus.http.limits.max-body-size"));
+
+        ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testUploadLargeAttachment"));
+
+        // Use 7 MB file to stay safely below AWS API Gateway limit
+        int fileSizeInBytes = 7 * 1024 * 1024; // 7 MB
+        byte[] largeContent = new byte[fileSizeInBytes];
+        for (int i = 0; i < largeContent.length; i++) {
+            largeContent[i] = (byte) (i % 128);
+        }
+
+        String fileName = "large_test_file_7MB.pptx";
+        Path filePath = tempDir.resolve(fileName);
+        try {
+            java.nio.file.Files.write(filePath, largeContent);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to write large test file", e);
+        }
+
+        try {
+            long startTime = System.currentTimeMillis();
+
+            List<AttachmentDTO> attachments = projectClient.createProjectAttachment(
+                    project.getId(),
+                    fileName,
+                    tempDir,
+                    largeContent
+            );
+
+            long elapsedTime = System.currentTimeMillis() - startTime;
+            System.out.println("Upload succeeded. Response time: " + elapsedTime + " ms");
+            assertThat(attachments).isNotEmpty();
+
+        } catch (Exception e) {
+            System.out.println("Upload failed with exception: " + e.getClass().getName());
+            System.out.println("Message: " + e.getMessage());
+            e.printStackTrace();
+
+            fail("Upload failed unexpectedly: " + e.getMessage());
+        }
+    }
+  
     @Test
     void testUploadAttachmentToInvalidProject() {
         UUID missingProjectId = UUID.randomUUID();
