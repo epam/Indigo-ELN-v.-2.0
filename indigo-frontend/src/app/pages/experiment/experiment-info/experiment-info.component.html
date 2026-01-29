@@ -32,22 +32,22 @@
               </div>
               <div class="flex flex-col pl-[12px] gap-[16px]">
                 <div class="flex flex-col gap-[4px]">
-                  <span class="font-xs font-semibold leading-[1.5] text-neutral-900">Experiment Name</span>
-                  <span class="font-sm font-normal leading-[1.71] text-neutral-1000">{{ experiment().name }}</span>
+                  <span class="info-title">Experiment Name</span>
+                  <span class="info-desc">{{ experiment().name }}</span>
                 </div>
                 <div class="flex flex-col gap-[4px]">
-                  <span class="font-xs font-semibold leading-[1.5] text-neutral-900">Batch Creator</span>
-                  <span class="font-sm font-normal leading-[1.71] text-neutral-1000">Kristin Watson</span>
+                  <span class="info-title">Batch Creator</span>
+                  <span class="info-desc">Kristin Watson</span>
                 </div>  
                 <div class="flex flex-col gap-[4px]">
-                  <span class="font-xs font-semibold leading-[1.5] text-neutral-900">Created</span>
-                  <span class="font-sm font-normal leading-[1.71] text-neutral-1000">
+                  <span class="info-title">Created</span>
+                  <span class="info-desc">
                     {{ experiment().createdAt | date: 'dd MMM yyyy' }} by {{ experiment().createdBy.displayName }}
                   </span>
                 </div>
                 <div class="flex flex-col gap-[4px]">
-                  <span class="font-xs font-semibold leading-[1.5] text-neutral-900">Last Edited</span>
-                  <span class="font-sm font-normal leading-[1.71] text-neutral-1000">
+                  <span class="info-title">Last Edited</span>
+                  <span class="info-desc">
                     {{ experiment().modifiedAt | date: 'dd MMM yyyy' }} by {{ experiment().modifiedBy.displayName }}
                   </span>
                 </div>

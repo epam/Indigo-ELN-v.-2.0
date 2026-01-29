@@ -35,7 +35,7 @@ export interface FormlyFieldProps extends CoreFormlyFieldProps {
       </label>
     </ng-template>
 
-    <div class="mb-3" [class.has-error]="showError">
+    <div [class.has-error]="showError">
       <ng-container *ngIf="props.labelPosition !== 'floating'">
         <ng-container [ngTemplateOutlet]="labelTemplate"></ng-container>
       </ng-container>

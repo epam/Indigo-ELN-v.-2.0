@@ -11,10 +11,10 @@ import { ReactionViewComponent } from '@pages/experiment/stoichiometry/reaction-
 import { SampleSearchComponent } from '@pages/experiment/sample-search/sample-search.component';
 import { FormlyFieldConfig, FormlyModule } from '@ngx-formly/core';
 import { FormControlName, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { DictionarySelectComponent } from '@/core/components/common/dictionary-select/dictionary-select.component';
 import { BuiltInDictionary } from '@/core/types/entities/dictionary.i';
 @Component({
   selector: 'eln-experiment-info',
+  styleUrl: './experiment-info.component.scss',
   standalone: true,
   imports: [
     CommonModule,
@@ -55,17 +55,16 @@ export class ExperimentInfoComponent implements OnInit {
   form = new FormGroup({});
   fields: FormlyFieldConfig[] = [
     {
-      fieldGroupClassName: "grid grid-col-2 gap-x-[16px]",
+      fieldGroupClassName: "grid grid-col-2 gap-[16px]",
       fieldGroup: [
         {
           type: "input",
           key: "title",
-          name: "title",
+          name: "title",  
           props: {
             label: "Experiment Title",
             placeholder: "Experiment Title",
-
-          }
+          },
         },
         {
           type: "chip-grid",
@@ -73,17 +72,17 @@ export class ExperimentInfoComponent implements OnInit {
           props: {
             label: "Linked Experiment",
             placeholder: "Linked Experiment",
-          }
+          },
         },
         {
           type: "select",
-          key: "therapeutic",
+          key: "therapeuticArea",
           props: {
             label: "Therapeutic Area",
             multiple: false,
             required: false,
             dictionaryId: BuiltInDictionary.THERAPEUTIC_AREA
-          }
+          },
         }, 
         {
           type: "chip-grid",
@@ -91,18 +90,18 @@ export class ExperimentInfoComponent implements OnInit {
           props: {
             label: "Cont. TO Rxn.",
             placeholder: "Cont. TO Rxn."
-          }
+          },
         },
         {
           type: "select",
-          key: "codeAndName",
+          key: "projectCode",
           props: {
             label: "Project Code & Name",
             placeholder: "PROJECT_CODE",
             multiple: false,
             required: false,
             dictionaryId: BuiltInDictionary.PROJECT_CODE
-          }
+          },
         },
         {
           type: "chip-grid",
@@ -110,7 +109,7 @@ export class ExperimentInfoComponent implements OnInit {
           props: {
             label: "Cont. TO Rxn.",
             placeholder: "Cont. TO Rxn."
-          }
+          },
         },
         {
           type: "input",
@@ -120,7 +119,7 @@ export class ExperimentInfoComponent implements OnInit {
           props: {
             label: "Literature Reference",
             placeholder: "Literature Reference",
-          }
+          },
         },
       ]
     }
