@@ -18,39 +18,41 @@
         </button>
 
         @if (accordionItem.expanded) {
-        <div class="grid grid-cols-2">
-          <eln-card>
-            <form [formGroup]="form" class="mt-4" >
-              <formly-form
-                className="grid grid-cols-2"
-                [form]="form",
-                [fields]="fields"
-                [model]="model">
-              </formly-form>
-          </form>
-          </eln-card>
-
-          <eln-card>
-            <div class="flex flex-col gap-[16px]">
-              <div class="flex flex-col gap-[4px]">
-                <span class="font-xs font-semibold leading-[1.5] text-neutral-900">Experiment Name</span>
-                <span>{{ experiment().name }}</span>
+          <div class="grid grid-cols-3 border-t-1 border-neutral-300 mt-[19px] pt-[12px]">
+              <div class="col-span-2 pr-[16px] relative">
+                <form [formGroup]="form" class="after:absolute after:content-[] after:border after:border-neutral-300 
+                                                after:h-full after:left-full after:top-0">
+                  <formly-form
+                    className="grid grid-cols-2"
+                    [form]="form",
+                    [fields]="fields"
+                    [model]="model">
+                  </formly-form>
+                </form>
               </div>
-              <div class="flex flex-col gap-[4px]">
-                <span class="font-xs font-semibold leading-[1.5] text-neutral-900">Batch Creator</span>
-                <span>Kristin Watson</span>
-              </div>  
-              <div class="flex flex-col gap-[4px]">
-                <span class="font-xs font-semibold leading-[1.5] text-neutral-900">Created</span>
-                <span>{{ experiment().createdAt | date: 'dd MMM yyyy' }} by {{ experiment().createdBy.displayName }}</span>
+              <div class="flex flex-col pl-[12px] gap-[16px]">
+                <div class="flex flex-col gap-[4px]">
+                  <span class="font-xs font-semibold leading-[1.5] text-neutral-900">Experiment Name</span>
+                  <span class="font-sm font-normal leading-[1.71] text-neutral-1000">{{ experiment().name }}</span>
+                </div>
+                <div class="flex flex-col gap-[4px]">
+                  <span class="font-xs font-semibold leading-[1.5] text-neutral-900">Batch Creator</span>
+                  <span class="font-sm font-normal leading-[1.71] text-neutral-1000">Kristin Watson</span>
+                </div>  
+                <div class="flex flex-col gap-[4px]">
+                  <span class="font-xs font-semibold leading-[1.5] text-neutral-900">Created</span>
+                  <span class="font-sm font-normal leading-[1.71] text-neutral-1000">
+                    {{ experiment().createdAt | date: 'dd MMM yyyy' }} by {{ experiment().createdBy.displayName }}
+                  </span>
+                </div>
+                <div class="flex flex-col gap-[4px]">
+                  <span class="font-xs font-semibold leading-[1.5] text-neutral-900">Last Edited</span>
+                  <span class="font-sm font-normal leading-[1.71] text-neutral-1000">
+                    {{ experiment().modifiedAt | date: 'dd MMM yyyy' }} by {{ experiment().modifiedBy.displayName }}
+                  </span>
+                </div>
               </div>
-              <div class="flex flex-col gap-[4px]">
-                <span class="font-xs font-semibold leading-[1.5] text-neutral-900">Last Edited</span>
-                <span>{{ experiment().modifiedAt | date: 'dd MMM yyyy' }} by {{ experiment().modifiedBy.displayName }}</span>
-              </div>
-            </div>
-          </eln-card>
-        </div>
+          </div>
 
           <div>
             <div class="mt-6">

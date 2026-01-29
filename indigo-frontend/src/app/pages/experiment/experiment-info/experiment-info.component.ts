@@ -55,7 +55,7 @@ export class ExperimentInfoComponent implements OnInit {
   form = new FormGroup({});
   fields: FormlyFieldConfig[] = [
     {
-      fieldGroupClassName: "grid grid-col-2 gap-[16px]",
+      fieldGroupClassName: "grid grid-col-2 gap-x-[16px]",
       fieldGroup: [
         {
           type: "input",
@@ -64,6 +64,7 @@ export class ExperimentInfoComponent implements OnInit {
           props: {
             label: "Experiment Title",
             placeholder: "Experiment Title",
+
           }
         },
         {
