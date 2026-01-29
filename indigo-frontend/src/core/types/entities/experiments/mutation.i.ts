@@ -31,7 +31,7 @@ interface ReactionMutation extends BaseMutation {
 
 interface SetSchemeMutation extends ReactionMutation {
   type: 'SetScheme';
-  molFile: string;
+  rxnFile: string;
 }
 
 interface ResolveInputsMutation extends ReactionMutation {

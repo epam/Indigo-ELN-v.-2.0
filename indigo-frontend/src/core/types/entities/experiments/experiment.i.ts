@@ -3,26 +3,27 @@
 // Source: /mnt/data/swagger spec
 
 import {
-  UUID,
-  EnteredValueMolUnit,
-  EnteredValueWeightUnit,
-  EnteredValueVolumeUnit,
-  EnteredValueDensityUnit,
-  EnteredValueMolarityUnit,
-  EnteredValueNoUnit,
+  DensityUnit,
+  ExternalSupplier,
+  MeltingPoint,
+  MolarityUnit,
+  MolUnit,
+  NoUnit,
+  PurityCalculation,
+  ReactionOutputType,
+  ReactionRole,
+  ResidualSolvent,
+  SampleRegistrationStatus,
+  SolubidityInSolvent,
   STRCodeCompound,
   STRCodeSample,
-  MeltingPoint,
-  ExternalSupplier,
-  PurityCalculation,
-  SolubidityInSolvent,
-  ResidualSolvent,
-  ReactionOutputType,
-  SampleRegistrationStatus,
-  ReactionRole,
+  UUID,
+  VolumeUnit,
+  WeightUnit,
 } from './experiment-shared.i';
 import { CompoundRef } from '@core/types/entities/compound.i';
 import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
+import { EnteredValue } from '@core/types/entities/values.i';
 
 // ================================
 // 1. SAMPLE INTERFACES
@@ -30,32 +31,29 @@ import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
 export interface ReactionInputSample {
   anchor: UUID;
   nbkBatchNumber?: string;
-  chemicalName?: string;
-  density?: EnteredValueDensityUnit;
-  molarity?: EnteredValueMolarityUnit;
-  volume?: EnteredValueVolumeUnit;
-  purity: EnteredValueNoUnit;
+  density?: EnteredValue<DensityUnit>;
+  molarity?: EnteredValue<MolarityUnit>;
+  volume?: EnteredValue<VolumeUnit>;
+  purity: EnteredValue<NoUnit>;
   strCode?: STRCodeSample;
   healthHazards: DictionaryItemRef[];
-  row?: ReactionInput;
   sampleId?: UUID;
-  mol?: EnteredValueMolUnit;
-  weight?: EnteredValueWeightUnit;
+  mol?: EnteredValue<MolUnit>;
+  weight?: EnteredValue<WeightUnit>;
   comment?: string;
 }
 
 export interface ReactionOutputSample {
   anchor: UUID;
   nbkBatchNumber: string;
-  density?: EnteredValueDensityUnit;
-  molarity?: EnteredValueMolarityUnit;
-  volume?: EnteredValueVolumeUnit;
-  purity: EnteredValueNoUnit;
+  density?: EnteredValue<DensityUnit>;
+  molarity?: EnteredValue<MolarityUnit>;
+  volume?: EnteredValue<VolumeUnit>;
+  purity: EnteredValue<NoUnit>;
   healthHazards: DictionaryItemRef[];
-  row?: ReactionOutput;
-  actualMol?: EnteredValueMolUnit;
-  actualWeight?: EnteredValueWeightUnit;
-  yield?: EnteredValueNoUnit;
+  actualMol?: EnteredValue<MolUnit>;
+  actualWeight?: EnteredValue<WeightUnit>;
+  yield?: EnteredValue<NoUnit>;
   registrationStatus?: SampleRegistrationStatus;
   registrationStatusMessage?: string;
   sampleId?: UUID;
@@ -73,44 +71,40 @@ export interface ReactionOutputSample {
   componentState?: DictionaryItemRef;
   batchComment?: string;
   structureComment?: string;
-  calculatedMolWeight?: number;
-  calculatedBatchMF?: string;
-  precursorReactantIds: STRCodeCompound[];
 }
 
 // ================================
 // 2. REACTION INTERFACES
 // ================================
 export interface ReactionInput {
-  reaction?: Reaction;
   anchor: UUID;
   compound: CompoundRef;
-  eq: EnteredValueNoUnit;
+  eq: EnteredValue<NoUnit>;
   role: ReactionRole;
-  mol?: EnteredValueMolUnit;
+  mol?: EnteredValue<MolUnit>;
+  chemicalName?: string;
   samples: ReactionInputSample[];
-  limiting?: boolean;
+  limiting: boolean;
 }
 
 export interface ReactionOutput {
-  reaction?: Reaction;
   anchor: UUID;
-  chemicalName?: string;
+  outputName: string;
   compound: CompoundRef;
-  eq: EnteredValueNoUnit;
+  eq: EnteredValue<NoUnit>;
   type: ReactionOutputType;
-  theoMol?: EnteredValueMolUnit;
-  theoWeight?: EnteredValueWeightUnit;
+  theoMol?: EnteredValue<MolUnit>;
+  theoWeight?: EnteredValue<WeightUnit>;
   samples: ReactionOutputSample[];
 }
 
 export interface Reaction {
-  model?: ExperimentModel;
   anchor: UUID;
   rxnfile: string;
   rxnVersion: number;
   inputs: ReactionInput[];
   outputs: ReactionOutput[];
+  precursorReactantIds: STRCodeCompound[];
 }
 
 // ================================

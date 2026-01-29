@@ -46,7 +46,6 @@ import {
   ReactionRoleNames,
   UUID,
 } from '@core/types/entities/experiments/experiment-shared.i';
-import { ExperimentModelService } from '@core/services/experiment/experiment-model.service';
 import { ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
 import { UserMetadata } from '@core/types/entities/user.i';
 import { UserSelectComponent } from '@core/components/common/user-multiselect/user-select.component';
@@ -112,7 +111,6 @@ export class GlobalSearchComponent implements OnInit {
 
   apiService = inject(ApiService);
   dialog = inject(MatDialog);
-  experimentModelService = inject(ExperimentModelService);
   userService = inject(UserService);
   destroyRef = inject(DestroyRef);
 

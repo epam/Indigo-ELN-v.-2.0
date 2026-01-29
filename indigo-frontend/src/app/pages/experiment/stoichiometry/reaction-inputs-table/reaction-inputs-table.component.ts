@@ -1,10 +1,10 @@
 import { Component, computed, inject, input, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
+  ExperimentModel,
   Reaction,
   ReactionInput,
   ReactionInputSample,
-  ExperimentModel,
 } from '@core/types/entities/experiments/experiment.i';
 import {
   DensityUnit,
@@ -14,18 +14,21 @@ import {
   VolumeUnit,
   WeightUnit,
 } from '@core/types/entities/experiments/experiment-shared.i';
-import { DictionaryItemRef, BuiltInDictionary } from '@core/types/entities/dictionary.i';
+import {
+  BuiltInDictionary,
+  DictionaryItemRef,
+} from '@core/types/entities/dictionary.i';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { ExperimentModelService } from '@core/services/experiment/experiment-model.service';
 import { BuiltInDictionaryService } from '@core/services/health-hazards/built-in-dictionary.service';
 import { CompoundType } from '@/core/types/entities/compound.i';
 import { EditableDataTableComponent } from '../editable-data-table/editable-data-table.component';
 import {
-  ColumnInputType,
   ColumnConfig,
-  UnitInputChange,
+  ColumnInputType,
   ColumnOption,
+  UnitInputChange,
 } from '../shared/editable-table.types';
+import { ExperimentDetailService } from '@core/services/experiment/experiment-detail.service';
 
 interface InputSampleRow {
   input: ReactionInput;
@@ -35,13 +38,10 @@ interface InputSampleRow {
 @Component({
   selector: 'eln-reaction-inputs-table',
   templateUrl: './reaction-inputs-table.component.html',
-  imports: [
-    MatSnackBarModule,
-    EditableDataTableComponent,
-  ],
+  imports: [MatSnackBarModule, EditableDataTableComponent],
 })
 export class ReactionInputsTableComponent implements OnInit {
-  private experimentModelService = inject(ExperimentModelService);
+  private experimentDetailService = inject(ExperimentDetailService);
   private builtInDictionaryService = inject(BuiltInDictionaryService);
   private snackBar = inject(MatSnackBar);
 
@@ -49,12 +49,14 @@ export class ReactionInputsTableComponent implements OnInit {
   experimentId = input<string | null>(null);
   dataSource = computed(() => {
     const inputs = this.reaction()?.inputs ?? [];
-    return inputs.flatMap(input =>
-      input.samples.map(sample => ({ input, sample }))
+    return inputs.flatMap((input) =>
+      input.samples.map((sample) => ({ input, sample })),
     );
   });
   healthHazards = computed(() =>
-    this.builtInDictionaryService.getDictionaryItems(BuiltInDictionary.HEALTH_HAZARD),
+    this.builtInDictionaryService.getDictionaryItems(
+      BuiltInDictionary.HEALTH_HAZARD,
+    ),
   );
   saltCodes = computed(() => {
     // TODO: Load from API when available
@@ -70,7 +72,7 @@ export class ReactionInputsTableComponent implements OnInit {
       id: 'compoundId',
       header: 'Compound ID',
       type: ColumnInputType.TEXT,
-      field: (row: InputSampleRow) => row.input.compound.strCode,
+      field: (row: InputSampleRow) => row.input.compound.compoundKey,
       editable: () => false,
     },
     {
@@ -84,9 +86,11 @@ export class ReactionInputsTableComponent implements OnInit {
       id: 'chemicalName',
       header: 'Chemical Name',
       type: ColumnInputType.TEXT,
-      field: (row: InputSampleRow) => row.sample.chemicalName,
+      field: (row: InputSampleRow) => row.input.chemicalName,
       editable: () => false,
-      onSave: () => { /* TODO add mutation for chemical name */ },
+      onSave: () => {
+        /* TODO add mutation for chemical name */
+      },
     },
     {
       id: 'nbkBatch',
@@ -99,19 +103,25 @@ export class ReactionInputsTableComponent implements OnInit {
       id: 'molWeight',
       header: 'Mol. Weight',
       type: ColumnInputType.NUMBER,
-      field: (row: InputSampleRow) => row.input.compound.molWeight?.value?.toString(),
-      editable: (row: InputSampleRow) => row.input.compound.type === CompoundType.UNKNOWN,
+      field: (row: InputSampleRow) =>
+        row.input.compound.molWeight?.value?.toString(),
+      editable: (row: InputSampleRow) =>
+        row.input.compound.type === CompoundType.UNKNOWN,
       onSave: (row: InputSampleRow, event: Event) => {
         const value = +(event.target as HTMLInputElement).value;
-        const previousState = structuredClone(this.experimentModelService.experimentModel());
+        const previousState = structuredClone(
+          this.experimentDetailService.experimentModel(),
+        );
 
-        this.experimentModelService.updateDataModel({
-          type: 'SetInputCompoundMolWeight',
-          anchor: row.input.anchor,
-          molWeight: value || null,
-        }).subscribe({
-          error: (error) => this.handleUpdateError(error, previousState),
-        });
+        this.experimentDetailService
+          .updateDataModel({
+            type: 'SetInputCompoundMolWeight',
+            anchor: row.input.anchor,
+            molWeight: value || null,
+          })
+          .subscribe({
+            error: (error) => this.handleUpdateError(error, previousState),
+          });
       },
     },
     {
@@ -124,7 +134,7 @@ export class ReactionInputsTableComponent implements OnInit {
           : null,
       onSave: (row: InputSampleRow, payload?: unknown) => {
         this.applyUnitInputChange(payload as UnitInputChange, (value, unit) => {
-          return this.experimentModelService.updateDataModel({
+          return this.experimentDetailService.updateDataModel({
             type: 'SetInputWeight',
             anchor: row.sample.anchor,
             weight: value,
@@ -132,7 +142,10 @@ export class ReactionInputsTableComponent implements OnInit {
           });
         });
       },
-      options: Object.values(WeightUnit).map(unit => ({ id: unit, name: unit })) as ColumnOption[],
+      options: Object.values(WeightUnit).map((unit) => ({
+        id: unit,
+        name: unit,
+      })) as ColumnOption[],
     },
     {
       id: 'volume',
@@ -144,7 +157,7 @@ export class ReactionInputsTableComponent implements OnInit {
           : null,
       onSave: (row: InputSampleRow, payload?: unknown) => {
         this.applyUnitInputChange(payload as UnitInputChange, (value, unit) => {
-          return this.experimentModelService.updateDataModel({
+          return this.experimentDetailService.updateDataModel({
             type: 'SetInputVolume',
             anchor: row.sample.anchor,
             volume: value,
@@ -152,17 +165,22 @@ export class ReactionInputsTableComponent implements OnInit {
           });
         });
       },
-      options: Object.values(VolumeUnit).map(unit => ({ id: unit, name: unit })) as ColumnOption[],
+      options: Object.values(VolumeUnit).map((unit) => ({
+        id: unit,
+        name: unit,
+      })) as ColumnOption[],
     },
     {
       id: 'mol',
       header: 'Mol',
       type: ColumnInputType.UNIT_INPUT,
       field: (row: InputSampleRow) =>
-        row.sample.mol?.value ? { value: row.sample.mol.value, unit: row.sample.mol.unit } : null,
+        row.sample.mol?.value
+          ? { value: row.sample.mol.value, unit: row.sample.mol.unit }
+          : null,
       onSave: (row: InputSampleRow, payload?: unknown) => {
         this.applyUnitInputChange(payload as UnitInputChange, (value, unit) => {
-          return this.experimentModelService.updateDataModel({
+          return this.experimentDetailService.updateDataModel({
             type: 'SetInputMol',
             anchor: row.sample.anchor,
             mol: value,
@@ -170,7 +188,10 @@ export class ReactionInputsTableComponent implements OnInit {
           });
         });
       },
-      options: Object.values(MolUnit).map(unit => ({ id: unit, name: unit })) as ColumnOption[],
+      options: Object.values(MolUnit).map((unit) => ({
+        id: unit,
+        name: unit,
+      })) as ColumnOption[],
     },
     {
       id: 'eq',
@@ -179,15 +200,19 @@ export class ReactionInputsTableComponent implements OnInit {
       field: (row: InputSampleRow) => row.input.eq?.value?.toString(),
       onSave: (row: InputSampleRow, event: Event) => {
         const value = +(event.target as HTMLInputElement).value;
-        const previousState = structuredClone(this.experimentModelService.experimentModel());
+        const previousState = structuredClone(
+          this.experimentDetailService.experimentModel(),
+        );
 
-        this.experimentModelService.updateDataModel({
-          type: 'SetInputRowEQ',
-          anchor: row.input.anchor,
-          eq: value,
-        }).subscribe({
-          error: (error) => this.handleUpdateError(error, previousState),
-        });
+        this.experimentDetailService
+          .updateDataModel({
+            type: 'SetInputRowEQ',
+            anchor: row.input.anchor,
+            eq: value,
+          })
+          .subscribe({
+            error: (error) => this.handleUpdateError(error, previousState),
+          });
       },
     },
     {
@@ -196,14 +221,18 @@ export class ReactionInputsTableComponent implements OnInit {
       type: ColumnInputType.CHECKBOX,
       field: (row: InputSampleRow) => row.input.limiting,
       onSave: (row: InputSampleRow) => {
-        const previousState = structuredClone(this.experimentModelService.experimentModel());
+        const previousState = structuredClone(
+          this.experimentDetailService.experimentModel(),
+        );
 
-        this.experimentModelService.updateDataModel({
-          type: 'SetInputRowLimiting',
-          anchor: row.input.anchor,
-        }).subscribe({
-          error: (error) => this.handleUpdateError(error, previousState),
-        });
+        this.experimentDetailService
+          .updateDataModel({
+            type: 'SetInputRowLimiting',
+            anchor: row.input.anchor,
+          })
+          .subscribe({
+            error: (error) => this.handleUpdateError(error, previousState),
+          });
       },
     },
     {
@@ -212,17 +241,21 @@ export class ReactionInputsTableComponent implements OnInit {
       type: ColumnInputType.SELECT,
       field: (row: InputSampleRow) => row.input.role,
       onSave: (row: InputSampleRow, value: ReactionRole) => {
-        const previousState = structuredClone(this.experimentModelService.experimentModel());
+        const previousState = structuredClone(
+          this.experimentDetailService.experimentModel(),
+        );
 
-        this.experimentModelService.updateDataModel({
-          type: 'SetInputRowRole',
-          anchor: row.input.anchor,
-          role: value,
-        }).subscribe({
-          error: (error) => this.handleUpdateError(error, previousState),
-        });
+        this.experimentDetailService
+          .updateDataModel({
+            type: 'SetInputRowRole',
+            anchor: row.input.anchor,
+            role: value,
+          })
+          .subscribe({
+            error: (error) => this.handleUpdateError(error, previousState),
+          });
       },
-      options: Object.values(ReactionRole).map(role => ({
+      options: Object.values(ReactionRole).map((role) => ({
         id: role,
         name: role.toLocaleLowerCase(),
       })) as ColumnOption[],
@@ -237,7 +270,7 @@ export class ReactionInputsTableComponent implements OnInit {
           : null,
       onSave: (row: InputSampleRow, payload?: unknown) => {
         this.applyUnitInputChange(payload as UnitInputChange, (value, unit) => {
-          return this.experimentModelService.updateDataModel({
+          return this.experimentDetailService.updateDataModel({
             type: 'SetInputDensity',
             anchor: row.sample.anchor,
             density: value,
@@ -245,7 +278,10 @@ export class ReactionInputsTableComponent implements OnInit {
           });
         });
       },
-      options: Object.values(DensityUnit).map(unit => ({ id: unit, name: unit })) as ColumnOption[],
+      options: Object.values(DensityUnit).map((unit) => ({
+        id: unit,
+        name: unit,
+      })) as ColumnOption[],
     },
     {
       id: 'molarity',
@@ -257,7 +293,7 @@ export class ReactionInputsTableComponent implements OnInit {
           : null,
       onSave: (row: InputSampleRow, payload?: unknown) => {
         this.applyUnitInputChange(payload as UnitInputChange, (value, unit) => {
-          return this.experimentModelService.updateDataModel({
+          return this.experimentDetailService.updateDataModel({
             type: 'SetInputMolarity',
             anchor: row.sample.anchor,
             molarity: value,
@@ -265,7 +301,10 @@ export class ReactionInputsTableComponent implements OnInit {
           });
         });
       },
-      options: Object.values(MolarityUnit).map(unit => ({ id: unit, name: unit })) as ColumnOption[],
+      options: Object.values(MolarityUnit).map((unit) => ({
+        id: unit,
+        name: unit,
+      })) as ColumnOption[],
     },
     {
       id: 'purity',
@@ -274,15 +313,19 @@ export class ReactionInputsTableComponent implements OnInit {
       field: (row: InputSampleRow) => row.sample.purity?.value?.toString(),
       onSave: (row: InputSampleRow, event: Event) => {
         const value = +(event.target as HTMLInputElement).value;
-        const previousState = structuredClone(this.experimentModelService.experimentModel());
+        const previousState = structuredClone(
+          this.experimentDetailService.experimentModel(),
+        );
 
-        this.experimentModelService.updateDataModel({
-          type: 'SetInputPurity',
-          anchor: row.sample.anchor,
-          purity: value,
-        }).subscribe({
-          error: (error) => this.handleUpdateError(error, previousState),
-        });
+        this.experimentDetailService
+          .updateDataModel({
+            type: 'SetInputPurity',
+            anchor: row.sample.anchor,
+            purity: value,
+          })
+          .subscribe({
+            error: (error) => this.handleUpdateError(error, previousState),
+          });
       },
     },
     {
@@ -297,17 +340,22 @@ export class ReactionInputsTableComponent implements OnInit {
       header: 'Salt Code',
       type: ColumnInputType.SELECT,
       field: (row: InputSampleRow) => row.input.compound.saltCode?.name ?? null,
-      editable: (row: InputSampleRow) => row.input.compound.type === CompoundType.VIRTUAL,
+      editable: (row: InputSampleRow) =>
+        row.input.compound.type === CompoundType.VIRTUAL,
       onSave: (row: InputSampleRow, selectedSaltCode: unknown) => {
-        const previousState = structuredClone(this.experimentModelService.experimentModel());
+        const previousState = structuredClone(
+          this.experimentDetailService.experimentModel(),
+        );
 
-        this.experimentModelService.updateDataModel({
-          type: 'SetInputRowSaltCode',
-          anchor: row.input.anchor,
-          saltCode: selectedSaltCode as DictionaryItemRef | null,
-        }).subscribe({
-          error: (error) => this.handleUpdateError(error, previousState),
-        });
+        this.experimentDetailService
+          .updateDataModel({
+            type: 'SetInputRowSaltCode',
+            anchor: row.input.anchor,
+            saltCode: selectedSaltCode as DictionaryItemRef | null,
+          })
+          .subscribe({
+            error: (error) => this.handleUpdateError(error, previousState),
+          });
       },
       options: this.saltCodes(),
     },
@@ -318,15 +366,19 @@ export class ReactionInputsTableComponent implements OnInit {
       field: (row: InputSampleRow) => row.input.compound.saltEQ?.toString(),
       onSave: (row: InputSampleRow, event: Event) => {
         const value = +(event.target as HTMLInputElement).value;
-        const previousState = structuredClone(this.experimentModelService.experimentModel());
+        const previousState = structuredClone(
+          this.experimentDetailService.experimentModel(),
+        );
 
-        this.experimentModelService.updateDataModel({
-          type: 'SetInputRowSaltEQ',
-          anchor: row.input.anchor,
-          saltEQ: value || null,
-        }).subscribe({
-          error: (error) => this.handleUpdateError(error, previousState),
-        });
+        this.experimentDetailService
+          .updateDataModel({
+            type: 'SetInputRowSaltEQ',
+            anchor: row.input.anchor,
+            saltEQ: value || null,
+          })
+          .subscribe({
+            error: (error) => this.handleUpdateError(error, previousState),
+          });
       },
     },
     {
@@ -335,15 +387,19 @@ export class ReactionInputsTableComponent implements OnInit {
       type: ColumnInputType.MULTI_SELECT,
       field: (row: InputSampleRow) => row.sample.healthHazards ?? [],
       onSave: (row: InputSampleRow, selectedHazards: unknown[]) => {
-        const previousState = structuredClone(this.experimentModelService.experimentModel());
+        const previousState = structuredClone(
+          this.experimentDetailService.experimentModel(),
+        );
 
-        this.experimentModelService.updateDataModel({
-          type: 'SetInputHealthHazards',
-          anchor: row.sample.anchor,
-          healthHazards: selectedHazards as DictionaryItemRef[],
-        }).subscribe({
-          error: (error) => this.handleUpdateError(error, previousState),
-        });
+        this.experimentDetailService
+          .updateDataModel({
+            type: 'SetInputHealthHazards',
+            anchor: row.sample.anchor,
+            healthHazards: selectedHazards as DictionaryItemRef[],
+          })
+          .subscribe({
+            error: (error) => this.handleUpdateError(error, previousState),
+          });
       },
       options: this.healthHazards(),
     },
@@ -354,45 +410,63 @@ export class ReactionInputsTableComponent implements OnInit {
       field: (row: InputSampleRow) => row.sample.comment ?? null,
       onSave: (row: InputSampleRow, event: Event) => {
         const value = (event.target as HTMLInputElement).value;
-        const previousState = structuredClone(this.experimentModelService.experimentModel());
+        const previousState = structuredClone(
+          this.experimentDetailService.experimentModel(),
+        );
 
-        this.experimentModelService.updateDataModel({
-          type: 'SetInputComment',
-          anchor: row.sample.anchor,
-          comment: value || null,
-        }).subscribe({
-          error: (error) => this.handleUpdateError(error, previousState),
-        });
+        this.experimentDetailService
+          .updateDataModel({
+            type: 'SetInputComment',
+            anchor: row.sample.anchor,
+            comment: value || null,
+          })
+          .subscribe({
+            error: (error) => this.handleUpdateError(error, previousState),
+          });
       },
     },
   ]);
 
   displayedColumns = computed(() => this.columns().map((col) => col.id));
 
-  compareDictionaryItems = (a?: DictionaryItemRef | null, b?: DictionaryItemRef | null) =>
-    !!a && !!b ? a.id === b.id : a === b;
+  compareDictionaryItems = (
+    a?: DictionaryItemRef | null,
+    b?: DictionaryItemRef | null,
+  ) => (!!a && !!b ? a.id === b.id : a === b);
 
   private applyUnitInputChange(
     change: UnitInputChange,
-    mutator: (value: number | undefined, unit: string | undefined) => Observable<ExperimentModel>,
+    mutator: (
+      value: number | undefined,
+      unit: string | undefined,
+    ) => Observable<ExperimentModel>,
   ) {
     // Only proceed if both value and unit are present
-    if (change.value === null || change.value === undefined ||
-      change.unit === null || change.unit === undefined) {
+    if (
+      change.value === null ||
+      change.value === undefined ||
+      change.unit === null ||
+      change.unit === undefined
+    ) {
       return;
     }
 
-    const previousState = structuredClone(this.experimentModelService.experimentModel());
+    const previousState = structuredClone(
+      this.experimentDetailService.experimentModel(),
+    );
     mutator(change.value, change.unit).subscribe({
       error: (error) => this.handleUpdateError(error, previousState),
     });
   }
 
-  private handleUpdateError(error: Error, previousState: ExperimentModel | null) {
+  private handleUpdateError(
+    error: Error,
+    previousState: ExperimentModel | null,
+  ) {
     console.error('Error updating data:', error);
     if (previousState) {
       console.log('Reverting to previous state due to error');
-      this.experimentModelService.setExperimentModel(previousState);
+      this.experimentDetailService.setExperimentModel(previousState);
     }
     this.snackBar.open('There was an error', 'Close', { duration: 4000 });
   }
@@ -403,16 +477,20 @@ export class ReactionInputsTableComponent implements OnInit {
       return;
     }
 
-    this.experimentModelService.updateDataModel({
-      type: 'AddEmptyInput',
-      anchor: this.reaction()!.anchor,
-    }).subscribe({
-      next: () => this.snackBar.open('Material added', 'Close', { duration: 2000 }),
-      error: (error) => {
-        const previousState = structuredClone(this.experimentModelService.experimentModel());
-        this.handleUpdateError(error, previousState);
-      },
-    });
+    this.experimentDetailService
+      .updateDataModel({
+        type: 'AddEmptyInput',
+        anchor: this.reaction()!.anchor,
+      })
+      .subscribe({
+        next: () =>
+          this.snackBar.open('Material added', 'Close', { duration: 2000 }),
+        error: (error) => {
+          const previousState = structuredClone(
+            this.experimentDetailService.experimentModel(),
+          );
+          this.handleUpdateError(error, previousState);
+        },
+      });
   }
-
 }

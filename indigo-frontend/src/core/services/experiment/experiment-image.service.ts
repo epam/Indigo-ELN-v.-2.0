@@ -14,6 +14,9 @@ export class ExperimentImageService {
 
   // Load experiment picture
   load(experimentId: string) {
+    if (this.currentId() === experimentId) {
+      return;
+    }
     this.currentId.set(experimentId);
     this.isLoading.set(true);
     this.hasError.set(false);
@@ -56,7 +59,7 @@ export class ExperimentImageService {
     if (currentUrl) {
       URL.revokeObjectURL(currentUrl);
     }
-    
+
     this.currentId.set(null);
     this.imageUrl.set(null);
     this.isLoading.set(false);

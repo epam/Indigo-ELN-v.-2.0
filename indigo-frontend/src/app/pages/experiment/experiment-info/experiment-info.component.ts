@@ -5,7 +5,6 @@ import { ExperimentDetailService } from '@/core/services/experiment/experiment-d
 import { ExperimentImageService } from '@/core/services/experiment/experiment-image.service';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { CdkAccordionModule } from '@angular/cdk/accordion';
-import { ExperimentModelService } from '@core/services/experiment/experiment-model.service';
 import { ButtonComponent } from '@core/components/common/button/button.component';
 import { ReactionViewComponent } from '@pages/experiment/stoichiometry/reaction-view/reaction-view.component';
 import { SampleSearchComponent } from '@pages/experiment/sample-search/sample-search.component';
@@ -27,7 +26,6 @@ import { SampleSearchComponent } from '@pages/experiment/sample-search/sample-se
 })
 export class ExperimentInfoComponent implements OnInit {
   experimentDetailService = inject(ExperimentDetailService);
-  experimentModelService = inject(ExperimentModelService);
   experimentImageService = inject(ExperimentImageService);
 
   isUpdating = signal<boolean>(false);
@@ -38,9 +36,7 @@ export class ExperimentInfoComponent implements OnInit {
   experiment = computed(() => this.experimentDetailService.experimentDetail());
   isLoading = computed(() => this.experimentDetailService.isLoading());
   hasError = computed(() => this.experimentDetailService.hasError());
-  model = computed(() => this.experimentModelService.experimentModel());
-  modelLoading = computed(() => this.experimentModelService.isLoading());
-  modelError = computed(() => this.experimentModelService.hasError());
+  model = computed(() => this.experimentDetailService.experimentModel());
   experimentImageUrl = computed(() => this.experimentImageService.imageUrl());
   imageLoading = computed(
     () => this.experimentImageService.isLoading() || this.isUpdating(),
@@ -51,7 +47,7 @@ export class ExperimentInfoComponent implements OnInit {
     const experimentId = this.experiment()?.id;
     if (experimentId) {
       this.experimentImageService.load(experimentId);
-      this.experimentModelService.load(experimentId);
+      this.experimentDetailService.load(experimentId);
     }
   }
 

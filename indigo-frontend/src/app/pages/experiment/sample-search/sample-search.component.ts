@@ -53,7 +53,6 @@ import { ToggleComponent } from '@core/components/common/toggle/toggle.component
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { StructureEditorModalComponent } from '@core/components/experiment/structure-editor-modal/structure-editor-modal.component';
 import { UUID } from '@core/types/entities/experiments/experiment-shared.i';
-import { ExperimentModelService } from '@core/services/experiment/experiment-model.service';
 import { ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
 import { distinctUntilChanged } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -68,6 +67,7 @@ import {
   textSearchSummary,
 } from '@core/utils/search.util';
 import { ButtonComponent } from '@core/components/common/button/button.component';
+import { ExperimentDetailService } from '@core/services/experiment/experiment-detail.service';
 
 export interface SampleSearchDialogData {
   experimentId: UUID;
@@ -121,7 +121,7 @@ export class SampleSearchComponent implements OnInit {
   apiService = inject(ApiService);
   destroyRef = inject(DestroyRef);
   dialog = inject(MatDialog);
-  experimentModelService = inject(ExperimentModelService);
+  experimentDetailService = inject(ExperimentDetailService);
 
   title = 'Add Material';
 
@@ -265,18 +265,13 @@ export class SampleSearchComponent implements OnInit {
 
   addToExperiment(sample: Sample) {
     // TODO should probably be done via experiment screen to lock entire screen; currently the only mutation implemented is done at ReactionSchemaViewComponent
-    console.log(
-      'addToExperiment',
-      this.experimentModelService,
-      this.experimentModelService.experimentModel(),
-    );
     const mutation = {
       type: 'AddInput' as const,
       anchor: this.reactionAnchor,
       sampleId: sample.id,
     };
 
-    this.experimentModelService.updateDataModel(mutation).subscribe({
+    this.experimentDetailService.updateDataModel(mutation).subscribe({
       next: () => {
         console.log('Model updated with new sample');
 

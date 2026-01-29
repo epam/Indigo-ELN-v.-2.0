@@ -1,14 +1,11 @@
-import { Component, inject, Input, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { ButtonComponent } from '@/core/components/common/button/button.component';
-import { ExperimentModelService } from '@/core/services/experiment/experiment-model.service';
-import { MutateModelForm } from '@/core/types/entities/experiments/experiment-mutate-form.i';
 import { Mutation } from '@/core/types/entities/experiments/mutation.i';
 import { Reaction } from '@/core/types/entities/experiments/experiment.i';
-import {
-  StructureEditorModalComponent
-} from '@core/components/experiment/structure-editor-modal/structure-editor-modal.component';
+import { StructureEditorModalComponent } from '@core/components/experiment/structure-editor-modal/structure-editor-modal.component';
+import { ExperimentDetailService } from '@core/services/experiment/experiment-detail.service';
 
 @Component({
   selector: 'eln-reaction-scheme-view',
@@ -22,7 +19,7 @@ export class ReactionSchemeViewComponent {
   @Output() modelUpdating = new EventEmitter<boolean>();
 
   dialog = inject(MatDialog);
-  experimentModelService = inject(ExperimentModelService);
+  experimentDetailService = inject(ExperimentDetailService);
 
   openChemicalEditor(): void {
     if (!this.experimentId) {
@@ -77,24 +74,22 @@ export class ReactionSchemeViewComponent {
 
     const firstMutation = {
       ...mutations[0],
-      anchor: this.reaction.anchor
+      anchor: this.reaction.anchor,
     };
 
     // Notify parent that update is starting
     this.modelUpdating.emit(true);
 
-    this.experimentModelService
-      .updateDataModel(firstMutation)
-      .subscribe({
-        next: () => {
-          // Notify parent that update completed
-          this.modelUpdating.emit(false);
-        },
-        error: (error) => {
-          console.error('Failed to update experiment model:', error);
-          // Notify parent that update completed (with error)
-          this.modelUpdating.emit(false);
-        },
-      });
+    this.experimentDetailService.updateDataModel(firstMutation).subscribe({
+      next: () => {
+        // Notify parent that update completed
+        this.modelUpdating.emit(false);
+      },
+      error: (error) => {
+        console.error('Failed to update experiment model:', error);
+        // Notify parent that update completed (with error)
+        this.modelUpdating.emit(false);
+      },
+    });
   }
 }
