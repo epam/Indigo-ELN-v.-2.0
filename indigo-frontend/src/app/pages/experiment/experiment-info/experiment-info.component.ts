@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { CardComponent } from '@/core/components/common/card/card.component';
 import { ExperimentDetailService } from '@/core/services/experiment/experiment-detail.service';
 import { ExperimentImageService } from '@/core/services/experiment/experiment-image.service';
-import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { CdkAccordionModule } from '@angular/cdk/accordion';
 import { ExperimentModelService } from '@core/services/experiment/experiment-model.service';
 import { ButtonComponent } from '@core/components/common/button/button.component';
@@ -19,7 +18,6 @@ import { BuiltInDictionary } from '@/core/types/entities/dictionary.i';
   imports: [
     CommonModule,
     CardComponent,
-    MatProgressSpinner,
     CdkAccordionModule,
     ReactionViewComponent,
     ButtonComponent,
@@ -88,8 +86,8 @@ export class ExperimentInfoComponent implements OnInit {
           type: "chip-grid",
           key: "contToRxn",
           props: {
-            label: "Cont. TO Rxn.",
-            placeholder: "Cont. TO Rxn."
+            label: "Cont. TO Rxn",
+            placeholder: "Cont. TO Rxn"
           },
         },
         {
@@ -107,8 +105,8 @@ export class ExperimentInfoComponent implements OnInit {
           type: "chip-grid",
           key: "contFromRxn",
           props: {
-            label: "Cont. TO Rxn.",
-            placeholder: "Cont. TO Rxn."
+            label: "Cont. FROM Rxn",
+            placeholder: "Cont. TO Rxn"
           },
         },
         {
