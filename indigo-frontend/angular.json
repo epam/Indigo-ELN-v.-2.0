@@ -85,6 +85,15 @@
               "outputHashing": "all"
             },
             "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": {
+                "scripts": true,
+                "styles": true,
+                "vendor": true
+              }
+            },
+            "local": {
               "fileReplacements": [
                 {
                   "replace": "src/main.ts",
@@ -126,6 +135,9 @@
             },
             "development": {
               "buildTarget": "indigo-frontend:build:development"
+            },
+            "local": {
+              "buildTarget": "indigo-frontend:build:local"
             }
           },
           "defaultConfiguration": "development",
