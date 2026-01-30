@@ -29,6 +29,7 @@ include("signature:signature-lambda")
 include("database:flyway")
 
 include("eln:eln-api")
+include("eln:eln-protobuf")
 include("eln:eln-core")
 //include("eln:eln-service")
 include("eln:eln-lambda")
