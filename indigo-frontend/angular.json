@@ -92,6 +92,37 @@
                 "styles": true,
                 "vendor": true
               }
+            },
+            "local": {
+              "fileReplacements": [
+                {
+                  "replace": "src/main.ts",
+                  "with": "src/main.local.ts"
+                },
+                {
+                  "replace": "src/app/app.component.ts",
+                  "with": "src/app/app.component.local.ts"
+                },
+                {
+                  "replace": "src/app/app.config.ts",
+                  "with": "src/app/app.config.local.ts"
+                },
+                {
+                  "replace": "src/core/services/user.service.ts",
+                  "with": "src/core/services/user-keycloak.service.ts"
+                },
+                {
+                  "replace": "src/core/components/layout/master.component.ts",
+                  "with": "src/core/components/layout/master-keycloak.component.ts"
+                }
+              ],
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": {
+                "scripts": true,
+                "styles": true,
+                "vendor": true
+              }
             }
           },
           "defaultConfiguration": "production"
@@ -104,6 +135,9 @@
             },
             "development": {
               "buildTarget": "indigo-frontend:build:development"
+            },
+            "local": {
+              "buildTarget": "indigo-frontend:build:local"
             }
           },
           "defaultConfiguration": "development",
