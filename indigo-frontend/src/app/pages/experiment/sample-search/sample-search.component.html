@@ -194,12 +194,12 @@
               <div>Nbk Batch #</div>
 
               <div class="relative">
-                <eln-text-search formControlName="strCode" class="w-full" />
-                @if (form.get('strCode')?.value) {
+                <eln-text-search formControlName="compoundKey" class="w-full" />
+                @if (form.get('compoundKey')?.value) {
                   <button
                     type="button"
                     class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
-                    (click)="clearInput('strCode')"
+                    (click)="clearInput('compoundKey')"
                   >
                     ✕
                   </button>
@@ -364,11 +364,11 @@
             <div class="overflow-auto max-h-[400px]">
               <eln-expandable-table [dataSource]="loader.data$ | async">
                 <ng-template
-                  elnColumnDef="strCode"
+                  elnColumnDef="compoundKey"
                   displayName="Compound ID"
                   let-element
                 >
-                  <span class="font-medium text-gray-900">{{ element.strCode }}</span>
+                  <span class="font-medium text-gray-900">{{ element.compoundKey }}</span>
                 </ng-template>
                 <ng-template
                   elnColumnDef="name"
@@ -427,7 +427,7 @@
                   <div class="p-6 flex flex-row">
                     <div class="flex-3">
                       <div class="flex flex-col">
-                        <div><b>Compound ID: </b>{{ element.strCode }}</div>
+                        <div><b>Compound ID: </b>{{ element.compoundKey }}</div>
                         <div>
                           <b>Nbk Batch Number: </b>{{ element.nbkBatchNumber }}
                         </div>
