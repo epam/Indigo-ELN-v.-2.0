@@ -60,12 +60,12 @@ export class TemplateListComponent
       loadUrl: 'templates',
       sortOptions: [
         {
-          label: 'Sort by: Earliest',
+          label: 'Sorting by: Earliest',
           value: 'createdAt',
           defaultOrder: 'EARLIEST',
         },
         {
-          label: 'Sort by: Latest',
+          label: 'Sorting by: Latest',
           value: 'createdAt',
           defaultOrder: 'LATEST',
         },
