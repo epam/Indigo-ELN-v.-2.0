@@ -135,7 +135,7 @@ export class TeamComponent implements OnInit {
     }));
     const newPayload: ProjectAclUpdate[] = this.selectedUserIds.map((id) => ({
       userID: id,
-      level: AclLevel.VIEW,
+      level: AclLevel.CAN_VIEW,
     }));
     const fullPayload: ProjectAclUpdate[] = [...existingPayload, ...newPayload];
 
@@ -227,7 +227,7 @@ export class TeamComponent implements OnInit {
         userId: suggestion.id,
         username: suggestion.username,
         displayName: suggestion.displayName,
-        level: AclLevel.VIEW,
+        level: AclLevel.CAN_VIEW,
         inherited: false,
       });
     });
