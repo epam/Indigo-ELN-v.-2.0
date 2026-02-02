@@ -57,7 +57,6 @@ import { ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
 import { distinctUntilChanged } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { MatTab, MatTabGroup } from '@angular/material/tabs';
-import { MatIcon } from '@angular/material/icon';
 import { DictionarySelectComponent } from '@core/components/common/dictionary-select/dictionary-select.component';
 import {
   dictionarySearchSummary,
@@ -73,22 +72,24 @@ export interface SampleSearchDialogData {
   experimentId: UUID;
   reactionAnchor: ReactionAnchor;
 }
+import { MatIcon, MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   standalone: true,
   selector: 'eln-sample-search',
+  styleUrls: ['./sample-search.component.scss'],
   imports: [
     MatInputModule,
     FormsModule,
     ReactiveFormsModule,
     CommonModule,
-    InputComponent,
     MatRadioGroup,
     MatRadioButton,
     MatExpansionPanel,
     MatExpansionPanelHeader,
     MatExpansionPanelTitle,
-    MatExpansionPanelDescription,
     TextSearchComponent,
     NumericSearchComponent,
     MatProgressSpinner,
@@ -102,9 +103,9 @@ export interface SampleSearchDialogData {
     MatTab,
     MatIcon,
     DictionarySelectComponent,
-    MatChipSet,
-    MatChipRow,
-    ButtonComponent,
+    MatFormFieldModule,
+    MatButtonModule,
+    MatIconModule,
   ],
   templateUrl: './sample-search.component.html',
 })
@@ -308,6 +309,10 @@ export class SampleSearchComponent implements OnInit {
   clearStructure() {
     this.form.get('structure').setValue(null);
     this.structureImage = null;
+  }
+
+  clearInput(inputName: string) {
+    this.form.get(inputName)?.setValue(null);
   }
 
   BuildInDictionary = BuiltInDictionary;
