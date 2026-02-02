@@ -2,11 +2,13 @@ import { FormDialogComponent } from '@core/components/common/form-dialog/form-di
 import { ApiService } from '@core/services/api.service';
 import { Notebook } from '@core/types/entities/notebook.i';
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, ViewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
-import { MatSnackBar } from '@angular/material/snack-bar';
+// import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '@/core/services/notification/notification.service';
+import { NotificationType } from '@/core/types/notification.i';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { toHTML } from 'ngx-editor';
 import { catchError, of, tap } from 'rxjs';
@@ -26,8 +28,12 @@ import { NOTEBOOK_NAME_LENGTH } from '../notebook.constants';
 })
 export class NotebookAddComponent {
   projectId: string;
+  private notificationService = inject(NotificationService);
+
   dialogRef = inject(MatDialogRef);
-  private snackBar = inject(MatSnackBar);
+  @ViewChild(FormDialogComponent) formDialog!: FormDialogComponent;
+  private serverErrorMessage = '';
+  // private snackBar = inject(MatSnackBar);
   fields: FormlyFieldConfig[] = [
     {
       type: 'input',
@@ -51,6 +57,7 @@ export class NotebookAddComponent {
           minlength: `Notebook Name is invalid, use ${NOTEBOOK_NAME_LENGTH} digits only`,
           maxlength: `Notebook Name is invalid, use ${NOTEBOOK_NAME_LENGTH} digits only`,
           required: 'Name is required',
+          'server-error': () => this.serverErrorMessage,
         },
       },
     },
@@ -79,11 +86,33 @@ export class NotebookAddComponent {
         tap(() => {
           this.dialogRef.close('refresh');
         }),
-        catchError((createError) => {
+        catchError((editError) => {
           const errorMsg =
-            createError.error[0]?.message ||
+            editError.error[0]?.message ||
             'There was an error creating the notebook, please try again later.';
-          this.snackBar.open(errorMsg, 'Close', { duration: 5000 });
+
+          const fieldWithError = editError.error[0]?.field || 'name';
+          const isNameExists = errorMsg
+            .toLowerCase()
+            .includes('already exists');
+          this.serverErrorMessage = isNameExists
+            ? 'Unique name is required'
+            : errorMsg;
+
+          if (this.formDialog?.form) {
+            const control = this.formDialog.form.get(fieldWithError);
+            if (control) {
+              control.markAsTouched();
+              control.setErrors({ 'server-error': true });
+            }
+          }
+          if (isNameExists) {
+            this.notificationService.notify({
+              message: errorMsg,
+              type: NotificationType.Error,
+              isInline: false,
+            });
+          }
           return of(null);
         }),
       )
