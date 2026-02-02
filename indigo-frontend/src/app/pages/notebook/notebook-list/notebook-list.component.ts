@@ -63,12 +63,12 @@ export class NotebookListComponent
         loadUrl: `projects/${this.projectId}/notebooks`,
         sortOptions: [
           {
-            label: 'Sort by: Earliest',
+            label: 'Sorting by: Earliest',
             value: 'createdAt',
             defaultOrder: 'EARLIEST',
           },
           {
-            label: 'Sort by: Latest',
+            label: 'Sorting by: Latest',
             value: 'createdAt',
             defaultOrder: 'LATEST',
           },
