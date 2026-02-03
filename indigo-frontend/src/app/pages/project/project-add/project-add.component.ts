@@ -1,17 +1,17 @@
 import { FormDialogComponent } from '@/core/components/common/form-dialog/form-dialog.component';
 import { ApiService } from '@/core/services/api.service';
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { toHTML } from 'ngx-editor';
-import { catchError, EMPTY, tap } from 'rxjs';
+import { catchError, tap } from 'rxjs';
 import { Project } from '@core/types/entities/project.i';
 import { Router } from '@angular/router';
-import { NotificationService } from '@core/services/notification/notification.service';
-import { NotificationType } from '@/core/types/notification.i';
+import { FormErrorHandlerService } from '@core/services/error.service';
+import { PROJECT_NAME_MAX_LENGTH } from '../project.constants';
 
 @Component({
   standalone: true,
@@ -30,7 +30,11 @@ export class ProjectAddComponent implements OnInit {
   dialogRef = inject(MatDialogRef);
   data = inject(MAT_DIALOG_DATA);
   title = 'Add Project';
+  private errorHandler = inject(FormErrorHandlerService);
+  @ViewChild(FormDialogComponent) formDialog!: FormDialogComponent;
+  private serverErrorMessage = '';
   submitAction: (data: Project) => void = this.createProject.bind(this);
+
   fields: FormlyFieldConfig[] = [
     {
       type: 'input',
@@ -40,6 +44,15 @@ export class ProjectAddComponent implements OnInit {
         label: 'Project Name',
         placeholder: 'Project Name',
         required: true,
+      },
+      validators: {
+        validation: [Validators.required],
+      },
+      validation: {
+        messages: {
+          required: 'Project Name is required',
+          'server-error': () => this.serverErrorMessage,
+        },
       },
     },
     {
@@ -72,7 +85,6 @@ export class ProjectAddComponent implements OnInit {
   ];
 
   private router = inject(Router);
-  private notificationService = inject(NotificationService);
 
   constructor(protected service: ApiService<any>) {}
 
@@ -102,20 +114,18 @@ export class ProjectAddComponent implements OnInit {
         tap((newProject: Project) => {
           this.dialogRef.close('refresh');
           this.router.navigate(['/projects', newProject.id]);
-
-          this.notificationService.notify({
-            message: `Project '${data.name}' has been successfully created`,
-            type: NotificationType.Success,
-            isInline: false,
-          });
         }),
-        catchError((createError) => {
-          this.notificationService.notify({
-            message: createError.message,
-            type: NotificationType.Error,
-            isInline: false,
+        catchError((error) => {
+          const result = this.errorHandler.handleError(error, {
+            entityName: 'project',
+            defaultErrorMessage:
+              'There was an error creating the project, please try again later.',
+            form: this.formDialog?.form,
+            showToastOnDuplicate: true,
+            maxLengthMessage: `Project Name is too long, use ${PROJECT_NAME_MAX_LENGTH} characters maximum`,
           });
-          return EMPTY;
+          this.serverErrorMessage = result.serverErrorMessage;
+          return result.observable;
         }),
       )
       .subscribe();
@@ -133,21 +143,18 @@ export class ProjectAddComponent implements OnInit {
       .pipe(
         tap(() => {
           this.dialogRef.close('refresh');
-
-          this.notificationService.notify({
-            message: `Project details successfully updated.`,
-            type: NotificationType.Success,
-            isInline: false,
-          });
         }),
-        catchError((updateError) => {
-          this.notificationService.notify({
-            message: updateError.message,
-            type: NotificationType.Error,
-            isInline: false,
+        catchError((error) => {
+          const result = this.errorHandler.handleError(error, {
+            entityName: 'project',
+            defaultErrorMessage:
+              'There was an error updating the project, please try again later.',
+            form: this.formDialog?.form,
+            showToastOnDuplicate: true,
+            maxLengthMessage: `Project Name is too long, use ${PROJECT_NAME_MAX_LENGTH} characters maximum`,
           });
-
-          return EMPTY;
+          this.serverErrorMessage = result.serverErrorMessage;
+          return result.observable;
         }),
       )
       .subscribe();

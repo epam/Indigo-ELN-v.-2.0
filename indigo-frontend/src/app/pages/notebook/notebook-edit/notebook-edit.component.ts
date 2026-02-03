@@ -9,10 +9,9 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { toHTML } from 'ngx-editor';
-import { catchError, of } from 'rxjs';
+import { catchError } from 'rxjs';
 import { NOTEBOOK_NAME_LENGTH } from '../notebook.constants';
-import { NotificationService } from '@/core/services/notification/notification.service';
-import { NotificationType } from '@/core/types/notification.i';
+import { FormErrorHandlerService } from '@core/services/error.service';
 
 @Component({
   standalone: true,
@@ -29,7 +28,7 @@ import { NotificationType } from '@/core/types/notification.i';
 export class NotebookEditComponent {
   @ViewChild(FormDialogComponent) formDialog!: FormDialogComponent;
   notebookId: string;
-  private notificationService = inject(NotificationService);
+  private errorHandler = inject(FormErrorHandlerService);
   dialogRef = inject(MatDialogRef);
   notebook: Partial<Notebook> = {};
   private serverErrorMessage = '';
@@ -50,14 +49,13 @@ export class NotebookEditComponent {
           Validators.required,
           Validators.minLength(NOTEBOOK_NAME_LENGTH),
           Validators.maxLength(NOTEBOOK_NAME_LENGTH),
-          // Validators.pattern(/^\d+$/), // digits only
         ],
       },
       validation: {
         messages: {
           minlength: `Notebook Name is invalid, use ${NOTEBOOK_NAME_LENGTH} digits only`,
           maxlength: `Notebook Name is invalid, use ${NOTEBOOK_NAME_LENGTH} digits only`,
-          required: 'Name is required',
+          required: 'Notebook Name is required',
           'server-error': () => this.serverErrorMessage,
         },
       },
@@ -95,34 +93,16 @@ export class NotebookEditComponent {
             : data.description,
       })
       .pipe(
-        catchError((editError) => {
-          const errorMsg =
-            editError.error[0]?.message ||
-            'There was an error creating the notebook, please try again later.';
-
-          const fieldWithError = editError.error[0]?.field || 'name';
-          const isNameExists = errorMsg
-            .toLowerCase()
-            .includes('already exists');
-          this.serverErrorMessage = isNameExists
-            ? 'Unique name is required'
-            : errorMsg;
-
-          if (this.formDialog?.form) {
-            const control = this.formDialog.form.get(fieldWithError);
-            if (control) {
-              control.markAsTouched();
-              control.setErrors({ 'server-error': true });
-            }
-          }
-          if (isNameExists) {
-            this.notificationService.notify({
-              message: errorMsg,
-              type: NotificationType.Error,
-              isInline: false,
-            });
-          }
-          return of(null);
+        catchError((error) => {
+          const result = this.errorHandler.handleError(error, {
+            entityName: 'notebook',
+            defaultErrorMessage:
+              'There was an error updating the notebook, please try again later.',
+            form: this.formDialog?.form,
+            showToastOnDuplicate: true,
+          });
+          this.serverErrorMessage = result.serverErrorMessage;
+          return result.observable;
         }),
       )
       .subscribe((result) => {
