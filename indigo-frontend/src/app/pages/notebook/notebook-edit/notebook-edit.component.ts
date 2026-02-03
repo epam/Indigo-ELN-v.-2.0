@@ -47,7 +47,7 @@ export class NotebookEditComponent {
         messages: {
           minlength: `Notebook Name is invalid, use ${NOTEBOOK_NAME_LENGTH} digits only`,
           maxlength: `Notebook Name is invalid, use ${NOTEBOOK_NAME_LENGTH} digits only`,
-          required: 'Name is required',
+          required: 'Notebook Name is required',
         },
       },
     },
