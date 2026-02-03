@@ -1,0 +1,202 @@
+<div class="info-panel-container">
+  <div class="info-section">
+    <h4 class="text-sm font-semibold mb-4">Notebook Batch #: {{ sample().nbkBatchNumber || '—' }}</h4>
+    
+    <!-- Grid layout for fields -->
+    <div class="fields-grid">
+      <div class="field-group">
+        <label class="field-label">Calculated Batch MW</label>
+        <div class="field-value read-only">{{ output().compound?.molWeight?.value || '—' }}</div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Calculated Batch MF</label>
+        <div class="field-value read-only">{{ output().compound?.calculatedBatchMF || output().compound?.formula || '—' }}</div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Source</label>
+        <div class="field-value read-only">
+          <!-- TODO: Implement editable select when ready -->
+          {{ sample().source?.name || '—' }}
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Structure Comments</label>
+        <div class="field-value read-only">
+          <!-- TODO: Implement editable text area when ready -->
+          {{ sample().structureComment || '—' }}
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Salt Code & Name</label>
+        <div class="field-value read-only">
+          <!-- TODO: Implement editable select with salt codes when ready -->
+          {{ output().compound?.saltCode?.name || '—' }}
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Source Details</label>
+        <div class="field-value read-only">
+          <!-- TODO: Implement editable select when ready -->
+          {{ sample().sourceDetails?.name || '—' }}
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Stereoisomer Code</label>
+        <div class="field-value read-only">
+          <!-- TODO: Implement editable select when ready -->
+          {{ output().compound?.stereoisomerCode?.name || '—' }}
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Precursor/Reactant IDs</label>
+        <div class="field-value read-only">{{ formatPrecursorReactantIds() }}</div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Salt Equivalent</label>
+        <div class="field-value read-only">
+          <!-- TODO: Implement editable number input (conditional RW/RO) when ready -->
+          {{ output().compound?.saltEQ ?? '—' }}
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Conversational Batch Number</label>
+        <div class="field-value read-only">
+          <!-- Sample STR code (e.g., "88888888-0001-P0-001") -->
+          {{ sample().strCode || '—' }}
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Theo. Weight</label>
+        <div class="field-value read-only">
+          {{ output().theoWeight?.value ? (output().theoWeight.value + ' ' + output().theoWeight.unit) : '—' }}
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Theo. Moles</label>
+        <div class="field-value read-only">
+          {{ output().theoMol?.value ? (output().theoMol.value + ' ' + output().theoMol.unit) : '—' }}
+        </div>
+      </div>
+
+      <div class="field-group full-width">
+        <label class="field-label">Batch Comment</label>
+        <div class="field-value read-only">
+          <!-- TODO: Implement editable text area when ready -->
+          {{ sample().batchComment || '—' }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Additional Information Accordion -->
+  <cdk-accordion class="mt-4">
+    <cdk-accordion-item #accordionItem="cdkAccordionItem" [expanded]="additionalInfoExpanded">
+      <div class="accordion-header" (click)="accordionItem.toggle()">
+        <span class="accordion-icon">
+          <mat-icon [class.rotated]="accordionItem.expanded">chevron_right</mat-icon>
+        </span>
+        <h4 class="text-sm font-semibold">Additional Information</h4>
+      </div>
+
+      @if (accordionItem.expanded) {
+      <div class="accordion-content">
+        <div class="fields-grid">
+          <div class="field-group">
+            <label class="field-label">Compound State</label>
+            <div class="field-value read-only">
+              <!-- TODO: Implement editable select when ready -->
+              {{ sample().componentState?.name || '—' }}
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Virtual Compound ID</label>
+            <div class="field-value read-only">
+              <!-- Shows compound strCode (e.g., "P0", "P1") -->
+              {{ output().compound?.strCode || '—' }}
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Compound Protection</label>
+            <div class="field-value read-only">
+              <!-- TODO: Implement editable select when ready -->
+              {{ formatCompoundProtection(sample().compoundProtection) }}
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Melting Point</label>
+            <div class="field-value read-only">
+              <eln-chip-list [items]="getMeltingPointChips()" />
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Residual Solvents</label>
+            <div class="field-value read-only">
+              <!-- TODO: Implement chips with popup editor when ready -->
+              {{ formatResidualSolvents(sample().residualSolvents) }}
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Storage Instructions</label>
+            <div class="field-value read-only">
+              <eln-chip-list [items]="getStorageInstructionsChips()" />
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Health Hazards</label>
+            <div class="field-value read-only">
+              <eln-chip-list [items]="getHealthHazardsChips()" />
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Solubility in Solvents</label>
+            <div class="field-value read-only">
+              <eln-chip-list [items]="getSolubilityChips()" />
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Handling Precautions</label>
+            <div class="field-value read-only">
+              <eln-chip-list [items]="getHandlingPrecautionsChips()" />
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">External Supplier</label>
+            <div class="field-value read-only">
+              <!-- TODO: Implement popup editor (Supplier + Registry #) when ready -->
+              {{ formatExternalSupplier(sample().externalSupplier) }}
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Purity</label>
+            <div class="field-value read-only">
+              <!-- TODO: Implement chips with popup editor when ready -->
+              {{ formatPurity(sample().purityCalculations) }}
+            </div>
+          </div>
+        </div>
+      </div>
+      }
+    </cdk-accordion-item>
+  </cdk-accordion>
+</div>

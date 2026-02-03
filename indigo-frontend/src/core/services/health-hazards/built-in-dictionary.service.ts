@@ -14,9 +14,30 @@ export class BuiltInDictionaryService {
   readonly isLoading = signal<Map<BuiltInDictionary, boolean>>(new Map());
   readonly hasError = signal<Map<BuiltInDictionary, boolean>>(new Map());
 
+  // Private cache to track loaded dictionaries
+  private cache = new Map<BuiltInDictionary, DictionaryItemRef[]>();
+  
+  // Helper method to check if dictionary is cached
+  private isCached(dictionary: BuiltInDictionary): boolean {
+    return this.cache.has(dictionary) && (this.cache.get(dictionary)?.length ?? 0) > 0;
+  }
+
   // Query methods
-  load(dictionary: BuiltInDictionary) {
-    console.log(`BuiltInDictionaryService.load(${dictionary})`);
+  load(dictionaries: BuiltInDictionary[], forceReload = false) {
+    dictionaries.forEach(dict => this.loadSingle(dict, forceReload));
+  }
+
+  private loadSingle(dictionary: BuiltInDictionary, forceReload = false) {
+    // Return early if already cached and not forcing reload
+    if (!forceReload && this.isCached(dictionary)) {
+      return;
+    }
+
+    // Prevent duplicate requests
+    if (this.isLoading().get(dictionary)) {
+      return;
+    }
+
     this.setLoading(dictionary, true);
     this.setError(dictionary, false);
 
@@ -24,6 +45,7 @@ export class BuiltInDictionaryService {
       .request<DictionaryItemRef[]>('get', `dictionaries/${dictionary}`)
       .subscribe({
         next: (items) => {
+          this.cache.set(dictionary, items);
           this.setDictionary(dictionary, items);
           this.setLoading(dictionary, false);
         },
@@ -47,6 +69,7 @@ export class BuiltInDictionaryService {
       .pipe(
         tap({
           next: (items) => {
+            this.cache.set(dictionary, items);
             this.setDictionary(dictionary, items);
             this.setLoading(dictionary, false);
           },
@@ -59,7 +82,22 @@ export class BuiltInDictionaryService {
       );
   }
 
-  getDictionaryItems(dictionary: BuiltInDictionary): DictionaryItemRef[] {
+  getDictionaryItems(dictionaries: BuiltInDictionary[]): Map<BuiltInDictionary, DictionaryItemRef[]> {
+    const result = new Map<BuiltInDictionary, DictionaryItemRef[]>();
+
+    dictionaries.forEach(dictionary => {
+      result.set(dictionary, this.getDictionaryItem(dictionary));
+    });
+
+    return result;
+  }
+
+  getDictionaryItem(dictionary: BuiltInDictionary): DictionaryItemRef[] {
+    // Return from cache if available
+    if (this.isCached(dictionary)) {
+      return this.cache.get(dictionary) ?? [];
+    }
+    // Otherwise return from signal (in case it was set by getDictionary observable)
     const dicts = this.dictionaries();
     return dicts.get(dictionary) ?? [];
   }
@@ -84,17 +122,22 @@ export class BuiltInDictionaryService {
   }
 
   // Utility methods
-  refresh(dictionary: BuiltInDictionary) {
-    this.load(dictionary);
+  refresh(dictionaries: BuiltInDictionary[]) {
+    dictionaries.forEach(dict => this.cache.delete(dict));
+    this.load(dictionaries, true);
   }
 
-  reset(dictionary: BuiltInDictionary) {
-    this.setDictionary(dictionary, []);
-    this.setLoading(dictionary, false);
-    this.setError(dictionary, false);
+  reset(dictionaries: BuiltInDictionary[]) {
+    dictionaries.forEach(dict => {
+      this.cache.delete(dict);
+      this.setDictionary(dict, []);
+      this.setLoading(dict, false);
+      this.setError(dict, false);
+    });
   }
 
   resetAll() {
+    this.cache.clear();
     this.dictionaries.set(new Map());
     this.isLoading.set(new Map());
     this.hasError.set(new Map());

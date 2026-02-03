@@ -8,8 +8,6 @@ import {
 } from '@core/types/entities/experiments/experiment.i';
 import {
   MolUnit,
-  MolWeightUnit,
-  NoUnit,
   ReactionOutputType,
   SampleRegistrationStatus,
   VolumeUnit,
@@ -17,11 +15,14 @@ import {
 } from '@core/types/entities/experiments/experiment-shared.i';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { EditableDataTableComponent } from '../editable-data-table/editable-data-table.component';
+import { BatchDetailPanelComponent, BatchDetailData } from '../batch-detail-panel/batch-detail-panel.component';
+// import { MOCK_OUTPUT_SAMPLES } from './product-batch-summary-table.mock';
 import {
   ColumnConfig,
   ColumnInputType,
   ColumnOption,
   UnitInputChange,
+  ExpandableConfig,
 } from '../shared/editable-table.types';
 import { ExperimentDetailService } from '@core/services/experiment/experiment-detail.service';
 
@@ -43,88 +44,10 @@ export class ProductBatchSummaryTableComponent {
   experimentId = input<string | null>(null);
 
   // TODO: Remove mock data once backend provides real output samples
-  private mockOutputSamples = computed<OutputSampleRow[]>(() => {
-    // Create mock samples for demonstration (independent of real data)
-    const mockOutput1 = {
-      anchor: 'mock-output-1',
-      outputName: 'P1',
-      compound: {
-        compoundKey: 'P1',
-        formula: 'C10H12O2',
-        molWeight: { value: 164.2, unit: MolWeightUnit.G_PER_MOL },
-      },
-      type: ReactionOutputType.INTERMEDIATE,
-      eq: { value: 1 },
-      samples: [],
-    } as ReactionOutput;
-
-    const mockOutput2 = {
-      anchor: 'mock-output-2',
-      outputName: 'P2',
-      compound: {
-        compoundKey: 'P2',
-        formula: 'C8H10O',
-        molWeight: { value: 122.16, unit: MolWeightUnit.G_PER_MOL },
-      },
-      type: ReactionOutputType.BY_PRODUCT,
-      eq: { value: 1 },
-      samples: [],
-    } as ReactionOutput;
-
-    return [
-      {
-        output: mockOutput1,
-        sample: {
-          anchor: 'mock-sample-1',
-          nbkBatchNumber: '001',
-          actualWeight: { value: 2.46, unit: WeightUnit.MG, source: 1 },
-          volume: undefined,
-          actualMol: undefined,
-          yield: { value: 0.01, unit: NoUnit.NO_UNIT, source: 1 },
-          purity: { value: 0.04, unit: NoUnit.NO_UNIT, source: 1 },
-          registrationStatus: undefined,
-          healthHazards: [],
-          handlingPrecautions: [],
-          storageInstructions: [],
-          compoundProtection: [],
-          solubilityInSolvents: [],
-          residualSolvents: [],
-          purityCalculations: [],
-          precursorReactantIds: [],
-        } as ReactionOutputSample,
-      },
-      {
-        output: mockOutput2,
-        sample: {
-          anchor: 'mock-sample-2',
-          nbkBatchNumber: '002',
-          actualWeight: { value: 2.46, unit: WeightUnit.MG, source: 1 },
-          volume: undefined,
-          actualMol: undefined,
-          yield: { value: 0.01, unit: NoUnit.NO_UNIT, source: 1 },
-          purity: { value: 0.04, unit: NoUnit.NO_UNIT, source: 1 },
-          registrationStatus: undefined,
-          healthHazards: [],
-          handlingPrecautions: [],
-          storageInstructions: [],
-          compoundProtection: [],
-          solubilityInSolvents: [],
-          residualSolvents: [],
-          purityCalculations: [],
-          precursorReactantIds: [],
-        } as ReactionOutputSample,
-      },
-    ];
-  });
+  // private mockOutputSamples = computed<OutputSampleRow[]>(() => MOCK_OUTPUT_SAMPLES);
 
   dataSource = computed(() => {
-    // TODO: Replace mock data with real data from reaction outputs
-    const mockData = this.mockOutputSamples();
-    if (mockData.length > 0) {
-      return mockData;
-    }
-
-    // Fallback to real data when available
+    // Use real data from reaction outputs
     const outputs = this.reaction()?.outputs ?? [];
     return outputs.flatMap((output) =>
       output.samples.map((sample) => ({ output, sample })),
@@ -269,6 +192,17 @@ export class ProductBatchSummaryTableComponent {
   ]);
 
   displayedColumns = computed(() => this.columns().map((col) => col.id));
+
+  expandableConfig = computed<ExpandableConfig<OutputSampleRow>>(() => ({
+    enabled: true,
+    component: BatchDetailPanelComponent,
+    getRowData: (row) => ({
+      sample: row.sample,
+      output: row.output,
+      reaction: this.reaction()!,
+      experimentId: this.experimentId() || '',
+    } as BatchDetailData),
+  }));
 
   private formatReactionOutputType(type: ReactionOutputType): string {
     const typeMap: Record<ReactionOutputType, string> = {

@@ -1,0 +1,11 @@
+@if (items().length) {
+  <div class="flex items-center gap-1.5 flex-wrap">
+    @for (item of items(); track $index) {
+      <span class="chip">
+        {{ item }}
+      </span>
+    }
+  </div>
+} @else {
+  <span class="text-gray-400">—</span>
+}

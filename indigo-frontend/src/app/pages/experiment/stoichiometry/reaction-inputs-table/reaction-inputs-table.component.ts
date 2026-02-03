@@ -54,7 +54,7 @@ export class ReactionInputsTableComponent implements OnInit {
     );
   });
   healthHazards = computed(() =>
-    this.builtInDictionaryService.getDictionaryItems(
+    this.builtInDictionaryService.getDictionaryItem(
       BuiltInDictionary.HEALTH_HAZARD,
     ),
   );
@@ -64,7 +64,7 @@ export class ReactionInputsTableComponent implements OnInit {
   });
 
   ngOnInit() {
-    this.builtInDictionaryService.load(BuiltInDictionary.HEALTH_HAZARD);
+    this.builtInDictionaryService.load([BuiltInDictionary.HEALTH_HAZARD]);
   }
 
   readonly columns = computed<ColumnConfig<InputSampleRow>[]>(() => [
