@@ -1,21 +1,22 @@
-import { Component, computed, inject, input, OnInit } from '@angular/core';
+import { Component, effect, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CdkAccordionModule } from '@angular/cdk/accordion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Reaction, ReactionOutput, ReactionOutputSample } from '@core/types/entities/experiments/experiment.i';
-import { 
-  MeltingPoint, 
-  ExternalSupplier, 
-  PurityCalculation, 
-  ResidualSolvent, 
+import {
+  MeltingPoint,
+  ExternalSupplier,
+  PurityCalculation,
+  ResidualSolvent,
   SolubidityInSolvent
 } from '@core/types/entities/experiments/experiment-shared.i';
-import { BuiltInDictionaryService } from '@core/services/health-hazards/built-in-dictionary.service';
 import { BuiltInDictionary, DictionaryItemRef } from '@core/types/entities/dictionary.i';
 import { ChipListComponent } from '../shared/chip-list/chip-list.component';
+import { DictionarySelectComponent } from '@core/components/common/dictionary-select/dictionary-select.component';
+import { EnteredValueComponent } from '@core/components/experiment/entered-value/entered-value.component';
 
 @Component({
   selector: 'eln-batch-detail-info-panel',
@@ -27,54 +28,56 @@ import { ChipListComponent } from '../shared/chip-list/chip-list.component';
     MatIconModule,
     MatInputModule,
     MatSelectModule,
-    FormsModule,
+    ReactiveFormsModule,
     ChipListComponent,
+    DictionarySelectComponent,
+    EnteredValueComponent,
   ],
   standalone: true,
 })
-export class BatchDetailInfoPanelComponent implements OnInit {
-  private dictionaryService = inject(BuiltInDictionaryService);
-
+export class BatchDetailInfoPanelComponent {
   sample = input.required<ReactionOutputSample>();
   output = input.required<ReactionOutput>();
   reaction = input.required<Reaction>();
 
-  // Dictionary data - single computed returning Map of all dictionaries
-  readonly dicts = computed(() => 
-    this.dictionaryService.getDictionaryItems([
-      BuiltInDictionary.SAMPLE_SOURCE,
-      BuiltInDictionary.SAMPLE_SOURCE_DETAILS,
-      BuiltInDictionary.STEREOISOMER_CODE,
-      BuiltInDictionary.COMPONENT_STATE,
-      BuiltInDictionary.COMPOUND_PROTECTION,
-      BuiltInDictionary.HEALTH_HAZARD,
-      BuiltInDictionary.HANDLING_PRECAUTIONS,
-      BuiltInDictionary.STORAGE_INSTRUCTIONS,
-      BuiltInDictionary.SOLVENT,
-      BuiltInDictionary.EXTERNAL_SUPPLIER,
-    ])
-  );
-
-  // Expose enum for template access
+  // Expose enum for template
   readonly BuiltInDictionary = BuiltInDictionary;
+
+  // Form for editable fields
+  form = new FormGroup({
+    source: new FormControl<DictionaryItemRef | null>(null),
+    sourceDetails: new FormControl<DictionaryItemRef | null>(null),
+    stereoisomerCode: new FormControl<DictionaryItemRef | null>(null),
+    componentState: new FormControl<DictionaryItemRef | null>(null),
+    compoundProtection: new FormControl<DictionaryItemRef[] | null>(null),
+    healthHazards: new FormControl<DictionaryItemRef[] | null>(null),
+    handlingPrecautions: new FormControl<DictionaryItemRef[] | null>(null),
+    storageInstructions: new FormControl<DictionaryItemRef[] | null>(null),
+  });
 
   // Additional Information accordion state
   additionalInfoExpanded = false;
 
-  ngOnInit(): void {
-    // Load all required dictionaries
-    this.dictionaryService.load([
-      BuiltInDictionary.SAMPLE_SOURCE,
-      BuiltInDictionary.SAMPLE_SOURCE_DETAILS,
-      BuiltInDictionary.STEREOISOMER_CODE,
-      BuiltInDictionary.COMPONENT_STATE,
-      BuiltInDictionary.COMPOUND_PROTECTION,
-      BuiltInDictionary.HEALTH_HAZARD,
-      BuiltInDictionary.HANDLING_PRECAUTIONS,
-      BuiltInDictionary.STORAGE_INSTRUCTIONS,
-      BuiltInDictionary.SOLVENT,
-      BuiltInDictionary.EXTERNAL_SUPPLIER,
-    ]);
+  constructor() {
+    // Sync form with input data
+    effect(() => {
+      const sampleData = this.sample();
+      const compoundData = this.output().compound;
+
+      this.form.patchValue({
+        source: sampleData.source || null,
+        sourceDetails: sampleData.sourceDetails || null,
+        stereoisomerCode: compoundData?.stereoisomerCode || null,
+        componentState: sampleData.componentState || null,
+        compoundProtection: sampleData.compoundProtection || null,
+        healthHazards: sampleData.healthHazards || null,
+        handlingPrecautions: sampleData.handlingPrecautions || null,
+        storageInstructions: sampleData.storageInstructions || null,
+      }, { emitEvent: false });
+    });
+
+    // TODO: Handle form changes and emit to parent for saving
+    // this.form.valueChanges.pipe(...).subscribe(...);
   }
 
   formatMeltingPoint(mp?: MeltingPoint): string {
@@ -91,24 +94,9 @@ export class BatchDetailInfoPanelComponent implements OnInit {
     return solvents.map(s => s.solvent?.name || '—').join(', ');
   }
 
-  formatHealthHazards(hazards: DictionaryItemRef[]): string {
-    if (!hazards || hazards.length === 0) return '—';
-    return hazards.map(h => h.name).join(', ');
-  }
-
   formatSolubility(items: SolubidityInSolvent[]): string {
     if (!items || items.length === 0) return '—';
     return items.map(i => i.solvent?.name || '—').join(', ');
-  }
-
-  formatHandlingPrecautions(items: DictionaryItemRef[]): string {
-    if (!items || items.length === 0) return '—';
-    return items.map(i => i.name).join(', ');
-  }
-
-  formatStorageInstructions(items: DictionaryItemRef[]): string {
-    if (!items || items.length === 0) return '—';
-    return items.map(i => i.name).join(', ');
   }
 
   formatExternalSupplier(supplier?: ExternalSupplier): string {
@@ -127,30 +115,13 @@ export class BatchDetailInfoPanelComponent implements OnInit {
     return ids.map(id => id.stringForm || '—').join(', ');
   }
 
-  formatCompoundProtection(items: DictionaryItemRef[]): string {
-    if (!items || items.length === 0) return '—';
-    return items.map(cp => cp.name).join(', ');
-  }
-
-  // Chip list helpers - transform arrays to string[] for chip-list component
+  // Chip list helper for melting point (still using chip-list component)
   getMeltingPointChips(): string[] {
     const mp = this.sample().meltingPoint;
     return mp ? [this.formatMeltingPoint(mp)] : [];
   }
 
-  getStorageInstructionsChips(): string[] {
-    return this.sample().storageInstructions?.map(i => i.name) || [];
-  }
-
-  getHealthHazardsChips(): string[] {
-    return this.sample().healthHazards?.map(i => i.name) || [];
-  }
-
   getSolubilityChips(): string[] {
     return this.sample().solubilityInSolvents?.map(i => i.solvent?.name || '—') || [];
-  }
-
-  getHandlingPrecautionsChips(): string[] {
-    return this.sample().handlingPrecautions?.map(i => i.name) || [];
   }
 }

@@ -41,9 +41,9 @@
   min-height: 2.5rem;
   display: flex;
   align-items: center;
+  background-color: white;
 
   &.read-only {
-    background-color: #f9fafb;
     color: #6b7280;
   }
 }

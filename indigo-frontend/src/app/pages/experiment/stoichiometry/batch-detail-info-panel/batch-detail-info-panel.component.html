@@ -16,10 +16,10 @@
 
       <div class="field-group">
         <label class="field-label">Source</label>
-        <div class="field-value read-only">
-          <!-- TODO: Implement editable select when ready -->
-          {{ sample().source?.name || '—' }}
-        </div>
+        <eln-dictionary-select
+          [formControl]="form.controls.source"
+          [dictionaryId]="BuiltInDictionary.SAMPLE_SOURCE"
+        />
       </div>
 
       <div class="field-group">
@@ -40,18 +40,18 @@
 
       <div class="field-group">
         <label class="field-label">Source Details</label>
-        <div class="field-value read-only">
-          <!-- TODO: Implement editable select when ready -->
-          {{ sample().sourceDetails?.name || '—' }}
-        </div>
+        <eln-dictionary-select
+          [formControl]="form.controls.sourceDetails"
+          [dictionaryId]="BuiltInDictionary.SAMPLE_SOURCE_DETAILS"
+        />
       </div>
 
       <div class="field-group">
         <label class="field-label">Stereoisomer Code</label>
-        <div class="field-value read-only">
-          <!-- TODO: Implement editable select when ready -->
-          {{ output().compound?.stereoisomerCode?.name || '—' }}
-        </div>
+        <eln-dictionary-select
+          [formControl]="form.controls.stereoisomerCode"
+          [dictionaryId]="BuiltInDictionary.STEREOISOMER_CODE"
+        />
       </div>
 
       <div class="field-group">
@@ -61,10 +61,11 @@
 
       <div class="field-group">
         <label class="field-label">Salt Equivalent</label>
-        <div class="field-value read-only">
-          <!-- TODO: Implement editable number input (conditional RW/RO) when ready -->
-          {{ output().compound?.saltEQ ?? '—' }}
-        </div>
+        <eln-entered-value
+          [value]="output().compound?.saltEQ ? { value: output().compound.saltEQ, unit: null, source: 0 } : null"
+          [showUnits]="false"
+          [readOnly]="true"
+        />
       </div>
 
       <div class="field-group">
@@ -77,16 +78,20 @@
 
       <div class="field-group">
         <label class="field-label">Theo. Weight</label>
-        <div class="field-value read-only">
-          {{ output().theoWeight?.value ? (output().theoWeight.value + ' ' + output().theoWeight.unit) : '—' }}
-        </div>
+        <eln-entered-value
+          [value]="output().theoWeight"
+          [showUnits]="true"
+          [readOnly]="true"
+        />
       </div>
 
       <div class="field-group">
         <label class="field-label">Theo. Moles</label>
-        <div class="field-value read-only">
-          {{ output().theoMol?.value ? (output().theoMol.value + ' ' + output().theoMol.unit) : '—' }}
-        </div>
+        <eln-entered-value
+          [value]="output().theoMol"
+          [showUnits]="true"
+          [readOnly]="true"
+        />
       </div>
 
       <div class="field-group full-width">
@@ -114,10 +119,10 @@
         <div class="fields-grid">
           <div class="field-group">
             <label class="field-label">Compound State</label>
-            <div class="field-value read-only">
-              <!-- TODO: Implement editable select when ready -->
-              {{ sample().componentState?.name || '—' }}
-            </div>
+            <eln-dictionary-select
+              [formControl]="form.controls.componentState"
+              [dictionaryId]="BuiltInDictionary.COMPONENT_STATE"
+            />
           </div>
 
           <div class="field-group">
@@ -130,10 +135,11 @@
 
           <div class="field-group">
             <label class="field-label">Compound Protection</label>
-            <div class="field-value read-only">
-              <!-- TODO: Implement editable select when ready -->
-              {{ formatCompoundProtection(sample().compoundProtection) }}
-            </div>
+            <eln-dictionary-select
+              [formControl]="form.controls.compoundProtection"
+              [dictionaryId]="BuiltInDictionary.COMPOUND_PROTECTION"
+              [multiple]="true"
+            />
           </div>
 
           <div class="field-group">
@@ -153,16 +159,20 @@
 
           <div class="field-group">
             <label class="field-label">Storage Instructions</label>
-            <div class="field-value read-only">
-              <eln-chip-list [items]="getStorageInstructionsChips()" />
-            </div>
+            <eln-dictionary-select
+              [formControl]="form.controls.storageInstructions"
+              [dictionaryId]="BuiltInDictionary.STORAGE_INSTRUCTIONS"
+              [multiple]="true"
+            />
           </div>
 
           <div class="field-group">
             <label class="field-label">Health Hazards</label>
-            <div class="field-value read-only">
-              <eln-chip-list [items]="getHealthHazardsChips()" />
-            </div>
+            <eln-dictionary-select
+              [formControl]="form.controls.healthHazards"
+              [dictionaryId]="BuiltInDictionary.HEALTH_HAZARD"
+              [multiple]="true"
+            />
           </div>
 
           <div class="field-group">
@@ -174,9 +184,11 @@
 
           <div class="field-group">
             <label class="field-label">Handling Precautions</label>
-            <div class="field-value read-only">
-              <eln-chip-list [items]="getHandlingPrecautionsChips()" />
-            </div>
+            <eln-dictionary-select
+              [formControl]="form.controls.handlingPrecautions"
+              [dictionaryId]="BuiltInDictionary.HANDLING_PRECAUTIONS"
+              [multiple]="true"
+            />
           </div>
 
           <div class="field-group">

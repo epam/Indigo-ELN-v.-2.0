@@ -45,7 +45,7 @@ export enum EnteredValueSource {
 export interface EnteredValue<U> {
   value: number;
   unit: U;
-  source: number | 'fixed' | 'default';
+  source: EnteredValueSource | number | 'fixed' | 'default'; // TODO remove fixed and default string options
   conflict?: boolean;
 }
 
