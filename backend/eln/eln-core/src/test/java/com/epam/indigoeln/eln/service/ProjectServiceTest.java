@@ -78,7 +78,7 @@ class ProjectServiceTest extends ELNBaseTest {
     @Test
     void testCreateProjectValidation() {
         assertThatClientCall(() -> projectClient.createProject(new ProjectRequest(null, List.of(), null, null)))
-                .isBadRequest("must not be empty");
+                .isBadRequest("Project Name is required");
     }
 
     @Test
@@ -109,6 +109,43 @@ class ProjectServiceTest extends ELNBaseTest {
                     assertThat(revision.getMutation()).isInstanceOf(ProjectMutation.CreateProject.class);
                     assertThat(revision.getSummary()).isEqualTo("Create project");
                 });
+    }
+
+    @Test
+    void testCreateProjectNameTooLong() {
+        String longName = "x".repeat(257);
+
+        assertThatClientCall(() ->
+                projectClient.createProject(new ProjectRequest(longName))
+        ).isBadRequest("must be at most 256 characters");
+    }
+
+    @Test
+    void testRenameProjectNameTooLong() {
+        ProjectDetailsDTO project =
+                projectClient.createProject(new ProjectRequest("testRenameProjectName"));
+
+        String longName = "x".repeat(257);
+
+        assertThatClientCall(() ->
+                projectClient.editProject(
+                        project.getId(),
+                        new ProjectEditRequest().withName(Optional.of(longName))
+                )
+        ).isBadRequest("must be at most 256 characters");
+    }
+
+    @Test
+    void testRenameProjectNameIsEmpty() {
+        ProjectDetailsDTO project =
+                projectClient.createProject(new ProjectRequest("testRenameProjectName"));
+
+        assertThatClientCall(() ->
+                projectClient.editProject(
+                        project.getId(),
+                        new ProjectEditRequest().withName(Optional.of(""))
+                )
+        ).isBadRequest("Project Name is required");
     }
 
     @Test
