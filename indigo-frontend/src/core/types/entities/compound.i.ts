@@ -18,9 +18,7 @@ export interface CompoundRef {
   molWeight?: EnteredValue<MolWeightUnit>;
   exactMass?: number;
   calculatedBatchMF?: string;
-  // Additional fields from ng-411
   compoundID?: string | null;
-  molFile?: string | null;
   name?: string | null;
   stereoisomerCode?: DictionaryItemRef | null;
   strCode?: string | null;

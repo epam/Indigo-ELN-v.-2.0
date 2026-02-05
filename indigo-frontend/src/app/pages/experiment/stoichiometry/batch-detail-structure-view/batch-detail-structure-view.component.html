@@ -2,21 +2,17 @@
   <div class="structure-section">
     <h4 class="text-sm font-semibold mb-3">Structure</h4>
     <div class="structure-image-wrapper">
-      @if (imageLoading()) {
-        <div class="flex justify-center items-center h-full">
-          <mat-spinner diameter="40" />
-        </div>
-      } @else if (imageError()) {
+      @if (imageUrl()) {
+        <eln-api-image
+          [url]="imageUrl()!"
+          [altText]="'Batch structure'"
+          class="structure-image"
+        />
+      } @else {
         <div class="flex flex-col justify-center items-center h-full text-gray-400">
           <mat-icon class="mb-2">science</mat-icon>
           <span class="text-sm">No structure available</span>
         </div>
-      } @else if (imageUrl()) {
-        <img
-          [src]="imageUrl()"
-          alt="Batch structure"
-          class="structure-image"
-        />
       }
     </div>
     <div class="mt-3">
