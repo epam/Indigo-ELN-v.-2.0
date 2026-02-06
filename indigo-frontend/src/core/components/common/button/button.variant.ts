@@ -15,12 +15,13 @@ export const ButtonVariant = cva(
       variant: {
         green: ['bg-green-400', 'hover:bg-green-300'],
         blue: [
-          'bg-primary-400', 
-          'hover:bg-primary-500', 
-          'text-neutral', 
-          'disabled:text-neutral-600', 
-          'disabled:border', 
-          'disabled:border-neutral-300'
+          'bg-primary-400',
+          'hover:bg-primary-500',
+          'text-neutral',
+          'disabled:text-neutral-600',
+          'disabled:border',
+          'disabled:border-neutral-300',
+          'h-[40px]',
         ],
         'blue-outline': [
           'bg-neutral',
@@ -36,6 +37,7 @@ export const ButtonVariant = cva(
           'hover:bg-primary-50',
           'focus:bg-neutral-200',
           'disabled:bg-neutral-200 disabled:text-neutral-500',
+          'mr-[12px]',
         ],
         'grey-outline': [
           'bg-neutral',
