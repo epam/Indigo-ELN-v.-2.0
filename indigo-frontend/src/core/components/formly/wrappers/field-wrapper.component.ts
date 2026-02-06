@@ -56,7 +56,7 @@ export interface FormlyFieldProps extends CoreFormlyFieldProps {
       </div>
 
       <small *ngIf="props.description" class="form-text text-muted">{{
-        props.description 
+        props.description
       }}</small>
     </div>
   `,
