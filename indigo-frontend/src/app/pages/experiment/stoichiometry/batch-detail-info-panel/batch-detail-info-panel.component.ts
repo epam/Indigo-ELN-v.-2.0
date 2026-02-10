@@ -11,8 +11,10 @@ import {
   ExternalSupplier,
   PurityCalculation,
   ResidualSolvent,
-  SolubidityInSolvent
+  SolubidityInSolvent,
+  NoUnit
 } from '@core/types/entities/experiments/experiment-shared.i';
+import { EnteredValue } from '@core/types/entities/values.i';
 import { BuiltInDictionary, DictionaryItemRef } from '@core/types/entities/dictionary.i';
 import { ChipListComponent } from '../shared/chip-list/chip-list.component';
 import { DictionarySelectComponent } from '@core/components/common/dictionary-select/dictionary-select.component';
@@ -107,6 +109,12 @@ export class BatchDetailInfoPanelComponent {
   formatPurity(items: PurityCalculation[]): string {
     if (!items || items.length === 0) return '—';
     return items.map(p => `${p.type}: ${p.purity}`).join(', ');
+  }
+
+  formatPurityValue(purity: EnteredValue<string> | undefined): string {
+    if (!purity) return '—';
+    if (purity.value === undefined || purity.value === null) return '—';
+    return `${purity.value}${purity.unit ? ' ' + purity.unit : ''}`.trim();
   }
 
   formatPrecursorReactantIds(): string {

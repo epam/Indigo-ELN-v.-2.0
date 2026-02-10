@@ -6,12 +6,12 @@
     <div class="fields-grid">
       <div class="field-group">
         <label class="field-label">Calculated Batch MW</label>
-        <div class="field-value read-only">{{ output().compound?.molWeight?.value || '—' }}</div>
+        <div class="field-value read-only">{{ output().compound?.molWeight?.value || '—' }} {{ output().compound?.molWeight?.unit || '' }}</div>
       </div>
 
       <div class="field-group">
         <label class="field-label">Calculated Batch MF</label>
-        <div class="field-value read-only">{{ output().compound?.calculatedBatchMF || output().compound?.formula || '—' }}</div>
+        <div class="field-value read-only">{{ output().compound?.calculatedBatchMF || '—' }}</div>
       </div>
 
       <div class="field-group">
@@ -71,7 +71,6 @@
       <div class="field-group">
         <label class="field-label">Conversational Batch Number</label>
         <div class="field-value read-only">
-          <!-- Sample STR code (e.g., "88888888-0001-P0-001") -->
           {{ sample().strCode || '—' }}
         </div>
       </div>
@@ -128,7 +127,6 @@
           <div class="field-group">
             <label class="field-label">Virtual Compound ID</label>
             <div class="field-value read-only">
-              <!-- Shows compound strCode (e.g., "P0", "P1") -->
               {{ output().compound?.strCode || '—' }}
             </div>
           </div>
@@ -194,7 +192,6 @@
           <div class="field-group">
             <label class="field-label">External Supplier</label>
             <div class="field-value read-only">
-              <!-- TODO: Implement popup editor (Supplier + Registry #) when ready -->
               {{ formatExternalSupplier(sample().externalSupplier) }}
             </div>
           </div>
@@ -202,8 +199,7 @@
           <div class="field-group">
             <label class="field-label">Purity</label>
             <div class="field-value read-only">
-              <!-- TODO: Implement chips with popup editor when ready -->
-              {{ formatPurity(sample().purityCalculations) }}
+              {{ formatPurityValue(sample().purity) }}
             </div>
           </div>
         </div>

@@ -29,14 +29,12 @@ export interface StoredCompoundRef extends CompoundRef {
   compoundID: string;
   name: string | null;
   molWeight: EnteredValue<MolWeightUnit>;
-  molFile: string;
   formula: string;
 }
 
 export interface VirtualCompoundRef extends CompoundRef {
   type: CompoundType.VIRTUAL;
   compoundID: string;
-  molFile: string;
   formula: string;
   molWeight: EnteredValue<MolWeightUnit>;
 }

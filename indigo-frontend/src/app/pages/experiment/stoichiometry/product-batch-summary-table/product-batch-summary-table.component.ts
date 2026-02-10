@@ -57,21 +57,33 @@ export class ProductBatchSummaryTableComponent {
   readonly columns = computed<ColumnConfig<OutputSampleRow>[]>(() => [
     {
       id: 'batchId',
-      header: 'Batch ID',
+      header: 'Batch No',
       type: ColumnInputType.TEXT,
-      field: (row: OutputSampleRow) => row.sample.nbkBatchNumber ?? null,
+      field: (row: OutputSampleRow) => {
+        const nbk = row.sample.nbkBatchNumber ?? '';
+        // Extract last segment after last hyphen (e.g., "aaaaaaaa-bbbb-ccc" -> "ccc")
+        const parts = nbk.split('-');
+        return parts.length > 0 ? parts[parts.length - 1] : nbk;
+      },
       editable: () => false,
     },
     {
       id: 'chemicalName',
-      header: 'Chemical Name',
+      header: 'Product Name',
       type: ColumnInputType.TEXT,
       field: (row: OutputSampleRow) => row.output.outputName ?? null,
       editable: () => false,
     },
     {
-      id: 'reactionRole',
-      header: 'Reaction Role',
+      id: 'reactionStep',
+      header: 'Reaction Step',
+      type: ColumnInputType.TEXT,
+      field: () => '1', // TODO: Use reaction index when multiple reactions supported
+      editable: () => false,
+    },
+    {
+      id: 'productType',
+      header: 'Product Type',
       type: ColumnInputType.TEXT,
       field: (row: OutputSampleRow) =>
         this.formatReactionOutputType(row.output.type),
@@ -87,7 +99,7 @@ export class ProductBatchSummaryTableComponent {
     },
     {
       id: 'totalWeight',
-      header: 'Total Weight',
+      header: 'Actual Weight',
       type: ColumnInputType.UNIT_INPUT,
       field: (row: OutputSampleRow) =>
         row.sample.actualWeight?.value
@@ -150,6 +162,14 @@ export class ProductBatchSummaryTableComponent {
         id: unit,
         name: unit,
       })) as ColumnOption[],
+    },
+    {
+      id: 'molarity',
+      header: 'Molarity',
+      type: ColumnInputType.TEXT,
+      field: (row: OutputSampleRow) =>
+        row.sample.molarity?.value?.toString() ?? null,
+      editable: () => false,
     },
     {
       id: 'yield',
