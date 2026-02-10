@@ -9,6 +9,7 @@ export const ButtonVariant = cva(
     'focus:ring-2 focus:ring-primary-500',
     'disabled:pointer-events-none disabled:bg-neutral-200',
     '[&_em:first-child]:mr-1',
+    'h-[40px]',
   ],
   {
     variants: {
@@ -21,7 +22,6 @@ export const ButtonVariant = cva(
           'disabled:text-neutral-600',
           'disabled:border',
           'disabled:border-neutral-300',
-          'h-[40px]',
         ],
         'blue-outline': [
           'bg-neutral',
@@ -37,7 +37,6 @@ export const ButtonVariant = cva(
           'hover:bg-primary-50',
           'focus:bg-neutral-200',
           'disabled:bg-neutral-200 disabled:text-neutral-500',
-          'mr-[12px]',
         ],
         'grey-outline': [
           'bg-neutral',
