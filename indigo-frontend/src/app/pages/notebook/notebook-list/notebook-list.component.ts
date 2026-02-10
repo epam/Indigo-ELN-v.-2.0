@@ -85,7 +85,6 @@ export class NotebookListComponent
         icon: 'indicon-sort',
       }));
     });
-    this.initialize();
   }
 
   refreshList(): void {
