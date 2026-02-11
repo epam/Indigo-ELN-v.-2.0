@@ -14,6 +14,7 @@ import {
 } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelect, MatOption, MatSelectTrigger } from '@angular/material/select';
+import { MatCheckbox } from '@angular/material/checkbox';
 import { MatInput } from '@angular/material/input';
 import { MatDivider } from '@angular/material/divider';
 import { FormsModule } from '@angular/forms';
@@ -46,6 +47,7 @@ import {
     MatOption,
     MatInput,
     MatDivider,
+    MatCheckbox,
     FormsModule,
     CommonModule,
     ButtonComponent,
@@ -68,6 +70,7 @@ export class EditableDataTableComponent<TRow = unknown> {
 
   getInputType(columnId: string): ColumnInputType {
     const column = this.columns().find(c => c.id === columnId);
+    console.log('Column for id', columnId, column);
     return column?.type ?? ColumnInputType.TEXT;
   }
 

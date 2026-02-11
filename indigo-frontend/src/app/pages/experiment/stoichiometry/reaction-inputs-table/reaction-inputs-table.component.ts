@@ -69,6 +69,18 @@ export class ReactionInputsTableComponent implements OnInit {
 
   readonly columns = computed<ColumnConfig<InputSampleRow>[]>(() => [
     {
+      id: 'select',
+      header: '',
+      type: ColumnInputType.CHECKBOX,
+      field: (row: InputSampleRow) => !!(row as any).selected,
+      onSave: (row: InputSampleRow, event: Event) => {
+        console.log('Checkbox change event:', event);
+        console.log('Row before change:', row);
+        // const checked = (event.target as HTMLInputElement).checked;
+        // (row as any).selected = checked;
+      },
+    },
+    {
       id: 'compoundId',
       header: 'Compound ID',
       type: ColumnInputType.TEXT,
