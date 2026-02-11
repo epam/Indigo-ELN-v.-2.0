@@ -1,4 +1,3 @@
-
 <div class="flex justify-between py-1">
   <h3 class="text-sm font-semibold p-3">{{ title() }}</h3>
   @if (showAddButton()) {
@@ -14,9 +13,9 @@
     @for (column of columns(); track column.id) {
     <ng-container [matColumnDef]="column.id">
       <!-- <th mat-header-cell *matHeaderCellDef
-                class="text-left !font-bold text-xs text-gray-900 p-1 border-b border-r !border-gray-200 last:border-r-0 min-w-32 overflow-hidden text-ellipsis whitespace-nowrap">
-                {{ column.header }}
-              </th> -->
+                  class="text-left !font-bold text-xs text-gray-900 p-1 border-b border-r !border-gray-200 last:border-r-0 min-w-32 overflow-hidden text-ellipsis whitespace-nowrap">
+                  {{ column.header }}
+                </th> -->
       <th mat-header-cell *matHeaderCellDef
         [class]="column.id === 'select' ? 'text-left !font-bold text-xs text-gray-900 p-1 border-b border-r !border-gray-200 last:border-r-0 w-12 overflow-hidden' : 'text-left !font-bold text-xs text-gray-900 p-1 border-b border-r !border-gray-200 last:border-r-0 min-w-32 overflow-hidden text-ellipsis whitespace-nowrap'">
         @if (column.id === 'select') {
@@ -27,7 +26,8 @@
       </th>
 
       <td mat-cell *matCellDef="let row"
-        [class]="column.id === 'select' ? 'text-xs p-0 border-b border-r !border-gray-200 w-12 overflow-visible' : 'text-xs p-0 border-b border-r !border-gray-200 min-w-32 overflow-visible'" style="color: #3F50B5;">
+        [class]="column.id === 'select' ? 'text-xs p-0 border-b border-r !border-gray-200 w-12 overflow-visible' : 'text-xs p-0 border-b border-r !border-gray-200 min-w-32 overflow-visible'"
+        style="color: #3F50B5;">
 
         <!-- Text Input -->
         <input *ngIf="column.type === ColumnInputType.TEXT" type="text" placeholder="—" matInput style="outline: none;"
