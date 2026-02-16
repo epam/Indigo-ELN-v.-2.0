@@ -108,6 +108,17 @@ export class ExperimentInfoComponent implements OnInit {
           props: {
             label: "Cont. FROM Rxn",
             placeholder: "Cont. TO Rxn",
+            // The mock data for testing purposes (Should be removed after the API will be ready).
+            items: [
+              {label: 221982198291829182912898, value: 29128891829182918982912891829},
+              {label: 232, value: 3},
+              {label: 2444, value: 4},
+              {label: 2, value: 5},
+              {label: 2, value: 6},
+              {label: 2, value: 7},
+              {label: 2, value: 8},
+              {label: 2, value: 9}
+            ]
           },
         },
         {
