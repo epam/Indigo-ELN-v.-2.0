@@ -64,7 +64,6 @@ export class ExperimentInfoComponent implements OnInit {
             placeholder: "Experiment Title",
             
           },
-          className: 'flex flex-wrap'
         },
         {
           type: "select-chips",
