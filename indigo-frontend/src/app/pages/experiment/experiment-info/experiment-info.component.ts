@@ -53,7 +53,7 @@ export class ExperimentInfoComponent implements OnInit {
   form = new FormGroup({});
   fields: FormlyFieldConfig[] = [
     {
-      fieldGroupClassName: "grid grid-col-2 gap-[16px]",
+      fieldGroupClassName: "grid grid-cols-[1fr_1fr] gap-[16px]",
       fieldGroup: [
         {
           type: "input",
@@ -67,7 +67,7 @@ export class ExperimentInfoComponent implements OnInit {
           className: 'flex flex-wrap'
         },
         {
-          type: "chip-grid",
+          type: "select-chips",
           key: "linkedExperiment",
           props: {
             label: "Linked Experiment",
@@ -85,7 +85,7 @@ export class ExperimentInfoComponent implements OnInit {
           },
         }, 
         {
-          type: "chip-grid",
+          type: "select-chips",
           key: "contToRxn",
           props: {
             label: "Cont. TO Rxn",
@@ -109,7 +109,6 @@ export class ExperimentInfoComponent implements OnInit {
           props: {
             label: "Cont. FROM Rxn",
             placeholder: "Cont. TO Rxn",
-            
           },
         },
         {
