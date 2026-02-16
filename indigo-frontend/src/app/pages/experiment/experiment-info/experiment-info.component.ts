@@ -62,7 +62,9 @@ export class ExperimentInfoComponent implements OnInit {
           props: {
             label: "Experiment Title",
             placeholder: "Experiment Title",
+            
           },
+          className: 'flex flex-wrap'
         },
         {
           type: "chip-grid",
@@ -102,11 +104,12 @@ export class ExperimentInfoComponent implements OnInit {
           },
         },
         {
-          type: "chip-grid",
+          type: "select-chips",
           key: "contFromRxn",
           props: {
             label: "Cont. FROM Rxn",
-            placeholder: "Cont. TO Rxn"
+            placeholder: "Cont. TO Rxn",
+            
           },
         },
         {
