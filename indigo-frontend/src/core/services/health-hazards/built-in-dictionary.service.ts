@@ -1,7 +1,10 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { ApiService } from '@/core/services/api.service';
-import { DictionaryItemRef, BuiltInDictionary } from '@/core/types/entities/dictionary.i';
+import {
+  BuiltInDictionary,
+  DictionaryItemRef,
+} from '@/core/types/entities/dictionary.i';
 
 @Injectable({
   providedIn: 'root',
@@ -10,7 +13,9 @@ export class BuiltInDictionaryService {
   private service = inject(ApiService);
 
   // Signals for dictionary state - keyed by dictionary type
-  readonly dictionaries = signal<Map<BuiltInDictionary, DictionaryItemRef[]>>(new Map());
+  readonly dictionaries = signal<Map<BuiltInDictionary, DictionaryItemRef[]>>(
+    new Map(),
+  );
   readonly isLoading = signal<Map<BuiltInDictionary, boolean>>(new Map());
   readonly hasError = signal<Map<BuiltInDictionary, boolean>>(new Map());
 
@@ -27,11 +32,7 @@ export class BuiltInDictionaryService {
           this.setDictionary(dictionary, items);
           this.setLoading(dictionary, false);
         },
-        error: (error) => {
-          console.warn(
-            `Error loading dictionary ${dictionary}:`,
-            error,
-          );
+        error: () => {
           this.setDictionary(dictionary, []);
           this.setError(dictionary, true);
           this.setLoading(dictionary, false);
@@ -40,7 +41,9 @@ export class BuiltInDictionaryService {
   }
 
   // Getter methods
-  getDictionary(dictionary: BuiltInDictionary): Observable<DictionaryItemRef[]> {
+  getDictionary(
+    dictionary: BuiltInDictionary,
+  ): Observable<DictionaryItemRef[]> {
     // Return observable from the dictionary endpoint
     return this.service
       .request<DictionaryItemRef[]>('get', `dictionaries/${dictionary}`)
@@ -50,8 +53,7 @@ export class BuiltInDictionaryService {
             this.setDictionary(dictionary, items);
             this.setLoading(dictionary, false);
           },
-          error: (error) => {
-            console.error(`Error fetching dictionary ${dictionary}:`, error);
+          error: () => {
             this.setError(dictionary, true);
             this.setLoading(dictionary, false);
           },

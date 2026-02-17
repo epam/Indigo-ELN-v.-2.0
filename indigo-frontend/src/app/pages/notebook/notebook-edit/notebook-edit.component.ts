@@ -5,14 +5,12 @@ import { NotebookDialogData } from '@/core/types/entities/notebook-dialog-data.i
 import { CommonModule } from '@angular/common';
 import { Component, Inject, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { toHTML } from 'ngx-editor';
-import { catchError, of } from 'rxjs';
 import { NOTEBOOK_NAME_LENGTH } from '../notebook.constants';
 import { NotificationService } from '@/core/services/notification/notification.service';
-import { NotificationType } from '@/core/types/notification.i';
 
 @Component({
   standalone: true,
@@ -83,20 +81,6 @@ export class NotebookEditComponent {
             ? toHTML(data.description)
             : data.description,
       })
-      .pipe(
-        catchError((editError) => {
-          const errorMsg =
-            editError.error[0]?.message ||
-            'There was an error creating the notebook, please try again later.';
-
-          this.notificationService.notify({
-            message: errorMsg,
-            type: NotificationType.Error,
-            isInline: false,
-          });
-          return of(null);
-        }),
-      )
       .subscribe((result) => {
         if (result) this.dialogRef.close('refresh');
       });

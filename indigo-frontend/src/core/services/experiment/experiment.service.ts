@@ -16,7 +16,9 @@ export class ExperimentService {
 
   // TODO using some hand-made LoadingState instead of separate data/loading/error to avoid inconsistent states;
   // if it's more readable to use separate flags or there is a better alternative, i'll rewrite it
-  private experimentSubject = new BehaviorSubject<LoadingState<ExperimentDetail>>({
+  private experimentSubject = new BehaviorSubject<
+    LoadingState<ExperimentDetail>
+  >({
     state: 'empty',
   });
   public experimentLoad$ = this.experimentSubject.asObservable();
@@ -63,8 +65,7 @@ export class ExperimentService {
             .request<ExperimentModel>('get', `experiments/${id}/datamodel`)
             .pipe(map((model) => ({ experiment, template, model }))),
         ),
-        catchError((err) => {
-          console.error('Failed to load experiment:', err);
+        catchError(() => {
           this.experimentSubject.next({ state: 'error' });
           this.template.next({ state: 'error' });
           this.model.next({ state: 'error' });
@@ -88,8 +89,7 @@ export class ExperimentService {
         responseType: 'blob',
       })
       .pipe(
-        catchError((err) => {
-          console.error('Failed to load experiment picture:', err);
+        catchError(() => {
           this.picture.next({ state: 'error' });
           return of(null);
         }),
@@ -116,13 +116,6 @@ export class ExperimentService {
         'post',
         `experiments/${this.experimentSubject.value.value.id}/datamodel`,
         { model: this.model.value.value, mutation },
-      )
-      .pipe(
-        catchError((err) => {
-          console.error('Failed to mutate experiment model:', err);
-          alert('Failed to mutate experiment model: ' + err);
-          return of(null);
-        }),
       )
       .subscribe((newModel) => {
         this.mutating.next(false);

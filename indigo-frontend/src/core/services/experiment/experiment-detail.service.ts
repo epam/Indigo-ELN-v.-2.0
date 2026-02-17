@@ -76,7 +76,6 @@ export class ExperimentDetailService {
             this.isLoading.set(false);
           },
           error: (error) => {
-            console.error('Error updating experiment model:', error);
             this.hasError.set(true);
             this.isLoading.set(false);
           },

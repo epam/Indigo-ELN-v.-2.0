@@ -2,15 +2,10 @@ import { ChipGridFieldComponent } from '@/core/components/formly/fields/chip-gri
 import { InputFieldComponent } from '@/core/components/formly/fields/input-field.component';
 import { ElnWrapperFormField } from '@/core/components/formly/wrappers/field-wrapper.component';
 
-import {
-  HTTP_INTERCEPTORS,
-  provideHttpClient,
-  withInterceptors,
-  withInterceptorsFromDi,
-  withXsrfConfiguration,
-} from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import {
   ApplicationConfig,
+  ErrorHandler,
   importProvidersFrom,
   provideZoneChangeDetection,
 } from '@angular/core';
@@ -24,19 +19,20 @@ import { FormlyMaterialModule } from '@ngx-formly/material';
 import { FormlyMatDatepickerModule } from '@ngx-formly/material/datepicker';
 import { routes } from './app.routes.local';
 import {
-  provideKeycloak,
+  AutoRefreshTokenService,
   createInterceptorCondition,
+  INCLUDE_BEARER_TOKEN_INTERCEPTOR_CONFIG,
   IncludeBearerTokenCondition,
   includeBearerTokenInterceptor,
-  INCLUDE_BEARER_TOKEN_INTERCEPTOR_CONFIG,
+  provideKeycloak,
+  UserActivityService,
   withAutoRefreshToken,
-  AutoRefreshTokenService,
-  UserActivityService
 } from 'keycloak-angular';
+import { ELNErrorHandler } from '@core/services/error-handler';
 
 const urlCondition = createInterceptorCondition<IncludeBearerTokenCondition>({
   urlPattern: /^(http:\/\/localhost:8080)(\/.*)?$/i,
-  bearerPrefix: 'Bearer'
+  bearerPrefix: 'Bearer',
 });
 
 export const appConfig: ApplicationConfig = {
@@ -50,7 +46,8 @@ export const appConfig: ApplicationConfig = {
       },
       initOptions: {
         onLoad: 'login-required',
-        silentCheckSsoRedirectUri: window.location.origin + '/assets/silent-check-sso.html',
+        silentCheckSsoRedirectUri:
+          window.location.origin + '/assets/silent-check-sso.html',
         redirectUri: window.location.origin + '/',
       },
       features: [
@@ -110,5 +107,6 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideAnimationsAsync(),
     provideHttpClient(withInterceptors([includeBearerTokenInterceptor])),
+    { provide: ErrorHandler, useClass: ELNErrorHandler },
   ],
 };

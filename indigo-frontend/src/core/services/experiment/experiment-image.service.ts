@@ -27,7 +27,6 @@ export class ExperimentImageService {
       })
       .pipe(
         catchError((err) => {
-          console.error('Failed to load experiment picture:', err);
           this.hasError.set(true);
           this.isLoading.set(false);
           return of(null);

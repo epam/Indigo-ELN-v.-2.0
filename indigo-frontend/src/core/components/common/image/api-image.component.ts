@@ -23,9 +23,6 @@ export class ApiImageComponent {
         next: (blob) => {
           this.src = URL.createObjectURL(blob);
         },
-        error: (error) => {
-          console.error('Error loading image:', error);
-        },
       });
   }
 }

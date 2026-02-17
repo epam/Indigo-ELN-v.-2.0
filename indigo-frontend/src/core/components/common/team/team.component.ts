@@ -1,12 +1,12 @@
 import {
   Component,
+  computed,
+  inject,
   Input,
   OnInit,
-  inject,
   signal,
-  computed,
-  WritableSignal,
   ViewChild,
+  WritableSignal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardComponent } from '../card/card.component';
@@ -31,6 +31,7 @@ import { NgSelectComponent, NgSelectModule } from '@ng-select/ng-select';
 import { FormsModule } from '@angular/forms';
 import { TeamComponentConfig } from './team.config';
 import { InitialsPipe } from '../../../pipes/avatars.pipe';
+
 type UserSuggestionWithState = UserSuggestion & { added?: boolean };
 
 interface TeamLoadingState {
@@ -112,7 +113,6 @@ export class TeamComponent implements OnInit {
           this.userSuggestions = list;
           this.rebuildSuggestionsState();
         },
-        error: (err) => console.error('Failed to load suggestions', err),
       });
   }
 
@@ -152,9 +152,6 @@ export class TeamComponent implements OnInit {
       )
       .subscribe({
         next: () => this.handleSuccessfulUserAddition(),
-        error: (err) => {
-          console.error('Failed to update ACL with new users:', err);
-        },
       });
   }
 
@@ -192,9 +189,6 @@ export class TeamComponent implements OnInit {
             );
             this._team.set(updated);
           }
-        },
-        error: (err) => {
-          console.error('Failed to update ACL level:', err);
         },
       });
   }

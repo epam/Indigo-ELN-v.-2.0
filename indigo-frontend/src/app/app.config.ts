@@ -10,6 +10,7 @@ import {
 } from '@angular/common/http';
 import {
   ApplicationConfig,
+  ErrorHandler,
   importProvidersFrom,
   provideZoneChangeDetection,
 } from '@angular/core';
@@ -24,6 +25,7 @@ import { FormlyMatDatepickerModule } from '@ngx-formly/material/datepicker';
 import { routes } from './app.routes';
 import { SelectFieldComponent } from '@/core/components/formly/fields/select-field.component';
 import { SelectChipsComponent } from '@/core/components/formly/fields/select-chips.component';
+import { ELNErrorHandler } from '@core/services/error-handler';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -87,5 +89,6 @@ export const appConfig: ApplicationConfig = {
       withInterceptorsFromDi(),
     ),
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+    { provide: ErrorHandler, useClass: ELNErrorHandler },
   ],
 };

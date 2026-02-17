@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { toHTML } from 'ngx-editor';
-import { catchError, of, tap } from 'rxjs';
+import { tap } from 'rxjs';
 import { NOTEBOOK_NAME_LENGTH } from '../notebook.constants';
 
 @Component({
@@ -78,13 +78,6 @@ export class NotebookAddComponent {
       .pipe(
         tap(() => {
           this.dialogRef.close('refresh');
-        }),
-        catchError((createError) => {
-          const errorMsg =
-            createError.error[0]?.message ||
-            'There was an error creating the notebook, please try again later.';
-          this.snackBar.open(errorMsg, 'Close', { duration: 5000 });
-          return of(null);
         }),
       )
       .subscribe();

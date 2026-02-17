@@ -4,7 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { ApiService } from '@core/services/api.service';
 import { toHTML } from 'ngx-editor';
-import { catchError, of, tap } from 'rxjs';
+import { tap } from 'rxjs';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -24,7 +24,6 @@ import { Template } from '@core/types/entities/template.i';
   styleUrl: './template-add.component.scss',
 })
 export class TemplateAddComponent implements OnInit {
-
   template!: Template;
   dialogRef = inject(MatDialogRef);
   data = inject(MAT_DIALOG_DATA);
@@ -43,8 +42,7 @@ export class TemplateAddComponent implements OnInit {
     },
   ];
 
-  constructor(protected service: ApiService<any>) {
-  }
+  constructor(protected service: ApiService<any>) {}
 
   ngOnInit(): void {
     this.template = this.data?.template || null;
@@ -59,26 +57,20 @@ export class TemplateAddComponent implements OnInit {
     }
   }
 
-  createTemplates(data:  {name: string}) {
+  createTemplates(data: { name: string }) {
     this.service
       .create('templates', {
         ...data,
-        "templateTabs": [
+        templateTabs: [
           {
-            "name": "",
-            "components": [
-              {}
-            ]
-          }
-        ]
+            name: '',
+            components: [{}],
+          },
+        ],
       })
       .pipe(
         tap(() => {
           this.dialogRef.close('refresh');
-        }),
-        catchError((createError) => {
-          alert(createError.message);
-          return of(null);
         }),
       )
       .subscribe();
@@ -97,12 +89,7 @@ export class TemplateAddComponent implements OnInit {
         tap(() => {
           this.dialogRef.close('refresh');
         }),
-        catchError((updateError) => {
-          alert(updateError.message);
-          return of(null);
-        }),
       )
       .subscribe();
   }
-
 }
