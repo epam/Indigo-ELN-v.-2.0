@@ -8,8 +8,8 @@ import { Project } from '@/core/types/entities/project.i';
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { from, of, Subject, take } from 'rxjs';
-import { catchError, concatMap, takeUntil } from 'rxjs/operators';
+import { finalize, from, Subject, take, tap } from 'rxjs';
+import { concatMap, takeUntil } from 'rxjs/operators';
 import { FileUploadComponent } from '@/core/components/common/file-upload/file-upload.component';
 import { Attachment } from '@/core/types/entities/attachment.i';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -102,19 +102,11 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
             formData,
           ),
         ),
+        finalize(() => (this.isUploadingAttachment = false)),
         takeUntil(this.destroy$),
       )
-      .subscribe({
-        next: (attachments) => {
-          if (this.project && attachments)
-            this.project.attachments = attachments;
-        },
-        error: (err) => {
-          console.error('Upload error:', err);
-        },
-        complete: () => {
-          this.isUploadingAttachment = false;
-        },
+      .subscribe((attachments) => {
+        if (this.project) this.project.attachments = attachments;
       });
   }
 
@@ -124,18 +116,12 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
     this.service
       .request<Project>('get', `projects/${id}`)
       .pipe(
-        takeUntil(this.destroy$),
-        catchError((err) => {
-          console.error('Failed to load project:', err);
-          this.hasError = true;
-          this.isLoading = false;
-          return of(null);
+        tap({
+          error: () => (this.hasError = true),
         }),
+        finalize(() => (this.isLoading = false)),
       )
-      .subscribe((project) => {
-        this.isLoading = false;
-        if (project) this.project = project;
-      });
+      .subscribe((project) => (this.project = project));
   }
 
   async openModal(mode: projectInfoModalEnum) {

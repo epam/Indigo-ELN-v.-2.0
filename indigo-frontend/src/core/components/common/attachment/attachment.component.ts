@@ -11,7 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { CardComponent } from '../card/card.component';
 import { ApiService } from '@/core/services/api.service';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject } from 'rxjs';
 import { downloadBlob } from '@/core/utils/download.util';
 import { BytesConvertingPipe } from '@/core/pipes/bytesConverting.pipe';
 
@@ -74,10 +74,9 @@ export class AttachmentComponent implements OnDestroy {
           responseType: 'blob',
         },
       )
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (blob: Blob | null) => downloadBlob(blob, this.attachment.name),
-      });
+      .subscribe((blob: Blob | null) =>
+        downloadBlob(blob, this.attachment.name),
+      );
   }
 
   deleteAttachment() {
@@ -86,10 +85,7 @@ export class AttachmentComponent implements OnDestroy {
         'delete',
         `projects/${this.projectId}/attachments/${this.attachment.id}`,
       )
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => this.attachmentDeleted.emit(this.attachment.id),
-      });
+      .subscribe(() => this.attachmentDeleted.emit(this.attachment.id));
   }
 
   ngOnDestroy() {

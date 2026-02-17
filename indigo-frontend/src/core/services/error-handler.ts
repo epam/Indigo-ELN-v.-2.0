@@ -33,6 +33,9 @@ export class ELNErrorHandler implements ErrorHandler {
       }
       return ['Server error. Please try again later', commonLogMessage];
     }
+    if (error instanceof Error && error.message != null) {
+      return [error.message, error.message]
+    }
     return ['Unknown error', 'Unknown error'];
   }
 }

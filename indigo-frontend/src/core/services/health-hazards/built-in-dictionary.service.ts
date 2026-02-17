@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { finalize, Observable, tap } from 'rxjs';
 import { ApiService } from '@/core/services/api.service';
 import {
   BuiltInDictionary,
@@ -27,17 +27,16 @@ export class BuiltInDictionaryService {
 
     this.service
       .request<DictionaryItemRef[]>('get', `dictionaries/${dictionary}`)
-      .subscribe({
-        next: (items) => {
-          this.setDictionary(dictionary, items);
-          this.setLoading(dictionary, false);
-        },
-        error: () => {
-          this.setDictionary(dictionary, []);
-          this.setError(dictionary, true);
-          this.setLoading(dictionary, false);
-        },
-      });
+      .pipe(
+        tap({
+          error: () => {
+            this.setDictionary(dictionary, []);
+            this.setError(dictionary, true);
+          },
+        }),
+        finalize(() => this.setLoading(dictionary, false)),
+      )
+      .subscribe((items) => this.setDictionary(dictionary, items));
   }
 
   // Getter methods
@@ -51,13 +50,12 @@ export class BuiltInDictionaryService {
         tap({
           next: (items) => {
             this.setDictionary(dictionary, items);
-            this.setLoading(dictionary, false);
           },
           error: () => {
             this.setError(dictionary, true);
-            this.setLoading(dictionary, false);
           },
         }),
+        finalize(() => this.setLoading(dictionary, false)),
       );
   }
 

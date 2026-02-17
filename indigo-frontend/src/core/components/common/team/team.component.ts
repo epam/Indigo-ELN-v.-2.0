@@ -108,11 +108,9 @@ export class TeamComponent implements OnInit {
           this.loading.update((l) => ({ ...l, suggestions: false })),
         ),
       )
-      .subscribe({
-        next: (list) => {
-          this.userSuggestions = list;
-          this.rebuildSuggestionsState();
-        },
+      .subscribe((list) => {
+        this.userSuggestions = list;
+        this.rebuildSuggestionsState();
       });
   }
 
@@ -150,9 +148,7 @@ export class TeamComponent implements OnInit {
           this.loading.update((l) => ({ ...l, addingUsers: false }));
         }),
       )
-      .subscribe({
-        next: () => this.handleSuccessfulUserAddition(),
-      });
+      .subscribe(() => this.handleSuccessfulUserAddition());
   }
 
   updateAclLevel(member: ProjectAcl, rawLevel: string): void {
@@ -181,15 +177,13 @@ export class TeamComponent implements OnInit {
           });
         }),
       )
-      .subscribe({
-        next: (projectAcl) => {
-          if (projectAcl) {
-            const updated = this._team().map((m) =>
-              m.userId === member.userId ? { ...m, level: newLevel } : m,
-            );
-            this._team.set(updated);
-          }
-        },
+      .subscribe((projectAcl) => {
+        if (projectAcl) {
+          const updated = this._team().map((m) =>
+            m.userId === member.userId ? { ...m, level: newLevel } : m,
+          );
+          this._team.set(updated);
+        }
       });
   }
 

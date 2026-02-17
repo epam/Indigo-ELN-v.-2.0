@@ -1,6 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { NotebookDetail } from '@/core/types/entities/notebook-detail.i';
 import { ApiService } from '@/core/services/api.service';
+import { finalize, tap } from 'rxjs';
 
 @Injectable()
 export class NotebookService {
@@ -13,25 +14,32 @@ export class NotebookService {
   private readonly currentId = signal<string | null>(null);
 
   // Public API
-  setNotebook(notebookDetail: NotebookDetail | null) { this.notebook.set(notebookDetail); }
-  setLoading(value: boolean) { this.isLoading.set(value); }
-  setError(value: boolean) { this.hasError.set(value); }
+  setNotebook(notebookDetail: NotebookDetail | null) {
+    this.notebook.set(notebookDetail);
+  }
+  setLoading(value: boolean) {
+    this.isLoading.set(value);
+  }
+  setError(value: boolean) {
+    this.hasError.set(value);
+  }
 
   load(id: string) {
     this.currentId.set(id);
     this.isLoading.set(true);
     this.hasError.set(false);
 
-    this.api.request<NotebookDetail>('get', `notebooks/${id}`).subscribe({
-      next: (nb) => {
+    this.api
+      .request<NotebookDetail>('get', `notebooks/${id}`)
+      .pipe(
+        tap({
+          error: () => this.isLoading.set(false),
+        }),
+        finalize(() => this.isLoading.set(false)),
+      )
+      .subscribe((nb) => {
         this.notebook.set(nb);
-        this.isLoading.set(false);
-      },
-      error: () => {
-        this.hasError.set(true);
-        this.isLoading.set(false);
-      },
-    });
+      });
   }
 
   refresh() {

@@ -6,10 +6,8 @@ import { Component, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { toHTML } from 'ngx-editor';
-import { tap } from 'rxjs';
 import { NOTEBOOK_NAME_LENGTH } from '../notebook.constants';
 
 @Component({
@@ -27,7 +25,6 @@ import { NOTEBOOK_NAME_LENGTH } from '../notebook.constants';
 export class NotebookAddComponent {
   projectId: string;
   dialogRef = inject(MatDialogRef);
-  private snackBar = inject(MatSnackBar);
   fields: FormlyFieldConfig[] = [
     {
       type: 'input',
@@ -75,11 +72,8 @@ export class NotebookAddComponent {
             ? toHTML(data.description)
             : data.description,
       })
-      .pipe(
-        tap(() => {
-          this.dialogRef.close('refresh');
-        }),
-      )
-      .subscribe();
+      .subscribe(() => {
+        this.dialogRef.close('refresh');
+      });
   }
 }

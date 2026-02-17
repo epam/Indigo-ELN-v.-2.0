@@ -3,7 +3,7 @@ import { ApiService } from '@/core/services/api.service';
 import { ExperimentDetail } from '@core/types/entities/experiments/experiment-detail.i';
 import { ExperimentModel } from '@core/types/entities/experiments/experiment.i';
 import { Mutation } from '@core/types/entities/experiments/mutation.i';
-import { Observable, tap } from 'rxjs';
+import { finalize, Observable, tap } from 'rxjs';
 
 @Injectable()
 export class ExperimentDetailService {
@@ -27,16 +27,15 @@ export class ExperimentDetailService {
 
     this.service
       .request<ExperimentDetail>('get', `experiments/${id}`)
-      .subscribe({
-        next: (exp) => {
-          this.experimentDetail.set(exp);
-          this.experimentModel.set(exp.model);
-          this.isLoading.set(false);
-        },
-        error: () => {
-          this.hasError.set(true);
-          this.isLoading.set(false);
-        },
+      .pipe(
+        tap({
+          error: () => this.hasError.set(true),
+        }),
+        finalize(() => this.isLoading.set(false)),
+      )
+      .subscribe((exp) => {
+        this.experimentDetail.set(exp);
+        this.experimentModel.set(exp.model);
       });
   }
 
@@ -75,7 +74,7 @@ export class ExperimentDetailService {
             this.experimentModel.set(updatedModel);
             this.isLoading.set(false);
           },
-          error: (error) => {
+          error: () => {
             this.hasError.set(true);
             this.isLoading.set(false);
           },

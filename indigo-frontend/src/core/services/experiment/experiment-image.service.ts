@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from '@/core/services/api.service';
-import { catchError, of } from 'rxjs';
+import { finalize, tap } from 'rxjs';
 
 @Injectable()
 export class ExperimentImageService {
@@ -26,23 +26,17 @@ export class ExperimentImageService {
         responseType: 'blob',
       })
       .pipe(
-        catchError((err) => {
-          this.hasError.set(true);
-          this.isLoading.set(false);
-          return of(null);
+        tap({
+          error: () => this.hasError.set(true),
         }),
+        finalize(() => this.isLoading.set(false)),
       )
       .subscribe((blob) => {
-        this.isLoading.set(false);
-        if (blob) {
-          // Limpiar URL anterior si existe
-          const currentUrl = this.imageUrl();
-          if (currentUrl) {
-            URL.revokeObjectURL(currentUrl);
-          }
-          // Crear nueva URL desde el Blob
-          this.imageUrl.set(URL.createObjectURL(blob));
+        const currentUrl = this.imageUrl();
+        if (currentUrl) {
+          URL.revokeObjectURL(currentUrl);
         }
+        this.imageUrl.set(URL.createObjectURL(blob));
       });
   }
 

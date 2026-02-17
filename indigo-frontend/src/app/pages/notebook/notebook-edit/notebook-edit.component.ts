@@ -81,8 +81,8 @@ export class NotebookEditComponent {
             ? toHTML(data.description)
             : data.description,
       })
-      .subscribe((result) => {
-        if (result) this.dialogRef.close('refresh');
+      .subscribe(() => {
+        this.dialogRef.close('refresh');
       });
   }
 }

@@ -98,19 +98,16 @@ export class ProjectAddComponent implements OnInit {
             ? toHTML(data.description)
             : data.description,
       })
-      .pipe(
-        tap((newProject: Project) => {
-          this.dialogRef.close('refresh');
-          this.router.navigate(['/projects', newProject.id]);
+      .subscribe((newProject: Project) => {
+        this.dialogRef.close('refresh');
+        this.router.navigate(['/projects', newProject.id]);
 
-          this.notificationService.notify({
-            message: `Project '${data.name}' has been successfully created`,
-            type: NotificationType.Success,
-            isInline: false,
-          });
-        }),
-      )
-      .subscribe();
+        this.notificationService.notify({
+          message: `Project '${data.name}' has been successfully created`,
+          type: NotificationType.Success,
+          isInline: false,
+        });
+      });
   }
 
   updateProject(data: Project) {
