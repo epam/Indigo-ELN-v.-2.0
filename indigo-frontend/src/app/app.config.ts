@@ -22,6 +22,8 @@ import { FormlyPresetModule } from '@ngx-formly/core/preset';
 import { FormlyMaterialModule } from '@ngx-formly/material';
 import { FormlyMatDatepickerModule } from '@ngx-formly/material/datepicker';
 import { routes } from './app.routes';
+import { SelectFieldComponent } from '@/core/components/formly/fields/select-field.component';
+import { SelectChipsComponent } from '@/core/components/formly/fields/select-chips.component';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -44,6 +46,16 @@ export const appConfig: ApplicationConfig = {
             component: EditorFormlyFieldComponent,
             wrappers: ['raw'],
           },
+          {
+            name: 'select',
+            component: SelectFieldComponent,
+            wrappers: ['raw'],
+          },
+          {
+            name: 'select-chips',
+            component: SelectChipsComponent,
+            wrappers: ['raw']
+          }
         ],
         validationMessages: [
           {
