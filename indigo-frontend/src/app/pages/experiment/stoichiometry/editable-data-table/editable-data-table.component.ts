@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   MatCell,
@@ -24,11 +24,13 @@ import {
   ColumnConfig,
   FieldValue,
   UnitFieldValue,
+  ExpandableConfig,
 } from '../shared/editable-table.types';
 
 @Component({
   selector: 'eln-editable-data-table',
   templateUrl: './editable-data-table.component.html',
+  styleUrl: './editable-data-table.component.scss',
   imports: [
     MatTable,
     MatColumnDef,
@@ -53,6 +55,7 @@ import {
 })
 export class EditableDataTableComponent<TRow = unknown> {
   readonly ColumnInputType = ColumnInputType;
+  @ViewChild(MatTable) table?: MatTable<TRow>;
 
   title = input.required<string>();
   dataSource = input.required<TRow[]>();
@@ -60,8 +63,11 @@ export class EditableDataTableComponent<TRow = unknown> {
   displayedColumns = input.required<string[]>();
   emptyMessage = input<string>('No data available');
   showAddButton = input<boolean>(true);
+  expandableConfig = input<ExpandableConfig<TRow> | null>(null);
 
   addRow = output<void>();
+
+  expandedRows = signal<Set<TRow>>(new Set());
 
   compareDictionaryItems = (a?: DictionaryItemRef | null, b?: DictionaryItemRef | null) =>
     !!a && !!b ? a.id === b.id : a === b;
@@ -80,4 +86,29 @@ export class EditableDataTableComponent<TRow = unknown> {
   onAddRow() {
     this.addRow.emit();
   }
+
+  toggleRow(row: TRow) {
+    const expanded = this.expandedRows();
+    if (expanded.has(row)) {
+      expanded.delete(row);
+    } else {
+      expanded.add(row);
+    }
+    this.expandedRows.set(new Set(expanded));
+    this.table?.renderRows();
+  }
+
+  isRowExpanded(row: TRow): boolean {
+    return this.expandedRows().has(row);
+  }
+
+  getDisplayedColumnsWithExpand(): string[] {
+    const config = this.expandableConfig();
+    if (config?.enabled) {
+      return ['expand', ...this.displayedColumns()];
+    }
+    return this.displayedColumns();
+  }
+
+  detailRow = (_index: number, row: TRow) => this.isRowExpanded(row);
 }

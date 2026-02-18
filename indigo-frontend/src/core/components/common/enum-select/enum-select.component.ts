@@ -30,6 +30,7 @@ interface EnumItem extends HasId {
 @Component({
   selector: 'eln-enum-select',
   templateUrl: './enum-select.component.html',
+  styleUrl: './enum-select.component.scss',
   imports: [
     CommonModule,
     AutocompleteSelectComponent,

@@ -10,9 +10,9 @@ import { MatOption, MatSelect } from '@angular/material/select';
 @Component({
   selector: 'eln-entered-value',
   templateUrl: './entered-value.component.html',
+  styleUrl: './entered-value.component.scss',
   providers: [DecimalPipe],
   imports: [DecimalPipe, MatSelect, MatOption, NgClass],
-  styles: ``,
 })
 export class EnteredValueComponent<U> {
   private _value: EnteredValue<U> | null;

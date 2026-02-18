@@ -1,5 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
 import { ApiService } from '@/core/services/api.service';
 import { DictionaryItemRef, BuiltInDictionary } from '@/core/types/entities/dictionary.i';
 
@@ -9,94 +8,51 @@ import { DictionaryItemRef, BuiltInDictionary } from '@/core/types/entities/dict
 export class BuiltInDictionaryService {
   private service = inject(ApiService);
 
-  // Signals for dictionary state - keyed by dictionary type
-  readonly dictionaries = signal<Map<BuiltInDictionary, DictionaryItemRef[]>>(new Map());
-  readonly isLoading = signal<Map<BuiltInDictionary, boolean>>(new Map());
-  readonly hasError = signal<Map<BuiltInDictionary, boolean>>(new Map());
+  // Private cache to track loaded dictionaries
+  private cache = new Map<BuiltInDictionary, DictionaryItemRef[]>();
+  private loading = new Set<BuiltInDictionary>();
 
-  // Query methods
-  load(dictionary: BuiltInDictionary) {
-    console.log(`BuiltInDictionaryService.load(${dictionary})`);
-    this.setLoading(dictionary, true);
-    this.setError(dictionary, false);
+  /**
+   * Load one or more dictionaries into cache.
+   * Prevents duplicate requests and respects existing cache.
+   */
+  load(dictionaries: BuiltInDictionary[], forceReload = false) {
+    dictionaries.forEach(dict => this.loadSingle(dict, forceReload));
+  }
+
+  /**
+   * Get dictionary items from cache.
+   * Returns empty array if not loaded.
+   */
+  getDictionaryItem(dictionary: BuiltInDictionary): DictionaryItemRef[] {
+    return this.cache.get(dictionary) ?? [];
+  }
+
+  private loadSingle(dictionary: BuiltInDictionary, forceReload = false) {
+    // Return early if already cached and not forcing reload
+    if (!forceReload && this.cache.has(dictionary)) {
+      return;
+    }
+
+    // Prevent duplicate requests
+    if (this.loading.has(dictionary)) {
+      return;
+    }
+
+    this.loading.add(dictionary);
 
     this.service
       .request<DictionaryItemRef[]>('get', `dictionaries/${dictionary}`)
       .subscribe({
         next: (items) => {
-          this.setDictionary(dictionary, items);
-          this.setLoading(dictionary, false);
+          this.cache.set(dictionary, items);
+          this.loading.delete(dictionary);
         },
         error: (error) => {
-          console.warn(
-            `Error loading dictionary ${dictionary}:`,
-            error,
-          );
-          this.setDictionary(dictionary, []);
-          this.setError(dictionary, true);
-          this.setLoading(dictionary, false);
+          console.warn(`Error loading dictionary ${dictionary}:`, error);
+          this.cache.set(dictionary, []);
+          this.loading.delete(dictionary);
         },
       });
-  }
-
-  // Getter methods
-  getDictionary(dictionary: BuiltInDictionary): Observable<DictionaryItemRef[]> {
-    // Return observable from the dictionary endpoint
-    return this.service
-      .request<DictionaryItemRef[]>('get', `dictionaries/${dictionary}`)
-      .pipe(
-        tap({
-          next: (items) => {
-            this.setDictionary(dictionary, items);
-            this.setLoading(dictionary, false);
-          },
-          error: (error) => {
-            console.error(`Error fetching dictionary ${dictionary}:`, error);
-            this.setError(dictionary, true);
-            this.setLoading(dictionary, false);
-          },
-        }),
-      );
-  }
-
-  getDictionaryItems(dictionary: BuiltInDictionary): DictionaryItemRef[] {
-    const dicts = this.dictionaries();
-    return dicts.get(dictionary) ?? [];
-  }
-
-  // Setter methods
-  setDictionary(dictionary: BuiltInDictionary, items: DictionaryItemRef[]) {
-    const dicts = this.dictionaries();
-    dicts.set(dictionary, items);
-    this.dictionaries.set(new Map(dicts));
-  }
-
-  setLoading(dictionary: BuiltInDictionary, value: boolean) {
-    const loadingMap = this.isLoading();
-    loadingMap.set(dictionary, value);
-    this.isLoading.set(new Map(loadingMap));
-  }
-
-  setError(dictionary: BuiltInDictionary, value: boolean) {
-    const errorMap = this.hasError();
-    errorMap.set(dictionary, value);
-    this.hasError.set(new Map(errorMap));
-  }
-
-  // Utility methods
-  refresh(dictionary: BuiltInDictionary) {
-    this.load(dictionary);
-  }
-
-  reset(dictionary: BuiltInDictionary) {
-    this.setDictionary(dictionary, []);
-    this.setLoading(dictionary, false);
-    this.setError(dictionary, false);
-  }
-
-  resetAll() {
-    this.dictionaries.set(new Map());
-    this.isLoading.set(new Map());
-    this.hasError.set(new Map());
   }
 }

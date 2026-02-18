@@ -26,6 +26,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 @Component({
   selector: 'eln-dictionary-select',
   templateUrl: './dictionary-select.component.html',
+  styleUrl: './dictionary-select.component.scss',
   imports: [
     CommonModule,
     AutocompleteSelectComponent,
