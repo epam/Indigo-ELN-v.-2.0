@@ -72,7 +72,11 @@ public class EasySignatureApplier extends AbstractSigner {
 
     public byte[] rejectDocument(byte[] documentContent, DocumentSignatureBlockEntity signatureTemplateBlock) throws Exception {
         signatureVerifier.verifySignatures(documentContent);
-        return addRejectionField(documentContent, signatureTemplateBlock);
+        ByteArrayOutputStream fout = new ByteArrayOutputStream();
+        PdfSignatureAppearance sap = getPdfSignatureAppearance(documentContent, signatureTemplateBlock, getSignatureRejectedText(signatureTemplateBlock),
+                getImageBytes(signatureRejectedImage), fout);
+        return fout.toByteArray();
+        //return addRejectionField(documentContent, signatureTemplateBlock);
     }
 
     public byte[] breakDocumentIntegrity(byte[] documentContent) {

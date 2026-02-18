@@ -23,6 +23,7 @@ public abstract class AbstractSigner implements SignatureApplier {
 
     protected SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss zzz");
     protected String signatureApprovedImage = "approved.jpg";
+    protected String signatureRejectedImage = "rejected.jpg";
     protected SignatureVerifier signatureVerifier = new SignatureVerifier();
 
     public byte[] signDocument(byte[] documentContent, Certificate[] chain,
@@ -33,7 +34,8 @@ public abstract class AbstractSigner implements SignatureApplier {
         return fout.toByteArray();
     }
 
-    protected PdfSignatureAppearance getPdfSignatureAppearance(byte[] documentContent, DocumentSignatureBlockEntity DocumentSignatureBlockEntity, String text, byte[] image, ByteArrayOutputStream fout) throws IOException, DocumentException {
+    protected PdfSignatureAppearance getPdfSignatureAppearance(byte[] documentContent, DocumentSignatureBlockEntity DocumentSignatureBlockEntity,
+                                                               String text, byte[] image, ByteArrayOutputStream fout) throws IOException, DocumentException {
         int i = DocumentSignatureBlockEntity.getIndex();
         boolean first = i == 1;
 
@@ -86,7 +88,7 @@ public abstract class AbstractSigner implements SignatureApplier {
     }
 
     protected String cutLongText(String text) {
-        if (text.length() <= 35) {
+        if (text == null || text.length() <= 35) {
             return text;
         } else if (text.length() < 70) {
             return text.substring(0, 35) + "\n" + text.substring(35);
