@@ -33,7 +33,7 @@ export class NotebookService {
       .request<NotebookDetail>('get', `notebooks/${id}`)
       .pipe(
         tap({
-          error: () => this.isLoading.set(false),
+          error: () => this.hasError.set(true),
         }),
         finalize(() => this.isLoading.set(false)),
       )
