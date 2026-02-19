@@ -1,4 +1,5 @@
 import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
+import { Type } from '@angular/core';
 
 export enum ColumnInputType {
   TEXT = 'text',
@@ -35,4 +36,10 @@ export interface ColumnConfig<TRow = unknown> {
   editable?: (row: TRow) => boolean;
   onSave?: (row: TRow, payload?: unknown) => void;
   options?: ColumnOption[] | DictionaryItemRef[];
+}
+
+export interface ExpandableConfig<TRow = unknown> {
+  enabled: boolean;
+  component: Type<any>;
+  getRowData: (row: TRow) => any;
 }
