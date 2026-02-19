@@ -5,7 +5,6 @@ import { ElnWrapperFormField } from '@/core/components/formly/wrappers/field-wra
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import {
   ApplicationConfig,
-  ErrorHandler,
   importProvidersFrom,
   provideZoneChangeDetection,
 } from '@angular/core';
@@ -28,7 +27,6 @@ import {
   UserActivityService,
   withAutoRefreshToken,
 } from 'keycloak-angular';
-import { ELNErrorHandler } from '@core/services/error-handler';
 
 const urlCondition = createInterceptorCondition<IncludeBearerTokenCondition>({
   urlPattern: /^(http:\/\/localhost:8080)(\/.*)?$/i,
@@ -107,6 +105,5 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideAnimationsAsync(),
     provideHttpClient(withInterceptors([includeBearerTokenInterceptor])),
-    { provide: ErrorHandler, useClass: ELNErrorHandler },
   ],
 };

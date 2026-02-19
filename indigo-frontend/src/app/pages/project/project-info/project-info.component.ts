@@ -8,7 +8,7 @@ import { Project } from '@/core/types/entities/project.i';
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { finalize, from, Subject, take, tap } from 'rxjs';
+import { finalize, from, Subject, take } from 'rxjs';
 import { concatMap, takeUntil } from 'rxjs/operators';
 import { FileUploadComponent } from '@/core/components/common/file-upload/file-upload.component';
 import { Attachment } from '@/core/types/entities/attachment.i';
@@ -115,13 +115,11 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
     this.hasError = false;
     this.service
       .request<Project>('get', `projects/${id}`)
-      .pipe(
-        tap({
-          error: () => (this.hasError = true),
-        }),
-        finalize(() => (this.isLoading = false)),
-      )
-      .subscribe((project) => (this.project = project));
+      .pipe(finalize(() => (this.isLoading = false)))
+      .subscribe({
+        next: (project) => (this.project = project),
+        error: () => (this.hasError = true),
+      });
   }
 
   async openModal(mode: projectInfoModalEnum) {

@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { ApiService } from '@/core/services/api.service';
-import { BehaviorSubject, filter, map, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, filter, map, switchMap } from 'rxjs';
 import { LoadingState } from '@core/types/entities/loading-state.i';
 import { Template } from '@core/types/entities/template.i';
 import { ExperimentModel } from '@core/types/entities/experiments/experiment.i';
@@ -64,19 +64,19 @@ export class ExperimentService {
             .request<ExperimentModel>('get', `experiments/${id}/datamodel`)
             .pipe(map((model) => ({ experiment, template, model }))),
         ),
-        tap({
-          error: () => {
-            this.experimentSubject.next({ state: 'error' });
-            this.template.next({ state: 'error' });
-            this.model.next({ state: 'error' });
-          },
-        }),
       )
-      .subscribe((data) => {
-        const { experiment, template, model } = data;
-        this.experimentSubject.next({ state: 'ready', value: experiment });
-        this.template.next({ state: 'ready', value: template });
-        this.model.next({ state: 'ready', value: model });
+      .subscribe({
+        next: (data) => {
+          const { experiment, template, model } = data;
+          this.experimentSubject.next({ state: 'ready', value: experiment });
+          this.template.next({ state: 'ready', value: template });
+          this.model.next({ state: 'ready', value: model });
+        },
+        error: () => {
+          this.experimentSubject.next({ state: 'error' });
+          this.template.next({ state: 'error' });
+          this.model.next({ state: 'error' });
+        },
       });
   }
 
@@ -86,15 +86,9 @@ export class ExperimentService {
       .request<Blob>('get', `experiments/${experimentId}/picture`, {
         responseType: 'blob',
       })
-      .pipe(
-        tap({
-          error: () => {
-            this.picture.next({ state: 'error' });
-          },
-        }),
-      )
-      .subscribe((data) => {
-        this.picture.next({ state: 'ready', value: data });
+      .subscribe({
+        next: (data) => this.picture.next({ state: 'ready', value: data }),
+        error: () => this.picture.next({ state: 'error' }),
       });
   }
 

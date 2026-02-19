@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from '@/core/services/api.service';
-import { finalize, tap } from 'rxjs';
+import { finalize } from 'rxjs';
 
 @Injectable()
 export class ExperimentImageService {
@@ -25,18 +25,16 @@ export class ExperimentImageService {
       .request<Blob>('get', `experiments/${experimentId}/picture`, undefined, {
         responseType: 'blob',
       })
-      .pipe(
-        tap({
-          error: () => this.hasError.set(true),
-        }),
-        finalize(() => this.isLoading.set(false)),
-      )
-      .subscribe((blob) => {
-        const currentUrl = this.imageUrl();
-        if (currentUrl) {
-          URL.revokeObjectURL(currentUrl);
-        }
-        this.imageUrl.set(URL.createObjectURL(blob));
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe({
+        next: (blob) => {
+          const currentUrl = this.imageUrl();
+          if (currentUrl) {
+            URL.revokeObjectURL(currentUrl);
+          }
+          this.imageUrl.set(URL.createObjectURL(blob));
+        },
+        error: () => this.hasError.set(true),
       });
   }
 

@@ -85,11 +85,6 @@ export class TemplateAddComponent implements OnInit {
             ? toHTML(data.templateTabs)
             : data.templateTabs,
       })
-      .pipe(
-        tap(() => {
-          this.dialogRef.close('refresh');
-        }),
-      )
-      .subscribe();
+      .subscribe(() => this.dialogRef.close('refresh'));
   }
 }

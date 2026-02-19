@@ -27,15 +27,13 @@ export class ExperimentDetailService {
 
     this.service
       .request<ExperimentDetail>('get', `experiments/${id}`)
-      .pipe(
-        tap({
-          error: () => this.hasError.set(true),
-        }),
-        finalize(() => this.isLoading.set(false)),
-      )
-      .subscribe((exp) => {
-        this.experimentDetail.set(exp);
-        this.experimentModel.set(exp.model);
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe({
+        next: (exp) => {
+          this.experimentDetail.set(exp);
+          this.experimentModel.set(exp.model);
+        },
+        error: () => this.hasError.set(true),
       });
   }
 

@@ -1,10 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { ApiService } from '@/core/services/api.service';
 import {
-  DictionaryItemRef,
   BuiltInDictionary,
+  DictionaryItemRef,
 } from '@/core/types/entities/dictionary.i';
-import { tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -47,17 +46,15 @@ export class BuiltInDictionaryService {
 
     this.service
       .request<DictionaryItemRef[]>('get', `dictionaries/${dictionary}`)
-      .pipe(
-        tap({
-          error: () => {
-            this.cache.set(dictionary, []);
-            this.loading.delete(dictionary);
-          },
-        }),
-      )
-      .subscribe((items) => {
-        this.cache.set(dictionary, items);
-        this.loading.delete(dictionary);
+      .subscribe({
+        next: (items) => {
+          this.cache.set(dictionary, items);
+          this.loading.delete(dictionary);
+        },
+        error: () => {
+          this.cache.set(dictionary, []);
+          this.loading.delete(dictionary);
+        },
       });
   }
 }
