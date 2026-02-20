@@ -246,7 +246,7 @@ class ProjectRedoHandler extends AbstractProjectMutationHandler<ProjectMutation.
 
     @Override
     public MutationResult doHandle(ProjectEntity project, @Nullable Void model, ProjectMutation.ProjectRedo mutation) {
-        // !!! verify revision was undone
+        // !!! verify revision was previously undone
         initialHandler.doHandle(project, model, initialMutation);
         return new MutationResult("Redo: " + initialRevision.getSummary(), null);
     }

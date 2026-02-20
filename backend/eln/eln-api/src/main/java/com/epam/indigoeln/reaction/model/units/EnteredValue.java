@@ -2,7 +2,9 @@ package com.epam.indigoeln.reaction.model.units;
 
 import com.epam.indigoeln.reaction.util.MeasurementUtil;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Preconditions;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -13,66 +15,64 @@ import org.jspecify.annotations.Nullable;
 import java.util.function.Consumer;
 
 import static com.epam.indigoeln.reaction.model.units.EnteredValueSource.DEFAULT;
-import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.formatToSignificantFigures;
+import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.roundToSignificantFigures;
 
 @Getter
 @EqualsAndHashCode
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class EnteredValue<U extends MeasurementUnit> {
 
-    public static final EnteredValue<NoUnit> DEFAULT_ONE = defaultValue(1.0, NoUnit.NO_UNIT);
-    public static final EnteredValue<MolUnit> ZERO_MOL = defaultValue(0.0, MolUnit.MOL);
+    public static final EnteredValue<NoUnit> DEFAULT_ONE = defaultValue(1.0, 1, NoUnit.NO_UNIT);
+    public static final EnteredValue<NoUnit> DEFAULT_ONE_HUNDRED = defaultValue(100.0, 1, NoUnit.NO_UNIT);
+    public static final EnteredValue<MolUnit> ZERO_MOL = defaultValue(0.0, 0, MolUnit.MOL);
 
+    @JsonIgnore
     private final double value;
     private final U unit;
-    private EnteredValueSource source;
+    @JsonProperty("value")
+    private final String stringValue; // for now, always set; maybe postpone initialization for calculated values if gets recalculated too often
+    private final EnteredValueSource source;
     @Setter
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private boolean conflict = false;
 
     @JsonCreator
-    public EnteredValue(double value, U unit, EnteredValueSource source) {
+    EnteredValue(String stringValue, U unit, EnteredValueSource source) {
+        this(Double.parseDouble(stringValue), stringValue, unit, source);
+    }
+
+    public EnteredValue(double value, String stringValue, U unit, EnteredValueSource source) {
         this.value = value;
+        this.stringValue = stringValue;
         this.unit = unit;
         this.source = source;
     }
 
     @Nullable
-    public static <U extends MeasurementUnit> EnteredValue<U> fixed(@Nullable Double value, U unit) {
-        return value != null ? new EnteredValue<>(value, unit, EnteredValueSource.FIXED) : null;
+    public static <U extends MeasurementUnit> EnteredValue<U> fixed(@Nullable Double value, int precision, U unit) {
+        return value != null ? new EnteredValue<>(roundToSignificantFigures(value, precision), formatToSignificantFigures(value, precision), unit, EnteredValueSource.FIXED) : null;
     }
 
     @Nullable
-    public static <U extends MeasurementUnit> EnteredValue<U> userEntered(@Nullable Double value, @Nullable U unit, int revision) {
-        return value != null && unit != null ? new EnteredValue<>(value, unit, EnteredValueSource.userEntered(revision)) : null;
-    }
-
-    public static <U extends MeasurementUnit> EnteredValue<U> userEntered(@Nullable Double value, U unit, double defaultValue, int revision) {
-        return new EnteredValue<>(firstNonNull(value, defaultValue), unit, EnteredValueSource.userEntered(revision));
-    }
-
-    public static <U extends MeasurementUnit> EnteredValue<U> userEntered(@Nullable Double value, @Nullable U unit, double defaultValue, U defaultUnit, int revision) {
-        return new EnteredValue<>(firstNonNull(value, defaultValue), firstNonNull(unit, defaultUnit), EnteredValueSource.userEntered(revision));
+    public static <U extends MeasurementUnit> EnteredValue<U> userEntered(@Nullable String stringValue, @Nullable U unit, int revision) {
+        return stringValue != null && unit != null ? new EnteredValue<>(Double.parseDouble(stringValue), stringValue, unit, EnteredValueSource.userEntered(revision)) : null;
     }
 
     @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> calculated(@Nullable Double value, U unit, EnteredValue<?> from1, EnteredValue<?> from2) {
-        return value != null ? new EnteredValue<>(value, unit, EnteredValueSource.calculated(from1.source, from2.source)) : null;
+        return value != null ? new EnteredValue<>(value, formatToSignificantFigures(value), unit, EnteredValueSource.calculated(from1.source, from2.source)) : null;
     }
 
     @Nullable
-    public static <U extends MeasurementUnit> EnteredValue<U> defaultValue(@Nullable Double value, @Nullable U unit) {
-        return value != null && unit != null ? new EnteredValue<>(value, unit, DEFAULT) : null;
+    public static <U extends MeasurementUnit> EnteredValue<U> defaultValue(@Nullable Double value, int precision, @Nullable U unit) {
+        return value != null && unit != null ? new EnteredValue<>(roundToSignificantFigures(value, precision), formatToSignificantFigures(value, precision), unit, DEFAULT) : null;
     }
 
-    public static <U extends MeasurementUnit> void prepareToRecalculate(EnteredValue<U> value, Consumer<EnteredValue<U>> setter, @Nullable EnteredValue<U> defaultValue) {
-        doPrepareToRecalculate(value, setter, defaultValue);
-    }
-
-    private static <U extends MeasurementUnit> void doPrepareToRecalculate(@Nullable EnteredValue<U> value, Consumer<@Nullable EnteredValue<U>> setter, @Nullable EnteredValue<U> defaultValue) {
+    public static <U extends MeasurementUnit> void prepareToRecalculate(@Nullable EnteredValue<U> value, Consumer<@Nullable EnteredValue<U>> setter, @Nullable EnteredValue<U> defaultValue) {
         if (value != null) {
             if (value.source.isCalculated()) {
-                setter.accept(defaultValue); // clear calculated values
+                setter.accept(defaultValue); // reset calculated values
             }
             value.conflict = false;
         }
@@ -124,10 +124,14 @@ public final class EnteredValue<U extends MeasurementUnit> {
 
     @Override
     public String toString() {
-        String str = source + ": " + Precision.round(value, 6) + " " + unit;
-        if (conflict) {
-            str += " [CONFLICT]";
+        StringBuilder str = new StringBuilder();
+        str.append(source).append(": ").append(stringValue);
+        if (unit != NoUnit.NO_UNIT) {
+            str.append(' ').append(unit);
         }
-        return str;
+        if (conflict) {
+            str.append(" [CONFLICT]");
+        }
+        return str.toString();
     }
 }

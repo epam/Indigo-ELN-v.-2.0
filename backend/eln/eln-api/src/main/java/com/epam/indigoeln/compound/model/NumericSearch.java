@@ -26,4 +26,14 @@ public sealed interface NumericSearch permits NumericSearch.Equals, NumericSearc
             @NotNull Double value
     ) implements NumericSearch {
     }
+
+    Double value();
+
+    default String operator() {
+        return switch (this) {
+            case Equals eq -> "=";
+            case GreaterThanOrEqual ge -> ">=";
+            case LessThanOrEqual le -> "<=";
+        };
+    }
 }

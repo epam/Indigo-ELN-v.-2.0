@@ -21,6 +21,7 @@ import com.epam.indigoeln.reaction.service.calculator.ReactionCalculator;
 import com.epam.indigoeln.reaction.service.mutation.AbstractMutationHandler;
 import com.epam.indigoeln.reaction.service.mutation.ExperimentMutationHandler;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
+import com.epam.indigoeln.reaction.util.SignificantFiguresUtil;
 import com.epam.indigoeln.reaction.util.StreamUtil;
 import com.google.common.base.Preconditions;
 import jakarta.inject.Inject;
@@ -75,6 +76,7 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation> exte
     protected ExperimentModel doPrepareModel(ExperimentEntity experiment) {
         if (isAffectsModel()) {
             ExperimentModel model = experimentModelService.getModel(experiment);
+            SignificantFiguresUtil.setSignificantFigures(model.getSignificantFigures());
             ExperimentModelUtil.prepareToRecalculate(model);
             return model;
         }
@@ -87,6 +89,7 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation> exte
             reactionCalculator.recalculate(model);
             doUpdateReferences(experiment, model,  snapshotBefore, snapshotAfter);
             doValidateModel(model);
+            SignificantFiguresUtil.clearSignificantFigures();
         }
         updateDates(experiment, userService.getCurrentUserEntity());
         if (model != null) {

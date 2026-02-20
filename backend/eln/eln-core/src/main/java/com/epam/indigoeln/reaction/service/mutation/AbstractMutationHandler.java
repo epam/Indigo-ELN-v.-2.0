@@ -35,7 +35,6 @@ public abstract class AbstractMutationHandler<T extends Mutation, M, E extends W
         S snapshotBefore = doSnapshotBefore(entity);
         // calculate next revision number
         Integer revisionNo = doGetRevisionNo(entity);
-        System.err.println("!!! applyMutation: entity=" + entity + ", mutation=" + mutation + ", revisionNo=" + revisionNo);
         // prepare model; only used for subset of experiment handlers that work with experiment model
         M model = doPrepareModel(entity);
         // augment mutation if needed; for example, pre-assign anchors for created objects to make redo deterministic

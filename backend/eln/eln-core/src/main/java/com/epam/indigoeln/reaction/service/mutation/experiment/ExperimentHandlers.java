@@ -293,7 +293,7 @@ class RedoHandler extends ExperimentMutationHandlerBase<ExperimentMutation.Redo>
 
     @Override
     public MutationResult doHandle(ExperimentEntity experiment, @Nullable ExperimentModel model, ExperimentMutation.Redo mutation) {
-        // !!! verify revision was undone
+        // !!! verify revision was previously undone
         initialHandler.doHandle(experiment, model, initialMutation);
         affectedRoles.addAll(initialHandler.affectedRoles);
         return new MutationResult("Redo: " + initialRevision.getSummary(), null);

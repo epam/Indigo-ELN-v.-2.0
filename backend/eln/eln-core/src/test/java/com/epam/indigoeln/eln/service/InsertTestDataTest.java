@@ -121,23 +121,23 @@ class InsertTestDataTest {
         model = applyMutation(experiment, model, new ReactionOutputMutation.SetOutputRowSaltEQ(output1Anchor, 0.5));
 
         // set input weight
-        model = applyMutation(experiment, model, new ReactionInputSampleMutation.SetInputWeight(input1Sample1Anchor, 100.0, WeightUnit.G, null));
+        model = applyMutation(experiment, model, new ReactionInputSampleMutation.SetInputWeight(input1Sample1Anchor, "100.0", WeightUnit.G, null));
 
         // set input eq
-        model = applyMutation(experiment, model, new ReactionInputMutation.SetInputRowEQ(input2Anchor, 2.0, null));
+        model = applyMutation(experiment, model, new ReactionInputMutation.SetInputRowEQ(input2Anchor, "2", null));
 
         // add product sample
         model = applyMutation(experiment, model, new ReactionOutputMutation.AddProductSample(output2Anchor));
         OutputSampleAnchor output2Sample1Anchor = model.getReactions().getFirst().getOutputs().get(1).getSamples().get(0).getAnchor();
 
         // set output actual mol
-        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputActualMol(output2Sample1Anchor, 200.0, MolUnit.MMOL, null));
+        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputActualMol(output2Sample1Anchor, "200.0", MolUnit.MMOL, null));
 
         // set output purity
-        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputPurity(output2Sample1Anchor, 0.5, null));
+        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputPurity(output2Sample1Anchor, "0.5", null));
 
         // set actual weight
-        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputActualWeight(output2Sample1Anchor, 10.0, WeightUnit.G, null));
+        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputActualWeight(output2Sample1Anchor, "10.0", WeightUnit.G, null));
 
         // register sample
         model = applyMutation(experiment, model, new ReactionOutputSampleMutation.RegisterSample(output2Sample1Anchor));

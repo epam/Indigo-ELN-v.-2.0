@@ -117,12 +117,12 @@ public class CompoundService {
     }
 
     public CompoundRef.Stored realCompoundRef(CompoundEntity compound) {
-        return new CompoundRef.Stored(compound.getId(), fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL), compound.getExactMass(), compound.getFormula(), compound.getCompoundKey(), compound.getCasNumber(), calculateBatchMF(compound));
+        return new CompoundRef.Stored(compound.getId(), fixed(compound.getMolWeight(), 4, MolWeightUnit.G_PER_MOL), compound.getExactMass(), compound.getFormula(), compound.getCompoundKey(), compound.getCasNumber(), calculateBatchMF(compound));
     }
 
     public CompoundRef.Virtual virtualCompoundRef(IndigoMolecule molecule, @Nullable DictionaryItemRef stereoisomerCode, @Nullable SaltCodeInfo saltCode, @Nullable Double saltEQ) {
         CompoundEntity compound = findOrCreate(molecule, stereoisomerCode, saltCode, saltEQ);
-        return new CompoundRef.Virtual(compound.getId(), molecule.grossFormula(), compound.getCompoundKey(), stereoisomerCode, saltCode != null ? saltCode.toRef() : null, saltEQ, EnteredValue.fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL), compound.getExactMass(), compound.getCasNumber(), calculateBatchMF(compound));
+        return new CompoundRef.Virtual(compound.getId(), molecule.grossFormula(), compound.getCompoundKey(), stereoisomerCode, saltCode != null ? saltCode.toRef() : null, saltEQ, EnteredValue.fixed(compound.getMolWeight(), 4, MolWeightUnit.G_PER_MOL), compound.getExactMass(), compound.getCasNumber(), calculateBatchMF(compound));
     }
 
     public CompoundRef.Unknown unknownCompoundRef() {

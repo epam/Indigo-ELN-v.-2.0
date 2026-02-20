@@ -89,9 +89,9 @@ public class CompoundServiceTest extends ELNBaseTest {
     void testRegisterSample() {
         SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(compound1)
                 .withNbkBatchNumber(new NbkBatchNumber("00000000-0000", 1))
-                .withDensity(EnteredValue.userEntered(10.0, DensityUnit.G_ML, 1))
-                .withMolarity(EnteredValue.userEntered(20.0, MolarityUnit.MM, 1))
-                .withPurity(0.50)
+                .withDensity(EnteredValue.userEntered("10.0", DensityUnit.G_ML, 1))
+                .withMolarity(EnteredValue.userEntered("20.0", MolarityUnit.MM, 1))
+                .withPurity(50.0)
                 .withHealthHazards(List.of(healthHazard))
                 .withCompoundState(compoundState)
                 .withBatchComment("batch comment")
@@ -107,7 +107,7 @@ public class CompoundServiceTest extends ELNBaseTest {
         assertThat(sample.getDensity()).isEqualTo(10.0, EPS);
         assertThat(sample.getMolarity()).isEqualTo(20.0, EPS);
         assertThat(sample.getMolarityUnit()).isEqualTo(MolarityUnit.MM);
-        assertThat(sample.getPurity()).isEqualTo(0.50, EPS);
+        assertThat(sample.getPurity()).isEqualTo(50.0, EPS);
         assertThat(sample.getHealthHazards()).map(IdentifiableEntity::getId).containsExactly(healthHazard.getId());
         assertThat(sample.getCompoundState()).extracting(IdentifiableEntity::getId).isEqualTo(compoundState.getId());
         assertThat(sample.getBatchComment()).isEqualTo("batch comment");

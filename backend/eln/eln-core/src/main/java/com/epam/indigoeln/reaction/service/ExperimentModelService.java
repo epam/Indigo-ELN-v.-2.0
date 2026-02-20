@@ -74,6 +74,7 @@ public class ExperimentModelService {
         Reaction reaction = Reaction.create(model, new ReactionAnchor(UUID.randomUUID()));
         model.setReactions(List.of(reaction));
         model.setSchemaVersion(ExperimentModel.SCHEMA_VERSION);
+        model.setSignificantFigures(ExperimentModel.DEFAULT_SIGNIFICANT_FIGURES);
         return model;
     }
 

@@ -93,9 +93,9 @@ class ExperimentModelPatchServiceTest {
         baseReaction.setInputs(List.of(baseInput));
         ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT);
         reaction.setInputs(List.of(input));
-        input.setMol(EnteredValue.userEntered(10.0, MolUnit.MMOL, 1));
+        input.setMol(EnteredValue.userEntered("10.0", MolUnit.MMOL, 1));
         makeAndVerifyPatch("""
-                {"model": {"reactions": {"0": {"inputs": {"0": {"mol": {"$new": {"value": 10.0, "unit": "MMOL", "source": 1}}}}}}}}
+                {"model": {"reactions": {"0": {"inputs": {"0": {"mol": {"$new": {"value": "10.0", "unit": "MMOL", "source": 1}}}}}}}}
         """);
     }
 
@@ -105,10 +105,10 @@ class ExperimentModelPatchServiceTest {
         baseReaction.setInputs(List.of(baseInput));
         ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT);
         reaction.setInputs(List.of(input));
-        baseInput.setMol(EnteredValue.userEntered(15.0, MolUnit.MMOL, 1));
-        input.setMol(EnteredValue.userEntered(10.0, MolUnit.MMOL, 1));
+        baseInput.setMol(EnteredValue.userEntered("15.0", MolUnit.MMOL, 1));
+        input.setMol(EnteredValue.userEntered("10.0", MolUnit.MMOL, 1));
         makeAndVerifyPatch("""
-                {"model": {"reactions": {"0": {"inputs": {"0": {"mol": {"value": {"$old": 15.0, "$new": 10.0}}}}}}}}
+                {"model": {"reactions": {"0": {"inputs": {"0": {"mol": {"value": {"$old": "15.0", "$new": "10.0"}}}}}}}}
         """);
     }
 
@@ -118,9 +118,9 @@ class ExperimentModelPatchServiceTest {
         baseReaction.setInputs(List.of(baseInput));
         ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT);
         reaction.setInputs(List.of(input));
-        baseInput.setMol(EnteredValue.userEntered(15.0, MolUnit.MMOL, 1));
+        baseInput.setMol(EnteredValue.userEntered("15.0", MolUnit.MMOL, 1));
         makeAndVerifyPatch("""
-                {"model": {"reactions": {"0": {"inputs": {"0": {"mol": {"$old": {"value": 15.0, "unit": "MMOL", "source": 1}}}}}}}}
+                {"model": {"reactions": {"0": {"inputs": {"0": {"mol": {"$old": {"value": "15.0", "unit": "MMOL", "source": 1}}}}}}}}
         """);
     }
 

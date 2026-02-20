@@ -16,7 +16,7 @@ public interface ReactionOutputSampleMutation extends Mutation {
 
     record SetOutputDensity (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable Double density,
+            @Nullable String density,
             @Nullable DensityUnit unit,
             @Nullable EnteredValueSource source
     ) implements ReactionOutputSampleMutation {
@@ -24,7 +24,7 @@ public interface ReactionOutputSampleMutation extends Mutation {
 
     record SetOutputMolarity (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable Double molarity,
+            @Nullable String molarity,
             @Nullable MolarityUnit unit,
             @Nullable EnteredValueSource source
     ) implements ReactionOutputSampleMutation {
@@ -32,7 +32,7 @@ public interface ReactionOutputSampleMutation extends Mutation {
 
     record SetOutputVolume (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable Double volume,
+            @Nullable String volume,
             @Nullable VolumeUnit unit,
             @Nullable EnteredValueSource source
     ) implements ReactionOutputSampleMutation {
@@ -40,7 +40,7 @@ public interface ReactionOutputSampleMutation extends Mutation {
 
     record SetOutputPurity (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable Double purity,
+            @Nullable String purity,
             @Nullable EnteredValueSource source
     ) implements ReactionOutputSampleMutation {
     }
@@ -53,7 +53,7 @@ public interface ReactionOutputSampleMutation extends Mutation {
 
     record SetOutputActualMol (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable Double actualMol,
+            @Nullable String actualMol,
             @Nullable MolUnit unit,
             @Nullable EnteredValueSource source
     ) implements ReactionOutputSampleMutation {
@@ -61,7 +61,7 @@ public interface ReactionOutputSampleMutation extends Mutation {
 
     record SetOutputActualWeight (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable Double actualWeight,
+            @Nullable String actualWeight,
             @Nullable WeightUnit unit,
             @Nullable EnteredValueSource source
     ) implements ReactionOutputSampleMutation {
