@@ -18,6 +18,7 @@ import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import com.epam.indigoeln.reaction.service.mutation.*;
+import com.google.common.base.Preconditions;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import org.jspecify.annotations.Nullable;
@@ -75,6 +76,24 @@ class CreateExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
 }
 
 @Dependent
+@MutationHandlerFor(ExperimentMutation.SetExperimentSignificantFigures.class)
+class SetExperimentSignificantFiguresHandler extends ExperimentMutationHandlerBase<ExperimentMutation.SetExperimentSignificantFigures> {
+
+    @Override
+    public MutationResult doHandle(ExperimentEntity entity, @Nullable ExperimentModel model, ExperimentMutation.SetExperimentSignificantFigures mutation) {
+        Preconditions.checkArgument(model != null);
+        Integer oldValue = model.getSignificantFigures();
+        model.setSignificantFigures(mutation.significantFigures());
+        return new MutationResult(formatSetterSummary("significant figures", mutation.significantFigures()), new ExperimentMutation.SetExperimentSignificantFigures(oldValue));
+    }
+
+    @Override
+    public boolean isAffectsModel() {
+        return true;
+    }
+}
+
+@Dependent
 @MutationHandlerFor(ExperimentMutation.EditExperimentAttributes.class)
 class EditExperimentAttributesHandler extends ExperimentMutationHandlerBase<ExperimentMutation.EditExperimentAttributes> {
 
@@ -84,7 +103,7 @@ class EditExperimentAttributesHandler extends ExperimentMutationHandlerBase<Expe
     EntityMutationHelper entityMutationHelper;
 
     @Override
-    public MutationResult doHandle(ExperimentEntity experiment, ExperimentModel model, ExperimentMutation.EditExperimentAttributes mutation) {
+    public MutationResult doHandle(ExperimentEntity experiment, @Nullable ExperimentModel model, ExperimentMutation.EditExperimentAttributes mutation) {
         List<String> summaryList = new ArrayList<>();
         editProperty(mutation.therapeuticArea()
                 , v -> {
@@ -115,8 +134,6 @@ class EditExperimentAccessHandler extends ExperimentMutationHandlerBase<Experime
     @Inject
     ProjectRepository projectRepository;
     @Inject
-    UserService userService;
-    @Inject
     EntityMutationHelper entityMutationHelper;
 
     @Override
@@ -130,7 +147,7 @@ class EditExperimentAccessHandler extends ExperimentMutationHandlerBase<Experime
     }
 
     @Override
-    public MutationResult doHandle(ExperimentEntity experiment, ExperimentModel model, ExperimentMutation.EditExperimentAccess mutation) {
+    public MutationResult doHandle(ExperimentEntity experiment, @Nullable ExperimentModel model, ExperimentMutation.EditExperimentAccess mutation) {
         String summary = entityMutationHelper.formatEditAccessSummary(mutation.edits());
         projectRepository.lockProject(experiment.getProject());
         aclService.updateExperimentACL(experiment.getNotebook().getProject(), experiment.getNotebook(), experiment, mutation.edits());
@@ -174,7 +191,7 @@ class DeleteExperimentAttachmentHandler extends ExperimentMutationHandlerBase<Ex
     }
 
     @Override
-    public MutationResult doHandle(ExperimentEntity experiment, ExperimentModel model, ExperimentMutation.DeleteExperimentAttachment mutation) {
+    public MutationResult doHandle(ExperimentEntity experiment, @Nullable ExperimentModel model, ExperimentMutation.DeleteExperimentAttachment mutation) {
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
         experiment.getAttachments().remove(attachment);
         attachment.getExperiments().remove(experiment);

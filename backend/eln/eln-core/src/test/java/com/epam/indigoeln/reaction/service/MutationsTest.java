@@ -493,6 +493,20 @@ public class MutationsTest extends MutationsTestBase {
         assertThat(output1.getSamples()).isEmpty();
     }
 
+    @Test
+    void testSetExperimentSignificantFigures() {
+        loadScheme();
+        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "1234", WeightUnit.G, null));
+        assertThat(experiment.getModel().getSignificantFigures()).isEqualTo(5);
+        assertThat(input1Sample1.getWeight().getStringValue()).isEqualTo("1234");
+        assertThat(input1Sample1.getMol().getStringValue()).isEqualTo("8.9356");
+        applyMutation(new ExperimentMutation.SetExperimentSignificantFigures(3));
+        assertThat(experiment.getModel().getSignificantFigures()).isEqualTo(3);
+        assertThat(input1Sample1.getWeight().getStringValue()).isEqualTo("1234");
+        assertThat(input1Sample1.getMol().getStringValue()).isEqualTo("8.94");
+    }
+
+
     private void loadScheme() {
         String rxnFile = new String(ModelUtil.loadResource(getClass(), "/reaction.rxn"));
         applyMutation(new ReactionMutation.SetScheme(reaction.getAnchor(), rxnFile));
