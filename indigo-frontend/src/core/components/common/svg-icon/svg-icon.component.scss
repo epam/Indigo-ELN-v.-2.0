@@ -1,0 +1,63 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+em[class^='indicon-'] {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+// Size variants
+.icon-small {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.icon-medium {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.icon-large {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.icon-extra-large {
+  font-size: 48px;
+  line-height: 1;
+}
+
+::ng-deep {
+  mat-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    &.icon-small {
+      width: 16px;
+      height: 16px;
+      font-size: 16px;
+    }
+
+    &.icon-medium {
+      width: 20px;
+      height: 20px;
+      font-size: 20px;
+    }
+
+    &.icon-large {
+      width: 32px;
+      height: 32px;
+      font-size: 32px;
+    }
+
+    &.icon-extra-large {
+      width: 48px;
+      height: 48px;
+      font-size: 48px;
+    }
+  }
+}
