@@ -3,17 +3,12 @@ package com.epam.indigoeln.reaction.model.patch;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.reaction.model.patch.handler2.Patched;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
-import com.epam.indigoeln.reaction.model.units.EnteredValueSource;
-import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
 import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonValue;
-import lombok.AccessLevel;
 import lombok.Data;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data
@@ -45,7 +40,7 @@ public class CompoundRefPatch {
     private Patched<EnteredValue<MolWeightUnit>, EnteredValuePatch<MolWeightUnit>> molWeight;
 
     @Nullable
-    private Patched<Double, Double> exactMass;
+    private Patched<BigDecimal, BigDecimal> exactMass;
 
     @Nullable
     private Patched<String, String> casNumber;

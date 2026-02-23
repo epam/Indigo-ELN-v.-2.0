@@ -19,11 +19,11 @@ import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -37,8 +37,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @JwtSecurity
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
 public class CompoundServiceTest extends ELNBaseTest {
-
-    private static final Offset<Double> EPS = Offset.offset(0.0001);
 
     @Inject
     IndigoAPI indigo;
@@ -89,9 +87,9 @@ public class CompoundServiceTest extends ELNBaseTest {
     void testRegisterSample() {
         SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(compound1)
                 .withNbkBatchNumber(new NbkBatchNumber("00000000-0000", 1))
-                .withDensity(EnteredValue.userEntered("10.0", DensityUnit.G_ML, 1))
-                .withMolarity(EnteredValue.userEntered("20.0", MolarityUnit.MM, 1))
-                .withPurity(50.0)
+                .withDensity(EnteredValue.userEntered("10.00", DensityUnit.G_ML, 1))
+                .withMolarity(EnteredValue.userEntered("20", MolarityUnit.MM, 1))
+                .withPurity(new BigDecimal("50.0"))
                 .withHealthHazards(List.of(healthHazard))
                 .withCompoundState(compoundState)
                 .withBatchComment("batch comment")
@@ -104,10 +102,10 @@ public class CompoundServiceTest extends ELNBaseTest {
         assertThat(nbkBatchNumber.getExperimentName()).isEqualTo("00000000-0000");
         assertThat(nbkBatchNumber.getOrdinal()).isEqualTo(1);
         assertThat(nbkBatchNumber.toString()).isEqualTo("00000000-0000-001");
-        assertThat(sample.getDensity()).isEqualTo(10.0, EPS);
-        assertThat(sample.getMolarity()).isEqualTo(20.0, EPS);
+        assertThat(sample.getDensity()).isEqualTo(new BigDecimal("10.00"));
+        assertThat(sample.getMolarity()).isEqualTo(new BigDecimal("20"));
         assertThat(sample.getMolarityUnit()).isEqualTo(MolarityUnit.MM);
-        assertThat(sample.getPurity()).isEqualTo(50.0, EPS);
+        assertThat(sample.getPurity()).isEqualTo(new BigDecimal("50.0"));
         assertThat(sample.getHealthHazards()).map(IdentifiableEntity::getId).containsExactly(healthHazard.getId());
         assertThat(sample.getCompoundState()).extracting(IdentifiableEntity::getId).isEqualTo(compoundState.getId());
         assertThat(sample.getBatchComment()).isEqualTo("batch comment");

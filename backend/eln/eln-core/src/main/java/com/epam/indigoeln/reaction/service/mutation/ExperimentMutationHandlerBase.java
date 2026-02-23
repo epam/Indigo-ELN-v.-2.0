@@ -117,9 +117,9 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
         ReactionInputSample reactionInputSample = ReactionInputSample.create(row, anchor);
         reactionInputSample.setSampleId(sample.getId());
         reactionInputSample.setStrCode(sample.getStrCode());
-        reactionInputSample.setDensity(EnteredValue.defaultValue(sample.getDensity(), 4, DensityUnit.G_ML));
-        reactionInputSample.setMolarity(EnteredValue.defaultValue(sample.getMolarity(), 4, sample.getMolarityUnit()));
-        reactionInputSample.setPurity(sample.getPurity() != null ? EnteredValue.defaultValue(sample.getPurity(), 3, NoUnit.NO_UNIT) : DEFAULT_ONE_HUNDRED);
+        reactionInputSample.setDensity(EnteredValue.defaultValue(sample.getDensity(), DensityUnit.G_ML));
+        reactionInputSample.setMolarity(EnteredValue.defaultValue(sample.getMolarity(), sample.getMolarityUnit()));
+        reactionInputSample.setPurity(sample.getPurity() != null ? EnteredValue.defaultValue(sample.getPurity(), NoUnit.NO_UNIT) : DEFAULT_ONE_HUNDRED);
         reactionInputSample.setHealthHazards(dictionaryMapper.itemToRefList(sample.getHealthHazards()));
         reactionInputSample.setComment(sample.getBatchComment());
         reactionInputSample.setNbkBatchNumber(sample.getNbkBatchNumber());

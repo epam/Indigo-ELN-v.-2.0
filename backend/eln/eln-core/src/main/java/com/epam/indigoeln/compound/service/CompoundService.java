@@ -43,6 +43,8 @@ import java.util.UUID;
 
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.fixed;
+import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.MOL_WEIGHT_DECIMAL_PLACES;
+import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.roundToDecimalPlaces;
 
 @Slf4j
 @DataAccess
@@ -117,12 +119,12 @@ public class CompoundService {
     }
 
     public CompoundRef.Stored realCompoundRef(CompoundEntity compound) {
-        return new CompoundRef.Stored(compound.getId(), fixed(compound.getMolWeight(), 4, MolWeightUnit.G_PER_MOL), compound.getExactMass(), compound.getFormula(), compound.getCompoundKey(), compound.getCasNumber(), calculateBatchMF(compound));
+        return new CompoundRef.Stored(compound.getId(), fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL), compound.getExactMass(), compound.getFormula(), compound.getCompoundKey(), compound.getCasNumber(), calculateBatchMF(compound));
     }
 
     public CompoundRef.Virtual virtualCompoundRef(IndigoMolecule molecule, @Nullable DictionaryItemRef stereoisomerCode, @Nullable SaltCodeInfo saltCode, @Nullable Double saltEQ) {
         CompoundEntity compound = findOrCreate(molecule, stereoisomerCode, saltCode, saltEQ);
-        return new CompoundRef.Virtual(compound.getId(), molecule.grossFormula(), compound.getCompoundKey(), stereoisomerCode, saltCode != null ? saltCode.toRef() : null, saltEQ, EnteredValue.fixed(compound.getMolWeight(), 4, MolWeightUnit.G_PER_MOL), compound.getExactMass(), compound.getCasNumber(), calculateBatchMF(compound));
+        return new CompoundRef.Virtual(compound.getId(), molecule.grossFormula(), compound.getCompoundKey(), stereoisomerCode, saltCode != null ? saltCode.toRef() : null, saltEQ, EnteredValue.fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL), compound.getExactMass(), compound.getCasNumber(), calculateBatchMF(compound));
     }
 
     public CompoundRef.Unknown unknownCompoundRef() {
@@ -156,7 +158,7 @@ public class CompoundService {
         compound.setSource(CompoundSource.ELN);
         compound.setFormula(molecule.grossFormula());
         compound.setMolFile(molecule.molfile());
-        compound.setMolWeight(molecule.molecularWeight());
+        compound.setMolWeight(roundToDecimalPlaces(molecule.molecularWeight(), MOL_WEIGHT_DECIMAL_PLACES));
 //        for (String property : NAME_PROPERTIES) {
 //            if (molecule.hasProperty(property)) {
 //                compound.setName(molecule.getProperty(property));
@@ -206,8 +208,8 @@ public class CompoundService {
         sample.setCompound(compound);
         sample.setStrCode(generateStrCode(compound));
         sample.setNbkBatchNumber(request.getNbkBatchNumber());
-        sample.setDensity(request.getDensity() != null ? request.getDensity().getValue() : null);
-        sample.setMolarity(request.getMolarity() != null ? request.getMolarity().getValue() : null);
+        sample.setDensity(request.getDensity() != null ? request.getDensity().toBigDecimal() : null);
+        sample.setMolarity(request.getMolarity() != null ? request.getMolarity().toBigDecimal() : null);
         sample.setMolarityUnit(request.getMolarity() != null ? request.getMolarity().getUnit() : null);
         sample.setPurity(request.getPurity());
         if (request.getHealthHazards() != null) {

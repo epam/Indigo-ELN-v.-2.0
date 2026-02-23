@@ -12,6 +12,7 @@ import lombok.Setter;
 import org.apache.commons.math3.util.Precision;
 import org.jspecify.annotations.Nullable;
 
+import java.math.BigDecimal;
 import java.util.function.Consumer;
 
 import static com.epam.indigoeln.reaction.model.units.EnteredValueSource.DEFAULT;
@@ -55,6 +56,11 @@ public final class EnteredValue<U extends MeasurementUnit> {
     }
 
     @Nullable
+    public static <U extends MeasurementUnit> EnteredValue<U> fixed(@Nullable BigDecimal value, U unit) {
+        return value != null ? new EnteredValue<>(value.doubleValue(), value.toString(), unit, EnteredValueSource.FIXED) : null;
+    }
+
+    @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> userEntered(@Nullable String stringValue, @Nullable U unit, int revision) {
         return stringValue != null && unit != null ? new EnteredValue<>(Double.parseDouble(stringValue), stringValue, unit, EnteredValueSource.userEntered(revision)) : null;
     }
@@ -67,6 +73,11 @@ public final class EnteredValue<U extends MeasurementUnit> {
     @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> defaultValue(@Nullable Double value, int precision, @Nullable U unit) {
         return value != null && unit != null ? new EnteredValue<>(roundToSignificantFigures(value, precision), formatToSignificantFigures(value, precision), unit, DEFAULT) : null;
+    }
+
+    @Nullable
+    public static <U extends MeasurementUnit> EnteredValue<U> defaultValue(@Nullable BigDecimal value, @Nullable U unit) {
+        return value != null && unit != null ? new EnteredValue<>(value.doubleValue(), value.toString(), unit, DEFAULT) : null;
     }
 
     public static <U extends MeasurementUnit> void prepareToRecalculate(@Nullable EnteredValue<U> value, Consumer<@Nullable EnteredValue<U>> setter, @Nullable EnteredValue<U> defaultValue) {
@@ -120,6 +131,10 @@ public final class EnteredValue<U extends MeasurementUnit> {
     public <T extends MeasurementUnit> EnteredValue<T> cast() {
         //noinspection unchecked
         return (EnteredValue<T>) this;
+    }
+
+    public BigDecimal toBigDecimal() {
+        return new BigDecimal(stringValue);
     }
 
     @Override
