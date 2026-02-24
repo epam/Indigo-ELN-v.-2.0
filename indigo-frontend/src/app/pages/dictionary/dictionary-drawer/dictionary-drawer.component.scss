@@ -68,6 +68,7 @@ mat-header-row {
   .mdc-checkbox__background {
     border-color: #b0b0b0 !important;
     border-width: 1.5px !important;
+    border-radius: 4px !important;
     background-color: #ffffff !important;
   }
 
@@ -75,22 +76,27 @@ mat-header-row {
     border-color: #858585 !important;
   }
 }
-
-//SELECTED 
+::ng-deep.mdc-checkbox__checkmark {
+  padding: 2px !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+}
+//SELECTED
 ::ng-deep
   .mat-mdc-checkbox.mat-mdc-checkbox-checked:not(.mat-mdc-checkbox-disabled) {
   .mdc-checkbox__background {
     background-color: #3f50b5 !important;
     border-color: #3f50b5 !important;
+    border-radius: 4px !important;
   }
 
   &:hover .mdc-checkbox__background {
-    background-color: #313E8C !important;
-    border-color: #313E8C !important;
+    background-color: #313e8c !important;
+    border-color: #313e8c !important;
   }
 }
 
-//DISABLED 
+//DISABLED
 ::ng-deep .mat-mdc-checkbox-disabled {
   cursor: not-allowed;
   opacity: 1 !important;
@@ -104,8 +110,8 @@ mat-header-row {
 
   &.mat-mdc-checkbox-checked {
     .mdc-checkbox__background {
-      background-color:   #D2D2D2 !important;
-      border-color: #D2D2D2 !important;
+      background-color: #d2d2d2 !important;
+      border-color: #d2d2d2 !important;
     }
   }
 }
