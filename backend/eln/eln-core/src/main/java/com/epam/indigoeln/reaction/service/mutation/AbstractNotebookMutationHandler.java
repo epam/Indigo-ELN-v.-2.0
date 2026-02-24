@@ -53,24 +53,20 @@ public abstract class AbstractNotebookMutationHandler<T extends Mutation> extend
     }
 
     @Override
-    protected final void doUpdateEntity(NotebookEntity notebook, @Nullable Void model, NotebookSnapshot snapshotBefore, NotebookSnapshot snapshotAfter) {
+    protected final NotebookPatch doUpdateEntity(NotebookEntity notebook, @Nullable Void model, NotebookSnapshot snapshotBefore, NotebookSnapshot snapshotAfter) {
         updateDates(notebook, userService.getCurrentUserEntity());
         //noinspection ConstantValue
         if (notebook.getId() == null) {
             notebookRepository.persist(notebook);
             notebookRepository.flushAndRefresh(notebook);
         }
+        //noinspection DataFlowIssue
+        return NotebookDiffHandler.INSTANCE.compare(snapshotBefore, snapshotAfter).updatedValue();
     }
 
     @Override
     protected final NotebookSnapshot doSnapshotAfter(NotebookEntity notebook, @Nullable Void model) {
         return snapshotMapper.createSnapshot(notebook, isAffectsAttachments(), isAffectsACL());
-    }
-
-    @Override
-    protected final NotebookPatch doCreatePatch(NotebookSnapshot snapshotBefore, NotebookSnapshot snapshotAfter) {
-        //noinspection DataFlowIssue
-        return NotebookDiffHandler.INSTANCE.compare(snapshotBefore, snapshotAfter).updatedValue();
     }
 
     @Override

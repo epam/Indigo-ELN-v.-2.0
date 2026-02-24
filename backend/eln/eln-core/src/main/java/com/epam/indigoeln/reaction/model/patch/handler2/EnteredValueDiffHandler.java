@@ -36,6 +36,11 @@ public class EnteredValueDiffHandler<U extends MeasurementUnit> extends Abstract
         Flag updated = new Flag();
         patch.setValue(diff(updated, a, b, EnteredValue::getStringValue));
         patch.setUnit(diff(updated, a, b, EnteredValue::getUnit));
+        // not nice to do it in patch handler, but this is to preserve revision of calculated values;
+        // otherwise calculated values would always have the most recent revision number, as they are recalculated each time
+        if (a != null && patch.getValue() == null && patch.getUnit() == null && a.getSource().isCalculated() && b.getSource().isCalculated()) {
+            b.setSource(a.getSource());
+        }
         patch.setSource(diff(updated, a, b, EnteredValue::getSource));
         patch.setConflict(diff(updated, a, b, EnteredValue::isConflict, DefaultDiffHandler.DEFAULT_FALSE_INSTANCE));
         return updated.isSet() ? Patched.updated(patch) : null;

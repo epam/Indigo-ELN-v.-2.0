@@ -55,24 +55,20 @@ public abstract class AbstractProjectMutationHandler<T extends Mutation> extends
     }
 
     @Override
-    protected final void doUpdateEntity(ProjectEntity project, @Nullable Void model, ProjectSnapshot snapshotBefore, ProjectSnapshot snapshotAfter) {
+    protected final ProjectPatch doUpdateEntity(ProjectEntity project, @Nullable Void model, ProjectSnapshot snapshotBefore, ProjectSnapshot snapshotAfter) {
         updateDates(project, userService.getCurrentUserEntity());
         //noinspection ConstantValue
         if (project.getId() == null) {
             projectRepository.persist(project);
             projectRepository.flushAndRefresh(project);
         }
+        //noinspection DataFlowIssue
+        return ProjectDiffHandler.INSTANCE.compare(snapshotBefore, snapshotAfter).updatedValue();
     }
 
     @Override
     protected final ProjectSnapshot doSnapshotAfter(ProjectEntity project, @Nullable Void model) {
         return snapshotMapper.createSnapshot(project, isAffectsAttachments(), isAffectsACL());
-    }
-
-    @Override
-    protected final ProjectPatch doCreatePatch(ProjectSnapshot snapshotBefore, ProjectSnapshot snapshotAfter) {
-        //noinspection DataFlowIssue
-        return ProjectDiffHandler.INSTANCE.compare(snapshotBefore, snapshotAfter).updatedValue();
     }
 
     @Override

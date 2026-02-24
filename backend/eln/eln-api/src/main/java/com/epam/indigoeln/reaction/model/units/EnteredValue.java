@@ -33,7 +33,8 @@ public final class EnteredValue<U extends MeasurementUnit> {
     private final U unit;
     @JsonProperty("value")
     private final String stringValue; // for now, always set; maybe postpone initialization for calculated values if gets recalculated too often
-    private final EnteredValueSource source;
+    @Setter
+    private EnteredValueSource source;
     @Setter
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private boolean conflict = false;
