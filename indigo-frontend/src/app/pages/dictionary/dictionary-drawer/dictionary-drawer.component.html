@@ -79,7 +79,7 @@
         <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
         <mat-cell *matCellDef="let word; let i = index">
           @if (word.id) {
-            <span>{{ word.name }}</span>
+            <span style="color: var(--primary-400)">{{ word.name }}</span>
           } @else {
             <mat-form-field class="w-full">
               <input
@@ -102,11 +102,9 @@
 
       <ng-container matColumnDef="description">
         <mat-header-cell *matHeaderCellDef>Description</mat-header-cell>
-        <mat-cell
-          *matCellDef="let element"
-          style="color: var(--color-primary-400)"
-          >{{ element.description || '\u2014' }}</mat-cell
-        >
+        <mat-cell *matCellDef="let element" style="color: var(--primary-400)">{{
+          element.description || '\u2014'
+        }}</mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="active">
