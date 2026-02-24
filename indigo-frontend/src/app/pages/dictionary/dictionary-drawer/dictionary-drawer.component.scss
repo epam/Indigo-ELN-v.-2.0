@@ -10,6 +10,32 @@ mat-header-row {
   border-bottom: 1px solid #e0e0e0;
 }
 
+.mat-checkbox-no-ripple::ng-deep .mat-mdc-checkbox .mdc-checkbox__ripple {
+  display: none;
+  pointer-events: none;
+}
+
+.mat-checkbox-no-ripple::ng-deep .mat-mdc-checkbox .mdc-checkbox__ripple {
+  display: none !important;
+}
+
+.mat-checkbox-no-ripple::ng-deep .mat-mdc-checkbox .mat-ripple {
+  display: none !important;
+}
+
+.mat-checkbox-no-ripple::ng-deep .mdc-ripple-surface {
+  display: none !important;
+}
+
+.delete-icon-btn::ng-deep .mat-mdc-button-persistent-ripple {
+  border-radius: 8px;
+}
+.mat-mdc-icon-button {
+  border-radius: 8px;
+  border: 1.5px solid #e8e8e8;
+  background-color: #f3f3f3;
+}
+
 .mat-elevation-z8 {
   border-radius: 12px;
   overflow: hidden;
@@ -17,17 +43,19 @@ mat-header-row {
   background-color: #fff;
 }
 
-.mat-column-name, .mat-column-description {
-    flex: 0 0 25%;
+.mat-column-name,
+.mat-column-description {
+  flex: 0 0 25%;
 }
 .mat-column-createdAt {
-    flex: 0 0 20%;
+  flex: 0 0 20%;
 }
-.mat-column-rank, .mat-column-active, .mat-column-delete {
-    flex: 0 0 10%;
+.mat-column-rank,
+.mat-column-active,
+.mat-column-delete {
+  flex: 0 0 10%;
 }
 
 ::ng-deep .mat-mdc-form-field-error-wrapper {
   padding: 0 !important;
 }
-

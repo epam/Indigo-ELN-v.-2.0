@@ -111,8 +111,8 @@
 
       <ng-container matColumnDef="active">
         <mat-header-cell *matHeaderCellDef>Active</mat-header-cell>
-        <mat-cell *matCellDef="let element">
-          <mat-checkbox [checked]="element.active" disabled></mat-checkbox>
+        <mat-cell *matCellDef="let element" class="mat-checkbox-no-ripple">
+          <mat-checkbox [checked]="element.active"></mat-checkbox>
         </mat-cell>
       </ng-container>
 
@@ -126,8 +126,12 @@
       <ng-container matColumnDef="delete">
         <mat-header-cell *matHeaderCellDef>Delete</mat-header-cell>
         <mat-cell *matCellDef="let element; let i = index">
-          <button mat-icon-button (click)="deleteItemFromTable(element.id, i)">
-            <mat-icon>delete</mat-icon>
+          <button
+            mat-icon-button
+            class="delete-icon-btn"
+            (click)="deleteItemFromTable(element.id, i)"
+          >
+            <em class="indicon-delete text-[20px] text-red-200"></em>
           </button>
         </mat-cell>
       </ng-container>
