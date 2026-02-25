@@ -66,6 +66,12 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
         return projectMapper.convertTotalCounts(entity);
     }
 
+    public boolean existsByName(String name){
+        return find("name", name)
+                .singleResultOptional()
+                .isPresent();
+    }
+
     public void lockProject(ProjectEntity project) {
         em.lock(project, LockModeType.PESSIMISTIC_WRITE);
     }

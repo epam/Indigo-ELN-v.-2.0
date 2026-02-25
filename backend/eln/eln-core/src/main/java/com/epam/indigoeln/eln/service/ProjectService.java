@@ -63,6 +63,11 @@ public class ProjectService {
         return projectMapper.entityToDetailsDTO(project, currentPermissions);
     }
 
+    public ProjectExistenceCheckDTO checkExistenceByName(String name) {
+        boolean exists = projectRepository.existsByName(name);
+        return new ProjectExistenceCheckDTO(exists);
+    }
+
     public ProjectDetailsDTO editProject(UUID projectId, ProjectEditRequest request) {
         ProjectEntity project = projectRepository.get(projectId);
         applyMutation(project, projectMapper.requestToMutation(request));

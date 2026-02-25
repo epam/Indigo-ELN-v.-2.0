@@ -164,6 +164,88 @@ class ProjectServiceTest extends ELNBaseTest {
     }
 
     @Test
+    void testCheckProjectNameExistenceEndpointSuccessWhenExists() {
+        String name = "testCheckProjectNameExistenceEndpointSuccessWhenExists";
+        projectClient.createProject(new ProjectRequest(name));
+
+        assertThatClientCall(() -> projectClient.checkProjectNameExistence(name))
+                .isSuccessfulWithResult(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.getExists()).isTrue();
+                });
+    }
+
+    @Test
+    void testCheckProjectNameExistenceEndpointSuccessWhenNotExists() {
+        String name = "testCheckProjectNameExistenceEndpointSuccessWhenNotExists";
+
+        assertThatClientCall(() -> projectClient.checkProjectNameExistence(name))
+                .isSuccessfulWithResult(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.getExists()).isFalse();
+                });
+    }
+
+    @Test
+    void testCheckProjectNameExistenceEndpointValidationEmptyName() {
+        assertThatClientCall(() -> projectClient.checkProjectNameExistence(""))
+                .isBadRequest("must not be empty");
+    }
+
+    @Test
+    void testCheckProjectNameExistenceWhenExists() {
+        String name = "testCheckProjectNameExistenceWhenExists";
+        projectClient.createProject(new ProjectRequest(name));
+
+        assertThatClientCall(() -> projectClient.checkProjectNameExistence(name))
+                .isSuccessfulWithResult(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.getExists()).isTrue();
+                });
+    }
+
+    @Test
+    void testCheckProjectNameExistenceWhenNotExists() {
+        String name = "testCheckProjectNameExistenceWhenNotExists";
+
+        assertThatClientCall(() -> projectClient.checkProjectNameExistence(name))
+                .isSuccessfulWithResult(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.getExists()).isFalse();
+                });
+    }
+
+    @Test
+    void testCheckProjectNameExistenceWithMultipleProjects() {
+        String name1 = "testCheckProjectNameExistence1";
+        String name2 = "testCheckProjectNameExistence2";
+
+        projectClient.createProject(new ProjectRequest(name1));
+        projectClient.createProject(new ProjectRequest(name2));
+
+        assertThatClientCall(() -> projectClient.checkProjectNameExistence(name1))
+                .isSuccessfulWithResult(result -> assertThat(result.getExists()).isTrue());
+
+        assertThatClientCall(() -> projectClient.checkProjectNameExistence(name2))
+                .isSuccessfulWithResult(result -> assertThat(result.getExists()).isTrue());
+
+        assertThatClientCall(() -> projectClient.checkProjectNameExistence("nonexistentProject"))
+                .isSuccessfulWithResult(result -> assertThat(result.getExists()).isFalse());
+    }
+
+    @Test
+    void testCheckProjectNameExistenceWithEmptyName() {
+        assertThatClientCall(() -> projectClient.checkProjectNameExistence(""))
+                .isBadRequest("must not be empty");
+    }
+
+    @Test
+    void testCheckProjectNameExistenceWithNullName() {
+        assertThatClientCall(() -> projectClient.checkProjectNameExistence(null))
+                .isBadRequest("must not be empty");
+    }
+
+    @Test
     void testGetProject() {
         ProjectDetailsDTO createdProject = projectClient.createProject(new ProjectRequest("testGetProject", List.of("keyword1", "keyword2"), "literature", "description"));
         ProjectDetailsDTO loadedProject = projectClient.getProject(createdProject.getId());
@@ -430,7 +512,7 @@ class ProjectServiceTest extends ELNBaseTest {
             fail("Upload failed unexpectedly: " + e.getMessage());
         }
     }
-  
+
     @Test
     void testUploadAttachmentToInvalidProject() {
         UUID missingProjectId = UUID.randomUUID();
@@ -440,7 +522,6 @@ class ProjectServiceTest extends ELNBaseTest {
         )
                 .isNotFound("PROJECT " + missingProjectId + " not found");
     }
-
 
 
     @Test
@@ -525,7 +606,7 @@ class ProjectServiceTest extends ELNBaseTest {
                     assertThat(revision.getDiff().getAcl()).isEqualTo(Patched.updated(Map.of(MAGGIE_USERNAME, Patched.deleted(new ACLDetailsEntryDTO(maggieUserID, MAGGIE_DISPLAY_NAME, AccessLevel.EDIT, false, MAGGIE_USERNAME)))));
                 });
     }
-    
+
     @Nested
     @JwtSecurity
     @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
