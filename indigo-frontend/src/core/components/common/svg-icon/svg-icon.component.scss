@@ -1,3 +1,8 @@
+$icon-size-small: 16px;
+$icon-size-medium: 20px;
+$icon-size-large: 32px;
+$icon-size-extra-large: 48px;
+
 :host {
   display: inline-flex;
   align-items: center;
@@ -9,55 +14,56 @@ em[class^='indicon-'] {
   vertical-align: middle;
 }
 
-// Size variants
 .icon-small {
-  font-size: 16px;
+  font-size: $icon-size-small;
   line-height: 1;
 }
 
 .icon-medium {
-  font-size: 20px;
+  font-size: $icon-size-medium;
   line-height: 1;
 }
 
 .icon-large {
-  font-size: 32px;
+  font-size: $icon-size-large;
   line-height: 1;
 }
 
 .icon-extra-large {
-  font-size: 48px;
+  font-size: $icon-size-extra-large;
   line-height: 1;
 }
 
-::ng-deep {
-  mat-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+:host {
+  ::ng-deep {
+    mat-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
 
-    &.icon-small {
-      width: 16px;
-      height: 16px;
-      font-size: 16px;
-    }
+      &.icon-small {
+        width: $icon-size-small;
+        height: $icon-size-small;
+        font-size: $icon-size-small;
+      }
 
-    &.icon-medium {
-      width: 20px;
-      height: 20px;
-      font-size: 20px;
-    }
+      &.icon-medium {
+        width: $icon-size-medium;
+        height: $icon-size-medium;
+        font-size: $icon-size-medium;
+      }
 
-    &.icon-large {
-      width: 32px;
-      height: 32px;
-      font-size: 32px;
-    }
+      &.icon-large {
+        width: $icon-size-large;
+        height: $icon-size-large;
+        font-size: $icon-size-large;
+      }
 
-    &.icon-extra-large {
-      width: 48px;
-      height: 48px;
-      font-size: 48px;
+      &.icon-extra-large {
+        width: $icon-size-extra-large;
+        height: $icon-size-extra-large;
+        font-size: $icon-size-extra-large;
+      }
     }
   }
 }
