@@ -11,6 +11,7 @@ import com.epam.indigoeln.eln.service.NotebookService;
 import com.epam.indigoeln.reaction.model.patch.NotebookPatch;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
@@ -42,6 +43,12 @@ public class NotebookResource implements NotebookAPI {
     public @NotNull @Valid Page<NotebookDTO> getProjectNotebooks(@NotNull UUID projectId, @Nullable String search, @QueryParam("sort") @Nullable SortOrder sort,
                                                                  @QueryParam("createdByMe") @Nullable Boolean createdByMe, @Valid Paging paging) {
         return notebookService.getNotebooks(projectId, search, sort, createdByMe, paging);
+    }
+
+    @Override
+    public @NotNull @Valid NotebookExistenceCheckDTO checkNotebookNameExistence(
+            @NotEmpty String name) {
+        return notebookService.checkExistenceByName(name);
     }
 
     @Override
