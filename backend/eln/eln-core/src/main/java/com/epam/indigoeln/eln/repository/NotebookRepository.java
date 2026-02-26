@@ -71,9 +71,7 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
     }
 
     public boolean existsByName(String name) {
-        return find("name", name)
-                .singleResultOptional()
-                .isPresent();
+        return count("name", name) > 0;
     }
 
     public List<NestedACLEntryDTO> findNestedAccess(UUID notebookId) {
