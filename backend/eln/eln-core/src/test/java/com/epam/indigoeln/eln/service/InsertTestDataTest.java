@@ -71,9 +71,24 @@ class InsertTestDataTest {
     //    @Test
     @Order(2)
     void insertUsers() {
-        userClient.createUser(new UserRequest("alice@eln.com", "Alice", "Smith", "password", List.of(ROLE_CONTENT_EDITOR, ROLE_TEMPLATE_EDITOR)));
-        userClient.createUser(new UserRequest("bob@eln.com", "Bob", "Johnson", "password", List.of(ROLE_ADMINISTRATOR)));
-        userClient.createUser(new UserRequest("charlie@eln.com", "Charlie", "Williams", "password", List.of(ROLE_CONTENT_EDITOR)));
+        String password = System.getenv("PASSWORD");
+        userClient.createUser(new UserRequest("alice@eln.com", "Alice", "Smith", password, List.of(ROLE_CONTENT_EDITOR, ROLE_TEMPLATE_EDITOR)));
+        userClient.createUser(new UserRequest("bob@eln.com", "Bob", "Johnson", password, List.of(ROLE_ADMINISTRATOR)));
+        userClient.createUser(new UserRequest("charlie@eln.com", "Charlie", "Williams", password, List.of(ROLE_CONTENT_EDITOR)));
+
+        Map<String, List<RoleRef>> userMatrix = Map.of(
+                "user_noroles", List.of(),
+                "user_p", List.of(ROLE_PROJECT_CREATOR),
+                "user_t", List.of(ROLE_TEMPLATE_EDITOR),
+                "user_tp", List.of(ROLE_TEMPLATE_EDITOR, ROLE_PROJECT_CREATOR),
+                "user_c", List.of(ROLE_CONTENT_EDITOR),
+                "user_cp", List.of(ROLE_CONTENT_EDITOR, ROLE_PROJECT_CREATOR),
+                "user_ct", List.of(ROLE_CONTENT_EDITOR, ROLE_TEMPLATE_EDITOR),
+                "user_ctp", List.of(ROLE_CONTENT_EDITOR, ROLE_TEMPLATE_EDITOR, ROLE_PROJECT_CREATOR)
+        );
+        userMatrix.forEach((username, roles) -> {
+            userClient.createUser(new UserRequest(username + "@eln.com", username, username, password, roles));
+        });
     }
 
     //    @Test
