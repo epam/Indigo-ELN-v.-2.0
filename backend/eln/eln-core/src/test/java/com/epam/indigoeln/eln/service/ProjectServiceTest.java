@@ -24,7 +24,6 @@ import static com.epam.indigoeln.eln.test.ACLListAssert.assertThatACL;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 @QuarkusTest
@@ -152,7 +151,7 @@ class ProjectServiceTest extends ELNBaseTest {
     void testDuplicateNames() {
         projectClient.createProject(new ProjectRequest("testDuplicateNames"));
         assertThatClientCall(() -> projectClient.createProject(new ProjectRequest("testDuplicateNames")))
-                .isBadRequest("Project with name 'testDuplicateNames' already exists");
+                .isBadRequest("Unique name is required");
     }
 
     @Test
@@ -160,7 +159,7 @@ class ProjectServiceTest extends ELNBaseTest {
         projectClient.createProject(new ProjectRequest("testRenameDuplicateNames"));
         ProjectDetailsDTO project2 = projectClient.createProject(new ProjectRequest("testRenameDuplicateNames2"));
         assertThatClientCall(() -> projectClient.editProject(project2.getId(), new ProjectEditRequest().withName(Optional.of("testRenameDuplicateNames"))))
-                .isBadRequest("Project with name 'testRenameDuplicateNames' already exists");
+                .isBadRequest("Unique name is required");
     }
 
     @Test
