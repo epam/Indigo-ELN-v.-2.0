@@ -21,6 +21,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
 import org.jspecify.annotations.Nullable;
 
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -58,10 +59,10 @@ public class SampleEntity extends BaseEntity {
     private String externalNumber;
 
     @Nullable
-    private Double density;
+    private BigDecimal density;
 
     @Nullable
-    private Double molarity;
+    private BigDecimal molarity;
 
     @Nullable
     @Enumerated(EnumType.STRING)
@@ -69,7 +70,7 @@ public class SampleEntity extends BaseEntity {
     private MolarityUnit molarityUnit;
 
     @Nullable
-    private Double purity;
+    private BigDecimal purity;
 
     @Nullable
     @ManyToOne

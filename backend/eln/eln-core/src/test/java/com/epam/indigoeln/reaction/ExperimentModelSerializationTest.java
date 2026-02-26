@@ -11,6 +11,7 @@ import com.epam.indigoeln.test.FeignUtil;
 import com.fasterxml.jackson.core.JacksonException;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,10 +34,10 @@ public class ExperimentModelSerializationTest {
         reaction.setRxnfile("molFile");
 
         ReactionInput input1 = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT);
-        input1.setCompound(new CompoundRef.Stored(UUID.randomUUID(), EnteredValue.fixed(1.0, MolWeightUnit.G_PER_MOL), 1.1, "C", "compoundKey", null, "batchMF"));
-        input1.setEq(EnteredValue.userEntered(10.0, NoUnit.NO_UNIT, 1));
+        input1.setCompound(new CompoundRef.Stored(UUID.randomUUID(), EnteredValue.fixed(1.0, 1, MolWeightUnit.G_PER_MOL), new BigDecimal("1.1"), "C", "compoundKey", null, "batchMF"));
+        input1.setEq(EnteredValue.userEntered("10.0", NoUnit.NO_UNIT, 1));
         ReactionInput input2 = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT);
-        input2.setCompound(new CompoundRef.Virtual(UUID.randomUUID(), "C", null, null, null, null, EnteredValue.fixed(1.0, MolWeightUnit.G_PER_MOL), 1.1, null, "batchMF"));
+        input2.setCompound(new CompoundRef.Virtual(UUID.randomUUID(), "C", null, null, null, null, EnteredValue.fixed(1.0, 1, MolWeightUnit.G_PER_MOL), new BigDecimal("1.1"), null, "batchMF"));
         ReactionInput input3 = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT);
         input3.setCompound(new CompoundRef.Unknown());
         ReactionInputSample inputSample1 = ReactionInputSample.create(input1, INPUT_SAMPLE);
@@ -44,7 +45,7 @@ public class ExperimentModelSerializationTest {
         reaction.setInputs(List.of(input1, input2, input3));
 
         ReactionOutput output = ReactionOutput.create(reaction, ReactionOutputType.FINAL, OUTPUT);
-        output.setCompound(new CompoundRef.Virtual(UUID.randomUUID(), "C", null, null, null, null, EnteredValue.fixed(2.0, MolWeightUnit.G_PER_MOL), 2.2, null, "batchMF"));
+        output.setCompound(new CompoundRef.Virtual(UUID.randomUUID(), "C", null, null, null, null, EnteredValue.fixed(2.0, 1, MolWeightUnit.G_PER_MOL), new BigDecimal("2.2"), null, "batchMF"));
         ReactionOutputSample outputSample = ReactionOutputSample.create(output, "00000000-0000", OUTPUT_SAMPLE);
         output.setSamples(List.of(outputSample));
         reaction.setOutputs(List.of(output));
@@ -58,7 +59,7 @@ public class ExperimentModelSerializationTest {
 
     @Test
     void testSerializeMutation() throws Exception {
-        Mutation mutation = new ReactionInputMutation.SetInputRowMol(INPUT, 2.5, MolUnit.MMOL, null);
+        Mutation mutation = new ReactionInputMutation.SetInputRowMol(INPUT, "2.5", MolUnit.MMOL, null);
         String json = FeignUtil.OBJECT_MAPPER.writeValueAsString(mutation);
         System.out.println(json);
         Mutation mutation2 = FeignUtil.OBJECT_MAPPER.readValue(json, Mutation.class);

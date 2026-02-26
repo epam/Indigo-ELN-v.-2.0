@@ -1,9 +1,12 @@
 package com.epam.indigoeln.reaction.model.units;
 
+import com.epam.indigoeln.reaction.util.SignificantFiguresUtil;
 import one.util.streamex.StreamEx;
 import org.assertj.core.api.AbstractThrowableAssert;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.data.Offset;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -35,14 +38,24 @@ class EnteredValueTest {
 
     private static final Offset<Double> EPSILON = Offset.offset(0.0001);
 
+    @BeforeAll
+    static void setUpClass() {
+        SignificantFiguresUtil.setSignificantFigures(5);
+    }
+
+    @AfterAll
+    static void tearDownClass() {
+        SignificantFiguresUtil.clearSignificantFigures();
+    }
+
     @Test
     void testAddUnitsCombinations() {
         assertSoftly(softly -> {
             for (MeasurementUnit unitA : UNITS) {
                 for (MeasurementUnit unitB : UNITS) {
                     AbstractThrowableAssert<?, ? extends Throwable> assertion = softly.assertThatCode(() -> {
-                        EnteredValueOpt<MeasurementUnit> valueA = opt(userEntered(1.0, unitA, 1));
-                        EnteredValue<MeasurementUnit> valueB = userEntered(1.0, unitB, 1);
+                        EnteredValueOpt<MeasurementUnit> valueA = opt(userEntered("1.0", unitA, 1));
+                        EnteredValue<MeasurementUnit> valueB = userEntered("1.0", unitB, 1);
                         valueA.add(valueB);
                     }).describedAs("units: %s + %s", unitA, unitB);
                     boolean shouldSucceed = unitA.getClass() == unitB.getClass();
@@ -58,8 +71,8 @@ class EnteredValueTest {
 
     @Test
     void testAddUnitsSuccess() {
-        EnteredValue<WeightUnit> valueA = userEntered(1.0, WeightUnit.G, 1);
-        EnteredValue<WeightUnit> valueB = userEntered(500.0, WeightUnit.MG, 1);
+        EnteredValue<WeightUnit> valueA = userEntered("1.0", WeightUnit.G, 1);
+        EnteredValue<WeightUnit> valueB = userEntered("500.0", WeightUnit.MG, 1);
         EnteredValue<WeightUnit> result = EnteredValue.add(valueA, valueB);
         assertThat(result.getUnit()).isEqualTo(WeightUnit.MG);
         assertThat(result.getValue()).isCloseTo(1500.0, EPSILON);
@@ -67,8 +80,8 @@ class EnteredValueTest {
 
     @Test
     void testAddInconvertibleUnitsThrows() {
-        EnteredValue<MeasurementUnit> weight = userEntered(1.0, WeightUnit.G, 1);
-        EnteredValue<MeasurementUnit> volume = userEntered(1.0, VolumeUnit.ML, 1);
+        EnteredValue<MeasurementUnit> weight = userEntered("1.0", WeightUnit.G, 1);
+        EnteredValue<MeasurementUnit> volume = userEntered("1.0", VolumeUnit.ML, 1);
         Assertions.assertThatThrownBy(() -> opt(weight).add(volume))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Inconvertible units: G and ML");
@@ -76,8 +89,8 @@ class EnteredValueTest {
 
     @Test
     void testSubtractUnitsSuccess() {
-        EnteredValue<WeightUnit> valueA = userEntered(1.0, WeightUnit.G, 1);
-        EnteredValue<WeightUnit> valueB = userEntered(500.0, WeightUnit.MG, 1);
+        EnteredValue<WeightUnit> valueA = userEntered("1.0", WeightUnit.G, 1);
+        EnteredValue<WeightUnit> valueB = userEntered("500.0", WeightUnit.MG, 1);
         EnteredValue<WeightUnit> result = EnteredValue.subtract(valueA, valueB);
         assertThat(result.getUnit()).isEqualTo(WeightUnit.MG);
         assertThat(result.getValue()).isCloseTo(500.0, EPSILON);
@@ -85,8 +98,8 @@ class EnteredValueTest {
 
     @Test
     void testSubtractInconvertibleUnitsThrows() {
-        EnteredValue<MeasurementUnit> weight = userEntered(1.0, WeightUnit.G, 1);
-        EnteredValue<MeasurementUnit> volume = userEntered(1.0, VolumeUnit.ML, 1);
+        EnteredValue<MeasurementUnit> weight = userEntered("1.0", WeightUnit.G, 1);
+        EnteredValue<MeasurementUnit> volume = userEntered("1.0", VolumeUnit.ML, 1);
         Assertions.assertThatThrownBy(() -> opt(weight).subtract(volume))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Inconvertible units: G and ML");
@@ -94,7 +107,7 @@ class EnteredValueTest {
 
     @Test
     void testMultiplyScalarSuccess() {
-        EnteredValue<WeightUnit> self = userEntered(2.0, WeightUnit.G, 1);
+        EnteredValue<WeightUnit> self = userEntered("2.0", WeightUnit.G, 1);
         EnteredValue<WeightUnit> result = EnteredValue.multiply(self, 3.0);
         assertThat(result.getUnit()).isEqualTo(WeightUnit.G);
         assertThat(result.getValue()).isCloseTo(6.0, EPSILON);
@@ -114,8 +127,8 @@ class EnteredValueTest {
             "L,G_ML,KG,1",
     })
     void testMultiplySuccess(String unitA, String unitB, String expectedUnit, double expectedValue) {
-        EnteredValueOpt<MeasurementUnit> valueA = opt(userEntered(1.0, getUnit(unitA), 1));
-        EnteredValue<MeasurementUnit> valueB = userEntered(1.0, getUnit(unitB), 1);
+        EnteredValueOpt<MeasurementUnit> valueA = opt(userEntered("1.0", getUnit(unitA), 1));
+        EnteredValue<MeasurementUnit> valueB = userEntered("1.0", getUnit(unitB), 1);
         EnteredValue<MeasurementUnit> result = valueA.multiply(valueB).getValue();
         assertThat(result.getUnit()).isEqualTo(getUnit(expectedUnit));
         assertThat(result.getValue()).isCloseTo(expectedValue, EPSILON);
@@ -123,8 +136,8 @@ class EnteredValueTest {
 
     @Test
     void testMultiplyInconvertibleUnitsThrows() {
-        EnteredValue<WeightUnit> weight = userEntered(1.0, WeightUnit.G, 1);
-        EnteredValue<VolumeUnit> volume = userEntered(1.0, VolumeUnit.ML, 1);
+        EnteredValue<WeightUnit> weight = userEntered("1.0", WeightUnit.G, 1);
+        EnteredValue<VolumeUnit> volume = userEntered("1.0", VolumeUnit.ML, 1);
         Assertions.assertThatThrownBy(() -> opt(weight).multiply(volume))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Cannot multiply units: G and ML");
@@ -132,7 +145,7 @@ class EnteredValueTest {
 
     @Test
     void testDivideScalarSuccess() {
-        EnteredValue<WeightUnit> self = userEntered(6.0, WeightUnit.G, 1);
+        EnteredValue<WeightUnit> self = userEntered("6.0", WeightUnit.G, 1);
         EnteredValue<WeightUnit> result = EnteredValue.divide(self, 3.0);
         assertThat(result.getUnit()).isEqualTo(WeightUnit.G);
         assertThat(result.getValue()).isCloseTo(2.0, EPSILON);
@@ -157,8 +170,8 @@ class EnteredValueTest {
             "MOL,M,L,1",
     })
     void testDivideSuccess(String unitA, String unitB, String expectedUnit, double expectedValue) {
-        EnteredValueOpt<MeasurementUnit> valueA = opt(userEntered(1.0, getUnit(unitA), 1));
-        EnteredValue<MeasurementUnit> valueB = userEntered(1.0, getUnit(unitB), 1);
+        EnteredValueOpt<MeasurementUnit> valueA = opt(userEntered("1.0", getUnit(unitA), 1));
+        EnteredValue<MeasurementUnit> valueB = userEntered("1.0", getUnit(unitB), 1);
         EnteredValue<MeasurementUnit> result = valueA.divide(valueB).getValue();
         assertThat(result.getUnit()).isEqualTo(getUnit(expectedUnit));
         assertThat(result.getValue()).isCloseTo(expectedValue, EPSILON);
@@ -166,8 +179,8 @@ class EnteredValueTest {
 
     @Test
     void testDivideInconvertibleUnitsThrows() {
-        EnteredValue<WeightUnit> weight = userEntered(1.0, WeightUnit.G, 1);
-        EnteredValue<VolumeUnit> volume = userEntered(1.0, VolumeUnit.ML, 1);
+        EnteredValue<WeightUnit> weight = userEntered("1.0", WeightUnit.G, 1);
+        EnteredValue<VolumeUnit> volume = userEntered("1.0", VolumeUnit.ML, 1);
         Assertions.assertThatThrownBy(() -> opt(weight).divide(volume))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Cannot divide units: G and ML");

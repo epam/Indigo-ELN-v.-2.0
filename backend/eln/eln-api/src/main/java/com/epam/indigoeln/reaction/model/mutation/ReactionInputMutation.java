@@ -20,7 +20,7 @@ public interface ReactionInputMutation extends Mutation {
 
     record SetInputRowMol(
             @NotNull InputAnchor anchor,
-            @Nullable Double mol,
+            @Nullable String mol,
             @Nullable MolUnit molUnit,
             @Nullable EnteredValueSource source
     ) implements ReactionInputMutation {
@@ -51,7 +51,7 @@ public interface ReactionInputMutation extends Mutation {
 
     record SetInputRowEQ(
             @NotNull InputAnchor anchor,
-            @Nullable Double eq,
+            @Nullable String eq,
             @Nullable EnteredValueSource source
     ) implements ReactionInputMutation {
     }
@@ -64,7 +64,7 @@ public interface ReactionInputMutation extends Mutation {
 
     record SetInputCompoundMolWeight(
             @NotNull InputAnchor anchor,
-            @Nullable Double molWeight,
+            @Nullable String molWeight,
             @Nullable EnteredValueSource source
     ) implements ReactionInputMutation {
     }

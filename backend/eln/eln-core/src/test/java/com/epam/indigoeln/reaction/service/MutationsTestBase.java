@@ -85,10 +85,14 @@ public abstract class MutationsTestBase extends ELNBaseTest {
         applyMutation(mutation, true);
     }
 
-    @SneakyThrows
     protected void applyMutation(Mutation mutation, boolean undoRedo) {
+        applyMutation(mutation, "mutation", undoRedo);
+    }
+
+    @SneakyThrows
+    protected void applyMutation(Mutation mutation, String reportClass, boolean undoRedo) {
         System.out.println("Applying mutation: " + mutation);
-        reportBuilder.addMutation(mutation);
+        reportBuilder.addMutation(reportClass, mutation);
 
         ExperimentSnapshot initialSnapshot = experimentClient.getExperimentSnapshot(experiment.getId());
         ExperimentPatch patch = experimentClient.mutateExperimentModel2(experiment.getId(), experiment.getRevision(), mutation);
@@ -99,10 +103,10 @@ public abstract class MutationsTestBase extends ELNBaseTest {
         byte[] newPicture = (byte[]) pictureResponse.getEntity();
         if (picture == null || newPicture != null && !Arrays.equals(picture, newPicture)) {
             picture = newPicture;
-            reportBuilder.addPicture(picture, pictureResponse.getHeaderString(HttpHeaders.CONTENT_TYPE));
+            reportBuilder.addPicture(reportClass, picture, pictureResponse.getHeaderString(HttpHeaders.CONTENT_TYPE));
         }
         ExperimentSnapshot updatedSnapshot = experimentClient.getExperimentSnapshot(experiment.getId());
-        reportBuilder.addModel(FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(patch), updatedSnapshot);
+        reportBuilder.addModel(reportClass, FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(patch), updatedSnapshot);
 
         // verify if patch is correct
         PatchTestUtil.verifyModelPatch(experiment, patch, updatedExperiment, reportBuilder);
@@ -111,12 +115,12 @@ public abstract class MutationsTestBase extends ELNBaseTest {
         Integer initialRevision = experiment.getRevision();
         if (undoRedo) {
             // verify if model after undo is the same as before initial mutation
-            applyMutation(new ExperimentMutation.Undo(initialRevision), false);
+            applyMutation(new ExperimentMutation.Undo(initialRevision), "undo", false);
             ExperimentSnapshot snapshotAfterUndo = experimentClient.getExperimentSnapshot(experiment.getId());
             PatchTestUtil.verifyModel(snapshotAfterUndo, initialSnapshot, reportBuilder, () -> "Model after undo (right) not equals to model before initial operation (left)");
 
             // verify if undo+redo works and produces the same snapshot as initial mutation
-            applyMutation(new ExperimentMutation.Redo(initialRevision), false);
+            applyMutation(new ExperimentMutation.Redo(initialRevision), "redo", false);
             experiment = experimentClient.getExperiment(experiment.getId());
             ExperimentSnapshot snapshotAfterRedo = experimentClient.getExperimentSnapshot(experiment.getId());
 

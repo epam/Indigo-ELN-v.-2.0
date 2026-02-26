@@ -14,7 +14,7 @@ public interface ReactionInputSampleMutation extends Mutation {
 
     record SetInputDensity (
             @NotNull InputSampleAnchor anchor,
-            @Nullable Double density,
+            @Nullable String density,
             @Nullable DensityUnit unit,
             @Nullable EnteredValueSource source
     ) implements ReactionInputSampleMutation {
@@ -22,7 +22,7 @@ public interface ReactionInputSampleMutation extends Mutation {
 
     record SetInputMolarity (
             @NotNull InputSampleAnchor anchor,
-            @Nullable Double molarity,
+            @Nullable String molarity,
             @Nullable MolarityUnit unit,
             @Nullable EnteredValueSource source
     ) implements ReactionInputSampleMutation {
@@ -30,7 +30,7 @@ public interface ReactionInputSampleMutation extends Mutation {
 
     record SetInputVolume (
             @NotNull InputSampleAnchor anchor,
-            @Nullable Double volume,
+            @Nullable String volume,
             @Nullable VolumeUnit unit,
             @Nullable EnteredValueSource source
     ) implements ReactionInputSampleMutation {
@@ -38,7 +38,7 @@ public interface ReactionInputSampleMutation extends Mutation {
 
     record SetInputPurity (
             @NotNull InputSampleAnchor anchor,
-            @Nullable Double purity,
+            @Nullable String purity,
             @Nullable EnteredValueSource source
     ) implements ReactionInputSampleMutation {
     }
@@ -51,7 +51,7 @@ public interface ReactionInputSampleMutation extends Mutation {
 
     record SetInputMol (
             @NotNull InputSampleAnchor anchor,
-            @Nullable Double mol,
+            @Nullable String mol,
             @Nullable MolUnit unit,
             @Nullable EnteredValueSource source
     ) implements ReactionInputSampleMutation {
@@ -59,7 +59,7 @@ public interface ReactionInputSampleMutation extends Mutation {
 
     record SetInputWeight (
             @NotNull InputSampleAnchor anchor,
-            @Nullable Double weight,
+            @Nullable String weight,
             @Nullable WeightUnit unit,
             @Nullable EnteredValueSource source
     ) implements ReactionInputSampleMutation {
