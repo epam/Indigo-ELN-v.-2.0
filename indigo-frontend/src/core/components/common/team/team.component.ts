@@ -1,12 +1,12 @@
 import {
   Component,
+  computed,
+  inject,
   Input,
   OnInit,
-  inject,
   signal,
-  computed,
-  WritableSignal,
   ViewChild,
+  WritableSignal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardComponent } from '../card/card.component';
@@ -31,6 +31,7 @@ import { NgSelectComponent, NgSelectModule } from '@ng-select/ng-select';
 import { FormsModule } from '@angular/forms';
 import { TeamComponentConfig } from './team.config';
 import { InitialsPipe } from '../../../pipes/avatars.pipe';
+
 type UserSuggestionWithState = UserSuggestion & { added?: boolean };
 
 interface TeamLoadingState {
@@ -107,12 +108,9 @@ export class TeamComponent implements OnInit {
           this.loading.update((l) => ({ ...l, suggestions: false })),
         ),
       )
-      .subscribe({
-        next: (list) => {
-          this.userSuggestions = list;
-          this.rebuildSuggestionsState();
-        },
-        error: (err) => console.error('Failed to load suggestions', err),
+      .subscribe((list) => {
+        this.userSuggestions = list;
+        this.rebuildSuggestionsState();
       });
   }
 
@@ -150,12 +148,7 @@ export class TeamComponent implements OnInit {
           this.loading.update((l) => ({ ...l, addingUsers: false }));
         }),
       )
-      .subscribe({
-        next: () => this.handleSuccessfulUserAddition(),
-        error: (err) => {
-          console.error('Failed to update ACL with new users:', err);
-        },
-      });
+      .subscribe(() => this.handleSuccessfulUserAddition());
   }
 
   updateAclLevel(member: ProjectAcl, rawLevel: string): void {
@@ -184,18 +177,13 @@ export class TeamComponent implements OnInit {
           });
         }),
       )
-      .subscribe({
-        next: (projectAcl) => {
-          if (projectAcl) {
-            const updated = this._team().map((m) =>
-              m.userId === member.userId ? { ...m, level: newLevel } : m,
-            );
-            this._team.set(updated);
-          }
-        },
-        error: (err) => {
-          console.error('Failed to update ACL level:', err);
-        },
+      .subscribe((projectAcl) => {
+        if (projectAcl) {
+          const updated = this._team().map((m) =>
+            m.userId === member.userId ? { ...m, level: newLevel } : m,
+          );
+          this._team.set(updated);
+        }
       });
   }
 

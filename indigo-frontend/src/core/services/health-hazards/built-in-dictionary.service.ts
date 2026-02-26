@@ -1,6 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { ApiService } from '@/core/services/api.service';
-import { DictionaryItemRef, BuiltInDictionary } from '@/core/types/entities/dictionary.i';
+import {
+  BuiltInDictionary,
+  DictionaryItemRef,
+} from '@/core/types/entities/dictionary.i';
 
 @Injectable({
   providedIn: 'root',
@@ -17,7 +20,7 @@ export class BuiltInDictionaryService {
    * Prevents duplicate requests and respects existing cache.
    */
   load(dictionaries: BuiltInDictionary[], forceReload = false) {
-    dictionaries.forEach(dict => this.loadSingle(dict, forceReload));
+    dictionaries.forEach((dict) => this.loadSingle(dict, forceReload));
   }
 
   /**
@@ -48,8 +51,7 @@ export class BuiltInDictionaryService {
           this.cache.set(dictionary, items);
           this.loading.delete(dictionary);
         },
-        error: (error) => {
-          console.warn(`Error loading dictionary ${dictionary}:`, error);
+        error: () => {
           this.cache.set(dictionary, []);
           this.loading.delete(dictionary);
         },
