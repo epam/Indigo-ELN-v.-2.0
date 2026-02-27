@@ -69,7 +69,8 @@ public class PatchTestUtil {
                 , null
                 , actualJSON
                 , expectedJSON
-                , messageFn.get()
+                , "failure"
+                , "FAILURE: " + messageFn.get()
         );
     }
 
@@ -91,17 +92,17 @@ public class PatchTestUtil {
         String patchStr = FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(patch);
         JsonNode appliedWithJSON = JSONPatcher.EXPERIMENT_INSTANCE.apply(initialJSON.deepCopy(), FeignUtil.OBJECT_MAPPER.readTree(patchStr));
 
-        assertObjectsEqual(reportBuilder, patchStr, prepareForComparison((ObjectNode) minimizeJSON(appliedWithJSON)), prepareForComparison((ObjectNode) minimizeJSON(updatedJSON)), "Model (right) with applied patch (left) not equals to expected (middle)");
+        assertObjectsEqual(reportBuilder, patchStr, prepareForComparison((ObjectNode) minimizeJSON(appliedWithJSON)), prepareForComparison((ObjectNode) minimizeJSON(updatedJSON)), "patched", "Model (right) with applied patch (left) not equals to expected (middle)");
     }
 
-    private static void assertObjectsEqual(@Nullable CalculationReportBuilder reportBuilder, @Nullable String patch, JsonNode actualJSON, JsonNode expectedJSON, String message) throws JsonProcessingException {
+    private static void assertObjectsEqual(@Nullable CalculationReportBuilder reportBuilder, @Nullable String patch, JsonNode actualJSON, JsonNode expectedJSON, String reportClass, String message) throws JsonProcessingException {
         String expected = FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(minimizeJSON(expectedJSON.deepCopy()));
         String actual = FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(minimizeJSON(actualJSON.deepCopy()));
         try {
             assertThat(actual).isEqualTo(expected);
         } catch (AssertionError e) {
             if (reportBuilder != null) {
-                reportBuilder.addFailedComparison(message, patch, expected, actual);
+                reportBuilder.addFailedComparison(reportClass, message, patch, expected, actual);
             }
             throw e;
         }

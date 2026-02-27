@@ -6,16 +6,16 @@ import java.util.UUID;
 
 public class AccessDeniedException extends RuntimeException {
 
-    public AccessDeniedException(Enum<?> entityType, UUID id, String currentUser) {
-        super(String.format("%s %s not found or not accessible; current user %s", entityType, id, currentUser));
+    public AccessDeniedException(Enum<?> entityType, UUID id) {
+        super(String.format("%s %s not found or not accessible", entityType, id));
     }
 
-    public AccessDeniedException(Enum<?> operation, String currentUser) {
-        super(String.format("Operation not permitted: %s; current user %s", operation, currentUser));
+    public AccessDeniedException(Enum<?> operation) {
+        super(String.format("Operation not permitted: %s", operation));
     }
 
-    public AccessDeniedException(Enum<?> entityType, UUID id, Enum<?> operation, @Nullable Enum<?> currentLevel, String currentUser) {
-        super(String.format("Operation not permitted: %s on %s %s; current access %s doesn't allow it; current user %s", operation, entityType, id, currentLevel, currentUser));
+    public AccessDeniedException(Enum<?> entityType, UUID id, Enum<?> operation, @Nullable Enum<?> currentLevel) {
+        super(String.format("Operation not permitted: %s on %s %s; current access %s doesn't allow it", operation, entityType, id, currentLevel));
     }
 
     public AccessDeniedException(String missingUser) {

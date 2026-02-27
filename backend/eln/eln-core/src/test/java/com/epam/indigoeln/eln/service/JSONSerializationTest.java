@@ -71,10 +71,10 @@ public class JSONSerializationTest {
     @ParameterizedTest
     @MethodSource("mappers")
     void testSerializeEnteredValue(MapperType serializer, MapperType deserializer) throws Exception {
-        EnteredValue<WeightUnit> value = new EnteredValue<>(5.0, WeightUnit.G, EnteredValueSource.userEntered(1));
+        EnteredValue<WeightUnit> value = EnteredValue.userEntered("5.00", WeightUnit.G, 1);
         String serialized = getMapper(serializer).writeValueAsString(value);
         assertThat(serialized).isEqualToIgnoringWhitespace("""
-                {"value": 5.0, "unit": "G", "source": 1}
+                {"value": "5.00", "unit": "G", "source": 1}
                 """);
         EnteredValue<WeightUnit> value2 = getMapper(deserializer).readValue(serialized, new TypeReference<>() {});
         assertThat(value2.getValue()).isEqualTo(5.0);
@@ -97,13 +97,13 @@ public class JSONSerializationTest {
     @MethodSource("mappers")
     void testSerializeCompoundRefPatch(MapperType serializer, MapperType deserializer) {
         CompoundRef.Unknown compoundRef = new CompoundRef.Unknown();
-        compoundRef.setMolWeight(EnteredValue.userEntered(10.0, MolWeightUnit.G_PER_MOL, 1));
+        compoundRef.setMolWeight(EnteredValue.userEntered("10.0", MolWeightUnit.G_PER_MOL, 1));
         Patched<CompoundRef, CompoundRefPatch> value = Patched.created(compoundRef);
         JavaType type = getMapper(serializer).constructType(new TypeReference<Patched<CompoundRef, CompoundRefPatch>>() {});
         SerializerUtils.withRootType(type, () -> {
             String serialized = getMapper(serializer).writeValueAsString(value);
             assertThat(serialized).isEqualToIgnoringWhitespace("""
-                    {"$new": {"type": "UNKNOWN", "molWeight": {"value": 10.0, "unit": "G_PER_MOL", "source": 1}}}
+                    {"$new": {"type": "UNKNOWN", "molWeight": {"value": "10.0", "unit": "G_PER_MOL", "source": 1}}}
                     """);
             Patched<CompoundRef, CompoundRefPatch> value2 = getMapper(deserializer).readValue(serialized, new TypeReference<>() {});
             assertThat(value2).isEqualTo(value);

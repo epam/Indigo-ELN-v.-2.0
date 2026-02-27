@@ -49,6 +49,8 @@ artifacts {
 val copyNativeLibs by tasks.registering(Copy::class) {
     from(configurations.runtimeClasspath.get().filter { it.name.contains("indigo") }.map { zipTree(it)})
     include("**/linux-x86_64/*.so")
+    include("**/darwin-x86_64/*.dylib")
+    include("**/darwin-aarch64/*.dylib")
     includeEmptyDirs = false
     destinationDir = File("${projectDir}/build/nativelibs")
 }

@@ -2,15 +2,14 @@ import { FormDialogComponent } from '@core/components/common/form-dialog/form-di
 import { ApiService } from '@core/services/api.service';
 import { Notebook } from '@core/types/entities/notebook.i';
 import { CommonModule } from '@angular/common';
-import { Component, inject, ViewChild } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { toHTML } from 'ngx-editor';
-import { catchError, tap } from 'rxjs';
 import { NOTEBOOK_NAME_LENGTH } from '../notebook.constants';
-import { FormErrorHandlerService } from '@core/services/error.service';
+import { of, switchMap, map, catchError } from 'rxjs';
 
 @Component({
   standalone: true,
@@ -26,11 +25,7 @@ import { FormErrorHandlerService } from '@core/services/error.service';
 })
 export class NotebookAddComponent {
   projectId: string;
-  private errorHandler = inject(FormErrorHandlerService);
   dialogRef = inject(MatDialogRef);
-  @ViewChild(FormDialogComponent) formDialog!: FormDialogComponent;
-  private serverErrorMessage = '';
-
   fields: FormlyFieldConfig[] = [
     {
       type: 'input',
@@ -49,12 +44,29 @@ export class NotebookAddComponent {
           Validators.maxLength(NOTEBOOK_NAME_LENGTH),
         ],
       },
+      asyncValidators: {
+        validation: [
+          (control: any) => {
+            const value: string = control.value;
+            return of(value).pipe(
+              switchMap((v: string) =>
+                this.service.request<{ exists: boolean }>(
+                  'get',
+                  `notebooks/existence?name=${encodeURIComponent(v)}`,
+                ),
+              ),
+              map((res) => (res?.exists ? { uniqueName: true } : null)),
+              catchError(() => of(null)),
+            );
+          },
+        ],
+      },
       validation: {
         messages: {
           minlength: `Notebook Name is invalid, use ${NOTEBOOK_NAME_LENGTH} digits only`,
           maxlength: `Notebook Name is invalid, use ${NOTEBOOK_NAME_LENGTH} digits only`,
           required: 'Notebook Name is required',
-          'server-error': () => this.serverErrorMessage,
+          uniqueName: 'Unique name is required',
         },
       },
     },
@@ -79,22 +91,8 @@ export class NotebookAddComponent {
             ? toHTML(data.description)
             : data.description,
       })
-      .pipe(
-        tap(() => {
-          this.dialogRef.close('refresh');
-        }),
-        catchError((error) => {
-          const result = this.errorHandler.handleError(error, {
-            entityName: 'notebook',
-            defaultErrorMessage:
-              'There was an error creating the notebook, please try again later.',
-            form: this.formDialog?.form,
-            showToastOnDuplicate: true,
-          });
-          this.serverErrorMessage = result.serverErrorMessage;
-          return result.observable;
-        }),
-      )
-      .subscribe();
+      .subscribe(() => {
+        this.dialogRef.close('refresh');
+      });
   }
 }

@@ -101,9 +101,9 @@ public class EnteredValueSource {
         } else if (isDefault()) {
             return DEFAULT_STR;
         } else if (isUserEntered()) {
-            return "userEntered:" + priority;
+            return "userEntered(" + priority + ")";
         } else {
-            return "calculated:" + (-priority);
+            return "calculated(" + (-priority) + ")";
         }
     }
 }

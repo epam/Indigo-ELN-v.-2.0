@@ -70,6 +70,10 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
         return find("project", project).firstResult() != null;
     }
 
+    public boolean existsByName(String name) {
+        return count("name", name) > 0;
+    }
+
     public List<NestedACLEntryDTO> findNestedAccess(UUID notebookId) {
         @SuppressWarnings("unchecked")
         Stream<Object[]> stream = em.createQuery("select e, a from Experiment e " +

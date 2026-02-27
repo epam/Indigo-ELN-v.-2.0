@@ -1,16 +1,16 @@
 import { FormDialogComponent } from '@/core/components/common/form-dialog/form-dialog.component';
 import { ApiService } from '@/core/services/api.service';
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { toHTML } from 'ngx-editor';
-import { catchError, tap } from 'rxjs';
+import { tap, of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { Project } from '@core/types/entities/project.i';
 import { Router } from '@angular/router';
-import { FormErrorHandlerService } from '@core/services/error.service';
 import { PROJECT_NAME_MAX_LENGTH } from '../project.constants';
 
 @Component({
@@ -30,9 +30,6 @@ export class ProjectAddComponent implements OnInit {
   dialogRef = inject(MatDialogRef);
   data = inject(MAT_DIALOG_DATA);
   title = 'Add Project';
-  private errorHandler = inject(FormErrorHandlerService);
-  @ViewChild(FormDialogComponent) formDialog!: FormDialogComponent;
-  private serverErrorMessage = '';
   submitAction: (data: Project) => void = this.createProject.bind(this);
 
   fields: FormlyFieldConfig[] = [
@@ -46,12 +43,37 @@ export class ProjectAddComponent implements OnInit {
         required: true,
       },
       validators: {
-        validation: [Validators.required],
+        validation: [
+          Validators.required,
+          Validators.maxLength(PROJECT_NAME_MAX_LENGTH),
+        ],
       },
+      asyncValidators: {
+        validation: [
+          (control: any) => {
+            const value: string = control.value;
+            if (this.project && value === this.project.name) {
+              return of(null);
+            }
+            return of(value).pipe(
+              switchMap((v: string) =>
+                this.service.request<{ exists: boolean }>(
+                  'get',
+                  `projects/existence?name=${encodeURIComponent(v)}`,
+                ),
+              ),
+              map((res) => (res?.exists ? { uniqueName: true } : null)),
+              catchError(() => of(null)),
+            );
+          },
+        ],
+      },
+
       validation: {
         messages: {
           required: 'Project Name is required',
-          'server-error': () => this.serverErrorMessage,
+          maxlength: `Project Name is too long, use ${PROJECT_NAME_MAX_LENGTH} characters maximum`,
+          uniqueName: 'Unique name is required',
         },
       },
     },
@@ -110,25 +132,10 @@ export class ProjectAddComponent implements OnInit {
             ? toHTML(data.description)
             : data.description,
       })
-      .pipe(
-        tap((newProject: Project) => {
-          this.dialogRef.close('refresh');
-          this.router.navigate(['/projects', newProject.id]);
-        }),
-        catchError((error) => {
-          const result = this.errorHandler.handleError(error, {
-            entityName: 'project',
-            defaultErrorMessage:
-              'There was an error creating the project, please try again later.',
-            form: this.formDialog?.form,
-            showToastOnDuplicate: true,
-            maxLengthMessage: `Project Name is too long, use ${PROJECT_NAME_MAX_LENGTH} characters maximum`,
-          });
-          this.serverErrorMessage = result.serverErrorMessage;
-          return result.observable;
-        }),
-      )
-      .subscribe();
+      .subscribe((newProject: Project) => {
+        this.dialogRef.close('refresh');
+        this.router.navigate(['/projects', newProject.id]);
+      });
   }
 
   updateProject(data: Project) {
@@ -143,18 +150,6 @@ export class ProjectAddComponent implements OnInit {
       .pipe(
         tap(() => {
           this.dialogRef.close('refresh');
-        }),
-        catchError((error) => {
-          const result = this.errorHandler.handleError(error, {
-            entityName: 'project',
-            defaultErrorMessage:
-              'There was an error updating the project, please try again later.',
-            form: this.formDialog?.form,
-            showToastOnDuplicate: true,
-            maxLengthMessage: `Project Name is too long, use ${PROJECT_NAME_MAX_LENGTH} characters maximum`,
-          });
-          this.serverErrorMessage = result.serverErrorMessage;
-          return result.observable;
         }),
       )
       .subscribe();

@@ -73,10 +73,9 @@ public class ExperimentModelUtil {
 
     public static void prepareToRecalculate(ExperimentModel model) {
         walkProperties(ExperimentModelMetamodel.INSTANCE, model, (node, property) -> {
-            if (property.valueHandler() instanceof EnteredValueDiffHandler<?> handler) {
+            if (property.valueHandler() instanceof EnteredValueDiffHandler<?>) {
                 ModelProperty<ExperimentNode, EnteredValue<MeasurementUnit>, Object, EnteredValuePatch<MeasurementUnit>> enteredValueProperty = property.cast();
-                //noinspection unchecked
-                EnteredValue.prepareToRecalculate(enteredValueProperty.get(node), v -> enteredValueProperty.set(node, v), (EnteredValue<MeasurementUnit>) handler.getDefaultValue());
+                EnteredValue.prepareToRecalculate(enteredValueProperty.get(node), v -> enteredValueProperty.set(node, v), ((EnteredValueDiffHandler<MeasurementUnit>) enteredValueProperty.valueHandler()).getDefaultValue());
             }
         });
     }

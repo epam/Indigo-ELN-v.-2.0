@@ -13,5 +13,11 @@ import java.util.List;
 public class ExperimentModelPatch {
 
     @Nullable
+    private Patched<Integer, Integer> schemaVersion;
+
+    @Nullable
+    private Patched<Integer, Integer> significantFigures;
+
+    @Nullable
     private Patched<List<Reaction>, ListPatch<Reaction, ReactionPatch>> reactions;
 }

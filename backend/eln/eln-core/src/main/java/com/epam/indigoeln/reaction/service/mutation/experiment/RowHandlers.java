@@ -18,7 +18,7 @@ class SetInputRowEQHandler extends AbstractReactionInputMutationHandler<Reaction
     @Override
     public MutationResult doHandle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowEQ mutation) {
         EnteredValueUndo<NoUnit> undo = setEnteredValue(row::getEq, row::setEq, mutation.eq(), NoUnit.NO_UNIT, mutation.source(), experiment.getRevision());
-        return new MutationResult(formatSetterSummary("input EQ", mutation.eq())
+        return new MutationResult(formatSetterSummary("input EQ", mutation.eq(), NoUnit.NO_UNIT)
                 , new ReactionInputMutation.SetInputRowEQ(mutation.anchor(), undo.value(), undo.source())
         );
     }

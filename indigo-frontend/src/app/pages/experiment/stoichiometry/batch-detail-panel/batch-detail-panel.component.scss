@@ -1,0 +1,24 @@
+.batch-detail-container {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 1.5rem;
+  padding: 0.5rem;
+  min-height: 400px;
+}
+
+.left-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.right-panel {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+@media (max-width: 1024px) {
+  .batch-detail-container {
+    grid-template-columns: 1fr;
+  }
+}

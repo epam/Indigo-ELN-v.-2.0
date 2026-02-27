@@ -71,9 +71,24 @@ class InsertTestDataTest {
     //    @Test
     @Order(2)
     void insertUsers() {
-        userClient.createUser(new UserRequest("alice@eln.com", "Alice", "Smith", "password", List.of(ROLE_CONTENT_EDITOR, ROLE_TEMPLATE_EDITOR)));
-        userClient.createUser(new UserRequest("bob@eln.com", "Bob", "Johnson", "password", List.of(ROLE_ADMINISTRATOR)));
-        userClient.createUser(new UserRequest("charlie@eln.com", "Charlie", "Williams", "password", List.of(ROLE_CONTENT_EDITOR)));
+        String password = System.getenv("PASSWORD");
+        userClient.createUser(new UserRequest("alice@eln.com", "Alice", "Smith", password, List.of(ROLE_CONTENT_EDITOR, ROLE_TEMPLATE_EDITOR)));
+        userClient.createUser(new UserRequest("bob@eln.com", "Bob", "Johnson", password, List.of(ROLE_ADMINISTRATOR)));
+        userClient.createUser(new UserRequest("charlie@eln.com", "Charlie", "Williams", password, List.of(ROLE_CONTENT_EDITOR)));
+
+        Map<String, List<RoleRef>> userMatrix = Map.of(
+                "user_noroles", List.of(),
+                "user_p", List.of(ROLE_PROJECT_CREATOR),
+                "user_t", List.of(ROLE_TEMPLATE_EDITOR),
+                "user_tp", List.of(ROLE_TEMPLATE_EDITOR, ROLE_PROJECT_CREATOR),
+                "user_c", List.of(ROLE_CONTENT_EDITOR),
+                "user_cp", List.of(ROLE_CONTENT_EDITOR, ROLE_PROJECT_CREATOR),
+                "user_ct", List.of(ROLE_CONTENT_EDITOR, ROLE_TEMPLATE_EDITOR),
+                "user_ctp", List.of(ROLE_CONTENT_EDITOR, ROLE_TEMPLATE_EDITOR, ROLE_PROJECT_CREATOR)
+        );
+        userMatrix.forEach((username, roles) -> {
+            userClient.createUser(new UserRequest(username + "@eln.com", username, username, password, roles));
+        });
     }
 
     //    @Test
@@ -121,23 +136,23 @@ class InsertTestDataTest {
         model = applyMutation(experiment, model, new ReactionOutputMutation.SetOutputRowSaltEQ(output1Anchor, 0.5));
 
         // set input weight
-        model = applyMutation(experiment, model, new ReactionInputSampleMutation.SetInputWeight(input1Sample1Anchor, 100.0, WeightUnit.G, null));
+        model = applyMutation(experiment, model, new ReactionInputSampleMutation.SetInputWeight(input1Sample1Anchor, "100.0", WeightUnit.G, null));
 
         // set input eq
-        model = applyMutation(experiment, model, new ReactionInputMutation.SetInputRowEQ(input2Anchor, 2.0, null));
+        model = applyMutation(experiment, model, new ReactionInputMutation.SetInputRowEQ(input2Anchor, "2", null));
 
         // add product sample
         model = applyMutation(experiment, model, new ReactionOutputMutation.AddProductSample(output2Anchor));
         OutputSampleAnchor output2Sample1Anchor = model.getReactions().getFirst().getOutputs().get(1).getSamples().get(0).getAnchor();
 
         // set output actual mol
-        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputActualMol(output2Sample1Anchor, 200.0, MolUnit.MMOL, null));
+        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputActualMol(output2Sample1Anchor, "200.0", MolUnit.MMOL, null));
 
         // set output purity
-        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputPurity(output2Sample1Anchor, 0.5, null));
+        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputPurity(output2Sample1Anchor, "0.5", null));
 
         // set actual weight
-        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputActualWeight(output2Sample1Anchor, 10.0, WeightUnit.G, null));
+        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputActualWeight(output2Sample1Anchor, "10.0", WeightUnit.G, null));
 
         // register sample
         model = applyMutation(experiment, model, new ReactionOutputSampleMutation.RegisterSample(output2Sample1Anchor));

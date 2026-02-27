@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv='Content-Type' content='text/html; charset=utf-8'/>
+        <style>
+            body { font-family: Arial, sans-serif; }
+            .diff-wrapper { display: flex; width: 100%; }
+            .diff-pane { flex: 0 0 33%; overflow-x: auto; border: 1px solid #ccc; }
+            .diff { width: 100%; border-collapse: collapse; }
+            .diff td { white-space: nowrap; padding: 0; text-align: left, vertical-align: top; }
+            pre { margin: 0; }
+            h1 { margin-top: 64pt; }
+            h1.error { color: darkred; }
+            .old { background-color: #f8d7da; }
+            .new { background-color: #d4edda; }
+        </style>
+        <script type='text/javascript'>
+            function setShowClass(show, className) {
+                const elements = document.getElementsByClassName(className);
+                for (let i = 0; i < elements.length; i++) {
+                    elements[i].style.display = show ? '' : 'none';
+                }
+                setShowTableOfContents(document.getElementById('showTableOfContents').checked);
+            }
+            function setShowTableOfContents(show) {
+                let html = '';
+                if (show) {
+                    html += '<ol>';
+                    const elements = document.getElementsByTagName('H1');
+                    for (let i = 0; i < elements.length; i++) {
+                        if (elements[i].style.display !== 'none') {
+                            html += `<li><a href="#${elements[i].id}">${elements[i].textContent}</a></li>`
+                        }
+                    }
+                    html += '</ol>';
+                }
+                document.getElementById('tableOfContents').innerHTML = html;
+            }
+        </script>
+    </head>
+<body>
+<div class="buttons">
+    <label><input type="checkbox" id="showTableOfContents" onchange="setShowTableOfContents(event.target.checked)">show table of contents</label>
+    <label><input type="checkbox" id="showMutations" checked onchange="setShowClass(event.target.checked, 'mutation')">show mutations</label>
+    <label><input type="checkbox" id="showUndo" checked onchange="setShowClass(event.target.checked, 'undo')">show undo</label>
+    <label><input type="checkbox" id="showRedo" checked onchange="setShowClass(event.target.checked, 'redo')">show redo</label>
+</div>
+<div id="tableOfContents">&nbsp;</div>

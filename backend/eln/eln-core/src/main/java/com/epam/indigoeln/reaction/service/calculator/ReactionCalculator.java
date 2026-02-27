@@ -88,14 +88,14 @@ public class ReactionCalculator {
                     // mol = molCompound - sum(molOtherSamples)
                     rowMol.subtract(otherSamplesMol),
                     // mol = weight * purity / molWeight
-                    opt(sample.getWeight()).multiply(sample.getPurity()).divide(molWeight),
+                    opt(sample.getWeight()).multiply(sample.getPurityAsFraction()).divide(molWeight),
                     // mol = molarity * volume
                     opt(sample.getMolarity()).multiply(sample.getVolume())
             );
             updated |= tryUpdate(
                     "inputSample.weight", sample.getWeight(), sample::setWeight,
-                    // weight = mol * molWeight / purity
-                    opt(sample.getMol()).multiply(molWeight).divide(sample.getPurity()),
+                    // weight = mol * molWeight / purity * 100
+                    opt(sample.getMol()).multiply(molWeight).multiply(100.0).divide(sample.getPurity()),
                     // weight = volume * density
                     opt(sample.getVolume()).multiply(sample.getDensity())
             );
@@ -147,14 +147,14 @@ public class ReactionCalculator {
             updated |= tryUpdate(
                     "outputSample.actualMol", sample.getActualMol(), sample::setActualMol,
                     // actualMol = actualWeight * purity / molWeight
-                    opt(sample.getActualWeight()).multiply(sample.getPurity()).divide(molWeight),
+                    opt(sample.getActualWeight()).multiply(sample.getPurityAsFraction()).divide(molWeight),
                     // actualMol = molarity * volume
                     opt(sample.getMolarity()).multiply(sample.getVolume())
             );
             updated |= tryUpdate(
                     "outputSample.actualWeight", sample.getActualWeight(), sample::setActualWeight,
                     // actualWeight = actualMol * molWeight / purity
-                    opt(sample.getActualMol()).multiply(molWeight).divide(sample.getPurity()),
+                    opt(sample.getActualMol()).<WeightUnit>multiply(molWeight).divide(sample.getPurityAsFraction()),
                     // actualWeight = volume * density
                     opt(sample.getVolume()).multiply(sample.getDensity())
             );
@@ -168,9 +168,9 @@ public class ReactionCalculator {
             updated |= tryUpdate(
                     "outputSample.yield", sample.getYield(), sample::setYield,
                     // yield = actualMol / theoMol
-                    opt(sample.getActualMol()).divide(sample.getRow().getTheoMol()),
-                    // yield = actualWeight / theoWeight
-                    opt(sample.getActualWeight()).multiply(sample.getPurity()).divide(sample.getRow().getTheoWeight())
+                    opt(sample.getActualMol()).<NoUnit>divide(sample.getRow().getTheoMol()).multiply(100.0),
+                    // yield = actualWeight * purity / theoWeight
+                    opt(sample.getActualWeight()).multiply(sample.getPurityAsFraction()).<NoUnit>divide(sample.getRow().getTheoWeight()).multiply(100.0)
             );
             return updated;
         });

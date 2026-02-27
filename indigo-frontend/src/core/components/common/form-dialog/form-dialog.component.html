@@ -62,9 +62,13 @@
       <div class="modal-footer p-4 border-t border-neutral-200">
         <div class="flex justify-end space-x-2 mt-3">
           @if (!hideCancelButton) {
-            <eln-button [type]="'button'" [variant]="'grey'" mat-dialog-close>{{
-              cancelButtonText
-            }}</eln-button>
+            <eln-button
+              [type]="'button'"
+              [variant]="'grey'"
+              mat-dialog-close
+              class="mr-[12px]"
+              >{{ cancelButtonText }}</eln-button
+            >
           }
           @if (!hideSubmitButton) {
             <eln-button

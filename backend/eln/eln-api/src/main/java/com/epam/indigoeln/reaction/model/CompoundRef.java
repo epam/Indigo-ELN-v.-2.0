@@ -4,12 +4,12 @@ import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
 import com.fasterxml.jackson.annotation.*;
-import com.google.common.base.MoreObjects;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
 import org.jspecify.annotations.Nullable;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
@@ -43,7 +43,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
     EnteredValue<MolWeightUnit> getMolWeight();
 
     @Nullable
-    Double getExactMass();
+    BigDecimal getExactMass();
 
     @Nullable
     String getCasNumber();
@@ -75,7 +75,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         private final EnteredValue<MolWeightUnit> molWeight;
 
         @NotNull
-        private final Double exactMass;
+        private final BigDecimal exactMass;
 
         @NotNull
         private final String formula;
@@ -121,7 +121,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         private EnteredValue<MolWeightUnit> molWeight;
 
         @NotNull
-        private Double exactMass;
+        private BigDecimal exactMass;
 
         @Nullable
         private final String casNumber;
@@ -182,7 +182,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         @Override
         @Nullable
         @JsonIgnore
-        public Double getExactMass() {
+        public BigDecimal getExactMass() {
             return null;
         }
 

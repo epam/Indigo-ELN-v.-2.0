@@ -1,6 +1,7 @@
 package com.epam.indigoeln.eln.repository;
 
 import com.epam.indigoeln.common.exception.AccessDeniedException;
+import com.epam.indigoeln.common.exception.EntityNotFoundException;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.entity.IdentifiableEntity;
 import com.epam.indigoeln.eln.model.EntityType;
@@ -8,7 +9,6 @@ import com.epam.indigoeln.eln.model.Page;
 import com.epam.indigoeln.eln.model.Paging;
 import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.eln.util.Conditions;
-import com.epam.indigoeln.common.exception.EntityNotFoundException;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import io.quarkus.panache.common.Sort;
@@ -60,7 +60,7 @@ public abstract class BaseRepository<E extends IdentifiableEntity> implements Pa
         E entity = query
                 .withHint("jakarta.persistence.loadgraph", entityGraph)
                 .singleResultOptional()
-                .orElseThrow(() -> new AccessDeniedException(entityType, id, userService.getCurrentUser().getUsername()));
+                .orElseThrow(() -> new AccessDeniedException(entityType, id));
         return mapper.apply(entity);
     }
 

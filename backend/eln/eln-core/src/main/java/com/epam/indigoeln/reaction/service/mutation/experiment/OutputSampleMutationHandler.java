@@ -79,7 +79,7 @@ class RegisterSampleHandler extends AbstractReactionOutputSampleMutationHandler<
                 .withNbkBatchNumber(sampleRow.getNbkBatchNumber())
                 .withDensity(sampleRow.getDensity())
                 .withMolarity(sampleRow.getMolarity())
-                .withPurity(sampleRow.getPurity().getValue())
+                .withPurity(sampleRow.getPurity().toBigDecimal())
                 .withHealthHazards(sampleRow.getHealthHazards())
                 .withCompoundState(sampleRow.getComponentState())
                 .withBatchComment(sampleRow.getBatchComment())
