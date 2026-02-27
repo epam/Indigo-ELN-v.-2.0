@@ -2,18 +2,16 @@ package com.epam.indigoeln.signature.service.signatureapplier;
 
 import com.epam.indigoeln.signature.entity.DocumentSignatureBlockEntity;
 import com.epam.indigoeln.signature.exception.InvalidInputException;
-import com.itextpdf.text.BaseColor;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Rectangle;
-import com.itextpdf.text.pdf.*;
-import com.itextpdf.text.pdf.security.ExternalSignature;
-import com.itextpdf.text.pdf.security.PrivateKeySignature;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
+import org.openpdf.text.DocumentException;
+import org.openpdf.text.Rectangle;
+import org.openpdf.text.pdf.*;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
+import java.awt.Color;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -65,18 +63,12 @@ public class EasySignatureApplier extends AbstractSigner {
         Certificate[] chain = ks.getCertificateChain(alias);
 
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
-        ExternalSignature es = new PrivateKeySignature(pk, "SHA-1", "BC");
-
-        return signDocument(documentContent, chain, signatureTemplateBlock, es, getSignatureApprovedText(signatureTemplateBlock), getImageBytes(signatureApprovedImage));
+        return stampDocument(documentContent, signatureTemplateBlock, getSignatureApprovedText(signatureTemplateBlock), signatureApprovedImage, pk, chain);
     }
 
     public byte[] rejectDocument(byte[] documentContent, DocumentSignatureBlockEntity signatureTemplateBlock) throws Exception {
         signatureVerifier.verifySignatures(documentContent);
-        ByteArrayOutputStream fout = new ByteArrayOutputStream();
-        PdfSignatureAppearance sap = getPdfSignatureAppearance(documentContent, signatureTemplateBlock, getSignatureRejectedText(signatureTemplateBlock),
-                getImageBytes(signatureRejectedImage), fout);
-        return fout.toByteArray();
-        //return addRejectionField(documentContent, signatureTemplateBlock);
+        return stampDocument(documentContent, signatureTemplateBlock, getSignatureRejectedText(signatureTemplateBlock), signatureRejectedImage, null, null);
     }
 
     public byte[] breakDocumentIntegrity(byte[] documentContent) {
@@ -92,7 +84,7 @@ public class EasySignatureApplier extends AbstractSigner {
 
             content.beginText();
             content.setFontAndSize(BaseFont.createFont(), 50);
-            content.setColorFill(BaseColor.RED);
+            content.setColorFill(Color.RED);
             content.moveText(100, reader.getPageSize(1).getHeight() / 2);
             content.newlineShowText("roughly modified");
             content.endText();
@@ -106,15 +98,15 @@ public class EasySignatureApplier extends AbstractSigner {
         return documentContent;
     }
 
-    public byte[] addRejectionField(byte[] documentContent, DocumentSignatureBlockEntity DocumentSignatureBlockEntity) throws IOException, DocumentException {
-        int i = DocumentSignatureBlockEntity.getIndex();
+    public byte[] addRejectionField(byte[] documentContent, DocumentSignatureBlockEntity documentSignatureBlockEntity) throws IOException, DocumentException {
+        int i = documentSignatureBlockEntity.getIndex();
         boolean first = i == 1;
 
         PdfReader reader = new PdfReader(documentContent);
         ByteArrayOutputStream fout = new ByteArrayOutputStream();
-        PdfStamper stamper = new PdfStamper(reader, fout, '\0', true);
+        PdfStamper stamper = new PdfStamper(reader, fout, null, !first);
         PdfFormField field = PdfFormField.createSignature(stamper.getWriter());
-        field.setFieldName("Document rejected by " + DocumentSignatureBlockEntity.getUser().getFullName());
+        field.setFieldName("Document rejected by " + documentSignatureBlockEntity.getUser().getFullName());
 
         int pageNum = reader.getNumberOfPages();
         if (first) {

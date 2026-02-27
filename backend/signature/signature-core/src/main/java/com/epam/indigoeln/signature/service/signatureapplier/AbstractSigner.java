@@ -1,22 +1,19 @@
 package com.epam.indigoeln.signature.service.signatureapplier;
 
 import com.epam.indigoeln.signature.entity.DocumentSignatureBlockEntity;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Image;
-import com.itextpdf.text.Rectangle;
-import com.itextpdf.text.pdf.PdfReader;
-import com.itextpdf.text.pdf.PdfSignatureAppearance;
-import com.itextpdf.text.pdf.PdfStamper;
-import com.itextpdf.text.pdf.security.BouncyCastleDigest;
-import com.itextpdf.text.pdf.security.ExternalSignature;
-import com.itextpdf.text.pdf.security.MakeSignature;
 import lombok.extern.slf4j.Slf4j;
+import org.openpdf.text.Image;
+import org.openpdf.text.Rectangle;
+import org.openpdf.text.pdf.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 public abstract class AbstractSigner implements SignatureApplier {
@@ -26,36 +23,61 @@ public abstract class AbstractSigner implements SignatureApplier {
     protected String signatureRejectedImage = "rejected.jpg";
     protected SignatureVerifier signatureVerifier = new SignatureVerifier();
 
-    public byte[] signDocument(byte[] documentContent, Certificate[] chain,
-                               DocumentSignatureBlockEntity DocumentSignatureBlockEntity, ExternalSignature externalSignature, String text, byte[] image) throws Exception {
-        ByteArrayOutputStream fout = new ByteArrayOutputStream();
-        PdfSignatureAppearance sap = getPdfSignatureAppearance(documentContent, DocumentSignatureBlockEntity, text, image, fout);
-        MakeSignature.signDetached(sap, new BouncyCastleDigest(), externalSignature, chain, null, null, null, 0, MakeSignature.CryptoStandard.CMS);
-        return fout.toByteArray();
-    }
-
-    protected PdfSignatureAppearance getPdfSignatureAppearance(byte[] documentContent, DocumentSignatureBlockEntity DocumentSignatureBlockEntity,
-                                                               String text, byte[] image, ByteArrayOutputStream fout) throws IOException, DocumentException {
-        int i = DocumentSignatureBlockEntity.getIndex();
-        boolean first = i == 1;
-
+    public byte[] stampDocument(byte[] documentContent, DocumentSignatureBlockEntity signatureBlockEntity,
+                                String stampText, String imagePath, PrivateKey key, Certificate[] chain) throws Exception {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         PdfReader reader = new PdfReader(documentContent);
-
-        PdfStamper stamper = PdfStamper.createSignature(reader, fout, '\0', null, !first);
-        PdfSignatureAppearance sap = stamper.getSignatureAppearance();
-
+        int i = signatureBlockEntity.getIndex();
+        boolean first = i == 1;
+        PdfStamper stamper = PdfStamper.createSignature(reader, outputStream, null, null, !first);
+        PdfSignatureAppearance appearance = stamper.getSignatureAppearance();
         int pageNum = reader.getNumberOfPages();
-        if(first) {
+
+        if (first) {
             stamper.insertPage(++pageNum, reader.getPageSizeWithRotation(1));
         }
-        sap.setVisibleSignature(createNewRectangle(i, (int) reader.getPageSize(pageNum).getHeight()), pageNum, "Signature " + i);
-        sap.setLayer2Text(text);
-        sap.setImage(Image.getInstance(image));
 
-        sap.setReason(DocumentSignatureBlockEntity.getReason().getTitle());
-        sap.setSignDate(Calendar.getInstance());
-        sap.setRenderingMode(PdfSignatureAppearance.RenderingMode.NAME_AND_DESCRIPTION);
-        return sap;
+        prepareSignatureAppearance(appearance, reader, pageNum, i, stampText, imagePath,
+                signatureBlockEntity.getReason().getTitle(), key, chain);
+
+        if (key == null) {
+            closeSignatureAppearance(appearance);
+        } else {
+            stamper.close();
+        }
+
+        return outputStream.toByteArray();
+    }
+
+    public void prepareSignatureAppearance(PdfSignatureAppearance appearance, PdfReader reader, int pageNum, int index, String layer2Text,
+                                           String imagePath, String reason, PrivateKey key, Certificate[] chain) throws IOException {
+        Calendar signDate = Calendar.getInstance();
+
+        if (key != null) {
+            appearance.setCrypto(key, chain, null, PdfSignatureAppearance.SELF_SIGNED);
+            appearance.setRender(PdfSignatureAppearance.SignatureRenderNameAndDescription);
+        } else {
+            PdfDictionary dic = new PdfDictionary();
+            dic.put(PdfName.FILTER, PdfName.ADOBE_PPKLITE);
+            dic.put(PdfName.M, new PdfDate(signDate));
+            appearance.setCryptoDictionary(dic);
+        }
+
+        appearance.setVisibleSignature(createNewRectangle(index, (int) reader.getPageSize(pageNum).getHeight()),
+                pageNum, "Signature " + index);
+        appearance.setLayer2Text(layer2Text);
+        appearance.setImage(Image.getInstance(getImageBytes(imagePath)));
+        appearance.setReason(reason);
+        appearance.setSignDate(signDate);
+    }
+
+    public void closeSignatureAppearance(PdfSignatureAppearance appearance) throws IOException {
+        Map<PdfName, Integer> exc = new HashMap<>();
+        exc.put(PdfName.CONTENTS, 10);
+        appearance.preClose(exc);
+        PdfDictionary update = new PdfDictionary();
+        update.put(PdfName.CONTENTS, new PdfString("aaaa").setHexWriting(true));
+        appearance.close(update);
     }
 
     public static Rectangle createNewRectangle(int position, int pageHeight) {
