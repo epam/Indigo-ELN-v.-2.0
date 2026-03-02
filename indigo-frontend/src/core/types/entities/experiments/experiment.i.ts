@@ -46,6 +46,7 @@ export interface ReactionInputSample {
 export interface ReactionOutputSample {
   anchor: UUID;
   nbkBatchNumber: string;
+  shortNbkBatchNumber: string;
   density?: EnteredValue<DensityUnit>;
   molarity?: EnteredValue<MolarityUnit>;
   volume?: EnteredValue<VolumeUnit>;
@@ -90,6 +91,7 @@ export interface ReactionInput {
 export interface ReactionOutput {
   anchor: UUID;
   outputName: string;
+  chemicalName?: string;
   compound: CompoundRef;
   eq: EnteredValue<NoUnit>;
   type: ReactionOutputType;

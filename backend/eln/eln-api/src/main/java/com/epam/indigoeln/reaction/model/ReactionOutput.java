@@ -26,6 +26,9 @@ public final class ReactionOutput extends ReactionRow implements ExperimentNode 
     @NotNull
     private String outputName;
 
+    @Nullable
+    private String chemicalName;
+
     @NotNull
     private ReactionOutputType type;
 

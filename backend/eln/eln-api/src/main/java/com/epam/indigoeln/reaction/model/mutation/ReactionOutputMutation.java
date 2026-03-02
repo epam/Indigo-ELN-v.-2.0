@@ -53,6 +53,12 @@ public interface ReactionOutputMutation extends Mutation {
     ) implements ReactionOutputMutation {
     }
 
+    record SetOutputRowChemicalName(
+            @NotNull OutputAnchor anchor,
+            @Nullable String chemicalName
+    ) implements ReactionOutputMutation {
+    }
+
     record SetOutputCompoundStereoisomerCode(
             @NotNull OutputAnchor anchor,
             @Nullable DictionaryItemRef stereoisomerCode

@@ -1,7 +1,7 @@
 package com.epam.indigoeln.reaction.metamodel;
 
-import com.epam.indigoeln.reaction.model.ReactionOutput;
 import com.epam.indigoeln.reaction.metamodel.property.Metamodel;
+import com.epam.indigoeln.reaction.model.ReactionOutput;
 import com.epam.indigoeln.reaction.model.ReactionOutputSample;
 import com.epam.indigoeln.reaction.model.patch.ReactionOutputPatch;
 import com.epam.indigoeln.reaction.model.patch.ReactionOutputSamplePatch;
@@ -14,6 +14,7 @@ class ReactionOutputMetamodel {
         m.property("anchor", ReactionOutput::getAnchor, ReactionOutput::setAnchor, ReactionOutputPatch::getAnchor, ReactionOutputPatch::setAnchor);
         m.accept(Metamodels::buildReactionRowMetamodel);
         m.property("outputName", ReactionOutput::getOutputName, ReactionOutput::setOutputName, ReactionOutputPatch::getOutputName, ReactionOutputPatch::setOutputName);
+        m.property("chemicalName", ReactionOutput::getChemicalName, ReactionOutput::setChemicalName, ReactionOutputPatch::getChemicalName, ReactionOutputPatch::setChemicalName);
         m.property("type", ReactionOutput::getType, ReactionOutput::setType, ReactionOutputPatch::getType, ReactionOutputPatch::setType);
         m.enteredValueProperty("theoMol", ReactionOutput::getTheoMol, ReactionOutput::setTheoMol, ReactionOutputPatch::getTheoMol, ReactionOutputPatch::setTheoMol);
         m.enteredValueProperty("theoWeight", ReactionOutput::getTheoWeight, ReactionOutput::setTheoWeight, ReactionOutputPatch::getTheoWeight, ReactionOutputPatch::setTheoWeight);
