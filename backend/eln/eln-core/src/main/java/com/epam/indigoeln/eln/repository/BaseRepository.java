@@ -29,6 +29,7 @@ public abstract class BaseRepository<E extends IdentifiableEntity> implements Pa
     protected static final Sort DEFAULT_SORT = io.quarkus.panache.common.Sort.descending("modifiedAt");
 
     protected final EntityType entityType;
+    protected final Class<E> entityClass;
 
     @PersistenceContext
     protected EntityManager em;
@@ -70,6 +71,10 @@ public abstract class BaseRepository<E extends IdentifiableEntity> implements Pa
             throw new EntityNotFoundException(entityType, id);
         }
         return entity;
+    }
+
+    public E getReference(UUID id) {
+        return em.getReference(entityClass, id);
     }
 
     public void flushAndRefresh(E entity) {

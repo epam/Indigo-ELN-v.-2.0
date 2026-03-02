@@ -5,8 +5,6 @@ import com.epam.indigoeln.eln.model.ACLDetailsEntryDTO;
 import com.epam.indigoeln.eln.model.AttachmentDTO;
 import com.epam.indigoeln.eln.util.ExperimentModelUtil;
 import com.epam.indigoeln.reaction.model.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.inject.Inject;
 import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 import org.mapstruct.Mapper;
@@ -19,9 +17,6 @@ import java.util.Set;
 
 @Mapper(componentModel = "cdi", unmappedTargetPolicy = ReportingPolicy.ERROR, nullValueCheckStrategy =  NullValueCheckStrategy.ALWAYS)
 public abstract class SnapshotMapper extends AbstractMapper {
-
-    @Inject
-    ObjectMapper objectMapper;
 
     @Mapping(target = "attachments", ignore = true)
     @Mapping(target = "acl", ignore = true)

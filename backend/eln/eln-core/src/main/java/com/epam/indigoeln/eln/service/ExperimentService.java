@@ -226,6 +226,10 @@ public class ExperimentService {
         return experimentMapper.revisionToDTOList(experiment.getRevisions());
     }
 
+    public List<ExperimentRef> suggestExperiments(String search) {
+        return experimentRepository.suggest(search);
+    }
+
     public record ExperimentReportContent (
             byte[] content,
             String contentDisposition,

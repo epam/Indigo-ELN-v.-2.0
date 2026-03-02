@@ -9,6 +9,7 @@ import com.google.common.base.MoreObjects;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.TypedQuery;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -18,8 +19,10 @@ import java.util.function.Function;
 @ApplicationScoped
 public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
 
+    private static final Sort SORT_SUGGEST = Sort.by("name");
+
     public ExperimentRepository() {
-        super(EntityType.EXPERIMENT);
+        super(EntityType.EXPERIMENT, ExperimentEntity.class);
     }
 
     @Inject
@@ -106,5 +109,16 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
                 .setParameter("experiment", experiment)
                 .setParameter("revision", revision)
                 .getSingleResult();
+    }
+
+    public List<ExperimentRef> suggest(@Nullable String search) {
+        String condition = search != null ? "where name like :search" : "";
+        TypedQuery<ExperimentRef> query = em.createQuery("select new com.epam.indigoeln.eln.model.ExperimentRef(id, name) from Experiment " + condition + " order by name", ExperimentRef.class);
+        if (search != null) {
+            query.setParameter("search", search + '%');
+        }
+        return query.setFirstResult(0)
+                .setMaxResults(10)
+                .getResultList();
     }
 }

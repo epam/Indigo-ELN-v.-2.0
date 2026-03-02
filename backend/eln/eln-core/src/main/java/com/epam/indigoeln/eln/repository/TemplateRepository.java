@@ -17,7 +17,7 @@ public class TemplateRepository extends BaseRepository<TemplateEntity> {
     TemplateMapper templateMapper;
 
     public TemplateRepository() {
-        super(EntityType.TEMPLATE);
+        super(EntityType.TEMPLATE, TemplateEntity.class);
     }
 
     public Page<TemplateDTO> findAll(Paging paging) {

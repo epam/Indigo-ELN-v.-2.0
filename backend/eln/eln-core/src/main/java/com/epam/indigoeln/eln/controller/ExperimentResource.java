@@ -175,4 +175,9 @@ public class ExperimentResource implements ExperimentAPI {
     public List<RevisionDetailsDTO<ExperimentPatch>> getExperimentRevisions(UUID experimentId) {
         return experimentService.getExperimentRevisions(experimentId);
     }
+
+    @Override
+    public List<ExperimentRef> suggestExperiments(String search) {
+        return experimentService.suggestExperiments(search);
+    }
 }

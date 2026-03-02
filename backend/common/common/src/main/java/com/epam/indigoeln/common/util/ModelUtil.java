@@ -34,17 +34,17 @@ public class ModelUtil {
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    public <T> void editProperty(@Nullable Optional<T> property, Consumer<T> consumer) {
-        editProperty(property, consumer, null, (Function<T, String>) null);
+    public <T> boolean editProperty(@Nullable Optional<T> property, Consumer<T> consumer) {
+        return editProperty(property, consumer, null, (Function<T, String>) null);
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    public <T> void editProperty(@Nullable Optional<T> property, Consumer<T> consumer, @Nullable List<String> summaryList, String propertyName) {
-        editProperty(property, consumer, summaryList, v -> propertyName + "=" + v);
+    public <T> boolean editProperty(@Nullable Optional<T> property, Consumer<T> consumer, @Nullable List<String> summaryList, String propertyName) {
+        return editProperty(property, consumer, summaryList, v -> propertyName + "=" + v);
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    public <T> void editProperty(@Nullable Optional<T> property, Consumer<T> consumer, @Nullable List<String> summaryList, @Nullable Function<T, String> summaryFn) {
+    public <T> boolean editProperty(@Nullable Optional<T> property, Consumer<T> consumer, @Nullable List<String> summaryList, @Nullable Function<T, String> summaryFn) {
         //noinspection OptionalAssignedToNull
         if (property != null) {
             T value = property.orElse(null);
@@ -54,7 +54,9 @@ public class ModelUtil {
                 String summary = summaryFn != null ? summaryFn.apply(value) : Objects.toString(value);
                 summaryList.add(summary);
             }
+            return true;
         }
+        return false;
     }
 
     @SneakyThrows

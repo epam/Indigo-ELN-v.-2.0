@@ -12,7 +12,9 @@ BEGIN
     RETURN (
         SELECT
             setweight(to_tsvector('english', coalesce(e.name, '')), 'A') ||
+            setweight(to_tsvector('english', coalesce(e.title, '')), 'A') ||
             setweight(to_tsvector('english', coalesce(e.description, '')), 'D') ||
+            setweight(to_tsvector('english', coalesce(e.literature, '')), 'D') ||
             setweight(to_tsvector('english', coalesce(c.display_name, '')), 'C')
         FROM Experiment e
         JOIN User_Account c ON c.id = e.created_by_id
