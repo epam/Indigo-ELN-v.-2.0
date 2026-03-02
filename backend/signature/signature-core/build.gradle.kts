@@ -23,7 +23,7 @@ dependencies {
     implementation("org.bouncycastle:bcpkix-jdk18on")
 
     implementation("one.util:streamex:0.8.3")
-    implementation("com.github.librepdf:openpdf:3.0.1")
+    implementation("io.quarkiverse.openpdf:quarkus-openpdf:3.3.2")
 
     api(project(":signature:signature-api"))
 

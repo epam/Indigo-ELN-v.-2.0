@@ -2,9 +2,9 @@ package com.epam.indigoeln.signature.service.signatureapplier;
 
 import com.epam.indigoeln.signature.entity.DocumentSignatureBlockEntity;
 import lombok.extern.slf4j.Slf4j;
-import org.openpdf.text.Image;
-import org.openpdf.text.Rectangle;
-import org.openpdf.text.pdf.*;
+import com.lowagie.text.Image;
+import com.lowagie.text.Rectangle;
+import com.lowagie.text.pdf.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -29,7 +29,7 @@ public abstract class AbstractSigner implements SignatureApplier {
         PdfReader reader = new PdfReader(documentContent);
         int i = signatureBlockEntity.getIndex();
         boolean first = i == 1;
-        PdfStamper stamper = PdfStamper.createSignature(reader, outputStream, null, null, !first);
+        PdfStamper stamper = PdfStamper.createSignature(reader, outputStream, '\0', null, !first);
         PdfSignatureAppearance appearance = stamper.getSignatureAppearance();
         int pageNum = reader.getNumberOfPages();
 

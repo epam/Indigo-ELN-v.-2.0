@@ -4,9 +4,9 @@ import com.epam.indigoeln.signature.entity.DocumentSignatureBlockEntity;
 import com.epam.indigoeln.signature.exception.InvalidInputException;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
-import org.openpdf.text.DocumentException;
-import org.openpdf.text.Rectangle;
-import org.openpdf.text.pdf.*;
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.Rectangle;
+import com.lowagie.text.pdf.*;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -104,7 +104,7 @@ public class EasySignatureApplier extends AbstractSigner {
 
         PdfReader reader = new PdfReader(documentContent);
         ByteArrayOutputStream fout = new ByteArrayOutputStream();
-        PdfStamper stamper = new PdfStamper(reader, fout, null, !first);
+        PdfStamper stamper = new PdfStamper(reader, fout, '\0', !first);
         PdfFormField field = PdfFormField.createSignature(stamper.getWriter());
         field.setFieldName("Document rejected by " + documentSignatureBlockEntity.getUser().getFullName());
 

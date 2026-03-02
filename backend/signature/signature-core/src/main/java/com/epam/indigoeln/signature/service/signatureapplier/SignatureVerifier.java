@@ -2,9 +2,9 @@ package com.epam.indigoeln.signature.service.signatureapplier;
 
 import com.epam.indigoeln.signature.exception.DocumentIntegrityException;
 import lombok.extern.slf4j.Slf4j;
-import org.openpdf.text.pdf.AcroFields;
-import org.openpdf.text.pdf.PdfReader;
-import org.openpdf.text.pdf.PdfPKCS7;
+import com.lowagie.text.pdf.AcroFields;
+import com.lowagie.text.pdf.PdfReader;
+import com.lowagie.text.pdf.PdfPKCS7;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
