@@ -1,4 +1,7 @@
-import { NotificationParams, NotificationType } from '@core/types/notification.i';
+import {
+  NotificationParams,
+  NotificationType,
+} from '@core/types/notification.i';
 import { Component, inject } from '@angular/core';
 import { MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
 import { MatIcon, MatIconRegistry } from '@angular/material/icon';
@@ -12,7 +15,9 @@ import { NotificationService } from '@core/services/notification/notification.se
   template: `
     <mat-icon [svgIcon]="params.type" class="icon type-icon" />
 
-    <span>{{ params.message }}</span>
+    <span class="message" style="flex: 1;">{{
+      params.message
+    }}</span>
 
     <button class="close-button" (click)="onClose()">
       <mat-icon svgIcon="close" class="icon" />
@@ -38,10 +43,10 @@ export class NotificationComponent {
     this.#notificationService.dismiss();
   }
 
-   #registerIcon(name: string): void {
+  #registerIcon(name: string): void {
     this.#iconRegistry.addSvgIcon(
       name,
-      this.#sanitizer.bypassSecurityTrustResourceUrl(`assets/${name}.svg`)
+      this.#sanitizer.bypassSecurityTrustResourceUrl(`assets/${name}.svg`),
     );
   }
 }
