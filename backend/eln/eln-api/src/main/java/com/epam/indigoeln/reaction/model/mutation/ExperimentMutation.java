@@ -3,6 +3,8 @@ package com.epam.indigoeln.reaction.model.mutation;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
@@ -24,6 +26,11 @@ public interface ExperimentMutation extends Mutation {
 //    record DeleteExperiment(
 //    ) implements ExperimentMutation {
 //    }
+
+    record SetExperimentSignificantFigures(
+            @NotNull @Min(1) @Max(5) Integer significantFigures
+    ) implements ExperimentMutation {
+    }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     record EditExperimentAttributes(

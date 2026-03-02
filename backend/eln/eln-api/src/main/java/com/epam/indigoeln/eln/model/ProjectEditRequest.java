@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,7 +27,9 @@ import java.util.Optional;
 public class ProjectEditRequest {
 
     @Nullable
-    Optional<@NotEmpty String> name;
+    Optional<
+            @NotEmpty(message = "Project Name is required")
+            @Size(max = 256, message = "Project name must be at most 256 characters") String> name;
 
     @Nullable
     Optional<List<@NotEmpty String>> keywords;

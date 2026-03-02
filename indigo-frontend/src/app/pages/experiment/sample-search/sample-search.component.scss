@@ -1,0 +1,59 @@
+.mat-expansion-panel{
+  background: #ffffff;
+}
+
+.advanced-search-box {
+  ::ng-deep input {
+    border-radius: 2px;
+    height: 36px;
+    width: 30%;
+    border: none;
+  }
+
+  ::ng-deep .mat-mdc-select-trigger {
+    background-color: #EFF0F9 !important;
+    border-radius: 2px;
+    height: 36px;
+    padding: 10px;
+    width: 100%;
+  }
+
+  ::ng-deep .relative .rounded-sm {
+    border: #E8E8E8 solid 1px;
+  }
+
+
+
+  .header-column {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    height: max-content;
+    width: 100%;
+
+    .header-column-title {
+      display: flex;
+      flex-direction: column;
+
+      .chips-container {
+        .chip {
+          display: flex;
+          padding: 2px 15px;
+          margin: 10px 10px 0 0;
+          background-color: #dee1f3;
+          border-radius: 50px;
+          cursor: context-menu;
+
+          button {
+            cursor: pointer;
+            height: 10px;
+          }
+        }
+      }
+    }
+
+    ::ng-deep .mat-content-hide-toggle {
+      width: 100%;
+    }
+  }
+}

@@ -3,15 +3,15 @@ import { ApiService } from '@core/services/api.service';
 import { Notebook } from '@core/types/entities/notebook.i';
 import { NotebookDialogData } from '@/core/types/entities/notebook-dialog-data.i';
 import { CommonModule } from '@angular/common';
-import { Component, Inject, inject, ViewChild } from '@angular/core';
+import { Component, Inject, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { toHTML } from 'ngx-editor';
-import { catchError } from 'rxjs';
 import { NOTEBOOK_NAME_LENGTH } from '../notebook.constants';
-import { FormErrorHandlerService } from '@core/services/error.service';
+import { of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 
 @Component({
   standalone: true,
@@ -26,17 +26,15 @@ import { FormErrorHandlerService } from '@core/services/error.service';
   templateUrl: './notebook-edit.component.html',
 })
 export class NotebookEditComponent {
-  @ViewChild(FormDialogComponent) formDialog!: FormDialogComponent;
   notebookId: string;
-  private errorHandler = inject(FormErrorHandlerService);
   dialogRef = inject(MatDialogRef);
   notebook: Partial<Notebook> = {};
-  private serverErrorMessage = '';
 
   fields: FormlyFieldConfig[] = [
     {
       type: 'input',
       key: 'name',
+      defaultValue: '',
       props: {
         label: 'Notebook Name',
         placeholder: '00000000',
@@ -46,17 +44,49 @@ export class NotebookEditComponent {
       },
       validators: {
         validation: [
-          Validators.required,
           Validators.minLength(NOTEBOOK_NAME_LENGTH),
           Validators.maxLength(NOTEBOOK_NAME_LENGTH),
+          Validators.pattern('^\\d+$'), // only digits
+          Validators.required,
         ],
       },
+      hooks: {
+        onInit: (field) => {
+          field.props['initialValue'] = field.formControl?.value;
+        },
+      },
+
+      asyncValidators: {
+        validation: [
+          (control: any, field: any) => {
+            const value: string = control.value;
+            const initialValue = field.props['initialValue'];
+
+            if (value === initialValue) {
+              return of(null);
+            }
+
+            return of(value).pipe(
+              switchMap((v: string) =>
+                this.service.request<{ exists: boolean }>(
+                  'get',
+                  `notebooks/existence?name=${encodeURIComponent(v)}`,
+                ),
+              ),
+              map((res) => (res?.exists ? { uniqueName: true } : null)),
+              catchError(() => of(null)),
+            );
+          },
+        ],
+      },
+
       validation: {
         messages: {
           minlength: `Notebook Name is invalid, use ${NOTEBOOK_NAME_LENGTH} digits only`,
           maxlength: `Notebook Name is invalid, use ${NOTEBOOK_NAME_LENGTH} digits only`,
+          pattern: `Notebook Name is invalid, use ${NOTEBOOK_NAME_LENGTH} digits only`,
           required: 'Notebook Name is required',
-          'server-error': () => this.serverErrorMessage,
+          uniqueName: 'Unique name is required',
         },
       },
     },
@@ -92,21 +122,8 @@ export class NotebookEditComponent {
             ? toHTML(data.description)
             : data.description,
       })
-      .pipe(
-        catchError((error) => {
-          const result = this.errorHandler.handleError(error, {
-            entityName: 'notebook',
-            defaultErrorMessage:
-              'There was an error updating the notebook, please try again later.',
-            form: this.formDialog?.form,
-            showToastOnDuplicate: true,
-          });
-          this.serverErrorMessage = result.serverErrorMessage;
-          return result.observable;
-        }),
-      )
-      .subscribe((result) => {
-        if (result) this.dialogRef.close('refresh');
+      .subscribe(() => {
+        this.dialogRef.close('refresh');
       });
   }
 }

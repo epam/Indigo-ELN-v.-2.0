@@ -1,0 +1,16 @@
+<div class="batch-detail-container">
+  <div class="left-panel">
+    <eln-batch-detail-structure-view 
+      [compoundId]="data().output.compound?.compoundID"
+      [batchAnchor]="data().sample.anchor"
+    />
+  </div>
+  
+  <div class="right-panel">
+    <eln-batch-detail-info-panel 
+      [sample]="data().sample"
+      [output]="data().output"
+      [reaction]="data().reaction"
+    />
+  </div>
+</div>

@@ -1,7 +1,6 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.exception.InvalidRequestException;
-import com.epam.indigoeln.compound.model.NumericSearch;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.util.NamedConditions;
@@ -95,11 +94,23 @@ public class GlobalSearchService {
         }
         if (request.getBatchPurity() != null) {
             hasProjects = hasNotebooks = false;
-            experimentConditions.add("jsonb_path_exists(e.model, '$.reactions[*].outputs[*].samples[*].purity.value ? (@ " + generateNumericCondition(request.getBatchPurity()) + ")')");
+            experimentConditions.add("""
+                EXISTS (
+                    SELECT 1
+                    FROM jsonb_path_query(e.model, '$.reactions[*].outputs[*].samples[*].purity') p
+                    WHERE (p.p->>'value')::numeric %OP% :purity
+                )
+            """.replace("%OP%", request.getBatchPurity().operator()), "purity", request.getBatchPurity().value());
         }
         if (request.getBatchYield() != null) {
             hasProjects = hasNotebooks = false;
-            experimentConditions.add("jsonb_path_exists(e.model, '$.reactions[*].outputs[*].samples[*].yield.value ? (@ " + generateNumericCondition(request.getBatchYield()) + ")')");
+            experimentConditions.add("""
+                EXISTS (
+                    SELECT 1
+                    FROM jsonb_path_query(e.model, '$.reactions[*].outputs[*].samples[*].yield') p
+                    WHERE (p.p->>'value')::numeric %OP% :yield
+                )
+            """.replace("%OP%", request.getBatchYield().operator()), "yield", request.getBatchYield().value());
         }
 
         String fragmentSelector = "left(t.description, 120)";
@@ -190,13 +201,5 @@ public class GlobalSearchService {
                 })
                 .toList();
         return Page.of(paging, totalCount[0], list);
-    }
-
-    private static String generateNumericCondition(NumericSearch batchYield) {
-        return switch (batchYield) {
-            case NumericSearch.Equals eq -> "=" + eq.value();
-            case NumericSearch.GreaterThanOrEqual ge -> ">=" + ge.value();
-            case NumericSearch.LessThanOrEqual le -> "<=" + le.value();
-        };
     }
 }

@@ -21,6 +21,7 @@ import com.epam.indigoeln.reaction.service.calculator.ReactionCalculator;
 import com.epam.indigoeln.reaction.service.mutation.AbstractMutationHandler;
 import com.epam.indigoeln.reaction.service.mutation.ExperimentMutationHandler;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
+import com.epam.indigoeln.reaction.util.SignificantFiguresUtil;
 import com.epam.indigoeln.reaction.util.StreamUtil;
 import com.google.common.base.Preconditions;
 import jakarta.inject.Inject;
@@ -82,13 +83,16 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation> exte
     }
 
     @Override
-    protected final void doUpdateEntity(ExperimentEntity experiment, @Nullable ExperimentModel model, ExperimentSnapshot snapshotBefore, ExperimentSnapshot snapshotAfter) {
+    protected final ExperimentPatch doUpdateEntity(ExperimentEntity experiment, @Nullable ExperimentModel model, ExperimentSnapshot snapshotBefore, ExperimentSnapshot snapshotAfter) {
         if (model != null) {
+            SignificantFiguresUtil.setSignificantFigures(model.getSignificantFigures());
             reactionCalculator.recalculate(model);
             doUpdateReferences(experiment, model,  snapshotBefore, snapshotAfter);
             doValidateModel(model);
+            SignificantFiguresUtil.clearSignificantFigures();
         }
         updateDates(experiment, userService.getCurrentUserEntity());
+        ExperimentPatch patch = experimentModelService.createPatch(snapshotBefore, snapshotAfter);
         if (model != null) {
             experimentModelService.setModel(experiment, model);
         }
@@ -97,6 +101,7 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation> exte
             experimentRepository.persist(experiment);
             experimentRepository.flushAndRefresh(experiment);
         }
+        return patch;
     }
 
     @Override
@@ -107,11 +112,6 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation> exte
     @Override
     protected final void doCreateRevision(ExperimentEntity experiment, T mutation, MutationResult result, Integer revisionNo, ExperimentPatch patch) {
         revisionService.addRevision(experiment, revisionNo, experiment.getModifiedAt(), result.summary(), mutation, result.reverseMutation(), patch);
-    }
-
-    @Override
-    protected final ExperimentPatch doCreatePatch(ExperimentSnapshot snapshotBefore, ExperimentSnapshot snapshotAfter) {
-        return experimentModelService.createPatch(snapshotBefore, snapshotAfter);
     }
 
     protected void doUpdateReferences(ExperimentEntity experiment, ExperimentModel model, ExperimentSnapshot snapshotBefore, ExperimentSnapshot snapshotAfter) {

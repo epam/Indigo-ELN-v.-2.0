@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data
@@ -21,7 +22,7 @@ public class SampleDTO {
     @NotNull
     private String molecularFormula;
     @NotNull
-    private Double molWeight;
+    private BigDecimal molWeight;
     @Nullable
     private String name;
     @Nullable

@@ -24,7 +24,6 @@ import static com.epam.indigoeln.eln.test.ACLListAssert.assertThatACL;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 @QuarkusTest
@@ -78,7 +77,7 @@ class ProjectServiceTest extends ELNBaseTest {
     @Test
     void testCreateProjectValidation() {
         assertThatClientCall(() -> projectClient.createProject(new ProjectRequest(null, List.of(), null, null)))
-                .isBadRequest("must not be empty");
+                .isBadRequest("Project Name is required");
     }
 
     @Test
@@ -112,10 +111,47 @@ class ProjectServiceTest extends ELNBaseTest {
     }
 
     @Test
+    void testCreateProjectNameTooLong() {
+        String longName = "x".repeat(257);
+
+        assertThatClientCall(() ->
+                projectClient.createProject(new ProjectRequest(longName))
+        ).isBadRequest("must be at most 256 characters");
+    }
+
+    @Test
+    void testRenameProjectNameTooLong() {
+        ProjectDetailsDTO project =
+                projectClient.createProject(new ProjectRequest("testRenameProjectName"));
+
+        String longName = "x".repeat(257);
+
+        assertThatClientCall(() ->
+                projectClient.editProject(
+                        project.getId(),
+                        new ProjectEditRequest().withName(Optional.of(longName))
+                )
+        ).isBadRequest("must be at most 256 characters");
+    }
+
+    @Test
+    void testRenameProjectNameIsEmpty() {
+        ProjectDetailsDTO project =
+                projectClient.createProject(new ProjectRequest("testRenameProjectName"));
+
+        assertThatClientCall(() ->
+                projectClient.editProject(
+                        project.getId(),
+                        new ProjectEditRequest().withName(Optional.of(""))
+                )
+        ).isBadRequest("Project Name is required");
+    }
+
+    @Test
     void testDuplicateNames() {
         projectClient.createProject(new ProjectRequest("testDuplicateNames"));
         assertThatClientCall(() -> projectClient.createProject(new ProjectRequest("testDuplicateNames")))
-                .isBadRequest("Project with name 'testDuplicateNames' already exists");
+                .isBadRequest("Unique name is required");
     }
 
     @Test
@@ -123,7 +159,89 @@ class ProjectServiceTest extends ELNBaseTest {
         projectClient.createProject(new ProjectRequest("testRenameDuplicateNames"));
         ProjectDetailsDTO project2 = projectClient.createProject(new ProjectRequest("testRenameDuplicateNames2"));
         assertThatClientCall(() -> projectClient.editProject(project2.getId(), new ProjectEditRequest().withName(Optional.of("testRenameDuplicateNames"))))
-                .isBadRequest("Project with name 'testRenameDuplicateNames' already exists");
+                .isBadRequest("Unique name is required");
+    }
+
+    @Test
+    void testCheckProjectNameExistenceEndpointSuccessWhenExists() {
+        String name = "testCheckProjectNameExistenceEndpointSuccessWhenExists";
+        projectClient.createProject(new ProjectRequest(name));
+
+        assertThatClientCall(() -> projectClient.checkProjectNameExistence(name))
+                .isSuccessfulWithResult(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.getExists()).isTrue();
+                });
+    }
+
+    @Test
+    void testCheckProjectNameExistenceEndpointSuccessWhenNotExists() {
+        String name = "testCheckProjectNameExistenceEndpointSuccessWhenNotExists";
+
+        assertThatClientCall(() -> projectClient.checkProjectNameExistence(name))
+                .isSuccessfulWithResult(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.getExists()).isFalse();
+                });
+    }
+
+    @Test
+    void testCheckProjectNameExistenceEndpointValidationEmptyName() {
+        assertThatClientCall(() -> projectClient.checkProjectNameExistence(""))
+                .isBadRequest("must not be empty");
+    }
+
+    @Test
+    void testCheckProjectNameExistenceWhenExists() {
+        String name = "testCheckProjectNameExistenceWhenExists";
+        projectClient.createProject(new ProjectRequest(name));
+
+        assertThatClientCall(() -> projectClient.checkProjectNameExistence(name))
+                .isSuccessfulWithResult(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.getExists()).isTrue();
+                });
+    }
+
+    @Test
+    void testCheckProjectNameExistenceWhenNotExists() {
+        String name = "testCheckProjectNameExistenceWhenNotExists";
+
+        assertThatClientCall(() -> projectClient.checkProjectNameExistence(name))
+                .isSuccessfulWithResult(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.getExists()).isFalse();
+                });
+    }
+
+    @Test
+    void testCheckProjectNameExistenceWithMultipleProjects() {
+        String name1 = "testCheckProjectNameExistence1";
+        String name2 = "testCheckProjectNameExistence2";
+
+        projectClient.createProject(new ProjectRequest(name1));
+        projectClient.createProject(new ProjectRequest(name2));
+
+        assertThatClientCall(() -> projectClient.checkProjectNameExistence(name1))
+                .isSuccessfulWithResult(result -> assertThat(result.getExists()).isTrue());
+
+        assertThatClientCall(() -> projectClient.checkProjectNameExistence(name2))
+                .isSuccessfulWithResult(result -> assertThat(result.getExists()).isTrue());
+
+        assertThatClientCall(() -> projectClient.checkProjectNameExistence("nonexistentProject"))
+                .isSuccessfulWithResult(result -> assertThat(result.getExists()).isFalse());
+    }
+
+    @Test
+    void testCheckProjectNameExistenceWithEmptyName() {
+        assertThatClientCall(() -> projectClient.checkProjectNameExistence(""))
+                .isBadRequest("must not be empty");
+    }
+
+    @Test
+    void testCheckProjectNameExistenceWithNullName() {
+        assertThatClientCall(() -> projectClient.checkProjectNameExistence(null))
+                .isBadRequest("must not be empty");
     }
 
     @Test
@@ -393,7 +511,7 @@ class ProjectServiceTest extends ELNBaseTest {
             fail("Upload failed unexpectedly: " + e.getMessage());
         }
     }
-  
+
     @Test
     void testUploadAttachmentToInvalidProject() {
         UUID missingProjectId = UUID.randomUUID();
@@ -403,7 +521,6 @@ class ProjectServiceTest extends ELNBaseTest {
         )
                 .isNotFound("PROJECT " + missingProjectId + " not found");
     }
-
 
 
     @Test
@@ -488,7 +605,7 @@ class ProjectServiceTest extends ELNBaseTest {
                     assertThat(revision.getDiff().getAcl()).isEqualTo(Patched.updated(Map.of(MAGGIE_USERNAME, Patched.deleted(new ACLDetailsEntryDTO(maggieUserID, MAGGIE_DISPLAY_NAME, AccessLevel.EDIT, false, MAGGIE_USERNAME)))));
                 });
     }
-    
+
     @Nested
     @JwtSecurity
     @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)

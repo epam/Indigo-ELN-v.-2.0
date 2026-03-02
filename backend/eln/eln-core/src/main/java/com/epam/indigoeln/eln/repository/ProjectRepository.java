@@ -66,6 +66,10 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
         return projectMapper.convertTotalCounts(entity);
     }
 
+    public boolean existsByName(String name) {
+        return count("name", name) > 0;
+    }
+
     public void lockProject(ProjectEntity project) {
         em.lock(project, LockModeType.PESSIMISTIC_WRITE);
     }
@@ -87,7 +91,7 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
                         "join fetch a.user " +
                         "where e.project.id = :projectId " +
                         "and a.level != :implicitView"
-               )
+                )
                 .setParameter("projectId", projectId)
                 .setParameter("implicitView", AccessLevel.IMPLICIT_VIEW)
                 .getResultStream();

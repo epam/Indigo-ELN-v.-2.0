@@ -7,14 +7,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Optional;
-
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class EnteredValuePatch<U extends MeasurementUnit> {
 
     @Nullable
-    private Patched<Double, Double> value;
+    private Patched<String, String> value;
     @Nullable
     private Patched<U, U> unit;
     @Nullable

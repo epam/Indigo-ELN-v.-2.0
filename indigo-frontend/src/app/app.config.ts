@@ -22,6 +22,9 @@ import { FormlyPresetModule } from '@ngx-formly/core/preset';
 import { FormlyMaterialModule } from '@ngx-formly/material';
 import { FormlyMatDatepickerModule } from '@ngx-formly/material/datepicker';
 import { routes } from './app.routes';
+import { SelectFieldComponent } from '@/core/components/formly/fields/select-field.component';
+import { SelectChipsComponent } from '@/core/components/formly/fields/select-chips.component';
+import { ErrorInterceptor } from '@core/interceptors/error.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -42,6 +45,16 @@ export const appConfig: ApplicationConfig = {
           {
             name: 'editor',
             component: EditorFormlyFieldComponent,
+            wrappers: ['raw'],
+          },
+          {
+            name: 'select',
+            component: SelectFieldComponent,
+            wrappers: ['raw'],
+          },
+          {
+            name: 'select-chips',
+            component: SelectChipsComponent,
             wrappers: ['raw'],
           },
         ],
@@ -75,5 +88,6 @@ export const appConfig: ApplicationConfig = {
       withInterceptorsFromDi(),
     ),
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
   ],
 };

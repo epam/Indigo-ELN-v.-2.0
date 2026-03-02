@@ -27,6 +27,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE;
+import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE_HUNDRED;
 
 public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends AbstractExperimentMutationHandler<T> {
 
@@ -40,22 +41,23 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
     DictionaryMapper dictionaryMapper;
 
     // !!! only allow non-null source for undo operations
-    public <U extends MeasurementUnit> EnteredValueUndo<U> setEnteredValue(Supplier<@Nullable EnteredValue<U>> getter, Consumer<@Nullable EnteredValue<U>> setter, @Nullable Double value, @Nullable U unit, @Nullable EnteredValueSource source, int revisionNo) {
+    public <U extends MeasurementUnit> EnteredValueUndo<U> setEnteredValue(Supplier<@Nullable EnteredValue<U>> getter, Consumer<@Nullable EnteredValue<U>> setter, @Nullable String stringValue, @Nullable U unit, @Nullable EnteredValueSource source, int revisionNo) {
         EnteredValue<U> ev = getter.get();
-        Double oldValue = ev != null ? ev.getValue() : null;
+        String oldStringValue = ev != null ? ev.getStringValue() : null;
         U oldUnit = ev != null ? ev.getUnit() : null;
         EnteredValueSource oldSource = ev != null ? ev.getSource() : null;
-        if (value == null) { // remove old value
+        if (stringValue == null) { // remove old value
             ev = null;
         } else { // create or update value
             Preconditions.checkArgument(unit != null);
-            ev = new EnteredValue<>(value, unit, source != null ? source : EnteredValueSource.userEntered(revisionNo));
+            double effectiveValue = Double.parseDouble(stringValue);
+            ev = new EnteredValue<>(effectiveValue, stringValue, unit, source != null ? source : EnteredValueSource.userEntered(revisionNo));
         }
         setter.accept(ev);
-        return new EnteredValueUndo<>(oldValue, oldUnit, oldSource);
+        return new EnteredValueUndo<>(oldStringValue, oldUnit, oldSource);
     }
 
-    public String formatSetterSummary(String what, @Nullable Double value, @Nullable MeasurementUnit unit) {
+    public String formatSetterSummary(String what, @Nullable String value, @Nullable MeasurementUnit unit) {
         if (value == null) {
             return "Clear %s".formatted(what);
         }
@@ -117,7 +119,7 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
         reactionInputSample.setStrCode(sample.getStrCode());
         reactionInputSample.setDensity(EnteredValue.defaultValue(sample.getDensity(), DensityUnit.G_ML));
         reactionInputSample.setMolarity(EnteredValue.defaultValue(sample.getMolarity(), sample.getMolarityUnit()));
-        reactionInputSample.setPurity(sample.getPurity() != null ? EnteredValue.defaultValue(sample.getPurity(), NoUnit.NO_UNIT) : DEFAULT_ONE);
+        reactionInputSample.setPurity(sample.getPurity() != null ? EnteredValue.defaultValue(sample.getPurity(), NoUnit.NO_UNIT) : DEFAULT_ONE_HUNDRED);
         reactionInputSample.setHealthHazards(dictionaryMapper.itemToRefList(sample.getHealthHazards()));
         reactionInputSample.setComment(sample.getBatchComment());
         reactionInputSample.setNbkBatchNumber(sample.getNbkBatchNumber());
@@ -138,7 +140,7 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
                 : compoundService.unknownCompoundRef());
         row.setEq(DEFAULT_ONE);
         ReactionInputSample reactionInputSample = ReactionInputSample.create(row, createdSampleAnchor);
-        reactionInputSample.setPurity(DEFAULT_ONE);
+        reactionInputSample.setPurity(DEFAULT_ONE_HUNDRED);
         row.setSamples(List.of(reactionInputSample));
         return row;
     }

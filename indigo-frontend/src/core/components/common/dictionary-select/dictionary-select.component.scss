@@ -1,0 +1,31 @@
+.field-wrapper {
+  font-size: 0.875rem;
+  color: #1f2937;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  min-height: 2.5rem;
+  display: flex;
+  align-items: center;
+  background-color: white;
+
+  ::ng-deep {
+    eln-autocomplete-select,
+    eln-dropdown-value {
+      width: 100%;
+      
+      .border {
+        border: none;
+      }
+    }
+
+    mat-select {
+      border: none;
+      padding: 0;
+      
+      .mat-mdc-select-trigger {
+        border: none;
+      }
+    }
+  }
+}

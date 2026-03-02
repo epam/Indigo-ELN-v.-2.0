@@ -4,7 +4,7 @@ import { CardComponent } from '@/core/components/common/card/card.component';
 import { BadgeComponent } from '@/core/components/common/badge/badge.component';
 import { ApiService } from '@/core/services/api.service';
 import { NormalizeLabelPipe } from '@/core/pipes/normalizeLabe.pipe';
-import { catchError, of, Subject } from 'rxjs';
+import { finalize, Subject } from 'rxjs';
 import { ExperimentStatus } from '@/core/enums/experiment-status.enum';
 import { ExperimentDetail } from '@/core/types/entities/experiments/experiment-detail.i';
 import {
@@ -39,25 +39,10 @@ export class StarredExperimentsComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.service
       .request<ExperimentDetail[]>('get', 'experiments/marked')
-      .pipe(
-        catchError((err) => {
-          console.error('Failed to load marked experiments:', err);
-          this.error = 'Failed to load starred experiments';
-          this.loading = false;
-          return of(null);
-        }),
-      )
+      .pipe(finalize(() => (this.loading = false)))
       .subscribe({
-        next: (resp) => {
-          this.experiments = Array.isArray(resp) ? resp : [];
-        },
-        error: (err) => {
-          console.error('Failed to load marked experiments:', err);
-          this.error = 'Failed to load starred experiments';
-        },
-        complete: () => {
-          this.loading = false;
-        },
+        next: (resp) => (this.experiments = Array.isArray(resp) ? resp : []),
+        error: () => (this.error = 'Failed to load starred experiments'),
       });
   }
 

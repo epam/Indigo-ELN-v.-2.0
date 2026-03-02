@@ -1,11 +1,11 @@
 import { normalizeLabel } from "../utils/string.util";
 
 export enum AclLevel {
-  NONE = 'NONE',
-  IMPLICIT_VIEW = 'IMPLICIT_VIEW',
-  VIEW = 'VIEW',
-  EDIT = 'EDIT',
   ADMIN = 'ADMIN',
+  CAN_EDIT = 'CAN_EDIT',
+  CAN_VIEW = 'CAN_VIEW',
+  IMPLICIT_VIEW = 'IMPLICIT_VIEW',
+  REMOVE_MEMBER = 'REMOVE_MEMBER',
   AUTHOR = 'AUTHOR',
 }
 

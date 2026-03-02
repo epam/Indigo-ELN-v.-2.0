@@ -65,6 +65,11 @@ public class NotebookService {
         return notebookRepository.findAll(projectId, search, sort, currentUser, paging, showAll);
     }
 
+    public NotebookExistenceCheckDTO checkExistenceByName(String name) {
+        boolean exists = notebookRepository.existsByName(name);
+        return new NotebookExistenceCheckDTO(exists);
+    }
+
     public NotebookDetailsDTO getNotebook(UUID notebookId) {
         NotebookEntity notebook = notebookRepository.loadDetails(notebookId);
         Set<ApplicationPermission> currentPermissions = aclService.getCurrentPermissions(notebook.getCalculatedInfo() != null ? notebook.getCalculatedInfo().getCurrentAccess() : null);
