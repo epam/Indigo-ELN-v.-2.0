@@ -23,10 +23,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
@@ -172,7 +169,7 @@ class ExperimentServiceTest extends ELNBaseTest {
                 , projectCodes.getFirst()
         ));
         assertThatClientCall(() -> {
-            experimentClient.editExperiment(experiment.getId(), new ExperimentEditRequest(null, null));
+            experimentClient.editExperiment(experiment.getId(), new ExperimentEditRequest());
         }).isBadRequest("Nothing to update");
     }
 
@@ -183,13 +180,28 @@ class ExperimentServiceTest extends ELNBaseTest {
                 , therapeuticAreas.getFirst()
                 , projectCodes.getFirst()
         ));
+        ExperimentDetailsDTO e2 = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID, "e2", therapeuticAreas.getFirst(), projectCodes.getFirst()));
+        ExperimentDetailsDTO e3 = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID, "e3", therapeuticAreas.getFirst(), projectCodes.getFirst()));
+        ExperimentDetailsDTO e4 = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID, "e4", therapeuticAreas.getFirst(), projectCodes.getFirst()));
         ExperimentDetailsDTO modified = experimentClient.editExperiment(experiment.getId(), new ExperimentEditRequest(
+                Optional.of("newTitle"),
                 Optional.of(therapeuticAreas.get(1)),
-                Optional.of(projectCodes.get(1)
-                )));
+                Optional.of(projectCodes.get(1)),
+                Optional.of("newDescription"),
+                Optional.of("newLiterature"),
+                Optional.of(Set.of(e2.toRef())),
+                Optional.of(Set.of(e3.toRef())),
+                Optional.of(Set.of(e4.toRef()))
+        ));
         assertThat(modified.getName()).isEqualTo(experiment.getName());
+        assertThat(modified.getTitle()).isEqualTo("newTitle");
         assertThat(modified.getTherapeuticArea()).isEqualTo(therapeuticAreas.get(1));
         assertThat(modified.getProjectCode()).isEqualTo(projectCodes.get(1));
+        assertThat(modified.getDescription()).isEqualTo("newDescription");
+        assertThat(modified.getLiterature()).isEqualTo("newLiterature");
+        assertThat(modified.getLinkedExperiments()).containsExactly(e2.toRef());
+        assertThat(modified.getContinuedFrom()).containsExactly(e3.toRef());
+        assertThat(modified.getContinuedTo()).containsExactly(e4.toRef());
         ExperimentDetailsDTO saved = experimentClient.getExperiment(experiment.getId());
         assertThat(saved).usingRecursiveComparison().isEqualTo(modified);
         assertThat(experimentClient.getExperimentRevisions(experiment.getId()))
@@ -199,13 +211,18 @@ class ExperimentServiceTest extends ELNBaseTest {
                     assertThat(revision.getDatetime()).isEqualTo(modified.getModifiedAt());
                     assertThat(revision.getUser()).isEqualTo(getJohnUserRef());
                     assertThat(revision.getMutation()).isInstanceOf(ExperimentMutation.EditExperimentAttributes.class);
-                    assertThat(revision.getSummary()).matches("Edit: therapeutic area=.+, project code=.+");
+                    assertThat(revision.getSummary()).matches("Edit: multiple attributes");
                     assertThat(revision.getDiff()).satisfies(diff -> {
                         assertThat(diff.getAcl()).isNull();
                         assertThat(diff.getModel()).isNull();
+                        assertThat(diff.getTitle()).isEqualTo(Patched.created("newTitle"));
                         assertThat(diff.getTherapeuticArea()).isEqualTo(Patched.replaced(therapeuticAreas.get(0), therapeuticAreas.get(1)));
                         assertThat(diff.getProjectCode()).isEqualTo(Patched.replaced(projectCodes.get(0), projectCodes.get(1)));
-                        assertThat(diff.getDescription()).isNull();
+                        assertThat(diff.getDescription()).isEqualTo(Patched.replaced("d", "newDescription"));
+                        assertThat(diff.getLiterature()).isEqualTo(Patched.created("newLiterature"));
+                        assertThat(diff.getLinkedExperiments()).isEqualTo(Patched.created(Set.of(e2.toRef())));
+                        assertThat(diff.getContinuedFrom()).isEqualTo(Patched.created(Set.of(e3.toRef())));
+                        assertThat(diff.getContinuedTo()).isEqualTo(Patched.created(Set.of(e4.toRef())));
                     });
                 });
     }
@@ -338,5 +355,13 @@ class ExperimentServiceTest extends ELNBaseTest {
                     assertThat(revision.getSummary()).isEqualTo("Edited Team: removed maggie");
                     assertThat(revision.getDiff()).isNotNull(); // !!! verify diff old and new ACL
                 });
+    }
+
+    @Test
+    void testSuggestExperiments() {
+        NotebookDetailsDTO notebook2 = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        ExperimentDetailsDTO e1 = experimentClient.createExperiment(notebook2.getId(), new ExperimentRequest(emptyTemplateID));
+        ExperimentDetailsDTO e2 = experimentClient.createExperiment(notebook2.getId(), new ExperimentRequest(emptyTemplateID));
+        assertThat(experimentClient.suggestExperiments(notebook2.getName())).containsExactly(e1.toRef(), e2.toRef());
     }
 }

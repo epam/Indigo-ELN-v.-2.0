@@ -70,6 +70,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(ExperimentMutation.SetExperimentSignificantFigures.class),
         @JsonSubTypes.Type(ExperimentMutation.EditExperimentAttributes.class),
         @JsonSubTypes.Type(ExperimentMutation.EditExperimentAccess.class),
+        @JsonSubTypes.Type(ExperimentMutation.SetBatchCreator.class),
         @JsonSubTypes.Type(ExperimentMutation.CreateExperimentAttachment.class),
         @JsonSubTypes.Type(ExperimentMutation.DeleteExperimentAttachment.class),
         @JsonSubTypes.Type(ExperimentMutation.CancelExperiment.class),

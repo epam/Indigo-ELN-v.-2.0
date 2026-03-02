@@ -22,7 +22,7 @@ public class UserRepository extends BaseRepository<UserEntity> {
     UserMapper userMapper;
 
     public UserRepository() {
-        super(EntityType.USER);
+        super(EntityType.USER, UserEntity.class);
     }
 
     public @Nullable UserInfo findByUsername(String username) {
@@ -36,7 +36,7 @@ public class UserRepository extends BaseRepository<UserEntity> {
                 Paging.DEFAULT,
                 USER_SORT,
                 null,
-                userMapper::userRef
+                UserEntity::toRef
         );
     }
 

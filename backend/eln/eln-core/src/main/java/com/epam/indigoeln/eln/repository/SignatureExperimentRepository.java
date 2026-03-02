@@ -21,7 +21,7 @@ public class SignatureExperimentRepository extends BaseRepository<ExperimentEnti
     EntityManager em;
 
     public SignatureExperimentRepository() {
-        super(EntityType.EXPERIMENT);
+        super(EntityType.EXPERIMENT, ExperimentEntity.class);
     }
 
     public Page<ExperimentForSignatureDTO> findAll(Paging paging) {

@@ -506,6 +506,12 @@ public class MutationsTest extends MutationsTestBase {
         assertThat(input1Sample1.getMol().getStringValue()).isEqualTo("8.93");
     }
 
+    @Test
+    void testSetBatchCreator() {
+        applyMutation(new ExperimentMutation.SetBatchCreator(getMaggieUserRef()));
+        assertThat(experiment.getBatchCreator()).isEqualTo(getMaggieUserRef());
+    }
+
     private void loadScheme() {
         String rxnFile = new String(ModelUtil.loadResource(getClass(), "/reaction.rxn"));
         applyMutation(new ReactionMutation.SetScheme(reaction.getAnchor(), rxnFile));

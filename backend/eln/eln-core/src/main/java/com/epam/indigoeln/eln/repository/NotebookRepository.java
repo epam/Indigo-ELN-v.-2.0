@@ -26,7 +26,7 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
     ACLService aclService;
 
     public NotebookRepository() {
-        super(EntityType.NOTEBOOK);
+        super(EntityType.NOTEBOOK, NotebookEntity.class);
     }
 
     public Page<NotebookDTO> findAll(UUID projectId, @Nullable String search, @QueryParam("sort") @Nullable SortOrder sort, @Nullable UserEntity createdByUser, Paging paging, boolean showAll) {

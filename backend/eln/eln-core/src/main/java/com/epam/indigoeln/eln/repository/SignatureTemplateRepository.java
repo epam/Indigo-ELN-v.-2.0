@@ -16,7 +16,7 @@ public class SignatureTemplateRepository extends BaseRepository<SignatureTemplat
     SignatureTemplateMapper signatureTemplateMapper;
 
     public SignatureTemplateRepository() {
-        super(EntityType.SIGNATURE_TEMPLATE);
+        super(EntityType.SIGNATURE_TEMPLATE, SignatureTemplateEntity.class);
     }
 
     public Page<SignatureTemplateDTO> findAll(Paging paging) {

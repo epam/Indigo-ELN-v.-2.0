@@ -28,7 +28,7 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
     ACLService aclService;
 
     public ProjectRepository() {
-        super(EntityType.PROJECT);
+        super(EntityType.PROJECT, ProjectEntity.class);
     }
 
     public Page<ProjectDTO> findAll(@Nullable String search, @Nullable SortOrder sort, @Nullable UserEntity createdByUser, Paging paging, boolean showAll) {

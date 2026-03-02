@@ -1,12 +1,10 @@
 package com.epam.indigoeln.reaction.model;
 
 import com.epam.indigoeln.common.util.Pair;
-import com.epam.indigoeln.eln.model.ACLDetailsEntryDTO;
-import com.epam.indigoeln.eln.model.AttachmentDTO;
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
-import com.epam.indigoeln.eln.model.ExperimentStatus;
+import com.epam.indigoeln.eln.model.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
@@ -19,6 +17,9 @@ public final class ExperimentSnapshot implements ExperimentNode {
 
     private Integer revision;
 
+    @Nullable
+    private String title;
+
     private ExperimentStatus status;
 
     @Nullable
@@ -29,6 +30,21 @@ public final class ExperimentSnapshot implements ExperimentNode {
 
     @Nullable
     private String description;
+
+    @Nullable
+    String literature;
+
+    @NotNull
+    UserRef batchCreator;
+
+    @NotNull
+    Set<ExperimentRef> linkedExperiments;
+
+    @NotNull
+    Set<ExperimentRef> continuedFrom;
+
+    @NotNull
+    Set<ExperimentRef> continuedTo;
 
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private Boolean deleted;

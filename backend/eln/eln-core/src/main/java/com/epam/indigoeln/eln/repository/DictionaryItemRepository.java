@@ -28,7 +28,7 @@ public class DictionaryItemRepository extends BaseRepository<DictionaryItemEntit
     DictionaryMapper dictionaryMapper;
 
     public DictionaryItemRepository() {
-        super(EntityType.DICTIONARY_ITEM);
+        super(EntityType.DICTIONARY_ITEM, DictionaryItemEntity.class);
     }
 
     public List<DictionaryItemEntity> list(UUID dictionaryID, boolean includeInactive) {
@@ -64,9 +64,5 @@ public class DictionaryItemRepository extends BaseRepository<DictionaryItemEntit
                 null,
                 dictionaryMapper::itemToRef
         );
-    }
-
-    public DictionaryItemEntity getReference(UUID id) {
-        return em.getReference(DictionaryItemEntity.class, id);
     }
 }

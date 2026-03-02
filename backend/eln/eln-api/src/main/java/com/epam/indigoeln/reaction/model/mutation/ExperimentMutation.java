@@ -2,6 +2,8 @@ package com.epam.indigoeln.reaction.model.mutation;
 
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
+import com.epam.indigoeln.eln.model.ExperimentRef;
+import com.epam.indigoeln.eln.model.UserRef;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -11,6 +13,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 public interface ExperimentMutation extends Mutation {
@@ -34,13 +37,24 @@ public interface ExperimentMutation extends Mutation {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     record EditExperimentAttributes(
+            @Nullable Optional<String> title,
             @Nullable Optional<DictionaryItemRef> therapeuticArea,
-            @Nullable Optional<DictionaryItemRef> projectCode
+            @Nullable Optional<DictionaryItemRef> projectCode,
+            @Nullable Optional<String> description,
+            @Nullable Optional<String> literature,
+            @Nullable Optional<Set<ExperimentRef>> linkedExperiments,
+            @Nullable Optional<Set<ExperimentRef>> continuedFrom,
+            @Nullable Optional<Set<ExperimentRef>> continuedTo
     ) implements ExperimentMutation {
     }
 
     record EditExperimentAccess(
             @NotEmpty List<AccessForm> edits
+    ) implements ExperimentMutation {
+    }
+
+    record SetBatchCreator(
+            @NotNull UserRef batchCreator
     ) implements ExperimentMutation {
     }
 

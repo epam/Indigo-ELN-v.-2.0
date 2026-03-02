@@ -21,7 +21,7 @@ public class DictionaryRepository extends BaseRepository<DictionaryEntity> {
     DictionaryMapper dictionaryMapper;
 
     public DictionaryRepository() {
-        super(EntityType.DICTIONARY);
+        super(EntityType.DICTIONARY, DictionaryEntity.class);
     }
 
     public List<DictionaryDTO> list() {
