@@ -74,6 +74,20 @@ class SetOutputRowNameHandler extends AbstractReactionOutputMutationHandler<Reac
 }
 
 @Dependent
+@MutationHandlerFor(ReactionOutputMutation.SetOutputRowChemicalName.class)
+class SetOutputRowChemicalNameHandler extends AbstractReactionOutputMutationHandler<ReactionOutputMutation.SetOutputRowChemicalName> {
+
+    @Override
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputRowChemicalName mutation) {
+        String oldValue = row.getChemicalName();
+        row.setChemicalName(mutation.chemicalName());
+        return new MutationResult(formatSetterSummary("chemical name", mutation.chemicalName())
+                , new ReactionOutputMutation.SetOutputRowChemicalName(mutation.anchor(), oldValue)
+        );
+    }
+}
+
+@Dependent
 @MutationHandlerFor(ReactionOutputMutation.UndoRemoveProductSample.class)
 class UndoRemoveProductSampleHandler extends AbstractReactionOutputMutationHandler<ReactionOutputMutation.UndoRemoveProductSample> {
 

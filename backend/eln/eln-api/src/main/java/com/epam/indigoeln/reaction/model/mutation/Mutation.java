@@ -39,6 +39,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(ReactionOutputMutation.SetOutputRowSaltEQ.class),
         @JsonSubTypes.Type(ReactionOutputMutation.SetOutputRowEQ.class),
         @JsonSubTypes.Type(ReactionOutputMutation.SetOutputRowName.class),
+        @JsonSubTypes.Type(ReactionOutputMutation.SetOutputRowChemicalName.class),
         @JsonSubTypes.Type(ReactionOutputMutation.SetOutputCompoundStereoisomerCode.class),
         @JsonSubTypes.Type(ReactionOutputMutation.SetOutputCompoundMolWeight.class),
         @JsonSubTypes.Type(ReactionOutputMutation.UndoRemoveProductSample.class),

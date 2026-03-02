@@ -265,6 +265,13 @@ public class MutationsTest extends MutationsTestBase {
     }
 
     @Test
+    void testSetOutputRowChemicalName() {
+        loadScheme();
+        applyMutation(new ReactionOutputMutation.SetOutputRowChemicalName(output1.getAnchor(), "newChemicalName"));
+        assertThat(output1.getChemicalName()).isEqualTo("newChemicalName");
+    }
+
+    @Test
     void testSetOutputRowSaltCodeAndEQ() {
         loadScheme();
         DictionaryItemRef saltCode = dictionaryClient.getSaltCodes().get(1);
