@@ -42,6 +42,7 @@ export class NotebookAddComponent {
           Validators.required,
           Validators.minLength(NOTEBOOK_NAME_LENGTH),
           Validators.maxLength(NOTEBOOK_NAME_LENGTH),
+          Validators.pattern('^\\d+$'), // only digits
         ],
       },
       asyncValidators: {
@@ -65,6 +66,7 @@ export class NotebookAddComponent {
         messages: {
           minlength: `Notebook Name is invalid, use ${NOTEBOOK_NAME_LENGTH} digits only`,
           maxlength: `Notebook Name is invalid, use ${NOTEBOOK_NAME_LENGTH} digits only`,
+          pattern: `Notebook Name is invalid, use ${NOTEBOOK_NAME_LENGTH} digits only`,
           required: 'Notebook Name is required',
           uniqueName: 'Unique name is required',
         },
@@ -81,7 +83,10 @@ export class NotebookAddComponent {
   ];
 
   constructor(protected service: ApiService<Notebook>) {}
-
+  get uniqueNameToastMessage(): string {
+    const name = this.fields[0]?.formControl?.value ?? '';
+    return `Notebook with name '${name}' already exists`;
+  }
   createNotebook(data: Notebook) {
     this.service
       .create(`projects/${this.projectId}/notebooks`, {

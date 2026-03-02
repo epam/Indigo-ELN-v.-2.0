@@ -112,7 +112,10 @@ export class NotebookEditComponent {
       this.notebookId = data.notebook.id;
     }
   }
-
+  get uniqueNameToastMessage(): string {
+    const name = this.fields[0]?.formControl?.value ?? '';
+    return `Notebook with name '${name}' already exists`;
+  }
   editNotebook(data: Notebook) {
     this.service
       .update(`notebooks/${this.notebookId}`, {

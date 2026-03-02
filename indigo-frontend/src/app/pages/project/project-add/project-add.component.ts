@@ -122,7 +122,10 @@ export class ProjectAddComponent implements OnInit {
       });
     }
   }
-
+  get uniqueNameToastMessage(): string {
+    const name = this.fields[0]?.formControl?.value ?? '';
+    return `Project with name '${name}' already exists`;
+  }
   createProject(data: Project): void {
     this.service
       .create('projects', {
