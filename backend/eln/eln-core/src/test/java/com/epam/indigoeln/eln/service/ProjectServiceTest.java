@@ -591,7 +591,7 @@ class ProjectServiceTest extends ELNBaseTest {
                     assertThat(revision.getMutation()).isInstanceOf(NotebookMutation.NotebookAccessUpdated.class);
                     assertThat(revision.getDiff().getAcl()).isEqualTo(Patched.updated(Map.of(MAGGIE_USERNAME, Patched.created(new ACLDetailsEntryDTO(maggieUserID, MAGGIE_DISPLAY_NAME, AccessLevel.EDIT, true, MAGGIE_USERNAME)))));
                 });
-        assertThat(experimentClient.getExperimentRevisions(experiment.getId()))
+        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
                 .last().satisfies(revision -> {
                     assertThat(revision.getMutation()).isInstanceOf(ExperimentMutation.ExperimentAccessUpdated.class);
                     assertThat(revision.getDiff().getAcl()).isEqualTo(Patched.updated(Map.of(MAGGIE_USERNAME, Patched.created(new ACLDetailsEntryDTO(maggieUserID, MAGGIE_DISPLAY_NAME, AccessLevel.EDIT, true, MAGGIE_USERNAME)))));

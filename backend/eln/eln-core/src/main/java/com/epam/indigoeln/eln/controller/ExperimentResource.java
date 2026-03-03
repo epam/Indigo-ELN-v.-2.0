@@ -172,8 +172,18 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
-    public List<RevisionDetailsDTO<ExperimentPatch>> getExperimentRevisions(UUID experimentId) {
-        return experimentService.getExperimentRevisions(experimentId);
+    public List<RevisionDetailsDTO<ExperimentPatch>> getExperimentRevisions(UUID experimentId, @Nullable UUID editSessionId, @Nullable Boolean reverseOrder) {
+        return experimentService.getExperimentRevisions(experimentId, editSessionId, reverseOrder);
+    }
+
+    @Override
+    public List<ExperimentRevisionSummaryDTO> getExperimentRevisionsSummary(UUID experimentId) {
+        return experimentService.getExperimentRevisionsSummary(experimentId);
+    }
+
+    @Override
+    public ExperimentPatch compareVersions(UUID experimentId, @Nullable Integer versionFrom, @Nullable Integer versionTo) {
+        return experimentService.compareVersions(experimentId, versionFrom, versionTo);
     }
 
     @Override

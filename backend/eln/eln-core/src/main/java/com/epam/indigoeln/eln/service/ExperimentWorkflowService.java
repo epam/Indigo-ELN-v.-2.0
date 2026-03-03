@@ -62,6 +62,7 @@ public class ExperimentWorkflowService {
     public ExperimentDetailsDTO submitExperiment(UUID experimentId, UUID signatureTemplateId) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         experimentModelService.applyMutation(experiment, new ExperimentMutation.SubmitExperiment(signatureTemplateId));
+        experimentModelService.applyMutation(experiment, new ExperimentMutation.MakeVersion());
         return experimentService.getExperimentDetails(experiment);
     }
 
@@ -69,6 +70,7 @@ public class ExperimentWorkflowService {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         experimentModelService.applyMutation(experiment, new ExperimentMutation.CompleteExperiment());
         experimentModelService.applyMutation(experiment, new ExperimentMutation.SubmitExperiment(signatureTemplateId));
+        experimentModelService.applyMutation(experiment, new ExperimentMutation.MakeVersion());
         return experimentService.getExperimentDetails(experiment);
     }
 

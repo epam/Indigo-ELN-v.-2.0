@@ -97,6 +97,10 @@ public interface ExperimentMutation extends Mutation {
     ) implements ExperimentMutation {
     }
 
+    record MakeVersion(
+    ) implements ExperimentMutation {
+    }
+
     record ExperimentAccessUpdated(
             @Nullable String projectName,
             @Nullable String notebookName

@@ -45,31 +45,31 @@ public class RevisionService {
         experimentPatchWriter = objectMapper.writerFor(ExperimentPatch.class);
     }
 
-    public void addRevision(ProjectEntity project, Integer revisionNo, ZonedDateTime datetime, String summary, Mutation mutation, @Nullable Mutation reverseMutation, ProjectPatch diff) {
+    public ProjectRevisionEntity addRevision(ProjectEntity project, Integer revisionNo, ZonedDateTime datetime, String summary, Mutation mutation, @Nullable Mutation reverseMutation, ProjectPatch diff) {
         ProjectRevisionEntity revision = new ProjectRevisionEntity();
         revision.setProject(project);
         doAddRevision(revision, revisionNo, datetime, summary, mutation, reverseMutation, doWritePatch(projectPatchWriter, diff));
         project.setRevision(revisionNo);
         project.getRevisions().add(revision);
-        projectRepository.persistRevision(revision);
+        return revision;
     }
 
-    public void addRevision(NotebookEntity notebook, Integer revisionNo, ZonedDateTime datetime, String summary, Mutation mutation, @Nullable Mutation reverseMutation, NotebookPatch diff) {
+    public NotebookRevisionEntity addRevision(NotebookEntity notebook, Integer revisionNo, ZonedDateTime datetime, String summary, Mutation mutation, @Nullable Mutation reverseMutation, NotebookPatch diff) {
         NotebookRevisionEntity revision = new NotebookRevisionEntity();
         revision.setNotebook(notebook);
         doAddRevision(revision, revisionNo, datetime, summary, mutation, reverseMutation, doWritePatch(notebookPatchWriter, diff));
         notebook.setRevision(revisionNo);
         notebook.getRevisions().add(revision);
-        notebookRepository.persistRevision(revision);
+        return revision;
     }
 
-    public void addRevision(ExperimentEntity experiment, Integer revisionNo, ZonedDateTime datetime, String summary, Mutation mutation, @Nullable Mutation reverseMutation, ExperimentPatch diff) {
+    public ExperimentRevisionEntity addRevision(ExperimentEntity experiment, Integer revisionNo, ZonedDateTime datetime, String summary, Mutation mutation, @Nullable Mutation reverseMutation, ExperimentPatch diff) {
         ExperimentRevisionEntity revision = new ExperimentRevisionEntity();
         revision.setExperiment(experiment);
         doAddRevision(revision, revisionNo, datetime, summary, mutation, reverseMutation, doWritePatch(experimentPatchWriter, diff));
         experiment.setRevision(revisionNo);
         experiment.getRevisions().add(revision);
-        experimentRepository.persistRevision(revision);
+        return revision;
     }
 
     private void doAddRevision(BaseRevisionEntity revision, Integer revisionNo, ZonedDateTime datetime, String summary, Mutation mutation, @Nullable Mutation reverseMutation, String diff) {

@@ -2,6 +2,7 @@ package com.epam.indigoeln.reaction.service.mutation;
 
 import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.eln.entity.NotebookEntity;
+import com.epam.indigoeln.eln.entity.NotebookRevisionEntity;
 import com.epam.indigoeln.eln.mapper.SnapshotMapper;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
@@ -19,7 +20,7 @@ import org.jspecify.annotations.Nullable;
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 import static com.epam.indigoeln.eln.util.ModelUtil.wrapConstraintViolation;
 
-public abstract class AbstractNotebookMutationHandler<T extends Mutation> extends AbstractMutationHandler<T, Void, NotebookEntity, NotebookSnapshot, NotebookPatch> implements NotebookMutationHandler<T> {
+public abstract class AbstractNotebookMutationHandler<T extends Mutation> extends AbstractMutationHandler<T, Void, NotebookEntity, NotebookSnapshot, NotebookPatch, NotebookRevisionEntity> implements NotebookMutationHandler<T> {
 
     @Inject
     protected SnapshotMapper snapshotMapper;
@@ -70,8 +71,8 @@ public abstract class AbstractNotebookMutationHandler<T extends Mutation> extend
     }
 
     @Override
-    protected final void doCreateRevision(NotebookEntity notebook, T mutation, MutationResult result, Integer revisionNo, NotebookPatch patch) {
-        revisionService.addRevision(notebook, revisionNo, notebook.getModifiedAt(), result.summary(), mutation, result.reverseMutation(), patch);
+    protected final NotebookRevisionEntity doCreateRevision(NotebookEntity notebook, T mutation, MutationResult result, Integer revisionNo, NotebookPatch patch) {
+        return revisionService.addRevision(notebook, revisionNo, notebook.getModifiedAt(), result.summary(), mutation, result.reverseMutation(), patch);
     }
 
     @Nullable

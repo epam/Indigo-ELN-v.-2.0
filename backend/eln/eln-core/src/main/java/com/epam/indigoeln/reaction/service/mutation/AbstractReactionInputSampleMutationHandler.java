@@ -23,5 +23,10 @@ public abstract class AbstractReactionInputSampleMutationHandler<T extends React
         return true;
     }
 
+    @Override
+    protected boolean isRequiresEditSession() {
+        return true;
+    }
+
     protected abstract MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, T mutation);
 }
