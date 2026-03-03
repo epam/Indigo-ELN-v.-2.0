@@ -149,6 +149,11 @@ public interface ExperimentAPI extends BaseAPI {
     ExperimentPatch compareVersions(@PathParam("experimentId") UUID experimentId, @Nullable @QueryParam("from") Integer versionFrom, @Nullable @QueryParam("to") Integer versionTo);
 
     @GET
+    @Produces(MediaType.TEXT_HTML)
+    @Path("/experiments/{experimentId}/versions/compare")
+    String compareVersionsHTML(@PathParam("experimentId") UUID experimentId, @Nullable @QueryParam("from") Integer versionFrom, @Nullable @QueryParam("to") Integer versionTo);
+
+    @GET
     @Path("/experiments/suggest")
     List<ExperimentRef> suggestExperiments(@QueryParam("search") String search);
 }

@@ -16,6 +16,7 @@ import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.eln.repository.TemplateRepository;
+import com.epam.indigoeln.eln.util.PatchUtil;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
@@ -24,6 +25,8 @@ import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import com.epam.indigoeln.reports.api.ReportsAPI;
 import com.epam.indigoeln.reports.api.ReportsClient;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.MoreObjects;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -84,6 +87,8 @@ public class ExperimentService {
     SnapshotMapper snapshotMapper;
     @Inject
     IndigoAPI indigoAPI;
+    @Inject
+    ObjectMapper objectMapper;
 
     public ExperimentDetailsDTO createExperiment(UUID notebookId, ExperimentRequest request) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
@@ -240,6 +245,12 @@ public class ExperimentService {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
         return experimentModelService.createPatch(getSnapshotToCompare(experiment, versionFrom), getSnapshotToCompare(experiment, versionTo));
+    }
+
+    public String compareVersionsHTML(UUID experimentId, @org.jspecify.annotations.Nullable Integer versionFrom, @org.jspecify.annotations.Nullable Integer versionTo) {
+        ExperimentPatch patch = compareVersions(experimentId, versionFrom, versionTo);
+        JsonNode json = objectMapper.valueToTree(patch);
+        return PatchUtil.formatJSONDiff(json);
     }
 
     private ExperimentSnapshot getSnapshotToCompare(ExperimentEntity experiment, @Nullable Integer version) {

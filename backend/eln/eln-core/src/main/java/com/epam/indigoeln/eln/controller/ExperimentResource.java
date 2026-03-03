@@ -187,6 +187,11 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
+    public String compareVersionsHTML(UUID experimentId, @org.jspecify.annotations.Nullable Integer versionFrom, @org.jspecify.annotations.Nullable Integer versionTo) {
+        return experimentService.compareVersionsHTML(experimentId, versionFrom, versionTo);
+    }
+
+    @Override
     public List<ExperimentRef> suggestExperiments(String search) {
         return experimentService.suggestExperiments(search);
     }

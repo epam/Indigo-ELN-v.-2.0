@@ -47,9 +47,24 @@ public class ToStringUtil {
         private final StringBuilder str = new StringBuilder();
         private int level = 0;
         private String prefix = "";
+        private String prefix2 = "";
+        private String suffix2 = "";
+
+        public Builder setPrefixAndSuffix2(String prefix2, String suffix2) {
+            this.prefix2 = prefix2;
+            this.suffix2 = suffix2;
+            return this;
+        }
 
         public Builder open(String headerLine) {
             str.append(prefix).append(headerLine).append(" {").append('\n');
+            level++;
+            prefix = "    ".repeat(level);
+            return this;
+        }
+
+        public Builder open2(String headerLine) {
+            str.append(prefix).append(prefix2).append(headerLine).append(suffix2).append('\n');
             level++;
             prefix = "    ".repeat(level);
             return this;
@@ -62,16 +77,22 @@ public class ToStringUtil {
             return this;
         }
 
+        public Builder close2() {
+            level--;
+            prefix = "    ".repeat(level);
+            return this;
+        }
+
         public Builder property(String name, @Nullable Object value) {
             if (value != null) {
                 String valueStr = name.equals("rxnfile") ? "..." : value.toString();
-                str.append(prefix).append(name).append(" = ").append(valueStr).append('\n');
+                str.append(prefix).append(prefix2).append(name).append(" = ").append(valueStr).append(suffix2).append('\n');
             }
             return this;
         }
 
         public Builder text(String text) {
-            str.append(prefix).append(text).append('\n');
+            str.append(prefix).append(prefix2).append(text).append(suffix2).append('\n');
             return this;
         }
 

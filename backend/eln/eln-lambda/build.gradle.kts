@@ -5,8 +5,6 @@ plugins {
 }
 
 dependencies {
-    implementation("io.quarkus:quarkus-container-image-docker")
-
     implementation(project(":common:common-lambda"))
     implementation(project(":eln:eln-core"))
 }
