@@ -6,10 +6,11 @@
     <div class="fields-grid">
       <div class="field-group">
         <label class="field-label">Calculated Batch MW</label>
-        <div class="field-value read-only">
-          {{ output().compound?.molWeight?.value || '—' }}
-          {{ output().compound?.molWeight?.unit || '' }}
-        </div>
+        <eln-entered-value
+          [value]="output().compound?.molWeight"
+          [showUnits]="true"
+          [readOnly]="true"
+        />
       </div>
 
       <div class="field-group">
@@ -196,9 +197,7 @@
 
             <div class="field-group">
               <label class="field-label">Purity</label>
-              <div class="field-value read-only">
-                {{ formatPurityValue(sample().purity) }}
-              </div>
+              <eln-entered-value [value]="sample().purity" [showUnits]="false" [readOnly]="true" />
             </div>
           </div>
         </div>
