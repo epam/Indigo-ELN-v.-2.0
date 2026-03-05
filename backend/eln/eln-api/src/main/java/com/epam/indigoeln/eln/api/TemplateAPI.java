@@ -3,6 +3,7 @@ package com.epam.indigoeln.eln.api;
 import com.epam.indigoeln.eln.model.*;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -17,7 +18,10 @@ public interface TemplateAPI extends BaseAPI {
 
     @GET
     @Path("/templates")
-    Page<TemplateDTO> getTemplates(@BeanParam Paging paging);
+    Page<TemplateDTO> getTemplates(@QueryParam("search") @Nullable String search,
+                                   @QueryParam("sort") @Nullable SortOrder sort,
+                                   @QueryParam("createdByMe") @Nullable Boolean createdByMe,
+                                   @BeanParam Paging paging);
 
     @GET
     @Path("/templates/by-name/{name}")
