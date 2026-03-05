@@ -9,6 +9,7 @@ import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Path;
+import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -24,8 +25,11 @@ public class TemplateResource implements TemplateAPI {
     }
 
     @Override
-    public @NotNull @Valid Page<TemplateDTO> getTemplates(@Valid Paging paging) {
-        return templateService.getTemplates(paging);
+    public @NotNull @Valid Page<TemplateDTO> getTemplates(@Nullable String search,
+                                                          @Nullable SortOrder sort,
+                                                          @Nullable Boolean createdByMe,
+                                                          @Valid Paging paging) {
+        return templateService.getTemplates(search, sort, createdByMe, paging);
     }
 
     @Override
