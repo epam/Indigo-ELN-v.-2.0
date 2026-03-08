@@ -60,6 +60,12 @@ public class Utils {
         return doCreateFunction(parent, props, id, functionCode, null, null, securityGroup, environment);
     }
 
+    public static Function createSnapStartFunction(Construct parent, ELNLambdaStack.Props props, String id, Repository repository, String imageTag, ISecurityGroup securityGroup, Map<String, String> environment) {
+        environment = new LinkedHashMap<>(environment);
+        environment.putIfAbsent("JAVA_TOOL_OPTIONS", "-XX:+TieredCompilation -XX:TieredStopAtLevel=1");
+        return doCreateFunction(parent, props, id, null, repository, imageTag, securityGroup, environment);
+    }
+
     public static Function doCreateFunction(Construct parent, ELNLambdaStack.Props props, String id, @Nullable File functionCode, @Nullable Repository repository, @Nullable String imageTag, ISecurityGroup securityGroup, Map<String, String> environment) {
         LogGroup logGroup = LogGroup.Builder.create(parent, id + "-log-group")
                 .logGroupName("/aws/lambda/" + id)
@@ -93,7 +99,7 @@ public class Utils {
                 .runtime(Runtime.JAVA_21)
                 .handler("io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest")
 //                .code(Code.fromAsset(functionCode.getPath(), AssetOptions.builder().assetHash(Utils.calculateHashCode(functionCode)).build()))
-                .code(Code.fromAsset(functionCode.getPath(), AssetOptions.builder().assetHash("1").build())) // !!! to avoid redeploy on every change
+                .code(Code.fromAsset(functionCode.getPath(), AssetOptions.builder().assetHash("2").build())) // !!! to avoid redeploy on every change
                 .snapStart(SnapStartConf.ON_PUBLISHED_VERSIONS);
         } else if (repository != null && imageTag != null) {
             builder

@@ -98,6 +98,11 @@ class SetExperimentSignificantFiguresHandler extends ExperimentMutationHandlerBa
     public boolean isAffectsModel() {
         return true;
     }
+
+    @Override
+    protected boolean isRequiresEditSession() {
+        return true;
+    }
 }
 
 @Dependent
@@ -325,6 +330,11 @@ class UndoHandler extends ExperimentMutationHandlerBase<ExperimentMutation.Undo>
     }
 
     @Override
+    protected boolean isRequiresEditSession() {
+        return reverseHandler.isRequiresEditSession();
+    }
+
+    @Override
     protected void doValidateAccess(ExperimentEntity experiment, ExperimentMutation.Undo mutation) {
         reverseHandler.doValidateAccess(experiment, mutation);
     }
@@ -373,6 +383,11 @@ class RedoHandler extends ExperimentMutationHandlerBase<ExperimentMutation.Redo>
     @Override
     public boolean isAffectsModel() {
         return initialHandler.isAffectsModel();
+    }
+
+    @Override
+    protected boolean isRequiresEditSession() {
+        return initialHandler.isRequiresEditSession();
     }
 
     @Override

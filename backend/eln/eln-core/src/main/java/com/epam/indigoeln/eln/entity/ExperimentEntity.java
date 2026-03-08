@@ -213,6 +213,10 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @OrderBy("revision")
     private List<ExperimentRevisionEntity> revisions = new ArrayList<>(0);
 
+    @NotNull
+    @OneToMany(mappedBy = "experiment")
+    private Set<ExperimentEditSessionEntity> editSessions = new HashSet<>(0);
+
     @Nullable
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id", referencedColumnName = "id")

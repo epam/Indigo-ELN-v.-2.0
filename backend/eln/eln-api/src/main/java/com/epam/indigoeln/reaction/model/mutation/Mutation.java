@@ -81,6 +81,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(ExperimentMutation.ApproveExperiment.class),
         @JsonSubTypes.Type(ExperimentMutation.RejectExperiment.class),
         @JsonSubTypes.Type(ExperimentMutation.ResubmitExperiment.class),
+        @JsonSubTypes.Type(ExperimentMutation.MakeVersion.class),
         @JsonSubTypes.Type(ExperimentMutation.ExperimentAccessUpdated.class),
         @JsonSubTypes.Type(ExperimentMutation.Undo.class),
         @JsonSubTypes.Type(ExperimentMutation.Redo.class),

@@ -10,12 +10,19 @@ import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.TypedQuery;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
+@Slf4j
 @ApplicationScoped
 public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
 
@@ -111,6 +118,13 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
                 .getSingleResult();
     }
 
+    public ExperimentRevisionEntity getVersion(ExperimentEntity experiment, int version) {
+        return em.createQuery("from ExperimentRevision where experiment = :experiment and version = :version", ExperimentRevisionEntity.class)
+                .setParameter("experiment", experiment)
+                .setParameter("version", version)
+                .getSingleResult();
+    }
+
     public List<ExperimentRef> suggest(@Nullable String search) {
         String condition = search != null ? "where name like :search" : "";
         TypedQuery<ExperimentRef> query = em.createQuery("select new com.epam.indigoeln.eln.model.ExperimentRef(id, name) from Experiment " + condition + " order by name", ExperimentRef.class);
@@ -120,5 +134,82 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
         return query.setFirstResult(0)
                 .setMaxResults(10)
                 .getResultList();
+    }
+
+    public Integer getLastUsedVersion(ExperimentEntity experiment) {
+        return em.createQuery("select max(version) from ExperimentRevision where experiment=:experiment", Integer.class)
+                .setParameter("experiment", experiment)
+                .getSingleResult();
+    }
+
+    @Nullable
+    public ExperimentEditSessionEntity findActiveEditSession(ExperimentEntity experiment, UserEntity user) {
+        return em.createQuery("from ExperimentEditSession where experiment=:experiment and user=:user and finished is null", ExperimentEditSessionEntity.class)
+                .setParameter("experiment", experiment)
+                .setParameter("user", user)
+                .getSingleResultOrNull();
+    }
+
+    public void closeInactiveEditSessions(ExperimentEntity experiment, Duration inactivityThreshold) {
+        ZonedDateTime cutoff = ZonedDateTime.now().minus(inactivityThreshold);
+        int updated = em.createQuery("""
+                        update ExperimentEditSession
+                        set finished=lastActive
+                        where experiment=:experiment
+                            and finished is null
+                            and lastActive<:cutoff
+                """)
+                .setParameter("experiment", experiment)
+                .setParameter("cutoff", cutoff)
+                .executeUpdate();
+        if (updated > 0) {
+            log.info("{} edit sessions closed for inactivity", updated);
+        }
+    }
+
+    public List<ExperimentRevisionSummaryDTO> getRevisionsSummary(ExperimentEntity experiment) {
+        Stream<Object[]> stream = em.createNativeQuery("""
+                WITH t AS (
+                    SELECT user_id, summary, NULL date_from, datetime date_to, NULL edit_session_id
+                    FROM Experiment_Revision
+                    WHERE experiment_id=:experiment_id AND edit_session_id IS NULL
+                    UNION ALL (
+                        SELECT user_id, 'Edited experiment', MIN(datetime), MAX(datetime), edit_session_id
+                        FROM Experiment_Revision
+                        WHERE experiment_id=:experiment_id AND edit_session_id IS NOT NULL
+                        GROUP BY edit_session_id, user_id
+                    )
+                )
+                SELECT u.id, u.username, u.display_name, t.summary, t.date_from, t.date_to, t.edit_session_id
+                FROM t
+                JOIN User_Account u on u.id = t.user_id
+                ORDER BY t.date_to DESC, t.date_from DESC;
+                """)
+                .setParameter("experiment_id", experiment.getId())
+                .getResultStream();
+        return stream
+                .map(r -> new ExperimentRevisionSummaryDTO(
+                        (UUID) r[6],
+                        new UserRef((UUID) r[0], (String) r[1], (String) r[2]),
+                        (String) r[3],
+                        r[4] != null ? ((Instant) r[4]).atZone(ZoneId.systemDefault()) : null,
+                        ((Instant) r[5]).atZone(ZoneId.systemDefault())
+                ))
+                .toList();
+    }
+
+    public List<ExperimentRevisionEntity> getRevisions(ExperimentEntity experiment, @Nullable UUID editSessionId, boolean reverseOrder) {
+        String condition = editSessionId != null ? "and editSession.id=:editSessionId" : "";
+        String order = reverseOrder ? "desc" : "";
+        TypedQuery<ExperimentRevisionEntity> query = em.createQuery("from ExperimentRevision where experiment=:experiment " + condition + " order by datetime " + order, ExperimentRevisionEntity.class)
+                .setParameter("experiment", experiment);
+        if (editSessionId != null) {
+            query.setParameter("editSessionId", editSessionId);
+        }
+        return query.getResultList();
+    }
+
+    public void persistEditSession(ExperimentEditSessionEntity session) {
+        em.persist(session);
     }
 }

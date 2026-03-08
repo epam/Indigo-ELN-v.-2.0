@@ -9,6 +9,7 @@ import com.epam.indigoeln.reaction.model.patch.ACLEntryPatch;
 import com.epam.indigoeln.reaction.model.patch.AttachmentPatch;
 import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
 import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
+import com.epam.indigoeln.reaction.model.patch.handler2.DefaultDiffHandler;
 import com.epam.indigoeln.reaction.model.patch.handler2.ExperimentRefDiffHandler;
 import com.epam.indigoeln.reaction.model.patch.handler2.MetamodelDiffHandler;
 import com.epam.indigoeln.reaction.model.patch.handler2.SetDiffHandler;
@@ -26,7 +27,7 @@ public class ExperimentMetamodel {
         m.property("linkedExperiments", ExperimentSnapshot::getLinkedExperiments, ExperimentSnapshot::setLinkedExperiments, ExperimentPatch::getLinkedExperiments, ExperimentPatch::setLinkedExperiments, new SetDiffHandler<>(ExperimentRef::getId, ExperimentRefDiffHandler.INSTANCE));
         m.property("continuedFrom", ExperimentSnapshot::getContinuedFrom, ExperimentSnapshot::setContinuedFrom, ExperimentPatch::getContinuedFrom, ExperimentPatch::setContinuedFrom, new SetDiffHandler<>(ExperimentRef::getId, ExperimentRefDiffHandler.INSTANCE));
         m.property("continuedTo", ExperimentSnapshot::getContinuedTo, ExperimentSnapshot::setContinuedTo, ExperimentPatch::getContinuedTo, ExperimentPatch::setContinuedTo, new SetDiffHandler<>(ExperimentRef::getId, ExperimentRefDiffHandler.INSTANCE));
-        m.property("deleted", ExperimentSnapshot::getDeleted, ExperimentSnapshot::setDeleted, ExperimentPatch::getDeleted, ExperimentPatch::setDeleted);
+        m.property("deleted", ExperimentSnapshot::getDeleted, ExperimentSnapshot::setDeleted, ExperimentPatch::getDeleted, ExperimentPatch::setDeleted, DefaultDiffHandler.DEFAULT_FALSE_INSTANCE);
         m.property("attachments", ExperimentSnapshot::getAttachments, ExperimentSnapshot::setAttachments, ExperimentPatch::getAttachments, ExperimentPatch::setAttachments, new SetDiffHandler<>(AttachmentDTO::getId, new MetamodelDiffHandler<>(AttachmentMetamodel.INSTANCE, AttachmentPatch::new)));
         m.property("acl", ExperimentSnapshot::getAcl, ExperimentSnapshot::setAcl, ExperimentPatch::getAcl, ExperimentPatch::setAcl, new SetDiffHandler<>(ACLDetailsEntryDTO::getUsername, new MetamodelDiffHandler<>(ACLEntryMetamodel.INSTANCE, ACLEntryPatch::new)));
         m.property("model", ExperimentSnapshot::getModel, ExperimentSnapshot::setModel, ExperimentPatch::getModel, ExperimentPatch::setModel, new MetamodelDiffHandler<>(ExperimentModelMetamodel.INSTANCE, ExperimentModelPatch::new));

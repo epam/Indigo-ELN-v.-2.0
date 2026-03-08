@@ -1,13 +1,14 @@
 package com.epam.indigoeln.reaction.service.mutation;
 
 import com.epam.indigoeln.common.util.Pair;
+import com.epam.indigoeln.eln.entity.BaseRevisionEntity;
 import com.epam.indigoeln.eln.entity.WithRevision;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.jspecify.annotations.Nullable;
 
-public abstract class AbstractMutationHandler<T extends Mutation, M, E extends WithRevision, S, P> implements MutationHandler<T, M, E, S, P> {
+public abstract class AbstractMutationHandler<T extends Mutation, M, E extends WithRevision, S, P, R extends BaseRevisionEntity> implements MutationHandler<T, M, E, S, P> {
 
     @PersistenceContext
     EntityManager em;
@@ -49,7 +50,8 @@ public abstract class AbstractMutationHandler<T extends Mutation, M, E extends W
         // write changes back to the entity
         P patch = doUpdateEntity(entity, model, snapshotBefore, snapshotAfter);
         // create revision
-        doCreateRevision(entity, mutation, result, revisionNo, patch);
+        R revision = doCreateRevision(entity, mutation, result, revisionNo, patch);
+        em.persist(revision);
 
         return Pair.of(snapshotAfter, patch);
     }
@@ -76,7 +78,7 @@ public abstract class AbstractMutationHandler<T extends Mutation, M, E extends W
 
     protected abstract S doSnapshotAfter(E entity, @Nullable M model);
 
-    protected abstract void doCreateRevision(E experiment, T mutation, MutationResult result, Integer revisionNo, P patch);
+    protected abstract R doCreateRevision(E experiment, T mutation, MutationResult result, Integer revisionNo, P patch);
 
     private Integer doGetRevisionNo(E entity) {
         //noinspection ConstantValue

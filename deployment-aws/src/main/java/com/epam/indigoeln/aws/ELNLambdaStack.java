@@ -100,6 +100,8 @@ public class ELNLambdaStack extends NestedStack {
                 props,
                 "reports-function",
                 new File("../backend/reports/reports-lambda/build/function.zip"),
+//                props.getReportsRepository(),
+//                props.getReportsImageTag(),
                 props.getLambdaSecurityGroup(),
                 reportsFunctionEnvironment
         );
@@ -167,8 +169,10 @@ public class ELNLambdaStack extends NestedStack {
         IUserPool userPool;
         IUserPoolClient userPoolClient;
         Repository elnRepository;
+        Repository reportsRepository;
         List<String> lambdaSubnets;
         String elnImageTag;
+        String reportsImageTag;
         String apiGatewaySecret;
         String internalApiGatewaySecret;
     }

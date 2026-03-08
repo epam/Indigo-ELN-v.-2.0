@@ -10,6 +10,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.google.common.base.MoreObjects;
 import feign.*;
+import feign.codec.StringDecoder;
 import feign.form.FormEncoder;
 import feign.httpclient.ApacheHttpClient;
 import feign.jackson.JacksonDecoder;
@@ -45,7 +46,7 @@ public class FeignUtil {
                 .options(new Request.Options(Duration.ofSeconds(1), Duration.ofDays(1), false))
                 .contract(new JAXRS3Contract())
                 .encoder(new RequestEncoder(new FormEncoder(new JacksonEncoder(OBJECT_MAPPER))))
-                .decoder(new ResponseDecoder(new JacksonDecoder(OBJECT_MAPPER)))
+                .decoder(new ResponseDecoder(new StringDecoder(), new JacksonDecoder(OBJECT_MAPPER)))
                 .requestInterceptor(request -> {
                     extractParam(request, "pageNo", "pageNo=", ",");
                     extractParam(request, "pageSize", "pageSize=", ")");

@@ -5,8 +5,6 @@ plugins {
 }
 
 dependencies {
-    implementation("io.quarkus:quarkus-container-image-docker")
-
     implementation(project(":common:common-service"))
     implementation(project(":reports:reports-core"))
 }

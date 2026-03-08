@@ -83,7 +83,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         assertThat(experiment.getTemplateId()).isEqualTo(emptyTemplateID);
         assertThat(experiment.getCurrentPermissions()).containsExactlyInAnyOrder(VIEW_EXPERIMENTS, EDIT_EXPERIMENTS, MANAGE_EXPERIMENT_ACCESS, DELETE_EXPERIMENTS, SUBMIT_EXPERIMENTS);
         assertThat(experiment.getRevision()).isOne();
-        assertThat(experimentClient.getExperimentRevisions(experiment.getId()))
+        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
                 .hasSize(1)
                 .first().satisfies(revision -> {
                     assertThat(revision.getRevision()).isOne();
@@ -204,7 +204,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         assertThat(modified.getContinuedTo()).containsExactly(e4.toRef());
         ExperimentDetailsDTO saved = experimentClient.getExperiment(experiment.getId());
         assertThat(saved).usingRecursiveComparison().isEqualTo(modified);
-        assertThat(experimentClient.getExperimentRevisions(experiment.getId()))
+        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
                 .hasSize(2)
                 .last().satisfies(revision -> {
                     assertThat(revision.getRevision()).isEqualTo(2);
@@ -275,7 +275,7 @@ class ExperimentServiceTest extends ELNBaseTest {
             assertThat(a.getModifiedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME);
             assertThat(a.getModifiedAt()).isNotNull();
         });
-        assertThat(experimentClient.getExperimentRevisions(experiment.getId()))
+        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
                 .last().satisfies(revision -> {
                     assertThat(revision.getMutation()).isInstanceOf(ExperimentMutation.CreateExperimentAttachment.class);
                     assertThat(revision.getSummary()).isEqualTo("Created attachment: attachment.txt, 7 bytes");
@@ -298,7 +298,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         experimentClient.deleteExperimentAttachment(experiment.getId(), attachments.getFirst().getId());
         experiment = experimentClient.getExperiment(experiment.getId());
         assertThat(experiment.getAttachments()).isEmpty();
-        assertThat(experimentClient.getExperimentRevisions(experiment.getId()))
+        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
                 .last().satisfies(revision -> {
                     assertThat(revision.getMutation()).isInstanceOf(ExperimentMutation.DeleteExperimentAttachment.class);
                     assertThat(revision.getSummary()).isEqualTo("Deleted attachment: attachment.txt");
@@ -339,7 +339,7 @@ class ExperimentServiceTest extends ELNBaseTest {
     void testUpdateAccess() {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(maggieUserID, AccessLevel.EDIT));
-        assertThat(experimentClient.getExperimentRevisions(experiment.getId()))
+        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
                 .hasSize(2)
                 .last().satisfies(revision -> {
                     assertThat(revision.getRevision()).isEqualTo(2);
@@ -349,7 +349,7 @@ class ExperimentServiceTest extends ELNBaseTest {
                     assertThat(revision.getDiff()).isNotNull(); // !!! verify diff old and new ACL
                 });
         experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(maggieUserID, AccessLevel.NONE));
-        assertThat(experimentClient.getExperimentRevisions(experiment.getId()))
+        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
                 .hasSize(3)
                 .last().satisfies(revision -> {
                     assertThat(revision.getSummary()).isEqualTo("Edited Team: removed maggie");
