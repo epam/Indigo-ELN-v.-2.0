@@ -1,7 +1,4 @@
-// import { NotificationComponent } from '@core/components/common/notification/notification.component';
 import { inject } from '@angular/core';
-// import { MatSnackBar } from '@angular/material/snack-bar';
-// import { NotificationParams } from '@core/types/notification.i';
 import { NotificationService } from '@core/services/notification/notification.service';
 import { NotificationType } from '@core/types/notification.i';
 import { ClassPickerPipe } from '@/core/pipes/classPicker.pipe';
