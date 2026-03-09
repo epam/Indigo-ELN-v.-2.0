@@ -36,6 +36,7 @@ export class DropdownMenuComponent
   @Input() disabled = false;
   @Output() itemSelected = new EventEmitter<string>();
   @Output() dropdownToggled = new EventEmitter<boolean>();
+  @Output() noneClicked = new EventEmitter<void>();
 
   @Input() controlled = false;
   @Input() hasError = false;
@@ -107,6 +108,12 @@ export class DropdownMenuComponent
     event.stopPropagation();
 
     const newValue = item.value || item.label;
+
+    if (item.label.toLowerCase() === 'none' || item.value?.toLowerCase() === 'none') {
+      this.noneClicked.emit();
+      this.isOpen = false;
+      return;
+    }
 
     if (this._value !== newValue) {
       this._value = newValue;

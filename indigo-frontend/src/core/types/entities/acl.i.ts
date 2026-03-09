@@ -17,4 +17,14 @@ export interface UserSuggestion {
 export interface ProjectAclUpdate {
   userID: string;
   level: AclLevel;
+  deleteNested?: boolean;
+}
+
+export interface NestedAccessItem {
+  entityType: string;
+  entityId: string;
+  entityName: string;
+  userId: string;
+  displayName: string;
+  level: AclLevel;
 }

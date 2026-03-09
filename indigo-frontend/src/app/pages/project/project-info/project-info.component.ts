@@ -54,6 +54,7 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
 
   projectTeamConfig: TeamComponentConfig = {
     buildAccessEndpoint: (id: string) => `projects/${id}/access`,
+    buildNestedAccessEndpoint: (id: string) => `projects/${id}/nestedAccess`,
   };
 
   ngOnInit() {

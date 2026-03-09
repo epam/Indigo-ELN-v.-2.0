@@ -34,6 +34,7 @@ export class NotebookInfoComponent {
 
     notebookTeamConfig: TeamComponentConfig = {
       buildAccessEndpoint: (id: string) => `notebooks/${id}/access`,
+      buildNestedAccessEndpoint: (id: string) => `notebooks/${id}/nestedAccess`,
     };
 
     get notebook(): NotebookDetail | null {
