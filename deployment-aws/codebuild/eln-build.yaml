@@ -5,19 +5,42 @@ phases:
       java: corretto21
   pre_build:
     commands:
-      - env
-      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REGISTRY_URI
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
   build:
     commands:
       - cd backend
-      - ./gradlew :common:common:build :common:common-lambda:build :eln:eln-api:build :eln:eln-core:build :eln:eln-lambda:build --info --profile
+      - |
+        TARGETS=":common:common:build :common:common-lambda:build "
+        if [ "$BUILD_ELN_LAMBDA" = "true" ]; then TARGETS="$TARGETS :eln:eln-api:build :eln:eln-core:build :eln:eln-lambda:build"; fi
+        if [ "$BUILD_REPORTS_LAMBDA" = "true" ]; then TARGETS="$TARGETS :reports:reports-api:build :reports:reports-core:build :reports:reports-lambda:build"; fi
+        if [ "$BUILD_SIGNATURE_LAMBDA" = "true" ]; then TARGETS="$TARGETS :signature:signature-api:build :signature:signature-core:build :signature:signature-lambda:build"; fi
+        ./gradlew $TARGETS --info --profile
   post_build:
     commands:
-      - docker tag indigoeln/eln-lambda:built $ELN_REPO_URI:latest
-      - docker tag indigoeln/eln-lambda:built $ELN_REPO_URI:$IMAGE_TAG
-      - docker push $ELN_REPO_URI:latest
-      - docker push $ELN_REPO_URI:$IMAGE_TAG
+      - |
+        if [ "$BUILD_ELN_LAMBDA" = "true" ]; then
+          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ELN_REGISTRY_URI
+          docker tag indigoeln/eln-lambda:built $ELN_REPO_URI:latest
+          docker tag indigoeln/eln-lambda:built $ELN_REPO_URI:$IMAGE_TAG
+          docker push $ELN_REPO_URI:latest
+          docker push $ELN_REPO_URI:$IMAGE_TAG
+        fi
+      - |
+        if [ "$BUILD_REPORTS_LAMBDA" = "true" ]; then
+          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPORTS_REGISTRY_URI
+          docker tag indigoeln/reports-lambda:built $REPORTS_REPO_URI:latest
+          docker tag indigoeln/reports-lambda:built $REPORTS_REPO_URI:$IMAGE_TAG
+          docker push $REPORTS_REPO_URI:latest
+          docker push $REPORTS_REPO_URI:$IMAGE_TAG
+        fi
+      - |
+        if [ "$BUILD_SIGNATURE_LAMBDA" = "true" ]; then
+          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $SIGNATURE_REGISTRY_URI
+          docker tag indigoeln/signature-lambda:built $SIGNATURE_REPO_URI:latest
+          docker tag indigoeln/signature-lambda:built $SIGNATURE_REPO_URI:$IMAGE_TAG
+          docker push $SIGNATURE_REPO_URI:latest
+          docker push $SIGNATURE_REPO_URI:$IMAGE_TAG
+        fi
       - tar czf build_profile_$IMAGE_TAG.tgz build/reports/profile
       - echo "aws s3 cp build_profile_$IMAGE_TAG.tgz s3://$S3_LOGS/build_profile_$IMAGE_TAG.tgz"
       - aws s3 cp build_profile_$IMAGE_TAG.tgz s3://$S3_LOGS/build_profile_$IMAGE_TAG.tgz

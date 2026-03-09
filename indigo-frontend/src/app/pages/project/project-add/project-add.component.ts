@@ -7,7 +7,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { toHTML } from 'ngx-editor';
-import { catchError, EMPTY, tap } from 'rxjs';
+import { tap } from 'rxjs';
 import { Project } from '@core/types/entities/project.i';
 import { Router } from '@angular/router';
 import { NotificationService } from '@core/services/notification/notification.service';
@@ -98,27 +98,16 @@ export class ProjectAddComponent implements OnInit {
             ? toHTML(data.description)
             : data.description,
       })
-      .pipe(
-        tap((newProject: Project) => {
-          this.dialogRef.close('refresh');
-          this.router.navigate(['/projects', newProject.id]);
+      .subscribe((newProject: Project) => {
+        this.dialogRef.close('refresh');
+        this.router.navigate(['/projects', newProject.id]);
 
-          this.notificationService.notify({
-            message: `Project '${data.name}' has been successfully created`,
-            type: NotificationType.Success,
-            isInline: false,
-          });
-        }),
-        catchError((createError) => {
-          this.notificationService.notify({
-            message: createError.message,
-            type: NotificationType.Error,
-            isInline: false,
-          });
-          return EMPTY;
-        }),
-      )
-      .subscribe();
+        this.notificationService.notify({
+          message: `Project '${data.name}' has been successfully created`,
+          type: NotificationType.Success,
+          isInline: false,
+        });
+      });
   }
 
   updateProject(data: Project) {
@@ -139,15 +128,6 @@ export class ProjectAddComponent implements OnInit {
             type: NotificationType.Success,
             isInline: false,
           });
-        }),
-        catchError((updateError) => {
-          this.notificationService.notify({
-            message: updateError.message,
-            type: NotificationType.Error,
-            isInline: false,
-          });
-
-          return EMPTY;
         }),
       )
       .subscribe();

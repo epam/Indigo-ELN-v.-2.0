@@ -1,13 +1,14 @@
 package com.epam.indigoeln.reaction.service.mutation;
 
 import com.epam.indigoeln.common.util.Pair;
+import com.epam.indigoeln.eln.entity.BaseRevisionEntity;
 import com.epam.indigoeln.eln.entity.WithRevision;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.jspecify.annotations.Nullable;
 
-public abstract class AbstractMutationHandler<T extends Mutation, M, E extends WithRevision, S, P> implements MutationHandler<T, M, E, S, P> {
+public abstract class AbstractMutationHandler<T extends Mutation, M, E extends WithRevision, S, P, R extends BaseRevisionEntity> implements MutationHandler<T, M, E, S, P> {
 
     @PersistenceContext
     EntityManager em;
@@ -35,7 +36,6 @@ public abstract class AbstractMutationHandler<T extends Mutation, M, E extends W
         S snapshotBefore = doSnapshotBefore(entity);
         // calculate next revision number
         Integer revisionNo = doGetRevisionNo(entity);
-        System.err.println("!!! applyMutation: entity=" + entity + ", mutation=" + mutation + ", revisionNo=" + revisionNo);
         // prepare model; only used for subset of experiment handlers that work with experiment model
         M model = doPrepareModel(entity);
         // augment mutation if needed; for example, pre-assign anchors for created objects to make redo deterministic
@@ -48,11 +48,10 @@ public abstract class AbstractMutationHandler<T extends Mutation, M, E extends W
         // make snapshot of "after" state
         S snapshotAfter = doSnapshotAfter(entity, model);
         // write changes back to the entity
-        doUpdateEntity(entity, model, snapshotBefore, snapshotAfter);
-        // create patch
-        P patch = doCreatePatch(snapshotBefore, snapshotAfter);
+        P patch = doUpdateEntity(entity, model, snapshotBefore, snapshotAfter);
         // create revision
-        doCreateRevision(entity, mutation, result, revisionNo, patch);
+        R revision = doCreateRevision(entity, mutation, result, revisionNo, patch);
+        em.persist(revision);
 
         return Pair.of(snapshotAfter, patch);
     }
@@ -75,13 +74,11 @@ public abstract class AbstractMutationHandler<T extends Mutation, M, E extends W
 
     public abstract MutationResult doHandle(E entity, @Nullable M model, T mutation);
 
-    protected abstract void doUpdateEntity(E entity, @Nullable M model, S snapshotBefore, S snapshotAfter);
+    protected abstract P doUpdateEntity(E entity, @Nullable M model, S snapshotBefore, S snapshotAfter);
 
     protected abstract S doSnapshotAfter(E entity, @Nullable M model);
 
-    protected abstract P doCreatePatch(S snapshotBefore, S snapshotAfter);
-
-    protected abstract void doCreateRevision(E experiment, T mutation, MutationResult result, Integer revisionNo, P patch);
+    protected abstract R doCreateRevision(E experiment, T mutation, MutationResult result, Integer revisionNo, P patch);
 
     private Integer doGetRevisionNo(E entity) {
         //noinspection ConstantValue

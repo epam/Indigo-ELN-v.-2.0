@@ -14,6 +14,7 @@ import {
   WeightUnit,
 } from './experiment-shared.i';
 import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
+import { UserMetadata } from '@core/types/entities/user.i';
 
 // Base mutation interface
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -24,6 +25,10 @@ export type ReactionInputAnchor = string;
 export type ReactionInputSampleAnchor = string;
 export type ReactionOutputAnchor = string;
 export type ReactionOutputSampleAnchor = string;
+
+interface SetBatchCreatorMutation extends BaseMutation {
+  batchCreator: UserMetadata;
+}
 
 interface ReactionMutation extends BaseMutation {
   anchor: ReactionAnchor;
@@ -179,6 +184,11 @@ interface SetOutputRowName extends ReactionOutputMutation {
   name: string;
 }
 
+interface SetOutputRowChemicalName extends ReactionOutputMutation {
+  type: 'SetOutputRowChemicalName';
+  chemicalName: string | null;
+}
+
 interface SetOutputCompoundStereoisomerCode extends ReactionOutputMutation {
   type: 'SetOutputCompoundStereoisomerCode';
   stereoisomerCode: DictionaryItemRef | null;
@@ -303,6 +313,8 @@ interface SetOutputStructureComment extends ReactionOutputSampleMutation {
 }
 
 export type Mutation =
+  // Experiment mutations
+  | SetBatchCreatorMutation
   // Reaction mutations
   | SetSchemeMutation
   | ResolveInputsMutation
@@ -334,6 +346,7 @@ export type Mutation =
   | SetOutputRowSaltEQ
   | SetOutputRowEQ
   | SetOutputRowName
+  | SetOutputRowChemicalName
   | SetOutputCompoundStereoisomerCode
   | SetOutputCompoundMolWeight
   // Output sample mutations

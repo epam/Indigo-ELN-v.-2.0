@@ -54,7 +54,7 @@ class NotebookServiceTest extends ELNBaseTest {
         String name = nextNotebookName();
         notebookClient.createNotebook(project.getId(), new NotebookRequest(name));
         assertThatClientCall(() -> notebookClient.createNotebook(project.getId(), new NotebookRequest(name)))
-                .isBadRequest("Notebook with name '.+' already exists");
+                .isBadRequest("Unique name is required");
     }
 
     @Test
@@ -64,7 +64,74 @@ class NotebookServiceTest extends ELNBaseTest {
         String name2 = nextNotebookName();
         NotebookDetailsDTO notebook2 = notebookClient.createNotebook(project.getId(), new NotebookRequest(name2));
         assertThatClientCall(() -> notebookClient.editNotebook(notebook2.getId(), new NotebookEditRequest().withName(Optional.of(name))))
-                .isBadRequest("Notebook with name '" + name + "' already exists");
+                .isBadRequest("Unique name is required");
+    }
+
+    @Test
+    void testCheckNotebookNameExistenceEndpointSuccessWhenExists() {
+        String name = nextNotebookName();
+        notebookClient.createNotebook(project.getId(), new NotebookRequest(name));
+
+        assertThatClientCall(() -> notebookClient.checkNotebookNameExistence(name))
+                .isSuccessfulWithResult(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.getExists()).isTrue();
+                });
+    }
+
+    @Test
+    void testCheckNotebookNameExistenceEndpointSuccessWhenNotExists() {
+        String name = nextNotebookName();
+
+        assertThatClientCall(() -> notebookClient.checkNotebookNameExistence(name))
+                .isSuccessfulWithResult(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.getExists()).isFalse();
+                });
+    }
+
+    @Test
+    void testCheckNotebookNameExistenceEndpointValidationEmptyName() {
+        assertThatClientCall(() -> notebookClient.checkNotebookNameExistence(""))
+                .isBadRequest("must not be empty");
+    }
+
+    @Test
+    void testCheckNotebookNameExistenceWhenExists() {
+        String name = nextNotebookName();
+        notebookClient.createNotebook(project.getId(), new NotebookRequest(name));
+
+        NotebookExistenceCheckDTO result = notebookClient.checkNotebookNameExistence(name);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getExists()).isTrue();
+    }
+
+    @Test
+    void testCheckNotebookNameExistenceWhenNotExists() {
+        String name = nextNotebookName();
+
+        NotebookExistenceCheckDTO result = notebookClient.checkNotebookNameExistence(name);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getExists()).isFalse();
+    }
+
+    @Test
+    void testCheckNotebookNameExistenceWithMultipleNotebooks() {
+        String name1 = nextNotebookName();
+        String name2 = nextNotebookName();
+
+        notebookClient.createNotebook(project.getId(), new NotebookRequest(name1));
+        notebookClient.createNotebook(project.getId(), new NotebookRequest(name2));
+
+        NotebookExistenceCheckDTO result1 = notebookClient.checkNotebookNameExistence(name1);
+        NotebookExistenceCheckDTO result2 = notebookClient.checkNotebookNameExistence(name2);
+        NotebookExistenceCheckDTO result3 = notebookClient.checkNotebookNameExistence(nextNotebookName());
+
+        assertThat(result1.getExists()).isTrue();
+        assertThat(result2.getExists()).isTrue();
+        assertThat(result3.getExists()).isFalse();
     }
 
     @Test

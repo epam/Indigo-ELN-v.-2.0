@@ -27,6 +27,9 @@ public class ReactionOutputSamplePatch extends AbstractReactionSamplePatch<Outpu
     private Patched<NbkBatchNumber, NbkBatchNumber> nbkBatchNumber;
 
     @Nullable
+    private Patched<String, String> shortNbkBatchNumber;
+
+    @Nullable
     private Patched<EnteredValue<MolUnit>, EnteredValuePatch<MolUnit>> actualMol;
 
     @Nullable

@@ -17,7 +17,6 @@ import {
 } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
-import { InputComponent } from '@core/components/common/input/input.component';
 import { MatRadioButton, MatRadioGroup } from '@angular/material/radio';
 import {
   FindSamplesRequest,
@@ -28,7 +27,6 @@ import {
 } from '@core/types/entities/experiments/search.i';
 import {
   MatExpansionPanel,
-  MatExpansionPanelDescription,
   MatExpansionPanelHeader,
   MatExpansionPanelTitle,
 } from '@angular/material/expansion';
@@ -38,7 +36,6 @@ import {
   DictionaryItemRef,
 } from '@core/types/entities/dictionary.i';
 import { NumericSearchComponent } from '@core/components/common/numeric-search/numeric-search.component';
-import { MatChipRow, MatChipSet } from '@angular/material/chips';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import {
   ColumnDefDirective,
@@ -65,16 +62,15 @@ import {
   setEnabled,
   textSearchSummary,
 } from '@core/utils/search.util';
-import { ButtonComponent } from '@core/components/common/button/button.component';
 import { ExperimentDetailService } from '@core/services/experiment/experiment-detail.service';
+import { MatIcon, MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatButtonModule } from '@angular/material/button';
 
 export interface SampleSearchDialogData {
   experimentId: UUID;
   reactionAnchor: ReactionAnchor;
 }
-import { MatIcon, MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   standalone: true,
@@ -255,12 +251,8 @@ export class SampleSearchComponent implements OnInit {
         'post',
         `samples/${sample.id}/${mark ? 'mark' : 'unmark'}`,
       )
-      .subscribe({
-        next: (response) =>
-          this.loader.replace((s) => s.id === sample.id, response),
-        error: (error) => {
-          console.error('Failed to mark/unmark sample: ', error);
-        },
+      .subscribe((response) => {
+        this.loader.replace((s) => s.id === sample.id, response);
       });
   }
 

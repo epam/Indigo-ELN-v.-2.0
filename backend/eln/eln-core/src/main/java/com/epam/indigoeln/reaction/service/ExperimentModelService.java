@@ -1,7 +1,9 @@
 package com.epam.indigoeln.reaction.service;
 
 import com.epam.indigoeln.common.util.Pair;
+import com.epam.indigoeln.eln.entity.ExperimentEditSessionEntity;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
+import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.mapper.SnapshotMapper;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.service.RevisionService;
@@ -26,7 +28,10 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 
+import java.time.Duration;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -74,6 +79,7 @@ public class ExperimentModelService {
         Reaction reaction = Reaction.create(model, new ReactionAnchor(UUID.randomUUID()));
         model.setReactions(List.of(reaction));
         model.setSchemaVersion(ExperimentModel.SCHEMA_VERSION);
+        model.setSignificantFigures(ExperimentModel.DEFAULT_SIGNIFICANT_FIGURES);
         return model;
     }
 
@@ -103,5 +109,35 @@ public class ExperimentModelService {
         } catch (Exception e) {
             throw new RuntimeException("Cannot write experiment model: " + e.getMessage(), e);
         }
+    }
+
+    @Nullable
+    public ExperimentEditSessionEntity getEditSession(ExperimentEntity experiment, UserEntity user) {
+        ExperimentEditSessionEntity session = experimentRepository.findActiveEditSession(experiment, user);
+        if (session != null) {
+            session = closeEditSessionIfInactive(session);
+        }
+        return session;
+    }
+
+    public ExperimentEditSessionEntity createEditSession(ExperimentEntity experiment, UserEntity user, ZonedDateTime dateTime) {
+        ExperimentEditSessionEntity session = new ExperimentEditSessionEntity();
+        session.setExperiment(experiment);
+        session.setUser(user);
+        session.setStarted(dateTime);
+        session.setLastActive(dateTime);
+        experiment.getEditSessions().add(session);
+        experimentRepository.persistEditSession(session);
+        return session;
+    }
+
+    @Nullable
+    private ExperimentEditSessionEntity closeEditSessionIfInactive(ExperimentEditSessionEntity editSession) {
+        Duration durationSinceLastActive = Duration.between(editSession.getLastActive(), ZonedDateTime.now());
+        if (durationSinceLastActive.compareTo(Duration.ofHours(1)) > 0) {
+            editSession.setFinished(editSession.getLastActive());
+            return null;
+        }
+        return editSession;
     }
 }

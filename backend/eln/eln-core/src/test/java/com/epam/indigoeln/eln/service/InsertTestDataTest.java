@@ -6,6 +6,8 @@ import com.epam.indigoeln.eln.client.*;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.*;
+import com.epam.indigoeln.reaction.model.outputsample.*;
+import com.epam.indigoeln.reaction.model.units.DensityUnit;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
 import com.epam.indigoeln.reaction.util.MutationsTestUtil;
@@ -71,9 +73,24 @@ class InsertTestDataTest {
     //    @Test
     @Order(2)
     void insertUsers() {
-        userClient.createUser(new UserRequest("alice@eln.com", "Alice", "Smith", "password", List.of(ROLE_CONTENT_EDITOR, ROLE_TEMPLATE_EDITOR)));
-        userClient.createUser(new UserRequest("bob@eln.com", "Bob", "Johnson", "password", List.of(ROLE_ADMINISTRATOR)));
-        userClient.createUser(new UserRequest("charlie@eln.com", "Charlie", "Williams", "password", List.of(ROLE_CONTENT_EDITOR)));
+        String password = System.getenv("PASSWORD");
+        userClient.createUser(new UserRequest("alice@eln.com", "Alice", "Smith", password, List.of(ROLE_CONTENT_EDITOR, ROLE_TEMPLATE_EDITOR)));
+        userClient.createUser(new UserRequest("bob@eln.com", "Bob", "Johnson", password, List.of(ROLE_ADMINISTRATOR)));
+        userClient.createUser(new UserRequest("charlie@eln.com", "Charlie", "Williams", password, List.of(ROLE_CONTENT_EDITOR)));
+
+        Map<String, List<RoleRef>> userMatrix = Map.of(
+                "user_noroles", List.of(),
+                "user_p", List.of(ROLE_PROJECT_CREATOR),
+                "user_t", List.of(ROLE_TEMPLATE_EDITOR),
+                "user_tp", List.of(ROLE_TEMPLATE_EDITOR, ROLE_PROJECT_CREATOR),
+                "user_c", List.of(ROLE_CONTENT_EDITOR),
+                "user_cp", List.of(ROLE_CONTENT_EDITOR, ROLE_PROJECT_CREATOR),
+                "user_ct", List.of(ROLE_CONTENT_EDITOR, ROLE_TEMPLATE_EDITOR),
+                "user_ctp", List.of(ROLE_CONTENT_EDITOR, ROLE_TEMPLATE_EDITOR, ROLE_PROJECT_CREATOR)
+        );
+        userMatrix.forEach((username, roles) -> {
+            userClient.createUser(new UserRequest(username + "@eln.com", username, username, password, roles));
+        });
     }
 
     //    @Test
@@ -91,6 +108,16 @@ class InsertTestDataTest {
 
 //    @Test
     @Order(5)
+    void insertSignatureTemplate() {
+        UserRef bob = userClient.suggestUsers("Bob").getFirst();
+        signatureClient.createSignatureTemplate(new SignatureTemplateRequest("Author and Bob", List.of(
+                new SignatureBlock(null, SignatureReason.AUTHOR),
+                new SignatureBlock(bob, SignatureReason.WITNESS)
+        )));
+    }
+
+//    @Test
+    @Order(6)
     void fillExperiment(@TempDir Path tempDir) {
         ExperimentDetailsDTO experiment = createExperiment("ProjectWithData", "88888888", templateClient.getByName("Default"), "Experiment with data");
 
@@ -120,24 +147,65 @@ class InsertTestDataTest {
         // select salt eq
         model = applyMutation(experiment, model, new ReactionOutputMutation.SetOutputRowSaltEQ(output1Anchor, 0.5));
 
+        // select stereoisomer code
+        DictionaryItemRef stereoisomerCode = dictionaryClient.getDictionary(BuiltInDictionary.STEREOISOMER_CODE).getFirst();
+        model = applyMutation(experiment, model, new ReactionOutputMutation.SetOutputCompoundStereoisomerCode(output1Anchor, stereoisomerCode));
+
         // set input weight
-        model = applyMutation(experiment, model, new ReactionInputSampleMutation.SetInputWeight(input1Sample1Anchor, 100.0, WeightUnit.G, null));
+        model = applyMutation(experiment, model, new ReactionInputSampleMutation.SetInputWeight(input1Sample1Anchor, "100.0", WeightUnit.G, null));
 
         // set input eq
-        model = applyMutation(experiment, model, new ReactionInputMutation.SetInputRowEQ(input2Anchor, 2.0, null));
+        model = applyMutation(experiment, model, new ReactionInputMutation.SetInputRowEQ(input2Anchor, "2", null));
 
         // add product sample
         model = applyMutation(experiment, model, new ReactionOutputMutation.AddProductSample(output2Anchor));
         OutputSampleAnchor output2Sample1Anchor = model.getReactions().getFirst().getOutputs().get(1).getSamples().get(0).getAnchor();
 
         // set output actual mol
-        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputActualMol(output2Sample1Anchor, 200.0, MolUnit.MMOL, null));
+        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputActualMol(output2Sample1Anchor, "200.0", MolUnit.MMOL, null));
 
         // set output purity
-        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputPurity(output2Sample1Anchor, 0.5, null));
+        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputPurity(output2Sample1Anchor, "0.5", null));
 
         // set actual weight
-        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputActualWeight(output2Sample1Anchor, 10.0, WeightUnit.G, null));
+        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputActualWeight(output2Sample1Anchor, "10.0", WeightUnit.G, null));
+
+        // fill secondary fields
+        DictionaryItemRef source = dictionaryClient.getDictionary(BuiltInDictionary.SAMPLE_SOURCE).getFirst();
+        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputSource(output2Sample1Anchor, source));
+        DictionaryItemRef sourceDetails = dictionaryClient.getDictionary(BuiltInDictionary.SAMPLE_SOURCE_DETAILS).getFirst();
+        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputSourceDetails(output2Sample1Anchor, sourceDetails));
+        DictionaryItemRef externalSupplier = dictionaryClient.getDictionary(BuiltInDictionary.EXTERNAL_SUPPLIER).getFirst();
+        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputExternalSupplier(output2Sample1Anchor, new ExternalSupplier(externalSupplier, "12345678")));
+        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputBatchComment(output2Sample1Anchor, "batch comment"));
+        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputStructureComment(output2Sample1Anchor, "structure comment"));
+        DictionaryItemRef componentState = dictionaryClient.getDictionary(BuiltInDictionary.COMPONENT_STATE).getFirst();
+        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputComponentState(output2Sample1Anchor, componentState));
+        DictionaryItemRef compoundProtection = dictionaryClient.getDictionary(BuiltInDictionary.COMPOUND_PROTECTION).getFirst();
+        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputCompoundProtection(output2Sample1Anchor, List.of(compoundProtection)));
+        DictionaryItemRef storageInstructions = dictionaryClient.getDictionary(BuiltInDictionary.STORAGE_INSTRUCTIONS).getFirst();
+        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputStorageInstructions(output2Sample1Anchor, List.of(storageInstructions)));
+        DictionaryItemRef healthHazards = dictionaryClient.getDictionary(BuiltInDictionary.HEALTH_HAZARD).getFirst();
+        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputHealthHazards(output2Sample1Anchor, List.of(healthHazards)));
+        DictionaryItemRef handlingPrecautions = dictionaryClient.getDictionary(BuiltInDictionary.HANDLING_PRECAUTIONS).getFirst();
+        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputHandlingPrecautions(output2Sample1Anchor, List.of(handlingPrecautions)));
+        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputMeltingPoint(output2Sample1Anchor, new MeltingPoint(-10.0, 20.0, "comment")));
+        DictionaryItemRef solvent = dictionaryClient.getDictionary(BuiltInDictionary.SOLVENT).getFirst();
+        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputResidualSolvents(output2Sample1Anchor, List.of(
+                new ResidualSolvent(solvent, 1.5, "comment")
+        )));
+        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputSolubilityInSolvents(output2Sample1Anchor, List.of(
+                new SolubidityInSolvent.Qualitative(solvent, "comment", SolubidityQualitativeType.PRECIPITATE),
+                new SolubidityInSolvent.Quantitative(solvent, "comment", ComparisonOperator.APPROXIMATELY, 0.5, DensityUnit.G_ML)
+        )));
+
+        // submit and reopen
+        SignatureTemplateDTO signatureTemplate = signatureClient.getSignatureTemplates(Paging.ALL).getItems().stream()
+                .filter(t -> t.getName().equals("Author and Bob"))
+                .findFirst().orElseThrow();
+        experimentClient.completeAndSubmitExperiment(experiment.getId(), signatureTemplate.getId());
+        experimentClient.reopenExperiment(experiment.getId());
+        model = experimentClient.getExperiment(experiment.getId()).getModel();
 
         // register sample
         model = applyMutation(experiment, model, new ReactionOutputSampleMutation.RegisterSample(output2Sample1Anchor));
@@ -148,16 +216,10 @@ class InsertTestDataTest {
 
         // register another sample
         model = applyMutation(experiment, model, new ReactionOutputSampleMutation.RegisterSample(output2Sample2Anchor));
-    }
 
-//    @Test
-    @Order(6)
-    void insertSignatureTemplate() {
-        UserRef bob = userClient.suggestUsers("Bob").getFirst();
-        signatureClient.createSignatureTemplate(new SignatureTemplateRequest("Author and Bob", List.of(
-                new SignatureBlock(null, SignatureReason.AUTHOR),
-                new SignatureBlock(bob, SignatureReason.WITNESS)
-        )));
+        // submit and reopen
+        experimentClient.completeAndSubmitExperiment(experiment.getId(), signatureTemplate.getId());
+        experimentClient.reopenExperiment(experiment.getId());
     }
 
 //    @Test

@@ -32,7 +32,7 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
     DictionaryService dictionaryService;
 
     public SampleRepository() {
-        super(EntityType.SAMPLE);
+        super(EntityType.SAMPLE, SampleEntity.class);
     }
 
     @Nullable

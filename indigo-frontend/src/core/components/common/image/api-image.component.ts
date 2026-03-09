@@ -19,13 +19,6 @@ export class ApiImageComponent {
   load() {
     this.api
       .request<Blob>('get', this.url, null, { responseType: 'blob' })
-      .subscribe({
-        next: (blob) => {
-          this.src = URL.createObjectURL(blob);
-        },
-        error: (error) => {
-          console.error('Error loading image:', error);
-        },
-      });
+      .subscribe((blob) => (this.src = URL.createObjectURL(blob)));
   }
 }

@@ -23,6 +23,9 @@ public class ReactionOutputPatch extends AbstractReactionRowPatch<OutputAnchor> 
     private Patched<String, String> outputName;
 
     @Nullable
+    private Patched<String, String> chemicalName;
+
+    @Nullable
     private Patched<ReactionOutputType, ReactionOutputType> type;
 
     @Nullable

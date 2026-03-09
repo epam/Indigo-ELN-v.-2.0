@@ -1,17 +1,29 @@
 import { Attachment } from '@/core/types/entities/attachment.i';
 import { DatePipe } from '@angular/common';
-import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  Output,
+} from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { CardComponent } from '../card/card.component';
 import { ApiService } from '@/core/services/api.service';
-import { catchError, of, Subject, takeUntil } from 'rxjs';
+import { Subject } from 'rxjs';
 import { downloadBlob } from '@/core/utils/download.util';
 import { BytesConvertingPipe } from '@/core/pipes/bytesConverting.pipe';
 
 @Component({
   standalone: true,
-  imports: [CardComponent, MatMenuModule, MatIconModule, DatePipe, BytesConvertingPipe],
+  imports: [
+    CardComponent,
+    MatMenuModule,
+    MatIconModule,
+    DatePipe,
+    BytesConvertingPipe,
+  ],
   selector: 'eln-attachment',
   templateUrl: './attachment.component.html',
 })
@@ -27,8 +39,7 @@ export class AttachmentComponent implements OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  constructor(protected service: ApiService<Attachment>) { }
-
+  constructor(protected service: ApiService<Attachment>) {}
 
   get computedIcon() {
     if (this.icon.length) {
@@ -54,36 +65,27 @@ export class AttachmentComponent implements OnDestroy {
   }
 
   downloadAttachment() {
-    this.service.request<Blob>(
-      'get',
-      `project/${this.projectId}/attachments/${this.attachment.id}`,
-      undefined,
-      {
-        responseType: 'blob',
-      }
-    )
-      .pipe(
-        takeUntil(this.destroy$),
-        catchError((err) => {
-          console.error('Failed to download attachment:', err);
-          return of(null);
-        })
+    this.service
+      .request<Blob>(
+        'get',
+        `project/${this.projectId}/attachments/${this.attachment.id}`,
+        undefined,
+        {
+          responseType: 'blob',
+        },
       )
-      .subscribe({
-        next: (blob: Blob | null) => downloadBlob(blob, this.attachment.name),
-      });
+      .subscribe((blob: Blob | null) =>
+        downloadBlob(blob, this.attachment.name),
+      );
   }
 
   deleteAttachment() {
-    this.service.request<void>('delete', `projects/${this.projectId}/attachments/${this.attachment.id}`)
-      .pipe(
-        takeUntil(this.destroy$),
-        catchError((err) => {
-          console.error('Failed to delete attachment:', err);
-          return of(null);
-        })
+    this.service
+      .request<void>(
+        'delete',
+        `projects/${this.projectId}/attachments/${this.attachment.id}`,
       )
-      .subscribe({ next: () => this.attachmentDeleted.emit(this.attachment.id) });
+      .subscribe(() => this.attachmentDeleted.emit(this.attachment.id));
   }
 
   ngOnDestroy() {

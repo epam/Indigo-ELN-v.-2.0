@@ -8,21 +8,19 @@ import { Project } from '@/core/types/entities/project.i';
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { from, of, Subject, take } from 'rxjs';
-import { catchError, concatMap, takeUntil } from 'rxjs/operators';
-import { FileUploadComponent } from "@/core/components/common/file-upload/file-upload.component";
+import { finalize, from, Subject, take } from 'rxjs';
+import { concatMap, takeUntil } from 'rxjs/operators';
+import { FileUploadComponent } from '@/core/components/common/file-upload/file-upload.component';
 import { Attachment } from '@/core/types/entities/attachment.i';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ProjectAddComponent } from '../project-add/project-add.component';
 import { TeamComponentConfig } from '@/core/components/common/team/team.config';
 import { NotebookAddComponent } from '@pages/notebook/notebook-add/notebook-add.component';
-import {
-  ProjectOverviewWidgetDirective
-} from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
+import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
 
 enum projectInfoModalEnum {
   EDIT = 'edit',
-  NOTEBOOK = 'notebook'
+  NOTEBOOK = 'notebook',
 }
 @Component({
   selector: 'eln-project-info',
@@ -35,7 +33,7 @@ enum projectInfoModalEnum {
     TeamComponent,
     CardComponent,
     FileUploadComponent,
-    ProjectOverviewWidgetDirective
+    ProjectOverviewWidgetDirective,
   ],
   templateUrl: './project-info.component.html',
 })
@@ -75,7 +73,7 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
     if (this.project) {
       // Remove the deleted attachment from the local array
       this.project.attachments = this.project.attachments.filter(
-        attachment => attachment.id !== attachmentId
+        (attachment) => attachment.id !== attachmentId,
       );
     }
   }
@@ -89,55 +87,38 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const formDatas = newFiles.map(file => {
+    const formDatas = newFiles.map((file) => {
       const formData = new FormData();
       formData.append('file', file, file.name);
       return formData;
     });
 
-    from(formDatas).pipe(
-      concatMap(formData => this.service.request<Attachment[]>(
-        'post',
-        `projects/${this.project!.id}/attachments`,
-        formData,
-      )),
-      catchError((err) => {
-        console.error('Failed to upload attachment:', err);
-        this.isUploadingAttachment = false;
-        return of(null);
-      }),
-      takeUntil(this.destroy$),
-    )
-      .subscribe({
-        next: (attachments) => {
-          if (this.project && attachments) this.project.attachments = attachments;
-        },
-        error: (err) => {
-          console.error('Upload error:', err);
-        }, complete: () => {
-          this.isUploadingAttachment = false;
-        }
+    from(formDatas)
+      .pipe(
+        concatMap((formData) =>
+          this.service.request<Attachment[]>(
+            'post',
+            `projects/${this.project!.id}/attachments`,
+            formData,
+          ),
+        ),
+        finalize(() => (this.isUploadingAttachment = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((attachments) => {
+        if (this.project) this.project.attachments = attachments;
       });
   }
 
   private loadProject(id: string): void {
     this.isLoading = true;
     this.hasError = false;
-    this.service.request<Project>('get', `projects/${id}`)
-      .pipe(
-        takeUntil(this.destroy$),
-        catchError((err) => {
-          console.error('Failed to load project:', err);
-          this.hasError = true;
-          this.isLoading = false;
-          return of(null);
-        })
-      )
+    this.service
+      .request<Project>('get', `projects/${id}`)
+      .pipe(finalize(() => (this.isLoading = false)))
       .subscribe({
-        next: (project) => {
-          this.isLoading = false;
-          if (project) this.project = project;
-        },
+        next: (project) => (this.project = project),
+        error: () => (this.hasError = true),
       });
   }
 
@@ -154,10 +135,12 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
 
     if (mode === projectInfoModalEnum.NOTEBOOK) {
       ref = this.dialog.open(NotebookAddComponent);
-      (ref.componentInstance as NotebookAddComponent).projectId = this.project.id;
+      (ref.componentInstance as NotebookAddComponent).projectId =
+        this.project.id;
     }
 
-    ref?.afterClosed()
+    ref
+      ?.afterClosed()
       .pipe(take(1))
       .subscribe((result) => {
         if (result === 'refresh') {

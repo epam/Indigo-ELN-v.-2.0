@@ -1,8 +1,8 @@
 package com.epam.indigoeln.reaction.metamodel;
 
+import com.epam.indigoeln.reaction.metamodel.property.Metamodel;
 import com.epam.indigoeln.reaction.model.ReactionOutputSample;
 import com.epam.indigoeln.reaction.model.SampleRegistrationStatus;
-import com.epam.indigoeln.reaction.metamodel.property.Metamodel;
 import com.epam.indigoeln.reaction.model.outputsample.ExternalSupplier;
 import com.epam.indigoeln.reaction.model.outputsample.MeltingPoint;
 import com.epam.indigoeln.reaction.model.patch.ReactionOutputSamplePatch;
@@ -16,6 +16,7 @@ class ReactionOutputSampleMetamodel {
         m.property("anchor", ReactionOutputSample::getAnchor, ReactionOutputSample::setAnchor, ReactionOutputSamplePatch::getAnchor, ReactionOutputSamplePatch::setAnchor);
         m.accept(Metamodels::buildReactionSampleMetamodel);
         m.property("nbkBatchNumber", ReactionOutputSample::getNbkBatchNumber, ReactionOutputSample::setNbkBatchNumber, ReactionOutputSamplePatch::getNbkBatchNumber, ReactionOutputSamplePatch::setNbkBatchNumber);
+        m.property("shortNbkBatchNumber", ReactionOutputSample::getShortNbkBatchNumber, null, ReactionOutputSamplePatch::getShortNbkBatchNumber, ReactionOutputSamplePatch::setShortNbkBatchNumber);
         m.enteredValueProperty("actualMol", ReactionOutputSample::getActualMol, ReactionOutputSample::setActualMol, ReactionOutputSamplePatch::getActualMol, ReactionOutputSamplePatch::setActualMol);
         m.enteredValueProperty("actualWeight", ReactionOutputSample::getActualWeight, ReactionOutputSample::setActualWeight, ReactionOutputSamplePatch::getActualWeight, ReactionOutputSamplePatch::setActualWeight);
         m.enteredValueProperty("yield", ReactionOutputSample::getYield, ReactionOutputSample::setYield, ReactionOutputSamplePatch::getYield, ReactionOutputSamplePatch::setYield);

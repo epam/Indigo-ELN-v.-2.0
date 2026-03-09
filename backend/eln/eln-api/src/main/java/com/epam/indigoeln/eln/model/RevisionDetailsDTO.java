@@ -34,4 +34,7 @@ public class RevisionDetailsDTO<P> {
 
     @NotNull
     private P diff;
+
+    @NotNull
+    private String stringDiff;
 }

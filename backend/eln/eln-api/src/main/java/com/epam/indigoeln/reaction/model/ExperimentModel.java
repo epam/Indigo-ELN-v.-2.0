@@ -17,6 +17,7 @@ import java.util.List;
 public final class ExperimentModel implements ExperimentNode {
 
     public static final int SCHEMA_VERSION = 1;
+    public static final int DEFAULT_SIGNIFICANT_FIGURES = 5;
 
     @NotEmpty
     @JsonManagedReference
@@ -24,6 +25,9 @@ public final class ExperimentModel implements ExperimentNode {
 
     @NotNull
     private Integer schemaVersion;
+
+    @NotNull
+    private Integer significantFigures;
 
     public int generateNextNbkBatchNumber() {
         int[] last = {0};

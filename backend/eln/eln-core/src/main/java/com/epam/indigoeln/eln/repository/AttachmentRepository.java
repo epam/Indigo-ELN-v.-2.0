@@ -11,7 +11,7 @@ import java.util.function.Function;
 public class AttachmentRepository extends BaseRepository<AttachmentEntity> {
 
     public AttachmentRepository() {
-        super(EntityType.ATTACHMENT);
+        super(EntityType.ATTACHMENT, AttachmentEntity.class);
     }
 
     public AttachmentEntity load(UUID id) {
@@ -20,9 +20,5 @@ public class AttachmentRepository extends BaseRepository<AttachmentEntity> {
                 em.getEntityGraph("Attachment.download"),
                 Function.identity()
         );
-    }
-
-    public AttachmentEntity getReference(UUID id) {
-        return em.getReference(AttachmentEntity.class, id);
     }
 }

@@ -51,7 +51,7 @@ public class ACLService {
         if (isUserRolesAllow(operation)) {
             return;
         }
-        throw new AccessDeniedException(operation, userService.getCurrentUser().getUsername());
+        throw new AccessDeniedException(operation);
     }
 
     public void ensureAccess(ProjectEntity project, ApplicationPermission operation) {
@@ -60,7 +60,7 @@ public class ACLService {
         }
         AccessLevel currentAccess = project.getCalculatedInfo() != null ? project.getCalculatedInfo().getCurrentAccess() : NONE;
         if (!operation.isAllowedBy(currentAccess)) {
-            throw new AccessDeniedException(EntityType.PROJECT, project.getId(), operation, currentAccess, userService.getCurrentUser().getUsername());
+            throw new AccessDeniedException(EntityType.PROJECT, project.getId(), operation, currentAccess);
         }
     }
 
@@ -70,7 +70,7 @@ public class ACLService {
         }
         AccessLevel currentAccess = notebook.getCalculatedInfo() != null ? notebook.getCalculatedInfo().getCurrentAccess() : NONE;
         if (!operation.isAllowedBy(currentAccess)) {
-            throw new AccessDeniedException(EntityType.NOTEBOOK, notebook.getId(), operation, currentAccess, userService.getCurrentUser().getUsername());
+            throw new AccessDeniedException(EntityType.NOTEBOOK, notebook.getId(), operation, currentAccess);
         }
     }
 
@@ -80,7 +80,7 @@ public class ACLService {
         }
         AccessLevel currentAccess = experiment.getCalculatedInfo() != null ? experiment.getCalculatedInfo().getCurrentAccess() : NONE;
         if (!operation.isAllowedBy(currentAccess)) {
-            throw new AccessDeniedException(EntityType.EXPERIMENT, experiment.getId(), operation, currentAccess, userService.getCurrentUser().getUsername());
+            throw new AccessDeniedException(EntityType.EXPERIMENT, experiment.getId(), operation, currentAccess);
         }
     }
 
