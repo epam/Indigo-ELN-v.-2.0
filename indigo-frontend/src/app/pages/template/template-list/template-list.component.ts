@@ -111,4 +111,8 @@ export class TemplateListComponent
   onSortChange(event: SortChangeEvent) {
     this.sort(event.sortBy, event.sort);
   }
+  onMyEntitiesOnlyChange(value: boolean) {
+    this.filters['createdByMe'] = value;
+    this.reload();
+  }
 }
