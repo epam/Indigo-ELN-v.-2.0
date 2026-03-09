@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { toHTML } from 'ngx-editor';
 import { NOTEBOOK_NAME_LENGTH } from '../notebook.constants';
+import { of, switchMap, map, catchError } from 'rxjs';
 
 @Component({
   standalone: true,
@@ -41,13 +42,33 @@ export class NotebookAddComponent {
           Validators.required,
           Validators.minLength(NOTEBOOK_NAME_LENGTH),
           Validators.maxLength(NOTEBOOK_NAME_LENGTH),
+          Validators.pattern('^\\d+$'), // only digits
+        ],
+      },
+      asyncValidators: {
+        validation: [
+          (control: any) => {
+            const value: string = control.value;
+            return of(value).pipe(
+              switchMap((v: string) =>
+                this.service.request<{ exists: boolean }>(
+                  'get',
+                  `notebooks/existence?name=${encodeURIComponent(v)}`,
+                ),
+              ),
+              map((res) => (res?.exists ? { uniqueName: true } : null)),
+              catchError(() => of(null)),
+            );
+          },
         ],
       },
       validation: {
         messages: {
           minlength: `Notebook Name is invalid, use ${NOTEBOOK_NAME_LENGTH} digits only`,
           maxlength: `Notebook Name is invalid, use ${NOTEBOOK_NAME_LENGTH} digits only`,
-          required: 'Name is required',
+          pattern: `Notebook Name is invalid, use ${NOTEBOOK_NAME_LENGTH} digits only`,
+          required: 'Notebook Name is required',
+          uniqueName: 'Unique name is required',
         },
       },
     },
@@ -62,7 +83,10 @@ export class NotebookAddComponent {
   ];
 
   constructor(protected service: ApiService<Notebook>) {}
-
+  get uniqueNameToastMessage(): string {
+    const name = this.fields[0]?.formControl?.value ?? '';
+    return `Notebook with name '${name}' already exists`;
+  }
   createNotebook(data: Notebook) {
     this.service
       .create(`projects/${this.projectId}/notebooks`, {
