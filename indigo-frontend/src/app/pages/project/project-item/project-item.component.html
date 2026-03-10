@@ -10,7 +10,28 @@
         <em class="text-primary-400 text-xl indicon-briefcase"></em>
         {{ project.name }}
       </h3>
-      <div class="relative -right-1">
+      <div class="relative -right-1 flex items-center gap-2">
+        @if (variant === 'grid') {
+          <div class="flex items-center">
+            <div class="flex -space-x-2">
+              @for (member of project.acl.slice(0, 3); track member) {
+                <div
+                  class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white"
+                >
+                  {{ member.username ?? member.displayName | initials }}
+                </div>
+              }
+              @if (project.aclCount > 3) {
+                <span
+                  class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-primary-400 text-white text-[0.75rem]"
+                >
+              +{{ project.aclCount - 3 }}
+            </span>
+              }
+            </div>
+          </div>
+        }
+
         <button
           class="flex items-center hover:bg-neutral-200 rounded-full cursor-pointer"
           (click)="$event.stopPropagation()"
@@ -137,31 +158,6 @@
       </div>
     </div>
 
-    @if (variant === 'grid') {
-      <div
-        class="flex items-center mt-2 pt-3 border-t border-t-neutral-300 w-full"
-      >
-        <div class="flex -space-x-2">
-          @for (member of project.acl.slice(0, 3); track member) {
-            <div
-              class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white"
-            >
-              {{ member.username ?? member.displayName | initials }}
-            </div>
-          }
-          @if (project.aclCount > 3) {
-            <span
-              class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-primary-400 text-white text-[0.75rem]"
-            >
-              +{{ project.aclCount - 3 }}
-            </span>
-          }
-        </div>
 
-        <span class="ml-2 text-b2 text-neutral-1000"
-          >{{ project.aclCount }}</span
-        >
-      </div>
-    }
   </div>
 </eln-card>
