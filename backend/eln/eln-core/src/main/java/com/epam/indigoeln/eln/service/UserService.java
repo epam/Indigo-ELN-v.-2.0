@@ -92,6 +92,10 @@ public class UserService {
     }
 
     public UserDTO createUser(UserRequest request) {
+        UserInfo currentUser = getCurrentUser();
+        if (!currentUser.getPermissions().contains(ApplicationPermission.MANAGE_USERS)) {
+            throw new AccessDeniedException(ApplicationPermission.MANAGE_USERS);
+        }
         UserEntity entity = userMapper.requestToUser(request);
         Set<RoleEntity> roles = StreamEx.ofNullable(request.getRoles())
                 .flatMap(Collection::stream)
