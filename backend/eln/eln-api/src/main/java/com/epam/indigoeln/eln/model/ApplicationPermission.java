@@ -5,7 +5,6 @@ import org.jspecify.annotations.Nullable;
 public enum ApplicationPermission {
 
     // system
-    SYSTEM_OPERATIONS,
     MANAGE_USERS,
     MANAGE_ROLES,
     MANAGE_DICTIONARIES,
