@@ -1,6 +1,7 @@
 import { ChipGridFieldComponent } from '@/core/components/formly/fields/chip-grid-field.component';
 import { InputFieldComponent } from '@/core/components/formly/fields/input-field.component';
 import { ElnWrapperFormField } from '@/core/components/formly/wrappers/field-wrapper.component';
+import { DropdownFieldComponent } from '@/core/components/formly/fields/dropdown-field.component';
 
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import {
@@ -79,6 +80,11 @@ export const appConfig: ApplicationConfig = {
           {
             name: 'editor',
             component: EditorFormlyFieldComponent,
+            wrappers: ['raw'],
+          },
+          {
+            name: 'dropdown',
+            component: DropdownFieldComponent,
             wrappers: ['raw'],
           },
         ],

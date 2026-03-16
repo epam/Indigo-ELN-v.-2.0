@@ -4,7 +4,10 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinner, MatSpinner } from '@angular/material/progress-spinner';
+import {
+  MatProgressSpinner,
+  MatSpinner,
+} from '@angular/material/progress-spinner';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 
 @Component({
@@ -16,7 +19,7 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
     ReactiveFormsModule,
     CommonModule,
     FormDialogComponent,
-    MatProgressSpinner
+    MatProgressSpinner,
   ],
   templateUrl: './experiment-add.component.html',
 })
@@ -29,8 +32,8 @@ export class ExperimentAddComponent<T> implements OnInit {
 
   ngOnInit(): void {
     const nameField = {
-      type: 'select',
-        key: 'Select Template',
+      type: 'dropdown',
+      key: 'templateId',
       className: 'flex-1',
       props: {
         label: 'Select Template',
@@ -43,17 +46,14 @@ export class ExperimentAddComponent<T> implements OnInit {
   }
 
   private loadOptionsFromDictionary(fieldDef: any) {
-    this.service
-      .request<any>('get', `templates`)
-      .subscribe((list) => {
-        fieldDef.props.options = list.items.map((x) => ({
-          value: x.id,
-          label: x.name,
-        }));
-        console.log(this.fields);
-        this.show = true;
-        this.cdr.detectChanges();
-      });
+    this.service.request<any>('get', `templates`).subscribe((list) => {
+      fieldDef.props.options = list.items.map((x) => ({
+        value: x.id,
+        label: x.name,
+      }));
+      this.fields = [...this.fields];
+      this.show = true;
+    });
   }
 
   createExperiment(data: any) {}

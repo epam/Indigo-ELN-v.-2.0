@@ -1,4 +1,5 @@
-<eln-form-dialog *ngIf="show; else loading"
+<eln-form-dialog
+  *ngIf="show; else loading"
   [title]="'Add Experiment'"
   [fields]="fields"
   size="auto"
@@ -9,3 +10,4 @@
   <div class="flex items-center justify-center h-32">
     <mat-spinner></mat-spinner>
   </div>
+</ng-template>
