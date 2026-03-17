@@ -12,7 +12,6 @@ import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.ReactionOutput;
-import com.epam.indigoeln.reaction.model.ReactionOutputSample;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
@@ -28,6 +27,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import static com.epam.indigoeln.common.exception.InvalidRequestException.fail;
 import static com.epam.indigoeln.common.util.ModelUtil.editProperty;
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -192,10 +192,8 @@ class SetBatchCreatorHandler extends ExperimentMutationHandlerBase<ExperimentMut
     public MutationResult doHandle(ExperimentEntity entity, @Nullable ExperimentModel model, ExperimentMutation.SetBatchCreator mutation) {
         for (Reaction reaction : checkNotNull(model).getReactions()) {
             for (ReactionOutput row : reaction.getOutputs()) {
-                for (ReactionOutputSample sample : row.getSamples()) {
-                    if (sample.getRegistrationStatus() != null) {
-                        InvalidRequestException.fail("Cannot modify batch creator after at least one batch is submitted for registration");
-                    }
+                if (row.hasSamplesWithRegistrationStarted()) {
+                    fail("Cannot modify batch creator after at least one batch is submitted for registration");
                 }
             }
         }

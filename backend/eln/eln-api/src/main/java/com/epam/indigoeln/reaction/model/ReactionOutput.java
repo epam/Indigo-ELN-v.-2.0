@@ -54,4 +54,9 @@ public final class ReactionOutput extends ReactionRow implements ExperimentNode 
         row.intended = intended;
         return row;
     }
+
+    public boolean hasSamplesWithRegistrationStarted() {
+        return samples.stream()
+                .anyMatch(s -> s.getRegistrationStatus() != null);
+    }
 }
