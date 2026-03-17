@@ -1,5 +1,6 @@
 package com.epam.indigoeln.aws;
 
+import com.epam.indigoeln.aws.util.Utils;
 import lombok.Getter;
 import lombok.Value;
 import software.amazon.awscdk.Duration;
@@ -26,7 +27,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
-import static com.epam.indigoeln.aws.Utils.mapOf;
+import static com.epam.indigoeln.aws.util.Utils.mapOf;
 
 public class ELNLambdaStack extends NestedStack {
 
