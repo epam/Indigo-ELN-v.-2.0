@@ -10,41 +10,41 @@ import { NotebookEditComponent } from '@pages/notebook/notebook-edit/notebook-ed
 import { MatDialog } from '@angular/material/dialog';
 
 @Component({
-    selector: 'eln-notebook-info',
-    standalone: true,
-    imports: [CommonModule, ButtonComponent, CardComponent, TeamComponent],
-    templateUrl: './notebook-info.component.html',
+  selector: 'eln-notebook-info',
+  standalone: true,
+  imports: [CommonModule, ButtonComponent, CardComponent, TeamComponent],
+  templateUrl: './notebook-info.component.html',
 })
 export class NotebookInfoComponent {
-    private store = inject(NotebookService);
-    private dialog = inject(MatDialog);
+  private store = inject(NotebookService);
+  private dialog = inject(MatDialog);
 
-    openEditDialog() {
-        if (!this.notebook) return;
+  openEditDialog() {
+    if (!this.notebook) return;
 
-        const dialogRef = this.dialog.open(NotebookEditComponent, {
-            data: { notebook: this.notebook },
-            disableClose: true,
-        });
+    const dialogRef = this.dialog.open(NotebookEditComponent, {
+      data: { notebook: this.notebook },
+      disableClose: true,
+    });
 
-        dialogRef.afterClosed().subscribe(result => {
-            if (result === 'refresh') this.store.refresh();
-        });
-    }
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result === 'refresh') this.store.refresh();
+    });
+  }
 
-    notebookTeamConfig: TeamComponentConfig = {
-      buildAccessEndpoint: (id: string) => `notebooks/${id}/access`,
-    };
+  notebookTeamConfig: TeamComponentConfig = {
+    buildAccessEndpoint: (id: string) => `notebooks/${id}/access`,
+  };
 
-    get notebook(): NotebookDetail | null {
-        return this.store.notebook();
-    }
+  get notebook(): NotebookDetail | null {
+    return this.store.notebook();
+  }
 
-    get isLoading(): boolean {
-        return this.store.isLoading();
-    }
+  get isLoading(): boolean {
+    return this.store.isLoading();
+  }
 
-    get hasError(): boolean {
-        return this.store.hasError();
-    }
+  get hasError(): boolean {
+    return this.store.hasError();
+  }
 }

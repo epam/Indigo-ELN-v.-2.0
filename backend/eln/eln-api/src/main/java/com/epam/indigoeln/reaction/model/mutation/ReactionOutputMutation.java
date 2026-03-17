@@ -42,7 +42,7 @@ public interface ReactionOutputMutation extends Mutation {
 
     record SetOutputRowEQ(
             @NotNull OutputAnchor anchor,
-            @Nullable Double eq,
+            @Nullable String eq,
             @Nullable EnteredValueSource source
     ) implements ReactionOutputMutation {
     }
@@ -50,6 +50,12 @@ public interface ReactionOutputMutation extends Mutation {
     record SetOutputRowName(
             @NotNull OutputAnchor anchor,
             @NotNull String name
+    ) implements ReactionOutputMutation {
+    }
+
+    record SetOutputRowChemicalName(
+            @NotNull OutputAnchor anchor,
+            @Nullable String chemicalName
     ) implements ReactionOutputMutation {
     }
 
@@ -61,7 +67,7 @@ public interface ReactionOutputMutation extends Mutation {
 
     record SetOutputCompoundMolWeight(
             @NotNull OutputAnchor anchor,
-            @Nullable Double molWeight,
+            @Nullable String molWeight,
             @Nullable EnteredValueSource source
     ) implements ReactionOutputMutation {
     }

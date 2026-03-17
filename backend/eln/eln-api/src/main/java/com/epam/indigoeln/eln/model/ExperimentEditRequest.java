@@ -1,17 +1,18 @@
 package com.epam.indigoeln.eln.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import jakarta.validation.constraints.AssertTrue;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.With;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
+import java.util.Set;
 
 @Data
+@With
 @NoArgsConstructor(onConstructor_ = {@JsonCreator})
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -19,15 +20,26 @@ import java.util.Optional;
 public class ExperimentEditRequest {
 
     @Nullable
+    Optional<String> title;
+
+    @Nullable
     Optional<DictionaryItemRef> therapeuticArea;
 
     @Nullable
     Optional<DictionaryItemRef> projectCode;
 
-    @AssertTrue(message = "Nothing to update")
-    @JsonIgnore
-    public boolean isNotEmpty() {
-        //noinspection OptionalAssignedToNull
-        return (therapeuticArea != null) || (projectCode != null);
-    }
+    @Nullable
+    Optional<String> description;
+
+    @Nullable
+    Optional<String> literature;
+
+    @Nullable
+    Optional<Set<ExperimentRef>> linkedExperiments;
+
+    @Nullable
+    Optional<Set<ExperimentRef>> continuedFrom;
+
+    @Nullable
+    Optional<Set<ExperimentRef>> continuedTo;
 }

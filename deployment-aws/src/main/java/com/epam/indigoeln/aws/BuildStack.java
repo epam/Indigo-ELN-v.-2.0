@@ -26,12 +26,18 @@ public class BuildStack extends NestedStack {
     @Getter
     Repository elnLambdaRepo;
     @Getter
+    Repository reportsLambdaRepo;
+    @Getter
+    Repository signatureLambdaRepo;
+    @Getter
     Repository postgresRepo;
 
     public BuildStack(final Construct scope, final String id, final Props props) {
         super(scope, id, props);
 
         elnLambdaRepo = createECRRepo("ecr-indigo-eln", "indigoeln/indigo-eln-lambda");
+        reportsLambdaRepo = createECRRepo("ecr-indigo-eln-reports", "indigoeln/indigo-eln-reports-lambda");
+        signatureLambdaRepo = createECRRepo("ecr-indigo-eln-signature", "indigoeln/indigo-eln-signature-lambda");
         postgresRepo = createECRRepo("ecr-indigo-eln-postgres", "indigoeln/indigo-eln-postgres");
 
         Bucket buildLogsBucket = Bucket.Builder.create(this, "build-logs-bucket")
@@ -56,7 +62,6 @@ public class BuildStack extends NestedStack {
 
         Project postgresBuild = createBuild("eln-postgres-build"
                 , "indigo-eln-postgres-build"
-                , postgresRepo
                 , "deployment-aws/codebuild/eln-build-postgres.yaml"
                 , buildLogsBucket
                 , ecrPublicPermissions
@@ -70,26 +75,34 @@ public class BuildStack extends NestedStack {
 
         Project elnBuild = createBuild("eln-build"
                 , "indigo-eln-build"
-                , elnLambdaRepo
                 , "deployment-aws/codebuild/eln-build.yaml"
                 , buildLogsBucket
                 , ecrPublicPermissions
                 , Utils.mapOf(
-                        "REGISTRY_URI", elnLambdaRepo.getRegistryUri(),
+                        "BUILD_ELN_LAMBDA", "true",
+                        "BUILD_REPORTS_LAMBDA", "false",
+                        "BUILD_SIGNATURE_LAMBDA", "false",
+                        "ELN_REGISTRY_URI", elnLambdaRepo.getRegistryUri(),
                         "ELN_REPO_URI", elnLambdaRepo.getRepositoryUri(),
+                        "REPORTS_REGISTRY_URI", reportsLambdaRepo.getRegistryUri(),
+                        "REPORTS_REPO_URI", reportsLambdaRepo.getRepositoryUri(),
+                        "SIGNATURE_REGISTRY_URI", signatureLambdaRepo.getRegistryUri(),
+                        "SIGNATURE_REPO_URI", signatureLambdaRepo.getRepositoryUri(),
                         "S3_LOGS", buildLogsBucket.getBucketName()
                 )
         );
         elnLambdaRepo.grantPullPush(elnBuild);
+        reportsLambdaRepo.grantPullPush(elnBuild);
+        signatureLambdaRepo.grantPullPush(elnBuild);
     }
 
-    private Project createBuild(String id, String projectName, Repository repository, String buildSpecFile, Bucket buildLogsBucket, PolicyStatement policy, Map<String, String> environment) {
+    private Project createBuild(String id, String projectName, String buildSpecFile, Bucket buildLogsBucket, PolicyStatement policy, Map<String, String> environment) {
         Project project = Project.Builder.create(this, id)
                 .projectName(projectName)
                 .source(Source.gitHub(GitHubSourceProps.builder()
                         .owner("epam")
                         .repo("Indigo-ELN-v.-2.0")
-                        .branchOrRef("backend-v3")
+                        .branchOrRef("3.0")
                         .webhook(false)
                         .build()))
                 .environment(BuildEnvironment.builder()

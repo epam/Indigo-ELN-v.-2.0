@@ -234,7 +234,7 @@ class NotebookRedoHandler extends AbstractNotebookMutationHandler<NotebookMutati
 
     @Override
     public MutationResult doHandle(NotebookEntity notebook, @Nullable Void model, NotebookMutation.NotebookRedo mutation) {
-        // !!! verify revision was undone
+        // !!! verify revision was previously undone
         initialHandler.doHandle(notebook, model, initialMutation);
         return new MutationResult("Redo: " + initialRevision.getSummary(), null);
     }

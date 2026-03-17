@@ -43,14 +43,15 @@ export class ApiService<T> {
     return this.httpClient.patch<T>(this.buildUrl(url), body);
   }
 
-  public getDictionary<T = { id: string; name: string }[]>(dictionary: string): Observable<T> {
+  public getDictionary<T = { id: string; name: string }[]>(
+    dictionary: string,
+  ): Observable<T> {
     return this.httpClient.get<T>(this.buildUrl(dictionary));
   }
 
-  public delete(url: string, id: string ): Observable<T> {
+  public delete(url: string, id: string): Observable<T> {
     return this.httpClient.delete<T>(this.buildUrl(`${url}/${id}`));
   }
-
 
   private buildUrl = (str?: string) =>
     `/api/eln/${str || ''}`.replace(/\/\//g, '/').replace(/\/+$/, '');

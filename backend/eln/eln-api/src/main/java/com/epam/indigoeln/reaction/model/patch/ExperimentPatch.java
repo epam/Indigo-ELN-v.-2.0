@@ -1,9 +1,6 @@
 package com.epam.indigoeln.reaction.model.patch;
 
-import com.epam.indigoeln.eln.model.ACLDetailsEntryDTO;
-import com.epam.indigoeln.eln.model.AttachmentDTO;
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
-import com.epam.indigoeln.eln.model.ExperimentStatus;
+import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.patch.handler2.Patched;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -19,6 +16,9 @@ import java.util.UUID;
 public class ExperimentPatch {
 
     @Nullable
+    private Patched<String, String> title;
+
+    @Nullable
     private Patched<ExperimentStatus, ExperimentStatus> status;
 
     @Nullable
@@ -29,6 +29,21 @@ public class ExperimentPatch {
 
     @Nullable
     private Patched<String, String> description;
+
+    @Nullable
+    private Patched<String, String> literature;
+
+    @Nullable
+    private Patched<UserRef, UserRef> batchCreator;
+
+    @Nullable
+    private Patched<Set<ExperimentRef>, Map<UUID, Patched<ExperimentRef, ExperimentRef>>> linkedExperiments;
+
+    @Nullable
+    private Patched<Set<ExperimentRef>, Map<UUID, Patched<ExperimentRef, ExperimentRef>>> continuedFrom;
+
+    @Nullable
+    private Patched<Set<ExperimentRef>, Map<UUID, Patched<ExperimentRef, ExperimentRef>>> continuedTo;
 
     @Nullable
     private Patched<Boolean, Boolean> deleted;

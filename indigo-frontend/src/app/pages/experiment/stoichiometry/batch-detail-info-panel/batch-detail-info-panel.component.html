@@ -1,17 +1,24 @@
 <div class="info-panel-container">
   <div class="info-section">
-    <h4 class="text-sm font-semibold mb-4">Notebook Batch #: {{ sample().nbkBatchNumber || '—' }}</h4>
-    
+    <h4 class="text-sm font-semibold mb-4">
+      Notebook Batch #: {{ sample().nbkBatchNumber || '—' }}
+    </h4>
+
     <!-- Grid layout for fields -->
     <div class="fields-grid">
       <div class="field-group">
         <label class="field-label">Calculated Batch MW</label>
-        <div class="field-value read-only">{{ output().compound?.molWeight?.value || '—' }} {{ output().compound?.molWeight?.unit || '' }}</div>
+        <div class="field-value read-only">
+          {{ output().compound?.molWeight?.value || '—' }}
+          {{ output().compound?.molWeight?.unit || '' }}
+        </div>
       </div>
 
       <div class="field-group">
         <label class="field-label">Calculated Batch MF</label>
-        <div class="field-value read-only">{{ output().compound?.calculatedBatchMF || '—' }}</div>
+        <div class="field-value read-only">
+          {{ output().compound?.calculatedBatchMF || '—' }}
+        </div>
       </div>
 
       <div class="field-group">
@@ -56,13 +63,19 @@
 
       <div class="field-group">
         <label class="field-label">Precursor/Reactant IDs</label>
-        <div class="field-value read-only">{{ formatPrecursorReactantIds() }}</div>
+        <div class="field-value read-only">
+          {{ formatPrecursorReactantIds() }}
+        </div>
       </div>
 
       <div class="field-group">
         <label class="field-label">Salt Equivalent</label>
         <eln-entered-value
-          [value]="output().compound?.saltEQ ? { value: output().compound.saltEQ, unit: null, source: 0 } : null"
+          [value]="
+            output().compound?.saltEQ
+              ? { value: output().compound.saltEQ, unit: null, source: 0 }
+              : null
+          "
           [showUnits]="false"
           [readOnly]="true"
         />
@@ -105,105 +118,110 @@
 
   <!-- Additional Information Accordion -->
   <cdk-accordion class="mt-4">
-    <cdk-accordion-item #accordionItem="cdkAccordionItem" [expanded]="additionalInfoExpanded">
+    <cdk-accordion-item
+      #accordionItem="cdkAccordionItem"
+      [expanded]="additionalInfoExpanded"
+    >
       <div class="accordion-header" (click)="accordionItem.toggle()">
         <span class="accordion-icon">
-          <mat-icon [class.rotated]="accordionItem.expanded">chevron_right</mat-icon>
+          <mat-icon [class.rotated]="accordionItem.expanded"
+            >chevron_right</mat-icon
+          >
         </span>
         <h4 class="text-sm font-semibold">Additional Information</h4>
       </div>
 
       @if (accordionItem.expanded) {
-      <div class="accordion-content">
-        <div class="fields-grid">
-          <div class="field-group">
-            <label class="field-label">Compound State</label>
-            <eln-dictionary-select
-              [formControl]="form.controls.componentState"
-              [dictionaryId]="BuiltInDictionary.COMPONENT_STATE"
-            />
-          </div>
-
-          <div class="field-group">
-            <label class="field-label">Virtual Compound ID</label>
-            <div class="field-value read-only">
-              {{ output().compound?.strCode || '—' }}
+        <div class="accordion-content">
+          <div class="fields-grid">
+            <div class="field-group">
+              <label class="field-label">Compound State</label>
+              <eln-dictionary-select
+                [formControl]="form.controls.componentState"
+                [dictionaryId]="BuiltInDictionary.COMPONENT_STATE"
+              />
             </div>
-          </div>
 
-          <div class="field-group">
-            <label class="field-label">Compound Protection</label>
-            <eln-dictionary-select
-              [formControl]="form.controls.compoundProtection"
-              [dictionaryId]="BuiltInDictionary.COMPOUND_PROTECTION"
-              [multiple]="true"
-            />
-          </div>
-
-          <div class="field-group">
-            <label class="field-label">Melting Point</label>
-            <div class="field-value read-only">
-              <eln-chip-list [items]="getMeltingPointChips()" />
+            <div class="field-group">
+              <label class="field-label">Virtual Compound ID</label>
+              <div class="field-value read-only">
+                {{ output().compound?.strCode || '—' }}
+              </div>
             </div>
-          </div>
 
-          <div class="field-group">
-            <label class="field-label">Residual Solvents</label>
-            <div class="field-value read-only">
-              <!-- TODO: Implement chips with popup editor when ready -->
-              {{ formatResidualSolvents(sample().residualSolvents) }}
+            <div class="field-group">
+              <label class="field-label">Compound Protection</label>
+              <eln-dictionary-select
+                [formControl]="form.controls.compoundProtection"
+                [dictionaryId]="BuiltInDictionary.COMPOUND_PROTECTION"
+                [multiple]="true"
+              />
             </div>
-          </div>
 
-          <div class="field-group">
-            <label class="field-label">Storage Instructions</label>
-            <eln-dictionary-select
-              [formControl]="form.controls.storageInstructions"
-              [dictionaryId]="BuiltInDictionary.STORAGE_INSTRUCTIONS"
-              [multiple]="true"
-            />
-          </div>
-
-          <div class="field-group">
-            <label class="field-label">Health Hazards</label>
-            <eln-dictionary-select
-              [formControl]="form.controls.healthHazards"
-              [dictionaryId]="BuiltInDictionary.HEALTH_HAZARD"
-              [multiple]="true"
-            />
-          </div>
-
-          <div class="field-group">
-            <label class="field-label">Solubility in Solvents</label>
-            <div class="field-value read-only">
-              <eln-chip-list [items]="getSolubilityChips()" />
+            <div class="field-group">
+              <label class="field-label">Melting Point</label>
+              <div class="field-value read-only">
+                <eln-chip-list [items]="getMeltingPointChips()" />
+              </div>
             </div>
-          </div>
 
-          <div class="field-group">
-            <label class="field-label">Handling Precautions</label>
-            <eln-dictionary-select
-              [formControl]="form.controls.handlingPrecautions"
-              [dictionaryId]="BuiltInDictionary.HANDLING_PRECAUTIONS"
-              [multiple]="true"
-            />
-          </div>
-
-          <div class="field-group">
-            <label class="field-label">External Supplier</label>
-            <div class="field-value read-only">
-              {{ formatExternalSupplier(sample().externalSupplier) }}
+            <div class="field-group">
+              <label class="field-label">Residual Solvents</label>
+              <div class="field-value read-only">
+                <!-- TODO: Implement chips with popup editor when ready -->
+                {{ formatResidualSolvents(sample().residualSolvents) }}
+              </div>
             </div>
-          </div>
 
-          <div class="field-group">
-            <label class="field-label">Purity</label>
-            <div class="field-value read-only">
-              {{ formatPurityValue(sample().purity) }}
+            <div class="field-group">
+              <label class="field-label">Storage Instructions</label>
+              <eln-dictionary-select
+                [formControl]="form.controls.storageInstructions"
+                [dictionaryId]="BuiltInDictionary.STORAGE_INSTRUCTIONS"
+                [multiple]="true"
+              />
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Health Hazards</label>
+              <eln-dictionary-select
+                [formControl]="form.controls.healthHazards"
+                [dictionaryId]="BuiltInDictionary.HEALTH_HAZARD"
+                [multiple]="true"
+              />
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Solubility in Solvents</label>
+              <div class="field-value read-only">
+                <eln-chip-list [items]="getSolubilityChips()" />
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Handling Precautions</label>
+              <eln-dictionary-select
+                [formControl]="form.controls.handlingPrecautions"
+                [dictionaryId]="BuiltInDictionary.HANDLING_PRECAUTIONS"
+                [multiple]="true"
+              />
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">External Supplier</label>
+              <div class="field-value read-only">
+                {{ formatExternalSupplier(sample().externalSupplier) }}
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Purity</label>
+              <div class="field-value read-only">
+                {{ formatPurityValue(sample().purity) }}
+              </div>
             </div>
           </div>
         </div>
-      </div>
       }
     </cdk-accordion-item>
   </cdk-accordion>

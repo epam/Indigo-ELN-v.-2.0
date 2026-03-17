@@ -26,7 +26,7 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
     ACLService aclService;
 
     public NotebookRepository() {
-        super(EntityType.NOTEBOOK);
+        super(EntityType.NOTEBOOK, NotebookEntity.class);
     }
 
     public Page<NotebookDTO> findAll(UUID projectId, @Nullable String search, @QueryParam("sort") @Nullable SortOrder sort, @Nullable UserEntity createdByUser, Paging paging, boolean showAll) {
@@ -68,6 +68,10 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
 
     public boolean hasAccessibleNotebooks(ProjectEntity project) {
         return find("project", project).firstResult() != null;
+    }
+
+    public boolean existsByName(String name) {
+        return count("name", name) > 0;
     }
 
     public List<NestedACLEntryDTO> findNestedAccess(UUID notebookId) {

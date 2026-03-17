@@ -12,7 +12,7 @@ import jakarta.enterprise.context.Dependent;
 
 import java.util.UUID;
 
-import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE;
+import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE_HUNDRED;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Dependent
@@ -31,7 +31,7 @@ class AddProductSampleHandler extends AbstractReactionOutputMutationHandler<Reac
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.AddProductSample mutation) {
         OutputSampleAnchor anchor = checkNotNull(mutation.createdSampleAnchor());
         ReactionOutputSample sample = ReactionOutputSample.create(row, experiment.getName(), anchor);
-        sample.setPurity(DEFAULT_ONE);
+        sample.setPurity(DEFAULT_ONE_HUNDRED);
         row.getSamples().add(sample);
         return new MutationResult("Add batch"
                 , new ReactionOutputSampleMutation.RemoveProductSample(anchor)
@@ -69,6 +69,20 @@ class SetOutputRowNameHandler extends AbstractReactionOutputMutationHandler<Reac
         row.setOutputName(mutation.name());
         return new MutationResult(formatSetterSummary("output name", mutation.name())
                 , new ReactionOutputMutation.SetOutputRowName(mutation.anchor(), oldName)
+        );
+    }
+}
+
+@Dependent
+@MutationHandlerFor(ReactionOutputMutation.SetOutputRowChemicalName.class)
+class SetOutputRowChemicalNameHandler extends AbstractReactionOutputMutationHandler<ReactionOutputMutation.SetOutputRowChemicalName> {
+
+    @Override
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputRowChemicalName mutation) {
+        String oldValue = row.getChemicalName();
+        row.setChemicalName(mutation.chemicalName());
+        return new MutationResult(formatSetterSummary("chemical name", mutation.chemicalName())
+                , new ReactionOutputMutation.SetOutputRowChemicalName(mutation.anchor(), oldValue)
         );
     }
 }

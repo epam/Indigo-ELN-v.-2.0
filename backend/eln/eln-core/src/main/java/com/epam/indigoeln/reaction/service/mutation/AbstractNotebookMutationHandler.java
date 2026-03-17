@@ -2,6 +2,7 @@ package com.epam.indigoeln.reaction.service.mutation;
 
 import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.eln.entity.NotebookEntity;
+import com.epam.indigoeln.eln.entity.NotebookRevisionEntity;
 import com.epam.indigoeln.eln.mapper.SnapshotMapper;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
@@ -19,7 +20,7 @@ import org.jspecify.annotations.Nullable;
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 import static com.epam.indigoeln.eln.util.ModelUtil.wrapConstraintViolation;
 
-public abstract class AbstractNotebookMutationHandler<T extends Mutation> extends AbstractMutationHandler<T, Void, NotebookEntity, NotebookSnapshot, NotebookPatch> implements NotebookMutationHandler<T> {
+public abstract class AbstractNotebookMutationHandler<T extends Mutation> extends AbstractMutationHandler<T, Void, NotebookEntity, NotebookSnapshot, NotebookPatch, NotebookRevisionEntity> implements NotebookMutationHandler<T> {
 
     @Inject
     protected SnapshotMapper snapshotMapper;
@@ -38,7 +39,7 @@ public abstract class AbstractNotebookMutationHandler<T extends Mutation> extend
     public Pair<NotebookSnapshot, NotebookPatch> applyMutation(NotebookEntity notebook, T mutation) {
         return wrapConstraintViolation(
                 () -> super.applyMutation(notebook, mutation),
-                e -> mapConstraintToError(e, notebook)
+                this::mapConstraintToError
         );
     }
 
@@ -53,13 +54,15 @@ public abstract class AbstractNotebookMutationHandler<T extends Mutation> extend
     }
 
     @Override
-    protected final void doUpdateEntity(NotebookEntity notebook, @Nullable Void model, NotebookSnapshot snapshotBefore, NotebookSnapshot snapshotAfter) {
+    protected final NotebookPatch doUpdateEntity(NotebookEntity notebook, @Nullable Void model, NotebookSnapshot snapshotBefore, NotebookSnapshot snapshotAfter) {
         updateDates(notebook, userService.getCurrentUserEntity());
         //noinspection ConstantValue
         if (notebook.getId() == null) {
             notebookRepository.persist(notebook);
             notebookRepository.flushAndRefresh(notebook);
         }
+        //noinspection DataFlowIssue
+        return NotebookDiffHandler.INSTANCE.compare(snapshotBefore, snapshotAfter).updatedValue();
     }
 
     @Override
@@ -68,20 +71,14 @@ public abstract class AbstractNotebookMutationHandler<T extends Mutation> extend
     }
 
     @Override
-    protected final NotebookPatch doCreatePatch(NotebookSnapshot snapshotBefore, NotebookSnapshot snapshotAfter) {
-        //noinspection DataFlowIssue
-        return NotebookDiffHandler.INSTANCE.compare(snapshotBefore, snapshotAfter).updatedValue();
-    }
-
-    @Override
-    protected final void doCreateRevision(NotebookEntity notebook, T mutation, MutationResult result, Integer revisionNo, NotebookPatch patch) {
-        revisionService.addRevision(notebook, revisionNo, notebook.getModifiedAt(), result.summary(), mutation, result.reverseMutation(), patch);
+    protected final NotebookRevisionEntity doCreateRevision(NotebookEntity notebook, T mutation, MutationResult result, Integer revisionNo, NotebookPatch patch) {
+        return revisionService.addRevision(notebook, revisionNo, notebook.getModifiedAt(), result.summary(), mutation, result.reverseMutation(), patch);
     }
 
     @Nullable
-    private String mapConstraintToError(ConstraintViolationException e, NotebookEntity notebook) {
+    private String mapConstraintToError(ConstraintViolationException e) {
         if ("notebook_name_uq".equals(e.getConstraintName())) {
-            return "Notebook with name '" + notebook.getName() + "' already exists";
+            return "Unique name is required";
         }
         return null;
     }

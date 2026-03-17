@@ -5,16 +5,20 @@ import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
 import com.epam.indigoeln.eln.model.SignatureStatus;
+import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.SignatureTemplateRepository;
 import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.ExperimentService;
 import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
+import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
+import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import com.epam.indigoeln.reaction.service.mutation.ExperimentMutationHandlerBase;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
@@ -154,6 +158,53 @@ class ResubmitExperimentHandler extends ExperimentMutationHandlerBase<Experiment
             signature.setStatus(null);
         }
         return new MutationResult("Experiment resubmitted for signature", null);
+    }
+}
+
+@Dependent
+@MutationHandlerFor(ExperimentMutation.MakeVersion.class)
+class MakeVersionHandler extends ExperimentMutationHandlerBase<ExperimentMutation.MakeVersion> {
+
+    @Inject
+    ExperimentRepository experimentRepository;
+
+    Integer version;
+    ExperimentSnapshot snapshot;
+
+    @Override
+    public boolean isAffectsAttachments() {
+        return true; // make sure snapshot contains all fields
+    }
+
+    @Override
+    public boolean isAffectsACL() {
+        return true; // make sure snapshot contains all fields
+    }
+
+    @Override
+    public boolean isAffectsModel() {
+        return true; // make sure snapshot contains all fields
+    }
+
+    @Override
+    public MutationResult doHandle(ExperimentEntity experiment, @Nullable ExperimentModel model, ExperimentMutation.MakeVersion mutation) {
+        int lastUsedVersion = MoreObjects.firstNonNull(experimentRepository.getLastUsedVersion(experiment), 0);
+        version = lastUsedVersion + 1;
+        return new MutationResult("Version " + version, null);
+    }
+
+    @Override
+    protected ExperimentSnapshot doSnapshotAfter(ExperimentEntity experiment, @Nullable ExperimentModel model) {
+        snapshot = super.doSnapshotAfter(experiment, model);
+        return snapshot;
+    }
+
+    @Override
+    protected ExperimentRevisionEntity doCreateRevision(ExperimentEntity experiment, ExperimentMutation.MakeVersion mutation, MutationResult result, Integer revisionNo, ExperimentPatch patch) {
+        ExperimentRevisionEntity revision = super.doCreateRevision(experiment, mutation, result, revisionNo, patch);
+        revision.setVersion(version);
+        revision.setSnapshot(snapshot);
+        return revision;
     }
 }
 

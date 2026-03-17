@@ -1,6 +1,5 @@
 package com.epam.indigoeln.eln.service;
 
-import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.StructuralSearch;
@@ -17,6 +16,7 @@ import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.eln.repository.TemplateRepository;
+import com.epam.indigoeln.eln.util.PatchUtil;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
@@ -25,7 +25,9 @@ import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import com.epam.indigoeln.reports.api.ReportsAPI;
 import com.epam.indigoeln.reports.api.ReportsClient;
-import com.google.common.base.Preconditions;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.MoreObjects;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -40,11 +42,14 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Slf4j
 @DataAccess
@@ -82,6 +87,8 @@ public class ExperimentService {
     SnapshotMapper snapshotMapper;
     @Inject
     IndigoAPI indigoAPI;
+    @Inject
+    ObjectMapper objectMapper;
 
     public ExperimentDetailsDTO createExperiment(UUID notebookId, ExperimentRequest request) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
@@ -142,7 +149,7 @@ public class ExperimentService {
 
     public ExperimentModel mutateModel(UUID experimentId, Mutation mutation) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
-        return Preconditions.checkNotNull(experimentModelService.applyMutation(experiment, mutation).a().getModel());
+        return checkNotNull(experimentModelService.applyMutation(experiment, mutation).a().getModel());
     }
 
     public ExperimentPatch mutateModel2(UUID experimentId, Integer revision, Mutation mutation) {
@@ -163,7 +170,7 @@ public class ExperimentService {
         Reaction reaction = experimentModelService.getModel(experiment).locate(reactionAnchor);
         CacheControl cacheControl = new CacheControl();
         if (version != null) {
-            InvalidRequestException.validate(reaction.getRxnVersion() >= version, "Picture version " + version + " doesn't exist for reaction " + reactionAnchor);
+            validate(reaction.getRxnVersion() >= version, "Picture version " + version + " doesn't exist for reaction " + reactionAnchor);
             cacheControl.setMaxAge(3_600 * 24 * 30);
         }
         return Response.ok(experiment.getPicture() != null ? experiment.getPicture() : EMPTY_PICTURE, "image/svg+xml")
@@ -220,10 +227,42 @@ public class ExperimentService {
         }
     }
 
-    public List<RevisionDetailsDTO<ExperimentPatch>> getExperimentRevisions(UUID experimentId) {
+    public List<RevisionDetailsDTO<ExperimentPatch>> getExperimentRevisions(UUID experimentId, @Nullable UUID editSessionId, @Nullable Boolean reverseOrder) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
-        return experimentMapper.revisionToDTOList(experiment.getRevisions());
+        return experimentMapper.revisionToDTOList(experimentRepository.getRevisions(experiment, editSessionId, MoreObjects.firstNonNull(reverseOrder, false)));
+    }
+
+    public List<ExperimentRevisionSummaryDTO> getExperimentRevisionsSummary(UUID experimentId) {
+        ExperimentEntity experiment = experimentRepository.get(experimentId);
+        aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
+        experimentRepository.closeInactiveEditSessions(experiment, Duration.ofHours(1));
+        return experimentRepository.getRevisionsSummary(experiment);
+    }
+
+    public ExperimentPatch compareVersions(UUID experimentId, @Nullable Integer versionFrom, @Nullable Integer versionTo) {
+        validate(!Objects.equals(versionFrom, versionTo), "Versions to compare must be different");
+        ExperimentEntity experiment = experimentRepository.get(experimentId);
+        aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
+        return experimentModelService.createPatch(getSnapshotToCompare(experiment, versionFrom), getSnapshotToCompare(experiment, versionTo));
+    }
+
+    public String compareVersionsHTML(UUID experimentId, @org.jspecify.annotations.Nullable Integer versionFrom, @org.jspecify.annotations.Nullable Integer versionTo) {
+        ExperimentPatch patch = compareVersions(experimentId, versionFrom, versionTo);
+        JsonNode json = objectMapper.valueToTree(patch);
+        return PatchUtil.formatJSONDiff(json);
+    }
+
+    private ExperimentSnapshot getSnapshotToCompare(ExperimentEntity experiment, @Nullable Integer version) {
+        if (version != null) {
+            return checkNotNull(experimentRepository.getVersion(experiment, version).getSnapshot());
+        }
+        ExperimentModel model = experimentModelService.getModel(experiment);
+        return snapshotMapper.createSnapshot(experiment, true, true, model);
+    }
+
+    public List<ExperimentRef> suggestExperiments(String search) {
+        return experimentRepository.suggest(search);
     }
 
     public record ExperimentReportContent (

@@ -2,16 +2,16 @@ import { FormDialogComponent } from '@/core/components/common/form-dialog/form-d
 import { ApiService } from '@/core/services/api.service';
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { toHTML } from 'ngx-editor';
-import { catchError, EMPTY, tap } from 'rxjs';
+import { tap, of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { Project } from '@core/types/entities/project.i';
 import { Router } from '@angular/router';
-import { NotificationService } from '@core/services/notification/notification.service';
-import { NotificationType } from '@/core/types/notification.i';
+import { PROJECT_NAME_MAX_LENGTH } from '../project.constants';
 
 @Component({
   standalone: true,
@@ -31,6 +31,7 @@ export class ProjectAddComponent implements OnInit {
   data = inject(MAT_DIALOG_DATA);
   title = 'Add Project';
   submitAction: (data: Project) => void = this.createProject.bind(this);
+
   fields: FormlyFieldConfig[] = [
     {
       type: 'input',
@@ -40,6 +41,40 @@ export class ProjectAddComponent implements OnInit {
         label: 'Project Name',
         placeholder: 'Project Name',
         required: true,
+      },
+      validators: {
+        validation: [
+          Validators.required,
+          Validators.maxLength(PROJECT_NAME_MAX_LENGTH),
+        ],
+      },
+      asyncValidators: {
+        validation: [
+          (control: any) => {
+            const value: string = control.value;
+            if (this.project && value === this.project.name) {
+              return of(null);
+            }
+            return of(value).pipe(
+              switchMap((v: string) =>
+                this.service.request<{ exists: boolean }>(
+                  'get',
+                  `projects/existence?name=${encodeURIComponent(v)}`,
+                ),
+              ),
+              map((res) => (res?.exists ? { uniqueName: true } : null)),
+              catchError(() => of(null)),
+            );
+          },
+        ],
+      },
+
+      validation: {
+        messages: {
+          required: 'Project Name is required',
+          maxlength: `Project Name is too long, use ${PROJECT_NAME_MAX_LENGTH} characters maximum`,
+          uniqueName: 'Unique name is required',
+        },
       },
     },
     {
@@ -72,7 +107,6 @@ export class ProjectAddComponent implements OnInit {
   ];
 
   private router = inject(Router);
-  private notificationService = inject(NotificationService);
 
   constructor(protected service: ApiService<any>) {}
 
@@ -88,7 +122,10 @@ export class ProjectAddComponent implements OnInit {
       });
     }
   }
-
+  get uniqueNameToastMessage(): string {
+    const name = this.fields[0]?.formControl?.value ?? '';
+    return `Project with name '${name}' already exists`;
+  }
   createProject(data: Project): void {
     this.service
       .create('projects', {
@@ -98,27 +135,10 @@ export class ProjectAddComponent implements OnInit {
             ? toHTML(data.description)
             : data.description,
       })
-      .pipe(
-        tap((newProject: Project) => {
-          this.dialogRef.close('refresh');
-          this.router.navigate(['/projects', newProject.id]);
-
-          this.notificationService.notify({
-            message: `Project '${data.name}' has been successfully created`,
-            type: NotificationType.Success,
-            isInline: false,
-          });
-        }),
-        catchError((createError) => {
-          this.notificationService.notify({
-            message: createError.message,
-            type: NotificationType.Error,
-            isInline: false,
-          });
-          return EMPTY;
-        }),
-      )
-      .subscribe();
+      .subscribe((newProject: Project) => {
+        this.dialogRef.close('refresh');
+        this.router.navigate(['/projects', newProject.id]);
+      });
   }
 
   updateProject(data: Project) {
@@ -133,21 +153,6 @@ export class ProjectAddComponent implements OnInit {
       .pipe(
         tap(() => {
           this.dialogRef.close('refresh');
-
-          this.notificationService.notify({
-            message: `Project details successfully updated.`,
-            type: NotificationType.Success,
-            isInline: false,
-          });
-        }),
-        catchError((updateError) => {
-          this.notificationService.notify({
-            message: updateError.message,
-            type: NotificationType.Error,
-            isInline: false,
-          });
-
-          return EMPTY;
         }),
       )
       .subscribe();

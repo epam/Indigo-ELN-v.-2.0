@@ -21,16 +21,14 @@
       <h3 class="text-lg font-bold text-gray-900">About dictionary</h3>
     </div>
 
-    <div class="space-y-6 mt-3 text-sm">
+    <div class="space-between mt-3 text-sm">
       <div>
         <h3 class="font-semibold text-neutral-800 mb-2">Dictionary name</h3>
         <p class="text-neutral-1000">{{ dictionary.name }}</p>
       </div>
 
       <div>
-        <h3 class="font-semibold text-neutral-800 mb-2">
-          Dictionary description
-        </h3>
+        <h3 class="font-semibold text-neutral-800 mb-2">Description</h3>
         <p class="text-neutral-1000">
           {{ dictionary.description || '\u2014' }}
         </p>
@@ -65,7 +63,7 @@
         (click)="addNewWordRowToTable()"
       >
         <em class="text-xl indicon-plus"></em>
-        <span class="whitespace-nowrap">Add word</span>
+        <span class="whitespace-nowrap">Add Word</span>
       </eln-button>
     </div>
 
@@ -79,7 +77,7 @@
         <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
         <mat-cell *matCellDef="let word; let i = index">
           @if (word.id) {
-            <span>{{ word.name }}</span>
+            <span style="color: var(--primary-400)">{{ word.name }}</span>
           } @else {
             <mat-form-field class="w-full">
               <input
@@ -102,17 +100,15 @@
 
       <ng-container matColumnDef="description">
         <mat-header-cell *matHeaderCellDef>Description</mat-header-cell>
-        <mat-cell
-          *matCellDef="let element"
-          style="color: var(--color-primary-400)"
-          >{{ element.description || '\u2014' }}</mat-cell
-        >
+        <mat-cell *matCellDef="let element" style="color: var(--primary-400)">{{
+          element.description || '\u2014'
+        }}</mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="active">
         <mat-header-cell *matHeaderCellDef>Active</mat-header-cell>
-        <mat-cell *matCellDef="let element">
-          <mat-checkbox [checked]="element.active" disabled></mat-checkbox>
+        <mat-cell *matCellDef="let element" class="mat-checkbox-no-ripple">
+          <mat-checkbox [checked]="element.active"></mat-checkbox>
         </mat-cell>
       </ng-container>
 
@@ -124,10 +120,14 @@
       </ng-container>
 
       <ng-container matColumnDef="delete">
-        <mat-header-cell *matHeaderCellDef>Delete</mat-header-cell>
+        <mat-header-cell *matHeaderCellDef></mat-header-cell>
         <mat-cell *matCellDef="let element; let i = index">
-          <button mat-icon-button (click)="deleteItemFromTable(element.id, i)">
-            <mat-icon>delete</mat-icon>
+          <button
+            mat-icon-button
+            class="delete-icon-btn"
+            (click)="deleteItemFromTable(element.id, i)"
+          >
+            <em class="indicon-delete text-[20px] text-red-200"></em>
           </button>
         </mat-cell>
       </ng-container>

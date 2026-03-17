@@ -16,6 +16,9 @@ import java.util.UUID;
 public class ExperimentDetailsDTO extends BaseExperimentDTO {
 
     @Nullable
+    String title;
+
+    @Nullable
     DictionaryItemRef therapeuticArea;
 
     @Nullable
@@ -24,8 +27,23 @@ public class ExperimentDetailsDTO extends BaseExperimentDTO {
     @Nullable
     String description;
 
+    @Nullable
+    String literature;
+
     @NotNull
     UUID templateId;
+
+    @NotNull
+    UserRef batchCreator;
+
+    @NotNull
+    List<ExperimentRef> linkedExperiments;
+
+    @NotNull
+    List<ExperimentRef> continuedFrom;
+
+    @NotNull
+    List<ExperimentRef> continuedTo;
 
     @NotNull
     List<AttachmentDTO> attachments;

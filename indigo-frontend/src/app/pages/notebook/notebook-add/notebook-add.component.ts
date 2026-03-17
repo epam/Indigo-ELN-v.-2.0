@@ -6,11 +6,10 @@ import { Component, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { toHTML } from 'ngx-editor';
-import { catchError, of, tap } from 'rxjs';
 import { NOTEBOOK_NAME_LENGTH } from '../notebook.constants';
+import { of, switchMap, map, catchError } from 'rxjs';
 
 @Component({
   standalone: true,
@@ -27,7 +26,6 @@ import { NOTEBOOK_NAME_LENGTH } from '../notebook.constants';
 export class NotebookAddComponent {
   projectId: string;
   dialogRef = inject(MatDialogRef);
-  private snackBar = inject(MatSnackBar);
   fields: FormlyFieldConfig[] = [
     {
       type: 'input',
@@ -44,13 +42,33 @@ export class NotebookAddComponent {
           Validators.required,
           Validators.minLength(NOTEBOOK_NAME_LENGTH),
           Validators.maxLength(NOTEBOOK_NAME_LENGTH),
+          Validators.pattern('^\\d+$'), // only digits
+        ],
+      },
+      asyncValidators: {
+        validation: [
+          (control: any) => {
+            const value: string = control.value;
+            return of(value).pipe(
+              switchMap((v: string) =>
+                this.service.request<{ exists: boolean }>(
+                  'get',
+                  `notebooks/existence?name=${encodeURIComponent(v)}`,
+                ),
+              ),
+              map((res) => (res?.exists ? { uniqueName: true } : null)),
+              catchError(() => of(null)),
+            );
+          },
         ],
       },
       validation: {
         messages: {
           minlength: `Notebook Name is invalid, use ${NOTEBOOK_NAME_LENGTH} digits only`,
           maxlength: `Notebook Name is invalid, use ${NOTEBOOK_NAME_LENGTH} digits only`,
-          required: 'Name is required',
+          pattern: `Notebook Name is invalid, use ${NOTEBOOK_NAME_LENGTH} digits only`,
+          required: 'Notebook Name is required',
+          uniqueName: 'Unique name is required',
         },
       },
     },
@@ -65,7 +83,10 @@ export class NotebookAddComponent {
   ];
 
   constructor(protected service: ApiService<Notebook>) {}
-
+  get uniqueNameToastMessage(): string {
+    const name = this.fields[0]?.formControl?.value ?? '';
+    return `Notebook with name '${name}' already exists`;
+  }
   createNotebook(data: Notebook) {
     this.service
       .create(`projects/${this.projectId}/notebooks`, {
@@ -75,18 +96,8 @@ export class NotebookAddComponent {
             ? toHTML(data.description)
             : data.description,
       })
-      .pipe(
-        tap(() => {
-          this.dialogRef.close('refresh');
-        }),
-        catchError((createError) => {
-          const errorMsg =
-            createError.error[0]?.message ||
-            'There was an error creating the notebook, please try again later.';
-          this.snackBar.open(errorMsg, 'Close', { duration: 5000 });
-          return of(null);
-        }),
-      )
-      .subscribe();
+      .subscribe(() => {
+        this.dialogRef.close('refresh');
+      });
   }
 }

@@ -1,6 +1,7 @@
 package com.epam.indigoeln.eln.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Value;
 
@@ -27,6 +28,11 @@ public class NbkBatchNumber {
     @JsonValue
     String getStringForm() {
         return toString();
+    }
+
+    @JsonIgnore
+    public String getShortForm() {
+        return "%03d".formatted(ordinal);
     }
 
     @Override

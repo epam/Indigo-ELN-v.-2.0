@@ -138,5 +138,22 @@ public interface ExperimentAPI extends BaseAPI {
 
     @GET
     @Path("/experiments/{experimentId}/revisions")
-    List<RevisionDetailsDTO<ExperimentPatch>> getExperimentRevisions(@PathParam("experimentId") UUID experimentId);
+    List<RevisionDetailsDTO<ExperimentPatch>> getExperimentRevisions(@PathParam("experimentId") UUID experimentId, @Nullable @QueryParam("editSessionId") UUID editSessionId, @Nullable @QueryParam("reverseOrder") Boolean reverseOrder);
+
+    @GET
+    @Path("/experiments/{experimentId}/revisions/summary")
+    List<ExperimentRevisionSummaryDTO> getExperimentRevisionsSummary(@PathParam("experimentId") UUID experimentId);
+
+    @GET
+    @Path("/experiments/{experimentId}/versions/compare")
+    ExperimentPatch compareVersions(@PathParam("experimentId") UUID experimentId, @Nullable @QueryParam("from") Integer versionFrom, @Nullable @QueryParam("to") Integer versionTo);
+
+    @GET
+    @Produces(MediaType.TEXT_HTML)
+    @Path("/experiments/{experimentId}/versions/compare")
+    String compareVersionsHTML(@PathParam("experimentId") UUID experimentId, @Nullable @QueryParam("from") Integer versionFrom, @Nullable @QueryParam("to") Integer versionTo);
+
+    @GET
+    @Path("/experiments/suggest")
+    List<ExperimentRef> suggestExperiments(@QueryParam("search") String search);
 }

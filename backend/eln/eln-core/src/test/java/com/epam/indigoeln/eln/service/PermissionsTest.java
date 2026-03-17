@@ -314,7 +314,7 @@ class PermissionsTest extends ELNBaseTest {
     @Test
     void testEditExperiment() {
         iterateRows(row -> {
-            assertThatClientCall(() -> experimentClient.editExperiment(row.experimentId, new ExperimentEditRequest(Optional.of(therapeuticArea), null)))
+            assertThatClientCall(() -> experimentClient.editExperiment(row.experimentId, new ExperimentEditRequest().withTherapeuticArea(Optional.of(therapeuticArea))))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveExperiment.isSufficientFor(EDIT), "Operation not permitted");
         });

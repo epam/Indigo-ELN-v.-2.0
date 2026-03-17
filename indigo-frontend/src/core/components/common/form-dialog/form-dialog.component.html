@@ -4,7 +4,7 @@
   (keydown)="onKeydown($event)"
 >
   <div
-    class="modal-container bg-white rounded-lg shadow-lg overflow-hidden flex flex-col max-h-[90vh] max-w-full"
+    class="modal-container bg-white rounded-lg shadow-lg overflow-visible flex flex-col max-h-[90vh] max-w-full"
     [class]="
       [
         {
@@ -62,15 +62,19 @@
       <div class="modal-footer p-4 border-t border-neutral-200">
         <div class="flex justify-end space-x-2 mt-3">
           @if (!hideCancelButton) {
-            <eln-button [type]="'button'" [variant]="'grey'" mat-dialog-close class="mr-[12px]">{{
-              cancelButtonText
-            }}</eln-button>
+            <eln-button
+              [type]="'button'"
+              [variant]="'grey'"
+              mat-dialog-close
+              class="mr-[12px]"
+              >{{ cancelButtonText }}</eln-button
+            >
           }
           @if (!hideSubmitButton) {
             <eln-button
               [type]="'button'"
               [variant]="'blue'"
-              [disabled]="form.invalid || !submitEnabled"
+              [disabled]="!submitEnabled"
               (click)="submit()"
               >{{ submitButtonText }}</eln-button
             >

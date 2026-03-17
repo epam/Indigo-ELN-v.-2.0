@@ -27,6 +27,7 @@ public class TestSupportService {
         // experiments, notebooks, projects
         em.createNativeQuery("delete from Attachment").executeUpdate();
         em.createNativeQuery("delete from Experiment_Revision").executeUpdate();
+        em.createNativeQuery("delete from Experiment_Edit_Session").executeUpdate();
         em.createNativeQuery("delete from Experiment").executeUpdate();
         em.createNativeQuery("delete from Notebook_Revision").executeUpdate();
         em.createNativeQuery("delete from Notebook").executeUpdate();

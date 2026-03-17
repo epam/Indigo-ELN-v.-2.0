@@ -9,6 +9,7 @@ import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -99,6 +100,12 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
 
     @Nullable
     private String structureComment;
+
+    @NotNull
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    public String getShortNbkBatchNumber() {
+        return nbkBatchNumber.getShortForm();
+    }
 
     public static ReactionOutputSample create(ReactionOutput row, String experimentName, OutputSampleAnchor anchor) {
         ReactionOutputSample sample = new ReactionOutputSample();

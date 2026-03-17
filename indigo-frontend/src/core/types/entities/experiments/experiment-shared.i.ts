@@ -165,3 +165,8 @@ export interface ResidualSolvent {
   eq: number;
   comment?: string;
 }
+
+export interface ExperimentRef {
+  id: UUID;
+  name: string;
+}

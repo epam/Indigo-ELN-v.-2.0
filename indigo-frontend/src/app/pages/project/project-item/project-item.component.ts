@@ -18,7 +18,7 @@ import { InitialsPipe } from '@/core/pipes/avatars.pipe';
     MatMenuModule,
     RouterLink,
     InitialsPipe,
-  ],
+],
   templateUrl: './project-item.component.html',
   styleUrls: ['./project-item.component.scss'],
 })

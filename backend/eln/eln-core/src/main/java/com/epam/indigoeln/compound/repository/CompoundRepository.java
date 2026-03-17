@@ -11,7 +11,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.QueryHint;
 import org.hibernate.jpa.AvailableHints;
 import org.jspecify.annotations.Nullable;
 
@@ -27,7 +26,7 @@ public class CompoundRepository extends BaseRepository<CompoundEntity> {
     EntityManager em;
 
     public CompoundRepository() {
-        super(EntityType.COMPOUND);
+        super(EntityType.COMPOUND, CompoundEntity.class);
     }
 
     @Nullable
