@@ -7,7 +7,6 @@ import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
@@ -19,19 +18,13 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.UUID;
 
-import static com.google.common.base.Preconditions.checkState;
-
 @Getter
 @Setter
 @ToString(exclude = "row")
-@EqualsAndHashCode(callSuper = true, exclude = "row")
+@EqualsAndHashCode(exclude = "row", callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class ReactionOutputSample extends ReactionSample implements ExperimentNode {
-
-    @JsonBackReference
-    @Setter(AccessLevel.PACKAGE)
-    private ReactionOutput row;
+public final class ReactionOutputSample extends ReactionSample<ReactionOutput> {
 
     @NotNull
     private OutputSampleAnchor anchor;
@@ -119,17 +112,8 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
         return sample;
     }
 
-    public void move(ReactionOutput newRow, int position) {
-        checkState(row.getSamples().remove(this));
-        insert(newRow, position);
-    }
-
-    public void insert(ReactionOutput newRow, int position) {
-        setRow(newRow);
-        if (position == -1 || position == newRow.getSamples().size()) {
-            newRow.getSamples().add(this);
-        } else {
-            newRow.getSamples().add(position, this);
-        }
+    @Override
+    protected List<? extends AbstractExperimentNode<ReactionOutput>> internalGetSiblings(ReactionOutput parent) {
+        return parent.getSamples();
     }
 }

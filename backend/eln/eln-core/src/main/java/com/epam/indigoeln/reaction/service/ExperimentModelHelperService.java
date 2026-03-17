@@ -3,7 +3,6 @@ package com.epam.indigoeln.reaction.service;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
-import com.epam.indigoeln.eln.repository.DictionaryItemRepository;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.indigowrapper.IndigoReaction;
@@ -32,8 +31,6 @@ public class ExperimentModelHelperService {
     IndigoAPI indigo;
     @Inject
     IndigoRendererAPI indigoRenderer;
-    @Inject
-    DictionaryItemRepository dictionaryItemRepository;
 
     public void rebuildReactionPicture(ExperimentEntity experiment, Reaction reaction, IndigoReaction indigoReaction) {
         indigoRenderer.setRenderOptions("svg", 500, 200);

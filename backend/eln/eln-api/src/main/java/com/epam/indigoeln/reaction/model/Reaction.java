@@ -19,10 +19,10 @@ import java.util.Objects;
 
 @Data
 @ToString(exclude = "model")
-@EqualsAndHashCode(exclude = "model")
+@EqualsAndHashCode(exclude = "model", callSuper = false)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class Reaction implements ExperimentNode {
+public final class Reaction extends AbstractExperimentNode<ExperimentModel> {
 
     @JsonBackReference
     private ExperimentModel model;
@@ -110,5 +110,20 @@ public final class Reaction implements ExperimentNode {
                 .flatMap(r -> r.getSamples().stream())
                 .map(ReactionSample::getStrCode)
                 .collect(StreamUtil.toListNotNull());
+    }
+
+    @Override
+    protected ExperimentModel internalGetParent() {
+        return model;
+    }
+
+    @Override
+    protected void internalSetParent(ExperimentModel parent) {
+        model = parent;
+    }
+
+    @Override
+    protected List<? extends AbstractExperimentNode<ExperimentModel>> internalGetSiblings(ExperimentModel parent) {
+        return parent.getReactions();
     }
 }

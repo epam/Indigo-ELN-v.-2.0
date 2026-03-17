@@ -145,7 +145,6 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
         row.setEq(DEFAULT_ONE);
         ReactionInputSample reactionInputSample = ReactionInputSample.create(row, createdSampleAnchor);
         reactionInputSample.setPurity(DEFAULT_ONE_HUNDRED);
-        row.setSamples(List.of(reactionInputSample));
         return row;
     }
 

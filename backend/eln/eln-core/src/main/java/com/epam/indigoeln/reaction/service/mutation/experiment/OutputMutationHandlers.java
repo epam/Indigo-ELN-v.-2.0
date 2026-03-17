@@ -92,7 +92,7 @@ class UndoRemoveProductSampleHandler extends AbstractReactionOutputMutationHandl
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.UndoRemoveProductSample mutation) {
-        mutation.sample().insert(row, -1);
+        mutation.sample().insert(row);
         return new MutationResult("Undo remove batch", null);
     }
 }

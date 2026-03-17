@@ -87,6 +87,10 @@ public class CalculationReportBuilder implements AutoCloseable {
         pr.printf("<img class='%s' src='data:%s;base64,%s'/>", reportClass, contentType, Base64.getEncoder().encodeToString(content));
     }
 
+    public void addHeader(String reportClass, String header) {
+        pr.printf("<h1 id='section%s' class='%s'>%s</h1>\n", ++ordinal, reportClass, header);
+    }
+
     public void addFailedComparison(String reportClass, String summary, @Nullable String patch, String expected, String applied) {
         pr.printf("<h1 id='section%s' class='error %s'>%s</h1>\n", ++ordinal, reportClass, summary);
         Pair<List<String>, List<String>> result = prepareDiff(expected, applied);

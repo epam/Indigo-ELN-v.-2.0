@@ -4,24 +4,21 @@ import com.epam.indigoeln.eln.model.NbkBatchNumber;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
 import java.util.UUID;
 
 @Getter
 @Setter
 @ToString(exclude = "row")
-@EqualsAndHashCode(callSuper = true, exclude = "row")
+@EqualsAndHashCode(exclude = "row", callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class ReactionInputSample extends ReactionSample implements ExperimentNode {
-
-    @JsonBackReference
-    private ReactionInput row;
+public final class ReactionInputSample extends ReactionSample<ReactionInput> {
 
     @NotNull
     private InputSampleAnchor anchor;
@@ -45,6 +42,12 @@ public final class ReactionInputSample extends ReactionSample implements Experim
         ReactionInputSample sample = new ReactionInputSample();
         sample.row = row;
         sample.anchor = anchor;
+        row.getSamples().add(sample);
         return sample;
+    }
+
+    @Override
+    protected List<? extends AbstractExperimentNode<ReactionInput>> internalGetSiblings(ReactionInput parent) {
+        return parent.getSamples();
     }
 }

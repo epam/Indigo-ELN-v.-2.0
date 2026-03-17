@@ -1,9 +1,12 @@
 package com.epam.indigoeln.reaction.metamodel;
 
 import com.epam.indigoeln.eln.model.STRCodeSample;
-import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.metamodel.property.Metamodel;
-import com.epam.indigoeln.reaction.model.patch.*;
+import com.epam.indigoeln.reaction.model.Anchor;
+import com.epam.indigoeln.reaction.model.ReactionRow;
+import com.epam.indigoeln.reaction.model.ReactionSample;
+import com.epam.indigoeln.reaction.model.patch.AbstractReactionRowPatch;
+import com.epam.indigoeln.reaction.model.patch.AbstractReactionSamplePatch;
 import com.epam.indigoeln.reaction.model.patch.handler2.CompoundRefDiffHandler;
 import org.jspecify.annotations.Nullable;
 
@@ -26,7 +29,8 @@ class Metamodels {
         m.property("healthHazards", ReactionSample::getHealthHazards, ReactionSample::setHealthHazards, AbstractReactionSamplePatch::getHealthHazards, AbstractReactionSamplePatch::setHealthHazards);
     }
 
-    static <C extends ReactionRow, A extends Anchor, P extends AbstractReactionRowPatch<A>> void buildReactionRowMetamodel(Metamodel<C, P> m) {
+    static <C extends ReactionRow, P extends AbstractReactionRowPatch> void buildReactionRowMetamodel(Metamodel<C, P> m) {
+        m.property("rxnPosition", ReactionRow::getRxnPosition, ReactionRow::setRxnPosition, AbstractReactionRowPatch::getRxnPosition, AbstractReactionRowPatch::setRxnPosition);
         m.property("compound", ReactionRow::getCompound, ReactionRow::setCompound, AbstractReactionRowPatch::getCompound, AbstractReactionRowPatch::setCompound, CompoundRefDiffHandler.INSTANCE);
         m.enteredValueProperty("eq", ReactionRow::getEq, ReactionRow::setEq, AbstractReactionRowPatch::getEq, AbstractReactionRowPatch::setEq);
     }

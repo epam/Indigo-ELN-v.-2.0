@@ -87,8 +87,7 @@ public class MutationsTest extends MutationsTestBase {
 
     @Test
     void testLoadReaction() {
-        String rxnFile = new String(loadResource(getClass(), "/reaction.rxn"));
-        applyMutation(new ReactionMutation.SetScheme(reaction.getAnchor(), rxnFile));
+        loadScheme();
         assertThat(input1).isNotNull();
         assertThat(input1.getCompound()).isInstanceOf(CompoundRef.Virtual.class);
         assertThat(input1Sample1).isNotNull();
@@ -97,6 +96,26 @@ public class MutationsTest extends MutationsTestBase {
         assertThat(input2Sample1).isNotNull();
         assertThat(output1).isNotNull();
         assertThat(output1.getCompound()).isInstanceOf(CompoundRef.Virtual.class);
+    }
+
+    @Test
+    void testLoadReactionUpdated() {
+        // A + B + A => P + R
+        String rxnFile = new String(ModelUtil.loadResource(getClass(), "/reaction-with-duplicates.rxn"));
+        applyMutation(new ReactionMutation.SetScheme(reaction.getAnchor(), rxnFile), false);
+        InputAnchor a1 = input1.getAnchor();
+        InputAnchor b = input2.getAnchor();
+        InputAnchor a2 = input3.getAnchor();
+        OutputAnchor p = output1.getAnchor();
+        OutputAnchor r = output2.getAnchor();
+        // A + B + C + A + A => R + P
+        String updatedRxnFile = new String(ModelUtil.loadResource(getClass(), "/reaction-with-duplicates-updated.rxn"));
+        applyMutation(new ReactionMutation.SetScheme(reaction.getAnchor(), updatedRxnFile), false);
+        assertThat(input1.getAnchor()).isEqualTo(a1);
+        assertThat(input2.getAnchor()).isEqualTo(b);
+        assertThat(input4.getAnchor()).isEqualTo(a2);
+        assertThat(output1.getAnchor()).isEqualTo(r);
+        assertThat(output2.getAnchor()).isEqualTo(p);
     }
 
     @Test
@@ -580,7 +599,7 @@ public class MutationsTest extends MutationsTestBase {
 
     private void loadScheme() {
         String rxnFile = new String(ModelUtil.loadResource(getClass(), "/reaction.rxn"));
-        applyMutation(new ReactionMutation.SetScheme(reaction.getAnchor(), rxnFile));
+        applyMutation(new ReactionMutation.SetScheme(reaction.getAnchor(), rxnFile), false);
     }
 
     private ReactionMutation.ResolveInputs prepareResolveInputs() {

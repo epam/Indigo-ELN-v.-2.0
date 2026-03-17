@@ -16,10 +16,10 @@ import java.util.List;
 @Getter
 @Setter
 @ToString(exclude = "reaction")
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(exclude = "reaction", callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class ReactionInput extends ReactionRow implements ExperimentNode {
+public final class ReactionInput extends ReactionRow {
 
     @NotNull
     private InputAnchor anchor;
@@ -46,11 +46,17 @@ public final class ReactionInput extends ReactionRow implements ExperimentNode {
         row.reaction = reaction;
         row.anchor = anchor;
         row.role = role;
+        reaction.getInputs().add(row);
         return row;
     }
 
     public boolean hasRealSamples() {
         return samples.stream()
                 .anyMatch(s -> s.getSampleId() != null);
+    }
+
+    @Override
+    protected List<? extends AbstractExperimentNode<Reaction>> internalGetSiblings(Reaction parent) {
+        return parent.getInputs();
     }
 }

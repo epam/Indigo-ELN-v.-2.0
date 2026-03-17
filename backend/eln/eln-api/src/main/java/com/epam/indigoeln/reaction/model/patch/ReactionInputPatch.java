@@ -14,7 +14,7 @@ import java.util.List;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ReactionInputPatch extends AbstractReactionRowPatch<InputAnchor> {
+public class ReactionInputPatch extends AbstractReactionRowPatch {
 
     private Patched<InputAnchor, InputAnchor> anchor;
 
