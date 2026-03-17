@@ -108,7 +108,7 @@ export class ReactionInputsTableComponent implements OnInit {
       editable: (row: InputSampleRow) =>
         row.input.compound.type === CompoundType.UNKNOWN,
       onSave: (row: InputSampleRow, event: Event) => {
-        const value = +(event.target as HTMLInputElement).value;
+        const value = (event.target as HTMLInputElement).value;
         const previousState = structuredClone(
           this.experimentDetailService.experimentModel(),
         );
@@ -199,7 +199,7 @@ export class ReactionInputsTableComponent implements OnInit {
       type: ColumnInputType.NUMBER,
       field: (row: InputSampleRow) => row.input.eq?.value?.toString(),
       onSave: (row: InputSampleRow, event: Event) => {
-        const value = +(event.target as HTMLInputElement).value;
+        const value = (event.target as HTMLInputElement).value;
         const previousState = structuredClone(
           this.experimentDetailService.experimentModel(),
         );
@@ -208,7 +208,7 @@ export class ReactionInputsTableComponent implements OnInit {
           .updateDataModel({
             type: 'SetInputRowEQ',
             anchor: row.input.anchor,
-            eq: value,
+            eq: value || null,
           })
           .subscribe({
             error: (error) => this.handleUpdateError(error, previousState),
@@ -312,7 +312,7 @@ export class ReactionInputsTableComponent implements OnInit {
       type: ColumnInputType.NUMBER,
       field: (row: InputSampleRow) => row.sample.purity?.value?.toString(),
       onSave: (row: InputSampleRow, event: Event) => {
-        const value = +(event.target as HTMLInputElement).value;
+        const value = (event.target as HTMLInputElement).value;
         const previousState = structuredClone(
           this.experimentDetailService.experimentModel(),
         );
@@ -321,7 +321,7 @@ export class ReactionInputsTableComponent implements OnInit {
           .updateDataModel({
             type: 'SetInputPurity',
             anchor: row.sample.anchor,
-            purity: value,
+            purity: value || null,
           })
           .subscribe({
             error: (error) => this.handleUpdateError(error, previousState),
@@ -365,7 +365,7 @@ export class ReactionInputsTableComponent implements OnInit {
       type: ColumnInputType.TEXT,
       field: (row: InputSampleRow) => row.input.compound.saltEQ?.toString(),
       onSave: (row: InputSampleRow, event: Event) => {
-        const value = +(event.target as HTMLInputElement).value;
+        const value = (event.target as HTMLInputElement).value;
         const previousState = structuredClone(
           this.experimentDetailService.experimentModel(),
         );
@@ -437,7 +437,7 @@ export class ReactionInputsTableComponent implements OnInit {
   private applyUnitInputChange(
     change: UnitInputChange,
     mutator: (
-      value: number | undefined,
+      value: string | undefined,
       unit: string | undefined,
     ) => Observable<ExperimentModel>,
   ) {
