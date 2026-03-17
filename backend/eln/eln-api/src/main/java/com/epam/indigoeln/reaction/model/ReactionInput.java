@@ -48,4 +48,9 @@ public final class ReactionInput extends ReactionRow implements ExperimentNode {
         row.role = role;
         return row;
     }
+
+    public boolean hasRealSamples() {
+        return samples.stream()
+                .anyMatch(s -> s.getSampleId() != null);
+    }
 }

@@ -194,7 +194,7 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
     @SuppressWarnings("OptionalAssignedToNull")
     protected CompoundRef doUpdateCompound(ReactionRow row, @Nullable Optional<DictionaryItemRef> saltCode, @Nullable Optional<Double> saltEQ, @Nullable Optional<DictionaryItemRef> stereoisomerCode, @Nullable String molfile) {
         switch (row.getCompound()) {
-            case CompoundRef.Virtual v -> {
+            case CompoundRef.StoredOrVirtual v -> {
                 DictionaryItemRef effectiveSaltCode = saltCode != null ? saltCode.orElse(null) : v.getSaltCode();
                 Double effectiveSaltEQ = saltEQ != null ? saltEQ.orElse(null) : v.getSaltEQ();
                 DictionaryItemRef effectiveStereoisomerCode = stereoisomerCode != null ? stereoisomerCode.orElse(null) : v.getStereoisomerCode();
@@ -212,7 +212,6 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
                 IndigoMolecule molecule = indigoAPI.get().loadMolecule(effectiveMolfile);
                 return compoundService.virtualCompoundRef(molecule, effectiveStereoisomerCode, saltCodeInfo(effectiveSaltCode), effectiveSaltEQ);
             }
-            case CompoundRef.Stored s -> throw new InvalidRequestException("Cannot modify saltCode/saltEQ/stereoisomerCode/molfile for registered compound");
             case CompoundRef.Unknown u -> throw new InvalidRequestException("Cannot set saltCode/saltEQ/stereoisomerCode/molfile for unknown compound");
         }
     }
