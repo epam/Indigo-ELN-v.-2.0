@@ -89,6 +89,7 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation> exte
     protected final ExperimentPatch doUpdateEntity(ExperimentEntity experiment, @Nullable ExperimentModel model, ExperimentSnapshot snapshotBefore, ExperimentSnapshot snapshotAfter) {
         if (model != null) {
             SignificantFiguresUtil.setSignificantFigures(model.getSignificantFigures());
+            doValidateModel(model);
             reactionCalculator.recalculate(model);
             doUpdateReferences(experiment, model,  snapshotBefore, snapshotAfter);
             doValidateModel(model);

@@ -44,7 +44,7 @@ public class ExperimentModelSerializationTest {
         input1.setSamples(List.of(inputSample1));
         reaction.setInputs(List.of(input1, input2, input3));
 
-        ReactionOutput output = ReactionOutput.create(reaction, ReactionOutputType.FINAL, OUTPUT);
+        ReactionOutput output = ReactionOutput.create(reaction, ReactionOutputType.FINAL, true, OUTPUT);
         output.setCompound(new CompoundRef.Virtual(UUID.randomUUID(), "C", null, null, null, null, EnteredValue.fixed(2.0, 1, MolWeightUnit.G_PER_MOL), new BigDecimal("2.2"), null, "batchMF"));
         ReactionOutputSample outputSample = ReactionOutputSample.create(output, "00000000-0000", OUTPUT_SAMPLE);
         output.setSamples(List.of(outputSample));

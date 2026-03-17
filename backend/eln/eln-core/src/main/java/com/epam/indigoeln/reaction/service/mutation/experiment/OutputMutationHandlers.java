@@ -32,7 +32,6 @@ class AddProductSampleHandler extends AbstractReactionOutputMutationHandler<Reac
         OutputSampleAnchor anchor = checkNotNull(mutation.createdSampleAnchor());
         ReactionOutputSample sample = ReactionOutputSample.create(row, experiment.getName(), anchor);
         sample.setPurity(DEFAULT_ONE_HUNDRED);
-        row.getSamples().add(sample);
         return new MutationResult("Add batch"
                 , new ReactionOutputSampleMutation.RemoveProductSample(anchor)
         );
@@ -93,8 +92,7 @@ class UndoRemoveProductSampleHandler extends AbstractReactionOutputMutationHandl
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.UndoRemoveProductSample mutation) {
-        row.getSamples().add(mutation.sample());
-        mutation.sample().setRow(row);
+        mutation.sample().insert(row, -1);
         return new MutationResult("Undo remove batch", null);
     }
 }

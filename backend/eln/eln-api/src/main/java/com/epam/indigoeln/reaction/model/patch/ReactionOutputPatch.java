@@ -29,6 +29,9 @@ public class ReactionOutputPatch extends AbstractReactionRowPatch<OutputAnchor> 
     private Patched<ReactionOutputType, ReactionOutputType> type;
 
     @Nullable
+    private Patched<Boolean, Boolean> intended;
+
+    @Nullable
     private Patched<EnteredValue<MolUnit>, EnteredValuePatch<MolUnit>> theoMol;
 
     @Nullable

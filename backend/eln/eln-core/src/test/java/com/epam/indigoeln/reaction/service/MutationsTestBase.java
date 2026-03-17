@@ -35,6 +35,8 @@ public abstract class MutationsTestBase extends ELNBaseTest {
     protected ReactionOutputSample output1Sample1;
     protected ReactionOutput output2;
     protected ReactionOutputSample output2Sample1;
+    protected ReactionOutput output3;
+    protected ReactionOutputSample output3Sample1;
 
     protected CalculationReportBuilder reportBuilder;
     private byte @Nullable [] picture = null;
@@ -68,17 +70,24 @@ public abstract class MutationsTestBase extends ELNBaseTest {
         modelUpdated();
     }
 
-    @SuppressWarnings({"SizeReplaceableByIsEmpty", "DataFlowIssue", "SequencedCollectionMethodCanBeUsed"})
+    @SuppressWarnings("DataFlowIssue")
     protected void modelUpdated() {
         reaction = experiment.getModel().getReactions().getFirst();
-        input1 = reaction.getInputs().size() >= 1 ? reaction.getInputs().get(0) : null;
-        input1Sample1 = input1 != null && input1.getSamples().size() >= 1 ? input1.getSamples().get(0) : null;
-        input2 = reaction.getInputs().size() >= 2 ? reaction.getInputs().get(1) : null;
-        input2Sample1 = input2 != null && input2.getSamples().size() >= 1 ? input2.getSamples().get(0) : null;
-        output1 = reaction.getOutputs().size() >= 1 ? reaction.getOutputs().get(0) : null;
-        output1Sample1 = output1 != null && output1.getSamples().size() >= 1 ? output1.getSamples().get(0) : null;
-        output2 = reaction.getOutputs().size() >= 2 ? reaction.getOutputs().get(1) : null;
-        output2Sample1 = output2 != null && output2.getSamples().size() >= 1 ? output2.getSamples().get(0) : null;
+        input1 = safeGet(reaction.getInputs(), 0);
+        input1Sample1 = input1 != null ? safeGet(input1.getSamples(), 0) : null;
+        input2 = safeGet(reaction.getInputs(), 1);
+        input2Sample1 = input2 != null ? safeGet(input2.getSamples(), 0) : null;
+        output1 = safeGet(reaction.getOutputs(), 0);
+        output1Sample1 = output1 != null ? safeGet(output1.getSamples(), 0) : null;
+        output2 = safeGet(reaction.getOutputs(), 1);
+        output2Sample1 = output2 != null ? safeGet(output2.getSamples(), 0) : null;
+        output3 = safeGet(reaction.getOutputs(), 2);
+        output3Sample1 = output3 != null ? safeGet(output3.getSamples(), 0) : null;
+    }
+
+    @Nullable
+    private <T> T safeGet(List<T> list, int index) {
+        return list.size() > index ? list.get(index) : null;
     }
 
     protected void applyMutation(Mutation mutation) {

@@ -32,9 +32,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
 public class MutationsTest extends MutationsTestBase {
 
+    DictionaryItemRef saltCode;
+    DictionaryItemRef stereoisomerCode;
+
     @BeforeAll
     void beforeAll(@TempDir Path tempDir) {
         miscClient.loadCompoundsFromFileClient("compounds.sdf", tempDir, loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"));
+        saltCode = dictionaryClient.getSaltCodes().get(1);
+        stereoisomerCode = dictionaryClient.getDictionary(BuiltInDictionary.STEREOISOMER_CODE).get(1);
     }
 
     @BeforeEach
@@ -145,7 +150,6 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testSetInputRowSaltCodeAndEQ() {
         loadScheme();
-        DictionaryItemRef saltCode = dictionaryClient.getSaltCodes().get(1);
         applyMutation(new ReactionInputMutation.SetInputRowSaltCode(input1.getAnchor(), saltCode));
         assertThat(input1.getCompound()).isInstanceOf(CompoundRef.Virtual.class);
         assertThat(input1.getCompound().getSaltCode()).isEqualTo(saltCode);
@@ -157,7 +161,6 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testSetInputRowStereoisomerCode() {
         loadScheme();
-        DictionaryItemRef stereoisomerCode = dictionaryClient.getDictionary(BuiltInDictionary.STEREOISOMER_CODE).get(1);
         applyMutation(new ReactionInputMutation.SetInputCompoundStereoisomerCode(input1.getAnchor(), stereoisomerCode));
         assertThat(input1.getCompound()).isInstanceOf(CompoundRef.Virtual.class);
         assertThat(input1.getCompound().getStereoisomerCode()).isEqualTo(stereoisomerCode);
@@ -297,7 +300,6 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testSetOutputRowSaltCodeAndEQ() {
         loadScheme();
-        DictionaryItemRef saltCode = dictionaryClient.getSaltCodes().get(1);
         applyMutation(new ReactionOutputMutation.SetOutputRowSaltCode(output1.getAnchor(), saltCode));
         assertThat(output1.getCompound()).isInstanceOf(CompoundRef.Virtual.class);
         assertThat(output1.getCompound().getSaltCode()).isEqualTo(saltCode);
@@ -309,7 +311,6 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testSetOutputRowStereoisomerCode() {
         loadScheme();
-        DictionaryItemRef stereoisomerCode = dictionaryClient.getDictionary(BuiltInDictionary.STEREOISOMER_CODE).get(1);
         applyMutation(new ReactionOutputMutation.SetOutputCompoundStereoisomerCode(output1.getAnchor(), stereoisomerCode));
         assertThat(output1.getCompound()).isInstanceOf(CompoundRef.Virtual.class);
         assertThat(output1.getCompound().getStereoisomerCode()).isEqualTo(stereoisomerCode);
@@ -540,6 +541,64 @@ public class MutationsTest extends MutationsTestBase {
     void testSetBatchCreator() {
         applyMutation(new ExperimentMutation.SetBatchCreator(getMaggieUserRef()));
         assertThat(experiment.getBatchCreator()).isEqualTo(getMaggieUserRef());
+    }
+
+    @Test
+    void testSetOutputSaltCode() {
+        loadScheme();
+        addOutputSample();
+        addOutputSample();
+        assertThat(output2.isIntended()).isTrue();
+        OutputSampleAnchor anchor = output1Sample1.getAnchor();
+        applyMutation(new ReactionOutputSampleMutation.SetOutputSaltCode(anchor, saltCode), false);
+        assertThat(output3.isIntended()).isFalse();
+        assertThat(output3.getSamples()).singleElement().satisfies(s -> {
+            assertThat(s.getAnchor()).isEqualTo(anchor);
+        });
+    }
+
+    @Test
+    void testSetOutputSaltEQ() {
+        loadScheme();
+        addOutputSample();
+        addOutputSample();
+        assertThat(output2.isIntended()).isTrue();
+        OutputSampleAnchor anchor = output1Sample1.getAnchor();
+        applyMutation(new ReactionOutputSampleMutation.SetOutputSaltCode(anchor, saltCode), false);
+        applyMutation(new ReactionOutputSampleMutation.SetOutputSaltEQ(anchor, 2.0), false);
+        assertThat(output3.isIntended()).isFalse();
+        assertThat(output3.getSamples()).singleElement().satisfies(s -> {
+            assertThat(s.getAnchor()).isEqualTo(anchor);
+        });
+    }
+
+    @Test
+    void testSetOutputStereoisomerCode() {
+        loadScheme();
+        addOutputSample();
+        addOutputSample();
+        assertThat(output2.isIntended()).isTrue();
+        OutputSampleAnchor anchor = output1Sample1.getAnchor();
+        applyMutation(new ReactionOutputSampleMutation.SetOutputStereoisomerCode(anchor, stereoisomerCode), false);
+        assertThat(output3.isIntended()).isFalse();
+        assertThat(output3.getSamples()).singleElement().satisfies(s -> {
+            assertThat(s.getAnchor()).isEqualTo(anchor);
+        });
+    }
+
+    @Test
+    void testSetOutputMolfile() {
+        loadScheme();
+        addOutputSample();
+        addOutputSample();
+        assertThat(output2.isIntended()).isTrue();
+        OutputSampleAnchor anchor = output1Sample1.getAnchor();
+        String molfile = new String(ModelUtil.loadResource(getClass(), "/updated-molfile.mol"));
+        applyMutation(new ReactionOutputSampleMutation.SetOutputMolfile(anchor, molfile), false);
+        assertThat(output3.isIntended()).isFalse();
+        assertThat(output3.getSamples()).singleElement().satisfies(s -> {
+            assertThat(s.getAnchor()).isEqualTo(anchor);
+        });
     }
 
     @Test

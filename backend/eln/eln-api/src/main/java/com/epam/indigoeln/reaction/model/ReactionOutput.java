@@ -10,6 +10,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -32,6 +33,9 @@ public final class ReactionOutput extends ReactionRow implements ExperimentNode 
     @NotNull
     private ReactionOutputType type;
 
+    @NotNull
+    private boolean intended;
+
     @Nullable
     private EnteredValue<MolUnit> theoMol;
 
@@ -40,13 +44,14 @@ public final class ReactionOutput extends ReactionRow implements ExperimentNode 
 
     @NotNull
     @JsonManagedReference
-    private List<@Valid ReactionOutputSample> samples = List.of();
+    private List<@Valid ReactionOutputSample> samples = new ArrayList<>();
 
-    public static ReactionOutput create(Reaction reaction, ReactionOutputType type, OutputAnchor anchor) {
+    public static ReactionOutput create(Reaction reaction, ReactionOutputType type, boolean intended, OutputAnchor anchor) {
         ReactionOutput row = new ReactionOutput();
         row.reaction = reaction;
         row.anchor = anchor;
         row.type = type;
+        row.intended = intended;
         return row;
     }
 }

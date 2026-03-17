@@ -19,6 +19,8 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.UUID;
 
+import static com.google.common.base.Preconditions.checkState;
+
 @Getter
 @Setter
 @ToString(exclude = "row")
@@ -28,6 +30,7 @@ import java.util.UUID;
 public final class ReactionOutputSample extends ReactionSample implements ExperimentNode {
 
     @JsonBackReference
+    @Setter(AccessLevel.PACKAGE)
     private ReactionOutput row;
 
     @NotNull
@@ -112,6 +115,21 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
         sample.row = row;
         sample.anchor = anchor;
         sample.nbkBatchNumber = new NbkBatchNumber(experimentName, row.getReaction().getModel().generateNextNbkBatchNumber());
+        row.getSamples().add(sample);
         return sample;
+    }
+
+    public void move(ReactionOutput newRow, int position) {
+        checkState(row.getSamples().remove(this));
+        insert(newRow, position);
+    }
+
+    public void insert(ReactionOutput newRow, int position) {
+        setRow(newRow);
+        if (position == -1 || position == newRow.getSamples().size()) {
+            newRow.getSamples().add(this);
+        } else {
+            newRow.getSamples().add(position, this);
+        }
     }
 }
