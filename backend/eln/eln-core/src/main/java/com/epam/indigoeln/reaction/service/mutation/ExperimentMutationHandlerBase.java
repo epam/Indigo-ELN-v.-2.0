@@ -18,16 +18,20 @@ import com.epam.indigoeln.reaction.service.mutation.experiment.AbstractExperimen
 import com.google.common.base.Preconditions;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
-import jakarta.validation.Valid;
+import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import static com.epam.indigoeln.common.exception.InvalidRequestException.fail;
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE;
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE_HUNDRED;
+import static com.google.common.base.MoreObjects.firstNonNull;
 
 public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends AbstractExperimentMutationHandler<T> {
 
@@ -145,18 +149,23 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
         return row;
     }
 
-    public ReactionOutput createOutputLine(Reaction reaction, IndigoMolecule molecule, OutputAnchor anchor) {
-        ReactionOutput row = ReactionOutput.create(reaction, reaction.getFinalOutput() != null ? ReactionOutputType.BY_PRODUCT : ReactionOutputType.FINAL, anchor);
+    public ReactionOutput createOutputLine(Reaction reaction, IndigoMolecule molecule, boolean intended, OutputAnchor anchor) {
+        return createOutputLine(reaction, compoundService.virtualCompoundRef(molecule, null, null, null), intended, anchor);
+    }
+
+    public ReactionOutput createOutputLine(Reaction reaction, CompoundRef compound, boolean intended, OutputAnchor anchor) {
+        ReactionOutput row = ReactionOutput.create(reaction, reaction.getFinalOutput() != null ? ReactionOutputType.BY_PRODUCT : ReactionOutputType.FINAL, intended, anchor);
         row.setOutputName(reaction.generateNextProductName());
-        row.setCompound(compoundService.virtualCompoundRef(molecule, null, null, null));
+        row.setCompound(compound);
         row.setEq(DEFAULT_ONE);
-        row.setSamples(List.of());
+        row.setSamples(new ArrayList<>());
+        reaction.getOutputs().add(row);
         return row;
     }
 
-    public void adjustLimitingInput(Reaction reaction) {
+    protected void adjustLimitingInput(Reaction reaction) {
         ReactionInput limiting = null;
-        for (@Valid ReactionInput input : reaction.getInputs()) {
+        for (ReactionInput input : reaction.getInputs()) {
             if (input.isLimiting()) {
                 if (limiting == null) {
                     limiting = input;
@@ -170,21 +179,40 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
         }
     }
 
-    public CompoundRef doApplySetSaltCodeEQStereoisomerCode(ReactionRow row, @Nullable SaltCodeInfo saltCode, @Nullable Double saltEQ, @Nullable DictionaryItemRef stereoisomerCode) {
+    protected void cleanupUnintendedProducts(Reaction reaction) {
+        reaction.getOutputs().removeIf(r -> !r.isIntended() && r.getSamples().isEmpty());
+    }
+
+    @SuppressWarnings("OptionalAssignedToNull")
+    protected CompoundRef doUpdateCompound(ReactionRow row, @Nullable Optional<DictionaryItemRef> saltCode, @Nullable Optional<Double> saltEQ, @Nullable Optional<DictionaryItemRef> stereoisomerCode, @Nullable String molfile) {
         switch (row.getCompound()) {
             case CompoundRef.Virtual v -> {
+                DictionaryItemRef effectiveSaltCode = saltCode != null ? saltCode.orElse(null) : v.getSaltCode();
+                Double effectiveSaltEQ = saltEQ != null ? saltEQ.orElse(null) : v.getSaltEQ();
+                DictionaryItemRef effectiveStereoisomerCode = stereoisomerCode != null ? stereoisomerCode.orElse(null) : v.getStereoisomerCode();
+                if (effectiveSaltCode == null && saltEQ != null && saltEQ.isPresent()) {
+                    fail("Cannot set saltEQ because saltCode is not set");
+                }
                 // normalize saltEQ
-                if (saltCode != null && saltEQ == null) {
-                    saltEQ = 1.0;
-                } else if (saltCode == null) {
-                    saltEQ = null;
+                if (effectiveSaltCode != null) {
+                    effectiveSaltEQ = firstNonNull(effectiveSaltEQ, 1.0);
+                } else {
+                    effectiveSaltEQ = null;
                 }
                 CompoundEntity compound = compoundService.getCompound(v.getCompoundID());
-                IndigoMolecule molecule = indigoAPI.get().loadMolecule(compound.getMolFile());
-                return compoundService.virtualCompoundRef(molecule, stereoisomerCode, saltCode, saltEQ);
+                String effectiveMolfile = molfile != null ? molfile : compound.getMolFile();
+                IndigoMolecule molecule = indigoAPI.get().loadMolecule(effectiveMolfile);
+                return compoundService.virtualCompoundRef(molecule, effectiveStereoisomerCode, saltCodeInfo(effectiveSaltCode), effectiveSaltEQ);
             }
-            case CompoundRef.Stored s -> throw new InvalidRequestException("Cannot modify saltCode/saltEQ/stereoisomerCode for registered compound");
-            case CompoundRef.Unknown u -> throw new InvalidRequestException("Cannot set saltCode/saltEQ/stereoisomerCode for unknown compound");
+            case CompoundRef.Stored s -> throw new InvalidRequestException("Cannot modify saltCode/saltEQ/stereoisomerCode/molfile for registered compound");
+            case CompoundRef.Unknown u -> throw new InvalidRequestException("Cannot set saltCode/saltEQ/stereoisomerCode/molfile for unknown compound");
         }
+    }
+
+    protected ReactionOutput findOrCreateOutputRow(Reaction reaction, CompoundRef compound, OutputAnchor createdOutputAnchor) {
+        return StreamEx.of(reaction.getOutputs())
+                .filter(x -> x.getCompound().compoundKeyEquals(compound))
+                .findFirst()
+                .orElseGet(() -> createOutputLine(reaction, compound, false, createdOutputAnchor));
     }
 }

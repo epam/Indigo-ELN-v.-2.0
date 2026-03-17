@@ -66,6 +66,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(ReactionOutputSampleMutation.SetOutputBatchComment.class),
         @JsonSubTypes.Type(ReactionOutputSampleMutation.SetOutputStructureComment.class),
         @JsonSubTypes.Type(ReactionOutputSampleMutation.RemoveProductSample.class),
+        @JsonSubTypes.Type(ReactionOutputSampleMutation.SetOutputSaltCode.class),
+        @JsonSubTypes.Type(ReactionOutputSampleMutation.SetOutputSaltEQ.class),
+        @JsonSubTypes.Type(ReactionOutputSampleMutation.SetOutputStereoisomerCode.class),
+        @JsonSubTypes.Type(ReactionOutputSampleMutation.SetOutputMolfile.class),
 
         @JsonSubTypes.Type(ExperimentMutation.CreateExperiment.class),
         @JsonSubTypes.Type(ExperimentMutation.SetExperimentSignificantFigures.class),

@@ -51,6 +51,12 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
     @Nullable
     String getCalculatedBatchMF();
 
+    default boolean compoundKeyEquals(CompoundRef other) {
+        // for stored and virtual compound, compound identity already checked when assigning compoundID; thus can only compare compoundID;
+        // unknown compound (with compoundID null) only equals to itself
+        return this == other || (getCompoundID() != null && getCompoundID().equals(other.getCompoundID()));
+    }
+
     @Getter
     @ToString
     @RequiredArgsConstructor

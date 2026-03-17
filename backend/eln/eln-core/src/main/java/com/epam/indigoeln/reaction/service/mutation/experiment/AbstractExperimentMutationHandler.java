@@ -82,7 +82,9 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation> exte
     protected ExperimentModel doPrepareModel(ExperimentEntity experiment) {
         if (isAffectsModel()) {
             ExperimentModel model = experimentModelService.getModel(experiment);
+            doValidateModel(model);
             ExperimentModelUtil.prepareToRecalculate(model);
+            doValidateModel(model);
             return model;
         }
         return null;

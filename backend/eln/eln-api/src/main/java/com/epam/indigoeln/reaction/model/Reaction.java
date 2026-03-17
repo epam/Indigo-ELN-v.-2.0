@@ -13,6 +13,7 @@ import lombok.*;
 import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,11 +39,11 @@ public final class Reaction implements ExperimentNode {
 
     @NotNull
     @JsonManagedReference
-    private List<@Valid ReactionInput> inputs = List.of();
+    private List<@Valid ReactionInput> inputs = new ArrayList<>();
 
     @NotNull
     @JsonManagedReference
-    private List<@Valid ReactionOutput> outputs = List.of();
+    private List<@Valid ReactionOutput> outputs = new ArrayList<>();
 
     public static Reaction create(ExperimentModel model, ReactionAnchor anchor) {
         Reaction reaction = new Reaction();

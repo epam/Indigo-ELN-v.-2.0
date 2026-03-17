@@ -87,7 +87,7 @@ class SetSchemeHandler extends AbstractReactionMutationHandler<ReactionMutation.
     private void createOutputs(ExperimentEntity experiment, List<OutputAnchor> createdAnchors, Iterable<IndigoMolecule> molecules, Reaction reaction) {
         Iterator<OutputAnchor> anchorIterator = createdAnchors.iterator();
         for (IndigoMolecule product : molecules) {
-            reaction.getOutputs().add(createOutputLine(reaction, product, anchorIterator.next()));
+            createOutputLine(reaction, product, true, anchorIterator.next());
         }
     }
 }

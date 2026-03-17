@@ -3,6 +3,7 @@ package com.epam.indigoeln.compound.model;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.model.NbkBatchNumber;
 import com.epam.indigoeln.eln.model.STRCodeSample;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
@@ -32,5 +33,6 @@ public class SampleDTO {
     @NotNull
     private UUID compoundID;
     @NotNull
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private Boolean marked;
 }

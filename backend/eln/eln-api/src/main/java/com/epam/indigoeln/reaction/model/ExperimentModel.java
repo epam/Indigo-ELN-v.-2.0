@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -21,7 +22,7 @@ public final class ExperimentModel implements ExperimentNode {
 
     @NotEmpty
     @JsonManagedReference
-    private List<@Valid Reaction> reactions = List.of();
+    private List<@Valid Reaction> reactions = new ArrayList<>();
 
     @NotNull
     private Integer schemaVersion;

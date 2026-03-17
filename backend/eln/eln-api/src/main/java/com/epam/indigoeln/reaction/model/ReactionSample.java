@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -35,7 +36,7 @@ public sealed abstract class ReactionSample implements ExperimentNode permits Re
     protected STRCodeSample strCode;
 
     @NotNull
-    protected List<DictionaryItemRef> healthHazards = List.of();
+    protected List<DictionaryItemRef> healthHazards = new ArrayList<>();
 
     @JsonIgnore
     public Double getPurityAsFraction() {
