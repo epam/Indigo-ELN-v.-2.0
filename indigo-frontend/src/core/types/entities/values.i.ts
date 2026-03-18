@@ -43,7 +43,7 @@ export enum EnteredValueSource {
 }
 
 export interface EnteredValue<U> {
-  value: number;
+  value: string;
   unit: U;
   source: EnteredValueSource | number | 'fixed' | 'default';
   conflict?: boolean;

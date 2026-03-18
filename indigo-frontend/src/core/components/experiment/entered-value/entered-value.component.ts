@@ -95,7 +95,8 @@ export class EnteredValueComponent<U> {
       return;
     }
     this.editing = false;
-    const oldValue = this._value?.value;
+    const oldValueStr = this._value?.value;
+    const oldValue = oldValueStr != null ? parseFloat(oldValueStr) : null;
     const oldUnits = this._value?.unit;
     let newValue = this.editNumberRef.nativeElement.valueAsNumber;
     newValue = isNaN(newValue) ? null : newValue;
@@ -112,7 +113,7 @@ export class EnteredValueComponent<U> {
     if (valueChanged || unitsChanged) {
       this.onChange(
         newValue != null
-          ? { ...this._value, value: newValue, unit: newUnits }
+          ? { ...this._value, value: newValue.toString(), unit: newUnits }
           : null,
       );
     }

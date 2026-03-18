@@ -63,12 +63,12 @@
           @let unitField = toUnitField(column.field(row));
           <input #valueInput type="number" matInput placeholder="—" style="outline: none;"
             [value]="unitField?.value ?? ''" [disabled]="!(column.editable?.(row) ?? true)"
-            (blur)="column.onSave?.(row, { value: $any($event.target).valueAsNumber, unit: unitField?.unit })"
-            (keydown.enter)="column.onSave?.(row, { value: $any($event.target).valueAsNumber, unit: unitField?.unit })" />
+            (blur)="column.onSave?.(row, { value: $any($event.target).value, unit: unitField?.unit })"
+            (keydown.enter)="column.onSave?.(row, { value: $any($event.target).value, unit: unitField?.unit })" />
           <mat-divider vertical style="opacity: 0.3;" />
           <mat-select class="!h-full !text-xs" hideSingleSelectionIndicator style="min-width: 4rem; text-align: center;"
             [value]="unitField?.unit" [disabled]="!(column.editable?.(row) ?? true)"
-            (selectionChange)="column.onSave?.(row, { value: valueInput.valueAsNumber, unit: $event.value })">
+            (selectionChange)="column.onSave?.(row, { value: valueInput.value, unit: $event.value })">
             @for (unit of column.options; track unit.id) {
             <mat-option [value]="unit.id" style="font-size: 0.8rem;">{{ unit.name }}</mat-option>
             }

@@ -19,7 +19,7 @@ export interface UnitFieldValue {
 export type FieldValue = string | null | boolean | UnitFieldValue | DictionaryItemRef[];
 
 export interface UnitInputChange {
-  value?: number | null;
+  value?: string | null;
   unit?: string | null;
 }
 

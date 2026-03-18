@@ -73,7 +73,7 @@
         <eln-entered-value
           [value]="
             output().compound?.saltEQ
-              ? { value: output().compound.saltEQ, unit: null, source: 0 }
+              ? { value: output().compound.saltEQ.toString(), unit: null, source: 0 }
               : null
           "
           [showUnits]="false"
