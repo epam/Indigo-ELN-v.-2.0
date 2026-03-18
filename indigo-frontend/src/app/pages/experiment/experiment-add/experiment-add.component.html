@@ -1,13 +1,26 @@
-<eln-form-dialog
-  *ngIf="show; else loading"
-  [title]="'Add Experiment'"
-  [fields]="fields"
-  size="auto"
-  containerClass="w-[800px]"
-  (formSubmit)="createExperiment($event)"
-></eln-form-dialog>
-<ng-template #loading>
-  <div class="flex items-center justify-center h-32">
-    <mat-spinner></mat-spinner>
+<ng-container *ngIf="ready; else loadingTpl">
+  <div class="relative w-full">
+    <eln-form-dialog
+      [title]="'Add Experiment'"
+      [fields]="fields"
+      size="auto"
+      containerClass="w-[800px]"
+      [submitEnabled]="!submitting"
+      [hideCancelButton]="submitting"
+      (formSubmit)="createExperiment($event)"
+    >
+    </eln-form-dialog>
+
+    <div *ngIf="submitting" class="absolute inset-0 bg-white/60 flex flex-col items-center justify-center z-50">
+      <mat-spinner diameter="40"></mat-spinner>
+      <div class="mt-2 text-sm text-gray-600">Creating experiment…</div>
+    </div>
+  </div>
+</ng-container>
+
+<ng-template #loadingTpl>
+  <div class="flex flex-col items-center justify-center h-36 gap-3">
+    <mat-spinner diameter="36"></mat-spinner>
+    <div class="text-sm text-gray-500">Loading templates…</div>
   </div>
 </ng-template>

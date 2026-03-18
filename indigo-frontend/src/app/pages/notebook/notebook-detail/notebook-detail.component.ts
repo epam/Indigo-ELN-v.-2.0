@@ -1,7 +1,8 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, RouterOutlet } from '@angular/router';
 import { take } from 'rxjs';
 import { ButtonComponent } from '@/core/components/common/button/button.component';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CardComponent } from "@/core/components/common/card/card.component";
 import { NotebookService } from '@core/services/notebook/notebook.service';
 import { ExperimentAddComponent } from '@pages/experiment/experiment-add/experiment-add.component';
@@ -12,13 +13,15 @@ import { ProjectTabButtonComponent } from '@pages/project/project-tab-button/pro
     selector: 'eln-notebook-detail',
     templateUrl: './notebook-detail.component.html',
     standalone: true,
-    imports: [RouterOutlet, ProjectTabButtonComponent, ButtonComponent, CardComponent],
+    imports: [RouterOutlet, ProjectTabButtonComponent, ButtonComponent, CardComponent, MatProgressSpinnerModule],
     providers: [NotebookService],
 })
 export class NotebookDetailComponent implements OnInit {
+    @ViewChild(RouterOutlet) outlet?: RouterOutlet;
     activatedRoute = inject(ActivatedRoute);
     store = inject(NotebookService);
     dialog = inject(MatDialog);
+    experimentsLoading = false;
 
     get notebook() {
         return this.store.notebook();
@@ -48,13 +51,19 @@ export class NotebookDetailComponent implements OnInit {
     }
 
     async openExperimentModal() {
-        const ref = this.dialog.open(ExperimentAddComponent);
+        const ref = this.dialog.open(ExperimentAddComponent, {
+            data: { onSubmitting: (v: boolean) => (this.experimentsLoading = !!v) },
+        });
         ref
             .afterClosed()
             .pipe(take(1))
             .subscribe((result) => {
                 if (result === 'refresh') {
-                    // do something after experiment is added
+                    this.store.refresh();
+                    const comp = (this.outlet as any)?.component;
+                    if (comp && typeof comp.reload === 'function') {
+                        try { comp.reload(); } catch { }
+                    }
                 }
             });
     }

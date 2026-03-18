@@ -10,6 +10,7 @@
             <em class="text-xl indicon-plus"></em>
             <span class="whitespace-nowrap">Add Experiment</span>
           </eln-button>
+          <mat-spinner *ngIf="experimentsLoading" diameter="20" class="ml-2"></mat-spinner>
           <eln-button [disabled]="true" classList="opacity-50">...</eln-button>
         </div>
     </div>
