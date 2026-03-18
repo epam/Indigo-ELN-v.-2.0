@@ -1,10 +1,15 @@
 package com.epam.indigoeln.reaction.metamodel;
 
 import com.epam.indigoeln.eln.model.STRCodeSample;
-import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.metamodel.property.Metamodel;
-import com.epam.indigoeln.reaction.model.patch.*;
+import com.epam.indigoeln.reaction.model.Anchor;
+import com.epam.indigoeln.reaction.model.ReactionRow;
+import com.epam.indigoeln.reaction.model.ReactionSample;
+import com.epam.indigoeln.reaction.model.patch.AbstractReactionRowPatch;
+import com.epam.indigoeln.reaction.model.patch.AbstractReactionSamplePatch;
 import com.epam.indigoeln.reaction.model.patch.handler2.CompoundRefDiffHandler;
+import com.epam.indigoeln.reaction.model.patch.handler2.EnteredValueDiffHandler;
+import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import org.jspecify.annotations.Nullable;
 
 import java.util.function.Consumer;
@@ -21,13 +26,13 @@ class Metamodels {
         m.enteredValueProperty("density", ReactionSample::getDensity, ReactionSample::setDensity, AbstractReactionSamplePatch::getDensity, AbstractReactionSamplePatch::setDensity);
         m.enteredValueProperty("molarity", ReactionSample::getMolarity, ReactionSample::setMolarity, AbstractReactionSamplePatch::getMolarity, AbstractReactionSamplePatch::setMolarity);
         m.enteredValueProperty("volume", ReactionSample::getVolume, ReactionSample::setVolume, AbstractReactionSamplePatch::getVolume, AbstractReactionSamplePatch::setVolume);
-        m.enteredValueProperty("purity", ReactionSample::getPurity, ReactionSample::setPurity, AbstractReactionSamplePatch::getPurity, AbstractReactionSamplePatch::setPurity);
+        m.enteredValueProperty("purity", ReactionSample::getPurity, ReactionSample::setPurity, AbstractReactionSamplePatch::getPurity, AbstractReactionSamplePatch::setPurity, new EnteredValueDiffHandler<>(null, EnteredValue.DEFAULT_ONE_HUNDRED));
         m.<@Nullable STRCodeSample>property("strCode", ReactionSample::getStrCode, ReactionSample::setStrCode, AbstractReactionSamplePatch::getStrCode, AbstractReactionSamplePatch::setStrCode);
         m.property("healthHazards", ReactionSample::getHealthHazards, ReactionSample::setHealthHazards, AbstractReactionSamplePatch::getHealthHazards, AbstractReactionSamplePatch::setHealthHazards);
     }
 
     static <C extends ReactionRow, A extends Anchor, P extends AbstractReactionRowPatch<A>> void buildReactionRowMetamodel(Metamodel<C, P> m) {
         m.property("compound", ReactionRow::getCompound, ReactionRow::setCompound, AbstractReactionRowPatch::getCompound, AbstractReactionRowPatch::setCompound, CompoundRefDiffHandler.INSTANCE);
-        m.enteredValueProperty("eq", ReactionRow::getEq, ReactionRow::setEq, AbstractReactionRowPatch::getEq, AbstractReactionRowPatch::setEq);
+        m.enteredValueProperty("eq", ReactionRow::getEq, ReactionRow::setEq, AbstractReactionRowPatch::getEq, AbstractReactionRowPatch::setEq, new EnteredValueDiffHandler<>(null, EnteredValue.DEFAULT_ONE));
     }
 }

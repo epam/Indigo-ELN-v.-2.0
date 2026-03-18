@@ -10,6 +10,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -36,6 +37,9 @@ public final class ExperimentSnapshot implements ExperimentNode {
 
     @NotNull
     UserRef batchCreator;
+
+    @NotNull
+    UUID templateId;
 
     @NotNull
     Set<ExperimentRef> linkedExperiments;

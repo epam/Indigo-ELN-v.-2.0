@@ -40,14 +40,22 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
     @Inject
     DictionaryMapper dictionaryMapper;
 
-    // !!! only allow non-null source for undo operations
     public <U extends MeasurementUnit> EnteredValueUndo<U> setEnteredValue(Supplier<@Nullable EnteredValue<U>> getter, Consumer<@Nullable EnteredValue<U>> setter, @Nullable String stringValue, @Nullable U unit, @Nullable EnteredValueSource source, int revisionNo) {
+        return doSetEnteredValue(getter, setter, stringValue, unit, source, revisionNo, null);
+    }
+
+    public <U extends MeasurementUnit> EnteredValueUndo<U> setEnteredValue(Supplier<EnteredValue<U>> getter, Consumer<EnteredValue<U>> setter, @Nullable String stringValue, @Nullable U unit, @Nullable EnteredValueSource source, int revisionNo, EnteredValue<U> defaultValue) {
+        return doSetEnteredValue(getter, setter, stringValue, unit, source, revisionNo, defaultValue);
+    }
+
+    // !!! only allow non-null source for undo operations
+    private <U extends MeasurementUnit> EnteredValueUndo<U> doSetEnteredValue(Supplier<@Nullable EnteredValue<U>> getter, Consumer<@Nullable EnteredValue<U>> setter, @Nullable String stringValue, @Nullable U unit, @Nullable EnteredValueSource source, int revisionNo, @Nullable EnteredValue<U> defaultValue) {
         EnteredValue<U> ev = getter.get();
         String oldStringValue = ev != null ? ev.getStringValue() : null;
         U oldUnit = ev != null ? ev.getUnit() : null;
         EnteredValueSource oldSource = ev != null ? ev.getSource() : null;
         if (stringValue == null) { // remove old value
-            ev = null;
+            ev = defaultValue;
         } else { // create or update value
             Preconditions.checkArgument(unit != null);
             double effectiveValue = Double.parseDouble(stringValue);

@@ -9,15 +9,22 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Objects;
+
 import static com.epam.indigoeln.eln.util.PatchUtil.diff;
 
 @RequiredArgsConstructor
 public class EnteredValueDiffHandler<U extends MeasurementUnit> extends AbstractDiffHandler<EnteredValue<U>, EnteredValuePatch<U>> {
 
-    private static final EnteredValueDiffHandler<NoUnit> INSTANCE = new EnteredValueDiffHandler<>(null);
+    private static final EnteredValueDiffHandler<NoUnit> INSTANCE = new EnteredValueDiffHandler<>(null, null);
 
     @Getter
+    @Nullable
     private final EnteredValue<U> defaultValue;
+
+    @Getter
+    @Nullable
+    private final EnteredValue<U> defaultValueForCalculations;
 
     public static <U extends MeasurementUnit> EnteredValueDiffHandler<U> instance() {
         //noinspection unchecked
@@ -26,7 +33,7 @@ public class EnteredValueDiffHandler<U extends MeasurementUnit> extends Abstract
 
     @Override
     protected boolean isEmpty(@Nullable EnteredValue<U> value) {
-        return value == null || value.equals(defaultValue);
+        return value == null || Objects.equals(value, defaultValue);
     }
 
     @Override
