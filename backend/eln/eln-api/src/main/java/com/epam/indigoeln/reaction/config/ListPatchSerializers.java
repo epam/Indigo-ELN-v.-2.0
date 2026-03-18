@@ -61,6 +61,10 @@ public class ListPatchSerializers {
         return Pair.of(from, to);
     }
 
+    public static Pair<@Nullable Integer, @Nullable Integer> reverseKey(Pair<@Nullable Integer, @Nullable Integer> key) {
+        return Pair.of(key.b(), key.a());
+    }
+
     @AllArgsConstructor
     public static class Serializer extends JsonSerializer<ListPatch<?, ?>> implements ContextualSerializer {
 

@@ -75,14 +75,22 @@ public class PatchTestUtil {
     }
 
     public static void verifyModelPatch(ExperimentDetailsDTO initial, ExperimentPatch patch, ExperimentDetailsDTO updated, @Nullable CalculationReportBuilder reportBuilder) throws Exception {
-        doVerifyModelPatch(initial, patch, updated, reportBuilder);
+        doVerifyModelPatch(initial, patch, updated, reportBuilder, false);
+    }
+
+    public static void verifyReversePatch(ExperimentDetailsDTO initial, ExperimentPatch patch, ExperimentDetailsDTO updated, @Nullable CalculationReportBuilder reportBuilder) throws Exception {
+        doVerifyModelPatch(initial, patch, updated, reportBuilder, true);
     }
 
     public static void verifyModelPatch(ExperimentSnapshot initial, ExperimentPatch patch, ExperimentSnapshot updated, @Nullable CalculationReportBuilder reportBuilder) throws Exception {
-        doVerifyModelPatch(initial, patch, updated, reportBuilder);
+        doVerifyModelPatch(initial, patch, updated, reportBuilder, false);
     }
 
-    private static void doVerifyModelPatch(Object initial, ExperimentPatch patch, Object updated, @Nullable CalculationReportBuilder reportBuilder) throws Exception {
+    public static void verifyReversePatch(ExperimentSnapshot initial, ExperimentPatch patch, ExperimentSnapshot updated, @Nullable CalculationReportBuilder reportBuilder) throws Exception {
+        doVerifyModelPatch(initial, patch, updated, reportBuilder, true);
+    }
+
+    private static void doVerifyModelPatch(Object initial, ExperimentPatch patch, Object updated, @Nullable CalculationReportBuilder reportBuilder, boolean reverse) throws Exception {
         byte[] initialBytes = FeignUtil.OBJECT_MAPPER.writeValueAsBytes(initial);
         JsonNode initialJSON = cleanupJSON(FeignUtil.OBJECT_MAPPER.readTree(initialBytes));
 
@@ -90,9 +98,26 @@ public class PatchTestUtil {
         JsonNode updatedJSON = cleanupJSON(FeignUtil.OBJECT_MAPPER.readTree(updatedBytes));
 
         String patchStr = FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(patch);
-        JsonNode appliedWithJSON = JSONPatcher.EXPERIMENT_INSTANCE.apply(initialJSON.deepCopy(), FeignUtil.OBJECT_MAPPER.readTree(patchStr));
+        JsonNode patchJSON = FeignUtil.OBJECT_MAPPER.readTree(patchStr);
+        JsonNode appliedWithJSON = reverse
+                ? JSONPatcher.EXPERIMENT_INSTANCE.reverse(updatedJSON.deepCopy(), patchJSON)
+                : JSONPatcher.EXPERIMENT_INSTANCE.apply(initialJSON.deepCopy(), patchJSON);
 
-        assertObjectsEqual(reportBuilder, patchStr, prepareForComparison((ObjectNode) minimizeJSON(appliedWithJSON)), prepareForComparison((ObjectNode) minimizeJSON(updatedJSON)), "patched", "Model (right) with applied patch (left) not equals to expected (middle)");
+        if (reverse) {
+            assertObjectsEqual(reportBuilder
+                    , patchStr
+                    , prepareForComparison((ObjectNode) minimizeJSON(appliedWithJSON))
+                    , prepareForComparison((ObjectNode) minimizeJSON(initialJSON))
+                    , "patched"
+                    , "Model (right) with reversed patch (left) not equals to expected (middle)");
+        } else {
+            assertObjectsEqual(reportBuilder
+                    , patchStr
+                    , prepareForComparison((ObjectNode) minimizeJSON(appliedWithJSON))
+                    , prepareForComparison((ObjectNode) minimizeJSON(updatedJSON))
+                    , "patched"
+                    , "Model (right) with applied patch (left) not equals to expected (middle)");
+        }
     }
 
     private static void assertObjectsEqual(@Nullable CalculationReportBuilder reportBuilder, @Nullable String patch, JsonNode actualJSON, JsonNode expectedJSON, String reportClass, String message) throws JsonProcessingException {

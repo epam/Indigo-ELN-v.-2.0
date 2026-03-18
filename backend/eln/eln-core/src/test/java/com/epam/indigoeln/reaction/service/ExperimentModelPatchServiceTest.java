@@ -131,5 +131,6 @@ class ExperimentModelPatchServiceTest {
         System.out.println(patchStr);
         assertThat(patchStr).isEqualToIgnoringWhitespace(expectedPatchStr.trim());
         PatchTestUtil.verifyModelPatch(baseExperiment, patch, experiment, null);
+        PatchTestUtil.verifyReversePatch(baseExperiment, patch, experiment, null);
     }
 }

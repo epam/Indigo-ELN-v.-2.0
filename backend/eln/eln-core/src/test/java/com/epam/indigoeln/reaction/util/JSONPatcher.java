@@ -40,30 +40,32 @@ public class JSONPatcher {
     private final JsonNodeFactory nodeFactory = FeignUtil.OBJECT_MAPPER.getNodeFactory();
 
     public JsonNode apply(JsonNode base, JsonNode patch) {
-        return apply(base, patch, "$");
+        return doApply(base, patch, "$", false);
     }
 
-    private JsonNode apply(JsonNode base, JsonNode patch, String path) {
-        return doApply(base, patch, path);
+    public JsonNode reverse(JsonNode base, JsonNode patch) {
+        return doApply(base, patch, "$", true);
     }
 
-    private JsonNode doApply(JsonNode base, JsonNode patch, String path) {
+    private JsonNode doApply(JsonNode base, JsonNode patch, String path, boolean reverse) {
         if (patch.isNull()) { // unchanged
             return base;
         }
 
         switch (patch) {
             case ObjectNode patchObject when (patchObject.has(FIELD_OLD) || patchObject.has(FIELD_NEW)) -> { // created or deleted value
-                return patchObject.has(FIELD_NEW) ? patchObject.get(FIELD_NEW) : nodeFactory.nullNode();
+                return reverse
+                        ? patchObject.has(FIELD_OLD) ? patchObject.get(FIELD_OLD) : nodeFactory.nullNode()
+                        : patchObject.has(FIELD_NEW) ? patchObject.get(FIELD_NEW) : nodeFactory.nullNode();
             }
             case ObjectNode patchObject when setPaths.containsKey(path) -> { // set diff
-                return doRestoreSet(base, patchObject, path);
+                return doRestoreSet(base, patchObject, path, reverse);
             }
             case ObjectNode patchObject when listPaths.containsKey(path) -> { // list diff
-                return doRestoreList(base, patchObject, path);
+                return doRestoreList(base, patchObject, path, reverse);
             }
             case ObjectNode patchObject -> { // updated object
-                return doRestoreObject(path, base, patchObject);
+                return doRestoreObject(path, base, patchObject, reverse);
             }
             default -> {
                 throw new IllegalStateException("Unexpected patch state: base is " + base.getNodeType() + ", patch is " + patch.getNodeType());
@@ -71,7 +73,7 @@ public class JSONPatcher {
         }
     }
 
-    private ObjectNode doRestoreObject(String path, JsonNode base, ObjectNode patchObject) {
+    private ObjectNode doRestoreObject(String path, JsonNode base, ObjectNode patchObject, boolean reverse) {
         ObjectNode targetObject = nodeFactory.objectNode();
         switch (base) {
             case ObjectNode object -> targetObject.setAll(object);
@@ -81,7 +83,7 @@ public class JSONPatcher {
         for (Map.Entry<String, JsonNode> entry : patchObject.properties()) {
             String key = entry.getKey();
             JsonNode oldValue = base.has(key) ? base.get(key) : nodeFactory.nullNode();
-            JsonNode newValue = apply(oldValue, entry.getValue(), path + '.' + key);
+            JsonNode newValue = doApply(oldValue, entry.getValue(), path + '.' + key, reverse);
             if (newValue.isNull()) {
                 targetObject.remove(key);
             } else {
@@ -91,7 +93,7 @@ public class JSONPatcher {
         return targetObject;
     }
 
-    private ArrayNode doRestoreSet(JsonNode base, ObjectNode patch, String path) {
+    private ArrayNode doRestoreSet(JsonNode base, ObjectNode patch, String path, boolean reverse) {
         ArrayNode targetArray = copyArray(base);
         String keyProperty = setPaths.get(path);
 
@@ -103,7 +105,7 @@ public class JSONPatcher {
         for (Map.Entry<String, JsonNode> entry : patch.properties()) {
             Integer index = keyIndices.get(entry.getKey());
             ObjectNode itemPatch = (ObjectNode) entry.getValue();
-            JsonNode newValue = apply(index != null ? targetArray.get(index) : nodeFactory.nullNode(), itemPatch, path + ".#");
+            JsonNode newValue = doApply(index != null ? targetArray.get(index) : nodeFactory.nullNode(), itemPatch, path + ".#", reverse);
             if (index != null) {
                 targetArray.set(index, newValue);
             } else {
@@ -114,7 +116,7 @@ public class JSONPatcher {
         return targetArray;
     }
 
-    private ArrayNode doRestoreList(JsonNode base, ObjectNode patch, String path) {
+    private ArrayNode doRestoreList(JsonNode base, ObjectNode patch, String path, boolean reverse) {
         ArrayNode sourceArray = base instanceof ArrayNode baseArray ? baseArray : nodeFactory.arrayNode();
         ArrayNode targetArray = copyArray(base);
 
@@ -124,9 +126,12 @@ public class JSONPatcher {
         }
         for (Map.Entry<String, JsonNode> entry : patch.properties()) {
             Pair<@Nullable Integer, @Nullable Integer> index = ListPatchSerializers.parseKey(entry.getKey());
+            if (reverse) {
+                index = ListPatchSerializers.reverseKey(index);
+            }
             if (index.a() == null) { // new item
                 Preconditions.checkState(index.b() != null);
-                safeSet(targetArray, index.b(), doApply(nodeFactory.nullNode(), entry.getValue(), path + ".#"));
+                safeSet(targetArray, index.b(), doApply(nodeFactory.nullNode(), entry.getValue(), path + ".#", reverse));
                 referenceCount[index.b()]++;
             } else if (index.b() == null) { // deleted item
                 referenceCount[index.a()]--;
@@ -134,7 +139,7 @@ public class JSONPatcher {
                 JsonNode oldValue = sourceArray.get(index.a());
                 JsonNode newValue = entry.getValue() instanceof TextNode patchText && ListPatchSerializers.UNCHANGED.equals(patchText.textValue())
                         ? oldValue
-                        : apply(oldValue, entry.getValue(), path + ".#");
+                        : doApply(oldValue, entry.getValue(), path + ".#", reverse);
                 safeSet(targetArray, index.b(), newValue);
                 referenceCount[index.a()]--;
                 referenceCount[index.b()]++;

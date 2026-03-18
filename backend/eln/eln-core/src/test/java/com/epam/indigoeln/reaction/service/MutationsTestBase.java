@@ -123,8 +123,10 @@ public abstract class MutationsTestBase extends ELNBaseTest {
 
         // verify if patch is correct
         PatchTestUtil.verifyModelPatch(experiment, patch, updatedExperiment, reportBuilder);
-        experiment = updatedExperiment;
+        // verify patch reverse is correct
+        PatchTestUtil.verifyReversePatch(experiment, patch, updatedExperiment, reportBuilder);
 
+        experiment = updatedExperiment;
         Integer initialRevision = experiment.getRevision();
         if (undoRedo) {
             // verify if model after undo is the same as before initial mutation

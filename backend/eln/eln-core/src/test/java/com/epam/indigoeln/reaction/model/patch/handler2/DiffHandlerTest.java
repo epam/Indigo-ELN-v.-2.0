@@ -446,9 +446,14 @@ public class DiffHandlerTest {
         System.out.println("doVerifyPatchApplication: oldValue = " + oldValueJSON);
         System.out.println("doVerifyPatchApplication: newValue = " + newValueJSON);
         System.out.println("doVerifyPatchApplication: patch = " + patchJSON);
+
         JsonNode restoredJSON = jsonPatcher.apply(oldValueJSON, patchJSON);
         System.out.println("doVerifyPatchApplication: restored = " + restoredJSON);
         assertThat(PatchTestUtil.minimizeJSON(restoredJSON)).isEqualTo(PatchTestUtil.minimizeJSON(newValueJSON));
+
+        JsonNode revertedJSON = jsonPatcher.reverse(newValueJSON, patchJSON);
+        System.out.println("doVerifyPatchApplication: revered = " + revertedJSON);
+        assertThat(PatchTestUtil.minimizeJSON(revertedJSON)).isEqualTo(PatchTestUtil.minimizeJSON(oldValueJSON));
     }
 }
 
