@@ -71,8 +71,7 @@ class SetInputRowRoleHandler extends AbstractReactionInputMutationHandler<Reacti
                     throw new IllegalStateException("Input with the same role and compound already exists");
                 });
 
-        affectedRoles.add(row.getRole());
-        affectedRoles.add(mutation.role());
+        schemaAffected = true;
         row.setRole(mutation.role());
         return new MutationResult(formatSetterSummary("input role", mutation.role())
                 , new ReactionInputMutation.SetInputRowRole(mutation.anchor(), oldRole)

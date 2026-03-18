@@ -350,7 +350,7 @@ class UndoHandler extends ExperimentMutationHandlerBase<ExperimentMutation.Undo>
     @Override
     public MutationResult doHandle(ExperimentEntity entity, @Nullable ExperimentModel model, ExperimentMutation.Undo mutation) {
         reverseHandler.doHandle(entity, model, reverseMutation);
-        affectedRoles.addAll(reverseHandler.affectedRoles);
+        schemaAffected = reverseHandler.schemaAffected;
         return new MutationResult("Undo: " + initialRevision.getSummary(), null);
     }
 }
@@ -404,7 +404,7 @@ class RedoHandler extends ExperimentMutationHandlerBase<ExperimentMutation.Redo>
     public MutationResult doHandle(ExperimentEntity experiment, @Nullable ExperimentModel model, ExperimentMutation.Redo mutation) {
         // !!! verify revision was previously undone
         initialHandler.doHandle(experiment, model, initialMutation);
-        affectedRoles.addAll(initialHandler.affectedRoles);
+        schemaAffected = initialHandler.schemaAffected;
         return new MutationResult("Redo: " + initialRevision.getSummary(), null);
     }
 }

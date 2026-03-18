@@ -16,7 +16,6 @@ import java.util.List;
 @Getter
 @Setter
 @ToString(exclude = "reaction")
-@EqualsAndHashCode(exclude = "reaction", callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class ReactionInput extends ReactionRow {

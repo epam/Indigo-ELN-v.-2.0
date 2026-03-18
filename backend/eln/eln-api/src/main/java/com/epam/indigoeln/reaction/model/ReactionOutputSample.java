@@ -21,7 +21,6 @@ import java.util.UUID;
 @Getter
 @Setter
 @ToString(exclude = "row")
-@EqualsAndHashCode(exclude = "row", callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class ReactionOutputSample extends ReactionSample<ReactionOutput> {

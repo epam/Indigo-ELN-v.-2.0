@@ -199,7 +199,7 @@ class AddEmptyInputHandler extends AbstractReactionMutationHandler<ReactionMutat
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddEmptyInput mutation) {
         ReactionInput row = createInputLine(reaction, null, ReactionRole.REACTANT, checkNotNull(mutation.createdInputAnchor()), checkNotNull(mutation.createdSampleAnchor()));
         adjustLimitingInput(reaction);
-        affectedRoles.add(row.getRole());
+        schemaAffected = true;
         return new MutationResult("Add empty input"
                 , new ReactionInputMutation.RemoveInput(row.getAnchor())
         );
@@ -283,7 +283,7 @@ class UndoResolveInputsHandler extends AbstractReactionMutationHandler<ReactionM
                 sample.setRow(row);
             }
             row.setChemicalName(undo.chemicalName());
-            affectedRoles.add(row.getRole());
+            schemaAffected = true;
         });
         return new MutationResult("Undo resolve inputs", null);
     }

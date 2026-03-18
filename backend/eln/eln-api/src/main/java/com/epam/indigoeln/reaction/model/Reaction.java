@@ -3,13 +3,15 @@ package com.epam.indigoeln.reaction.model;
 import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.reaction.util.StreamUtil;
 import com.fasterxml.jackson.annotation.*;
-import com.google.common.collect.Iterables;
 import com.google.common.primitives.Ints;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
@@ -19,7 +21,6 @@ import java.util.Objects;
 
 @Data
 @ToString(exclude = "model")
-@EqualsAndHashCode(exclude = "model", callSuper = false)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class Reaction extends AbstractExperimentNode<ExperimentModel> {
@@ -87,10 +88,6 @@ public final class Reaction extends AbstractExperimentNode<ExperimentModel> {
             }
         }
         return null;
-    }
-
-    public Iterable<ReactionInput> inputsOfType(ReactionRole role) {
-        return Iterables.filter(inputs, input -> input.getRole() == role);
     }
 
     public String generateNextProductName() {

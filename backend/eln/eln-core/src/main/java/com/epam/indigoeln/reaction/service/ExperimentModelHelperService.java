@@ -4,26 +4,17 @@ import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
-import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
 import com.epam.indigoeln.reaction.model.Reaction;
+import com.epam.indigoeln.reaction.model.ReactionInput;
+import com.epam.indigoeln.reaction.model.ReactionOutput;
 import com.epam.indigoeln.reaction.model.ReactionRole;
-import com.epam.indigoeln.reaction.model.ReactionRow;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import static com.epam.indigoeln.eln.util.IndigoUtil.addToReaction;
-import static com.epam.indigoeln.eln.util.IndigoUtil.reactionIterable;
-
 @ApplicationScoped
 public class ExperimentModelHelperService {
-
-    private static final ReactionRole[] COMPONENT_ORDER = {ReactionRole.OUTPUT, ReactionRole.CATALYST, ReactionRole.REACTANT};
 
     @Inject
     CompoundService compoundService;
@@ -38,26 +29,33 @@ public class ExperimentModelHelperService {
         experiment.setPicture(buf);
     }
 
-    public void rebuildReactionRxnFile(ExperimentEntity experiment, Reaction reaction, Set<ReactionRole> affectedRoles, IndigoReaction indigoReaction) {
-        for (ReactionRole role : COMPONENT_ORDER) {
-            if (!affectedRoles.contains(role)) {
-                continue;
+    public IndigoReaction rebuildReactionRxnFile(Reaction reaction) {
+        IndigoReaction indigoReaction = indigo.createReaction();
+        int reactantPosition = -1;
+        for (ReactionInput input : reaction.getInputs()) {
+            if (input.getRole() == ReactionRole.REACTANT && input.getCompound().getCompoundID() != null) {
+                input.setRxnPosition(++reactantPosition);
+                CompoundEntity compound = compoundService.getCompound(input.getCompound().getCompoundID());
+                indigoReaction.addReactant(indigo.loadMolecule(compound.getMolFile()));
             }
-
-            List<IndigoMolecule> molecules = new ArrayList<>();
-            // noinspection rawtypes,unchecked
-            Iterable<ReactionRow> rows = role == ReactionRole.OUTPUT ? (Iterable) reaction.getOutputs() : (Iterable) reaction.inputsOfType(role);
-            for (ReactionRow input : rows) {
-                if (input.getCompound().getCompoundID() != null) {
-                    CompoundEntity compound = compoundService.getCompound(input.getCompound().getCompoundID());
-                    molecules.add(indigo.loadMolecule(compound.getMolFile()));
-                }
+        }
+        int catalystPosition = -1;
+        for (ReactionInput input : reaction.getInputs()) {
+            if (input.getRole() == ReactionRole.CATALYST && input.getCompound().getCompoundID() != null) {
+                input.setRxnPosition(++catalystPosition);
+                CompoundEntity compound = compoundService.getCompound(input.getCompound().getCompoundID());
+                indigoReaction.addReactant(indigo.loadMolecule(compound.getMolFile()));
             }
-
-            reactionIterable(indigoReaction, role).forEach(IndigoMolecule::remove);
-            // TODO sometimes it adds in reverse order, sometimes not
-            molecules.reversed().forEach(molecule -> addToReaction(indigoReaction, role, molecule));
+        }
+        int productPosition = -1;
+        for (ReactionOutput output : reaction.getOutputs()) {
+            if (output.isIntended() && output.getCompound().getCompoundID() != null) {
+                output.setRxnPosition(++productPosition);
+                CompoundEntity compound = compoundService.getCompound(output.getCompound().getCompoundID());
+                indigoReaction.addProduct(indigo.loadMolecule(compound.getMolFile()));
+            }
         }
         reaction.setRxnfile(indigoReaction.rxnfile());
+        return indigoReaction;
     }
 }

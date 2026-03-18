@@ -127,8 +127,8 @@ class RemoveInputHandler extends AbstractReactionInputMutationHandler<ReactionIn
         ReactionInput oldLimiting = reaction.getLimitingInput();
         Preconditions.checkState(oldLimiting != null);
         int position = reaction.getInputs().indexOf(row);
-        reaction.getInputs().remove(row);
-        affectedRoles.add(row.getRole());
+        row.delete();
+        schemaAffected = true;
         adjustLimitingInput(reaction);
 
         return new MutationResult("Remove input"

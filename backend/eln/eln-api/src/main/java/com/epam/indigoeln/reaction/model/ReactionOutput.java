@@ -16,7 +16,6 @@ import java.util.List;
 @Getter
 @Setter
 @ToString(exclude = "reaction")
-@EqualsAndHashCode(exclude = "reaction", callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class ReactionOutput extends ReactionRow {
@@ -52,6 +51,7 @@ public final class ReactionOutput extends ReactionRow {
         row.anchor = anchor;
         row.type = type;
         row.intended = intended;
+        reaction.getOutputs().add(row);
         return row;
     }
 

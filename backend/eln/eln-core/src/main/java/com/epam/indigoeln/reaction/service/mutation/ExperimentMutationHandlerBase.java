@@ -22,7 +22,6 @@ import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -132,7 +131,7 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
         String oldChemicalName = row.getChemicalName();
         row.setChemicalName(sample.getCompound().getChemicalName());
 
-        affectedRoles.add(row.getRole());
+        schemaAffected = true;
 
         return new ReactionMutation.UndoResolveInputs.RowUndo(oldCompound, oldSamples, oldChemicalName);
     }
@@ -157,8 +156,6 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
         row.setOutputName(reaction.generateNextProductName());
         row.setCompound(compound);
         row.setEq(DEFAULT_ONE);
-        row.setSamples(new ArrayList<>());
-        reaction.getOutputs().add(row);
         return row;
     }
 
