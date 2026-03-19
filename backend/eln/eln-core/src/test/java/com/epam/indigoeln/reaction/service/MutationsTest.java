@@ -542,6 +542,13 @@ public class MutationsTest extends MutationsTestBase {
         assertThat(experiment.getBatchCreator()).isEqualTo(getMaggieUserRef());
     }
 
+    @Test
+    void testConflicts() {
+        loadScheme();
+        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "100", WeightUnit.G, null));
+        applyMutation(new ReactionInputSampleMutation.SetInputMol(input1Sample1.getAnchor(), "1", MolUnit.MOL, null), false);
+    }
+
     private void loadScheme() {
         String rxnFile = new String(ModelUtil.loadResource(getClass(), "/reaction.rxn"));
         applyMutation(new ReactionMutation.SetScheme(reaction.getAnchor(), rxnFile));

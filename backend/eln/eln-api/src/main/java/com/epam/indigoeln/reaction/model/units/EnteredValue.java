@@ -35,9 +35,12 @@ public final class EnteredValue<U extends MeasurementUnit> {
     private final String stringValue; // for now, always set; maybe postpone initialization for calculated values if gets recalculated too often
     @Setter
     private EnteredValueSource source;
+    @Deprecated // !!! only to deserialize existing models; remove
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private boolean conflict = false;
     @Setter
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    private boolean conflict = false;
+    private boolean overwritten = false;
 
     @JsonCreator
     EnteredValue(String stringValue, U unit, EnteredValueSource source) {
@@ -86,7 +89,7 @@ public final class EnteredValue<U extends MeasurementUnit> {
             if (value.source.isCalculated()) {
                 setter.accept(defaultValue); // reset calculated values
             }
-            value.conflict = false;
+            value.overwritten = false;
         }
     }
 
@@ -145,8 +148,8 @@ public final class EnteredValue<U extends MeasurementUnit> {
         if (unit != NoUnit.NO_UNIT) {
             str.append(' ').append(unit);
         }
-        if (conflict) {
-            str.append(" [CONFLICT]");
+        if (overwritten) {
+            str.append(" [OVERWRITTEN]");
         }
         return str.toString();
     }

@@ -80,7 +80,7 @@ public class JSONSerializationTest {
         assertThat(value2.getValue()).isEqualTo(5.0);
         assertThat(value2.getUnit()).isEqualTo(WeightUnit.G);
         assertThat(value2.getSource()).isEqualTo(EnteredValueSource.userEntered(1));
-        assertThat(value2.isConflict()).isFalse();
+        assertThat(value2.isOverwritten()).isFalse();
     }
 
     @ParameterizedTest
