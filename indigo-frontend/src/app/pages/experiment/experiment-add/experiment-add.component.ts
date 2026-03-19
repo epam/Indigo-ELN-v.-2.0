@@ -26,7 +26,7 @@ interface ExperimentForm {
     ReactiveFormsModule,
     MatInputModule,
     FormDialogComponent,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
   ],
   templateUrl: './experiment-add.component.html',
   providers: [NotebookService],
@@ -75,13 +75,13 @@ export class ExperimentAddComponent implements OnInit {
           res.items.map((item: any) => ({
             value: item.id,
             label: item.name,
-          }))
+          })),
         ),
         finalize(() => {
           this.templatesLoading = false;
           this.ready = true;
           this.cdr.markForCheck();
-        })
+        }),
       )
       .subscribe({
         next: (options) => {
@@ -110,19 +110,28 @@ export class ExperimentAddComponent implements OnInit {
     this.submitting = true;
 
     if (this.dialogData && typeof this.dialogData.onSubmitting === 'function') {
-      try { this.dialogData.onSubmitting(true); } catch {}
+      try {
+        this.dialogData.onSubmitting(true);
+      } catch {}
     }
 
     this.api
       .request('post', `/notebooks/${notebookId}/experiments`, {
         templateID: formData.templateId,
       })
-      .pipe(finalize(() => {
-        this.submitting = false;
-        if (this.dialogData && typeof this.dialogData.onSubmitting === 'function') {
-          try { this.dialogData.onSubmitting(false); } catch {}
-        }
-      }))
+      .pipe(
+        finalize(() => {
+          this.submitting = false;
+          if (
+            this.dialogData &&
+            typeof this.dialogData.onSubmitting === 'function'
+          ) {
+            try {
+              this.dialogData.onSubmitting(false);
+            } catch {}
+          }
+        }),
+      )
       .subscribe({
         next: () => {
           this.notification.notify({
