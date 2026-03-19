@@ -11,7 +11,6 @@ import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.RevisionService;
 import com.epam.indigoeln.eln.service.UserService;
-import com.epam.indigoeln.eln.util.ExperimentModelUtil;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.reaction.model.*;
@@ -82,7 +81,6 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation> exte
     protected ExperimentModel doPrepareModel(ExperimentEntity experiment) {
         if (isAffectsModel()) {
             ExperimentModel model = experimentModelService.getModel(experiment);
-            ExperimentModelUtil.prepareToRecalculate(model);
             return model;
         }
         return null;

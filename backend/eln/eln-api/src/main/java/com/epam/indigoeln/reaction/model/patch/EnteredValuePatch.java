@@ -18,5 +18,5 @@ public class EnteredValuePatch<U extends MeasurementUnit> {
     @Nullable
     private Patched<EnteredValueSource, EnteredValueSource> source;
     @Nullable
-    private Patched<Boolean, Boolean> conflict;
+    private Patched<Boolean, Boolean> overwritten;
 }

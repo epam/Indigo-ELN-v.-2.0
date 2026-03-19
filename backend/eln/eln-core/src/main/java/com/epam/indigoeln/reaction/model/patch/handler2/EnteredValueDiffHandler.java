@@ -49,7 +49,7 @@ public class EnteredValueDiffHandler<U extends MeasurementUnit> extends Abstract
             b.setSource(a.getSource());
         }
         patch.setSource(diff(updated, a, b, EnteredValue::getSource));
-        patch.setConflict(diff(updated, a, b, EnteredValue::isConflict, DefaultDiffHandler.DEFAULT_FALSE_INSTANCE));
+        patch.setOverwritten(diff(updated, a, b, EnteredValue::isOverwritten, DefaultDiffHandler.DEFAULT_FALSE_INSTANCE));
         return updated.isSet() ? Patched.updated(patch) : null;
     }
 }

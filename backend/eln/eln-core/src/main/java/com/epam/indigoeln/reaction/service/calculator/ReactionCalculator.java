@@ -1,5 +1,11 @@
 package com.epam.indigoeln.reaction.service.calculator;
 
+import com.epam.indigoeln.eln.util.ExperimentModelUtil;
+import com.epam.indigoeln.reaction.metamodel.ReactionInputMetamodel;
+import com.epam.indigoeln.reaction.metamodel.ReactionInputSampleMetamodel;
+import com.epam.indigoeln.reaction.metamodel.ReactionOutputMetamodel;
+import com.epam.indigoeln.reaction.metamodel.ReactionOutputSampleMetamodel;
+import com.epam.indigoeln.reaction.metamodel.property.ModelProperty;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.units.*;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -7,8 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BooleanSupplier;
-import java.util.function.Consumer;
 
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.ZERO_MOL;
 import static com.epam.indigoeln.reaction.model.units.EnteredValueOpt.opt;
@@ -18,7 +25,36 @@ import static com.epam.indigoeln.reaction.model.units.EnteredValueSource.DEFAULT
 @ApplicationScoped
 public class ReactionCalculator {
 
+    private final List<Conflict> conflicts = new ArrayList<>();
+    private final List<Conflict> overwrittenConflicts = new ArrayList<>();
+
     public void recalculate(ExperimentModel model) {
+        for (;;) {
+            ExperimentModelUtil.prepareToRecalculate(model);
+            conflicts.clear();
+            recalculateModel(model);
+            if (conflicts.isEmpty()) {
+                break;
+            }
+            Conflict conflictToOverwrite = StreamEx.of(conflicts)
+                    .minBy(x -> {
+                        EnteredValue<NoUnit> value = x.property.get(x.container);
+                        return value != null && value.getSource().isUserEntered() ? value.getSource().getPriority() : Integer.MAX_VALUE;
+                    })
+                    .orElseThrow();
+            conflictToOverwrite.property.set(conflictToOverwrite.container, null);
+            overwrittenConflicts.add(conflictToOverwrite);
+        }
+        // set "overwritten" flag
+        for (Conflict conflict : overwrittenConflicts) {
+            EnteredValue<NoUnit> value = conflict.property.get(conflict.container);
+            if (value != null) {
+                value.setOverwritten(true);
+            }
+        }
+    }
+
+    private void recalculateModel(ExperimentModel model) {
         updateCycle("reaction", () -> {
             boolean updated = false;
             for (Reaction reaction : model.getReactions()) {
@@ -58,14 +94,14 @@ public class ReactionCalculator {
                 }
             }
             updated |= tryUpdate(
-                    "input.mol", input.getMol(), input::setMol,
+                    "input.mol", input, ReactionInputMetamodel.MOL,
                     // molCompound = sum(molSamples)
                     mol,
                     // molCompound = molCompoundLimiting / eqLimiting * eq
                     mol2
             );
             updated |= tryUpdate(
-                    "input.eq", input.getEq(), input::setEq,
+                    "input.eq", input, ReactionInputMetamodel.EQ,
                     eq
             );
             for (ReactionInputSample sample : input.getSamples()) {
@@ -84,7 +120,7 @@ public class ReactionCalculator {
                     .map(s -> EnteredValueOpt.opt(s.getMol()))
                     .reduce(EnteredValueOpt.opt(ZERO_MOL), EnteredValueOpt::add);
             updated |= tryUpdate(
-                    "inputSample.mol", sample.getMol(), sample::setMol,
+                    "inputSample.mol", sample, ReactionInputSampleMetamodel.MOL,
                     // mol = molCompound - sum(molOtherSamples)
                     rowMol.subtract(otherSamplesMol),
                     // mol = weight * purity / molWeight
@@ -93,14 +129,14 @@ public class ReactionCalculator {
                     opt(sample.getMolarity()).multiply(sample.getVolume())
             );
             updated |= tryUpdate(
-                    "inputSample.weight", sample.getWeight(), sample::setWeight,
+                    "inputSample.weight", sample, ReactionInputSampleMetamodel.WEIGHT,
                     // weight = mol * molWeight / purity * 100
                     opt(sample.getMol()).multiply(molWeight).multiply(100.0).divide(sample.getPurity()),
                     // weight = volume * density
                     opt(sample.getVolume()).multiply(sample.getDensity())
             );
             updated |= tryUpdate(
-                    "inputSample.volume", sample.getVolume(), sample::setVolume,
+                    "inputSample.volume", sample, ReactionInputSampleMetamodel.VOLUME,
                     // volume = weight / density
                     opt(sample.getWeight()).divide(sample.getDensity()),
                     // volume = mol / molarity
@@ -122,16 +158,16 @@ public class ReactionCalculator {
                 eq = opt(limitingInput.getMol()).divide(limitingInput.getEq()).divide(output.getTheoMol());
             }
             updated |= tryUpdate(
-                    "output.theoMol", output.getTheoMol(), output::setTheoMol,
+                    "output.theoMol", output, ReactionOutputMetamodel.THEO_MOL,
                     // theoMol = molInputCompoundLimiting / eqInputCompoundLimiting * eq
                     theoMol
             );
             updated |= tryUpdate(
-                    "output.eq", output.getEq(), output::setEq,
+                    "output.eq", output, ReactionOutputMetamodel.EQ,
                     eq
             );
             updated |= tryUpdate(
-                    "output.theoWeight", output.getTheoWeight(), output::setTheoWeight,
+                    "output.theoWeight", output, ReactionOutputMetamodel.THEO_WEIGHT,
                     opt(output.getTheoMol()).multiply(molWeight)
             );
             for (ReactionOutputSample sample : output.getSamples()) {
@@ -145,28 +181,28 @@ public class ReactionCalculator {
         return updateCycle("output sample " + sample.getAnchor(), () -> {
             boolean updated = false;
             updated |= tryUpdate(
-                    "outputSample.actualMol", sample.getActualMol(), sample::setActualMol,
+                    "outputSample.actualMol", sample, ReactionOutputSampleMetamodel.ACTUAL_MOL,
                     // actualMol = actualWeight * purity / molWeight
                     opt(sample.getActualWeight()).multiply(sample.getPurityAsFraction()).divide(molWeight),
                     // actualMol = molarity * volume
                     opt(sample.getMolarity()).multiply(sample.getVolume())
             );
             updated |= tryUpdate(
-                    "outputSample.actualWeight", sample.getActualWeight(), sample::setActualWeight,
+                    "outputSample.actualWeight", sample, ReactionOutputSampleMetamodel.ACTUAL_WEIGHT,
                     // actualWeight = actualMol * molWeight / purity
                     opt(sample.getActualMol()).<WeightUnit>multiply(molWeight).divide(sample.getPurityAsFraction()),
                     // actualWeight = volume * density
                     opt(sample.getVolume()).multiply(sample.getDensity())
             );
             updated |= tryUpdate(
-                    "outputSample.volume", sample.getVolume(), sample::setVolume,
+                    "outputSample.volume", sample, ReactionOutputSampleMetamodel.VOLUME,
                     // volume = actualWeight / density
                     opt(sample.getActualWeight()).divide(sample.getDensity()),
                     // volume = actualMol / molarity
                     opt(sample.getActualMol()).divide(sample.getMolarity())
             );
             updated |= tryUpdate(
-                    "outputSample.yield", sample.getYield(), sample::setYield,
+                    "outputSample.yield", sample, ReactionOutputSampleMetamodel.YIELD,
                     // yield = actualMol / theoMol
                     opt(sample.getActualMol()).<NoUnit>divide(sample.getRow().getTheoMol()).multiply(100.0),
                     // yield = actualWeight * purity / theoWeight
@@ -177,37 +213,37 @@ public class ReactionCalculator {
     }
 
     @SafeVarargs
-    private <R extends MeasurementUnit> boolean tryUpdate(String displayName, @Nullable EnteredValue<R> targetCurrent, Consumer<EnteredValue<R>> targetSetter, EnteredValueOpt<R>... results) {
+    private <C, R extends MeasurementUnit> boolean tryUpdate(String displayName, C container, ModelProperty<C, EnteredValue<R>, ?, ?> property, EnteredValueOpt<R>... results) {
         boolean updated = false;
-        EnteredValue<R> original = targetCurrent;
+        EnteredValue<R> targetCurrent = property.get(container);
 //        boolean checkConflicts = false;
         for (EnteredValueOpt<R> result : results) {
             if (result.getValue() != null) {
                 if (targetCurrent == null) {
                     log.debug("tryUpdate: {}: no previous value, set to {}", displayName, result.getValue());
-                    targetSetter.accept(result.getValue().cast());
+                    property.set(container, result.getValue().cast());
                     updated = true;
                 } else {
                     boolean resultIsMorePriority = result.getValue().getSource().getPriority() > targetCurrent.getSource().getPriority();
                     if (targetCurrent.valueEquals(result.getValue())) {
                         // reassign value to reflect priority change, but don't consider it an update because value didn't change
                         if (resultIsMorePriority) {
-//                            log.debug("tryUpdate: {}: same value recalculated, but source changed from {} to {}", displayName, targetCurrent.getSource(), result.getValue().getSource());
-//                            targetSetter.accept(result.getValue().cast());
+                            log.debug("tryUpdate: {}: same value recalculated, but source changed from {} to {}", displayName, targetCurrent.getSource(), result.getValue().getSource());
+                            property.set(container, result.getValue());
                         }
                     } else if (targetCurrent.getSource() == DEFAULT && resultIsMorePriority) {
                         // reassign default value
                         log.debug("tryUpdate: {}: default value {} overwritten to {}", displayName, targetCurrent, result.getValue());
-                        targetSetter.accept(result.getValue().cast());
+                        property.set(container, result.getValue());
                     } else {
                         // values don't match, meaning a conflict; if new value has more priority, update to new value
                         log.debug("tryUpdate: {}: conflict, current value {}, new value {}", displayName, targetCurrent, result.getValue());
                         if (resultIsMorePriority) {
-                            targetSetter.accept(result.getValue().cast());
-                            targetCurrent = result.getValue().cast();
+                            property.set(container, result.getValue());
+                            targetCurrent = result.getValue();
                             updated = true;
                         }
-                        targetCurrent.setConflict(true);
+                        conflicts.add(new Conflict(container, property.cast()));
                     }
                 }
             }
@@ -253,4 +289,9 @@ public class ReactionCalculator {
         log.debug("updateCycle: complete{}: {}", anyUpdates ? " with updates" : " without updates", displayName);
         return anyUpdates;
     }
+
+    private record Conflict (
+            Object container,
+            ModelProperty<Object, EnteredValue<NoUnit>, Object, Object> property
+    ) {}
 }

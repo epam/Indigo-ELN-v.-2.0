@@ -45,12 +45,12 @@ public class PatchUtil {
                 for (Map.Entry<String, JsonNode> entry : object.properties()) {
                     switch (entry.getKey()) {
                         case "$new" -> {
-                            builder.setPrefixAndSuffix2("<span class='diff-new'>", "</span>");
+                            builder.setPrefixAndSuffix2("<span class='new'>", "</span>");
                             formatJSONDiff(entry.getValue(), "", builder, true);
                             builder.setPrefixAndSuffix2("", "");
                         }
                         case "$old" -> {
-                            builder.setPrefixAndSuffix2("<span class='diff-old'>", "</span>");
+                            builder.setPrefixAndSuffix2("<span class='old'>", "</span>");
                             formatJSONDiff(entry.getValue(), "", builder, false);
                             builder.setPrefixAndSuffix2("", "");
                         }
