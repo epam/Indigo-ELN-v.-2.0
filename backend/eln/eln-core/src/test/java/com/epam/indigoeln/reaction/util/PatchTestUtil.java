@@ -1,9 +1,9 @@
 package com.epam.indigoeln.reaction.util;
 
 import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
+import com.epam.indigoeln.eln.util.JSONPatcher;
 import com.epam.indigoeln.flyway.util.JsonLocator;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
-import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import com.epam.indigoeln.test.FeignUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -61,10 +61,8 @@ public class PatchTestUtil {
     }
 
     public static void verifyModel(ExperimentSnapshot actual, ExperimentSnapshot expected, @Nullable CalculationReportBuilder reportBuilder, Supplier<String> messageFn) throws Exception {
-        JsonNode actualJSON = FeignUtil.OBJECT_MAPPER.readTree(FeignUtil.OBJECT_MAPPER.writeValueAsBytes(actual));
-        JsonNode expectedJSON = FeignUtil.OBJECT_MAPPER.readTree(FeignUtil.OBJECT_MAPPER.writeValueAsBytes(expected));
-        actualJSON = prepareForComparison((ObjectNode) actualJSON);
-        expectedJSON = prepareForComparison((ObjectNode) expectedJSON);
+        JsonNode actualJSON = prepareForComparison(FeignUtil.OBJECT_MAPPER.valueToTree(actual));
+        JsonNode expectedJSON = prepareForComparison(FeignUtil.OBJECT_MAPPER.valueToTree(expected));
         assertObjectsEqual(reportBuilder
                 , null
                 , actualJSON
@@ -74,23 +72,20 @@ public class PatchTestUtil {
         );
     }
 
-    public static void verifyModelPatch(ExperimentDetailsDTO initial, ExperimentPatch patch, ExperimentDetailsDTO updated, @Nullable CalculationReportBuilder reportBuilder) throws Exception {
+    public static void verifyModelPatch(ExperimentDetailsDTO initial, JsonNode patch, ExperimentDetailsDTO updated, @Nullable CalculationReportBuilder reportBuilder) throws Exception {
         doVerifyModelPatch(initial, patch, updated, reportBuilder);
     }
 
-    public static void verifyModelPatch(ExperimentSnapshot initial, ExperimentPatch patch, ExperimentSnapshot updated, @Nullable CalculationReportBuilder reportBuilder) throws Exception {
+    public static void verifyModelPatch(ExperimentSnapshot initial, JsonNode patch, ExperimentSnapshot updated, @Nullable CalculationReportBuilder reportBuilder) throws Exception {
         doVerifyModelPatch(initial, patch, updated, reportBuilder);
     }
 
-    private static void doVerifyModelPatch(Object initial, ExperimentPatch patch, Object updated, @Nullable CalculationReportBuilder reportBuilder) throws Exception {
-        byte[] initialBytes = FeignUtil.OBJECT_MAPPER.writeValueAsBytes(initial);
-        JsonNode initialJSON = cleanupJSON(FeignUtil.OBJECT_MAPPER.readTree(initialBytes));
-
-        byte[] updatedBytes = FeignUtil.OBJECT_MAPPER.writeValueAsBytes(updated);
-        JsonNode updatedJSON = cleanupJSON(FeignUtil.OBJECT_MAPPER.readTree(updatedBytes));
+    private static void doVerifyModelPatch(Object initial, JsonNode patch, Object updated, @Nullable CalculationReportBuilder reportBuilder) throws Exception {
+        JsonNode initialJSON = cleanupJSON(FeignUtil.OBJECT_MAPPER.valueToTree(initial));
+        JsonNode updatedJSON = cleanupJSON(FeignUtil.OBJECT_MAPPER.valueToTree(updated));
 
         String patchStr = FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(patch);
-        JsonNode appliedWithJSON = JSONPatcher.EXPERIMENT_INSTANCE.apply(initialJSON.deepCopy(), FeignUtil.OBJECT_MAPPER.readTree(patchStr));
+        JsonNode appliedWithJSON = new JSONPatcher(FeignUtil.OBJECT_MAPPER).apply(initialJSON.deepCopy(), FeignUtil.OBJECT_MAPPER.readTree(patchStr));
 
         assertObjectsEqual(reportBuilder, patchStr, prepareForComparison((ObjectNode) minimizeJSON(appliedWithJSON)), prepareForComparison((ObjectNode) minimizeJSON(updatedJSON)), "patched", "Model (right) with applied patch (left) not equals to expected (middle)");
     }

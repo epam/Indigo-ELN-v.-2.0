@@ -35,7 +35,7 @@ public final class Reaction implements ExperimentNode {
     private String rxnfile;
 
     @NotNull
-    private Integer rxnVersion = 0;
+    private Integer rxnVersion; // = 0
 
     @NotNull
     @JsonManagedReference
@@ -49,6 +49,7 @@ public final class Reaction implements ExperimentNode {
         Reaction reaction = new Reaction();
         reaction.model = model;
         reaction.anchor = anchor;
+        reaction.rxnVersion = 0;
         return reaction;
     }
 

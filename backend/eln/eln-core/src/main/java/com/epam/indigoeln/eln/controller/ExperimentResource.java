@@ -12,7 +12,7 @@ import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.InputAnchor;
 import com.epam.indigoeln.reaction.model.ReactionAnchor;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -117,7 +117,7 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
-    public ExperimentPatch mutateExperimentModel2(UUID experimentId, Integer revision, Mutation mutation) {
+    public JsonNode mutateExperimentModel2(UUID experimentId, Integer revision, Mutation mutation) {
         return experimentService.mutateModel2(experimentId, revision, mutation);
     }
 
@@ -177,7 +177,7 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
-    public List<RevisionDetailsDTO<ExperimentPatch>> getExperimentRevisions(UUID experimentId, @Nullable UUID editSessionId, @Nullable Boolean reverseOrder) {
+    public List<RevisionDetailsDTO> getExperimentRevisions(UUID experimentId, @Nullable UUID editSessionId, @Nullable Boolean reverseOrder) {
         return experimentService.getExperimentRevisions(experimentId, editSessionId, reverseOrder);
     }
 
@@ -187,7 +187,7 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
-    public ExperimentPatch compareVersions(UUID experimentId, @Nullable Integer versionFrom, @Nullable Integer versionTo) {
+    public JsonNode compareVersions(UUID experimentId, @Nullable Integer versionFrom, @Nullable Integer versionTo) {
         return experimentService.compareVersions(experimentId, versionFrom, versionTo);
     }
 

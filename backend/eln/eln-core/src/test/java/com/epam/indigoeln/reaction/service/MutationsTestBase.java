@@ -5,10 +5,10 @@ import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import com.epam.indigoeln.reaction.util.CalculationReportBuilder;
 import com.epam.indigoeln.reaction.util.PatchTestUtil;
 import com.epam.indigoeln.test.FeignUtil;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.math.Stats;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
@@ -104,7 +104,7 @@ public abstract class MutationsTestBase extends ELNBaseTest {
         reportBuilder.addMutation(reportClass, mutation);
 
         ExperimentSnapshot initialSnapshot = experimentClient.getExperimentSnapshot(experiment.getId());
-        ExperimentPatch patch = experimentClient.mutateExperimentModel2(experiment.getId(), experiment.getRevision(), mutation);
+        JsonNode patch = experimentClient.mutateExperimentModel2(experiment.getId(), experiment.getRevision(), mutation);
         ExperimentDetailsDTO updatedExperiment = experimentClient.getExperiment(experiment.getId());
 
         // reload picture

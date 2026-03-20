@@ -13,9 +13,9 @@ import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.reaction.model.NotebookSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.mutation.NotebookMutation;
-import com.epam.indigoeln.reaction.model.patch.NotebookPatch;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerRegistry;
 import com.epam.indigoeln.reaction.service.mutation.NotebookMutationHandler;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -94,13 +94,13 @@ public class NotebookService {
         return notebookRepository.findNestedAccess(projectId);
     }
 
-    public Pair<NotebookSnapshot, NotebookPatch> applyMutation(NotebookEntity notebook, NotebookMutation mutation) {
+    public Pair<NotebookSnapshot, JsonNode> applyMutation(NotebookEntity notebook, NotebookMutation mutation) {
         log.debug("Mutating notebook {}: {}", notebook.getId(), mutation);
         NotebookMutationHandler<Mutation> handler = mutationHandlerRegistry.findHandler(mutation);
         return handler.applyMutation(notebook, mutation);
     }
 
-    public List<RevisionDetailsDTO<NotebookPatch>> getNotebookRevisions(UUID notebookId) {
+    public List<RevisionDetailsDTO> getNotebookRevisions(UUID notebookId) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
         aclService.ensureAccess(notebook, ApplicationPermission.VIEW_NOTEBOOKS);
         return notebookMapper.revisionToDTOList(notebook.getRevisions());

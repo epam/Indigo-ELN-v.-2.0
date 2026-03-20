@@ -10,7 +10,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -36,7 +35,7 @@ public final class ReactionInput extends ReactionRow implements ExperimentNode {
     @NotEmpty
     @JsonManagedReference
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private List<@Valid ReactionInputSample> samples = new ArrayList<>();
+    private List<@Valid ReactionInputSample> samples = List.of();
 
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private boolean limiting;

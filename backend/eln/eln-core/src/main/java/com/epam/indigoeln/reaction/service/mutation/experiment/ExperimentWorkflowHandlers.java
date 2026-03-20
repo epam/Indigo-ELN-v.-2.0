@@ -14,10 +14,10 @@ import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
-import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import com.epam.indigoeln.reaction.service.mutation.ExperimentMutationHandlerBase;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -200,7 +200,7 @@ class MakeVersionHandler extends ExperimentMutationHandlerBase<ExperimentMutatio
     }
 
     @Override
-    protected ExperimentRevisionEntity doCreateRevision(ExperimentEntity experiment, ExperimentMutation.MakeVersion mutation, MutationResult result, Integer revisionNo, ExperimentPatch patch) {
+    protected ExperimentRevisionEntity doCreateRevision(ExperimentEntity experiment, ExperimentMutation.MakeVersion mutation, MutationResult result, Integer revisionNo, JsonNode patch) {
         ExperimentRevisionEntity revision = super.doCreateRevision(experiment, mutation, result, revisionNo, patch);
         revision.setVersion(version);
         revision.setSnapshot(snapshot);

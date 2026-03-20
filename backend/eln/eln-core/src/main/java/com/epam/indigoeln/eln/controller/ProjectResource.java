@@ -8,7 +8,6 @@ import com.epam.indigoeln.eln.api.UploadForm;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.ProjectService;
-import com.epam.indigoeln.reaction.model.patch.ProjectPatch;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -80,7 +79,7 @@ public class ProjectResource implements ProjectAPI {
     }
 
     @Override
-    public List<RevisionDetailsDTO<ProjectPatch>> getProjectRevisions(UUID projectId) {
+    public List<RevisionDetailsDTO> getProjectRevisions(UUID projectId) {
         return projectService.getProjectRevisions(projectId);
     }
 }

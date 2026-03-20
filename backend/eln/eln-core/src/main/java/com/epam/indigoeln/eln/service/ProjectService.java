@@ -11,9 +11,9 @@ import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.reaction.model.ProjectSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.mutation.ProjectMutation;
-import com.epam.indigoeln.reaction.model.patch.ProjectPatch;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerRegistry;
 import com.epam.indigoeln.reaction.service.mutation.ProjectMutationHandler;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -88,13 +88,13 @@ public class ProjectService {
         return projectRepository.findNestedAccess(projectId);
     }
 
-    public Pair<ProjectSnapshot, ProjectPatch> applyMutation(ProjectEntity project, ProjectMutation mutation) {
+    public Pair<ProjectSnapshot, JsonNode> applyMutation(ProjectEntity project, ProjectMutation mutation) {
         log.debug("Mutating project {}: {}", project.getId(), mutation);
         ProjectMutationHandler<Mutation> handler = mutationHandlerRegistry.findHandler(mutation);
         return handler.applyMutation(project, mutation);
     }
 
-    public List<RevisionDetailsDTO<ProjectPatch>> getProjectRevisions(UUID projectId) {
+    public List<RevisionDetailsDTO> getProjectRevisions(UUID projectId) {
         ProjectEntity project = projectRepository.get(projectId);
         aclService.ensureAccess(project, ApplicationPermission.VIEW_PROJECTS);
         return projectMapper.revisionToDTOList(project.getRevisions());

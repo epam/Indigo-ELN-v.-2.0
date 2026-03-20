@@ -1,6 +1,7 @@
 package com.epam.indigoeln.eln.model;
 
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,7 +13,7 @@ import java.time.ZonedDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RevisionDetailsDTO<P> {
+public class RevisionDetailsDTO {
 
     @NotNull
     private Integer revision;
@@ -33,7 +34,7 @@ public class RevisionDetailsDTO<P> {
     private String summary;
 
     @NotNull
-    private P diff;
+    private JsonNode diff;
 
     @NotNull
     private String stringDiff;

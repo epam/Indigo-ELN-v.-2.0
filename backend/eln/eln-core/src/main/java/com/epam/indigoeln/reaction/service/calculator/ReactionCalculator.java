@@ -214,7 +214,7 @@ public class ReactionCalculator {
     }
 
     @SafeVarargs
-    private <C, R extends MeasurementUnit> boolean tryUpdate(String displayName, C container, ModelProperty<C, EnteredValue<R>, ?, ?> property, EnteredValueOpt<R>... results) {
+    private <C, R extends MeasurementUnit> boolean tryUpdate(String displayName, C container, ModelProperty<C, EnteredValue<R>> property, EnteredValueOpt<R>... results) {
         boolean updated = false;
         EnteredValue<R> targetCurrent = property.get(container);
 //        boolean checkConflicts = false;
@@ -267,6 +267,6 @@ public class ReactionCalculator {
 
     private record Conflict (
             Object container,
-            ModelProperty<Object, EnteredValue<NoUnit>, Object, Object> property
+            ModelProperty<Object, EnteredValue<NoUnit>> property
     ) {}
 }

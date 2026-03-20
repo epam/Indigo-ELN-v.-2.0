@@ -8,17 +8,17 @@ import com.epam.indigoeln.eln.mapper.SnapshotMapper;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.service.RevisionService;
 import com.epam.indigoeln.eln.service.UserService;
+import com.epam.indigoeln.eln.util.JSONPatcher;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.ReactionAnchor;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
-import com.epam.indigoeln.reaction.model.patch.handler2.ExperimentDiffHandler;
 import com.epam.indigoeln.reaction.service.calculator.ReactionCalculator;
 import com.epam.indigoeln.reaction.service.mutation.ExperimentMutationHandler;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerRegistry;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -27,6 +27,7 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.Validator;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 
@@ -53,24 +54,22 @@ public class ExperimentModelService {
     @Inject
     ExperimentRepository experimentRepository;
     @Inject
-    ObjectMapper objectMapper;
-    @Inject
     SnapshotMapper snapshotMapper;
     @Inject
     Validator validator;
     @Inject
     RevisionService revisionService;
+    @Inject
+    JSONPatcher jsonPatcher;
 
-    ObjectReader modelReader;
-    ObjectWriter modelWriter;
-    ObjectReader patchReader;
-    ObjectWriter patchWriter;
+    private final ObjectMapper objectMapper;
+    private final ObjectReader modelReader;
+    private final ObjectWriter modelWriter;
 
     ExperimentModelService(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
         modelReader = objectMapper.readerFor(ExperimentModel.class);
         modelWriter = objectMapper.writerFor(ExperimentModel.class);
-        patchReader = objectMapper.readerFor(ExperimentPatch.class);
-        patchWriter = objectMapper.writerFor(ExperimentPatch.class);
     }
 
     @Valid
@@ -83,16 +82,17 @@ public class ExperimentModelService {
         return model;
     }
 
-    public Pair<ExperimentSnapshot, ExperimentPatch> applyMutation(ExperimentEntity experiment, Mutation mutation) {
+    public Pair<ExperimentSnapshot, JsonNode> applyMutation(ExperimentEntity experiment, Mutation mutation) {
         log.debug("Mutating experiment {}: {}", experiment.getId(), mutation);
         ExperimentMutationHandler<Mutation> handler = mutationHandlerRegistry.findHandler(mutation);
         return handler.applyMutation(experiment, mutation);
     }
 
-    public ExperimentPatch createPatch(ExperimentSnapshot a, ExperimentSnapshot b) {
-        ExperimentDiffHandler valueHandler = ExperimentDiffHandler.INSTANCE;
-        //noinspection DataFlowIssue
-        return valueHandler.compare(a, b).updatedValue();
+    @SneakyThrows
+    public JsonNode createPatch(ExperimentSnapshot a, ExperimentSnapshot b) {
+        JsonNode aJSON = objectMapper.valueToTree(a);
+        JsonNode bJSON = objectMapper.valueToTree(b);
+        return jsonPatcher.createTopLevel(aJSON, bJSON);
     }
 
     public ExperimentModel getModel(ExperimentEntity experiment) {

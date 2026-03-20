@@ -9,11 +9,13 @@ import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.RevisionService;
 import com.epam.indigoeln.eln.service.UserService;
+import com.epam.indigoeln.eln.util.JSONPatcher;
 import com.epam.indigoeln.reaction.model.ProjectSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.patch.ProjectPatch;
-import com.epam.indigoeln.reaction.model.patch.handler2.ProjectDiffHandler;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.inject.Inject;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
 import org.jspecify.annotations.Nullable;
@@ -22,7 +24,7 @@ import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 import static com.epam.indigoeln.eln.util.ModelUtil.wrapConstraintViolation;
 
 @Slf4j
-public abstract class AbstractProjectMutationHandler<T extends Mutation> extends AbstractMutationHandler<T, Void, ProjectEntity, ProjectSnapshot, ProjectPatch, ProjectRevisionEntity> implements ProjectMutationHandler<T> {
+public abstract class AbstractProjectMutationHandler<T extends Mutation> extends AbstractMutationHandler<T, Void, ProjectEntity, ProjectSnapshot, ProjectRevisionEntity> implements ProjectMutationHandler<T> {
 
     @Inject
     protected SnapshotMapper snapshotMapper;
@@ -36,9 +38,13 @@ public abstract class AbstractProjectMutationHandler<T extends Mutation> extends
     protected EntityMutationHelper entityMutationHelper;
     @Inject
     protected ACLService aclService;
+    @Inject
+    protected ObjectMapper objectMapper;
+    @Inject
+    protected JSONPatcher jsonPatcher;
 
     @Override
-    public Pair<ProjectSnapshot, ProjectPatch> applyMutation(ProjectEntity project, T mutation) {
+    public Pair<ProjectSnapshot, JsonNode> applyMutation(ProjectEntity project, T mutation) {
         return wrapConstraintViolation(
                 () -> super.applyMutation(project, mutation),
                 this::mapConstraintToError
@@ -56,15 +62,17 @@ public abstract class AbstractProjectMutationHandler<T extends Mutation> extends
     }
 
     @Override
-    protected final ProjectPatch doUpdateEntity(ProjectEntity project, @Nullable Void model, ProjectSnapshot snapshotBefore, ProjectSnapshot snapshotAfter) {
+    @SneakyThrows
+    protected final JsonNode doUpdateEntity(ProjectEntity project, @Nullable Void model, ProjectSnapshot snapshotBefore, ProjectSnapshot snapshotAfter) {
         updateDates(project, userService.getCurrentUserEntity());
         //noinspection ConstantValue
         if (project.getId() == null) {
             projectRepository.persist(project);
             projectRepository.flushAndRefresh(project);
         }
-        //noinspection DataFlowIssue
-        return ProjectDiffHandler.INSTANCE.compare(snapshotBefore, snapshotAfter).updatedValue();
+        JsonNode beforeJSON = objectMapper.valueToTree(snapshotBefore);
+        JsonNode afterJSON = objectMapper.valueToTree(snapshotAfter);
+        return jsonPatcher.createTopLevel(beforeJSON, afterJSON);
     }
 
     @Override
@@ -73,7 +81,7 @@ public abstract class AbstractProjectMutationHandler<T extends Mutation> extends
     }
 
     @Override
-    protected final ProjectRevisionEntity doCreateRevision(ProjectEntity project, T mutation, MutationResult result, Integer revisionNo, ProjectPatch patch) {
+    protected final ProjectRevisionEntity doCreateRevision(ProjectEntity project, T mutation, MutationResult result, Integer revisionNo, JsonNode patch) {
         return revisionService.addRevision(project, revisionNo, project.getModifiedAt(), result.summary(), mutation, result.reverseMutation(), patch);
     }
 

@@ -4,11 +4,12 @@ import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.eln.entity.BaseRevisionEntity;
 import com.epam.indigoeln.eln.entity.WithRevision;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.jspecify.annotations.Nullable;
 
-public abstract class AbstractMutationHandler<T extends Mutation, M, E extends WithRevision, S, P, R extends BaseRevisionEntity> implements MutationHandler<T, M, E, S, P> {
+public abstract class AbstractMutationHandler<T extends Mutation, M, E extends WithRevision, S, R extends BaseRevisionEntity> implements MutationHandler<T, M, E, S> {
 
     @PersistenceContext
     EntityManager em;
@@ -26,7 +27,7 @@ public abstract class AbstractMutationHandler<T extends Mutation, M, E extends W
     }
 
     @Override
-    public Pair<S, P> applyMutation(E entity, T mutation) {
+    public Pair<S, JsonNode> applyMutation(E entity, T mutation) {
         // do the very early preparation; currently only used by undo/redo handlers
         doPrepare(entity, mutation);
         // validate user is allowed to do this mutation;
@@ -48,7 +49,7 @@ public abstract class AbstractMutationHandler<T extends Mutation, M, E extends W
         // make snapshot of "after" state
         S snapshotAfter = doSnapshotAfter(entity, model);
         // write changes back to the entity
-        P patch = doUpdateEntity(entity, model, snapshotBefore, snapshotAfter);
+        JsonNode patch = doUpdateEntity(entity, model, snapshotBefore, snapshotAfter);
         // create revision
         R revision = doCreateRevision(entity, mutation, result, revisionNo, patch);
         em.persist(revision);
@@ -74,11 +75,11 @@ public abstract class AbstractMutationHandler<T extends Mutation, M, E extends W
 
     public abstract MutationResult doHandle(E entity, @Nullable M model, T mutation);
 
-    protected abstract P doUpdateEntity(E entity, @Nullable M model, S snapshotBefore, S snapshotAfter);
+    protected abstract JsonNode doUpdateEntity(E entity, @Nullable M model, S snapshotBefore, S snapshotAfter);
 
     protected abstract S doSnapshotAfter(E entity, @Nullable M model);
 
-    protected abstract R doCreateRevision(E experiment, T mutation, MutationResult result, Integer revisionNo, P patch);
+    protected abstract R doCreateRevision(E experiment, T mutation, MutationResult result, Integer revisionNo, JsonNode patch);
 
     private Integer doGetRevisionNo(E entity) {
         //noinspection ConstantValue

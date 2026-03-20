@@ -20,5 +20,5 @@ public sealed abstract class ReactionRow implements ExperimentNode permits React
     protected CompoundRef compound;
 
     @NotNull
-    protected EnteredValue<NoUnit> eq;
+    protected EnteredValue<NoUnit> eq; // = 1
 }

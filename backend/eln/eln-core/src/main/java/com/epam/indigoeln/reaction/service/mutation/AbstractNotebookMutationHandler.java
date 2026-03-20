@@ -9,18 +9,20 @@ import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.RevisionService;
 import com.epam.indigoeln.eln.service.UserService;
+import com.epam.indigoeln.eln.util.JSONPatcher;
 import com.epam.indigoeln.reaction.model.NotebookSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.patch.NotebookPatch;
-import com.epam.indigoeln.reaction.model.patch.handler2.NotebookDiffHandler;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.inject.Inject;
+import lombok.SneakyThrows;
 import org.hibernate.exception.ConstraintViolationException;
 import org.jspecify.annotations.Nullable;
 
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 import static com.epam.indigoeln.eln.util.ModelUtil.wrapConstraintViolation;
 
-public abstract class AbstractNotebookMutationHandler<T extends Mutation> extends AbstractMutationHandler<T, Void, NotebookEntity, NotebookSnapshot, NotebookPatch, NotebookRevisionEntity> implements NotebookMutationHandler<T> {
+public abstract class AbstractNotebookMutationHandler<T extends Mutation> extends AbstractMutationHandler<T, Void, NotebookEntity, NotebookSnapshot, NotebookRevisionEntity> implements NotebookMutationHandler<T> {
 
     @Inject
     protected SnapshotMapper snapshotMapper;
@@ -34,9 +36,13 @@ public abstract class AbstractNotebookMutationHandler<T extends Mutation> extend
     protected EntityMutationHelper entityMutationHelper;
     @Inject
     protected ACLService aclService;
+    @Inject
+    ObjectMapper objectMapper;
+    @Inject
+    JSONPatcher jsonPatcher;
 
     @Override
-    public Pair<NotebookSnapshot, NotebookPatch> applyMutation(NotebookEntity notebook, T mutation) {
+    public Pair<NotebookSnapshot, JsonNode> applyMutation(NotebookEntity notebook, T mutation) {
         return wrapConstraintViolation(
                 () -> super.applyMutation(notebook, mutation),
                 this::mapConstraintToError
@@ -54,15 +60,17 @@ public abstract class AbstractNotebookMutationHandler<T extends Mutation> extend
     }
 
     @Override
-    protected final NotebookPatch doUpdateEntity(NotebookEntity notebook, @Nullable Void model, NotebookSnapshot snapshotBefore, NotebookSnapshot snapshotAfter) {
+    @SneakyThrows
+    protected final JsonNode doUpdateEntity(NotebookEntity notebook, @Nullable Void model, NotebookSnapshot snapshotBefore, NotebookSnapshot snapshotAfter) {
         updateDates(notebook, userService.getCurrentUserEntity());
         //noinspection ConstantValue
         if (notebook.getId() == null) {
             notebookRepository.persist(notebook);
             notebookRepository.flushAndRefresh(notebook);
         }
-        //noinspection DataFlowIssue
-        return NotebookDiffHandler.INSTANCE.compare(snapshotBefore, snapshotAfter).updatedValue();
+        JsonNode beforeJSON = objectMapper.valueToTree(snapshotBefore);
+        JsonNode afterJSON = objectMapper.valueToTree(snapshotAfter);
+        return jsonPatcher.createTopLevel(beforeJSON, afterJSON);
     }
 
     @Override
@@ -71,7 +79,7 @@ public abstract class AbstractNotebookMutationHandler<T extends Mutation> extend
     }
 
     @Override
-    protected final NotebookRevisionEntity doCreateRevision(NotebookEntity notebook, T mutation, MutationResult result, Integer revisionNo, NotebookPatch patch) {
+    protected final NotebookRevisionEntity doCreateRevision(NotebookEntity notebook, T mutation, MutationResult result, Integer revisionNo, JsonNode patch) {
         return revisionService.addRevision(notebook, revisionNo, notebook.getModifiedAt(), result.summary(), mutation, result.reverseMutation(), patch);
     }
 

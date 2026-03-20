@@ -1,7 +1,6 @@
 package com.epam.indigoeln.eln.api;
 
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.reaction.model.patch.ProjectPatch;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.ws.rs.*;
@@ -64,5 +63,5 @@ public interface ProjectAPI extends BaseAPI {
 
     @GET
     @Path("/projects/{projectId}/revisions")
-    List<RevisionDetailsDTO<ProjectPatch>> getProjectRevisions(@PathParam("projectId") UUID projectId);
+    List<RevisionDetailsDTO> getProjectRevisions(@PathParam("projectId") UUID projectId);
 }

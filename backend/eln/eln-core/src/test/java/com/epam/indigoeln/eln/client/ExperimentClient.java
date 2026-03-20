@@ -3,7 +3,7 @@ package com.epam.indigoeln.eln.client;
 import com.epam.indigoeln.eln.api.ExperimentAPI;
 import com.epam.indigoeln.eln.model.AttachmentDTO;
 import com.epam.indigoeln.reaction.model.ReactionAnchor;
-import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.annotation.Nullable;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -41,5 +41,5 @@ public interface ExperimentClient extends ExperimentAPI {
 
     @POST
     @Path("/experiments/{experimentId}/datamodel2")
-    ExperimentModelPatch mutateExperimentModel2Raw(@PathParam("experimentId") UUID experimentId, @QueryParam("revision") Integer revision, String mutation);
+    JsonNode mutateExperimentModel2Raw(@PathParam("experimentId") UUID experimentId, @QueryParam("revision") Integer revision, String mutation);
 }

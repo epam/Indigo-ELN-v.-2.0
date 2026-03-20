@@ -15,7 +15,6 @@ import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import com.epam.indigoeln.reaction.service.ExperimentModelHelperService;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import com.epam.indigoeln.reaction.service.calculator.ReactionCalculator;
@@ -24,6 +23,7 @@ import com.epam.indigoeln.reaction.service.mutation.ExperimentMutationHandler;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import com.epam.indigoeln.reaction.util.SignificantFiguresUtil;
 import com.epam.indigoeln.reaction.util.StreamUtil;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Preconditions;
 import jakarta.inject.Inject;
 import jakarta.validation.ConstraintViolation;
@@ -38,7 +38,7 @@ import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Slf4j
-public abstract class AbstractExperimentMutationHandler<T extends Mutation> extends AbstractMutationHandler<T, ExperimentModel, ExperimentEntity, ExperimentSnapshot, ExperimentPatch, ExperimentRevisionEntity> implements ExperimentMutationHandler<T> {
+public abstract class AbstractExperimentMutationHandler<T extends Mutation> extends AbstractMutationHandler<T, ExperimentModel, ExperimentEntity, ExperimentSnapshot, ExperimentRevisionEntity> implements ExperimentMutationHandler<T> {
 
     @Inject
     SnapshotMapper snapshotMapper;
@@ -86,7 +86,7 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation> exte
     }
 
     @Override
-    protected final ExperimentPatch doUpdateEntity(ExperimentEntity experiment, @Nullable ExperimentModel model, ExperimentSnapshot snapshotBefore, ExperimentSnapshot snapshotAfter) {
+    protected final JsonNode doUpdateEntity(ExperimentEntity experiment, @Nullable ExperimentModel model, ExperimentSnapshot snapshotBefore, ExperimentSnapshot snapshotAfter) {
         if (model != null) {
             SignificantFiguresUtil.setSignificantFigures(model.getSignificantFigures());
             doValidateModel(model);
@@ -96,7 +96,7 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation> exte
             SignificantFiguresUtil.clearSignificantFigures();
         }
         updateDates(experiment, userService.getCurrentUserEntity());
-        ExperimentPatch patch = experimentModelService.createPatch(snapshotBefore, snapshotAfter);
+        JsonNode patch = experimentModelService.createPatch(snapshotBefore, snapshotAfter);
         if (model != null) {
             experimentModelService.setModel(experiment, model);
         }
@@ -114,7 +114,7 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation> exte
     }
 
     @Override
-    protected ExperimentRevisionEntity doCreateRevision(ExperimentEntity experiment, T mutation, MutationResult result, Integer revisionNo, ExperimentPatch patch) {
+    protected ExperimentRevisionEntity doCreateRevision(ExperimentEntity experiment, T mutation, MutationResult result, Integer revisionNo, JsonNode patch) {
         ExperimentRevisionEntity revision = revisionService.addRevision(experiment, revisionNo, experiment.getModifiedAt(), result.summary(), mutation, result.reverseMutation(), patch);
         ExperimentEditSessionEntity editSession = experimentModelService.getEditSession(experiment, userService.getCurrentUserEntity());
         if (isRequiresEditSession()) {

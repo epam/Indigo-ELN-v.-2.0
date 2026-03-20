@@ -64,9 +64,6 @@ class CreateExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
         experiment.setLinkedExperiments(Set.of());
         experiment.setContinuedFrom(Set.of());
         experiment.setContinuedTo(Set.of());
-        TemplateEntity template = templateRepository.get(mutation.templateID());
-        template.getExperiments().add(experiment);
-        experiment.setTemplate(template);
 
         experiment.setName(generateExperimentName(experiment.getNotebook()));
         experiment.setCreatedBy(userService.getCurrentUserEntity());
