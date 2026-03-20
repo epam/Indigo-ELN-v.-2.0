@@ -12,7 +12,8 @@ import { toHTML } from 'ngx-editor';
 import { NOTEBOOK_NAME_LENGTH } from '../notebook.constants';
 import { of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
-import { SuccessNotificationService } from '@/core/services/notification/success.notification.component';
+import { NotificationType } from '@/core/types/notification.i';
+import { NotificationService } from '@/core/services/notification/notification.service';
 @Component({
   standalone: true,
   selector: 'eln-notebook-edit',
@@ -29,7 +30,7 @@ export class NotebookEditComponent {
   notebookId: string;
   dialogRef = inject(MatDialogRef);
   notebook: Partial<Notebook> = {};
-  successNotification = inject(SuccessNotificationService);
+  notificationService = inject(NotificationService);
   uniqueNameToastMessage = signal('');
 
   fields: FormlyFieldConfig[] = [
@@ -123,7 +124,11 @@ export class NotebookEditComponent {
         description: this.safeToHTML(data.description),
       })
       .subscribe(() => {
-        this.successNotification.notifySuccess('Notebook', 'updated');
+        this.notificationService.notify({
+          message: 'Notebook details successfully updated.',
+          type: NotificationType.Success,
+          isInline: false,
+        });
         this.dialogRef.close('refresh');
       });
   }

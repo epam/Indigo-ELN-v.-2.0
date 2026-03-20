@@ -10,7 +10,8 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 import { toHTML } from 'ngx-editor';
 import { NOTEBOOK_NAME_LENGTH } from '../notebook.constants';
 import { of, switchMap, map, catchError } from 'rxjs';
-import { SuccessNotificationService } from '@/core/services/notification/success.notification.component';
+import { NotificationType } from '@/core/types/notification.i';
+import { NotificationService } from '@/core/services/notification/notification.service';
 
 @Component({
   standalone: true,
@@ -27,7 +28,7 @@ import { SuccessNotificationService } from '@/core/services/notification/success
 export class NotebookAddComponent {
   projectId: string;
   dialogRef = inject(MatDialogRef);
-  successNotificationService = inject(SuccessNotificationService);
+  notificationService = inject(NotificationService);
 
   fields: FormlyFieldConfig[] = [
     {
@@ -100,7 +101,11 @@ export class NotebookAddComponent {
             : data.description,
       })
       .subscribe(() => {
-        this.successNotificationService.notifySuccess('Notebook', 'created');
+         this.notificationService.notify({
+              message: 'Notebook successfully created.',
+              type: NotificationType.Success,
+              isInline: false,
+            });
         this.dialogRef.close('refresh');
       });
   }

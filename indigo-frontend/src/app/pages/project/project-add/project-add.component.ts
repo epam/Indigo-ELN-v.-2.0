@@ -12,8 +12,10 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import { Project } from '@core/types/entities/project.i';
 import { Router } from '@angular/router';
 import { PROJECT_NAME_MAX_LENGTH } from '../project.constants';
-import { SuccessNotificationService } from '@/core/services/notification/success.notification.component';
 import { signal } from '@angular/core';
+import { NotificationType } from '@/core/types/notification.i';
+import { NotificationService } from '@/core/services/notification/notification.service';
+
 @Component({
   standalone: true,
   selector: 'eln-project-add',
@@ -32,7 +34,7 @@ export class ProjectAddComponent implements OnInit {
   data = inject(MAT_DIALOG_DATA);
   title = 'Add Project';
   submitAction: (data: Project) => void = this.createProject.bind(this);
-  successNotificationService = inject(SuccessNotificationService);
+  notificationService = inject(NotificationService);
   uniqueNameToastMessage = signal('');
 
   fields: FormlyFieldConfig[] = [
@@ -139,7 +141,11 @@ export class ProjectAddComponent implements OnInit {
             : data.description,
       })
       .subscribe((newProject: Project) => {
-        this.successNotificationService.notifySuccess('Project', 'created');
+        this.notificationService.notify({
+          message: 'Project successfully created.',
+          type: NotificationType.Success,
+          isInline: false,
+        });
         this.dialogRef.close('refresh');
         this.router.navigate(['/projects', newProject.id]);
       });
@@ -156,7 +162,11 @@ export class ProjectAddComponent implements OnInit {
       })
       .pipe(
         tap(() => {
-          this.successNotificationService.notifySuccess('Project', 'updated');
+          this.notificationService.notify({
+            message: 'Project details successfully updated.',
+            type: NotificationType.Success,
+            isInline: false,
+          });
           this.dialogRef.close('refresh');
         }),
       )
