@@ -112,6 +112,11 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
+    public ExperimentSnapshot mutateExperimentModel3(UUID experimentId, Integer revision, Mutation mutation) {
+        return experimentService.mutateModel3(experimentId, revision, mutation);
+    }
+
+    @Override
     public ExperimentPatch mutateExperimentModel2(UUID experimentId, Integer revision, Mutation mutation) {
         return experimentService.mutateModel2(experimentId, revision, mutation);
     }

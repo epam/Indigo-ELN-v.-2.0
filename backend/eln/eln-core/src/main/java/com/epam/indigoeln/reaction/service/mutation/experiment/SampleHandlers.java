@@ -6,10 +6,7 @@ import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputSampleMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
-import com.epam.indigoeln.reaction.model.units.DensityUnit;
-import com.epam.indigoeln.reaction.model.units.MolarityUnit;
-import com.epam.indigoeln.reaction.model.units.NoUnit;
-import com.epam.indigoeln.reaction.model.units.VolumeUnit;
+import com.epam.indigoeln.reaction.model.units.*;
 import com.epam.indigoeln.reaction.service.mutation.*;
 import com.google.common.base.Preconditions;
 import jakarta.enterprise.context.Dependent;
@@ -72,7 +69,7 @@ class SetInputPurityHandler extends AbstractReactionInputSampleMutationHandler<R
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputPurity mutation) {
-        EnteredValueUndo<NoUnit> undo = setEnteredValue(sample::getPurity, sample::setPurity, mutation.purity(), NoUnit.NO_UNIT, mutation.source(), experiment.getRevision());
+        EnteredValueUndo<NoUnit> undo = setEnteredValue(sample::getPurity, sample::setPurity, mutation.purity(), NoUnit.NO_UNIT, mutation.source(), experiment.getRevision(), EnteredValue.DEFAULT_ONE_HUNDRED);
         return new MutationResult(formatSetterSummary("input sample purity", mutation.purity())
                 , new ReactionInputSampleMutation.SetInputPurity(mutation.anchor(), undo.value(), undo.source())
         );
@@ -85,7 +82,7 @@ class SetOutputPurityHandler extends AbstractReactionOutputSampleMutationHandler
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputPurity mutation) {
-        EnteredValueUndo<NoUnit> undo = setEnteredValue(sample::getPurity, sample::setPurity, mutation.purity(), NoUnit.NO_UNIT, mutation.source(), experiment.getRevision());
+        EnteredValueUndo<NoUnit> undo = setEnteredValue(sample::getPurity, sample::setPurity, mutation.purity(), NoUnit.NO_UNIT, mutation.source(), experiment.getRevision(), EnteredValue.DEFAULT_ONE_HUNDRED);
         return new MutationResult(formatSetterSummary("batch purity", mutation.purity())
                 , new ReactionOutputSampleMutation.SetOutputPurity(mutation.anchor(), undo.value(), undo.source())
         );

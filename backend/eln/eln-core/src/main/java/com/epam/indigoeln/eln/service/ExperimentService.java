@@ -157,6 +157,11 @@ public class ExperimentService {
         return experimentModelService.applyMutation(experiment, mutation).b();
     }
 
+    public ExperimentSnapshot mutateModel3(UUID experimentId, Integer revision, Mutation mutation) {
+        ExperimentEntity experiment = experimentRepository.get(experimentId);
+        return experimentModelService.applyMutation(experiment, mutation).a();
+    }
+
     public byte[] getExperimentPicture(UUID experimentId) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
