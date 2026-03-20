@@ -35,9 +35,7 @@
       [ngClass]="{
         'cursor-pointer': !readOnly,
         'text-blue-500': !readOnly,
-        'bg-rose-400': value?.conflict,
         'animate-[flash-green_1s_ease-in-out]': recalculated,
-        'animate-[flash-red_1s_ease-in-out]': value?.conflict,
       }"
       (click)="startEditing()"
     >

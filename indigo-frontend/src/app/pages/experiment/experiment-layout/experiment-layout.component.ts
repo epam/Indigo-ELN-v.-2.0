@@ -1,10 +1,9 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 import { ExperimentDetailService } from '@/core/services/experiment/experiment-detail.service';
 import { ExperimentDetail } from '@/core/types/entities/experiments/experiment-detail.i';
-import { computed } from '@angular/core';
 import { CardComponent } from '@/core/components/common/card/card.component';
 import { ProjectTabButtonComponent } from '@pages/project/project-tab-button/project-tab-button.component';
 
@@ -18,7 +17,6 @@ import { ProjectTabButtonComponent } from '@pages/project/project-tab-button/pro
     CommonModule,
     CardComponent,
   ],
-  providers: [ExperimentDetailService],
 })
 export class ExperimentLayoutComponent implements OnInit, OnDestroy {
   private activatedRoute = inject(ActivatedRoute);
@@ -48,13 +46,12 @@ export class ExperimentLayoutComponent implements OnInit, OnDestroy {
     this.projectId = this.activatedRoute.snapshot.params['projectId'];
 
     if (this.experimentId) {
-      this.experimentDetailService.load(this.experimentId);
-
       // Set tab URLs using relative paths
       this.infoUrl = 'info';
       this.attachmentsUrl = 'attachments';
       this.summaryUrl = 'summary';
       this.versionsUrl = 'versions';
+      this.experimentDetailService.load(this.experimentId);
     }
   }
 

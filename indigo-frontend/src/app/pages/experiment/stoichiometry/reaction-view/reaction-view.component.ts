@@ -1,11 +1,4 @@
-import {
-  Component,
-  computed,
-  effect,
-  inject,
-  input,
-  output,
-} from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactionInputsTableComponent } from '../reaction-inputs-table/reaction-inputs-table.component';
 import { ReactionProductsTableComponent } from '../reaction-products-table/reaction-products-table.component';
@@ -23,7 +16,6 @@ import { ExperimentDetailService } from '@core/services/experiment/experiment-de
     ReactionProductsTableComponent,
     ProductBatchSummaryTableComponent,
   ],
-  providers: [ExperimentDetailService],
   templateUrl: './reaction-view.component.html',
 })
 export class ReactionViewComponent {
@@ -37,15 +29,6 @@ export class ReactionViewComponent {
     () =>
       this.experimentDetailService.experimentModel()?.reactions?.[0] || null,
   );
-
-  constructor() {
-    effect(() => {
-      const id = this.experimentId();
-      if (id) {
-        this.experimentDetailService.load(id);
-      }
-    });
-  }
 
   onModelUpdating(isUpdating: boolean): void {
     this.modelUpdating.emit(isUpdating);

@@ -24,3 +24,21 @@ button mat-icon {
 button mat-icon.rotate-180 {
   transform: rotate(180deg);
 }
+
+.value-state-fixed input {
+  color: purple;
+}
+
+.value-state-default input {
+  color: darkgray;
+  font-style: italic;
+}
+
+.value-state-set-manually input {
+  color: deepskyblue;
+  font-weight: bold;
+}
+
+.value-state-last-updated {
+  background: lawngreen;
+}

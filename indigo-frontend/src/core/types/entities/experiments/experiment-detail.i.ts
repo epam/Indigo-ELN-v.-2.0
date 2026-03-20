@@ -43,18 +43,17 @@ export interface ExperimentDetail extends BaseEntity {
   name: string;
   title?: string;
   status: ExperimentStatus;
-  marked: boolean;
+  revision: number;
   therapeuticArea?: TherapeuticArea;
   projectCode?: ProjectCode;
   description?: string;
   literature?: string;
-  templateId?: string;
+  templateId: string;
   batchCreator: UserMetadata;
   linkedExperiments: ExperimentRef[];
   continuedFrom: ExperimentRef[];
   continuedTo: ExperimentRef[];
   attachments?: Attachment[];
   acl?: ProjectAcl[];
-  signatures?: Signature[];
   model: ExperimentModel;
 }

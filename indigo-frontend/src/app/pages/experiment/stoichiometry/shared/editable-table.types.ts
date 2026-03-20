@@ -16,11 +16,17 @@ export interface UnitFieldValue {
   unit: string;
 }
 
-export type FieldValue = string | null | boolean | UnitFieldValue | DictionaryItemRef[];
+export type FieldValue =
+  | string
+  | null
+  | boolean
+  | UnitFieldValue
+  | DictionaryItemRef[];
 
 export interface UnitInputChange {
   value?: string | null;
   unit?: string | null;
+  previous?: { value?: string | null; unit?: string | null };
 }
 
 export interface ColumnOption {
@@ -33,6 +39,7 @@ export interface ColumnConfig<TRow = unknown> {
   header: string;
   type: ColumnInputType;
   field: (row: TRow) => FieldValue;
+  classes?: (row: TRow) => string[];
   editable?: (row: TRow) => boolean;
   onSave?: (row: TRow, payload?: unknown) => void;
   options?: ColumnOption[] | DictionaryItemRef[];

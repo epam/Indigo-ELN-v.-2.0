@@ -46,7 +46,7 @@ export interface EnteredValue<U> {
   value: string;
   unit: U;
   source: EnteredValueSource | number | 'fixed' | 'default';
-  conflict?: boolean;
+  overwritten?: boolean;
 }
 
 export const REACTION_INPUT_ROLES = [
