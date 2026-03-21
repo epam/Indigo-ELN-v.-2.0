@@ -16,10 +16,9 @@ import java.util.List;
 @Getter
 @Setter
 @ToString(exclude = "reaction")
-@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class ReactionOutput extends ReactionRow implements ExperimentNode {
+public final class ReactionOutput extends ReactionRow {
 
     @NotNull
     private OutputAnchor anchor;
@@ -52,11 +51,17 @@ public final class ReactionOutput extends ReactionRow implements ExperimentNode 
         row.anchor = anchor;
         row.type = type;
         row.intended = intended;
+        reaction.getOutputs().add(row);
         return row;
     }
 
     public boolean hasSamplesWithRegistrationStarted() {
         return samples.stream()
                 .anyMatch(s -> s.getRegistrationStatus() != null);
+    }
+
+    @Override
+    protected List<? extends AbstractExperimentNode<Reaction>> internalGetSiblings(Reaction parent) {
+        return parent.getOutputs();
     }
 }

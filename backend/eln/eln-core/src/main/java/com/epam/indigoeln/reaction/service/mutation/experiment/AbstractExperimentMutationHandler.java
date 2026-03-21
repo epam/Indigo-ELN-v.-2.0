@@ -32,7 +32,10 @@ import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -58,10 +61,10 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation> exte
     RevisionService revisionService;
     @Inject
     ExperimentRepository experimentRepository;
-
-    protected final Set<ReactionRole> affectedRoles = EnumSet.noneOf(ReactionRole.class);
     @Inject
     protected ACLService aclService;
+
+    protected boolean schemaAffected = false;
 
     protected boolean isRequiresEditSession() {
         return false;
@@ -137,11 +140,13 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation> exte
         Map<ReactionAnchor, @Nullable String> oldRxnFiles = checkNotNull(snapshotBefore.getRxnFiles());
         Map<ReactionAnchor, @Nullable String> newRxnFiles = checkNotNull(snapshotAfter.getRxnFiles());
         for (Reaction reaction : model.getReactions()) {
-            if (!Objects.equals(oldRxnFiles.get(reaction.getAnchor()), newRxnFiles.get(reaction.getAnchor())) || !affectedRoles.isEmpty()) {
+            if (!Objects.equals(oldRxnFiles.get(reaction.getAnchor()), newRxnFiles.get(reaction.getAnchor())) || schemaAffected) {
                 anyRxnfileChanged = true;
-                IndigoReaction indigoReaction = reaction.getRxnfile() == null ? indigoAPI.createReaction() : indigoAPI.loadReaction(reaction.getRxnfile());
-                if (!affectedRoles.isEmpty()) {
-                    experimentModelHelperService.rebuildReactionRxnFile(experiment, reaction, affectedRoles, indigoReaction);
+                IndigoReaction indigoReaction = null;
+                if (schemaAffected) {
+                    indigoReaction = experimentModelHelperService.rebuildReactionRxnFile(reaction);
+                } else {
+                    indigoReaction = reaction.getRxnfile() == null ? indigoAPI.createReaction() : indigoAPI.loadReaction(reaction.getRxnfile());
                 }
                 experimentModelHelperService.rebuildReactionPicture(experiment, reaction, indigoReaction);
                 reaction.setRxnVersion(reaction.getRxnVersion() + 1);

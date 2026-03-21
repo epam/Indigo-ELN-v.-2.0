@@ -87,7 +87,21 @@ public class PatchTestUtil {
         String patchStr = FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(patch);
         JsonNode appliedWithJSON = new JSONPatcher(FeignUtil.OBJECT_MAPPER).apply(initialJSON.deepCopy(), FeignUtil.OBJECT_MAPPER.readTree(patchStr));
 
-        assertObjectsEqual(reportBuilder, patchStr, prepareForComparison((ObjectNode) minimizeJSON(appliedWithJSON)), prepareForComparison((ObjectNode) minimizeJSON(updatedJSON)), "patched", "Model (right) with applied patch (left) not equals to expected (middle)");
+        if (reverse) {
+            assertObjectsEqual(reportBuilder
+                    , patchStr
+                    , prepareForComparison((ObjectNode) minimizeJSON(appliedWithJSON))
+                    , prepareForComparison((ObjectNode) minimizeJSON(initialJSON))
+                    , "patched"
+                    , "Model (right) with reversed patch (left) not equals to expected (middle)");
+        } else {
+            assertObjectsEqual(reportBuilder
+                    , patchStr
+                    , prepareForComparison((ObjectNode) minimizeJSON(appliedWithJSON))
+                    , prepareForComparison((ObjectNode) minimizeJSON(updatedJSON))
+                    , "patched"
+                    , "Model (right) with applied patch (left) not equals to expected (middle)");
+        }
     }
 
     private static void assertObjectsEqual(@Nullable CalculationReportBuilder reportBuilder, @Nullable String patch, JsonNode actualJSON, JsonNode expectedJSON, String reportClass, String message) throws JsonProcessingException {

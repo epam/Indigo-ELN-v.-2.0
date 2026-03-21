@@ -7,7 +7,6 @@ import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
@@ -24,14 +23,9 @@ import static com.google.common.base.Preconditions.checkState;
 @Getter
 @Setter
 @ToString(exclude = "row")
-@EqualsAndHashCode(callSuper = true, exclude = "row")
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class ReactionOutputSample extends ReactionSample implements ExperimentNode {
-
-    @JsonBackReference
-    @Setter(AccessLevel.PACKAGE)
-    private ReactionOutput row;
+public final class ReactionOutputSample extends ReactionSample<ReactionOutput> {
 
     @NotNull
     private OutputSampleAnchor anchor;
@@ -131,5 +125,10 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
         } else {
             newRow.getSamples().add(position, this);
         }
+    }
+
+    @Override
+    protected List<? extends AbstractExperimentNode<ReactionOutput>> internalGetSiblings(ReactionOutput parent) {
+        return parent.getSamples();
     }
 }

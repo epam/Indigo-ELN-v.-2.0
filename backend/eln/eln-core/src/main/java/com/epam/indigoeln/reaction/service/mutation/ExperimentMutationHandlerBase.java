@@ -140,7 +140,7 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
         String oldChemicalName = row.getChemicalName();
         row.setChemicalName(sample.getCompound().getChemicalName());
 
-        affectedRoles.add(row.getRole());
+        schemaAffected = true;
 
         return new ReactionMutation.UndoResolveInputs.RowUndo(oldCompound, oldSamples, oldChemicalName);
     }
@@ -153,7 +153,6 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
         row.setEq(DEFAULT_ONE);
         ReactionInputSample reactionInputSample = ReactionInputSample.create(row, createdSampleAnchor);
         reactionInputSample.setPurity(DEFAULT_ONE_HUNDRED);
-        row.setSamples(List.of(reactionInputSample));
         return row;
     }
 

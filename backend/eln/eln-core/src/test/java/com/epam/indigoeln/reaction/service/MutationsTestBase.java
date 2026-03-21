@@ -31,6 +31,8 @@ public abstract class MutationsTestBase extends ELNBaseTest {
     protected ReactionInputSample input1Sample1;
     protected ReactionInput input2;
     protected ReactionInputSample input2Sample1;
+    protected ReactionInput input3;
+    protected ReactionInput input4;
     protected ReactionOutput output1;
     protected ReactionOutputSample output1Sample1;
     protected ReactionOutput output2;
@@ -77,6 +79,8 @@ public abstract class MutationsTestBase extends ELNBaseTest {
         input1Sample1 = input1 != null ? safeGet(input1.getSamples(), 0) : null;
         input2 = safeGet(reaction.getInputs(), 1);
         input2Sample1 = input2 != null ? safeGet(input2.getSamples(), 0) : null;
+        input3 = safeGet(reaction.getInputs(), 2);
+        input4 = safeGet(reaction.getInputs(), 3);
         output1 = safeGet(reaction.getOutputs(), 0);
         output1Sample1 = output1 != null ? safeGet(output1.getSamples(), 0) : null;
         output2 = safeGet(reaction.getOutputs(), 1);
@@ -119,8 +123,10 @@ public abstract class MutationsTestBase extends ELNBaseTest {
 
         // verify if patch is correct
         PatchTestUtil.verifyModelPatch(experiment, patch, updatedExperiment, reportBuilder);
-        experiment = updatedExperiment;
+        // verify patch reverse is correct
+        PatchTestUtil.verifyReversePatch(experiment, patch, updatedExperiment, reportBuilder);
 
+        experiment = updatedExperiment;
         Integer initialRevision = experiment.getRevision();
         if (undoRedo) {
             // verify if model after undo is the same as before initial mutation
