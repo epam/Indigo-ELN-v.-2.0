@@ -45,11 +45,12 @@ public final class ReactionOutput extends ReactionRow {
     @JsonManagedReference
     private List<@Valid ReactionOutputSample> samples = new ArrayList<>();
 
-    public static ReactionOutput create(Reaction reaction, ReactionOutputType type, boolean intended, OutputAnchor anchor) {
+    public static ReactionOutput create(Reaction reaction, ReactionOutputType type, boolean intended, String outputName, OutputAnchor anchor) {
         ReactionOutput row = new ReactionOutput();
         row.reaction = reaction;
         row.anchor = anchor;
         row.type = type;
+        row.outputName = outputName;
         row.intended = intended;
         reaction.getOutputs().add(row);
         return row;

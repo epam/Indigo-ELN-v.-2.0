@@ -16,19 +16,23 @@ import java.util.*;
 @ApplicationScoped
 public class JSONPatcher {
 
-    private static final Map<String, String> EXPERIMENT_SET_PATHS = Map.of(
-            "$.attachments", "id",
-            "$.acl", "username"
+    private static final String FIELD_NEW = "$new";
+    private static final String FIELD_OLD = "$old";
+    private static final String UNCHANGED = "$unchanged";
+
+    private static final Map<List<String>, String> EXPERIMENT_SET_PATHS = Map.of(
+            List.of("attachments"), "id",
+            List.of("acl"), "username"
     );
-    private static final Map<String, String> EXPERIMENT_LIST_PATHS = Map.of(
-            "$.model.reactions", "anchor",
-            "$.model.reactions.#.inputs", "anchor",
-            "$.model.reactions.#.inputs.#.samples", "anchor",
-            "$.model.reactions.#.outputs", "anchor",
-            "$.model.reactions.#.outputs.#.samples", "anchor"
+    private static final Map<List<String>, String> EXPERIMENT_LIST_PATHS = Map.of(
+            List.of("model", "reactions"), "anchor",
+            List.of("model", "reactions", "#", "inputs"), "anchor",
+            List.of("model", "reactions", "#", "inputs", "#", "samples"), "anchor",
+            List.of("model", "reactions", "#", "outputs"), "anchor",
+            List.of("model", "reactions", "#", "outputs", "#", "samples"), "anchor"
     );
-    private static final Set<String> EXPERIMENT_IGNORED_PATHS = Set.of(
-            "$.revision"
+    private static final Set<List<String>> EXPERIMENT_IGNORED_PATHS = Set.of(
+            List.of("revision")
     );
 
     private static final Comparator<ListComparison> LIST_ITEM_COMPARATOR = Comparator
@@ -37,9 +41,9 @@ public class JSONPatcher {
             // for deleted items, sort by old index
             .thenComparing(c -> c.oldIndex != -1 ? c.oldIndex : -1);
 
-    private final Map<String, String> setPaths;
-    private final Map<String, String> listPaths;
-    private final Set<String> ignoredPaths;
+    private final Map<List<String>, String> setPaths;
+    private final Map<List<String>, String> listPaths;
+    private final Set<List<String>> ignoredPaths;
 
     private final JsonNodeFactory nodeFactory;
 
@@ -48,7 +52,7 @@ public class JSONPatcher {
         this(EXPERIMENT_SET_PATHS, EXPERIMENT_LIST_PATHS, EXPERIMENT_IGNORED_PATHS, objectMapper);
     }
 
-    public JSONPatcher(Map<String, String> setPaths, Map<String, String> listPaths, Set<String> ignoredPaths, ObjectMapper objectMapper) {
+    public JSONPatcher(Map<List<String>, String> setPaths, Map<List<String>, String> listPaths, Set<List<String>> ignoredPaths, ObjectMapper objectMapper) {
         this.setPaths = setPaths;
         this.listPaths = listPaths;
         this.ignoredPaths = ignoredPaths;
@@ -56,34 +60,40 @@ public class JSONPatcher {
     }
 
     public JsonNode createTopLevel(JsonNode base, JsonNode updated) {
-        JsonNode diff = doCreate(base, updated, "$");
+        JsonNode diff = doCreate(base, updated, new ArrayList<>());
         return diff != null ? diff : nodeFactory.objectNode();
     }
 
     public JsonNode create(JsonNode base, JsonNode updated) {
-        JsonNode diff = doCreate(base, updated, "$");
+        JsonNode diff = doCreate(base, updated, new ArrayList<>());
         return diff != null ? diff : nodeFactory.nullNode();
     }
 
     @Nullable
-    public JsonNode doCreate(@Nullable JsonNode base, @Nullable JsonNode updated, String path) {
+    public JsonNode doCreate(@Nullable JsonNode base, @Nullable JsonNode updated, List<String> path) {
+        System.out.printf("!!! doCreate\n\tpath   : %s\n\tbase   : %s\n\tupdated: %s\n", path, base, updated);
         base = base instanceof NullNode ? null : base;
         updated = updated instanceof NullNode ? null : updated;
         if (base == null && updated == null || ignoredPaths.contains(path)) {
+            System.out.println("!!!\tnull");
             return null;
         }
         if (base == null || updated == null) {
+            System.out.println("!!!\tcreated or deleted");
             return makePatched(base, updated);
         }
         if (base.isObject()) {
+            System.out.println("!!!\tobject");
             Preconditions.checkState(updated.isObject());
             return doCreateObject((ObjectNode) base, (ObjectNode) updated, path);
         }
         if (base.isArray() && setPaths.containsKey(path)) {
+            System.out.println("!!!\tset");
             Preconditions.checkState(updated.isArray());
             return doCreateSet((ArrayNode) base, (ArrayNode) updated, path);
         }
         if (base.isArray() && listPaths.containsKey(path)) {
+            System.out.println("!!!\tlist");
             Preconditions.checkState(updated.isArray());
             return doCreateList((ArrayNode) base, (ArrayNode) updated, path);
         }
@@ -94,11 +104,13 @@ public class JSONPatcher {
     }
 
     @Nullable
-    private JsonNode doCreateObject(ObjectNode base, ObjectNode updated, String path) {
+    private JsonNode doCreateObject(ObjectNode base, ObjectNode updated, List<String> path) {
         ObjectNode diff = null;
         for (Map.Entry<String, JsonNode> baseEntry : base.properties()) {
             String key = baseEntry.getKey();
-            JsonNode propertyDiff = doCreate(baseEntry.getValue(), updated.get(key), path + '.' + key);
+            path.add(key);
+            JsonNode propertyDiff = doCreate(baseEntry.getValue(), updated.get(key), path);
+            path.removeLast();
             if (propertyDiff != null) {
                 if (diff == null) {
                     diff = nodeFactory.objectNode();
@@ -109,7 +121,9 @@ public class JSONPatcher {
         for (Map.Entry<String, JsonNode> updatedEntry : updated.properties()) {
             String key = updatedEntry.getKey();
             if (!base.has(key)) {
-                JsonNode propertyDiff = doCreate(null, updatedEntry.getValue(), path + '.' + key);
+                path.add(key);
+                JsonNode propertyDiff = doCreate(null, updatedEntry.getValue(), path);
+                path.removeLast();
                 if (propertyDiff != null) {
                     if (diff == null) {
                         diff = nodeFactory.objectNode();
@@ -122,7 +136,7 @@ public class JSONPatcher {
     }
 
     @Nullable
-    private JsonNode doCreateSet(ArrayNode base, ArrayNode updated, String path) {
+    private JsonNode doCreateSet(ArrayNode base, ArrayNode updated, List<String> path) {
         String anchorKey = setPaths.get(path);
         Map<String, SetComparison> map = new HashMap<>();
         for (JsonNode item : base) {
@@ -136,8 +150,9 @@ public class JSONPatcher {
             c.newItem = item;
         }
         ObjectNode diff = null;
+        path.add("#");
         for (Map.Entry<String, SetComparison> entry : map.entrySet()) {
-            JsonNode itemDiff = doCreate(entry.getValue().oldItem, entry.getValue().newItem, path + ".#");
+            JsonNode itemDiff = doCreate(entry.getValue().oldItem, entry.getValue().newItem, path);
             if (itemDiff != null) {
                 if (diff == null) {
                     diff = nodeFactory.objectNode();
@@ -145,34 +160,37 @@ public class JSONPatcher {
                 diff.set(entry.getKey(), itemDiff);
             }
         }
+        path.removeLast();
         return diff;
     }
 
     @Nullable
-    private JsonNode doCreateList(ArrayNode base, ArrayNode updated, String path) {
+    private JsonNode doCreateList(ArrayNode base, ArrayNode updated, List<String> path) {
         String anchorKey = listPaths.get(path);
         Map<String, ListComparison>  map = new HashMap<>();
         for (int i = 0; i < updated.size(); i++) {
             JsonNode item = updated.get(i);
             String anchor = item.get(anchorKey).textValue();
-            ListComparison c = map.computeIfAbsent(anchor, ListComparison::new);
+            ListComparison c = map.computeIfAbsent(anchor, k -> new ListComparison());
             c.newIndex = i;
             c.newItem = item;
         }
         for (int i = 0; i < base.size(); i++) {
             JsonNode item = base.get(i);
             String anchor = item.get(anchorKey).textValue();
-            ListComparison c = map.computeIfAbsent(anchor, ListComparison::new);
+            ListComparison c = map.computeIfAbsent(anchor, k -> new ListComparison());
             c.oldIndex = i;
             c.oldItem = item;
         }
         List<ListComparison> modified = new ArrayList<>();
+        path.add("#");
         for (ListComparison c : map.values()) {
-            c.diff = doCreate(c.oldItem, c.newItem, path + ".#");
+            c.diff = doCreate(c.oldItem, c.newItem, path);
             if (c.diff != null || c.oldIndex != c.newIndex) {
                 modified.add(c);
             }
         }
+        path.removeLast();
         if (modified.isEmpty()) {
             return null;
         }
@@ -197,26 +215,32 @@ public class JSONPatcher {
     }
 
     public JsonNode apply(JsonNode base, JsonNode patch) {
-        return doApply(base, patch, "$");
+        return doApply(base, patch, new ArrayList<>(), false);
     }
 
-    private JsonNode doApply(JsonNode base, JsonNode patch, String path) {
+    public JsonNode reverse(JsonNode base, JsonNode patch) {
+        return doApply(base, patch, new ArrayList<>(), true);
+    }
+
+    private JsonNode doApply(JsonNode base, JsonNode patch, List<String> path, boolean reverse) {
         if (patch.isNull()) { // unchanged
             return base;
         }
 
         switch (patch) {
-            case ObjectNode patchObject when (patchObject.has("$old") || patchObject.has("$new")) -> { // created or deleted value
-                return patchObject.has("$new") ? patchObject.get("$new") : nodeFactory.nullNode();
+            case ObjectNode patchObject when (patchObject.size() <= 2 && (patchObject.has(FIELD_OLD) || patchObject.has(FIELD_NEW)))-> { // created or deleted value
+                return reverse
+                        ? patchObject.has(FIELD_OLD) ? patchObject.get(FIELD_OLD) : nodeFactory.nullNode()
+                        : patchObject.has(FIELD_NEW) ? patchObject.get(FIELD_NEW) : nodeFactory.nullNode();
             }
             case ObjectNode patchObject when setPaths.containsKey(path) -> { // set diff
-                return doRestoreSet(base, patchObject, path);
+                return doRestoreSet(base, patchObject, path, reverse);
             }
             case ObjectNode patchObject when listPaths.containsKey(path) -> { // list diff
-                return doRestoreList(base, patchObject, path);
+                return doRestoreList(base, patchObject, path, reverse);
             }
             case ObjectNode patchObject -> { // updated object
-                return doRestoreObject(path, base, patchObject);
+                return doRestoreObject(base, patchObject, path, reverse);
             }
             default -> {
                 throw new IllegalStateException("Unexpected patch state: base is " + base.getNodeType() + ", patch is " + patch.getNodeType());
@@ -224,7 +248,7 @@ public class JSONPatcher {
         }
     }
 
-    private ObjectNode doRestoreObject(String path, JsonNode base, ObjectNode patchObject) {
+    private ObjectNode doRestoreObject(JsonNode base, ObjectNode patchObject, List<String> path, boolean reverse) {
         ObjectNode targetObject = nodeFactory.objectNode();
         switch (base) {
             case ObjectNode object -> targetObject.setAll(object);
@@ -234,7 +258,9 @@ public class JSONPatcher {
         for (Map.Entry<String, JsonNode> entry : patchObject.properties()) {
             String key = entry.getKey();
             JsonNode oldValue = base.has(key) ? base.get(key) : nodeFactory.nullNode();
-            JsonNode newValue = doApply(oldValue, entry.getValue(), path + '.' + key);
+            path.add(key);
+            JsonNode newValue = doApply(oldValue, entry.getValue(), path, reverse);
+            path.removeLast();
             if (newValue.isNull()) {
                 targetObject.remove(key);
             } else {
@@ -244,7 +270,7 @@ public class JSONPatcher {
         return targetObject;
     }
 
-    private ArrayNode doRestoreSet(JsonNode base, ObjectNode patch, String path) {
+    private ArrayNode doRestoreSet(JsonNode base, ObjectNode patch, List<String> path, boolean reverse) {
         ArrayNode targetArray = copyArray(base);
         String keyProperty = setPaths.get(path);
 
@@ -253,21 +279,23 @@ public class JSONPatcher {
             keyIndices.put(targetArray.get(i).get(keyProperty).textValue(), i);
         }
 
+        path.add("#");
         for (Map.Entry<String, JsonNode> entry : patch.properties()) {
             Integer index = keyIndices.get(entry.getKey());
             ObjectNode itemPatch = (ObjectNode) entry.getValue();
-            JsonNode newValue = doApply(index != null ? targetArray.get(index) : nodeFactory.nullNode(), itemPatch, path + ".#");
+            JsonNode newValue = doApply(index != null ? targetArray.get(index) : nodeFactory.nullNode(), itemPatch, path, reverse);
             if (index != null) {
                 targetArray.set(index, newValue);
             } else {
                 targetArray.add(newValue);
             }
         }
+        path.removeLast();
         targetArray.removeIf(JsonNode::isNull);
         return targetArray;
     }
 
-    private ArrayNode doRestoreList(JsonNode base, ObjectNode patch, String path) {
+    private ArrayNode doRestoreList(JsonNode base, ObjectNode patch, List<String> path, boolean reverse) {
         ArrayNode sourceArray = base instanceof ArrayNode baseArray ? baseArray : nodeFactory.arrayNode();
         ArrayNode targetArray = copyArray(base);
 
@@ -275,24 +303,29 @@ public class JSONPatcher {
         for (int i = 0; i < sourceArray.size(); i++) {
             referenceCount[i]++;
         }
+        path.add("#");
         for (Map.Entry<String, JsonNode> entry : patch.properties()) {
             int[] index = parseListKey(entry.getKey());
+            if (reverse) {
+                index = new int[]{index[1], index[0]};
+            }
             if (index[0] == -1) { // new item
                 Preconditions.checkState(index[1] != -1);
-                safeSet(targetArray, index[1], doApply(nodeFactory.nullNode(), entry.getValue(), path + ".#"));
+                safeSet(targetArray, index[1], doApply(nodeFactory.nullNode(), entry.getValue(), path, reverse));
                 referenceCount[index[1]]++;
             } else if (index[1] == -1) { // deleted item
                 referenceCount[index[0]]--;
             } else { // updated and/or repositioned item
                 JsonNode oldValue = sourceArray.get(index[0]);
-                JsonNode newValue = entry.getValue() instanceof TextNode patchText && "$unchanged".equals(patchText.textValue())
+                JsonNode newValue = entry.getValue() instanceof TextNode patchText && UNCHANGED.equals(patchText.textValue())
                         ? oldValue
-                        : doApply(oldValue, entry.getValue(), path + ".#");
+                        : doApply(oldValue, entry.getValue(), path, reverse);
                 safeSet(targetArray, index[1], newValue);
                 referenceCount[index[0]]--;
                 referenceCount[index[1]]++;
             }
         }
+        path.removeLast();
 
         int lastReferencedIndex = -1;
         for (int i = referenceCount.length - 1; i >= 0; i--) {
@@ -367,7 +400,6 @@ public class JSONPatcher {
     @RequiredArgsConstructor
     private static class ListComparison {
 
-        final String anchor;
         int oldIndex = -1;
         int newIndex = -1;
         @Nullable
@@ -377,21 +409,4 @@ public class JSONPatcher {
         @Nullable
         JsonNode diff;
     }
-
-//    private sealed static abstract class PathOptions {
-//
-//        static final Ignored IGNORED = new Ignored();
-//
-//        private static final class Ignored extends PathOptions {
-//        }
-//
-//        private static final class List extends PathOptions {
-//        }
-//    }
-//
-//
-//        IGNORE,
-//        LIST,
-//        SET,
-//    }
 }

@@ -161,12 +161,10 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
     }
 
     public ReactionOutput createOutputLine(Reaction reaction, CompoundRef compound, boolean intended, OutputAnchor anchor) {
-        ReactionOutput row = ReactionOutput.create(reaction, reaction.getFinalOutput() != null ? ReactionOutputType.BY_PRODUCT : ReactionOutputType.FINAL, intended, anchor);
-        row.setOutputName(reaction.generateNextProductName());
+        ReactionOutput row = ReactionOutput.create(reaction, reaction.getFinalOutput() != null ? ReactionOutputType.BY_PRODUCT : ReactionOutputType.FINAL, intended, reaction.generateNextProductName(), anchor);
         row.setCompound(compound);
         row.setEq(DEFAULT_ONE);
         row.setSamples(new ArrayList<>());
-        reaction.getOutputs().add(row);
         return row;
     }
 

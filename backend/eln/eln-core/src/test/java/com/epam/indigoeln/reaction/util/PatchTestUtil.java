@@ -22,6 +22,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Slf4j
 public class PatchTestUtil {
 
+    private static final JSONPatcher PATCHER = new JSONPatcher(FeignUtil.OBJECT_MAPPER);
+
     private static ObjectNode prepareForComparison(ObjectNode root) {
         JsonNodeFactory nodeFactory = FeignUtil.OBJECT_MAPPER.getNodeFactory();
         root.set("revision", nodeFactory.textNode("..."));
@@ -73,21 +75,29 @@ public class PatchTestUtil {
     }
 
     public static void verifyModelPatch(ExperimentDetailsDTO initial, JsonNode patch, ExperimentDetailsDTO updated, @Nullable CalculationReportBuilder reportBuilder) throws Exception {
-        doVerifyModelPatch(initial, patch, updated, reportBuilder);
+        doVerifyModelPatch(initial, patch, updated, reportBuilder, false);
+    }
+
+    public static void verifyReversePatch(ExperimentDetailsDTO initial, JsonNode patch, ExperimentDetailsDTO updated, @Nullable CalculationReportBuilder reportBuilder) throws Exception {
+        doVerifyModelPatch(initial, patch, updated, reportBuilder, true);
     }
 
     public static void verifyModelPatch(ExperimentSnapshot initial, JsonNode patch, ExperimentSnapshot updated, @Nullable CalculationReportBuilder reportBuilder) throws Exception {
-        doVerifyModelPatch(initial, patch, updated, reportBuilder);
+        doVerifyModelPatch(initial, patch, updated, reportBuilder, false);
     }
 
-    private static void doVerifyModelPatch(Object initial, JsonNode patch, Object updated, @Nullable CalculationReportBuilder reportBuilder) throws Exception {
+    public static void verifyReversePatch(ExperimentSnapshot initial, JsonNode patch, ExperimentSnapshot updated, @Nullable CalculationReportBuilder reportBuilder) throws Exception {
+        doVerifyModelPatch(initial, patch, updated, reportBuilder, true);
+    }
+
+    private static void doVerifyModelPatch(Object initial, JsonNode patch, Object updated, @Nullable CalculationReportBuilder reportBuilder, boolean reverse) throws Exception {
         JsonNode initialJSON = cleanupJSON(FeignUtil.OBJECT_MAPPER.valueToTree(initial));
         JsonNode updatedJSON = cleanupJSON(FeignUtil.OBJECT_MAPPER.valueToTree(updated));
 
         String patchStr = FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(patch);
-        JsonNode appliedWithJSON = new JSONPatcher(FeignUtil.OBJECT_MAPPER).apply(initialJSON.deepCopy(), FeignUtil.OBJECT_MAPPER.readTree(patchStr));
 
         if (reverse) {
+            JsonNode appliedWithJSON = PATCHER.reverse(updatedJSON.deepCopy(), FeignUtil.OBJECT_MAPPER.readTree(patchStr));
             assertObjectsEqual(reportBuilder
                     , patchStr
                     , prepareForComparison((ObjectNode) minimizeJSON(appliedWithJSON))
@@ -95,6 +105,7 @@ public class PatchTestUtil {
                     , "patched"
                     , "Model (right) with reversed patch (left) not equals to expected (middle)");
         } else {
+            JsonNode appliedWithJSON = PATCHER.apply(initialJSON.deepCopy(), FeignUtil.OBJECT_MAPPER.readTree(patchStr));
             assertObjectsEqual(reportBuilder
                     , patchStr
                     , prepareForComparison((ObjectNode) minimizeJSON(appliedWithJSON))

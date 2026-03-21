@@ -39,8 +39,9 @@ public class JSONPatcherTest {
     Reaction reaction = Reaction.create(model, REACTION);
 
     JSONPatcher JSON_PATCHER = new JSONPatcher(Map.of(), Map.of(), Set.of(), OBJECT_MAPPER);
-    JSONPatcher JSON_PATCHER_SET = new JSONPatcher(Map.of("$", "anchor"), Map.of(), Set.of(), OBJECT_MAPPER);
-    JSONPatcher JSON_PATCHER_LIST = new JSONPatcher(Map.of(), Map.of("$", "anchor"), Set.of(), OBJECT_MAPPER);
+    JSONPatcher JSON_PATCHER_SET = new JSONPatcher(Map.of(List.of(), "anchor"), Map.of(), Set.of(), OBJECT_MAPPER);
+    JSONPatcher JSON_PATCHER_LIST = new JSONPatcher(Map.of(), Map.of(List.of(), "anchor"), Set.of(), OBJECT_MAPPER);
+    JSONPatcher JSON_PATCHER_LIST_INSIDE_LIST = new JSONPatcher(Map.of(), Map.of(List.of(), "key", List.of("#", "items"), "anchor"), Set.of(), OBJECT_MAPPER);
     JSONPatcher JSON_MODEL_PATCHER = new JSONPatcher(OBJECT_MAPPER);
 
     @BeforeEach
@@ -345,7 +346,7 @@ public class JSONPatcherTest {
         this.doVerify(
                 List.of(new InnerList("K1", List.of(new Anchored("A1", "a")))),
                 List.of(new InnerList("K1", List.of(new Anchored("A1", "a"), new Anchored("A2", "b")))),
-                new JSONPatcher(Map.of(), Map.of("$", "key", "$.#.items", "anchor"), Set.of(), OBJECT_MAPPER),
+                JSON_PATCHER_LIST_INSIDE_LIST,
                 """
                         {"0": {"items": {">1": {"$new": {"anchor": "A2", "name": "b"}}}}}
                 """
@@ -460,6 +461,7 @@ public class JSONPatcherTest {
         String patchStr = OBJECT_MAPPER.writeValueAsString(patch);
         assertThat(patchStr).isEqualToIgnoringWhitespace(expectedPatchStr.trim());
         PatchTestUtil.verifyModelPatch(baseExperiment, patch, experiment, null);
+        PatchTestUtil.verifyReversePatch(baseExperiment, patch, experiment, null);
     }
 
     @SneakyThrows
@@ -490,6 +492,11 @@ public class JSONPatcherTest {
         JsonNode restoredJSON = jsonPatcher.apply(oldValueJSON, patchJSON);
 //        System.out.println("doVerifyPatchApplication: restored = " + restoredJSON);
         assertThat(PatchTestUtil.minimizeJSON(restoredJSON)).isEqualTo(PatchTestUtil.minimizeJSON(newValueJSON));
+
+        JsonNode revertedJSON = jsonPatcher.reverse(newValueJSON, patchJSON);
+//        System.out.println("doVerifyPatchApplication: revered = " + revertedJSON);
+        assertThat(PatchTestUtil.minimizeJSON(revertedJSON)).isEqualTo(PatchTestUtil.minimizeJSON(oldValueJSON));
+
     }
 }
 

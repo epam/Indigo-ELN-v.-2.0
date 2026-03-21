@@ -16,6 +16,7 @@ public class ReactionInputMetamodel {
     // ReactionRow
     public static final ModelProperty<ReactionInput, CompoundRef> COMPOUND = property("compound", ReactionRow::getCompound, ReactionRow::setCompound);
     public static final ModelProperty<ReactionInput, EnteredValue<NoUnit>> EQ = enteredValueProperty("eq", ReactionRow::getEq, ReactionRow::setEq, EnteredValue.DEFAULT_ONE);
+    public static final ModelProperty<ReactionInput, Integer> RXN_POSITION = property("rxnPosition", ReactionRow::getRxnPosition, ReactionRow::setRxnPosition);
     // ReactionInput
     public static final ModelProperty<ReactionInput, InputAnchor> ANCHOR = property("anchor", ReactionInput::getAnchor, ReactionInput::setAnchor);
     public static final ModelProperty<ReactionInput, ReactionRole> ROLE = property("role", ReactionInput::getRole, ReactionInput::setRole);
