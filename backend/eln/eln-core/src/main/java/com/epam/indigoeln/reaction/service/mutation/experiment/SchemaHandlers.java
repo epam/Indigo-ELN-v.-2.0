@@ -8,9 +8,7 @@ import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.reaction.model.*;
-import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
-import com.epam.indigoeln.reaction.service.mutation.AbstractReactionMutationHandler;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import com.google.common.base.Function;
@@ -41,7 +39,7 @@ class SetSchemeHandler extends AbstractReactionMutationHandler<ReactionMutation.
     IndigoReaction reaction;
 
     @Override
-    protected ReactionMutation.SetScheme doPrepareMutation(ExperimentEntity entity, ReactionMutation.SetScheme mutation) {
+    protected ReactionMutation.SetScheme doPrepareMutation(ExperimentEntity entity, ReactionMutation.SetScheme mutation, ExperimentMutationContext context) {
         int reactantCount = 0, catalystCount = 0, productCount = 0;
         if (mutation.rxnFile() != null) {
             reaction = indigoAPI.loadReaction(mutation.rxnFile());
@@ -61,7 +59,7 @@ class SetSchemeHandler extends AbstractReactionMutationHandler<ReactionMutation.
     }
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.SetScheme mutation) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.SetScheme mutation, ExperimentMutationContext context) {
         Map<Pair<String, Integer>, MoleculeLink<ReactionInput>> reactantLinks = new HashMap<>(), catalystLinks = new HashMap<>();
         Map<Pair<String, Integer>, MoleculeLink<ReactionOutput>> productLinks = new HashMap<>();
         if (reaction.getRxnfile() != null) {
@@ -101,9 +99,7 @@ class SetSchemeHandler extends AbstractReactionMutationHandler<ReactionMutation.
         adjustLimitingInput(reaction);
         reaction.setRxnfile(mutation.rxnFile());
 
-        return new MutationResult("Update reaction scheme"
-                , null);
-//                , new ReactionMutation.UndoSetScheme(reaction.getAnchor(), oldRxnfile, List.of(), oldOutputs));
+        return new MutationResult("Update reaction scheme");
     }
 
     private static <R extends ReactionRow> void updateMoleculeLinkRow(Map<Pair<String, Integer>, MoleculeLink<R>> links, R row) {
@@ -168,26 +164,11 @@ class SetSchemeHandler extends AbstractReactionMutationHandler<ReactionMutation.
 }
 
 @Dependent
-@MutationHandlerFor(ReactionMutation.UndoSetScheme.class)
-class UndoSetSchemeHandler extends AbstractReactionMutationHandler<ReactionMutation.UndoSetScheme> {
-
-    @Override
-    protected MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.UndoSetScheme mutation) {
-        reaction.setRxnfile(mutation.rxnFile());
-        reaction.setInputs(mutation.inputs());
-        reaction.getInputs().forEach(input -> input.setReaction(reaction));
-        reaction.setOutputs(mutation.outputs());
-        reaction.getOutputs().forEach(output -> output.setReaction(reaction));
-        return new MutationResult("Undo set scheme", null);
-    }
-}
-
-@Dependent
 @MutationHandlerFor(ReactionMutation.AddEmptyInput.class)
 class AddEmptyInputHandler extends AbstractReactionMutationHandler<ReactionMutation.AddEmptyInput> {
 
     @Override
-    protected ReactionMutation.AddEmptyInput doPrepareMutation(ExperimentEntity entity, ReactionMutation.AddEmptyInput mutation) {
+    protected ReactionMutation.AddEmptyInput doPrepareMutation(ExperimentEntity entity, ReactionMutation.AddEmptyInput mutation, ExperimentMutationContext context) {
         return new ReactionMutation.AddEmptyInput(
                 mutation.anchor(),
                 mutation.createdInputAnchor() != null ? mutation.createdInputAnchor() : new InputAnchor(UUID.randomUUID()),
@@ -196,13 +177,11 @@ class AddEmptyInputHandler extends AbstractReactionMutationHandler<ReactionMutat
     }
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddEmptyInput mutation) {
-        ReactionInput row = createInputLine(reaction, null, ReactionRole.REACTANT, checkNotNull(mutation.createdInputAnchor()), checkNotNull(mutation.createdSampleAnchor()));
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddEmptyInput mutation, ExperimentMutationContext context) {
+        createInputLine(reaction, null, ReactionRole.REACTANT, checkNotNull(mutation.createdInputAnchor()), checkNotNull(mutation.createdSampleAnchor()));
         adjustLimitingInput(reaction);
-        schemaAffected = true;
-        return new MutationResult("Add empty input"
-                , new ReactionInputMutation.RemoveInput(row.getAnchor())
-        );
+        context.setSchemaAffected(true);
+        return new MutationResult("Add empty input");
     }
 }
 
@@ -214,7 +193,7 @@ class AddInputHandler extends AbstractReactionMutationHandler<ReactionMutation.A
     CompoundService compoundService;
 
     @Override
-    protected ReactionMutation.AddInput doPrepareMutation(ExperimentEntity entity, ReactionMutation.AddInput mutation) {
+    protected ReactionMutation.AddInput doPrepareMutation(ExperimentEntity entity, ReactionMutation.AddInput mutation, ExperimentMutationContext context) {
         return new ReactionMutation.AddInput(
                 mutation.anchor(),
                 mutation.sampleId(),
@@ -224,15 +203,13 @@ class AddInputHandler extends AbstractReactionMutationHandler<ReactionMutation.A
     }
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddInput mutation) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddInput mutation, ExperimentMutationContext context) {
         ReactionInput row = createInputLine(reaction, null, ReactionRole.REACTANT, checkNotNull(mutation.createdInputAnchor()), checkNotNull(mutation.createdSampleAnchor()));
         SampleEntity sample = compoundService.getSample(mutation.sampleId());
-        setInputLineSample(row, sample, mutation.createdSampleAnchor());
+        setInputLineSample(row, sample, mutation.createdSampleAnchor(), context);
         adjustLimitingInput(reaction);
 
-        return new MutationResult("Add input sample: " + getSampleIdentifier(sample)
-                , new ReactionInputMutation.RemoveInput(row.getAnchor())
-        );
+        return new MutationResult("Add input sample: " + getSampleIdentifier(sample));
     }
 }
 
@@ -244,7 +221,7 @@ class ResolveInputsHandler extends AbstractReactionMutationHandler<ReactionMutat
     CompoundService compoundService;
 
     @Override
-    protected ReactionMutation.ResolveInputs doPrepareMutation(ExperimentEntity entity, ReactionMutation.ResolveInputs mutation) {
+    protected ReactionMutation.ResolveInputs doPrepareMutation(ExperimentEntity entity, ReactionMutation.ResolveInputs mutation, ExperimentMutationContext context) {
         return new ReactionMutation.ResolveInputs(
                 mutation.anchor(),
                 mutation.inputSamples(),
@@ -255,51 +232,12 @@ class ResolveInputsHandler extends AbstractReactionMutationHandler<ReactionMutat
     }
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.ResolveInputs mutation) {
-        Map<InputAnchor, ReactionMutation.UndoResolveInputs.RowUndo> rowUndo = new HashMap<>();
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.ResolveInputs mutation, ExperimentMutationContext context) {
         mutation.inputSamples().forEach((inputAnchor, sampleId) -> {
             ReactionInput row = model.locate(inputAnchor);
             SampleEntity sample = compoundService.getSample(sampleId);
-            var undo = setInputLineSample(row, sample, checkNotNull(mutation.createdSampleAnchors()).get(inputAnchor));
-            rowUndo.put(inputAnchor, undo);
+            setInputLineSample(row, sample, checkNotNull(mutation.createdSampleAnchors()).get(inputAnchor), context);
         });
-        return new MutationResult("Resolve input samples"
-                , new ReactionMutation.UndoResolveInputs(mutation.anchor(), rowUndo)
-        );
-    }
-}
-
-@Dependent
-@MutationHandlerFor(ReactionMutation.UndoResolveInputs.class)
-class UndoResolveInputsHandler extends AbstractReactionMutationHandler<ReactionMutation.UndoResolveInputs> {
-
-    @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.UndoResolveInputs mutation) {
-        mutation.rows().forEach((inputAnchor, undo) -> {
-            ReactionInput row = model.locate(inputAnchor);
-            row.setCompound(undo.compoundRef());
-            row.setSamples(undo.samples());
-            for (ReactionInputSample sample : row.getSamples()) {
-                sample.setRow(row);
-            }
-            row.setChemicalName(undo.chemicalName());
-            schemaAffected = true;
-        });
-        return new MutationResult("Undo resolve inputs", null);
-    }
-}
-
-@Dependent
-@MutationHandlerFor(ReactionMutation.UndoRemoveInput.class)
-class UndoRemoveInputHandler extends AbstractReactionMutationHandler<ReactionMutation.UndoRemoveInput> {
-
-    @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.UndoRemoveInput mutation) {
-        reaction.getInputs().add(mutation.position(), mutation.input());
-        mutation.input().setReaction(reaction);
-        for (ReactionInput input : reaction.getInputs()) {
-            input.setLimiting(input.getAnchor().equals(mutation.limitingInput()));
-        }
-        return new MutationResult("Undo remove input", null);
+        return new MutationResult("Resolve input samples");
     }
 }

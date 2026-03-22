@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jspecify.annotations.Nullable;
 
 import java.time.ZonedDateTime;
 
@@ -26,9 +25,6 @@ public class RevisionDetailsDTO {
 
     @NotNull
     private Mutation mutation;
-
-    @Nullable
-    private Mutation reverseMutation;
 
     @NotNull
     private String summary;

@@ -9,6 +9,7 @@ import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,7 +20,7 @@ public class ExperimentModelUtil {
     public static <N extends ExperimentNode> void walk(Metamodel<N> metamodel, N node, Consumer<ExperimentNode> visitor) {
         visitor.accept(node);
         for (ModelProperty<N, ?> property : metamodel.getProperties()) {
-            Pair<Metamodel<?>, List<ExperimentNode>> children = doGetChildren(node, property);
+            Pair<Metamodel<?>, Collection<ExperimentNode>> children = doGetChildren(node, property);
             if (children != null) {
                 for (ExperimentNode child : children.b()) {
                     //noinspection rawtypes,unchecked
@@ -33,7 +34,7 @@ public class ExperimentModelUtil {
     public static <N extends ExperimentNode> void walkProperties(Metamodel<N> metamodel, N node, PropertyVisitor visitor) {
         visitor.beforeNode(node);
         for (ModelProperty<N, ?> property : metamodel.getProperties()) {
-            Pair<Metamodel<?>, List<ExperimentNode>> children = doGetChildren(node, property);
+            Pair<Metamodel<?>, Collection<ExperimentNode>> children = doGetChildren(node, property);
             if (children != null) {
                 visitor.beforeChildren(node, property.cast());
                 for (ExperimentNode child : children.b()) {
@@ -48,10 +49,11 @@ public class ExperimentModelUtil {
     }
 
     @Nullable
-    private static Pair<Metamodel<?>, List<ExperimentNode>> doGetChildren(ExperimentNode node, ModelProperty<?, ?> property) {
+    private static Pair<Metamodel<?>, Collection<ExperimentNode>> doGetChildren(ExperimentNode node, ModelProperty<?, ?> property) {
         if (property.childModel() != null) {
-            //noinspection unchecked
-            return (Pair) Pair.of(property.childModel(), property.cast().get(node));
+            Object value = property.cast().get(node);
+            //noinspection unchecked,rawtypes
+            return (Pair) Pair.of(property.childModel(), value instanceof Collection ? (Collection) value : List.of(value));
         }
         return null;
     }
@@ -71,7 +73,7 @@ public class ExperimentModelUtil {
             property.set(node, property.defaultValue());
         }
         if (value != null) {
-            value.setOverwritten(true);
+            value.setOverwritten(false);
         }
     }
 

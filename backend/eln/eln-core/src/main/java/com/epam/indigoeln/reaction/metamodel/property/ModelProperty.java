@@ -24,6 +24,13 @@ public record ModelProperty<C, I>(
         return new ModelProperty<>(name, getter, setter, null, null, false);
     }
 
+    public static <C, T> ModelProperty<C, T> property(String name
+            , Function<C, T> getter, @Nullable BiConsumer<C, T> setter
+            , Metamodel<?> childModel
+    ) {
+        return new ModelProperty<>(name, getter, setter, null, childModel, false);
+    }
+
     public static <C, U extends MeasurementUnit> ModelProperty<C, EnteredValue<U>> enteredValueProperty(String name
             , Function<C, EnteredValue<U>> getter, BiConsumer<C, EnteredValue<U>> setter
     ) {

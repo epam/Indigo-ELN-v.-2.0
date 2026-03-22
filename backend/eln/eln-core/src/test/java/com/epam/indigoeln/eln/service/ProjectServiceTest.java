@@ -3,6 +3,8 @@ package com.epam.indigoeln.eln.service;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
+import com.epam.indigoeln.reaction.model.mutation.NotebookMutation;
 import com.epam.indigoeln.reaction.model.mutation.ProjectMutation;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
@@ -372,13 +374,6 @@ class ProjectServiceTest extends ELNBaseTest {
                     assertThat(revision.getUser()).isEqualTo(getJohnUserRef());
                     assertThat(revision.getMutation()).isInstanceOf(ProjectMutation.EditProjectAttributes.class);
                     assertThat(revision.getSummary()).matches("Edit: multiple attributes");
-//                    assertThat(revision.getDiff()).satisfies(diff -> {
-//                        assertThat(diff.getAcl()).isNull();
-//                        assertThat(diff.getName()).isEqualTo(Patched.replaced("testEditProject", "testEditProject_new"));
-//                        assertThat(diff.getKeywords()).isEqualTo(Patched.replaced(Set.of("k1", "k2"), Set.of("k2", "k3")));
-//                        assertThat(diff.getLiterature()).isEqualTo(Patched.replaced("l", "l2"));
-//                        assertThat(diff.getDescription()).isEqualTo(Patched.replaced("d", "d2"));
-//                    });
                 });
     }
 
@@ -579,31 +574,27 @@ class ProjectServiceTest extends ELNBaseTest {
         projectClient.updateProjectAccess(project.getId(), AccessForm.of(maggieUserID, AccessLevel.EDIT));
         assertThat(projectClient.getProjectRevisions(project.getId()))
                 .hasSize(2)
-                /*.last().satisfies(revision -> {
+                .last().satisfies(revision -> {
                     assertThat(revision.getRevision()).isEqualTo(2);
                     assertThat(revision.getUser()).isEqualTo(getJohnUserRef());
                     assertThat(revision.getMutation()).isInstanceOf(ProjectMutation.EditProjectAccess.class);
                     assertThat(revision.getSummary()).isEqualTo("Edited Team: granted maggie EDIT access");
-                    assertThat(revision.getDiff().getAcl()).isEqualTo(Patched.updated(Map.of(MAGGIE_USERNAME, Patched.created(new ACLDetailsEntryDTO(maggieUserID, MAGGIE_DISPLAY_NAME, AccessLevel.EDIT, false, MAGGIE_USERNAME)))));
-                })*/;
+                });
         assertThat(notebookClient.getNotebookRevisions(notebook.getId()))
-                /*.last().satisfies(revision -> {
+                .last().satisfies(revision -> {
                     assertThat(revision.getMutation()).isInstanceOf(NotebookMutation.NotebookAccessUpdated.class);
-                    assertThat(revision.getDiff().getAcl()).isEqualTo(Patched.updated(Map.of(MAGGIE_USERNAME, Patched.created(new ACLDetailsEntryDTO(maggieUserID, MAGGIE_DISPLAY_NAME, AccessLevel.EDIT, true, MAGGIE_USERNAME)))));
-                })*/;
+                });
         assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
-                /*.last().satisfies(revision -> {
+                .last().satisfies(revision -> {
                     assertThat(revision.getMutation()).isInstanceOf(ExperimentMutation.ExperimentAccessUpdated.class);
-                    assertThat(revision.getDiff().getAcl()).isEqualTo(Patched.updated(Map.of(MAGGIE_USERNAME, Patched.created(new ACLDetailsEntryDTO(maggieUserID, MAGGIE_DISPLAY_NAME, AccessLevel.EDIT, true, MAGGIE_USERNAME)))));
-                })*/;
+                });
 
         projectClient.updateProjectAccess(project.getId(), AccessForm.of(maggieUserID, AccessLevel.NONE));
         assertThat(projectClient.getProjectRevisions(project.getId()))
                 .hasSize(3)
-                /*.last().satisfies(revision -> {
+                .last().satisfies(revision -> {
                     assertThat(revision.getSummary()).isEqualTo("Edited Team: removed maggie");
-                    assertThat(revision.getDiff().getAcl()).isEqualTo(Patched.updated(Map.of(MAGGIE_USERNAME, Patched.deleted(new ACLDetailsEntryDTO(maggieUserID, MAGGIE_DISPLAY_NAME, AccessLevel.EDIT, false, MAGGIE_USERNAME)))));
-                })*/;
+                });
     }
 
     @Nested

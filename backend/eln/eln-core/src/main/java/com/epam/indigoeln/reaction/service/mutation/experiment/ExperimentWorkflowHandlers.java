@@ -11,15 +11,12 @@ import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.ExperimentService;
 import com.epam.indigoeln.eln.service.UserService;
-import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
-import com.epam.indigoeln.reaction.service.mutation.ExperimentMutationHandlerBase;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Preconditions;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
@@ -31,6 +28,7 @@ import java.util.Arrays;
 import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.SUBMIT_EXPERIMENTS;
 import static com.epam.indigoeln.eln.model.ExperimentStatus.*;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Dependent
 @MutationHandlerFor(ExperimentMutation.CancelExperiment.class)
@@ -40,9 +38,9 @@ class CancelExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
     ExperimentWorkflowHelper helper;
 
     @Override
-    public MutationResult doHandle(ExperimentEntity experiment, @Nullable ExperimentModel model, ExperimentMutation.CancelExperiment mutation) {
+    public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.CancelExperiment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         helper.transition(experiment, CANCELLED, SUBMIT_EXPERIMENTS, OPEN, REOPEN);
-        return new MutationResult("Experiment cancelled", null);
+        return new MutationResult("Experiment cancelled");
     }
 }
 
@@ -54,10 +52,10 @@ class ReopenExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
     ExperimentWorkflowHelper helper;
 
     @Override
-    public MutationResult doHandle(ExperimentEntity experiment, @Nullable ExperimentModel model, ExperimentMutation.ReopenExperiment mutation) {
+    public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.ReopenExperiment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         helper.transition(experiment, REOPEN, SUBMIT_EXPERIMENTS, CANCELLED, ARCHIVED, COMPLETED, SUBMITTED, REJECTED);
         experiment.getSignatures().clear();
-        return new MutationResult("Experiment reopened", null);
+        return new MutationResult("Experiment reopened");
     }
 }
 
@@ -69,9 +67,9 @@ class CompleteExperimentHandler extends ExperimentMutationHandlerBase<Experiment
     ExperimentWorkflowHelper helper;
 
     @Override
-    public MutationResult doHandle(ExperimentEntity experiment, @Nullable ExperimentModel model, ExperimentMutation.CompleteExperiment mutation) {
+    public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.CompleteExperiment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         helper.transition(experiment, COMPLETED, SUBMIT_EXPERIMENTS, OPEN, REOPEN);
-        return new MutationResult("Experiment completed", null);
+        return new MutationResult("Experiment completed");
     }
 }
 
@@ -89,12 +87,12 @@ class SubmitExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
     SignatureTemplateRepository signatureTemplateRepository;
 
     @Override
-    public boolean isAffectsAttachments() {
-        return true;
+    public void doPrepare(ExperimentEntity entity, ExperimentMutation.SubmitExperiment mutation, ExperimentMutationContext context) {
+        context.setAffectsAttachments(true);
     }
 
     @Override
-    public MutationResult doHandle(ExperimentEntity experiment, @Nullable ExperimentModel model, ExperimentMutation.SubmitExperiment mutation) {
+    public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.SubmitExperiment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         SignatureTemplateEntity signatureTemplate = signatureTemplateRepository.get(mutation.signatureTemplateID());
         helper.transition(experiment, SUBMITTED, SUBMIT_EXPERIMENTS, COMPLETED);
         ExperimentService.ExperimentReportContent report = experimentService.printReport(experiment);
@@ -104,7 +102,7 @@ class SubmitExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
         experiment.getSignatures().addAll(signatureTemplate.getBlocks().stream()
                 .map(block -> {
                     UserEntity user = switch (block.getReason()) {
-                        case WITNESS -> Preconditions.checkNotNull(block.getUser());
+                        case WITNESS -> checkNotNull(block.getUser());
                         case AUTHOR -> experiment.getCreatedBy();
                     };
                     return new ExperimentSignatureEntity(experiment, user, block.getReason(), null, null);
@@ -112,7 +110,7 @@ class SubmitExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
                 .toList()
         );
         helper.doCheckSignatures(experiment);
-        return new MutationResult("Experiment submitted for signature", null);
+        return new MutationResult("Experiment submitted for signature");
     }
 }
 
@@ -124,9 +122,9 @@ class ApproveExperimentHandler extends ExperimentMutationHandlerBase<ExperimentM
     ExperimentWorkflowHelper helper;
 
     @Override
-    public MutationResult doHandle(ExperimentEntity experiment, @Nullable ExperimentModel model, ExperimentMutation.ApproveExperiment mutation) {
+    public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.ApproveExperiment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         helper.doApproveOrReject(SignatureStatus.APPROVED, experiment);
-        return new MutationResult("Experiment approved", null);
+        return new MutationResult("Experiment approved");
     }
 }
 
@@ -138,9 +136,9 @@ class RejectExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
     ExperimentWorkflowHelper helper;
 
     @Override
-    public MutationResult doHandle(ExperimentEntity experiment, @Nullable ExperimentModel model, ExperimentMutation.RejectExperiment mutation) {
+    public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.RejectExperiment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         helper.doApproveOrReject(SignatureStatus.REJECTED, experiment);
-        return new MutationResult("Experiment rejected", null);
+        return new MutationResult("Experiment rejected");
     }
 }
 
@@ -152,12 +150,12 @@ class ResubmitExperimentHandler extends ExperimentMutationHandlerBase<Experiment
     ExperimentWorkflowHelper helper;
 
     @Override
-    public MutationResult doHandle(ExperimentEntity experiment, @Nullable ExperimentModel model, ExperimentMutation.ResubmitExperiment mutation) {
+    public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.ResubmitExperiment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         helper.transition(experiment, SUBMITTED, SUBMIT_EXPERIMENTS, REJECTED);
         for (ExperimentSignatureEntity signature : experiment.getSignatures()) {
             signature.setStatus(null);
         }
-        return new MutationResult("Experiment resubmitted for signature", null);
+        return new MutationResult("Experiment resubmitted for signature");
     }
 }
 
@@ -168,42 +166,26 @@ class MakeVersionHandler extends ExperimentMutationHandlerBase<ExperimentMutatio
     @Inject
     ExperimentRepository experimentRepository;
 
-    Integer version;
-    ExperimentSnapshot snapshot;
-
     @Override
-    public boolean isAffectsAttachments() {
-        return true; // make sure snapshot contains all fields
+    public void doPrepare(ExperimentEntity entity, ExperimentMutation.MakeVersion mutation, ExperimentMutationContext context) {
+        // make sure snapshot contains all fields
+        context.setAffectsModel(true);
+        context.setAffectsAttachments(true);
+        context.setAffectsACL(true);
     }
 
     @Override
-    public boolean isAffectsACL() {
-        return true; // make sure snapshot contains all fields
-    }
-
-    @Override
-    public boolean isAffectsModel() {
-        return true; // make sure snapshot contains all fields
-    }
-
-    @Override
-    public MutationResult doHandle(ExperimentEntity experiment, @Nullable ExperimentModel model, ExperimentMutation.MakeVersion mutation) {
+    public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.MakeVersion mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         int lastUsedVersion = MoreObjects.firstNonNull(experimentRepository.getLastUsedVersion(experiment), 0);
-        version = lastUsedVersion + 1;
-        return new MutationResult("Version " + version, null);
+        context.setCreatedVersion(lastUsedVersion + 1);
+        return new MutationResult("Version " + context.getCreatedVersion());
     }
 
     @Override
-    protected ExperimentSnapshot doSnapshotAfter(ExperimentEntity experiment, @Nullable ExperimentModel model) {
-        snapshot = super.doSnapshotAfter(experiment, model);
-        return snapshot;
-    }
-
-    @Override
-    protected ExperimentRevisionEntity doCreateRevision(ExperimentEntity experiment, ExperimentMutation.MakeVersion mutation, MutationResult result, Integer revisionNo, JsonNode patch) {
-        ExperimentRevisionEntity revision = super.doCreateRevision(experiment, mutation, result, revisionNo, patch);
-        revision.setVersion(version);
-        revision.setSnapshot(snapshot);
+    protected ExperimentRevisionEntity doCreateRevision(ExperimentEntity experiment, ExperimentMutation.MakeVersion mutation, MutationResult result, Integer revisionNo, JsonNode patch, ExperimentMutationContext context, ExperimentSnapshot snapshotAfter) {
+        ExperimentRevisionEntity revision = super.doCreateRevision(experiment, mutation, result, revisionNo, patch, context, snapshotAfter);
+        revision.setVersion(checkNotNull(context.getCreatedVersion()));
+        revision.setSnapshot(snapshotAfter);
         return revision;
     }
 }

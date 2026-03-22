@@ -35,7 +35,8 @@ public class FeignUtil {
             .registerModule(new VertxModule())
             .registerModule(new JavaTimeModule())
             .registerModule(new Jdk8Module())
-            .registerModule(new ParameterNamesModule());
+            .registerModule(new ParameterNamesModule())
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
     public static final ObjectMapper OBJECT_MAPPER_FORMATTED = OBJECT_MAPPER.copy()
             .enable(SerializationFeature.INDENT_OUTPUT);
@@ -55,7 +56,7 @@ public class FeignUtil {
                     request.header(HttpHeaders.AUTHORIZATION, authorization.get());
                 })
                 .logLevel(Logger.Level.FULL)
-                .logger(new Slf4jLogger(FeignUtil.class))
+                .logger(new Slf4jLogger("feign"))
                 .retryer(Retryer.NEVER_RETRY)
                 .errorDecoder((methodKey, response) -> {
                     String body = "";

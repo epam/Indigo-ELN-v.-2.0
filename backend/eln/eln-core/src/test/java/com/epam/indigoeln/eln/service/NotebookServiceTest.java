@@ -255,11 +255,6 @@ class NotebookServiceTest extends ELNBaseTest {
                     assertThat(revision.getUser()).isEqualTo(getJohnUserRef());
                     assertThat(revision.getMutation()).isInstanceOf(NotebookMutation.EditNotebookAttributes.class);
                     assertThat(revision.getSummary()).matches("Edit: name=.+, description=.+");
-//                    assertThat(revision.getDiff()).satisfies(diff -> {
-//                        assertThat(diff.getAcl()).isNull();
-//                        assertThat(diff.getName()).isEqualTo(Patched.replaced(oldName, newName));
-//                        assertThat(diff.getDescription()).isEqualTo(Patched.replaced("d", "d2"));
-//                    });
                 });
     }
 

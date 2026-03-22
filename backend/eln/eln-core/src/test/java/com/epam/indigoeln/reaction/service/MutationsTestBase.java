@@ -95,7 +95,8 @@ public abstract class MutationsTestBase extends ELNBaseTest {
     }
 
     protected void applyMutation(Mutation mutation) {
-        applyMutation(mutation, false); // !!! disable until undo/redo reworked
+        boolean undoOrRedo = mutation instanceof ExperimentMutation.Undo || mutation instanceof ExperimentMutation.Redo;
+        applyMutation(mutation, !undoOrRedo);
     }
 
     protected void applyMutation(Mutation mutation, boolean undoRedo) {
@@ -127,15 +128,14 @@ public abstract class MutationsTestBase extends ELNBaseTest {
         PatchTestUtil.verifyReversePatch(experiment, patch, updatedExperiment, reportBuilder);
 
         experiment = updatedExperiment;
-        Integer initialRevision = experiment.getRevision();
         if (undoRedo) {
             // verify if model after undo is the same as before initial mutation
-            applyMutation(new ExperimentMutation.Undo(initialRevision), "undo", false);
+            applyMutation(new ExperimentMutation.Undo(), "undo", false);
             ExperimentSnapshot snapshotAfterUndo = experimentClient.getExperimentSnapshot(experiment.getId());
             PatchTestUtil.verifyModel(snapshotAfterUndo, initialSnapshot, reportBuilder, () -> "Model after undo (right) not equals to model before initial operation (left)");
 
             // verify if undo+redo works and produces the same snapshot as initial mutation
-            applyMutation(new ExperimentMutation.Redo(initialRevision), "redo", false);
+            applyMutation(new ExperimentMutation.Redo(), "redo", false);
             experiment = experimentClient.getExperiment(experiment.getId());
             ExperimentSnapshot snapshotAfterRedo = experimentClient.getExperimentSnapshot(experiment.getId());
 

@@ -2,7 +2,6 @@ package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.exception.EntityNotFoundException;
 import com.epam.indigoeln.common.exception.InvalidRequestException;
-import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.DictionaryEntity;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
@@ -144,6 +143,11 @@ public class DictionaryService {
     // TODO use cache
     public DictionaryItemEntity get(UUID id) {
         return dictionaryItemRepository.findById(id);
+    }
+
+    @Nullable
+    public DictionaryItemEntity get(@Nullable DictionaryItemRef ref) {
+        return ref != null ? dictionaryItemRepository.get(ref.getId()) : null;
     }
 
     public List<DictionaryItemRef> getSaltCodes() {

@@ -258,10 +258,7 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
         );
 
         JsonNode versionDiff = experimentClient.compareVersions(experiment.getId(), 1, 2);
-//        assertThat(versionDiff.getModel().updatedValue().getReactions().updatedValue().getItems().getFirst().value().updatedValue().getInputs().updatedValue().getItems()).singleElement().satisfies(input -> {
-//            assertThat(input.oldIndex()).isNull();
-//            assertThat(input.newIndex()).isEqualTo(2);
-//        });
+        assertThat(versionDiff).isNotNull();
 
         experimentClient.compareVersions(experiment.getId(), 1, null);
         experimentClient.compareVersionsHTML(experiment.getId(), 1, null);

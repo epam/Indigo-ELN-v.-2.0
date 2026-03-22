@@ -1,4 +1,4 @@
-package com.epam.indigoeln.reaction.service.mutation;
+package com.epam.indigoeln.reaction.service.mutation.project;
 
 import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.eln.entity.ProjectEntity;
@@ -12,6 +12,9 @@ import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.eln.util.JSONPatcher;
 import com.epam.indigoeln.reaction.model.ProjectSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
+import com.epam.indigoeln.reaction.service.mutation.EntityMutationHelper;
+import com.epam.indigoeln.reaction.service.mutation.MutationHandler;
+import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.inject.Inject;
@@ -24,7 +27,7 @@ import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 import static com.epam.indigoeln.eln.util.ModelUtil.wrapConstraintViolation;
 
 @Slf4j
-public abstract class AbstractProjectMutationHandler<T extends Mutation> extends AbstractMutationHandler<T, Void, ProjectEntity, ProjectSnapshot, ProjectRevisionEntity> implements ProjectMutationHandler<T> {
+public abstract class AbstractProjectMutationHandler<T extends Mutation> extends MutationHandler<T, ProjectEntity, ProjectSnapshot, ProjectRevisionEntity, ProjectMutationContext> {
 
     @Inject
     protected SnapshotMapper snapshotMapper;
@@ -44,6 +47,11 @@ public abstract class AbstractProjectMutationHandler<T extends Mutation> extends
     protected JSONPatcher jsonPatcher;
 
     @Override
+    protected ProjectMutationContext createContext() {
+        return new  ProjectMutationContext();
+    }
+
+    @Override
     public Pair<ProjectSnapshot, JsonNode> applyMutation(ProjectEntity project, T mutation) {
         return wrapConstraintViolation(
                 () -> super.applyMutation(project, mutation),
@@ -52,18 +60,18 @@ public abstract class AbstractProjectMutationHandler<T extends Mutation> extends
     }
 
     @Override
-    protected void doValidateAccess(ProjectEntity project, T mutation) {
+    protected void doValidateAccess(ProjectEntity project, T mutation, ProjectMutationContext context) {
         aclService.ensureAccess(project, ApplicationPermission.EDIT_PROJECTS);
     }
 
     @Override
-    protected final ProjectSnapshot doSnapshotBefore(ProjectEntity project) {
-        return snapshotMapper.createSnapshot(project, isAffectsAttachments(), isAffectsACL());
+    protected final ProjectSnapshot doSnapshotBefore(ProjectEntity project, ProjectMutationContext context) {
+        return snapshotMapper.createSnapshot(project, context.isAffectsAttachments(), context.isAffectsACL());
     }
 
     @Override
     @SneakyThrows
-    protected final JsonNode doUpdateEntity(ProjectEntity project, @Nullable Void model, ProjectSnapshot snapshotBefore, ProjectSnapshot snapshotAfter) {
+    protected final JsonNode doUpdateEntity(ProjectEntity project, ProjectSnapshot snapshotBefore, ProjectSnapshot snapshotAfter, ProjectMutationContext context) {
         updateDates(project, userService.getCurrentUserEntity());
         //noinspection ConstantValue
         if (project.getId() == null) {
@@ -76,13 +84,13 @@ public abstract class AbstractProjectMutationHandler<T extends Mutation> extends
     }
 
     @Override
-    protected final ProjectSnapshot doSnapshotAfter(ProjectEntity project, @Nullable Void model) {
-        return snapshotMapper.createSnapshot(project, isAffectsAttachments(), isAffectsACL());
+    protected final ProjectSnapshot doSnapshotAfter(ProjectEntity project, ProjectMutationContext context) {
+        return snapshotMapper.createSnapshot(project, context.isAffectsAttachments(), context.isAffectsACL());
     }
 
     @Override
-    protected final ProjectRevisionEntity doCreateRevision(ProjectEntity project, T mutation, MutationResult result, Integer revisionNo, JsonNode patch) {
-        return revisionService.addRevision(project, revisionNo, project.getModifiedAt(), result.summary(), mutation, result.reverseMutation(), patch);
+    protected final ProjectRevisionEntity doCreateRevision(ProjectEntity project, T mutation, MutationResult result, Integer revisionNo, JsonNode patch, ProjectMutationContext context, ProjectSnapshot snapshotAfter) {
+        return revisionService.addRevision(project, revisionNo, project.getModifiedAt(), result.summary(), mutation, patch);
     }
 
     @Nullable

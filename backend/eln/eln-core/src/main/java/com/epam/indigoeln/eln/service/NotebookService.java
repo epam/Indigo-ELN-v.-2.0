@@ -14,7 +14,7 @@ import com.epam.indigoeln.reaction.model.NotebookSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.mutation.NotebookMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerRegistry;
-import com.epam.indigoeln.reaction.service.mutation.NotebookMutationHandler;
+import com.epam.indigoeln.reaction.service.mutation.notebook.AbstractNotebookMutationHandler;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -96,7 +96,7 @@ public class NotebookService {
 
     public Pair<NotebookSnapshot, JsonNode> applyMutation(NotebookEntity notebook, NotebookMutation mutation) {
         log.debug("Mutating notebook {}: {}", notebook.getId(), mutation);
-        NotebookMutationHandler<Mutation> handler = mutationHandlerRegistry.findHandler(mutation);
+        AbstractNotebookMutationHandler<Mutation> handler = mutationHandlerRegistry.findHandler(mutation);
         return handler.applyMutation(notebook, mutation);
     }
 

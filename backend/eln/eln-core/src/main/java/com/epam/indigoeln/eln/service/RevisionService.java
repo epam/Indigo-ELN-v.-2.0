@@ -1,9 +1,6 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.eln.entity.*;
-import com.epam.indigoeln.eln.repository.ExperimentRepository;
-import com.epam.indigoeln.eln.repository.NotebookRepository;
-import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.eln.util.PatchUtil;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -12,7 +9,6 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.SneakyThrows;
-import org.jspecify.annotations.Nullable;
 
 import java.time.ZonedDateTime;
 
@@ -22,51 +18,44 @@ public class RevisionService {
     @Inject
     UserService userService;
     @Inject
-    ProjectRepository projectRepository;
-    @Inject
-    NotebookRepository notebookRepository;
-    @Inject
-    ExperimentRepository experimentRepository;
-    @Inject
     ObjectMapper objectMapper;
 
     @SneakyThrows
-    public ProjectRevisionEntity addRevision(ProjectEntity project, Integer revisionNo, ZonedDateTime datetime, String summary, Mutation mutation, @Nullable Mutation reverseMutation, JsonNode diff) {
+    public ProjectRevisionEntity addRevision(ProjectEntity project, Integer revisionNo, ZonedDateTime datetime, String summary, Mutation mutation, JsonNode diff) {
         ProjectRevisionEntity revision = new ProjectRevisionEntity();
         revision.setProject(project);
-        doAddRevision(revision, revisionNo, datetime, summary, mutation, reverseMutation, objectMapper.writeValueAsString(diff));
+        doAddRevision(revision, revisionNo, datetime, summary, mutation, objectMapper.writeValueAsString(diff));
         project.setRevision(revisionNo);
         project.getRevisions().add(revision);
         return revision;
     }
 
     @SneakyThrows
-    public NotebookRevisionEntity addRevision(NotebookEntity notebook, Integer revisionNo, ZonedDateTime datetime, String summary, Mutation mutation, @Nullable Mutation reverseMutation, JsonNode diff) {
+    public NotebookRevisionEntity addRevision(NotebookEntity notebook, Integer revisionNo, ZonedDateTime datetime, String summary, Mutation mutation, JsonNode diff) {
         NotebookRevisionEntity revision = new NotebookRevisionEntity();
         revision.setNotebook(notebook);
-        doAddRevision(revision, revisionNo, datetime, summary, mutation, reverseMutation, objectMapper.writeValueAsString(diff));
+        doAddRevision(revision, revisionNo, datetime, summary, mutation, objectMapper.writeValueAsString(diff));
         notebook.setRevision(revisionNo);
         notebook.getRevisions().add(revision);
         return revision;
     }
 
     @SneakyThrows
-    public ExperimentRevisionEntity addRevision(ExperimentEntity experiment, Integer revisionNo, ZonedDateTime datetime, String summary, Mutation mutation, @Nullable Mutation reverseMutation, JsonNode diff) {
+    public ExperimentRevisionEntity addRevision(ExperimentEntity experiment, Integer revisionNo, ZonedDateTime datetime, String summary, Mutation mutation, JsonNode diff) {
         ExperimentRevisionEntity revision = new ExperimentRevisionEntity();
         revision.setExperiment(experiment);
-        doAddRevision(revision, revisionNo, datetime, summary, mutation, reverseMutation, objectMapper.writeValueAsString(diff));
+        doAddRevision(revision, revisionNo, datetime, summary, mutation, objectMapper.writeValueAsString(diff));
         experiment.setRevision(revisionNo);
         experiment.getRevisions().add(revision);
         return revision;
     }
 
-    private void doAddRevision(BaseRevisionEntity revision, Integer revisionNo, ZonedDateTime datetime, String summary, Mutation mutation, @Nullable Mutation reverseMutation, String diff) {
+    private void doAddRevision(BaseRevisionEntity revision, Integer revisionNo, ZonedDateTime datetime, String summary, Mutation mutation, String diff) {
         revision.setRevision(revisionNo);
         revision.setUser(userService.getCurrentUserEntity());
         revision.setDatetime(datetime);
         revision.setSummary(summary);
         revision.setMutation(mutation);
-        revision.setReverseMutation(reverseMutation);
         revision.setDiff(diff);
     }
 

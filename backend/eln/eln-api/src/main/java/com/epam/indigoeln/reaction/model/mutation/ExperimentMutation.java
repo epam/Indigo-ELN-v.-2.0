@@ -108,12 +108,10 @@ public interface ExperimentMutation extends Mutation {
     }
 
     record Undo(
-            @NotNull Integer revision
     ) implements ExperimentMutation {
     }
 
     record Redo(
-            @NotNull Integer revision
     ) implements ExperimentMutation {
     }
 }

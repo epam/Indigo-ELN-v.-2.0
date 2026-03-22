@@ -1,4 +1,4 @@
-package com.epam.indigoeln.reaction.service.mutation;
+package com.epam.indigoeln.reaction.service.mutation.notebook;
 
 import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.eln.entity.NotebookEntity;
@@ -12,6 +12,9 @@ import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.eln.util.JSONPatcher;
 import com.epam.indigoeln.reaction.model.NotebookSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
+import com.epam.indigoeln.reaction.service.mutation.EntityMutationHelper;
+import com.epam.indigoeln.reaction.service.mutation.MutationHandler;
+import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.inject.Inject;
@@ -22,7 +25,7 @@ import org.jspecify.annotations.Nullable;
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 import static com.epam.indigoeln.eln.util.ModelUtil.wrapConstraintViolation;
 
-public abstract class AbstractNotebookMutationHandler<T extends Mutation> extends AbstractMutationHandler<T, Void, NotebookEntity, NotebookSnapshot, NotebookRevisionEntity> implements NotebookMutationHandler<T> {
+public abstract class AbstractNotebookMutationHandler<T extends Mutation> extends MutationHandler<T, NotebookEntity, NotebookSnapshot, NotebookRevisionEntity, NotebookMutationContext> {
 
     @Inject
     protected SnapshotMapper snapshotMapper;
@@ -42,6 +45,11 @@ public abstract class AbstractNotebookMutationHandler<T extends Mutation> extend
     JSONPatcher jsonPatcher;
 
     @Override
+    protected NotebookMutationContext createContext() {
+        return new NotebookMutationContext();
+    }
+
+    @Override
     public Pair<NotebookSnapshot, JsonNode> applyMutation(NotebookEntity notebook, T mutation) {
         return wrapConstraintViolation(
                 () -> super.applyMutation(notebook, mutation),
@@ -50,18 +58,18 @@ public abstract class AbstractNotebookMutationHandler<T extends Mutation> extend
     }
 
     @Override
-    protected void doValidateAccess(NotebookEntity notebook, T mutation) {
+    protected void doValidateAccess(NotebookEntity notebook, T mutation, NotebookMutationContext context) {
         aclService.ensureAccess(notebook, ApplicationPermission.EDIT_NOTEBOOKS);
     }
 
     @Override
-    protected final NotebookSnapshot doSnapshotBefore(NotebookEntity notebook) {
-        return snapshotMapper.createSnapshot(notebook, isAffectsAttachments(), isAffectsACL());
+    protected final NotebookSnapshot doSnapshotBefore(NotebookEntity notebook, NotebookMutationContext context) {
+        return snapshotMapper.createSnapshot(notebook, context.isAffectsAttachments(), context.isAffectsACL());
     }
 
     @Override
     @SneakyThrows
-    protected final JsonNode doUpdateEntity(NotebookEntity notebook, @Nullable Void model, NotebookSnapshot snapshotBefore, NotebookSnapshot snapshotAfter) {
+    protected final JsonNode doUpdateEntity(NotebookEntity notebook, NotebookSnapshot snapshotBefore, NotebookSnapshot snapshotAfter, NotebookMutationContext context) {
         updateDates(notebook, userService.getCurrentUserEntity());
         //noinspection ConstantValue
         if (notebook.getId() == null) {
@@ -74,13 +82,13 @@ public abstract class AbstractNotebookMutationHandler<T extends Mutation> extend
     }
 
     @Override
-    protected final NotebookSnapshot doSnapshotAfter(NotebookEntity notebook, @Nullable Void model) {
-        return snapshotMapper.createSnapshot(notebook, isAffectsAttachments(), isAffectsACL());
+    protected final NotebookSnapshot doSnapshotAfter(NotebookEntity notebook, NotebookMutationContext context) {
+        return snapshotMapper.createSnapshot(notebook, context.isAffectsAttachments(), context.isAffectsACL());
     }
 
     @Override
-    protected final NotebookRevisionEntity doCreateRevision(NotebookEntity notebook, T mutation, MutationResult result, Integer revisionNo, JsonNode patch) {
-        return revisionService.addRevision(notebook, revisionNo, notebook.getModifiedAt(), result.summary(), mutation, result.reverseMutation(), patch);
+    protected final NotebookRevisionEntity doCreateRevision(NotebookEntity notebook, T mutation, MutationResult result, Integer revisionNo, JsonNode patch, NotebookMutationContext context, NotebookSnapshot snapshotAfter) {
+        return revisionService.addRevision(notebook, revisionNo, notebook.getModifiedAt(), result.summary(), mutation, patch);
     }
 
     @Nullable

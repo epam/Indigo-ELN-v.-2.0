@@ -16,6 +16,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -85,6 +87,16 @@ public class JSONSerializationTest {
         assertThat(serialized).startsWith("{\"data\":");
         ByteData value2 = getMapper(deserializer).readValue(serialized, ByteData.class);
         assertThat(value2.data).isEqualTo(value.data);
+    }
+
+    @ParameterizedTest
+    @MethodSource("mappers")
+    void testSerializeDate(MapperType serializer, MapperType deserializer) throws Exception {
+        ZonedDateTime value = ZonedDateTime.of(2026, 3, 25, 13, 00, 00, 00, ZoneId.of("UTC"));
+        String serialized = getMapper(serializer).writeValueAsString(value);
+        assertThat(serialized).isEqualTo("\"2026-03-25T13:00:00Z\"");
+        ZonedDateTime value2 = getMapper(deserializer).readValue(serialized, ZonedDateTime.class);
+        assertThat(value2).isEqualTo(value);
     }
 
     ObjectMapper getMapper(MapperType mapperType) {

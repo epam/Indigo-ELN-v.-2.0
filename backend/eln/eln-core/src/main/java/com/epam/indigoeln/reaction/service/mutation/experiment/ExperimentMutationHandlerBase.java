@@ -1,4 +1,4 @@
-package com.epam.indigoeln.reaction.service.mutation;
+package com.epam.indigoeln.reaction.service.mutation.experiment;
 
 import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
@@ -12,9 +12,7 @@ import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.model.units.*;
-import com.epam.indigoeln.reaction.service.mutation.experiment.AbstractExperimentMutationHandler;
 import com.google.common.base.Preconditions;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
@@ -26,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import static com.epam.indigoeln.common.exception.InvalidRequestException.fail;
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE;
@@ -44,29 +41,24 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
     @Inject
     DictionaryMapper dictionaryMapper;
 
-    public <U extends MeasurementUnit> EnteredValueUndo<U> setEnteredValue(Supplier<@Nullable EnteredValue<U>> getter, Consumer<@Nullable EnteredValue<U>> setter, @Nullable String stringValue, @Nullable U unit, @Nullable EnteredValueSource source, int revisionNo) {
-        return doSetEnteredValue(getter, setter, stringValue, unit, source, revisionNo, null);
+    public <U extends MeasurementUnit> void setEnteredValue(Consumer<@Nullable EnteredValue<U>> setter, @Nullable String stringValue, @Nullable U unit, int revisionNo) {
+        doSetEnteredValue(setter, stringValue, unit, revisionNo, null);
     }
 
-    public <U extends MeasurementUnit> EnteredValueUndo<U> setEnteredValue(Supplier<EnteredValue<U>> getter, Consumer<EnteredValue<U>> setter, @Nullable String stringValue, @Nullable U unit, @Nullable EnteredValueSource source, int revisionNo, EnteredValue<U> defaultValue) {
-        return doSetEnteredValue(getter, setter, stringValue, unit, source, revisionNo, defaultValue);
+    public <U extends MeasurementUnit> void setEnteredValue(Consumer<EnteredValue<U>> setter, @Nullable String stringValue, @Nullable U unit, int revisionNo, EnteredValue<U> defaultValue) {
+        doSetEnteredValue(setter, stringValue, unit, revisionNo, defaultValue);
     }
 
-    // !!! only allow non-null source for undo operations
-    private <U extends MeasurementUnit> EnteredValueUndo<U> doSetEnteredValue(Supplier<@Nullable EnteredValue<U>> getter, Consumer<@Nullable EnteredValue<U>> setter, @Nullable String stringValue, @Nullable U unit, @Nullable EnteredValueSource source, int revisionNo, @Nullable EnteredValue<U> defaultValue) {
-        EnteredValue<U> ev = getter.get();
-        String oldStringValue = ev != null ? ev.getStringValue() : null;
-        U oldUnit = ev != null ? ev.getUnit() : null;
-        EnteredValueSource oldSource = ev != null ? ev.getSource() : null;
+    private <U extends MeasurementUnit> void doSetEnteredValue(Consumer<@Nullable EnteredValue<U>> setter, @Nullable String stringValue, @Nullable U unit, int revisionNo, @Nullable EnteredValue<U> defaultValue) {
+        EnteredValue<U> ev;
         if (stringValue == null) { // remove old value
             ev = defaultValue;
         } else { // create or update value
             Preconditions.checkArgument(unit != null);
             double effectiveValue = Double.parseDouble(stringValue);
-            ev = new EnteredValue<>(effectiveValue, stringValue, unit, source != null ? source : EnteredValueSource.userEntered(revisionNo));
+            ev = new EnteredValue<>(effectiveValue, stringValue, unit, EnteredValueSource.userEntered(revisionNo));
         }
         setter.accept(ev);
-        return new EnteredValueUndo<>(oldStringValue, oldUnit, oldSource);
     }
 
     public String formatSetterSummary(String what, @Nullable String value, @Nullable MeasurementUnit unit) {
@@ -122,8 +114,7 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
         return "unknown sample";
     }
 
-    public ReactionMutation.UndoResolveInputs.RowUndo setInputLineSample(ReactionInput row, SampleEntity sample, InputSampleAnchor anchor) {
-        CompoundRef oldCompound = row.getCompound();
+    public void setInputLineSample(ReactionInput row, SampleEntity sample, InputSampleAnchor anchor, ExperimentMutationContext context) {
         row.setCompound(compoundService.realCompoundRef(sample.getCompound()));
 
         ReactionInputSample reactionInputSample = ReactionInputSample.create(row, anchor);
@@ -135,14 +126,10 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
         reactionInputSample.setHealthHazards(dictionaryMapper.itemToRefList(sample.getHealthHazards()));
         reactionInputSample.setComment(sample.getBatchComment());
         reactionInputSample.setNbkBatchNumber(sample.getNbkBatchNumber());
-        List<ReactionInputSample> oldSamples = row.getSamples();
         row.setSamples(List.of(reactionInputSample));
-        String oldChemicalName = row.getChemicalName();
         row.setChemicalName(sample.getCompound().getChemicalName());
 
-        schemaAffected = true;
-
-        return new ReactionMutation.UndoResolveInputs.RowUndo(oldCompound, oldSamples, oldChemicalName);
+        context.setSchemaAffected(true);
     }
 
     public ReactionInput createInputLine(Reaction reaction, @Nullable IndigoMolecule molecule, ReactionRole role, InputAnchor createdInputAnchor, InputSampleAnchor createdSampleAnchor) {

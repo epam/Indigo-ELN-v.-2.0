@@ -12,7 +12,7 @@ import com.epam.indigoeln.reaction.model.ProjectSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.mutation.ProjectMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerRegistry;
-import com.epam.indigoeln.reaction.service.mutation.ProjectMutationHandler;
+import com.epam.indigoeln.reaction.service.mutation.project.AbstractProjectMutationHandler;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -90,7 +90,7 @@ public class ProjectService {
 
     public Pair<ProjectSnapshot, JsonNode> applyMutation(ProjectEntity project, ProjectMutation mutation) {
         log.debug("Mutating project {}: {}", project.getId(), mutation);
-        ProjectMutationHandler<Mutation> handler = mutationHandlerRegistry.findHandler(mutation);
+        AbstractProjectMutationHandler<Mutation> handler = mutationHandlerRegistry.findHandler(mutation);
         return handler.applyMutation(project, mutation);
     }
 

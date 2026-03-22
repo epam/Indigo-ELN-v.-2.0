@@ -71,29 +71,23 @@ public class JSONPatcher {
 
     @Nullable
     public JsonNode doCreate(@Nullable JsonNode base, @Nullable JsonNode updated, List<String> path) {
-        System.out.printf("!!! doCreate\n\tpath   : %s\n\tbase   : %s\n\tupdated: %s\n", path, base, updated);
         base = base instanceof NullNode ? null : base;
         updated = updated instanceof NullNode ? null : updated;
         if (base == null && updated == null || ignoredPaths.contains(path)) {
-            System.out.println("!!!\tnull");
             return null;
         }
         if (base == null || updated == null) {
-            System.out.println("!!!\tcreated or deleted");
             return makePatched(base, updated);
         }
         if (base.isObject()) {
-            System.out.println("!!!\tobject");
             Preconditions.checkState(updated.isObject());
             return doCreateObject((ObjectNode) base, (ObjectNode) updated, path);
         }
         if (base.isArray() && setPaths.containsKey(path)) {
-            System.out.println("!!!\tset");
             Preconditions.checkState(updated.isArray());
             return doCreateSet((ArrayNode) base, (ArrayNode) updated, path);
         }
         if (base.isArray() && listPaths.containsKey(path)) {
-            System.out.println("!!!\tlist");
             Preconditions.checkState(updated.isArray());
             return doCreateList((ArrayNode) base, (ArrayNode) updated, path);
         }

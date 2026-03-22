@@ -59,7 +59,7 @@ public class ExperimentModelSerializationTest {
 
     @Test
     void testSerializeMutation() throws Exception {
-        Mutation mutation = new ReactionInputMutation.SetInputRowMol(INPUT, "2.5", MolUnit.MMOL, null);
+        Mutation mutation = new ReactionInputMutation.SetInputRowMol(INPUT, "2.5", MolUnit.MMOL);
         String json = FeignUtil.OBJECT_MAPPER.writeValueAsString(mutation);
         System.out.println(json);
         Mutation mutation2 = FeignUtil.OBJECT_MAPPER.readValue(json, Mutation.class);

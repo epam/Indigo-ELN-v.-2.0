@@ -10,9 +10,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.*;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.EntryStream;
+import one.util.streamex.StreamEx;
 import org.apache.commons.math3.util.Precision;
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Supplier;
@@ -32,15 +34,39 @@ public class PatchTestUtil {
             reactionJSON.set("rxnfile", nodeFactory.textNode("..."));
         });
         JsonLocator.findNodes(root, "model/reactions/**").forEach(node -> {
-           if (node instanceof ObjectNode objectJSON
-                   && objectJSON.get("source") instanceof NumericNode sourceJSON
-                   && sourceJSON.isIntegralNumber()
-//                   && sourceJSON.intValue() == latestRevision
-           ) {
-                objectJSON.set("source", nodeFactory.textNode("$source"));
-           }
+            if (node instanceof ObjectNode objectJSON) {
+                // ignore EnteredValue.source
+                if (objectJSON.get("source") instanceof NumericNode sourceJSON && sourceJSON.isIntegralNumber()) {
+                    // && sourceJSON.intValue() == latestRevision
+                    objectJSON.set("source", nodeFactory.textNode("$source"));
+                }
+                if (objectJSON.has("overwritten")) {
+                    objectJSON.remove("overwritten");
+                }
+            }
         });
+        JsonLocator.<ArrayNode>findNodes(root, "acl").forEach(acl -> {
+            sortArray(acl, "userId");
+        });
+        for (String refArrayKey : List.of("attachments", "linkedExperiments", "continuedFrom", "continuedTo")) {
+            JsonLocator.<ArrayNode>findNodes(root, refArrayKey).forEach(array -> {
+                sortArray(array, "id");
+            });
+        }
+
+        root.remove("currentPermissions");
+        root.remove("modifiedBy");
+        root.remove("modifiedAt");
         return (ObjectNode) cleanupNumbers(nodeFactory, root);
+    }
+
+    private static void sortArray(ArrayNode array, String key) {
+        List<JsonNode> list = StreamEx.of(array.iterator())
+                .sortedBy(x -> x.get(key).textValue())
+                .toList();
+        for (int i = 0; i < list.size(); i++) {
+            array.set(i, list.get(i));
+        }
     }
 
     private static JsonNode cleanupNumbers(JsonNodeFactory nodeFactory, JsonNode node) {
