@@ -49,6 +49,44 @@ export class ExperimentAddComponent implements OnInit {
     this.loadTemplates();
   }
 
+  createExperiment(formData: ExperimentForm): void {
+    const notebookId = this.getNotebookId();
+    if (!notebookId) {
+      this.notification.notify({
+        message: 'Notebook ID not found',
+        type: NotificationType.Error,
+        isInline: false,
+      });
+      return;
+    }
+
+    this.submitting = true;
+    this.invokeDialogCallback('onSubmitting', true);
+
+    this.api
+      .request<void>('post', `/notebooks/${notebookId}/experiments`, {
+        templateID: formData.templateId,
+      })
+      .pipe(
+        finalize(() => {
+          this.submitting = false;
+          this.invokeDialogCallback('onSubmitting', false);
+        }),
+      )
+      .subscribe({
+        next: () => {
+          this.showNotification('Experiment created', NotificationType.Success);
+          this.dialogRef.close('refresh');
+        },
+        error: () => {
+          this.showNotification(
+            'Failed to create experiment',
+            NotificationType.Error,
+          );
+        },
+      });
+  }
+
   private initForm(): void {
     this.fields = [
       {
@@ -104,50 +142,19 @@ export class ExperimentAddComponent implements OnInit {
     return index > -1 ? segments[index + 1] : null;
   }
 
-  createExperiment(formData: ExperimentForm): void {
-    const notebookId = this.getNotebookId();
-    if (!notebookId) return;
-    this.submitting = true;
-
-    if (this.dialogData && typeof this.dialogData.onSubmitting === 'function') {
+  private invokeDialogCallback(callbackName: string, value: boolean): void {
+    if (this.dialogData?.[callbackName]) {
       try {
-        this.dialogData.onSubmitting(true);
+        this.dialogData[callbackName](value);
       } catch {}
     }
+  }
 
-    this.api
-      .request('post', `/notebooks/${notebookId}/experiments`, {
-        templateID: formData.templateId,
-      })
-      .pipe(
-        finalize(() => {
-          this.submitting = false;
-          if (
-            this.dialogData &&
-            typeof this.dialogData.onSubmitting === 'function'
-          ) {
-            try {
-              this.dialogData.onSubmitting(false);
-            } catch {}
-          }
-        }),
-      )
-      .subscribe({
-        next: () => {
-          this.notification.notify({
-            message: 'Experiment created',
-            type: NotificationType.Success,
-            isInline: false,
-          });
-          this.dialogRef.close('refresh');
-        },
-        error: () => {
-          this.notification.notify({
-            message: 'Failed to create experiment',
-            type: NotificationType.Error,
-            isInline: false,
-          });
-        },
-      });
+  private showNotification(message: string, type: NotificationType): void {
+    this.notification.notify({
+      message,
+      type,
+      isInline: false,
+    });
   }
 }
