@@ -1,11 +1,9 @@
-import { normalizeLabel } from "../utils/string.util";
-
 export enum AclLevel {
   ADMIN = 'ADMIN',
-  CAN_EDIT = 'CAN_EDIT',
-  CAN_VIEW = 'CAN_VIEW',
+  EDIT = 'EDIT',
+  VIEW = 'VIEW',
   IMPLICIT_VIEW = 'IMPLICIT_VIEW',
-  REMOVE_MEMBER = 'REMOVE_MEMBER',
+  NONE = 'NONE',
   AUTHOR = 'AUTHOR',
 }
 
@@ -15,9 +13,18 @@ export const isInmutableLevel = (level: AclLevel): boolean => {
   return INMUTABLE_ACL_LEVELS.includes(level);
 }
 
+export const ACL_LEVEL_LABELS: Record<AclLevel, string> = {
+  [AclLevel.ADMIN]: 'Admin',
+  [AclLevel.EDIT]: 'Can Edit',
+  [AclLevel.VIEW]: 'Can View',
+  [AclLevel.IMPLICIT_VIEW]: 'Implicit View',
+  [AclLevel.NONE]: 'None',
+  [AclLevel.AUTHOR]: 'Author',
+};
+
 export const ELIGIBLE_ACL_LEVELS = Object.values(AclLevel)
-    .filter((value) => !isInmutableLevel(value))
-    .map((value) => ({
-      label: normalizeLabel(value),
-      value
-    }));
+  .filter((value) => !isInmutableLevel(value))
+  .map((value) => ({
+    label: ACL_LEVEL_LABELS[value],
+    value,
+  }));
