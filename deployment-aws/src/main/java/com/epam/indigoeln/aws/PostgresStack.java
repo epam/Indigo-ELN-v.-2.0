@@ -12,7 +12,7 @@ import software.constructs.Construct;
 
 import java.util.List;
 
-import static com.epam.indigoeln.aws.Utils.mapOf;
+import static com.epam.indigoeln.aws.util.Utils.mapOf;
 
 public class PostgresStack extends NestedStack {
 

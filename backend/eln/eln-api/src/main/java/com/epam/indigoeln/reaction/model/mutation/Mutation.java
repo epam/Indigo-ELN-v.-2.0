@@ -6,12 +6,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.SIMPLE_NAME, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(ReactionMutation.SetScheme.class),
-        @JsonSubTypes.Type(ReactionMutation.UndoSetScheme.class),
         @JsonSubTypes.Type(ReactionMutation.ResolveInputs.class),
-        @JsonSubTypes.Type(ReactionMutation.UndoResolveInputs.class),
         @JsonSubTypes.Type(ReactionMutation.AddEmptyInput.class),
         @JsonSubTypes.Type(ReactionMutation.AddInput.class),
-        @JsonSubTypes.Type(ReactionMutation.UndoRemoveInput.class),
 
         @JsonSubTypes.Type(ReactionInputMutation.SetInputRowRole.class),
         @JsonSubTypes.Type(ReactionInputMutation.SetInputRowMol.class),
@@ -42,7 +39,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(ReactionOutputMutation.SetOutputRowChemicalName.class),
         @JsonSubTypes.Type(ReactionOutputMutation.SetOutputCompoundStereoisomerCode.class),
         @JsonSubTypes.Type(ReactionOutputMutation.SetOutputCompoundMolWeight.class),
-        @JsonSubTypes.Type(ReactionOutputMutation.UndoRemoveProductSample.class),
 
         @JsonSubTypes.Type(ReactionOutputSampleMutation.SetOutputDensity.class),
         @JsonSubTypes.Type(ReactionOutputSampleMutation.SetOutputMolarity.class),
@@ -66,6 +62,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(ReactionOutputSampleMutation.SetOutputBatchComment.class),
         @JsonSubTypes.Type(ReactionOutputSampleMutation.SetOutputStructureComment.class),
         @JsonSubTypes.Type(ReactionOutputSampleMutation.RemoveProductSample.class),
+        @JsonSubTypes.Type(ReactionOutputSampleMutation.SetOutputSaltCode.class),
+        @JsonSubTypes.Type(ReactionOutputSampleMutation.SetOutputSaltEQ.class),
+        @JsonSubTypes.Type(ReactionOutputSampleMutation.SetOutputStereoisomerCode.class),
+        @JsonSubTypes.Type(ReactionOutputSampleMutation.SetOutputMolfile.class),
 
         @JsonSubTypes.Type(ExperimentMutation.CreateExperiment.class),
         @JsonSubTypes.Type(ExperimentMutation.SetExperimentSignificantFigures.class),

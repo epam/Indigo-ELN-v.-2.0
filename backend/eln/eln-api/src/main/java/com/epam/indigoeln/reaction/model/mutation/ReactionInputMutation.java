@@ -3,7 +3,6 @@ package com.epam.indigoeln.reaction.model.mutation;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.reaction.model.InputAnchor;
 import com.epam.indigoeln.reaction.model.ReactionRole;
-import com.epam.indigoeln.reaction.model.units.EnteredValueSource;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
@@ -21,8 +20,7 @@ public interface ReactionInputMutation extends Mutation {
     record SetInputRowMol(
             @NotNull InputAnchor anchor,
             @Nullable String mol,
-            @Nullable MolUnit molUnit,
-            @Nullable EnteredValueSource source
+            @Nullable MolUnit molUnit
     ) implements ReactionInputMutation {
     }
 
@@ -51,8 +49,7 @@ public interface ReactionInputMutation extends Mutation {
 
     record SetInputRowEQ(
             @NotNull InputAnchor anchor,
-            @Nullable String eq,
-            @Nullable EnteredValueSource source
+            @Nullable String eq
     ) implements ReactionInputMutation {
     }
 
@@ -64,8 +61,7 @@ public interface ReactionInputMutation extends Mutation {
 
     record SetInputCompoundMolWeight(
             @NotNull InputAnchor anchor,
-            @Nullable String molWeight,
-            @Nullable EnteredValueSource source
+            @Nullable String molWeight
     ) implements ReactionInputMutation {
     }
 

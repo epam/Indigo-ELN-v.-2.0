@@ -52,12 +52,10 @@ public interface ProjectMutation extends Mutation {
     }
 
     record ProjectUndo(
-            @NotNull Integer revision
     ) implements ProjectMutation {
     }
 
     record ProjectRedo(
-            @NotNull Integer revision
     ) implements ProjectMutation {
     }
 }

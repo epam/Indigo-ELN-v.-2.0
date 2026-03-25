@@ -1,7 +1,10 @@
 import { EnteredValue } from '@core/types/entities/values.i';
 import { ExperimentDetail } from '@core/types/entities/experiments/experiment-detail.i';
 
-export function determineCellClasses(value?: EnteredValue<unknown>, experiment?: ExperimentDetail): string[] {
+export function determineCellClasses(
+  value?: EnteredValue<unknown>,
+  experiment?: ExperimentDetail,
+): string[] {
   const classes = [];
   if (value != null) {
     if (typeof value.source === 'number') {
@@ -11,7 +14,6 @@ export function determineCellClasses(value?: EnteredValue<unknown>, experiment?:
         classes.push('animate-[flash-red_500ms_ease-in-out]');
         classes.push('test-animal-red');
       } else if (value.source === -experiment?.revision) {
-        // classes.push('value-state-last-updated');
         classes.push('animate-[flash-green_500ms_ease-in-out]');
         classes.push('test-animal-green');
       }

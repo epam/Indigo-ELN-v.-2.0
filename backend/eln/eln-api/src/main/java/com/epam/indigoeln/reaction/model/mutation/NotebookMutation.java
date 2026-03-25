@@ -47,12 +47,10 @@ public interface NotebookMutation extends Mutation {
     }
 
     record NotebookUndo(
-            @NotNull Integer revision
     ) implements NotebookMutation {
     }
 
     record NotebookRedo(
-            @NotNull Integer revision
     ) implements NotebookMutation {
     }
 }

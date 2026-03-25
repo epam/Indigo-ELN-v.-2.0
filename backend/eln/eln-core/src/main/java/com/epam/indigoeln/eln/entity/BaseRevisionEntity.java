@@ -39,13 +39,27 @@ public abstract class BaseRevisionEntity {
     @Convert(converter = MutationConverter.class)
     private Mutation mutation;
 
-    @Nullable
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Convert(converter = MutationConverter.class)
-    private Mutation reverseMutation;
-
     @NotNull
     @JdbcTypeCode(SqlTypes.JSON)
     @Basic(fetch = FetchType.LAZY)
     private String diff;
+
+    @Nullable
+    private Integer undoFor;
+
+    @Nullable
+    private Integer redoFor;
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(revision).append(" by ").append(getUser().getUsername()).append(": ").append(getSummary());
+        if (getUndoFor() != null) {
+            sb.append(" [undo for ").append(getUndoFor()).append("]");
+        }
+        if (getRedoFor() != null) {
+            sb.append(" [redo for ").append(getRedoFor()).append("]");
+        }
+        return sb.toString();
+    }
 }

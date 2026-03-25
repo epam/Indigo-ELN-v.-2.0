@@ -1,20 +1,14 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.eln.entity.*;
-import com.epam.indigoeln.eln.repository.ExperimentRepository;
-import com.epam.indigoeln.eln.repository.NotebookRepository;
-import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.eln.util.PatchUtil;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
-import com.epam.indigoeln.reaction.model.patch.NotebookPatch;
-import com.epam.indigoeln.reaction.model.patch.ProjectPatch;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.jspecify.annotations.Nullable;
+import lombok.SneakyThrows;
 
 import java.time.ZonedDateTime;
 
@@ -24,85 +18,50 @@ public class RevisionService {
     @Inject
     UserService userService;
     @Inject
-    ProjectRepository projectRepository;
-    @Inject
-    NotebookRepository notebookRepository;
-    @Inject
-    ExperimentRepository experimentRepository;
-    @Inject
     ObjectMapper objectMapper;
-    
-    ObjectReader projectPatchReader;
-    ObjectWriter projectPatchWriter;
-    ObjectReader notebookPatchReader;
-    ObjectWriter notebookPatchWriter;
-    ObjectReader experimentPatchReader;
-    ObjectWriter experimentPatchWriter;
 
-    RevisionService(ObjectMapper objectMapper) {
-        projectPatchReader = objectMapper.readerFor(ProjectPatch.class);
-        projectPatchWriter = objectMapper.writerFor(ProjectPatch.class);
-        notebookPatchReader = objectMapper.readerFor(NotebookPatch.class);
-        notebookPatchWriter = objectMapper.writerFor(NotebookPatch.class);
-        experimentPatchReader = objectMapper.readerFor(ExperimentPatch.class);
-        experimentPatchWriter = objectMapper.writerFor(ExperimentPatch.class);
-    }
-
-    public ProjectRevisionEntity addRevision(ProjectEntity project, Integer revisionNo, ZonedDateTime datetime, String summary, Mutation mutation, @Nullable Mutation reverseMutation, ProjectPatch diff) {
+    @SneakyThrows
+    public ProjectRevisionEntity addRevision(ProjectEntity project, Integer revisionNo, ZonedDateTime datetime, String summary, Mutation mutation, JsonNode diff) {
         ProjectRevisionEntity revision = new ProjectRevisionEntity();
         revision.setProject(project);
-        doAddRevision(revision, revisionNo, datetime, summary, mutation, reverseMutation, doWritePatch(projectPatchWriter, diff));
+        doAddRevision(revision, revisionNo, datetime, summary, mutation, objectMapper.writeValueAsString(diff));
         project.setRevision(revisionNo);
         project.getRevisions().add(revision);
         return revision;
     }
 
-    public NotebookRevisionEntity addRevision(NotebookEntity notebook, Integer revisionNo, ZonedDateTime datetime, String summary, Mutation mutation, @Nullable Mutation reverseMutation, NotebookPatch diff) {
+    @SneakyThrows
+    public NotebookRevisionEntity addRevision(NotebookEntity notebook, Integer revisionNo, ZonedDateTime datetime, String summary, Mutation mutation, JsonNode diff) {
         NotebookRevisionEntity revision = new NotebookRevisionEntity();
         revision.setNotebook(notebook);
-        doAddRevision(revision, revisionNo, datetime, summary, mutation, reverseMutation, doWritePatch(notebookPatchWriter, diff));
+        doAddRevision(revision, revisionNo, datetime, summary, mutation, objectMapper.writeValueAsString(diff));
         notebook.setRevision(revisionNo);
         notebook.getRevisions().add(revision);
         return revision;
     }
 
-    public ExperimentRevisionEntity addRevision(ExperimentEntity experiment, Integer revisionNo, ZonedDateTime datetime, String summary, Mutation mutation, @Nullable Mutation reverseMutation, ExperimentPatch diff) {
+    @SneakyThrows
+    public ExperimentRevisionEntity addRevision(ExperimentEntity experiment, Integer revisionNo, ZonedDateTime datetime, String summary, Mutation mutation, JsonNode diff) {
         ExperimentRevisionEntity revision = new ExperimentRevisionEntity();
         revision.setExperiment(experiment);
-        doAddRevision(revision, revisionNo, datetime, summary, mutation, reverseMutation, doWritePatch(experimentPatchWriter, diff));
+        doAddRevision(revision, revisionNo, datetime, summary, mutation, objectMapper.writeValueAsString(diff));
         experiment.setRevision(revisionNo);
         experiment.getRevisions().add(revision);
         return revision;
     }
 
-    private void doAddRevision(BaseRevisionEntity revision, Integer revisionNo, ZonedDateTime datetime, String summary, Mutation mutation, @Nullable Mutation reverseMutation, String diff) {
+    private void doAddRevision(BaseRevisionEntity revision, Integer revisionNo, ZonedDateTime datetime, String summary, Mutation mutation, String diff) {
         revision.setRevision(revisionNo);
         revision.setUser(userService.getCurrentUserEntity());
         revision.setDatetime(datetime);
         revision.setSummary(summary);
         revision.setMutation(mutation);
-        revision.setReverseMutation(reverseMutation);
         revision.setDiff(diff);
     }
 
-    public ProjectPatch getPatch(ProjectRevisionEntity revision) {
-        return doGetPatch(projectPatchReader, revision.getDiff());
-    }
-
-    public NotebookPatch getPatch(NotebookRevisionEntity revision) {
-        return doGetPatch(notebookPatchReader, revision.getDiff());
-    }
-
-    public ExperimentPatch getPatch(ExperimentRevisionEntity revision) {
-        return doGetPatch(experimentPatchReader, revision.getDiff());
-    }
-
-    private <T> T doGetPatch(ObjectReader patchReader, String revision) {
-        try {
-            return patchReader.readValue(revision);
-        } catch (Exception e) {
-            throw new RuntimeException("Cannot read patch: " + e.getMessage(), e);
-        }
+    @SneakyThrows
+    public JsonNode getPatch(BaseRevisionEntity revision) {
+        return objectMapper.readTree(revision.getDiff());
     }
 
     private String doWritePatch(ObjectWriter patchWriter, Object patch) {

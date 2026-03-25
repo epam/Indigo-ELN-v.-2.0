@@ -32,9 +32,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
 public class MutationsTest extends MutationsTestBase {
 
+    DictionaryItemRef saltCode;
+    DictionaryItemRef stereoisomerCode;
+
     @BeforeAll
     void beforeAll(@TempDir Path tempDir) {
         miscClient.loadCompoundsFromFileClient("compounds.sdf", tempDir, loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"));
+        saltCode = dictionaryClient.getSaltCodes().get(1);
+        stereoisomerCode = dictionaryClient.getDictionary(BuiltInDictionary.STEREOISOMER_CODE).get(1);
     }
 
     @BeforeEach
@@ -82,8 +87,7 @@ public class MutationsTest extends MutationsTestBase {
 
     @Test
     void testLoadReaction() {
-        String rxnFile = new String(loadResource(getClass(), "/reaction.rxn"));
-        applyMutation(new ReactionMutation.SetScheme(reaction.getAnchor(), rxnFile));
+        loadScheme();
         assertThat(input1).isNotNull();
         assertThat(input1.getCompound()).isInstanceOf(CompoundRef.Virtual.class);
         assertThat(input1Sample1).isNotNull();
@@ -92,6 +96,26 @@ public class MutationsTest extends MutationsTestBase {
         assertThat(input2Sample1).isNotNull();
         assertThat(output1).isNotNull();
         assertThat(output1.getCompound()).isInstanceOf(CompoundRef.Virtual.class);
+    }
+
+    @Test
+    void testLoadReactionUpdated() {
+        // A + B + A => P + R
+        String rxnFile = new String(ModelUtil.loadResource(getClass(), "/reaction-with-duplicates.rxn"));
+        applyMutation(new ReactionMutation.SetScheme(reaction.getAnchor(), rxnFile), false);
+        InputAnchor a1 = input1.getAnchor();
+        InputAnchor b = input2.getAnchor();
+        InputAnchor a2 = input3.getAnchor();
+        OutputAnchor p = output1.getAnchor();
+        OutputAnchor r = output2.getAnchor();
+        // A + B + C + A + A => R + P
+        String updatedRxnFile = new String(ModelUtil.loadResource(getClass(), "/reaction-with-duplicates-updated.rxn"));
+        applyMutation(new ReactionMutation.SetScheme(reaction.getAnchor(), updatedRxnFile), false);
+        assertThat(input1.getAnchor()).isEqualTo(a1);
+        assertThat(input2.getAnchor()).isEqualTo(b);
+        assertThat(input4.getAnchor()).isEqualTo(a2);
+        assertThat(output1.getAnchor()).isEqualTo(r);
+        assertThat(output2.getAnchor()).isEqualTo(p);
     }
 
     @Test
@@ -114,7 +138,7 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testSetInputRowEQ() {
         loadScheme();
-        applyMutation(new ReactionInputMutation.SetInputRowEQ(input1.getAnchor(), "2", null));
+        applyMutation(new ReactionInputMutation.SetInputRowEQ(input1.getAnchor(), "2"));
         assertThat(input1.getEq().getValue()).isEqualTo(2.0);
         assertThat(input1.getEq().getStringValue()).isEqualTo("2");
     }
@@ -122,30 +146,29 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testUnsetInputRowEq() {
         loadScheme();
-        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "100", WeightUnit.G, null));
-        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input2Sample1.getAnchor(), "200", WeightUnit.G, null));
-        applyMutation(new ReactionInputMutation.SetInputRowEQ(input2.getAnchor(), "2", null));
-        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), null, null, null));
-        applyMutation(new ReactionInputMutation.SetInputRowEQ(input2.getAnchor(), null, null));
+        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "100", WeightUnit.G));
+        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input2Sample1.getAnchor(), "200", WeightUnit.G));
+        applyMutation(new ReactionInputMutation.SetInputRowEQ(input2.getAnchor(), "2"));
+        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), null, null));
+        applyMutation(new ReactionInputMutation.SetInputRowEQ(input2.getAnchor(), null));
     }
 
     @Test
     void testUnsetInputRowEq2() {
         loadScheme();
-        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "100.0", WeightUnit.G, null), false);
-        applyMutation(new ReactionInputMutation.SetInputRowEQ(input2.getAnchor(), "2", null), false);
-        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "10", WeightUnit.G, null), false);
-        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input2Sample1.getAnchor(), "20", WeightUnit.G, null), false);
-        applyMutation(new ReactionInputMutation.SetInputRowEQ(input2.getAnchor(), null, null), false);
-        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "10.20", WeightUnit.G, null), false);
-        applyMutation(new ReactionInputMutation.SetInputRowEQ(input1.getAnchor(), "1", null), false);
-        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), null, null, null), false);
+        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "100.0", WeightUnit.G), false);
+        applyMutation(new ReactionInputMutation.SetInputRowEQ(input2.getAnchor(), "2"), false);
+        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "10", WeightUnit.G), false);
+        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input2Sample1.getAnchor(), "20", WeightUnit.G), false);
+        applyMutation(new ReactionInputMutation.SetInputRowEQ(input2.getAnchor(), null), false);
+        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "10.20", WeightUnit.G), false);
+        applyMutation(new ReactionInputMutation.SetInputRowEQ(input1.getAnchor(), "1"), false);
+        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), null, null), false);
     }
 
     @Test
     void testSetInputRowSaltCodeAndEQ() {
         loadScheme();
-        DictionaryItemRef saltCode = dictionaryClient.getSaltCodes().get(1);
         applyMutation(new ReactionInputMutation.SetInputRowSaltCode(input1.getAnchor(), saltCode));
         assertThat(input1.getCompound()).isInstanceOf(CompoundRef.Virtual.class);
         assertThat(input1.getCompound().getSaltCode()).isEqualTo(saltCode);
@@ -157,7 +180,6 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testSetInputRowStereoisomerCode() {
         loadScheme();
-        DictionaryItemRef stereoisomerCode = dictionaryClient.getDictionary(BuiltInDictionary.STEREOISOMER_CODE).get(1);
         applyMutation(new ReactionInputMutation.SetInputCompoundStereoisomerCode(input1.getAnchor(), stereoisomerCode));
         assertThat(input1.getCompound()).isInstanceOf(CompoundRef.Virtual.class);
         assertThat(input1.getCompound().getStereoisomerCode()).isEqualTo(stereoisomerCode);
@@ -166,7 +188,7 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testSetInputCompoundMolWeight() {
         applyMutation(new ReactionMutation.AddEmptyInput(reaction.getAnchor()), false);
-        applyMutation(new ReactionInputMutation.SetInputCompoundMolWeight(input1.getAnchor(), "100.0", null));
+        applyMutation(new ReactionInputMutation.SetInputCompoundMolWeight(input1.getAnchor(), "100.0"));
         assertThat(input1.getCompound().getMolWeight().getValue()).isEqualTo(100.0);
         assertThat(input1.getCompound().getMolWeight().getSource()).isEqualTo(EnteredValueSource.userEntered(experiment.getRevision()));
     }
@@ -189,7 +211,7 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testSetInputRowMol() {
         applyMutation(new ReactionMutation.AddEmptyInput(reaction.getAnchor()), false);
-        applyMutation(new ReactionInputMutation.SetInputRowMol(input1.getAnchor(), "10.0", MolUnit.MMOL, null));
+        applyMutation(new ReactionInputMutation.SetInputRowMol(input1.getAnchor(), "10.0", MolUnit.MMOL));
         assertThat(input1.getMol().getValue()).isEqualTo(10.0);
         assertThat(input1.getMol().getUnit()).isEqualTo(MolUnit.MMOL);
     }
@@ -204,7 +226,7 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testSetInputMol() {
         applyMutation(new ReactionMutation.AddEmptyInput(reaction.getAnchor()), false);
-        applyMutation(new ReactionInputSampleMutation.SetInputMol(input1Sample1.getAnchor(), "10.0", MolUnit.MMOL, null));
+        applyMutation(new ReactionInputSampleMutation.SetInputMol(input1Sample1.getAnchor(), "10.0", MolUnit.MMOL));
         assertThat(input1Sample1.getMol().getValue()).isEqualTo(10.0);
         assertThat(input1Sample1.getMol().getUnit()).isEqualTo(MolUnit.MMOL);
         assertThat(input1.getMol().getValue()).isEqualTo(10.0);
@@ -214,7 +236,7 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testSetInputWeight() {
         applyMutation(new ReactionMutation.AddEmptyInput(reaction.getAnchor()), false);
-        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "10.0", WeightUnit.G, null));
+        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "10.0", WeightUnit.G));
         assertThat(input1Sample1.getWeight().getValue()).isEqualTo(10.0);
         assertThat(input1Sample1.getWeight().getUnit()).isEqualTo(WeightUnit.G);
     }
@@ -222,7 +244,7 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testSetInputDensity() {
         applyMutation(new ReactionMutation.AddEmptyInput(reaction.getAnchor()), false);
-        applyMutation(new ReactionInputSampleMutation.SetInputDensity(input1Sample1.getAnchor(), "10.0", DensityUnit.G_ML, null));
+        applyMutation(new ReactionInputSampleMutation.SetInputDensity(input1Sample1.getAnchor(), "10.0", DensityUnit.G_ML));
         assertThat(input1Sample1.getDensity().getValue()).isEqualTo(10.0);
         assertThat(input1Sample1.getDensity().getUnit()).isEqualTo(DensityUnit.G_ML);
     }
@@ -230,7 +252,7 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testSetInputMolarity() {
         applyMutation(new ReactionMutation.AddEmptyInput(reaction.getAnchor()), false);
-        applyMutation(new ReactionInputSampleMutation.SetInputMolarity(input1Sample1.getAnchor(), "10.0", MolarityUnit.MM, null));
+        applyMutation(new ReactionInputSampleMutation.SetInputMolarity(input1Sample1.getAnchor(), "10.0", MolarityUnit.MM));
         assertThat(input1Sample1.getMolarity().getValue()).isEqualTo(10.0);
         assertThat(input1Sample1.getMolarity().getUnit()).isEqualTo(MolarityUnit.MM);
     }
@@ -238,7 +260,7 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testSetInputVolume() {
         applyMutation(new ReactionMutation.AddEmptyInput(reaction.getAnchor()), false);
-        applyMutation(new ReactionInputSampleMutation.SetInputVolume(input1Sample1.getAnchor(), "10.0", VolumeUnit.ML, null));
+        applyMutation(new ReactionInputSampleMutation.SetInputVolume(input1Sample1.getAnchor(), "10.0", VolumeUnit.ML));
         assertThat(input1Sample1.getVolume().getValue()).isEqualTo(10.0);
         assertThat(input1Sample1.getVolume().getUnit()).isEqualTo(VolumeUnit.ML);
     }
@@ -246,7 +268,7 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testSetInputPurity() {
         applyMutation(new ReactionMutation.AddEmptyInput(reaction.getAnchor()), false);
-        applyMutation(new ReactionInputSampleMutation.SetInputPurity(input1Sample1.getAnchor(), "10", null));
+        applyMutation(new ReactionInputSampleMutation.SetInputPurity(input1Sample1.getAnchor(), "10"));
         assertThat(input1Sample1.getPurity().getValue()).isEqualTo(10.0);
     }
 
@@ -297,7 +319,6 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testSetOutputRowSaltCodeAndEQ() {
         loadScheme();
-        DictionaryItemRef saltCode = dictionaryClient.getSaltCodes().get(1);
         applyMutation(new ReactionOutputMutation.SetOutputRowSaltCode(output1.getAnchor(), saltCode));
         assertThat(output1.getCompound()).isInstanceOf(CompoundRef.Virtual.class);
         assertThat(output1.getCompound().getSaltCode()).isEqualTo(saltCode);
@@ -309,7 +330,6 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testSetOutputRowStereoisomerCode() {
         loadScheme();
-        DictionaryItemRef stereoisomerCode = dictionaryClient.getDictionary(BuiltInDictionary.STEREOISOMER_CODE).get(1);
         applyMutation(new ReactionOutputMutation.SetOutputCompoundStereoisomerCode(output1.getAnchor(), stereoisomerCode));
         assertThat(output1.getCompound()).isInstanceOf(CompoundRef.Virtual.class);
         assertThat(output1.getCompound().getStereoisomerCode()).isEqualTo(stereoisomerCode);
@@ -327,7 +347,7 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testSetOutputRowEQ() {
         loadScheme();
-        applyMutation(new ReactionOutputMutation.SetOutputRowEQ(output1.getAnchor(), "2.0", null));
+        applyMutation(new ReactionOutputMutation.SetOutputRowEQ(output1.getAnchor(), "2.0"));
         assertThat(output1.getEq().getValue()).isEqualTo(2.0);
     }
 
@@ -344,7 +364,7 @@ public class MutationsTest extends MutationsTestBase {
     void testSetOutputActualMol() {
         loadScheme();
         addOutputSample();
-        applyMutation(new ReactionOutputSampleMutation.SetOutputActualMol(output1Sample1.getAnchor(), "10.0", MolUnit.MMOL, null));
+        applyMutation(new ReactionOutputSampleMutation.SetOutputActualMol(output1Sample1.getAnchor(), "10.0", MolUnit.MMOL));
         assertThat(output1Sample1.getActualMol().getValue()).isEqualTo(10.0);
         assertThat(output1Sample1.getActualMol().getUnit()).isEqualTo(MolUnit.MMOL);
     }
@@ -353,7 +373,7 @@ public class MutationsTest extends MutationsTestBase {
     void testSetOutputActualWeight() {
         loadScheme();
         addOutputSample();
-        applyMutation(new ReactionOutputSampleMutation.SetOutputActualWeight(output1Sample1.getAnchor(), "10.0", WeightUnit.G, null));
+        applyMutation(new ReactionOutputSampleMutation.SetOutputActualWeight(output1Sample1.getAnchor(), "10.0", WeightUnit.G));
         assertThat(output1Sample1.getActualWeight().getValue()).isEqualTo(10.0);
         assertThat(output1Sample1.getActualWeight().getUnit()).isEqualTo(WeightUnit.G);
     }
@@ -484,7 +504,7 @@ public class MutationsTest extends MutationsTestBase {
     void testSetOutputDensity() {
         loadScheme();
         addOutputSample();
-        applyMutation(new ReactionOutputSampleMutation.SetOutputDensity(output1Sample1.getAnchor(), "10.0", DensityUnit.G_ML, null));
+        applyMutation(new ReactionOutputSampleMutation.SetOutputDensity(output1Sample1.getAnchor(), "10.0", DensityUnit.G_ML));
         assertThat(output1Sample1.getDensity().getValue()).isEqualTo(10.0);
         assertThat(output1Sample1.getDensity().getUnit()).isEqualTo(DensityUnit.G_ML);
     }
@@ -493,7 +513,7 @@ public class MutationsTest extends MutationsTestBase {
     void testSetOutputMolarity() {
         loadScheme();
         addOutputSample();
-        applyMutation(new ReactionOutputSampleMutation.SetOutputMolarity(output1Sample1.getAnchor(), "10.0", MolarityUnit.MM, null));
+        applyMutation(new ReactionOutputSampleMutation.SetOutputMolarity(output1Sample1.getAnchor(), "10.0", MolarityUnit.MM));
         assertThat(output1Sample1.getMolarity().getValue()).isEqualTo(10.0);
         assertThat(output1Sample1.getMolarity().getUnit()).isEqualTo(MolarityUnit.MM);
     }
@@ -502,7 +522,7 @@ public class MutationsTest extends MutationsTestBase {
     void testSetOutputVolume() {
         loadScheme();
         addOutputSample();
-        applyMutation(new ReactionOutputSampleMutation.SetOutputVolume(output1Sample1.getAnchor(), "10.0", VolumeUnit.ML, null));
+        applyMutation(new ReactionOutputSampleMutation.SetOutputVolume(output1Sample1.getAnchor(), "10.0", VolumeUnit.ML));
         assertThat(output1Sample1.getVolume().getValue()).isEqualTo(10.0);
         assertThat(output1Sample1.getVolume().getUnit()).isEqualTo(VolumeUnit.ML);
     }
@@ -511,7 +531,7 @@ public class MutationsTest extends MutationsTestBase {
     void testSetOutputPurity() {
         loadScheme();
         addOutputSample();
-        applyMutation(new ReactionOutputSampleMutation.SetOutputPurity(output1Sample1.getAnchor(), "10", null));
+        applyMutation(new ReactionOutputSampleMutation.SetOutputPurity(output1Sample1.getAnchor(), "10"));
         assertThat(output1Sample1.getPurity().getValue()).isEqualTo(10);
     }
 
@@ -526,7 +546,7 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testSetExperimentSignificantFigures() {
         loadScheme();
-        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "1234", WeightUnit.G, null));
+        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "1234", WeightUnit.G));
         assertThat(experiment.getModel().getSignificantFigures()).isEqualTo(5);
         assertThat(input1Sample1.getWeight().getStringValue()).isEqualTo("1234");
         assertThat(input1Sample1.getMol().getStringValue()).isEqualTo("8.9343");
@@ -543,15 +563,73 @@ public class MutationsTest extends MutationsTestBase {
     }
 
     @Test
+    void testSetOutputSaltCode() {
+        loadScheme();
+        addOutputSample();
+        addOutputSample();
+        assertThat(output2.isIntended()).isTrue();
+        OutputSampleAnchor anchor = output1Sample1.getAnchor();
+        applyMutation(new ReactionOutputSampleMutation.SetOutputSaltCode(anchor, saltCode), false);
+        assertThat(output3.isIntended()).isFalse();
+        assertThat(output3.getSamples()).singleElement().satisfies(s -> {
+            assertThat(s.getAnchor()).isEqualTo(anchor);
+        });
+    }
+
+    @Test
+    void testSetOutputSaltEQ() {
+        loadScheme();
+        addOutputSample();
+        addOutputSample();
+        assertThat(output2.isIntended()).isTrue();
+        OutputSampleAnchor anchor = output1Sample1.getAnchor();
+        applyMutation(new ReactionOutputSampleMutation.SetOutputSaltCode(anchor, saltCode), false);
+        applyMutation(new ReactionOutputSampleMutation.SetOutputSaltEQ(anchor, 2.0), false);
+        assertThat(output3.isIntended()).isFalse();
+        assertThat(output3.getSamples()).singleElement().satisfies(s -> {
+            assertThat(s.getAnchor()).isEqualTo(anchor);
+        });
+    }
+
+    @Test
+    void testSetOutputStereoisomerCode() {
+        loadScheme();
+        addOutputSample();
+        addOutputSample();
+        assertThat(output2.isIntended()).isTrue();
+        OutputSampleAnchor anchor = output1Sample1.getAnchor();
+        applyMutation(new ReactionOutputSampleMutation.SetOutputStereoisomerCode(anchor, stereoisomerCode), false);
+        assertThat(output3.isIntended()).isFalse();
+        assertThat(output3.getSamples()).singleElement().satisfies(s -> {
+            assertThat(s.getAnchor()).isEqualTo(anchor);
+        });
+    }
+
+    @Test
+    void testSetOutputMolfile() {
+        loadScheme();
+        addOutputSample();
+        addOutputSample();
+        assertThat(output2.isIntended()).isTrue();
+        OutputSampleAnchor anchor = output1Sample1.getAnchor();
+        String molfile = new String(ModelUtil.loadResource(getClass(), "/updated-molfile.mol"));
+        applyMutation(new ReactionOutputSampleMutation.SetOutputMolfile(anchor, molfile), false);
+        assertThat(output3.isIntended()).isFalse();
+        assertThat(output3.getSamples()).singleElement().satisfies(s -> {
+            assertThat(s.getAnchor()).isEqualTo(anchor);
+        });
+    }
+
+    @Test
     void testConflicts() {
         loadScheme();
-        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "100", WeightUnit.G, null));
-        applyMutation(new ReactionInputSampleMutation.SetInputMol(input1Sample1.getAnchor(), "1", MolUnit.MOL, null), false);
+        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "100", WeightUnit.G));
+        applyMutation(new ReactionInputSampleMutation.SetInputMol(input1Sample1.getAnchor(), "1", MolUnit.MOL), false);
     }
 
     private void loadScheme() {
         String rxnFile = new String(ModelUtil.loadResource(getClass(), "/reaction.rxn"));
-        applyMutation(new ReactionMutation.SetScheme(reaction.getAnchor(), rxnFile));
+        applyMutation(new ReactionMutation.SetScheme(reaction.getAnchor(), rxnFile), false);
     }
 
     private ReactionMutation.ResolveInputs prepareResolveInputs() {

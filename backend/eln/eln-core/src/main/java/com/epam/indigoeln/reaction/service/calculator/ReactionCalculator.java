@@ -49,6 +49,7 @@ public class ReactionCalculator {
         for (Conflict conflict : overwrittenConflicts) {
             EnteredValue<NoUnit> value = conflict.property.get(conflict.container);
             if (value != null) {
+                log.info("Overwritten {} because of a calculation conflict", conflict.property.name());
                 value.setOverwritten(true);
             }
         }
@@ -213,7 +214,7 @@ public class ReactionCalculator {
     }
 
     @SafeVarargs
-    private <C, R extends MeasurementUnit> boolean tryUpdate(String displayName, C container, ModelProperty<C, EnteredValue<R>, ?, ?> property, EnteredValueOpt<R>... results) {
+    private <C, R extends MeasurementUnit> boolean tryUpdate(String displayName, C container, ModelProperty<C, EnteredValue<R>> property, EnteredValueOpt<R>... results) {
         boolean updated = false;
         EnteredValue<R> targetCurrent = property.get(container);
 //        boolean checkConflicts = false;
@@ -248,32 +249,6 @@ public class ReactionCalculator {
                 }
             }
         }
-//        if (checkConflicts) {
-//            // consider all current calculated values, plus original value, if it's user entered
-//            List<EnteredValue<?>> allValues = new ArrayList<>();
-//            if (original != null && original.getSource() != DEFAULT && original.getSource() != CALCULATED && original.getSource() != CALCULATED_FROM_LAST_ENTERED) {
-//                allValues.add(original.cast());
-//            }
-//            for (EnteredValueOpt result : results) {
-//                if (result.getValue() != null) {
-//                    allValues.add(result.getValue().cast());
-//                }
-//            }
-//            boolean hasDifferentValues = StreamEx.ofPairs(allValues, EnteredValue::valueEquals).anyMatch(x -> !x);
-//            if (hasDifferentValues) {
-//                EnteredValue<?> priorityValue = allValues.stream()
-//                        .min(Comparator.comparing(x -> x.getSource().ordinal()))
-//                        .orElseThrow();
-//                log.debug("tryUpdate: {}: conflict: candidate values: {}, selected {}", displayName, allValues, priorityValue);
-//                targetSetter.accept(priorityValue.cast());
-//                priorityValue.setConflict(true);
-////                updated = true;
-//            } else {
-//                log.debug("tryUpdate: {}: no conflict, all values equal: {}", displayName, allValues);
-//                targetSetter.accept(allValues.getFirst().cast());
-//                allValues.getFirst().setConflict(false);
-//            }
-//        }
         return updated;
     }
 
@@ -292,6 +267,6 @@ public class ReactionCalculator {
 
     private record Conflict (
             Object container,
-            ModelProperty<Object, EnteredValue<NoUnit>, Object, Object> property
+            ModelProperty<Object, EnteredValue<NoUnit>> property
     ) {}
 }

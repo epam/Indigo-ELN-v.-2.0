@@ -8,6 +8,7 @@ import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.NotebookEntity;
+import com.epam.indigoeln.eln.entity.TemplateEntity;
 import com.epam.indigoeln.eln.entity.UserInfo;
 import com.epam.indigoeln.eln.mapper.ExperimentMapper;
 import com.epam.indigoeln.eln.mapper.ProjectMapper;
@@ -17,16 +18,13 @@ import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.eln.repository.TemplateRepository;
 import com.epam.indigoeln.eln.util.PatchUtil;
-import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import com.epam.indigoeln.reports.api.ReportsAPI;
 import com.epam.indigoeln.reports.api.ReportsClient;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.MoreObjects;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -71,8 +69,6 @@ public class ExperimentService {
     @Inject
     UserService userService;
     @Inject
-    DictionaryService dictionaryService;
-    @Inject
     ExperimentModelService experimentModelService;
     @Inject
     TemplateRepository templateRepository;
@@ -85,10 +81,6 @@ public class ExperimentService {
     CompoundService compoundService;
     @Inject
     SnapshotMapper snapshotMapper;
-    @Inject
-    IndigoAPI indigoAPI;
-    @Inject
-    ObjectMapper objectMapper;
 
     public ExperimentDetailsDTO createExperiment(UUID notebookId, ExperimentRequest request) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
@@ -97,6 +89,9 @@ public class ExperimentService {
         notebook.getExperiments().add(experiment);
         experiment.setProject(notebook.getProject());
         experiment.setNotebook(notebook);
+        TemplateEntity template = templateRepository.get(request.getTemplateID());
+        template.getExperiments().add(experiment);
+        experiment.setTemplate(template);
         experimentModelService.applyMutation(experiment, experimentMapper.requestToMutation(request));
         return getExperimentDetails(experiment);
     }
@@ -152,7 +147,7 @@ public class ExperimentService {
         return checkNotNull(experimentModelService.applyMutation(experiment, mutation).a().getModel());
     }
 
-    public ExperimentPatch mutateModel2(UUID experimentId, Integer revision, Mutation mutation) {
+    public JsonNode mutateModel2(UUID experimentId, Integer revision, Mutation mutation) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         return experimentModelService.applyMutation(experiment, mutation).b();
     }
@@ -232,7 +227,7 @@ public class ExperimentService {
         }
     }
 
-    public List<RevisionDetailsDTO<ExperimentPatch>> getExperimentRevisions(UUID experimentId, @Nullable UUID editSessionId, @Nullable Boolean reverseOrder) {
+    public List<RevisionDetailsDTO> getExperimentRevisions(UUID experimentId, @Nullable UUID editSessionId, @Nullable Boolean reverseOrder) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
         return experimentMapper.revisionToDTOList(experimentRepository.getRevisions(experiment, editSessionId, MoreObjects.firstNonNull(reverseOrder, false)));
@@ -245,7 +240,7 @@ public class ExperimentService {
         return experimentRepository.getRevisionsSummary(experiment);
     }
 
-    public ExperimentPatch compareVersions(UUID experimentId, @Nullable Integer versionFrom, @Nullable Integer versionTo) {
+    public JsonNode compareVersions(UUID experimentId, @Nullable Integer versionFrom, @Nullable Integer versionTo) {
         validate(!Objects.equals(versionFrom, versionTo), "Versions to compare must be different");
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
@@ -253,9 +248,8 @@ public class ExperimentService {
     }
 
     public String compareVersionsHTML(UUID experimentId, @org.jspecify.annotations.Nullable Integer versionFrom, @org.jspecify.annotations.Nullable Integer versionTo) {
-        ExperimentPatch patch = compareVersions(experimentId, versionFrom, versionTo);
-        JsonNode json = objectMapper.valueToTree(patch);
-        return PatchUtil.formatJSONDiff(json);
+        JsonNode patch = compareVersions(experimentId, versionFrom, versionTo);
+        return PatchUtil.formatJSONDiff(patch);
     }
 
     private ExperimentSnapshot getSnapshotToCompare(ExperimentEntity experiment, @Nullable Integer version) {

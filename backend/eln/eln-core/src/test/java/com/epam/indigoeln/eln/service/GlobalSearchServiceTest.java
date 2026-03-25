@@ -71,9 +71,9 @@ class GlobalSearchServiceTest extends ELNBaseTest {
             OutputAnchor output = experimentModel.getReactions().getFirst().getOutputs().getFirst().getAnchor();
             experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionOutputMutation.AddProductSample(output)));
             OutputSampleAnchor outputSample = experimentModel.getReactions().getFirst().getOutputs().getFirst().getSamples().getFirst().getAnchor();
-            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionOutputSampleMutation.SetOutputPurity(outputSample, "30", null)));
-            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionInputSampleMutation.SetInputWeight(inputSample, "10.0", WeightUnit.G, null)));
-            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionOutputSampleMutation.SetOutputActualWeight(outputSample, "5.0", WeightUnit.G, null)));
+            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionOutputSampleMutation.SetOutputPurity(outputSample, "30")));
+            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionInputSampleMutation.SetInputWeight(inputSample, "10.0", WeightUnit.G)));
+            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionOutputSampleMutation.SetOutputActualWeight(outputSample, "5.0", WeightUnit.G)));
             System.out.println(experimentModel);
         });
         withUser(BART_USERNAME, () -> {

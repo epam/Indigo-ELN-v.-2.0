@@ -12,6 +12,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.LockModeType;
 
+import java.time.Duration;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
@@ -115,5 +117,12 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
                 .setParameter("project", project)
                 .setParameter("revision", revision)
                 .getSingleResult();
+    }
+
+    public List<ProjectRevisionEntity> findRecentRevisions(ProjectEntity project, Duration period) {
+        return em.createQuery("from ProjectRevision where project=:project and datetime>=:since order by revision", ProjectRevisionEntity.class)
+                .setParameter("project", project)
+                .setParameter("since", ZonedDateTime.now().minusSeconds(period.toSeconds()))
+                .getResultList();
     }
 }

@@ -1,6 +1,9 @@
 import { Component, computed, inject, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ReactionInput, ReactionInputSample, } from '@core/types/entities/experiments/experiment.i';
+import {
+  ReactionInput,
+  ReactionInputSample,
+} from '@core/types/entities/experiments/experiment.i';
 import {
   DensityUnit,
   MolarityUnit,
@@ -9,12 +12,20 @@ import {
   VolumeUnit,
   WeightUnit,
 } from '@core/types/entities/experiments/experiment-shared.i';
-import { BuiltInDictionary, DictionaryItemRef, } from '@core/types/entities/dictionary.i';
+import {
+  BuiltInDictionary,
+  DictionaryItemRef,
+} from '@core/types/entities/dictionary.i';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { BuiltInDictionaryService } from '@core/services/health-hazards/built-in-dictionary.service';
 import { CompoundType } from '@/core/types/entities/compound.i';
 import { EditableDataTableComponent } from '../editable-data-table/editable-data-table.component';
-import { ColumnConfig, ColumnInputType, ColumnOption, UnitInputChange, } from '../shared/editable-table.types';
+import {
+  ColumnConfig,
+  ColumnInputType,
+  ColumnOption,
+  UnitInputChange,
+} from '../shared/editable-table.types';
 import { ExperimentDetailService } from '@core/services/experiment/experiment-detail.service';
 import { ExperimentDetail } from '@core/types/entities/experiments/experiment-detail.i';
 import { EnteredValue } from '@core/types/entities/values.i';
