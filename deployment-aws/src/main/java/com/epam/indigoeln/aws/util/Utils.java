@@ -1,5 +1,6 @@
-package com.epam.indigoeln.aws;
+package com.epam.indigoeln.aws.util;
 
+import com.epam.indigoeln.aws.ELNLambdaStack;
 import org.jspecify.annotations.Nullable;
 import software.amazon.awscdk.Duration;
 import software.amazon.awscdk.RemovalPolicy;

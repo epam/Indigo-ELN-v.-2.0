@@ -3,7 +3,7 @@ import { ApiService } from '@core/services/api.service';
 import { Notebook } from '@core/types/entities/notebook.i';
 import { NotebookDialogData } from '@/core/types/entities/notebook-dialog-data.i';
 import { CommonModule } from '@angular/common';
-import { Component, Inject, inject } from '@angular/core';
+import { Component, Inject, inject, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
@@ -12,7 +12,8 @@ import { toHTML } from 'ngx-editor';
 import { NOTEBOOK_NAME_LENGTH } from '../notebook.constants';
 import { of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
-
+import { NotificationType } from '@/core/types/notification.i';
+import { NotificationService } from '@/core/services/notification/notification.service';
 @Component({
   standalone: true,
   selector: 'eln-notebook-edit',
@@ -29,6 +30,8 @@ export class NotebookEditComponent {
   notebookId: string;
   dialogRef = inject(MatDialogRef);
   notebook: Partial<Notebook> = {};
+  notificationService = inject(NotificationService);
+  uniqueNameToastMessage = signal('');
 
   fields: FormlyFieldConfig[] = [
     {
@@ -46,7 +49,7 @@ export class NotebookEditComponent {
         validation: [
           Validators.minLength(NOTEBOOK_NAME_LENGTH),
           Validators.maxLength(NOTEBOOK_NAME_LENGTH),
-          Validators.pattern('^\\d+$'), // only digits
+          Validators.pattern('^\\d+$'),
           Validators.required,
         ],
       },
@@ -55,7 +58,6 @@ export class NotebookEditComponent {
           field.props['initialValue'] = field.formControl?.value;
         },
       },
-
       asyncValidators: {
         validation: [
           (control: any, field: any) => {
@@ -67,19 +69,21 @@ export class NotebookEditComponent {
             }
 
             return of(value).pipe(
-              switchMap((v: string) =>
-                this.service.request<{ exists: boolean }>(
+              switchMap((v: string) => {
+                this.uniqueNameToastMessage.set(
+                  `Notebook with name '${v}' already exists`,
+                );
+                return this.service.request<{ exists: boolean }>(
                   'get',
                   `notebooks/existence?name=${encodeURIComponent(v)}`,
-                ),
-              ),
+                );
+              }),
               map((res) => (res?.exists ? { uniqueName: true } : null)),
               catchError(() => of(null)),
             );
           },
         ],
       },
-
       validation: {
         messages: {
           minlength: `Notebook Name is invalid, use ${NOTEBOOK_NAME_LENGTH} digits only`,
@@ -112,21 +116,29 @@ export class NotebookEditComponent {
       this.notebookId = data.notebook.id;
     }
   }
-  get uniqueNameToastMessage(): string {
-    const name = this.fields[0]?.formControl?.value ?? '';
-    return `Notebook with name '${name}' already exists`;
-  }
+
   editNotebook(data: Notebook) {
     this.service
       .update(`notebooks/${this.notebookId}`, {
         ...data,
-        description:
-          typeof data.description === 'object'
-            ? toHTML(data.description)
-            : data.description,
+        description: this.safeToHTML(data.description),
       })
       .subscribe(() => {
+        this.notificationService.notify({
+          message: 'Notebook details successfully updated.',
+          type: NotificationType.Success,
+          isInline: false,
+        });
         this.dialogRef.close('refresh');
       });
+  }
+
+  private safeToHTML(value: any): string {
+    if (!value || typeof value === 'string') return value ?? '';
+    try {
+      return toHTML(value);
+    } catch {
+      return '';
+    }
   }
 }

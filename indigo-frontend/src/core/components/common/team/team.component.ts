@@ -31,6 +31,7 @@ import { NgSelectComponent, NgSelectModule } from '@ng-select/ng-select';
 import { FormsModule } from '@angular/forms';
 import { TeamComponentConfig } from './team.config';
 import { InitialsPipe } from '../../../pipes/avatars.pipe';
+import { TextOverflowTooltipDirective } from '@/core/directives/text-overflow-tooltip.directive';
 
 type UserSuggestionWithState = UserSuggestion & { added?: boolean };
 
@@ -55,6 +56,7 @@ interface TeamLoadingState {
     NgSelectModule,
     FormsModule,
     InitialsPipe,
+    TextOverflowTooltipDirective,
   ],
 })
 export class TeamComponent implements OnInit {
@@ -63,24 +65,18 @@ export class TeamComponent implements OnInit {
     this._team.set(value);
     this.rebuildSuggestionsState();
   }
-  // Internal mutable state (optimistic / UI state)
   private _team: WritableSignal<ProjectAcl[]> = signal<ProjectAcl[]>([]);
   @Input({ required: true }) config: TeamComponentConfig;
 
   userSuggestions: UserSuggestionWithState[] = [];
   selectedUserIds: string[] = [];
 
-  // Centralized loading state signal
-  // suggestions: loading user suggestions
-  // addingUsers: loading user addition
-  // updatingMembers: set of userIds whose ACL levels are being updated
   loading = signal<TeamLoadingState>({
     suggestions: false,
     addingUsers: false,
     updatingMembers: new Set(),
   });
 
-  // View model with derived UI-only flags (disabled)
   teamVm = computed(() => {
     const updating = this.loading().updatingMembers;
     const base = this._team();
@@ -99,7 +95,6 @@ export class TeamComponent implements OnInit {
   ngOnInit(): void {
     if (!this.entityId)
       console.warn('TeamComponent initialized without entityId');
-    // Effect handles initial sync and subsequent changes from parent
     this.loading.update((l) => ({ ...l, suggestions: true }));
     this.api
       .request<UserSuggestion[]>('get', 'users/suggest')
@@ -133,7 +128,7 @@ export class TeamComponent implements OnInit {
     }));
     const newPayload: ProjectAclUpdate[] = this.selectedUserIds.map((id) => ({
       userID: id,
-      level: AclLevel.CAN_VIEW,
+      level: AclLevel.VIEW,
     }));
     const fullPayload: ProjectAclUpdate[] = [...existingPayload, ...newPayload];
 
@@ -215,7 +210,7 @@ export class TeamComponent implements OnInit {
         userId: suggestion.id,
         username: suggestion.username,
         displayName: suggestion.displayName,
-        level: AclLevel.CAN_VIEW,
+        level: AclLevel.VIEW,
         inherited: false,
       });
     });

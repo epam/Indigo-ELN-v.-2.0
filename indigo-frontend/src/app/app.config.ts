@@ -24,6 +24,7 @@ import { FormlyMatDatepickerModule } from '@ngx-formly/material/datepicker';
 import { routes } from './app.routes';
 import { SelectFieldComponent } from '@/core/components/formly/fields/select-field.component';
 import { SelectChipsComponent } from '@/core/components/formly/fields/select-chips.component';
+import { DropdownFieldComponent } from '@/core/components/formly/fields/dropdown-field.component';
 import { ErrorInterceptor } from '@core/interceptors/error.interceptor';
 
 export const appConfig: ApplicationConfig = {
@@ -50,6 +51,11 @@ export const appConfig: ApplicationConfig = {
           {
             name: 'select',
             component: SelectFieldComponent,
+            wrappers: ['raw'],
+          },
+          {
+            name: 'dropdown',
+            component: DropdownFieldComponent,
             wrappers: ['raw'],
           },
           {
