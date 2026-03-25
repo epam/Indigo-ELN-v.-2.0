@@ -1,5 +1,4 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { Observable } from 'rxjs';
 import {
   ExperimentModel,
   Reaction,
@@ -21,7 +20,6 @@ import {
   ColumnConfig,
   ColumnInputType,
   ColumnOption,
-  UnitInputChange,
   ExpandableConfig,
 } from '../shared/editable-table.types';
 import { ExperimentDetailService } from '@core/services/experiment/experiment-detail.service';
@@ -242,31 +240,6 @@ export class ProductBatchSummaryTableComponent {
       [SampleRegistrationStatus.REGISTERED]: 'Registered',
     };
     return statusMap[status] ?? status;
-  }
-
-  private applyUnitInputChange(
-    change: UnitInputChange,
-    mutator: (
-      value: number | undefined,
-      unit: string | undefined,
-    ) => Observable<ExperimentModel>,
-  ) {
-    // Only proceed if both value and unit are present
-    if (
-      change.value === null ||
-      change.value === undefined ||
-      change.unit === null ||
-      change.unit === undefined
-    ) {
-      return;
-    }
-
-    const previousState = structuredClone(
-      this.experimentDetailService.experimentModel(),
-    );
-    mutator(change.value, change.unit).subscribe({
-      error: (error) => this.handleUpdateError(error, previousState),
-    });
   }
 
   private handleUpdateError(

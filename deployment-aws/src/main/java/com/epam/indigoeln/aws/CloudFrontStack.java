@@ -1,8 +1,9 @@
 package com.epam.indigoeln.aws;
 
+import com.epam.indigoeln.aws.util.Utils;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import lombok.Value;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.amazon.awscdk.*;
 import software.amazon.awscdk.services.apigatewayv2.IHttpApi;
@@ -30,16 +31,19 @@ import software.amazon.awsconstructs.services.wafwebaclcloudfront.WafwebaclToClo
 import software.constructs.Construct;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
-import static com.epam.indigoeln.aws.Utils.mapOf;
+import static com.epam.indigoeln.aws.util.Utils.mapOf;
 
 public class CloudFrontStack extends NestedStack {
 
     @Getter
     private final Distribution distribution;
 
-    public CloudFrontStack(@NotNull Construct scope, @NotNull String id, @Nullable Props props) {
+    public CloudFrontStack(Construct scope, String id, @Nullable Props props) {
         super(scope, id, props);
 
         Certificate certificate = Certificate.Builder.create(this, "certificate")
@@ -50,11 +54,11 @@ public class CloudFrontStack extends NestedStack {
         Bucket frontendCodeS3 = Bucket.Builder.create(this, "signature-frontend-s3")
                 .build();
 
-        CachePolicy indexHtmlCachePolicy = CachePolicy.Builder.create(this, "index-html-cache-policy")
-                .cachePolicyName("index-html-cache-policy")
-                .defaultTtl(Duration.minutes(5))
-                .minTtl(Duration.minutes(5))
-                .maxTtl(Duration.minutes(5))
+        CachePolicy defaultCachePolicy = CachePolicy.Builder.create(this, "default-cache-policy")
+                .cachePolicyName("default-cache-policy")
+                .defaultTtl(Duration.minutes(10))
+                .minTtl(Duration.minutes(1))
+                .maxTtl(Duration.days(365))
                 .build();
 
         BehaviorOptions apiBehavior = BehaviorOptions.builder()
@@ -70,12 +74,6 @@ public class CloudFrontStack extends NestedStack {
                 .viewerProtocolPolicy(ViewerProtocolPolicy.HTTPS_ONLY)
                 .build();
 
-        BehaviorOptions indexHtmlBehavior = BehaviorOptions.builder()
-                .origin(S3BucketOrigin.withOriginAccessControl(frontendCodeS3))
-                .viewerProtocolPolicy(ViewerProtocolPolicy.HTTPS_ONLY)
-                .cachePolicy(indexHtmlCachePolicy)
-                .build();
-
         Function rewriteToIndexHtmlFunction = Function.Builder.create(this, "rewrite-index-html-function")
                 .runtime(FunctionRuntime.JS_2_0)
                 .code(FunctionCode.fromFile(FileCodeOptions.builder()
@@ -84,15 +82,28 @@ public class CloudFrontStack extends NestedStack {
                 )
                 .build();
 
+//        File frontendCode = new File("../indigo-frontend/dist/indigo-frontend/browser");
+        File frontendCode = new File("/home/user/Work/indigoeln-frontend/indigo-frontend/dist/indigo-frontend/browser");
+
+        String headersFunctionCode = generateHeadersFunction(frontendCode, Paths.get("resources/cloudfront-headers-function.js"));
+        Function headersFunction = Function.Builder.create(this, "headers-function")
+                .runtime(FunctionRuntime.JS_2_0)
+                .code(FunctionCode.fromInline(headersFunctionCode))
+                .build();
+
         distribution = Distribution.Builder.create(this, "cloudfront")
                 .defaultBehavior(BehaviorOptions.builder()
                         .origin(S3BucketOrigin.withOriginAccessControl(frontendCodeS3))
                         .viewerProtocolPolicy(ViewerProtocolPolicy.HTTPS_ONLY)
-                        .cachePolicy(CachePolicy.CACHING_OPTIMIZED)
+                        .cachePolicy(defaultCachePolicy)
                         .functionAssociations(List.of(
                                 FunctionAssociation.builder()
                                         .eventType(FunctionEventType.VIEWER_REQUEST)
                                         .function(rewriteToIndexHtmlFunction)
+                                        .build(),
+                                FunctionAssociation.builder()
+                                        .eventType(FunctionEventType.VIEWER_RESPONSE)
+                                        .function(headersFunction)
                                         .build()
                         ))
                         .build()
@@ -100,14 +111,14 @@ public class CloudFrontStack extends NestedStack {
                 .additionalBehaviors(mapOf(
                         "/api/*", apiBehavior,
                         "/openapi/*", apiBehavior,
-                        "/swagger/*", apiBehavior,
-                        "/**/index.html", indexHtmlBehavior
+                        "/swagger/*", apiBehavior
                 ))
                 .domainNames(List.of(props.getDomainName()))
                 .certificate(certificate)
                 .defaultRootObject("index.html")
                 .priceClass(PriceClass.PRICE_CLASS_200)
                 .build();
+
         CfnWebACL.RuleProperty ipReputationsRuleSet = createWAFRuleSet("AWS", "AWSManagedRulesAmazonIpReputationList", 0, "AWS-AWSManagedRulesAmazonIpReputationList", List.of());
         CfnWebACL.RuleProperty commonRuleSet = createWAFRuleSet("AWS", "AWSManagedRulesCommonRuleSet", 1, "AWS-AWSManagedRulesCommonRuleSet", List.of(
                 CfnWebACL.RuleActionOverrideProperty.builder()
@@ -133,14 +144,12 @@ public class CloudFrontStack extends NestedStack {
                 .build()
         );
 
-//        File frontendCode = new File("/home/user/Work/indigoeln/indigo-frontend/dist/indigo-frontend/browser");
-        File frontendCode = new File("/home/user/Work/indigoeln-frontend/indigo-frontend/dist/indigo-frontend/browser");
         BucketDeployment frontendDeployment = BucketDeployment.Builder.create(this, "eln-frontend-s3-deployment")
                 .sources(List.of(Source.asset(frontendCode.getPath(), AssetOptions.builder().assetHash(Utils.calculateHashCode(frontendCode)).build())))
                 .destinationBucket(frontendCodeS3)
                 .distribution(distribution) // invalidate distribution
                 .distributionPaths(List.of("/*"))
-                .cacheControl(List.of(
+                .cacheControl(List.of( // controls CloudFront edge caching; resources will be invalidated on redeploys
                         CacheControl.immutable(),
                         CacheControl.maxAge(Duration.days(365))
                 ))
@@ -161,6 +170,14 @@ public class CloudFrontStack extends NestedStack {
                 .recordName("indigo-eln-dev.test.lifescience.opensource.epam.com.")
                 .target(RecordTarget.fromAlias(new CloudFrontTarget(distribution)))
                 .build();
+    }
+
+    @SneakyThrows
+    private String generateHeadersFunction(File frontendCode, Path functionCode) {
+//        String[] hashes = CSPUtil.buildCsp(frontendCode.toPath());
+        return Files.readString(functionCode);
+//                .replace("{{SCRIPTS_SHA}}", hashes[1])
+//                .replace("{{STYLES_SHA}}", hashes[0]);
     }
 
     private CfnWebACL.RuleProperty createWAFRuleSet(String vendor, String name, int priority, String metric, List<CfnWebACL.RuleActionOverrideProperty> overrides) {

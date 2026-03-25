@@ -120,6 +120,29 @@ public class MutationsTest extends MutationsTestBase {
     }
 
     @Test
+    void testUnsetInputRowEq() {
+        loadScheme();
+        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "100", WeightUnit.G, null));
+        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input2Sample1.getAnchor(), "200", WeightUnit.G, null));
+        applyMutation(new ReactionInputMutation.SetInputRowEQ(input2.getAnchor(), "2", null));
+        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), null, null, null));
+        applyMutation(new ReactionInputMutation.SetInputRowEQ(input2.getAnchor(), null, null));
+    }
+
+    @Test
+    void testUnsetInputRowEq2() {
+        loadScheme();
+        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "100.0", WeightUnit.G, null), false);
+        applyMutation(new ReactionInputMutation.SetInputRowEQ(input2.getAnchor(), "2", null), false);
+        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "10", WeightUnit.G, null), false);
+        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input2Sample1.getAnchor(), "20", WeightUnit.G, null), false);
+        applyMutation(new ReactionInputMutation.SetInputRowEQ(input2.getAnchor(), null, null), false);
+        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "10.20", WeightUnit.G, null), false);
+        applyMutation(new ReactionInputMutation.SetInputRowEQ(input1.getAnchor(), "1", null), false);
+        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), null, null, null), false);
+    }
+
+    @Test
     void testSetInputRowSaltCodeAndEQ() {
         loadScheme();
         DictionaryItemRef saltCode = dictionaryClient.getSaltCodes().get(1);
@@ -517,6 +540,13 @@ public class MutationsTest extends MutationsTestBase {
     void testSetBatchCreator() {
         applyMutation(new ExperimentMutation.SetBatchCreator(getMaggieUserRef()));
         assertThat(experiment.getBatchCreator()).isEqualTo(getMaggieUserRef());
+    }
+
+    @Test
+    void testConflicts() {
+        loadScheme();
+        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "100", WeightUnit.G, null));
+        applyMutation(new ReactionInputSampleMutation.SetInputMol(input1Sample1.getAnchor(), "1", MolUnit.MOL, null), false);
     }
 
     private void loadScheme() {

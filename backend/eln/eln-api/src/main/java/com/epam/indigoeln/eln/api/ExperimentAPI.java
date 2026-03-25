@@ -89,6 +89,10 @@ public interface ExperimentAPI extends BaseAPI {
     ExperimentModel mutateExperimentModel(@PathParam("experimentId") UUID experimentId, MutateModelForm modelAndMutation);
 
     @POST
+    @Path("/experiments/{experimentId}/mutate3")
+    ExperimentSnapshot mutateExperimentModel3(@PathParam("experimentId") UUID experimentId, @QueryParam("revision") Integer revision, Mutation mutation);
+
+    @POST
     @Path("/experiments/{experimentId}/datamodel2")
     ExperimentPatch mutateExperimentModel2(@PathParam("experimentId") UUID experimentId, @QueryParam("revision") Integer revision, Mutation mutation);
 

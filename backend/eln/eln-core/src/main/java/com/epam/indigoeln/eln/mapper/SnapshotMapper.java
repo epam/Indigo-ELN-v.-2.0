@@ -23,6 +23,7 @@ public abstract class SnapshotMapper extends AbstractMapper {
     @Mapping(target = "model", ignore = true)
     @Mapping(target = "compoundRefs", ignore = true)
     @Mapping(target = "rxnFiles", ignore = true)
+    @Mapping(target = "templateId", source = "template.id")
     public abstract ExperimentSnapshot copyBasicFields(ExperimentEntity entity);
 
     @Mapping(target = "attachments", ignore = true)
