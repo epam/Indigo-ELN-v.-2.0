@@ -152,23 +152,23 @@ class InsertTestDataTest {
         model = applyMutation(experiment, model, new ReactionOutputMutation.SetOutputCompoundStereoisomerCode(output1Anchor, stereoisomerCode));
 
         // set input weight
-        model = applyMutation(experiment, model, new ReactionInputSampleMutation.SetInputWeight(input1Sample1Anchor, "100.0", WeightUnit.G, null));
+        model = applyMutation(experiment, model, new ReactionInputSampleMutation.SetInputWeight(input1Sample1Anchor, "100.0", WeightUnit.G));
 
         // set input eq
-        model = applyMutation(experiment, model, new ReactionInputMutation.SetInputRowEQ(input2Anchor, "2", null));
+        model = applyMutation(experiment, model, new ReactionInputMutation.SetInputRowEQ(input2Anchor, "2"));
 
         // add product sample
         model = applyMutation(experiment, model, new ReactionOutputMutation.AddProductSample(output2Anchor));
         OutputSampleAnchor output2Sample1Anchor = model.getReactions().getFirst().getOutputs().get(1).getSamples().get(0).getAnchor();
 
         // set output actual mol
-        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputActualMol(output2Sample1Anchor, "200.0", MolUnit.MMOL, null));
+        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputActualMol(output2Sample1Anchor, "200.0", MolUnit.MMOL));
 
         // set output purity
-        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputPurity(output2Sample1Anchor, "0.5", null));
+        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputPurity(output2Sample1Anchor, "0.5"));
 
         // set actual weight
-        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputActualWeight(output2Sample1Anchor, "10.0", WeightUnit.G, null));
+        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputActualWeight(output2Sample1Anchor, "10.0", WeightUnit.G));
 
         // fill secondary fields
         DictionaryItemRef source = dictionaryClient.getDictionary(BuiltInDictionary.SAMPLE_SOURCE).getFirst();

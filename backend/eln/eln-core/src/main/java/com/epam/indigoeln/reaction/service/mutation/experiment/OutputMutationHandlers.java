@@ -4,8 +4,6 @@ import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
-import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
-import com.epam.indigoeln.reaction.service.mutation.AbstractReactionOutputMutationHandler;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import jakarta.enterprise.context.Dependent;
@@ -20,7 +18,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 class AddProductSampleHandler extends AbstractReactionOutputMutationHandler<ReactionOutputMutation.AddProductSample> {
 
     @Override
-    protected ReactionOutputMutation.AddProductSample doPrepareMutation(ExperimentEntity entity, ReactionOutputMutation.AddProductSample mutation) {
+    protected ReactionOutputMutation.AddProductSample doPrepareMutation(ExperimentEntity entity, ReactionOutputMutation.AddProductSample mutation, ExperimentMutationContext context) {
         return new ReactionOutputMutation.AddProductSample(
                 mutation.anchor(),
                 mutation.createdSampleAnchor() != null ? mutation.createdSampleAnchor() : new OutputSampleAnchor(UUID.randomUUID())
@@ -28,14 +26,11 @@ class AddProductSampleHandler extends AbstractReactionOutputMutationHandler<Reac
     }
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.AddProductSample mutation) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.AddProductSample mutation, ExperimentMutationContext context) {
         OutputSampleAnchor anchor = checkNotNull(mutation.createdSampleAnchor());
         ReactionOutputSample sample = ReactionOutputSample.create(row, experiment.getName(), anchor);
         sample.setPurity(DEFAULT_ONE_HUNDRED);
-        row.getSamples().add(sample);
-        return new MutationResult("Add batch"
-                , new ReactionOutputSampleMutation.RemoveProductSample(anchor)
-        );
+        return new MutationResult("Add batch");
     }
 }
 
@@ -44,13 +39,10 @@ class AddProductSampleHandler extends AbstractReactionOutputMutationHandler<Reac
 class SetOutputRowTypeHandler extends AbstractReactionOutputMutationHandler<ReactionOutputMutation.SetOutputRowType> {
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputRowType mutation) {
-        ReactionOutputType oldType = row.getType();
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputRowType mutation, ExperimentMutationContext context) {
         row.setType(mutation.outputType());
         // TODO add or remove to the next reaction, if changing to or from INTERMEDIATE type
-        return new MutationResult(formatSetterSummary("output type", mutation.outputType())
-                , new ReactionOutputMutation.SetOutputRowType(mutation.anchor(), oldType)
-        );
+        return new MutationResult(formatSetterSummary("output type", mutation.outputType()));
     }
 }
 
@@ -59,17 +51,14 @@ class SetOutputRowTypeHandler extends AbstractReactionOutputMutationHandler<Reac
 class SetOutputRowNameHandler extends AbstractReactionOutputMutationHandler<ReactionOutputMutation.SetOutputRowName> {
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputRowName mutation) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputRowName mutation, ExperimentMutationContext context) {
         for (ReactionOutput otherRow : row.getReaction().getOutputs()) {
             if (otherRow != row) {
                 InvalidRequestException.validate(!otherRow.getOutputName().equals(mutation.name()), "Output name " + mutation.name() + " is already used in this reaction");
             }
         }
-        String oldName = row.getOutputName();
         row.setOutputName(mutation.name());
-        return new MutationResult(formatSetterSummary("output name", mutation.name())
-                , new ReactionOutputMutation.SetOutputRowName(mutation.anchor(), oldName)
-        );
+        return new MutationResult(formatSetterSummary("output name", mutation.name()));
     }
 }
 
@@ -78,23 +67,8 @@ class SetOutputRowNameHandler extends AbstractReactionOutputMutationHandler<Reac
 class SetOutputRowChemicalNameHandler extends AbstractReactionOutputMutationHandler<ReactionOutputMutation.SetOutputRowChemicalName> {
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputRowChemicalName mutation) {
-        String oldValue = row.getChemicalName();
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputRowChemicalName mutation, ExperimentMutationContext context) {
         row.setChemicalName(mutation.chemicalName());
-        return new MutationResult(formatSetterSummary("chemical name", mutation.chemicalName())
-                , new ReactionOutputMutation.SetOutputRowChemicalName(mutation.anchor(), oldValue)
-        );
-    }
-}
-
-@Dependent
-@MutationHandlerFor(ReactionOutputMutation.UndoRemoveProductSample.class)
-class UndoRemoveProductSampleHandler extends AbstractReactionOutputMutationHandler<ReactionOutputMutation.UndoRemoveProductSample> {
-
-    @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.UndoRemoveProductSample mutation) {
-        row.getSamples().add(mutation.sample());
-        mutation.sample().setRow(row);
-        return new MutationResult("Undo remove batch", null);
+        return new MutationResult(formatSetterSummary("chemical name", mutation.chemicalName()));
     }
 }

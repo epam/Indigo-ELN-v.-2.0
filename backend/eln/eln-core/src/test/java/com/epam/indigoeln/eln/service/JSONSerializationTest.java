@@ -2,17 +2,11 @@ package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.eln.model.ProjectEditRequest;
 import com.epam.indigoeln.eln.model.UserRef;
-import com.epam.indigoeln.reaction.model.CompoundRef;
-import com.epam.indigoeln.reaction.model.patch.CompoundRefPatch;
-import com.epam.indigoeln.reaction.model.patch.handler2.Patched;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.EnteredValueSource;
-import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
-import com.epam.indigoeln.reaction.util.SerializerUtils;
 import com.epam.indigoeln.test.FeignUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -22,6 +16,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -95,19 +91,12 @@ public class JSONSerializationTest {
 
     @ParameterizedTest
     @MethodSource("mappers")
-    void testSerializeCompoundRefPatch(MapperType serializer, MapperType deserializer) {
-        CompoundRef.Unknown compoundRef = new CompoundRef.Unknown();
-        compoundRef.setMolWeight(EnteredValue.userEntered("10.0", MolWeightUnit.G_PER_MOL, 1));
-        Patched<CompoundRef, CompoundRefPatch> value = Patched.created(compoundRef);
-        JavaType type = getMapper(serializer).constructType(new TypeReference<Patched<CompoundRef, CompoundRefPatch>>() {});
-        SerializerUtils.withRootType(type, () -> {
-            String serialized = getMapper(serializer).writeValueAsString(value);
-            assertThat(serialized).isEqualToIgnoringWhitespace("""
-                    {"$new": {"type": "UNKNOWN", "molWeight": {"value": "10.0", "unit": "G_PER_MOL", "source": 1}}}
-                    """);
-            Patched<CompoundRef, CompoundRefPatch> value2 = getMapper(deserializer).readValue(serialized, new TypeReference<>() {});
-            assertThat(value2).isEqualTo(value);
-        });
+    void testSerializeDate(MapperType serializer, MapperType deserializer) throws Exception {
+        ZonedDateTime value = ZonedDateTime.of(2026, 3, 25, 13, 00, 00, 00, ZoneId.of("UTC"));
+        String serialized = getMapper(serializer).writeValueAsString(value);
+        assertThat(serialized).isEqualTo("\"2026-03-25T13:00:00Z\"");
+        ZonedDateTime value2 = getMapper(deserializer).readValue(serialized, ZonedDateTime.class);
+        assertThat(value2).isEqualTo(value);
     }
 
     ObjectMapper getMapper(MapperType mapperType) {

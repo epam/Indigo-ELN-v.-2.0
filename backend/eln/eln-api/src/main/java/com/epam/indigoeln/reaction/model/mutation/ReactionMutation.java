@@ -1,6 +1,9 @@
 package com.epam.indigoeln.reaction.model.mutation;
 
-import com.epam.indigoeln.reaction.model.*;
+import com.epam.indigoeln.reaction.model.InputAnchor;
+import com.epam.indigoeln.reaction.model.InputSampleAnchor;
+import com.epam.indigoeln.reaction.model.OutputAnchor;
+import com.epam.indigoeln.reaction.model.ReactionAnchor;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
@@ -34,14 +37,6 @@ public interface ReactionMutation extends Mutation {
         }
     }
 
-    record UndoSetScheme (
-            @NotNull ReactionAnchor anchor,
-            @Nullable String rxnFile,
-            @NotNull List<ReactionInput> inputs,
-            @NotNull List<ReactionOutput> outputs
-    ) implements ReactionMutation {
-    }
-
     record ResolveInputs (
             @NotNull ReactionAnchor anchor,
             @NotEmpty Map<InputAnchor, UUID> inputSamples, // anchor -> sampleID
@@ -49,17 +44,6 @@ public interface ReactionMutation extends Mutation {
     ) implements ReactionMutation {
         public ResolveInputs(ReactionAnchor anchor, Map<InputAnchor, UUID> inputSamples) {
             this(anchor, inputSamples, null);
-        }
-    }
-
-    record UndoResolveInputs (
-            @NotNull ReactionAnchor anchor,
-            @NotNull Map<InputAnchor, RowUndo> rows
-    ) implements ReactionMutation {
-        public record RowUndo (
-                @NotNull CompoundRef compoundRef,
-                @NotNull List<ReactionInputSample> samples,
-                @Nullable String chemicalName) {
         }
     }
 
@@ -82,13 +66,5 @@ public interface ReactionMutation extends Mutation {
         public AddInput(@NotNull ReactionAnchor anchor, @NotNull UUID sampleId) {
             this(anchor, sampleId, null, null);
         }
-    }
-
-    record UndoRemoveInput (
-        @NotNull ReactionAnchor anchor,
-        @NotNull ReactionInput input,
-        @NotNull Integer position,
-        @NotNull InputAnchor limitingInput
-    ) implements ReactionMutation {
     }
 }

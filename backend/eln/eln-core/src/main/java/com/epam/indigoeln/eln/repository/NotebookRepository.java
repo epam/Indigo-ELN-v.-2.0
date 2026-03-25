@@ -12,6 +12,8 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.QueryParam;
 import org.jspecify.annotations.Nullable;
 
+import java.time.Duration;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
@@ -103,5 +105,12 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
                 .setParameter("notebook", notebook)
                 .setParameter("revision", revision)
                 .getSingleResult();
+    }
+
+    public List<NotebookRevisionEntity> findRecentRevisions(NotebookEntity notebook, Duration period) {
+        return em.createQuery("from NotebookRevision where notebook=:notebook and datetime>=:since order by revision", NotebookRevisionEntity.class)
+                .setParameter("notebook", notebook)
+                .setParameter("since", ZonedDateTime.now().minusSeconds(period.toSeconds()))
+                .getResultList();
     }
 }

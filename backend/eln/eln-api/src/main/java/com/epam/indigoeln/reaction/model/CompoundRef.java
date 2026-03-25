@@ -19,7 +19,7 @@ import java.util.UUID;
         @JsonSubTypes.Type(value = CompoundRef.Unknown.class, name = CompoundRef.Unknown.TYPE)
 })
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virtual, CompoundRef.Unknown {
+public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, CompoundRef.Unknown {
 
     @Nullable
     UUID getCompoundID();
@@ -51,11 +51,30 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
     @Nullable
     String getCalculatedBatchMF();
 
+    default boolean compoundKeyEquals(CompoundRef other) {
+        // for stored and virtual compound, compound identity already checked when assigning compoundID; thus can only compare compoundID;
+        // unknown compound (with compoundID null) only equals to itself
+        return this == other || (getCompoundID() != null && getCompoundID().equals(other.getCompoundID()));
+    }
+
+    sealed interface StoredOrVirtual extends CompoundRef permits CompoundRef.Stored, CompoundRef.Virtual {
+
+        UUID getCompoundID();
+
+        EnteredValue<MolWeightUnit> getMolWeight();
+
+        BigDecimal getExactMass();
+
+        String getFormula();
+
+        String getCalculatedBatchMF();
+    }
+
     @Getter
     @ToString
     @RequiredArgsConstructor
     @EqualsAndHashCode(of = {"compoundID"})
-    final class Stored implements CompoundRef {
+    final class Stored implements CompoundRef.StoredOrVirtual {
 
         public static final String TYPE = "STORED";
 
@@ -72,6 +91,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         private Double saltEQ;
 
         @NotNull
+        @Positive
         private final EnteredValue<MolWeightUnit> molWeight;
 
         @NotNull
@@ -94,7 +114,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
     @ToString
     @EqualsAndHashCode(of = {"compoundID"})
     @AllArgsConstructor(onConstructor_ = @JsonCreator)
-    final class Virtual implements CompoundRef {
+    final class Virtual implements CompoundRef.StoredOrVirtual {
 
         public static final String TYPE = "VIRTUAL";
 

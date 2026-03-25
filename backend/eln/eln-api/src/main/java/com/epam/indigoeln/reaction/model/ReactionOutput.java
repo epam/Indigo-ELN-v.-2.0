@@ -10,15 +10,15 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
 @ToString(exclude = "reaction")
-@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class ReactionOutput extends ReactionRow implements ExperimentNode {
+public final class ReactionOutput extends ReactionRow {
 
     @NotNull
     private OutputAnchor anchor;
@@ -32,6 +32,9 @@ public final class ReactionOutput extends ReactionRow implements ExperimentNode 
     @NotNull
     private ReactionOutputType type;
 
+    @NotNull
+    private boolean intended;
+
     @Nullable
     private EnteredValue<MolUnit> theoMol;
 
@@ -40,13 +43,26 @@ public final class ReactionOutput extends ReactionRow implements ExperimentNode 
 
     @NotNull
     @JsonManagedReference
-    private List<@Valid ReactionOutputSample> samples = List.of();
+    private List<@Valid ReactionOutputSample> samples = new ArrayList<>();
 
-    public static ReactionOutput create(Reaction reaction, ReactionOutputType type, OutputAnchor anchor) {
+    public static ReactionOutput create(Reaction reaction, ReactionOutputType type, boolean intended, String outputName, OutputAnchor anchor) {
         ReactionOutput row = new ReactionOutput();
         row.reaction = reaction;
         row.anchor = anchor;
         row.type = type;
+        row.outputName = outputName;
+        row.intended = intended;
+        reaction.getOutputs().add(row);
         return row;
+    }
+
+    public boolean hasSamplesWithRegistrationStarted() {
+        return samples.stream()
+                .anyMatch(s -> s.getRegistrationStatus() != null);
+    }
+
+    @Override
+    protected List<? extends AbstractExperimentNode<Reaction>> internalGetSiblings(Reaction parent) {
+        return parent.getOutputs();
     }
 }

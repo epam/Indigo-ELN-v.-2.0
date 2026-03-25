@@ -107,7 +107,7 @@ public class UserService {
         return userMapper.entityToDetailsDTO(entity);
     }
 
-    public Page<UserDTO> getUsers(String search, String username, Paging paging) {
+    public Page<UserDTO> getUsers(@Nullable String search, @Nullable String username, Paging paging) {
         return userRepository.findAll(search, username, paging);
     }
 

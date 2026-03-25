@@ -7,8 +7,8 @@ import java.util.List;
 
 @Getter
 @RequiredArgsConstructor
-public class Metamodel<C, P> {
+public class Metamodel<C> {
 
     private final String name;
-    private final List<ModelProperty<C, ?, P, ?>> properties;
+    private final List<ModelProperty<C, ?>> properties;
 }

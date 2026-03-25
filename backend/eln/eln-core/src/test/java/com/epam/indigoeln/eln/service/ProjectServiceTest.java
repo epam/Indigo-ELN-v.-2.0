@@ -6,7 +6,6 @@ import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.NotebookMutation;
 import com.epam.indigoeln.reaction.model.mutation.ProjectMutation;
-import com.epam.indigoeln.reaction.model.patch.handler2.Patched;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
@@ -16,7 +15,10 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Path;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 import static com.epam.indigoeln.common.exception.InvalidRequestException.fail;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
@@ -372,13 +374,6 @@ class ProjectServiceTest extends ELNBaseTest {
                     assertThat(revision.getUser()).isEqualTo(getJohnUserRef());
                     assertThat(revision.getMutation()).isInstanceOf(ProjectMutation.EditProjectAttributes.class);
                     assertThat(revision.getSummary()).matches("Edit: multiple attributes");
-                    assertThat(revision.getDiff()).satisfies(diff -> {
-                        assertThat(diff.getAcl()).isNull();
-                        assertThat(diff.getName()).isEqualTo(Patched.replaced("testEditProject", "testEditProject_new"));
-                        assertThat(diff.getKeywords()).isEqualTo(Patched.replaced(Set.of("k1", "k2"), Set.of("k2", "k3")));
-                        assertThat(diff.getLiterature()).isEqualTo(Patched.replaced("l", "l2"));
-                        assertThat(diff.getDescription()).isEqualTo(Patched.replaced("d", "d2"));
-                    });
                 });
     }
 
@@ -584,17 +579,14 @@ class ProjectServiceTest extends ELNBaseTest {
                     assertThat(revision.getUser()).isEqualTo(getJohnUserRef());
                     assertThat(revision.getMutation()).isInstanceOf(ProjectMutation.EditProjectAccess.class);
                     assertThat(revision.getSummary()).isEqualTo("Edited Team: granted maggie EDIT access");
-                    assertThat(revision.getDiff().getAcl()).isEqualTo(Patched.updated(Map.of(MAGGIE_USERNAME, Patched.created(new ACLDetailsEntryDTO(maggieUserID, MAGGIE_DISPLAY_NAME, AccessLevel.EDIT, false, MAGGIE_USERNAME)))));
                 });
         assertThat(notebookClient.getNotebookRevisions(notebook.getId()))
                 .last().satisfies(revision -> {
                     assertThat(revision.getMutation()).isInstanceOf(NotebookMutation.NotebookAccessUpdated.class);
-                    assertThat(revision.getDiff().getAcl()).isEqualTo(Patched.updated(Map.of(MAGGIE_USERNAME, Patched.created(new ACLDetailsEntryDTO(maggieUserID, MAGGIE_DISPLAY_NAME, AccessLevel.EDIT, true, MAGGIE_USERNAME)))));
                 });
         assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
                 .last().satisfies(revision -> {
                     assertThat(revision.getMutation()).isInstanceOf(ExperimentMutation.ExperimentAccessUpdated.class);
-                    assertThat(revision.getDiff().getAcl()).isEqualTo(Patched.updated(Map.of(MAGGIE_USERNAME, Patched.created(new ACLDetailsEntryDTO(maggieUserID, MAGGIE_DISPLAY_NAME, AccessLevel.EDIT, true, MAGGIE_USERNAME)))));
                 });
 
         projectClient.updateProjectAccess(project.getId(), AccessForm.of(maggieUserID, AccessLevel.NONE));
@@ -602,7 +594,6 @@ class ProjectServiceTest extends ELNBaseTest {
                 .hasSize(3)
                 .last().satisfies(revision -> {
                     assertThat(revision.getSummary()).isEqualTo("Edited Team: removed maggie");
-                    assertThat(revision.getDiff().getAcl()).isEqualTo(Patched.updated(Map.of(MAGGIE_USERNAME, Patched.deleted(new ACLDetailsEntryDTO(maggieUserID, MAGGIE_DISPLAY_NAME, AccessLevel.EDIT, false, MAGGIE_USERNAME)))));
                 });
     }
 

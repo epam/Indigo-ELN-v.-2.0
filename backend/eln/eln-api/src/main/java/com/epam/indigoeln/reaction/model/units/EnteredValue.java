@@ -13,7 +13,6 @@ import org.apache.commons.math3.util.Precision;
 import org.jspecify.annotations.Nullable;
 
 import java.math.BigDecimal;
-import java.util.function.Consumer;
 
 import static com.epam.indigoeln.reaction.model.units.EnteredValueSource.DEFAULT;
 import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.formatToSignificantFigures;
@@ -82,15 +81,6 @@ public final class EnteredValue<U extends MeasurementUnit> {
     @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> defaultValue(@Nullable BigDecimal value, @Nullable U unit) {
         return value != null && unit != null ? new EnteredValue<>(value.doubleValue(), value.toString(), unit, DEFAULT) : null;
-    }
-
-    public static <U extends MeasurementUnit> void prepareToRecalculate(@Nullable EnteredValue<U> value, Consumer<@Nullable EnteredValue<U>> setter, @Nullable EnteredValue<U> defaultValue) {
-        if (value != null) {
-            if (value.source.isCalculated()) {
-                setter.accept(defaultValue); // reset calculated values
-            }
-            value.overwritten = false;
-        }
     }
 
     public static <R extends MeasurementUnit> EnteredValue<R> add(EnteredValue<R> left, EnteredValue<R> right) {

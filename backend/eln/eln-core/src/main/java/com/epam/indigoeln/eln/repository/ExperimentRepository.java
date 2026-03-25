@@ -150,6 +150,13 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
                 .getSingleResultOrNull();
     }
 
+    public List<ExperimentRevisionEntity> findRecentRevisions(ExperimentEntity experiment, Duration period) {
+        return em.createQuery("from ExperimentRevision where experiment=:experiment and datetime>=:since order by revision", ExperimentRevisionEntity.class)
+                .setParameter("experiment", experiment)
+                .setParameter("since", ZonedDateTime.now().minusSeconds(period.toSeconds()))
+                .getResultList();
+    }
+
     public void closeInactiveEditSessions(ExperimentEntity experiment, Duration inactivityThreshold) {
         ZonedDateTime cutoff = ZonedDateTime.now().minus(inactivityThreshold);
         int updated = em.createQuery("""
@@ -201,7 +208,7 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
     public List<ExperimentRevisionEntity> getRevisions(ExperimentEntity experiment, @Nullable UUID editSessionId, boolean reverseOrder) {
         String condition = editSessionId != null ? "and editSession.id=:editSessionId" : "";
         String order = reverseOrder ? "desc" : "";
-        TypedQuery<ExperimentRevisionEntity> query = em.createQuery("from ExperimentRevision where experiment=:experiment " + condition + " order by datetime " + order, ExperimentRevisionEntity.class)
+        TypedQuery<ExperimentRevisionEntity> query = em.createQuery("from ExperimentRevision where experiment=:experiment " + condition + " order by revision " + order, ExperimentRevisionEntity.class)
                 .setParameter("experiment", experiment);
         if (editSessionId != null) {
             query.setParameter("editSessionId", editSessionId);

@@ -48,7 +48,7 @@ public class UserRepository extends BaseRepository<UserEntity> {
         );
     }
 
-    public Page<UserDTO> findAll(@Nullable String search, String username, Paging paging) {
+    public Page<UserDTO> findAll(@Nullable String search, @Nullable String username, Paging paging) {
         return doFindWithTotals(
                 new Conditions()
                         .addIfNotNull("full_text_search(searchVector, websearch_to_tsquery('english', ?))", search)

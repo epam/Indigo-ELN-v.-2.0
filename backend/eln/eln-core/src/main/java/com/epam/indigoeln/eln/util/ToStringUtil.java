@@ -7,13 +7,13 @@ import org.jspecify.annotations.Nullable;
 
 public class ToStringUtil {
 
-    public static <C extends ExperimentNode, P> String toStringBuild(Metamodel<C, P> metamodel, C container) {
+    public static <C extends ExperimentNode, P> String toStringBuild(Metamodel<C> metamodel, C container) {
         Builder builder = new Builder();
         doBuild(metamodel, container, builder);
         return builder.toString();
     }
 
-    private static <C extends ExperimentNode> void doBuild(Metamodel<C, ?> metamodel, @Nullable C container, Builder builder) {
+    private static <C extends ExperimentNode> void doBuild(Metamodel<C> metamodel, @Nullable C container, Builder builder) {
         if (container == null) {
             builder.text("null");
             return;
@@ -28,15 +28,15 @@ public class ToStringUtil {
                 builder.close();
             }
             @Override
-            public void simpleProperty(ExperimentNode node, ModelProperty<ExperimentNode, ?, ?, ?> property) {
+            public void simpleProperty(ExperimentNode node, ModelProperty<ExperimentNode, ?> property) {
                 builder.property(property.name(), property.get(node));
             }
             @Override
-            public void beforeChildren(ExperimentNode node, ModelProperty<ExperimentNode, ?, ?, ?> property) {
+            public void beforeChildren(ExperimentNode node, ModelProperty<ExperimentNode, ?> property) {
                 builder.open(property.name());
             }
             @Override
-            public void afterChildren(ExperimentNode node, ModelProperty<ExperimentNode, ?, ?, ?> property) {
+            public void afterChildren(ExperimentNode node, ModelProperty<ExperimentNode, ?> property) {
                 builder.close();
             }
         });
