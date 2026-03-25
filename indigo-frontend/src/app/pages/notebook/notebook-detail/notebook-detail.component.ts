@@ -24,7 +24,6 @@ export class NotebookDetailComponent implements OnInit {
   activatedRoute = inject(ActivatedRoute);
   store = inject(NotebookService);
   dialog = inject(MatDialog);
-  experimentsLoading = false;
 
   get notebook() {
     return this.store.notebook();
@@ -55,6 +54,7 @@ export class NotebookDetailComponent implements OnInit {
 
   async openExperimentModal() {
     const ref = this.dialog.open(ExperimentAddComponent);
+        ref.componentInstance.notebookId = this.activatedRoute.snapshot.paramMap.get('notebookId');;
     ref
       .afterClosed()
       .pipe(take(1))
