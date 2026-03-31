@@ -63,7 +63,7 @@ export class ExperimentDetailService {
         tap({
           next: (updated) => {
             this.experimentDetail.set(updated);
-            this.lastLoadedDetail.set(updated);
+            this.lastLoadedDetail.set(structuredClone(updated));
             this.isUpdating.set(false);
           },
           error: () => {
@@ -85,6 +85,7 @@ export class ExperimentDetailService {
     this.experimentDetail.set(null);
     this.lastLoadedDetail.set(null);
     this.isLoading.set(false);
+    this.isUpdating.set(false);
     this.hasError.set(false);
   }
 }
