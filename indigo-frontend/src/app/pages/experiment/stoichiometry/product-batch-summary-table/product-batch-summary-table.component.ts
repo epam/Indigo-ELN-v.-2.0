@@ -1,6 +1,5 @@
 import { Component, computed, inject, input } from '@angular/core';
 import {
-  ExperimentModel,
   Reaction,
   ReactionOutput,
   ReactionOutputSample,
@@ -14,7 +13,10 @@ import {
 } from '@core/types/entities/experiments/experiment-shared.i';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { EditableDataTableComponent } from '../editable-data-table/editable-data-table.component';
-import { BatchDetailPanelComponent, BatchDetailData } from '../batch-detail-panel/batch-detail-panel.component';
+import {
+  BatchDetailData,
+  BatchDetailPanelComponent,
+} from '../batch-detail-panel/batch-detail-panel.component';
 // import { MOCK_OUTPUT_SAMPLES } from './product-batch-summary-table.mock';
 import {
   ColumnConfig,
@@ -23,6 +25,8 @@ import {
   ExpandableConfig,
 } from '../shared/editable-table.types';
 import { ExperimentDetailService } from '@core/services/experiment/experiment-detail.service';
+import { EnteredValue } from '@core/types/entities/values.i';
+import { determineCellClasses } from '@core/utils/experiment-model.util';
 
 interface OutputSampleRow {
   output: ReactionOutput;
@@ -46,8 +50,8 @@ export class ProductBatchSummaryTableComponent {
 
   dataSource = computed(() => {
     // Use real data from reaction outputs
-    const outputs = this.reaction()?.outputs ?? [];
-    return outputs.flatMap((output) =>
+    const outputs = this.reaction()?.outputs;
+    return outputs?.flatMap((output) =>
       output.samples.map((sample) => ({ output, sample })),
     );
   });
@@ -106,6 +110,7 @@ export class ProductBatchSummaryTableComponent {
               unit: row.sample.actualWeight.unit,
             }
           : null,
+      classes: (row) => this.determineClasses(row.sample.actualWeight),
       onSave: (row: OutputSampleRow) => {
         // TODO: Implement mutation for setting output sample actual weight
         console.log('TODO: Set output actual weight', row.sample.anchor);
@@ -126,6 +131,7 @@ export class ProductBatchSummaryTableComponent {
         row.sample.volume?.value
           ? { value: row.sample.volume.value, unit: row.sample.volume.unit }
           : null,
+      classes: (row) => this.determineClasses(row.sample.volume),
       onSave: (row: OutputSampleRow) => {
         // TODO: Implement mutation for setting output sample volume
         console.log('TODO: Set output volume', row.sample.anchor);
@@ -149,6 +155,7 @@ export class ProductBatchSummaryTableComponent {
               unit: row.sample.actualMol.unit,
             }
           : null,
+      classes: (row) => this.determineClasses(row.sample.actualMol),
       onSave: (row: OutputSampleRow) => {
         // TODO: Implement mutation for setting output sample moles
         console.log('TODO: Set output moles', row.sample.anchor);
@@ -167,6 +174,7 @@ export class ProductBatchSummaryTableComponent {
       type: ColumnInputType.TEXT,
       field: (row: OutputSampleRow) =>
         row.sample.molarity?.value?.toString() ?? null,
+      classes: (row) => this.determineClasses(row.sample.molarity),
       editable: () => false,
     },
     {
@@ -175,6 +183,7 @@ export class ProductBatchSummaryTableComponent {
       type: ColumnInputType.NUMBER,
       field: (row: OutputSampleRow) =>
         row.sample.yield?.value?.toString() ?? null,
+      classes: (row) => this.determineClasses(row.sample.yield),
       editable: () => false,
     },
     {
@@ -183,6 +192,7 @@ export class ProductBatchSummaryTableComponent {
       type: ColumnInputType.NUMBER,
       field: (row: OutputSampleRow) =>
         row.sample.purity?.value?.toString() ?? null,
+      classes: (row) => this.determineClasses(row.sample.purity),
       onSave: (row: OutputSampleRow, event: Event) => {
         // TODO: Implement mutation for setting output sample purity
         const value = +(event.target as HTMLInputElement).value;
@@ -214,12 +224,13 @@ export class ProductBatchSummaryTableComponent {
   expandableConfig = computed<ExpandableConfig<OutputSampleRow>>(() => ({
     enabled: true,
     component: BatchDetailPanelComponent,
-    getRowData: (row) => ({
-      sample: row.sample,
-      output: row.output,
-      reaction: this.reaction()!,
-      experimentId: this.experimentId() || '',
-    } as BatchDetailData),
+    getRowData: (row) =>
+      ({
+        sample: row.sample,
+        output: row.output,
+        reaction: this.reaction()!,
+        experimentId: this.experimentId() || '',
+      }) as BatchDetailData,
   }));
 
   private formatReactionOutputType(type: ReactionOutputType): string {
@@ -242,16 +253,11 @@ export class ProductBatchSummaryTableComponent {
     return statusMap[status] ?? status;
   }
 
-  private handleUpdateError(
-    error: Error,
-    previousState: ExperimentModel | null,
-  ) {
-    console.error('Error updating data:', error);
-    if (previousState) {
-      console.log('Reverting to previous state due to error');
-      this.experimentDetailService.setExperimentModel(previousState);
-    }
-    this.snackBar.open('There was an error', 'Close', { duration: 4000 });
+  private determineClasses(value?: EnteredValue<unknown>): string[] {
+    return determineCellClasses(
+      value,
+      this.experimentDetailService.experimentDetail(),
+    );
   }
 
   addNewRow() {

@@ -9,7 +9,7 @@
   }
 </div>
 <div class="w-full overflow-x-auto border border-gray-300 rounded">
-  <table mat-table [dataSource]="dataSource()" class="w-full" style="background-color: white;" multiTemplateDataRows>
+  <table mat-table [dataSource]="dataSource() || []" class="w-full" style="background-color: white;" multiTemplateDataRows>
 
     <!-- Expand Column -->
     @if (expandableConfig()?.enabled) {
@@ -33,7 +33,7 @@
         {{ column.header }}
       </th>
       <td mat-cell *matCellDef="let row"
-        class="text-xs p-0 border-b border-r !border-gray-200 min-w-32 overflow-visible" style="color: #3F50B5;">
+        class="text-xs p-0 border-b border-r !border-gray-200 min-w-32 overflow-visible" style="color: #3F50B5;" [ngClass]="column.classes?.(row) ?? []">
 
         <!-- Text Input -->
         <input *ngIf="column.type === ColumnInputType.TEXT" type="text" placeholder="—" matInput style="outline: none;"

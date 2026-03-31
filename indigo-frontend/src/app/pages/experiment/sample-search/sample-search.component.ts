@@ -66,6 +66,8 @@ import { ExperimentDetailService } from '@core/services/experiment/experiment-de
 import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
+import { NotificationService } from '@core/services/notification/notification.service';
+import { NotificationType } from '@core/types/notification.i';
 
 export interface SampleSearchDialogData {
   experimentId: UUID;
@@ -119,6 +121,7 @@ export class SampleSearchComponent implements OnInit {
   destroyRef = inject(DestroyRef);
   dialog = inject(MatDialog);
   experimentDetailService = inject(ExperimentDetailService);
+  notificationService = inject(NotificationService);
 
   title = 'Add Material';
 
@@ -257,22 +260,19 @@ export class SampleSearchComponent implements OnInit {
   }
 
   addToExperiment(sample: Sample) {
-    // TODO should probably be done via experiment screen to lock entire screen; currently the only mutation implemented is done at ReactionSchemaViewComponent
     const mutation = {
       type: 'AddInput' as const,
       anchor: this.reactionAnchor,
       sampleId: sample.id,
     };
 
-    this.experimentDetailService.updateDataModel(mutation).subscribe({
-      next: () => {
-        console.log('Model updated with new sample');
-
-        this.close.emit();
-      },
-      error: (error) => {
-        console.error('Failed to update experiment model:', error);
-      },
+    this.experimentDetailService.updateDataModel(mutation).subscribe(() => {
+      this.notificationService.notify({
+        type: NotificationType.Info,
+        message: 'Model updated with new sample',
+        isInline: false,
+      });
+      this.close.emit();
     });
   }
 

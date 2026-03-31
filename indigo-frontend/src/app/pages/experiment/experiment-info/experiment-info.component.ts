@@ -10,6 +10,7 @@ import { SampleSearchComponent } from '@pages/experiment/sample-search/sample-se
 import { FormlyFieldConfig, FormlyModule } from '@ngx-formly/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { BuiltInDictionary } from '@/core/types/entities/dictionary.i';
+
 @Component({
   selector: 'eln-experiment-info',
   styleUrl: './experiment-info.component.scss',
@@ -49,82 +50,80 @@ export class ExperimentInfoComponent implements OnInit {
   form = new FormGroup({});
   fields: FormlyFieldConfig[] = [
     {
-      fieldGroupClassName: "grid grid-cols-[1fr_1fr] gap-[16px]",
+      fieldGroupClassName: 'grid grid-cols-[1fr_1fr] gap-[16px]',
       fieldGroup: [
         {
-          type: "input",
-          key: "title",
-          name: "title",  
+          type: 'input',
+          key: 'title',
+          name: 'title',
           props: {
-            label: "Experiment Title",
-            placeholder: "Experiment Title",
-            
+            label: 'Experiment Title',
+            placeholder: 'Experiment Title',
           },
         },
         {
-          type: "select-chips",
-          key: "linkedExperiment",
+          type: 'select-chips',
+          key: 'linkedExperiment',
           props: {
-            label: "Linked Experiment",
-            placeholder: "Linked Experiment",
+            label: 'Linked Experiment',
+            placeholder: 'Linked Experiment',
           },
         },
         {
-          type: "select",
-          key: "therapeuticArea",
+          type: 'select',
+          key: 'therapeuticArea',
           props: {
-            label: "Therapeutic Area",
+            label: 'Therapeutic Area',
             multiple: false,
             required: false,
-            dictionaryId: BuiltInDictionary.THERAPEUTIC_AREA
-          },
-        }, 
-        {
-          type: "select-chips",
-          key: "contToRxn",
-          props: {
-            label: "Cont. TO Rxn",
-            placeholder: "Cont. TO Rxn"
+            dictionaryId: BuiltInDictionary.THERAPEUTIC_AREA,
           },
         },
         {
-          type: "select",
-          key: "projectCode",
+          type: 'select-chips',
+          key: 'contToRxn',
           props: {
-            label: "Project Code & Name",
-            placeholder: "PROJECT_CODE",
+            label: 'Cont. TO Rxn',
+            placeholder: 'Cont. TO Rxn',
+          },
+        },
+        {
+          type: 'select',
+          key: 'projectCode',
+          props: {
+            label: 'Project Code & Name',
+            placeholder: 'PROJECT_CODE',
             multiple: false,
             required: false,
-            dictionaryId: BuiltInDictionary.PROJECT_CODE
+            dictionaryId: BuiltInDictionary.PROJECT_CODE,
           },
         },
         {
-          type: "select-chips",
-          key: "contFromRxn",
+          type: 'select-chips',
+          key: 'contFromRxn',
           props: {
-            label: "Cont. FROM Rxn",
-            placeholder: "Cont. TO Rxn",
+            label: 'Cont. FROM Rxn',
+            placeholder: 'Cont. TO Rxn',
           },
         },
         {
-          type: "input",
-          key: "reference",
-          name: "reference",
-          className: "col-span-2",
+          type: 'input',
+          key: 'reference',
+          name: 'reference',
+          className: 'col-span-2',
           props: {
-            label: "Literature Reference",
-            placeholder: "Literature Reference",
+            label: 'Literature Reference',
+            placeholder: 'Literature Reference',
           },
         },
-      ]
-    }
-  ]
+      ],
+    },
+  ];
 
   ngOnInit(): void {
     const experimentId = this.experiment()?.id;
     if (experimentId) {
       this.experimentImageService.load(experimentId);
-      this.experimentDetailService.load(experimentId);
     }
   }
 
