@@ -7,6 +7,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { AvatarComponent } from '@core/components/common/avatar/avatar.component';
 import { ItemTemplate } from '@core/types/entities/template.i';
 import { TemplateService } from '@core/services/template/template.service';
+import { SvgIconComponent } from '@core/components/common/svg-icon/svg-icon.component';
 
 
 @Component({
@@ -18,6 +19,7 @@ import { TemplateService } from '@core/services/template/template.service';
     MatIconModule,
     MatMenuModule,
     AvatarComponent,
+    SvgIconComponent,
   ],
   templateUrl: './template-item.component.html',
 })
