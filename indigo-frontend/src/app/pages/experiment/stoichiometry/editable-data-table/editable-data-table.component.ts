@@ -30,6 +30,8 @@ import {
   FieldValue,
   UnitFieldValue,
 } from '../shared/editable-table.types';
+import { MatIconButton } from '@angular/material/button';
+import { MatTooltip } from '@angular/material/tooltip';
 
 @Component({
   selector: 'eln-editable-data-table',
@@ -55,6 +57,8 @@ import {
     FormsModule,
     CommonModule,
     ButtonComponent,
+    MatIconButton,
+    MatTooltip,
   ],
 })
 export class EditableDataTableComponent<TRow = unknown> {

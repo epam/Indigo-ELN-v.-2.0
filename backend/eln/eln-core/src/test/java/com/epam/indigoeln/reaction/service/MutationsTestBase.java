@@ -94,24 +94,26 @@ public abstract class MutationsTestBase extends ELNBaseTest {
         return list.size() > index ? list.get(index) : null;
     }
 
-    protected void applyMutation(Mutation mutation) {
+    protected MutationResponse applyMutation(Mutation mutation) {
         boolean undoOrRedo = mutation instanceof ExperimentMutation.Undo || mutation instanceof ExperimentMutation.Redo;
-        applyMutation(mutation, !undoOrRedo);
+        return applyMutation(mutation, !undoOrRedo);
     }
 
-    protected void applyMutation(Mutation mutation, boolean undoRedo) {
-        applyMutation(mutation, "mutation", undoRedo);
+    protected MutationResponse applyMutation(Mutation mutation, boolean undoRedo) {
+        return applyMutation(mutation, "mutation", undoRedo);
     }
 
     @SneakyThrows
-    protected void applyMutation(Mutation mutation, String reportClass, boolean undoRedo) {
+    protected MutationResponse applyMutation(Mutation mutation, String reportClass, boolean undoRedo) {
         System.out.println("Applying mutation: " + mutation);
         reportBuilder.addMutation(reportClass, mutation);
 
         ExperimentSnapshot initialSnapshot = experimentClient.getExperimentSnapshot(experiment.getId());
-        JsonNode patch = experimentClient.mutateExperimentModel2(experiment.getId(), experiment.getRevision(), mutation);
+        MutationResponse response = experimentClient.mutateExperimentModel4(experiment.getId(), experiment.getRevision(), mutation);
+        JsonNode patch = response.getPatch();
         ExperimentDetailsDTO updatedExperiment = experimentClient.getExperiment(experiment.getId());
 
+        // !!! take picture from response
         // reload picture
         Response pictureResponse = experimentClient.getExperimentPictureClient(experiment.getId());
         byte[] newPicture = (byte[]) pictureResponse.getEntity();
@@ -120,6 +122,12 @@ public abstract class MutationsTestBase extends ELNBaseTest {
             reportBuilder.addPicture(reportClass, picture, pictureResponse.getHeaderString(HttpHeaders.CONTENT_TYPE));
         }
         ExperimentSnapshot updatedSnapshot = experimentClient.getExperimentSnapshot(experiment.getId());
+
+        if (response.getMessages() != null) {
+            for (String message : response.getMessages()) {
+                reportBuilder.addMessage("", "Message: " + message);
+            }
+        }
         reportBuilder.addModel(reportClass, FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(patch), updatedSnapshot);
 
         // verify if patch is correct
@@ -146,5 +154,7 @@ public abstract class MutationsTestBase extends ELNBaseTest {
 
         modelSizes.add(FeignUtil.OBJECT_MAPPER.writeValueAsBytes(updatedExperiment).length);
         patchSizes.add(FeignUtil.OBJECT_MAPPER.writeValueAsBytes(patch).length);
+
+        return response;
     }
 }

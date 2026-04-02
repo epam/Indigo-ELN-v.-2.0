@@ -21,7 +21,7 @@ function handler(event) {
         cacheControl = 'public, max-age=86400';
     } else {
         cacheControl = 'public, max-age=600';
-        let csp = "default-src 'self'; object-src 'none'; frame-ancestors 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://cognito-idp.us-east-1.amazonaws.com; font-src 'self' https://fonts.gstatic.com; worker-src 'self' blob:; media-src 'self' data:;";
+        let csp = "default-src 'self'; object-src 'none'; frame-ancestors 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://cognito-idp.us-east-1.amazonaws.com; font-src 'self' https://fonts.gstatic.com; worker-src 'self' blob:; media-src 'self' data:; img-src 'self' blob:;";
         response.headers['content-security-policy'] = {value: csp};
     }
     const contentType = response.headers['content-type'];

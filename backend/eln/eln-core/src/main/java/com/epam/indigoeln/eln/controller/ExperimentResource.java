@@ -1,7 +1,6 @@
 package com.epam.indigoeln.eln.controller;
 
 
-import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.eln.api.*;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.AttachmentService;
@@ -117,18 +116,23 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
+    public MutationResponse mutateExperimentModel4(UUID experimentId, Integer revision, Mutation mutation) {
+        return experimentService.mutateModel4(experimentId, revision, mutation);
+    }
+
+    @Override
     public JsonNode mutateExperimentModel2(UUID experimentId, Integer revision, Mutation mutation) {
         return experimentService.mutateModel2(experimentId, revision, mutation);
     }
 
     @Override
-    public Response getReactionPicture(UUID experimentId, ReactionAnchor reactionAnchor, @Nullable Integer version) {
-        return experimentService.getReactionPicture(experimentId, reactionAnchor, version);
+    public Map<InputAnchor, String> analyzeRXN(UUID experimentId, ReactionAnchor reactionAnchor) {
+        return experimentService.analyzeRXN(experimentId, reactionAnchor);
     }
 
     @Override
-    public Map<InputAnchor, @org.jspecify.annotations.Nullable FindSamplesRequest> analyzeRXN(UUID experimentId, ReactionAnchor reactionAnchor) {
-        return experimentService.analyzeRXN(experimentId, reactionAnchor);
+    public Response getReactionPicture(UUID experimentId, ReactionAnchor reactionAnchor, @Nullable Integer version) {
+        return experimentService.getReactionPicture(experimentId, reactionAnchor, version);
     }
 
     @Override

@@ -91,6 +91,10 @@ public class CalculationReportBuilder implements AutoCloseable {
         pr.printf("<h1 id='section%s' class='%s'>%s</h1>\n", ++ordinal, reportClass, header);
     }
 
+    public void addMessage(String reportClass, String message) {
+        pr.printf("<div class='%s'>%s</h1>\n", reportClass, message);
+    }
+
     public void addFailedComparison(String reportClass, String summary, @Nullable String patch, String expected, String applied) {
         pr.printf("<h1 id='section%s' class='error %s'>%s</h1>\n", ++ordinal, reportClass, summary);
         Pair<List<String>, List<String>> result = prepareDiff(expected, applied);

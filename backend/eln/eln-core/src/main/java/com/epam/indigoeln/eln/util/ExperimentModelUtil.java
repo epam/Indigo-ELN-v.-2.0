@@ -4,15 +4,14 @@ import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.reaction.metamodel.ExperimentModelMetamodel;
 import com.epam.indigoeln.reaction.metamodel.property.Metamodel;
 import com.epam.indigoeln.reaction.metamodel.property.ModelProperty;
-import com.epam.indigoeln.reaction.model.*;
+import com.epam.indigoeln.reaction.model.ExperimentModel;
+import com.epam.indigoeln.reaction.model.ExperimentNode;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Consumer;
 
 public class ExperimentModelUtil {
@@ -75,18 +74,6 @@ public class ExperimentModelUtil {
         if (value != null) {
             value.setOverwritten(false);
         }
-    }
-
-    public static Set<Pair<ReactionRole, CompoundRef>> collectCompoundRefs(ExperimentModel model) {
-        Set<Pair<ReactionRole, CompoundRef>> refs = new HashSet<>();
-        walk(ExperimentModelMetamodel.INSTANCE, model, node -> {
-            switch (node) {
-                case ReactionInput input -> refs.add(Pair.of(input.getRole(), input.getCompound()));
-                case ReactionOutput output -> refs.add(Pair.of(ReactionRole.OUTPUT, output.getCompound()));
-                default -> {}
-            }
-        });
-        return refs;
     }
 
     public interface PropertyVisitor {

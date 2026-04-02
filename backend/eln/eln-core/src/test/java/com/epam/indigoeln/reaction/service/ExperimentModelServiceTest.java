@@ -150,7 +150,7 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     @Order(621)
     void testRemoveEmptyInput() {
         List<ReactionInput> inputs = experiment.getModel().getReactions().getFirst().getInputs();
-        applyMutation(new ReactionInputMutation.RemoveInput(inputs.getLast().getAnchor()));
+        applyMutation(new ReactionInputMutation.RemoveInputRow(inputs.getLast().getAnchor()));
     }
 
     @Test

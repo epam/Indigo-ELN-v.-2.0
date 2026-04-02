@@ -26,7 +26,7 @@
       <eln-button [type]="'button'" [variant]="'grey'" (click)="closeModal()">
         Cancel
       </eln-button>
-      <eln-button [type]="'button'" [variant]="'blue'" (click)="saveAndClose()">
+      <eln-button [type]="'button'" [variant]="'blue'" (click)="saveAndClose()" [disabled]="!initialized">
         Save
       </eln-button>
     </div>

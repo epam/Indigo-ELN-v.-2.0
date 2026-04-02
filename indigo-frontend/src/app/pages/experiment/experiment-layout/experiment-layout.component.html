@@ -61,6 +61,12 @@
   </div>
 </div>
 
+@if (isUpdating()) {
+  <div class="absolute top-26 right-12 z-50">
+    <mat-spinner diameter="40"/>
+  </div>
+}
+
 <!-- Tab Content -->
 <div *ngIf="experiment() && !isLoading() && !hasError()">
   <router-outlet></router-outlet>

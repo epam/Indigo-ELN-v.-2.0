@@ -4,10 +4,7 @@ import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.eln.ELNBaseTest;
-import com.epam.indigoeln.eln.model.BuiltInDictionary;
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
-import com.epam.indigoeln.eln.model.Page;
-import com.epam.indigoeln.eln.model.Paging;
+import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.*;
 import com.epam.indigoeln.reaction.model.outputsample.*;
@@ -16,6 +13,7 @@ import com.epam.indigoeln.reaction.util.CalculationReportBuilder;
 import com.epam.indigoeln.reaction.util.MutationsTestUtil;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
+import jakarta.validation.constraints.NotNull;
 import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
@@ -119,6 +117,13 @@ public class MutationsTest extends MutationsTestBase {
     }
 
     @Test
+    void testLoadSameScheme() {
+        String rxnFile = new String(ModelUtil.loadResource(getClass(), "/reaction2.rxn"));
+        applyMutation(new ReactionMutation.SetScheme(reaction.getAnchor(), rxnFile), false);
+        applyMutation(new ReactionMutation.SetScheme(reaction.getAnchor(), rxnFile), false);
+    }
+
+    @Test
     void testResolveInputs() {
         loadScheme();
         applyMutation(prepareResolveInputs());
@@ -127,12 +132,23 @@ public class MutationsTest extends MutationsTestBase {
     }
 
     @Test
-    void testRemoveInput() {
+    void testRemoveInputRow() {
         loadScheme();
         InputAnchor removedAnchor = input1.getAnchor();
-        applyMutation(new ReactionInputMutation.RemoveInput(removedAnchor));
+        applyMutation(new ReactionInputMutation.RemoveInputRow(removedAnchor));
         assertThat(reaction.getInputs()).hasSize(1);
         assertThat(input1.getAnchor()).isNotEqualTo(removedAnchor);
+    }
+
+    @Test
+    void testRemoveInput() {
+        loadScheme();
+        @NotNull InputSampleAnchor removedAnchor = input1Sample1.getAnchor();
+        assertThat(reaction.getInputs()).hasSize(2);
+        MutationResponse response = applyMutation(new ReactionInputSampleMutation.RemoveInput(removedAnchor));
+        assertThat(response.getMessages()).contains("Removed, press Ctrl-Z/Cmd-Z to undo (not yet implemented)");
+
+        assertThat(reaction.getInputs()).hasSize(1);
     }
 
     @Test
@@ -625,6 +641,13 @@ public class MutationsTest extends MutationsTestBase {
         loadScheme();
         applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "100", WeightUnit.G));
         applyMutation(new ReactionInputSampleMutation.SetInputMol(input1Sample1.getAnchor(), "1", MolUnit.MOL), false);
+    }
+
+    @Test
+    void testUpdateNonLimitingInput() {
+        loadScheme();
+        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "100", WeightUnit.G), false);
+        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input2Sample1.getAnchor(), "200", WeightUnit.G), false);
     }
 
     private void loadScheme() {
