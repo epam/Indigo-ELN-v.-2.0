@@ -7,21 +7,47 @@
         <em class="text-primary-400 text-xl indicon-book"></em>
         {{ notebook.name }}
       </h3>
-      <div class="relative -right-1">
-        <button
-          class="flex items-center hover:bg-neutral-200 rounded-full cursor-pointer"
-          (click)="$event.stopPropagation()"
-          [matMenuTriggerFor]="menu"
-          aria-label="Project options menu"
-        >
-          <mat-icon>more_horiz</mat-icon>
-        </button>
-        <mat-menu #menu="matMenu">
-          <button mat-menu-item>
-            <mat-icon>visibility</mat-icon>
-            <span>Action</span>
+
+      <div class="flex items-center gap-x-3">
+        @if (variant === 'grid') {
+          <div class="flex -space-x-2">
+            @for (user of notebook.acl; track user.userId) {
+              <div
+                class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white" [matTooltip]="user.displayName" matTooltipPosition="above"
+              >
+                {{ user.displayName | initials }}
+              </div>
+            }
+            @if (notebook.aclCount > 3) {
+              <span
+                class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-primary-400 text-white text-[0.75rem]"
+              >
+                +{{ notebook.aclCount - 3 }}
+              </span>
+            }
+          </div>
+        }
+
+        <div class="relative -right-1">
+          <button
+            class="flex items-center hover:bg-neutral-200 rounded-full cursor-pointer"
+            (click)="$event.stopPropagation()"
+            [matMenuTriggerFor]="menu"
+            aria-label="Notebook options menu"
+          >
+            <mat-icon>more_horiz</mat-icon>
           </button>
-        </mat-menu>
+          <mat-menu #menu="matMenu" class="notebook-item-custom-menu">
+            <button mat-menu-item class="relative flex items-center">
+              <em class="indicon-edit text-[20px] mr-2"></em>
+              <span class="absolute top-[14px] left-10">Rename</span>
+            </button>
+            <button mat-menu-item class="relative flex items-center">
+              <em class="indicon-delete text-[20px] mr-2"></em>
+              <span class="absolute top-[14px] left-10">Delete</span>
+            </button>
+          </mat-menu>
+        </div>
       </div>
     </div>
 
@@ -29,8 +55,7 @@
       <div
         class="w-full"
         [ngClass]="{
-          'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6':
-            variant === 'list',
+          'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6': variant === 'list',
           'space-y-2': variant === 'grid',
         }"
       >
@@ -62,9 +87,9 @@
           <div class="text-neutral-1000 text-sm">Members</div>
           <div class="flex items-center">
             <div class="flex -space-x-2">
-              @for (user of notebook.acl.slice(0, 3); track user.userId) {
+              @for (user of notebook.acl; track user.userId) {
                 <div
-                  class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white"
+                  class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white" [matTooltip]="user.displayName" matTooltipPosition="above"
                 >
                   {{ user.displayName | initials }}
                 </div>
@@ -103,31 +128,5 @@
         </div>
       </div>
     </div>
-
-    @if (variant === 'grid') {
-      <div
-        class="flex items-center mt-2 pt-3 border-t border-t-neutral-300 w-full"
-      >
-        <div class="flex -space-x-2">
-          @for (user of notebook.acl.slice(0, 3); track user) {
-            <div
-              class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white"
-            >
-              {{ user.displayName | initials }}
-            </div>
-          }
-          @if (notebook.aclCount > 3) {
-            <span
-              class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-primary-400 text-white text-[0.75rem]"
-            >
-              +{{ notebook.aclCount - 3 }}
-            </span>
-          }
-        </div>
-        <span class="ml-2 text-b2 text-neutral-1000"
-          >{{ notebook.aclCount }} Members</span
-        >
-      </div>
-    }
   </div>
 </eln-card>
