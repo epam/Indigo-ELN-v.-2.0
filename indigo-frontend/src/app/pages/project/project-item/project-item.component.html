@@ -15,7 +15,7 @@
          @if (variant === 'grid'){   <div class="flex -space-x-2">
           @for (member of project.acl; track member) {
             <div
-              class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white"
+              class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white" [matTooltip]="member.displayName ?? member.username" matTooltipPosition="above"
             >
               {{ member.displayName ?? member.username | initials }}
             </div>
@@ -117,7 +117,7 @@
             <div class="flex -space-x-2">
               @for (member of project.acl; track member) {
                 <div
-                  class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white"
+                  class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white"[matTooltip]="member.displayName ?? member.username" matTooltipPosition="above"
                 >
                   {{  member.displayName ??member.username | initials }}
                 </div>
@@ -156,11 +156,5 @@
         </div>
       </div>
     </div>
-
-    @if (variant === 'grid') {
-      <div
-        class="flex items-center mt-2 pt-3 border-t border-t-neutral-300 w-full"
-      ></div>
-    }
   </div>
 </eln-card>

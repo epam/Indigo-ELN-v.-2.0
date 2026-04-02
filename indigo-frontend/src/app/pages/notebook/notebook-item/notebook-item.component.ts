@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { InitialsPipe } from '../../../../core/pipes/avatars.pipe';
+import { MatTooltip } from "@angular/material/tooltip";
 
 @Component({
   selector: 'eln-notebook-item',
@@ -18,7 +19,8 @@ import { InitialsPipe } from '../../../../core/pipes/avatars.pipe';
     MatIconModule,
     MatMenuModule,
     InitialsPipe,
-  ],
+    MatTooltip
+],
   templateUrl: './notebook-item.component.html',
 })
 export class NotebookItemComponent {

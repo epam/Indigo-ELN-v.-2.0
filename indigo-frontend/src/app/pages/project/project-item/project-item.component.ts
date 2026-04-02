@@ -7,6 +7,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { RouterLink } from '@angular/router';
 import { CardComponent } from '@core/components/common/card/card.component';
 import { InitialsPipe } from '@/core/pipes/avatars.pipe';
+import { MatTooltip } from "@angular/material/tooltip";
 @Component({
   selector: 'eln-project-item',
   standalone: true,
@@ -18,6 +19,7 @@ import { InitialsPipe } from '@/core/pipes/avatars.pipe';
     MatMenuModule,
     RouterLink,
     InitialsPipe,
+    MatTooltip
 ],
   templateUrl: './project-item.component.html',
   styleUrls: ['./project-item.component.scss'],
