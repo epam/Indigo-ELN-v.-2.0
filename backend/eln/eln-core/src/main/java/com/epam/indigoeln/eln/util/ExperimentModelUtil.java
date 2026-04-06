@@ -1,13 +1,9 @@
 package com.epam.indigoeln.eln.util;
 
 import com.epam.indigoeln.common.util.Pair;
-import com.epam.indigoeln.reaction.metamodel.ExperimentModelMetamodel;
 import com.epam.indigoeln.reaction.metamodel.property.Metamodel;
 import com.epam.indigoeln.reaction.metamodel.property.ModelProperty;
-import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ExperimentNode;
-import com.epam.indigoeln.reaction.model.units.EnteredValue;
-import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
@@ -55,25 +51,6 @@ public class ExperimentModelUtil {
             return (Pair) Pair.of(property.childModel(), value instanceof Collection ? (Collection) value : List.of(value));
         }
         return null;
-    }
-
-    public static void prepareToRecalculate(ExperimentModel model) {
-        walkProperties(ExperimentModelMetamodel.INSTANCE, model, (node, property) -> {
-            if (property.isEnteredValue() && property.setter() != null) {
-                //noinspection rawtypes,unchecked
-                doPrepareToRecalculate(node, (ModelProperty) property);
-            }
-        });
-    }
-
-    public static <U extends MeasurementUnit> void doPrepareToRecalculate(ExperimentNode node, ModelProperty<ExperimentNode, EnteredValue<U>> property) {
-        EnteredValue<?> value = property.get(node);
-        if ((value != null && value.getSource().isCalculated() || (value == null && property.defaultValue() != null))) {
-            property.set(node, property.defaultValue());
-        }
-        if (value != null) {
-            value.setOverwritten(false);
-        }
     }
 
     public interface PropertyVisitor {
