@@ -1,4 +1,4 @@
-import { Component, input, output, signal, ViewChild } from '@angular/core';
+import { Component, inject, input, output, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   MatCell,
@@ -30,6 +30,14 @@ import {
   FieldValue,
   UnitFieldValue,
 } from '../shared/editable-table.types';
+import { DropdownMenuItem } from '@/core/components/common/dropdown-menu/dropdown-menu.i';
+import { SelectComponent } from '@/core/components/common/select/select.component';
+import { ExperimentDetailService } from '@/core/services/experiment/experiment-detail.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SIGNIFICANT_FIGURES } from '../significant-figures.constants';
+import { tap } from 'rxjs/internal/operators/tap';
+import { catchError } from 'rxjs/internal/operators/catchError';
+import { EMPTY } from 'rxjs/internal/observable/empty';
 
 @Component({
   selector: 'eln-editable-data-table',
@@ -55,9 +63,14 @@ import {
     FormsModule,
     CommonModule,
     ButtonComponent,
+    SelectComponent
   ],
 })
 export class EditableDataTableComponent<TRow = unknown> {
+
+  experimentDetailService = inject(ExperimentDetailService);
+  private snackBar = inject(MatSnackBar);
+  
   readonly ColumnInputType = ColumnInputType;
   @ViewChild(MatTable) table?: MatTable<TRow>;
 
@@ -69,6 +82,7 @@ export class EditableDataTableComponent<TRow = unknown> {
   loadingMessage = input<string>('Loading...');
   showAddButton = input<boolean>(true);
   expandableConfig = input<ExpandableConfig<TRow> | null>(null);
+  readonly items = signal<DropdownMenuItem[]>([...SIGNIFICANT_FIGURES]);
 
   addRow = output<void>();
 
@@ -120,5 +134,40 @@ export class EditableDataTableComponent<TRow = unknown> {
     return this.displayedColumns();
   }
 
+onSignificantFiguresChange(value: string | string[] | null): void {
+  const parsedValue = this.parseSignificantFigure(value);
+  if (parsedValue === null) return;
+
+  this.experimentDetailService
+    .updateDataModel({
+      type: 'SetExperimentSignificantFigures',
+      significantFigures: parsedValue,
+    })
+    .pipe(
+      tap(() => {
+        this.snackBar.open('Significant figures updated', 'Close', {
+          duration: 2000,
+        });
+      }),
+      catchError((error) => {
+        console.error('Failed to update significant figures', error);
+        this.snackBar.open('Something went wrong', 'Close', {
+          duration: 3000,
+        });
+        return EMPTY;
+      })
+    )
+    .subscribe();
+}
+
   detailRow = (_index: number, row: TRow) => this.isRowExpanded(row);
+
+  private parseSignificantFigure(
+  value: string | string[] | null
+): number | null {
+  if (!value || Array.isArray(value)) return null;
+
+  const parsed = Number.parseInt(value, 10);
+  return Number.isNaN(parsed) ? null : parsed;
+}
 }

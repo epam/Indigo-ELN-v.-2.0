@@ -312,6 +312,11 @@ interface SetOutputStructureComment extends ReactionOutputSampleMutation {
   structureComment: string | null;
 }
 
+interface SetExperimentSignificantFigures extends BaseMutation {
+  type: 'SetExperimentSignificantFigures';
+  significantFigures: number | null;
+}
+
 export type Mutation =
   // Experiment mutations
   | SetBatchCreatorMutation
@@ -370,4 +375,5 @@ export type Mutation =
   | SetOutputSourceDetails
   | SetOutputComponentState
   | SetOutputBatchComment
-  | SetOutputStructureComment;
+  | SetOutputStructureComment
+  | SetExperimentSignificantFigures;
