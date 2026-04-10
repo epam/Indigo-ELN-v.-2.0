@@ -2,9 +2,15 @@ import { mergeEnvironments } from './env.util';
 
 export const environment = mergeEnvironments({
   production: false,
+  authProvider: 'keycloak',
+  keycloak: {
+    url: 'http://localhost:8088',
+    realm: 'indigo-eln',
+    clientId: 'frontend-client',
+  },
   authConfig: {
-    userPoolId: 'us-east-1_6DirgtQ1p',
-    userPoolClientId: 'a4kkh00ob23l7upm88hh3mmj5',
+    userPoolId: '',
+    userPoolClientId: '',
     identityPoolId: '',
   },
 });

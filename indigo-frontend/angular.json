@@ -108,10 +108,6 @@
                   "with": "src/app/app.config.local.ts"
                 },
                 {
-                  "replace": "src/core/services/user.service.ts",
-                  "with": "src/core/services/user-keycloak.service.ts"
-                },
-                {
                   "replace": "src/core/components/layout/master.component.ts",
                   "with": "src/core/components/layout/master-keycloak.component.ts"
                 }

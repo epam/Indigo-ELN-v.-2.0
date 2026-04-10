@@ -1,5 +1,4 @@
-// import keycloak user service
-import { UserService } from '@/core/services/user-keycloak.service';
+import { IdentityService } from '@/core/services/identity.service';
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -33,12 +32,12 @@ import Keycloak from 'keycloak-js';
     MatRippleModule,
     SidebarComponent,
   ],
-  templateUrl: './master.component.html',
+  templateUrl: './master-keycloak.component.html',
 })
 export class MasterComponent implements OnInit, OnDestroy {
   destroy$ = new Subject<void>();
   keycloak = inject(Keycloak);
-  userService = inject(UserService);
+  identityService = inject(IdentityService);
   dialog = inject(MatDialog);
 
   public isCollapsed = false;
@@ -56,7 +55,7 @@ export class MasterComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.userService.user$.pipe(takeUntil(this.destroy$)).subscribe((user) => {
+    this.identityService.user$.pipe(takeUntil(this.destroy$)).subscribe((user) => {
       this.userName = `${user.displayName}`;
     });
 

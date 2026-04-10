@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve --configuration production",
+    "start-local": "ng serve --configuration local",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
@@ -53,6 +54,8 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
+    "keycloak-angular": "^19.0.2",
+    "keycloak-js": "^26.2.3",
     "postcss": "^8.5.2",
     "prettier": "^3.4.2",
     "prettier-eslint": "^16.3.0",

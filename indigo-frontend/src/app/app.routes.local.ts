@@ -5,7 +5,7 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import('@core/components/layout/master.component').then(
+      import('@core/components/layout/master-keycloak.component').then(
         (c) => c.MasterComponent,
       ),
     canActivate: [],
@@ -47,7 +47,7 @@ export const routes: Routes = [
                 path: 'notebooks',
                 loadComponent: () =>
                   import(
-                    '@/app/pages/project/notebook/notebook-list/notebook-list.component'
+                    '@pages/notebook/notebook-list/notebook-list.component'
                   ).then((c) => c.NotebookListComponent),
               },
             ],
@@ -72,8 +72,8 @@ export const routes: Routes = [
             path: 'experiments',
             loadComponent: () =>
               import(
-                '@/app/pages/notebook/experiments-tab/experiments-tab.component'
-              ).then((c) => c.ExperimentsTabComponent),
+                '@pages/notebook/notebook-experiments-tab/notebook-experiments-tab.component'
+              ).then((c) => c.NotebookExperimentsTabComponent),
           },
         ],
       },
