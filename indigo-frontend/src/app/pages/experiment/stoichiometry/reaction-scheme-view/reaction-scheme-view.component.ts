@@ -6,11 +6,13 @@ import { Mutation } from '@/core/types/entities/experiments/mutation.i';
 import { Reaction } from '@/core/types/entities/experiments/experiment.i';
 import { StructureEditorModalComponent } from '@core/components/experiment/structure-editor-modal/structure-editor-modal.component';
 import { ExperimentDetailService } from '@core/services/experiment/experiment-detail.service';
+import { ApiImageComponent } from '@/core/components/common/image/api-image.component';
+import { MatIcon } from "@angular/material/icon";
 
 @Component({
   selector: 'eln-reaction-scheme-view',
   standalone: true,
-  imports: [CommonModule, ButtonComponent],
+  imports: [CommonModule, ButtonComponent, ApiImageComponent, MatIcon],
   templateUrl: './reaction-scheme-view.component.html',
 })
 export class ReactionSchemeViewComponent {
@@ -20,6 +22,13 @@ export class ReactionSchemeViewComponent {
 
   dialog = inject(MatDialog);
   experimentDetailService = inject(ExperimentDetailService);
+
+  reactionSchemeImageUrl(): string | null {
+    if (!this.reaction) {
+      return null;
+    }
+    return `experiments/${this.experimentId}/datamodel/reactions/${this.reaction.anchor}/picture?version=${this.reaction.rxnVersion}`;
+  }
 
   openChemicalEditor(): void {
     if (!this.experimentId) {
