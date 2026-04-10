@@ -1,4 +1,12 @@
-import { Component, inject, input, output, signal, ViewChild } from '@angular/core';
+import {
+  Component,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   MatCell,
@@ -33,9 +41,7 @@ import {
 import { DropdownMenuItem } from '@/core/components/common/dropdown-menu/dropdown-menu.i';
 import { SelectComponent } from '@/core/components/common/select/select.component';
 import { ExperimentDetailService } from '@/core/services/experiment/experiment-detail.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { SIGNIFICANT_FIGURES } from '../significant-figures.constants';
-import { tap } from 'rxjs/internal/operators/tap';
 import { catchError } from 'rxjs/internal/operators/catchError';
 import { EMPTY } from 'rxjs/internal/observable/empty';
 
@@ -63,14 +69,14 @@ import { EMPTY } from 'rxjs/internal/observable/empty';
     FormsModule,
     CommonModule,
     ButtonComponent,
-    SelectComponent
+    SelectComponent,
   ],
 })
 export class EditableDataTableComponent<TRow = unknown> {
-
   experimentDetailService = inject(ExperimentDetailService);
-  private snackBar = inject(MatSnackBar);
-  
+  readonly experimentModel = this.experimentDetailService.experimentModel;
+  readonly selectedSignificantFigure = signal<string | null>(null);
+
   readonly ColumnInputType = ColumnInputType;
   @ViewChild(MatTable) table?: MatTable<TRow>;
 
@@ -87,6 +93,16 @@ export class EditableDataTableComponent<TRow = unknown> {
   addRow = output<void>();
 
   expandedRows = signal<Set<TRow>>(new Set());
+
+  constructor() {
+    effect(() => {
+      const value = this.experimentModel()?.significantFigures;
+
+      this.selectedSignificantFigure.set(
+        value !== undefined && value !== null ? String(value) : null,
+      );
+    });
+  }
 
   compareDictionaryItems = (
     a?: DictionaryItemRef | null,
@@ -134,40 +150,27 @@ export class EditableDataTableComponent<TRow = unknown> {
     return this.displayedColumns();
   }
 
-onSignificantFiguresChange(value: string | string[] | null): void {
-  const parsedValue = this.parseSignificantFigure(value);
-  if (parsedValue === null) return;
+  onSignificantFiguresChange(value: string | string[] | null): void {
+    const parsedValue = this.parseSignificantFigure(value);
+    if (parsedValue === null) return;
 
-  this.experimentDetailService
-    .updateDataModel({
-      type: 'SetExperimentSignificantFigures',
-      significantFigures: parsedValue,
-    })
-    .pipe(
-      tap(() => {
-        this.snackBar.open('Significant figures updated', 'Close', {
-          duration: 2000,
-        });
-      }),
-      catchError((error) => {
-        console.error('Failed to update significant figures', error);
-        this.snackBar.open('Something went wrong', 'Close', {
-          duration: 3000,
-        });
-        return EMPTY;
+    this.experimentDetailService
+      .updateDataModel({
+        type: 'SetExperimentSignificantFigures',
+        significantFigures: parsedValue,
       })
-    )
-    .subscribe();
-}
+      .pipe(catchError(() => EMPTY))
+      .subscribe();
+  }
 
   detailRow = (_index: number, row: TRow) => this.isRowExpanded(row);
 
   private parseSignificantFigure(
-  value: string | string[] | null
-): number | null {
-  if (!value || Array.isArray(value)) return null;
+    value: string | string[] | null,
+  ): number | null {
+    if (!value || Array.isArray(value)) return null;
 
-  const parsed = Number.parseInt(value, 10);
-  return Number.isNaN(parsed) ? null : parsed;
-}
+    const parsed = Number.parseInt(value, 10);
+    return Number.isNaN(parsed) ? null : parsed;
+  }
 }

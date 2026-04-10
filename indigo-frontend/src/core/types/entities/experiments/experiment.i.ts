@@ -114,4 +114,5 @@ export interface Reaction {
 // ================================
 export interface ExperimentModel {
   reactions: Reaction[];
+  significantFigures?: number;
 }
