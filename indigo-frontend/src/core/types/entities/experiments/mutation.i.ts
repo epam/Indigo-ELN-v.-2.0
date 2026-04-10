@@ -314,7 +314,7 @@ interface SetOutputStructureComment extends ReactionOutputSampleMutation {
 
 interface SetExperimentSignificantFigures extends BaseMutation {
   type: 'SetExperimentSignificantFigures';
-  significantFigures: number | null;
+  significantFigures: number;
 }
 
 export type Mutation =

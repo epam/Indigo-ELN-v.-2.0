@@ -1,6 +1,5 @@
 import {
   Component,
-  effect,
   inject,
   input,
   output,
@@ -75,7 +74,6 @@ import { EMPTY } from 'rxjs/internal/observable/empty';
 export class EditableDataTableComponent<TRow = unknown> {
   experimentDetailService = inject(ExperimentDetailService);
   readonly experimentModel = this.experimentDetailService.experimentModel;
-  readonly selectedSignificantFigure = signal<string | null>(null);
 
   readonly ColumnInputType = ColumnInputType;
   @ViewChild(MatTable) table?: MatTable<TRow>;
@@ -93,16 +91,6 @@ export class EditableDataTableComponent<TRow = unknown> {
   addRow = output<void>();
 
   expandedRows = signal<Set<TRow>>(new Set());
-
-  constructor() {
-    effect(() => {
-      const value = this.experimentModel()?.significantFigures;
-
-      this.selectedSignificantFigure.set(
-        value !== undefined && value !== null ? String(value) : null,
-      );
-    });
-  }
 
   compareDictionaryItems = (
     a?: DictionaryItemRef | null,
