@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardComponent } from '@/core/components/common/card/card.component';
 import { ExperimentDetailService } from '@/core/services/experiment/experiment-detail.service';
@@ -28,23 +28,15 @@ import { BuiltInDictionary } from '@/core/types/entities/dictionary.i';
   providers: [ExperimentImageService],
   templateUrl: './experiment-info.component.html',
 })
-export class ExperimentInfoComponent implements OnInit {
+export class ExperimentInfoComponent {
   experimentDetailService = inject(ExperimentDetailService);
-  experimentImageService = inject(ExperimentImageService);
   private slideInPanel = inject(SlideInPanelService);
-
-  isUpdating = signal<boolean>(false);
 
   experiment = computed(() => this.experimentDetailService.experimentDetail());
   experimentId = computed(() => this.experimentDetailService.currentId());
   isLoading = computed(() => this.experimentDetailService.isLoading());
   hasError = computed(() => this.experimentDetailService.hasError());
   model = computed(() => this.experimentDetailService.experimentModel());
-  experimentImageUrl = computed(() => this.experimentImageService.imageUrl());
-  imageLoading = computed(
-    () => this.experimentImageService.isLoading() || this.isUpdating(),
-  );
-  imageError = computed(() => this.experimentImageService.hasError());
 
   form = new FormGroup({});
   fields: FormlyFieldConfig[] = [
@@ -118,16 +110,6 @@ export class ExperimentInfoComponent implements OnInit {
       ],
     },
   ];
-
-  ngOnInit(): void {
-    const experimentId = this.experimentId();
-    this.experimentImageService.load(experimentId);
-  }
-
-  onModelUpdating(isUpdating: boolean): void {
-    this.isUpdating.set(isUpdating);
-    if (!isUpdating) this.experimentImageService.refresh();
-  }
 
   showAddMaterialDialog() {
     const [experiment, model] = [this.experiment(), this.model()];

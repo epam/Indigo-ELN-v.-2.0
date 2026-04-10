@@ -39,28 +39,36 @@
       </ng-template>
       <ng-template elnColumnDef="marked" displayName="" let-element>
         @if (!element.marked) {
-          <mat-icon
+          <button
+            class="ml-2 px-4 py-2 bg-[#f3f3f3] rounded-[5px] cursor-pointer"
             (click)="markSample(element, true)"
-            matTooltip="Add to My Material List"
           >
-            bookmark_border
-          </mat-icon>
+            <mat-icon
+              matTooltip="Add to My Material List"
+            >
+              bookmark_border
+            </mat-icon>
+          </button>
         } @else {
-          <mat-icon
+          <button
+            class="ml-2 px-4 py-2 bg-[#f3f3f3] text-black rounded-[5px] cursor-pointer"
             (click)="markSample(element, false)"
-            matTooltip="Remove from My Material List"
-            style="color: #3f50b5"
           >
-            bookmark
-          </mat-icon>
+            <mat-icon
+              matTooltip="Remove from My Material List"
+              style="color: #3f50b5"
+            >
+              bookmark
+            </mat-icon>
+          </button>
         }
       </ng-template>
       <ng-template elnColumnDef="add" displayName="" let-element>
         <button
-          class="ml-2 px-4 py-2 bg-[#f3f3f3] text-white rounded-[5px] cursor-pointer"
+          class="ml-2 px-4 py-2 bg-[#f3f3f3] text-black rounded-[5px] cursor-pointer"
+          (click)="addToExperiment.emit(element)"
         >
           <mat-icon
-            (click)="addToExperiment.emit(element)"
             matTooltip="Add to current experiment"
             style="color: #3f50b5"
           >add

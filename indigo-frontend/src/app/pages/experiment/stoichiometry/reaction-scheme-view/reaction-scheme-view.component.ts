@@ -72,14 +72,19 @@ export class ReactionSchemeViewComponent {
     this.experimentDetailService
       .updateDataModel(mutation)
       .subscribe((response) => {
-        this.slideInPanelService.open(AnalyzeRxnComponent, {
-          inputs: {
-            reaction: this.experimentDetailService.getReaction(
-              this.reaction.anchor,
-            ),
-            unresolvedInputs: response.unresolvedInputs,
-          },
-        });
+        if (
+          response.unresolvedInputs &&
+          Object.keys(response.unresolvedInputs).length != 0
+        ) {
+          this.slideInPanelService.open(AnalyzeRxnComponent, {
+            inputs: {
+              reaction: this.experimentDetailService.getReaction(
+                this.reaction.anchor,
+              ),
+              unresolvedInputs: response.unresolvedInputs,
+            },
+          });
+        }
       });
   }
 }
