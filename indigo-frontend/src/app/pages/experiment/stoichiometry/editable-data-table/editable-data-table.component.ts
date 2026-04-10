@@ -85,6 +85,7 @@ export class EditableDataTableComponent<TRow = unknown> {
   emptyMessage = input<string>('No data available');
   loadingMessage = input<string>('Loading...');
   showAddButton = input<boolean>(true);
+  showSignificantFigures = input<boolean>(false);
   expandableConfig = input<ExpandableConfig<TRow> | null>(null);
   readonly items = signal<DropdownMenuItem[]>([...SIGNIFICANT_FIGURES]);
 
