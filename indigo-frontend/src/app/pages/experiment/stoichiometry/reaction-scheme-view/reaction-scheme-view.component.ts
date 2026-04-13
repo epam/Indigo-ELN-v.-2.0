@@ -7,12 +7,12 @@ import { Reaction } from '@/core/types/entities/experiments/experiment.i';
 import { StructureEditorModalComponent } from '@core/components/experiment/structure-editor-modal/structure-editor-modal.component';
 import { ExperimentDetailService } from '@core/services/experiment/experiment-detail.service';
 import { ApiImageComponent } from '@/core/components/common/image/api-image.component';
-import { MatIcon } from "@angular/material/icon";
+import { SvgIconComponent } from '@/core/components/common/svg-icon/svg-icon.component';
 
 @Component({
   selector: 'eln-reaction-scheme-view',
   standalone: true,
-  imports: [CommonModule, ButtonComponent, ApiImageComponent, MatIcon],
+  imports: [CommonModule, ButtonComponent, ApiImageComponent, SvgIconComponent],
   templateUrl: './reaction-scheme-view.component.html',
 })
 export class ReactionSchemeViewComponent {
