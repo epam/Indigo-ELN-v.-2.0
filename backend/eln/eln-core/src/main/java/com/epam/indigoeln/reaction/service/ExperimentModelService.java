@@ -5,16 +5,12 @@ import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.mapper.SnapshotMapper;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
-import com.epam.indigoeln.eln.service.RevisionService;
-import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.eln.util.JSONPatcher;
-import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.ReactionAnchor;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.service.calculator.ReactionCalculator;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerRegistry;
 import com.epam.indigoeln.reaction.service.mutation.experiment.AbstractExperimentMutationHandler;
 import com.epam.indigoeln.reaction.service.mutation.experiment.ExperimentMutationContext;
@@ -26,7 +22,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import jakarta.validation.Validator;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Triple;
@@ -45,23 +40,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class ExperimentModelService {
 
     @Inject
-    ReactionCalculator reactionCalculator;
-    @Inject
     MutationHandlerRegistry mutationHandlerRegistry;
-    @Inject
-    ExperimentModelHelperService experimentModelHelperService;
-    @Inject
-    IndigoAPI indigoAPI;
-    @Inject
-    UserService userService;
     @Inject
     ExperimentRepository experimentRepository;
     @Inject
     SnapshotMapper snapshotMapper;
-    @Inject
-    Validator validator;
-    @Inject
-    RevisionService revisionService;
     @Inject
     JSONPatcher jsonPatcher;
 

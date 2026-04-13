@@ -21,7 +21,7 @@ public class ReactionInputSampleMetamodel {
     public static final ModelProperty<ReactionInputSample, EnteredValue<DensityUnit>> DENSITY = enteredValueProperty("density", ReactionSample::getDensity, ReactionSample::setDensity);
     public static final ModelProperty<ReactionInputSample, EnteredValue<MolarityUnit>> MOLARITY = enteredValueProperty("molarity", ReactionSample::getMolarity, ReactionSample::setMolarity);
     public static final ModelProperty<ReactionInputSample, EnteredValue<VolumeUnit>> VOLUME = enteredValueProperty("volume", ReactionSample::getVolume, ReactionSample::setVolume);
-    public static final ModelProperty<ReactionInputSample, EnteredValue<NoUnit>> PURITY = enteredValueProperty("purity", ReactionSample::getPurity, ReactionSample::setPurity);
+    public static final ModelProperty<ReactionInputSample, EnteredValue<NoUnit>> PURITY = enteredValueProperty("purity", ReactionSample::getPurity, ReactionSample::setPurity, EnteredValue.DEFAULT_ONE_HUNDRED);
     public static final ModelProperty<ReactionInputSample, STRCodeSample> STR_CODE = property("strCode", ReactionSample::getStrCode, ReactionSample::setStrCode);
     public static final ModelProperty<ReactionInputSample, List<DictionaryItemRef>> HEALTH_HAZARDS = property("healthHazards", ReactionSample::getHealthHazards, ReactionSample::setHealthHazards);
     // ReactionInputSample

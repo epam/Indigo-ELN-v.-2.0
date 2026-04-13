@@ -25,6 +25,7 @@ import com.epam.indigoeln.reaction.util.SignificantFiguresUtil;
 import com.epam.indigoeln.reaction.util.StreamUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Multimap;
+import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
@@ -49,7 +50,7 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation> exte
     @Inject
     ExperimentModelHelperService experimentModelHelperService;
     @Inject
-    ReactionCalculator reactionCalculator;
+    Instance<ReactionCalculator> reactionCalculatorFactory;
     @Inject
     IndigoAPI indigoAPI;
     @Inject
@@ -90,7 +91,7 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation> exte
         ExperimentModel model = experiment.getModelObj();
         if (model != null) {
             SignificantFiguresUtil.setSignificantFigures(model.getSignificantFigures());
-            reactionCalculator.recalculate(model);
+            reactionCalculatorFactory.get().recalculate(model);
             doUpdateReferences(experiment, model,  snapshotBefore, snapshotAfter, context);
             doValidateModel(model);
             SignificantFiguresUtil.clearSignificantFigures();
