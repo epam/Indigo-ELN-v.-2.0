@@ -9,6 +9,7 @@ export enum ColumnInputType {
   UNIT_INPUT = 'unit-input',
   MULTI_SELECT = 'multi-select',
   BUTTON = 'button',
+  ICON = 'icon',
 }
 
 export interface UnitFieldValue {
@@ -43,6 +44,8 @@ export interface ColumnConfig<TRow = unknown> {
   editable?: (row: TRow) => boolean;
   onSave?: (row: TRow, payload?: unknown) => void;
   options?: ColumnOption[] | DictionaryItemRef[];
+  tooltip?: (row: TRow) => string;
+  iconClasses?: (row: TRow) => string[];
 }
 
 export interface ExpandableConfig<TRow = unknown> {

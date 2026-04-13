@@ -53,3 +53,20 @@ class SetInputCommentHandler extends AbstractReactionInputSampleMutationHandler<
         return new MutationResult(formatSetterSummary("input sample comment", mutation.comment()));
     }
 }
+
+@Dependent
+@MutationHandlerFor(ReactionInputSampleMutation.RemoveInput.class)
+class RemoveInputHandler extends AbstractReactionInputSampleMutationHandler<ReactionInputSampleMutation.RemoveInput> {
+
+    @Override
+    protected MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.RemoveInput mutation, ExperimentMutationContext context) {
+        sample.delete();
+        if (row.getSamples().isEmpty()) {
+            row.delete();
+            adjustLimitingInput(reaction);
+        }
+
+        context.getResponse().getMessages().add("Removed, press Ctrl-Z/Cmd-Z to undo (not yet implemented)");
+        return new MutationResult("Remove input sample");
+    }
+}

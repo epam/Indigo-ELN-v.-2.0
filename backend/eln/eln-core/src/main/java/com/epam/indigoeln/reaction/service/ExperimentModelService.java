@@ -1,6 +1,5 @@
 package com.epam.indigoeln.reaction.service;
 
-import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.eln.entity.ExperimentEditSessionEntity;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.UserEntity;
@@ -18,6 +17,7 @@ import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.service.calculator.ReactionCalculator;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerRegistry;
 import com.epam.indigoeln.reaction.service.mutation.experiment.AbstractExperimentMutationHandler;
+import com.epam.indigoeln.reaction.service.mutation.experiment.ExperimentMutationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -29,6 +29,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.Validator;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Triple;
 import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
@@ -84,7 +85,7 @@ public class ExperimentModelService {
         return model;
     }
 
-    public Pair<ExperimentSnapshot, JsonNode> applyMutation(ExperimentEntity experiment, Mutation mutation) {
+    public Triple<ExperimentSnapshot, JsonNode, ExperimentMutationContext> applyMutation(ExperimentEntity experiment, Mutation mutation) {
         log.debug("Mutating experiment {}: {}", experiment.getId(), mutation);
         AbstractExperimentMutationHandler<Mutation> handler = mutationHandlerRegistry.findHandler(mutation);
         return handler.applyMutation(experiment, mutation);

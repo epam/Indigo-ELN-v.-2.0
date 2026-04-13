@@ -15,6 +15,7 @@ import {
 } from './experiment-shared.i';
 import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
 import { UserMetadata } from '@core/types/entities/user.i';
+import { ExperimentDetail } from '@core/types/entities/experiments/experiment-detail.i';
 
 // Base mutation interface
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -53,9 +54,9 @@ interface AddInput extends ReactionMutation {
   sampleId: UUID;
 }
 
-interface RemoveInputMutation extends ReactionMutation {
+interface RemoveInputMutation extends ReactionInputMutation {
   type: 'RemoveInput';
-  input: ReactionInputAnchor;
+  anchor: ReactionInputAnchor;
 }
 
 interface ReactionInputMutation extends BaseMutation {
@@ -71,6 +72,11 @@ interface SetInputRowMol extends ReactionInputMutation {
   type: 'SetInputRowMol';
   mol: string | null;
   molUnit: MolUnit | null;
+}
+
+interface SetInputRowChemicalName extends ReactionInputMutation {
+  type: 'SetInputRowChemicalName';
+  chemicalName: string | null;
 }
 
 interface SetInputRowLimiting extends ReactionInputMutation {
@@ -100,6 +106,10 @@ interface SetInputCompoundStereoisomerCode extends ReactionInputMutation {
 interface SetInputCompoundMolWeight extends ReactionInputMutation {
   type: 'SetInputCompoundMolWeight';
   molWeight: string | null;
+}
+
+interface RemoveInputRow extends ReactionMutation {
+  type: 'RemoveInputRow';
 }
 
 interface ReactionInputSampleMutation extends BaseMutation {
@@ -149,6 +159,10 @@ interface SetInputWeight extends ReactionInputSampleMutation {
 interface SetInputComment extends ReactionInputSampleMutation {
   type: 'SetInputComment';
   comment: string | null;
+}
+
+interface RemoveInput extends ReactionInputSampleMutation {
+  type: 'RemoveInput';
 }
 
 interface ReactionOutputMutation extends BaseMutation {
@@ -312,6 +326,30 @@ interface SetOutputStructureComment extends ReactionOutputSampleMutation {
   structureComment: string | null;
 }
 
+interface RemoveProductSample extends ReactionOutputSampleMutation {
+  type: 'RemoveProductSample';
+}
+
+interface SetOutputSaltCode extends ReactionOutputSampleMutation {
+  type: 'SetOutputSaltCode';
+  saltCode: DictionaryItemRef | null;
+}
+
+interface SetOutputSaltEQ extends ReactionOutputSampleMutation {
+  type: 'SetOutputSaltEQ';
+  saltEQ: number | null;
+}
+
+interface SetOutputStereoisomerCode extends ReactionOutputSampleMutation {
+  type: 'SetOutputStereoisomerCode';
+  stereoisomerCode: DictionaryItemRef | null;
+}
+
+interface SetOutputMolfile extends ReactionOutputSampleMutation {
+  type: 'SetOutputMolfile';
+  molfile: string;
+}
+
 export type Mutation =
   // Experiment mutations
   | SetBatchCreatorMutation
@@ -324,12 +362,14 @@ export type Mutation =
   // Input mutations
   | SetInputRowRole
   | SetInputRowMol
+  | SetInputRowChemicalName
   | SetInputRowLimiting
   | SetInputRowSaltCode
   | SetInputRowSaltEQ
   | SetInputRowEQ
   | SetInputCompoundStereoisomerCode
   | SetInputCompoundMolWeight
+  | RemoveInputRow
   // Input sample mutations
   | SetInputDensity
   | SetInputMolarity
@@ -339,6 +379,7 @@ export type Mutation =
   | SetInputMol
   | SetInputWeight
   | SetInputComment
+  | RemoveInput
   // Output mutations
   | AddProductSample
   | SetOutputRowType
@@ -370,4 +411,15 @@ export type Mutation =
   | SetOutputSourceDetails
   | SetOutputComponentState
   | SetOutputBatchComment
-  | SetOutputStructureComment;
+  | SetOutputStructureComment
+  | RemoveProductSample
+  | SetOutputSaltCode
+  | SetOutputSaltEQ
+  | SetOutputStereoisomerCode
+  | SetOutputMolfile;
+
+export interface MutationResponse {
+  updated: ExperimentDetail;
+  unresolvedInputs?: Record<ReactionInputAnchor, string>;
+  messages?: string[];
+}

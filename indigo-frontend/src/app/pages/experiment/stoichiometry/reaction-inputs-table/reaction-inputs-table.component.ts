@@ -27,9 +27,9 @@ import {
   UnitInputChange,
 } from '../shared/editable-table.types';
 import { ExperimentDetailService } from '@core/services/experiment/experiment-detail.service';
-import { ExperimentDetail } from '@core/types/entities/experiments/experiment-detail.i';
 import { EnteredValue } from '@core/types/entities/values.i';
 import { determineCellClasses } from '@core/utils/experiment-model.util';
+import { MutationResponse } from '@core/types/entities/experiments/mutation.i';
 
 interface InputSampleRow {
   input: ReactionInput;
@@ -382,6 +382,22 @@ export class ReactionInputsTableComponent implements OnInit {
           .subscribe({});
       },
     },
+    {
+      id: 'delete',
+      header: '',
+      type: ColumnInputType.ICON,
+      field: () => null,
+      iconClasses: () => ['indicon-delete', 'text-[20px]', 'text-red-200'],
+      tooltip: () => 'Delete',
+      onSave: (row: InputSampleRow) => {
+        this.experimentDetailService
+          .updateDataModel({
+            type: 'RemoveInput',
+            anchor: row.sample.anchor,
+          })
+          .subscribe({});
+      },
+    },
   ]);
 
   displayedColumns = computed(() => this.columns().map((col) => col.id));
@@ -396,7 +412,7 @@ export class ReactionInputsTableComponent implements OnInit {
     mutator: (
       value: string | undefined,
       unit: string | undefined,
-    ) => Observable<ExperimentDetail>,
+    ) => Observable<MutationResponse>,
   ) {
     // Only proceed if both value and unit are present
     if (

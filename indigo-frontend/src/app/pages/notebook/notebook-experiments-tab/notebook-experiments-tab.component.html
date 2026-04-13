@@ -13,7 +13,7 @@
         'col-span-1': selectedView == 'list',
         '2xl:col-span-3 md:col-span-2': selectedView == 'grid',
       } | classPicker
-    " (infiniteLoad)="infiniteLoad()" />
+    " (infiniteLoad)="infiniteLoad()" [isLoading]="isLoading"/>
 </div>
 
 <eln-button *projectOverviewWidget="'button'" variant="blue" classList="flex items-center gap-2">

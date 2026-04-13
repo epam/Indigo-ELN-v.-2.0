@@ -128,8 +128,6 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
         reactionInputSample.setNbkBatchNumber(sample.getNbkBatchNumber());
         row.setSamples(List.of(reactionInputSample));
         row.setChemicalName(sample.getCompound().getChemicalName());
-
-        context.setSchemaAffected(true);
     }
 
     public ReactionInput createInputLine(Reaction reaction, @Nullable IndigoMolecule molecule, ReactionRole role, InputAnchor createdInputAnchor, InputSampleAnchor createdSampleAnchor) {

@@ -6,6 +6,7 @@ import { ExperimentDetailService } from '@/core/services/experiment/experiment-d
 import { ExperimentDetail } from '@/core/types/entities/experiments/experiment-detail.i';
 import { CardComponent } from '@/core/components/common/card/card.component';
 import { ProjectTabButtonComponent } from '@pages/project/project-tab-button/project-tab-button.component';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'eln-experiment-layout',
@@ -16,6 +17,7 @@ import { ProjectTabButtonComponent } from '@pages/project/project-tab-button/pro
     ProjectTabButtonComponent,
     CommonModule,
     CardComponent,
+    MatProgressSpinner,
   ],
 })
 export class ExperimentLayoutComponent implements OnInit, OnDestroy {
@@ -31,6 +33,9 @@ export class ExperimentLayoutComponent implements OnInit, OnDestroy {
     this.experimentDetailService.experimentDetail(),
   );
   isLoading = computed<boolean>(() => this.experimentDetailService.isLoading());
+  isUpdating = computed<boolean>(() =>
+    this.experimentDetailService.isUpdating(),
+  );
   hasError = computed<boolean>(() => this.experimentDetailService.hasError());
 
   // Tab URLs

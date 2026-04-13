@@ -1,6 +1,5 @@
 package com.epam.indigoeln.eln.api;
 
-import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
@@ -93,6 +92,10 @@ public interface ExperimentAPI extends BaseAPI {
     ExperimentSnapshot mutateExperimentModel3(@PathParam("experimentId") UUID experimentId, @QueryParam("revision") Integer revision, Mutation mutation);
 
     @POST
+    @Path("/experiments/{experimentId}/mutate4")
+    MutationResponse mutateExperimentModel4(@PathParam("experimentId") UUID experimentId, @QueryParam("revision") Integer revision, Mutation mutation);
+
+    @POST
     @Path("/experiments/{experimentId}/datamodel2")
     JsonNode mutateExperimentModel2(@PathParam("experimentId") UUID experimentId, @QueryParam("revision") Integer revision, Mutation mutation);
 
@@ -102,7 +105,7 @@ public interface ExperimentAPI extends BaseAPI {
 
     @POST
     @Path("/experiments/{experimentId}/datamodel/reactions/{reactionAnchor}/analyzeRXN")
-    Map<InputAnchor, @org.jspecify.annotations.Nullable FindSamplesRequest> analyzeRXN(@PathParam("experimentId") UUID experimentId, @PathParam("reactionAnchor") ReactionAnchor reactionAnchor);
+    Map<InputAnchor, String> analyzeRXN(@PathParam("experimentId") UUID experimentId, @PathParam("reactionAnchor") ReactionAnchor reactionAnchor);
 
     @POST
     @Path("/experiments/{experimentId}/workflow/cancel")

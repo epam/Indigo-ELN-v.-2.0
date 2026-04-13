@@ -1,6 +1,7 @@
 package com.epam.indigoeln.compound.model;
 
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -13,6 +14,7 @@ import org.jspecify.annotations.Nullable;
 @With
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class FindSamplesRequest {
 
     @Nullable

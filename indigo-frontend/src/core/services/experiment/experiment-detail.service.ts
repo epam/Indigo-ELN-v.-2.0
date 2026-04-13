@@ -1,14 +1,22 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { ApiService } from '@/core/services/api.service';
 import { ExperimentDetail } from '@core/types/entities/experiments/experiment-detail.i';
-import { Mutation } from '@core/types/entities/experiments/mutation.i';
+import {
+  Mutation,
+  MutationResponse,
+  ReactionAnchor,
+} from '@core/types/entities/experiments/mutation.i';
 import { finalize, Observable, tap } from 'rxjs';
+import { NotificationService } from '@core/services/notification/notification.service';
+import { NotificationType } from '@core/types/notification.i';
+import { Reaction } from '@core/types/entities/experiments/experiment.i';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ExperimentDetailService {
   private service = inject(ApiService);
+  private notificationService = inject(NotificationService);
 
   // Signals for experiment detail state
   readonly experimentDetail = signal<ExperimentDetail | null>(null);
@@ -17,7 +25,7 @@ export class ExperimentDetailService {
   readonly isLoading = signal<boolean>(false);
   readonly hasError = signal<boolean>(false);
   readonly isUpdating = signal<boolean>(false);
-  private readonly currentId = signal<string | null>(null);
+  readonly currentId = signal<string | null>(null);
 
   // Query methods
   load(id: string) {
@@ -41,7 +49,7 @@ export class ExperimentDetailService {
   }
 
   // Update methods
-  updateDataModel(mutation: Mutation): Observable<ExperimentDetail> {
+  updateDataModel(mutation: Mutation): Observable<MutationResponse> {
     const id = this.currentId();
 
     if (!id) {
@@ -54,17 +62,38 @@ export class ExperimentDetailService {
     this.isUpdating.set(true);
 
     return this.service
-      .request<ExperimentDetail>(
+      .request<MutationResponse>(
         'post',
-        `experiments/${id}/mutate3?revision=${this.experimentDetail().revision}`,
+        `experiments/${id}/mutate4?revision=${this.experimentDetail().revision}`,
         mutation,
       )
       .pipe(
         tap({
-          next: (updated) => {
+          next: (response) => {
+            const previous = this.experimentDetail();
+            const updated = {
+              id: previous.id,
+              name: previous.name,
+              createdBy: previous.createdBy,
+              createdAt: previous.createdAt,
+              modifiedBy: previous.modifiedBy,
+              modifiedAt: previous.modifiedAt,
+              acl: previous.acl,
+              attachments: previous.attachments,
+              ...response.updated,
+            };
             this.experimentDetail.set(updated);
             this.lastLoadedDetail.set(structuredClone(updated));
             this.isUpdating.set(false);
+            if (response.messages) {
+              for (const message of response.messages) {
+                this.notificationService.notify({
+                  type: NotificationType.Info,
+                  isInline: true,
+                  message: message,
+                });
+              }
+            }
           },
           error: () => {
             this.isUpdating.set(false);
@@ -87,5 +116,14 @@ export class ExperimentDetailService {
     this.isLoading.set(false);
     this.isUpdating.set(false);
     this.hasError.set(false);
+  }
+
+  getReaction(anchor: ReactionAnchor): Reaction | null {
+    for (const reaction of this.experimentModel().reactions) {
+      if (reaction.anchor === anchor) {
+        return reaction;
+      }
+    }
+    return null;
   }
 }

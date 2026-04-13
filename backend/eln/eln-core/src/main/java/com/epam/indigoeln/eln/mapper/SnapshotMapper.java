@@ -3,8 +3,10 @@ package com.epam.indigoeln.eln.mapper;
 import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.model.ACLDetailsEntryDTO;
 import com.epam.indigoeln.eln.model.AttachmentDTO;
-import com.epam.indigoeln.eln.util.ExperimentModelUtil;
-import com.epam.indigoeln.reaction.model.*;
+import com.epam.indigoeln.reaction.model.ExperimentModel;
+import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
+import com.epam.indigoeln.reaction.model.NotebookSnapshot;
+import com.epam.indigoeln.reaction.model.ProjectSnapshot;
 import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 import org.mapstruct.Mapper;
@@ -21,8 +23,6 @@ public abstract class SnapshotMapper extends AbstractMapper {
     @Mapping(target = "attachments", ignore = true)
     @Mapping(target = "acl", ignore = true)
     @Mapping(target = "model", ignore = true)
-    @Mapping(target = "compoundRefs", ignore = true)
-    @Mapping(target = "rxnFiles", ignore = true)
     @Mapping(target = "templateId", source = "template.id")
     public abstract ExperimentSnapshot copyBasicFields(ExperimentEntity entity);
 
@@ -53,14 +53,6 @@ public abstract class SnapshotMapper extends AbstractMapper {
             snapshot.setAcl(copyACL(experiment.getFullACL()));
         }
         snapshot.setModel(model);
-        if (model != null) {
-            snapshot.setCompoundRefs(ExperimentModelUtil.collectCompoundRefs(model));
-            snapshot.setRxnFiles(StreamEx.of(model.getReactions())
-                    .mapToEntry(Reaction::getAnchor, Reaction::getRxnfile)
-                    .nonNullValues()
-                    .toMap()
-            );
-        }
         return snapshot;
     }
 

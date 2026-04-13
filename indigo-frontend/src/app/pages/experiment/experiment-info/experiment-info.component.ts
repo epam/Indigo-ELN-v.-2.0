@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardComponent } from '@/core/components/common/card/card.component';
 import { ExperimentDetailService } from '@/core/services/experiment/experiment-detail.service';
@@ -7,6 +7,7 @@ import { CdkAccordionModule } from '@angular/cdk/accordion';
 import { ButtonComponent } from '@core/components/common/button/button.component';
 import { ReactionViewComponent } from '@pages/experiment/stoichiometry/reaction-view/reaction-view.component';
 import { SampleSearchComponent } from '@pages/experiment/sample-search/sample-search.component';
+import { SlideInPanelService } from '@core/components/common/slide-in-panel/slide-in-panel.service';
 import { FormlyFieldConfig, FormlyModule } from '@ngx-formly/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { BuiltInDictionary } from '@/core/types/entities/dictionary.i';
@@ -21,31 +22,21 @@ import { BuiltInDictionary } from '@/core/types/entities/dictionary.i';
     CdkAccordionModule,
     ReactionViewComponent,
     ButtonComponent,
-    SampleSearchComponent,
     FormlyModule,
     ReactiveFormsModule,
   ],
   providers: [ExperimentImageService],
   templateUrl: './experiment-info.component.html',
 })
-export class ExperimentInfoComponent implements OnInit {
+export class ExperimentInfoComponent {
   experimentDetailService = inject(ExperimentDetailService);
-  experimentImageService = inject(ExperimentImageService);
-
-  isUpdating = signal<boolean>(false);
-
-  isDrawerOpen = signal<boolean>(false);
-  isDrawerClosedOnce = signal<boolean>(false);
+  private slideInPanel = inject(SlideInPanelService);
 
   experiment = computed(() => this.experimentDetailService.experimentDetail());
+  experimentId = computed(() => this.experimentDetailService.currentId());
   isLoading = computed(() => this.experimentDetailService.isLoading());
   hasError = computed(() => this.experimentDetailService.hasError());
   model = computed(() => this.experimentDetailService.experimentModel());
-  experimentImageUrl = computed(() => this.experimentImageService.imageUrl());
-  imageLoading = computed(
-    () => this.experimentImageService.isLoading() || this.isUpdating(),
-  );
-  imageError = computed(() => this.experimentImageService.hasError());
 
   form = new FormGroup({});
   fields: FormlyFieldConfig[] = [
@@ -120,27 +111,13 @@ export class ExperimentInfoComponent implements OnInit {
     },
   ];
 
-  ngOnInit(): void {
-    const experimentId = this.experiment()?.id;
-    if (experimentId) {
-      this.experimentImageService.load(experimentId);
-    }
-  }
-
-  onModelUpdating(isUpdating: boolean): void {
-    this.isUpdating.set(isUpdating);
-    if (!isUpdating) this.experimentImageService.refresh();
-  }
-
   showAddMaterialDialog() {
     const [experiment, model] = [this.experiment(), this.model()];
     if (experiment && model) {
-      this.isDrawerOpen.set(true);
+      const ref = this.slideInPanel.open(SampleSearchComponent, {
+        inputs: { reactionAnchor: model.reactions[0]?.anchor },
+      });
+      ref.instance.close.subscribe(() => ref.close());
     }
-  }
-
-  closeMaterialDrawer(): void {
-    this.isDrawerOpen.set(false);
-    this.isDrawerClosedOnce.set(true);
   }
 }
