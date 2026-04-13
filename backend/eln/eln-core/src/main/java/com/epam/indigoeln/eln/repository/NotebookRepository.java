@@ -40,8 +40,10 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
         Conditions conditions = new Conditions()
                 .addIf(!showAll, "calculatedInfo.currentAccess is not null")
                 .add("project.id=?", projectId)
-                .addIfNotNull("full_text_search(searchVector, websearch_to_tsquery('english', ?))", search)
                 .addIfNotNull("createdBy = ?", createdByUser);
+        if (search != null) {
+            conditions.add("(name ilike ?) or full_text_search(searchVector, websearch_to_tsquery('english', ?))", '%' + search + '%', search);
+        }
 
         return doFindWithTotals(
                 conditions,

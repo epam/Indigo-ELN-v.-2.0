@@ -51,13 +51,13 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
-    public @NotNull @Valid Page<ExperimentDTO> getProjectExperiments(@NotNull UUID projectId, @Nullable SortOrder sort, @Nullable Boolean createdByMe, @Valid Paging paging) {
-        return experimentService.getExperiments(projectId, null, sort, createdByMe, paging);
+    public @NotNull @Valid Page<ExperimentDTO> getProjectExperiments(@NotNull UUID projectId, @Nullable String search, @Nullable SortOrder sort, @Nullable Boolean createdByMe, @Valid Paging paging) {
+        return experimentService.getExperiments(projectId, null, search, sort, createdByMe, paging);
     }
 
     @Override
-    public @NotNull @Valid Page<ExperimentDTO> getNotebookExperiments(@NotNull UUID notebookId, @Nullable SortOrder sort, @Nullable Boolean createdByMe, @Valid Paging paging) {
-        return experimentService.getExperiments(null, notebookId, sort, createdByMe, paging);
+    public @NotNull @Valid Page<ExperimentDTO> getNotebookExperiments(@NotNull UUID notebookId, @Nullable String search, @Nullable SortOrder sort, @Nullable Boolean createdByMe, @Valid Paging paging) {
+        return experimentService.getExperiments(null, notebookId, search, sort, createdByMe, paging);
     }
 
     @Override

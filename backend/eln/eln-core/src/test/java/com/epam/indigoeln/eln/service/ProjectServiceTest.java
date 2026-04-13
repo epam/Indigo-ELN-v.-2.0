@@ -556,6 +556,9 @@ class ProjectServiceTest extends ELNBaseTest {
 
         Page<ProjectDTO> result7 = projectClient.getProjects("QSNew", null, null, Paging.DEFAULT);
         assertThat(result7.getItems()).map(ProjectDTO::getName).containsExactly(p1);
+
+        Page<ProjectDTO> result8 = projectClient.getProjects("archC", null, null, Paging.DEFAULT);
+        assertThat(result8.getItems()).map(ProjectDTO::getName).containsExactly(p3);
     }
 
     @Test
