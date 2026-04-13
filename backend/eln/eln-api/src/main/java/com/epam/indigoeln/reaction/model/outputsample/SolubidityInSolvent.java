@@ -3,8 +3,6 @@ package com.epam.indigoeln.reaction.model.outputsample;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.reaction.model.ComparisonOperator;
 import com.epam.indigoeln.reaction.model.units.DensityUnit;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.validation.constraints.NotNull;
@@ -50,13 +48,6 @@ public abstract class SolubidityInSolvent {
             this.value = value;
             this.unit = unit;
         }
-
-        @JsonCreator
-        public static Quantitative create(@JsonProperty("solvent") DictionaryItemRef solvent, @Nullable @JsonProperty("comment") String  comment,
-                                          @JsonProperty("operator") ComparisonOperator operator, @JsonProperty("value") Double value,
-                                          @JsonProperty("unit") DensityUnit unit) {
-            return new Quantitative(solvent, comment, operator, value, unit);
-        }
     }
 
     @Getter
@@ -71,13 +62,6 @@ public abstract class SolubidityInSolvent {
             this.solvent = solvent;
             this.comment = comment;
             this.qualitativeType = qualitativeType;
-        }
-
-        @JsonCreator
-        public static Qualitative create(@JsonProperty("solvent") DictionaryItemRef solvent,
-                                         @Nullable @JsonProperty("comment") String  comment,
-                                         @JsonProperty("qualitativeType") SolubidityQualitativeType qualitativeType) {
-            return new Qualitative(solvent, comment, qualitativeType);
         }
     }
 }

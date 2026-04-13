@@ -30,7 +30,7 @@ public final class EnteredValue<U extends MeasurementUnit> {
     @JsonIgnore
     private final double value;
     private final U unit;
-    //@JsonProperty("value")
+    @JsonProperty("value")
     private final String stringValue; // for now, always set; maybe postpone initialization for calculated values if gets recalculated too often
     @Setter
     private EnteredValueSource source;
@@ -41,8 +41,8 @@ public final class EnteredValue<U extends MeasurementUnit> {
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private boolean overwritten = false;
 
-    @JsonCreator(mode= JsonCreator.Mode.PROPERTIES)
-    EnteredValue(@JsonProperty("value") String stringValue, @JsonProperty("unit") U unit, @JsonProperty("source") EnteredValueSource source) {
+    @JsonCreator
+    EnteredValue(String stringValue, U unit, EnteredValueSource source) {
         this(Double.parseDouble(stringValue), stringValue, unit, source);
     }
 

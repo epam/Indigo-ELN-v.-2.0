@@ -7,8 +7,6 @@ import com.epam.indigoeln.reports.api.ReportsAPI;
 import com.epam.indigoeln.reports.api.ReportsClient;
 import com.epam.indigoeln.test.BaseTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
@@ -38,9 +36,7 @@ public class ReportsServiceTest extends BaseTest {
     @SneakyThrows
     @SuppressWarnings("unused")
     public static List<ReportsAPI.ExperimentReportDataDTO> fillExperimentDataForJasperReportsStudio() {
-        ObjectMapper objectMapper = JsonMapper.builder()
-                .addModule(new JavaTimeModule())
-                .build();
+        ObjectMapper objectMapper = com.epam.indigoeln.test.FeignUtil.OBJECT_MAPPER;
         String experimentJson = Files.readString(Path.of("src/test/resources/experiment-model.json"));
         ProjectDTO project = new ProjectDTO();
         project.setName("Demo project");
