@@ -35,13 +35,13 @@ public interface ExperimentAPI extends BaseAPI {
 
     @GET
     @Path("/projects/{projectId}/experiments")
-    Page<ExperimentDTO> getProjectExperiments(@PathParam("projectId") UUID projectId, @QueryParam("sort") @Nullable SortOrder sort,
-                                              @QueryParam("createdByMe") @Nullable Boolean createdByMe, @BeanParam Paging paging);
+    Page<ExperimentDTO> getProjectExperiments(@PathParam("projectId") UUID projectId, @QueryParam("search") @Nullable String search,
+            @QueryParam("sort") @Nullable SortOrder sort, @QueryParam("createdByMe") @Nullable Boolean createdByMe, @BeanParam Paging paging);
 
     @GET
     @Path("/notebooks/{notebookId}/experiments")
-    Page<ExperimentDTO> getNotebookExperiments(@PathParam("notebookId") UUID notebookId, @QueryParam("sort") @Nullable SortOrder sort,
-                                               @QueryParam("createdByMe") @Nullable Boolean createdByMe, @BeanParam Paging paging);
+    Page<ExperimentDTO> getNotebookExperiments(@PathParam("notebookId") UUID notebookId, @QueryParam("search") @Nullable String search,
+            @QueryParam("sort") @Nullable SortOrder sort, @QueryParam("createdByMe") @Nullable Boolean createdByMe, @BeanParam Paging paging);
 
     @GET
     @Path("/experiments/marked")

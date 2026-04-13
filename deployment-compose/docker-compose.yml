@@ -11,8 +11,7 @@ services:
       - KEYCLOAK_CLIENT_ID=frontend-client
     ports:
       - "8080:4200"
-
-
+      
   eln-core:
     image: "eln-core:development"
     build:
@@ -27,26 +26,20 @@ services:
       QUARKUS_OIDC_CLIENT_ID: indigo-eln-client
       QUARKUS_TLS_TRUST_ALL: true
       JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Dquarkus.profile=devtest"
-    #depends_on:
-    #  - postgres
-    #     condition: service_healthy
-    #     restart: true
-    #  keycloak:
-    #    condition: service_healthy
-    #    restart: true
-    #healthcheck:
-    #  test: ["CMD", "curl", "-f", "http://localhost:8080/q/health/ready" ]
-    #  interval: 10s
-    #  timeout: 5s
-    #  retries: 3
-    #  start_period: 30s
+    depends_on:
+      postgres:
+        condition: service_healthy
+        restart: true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/q/health/ready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     ports:
       - "10020:8080"
       - "10021:5005"
 
-  #  whoami:
-  #    image: containous/whoami
-  #
   postgres:
     #image: "public.ecr.aws/m5k0g6n7/indigoeln/indigo-eln-postgres:latest"
     image: indigo-eln-postgres:latest
@@ -71,6 +64,7 @@ services:
     build:
       context: ./keycloak
       dockerfile: Dockerfile
+    command: start-dev --health-enabled=true --log-level=ERROR 
     environment:
       KC_DB: postgres
       KC_HOSTNAME: localhost
@@ -78,24 +72,44 @@ services:
       KC_DB_USERNAME: keycloak
       KC_DB_PASSWORD: keycloak
       KC_HTTP_ENABLED: true
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HTTP_MANAGEMENT_PORT: 9005
+      KC_HTTP_MANAGEMENT_HEALTH_ENABLED: true
     depends_on:
       postgres:
         condition: service_healthy
         restart: true
-    healthcheck:
-      test: ["CMD", "./healthcheck.sh"]
-      start_period: 120s
-      start_interval: 1s
     ports:
       - "8088:8080"
-      #- "8443:8443"
+      - "9005:9005"
+
+  keycloak-healthcheck:
+    image: alpine:latest
+    depends_on:
+      - keycloak
+    entrypoint: >
+      /bin/sh -c "
+      while ! wget -q -O- http://keycloak:9005/health/started; do
+        echo waiting for keycloak;
+        sleep 5;
+      done;
+      echo keycloak is up;
+      tail -f /dev/null      
+      "
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- http://keycloak:9005/health/ready || (echo 'Health check failed' >> /var/log/healthcheck.log && exit 1)"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - ./healthcheck.log:/var/log/healthcheck.log
+
 
   keycloak-config-cli:
     image: quay.io/adorsys/keycloak-config-cli:6.4.0-26.1.0
     depends_on:
-      - keycloak
+      - keycloak-healthcheck
     environment:
       KEYCLOAK_URL: http://keycloak:8080
       KEYCLOAK_USER: admin
