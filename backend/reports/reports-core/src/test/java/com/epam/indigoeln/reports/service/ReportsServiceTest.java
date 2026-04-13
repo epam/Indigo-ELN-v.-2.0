@@ -2,9 +2,13 @@ package com.epam.indigoeln.reports.service;
 
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.reports.api.ReagentDTO;
 import com.epam.indigoeln.reports.api.ReportsAPI;
 import com.epam.indigoeln.reports.api.ReportsClient;
 import com.epam.indigoeln.test.BaseTest;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
@@ -15,12 +19,9 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.UUID;
-
 
 @QuarkusTest
 @JwtSecurity
@@ -37,8 +38,19 @@ public class ReportsServiceTest extends BaseTest {
     @SneakyThrows
     @SuppressWarnings("unused")
     public static List<ReportsAPI.ExperimentReportDataDTO> fillExperimentDataForJasperReportsStudio() {
+        ObjectMapper objectMapper = JsonMapper.builder()
+                .addModule(new JavaTimeModule())
+                .build();
+        String experimentJson = Files.readString(Path.of("src/test/resources/experiment-model.json"));
         ProjectDTO project = new ProjectDTO();
         project.setName("Demo project");
+        ExperimentDetailsDTO experiment = null;
+        try {
+            experiment = objectMapper.readValue(experimentJson, ExperimentDetailsDTO.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        /*
         ExperimentDetailsDTO experiment = new ExperimentDetailsDTO();
         experiment.setName("00000001-0001");
         experiment.setCreatedBy(new UserRef(UUID.randomUUID(), "test", "Test User"));
@@ -47,10 +59,12 @@ public class ReportsServiceTest extends BaseTest {
         experiment.setTherapeuticArea(new DictionaryItemRef(UUID.randomUUID(), "Diabet"));
         experiment.setProjectCode(new DictionaryItemRef(UUID.randomUUID(), "Code 1"));
         experiment.setDescription("To a suspension of salicylic acid (2 g) in acetic anhydride (4.5 mL) in a conical flask add anhydrous sodium acetate\n(0.4 g) with stirring.");
+        */
         return List.of(new ReportsAPI.ExperimentReportDataDTO(
                 project,
                 experiment,
-                new String(ModelUtil.loadResource(ReportsServiceTest.class, "/experiment-image.svg"), StandardCharsets.UTF_8)
+                new String(ModelUtil.loadResource(ReportsServiceTest.class, "/experiment-image.svg"), StandardCharsets.UTF_8),
+                ReagentDTO.allExperimentReagents(experiment.getModel())
         ));
 
         // Reaction Details, Experiment Subject / Title = O-acetylation of salicylic acid
@@ -62,7 +76,7 @@ public class ReportsServiceTest extends BaseTest {
 
     @Test
     void testReport() throws Exception {
-        ReportsAPI.ExperimentReportDataDTO data = new ReportsAPI.ExperimentReportDataDTO(null, null, null);
+        ReportsAPI.ExperimentReportDataDTO data = new ReportsAPI.ExperimentReportDataDTO(null, null, null, null);
         try (Response response = reportsClient.generateExperimentReport(fillExperimentDataForJasperReportsStudio().getFirst())) {
             Files.write(Paths.get("report.pdf"), response.readEntity(byte[].class));
         }

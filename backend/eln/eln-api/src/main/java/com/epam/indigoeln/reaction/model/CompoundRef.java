@@ -108,12 +108,19 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
 
         @NotNull
         private final String calculatedBatchMF;
+
+        @JsonCreator
+        public static Stored create(@JsonProperty("compoundID") UUID compoundID, @JsonProperty("molWeight") EnteredValue<MolWeightUnit> molWeight,
+                                    @JsonProperty("exactMass") BigDecimal exactMass, @JsonProperty("formula") String formula,
+                                    @JsonProperty("calculateBatchMF") String calculatedBatchMF) {
+            return new Stored(compoundID, molWeight, exactMass, formula, null, null, calculatedBatchMF);
+        }
     }
 
     @Getter
     @ToString
     @EqualsAndHashCode(of = {"compoundID"})
-    @AllArgsConstructor(onConstructor_ = @JsonCreator)
+    @AllArgsConstructor
     final class Virtual implements CompoundRef.StoredOrVirtual {
 
         public static final String TYPE = "VIRTUAL";
@@ -148,6 +155,15 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
 
         @NotNull
         private final String calculatedBatchMF;
+
+        @JsonCreator(mode= JsonCreator.Mode.PROPERTIES)
+        public static Virtual create(@JsonProperty("compoundID") UUID compoundID, @JsonProperty("formula") String formula,
+                                     @JsonProperty("molWeight") EnteredValue<MolWeightUnit> molWeight,
+                                     @JsonProperty("exactMass") BigDecimal exactMass,
+                                     @JsonProperty("calculateBatchMF") String calculatedBatchMF) {
+            return new Virtual(compoundID, formula, null, null, null, null,
+                    molWeight, exactMass, null, calculatedBatchMF);
+        }
     }
 
     @Getter

@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.setSignificantFigures;
+
 @Slf4j
 @ApplicationScoped
 public class ReportsService {
@@ -54,6 +56,7 @@ public class ReportsService {
     @SneakyThrows
     @Transactional(Transactional.TxType.NOT_SUPPORTED)
     byte[] doGenerateExperimentReport(List<ReportsAPI.ExperimentReportDataDTO> experiments) {
+        setSignificantFigures(10);
         JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(experiments);
         Map<String, Object> params = new HashMap<>();
 

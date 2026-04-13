@@ -9,7 +9,7 @@ import lombok.Value;
 import java.util.UUID;
 
 @Value
-@AllArgsConstructor(onConstructor_ = @JsonCreator)
+@AllArgsConstructor(/*onConstructor_ = @JsonCreator*/)
 public class ExperimentRef {
 
     @NotNull
