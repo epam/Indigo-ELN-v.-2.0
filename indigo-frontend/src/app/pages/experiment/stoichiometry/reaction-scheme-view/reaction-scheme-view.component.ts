@@ -9,6 +9,8 @@ import {
   StructureEditorModalResult,
 } from '@core/components/experiment/structure-editor-modal/structure-editor-modal.component';
 import { ExperimentDetailService } from '@core/services/experiment/experiment-detail.service';
+import { ApiImageComponent } from '@/core/components/common/image/api-image.component';
+import { SvgIconComponent } from '@/core/components/common/svg-icon/svg-icon.component';
 import { ApiService } from '@core/services/api.service';
 import { AnalyzeRxnComponent } from '@pages/experiment/analyze-rxn/analyze-rxn.component';
 import { SlideInPanelService } from '@core/components/common/slide-in-panel/slide-in-panel.service';
@@ -16,7 +18,7 @@ import { SlideInPanelService } from '@core/components/common/slide-in-panel/slid
 @Component({
   selector: 'eln-reaction-scheme-view',
   standalone: true,
-  imports: [CommonModule, ButtonComponent],
+  imports: [CommonModule, ButtonComponent, ApiImageComponent, SvgIconComponent],
   templateUrl: './reaction-scheme-view.component.html',
 })
 export class ReactionSchemeViewComponent {
@@ -27,6 +29,13 @@ export class ReactionSchemeViewComponent {
   experimentDetailService = inject(ExperimentDetailService);
   service = inject(ApiService);
   slideInPanelService = inject(SlideInPanelService);
+
+  reactionSchemeImageUrl(): string | null {
+    if (!this.reaction) {
+      return null;
+    }
+    return `experiments/${this.experimentId}/datamodel/reactions/${this.reaction.anchor}/picture?version=${this.reaction.rxnVersion}`;
+  }
 
   openChemicalEditor(): void {
     if (!this.experimentId) {
