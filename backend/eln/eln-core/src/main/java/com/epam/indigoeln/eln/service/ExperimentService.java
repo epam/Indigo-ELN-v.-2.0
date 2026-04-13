@@ -177,16 +177,18 @@ public class ExperimentService {
         return experiment.getPicture() != null ? experiment.getPicture() : EMPTY_PICTURE;
     }
 
-    public Response getReactionPicture(UUID experimentId, ReactionAnchor reactionAnchor, @Nullable Integer version) {
+    public Response getReactionPicture(UUID experimentId, ReactionAnchor reactionAnchor, @Nullable Integer revision) {
         // TODO generate on the fly from reaction rxnfile; shouldn't be heavyweight, because it will only be used when editing experiment, and most of the calls should be cached
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, VIEW_EXPERIMENTS);
         Reaction reaction = experimentModelService.getModel(experiment).locate(reactionAnchor);
         CacheControl cacheControl = new CacheControl();
-        if (version != null) {
-            validate(reaction.getRxnVersion() >= version, "Picture version " + version + " doesn't exist for reaction " + reactionAnchor);
-            cacheControl.setMaxAge(3_600 * 24 * 30);
+        int maxAge = 60 * 5;
+        if (revision != null) {
+            validate(experiment.getRevision() >= revision, "Experiment revision " + revision + " doesn't exist");
+            maxAge = 3_600 * 24 * 30;
         }
+        cacheControl.setMaxAge(maxAge);
         return Response.ok(experiment.getPicture() != null ? experiment.getPicture() : EMPTY_PICTURE, "image/svg+xml")
                 .cacheControl(cacheControl)
                 .build();

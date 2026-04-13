@@ -28,6 +28,9 @@ export class ExperimentDetailService {
   readonly isUpdating = signal<boolean>(false);
   readonly currentId = signal<string | null>(null);
   readonly updatedNodes = signal<Map<unknown, unknown>>(new Map());
+  readonly updatedReactionImages = signal<Map<ReactionAnchor, string>>(
+    new Map(),
+  );
 
   // Query methods
   load(id: string) {
@@ -82,7 +85,17 @@ export class ExperimentDetailService {
               structuredClone(updated) as ExperimentDetail,
             );
             this.updatedNodes.set(updatedNodes);
-            console.log('patched', previous, updated, updatedNodes);
+            if (response.reactionImages) {
+              this.updatedReactionImages.update((map) => {
+                const map1 = new Map(map.entries());
+                for (const [anchor, image] of Object.entries(
+                  response.reactionImages,
+                )) {
+                  map1.set(anchor, image);
+                }
+                return map1;
+              });
+            }
             this.isUpdating.set(false);
             if (response.messages) {
               for (const message of response.messages) {

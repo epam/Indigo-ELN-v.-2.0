@@ -151,8 +151,8 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation> exte
                 continue; // nothing changed
             }
             anyRxnfileChanged = true;
-            experimentModelHelperService.rebuildReactionPicture(experiment, reaction, indigoReaction);
-            reaction.setRxnVersion(reaction.getRxnVersion() + 1);
+            String image = experimentModelHelperService.rebuildReactionPicture(experiment, reaction, indigoReaction);
+            context.getResponse().getReactionImages().put(reaction.getAnchor(), image);
         }
 
         if (anyRxnfileChanged) {

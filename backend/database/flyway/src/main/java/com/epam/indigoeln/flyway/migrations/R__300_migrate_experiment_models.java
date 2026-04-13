@@ -42,6 +42,7 @@ public class R__300_migrate_experiment_models extends BaseJavaMigration {
         try {
             model.remove("schemaVersion");
             for (ObjectNode node : JsonLocator.<ObjectNode>findNodes(model, "//*", true)) {
+                node.remove("rxnVersion");
                 node.remove("conflict");
                 node.remove("overwritten");
             }

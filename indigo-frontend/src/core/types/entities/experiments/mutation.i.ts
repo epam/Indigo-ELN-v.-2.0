@@ -421,4 +421,5 @@ export interface MutationResponse {
   patch: unknown;
   unresolvedInputs?: Record<ReactionInputAnchor, string>;
   messages?: string[];
+  reactionImages?: Record<ReactionAnchor, string>;
 }

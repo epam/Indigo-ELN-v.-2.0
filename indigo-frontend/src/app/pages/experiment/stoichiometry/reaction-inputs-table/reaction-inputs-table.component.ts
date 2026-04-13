@@ -57,13 +57,11 @@ export class ReactionInputsTableComponent implements OnInit {
       BuiltInDictionary.HEALTH_HAZARD,
     ),
   );
-  saltCodes = computed(() => {
-    // TODO: Load from API when available
-    return [] as DictionaryItemRef[];
-  });
+  saltCodes = computed(() => this.builtInDictionaryService.getSaltCodes());
 
   ngOnInit() {
     this.builtInDictionaryService.load([BuiltInDictionary.HEALTH_HAZARD]);
+    this.builtInDictionaryService.loadSaltCodes();
   }
 
   readonly columns = computed<ColumnConfig<InputSampleRow>[]>(() => [

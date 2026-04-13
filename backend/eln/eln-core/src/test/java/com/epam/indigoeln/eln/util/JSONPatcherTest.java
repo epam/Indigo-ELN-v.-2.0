@@ -367,7 +367,7 @@ public class JSONPatcherTest {
         Reaction reaction2 = Reaction.create(model, REACTION_2);
         model.setReactions(List.of(reaction, reaction2));
         verifyModel("""
-                {"model": {"reactions": {">1": {"$new": {"anchor": "00000000-0000-0000-0000-000000000002", "rxnVersion": 0, "inputs": [], "outputs": [], "precursorReactantIds": []}}}}}
+                {"model": {"reactions": {">1": {"$new": {"anchor": "00000000-0000-0000-0000-000000000002", "inputs": [], "outputs": [], "precursorReactantIds": []}}}}}
         """);
     }
 
@@ -385,7 +385,7 @@ public class JSONPatcherTest {
         baseModel.setReactions(List.of(reaction, reaction2));
         model.setReactions(List.of(reaction));
         verifyModel("""
-                {"model": {"reactions": {"1>": {"$old": {"anchor": "00000000-0000-0000-0000-000000000002", "rxnVersion": 0, "inputs": [], "outputs": [], "precursorReactantIds": []}}}}}
+                {"model": {"reactions": {"1>": {"$old": {"anchor": "00000000-0000-0000-0000-000000000002", "inputs": [], "outputs": [], "precursorReactantIds": []}}}}}
         """);
     }
 

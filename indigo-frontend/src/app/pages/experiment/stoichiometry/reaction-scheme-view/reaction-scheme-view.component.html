@@ -4,8 +4,8 @@
   <div
     class="relative border-2 border-dashed border-gray-300 rounded-lg p-8 min-h-32 flex items-center justify-center"
   >
-    @if (reactionSchemeImageUrl(); as imageUrl) {
-      <eln-api-image [url]="imageUrl" altText="reaction scheme" />
+    @if (reactionSchemeBlob() || reactionSchemeImageUrl()) {
+      <eln-api-image [blob]="reactionSchemeBlob()" [url]="reactionSchemeImageUrl()" altText="reaction scheme" />
     }
     <eln-button
       [type]="'button'"

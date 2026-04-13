@@ -131,8 +131,8 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
-    public Response getReactionPicture(UUID experimentId, ReactionAnchor reactionAnchor, @Nullable Integer version) {
-        return experimentService.getReactionPicture(experimentId, reactionAnchor, version);
+    public Response getReactionPicture(UUID experimentId, ReactionAnchor reactionAnchor, @Nullable Integer revision) {
+        return experimentService.getReactionPicture(experimentId, reactionAnchor, revision);
     }
 
     @Override
