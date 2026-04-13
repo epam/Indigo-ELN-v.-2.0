@@ -111,12 +111,18 @@ export class ProductBatchSummaryTableComponent {
             }
           : null,
       classes: (row) => this.determineClasses(row.sample.actualWeight),
-      onSave: (row: OutputSampleRow) => {
-        // TODO: Implement mutation for setting output sample actual weight
-        console.log('TODO: Set output actual weight', row.sample.anchor);
-        this.snackBar.open('Weight update not yet implemented', 'Close', {
-          duration: 3000,
-        });
+      onSave: (
+        row: OutputSampleRow,
+        value: EnteredValue<WeightUnit> | null,
+      ) => {
+        this.experimentDetailService
+          .updateDataModel({
+            type: 'SetOutputActualWeight',
+            anchor: row.sample.anchor,
+            actualWeight: value?.value,
+            unit: value?.unit,
+          })
+          .subscribe({});
       },
       options: Object.values(WeightUnit).map((unit) => ({
         id: unit,
@@ -125,19 +131,25 @@ export class ProductBatchSummaryTableComponent {
     },
     {
       id: 'totalVolume',
-      header: 'Total Volume',
+      header: 'Volume',
       type: ColumnInputType.UNIT_INPUT,
       field: (row: OutputSampleRow) =>
         row.sample.volume?.value
           ? { value: row.sample.volume.value, unit: row.sample.volume.unit }
           : null,
       classes: (row) => this.determineClasses(row.sample.volume),
-      onSave: (row: OutputSampleRow) => {
-        // TODO: Implement mutation for setting output sample volume
-        console.log('TODO: Set output volume', row.sample.anchor);
-        this.snackBar.open('Volume update not yet implemented', 'Close', {
-          duration: 3000,
-        });
+      onSave: (
+        row: OutputSampleRow,
+        value: EnteredValue<VolumeUnit> | null,
+      ) => {
+        this.experimentDetailService
+          .updateDataModel({
+            type: 'SetOutputVolume',
+            anchor: row.sample.anchor,
+            volume: value?.value,
+            unit: value?.unit,
+          })
+          .subscribe({});
       },
       options: Object.values(VolumeUnit).map((unit) => ({
         id: unit,
@@ -146,7 +158,7 @@ export class ProductBatchSummaryTableComponent {
     },
     {
       id: 'totalMoles',
-      header: 'Total Moles',
+      header: 'Actual Moles',
       type: ColumnInputType.UNIT_INPUT,
       field: (row: OutputSampleRow) =>
         row.sample.actualMol?.value
@@ -156,12 +168,15 @@ export class ProductBatchSummaryTableComponent {
             }
           : null,
       classes: (row) => this.determineClasses(row.sample.actualMol),
-      onSave: (row: OutputSampleRow) => {
-        // TODO: Implement mutation for setting output sample moles
-        console.log('TODO: Set output moles', row.sample.anchor);
-        this.snackBar.open('Moles update not yet implemented', 'Close', {
-          duration: 3000,
-        });
+      onSave: (row: OutputSampleRow, value: EnteredValue<MolUnit> | null) => {
+        this.experimentDetailService
+          .updateDataModel({
+            type: 'SetOutputActualMol',
+            anchor: row.sample.anchor,
+            actualMol: value?.value,
+            unit: value?.unit,
+          })
+          .subscribe({});
       },
       options: Object.values(MolUnit).map((unit) => ({
         id: unit,
@@ -193,15 +208,14 @@ export class ProductBatchSummaryTableComponent {
       field: (row: OutputSampleRow) =>
         row.sample.purity?.value?.toString() ?? null,
       classes: (row) => this.determineClasses(row.sample.purity),
-      onSave: (row: OutputSampleRow, event: Event) => {
-        // TODO: Implement mutation for setting output sample purity
-        const value = +(event.target as HTMLInputElement).value;
-        console.log('TODO: Set output purity', row.sample.anchor, value);
-
-        // Placeholder for now
-        this.snackBar.open('Purity update not yet implemented', 'Close', {
-          duration: 3000,
-        });
+      onSave: (row: OutputSampleRow, value: string | null) => {
+        this.experimentDetailService
+          .updateDataModel({
+            type: 'SetOutputPurity',
+            anchor: row.sample.anchor,
+            purity: value,
+          })
+          .subscribe({});
       },
     },
     {
@@ -256,7 +270,7 @@ export class ProductBatchSummaryTableComponent {
   private determineClasses(value?: EnteredValue<unknown>): string[] {
     return determineCellClasses(
       value,
-      this.experimentDetailService.experimentDetail(),
+      this.experimentDetailService.updatedNodes(),
     );
   }
 

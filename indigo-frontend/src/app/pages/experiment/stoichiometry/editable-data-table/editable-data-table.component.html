@@ -38,17 +38,17 @@
         <!-- Text Input -->
         <input *ngIf="column.type === ColumnInputType.TEXT" type="text" placeholder="—" matInput style="outline: none;"
           [value]="column.field(row) || ''" [disabled]="!(column.editable?.(row) ?? true)"
-          (blur)="column.onSave?.(row, $event)" (keydown.enter)="column.onSave?.(row, $event)" />
+          (blur)="callSave(column, row, $any($event.target).value)" (keydown.enter)="callSave(column, row, $any($event.target).value)" />
 
         <!-- Number Input -->
         <input *ngIf="column.type === ColumnInputType.NUMBER" type="number" placeholder="—" style="outline: none;"
           [value]="column.field(row) || ''" [disabled]="!(column.editable?.(row) ?? true)"
-          (blur)="column.onSave?.(row, $event)" (keydown.enter)="column.onSave?.(row, $event)" />
+          (blur)="callSave(column, row, $any($event.target).value)" (keydown.enter)="callSave(column, row, $any($event.target).value)" />
 
         <!-- Select -->
         <mat-select *ngIf="column.type === ColumnInputType.SELECT" hideSingleSelectionIndicator
           class="!w-full !h-full !text-xs capitalize" [value]="column.field(row)"
-          [disabled]="!(column.editable?.(row) ?? true)" (selectionChange)="column.onSave?.(row, $event.value)">
+          [disabled]="!(column.editable?.(row) ?? true)" (selectionChange)="callSave(column, row, $event.value)">
           @for (option of column.options; track option.id) {
           <mat-option [value]="option.id" style="font-size: 0.8rem" class="capitalize">{{ option.name }}</mat-option>
           }
@@ -56,19 +56,19 @@
 
         <!-- Checkbox -->
         <input *ngIf="column.type === ColumnInputType.CHECKBOX" type="checkbox" [checked]="column.field(row)"
-          [disabled]="!(column.editable?.(row) ?? true)" (change)="column.onSave?.(row, $event)" />
+          [disabled]="!(column.editable?.(row) ?? true)" (change)="callSave(column, row, $any($event.target).checked)" />
 
         <!-- Unit Input (weight, volume, etc) -->
         <div *ngIf="column.type === ColumnInputType.UNIT_INPUT" class="flex w-full h-full">
           @let unitField = toUnitField(column.field(row));
           <input #valueInput type="number" matInput placeholder="—" style="outline: none;"
             [value]="unitField?.value ?? ''" [disabled]="!(column.editable?.(row) ?? true)"
-            (blur)="column.onSave?.(row, { value: $any($event.target).value, unit: unitField?.unit })"
-            (keydown.enter)="column.onSave?.(row, { value: $any($event.target).value, unit: unitField?.unit })" />
+            (blur)="callSaveEV(column, row, $any($event.target).value, unitField?.unit)"
+            (keydown.enter)="callSaveEV(column, row, $any($event.target).value, unitField?.unit)" />
           <mat-divider vertical style="opacity: 0.3;" />
           <mat-select class="!h-full !text-xs" hideSingleSelectionIndicator style="min-width: 4rem; text-align: center;"
             [value]="unitField?.unit" [disabled]="!(column.editable?.(row) ?? true)"
-            (selectionChange)="column.onSave?.(row, { value: valueInput.value, unit: $event.value })">
+            (selectionChange)="callSaveEV(column, row, valueInput.value, $event.value)">
             @for (unit of column.options; track unit.id) {
             <mat-option [value]="unit.id" style="font-size: 0.8rem;">{{ unit.name }}</mat-option>
             }
@@ -79,7 +79,7 @@
         <mat-select #multiSelect *ngIf="column.type === ColumnInputType.MULTI_SELECT" multiple
           hideSingleSelectionIndicator class="!w-full !h-full !text-xs capitalize" [value]="column.field(row)"
           [compareWith]="compareDictionaryItems" [disabled]="!(column.editable?.(row) ?? true)"
-          (openedChange)="!$event && column.onSave?.(row, multiSelect.value)">
+          (openedChange)="!$event && callSave(column, row, multiSelect.value)">
           <mat-select-trigger>
             <div class="flex items-center gap-1 min-h-6 overflow-x-auto no-scrollbar pr-4">
               @for (hazard of multiSelect.value; track hazard.id) {

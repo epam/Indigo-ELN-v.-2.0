@@ -1,5 +1,4 @@
 import { Component, computed, inject, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
 import {
   ReactionInput,
   ReactionInputSample,
@@ -24,12 +23,10 @@ import {
   ColumnConfig,
   ColumnInputType,
   ColumnOption,
-  UnitInputChange,
 } from '../shared/editable-table.types';
 import { ExperimentDetailService } from '@core/services/experiment/experiment-detail.service';
 import { EnteredValue } from '@core/types/entities/values.i';
 import { determineCellClasses } from '@core/utils/experiment-model.util';
-import { MutationResponse } from '@core/types/entities/experiments/mutation.i';
 
 interface InputSampleRow {
   input: ReactionInput;
@@ -90,8 +87,14 @@ export class ReactionInputsTableComponent implements OnInit {
       type: ColumnInputType.TEXT,
       field: (row: InputSampleRow) => row.input.chemicalName,
       editable: () => false,
-      onSave: () => {
-        /* TODO add mutation for chemical name */
+      onSave: (row: InputSampleRow, value: string | null) => {
+        this.experimentDetailService
+          .updateDataModel({
+            type: 'SetInputRowChemicalName',
+            anchor: row.input.anchor,
+            chemicalName: value,
+          })
+          .subscribe({});
       },
     },
     {
@@ -110,13 +113,12 @@ export class ReactionInputsTableComponent implements OnInit {
       classes: (row) => this.determineClasses(row.input.compound.molWeight),
       editable: (row: InputSampleRow) =>
         row.input.compound.type === CompoundType.UNKNOWN,
-      onSave: (row: InputSampleRow, event: Event) => {
-        const value = (event.target as HTMLInputElement).value;
+      onSave: (row: InputSampleRow, value: string | null) => {
         this.experimentDetailService
           .updateDataModel({
             type: 'SetInputCompoundMolWeight',
             anchor: row.input.anchor,
-            molWeight: value || null,
+            molWeight: value,
           })
           .subscribe({});
       },
@@ -130,15 +132,15 @@ export class ReactionInputsTableComponent implements OnInit {
           ? { value: row.sample.weight.value, unit: row.sample.weight.unit }
           : null,
       classes: (row) => this.determineClasses(row.sample.weight),
-      onSave: (row: InputSampleRow, payload?: unknown) => {
-        this.applyUnitInputChange(payload as UnitInputChange, (value, unit) => {
-          return this.experimentDetailService.updateDataModel({
+      onSave: (row: InputSampleRow, value: EnteredValue<WeightUnit> | null) => {
+        this.experimentDetailService
+          .updateDataModel({
             type: 'SetInputWeight',
             anchor: row.sample.anchor,
-            weight: value,
-            unit: unit as WeightUnit,
-          });
-        });
+            weight: value?.value,
+            unit: value?.unit,
+          })
+          .subscribe({});
       },
       options: Object.values(WeightUnit).map((unit) => ({
         id: unit,
@@ -154,15 +156,15 @@ export class ReactionInputsTableComponent implements OnInit {
           ? { value: row.sample.volume.value, unit: row.sample.volume.unit }
           : null,
       classes: (row) => this.determineClasses(row.sample.volume),
-      onSave: (row: InputSampleRow, payload?: unknown) => {
-        this.applyUnitInputChange(payload as UnitInputChange, (value, unit) => {
-          return this.experimentDetailService.updateDataModel({
+      onSave: (row: InputSampleRow, value: EnteredValue<VolumeUnit> | null) => {
+        this.experimentDetailService
+          .updateDataModel({
             type: 'SetInputVolume',
             anchor: row.sample.anchor,
-            volume: value,
-            unit: unit as VolumeUnit,
-          });
-        });
+            volume: value?.value,
+            unit: value?.unit,
+          })
+          .subscribe({});
       },
       options: Object.values(VolumeUnit).map((unit) => ({
         id: unit,
@@ -178,15 +180,15 @@ export class ReactionInputsTableComponent implements OnInit {
           ? { value: row.sample.mol.value, unit: row.sample.mol.unit }
           : null,
       classes: (row) => this.determineClasses(row.sample.mol),
-      onSave: (row: InputSampleRow, payload?: unknown) => {
-        this.applyUnitInputChange(payload as UnitInputChange, (value, unit) => {
-          return this.experimentDetailService.updateDataModel({
+      onSave: (row: InputSampleRow, value: EnteredValue<MolUnit> | null) => {
+        this.experimentDetailService
+          .updateDataModel({
             type: 'SetInputMol',
             anchor: row.sample.anchor,
-            mol: value,
-            unit: unit as MolUnit,
-          });
-        });
+            mol: value?.value,
+            unit: value?.unit,
+          })
+          .subscribe({});
       },
       options: Object.values(MolUnit).map((unit) => ({
         id: unit,
@@ -199,14 +201,12 @@ export class ReactionInputsTableComponent implements OnInit {
       type: ColumnInputType.NUMBER,
       field: (row: InputSampleRow) => row.input.eq?.value?.toString(),
       classes: (row) => this.determineClasses(row.input.eq),
-      onSave: (row: InputSampleRow, event: Event) => {
-        const value = (event.target as HTMLInputElement).value;
-
+      onSave: (row: InputSampleRow, value: string | null) => {
         this.experimentDetailService
           .updateDataModel({
             type: 'SetInputRowEQ',
             anchor: row.input.anchor,
-            eq: value || null,
+            eq: value,
           })
           .subscribe({});
       },
@@ -239,7 +239,11 @@ export class ReactionInputsTableComponent implements OnInit {
           })
           .subscribe({});
       },
-      options: Object.values(ReactionRole).map((role) => ({
+      options: [
+        ReactionRole.REACTANT,
+        ReactionRole.CATALYST,
+        ReactionRole.SOLVENT,
+      ].map((role) => ({
         id: role,
         name: role.toLocaleLowerCase(),
       })) as ColumnOption[],
@@ -253,15 +257,18 @@ export class ReactionInputsTableComponent implements OnInit {
           ? { value: row.sample.density.value, unit: row.sample.density.unit }
           : null,
       classes: (row) => this.determineClasses(row.sample.density),
-      onSave: (row: InputSampleRow, payload?: unknown) => {
-        this.applyUnitInputChange(payload as UnitInputChange, (value, unit) => {
-          return this.experimentDetailService.updateDataModel({
+      onSave: (
+        row: InputSampleRow,
+        value: EnteredValue<DensityUnit> | null,
+      ) => {
+        this.experimentDetailService
+          .updateDataModel({
             type: 'SetInputDensity',
             anchor: row.sample.anchor,
-            density: value,
-            unit: unit as DensityUnit,
-          });
-        });
+            density: value?.value,
+            unit: value?.unit,
+          })
+          .subscribe({});
       },
       options: Object.values(DensityUnit).map((unit) => ({
         id: unit,
@@ -277,15 +284,18 @@ export class ReactionInputsTableComponent implements OnInit {
           ? { value: row.sample.molarity.value, unit: row.sample.molarity.unit }
           : null,
       classes: (row) => this.determineClasses(row.sample.molarity),
-      onSave: (row: InputSampleRow, payload?: unknown) => {
-        this.applyUnitInputChange(payload as UnitInputChange, (value, unit) => {
-          return this.experimentDetailService.updateDataModel({
+      onSave: (
+        row: InputSampleRow,
+        value: EnteredValue<MolarityUnit> | null,
+      ) => {
+        this.experimentDetailService
+          .updateDataModel({
             type: 'SetInputMolarity',
             anchor: row.sample.anchor,
-            molarity: value,
-            unit: unit as MolarityUnit,
-          });
-        });
+            molarity: value?.value,
+            unit: value?.unit,
+          })
+          .subscribe({});
       },
       options: Object.values(MolarityUnit).map((unit) => ({
         id: unit,
@@ -298,13 +308,12 @@ export class ReactionInputsTableComponent implements OnInit {
       type: ColumnInputType.NUMBER,
       field: (row: InputSampleRow) => row.sample.purity?.value?.toString(),
       classes: (row) => this.determineClasses(row.sample.purity),
-      onSave: (row: InputSampleRow, event: Event) => {
-        const value = (event.target as HTMLInputElement).value;
+      onSave: (row: InputSampleRow, value: string | null) => {
         this.experimentDetailService
           .updateDataModel({
             type: 'SetInputPurity',
             anchor: row.sample.anchor,
-            purity: value || null,
+            purity: value,
           })
           .subscribe({});
       },
@@ -323,12 +332,15 @@ export class ReactionInputsTableComponent implements OnInit {
       field: (row: InputSampleRow) => row.input.compound.saltCode?.name ?? null,
       editable: (row: InputSampleRow) =>
         row.input.compound.type === CompoundType.VIRTUAL,
-      onSave: (row: InputSampleRow, selectedSaltCode: unknown) => {
+      onSave: (
+        row: InputSampleRow,
+        selectedSaltCode: DictionaryItemRef | null,
+      ) => {
         this.experimentDetailService
           .updateDataModel({
             type: 'SetInputRowSaltCode',
             anchor: row.input.anchor,
-            saltCode: selectedSaltCode as DictionaryItemRef | null,
+            saltCode: selectedSaltCode,
           })
           .subscribe({});
       },
@@ -339,13 +351,12 @@ export class ReactionInputsTableComponent implements OnInit {
       header: 'Salt EQ',
       type: ColumnInputType.TEXT,
       field: (row: InputSampleRow) => row.input.compound.saltEQ?.toString(),
-      onSave: (row: InputSampleRow, event: Event) => {
-        const value = (event.target as HTMLInputElement).value;
+      onSave: (row: InputSampleRow, value: string | null) => {
         this.experimentDetailService
           .updateDataModel({
             type: 'SetInputRowSaltEQ',
             anchor: row.input.anchor,
-            saltEQ: value || null,
+            saltEQ: value,
           })
           .subscribe({});
       },
@@ -355,12 +366,12 @@ export class ReactionInputsTableComponent implements OnInit {
       header: 'Hazard Comments',
       type: ColumnInputType.MULTI_SELECT,
       field: (row: InputSampleRow) => row.sample.healthHazards ?? [],
-      onSave: (row: InputSampleRow, selectedHazards: unknown[]) => {
+      onSave: (row: InputSampleRow, selectedHazards: DictionaryItemRef[]) => {
         this.experimentDetailService
           .updateDataModel({
             type: 'SetInputHealthHazards',
             anchor: row.sample.anchor,
-            healthHazards: selectedHazards as DictionaryItemRef[],
+            healthHazards: selectedHazards,
           })
           .subscribe({});
       },
@@ -371,13 +382,12 @@ export class ReactionInputsTableComponent implements OnInit {
       header: 'Comments',
       type: ColumnInputType.TEXT,
       field: (row: InputSampleRow) => row.sample.comment ?? null,
-      onSave: (row: InputSampleRow, event: Event) => {
-        const value = (event.target as HTMLInputElement).value;
+      onSave: (row: InputSampleRow, value: string | null) => {
         this.experimentDetailService
           .updateDataModel({
             type: 'SetInputComment',
             anchor: row.sample.anchor,
-            comment: value || null,
+            comment: value,
           })
           .subscribe({});
       },
@@ -402,39 +412,10 @@ export class ReactionInputsTableComponent implements OnInit {
 
   displayedColumns = computed(() => this.columns().map((col) => col.id));
 
-  compareDictionaryItems = (
-    a?: DictionaryItemRef | null,
-    b?: DictionaryItemRef | null,
-  ) => (!!a && !!b ? a.id === b.id : a === b);
-
-  private applyUnitInputChange(
-    change: UnitInputChange,
-    mutator: (
-      value: string | undefined,
-      unit: string | undefined,
-    ) => Observable<MutationResponse>,
-  ) {
-    // Only proceed if both value and unit are present
-    if (
-      change.value == null ||
-      change.value === '' ||
-      change.unit == null ||
-      change.unit === ''
-    ) {
-      if (change.previous?.value != null) {
-        mutator(undefined, undefined).subscribe({});
-        return;
-      }
-      return;
-    }
-
-    mutator(change.value, change.unit).subscribe({});
-  }
-
   private determineClasses(value?: EnteredValue<unknown>): string[] {
     return determineCellClasses(
       value,
-      this.experimentDetailService.experimentDetail(),
+      this.experimentDetailService.updatedNodes(),
     );
   }
 
