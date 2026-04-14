@@ -16,7 +16,7 @@
     'md:grid-cols-2 2xl:grid-cols-3': selectedView === 'grid',
   }"
 >
-  @for (project of data; track project.id) {
+   @for (project of (data$ | async) ?? []; track project.id) {
     <eln-project-item [project]="project" [variant]="selectedView" />
   }
   <eln-infinite-loader
