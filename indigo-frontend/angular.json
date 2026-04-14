@@ -106,10 +106,6 @@
                 {
                   "replace": "src/app/app.config.ts",
                   "with": "src/app/app.config.local.ts"
-                },
-                {
-                  "replace": "src/core/components/layout/master.component.ts",
-                  "with": "src/core/components/layout/master-keycloak.component.ts"
                 }
               ],
               "optimization": false,

@@ -17,7 +17,7 @@ import { FormlyModule } from '@ngx-formly/core';
 import { FormlyPresetModule } from '@ngx-formly/core/preset';
 import { FormlyMaterialModule } from '@ngx-formly/material';
 import { FormlyMatDatepickerModule } from '@ngx-formly/material/datepicker';
-import { routes } from './app.routes.local';
+import { routes } from './app.routes';
 import {
   AutoRefreshTokenService,
   createInterceptorCondition,
