@@ -43,6 +43,8 @@ import { ExperimentDetailService } from '@/core/services/experiment/experiment-d
 import { SIGNIFICANT_FIGURES } from '../significant-figures.constants';
 import { catchError } from 'rxjs/internal/operators/catchError';
 import { EMPTY } from 'rxjs/internal/observable/empty';
+import { MatIconButton } from '@angular/material/button';
+import { MatTooltip } from '@angular/material/tooltip';
 
 @Component({
   selector: 'eln-editable-data-table',
@@ -69,6 +71,8 @@ import { EMPTY } from 'rxjs/internal/observable/empty';
     CommonModule,
     ButtonComponent,
     SelectComponent,
+    MatIconButton,
+    MatTooltip,
   ],
 })
 export class EditableDataTableComponent<TRow = unknown> {

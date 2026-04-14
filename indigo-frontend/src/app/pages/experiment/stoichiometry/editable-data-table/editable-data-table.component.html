@@ -112,6 +112,17 @@
             {{ column.field(row) }}
           </button>
         </div>
+
+        <!-- Icon -->
+        <div *ngIf="column.type === ColumnInputType.ICON" class="p-2">
+          <button
+            mat-icon-button
+            (click)="column.onSave?.(row)"
+            [matTooltip]="column.tooltip?.(row)"
+          >
+            <em [ngClass]="column.iconClasses(row)"></em>
+          </button>
+        </div>
       </td>
     </ng-container>
     }

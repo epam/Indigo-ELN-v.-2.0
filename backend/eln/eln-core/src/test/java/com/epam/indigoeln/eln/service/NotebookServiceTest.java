@@ -319,6 +319,9 @@ class NotebookServiceTest extends ELNBaseTest {
 
         Page<NotebookDTO> result4 = notebookClient.getProjectNotebooks(project.getId(), "QSNew", null, null, Paging.DEFAULT);
         assertThat(result4.getItems()).map(NotebookDTO::getName).containsExactly(p1);
+
+        Page<NotebookDTO> result5 = notebookClient.getProjectNotebooks(project.getId(), name2.substring(4), null, null, Paging.DEFAULT);
+        assertThat(result5.getItems()).map(NotebookDTO::getName).containsExactly(p2);
     }
 
     @Test

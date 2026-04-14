@@ -1,14 +1,11 @@
 package com.epam.indigoeln.reaction.model;
 
-import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.eln.model.*;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -61,12 +58,4 @@ public final class ExperimentSnapshot implements ExperimentNode {
 
     @Nullable
     private ExperimentModel model;
-
-    @Nullable
-    @JsonIgnore
-    private Set<Pair<ReactionRole, CompoundRef>> compoundRefs;
-
-    @Nullable
-    @JsonIgnore
-    private Map<ReactionAnchor, @Nullable String> rxnFiles;
 }

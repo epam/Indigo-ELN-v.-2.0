@@ -3,6 +3,7 @@ package com.epam.indigoeln.reaction.model;
 import com.epam.indigoeln.reaction.model.mutation.*;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -12,6 +13,8 @@ import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 @Getter
 @Setter
@@ -49,12 +52,19 @@ public final class ExperimentModel implements ExperimentNode {
     }
 
     public Reaction locate(ReactionAnchor anchor) {
+        Reaction reaction = tryLocate(anchor);
+        checkArgument(reaction != null, "Experiment doesn't contain reaction with id: %s", anchor);
+        return reaction;
+    }
+
+    @Nullable
+    public Reaction tryLocate(ReactionAnchor anchor) {
         for (Reaction reaction : reactions) {
             if (reaction.getAnchor().equals(anchor)) {
                 return reaction;
             }
         }
-        throw new IllegalArgumentException("Experiment doesn't contain reaction with id: " + anchor);
+        return null;
     }
 
     public ReactionInput locate(ReactionInputMutation mutation) {

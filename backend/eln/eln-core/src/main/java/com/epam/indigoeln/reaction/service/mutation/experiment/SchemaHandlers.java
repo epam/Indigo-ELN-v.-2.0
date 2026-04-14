@@ -4,6 +4,7 @@ import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
+import com.epam.indigoeln.eln.service.ExperimentService;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.indigowrapper.IndigoReaction;
@@ -14,6 +15,7 @@ import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import com.google.common.base.Function;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
+import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.EntryStream;
 import one.util.streamex.IntStreamEx;
 import one.util.streamex.StreamEx;
@@ -23,17 +25,19 @@ import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+@Slf4j
 @Dependent
 @MutationHandlerFor(ReactionMutation.SetScheme.class)
 class SetSchemeHandler extends AbstractReactionMutationHandler<ReactionMutation.SetScheme> {
 
-    @SuppressWarnings("DataFlowIssue")
-    private static final Comparator<ReactionRow> RXN_POSITION_COMPARATOR = Comparator.nullsLast(Comparator.comparing(ReactionRow::getRxnPosition));
+    private static final Comparator<ReactionRow> RXN_POSITION_COMPARATOR = Comparator.comparing(ReactionRow::getRxnPosition, Comparator.nullsLast(Comparator.naturalOrder()));
     private static final Comparator<ReactionInput> INPUT_COMPARATOR = Comparator.comparing(ReactionInput::getRole)
             .thenComparing(RXN_POSITION_COMPARATOR);
 
     @Inject
     IndigoAPI indigoAPI;
+    @Inject
+    ExperimentService experimentService;
 
     @Nullable
     IndigoReaction reaction;
@@ -98,6 +102,8 @@ class SetSchemeHandler extends AbstractReactionMutationHandler<ReactionMutation.
 
         adjustLimitingInput(reaction);
         reaction.setRxnfile(mutation.rxnFile());
+
+        context.getResponse().setUnresolvedInputs(experimentService.analyzeRXN(reaction));
 
         return new MutationResult("Update reaction scheme");
     }
@@ -180,7 +186,6 @@ class AddEmptyInputHandler extends AbstractReactionMutationHandler<ReactionMutat
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddEmptyInput mutation, ExperimentMutationContext context) {
         createInputLine(reaction, null, ReactionRole.REACTANT, checkNotNull(mutation.createdInputAnchor()), checkNotNull(mutation.createdSampleAnchor()));
         adjustLimitingInput(reaction);
-        context.setSchemaAffected(true);
         return new MutationResult("Add empty input");
     }
 }

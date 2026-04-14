@@ -1,25 +1,41 @@
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { ButtonComponent } from '@/core/components/common/button/button.component';
 import { Mutation } from '@/core/types/entities/experiments/mutation.i';
 import { Reaction } from '@/core/types/entities/experiments/experiment.i';
-import { StructureEditorModalComponent } from '@core/components/experiment/structure-editor-modal/structure-editor-modal.component';
+import {
+  StructureEditorModalComponent,
+  StructureEditorModalResult,
+} from '@core/components/experiment/structure-editor-modal/structure-editor-modal.component';
 import { ExperimentDetailService } from '@core/services/experiment/experiment-detail.service';
+import { ApiImageComponent } from '@/core/components/common/image/api-image.component';
+import { SvgIconComponent } from '@/core/components/common/svg-icon/svg-icon.component';
+import { ApiService } from '@core/services/api.service';
+import { AnalyzeRxnComponent } from '@pages/experiment/analyze-rxn/analyze-rxn.component';
+import { SlideInPanelService } from '@core/components/common/slide-in-panel/slide-in-panel.service';
 
 @Component({
   selector: 'eln-reaction-scheme-view',
   standalone: true,
-  imports: [CommonModule, ButtonComponent],
+  imports: [CommonModule, ButtonComponent, ApiImageComponent, SvgIconComponent],
   templateUrl: './reaction-scheme-view.component.html',
 })
 export class ReactionSchemeViewComponent {
-  @Input() reaction: Reaction | null = null;
-  @Input() experimentId: string | null = null;
-  @Output() modelUpdating = new EventEmitter<boolean>();
+  @Input({ required: true }) reaction: Reaction | null = null;
+  @Input({ required: true }) experimentId: string;
 
   dialog = inject(MatDialog);
   experimentDetailService = inject(ExperimentDetailService);
+  service = inject(ApiService);
+  slideInPanelService = inject(SlideInPanelService);
+
+  reactionSchemeImageUrl(): string | null {
+    if (!this.reaction) {
+      return null;
+    }
+    return `experiments/${this.experimentId}/datamodel/reactions/${this.reaction.anchor}/picture?version=${this.reaction.rxnVersion}`;
+  }
 
   openChemicalEditor(): void {
     if (!this.experimentId) {
@@ -50,46 +66,34 @@ export class ReactionSchemeViewComponent {
       },
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result?.success && result?.mutations) {
-        this.updateExperimentWithMutations(result.mutations);
-      } else if (result && !result.success) {
-        console.error('Error in structure editor:', result.error);
+    dialogRef.afterClosed().subscribe((result: StructureEditorModalResult) => {
+      if (result?.success) {
+        this.updateExperiment({
+          type: 'SetScheme',
+          anchor: this.reaction.anchor,
+          rxnFile: result.molOrRxnFile,
+        } as Mutation);
       }
     });
   }
 
-  private updateExperimentWithMutations(mutations: Mutation[]): void {
-    if (!this.reaction) {
-      console.error('No reaction available');
-      return;
-    }
-
-    // Apply only the first mutation by the moment
-    // TODO support multiple mutations
-    if (mutations.length === 0) {
-      console.warn('No mutations to apply');
-      return;
-    }
-
-    const firstMutation = {
-      ...mutations[0],
-      anchor: this.reaction.anchor,
-    };
-
-    // Notify parent that update is starting
-    this.modelUpdating.emit(true);
-
-    this.experimentDetailService.updateDataModel(firstMutation).subscribe({
-      next: () => {
-        // Notify parent that update completed
-        this.modelUpdating.emit(false);
-      },
-      error: (error) => {
-        console.error('Failed to update experiment model:', error);
-        // Notify parent that update completed (with error)
-        this.modelUpdating.emit(false);
-      },
-    });
+  private updateExperiment(mutation: Mutation): void {
+    this.experimentDetailService
+      .updateDataModel(mutation)
+      .subscribe((response) => {
+        if (
+          response.unresolvedInputs &&
+          Object.keys(response.unresolvedInputs).length != 0
+        ) {
+          this.slideInPanelService.open(AnalyzeRxnComponent, {
+            inputs: {
+              reaction: this.experimentDetailService.getReaction(
+                this.reaction.anchor,
+              ),
+              unresolvedInputs: response.unresolvedInputs,
+            },
+          });
+        }
+      });
   }
 }

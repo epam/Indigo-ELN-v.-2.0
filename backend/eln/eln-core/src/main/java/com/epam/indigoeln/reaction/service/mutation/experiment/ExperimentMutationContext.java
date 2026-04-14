@@ -2,6 +2,7 @@ package com.epam.indigoeln.reaction.service.mutation.experiment;
 
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
+import com.epam.indigoeln.eln.model.MutationResponse;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.service.mutation.AbstractMutationContext;
 import lombok.Getter;
@@ -18,8 +19,9 @@ public class ExperimentMutationContext extends AbstractMutationContext<Experimen
     private boolean affectsAttachments;
     private boolean affectsACL;
     private boolean requiresEditSession;
-    private boolean schemaAffected;
 
     @Nullable
     private Integer createdVersion;
+
+    private MutationResponse response = new MutationResponse();
 }

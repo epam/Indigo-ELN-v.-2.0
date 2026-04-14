@@ -1,18 +1,7 @@
 import { FormDialogComponent } from '@/core/components/common/form-dialog/form-dialog.component';
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  DestroyRef,
-  inject,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { Component, DestroyRef, inject, OnInit, ViewChild, } from '@angular/core';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { InputComponent } from '@core/components/common/input/input.component';
@@ -30,30 +19,22 @@ import {
   MatExpansionPanelHeader,
   MatExpansionPanelTitle,
 } from '@angular/material/expansion';
-import {
-  BuiltInDictionary,
-  DictionaryItemRef,
-} from '@core/types/entities/dictionary.i';
+import { BuiltInDictionary, DictionaryItemRef, } from '@core/types/entities/dictionary.i';
 import { NumericSearchComponent } from '@core/components/common/numeric-search/numeric-search.component';
 import { MatChipRow, MatChipSet } from '@angular/material/chips';
-import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { ApiService } from '@core/services/api.service';
 import { InfiniteLoaderComponent } from '@core/components/util/infinite-loader/infinite-loader.component';
 import { InfiniteSearchLoader } from '@core/components/util/infinite-scroll-search';
-import { StructureEditorModalComponent } from '@core/components/experiment/structure-editor-modal/structure-editor-modal.component';
 import {
-  ReactionRole,
-  ReactionRoleNames,
-  UUID,
-} from '@core/types/entities/experiments/experiment-shared.i';
+  StructureEditorModalComponent,
+  StructureEditorModalResult,
+} from '@core/components/experiment/structure-editor-modal/structure-editor-modal.component';
+import { ReactionRole, ReactionRoleNames, } from '@core/types/entities/experiments/experiment-shared.i';
 import { ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
 import { UserMetadata } from '@core/types/entities/user.i';
 import { UserSelectComponent } from '@core/components/common/user-multiselect/user-select.component';
 import { DictionarySelectComponent } from '@core/components/common/dictionary-select/dictionary-select.component';
-import {
-  ExperimentStatus,
-  ExperimentStatusNames,
-} from '@core/enums/experiment-status.enum';
+import { ExperimentStatus, ExperimentStatusNames, } from '@core/enums/experiment-status.enum';
 import { MatDivider } from '@angular/material/divider';
 import { ApiImageComponent } from '@core/components/common/image/api-image.component';
 import { EnumSelectComponent } from '@core/components/common/enum-select/enum-select.component';
@@ -68,8 +49,7 @@ import {
 } from '@core/utils/search.util';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-export interface SampleSearchDialogData {
-  experimentId: UUID;
+export interface GlobalSearchDialogData {
   reactionAnchor: ReactionAnchor;
 }
 
@@ -90,7 +70,6 @@ export interface SampleSearchDialogData {
     MatExpansionPanelTitle,
     MatExpansionPanelDescription,
     NumericSearchComponent,
-    MatProgressSpinner,
     InfiniteLoaderComponent,
     UserSelectComponent,
     DictionarySelectComponent,
@@ -103,7 +82,7 @@ export interface SampleSearchDialogData {
   templateUrl: './global-search.component.html',
 })
 export class GlobalSearchComponent implements OnInit {
-  data: SampleSearchDialogData = inject(MAT_DIALOG_DATA);
+  data: GlobalSearchDialogData = inject(MAT_DIALOG_DATA);
 
   loader: InfiniteSearchLoader<GlobalSearchRequest, GlobalSearchResult>;
 
@@ -257,16 +236,12 @@ export class GlobalSearchComponent implements OnInit {
         molFile: this.form.get('structure').value,
       },
     });
-    dialogRef.afterClosed().subscribe((result) => {
+    dialogRef.afterClosed().subscribe((result: StructureEditorModalResult) => {
       if (result?.success) {
-        let isReaction = result.rxnFile != null;
+        const isReaction = result.isReaction;
         this.form.get('isReaction').setValue(isReaction);
-        this.form
-          .get('structure')
-          .setValue(isReaction ? result.rxnFile : result.molFile);
-        this.structureImage = URL.createObjectURL(
-          isReaction ? result.rxnFileImage : result.molFileImage,
-        );
+        this.form.get('structure').setValue(result.molOrRxnFile);
+        this.structureImage = URL.createObjectURL(result.image);
       }
     });
   }

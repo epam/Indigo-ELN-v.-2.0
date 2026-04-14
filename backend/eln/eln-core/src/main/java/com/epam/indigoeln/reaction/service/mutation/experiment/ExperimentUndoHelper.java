@@ -35,4 +35,9 @@ public class ExperimentUndoHelper extends AbstractUndoHelper<ExperimentEntity, E
         }
         super.restoreStateAfterUndo(entity, context, snapshot, info);
     }
+
+    @Override
+    protected void afterHandle(AbstractUndoHelper<ExperimentEntity, ExperimentSnapshot, ExperimentRevisionEntity, ExperimentMutationContext>.UndoInfo info, ExperimentMutationContext context, boolean redo) {
+        context.getResponse().getMessages().add((redo ? "Redone: " : "Undone: ") + info.getRevision().getRevisionSummary());
+    }
 }
