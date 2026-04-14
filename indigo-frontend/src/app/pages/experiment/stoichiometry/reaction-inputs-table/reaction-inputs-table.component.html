@@ -1,10 +1,23 @@
+<div class="flex justify-between py-1">
+  <h3 class="text-sm font-semibold p-3">Reactants, Reagents, Solvents</h3>
+  <div class="flex justify-between items-center gap-3">
+  Significant Figures : <eln-select
+        [items]="items()"
+        [placeholder]="''"
+        [ngModel]="experimentModel()?.significantFigures?.toString()"
+        (selectionChange)="onSignificantFiguresChange($event)"
+      >
+      </eln-select>
+    
+    <eln-button (click)="addNewRow()" variant="grey">
+      <mat-icon class="text-md">add</mat-icon>
+    </eln-button>
+  </div>
+  
+</div>
 <eln-editable-data-table
-  title="Reactants, Reagents, Solvents"
   [dataSource]="dataSource()"
   [columns]="columns()"
   [displayedColumns]="displayedColumns()"
   emptyMessage="No material added"
-  [showAddButton]="true"
-  [showSignificantFigures]="true"
-  (addRow)="addNewRow()"
 />
