@@ -1,13 +1,3 @@
-<div class="flex justify-between py-1">
-  <h3 class="text-sm font-semibold p-3">{{ title() }}</h3>
-  @if (showAddButton()) {
-  <div class="flex justify-between items-center">
-    <eln-button (click)="onAddRow()" variant="grey">
-      <mat-icon class="text-md">add</mat-icon>
-    </eln-button>
-  </div>
-  }
-</div>
 <div class="w-full overflow-x-auto border border-gray-300 rounded">
   <table mat-table [dataSource]="dataSource() || []" class="w-full" style="background-color: white;" multiTemplateDataRows>
 
