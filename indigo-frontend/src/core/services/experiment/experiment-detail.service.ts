@@ -104,6 +104,14 @@ export class ExperimentDetailService {
   }
 
   // Utility methods
+  mark(id: string): Observable<boolean> {
+    return this.service.request<boolean>('post', `experiments/${id}/mark`);
+  }
+
+  unmark(id: string): Observable<boolean> {
+    return this.service.request<boolean>('post', `experiments/${id}/unmark`);
+  }
+
   refresh() {
     const id = this.currentId();
     if (id) this.load(id);
