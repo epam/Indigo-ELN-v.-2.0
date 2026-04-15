@@ -8,7 +8,7 @@ export abstract class InfiniteScrollBase<T> extends PaginatedBase<T> {
   appendToTop = false;
   protected override isLoading = false;
 
-  private pendingInfiniteLoad = false;
+  private isInfiniteLoaderVisible = false;
 
   protected override initialize(): void {
     super.initialize();
@@ -24,8 +24,7 @@ export abstract class InfiniteScrollBase<T> extends PaginatedBase<T> {
       this.dataBh.next(ensureDistinct(result, 'id'));
       this.isLoading = false;
 
-      if (this.pendingInfiniteLoad) {
-        this.pendingInfiniteLoad = false;
+       if (this.isInfiniteLoaderVisible) {
         this.infiniteLoad();
       }
     });
@@ -33,11 +32,17 @@ export abstract class InfiniteScrollBase<T> extends PaginatedBase<T> {
     this.data$ = this.dataBh.asObservable();
   }
 
+   onInfiniteLoaderEntered(): void {
+    this.isInfiniteLoaderVisible = true;
+  }
+
+  onInfiniteLoaderLeft(): void {
+    this.isInfiniteLoaderVisible = false;
+  }
+
   infiniteLoad() {
-    if (this.isLoading) {
-      this.pendingInfiniteLoad = true;
-      return;
-    }
+    if (this.isLoading) return;
+    
 
     const nextBackendPage = this.pager.pageNo + 1;
     const totalPages = Math.ceil(this.total / this.pager.pageSize);
@@ -51,7 +56,6 @@ export abstract class InfiniteScrollBase<T> extends PaginatedBase<T> {
 
   private resetListState() {
     this.isLoading = true;
-    this.pendingInfiniteLoad = false;
     this.appendToTop = false;
     this.pager.pageNo = 0;
     this.dataBh.next([]);
@@ -60,15 +64,6 @@ export abstract class InfiniteScrollBase<T> extends PaginatedBase<T> {
   override search(value: string) {
     this.resetListState();
     super.search(value);
-
-    setTimeout(() => {
-      const pageHeight = document.documentElement.scrollHeight;
-      const viewportHeight = window.innerHeight;
-
-      if (pageHeight <= viewportHeight) {
-        this.infiniteLoad();
-      }
-    }, 0);
   }
 
   override sort(sortBy: string, sort?: 'EARLIEST' | 'LATEST') {
@@ -78,7 +73,6 @@ export abstract class InfiniteScrollBase<T> extends PaginatedBase<T> {
 
   override clearSort() {
     this.pager.pageNo = 0;
-    this.pendingInfiniteLoad = false;
     this.dataBh.next([]);
     super.clearSort();
   }

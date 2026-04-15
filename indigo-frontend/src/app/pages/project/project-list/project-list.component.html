@@ -8,7 +8,6 @@
 />
 
 <div
-  *ngIf="data$ | async as data"
   [@viewChange]="selectedView"
   [ngClass]="{
     'grid gap-x-4 mt-5 gap-y-4': true,
@@ -26,6 +25,8 @@
         '2xl:col-span-3 md:col-span-2': selectedView == 'grid',
       } | classPicker
     "
+    (enteredViewport)="onInfiniteLoaderEntered()"
+    (leftViewport)="onInfiniteLoaderLeft()"
     (infiniteLoad)="infiniteLoad()"
   />
 </div>

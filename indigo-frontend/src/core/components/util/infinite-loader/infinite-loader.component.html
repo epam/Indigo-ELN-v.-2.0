@@ -1,7 +1,8 @@
 <div
   [class]="['invisible', classNames] | twsx"
   [appIsInViewport]="true"
-  (enteredViewport)="infiniteLoad.emit()"
+  (enteredViewport)="onEnteredViewport()"
+  (leftViewport)="onLeftViewport()"
 >
   simplicity is the ultimate sophistication
 </div>

@@ -10,4 +10,15 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 export class InfiniteLoaderComponent {
   @Input() classNames?: string;
   @Output() infiniteLoad = new EventEmitter<unknown>();
+  @Output() enteredViewport = new EventEmitter<void>();
+  @Output() leftViewport = new EventEmitter<void>();
+
+  onEnteredViewport(): void {
+    this.enteredViewport.emit();
+    this.infiniteLoad.emit();
+  }
+
+  onLeftViewport(): void {
+    this.leftViewport.emit();
+  }
 }
