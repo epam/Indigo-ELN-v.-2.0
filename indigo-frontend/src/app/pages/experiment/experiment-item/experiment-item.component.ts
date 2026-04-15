@@ -47,9 +47,7 @@ export class ExperimentItemComponent {
 
   constructor() {
     effect(() => {
-      if (this.experiment) {
-        this.isMarked.set(this.experiment.marked ?? false);
-      }
+      this.isMarked.set(this.experiment.marked ?? false);
     });
   }
 

@@ -6,7 +6,7 @@ import {
   MutationResponse,
   ReactionAnchor,
 } from '@core/types/entities/experiments/mutation.i';
-import { finalize, Observable, tap } from 'rxjs';
+import { finalize, Observable, Subject, tap } from 'rxjs';
 import { NotificationService } from '@core/services/notification/notification.service';
 import { NotificationType } from '@core/types/notification.i';
 import { Reaction } from '@core/types/entities/experiments/experiment.i';
@@ -103,13 +103,19 @@ export class ExperimentDetailService {
       );
   }
 
+  readonly markedChanged$ = new Subject<void>();
+
   // Utility methods
   mark(id: string): Observable<boolean> {
-    return this.service.request<boolean>('post', `experiments/${id}/mark`);
+    return this.service
+      .request<boolean>('post', `experiments/${id}/mark`)
+      .pipe(tap(() => this.markedChanged$.next()));
   }
 
   unmark(id: string): Observable<boolean> {
-    return this.service.request<boolean>('post', `experiments/${id}/unmark`);
+    return this.service
+      .request<boolean>('post', `experiments/${id}/unmark`)
+      .pipe(tap(() => this.markedChanged$.next()));
   }
 
   refresh() {

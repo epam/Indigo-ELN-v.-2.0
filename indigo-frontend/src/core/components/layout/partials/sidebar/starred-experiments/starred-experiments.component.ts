@@ -4,13 +4,14 @@ import { CardComponent } from '@/core/components/common/card/card.component';
 import { BadgeComponent } from '@/core/components/common/badge/badge.component';
 import { ApiService } from '@/core/services/api.service';
 import { NormalizeLabelPipe } from '@/core/pipes/normalizeLabe.pipe';
-import { finalize, Subject } from 'rxjs';
+import { finalize, Subject, takeUntil } from 'rxjs';
 import { ExperimentStatus } from '@/core/enums/experiment-status.enum';
 import { ExperimentDetail } from '@/core/types/entities/experiments/experiment-detail.i';
 import {
   EXPERIMENT_STATUS_DECORATION_MAP,
   ExperimentStatusDecoration,
 } from '@/core/utils/experiment-status.util';
+import { ExperimentDetailService } from '@/core/services/experiment/experiment-detail.service';
 
 @Component({
   selector: 'eln-starred-experiments',
@@ -21,6 +22,7 @@ import {
 export class StarredExperimentsComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private service = inject(ApiService);
+  private readonly experimentDetailService = inject(ExperimentDetailService);
 
   loading = false;
   error: string | null = null;
@@ -33,10 +35,15 @@ export class StarredExperimentsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.fetchMarkedExperiments();
+    this.experimentDetailService.markedChanged$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.fetchMarkedExperiments());
   }
 
   private fetchMarkedExperiments(): void {
-    this.loading = true;
+    if (this.experiments.length === 0) {
+      this.loading = true;
+    }
     this.service
       .request<ExperimentDetail[]>('get', 'experiments/marked')
       .pipe(finalize(() => (this.loading = false)))

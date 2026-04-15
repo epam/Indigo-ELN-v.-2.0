@@ -33,9 +33,9 @@
         <button
           class="flex items-center hover:bg-neutral-200 rounded-full cursor-pointer p-1"
           (click)="toggleMark($event)"
-          matTooltip="Mark experiment as favourite"
+          matTooltip="Add to starred experiments"
           matTooltipPosition="above"
-          [attr.aria-label]="isMarked() ? 'Remove from favourites' : 'Add to favourites'"
+          [attr.aria-label]="isMarked() ? 'Remove from starred experiments' : 'Add to starred experiments'"
         >
           @if (isMarked()) {
             <eln-svg icon="experiments/star-filled" classList="text-yellow-400"></eln-svg>
