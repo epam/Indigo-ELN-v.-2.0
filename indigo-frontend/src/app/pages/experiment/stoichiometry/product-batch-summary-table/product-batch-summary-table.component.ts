@@ -27,6 +27,8 @@ import {
 import { ExperimentDetailService } from '@core/services/experiment/experiment-detail.service';
 import { EnteredValue } from '@core/types/entities/values.i';
 import { determineCellClasses } from '@core/utils/experiment-model.util';
+import { ButtonComponent } from "@/core/components/common/button/button.component";
+import { MatIcon } from "@angular/material/icon";
 
 interface OutputSampleRow {
   output: ReactionOutput;
@@ -36,7 +38,7 @@ interface OutputSampleRow {
 @Component({
   selector: 'eln-product-batch-summary-table',
   templateUrl: './product-batch-summary-table.component.html',
-  imports: [MatSnackBarModule, EditableDataTableComponent],
+  imports: [MatSnackBarModule, EditableDataTableComponent, ButtonComponent, MatIcon],
 })
 export class ProductBatchSummaryTableComponent {
   private experimentDetailService = inject(ExperimentDetailService);

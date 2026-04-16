@@ -2,12 +2,12 @@ package com.epam.indigoeln.reaction.service.mutation.experiment;
 
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.reaction.model.*;
-import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputSampleMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
-import com.epam.indigoeln.reaction.service.mutation.*;
+import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
+import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import jakarta.enterprise.context.Dependent;
 
 @Dependent
@@ -95,19 +95,5 @@ class SetOutputVolumeHandler extends AbstractReactionOutputSampleMutationHandler
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputVolume mutation, ExperimentMutationContext context) {
         setEnteredValue(sample::setVolume, mutation.volume(), mutation.unit(), experiment.getRevision());
         return new MutationResult(formatSetterSummary("batch volume", mutation.volume(), mutation.unit()));
-    }
-}
-
-@Dependent
-@MutationHandlerFor(ReactionInputMutation.RemoveInput.class)
-class RemoveInputHandler extends AbstractReactionInputMutationHandler<ReactionInputMutation.RemoveInput> {
-
-    @Override
-    public MutationResult doHandle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.RemoveInput mutation, ExperimentMutationContext context) {
-        row.delete();
-        context.setSchemaAffected(true);
-        adjustLimitingInput(reaction);
-
-        return new MutationResult("Remove input");
     }
 }

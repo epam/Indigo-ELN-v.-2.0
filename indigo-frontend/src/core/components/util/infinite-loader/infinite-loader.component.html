@@ -1,3 +1,7 @@
+@if (isLoading) {
+  <mat-spinner diameter="40"></mat-spinner>
+}
+
 <div
   [class]="['invisible', classNames] | twsx"
   [appIsInViewport]="true"

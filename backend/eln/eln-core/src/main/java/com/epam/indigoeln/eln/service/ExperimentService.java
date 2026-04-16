@@ -1,8 +1,6 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.compound.entity.CompoundEntity;
-import com.epam.indigoeln.compound.model.FindSamplesRequest;
-import com.epam.indigoeln.compound.model.StructuralSearch;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.config.DataAccess;
@@ -22,6 +20,7 @@ import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
+import com.epam.indigoeln.reaction.service.mutation.experiment.ExperimentMutationContext;
 import com.epam.indigoeln.reports.api.ReportsAPI;
 import com.epam.indigoeln.reports.api.ReportsClient;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -35,6 +34,7 @@ import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
+import org.apache.commons.lang3.tuple.Triple;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jspecify.annotations.Nullable;
 
@@ -96,10 +96,10 @@ public class ExperimentService {
         return getExperimentDetails(experiment);
     }
 
-    public Page<ExperimentDTO> getExperiments(@Nullable UUID projectId, @Nullable UUID notebookId, @Nullable SortOrder sort, @Nullable Boolean createdByMe, Paging paging) {
+    public Page<ExperimentDTO> getExperiments(@Nullable UUID projectId, @Nullable UUID notebookId, @Nullable String search, @Nullable SortOrder sort, @Nullable Boolean createdByMe, Paging paging) {
         UserInfo currentUser = Boolean.TRUE.equals(createdByMe) ? userService.getCurrentUser() : null;
-        boolean showAll = userService.getCurrentUser().getPermissions().contains(ApplicationPermission.VIEW_EXPERIMENTS);
-        return experimentRepository.findAll(projectId, notebookId, sort, currentUser, paging, showAll);
+        boolean showAll = userService.getCurrentUser().getPermissions().contains(VIEW_EXPERIMENTS);
+        return experimentRepository.findAll(projectId, notebookId, search, sort, currentUser, paging, showAll);
     }
 
     public List<ExperimentDTO> getMarkedExperiments() {
@@ -130,13 +130,14 @@ public class ExperimentService {
 
     public Boolean markExperiment(UUID experimentId, boolean isMarked) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
-        aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
+        aclService.ensureAccess(experiment, VIEW_EXPERIMENTS);
         experimentRepository.markExperiment(experimentId, userService.getCurrentUserEntity(), isMarked);
         return isMarked;
     }
 
     public List<ACLDetailsEntryDTO> updateExperimentAccess(UUID experimentId, List<AccessForm> form) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
+        aclService.ensureAccess(experiment, MANAGE_EXPERIMENT_ACCESS);
         Mutation mutation = new ExperimentMutation.EditExperimentAccess(form);
         experimentModelService.applyMutation(experiment, mutation);
         return experimentMapper.convertDetailsACLList(experiment.getFullACL());
@@ -144,29 +145,42 @@ public class ExperimentService {
 
     public ExperimentModel mutateModel(UUID experimentId, Mutation mutation) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
-        return checkNotNull(experimentModelService.applyMutation(experiment, mutation).a().getModel());
+        aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
+        return checkNotNull(experimentModelService.applyMutation(experiment, mutation).getLeft().getModel());
     }
 
     public JsonNode mutateModel2(UUID experimentId, Integer revision, Mutation mutation) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
-        return experimentModelService.applyMutation(experiment, mutation).b();
+        aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
+        return experimentModelService.applyMutation(experiment, mutation).getMiddle();
     }
 
     public ExperimentSnapshot mutateModel3(UUID experimentId, Integer revision, Mutation mutation) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
-        return experimentModelService.applyMutation(experiment, mutation).a();
+        aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
+        return experimentModelService.applyMutation(experiment, mutation).getLeft();
+    }
+
+    public MutationResponse mutateModel4(UUID experimentId, Integer revision, Mutation mutation) {
+        ExperimentEntity experiment = experimentRepository.get(experimentId);
+        aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
+        Triple<ExperimentSnapshot, JsonNode, ExperimentMutationContext> triple = experimentModelService.applyMutation(experiment, mutation);
+        MutationResponse response = triple.getRight().getResponse();
+        response.setPatch(triple.getMiddle());
+        response.setUpdated(triple.getLeft());
+        return response;
     }
 
     public byte[] getExperimentPicture(UUID experimentId) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
-        aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
+        aclService.ensureAccess(experiment, VIEW_EXPERIMENTS);
         return experiment.getPicture() != null ? experiment.getPicture() : EMPTY_PICTURE;
     }
 
     public Response getReactionPicture(UUID experimentId, ReactionAnchor reactionAnchor, @Nullable Integer version) {
         // TODO generate on the fly from reaction rxnfile; shouldn't be heavyweight, because it will only be used when editing experiment, and most of the calls should be cached
         ExperimentEntity experiment = experimentRepository.get(experimentId);
-        aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
+        aclService.ensureAccess(experiment, VIEW_EXPERIMENTS);
         Reaction reaction = experimentModelService.getModel(experiment).locate(reactionAnchor);
         CacheControl cacheControl = new CacheControl();
         if (version != null) {
@@ -178,20 +192,24 @@ public class ExperimentService {
                 .build();
     }
 
-    public Map<InputAnchor, @Nullable FindSamplesRequest> analyzeRXN(UUID experimentId, ReactionAnchor reactionAnchor) {
+    public Map<InputAnchor, String> analyzeRXN(UUID experimentId, ReactionAnchor reactionAnchor) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
-        aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
+        aclService.ensureAccess(experiment, VIEW_EXPERIMENTS);
         ExperimentModel model = experimentModelService.getModel(experiment);
         Reaction reaction = model.locate(reactionAnchor);
+        return analyzeRXN(reaction);
+    }
+
+    public Map<InputAnchor, String> analyzeRXN(Reaction reaction) {
         return StreamEx.of(reaction.getInputs())
                 .mapToEntry(ReactionInput::getAnchor, input -> {
-                    if (input.getCompound().getCompoundID() != null) {
+                    if (input.getCompound() instanceof CompoundRef.Virtual) {
                         CompoundEntity compound = compoundService.getCompound(input.getCompound().getCompoundID());
-                        return new FindSamplesRequest()
-                                .withStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, compound.getMolFile()));
+                        return compound.getMolFile();
                     }
                     return null;
                 })
+                .filterValues(x -> x != null)
                 .toCustomMap(LinkedHashMap::new);
     }
 
@@ -229,13 +247,13 @@ public class ExperimentService {
 
     public List<RevisionDetailsDTO> getExperimentRevisions(UUID experimentId, @Nullable UUID editSessionId, @Nullable Boolean reverseOrder) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
-        aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
+        aclService.ensureAccess(experiment, VIEW_EXPERIMENTS);
         return experimentMapper.revisionToDTOList(experimentRepository.getRevisions(experiment, editSessionId, MoreObjects.firstNonNull(reverseOrder, false)));
     }
 
     public List<ExperimentRevisionSummaryDTO> getExperimentRevisionsSummary(UUID experimentId) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
-        aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
+        aclService.ensureAccess(experiment, VIEW_EXPERIMENTS);
         experimentRepository.closeInactiveEditSessions(experiment, Duration.ofHours(1));
         return experimentRepository.getRevisionsSummary(experiment);
     }
@@ -243,7 +261,7 @@ public class ExperimentService {
     public JsonNode compareVersions(UUID experimentId, @Nullable Integer versionFrom, @Nullable Integer versionTo) {
         validate(!Objects.equals(versionFrom, versionTo), "Versions to compare must be different");
         ExperimentEntity experiment = experimentRepository.get(experimentId);
-        aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
+        aclService.ensureAccess(experiment, VIEW_EXPERIMENTS);
         return experimentModelService.createPatch(getSnapshotToCompare(experiment, versionFrom), getSnapshotToCompare(experiment, versionTo));
     }
 

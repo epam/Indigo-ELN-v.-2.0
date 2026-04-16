@@ -1,6 +1,5 @@
 package com.epam.indigoeln.reaction.service.mutation.notebook;
 
-import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.eln.entity.NotebookEntity;
 import com.epam.indigoeln.eln.entity.NotebookRevisionEntity;
 import com.epam.indigoeln.eln.mapper.SnapshotMapper;
@@ -19,6 +18,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.inject.Inject;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.tuple.Triple;
 import org.hibernate.exception.ConstraintViolationException;
 import org.jspecify.annotations.Nullable;
 
@@ -50,7 +50,7 @@ public abstract class AbstractNotebookMutationHandler<T extends Mutation> extend
     }
 
     @Override
-    public Pair<NotebookSnapshot, JsonNode> applyMutation(NotebookEntity notebook, T mutation) {
+    public Triple<NotebookSnapshot, JsonNode, NotebookMutationContext> applyMutation(NotebookEntity notebook, T mutation) {
         return wrapConstraintViolation(
                 () -> super.applyMutation(notebook, mutation),
                 this::mapConstraintToError

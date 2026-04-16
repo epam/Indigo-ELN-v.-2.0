@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(ReactionInputMutation.SetInputRowEQ.class),
         @JsonSubTypes.Type(ReactionInputMutation.SetInputCompoundStereoisomerCode.class),
         @JsonSubTypes.Type(ReactionInputMutation.SetInputCompoundMolWeight.class),
-        @JsonSubTypes.Type(ReactionInputMutation.RemoveInput.class),
+        @JsonSubTypes.Type(ReactionInputMutation.RemoveInputRow.class),
 
         @JsonSubTypes.Type(ReactionInputSampleMutation.SetInputDensity.class),
         @JsonSubTypes.Type(ReactionInputSampleMutation.SetInputMolarity.class),
@@ -29,6 +29,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(ReactionInputSampleMutation.SetInputMol.class),
         @JsonSubTypes.Type(ReactionInputSampleMutation.SetInputWeight.class),
         @JsonSubTypes.Type(ReactionInputSampleMutation.SetInputComment.class),
+        @JsonSubTypes.Type(ReactionInputSampleMutation.RemoveInput.class),
 
         @JsonSubTypes.Type(ReactionOutputMutation.AddProductSample.class),
         @JsonSubTypes.Type(ReactionOutputMutation.SetOutputRowType.class),

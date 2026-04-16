@@ -7,6 +7,7 @@ plugins {
 dependencies {
     api(project(":eln:eln-api"))
     api(project(":reports:reports-api"))
+    api("io.quarkus:quarkus-smallrye-health")
     implementation(project(":database:flyway")) // TODO move flyway to a separate lambda and move dependency to testImplementation
 
     api("io.quarkus:quarkus-jdbc-postgresql")

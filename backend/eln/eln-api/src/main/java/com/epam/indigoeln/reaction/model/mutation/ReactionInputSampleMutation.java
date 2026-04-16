@@ -64,4 +64,9 @@ public interface ReactionInputSampleMutation extends Mutation {
             @Nullable String comment
     ) implements ReactionInputSampleMutation {
     }
+
+    record RemoveInput (
+            @NotNull InputSampleAnchor anchor
+    ) implements ReactionInputSampleMutation {
+    }
 }

@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactionInputsTableComponent } from '../reaction-inputs-table/reaction-inputs-table.component';
 import { ReactionProductsTableComponent } from '../reaction-products-table/reaction-products-table.component';
@@ -22,15 +22,10 @@ export class ReactionViewComponent {
   private experimentDetailService = inject(ExperimentDetailService);
 
   experimentId = input<string | null>(null);
-  modelUpdating = output<boolean>();
 
   // Computed signal for the first reaction (TODO: support multiple reactions)
   reaction = computed(
     () =>
       this.experimentDetailService.experimentModel()?.reactions?.[0] || null,
   );
-
-  onModelUpdating(isUpdating: boolean): void {
-    this.modelUpdating.emit(isUpdating);
-  }
 }

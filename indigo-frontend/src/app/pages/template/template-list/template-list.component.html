@@ -39,6 +39,7 @@
       } | classPicker
     "
     (infiniteLoad)="infiniteLoad()"
+    [isLoading]="isLoading"
     (enteredViewport)="onInfiniteLoaderEntered()"
     (leftViewport)="onInfiniteLoaderLeft()"
   />

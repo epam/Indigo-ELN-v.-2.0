@@ -65,7 +65,7 @@ public interface ReactionInputMutation extends Mutation {
     ) implements ReactionInputMutation {
     }
 
-    record RemoveInput (
+    record RemoveInputRow (
             @NotNull InputAnchor anchor
     ) implements ReactionInputMutation {
     }

@@ -1,6 +1,5 @@
 package com.epam.indigoeln.reaction.service.mutation.project;
 
-import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.eln.entity.ProjectEntity;
 import com.epam.indigoeln.eln.entity.ProjectRevisionEntity;
 import com.epam.indigoeln.eln.mapper.SnapshotMapper;
@@ -20,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.inject.Inject;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Triple;
 import org.hibernate.exception.ConstraintViolationException;
 import org.jspecify.annotations.Nullable;
 
@@ -52,7 +52,7 @@ public abstract class AbstractProjectMutationHandler<T extends Mutation> extends
     }
 
     @Override
-    public Pair<ProjectSnapshot, JsonNode> applyMutation(ProjectEntity project, T mutation) {
+    public Triple<ProjectSnapshot, JsonNode, ProjectMutationContext> applyMutation(ProjectEntity project, T mutation) {
         return wrapConstraintViolation(
                 () -> super.applyMutation(project, mutation),
                 this::mapConstraintToError

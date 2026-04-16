@@ -86,13 +86,17 @@ public abstract class AbstractUndoHelper<E extends BaseEntity & WithRevision, S,
             throw new RuntimeException("Failed to perform " + (redo ? "redo" : "undo") + ": " + e.getMessage(), e);
         }
 
-        return new MutationResult((redo ? "Redo: " : "Undo: ") + info.revision.entity.getSummary());
+        afterHandle(info, context, redo);
+        return new MutationResult((redo ? "Redo: " : "Undo: ") + info.revision.getRevisionSummary());
     }
 
     protected void restoreStateAfterUndo(E entity, C context, S snapshot, UndoInfo info) {
         for (RevisionInfo revision : info.rewind.reversed()) {
             revision.handler.doRestoreStateAfterUndo(entity, snapshot, revision.mutation);
         }
+    }
+
+    protected void afterHandle(UndoInfo info, C context, boolean redo) {
     }
 
     @Nullable
@@ -162,9 +166,9 @@ public abstract class AbstractUndoHelper<E extends BaseEntity & WithRevision, S,
                 .peek(x -> {
                     if (x.isRegular() && !x.handler.isUndoable()) {
                         if (x == found) {
-                            fail("Not undoable: " + x.entity.getSummary());
+                            fail("Not undoable: " + x.getRevisionSummary());
                         } else {
-                            fail("One of affected revisions is not undoable: " + x.entity.getSummary());
+                            fail("One of affected revisions is not undoable: " + x.getRevisionSummary());
                         }
                     }
                 })
@@ -210,6 +214,10 @@ public abstract class AbstractUndoHelper<E extends BaseEntity & WithRevision, S,
 
         public Integer getRevisionNo() {
             return entity.getRevision();
+        }
+
+        public String getRevisionSummary() {
+            return entity.getSummary();
         }
 
         private void setUndone(boolean undone) {
