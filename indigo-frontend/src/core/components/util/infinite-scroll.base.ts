@@ -32,12 +32,12 @@ export abstract class InfiniteScrollBase<T> extends PaginatedBase<T> {
     this.data$ = this.dataBh.asObservable();
   }
 
-   onInfiniteLoaderEntered(): void {
-    this.isInfiniteLoaderVisible = true;
-  }
-
   onInfiniteLoaderLeft(): void {
     this.isInfiniteLoaderVisible = false;
+  }
+
+   onInfiniteLoaderEntered(): void {
+    this.isInfiniteLoaderVisible = true;
   }
 
   infiniteLoad() {
