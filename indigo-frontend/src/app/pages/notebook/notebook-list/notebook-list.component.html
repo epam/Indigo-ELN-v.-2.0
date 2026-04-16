@@ -28,7 +28,9 @@
         '2xl:col-span-3 md:col-span-2': selectedView == 'grid',
       } | classPicker
     "
-    (infiniteLoad)="infiniteLoad()"
+      (infiniteLoad)="infiniteLoad()"
+      (enteredViewport)="onInfiniteLoaderEntered()"
+      (leftViewport)="onInfiniteLoaderLeft()"
   />
 </div>
 
