@@ -132,7 +132,7 @@
               "buildTarget": "indigo-frontend:build:local"
             }
           },
-          "defaultConfiguration": "development",
+          "defaultConfiguration": "production",
           "options": {
             "proxyConfig": "src/proxy.conf.js"
           }
