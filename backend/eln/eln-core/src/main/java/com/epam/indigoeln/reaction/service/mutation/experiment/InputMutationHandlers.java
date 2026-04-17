@@ -61,8 +61,21 @@ class SetInputRowRoleHandler extends AbstractReactionInputMutationHandler<Reacti
                     throw new IllegalStateException("Input with the same role and compound already exists");
                 });
 
-        context.setSchemaAffected(true);
         row.setRole(mutation.role());
         return new MutationResult(formatSetterSummary("input role", mutation.role()));
+    }
+}
+
+@Dependent
+@MutationHandlerFor(ReactionInputMutation.RemoveInputRow.class)
+class RemoveInputRowHandler extends AbstractReactionInputMutationHandler<ReactionInputMutation.RemoveInputRow> {
+
+    @Override
+    public MutationResult doHandle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.RemoveInputRow mutation, ExperimentMutationContext context) {
+        row.delete();
+        adjustLimitingInput(reaction);
+
+        context.getResponse().getMessages().add("Removed, press Ctrl-Z/Cmd-Z to undo (not yet implemented)");
+        return new MutationResult("Remove input");
     }
 }

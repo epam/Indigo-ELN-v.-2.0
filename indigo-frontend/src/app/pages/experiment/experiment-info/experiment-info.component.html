@@ -20,7 +20,7 @@
         @if (accordionItem.expanded) {
           <div class="grid grid-cols-3 border-t-1 border-neutral-300 mt-[19px] pt-[12px]">
               <div class="col-span-2 pr-[16px] relative">
-                <form [formGroup]="form" class="after:absolute after:content-[] after:border after:border-neutral-300 
+                <form [formGroup]="form" class="after:absolute after:content-[] after:border after:border-neutral-300
                                                 after:h-full after:left-full after:top-0">
                   <formly-form
                     [form]="form",
@@ -32,13 +32,13 @@
               <div class="flex flex-col pl-[12px] gap-[16px]">
                 <div class="flex flex-col gap-[4px]">
                   <span class="info-title">Experiment Name</span>
-                   <input class="flex"/> 
+                   <input class="flex"/>
                   <span class="info-desc">{{ experiment().name }}</span>
                 </div>
                 <div class="flex flex-col gap-[4px]">
                   <span class="info-title">Batch Creator</span>
                   <!-- <span class="info-desc"></span> should be implemented after the API will be ready -->
-                </div>  
+                </div>
                 <div class="flex flex-col gap-[4px]">
                   <span class="info-title">Created</span>
                   <span class="info-desc">
@@ -79,8 +79,7 @@
         @if (accordionItem2.expanded) {
           <div class="mt-4">
             <eln-reaction-view
-              [experimentId]="experiment()?.id || null"
-              (modelUpdating)="onModelUpdating($event)"
+              [experimentId]="experimentId()"
             />
           </div>
         }
@@ -90,35 +89,9 @@
 
   <eln-button
     type="button"
-    variant="blue" 
+    variant="blue"
     (click)="showAddMaterialDialog()"
   >
     Add Material
   </eln-button>
-</div>
-
-@if (isDrawerOpen()) {
-  <div
-    class="fixed inset-0 z-40 transition-opacity duration-300 bg-black/20"
-    style="top: 4.5rem;"
-    (click)="closeMaterialDrawer()">
-  </div>
-}
-
-<div
-  class="fixed right-0 w-96 bg-white z-50 shadow-2xl overflow-y-auto
-         transition-transform duration-300 ease-in-out"
-  [style.transform]="isDrawerOpen() ? 'translateX(0)' : 'translateX(100%)'"
-  [class.invisible]="!isDrawerOpen() && !isDrawerClosedOnce"
-  style="
-    width: 50%;
-    top: 4.5rem;
-    height: calc(100vh - 4rem);
-  "
->
-  <eln-sample-search
-    [experimentId]="experiment()?.id"
-    [reactionAnchor]="model()?.reactions[0]?.anchor"
-    (close)="closeMaterialDrawer()"
-  />
 </div>

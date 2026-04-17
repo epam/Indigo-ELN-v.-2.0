@@ -26,6 +26,7 @@ public final class EnteredValue<U extends MeasurementUnit> {
     public static final EnteredValue<NoUnit> DEFAULT_ONE = defaultValue(1.0, 1, NoUnit.NO_UNIT);
     public static final EnteredValue<NoUnit> DEFAULT_ONE_HUNDRED = defaultValue(100.0, 1, NoUnit.NO_UNIT);
     public static final EnteredValue<MolUnit> ZERO_MOL = defaultValue(0.0, 0, MolUnit.MOL);
+    public static final EnteredValue<NoUnit> ONE_HUNDREDTH = fixed(0.01, 1, NoUnit.NO_UNIT);
 
     @JsonIgnore
     private final double value;
@@ -83,19 +84,31 @@ public final class EnteredValue<U extends MeasurementUnit> {
         return value != null && unit != null ? new EnteredValue<>(value.doubleValue(), value.toString(), unit, DEFAULT) : null;
     }
 
-    public static <R extends MeasurementUnit> EnteredValue<R> add(EnteredValue<R> left, EnteredValue<R> right) {
+    @Nullable
+    public static <R extends MeasurementUnit> EnteredValue<R> add(@Nullable EnteredValue<R> left, @Nullable EnteredValue<R> right) {
+        if (left == null || right == null) {
+            return null;
+        }
         MeasurementUtil.UnitAndMultiplier2 pair = MeasurementUtil.addOrSubtract(left.unit, right.unit);
         //noinspection unchecked
         return (EnteredValue<R>) calculated(left.value * pair.multiplier1() + right.value * pair.multiplier2(), pair.unit(), left, right);
     }
 
-    public static <R extends MeasurementUnit> EnteredValue<R> subtract(EnteredValue<R> left, EnteredValue<R> right) {
+    @Nullable
+    public static <R extends MeasurementUnit> EnteredValue<R> subtract(@Nullable EnteredValue<R> left, @Nullable EnteredValue<R> right) {
+        if (left == null || right == null) {
+            return null;
+        }
         MeasurementUtil.UnitAndMultiplier2 pair = MeasurementUtil.addOrSubtract(left.unit, right.unit);
         //noinspection unchecked
         return (EnteredValue<R>) calculated(left.value * pair.multiplier1() - right.value * pair.multiplier2(), pair.unit(), left, right);
     }
 
-    public static <A extends MeasurementUnit, B extends MeasurementUnit, R extends MeasurementUnit> EnteredValue<R> multiply(EnteredValue<A> left, EnteredValue<B> right) {
+    @Nullable
+    public static <A extends MeasurementUnit, B extends MeasurementUnit, R extends MeasurementUnit> EnteredValue<R> multiply(@Nullable EnteredValue<A> left, @Nullable EnteredValue<B> right) {
+        if (left == null || right == null) {
+            return null;
+        }
         MeasurementUtil.UnitAndMultiplier pair = MeasurementUtil.multiply(left.unit, right.unit);
         //noinspection unchecked
         return (EnteredValue<R>) calculated(left.value * right.value * pair.multiplier(), pair.unit(), left, right);
@@ -105,7 +118,11 @@ public final class EnteredValue<U extends MeasurementUnit> {
         return calculated(self.value * by, self.unit, self, self);
     }
 
-    public static <R extends MeasurementUnit> EnteredValue<R> divide(EnteredValue<?> left, EnteredValue<?> right) {
+    @Nullable
+    public static <R extends MeasurementUnit> EnteredValue<R> divide(@Nullable EnteredValue<?> left, @Nullable EnteredValue<?> right) {
+        if (left == null || right == null) {
+            return null;
+        }
         MeasurementUtil.UnitAndMultiplier pair = MeasurementUtil.divide(left.unit, right.unit);
         //noinspection unchecked
         return (EnteredValue<R>) calculated(left.value / right.value * pair.multiplier(), pair.unit(), left, right);

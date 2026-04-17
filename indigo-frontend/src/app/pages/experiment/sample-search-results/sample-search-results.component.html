@@ -1,0 +1,117 @@
+@if (loader.started) {
+  <div class="overflow-auto max-h-[400px]">
+    <eln-expandable-table [dataSource]="loader.data$ | async">
+      <ng-template
+        elnColumnDef="compoundKey"
+        displayName="Compound ID"
+        let-element
+      >
+              <span class="font-medium text-gray-900">{{
+                  element.compoundKey
+                }}</span>
+      </ng-template>
+      <ng-template
+        elnColumnDef="name"
+        displayName="Chemical Name"
+        let-element
+      >
+        <ng-container *ngIf="element?.name; else noName">
+          {{ element.name }}
+        </ng-container>
+
+        <ng-template #noName>
+          <mat-icon>remove</mat-icon>
+        </ng-template>
+      </ng-template>
+      <ng-template
+        elnColumnDef="molWeight"
+        displayName="Mol. Weight"
+        let-element
+      >
+        {{ element.molWeight | number: '1.2-2' }}
+      </ng-template>
+      <ng-template
+        elnColumnDef="molFormula"
+        displayName="Mol. Formula"
+        let-element
+      >
+        {{ element.molecularFormula }}
+      </ng-template>
+      <ng-template elnColumnDef="marked" displayName="" let-element>
+        @if (!element.marked) {
+          <button
+            class="ml-2 px-4 py-2 bg-[#f3f3f3] rounded-[5px] cursor-pointer"
+            (click)="markSample(element, true)"
+          >
+            <mat-icon
+              matTooltip="Add to My Material List"
+            >
+              bookmark_border
+            </mat-icon>
+          </button>
+        } @else {
+          <button
+            class="ml-2 px-4 py-2 bg-[#f3f3f3] text-black rounded-[5px] cursor-pointer"
+            (click)="markSample(element, false)"
+          >
+            <mat-icon
+              matTooltip="Remove from My Material List"
+              style="color: #3f50b5"
+            >
+              bookmark
+            </mat-icon>
+          </button>
+        }
+      </ng-template>
+      <ng-template elnColumnDef="add" displayName="" let-element>
+        <button
+          class="ml-2 px-4 py-2 bg-[#f3f3f3] text-black rounded-[5px] cursor-pointer"
+          (click)="addToExperiment.emit(element)"
+        >
+          <mat-icon
+            matTooltip="Add to current experiment"
+            style="color: #3f50b5"
+          >add
+          </mat-icon>
+        </button>
+      </ng-template>
+
+      <ng-template #details let-element>
+        <div class="p-6 flex flex-row">
+          <div class="flex-3">
+            <div class="flex flex-col">
+              <div><b>Compound ID: </b>{{ element.compoundKey }}</div>
+              <div>
+                <b>Nbk Batch Number: </b>{{ element.nbkBatchNumber }}
+              </div>
+              <div>
+                <b>Molecular Formula: </b>{{ element.molecularFormula }}
+              </div>
+              <div>
+                <b>Molecular Weight: </b
+                >{{ element.molWeight | number: '1.2-2' }}
+              </div>
+              <div><b>Chemical Name: </b>{{ element.name }}</div>
+              <div><b>Salt Code: </b>{{ element.saltCode?.name }}</div>
+              <div><b>Salt EQ: </b>{{ element.saltEQ }}</div>
+            </div>
+          </div>
+          <div class="flex-1">
+            <eln-api-image
+              [url]="'/compounds/' + element.compoundID + '/picture'"
+              altText="molecule image"
+            />
+          </div>
+        </div>
+      </ng-template>
+    </eln-expandable-table>
+  </div>
+
+  <eln-infinite-loader
+    (infiniteLoad)="loader.fetchNextPage()"
+    [isLoading]="loader.loading"
+  />
+  @if (loader.error) {
+    <div>Error loading results</div>
+  }
+}

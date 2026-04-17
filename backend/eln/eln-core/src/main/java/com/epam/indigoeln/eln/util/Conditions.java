@@ -1,14 +1,19 @@
 package com.epam.indigoeln.eln.util;
 
-import com.google.common.base.Preconditions;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 public class Conditions {
 
     public static Conditions EMPTY = new Conditions();
+
+    private static final Pattern QUESTION_MARK = Pattern.compile("\\?");
 
     private final List<String> fields = new ArrayList<>();
     private final List<@Nullable Object> values = new ArrayList<>();
@@ -19,12 +24,18 @@ public class Conditions {
         return this;
     }
 
-    public Conditions add(String field, @Nullable Object value) {
-        int p = field.indexOf('?');
-        Preconditions.checkArgument(p != -1, "condition must contain ? character: %s", field);
-        field = field.substring(0, p + 1) + (++paramNo) + field.substring(p + 1);
+    public Conditions add(String field, @Nullable Object... value) {
+        int count = 0;
+        Matcher matcher = QUESTION_MARK.matcher(field);
+        StringBuilder sb = new StringBuilder();
+        while (matcher.find()) {
+            matcher.appendReplacement(sb, "?" + (++paramNo));
+            values.add(value[count++]);
+        }
+        matcher.appendTail(sb);
+        field = sb.toString();
+        checkArgument(count == value.length, "condition must contain exactly %s ? character: %s", value.length, field);
         fields.add(field);
-        values.add(value);
         return this;
     }
 

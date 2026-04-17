@@ -1,12 +1,12 @@
 package com.epam.indigoeln.reaction.service.mutation;
 
-import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.eln.entity.BaseRevisionEntity;
 import com.epam.indigoeln.eln.entity.WithRevision;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import org.apache.commons.lang3.tuple.Triple;
 
 public abstract class MutationHandler<T extends Mutation, E extends WithRevision, S, R extends BaseRevisionEntity, C> {
 
@@ -15,7 +15,7 @@ public abstract class MutationHandler<T extends Mutation, E extends WithRevision
 
     protected abstract C createContext();
 
-    public Pair<S, JsonNode> applyMutation(E entity, T mutation) {
+    public Triple<S, JsonNode, C> applyMutation(E entity, T mutation) {
         C context = createContext();
         // do the very early preparation; currently only used by undo/redo handlers
         doPrepare(entity, mutation, context);
@@ -40,7 +40,7 @@ public abstract class MutationHandler<T extends Mutation, E extends WithRevision
         R revision = doCreateRevision(entity, mutation, result, revisionNo, patch, context, snapshotAfter);
         em.persist(revision);
 
-        return Pair.of(snapshotAfter, patch);
+        return Triple.of(snapshotAfter, patch, context);
     }
 
     protected abstract void doValidateAccess(E entity, T mutation, C context);

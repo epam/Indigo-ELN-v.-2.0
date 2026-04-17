@@ -82,8 +82,8 @@ public class CloudFrontStack extends NestedStack {
                 )
                 .build();
 
-//        File frontendCode = new File("../indigo-frontend/dist/indigo-frontend/browser");
-        File frontendCode = new File("/home/user/Work/indigoeln-frontend/indigo-frontend/dist/indigo-frontend/browser");
+        File frontendCode = new File("../indigo-frontend/dist/indigo-frontend/browser");
+//        File frontendCode = new File("/home/user/Work/indigoeln-frontend/indigo-frontend/dist/indigo-frontend/browser");
 
         String headersFunctionCode = generateHeadersFunction(frontendCode, Paths.get("resources/cloudfront-headers-function.js"));
         Function headersFunction = Function.Builder.create(this, "headers-function")

@@ -193,10 +193,7 @@
               }
             }
           </div>
-          <eln-infinite-loader (infiniteLoad)="loader.fetchNextPage()" />
-          @if (loader.loading) {
-            <mat-spinner />
-          }
+          <eln-infinite-loader (infiniteLoad)="loader.fetchNextPage()" [isLoading]="loader.loading"/>
           @if (loader.error) {
             <div>Error loading results</div>
           }

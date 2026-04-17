@@ -86,6 +86,7 @@ export interface ReactionInput {
   chemicalName?: string;
   samples: ReactionInputSample[];
   limiting: boolean;
+  rxnPosition?: number;
 }
 
 export interface ReactionOutput {
@@ -114,4 +115,5 @@ export interface Reaction {
 // ================================
 export interface ExperimentModel {
   reactions: Reaction[];
+  significantFigures: number;
 }
