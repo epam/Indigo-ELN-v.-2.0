@@ -1,10 +1,7 @@
 <div class="p-4">
   <h2 class="font-semibold text-lg mb-4">{{ title }}</h2>
 
-  <form
-    [formGroup]="form"
-    class="border border-[#cecaca] rounded-[10px] bg-[#f9f9f9] p-2.5 m-2.5"
-  >
+  <form [formGroup]="form" class="border border-[#cecaca] rounded-[10px] bg-[#f9f9f9] p-2.5 m-2.5">
     <div class="flex flex-col gap-4">
       <div
         class="search-container flex items-center border border-[#ccc] rounded-[25px] px-[15px] py-[8px] bg-[#eff0f5] transition-shadow duration-200"
@@ -76,9 +73,7 @@
       </div>
       <mat-radio-group class="flex flex-wrap gap-4 text-sm" formControlName="catalog">
         <div class="grow">
-          <mat-radio-button value="ALL" [checked]="true">
-            All Catalogs
-          </mat-radio-button>
+          <mat-radio-button value="ALL" [checked]="true"> All Catalogs </mat-radio-button>
         </div>
 
         <div class="grow">
@@ -90,9 +85,7 @@
         </div>
 
         <div class="grow">
-          <mat-radio-button value="MY_MATERIALS" disabled
-            >My Materials</mat-radio-button
-          >
+          <mat-radio-button value="MY_MATERIALS" disabled>My Materials</mat-radio-button>
         </div>
       </mat-radio-group>
 
@@ -105,11 +98,7 @@
         </mat-radio-group>
         <div class="flex-1 flex justify-end">
           @if (form.get('structure').value) {
-            <em
-              class="indicon-close ml-auto"
-              (click)="clearStructure()"
-              matTooltip="Clear structure search"
-            ></em>
+            <em class="indicon-close ml-auto" (click)="clearStructure()" matTooltip="Clear structure search"></em>
           }
         </div>
       </div>
@@ -135,11 +124,7 @@
             </svg>
           </button>
 
-          <img
-            class="w-full h-full object-contain"
-            [src]="structureImage"
-            alt="structure editor"
-          />
+          <img class="w-full h-full object-contain" [src]="structureImage" alt="structure editor" />
         } @else {
           <div class="flex justify-center items-center h-full text-gray-500">
             <button
@@ -194,10 +179,7 @@
           </mat-panel-title>
         </mat-expansion-panel-header>
 
-        <div
-          class="grid grid-cols-2 gap-x-8 gap-y-3 text-xs"
-          style="margin-top: 10px"
-        >
+        <div class="grid grid-cols-2 gap-x-8 gap-y-3 text-xs" style="margin-top: 10px">
           <div>Compound ID</div>
           <div>Nbk Batch #</div>
 
@@ -231,10 +213,7 @@
           <div>Molecular Weight</div>
 
           <div class="relative">
-            <eln-text-search
-              formControlName="molecularFormula"
-              class="w-full"
-            />
+            <eln-text-search formControlName="molecularFormula" class="w-full" />
             @if (form.get('molecularFormula')?.value) {
               <button
                 type="button"
@@ -282,10 +261,7 @@
           <div>Comment State</div>
           <div>Batch Comment</div>
 
-          <eln-dictionary-select
-            formControlName="compoundState"
-            [dictionaryId]="BuildInDictionary.COMPONENT_STATE"
-          />
+          <eln-dictionary-select formControlName="compoundState" [dictionaryId]="BuildInDictionary.COMPONENT_STATE" />
 
           <div class="relative">
             <eln-text-search formControlName="batchComment" class="w-full" />
@@ -300,10 +276,7 @@
             }
           </div>
 
-          <eln-dictionary-select
-            formControlName="healthHazards"
-            [dictionaryId]="BuildInDictionary.HEALTH_HAZARD"
-          />
+          <eln-dictionary-select formControlName="healthHazards" [dictionaryId]="BuildInDictionary.HEALTH_HAZARD" />
 
           <div>Batch Hazard Comment</div>
           <div>CAS Number</div>
@@ -357,17 +330,13 @@
           Search
         </button>
       </div>
-
     </div>
   </form>
 
   @if (loader.started && loader.totalItems !== null) {
     <div class="flex justify-between mt-4">
-      <div class="flex-1 self-start">
-        Search Results ({{ loader.totalItems }})
-      </div>
+      <div class="flex-1 self-start">Search Results ({{ loader.totalItems }})</div>
     </div>
   }
-  <eln-sample-search-results [loader]="loader" (addToExperiment)="addToExperiment($event)"/>
-
+  <eln-sample-search-results [loader]="loader" (addToExperiment)="addToExperiment($event)" />
 </div>

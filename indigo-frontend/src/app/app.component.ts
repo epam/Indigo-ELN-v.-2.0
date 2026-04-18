@@ -1,8 +1,9 @@
 import { RouterOutlet } from '@angular/router';
 import { AmplifyAuthenticatorModule } from '@aws-amplify/ui-angular';
-import { sessionStorage, defaultStorage } from 'aws-amplify/utils';
+import { defaultStorage, sessionStorage } from 'aws-amplify/utils';
 import { cognitoUserPoolsTokenProvider } from 'aws-amplify/auth/cognito';
 import { Component, OnInit } from '@angular/core';
+
 @Component({
   selector: 'eln-root',
   imports: [RouterOutlet, AmplifyAuthenticatorModule],
@@ -14,9 +15,7 @@ export class AppComponent implements OnInit {
   title = 'indigo-frontend';
   isRemembered = false;
   ngOnInit() {
-    const hasLocalStorage = Object.keys(localStorage).some((key) =>
-      key.startsWith('CognitoIdentityServiceProvider'),
-    );
+    const hasLocalStorage = Object.keys(localStorage).some((key) => key.startsWith('CognitoIdentityServiceProvider'));
 
     if (hasLocalStorage) {
       this.isRemembered = true;

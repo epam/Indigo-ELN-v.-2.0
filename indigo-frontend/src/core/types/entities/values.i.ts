@@ -15,15 +15,9 @@ export const MOL_UNITS = [
 
 export const DENSITY_UNITS = [new MeasurementUnit('G_ML', 'g/mL')];
 
-export const MOLARITY_UNITS = [
-  new MeasurementUnit('MM', 'mM'),
-  new MeasurementUnit('M', 'M'),
-];
+export const MOLARITY_UNITS = [new MeasurementUnit('MM', 'mM'), new MeasurementUnit('M', 'M')];
 
-export const VOLUME_UNITS = [
-  new MeasurementUnit('ML', 'mL'),
-  new MeasurementUnit('L', 'L'),
-];
+export const VOLUME_UNITS = [new MeasurementUnit('ML', 'mL'), new MeasurementUnit('L', 'L')];
 
 export const WEIGHT_UNITS = [
   new MeasurementUnit('MG', 'mg'),

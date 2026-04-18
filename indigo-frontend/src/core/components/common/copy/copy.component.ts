@@ -18,7 +18,7 @@ export class CopyComponent {
     this.notificationService.notify({
       message: 'Copied to clipboard',
       type: NotificationType.Success,
-      isInline: false
+      isInline: false,
     });
   }
 }

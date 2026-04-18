@@ -7,11 +7,7 @@ import { CounterVariants, counterVariants } from './counter.variant';
   standalone: true,
 })
 export class CounterVariantPipe implements PipeTransform {
-  transform(
-    variant: CounterVariants['variant'],
-    size: CounterVariants['size'],
-    classList?: string,
-  ): string {
+  transform(variant: CounterVariants['variant'], size: CounterVariants['size'], classList?: string): string {
     return twsx(counterVariants({ variant, size }), classList);
   }
 }

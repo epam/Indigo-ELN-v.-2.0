@@ -1,9 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { ApiService } from '@/core/services/api.service';
-import {
-  BuiltInDictionary,
-  DictionaryItemRef,
-} from '@/core/types/entities/dictionary.i';
+import { BuiltInDictionary, DictionaryItemRef } from '@/core/types/entities/dictionary.i';
 
 @Injectable({
   providedIn: 'root',
@@ -50,18 +47,16 @@ export class BuiltInDictionaryService {
 
     this.loading.add(dictionary);
 
-    this.service
-      .request<DictionaryItemRef[]>('get', `dictionaries/${dictionary}`)
-      .subscribe({
-        next: (items) => {
-          this.cache.set(dictionary, items);
-          this.loading.delete(dictionary);
-        },
-        error: () => {
-          this.cache.set(dictionary, []);
-          this.loading.delete(dictionary);
-        },
-      });
+    this.service.request<DictionaryItemRef[]>('get', `dictionaries/${dictionary}`).subscribe({
+      next: (items) => {
+        this.cache.set(dictionary, items);
+        this.loading.delete(dictionary);
+      },
+      error: () => {
+        this.cache.set(dictionary, []);
+        this.loading.delete(dictionary);
+      },
+    });
   }
 
   public loadSaltCodes(forceReload = false) {

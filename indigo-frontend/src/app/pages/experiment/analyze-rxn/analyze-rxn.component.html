@@ -3,9 +3,7 @@
   <div class="flex flex-col gap-4">
     <mat-radio-group class="flex flex-wrap gap-4 text-sm">
       <div class="grow">
-        <mat-radio-button value="All" [checked]="true">
-          All Catalogs
-        </mat-radio-button>
+        <mat-radio-button value="All" [checked]="true"> All Catalogs </mat-radio-button>
       </div>
       <div class="grow">
         <mat-radio-button value="ELN">Indigo ELN</mat-radio-button>
@@ -14,9 +12,7 @@
         <mat-radio-button value="PubChem" disabled>PubChem</mat-radio-button>
       </div>
       <div class="grow">
-        <mat-radio-button value="MyMaterials" disabled
-        >My Materials</mat-radio-button
-        >
+        <mat-radio-button value="MyMaterials" disabled>My Materials</mat-radio-button>
       </div>
     </mat-radio-group>
   </div>
@@ -27,12 +23,14 @@
     [selectedIndex]="selectedTab"
   >
     @for (tab of tabs; track $index) {
-      <mat-tab [label]="tab.name + (tab.loader != null && tab.loader.totalItems != null ? ' (' + tab.loader.totalItems + ')' : '')" [disabled]="tab.loader == null">
+      <mat-tab
+        [label]="
+          tab.name + (tab.loader != null && tab.loader.totalItems != null ? ' (' + tab.loader.totalItems + ')' : '')
+        "
+        [disabled]="tab.loader == null"
+      >
         @if (tab.loader != null) {
-          <eln-sample-search-results
-            [loader]="tab.loader"
-            (addToExperiment)="addToExperiment(tab, $event)"
-          />
+          <eln-sample-search-results [loader]="tab.loader" (addToExperiment)="addToExperiment(tab, $event)" />
         } @else {
           <div></div>
         }

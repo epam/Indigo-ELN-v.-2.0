@@ -1,27 +1,12 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  inject,
-  Input,
-  OnInit,
-  QueryList,
-  ViewChild,
-  ViewChildren,
-} from '@angular/core';
+import { Component, inject, Input, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import {
-  Mutation,
-  ReactionInputAnchor,
-} from '@core/types/entities/experiments/mutation.i';
+import { Mutation, ReactionInputAnchor } from '@core/types/entities/experiments/mutation.i';
 import { MatTab, MatTabGroup } from '@angular/material/tabs';
 import { SampleSearchComponent } from '@pages/experiment/sample-search/sample-search.component';
-import {
-  FindSamplesRequest,
-  Sample,
-  StructuralSearchType,
-} from '@core/types/entities/experiments/search.i';
+import { FindSamplesRequest, Sample, StructuralSearchType } from '@core/types/entities/experiments/search.i';
 import { MatRadioButton, MatRadioGroup } from '@angular/material/radio';
 import { Reaction } from '@core/types/entities/experiments/experiment.i';
 import { InfiniteSearchLoader } from '@core/components/util/infinite-scroll-search';
@@ -57,10 +42,7 @@ interface Tab {
 })
 export class AnalyzeRxnComponent implements OnInit {
   @Input({ required: true }) reaction: Reaction;
-  @Input({ required: true }) unresolvedInputs: Record<
-    ReactionInputAnchor,
-    string
-  >;
+  @Input({ required: true }) unresolvedInputs: Record<ReactionInputAnchor, string>;
   @ViewChild(MatTabGroup) tabGroup!: MatTabGroup;
   @ViewChildren(SampleSearchComponent)
   searchComponents!: QueryList<SampleSearchComponent>;
@@ -79,13 +61,8 @@ export class AnalyzeRxnComponent implements OnInit {
         const search = this.unresolvedInputs[input.anchor];
         let loader = null;
         if (search != null) {
-          loader = new InfiniteSearchLoader<FindSamplesRequest, Sample>(
-            (searchParams, pageNo) =>
-              this.apiService.request(
-                'post',
-                `samples/search?pageNo=${pageNo}&pageSize=20`,
-                searchParams,
-              ),
+          loader = new InfiniteSearchLoader<FindSamplesRequest, Sample>((searchParams, pageNo) =>
+            this.apiService.request('post', `samples/search?pageNo=${pageNo}&pageSize=20`, searchParams),
           );
           loader.search({
             structure: {

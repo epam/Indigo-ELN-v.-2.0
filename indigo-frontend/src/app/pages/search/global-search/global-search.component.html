@@ -25,9 +25,7 @@
           <div>or draw structure</div>
           <mat-radio-group formControlName="structureSearchType">
             <mat-radio-button value="EXACT">Exact</mat-radio-button>
-            <mat-radio-button value="SUBSTRUCTURE"
-              >Substructure</mat-radio-button
-            >
+            <mat-radio-button value="SUBSTRUCTURE">Substructure</mat-radio-button>
             <mat-radio-button value="SIMILARITY">Similarity</mat-radio-button>
           </mat-radio-group>
           <div>
@@ -41,16 +39,9 @@
         </div>
         <div class="w-full h-48 flex items-center justify-center">
           @if (structureImage) {
-            <img
-              [src]="structureImage"
-              alt="structure editor"
-              (click)="editStructure()"
-              class="cursor-pointer"
-            />
+            <img [src]="structureImage" alt="structure editor" (click)="editStructure()" class="cursor-pointer" />
           } @else {
-            <span class="cursor-pointer" (click)="editStructure()">
-              <em class="indicon-plus"></em>Draw Structure
-            </span>
+            <span class="cursor-pointer" (click)="editStructure()"> <em class="indicon-plus"></em>Draw Structure </span>
           }
         </div>
         <mat-expansion-panel
@@ -77,10 +68,7 @@
               formControlName="therapeuticArea"
               [dictionaryId]="BuildInDictionary.THERAPEUTIC_AREA"
             />
-            <eln-dictionary-select
-              formControlName="projectCode"
-              [dictionaryId]="BuildInDictionary.PROJECT_CODE"
-            />
+            <eln-dictionary-select formControlName="projectCode" [dictionaryId]="BuildInDictionary.PROJECT_CODE" />
             <div class="text-xs">Batch Yield, %</div>
             <div class="text-xs">Batch Purity, %</div>
             <eln-numeric-search formControlName="batchYield" />
@@ -88,12 +76,7 @@
             <div class="col-span-2 text-xs">Author</div>
             <eln-user-select formControlName="author" class="col-span-2" />
             <div class="col-span-2 text-xs">
-              <a
-                class="underline"
-                href="#"
-                (click)="addMeAsAuthor(); $event.preventDefault()"
-                >Add Me as an Author</a
-              >
+              <a class="underline" href="#" (click)="addMeAsAuthor(); $event.preventDefault()">Add Me as an Author</a>
             </div>
             <div class="text-xs">Experiment Status</div>
             <div class="text-xs">Reaction Role</div>
@@ -115,9 +98,7 @@
         @if (loader.started) {
           @if (loader.totalItems !== null) {
             <div class="flex justify-between">
-              <div class="flex-1 self-start">
-                Search Results ({{ loader.totalItems }})
-              </div>
+              <div class="flex-1 self-start">Search Results ({{ loader.totalItems }})</div>
             </div>
           }
           <div class="flex flex-col gap-8 search-results">
@@ -129,14 +110,9 @@
                       <div class="flex-2 text-xl">
                         Project <b>{{ result.name }}</b>
                       </div>
-                      <div class="flex-1">
-                        <b>Author: </b>{{ result.createdBy.displayName }}
-                      </div>
+                      <div class="flex-1"><b>Author: </b>{{ result.createdBy.displayName }}</div>
                     </div>
-                    <div
-                      class="result-fragment"
-                      [innerHTML]="result.fragment"
-                    ></div>
+                    <div class="result-fragment" [innerHTML]="result.fragment"></div>
                   </div>
                 }
                 @case (GlobalSearchEntityType.NOTEBOOK) {
@@ -145,14 +121,9 @@
                       <div class="flex-2 text-xl">
                         Notebook <b>{{ result.name }}</b>
                       </div>
-                      <div class="flex-1">
-                        <b>Author: </b>{{ result.createdBy.displayName }}
-                      </div>
+                      <div class="flex-1"><b>Author: </b>{{ result.createdBy.displayName }}</div>
                     </div>
-                    <div
-                      class="result-fragment"
-                      [innerHTML]="result.fragment"
-                    ></div>
+                    <div class="result-fragment" [innerHTML]="result.fragment"></div>
                   </div>
                 }
                 @case (GlobalSearchEntityType.EXPERIMENT) {
@@ -170,21 +141,13 @@
                         <div><b>Status: </b>{{ result.experimentStatus }}</div>
                       </div>
                       <div class="flex-1 flex flex-col gap-4">
-                        <div>
-                          <b>Author: </b>{{ result.createdBy.displayName }}
-                        </div>
+                        <div><b>Author: </b>{{ result.createdBy.displayName }}</div>
                         @if (result.reactionRoles) {
-                          <div>
-                            <b>Reaction Roles: </b
-                            >{{ result.reactionRoles.join(', ') }}
-                          </div>
+                          <div><b>Reaction Roles: </b>{{ result.reactionRoles.join(', ') }}</div>
                         }
                       </div>
                     </div>
-                    <div
-                      class="result-fragment"
-                      [innerHTML]="result.fragment"
-                    ></div>
+                    <div class="result-fragment" [innerHTML]="result.fragment"></div>
                   </div>
                 }
               }
@@ -193,7 +156,7 @@
               }
             }
           </div>
-          <eln-infinite-loader (infiniteLoad)="loader.fetchNextPage()" [isLoading]="loader.loading"/>
+          <eln-infinite-loader (infiniteLoad)="loader.fetchNextPage()" [isLoading]="loader.loading" />
           @if (loader.error) {
             <div>Error loading results</div>
           }

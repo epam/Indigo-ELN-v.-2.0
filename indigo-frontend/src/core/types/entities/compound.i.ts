@@ -1,4 +1,4 @@
-import { SaltCodeRef, DictionaryItemRef } from '@core/types/entities/dictionary.i';
+import { DictionaryItemRef, SaltCodeRef } from '@core/types/entities/dictionary.i';
 import { EnteredValue } from '@core/types/entities/values.i';
 import { MolWeightUnit } from '@core/types/entities/experiments/experiment-shared.i';
 

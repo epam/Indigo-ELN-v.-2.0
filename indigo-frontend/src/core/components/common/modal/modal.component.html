@@ -16,9 +16,7 @@
       "
       (click)="$event.stopPropagation()"
     >
-      <div
-        class="modal-header p-4 border-b border-neutral-200 flex justify-between items-center"
-      >
+      <div class="modal-header p-4 border-b border-neutral-200 flex justify-between items-center">
         @if (modalHeader) {
           <ng-container *ngTemplateOutlet="modalHeader"></ng-container>
         } @else {

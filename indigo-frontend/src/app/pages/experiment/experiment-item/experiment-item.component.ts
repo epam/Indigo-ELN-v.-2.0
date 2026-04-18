@@ -2,7 +2,7 @@ import { BadgeComponent } from '@/core/components/common/badge/badge.component';
 import { CardComponent } from '@/core/components/common/card/card.component';
 import { ExperimentDetail } from '@/core/types/entities/experiments/experiment-detail.i';
 import { CommonModule } from '@angular/common';
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';

@@ -2,17 +2,17 @@ import { FormDialogComponent } from '@/core/components/common/form-dialog/form-d
 import { ApiService } from '@/core/services/api.service';
 import { NotebookService } from '@/core/services/notebook/notebook.service';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { NotificationService } from '@core/services/notification/notification.service';
 import { NotificationType } from '@core/types/notification.i';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { finalize, map } from 'rxjs/operators';
-import { RootTemplate, ItemTemplate } from '@/core/types/entities/template.i';
+import { ItemTemplate, RootTemplate } from '@/core/types/entities/template.i';
 
 interface ExperimentForm {
   templateId: string;

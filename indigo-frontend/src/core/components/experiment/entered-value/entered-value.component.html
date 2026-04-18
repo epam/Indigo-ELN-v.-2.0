@@ -16,12 +16,7 @@
   />
   @if (showUnits) {
     <div class="w-4/10" [hidden]="!editing">
-      <mat-select
-        #editUnits
-        class="field-select"
-        [value]="value?.unit"
-        (selectionChange)="stopEditing($event.value)"
-      >
+      <mat-select #editUnits class="field-select" [value]="value?.unit" (selectionChange)="stopEditing($event.value)">
         @for (unit of units; track unit.value) {
           <mat-option [value]="unit.value">{{ unit.displayName }}</mat-option>
         }

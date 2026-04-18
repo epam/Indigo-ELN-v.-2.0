@@ -1,17 +1,10 @@
-type JSONNode =
-  | null
-  | boolean
-  | number
-  | string
-  | JSONNode[]
-  | { [key: string]: JSONNode };
+type JSONNode = null | boolean | number | string | JSONNode[] | { [key: string]: JSONNode };
 
 // eslint-disable-next-line
 type JSONObject = { [key: string]: JSONNode };
 
 // Counterpart of backend's JSONPatcher.java, see its usage and tests for ddetails
 export class JSONPatcher {
-
   updatedNodes = new Map<unknown, unknown>();
 
   setPaths: Record<string, string>;
@@ -24,12 +17,13 @@ export class JSONPatcher {
 
   apply(base: unknown, patch: unknown): [unknown, Map<unknown, unknown>] {
     this.updatedNodes = new Map();
-    const updated = this.doApply(structuredClone(base) as JSONNode, patch as JSONNode, "");
+    const updated = this.doApply(structuredClone(base) as JSONNode, patch as JSONNode, '');
     return [updated, this.updatedNodes];
   }
 
   private doApply(base: JSONNode, patch: JSONNode, path: string): JSONNode {
-    if (patch == null) { // unchanged
+    if (patch == null) {
+      // unchanged
       return base;
     }
     if (typeof patch !== 'object' || Array.isArray(patch)) {
@@ -84,7 +78,7 @@ export class JSONPatcher {
       }
     }
 
-    return target.filter(item => item !== null);
+    return target.filter((item) => item !== null);
   }
 
   private doRestoreList(base: JSONObject[] | null, patch: JSONObject, path: string): JSONObject[] {
@@ -98,15 +92,19 @@ export class JSONPatcher {
 
     for (const [key, itemPatch] of Object.entries(patch)) {
       const [oldIndex, newIndex] = this.parseListKey(key);
-      if (oldIndex === -1) { // new item
+      if (oldIndex === -1) {
+        // new item
         if (newIndex === -1) throw new Error('Invalid patch key');
         target[newIndex] = this.doApply(null, itemPatch, path + '/#') as JSONObject;
         referenceCount[newIndex]++;
-      } else if (newIndex === -1) { // deleted item
+      } else if (newIndex === -1) {
+        // deleted item
         referenceCount[oldIndex]--;
-      } else { // updated and/or repositioned item
+      } else {
+        // updated and/or repositioned item
         const oldValue = source[oldIndex];
-        const newValue = itemPatch === '$unchanged' ? oldValue : this.doApply(oldValue, itemPatch, path + '/#') as JSONObject;
+        const newValue =
+          itemPatch === '$unchanged' ? oldValue : (this.doApply(oldValue, itemPatch, path + '/#') as JSONObject);
         target[newIndex] = newValue;
         referenceCount[oldIndex]--;
         referenceCount[newIndex]++;

@@ -3,16 +3,7 @@ import { PagedRequest, SortOption } from '@/core/types/request/paged-request.i';
 import { PaginatedResponse } from '@/core/types/response/paginated-response.i';
 import { inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-  BehaviorSubject,
-  defer,
-  finalize,
-  Observable,
-  of,
-  switchMap,
-  take,
-  tap,
-} from 'rxjs';
+import { BehaviorSubject, defer, finalize, Observable, of, switchMap, take, tap } from 'rxjs';
 import { PaginatedConfig } from './paginated.i';
 
 export abstract class PaginatedBase<T> {
@@ -86,32 +77,26 @@ export abstract class PaginatedBase<T> {
                   : // For subsequent loads or restoration disabled, use standard pager
                     this.pager;
 
-              return this.service
-                .getPaged(this.config.loadUrl, computedPager, this.filters)
-                .pipe(
-                  tap({
-                    next: (res) => {
-                      this.firstLoad = false;
-                      this.total = res.totalItems;
-                      if (
-                        res &&
-                        res.items.length == 0 &&
-                        this.pager.pageNo > 0
-                      ) {
-                        this.pager.pageNo = res.totalPages;
-                        this.fetchDataAndUpdateQueryParams(false);
+              return this.service.getPaged(this.config.loadUrl, computedPager, this.filters).pipe(
+                tap({
+                  next: (res) => {
+                    this.firstLoad = false;
+                    this.total = res.totalItems;
+                    if (res && res.items.length == 0 && this.pager.pageNo > 0) {
+                      this.pager.pageNo = res.totalPages;
+                      this.fetchDataAndUpdateQueryParams(false);
 
-                        this.dataSubject$.next(null);
-                      } else {
-                        this.dataSubject$.next(res);
-                      }
-                    },
-                  }),
+                      this.dataSubject$.next(null);
+                    } else {
+                      this.dataSubject$.next(res);
+                    }
+                  },
+                }),
 
-                  finalize(() => {
-                    this.isLoading = false;
-                  }),
-                );
+                finalize(() => {
+                  this.isLoading = false;
+                }),
+              );
             });
       }),
     );
@@ -120,12 +105,13 @@ export abstract class PaginatedBase<T> {
       ? this.activatedRoute.queryParams.pipe(
           take(1),
           switchMap((params) => {
-            const queryFilters = Object.keys(
-              params as Record<string, unknown>,
-            ).reduce((acc: Record<string, unknown>, curr) => {
-              acc[curr] = params[curr];
-              return acc;
-            }, {});
+            const queryFilters = Object.keys(params as Record<string, unknown>).reduce(
+              (acc: Record<string, unknown>, curr) => {
+                acc[curr] = params[curr];
+                return acc;
+              },
+              {},
+            );
 
             Object.keys(queryFilters).forEach((key) => {
               if (key in this.pager) {
@@ -170,10 +156,7 @@ export abstract class PaginatedBase<T> {
     };
 
     // Get the current URL tree
-    const currentUrlTree = this.router.createUrlTree(
-      [],
-      this.router.parseUrl(this.router.url),
-    );
+    const currentUrlTree = this.router.createUrlTree([], this.router.parseUrl(this.router.url));
 
     Object.keys(params).forEach((key) => {
       if (params[key]) {

@@ -1,10 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from '@/core/services/api.service';
 import { Observable } from 'rxjs';
-import {
-  DictionaryFull,
-  DictionaryList,
-} from '@/core/types/entities/dictionary.i';
+import { DictionaryFull, DictionaryList } from '@/core/types/entities/dictionary.i';
 
 @Injectable({
   providedIn: 'root',
@@ -20,32 +17,17 @@ export class DictionaryService {
     return this.api.request<DictionaryFull>('get', `dictionaries/${id}/full`);
   }
 
-  deleteDictionaryItem(
-    dictionaryId: string,
-    itemId: string,
-  ): Observable<DictionaryFull> {
-    return this.api.request<DictionaryFull>(
-      'delete',
-      `dictionaries/${dictionaryId}/${itemId}`,
-    );
+  deleteDictionaryItem(dictionaryId: string, itemId: string): Observable<DictionaryFull> {
+    return this.api.request<DictionaryFull>('delete', `dictionaries/${dictionaryId}/${itemId}`);
   }
 
-addDictionaryItem(
-  dictionaryId: string,
-  name: string,
-  description = '',
-): Observable<DictionaryFull> {
+  addDictionaryItem(dictionaryId: string, name: string, description = ''): Observable<DictionaryFull> {
+    const body: { name: string; description?: string } = { name };
 
-  const body: { name: string; description?: string } = { name };
+    if (description) {
+      body.description = description;
+    }
 
-  if (description) {
-    body.description = description;
+    return this.api.request<DictionaryFull>('post', `dictionaries/${dictionaryId}`, body);
   }
-
-  return this.api.request<DictionaryFull>(
-    'post',
-    `dictionaries/${dictionaryId}`,
-    body,
-  );
-}
 }

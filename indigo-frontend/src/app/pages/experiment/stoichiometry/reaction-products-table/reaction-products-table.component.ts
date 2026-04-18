@@ -1,8 +1,5 @@
 import { Component, computed, inject, input, OnInit } from '@angular/core';
-import {
-  Reaction,
-  ReactionOutput,
-} from '@core/types/entities/experiments/experiment.i';
+import { Reaction, ReactionOutput } from '@core/types/entities/experiments/experiment.i';
 import {
   ColumnConfig,
   ColumnInputType,
@@ -13,15 +10,9 @@ import { ExperimentDetailService } from '@core/services/experiment/experiment-de
 import { EnteredValue } from '@core/types/entities/values.i';
 import { determineCellClasses } from '@core/utils/experiment-model.util';
 import { CompoundType } from '@core/types/entities/compound.i';
-import {
-  BuiltInDictionary,
-  DictionaryItemRef,
-} from '@core/types/entities/dictionary.i';
+import { BuiltInDictionary, DictionaryItemRef } from '@core/types/entities/dictionary.i';
 import { BuiltInDictionaryService } from '@core/services/health-hazards/built-in-dictionary.service';
-import {
-  MolUnit,
-  WeightUnit,
-} from '@core/types/entities/experiments/experiment-shared.i';
+import { MolUnit, WeightUnit } from '@core/types/entities/experiments/experiment-shared.i';
 
 @Component({
   selector: 'eln-reaction-products-table',
@@ -170,9 +161,6 @@ export class ReactionProductsTableComponent implements OnInit {
   displayedColumns = this.columns.map((col) => col.id);
 
   private determineClasses(value?: EnteredValue<unknown>): string[] {
-    return determineCellClasses(
-      value,
-      this.experimentDetailService.updatedNodes(),
-    );
+    return determineCellClasses(value, this.experimentDetailService.updatedNodes());
   }
 }

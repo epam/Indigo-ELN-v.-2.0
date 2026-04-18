@@ -1,5 +1,4 @@
 <div class="flex flex-col gap-1" [class.text-red-200]="hasError">
-
   <div #dropdownContainer class="select-container relative text-sm">
     <div
       [class]="
@@ -14,8 +13,7 @@
           'active:bg-neutral-200': !disabled,
           'opacity-60': disabled,
           'border-red-200': hasError && !suffixStyle,
-          'bg-red-alpha-10 hover:bg-red-alpha-10 border-r-transparent':
-            hasError && suffixStyle,
+          'bg-red-alpha-10 hover:bg-red-alpha-10 border-r-transparent': hasError && suffixStyle,
           'border-primary-400': isOpen && !suffixStyle,
           'hover:border-primary-400': !disabled && !suffixStyle,
           'focus:border-r-transparent active:border-r-transparent hover:border-r-transparent border-t-transparent border-b-transparent border-l-transparent rounded-r-none':
@@ -26,11 +24,7 @@
     >
       @if (!multiple) {
         <em *ngIf="selectedLabel" class="indicon-check text-primary-400"></em>
-        <span
-          [class.text-neutral-500]="!selectedLabel"
-          class="dd-label"
-          [class.dd-placeholder]="!selectedLabel"
-        >
+        <span [class.text-neutral-500]="!selectedLabel" class="dd-label" [class.dd-placeholder]="!selectedLabel">
           {{ selectedLabel || placeholder }}
         </span>
       }
@@ -75,10 +69,7 @@
         </div>
       }
 
-      <em
-        class="indicon-chevron_down ml-auto transition-transform duration-200"
-        [class.rotate-180]="isOpen"
-      ></em>
+      <em class="indicon-chevron_down ml-auto transition-transform duration-200" [class.rotate-180]="isOpen"></em>
     </div>
 
     @if (isOpen) {
@@ -107,10 +98,7 @@
                 [class.border-primary-400]="isSelected(item)"
                 [class.bg-primary-400]="isSelected(item)"
               >
-                <em
-                  *ngIf="isSelected(item)"
-                  class="indicon-check text-white text-xs"
-                ></em>
+                <em *ngIf="isSelected(item)" class="indicon-check text-white text-xs"></em>
               </div>
             }
 
@@ -120,10 +108,7 @@
             <span class="flex-1 truncate">{{ item.label }}</span>
 
             <!-- Checkmark for single select -->
-            <em
-              *ngIf="!multiple && isSelected(item)"
-              class="indicon-check-circle ml-auto"
-            ></em>
+            <em *ngIf="!multiple && isSelected(item)" class="indicon-check-circle ml-auto"></em>
           </li>
         }
       </ul>

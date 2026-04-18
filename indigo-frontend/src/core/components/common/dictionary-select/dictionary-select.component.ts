@@ -1,22 +1,9 @@
-import {
-  Component,
-  DestroyRef,
-  forwardRef,
-  inject,
-  Input,
-  OnInit,
-} from '@angular/core';
+import { Component, DestroyRef, forwardRef, inject, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AutocompleteSelectComponent } from '@core/components/common/autocomplete-select/autocomplete-select.component';
 import { Observable } from 'rxjs';
 import { ApiService } from '@core/services/api.service';
-import {
-  AbstractControl,
-  FormControl,
-  FormGroup,
-  NG_VALUE_ACCESSOR,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
 import { map } from 'rxjs/operators';
 import { DropdownValueComponent } from '@core/components/experiment/dropdown-value/dropdown-value.component';
@@ -27,12 +14,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   selector: 'eln-dictionary-select',
   templateUrl: './dictionary-select.component.html',
   styleUrl: './dictionary-select.component.scss',
-  imports: [
-    CommonModule,
-    AutocompleteSelectComponent,
-    DropdownValueComponent,
-    ReactiveFormsModule,
-  ],
+  imports: [CommonModule, AutocompleteSelectComponent, DropdownValueComponent, ReactiveFormsModule],
   standalone: true,
   providers: [
     {
@@ -68,10 +50,7 @@ export class DictionarySelectComponent
       .get('multiple')
       .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => this.triggerChange(value));
-    this.allItems$ = this.api.request<DictionaryItemRef[]>(
-      'get',
-      `dictionaries/${this.dictionaryId}`,
-    );
+    this.allItems$ = this.api.request<DictionaryItemRef[]>('get', `dictionaries/${this.dictionaryId}`);
   }
 
   search(query: string): Observable<DictionaryItemRef[]> {
@@ -81,9 +60,7 @@ export class DictionarySelectComponent
           return allItems;
         }
         const queryLower = query.toLowerCase();
-        return allItems.filter((x) =>
-          x.name.toLowerCase().startsWith(queryLower),
-        );
+        return allItems.filter((x) => x.name.toLowerCase().startsWith(queryLower));
       }),
     );
   }

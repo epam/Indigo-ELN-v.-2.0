@@ -6,9 +6,7 @@
     </div>
     <span>by {{ attachment.createdBy?.displayName }}</span>
     <span>{{ attachment.size | bytesConverting }}</span>
-    <span class="flex justify-end items-center">{{
-      attachment.createdAt | date: 'dd MMM yyyy'
-    }}</span>
+    <span class="flex justify-end items-center">{{ attachment.createdAt | date: 'dd MMM yyyy' }}</span>
     <div class="flex ml-auto items-center">
       <!-- TODO: Add related options -->
       <button

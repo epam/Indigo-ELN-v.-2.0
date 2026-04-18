@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { CurrentUser } from '../types/entities/user.i';
-import { environment } from '../../environments/environment'
+import { environment } from '../../environments/environment';
 
 import { UserService } from '@/core/services/user.service';
 import { UserKeycloakService } from './user-keycloak.service';
@@ -16,7 +16,7 @@ export class IdentityService {
 
   constructor(
     private userService: UserService,
-    private userKeycloakService: UserKeycloakService
+    private userKeycloakService: UserKeycloakService,
   ) {
     if (environment.authProvider == 'keycloak') {
       this.identityService = this.userKeycloakService;

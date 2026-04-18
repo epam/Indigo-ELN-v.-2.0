@@ -7,12 +7,11 @@ import { MatSelectModule } from '@angular/material/select';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Reaction, ReactionOutput, ReactionOutputSample } from '@core/types/entities/experiments/experiment.i';
 import {
-  MeltingPoint,
   ExternalSupplier,
+  MeltingPoint,
   PurityCalculation,
   ResidualSolvent,
   SolubidityInSolvent,
-  NoUnit
 } from '@core/types/entities/experiments/experiment-shared.i';
 import { EnteredValue } from '@core/types/entities/values.i';
 import { BuiltInDictionary, DictionaryItemRef } from '@core/types/entities/dictionary.i';
@@ -66,16 +65,19 @@ export class BatchDetailInfoPanelComponent {
       const sampleData = this.sample();
       const compoundData = this.output().compound;
 
-      this.form.patchValue({
-        source: sampleData.source || null,
-        sourceDetails: sampleData.sourceDetails || null,
-        stereoisomerCode: compoundData?.stereoisomerCode || null,
-        componentState: sampleData.componentState || null,
-        compoundProtection: sampleData.compoundProtection || null,
-        healthHazards: sampleData.healthHazards || null,
-        handlingPrecautions: sampleData.handlingPrecautions || null,
-        storageInstructions: sampleData.storageInstructions || null,
-      }, { emitEvent: false });
+      this.form.patchValue(
+        {
+          source: sampleData.source || null,
+          sourceDetails: sampleData.sourceDetails || null,
+          stereoisomerCode: compoundData?.stereoisomerCode || null,
+          componentState: sampleData.componentState || null,
+          compoundProtection: sampleData.compoundProtection || null,
+          healthHazards: sampleData.healthHazards || null,
+          handlingPrecautions: sampleData.handlingPrecautions || null,
+          storageInstructions: sampleData.storageInstructions || null,
+        },
+        { emitEvent: false },
+      );
     });
 
     // TODO: Handle form changes and emit to parent for saving
@@ -93,12 +95,12 @@ export class BatchDetailInfoPanelComponent {
 
   formatResidualSolvents(solvents: ResidualSolvent[]): string {
     if (!solvents || solvents.length === 0) return '—';
-    return solvents.map(s => s.solvent?.name || '—').join(', ');
+    return solvents.map((s) => s.solvent?.name || '—').join(', ');
   }
 
   formatSolubility(items: SolubidityInSolvent[]): string {
     if (!items || items.length === 0) return '—';
-    return items.map(i => i.solvent?.name || '—').join(', ');
+    return items.map((i) => i.solvent?.name || '—').join(', ');
   }
 
   formatExternalSupplier(supplier?: ExternalSupplier): string {
@@ -108,7 +110,7 @@ export class BatchDetailInfoPanelComponent {
 
   formatPurity(items: PurityCalculation[]): string {
     if (!items || items.length === 0) return '—';
-    return items.map(p => `${p.type}: ${p.purity}`).join(', ');
+    return items.map((p) => `${p.type}: ${p.purity}`).join(', ');
   }
 
   formatPurityValue(purity: EnteredValue<string> | undefined): string {
@@ -120,7 +122,7 @@ export class BatchDetailInfoPanelComponent {
   formatPrecursorReactantIds(): string {
     const ids = this.reaction().precursorReactantIds;
     if (!ids || ids.length === 0) return '—';
-    return ids.map(id => id.stringForm || '—').join(', ');
+    return ids.map((id) => id.stringForm || '—').join(', ');
   }
 
   // Chip list helper for melting point (still using chip-list component)
@@ -130,6 +132,6 @@ export class BatchDetailInfoPanelComponent {
   }
 
   getSolubilityChips(): string[] {
-    return this.sample().solubilityInSolvents?.map(i => i.solvent?.name || '—') || [];
+    return this.sample().solubilityInSolvents?.map((i) => i.solvent?.name || '—') || [];
   }
 }

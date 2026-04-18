@@ -1,16 +1,8 @@
-import { inject } from '@angular/core';
+import { Component, ContentChild, EventEmitter, inject, Input, Output, TemplateRef } from '@angular/core';
 import { NotificationService } from '@core/services/notification/notification.service';
 import { NotificationType } from '@core/types/notification.i';
 import { ClassPickerPipe } from '@/core/pipes/classPicker.pipe';
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  ContentChild,
-  EventEmitter,
-  Input,
-  Output,
-  TemplateRef,
-} from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -53,8 +45,7 @@ export class FormDialogComponent {
   @Input() toastMessages: Record<string, string> = {};
   @Output() formSubmit = new EventEmitter<any>();
   @ContentChild('modalHeader') modalHeader: TemplateRef<unknown> | null = null;
-  @ContentChild('modalContent') modalContent: TemplateRef<unknown> | null =
-    null;
+  @ContentChild('modalContent') modalContent: TemplateRef<unknown> | null = null;
   @ContentChild('modalFooter') modalFooter: TemplateRef<unknown> | null = null;
 
   submit() {
@@ -76,9 +67,7 @@ export class FormDialogComponent {
         const validationMessages = fieldConfig?.validation?.messages || {};
 
         Object.keys(control.errors).forEach((errorKey) => {
-          const msg =
-            this.toastMessages[errorKey] ??
-            (validationMessages[errorKey] as string);
+          const msg = this.toastMessages[errorKey] ?? (validationMessages[errorKey] as string);
           if (msg && !messages.includes(msg)) {
             messages.push(msg);
           }
@@ -96,10 +85,7 @@ export class FormDialogComponent {
   }
 
   onBackdropClick(event: MouseEvent): void {
-    if (
-      this.closeOnBackdropClick &&
-      (event.target as HTMLElement).classList.contains('modal-backdrop')
-    ) {
+    if (this.closeOnBackdropClick && (event.target as HTMLElement).classList.contains('modal-backdrop')) {
       this.dialogRef.close('backdrop');
     }
   }

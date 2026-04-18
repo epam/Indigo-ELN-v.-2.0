@@ -1,9 +1,7 @@
 @let dataSource = dataSource$ | async;
 
 <div class="m-4">
-  <div
-    class="flex justify-between items-center border-b border-gray-200 pb-4 mb-4"
-  >
+  <div class="flex justify-between items-center border-b border-gray-200 pb-4 mb-4">
     <div class="font-semibold text-lg">Dictionary</div>
     <mat-icon
       (click)="close.emit()"
@@ -15,9 +13,7 @@
   </div>
 
   <eln-card classList="bg-gray-50 p-4">
-    <div
-      class="flex items-center justify-between pb-3 border-b border-gray-200"
-    >
+    <div class="flex items-center justify-between pb-3 border-b border-gray-200">
       <h3 class="text-lg font-bold text-gray-900">About Dictionary</h3>
     </div>
 
@@ -43,9 +39,7 @@
   </div>
 } @else if (dataSource) {
   <div class="m-4">
-    <div
-      class="flex justify-between items-center border-b border-gray-200 pb-4 mb-4"
-    >
+    <div class="flex justify-between items-center border-b border-gray-200 pb-4 mb-4">
       <div class="max-w-1/2 my-6">
         <eln-input
           [icon]="'indicon-search text-xl'"
@@ -57,11 +51,7 @@
         </eln-input>
       </div>
 
-      <eln-button
-        variant="grey"
-        classList="flex items-center gap-2"
-        (click)="addNewWordRowToTable()"
-      >
+      <eln-button variant="grey" classList="flex items-center gap-2" (click)="addNewWordRowToTable()">
         <em class="text-xl indicon-plus"></em>
         <span class="whitespace-nowrap">Add Word</span>
       </eln-button>
@@ -87,9 +77,7 @@
                 (blur)="handleInputChange(formRows[i], word)"
                 (keydown.enter)="handleInputChange(formRows[i], word, $event)"
               />
-              <mat-error *ngIf="formRows[i].get('name')?.hasError('required')">
-                Name is required.
-              </mat-error>
+              <mat-error *ngIf="formRows[i].get('name')?.hasError('required')"> Name is required. </mat-error>
               <mat-error *ngIf="formRows[i].get('name')?.hasError('notUnique')">
                 Name must be unique. Please choose a different name.
               </mat-error>
@@ -122,11 +110,7 @@
       <ng-container matColumnDef="delete">
         <mat-header-cell *matHeaderCellDef></mat-header-cell>
         <mat-cell *matCellDef="let element; let i = index">
-          <button
-            mat-icon-button
-            class="delete-icon-btn"
-            (click)="deleteItemFromTable(element.id, i)"
-          >
+          <button mat-icon-button class="delete-icon-btn" (click)="deleteItemFromTable(element.id, i)">
             <em class="indicon-delete text-[20px] text-red-200"></em>
           </button>
         </mat-cell>
@@ -138,9 +122,7 @@
 
       <ng-template matNoDataRow>
         <tr>
-          <td class="tex-sm text-center text-gray-500 p-4">
-            No dictionary words found.
-          </td>
+          <td class="tex-sm text-center text-gray-500 p-4">No dictionary words found.</td>
         </tr>
       </ng-template>
     </mat-table>

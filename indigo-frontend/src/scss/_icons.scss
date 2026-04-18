@@ -4,14 +4,10 @@
   font-family: '#{$indigo-icons-font-family}';
   src: url('#{$indigo-icons-font-path}/#{$indigo-icons-font-family}.eot?ir603p');
   src:
-    url('#{$indigo-icons-font-path}/#{$indigo-icons-font-family}.eot?ir603p#iefix')
-      format('embedded-opentype'),
-    url('#{$indigo-icons-font-path}/#{$indigo-icons-font-family}.ttf?ir603p')
-      format('truetype'),
-    url('#{$indigo-icons-font-path}/#{$indigo-icons-font-family}.woff?ir603p')
-      format('woff'),
-    url('#{$indigo-icons-font-path}/#{$indigo-icons-font-family}.svg?ir603p##{$indigo-icons-font-family}')
-      format('svg');
+    url('#{$indigo-icons-font-path}/#{$indigo-icons-font-family}.eot?ir603p#iefix') format('embedded-opentype'),
+    url('#{$indigo-icons-font-path}/#{$indigo-icons-font-family}.ttf?ir603p') format('truetype'),
+    url('#{$indigo-icons-font-path}/#{$indigo-icons-font-family}.woff?ir603p') format('woff'),
+    url('#{$indigo-icons-font-path}/#{$indigo-icons-font-family}.svg?ir603p##{$indigo-icons-font-family}') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;

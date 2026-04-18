@@ -1,8 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, Input, OnInit } from '@angular/core';
-import { MatIconRegistry } from '@angular/material/icon';
+import { MatIcon, MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
-import { MatIcon } from '@angular/material/icon';
 
 export type IconSize = 'small' | 'medium' | 'large' | 'extra-large';
 
@@ -29,10 +28,7 @@ export class SvgIconComponent implements OnInit {
   }
 
   private registerSvgIcon(iconName: string): void {
-    this.iconRegistry.addSvgIcon(
-      iconName,
-      this.sanitizer.bypassSecurityTrustResourceUrl(`assets/${iconName}.svg`)
-    );
+    this.iconRegistry.addSvgIcon(iconName, this.sanitizer.bypassSecurityTrustResourceUrl(`assets/${iconName}.svg`));
   }
 
   get isFontIcon(): boolean {

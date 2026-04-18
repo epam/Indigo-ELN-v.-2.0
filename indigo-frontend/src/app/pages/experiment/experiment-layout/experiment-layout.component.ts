@@ -12,13 +12,7 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
   selector: 'eln-experiment-layout',
   templateUrl: './experiment-layout.component.html',
   standalone: true,
-  imports: [
-    RouterOutlet,
-    ProjectTabButtonComponent,
-    CommonModule,
-    CardComponent,
-    MatProgressSpinner,
-  ],
+  imports: [RouterOutlet, ProjectTabButtonComponent, CommonModule, CardComponent, MatProgressSpinner],
 })
 export class ExperimentLayoutComponent implements OnInit, OnDestroy {
   private activatedRoute = inject(ActivatedRoute);
@@ -29,13 +23,9 @@ export class ExperimentLayoutComponent implements OnInit, OnDestroy {
   experimentId = '';
 
   // Computed signals from the service
-  experiment = computed<ExperimentDetail | null>(() =>
-    this.experimentDetailService.experimentDetail(),
-  );
+  experiment = computed<ExperimentDetail | null>(() => this.experimentDetailService.experimentDetail());
   isLoading = computed<boolean>(() => this.experimentDetailService.isLoading());
-  isUpdating = computed<boolean>(() =>
-    this.experimentDetailService.isUpdating(),
-  );
+  isUpdating = computed<boolean>(() => this.experimentDetailService.isUpdating());
   hasError = computed<boolean>(() => this.experimentDetailService.hasError());
 
   // Tab URLs

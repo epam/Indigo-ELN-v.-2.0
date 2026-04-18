@@ -46,8 +46,7 @@ export class NotebookExperimentsTabComponent extends InfiniteScrollBase<Experime
 
   constructor(activatedRoute: ActivatedRoute) {
     super();
-    const notebookId =
-      activatedRoute.parent?.snapshot.paramMap.get('notebookId');
+    const notebookId = activatedRoute.parent?.snapshot.paramMap.get('notebookId');
     const projectId = activatedRoute.parent?.snapshot.paramMap.get('projectId');
 
     this.notebookId = notebookId || '';

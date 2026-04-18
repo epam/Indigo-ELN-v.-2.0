@@ -33,6 +33,4 @@ I18n.putVocabulariesForLanguage('en', {
 
 I18n.setLanguage('en');
 
-bootstrapApplication(AppComponent, appConfig).catch((err) =>
-  console.error(err),
-);
+bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));

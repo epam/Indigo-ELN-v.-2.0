@@ -1,4 +1,4 @@
-.mat-expansion-panel{
+.mat-expansion-panel {
   background: #ffffff;
 }
 
@@ -11,7 +11,7 @@
   }
 
   ::ng-deep .mat-mdc-select-trigger {
-    background-color: #EFF0F9 !important;
+    background-color: #eff0f9 !important;
     border-radius: 2px;
     height: 36px;
     padding: 10px;
@@ -19,10 +19,8 @@
   }
 
   ::ng-deep .relative .rounded-sm {
-    border: #E8E8E8 solid 1px;
+    border: #e8e8e8 solid 1px;
   }
-
-
 
   .header-column {
     display: flex;

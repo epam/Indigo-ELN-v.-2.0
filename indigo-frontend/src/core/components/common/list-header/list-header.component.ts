@@ -1,22 +1,10 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  Output,
-  SimpleChanges,
-} from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Subject } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
-import {
-  ButtonToggleComponent,
-  ToggleOption,
-} from '../button-toggle/button-toggle.component';
+import { ButtonToggleComponent, ToggleOption } from '../button-toggle/button-toggle.component';
 import { DropdownMenuComponent } from '../dropdown-menu/dropdown-menu.component';
 import { DropdownMenuItem } from '../dropdown-menu/dropdown-menu.i';
 import { InputComponent } from '../input/input.component';
@@ -75,19 +63,15 @@ export class ListHeaderComponent implements OnInit, OnChanges, OnDestroy {
   ];
 
   ngOnInit() {
-    this.searchSubject
-      .pipe(debounceTime(300), takeUntil(this.destroy$))
-      .subscribe((value) => {
-        this.searchChange.emit(value);
-      });
+    this.searchSubject.pipe(debounceTime(300), takeUntil(this.destroy$)).subscribe((value) => {
+      this.searchChange.emit(value);
+    });
 
-    this.sortControl.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((value) => {
-        if (value) {
-          this.onSortChange(value);
-        }
-      });
+    this.sortControl.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value) => {
+      if (value) {
+        this.onSortChange(value);
+      }
+    });
 
     this.updateSortControl();
   }
@@ -107,9 +91,7 @@ export class ListHeaderComponent implements OnInit, OnChanges, OnDestroy {
     if (this.currentSort && this.sortOptions.length > 0) {
       const matchingOption = this.sortOptions.find((option) => {
         const [sortBy, sort] = option.value.split(':');
-        return (
-          sortBy === this.currentSort!.sortBy && sort === this.currentSort!.sort
-        );
+        return sortBy === this.currentSort!.sortBy && sort === this.currentSort!.sort;
       });
 
       if (matchingOption) {

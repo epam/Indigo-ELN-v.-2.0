@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import Keycloak from 'keycloak-js';
 
 @Component({
   selector: 'eln-root',

@@ -1,10 +1,6 @@
 import { DictionaryListItem } from '@/core/types/entities/dictionary.i';
 import { Component } from '@angular/core';
-import {
-  MatDrawerContent,
-  MatDrawerContainer,
-  MatDrawer,
-} from '@angular/material/sidenav';
+import { MatDrawer, MatDrawerContainer, MatDrawerContent } from '@angular/material/sidenav';
 import { DictionaryListComponent } from '../dictionary-list/dictionary-list.component';
 import { DictionaryDrawerComponent } from '../dictionary-drawer/dictionary-drawer.component';
 import { CommonModule } from '@angular/common';

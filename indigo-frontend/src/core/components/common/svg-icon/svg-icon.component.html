@@ -1,14 +1,5 @@
 @if (isFontIcon) {
-  <em
-    [class]="
-      'indicon-' +
-      icon.replace('indicon-', '') +
-      ' ' +
-      sizeClass +
-      ' ' +
-      classList
-    "
-  ></em>
+  <em [class]="'indicon-' + icon.replace('indicon-', '') + ' ' + sizeClass + ' ' + classList"></em>
 } @else {
   <mat-icon [svgIcon]="icon" [class]="sizeClass + ' ' + classList"></mat-icon>
 }

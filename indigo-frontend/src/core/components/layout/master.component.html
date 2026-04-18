@@ -1,13 +1,9 @@
 <div class="flex flex-col h-screen">
-  <header
-    class="flex-shrink-0 p-4 flex items-center justify-between bg-primary-600 shadow-md max-h-18"
-  >
+  <header class="flex-shrink-0 p-4 flex items-center justify-between bg-primary-600 shadow-md max-h-18">
     <div>
       <img src="assets/logo-full.svg" alt="Logo" class="h-8" />
     </div>
-    <div
-      class="flex my-4 items-center gap-2 bg-primary-500 px-4 rounded-full max-w-xl w-full"
-    >
+    <div class="flex my-4 items-center gap-2 bg-primary-500 px-4 rounded-full max-w-xl w-full">
       <em class="indicon-search text-xl text-neutral"></em>
       <input
         class="bg-transparent border-none h-10 outline-none text-neutral flex-1 placeholder:text-neutral-400 w-full"
@@ -23,15 +19,8 @@
       <button mat-icon-button>
         <em class="indicon-bell text-neutral relative -top-1"></em>
       </button>
-      <div
-        class="flex items-center gap-2 p-2 rounded-sm text-neutral"
-        [matMenuTriggerFor]="userMenu"
-      >
-        <img
-          [src]="userAvatar"
-          alt="User avatar"
-          class="h-8 w-8 rounded-full"
-        />
+      <div class="flex items-center gap-2 p-2 rounded-sm text-neutral" [matMenuTriggerFor]="userMenu">
+        <img [src]="userAvatar" alt="User avatar" class="h-8 w-8 rounded-full" />
         <span>{{ userName }}</span>
       </div>
       <mat-menu #userMenu="matMenu">

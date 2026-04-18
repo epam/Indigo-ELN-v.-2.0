@@ -8,10 +8,7 @@ import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
 import { UserMetadata } from '@core/types/entities/user.i';
 import { AbstractControl } from '@angular/forms';
 
-export function textSearchSummary(
-  name: string,
-  search: TextSearch | null,
-): string | null {
+export function textSearchSummary(name: string, search: TextSearch | null): string | null {
   if (search?.type === 'between') {
     return `<b>${name}</b>&ensp;${TextSearchTypeNames[search.type]}&ensp;${search.from}&nbsp;and&nbsp;${search.to}`;
   } else if (search != null) {
@@ -20,10 +17,7 @@ export function textSearchSummary(
   return null;
 }
 
-export function numericSearchSummary(
-  name: string,
-  search: NumericSearch | null,
-): string | null {
+export function numericSearchSummary(name: string, search: NumericSearch | null): string | null {
   if (search != null) {
     return `<b>${name}</b>&ensp;${NumericSearchTypeNames[search.type]}&ensp;${search.value}`;
   }
@@ -32,12 +26,7 @@ export function numericSearchSummary(
 
 export function dictionarySearchSummary(
   name: string,
-  value:
-    | DictionaryItemRef
-    | DictionaryItemRef[]
-    | UserMetadata
-    | UserMetadata[]
-    | null,
+  value: DictionaryItemRef | DictionaryItemRef[] | UserMetadata | UserMetadata[] | null,
 ): string | null {
   if (value != null) {
     const array = Array.isArray(value) ? value : [value];
@@ -62,11 +51,7 @@ export function enumSearchSummary<T extends string>(
   return null;
 }
 
-export function setEnabled(
-  control: AbstractControl,
-  isEnabled: boolean,
-  emitEvent: boolean,
-): void {
+export function setEnabled(control: AbstractControl, isEnabled: boolean, emitEvent: boolean): void {
   if (isEnabled) {
     control.enable({ emitEvent });
   } else {

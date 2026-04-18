@@ -1,6 +1,6 @@
 import {
-  RouteAnimationType,
   fadeAnimation,
+  RouteAnimationType,
   slideDownAnimation,
   slideLeftAnimation,
   slideRightAnimation,
@@ -15,13 +15,7 @@ import { RouterOutlet } from '@angular/router';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './animated-route-container.component.html',
-  animations: [
-    fadeAnimation,
-    slideLeftAnimation,
-    slideRightAnimation,
-    slideUpAnimation,
-    slideDownAnimation,
-  ],
+  animations: [fadeAnimation, slideLeftAnimation, slideRightAnimation, slideUpAnimation, slideDownAnimation],
 })
 export class AnimatedRouteContainerComponent {
   @Input() animationType: RouteAnimationType = RouteAnimationType.Fade;

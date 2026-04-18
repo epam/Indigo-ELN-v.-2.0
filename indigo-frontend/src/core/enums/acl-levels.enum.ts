@@ -7,11 +7,11 @@ export enum AclLevel {
   AUTHOR = 'AUTHOR',
 }
 
-export const INMUTABLE_ACL_LEVELS = [AclLevel.AUTHOR]
+export const INMUTABLE_ACL_LEVELS = [AclLevel.AUTHOR];
 
 export const isInmutableLevel = (level: AclLevel): boolean => {
   return INMUTABLE_ACL_LEVELS.includes(level);
-}
+};
 
 export const ACL_LEVEL_LABELS: Record<AclLevel, string> = {
   [AclLevel.ADMIN]: 'Admin',

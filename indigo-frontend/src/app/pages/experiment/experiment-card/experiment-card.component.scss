@@ -26,30 +26,30 @@
   }
 }
 .status-badge-v2.status-open {
-  background: var(--COLORS-Blue-10, #3F50B51A);
-  border: 1px solid var(--COLORS-Blue-400, #3F50B5);
+  background: var(--COLORS-Blue-10, #3f50b51a);
+  border: 1px solid var(--COLORS-Blue-400, #3f50b5);
   .status-dot {
-    background: var(--COLORS-Blue-400, #3F50B5);
+    background: var(--COLORS-Blue-400, #3f50b5);
   }
 }
 .status-badge-v2.status-waiting-for-signature {
-  background: var(--COLORS-Yellow-10, #FFDB431A);
-  border: 1px solid var(--COLORS-Yellow-300, #CCAF36);
+  background: var(--COLORS-Yellow-10, #ffdb431a);
+  border: 1px solid var(--COLORS-Yellow-300, #ccaf36);
   .status-dot {
-    background: var(--COLORS-Yellow-300, #CCAF36);
+    background: var(--COLORS-Yellow-300, #ccaf36);
   }
 }
 .status-badge-v2.status-completed {
-  background: var(--COLORS-Green-10, #1FC16B1A);
-  border: 1px solid var(--COLORS-Green-200, #1FC16B);
+  background: var(--COLORS-Green-10, #1fc16b1a);
+  border: 1px solid var(--COLORS-Green-200, #1fc16b);
   .status-dot {
-    background: var(--COLORS-Green-200, #1FC16B);
+    background: var(--COLORS-Green-200, #1fc16b);
   }
 }
 .status-badge-v2.status-rejected {
-  background: var(--COLORS-Red-10, #FB37481A);
-  border: 1px solid var(--COLORS-Red-200, #FB3748);
+  background: var(--COLORS-Red-10, #fb37481a);
+  border: 1px solid var(--COLORS-Red-200, #fb3748);
   .status-dot {
-    background: var(--COLORS-Red-200, #FB3748);
+    background: var(--COLORS-Red-200, #fb3748);
   }
 }

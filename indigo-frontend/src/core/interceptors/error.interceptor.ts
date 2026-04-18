@@ -1,10 +1,4 @@
-import {
-  HttpErrorResponse,
-  HttpEvent,
-  HttpHandler,
-  HttpInterceptor,
-  HttpRequest,
-} from '@angular/common/http';
+import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { BackendError } from '@core/types/entities/base-entity.i';
 import { NotificationType } from '@core/types/notification.i';
 import { inject, Injectable } from '@angular/core';
@@ -15,10 +9,7 @@ import { catchError, Observable, throwError } from 'rxjs';
 export class ErrorInterceptor implements HttpInterceptor {
   notificationService = inject(NotificationService);
 
-  intercept(
-    req: HttpRequest<unknown>,
-    next: HttpHandler,
-  ): Observable<HttpEvent<unknown>> {
+  intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     return next.handle(req).pipe(
       catchError((error: HttpErrorResponse) => {
         try {
@@ -44,9 +35,7 @@ function detectMessage(error: unknown): [string, string] {
     const commonLogMessage = `Server error calling ${error.url}: ${error.status} ${error.statusText}`;
     if (Array.isArray(error.error)) {
       const array: BackendError[] = error.error;
-      const message = array
-        .map((x) => (x.path ? `${x.path}: ${x.message}` : x.message))
-        .join('\n');
+      const message = array.map((x) => (x.path ? `${x.path}: ${x.message}` : x.message)).join('\n');
       return [message, `${commonLogMessage}: ${message}`];
     }
     return ['Server error. Please try again later', commonLogMessage];

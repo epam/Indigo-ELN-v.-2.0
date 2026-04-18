@@ -1,17 +1,10 @@
 <amplify-authenticator [hideSignUp]="true">
   <ng-template amplifySlot="header">
-    <div
-      class="mx-auto h-full"
-      style="padding: var(--amplify-space-large); text-align: center"
-    >
+    <div class="mx-auto h-full" style="padding: var(--amplify-space-large); text-align: center">
       <img class="mx-auto" src="assets/logo-full.svg" alt="Logo" height="138" />
     </div>
   </ng-template>
-  <ng-template
-    amplifySlot="authenticated"
-    let-user="user"
-    let-signOut="signOut"
-  >
+  <ng-template amplifySlot="authenticated" let-user="user" let-signOut="signOut">
     <router-outlet />
   </ng-template>
   <ng-template amplifySlot="sign-in-footer">
@@ -23,16 +16,10 @@
         (change)="onRememberMeChange($event)"
         class="w-4 h-4 text-indigo-600 border-gray-300 rounded cursor-pointer"
       />
-      <label for="rememberMe" class="text-sm text-neutral-700 cursor-pointer">
-        Remember me
-      </label>
+      <label for="rememberMe" class="text-sm text-neutral-700 cursor-pointer"> Remember me </label>
     </div>
   </ng-template>
   <ng-template amplifySlot="sign-in-header">
-    <h3
-      class="amplify-heading m-4! mb-0! pb-4! text-[1.125rem] font-medium! border-b! border-neutral-300!"
-    >
-      Log In
-    </h3>
+    <h3 class="amplify-heading m-4! mb-0! pb-4! text-[1.125rem] font-medium! border-b! border-neutral-300!">Log In</h3>
   </ng-template>
 </amplify-authenticator>

@@ -1,10 +1,4 @@
-import {
-  Directive,
-  ElementRef,
-  Input,
-  OnInit,
-  HostListener,
-} from '@angular/core';
+import { Directive, ElementRef, HostListener, Input, OnInit } from '@angular/core';
 import { MatTooltip } from '@angular/material/tooltip';
 import { Subject } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -37,9 +31,7 @@ export class TextOverflowTooltipDirective implements OnInit {
     this.matTooltip.position = 'above';
 
     // Debounce resize checks
-    this.resizeSubject$
-      .pipe(debounceTime(300), takeUntilDestroyed())
-      .subscribe(() => this.updateTooltip());
+    this.resizeSubject$.pipe(debounceTime(300), takeUntilDestroyed()).subscribe(() => this.updateTooltip());
   }
 
   ngOnInit(): void {
@@ -65,9 +57,6 @@ export class TextOverflowTooltipDirective implements OnInit {
 
   private isTextOverflowing(): boolean {
     const element = this.elementRef.nativeElement;
-    return (
-      element.scrollWidth > element.clientWidth ||
-      element.scrollHeight > element.clientHeight
-    );
+    return element.scrollWidth > element.clientWidth || element.scrollHeight > element.clientHeight;
   }
 }

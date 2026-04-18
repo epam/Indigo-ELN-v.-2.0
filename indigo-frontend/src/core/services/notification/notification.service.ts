@@ -9,22 +9,17 @@ import { NotificationParams } from '@core/types/notification.i';
 export class NotificationService {
   private snackBar = inject(MatSnackBar);
 
-  notify(
-    params: NotificationParams
-  ): void {
-    this.snackBar.openFromComponent(
-      NotificationComponent,
-      {
-        duration: 5000,
-        horizontalPosition: 'right',
-        verticalPosition: 'top',
-        panelClass: `notification-${params.type}-${params.isInline ? 'inline' : 'outline'}`,
-        data: params
-      },
-    );
+  notify(params: NotificationParams): void {
+    this.snackBar.openFromComponent(NotificationComponent, {
+      duration: 5000,
+      horizontalPosition: 'right',
+      verticalPosition: 'top',
+      panelClass: `notification-${params.type}-${params.isInline ? 'inline' : 'outline'}`,
+      data: params,
+    });
   }
 
   dismiss(): void {
     this.snackBar.dismiss();
-  };
+  }
 }

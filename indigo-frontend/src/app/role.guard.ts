@@ -1,5 +1,5 @@
 import { IdentityService } from '@/core/services/identity.service';
-import { CurrentUser, Role } from '@/core/types/entities/user.i';
+import { CurrentUser } from '@/core/types/entities/user.i';
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, Router } from '@angular/router';
 import { Observable } from 'rxjs';
@@ -18,9 +18,7 @@ export class RoleGuard implements CanActivate {
     const requiredPermission = route.data['requiredPermission'];
     return this.identityService.user$.pipe(
       map((user: CurrentUser) => {
-        const hasPermission = user.permissions.some(
-          (permission) => permission === requiredPermission,
-        );
+        const hasPermission = user.permissions.some((permission) => permission === requiredPermission);
         if (!hasPermission) {
           this.router.navigate(['/']);
         }

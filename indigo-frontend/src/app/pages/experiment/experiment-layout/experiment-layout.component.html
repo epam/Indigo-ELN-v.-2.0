@@ -1,8 +1,6 @@
 <eln-card classList="px-4 sm:px-2 md:px-4 shadow-md pb-0 mb-6">
   <div class="flex items-center justify-between flex-wrap gap-4">
-    <div class="font-semibold text-lg pl-1">
-      Experiment: {{ experiment()?.name }}
-    </div>
+    <div class="font-semibold text-lg pl-1">Experiment: {{ experiment()?.name }}</div>
     <div class="flex items-center gap-2 ml-auto"></div>
   </div>
 
@@ -16,9 +14,7 @@
 
 <!-- Loading State -->
 <div *ngIf="isLoading()" class="flex justify-center items-center py-12">
-  <div
-    class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"
-  ></div>
+  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
 </div>
 
 <!-- Error State -->
@@ -26,11 +22,7 @@
   <div class="bg-red-50 border border-red-200 rounded-lg p-4">
     <div class="flex">
       <div class="flex-shrink-0">
-        <svg
-          class="h-5 w-5 text-red-400"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-        >
+        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
           <path
             fill-rule="evenodd"
             d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
@@ -39,13 +31,9 @@
         </svg>
       </div>
       <div class="ml-3">
-        <h3 class="text-sm font-medium text-red-800">
-          Error loading experiment
-        </h3>
+        <h3 class="text-sm font-medium text-red-800">Error loading experiment</h3>
         <div class="mt-2 text-sm text-red-700">
-          <p>
-            There was an error loading the experiment details. Please try again.
-          </p>
+          <p>There was an error loading the experiment details. Please try again.</p>
         </div>
         <div class="mt-4">
           <button
@@ -63,7 +51,7 @@
 
 @if (isUpdating()) {
   <div class="absolute top-26 right-12 z-50">
-    <mat-spinner diameter="40"/>
+    <mat-spinner diameter="40" />
   </div>
 }
 

@@ -34,9 +34,7 @@ export class ReactionSchemeViewComponent {
     if (!this.reaction) {
       return null;
     }
-    return this.experimentDetailService
-      .updatedReactionImages()
-      .get(this.reaction.anchor);
+    return this.experimentDetailService.updatedReactionImages().get(this.reaction.anchor);
   });
 
   reactionSchemeImageUrl = computed(() => {
@@ -87,22 +85,15 @@ export class ReactionSchemeViewComponent {
   }
 
   private updateExperiment(mutation: Mutation): void {
-    this.experimentDetailService
-      .updateDataModel(mutation)
-      .subscribe((response) => {
-        if (
-          response.unresolvedInputs &&
-          Object.keys(response.unresolvedInputs).length != 0
-        ) {
-          this.slideInPanelService.open(AnalyzeRxnComponent, {
-            inputs: {
-              reaction: this.experimentDetailService.getReaction(
-                this.reaction.anchor,
-              ),
-              unresolvedInputs: response.unresolvedInputs,
-            },
-          });
-        }
-      });
+    this.experimentDetailService.updateDataModel(mutation).subscribe((response) => {
+      if (response.unresolvedInputs && Object.keys(response.unresolvedInputs).length != 0) {
+        this.slideInPanelService.open(AnalyzeRxnComponent, {
+          inputs: {
+            reaction: this.experimentDetailService.getReaction(this.reaction.anchor),
+            unresolvedInputs: response.unresolvedInputs,
+          },
+        });
+      }
+    });
   }
 }

@@ -15,11 +15,7 @@
   }"
 >
   @for (notebook of (data$ | async) ?? []; track notebook.id) {
-    <eln-notebook-item
-      [notebook]="notebook"
-      [variant]="selectedView"
-      [projectId]="projectId"
-    />
+    <eln-notebook-item [notebook]="notebook" [variant]="selectedView" [projectId]="projectId" />
   }
   <eln-infinite-loader
     [classNames]="
@@ -28,19 +24,14 @@
         '2xl:col-span-3 md:col-span-2': selectedView == 'grid',
       } | classPicker
     "
-      (infiniteLoad)="infiniteLoad()"
-      [isLoading]="isLoading"
-      (enteredViewport)="onInfiniteLoaderEntered()"
-      (leftViewport)="onInfiniteLoaderLeft()"
+    (infiniteLoad)="infiniteLoad()"
+    [isLoading]="isLoading"
+    (enteredViewport)="onInfiniteLoaderEntered()"
+    (leftViewport)="onInfiniteLoaderLeft()"
   />
 </div>
 
-<eln-button
-  *projectOverviewWidget="'button'"
-  variant="blue"
-  classList="flex items-center gap-2"
-  (click)="openModal()"
->
+<eln-button *projectOverviewWidget="'button'" variant="blue" classList="flex items-center gap-2" (click)="openModal()">
   <em class="text-xl indicon-plus"></em>
   <span class="whitespace-nowrap">Add Notebook</span>
 </eln-button>

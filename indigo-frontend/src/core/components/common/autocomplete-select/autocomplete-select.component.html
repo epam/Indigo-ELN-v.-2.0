@@ -4,9 +4,7 @@
       @for (item of selected$ | async; track item.id) {
         <mat-chip-row (removed)="removeItem(item)" [removable]="true">
           <ng-container *ngIf="optionTemplate; else defaultOptionTemplate">
-            <ng-container
-              *ngTemplateOutlet="optionTemplate; context: { $implicit: item }"
-            ></ng-container>
+            <ng-container *ngTemplateOutlet="optionTemplate; context: { $implicit: item }"></ng-container>
           </ng-container>
           <em class="indicon-close" (click)="removeItem(item)"></em>
         </mat-chip-row>
@@ -25,9 +23,7 @@
       <mat-icon matPrefix class="w-16">search</mat-icon>
     </mat-chip-grid>
 
-    <ng-template #defaultOptionTemplate let-item>
-      defaultOptionTemplate( {{ item.name }} )
-    </ng-template>
+    <ng-template #defaultOptionTemplate let-item> defaultOptionTemplate( {{ item.name }} ) </ng-template>
 
     <mat-autocomplete
       #auto="matAutocomplete"
@@ -37,9 +33,7 @@
       @for (item of options$ | async; track item.id) {
         <mat-option [value]="item">
           <ng-container *ngIf="optionTemplate; else defaultOptionTemplate">
-            <ng-container
-              *ngTemplateOutlet="optionTemplate; context: { $implicit: item }"
-            ></ng-container>
+            <ng-container *ngTemplateOutlet="optionTemplate; context: { $implicit: item }"></ng-container>
           </ng-container>
         </mat-option>
       }
