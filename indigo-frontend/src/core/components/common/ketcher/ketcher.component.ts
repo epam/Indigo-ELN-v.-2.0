@@ -12,7 +12,6 @@ import { Ketcher } from 'ketcher-core';
   selector: 'eln-ketcher',
   imports: [],
   templateUrl: './ketcher.component.html',
-  styleUrl: './ketcher.component.scss',
   styles: [
     `
       :host {

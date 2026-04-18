@@ -12,4 +12,15 @@ export class InfiniteLoaderComponent {
   @Input() classNames?: string;
   @Input({ required: true }) isLoading: boolean;
   @Output() infiniteLoad = new EventEmitter<unknown>();
+  @Output() enteredViewport = new EventEmitter<void>();
+  @Output() leftViewport = new EventEmitter<void>();
+
+  onEnteredViewport(): void {
+    this.enteredViewport.emit();
+    this.infiniteLoad.emit();
+  }
+
+  onLeftViewport(): void {
+    this.leftViewport.emit();
+  }
 }

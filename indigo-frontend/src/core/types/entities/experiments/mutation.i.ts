@@ -325,6 +325,11 @@ interface SetOutputStructureComment extends ReactionOutputSampleMutation {
   structureComment: string | null;
 }
 
+interface SetExperimentSignificantFigures extends BaseMutation {
+  type: 'SetExperimentSignificantFigures';
+  significantFigures: number;
+}
+
 interface RemoveProductSample extends ReactionOutputSampleMutation {
   type: 'RemoveProductSample';
 }
@@ -411,6 +416,7 @@ export type Mutation =
   | SetOutputComponentState
   | SetOutputBatchComment
   | SetOutputStructureComment
+  | SetExperimentSignificantFigures
   | RemoveProductSample
   | SetOutputSaltCode
   | SetOutputSaltEQ

@@ -1,4 +1,10 @@
-import { Component, input, output, signal, ViewChild } from '@angular/core';
+import {
+  Component,
+  inject,
+  input,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   MatCell,
@@ -21,7 +27,6 @@ import {
 import { MatInput } from '@angular/material/input';
 import { MatDivider } from '@angular/material/divider';
 import { FormsModule } from '@angular/forms';
-import { ButtonComponent } from '@core/components/common/button/button.component';
 import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
 import {
   ColumnConfig,
@@ -30,6 +35,7 @@ import {
   FieldValue,
   UnitFieldValue,
 } from '../shared/editable-table.types';
+import { ExperimentDetailService } from '@/core/services/experiment/experiment-detail.service';
 import { MatIconButton } from '@angular/material/button';
 import { MatTooltip } from '@angular/material/tooltip';
 import { EnteredValue } from '@core/types/entities/values.i';
@@ -57,25 +63,24 @@ import { EnteredValue } from '@core/types/entities/values.i';
     MatDivider,
     FormsModule,
     CommonModule,
-    ButtonComponent,
     MatIconButton,
     MatTooltip,
   ],
 })
 export class EditableDataTableComponent<TRow = unknown> {
+  experimentDetailService = inject(ExperimentDetailService);
+  readonly experimentModel = this.experimentDetailService.experimentModel;
+
   readonly ColumnInputType = ColumnInputType;
   @ViewChild(MatTable) table?: MatTable<TRow>;
 
-  title = input.required<string>();
   dataSource = input.required<TRow[] | null>();
   columns = input.required<ColumnConfig<TRow, FieldValue>[]>();
   displayedColumns = input.required<string[]>();
   emptyMessage = input<string>('No data available');
   loadingMessage = input<string>('Loading...');
-  showAddButton = input<boolean>(true);
   expandableConfig = input<ExpandableConfig<TRow> | null>(null);
 
-  addRow = output<void>();
 
   expandedRows = signal<Set<TRow>>(new Set());
 
@@ -88,9 +93,6 @@ export class EditableDataTableComponent<TRow = unknown> {
     return fieldValue as UnitFieldValue;
   }
 
-  onAddRow() {
-    this.addRow.emit();
-  }
 
   toggleRow(row: TRow) {
     const expanded = this.expandedRows();
@@ -114,8 +116,7 @@ export class EditableDataTableComponent<TRow = unknown> {
     }
     return this.displayedColumns();
   }
-
-  detailRow = (_index: number, row: TRow) => this.isRowExpanded(row);
+    detailRow = (_index: number, row: TRow) => this.isRowExpanded(row);
 
   callSave(
     column: ColumnConfig<TRow, FieldValue>,

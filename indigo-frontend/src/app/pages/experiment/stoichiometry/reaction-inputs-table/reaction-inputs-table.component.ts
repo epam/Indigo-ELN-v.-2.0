@@ -1,4 +1,5 @@
-import { Component, computed, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { catchError, EMPTY, Observable } from 'rxjs';
 import {
   ReactionInput,
   ReactionInputSample,
@@ -27,6 +28,13 @@ import {
 import { ExperimentDetailService } from '@core/services/experiment/experiment-detail.service';
 import { EnteredValue } from '@core/types/entities/values.i';
 import { determineCellClasses } from '@core/utils/experiment-model.util';
+import { MutationResponse } from '@core/types/entities/experiments/mutation.i';
+import { SelectComponent } from "@/core/components/common/select/select.component";
+import { ButtonComponent } from "@/core/components/common/button/button.component";
+import { MatIcon } from "@angular/material/icon";
+import { FormsModule } from '@angular/forms';
+import { SIGNIFICANT_FIGURES } from '../significant-figures.constants';
+import { DropdownMenuItem } from '@/core/components/common/dropdown-menu/dropdown-menu.i';
 
 interface InputSampleRow {
   input: ReactionInput;
@@ -36,12 +44,14 @@ interface InputSampleRow {
 @Component({
   selector: 'eln-reaction-inputs-table',
   templateUrl: './reaction-inputs-table.component.html',
-  imports: [MatSnackBarModule, EditableDataTableComponent],
+  imports: [MatSnackBarModule, EditableDataTableComponent, SelectComponent, ButtonComponent, MatIcon,FormsModule],
 })
 export class ReactionInputsTableComponent implements OnInit {
   private experimentDetailService = inject(ExperimentDetailService);
   private builtInDictionaryService = inject(BuiltInDictionaryService);
   private snackBar = inject(MatSnackBar);
+  readonly experimentModel = this.experimentDetailService.experimentModel;
+  readonly items = signal<DropdownMenuItem[]>([...SIGNIFICANT_FIGURES]);
 
   reaction = computed(
     () => this.experimentDetailService.experimentDetail()?.model.reactions[0],
@@ -431,5 +441,27 @@ export class ReactionInputsTableComponent implements OnInit {
       .subscribe(() =>
         this.snackBar.open('Material added', 'Close', { duration: 2000 }),
       );
+  }
+
+  onSignificantFiguresChange(value: string | string[] | null): void {
+      const parsedValue = this.parseSignificantFigure(value);
+      if (parsedValue === null) return;
+
+      this.experimentDetailService
+        .updateDataModel({
+          type: 'SetExperimentSignificantFigures',
+          significantFigures: parsedValue,
+        })
+        .pipe(catchError(() => EMPTY))
+        .subscribe();
+    }
+
+      private parseSignificantFigure(
+    value: string | string[] | null,
+  ): number | null {
+    if (!value || Array.isArray(value)) return null;
+
+    const parsed = Number.parseInt(value, 10);
+    return Number.isNaN(parsed) ? null : parsed;
   }
 }
