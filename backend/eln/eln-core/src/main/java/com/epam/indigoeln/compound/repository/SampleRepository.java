@@ -1,17 +1,21 @@
 package com.epam.indigoeln.compound.repository;
 
+import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.mapper.SampleMapper;
-import com.epam.indigoeln.compound.model.FindSamplesRequest;
-import com.epam.indigoeln.compound.model.NumericSearch;
 import com.epam.indigoeln.compound.model.SampleDTO;
-import com.epam.indigoeln.compound.model.TextSearch;
+import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
+import com.epam.indigoeln.compound.model.search.NumericSearch;
+import com.epam.indigoeln.compound.model.search.TextSearch;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.model.BuiltInDictionary;
+import com.epam.indigoeln.eln.model.EntityType;
+import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.eln.repository.BaseRepository;
 import com.epam.indigoeln.eln.repository.DictionaryItemRepository;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.eln.util.Conditions;
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -19,6 +23,7 @@ import org.hibernate.query.NativeQuery;
 import org.hibernate.query.SynchronizeableQuery;
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
 import java.util.UUID;
 
 @ApplicationScoped
@@ -43,7 +48,7 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
         return find(conditions.getQuery(), conditions.getValues()).firstResult();
     }
 
-    public Page<SampleDTO> find(FindSamplesRequest request, Paging paging) {
+    public Pair<List<SampleDTO>, Long> find(FindSamplesRequest request, @Nullable Boolean marked, int limit, @Nullable String nextAfter) {
         Conditions conditions = new Conditions()
                 .addIfNotNull("full_text_search(searchVector, websearch_to_tsquery('english', ?))", request.getQuickSearch());
         if (request.getStructure() != null) {
@@ -75,18 +80,23 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
             DictionaryItemEntity healthHazard = dictionaryService.lookup(BuiltInDictionary.HEALTH_HAZARD.name(), request.getHealthHazards());
             conditions.add("? member of healthHazards", healthHazard);
         }
-        if (request.getMarked() == Boolean.TRUE) {
+        if (marked == Boolean.TRUE) {
             conditions.add("marked");
-        } else if (request.getMarked() == Boolean.FALSE) {
+        } else if (marked == Boolean.FALSE) {
             conditions.add("marked is null");
         }
-        return doFindWithTotals(
-                conditions,
-                paging,
-                Sort.by("compound.formula", "compound.saltCode.id", "compound.saltEQ100", "createdBy"),
-                em.getEntityGraph("Sample.find"),
-                sampleMapper::sampleToDTO
-        );
+
+        Sort sort = Sort.by("id");
+        PanacheQuery<SampleEntity> query = find(conditions.getQuery(), sort, conditions.getValues());
+        long totalCount = query.count();
+
+        if (nextAfter != null) {
+            conditions.add("id > ?", UUID.fromString(nextAfter));
+        }
+        query = find(conditions.getQuery(), sort, conditions.getValues())
+                .page(0, limit)
+                .withHint("jakarta.persistence.loadgraph", em.getEntityGraph("Sample.find"));
+        return Pair.of(query.stream().map(sampleMapper::sampleToDTO).toList(), totalCount);
     }
 
     private void addTextSearch(Conditions conditions, @Nullable TextSearch search, String field) {

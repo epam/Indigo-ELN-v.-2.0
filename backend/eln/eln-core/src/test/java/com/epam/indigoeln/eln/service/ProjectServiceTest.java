@@ -444,7 +444,7 @@ class ProjectServiceTest extends ELNBaseTest {
     void testDownloadAttachment(@TempDir Path tempDir) throws Exception {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testDownloadAttachment"));
         List<AttachmentDTO> attachments = projectClient.createProjectAttachment(project.getId(), "attachment.txt", tempDir, "content".getBytes());
-        Response response = projectClient.downloadProjectAttachmentClient(project.getId(), attachments.getFirst().getId());
+        Response response = projectClient.downloadProjectAttachment(project.getId(), attachments.getFirst().getId());
         assertThat(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION)).containsExactly("attachment; filename=attachment.txt");
         assertThat((byte[]) response.getEntity()).asString().isEqualTo("content");
     }

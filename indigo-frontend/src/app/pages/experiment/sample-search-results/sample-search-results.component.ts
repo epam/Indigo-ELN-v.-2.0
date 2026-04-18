@@ -3,14 +3,14 @@ import { Component, DestroyRef, EventEmitter, inject, Input, Output } from '@ang
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
-import { FindSamplesRequest, Sample } from '@core/types/entities/experiments/search.i';
+import { Sample } from '@core/types/entities/experiments/search.i';
 import {
   ColumnDefDirective,
   ExpandableTableComponent,
 } from '@core/components/common/expandable-table/expandable-table.component';
 import { ApiImageComponent } from '@core/components/common/image/api-image.component';
 import { InfiniteLoaderComponent } from '@core/components/util/infinite-loader/infinite-loader.component';
-import { InfiniteSearchLoader } from '@core/components/util/infinite-scroll-search';
+import { SamplesSearchLoader } from '@core/components/util/infinite-scroll-search';
 import { MatTooltip } from '@angular/material/tooltip';
 import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -38,7 +38,7 @@ import { ApiService } from '@core/services/api.service';
   templateUrl: './sample-search-results.component.html',
 })
 export class SampleSearchResultsComponent {
-  @Input({ required: true }) loader: InfiniteSearchLoader<FindSamplesRequest, Sample>;
+  @Input({ required: true }) loader: SamplesSearchLoader;
   @Output() addToExperiment = new EventEmitter<Sample>();
 
   destroyRef = inject(DestroyRef);
@@ -52,4 +52,6 @@ export class SampleSearchResultsComponent {
         this.loader.replace((s) => s.id === sample.id, response);
       });
   }
+
+  protected readonly encodeURIComponent = encodeURIComponent;
 }

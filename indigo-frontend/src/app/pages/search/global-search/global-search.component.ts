@@ -9,7 +9,6 @@ import { MatRadioButton, MatRadioGroup } from '@angular/material/radio';
 import {
   GlobalSearchEntityType,
   GlobalSearchRequest,
-  GlobalSearchResult,
   NumericSearch,
   StructuralSearchType,
 } from '@core/types/entities/experiments/search.i';
@@ -24,7 +23,7 @@ import { NumericSearchComponent } from '@core/components/common/numeric-search/n
 import { MatChipRow, MatChipSet } from '@angular/material/chips';
 import { ApiService } from '@core/services/api.service';
 import { InfiniteLoaderComponent } from '@core/components/util/infinite-loader/infinite-loader.component';
-import { InfiniteSearchLoader } from '@core/components/util/infinite-scroll-search';
+import { GlobalSearchLoader } from '@core/components/util/infinite-scroll-search';
 import {
   StructureEditorModalComponent,
   StructureEditorModalResult,
@@ -84,7 +83,7 @@ export interface GlobalSearchDialogData {
 export class GlobalSearchComponent implements OnInit {
   data: GlobalSearchDialogData = inject(MAT_DIALOG_DATA);
 
-  loader: InfiniteSearchLoader<GlobalSearchRequest, GlobalSearchResult>;
+  loader: GlobalSearchLoader;
 
   @ViewChild('advancedSearchPanel') advancedSearchPanel: MatExpansionPanel;
 
@@ -114,9 +113,7 @@ export class GlobalSearchComponent implements OnInit {
   advancedSearchSummary: string[] | null = null;
 
   ngOnInit(): void {
-    this.loader = new InfiniteSearchLoader<GlobalSearchRequest, GlobalSearchResult>((searchParams, pageNo) =>
-      this.apiService.request('post', `search?pageNo=${pageNo}&pageSize=20`, searchParams),
-    );
+    this.loader = new GlobalSearchLoader(this.apiService);
     this.form.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((formValues) => {
       setEnabled(this.form.get('structureSearchType'), formValues.isReaction !== null, false);
       setEnabled(this.form.get('reactionRole'), formValues.isReaction === false, false);

@@ -6,22 +6,29 @@ import { MatMenuModule } from '@angular/material/menu';
 import { Mutation, ReactionInputAnchor } from '@core/types/entities/experiments/mutation.i';
 import { MatTab, MatTabGroup } from '@angular/material/tabs';
 import { SampleSearchComponent } from '@pages/experiment/sample-search/sample-search.component';
-import { FindSamplesRequest, Sample, StructuralSearchType } from '@core/types/entities/experiments/search.i';
+import {
+  Sample,
+  SEARCH_CATALOG_MAPPING,
+  SearchCatalogUI,
+  StructuralSearchType,
+} from '@core/types/entities/experiments/search.i';
 import { MatRadioButton, MatRadioGroup } from '@angular/material/radio';
 import { Reaction } from '@core/types/entities/experiments/experiment.i';
-import { InfiniteSearchLoader } from '@core/components/util/infinite-scroll-search';
+import { SamplesSearchLoader } from '@core/components/util/infinite-scroll-search';
 import { ApiService } from '@core/services/api.service';
 import { SampleSearchResultsComponent } from '@pages/experiment/sample-search-results/sample-search-results.component';
 import { SlideInPanelService } from '@core/components/common/slide-in-panel/slide-in-panel.service';
 import { ExperimentDetailService } from '@core/services/experiment/experiment-detail.service';
 import { NotificationService } from '@core/services/notification/notification.service';
 import { NotificationType } from '@core/types/notification.i';
+import { UUID } from '@core/types/entities/experiments/experiment-shared.i';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 interface Tab {
   name: string;
   anchor: ReactionInputAnchor;
   resultCount?: number;
-  loader: InfiniteSearchLoader<FindSamplesRequest, Sample>;
+  loader: SamplesSearchLoader;
 }
 
 @Component({
@@ -37,6 +44,8 @@ interface Tab {
     MatRadioButton,
     MatRadioGroup,
     SampleSearchResultsComponent,
+    ReactiveFormsModule,
+    FormsModule,
   ],
   templateUrl: './analyze-rxn.component.html',
 })
@@ -53,18 +62,18 @@ export class AnalyzeRxnComponent implements OnInit {
 
   tabs: Tab[];
   selectedTab: number;
+  catalog: SearchCatalogUI = SearchCatalogUI.ALL;
 
   ngOnInit() {
     this.tabs = this.reaction.inputs
       .filter((input) => input.rxnPosition != null)
       .map((input) => {
         const search = this.unresolvedInputs[input.anchor];
-        let loader = null;
+        let loader: SamplesSearchLoader | null = null;
         if (search != null) {
-          loader = new InfiniteSearchLoader<FindSamplesRequest, Sample>((searchParams, pageNo) =>
-            this.apiService.request('post', `samples/search?pageNo=${pageNo}&pageSize=20`, searchParams),
-          );
+          loader = new SamplesSearchLoader(this.apiService);
           loader.search({
+            catalogs: SEARCH_CATALOG_MAPPING[this.catalog],
             structure: {
               type: StructuralSearchType.SUBSTRUCTURE,
               query: search,
@@ -86,10 +95,20 @@ export class AnalyzeRxnComponent implements OnInit {
   }
 
   addToExperiment(tab: Tab, sample: Sample) {
+    if (!sample.id) {
+      this.apiService.request<Sample>('post', '/samples/importFromSearch', sample).subscribe((response) => {
+        this.doAddToExperiment(tab.anchor, response.id);
+      });
+    } else {
+      this.doAddToExperiment(tab.anchor, sample.id);
+    }
+  }
+
+  doAddToExperiment(anchor: ReactionInputAnchor, sampleID: UUID) {
     const mutation = {
       type: 'ResolveInputs',
       anchor: this.reaction.anchor,
-      inputSamples: { [tab.anchor]: sample.id },
+      inputSamples: { [anchor]: sampleID },
     } as Mutation;
     this.experimentDetailService.updateDataModel(mutation).subscribe(() => {
       this.notificationService.notify({

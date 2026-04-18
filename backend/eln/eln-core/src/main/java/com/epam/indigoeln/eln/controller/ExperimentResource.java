@@ -86,7 +86,8 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
-    public byte[] getExperimentPicture(UUID experimentId) {
+    public byte[] getExperimentPicture(UUID experimentId, @Nullable Integer revision) {
+        // revision is only used to prevent browser from using cached version when revision change
         return experimentService.getExperimentPicture(experimentId);
     }
 
@@ -131,8 +132,9 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
-    public Response getReactionPicture(UUID experimentId, ReactionAnchor reactionAnchor, @Nullable Integer revision) {
-        return experimentService.getReactionPicture(experimentId, reactionAnchor, revision);
+    public byte[] getReactionPicture(UUID experimentId, ReactionAnchor reactionAnchor, @Nullable Integer revision) {
+        // revision is only used to prevent browser from using cached version when revision change
+        return experimentService.getReactionPicture(experimentId, reactionAnchor);
     }
 
     @Override

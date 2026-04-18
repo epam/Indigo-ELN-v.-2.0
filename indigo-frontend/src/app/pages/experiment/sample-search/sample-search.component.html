@@ -73,19 +73,16 @@
       </div>
       <mat-radio-group class="flex flex-wrap gap-4 text-sm" formControlName="catalog">
         <div class="grow">
-          <mat-radio-button value="ALL" [checked]="true"> All Catalogs </mat-radio-button>
+          <mat-radio-button value="ALL">All Catalogs </mat-radio-button>
         </div>
-
         <div class="grow">
-          <mat-radio-button value="INDIGO_ELN">Indigo ELN</mat-radio-button>
+          <mat-radio-button value="ELN">Indigo ELN</mat-radio-button>
         </div>
-
         <div class="grow">
-          <mat-radio-button value="PUB_CHEM" disabled>PubChem</mat-radio-button>
+          <mat-radio-button value="PUBCHEM">PubChem</mat-radio-button>
         </div>
-
         <div class="grow">
-          <mat-radio-button value="MY_MATERIALS" disabled>My Materials</mat-radio-button>
+          <mat-radio-button value="MY_MATERIALS">My Materials</mat-radio-button>
         </div>
       </mat-radio-group>
 
@@ -258,7 +255,7 @@
             <eln-text-search formControlName="chemicalName" class="w-full" />
           </div>
 
-          <div>Comment State</div>
+          <div>Component State</div>
           <div>Batch Comment</div>
 
           <eln-dictionary-select formControlName="compoundState" [dictionaryId]="BuildInDictionary.COMPONENT_STATE" />
@@ -276,23 +273,10 @@
             }
           </div>
 
-          <eln-dictionary-select formControlName="healthHazards" [dictionaryId]="BuildInDictionary.HEALTH_HAZARD" />
-
-          <div>Batch Hazard Comment</div>
+          <div>Health Hazards</div>
           <div>CAS Number</div>
 
-          <div class="relative">
-            <eln-text-search formControlName="casNumber" class="w-full" />
-            @if (form.get('casNumber')?.value) {
-              <button
-                type="button"
-                class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
-                (click)="clearInput('casNumber')"
-              >
-                ✕
-              </button>
-            }
-          </div>
+          <eln-dictionary-select formControlName="healthHazards" [dictionaryId]="BuildInDictionary.HEALTH_HAZARD" />
 
           <div class="relative">
             <eln-text-search formControlName="casNumber" class="w-full" />
@@ -306,6 +290,15 @@
               </button>
             }
           </div>
+
+          @if (advancedSearchMessage) {
+            <div
+              class="col-span-2 flex items-start gap-2 bg-blue-50 border border-blue-200 text-blue-800 rounded-lg px-4 py-3 mb-4 text-sm"
+            >
+              <em class="indicon-info"></em>
+              <span>{{ advancedSearchMessage }}</span>
+            </div>
+          }
         </div>
       </mat-expansion-panel>
 
@@ -333,10 +326,11 @@
     </div>
   </form>
 
-  @if (loader.started && loader.totalItems !== null) {
-    <div class="flex justify-between mt-4">
-      <div class="flex-1 self-start">Search Results ({{ loader.totalItems }})</div>
-    </div>
-  }
+  <div class="flex justify-between mt-4">
+    @if (loader.totalItemsStr != null) {
+      <div class="flex-1 self-start">Search Results ({{ loader.totalItemsStr }})</div>
+    }
+  </div>
+
   <eln-sample-search-results [loader]="loader" (addToExperiment)="addToExperiment($event)" />
 </div>

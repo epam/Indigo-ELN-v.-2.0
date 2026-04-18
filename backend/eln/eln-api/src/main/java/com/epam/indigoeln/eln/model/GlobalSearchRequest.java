@@ -1,7 +1,7 @@
 package com.epam.indigoeln.eln.model;
 
-import com.epam.indigoeln.compound.model.NumericSearch;
-import com.epam.indigoeln.compound.model.StructuralSearch;
+import com.epam.indigoeln.compound.model.search.NumericSearch;
+import com.epam.indigoeln.compound.model.search.StructuralSearch;
 import com.epam.indigoeln.reaction.model.ReactionRole;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;

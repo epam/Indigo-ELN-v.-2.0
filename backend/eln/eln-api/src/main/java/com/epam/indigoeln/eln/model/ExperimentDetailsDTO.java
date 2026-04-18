@@ -58,9 +58,6 @@ public class ExperimentDetailsDTO extends BaseExperimentDTO {
     List<ApplicationPermission> currentPermissions;
 
     @NotNull
-    Integer revision;
-
-    @NotNull
     ExperimentModel model;
 
     @Override

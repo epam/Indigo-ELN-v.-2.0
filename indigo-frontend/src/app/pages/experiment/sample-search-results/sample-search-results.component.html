@@ -20,17 +20,22 @@
         {{ element.molecularFormula }}
       </ng-template>
       <ng-template elnColumnDef="marked" displayName="" let-element>
-        @if (!element.marked) {
-          <button class="ml-2 px-4 py-2 bg-[#f3f3f3] rounded-[5px] cursor-pointer" (click)="markSample(element, true)">
-            <mat-icon matTooltip="Add to My Material List"> bookmark_border </mat-icon>
-          </button>
-        } @else {
-          <button
-            class="ml-2 px-4 py-2 bg-[#f3f3f3] text-black rounded-[5px] cursor-pointer"
-            (click)="markSample(element, false)"
-          >
-            <mat-icon matTooltip="Remove from My Material List" style="color: #3f50b5"> bookmark </mat-icon>
-          </button>
+        @if (element.id) {
+          @if (!element.marked) {
+            <button
+              class="ml-2 px-4 py-2 bg-[#f3f3f3] rounded-[5px] cursor-pointer"
+              (click)="markSample(element, true)"
+            >
+              <mat-icon matTooltip="Add to My Material List"> bookmark_border </mat-icon>
+            </button>
+          } @else {
+            <button
+              class="ml-2 px-4 py-2 bg-[#f3f3f3] text-black rounded-[5px] cursor-pointer"
+              (click)="markSample(element, false)"
+            >
+              <mat-icon matTooltip="Remove from My Material List" style="color: #3f50b5"> bookmark </mat-icon>
+            </button>
+          }
         }
       </ng-template>
       <ng-template elnColumnDef="add" displayName="" let-element>
@@ -48,7 +53,7 @@
             <div class="flex flex-col">
               <div><b>Compound ID: </b>{{ element.compoundKey }}</div>
               <div><b>Nbk Batch Number: </b>{{ element.nbkBatchNumber }}</div>
-              <div><b>Molecular Formula: </b>{{ element.molecularFormula }}</div>
+              <div><b>Molecular Formula: </b>{{ element.molFormula }}</div>
               <div><b>Molecular Weight: </b>{{ element.molWeight | number: '1.2-2' }}</div>
               <div><b>Chemical Name: </b>{{ element.name }}</div>
               <div><b>Salt Code: </b>{{ element.saltCode?.name }}</div>
@@ -56,14 +61,26 @@
             </div>
           </div>
           <div class="flex-1">
-            <eln-api-image [url]="'/compounds/' + element.compoundID + '/picture'" altText="molecule image" />
+            @if (element.compoundID) {
+              <eln-api-image [url]="'/compounds/' + element.compoundID + '/picture'" altText="molecule image" />
+            } @else if (element.inchi) {
+              <eln-api-image
+                [url]="'/samples/external/picture?inchi=' + encodeURIComponent(element.inchi)"
+                altText="molecule image"
+              />
+            }
           </div>
         </div>
       </ng-template>
     </eln-expandable-table>
   </div>
 
-  <eln-infinite-loader (infiniteLoad)="loader.fetchNextPage()" [isLoading]="loader.loading" />
+  <eln-infinite-loader
+    (infiniteLoad)="loader.fetchNext()"
+    [isLoading]="loader.loading"
+    (enteredViewport)="loader.onInfiniteLoaderEntered()"
+    (leftViewport)="loader.onInfiniteLoaderLeft()"
+  />
   @if (loader.error) {
     <div>Error loading results</div>
   }

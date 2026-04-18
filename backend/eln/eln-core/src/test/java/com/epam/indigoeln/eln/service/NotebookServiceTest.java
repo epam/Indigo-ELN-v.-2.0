@@ -281,7 +281,7 @@ class NotebookServiceTest extends ELNBaseTest {
     void testDownloadAttachment(@TempDir Path tempDir) throws Exception {
         NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
         List<AttachmentDTO> attachments = notebookClient.createNotebookAttachment(notebook.getId(), "attachment.txt", tempDir, "content".getBytes());
-        Response response = notebookClient.downloadNotebookAttachmentClient(notebook.getId(), attachments.getFirst().getId());
+        Response response = notebookClient.downloadNotebookAttachment(notebook.getId(), attachments.getFirst().getId());
         assertThat(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION)).containsExactly("attachment; filename=attachment.txt");
         assertThat((byte[]) response.getEntity()).asString().isEqualTo("content");
     }

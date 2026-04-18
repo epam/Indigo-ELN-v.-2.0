@@ -1,8 +1,9 @@
-package com.epam.indigoeln.compound.model;
+package com.epam.indigoeln.compound.model.search;
 
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,12 +11,18 @@ import lombok.NoArgsConstructor;
 import lombok.With;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Set;
+
 @Data
 @With
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FindSamplesRequest {
+
+    @NotNull
+    @Size(min = 1)
+    Set<SearchCatalog> catalogs;
 
     @Nullable
     @Size(min = 1)
@@ -64,7 +71,4 @@ public class FindSamplesRequest {
     @Valid
     @Nullable
     DictionaryItemRef healthHazards;
-
-    @Nullable
-    Boolean marked;
 }

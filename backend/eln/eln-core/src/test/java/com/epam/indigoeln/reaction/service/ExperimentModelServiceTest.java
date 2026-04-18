@@ -1,13 +1,13 @@
 package com.epam.indigoeln.reaction.service;
 
 import com.epam.indigoeln.common.util.ModelUtil;
-import com.epam.indigoeln.compound.model.FindSamplesRequest;
-import com.epam.indigoeln.compound.model.SampleDTO;
-import com.epam.indigoeln.compound.model.TextSearch;
+import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
+import com.epam.indigoeln.compound.model.search.SampleSearchResult;
+import com.epam.indigoeln.compound.model.search.SearchCatalog;
+import com.epam.indigoeln.compound.model.search.TextSearch;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.BuiltInDictionary;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
-import com.epam.indigoeln.eln.model.Page;
 import com.epam.indigoeln.eln.model.Paging;
 import com.epam.indigoeln.reaction.model.ReactionInput;
 import com.epam.indigoeln.reaction.model.ReactionOutputSample;
@@ -28,8 +28,10 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @QuarkusTest
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
@@ -206,10 +208,11 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     @Test
     @Order(1300)
     void testAddInput() {
-        Page<SampleDTO> foundSamples = compoundClient.findSamples(new FindSamplesRequest()
+        SampleSearchResult foundSamples = compoundClient.search(new FindSamplesRequest()
+                .withCatalogs(Set.of(SearchCatalog.ELN))
                 .withMolecularFormula(new TextSearch.ExactSearch("C12 H22 N2 O2"))
-                , Paging.DEFAULT
+                , null, null, Paging.DEFAULT_PAGE_SIZE
         );
-        applyMutation(new ReactionMutation.AddInput(reaction.getAnchor(), foundSamples.getItems().getFirst().getId()));
+        applyMutation(new ReactionMutation.AddInput(reaction.getAnchor(), checkNotNull(foundSamples.items().getFirst().getId())));
     }
 }

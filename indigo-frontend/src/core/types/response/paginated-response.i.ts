@@ -1,4 +1,9 @@
-export interface PaginatedResponse<T> {
+export interface PaginatedResponseBase<T> {
+  totalItems?: number;
+  items: T[];
+}
+
+export interface PaginatedResponse<T> extends PaginatedResponseBase<T> {
   pageNo: number;
   pageSize: number;
   totalItems: number;
