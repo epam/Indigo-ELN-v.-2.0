@@ -1,0 +1,11 @@
+pre-commit:
+  jobs:
+    - name: prettier
+      glob: "indigo-frontend/src/**/*.{ts,html,scss,json}"
+      root: "indigo-frontend/"
+      run: npx prettier --write {staged_files}
+      stage_fixed: true
+
+    - name: typecheck
+      glob: "indigo-frontend/**/*.ts"
+      run: cd indigo-frontend && npx tsc --noEmit

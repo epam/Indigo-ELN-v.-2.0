@@ -1,11 +1,10 @@
 <h3 class="text-sm font-semibold p-3">Reaction Products</h3>
-<div class="w-full overflow-x-auto border border-gray-300 rounded">
+<div class="w-full overflow-x-auto">
   <eln-editable-data-table
     title="Reaction Products"
     [dataSource]="dataSource() || []"
     [columns]="columns"
     [displayedColumns]="displayedColumns"
     emptyMessage="No product added"
-    [showAddButton]="false"
   />
 </div>
