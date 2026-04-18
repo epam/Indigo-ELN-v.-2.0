@@ -3,7 +3,7 @@ import { Component, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { StarredExperimentsComponent } from './starred-experiments/starred-experiments.component';
 import { map, Observable } from 'rxjs';
-import { UserService } from '@/core/services/user.service';
+import { IdentityService } from '@/core/services/identity.service';
 import {
   ApplicationPermission,
   CurrentUser,
@@ -30,7 +30,7 @@ interface MenuItem {
   templateUrl: './sidebar.component.html',
 })
 export class SidebarComponent {
-  private userService = inject(UserService);
+  private identityService = inject(IdentityService);
   private router = inject(Router);
 
   private fullMenu = [
@@ -53,7 +53,7 @@ export class SidebarComponent {
     },
   ];
 
-  menu$: Observable<MenuItem[]> = this.userService.user$.pipe(
+  menu$: Observable<MenuItem[]> = this.identityService.user$.pipe(
     map((user: CurrentUser) => {
       return this.fullMenu.filter(
         (menuItem) =>

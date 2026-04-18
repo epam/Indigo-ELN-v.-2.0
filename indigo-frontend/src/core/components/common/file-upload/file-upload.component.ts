@@ -1,4 +1,4 @@
-import { UserService } from '@/core/services/user.service';
+import { IdentityService } from '@/core/services/identity.service';
 import { CommonModule } from '@angular/common';
 import {
   Component,
@@ -28,7 +28,7 @@ export class FileUploadComponent implements OnInit {
   @Input() loadingText = 'Uploading...';
   mimeTypes: string[] = [];
   acceptedExtensions = '';
-  userService = inject(UserService);
+  identityService = inject(IdentityService);
   user;
   @Output() filesSelected = new EventEmitter<File[]>();
 
@@ -39,7 +39,7 @@ export class FileUploadComponent implements OnInit {
   private notificationService = inject(NotificationService);
 
   ngOnInit(): void {
-    this.userService.user$.pipe(take(1)).subscribe((user) => {
+    this.identityService.user$.pipe(take(1)).subscribe((user) => {
       this.user = user;
     });
     this.allowedTypes.forEach((type) => {
