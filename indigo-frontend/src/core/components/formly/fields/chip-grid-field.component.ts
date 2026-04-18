@@ -1,12 +1,7 @@
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
-import {
-  ControlValueAccessor,
-  FormControl,
-  NG_VALUE_ACCESSOR,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { FieldType, FieldTypeConfig, FormlyModule } from '@ngx-formly/core';
 import { ChipComponent } from '../../common/chip/chip.component';
 
@@ -54,12 +49,8 @@ import { ChipComponent } from '../../common/chip/chip.component';
       <!-- Error message -->
       <div *ngIf="showError && formControl.errors" class="text-red-200 text-xs">
         <div *ngIf="formControl.errors['required']">This field is required</div>
-        <div *ngIf="formControl.errors['min']">
-          At least {{ formControl.errors['min'].min }} items required
-        </div>
-        <div *ngIf="formControl.errors['max']">
-          Maximum {{ formControl.errors['max'].max }} items allowed
-        </div>
+        <div *ngIf="formControl.errors['min']">At least {{ formControl.errors['min'].min }} items required</div>
+        <div *ngIf="formControl.errors['max']">Maximum {{ formControl.errors['max'].max }} items allowed</div>
       </div>
     </div>
   `,
@@ -72,10 +63,7 @@ import { ChipComponent } from '../../common/chip/chip.component';
     `,
   ],
 })
-export class ChipGridFieldComponent
-  extends FieldType<FieldTypeConfig>
-  implements ControlValueAccessor, OnInit
-{
+export class ChipGridFieldComponent extends FieldType<FieldTypeConfig> implements ControlValueAccessor, OnInit {
   // Separator keys for adding chips
   readonly separatorKeyCodes = [ENTER, COMMA] as const;
 

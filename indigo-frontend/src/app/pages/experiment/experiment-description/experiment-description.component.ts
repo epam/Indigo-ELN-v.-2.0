@@ -25,21 +25,19 @@ export class ExperimentDescriptionComponent implements OnInit {
   form = new FormGroup({});
 
   ngOnInit() {
-    this.experimentService.experiment$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((experiment) => {
-        this.experiment = experiment;
-        this.fields = [
-          {
-            type: 'editor',
-            key: 'description',
-            defaultValue: experiment.description,
-            props: {
-              label: 'Description',
-              placeholder: 'Description',
-            },
+    this.experimentService.experiment$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((experiment) => {
+      this.experiment = experiment;
+      this.fields = [
+        {
+          type: 'editor',
+          key: 'description',
+          defaultValue: experiment.description,
+          props: {
+            label: 'Description',
+            placeholder: 'Description',
           },
-        ];
-      });
+        },
+      ];
+    });
   }
 }

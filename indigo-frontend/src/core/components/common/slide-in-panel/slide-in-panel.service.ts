@@ -8,10 +8,7 @@ import {
   Type,
 } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
-import {
-  SlideInPanelComponent,
-  SlideInPanelConfig,
-} from './slide-in-panel.component';
+import { SlideInPanelComponent, SlideInPanelConfig } from './slide-in-panel.component';
 
 const SLIDE_OUT_ANIMATION_MS = 300;
 
@@ -53,10 +50,7 @@ export class SlideInPanelService {
     // Run initial change detection so @ViewChild (contentOutlet) is resolved
     panelRef.changeDetectorRef.detectChanges();
 
-    const contentRef: ComponentRef<T> = panelRef.instance.open(
-      component,
-      config,
-    );
+    const contentRef: ComponentRef<T> = panelRef.instance.open(component, config);
 
     const afterClosed$ = new Subject<void>();
     panelRef.instance.afterClose.subscribe(() => {
@@ -67,11 +61,7 @@ export class SlideInPanelService {
       this.currentPanel = null;
     });
 
-    return new SlideInPanelRef<T>(
-      contentRef.instance,
-      () => panelRef.instance.close(),
-      afterClosed$.asObservable(),
-    );
+    return new SlideInPanelRef<T>(contentRef.instance, () => panelRef.instance.close(), afterClosed$.asObservable());
   }
 
   close(): void {

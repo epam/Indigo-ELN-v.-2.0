@@ -2,14 +2,7 @@ import { dropdownAnimation } from '@/core/animations/control-animations';
 import { DropdownBaseComponent } from '@/core/components/common/dropdown/dropdown-base.component';
 import { ClassPickerPipe } from '@/core/pipes/classPicker.pipe';
 import { CommonModule } from '@angular/common';
-import {
-  AfterViewInit,
-  Component,
-  EventEmitter,
-  forwardRef,
-  Input,
-  Output,
-} from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, forwardRef, Input, Output } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { ChipComponent } from '../chip/chip.component';
 import { DropdownMenuItem } from '../dropdown-menu/dropdown-menu.i';
@@ -30,10 +23,7 @@ type SelectValue = string | string[] | null;
   ],
   animations: [dropdownAnimation],
 })
-export class SelectComponent
-  extends DropdownBaseComponent
-  implements ControlValueAccessor, AfterViewInit
-{
+export class SelectComponent extends DropdownBaseComponent implements ControlValueAccessor, AfterViewInit {
   @Input() items: DropdownMenuItem[] = [];
   @Input() placeholder = 'Select an option';
   @Input() label?: string;

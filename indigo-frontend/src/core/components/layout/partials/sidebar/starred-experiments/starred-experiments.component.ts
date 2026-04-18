@@ -7,10 +7,7 @@ import { NormalizeLabelPipe } from '@/core/pipes/normalizeLabe.pipe';
 import { finalize, Subject } from 'rxjs';
 import { ExperimentStatus } from '@/core/enums/experiment-status.enum';
 import { ExperimentDetail } from '@/core/types/entities/experiments/experiment-detail.i';
-import {
-  EXPERIMENT_STATUS_DECORATION_MAP,
-  ExperimentStatusDecoration,
-} from '@/core/utils/experiment-status.util';
+import { EXPERIMENT_STATUS_DECORATION_MAP, ExperimentStatusDecoration } from '@/core/utils/experiment-status.util';
 
 @Component({
   selector: 'eln-starred-experiments',
@@ -26,10 +23,7 @@ export class StarredExperimentsComponent implements OnInit, OnDestroy {
   error: string | null = null;
   experiments: ExperimentDetail[] = [];
 
-  readonly statusDecorMap: Record<
-    ExperimentStatus,
-    ExperimentStatusDecoration
-  > = EXPERIMENT_STATUS_DECORATION_MAP;
+  readonly statusDecorMap: Record<ExperimentStatus, ExperimentStatusDecoration> = EXPERIMENT_STATUS_DECORATION_MAP;
 
   ngOnInit(): void {
     this.fetchMarkedExperiments();

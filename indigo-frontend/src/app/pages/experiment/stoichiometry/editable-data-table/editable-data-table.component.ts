@@ -1,10 +1,4 @@
-import {
-  Component,
-  inject,
-  input,
-  signal,
-  ViewChild,
-} from '@angular/core';
+import { Component, inject, input, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   MatCell,
@@ -19,11 +13,7 @@ import {
   MatTable,
 } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
-import {
-  MatOption,
-  MatSelect,
-  MatSelectTrigger,
-} from '@angular/material/select';
+import { MatOption, MatSelect, MatSelectTrigger } from '@angular/material/select';
 import { MatInput } from '@angular/material/input';
 import { MatDivider } from '@angular/material/divider';
 import { FormsModule } from '@angular/forms';
@@ -81,18 +71,14 @@ export class EditableDataTableComponent<TRow = unknown> {
   loadingMessage = input<string>('Loading...');
   expandableConfig = input<ExpandableConfig<TRow> | null>(null);
 
-
   expandedRows = signal<Set<TRow>>(new Set());
 
-  compareDictionaryItems = (
-    a?: DictionaryItemRef | null,
-    b?: DictionaryItemRef | null,
-  ) => (!!a && !!b ? a.id === b.id : a === b);
+  compareDictionaryItems = (a?: DictionaryItemRef | null, b?: DictionaryItemRef | null) =>
+    !!a && !!b ? a.id === b.id : a === b;
 
   toUnitField(fieldValue: FieldValue): UnitFieldValue | null {
     return fieldValue as UnitFieldValue;
   }
-
 
   toggleRow(row: TRow) {
     const expanded = this.expandedRows();
@@ -116,25 +102,16 @@ export class EditableDataTableComponent<TRow = unknown> {
     }
     return this.displayedColumns();
   }
-    detailRow = (_index: number, row: TRow) => this.isRowExpanded(row);
+  detailRow = (_index: number, row: TRow) => this.isRowExpanded(row);
 
-  callSave(
-    column: ColumnConfig<TRow, FieldValue>,
-    row: TRow,
-    newValue: FieldValue,
-  ): void {
+  callSave(column: ColumnConfig<TRow, FieldValue>, row: TRow, newValue: FieldValue): void {
     const oldValue = column.field(row);
     if (oldValue !== newValue) {
       column?.onSave(row, newValue || null);
     }
   }
 
-  callSaveEV(
-    column: ColumnConfig<TRow, unknown>,
-    row: TRow,
-    selectedValue: string,
-    selectedUnit: unknown,
-  ): void {
+  callSaveEV(column: ColumnConfig<TRow, unknown>, row: TRow, selectedValue: string, selectedUnit: unknown): void {
     const columnEV = column as ColumnConfig<TRow, EnteredValue<unknown>>;
     const oldValue = columnEV.field(row);
     const newValue = {
@@ -145,10 +122,7 @@ export class EditableDataTableComponent<TRow = unknown> {
       newSet = this.isFullySet(newValue);
     if (newSet && oldSet) {
       // update existing value
-      if (
-        newValue.value !== oldValue?.value ||
-        newValue.unit !== oldValue.unit
-      ) {
+      if (newValue.value !== oldValue?.value || newValue.unit !== oldValue.unit) {
         columnEV?.onSave(row, newValue);
       }
     } else if (newSet) {
@@ -161,12 +135,6 @@ export class EditableDataTableComponent<TRow = unknown> {
   }
 
   private isFullySet(value: EnteredValue<unknown> | null): boolean {
-    return (
-      value != null &&
-      value.value != null &&
-      value.value !== '' &&
-      value.unit != null &&
-      value.unit !== ''
-    );
+    return value != null && value.value != null && value.value !== '' && value.unit != null && value.unit !== '';
   }
 }

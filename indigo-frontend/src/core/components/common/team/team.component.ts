@@ -1,28 +1,11 @@
-import {
-  Component,
-  computed,
-  inject,
-  Input,
-  OnInit,
-  signal,
-  ViewChild,
-  WritableSignal,
-} from '@angular/core';
+import { Component, computed, inject, Input, OnInit, signal, ViewChild, WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardComponent } from '../card/card.component';
 import { CopyComponent } from '../copy/copy.component';
 import { CounterComponent } from '../counter/counter.component';
 import { DropdownMenuComponent } from '../dropdown-menu/dropdown-menu.component';
-import {
-  ProjectAcl,
-  ProjectAclUpdate,
-  UserSuggestion,
-} from '@/core/types/entities/acl.i';
-import {
-  AclLevel,
-  ELIGIBLE_ACL_LEVELS,
-  isInmutableLevel,
-} from '@/core/enums/acl-levels.enum';
+import { ProjectAcl, ProjectAclUpdate, UserSuggestion } from '@/core/types/entities/acl.i';
+import { AclLevel, ELIGIBLE_ACL_LEVELS, isInmutableLevel } from '@/core/enums/acl-levels.enum';
 import { ApiService } from '@/core/services/api.service';
 import { finalize } from 'rxjs';
 import { NormalizeLabelPipe } from '@/core/pipes/normalizeLabe.pipe';
@@ -93,16 +76,11 @@ export class TeamComponent implements OnInit {
   @ViewChild(NgSelectComponent) ngSelectComponent!: NgSelectComponent;
 
   ngOnInit(): void {
-    if (!this.entityId)
-      console.warn('TeamComponent initialized without entityId');
+    if (!this.entityId) console.warn('TeamComponent initialized without entityId');
     this.loading.update((l) => ({ ...l, suggestions: true }));
     this.api
       .request<UserSuggestion[]>('get', 'users/suggest')
-      .pipe(
-        finalize(() =>
-          this.loading.update((l) => ({ ...l, suggestions: false })),
-        ),
-      )
+      .pipe(finalize(() => this.loading.update((l) => ({ ...l, suggestions: false }))))
       .subscribe((list) => {
         this.userSuggestions = list;
         this.rebuildSuggestionsState();
@@ -133,11 +111,7 @@ export class TeamComponent implements OnInit {
     const fullPayload: ProjectAclUpdate[] = [...existingPayload, ...newPayload];
 
     this.api
-      .request<ProjectAclUpdate[] | ProjectAclUpdate>(
-        'post',
-        endpoint,
-        fullPayload,
-      )
+      .request<ProjectAclUpdate[] | ProjectAclUpdate>('post', endpoint, fullPayload)
       .pipe(
         finalize(() => {
           this.loading.update((l) => ({ ...l, addingUsers: false }));
@@ -160,9 +134,7 @@ export class TeamComponent implements OnInit {
       updatingMembers: new Set(l.updatingMembers).add(member.userId),
     }));
     this.api
-      .request<ProjectAclUpdate>('post', endpoint, [
-        { userID: member.userId, level: newLevel },
-      ])
+      .request<ProjectAclUpdate>('post', endpoint, [{ userID: member.userId, level: newLevel }])
       .pipe(
         finalize(() => {
           this.loading.update((l) => {
@@ -174,9 +146,7 @@ export class TeamComponent implements OnInit {
       )
       .subscribe((projectAcl) => {
         if (projectAcl) {
-          const updated = this._team().map((m) =>
-            m.userId === member.userId ? { ...m, level: newLevel } : m,
-          );
+          const updated = this._team().map((m) => (m.userId === member.userId ? { ...m, level: newLevel } : m));
           this._team.set(updated);
         }
       });

@@ -1,53 +1,52 @@
-<eln-card
-  [classList]="'cursor-pointer'"
-  [routerLink]="['/projects', project.id]"
->
+<eln-card [classList]="'cursor-pointer'" [routerLink]="['/projects', project.id]">
   <div class="flex flex-col w-full px-4">
     <div class="flex justify-between items-center mb-3 w-full">
-      <h3
-        class="flex items-center gap-x-2 font-semibold text-neutral-1000 text-base"
-      >
+      <h3 class="flex items-center gap-x-2 font-semibold text-neutral-1000 text-base">
         <em class="text-primary-400 text-xl indicon-briefcase"></em>
         {{ project.name }}
       </h3>
 
-      <div class="flex items-center gap-x-3"> 
-         @if (variant === 'grid'){   <div class="flex -space-x-2">
-          @for (member of project.acl; track member) {
-            <div
-              class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white" [matTooltip]="member.displayName ?? member.username" matTooltipPosition="above"
-            >
-              {{ member.displayName ?? member.username | initials }}
-            </div>
-          }
-          @if (project.aclCount > 3) {
-            <span
-              class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-primary-400 text-white text-[0.75rem]"
-            >
-              +{{ project.aclCount - 3 }}
-            </span>
-          }
-        </div>}
-     
+      <div class="flex items-center gap-x-3">
+        @if (variant === 'grid') {
+          <div class="flex -space-x-2">
+            @for (member of project.acl; track member) {
+              <div
+                class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white"
+                [matTooltip]="member.displayName ?? member.username"
+                matTooltipPosition="above"
+              >
+                {{ member.displayName ?? member.username | initials }}
+              </div>
+            }
+            @if (project.aclCount > 3) {
+              <span
+                class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-primary-400 text-white text-[0.75rem]"
+              >
+                +{{ project.aclCount - 3 }}
+              </span>
+            }
+          </div>
+        }
+
         <div class="relative -right-1">
-        <button
-          class="flex items-center hover:bg-neutral-200 rounded-full cursor-pointer"
-          (click)="$event.stopPropagation()"
-          [matMenuTriggerFor]="menu"
-          aria-label="Project options menu"
-        >
-          <mat-icon>more_horiz</mat-icon>
-        </button>
-        <mat-menu #menu="matMenu" class="project-item-custom-menu">
-          <button mat-menu-item class="relative flex items-center">
-            <em class="indicon-edit text-[20px] mr-2"></em>
-            <span class="absolute top-[14px] left-10">Rename</span>
+          <button
+            class="flex items-center hover:bg-neutral-200 rounded-full cursor-pointer"
+            (click)="$event.stopPropagation()"
+            [matMenuTriggerFor]="menu"
+            aria-label="Project options menu"
+          >
+            <mat-icon>more_horiz</mat-icon>
           </button>
-          <button mat-menu-item class="relative flex items-center">
-            <em class="indicon-delete text-[20px] mr-2"></em>
-            <span class="absolute top-[14px] left-10">Delete</span>
-          </button>
-        </mat-menu>
+          <mat-menu #menu="matMenu" class="project-item-custom-menu">
+            <button mat-menu-item class="relative flex items-center">
+              <em class="indicon-edit text-[20px] mr-2"></em>
+              <span class="absolute top-[14px] left-10">Rename</span>
+            </button>
+            <button mat-menu-item class="relative flex items-center">
+              <em class="indicon-delete text-[20px] mr-2"></em>
+              <span class="absolute top-[14px] left-10">Delete</span>
+            </button>
+          </mat-menu>
         </div>
       </div>
     </div>
@@ -56,70 +55,47 @@
       <div
         class="w-full"
         [ngClass]="{
-          'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6':
-            variant === 'list',
+          'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6': variant === 'list',
           'space-y-2': variant === 'grid',
         }"
       >
-        <div
-          class="flex flex-col"
-          [ngClass]="{ 'flex-col space-y-2': variant == 'list' }"
-        >
+        <div class="flex flex-col" [ngClass]="{ 'flex-col space-y-2': variant == 'list' }">
           <div class="text-neutral-1000 text-sm">Notebook</div>
-          <div
-            class="font-semibold text-h4"
-            [ngClass]="{ 'ml-auto': variant === 'grid' }"
-          >
+          <div class="font-semibold text-h4" [ngClass]="{ 'ml-auto': variant === 'grid' }">
             {{ project.notebookCount }}
           </div>
         </div>
 
-        <div
-          class="flex flex-col"
-          [ngClass]="{ 'flex-col space-y-2': variant == 'list' }"
-        >
+        <div class="flex flex-col" [ngClass]="{ 'flex-col space-y-2': variant == 'list' }">
           <div class="text-neutral-1000 text-sm">Experiments</div>
-          <div
-            class="flex items-center"
-            [ngClass]="{ 'ml-auto': variant === 'grid' }"
-          >
+          <div class="flex items-center" [ngClass]="{ 'ml-auto': variant === 'grid' }">
             @if (project.experimentCountByStatus.OPEN) {
-              <span class="font-semibold text-h4 text-primary-400">{{
-                project.experimentCountByStatus.OPEN
-              }}</span>
+              <span class="font-semibold text-h4 text-primary-400">{{ project.experimentCountByStatus.OPEN }}</span>
             }
             @if (project.experimentCountByStatus.COMPLETED) {
               <i class="text-neutral-500">/</i>
-              <span class="font-semibold text-green-200 text-h4">{{
-                project.experimentCountByStatus.COMPLETED
-              }}</span>
+              <span class="font-semibold text-green-200 text-h4">{{ project.experimentCountByStatus.COMPLETED }}</span>
             }
             @if (project.experimentCountByStatus.REJECTED) {
               <i class="text-neutral-500">/</i>
-              <span class="font-semibold text-h4 text-red-200">{{
-                project.experimentCountByStatus.REJECTED
-              }}</span>
+              <span class="font-semibold text-h4 text-red-200">{{ project.experimentCountByStatus.REJECTED }}</span>
             }
             <span class="mx-3 font-thin text-neutral-500">|</span>
-            <span class="font-semibold text-h4 text-neutral-1000">{{
-              project.experimentCount
-            }}</span>
+            <span class="font-semibold text-h4 text-neutral-1000">{{ project.experimentCount }}</span>
           </div>
         </div>
 
-        <div
-          class="flex flex-col"
-          [ngClass]="{ 'flex-col space-y-2': variant == 'list' }"
-          *ngIf="variant === 'list'"
-        >
+        <div class="flex flex-col" [ngClass]="{ 'flex-col space-y-2': variant == 'list' }" *ngIf="variant === 'list'">
           <div class="text-neutral-1000 text-sm">Members</div>
           <div class="flex items-center">
             <div class="flex -space-x-2">
               @for (member of project.acl; track member) {
                 <div
-                  class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white"[matTooltip]="member.displayName ?? member.username" matTooltipPosition="above"
+                  class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white"
+                  [matTooltip]="member.displayName ?? member.username"
+                  matTooltipPosition="above"
                 >
-                  {{  member.displayName ??member.username | initials }}
+                  {{ member.displayName ?? member.username | initials }}
                 </div>
               }
               @if (project.aclCount > 3) {
@@ -133,10 +109,7 @@
           </div>
         </div>
 
-        <div
-          class="flex flex-col text-sm"
-          [ngClass]="{ 'flex-col space-y-2': variant == 'list' }"
-        >
+        <div class="flex flex-col text-sm" [ngClass]="{ 'flex-col space-y-2': variant == 'list' }">
           <div class="text-neutral-1000 text-sm">Last Edited</div>
           <div [ngClass]="{ 'ml-auto': variant === 'grid' }">
             {{ project.modifiedAt | date: 'dd MMM yyyy' }} by
@@ -144,10 +117,7 @@
           </div>
         </div>
 
-        <div
-          class="flex flex-col text-sm"
-          [ngClass]="{ 'flex-col space-y-2': variant == 'list' }"
-        >
+        <div class="flex flex-col text-sm" [ngClass]="{ 'flex-col space-y-2': variant == 'list' }">
           <div class="text-neutral-1000">Created</div>
           <div [ngClass]="{ 'ml-auto': variant === 'grid' }">
             {{ project.createdAt | date: 'dd MMM yyyy' }} by

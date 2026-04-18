@@ -5,12 +5,12 @@ import {
   Component,
   ContentChild,
   EventEmitter,
+  inject,
   Input,
   OnDestroy,
   Output,
   TemplateRef,
   ViewChild,
-  inject,
 } from '@angular/core';
 
 type ModalSize = 'small' | 'medium' | 'large' | 'auto';
@@ -27,8 +27,7 @@ export class ModalComponent implements OnDestroy {
 
   @ViewChild('modalTemplate') modalTemplate!: TemplateRef<unknown>;
   @ContentChild('modalHeader') modalHeader: TemplateRef<unknown> | null = null;
-  @ContentChild('modalContent') modalContent: TemplateRef<unknown> | null =
-    null;
+  @ContentChild('modalContent') modalContent: TemplateRef<unknown> | null = null;
   @ContentChild('modalFooter') modalFooter: TemplateRef<unknown> | null = null;
 
   @Input() id = '';
@@ -73,10 +72,7 @@ export class ModalComponent implements OnDestroy {
   }
 
   onBackdropClick(event: MouseEvent): void {
-    if (
-      this.closeOnBackdropClick &&
-      (event.target as HTMLElement).classList.contains('modal-backdrop')
-    ) {
+    if (this.closeOnBackdropClick && (event.target as HTMLElement).classList.contains('modal-backdrop')) {
       this.close();
     }
   }

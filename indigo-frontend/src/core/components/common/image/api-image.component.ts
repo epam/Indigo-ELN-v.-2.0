@@ -1,11 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  inject,
-  Input,
-  OnChanges,
-  SimpleChanges,
-} from '@angular/core';
+import { Component, inject, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { IsInViewportDirective } from '@core/directives/is-in-viewport.directive';
 import { ApiService } from '@core/services/api.service';
 

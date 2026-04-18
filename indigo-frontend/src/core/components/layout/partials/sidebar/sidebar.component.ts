@@ -4,10 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import { StarredExperimentsComponent } from './starred-experiments/starred-experiments.component';
 import { map, Observable } from 'rxjs';
 import { IdentityService } from '@/core/services/identity.service';
-import {
-  ApplicationPermission,
-  CurrentUser,
-} from '@/core/types/entities/user.i';
+import { ApplicationPermission, CurrentUser } from '@/core/types/entities/user.i';
 import { MatIconModule } from '@angular/material/icon';
 
 interface MenuItem {
@@ -20,12 +17,7 @@ interface MenuItem {
 
 @Component({
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    StarredExperimentsComponent,
-    MatIconModule,
-  ],
+  imports: [CommonModule, RouterModule, StarredExperimentsComponent, MatIconModule],
   selector: 'eln-sidebar',
   templateUrl: './sidebar.component.html',
 })
@@ -56,9 +48,7 @@ export class SidebarComponent {
   menu$: Observable<MenuItem[]> = this.identityService.user$.pipe(
     map((user: CurrentUser) => {
       return this.fullMenu.filter(
-        (menuItem) =>
-          !menuItem.requiredPermission ||
-          user.permissions.includes(menuItem.requiredPermission),
+        (menuItem) => !menuItem.requiredPermission || user.permissions.includes(menuItem.requiredPermission),
       );
     }),
   );

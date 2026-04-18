@@ -9,7 +9,6 @@ import { ItemTemplate } from '@core/types/entities/template.i';
 import { TemplateService } from '@core/services/template/template.service';
 import { SvgIconComponent } from '@core/components/common/svg-icon/svg-icon.component';
 
-
 @Component({
   selector: 'eln-template-item',
   imports: [

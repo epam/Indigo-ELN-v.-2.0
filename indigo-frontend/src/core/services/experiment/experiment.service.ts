@@ -15,9 +15,7 @@ export class ExperimentService {
 
   // TODO using some hand-made LoadingState instead of separate data/loading/error to avoid inconsistent states;
   // if it's more readable to use separate flags or there is a better alternative, i'll rewrite it
-  private experimentSubject = new BehaviorSubject<
-    LoadingState<ExperimentDetail>
-  >({
+  private experimentSubject = new BehaviorSubject<LoadingState<ExperimentDetail>>({
     state: 'empty',
   });
   public experimentLoad$ = this.experimentSubject.asObservable();
@@ -93,21 +91,17 @@ export class ExperimentService {
   }
 
   mutateModel(mutation: Mutation) {
-    if (
-      this.experimentSubject.value.state !== 'ready' ||
-      this.model.value.state !== 'ready'
-    ) {
+    if (this.experimentSubject.value.state !== 'ready' || this.model.value.state !== 'ready') {
       console.warn('Experiment not loaded');
       return;
     }
     console.log('Mutating model', mutation);
     this.mutating.next(true);
     this.service
-      .request<ExperimentModel>(
-        'post',
-        `experiments/${this.experimentSubject.value.value.id}/datamodel`,
-        { model: this.model.value.value, mutation },
-      )
+      .request<ExperimentModel>('post', `experiments/${this.experimentSubject.value.value.id}/datamodel`, {
+        model: this.model.value.value,
+        mutation,
+      })
       .subscribe((newModel) => {
         this.mutating.next(false);
         this.model.next({ state: 'ready', value: newModel });

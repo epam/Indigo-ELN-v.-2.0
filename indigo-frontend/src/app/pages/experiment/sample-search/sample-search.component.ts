@@ -1,20 +1,6 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  DestroyRef,
-  EventEmitter,
-  inject,
-  Input,
-  OnInit,
-  Output,
-  ViewChild,
-} from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioButton, MatRadioGroup } from '@angular/material/radio';
@@ -25,16 +11,9 @@ import {
   StructuralSearchType,
   TextSearch,
 } from '@core/types/entities/experiments/search.i';
-import {
-  MatExpansionPanel,
-  MatExpansionPanelHeader,
-  MatExpansionPanelTitle,
-} from '@angular/material/expansion';
+import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
 import { TextSearchComponent } from '@core/components/common/text-search/text-search.component';
-import {
-  BuiltInDictionary,
-  DictionaryItemRef,
-} from '@core/types/entities/dictionary.i';
+import { BuiltInDictionary, DictionaryItemRef } from '@core/types/entities/dictionary.i';
 import { NumericSearchComponent } from '@core/components/common/numeric-search/numeric-search.component';
 import { ApiService } from '@core/services/api.service';
 import { InfiniteSearchLoader } from '@core/components/util/infinite-scroll-search';
@@ -133,9 +112,7 @@ export class SampleSearchComponent implements OnInit {
   form = new FormGroup({
     catalog: new FormControl<SearchCatalog>(SearchCatalog.ALL),
     quickSearch: new FormControl<string | null>(null),
-    structureSearchType: new FormControl<StructuralSearchType>(
-      StructuralSearchType.SUBSTRUCTURE,
-    ),
+    structureSearchType: new FormControl<StructuralSearchType>(StructuralSearchType.SUBSTRUCTURE),
     structure: new FormControl<string | null>(null),
     compoundKey: new FormControl<TextSearch | null>(null),
     nbkBatchNumber: new FormControl<TextSearch | null>(null),
@@ -153,26 +130,15 @@ export class SampleSearchComponent implements OnInit {
   advancedSearchSummary: string[] | null = null;
 
   ngOnInit(): void {
-    this.loader = new InfiniteSearchLoader<FindSamplesRequest, Sample>(
-      (searchParams, pageNo) =>
-        this.apiService.request(
-          'post',
-          `samples/search?pageNo=${pageNo}&pageSize=20`,
-          searchParams,
-        ),
+    this.loader = new InfiniteSearchLoader<FindSamplesRequest, Sample>((searchParams, pageNo) =>
+      this.apiService.request('post', `samples/search?pageNo=${pageNo}&pageSize=20`, searchParams),
     );
-    this.form.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((formValues) => {
-        setEnabled(
-          this.form.get('structureSearchType'),
-          formValues.structure != null,
-          false,
-        );
-        this.formNotEmpty = Object.entries(formValues)
-          .filter(([k, _]) => k !== 'structureSearchType')
-          .some(([_, v]) => isFormValueNotEmpty(v));
-      });
+    this.form.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((formValues) => {
+      setEnabled(this.form.get('structureSearchType'), formValues.structure != null, false);
+      this.formNotEmpty = Object.entries(formValues)
+        .filter(([k, _]) => k !== 'structureSearchType')
+        .some(([_, v]) => isFormValueNotEmpty(v));
+    });
 
     this.form.valueChanges
       .pipe(
@@ -195,9 +161,7 @@ export class SampleSearchComponent implements OnInit {
       };
       this.form.setValue(valuesWithDefaults as never);
       this.structureImage = this.defaultImage
-        ? URL.createObjectURL(
-            new Blob([this.defaultImage], { type: 'image/svg+xml' }),
-          )
+        ? URL.createObjectURL(new Blob([this.defaultImage], { type: 'image/svg+xml' }))
         : null;
     }
   }
@@ -207,21 +171,12 @@ export class SampleSearchComponent implements OnInit {
       let parts = [
         textSearchSummary('Compound ID', this.form.value.compoundKey),
         textSearchSummary('NBK Batch Number', this.form.value.nbkBatchNumber),
-        textSearchSummary(
-          'Molecular Formula',
-          this.form.value.molecularFormula,
-        ),
+        textSearchSummary('Molecular Formula', this.form.value.molecularFormula),
         numericSearchSummary('Molecular Weight', this.form.value.molWeight),
         textSearchSummary('Chemical Name', this.form.value.chemicalName),
-        dictionarySearchSummary(
-          'Compound State',
-          this.form.value.compoundState,
-        ),
+        dictionarySearchSummary('Compound State', this.form.value.compoundState),
         textSearchSummary('Batch Comment', this.form.value.batchComment),
-        dictionarySearchSummary(
-          'Health Hazards',
-          this.form.value.healthHazards,
-        ),
+        dictionarySearchSummary('Health Hazards', this.form.value.healthHazards),
         textSearchSummary('CAS Number', this.form.value.casNumber),
       ];
       parts = parts.filter((part) => part != null);
@@ -247,9 +202,7 @@ export class SampleSearchComponent implements OnInit {
     const body: FindSamplesRequest = {
       quickSearch: formValue.quickSearch || null,
       structure:
-        formValue.structure != null
-          ? { type: formValue.structureSearchType, query: formValue.structure }
-          : null,
+        formValue.structure != null ? { type: formValue.structureSearchType, query: formValue.structure } : null,
       compoundKey,
       nbkBatchNumber,
       molecularFormula,

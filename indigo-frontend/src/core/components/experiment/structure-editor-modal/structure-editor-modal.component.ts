@@ -1,10 +1,6 @@
 import { Component, Inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  MAT_DIALOG_DATA,
-  MatDialogModule,
-  MatDialogRef,
-} from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { ButtonComponent } from '../../common/button/button.component';
 import { KetcherComponent } from '../../common/ketcher/ketcher.component';
@@ -31,20 +27,12 @@ export interface StructureEditorModalFailure {
   error: string;
 }
 
-export type StructureEditorModalResult =
-  | StructureEditorModalSuccess
-  | StructureEditorModalFailure;
+export type StructureEditorModalResult = StructureEditorModalSuccess | StructureEditorModalFailure;
 
 @Component({
   selector: 'eln-structure-editor-modal',
   standalone: true,
-  imports: [
-    CommonModule,
-    MatDialogModule,
-    MatButtonModule,
-    ButtonComponent,
-    KetcherComponent,
-  ],
+  imports: [CommonModule, MatDialogModule, MatButtonModule, ButtonComponent, KetcherComponent],
   templateUrl: './structure-editor-modal.component.html',
 })
 export class StructureEditorModalComponent {
@@ -63,24 +51,15 @@ export class StructureEditorModalComponent {
   }
 
   constructor(
-    private dialogRef: MatDialogRef<
-      StructureEditorModalComponent,
-      StructureEditorModalResult
-    >,
+    private dialogRef: MatDialogRef<StructureEditorModalComponent, StructureEditorModalResult>,
     @Inject(MAT_DIALOG_DATA) public data: ModalData,
   ) {
-    this.initialStructure =
-      this.data.isReaction === true
-        ? this.data.reaction.rxnfile
-        : this.data.molFile;
+    this.initialStructure = this.data.isReaction === true ? this.data.reaction.rxnfile : this.data.molFile;
   }
 
   async onKetcherLoad(ketcher: Ketcher): Promise<void> {
     // Load initial structure from reaction if available
-    const initialStructure =
-      this.data.isReaction === true
-        ? this.data.reaction.rxnfile
-        : this.data.molFile;
+    const initialStructure = this.data.isReaction === true ? this.data.reaction.rxnfile : this.data.molFile;
     if (initialStructure) {
       try {
         await ketcher.setMolecule(initialStructure);
@@ -96,14 +75,9 @@ export class StructureEditorModalComponent {
       return;
     }
     try {
-      const molOrRxnFile = await this.ketcherComponent.getRxnOrMolfile(
-        this.data.isReaction,
-      );
+      const molOrRxnFile = await this.ketcherComponent.getRxnOrMolfile(this.data.isReaction);
       const image = await this.ketcherComponent.generateImage(molOrRxnFile);
-      const isReaction =
-        this.data.isReaction != null
-          ? this.data.isReaction
-          : this.ketcherComponent.containsReaction();
+      const isReaction = this.data.isReaction != null ? this.data.isReaction : this.ketcherComponent.containsReaction();
       this.dialogRef.close({
         success: true,
         isReaction,

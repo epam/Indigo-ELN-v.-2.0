@@ -1,11 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { ApiService } from '@/core/services/api.service';
 import { ExperimentDetail } from '@core/types/entities/experiments/experiment-detail.i';
-import {
-  Mutation,
-  MutationResponse,
-  ReactionAnchor,
-} from '@core/types/entities/experiments/mutation.i';
+import { Mutation, MutationResponse, ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
 import { finalize, Observable, tap } from 'rxjs';
 import { NotificationService } from '@core/services/notification/notification.service';
 import { NotificationType } from '@core/types/notification.i';
@@ -28,9 +24,7 @@ export class ExperimentDetailService {
   readonly isUpdating = signal<boolean>(false);
   readonly currentId = signal<string | null>(null);
   readonly updatedNodes = signal<Map<unknown, unknown>>(new Map());
-  readonly updatedReactionImages = signal<Map<ReactionAnchor, string>>(
-    new Map(),
-  );
+  readonly updatedReactionImages = signal<Map<ReactionAnchor, string>>(new Map());
 
   // Query methods
   load(id: string) {
@@ -76,21 +70,14 @@ export class ExperimentDetailService {
         tap({
           next: (response) => {
             const previous = this.experimentDetail();
-            const [updated, updatedNodes] = JSON_PATCHER.apply(
-              previous,
-              response.patch,
-            );
+            const [updated, updatedNodes] = JSON_PATCHER.apply(previous, response.patch);
             this.experimentDetail.set(updated as ExperimentDetail);
-            this.lastLoadedDetail.set(
-              structuredClone(updated) as ExperimentDetail,
-            );
+            this.lastLoadedDetail.set(structuredClone(updated) as ExperimentDetail);
             this.updatedNodes.set(updatedNodes);
             if (response.reactionImages) {
               this.updatedReactionImages.update((map) => {
                 const map1 = new Map(map.entries());
-                for (const [anchor, image] of Object.entries(
-                  response.reactionImages,
-                )) {
+                for (const [anchor, image] of Object.entries(response.reactionImages)) {
                   map1.set(anchor, image);
                 }
                 return map1;

@@ -6,25 +6,10 @@
       }
     </mat-select>
     @if (form.get('type').value !== 'between') {
-      <input
-        matInput
-        formControlName="value"
-        (blur)="triggerTouched()"
-        class="flex-3 border"
-      />
+      <input matInput formControlName="value" (blur)="triggerTouched()" class="flex-3 border" />
     } @else {
-      <input
-        matInput
-        formControlName="from"
-        (blur)="triggerTouched()"
-        class="flex-1 border"
-      />
-      <input
-        matInput
-        formControlName="to"
-        (blur)="triggerTouched()"
-        class="flex-1 border"
-      />
+      <input matInput formControlName="from" (blur)="triggerTouched()" class="flex-1 border" />
+      <input matInput formControlName="to" (blur)="triggerTouched()" class="flex-1 border" />
     }
   </div>
 </form>

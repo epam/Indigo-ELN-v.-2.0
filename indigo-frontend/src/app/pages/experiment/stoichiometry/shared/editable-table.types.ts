@@ -17,13 +17,7 @@ export interface UnitFieldValue {
   unit: string;
 }
 
-export type FieldValue =
-  | string
-  | null
-  | boolean
-  | UnitFieldValue
-  | DictionaryItemRef
-  | DictionaryItemRef[];
+export type FieldValue = string | null | boolean | UnitFieldValue | DictionaryItemRef | DictionaryItemRef[];
 
 export interface UnitInputChange {
   value?: string | null;

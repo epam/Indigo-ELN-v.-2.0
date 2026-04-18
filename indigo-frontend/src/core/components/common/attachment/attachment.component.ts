@@ -1,12 +1,6 @@
 import { Attachment } from '@/core/types/entities/attachment.i';
 import { DatePipe } from '@angular/common';
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnDestroy,
-  Output,
-} from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { CardComponent } from '../card/card.component';
@@ -17,13 +11,7 @@ import { BytesConvertingPipe } from '@/core/pipes/bytesConverting.pipe';
 
 @Component({
   standalone: true,
-  imports: [
-    CardComponent,
-    MatMenuModule,
-    MatIconModule,
-    DatePipe,
-    BytesConvertingPipe,
-  ],
+  imports: [CardComponent, MatMenuModule, MatIconModule, DatePipe, BytesConvertingPipe],
   selector: 'eln-attachment',
   templateUrl: './attachment.component.html',
 })
@@ -66,25 +54,15 @@ export class AttachmentComponent implements OnDestroy {
 
   downloadAttachment() {
     this.service
-      .request<Blob>(
-        'get',
-        `project/${this.projectId}/attachments/${this.attachment.id}`,
-        undefined,
-        {
-          responseType: 'blob',
-        },
-      )
-      .subscribe((blob: Blob | null) =>
-        downloadBlob(blob, this.attachment.name),
-      );
+      .request<Blob>('get', `project/${this.projectId}/attachments/${this.attachment.id}`, undefined, {
+        responseType: 'blob',
+      })
+      .subscribe((blob: Blob | null) => downloadBlob(blob, this.attachment.name));
   }
 
   deleteAttachment() {
     this.service
-      .request<void>(
-        'delete',
-        `projects/${this.projectId}/attachments/${this.attachment.id}`,
-      )
+      .request<void>('delete', `projects/${this.projectId}/attachments/${this.attachment.id}`)
       .subscribe(() => this.attachmentDeleted.emit(this.attachment.id));
   }
 

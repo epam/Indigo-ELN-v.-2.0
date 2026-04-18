@@ -1,19 +1,9 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  DestroyRef,
-  EventEmitter,
-  inject,
-  Input,
-  Output,
-} from '@angular/core';
+import { Component, DestroyRef, EventEmitter, inject, Input, Output } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
-import {
-  FindSamplesRequest,
-  Sample,
-} from '@core/types/entities/experiments/search.i';
+import { FindSamplesRequest, Sample } from '@core/types/entities/experiments/search.i';
 import {
   ColumnDefDirective,
   ExpandableTableComponent,
@@ -48,10 +38,7 @@ import { ApiService } from '@core/services/api.service';
   templateUrl: './sample-search-results.component.html',
 })
 export class SampleSearchResultsComponent {
-  @Input({ required: true }) loader: InfiniteSearchLoader<
-    FindSamplesRequest,
-    Sample
-  >;
+  @Input({ required: true }) loader: InfiniteSearchLoader<FindSamplesRequest, Sample>;
   @Output() addToExperiment = new EventEmitter<Sample>();
 
   destroyRef = inject(DestroyRef);
@@ -60,10 +47,7 @@ export class SampleSearchResultsComponent {
 
   markSample(sample: Sample, mark: boolean) {
     this.apiService
-      .request<Sample>(
-        'post',
-        `samples/${sample.id}/${mark ? 'mark' : 'unmark'}`,
-      )
+      .request<Sample>('post', `samples/${sample.id}/${mark ? 'mark' : 'unmark'}`)
       .subscribe((response) => {
         this.loader.replace((s) => s.id === sample.id, response);
       });

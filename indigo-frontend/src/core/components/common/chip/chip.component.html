@@ -1,9 +1,6 @@
 <span [class]="active | chipVariant: error : size : classList">
   <ng-content></ng-content>
   @if (deleteable) {
-    <em
-      class="chip-icon indicon-close text-lg"
-      (click)="active && emitClose.emit()"
-    ></em>
+    <em class="chip-icon indicon-close text-lg" (click)="active && emitClose.emit()"></em>
   }
 </span>

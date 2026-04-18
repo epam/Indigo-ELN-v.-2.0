@@ -1,8 +1,5 @@
-import { Component, OnInit, Output, EventEmitter, inject } from '@angular/core';
-import {
-  DictionaryList,
-  DictionaryListItem,
-} from '@/core/types/entities/dictionary.i';
+import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
+import { DictionaryList, DictionaryListItem } from '@/core/types/entities/dictionary.i';
 import { DictionaryService } from '@/core/services/dictionary/dictionary.service';
 import { CardComponent } from '@/core/components/common/card/card.component';
 import { DatePipe } from '@angular/common';

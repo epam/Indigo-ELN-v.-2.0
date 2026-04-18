@@ -45,7 +45,7 @@ export class MasterComponent implements OnInit, OnDestroy {
   userName = 'John D.';
   userAvatar = 'assets/avatar-placeholder.png';
 
-  @ViewChild('content', {static: true}) content!: ElementRef<HTMLElement>;
+  @ViewChild('content', { static: true }) content!: ElementRef<HTMLElement>;
 
   logout() {
     this.authenticatorService.signOut();
@@ -57,10 +57,14 @@ export class MasterComponent implements OnInit, OnDestroy {
       this.userName = `${user.displayName}`;
     });
 
-    (this.router.events as Observable<NavigationEnd>).pipe(filter((e) => e instanceof NavigationEnd), takeUntil(this.destroy$))
-    .subscribe(() => {
-      this.content.nativeElement.scrollTop = 0;
-    })
+    (this.router.events as Observable<NavigationEnd>)
+      .pipe(
+        filter((e) => e instanceof NavigationEnd),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(() => {
+        this.content.nativeElement.scrollTop = 0;
+      });
   }
 
   ngOnDestroy(): void {

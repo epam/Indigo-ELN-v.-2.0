@@ -4,12 +4,7 @@ import { ElnWrapperFormField } from '@/core/components/formly/wrappers/field-wra
 import { DropdownFieldComponent } from '@/core/components/formly/fields/dropdown-field.component';
 
 import { HttpInterceptorFn, provideHttpClient, withInterceptors } from '@angular/common/http';
-import {
-  ApplicationConfig,
-  importProvidersFrom,
-  inject,
-  provideZoneChangeDetection,
-} from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, inject, provideZoneChangeDetection } from '@angular/core';
 
 import { EditorFormlyFieldComponent } from '@/core/components/formly/fields/editor/editor-field.component';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -19,12 +14,7 @@ import { FormlyPresetModule } from '@ngx-formly/core/preset';
 import { FormlyMaterialModule } from '@ngx-formly/material';
 import { FormlyMatDatepickerModule } from '@ngx-formly/material/datepicker';
 import { routes } from './app.routes';
-import {
-  AutoRefreshTokenService,
-  provideKeycloak,
-  UserActivityService,
-  withAutoRefreshToken,
-} from 'keycloak-angular';
+import { AutoRefreshTokenService, provideKeycloak, UserActivityService, withAutoRefreshToken } from 'keycloak-angular';
 import Keycloak from 'keycloak-js';
 
 const keycloakBearerInterceptor: HttpInterceptorFn = (req, next) => {
@@ -32,9 +22,7 @@ const keycloakBearerInterceptor: HttpInterceptorFn = (req, next) => {
   const token = keycloak.token;
 
   if (token) {
-    return next(
-      req.clone({ setHeaders: { Authorization: `Bearer ${token}` } }),
-    );
+    return next(req.clone({ setHeaders: { Authorization: `Bearer ${token}` } }));
   }
 
   return next(req);
@@ -51,8 +39,7 @@ export const appConfig: ApplicationConfig = {
       },
       initOptions: {
         onLoad: 'login-required',
-        silentCheckSsoRedirectUri:
-          window.location.origin + '/assets/silent-check-sso.html',
+        silentCheckSsoRedirectUri: window.location.origin + '/assets/silent-check-sso.html',
         redirectUri: window.location.origin + '/',
       },
       features: [

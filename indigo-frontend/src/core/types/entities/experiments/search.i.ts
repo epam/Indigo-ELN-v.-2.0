@@ -1,8 +1,5 @@
 import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
-import {
-  ReactionRole,
-  UUID,
-} from '@core/types/entities/experiments/experiment-shared.i';
+import { ReactionRole, UUID } from '@core/types/entities/experiments/experiment-shared.i';
 import { ExperimentStatus } from '@core/enums/experiment-status.enum';
 import { UserMetadata } from '@core/types/entities/user.i';
 
@@ -65,10 +62,7 @@ export interface NumericSearchGreaterThanOrEquals {
   value: number;
 }
 
-export type NumericSearch =
-  | NumericSearchEquals
-  | NumericSearchLessThanOrEquals
-  | NumericSearchGreaterThanOrEquals;
+export type NumericSearch = NumericSearchEquals | NumericSearchLessThanOrEquals | NumericSearchGreaterThanOrEquals;
 
 export interface FindSamplesRequest {
   quickSearch?: string;

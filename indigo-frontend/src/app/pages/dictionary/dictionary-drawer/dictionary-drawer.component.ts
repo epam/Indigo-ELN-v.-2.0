@@ -1,17 +1,6 @@
-import {
-  Component,
-  Input,
-  Output,
-  EventEmitter,
-  OnChanges,
-  inject,
-} from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnChanges, Output } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import {
-  DictionaryFull,
-  DictionaryFullItem,
-  DictionaryListItem,
-} from '@/core/types/entities/dictionary.i';
+import { DictionaryFull, DictionaryFullItem, DictionaryListItem } from '@/core/types/entities/dictionary.i';
 import { DictionaryService } from '@/core/services/dictionary/dictionary.service';
 import { MatIcon } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
@@ -25,14 +14,7 @@ import { CardComponent } from '@/core/components/common/card/card.component';
 import { InputComponent } from '@/core/components/common/input/input.component';
 import { MatButtonModule } from '@angular/material/button';
 import { ButtonComponent } from '@/core/components/common/button/button.component';
-import {
-  AbstractControl,
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 export interface UiDictionaryItem extends DictionaryFullItem {
@@ -71,14 +53,7 @@ export class DictionaryDrawerComponent implements OnChanges {
   private originalData: UiDictionaryItem[] = [];
   dataSource$ = new BehaviorSubject<DictionaryFull>([]);
 
-  displayedColumns: string[] = [
-    'rank',
-    'name',
-    'description',
-    'active',
-    'createdAt',
-    'delete',
-  ];
+  displayedColumns: string[] = ['rank', 'name', 'description', 'active', 'createdAt', 'delete'];
 
   isLoadingDictionaryDetails = false;
 
@@ -115,9 +90,7 @@ export class DictionaryDrawerComponent implements OnChanges {
         this.originalData = response;
         this.dataSource$.next(response);
         this.isLoadingDictionaryDetails = false;
-        this.formRows = this.originalData.map((item) =>
-          this.createRowForm(item.name),
-        );
+        this.formRows = this.originalData.map((item) => this.createRowForm(item.name));
       },
       error: (err) => {
         console.error('Error fetching dictionary details:', err);
@@ -134,9 +107,7 @@ export class DictionaryDrawerComponent implements OnChanges {
       return;
     }
 
-    const filteredData = this.originalData.filter((item) =>
-      item.name.toLowerCase().includes(filterValue),
-    );
+    const filteredData = this.originalData.filter((item) => item.name.toLowerCase().includes(filterValue));
 
     this.dataSource$.next(filteredData);
   }
@@ -149,27 +120,21 @@ export class DictionaryDrawerComponent implements OnChanges {
       this.dataSource$.next([...this.originalData]);
     } else {
       // existing item, call API to delete
-      this.dictionaryService
-        .deleteDictionaryItem(this.lastId, itemId)
-        .subscribe({
-          next: (updatedDictionary) => {
-            const deletedItem = this.originalData[index];
-            this.originalData = updatedDictionary;
-            this.dataSource$.next(updatedDictionary);
-            this.formRows.splice(index, 1);
+      this.dictionaryService.deleteDictionaryItem(this.lastId, itemId).subscribe({
+        next: (updatedDictionary) => {
+          const deletedItem = this.originalData[index];
+          this.originalData = updatedDictionary;
+          this.dataSource$.next(updatedDictionary);
+          this.formRows.splice(index, 1);
 
-            this.snackBar.open(
-              `Word '${deletedItem.name}' has been successfully deleted.`,
-              'Close',
-              {
-                duration: 5000,
-              },
-            );
-          },
-          error: (err) => {
-            console.error('Error deleting dictionary item:', err);
-          },
-        });
+          this.snackBar.open(`Word '${deletedItem.name}' has been successfully deleted.`, 'Close', {
+            duration: 5000,
+          });
+        },
+        error: (err) => {
+          console.error('Error deleting dictionary item:', err);
+        },
+      });
     }
   }
 
@@ -184,10 +149,7 @@ export class DictionaryDrawerComponent implements OnChanges {
       name: '',
       description: '',
       active: true,
-      ordinal:
-        this.originalData.length > 0
-          ? Math.max(...this.originalData.map((item) => item.ordinal)) + 1
-          : 1,
+      ordinal: this.originalData.length > 0 ? Math.max(...this.originalData.map((item) => item.ordinal)) + 1 : 1,
       createdAt: currentDate,
       id: '',
       validationError: '',
@@ -201,14 +163,7 @@ export class DictionaryDrawerComponent implements OnChanges {
 
   private createRowForm(name: string) {
     return this.fb.group({
-      name: [
-        name,
-        [
-          Validators.required,
-          this.nameUniqueValidator.bind(this),
-          Validators.maxLength(256),
-        ],
-      ],
+      name: [name, [Validators.required, this.nameUniqueValidator.bind(this), Validators.maxLength(256)]],
     });
   }
 
@@ -233,35 +188,29 @@ export class DictionaryDrawerComponent implements OnChanges {
     const formValue = rowForm.value;
 
     if (!item.id) {
-      this.dictionaryService
-        .addDictionaryItem(this.lastId, formValue.name)
-        .subscribe({
-          next: (updatedDictionary) => {
-            this.originalData = updatedDictionary;
-            this.dataSource$.next(updatedDictionary);
+      this.dictionaryService.addDictionaryItem(this.lastId, formValue.name).subscribe({
+        next: (updatedDictionary) => {
+          this.originalData = updatedDictionary;
+          this.dataSource$.next(updatedDictionary);
 
-            const index = this.formRows.indexOf(rowForm);
-            if (index !== -1) {
-              const savedWord = updatedDictionary.find(
-                (entry) => entry.name === formValue.name,
-              );
-              if (savedWord) {
-                this.formRows[index] = this.createRowForm(savedWord.name);
-              }
+          const index = this.formRows.indexOf(rowForm);
+          if (index !== -1) {
+            const savedWord = updatedDictionary.find((entry) => entry.name === formValue.name);
+            if (savedWord) {
+              this.formRows[index] = this.createRowForm(savedWord.name);
             }
-          },
-          error: (err) => {
-            console.error('Error adding dictionary item:', err);
-          },
-        });
+          }
+        },
+        error: (err) => {
+          console.error('Error adding dictionary item:', err);
+        },
+      });
     }
   }
 
   private nameUniqueValidator(control: AbstractControl) {
     const name = control.value;
-    const isDuplicate = this.originalData.some(
-      (item) => item.name.toLowerCase() === name.toLowerCase(),
-    );
+    const isDuplicate = this.originalData.some((item) => item.name.toLowerCase() === name.toLowerCase());
 
     return isDuplicate ? { notUnique: true } : null;
   }

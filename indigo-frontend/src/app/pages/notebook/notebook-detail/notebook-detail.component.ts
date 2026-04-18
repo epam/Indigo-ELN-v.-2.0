@@ -12,12 +12,7 @@ import { ProjectTabButtonComponent } from '@pages/project/project-tab-button/pro
   selector: 'eln-notebook-detail',
   templateUrl: './notebook-detail.component.html',
   standalone: true,
-  imports: [
-    RouterOutlet,
-    ProjectTabButtonComponent,
-    ButtonComponent,
-    CardComponent,
-  ],
+  imports: [RouterOutlet, ProjectTabButtonComponent, ButtonComponent, CardComponent],
   providers: [NotebookService],
 })
 export class NotebookDetailComponent implements OnInit {
@@ -54,7 +49,7 @@ export class NotebookDetailComponent implements OnInit {
 
   async openExperimentModal() {
     const ref = this.dialog.open(ExperimentAddComponent);
-        ref.componentInstance.notebookId = this.activatedRoute.snapshot.paramMap.get('notebookId');;
+    ref.componentInstance.notebookId = this.activatedRoute.snapshot.paramMap.get('notebookId');
     ref
       .afterClosed()
       .pipe(take(1))

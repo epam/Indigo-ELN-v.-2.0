@@ -14,16 +14,11 @@ import { of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { NotificationType } from '@/core/types/notification.i';
 import { NotificationService } from '@/core/services/notification/notification.service';
+
 @Component({
   standalone: true,
   selector: 'eln-notebook-edit',
-  imports: [
-    MatInputModule,
-    FormsModule,
-    ReactiveFormsModule,
-    CommonModule,
-    FormDialogComponent,
-  ],
+  imports: [MatInputModule, FormsModule, ReactiveFormsModule, CommonModule, FormDialogComponent],
   templateUrl: './notebook-edit.component.html',
 })
 export class NotebookEditComponent {
@@ -70,9 +65,7 @@ export class NotebookEditComponent {
 
             return of(value).pipe(
               switchMap((v: string) => {
-                this.uniqueNameToastMessage.set(
-                  `Notebook with name '${v}' already exists`,
-                );
+                this.uniqueNameToastMessage.set(`Notebook with name '${v}' already exists`);
                 return this.service.request<{ exists: boolean }>(
                   'get',
                   `notebooks/existence?name=${encodeURIComponent(v)}`,

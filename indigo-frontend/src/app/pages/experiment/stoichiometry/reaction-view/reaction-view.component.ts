@@ -24,8 +24,5 @@ export class ReactionViewComponent {
   experimentId = input<string | null>(null);
 
   // Computed signal for the first reaction (TODO: support multiple reactions)
-  reaction = computed(
-    () =>
-      this.experimentDetailService.experimentModel()?.reactions?.[0] || null,
-  );
+  reaction = computed(() => this.experimentDetailService.experimentModel()?.reactions?.[0] || null);
 }

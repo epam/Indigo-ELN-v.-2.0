@@ -1,33 +1,46 @@
-<label class="block text-gray-700 text-sm font-bold mb-2 cursor-pointer text-primary-400"
-  [class.opacity-50]="uploadingFile" [class.cursor-not-allowed]="uploadingFile">
-  <div class="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg text-center cursor-pointer hover:bg-gray-100"
-    [class.hover:bg-gray-100]="!uploadingFile" [class.cursor-not-allowed]="uploadingFile">
+<label
+  class="block text-gray-700 text-sm font-bold mb-2 cursor-pointer text-primary-400"
+  [class.opacity-50]="uploadingFile"
+  [class.cursor-not-allowed]="uploadingFile"
+>
+  <div
+    class="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg text-center cursor-pointer hover:bg-gray-100"
+    [class.hover:bg-gray-100]="!uploadingFile"
+    [class.cursor-not-allowed]="uploadingFile"
+  >
     <em class="indicon-paperclip"></em>
     {{ uploadingFile ? loadingText : 'Attach file' }}
-    <input type="file" class="hidden" (change)="onFileSelect($event)" [accept]="acceptedExtensions"
-      [disabled]="uploadingFile" multiple>
+    <input
+      type="file"
+      class="hidden"
+      (change)="onFileSelect($event)"
+      [accept]="acceptedExtensions"
+      [disabled]="uploadingFile"
+      multiple
+    />
   </div>
 </label>
 
 <!-- Preview Selected Files -->
-@if(files.length && withPreview) {
-<div class="mt-4">
-  @for(file of files; track file; let i = $index) {
-  <div class="flex items-center justify-between p-2 bg-gray-100 rounded-lg mt-2">
-    <div class="flex items-center space-x-2">
-      @if(file.type.startsWith('image/')) {
-      <img [src]="previews[i]" class="w-8 h-8 object-cover rounded">
-      }
-      @else {
-      <em class="indicon-file-text text-4xl"></em>
-      }
-      <span>{{ file.name | titlecase }}</span>
-      <span>by {{ user.given_name }} {{ user.family_name }}</span>
-      <span>{{ file.size | filesize }}</span>
-      <span>{{ today | date: 'long' }}</span>
-      <button class="text-red-500 hover:text-red-700" (click)="removeFile(i)"><em class="indicon-delete"></em></button>
-    </div>
+@if (files.length && withPreview) {
+  <div class="mt-4">
+    @for (file of files; track file; let i = $index) {
+      <div class="flex items-center justify-between p-2 bg-gray-100 rounded-lg mt-2">
+        <div class="flex items-center space-x-2">
+          @if (file.type.startsWith('image/')) {
+            <img [src]="previews[i]" class="w-8 h-8 object-cover rounded" />
+          } @else {
+            <em class="indicon-file-text text-4xl"></em>
+          }
+          <span>{{ file.name | titlecase }}</span>
+          <span>by {{ user.given_name }} {{ user.family_name }}</span>
+          <span>{{ file.size | filesize }}</span>
+          <span>{{ today | date: 'long' }}</span>
+          <button class="text-red-500 hover:text-red-700" (click)="removeFile(i)">
+            <em class="indicon-delete"></em>
+          </button>
+        </div>
+      </div>
+    }
   </div>
-  }
-</div>
 }
