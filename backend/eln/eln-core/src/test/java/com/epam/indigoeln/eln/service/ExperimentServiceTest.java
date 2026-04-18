@@ -298,10 +298,9 @@ class ExperimentServiceTest extends ELNBaseTest {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         ExperimentModel model = experiment.getModel();
         Reaction reaction = model.getReactions().getFirst();
-        assertThat(reaction.getRxnVersion()).isZero();
         Response response = experimentClient.getExperimentPictureClient(experiment.getId());
         assertThat((byte[]) response.getEntity()).containsExactly(ExperimentService.EMPTY_PICTURE);
-        response = experimentClient.getReactionPicture(experiment.getId(), reaction.getAnchor(), reaction.getRxnVersion());
+        response = experimentClient.getReactionPicture(experiment.getId(), reaction.getAnchor(), experiment.getRevision());
         assertThat((byte[]) response.getEntity()).containsExactly(ExperimentService.EMPTY_PICTURE);
 
         String rxnFile = new String(loadResource(getClass(), "/reaction.rxn"));
@@ -309,12 +308,11 @@ class ExperimentServiceTest extends ELNBaseTest {
 
         model = experimentClient.getExperiment(experiment.getId()).getModel();
         reaction = model.getReactions().getFirst();
-        assertThat(reaction.getRxnVersion()).isEqualTo(1);
 
         response = experimentClient.getExperimentPictureClient(experiment.getId());
         assertThat(response).isNotEqualTo(ExperimentService.EMPTY_PICTURE);
         Files.write(Paths.get("picture.svg"), (byte[]) response.getEntity());
-        response = experimentClient.getReactionPicture(experiment.getId(), reaction.getAnchor(), reaction.getRxnVersion());
+        response = experimentClient.getReactionPicture(experiment.getId(), reaction.getAnchor(), experiment.getRevision());
         assertThat(response).isNotEqualTo(ExperimentService.EMPTY_PICTURE);
         assertThat(response.getHeaders().getFirst(HttpHeaders.CONTENT_TYPE)).isEqualTo("image/svg+xml");
         //noinspection deprecation

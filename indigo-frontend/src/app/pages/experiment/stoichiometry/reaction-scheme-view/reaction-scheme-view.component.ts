@@ -1,4 +1,4 @@
-import { Component, inject, Input } from '@angular/core';
+import { Component, computed, inject, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { ButtonComponent } from '@/core/components/common/button/button.component';
@@ -30,12 +30,21 @@ export class ReactionSchemeViewComponent {
   service = inject(ApiService);
   slideInPanelService = inject(SlideInPanelService);
 
-  reactionSchemeImageUrl(): string | null {
+  reactionSchemeBlob = computed(() => {
     if (!this.reaction) {
       return null;
     }
-    return `experiments/${this.experimentId}/datamodel/reactions/${this.reaction.anchor}/picture?version=${this.reaction.rxnVersion}`;
-  }
+    return this.experimentDetailService
+      .updatedReactionImages()
+      .get(this.reaction.anchor);
+  });
+
+  reactionSchemeImageUrl = computed(() => {
+    if (!this.reaction) {
+      return null;
+    }
+    return `experiments/${this.experimentId}/datamodel/reactions/${this.reaction.anchor}/picture?revision=${this.experimentDetailService.experimentDetail().revision}`;
+  });
 
   openChemicalEditor(): void {
     if (!this.experimentId) {

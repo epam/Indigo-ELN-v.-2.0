@@ -101,7 +101,7 @@ public interface ExperimentAPI extends BaseAPI {
 
     @GET
     @Path("/experiments/{experimentId}/datamodel/reactions/{reactionAnchor}/picture")
-    Response getReactionPicture(@PathParam("experimentId") UUID experimentId, @PathParam("reactionAnchor") ReactionAnchor reactionAnchor, @Nullable @QueryParam("version") Integer version);
+    Response getReactionPicture(@PathParam("experimentId") UUID experimentId, @PathParam("reactionAnchor") ReactionAnchor reactionAnchor, @Nullable @QueryParam("revision") Integer revision);
 
     @POST
     @Path("/experiments/{experimentId}/datamodel/reactions/{reactionAnchor}/analyzeRXN")

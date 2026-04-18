@@ -15,7 +15,6 @@ import {
 } from './experiment-shared.i';
 import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
 import { UserMetadata } from '@core/types/entities/user.i';
-import { ExperimentDetail } from '@core/types/entities/experiments/experiment-detail.i';
 
 // Base mutation interface
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -425,7 +424,8 @@ export type Mutation =
   | SetOutputMolfile;
 
 export interface MutationResponse {
-  updated: ExperimentDetail;
+  patch: unknown;
   unresolvedInputs?: Record<ReactionInputAnchor, string>;
   messages?: string[];
+  reactionImages?: Record<ReactionAnchor, string>;
 }

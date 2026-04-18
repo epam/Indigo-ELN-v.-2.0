@@ -17,7 +17,6 @@ public class ReactionMetamodel {
 
     public static final ModelProperty<Reaction, ReactionAnchor> ANCHOR = property("anchor",Reaction::getAnchor, Reaction::setAnchor);
     public static final ModelProperty<Reaction, String> RXN_FILE = property("rxnfile", Reaction::getRxnfile, Reaction::setRxnfile);
-    public static final ModelProperty<Reaction, Integer> RXN_VERSION = property("rxnVersion", Reaction::getRxnVersion, Reaction::setRxnVersion);
     public static final ModelProperty<Reaction, List<ReactionInput>> INPUTS = listProperty("inputs", Reaction::getInputs, Reaction::setInputs, ReactionInputMetamodel.INSTANCE);
     public static final ModelProperty<Reaction, List<ReactionOutput>> OUTPUTS = listProperty("outputs", Reaction::getOutputs, Reaction::setOutputs, ReactionOutputMetamodel.INSTANCE);
     public static final ModelProperty<Reaction, List<STRCodeSample>> PRECURSOR_REACTANT_IDS = property("precursorReactantIds", Reaction::getPrecursorReactantIds, null);
@@ -25,7 +24,6 @@ public class ReactionMetamodel {
     public static final Metamodel<Reaction> INSTANCE = new Metamodel<>("Reaction", List.of(
             ANCHOR,
             RXN_FILE,
-            RXN_VERSION,
             INPUTS,
             OUTPUTS,
             PRECURSOR_REACTANT_IDS

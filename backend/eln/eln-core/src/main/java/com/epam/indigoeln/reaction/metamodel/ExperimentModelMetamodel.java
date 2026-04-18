@@ -12,12 +12,10 @@ import static com.epam.indigoeln.reaction.metamodel.property.ModelProperty.prope
 
 public class ExperimentModelMetamodel {
 
-    public static final ModelProperty<ExperimentModel, Integer> SCHEMA_VERSION = property("schemaVersion",ExperimentModel::getSchemaVersion, ExperimentModel::setSchemaVersion);
     public static final ModelProperty<ExperimentModel, Integer> SIGNIFICANT_FIGURES = property("significantFigures", ExperimentModel::getSignificantFigures, ExperimentModel::setSignificantFigures);
     public static final ModelProperty<ExperimentModel, List<Reaction>> REACTIONS = listProperty("reactions", ExperimentModel::getReactions, ExperimentModel::setReactions, ReactionMetamodel.INSTANCE);
 
     public static final Metamodel<ExperimentModel> INSTANCE = new Metamodel<>("ACLEntry", List.of(
-            SCHEMA_VERSION,
             SIGNIFICANT_FIGURES,
             REACTIONS
     ));

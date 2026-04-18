@@ -1,9 +1,5 @@
 import { Component, ElementRef, inject, Input, ViewChild } from '@angular/core';
-import {
-  EnteredValue,
-  EnteredValueSource,
-  MeasurementUnit,
-} from '@core/types/entities/values.i';
+import { EnteredValue, MeasurementUnit } from '@core/types/entities/values.i';
 import { DecimalPipe, NgClass } from '@angular/common';
 import { MatOption, MatSelect } from '@angular/material/select';
 
@@ -36,22 +32,10 @@ export class EnteredValueComponent<U> {
 
   editing = false;
 
-  recalculated = false;
-
   @Input()
   set value(newValue: EnteredValue<U> | null) {
-    const oldValue = this._value;
     this._value = newValue;
-    this.recalculated = false;
     this.updateUnitDisplayName();
-    if (
-      oldValue !== undefined &&
-      newValue?.source === EnteredValueSource.CALCULATED_FROM_LAST_ENTERED
-    ) {
-      requestAnimationFrame(() => {
-        this.recalculated = true;
-      });
-    }
   }
 
   get value(): EnteredValue<U> | null {

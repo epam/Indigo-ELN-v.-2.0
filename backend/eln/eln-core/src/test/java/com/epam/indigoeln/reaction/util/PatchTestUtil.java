@@ -30,7 +30,6 @@ public class PatchTestUtil {
         JsonNodeFactory nodeFactory = FeignUtil.OBJECT_MAPPER.getNodeFactory();
         root.set("revision", nodeFactory.textNode("..."));
         JsonLocator.<ObjectNode>findNodes(root, "model/reactions/*").forEach(reactionJSON -> {
-            reactionJSON.set("rxnVersion", nodeFactory.textNode("..."));
             reactionJSON.set("rxnfile", nodeFactory.textNode("..."));
         });
         JsonLocator.findNodes(root, "model/reactions/**").forEach(node -> {
