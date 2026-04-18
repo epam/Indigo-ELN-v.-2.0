@@ -1,7 +1,4 @@
-import {
-  HttpClientTestingModule,
-  HttpTestingController,
-} from '@angular/common/http/testing';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { PagedRequest } from '../types/request/paged-request.i';
 import { PaginatedResponse } from '../types/response/paginated-response.i';
@@ -37,16 +34,8 @@ describe('ApiService', () => {
     expect(service).toBeTruthy();
   });
 
-  describe('setup', () => {
-    it('should set the controller name', () => {
-      service.setup('test-controller');
-      expect(service.controller).toBe('test-controller');
-    });
-  });
-
   describe('getPaged', () => {
     it('should send a GET request with paging parameters', () => {
-      service.setup('projects');
       const pager: PagedRequest = { pageNo: 1, pageSize: 10 };
       const mockResponse: PaginatedResponse<TestItem> = {
         pageNo: 1,
@@ -58,7 +47,7 @@ describe('ApiService', () => {
         totalPages: 3,
       };
 
-      service.getPaged(pager).subscribe((response) => {
+      service.getPaged('projects', pager).subscribe((response) => {
         expect(response).toEqual(mockResponse);
       });
 
@@ -70,7 +59,6 @@ describe('ApiService', () => {
     });
 
     it('should send a GET request with filter and paging parameters', () => {
-      service.setup('projects');
       const pager: PagedRequest = { pageNo: 2, pageSize: 20 };
       const filter = { search: 'test', status: 'active' };
       const mockResponse: PaginatedResponse<TestItem> = {
@@ -83,15 +71,13 @@ describe('ApiService', () => {
         totalPages: 3,
       };
 
-      service.getPaged(pager, filter).subscribe((response) => {
+      service.getPaged('projects', pager, filter).subscribe((response) => {
         expect(response).toEqual(mockResponse);
       });
 
       const req = httpMock.expectOne(
         (r) =>
-          r.url === '/api/eln/projects' &&
-          r.params.get('search') === 'test' &&
-          r.params.get('status') === 'active',
+          r.url === '/api/eln/projects' && r.params.get('search') === 'test' && r.params.get('status') === 'active',
       );
       expect(req.request.method).toBe('GET');
       expect(req.request.params.get('pageNo')).toBe('2');
@@ -102,7 +88,6 @@ describe('ApiService', () => {
     });
 
     it('should exclude null or undefined filter values', () => {
-      service.setup('projects');
       const pager: PagedRequest = { pageNo: 1, pageSize: 10 };
       const filter = {
         search: 'test',
@@ -111,7 +96,7 @@ describe('ApiService', () => {
         active: true,
       };
 
-      service.getPaged(pager, filter).subscribe();
+      service.getPaged('projects', pager, filter).subscribe();
 
       const req = httpMock.expectOne((r) => r.url === '/api/eln/projects');
       expect(req.request.params.get('search')).toBe('test');
@@ -124,16 +109,12 @@ describe('ApiService', () => {
 
   describe('buildUrl', () => {
     it('should build a URL with the controller name', () => {
-      service.setup('projects');
-
-      const url = (service as unknown as ApiServicePrivate).buildUrl();
+      const url = (service as unknown as ApiServicePrivate).buildUrl('projects');
       expect(url).toBe('/api/eln/projects');
     });
 
     it('should build a URL with the controller name and additional path', () => {
-      service.setup('projects');
-
-      const url = (service as unknown as ApiServicePrivate).buildUrl('123');
+      const url = (service as unknown as ApiServicePrivate).buildUrl('projects/123');
       expect(url).toBe('/api/eln/projects/123');
     });
   });
