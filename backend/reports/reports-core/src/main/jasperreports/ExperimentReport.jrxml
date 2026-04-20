@@ -6,20 +6,29 @@
 	<parameter name="logoImage" forPrompting="false" class="java.io.ByteArrayInputStream"/>
 	<parameter name="reportDate" forPrompting="false" class="java.time.ZonedDateTime"/>
 	<parameter name="dateFormat" forPrompting="false" class="java.time.format.DateTimeFormatter"/>
-	<dataset name="Reagents" uuid="701269d9-ac0a-4cc3-b899-85b26bd171c2">
-		<field name="chemicalName" class="java.lang.String"/>
+	<dataset name="Inputs" uuid="701269d9-ac0a-4cc3-b899-85b26bd171c2">
+		<field name="row" class="com.epam.indigoeln.reaction.model.ReactionInput"/>
+		<field name="molarity" class="com.epam.indigoeln.reaction.model.units.EnteredValue"/>
+		<field name="volume" class="com.epam.indigoeln.reaction.model.units.EnteredValue"/>
+		<field name="purity" class="com.epam.indigoeln.reaction.model.units.EnteredValue"/>
+		<field name="healthHazards" class="java.util.List"/>
 		<field name="mol" class="com.epam.indigoeln.reaction.model.units.EnteredValue"/>
-		<field name="eq" class="com.epam.indigoeln.reaction.model.units.EnteredValue"/>
-		<field name="saltCode" class="java.lang.String"/>
-		<field name="molWeight" class="com.epam.indigoeln.reaction.model.units.EnteredValue"/>
-		<field name="reactionRole" class="java.lang.String"/>
-		<field name="formula" class="java.lang.String"/>
+		<field name="weight" class="com.epam.indigoeln.reaction.model.units.EnteredValue"/>
+		<field name="comment" class="java.lang.String"/>
+	</dataset>
+	<dataset name="Outputs" uuid="73ff5ca0-0845-4b70-83eb-75683c38719a">
+		<field name="row" class="com.epam.indigoeln.reaction.model.ReactionOutput"/>
+		<field name="molarity" class="com.epam.indigoeln.reaction.model.units.EnteredValue"/>
+		<field name="volume" class="com.epam.indigoeln.reaction.model.units.EnteredValue"/>
+		<field name="purity" class="com.epam.indigoeln.reaction.model.units.EnteredValue"/>
+		<field name="healthHazards" class="java.util.List"/>
+		<field name="actualMol" class="com.epam.indigoeln.reaction.model.units.EnteredValue"/>
+		<field name="actualWeight" class="com.epam.indigoeln.reaction.model.units.EnteredValue"/>
 	</dataset>
 	<query language="JSON"><![CDATA[]]></query>
 	<field name="project" class="com.epam.indigoeln.eln.model.ProjectDTO"/>
 	<field name="experiment" class="com.epam.indigoeln.eln.model.ExperimentDetailsDTO"/>
 	<field name="picture" class="java.lang.String"/>
-	<field name="reagents" class="java.util.Collection"/>
 	<background splitType="Stretch"/>
 	<title height="79" splitType="Stretch"/>
 	<pageHeader height="165" splitType="Stretch">
@@ -459,15 +468,15 @@
 			</element>
 			<element kind="component" y="59" width="556" height="300">
 				<component kind="list" printOrder="Vertical">
-					<datasetRun subDataset="Reagents">
+					<datasetRun subDataset="Inputs">
 						<dataSourceExpression>
-							<![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{reagents})]]>
+							<![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{experiment}.getModel().getReactions().stream().map(com.epam.indigoeln.reaction.model.Reaction::getInputs).flatMap(List::stream).map(com.epam.indigoeln.reaction.model.ReactionInput::getSamples).flatMap(List::stream).toList())]]>
 						</dataSourceExpression>
 					</datasetRun>
-					<contents height="90">
-						<element kind="frame" width="556" height="90">
-							<element kind="textField" x="0" y="0" width="170" height="90">
-								<expression><![CDATA[$F{formula}]]></expression>
+					<contents height="140">
+						<element kind="frame" width="556" height="140">
+							<element kind="textField" x="0" y="0" width="170" height="140">
+								<expression><![CDATA[$F{row}.getCompound().getFormula() != null ? $F{row}.getCompound().getFormula() : ""]]></expression>
 								<property name="com.jaspersoft.studio.unit.x" value="px"/>
 								<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 								<property name="com.jaspersoft.studio.unit.width" value="px"/>
@@ -478,8 +487,8 @@
 									<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
 								</box>
 							</element>
-							<element kind="textField" x="170" y="0" width="50" height="90">
-								<expression><![CDATA[$F{molWeight}.getStringValue()]]></expression>
+							<element kind="textField" x="170" y="0" width="50" height="140">
+								<expression><![CDATA[$F{row}.getCompound().getMolWeight().getStringValue() + " " + $F{row}.getCompound().getMolWeight().getUnit().getDisplayName()]]></expression>
 								<property name="com.jaspersoft.studio.unit.x" value="px"/>
 								<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 								<property name="com.jaspersoft.studio.unit.width" value="px"/>
@@ -490,8 +499,8 @@
 									<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
 								</box>
 							</element>
-							<element kind="textField" x="220" y="0" width="45" height="90">
-								<expression><![CDATA[com.epam.indigoeln.reaction.model.units.EnteredValue.multiply($F{mol}, $F{molWeight}).getStringValue()]]></expression>
+							<element kind="textField" x="220" y="0" width="45" height="140">
+								<expression><![CDATA[$F{weight} != null ? $F{weight}.getStringValue() + " " + $F{weight}.getUnit().getDisplayName() : ""]]></expression>
 								<property name="com.jaspersoft.studio.unit.x" value="px"/>
 								<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 								<property name="com.jaspersoft.studio.unit.width" value="px"/>
@@ -502,8 +511,8 @@
 									<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
 								</box>
 							</element>
-							<element kind="textField" x="265" y="0" width="40" height="90">
-								<expression><![CDATA[$F{mol} != null ? $F{mol}.getStringValue() : ""]]></expression>
+							<element kind="textField" x="265" y="0" width="40" height="140">
+								<expression><![CDATA[$F{mol} != null ? $F{mol}.getStringValue() + " " + $F{mol}.getUnit().getDisplayName() : ""]]></expression>
 								<property name="com.jaspersoft.studio.unit.x" value="px"/>
 								<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 								<property name="com.jaspersoft.studio.unit.width" value="px"/>
@@ -514,8 +523,8 @@
 									<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
 								</box>
 							</element>
-							<element kind="textField" x="305" y="0" width="50" height="90">
-								<expression><![CDATA[""]]></expression>
+							<element kind="textField" x="305" y="0" width="50" height="140">
+								<expression><![CDATA[$F{volume} != null ? $F{volume}.getStringValue() + " " + $F{volume}.getUnit().getDisplayName() : ""]]></expression>
 								<property name="com.jaspersoft.studio.unit.x" value="px"/>
 								<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 								<property name="com.jaspersoft.studio.unit.width" value="px"/>
@@ -526,8 +535,8 @@
 									<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
 								</box>
 							</element>
-							<element kind="textField" x="355" y="0" width="45" height="90">
-								<expression><![CDATA[$F{eq}.getStringValue()]]></expression>
+							<element kind="textField" x="355" y="0" width="45" height="140">
+								<expression><![CDATA[$F{row}.getEq().getStringValue()]]></expression>
 								<property name="com.jaspersoft.studio.unit.x" value="px"/>
 								<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 								<property name="com.jaspersoft.studio.unit.width" value="px"/>
@@ -538,24 +547,271 @@
 									<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
 								</box>
 							</element>
-							<element kind="frame" x="400" y="0" width="156" height="90">
+							<element kind="frame" x="400" y="0" width="156" height="140">
 								<element kind="staticText" x="0" y="0" width="74" height="16">
 									<text><![CDATA[Name:]]></text>
 								</element>
 								<element kind="textField" x="74" y="0" width="74" height="16">
-									<expression><![CDATA[$F{chemicalName}]]></expression>
+									<expression><![CDATA[$F{row}.getChemicalName() != null ? $F{row}.getChemicalName() : ""]]></expression>
 								</element>
 								<element kind="staticText" x="0" y="16" width="74" height="16">
 									<text><![CDATA[Role:]]></text>
 								</element>
 								<element kind="textField" x="74" y="16" width="74" height="16">
-									<expression><![CDATA[$F{reactionRole}]]></expression>
+									<expression><![CDATA[$F{row}.getRole()]]></expression>
 								</element>
 								<element kind="staticText" x="0" y="32" width="74" height="16">
-									<text><![CDATA[Salt Code:]]></text>
+									<text><![CDATA[Purity:]]></text>
 								</element>
 								<element kind="textField" x="74" y="32" width="74" height="16">
-									<expression><![CDATA[$F{saltCode}]]></expression>
+									<expression><![CDATA[$F{purity}.getStringValue()]]></expression>
+								</element>
+								<element kind="staticText" x="0" y="48" width="74" height="16">
+									<text><![CDATA[Molarity:]]></text>
+								</element>
+								<element kind="textField" x="74" y="48" width="74" height="16">
+									<expression><![CDATA[$F{molarity} != null ? $F{molarity} : ""]]></expression>
+								</element>
+								<element kind="staticText" x="0" y="64" width="74" height="16">
+									<text><![CDATA[Hazard:]]></text>
+								</element>
+								<element kind="textField" x="74" y="64" width="74" height="16">
+									<expression><![CDATA[$F{healthHazards}.stream().reduce("", (str, ref) -> str + ref.toString() + "; ", (first, last) -> first + "" + last + "; ")]]></expression>
+								</element>
+								<element kind="staticText" x="0" y="80" width="74" height="16">
+									<text><![CDATA[Comments:]]></text>
+								</element>
+								<element kind="textField" x="74" y="80" width="74" height="16">
+									<expression><![CDATA[$F{comment} != null ? $F{comment} : ""]]></expression>
+								</element>
+								<element kind="staticText" x="0" y="96" width="74" height="16">
+									<text><![CDATA[Salt Code:]]></text>
+								</element>
+								<element kind="textField" x="74" y="96" width="74" height="16">
+									<expression><![CDATA[$F{row}.getCompound().getSaltCode() != null ? $F{row}.getCompound().getSaltCode()  : ""]]></expression>
+								</element>
+								<element kind="staticText" x="0" y="112" width="74" height="16">
+									<text><![CDATA[Salt EQ:]]></text>
+								</element>
+								<element kind="textField" x="74" y="112" width="74" height="16">
+									<expression><![CDATA[$F{row}.getCompound().getSaltEQ() != null ? $F{row}.getCompound().getSaltEQ()  : ""]]></expression>
+								</element>
+								<property name="com.jaspersoft.studio.unit.x" value="px"/>
+								<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<box padding="4">
+									<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+									<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+									<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+									<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								</box>
+							</element>
+						</element>
+					</contents>
+				</component>
+			</element>
+		</band>
+	</detail>
+	<detail>
+		<band height="400" splitType="Stretch">
+			<element kind="staticText" x="0" y="0" width="279" height="24" fontSize="14.0">
+				<text><![CDATA[BATCH INFORMATION]]></text>
+			</element>
+			<element kind="staticText" x="0" y="24" width="170" height="35" bold="true">
+				<text><![CDATA[Reagent]]></text>
+				<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				<box padding="4">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+			</element>
+			<element kind="staticText" x="170" y="24" width="50" height="35" bold="true">
+				<text><![CDATA[Mol Wgh]]></text>
+				<box padding="4">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+			</element>
+			<element kind="staticText" x="220" y="24" width="45" height="35" bold="true">
+				<text><![CDATA[Weight]]></text>
+				<box padding="4">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+			</element>
+			<element kind="staticText" x="265" y="24" width="40" height="35" bold="true">
+				<text><![CDATA[Moles]]></text>
+				<box padding="4">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+			</element>
+			<element kind="staticText" x="305" y="24" width="50" height="35" bold="true">
+				<text><![CDATA[Volume]]></text>
+				<box padding="4">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+			</element>
+			<element kind="staticText" x="355" y="24" width="45" height="35" bold="true">
+				<text><![CDATA[EQ]]></text>
+				<box padding="4">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+			</element>
+			<element kind="staticText" x="400" y="24" width="156" height="35" bold="true">
+				<text><![CDATA[Other Information]]></text>
+				<box padding="4">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+			</element>
+			<element kind="component" y="59" width="556" height="300">
+				<component kind="list" printOrder="Vertical">
+					<datasetRun subDataset="Outputs">
+						<dataSourceExpression>
+							<![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{experiment}.getModel().getReactions().stream().map(com.epam.indigoeln.reaction.model.Reaction::getOutputs).flatMap(List::stream).map(com.epam.indigoeln.reaction.model.ReactionOutput::getSamples).flatMap(List::stream).toList())]]>
+						</dataSourceExpression>
+					</datasetRun>
+					<contents height="140">
+						<element kind="frame" width="556" height="140">
+							<element kind="textField" x="0" y="0" width="170" height="140">
+								<expression><![CDATA[$F{row}.getCompound().getFormula() != null ? $F{row}.getCompound().getFormula() : ""]]></expression>
+								<property name="com.jaspersoft.studio.unit.x" value="px"/>
+								<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<box padding="4">
+									<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+									<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+									<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+									<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								</box>
+							</element>
+							<element kind="textField" x="170" y="0" width="50" height="140">
+								<expression><![CDATA[$F{row}.getCompound().getMolWeight().getStringValue() + " " + $F{row}.getCompound().getMolWeight().getUnit().getDisplayName()]]></expression>
+								<property name="com.jaspersoft.studio.unit.x" value="px"/>
+								<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<box padding="4">
+									<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+									<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+									<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+									<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								</box>
+							</element>
+							<element kind="textField" x="220" y="0" width="45" height="140">
+								<expression><![CDATA[$F{actualWeight} != null ? $F{actualWeight}.getStringValue() + " " + $F{actualWeight}.getUnit().getDisplayName() : ""]]></expression>
+								<property name="com.jaspersoft.studio.unit.x" value="px"/>
+								<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<box padding="4">
+									<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+									<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+									<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+									<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								</box>
+							</element>
+							<element kind="textField" x="265" y="0" width="40" height="140">
+								<expression><![CDATA[$F{actualMol} != null ? $F{actualMol}.getStringValue() + " " + $F{actualMol}.getUnit().getDisplayName() : ""]]></expression>
+								<property name="com.jaspersoft.studio.unit.x" value="px"/>
+								<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<box padding="4">
+									<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+									<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+									<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+									<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								</box>
+							</element>
+							<element kind="textField" x="305" y="0" width="50" height="140">
+								<expression><![CDATA[$F{volume} != null ? $F{volume}.getStringValue() + " " + $F{volume}.getUnit().getDisplayName() : ""]]></expression>
+								<property name="com.jaspersoft.studio.unit.x" value="px"/>
+								<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<box padding="4">
+									<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+									<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+									<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+									<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								</box>
+							</element>
+							<element kind="textField" x="355" y="0" width="45" height="140">
+								<expression><![CDATA[$F{row}.getEq().getStringValue()]]></expression>
+								<property name="com.jaspersoft.studio.unit.x" value="px"/>
+								<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<box padding="4">
+									<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+									<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+									<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+									<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								</box>
+							</element>
+							<element kind="frame" x="400" y="0" width="156" height="140">
+								<element kind="staticText" x="0" y="0" width="74" height="16">
+									<text><![CDATA[Name:]]></text>
+								</element>
+								<element kind="textField" x="74" y="0" width="74" height="16">
+									<expression><![CDATA[$F{row}.getOutputName() != null ? $F{row}.getOutputName() : ""]]></expression>
+								</element>
+								<element kind="staticText" x="0" y="16" width="74" height="16">
+									<text><![CDATA[Role:]]></text>
+								</element>
+								<element kind="textField" x="74" y="16" width="74" height="16">
+									<expression><![CDATA[$F{row}.getType()]]></expression>
+								</element>
+								<element kind="staticText" x="0" y="32" width="74" height="16">
+									<text><![CDATA[Purity:]]></text>
+								</element>
+								<element kind="textField" x="74" y="32" width="74" height="16">
+									<expression><![CDATA[$F{purity}.getStringValue()]]></expression>
+								</element>
+								<element kind="staticText" x="0" y="48" width="74" height="16">
+									<text><![CDATA[Molarity:]]></text>
+								</element>
+								<element kind="textField" x="74" y="48" width="74" height="16">
+									<expression><![CDATA[$F{molarity} != null ? $F{molarity} : ""]]></expression>
+								</element>
+								<element kind="staticText" x="0" y="64" width="74" height="16">
+									<text><![CDATA[Hazard:]]></text>
+								</element>
+								<element kind="textField" x="74" y="64" width="74" height="16">
+									<expression><![CDATA[$F{healthHazards}.stream().reduce("", (str, ref) -> str + ref.toString() + "; ", (first, last) -> first + "" + last + "; ")]]></expression>
+								</element>
+								<element kind="staticText" x="0" y="80" width="74" height="16">
+									<text><![CDATA[Comments:]]></text>
+								</element>
+								<element kind="textField" x="74" y="80" width="74" height="16">
+									<expression><![CDATA[""]]></expression>
+								</element>
+								<element kind="staticText" x="0" y="96" width="74" height="16">
+									<text><![CDATA[Salt Code:]]></text>
+								</element>
+								<element kind="textField" x="74" y="96" width="74" height="16">
+									<expression><![CDATA[$F{row}.getCompound().getSaltCode() != null ? $F{row}.getCompound().getSaltCode()  : ""]]></expression>
+								</element>
+								<element kind="staticText" x="0" y="112" width="74" height="16">
+									<text><![CDATA[Salt EQ:]]></text>
+								</element>
+								<element kind="textField" x="74" y="112" width="74" height="16">
+									<expression><![CDATA[$F{row}.getCompound().getSaltEQ() != null ? $F{row}.getCompound().getSaltEQ()  : ""]]></expression>
 								</element>
 								<property name="com.jaspersoft.studio.unit.x" value="px"/>
 								<property name="com.jaspersoft.studio.unit.y" value="pixel"/>

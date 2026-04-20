@@ -2,7 +2,6 @@ package com.epam.indigoeln.reports.service;
 
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.reports.api.ReagentDTO;
 import com.epam.indigoeln.reports.api.ReportsAPI;
 import com.epam.indigoeln.reports.api.ReportsClient;
 import com.epam.indigoeln.test.BaseTest;
@@ -40,20 +39,18 @@ public class ReportsServiceTest extends BaseTest {
         String experimentJson = Files.readString(Path.of("src/test/resources/experiment-model.json"));
         ProjectDTO project = new ProjectDTO();
         project.setName("Demo project");
-        ExperimentDetailsDTO experiment = null;
-        experiment = objectMapper.readValue(experimentJson, ExperimentDetailsDTO.class);
+        ExperimentDetailsDTO experiment = objectMapper.readValue(experimentJson, ExperimentDetailsDTO.class);
 
         return List.of(new ReportsAPI.ExperimentReportDataDTO(
                 project,
                 experiment,
-                new String(ModelUtil.loadResource(ReportsServiceTest.class, "/experiment-image.svg"), StandardCharsets.UTF_8),
-                ReagentDTO.allExperimentReagents(experiment.getModel())
+                new String(ModelUtil.loadResource(ReportsServiceTest.class, "/experiment-image.svg"), StandardCharsets.UTF_8)
         ));
     }
 
     @Test
     void testReport() throws Exception {
-        ReportsAPI.ExperimentReportDataDTO data = new ReportsAPI.ExperimentReportDataDTO(null, null, null, null);
+        ReportsAPI.ExperimentReportDataDTO data = new ReportsAPI.ExperimentReportDataDTO(null, null, null);
         try (Response response = reportsClient.generateExperimentReport(fillExperimentDataForJasperReportsStudio().getFirst())) {
             Files.write(Paths.get("report.pdf"), response.readEntity(byte[].class));
         }
