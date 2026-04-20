@@ -7,8 +7,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum MolarityUnit implements MeasurementUnit {
 
-    MM(0.001),
-    M(1.0);
+    MM(0.001, "mM"),
+    M(1.0, "M");
 
     private final double multiplier;
+    private final String displayName;
 }
