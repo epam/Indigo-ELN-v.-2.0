@@ -14,23 +14,16 @@ import { Revision } from '@core/types/entities/revision.i';
   selector: 'eln-audit-log',
   templateUrl: './audit-log.component.html',
   styles: `
-    .diff-old {
+    .old {
       background-color: #f8d7da;
     }
-    .diff-new {
+    .new {
       background-color: #d4edda;
     }
   `,
   encapsulation: ViewEncapsulation.None,
   standalone: true,
-  imports: [
-    CommonModule,
-    CardComponent,
-    NgSelectModule,
-    FormsModule,
-    ExpandableTableComponent,
-    ColumnDefDirective,
-  ],
+  imports: [CommonModule, CardComponent, NgSelectModule, FormsModule, ExpandableTableComponent, ColumnDefDirective],
 })
 export class AuditLogComponent implements OnInit {
   @Input() entityId: string;

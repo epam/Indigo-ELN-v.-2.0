@@ -27,7 +27,16 @@ export type ReactionOutputAnchor = string;
 export type ReactionOutputSampleAnchor = string;
 
 interface SetBatchCreatorMutation extends BaseMutation {
+  type: 'SetBatchCreator';
   batchCreator: UserMetadata;
+}
+
+interface UndoMutation extends BaseMutation {
+  type: 'Undo';
+}
+
+interface RedoMutation extends BaseMutation {
+  type: 'Redo';
 }
 
 interface ReactionMutation extends BaseMutation {
@@ -357,6 +366,8 @@ interface SetOutputMolfile extends ReactionOutputSampleMutation {
 export type Mutation =
   // Experiment mutations
   | SetBatchCreatorMutation
+  | UndoMutation
+  | RedoMutation
   // Reaction mutations
   | SetSchemeMutation
   | ResolveInputsMutation

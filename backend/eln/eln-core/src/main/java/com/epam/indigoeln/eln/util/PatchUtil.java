@@ -18,6 +18,14 @@ public class PatchUtil {
     private static void formatJSONDiff(JsonNode json, String prefix, ToStringUtil.Builder builder, @Nullable Boolean newOrOld) {
         switch (json) {
             case ObjectNode object -> {
+                JsonNode oldNode = object.get("$old"), newNode = object.get("$new");
+                if (oldNode != null && !oldNode.isContainerNode() || newNode != null && !newNode.isContainerNode()) {
+                    String oldStr = oldNode != null ? "<span class='old'>%s</span>".formatted(oldNode) : "";
+                    String newStr = newNode != null ? "<span class='new'>%s</span>".formatted(newNode) : "";
+                    String delimiter = !oldStr.isEmpty() && !newStr.isEmpty() ? " -> " : "";
+                    builder.property(prefix, oldStr + delimiter + newStr);
+                    return;
+                }
                 if (!prefix.isEmpty()) {
                     builder.open2(prefix);
                 }
