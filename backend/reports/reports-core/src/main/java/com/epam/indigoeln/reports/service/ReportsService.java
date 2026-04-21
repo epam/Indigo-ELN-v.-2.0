@@ -56,7 +56,8 @@ public class ReportsService {
     @SneakyThrows
     @Transactional(Transactional.TxType.NOT_SUPPORTED)
     byte[] doGenerateExperimentReport(List<ReportsAPI.ExperimentReportDataDTO> experiments) {
-        setSignificantFigures(10);
+        int significantFigures = !experiments.isEmpty() ? experiments.getFirst().getExperiment().getModel().getSignificantFigures() : 10;
+        setSignificantFigures(significantFigures);
         JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(experiments);
         Map<String, Object> params = new HashMap<>();
 
