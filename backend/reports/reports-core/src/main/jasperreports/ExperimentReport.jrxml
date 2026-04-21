@@ -213,7 +213,7 @@
 				</box>
 			</element>
 			<element kind="staticText" uuid="422edcf8-1669-4ce1-9efc-6889e569f320" stretchType="ContainerHeight" x="279" y="24" width="140" height="20" bold="true">
-				<text><![CDATA[Therapeutic area]]></text>
+				<text><![CDATA[Therapeutic Area]]></text>
 				<box padding="4">
 					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
@@ -251,7 +251,7 @@
 				</box>
 			</element>
 			<element kind="staticText" uuid="5614079e-34ec-4d4c-b6dc-9b80f892d7f7" positionType="Float" stretchType="ContainerHeight" x="279" y="44" width="140" height="20" bold="true">
-				<text><![CDATA[Project Code3]]></text>
+				<text><![CDATA[Project Code]]></text>
 				<box padding="4">
 					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
@@ -260,7 +260,7 @@
 				</box>
 			</element>
 			<element kind="staticText" uuid="cd832b8c-40d3-4058-8b5c-b03ba58ee99f" positionType="Float" stretchType="ContainerHeight" x="0" y="64" width="141" height="20" bold="true">
-				<text><![CDATA[Continued to]]></text>
+				<text><![CDATA[Continued To]]></text>
 				<property name="com.jaspersoft.studio.unit.x" value="px"/>
 				<property name="com.jaspersoft.studio.unit.width" value="px"/>
 				<box padding="4">
@@ -327,7 +327,7 @@
 				</box>
 			</element>
 			<element kind="staticText" uuid="720e2ee1-b3c4-4baa-845e-761510180a13" positionType="Float" stretchType="ContainerHeight" x="279" y="84" width="140" height="20" bold="true">
-				<text><![CDATA[Co-authors]]></text>
+				<text><![CDATA[Co-Authors]]></text>
 				<box padding="4">
 					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
