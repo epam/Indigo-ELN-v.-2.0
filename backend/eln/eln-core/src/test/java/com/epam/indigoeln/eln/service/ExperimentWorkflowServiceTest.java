@@ -2,6 +2,10 @@ package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.reaction.model.Reaction;
+import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
@@ -206,5 +210,57 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
         ExperimentForSignatureDTO experimentForSignature = experimentClient.rejectExperiment(experiment.getId());
         experiment = experimentClient.resubmitExperiment(experimentForSignature.getId());
         assertThat(experiment.getStatus()).isEqualTo(SUBMITTED);
+    }
+
+    @Test
+    void testVersions() {
+        Reaction reaction = experiment.getModel().getReactions().getFirst();
+        experimentClient.mutateExperimentModel2(experiment.getId(), experiment.getRevision(), new ReactionMutation.AddEmptyInput(reaction.getAnchor()));
+        experimentClient.mutateExperimentModel2(experiment.getId(), experiment.getRevision(), new ReactionMutation.AddEmptyInput(reaction.getAnchor()));
+        experimentClient.completeAndSubmitExperiment(experiment.getId(), noSignersTemplate.getId());
+        experimentClient.reopenExperiment(experiment.getId());
+        experimentClient.mutateExperimentModel2(experiment.getId(), experiment.getRevision(), new ReactionMutation.AddEmptyInput(reaction.getAnchor()));
+        experimentClient.completeAndSubmitExperiment(experiment.getId(), noSignersTemplate.getId());
+
+        List<RevisionDetailsDTO> revisions = experimentClient.getExperimentRevisions(experiment.getId(), null, null);
+        assertThat(revisions).<Class<?>>map(r -> r.getMutation().getClass()).containsExactly(
+                ExperimentMutation.CreateExperiment.class,
+                ReactionMutation.AddEmptyInput.class,
+                ReactionMutation.AddEmptyInput.class,
+                ExperimentMutation.CompleteExperiment.class,
+                ExperimentMutation.MakeVersion.class,
+                ExperimentMutation.SubmitExperiment.class,
+                ExperimentMutation.ReopenExperiment.class,
+                ReactionMutation.AddEmptyInput.class,
+                ExperimentMutation.CompleteExperiment.class,
+                ExperimentMutation.MakeVersion.class,
+                ExperimentMutation.SubmitExperiment.class
+        );
+
+        List<ExperimentRevisionSummaryDTO> revisionsSummary = experimentClient.getExperimentRevisionsSummary(experiment.getId()).reversed();
+        assertThat(revisionsSummary).map(ExperimentRevisionSummaryDTO::getSummary).containsExactly(
+                "Experiment created",
+                "Edited experiment",
+                "Experiment completed",
+                "Version 1",
+                "Experiment submitted for signature",
+                "Experiment reopened",
+                "Edited experiment",
+                "Experiment completed",
+                "Version 2",
+                "Experiment submitted for signature"
+        );
+        ExperimentRevisionSummaryDTO firstEditSession = revisionsSummary.get(1);
+
+        List<RevisionDetailsDTO> editRevisions = experimentClient.getExperimentRevisions(experiment.getId(), firstEditSession.getEditSessionID(), null);
+        assertThat(editRevisions).map(RevisionDetailsDTO::getRevision).containsExactly(
+                revisions.get(1).getRevision(), revisions.get(2).getRevision()
+        );
+
+        JsonNode versionDiff = experimentClient.compareVersions(experiment.getId(), 1, 2);
+        assertThat(versionDiff).isNotNull();
+
+        experimentClient.compareVersions(experiment.getId(), 1, null);
+        experimentClient.compareVersionsHTML(experiment.getId(), 1, null);
     }
 }

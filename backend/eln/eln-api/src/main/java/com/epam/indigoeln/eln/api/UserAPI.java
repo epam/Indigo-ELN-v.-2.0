@@ -34,10 +34,6 @@ public interface UserAPI extends BaseAPI {
     @Produces("image/png")
     byte[] getUserPicture(@PathParam("userId") UUID userId, @QueryParam("small") @Nullable Boolean large);
 
-    @POST
-    @Path("/users/{userId}/access")
-    List<ACLEntryDTO> updateUserAccess(@PathParam("userId") UUID userId, List<AccessForm> form);
-
     @GET
     @Path("/users/suggest")
     List<UserRef> suggestUsers(@QueryParam("search") @Nullable String search);

@@ -1,5 +1,6 @@
 package com.epam.indigoeln.flyway.migrations;
 
+import com.epam.indigoeln.flyway.util.JsonLocator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
@@ -14,14 +15,13 @@ import java.util.UUID;
 @Slf4j
 public class R__300_migrate_experiment_models extends BaseJavaMigration {
 
-    private static final int TARGET_SCHEMA_VERSION = 1; // TODO use constant in ExperimentModel
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @Override
     public void migrate(Context context) throws Exception {
         try (
                 Statement stList = context.getConnection().createStatement();
-                ResultSet rsList = stList.executeQuery("SELECT id, model FROM Experiment WHERE (model->'schemaVersion')::INT < " + TARGET_SCHEMA_VERSION);
+                ResultSet rsList = stList.executeQuery("SELECT id, model FROM Experiment");
                 PreparedStatement stUpdate = context.getConnection().prepareStatement("UPDATE Experiment SET model = ?::JSONB WHERE id = ?")
         ) {
             while (rsList.next()) {
@@ -38,18 +38,14 @@ public class R__300_migrate_experiment_models extends BaseJavaMigration {
         }
     }
 
-    @Override
-    public Integer getChecksum() {
-        return TARGET_SCHEMA_VERSION;
-    }
-
     private void updateModel(UUID experimentId, ObjectNode model) {
         try {
-            int schemaVersion = model.get("schemaVersion").intValue();
-            //noinspection StatementWithEmptyBody
-            switch (schemaVersion) {
+            model.remove("schemaVersion");
+            for (ObjectNode node : JsonLocator.<ObjectNode>findNodes(model, "//*", true)) {
+                node.remove("rxnVersion");
+                node.remove("conflict");
+                node.remove("overwritten");
             }
-            model.put("schemaVersion", TARGET_SCHEMA_VERSION);
         } catch (RuntimeException e) {
             log.error("Failed to migrate model for experiment {}",  experimentId, e);
             throw new RuntimeException(e);

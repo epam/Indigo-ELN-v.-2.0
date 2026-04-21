@@ -1,0 +1,69 @@
+$icon-size-small: 16px;
+$icon-size-medium: 20px;
+$icon-size-large: 32px;
+$icon-size-extra-large: 48px;
+
+:host {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+em[class^='indicon-'] {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.icon-small {
+  font-size: $icon-size-small;
+  line-height: 1;
+}
+
+.icon-medium {
+  font-size: $icon-size-medium;
+  line-height: 1;
+}
+
+.icon-large {
+  font-size: $icon-size-large;
+  line-height: 1;
+}
+
+.icon-extra-large {
+  font-size: $icon-size-extra-large;
+  line-height: 1;
+}
+
+:host {
+  ::ng-deep {
+    mat-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      &.icon-small {
+        width: $icon-size-small;
+        height: $icon-size-small;
+        font-size: $icon-size-small;
+      }
+
+      &.icon-medium {
+        width: $icon-size-medium;
+        height: $icon-size-medium;
+        font-size: $icon-size-medium;
+      }
+
+      &.icon-large {
+        width: $icon-size-large;
+        height: $icon-size-large;
+        font-size: $icon-size-large;
+      }
+
+      &.icon-extra-large {
+        width: $icon-size-extra-large;
+        height: $icon-size-extra-large;
+        font-size: $icon-size-extra-large;
+      }
+    }
+  }
+}

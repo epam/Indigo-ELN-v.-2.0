@@ -1,10 +1,10 @@
 package com.epam.indigoeln.signature.service.signatureapplier;
 
 import com.epam.indigoeln.signature.exception.DocumentIntegrityException;
-import com.itextpdf.text.pdf.AcroFields;
-import com.itextpdf.text.pdf.PdfReader;
-import com.itextpdf.text.pdf.security.PdfPKCS7;
 import lombok.extern.slf4j.Slf4j;
+import com.lowagie.text.pdf.AcroFields;
+import com.lowagie.text.pdf.PdfReader;
+import com.lowagie.text.pdf.PdfPKCS7;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -25,7 +25,7 @@ public class SignatureVerifier {
 
     public void verifySignatures(PdfReader reader) throws GeneralSecurityException {
         AcroFields fields = reader.getAcroFields();
-        for (String name : fields.getSignatureNames()) {
+        for (String name : fields.getSignedFieldNames()) {
             log.debug("===== {} =====", name);
             if (!verifySignature(fields, name)) {
                 throw new DocumentIntegrityException("Reason: document was modified since last signature added.");

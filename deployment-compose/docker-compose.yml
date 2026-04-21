@@ -1,121 +1,125 @@
 services:
 
-  example-service:
+  frontend:
+    image: "frontend:development"
     build:
-      context: ./example/example-service
-      dockerfile: Dockerfile.jvm
+      context: ./../indigo-frontend
+      dockerfile: Dockerfile
     environment:
-      QUARKUS_DATASOURCE_JDBC_URL: "jdbc:postgresql://postgres:5432/example"
-      QUARKUS_DATASOURCE_USERNAME: example
-      QUARKUS_DATASOURCE_PASSWORD: example
-      QUARKUS_OIDC_AUTH_SERVER_URL: "https://keycloak.indigoeln.local:8443/realms/indigo-eln"
-      QUARKUS_OIDC_CLIENT_ID: indigo-eln-client
-      QUARKUS_TLS_TRUST_ALL: true
-      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
-    depends_on:
-      postgres:
-        condition: service_healthy
-        restart: true
-      keycloak.indigoeln.local:
-        condition: service_healthy
-        restart: true
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/q/health/ready"]
+      - KEYCLOAK_URL=http://localhost:8088
+      - KEYCLOAK_REALM=indigo-eln
+      - KEYCLOAK_CLIENT_ID=frontend-client
     ports:
-      - "10000:8080"
-      - "10001:5005"
-
-  signature-service:
+      - "8080:4200"
+      
+  eln-core:
+    image: "eln-core:development"
     build:
-      context: ./signature/signature-service
-      dockerfile: Dockerfile.jvm
-    environment:
-      QUARKUS_DATASOURCE_JDBC_URL: "jdbc:postgresql://postgres:5432/signature"
-      QUARKUS_DATASOURCE_USERNAME: signature
-      QUARKUS_DATASOURCE_PASSWORD: signature
-      QUARKUS_OIDC_AUTH_SERVER_URL: "https://keycloak.indigoeln.local:8443/realms/indigo-eln"
-      QUARKUS_OIDC_CLIENT_ID: indigo-eln-client
-      QUARKUS_TLS_TRUST_ALL: true
-      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
-    depends_on:
-      postgres:
-        condition: service_healthy
-        restart: true
-      keycloak.indigoeln.local:
-        condition: service_healthy
-        restart: true
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/q/health/ready"]
-    ports:
-      - "10010:8080"
-      - "10011:5005"
-
-  eln-service:
-    build:
-      context: ./eln/eln-service
-      dockerfile: Dockerfile.jvm
+      context: ./../backend/eln/eln-core
+      dockerfile: Dockerfile
+    command: sh -c "sleep 60 && /opt/jboss/container/java/run/run-java.sh"
     environment:
       QUARKUS_DATASOURCE_JDBC_URL: "jdbc:postgresql://postgres:5432/eln"
       QUARKUS_DATASOURCE_USERNAME: eln
       QUARKUS_DATASOURCE_PASSWORD: eln
-      QUARKUS_OIDC_AUTH_SERVER_URL: "https://keycloak.indigoeln.local:8443/realms/indigo-eln"
+      QUARKUS_OIDC_AUTH_SERVER_URL: "http://localhost:8088/realms/indigo-eln2"
       QUARKUS_OIDC_CLIENT_ID: indigo-eln-client
       QUARKUS_TLS_TRUST_ALL: true
-      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Dquarkus.profile=devtest"
     depends_on:
       postgres:
         condition: service_healthy
         restart: true
-      keycloak.indigoeln.local:
-        condition: service_healthy
-        restart: true
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/q/health/ready"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/q/health/ready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     ports:
       - "10020:8080"
       - "10021:5005"
 
-  #  whoami:
-#    image: containous/whoami
-#
   postgres:
-    image: "postgres:16.6"
+    #image: "public.ecr.aws/m5k0g6n7/indigoeln/indigo-eln-postgres:latest"
+    image: indigo-eln-postgres:latest
+    build:
+      context: ./../backend/postgres
+      dockerfile: Dockerfile
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     volumes:
-      - "./local/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro"
+      - "./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql"
     ports:
       - "5432:5432"
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
       start_period: 60s
+      interval: 10s
+      retries: 3
       start_interval: 1s
 
-  keycloak.indigoeln.local:
+  keycloak:
     build:
-        context: ./local/keycloak
-        dockerfile: Dockerfile
+      context: ./keycloak
+      dockerfile: Dockerfile
+    command: start-dev --health-enabled=true --log-level=ERROR 
     environment:
       KC_DB: postgres
-      KC_HOSTNAME: keycloak.indigoeln.local
+      KC_HOSTNAME: localhost
       KC_DB_URL: "jdbc:postgresql://postgres:5432/keycloak"
       KC_DB_USERNAME: keycloak
       KC_DB_PASSWORD: keycloak
-#      KC_HTTP_ENABLED: true
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HTTP_ENABLED: true
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HTTP_MANAGEMENT_PORT: 9005
+      KC_HTTP_MANAGEMENT_HEALTH_ENABLED: true
     depends_on:
       postgres:
         condition: service_healthy
         restart: true
-    healthcheck:
-      test: ["CMD", "./healthcheck.sh"]
-      start_period: 120s
-      start_interval: 1s
     ports:
-#      - "8080:8080"
-      - "8443:8443"
+      - "8088:8080"
+      - "9005:9005"
+
+  keycloak-healthcheck:
+    image: alpine:latest
+    depends_on:
+      - keycloak
+    entrypoint: >
+      /bin/sh -c "
+      while ! wget -q -O- http://keycloak:9005/health/started; do
+        echo waiting for keycloak;
+        sleep 5;
+      done;
+      echo keycloak is up;
+      tail -f /dev/null      
+      "
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- http://keycloak:9005/health/ready || (echo 'Health check failed' >> /var/log/healthcheck.log && exit 1)"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - ./healthcheck.log:/var/log/healthcheck.log
+
+
+  keycloak-config-cli:
+    image: quay.io/adorsys/keycloak-config-cli:6.4.0-26.1.0
+    depends_on:
+      - keycloak-healthcheck
+    environment:
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
+      KEYCLOAK_AVAILABILITYCHECK_ENABLED: true
+      KEYCLOAK_AVAILABILITYCHECK_TIMEOUT: 150s
+      IMPORT_VARSUBSTITUTION_ENABLED : true
+      IMPORT_FILES_LOCATIONS: '/config/realm-config.json'
+    volumes:
+      - ./keycloak-config-cli/realm-config.json:/config/realm-config.json
 
   traefik:
     image: traefik:v3.3
@@ -124,7 +128,7 @@ services:
       - "8090:8090"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "./local/traefik/traefik.yaml:/etc/traefik/traefik.yaml:ro"
-      - "./local/traefik/services.yaml:/etc/traefik/services.yaml:ro"
+      - "./traefik/traefik.yaml:/etc/traefik/traefik.yaml:ro"
+      - "./traefik/services.yaml:/etc/traefik/services.yaml:ro"
     extra_hosts:
       - "host.docker.internal:172.17.0.1"

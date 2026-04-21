@@ -1,22 +1,43 @@
 package com.epam.indigoeln.reaction.metamodel;
 
-import com.epam.indigoeln.reaction.model.ReactionOutput;
 import com.epam.indigoeln.reaction.metamodel.property.Metamodel;
-import com.epam.indigoeln.reaction.model.ReactionOutputSample;
-import com.epam.indigoeln.reaction.model.patch.ReactionOutputPatch;
-import com.epam.indigoeln.reaction.model.patch.ReactionOutputSamplePatch;
-import com.epam.indigoeln.reaction.model.patch.handler2.ListDiffHandler;
-import com.epam.indigoeln.reaction.model.patch.handler2.MetamodelDiffHandler;
+import com.epam.indigoeln.reaction.metamodel.property.ModelProperty;
+import com.epam.indigoeln.reaction.model.*;
+import com.epam.indigoeln.reaction.model.units.EnteredValue;
+import com.epam.indigoeln.reaction.model.units.MolUnit;
+import com.epam.indigoeln.reaction.model.units.NoUnit;
+import com.epam.indigoeln.reaction.model.units.WeightUnit;
 
-class ReactionOutputMetamodel {
+import java.util.List;
 
-    public static final Metamodel<ReactionOutput, ReactionOutputPatch> INSTANCE = Metamodels.createMetamodel("ReactionOutput", m -> {
-        m.property("anchor", ReactionOutput::getAnchor, ReactionOutput::setAnchor, ReactionOutputPatch::getAnchor, ReactionOutputPatch::setAnchor);
-        m.accept(Metamodels::buildReactionRowMetamodel);
-        m.property("outputName", ReactionOutput::getOutputName, ReactionOutput::setOutputName, ReactionOutputPatch::getOutputName, ReactionOutputPatch::setOutputName);
-        m.property("type", ReactionOutput::getType, ReactionOutput::setType, ReactionOutputPatch::getType, ReactionOutputPatch::setType);
-        m.enteredValueProperty("theoMol", ReactionOutput::getTheoMol, ReactionOutput::setTheoMol, ReactionOutputPatch::getTheoMol, ReactionOutputPatch::setTheoMol);
-        m.enteredValueProperty("theoWeight", ReactionOutput::getTheoWeight, ReactionOutput::setTheoWeight, ReactionOutputPatch::getTheoWeight, ReactionOutputPatch::setTheoWeight);
-        m.listProperty("samples", ReactionOutput::getSamples, ReactionOutput::setSamples, ReactionOutputPatch::getSamples, ReactionOutputPatch::setSamples, new ListDiffHandler<>(ReactionOutputSample::getAnchor, new MetamodelDiffHandler<>(ReactionOutputSampleMetamodel.INSTANCE, ReactionOutputSamplePatch::new)));
-    });
+import static com.epam.indigoeln.reaction.metamodel.property.ModelProperty.*;
+
+public class ReactionOutputMetamodel {
+
+    // ReactionRow
+    public static final ModelProperty<ReactionOutput, CompoundRef> COMPOUND = property("compound", ReactionRow::getCompound, ReactionRow::setCompound);
+    public static final ModelProperty<ReactionOutput, EnteredValue<NoUnit>> EQ = enteredValueProperty("eq", ReactionRow::getEq, ReactionRow::setEq, EnteredValue.DEFAULT_ONE);
+    public static final ModelProperty<ReactionInput, Integer> RXN_POSITION = property("rxnPosition", ReactionRow::getRxnPosition, ReactionRow::setRxnPosition);
+    // ReactionOutput
+    public static final ModelProperty<ReactionOutput, OutputAnchor> ANCHOR = property("anchor", ReactionOutput::getAnchor, ReactionOutput::setAnchor);
+    public static final ModelProperty<ReactionOutput, String> OUTPUT_NAME = property("outputName", ReactionOutput::getOutputName, ReactionOutput::setOutputName);
+    public static final ModelProperty<ReactionOutput, String> CHEMICAL_NAME = property("chemicalName", ReactionOutput::getChemicalName, ReactionOutput::setChemicalName);
+    public static final ModelProperty<ReactionOutput, ReactionOutputType> TYPE = property("type", ReactionOutput::getType, ReactionOutput::setType);
+    public static final ModelProperty<ReactionOutput, Boolean> INTENDED = property("intended", ReactionOutput::isIntended, ReactionOutput::setIntended);
+    public static final ModelProperty<ReactionOutput, EnteredValue<MolUnit>> THEO_MOL = enteredValueProperty("theoMol", ReactionOutput::getTheoMol, ReactionOutput::setTheoMol);
+    public static final ModelProperty<ReactionOutput, EnteredValue<WeightUnit>> THEO_WEIGHT = enteredValueProperty("theoWeight", ReactionOutput::getTheoWeight, ReactionOutput::setTheoWeight);
+    public static final ModelProperty<ReactionOutput, List<ReactionOutputSample>> SAMPLES = listProperty("samples", ReactionOutput::getSamples, ReactionOutput::setSamples, ReactionOutputSampleMetamodel.INSTANCE);
+
+    public static final Metamodel<ReactionOutput> INSTANCE = new Metamodel<>("ReactionOutput", List.of(
+            COMPOUND,
+            EQ,
+            ANCHOR,
+            OUTPUT_NAME,
+            CHEMICAL_NAME,
+            TYPE,
+            INTENDED,
+            THEO_MOL,
+            THEO_WEIGHT,
+            SAMPLES
+    ));
 }

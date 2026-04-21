@@ -8,10 +8,10 @@ import com.epam.indigoeln.eln.api.UploadForm;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.ProjectService;
-import com.epam.indigoeln.reaction.model.patch.ProjectPatch;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Response;
@@ -35,6 +35,12 @@ public class ProjectResource implements ProjectAPI {
     @Override
     public @NotNull @Valid Page<ProjectDTO> getProjects(@Nullable String search, @Nullable SortOrder sort, @Nullable Boolean createdByMe, @Valid Paging paging) {
         return projectService.getProjects(search, sort, createdByMe, paging);
+    }
+
+    @Override
+    public @NotNull @Valid ProjectExistenceCheckDTO checkProjectNameExistence(
+            @NotEmpty String name){
+        return projectService.checkExistenceByName(name);
     }
 
     @Override
@@ -73,7 +79,7 @@ public class ProjectResource implements ProjectAPI {
     }
 
     @Override
-    public List<RevisionDetailsDTO<ProjectPatch>> getProjectRevisions(UUID projectId) {
+    public List<RevisionDetailsDTO> getProjectRevisions(UUID projectId) {
         return projectService.getProjectRevisions(projectId);
     }
 }

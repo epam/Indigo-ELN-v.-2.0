@@ -1,8 +1,8 @@
 package com.epam.indigoeln.eln.api;
 
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.reaction.model.patch.ProjectPatch;
 import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -24,6 +24,11 @@ public interface ProjectAPI extends BaseAPI {
     Page<ProjectDTO> getProjects(@QueryParam("search") @Nullable String search, @QueryParam("sort") @Nullable SortOrder sort,
                                  @QueryParam("createdByMe") @Nullable Boolean createdByMe,
                                  @BeanParam Paging paging);
+
+    @GET
+    @Path("/projects/existence")
+    ProjectExistenceCheckDTO checkProjectNameExistence(
+            @QueryParam("name") @NotEmpty String name);
 
     @GET
     @Path("/projects/{projectId}")
@@ -58,5 +63,5 @@ public interface ProjectAPI extends BaseAPI {
 
     @GET
     @Path("/projects/{projectId}/revisions")
-    List<RevisionDetailsDTO<ProjectPatch>> getProjectRevisions(@PathParam("projectId") UUID projectId);
+    List<RevisionDetailsDTO> getProjectRevisions(@PathParam("projectId") UUID projectId);
 }

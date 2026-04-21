@@ -3,10 +3,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { PaginatedResponse } from '@core/types/response/paginated-response.i';
 
 export class InfiniteSearchLoader<R, T> {
-  private fetcher: (
-    searchParams: R,
-    pageNo: number,
-  ) => Observable<PaginatedResponse<T>>;
+  private fetcher: (searchParams: R, pageNo: number) => Observable<PaginatedResponse<T>>;
   private searchParams: R | null = null;
   private pageNo = -1;
   private dataSubject$ = new BehaviorSubject<T[] | null>(null);
@@ -17,12 +14,7 @@ export class InfiniteSearchLoader<R, T> {
   error = false;
   totalItems: number | null = null;
 
-  constructor(
-    fetcher: (
-      searchParams: R,
-      pageNo: number,
-    ) => Observable<PaginatedResponse<T>>,
-  ) {
+  constructor(fetcher: (searchParams: R, pageNo: number) => Observable<PaginatedResponse<T>>) {
     this.fetcher = fetcher;
   }
 
@@ -45,10 +37,7 @@ export class InfiniteSearchLoader<R, T> {
     this.loading = true;
     this.fetcher(this.searchParams, this.pageNo).subscribe({
       next: (response) => {
-        if (
-          response.items.length === 0 ||
-          this.pageNo + 1 >= response.totalPages
-        ) {
+        if (response.items.length === 0 || this.pageNo + 1 >= response.totalPages) {
           this.completed = true;
         }
         const current = this.dataSubject$.value || [];

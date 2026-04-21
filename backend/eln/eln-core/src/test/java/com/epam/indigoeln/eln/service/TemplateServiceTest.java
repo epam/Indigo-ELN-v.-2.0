@@ -115,7 +115,7 @@ class TemplateServiceTest extends ELNBaseTest {
     @Test
     void testGetTemplates() {
         createTemplate(new TemplateRequest("testGetTemplates", templateTabs));
-        Page<TemplateDTO> templates = templateClient.getTemplates(Paging.DEFAULT);
+        Page<TemplateDTO> templates = templateClient.getTemplates(null, null, null, Paging.DEFAULT);
         assertThat(templates.getItems()).first().satisfies(template -> {
             assertThat(template.getId()).isNotNull();
             assertThat(template.getName()).isEqualTo("testGetTemplates");
@@ -124,6 +124,198 @@ class TemplateServiceTest extends ELNBaseTest {
             assertThat(template.getModifiedBy().getDisplayName()).isEqualTo(LISA_DISPLAY_NAME);
             assertThat(template.getModifiedAt()).isNotNull();
         });
+    }
+
+    @Test
+    void testGetTemplatesSortByEarliest() {
+        String uniquePrefix = "testGetTemplatesSortByEarliest_" + System.currentTimeMillis();
+        createTemplate(new TemplateRequest(uniquePrefix + "_Template1", templateTabs));
+        createTemplate(new TemplateRequest(uniquePrefix + "_Template2", templateTabs));
+        createTemplate(new TemplateRequest(uniquePrefix + "_Template3", templateTabs));
+
+        Page<TemplateDTO> templates = templateClient.getTemplates(uniquePrefix, SortOrder.EARLIEST, null, Paging.DEFAULT);
+
+        assertThat(templates.getItems())
+                .extracting(TemplateDTO::getName)
+                .containsExactly(uniquePrefix + "_Template1", uniquePrefix + "_Template2", uniquePrefix + "_Template3");
+    }
+
+    @Test
+    void testGetTemplatesSortByLatest() {
+        String uniquePrefix = "testGetTemplatesSortByLatest_" + System.currentTimeMillis();
+        createTemplate(new TemplateRequest(uniquePrefix + "_Template1", templateTabs));
+        createTemplate(new TemplateRequest(uniquePrefix + "_Template2", templateTabs));
+        createTemplate(new TemplateRequest(uniquePrefix + "_Template3", templateTabs));
+
+        Page<TemplateDTO> templates = templateClient.getTemplates(uniquePrefix, SortOrder.LATEST, null, Paging.DEFAULT);
+
+        assertThat(templates.getItems())
+                .extracting(TemplateDTO::getName)
+                .containsExactly(uniquePrefix + "_Template3", uniquePrefix + "_Template2", uniquePrefix + "_Template1");
+    }
+
+    @Test
+    void testGetTemplatesDefaultSort() {
+        String uniquePrefix = "testGetTemplatesDefaultSort_" + System.currentTimeMillis();
+        createTemplate(new TemplateRequest(uniquePrefix + "_Template1", templateTabs));
+        createTemplate(new TemplateRequest(uniquePrefix + "_Template2", templateTabs));
+        createTemplate(new TemplateRequest(uniquePrefix + "_Template3", templateTabs));
+
+        Page<TemplateDTO> templates = templateClient.getTemplates(uniquePrefix, null, null, Paging.DEFAULT);
+
+        assertThat(templates.getItems())
+                .extracting(TemplateDTO::getName)
+                .containsExactly(uniquePrefix + "_Template3", uniquePrefix + "_Template2", uniquePrefix + "_Template1");
+    }
+
+    @Test
+    void testGetTemplatesCreatedByMe() {
+        String uniquePrefix = "testGetTemplatesCreatedByMe_" + System.currentTimeMillis();
+        createTemplate(new TemplateRequest(uniquePrefix + "_MyTemplate1", templateTabs));
+        createTemplate(new TemplateRequest(uniquePrefix + "_MyTemplate2", templateTabs));
+
+        Page<TemplateDTO> templates = templateClient.getTemplates(uniquePrefix, null, true, Paging.DEFAULT);
+
+        assertThat(templates.getItems())
+                .extracting(TemplateDTO::getName)
+                .contains(uniquePrefix + "_MyTemplate1", uniquePrefix + "_MyTemplate2");
+
+        assertThat(templates.getItems())
+                .extracting(TemplateDTO::getCreatedBy)
+                .extracting(UserRef::getDisplayName)
+                .containsOnly(LISA_DISPLAY_NAME);
+    }
+
+    @Test
+    void testGetTemplatesCreatedByMeFalse() {
+        String uniquePrefix = "testGetTemplatesCreatedByMeFalse_" + System.currentTimeMillis();
+        createTemplate(new TemplateRequest(uniquePrefix + "_MyTemplate1", templateTabs));
+        createTemplate(new TemplateRequest(uniquePrefix + "_MyTemplate2", templateTabs));
+
+        Page<TemplateDTO> templates = templateClient.getTemplates(uniquePrefix, null, false, Paging.DEFAULT);
+        assertThat(templates.getItems())
+                .extracting(TemplateDTO::getName)
+                .contains(uniquePrefix + "_MyTemplate1", uniquePrefix + "_MyTemplate2");
+    }
+
+    @Test
+    void testGetTemplatesSearchExactMatch() {
+        String uniquePrefix = "testGetTemplatesSearchExactMatch_" + System.currentTimeMillis();
+        createTemplate(new TemplateRequest(uniquePrefix + "_SearchTestTemplate", templateTabs));
+        createTemplate(new TemplateRequest(uniquePrefix + "_OtherTemplate", templateTabs));
+
+        Page<TemplateDTO> templates = templateClient.getTemplates(uniquePrefix + "_SearchTestTemplate", null, null, Paging.DEFAULT);
+
+        assertThat(templates.getItems())
+                .extracting(TemplateDTO::getName)
+                .containsOnly(uniquePrefix + "_SearchTestTemplate");
+    }
+
+    @Test
+    void testGetTemplatesSearchPartialMatch() {
+        String uniquePrefix = "testGetTemplatesSearchPartialMatch_" + System.currentTimeMillis();
+        createTemplate(new TemplateRequest(uniquePrefix + "_SearchTestTemplate", templateTabs));
+        createTemplate(new TemplateRequest(uniquePrefix + "_SearchAnotherTemplate", templateTabs));
+        createTemplate(new TemplateRequest(uniquePrefix + "_OtherTemplate", templateTabs));
+
+        Page<TemplateDTO> templates = templateClient.getTemplates(uniquePrefix + "_Search", null, null, Paging.DEFAULT);
+
+        assertThat(templates.getItems())
+                .extracting(TemplateDTO::getName)
+                .containsExactlyInAnyOrder(uniquePrefix + "_SearchTestTemplate", uniquePrefix + "_SearchAnotherTemplate");
+
+        assertThat(templates.getItems())
+                .extracting(TemplateDTO::getName)
+                .doesNotContain(uniquePrefix + "_OtherTemplate");
+    }
+
+    @Test
+    void testGetTemplatesSearchCaseInsensitive() {
+        String uniquePrefix = "testGetTemplatesSearchCaseInsensitive_" + System.currentTimeMillis();
+        createTemplate(new TemplateRequest(uniquePrefix + "_SearchTestTemplate", templateTabs));
+
+        Page<TemplateDTO> templates1 = templateClient.getTemplates(uniquePrefix + "_search", null, null, Paging.DEFAULT);
+        Page<TemplateDTO> templates2 = templateClient.getTemplates(uniquePrefix + "_SEARCH", null, null, Paging.DEFAULT);
+        Page<TemplateDTO> templates3 = templateClient.getTemplates(uniquePrefix + "_Search", null, null, Paging.DEFAULT);
+
+        assertThat(templates1.getItems())
+                .extracting(TemplateDTO::getName)
+                .contains(uniquePrefix + "_SearchTestTemplate");
+        assertThat(templates2.getItems())
+                .extracting(TemplateDTO::getName)
+                .contains(uniquePrefix + "_SearchTestTemplate");
+        assertThat(templates3.getItems())
+                .extracting(TemplateDTO::getName)
+                .contains(uniquePrefix + "_SearchTestTemplate");
+    }
+
+    @Test
+    void testGetTemplatesSearchNoResults() {
+        String uniquePrefix = "testGetTemplatesSearchNoResults_" + System.currentTimeMillis();
+        createTemplate(new TemplateRequest(uniquePrefix + "_ExistingTemplate", templateTabs));
+
+        Page<TemplateDTO> templates = templateClient.getTemplates(uniquePrefix + "_NonExistentTemplate", null, null, Paging.DEFAULT);
+
+        assertThat(templates.getItems()).isEmpty();
+    }
+
+    @Test
+    void testGetTemplatesSearchAndSort() {
+        String uniquePrefix = "testGetTemplatesSearchAndSort_" + System.currentTimeMillis();
+        createTemplate(new TemplateRequest(uniquePrefix + "_SearchTemplate1", templateTabs));
+        createTemplate(new TemplateRequest(uniquePrefix + "_SearchTemplate2", templateTabs));
+        createTemplate(new TemplateRequest(uniquePrefix + "_SearchTemplate3", templateTabs));
+        createTemplate(new TemplateRequest(uniquePrefix + "_OtherTemplate", templateTabs));
+
+        Page<TemplateDTO> templates = templateClient.getTemplates(uniquePrefix + "_Search", SortOrder.EARLIEST, null, Paging.DEFAULT);
+
+        assertThat(templates.getItems())
+                .extracting(TemplateDTO::getName)
+                .containsExactly(uniquePrefix + "_SearchTemplate1", uniquePrefix + "_SearchTemplate2", uniquePrefix + "_SearchTemplate3");
+    }
+
+    @Test
+    void testGetTemplatesSearchSortAndCreatedByMe() {
+        String uniquePrefix = "testGetTemplatesSearchSortAndCreatedByMe_" + System.currentTimeMillis();
+        createTemplate(new TemplateRequest(uniquePrefix + "_MySearchTemplate1", templateTabs));
+        createTemplate(new TemplateRequest(uniquePrefix + "_MySearchTemplate2", templateTabs));
+        createTemplate(new TemplateRequest(uniquePrefix + "_OtherSearchTemplate", templateTabs));
+
+        Page<TemplateDTO> templates = templateClient.getTemplates(uniquePrefix, SortOrder.LATEST, true, Paging.DEFAULT);
+        List<TemplateDTO> searchTemplates = templates.getItems().stream()
+                .filter(t -> t.getName().contains("Search"))
+                .toList();
+
+        assertThat(searchTemplates)
+                .extracting(TemplateDTO::getName)
+                .containsExactly(uniquePrefix + "_OtherSearchTemplate", uniquePrefix + "_MySearchTemplate2", uniquePrefix + "_MySearchTemplate1");
+
+        assertThat(searchTemplates)
+                .extracting(TemplateDTO::getCreatedBy)
+                .extracting(UserRef::getDisplayName)
+                .containsOnly(LISA_DISPLAY_NAME);
+    }
+
+    @Test
+    void testGetTemplatesPagination() {
+        String uniquePrefix = "testGetTemplatesPagination_" + System.currentTimeMillis();
+        createTemplate(new TemplateRequest(uniquePrefix + "_Template1", templateTabs));
+        createTemplate(new TemplateRequest(uniquePrefix + "_Template2", templateTabs));
+        createTemplate(new TemplateRequest(uniquePrefix + "_Template3", templateTabs));
+
+        Paging paging1 = new Paging(0, 2);
+        Page<TemplateDTO> page0 = templateClient.getTemplates(uniquePrefix, SortOrder.LATEST, null, paging1);
+        assertThat(page0.getTotalItems()).isEqualTo(3);
+        assertThat(page0.getTotalPages()).isEqualTo(2);
+        assertThat(page0.getItems()).hasSize(2);
+        assertThat(page0.getItems()).extracting(TemplateDTO::getName).containsExactly(uniquePrefix + "_Template3", uniquePrefix + "_Template2");
+
+        Paging paging2 = new Paging(1, 2);
+        Page<TemplateDTO> page1 = templateClient.getTemplates(uniquePrefix, SortOrder.LATEST, null, paging2);
+        assertThat(page1.getTotalItems()).isEqualTo(3);
+        assertThat(page1.getTotalPages()).isEqualTo(2);
+        assertThat(page1.getItems().size()).isEqualTo(1);
+        assertThat(page1.getItems()).extracting(TemplateDTO::getName).contains(uniquePrefix + "_Template1");
     }
 
     @Test

@@ -1,0 +1,54 @@
+<div class="p-4">
+  <h2 class="font-semibold text-lg mb-4">Analyze RXN</h2>
+  <div class="flex flex-col gap-4">
+    <mat-radio-group class="flex flex-wrap gap-4 text-sm">
+      <div class="grow">
+        <mat-radio-button value="All" [checked]="true"> All Catalogs </mat-radio-button>
+      </div>
+      <div class="grow">
+        <mat-radio-button value="ELN">Indigo ELN</mat-radio-button>
+      </div>
+      <div class="grow">
+        <mat-radio-button value="PubChem" disabled>PubChem</mat-radio-button>
+      </div>
+      <div class="grow">
+        <mat-radio-button value="MyMaterials" disabled>My Materials</mat-radio-button>
+      </div>
+    </mat-radio-group>
+  </div>
+  <mat-tab-group
+    mat-stretch-tabs="false"
+    mat-align-tabs="start"
+    class="border-t border-[#bbb8b8]/80"
+    [selectedIndex]="selectedTab"
+  >
+    @for (tab of tabs; track $index) {
+      <mat-tab
+        [label]="
+          tab.name + (tab.loader != null && tab.loader.totalItems != null ? ' (' + tab.loader.totalItems + ')' : '')
+        "
+        [disabled]="tab.loader == null"
+      >
+        @if (tab.loader != null) {
+          <eln-sample-search-results [loader]="tab.loader" (addToExperiment)="addToExperiment(tab, $event)" />
+        } @else {
+          <div></div>
+        }
+      </mat-tab>
+    }
+  </mat-tab-group>
+
+  <div class="flex justify-end mt-2">
+    <section>
+      <div class="example-button-row">
+        <button
+          type="button"
+          class="ml-2 px-4 py-2 text-[#3F50B5] bg-[#ececec] rounded cursor-pointer"
+          (click)="close()"
+        >
+          Close
+        </button>
+      </div>
+    </section>
+  </div>
+</div>

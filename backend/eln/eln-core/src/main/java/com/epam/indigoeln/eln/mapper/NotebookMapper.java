@@ -5,7 +5,6 @@ import com.epam.indigoeln.eln.entity.NotebookRevisionEntity;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.RevisionService;
 import com.epam.indigoeln.reaction.model.mutation.NotebookMutation;
-import com.epam.indigoeln.reaction.model.patch.NotebookPatch;
 import jakarta.inject.Inject;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -35,6 +34,6 @@ public abstract class NotebookMapper extends AbstractMapper {
 
     @Mapping(target = "diff", expression = "java(revisionService.getPatch(entity))")
     @Mapping(target = "stringDiff", expression = "java(revisionService.formatPatch(entity.getDiff()))")
-    public abstract RevisionDetailsDTO<NotebookPatch> revisionToDTO(NotebookRevisionEntity entity);
-    public abstract List<RevisionDetailsDTO<NotebookPatch>> revisionToDTOList(List<NotebookRevisionEntity> entity);
+    public abstract RevisionDetailsDTO revisionToDTO(NotebookRevisionEntity entity);
+    public abstract List<RevisionDetailsDTO> revisionToDTOList(List<NotebookRevisionEntity> entity);
 }

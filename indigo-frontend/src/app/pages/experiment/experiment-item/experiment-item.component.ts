@@ -1,14 +1,15 @@
-import { AvatarComponent } from '@/core/components/common/avatar/avatar.component';
 import { BadgeComponent } from '@/core/components/common/badge/badge.component';
 import { CardComponent } from '@/core/components/common/card/card.component';
 import { ExperimentDetail } from '@/core/types/entities/experiments/experiment-detail.i';
 import { CommonModule } from '@angular/common';
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltip } from '@angular/material/tooltip';
 import { NormalizeLabelPipe } from '@/core/pipes/normalizeLabe.pipe';
+import { InitialsPipe } from '@/core/pipes/avatars.pipe';
 import { getExperimentStatusBadgeVariant } from '@/core/utils/experiment-status.util';
 
 @Component({
@@ -20,31 +21,15 @@ import { getExperimentStatusBadgeVariant } from '@/core/utils/experiment-status.
     MatButtonModule,
     MatIconModule,
     MatMenuModule,
-    AvatarComponent,
     BadgeComponent,
     NormalizeLabelPipe,
+    InitialsPipe,
+    MatTooltip,
   ],
   templateUrl: './experiment-item.component.html',
 })
 export class ExperimentItemComponent {
   private router = inject(Router);
-  mock_users = [
-    'assets/avatar1.png',
-    'assets/avatar2.png',
-    'assets/avatar3.png',
-    '-',
-    '-',
-    '-',
-    '-',
-    '-',
-    '-',
-    '-',
-    '-',
-    '-',
-    '-',
-    '-',
-    '-',
-  ];
 
   @Input() experiment!: ExperimentDetail;
   @Input() variant: 'grid' | 'list' = 'grid';

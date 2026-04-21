@@ -92,6 +92,29 @@
                 "styles": true,
                 "vendor": true
               }
+            },
+            "local": {
+              "fileReplacements": [
+                {
+                  "replace": "src/main.ts",
+                  "with": "src/main.local.ts"
+                },
+                {
+                  "replace": "src/app/app.component.ts",
+                  "with": "src/app/app.component.local.ts"
+                },
+                {
+                  "replace": "src/app/app.config.ts",
+                  "with": "src/app/app.config.local.ts"
+                }
+              ],
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": {
+                "scripts": true,
+                "styles": true,
+                "vendor": true
+              }
             }
           },
           "defaultConfiguration": "production"
@@ -104,9 +127,12 @@
             },
             "development": {
               "buildTarget": "indigo-frontend:build:development"
+            },
+            "local": {
+              "buildTarget": "indigo-frontend:build:local"
             }
           },
-          "defaultConfiguration": "development",
+          "defaultConfiguration": "production",
           "options": {
             "proxyConfig": "src/proxy.conf.js"
           }

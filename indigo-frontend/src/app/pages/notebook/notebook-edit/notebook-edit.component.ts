@@ -3,51 +3,87 @@ import { ApiService } from '@core/services/api.service';
 import { Notebook } from '@core/types/entities/notebook.i';
 import { NotebookDialogData } from '@/core/types/entities/notebook-dialog-data.i';
 import { CommonModule } from '@angular/common';
-import { Component, Inject, inject } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Component, Inject, inject, signal } from '@angular/core';
+import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { toHTML } from 'ngx-editor';
-import { catchError, of } from 'rxjs';
 import { NOTEBOOK_NAME_LENGTH } from '../notebook.constants';
-import { NotificationService } from '@/core/services/notification/notification.service';
+import { of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { NotificationType } from '@/core/types/notification.i';
+import { NotificationService } from '@/core/services/notification/notification.service';
 
 @Component({
   standalone: true,
   selector: 'eln-notebook-edit',
-  imports: [
-    MatInputModule,
-    FormsModule,
-    ReactiveFormsModule,
-    CommonModule,
-    FormDialogComponent,
-  ],
+  imports: [MatInputModule, FormsModule, ReactiveFormsModule, CommonModule, FormDialogComponent],
   templateUrl: './notebook-edit.component.html',
 })
 export class NotebookEditComponent {
   notebookId: string;
-  private notificationService = inject(NotificationService);
   dialogRef = inject(MatDialogRef);
   notebook: Partial<Notebook> = {};
+  notificationService = inject(NotificationService);
+  uniqueNameToastMessage = signal('');
+
   fields: FormlyFieldConfig[] = [
     {
       type: 'input',
       key: 'name',
+      defaultValue: '',
       props: {
         label: 'Notebook Name',
         placeholder: '00000000',
         required: true,
         minLength: NOTEBOOK_NAME_LENGTH,
         maxLength: NOTEBOOK_NAME_LENGTH,
-        description: `Notebook Name is invalid, use ${NOTEBOOK_NAME_LENGTH} digits only`,
+      },
+      validators: {
+        validation: [
+          Validators.minLength(NOTEBOOK_NAME_LENGTH),
+          Validators.maxLength(NOTEBOOK_NAME_LENGTH),
+          Validators.pattern('^\\d+$'),
+          Validators.required,
+        ],
+      },
+      hooks: {
+        onInit: (field) => {
+          field.props['initialValue'] = field.formControl?.value;
+        },
+      },
+      asyncValidators: {
+        validation: [
+          (control: any, field: any) => {
+            const value: string = control.value;
+            const initialValue = field.props['initialValue'];
+
+            if (value === initialValue) {
+              return of(null);
+            }
+
+            return of(value).pipe(
+              switchMap((v: string) => {
+                this.uniqueNameToastMessage.set(`Notebook with name '${v}' already exists`);
+                return this.service.request<{ exists: boolean }>(
+                  'get',
+                  `notebooks/existence?name=${encodeURIComponent(v)}`,
+                );
+              }),
+              map((res) => (res?.exists ? { uniqueName: true } : null)),
+              catchError(() => of(null)),
+            );
+          },
+        ],
       },
       validation: {
         messages: {
           minlength: `Notebook Name is invalid, use ${NOTEBOOK_NAME_LENGTH} digits only`,
           maxlength: `Notebook Name is invalid, use ${NOTEBOOK_NAME_LENGTH} digits only`,
-          required: 'Name is required',
+          pattern: `Notebook Name is invalid, use ${NOTEBOOK_NAME_LENGTH} digits only`,
+          required: 'Notebook Name is required',
+          uniqueName: 'Unique name is required',
         },
       },
     },
@@ -78,27 +114,24 @@ export class NotebookEditComponent {
     this.service
       .update(`notebooks/${this.notebookId}`, {
         ...data,
-        description:
-          typeof data.description === 'object'
-            ? toHTML(data.description)
-            : data.description,
+        description: this.safeToHTML(data.description),
       })
-      .pipe(
-        catchError((editError) => {
-          const errorMsg =
-            editError.error[0]?.message ||
-            'There was an error creating the notebook, please try again later.';
-
-          this.notificationService.notify({
-            message: errorMsg,
-            type: NotificationType.Error,
-            isInline: false,
-          });
-          return of(null);
-        }),
-      )
-      .subscribe((result) => {
-        if (result) this.dialogRef.close('refresh');
+      .subscribe(() => {
+        this.notificationService.notify({
+          message: 'Notebook details successfully updated.',
+          type: NotificationType.Success,
+          isInline: false,
+        });
+        this.dialogRef.close('refresh');
       });
+  }
+
+  private safeToHTML(value: any): string {
+    if (!value || typeof value === 'string') return value ?? '';
+    try {
+      return toHTML(value);
+    } catch {
+      return '';
+    }
   }
 }

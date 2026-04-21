@@ -1,0 +1,19 @@
+@if (isOpen()) {
+  <div
+    class="fixed inset-0 z-40 transition-opacity duration-300 bg-black/20"
+    [style.top]="topOffset()"
+    (click)="onBackdropClick()"
+  ></div>
+}
+
+<div
+  class="fixed right-0 bg-white z-50 shadow-2xl overflow-y-auto transition-transform duration-300 ease-in-out"
+  [style.top]="topOffset()"
+  [style.width]="width()"
+  [style.height]="'calc(100vh - ' + topOffset() + ')'"
+  [class.translate-x-0]="isOpen()"
+  [class.translate-x-full]="!isOpen()"
+  [class.invisible]="!isVisible()"
+>
+  <ng-template #contentOutlet></ng-template>
+</div>

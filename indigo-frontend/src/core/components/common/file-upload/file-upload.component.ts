@@ -1,13 +1,6 @@
-import { UserService } from '@/core/services/user.service';
+import { IdentityService } from '@/core/services/identity.service';
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  EventEmitter,
-  inject,
-  Input,
-  OnInit,
-  Output,
-} from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { take } from 'rxjs';
 import { FileSizePipe } from './file-size.pipe';
 import { fileTypeConfig } from './file-upload.config';
@@ -28,7 +21,7 @@ export class FileUploadComponent implements OnInit {
   @Input() loadingText = 'Uploading...';
   mimeTypes: string[] = [];
   acceptedExtensions = '';
-  userService = inject(UserService);
+  identityService = inject(IdentityService);
   user;
   @Output() filesSelected = new EventEmitter<File[]>();
 
@@ -39,7 +32,7 @@ export class FileUploadComponent implements OnInit {
   private notificationService = inject(NotificationService);
 
   ngOnInit(): void {
-    this.userService.user$.pipe(take(1)).subscribe((user) => {
+    this.identityService.user$.pipe(take(1)).subscribe((user) => {
       this.user = user;
     });
     this.allowedTypes.forEach((type) => {
@@ -60,28 +53,30 @@ export class FileUploadComponent implements OnInit {
   }
 
   handleFiles(fileList: FileList) {
-    const files = Array.from(fileList).map((file) => {
-      if (this.mimeTypes.length && !this.mimeTypes.includes(file.type)) {
-        this.notificationService.notify({
-          type: NotificationType.Error,
-          message: `Invalid file type: ${file.name}, Please upload files with extensions ${this.allowedTypes.join(', ')}`,
-          isInline: false
-        })
-      }
+    const files = Array.from(fileList)
+      .map((file) => {
+        if (this.mimeTypes.length && !this.mimeTypes.includes(file.type)) {
+          this.notificationService.notify({
+            type: NotificationType.Error,
+            message: `Invalid file type: ${file.name}, Please upload files with extensions ${this.allowedTypes.join(', ')}`,
+            isInline: false,
+          });
+        }
 
-      if (file.size > this.maxSizeMB * 1024 * 1024) {
-        this.notificationService.notify({
-          type: NotificationType.Error,
-          message: `File '${file.name}' is too large. Max size is ${file.size}MB.`,
-          isInline: false
-        });
-      }
+        if (file.size > this.maxSizeMB * 1024 * 1024) {
+          this.notificationService.notify({
+            type: NotificationType.Error,
+            message: `File '${file.name}' is too large. Max size is ${file.size}MB.`,
+            isInline: false,
+          });
+        }
 
-      this.previewFile(file);
-      this.files.push(file);
+        this.previewFile(file);
+        this.files.push(file);
 
-      return file;
-    }).filter(Boolean);
+        return file;
+      })
+      .filter(Boolean);
 
     this.filesSelected.emit(files);
   }

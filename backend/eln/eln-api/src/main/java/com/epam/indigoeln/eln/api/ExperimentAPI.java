@@ -1,13 +1,12 @@
 package com.epam.indigoeln.eln.api;
 
-import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.InputAnchor;
 import com.epam.indigoeln.reaction.model.ReactionAnchor;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.annotation.Nullable;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -36,13 +35,13 @@ public interface ExperimentAPI extends BaseAPI {
 
     @GET
     @Path("/projects/{projectId}/experiments")
-    Page<ExperimentDTO> getProjectExperiments(@PathParam("projectId") UUID projectId, @QueryParam("sort") @Nullable SortOrder sort,
-                                              @QueryParam("createdByMe") @Nullable Boolean createdByMe, @BeanParam Paging paging);
+    Page<ExperimentDTO> getProjectExperiments(@PathParam("projectId") UUID projectId, @QueryParam("search") @Nullable String search,
+            @QueryParam("sort") @Nullable SortOrder sort, @QueryParam("createdByMe") @Nullable Boolean createdByMe, @BeanParam Paging paging);
 
     @GET
     @Path("/notebooks/{notebookId}/experiments")
-    Page<ExperimentDTO> getNotebookExperiments(@PathParam("notebookId") UUID notebookId, @QueryParam("sort") @Nullable SortOrder sort,
-                                               @QueryParam("createdByMe") @Nullable Boolean createdByMe, @BeanParam Paging paging);
+    Page<ExperimentDTO> getNotebookExperiments(@PathParam("notebookId") UUID notebookId, @QueryParam("search") @Nullable String search,
+            @QueryParam("sort") @Nullable SortOrder sort, @QueryParam("createdByMe") @Nullable Boolean createdByMe, @BeanParam Paging paging);
 
     @GET
     @Path("/experiments/marked")
@@ -89,16 +88,24 @@ public interface ExperimentAPI extends BaseAPI {
     ExperimentModel mutateExperimentModel(@PathParam("experimentId") UUID experimentId, MutateModelForm modelAndMutation);
 
     @POST
+    @Path("/experiments/{experimentId}/mutate3")
+    ExperimentSnapshot mutateExperimentModel3(@PathParam("experimentId") UUID experimentId, @QueryParam("revision") Integer revision, Mutation mutation);
+
+    @POST
+    @Path("/experiments/{experimentId}/mutate4")
+    MutationResponse mutateExperimentModel4(@PathParam("experimentId") UUID experimentId, @QueryParam("revision") Integer revision, Mutation mutation);
+
+    @POST
     @Path("/experiments/{experimentId}/datamodel2")
-    ExperimentPatch mutateExperimentModel2(@PathParam("experimentId") UUID experimentId, @QueryParam("revision") Integer revision, Mutation mutation);
+    JsonNode mutateExperimentModel2(@PathParam("experimentId") UUID experimentId, @QueryParam("revision") Integer revision, Mutation mutation);
 
     @GET
     @Path("/experiments/{experimentId}/datamodel/reactions/{reactionAnchor}/picture")
-    Response getReactionPicture(@PathParam("experimentId") UUID experimentId, @PathParam("reactionAnchor") ReactionAnchor reactionAnchor, @Nullable @QueryParam("version") Integer version);
+    Response getReactionPicture(@PathParam("experimentId") UUID experimentId, @PathParam("reactionAnchor") ReactionAnchor reactionAnchor, @Nullable @QueryParam("revision") Integer revision);
 
     @POST
     @Path("/experiments/{experimentId}/datamodel/reactions/{reactionAnchor}/analyzeRXN")
-    Map<InputAnchor, @org.jspecify.annotations.Nullable FindSamplesRequest> analyzeRXN(@PathParam("experimentId") UUID experimentId, @PathParam("reactionAnchor") ReactionAnchor reactionAnchor);
+    Map<InputAnchor, String> analyzeRXN(@PathParam("experimentId") UUID experimentId, @PathParam("reactionAnchor") ReactionAnchor reactionAnchor);
 
     @POST
     @Path("/experiments/{experimentId}/workflow/cancel")
@@ -138,5 +145,22 @@ public interface ExperimentAPI extends BaseAPI {
 
     @GET
     @Path("/experiments/{experimentId}/revisions")
-    List<RevisionDetailsDTO<ExperimentPatch>> getExperimentRevisions(@PathParam("experimentId") UUID experimentId);
+    List<RevisionDetailsDTO> getExperimentRevisions(@PathParam("experimentId") UUID experimentId, @Nullable @QueryParam("editSessionId") UUID editSessionId, @Nullable @QueryParam("reverseOrder") Boolean reverseOrder);
+
+    @GET
+    @Path("/experiments/{experimentId}/revisions/summary")
+    List<ExperimentRevisionSummaryDTO> getExperimentRevisionsSummary(@PathParam("experimentId") UUID experimentId);
+
+    @GET
+    @Path("/experiments/{experimentId}/versions/compare")
+    JsonNode compareVersions(@PathParam("experimentId") UUID experimentId, @Nullable @QueryParam("from") Integer versionFrom, @Nullable @QueryParam("to") Integer versionTo);
+
+    @GET
+    @Produces(MediaType.TEXT_HTML)
+    @Path("/experiments/{experimentId}/versions/compare")
+    String compareVersionsHTML(@PathParam("experimentId") UUID experimentId, @Nullable @QueryParam("from") Integer versionFrom, @Nullable @QueryParam("to") Integer versionTo);
+
+    @GET
+    @Path("/experiments/suggest")
+    List<ExperimentRef> suggestExperiments(@QueryParam("search") String search);
 }

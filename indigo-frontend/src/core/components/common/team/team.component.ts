@@ -1,28 +1,11 @@
-import {
-  Component,
-  Input,
-  OnInit,
-  inject,
-  signal,
-  computed,
-  WritableSignal,
-  ViewChild,
-} from '@angular/core';
+import { Component, computed, inject, Input, OnInit, signal, ViewChild, WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardComponent } from '../card/card.component';
 import { CopyComponent } from '../copy/copy.component';
 import { CounterComponent } from '../counter/counter.component';
 import { DropdownMenuComponent } from '../dropdown-menu/dropdown-menu.component';
-import {
-  ProjectAcl,
-  ProjectAclUpdate,
-  UserSuggestion,
-} from '@/core/types/entities/acl.i';
-import {
-  AclLevel,
-  ELIGIBLE_ACL_LEVELS,
-  isInmutableLevel,
-} from '@/core/enums/acl-levels.enum';
+import { ProjectAcl, ProjectAclUpdate, UserSuggestion } from '@/core/types/entities/acl.i';
+import { AclLevel, ELIGIBLE_ACL_LEVELS, isInmutableLevel } from '@/core/enums/acl-levels.enum';
 import { ApiService } from '@/core/services/api.service';
 import { finalize } from 'rxjs';
 import { NormalizeLabelPipe } from '@/core/pipes/normalizeLabe.pipe';
@@ -31,6 +14,8 @@ import { NgSelectComponent, NgSelectModule } from '@ng-select/ng-select';
 import { FormsModule } from '@angular/forms';
 import { TeamComponentConfig } from './team.config';
 import { InitialsPipe } from '../../../pipes/avatars.pipe';
+import { TextOverflowTooltipDirective } from '@/core/directives/text-overflow-tooltip.directive';
+
 type UserSuggestionWithState = UserSuggestion & { added?: boolean };
 
 interface TeamLoadingState {
@@ -54,6 +39,7 @@ interface TeamLoadingState {
     NgSelectModule,
     FormsModule,
     InitialsPipe,
+    TextOverflowTooltipDirective,
   ],
 })
 export class TeamComponent implements OnInit {
@@ -62,24 +48,18 @@ export class TeamComponent implements OnInit {
     this._team.set(value);
     this.rebuildSuggestionsState();
   }
-  // Internal mutable state (optimistic / UI state)
   private _team: WritableSignal<ProjectAcl[]> = signal<ProjectAcl[]>([]);
   @Input({ required: true }) config: TeamComponentConfig;
 
   userSuggestions: UserSuggestionWithState[] = [];
   selectedUserIds: string[] = [];
 
-  // Centralized loading state signal
-  // suggestions: loading user suggestions
-  // addingUsers: loading user addition
-  // updatingMembers: set of userIds whose ACL levels are being updated
   loading = signal<TeamLoadingState>({
     suggestions: false,
     addingUsers: false,
     updatingMembers: new Set(),
   });
 
-  // View model with derived UI-only flags (disabled)
   teamVm = computed(() => {
     const updating = this.loading().updatingMembers;
     const base = this._team();
@@ -96,23 +76,14 @@ export class TeamComponent implements OnInit {
   @ViewChild(NgSelectComponent) ngSelectComponent!: NgSelectComponent;
 
   ngOnInit(): void {
-    if (!this.entityId)
-      console.warn('TeamComponent initialized without entityId');
-    // Effect handles initial sync and subsequent changes from parent
+    if (!this.entityId) console.warn('TeamComponent initialized without entityId');
     this.loading.update((l) => ({ ...l, suggestions: true }));
     this.api
       .request<UserSuggestion[]>('get', 'users/suggest')
-      .pipe(
-        finalize(() =>
-          this.loading.update((l) => ({ ...l, suggestions: false })),
-        ),
-      )
-      .subscribe({
-        next: (list) => {
-          this.userSuggestions = list;
-          this.rebuildSuggestionsState();
-        },
-        error: (err) => console.error('Failed to load suggestions', err),
+      .pipe(finalize(() => this.loading.update((l) => ({ ...l, suggestions: false }))))
+      .subscribe((list) => {
+        this.userSuggestions = list;
+        this.rebuildSuggestionsState();
       });
   }
 
@@ -140,22 +111,13 @@ export class TeamComponent implements OnInit {
     const fullPayload: ProjectAclUpdate[] = [...existingPayload, ...newPayload];
 
     this.api
-      .request<ProjectAclUpdate[] | ProjectAclUpdate>(
-        'post',
-        endpoint,
-        fullPayload,
-      )
+      .request<ProjectAclUpdate[] | ProjectAclUpdate>('post', endpoint, fullPayload)
       .pipe(
         finalize(() => {
           this.loading.update((l) => ({ ...l, addingUsers: false }));
         }),
       )
-      .subscribe({
-        next: () => this.handleSuccessfulUserAddition(),
-        error: (err) => {
-          console.error('Failed to update ACL with new users:', err);
-        },
-      });
+      .subscribe(() => this.handleSuccessfulUserAddition());
   }
 
   updateAclLevel(member: ProjectAcl, rawLevel: string): void {
@@ -172,9 +134,7 @@ export class TeamComponent implements OnInit {
       updatingMembers: new Set(l.updatingMembers).add(member.userId),
     }));
     this.api
-      .request<ProjectAclUpdate>('post', endpoint, [
-        { userID: member.userId, level: newLevel },
-      ])
+      .request<ProjectAclUpdate>('post', endpoint, [{ userID: member.userId, level: newLevel }])
       .pipe(
         finalize(() => {
           this.loading.update((l) => {
@@ -184,18 +144,11 @@ export class TeamComponent implements OnInit {
           });
         }),
       )
-      .subscribe({
-        next: (projectAcl) => {
-          if (projectAcl) {
-            const updated = this._team().map((m) =>
-              m.userId === member.userId ? { ...m, level: newLevel } : m,
-            );
-            this._team.set(updated);
-          }
-        },
-        error: (err) => {
-          console.error('Failed to update ACL level:', err);
-        },
+      .subscribe((projectAcl) => {
+        if (projectAcl) {
+          const updated = this._team().map((m) => (m.userId === member.userId ? { ...m, level: newLevel } : m));
+          this._team.set(updated);
+        }
       });
   }
 

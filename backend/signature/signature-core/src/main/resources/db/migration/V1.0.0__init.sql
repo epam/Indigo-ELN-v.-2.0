@@ -1,9 +1,9 @@
-CREATE TABLE UserAccount
+CREATE TABLE User_Account
 (
     id SERIAL NOT NULL PRIMARY KEY,
     userName VARCHAR(1024) NOT NULL,
-    firstName VARCHAR(1024),
-    lastName VARCHAR(1024),
+    first_Name VARCHAR(1024),
+    last_Name VARCHAR(1024),
     CONSTRAINT UserName_Uq UNIQUE (userName)
 );
 
@@ -11,58 +11,58 @@ CREATE TYPE Reason AS ENUM ('AUTHOR', 'WITNESS');
 
 CREATE TYPE Status AS ENUM ('SUBMITTED', 'SIGNING', 'SIGNED', 'REJECTED', 'WAITING', 'CANCELLED', 'ARCHIVING', 'ARCHIVED');
 
-CREATE TYPE SignatureStatus AS ENUM ('WAITING', 'SIGNED', 'REJECTED');
+CREATE TYPE Signature_Status AS ENUM ('WAITING', 'SIGNED', 'REJECTED');
 
 CREATE TABLE Template
 (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    authorId INT NOT NULL,
-    createdDate TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    lastModifiedDate TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    CONSTRAINT UserId_FK FOREIGN KEY (authorId) REFERENCES UserAccount (id)
+    author_Id INT NOT NULL,
+    created_Date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    last_Modified_Date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    CONSTRAINT User_Id_FK FOREIGN KEY (author_Id) REFERENCES User_Account (id)
 );
 
-CREATE TABLE TemplateSignatureBlock
+CREATE TABLE Template_Signature_Block
 (
     id SERIAL PRIMARY KEY,
-    templateId INT NOT NULL,
+    template_Id INT NOT NULL,
     index INT NOT NULL,
-    userId INT,
+    user_Id INT,
     reason Reason NOT NULL,
-    templateSignatureBlockIndex SMALLINT,
-    CONSTRAINT UserId_Fk FOREIGN KEY (userId) REFERENCES UserAccount (id),
-    CONSTRAINT TemplateId_Fk FOREIGN KEY (templateId) REFERENCES Template (id) ON DELETE CASCADE,
-    CONSTRAINT TemplateId_Index_Uq UNIQUE (templateId, index)
+    template_Signature_Block_Index SMALLINT,
+    CONSTRAINT UserId_Fk FOREIGN KEY (user_Id) REFERENCES User_Account (id),
+    CONSTRAINT Template_Id_Fk FOREIGN KEY (template_Id) REFERENCES Template (id) ON DELETE CASCADE,
+    CONSTRAINT Template_Id_Index_Uq UNIQUE (template_Id, index)
 );
 
 CREATE TABLE Document
 (
     id SERIAL PRIMARY KEY,
     name VARCHAR(1024) NOT NULL,
-    templateId INT NOT NULL,
-    authorId INT NOT NULL,
+    template_Id INT NOT NULL,
+    author_Id INT NOT NULL,
     status Status NOT NULL,
-    createdDate TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    lastModifiedDate TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    created_Date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    last_Modified_Date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     content BYTEA NOT NULL,
-    CONSTRAINT TemplateId_Fk FOREIGN KEY (templateId) REFERENCES Template (id),
-    CONSTRAINT AuthorId_Fk FOREIGN KEY (authorId) REFERENCES UserAccount (id)
+    CONSTRAINT Template_Id_Fk FOREIGN KEY (template_Id) REFERENCES Template (id),
+    CONSTRAINT Author_Id_Fk FOREIGN KEY (author_Id) REFERENCES User_Account (id)
 );
 
-CREATE TABLE DocumentSignatureBlock
+CREATE TABLE Document_Signature_Block
 (
     id SERIAL PRIMARY KEY,
-    documentId INT NOT NULL,
+    document_Id INT NOT NULL,
     index INT NOT NULL,
-    templateBlockId INT NOT NULL,
-    userId INT NOT NULL,
+    template_Block_Id INT NOT NULL,
+    user_Id INT NOT NULL,
     reason Reason NOT NULL,
-    actionDate TIMESTAMP WITHOUT TIME ZONE,
-    status SignatureStatus NOT NULL,
+    action_Date TIMESTAMP WITHOUT TIME ZONE,
+    status Signature_Status NOT NULL,
     comment TEXT,
-    CONSTRAINT UserId_Fk FOREIGN KEY (userId) REFERENCES UserAccount (id),
-    CONSTRAINT DocumentId_Fk FOREIGN KEY (documentId) REFERENCES Document (id) ON DELETE CASCADE,
-    CONSTRAINT TemplateBlockId_Fk FOREIGN KEY (templateBlockId) REFERENCES TemplateSignatureBlock (id),
-    CONSTRAINT DocumentId_Index_Uq UNIQUE (documentId, index)
+    CONSTRAINT User_Id_Fk FOREIGN KEY (user_Id) REFERENCES User_Account (id),
+    CONSTRAINT Document_Id_Fk FOREIGN KEY (document_Id) REFERENCES Document (id) ON DELETE CASCADE,
+    CONSTRAINT Template_Block_Id_Fk FOREIGN KEY (template_Block_Id) REFERENCES Template_Signature_Block (id),
+    CONSTRAINT Document_Id_Index_Uq UNIQUE (document_Id, index)
 );

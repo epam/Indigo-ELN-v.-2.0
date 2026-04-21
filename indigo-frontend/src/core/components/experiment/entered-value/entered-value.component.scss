@@ -1,0 +1,43 @@
+.field-wrapper {
+  font-size: 0.875rem;
+  color: #1f2937;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  min-height: 2.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: white;
+}
+
+.field-input {
+  border: none;
+  outline: none;
+  padding: 0.25rem;
+  background: transparent;
+  width: 100%;
+  font-size: inherit;
+  color: inherit;
+
+  &:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: -2px;
+    border-radius: 0.25rem;
+  }
+}
+
+.field-select {
+  border: none;
+
+  ::ng-deep {
+    .mat-mdc-select-trigger {
+      border: none;
+    }
+  }
+}
+
+.field-display {
+  width: 100%;
+  text-align: left;
+}

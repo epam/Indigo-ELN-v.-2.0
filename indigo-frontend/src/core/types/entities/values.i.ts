@@ -15,15 +15,9 @@ export const MOL_UNITS = [
 
 export const DENSITY_UNITS = [new MeasurementUnit('G_ML', 'g/mL')];
 
-export const MOLARITY_UNITS = [
-  new MeasurementUnit('MM', 'mM'),
-  new MeasurementUnit('M', 'M'),
-];
+export const MOLARITY_UNITS = [new MeasurementUnit('MM', 'mM'), new MeasurementUnit('M', 'M')];
 
-export const VOLUME_UNITS = [
-  new MeasurementUnit('ML', 'mL'),
-  new MeasurementUnit('L', 'L'),
-];
+export const VOLUME_UNITS = [new MeasurementUnit('ML', 'mL'), new MeasurementUnit('L', 'L')];
 
 export const WEIGHT_UNITS = [
   new MeasurementUnit('MG', 'mg'),
@@ -33,20 +27,11 @@ export const WEIGHT_UNITS = [
 
 export const MOL_WEIGHT_UNITS = [new MeasurementUnit('G_PER_MOL', 'g/mol')];
 
-export enum EnteredValueSource {
-  FIXED = 'FIXED',
-  USER_LAST_ENTERED = 'USER_LAST_ENTERED',
-  USER_ENTERED = 'USER_ENTER',
-  CALCULATED_FROM_LAST_ENTERED = 'CALCULATED_FROM_LAST_ENTERED',
-  CALCULATED = 'CALCULATED',
-  DEFAULT = 'DEFAULT',
-}
-
 export interface EnteredValue<U> {
-  value: number;
+  value: string;
   unit: U;
   source: number | 'fixed' | 'default';
-  conflict?: boolean;
+  overwritten?: boolean;
 }
 
 export const REACTION_INPUT_ROLES = [

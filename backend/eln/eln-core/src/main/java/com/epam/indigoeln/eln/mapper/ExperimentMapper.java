@@ -6,8 +6,6 @@ import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.RevisionService;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
-import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
-import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import jakarta.inject.Inject;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -20,8 +18,6 @@ import java.util.Set;
 @Mapper(componentModel = "cdi", unmappedTargetPolicy = ReportingPolicy.ERROR, nullValueCheckStrategy =  NullValueCheckStrategy.ALWAYS)
 public abstract class ExperimentMapper extends AbstractMapper {
 
-    @Inject
-    ExperimentModelService experimentModelService;
     @Inject
     RevisionService revisionService;
 
@@ -41,6 +37,6 @@ public abstract class ExperimentMapper extends AbstractMapper {
 
     @Mapping(target = "diff", expression = "java(revisionService.getPatch(entity))")
     @Mapping(target = "stringDiff", expression = "java(revisionService.formatPatch(entity.getDiff()))")
-    public abstract RevisionDetailsDTO<ExperimentPatch> revisionToDTO(ExperimentRevisionEntity entity);
-    public abstract List<RevisionDetailsDTO<ExperimentPatch>> revisionToDTOList(List<ExperimentRevisionEntity> entity);
+    public abstract RevisionDetailsDTO revisionToDTO(ExperimentRevisionEntity entity);
+    public abstract List<RevisionDetailsDTO> revisionToDTOList(List<ExperimentRevisionEntity> entity);
 }

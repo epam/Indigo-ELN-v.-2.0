@@ -4,7 +4,6 @@ import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.mutation.NotebookMutation;
-import com.epam.indigoeln.reaction.model.patch.handler2.Patched;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
@@ -54,7 +53,7 @@ class NotebookServiceTest extends ELNBaseTest {
         String name = nextNotebookName();
         notebookClient.createNotebook(project.getId(), new NotebookRequest(name));
         assertThatClientCall(() -> notebookClient.createNotebook(project.getId(), new NotebookRequest(name)))
-                .isBadRequest("Notebook with name '.+' already exists");
+                .isBadRequest("Unique name is required");
     }
 
     @Test
@@ -64,7 +63,74 @@ class NotebookServiceTest extends ELNBaseTest {
         String name2 = nextNotebookName();
         NotebookDetailsDTO notebook2 = notebookClient.createNotebook(project.getId(), new NotebookRequest(name2));
         assertThatClientCall(() -> notebookClient.editNotebook(notebook2.getId(), new NotebookEditRequest().withName(Optional.of(name))))
-                .isBadRequest("Notebook with name '" + name + "' already exists");
+                .isBadRequest("Unique name is required");
+    }
+
+    @Test
+    void testCheckNotebookNameExistenceEndpointSuccessWhenExists() {
+        String name = nextNotebookName();
+        notebookClient.createNotebook(project.getId(), new NotebookRequest(name));
+
+        assertThatClientCall(() -> notebookClient.checkNotebookNameExistence(name))
+                .isSuccessfulWithResult(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.getExists()).isTrue();
+                });
+    }
+
+    @Test
+    void testCheckNotebookNameExistenceEndpointSuccessWhenNotExists() {
+        String name = nextNotebookName();
+
+        assertThatClientCall(() -> notebookClient.checkNotebookNameExistence(name))
+                .isSuccessfulWithResult(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.getExists()).isFalse();
+                });
+    }
+
+    @Test
+    void testCheckNotebookNameExistenceEndpointValidationEmptyName() {
+        assertThatClientCall(() -> notebookClient.checkNotebookNameExistence(""))
+                .isBadRequest("must not be empty");
+    }
+
+    @Test
+    void testCheckNotebookNameExistenceWhenExists() {
+        String name = nextNotebookName();
+        notebookClient.createNotebook(project.getId(), new NotebookRequest(name));
+
+        NotebookExistenceCheckDTO result = notebookClient.checkNotebookNameExistence(name);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getExists()).isTrue();
+    }
+
+    @Test
+    void testCheckNotebookNameExistenceWhenNotExists() {
+        String name = nextNotebookName();
+
+        NotebookExistenceCheckDTO result = notebookClient.checkNotebookNameExistence(name);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getExists()).isFalse();
+    }
+
+    @Test
+    void testCheckNotebookNameExistenceWithMultipleNotebooks() {
+        String name1 = nextNotebookName();
+        String name2 = nextNotebookName();
+
+        notebookClient.createNotebook(project.getId(), new NotebookRequest(name1));
+        notebookClient.createNotebook(project.getId(), new NotebookRequest(name2));
+
+        NotebookExistenceCheckDTO result1 = notebookClient.checkNotebookNameExistence(name1);
+        NotebookExistenceCheckDTO result2 = notebookClient.checkNotebookNameExistence(name2);
+        NotebookExistenceCheckDTO result3 = notebookClient.checkNotebookNameExistence(nextNotebookName());
+
+        assertThat(result1.getExists()).isTrue();
+        assertThat(result2.getExists()).isTrue();
+        assertThat(result3.getExists()).isFalse();
     }
 
     @Test
@@ -189,11 +255,6 @@ class NotebookServiceTest extends ELNBaseTest {
                     assertThat(revision.getUser()).isEqualTo(getJohnUserRef());
                     assertThat(revision.getMutation()).isInstanceOf(NotebookMutation.EditNotebookAttributes.class);
                     assertThat(revision.getSummary()).matches("Edit: name=.+, description=.+");
-                    assertThat(revision.getDiff()).satisfies(diff -> {
-                        assertThat(diff.getAcl()).isNull();
-                        assertThat(diff.getName()).isEqualTo(Patched.replaced(oldName, newName));
-                        assertThat(diff.getDescription()).isEqualTo(Patched.replaced("d", "d2"));
-                    });
                 });
     }
 
@@ -258,6 +319,9 @@ class NotebookServiceTest extends ELNBaseTest {
 
         Page<NotebookDTO> result4 = notebookClient.getProjectNotebooks(project.getId(), "QSNew", null, null, Paging.DEFAULT);
         assertThat(result4.getItems()).map(NotebookDTO::getName).containsExactly(p1);
+
+        Page<NotebookDTO> result5 = notebookClient.getProjectNotebooks(project.getId(), name2.substring(4), null, null, Paging.DEFAULT);
+        assertThat(result5.getItems()).map(NotebookDTO::getName).containsExactly(p2);
     }
 
     @Test

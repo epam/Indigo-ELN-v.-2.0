@@ -12,6 +12,8 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.QueryParam;
 import org.jspecify.annotations.Nullable;
 
+import java.time.Duration;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
@@ -26,7 +28,7 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
     ACLService aclService;
 
     public NotebookRepository() {
-        super(EntityType.NOTEBOOK);
+        super(EntityType.NOTEBOOK, NotebookEntity.class);
     }
 
     public Page<NotebookDTO> findAll(UUID projectId, @Nullable String search, @QueryParam("sort") @Nullable SortOrder sort, @Nullable UserEntity createdByUser, Paging paging, boolean showAll) {
@@ -38,8 +40,10 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
         Conditions conditions = new Conditions()
                 .addIf(!showAll, "calculatedInfo.currentAccess is not null")
                 .add("project.id=?", projectId)
-                .addIfNotNull("full_text_search(searchVector, websearch_to_tsquery('english', ?))", search)
                 .addIfNotNull("createdBy = ?", createdByUser);
+        if (search != null) {
+            conditions.add("(name ilike ?) or full_text_search(searchVector, websearch_to_tsquery('english', ?))", '%' + search + '%', search);
+        }
 
         return doFindWithTotals(
                 conditions,
@@ -68,6 +72,10 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
 
     public boolean hasAccessibleNotebooks(ProjectEntity project) {
         return find("project", project).firstResult() != null;
+    }
+
+    public boolean existsByName(String name) {
+        return count("name", name) > 0;
     }
 
     public List<NestedACLEntryDTO> findNestedAccess(UUID notebookId) {
@@ -99,5 +107,12 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
                 .setParameter("notebook", notebook)
                 .setParameter("revision", revision)
                 .getSingleResult();
+    }
+
+    public List<NotebookRevisionEntity> findRecentRevisions(NotebookEntity notebook, Duration period) {
+        return em.createQuery("from NotebookRevision where notebook=:notebook and datetime>=:since order by revision", NotebookRevisionEntity.class)
+                .setParameter("notebook", notebook)
+                .setParameter("since", ZonedDateTime.now().minusSeconds(period.toSeconds()))
+                .getResultList();
     }
 }

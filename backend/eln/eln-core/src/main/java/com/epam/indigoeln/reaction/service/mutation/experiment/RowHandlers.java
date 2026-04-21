@@ -7,6 +7,7 @@ import com.epam.indigoeln.reaction.model.ReactionInput;
 import com.epam.indigoeln.reaction.model.ReactionOutput;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
+import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.epam.indigoeln.reaction.service.mutation.*;
 import jakarta.enterprise.context.Dependent;
@@ -16,11 +17,9 @@ import jakarta.enterprise.context.Dependent;
 class SetInputRowEQHandler extends AbstractReactionInputMutationHandler<ReactionInputMutation.SetInputRowEQ> {
 
     @Override
-    public MutationResult doHandle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowEQ mutation) {
-        EnteredValueUndo<NoUnit> undo = setEnteredValue(row::getEq, row::setEq, mutation.eq(), NoUnit.NO_UNIT, mutation.source(), experiment.getRevision());
-        return new MutationResult(formatSetterSummary("input EQ", mutation.eq())
-                , new ReactionInputMutation.SetInputRowEQ(mutation.anchor(), undo.value(), undo.source())
-        );
+    public MutationResult doHandle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowEQ mutation, ExperimentMutationContext context) {
+        setEnteredValue(row::setEq, mutation.eq(), NoUnit.NO_UNIT, experiment.getRevision(), EnteredValue.DEFAULT_ONE);
+        return new MutationResult(formatSetterSummary("input EQ", mutation.eq(), NoUnit.NO_UNIT));
     }
 }
 
@@ -29,10 +28,8 @@ class SetInputRowEQHandler extends AbstractReactionInputMutationHandler<Reaction
 class SetOutputRowEQHandler extends AbstractReactionOutputMutationHandler<ReactionOutputMutation.SetOutputRowEQ> {
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputRowEQ mutation) {
-        EnteredValueUndo<NoUnit> undo = setEnteredValue(row::getEq, row::setEq, mutation.eq(), NoUnit.NO_UNIT, mutation.source(), experiment.getRevision());
-        return new MutationResult(formatSetterSummary("output EQ", mutation.eq())
-                , new ReactionOutputMutation.SetOutputRowEQ(mutation.anchor(), undo.value(), undo.source())
-        );
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputRowEQ mutation, ExperimentMutationContext context) {
+        setEnteredValue(row::setEq, mutation.eq(), NoUnit.NO_UNIT, experiment.getRevision(), EnteredValue.DEFAULT_ONE);
+        return new MutationResult(formatSetterSummary("output EQ", mutation.eq()));
     }
 }

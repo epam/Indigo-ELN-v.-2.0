@@ -1,6 +1,7 @@
 package com.epam.indigoeln.eln.entity;
 
 import com.epam.indigoeln.eln.model.ApplicationPermission;
+import com.epam.indigoeln.eln.model.UserRef;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -66,5 +67,9 @@ public class UserEntity extends BaseEntity {
     @Override
     public String toString() {
         return username;
+    }
+
+    public UserRef toRef() {
+        return new UserRef(id, username, displayName);
     }
 }

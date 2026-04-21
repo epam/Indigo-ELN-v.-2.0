@@ -1,9 +1,5 @@
 import { Injectable } from '@angular/core';
-import {
-  ItemTemplate,
-  RootTemplate,
-  Template,
-} from '@core/types/entities/template.i';
+import { ItemTemplate, RootTemplate, Template } from '@core/types/entities/template.i';
 import { ApiService } from '@core/services/api.service';
 import { PagedRequest } from '@core/types/request/paged-request.i';
 

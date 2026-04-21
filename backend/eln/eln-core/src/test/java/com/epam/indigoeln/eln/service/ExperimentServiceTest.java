@@ -8,7 +8,6 @@ import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
-import com.epam.indigoeln.reaction.model.patch.handler2.Patched;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
@@ -23,10 +22,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
@@ -86,7 +82,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         assertThat(experiment.getTemplateId()).isEqualTo(emptyTemplateID);
         assertThat(experiment.getCurrentPermissions()).containsExactlyInAnyOrder(VIEW_EXPERIMENTS, EDIT_EXPERIMENTS, MANAGE_EXPERIMENT_ACCESS, DELETE_EXPERIMENTS, SUBMIT_EXPERIMENTS);
         assertThat(experiment.getRevision()).isOne();
-        assertThat(experimentClient.getExperimentRevisions(experiment.getId()))
+        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
                 .hasSize(1)
                 .first().satisfies(revision -> {
                     assertThat(revision.getRevision()).isOne();
@@ -107,7 +103,7 @@ class ExperimentServiceTest extends ELNBaseTest {
     @Test
     void testGetExperiments() {
         ExperimentDetailsDTO createdExperiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
-        Page<ExperimentDTO> experiments = experimentClient.getProjectExperiments(project.getId(), null, null, Paging.DEFAULT);
+        Page<ExperimentDTO> experiments = experimentClient.getProjectExperiments(project.getId(), null, null, null, Paging.DEFAULT);
         assertThat(experiments.getItems()).hasSize(1).first().satisfies(experiment -> {
             assertThat(experiment.getId()).isNotNull();
             assertThat(experiment.getName()).isEqualTo(createdExperiment.getName());
@@ -124,7 +120,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
 
-        Page<ExperimentDTO> experiments = experimentClient.getProjectExperiments(project.getId(), SortOrder.EARLIEST, null, Paging.DEFAULT);
+        Page<ExperimentDTO> experiments = experimentClient.getProjectExperiments(project.getId(), null, SortOrder.EARLIEST, null, Paging.DEFAULT);
 
         assertThat(experiments.getItems())
                 .isSortedAccordingTo(Comparator.comparing(ExperimentDTO::getModifiedAt));
@@ -136,7 +132,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
 
-        Page<ExperimentDTO> experiments = experimentClient.getProjectExperiments(project.getId(), SortOrder.LATEST, null, Paging.DEFAULT);
+        Page<ExperimentDTO> experiments = experimentClient.getProjectExperiments(project.getId(), null, SortOrder.LATEST, null, Paging.DEFAULT);
 
         assertThat(experiments.getItems())
                 .isSortedAccordingTo(Comparator.comparing(ExperimentDTO::getModifiedAt).reversed());
@@ -154,7 +150,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         });
 
         withUser(ELNBaseTest.JOHN_USERNAME, () -> {
-            Page<ExperimentDTO> experiments = experimentClient.getProjectExperiments(project.getId(), null, true, Paging.DEFAULT);
+            Page<ExperimentDTO> experiments = experimentClient.getProjectExperiments(project.getId(), null, null, true, Paging.DEFAULT);
 
             assertThat(experiments.getItems())
                     .allSatisfy(experiment -> assertThat(experiment.getCreatedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME));
@@ -172,7 +168,7 @@ class ExperimentServiceTest extends ELNBaseTest {
                 , projectCodes.getFirst()
         ));
         assertThatClientCall(() -> {
-            experimentClient.editExperiment(experiment.getId(), new ExperimentEditRequest(null, null));
+            experimentClient.editExperiment(experiment.getId(), new ExperimentEditRequest());
         }).isBadRequest("Nothing to update");
     }
 
@@ -183,30 +179,38 @@ class ExperimentServiceTest extends ELNBaseTest {
                 , therapeuticAreas.getFirst()
                 , projectCodes.getFirst()
         ));
+        ExperimentDetailsDTO e2 = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID, "e2", therapeuticAreas.getFirst(), projectCodes.getFirst()));
+        ExperimentDetailsDTO e3 = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID, "e3", therapeuticAreas.getFirst(), projectCodes.getFirst()));
+        ExperimentDetailsDTO e4 = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID, "e4", therapeuticAreas.getFirst(), projectCodes.getFirst()));
         ExperimentDetailsDTO modified = experimentClient.editExperiment(experiment.getId(), new ExperimentEditRequest(
+                Optional.of("newTitle"),
                 Optional.of(therapeuticAreas.get(1)),
-                Optional.of(projectCodes.get(1)
-                )));
+                Optional.of(projectCodes.get(1)),
+                Optional.of("newDescription"),
+                Optional.of("newLiterature"),
+                Optional.of(Set.of(e2.toRef())),
+                Optional.of(Set.of(e3.toRef())),
+                Optional.of(Set.of(e4.toRef()))
+        ));
         assertThat(modified.getName()).isEqualTo(experiment.getName());
+        assertThat(modified.getTitle()).isEqualTo("newTitle");
         assertThat(modified.getTherapeuticArea()).isEqualTo(therapeuticAreas.get(1));
         assertThat(modified.getProjectCode()).isEqualTo(projectCodes.get(1));
+        assertThat(modified.getDescription()).isEqualTo("newDescription");
+        assertThat(modified.getLiterature()).isEqualTo("newLiterature");
+        assertThat(modified.getLinkedExperiments()).containsExactly(e2.toRef());
+        assertThat(modified.getContinuedFrom()).containsExactly(e3.toRef());
+        assertThat(modified.getContinuedTo()).containsExactly(e4.toRef());
         ExperimentDetailsDTO saved = experimentClient.getExperiment(experiment.getId());
         assertThat(saved).usingRecursiveComparison().isEqualTo(modified);
-        assertThat(experimentClient.getExperimentRevisions(experiment.getId()))
+        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
                 .hasSize(2)
                 .last().satisfies(revision -> {
                     assertThat(revision.getRevision()).isEqualTo(2);
                     assertThat(revision.getDatetime()).isEqualTo(modified.getModifiedAt());
                     assertThat(revision.getUser()).isEqualTo(getJohnUserRef());
                     assertThat(revision.getMutation()).isInstanceOf(ExperimentMutation.EditExperimentAttributes.class);
-                    assertThat(revision.getSummary()).matches("Edit: therapeutic area=.+, project code=.+");
-                    assertThat(revision.getDiff()).satisfies(diff -> {
-                        assertThat(diff.getAcl()).isNull();
-                        assertThat(diff.getModel()).isNull();
-                        assertThat(diff.getTherapeuticArea()).isEqualTo(Patched.replaced(therapeuticAreas.get(0), therapeuticAreas.get(1)));
-                        assertThat(diff.getProjectCode()).isEqualTo(Patched.replaced(projectCodes.get(0), projectCodes.get(1)));
-                        assertThat(diff.getDescription()).isNull();
-                    });
+                    assertThat(revision.getSummary()).matches("Edit: multiple attributes");
                 });
     }
 
@@ -217,11 +221,11 @@ class ExperimentServiceTest extends ELNBaseTest {
         assertThat(experimentClient.getMarkedExperiments()).isEmpty();
 
         assertThat(experimentClient.markExperiment(experiment.getId())).isTrue();
-        Page<ExperimentDTO> experiments = experimentClient.getProjectExperiments(project.getId(), null, null, Paging.DEFAULT);
+        Page<ExperimentDTO> experiments = experimentClient.getProjectExperiments(project.getId(), null, null, null, Paging.DEFAULT);
         assertThat(experiments.getItems()).singleElement().satisfies(e -> {
             assertThat(e.getMarked()).isTrue();
         });
-        experiments = experimentClient.getNotebookExperiments(notebook.getId(), null, null, Paging.DEFAULT);
+        experiments = experimentClient.getNotebookExperiments(notebook.getId(), null, null, null, Paging.DEFAULT);
         assertThat(experiments.getItems()).singleElement().satisfies(e -> {
             assertThat(e.getMarked()).isTrue();
         });
@@ -233,11 +237,11 @@ class ExperimentServiceTest extends ELNBaseTest {
         });
 
         assertThat(experimentClient.unmarkExperiment(experiment.getId())).isFalse();
-        experiments = experimentClient.getProjectExperiments(project.getId(), null, null, Paging.DEFAULT);
+        experiments = experimentClient.getProjectExperiments(project.getId(), null, null, null, Paging.DEFAULT);
         assertThat(experiments.getItems()).singleElement().satisfies(e -> {
             assertThat(e.getMarked()).isFalse();
         });
-        experiments = experimentClient.getNotebookExperiments(notebook.getId(), null, null, Paging.DEFAULT);
+        experiments = experimentClient.getNotebookExperiments(notebook.getId(), null, null, null, Paging.DEFAULT);
         assertThat(experiments.getItems()).singleElement().satisfies(e -> {
             assertThat(e.getMarked()).isFalse();
         });
@@ -258,7 +262,7 @@ class ExperimentServiceTest extends ELNBaseTest {
             assertThat(a.getModifiedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME);
             assertThat(a.getModifiedAt()).isNotNull();
         });
-        assertThat(experimentClient.getExperimentRevisions(experiment.getId()))
+        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
                 .last().satisfies(revision -> {
                     assertThat(revision.getMutation()).isInstanceOf(ExperimentMutation.CreateExperimentAttachment.class);
                     assertThat(revision.getSummary()).isEqualTo("Created attachment: attachment.txt, 7 bytes");
@@ -281,7 +285,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         experimentClient.deleteExperimentAttachment(experiment.getId(), attachments.getFirst().getId());
         experiment = experimentClient.getExperiment(experiment.getId());
         assertThat(experiment.getAttachments()).isEmpty();
-        assertThat(experimentClient.getExperimentRevisions(experiment.getId()))
+        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
                 .last().satisfies(revision -> {
                     assertThat(revision.getMutation()).isInstanceOf(ExperimentMutation.DeleteExperimentAttachment.class);
                     assertThat(revision.getSummary()).isEqualTo("Deleted attachment: attachment.txt");
@@ -294,10 +298,9 @@ class ExperimentServiceTest extends ELNBaseTest {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         ExperimentModel model = experiment.getModel();
         Reaction reaction = model.getReactions().getFirst();
-        assertThat(reaction.getRxnVersion()).isZero();
         Response response = experimentClient.getExperimentPictureClient(experiment.getId());
         assertThat((byte[]) response.getEntity()).containsExactly(ExperimentService.EMPTY_PICTURE);
-        response = experimentClient.getReactionPicture(experiment.getId(), reaction.getAnchor(), reaction.getRxnVersion());
+        response = experimentClient.getReactionPicture(experiment.getId(), reaction.getAnchor(), experiment.getRevision());
         assertThat((byte[]) response.getEntity()).containsExactly(ExperimentService.EMPTY_PICTURE);
 
         String rxnFile = new String(loadResource(getClass(), "/reaction.rxn"));
@@ -305,12 +308,11 @@ class ExperimentServiceTest extends ELNBaseTest {
 
         model = experimentClient.getExperiment(experiment.getId()).getModel();
         reaction = model.getReactions().getFirst();
-        assertThat(reaction.getRxnVersion()).isEqualTo(1);
 
         response = experimentClient.getExperimentPictureClient(experiment.getId());
         assertThat(response).isNotEqualTo(ExperimentService.EMPTY_PICTURE);
         Files.write(Paths.get("picture.svg"), (byte[]) response.getEntity());
-        response = experimentClient.getReactionPicture(experiment.getId(), reaction.getAnchor(), reaction.getRxnVersion());
+        response = experimentClient.getReactionPicture(experiment.getId(), reaction.getAnchor(), experiment.getRevision());
         assertThat(response).isNotEqualTo(ExperimentService.EMPTY_PICTURE);
         assertThat(response.getHeaders().getFirst(HttpHeaders.CONTENT_TYPE)).isEqualTo("image/svg+xml");
         //noinspection deprecation
@@ -322,7 +324,7 @@ class ExperimentServiceTest extends ELNBaseTest {
     void testUpdateAccess() {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(maggieUserID, AccessLevel.EDIT));
-        assertThat(experimentClient.getExperimentRevisions(experiment.getId()))
+        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
                 .hasSize(2)
                 .last().satisfies(revision -> {
                     assertThat(revision.getRevision()).isEqualTo(2);
@@ -332,11 +334,34 @@ class ExperimentServiceTest extends ELNBaseTest {
                     assertThat(revision.getDiff()).isNotNull(); // !!! verify diff old and new ACL
                 });
         experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(maggieUserID, AccessLevel.NONE));
-        assertThat(experimentClient.getExperimentRevisions(experiment.getId()))
+        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
                 .hasSize(3)
                 .last().satisfies(revision -> {
                     assertThat(revision.getSummary()).isEqualTo("Edited Team: removed maggie");
                     assertThat(revision.getDiff()).isNotNull(); // !!! verify diff old and new ACL
                 });
+    }
+
+    @Test
+    void testSuggestExperiments() {
+        NotebookDetailsDTO notebook2 = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        ExperimentDetailsDTO e1 = experimentClient.createExperiment(notebook2.getId(), new ExperimentRequest(emptyTemplateID));
+        ExperimentDetailsDTO e2 = experimentClient.createExperiment(notebook2.getId(), new ExperimentRequest(emptyTemplateID));
+        assertThat(experimentClient.suggestExperiments(notebook2.getName())).containsExactly(e1.toRef(), e2.toRef());
+    }
+
+    @Test
+    void testQuickSearch() {
+        ExperimentDetailsDTO e1 = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID, "description1 common", null, null));
+        ExperimentDetailsDTO e2 = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID, "description2 common", null, null));
+
+        Page<ExperimentDTO> result1 = experimentClient.getNotebookExperiments(notebook.getId(), e1.getName(), null, null, Paging.DEFAULT);
+        assertThat(result1.getItems()).map(ExperimentDTO::getName).containsOnly(e1.getName());
+
+        Page<ExperimentDTO> result2 = experimentClient.getNotebookExperiments(notebook.getId(), "description1", null, null, Paging.DEFAULT);
+        assertThat(result2.getItems()).map(ExperimentDTO::getName).containsOnly(e1.getName());
+
+        Page<ExperimentDTO> result3 = experimentClient.getNotebookExperiments(notebook.getId(), e1.getName().substring(4), null, null, Paging.DEFAULT);
+        assertThat(result2.getItems()).map(ExperimentDTO::getName).containsOnly(e1.getName());
     }
 }

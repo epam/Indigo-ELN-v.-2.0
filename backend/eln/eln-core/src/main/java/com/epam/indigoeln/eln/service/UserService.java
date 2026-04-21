@@ -51,6 +51,8 @@ public class UserService {
     ExternalUserService externalUserService;
     @Inject
     RoleRepository roleRepository;
+    @Inject
+    ACLService aclService;
     @PersistenceContext
     EntityManager em;
 
@@ -92,6 +94,7 @@ public class UserService {
     }
 
     public UserDTO createUser(UserRequest request) {
+        aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_USERS);
         UserEntity entity = userMapper.requestToUser(request);
         Set<RoleEntity> roles = StreamEx.ofNullable(request.getRoles())
                 .flatMap(Collection::stream)
@@ -104,7 +107,7 @@ public class UserService {
         return userMapper.entityToDetailsDTO(entity);
     }
 
-    public Page<UserDTO> getUsers(String search, String username, Paging paging) {
+    public Page<UserDTO> getUsers(@Nullable String search, @Nullable String username, Paging paging) {
         return userRepository.findAll(search, username, paging);
     }
 

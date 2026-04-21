@@ -1,5 +1,5 @@
 <form [formGroup]="form">
-  <div>
+  <div class="field-wrapper">
     @if (multiple) {
       <eln-autocomplete-select
         formControlName="multiple"
@@ -12,13 +12,7 @@
         </ng-template>
       </eln-autocomplete-select>
     } @else {
-      <div class="border">
-        <eln-dropdown-value
-          formControlName="single"
-          [allowNull]="allowEmpty"
-          [options]="allItems"
-        />
-      </div>
+      <eln-dropdown-value formControlName="single" [allowNull]="allowEmpty" [options]="allItems" />
     }
   </div>
 </form>

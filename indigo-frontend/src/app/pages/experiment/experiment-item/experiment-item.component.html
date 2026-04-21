@@ -1,13 +1,33 @@
 <eln-card [classList]="'cursor-pointer'" (click)="openDetails()">
   <div class="flex flex-col w-full px-4">
     <div class="flex justify-between items-center mb-3 w-full">
-      <h3
-        class="flex items-center gap-x-2 font-semibold text-neutral-1000 text-base"
-      >
+      <h3 class="flex items-center gap-x-2 font-semibold text-neutral-1000 text-base">
         <em class="text-primary-400 text-xl indicon-flask"></em>
         {{ experiment.name }}
       </h3>
-      <div class="flex items-center gap-2">
+
+      <div class="flex items-center gap-x-3">
+        @if (variant === 'grid') {
+          <div class="flex -space-x-2">
+            @for (user of experiment.acl; track user.userId) {
+              <div
+                class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white"
+                [matTooltip]="user.displayName"
+                matTooltipPosition="above"
+              >
+                {{ user.displayName | initials }}
+              </div>
+            }
+            @if ((experiment.acl?.length ?? 0) > 3) {
+              <span
+                class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-primary-400 text-white text-[0.75rem]"
+              >
+                +{{ (experiment.acl?.length ?? 0) - 3 }}
+              </span>
+            }
+          </div>
+        }
+
         <div class="relative -right-1">
           <button
             class="flex items-center hover:bg-neutral-200 rounded-full cursor-pointer"
@@ -17,10 +37,14 @@
           >
             <mat-icon>more_horiz</mat-icon>
           </button>
-          <mat-menu #menu="matMenu">
-            <button mat-menu-item>
-              <mat-icon>visibility</mat-icon>
-              <span>View</span>
+          <mat-menu #menu="matMenu" class="experiment-item-custom-menu">
+            <button mat-menu-item class="relative flex items-center">
+              <em class="indicon-edit text-[20px] mr-2"></em>
+              <span class="absolute top-[14px] left-10">Rename</span>
+            </button>
+            <button mat-menu-item class="relative flex items-center">
+              <em class="indicon-delete text-[20px] mr-2"></em>
+              <span class="absolute top-[14px] left-10">Delete</span>
             </button>
           </mat-menu>
         </div>
@@ -31,52 +55,44 @@
       <div
         class="w-full"
         [ngClass]="{
-          'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6':
-            variant === 'list',
+          'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6': variant === 'list',
           'space-y-2': variant === 'grid',
         }"
       >
-        <div
-          class="flex flex-col"
-          [ngClass]="{ 'flex-col space-y-2': variant == 'list' }"
-        >
+        <div class="flex flex-col" [ngClass]="{ 'flex-col space-y-2': variant == 'list' }">
           <div class="text-neutral-1000 text-sm">Status</div>
-          <div
-            class="flex items-center"
-            [ngClass]="{ 'ml-auto': variant === 'grid' }"
-          >
+          <div class="flex items-center" [ngClass]="{ 'ml-auto': variant === 'grid' }">
             <eln-badge [variant]="getStatusBadgeVariant(experiment.status)">
               {{ statusLabel | normalizeLabel }}
             </eln-badge>
           </div>
         </div>
 
-        <div
-          class="flex flex-col"
-          [ngClass]="{ 'flex-col space-y-2': variant == 'list' }"
-          *ngIf="variant === 'list'"
-        >
+        <div class="flex flex-col" [ngClass]="{ 'flex-col space-y-2': variant == 'list' }" *ngIf="variant === 'list'">
           <div class="text-neutral-1000 text-sm">Members</div>
           <div class="flex items-center">
             <div class="flex -space-x-2">
-              @for (user of mock_users.slice(0, 3); track user) {
-                <eln-avatar classList="w-6 h-6" [img]="user" />
-              }
-              @if (mock_users.length > 3) {
-                <span
-                  class="flex justify-center items-center bg-primary-400 rounded-full w-6 h-6 text-white text-xs"
+              @for (user of experiment.acl; track user.userId) {
+                <div
+                  class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white"
+                  [matTooltip]="user.displayName ?? user.username"
+                  matTooltipPosition="above"
                 >
-                  +{{ mock_users.length - 3 }}
+                  {{ user.displayName ?? user.username | initials }}
+                </div>
+              }
+              @if ((experiment.acl?.length ?? 0) > 3) {
+                <span
+                  class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-primary-400 text-white text-[0.75rem]"
+                >
+                  +{{ (experiment.acl?.length ?? 0) - 3 }}
                 </span>
               }
             </div>
           </div>
         </div>
 
-        <div
-          class="flex flex-col text-sm"
-          [ngClass]="{ 'flex-col space-y-2': variant == 'list' }"
-        >
+        <div class="flex flex-col text-sm" [ngClass]="{ 'flex-col space-y-2': variant == 'list' }">
           <div class="text-neutral-1000 text-sm">Last Edited</div>
           <div [ngClass]="{ 'ml-auto': variant === 'grid' }">
             {{ experiment.modifiedAt | date: 'dd MMM yyyy' }} by
@@ -84,10 +100,7 @@
           </div>
         </div>
 
-        <div
-          class="flex flex-col text-sm"
-          [ngClass]="{ 'flex-col space-y-2': variant == 'list' }"
-        >
+        <div class="flex flex-col text-sm" [ngClass]="{ 'flex-col space-y-2': variant == 'list' }">
           <div class="text-neutral-1000">Created</div>
           <div [ngClass]="{ 'ml-auto': variant === 'grid' }">
             {{ experiment.createdAt | date: 'dd MMM yyyy' }} by
@@ -96,28 +109,5 @@
         </div>
       </div>
     </div>
-
-    <!-- TODO reference to real amount of users and user avatars -->
-    @if (variant === 'grid') {
-      <div
-        class="flex items-center mt-2 pt-3 border-t border-t-neutral-300 w-full"
-      >
-        <div class="flex -space-x-2">
-          @for (user of mock_users.slice(0, 3); track user) {
-            <eln-avatar classList="w-6 h-6" [img]="user" />
-          }
-          @if (mock_users.length > 3) {
-            <span
-              class="flex justify-center items-center bg-primary-400 rounded-full w-6 h-6 text-white text-xs"
-            >
-              +{{ mock_users.length - 3 }}
-            </span>
-          }
-        </div>
-        <span class="ml-2 text-b2 text-neutral-1000"
-          >{{ mock_users.length }} Members</span
-        >
-      </div>
-    }
   </div>
 </eln-card>

@@ -17,10 +17,7 @@ export class ProjectOverviewWidgetDirective implements OnDestroy {
 
   @Input() set projectOverviewWidget(slot: ProjectOverviewWidgetSlot) {
     if (this.currentSlot !== slot) {
-      this.projectsOverviewWidgetService.removeTemplate(
-        this.templateRef,
-        this.currentSlot,
-      );
+      this.projectsOverviewWidgetService.removeTemplate(this.templateRef, this.currentSlot);
 
       this.addTemplateToSlot(slot);
       this.currentSlot = slot;
@@ -32,9 +29,6 @@ export class ProjectOverviewWidgetDirective implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.projectsOverviewWidgetService.removeTemplate(
-      this.templateRef,
-      this.currentSlot,
-    );
+    this.projectsOverviewWidgetService.removeTemplate(this.templateRef, this.currentSlot);
   }
 }

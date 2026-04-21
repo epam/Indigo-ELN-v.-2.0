@@ -3,28 +3,27 @@ package com.epam.indigoeln.reaction.service;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
-import com.epam.indigoeln.eln.repository.DictionaryItemRepository;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
-import com.epam.indigoeln.reaction.model.Reaction;
-import com.epam.indigoeln.reaction.model.ReactionRole;
-import com.epam.indigoeln.reaction.model.ReactionRow;
+import com.epam.indigoeln.reaction.model.*;
+import com.epam.indigoeln.reaction.util.ExperimentModelUtil2;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Multimap;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
-import static com.epam.indigoeln.eln.util.IndigoUtil.addToReaction;
-import static com.epam.indigoeln.eln.util.IndigoUtil.reactionIterable;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @ApplicationScoped
 public class ExperimentModelHelperService {
 
-    private static final ReactionRole[] COMPONENT_ORDER = {ReactionRole.OUTPUT, ReactionRole.CATALYST, ReactionRole.REACTANT};
+    private static final ReactionRole[] SCHEMA_ORDER = new ReactionRole[]{ReactionRole.REACTANT, ReactionRole.CATALYST, ReactionRole.OUTPUT};
 
     @Inject
     CompoundService compoundService;
@@ -32,35 +31,63 @@ public class ExperimentModelHelperService {
     IndigoAPI indigo;
     @Inject
     IndigoRendererAPI indigoRenderer;
-    @Inject
-    DictionaryItemRepository dictionaryItemRepository;
 
-    public void rebuildReactionPicture(ExperimentEntity experiment, Reaction reaction, IndigoReaction indigoReaction) {
+    public String rebuildReactionPicture(ExperimentEntity experiment, Reaction reaction, IndigoReaction indigoReaction) {
         indigoRenderer.setRenderOptions("svg", 500, 200);
         byte[] buf = indigoRenderer.renderToBuffer(indigoReaction);
         experiment.setPicture(buf);
+        return new String(buf);
     }
 
-    public void rebuildReactionRxnFile(ExperimentEntity experiment, Reaction reaction, Set<ReactionRole> affectedRoles, IndigoReaction indigoReaction) {
-        for (ReactionRole role : COMPONENT_ORDER) {
-            if (!affectedRoles.contains(role)) {
-                continue;
+    public List<Object> makeReactionKey(Reaction reaction) {
+        List<Object> key = new ArrayList<>();
+        for (ReactionRow row : Iterables.concat(reaction.getInputs(), reaction.getOutputs())) {
+            ReactionRole role = ExperimentModelUtil2.getRoleInSchema(row);
+            if (role != null) {
+                key.add(role);
+                key.add(checkNotNull(row.getCompound().getCompoundID()));
             }
+        }
+        return key;
+    }
 
-            List<IndigoMolecule> molecules = new ArrayList<>();
-            // noinspection rawtypes,unchecked
-            Iterable<ReactionRow> rows = role == ReactionRole.OUTPUT ? (Iterable) reaction.getOutputs() : (Iterable) reaction.inputsOfType(role);
-            for (ReactionRow input : rows) {
-                if (input.getCompound().getCompoundID() != null) {
-                    CompoundEntity compound = compoundService.getCompound(input.getCompound().getCompoundID());
-                    molecules.add(indigo.loadMolecule(compound.getMolFile()));
+    public Multimap<ReactionRole, CompoundRef.StoredOrVirtual> makeCompoundRefs(ExperimentModel model) {
+        Multimap<ReactionRole, CompoundRef.StoredOrVirtual> map = HashMultimap.create();
+        for (Reaction reaction : model.getReactions()) {
+            for (ReactionInput input : reaction.getInputs()) {
+                if (input.getCompound() instanceof CompoundRef.StoredOrVirtual c) {
+                    map.put(input.getRole(), c);
                 }
             }
-
-            reactionIterable(indigoReaction, role).forEach(IndigoMolecule::remove);
-            // TODO sometimes it adds in reverse order, sometimes not
-            molecules.reversed().forEach(molecule -> addToReaction(indigoReaction, role, molecule));
+            for (ReactionOutput output : reaction.getOutputs()) {
+                if (output.getCompound() instanceof CompoundRef.StoredOrVirtual c) {
+                    map.put(ReactionRole.OUTPUT, c);
+                }
+            }
         }
-        reaction.setRxnfile(indigoReaction.rxnfile());
+        return map;
+    }
+
+    public IndigoReaction rebuildReactionRxnFile(List<ReactionInput> inputs, List<ReactionOutput> outputs) {
+        IndigoReaction indigoReaction = indigo.createReaction();
+        for (ReactionRow row : Iterables.concat(inputs, outputs)) {
+            row.setRxnPosition(null);
+        }
+        for (ReactionRole role : SCHEMA_ORDER) {
+            int rxnPosition = -1;
+            for (ReactionRow row : Iterables.concat(inputs, outputs)) {
+                if (ExperimentModelUtil2.getRoleInSchema(row) == role) {
+                    row.setRxnPosition(++rxnPosition);
+                    CompoundEntity compound = compoundService.getCompound(checkNotNull(row.getCompound().getCompoundID()));
+                    IndigoMolecule molecule = indigo.loadMolecule(compound.getMolFile());
+                    switch (role) {
+                        case REACTANT -> indigoReaction.addReactant(molecule);
+                        case CATALYST -> indigoReaction.addCatalyst(molecule);
+                        case OUTPUT -> indigoReaction.addProduct(molecule);
+                    }
+                }
+            }
+        }
+        return indigoReaction;
     }
 }

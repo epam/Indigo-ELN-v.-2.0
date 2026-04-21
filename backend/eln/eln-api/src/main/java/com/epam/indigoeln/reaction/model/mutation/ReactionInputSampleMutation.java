@@ -14,32 +14,28 @@ public interface ReactionInputSampleMutation extends Mutation {
 
     record SetInputDensity (
             @NotNull InputSampleAnchor anchor,
-            @Nullable Double density,
-            @Nullable DensityUnit unit,
-            @Nullable EnteredValueSource source
+            @Nullable String density,
+            @Nullable DensityUnit unit
     ) implements ReactionInputSampleMutation {
     }
 
     record SetInputMolarity (
             @NotNull InputSampleAnchor anchor,
-            @Nullable Double molarity,
-            @Nullable MolarityUnit unit,
-            @Nullable EnteredValueSource source
+            @Nullable String molarity,
+            @Nullable MolarityUnit unit
     ) implements ReactionInputSampleMutation {
     }
 
     record SetInputVolume (
             @NotNull InputSampleAnchor anchor,
-            @Nullable Double volume,
-            @Nullable VolumeUnit unit,
-            @Nullable EnteredValueSource source
+            @Nullable String volume,
+            @Nullable VolumeUnit unit
     ) implements ReactionInputSampleMutation {
     }
 
     record SetInputPurity (
             @NotNull InputSampleAnchor anchor,
-            @Nullable Double purity,
-            @Nullable EnteredValueSource source
+            @Nullable String purity
     ) implements ReactionInputSampleMutation {
     }
 
@@ -51,23 +47,26 @@ public interface ReactionInputSampleMutation extends Mutation {
 
     record SetInputMol (
             @NotNull InputSampleAnchor anchor,
-            @Nullable Double mol,
-            @Nullable MolUnit unit,
-            @Nullable EnteredValueSource source
+            @Nullable String mol,
+            @Nullable MolUnit unit
     ) implements ReactionInputSampleMutation {
     }
 
     record SetInputWeight (
             @NotNull InputSampleAnchor anchor,
-            @Nullable Double weight,
-            @Nullable WeightUnit unit,
-            @Nullable EnteredValueSource source
+            @Nullable String weight,
+            @Nullable WeightUnit unit
     ) implements ReactionInputSampleMutation {
     }
 
     record SetInputComment (
             @NotNull InputSampleAnchor anchor,
             @Nullable String comment
+    ) implements ReactionInputSampleMutation {
+    }
+
+    record RemoveInput (
+            @NotNull InputSampleAnchor anchor
     ) implements ReactionInputSampleMutation {
     }
 }

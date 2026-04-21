@@ -1,7 +1,5 @@
 <eln-card classList="h-full">
-  <div
-    class="flex items-center justify-between border-b border-b-neutral-200 pb-3"
-  >
+  <div class="flex items-center justify-between border-b border-b-neutral-200 pb-3">
     <div class="flex items-center gap-2">
       <h2 class="font-semibold text-base">Team</h2>
       <eln-counter [count]="teamVm().length" variant="grey" size="large" />
@@ -25,19 +23,13 @@
         class="w-[300px]"
       >
         <ng-template ng-option-tmp let-item="item" let-index="index">
-          <div
-            class="flex justify-between"
-            [class.opacity-50]="item.added"
-            [class.pointer-events-none]="item.added"
-          >
+          <div class="flex justify-between" [class.opacity-50]="item.added" [class.pointer-events-none]="item.added">
             <div class="flex flex-col">
               <span class="font-medium">{{ item.displayName }}</span>
               <span class="text-xs text-neutral-600">{{ item.username }}</span>
             </div>
             <div class="flex items-center">
-              <span class="text-xs" [class.text-neutral-500]="item.added">{{
-                item.added ? 'Already Added' : ''
-              }}</span>
+              <span class="text-xs" [class.text-neutral-500]="item.added">{{ item.added ? 'Already Added' : '' }}</span>
             </div>
           </div>
         </ng-template>
@@ -70,6 +62,7 @@
         <p class="text-neutral-1000">{{ member.displayName }}</p>
         <p
           class="text-neutral-800 overflow-hidden text-ellipsis whitespace-nowrap max-w-[148px] text-ellipsis"
+          [appTextOverflowTooltip]="member.username"
         >
           {{ member.username }}
         </p>

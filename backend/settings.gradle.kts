@@ -21,10 +21,10 @@ include("common:common-test")
 
 include("database:flyway")
 
-//include("signature:signature-api")
-//include("signature:signature-core")
-//include("signature:signature-service")
-//include("signature:signature-lambda")
+include("signature:signature-api")
+include("signature:signature-core")
+include("signature:signature-service")
+include("signature:signature-lambda")
 
 include("database:flyway")
 

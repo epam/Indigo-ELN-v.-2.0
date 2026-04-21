@@ -7,7 +7,6 @@ import com.epam.indigoeln.eln.entity.TotalCountsEntity;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.RevisionService;
 import com.epam.indigoeln.reaction.model.mutation.ProjectMutation;
-import com.epam.indigoeln.reaction.model.patch.ProjectPatch;
 import jakarta.inject.Inject;
 import org.jspecify.annotations.Nullable;
 import org.mapstruct.Mapper;
@@ -47,6 +46,6 @@ public abstract class ProjectMapper extends AbstractMapper {
 
     @Mapping(target = "diff", expression = "java(revisionService.getPatch(entity))")
     @Mapping(target = "stringDiff", expression = "java(revisionService.formatPatch(entity.getDiff()))")
-    public abstract RevisionDetailsDTO<ProjectPatch> revisionToDTO(ProjectRevisionEntity entity);
-    public abstract List<RevisionDetailsDTO<ProjectPatch>> revisionToDTOList(List<ProjectRevisionEntity> entity);
+    public abstract RevisionDetailsDTO revisionToDTO(ProjectRevisionEntity entity);
+    public abstract List<RevisionDetailsDTO> revisionToDTOList(List<ProjectRevisionEntity> entity);
 }

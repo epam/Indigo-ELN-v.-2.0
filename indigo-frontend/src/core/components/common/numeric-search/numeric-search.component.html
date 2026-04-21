@@ -5,12 +5,6 @@
         <mat-option [value]="type.key">{{ type.value }}</mat-option>
       }
     </mat-select>
-    <input
-      matInput
-      formControlName="value"
-      (blur)="triggerTouched()"
-      type="number"
-      class="flex-3 border"
-    />
+    <input matInput formControlName="value" (blur)="triggerTouched()" type="number" class="flex-3 border" />
   </div>
 </form>

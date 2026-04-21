@@ -18,10 +18,22 @@ eln-notification {
 
 // Configuration map for notification types
 $notification-types: (
-  success: (bg: var(--green-10), accent: var(--green-200)),
-  warning: (bg: var(--orange-10), accent: var(--orange-200)),
-  error: (bg: var(--red-10), accent: var(--red-200)),
-  info: (bg: var(--primary-10), accent: var(--primary-400))
+  success: (
+    bg: var(--green-10),
+    accent: var(--green-200),
+  ),
+  warning: (
+    bg: var(--orange-10),
+    accent: var(--orange-200),
+  ),
+  error: (
+    bg: var(--red-10),
+    accent: var(--red-200),
+  ),
+  info: (
+    bg: var(--primary-10),
+    accent: var(--primary-400),
+  ),
 );
 
 // Shared base styles
@@ -39,27 +51,35 @@ $notification-types: (
     @extend %notification-base;
     --mdc-snackbar-container-color: #{$bg};
 
-    .type-icon { color: #{$accent}; }
+    .type-icon {
+      color: #{$accent};
+    }
 
     .mdc-snackbar__surface {
       box-shadow: none;
       border: 1px solid #{$accent};
     }
 
-    .mdc-snackbar__label { padding: 8px 12px; }
+    .mdc-snackbar__label {
+      padding: 8px 12px;
+    }
   }
 
   .notification-#{$type}-outline {
     @extend %notification-base;
     --mdc-snackbar-container-color: var(--neutral);
 
-    .type-icon { color: #{$accent}; }
+    .type-icon {
+      color: #{$accent};
+    }
 
     .mdc-snackbar__surface {
       border: none;
       border-left: 4px solid #{$accent};
     }
 
-    .mdc-snackbar__label { padding: 14px 16px; }
+    .mdc-snackbar__label {
+      padding: 14px 16px;
+    }
   }
 }

@@ -1,7 +1,7 @@
 package com.epam.indigoeln.eln.api;
 
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.reaction.model.patch.NotebookPatch;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -27,6 +27,11 @@ public interface NotebookAPI extends BaseAPI {
     @Path("/projects/{projectId}/notebooks")
     Page<NotebookDTO> getProjectNotebooks(@PathParam("projectId") UUID projectId, @QueryParam("search") @Nullable String search, @QueryParam("sort") @Nullable SortOrder sort,
                                           @QueryParam("createdByMe") @Nullable Boolean createdByMe, @BeanParam Paging paging);
+
+    @GET
+    @Path("/notebooks/existence")
+    NotebookExistenceCheckDTO checkNotebookNameExistence(
+            @QueryParam("name") @NotEmpty String name);
 
     @PATCH
     @Path("/notebooks/{notebookId}")
@@ -57,5 +62,5 @@ public interface NotebookAPI extends BaseAPI {
 
     @GET
     @Path("/notebooks/{notebookId}/revisions")
-    List<RevisionDetailsDTO<NotebookPatch>> getNotebookRevisions(@PathParam("notebookId") UUID notebookId);
+    List<RevisionDetailsDTO> getNotebookRevisions(@PathParam("notebookId") UUID notebookId);
 }

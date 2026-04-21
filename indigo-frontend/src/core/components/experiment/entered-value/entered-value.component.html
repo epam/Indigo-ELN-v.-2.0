@@ -1,8 +1,9 @@
-<div #parent class="x-parent flex gap-2">
+<div #parent class="field-wrapper">
   <!-- don't put under @if, it should exist for @ViewChild to work -->
   <input
     #editNumber
     type="number"
+    class="field-input"
     [ngClass]="{
       'w-full': !showUnits,
       'w-6/10': showUnits,
@@ -15,11 +16,7 @@
   />
   @if (showUnits) {
     <div class="w-4/10" [hidden]="!editing">
-      <mat-select
-        #editUnits
-        [value]="value?.unit"
-        (selectionChange)="stopEditing($event.value)"
-      >
+      <mat-select #editUnits class="field-select" [value]="value?.unit" (selectionChange)="stopEditing($event.value)">
         @for (unit of units; track unit.value) {
           <mat-option [value]="unit.value">{{ unit.displayName }}</mat-option>
         }
@@ -29,13 +26,10 @@
   @if (!editing) {
     <span
       #span
-      class="w-full text-center"
+      class="field-display"
       [ngClass]="{
         'cursor-pointer': !readOnly,
         'text-blue-500': !readOnly,
-        'bg-rose-400': value?.conflict,
-        'animate-[flash-green_1s_ease-in-out]': recalculated,
-        'animate-[flash-red_1s_ease-in-out]': value?.conflict,
       }"
       (click)="startEditing()"
     >

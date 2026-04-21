@@ -11,3 +11,8 @@ export interface EdBy {
   username: string;
   displayName: string;
 }
+
+export interface BackendError {
+  path?: string;
+  message: string;
+}

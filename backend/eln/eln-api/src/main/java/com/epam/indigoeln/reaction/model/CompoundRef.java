@@ -4,12 +4,12 @@ import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
 import com.fasterxml.jackson.annotation.*;
-import com.google.common.base.MoreObjects;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
 import org.jspecify.annotations.Nullable;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
@@ -19,7 +19,7 @@ import java.util.UUID;
         @JsonSubTypes.Type(value = CompoundRef.Unknown.class, name = CompoundRef.Unknown.TYPE)
 })
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virtual, CompoundRef.Unknown {
+public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, CompoundRef.Unknown {
 
     @Nullable
     UUID getCompoundID();
@@ -43,7 +43,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
     EnteredValue<MolWeightUnit> getMolWeight();
 
     @Nullable
-    Double getExactMass();
+    BigDecimal getExactMass();
 
     @Nullable
     String getCasNumber();
@@ -51,11 +51,30 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
     @Nullable
     String getCalculatedBatchMF();
 
+    default boolean compoundKeyEquals(CompoundRef other) {
+        // for stored and virtual compound, compound identity already checked when assigning compoundID; thus can only compare compoundID;
+        // unknown compound (with compoundID null) only equals to itself
+        return this == other || (getCompoundID() != null && getCompoundID().equals(other.getCompoundID()));
+    }
+
+    sealed interface StoredOrVirtual extends CompoundRef permits CompoundRef.Stored, CompoundRef.Virtual {
+
+        UUID getCompoundID();
+
+        EnteredValue<MolWeightUnit> getMolWeight();
+
+        BigDecimal getExactMass();
+
+        String getFormula();
+
+        String getCalculatedBatchMF();
+    }
+
     @Getter
     @ToString
     @RequiredArgsConstructor
     @EqualsAndHashCode(of = {"compoundID"})
-    final class Stored implements CompoundRef {
+    final class Stored implements CompoundRef.StoredOrVirtual {
 
         public static final String TYPE = "STORED";
 
@@ -72,10 +91,11 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         private Double saltEQ;
 
         @NotNull
+        @Positive
         private final EnteredValue<MolWeightUnit> molWeight;
 
         @NotNull
-        private final Double exactMass;
+        private final BigDecimal exactMass;
 
         @NotNull
         private final String formula;
@@ -94,7 +114,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
     @ToString
     @EqualsAndHashCode(of = {"compoundID"})
     @AllArgsConstructor(onConstructor_ = @JsonCreator)
-    final class Virtual implements CompoundRef {
+    final class Virtual implements CompoundRef.StoredOrVirtual {
 
         public static final String TYPE = "VIRTUAL";
 
@@ -121,7 +141,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         private EnteredValue<MolWeightUnit> molWeight;
 
         @NotNull
-        private Double exactMass;
+        private BigDecimal exactMass;
 
         @Nullable
         private final String casNumber;
@@ -182,7 +202,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         @Override
         @Nullable
         @JsonIgnore
-        public Double getExactMass() {
+        public BigDecimal getExactMass() {
             return null;
         }
 

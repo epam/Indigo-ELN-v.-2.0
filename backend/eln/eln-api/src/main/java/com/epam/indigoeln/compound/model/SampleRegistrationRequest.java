@@ -14,6 +14,7 @@ import lombok.Data;
 import lombok.With;
 import org.jspecify.annotations.Nullable;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -34,7 +35,7 @@ public class SampleRegistrationRequest {
     private EnteredValue<MolarityUnit> molarity;
 
     @Nullable
-    private Double purity;
+    private BigDecimal purity;
 
     @Nullable
     @Size(min = 1)

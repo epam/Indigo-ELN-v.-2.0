@@ -34,10 +34,7 @@ export function calculatePosition(
   const spaceBelow = window.innerHeight - containerRect.bottom;
   const spaceAbove = containerRect.top;
 
-  if (
-    spaceBelow < (config.minSpaceBelow || DEFAULT_CONFIG.minSpaceBelow!) &&
-    spaceAbove > spaceBelow
-  ) {
+  if (spaceBelow < (config.minSpaceBelow || DEFAULT_CONFIG.minSpaceBelow!) && spaceAbove > spaceBelow) {
     position.direction = 'up';
   }
 
@@ -45,10 +42,7 @@ export function calculatePosition(
   const viewportWidth = window.innerWidth;
   const rightEdge = containerRect.left + dropdownRect.width;
 
-  if (
-    rightEdge >
-    viewportWidth - (config.viewportMargin || DEFAULT_CONFIG.viewportMargin!)
-  ) {
+  if (rightEdge > viewportWidth - (config.viewportMargin || DEFAULT_CONFIG.viewportMargin!)) {
     position.alignment = 'right';
   }
 

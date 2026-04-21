@@ -1,6 +1,5 @@
 package com.epam.indigoeln.eln.service;
 
-import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.ProjectEntity;
@@ -11,13 +10,15 @@ import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.reaction.model.ProjectSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.mutation.ProjectMutation;
-import com.epam.indigoeln.reaction.model.patch.ProjectPatch;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerRegistry;
-import com.epam.indigoeln.reaction.service.mutation.ProjectMutationHandler;
+import com.epam.indigoeln.reaction.service.mutation.project.AbstractProjectMutationHandler;
+import com.epam.indigoeln.reaction.service.mutation.project.ProjectMutationContext;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Triple;
 import org.jspecify.annotations.Nullable;
 
 import java.util.EnumSet;
@@ -63,6 +64,11 @@ public class ProjectService {
         return projectMapper.entityToDetailsDTO(project, currentPermissions);
     }
 
+    public ProjectExistenceCheckDTO checkExistenceByName(String name) {
+        boolean exists = projectRepository.existsByName(name);
+        return new ProjectExistenceCheckDTO(exists);
+    }
+
     public ProjectDetailsDTO editProject(UUID projectId, ProjectEditRequest request) {
         ProjectEntity project = projectRepository.get(projectId);
         applyMutation(project, projectMapper.requestToMutation(request));
@@ -83,13 +89,13 @@ public class ProjectService {
         return projectRepository.findNestedAccess(projectId);
     }
 
-    public Pair<ProjectSnapshot, ProjectPatch> applyMutation(ProjectEntity project, ProjectMutation mutation) {
+    public Triple<ProjectSnapshot, JsonNode, ProjectMutationContext> applyMutation(ProjectEntity project, ProjectMutation mutation) {
         log.debug("Mutating project {}: {}", project.getId(), mutation);
-        ProjectMutationHandler<Mutation> handler = mutationHandlerRegistry.findHandler(mutation);
+        AbstractProjectMutationHandler<Mutation> handler = mutationHandlerRegistry.findHandler(mutation);
         return handler.applyMutation(project, mutation);
     }
 
-    public List<RevisionDetailsDTO<ProjectPatch>> getProjectRevisions(UUID projectId) {
+    public List<RevisionDetailsDTO> getProjectRevisions(UUID projectId) {
         ProjectEntity project = projectRepository.get(projectId);
         aclService.ensureAccess(project, ApplicationPermission.VIEW_PROJECTS);
         return projectMapper.revisionToDTOList(project.getRevisions());

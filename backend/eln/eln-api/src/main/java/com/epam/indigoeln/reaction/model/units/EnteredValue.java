@@ -2,7 +2,9 @@ package com.epam.indigoeln.reaction.model.units;
 
 import com.epam.indigoeln.reaction.util.MeasurementUtil;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Preconditions;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -10,87 +12,101 @@ import lombok.Setter;
 import org.apache.commons.math3.util.Precision;
 import org.jspecify.annotations.Nullable;
 
-import java.util.function.Consumer;
+import java.math.BigDecimal;
 
 import static com.epam.indigoeln.reaction.model.units.EnteredValueSource.DEFAULT;
-import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.formatToSignificantFigures;
+import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.roundToSignificantFigures;
 
 @Getter
 @EqualsAndHashCode
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class EnteredValue<U extends MeasurementUnit> {
 
-    public static final EnteredValue<NoUnit> DEFAULT_ONE = defaultValue(1.0, NoUnit.NO_UNIT);
-    public static final EnteredValue<MolUnit> ZERO_MOL = defaultValue(0.0, MolUnit.MOL);
+    public static final EnteredValue<NoUnit> DEFAULT_ONE = defaultValue(1.0, 1, NoUnit.NO_UNIT);
+    public static final EnteredValue<NoUnit> DEFAULT_ONE_HUNDRED = defaultValue(100.0, 1, NoUnit.NO_UNIT);
+    public static final EnteredValue<MolUnit> ZERO_MOL = defaultValue(0.0, 0, MolUnit.MOL);
+    public static final EnteredValue<NoUnit> ONE_HUNDREDTH = fixed(0.01, 1, NoUnit.NO_UNIT);
 
+    @JsonIgnore
     private final double value;
     private final U unit;
+    @JsonProperty("value")
+    private final String stringValue; // for now, always set; maybe postpone initialization for calculated values if gets recalculated too often
+    @Setter
     private EnteredValueSource source;
     @Setter
+    @Deprecated // !!! only to deserialize existing models; remove
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    private boolean conflict = false;
+    private boolean overwritten = false;
 
     @JsonCreator
-    public EnteredValue(double value, U unit, EnteredValueSource source) {
+    EnteredValue(String stringValue, U unit, EnteredValueSource source) {
+        this(Double.parseDouble(stringValue), stringValue, unit, source);
+    }
+
+    public EnteredValue(double value, String stringValue, U unit, EnteredValueSource source) {
         this.value = value;
+        this.stringValue = stringValue;
         this.unit = unit;
         this.source = source;
     }
 
     @Nullable
-    public static <U extends MeasurementUnit> EnteredValue<U> fixed(@Nullable Double value, U unit) {
-        return value != null ? new EnteredValue<>(value, unit, EnteredValueSource.FIXED) : null;
+    public static <U extends MeasurementUnit> EnteredValue<U> fixed(@Nullable Double value, int precision, U unit) {
+        return value != null ? new EnteredValue<>(roundToSignificantFigures(value, precision), formatToSignificantFigures(value, precision), unit, EnteredValueSource.FIXED) : null;
     }
 
     @Nullable
-    public static <U extends MeasurementUnit> EnteredValue<U> userEntered(@Nullable Double value, @Nullable U unit, int revision) {
-        return value != null && unit != null ? new EnteredValue<>(value, unit, EnteredValueSource.userEntered(revision)) : null;
+    public static <U extends MeasurementUnit> EnteredValue<U> fixed(@Nullable BigDecimal value, U unit) {
+        return value != null ? new EnteredValue<>(value.doubleValue(), value.toString(), unit, EnteredValueSource.FIXED) : null;
     }
 
-    public static <U extends MeasurementUnit> EnteredValue<U> userEntered(@Nullable Double value, U unit, double defaultValue, int revision) {
-        return new EnteredValue<>(firstNonNull(value, defaultValue), unit, EnteredValueSource.userEntered(revision));
-    }
-
-    public static <U extends MeasurementUnit> EnteredValue<U> userEntered(@Nullable Double value, @Nullable U unit, double defaultValue, U defaultUnit, int revision) {
-        return new EnteredValue<>(firstNonNull(value, defaultValue), firstNonNull(unit, defaultUnit), EnteredValueSource.userEntered(revision));
+    @Nullable
+    public static <U extends MeasurementUnit> EnteredValue<U> userEntered(@Nullable String stringValue, @Nullable U unit, int revision) {
+        return stringValue != null && unit != null ? new EnteredValue<>(Double.parseDouble(stringValue), stringValue, unit, EnteredValueSource.userEntered(revision)) : null;
     }
 
     @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> calculated(@Nullable Double value, U unit, EnteredValue<?> from1, EnteredValue<?> from2) {
-        return value != null ? new EnteredValue<>(value, unit, EnteredValueSource.calculated(from1.source, from2.source)) : null;
+        return value != null ? new EnteredValue<>(value, formatToSignificantFigures(value), unit, EnteredValueSource.calculated(from1.source, from2.source)) : null;
     }
 
     @Nullable
-    public static <U extends MeasurementUnit> EnteredValue<U> defaultValue(@Nullable Double value, @Nullable U unit) {
-        return value != null && unit != null ? new EnteredValue<>(value, unit, DEFAULT) : null;
+    public static <U extends MeasurementUnit> EnteredValue<U> defaultValue(@Nullable Double value, int precision, @Nullable U unit) {
+        return value != null && unit != null ? new EnteredValue<>(roundToSignificantFigures(value, precision), formatToSignificantFigures(value, precision), unit, DEFAULT) : null;
     }
 
-    public static <U extends MeasurementUnit> void prepareToRecalculate(EnteredValue<U> value, Consumer<EnteredValue<U>> setter, @Nullable EnteredValue<U> defaultValue) {
-        doPrepareToRecalculate(value, setter, defaultValue);
+    @Nullable
+    public static <U extends MeasurementUnit> EnteredValue<U> defaultValue(@Nullable BigDecimal value, @Nullable U unit) {
+        return value != null && unit != null ? new EnteredValue<>(value.doubleValue(), value.toString(), unit, DEFAULT) : null;
     }
 
-    private static <U extends MeasurementUnit> void doPrepareToRecalculate(@Nullable EnteredValue<U> value, Consumer<@Nullable EnteredValue<U>> setter, @Nullable EnteredValue<U> defaultValue) {
-        if (value != null) {
-            if (value.source.isCalculated()) {
-                setter.accept(defaultValue); // clear calculated values
-            }
-            value.conflict = false;
+    @Nullable
+    public static <R extends MeasurementUnit> EnteredValue<R> add(@Nullable EnteredValue<R> left, @Nullable EnteredValue<R> right) {
+        if (left == null || right == null) {
+            return null;
         }
-    }
-
-    public static <R extends MeasurementUnit> EnteredValue<R> add(EnteredValue<R> left, EnteredValue<R> right) {
         MeasurementUtil.UnitAndMultiplier2 pair = MeasurementUtil.addOrSubtract(left.unit, right.unit);
         //noinspection unchecked
         return (EnteredValue<R>) calculated(left.value * pair.multiplier1() + right.value * pair.multiplier2(), pair.unit(), left, right);
     }
 
-    public static <R extends MeasurementUnit> EnteredValue<R> subtract(EnteredValue<R> left, EnteredValue<R> right) {
+    @Nullable
+    public static <R extends MeasurementUnit> EnteredValue<R> subtract(@Nullable EnteredValue<R> left, @Nullable EnteredValue<R> right) {
+        if (left == null || right == null) {
+            return null;
+        }
         MeasurementUtil.UnitAndMultiplier2 pair = MeasurementUtil.addOrSubtract(left.unit, right.unit);
         //noinspection unchecked
         return (EnteredValue<R>) calculated(left.value * pair.multiplier1() - right.value * pair.multiplier2(), pair.unit(), left, right);
     }
 
-    public static <A extends MeasurementUnit, B extends MeasurementUnit, R extends MeasurementUnit> EnteredValue<R> multiply(EnteredValue<A> left, EnteredValue<B> right) {
+    @Nullable
+    public static <A extends MeasurementUnit, B extends MeasurementUnit, R extends MeasurementUnit> EnteredValue<R> multiply(@Nullable EnteredValue<A> left, @Nullable EnteredValue<B> right) {
+        if (left == null || right == null) {
+            return null;
+        }
         MeasurementUtil.UnitAndMultiplier pair = MeasurementUtil.multiply(left.unit, right.unit);
         //noinspection unchecked
         return (EnteredValue<R>) calculated(left.value * right.value * pair.multiplier(), pair.unit(), left, right);
@@ -100,7 +116,11 @@ public final class EnteredValue<U extends MeasurementUnit> {
         return calculated(self.value * by, self.unit, self, self);
     }
 
-    public static <R extends MeasurementUnit> EnteredValue<R> divide(EnteredValue<?> left, EnteredValue<?> right) {
+    @Nullable
+    public static <R extends MeasurementUnit> EnteredValue<R> divide(@Nullable EnteredValue<?> left, @Nullable EnteredValue<?> right) {
+        if (left == null || right == null) {
+            return null;
+        }
         MeasurementUtil.UnitAndMultiplier pair = MeasurementUtil.divide(left.unit, right.unit);
         //noinspection unchecked
         return (EnteredValue<R>) calculated(left.value / right.value * pair.multiplier(), pair.unit(), left, right);
@@ -122,12 +142,17 @@ public final class EnteredValue<U extends MeasurementUnit> {
         return (EnteredValue<T>) this;
     }
 
+    public BigDecimal toBigDecimal() {
+        return new BigDecimal(stringValue);
+    }
+
     @Override
     public String toString() {
-        String str = source + ": " + Precision.round(value, 6) + " " + unit;
-        if (conflict) {
-            str += " [CONFLICT]";
+        StringBuilder str = new StringBuilder();
+        str.append(source).append(": ").append(stringValue);
+        if (unit != NoUnit.NO_UNIT) {
+            str.append(' ').append(unit);
         }
-        return str;
+        return str.toString();
     }
 }

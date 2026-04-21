@@ -1,6 +1,6 @@
 package com.epam.indigoeln.signature.service;
 
-import com.epam.indigoeln.common.config.UserInfo;
+import com.epam.indigoeln.common.config.UserHolder;
 import com.epam.indigoeln.signature.entity.UserEntity;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.RequestScoped;
@@ -19,7 +19,7 @@ public class UserService {
     @Inject
     EntityManager em;
     @Inject
-    UserInfo userInfo;
+    UserHolder userInfo;
 
     // TODO cache for current request
     public UserEntity getCurrentUser() {

@@ -1,6 +1,7 @@
 package com.epam.indigoeln.reaction.model.mutation;
 
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
+import com.epam.indigoeln.reaction.model.OutputAnchor;
 import com.epam.indigoeln.reaction.model.OutputSampleAnchor;
 import com.epam.indigoeln.reaction.model.outputsample.*;
 import com.epam.indigoeln.reaction.model.units.*;
@@ -16,32 +17,28 @@ public interface ReactionOutputSampleMutation extends Mutation {
 
     record SetOutputDensity (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable Double density,
-            @Nullable DensityUnit unit,
-            @Nullable EnteredValueSource source
+            @Nullable String density,
+            @Nullable DensityUnit unit
     ) implements ReactionOutputSampleMutation {
     }
 
     record SetOutputMolarity (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable Double molarity,
-            @Nullable MolarityUnit unit,
-            @Nullable EnteredValueSource source
+            @Nullable String molarity,
+            @Nullable MolarityUnit unit
     ) implements ReactionOutputSampleMutation {
     }
 
     record SetOutputVolume (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable Double volume,
-            @Nullable VolumeUnit unit,
-            @Nullable EnteredValueSource source
+            @Nullable String volume,
+            @Nullable VolumeUnit unit
     ) implements ReactionOutputSampleMutation {
     }
 
     record SetOutputPurity (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable Double purity,
-            @Nullable EnteredValueSource source
+            @Nullable String purity
     ) implements ReactionOutputSampleMutation {
     }
 
@@ -53,17 +50,15 @@ public interface ReactionOutputSampleMutation extends Mutation {
 
     record SetOutputActualMol (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable Double actualMol,
-            @Nullable MolUnit unit,
-            @Nullable EnteredValueSource source
+            @Nullable String actualMol,
+            @Nullable MolUnit unit
     ) implements ReactionOutputSampleMutation {
     }
 
     record SetOutputActualWeight (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable Double actualWeight,
-            @Nullable WeightUnit unit,
-            @Nullable EnteredValueSource source
+            @Nullable String actualWeight,
+            @Nullable WeightUnit unit
     ) implements ReactionOutputSampleMutation {
     }
 
@@ -153,5 +148,52 @@ public interface ReactionOutputSampleMutation extends Mutation {
     record RemoveProductSample (
             @NotNull OutputSampleAnchor anchor
     ) implements ReactionOutputSampleMutation {
+    }
+
+    record SetOutputSaltCode (
+            @NotNull OutputSampleAnchor anchor,
+            @Nullable DictionaryItemRef saltCode,
+            @Nullable OutputAnchor createdOutputAnchor
+    ) implements ReactionOutputSampleMutation {
+        public SetOutputSaltCode(@NotNull OutputSampleAnchor anchor, @Nullable DictionaryItemRef saltCode) {
+            this(anchor, saltCode, null);
+        }
+    }
+
+    record SetOutputSaltEQ (
+            @NotNull OutputSampleAnchor anchor,
+            @Nullable Double saltEQ,
+            @Nullable OutputAnchor createdOutputAnchor
+    ) implements ReactionOutputSampleMutation {
+        public SetOutputSaltEQ(@NotNull OutputSampleAnchor anchor, @Nullable Double saltEQ) {
+            this(anchor, saltEQ, null);
+        }
+    }
+
+    record SetOutputStereoisomerCode (
+            @NotNull OutputSampleAnchor anchor,
+            @Nullable DictionaryItemRef stereoisomerCode,
+            @Nullable OutputAnchor createdOutputAnchor
+    ) implements ReactionOutputSampleMutation {
+        public SetOutputStereoisomerCode(@NotNull OutputSampleAnchor anchor, @Nullable DictionaryItemRef stereoisomerCode) {
+            this(anchor, stereoisomerCode, null);
+        }
+    }
+
+    record SetOutputMolfile (
+            @NotNull OutputSampleAnchor anchor,
+            @NotNull String molfile,
+            @Nullable OutputAnchor createdOutputAnchor
+    ) implements ReactionOutputSampleMutation {
+        public SetOutputMolfile(@NotNull OutputSampleAnchor anchor, @NotNull String molfile) {
+            this(anchor, molfile, null);
+        }
+
+        @Override
+        public String toString() {
+            return "SetOutputMolfile[" +
+                    "anchor=" + anchor +
+                    ']';
+        }
     }
 }

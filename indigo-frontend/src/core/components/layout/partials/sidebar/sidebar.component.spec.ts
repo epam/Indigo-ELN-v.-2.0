@@ -23,7 +23,7 @@ describe('SidebarComponent', () => {
   it('should initialize with default values', () => {
     expect(component.isSidebarOpen).toBe(true);
     expect(component.isHovered).toBe(false);
-    component.menu$.subscribe(menu => {
+    component.menu$.subscribe((menu) => {
       expect(menu.length).toBe(2);
     });
   });
@@ -41,7 +41,7 @@ describe('SidebarComponent', () => {
         path: '/dashboard',
       },
     ];
-    component.menu$.subscribe(menu => {
+    component.menu$.subscribe((menu) => {
       expect(menu).toEqual(expectedMenu);
     });
   });
@@ -66,7 +66,7 @@ describe('SidebarComponent', () => {
     it('should render correct number of menu items', (done) => {
       const menuItems = fixture.nativeElement.querySelectorAll('li');
       // Add 1 to account for the toggle button li
-      component.menu$.subscribe(menu => {
+      component.menu$.subscribe((menu) => {
         expect(menuItems.length).toBe(menu.length + 1);
         done();
       });

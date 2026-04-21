@@ -3,25 +3,27 @@ package com.epam.indigoeln.reaction.model;
 import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.reaction.util.StreamUtil;
 import com.fasterxml.jackson.annotation.*;
-import com.google.common.collect.Iterables;
 import com.google.common.primitives.Ints;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 @Data
 @ToString(exclude = "model")
-@EqualsAndHashCode(exclude = "model")
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class Reaction implements ExperimentNode {
+public final class Reaction extends AbstractExperimentNode<ExperimentModel> {
 
     @JsonBackReference
     private ExperimentModel model;
@@ -34,15 +36,12 @@ public final class Reaction implements ExperimentNode {
     private String rxnfile;
 
     @NotNull
-    private Integer rxnVersion = 0;
+    @JsonManagedReference
+    private List<@Valid ReactionInput> inputs = new ArrayList<>();
 
     @NotNull
     @JsonManagedReference
-    private List<@Valid ReactionInput> inputs = List.of();
-
-    @NotNull
-    @JsonManagedReference
-    private List<@Valid ReactionOutput> outputs = List.of();
+    private List<@Valid ReactionOutput> outputs = new ArrayList<>();
 
     public static Reaction create(ExperimentModel model, ReactionAnchor anchor) {
         Reaction reaction = new Reaction();
@@ -88,10 +87,6 @@ public final class Reaction implements ExperimentNode {
         return null;
     }
 
-    public Iterable<ReactionInput> inputsOfType(ReactionRole role) {
-        return Iterables.filter(inputs, input -> input.getRole() == role);
-    }
-
     public String generateNextProductName() {
         int maxUsedNumber = outputs.stream()
                 .map(row -> row.getOutputName().startsWith("P") ? Ints.tryParse(row.getOutputName().substring(1)) : null)
@@ -109,5 +104,20 @@ public final class Reaction implements ExperimentNode {
                 .flatMap(r -> r.getSamples().stream())
                 .map(ReactionSample::getStrCode)
                 .collect(StreamUtil.toListNotNull());
+    }
+
+    @Override
+    protected ExperimentModel internalGetParent() {
+        return model;
+    }
+
+    @Override
+    protected void internalSetParent(ExperimentModel parent) {
+        model = parent;
+    }
+
+    @Override
+    protected List<? extends AbstractExperimentNode<ExperimentModel>> internalGetSiblings(ExperimentModel parent) {
+        return parent.getReactions();
     }
 }

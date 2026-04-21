@@ -12,6 +12,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.LockModeType;
 
+import java.time.Duration;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
@@ -28,7 +30,7 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
     ACLService aclService;
 
     public ProjectRepository() {
-        super(EntityType.PROJECT);
+        super(EntityType.PROJECT, ProjectEntity.class);
     }
 
     public Page<ProjectDTO> findAll(@Nullable String search, @Nullable SortOrder sort, @Nullable UserEntity createdByUser, Paging paging, boolean showAll) {
@@ -39,8 +41,10 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
 
         Conditions conditions = new Conditions()
                 .addIf(!showAll, "calculatedInfo.currentAccess is not null")
-                .addIfNotNull("full_text_search(searchVector, websearch_to_tsquery('english', ?))", search)
                 .addIfNotNull("createdBy = ?", createdByUser);
+        if (search != null) {
+            conditions.add("(name ilike ?) or (full_text_search(searchVector, websearch_to_tsquery('english', ?)))", '%' + search + '%', search);
+        }
 
         return doFindWithTotals(
                 conditions,
@@ -66,6 +70,10 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
         return projectMapper.convertTotalCounts(entity);
     }
 
+    public boolean existsByName(String name) {
+        return count("name", name) > 0;
+    }
+
     public void lockProject(ProjectEntity project) {
         em.lock(project, LockModeType.PESSIMISTIC_WRITE);
     }
@@ -87,7 +95,7 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
                         "join fetch a.user " +
                         "where e.project.id = :projectId " +
                         "and a.level != :implicitView"
-               )
+                )
                 .setParameter("projectId", projectId)
                 .setParameter("implicitView", AccessLevel.IMPLICIT_VIEW)
                 .getResultStream();
@@ -111,5 +119,12 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
                 .setParameter("project", project)
                 .setParameter("revision", revision)
                 .getSingleResult();
+    }
+
+    public List<ProjectRevisionEntity> findRecentRevisions(ProjectEntity project, Duration period) {
+        return em.createQuery("from ProjectRevision where project=:project and datetime>=:since order by revision", ProjectRevisionEntity.class)
+                .setParameter("project", project)
+                .setParameter("since", ZonedDateTime.now().minusSeconds(period.toSeconds()))
+                .getResultList();
     }
 }

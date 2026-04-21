@@ -20,7 +20,7 @@ public class MutationHandlerRegistry {
     Instance<MutationHandler<?, ?, ?, ?, ?>> handlers;
     
     @SuppressWarnings("unchecked")
-    public <H extends MutationHandler<?, ?, ?, ?, ?>> H findHandler(Mutation mutation) {
+    public <H> H findHandler(Mutation mutation) {
         Instance<MutationHandler<?, ?, ?, ?, ?>> selected = handlers.select(new MutationHandlerForLiteral(mutation.getClass()));
         if (selected.isUnsatisfied()) {
             throw new IllegalArgumentException("No handler found for: " + mutation.getClass().getName());

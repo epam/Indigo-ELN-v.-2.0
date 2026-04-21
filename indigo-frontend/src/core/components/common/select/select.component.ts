@@ -2,14 +2,7 @@ import { dropdownAnimation } from '@/core/animations/control-animations';
 import { DropdownBaseComponent } from '@/core/components/common/dropdown/dropdown-base.component';
 import { ClassPickerPipe } from '@/core/pipes/classPicker.pipe';
 import { CommonModule } from '@angular/common';
-import {
-  AfterViewInit,
-  Component,
-  EventEmitter,
-  forwardRef,
-  Input,
-  Output,
-} from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, forwardRef, Input, Output } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { ChipComponent } from '../chip/chip.component';
 import { DropdownMenuItem } from '../dropdown-menu/dropdown-menu.i';
@@ -30,10 +23,7 @@ type SelectValue = string | string[] | null;
   ],
   animations: [dropdownAnimation],
 })
-export class SelectComponent
-  extends DropdownBaseComponent
-  implements ControlValueAccessor, AfterViewInit
-{
+export class SelectComponent extends DropdownBaseComponent implements ControlValueAccessor, AfterViewInit {
   @Input() items: DropdownMenuItem[] = [];
   @Input() placeholder = 'Select an option';
   @Input() label?: string;
@@ -46,6 +36,9 @@ export class SelectComponent
   @Output() selectionChange = new EventEmitter<SelectValue>();
 
   value: SelectValue = null;
+  dropdownWidth = 0;
+  dropdownTop = 0;
+  dropdownLeft = 0;
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   onChange: (value: SelectValue) => void = () => {};
   // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -71,6 +64,42 @@ export class SelectComponent
 
   ngAfterViewInit(): void {
     this.checkDropdownPosition();
+  }
+
+  override checkDropdownPosition(): void {
+    if (!this.dropdownContainer?.nativeElement) return;
+
+    const triggerElement = this.dropdownContainer.nativeElement.querySelector('.select-trigger');
+    if (!triggerElement) return;
+
+    const rect = triggerElement.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const dropdownMaxHeight = 240; // max-h-60 in px (15rem * 16px)
+    const spacing = 4; // mt-1/mb-1 spacing
+
+    // Calculate width
+    this.dropdownWidth = rect.width;
+
+    // Calculate horizontal position
+    this.dropdownLeft = rect.left;
+
+    // Calculate vertical position and direction
+    const spaceBelow = viewportHeight - rect.bottom;
+    const spaceAbove = rect.top;
+
+    if (spaceBelow >= dropdownMaxHeight + spacing) {
+      // Open downward
+      this.dropdownTop = rect.bottom + spacing;
+      this.dropdownDirection = 'down';
+    } else if (spaceAbove >= dropdownMaxHeight + spacing) {
+      // Open upward
+      this.dropdownTop = rect.top - dropdownMaxHeight - spacing;
+      this.dropdownDirection = 'up';
+    } else {
+      // Not enough space either way, prefer down
+      this.dropdownTop = rect.bottom + spacing;
+      this.dropdownDirection = 'down';
+    }
   }
 
   override toggleDropdown(event: MouseEvent): void {

@@ -1,0 +1,44 @@
+::ng-deep .expanded-row {
+  height: auto !important;
+}
+
+.expanded-row-content {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+button mat-icon {
+  transition: transform 0.2s ease-in-out;
+}
+
+button mat-icon.rotate-180 {
+  transform: rotate(180deg);
+}
+
+.value-state-fixed input {
+  color: purple;
+}
+
+.value-state-default input {
+  color: darkgray;
+  font-style: italic;
+}
+
+.value-state-set-manually input {
+  color: deepskyblue;
+  font-weight: bold;
+}
+
+.value-state-last-updated {
+  background: lawngreen;
+}

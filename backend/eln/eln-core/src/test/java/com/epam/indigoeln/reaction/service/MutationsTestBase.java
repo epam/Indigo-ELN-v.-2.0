@@ -5,10 +5,10 @@ import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import com.epam.indigoeln.reaction.util.CalculationReportBuilder;
 import com.epam.indigoeln.reaction.util.PatchTestUtil;
 import com.epam.indigoeln.test.FeignUtil;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.math.Stats;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
@@ -31,10 +31,14 @@ public abstract class MutationsTestBase extends ELNBaseTest {
     protected ReactionInputSample input1Sample1;
     protected ReactionInput input2;
     protected ReactionInputSample input2Sample1;
+    protected ReactionInput input3;
+    protected ReactionInput input4;
     protected ReactionOutput output1;
     protected ReactionOutputSample output1Sample1;
     protected ReactionOutput output2;
     protected ReactionOutputSample output2Sample1;
+    protected ReactionOutput output3;
+    protected ReactionOutputSample output3Sample1;
 
     protected CalculationReportBuilder reportBuilder;
     private byte @Nullable [] picture = null;
@@ -68,55 +72,78 @@ public abstract class MutationsTestBase extends ELNBaseTest {
         modelUpdated();
     }
 
-    @SuppressWarnings({"SizeReplaceableByIsEmpty", "DataFlowIssue", "SequencedCollectionMethodCanBeUsed"})
+    @SuppressWarnings("DataFlowIssue")
     protected void modelUpdated() {
         reaction = experiment.getModel().getReactions().getFirst();
-        input1 = reaction.getInputs().size() >= 1 ? reaction.getInputs().get(0) : null;
-        input1Sample1 = input1 != null && input1.getSamples().size() >= 1 ? input1.getSamples().get(0) : null;
-        input2 = reaction.getInputs().size() >= 2 ? reaction.getInputs().get(1) : null;
-        input2Sample1 = input2 != null && input2.getSamples().size() >= 1 ? input2.getSamples().get(0) : null;
-        output1 = reaction.getOutputs().size() >= 1 ? reaction.getOutputs().get(0) : null;
-        output1Sample1 = output1 != null && output1.getSamples().size() >= 1 ? output1.getSamples().get(0) : null;
-        output2 = reaction.getOutputs().size() >= 2 ? reaction.getOutputs().get(1) : null;
-        output2Sample1 = output2 != null && output2.getSamples().size() >= 1 ? output2.getSamples().get(0) : null;
+        input1 = safeGet(reaction.getInputs(), 0);
+        input1Sample1 = input1 != null ? safeGet(input1.getSamples(), 0) : null;
+        input2 = safeGet(reaction.getInputs(), 1);
+        input2Sample1 = input2 != null ? safeGet(input2.getSamples(), 0) : null;
+        input3 = safeGet(reaction.getInputs(), 2);
+        input4 = safeGet(reaction.getInputs(), 3);
+        output1 = safeGet(reaction.getOutputs(), 0);
+        output1Sample1 = output1 != null ? safeGet(output1.getSamples(), 0) : null;
+        output2 = safeGet(reaction.getOutputs(), 1);
+        output2Sample1 = output2 != null ? safeGet(output2.getSamples(), 0) : null;
+        output3 = safeGet(reaction.getOutputs(), 2);
+        output3Sample1 = output3 != null ? safeGet(output3.getSamples(), 0) : null;
     }
 
-    protected void applyMutation(Mutation mutation) {
-        applyMutation(mutation, true);
+    @Nullable
+    private <T> T safeGet(List<T> list, int index) {
+        return list.size() > index ? list.get(index) : null;
+    }
+
+    protected MutationResponse applyMutation(Mutation mutation) {
+        boolean undoOrRedo = mutation instanceof ExperimentMutation.Undo || mutation instanceof ExperimentMutation.Redo;
+        return applyMutation(mutation, !undoOrRedo);
+    }
+
+    protected MutationResponse applyMutation(Mutation mutation, boolean undoRedo) {
+        return applyMutation(mutation, "mutation", undoRedo);
     }
 
     @SneakyThrows
-    protected void applyMutation(Mutation mutation, boolean undoRedo) {
+    protected MutationResponse applyMutation(Mutation mutation, String reportClass, boolean undoRedo) {
         System.out.println("Applying mutation: " + mutation);
-        reportBuilder.addMutation(mutation);
+        reportBuilder.addMutation(reportClass, mutation);
 
         ExperimentSnapshot initialSnapshot = experimentClient.getExperimentSnapshot(experiment.getId());
-        ExperimentPatch patch = experimentClient.mutateExperimentModel2(experiment.getId(), experiment.getRevision(), mutation);
+        MutationResponse response = experimentClient.mutateExperimentModel4(experiment.getId(), experiment.getRevision(), mutation);
+        JsonNode patch = response.getPatch();
         ExperimentDetailsDTO updatedExperiment = experimentClient.getExperiment(experiment.getId());
 
+        // !!! take picture from response
         // reload picture
         Response pictureResponse = experimentClient.getExperimentPictureClient(experiment.getId());
         byte[] newPicture = (byte[]) pictureResponse.getEntity();
         if (picture == null || newPicture != null && !Arrays.equals(picture, newPicture)) {
             picture = newPicture;
-            reportBuilder.addPicture(picture, pictureResponse.getHeaderString(HttpHeaders.CONTENT_TYPE));
+            reportBuilder.addPicture(reportClass, picture, pictureResponse.getHeaderString(HttpHeaders.CONTENT_TYPE));
         }
         ExperimentSnapshot updatedSnapshot = experimentClient.getExperimentSnapshot(experiment.getId());
-        reportBuilder.addModel(FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(patch), updatedSnapshot);
+
+        if (response.getMessages() != null) {
+            for (String message : response.getMessages()) {
+                reportBuilder.addMessage("", "Message: " + message);
+            }
+        }
+        reportBuilder.addModel(reportClass, FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(patch), updatedSnapshot);
 
         // verify if patch is correct
         PatchTestUtil.verifyModelPatch(experiment, patch, updatedExperiment, reportBuilder);
-        experiment = updatedExperiment;
+        // verify patch reverse is correct
+        PatchTestUtil.verifyReversePatch(experiment, patch, updatedExperiment, reportBuilder);
 
-        Integer initialRevision = experiment.getRevision();
+        experiment = updatedExperiment;
         if (undoRedo) {
             // verify if model after undo is the same as before initial mutation
-            applyMutation(new ExperimentMutation.Undo(initialRevision), false);
+            applyMutation(new ExperimentMutation.Undo(), "undo", false);
             ExperimentSnapshot snapshotAfterUndo = experimentClient.getExperimentSnapshot(experiment.getId());
             PatchTestUtil.verifyModel(snapshotAfterUndo, initialSnapshot, reportBuilder, () -> "Model after undo (right) not equals to model before initial operation (left)");
 
             // verify if undo+redo works and produces the same snapshot as initial mutation
-            applyMutation(new ExperimentMutation.Redo(initialRevision), false);
+            applyMutation(new ExperimentMutation.Redo(), "redo", false);
             experiment = experimentClient.getExperiment(experiment.getId());
             ExperimentSnapshot snapshotAfterRedo = experimentClient.getExperimentSnapshot(experiment.getId());
 
@@ -127,5 +154,7 @@ public abstract class MutationsTestBase extends ELNBaseTest {
 
         modelSizes.add(FeignUtil.OBJECT_MAPPER.writeValueAsBytes(updatedExperiment).length);
         patchSizes.add(FeignUtil.OBJECT_MAPPER.writeValueAsBytes(patch).length);
+
+        return response;
     }
 }

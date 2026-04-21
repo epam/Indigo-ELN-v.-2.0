@@ -8,9 +8,9 @@ import com.epam.indigoeln.eln.api.UploadForm;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.NotebookService;
-import com.epam.indigoeln.reaction.model.patch.NotebookPatch;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
@@ -45,6 +45,12 @@ public class NotebookResource implements NotebookAPI {
     }
 
     @Override
+    public @NotNull @Valid NotebookExistenceCheckDTO checkNotebookNameExistence(
+            @NotEmpty String name) {
+        return notebookService.checkExistenceByName(name);
+    }
+
+    @Override
     public @NotNull @Valid NotebookDetailsDTO editNotebook(@NotNull UUID notebookId, @NotNull @Valid NotebookEditRequest request) {
         return notebookService.editNotebook(notebookId, request);
     }
@@ -75,7 +81,7 @@ public class NotebookResource implements NotebookAPI {
     }
 
     @Override
-    public List<RevisionDetailsDTO<NotebookPatch>> getNotebookRevisions(UUID notebookId) {
+    public List<RevisionDetailsDTO> getNotebookRevisions(UUID notebookId) {
         return notebookService.getNotebookRevisions(notebookId);
     }
 }

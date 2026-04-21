@@ -71,9 +71,9 @@ class GlobalSearchServiceTest extends ELNBaseTest {
             OutputAnchor output = experimentModel.getReactions().getFirst().getOutputs().getFirst().getAnchor();
             experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionOutputMutation.AddProductSample(output)));
             OutputSampleAnchor outputSample = experimentModel.getReactions().getFirst().getOutputs().getFirst().getSamples().getFirst().getAnchor();
-            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionOutputSampleMutation.SetOutputPurity(outputSample, 0.3, null)));
-            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionInputSampleMutation.SetInputWeight(inputSample, 10.0, WeightUnit.G, null)));
-            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionOutputSampleMutation.SetOutputActualWeight(outputSample, 5.0, WeightUnit.G, null)));
+            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionOutputSampleMutation.SetOutputPurity(outputSample, "30")));
+            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionInputSampleMutation.SetInputWeight(inputSample, "10.0", WeightUnit.G)));
+            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionOutputSampleMutation.SetOutputActualWeight(outputSample, "5.0", WeightUnit.G)));
             System.out.println(experimentModel);
         });
         withUser(BART_USERNAME, () -> {
@@ -205,7 +205,7 @@ class GlobalSearchServiceTest extends ELNBaseTest {
     @Test
     void testBatchPurity() {
         Page<GlobalSearchResultDTO> results = globalSearchClient.search(
-                new GlobalSearchRequest().withBatchPurity(new NumericSearch.GreaterThanOrEqual(0.1)),
+                new GlobalSearchRequest().withBatchPurity(new NumericSearch.GreaterThanOrEqual(10.0)),
                 Paging.DEFAULT
         );
         assertResults(results, tuple(EntityType.EXPERIMENT, experiment2.getName(), experiment2.getId()));
@@ -243,7 +243,7 @@ class GlobalSearchServiceTest extends ELNBaseTest {
                 .withExperimentStatus(Set.of(ExperimentStatus.OPEN))
                 .withAuthor(Set.of(getMaggieUserRef()))
                 .withBatchYield(new NumericSearch.GreaterThanOrEqual(0.1))
-                .withBatchPurity(new NumericSearch.GreaterThanOrEqual(0.1))
+                .withBatchPurity(new NumericSearch.GreaterThanOrEqual(10.0))
                 .withMoleculeStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, molFile))
                 , Paging.DEFAULT);
         assertResults(results, tuple(EntityType.EXPERIMENT, experiment2.getName(), experiment2.getId()));

@@ -1,7 +1,6 @@
 package com.epam.indigoeln.eln.controller;
 
 
-import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.api.BaseAPI;
 import com.epam.indigoeln.eln.api.UserAPI;
 import com.epam.indigoeln.eln.model.*;
@@ -44,11 +43,6 @@ public class UserResource implements UserAPI {
     @Override
     public byte[] getUserPicture(UUID userId, @Nullable Boolean large) {
         return userService.getUserPicture(userId, large);
-    }
-
-    @Override
-    public @NotNull @Valid List<ACLEntryDTO> updateUserAccess(UUID userId, List<AccessForm> form) {
-        return List.of();
     }
 
     @Override

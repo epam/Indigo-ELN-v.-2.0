@@ -11,16 +11,9 @@ import { ExperimentDetail } from '@/core/types/entities/experiments/experiment-d
 @Component({
   selector: 'eln-experiment-card',
   standalone: true,
-  imports: [
-    CommonModule,
-    CardComponent,
-    MatButtonModule,
-    MatIconModule,
-    MatMenuModule,
-    AvatarComponent
-  ],
+  imports: [CommonModule, CardComponent, MatButtonModule, MatIconModule, MatMenuModule, AvatarComponent],
   templateUrl: './experiment-card.component.html',
-  styleUrls: ['./experiment-card.component.scss']
+  styleUrls: ['./experiment-card.component.scss'],
 })
 export class ExperimentCardComponent {
   mock_users = [
@@ -51,9 +44,9 @@ export class ExperimentCardComponent {
   getStatusClass(status: ExperimentStatus): string {
     const statusMap: { [key: string]: string } = {
       [ExperimentStatus.OPEN]: 'status-open',
-      [ExperimentStatus.WAITING_FOR_SIGNATURE]: 'status-waiting-for-signature',
+      [ExperimentStatus.SUBMITTED]: 'status-waiting-for-signature',
       [ExperimentStatus.COMPLETED]: 'status-completed',
-      [ExperimentStatus.REJECTED]: 'status-rejected'
+      [ExperimentStatus.REJECTED]: 'status-rejected',
     };
     return statusMap[status];
   }
@@ -61,11 +54,10 @@ export class ExperimentCardComponent {
   displayExperimentStatus(status: ExperimentStatus): string {
     const statusMap: { [key: string]: string } = {
       [ExperimentStatus.OPEN]: 'Open',
-      [ExperimentStatus.WAITING_FOR_SIGNATURE]: 'Waiting Signature',
+      [ExperimentStatus.SUBMITTED]: 'Waiting Signature',
       [ExperimentStatus.COMPLETED]: 'Completed',
-      [ExperimentStatus.REJECTED]: 'Rejected'
+      [ExperimentStatus.REJECTED]: 'Rejected',
     };
     return statusMap[status];
   }
-
 }

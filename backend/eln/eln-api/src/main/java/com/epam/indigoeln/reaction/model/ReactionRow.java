@@ -2,16 +2,20 @@ package com.epam.indigoeln.reaction.model;
 
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
+import com.epam.indigoeln.reaction.util.ExperimentModelUtil2;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.jspecify.annotations.Nullable;
 
 @Getter
 @Setter
-@EqualsAndHashCode(exclude = "reaction")
-public sealed abstract class ReactionRow implements ExperimentNode permits ReactionInput, ReactionOutput {
+@EqualsAndHashCode(exclude = "reaction", callSuper = false)
+public sealed abstract class ReactionRow extends AbstractExperimentNode<Reaction> permits ReactionInput, ReactionOutput {
 
     @JsonBackReference
     protected Reaction reaction;
@@ -20,5 +24,25 @@ public sealed abstract class ReactionRow implements ExperimentNode permits React
     protected CompoundRef compound;
 
     @NotNull
-    protected EnteredValue<NoUnit> eq;
+    protected EnteredValue<NoUnit> eq; // = 1
+
+    @Nullable
+    protected Integer rxnPosition;
+
+    @Override
+    protected Reaction internalGetParent() {
+        return reaction;
+    }
+
+    @Override
+    protected void internalSetParent(Reaction parent) {
+        reaction = parent;
+    }
+
+    @JsonIgnore
+    @AssertTrue(message = "invalid rxnPosition")
+    protected boolean isRxnPositionValid() {
+        boolean rxnPositionExpected = ExperimentModelUtil2.getRoleInSchema(this) != null;
+        return (rxnPosition != null) == rxnPositionExpected;
+    }
 }

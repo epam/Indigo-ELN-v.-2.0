@@ -1,6 +1,5 @@
 package com.epam.indigoeln.eln.service;
 
-import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.NotebookEntity;
@@ -13,14 +12,16 @@ import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.reaction.model.NotebookSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.mutation.NotebookMutation;
-import com.epam.indigoeln.reaction.model.patch.NotebookPatch;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerRegistry;
-import com.epam.indigoeln.reaction.service.mutation.NotebookMutationHandler;
+import com.epam.indigoeln.reaction.service.mutation.notebook.AbstractNotebookMutationHandler;
+import com.epam.indigoeln.reaction.service.mutation.notebook.NotebookMutationContext;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.QueryParam;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Triple;
 import org.jspecify.annotations.Nullable;
 
 import java.util.EnumSet;
@@ -65,6 +66,11 @@ public class NotebookService {
         return notebookRepository.findAll(projectId, search, sort, currentUser, paging, showAll);
     }
 
+    public NotebookExistenceCheckDTO checkExistenceByName(String name) {
+        boolean exists = notebookRepository.existsByName(name);
+        return new NotebookExistenceCheckDTO(exists);
+    }
+
     public NotebookDetailsDTO getNotebook(UUID notebookId) {
         NotebookEntity notebook = notebookRepository.loadDetails(notebookId);
         Set<ApplicationPermission> currentPermissions = aclService.getCurrentPermissions(notebook.getCalculatedInfo() != null ? notebook.getCalculatedInfo().getCurrentAccess() : null);
@@ -89,13 +95,13 @@ public class NotebookService {
         return notebookRepository.findNestedAccess(projectId);
     }
 
-    public Pair<NotebookSnapshot, NotebookPatch> applyMutation(NotebookEntity notebook, NotebookMutation mutation) {
+    public Triple<NotebookSnapshot, JsonNode, NotebookMutationContext> applyMutation(NotebookEntity notebook, NotebookMutation mutation) {
         log.debug("Mutating notebook {}: {}", notebook.getId(), mutation);
-        NotebookMutationHandler<Mutation> handler = mutationHandlerRegistry.findHandler(mutation);
+        AbstractNotebookMutationHandler<Mutation> handler = mutationHandlerRegistry.findHandler(mutation);
         return handler.applyMutation(notebook, mutation);
     }
 
-    public List<RevisionDetailsDTO<NotebookPatch>> getNotebookRevisions(UUID notebookId) {
+    public List<RevisionDetailsDTO> getNotebookRevisions(UUID notebookId) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
         aclService.ensureAccess(notebook, ApplicationPermission.VIEW_NOTEBOOKS);
         return notebookMapper.revisionToDTOList(notebook.getRevisions());

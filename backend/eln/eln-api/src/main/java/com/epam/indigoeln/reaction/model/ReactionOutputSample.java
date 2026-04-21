@@ -7,8 +7,8 @@ import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -21,13 +21,9 @@ import java.util.UUID;
 @Getter
 @Setter
 @ToString(exclude = "row")
-@EqualsAndHashCode(callSuper = true, exclude = "row")
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class ReactionOutputSample extends ReactionSample implements ExperimentNode {
-
-    @JsonBackReference
-    private ReactionOutput row;
+public final class ReactionOutputSample extends ReactionSample<ReactionOutput> {
 
     @NotNull
     private OutputSampleAnchor anchor;
@@ -100,11 +96,23 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
     @Nullable
     private String structureComment;
 
+    @NotNull
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    public String getShortNbkBatchNumber() {
+        return nbkBatchNumber.getShortForm();
+    }
+
     public static ReactionOutputSample create(ReactionOutput row, String experimentName, OutputSampleAnchor anchor) {
         ReactionOutputSample sample = new ReactionOutputSample();
         sample.row = row;
         sample.anchor = anchor;
         sample.nbkBatchNumber = new NbkBatchNumber(experimentName, row.getReaction().getModel().generateNextNbkBatchNumber());
+        row.getSamples().add(sample);
         return sample;
+    }
+
+    @Override
+    protected List<? extends AbstractExperimentNode<ReactionOutput>> internalGetSiblings(ReactionOutput parent) {
+        return parent.getSamples();
     }
 }

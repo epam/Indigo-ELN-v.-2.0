@@ -1,7 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { ApiService } from '@/core/services/api.service';
-import { BehaviorSubject, filter, map, of, switchMap } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { BehaviorSubject, filter, map, switchMap } from 'rxjs';
 import { LoadingState } from '@core/types/entities/loading-state.i';
 import { Template } from '@core/types/entities/template.i';
 import { ExperimentModel } from '@core/types/entities/experiments/experiment.i';
@@ -63,21 +62,19 @@ export class ExperimentService {
             .request<ExperimentModel>('get', `experiments/${id}/datamodel`)
             .pipe(map((model) => ({ experiment, template, model }))),
         ),
-        catchError((err) => {
-          console.error('Failed to load experiment:', err);
-          this.experimentSubject.next({ state: 'error' });
-          this.template.next({ state: 'error' });
-          this.model.next({ state: 'error' });
-          return of(null);
-        }),
       )
-      .subscribe((data) => {
-        if (data != null) {
+      .subscribe({
+        next: (data) => {
           const { experiment, template, model } = data;
           this.experimentSubject.next({ state: 'ready', value: experiment });
           this.template.next({ state: 'ready', value: template });
           this.model.next({ state: 'ready', value: model });
-        }
+        },
+        error: () => {
+          this.experimentSubject.next({ state: 'error' });
+          this.template.next({ state: 'error' });
+          this.model.next({ state: 'error' });
+        },
       });
   }
 
@@ -87,48 +84,27 @@ export class ExperimentService {
       .request<Blob>('get', `experiments/${experimentId}/picture`, {
         responseType: 'blob',
       })
-      .pipe(
-        catchError((err) => {
-          console.error('Failed to load experiment picture:', err);
-          this.picture.next({ state: 'error' });
-          return of(null);
-        }),
-      )
-      .subscribe((data) => {
-        if (data != null) {
-          this.picture.next({ state: 'ready', value: data });
-        }
+      .subscribe({
+        next: (data) => this.picture.next({ state: 'ready', value: data }),
+        error: () => this.picture.next({ state: 'error' }),
       });
   }
 
   mutateModel(mutation: Mutation) {
-    if (
-      this.experimentSubject.value.state !== 'ready' ||
-      this.model.value.state !== 'ready'
-    ) {
+    if (this.experimentSubject.value.state !== 'ready' || this.model.value.state !== 'ready') {
       console.warn('Experiment not loaded');
       return;
     }
     console.log('Mutating model', mutation);
     this.mutating.next(true);
     this.service
-      .request<ExperimentModel>(
-        'post',
-        `experiments/${this.experimentSubject.value.value.id}/datamodel`,
-        { model: this.model.value.value, mutation },
-      )
-      .pipe(
-        catchError((err) => {
-          console.error('Failed to mutate experiment model:', err);
-          alert('Failed to mutate experiment model: ' + err);
-          return of(null);
-        }),
-      )
+      .request<ExperimentModel>('post', `experiments/${this.experimentSubject.value.value.id}/datamodel`, {
+        model: this.model.value.value,
+        mutation,
+      })
       .subscribe((newModel) => {
         this.mutating.next(false);
-        if (newModel != null) {
-          this.model.next({ state: 'ready', value: newModel });
-        }
+        this.model.next({ state: 'ready', value: newModel });
       });
   }
 }

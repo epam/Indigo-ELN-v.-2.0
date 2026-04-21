@@ -1,0 +1,159 @@
+{
+  "realm": "indigo-eln",
+  "enabled": true,
+  "users" : [ {
+    "username" : "testuser1",
+    "firstName" : "Test",
+    "lastName" : "User1",
+    "email" : "testuser1@example.com",
+    "emailVerified" : false,
+    "createdTimestamp" : 1770723906766,
+    "enabled" : true,
+    "totp" : false,
+    "credentials" : [ {
+      "type" : "password",
+      "value" : "testuser1",
+      "temporary" : false
+    } ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-indigo-eln" ],
+    "notBefore" : 0,
+    "groups" : [ ]
+  },
+  {
+    "username" : "testuser2",
+    "firstName" : "Test",
+    "lastName" : "User2",
+    "email" : "testuser2@example.com",
+    "emailVerified" : false,
+    "createdTimestamp" : 1770723906766,
+    "enabled" : true,
+    "totp" : false,
+    "credentials" : [ {
+      "type" : "password",
+      "value" : "testuser2",
+      "temporary" : false
+    } ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-indigo-eln" ],
+    "notBefore" : 0,
+    "groups" : [ ]
+  }],
+  "notBefore": 0,
+  "clients": [ 
+    {
+      "clientId": "frontend-client",
+      "name": "frontend-client",
+      "description": "",
+      "rootUrl": "http://localhost:8080",
+      "adminUrl": "http://localhost:8080",
+      "baseUrl": "",
+      "surrogateAuthRequired": false,
+      "enabled": true,
+      "alwaysDisplayInConsole": false,
+      "clientAuthenticatorType": "client-secret",
+      "redirectUris": [
+        "http://localhost/*",
+        "http://localhost:8080/*"
+      ],
+      "webOrigins": [
+        "http://localhost",
+        "http://localhost:8080"
+      ],
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "publicClient": true,
+      "frontchannelLogout": true,
+      "protocol": "openid-connect",
+      "attributes": {
+        "realm_client": "false",
+        "oidc.ciba.grant.enabled": "false",
+        "backchannel.logout.session.required": "true",
+        "frontchannel.logout.session.required": "true",
+        "display.on.consent.screen": "false",
+        "oauth2.device.authorization.grant.enabled": "false",
+        "backchannel.logout.revoke.offline.tokens": "false"
+      },
+      "authenticationFlowBindingOverrides": {},
+      "fullScopeAllowed": true,
+      "nodeReRegistrationTimeout": -1,
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "roles",
+        "profile",
+        "basic",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "organization",
+        "offline_access",
+        "microprofile-jwt"
+      ]
+    },    
+    {
+      "clientId": "indigo-eln-client",
+      "name": "indigo-eln-client",
+      "description": "",
+      "rootUrl": "http://localhost:10020",
+      "adminUrl": "http://localhost:10020",
+      "baseUrl": "",
+      "surrogateAuthRequired": false,
+      "enabled": true,
+      "alwaysDisplayInConsole": false,
+      "clientAuthenticatorType": "client-secret",
+      "redirectUris": [
+        "http://localhost:10020/*"
+      ],
+      "webOrigins": [
+        "http://localhost:10020"
+      ],
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "publicClient": true,
+      "frontchannelLogout": true,
+      "protocol": "openid-connect",
+      "attributes": {
+        "realm_client": "false",
+        "oidc.ciba.grant.enabled": "false",
+        "backchannel.logout.session.required": "true",
+        "frontchannel.logout.session.required": "true",
+        "display.on.consent.screen": "false",
+        "oauth2.device.authorization.grant.enabled": "false",
+        "backchannel.logout.revoke.offline.tokens": "false"
+      },
+      "authenticationFlowBindingOverrides": {},
+      "fullScopeAllowed": true,
+      "nodeReRegistrationTimeout": -1,
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "roles",
+        "profile",
+        "basic",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "organization",
+        "offline_access",
+        "microprofile-jwt"
+      ]
+    }      
+  ]
+}

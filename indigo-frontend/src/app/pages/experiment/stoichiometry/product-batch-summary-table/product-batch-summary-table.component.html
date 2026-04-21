@@ -1,9 +1,15 @@
+<div class="flex justify-between py-1">
+  <h3 class="text-sm font-semibold p-3">Product Batch Summary</h3>
+  <div class="flex justify-between items-center gap-3">
+    <eln-button (click)="addNewRow()" variant="grey">
+      <mat-icon class="text-md">add</mat-icon>
+    </eln-button>
+  </div>
+</div>
 <eln-editable-data-table
-  title="Product Batch Summary"
   [dataSource]="dataSource()"
   [columns]="columns()"
   [displayedColumns]="displayedColumns()"
+  [expandableConfig]="expandableConfig()"
   emptyMessage="No batches added"
-  [showAddButton]="true"
-  (addRow)="addNewRow()"
 />

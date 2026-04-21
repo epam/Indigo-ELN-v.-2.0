@@ -12,7 +12,7 @@ import { NotificationService } from '@core/services/notification/notification.se
   template: `
     <mat-icon [svgIcon]="params.type" class="icon type-icon" />
 
-    <span>{{ params.message }}</span>
+    <span class="message" style="flex: 1;">{{ params.message }}</span>
 
     <button class="close-button" (click)="onClose()">
       <mat-icon svgIcon="close" class="icon" />
@@ -38,10 +38,7 @@ export class NotificationComponent {
     this.#notificationService.dismiss();
   }
 
-   #registerIcon(name: string): void {
-    this.#iconRegistry.addSvgIcon(
-      name,
-      this.#sanitizer.bypassSecurityTrustResourceUrl(`assets/${name}.svg`)
-    );
+  #registerIcon(name: string): void {
+    this.#iconRegistry.addSvgIcon(name, this.#sanitizer.bypassSecurityTrustResourceUrl(`assets/${name}.svg`));
   }
 }

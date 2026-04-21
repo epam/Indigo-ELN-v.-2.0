@@ -6,7 +6,7 @@ public class InvalidRequestException extends RuntimeException {
         super(message);
     }
 
-    public static void fail(String message) {
+    public static InvalidRequestException fail(String message) {
         throw new InvalidRequestException(message);
     }
 

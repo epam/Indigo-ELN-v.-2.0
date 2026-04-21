@@ -8,22 +8,11 @@ import { Editor, NgxEditorModule, Toolbar } from 'ngx-editor';
 @Component({
   selector: 'eln-formly-editor',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    FormlyModule,
-    NgxEditorModule,
-    FormsModule,
-    ClassPickerPipe,
-  ],
+  imports: [CommonModule, ReactiveFormsModule, FormlyModule, NgxEditorModule, FormsModule, ClassPickerPipe],
   template: `
     <div class="flex flex-col gap-2 w-full">
-      <div
-        class="NgxEditor__Wrapper border rounded-sm"
-        [class]="{ 'border-red-200!': showError } | classPicker"
-      >
-        <ngx-editor-menu [editor]="editor" [toolbar]="toolbar">
-        </ngx-editor-menu>
+      <div class="NgxEditor__Wrapper border rounded-sm" [class]="{ 'border-red-200!': showError } | classPicker">
+        <ngx-editor-menu [editor]="editor" [toolbar]="toolbar"> </ngx-editor-menu>
         <ngx-editor
           [editor]="editor"
           [formControl]="formControl"
@@ -36,10 +25,7 @@ import { Editor, NgxEditorModule, Toolbar } from 'ngx-editor';
   `,
   styleUrls: ['./editor-field.component.scss'],
 })
-export class EditorFormlyFieldComponent
-  extends FieldType<FieldTypeConfig>
-  implements OnInit, OnDestroy
-{
+export class EditorFormlyFieldComponent extends FieldType<FieldTypeConfig> implements OnInit, OnDestroy {
   editor: Editor;
 
   toolbar: Toolbar = [['bold', 'italic', 'underline']];

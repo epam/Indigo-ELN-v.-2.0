@@ -4,10 +4,7 @@ import { RoleGuard } from './role.guard';
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () =>
-      import('@core/components/layout/master.component').then(
-        (c) => c.MasterComponent,
-      ),
+    loadComponent: () => import('@core/components/layout/master.component').then((c) => c.MasterComponent),
     canActivate: [],
     children: [
       {
@@ -18,37 +15,27 @@ export const routes: Routes = [
       {
         path: 'projects',
         loadComponent: () =>
-          import('@pages/project/project-layout/project-layout.component').then(
-            (c) => c.ProjectLayoutComponent,
-          ),
+          import('@pages/project/project-layout/project-layout.component').then((c) => c.ProjectLayoutComponent),
         children: [
           {
             path: '',
             loadComponent: () =>
-              import('@pages/project/project-list/project-list.component').then(
-                (c) => c.ProjectListComponent,
-              ),
+              import('@pages/project/project-list/project-list.component').then((c) => c.ProjectListComponent),
           },
           {
             path: ':id',
             loadComponent: () =>
-              import(
-                '@pages/project/project-detail/project-detail.component'
-              ).then((c) => c.ProjectDetailComponent),
+              import('@pages/project/project-detail/project-detail.component').then((c) => c.ProjectDetailComponent),
             children: [
               {
                 path: '',
                 loadComponent: () =>
-                  import(
-                    '@pages/project/project-info/project-info.component'
-                  ).then((c) => c.ProjectInfoComponent),
+                  import('@pages/project/project-info/project-info.component').then((c) => c.ProjectInfoComponent),
               },
               {
                 path: 'notebooks',
                 loadComponent: () =>
-                  import(
-                    '@pages/notebook/notebook-list/notebook-list.component'
-                  ).then((c) => c.NotebookListComponent),
+                  import('@pages/notebook/notebook-list/notebook-list.component').then((c) => c.NotebookListComponent),
               },
             ],
           },
@@ -57,41 +44,39 @@ export const routes: Routes = [
       {
         path: 'projects/:projectId/notebooks/:notebookId',
         loadComponent: () =>
-          import(
-            '@/app/pages/notebook/notebook-detail/notebook-detail.component'
-          ).then((c) => c.NotebookDetailComponent),
+          import('@/app/pages/notebook/notebook-detail/notebook-detail.component').then(
+            (c) => c.NotebookDetailComponent,
+          ),
         children: [
           {
             path: '',
             loadComponent: () =>
-              import(
-                '@/app/pages/notebook/notebook-info/notebook-info.component'
-              ).then((c) => c.NotebookInfoComponent),
+              import('@/app/pages/notebook/notebook-info/notebook-info.component').then((c) => c.NotebookInfoComponent),
           },
           {
             path: 'experiments',
             loadComponent: () =>
-              import(
-                '@pages/notebook/notebook-experiments-tab/notebook-experiments-tab.component'
-              ).then((c) => c.NotebookExperimentsTabComponent),
+              import('@pages/notebook/notebook-experiments-tab/notebook-experiments-tab.component').then(
+                (c) => c.NotebookExperimentsTabComponent,
+              ),
           },
         ],
       },
       {
         path: 'dictionary',
         loadComponent: () =>
-          import(
-            '@/app/pages/dictionary/dictionary-layout/dictionary-layout.component'
-          ).then((c) => c.DictionaryLayoutComponent),
+          import('@/app/pages/dictionary/dictionary-layout/dictionary-layout.component').then(
+            (c) => c.DictionaryLayoutComponent,
+          ),
         canActivate: [RoleGuard],
         data: { requiredPermission: 'MANAGE_DICTIONARIES' },
       },
       {
         path: 'projects/:projectId/notebooks/:notebookId/experiments/:experimentId',
         loadComponent: () =>
-          import(
-            '@/app/pages/experiment/experiment-layout/experiment-layout.component'
-          ).then((c) => c.ExperimentLayoutComponent),
+          import('@/app/pages/experiment/experiment-layout/experiment-layout.component').then(
+            (c) => c.ExperimentLayoutComponent,
+          ),
         children: [
           {
             path: '',
@@ -101,39 +86,37 @@ export const routes: Routes = [
           {
             path: 'info',
             loadComponent: () =>
-              import(
-                '@/app/pages/experiment/experiment-info/experiment-info.component'
-              ).then((c) => c.ExperimentInfoComponent),
+              import('@/app/pages/experiment/experiment-info/experiment-info.component').then(
+                (c) => c.ExperimentInfoComponent,
+              ),
           },
           {
             path: 'attachments',
             loadComponent: () =>
-              import(
-                '@/app/pages/experiment/experiment-attachments/experiment-attachments.component'
-              ).then((c) => c.ExperimentAttachmentsComponent),
+              import('@/app/pages/experiment/experiment-attachments/experiment-attachments.component').then(
+                (c) => c.ExperimentAttachmentsComponent,
+              ),
           },
           {
             path: 'summary',
             loadComponent: () =>
-              import(
-                '@/app/pages/experiment/experiment-summary/experiment-summary.component'
-              ).then((c) => c.ExperimentSummaryComponent),
+              import('@/app/pages/experiment/experiment-summary/experiment-summary.component').then(
+                (c) => c.ExperimentSummaryComponent,
+              ),
           },
           {
             path: 'versions',
             loadComponent: () =>
-              import(
-                '@/app/pages/experiment/experiment-versions/experiment-versions.component'
-              ).then((c) => c.ExperimentVersionsComponent),
+              import('@/app/pages/experiment/experiment-versions/experiment-versions.component').then(
+                (c) => c.ExperimentVersionsComponent,
+              ),
           },
         ],
       },
       {
         path: 'templates',
         loadComponent: () =>
-          import(
-            '@pages/template/template-layout/template-layout.component'
-          ).then((c) => c.TemplateLayoutComponent),
+          import('@pages/template/template-layout/template-layout.component').then((c) => c.TemplateLayoutComponent),
       },
     ],
   },

@@ -3,6 +3,8 @@ import { Attachment } from '../attachment.i';
 import { ProjectAcl } from '../acl.i';
 import { ExperimentStatus } from '@/core/enums/experiment-status.enum';
 import { ExperimentModel } from '@core/types/entities/experiments/experiment.i';
+import { UserMetadata } from '@core/types/entities/user.i';
+import { ExperimentRef } from '@core/types/entities/experiments/experiment-shared.i';
 
 export enum SignatureReason {
   AUTHOR = 'AUTHOR',
@@ -39,14 +41,19 @@ export interface Signature {
 
 export interface ExperimentDetail extends BaseEntity {
   name: string;
+  title?: string;
   status: ExperimentStatus;
-  marked: boolean;
+  revision: number;
   therapeuticArea?: TherapeuticArea;
   projectCode?: ProjectCode;
   description?: string;
-  templateId?: string;
+  literature?: string;
+  templateId: string;
+  batchCreator: UserMetadata;
+  linkedExperiments: ExperimentRef[];
+  continuedFrom: ExperimentRef[];
+  continuedTo: ExperimentRef[];
   attachments?: Attachment[];
   acl?: ProjectAcl[];
-  signatures?: Signature[];
   model: ExperimentModel;
 }

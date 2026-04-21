@@ -10,17 +10,12 @@
     (closed)="closeDrawer()"
   >
     @if (selectedDictionary) {
-      <eln-dictionary-drawer
-        [dictionary]="selectedDictionary"
-        (close)="closeDrawer()"
-      />
+      <eln-dictionary-drawer [dictionary]="selectedDictionary" (close)="closeDrawer()" />
     }
   </mat-drawer>
 
   <mat-drawer-content>
-    <div class="font-semibold text-lg">Dictionary</div>
-    <eln-dictionary-list
-      (selectDictionaryEvent)="onDictionarySelected($event)"
-    />
+    <div class="font-semibold text-lg">Dictionaries</div>
+    <eln-dictionary-list (selectDictionaryEvent)="onDictionarySelected($event)" />
   </mat-drawer-content>
 </mat-drawer-container>

@@ -1,12 +1,8 @@
-<eln-card
-  [classList]="'cursor-pointer'"
->
+<eln-card [classList]="'cursor-pointer'">
   <div class="flex flex-col w-full px-4">
     <div class="flex justify-between items-center mb-3 w-full">
-      <h3
-        class="flex items-center gap-x-2 font-semibold text-neutral-1000 text-base"
-      >
-        <em class="text-primary-400 text-xl indicon-briefcase"></em>
+      <h3 class="flex items-center gap-x-2 font-semibold text-neutral-1000 text-base">
+        <eln-svg icon="template"></eln-svg>
         {{ template.name }}
       </h3>
       <div class="relative -right-1">
@@ -39,31 +35,21 @@
       <div
         class="w-full"
         [ngClass]="{
-          'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6':
-            variant === 'list',
+          'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6': variant === 'list',
           'space-y-2': variant === 'grid',
         }"
       >
-
-
-        <div
-          class="flex flex-col"
-          [ngClass]="{ 'flex-col space-y-2': variant == 'list' }"
-          *ngIf="variant === 'list'"
-        >
+        <div class="flex flex-col" [ngClass]="{ 'flex-col space-y-2': variant == 'list' }" *ngIf="variant === 'list'">
           <div class="text-neutral-1000 text-sm">Created by</div>
           <div class="flex items-center">
             <div class="flex -space-x-2">
               <eln-avatar classList="w-6 h-6" [img]="mock_users.link" />
-              {{template.createdBy.username}}
+              {{ template.createdBy.username }}
             </div>
           </div>
         </div>
 
-        <div
-          class="flex flex-col text-sm"
-          [ngClass]="{ 'flex-col space-y-2': variant == 'list' }"
-        >
+        <div class="flex flex-col text-sm" [ngClass]="{ 'flex-col space-y-2': variant == 'list' }">
           <div class="text-neutral-1000">Created</div>
           <div [ngClass]="{ 'ml-auto': variant === 'grid' }">
             {{ template.createdAt | date: 'dd MMM yyyy' }} by
@@ -71,11 +57,7 @@
           </div>
         </div>
 
-
-        <div
-          class="flex flex-col text-sm"
-          [ngClass]="{ 'flex-col space-y-2': variant == 'list' }"
-        >
+        <div class="flex flex-col text-sm" [ngClass]="{ 'flex-col space-y-2': variant == 'list' }">
           <div class="text-neutral-1000 text-sm">Last Edited</div>
           <div [ngClass]="{ 'ml-auto': variant === 'grid' }">
             {{ template.modifiedAt | date: 'dd MMM yyyy' }} by
@@ -84,7 +66,5 @@
         </div>
       </div>
     </div>
-
-
   </div>
 </eln-card>

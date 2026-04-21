@@ -4,5 +4,6 @@
   [model]="notebook"
   size="auto"
   containerClass="w-[800px]"
+  [toastMessages]="{ uniqueName: uniqueNameToastMessage() }"
   (formSubmit)="editNotebook($event)"
 ></eln-form-dialog>

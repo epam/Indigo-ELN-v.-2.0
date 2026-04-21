@@ -1,106 +1,166 @@
-import { Component, input, computed } from '@angular/core';
+import { Component, computed, inject, input, OnInit } from '@angular/core';
 import { Reaction, ReactionOutput } from '@core/types/entities/experiments/experiment.i';
 import {
-  MatCell,
-  MatCellDef,
-  MatColumnDef,
-  MatHeaderCell,
-  MatHeaderCellDef,
-  MatHeaderRow,
-  MatHeaderRowDef,
-  MatRow,
-  MatRowDef,
-  MatTable,
-} from '@angular/material/table';
+  ColumnConfig,
+  ColumnInputType,
+  ColumnOption,
+} from '@pages/experiment/stoichiometry/shared/editable-table.types';
+import { EditableDataTableComponent } from '@pages/experiment/stoichiometry/editable-data-table/editable-data-table.component';
+import { ExperimentDetailService } from '@core/services/experiment/experiment-detail.service';
+import { EnteredValue } from '@core/types/entities/values.i';
+import { determineCellClasses } from '@core/utils/experiment-model.util';
+import { CompoundType } from '@core/types/entities/compound.i';
+import { BuiltInDictionary, DictionaryItemRef } from '@core/types/entities/dictionary.i';
+import { BuiltInDictionaryService } from '@core/services/health-hazards/built-in-dictionary.service';
+import { MolUnit, WeightUnit } from '@core/types/entities/experiments/experiment-shared.i';
 
 @Component({
   selector: 'eln-reaction-products-table',
   templateUrl: './reaction-products-table.component.html',
-  imports: [
-    MatTable,
-    MatColumnDef,
-    MatHeaderCell,
-    MatHeaderCellDef,
-    MatCell,
-    MatCellDef,
-    MatHeaderRow,
-    MatHeaderRowDef,
-    MatRow,
-    MatRowDef,
-  ],
+  imports: [EditableDataTableComponent],
 })
-export class ReactionProductsTableComponent {
-  reaction = input<Reaction | null>(null);
-  dataSource = computed(() => this.reaction()?.outputs ?? []);
+export class ReactionProductsTableComponent implements OnInit {
+  private experimentDetailService = inject(ExperimentDetailService);
+  private builtInDictionaryService = inject(BuiltInDictionaryService);
 
-  columns = [
+  reaction = input<Reaction | null>(null);
+  dataSource = computed(() => this.reaction()?.outputs);
+
+  saltCodes = computed(() => this.builtInDictionaryService.getSaltCodes());
+
+  ngOnInit() {
+    this.builtInDictionaryService.load([BuiltInDictionary.HEALTH_HAZARD]);
+    this.builtInDictionaryService.loadSaltCodes();
+  }
+
+  columns: ColumnConfig<ReactionOutput>[] = [
     {
-      id: 'chemicalName',
-      header: 'Chemical Name',
-      type: 'text',
-      field: (_row: ReactionOutput, index: number) => `P${index}`
+      id: 'outputName',
+      header: 'Output Name',
+      type: ColumnInputType.TEXT,
+      field: (row) => row.outputName,
+      onSave: (row, value: string | null) => {
+        this.experimentDetailService
+          .updateDataModel({
+            type: 'SetOutputRowName',
+            anchor: row.anchor,
+            name: value,
+          })
+          .subscribe({});
+      },
     },
     {
       id: 'molFormula',
       header: 'Mol Formula',
-      type: 'text',
-      field: (row: ReactionOutput) => row.compound?.formula
+      type: ColumnInputType.TEXT,
+      editable: () => false,
+      field: (row) => row.compound.formula,
     },
     {
       id: 'molWeight',
       header: 'Mol Weight',
-      type: 'text',
-      field: (row: ReactionOutput) => row.compound?.molWeight?.value 
-        ? `${row.compound.molWeight.value} ${row.compound.molWeight.unit}` 
-        : null
+      type: ColumnInputType.NUMBER,
+      editable: () => false,
+      field: (row) => row.compound.molWeight?.value?.toString(),
     },
     {
       id: 'exactMass',
       header: 'Exact Mass',
-      type: 'text',
-      field: () => null // Not available in current model
+      type: ColumnInputType.NUMBER,
+      field: (row) => row.compound.exactMass?.toString(),
+      editable: () => false,
     },
     {
       id: 'theoWeight',
       header: 'Theo Weight',
-      type: 'text',
-      field: (row: ReactionOutput) => row.theoWeight?.value
-        ? `${row.theoWeight.value} ${row.theoWeight.unit}`
-        : null
+      type: ColumnInputType.UNIT_INPUT,
+      field: (row) => row.theoWeight,
+      editable: () => false,
+      options: Object.values(WeightUnit).map((unit) => ({
+        id: unit,
+        name: unit,
+      })) as ColumnOption[],
     },
     {
       id: 'theoMoles',
       header: 'Theo Moles',
-      type: 'text',
-      field: (row: ReactionOutput) => row.theoMol?.value
-        ? `${row.theoMol.value} ${row.theoMol.unit}`
-        : null
+      type: ColumnInputType.UNIT_INPUT,
+      field: (row) => row.theoMol,
+      editable: () => false,
+      options: Object.values(MolUnit).map((unit) => ({
+        id: unit,
+        name: unit,
+      })) as ColumnOption[],
     },
     {
       id: 'saltCode',
       header: 'Salt Code',
-      type: 'text',
-      field: (row: ReactionOutput) => row.compound?.saltCode?.code || '00' // Default value (00 - Parent structure)
+      type: ColumnInputType.SELECT,
+      field: (row) => row.compound.saltCode?.name ?? null,
+      editable: (row) => row.compound.type === CompoundType.VIRTUAL,
+      onSave: (row, selectedSaltCode: DictionaryItemRef | null) => {
+        this.experimentDetailService
+          .updateDataModel({
+            type: 'SetOutputSaltCode',
+            anchor: row.anchor,
+            saltCode: selectedSaltCode,
+          })
+          .subscribe({});
+      },
+      options: this.saltCodes(),
     },
     {
       id: 'saltEQ',
       header: 'Salt EQ',
-      type: 'text',
-      field: (row: ReactionOutput) => row.compound?.saltEQ?.toString()
-    },
-    {
-      id: 'hazardComments',
-      header: 'Hazard Comments',
-      type: 'text',
-      field: (row: ReactionOutput) => row.samples[0]?.healthHazards?.map(h => h.name).join(', ') // Data retrieved from External database
+      type: ColumnInputType.NUMBER,
+      field: (row) => row.compound.saltEQ?.toString(),
+      onSave: (row, value: string | null) => {
+        this.experimentDetailService
+          .updateDataModel({
+            type: 'SetOutputSaltEQ',
+            anchor: row.anchor,
+            saltEQ: parseInt(value),
+          })
+          .subscribe({});
+      },
     },
     {
       id: 'eq',
       header: 'EQ',
-      type: 'text',
-      field: (row: ReactionOutput) => row.eq?.value?.toString() || '1' // "1" by default
+      type: ColumnInputType.NUMBER,
+      field: (row) => row.eq?.value?.toString(),
+      classes: (row) => this.determineClasses(row.eq),
+      onSave: (row, value: string | null) => {
+        this.experimentDetailService
+          .updateDataModel({
+            type: 'SetOutputRowEQ',
+            anchor: row.anchor,
+            eq: value,
+          })
+          .subscribe({});
+      },
+    },
+    {
+      id: 'addBatch',
+      header: '',
+      type: ColumnInputType.ICON,
+      field: () => null,
+      iconClasses: () => ['indicon-plus', 'text-[20px]', 'text-red-200'],
+      tooltip: () => 'Add Batch',
+      onSave: (row: ReactionOutput) => {
+        this.experimentDetailService
+          .updateDataModel({
+            type: 'AddProductSample',
+            anchor: row.anchor,
+          })
+          .subscribe({});
+      },
     },
   ];
 
-  displayedColumns = this.columns.map(col => col.id);
+  displayedColumns = this.columns.map((col) => col.id);
+
+  private determineClasses(value?: EnteredValue<unknown>): string[] {
+    return determineCellClasses(value, this.experimentDetailService.updatedNodes());
+  }
 }

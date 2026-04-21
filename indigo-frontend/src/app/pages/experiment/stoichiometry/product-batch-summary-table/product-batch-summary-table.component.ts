@@ -1,15 +1,7 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { Observable } from 'rxjs';
-import {
-  ExperimentModel,
-  Reaction,
-  ReactionOutput,
-  ReactionOutputSample,
-} from '@core/types/entities/experiments/experiment.i';
+import { Reaction, ReactionOutput, ReactionOutputSample } from '@core/types/entities/experiments/experiment.i';
 import {
   MolUnit,
-  MolWeightUnit,
-  NoUnit,
   ReactionOutputType,
   SampleRegistrationStatus,
   VolumeUnit,
@@ -17,13 +9,14 @@ import {
 } from '@core/types/entities/experiments/experiment-shared.i';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { EditableDataTableComponent } from '../editable-data-table/editable-data-table.component';
-import {
-  ColumnConfig,
-  ColumnInputType,
-  ColumnOption,
-  UnitInputChange,
-} from '../shared/editable-table.types';
+import { BatchDetailData, BatchDetailPanelComponent } from '../batch-detail-panel/batch-detail-panel.component';
+// import { MOCK_OUTPUT_SAMPLES } from './product-batch-summary-table.mock';
+import { ColumnConfig, ColumnInputType, ColumnOption, ExpandableConfig } from '../shared/editable-table.types';
 import { ExperimentDetailService } from '@core/services/experiment/experiment-detail.service';
+import { EnteredValue } from '@core/types/entities/values.i';
+import { determineCellClasses } from '@core/utils/experiment-model.util';
+import { ButtonComponent } from '@/core/components/common/button/button.component';
+import { MatIcon } from '@angular/material/icon';
 
 interface OutputSampleRow {
   output: ReactionOutput;
@@ -33,7 +26,7 @@ interface OutputSampleRow {
 @Component({
   selector: 'eln-product-batch-summary-table',
   templateUrl: './product-batch-summary-table.component.html',
-  imports: [MatSnackBarModule, EditableDataTableComponent],
+  imports: [MatSnackBarModule, EditableDataTableComponent, ButtonComponent, MatIcon],
 })
 export class ProductBatchSummaryTableComponent {
   private experimentDetailService = inject(ExperimentDetailService);
@@ -43,128 +36,58 @@ export class ProductBatchSummaryTableComponent {
   experimentId = input<string | null>(null);
 
   // TODO: Remove mock data once backend provides real output samples
-  private mockOutputSamples = computed<OutputSampleRow[]>(() => {
-    // Create mock samples for demonstration (independent of real data)
-    const mockOutput1 = {
-      anchor: 'mock-output-1',
-      outputName: 'P1',
-      compound: {
-        compoundKey: 'P1',
-        formula: 'C10H12O2',
-        molWeight: { value: 164.2, unit: MolWeightUnit.G_PER_MOL },
-      },
-      type: ReactionOutputType.INTERMEDIATE,
-      eq: { value: 1 },
-      samples: [],
-    } as ReactionOutput;
-
-    const mockOutput2 = {
-      anchor: 'mock-output-2',
-      outputName: 'P2',
-      compound: {
-        compoundKey: 'P2',
-        formula: 'C8H10O',
-        molWeight: { value: 122.16, unit: MolWeightUnit.G_PER_MOL },
-      },
-      type: ReactionOutputType.BY_PRODUCT,
-      eq: { value: 1 },
-      samples: [],
-    } as ReactionOutput;
-
-    return [
-      {
-        output: mockOutput1,
-        sample: {
-          anchor: 'mock-sample-1',
-          nbkBatchNumber: '001',
-          actualWeight: { value: 2.46, unit: WeightUnit.MG, source: 1 },
-          volume: undefined,
-          actualMol: undefined,
-          yield: { value: 0.01, unit: NoUnit.NO_UNIT, source: 1 },
-          purity: { value: 0.04, unit: NoUnit.NO_UNIT, source: 1 },
-          registrationStatus: undefined,
-          healthHazards: [],
-          handlingPrecautions: [],
-          storageInstructions: [],
-          compoundProtection: [],
-          solubilityInSolvents: [],
-          residualSolvents: [],
-          purityCalculations: [],
-          precursorReactantIds: [],
-        } as ReactionOutputSample,
-      },
-      {
-        output: mockOutput2,
-        sample: {
-          anchor: 'mock-sample-2',
-          nbkBatchNumber: '002',
-          actualWeight: { value: 2.46, unit: WeightUnit.MG, source: 1 },
-          volume: undefined,
-          actualMol: undefined,
-          yield: { value: 0.01, unit: NoUnit.NO_UNIT, source: 1 },
-          purity: { value: 0.04, unit: NoUnit.NO_UNIT, source: 1 },
-          registrationStatus: undefined,
-          healthHazards: [],
-          handlingPrecautions: [],
-          storageInstructions: [],
-          compoundProtection: [],
-          solubilityInSolvents: [],
-          residualSolvents: [],
-          purityCalculations: [],
-          precursorReactantIds: [],
-        } as ReactionOutputSample,
-      },
-    ];
-  });
+  // private mockOutputSamples = computed<OutputSampleRow[]>(() => MOCK_OUTPUT_SAMPLES);
 
   dataSource = computed(() => {
-    // TODO: Replace mock data with real data from reaction outputs
-    const mockData = this.mockOutputSamples();
-    if (mockData.length > 0) {
-      return mockData;
-    }
-
-    // Fallback to real data when available
-    const outputs = this.reaction()?.outputs ?? [];
-    return outputs.flatMap((output) =>
-      output.samples.map((sample) => ({ output, sample })),
-    );
+    // Use real data from reaction outputs
+    const outputs = this.reaction()?.outputs;
+    return outputs?.flatMap((output) => output.samples.map((sample) => ({ output, sample })));
   });
 
   readonly columns = computed<ColumnConfig<OutputSampleRow>[]>(() => [
     {
       id: 'batchId',
-      header: 'Batch ID',
+      header: 'Batch No',
       type: ColumnInputType.TEXT,
-      field: (row: OutputSampleRow) => row.sample.nbkBatchNumber ?? null,
+      field: (row: OutputSampleRow) => {
+        const nbk = row.sample.nbkBatchNumber ?? '';
+        // Extract last segment after last hyphen (e.g., "aaaaaaaa-bbbb-ccc" -> "ccc")
+        const parts = nbk.split('-');
+        return parts.length > 0 ? parts[parts.length - 1] : nbk;
+      },
       editable: () => false,
     },
     {
       id: 'chemicalName',
-      header: 'Chemical Name',
+      header: 'Product Name',
       type: ColumnInputType.TEXT,
       field: (row: OutputSampleRow) => row.output.outputName ?? null,
       editable: () => false,
     },
     {
-      id: 'reactionRole',
-      header: 'Reaction Role',
+      id: 'reactionStep',
+      header: 'Reaction Step',
       type: ColumnInputType.TEXT,
-      field: (row: OutputSampleRow) =>
-        this.formatReactionOutputType(row.output.type),
+      field: () => '1', // TODO: Use reaction index when multiple reactions supported
+      editable: () => false,
+    },
+    {
+      id: 'productType',
+      header: 'Product Type',
+      type: ColumnInputType.TEXT,
+      field: (row: OutputSampleRow) => this.formatReactionOutputType(row.output.type),
       editable: () => false,
     },
     {
       id: 'regStatus',
       header: 'Reg Status',
       type: ColumnInputType.TEXT,
-      field: (row: OutputSampleRow) =>
-        this.formatRegistrationStatus(row.sample.registrationStatus),
+      field: (row: OutputSampleRow) => this.formatRegistrationStatus(row.sample.registrationStatus),
       editable: () => false,
     },
     {
       id: 'totalWeight',
-      header: 'Total Weight',
+      header: 'Actual Weight',
       type: ColumnInputType.UNIT_INPUT,
       field: (row: OutputSampleRow) =>
         row.sample.actualWeight?.value
@@ -173,12 +96,16 @@ export class ProductBatchSummaryTableComponent {
               unit: row.sample.actualWeight.unit,
             }
           : null,
-      onSave: (row: OutputSampleRow) => {
-        // TODO: Implement mutation for setting output sample actual weight
-        console.log('TODO: Set output actual weight', row.sample.anchor);
-        this.snackBar.open('Weight update not yet implemented', 'Close', {
-          duration: 3000,
-        });
+      classes: (row) => this.determineClasses(row.sample.actualWeight),
+      onSave: (row: OutputSampleRow, value: EnteredValue<WeightUnit> | null) => {
+        this.experimentDetailService
+          .updateDataModel({
+            type: 'SetOutputActualWeight',
+            anchor: row.sample.anchor,
+            actualWeight: value?.value,
+            unit: value?.unit,
+          })
+          .subscribe({});
       },
       options: Object.values(WeightUnit).map((unit) => ({
         id: unit,
@@ -187,18 +114,20 @@ export class ProductBatchSummaryTableComponent {
     },
     {
       id: 'totalVolume',
-      header: 'Total Volume',
+      header: 'Volume',
       type: ColumnInputType.UNIT_INPUT,
       field: (row: OutputSampleRow) =>
-        row.sample.volume?.value
-          ? { value: row.sample.volume.value, unit: row.sample.volume.unit }
-          : null,
-      onSave: (row: OutputSampleRow) => {
-        // TODO: Implement mutation for setting output sample volume
-        console.log('TODO: Set output volume', row.sample.anchor);
-        this.snackBar.open('Volume update not yet implemented', 'Close', {
-          duration: 3000,
-        });
+        row.sample.volume?.value ? { value: row.sample.volume.value, unit: row.sample.volume.unit } : null,
+      classes: (row) => this.determineClasses(row.sample.volume),
+      onSave: (row: OutputSampleRow, value: EnteredValue<VolumeUnit> | null) => {
+        this.experimentDetailService
+          .updateDataModel({
+            type: 'SetOutputVolume',
+            anchor: row.sample.anchor,
+            volume: value?.value,
+            unit: value?.unit,
+          })
+          .subscribe({});
       },
       options: Object.values(VolumeUnit).map((unit) => ({
         id: unit,
@@ -207,7 +136,7 @@ export class ProductBatchSummaryTableComponent {
     },
     {
       id: 'totalMoles',
-      header: 'Total Moles',
+      header: 'Actual Moles',
       type: ColumnInputType.UNIT_INPUT,
       field: (row: OutputSampleRow) =>
         row.sample.actualMol?.value
@@ -216,12 +145,16 @@ export class ProductBatchSummaryTableComponent {
               unit: row.sample.actualMol.unit,
             }
           : null,
-      onSave: (row: OutputSampleRow) => {
-        // TODO: Implement mutation for setting output sample moles
-        console.log('TODO: Set output moles', row.sample.anchor);
-        this.snackBar.open('Moles update not yet implemented', 'Close', {
-          duration: 3000,
-        });
+      classes: (row) => this.determineClasses(row.sample.actualMol),
+      onSave: (row: OutputSampleRow, value: EnteredValue<MolUnit> | null) => {
+        this.experimentDetailService
+          .updateDataModel({
+            type: 'SetOutputActualMol',
+            anchor: row.sample.anchor,
+            actualMol: value?.value,
+            unit: value?.unit,
+          })
+          .subscribe({});
       },
       options: Object.values(MolUnit).map((unit) => ({
         id: unit,
@@ -229,28 +162,35 @@ export class ProductBatchSummaryTableComponent {
       })) as ColumnOption[],
     },
     {
+      id: 'molarity',
+      header: 'Molarity',
+      type: ColumnInputType.TEXT,
+      field: (row: OutputSampleRow) => row.sample.molarity?.value?.toString() ?? null,
+      classes: (row) => this.determineClasses(row.sample.molarity),
+      editable: () => false,
+    },
+    {
       id: 'yield',
       header: 'Yield',
       type: ColumnInputType.NUMBER,
-      field: (row: OutputSampleRow) =>
-        row.sample.yield?.value?.toString() ?? null,
+      field: (row: OutputSampleRow) => row.sample.yield?.value?.toString() ?? null,
+      classes: (row) => this.determineClasses(row.sample.yield),
       editable: () => false,
     },
     {
       id: 'purity',
       header: 'Purity',
       type: ColumnInputType.NUMBER,
-      field: (row: OutputSampleRow) =>
-        row.sample.purity?.value?.toString() ?? null,
-      onSave: (row: OutputSampleRow, event: Event) => {
-        // TODO: Implement mutation for setting output sample purity
-        const value = +(event.target as HTMLInputElement).value;
-        console.log('TODO: Set output purity', row.sample.anchor, value);
-
-        // Placeholder for now
-        this.snackBar.open('Purity update not yet implemented', 'Close', {
-          duration: 3000,
-        });
+      field: (row: OutputSampleRow) => row.sample.purity?.value?.toString() ?? null,
+      classes: (row) => this.determineClasses(row.sample.purity),
+      onSave: (row: OutputSampleRow, value: string | null) => {
+        this.experimentDetailService
+          .updateDataModel({
+            type: 'SetOutputPurity',
+            anchor: row.sample.anchor,
+            purity: value,
+          })
+          .subscribe({});
       },
     },
     {
@@ -269,6 +209,18 @@ export class ProductBatchSummaryTableComponent {
   ]);
 
   displayedColumns = computed(() => this.columns().map((col) => col.id));
+
+  expandableConfig = computed<ExpandableConfig<OutputSampleRow>>(() => ({
+    enabled: true,
+    component: BatchDetailPanelComponent,
+    getRowData: (row) =>
+      ({
+        sample: row.sample,
+        output: row.output,
+        reaction: this.reaction()!,
+        experimentId: this.experimentId() || '',
+      }) as BatchDetailData,
+  }));
 
   private formatReactionOutputType(type: ReactionOutputType): string {
     const typeMap: Record<ReactionOutputType, string> = {
@@ -290,41 +242,8 @@ export class ProductBatchSummaryTableComponent {
     return statusMap[status] ?? status;
   }
 
-  private applyUnitInputChange(
-    change: UnitInputChange,
-    mutator: (
-      value: number | undefined,
-      unit: string | undefined,
-    ) => Observable<ExperimentModel>,
-  ) {
-    // Only proceed if both value and unit are present
-    if (
-      change.value === null ||
-      change.value === undefined ||
-      change.unit === null ||
-      change.unit === undefined
-    ) {
-      return;
-    }
-
-    const previousState = structuredClone(
-      this.experimentDetailService.experimentModel(),
-    );
-    mutator(change.value, change.unit).subscribe({
-      error: (error) => this.handleUpdateError(error, previousState),
-    });
-  }
-
-  private handleUpdateError(
-    error: Error,
-    previousState: ExperimentModel | null,
-  ) {
-    console.error('Error updating data:', error);
-    if (previousState) {
-      console.log('Reverting to previous state due to error');
-      this.experimentDetailService.setExperimentModel(previousState);
-    }
-    this.snackBar.open('There was an error', 'Close', { duration: 4000 });
+  private determineClasses(value?: EnteredValue<unknown>): string[] {
+    return determineCellClasses(value, this.experimentDetailService.updatedNodes());
   }
 
   addNewRow() {

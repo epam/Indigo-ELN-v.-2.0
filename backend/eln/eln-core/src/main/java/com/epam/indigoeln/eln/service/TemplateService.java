@@ -3,6 +3,7 @@ package com.epam.indigoeln.eln.service;
 import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.TemplateEntity;
+import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.mapper.TemplateMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.TemplateRepository;
@@ -10,6 +11,7 @@ import com.epam.indigoeln.eln.util.TemplateValidationUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -51,8 +53,15 @@ public class TemplateService {
         return getTemplate(template.getId());
     }
 
-    public Page<TemplateDTO> getTemplates(Paging paging) {
-        return templateRepository.findAll(paging);
+    public Page<TemplateDTO> getTemplates(@Nullable String search,
+                                          @Nullable SortOrder sort,
+                                          @Nullable Boolean createdByMe,
+                                          Paging paging) {
+        UserEntity currentUser = Boolean.TRUE.equals(createdByMe)
+                ? userService.getCurrentUserEntity()
+                : null;
+        boolean showAll = true;
+        return templateRepository.findAll(search, sort, currentUser, paging, showAll);
     }
 
     public TemplateDetailsDTO getByName(String name) {

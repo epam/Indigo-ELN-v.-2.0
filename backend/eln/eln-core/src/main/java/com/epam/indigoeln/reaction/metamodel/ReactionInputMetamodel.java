@@ -1,24 +1,38 @@
 package com.epam.indigoeln.reaction.metamodel;
 
-import com.epam.indigoeln.reaction.model.ReactionInput;
 import com.epam.indigoeln.reaction.metamodel.property.Metamodel;
-import com.epam.indigoeln.reaction.model.ReactionInputSample;
-import com.epam.indigoeln.reaction.model.patch.ReactionInputPatch;
-import com.epam.indigoeln.reaction.model.patch.ReactionInputSamplePatch;
-import com.epam.indigoeln.reaction.model.patch.handler2.DefaultDiffHandler;
-import com.epam.indigoeln.reaction.model.patch.handler2.ListDiffHandler;
-import com.epam.indigoeln.reaction.model.patch.handler2.MetamodelDiffHandler;
-import org.jspecify.annotations.Nullable;
+import com.epam.indigoeln.reaction.metamodel.property.ModelProperty;
+import com.epam.indigoeln.reaction.model.*;
+import com.epam.indigoeln.reaction.model.units.EnteredValue;
+import com.epam.indigoeln.reaction.model.units.MolUnit;
+import com.epam.indigoeln.reaction.model.units.NoUnit;
 
-class ReactionInputMetamodel {
+import java.util.List;
 
-    public static final Metamodel<ReactionInput, ReactionInputPatch> INSTANCE = Metamodels.createMetamodel("ReactionInput", m -> {
-        m.property("anchor", ReactionInput::getAnchor, ReactionInput::setAnchor, ReactionInputPatch::getAnchor, ReactionInputPatch::setAnchor);
-        m.accept(Metamodels::buildReactionRowMetamodel);
-        m.property("role", ReactionInput::getRole, ReactionInput::setRole, ReactionInputPatch::getRole, ReactionInputPatch::setRole);
-        m.enteredValueProperty("mol", ReactionInput::getMol, ReactionInput::setMol, ReactionInputPatch::getMol, ReactionInputPatch::setMol);
-        m.<@Nullable String>property("chemicalName", ReactionInput::getChemicalName, ReactionInput::setChemicalName, ReactionInputPatch::getChemicalName, ReactionInputPatch::setChemicalName);
-        m.property("limiting", ReactionInput::isLimiting, ReactionInput::setLimiting, ReactionInputPatch::getLimiting, ReactionInputPatch::setLimiting, DefaultDiffHandler.DEFAULT_FALSE_INSTANCE);
-        m.listProperty("samples", ReactionInput::getSamples, ReactionInput::setSamples, ReactionInputPatch::getSamples, ReactionInputPatch::setSamples, new ListDiffHandler<>(ReactionInputSample::getAnchor, new MetamodelDiffHandler<>(ReactionInputSampleMetamodel.INSTANCE, ReactionInputSamplePatch::new)));
-    });
+import static com.epam.indigoeln.reaction.metamodel.property.ModelProperty.*;
+
+public class ReactionInputMetamodel {
+
+    // ReactionRow
+    public static final ModelProperty<ReactionInput, CompoundRef> COMPOUND = property("compound", ReactionRow::getCompound, ReactionRow::setCompound);
+    public static final ModelProperty<ReactionInput, EnteredValue<NoUnit>> EQ = enteredValueProperty("eq", ReactionRow::getEq, ReactionRow::setEq, EnteredValue.DEFAULT_ONE);
+    public static final ModelProperty<ReactionInput, Integer> RXN_POSITION = property("rxnPosition", ReactionRow::getRxnPosition, ReactionRow::setRxnPosition);
+    // ReactionInput
+    public static final ModelProperty<ReactionInput, InputAnchor> ANCHOR = property("anchor", ReactionInput::getAnchor, ReactionInput::setAnchor);
+    public static final ModelProperty<ReactionInput, ReactionRole> ROLE = property("role", ReactionInput::getRole, ReactionInput::setRole);
+    public static final ModelProperty<ReactionInput, EnteredValue<MolUnit>> MOL = enteredValueProperty("mol", ReactionInput::getMol, ReactionInput::setMol);
+    public static final ModelProperty<ReactionInput, String> CHEMICAL_NAME = property("chemicalName", ReactionInput::getChemicalName, ReactionInput::setChemicalName);
+    public static final ModelProperty<ReactionInput, Boolean> LIMITING = property("limiting", ReactionInput::isLimiting, ReactionInput::setLimiting);
+    public static final ModelProperty<ReactionInput, List<ReactionInputSample>> SAMPLES = listProperty("samples", ReactionInput::getSamples, ReactionInput::setSamples, ReactionInputSampleMetamodel.INSTANCE);
+
+    public static final Metamodel<ReactionInput> INSTANCE = new Metamodel<>("ReactionInput", List.of(
+            COMPOUND,
+            EQ,
+            ANCHOR,
+            ROLE,
+            MOL,
+            CHEMICAL_NAME,
+            LIMITING,
+            SAMPLES
+    ));
 }

@@ -1,8 +1,9 @@
 package com.epam.indigoeln.reaction.service.mutation.experiment;
 
-import com.epam.indigoeln.common.util.Pair;
+import com.epam.indigoeln.eln.entity.ExperimentEditSessionEntity;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentReferencedCompound;
+import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
 import com.epam.indigoeln.eln.mapper.SnapshotMapper;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
@@ -12,31 +13,35 @@ import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.eln.util.ExperimentModelUtil;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoReaction;
+import com.epam.indigoeln.reaction.metamodel.ExperimentModelMetamodel;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import com.epam.indigoeln.reaction.service.ExperimentModelHelperService;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import com.epam.indigoeln.reaction.service.calculator.ReactionCalculator;
-import com.epam.indigoeln.reaction.service.mutation.AbstractMutationHandler;
-import com.epam.indigoeln.reaction.service.mutation.ExperimentMutationHandler;
+import com.epam.indigoeln.reaction.service.mutation.MutationHandler;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
+import com.epam.indigoeln.reaction.util.SignificantFiguresUtil;
 import com.epam.indigoeln.reaction.util.StreamUtil;
-import com.google.common.base.Preconditions;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.Multimap;
+import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
+import one.util.streamex.EntryStream;
 import one.util.streamex.StreamEx;
-import org.jspecify.annotations.Nullable;
+import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.*;
 
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 @Slf4j
-public abstract class AbstractExperimentMutationHandler<T extends Mutation> extends AbstractMutationHandler<T, ExperimentModel, ExperimentEntity, ExperimentSnapshot, ExperimentPatch> implements ExperimentMutationHandler<T> {
+public abstract class AbstractExperimentMutationHandler<T extends Mutation> extends MutationHandler<T, ExperimentEntity, ExperimentSnapshot, ExperimentRevisionEntity, ExperimentMutationContext> {
 
     @Inject
     SnapshotMapper snapshotMapper;
@@ -45,7 +50,7 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation> exte
     @Inject
     ExperimentModelHelperService experimentModelHelperService;
     @Inject
-    ReactionCalculator reactionCalculator;
+    Instance<ReactionCalculator> reactionCalculatorFactory;
     @Inject
     IndigoAPI indigoAPI;
     @Inject
@@ -56,39 +61,43 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation> exte
     RevisionService revisionService;
     @Inject
     ExperimentRepository experimentRepository;
-
-    protected final Set<ReactionRole> affectedRoles = EnumSet.noneOf(ReactionRole.class);
     @Inject
     protected ACLService aclService;
 
     @Override
-    protected void doValidateAccess(ExperimentEntity experiment, T mutation) {
-        aclService.ensureAccess(experiment, ApplicationPermission.EDIT_EXPERIMENTS);
-    }
-
-    protected final ExperimentSnapshot doSnapshotBefore(ExperimentEntity experiment) {
-        ExperimentModel model = isAffectsModel() ? experimentModelService.getModel(experiment) : null;
-        return snapshotMapper.createSnapshot(experiment, isAffectsAttachments(), isAffectsACL(), model);
-    }
-
-    @Nullable
-    protected ExperimentModel doPrepareModel(ExperimentEntity experiment) {
-        if (isAffectsModel()) {
-            ExperimentModel model = experimentModelService.getModel(experiment);
-            ExperimentModelUtil.prepareToRecalculate(model);
-            return model;
-        }
-        return null;
+    protected ExperimentMutationContext createContext() {
+        return new ExperimentMutationContext();
     }
 
     @Override
-    protected final void doUpdateEntity(ExperimentEntity experiment, @Nullable ExperimentModel model, ExperimentSnapshot snapshotBefore, ExperimentSnapshot snapshotAfter) {
+    protected void doValidateAccess(ExperimentEntity experiment, T mutation, ExperimentMutationContext context) {
+        aclService.ensureAccess(experiment, ApplicationPermission.EDIT_EXPERIMENTS);
+    }
+
+    protected final ExperimentSnapshot doSnapshotBefore(ExperimentEntity experiment, ExperimentMutationContext context) {
+        if (context.isAffectsModel()) {
+            experimentModelService.readModel(experiment);
+        }
+        ExperimentSnapshot snapshot = snapshotMapper.createSnapshot(experiment, context.isAffectsAttachments(), context.isAffectsACL(), experiment.getModelObj());
+        if (context.isAffectsModel()) {
+            // read another copy that will be updated during the mutation
+            experimentModelService.readModel(experiment);
+        }
+        return snapshot;
+    }
+
+    @Override
+    protected final JsonNode doUpdateEntity(ExperimentEntity experiment, ExperimentSnapshot snapshotBefore, ExperimentSnapshot snapshotAfter, ExperimentMutationContext context) {
+        ExperimentModel model = experiment.getModelObj();
         if (model != null) {
-            reactionCalculator.recalculate(model);
-            doUpdateReferences(experiment, model,  snapshotBefore, snapshotAfter);
+            SignificantFiguresUtil.setSignificantFigures(model.getSignificantFigures());
+            reactionCalculatorFactory.get().recalculate(model);
+            doUpdateReferences(experiment, model,  snapshotBefore, snapshotAfter, context);
             doValidateModel(model);
+            SignificantFiguresUtil.clearSignificantFigures();
         }
         updateDates(experiment, userService.getCurrentUserEntity());
+        JsonNode patch = experimentModelService.createPatch(snapshotBefore, snapshotAfter);
         if (model != null) {
             experimentModelService.setModel(experiment, model);
         }
@@ -97,37 +106,53 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation> exte
             experimentRepository.persist(experiment);
             experimentRepository.flushAndRefresh(experiment);
         }
+        return patch;
     }
 
     @Override
-    protected final ExperimentSnapshot doSnapshotAfter(ExperimentEntity experiment, @Nullable ExperimentModel model) {
-        return snapshotMapper.createSnapshot(experiment, isAffectsAttachments(), isAffectsACL(), model);
+    protected ExperimentSnapshot doSnapshotAfter(ExperimentEntity experiment, ExperimentMutationContext context) {
+        return snapshotMapper.createSnapshot(experiment, context.isAffectsAttachments(), context.isAffectsACL(), experiment.getModelObj());
     }
 
     @Override
-    protected final void doCreateRevision(ExperimentEntity experiment, T mutation, MutationResult result, Integer revisionNo, ExperimentPatch patch) {
-        revisionService.addRevision(experiment, revisionNo, experiment.getModifiedAt(), result.summary(), mutation, result.reverseMutation(), patch);
-    }
-
-    @Override
-    protected final ExperimentPatch doCreatePatch(ExperimentSnapshot snapshotBefore, ExperimentSnapshot snapshotAfter) {
-        return experimentModelService.createPatch(snapshotBefore, snapshotAfter);
-    }
-
-    protected void doUpdateReferences(ExperimentEntity experiment, ExperimentModel model, ExperimentSnapshot snapshotBefore, ExperimentSnapshot snapshotAfter) {
-        boolean anyRxnfileChanged = false;
-        Map<ReactionAnchor, @Nullable String> oldRxnFiles = checkNotNull(snapshotBefore.getRxnFiles());
-        Map<ReactionAnchor, @Nullable String> newRxnFiles = checkNotNull(snapshotAfter.getRxnFiles());
-        for (Reaction reaction : model.getReactions()) {
-            if (!Objects.equals(oldRxnFiles.get(reaction.getAnchor()), newRxnFiles.get(reaction.getAnchor())) || !affectedRoles.isEmpty()) {
-                anyRxnfileChanged = true;
-                IndigoReaction indigoReaction = reaction.getRxnfile() == null ? indigoAPI.createReaction() : indigoAPI.loadReaction(reaction.getRxnfile());
-                if (!affectedRoles.isEmpty()) {
-                    experimentModelHelperService.rebuildReactionRxnFile(experiment, reaction, affectedRoles, indigoReaction);
-                }
-                experimentModelHelperService.rebuildReactionPicture(experiment, reaction, indigoReaction);
-                reaction.setRxnVersion(reaction.getRxnVersion() + 1);
+    protected ExperimentRevisionEntity doCreateRevision(ExperimentEntity experiment, T mutation, MutationResult result, Integer revisionNo, JsonNode patch, ExperimentMutationContext context, ExperimentSnapshot snapshotAfter) {
+        ExperimentRevisionEntity revision = revisionService.addRevision(experiment, revisionNo, experiment.getModifiedAt(), result.summary(), mutation, patch);
+        ExperimentEditSessionEntity editSession = experimentModelService.getEditSession(experiment, userService.getCurrentUserEntity());
+        if (context.isRequiresEditSession()) {
+            if (editSession == null) {
+                editSession = experimentModelService.createEditSession(experiment, userService.getCurrentUserEntity(), revision.getDatetime());
+            } else {
+                editSession.setLastActive(revision.getDatetime());
             }
+            revision.setEditSession(editSession);
+        } else {
+            if (editSession != null) {
+                editSession.setFinished(editSession.getLastActive());
+            }
+        }
+        return revision;
+    }
+
+    protected void doUpdateReferences(ExperimentEntity experiment, ExperimentModel model, ExperimentSnapshot snapshotBefore, ExperimentSnapshot snapshotAfter, ExperimentMutationContext context) {
+        boolean anyRxnfileChanged = false;
+        for (Reaction reaction : model.getReactions()) {
+            Reaction oldReaction = checkNotNull(snapshotBefore.getModel()).tryLocate(reaction.getAnchor());
+            IndigoReaction indigoReaction;
+            String oldRxnfile = oldReaction != null ? oldReaction.getRxnfile() : null;
+            List<Object> oldReactionKey = oldRxnfile != null ? experimentModelHelperService.makeReactionKey(oldReaction) : List.of();
+            if (!Objects.equals(oldRxnfile, reaction.getRxnfile())) {
+                // rxnfile was modified
+                indigoReaction = reaction.getRxnfile() == null ? indigoAPI.createReaction() : indigoAPI.loadReaction(reaction.getRxnfile());
+            } else if (!Objects.equals(oldReactionKey, experimentModelHelperService.makeReactionKey(reaction))) {
+                // inputs/outputs was modified, update rxnfile accordingly
+                indigoReaction = experimentModelHelperService.rebuildReactionRxnFile(reaction.getInputs(), reaction.getOutputs());
+                reaction.setRxnfile(indigoReaction.rxnfile());
+            } else {
+                continue; // nothing changed
+            }
+            anyRxnfileChanged = true;
+            String image = experimentModelHelperService.rebuildReactionPicture(experiment, reaction, indigoReaction);
+            context.getResponse().getReactionImages().put(reaction.getAnchor(), image);
         }
 
         if (anyRxnfileChanged) {
@@ -137,14 +162,15 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation> exte
             experiment.setRxnfiles(rxnFiles);
         }
 
-        Set<Pair<ReactionRole, CompoundRef>> oldCompoundRefs = checkNotNull(snapshotBefore.getCompoundRefs());
-        Set<Pair<ReactionRole, CompoundRef>> newCompoundRefs = checkNotNull(snapshotAfter.getCompoundRefs());
+        Multimap<ReactionRole, CompoundRef.StoredOrVirtual> oldCompoundRefs = experimentModelHelperService.makeCompoundRefs(checkNotNull(snapshotBefore.getModel()));
+        Multimap<ReactionRole, CompoundRef.StoredOrVirtual> newCompoundRefs = experimentModelHelperService.makeCompoundRefs(model);
         if (!oldCompoundRefs.equals(newCompoundRefs)) {
-            Set<ExperimentReferencedCompound> ids = StreamEx.of(newCompoundRefs)
-                    .filter(p -> p.b().getCompoundID() != null)
-                    .map(p -> new ExperimentReferencedCompound(p.a(), p.b().getCompoundID()))
+            Set<ExperimentReferencedCompound> ids = EntryStream.of(newCompoundRefs.asMap())
+                    .flatMapValues(Collection::stream)
+                    .map(e -> new ExperimentReferencedCompound(e.getKey(), e.getValue().getCompoundID()))
                     .toSet();
-            experiment.setReferencedCompounds(ids);
+            experiment.getReferencedCompounds().clear();
+            experiment.getReferencedCompounds().addAll(ids);
         }
     }
 
@@ -158,20 +184,41 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation> exte
         try {
             // check all parent links are correct
             for (Reaction reaction : model.getReactions()) {
-                Preconditions.checkState(reaction.getModel() == model);
+                checkState(reaction.getModel() == model);
                 for (ReactionInput input : reaction.getInputs()) {
-                    Preconditions.checkState(input.getReaction() == reaction);
+                    checkState(input.getReaction() == reaction);
                     for (ReactionInputSample sample : input.getSamples()) {
-                        Preconditions.checkState(sample.getRow() == input);
+                        checkState(sample.getRow() == input);
                     }
                 }
                 for (ReactionOutput output : reaction.getOutputs()) {
-                    Preconditions.checkState(output.getReaction() == reaction);
+                    checkState(output.getReaction() == reaction);
                     for (ReactionOutputSample sample : output.getSamples()) {
-                        Preconditions.checkState(sample.getRow() == output);
+                        checkState(sample.getRow() == output);
                     }
                 }
             }
+            // check anchors and rxnPositions are unique
+            Map<Anchor, ExperimentNode> anchors = new HashMap<>();
+            Map<Triple<ReactionAnchor, ReactionRole, Integer>, ReactionRow> rxnPositions = new HashMap<>();
+            ExperimentModelUtil.walk(ExperimentModelMetamodel.INSTANCE, model, node -> {
+                Anchor anchor = switch (node) {
+                    case Reaction r -> r.getAnchor();
+                    case ReactionInput i -> i.getAnchor();
+                    case ReactionInputSample s -> s.getAnchor();
+                    case ReactionOutput o -> o.getAnchor();
+                    case ReactionOutputSample s -> s.getAnchor();
+                    default -> null;
+                };
+                if (anchor != null) {
+                    ExperimentNode previous = anchors.put(anchor, node);
+                    checkState(previous == null, "Anchor %s used by both %s and %s", anchor, previous, node);
+                }
+                if (node instanceof ReactionRow r && r.getRxnPosition() != null) {
+                    ReactionRow previous = rxnPositions.put(Triple.of(r.getReaction().getAnchor(), r instanceof ReactionInput ri ? ri.getRole() : ReactionRole.OUTPUT, r.getRxnPosition()), r);
+                    checkState(previous == null, "rxnPosition %s is used by both %s and %s", r.getRxnPosition(), previous, r);
+                }
+            });
         } catch (Exception e) {
             throw new RuntimeException("Mutation produced invalid model: " + e.getMessage(), e);
         }

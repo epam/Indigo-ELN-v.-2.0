@@ -6,7 +6,6 @@ import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.NotebookMutation;
 import com.epam.indigoeln.reaction.model.mutation.ProjectMutation;
-import com.epam.indigoeln.reaction.model.patch.handler2.Patched;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
@@ -16,8 +15,12 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Path;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
+import static com.epam.indigoeln.common.exception.InvalidRequestException.fail;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
 import static com.epam.indigoeln.eln.test.ACLListAssert.assertThatACL;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
@@ -76,7 +79,7 @@ class ProjectServiceTest extends ELNBaseTest {
     @Test
     void testCreateProjectValidation() {
         assertThatClientCall(() -> projectClient.createProject(new ProjectRequest(null, List.of(), null, null)))
-                .isBadRequest("must not be empty");
+                .isBadRequest("Project Name is required");
     }
 
     @Test
@@ -110,10 +113,47 @@ class ProjectServiceTest extends ELNBaseTest {
     }
 
     @Test
+    void testCreateProjectNameTooLong() {
+        String longName = "x".repeat(257);
+
+        assertThatClientCall(() ->
+                projectClient.createProject(new ProjectRequest(longName))
+        ).isBadRequest("must be at most 256 characters");
+    }
+
+    @Test
+    void testRenameProjectNameTooLong() {
+        ProjectDetailsDTO project =
+                projectClient.createProject(new ProjectRequest("testRenameProjectName"));
+
+        String longName = "x".repeat(257);
+
+        assertThatClientCall(() ->
+                projectClient.editProject(
+                        project.getId(),
+                        new ProjectEditRequest().withName(Optional.of(longName))
+                )
+        ).isBadRequest("must be at most 256 characters");
+    }
+
+    @Test
+    void testRenameProjectNameIsEmpty() {
+        ProjectDetailsDTO project =
+                projectClient.createProject(new ProjectRequest("testRenameProjectName"));
+
+        assertThatClientCall(() ->
+                projectClient.editProject(
+                        project.getId(),
+                        new ProjectEditRequest().withName(Optional.of(""))
+                )
+        ).isBadRequest("Project Name is required");
+    }
+
+    @Test
     void testDuplicateNames() {
         projectClient.createProject(new ProjectRequest("testDuplicateNames"));
         assertThatClientCall(() -> projectClient.createProject(new ProjectRequest("testDuplicateNames")))
-                .isBadRequest("Project with name 'testDuplicateNames' already exists");
+                .isBadRequest("Unique name is required");
     }
 
     @Test
@@ -121,7 +161,89 @@ class ProjectServiceTest extends ELNBaseTest {
         projectClient.createProject(new ProjectRequest("testRenameDuplicateNames"));
         ProjectDetailsDTO project2 = projectClient.createProject(new ProjectRequest("testRenameDuplicateNames2"));
         assertThatClientCall(() -> projectClient.editProject(project2.getId(), new ProjectEditRequest().withName(Optional.of("testRenameDuplicateNames"))))
-                .isBadRequest("Project with name 'testRenameDuplicateNames' already exists");
+                .isBadRequest("Unique name is required");
+    }
+
+    @Test
+    void testCheckProjectNameExistenceEndpointSuccessWhenExists() {
+        String name = "testCheckProjectNameExistenceEndpointSuccessWhenExists";
+        projectClient.createProject(new ProjectRequest(name));
+
+        assertThatClientCall(() -> projectClient.checkProjectNameExistence(name))
+                .isSuccessfulWithResult(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.getExists()).isTrue();
+                });
+    }
+
+    @Test
+    void testCheckProjectNameExistenceEndpointSuccessWhenNotExists() {
+        String name = "testCheckProjectNameExistenceEndpointSuccessWhenNotExists";
+
+        assertThatClientCall(() -> projectClient.checkProjectNameExistence(name))
+                .isSuccessfulWithResult(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.getExists()).isFalse();
+                });
+    }
+
+    @Test
+    void testCheckProjectNameExistenceEndpointValidationEmptyName() {
+        assertThatClientCall(() -> projectClient.checkProjectNameExistence(""))
+                .isBadRequest("must not be empty");
+    }
+
+    @Test
+    void testCheckProjectNameExistenceWhenExists() {
+        String name = "testCheckProjectNameExistenceWhenExists";
+        projectClient.createProject(new ProjectRequest(name));
+
+        assertThatClientCall(() -> projectClient.checkProjectNameExistence(name))
+                .isSuccessfulWithResult(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.getExists()).isTrue();
+                });
+    }
+
+    @Test
+    void testCheckProjectNameExistenceWhenNotExists() {
+        String name = "testCheckProjectNameExistenceWhenNotExists";
+
+        assertThatClientCall(() -> projectClient.checkProjectNameExistence(name))
+                .isSuccessfulWithResult(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.getExists()).isFalse();
+                });
+    }
+
+    @Test
+    void testCheckProjectNameExistenceWithMultipleProjects() {
+        String name1 = "testCheckProjectNameExistence1";
+        String name2 = "testCheckProjectNameExistence2";
+
+        projectClient.createProject(new ProjectRequest(name1));
+        projectClient.createProject(new ProjectRequest(name2));
+
+        assertThatClientCall(() -> projectClient.checkProjectNameExistence(name1))
+                .isSuccessfulWithResult(result -> assertThat(result.getExists()).isTrue());
+
+        assertThatClientCall(() -> projectClient.checkProjectNameExistence(name2))
+                .isSuccessfulWithResult(result -> assertThat(result.getExists()).isTrue());
+
+        assertThatClientCall(() -> projectClient.checkProjectNameExistence("nonexistentProject"))
+                .isSuccessfulWithResult(result -> assertThat(result.getExists()).isFalse());
+    }
+
+    @Test
+    void testCheckProjectNameExistenceWithEmptyName() {
+        assertThatClientCall(() -> projectClient.checkProjectNameExistence(""))
+                .isBadRequest("must not be empty");
+    }
+
+    @Test
+    void testCheckProjectNameExistenceWithNullName() {
+        assertThatClientCall(() -> projectClient.checkProjectNameExistence(null))
+                .isBadRequest("must not be empty");
     }
 
     @Test
@@ -252,13 +374,6 @@ class ProjectServiceTest extends ELNBaseTest {
                     assertThat(revision.getUser()).isEqualTo(getJohnUserRef());
                     assertThat(revision.getMutation()).isInstanceOf(ProjectMutation.EditProjectAttributes.class);
                     assertThat(revision.getSummary()).matches("Edit: multiple attributes");
-                    assertThat(revision.getDiff()).satisfies(diff -> {
-                        assertThat(diff.getAcl()).isNull();
-                        assertThat(diff.getName()).isEqualTo(Patched.replaced("testEditProject", "testEditProject_new"));
-                        assertThat(diff.getKeywords()).isEqualTo(Patched.replaced(Set.of("k1", "k2"), Set.of("k2", "k3")));
-                        assertThat(diff.getLiterature()).isEqualTo(Patched.replaced("l", "l2"));
-                        assertThat(diff.getDescription()).isEqualTo(Patched.replaced("d", "d2"));
-                    });
                 });
     }
 
@@ -349,6 +464,50 @@ class ProjectServiceTest extends ELNBaseTest {
     }
 
     @Test
+    void testUploadLargeAttachment(@TempDir Path tempDir) {
+        System.out.println("Max body size = " + System.getProperty("quarkus.http.limits.max-body-size"));
+
+        ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testUploadLargeAttachment"));
+
+        // Use 7 MB file to stay safely below AWS API Gateway limit
+        int fileSizeInBytes = 7 * 1024 * 1024; // 7 MB
+        byte[] largeContent = new byte[fileSizeInBytes];
+        for (int i = 0; i < largeContent.length; i++) {
+            largeContent[i] = (byte) (i % 128);
+        }
+
+        String fileName = "large_test_file_7MB.pptx";
+        Path filePath = tempDir.resolve(fileName);
+        try {
+            java.nio.file.Files.write(filePath, largeContent);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to write large test file", e);
+        }
+
+        try {
+            long startTime = System.currentTimeMillis();
+
+            List<AttachmentDTO> attachments = projectClient.createProjectAttachment(
+                    project.getId(),
+                    fileName,
+                    tempDir,
+                    largeContent
+            );
+
+            long elapsedTime = System.currentTimeMillis() - startTime;
+            System.out.println("Upload succeeded. Response time: " + elapsedTime + " ms");
+            assertThat(attachments).isNotEmpty();
+
+        } catch (Exception e) {
+            System.out.println("Upload failed with exception: " + e.getClass().getName());
+            System.out.println("Message: " + e.getMessage());
+            e.printStackTrace();
+
+            fail("Upload failed unexpectedly: " + e.getMessage());
+        }
+    }
+
+    @Test
     void testUploadAttachmentToInvalidProject() {
         UUID missingProjectId = UUID.randomUUID();
 
@@ -357,7 +516,6 @@ class ProjectServiceTest extends ELNBaseTest {
         )
                 .isNotFound("PROJECT " + missingProjectId + " not found");
     }
-
 
 
     @Test
@@ -398,6 +556,9 @@ class ProjectServiceTest extends ELNBaseTest {
 
         Page<ProjectDTO> result7 = projectClient.getProjects("QSNew", null, null, Paging.DEFAULT);
         assertThat(result7.getItems()).map(ProjectDTO::getName).containsExactly(p1);
+
+        Page<ProjectDTO> result8 = projectClient.getProjects("archC", null, null, Paging.DEFAULT);
+        assertThat(result8.getItems()).map(ProjectDTO::getName).containsExactly(p3);
     }
 
     @Test
@@ -421,17 +582,14 @@ class ProjectServiceTest extends ELNBaseTest {
                     assertThat(revision.getUser()).isEqualTo(getJohnUserRef());
                     assertThat(revision.getMutation()).isInstanceOf(ProjectMutation.EditProjectAccess.class);
                     assertThat(revision.getSummary()).isEqualTo("Edited Team: granted maggie EDIT access");
-                    assertThat(revision.getDiff().getAcl()).isEqualTo(Patched.updated(Map.of(MAGGIE_USERNAME, Patched.created(new ACLDetailsEntryDTO(maggieUserID, MAGGIE_DISPLAY_NAME, AccessLevel.EDIT, false, MAGGIE_USERNAME)))));
                 });
         assertThat(notebookClient.getNotebookRevisions(notebook.getId()))
                 .last().satisfies(revision -> {
                     assertThat(revision.getMutation()).isInstanceOf(NotebookMutation.NotebookAccessUpdated.class);
-                    assertThat(revision.getDiff().getAcl()).isEqualTo(Patched.updated(Map.of(MAGGIE_USERNAME, Patched.created(new ACLDetailsEntryDTO(maggieUserID, MAGGIE_DISPLAY_NAME, AccessLevel.EDIT, true, MAGGIE_USERNAME)))));
                 });
-        assertThat(experimentClient.getExperimentRevisions(experiment.getId()))
+        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
                 .last().satisfies(revision -> {
                     assertThat(revision.getMutation()).isInstanceOf(ExperimentMutation.ExperimentAccessUpdated.class);
-                    assertThat(revision.getDiff().getAcl()).isEqualTo(Patched.updated(Map.of(MAGGIE_USERNAME, Patched.created(new ACLDetailsEntryDTO(maggieUserID, MAGGIE_DISPLAY_NAME, AccessLevel.EDIT, true, MAGGIE_USERNAME)))));
                 });
 
         projectClient.updateProjectAccess(project.getId(), AccessForm.of(maggieUserID, AccessLevel.NONE));
@@ -439,10 +597,9 @@ class ProjectServiceTest extends ELNBaseTest {
                 .hasSize(3)
                 .last().satisfies(revision -> {
                     assertThat(revision.getSummary()).isEqualTo("Edited Team: removed maggie");
-                    assertThat(revision.getDiff().getAcl()).isEqualTo(Patched.updated(Map.of(MAGGIE_USERNAME, Patched.deleted(new ACLDetailsEntryDTO(maggieUserID, MAGGIE_DISPLAY_NAME, AccessLevel.EDIT, false, MAGGIE_USERNAME)))));
                 });
     }
-    
+
     @Nested
     @JwtSecurity
     @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)

@@ -8,11 +8,7 @@ import {
   withInterceptorsFromDi,
   withXsrfConfiguration,
 } from '@angular/common/http';
-import {
-  ApplicationConfig,
-  importProvidersFrom,
-  provideZoneChangeDetection,
-} from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
 
 import { EditorFormlyFieldComponent } from '@/core/components/formly/fields/editor/editor-field.component';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -22,6 +18,10 @@ import { FormlyPresetModule } from '@ngx-formly/core/preset';
 import { FormlyMaterialModule } from '@ngx-formly/material';
 import { FormlyMatDatepickerModule } from '@ngx-formly/material/datepicker';
 import { routes } from './app.routes';
+import { SelectFieldComponent } from '@/core/components/formly/fields/select-field.component';
+import { SelectChipsComponent } from '@/core/components/formly/fields/select-chips.component';
+import { DropdownFieldComponent } from '@/core/components/formly/fields/dropdown-field.component';
+import { ErrorInterceptor } from '@core/interceptors/error.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -42,6 +42,21 @@ export const appConfig: ApplicationConfig = {
           {
             name: 'editor',
             component: EditorFormlyFieldComponent,
+            wrappers: ['raw'],
+          },
+          {
+            name: 'select',
+            component: SelectFieldComponent,
+            wrappers: ['raw'],
+          },
+          {
+            name: 'dropdown',
+            component: DropdownFieldComponent,
+            wrappers: ['raw'],
+          },
+          {
+            name: 'select-chips',
+            component: SelectChipsComponent,
             wrappers: ['raw'],
           },
         ],
@@ -75,5 +90,6 @@ export const appConfig: ApplicationConfig = {
       withInterceptorsFromDi(),
     ),
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
   ],
 };

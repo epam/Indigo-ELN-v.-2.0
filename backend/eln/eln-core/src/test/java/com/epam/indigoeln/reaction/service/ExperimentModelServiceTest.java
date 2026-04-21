@@ -33,7 +33,6 @@ import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
 
 @QuarkusTest
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
-@SuppressWarnings("SequencedCollectionMethodCanBeUsed")
 public class ExperimentModelServiceTest extends MutationsTestBase {
 
     DictionaryItemRef healthHazard;
@@ -66,7 +65,7 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     @Order(100)
     void testLoadReaction() {
         String rxnFile = new String(ModelUtil.loadResource(getClass(), "/reaction.rxn"));
-        applyMutation(new ReactionMutation.SetScheme(reaction.getAnchor(), rxnFile));
+        applyMutation(new ReactionMutation.SetScheme(reaction.getAnchor(), rxnFile), false);
     }
 
     @Test
@@ -126,19 +125,19 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     @Test
     @Order(500)
     void testSetInputWeight() {
-        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), 100.0, WeightUnit.G, null));
+        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "100.0", WeightUnit.G));
     }
 
     @Test
     @Order(501)
     void testSetInputWeightInKG() {
-        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), 0.1, WeightUnit.KG, null));
+        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "0.1", WeightUnit.KG));
     }
 
     @Test
     @Order(600)
     void testSetInputEQ() {
-        applyMutation(new ReactionInputMutation.SetInputRowEQ(input2.getAnchor(), 2.0, null));
+        applyMutation(new ReactionInputMutation.SetInputRowEQ(input2.getAnchor(), "2"));
     }
 
     @Test
@@ -151,7 +150,7 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     @Order(621)
     void testRemoveEmptyInput() {
         List<ReactionInput> inputs = experiment.getModel().getReactions().getFirst().getInputs();
-        applyMutation(new ReactionInputMutation.RemoveInput(inputs.getLast().getAnchor()));
+        applyMutation(new ReactionInputMutation.RemoveInputRow(inputs.getLast().getAnchor()));
     }
 
     @Test
@@ -163,19 +162,19 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     @Test
     @Order(800)
     void testSetOutputActualMol() {
-        applyMutation(new ReactionOutputSampleMutation.SetOutputActualMol(output2Sample1.getAnchor(), 200.0, MolUnit.MMOL, null));
+        applyMutation(new ReactionOutputSampleMutation.SetOutputActualMol(output2Sample1.getAnchor(), "200.0", MolUnit.MMOL));
     }
 
     @Test
     @Order(900)
     void testSetOutputPurity() {
-        applyMutation(new ReactionOutputSampleMutation.SetOutputPurity(output2Sample1.getAnchor(), 0.5, null));
+        applyMutation(new ReactionOutputSampleMutation.SetOutputPurity(output2Sample1.getAnchor(), "0.5"));
     }
 
     @Test
     @Order(1000)
     void testSetActualWeight() {
-        applyMutation(new ReactionOutputSampleMutation.SetOutputActualWeight(output2Sample1.getAnchor(), 10.0, WeightUnit.G, null));
+        applyMutation(new ReactionOutputSampleMutation.SetOutputActualWeight(output2Sample1.getAnchor(), "10.0", WeightUnit.G));
     }
 
     @Test

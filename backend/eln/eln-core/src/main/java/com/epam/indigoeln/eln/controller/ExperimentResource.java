@@ -1,7 +1,6 @@
 package com.epam.indigoeln.eln.controller;
 
 
-import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.eln.api.*;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.AttachmentService;
@@ -12,7 +11,7 @@ import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.InputAnchor;
 import com.epam.indigoeln.reaction.model.ReactionAnchor;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -52,13 +51,13 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
-    public @NotNull @Valid Page<ExperimentDTO> getProjectExperiments(@NotNull UUID projectId, @Nullable SortOrder sort, @Nullable Boolean createdByMe, @Valid Paging paging) {
-        return experimentService.getExperiments(projectId, null, sort, createdByMe, paging);
+    public @NotNull @Valid Page<ExperimentDTO> getProjectExperiments(@NotNull UUID projectId, @Nullable String search, @Nullable SortOrder sort, @Nullable Boolean createdByMe, @Valid Paging paging) {
+        return experimentService.getExperiments(projectId, null, search, sort, createdByMe, paging);
     }
 
     @Override
-    public @NotNull @Valid Page<ExperimentDTO> getNotebookExperiments(@NotNull UUID notebookId, @Nullable SortOrder sort, @Nullable Boolean createdByMe, @Valid Paging paging) {
-        return experimentService.getExperiments(null, notebookId, sort, createdByMe, paging);
+    public @NotNull @Valid Page<ExperimentDTO> getNotebookExperiments(@NotNull UUID notebookId, @Nullable String search, @Nullable SortOrder sort, @Nullable Boolean createdByMe, @Valid Paging paging) {
+        return experimentService.getExperiments(null, notebookId, search, sort, createdByMe, paging);
     }
 
     @Override
@@ -112,18 +111,28 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
-    public ExperimentPatch mutateExperimentModel2(UUID experimentId, Integer revision, Mutation mutation) {
+    public ExperimentSnapshot mutateExperimentModel3(UUID experimentId, Integer revision, Mutation mutation) {
+        return experimentService.mutateModel3(experimentId, revision, mutation);
+    }
+
+    @Override
+    public MutationResponse mutateExperimentModel4(UUID experimentId, Integer revision, Mutation mutation) {
+        return experimentService.mutateModel4(experimentId, revision, mutation);
+    }
+
+    @Override
+    public JsonNode mutateExperimentModel2(UUID experimentId, Integer revision, Mutation mutation) {
         return experimentService.mutateModel2(experimentId, revision, mutation);
     }
 
     @Override
-    public Response getReactionPicture(UUID experimentId, ReactionAnchor reactionAnchor, @Nullable Integer version) {
-        return experimentService.getReactionPicture(experimentId, reactionAnchor, version);
+    public Map<InputAnchor, String> analyzeRXN(UUID experimentId, ReactionAnchor reactionAnchor) {
+        return experimentService.analyzeRXN(experimentId, reactionAnchor);
     }
 
     @Override
-    public Map<InputAnchor, @org.jspecify.annotations.Nullable FindSamplesRequest> analyzeRXN(UUID experimentId, ReactionAnchor reactionAnchor) {
-        return experimentService.analyzeRXN(experimentId, reactionAnchor);
+    public Response getReactionPicture(UUID experimentId, ReactionAnchor reactionAnchor, @Nullable Integer revision) {
+        return experimentService.getReactionPicture(experimentId, reactionAnchor, revision);
     }
 
     @Override
@@ -172,7 +181,27 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
-    public List<RevisionDetailsDTO<ExperimentPatch>> getExperimentRevisions(UUID experimentId) {
-        return experimentService.getExperimentRevisions(experimentId);
+    public List<RevisionDetailsDTO> getExperimentRevisions(UUID experimentId, @Nullable UUID editSessionId, @Nullable Boolean reverseOrder) {
+        return experimentService.getExperimentRevisions(experimentId, editSessionId, reverseOrder);
+    }
+
+    @Override
+    public List<ExperimentRevisionSummaryDTO> getExperimentRevisionsSummary(UUID experimentId) {
+        return experimentService.getExperimentRevisionsSummary(experimentId);
+    }
+
+    @Override
+    public JsonNode compareVersions(UUID experimentId, @Nullable Integer versionFrom, @Nullable Integer versionTo) {
+        return experimentService.compareVersions(experimentId, versionFrom, versionTo);
+    }
+
+    @Override
+    public String compareVersionsHTML(UUID experimentId, @org.jspecify.annotations.Nullable Integer versionFrom, @org.jspecify.annotations.Nullable Integer versionTo) {
+        return experimentService.compareVersionsHTML(experimentId, versionFrom, versionTo);
+    }
+
+    @Override
+    public List<ExperimentRef> suggestExperiments(String search) {
+        return experimentService.suggestExperiments(search);
     }
 }

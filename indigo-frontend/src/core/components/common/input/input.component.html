@@ -26,10 +26,8 @@
           {
             'relative inline-flex w-full items-center gap-2 rounded-sm border px-3 py-2 transition-colors duration-200 border-neutral-300 outline-none placeholder:text-neutral-600 text-sm': true,
             'focus:border-primary-400 focus:text-black': !disabled(),
-            'cursor-not-allowed bg-neutral-100 border-neutral-300 text-neutral-600':
-              disabled(),
-            'hover:border-primary-400 active:border-primary-400':
-              !disabled() && !hasError(),
+            'cursor-not-allowed bg-neutral-100 border-neutral-300 text-neutral-600': disabled(),
+            'hover:border-primary-400 active:border-primary-400': !disabled() && !hasError(),
             'border-red-200 text-red-200': hasError(),
             'border-none rounded-l-none': suffixStyle(),
             'pl-10': icon,
@@ -45,10 +43,7 @@
     />
 
     @if (value() && !disabled() && showClearButton) {
-      <em
-        class="chip-icon indicon-close text-lg cursor-pointer absolute z-50 right-2"
-        (click)="clearValue()"
-      ></em>
+      <em class="chip-icon indicon-close text-lg cursor-pointer absolute z-50 right-2" (click)="clearValue()"></em>
     }
   </div>
 </label>

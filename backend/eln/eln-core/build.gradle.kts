@@ -7,6 +7,7 @@ plugins {
 dependencies {
     api(project(":eln:eln-api"))
     api(project(":reports:reports-api"))
+    api("io.quarkus:quarkus-smallrye-health")
     implementation(project(":database:flyway")) // TODO move flyway to a separate lambda and move dependency to testImplementation
 
     api("io.quarkus:quarkus-jdbc-postgresql")
@@ -49,6 +50,8 @@ artifacts {
 val copyNativeLibs by tasks.registering(Copy::class) {
     from(configurations.runtimeClasspath.get().filter { it.name.contains("indigo") }.map { zipTree(it)})
     include("**/linux-x86_64/*.so")
+    include("**/darwin-x86_64/*.dylib")
+    include("**/darwin-aarch64/*.dylib")
     includeEmptyDirs = false
     destinationDir = File("${projectDir}/build/nativelibs")
 }

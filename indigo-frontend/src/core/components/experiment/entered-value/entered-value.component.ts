@@ -1,18 +1,14 @@
 import { Component, ElementRef, inject, Input, ViewChild } from '@angular/core';
-import {
-  EnteredValue,
-  EnteredValueSource,
-  MeasurementUnit,
-} from '@core/types/entities/values.i';
+import { EnteredValue, MeasurementUnit } from '@core/types/entities/values.i';
 import { DecimalPipe, NgClass } from '@angular/common';
 import { MatOption, MatSelect } from '@angular/material/select';
 
 @Component({
   selector: 'eln-entered-value',
   templateUrl: './entered-value.component.html',
+  styleUrl: './entered-value.component.scss',
   providers: [DecimalPipe],
   imports: [DecimalPipe, MatSelect, MatOption, NgClass],
-  styles: ``,
 })
 export class EnteredValueComponent<U> {
   private _value: EnteredValue<U> | null;
@@ -36,22 +32,10 @@ export class EnteredValueComponent<U> {
 
   editing = false;
 
-  recalculated = false;
-
   @Input()
   set value(newValue: EnteredValue<U> | null) {
-    const oldValue = this._value;
     this._value = newValue;
-    this.recalculated = false;
     this.updateUnitDisplayName();
-    if (
-      oldValue !== undefined &&
-      newValue?.source === EnteredValueSource.CALCULATED_FROM_LAST_ENTERED
-    ) {
-      requestAnimationFrame(() => {
-        this.recalculated = true;
-      });
-    }
   }
 
   get value(): EnteredValue<U> | null {
@@ -80,10 +64,7 @@ export class EnteredValueComponent<U> {
 
   inputBlur(event: Event) {
     if (event instanceof FocusEvent && event.relatedTarget != null) {
-      if (
-        (event.relatedTarget as HTMLElement).closest('.x-parent') ==
-        this.parentRef.nativeElement
-      ) {
+      if ((event.relatedTarget as HTMLElement).closest('.x-parent') == this.parentRef.nativeElement) {
         return; // focus is still within our component, continue editing
       }
     }
@@ -95,36 +76,26 @@ export class EnteredValueComponent<U> {
       return;
     }
     this.editing = false;
-    const oldValue = this._value?.value;
+    const oldValueStr = this._value?.value;
+    const oldValue = oldValueStr != null ? parseFloat(oldValueStr) : null;
     const oldUnits = this._value?.unit;
     let newValue = this.editNumberRef.nativeElement.valueAsNumber;
     newValue = isNaN(newValue) ? null : newValue;
-    if (
-      newValue != null &&
-      oldValue != null &&
-      Math.abs(newValue - oldValue) <= 0.0005
-    ) {
+    if (newValue != null && oldValue != null && Math.abs(newValue - oldValue) <= 0.0005) {
       newValue = oldValue; // avoid minor changes due to rounding
     }
     const newUnits = selectedUnits == '_notmodified' ? oldUnits : selectedUnits;
     const valueChanged = newValue != oldValue;
     const unitsChanged = newValue != null && newUnits != oldUnits;
     if (valueChanged || unitsChanged) {
-      this.onChange(
-        newValue != null
-          ? { ...this._value, value: newValue, unit: newUnits }
-          : null,
-      );
+      this.onChange(newValue != null ? { ...this._value, value: newValue.toString(), unit: newUnits } : null);
     }
   }
 
   cancelEditing() {
     this.editing = false;
     // reset value in the input
-    this.editNumberRef.nativeElement.value = this.decimalPipe.transform(
-      this._value?.value,
-      '1.0-3',
-    );
+    this.editNumberRef.nativeElement.value = this.decimalPipe.transform(this._value?.value, '1.0-3');
   }
 
   private updateUnitDisplayName(): void {

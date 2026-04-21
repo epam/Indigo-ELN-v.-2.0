@@ -25,11 +25,7 @@ export class ApiService<T> {
     );
   }
 
-  public getPaged(
-    url: string,
-    pager: PagedRequest,
-    filter?,
-  ): Observable<PaginatedResponse<T>> {
+  public getPaged(url: string, pager: PagedRequest, filter?): Observable<PaginatedResponse<T>> {
     return this.httpClient.get<PaginatedResponse<T>>(this.buildUrl(url), {
       params: getRequestParams(filter, pager),
     });
@@ -47,11 +43,9 @@ export class ApiService<T> {
     return this.httpClient.get<T>(this.buildUrl(dictionary));
   }
 
-  public delete(url: string, id: string ): Observable<T> {
+  public delete(url: string, id: string): Observable<T> {
     return this.httpClient.delete<T>(this.buildUrl(`${url}/${id}`));
   }
 
-
-  private buildUrl = (str?: string) =>
-    `/api/eln/${str || ''}`.replace(/\/\//g, '/').replace(/\/+$/, '');
+  private buildUrl = (str?: string) => `/api/eln/${str || ''}`.replace(/\/\//g, '/').replace(/\/+$/, '');
 }

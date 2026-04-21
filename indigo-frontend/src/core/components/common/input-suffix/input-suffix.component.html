@@ -19,8 +19,7 @@
         'box-content grid grid-cols-4 rounded-sm border transition-colors duration-200 border-neutral-300': true,
         'focus:border-primary-400 focus:text-black': !disabled(),
         'cursor-not-allowed bg-neutral-100 border-neutral-300': disabled(),
-        'hover:border-primary-400 active:border-primary-400':
-          !disabled() && !hasError(),
+        'hover:border-primary-400 active:border-primary-400': !disabled() && !hasError(),
         'border-red-200 text-red-200': hasError(),
       } | classPicker
     "
@@ -31,8 +30,7 @@
           'transition-colors duration-200 border-r border-r-transparent': true,
           'focus:border-r-primary-400': !disabled(),
           'border-r-neutral-300': disabled(),
-          'hover:border-r-primary-400 active:border-r-primary-400':
-            !disabled() && !hasError(),
+          'hover:border-r-primary-400 active:border-r-primary-400': !disabled() && !hasError(),
           'border-r-red-200 text-red-200': hasError(),
         } | classPicker
       "
@@ -51,8 +49,7 @@
       [class]="
         {
           'relative left-[-1px] col-span-3 transition-colors duration-200 border-l border-l-transparent': true,
-          'hover:border-l-primary-400 active:border-primary-400':
-            !disabled() && !hasError(),
+          'hover:border-l-primary-400 active:border-primary-400': !disabled() && !hasError(),
         } | classPicker
       "
     >

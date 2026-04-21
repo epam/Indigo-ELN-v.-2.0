@@ -3,6 +3,7 @@ package com.epam.indigoeln.eln.entity;
 import com.epam.indigoeln.eln.config.hibernate.ACLEntryArrayType;
 import com.epam.indigoeln.eln.model.AccessLevel;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
+import com.epam.indigoeln.reaction.model.ExperimentModel;
 import io.hypersistence.utils.hibernate.type.search.PostgreSQLTSVectorType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
@@ -46,21 +47,35 @@ import java.util.*;
         attributeNodes = {
                 @NamedAttributeNode("createdBy"),
                 @NamedAttributeNode("modifiedBy"),
+                @NamedAttributeNode("title"),
                 @NamedAttributeNode("description"),
+                @NamedAttributeNode("literature"),
                 @NamedAttributeNode("therapeuticArea"),
                 @NamedAttributeNode("projectCode"),
                 @NamedAttributeNode("aclEntities"),
                 @NamedAttributeNode("signatures"),
                 @NamedAttributeNode("model"),
+                @NamedAttributeNode("batchCreator"),
+                @NamedAttributeNode(value = "linkedExperiments", subgraph = "Experiment.linkedExperiments"),
+                @NamedAttributeNode(value = "continuedFrom", subgraph = "Experiment.linkedExperiments"),
+                @NamedAttributeNode(value = "continuedTo", subgraph = "Experiment.linkedExperiments"),
                 @NamedAttributeNode(value = "calculatedInfo", subgraph = "Experiment.calculatedInfo.details"),
         },
-        subgraphs = @NamedSubgraph(
-                name = "Experiment.calculatedInfo.details",
-                attributeNodes = {
-                        @NamedAttributeNode("currentAccess"),
-                        @NamedAttributeNode("marked"),
-                }
-        )
+        subgraphs = {
+                @NamedSubgraph(
+                        name = "Experiment.calculatedInfo.details",
+                        attributeNodes = {
+                                @NamedAttributeNode("currentAccess"),
+                                @NamedAttributeNode("marked"),
+                        }
+                ),
+                @NamedSubgraph(
+                        name = "Experiment.linkedExperiments",
+                        attributeNodes = {
+                                @NamedAttributeNode("name")
+                        }
+                )
+        }
 )
 @NamedEntityGraph(
         name = "Experiment.forSignature",
@@ -74,6 +89,13 @@ import java.util.*;
         name = "Experiment.withACL",
         attributeNodes = {
                 @NamedAttributeNode("aclEntities"),
+        }
+)
+@NamedEntityGraph(
+        name = "Experiment.forRef",
+        attributeNodes = {
+                @NamedAttributeNode("id"),
+                @NamedAttributeNode("name"),
         }
 )
 @DynamicUpdate
@@ -98,6 +120,10 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @Pattern(regexp = "^\\d{8}-\\d{4}$")
     private String name;
 
+    @Nullable
+    @Basic(fetch = FetchType.LAZY)
+    private String title;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     @JdbcType(PostgreSQLEnumJdbcType.class)
@@ -117,6 +143,29 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
 
     @Nullable
     @Basic(fetch = FetchType.LAZY)
+    private String literature;
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY)
+    private UserEntity batchCreator;
+
+    @NotNull
+    @OneToMany
+    @JoinTable(name = "Experiment_Linked_Experiment", joinColumns = @JoinColumn(name = "parent_id"), inverseJoinColumns = @JoinColumn(name = "experiment_id"))
+    private Set<ExperimentEntity> linkedExperiments;
+
+    @NotNull
+    @OneToMany
+    @JoinTable(name = "Experiment_Continued_From", joinColumns = @JoinColumn(name = "parent_id"), inverseJoinColumns = @JoinColumn(name = "experiment_id"))
+    private Set<ExperimentEntity> continuedFrom;
+
+    @NotNull
+    @OneToMany
+    @JoinTable(name = "Experiment_Continued_To", joinColumns = @JoinColumn(name = "parent_id"), inverseJoinColumns = @JoinColumn(name = "experiment_id"))
+    private Set<ExperimentEntity> continuedTo;
+
+    @Nullable
+    @Basic(fetch = FetchType.LAZY)
     @Type(PostgreSQLTSVectorType.class)
     @Column(insertable = false, updatable = false)
     private String searchVector;
@@ -129,6 +178,10 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @JdbcTypeCode(SqlTypes.JSON)
     @Basic(fetch = FetchType.LAZY)
     private String model;
+
+    @Nullable
+    @Transient
+    private ExperimentModel modelObj;
 
     @Basic(fetch = FetchType.LAZY)
     private byte @Nullable [] picture;
@@ -164,6 +217,10 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @OneToMany(mappedBy = "experiment")
     @OrderBy("revision")
     private List<ExperimentRevisionEntity> revisions = new ArrayList<>(0);
+
+    @NotNull
+    @OneToMany(mappedBy = "experiment")
+    private Set<ExperimentEditSessionEntity> editSessions = new HashSet<>(0);
 
     @Nullable
     @OneToOne(fetch = FetchType.LAZY)
