@@ -7,6 +7,7 @@ import { ExperimentDetail } from '@/core/types/entities/experiments/experiment-d
 import { CardComponent } from '@/core/components/common/card/card.component';
 import { ProjectTabButtonComponent } from '@pages/project/project-tab-button/project-tab-button.component';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { BreadcrumbsComponent } from '@/core/components/breadcrumbs/breadcrumbs.component';
 
 @Component({
   selector: 'eln-experiment-layout',
@@ -18,6 +19,7 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
     CommonModule,
     CardComponent,
     MatProgressSpinner,
+    BreadcrumbsComponent
   ],
 })
 export class ExperimentLayoutComponent implements OnInit, OnDestroy {

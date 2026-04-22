@@ -11,7 +11,7 @@
   "
 >
   <div class="flex items-center justify-between flex-wrap gap-4">
-    <div class="font-semibold text-lg">All Projects</div>
+    <eln-breadcrumbs></eln-breadcrumbs>
     @for (ngTemplate of state.buttonTemplates; track ngTemplate) {
       <ng-container [ngTemplateOutlet]="ngTemplate"></ng-container>
     }

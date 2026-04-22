@@ -7,6 +7,7 @@ import { NotebookService } from '@core/services/notebook/notebook.service';
 import { ExperimentAddComponent } from '@pages/experiment/experiment-add/experiment-add.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ProjectTabButtonComponent } from '@pages/project/project-tab-button/project-tab-button.component';
+import { BreadcrumbsComponent } from '@/core/components/breadcrumbs/breadcrumbs.component';
 
 @Component({
   selector: 'eln-notebook-detail',
@@ -17,6 +18,7 @@ import { ProjectTabButtonComponent } from '@pages/project/project-tab-button/pro
     ProjectTabButtonComponent,
     ButtonComponent,
     CardComponent,
+    BreadcrumbsComponent
   ],
   providers: [NotebookService],
 })
