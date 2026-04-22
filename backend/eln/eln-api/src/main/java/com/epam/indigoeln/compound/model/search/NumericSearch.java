@@ -1,4 +1,4 @@
-package com.epam.indigoeln.compound.model;
+package com.epam.indigoeln.compound.model.search;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;

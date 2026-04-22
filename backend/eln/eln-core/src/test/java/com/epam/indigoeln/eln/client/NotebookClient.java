@@ -2,9 +2,11 @@ package com.epam.indigoeln.eln.client;
 
 import com.epam.indigoeln.eln.api.NotebookAPI;
 import com.epam.indigoeln.eln.model.AttachmentDTO;
-import jakarta.ws.rs.*;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
 
 import java.util.List;
@@ -21,9 +23,4 @@ public interface NotebookClient extends NotebookAPI {
     @Path("/notebooks/{notebookId}/attachments")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     List<AttachmentDTO> createNotebookAttachment(@PathParam("notebookId") UUID notebookId, ClientUtil.ClientUploadForm form);
-
-    @GET
-    @Path("/notebook/{notebookId}/attachments/{attachmentId}")
-    @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    Response downloadNotebookAttachmentClient(@PathParam("notebookId") UUID notebookId, @PathParam("attachmentId") UUID attachmentId);
 }

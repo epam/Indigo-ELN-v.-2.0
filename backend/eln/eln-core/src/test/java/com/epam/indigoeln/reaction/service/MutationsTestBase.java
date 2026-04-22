@@ -11,7 +11,6 @@ import com.epam.indigoeln.test.FeignUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.math.Stats;
 import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterAll;
@@ -19,7 +18,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInfo;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public abstract class MutationsTestBase extends ELNBaseTest {
@@ -113,13 +111,10 @@ public abstract class MutationsTestBase extends ELNBaseTest {
         JsonNode patch = response.getPatch();
         ExperimentDetailsDTO updatedExperiment = experimentClient.getExperiment(experiment.getId());
 
-        // !!! take picture from response
-        // reload picture
-        Response pictureResponse = experimentClient.getExperimentPictureClient(experiment.getId());
-        byte[] newPicture = (byte[]) pictureResponse.getEntity();
-        if (picture == null || newPicture != null && !Arrays.equals(picture, newPicture)) {
-            picture = newPicture;
-            reportBuilder.addPicture(reportClass, picture, pictureResponse.getHeaderString(HttpHeaders.CONTENT_TYPE));
+        String newPicture = response.getReactionImages() != null ? response.getReactionImages().get(reaction.getAnchor()) : null;
+        if (newPicture != null) {
+            picture = newPicture.getBytes();
+            reportBuilder.addPicture(reportClass, picture, FeignUtil.getLastResponse().headers().get(HttpHeaders.CONTENT_TYPE).iterator().next());
         }
         ExperimentSnapshot updatedSnapshot = experimentClient.getExperimentSnapshot(experiment.getId());
 

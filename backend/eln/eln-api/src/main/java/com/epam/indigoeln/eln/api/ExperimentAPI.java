@@ -12,6 +12,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -69,7 +70,8 @@ public interface ExperimentAPI extends BaseAPI {
     @GET
     @Path("/experiments/{experimentId}/picture")
     @Produces("image/svg+xml")
-    byte[] getExperimentPicture(@PathParam("experimentId") UUID experimentId);
+    @Cached(interval = 30, unit = ChronoUnit.DAYS)
+    byte[] getExperimentPicture(@PathParam("experimentId") UUID experimentId, @Nullable @QueryParam("revision") Integer revision);
 
     @POST
     @Path("/experiments/{experimentId}/mark")
@@ -101,7 +103,9 @@ public interface ExperimentAPI extends BaseAPI {
 
     @GET
     @Path("/experiments/{experimentId}/datamodel/reactions/{reactionAnchor}/picture")
-    Response getReactionPicture(@PathParam("experimentId") UUID experimentId, @PathParam("reactionAnchor") ReactionAnchor reactionAnchor, @Nullable @QueryParam("revision") Integer revision);
+    @Produces("image/svg+xml")
+    @Cached(interval = 30, unit = ChronoUnit.DAYS)
+    byte[] getReactionPicture(@PathParam("experimentId") UUID experimentId, @PathParam("reactionAnchor") ReactionAnchor reactionAnchor, @Nullable @QueryParam("revision") Integer revision);
 
     @POST
     @Path("/experiments/{experimentId}/datamodel/reactions/{reactionAnchor}/analyzeRXN")

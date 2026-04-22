@@ -17,4 +17,6 @@ public class GlobalSearchResultDTO extends BaseDTO {
     private Set<ReactionRole> reactionRoles;
     @Nullable
     private ExperimentStatus experimentStatus;
+    @Nullable
+    private Integer revision;
 }

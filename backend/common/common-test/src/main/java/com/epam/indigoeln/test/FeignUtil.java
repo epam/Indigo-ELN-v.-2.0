@@ -19,6 +19,8 @@ import feign.jaxrs3.JAXRS3Contract;
 import feign.slf4j.Slf4jLogger;
 import io.vertx.core.json.jackson.VertxModule;
 import jakarta.ws.rs.core.HttpHeaders;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -40,6 +42,10 @@ public class FeignUtil {
 
     public static final ObjectMapper OBJECT_MAPPER_FORMATTED = OBJECT_MAPPER.copy()
             .enable(SerializationFeature.INDENT_OUTPUT);
+
+    @Getter
+    @Setter
+    private static Response lastResponse;
 
     public static <T> T buildFeignClient(URI baseURL, Class<T> klass, AtomicReference<String> testUsername, AtomicReference<String> authorization) {
         return Feign.builder()

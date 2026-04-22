@@ -1,18 +1,21 @@
 package com.epam.indigoeln.eln.controller;
 
 
-import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.SampleDTO;
+import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
+import com.epam.indigoeln.compound.model.search.SampleSearchResult;
+import com.epam.indigoeln.compound.model.search.SearchCatalog;
 import com.epam.indigoeln.compound.service.CompoundService;
+import com.epam.indigoeln.compound.service.search.SampleSearchService;
 import com.epam.indigoeln.eln.api.BaseAPI;
 import com.epam.indigoeln.eln.api.CompoundAPI;
 import com.epam.indigoeln.eln.api.UploadForm;
-import com.epam.indigoeln.eln.model.Page;
-import com.epam.indigoeln.eln.model.Paging;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.QueryParam;
 import lombok.SneakyThrows;
+import org.jspecify.annotations.Nullable;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
@@ -24,6 +27,8 @@ public class CompoundResource implements CompoundAPI {
 
     @Inject
     CompoundService compoundService;
+    @Inject
+    SampleSearchService sampleSearchService;
 
     @Override
     @SneakyThrows
@@ -34,13 +39,23 @@ public class CompoundResource implements CompoundAPI {
     }
 
     @Override
-    public Response getCompoundPicture(UUID compoundID) {
+    public byte[] getCompoundPicture(UUID compoundID) {
         return compoundService.getCompoundPicture(compoundID);
     }
 
     @Override
-    public Page<SampleDTO> findSamples(FindSamplesRequest request, Paging paging) {
-        return compoundService.findSamples(request, paging);
+    public byte[] getExternalPicture(String inchi) {
+        return compoundService.getExternalPicture(inchi);
+    }
+
+    @Override
+    public SampleSearchResult search(@Valid FindSamplesRequest request, @Nullable @QueryParam("nextCatalog") SearchCatalog nextCatalog, @Nullable @QueryParam("nextAfter") String nextAfter, @Nullable @QueryParam("limit") Integer limit) {
+        return sampleSearchService.search(request, nextCatalog, nextAfter, limit);
+    }
+
+    @Override
+    public SampleDTO importFromSearch(SampleDTO searchItem) {
+        return sampleSearchService.importSample(searchItem);
     }
 
     @Override

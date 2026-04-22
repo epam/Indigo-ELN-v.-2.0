@@ -1,10 +1,13 @@
 package com.epam.indigoeln.reaction.service;
 
 import com.epam.indigoeln.common.util.ModelUtil;
-import com.epam.indigoeln.compound.model.FindSamplesRequest;
-import com.epam.indigoeln.compound.model.SampleDTO;
+import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
+import com.epam.indigoeln.compound.model.search.SampleSearchResult;
 import com.epam.indigoeln.eln.ELNBaseTest;
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.model.BuiltInDictionary;
+import com.epam.indigoeln.eln.model.DictionaryItemRef;
+import com.epam.indigoeln.eln.model.MutationResponse;
+import com.epam.indigoeln.eln.model.Paging;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.*;
 import com.epam.indigoeln.reaction.model.outputsample.*;
@@ -21,8 +24,10 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
+import static com.epam.indigoeln.compound.model.search.SearchCatalog.ELN;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -61,12 +66,12 @@ public class MutationsTest extends MutationsTestBase {
 
     @Test
     void testAddInputToEmptyReaction() {
-        Page<SampleDTO> samples = compoundClient.findSamples(new FindSamplesRequest(), Paging.DEFAULT);
-        applyMutation(new ReactionMutation.AddInput(reaction.getAnchor(), samples.getItems().getFirst().getId()));
+        SampleSearchResult samples = compoundClient.search(new FindSamplesRequest().withCatalogs(Set.of(ELN)), null, null, Paging.DEFAULT_PAGE_SIZE);
+        applyMutation(new ReactionMutation.AddInput(reaction.getAnchor(), samples.items().getFirst().getId()));
         assertThat(input1).isNotNull();
         assertThat(input1.getCompound()).isInstanceOf(CompoundRef.Stored.class);
         assertThat(input1Sample1).isNotNull();
-        assertThat(input1Sample1.getSampleId()).isEqualTo(samples.getItems().getFirst().getId());
+        assertThat(input1Sample1.getSampleId()).isEqualTo(samples.items().getFirst().getId());
     }
 
     @Test
