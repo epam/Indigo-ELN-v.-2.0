@@ -64,14 +64,11 @@ export class IsInViewportDirective implements OnInit, OnDestroy {
 
     if (!isPlatformBrowser(this.platformId)) return;
 
-    this.observer = new IntersectionObserver(
-      (entries) => this.handleIntersection(entries),
-      {
-        threshold: this.threshold,
-        rootMargin: this.rootMargin,
-        root: this.rootElement || null,
-      },
-    );
+    this.observer = new IntersectionObserver((entries) => this.handleIntersection(entries), {
+      threshold: this.threshold,
+      rootMargin: this.rootMargin,
+      root: this.rootElement || null,
+    });
 
     this.observer.observe(this.elementRef.nativeElement);
   }

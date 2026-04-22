@@ -1,13 +1,10 @@
 <div class="flex flex-col gap-4">
   <div>
-    <eln-reaction-scheme-view
-      [reaction]="reaction()"
-      [experimentId]="experimentId()"
-    />
+    <eln-reaction-scheme-view [reaction]="reaction()" [experimentId]="experimentId()" />
   </div>
 
   <div>
-    <eln-reaction-inputs-table/>
+    <eln-reaction-inputs-table />
   </div>
 
   <div>
@@ -15,9 +12,6 @@
   </div>
 
   <div>
-    <eln-product-batch-summary-table
-      [reaction]="reaction()"
-      [experimentId]="experimentId()"
-    />
+    <eln-product-batch-summary-table [reaction]="reaction()" [experimentId]="experimentId()" />
   </div>
 </div>

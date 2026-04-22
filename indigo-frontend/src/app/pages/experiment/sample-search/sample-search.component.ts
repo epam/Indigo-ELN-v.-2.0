@@ -1,20 +1,6 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  DestroyRef,
-  EventEmitter,
-  inject,
-  Input,
-  OnInit,
-  Output,
-  ViewChild,
-} from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioButton, MatRadioGroup } from '@angular/material/radio';
@@ -22,22 +8,18 @@ import {
   FindSamplesRequest,
   NumericSearch,
   Sample,
+  SEARCH_CATALOG_MAPPING,
+  SearchCatalog,
+  SearchCatalogUI,
   StructuralSearchType,
   TextSearch,
 } from '@core/types/entities/experiments/search.i';
-import {
-  MatExpansionPanel,
-  MatExpansionPanelHeader,
-  MatExpansionPanelTitle,
-} from '@angular/material/expansion';
+import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
 import { TextSearchComponent } from '@core/components/common/text-search/text-search.component';
-import {
-  BuiltInDictionary,
-  DictionaryItemRef,
-} from '@core/types/entities/dictionary.i';
+import { BuiltInDictionary, DictionaryItemRef } from '@core/types/entities/dictionary.i';
 import { NumericSearchComponent } from '@core/components/common/numeric-search/numeric-search.component';
 import { ApiService } from '@core/services/api.service';
-import { InfiniteSearchLoader } from '@core/components/util/infinite-scroll-search';
+import { SamplesSearchLoader } from '@core/components/util/infinite-scroll-search';
 import { MatTooltip } from '@angular/material/tooltip';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -45,8 +27,6 @@ import {
   StructureEditorModalResult,
 } from '@core/components/experiment/structure-editor-modal/structure-editor-modal.component';
 import { ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
-import { distinctUntilChanged } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { DictionarySelectComponent } from '@core/components/common/dictionary-select/dictionary-select.component';
 import {
   dictionarySearchSummary,
@@ -62,8 +42,10 @@ import { SampleSearchResultsComponent } from '@pages/experiment/sample-search-re
 import { ExperimentDetailService } from '@core/services/experiment/experiment-detail.service';
 import { NotificationService } from '@core/services/notification/notification.service';
 import { NotificationType } from '@core/types/notification.i';
+import { UUID } from '@core/types/entities/experiments/experiment-shared.i';
 
 export interface SampleSearchCriteria {
+  catalogs?: SearchCatalogUI;
   quickSearch?: string;
   structureSearchType?: StructuralSearchType;
   structure?: string;
@@ -78,12 +60,16 @@ export interface SampleSearchCriteria {
   casNumber?: TextSearch;
 }
 
-export enum SearchCatalog {
-  ALL = 'ALL',
-  INDIGO_ELN = 'INDIGO_ELN',
-  PUB_CHEM = 'PUB_CHEM',
-  MY_MATERIALS = 'MY_MATERIALS',
-}
+const PUBCHEM_DISABLED_CONTROLS = [
+  'compoundKey',
+  'nbkBatchNumber',
+  'molWeight',
+  'chemicalName',
+  'compoundState',
+  'batchComment',
+  'healthHazards',
+  'casNumber',
+];
 
 @Component({
   standalone: true,
@@ -118,7 +104,7 @@ export class SampleSearchComponent implements OnInit {
 
   @Output() close = new EventEmitter<void>();
 
-  loader: InfiniteSearchLoader<FindSamplesRequest, Sample>;
+  loader: SamplesSearchLoader;
 
   @ViewChild('advancedSearchPanel') advancedSearchPanel: MatExpansionPanel;
 
@@ -131,11 +117,9 @@ export class SampleSearchComponent implements OnInit {
   title = 'Add Material';
 
   form = new FormGroup({
-    catalog: new FormControl<SearchCatalog>(SearchCatalog.ALL),
+    catalog: new FormControl<SearchCatalogUI>(SearchCatalogUI.ALL),
     quickSearch: new FormControl<string | null>(null),
-    structureSearchType: new FormControl<StructuralSearchType>(
-      StructuralSearchType.SUBSTRUCTURE,
-    ),
+    structureSearchType: new FormControl<StructuralSearchType>(StructuralSearchType.SUBSTRUCTURE),
     structure: new FormControl<string | null>(null),
     compoundKey: new FormControl<TextSearch | null>(null),
     nbkBatchNumber: new FormControl<TextSearch | null>(null),
@@ -151,42 +135,24 @@ export class SampleSearchComponent implements OnInit {
   formNotEmpty = false;
 
   advancedSearchSummary: string[] | null = null;
+  advancedSearchMessage: string | null = null;
 
   ngOnInit(): void {
-    this.loader = new InfiniteSearchLoader<FindSamplesRequest, Sample>(
-      (searchParams, pageNo) =>
-        this.apiService.request(
-          'post',
-          `samples/search?pageNo=${pageNo}&pageSize=20`,
-          searchParams,
-        ),
-    );
-    this.form.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((formValues) => {
-        setEnabled(
-          this.form.get('structureSearchType'),
-          formValues.structure != null,
-          false,
-        );
-        this.formNotEmpty = Object.entries(formValues)
-          .filter(([k, _]) => k !== 'structureSearchType')
-          .some(([_, v]) => isFormValueNotEmpty(v));
-      });
+    this.loader = new SamplesSearchLoader(this.apiService);
+    this.form.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((formValues) => {
+      setEnabled(this.form.get('structureSearchType'), formValues.structure != null, false);
+      const hasPubChem = SEARCH_CATALOG_MAPPING[formValues.catalog].includes(SearchCatalog.PUBCHEM);
 
-    this.form.valueChanges
-      .pipe(
-        map((form) => form.catalog),
-        distinctUntilChanged(),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe({
-        next: () => {
-          if (this.loader.started) {
-            this.performSearch();
-          }
-        },
-      });
+      for (const controlName of PUBCHEM_DISABLED_CONTROLS) {
+        setEnabled(this.form.get(controlName), !hasPubChem, false);
+      }
+      this.advancedSearchMessage = hasPubChem
+        ? 'PubChem does not support fine-grained search. Use quick search instead'
+        : null;
+      this.formNotEmpty = Object.entries(formValues)
+        .filter(([k, _]) => k !== 'structureSearchType')
+        .some(([_, v]) => isFormValueNotEmpty(v));
+    });
 
     if (this.defaultCriteria) {
       const valuesWithDefaults = {
@@ -195,9 +161,7 @@ export class SampleSearchComponent implements OnInit {
       };
       this.form.setValue(valuesWithDefaults as never);
       this.structureImage = this.defaultImage
-        ? URL.createObjectURL(
-            new Blob([this.defaultImage], { type: 'image/svg+xml' }),
-          )
+        ? URL.createObjectURL(new Blob([this.defaultImage], { type: 'image/svg+xml' }))
         : null;
     }
   }
@@ -207,21 +171,12 @@ export class SampleSearchComponent implements OnInit {
       let parts = [
         textSearchSummary('Compound ID', this.form.value.compoundKey),
         textSearchSummary('NBK Batch Number', this.form.value.nbkBatchNumber),
-        textSearchSummary(
-          'Molecular Formula',
-          this.form.value.molecularFormula,
-        ),
+        textSearchSummary('Molecular Formula', this.form.value.molecularFormula),
         numericSearchSummary('Molecular Weight', this.form.value.molWeight),
         textSearchSummary('Chemical Name', this.form.value.chemicalName),
-        dictionarySearchSummary(
-          'Compound State',
-          this.form.value.compoundState,
-        ),
+        dictionarySearchSummary('Compound State', this.form.value.compoundState),
         textSearchSummary('Batch Comment', this.form.value.batchComment),
-        dictionarySearchSummary(
-          'Health Hazards',
-          this.form.value.healthHazards,
-        ),
+        dictionarySearchSummary('Health Hazards', this.form.value.healthHazards),
         textSearchSummary('CAS Number', this.form.value.casNumber),
       ];
       parts = parts.filter((part) => part != null);
@@ -245,11 +200,10 @@ export class SampleSearchComponent implements OnInit {
       casNumber,
     } = formValue;
     const body: FindSamplesRequest = {
+      catalogs: SEARCH_CATALOG_MAPPING[formValue.catalog],
       quickSearch: formValue.quickSearch || null,
       structure:
-        formValue.structure != null
-          ? { type: formValue.structureSearchType, query: formValue.structure }
-          : null,
+        formValue.structure != null ? { type: formValue.structureSearchType, query: formValue.structure } : null,
       compoundKey,
       nbkBatchNumber,
       molecularFormula,
@@ -260,6 +214,12 @@ export class SampleSearchComponent implements OnInit {
       healthHazards,
       casNumber,
     };
+    const hasPubChem = SEARCH_CATALOG_MAPPING[formValue.catalog].includes(SearchCatalog.PUBCHEM);
+    if (hasPubChem) {
+      for (const controlName of PUBCHEM_DISABLED_CONTROLS) {
+        delete body[controlName];
+      }
+    }
     this.loader.search(body);
     this.advancedSearchPanel.close();
   }
@@ -296,10 +256,20 @@ export class SampleSearchComponent implements OnInit {
   }
 
   addToExperiment(sample: Sample) {
+    if (!sample.id) {
+      this.apiService.request<Sample>('post', '/samples/importFromSearch', sample).subscribe((response) => {
+        this.doAddToExperiment(response.id);
+      });
+    } else {
+      this.doAddToExperiment(sample.id);
+    }
+  }
+
+  doAddToExperiment(sampleID: UUID) {
     const mutation = {
       type: 'AddInput' as const,
       anchor: this.reactionAnchor,
-      sampleId: sample.id,
+      sampleId: sampleID,
     };
     this.experimentDetailService.updateDataModel(mutation).subscribe(() => {
       this.notificationService.notify({

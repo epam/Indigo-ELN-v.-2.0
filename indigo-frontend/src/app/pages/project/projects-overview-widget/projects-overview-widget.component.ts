@@ -50,7 +50,5 @@ export class ProjectsOverviewWidgetComponent {
 
   apiService = inject(ApiService);
 
-  totalCounts: Signal<TotalCounts> = toSignal(
-    this.apiService.request('get', 'total-counts'),
-  );
+  totalCounts: Signal<TotalCounts> = toSignal(this.apiService.request('get', 'total-counts'));
 }

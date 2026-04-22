@@ -6,9 +6,7 @@ import { RouteAnimationType } from '@core/animations/route-animations';
   selector: 'eln-template-layout',
   templateUrl: './template-layout.component.html',
   standalone: true,
-  imports: [
-    TemplateListComponent
-  ],
+  imports: [TemplateListComponent],
 })
 export class TemplateLayoutComponent {
   animationType = RouteAnimationType.SlideRight;

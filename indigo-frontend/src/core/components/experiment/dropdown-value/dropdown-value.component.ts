@@ -1,9 +1,5 @@
 import { Component, forwardRef, Input } from '@angular/core';
-import {
-  MatOption,
-  MatSelect,
-  MatSelectChange,
-} from '@angular/material/select';
+import { MatOption, MatSelect, MatSelectChange } from '@angular/material/select';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
@@ -37,9 +33,7 @@ export class DropdownValueComponent implements ControlValueAccessor {
   onTouchForm: (() => void) | null = null;
 
   getDisplayName(): string | null {
-    return (
-      this.options.find((option) => option.id === this.value)?.name ?? null
-    );
+    return this.options.find((option) => option.id === this.value)?.name ?? null;
   }
 
   changeValue(event: MatSelectChange) {
@@ -49,10 +43,7 @@ export class DropdownValueComponent implements ControlValueAccessor {
         this.onChange(newValue);
       }
       if (this.onChangeForm) {
-        const option =
-          event.value != null
-            ? this.options.find((option) => option.id === newValue)
-            : null;
+        const option = event.value != null ? this.options.find((option) => option.id === newValue) : null;
         this.onChangeForm(option);
       }
     }

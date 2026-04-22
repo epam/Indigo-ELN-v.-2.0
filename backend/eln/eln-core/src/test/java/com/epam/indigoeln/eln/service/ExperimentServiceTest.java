@@ -8,6 +8,7 @@ import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
+import com.epam.indigoeln.test.FeignUtil;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
@@ -273,7 +274,7 @@ class ExperimentServiceTest extends ELNBaseTest {
     void testDownloadAttachment(@TempDir Path tempDir) throws Exception {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", tempDir, "content".getBytes());
-        Response response = experimentClient.downloadExperimentAttachmentClient(experiment.getId(), attachments.getFirst().getId());
+        Response response = experimentClient.downloadExperimentAttachment(experiment.getId(), attachments.getFirst().getId());
         assertThat(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION)).containsExactly("attachment; filename=attachment.txt");
         assertThat((byte[]) response.getEntity()).asString().isEqualTo("content");
     }
@@ -298,27 +299,25 @@ class ExperimentServiceTest extends ELNBaseTest {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         ExperimentModel model = experiment.getModel();
         Reaction reaction = model.getReactions().getFirst();
-        assertThat(reaction.getRxnVersion()).isZero();
-        Response response = experimentClient.getExperimentPictureClient(experiment.getId());
-        assertThat((byte[]) response.getEntity()).containsExactly(ExperimentService.EMPTY_PICTURE);
-        response = experimentClient.getReactionPicture(experiment.getId(), reaction.getAnchor(), reaction.getRxnVersion());
-        assertThat((byte[]) response.getEntity()).containsExactly(ExperimentService.EMPTY_PICTURE);
+        byte[] response = experimentClient.getExperimentPicture(experiment.getId(), experiment.getRevision());
+        assertThat(response).containsExactly(ExperimentService.EMPTY_PICTURE);
+        response = experimentClient.getReactionPicture(experiment.getId(), reaction.getAnchor(), experiment.getRevision());
+        assertThat(response).containsExactly(ExperimentService.EMPTY_PICTURE);
 
         String rxnFile = new String(loadResource(getClass(), "/reaction.rxn"));
         experimentClient.mutateExperimentModel(experiment.getId(), new MutateModelForm(experiment.getModel(), new ReactionMutation.SetScheme(model.getReactions().getFirst().getAnchor(), rxnFile)));
 
         model = experimentClient.getExperiment(experiment.getId()).getModel();
         reaction = model.getReactions().getFirst();
-        assertThat(reaction.getRxnVersion()).isEqualTo(1);
 
-        response = experimentClient.getExperimentPictureClient(experiment.getId());
+        response = experimentClient.getExperimentPicture(experiment.getId(), experiment.getRevision());
         assertThat(response).isNotEqualTo(ExperimentService.EMPTY_PICTURE);
-        Files.write(Paths.get("picture.svg"), (byte[]) response.getEntity());
-        response = experimentClient.getReactionPicture(experiment.getId(), reaction.getAnchor(), reaction.getRxnVersion());
+        Files.write(Paths.get("picture.svg"), response);
+        response = experimentClient.getReactionPicture(experiment.getId(), reaction.getAnchor(), experiment.getRevision());
         assertThat(response).isNotEqualTo(ExperimentService.EMPTY_PICTURE);
-        assertThat(response.getHeaders().getFirst(HttpHeaders.CONTENT_TYPE)).isEqualTo("image/svg+xml");
+        assertThat(FeignUtil.getLastResponse().headers().get(HttpHeaders.CONTENT_TYPE).iterator().next()).isEqualTo("image/svg+xml");
         //noinspection deprecation
-        CacheControl cacheControl = CacheControl.valueOf((String) response.getHeaders().getFirst(HttpHeaders.CACHE_CONTROL));
+        CacheControl cacheControl = CacheControl.valueOf(FeignUtil.getLastResponse().headers().get("X-Cache-Control").iterator().next());
         assertThat(cacheControl.getMaxAge()).isPositive();
     }
 

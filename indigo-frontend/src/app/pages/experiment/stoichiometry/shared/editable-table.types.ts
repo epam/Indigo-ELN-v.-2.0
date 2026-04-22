@@ -13,16 +13,11 @@ export enum ColumnInputType {
 }
 
 export interface UnitFieldValue {
-  value: number | string;
+  value: string;
   unit: string;
 }
 
-export type FieldValue =
-  | string
-  | null
-  | boolean
-  | UnitFieldValue
-  | DictionaryItemRef[];
+export type FieldValue = string | null | boolean | UnitFieldValue | DictionaryItemRef | DictionaryItemRef[];
 
 export interface UnitInputChange {
   value?: string | null;
@@ -35,14 +30,14 @@ export interface ColumnOption {
   name: string;
 }
 
-export interface ColumnConfig<TRow = unknown> {
+export interface ColumnConfig<TRow = unknown, TValue = FieldValue> {
   id: string;
   header: string;
   type: ColumnInputType;
-  field: (row: TRow) => FieldValue;
+  field: (row: TRow) => TValue;
   classes?: (row: TRow) => string[];
   editable?: (row: TRow) => boolean;
-  onSave?: (row: TRow, payload?: unknown) => void;
+  onSave?: (row: TRow, payload?: TValue | null) => void;
   options?: ColumnOption[] | DictionaryItemRef[];
   tooltip?: (row: TRow) => string;
   iconClasses?: (row: TRow) => string[];

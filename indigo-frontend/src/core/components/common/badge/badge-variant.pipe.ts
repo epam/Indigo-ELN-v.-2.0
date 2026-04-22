@@ -7,11 +7,7 @@ import { BadgeVariantProps, badgeVariants } from './badge.variant';
   standalone: true,
 })
 export class BadgeVariantPipe implements PipeTransform {
-  transform(
-    variant: BadgeVariantProps['variant'],
-    size: BadgeVariantProps['size'],
-    classList?: string,
-  ): string {
+  transform(variant: BadgeVariantProps['variant'], size: BadgeVariantProps['size'], classList?: string): string {
     return twsx(badgeVariants({ variant, size }), classList);
   }
 }

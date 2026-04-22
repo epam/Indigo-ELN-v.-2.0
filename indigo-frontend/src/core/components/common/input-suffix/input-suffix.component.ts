@@ -1,11 +1,5 @@
 import { Component, forwardRef, input, output, signal } from '@angular/core';
-import {
-  ControlValueAccessor,
-  FormControl,
-  FormGroup,
-  NG_VALUE_ACCESSOR,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { ControlValueAccessor, FormControl, FormGroup, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { ClassPickerPipe } from '../../../pipes/classPicker.pipe';
 import { InputSuffixValue } from '../../../types/input-suffix.i';
 import { DropdownMenuItem } from '../dropdown-menu/dropdown-menu.i';
@@ -23,12 +17,7 @@ import { SelectComponent } from '../select/select.component';
       multi: true,
     },
   ],
-  imports: [
-    SelectComponent,
-    InputComponent,
-    ClassPickerPipe,
-    ReactiveFormsModule,
-  ],
+  imports: [SelectComponent, InputComponent, ClassPickerPipe, ReactiveFormsModule],
 })
 export class InputSuffixComponent implements ControlValueAccessor {
   label = input.required<string>();
@@ -92,8 +81,6 @@ export class InputSuffixComponent implements ControlValueAccessor {
     } else if (item === 'input' && placeholder?.input) {
       return placeholder.input;
     }
-    return item === 'suffix'
-      ? 'Select an option'
-      : this.label() || 'Enter text';
+    return item === 'suffix' ? 'Select an option' : this.label() || 'Enter text';
   }
 }

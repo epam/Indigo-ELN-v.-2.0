@@ -9,20 +9,14 @@ import { MatInputModule } from '@angular/material/input';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { toHTML } from 'ngx-editor';
 import { NOTEBOOK_NAME_LENGTH } from '../notebook.constants';
-import { of, switchMap, map, catchError } from 'rxjs';
+import { catchError, map, of, switchMap } from 'rxjs';
 import { NotificationType } from '@/core/types/notification.i';
 import { NotificationService } from '@/core/services/notification/notification.service';
 
 @Component({
   standalone: true,
   selector: 'eln-notebook-add',
-  imports: [
-    MatInputModule,
-    FormsModule,
-    ReactiveFormsModule,
-    CommonModule,
-    FormDialogComponent,
-  ],
+  imports: [MatInputModule, FormsModule, ReactiveFormsModule, CommonModule, FormDialogComponent],
   templateUrl: './notebook-add.component.html',
 })
 export class NotebookAddComponent {
@@ -55,10 +49,7 @@ export class NotebookAddComponent {
             const value: string = control.value;
             return of(value).pipe(
               switchMap((v: string) =>
-                this.service.request<{ exists: boolean }>(
-                  'get',
-                  `notebooks/existence?name=${encodeURIComponent(v)}`,
-                ),
+                this.service.request<{ exists: boolean }>('get', `notebooks/existence?name=${encodeURIComponent(v)}`),
               ),
               map((res) => (res?.exists ? { uniqueName: true } : null)),
               catchError(() => of(null)),
@@ -95,17 +86,14 @@ export class NotebookAddComponent {
     this.service
       .create(`projects/${this.projectId}/notebooks`, {
         ...data,
-        description:
-          typeof data.description === 'object'
-            ? toHTML(data.description)
-            : data.description,
+        description: typeof data.description === 'object' ? toHTML(data.description) : data.description,
       })
       .subscribe(() => {
-         this.notificationService.notify({
-              message: 'Notebook successfully created.',
-              type: NotificationType.Success,
-              isInline: false,
-            });
+        this.notificationService.notify({
+          message: 'Notebook successfully created.',
+          type: NotificationType.Success,
+          isInline: false,
+        });
         this.dialogRef.close('refresh');
       });
   }

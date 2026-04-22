@@ -1,4 +1,4 @@
-import { UserService } from '@/core/services/user.service';
+import { IdentityService } from '@/core/services/identity.service';
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -36,7 +36,7 @@ import { MatDialog } from '@angular/material/dialog';
 export class MasterComponent implements OnInit, OnDestroy {
   destroy$ = new Subject<void>();
   authenticatorService = inject(AuthenticatorService);
-  userService = inject(UserService);
+  identityService = inject(IdentityService);
   dialog = inject(MatDialog);
   public isCollapsed = false;
   public searchControl = new FormControl('');
@@ -45,7 +45,7 @@ export class MasterComponent implements OnInit, OnDestroy {
   userName = 'John D.';
   userAvatar = 'assets/avatar-placeholder.png';
 
-  @ViewChild('content', {static: true}) content!: ElementRef<HTMLElement>;
+  @ViewChild('content', { static: true }) content!: ElementRef<HTMLElement>;
 
   logout() {
     this.authenticatorService.signOut();
@@ -53,14 +53,18 @@ export class MasterComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.userService.user$.pipe(takeUntil(this.destroy$)).subscribe((user) => {
+    this.identityService.user$.pipe(takeUntil(this.destroy$)).subscribe((user) => {
       this.userName = `${user.displayName}`;
     });
 
-    (this.router.events as Observable<NavigationEnd>).pipe(filter((e) => e instanceof NavigationEnd), takeUntil(this.destroy$))
-    .subscribe(() => {
-      this.content.nativeElement.scrollTop = 0;
-    })
+    (this.router.events as Observable<NavigationEnd>)
+      .pipe(
+        filter((e) => e instanceof NavigationEnd),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(() => {
+        this.content.nativeElement.scrollTop = 0;
+      });
   }
 
   ngOnDestroy(): void {

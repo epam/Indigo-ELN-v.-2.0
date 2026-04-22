@@ -1,31 +1,24 @@
 import { FormDialogComponent } from '@/core/components/common/form-dialog/form-dialog.component';
 import { ApiService } from '@/core/services/api.service';
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { toHTML } from 'ngx-editor';
-import { tap, of } from 'rxjs';
+import { of, tap } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { Project } from '@core/types/entities/project.i';
 import { Router } from '@angular/router';
 import { PROJECT_NAME_MAX_LENGTH } from '../project.constants';
-import { signal } from '@angular/core';
 import { NotificationType } from '@/core/types/notification.i';
 import { NotificationService } from '@/core/services/notification/notification.service';
 
 @Component({
   standalone: true,
   selector: 'eln-project-add',
-  imports: [
-    MatInputModule,
-    FormsModule,
-    ReactiveFormsModule,
-    CommonModule,
-    FormDialogComponent,
-  ],
+  imports: [MatInputModule, FormsModule, ReactiveFormsModule, CommonModule, FormDialogComponent],
   templateUrl: './project-add.component.html',
 })
 export class ProjectAddComponent implements OnInit {
@@ -48,10 +41,7 @@ export class ProjectAddComponent implements OnInit {
         required: true,
       },
       validators: {
-        validation: [
-          Validators.required,
-          Validators.maxLength(PROJECT_NAME_MAX_LENGTH),
-        ],
+        validation: [Validators.required, Validators.maxLength(PROJECT_NAME_MAX_LENGTH)],
       },
       asyncValidators: {
         validation: [
@@ -62,9 +52,7 @@ export class ProjectAddComponent implements OnInit {
             }
             return of(value).pipe(
               switchMap((v: string) => {
-                this.uniqueNameToastMessage.set(
-                  `Project with name '${v}' already exists`,
-                );
+                this.uniqueNameToastMessage.set(`Project with name '${v}' already exists`);
                 return this.service.request<{ exists: boolean }>(
                   'get',
                   `projects/existence?name=${encodeURIComponent(v)}`,
@@ -135,10 +123,7 @@ export class ProjectAddComponent implements OnInit {
     this.service
       .create('projects', {
         ...data,
-        description:
-          typeof data.description === 'object'
-            ? toHTML(data.description)
-            : data.description,
+        description: typeof data.description === 'object' ? toHTML(data.description) : data.description,
       })
       .subscribe((newProject: Project) => {
         this.notificationService.notify({
@@ -155,10 +140,7 @@ export class ProjectAddComponent implements OnInit {
     this.service
       .update(`projects/${this.project.id}`, {
         ...data,
-        description:
-          typeof data.description === 'object'
-            ? toHTML(data.description)
-            : data.description,
+        description: typeof data.description === 'object' ? toHTML(data.description) : data.description,
       })
       .pipe(
         tap(() => {

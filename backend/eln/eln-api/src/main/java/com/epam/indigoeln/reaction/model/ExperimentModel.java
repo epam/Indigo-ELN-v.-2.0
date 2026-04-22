@@ -22,15 +22,11 @@ import static com.google.common.base.Preconditions.checkArgument;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class ExperimentModel implements ExperimentNode {
 
-    public static final int SCHEMA_VERSION = 1;
     public static final int DEFAULT_SIGNIFICANT_FIGURES = 5;
 
     @NotEmpty
     @JsonManagedReference
     private List<@Valid Reaction> reactions = new ArrayList<>();
-
-    @NotNull
-    private Integer schemaVersion;
 
     @NotNull
     private Integer significantFigures;

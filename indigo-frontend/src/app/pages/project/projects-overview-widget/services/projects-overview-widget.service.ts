@@ -6,39 +6,27 @@ import { ProjectOverviewWidgetSlot } from '../types/project-overview-widget.i';
   providedIn: 'root',
 })
 export class ProjectsOverviewWidgetService {
-  private readonly slotTemplates = new Map<
-    ProjectOverviewWidgetSlot,
-    Set<TemplateRef<unknown>>
-  >();
+  private readonly slotTemplates = new Map<ProjectOverviewWidgetSlot, Set<TemplateRef<unknown>>>();
 
-  private readonly tabTemplatesSubject = new BehaviorSubject<
-    TemplateRef<unknown>[]
-  >([]);
+  private readonly tabTemplatesSubject = new BehaviorSubject<TemplateRef<unknown>[]>([]);
 
-  private readonly buttonTemplatesSubject = new BehaviorSubject<
-    TemplateRef<unknown>[]
-  >([]);
+  private readonly buttonTemplatesSubject = new BehaviorSubject<TemplateRef<unknown>[]>([]);
 
   private lastBackup: {
     tabs: Set<TemplateRef<unknown>>;
     buttons: Set<TemplateRef<unknown>>;
   } | null = null;
 
-  readonly tabTemplates$: Observable<TemplateRef<unknown>[]> =
-    this.tabTemplatesSubject.asObservable();
+  readonly tabTemplates$: Observable<TemplateRef<unknown>[]> = this.tabTemplatesSubject.asObservable();
 
-  readonly buttonTemplates$: Observable<TemplateRef<unknown>[]> =
-    this.buttonTemplatesSubject.asObservable();
+  readonly buttonTemplates$: Observable<TemplateRef<unknown>[]> = this.buttonTemplatesSubject.asObservable();
 
   constructor() {
     this.slotTemplates.set('tab', new Set());
     this.slotTemplates.set('button', new Set());
   }
 
-  addTemplate(
-    template: TemplateRef<unknown>,
-    slot: ProjectOverviewWidgetSlot,
-  ): void {
+  addTemplate(template: TemplateRef<unknown>, slot: ProjectOverviewWidgetSlot): void {
     const templates = this.slotTemplates.get(slot)!;
 
     // Only add if not already present
@@ -48,10 +36,7 @@ export class ProjectsOverviewWidgetService {
     }
   }
 
-  removeTemplate(
-    template: TemplateRef<unknown>,
-    slot: ProjectOverviewWidgetSlot,
-  ): void {
+  removeTemplate(template: TemplateRef<unknown>, slot: ProjectOverviewWidgetSlot): void {
     const templates = this.slotTemplates.get(slot)!;
     if (templates.delete(template)) {
       this.emitTemplates(slot);

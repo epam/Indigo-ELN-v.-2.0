@@ -75,25 +75,24 @@ export interface Template extends BaseEntity {
 }
 
 export interface RootTemplate {
-  pageNo: number
-  pageSize: number
-  totalItems: number
-  totalPages: number
-  items: ItemTemplate[]
+  pageNo: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+  items: ItemTemplate[];
 }
 
 export interface ItemTemplate {
-  id: string
-  createdBy: CreatedBy
-  createdAt: string
-  modifiedBy: CreatedBy
-  modifiedAt: string
-  name: string
+  id: string;
+  createdBy: CreatedBy;
+  createdAt: string;
+  modifiedBy: CreatedBy;
+  modifiedAt: string;
+  name: string;
 }
 
 export interface CreatedBy {
-  id: string
-  username: string
-  displayName: string
+  id: string;
+  username: string;
+  displayName: string;
 }
-

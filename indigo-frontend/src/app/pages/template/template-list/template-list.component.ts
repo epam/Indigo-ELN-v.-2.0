@@ -1,8 +1,5 @@
 import { Component, inject, Input, OnDestroy } from '@angular/core';
-import {
-  ListHeaderComponent,
-  SortChangeEvent,
-} from '@core/components/common/list-header/list-header.component';
+import { ListHeaderComponent, SortChangeEvent } from '@core/components/common/list-header/list-header.component';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -43,10 +40,7 @@ import { TemplateAddComponent } from '@pages/template/template-add/template-add.
     TemplateItemComponent,
   ],
 })
-export class TemplateListComponent
-  extends InfiniteScrollBase<ItemTemplate>
-  implements OnDestroy
-{
+export class TemplateListComponent extends InfiniteScrollBase<ItemTemplate> implements OnDestroy {
   @Input() animationType!: RouteAnimationType;
   dialog = inject(MatDialog);
   selectedView: 'list';

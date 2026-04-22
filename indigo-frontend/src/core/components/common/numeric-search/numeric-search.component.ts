@@ -1,14 +1,5 @@
-import {
-  Component,
-  DestroyRef,
-  forwardRef,
-  inject,
-  OnInit,
-} from '@angular/core';
-import {
-  NumericSearch,
-  NumericSearchTypeNames,
-} from '@core/types/entities/experiments/search.i';
+import { Component, DestroyRef, forwardRef, inject, OnInit } from '@angular/core';
+import { NumericSearch, NumericSearchTypeNames } from '@core/types/entities/experiments/search.i';
 import { MatOption, MatSelect } from '@angular/material/select';
 import { MatInput } from '@angular/material/input';
 import {
@@ -25,14 +16,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'eln-numeric-search',
-  imports: [
-    MatSelect,
-    MatOption,
-    MatInput,
-    FormsModule,
-    KeyValuePipe,
-    ReactiveFormsModule,
-  ],
+  imports: [MatSelect, MatOption, MatInput, FormsModule, KeyValuePipe, ReactiveFormsModule],
   templateUrl: './numeric-search.component.html',
   providers: [
     {
@@ -42,10 +26,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     },
   ],
 })
-export class NumericSearchComponent
-  extends DelegatingControlBase<NumericSearch>
-  implements OnInit
-{
+export class NumericSearchComponent extends DelegatingControlBase<NumericSearch> implements OnInit {
   form = new FormGroup({
     type: new FormControl<keyof typeof NumericSearchTypeNames>('eq'),
     value: new FormControl<number | null>(null),
@@ -54,15 +35,13 @@ export class NumericSearchComponent
   private destroyRef = inject(DestroyRef);
 
   ngOnInit() {
-    this.form.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((formValue) => {
-        let result: NumericSearch | null = null;
-        if (formValue.value != null) {
-          result = { type: formValue.type, value: formValue.value };
-        }
-        this.triggerChange(result);
-      });
+    this.form.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((formValue) => {
+      let result: NumericSearch | null = null;
+      if (formValue.value != null) {
+        result = { type: formValue.type, value: formValue.value };
+      }
+      this.triggerChange(result);
+    });
   }
 
   setValue(obj: NumericSearch | null): void {

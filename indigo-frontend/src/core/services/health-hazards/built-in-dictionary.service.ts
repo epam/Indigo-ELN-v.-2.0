@@ -1,9 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { ApiService } from '@/core/services/api.service';
-import {
-  BuiltInDictionary,
-  DictionaryItemRef,
-} from '@/core/types/entities/dictionary.i';
+import { BuiltInDictionary, DictionaryItemRef } from '@/core/types/entities/dictionary.i';
 
 @Injectable({
   providedIn: 'root',
@@ -14,6 +11,8 @@ export class BuiltInDictionaryService {
   // Private cache to track loaded dictionaries
   private cache = new Map<BuiltInDictionary, DictionaryItemRef[]>();
   private loading = new Set<BuiltInDictionary>();
+  private saltCodeCache: DictionaryItemRef[] | null = null;
+  private saltCodeLoading = false;
 
   /**
    * Load one or more dictionaries into cache.
@@ -31,6 +30,10 @@ export class BuiltInDictionaryService {
     return this.cache.get(dictionary) ?? [];
   }
 
+  getSaltCodes(): DictionaryItemRef[] {
+    return this.saltCodeCache ?? [];
+  }
+
   private loadSingle(dictionary: BuiltInDictionary, forceReload = false) {
     // Return early if already cached and not forcing reload
     if (!forceReload && this.cache.has(dictionary)) {
@@ -44,17 +47,35 @@ export class BuiltInDictionaryService {
 
     this.loading.add(dictionary);
 
-    this.service
-      .request<DictionaryItemRef[]>('get', `dictionaries/${dictionary}`)
-      .subscribe({
-        next: (items) => {
-          this.cache.set(dictionary, items);
-          this.loading.delete(dictionary);
-        },
-        error: () => {
-          this.cache.set(dictionary, []);
-          this.loading.delete(dictionary);
-        },
-      });
+    this.service.request<DictionaryItemRef[]>('get', `dictionaries/${dictionary}`).subscribe({
+      next: (items) => {
+        this.cache.set(dictionary, items);
+        this.loading.delete(dictionary);
+      },
+      error: () => {
+        this.cache.set(dictionary, []);
+        this.loading.delete(dictionary);
+      },
+    });
+  }
+
+  public loadSaltCodes(forceReload = false) {
+    if (!forceReload && this.saltCodeCache != null) {
+      return;
+    }
+    if (this.saltCodeLoading) {
+      return;
+    }
+    this.saltCodeLoading = true;
+    this.service.request<DictionaryItemRef[]>('get', 'saltCodes').subscribe({
+      next: (items) => {
+        this.saltCodeCache = items;
+        this.saltCodeLoading = false;
+      },
+      error: () => {
+        this.saltCodeCache = [];
+        this.saltCodeLoading = false;
+      },
+    });
   }
 }

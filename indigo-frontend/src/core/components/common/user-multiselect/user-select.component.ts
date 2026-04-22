@@ -1,22 +1,10 @@
-import {
-  Component,
-  DestroyRef,
-  forwardRef,
-  inject,
-  OnInit,
-} from '@angular/core';
+import { Component, DestroyRef, forwardRef, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AutocompleteSelectComponent } from '@core/components/common/autocomplete-select/autocomplete-select.component';
 import { UserMetadata } from '@core/types/entities/user.i';
 import { Observable } from 'rxjs';
 import { ApiService } from '@core/services/api.service';
-import {
-  AbstractControl,
-  FormControl,
-  FormGroup,
-  NG_VALUE_ACCESSOR,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { DelegatingControlBase } from '@core/components/common/delegating-control/delegating-control-base.component';
 import { HttpParams } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -34,10 +22,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     },
   ],
 })
-export class UserSelectComponent
-  extends DelegatingControlBase<UserMetadata>
-  implements OnInit
-{
+export class UserSelectComponent extends DelegatingControlBase<UserMetadata> implements OnInit {
   form = new FormGroup({
     search: new FormControl<UserMetadata | null>(null),
   });

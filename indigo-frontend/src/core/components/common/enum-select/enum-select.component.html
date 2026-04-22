@@ -12,11 +12,7 @@
         </ng-template>
       </eln-autocomplete-select>
     } @else {
-      <eln-dropdown-value
-        formControlName="single"
-        [allowNull]="allowEmpty"
-        [options]="allItems"
-      />
+      <eln-dropdown-value formControlName="single" [allowNull]="allowEmpty" [options]="allItems" />
     }
   </div>
 </form>

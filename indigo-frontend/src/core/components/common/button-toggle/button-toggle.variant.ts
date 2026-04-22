@@ -1,19 +1,16 @@
 import { cva } from 'class-variance-authority';
 
-export const buttonToggleVariants = cva(
-  ['inline-flex rounded-lg overflow-hidden'],
-  {
-    variants: {
-      variant: {
-        default: 'bg-transparent border border-primary-400',
-        alpha: 'bg-neutral-200',
-      },
-    },
-    defaultVariants: {
-      variant: 'default',
+export const buttonToggleVariants = cva(['inline-flex rounded-lg overflow-hidden'], {
+  variants: {
+    variant: {
+      default: 'bg-transparent border border-primary-400',
+      alpha: 'bg-neutral-200',
     },
   },
-);
+  defaultVariants: {
+    variant: 'default',
+  },
+});
 
 export const buttonToggleButtonVariants = cva(
   [
@@ -31,11 +28,7 @@ export const buttonToggleButtonVariants = cva(
           'hover:bg-primary-100',
           'data-[selected=true]:bg-primary-100',
         ],
-        alpha: [
-          'text-primary-400',
-          'hover:bg-primary-100',
-          'data-[selected=true]:bg-primary-100',
-        ],
+        alpha: ['text-primary-400', 'hover:bg-primary-100', 'data-[selected=true]:bg-primary-100'],
       },
     },
     defaultVariants: {

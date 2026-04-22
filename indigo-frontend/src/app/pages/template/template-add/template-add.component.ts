@@ -13,13 +13,7 @@ import { Template } from '@core/types/entities/template.i';
 @Component({
   standalone: true,
   selector: 'eln-template-add',
-  imports: [
-    MatInputModule,
-    FormsModule,
-    ReactiveFormsModule,
-    CommonModule,
-    FormDialogComponent,
-  ],
+  imports: [MatInputModule, FormsModule, ReactiveFormsModule, CommonModule, FormDialogComponent],
   templateUrl: './template-add.component.html',
   styleUrl: './template-add.component.scss',
 })
@@ -80,10 +74,7 @@ export class TemplateAddComponent implements OnInit {
     this.service
       .update(`templates/${this.template.id}`, {
         ...data,
-        description:
-          typeof data.templateTabs === 'object'
-            ? toHTML(data.templateTabs)
-            : data.templateTabs,
+        description: typeof data.templateTabs === 'object' ? toHTML(data.templateTabs) : data.templateTabs,
       })
       .subscribe(() => this.dialogRef.close('refresh'));
   }

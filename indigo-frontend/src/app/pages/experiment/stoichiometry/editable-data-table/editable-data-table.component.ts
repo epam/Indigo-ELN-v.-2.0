@@ -1,10 +1,4 @@
-import {
-  Component,
-  inject,
-  input,
-  signal,
-  ViewChild,
-} from '@angular/core';
+import { Component, inject, input, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   MatCell,
@@ -19,11 +13,7 @@ import {
   MatTable,
 } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
-import {
-  MatOption,
-  MatSelect,
-  MatSelectTrigger,
-} from '@angular/material/select';
+import { MatOption, MatSelect, MatSelectTrigger } from '@angular/material/select';
 import { MatInput } from '@angular/material/input';
 import { MatDivider } from '@angular/material/divider';
 import { FormsModule } from '@angular/forms';
@@ -38,6 +28,7 @@ import {
 import { ExperimentDetailService } from '@/core/services/experiment/experiment-detail.service';
 import { MatIconButton } from '@angular/material/button';
 import { MatTooltip } from '@angular/material/tooltip';
+import { EnteredValue } from '@core/types/entities/values.i';
 
 @Component({
   selector: 'eln-editable-data-table',
@@ -74,34 +65,20 @@ export class EditableDataTableComponent<TRow = unknown> {
   @ViewChild(MatTable) table?: MatTable<TRow>;
 
   dataSource = input.required<TRow[] | null>();
-  columns = input.required<ColumnConfig<TRow>[]>();
+  columns = input.required<ColumnConfig<TRow, FieldValue>[]>();
   displayedColumns = input.required<string[]>();
   emptyMessage = input<string>('No data available');
   loadingMessage = input<string>('Loading...');
   expandableConfig = input<ExpandableConfig<TRow> | null>(null);
 
-
   expandedRows = signal<Set<TRow>>(new Set());
 
-  compareDictionaryItems = (
-    a?: DictionaryItemRef | null,
-    b?: DictionaryItemRef | null,
-  ) => (!!a && !!b ? a.id === b.id : a === b);
-
-  getInputType(columnId: string): ColumnInputType {
-    const column = this.columns().find((c) => c.id === columnId);
-    return column?.type ?? ColumnInputType.TEXT;
-  }
+  compareDictionaryItems = (a?: DictionaryItemRef | null, b?: DictionaryItemRef | null) =>
+    !!a && !!b ? a.id === b.id : a === b;
 
   toUnitField(fieldValue: FieldValue): UnitFieldValue | null {
-    return fieldValue &&
-      typeof fieldValue !== 'string' &&
-      typeof fieldValue !== 'boolean' &&
-      !Array.isArray(fieldValue)
-      ? fieldValue
-      : null;
+    return fieldValue as UnitFieldValue;
   }
-
 
   toggleRow(row: TRow) {
     const expanded = this.expandedRows();
@@ -125,5 +102,39 @@ export class EditableDataTableComponent<TRow = unknown> {
     }
     return this.displayedColumns();
   }
-    detailRow = (_index: number, row: TRow) => this.isRowExpanded(row);
+  detailRow = (_index: number, row: TRow) => this.isRowExpanded(row);
+
+  callSave(column: ColumnConfig<TRow, FieldValue>, row: TRow, newValue: FieldValue): void {
+    const oldValue = column.field(row);
+    if (oldValue !== newValue) {
+      column?.onSave(row, newValue || null);
+    }
+  }
+
+  callSaveEV(column: ColumnConfig<TRow, unknown>, row: TRow, selectedValue: string, selectedUnit: unknown): void {
+    const columnEV = column as ColumnConfig<TRow, EnteredValue<unknown>>;
+    const oldValue = columnEV.field(row);
+    const newValue = {
+      value: selectedValue,
+      unit: selectedUnit,
+    } as EnteredValue<unknown>;
+    const oldSet = this.isFullySet(oldValue),
+      newSet = this.isFullySet(newValue);
+    if (newSet && oldSet) {
+      // update existing value
+      if (newValue.value !== oldValue?.value || newValue.unit !== oldValue.unit) {
+        columnEV?.onSave(row, newValue);
+      }
+    } else if (newSet) {
+      // set new value
+      columnEV?.onSave(row, newValue);
+    } else if (oldSet) {
+      // remove old value
+      columnEV?.onSave(row, null);
+    }
+  }
+
+  private isFullySet(value: EnteredValue<unknown> | null): boolean {
+    return value != null && value.value != null && value.value !== '' && value.unit != null && value.unit !== '';
+  }
 }

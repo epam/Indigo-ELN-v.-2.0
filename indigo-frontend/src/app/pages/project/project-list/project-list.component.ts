@@ -1,9 +1,6 @@
 import { ButtonComponent } from '@/core/components/common/button/button.component';
 import { DropdownMenuItem } from '@/core/components/common/dropdown-menu/dropdown-menu.i';
-import {
-  ListHeaderComponent,
-  SortChangeEvent,
-} from '@/core/components/common/list-header/list-header.component';
+import { ListHeaderComponent, SortChangeEvent } from '@/core/components/common/list-header/list-header.component';
 import { InfiniteLoaderComponent } from '@/core/components/util/infinite-loader/infinite-loader.component';
 import { InfiniteScrollBase } from '@/core/components/util/infinite-scroll.base';
 import { ClassPickerPipe } from '@/core/pipes/classPicker.pipe';
@@ -43,10 +40,7 @@ import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview
     ListHeaderComponent,
   ],
 })
-export class ProjectListComponent
-  extends InfiniteScrollBase<Project>
-  implements OnDestroy
-{
+export class ProjectListComponent extends InfiniteScrollBase<Project> implements OnDestroy {
   dialog = inject(MatDialog);
   selectedView: 'grid' | 'list' = 'grid';
   private refreshSub!: Subscription;

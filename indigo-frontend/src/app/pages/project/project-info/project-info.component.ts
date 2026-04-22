@@ -57,11 +57,9 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
   };
 
   ngOnInit() {
-    this.activatedRoute.params
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(({ id }) => {
-        if (id) this.loadProject(id);
-      });
+    this.activatedRoute.params.pipe(takeUntil(this.destroy$)).subscribe(({ id }) => {
+      if (id) this.loadProject(id);
+    });
   }
 
   ngOnDestroy() {
@@ -72,9 +70,7 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
   onAttachmentDeleted(attachmentId: string): void {
     if (this.project) {
       // Remove the deleted attachment from the local array
-      this.project.attachments = this.project.attachments.filter(
-        (attachment) => attachment.id !== attachmentId,
-      );
+      this.project.attachments = this.project.attachments.filter((attachment) => attachment.id !== attachmentId);
     }
   }
 
@@ -96,11 +92,7 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
     from(formDatas)
       .pipe(
         concatMap((formData) =>
-          this.service.request<Attachment[]>(
-            'post',
-            `projects/${this.project!.id}/attachments`,
-            formData,
-          ),
+          this.service.request<Attachment[]>('post', `projects/${this.project!.id}/attachments`, formData),
         ),
         finalize(() => (this.isUploadingAttachment = false)),
         takeUntil(this.destroy$),
@@ -135,8 +127,7 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
 
     if (mode === projectInfoModalEnum.NOTEBOOK) {
       ref = this.dialog.open(NotebookAddComponent);
-      (ref.componentInstance as NotebookAddComponent).projectId =
-        this.project.id;
+      (ref.componentInstance as NotebookAddComponent).projectId = this.project.id;
     }
 
     ref

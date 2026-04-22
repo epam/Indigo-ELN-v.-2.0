@@ -1,9 +1,7 @@
 <eln-card [classList]="'cursor-pointer'" (click)="openDetails()">
   <div class="flex flex-col w-full px-4">
     <div class="flex justify-between items-center mb-3 w-full">
-      <h3
-        class="flex items-center gap-x-2 font-semibold text-neutral-1000 text-base"
-      >
+      <h3 class="flex items-center gap-x-2 font-semibold text-neutral-1000 text-base">
         <em class="text-primary-400 text-xl indicon-book"></em>
         {{ notebook.name }}
       </h3>
@@ -13,7 +11,9 @@
           <div class="flex -space-x-2">
             @for (user of notebook.acl; track user.userId) {
               <div
-                class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white" [matTooltip]="user.displayName" matTooltipPosition="above"
+                class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white"
+                [matTooltip]="user.displayName"
+                matTooltipPosition="above"
               >
                 {{ user.displayName | initials }}
               </div>
@@ -59,37 +59,25 @@
           'space-y-2': variant === 'grid',
         }"
       >
-        <div
-          class="flex flex-col"
-          [ngClass]="{ 'flex-col space-y-2': variant == 'list' }"
-        >
+        <div class="flex flex-col" [ngClass]="{ 'flex-col space-y-2': variant == 'list' }">
           <div class="text-neutral-1000 text-sm">Experiments</div>
-          <div
-            class="flex items-center gap-[0.6rem]"
-            [ngClass]="{ 'ml-auto': variant === 'grid' }"
-          >
+          <div class="flex items-center gap-[0.6rem]" [ngClass]="{ 'ml-auto': variant === 'grid' }">
             @if (notebook['experimentCountByStatus'].OPEN) {
-              <span class="font-semibold text-h4 text-primary-400">{{
-                notebook['experimentCountByStatus'].OPEN
-              }}</span>
+              <span class="font-semibold text-h4 text-primary-400">{{ notebook['experimentCountByStatus'].OPEN }}</span>
             }
-            <span class="font-semibold text-h4 text-neutral-1000">{{
-              notebook.experimentCount
-            }}</span>
+            <span class="font-semibold text-h4 text-neutral-1000">{{ notebook.experimentCount }}</span>
           </div>
         </div>
 
-        <div
-          class="flex flex-col"
-          [ngClass]="{ 'flex-col space-y-2': variant == 'list' }"
-          *ngIf="variant === 'list'"
-        >
+        <div class="flex flex-col" [ngClass]="{ 'flex-col space-y-2': variant == 'list' }" *ngIf="variant === 'list'">
           <div class="text-neutral-1000 text-sm">Members</div>
           <div class="flex items-center">
             <div class="flex -space-x-2">
               @for (user of notebook.acl; track user.userId) {
                 <div
-                  class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white" [matTooltip]="user.displayName" matTooltipPosition="above"
+                  class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white"
+                  [matTooltip]="user.displayName"
+                  matTooltipPosition="above"
                 >
                   {{ user.displayName | initials }}
                 </div>
@@ -105,10 +93,7 @@
           </div>
         </div>
 
-        <div
-          class="flex flex-col text-sm"
-          [ngClass]="{ 'flex-col space-y-2': variant == 'list' }"
-        >
+        <div class="flex flex-col text-sm" [ngClass]="{ 'flex-col space-y-2': variant == 'list' }">
           <div class="text-neutral-1000 text-sm">Last Edited</div>
           <div [ngClass]="{ 'ml-auto': variant === 'grid' }">
             {{ notebook.modifiedAt | date: 'dd MMM yyyy' }} by
@@ -116,10 +101,7 @@
           </div>
         </div>
 
-        <div
-          class="flex flex-col text-sm"
-          [ngClass]="{ 'flex-col space-y-2': variant == 'list' }"
-        >
+        <div class="flex flex-col text-sm" [ngClass]="{ 'flex-col space-y-2': variant == 'list' }">
           <div class="text-neutral-1000">Created</div>
           <div [ngClass]="{ 'ml-auto': variant === 'grid' }">
             {{ notebook.createdAt | date: 'dd MMM yyyy' }} by

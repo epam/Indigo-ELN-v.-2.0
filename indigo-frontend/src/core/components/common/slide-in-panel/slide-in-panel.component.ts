@@ -50,9 +50,7 @@ export class SlideInPanelComponent {
     this.contentOutlet.clear();
     const ref = this.contentOutlet.createComponent(component);
     if (config?.inputs) {
-      Object.entries(config.inputs).forEach(([key, value]) =>
-        ref.setInput(key, value),
-      );
+      Object.entries(config.inputs).forEach(([key, value]) => ref.setInput(key, value));
     }
     this._isOpen.set(true);
     return ref;

@@ -17,14 +17,12 @@ export abstract class InfiniteScrollBase<T> extends PaginatedBase<T> {
     // 2. Clearer data management: avoid side effects inside switchMap
     this.dataList$.subscribe((data) => {
       const currValue = this.dataBh.value;
-      const result = this.appendToTop
-        ? [...data.items, ...currValue]
-        : [...currValue, ...data.items];
+      const result = this.appendToTop ? [...data.items, ...currValue] : [...currValue, ...data.items];
 
       this.dataBh.next(ensureDistinct(result, 'id'));
       this.isLoading = false;
 
-       if (this.isInfiniteLoaderVisible) {
+      if (this.isInfiniteLoaderVisible) {
         this.infiniteLoad();
       }
     });
@@ -36,13 +34,12 @@ export abstract class InfiniteScrollBase<T> extends PaginatedBase<T> {
     this.isInfiniteLoaderVisible = false;
   }
 
-   onInfiniteLoaderEntered(): void {
+  onInfiniteLoaderEntered(): void {
     this.isInfiniteLoaderVisible = true;
   }
 
   infiniteLoad() {
     if (this.isLoading) return;
-    
 
     const nextBackendPage = this.pager.pageNo + 1;
     const totalPages = Math.ceil(this.total / this.pager.pageSize);

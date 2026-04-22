@@ -1,11 +1,4 @@
-import {
-  animate,
-  group,
-  query,
-  style,
-  transition,
-  trigger,
-} from '@angular/animations';
+import { animate, group, query, style, transition, trigger } from '@angular/animations';
 
 export enum RouteAnimationType {
   Fade = 'fade',
@@ -20,18 +13,12 @@ export const fadeAnimation = trigger('fadeAnimation', [
     group([
       query(
         ':enter',
-        [
-          style({ opacity: 0, position: 'absolute', width: '100%' }),
-          animate('300ms ease-out', style({ opacity: 1 })),
-        ],
+        [style({ opacity: 0, position: 'absolute', width: '100%' }), animate('300ms ease-out', style({ opacity: 1 }))],
         { optional: true },
       ),
       query(
         ':leave',
-        [
-          style({ opacity: 1, position: 'absolute', width: '100%' }),
-          animate('300ms ease-out', style({ opacity: 0 })),
-        ],
+        [style({ opacity: 1, position: 'absolute', width: '100%' }), animate('300ms ease-out', style({ opacity: 0 }))],
         { optional: true },
       ),
     ]),

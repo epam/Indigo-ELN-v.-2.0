@@ -126,7 +126,7 @@ public class GlobalSearchService {
         Map<String, @Nullable Object> params = new HashMap<>();
         boolean hasUnionBlocks = false;
         if (hasProjects) {
-            String projectsSQL = "SELECT 'PROJECT' AS type, p.name, p.id, p.description, p.created_by_id, p.created_at, p.modified_by_id, p.modified_at, NULL AS reaction_roles, NULL as experiment_status"
+            String projectsSQL = "SELECT 'PROJECT' AS type, p.name, p.id, p.description, p.created_by_id, p.created_at, p.modified_by_id, p.modified_at, NULL AS reaction_roles, NULL AS experiment_status, NULL::integer AS revision"
                     + "\nFROM Project p"
                     + "\nJOIN Project_View_2 pv ON pv.id = p.id"
                     + "\nWHERE " + projectConditions.getQuery();
@@ -139,7 +139,7 @@ public class GlobalSearchService {
                 sql.append("\nUNION ALL\n");
             }
             hasUnionBlocks = true;
-            String notebooksSQL = "SELECT 'NOTEBOOK' AS type, n.name, n.id, n.description, n.created_by_id, n.created_at, n.modified_by_id, n.modified_at, NULL AS reaction_roles, NULL AS experiment_status"
+            String notebooksSQL = "SELECT 'NOTEBOOK' AS type, n.name, n.id, n.description, n.created_by_id, n.created_at, n.modified_by_id, n.modified_at, NULL AS reaction_roles, NULL AS experiment_status, NULL::integer AS revision"
                     + "\nFROM Notebook n"
                     + "\nJOIN Notebook_View_2 nv ON nv.id = n.id"
                     + "\nWHERE " + notebookConditions.getQuery();
@@ -151,7 +151,7 @@ public class GlobalSearchService {
                 sql.append("\nUNION ALL\n");
             }
             hasUnionBlocks = true;
-            String experimentsSQL = "SELECT 'EXPERIMENT' AS type, e.name, e.id, e.description, e.created_by_id, e.created_at, e.modified_by_id, e.modified_at, " + rolesSelector + ", e.status::varchar AS experiment_status"
+            String experimentsSQL = "SELECT 'EXPERIMENT' AS type, e.name, e.id, e.description, e.created_by_id, e.created_at, e.modified_by_id, e.modified_at, " + rolesSelector + ", e.status::varchar AS experiment_status, e.revision"
                     + "\nFROM Experiment e"
                     + "\nJOIN Experiment_View_2 ev ON ev.id = e.id"
                     + "\n" + String.join("\n", experimentJoins)
@@ -164,7 +164,7 @@ public class GlobalSearchService {
         sql.append("SELECT t.type, t.name, t.id, ").append(fragmentSelector).append(" fragment");
         sql.append("\n, t.created_by_id, c.username, c.display_name, t.created_at" +
                 "\n, t.modified_by_id, m.username, m.display_name, t.modified_at" +
-                "\n, t.reaction_roles, t.experiment_status" +
+                "\n, t.reaction_roles, t.experiment_status, t.revision" +
                 "\n, count(*) over (partition by 1)" +
                 "\nFROM t" +
                 "\nJOIN User_Account c on c.id = t.created_by_id" +
@@ -196,7 +196,8 @@ public class GlobalSearchService {
                     if (row[13] != null) {
                         item.setExperimentStatus(ExperimentStatus.valueOf((String) row[13]));
                     }
-                    totalCount[0] = (Long) row[14];
+                    item.setRevision((Integer) row[14]);
+                    totalCount[0] = (Long) row[15];
                     return item;
                 })
                 .toList();

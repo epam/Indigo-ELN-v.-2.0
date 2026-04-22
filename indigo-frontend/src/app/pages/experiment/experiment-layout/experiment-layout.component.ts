@@ -31,13 +31,9 @@ export class ExperimentLayoutComponent implements OnInit, OnDestroy {
   experimentId = '';
 
   // Computed signals from the service
-  experiment = computed<ExperimentDetail | null>(() =>
-    this.experimentDetailService.experimentDetail(),
-  );
+  experiment = computed<ExperimentDetail | null>(() => this.experimentDetailService.experimentDetail());
   isLoading = computed<boolean>(() => this.experimentDetailService.isLoading());
-  isUpdating = computed<boolean>(() =>
-    this.experimentDetailService.isUpdating(),
-  );
+  isUpdating = computed<boolean>(() => this.experimentDetailService.isUpdating());
   hasError = computed<boolean>(() => this.experimentDetailService.hasError());
 
   // Tab URLs

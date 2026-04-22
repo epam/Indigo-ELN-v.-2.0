@@ -3,12 +3,8 @@ import { InputFieldComponent } from '@/core/components/formly/fields/input-field
 import { ElnWrapperFormField } from '@/core/components/formly/wrappers/field-wrapper.component';
 import { DropdownFieldComponent } from '@/core/components/formly/fields/dropdown-field.component';
 
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import {
-  ApplicationConfig,
-  importProvidersFrom,
-  provideZoneChangeDetection,
-} from '@angular/core';
+import { HttpInterceptorFn, provideHttpClient, withInterceptors } from '@angular/common/http';
+import { ApplicationConfig, importProvidersFrom, inject, provideZoneChangeDetection } from '@angular/core';
 
 import { EditorFormlyFieldComponent } from '@/core/components/formly/fields/editor/editor-field.component';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -17,22 +13,20 @@ import { FormlyModule } from '@ngx-formly/core';
 import { FormlyPresetModule } from '@ngx-formly/core/preset';
 import { FormlyMaterialModule } from '@ngx-formly/material';
 import { FormlyMatDatepickerModule } from '@ngx-formly/material/datepicker';
-import { routes } from './app.routes.local';
-import {
-  AutoRefreshTokenService,
-  createInterceptorCondition,
-  INCLUDE_BEARER_TOKEN_INTERCEPTOR_CONFIG,
-  IncludeBearerTokenCondition,
-  includeBearerTokenInterceptor,
-  provideKeycloak,
-  UserActivityService,
-  withAutoRefreshToken,
-} from 'keycloak-angular';
+import { routes } from './app.routes';
+import { AutoRefreshTokenService, provideKeycloak, UserActivityService, withAutoRefreshToken } from 'keycloak-angular';
+import Keycloak from 'keycloak-js';
 
-const urlCondition = createInterceptorCondition<IncludeBearerTokenCondition>({
-  urlPattern: /^(http:\/\/localhost:8080)(\/.*)?$/i,
-  bearerPrefix: 'Bearer',
-});
+const keycloakBearerInterceptor: HttpInterceptorFn = (req, next) => {
+  const keycloak = inject(Keycloak);
+  const token = keycloak.token;
+
+  if (token) {
+    return next(req.clone({ setHeaders: { Authorization: `Bearer ${token}` } }));
+  }
+
+  return next(req);
+};
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -45,24 +39,16 @@ export const appConfig: ApplicationConfig = {
       },
       initOptions: {
         onLoad: 'login-required',
-        silentCheckSsoRedirectUri:
-          window.location.origin + '/assets/silent-check-sso.html',
+        silentCheckSsoRedirectUri: window.location.origin + '/assets/silent-check-sso.html',
         redirectUri: window.location.origin + '/',
       },
       features: [
         withAutoRefreshToken({
           onInactivityTimeout: 'logout',
-          sessionTimeout: 1000,
+          sessionTimeout: 1800000,
         }),
       ],
-      providers: [
-        AutoRefreshTokenService,
-        UserActivityService,
-        {
-          provide: INCLUDE_BEARER_TOKEN_INTERCEPTOR_CONFIG,
-          useValue: [urlCondition],
-        },
-      ],
+      providers: [AutoRefreshTokenService, UserActivityService],
     }),
     importProvidersFrom(
       FormlyModule.forRoot({
@@ -110,6 +96,6 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideAnimationsAsync(),
-    provideHttpClient(withInterceptors([includeBearerTokenInterceptor])),
+    provideHttpClient(withInterceptors([keycloakBearerInterceptor])),
   ],
 };

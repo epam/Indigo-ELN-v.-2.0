@@ -1,24 +1,11 @@
-import {
-  Component,
-  DestroyRef,
-  forwardRef,
-  inject,
-  Input,
-  OnInit,
-} from '@angular/core';
+import { Component, DestroyRef, forwardRef, inject, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   AutocompleteSelectComponent,
   HasId,
 } from '@core/components/common/autocomplete-select/autocomplete-select.component';
 import { Observable, of } from 'rxjs';
-import {
-  AbstractControl,
-  FormControl,
-  FormGroup,
-  NG_VALUE_ACCESSOR,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { DropdownValueComponent } from '@core/components/experiment/dropdown-value/dropdown-value.component';
 import { DelegatingControlBase } from '@core/components/common/delegating-control/delegating-control-base.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -31,12 +18,7 @@ interface EnumItem extends HasId {
   selector: 'eln-enum-select',
   templateUrl: './enum-select.component.html',
   styleUrl: './enum-select.component.scss',
-  imports: [
-    CommonModule,
-    AutocompleteSelectComponent,
-    DropdownValueComponent,
-    ReactiveFormsModule,
-  ],
+  imports: [CommonModule, AutocompleteSelectComponent, DropdownValueComponent, ReactiveFormsModule],
   standalone: true,
   providers: [
     {
@@ -46,10 +28,7 @@ interface EnumItem extends HasId {
     },
   ],
 })
-export class EnumSelectComponent<T extends string>
-  extends DelegatingControlBase<T | T[]>
-  implements OnInit
-{
+export class EnumSelectComponent<T extends string> extends DelegatingControlBase<T | T[]> implements OnInit {
   @Input() multiple = false;
   @Input() allowEmpty = false;
   @Input({ required: true }) enumType: { [key: string]: string };
@@ -73,9 +52,7 @@ export class EnumSelectComponent<T extends string>
       .get('multiple')
       .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => this.triggerChange(value?.map((x) => x.id as T)));
-    this.allItems = Object.keys(this.enumType).map((x) =>
-      this.generateEnumItem(x as T),
-    );
+    this.allItems = Object.keys(this.enumType).map((x) => this.generateEnumItem(x as T));
   }
 
   search(query: string): Observable<EnumItem[]> {
@@ -83,11 +60,7 @@ export class EnumSelectComponent<T extends string>
       return of(this.allItems);
     }
     const queryLower = query.toLowerCase();
-    return of(
-      this.allItems.filter((x) =>
-        this.displayFn(x).toLowerCase().startsWith(queryLower),
-      ),
-    );
+    return of(this.allItems.filter((x) => this.displayFn(x).toLowerCase().startsWith(queryLower)));
   }
 
   displayFn(item: EnumItem | null): string | null {
@@ -95,18 +68,12 @@ export class EnumSelectComponent<T extends string>
   }
 
   generateEnumItem(value: T | null): EnumItem | null {
-    return value != null
-      ? { id: value, name: this.displayNames?.[value] || value }
-      : null;
+    return value != null ? { id: value, name: this.displayNames?.[value] || value } : null;
   }
 
   setValue(obj: T | T[] | null): void {
     if (this.multiple) {
-      this.form
-        .get('multiple')
-        .setValue(
-          obj != null ? (obj as T[]).map((x) => this.generateEnumItem(x)) : [],
-        );
+      this.form.get('multiple').setValue(obj != null ? (obj as T[]).map((x) => this.generateEnumItem(x)) : []);
     } else {
       this.form.get('single').setValue(this.generateEnumItem(obj as T));
     }

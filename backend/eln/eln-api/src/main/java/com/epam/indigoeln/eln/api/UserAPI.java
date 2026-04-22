@@ -5,6 +5,7 @@ import jakarta.annotation.Nullable;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,6 +32,7 @@ public interface UserAPI extends BaseAPI {
 
     @GET
     @Path("/users/{userId}/picture")
+    @Cached(interval = 1, unit = ChronoUnit.DAYS)
     @Produces("image/png")
     byte[] getUserPicture(@PathParam("userId") UUID userId, @QueryParam("small") @Nullable Boolean large);
 

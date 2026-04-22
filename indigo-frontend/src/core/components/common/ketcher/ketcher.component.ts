@@ -1,11 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  EventEmitter,
-  Output,
-  ViewChild,
-} from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular/core';
 import { Ketcher } from 'ketcher-core';
 
 @Component({
@@ -53,8 +46,7 @@ export class KetcherComponent implements AfterViewInit {
   }
 
   getRxnOrMolfile(isReaction: boolean | null): Promise<string> {
-    const actualReaction =
-      isReaction != null ? isReaction : this.ketcher.containsReaction();
+    const actualReaction = isReaction != null ? isReaction : this.ketcher.containsReaction();
     return actualReaction ? this.ketcher.getRxn() : this.ketcher.getMolfile();
   }
 

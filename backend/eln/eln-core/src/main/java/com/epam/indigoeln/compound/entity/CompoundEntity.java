@@ -4,7 +4,7 @@ import com.epam.indigoeln.eln.config.hibernate.STRCodeCompoundConverter;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
 import com.epam.indigoeln.eln.entity.IdentifiableEntity;
 import com.epam.indigoeln.eln.entity.SaltCodeEntity;
-import com.epam.indigoeln.eln.model.CompoundSource;
+import com.epam.indigoeln.eln.model.CompoundExternalSource;
 import com.epam.indigoeln.eln.model.STRCodeCompound;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
@@ -26,10 +26,10 @@ import java.util.Set;
 @ToString(of = {"id", "name", "formula", "canSmiles", "strCode"})
 public class CompoundEntity extends IdentifiableEntity {
 
-    @NotNull
+    @Nullable
     @Enumerated(EnumType.STRING)
     @JdbcType(PostgreSQLEnumJdbcType.class)
-    private CompoundSource source;
+    private CompoundExternalSource externalSource;
 
     @Nullable
     private String compoundKey;
@@ -40,6 +40,9 @@ public class CompoundEntity extends IdentifiableEntity {
 
     @Nullable
     private String casNumber;
+
+    @Nullable
+    private String externalNumber;
 
     @NotEmpty
     private String canSmiles;

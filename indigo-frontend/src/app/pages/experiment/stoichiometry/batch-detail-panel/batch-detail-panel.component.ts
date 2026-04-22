@@ -15,11 +15,7 @@ export interface BatchDetailData {
   selector: 'eln-batch-detail-panel',
   templateUrl: './batch-detail-panel.component.html',
   styleUrl: './batch-detail-panel.component.scss',
-  imports: [
-    CommonModule,
-    BatchDetailStructureViewComponent,
-    BatchDetailInfoPanelComponent,
-  ],
+  imports: [CommonModule, BatchDetailStructureViewComponent, BatchDetailInfoPanelComponent],
   standalone: true,
 })
 export class BatchDetailPanelComponent {

@@ -7,11 +7,7 @@
     }
   </span>
 } @else {
-  <mat-select
-    class="select"
-    [value]="value"
-    (selectionChange)="changeValue($event)"
-  >
+  <mat-select class="select" [value]="value" (selectionChange)="changeValue($event)">
     @if (allowNull) {
       <mat-option />
     }

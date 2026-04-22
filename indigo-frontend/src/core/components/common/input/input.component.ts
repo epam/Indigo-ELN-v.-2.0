@@ -1,13 +1,6 @@
 import { TwsxPipe } from '@/core/pipes/twsx.pipe';
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  forwardRef,
-  Input,
-  input,
-  output,
-  signal,
-} from '@angular/core';
+import { Component, forwardRef, Input, input, output, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { ClassPickerPipe } from '../../../pipes/classPicker.pipe';
 

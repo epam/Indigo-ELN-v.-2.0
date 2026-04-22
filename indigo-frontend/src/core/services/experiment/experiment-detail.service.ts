@@ -1,15 +1,12 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { ApiService } from '@/core/services/api.service';
 import { ExperimentDetail } from '@core/types/entities/experiments/experiment-detail.i';
-import {
-  Mutation,
-  MutationResponse,
-  ReactionAnchor,
-} from '@core/types/entities/experiments/mutation.i';
+import { Mutation, MutationResponse, ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
 import { finalize, Observable, tap } from 'rxjs';
 import { NotificationService } from '@core/services/notification/notification.service';
 import { NotificationType } from '@core/types/notification.i';
 import { Reaction } from '@core/types/entities/experiments/experiment.i';
+import { JSON_PATCHER } from '@core/utils/json-patcher';
 
 @Injectable({
   providedIn: 'root',
@@ -26,6 +23,8 @@ export class ExperimentDetailService {
   readonly hasError = signal<boolean>(false);
   readonly isUpdating = signal<boolean>(false);
   readonly currentId = signal<string | null>(null);
+  readonly updatedNodes = signal<Map<unknown, unknown>>(new Map());
+  readonly updatedReactionImages = signal<Map<ReactionAnchor, string>>(new Map());
 
   // Query methods
   load(id: string) {
@@ -71,19 +70,19 @@ export class ExperimentDetailService {
         tap({
           next: (response) => {
             const previous = this.experimentDetail();
-            const updated = {
-              id: previous.id,
-              name: previous.name,
-              createdBy: previous.createdBy,
-              createdAt: previous.createdAt,
-              modifiedBy: previous.modifiedBy,
-              modifiedAt: previous.modifiedAt,
-              acl: previous.acl,
-              attachments: previous.attachments,
-              ...response.updated,
-            };
-            this.experimentDetail.set(updated);
-            this.lastLoadedDetail.set(structuredClone(updated));
+            const [updated, updatedNodes] = JSON_PATCHER.apply(previous, response.patch);
+            this.experimentDetail.set(updated as ExperimentDetail);
+            this.lastLoadedDetail.set(structuredClone(updated) as ExperimentDetail);
+            this.updatedNodes.set(updatedNodes);
+            if (response.reactionImages) {
+              this.updatedReactionImages.update((map) => {
+                const map1 = new Map(map.entries());
+                for (const [anchor, image] of Object.entries(response.reactionImages)) {
+                  map1.set(anchor, image);
+                }
+                return map1;
+              });
+            }
             this.isUpdating.set(false);
             if (response.messages) {
               for (const message of response.messages) {

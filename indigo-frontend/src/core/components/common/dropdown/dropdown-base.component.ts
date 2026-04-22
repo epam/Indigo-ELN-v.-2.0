@@ -38,10 +38,7 @@ export abstract class DropdownBaseComponent {
   protected checkDropdownPosition(): void {
     if (!this.dropdownContainer || !this.dropdownList) return;
 
-    const position = calculatePosition(
-      this.dropdownContainer,
-      this.dropdownList,
-    );
+    const position = calculatePosition(this.dropdownContainer, this.dropdownList);
 
     this.dropdownDirection = position.direction;
     this.dropdownAlignment = position.alignment;

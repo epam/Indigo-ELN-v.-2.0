@@ -2,31 +2,24 @@
   <div class="flex items-center justify-center py-8">
     <span>Loading project...</span>
   </div>
-}
-@else if (hasError) {
+} @else if (hasError) {
   <div class="flex items-center justify-center py-8">
     <div class="text-center">
       <span>There was an error loading the project, please try again later</span>
     </div>
   </div>
-}
-@else if (project) {
+} @else if (project) {
   <div class="grid grid-cols-[1fr_auto] gap-4 pt-4">
     <eln-card>
       <div class="flex items-center justify-between pb-3 border-b border-b-neutral-200">
         <h2 class="font-semibold text-base">About Project</h2>
-        <eln-button
-          variant="blue-outline"
-          classList="text-primary-400"
-          (click)="openModal(projectInfoModalEnum.EDIT)"
-        >
+        <eln-button variant="blue-outline" classList="text-primary-400" (click)="openModal(projectInfoModalEnum.EDIT)">
           <em class="indicon-edit"></em>
           Edit
         </eln-button>
       </div>
 
       <div class="space-y-6 mt-3 text-sm">
-
         <div>
           <h3 class="font-semibold text-neutral-800 mb-2">Project Name</h3>
           <p class="text-neutral-1000">{{ project.name }}</p>
@@ -72,17 +65,10 @@
           [uploadingFile]="isUploadingAttachment"
           [withPreview]="false"
         />
-
       </div>
-
     </eln-card>
 
-    <eln-team
-      [team]="project.acl"
-      [entityId]="project.id"
-      [config]="projectTeamConfig"
-    />
-
+    <eln-team [team]="project.acl" [entityId]="project.id" [config]="projectTeamConfig" />
   </div>
 }
 

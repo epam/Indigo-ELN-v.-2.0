@@ -1,14 +1,7 @@
 import { dropdownAnimation } from '@/core/animations/control-animations';
 import { DropdownBaseComponent } from '@/core/components/common/dropdown/dropdown-base.component';
 import { CommonModule } from '@angular/common';
-import {
-  AfterViewInit,
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-  forwardRef,
-} from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, forwardRef, Input, Output } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { DropdownMenuItem } from './dropdown-menu.i';
 
@@ -26,10 +19,7 @@ import { DropdownMenuItem } from './dropdown-menu.i';
     },
   ],
 })
-export class DropdownMenuComponent
-  extends DropdownBaseComponent
-  implements AfterViewInit, ControlValueAccessor
-{
+export class DropdownMenuComponent extends DropdownBaseComponent implements AfterViewInit, ControlValueAccessor {
   @Input() items: DropdownMenuItem[] = [];
   @Input() selected?: string;
   @Input() placeholder = 'Select Item';
@@ -80,9 +70,7 @@ export class DropdownMenuComponent
 
   private updateSelectedFromValue(value: string | null): void {
     if (value) {
-      const item = this.items.find(
-        (item) => item.value === value || item.label === value,
-      );
+      const item = this.items.find((item) => item.value === value || item.label === value);
       this.selected = item?.label || value;
     } else {
       this.selected = undefined;

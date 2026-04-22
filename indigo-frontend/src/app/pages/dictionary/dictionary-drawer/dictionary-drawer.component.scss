@@ -64,13 +64,12 @@ mat-header-row {
   padding: 0 !important;
 }
 
-
 :host {
   //UNSELECTED
   ::ng-deep
-    .mat-mdc-checkbox:not(.mat-mdc-checkbox-checked):not(
-      .mat-mdc-checkbox-indeterminate
-    ):not(.mat-mdc-checkbox-disabled) {
+    .mat-mdc-checkbox:not(.mat-mdc-checkbox-checked):not(.mat-mdc-checkbox-indeterminate):not(
+      .mat-mdc-checkbox-disabled
+    ) {
     .mdc-checkbox__background {
       border-color: #b0b0b0 !important;
       border-width: 1.5px !important;
@@ -89,8 +88,7 @@ mat-header-row {
   }
 
   //SELECTED
-  ::ng-deep
-    .mat-mdc-checkbox.mat-mdc-checkbox-checked:not(.mat-mdc-checkbox-disabled) {
+  ::ng-deep .mat-mdc-checkbox.mat-mdc-checkbox-checked:not(.mat-mdc-checkbox-disabled) {
     .mdc-checkbox__background {
       background-color: #3f50b5 !important;
       border-color: #3f50b5 !important;
@@ -122,4 +120,3 @@ mat-header-row {
     }
   }
 }
-

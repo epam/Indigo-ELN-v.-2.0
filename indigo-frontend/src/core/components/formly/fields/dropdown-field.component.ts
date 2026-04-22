@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { FieldTypeConfig, FormlyModule, FieldType } from '@ngx-formly/core';
+import { FieldType, FieldTypeConfig, FormlyModule } from '@ngx-formly/core';
 import { SelectComponent } from '@core/components/common/select/select.component';
-import { Observable, of, isObservable } from 'rxjs';
+import { isObservable, Observable, of } from 'rxjs';
 import { DropdownMenuItem } from '@core/components/common/dropdown-menu/dropdown-menu.i';
 
 @Component({
@@ -29,4 +29,3 @@ export class DropdownFieldComponent extends FieldType<FieldTypeConfig> {
     return isObservable(options) ? options : of(options || []);
   }
 }
-

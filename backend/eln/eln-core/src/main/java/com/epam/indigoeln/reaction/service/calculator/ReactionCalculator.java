@@ -43,11 +43,6 @@ public class ReactionCalculator {
                 // continue
             }
         }
-        for (Property<?, ?> value : overwrittenConflicts) {
-            if (value.getValue() != null) {
-                value.getValue().setOverwritten(true);
-            }
-        }
     }
 
     private void recalculateModel(ModelProps model) {
@@ -272,7 +267,6 @@ public class ReactionCalculator {
             } else if (value.getSource().isDefault() && overwrittenConflicts.contains(evp)) {
                 evp.reset(true);
             }
-            value.setOverwritten(false);
         }
     }
 

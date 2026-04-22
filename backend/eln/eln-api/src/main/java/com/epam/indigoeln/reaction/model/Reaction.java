@@ -36,9 +36,6 @@ public final class Reaction extends AbstractExperimentNode<ExperimentModel> {
     private String rxnfile;
 
     @NotNull
-    private Integer rxnVersion; // = 0
-
-    @NotNull
     @JsonManagedReference
     private List<@Valid ReactionInput> inputs = new ArrayList<>();
 
@@ -50,7 +47,6 @@ public final class Reaction extends AbstractExperimentNode<ExperimentModel> {
         Reaction reaction = new Reaction();
         reaction.model = model;
         reaction.anchor = anchor;
-        reaction.rxnVersion = 0;
         return reaction;
     }
 

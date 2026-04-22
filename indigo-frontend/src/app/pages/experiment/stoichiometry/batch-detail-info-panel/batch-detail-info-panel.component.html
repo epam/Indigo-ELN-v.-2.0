@@ -1,8 +1,6 @@
 <div class="info-panel-container">
   <div class="info-section">
-    <h4 class="text-sm font-semibold mb-4">
-      Notebook Batch #: {{ sample().nbkBatchNumber || '—' }}
-    </h4>
+    <h4 class="text-sm font-semibold mb-4">Notebook Batch #: {{ sample().nbkBatchNumber || '—' }}</h4>
 
     <!-- Grid layout for fields -->
     <div class="fields-grid">
@@ -23,10 +21,7 @@
 
       <div class="field-group">
         <label class="field-label">Source</label>
-        <eln-dictionary-select
-          [formControl]="form.controls.source"
-          [dictionaryId]="BuiltInDictionary.SAMPLE_SOURCE"
-        />
+        <eln-dictionary-select [formControl]="form.controls.source" [dictionaryId]="BuiltInDictionary.SAMPLE_SOURCE" />
       </div>
 
       <div class="field-group">
@@ -72,9 +67,7 @@
         <label class="field-label">Salt Equivalent</label>
         <eln-entered-value
           [value]="
-            output().compound?.saltEQ
-              ? { value: output().compound.saltEQ.toString(), unit: null, source: 0 }
-              : null
+            output().compound?.saltEQ ? { value: output().compound.saltEQ.toString(), unit: null, source: 0 } : null
           "
           [showUnits]="false"
           [readOnly]="true"
@@ -90,20 +83,12 @@
 
       <div class="field-group">
         <label class="field-label">Theo. Weight</label>
-        <eln-entered-value
-          [value]="output().theoWeight"
-          [showUnits]="true"
-          [readOnly]="true"
-        />
+        <eln-entered-value [value]="output().theoWeight" [showUnits]="true" [readOnly]="true" />
       </div>
 
       <div class="field-group">
         <label class="field-label">Theo. Moles</label>
-        <eln-entered-value
-          [value]="output().theoMol"
-          [showUnits]="true"
-          [readOnly]="true"
-        />
+        <eln-entered-value [value]="output().theoMol" [showUnits]="true" [readOnly]="true" />
       </div>
 
       <div class="field-group full-width">
@@ -118,15 +103,10 @@
 
   <!-- Additional Information Accordion -->
   <cdk-accordion class="mt-4">
-    <cdk-accordion-item
-      #accordionItem="cdkAccordionItem"
-      [expanded]="additionalInfoExpanded"
-    >
+    <cdk-accordion-item #accordionItem="cdkAccordionItem" [expanded]="additionalInfoExpanded">
       <div class="accordion-header" (click)="accordionItem.toggle()">
         <span class="accordion-icon">
-          <mat-icon [class.rotated]="accordionItem.expanded"
-            >chevron_right</mat-icon
-          >
+          <mat-icon [class.rotated]="accordionItem.expanded">chevron_right</mat-icon>
         </span>
         <h4 class="text-sm font-semibold">Additional Information</h4>
       </div>

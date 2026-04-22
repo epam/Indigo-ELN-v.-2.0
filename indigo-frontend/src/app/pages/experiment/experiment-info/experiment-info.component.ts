@@ -2,7 +2,6 @@ import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardComponent } from '@/core/components/common/card/card.component';
 import { ExperimentDetailService } from '@/core/services/experiment/experiment-detail.service';
-import { ExperimentImageService } from '@/core/services/experiment/experiment-image.service';
 import { CdkAccordionModule } from '@angular/cdk/accordion';
 import { ButtonComponent } from '@core/components/common/button/button.component';
 import { ReactionViewComponent } from '@pages/experiment/stoichiometry/reaction-view/reaction-view.component';
@@ -25,7 +24,6 @@ import { BuiltInDictionary } from '@/core/types/entities/dictionary.i';
     FormlyModule,
     ReactiveFormsModule,
   ],
-  providers: [ExperimentImageService],
   templateUrl: './experiment-info.component.html',
 })
 export class ExperimentInfoComponent {

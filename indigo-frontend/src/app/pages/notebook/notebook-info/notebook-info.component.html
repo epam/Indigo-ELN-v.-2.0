@@ -5,24 +5,16 @@
 } @else if (hasError) {
   <div class="flex items-center justify-center py-8">
     <div class="text-center">
-      <span
-        >There was an error loading the notebook, please try again later</span
-      >
+      <span>There was an error loading the notebook, please try again later</span>
     </div>
   </div>
 } @else if (notebook) {
   <div class="grid grid-cols-[1fr_auto] gap-4 pt-4">
     <eln-card>
       <div class="px-3">
-        <div
-          class="flex items-center justify-between pb-3 border-b border-b-neutral-200"
-        >
+        <div class="flex items-center justify-between pb-3 border-b border-b-neutral-200">
           <h2 class="font-semibold text-base">About Notebook</h2>
-          <eln-button
-            variant="blue-outline"
-            classList="text-primary-400"
-            (click)="openEditDialog()"
-          >
+          <eln-button variant="blue-outline" classList="text-primary-400" (click)="openEditDialog()">
             <em class="indicon-edit"></em>
             Edit
           </eln-button>
@@ -35,23 +27,14 @@
           </div>
 
           <div>
-            <h3 class="text-neutral-800 mb-2 font-semibold">
-              Notebook Description
-            </h3>
-            <div
-              class="text-sm text-neutral-800 whitespace-pre-line"
-              [innerHTML]="notebook?.description"
-            ></div>
+            <h3 class="text-neutral-800 mb-2 font-semibold">Notebook Description</h3>
+            <div class="text-sm text-neutral-800 whitespace-pre-line" [innerHTML]="notebook?.description"></div>
           </div>
 
           <!-- TODO: Attachments list and actions -->
         </div>
       </div>
     </eln-card>
-    <eln-team
-      [team]="notebook.acl"
-      [entityId]="notebook.id"
-      [config]="notebookTeamConfig"
-    />
+    <eln-team [team]="notebook.acl" [entityId]="notebook.id" [config]="notebookTeamConfig" />
   </div>
 }

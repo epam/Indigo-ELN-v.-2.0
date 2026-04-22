@@ -12,10 +12,8 @@
     "totp" : false,
     "credentials" : [ {
       "type" : "password",
-      "userLabel" : "My password",
-      "createdDate" : 1770723932669,
-      "secretData" : "{\"value\":\"0V2JmVIsQcifdrVtA1xwPM7/uvgDohNdRpuA9W8yZq4=\",\"salt\":\"OLnTxCvW2+2wx+/5wWhwSg==\",\"additionalParameters\":{}}",
-      "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+      "value" : "testuser1",
+      "temporary" : false
     } ],
     "disableableCredentialTypes" : [ ],
     "requiredActions" : [ ],
@@ -34,10 +32,8 @@
     "totp" : false,
     "credentials" : [ {
       "type" : "password",
-      "userLabel" : "My password",
-      "createdDate" : 1770723932669,
-      "secretData" : "{\"value\":\"0V2JmVIsQcifdrVtA1xwPM7/uvgDohNdRpuA9W8yZq4=\",\"salt\":\"OLnTxCvW2+2wx+/5wWhwSg==\",\"additionalParameters\":{}}",
-      "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+      "value" : "testuser2",
+      "temporary" : false
     } ],
     "disableableCredentialTypes" : [ ],
     "requiredActions" : [ ],
@@ -51,18 +47,20 @@
       "clientId": "frontend-client",
       "name": "frontend-client",
       "description": "",
-      "rootUrl": "http://localhost:4200",
-      "adminUrl": "http://localhost:4200",
+      "rootUrl": "http://localhost:8080",
+      "adminUrl": "http://localhost:8080",
       "baseUrl": "",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "http://localhost:4200/*"
+        "http://localhost/*",
+        "http://localhost:8080/*"
       ],
       "webOrigins": [
-        "http://localhost:4200"
+        "http://localhost",
+        "http://localhost:8080"
       ],
       "notBefore": 0,
       "bearerOnly": false,
