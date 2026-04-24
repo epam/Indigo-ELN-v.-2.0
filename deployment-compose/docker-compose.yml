@@ -17,19 +17,23 @@ services:
     build:
       context: ./../backend/eln/eln-core
       dockerfile: Dockerfile
-    command: sh -c "sleep 60 && /opt/jboss/container/java/run/run-java.sh"
     environment:
       QUARKUS_DATASOURCE_JDBC_URL: "jdbc:postgresql://postgres:5432/eln"
       QUARKUS_DATASOURCE_USERNAME: eln
       QUARKUS_DATASOURCE_PASSWORD: eln
-      QUARKUS_OIDC_AUTH_SERVER_URL: "http://localhost:8088/realms/indigo-eln2"
+      QUARKUS_OIDC_AUTH_SERVER_URL: "http://keycloak:8080/realms/indigo-eln"
       QUARKUS_OIDC_CLIENT_ID: indigo-eln-client
+      QUARKUS_OIDC_DISCOVERY_ENABLED: "false"
+      QUARKUS_OIDC_JWKS_PATH: "protocol/openid-connect/certs"
+      QUARKUS_OIDC_TOKEN_ISSUER: "any"
       QUARKUS_TLS_TRUST_ALL: true
       JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Dquarkus.profile=devtest"
     depends_on:
       postgres:
         condition: service_healthy
         restart: true
+      keycloak-config-cli:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/q/health/ready" ]
       interval: 10s
@@ -121,14 +125,12 @@ services:
     volumes:
       - ./keycloak-config-cli/realm-config.json:/config/realm-config.json
 
-  traefik:
-    image: traefik:v3.3
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     ports:
       - "80:80"
-      - "8090:8090"
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "./traefik/traefik.yaml:/etc/traefik/traefik.yaml:ro"
-      - "./traefik/services.yaml:/etc/traefik/services.yaml:ro"
-    extra_hosts:
-      - "host.docker.internal:172.17.0.1"
+    depends_on:
+      - frontend
+      - eln-core
