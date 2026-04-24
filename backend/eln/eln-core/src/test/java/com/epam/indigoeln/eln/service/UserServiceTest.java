@@ -7,7 +7,6 @@ import com.epam.indigoeln.eln.model.UserRef;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
@@ -49,7 +48,7 @@ class UserServiceTest extends ELNBaseTest {
     @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
     void testGetUserPicture() {
         List<UserRef> all = userClient.suggestUsers(null);
-        Response response = userClient.getUserPictureClient(all.getFirst().getId(), null);
-        Files.write(Paths.get("user.png"), (byte[]) response.getEntity());
+        byte[] response = userClient.getUserPicture(all.getFirst().getId(), null);
+        Files.write(Paths.get("user.png"), response);
     }
 }

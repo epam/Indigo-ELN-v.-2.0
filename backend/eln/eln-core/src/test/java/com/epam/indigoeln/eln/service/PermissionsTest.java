@@ -197,7 +197,7 @@ class PermissionsTest extends ELNBaseTest {
             assertThatClientCall(() -> projectClient.createProjectAttachment(row.projectId, "a", tempDir, new byte[0]))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "Operation not permitted");
-            assertThatClientCall(() -> projectClient.downloadProjectAttachmentClient(row.projectId, row.projectDetails.getAttachments().getFirst().getId()))
+            assertThatClientCall(() -> projectClient.downloadProjectAttachment(row.projectId, row.projectDetails.getAttachments().getFirst().getId()))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveProject.isSufficientFor(IMPLICIT_VIEW), "Operation not permitted");
             assertThatClientCall(() -> projectClient.deleteProjectAttachment(row.projectId, row.projectDetails.getAttachments().getFirst().getId()))
@@ -262,7 +262,7 @@ class PermissionsTest extends ELNBaseTest {
             assertThatClientCall(() -> notebookClient.createNotebookAttachment(row.notebookId, "a", tempDir, new byte[0]))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "Operation not permitted");
-            assertThatClientCall(() -> notebookClient.downloadNotebookAttachmentClient(row.notebookId, row.notebookDetails.getAttachments().getFirst().getId()))
+            assertThatClientCall(() -> notebookClient.downloadNotebookAttachment(row.notebookId, row.notebookDetails.getAttachments().getFirst().getId()))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveNotebook.isSufficientFor(IMPLICIT_VIEW), "Operation not permitted");
             assertThatClientCall(() -> notebookClient.deleteNotebookAttachment(row.notebookId, row.notebookDetails.getAttachments().getFirst().getId()))
@@ -326,7 +326,7 @@ class PermissionsTest extends ELNBaseTest {
             assertThatClientCall(() -> experimentClient.createExperimentAttachment(row.experimentId, "a", tempDir, "content".getBytes(StandardCharsets.UTF_8)))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveExperiment.isSufficientFor(EDIT), "Operation not permitted");
-            assertThatClientCall(() -> experimentClient.downloadExperimentAttachmentClient(row.experimentId, row.experimentDetails.getAttachments().getFirst().getId()))
+            assertThatClientCall(() -> experimentClient.downloadExperimentAttachment(row.experimentId, row.experimentDetails.getAttachments().getFirst().getId()))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveExperiment.isSufficientFor(IMPLICIT_VIEW), "Operation not permitted");
             assertThatClientCall(() -> experimentClient.deleteExperimentAttachment(row.experimentId, row.experimentDetails.getAttachments().getFirst().getId()))

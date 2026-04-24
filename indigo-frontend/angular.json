@@ -106,6 +106,10 @@
                 {
                   "replace": "src/app/app.config.ts",
                   "with": "src/app/app.config.local.ts"
+                },
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.local.ts"
                 }
               ],
               "optimization": false,
@@ -132,7 +136,7 @@
               "buildTarget": "indigo-frontend:build:local"
             }
           },
-          "defaultConfiguration": "production",
+          "defaultConfiguration": "development",
           "options": {
             "proxyConfig": "src/proxy.conf.js"
           }

@@ -18,6 +18,9 @@ public abstract class BaseExperimentDTO extends BaseDTO {
     @NotNull
     Boolean marked;
 
+    @NotNull
+    Integer revision;
+
     public ExperimentRef toRef() {
         return new ExperimentRef(id, name);
     }

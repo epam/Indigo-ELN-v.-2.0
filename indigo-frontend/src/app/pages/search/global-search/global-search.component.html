@@ -96,9 +96,9 @@
         </mat-expansion-panel>
 
         @if (loader.started) {
-          @if (loader.totalItems !== null) {
+          @if (loader.totalItemsStr != null) {
             <div class="flex justify-between">
-              <div class="flex-1 self-start">Search Results ({{ loader.totalItems }})</div>
+              <div class="flex-1 self-start">Search Results ({{ loader.totalItemsStr }})</div>
             </div>
           }
           <div class="flex flex-col gap-8 search-results">
@@ -130,7 +130,7 @@
                   <div class="flex flex-col gap-4">
                     <div class="flex gap-4 justify-items">
                       <eln-api-image
-                        [url]="'/experiments/' + result.id + '/picture'"
+                        [url]="'/experiments/' + result.id + '/picture?revision=' + result.revision"
                         altText="experiment image"
                         class="flex-1"
                       />
@@ -156,7 +156,12 @@
               }
             }
           </div>
-          <eln-infinite-loader (infiniteLoad)="loader.fetchNextPage()" [isLoading]="loader.loading" />
+          <eln-infinite-loader
+            (infiniteLoad)="loader.fetchNext()"
+            [isLoading]="loader.loading"
+            (enteredViewport)="loader.onInfiniteLoaderEntered()"
+            (leftViewport)="loader.onInfiniteLoaderLeft()"
+          />
           @if (loader.error) {
             <div>Error loading results</div>
           }

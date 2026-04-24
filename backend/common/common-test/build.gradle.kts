@@ -11,9 +11,11 @@ dependencies {
 
     api("io.quarkus:quarkus-junit5")
     api("io.quarkus:quarkus-test-security")
+    api("io.quarkus:quarkus-junit5-mockito")
     api("io.rest-assured:rest-assured")
     api("org.assertj:assertj-core:3.27.6")
     api("org.mockito:mockito-core:5.20.0")
+    api("org.mockito:mockito-junit-jupiter:5.20.0")
 
     api("io.github.openfeign:feign-core:13.6")
     api("io.github.openfeign:feign-jackson:13.6")

@@ -1,5 +1,6 @@
 package com.epam.indigoeln.compound.model;
 
+import com.epam.indigoeln.compound.model.search.SearchCatalog;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.model.NbkBatchNumber;
 import com.epam.indigoeln.eln.model.STRCodeSample;
@@ -15,13 +16,17 @@ import java.util.UUID;
 public class SampleDTO {
 
     @NotNull
+    SearchCatalog source;
+    @Nullable
     private UUID id;
     @Nullable
     private NbkBatchNumber nbkBatchNumber;
     @Nullable
+    private String compoundKey;
+    @Nullable
     private STRCodeSample strCode;
     @NotNull
-    private String molecularFormula;
+    private String molFormula;
     @NotNull
     private BigDecimal molWeight;
     @Nullable
@@ -30,9 +35,10 @@ public class SampleDTO {
     private DictionaryItemRef saltCode;
     @Nullable
     private Double saltEQ;
-    @NotNull
+    @Nullable
     private UUID compoundID;
-    @NotNull
+    @Nullable
+    private String inchi;
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    private Boolean marked;
+    private boolean marked;
 }

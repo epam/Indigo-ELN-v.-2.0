@@ -16,6 +16,7 @@ export class ApiImageComponent implements OnChanges {
   api = inject(ApiService);
 
   src: string | null = null;
+  loading = false;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['url'] || changes['blob']) {
@@ -27,9 +28,16 @@ export class ApiImageComponent implements OnChanges {
     if (this.blob) {
       this.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(this.blob)}`;
     } else if (this.url) {
-      this.api
-        .request<Blob>('get', this.url, null, { responseType: 'blob' })
-        .subscribe((blob) => (this.src = URL.createObjectURL(blob)));
+      this.loading = true;
+      this.api.request<Blob>('get', this.url, null, { responseType: 'blob' }).subscribe({
+        next: (blob) => {
+          this.src = URL.createObjectURL(blob);
+          this.loading = false;
+        },
+        error: () => {
+          this.loading = false;
+        },
+      });
     }
   }
 }

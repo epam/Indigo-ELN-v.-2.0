@@ -1,4 +1,4 @@
-package com.epam.indigoeln.compound.model;
+package com.epam.indigoeln.compound.model.search;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -13,6 +13,8 @@ import jakarta.validation.constraints.NotNull;
         @JsonSubTypes.Type(value = TextSearch.BetweenSearch.class, name = "between")
 })
 public sealed interface TextSearch permits TextSearch.ExactSearch, TextSearch.StartsWithSearch, TextSearch.ContainsSearch, TextSearch.EndsWithSearch, TextSearch.BetweenSearch {
+
+    String value();
 
     record ExactSearch(
             @NotNull String value
@@ -38,5 +40,10 @@ public sealed interface TextSearch permits TextSearch.ExactSearch, TextSearch.St
             String from,
             String to
     ) implements TextSearch {
+
+        @Override
+        public String value() {
+            throw new UnsupportedOperationException();
+        }
     }
 }

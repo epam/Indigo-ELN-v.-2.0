@@ -1,7 +1,7 @@
 package com.epam.indigoeln.eln.service;
 
-import com.epam.indigoeln.compound.model.NumericSearch;
-import com.epam.indigoeln.compound.model.StructuralSearch;
+import com.epam.indigoeln.compound.model.search.NumericSearch;
+import com.epam.indigoeln.compound.model.search.StructuralSearch;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.api.MutateModelForm;

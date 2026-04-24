@@ -1,14 +1,15 @@
 package com.epam.indigoeln.eln.api;
 
-import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.SampleDTO;
-import com.epam.indigoeln.eln.model.Page;
-import com.epam.indigoeln.eln.model.Paging;
+import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
+import com.epam.indigoeln.compound.model.search.SampleSearchResult;
+import com.epam.indigoeln.compound.model.search.SearchCatalog;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
+import org.jspecify.annotations.Nullable;
 
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 @Path(BaseAPI.BASE_PATH)
@@ -23,11 +24,23 @@ public interface CompoundAPI extends BaseAPI {
 
     @GET
     @Path("/compounds/{compoundID}/picture")
-    Response getCompoundPicture(@PathParam("compoundID") UUID compoundID);
+    @Produces("image/svg+xml")
+    @Cached(interval = 30, unit = ChronoUnit.DAYS)
+    byte[] getCompoundPicture(@PathParam("compoundID") UUID compoundID);
 
     @POST
     @Path("/samples/search")
-    Page<SampleDTO> findSamples(@Valid FindSamplesRequest request, @BeanParam Paging paging);
+    SampleSearchResult search(@Valid FindSamplesRequest request, @Nullable @QueryParam("nextCatalog") SearchCatalog nextCatalog, @Nullable @QueryParam("nextAfter") String nextAfter, @Nullable @QueryParam("limit") Integer limit);
+
+    @POST
+    @Path("/samples/importFromSearch")
+    SampleDTO importFromSearch(SampleDTO searchItem);
+
+    @GET
+    @Path("/samples/external/picture")
+    @Produces("image/svg+xml")
+    @Cached(interval = 30, unit = ChronoUnit.DAYS)
+    byte[] getExternalPicture(@QueryParam("inchi") String inchi);
 
     @POST
     @Path("/samples/{sampleID}/mark")

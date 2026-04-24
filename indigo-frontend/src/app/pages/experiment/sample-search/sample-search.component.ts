@@ -8,6 +8,9 @@ import {
   FindSamplesRequest,
   NumericSearch,
   Sample,
+  SEARCH_CATALOG_MAPPING,
+  SearchCatalog,
+  SearchCatalogUI,
   StructuralSearchType,
   TextSearch,
 } from '@core/types/entities/experiments/search.i';
@@ -16,7 +19,7 @@ import { TextSearchComponent } from '@core/components/common/text-search/text-se
 import { BuiltInDictionary, DictionaryItemRef } from '@core/types/entities/dictionary.i';
 import { NumericSearchComponent } from '@core/components/common/numeric-search/numeric-search.component';
 import { ApiService } from '@core/services/api.service';
-import { InfiniteSearchLoader } from '@core/components/util/infinite-scroll-search';
+import { SamplesSearchLoader } from '@core/components/util/infinite-scroll-search';
 import { MatTooltip } from '@angular/material/tooltip';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -24,8 +27,6 @@ import {
   StructureEditorModalResult,
 } from '@core/components/experiment/structure-editor-modal/structure-editor-modal.component';
 import { ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
-import { distinctUntilChanged } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { DictionarySelectComponent } from '@core/components/common/dictionary-select/dictionary-select.component';
 import {
   dictionarySearchSummary,
@@ -41,8 +42,10 @@ import { SampleSearchResultsComponent } from '@pages/experiment/sample-search-re
 import { ExperimentDetailService } from '@core/services/experiment/experiment-detail.service';
 import { NotificationService } from '@core/services/notification/notification.service';
 import { NotificationType } from '@core/types/notification.i';
+import { UUID } from '@core/types/entities/experiments/experiment-shared.i';
 
 export interface SampleSearchCriteria {
+  catalogs?: SearchCatalogUI;
   quickSearch?: string;
   structureSearchType?: StructuralSearchType;
   structure?: string;
@@ -57,12 +60,16 @@ export interface SampleSearchCriteria {
   casNumber?: TextSearch;
 }
 
-export enum SearchCatalog {
-  ALL = 'ALL',
-  INDIGO_ELN = 'INDIGO_ELN',
-  PUB_CHEM = 'PUB_CHEM',
-  MY_MATERIALS = 'MY_MATERIALS',
-}
+const PUBCHEM_DISABLED_CONTROLS = [
+  'compoundKey',
+  'nbkBatchNumber',
+  'molWeight',
+  'chemicalName',
+  'compoundState',
+  'batchComment',
+  'healthHazards',
+  'casNumber',
+];
 
 @Component({
   standalone: true,
@@ -97,7 +104,7 @@ export class SampleSearchComponent implements OnInit {
 
   @Output() close = new EventEmitter<void>();
 
-  loader: InfiniteSearchLoader<FindSamplesRequest, Sample>;
+  loader: SamplesSearchLoader;
 
   @ViewChild('advancedSearchPanel') advancedSearchPanel: MatExpansionPanel;
 
@@ -110,7 +117,7 @@ export class SampleSearchComponent implements OnInit {
   title = 'Add Material';
 
   form = new FormGroup({
-    catalog: new FormControl<SearchCatalog>(SearchCatalog.ALL),
+    catalog: new FormControl<SearchCatalogUI>(SearchCatalogUI.ALL),
     quickSearch: new FormControl<string | null>(null),
     structureSearchType: new FormControl<StructuralSearchType>(StructuralSearchType.SUBSTRUCTURE),
     structure: new FormControl<string | null>(null),
@@ -128,31 +135,24 @@ export class SampleSearchComponent implements OnInit {
   formNotEmpty = false;
 
   advancedSearchSummary: string[] | null = null;
+  advancedSearchMessage: string | null = null;
 
   ngOnInit(): void {
-    this.loader = new InfiniteSearchLoader<FindSamplesRequest, Sample>((searchParams, pageNo) =>
-      this.apiService.request('post', `samples/search?pageNo=${pageNo}&pageSize=20`, searchParams),
-    );
+    this.loader = new SamplesSearchLoader(this.apiService);
     this.form.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((formValues) => {
       setEnabled(this.form.get('structureSearchType'), formValues.structure != null, false);
+      const hasPubChem = SEARCH_CATALOG_MAPPING[formValues.catalog].includes(SearchCatalog.PUBCHEM);
+
+      for (const controlName of PUBCHEM_DISABLED_CONTROLS) {
+        setEnabled(this.form.get(controlName), !hasPubChem, false);
+      }
+      this.advancedSearchMessage = hasPubChem
+        ? 'PubChem does not support fine-grained search. Use quick search instead'
+        : null;
       this.formNotEmpty = Object.entries(formValues)
         .filter(([k, _]) => k !== 'structureSearchType')
         .some(([_, v]) => isFormValueNotEmpty(v));
     });
-
-    this.form.valueChanges
-      .pipe(
-        map((form) => form.catalog),
-        distinctUntilChanged(),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe({
-        next: () => {
-          if (this.loader.started) {
-            this.performSearch();
-          }
-        },
-      });
 
     if (this.defaultCriteria) {
       const valuesWithDefaults = {
@@ -200,6 +200,7 @@ export class SampleSearchComponent implements OnInit {
       casNumber,
     } = formValue;
     const body: FindSamplesRequest = {
+      catalogs: SEARCH_CATALOG_MAPPING[formValue.catalog],
       quickSearch: formValue.quickSearch || null,
       structure:
         formValue.structure != null ? { type: formValue.structureSearchType, query: formValue.structure } : null,
@@ -213,6 +214,12 @@ export class SampleSearchComponent implements OnInit {
       healthHazards,
       casNumber,
     };
+    const hasPubChem = SEARCH_CATALOG_MAPPING[formValue.catalog].includes(SearchCatalog.PUBCHEM);
+    if (hasPubChem) {
+      for (const controlName of PUBCHEM_DISABLED_CONTROLS) {
+        delete body[controlName];
+      }
+    }
     this.loader.search(body);
     this.advancedSearchPanel.close();
   }
@@ -249,10 +256,20 @@ export class SampleSearchComponent implements OnInit {
   }
 
   addToExperiment(sample: Sample) {
+    if (!sample.id) {
+      this.apiService.request<Sample>('post', '/samples/importFromSearch', sample).subscribe((response) => {
+        this.doAddToExperiment(response.id);
+      });
+    } else {
+      this.doAddToExperiment(sample.id);
+    }
+  }
+
+  doAddToExperiment(sampleID: UUID) {
     const mutation = {
       type: 'AddInput' as const,
       anchor: this.reactionAnchor,
-      sampleId: sample.id,
+      sampleId: sampleID,
     };
     this.experimentDetailService.updateDataModel(mutation).subscribe(() => {
       this.notificationService.notify({

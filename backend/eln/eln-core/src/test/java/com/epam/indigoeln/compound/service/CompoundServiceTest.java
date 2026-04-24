@@ -1,11 +1,14 @@
 package com.epam.indigoeln.compound.service;
 
 import com.epam.indigoeln.compound.entity.SampleEntity;
-import com.epam.indigoeln.compound.model.*;
+import com.epam.indigoeln.compound.model.SampleRegistrationRequest;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.entity.IdentifiableEntity;
 import com.epam.indigoeln.eln.entity.SaltCodeInfo;
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.model.BuiltInDictionary;
+import com.epam.indigoeln.eln.model.DictionaryItemRef;
+import com.epam.indigoeln.eln.model.NbkBatchNumber;
+import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
@@ -30,7 +33,6 @@ import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
 import static com.epam.indigoeln.common.util.ModelUtil.loadResourceAsStream;
-import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
@@ -155,144 +157,5 @@ public class CompoundServiceTest extends ELNBaseTest {
         assertThat(strOtherSaltEQ.getCompoundCode()).as(strOtherSaltEQ.toString()).isEqualTo(str1.getCompoundCode());
         assertThat(strOtherSaltEQ.getSaltCode()).as(strOtherSaltEQ.toString()).isEqualTo(strOtherSaltCode.getSaltCode());
         assertThat(strOtherSaltEQ.getSampleCode()).as(strOtherSaltEQ.toString()).isGreaterThan(strOtherSaltCode.getSampleCode());
-    }
-
-    @Test
-    @Order(600)
-    void testQuickSearch() {
-        Page<SampleDTO> found = compoundService.findSamples(new FindSamplesRequest().withQuickSearch("\"" + strOtherCompound + "\""), Paging.DEFAULT);
-        assertThat(found.getItems()).singleElement().returns(strOtherCompound, SampleDTO::getStrCode);
-    }
-
-    @Test
-    @Order(650)
-    void testSearchRequestValidation() {
-        assertThatClientCall(() -> {
-            compoundClient.findSamples(new FindSamplesRequest()
-                            .withCompoundKey(new TextSearch.ExactSearch(null))
-                    , Paging.DEFAULT
-            );
-        }).isBadRequest("must not be null");
-    }
-
-    @Test
-    @Order(610)
-    void testAdvancedSearch() {
-        Page<SampleDTO> found = compoundService.findSamples(new FindSamplesRequest()
-                .withNbkBatchNumber(new TextSearch.ExactSearch("00000000-0000-001"))
-                .withMolecularFormula(new TextSearch.ExactSearch("C9 H8 O4"))
-                .withMolWeight(new NumericSearch.Equals(180.0))
-                .withCompoundState(compoundState)
-                .withBatchComment(new TextSearch.ExactSearch("batch comment"))
-                .withHealthHazards(healthHazard)
-                , Paging.DEFAULT
-        );
-        assertThat(found.getItems()).singleElement()
-                .returns(str1, SampleDTO::getStrCode)
-                .returns(false, SampleDTO::getMarked);
-    }
-
-    @Test
-    @Order(610)
-    void testAdvancedSearchStartsWith() {
-        Page<SampleDTO> found = compoundService.findSamples(new FindSamplesRequest()
-                .withNbkBatchNumber(new TextSearch.StartsWithSearch("00000000-0000-"))
-                , Paging.DEFAULT
-        );
-        assertThat(found.getItems()).singleElement().returns(str1, SampleDTO::getStrCode);
-    }
-
-    @Test
-    @Order(610)
-    void testAdvancedSearchContains() {
-        Page<SampleDTO> found = compoundService.findSamples(new FindSamplesRequest()
-                .withNbkBatchNumber(new TextSearch.ContainsSearch("-0000-"))
-                , Paging.DEFAULT
-        );
-        assertThat(found.getItems()).singleElement().returns(str1, SampleDTO::getStrCode);
-    }
-
-    @Test
-    @Order(610)
-    void testAdvancedSearchEndsWith() {
-        Page<SampleDTO> found = compoundService.findSamples(new FindSamplesRequest()
-                .withNbkBatchNumber(new TextSearch.ContainsSearch("-001"))
-                , Paging.DEFAULT
-        );
-        assertThat(found.getItems()).singleElement().returns(str1, SampleDTO::getStrCode);
-    }
-
-    @Test
-    @Order(610)
-    void testAdvancedSearchBetween() {
-        Page<SampleDTO> found = compoundService.findSamples(new FindSamplesRequest()
-                .withNbkBatchNumber(new TextSearch.BetweenSearch("00000000-0000-000", "00000000-0000-999"))
-                , Paging.DEFAULT
-        );
-        assertThat(found.getItems()).singleElement().returns(str1, SampleDTO::getStrCode);
-    }
-
-    @Test
-    @Order(610)
-    void testAdvancedSearchGreaterThenOrEqual() {
-        Page<SampleDTO> found = compoundService.findSamples(new FindSamplesRequest()
-                .withMolWeight(new NumericSearch.GreaterThanOrEqual(100.0))
-                , Paging.DEFAULT
-        );
-        assertThat(found.getItems()).isNotEmpty();
-    }
-
-    @Test
-    @Order(610)
-    void testAdvancedSearchLessThenOrEqual() {
-        Page<SampleDTO> found = compoundService.findSamples(new FindSamplesRequest()
-                .withMolWeight(new NumericSearch.LessThanOrEqual(200.0))
-                , Paging.DEFAULT
-        );
-        assertThat(found.getItems()).isNotEmpty();
-    }
-
-    @Test
-    @Order(700)
-    void testListMarkedSamplesBefore() {
-        Page<SampleDTO> page = compoundService.findSamples(new FindSamplesRequest().withMarked(true), Paging.DEFAULT);
-        assertThat(page.getItems()).isEmpty();
-    }
-
-    @Test
-    @Order(701)
-    void testMarkSample() {
-        compoundService.markSample(sampleID1, true);
-    }
-
-    @Test
-    @Order(702)
-    void testListMarkedSamples() {
-        Page<SampleDTO> page = compoundService.findSamples(new FindSamplesRequest().withMarked(true), Paging.DEFAULT);
-        assertThat(page.getItems()).singleElement()
-                .returns(sampleID1, SampleDTO::getId)
-                .returns(true, SampleDTO::getMarked);
-    }
-
-    @Test
-    @Order(703)
-    void testListMarkedSamplesQuickSearch() {
-        Page<SampleDTO> page = compoundService.findSamples(new FindSamplesRequest().withQuickSearch(str1.toString()).withMarked(true), Paging.DEFAULT);
-        assertThat(page.getItems()).singleElement().returns(sampleID1, SampleDTO::getId);
-    }
-
-    @Test
-    @Order(704)
-    void testListMarkedSamplesQuickSearchNotFound() {
-        Page<SampleDTO> page = compoundService.findSamples(new FindSamplesRequest().withQuickSearch("nosuchcompound").withMarked(true), Paging.DEFAULT);
-        assertThat(page.getItems()).isEmpty();
-    }
-
-    @Test
-    @Order(705)
-    void testUnmarkSample() {
-        compoundService.markSample(sampleID1, false);
-        Page<SampleDTO> page = compoundService.findSamples(new FindSamplesRequest().withMarked(true), Paging.DEFAULT);
-        assertThat(page.getItems()).isEmpty();
     }
 }

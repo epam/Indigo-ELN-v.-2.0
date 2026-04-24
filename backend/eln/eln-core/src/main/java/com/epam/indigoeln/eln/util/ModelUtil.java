@@ -1,6 +1,7 @@
 package com.epam.indigoeln.eln.util;
 
 import com.epam.indigoeln.common.exception.InvalidRequestException;
+import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.eln.entity.BaseEntity;
 import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.reaction.util.ThrowingRunnable;
@@ -63,5 +64,16 @@ public class ModelUtil {
 
     public static void wrapConstraintViolation(ThrowingRunnable function, Function<ConstraintViolationException, @Nullable String> errorMapper) {
         wrapConstraintViolation(function.asCallable(), errorMapper);
+    }
+
+    @Nullable
+    public static String calculateCompoundKey(CompoundEntity compound) {
+        if (compound.getStrCode() != null) {
+            return compound.getStrCode().toString();
+        }
+        if (compound.getExternalNumber() != null) {
+            return compound.getExternalNumber();
+        }
+        return null;
     }
 }

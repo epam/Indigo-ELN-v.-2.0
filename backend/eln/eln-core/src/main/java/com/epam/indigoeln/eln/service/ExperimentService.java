@@ -28,7 +28,6 @@ import com.google.common.base.MoreObjects;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.core.CacheControl;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
@@ -176,21 +175,12 @@ public class ExperimentService {
         return experiment.getPicture() != null ? experiment.getPicture() : EMPTY_PICTURE;
     }
 
-    public Response getReactionPicture(UUID experimentId, ReactionAnchor reactionAnchor, @Nullable Integer revision) {
+    public byte[] getReactionPicture(UUID experimentId, ReactionAnchor reactionAnchor) {
         // TODO generate on the fly from reaction rxnfile; shouldn't be heavyweight, because it will only be used when editing experiment, and most of the calls should be cached
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, VIEW_EXPERIMENTS);
         Reaction reaction = experimentModelService.getModel(experiment).locate(reactionAnchor);
-        CacheControl cacheControl = new CacheControl();
-        int maxAge = 60 * 5;
-        if (revision != null) {
-            validate(experiment.getRevision() >= revision, "Experiment revision " + revision + " doesn't exist");
-            maxAge = 3_600 * 24 * 30;
-        }
-        cacheControl.setMaxAge(maxAge);
-        return Response.ok(experiment.getPicture() != null ? experiment.getPicture() : EMPTY_PICTURE, "image/svg+xml")
-                .cacheControl(cacheControl)
-                .build();
+        return experiment.getPicture() != null ? experiment.getPicture() : EMPTY_PICTURE;
     }
 
     public Map<InputAnchor, String> analyzeRXN(UUID experimentId, ReactionAnchor reactionAnchor) {
@@ -210,7 +200,7 @@ public class ExperimentService {
                     }
                     return null;
                 })
-                .filterValues(x -> x != null)
+                .filterValues(Objects::nonNull)
                 .toCustomMap(LinkedHashMap::new);
     }
 

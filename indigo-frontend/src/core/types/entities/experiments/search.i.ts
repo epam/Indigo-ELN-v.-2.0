@@ -65,6 +65,7 @@ export interface NumericSearchGreaterThanOrEquals {
 export type NumericSearch = NumericSearchEquals | NumericSearchLessThanOrEquals | NumericSearchGreaterThanOrEquals;
 
 export interface FindSamplesRequest {
+  catalogs: SearchCatalog[];
   quickSearch?: string;
   structure?: StructuralSearch;
   compoundKey?: TextSearch;
@@ -95,15 +96,46 @@ export const NumericSearchTypeNames = {
 };
 
 export interface Sample {
-  id: UUID;
+  id?: UUID;
   strCode?: string;
   nbkBatchNumber?: string;
-  molecularFormula?: string;
+  compoundKey?: string;
+  molFormula?: string;
   molWeight: number;
   name?: string;
   saltCode?: DictionaryItemRef;
   saltEQ?: number;
-  compoundID: UUID;
+  compoundID?: UUID;
+  image: string;
+  marked?: boolean;
+}
+
+export enum SearchCatalog {
+  ELN = 'ELN',
+  PUBCHEM = 'PUBCHEM',
+  MY_MATERIALS = 'MY_MATERIALS',
+}
+
+export enum SearchCatalogUI {
+  ALL = 'ALL',
+  ELN = 'ELN',
+  PUBCHEM = 'PUBCHEM',
+  MY_MATERIALS = 'MY_MATERIALS',
+}
+
+export const SEARCH_CATALOG_MAPPING = {
+  [SearchCatalogUI.ALL]: [SearchCatalog.ELN, SearchCatalog.PUBCHEM],
+  [SearchCatalogUI.ELN]: [SearchCatalog.ELN],
+  [SearchCatalogUI.PUBCHEM]: [SearchCatalog.PUBCHEM],
+  [SearchCatalogUI.MY_MATERIALS]: [SearchCatalog.MY_MATERIALS],
+};
+
+export interface SampleSearchResult {
+  items: Sample[];
+  hasNext: boolean;
+  nextCatalog?: SearchCatalog;
+  nextAfter?: string;
+  totalItems?: number;
 }
 
 export interface GlobalSearchRequest {
@@ -133,4 +165,5 @@ export interface GlobalSearchResult {
   fragment?: string;
   reactionRoles?: ReactionRole[];
   experimentStatus?: ExperimentStatus;
+  revision?: number;
 }
