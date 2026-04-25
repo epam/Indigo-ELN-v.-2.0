@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -25,6 +26,12 @@ public class NotebookDetailsDTO extends BaseNotebookDTO {
 
     @NotNull
     List<ApplicationPermission> currentPermissions;
+
+    @NotNull
+    UUID projectId;
+
+    @NotNull
+    String projectName;
 
     @Override
     public String toString() {
