@@ -7,12 +7,20 @@ import { ExperimentDetail } from '@/core/types/entities/experiments/experiment-d
 import { CardComponent } from '@/core/components/common/card/card.component';
 import { ProjectTabButtonComponent } from '@pages/project/project-tab-button/project-tab-button.component';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { UndoRedoDirective } from '@core/directives/undo-redo.directive';
 
 @Component({
   selector: 'eln-experiment-layout',
   templateUrl: './experiment-layout.component.html',
   standalone: true,
-  imports: [RouterOutlet, ProjectTabButtonComponent, CommonModule, CardComponent, MatProgressSpinner],
+  imports: [
+    RouterOutlet,
+    ProjectTabButtonComponent,
+    CommonModule,
+    CardComponent,
+    MatProgressSpinner,
+    UndoRedoDirective,
+  ],
 })
 export class ExperimentLayoutComponent implements OnInit, OnDestroy {
   private activatedRoute = inject(ActivatedRoute);
