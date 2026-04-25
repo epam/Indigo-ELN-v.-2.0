@@ -30,6 +30,8 @@ public abstract class NotebookMapper extends AbstractMapper {
 
     @Mapping(target = "acl", source = "entity.fullACL")
     @Mapping(target = "experimentCountByStatus", source = "entity.experimentCount")
+    @Mapping(target = "projectId", source = "entity.project.id")
+    @Mapping(target = "projectName", source = "entity.project.name")
     public abstract NotebookDetailsDTO entityToDetailsDTO(NotebookEntity entity, Set<ApplicationPermission> currentPermissions);
 
     @Mapping(target = "diff", expression = "java(revisionService.getPatch(entity))")

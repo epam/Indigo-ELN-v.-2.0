@@ -33,6 +33,10 @@ public abstract class ExperimentMapper extends AbstractMapper {
     @Mapping(target = "marked", source = "entity.calculatedInfo.marked")
     @Mapping(target = "templateId", source = "entity.template.id")
     @Mapping(target = "model", source = "model")
+    @Mapping(target = "projectId", source = "entity.project.id")
+    @Mapping(target = "projectName", source = "entity.project.name")
+    @Mapping(target = "notebookId", source = "entity.notebook.id")
+    @Mapping(target = "notebookName", source = "entity.notebook.name")
     public abstract ExperimentDetailsDTO entityToDetailsDTO(ExperimentEntity entity, ExperimentModel model, Set<ApplicationPermission> currentPermissions);
 
     @Mapping(target = "diff", expression = "java(revisionService.getPatch(entity))")

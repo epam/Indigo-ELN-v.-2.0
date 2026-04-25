@@ -60,6 +60,18 @@ public class ExperimentDetailsDTO extends BaseExperimentDTO {
     @NotNull
     ExperimentModel model;
 
+    @NotNull
+    UUID projectId;
+
+    @NotNull
+    String projectName;
+
+    @NotNull
+    UUID notebookId;
+
+    @NotNull
+    String notebookName;
+
     @Override
     public String toString() {
         return "ExperimentDetailsDTO{" +
