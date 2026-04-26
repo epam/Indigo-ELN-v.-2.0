@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,6 +22,7 @@ public sealed abstract class ReactionRow extends AbstractExperimentNode<Reaction
     protected Reaction reaction;
 
     @NotNull
+    @Setter(AccessLevel.PROTECTED)
     protected CompoundRef compound;
 
     @NotNull

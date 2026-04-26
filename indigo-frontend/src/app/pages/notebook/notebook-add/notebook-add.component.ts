@@ -12,6 +12,7 @@ import { NOTEBOOK_NAME_LENGTH } from '../notebook.constants';
 import { catchError, map, of, switchMap } from 'rxjs';
 import { NotificationType } from '@/core/types/notification.i';
 import { NotificationService } from '@/core/services/notification/notification.service';
+import { Router } from '@angular/router';
 
 @Component({
   standalone: true,
@@ -23,6 +24,7 @@ export class NotebookAddComponent {
   projectId: string;
   dialogRef = inject(MatDialogRef);
   notificationService = inject(NotificationService);
+  router = inject(Router);
 
   fields: FormlyFieldConfig[] = [
     {
@@ -88,13 +90,14 @@ export class NotebookAddComponent {
         ...data,
         description: typeof data.description === 'object' ? toHTML(data.description) : data.description,
       })
-      .subscribe(() => {
+      .subscribe((newNotebook: Notebook) => {
         this.notificationService.notify({
           message: 'Notebook successfully created.',
           type: NotificationType.Success,
           isInline: false,
         });
         this.dialogRef.close('refresh');
+        this.router.navigate(['/projects', this.projectId, 'notebooks', newNotebook.id]);
       });
   }
 }

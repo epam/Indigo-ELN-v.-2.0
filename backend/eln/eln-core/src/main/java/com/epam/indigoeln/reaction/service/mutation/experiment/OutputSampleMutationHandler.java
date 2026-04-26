@@ -60,7 +60,6 @@ class RegisterSampleHandler extends AbstractReactionOutputSampleMutationHandler<
         if (sampleRow.getRow().getCompound() instanceof CompoundRef.Unknown) {
             throw new InvalidRequestException("Cannot register sample for unknown compound");
         }
-        sampleRow.setRegistrationStatus(SampleRegistrationStatus.IN_PROGRESS);
         SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(sampleRow.getRow().getCompound())
                 .withNbkBatchNumber(sampleRow.getNbkBatchNumber())
                 .withDensity(sampleRow.getDensity())
@@ -70,12 +69,13 @@ class RegisterSampleHandler extends AbstractReactionOutputSampleMutationHandler<
                 .withCompoundState(sampleRow.getComponentState())
                 .withBatchComment(sampleRow.getBatchComment())
         );
+        if (sampleRow.getRow().getCompound() instanceof CompoundRef.Virtual) {
+            sampleRow.getRow().updateCompound(compoundService.realCompoundRef(sample.getCompound()));
+        }
+        sampleRow.setRegistrationStatus(SampleRegistrationStatus.IN_PROGRESS); // for now, registration is immediate; when switched to async registration, REGISTERED will be set later
         sampleRow.setRegistrationStatus(SampleRegistrationStatus.REGISTERED);
         sampleRow.setStrCode(sample.getStrCode());
         sampleRow.setSampleId(sample.getId());
-        if (sampleRow.getRow().getCompound() instanceof CompoundRef.Virtual) {
-            sampleRow.getRow().setCompound(compoundService.realCompoundRef(sample.getCompound()));
-        }
         return new MutationResult("Register sample");
     }
 }

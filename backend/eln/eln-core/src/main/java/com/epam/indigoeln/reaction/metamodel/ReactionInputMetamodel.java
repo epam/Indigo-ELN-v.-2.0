@@ -14,7 +14,7 @@ import static com.epam.indigoeln.reaction.metamodel.property.ModelProperty.*;
 public class ReactionInputMetamodel {
 
     // ReactionRow
-    public static final ModelProperty<ReactionInput, CompoundRef> COMPOUND = property("compound", ReactionRow::getCompound, ReactionRow::setCompound);
+    public static final ModelProperty<ReactionInput, CompoundRef> COMPOUND = property("compound", ReactionRow::getCompound, ReactionInput::updateCompound);
     public static final ModelProperty<ReactionInput, EnteredValue<NoUnit>> EQ = enteredValueProperty("eq", ReactionRow::getEq, ReactionRow::setEq, EnteredValue.DEFAULT_ONE);
     public static final ModelProperty<ReactionInput, Integer> RXN_POSITION = property("rxnPosition", ReactionRow::getRxnPosition, ReactionRow::setRxnPosition);
     // ReactionInput
