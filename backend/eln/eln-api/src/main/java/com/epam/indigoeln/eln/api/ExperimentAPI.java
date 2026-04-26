@@ -70,7 +70,7 @@ public interface ExperimentAPI extends BaseAPI {
     @GET
     @Path("/experiments/{experimentId}/picture")
     @Produces("image/svg+xml")
-    @Cached(interval = 30, unit = ChronoUnit.DAYS)
+    @com.epam.indigoeln.eln.quarkus.cachecontrol.Cached(interval = 30, unit = ChronoUnit.DAYS)
     byte[] getExperimentPicture(@PathParam("experimentId") UUID experimentId, @Nullable @QueryParam("revision") Integer revision);
 
     @POST
@@ -104,7 +104,7 @@ public interface ExperimentAPI extends BaseAPI {
     @GET
     @Path("/experiments/{experimentId}/datamodel/reactions/{reactionAnchor}/picture")
     @Produces("image/svg+xml")
-    @Cached(interval = 30, unit = ChronoUnit.DAYS)
+    @com.epam.indigoeln.eln.quarkus.cachecontrol.Cached(interval = 30, unit = ChronoUnit.DAYS)
     byte[] getReactionPicture(@PathParam("experimentId") UUID experimentId, @PathParam("reactionAnchor") ReactionAnchor reactionAnchor, @Nullable @QueryParam("revision") Integer revision);
 
     @POST

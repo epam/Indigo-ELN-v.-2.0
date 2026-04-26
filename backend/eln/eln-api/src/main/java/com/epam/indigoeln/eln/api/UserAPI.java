@@ -32,7 +32,7 @@ public interface UserAPI extends BaseAPI {
 
     @GET
     @Path("/users/{userId}/picture")
-    @Cached(interval = 1, unit = ChronoUnit.DAYS)
+    @com.epam.indigoeln.eln.quarkus.cachecontrol.Cached(interval = 1, unit = ChronoUnit.DAYS)
     @Produces("image/png")
     byte[] getUserPicture(@PathParam("userId") UUID userId, @QueryParam("small") @Nullable Boolean large);
 

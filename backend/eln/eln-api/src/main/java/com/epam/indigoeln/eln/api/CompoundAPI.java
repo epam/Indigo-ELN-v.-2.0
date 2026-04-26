@@ -25,7 +25,7 @@ public interface CompoundAPI extends BaseAPI {
     @GET
     @Path("/compounds/{compoundID}/picture")
     @Produces("image/svg+xml")
-    @Cached(interval = 30, unit = ChronoUnit.DAYS)
+    @com.epam.indigoeln.eln.quarkus.cachecontrol.Cached(interval = 30, unit = ChronoUnit.DAYS)
     byte[] getCompoundPicture(@PathParam("compoundID") UUID compoundID);
 
     @POST
@@ -39,7 +39,7 @@ public interface CompoundAPI extends BaseAPI {
     @GET
     @Path("/samples/external/picture")
     @Produces("image/svg+xml")
-    @Cached(interval = 30, unit = ChronoUnit.DAYS)
+    @com.epam.indigoeln.eln.quarkus.cachecontrol.Cached(interval = 30, unit = ChronoUnit.DAYS)
     byte[] getExternalPicture(@QueryParam("inchi") String inchi);
 
     @POST
