@@ -7,5 +7,6 @@ export interface NotebookDetail extends BaseEntity {
   description: string;
   experimentCount?: Record<string, number>;
   attachments: Attachment[];
+  projectName: string;
   acl: ProjectAcl[];
 }

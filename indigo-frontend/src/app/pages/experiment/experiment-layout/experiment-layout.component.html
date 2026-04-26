@@ -1,6 +1,6 @@
 <eln-card classList="px-4 sm:px-2 md:px-4 shadow-md pb-0 mb-6">
   <div class="flex items-center justify-between flex-wrap gap-4">
-    <eln-breadcrumbs></eln-breadcrumbs>
+    <eln-breadcrumbs [items]="(breadcrumbsState.items$ | async) ?? []"></eln-breadcrumbs>
     <div class="flex items-center gap-2 ml-auto"></div>
   </div>
 

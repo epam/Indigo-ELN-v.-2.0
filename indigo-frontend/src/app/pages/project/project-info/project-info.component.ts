@@ -17,11 +17,13 @@ import { ProjectAddComponent } from '../project-add/project-add.component';
 import { TeamComponentConfig } from '@/core/components/common/team/team.config';
 import { NotebookAddComponent } from '@pages/notebook/notebook-add/notebook-add.component';
 import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
+import { BreadcrumbsStateService } from '@/core/services/breadcrumbs/breadcrumbs.state.service';
 
 enum projectInfoModalEnum {
   EDIT = 'edit',
   NOTEBOOK = 'notebook',
 }
+
 @Component({
   selector: 'eln-project-info',
   standalone: true,
@@ -43,6 +45,7 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
   activatedRoute = inject(ActivatedRoute);
   dialog = inject(MatDialog);
   service = inject(ApiService);
+  breadcrumbsState = inject(BreadcrumbsStateService);
 
   project: Project | null = null;
 
@@ -58,7 +61,9 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.activatedRoute.params.pipe(takeUntil(this.destroy$)).subscribe(({ id }) => {
-      if (id) this.loadProject(id);
+      if (id) {
+        this.loadProject(id);
+      }
     });
   }
 
@@ -69,7 +74,6 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
 
   onAttachmentDeleted(attachmentId: string): void {
     if (this.project) {
-      // Remove the deleted attachment from the local array
       this.project.attachments = this.project.attachments.filter((attachment) => attachment.id !== attachmentId);
     }
   }
@@ -98,19 +102,31 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe((attachments) => {
-        if (this.project) this.project.attachments = attachments;
+        if (this.project) {
+          this.project.attachments = attachments;
+        }
       });
   }
 
   private loadProject(id: string): void {
     this.isLoading = true;
     this.hasError = false;
+
     this.service
       .request<Project>('get', `projects/${id}`)
       .pipe(finalize(() => (this.isLoading = false)))
       .subscribe({
-        next: (project) => (this.project = project),
-        error: () => (this.hasError = true),
+        next: (project) => {
+          this.project = project;
+
+          this.breadcrumbsState.setItems([
+            { label: 'All Projects', url: '/projects', active: false },
+            { label: `Project: ${project.name}`, active: true },
+          ]);
+        },
+        error: () => {
+          this.hasError = true;
+        },
       });
   }
 

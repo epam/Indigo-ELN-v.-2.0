@@ -1,30 +1,32 @@
-import { Component, computed, inject, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { Component, computed, effect, inject, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, RouterOutlet } from '@angular/router';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
+import { BreadcrumbsComponent } from '@/core/components/breadcrumbs/breadcrumbs.component';
+import { CardComponent } from '@/core/components/common/card/card.component';
+import { BreadcrumbsStateService } from '@/core/services/breadcrumbs/breadcrumbs.state.service';
 import { ExperimentDetailService } from '@/core/services/experiment/experiment-detail.service';
 import { ExperimentDetail } from '@/core/types/entities/experiments/experiment-detail.i';
-import { CardComponent } from '@/core/components/common/card/card.component';
 import { ProjectTabButtonComponent } from '@pages/project/project-tab-button/project-tab-button.component';
-import { MatProgressSpinner } from '@angular/material/progress-spinner';
-import { BreadcrumbsComponent } from '@/core/components/breadcrumbs/breadcrumbs.component';
 
 @Component({
   selector: 'eln-experiment-layout',
   templateUrl: './experiment-layout.component.html',
   standalone: true,
   imports: [
+    CommonModule,
     RouterOutlet,
     ProjectTabButtonComponent,
-    CommonModule,
     CardComponent,
     MatProgressSpinner,
-    BreadcrumbsComponent
+    BreadcrumbsComponent,
   ],
 })
 export class ExperimentLayoutComponent implements OnInit, OnDestroy {
   private activatedRoute = inject(ActivatedRoute);
   experimentDetailService = inject(ExperimentDetailService);
+  breadcrumbsState = inject(BreadcrumbsStateService);
 
   projectId = '';
   notebookId = '';
@@ -36,14 +38,38 @@ export class ExperimentLayoutComponent implements OnInit, OnDestroy {
   isUpdating = computed<boolean>(() => this.experimentDetailService.isUpdating());
   hasError = computed<boolean>(() => this.experimentDetailService.hasError());
 
-  // Tab URLs
-  public infoUrl = '';
-  public attachmentsUrl = '';
-  public summaryUrl = '';
-  public versionsUrl = '';
+  infoUrl = '';
+  attachmentsUrl = '';
+  summaryUrl = '';
+  versionsUrl = '';
+
+  private readonly breadcrumbsEffect = effect(() => {
+    const experiment = this.experiment();
+
+    if (!experiment || !this.projectId || !this.notebookId) {
+      return;
+    }
+
+    this.breadcrumbsState.setItems([
+      { label: 'All Projects', url: '/projects', active: false },
+      {
+        label: `Project: ${experiment.projectName}`,
+        url: `/projects/${this.projectId}`,
+        active: false,
+      },
+      {
+        label: `Notebook: ${experiment.notebookName}`,
+        url: `/projects/${this.projectId}/notebooks/${this.notebookId}`,
+        active: false,
+      },
+      {
+        label: `Experiment: ${experiment.name}`,
+        active: true,
+      },
+    ]);
+  });
 
   ngOnInit(): void {
-    // Get all route parameters
     this.experimentId = this.activatedRoute.snapshot.params['experimentId'];
     this.notebookId = this.activatedRoute.snapshot.params['notebookId'];
     this.projectId = this.activatedRoute.snapshot.params['projectId'];
