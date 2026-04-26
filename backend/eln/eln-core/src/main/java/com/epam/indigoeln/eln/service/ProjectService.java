@@ -1,6 +1,5 @@
 package com.epam.indigoeln.eln.service;
 
-import com.epam.indigoeln.common.config.TraceSegment;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.ProjectEntity;
@@ -31,7 +30,6 @@ import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
 
 @Slf4j
 @DataAccess
-@TraceSegment
 @Transactional
 @ApplicationScoped
 public class ProjectService {

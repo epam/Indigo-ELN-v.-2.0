@@ -95,6 +95,7 @@ public class Utils {
                 .timeout(Duration.seconds(120))
                 .currentVersionOptions(VersionOptions.builder().removalPolicy(RemovalPolicy.DESTROY).build())
                 .tracing(Tracing.ACTIVE)
+                .loggingFormat(LoggingFormat.JSON)
                 .logGroup(logGroup);
         if (functionCode != null) {
             builder

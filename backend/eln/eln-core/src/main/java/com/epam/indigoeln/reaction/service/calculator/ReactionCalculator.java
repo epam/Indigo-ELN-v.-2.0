@@ -1,6 +1,5 @@
 package com.epam.indigoeln.reaction.service.calculator;
 
-import com.epam.indigoeln.common.config.TraceSegment;
 import com.epam.indigoeln.reaction.metamodel.ReactionInputMetamodel;
 import com.epam.indigoeln.reaction.metamodel.ReactionInputSampleMetamodel;
 import com.epam.indigoeln.reaction.metamodel.ReactionOutputMetamodel;
@@ -8,6 +7,7 @@ import com.epam.indigoeln.reaction.metamodel.ReactionOutputSampleMetamodel;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.units.*;
 import com.epam.indigoeln.reaction.service.EnteredValueOpt;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import jakarta.enterprise.context.Dependent;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +33,7 @@ public class ReactionCalculator {
     private ModelProps model;
     private final Set<EnteredValueOpt.Property<?, ?>> overwrittenConflicts = new HashSet<>();
 
-    @TraceSegment("ReactionCalculator.recalculate")
+    @WithSpan("ReactionCalculator.recalculate")
     public void recalculate(ExperimentModel modelObj) {
         model = new ModelProps(modelObj);
         for (;;) {

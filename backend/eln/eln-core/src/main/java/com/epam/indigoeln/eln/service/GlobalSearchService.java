@@ -1,6 +1,5 @@
 package com.epam.indigoeln.eln.service;
 
-import com.epam.indigoeln.common.config.TraceSegment;
 import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.model.*;
@@ -20,7 +19,6 @@ import java.util.*;
 import java.util.stream.Stream;
 
 @DataAccess
-@TraceSegment
 @Transactional
 @ApplicationScoped
 public class GlobalSearchService {

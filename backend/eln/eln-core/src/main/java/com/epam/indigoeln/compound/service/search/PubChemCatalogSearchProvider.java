@@ -1,6 +1,5 @@
 package com.epam.indigoeln.compound.service.search;
 
-import com.epam.indigoeln.common.config.TraceSegment;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.model.SampleDTO;
@@ -11,6 +10,7 @@ import com.epam.indigoeln.eln.model.CompoundExternalSource;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MultivaluedHashMap;
@@ -57,7 +57,7 @@ class PubChemCatalogSearchProvider implements CatalogSearchProvider {
     }
 
     @Override
-    @TraceSegment("PubChem search")
+    @WithSpan("PubChem.search")
     public CatalogSearchResult search(FindSamplesRequest request, @Nullable String nextAfter, int limit) {
         try {
             List<SampleDTO> list = executeQuery(request, limit);

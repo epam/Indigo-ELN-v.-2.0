@@ -42,6 +42,14 @@ RUN echo 'net.ipv6.conf.all.disable_ipv6 = 0' >> /etc/sysctl.conf
 RUN echo 'net.ipv6.conf.default.disable_ipv6 = 0' >> /etc/sysctl.conf
 
 EXPOSE 8080
+
+# ADOT collector Lambda Extension — must be copied as root (before USER 1001) and be executable.
+# The Lambda runtime auto-discovers and launches every executable under /opt/extensions/
+# as a child process before invoking the handler.
+RUN mkdir -p /opt/extensions /opt/collector-config
+COPY --from=public.ecr.aws/aws-observability/aws-otel-collector:latest /awscollector /opt/extensions/collector
+RUN chmod +x /opt/extensions/collector
+
 USER 1001
 
 ENV NATIVE_LIB_PATH=/work/nativelibs

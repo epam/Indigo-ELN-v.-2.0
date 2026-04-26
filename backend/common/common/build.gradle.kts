@@ -14,6 +14,7 @@ dependencies {
     api("io.quarkus:quarkus-logging-json")
     api("org.eclipse.microprofile.jwt:microprofile-jwt-auth-api")
     api("io.quarkus:quarkus-smallrye-openapi")
+    api("io.quarkus:quarkus-opentelemetry")
 
     api("org.jspecify:jspecify:1.0.0")
     api("org.jetbrains:annotations:26.0.2-1")

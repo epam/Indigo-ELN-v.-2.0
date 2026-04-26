@@ -1,8 +1,10 @@
 package com.epam.indigoeln.eln.config;
 
-import com.epam.indigoeln.common.config.TraceHelper;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.service.UserService;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.Scope;
 import jakarta.annotation.Priority;
 import jakarta.inject.Inject;
 import jakarta.interceptor.AroundInvoke;
@@ -18,7 +20,6 @@ import org.hibernate.jpa.AvailableHints;
 import org.hibernate.stat.Statistics;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 @Slf4j
@@ -30,7 +31,7 @@ public class DataAccessInterceptor {
     @Inject
     UserService userService;
     @Inject
-    TraceHelper traceHelper;
+    Tracer tracer;
     @PersistenceContext
     EntityManager em;
     @PersistenceUnit
@@ -41,7 +42,11 @@ public class DataAccessInterceptor {
     @AroundInvoke
     public Object intercept(InvocationContext context) throws Exception {
         boolean executed = false;
+        Span span = null;
+        Scope spanScope = null;
         if (invoked.get() != Boolean.TRUE) {
+            span = tracer.spanBuilder("DataAccess").startSpan();
+            spanScope = span.makeCurrent();
             Set<ApplicationPermission> permissions = userService.getCurrentUser().getPermissions();
             em.createNativeQuery("SELECT SET_CONFIG('eln.currentUserId', CAST(? AS VARCHAR), TRUE), SET_CONFIG('eln.viewAllProjects', CAST(? AS VARCHAR), TRUE), SET_CONFIG('eln.viewAllNotebooks', CAST(? AS VARCHAR), TRUE), SET_CONFIG('eln.viewAllExperiments', CAST(? AS VARCHAR), TRUE)")
                     .setHint(AvailableHints.HINT_NATIVE_SPACES, List.of("nothing")) // Hibernate assumes empty list as missing, so provide non-existent query space
@@ -61,16 +66,15 @@ public class DataAccessInterceptor {
             return context.proceed();
         } finally {
             if (executed) {
+                StatSnapshot after = StatSnapshot.from(stats);
+                String statsStr = "queries=%d, entityFetches=%d, collectionFetches=%d, connects=%d".formatted(
+                        after.queries() - before.queries(), after.entityFetches() - before.entityFetches(),
+                        after.collectionFetches() - before.collectionFetches(), after.connects() - before.connects()
+                );
+                span.setAttribute("hibernate", statsStr);
+                spanScope.close();
+
                 invoked.remove();
-                if (before != null) {
-                    StatSnapshot after = StatSnapshot.from(stats);
-                    traceHelper.attachMetadata("hibernate", Map.of(
-                            "queries", after.queries() - before.queries(),
-                            "entityFetches", after.entityFetches() - before.entityFetches(),
-                            "collectionFetches", after.collectionFetches() - before.collectionFetches(),
-                            "connects", after.connects() - before.connects()
-                    ));
-                }
             }
         }
     }

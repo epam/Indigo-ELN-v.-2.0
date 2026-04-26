@@ -6,7 +6,8 @@ plugins {
 
 dependencies {
     api("io.quarkus:quarkus-amazon-lambda-http")
-    implementation("io.quarkus:quarkus-amazon-lambda-xray")
+//    implementation("io.opentelemetry:opentelemetry-extension-aws")
+    implementation("io.opentelemetry.contrib:opentelemetry-aws-xray-propagator:1.46.0-alpha")
 
 //    implementation("io.quarkus:quarkus-credentials")
 //    implementation("io.quarkiverse.amazonservices:quarkus-amazon-secretsmanager")
