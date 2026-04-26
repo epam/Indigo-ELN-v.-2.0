@@ -1,5 +1,6 @@
 package com.epam.indigoeln.compound.service.search;
 
+import com.epam.indigoeln.common.config.TraceSegment;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.model.SampleDTO;
@@ -56,6 +57,7 @@ class PubChemCatalogSearchProvider implements CatalogSearchProvider {
     }
 
     @Override
+    @TraceSegment("PubChem search")
     public CatalogSearchResult search(FindSamplesRequest request, @Nullable String nextAfter, int limit) {
         try {
             List<SampleDTO> list = executeQuery(request, limit);

@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.config.TraceSegment;
 import com.epam.indigoeln.common.exception.EntityNotFoundException;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.*;
@@ -31,6 +32,7 @@ import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 
 @Slf4j
 @DataAccess
+@TraceSegment
 @Transactional
 @ApplicationScoped
 public class AttachmentService {

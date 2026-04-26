@@ -405,9 +405,9 @@ public class JSONPatcherTest {
 
     @Test
     void testEnteredValueCreated() throws Exception {
-        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, null);
+        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Unknown());
         baseReaction.setInputs(List.of(baseInput));
-        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, null);
+        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Unknown());
         reaction.setInputs(List.of(input));
         input.setMol(EnteredValue.userEntered("10.0", MolUnit.MMOL, 1));
         verifyModel("""
@@ -417,9 +417,9 @@ public class JSONPatcherTest {
 
     @Test
     void testEnteredValueChanged() throws Exception {
-        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, null);
+        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Unknown());
         baseReaction.setInputs(List.of(baseInput));
-        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, null);
+        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Unknown());
         reaction.setInputs(List.of(input));
         baseInput.setMol(EnteredValue.userEntered("15.0", MolUnit.MMOL, 1));
         input.setMol(EnteredValue.userEntered("10.0", MolUnit.MMOL, 1));
@@ -430,9 +430,9 @@ public class JSONPatcherTest {
 
     @Test
     void testEnteredValueDeleted() throws Exception {
-        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, null);
+        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Unknown());
         baseReaction.setInputs(List.of(baseInput));
-        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, null);
+        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Unknown());
         reaction.setInputs(List.of(input));
         baseInput.setMol(EnteredValue.userEntered("15.0", MolUnit.MMOL, 1));
         verifyModel("""

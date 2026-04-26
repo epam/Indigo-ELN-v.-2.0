@@ -34,7 +34,6 @@ public class CacheControlFilter implements ContainerResponseFilter {
             CacheControl cc = new CacheControl();
             cc.setMaxAge(maxAge);
             responseContext.getHeaders().putSingle("Cache-Control", HEADER_DELEGATE.toString(cc));
-            responseContext.getHeaders().putSingle("X-Cache-Control", HEADER_DELEGATE.toString(cc));
         }
     }
 }

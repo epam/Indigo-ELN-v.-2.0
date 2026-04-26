@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.config.TraceSegment;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.SignatureTemplateBlockEmbedded;
 import com.epam.indigoeln.eln.entity.SignatureTemplateEntity;
@@ -19,6 +20,7 @@ import static com.epam.indigoeln.common.util.ModelUtil.editProperty;
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 
 @DataAccess
+@TraceSegment
 @Transactional
 @ApplicationScoped
 public class SignatureTemplateService {

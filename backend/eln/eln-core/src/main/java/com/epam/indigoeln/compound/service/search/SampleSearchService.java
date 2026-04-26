@@ -1,5 +1,6 @@
 package com.epam.indigoeln.compound.service.search;
 
+import com.epam.indigoeln.common.config.TraceSegment;
 import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.mapper.SampleMapper;
@@ -23,6 +24,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
 @DataAccess
+@TraceSegment
 @Transactional
 @ApplicationScoped
 public class SampleSearchService {

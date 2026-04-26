@@ -85,7 +85,8 @@ public class Utils {
                                 .assumedBy(ServicePrincipal.fromStaticServicePrincipleName("lambda.amazonaws.com"))
                                 .managedPolicies(List.of(
                                         ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaBasicExecutionRole"),
-                                        ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaVPCAccessExecutionRole")
+                                        ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaVPCAccessExecutionRole"),
+                                        ManagedPolicy.fromAwsManagedPolicyName("AWSXRayDaemonWriteAccess")
                                 ))
                                 .build()
                 )

@@ -1,5 +1,6 @@
 package com.epam.indigoeln.compound.service;
 
+import com.epam.indigoeln.common.config.TraceSegment;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.mapper.SampleMapper;
@@ -50,6 +51,7 @@ import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.roundToDec
 
 @Slf4j
 @DataAccess
+@TraceSegment
 @Transactional
 @ApplicationScoped
 public class CompoundService {

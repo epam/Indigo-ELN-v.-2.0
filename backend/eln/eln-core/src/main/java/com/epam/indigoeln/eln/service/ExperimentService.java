@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.config.TraceSegment;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.api.AccessForm;
@@ -50,6 +51,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 @Slf4j
 @DataAccess
+@TraceSegment
 @Transactional
 @ApplicationScoped
 public class ExperimentService {

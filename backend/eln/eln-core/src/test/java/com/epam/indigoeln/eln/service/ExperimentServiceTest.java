@@ -317,7 +317,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         assertThat(response).isNotEqualTo(ExperimentService.EMPTY_PICTURE);
         assertThat(FeignUtil.getLastResponse().headers().get(HttpHeaders.CONTENT_TYPE).iterator().next()).isEqualTo("image/svg+xml");
         //noinspection deprecation
-        CacheControl cacheControl = CacheControl.valueOf(FeignUtil.getLastResponse().headers().get("X-Cache-Control").iterator().next());
+        CacheControl cacheControl = CacheControl.valueOf(FeignUtil.getLastResponse().headers().get("Cache-Control").iterator().next());
         assertThat(cacheControl.getMaxAge()).isPositive();
     }
 

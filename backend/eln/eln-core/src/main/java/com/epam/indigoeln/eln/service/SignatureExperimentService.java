@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.config.TraceSegment;
 import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
@@ -18,6 +19,7 @@ import java.util.UUID;
 
 @Slf4j
 @DataAccess
+@TraceSegment
 @Transactional
 @ApplicationScoped
 public class SignatureExperimentService {

@@ -1,5 +1,6 @@
 package com.epam.indigoeln.reaction.service.calculator;
 
+import com.epam.indigoeln.common.config.TraceSegment;
 import com.epam.indigoeln.reaction.metamodel.ReactionInputMetamodel;
 import com.epam.indigoeln.reaction.metamodel.ReactionInputSampleMetamodel;
 import com.epam.indigoeln.reaction.metamodel.ReactionOutputMetamodel;
@@ -32,6 +33,7 @@ public class ReactionCalculator {
     private ModelProps model;
     private final Set<EnteredValueOpt.Property<?, ?>> overwrittenConflicts = new HashSet<>();
 
+    @TraceSegment("ReactionCalculator.recalculate")
     public void recalculate(ExperimentModel modelObj) {
         model = new ModelProps(modelObj);
         for (;;) {

@@ -102,6 +102,7 @@ public class MutationsTest extends MutationsTestBase {
     }
 
     @Test
+    @Disabled // disabled because duplicate compounds were restricted
     void testLoadReactionUpdated() {
         // A + B + A => P + R
         loadScheme("/reaction-with-duplicates.rxn", false);
