@@ -7,18 +7,29 @@ import { NotebookService } from '@core/services/notebook/notebook.service';
 import { ExperimentAddComponent } from '@pages/experiment/experiment-add/experiment-add.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ProjectTabButtonComponent } from '@pages/project/project-tab-button/project-tab-button.component';
+import { CommonModule } from '@angular/common';
+import { BreadcrumbsComponent } from '@/core/components/breadcrumbs/breadcrumbs.component';
+import { BreadcrumbsStateService } from '@/core/services/breadcrumbs/breadcrumbs.state.service';
 
 @Component({
   selector: 'eln-notebook-detail',
   templateUrl: './notebook-detail.component.html',
   standalone: true,
-  imports: [RouterOutlet, ProjectTabButtonComponent, ButtonComponent, CardComponent],
+  imports: [
+    RouterOutlet,
+    ProjectTabButtonComponent,
+    ButtonComponent,
+    CardComponent,
+    BreadcrumbsComponent,
+    CommonModule,
+  ],
   providers: [NotebookService],
 })
 export class NotebookDetailComponent implements OnInit {
   activatedRoute = inject(ActivatedRoute);
   store = inject(NotebookService);
   dialog = inject(MatDialog);
+  breadcrumbsState = inject(BreadcrumbsStateService);
 
   get notebook() {
     return this.store.notebook();
@@ -45,6 +56,21 @@ export class NotebookDetailComponent implements OnInit {
       this.experimentsUrl = `${base}/experiments`;
       this.store.load(notebookId);
     }
+
+    this.store.load(notebookId).subscribe((notebook) => {
+      this.breadcrumbsState.setItems([
+        { label: 'All Projects', url: '/projects', active: false },
+        {
+          label: `Project:  ${notebook.projectName}`,
+          url: `/projects/${projectId}`,
+          active: false,
+        },
+        {
+          label: `Notebook: ${notebook.name}`,
+          active: true,
+        },
+      ]);
+    });
   }
 
   async openExperimentModal() {

@@ -1,6 +1,6 @@
 <eln-card classList="px-4 sm:px-2 md:px-4 shadow-md pb-0">
   <div class="flex items-center justify-between flex-wrap gap-4">
-    <div class="font-semibold text-lg pl-1">Notebook: {{ notebook?.name }}</div>
+    <eln-breadcrumbs [items]="(breadcrumbsState.items$ | async) ?? []"></eln-breadcrumbs>
     <div class="flex items-center gap-2 ml-auto">
       <eln-button variant="blue" classList="flex items-center gap-2" (click)="openExperimentModal()">
         <em class="text-xl indicon-plus"></em>

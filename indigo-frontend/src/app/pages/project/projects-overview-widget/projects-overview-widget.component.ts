@@ -1,12 +1,14 @@
 import { ClassPickerPipe } from '@/core/pipes/classPicker.pipe';
 import { AsyncPipe, NgIf, NgTemplateOutlet } from '@angular/common';
-import { Component, inject, Signal } from '@angular/core';
+import { Component, inject, OnInit, Signal } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ProjectsOverviewWidgetService } from './services/projects-overview-widget.service';
 import { ApiService } from '@core/services/api.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CardComponent } from '@core/components/common/card/card.component';
 import { TextOverflowTooltipDirective } from '@core/directives/text-overflow-tooltip.directive';
+import { BreadcrumbsComponent } from '@/core/components/breadcrumbs/breadcrumbs.component';
+import { BreadcrumbsStateService } from '@/core/services/breadcrumbs/breadcrumbs.state.service';
 
 interface ExperimentStatus {
   OPEN: number;
@@ -38,15 +40,27 @@ interface TotalCounts {
     NgIf,
     MatTooltipModule,
     TextOverflowTooltipDirective,
+    BreadcrumbsComponent,
   ],
   selector: 'eln-projects-overview-widget',
   templateUrl: './projects-overview-widget.component.html',
   styleUrls: ['./project-overview-widget.component.scss'],
 })
-export class ProjectsOverviewWidgetComponent {
+export class ProjectsOverviewWidgetComponent implements OnInit {
   public projectsOverviewWidgetService = inject(ProjectsOverviewWidgetService);
+  public breadcrumbsState = inject(BreadcrumbsStateService);
 
   apiService = inject(ApiService);
 
   totalCounts: Signal<TotalCounts> = toSignal(this.apiService.request('get', 'total-counts'));
+
+  ngOnInit(): void {
+    this.breadcrumbsState.setItems([
+      {
+        label: 'All Projects',
+        url: '/projects',
+        active: true,
+      },
+    ]);
+  }
 }

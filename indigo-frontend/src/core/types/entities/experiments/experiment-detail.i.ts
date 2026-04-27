@@ -56,4 +56,6 @@ export interface ExperimentDetail extends BaseEntity {
   attachments?: Attachment[];
   acl?: ProjectAcl[];
   model: ExperimentModel;
+  projectName: string;
+  notebookName: string;
 }

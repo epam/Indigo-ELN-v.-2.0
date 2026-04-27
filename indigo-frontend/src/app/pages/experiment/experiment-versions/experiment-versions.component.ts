@@ -22,9 +22,7 @@ export class ExperimentVersionsComponent {
   api = inject(ApiService);
   experimentDetailService = inject(ExperimentDetailService);
 
-  experimentId = computed(
-    () => this.experimentDetailService.experimentDetail()?.id,
-  );
+  experimentId = computed(() => this.experimentDetailService.experimentDetail()?.id);
 
   load(experimentId: string): Observable<Revision[]> {
     return this.api.request('get', `experiments/${experimentId}/revisions`);

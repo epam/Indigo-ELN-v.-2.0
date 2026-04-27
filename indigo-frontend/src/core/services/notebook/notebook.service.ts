@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { NotebookDetail } from '@/core/types/entities/notebook-detail.i';
 import { ApiService } from '@/core/services/api.service';
-import { finalize } from 'rxjs';
+import { catchError, finalize, tap, throwError } from 'rxjs';
 
 @Injectable()
 export class NotebookService {
@@ -29,13 +29,18 @@ export class NotebookService {
     this.isLoading.set(true);
     this.hasError.set(false);
 
-    this.api
-      .request<NotebookDetail>('get', `notebooks/${id}`)
-      .pipe(finalize(() => this.isLoading.set(false)))
-      .subscribe({
-        next: (nb) => this.notebook.set(nb),
-        error: () => this.hasError.set(true),
-      });
+    return this.api.request<NotebookDetail>('get', `notebooks/${id}`).pipe(
+      tap((notebook) => {
+        this.notebook.set(notebook);
+      }),
+      catchError((error) => {
+        this.hasError.set(true);
+        return throwError(() => error);
+      }),
+      finalize(() => {
+        this.isLoading.set(false);
+      }),
+    );
   }
 
   refresh() {
