@@ -17,8 +17,7 @@ import java.io.IOException;
 @Provider
 public class CacheControlFilter implements ContainerResponseFilter {
 
-    private static final RuntimeDelegate.HeaderDelegate<CacheControl> HEADER_DELEGATE =
-            RuntimeDelegate.getInstance().createHeaderDelegate(CacheControl.class);
+    private static final RuntimeDelegate.HeaderDelegate<CacheControl> HEADER_DELEGATE = RuntimeDelegate.getInstance().createHeaderDelegate(CacheControl.class);
 
     @jakarta.ws.rs.core.Context
     ResourceInfo resourceInfo;
@@ -34,7 +33,6 @@ public class CacheControlFilter implements ContainerResponseFilter {
             CacheControl cc = new CacheControl();
             cc.setMaxAge(maxAge);
             responseContext.getHeaders().putSingle("Cache-Control", HEADER_DELEGATE.toString(cc));
-            responseContext.getHeaders().putSingle("X-Cache-Control", HEADER_DELEGATE.toString(cc));
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.epam.indigoeln.eln.api;
 
 import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.quarkus.cachecontrol.Cached;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.InputAnchor;
@@ -70,7 +71,7 @@ public interface ExperimentAPI extends BaseAPI {
     @GET
     @Path("/experiments/{experimentId}/picture")
     @Produces("image/svg+xml")
-    @com.epam.indigoeln.eln.quarkus.cachecontrol.Cached(interval = 30, unit = ChronoUnit.DAYS)
+    @Cached(interval = 30, unit = ChronoUnit.DAYS)
     byte[] getExperimentPicture(@PathParam("experimentId") UUID experimentId, @Nullable @QueryParam("revision") Integer revision);
 
     @POST
@@ -104,7 +105,7 @@ public interface ExperimentAPI extends BaseAPI {
     @GET
     @Path("/experiments/{experimentId}/datamodel/reactions/{reactionAnchor}/picture")
     @Produces("image/svg+xml")
-    @com.epam.indigoeln.eln.quarkus.cachecontrol.Cached(interval = 30, unit = ChronoUnit.DAYS)
+    @Cached(interval = 30, unit = ChronoUnit.DAYS)
     byte[] getReactionPicture(@PathParam("experimentId") UUID experimentId, @PathParam("reactionAnchor") ReactionAnchor reactionAnchor, @Nullable @QueryParam("revision") Integer revision);
 
     @POST

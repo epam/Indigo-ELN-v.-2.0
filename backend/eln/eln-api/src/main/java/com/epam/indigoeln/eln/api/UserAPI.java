@@ -1,6 +1,7 @@
 package com.epam.indigoeln.eln.api;
 
 import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.quarkus.cachecontrol.Cached;
 import jakarta.annotation.Nullable;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -32,7 +33,7 @@ public interface UserAPI extends BaseAPI {
 
     @GET
     @Path("/users/{userId}/picture")
-    @com.epam.indigoeln.eln.quarkus.cachecontrol.Cached(interval = 1, unit = ChronoUnit.DAYS)
+    @Cached(interval = 1, unit = ChronoUnit.DAYS)
     @Produces("image/png")
     byte[] getUserPicture(@PathParam("userId") UUID userId, @QueryParam("small") @Nullable Boolean large);
 

@@ -4,6 +4,7 @@ import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.search.SampleSearchResult;
 import com.epam.indigoeln.compound.model.search.SearchCatalog;
+import com.epam.indigoeln.eln.quarkus.cachecontrol.Cached;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -25,7 +26,7 @@ public interface CompoundAPI extends BaseAPI {
     @GET
     @Path("/compounds/{compoundID}/picture")
     @Produces("image/svg+xml")
-    @com.epam.indigoeln.eln.quarkus.cachecontrol.Cached(interval = 30, unit = ChronoUnit.DAYS)
+    @Cached(interval = 30, unit = ChronoUnit.DAYS)
     byte[] getCompoundPicture(@PathParam("compoundID") UUID compoundID);
 
     @POST
@@ -39,7 +40,7 @@ public interface CompoundAPI extends BaseAPI {
     @GET
     @Path("/samples/external/picture")
     @Produces("image/svg+xml")
-    @com.epam.indigoeln.eln.quarkus.cachecontrol.Cached(interval = 30, unit = ChronoUnit.DAYS)
+    @Cached(interval = 30, unit = ChronoUnit.DAYS)
     byte[] getExternalPicture(@QueryParam("inchi") String inchi);
 
     @POST
