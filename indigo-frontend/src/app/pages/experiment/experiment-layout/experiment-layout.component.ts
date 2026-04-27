@@ -9,6 +9,7 @@ import { BreadcrumbsStateService } from '@/core/services/breadcrumbs/breadcrumbs
 import { ExperimentDetailService } from '@/core/services/experiment/experiment-detail.service';
 import { ExperimentDetail } from '@/core/types/entities/experiments/experiment-detail.i';
 import { ProjectTabButtonComponent } from '@pages/project/project-tab-button/project-tab-button.component';
+import { UndoRedoDirective } from '@core/directives/undo-redo.directive';
 
 @Component({
   selector: 'eln-experiment-layout',
@@ -20,6 +21,7 @@ import { ProjectTabButtonComponent } from '@pages/project/project-tab-button/pro
     ProjectTabButtonComponent,
     CardComponent,
     MatProgressSpinner,
+    UndoRedoDirective,
     BreadcrumbsComponent,
   ],
 })

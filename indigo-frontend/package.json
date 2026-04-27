@@ -9,7 +9,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint",
-    "prettier": "prettier --write src",
+    "prettier": "prettier --write src *.json *.js",
     "prepare": "npx lefthook install"
   },
   "private": true,

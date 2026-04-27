@@ -1,7 +1,10 @@
+glob_matcher: doublestar
 pre-commit:
   jobs:
     - name: prettier
-      glob: "indigo-frontend/src/**/*.{ts,html,scss,json}"
+      glob:
+        - "indigo-frontend/src/**/*.{ts,html,scss,json,js}"
+        - "indigo-frontend/*.{json,js}"
       root: "indigo-frontend/"
       run: npx prettier --write {staged_files}
       stage_fixed: true
