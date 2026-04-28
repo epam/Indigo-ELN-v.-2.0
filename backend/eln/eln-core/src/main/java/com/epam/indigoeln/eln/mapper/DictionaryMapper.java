@@ -10,6 +10,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.ReportingPolicy;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -26,7 +27,9 @@ public abstract class DictionaryMapper extends AbstractMapper {
 
     public abstract List<DictionaryItemDTO> itemToDTOList(Collection<DictionaryItemEntity> entities);
 
-    public abstract DictionaryItemRef itemToRef(DictionaryItemEntity entities);
+    public DictionaryItemRef itemToRef(DictionaryItemEntity entity) {
+        return new UserDictionaryItemRef(entity.getId(), entity.getName());
+    }
     public abstract List<DictionaryItemRef> itemToRefList(Collection<DictionaryItemEntity> entities);
 
     @IgnoreBaseFields
@@ -37,5 +40,12 @@ public abstract class DictionaryMapper extends AbstractMapper {
     public abstract DictionaryItemEntity itemToEntity(DictionaryItemRequest request);
 
     public abstract SaltCodeInfo saltCodeToInfo(SaltCodeEntity entity);
-    public abstract List<DictionaryItemRef> saltCodeToRefList(Collection<SaltCodeEntity> entities);
+
+    public List<DictionaryItemRef> saltCodeToRefList(Collection<SaltCodeEntity> entities) {
+        List<DictionaryItemRef> result = new ArrayList<>(entities.size());
+        for (SaltCodeEntity entity : entities) {
+            result.add(saltCodeToInfo(entity));
+        }
+        return result;
+    }
 }

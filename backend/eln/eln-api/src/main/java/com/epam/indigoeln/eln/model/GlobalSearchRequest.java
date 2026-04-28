@@ -24,10 +24,10 @@ public class GlobalSearchRequest {
     String query;
 
     @Nullable
-    DictionaryItemRef therapeuticArea;
+    TherapeuticAreaRef therapeuticArea;
 
     @Nullable
-    DictionaryItemRef projectCode;
+    ProjectCodeRef projectCode;
 
     @Nullable
     Set<ExperimentStatus> experimentStatus;

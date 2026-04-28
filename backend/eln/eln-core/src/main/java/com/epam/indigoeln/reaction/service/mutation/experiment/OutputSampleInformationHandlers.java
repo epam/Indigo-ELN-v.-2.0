@@ -2,6 +2,7 @@ package com.epam.indigoeln.reaction.service.mutation.experiment;
 
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
+import com.epam.indigoeln.eln.model.BuiltInDictionary;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.ReactionOutput;
@@ -17,7 +18,7 @@ class SetOutputComponentStateHandler extends AbstractReactionOutputSampleMutatio
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputComponentState mutation, ExperimentMutationContext context) {
-        sample.setComponentState(mutation.componentState());
+        sample.setComponentState(validateDictionaryItem(BuiltInDictionary.COMPONENT_STATE.name(), mutation.componentState()));
         return new MutationResult(formatSetterSummary("batch component state", mutation.componentState()));
     }
 }
@@ -28,7 +29,7 @@ class SetOutputHandlingPrecautionsHandler extends AbstractReactionOutputSampleMu
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputHandlingPrecautions mutation, ExperimentMutationContext context) {
-        sample.setHandlingPrecautions(ModelUtil.emptyToNull(mutation.handlingPrecautions()));
+        sample.setHandlingPrecautions(validateDictionaryItems(BuiltInDictionary.HANDLING_PRECAUTIONS.name(), ModelUtil.emptyToNull(mutation.handlingPrecautions())));
         return new MutationResult(formatSetterSummary("batch handling precautions", mutation.handlingPrecautions()));
     }
 }
@@ -39,7 +40,7 @@ class SetOutputStorageInstructionsHandler extends AbstractReactionOutputSampleMu
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputStorageInstructions mutation, ExperimentMutationContext context) {
-        sample.setStorageInstructions(ModelUtil.emptyToNull(mutation.storageInstructions()));
+        sample.setStorageInstructions(validateDictionaryItems(BuiltInDictionary.STORAGE_INSTRUCTIONS.name(), ModelUtil.emptyToNull(mutation.storageInstructions())));
         return new MutationResult(formatSetterSummary("batch storage instructions", mutation.storageInstructions()));
     }
 }
@@ -50,7 +51,7 @@ class SetOutputCompoundProtectionHandler extends AbstractReactionOutputSampleMut
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputCompoundProtection mutation, ExperimentMutationContext context) {
-        sample.setCompoundProtection(ModelUtil.emptyToNull(mutation.compoundProtection()));
+        sample.setCompoundProtection(validateDictionaryItems(BuiltInDictionary.COMPOUND_PROTECTION.name(), ModelUtil.emptyToNull(mutation.compoundProtection())));
         return new MutationResult(formatSetterSummary("batch compound protection", mutation.compoundProtection()));
     }
 }
@@ -105,6 +106,9 @@ class SetOutputExternalSupplierHandler extends AbstractReactionOutputSampleMutat
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputExternalSupplier mutation, ExperimentMutationContext context) {
+        if (mutation.externalSupplier() != null) {
+            mutation.externalSupplier().setSupplier(validateDictionaryItem(BuiltInDictionary.EXTERNAL_SUPPLIER.name(), mutation.externalSupplier().getSupplier()));
+        }
         sample.setExternalSupplier(mutation.externalSupplier());
         return new MutationResult(formatSetterSummaryNoDetails("batch external supplier", mutation.externalSupplier() != null));
     }
@@ -116,7 +120,7 @@ class SetOutputSourceHandler extends AbstractReactionOutputSampleMutationHandler
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputSource mutation, ExperimentMutationContext context) {
-        sample.setSource(mutation.source());
+        sample.setSource(validateDictionaryItem(BuiltInDictionary.SAMPLE_SOURCE.name(), mutation.source()));
         return new MutationResult(formatSetterSummary("batch source", mutation.source()));
     }
 }
@@ -127,7 +131,7 @@ class SetOutputSourceDetailsHandler extends AbstractReactionOutputSampleMutation
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputSourceDetails mutation, ExperimentMutationContext context) {
-        sample.setSourceDetails(mutation.sourceDetails());
+        sample.setSourceDetails(validateDictionaryItem(BuiltInDictionary.SAMPLE_SOURCE_DETAILS.name(), mutation.sourceDetails()));
         return new MutationResult(formatSetterSummary("batch source details", mutation.sourceDetails()));
     }
 }

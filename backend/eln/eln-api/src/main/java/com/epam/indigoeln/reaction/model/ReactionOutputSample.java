@@ -1,7 +1,12 @@
 package com.epam.indigoeln.reaction.model;
 
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
+import com.epam.indigoeln.eln.model.ComponentStateRef;
+import com.epam.indigoeln.eln.model.CompoundProtectionRef;
+import com.epam.indigoeln.eln.model.HandlingPrecautionsRef;
 import com.epam.indigoeln.eln.model.NbkBatchNumber;
+import com.epam.indigoeln.eln.model.SampleSourceDetailsRef;
+import com.epam.indigoeln.eln.model.SampleSourceRef;
+import com.epam.indigoeln.eln.model.StorageInstructionsRef;
 import com.epam.indigoeln.reaction.model.outputsample.*;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
@@ -51,15 +56,15 @@ public final class ReactionOutputSample extends ReactionSample<ReactionOutput> {
 
     @Nullable
     @Size(min = 1)
-    private List<DictionaryItemRef> handlingPrecautions;
+    private List<HandlingPrecautionsRef> handlingPrecautions;
 
     @Nullable
     @Size(min = 1)
-    private List<DictionaryItemRef> storageInstructions;
+    private List<StorageInstructionsRef> storageInstructions;
 
     @Nullable
     @Size(min = 1)
-    private List<DictionaryItemRef> compoundProtection;
+    private List<CompoundProtectionRef> compoundProtection;
 
     @Nullable
     @Size(min = 1)
@@ -82,13 +87,13 @@ public final class ReactionOutputSample extends ReactionSample<ReactionOutput> {
     private ExternalSupplier externalSupplier;
 
     @Nullable
-    private DictionaryItemRef source;
+    private SampleSourceRef source;
 
     @Nullable
-    private DictionaryItemRef sourceDetails;
+    private SampleSourceDetailsRef sourceDetails;
 
     @Nullable
-    private DictionaryItemRef componentState;
+    private ComponentStateRef componentState;
 
     @Nullable
     private String batchComment;

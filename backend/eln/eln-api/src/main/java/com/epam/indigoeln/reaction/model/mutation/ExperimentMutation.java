@@ -1,8 +1,9 @@
 package com.epam.indigoeln.reaction.model.mutation;
 
 import com.epam.indigoeln.eln.api.AccessForm;
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.model.ExperimentRef;
+import com.epam.indigoeln.eln.model.ProjectCodeRef;
+import com.epam.indigoeln.eln.model.TherapeuticAreaRef;
 import com.epam.indigoeln.eln.model.UserRef;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.Max;
@@ -21,8 +22,8 @@ public interface ExperimentMutation extends Mutation {
     record CreateExperiment(
             UUID templateID,
             @Nullable String description,
-            @Nullable DictionaryItemRef therapeuticArea,
-            @Nullable DictionaryItemRef projectCode
+            @Nullable TherapeuticAreaRef therapeuticArea,
+            @Nullable ProjectCodeRef projectCode
     ) implements ExperimentMutation {
     }
 
@@ -38,8 +39,8 @@ public interface ExperimentMutation extends Mutation {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     record EditExperimentAttributes(
             @Nullable Optional<String> title,
-            @Nullable Optional<DictionaryItemRef> therapeuticArea,
-            @Nullable Optional<DictionaryItemRef> projectCode,
+            @Nullable Optional<TherapeuticAreaRef> therapeuticArea,
+            @Nullable Optional<ProjectCodeRef> projectCode,
             @Nullable Optional<String> description,
             @Nullable Optional<String> literature,
             @Nullable Optional<Set<ExperimentRef>> linkedExperiments,

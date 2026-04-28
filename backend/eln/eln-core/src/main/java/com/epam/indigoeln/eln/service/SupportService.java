@@ -73,10 +73,12 @@ public class SupportService {
                 }
                 for (int experimentNo = 1; experimentNo <= random.nextInt(1, 12); experimentNo++) {
                     System.out.println("\t\texperiment " + experimentNo);
+                    DictionaryItemRef therapeuticArea = randomOrNone(therapeuticAreas);
+                    DictionaryItemRef projectCode = randomOrNone(projectCodes);
                     ExperimentDetailsDTO experiment = experimentService.createExperiment(notebook.getId(), new ExperimentRequest(template.getId()
                             , "image"
-                            , randomOrNone(therapeuticAreas)
-                            , randomOrNone(projectCodes)
+                            , therapeuticArea != null ? new TherapeuticAreaRef(therapeuticArea.getId(), therapeuticArea.getName()) : null
+                            , projectCode != null ? new ProjectCodeRef(projectCode.getId(), projectCode.getName()) : null
                     ));
                     experimentCount++;
                     for (int attachmentNo = 1; attachmentNo <= random.nextInt(0, 4); attachmentNo++) {

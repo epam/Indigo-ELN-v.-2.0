@@ -1,6 +1,14 @@
 package com.epam.indigoeln.reaction.model.mutation;
 
+import com.epam.indigoeln.eln.model.ComponentStateRef;
+import com.epam.indigoeln.eln.model.CompoundProtectionRef;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
+import com.epam.indigoeln.eln.model.HandlingPrecautionsRef;
+import com.epam.indigoeln.eln.model.HealthHazardRef;
+import com.epam.indigoeln.eln.model.SampleSourceDetailsRef;
+import com.epam.indigoeln.eln.model.SampleSourceRef;
+import com.epam.indigoeln.eln.model.StereoisomerCodeRef;
+import com.epam.indigoeln.eln.model.StorageInstructionsRef;
 import com.epam.indigoeln.reaction.model.OutputAnchor;
 import com.epam.indigoeln.reaction.model.OutputSampleAnchor;
 import com.epam.indigoeln.reaction.model.outputsample.*;
@@ -44,7 +52,7 @@ public interface ReactionOutputSampleMutation extends Mutation {
 
     record SetOutputHealthHazards (
             @NotNull OutputSampleAnchor anchor,
-            @NotNull List<DictionaryItemRef> healthHazards
+            @NotNull List<HealthHazardRef> healthHazards
     ) implements ReactionOutputSampleMutation {
     }
 
@@ -69,19 +77,19 @@ public interface ReactionOutputSampleMutation extends Mutation {
 
     record SetOutputHandlingPrecautions (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable @Size(min = 1) List<DictionaryItemRef> handlingPrecautions
+            @Nullable @Size(min = 1) List<HandlingPrecautionsRef> handlingPrecautions
     ) implements ReactionOutputSampleMutation {
     }
 
     record SetOutputStorageInstructions (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable List<DictionaryItemRef> storageInstructions
+            @Nullable List<StorageInstructionsRef> storageInstructions
     ) implements ReactionOutputSampleMutation {
     }
 
     record SetOutputCompoundProtection (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable List<DictionaryItemRef> compoundProtection
+            @Nullable List<CompoundProtectionRef> compoundProtection
     ) implements ReactionOutputSampleMutation {
     }
 
@@ -117,19 +125,19 @@ public interface ReactionOutputSampleMutation extends Mutation {
 
     record SetOutputSource (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable DictionaryItemRef source
+            @Nullable SampleSourceRef source
     ) implements ReactionOutputSampleMutation {
     }
 
     record SetOutputSourceDetails (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable DictionaryItemRef sourceDetails
+            @Nullable SampleSourceDetailsRef sourceDetails
     ) implements ReactionOutputSampleMutation {
     }
 
     record SetOutputComponentState (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable DictionaryItemRef componentState
+            @Nullable ComponentStateRef componentState
     ) implements ReactionOutputSampleMutation {
     }
 
@@ -172,10 +180,10 @@ public interface ReactionOutputSampleMutation extends Mutation {
 
     record SetOutputStereoisomerCode (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable DictionaryItemRef stereoisomerCode,
+            @Nullable StereoisomerCodeRef stereoisomerCode,
             @Nullable OutputAnchor createdOutputAnchor
     ) implements ReactionOutputSampleMutation {
-        public SetOutputStereoisomerCode(@NotNull OutputSampleAnchor anchor, @Nullable DictionaryItemRef stereoisomerCode) {
+        public SetOutputStereoisomerCode(@NotNull OutputSampleAnchor anchor, @Nullable StereoisomerCodeRef stereoisomerCode) {
             this(anchor, stereoisomerCode, null);
         }
     }

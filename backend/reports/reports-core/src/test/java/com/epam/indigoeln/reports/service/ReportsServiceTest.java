@@ -44,8 +44,8 @@ public class ReportsServiceTest extends BaseTest {
         experiment.setCreatedBy(new UserRef(UUID.randomUUID(), "test", "Test User"));
         experiment.setStatus(ExperimentStatus.OPEN);
         experiment.setCreatedAt(ZonedDateTime.of(2025, 2, 19, 8, 41, 48, 0, ZoneId.of("UTC")));
-        experiment.setTherapeuticArea(new DictionaryItemRef(UUID.randomUUID(), "Diabet"));
-        experiment.setProjectCode(new DictionaryItemRef(UUID.randomUUID(), "Code 1"));
+        experiment.setTherapeuticArea(new TherapeuticAreaRef(UUID.randomUUID(), "Diabet"));
+        experiment.setProjectCode(new ProjectCodeRef(UUID.randomUUID(), "Code 1"));
         experiment.setDescription("To a suspension of salicylic acid (2 g) in acetic anhydride (4.5 mL) in a conical flask add anhydrous sodium acetate\n(0.4 g) with stirring.");
         return List.of(new ReportsAPI.ExperimentReportDataDTO(
                 project,

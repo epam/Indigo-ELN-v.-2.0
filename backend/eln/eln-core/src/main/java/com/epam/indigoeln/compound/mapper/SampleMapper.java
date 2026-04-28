@@ -3,6 +3,8 @@ package com.epam.indigoeln.compound.mapper;
 
 import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.model.SampleDTO;
+import com.epam.indigoeln.eln.entity.SaltCodeEntity;
+import com.epam.indigoeln.eln.model.SaltCodeRef;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
@@ -16,9 +18,13 @@ public abstract class SampleMapper {
     @Mapping(target = "compoundKey", source = "compound.compoundKey")
     @Mapping(target = "molWeight", source = "compound.molWeight")
     @Mapping(target = "molFormula", source = "compound.formula")
-    @Mapping(target = "saltCode", source = "compound.saltCode")
+    @Mapping(target = "saltCode", expression = "java(mapSaltCode(entity.getCompound() != null ? entity.getCompound().getSaltCode() : null))")
     @Mapping(target = "saltEQ", expression = "java(entity.getCompound().getSaltEQ100() != null ? entity.getCompound().getSaltEQ100() / 100.0 : null)")
     @Mapping(target = "marked", expression = "java(entity.getMarked() == Boolean.TRUE)")
     @Mapping(target = "inchi", ignore = true)
     public abstract SampleDTO sampleToDTO(SampleEntity entity);
+
+    protected SaltCodeRef mapSaltCode(SaltCodeEntity entity) {
+        return entity == null ? null : new SaltCodeRef(entity.getId(), entity.getName());
+    }
 }

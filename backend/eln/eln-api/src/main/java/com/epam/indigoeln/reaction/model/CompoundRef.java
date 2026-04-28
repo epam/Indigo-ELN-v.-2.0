@@ -1,6 +1,7 @@
 package com.epam.indigoeln.reaction.model;
 
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
+import com.epam.indigoeln.eln.model.StereoisomerCodeRef;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
 import com.fasterxml.jackson.annotation.*;
@@ -28,7 +29,7 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
     String getFormula();
 
     @Nullable
-    DictionaryItemRef getStereoisomerCode();
+    StereoisomerCodeRef getStereoisomerCode();
 
     @Nullable
     DictionaryItemRef getSaltCode();
@@ -82,7 +83,7 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
         private final UUID compoundID;
 
         @Nullable
-        private DictionaryItemRef stereoisomerCode;
+        private StereoisomerCodeRef stereoisomerCode;
 
         @Nullable
         private DictionaryItemRef saltCode;
@@ -128,7 +129,7 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
         private final String compoundKey;
 
         @Nullable
-        private final DictionaryItemRef stereoisomerCode;
+        private final StereoisomerCodeRef stereoisomerCode;
 
         @Nullable
         private final DictionaryItemRef saltCode;
@@ -174,7 +175,7 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
         @Override
         @Nullable
         @JsonIgnore
-        public DictionaryItemRef getStereoisomerCode() {
+        public StereoisomerCodeRef getStereoisomerCode() {
             return null;
         }
 

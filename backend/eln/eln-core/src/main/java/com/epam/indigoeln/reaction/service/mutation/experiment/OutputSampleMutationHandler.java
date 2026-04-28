@@ -5,6 +5,7 @@ import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.model.SampleRegistrationRequest;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
+import com.epam.indigoeln.eln.model.BuiltInDictionary;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
@@ -18,7 +19,7 @@ class SetOutputHealthHazardsHandler extends AbstractReactionOutputSampleMutation
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputHealthHazards mutation, ExperimentMutationContext context) {
-        sample.setHealthHazards(mutation.healthHazards());
+        sample.setHealthHazards(validateDictionaryItems(BuiltInDictionary.HEALTH_HAZARD.name(), mutation.healthHazards()));
         return new MutationResult(formatSetterSummary("batch health hazards", mutation.healthHazards()));
     }
 }

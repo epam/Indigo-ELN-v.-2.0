@@ -57,6 +57,9 @@ public class DictionaryService {
     @Inject
     @CacheName("dictionary.items")
     Cache dictionaryItemsCache;
+    @Inject
+    @CacheName("dictionary.activeItems")
+    Cache dictionaryActiveItemsCache;
 
     @PersistenceContext
     EntityManager em;
@@ -102,18 +105,27 @@ public class DictionaryService {
 
     @Nullable
     public DictionaryItemEntity lookup(String dictionaryRef, @Nullable DictionaryItemRef ref) {
+        return lookupActive(dictionaryRef, ref);
+    }
+
+    public List<DictionaryItemEntity> lookup(String dictionaryRef, Collection<? extends DictionaryItemRef> refs) {
+        return lookupActive(dictionaryRef, refs);
+    }
+
+    @Nullable
+    public DictionaryItemEntity lookupActive(String dictionaryRef, @Nullable DictionaryItemRef ref) {
         if (ref == null) {
             return null;
         }
-        DictionaryItemRef item = doGetDictionaryItems(refToID(dictionaryRef)).get(ref.getId());
+        DictionaryItemRef item = doGetActiveDictionaryItems(refToID(dictionaryRef)).get(ref.getId());
         if (item == null) {
             throw new EntityNotFoundException(EntityType.DICTIONARY_ITEM, ref.getId() + " in dictionary " + dictionaryRef);
         }
         return dictionaryItemRepository.getReference(ref.getId());
     }
 
-    public List<DictionaryItemEntity> lookup(String dictionaryRef, Collection<DictionaryItemRef> refs) {
-        Map<UUID, DictionaryItemRef> allItems = doGetDictionaryItems(refToID(dictionaryRef));
+    public List<DictionaryItemEntity> lookupActive(String dictionaryRef, Collection<? extends DictionaryItemRef> refs) {
+        Map<UUID, DictionaryItemRef> allItems = doGetActiveDictionaryItems(refToID(dictionaryRef));
         List<DictionaryItemEntity> found = new ArrayList<>(refs.size());
         List<UUID> notFound = new ArrayList<>(refs.size());
         for (DictionaryItemRef ref : refs) {
@@ -132,6 +144,13 @@ public class DictionaryService {
     @CacheResult(cacheName = "dictionary.items")
     protected Map<UUID, DictionaryItemRef> doGetDictionaryItems(UUID dictionaryID) {
         return StreamEx.of(dictionaryItemRepository.list(dictionaryID, true))
+                .mapToEntry(DictionaryItemEntity::getId, dictionaryMapper::itemToRef)
+                .toCustomMap(LinkedHashMap::new);
+    }
+
+    @CacheResult(cacheName = "dictionary.activeItems")
+    protected Map<UUID, DictionaryItemRef> doGetActiveDictionaryItems(UUID dictionaryID) {
+        return StreamEx.of(dictionaryItemRepository.list(dictionaryID, false))
                 .mapToEntry(DictionaryItemEntity::getId, dictionaryMapper::itemToRef)
                 .toCustomMap(LinkedHashMap::new);
     }
@@ -164,7 +183,7 @@ public class DictionaryService {
     }
 
     public DictionaryItemRef getSaltRef(UUID id) {
-        return getSaltInfo(id).toRef();
+        return getSaltInfo(id);
     }
 
     public List<DictionaryItemEntity> addDictionaryItems(String dictionaryRef, List<DictionaryItemRequest> items) {
@@ -186,6 +205,7 @@ public class DictionaryService {
         renumberItems(list, false);
         dictionaryItemRepository.persist(inserted);
         dictionaryItemsCache.invalidate(refToID(dictionaryRef)).await().indefinitely();
+        dictionaryActiveItemsCache.invalidate(refToID(dictionaryRef)).await().indefinitely();
         return list;
     }
 
@@ -209,6 +229,7 @@ public class DictionaryService {
             renumberItems(list, false);
         });
         dictionaryItemsCache.invalidate(refToID(dictionaryRef)).await().indefinitely();
+        dictionaryActiveItemsCache.invalidate(refToID(dictionaryRef)).await().indefinitely();
         return dictionaryMapper.itemToDTOList(list);
     }
 
@@ -228,6 +249,7 @@ public class DictionaryService {
         em.flush();
         renumberItems(list, false);
         dictionaryItemsCache.invalidate(refToID(dictionaryRef)).await().indefinitely();
+        dictionaryActiveItemsCache.invalidate(refToID(dictionaryRef)).await().indefinitely();
         return dictionaryMapper.itemToDTOList(list);
     }
 
@@ -245,6 +267,7 @@ public class DictionaryService {
             found = StreamEx.of(newAllItems).toMap(DictionaryItemEntity::getName, x -> x);
         }
         dictionaryItemsCache.invalidate(refToID(dictionaryRef)).await().indefinitely();
+        dictionaryActiveItemsCache.invalidate(refToID(dictionaryRef)).await().indefinitely();
         return StreamEx.of(names).map(found::get).toList();
     }
 

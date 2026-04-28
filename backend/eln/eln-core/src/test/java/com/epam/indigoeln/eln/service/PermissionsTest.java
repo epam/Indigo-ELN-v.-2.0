@@ -57,7 +57,7 @@ class PermissionsTest extends ELNBaseTest {
     ACLService aclService;
 
     TemplateDetailsDTO template;
-    DictionaryItemRef therapeuticArea;
+    TherapeuticAreaRef therapeuticArea;
 
     List<TemplateComponent> components = List.of(new TemplateComponent.Attachments());
     List<TemplateTab> templateTabs = List.of(new TemplateTab("tabName", components));
@@ -84,7 +84,8 @@ class PermissionsTest extends ELNBaseTest {
         cleanupDatabase();
         withUser(JOHN_USERNAME, () -> {
             template = templateClient.createTemplate(new TemplateRequest("PermissionsTest", templateTabs));
-            therapeuticArea = dictionaryClient.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA).getFirst();
+            DictionaryItemRef ref = dictionaryClient.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA).getFirst();
+            therapeuticArea = new TherapeuticAreaRef(ref.getId(), ref.getName());
             iterateRows(row -> {
                 row.projectId = projectClient.createProject(new ProjectRequest("project" + row.testId)).getId();
                 projectClient.createProjectAttachment(row.projectId, "attachment.txt", tempDir, new byte[0]);

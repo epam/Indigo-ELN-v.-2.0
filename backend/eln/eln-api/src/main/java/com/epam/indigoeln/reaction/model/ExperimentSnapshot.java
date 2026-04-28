@@ -21,10 +21,10 @@ public final class ExperimentSnapshot implements ExperimentNode {
     private ExperimentStatus status;
 
     @Nullable
-    private DictionaryItemRef therapeuticArea;
+    private TherapeuticAreaRef therapeuticArea;
 
     @Nullable
-    private DictionaryItemRef projectCode;
+    private ProjectCodeRef projectCode;
 
     @Nullable
     private String description;

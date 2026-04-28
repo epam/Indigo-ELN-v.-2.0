@@ -1,7 +1,7 @@
 package com.epam.indigoeln.compound.model;
 
 import com.epam.indigoeln.compound.model.search.SearchCatalog;
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
+import com.epam.indigoeln.eln.model.SaltCodeRef;
 import com.epam.indigoeln.eln.model.NbkBatchNumber;
 import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -32,7 +32,7 @@ public class SampleDTO {
     @Nullable
     private String name;
     @Nullable
-    private DictionaryItemRef saltCode;
+    private SaltCodeRef saltCode;
     @Nullable
     private Double saltEQ;
     @Nullable

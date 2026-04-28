@@ -6,7 +6,9 @@ import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.entity.IdentifiableEntity;
 import com.epam.indigoeln.eln.entity.SaltCodeInfo;
 import com.epam.indigoeln.eln.model.BuiltInDictionary;
+import com.epam.indigoeln.eln.model.ComponentStateRef;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
+import com.epam.indigoeln.eln.model.HealthHazardRef;
 import com.epam.indigoeln.eln.model.NbkBatchNumber;
 import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.eln.service.DictionaryService;
@@ -48,8 +50,8 @@ public class CompoundServiceTest extends ELNBaseTest {
     DictionaryService dictionaryService;
 
     SaltCodeInfo saltCode;
-    DictionaryItemRef healthHazard;
-    DictionaryItemRef compoundState;
+    HealthHazardRef healthHazard;
+    ComponentStateRef compoundState;
     CompoundRef.Virtual compound1;
     CompoundRef.Virtual compound2;
     STRCodeSample str1;
@@ -66,8 +68,10 @@ public class CompoundServiceTest extends ELNBaseTest {
     void testInit() {
         List<DictionaryItemRef> saltCodes = dictionaryService.getSaltCodes();
         saltCode = dictionaryService.getSaltInfo(saltCodes.getFirst().getId());
-        healthHazard = dictionaryService.getDictionary(BuiltInDictionary.HEALTH_HAZARD.name()).getFirst();
-        compoundState = dictionaryService.getDictionary(BuiltInDictionary.COMPONENT_STATE.name()).getFirst();
+        DictionaryItemRef healthHazardRef = dictionaryService.getDictionary(BuiltInDictionary.HEALTH_HAZARD.name()).getFirst();
+        healthHazard = new HealthHazardRef(healthHazardRef.getId(), healthHazardRef.getName());
+        DictionaryItemRef componentStateRef = dictionaryService.getDictionary(BuiltInDictionary.COMPONENT_STATE.name()).getFirst();
+        compoundState = new ComponentStateRef(componentStateRef.getId(), componentStateRef.getName());
         IndigoReaction reaction = indigo.loadReaction(loadResource(getClass(), "/reaction.rxn"));
         Iterator<IndigoMolecule> it = reaction.products().iterator();
         IndigoMolecule molecule = it.next();

@@ -1,6 +1,6 @@
 package com.epam.indigoeln.reaction.model;
 
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
+import com.epam.indigoeln.eln.model.HealthHazardRef;
 import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.reaction.model.units.*;
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -37,7 +37,7 @@ public sealed abstract class ReactionSample<P extends ReactionRow> extends Abstr
     protected STRCodeSample strCode;
 
     @NotNull
-    protected List<DictionaryItemRef> healthHazards = new ArrayList<>();
+    protected List<HealthHazardRef> healthHazards = new ArrayList<>();
 
     @Override
     protected P internalGetParent() {

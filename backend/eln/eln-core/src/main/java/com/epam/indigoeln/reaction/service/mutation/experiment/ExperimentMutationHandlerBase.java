@@ -6,7 +6,10 @@ import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.entity.SaltCodeInfo;
 import com.epam.indigoeln.eln.mapper.DictionaryMapper;
+import com.epam.indigoeln.eln.model.BuiltInDictionary;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
+import com.epam.indigoeln.eln.model.HealthHazardRef;
+import com.epam.indigoeln.eln.model.StereoisomerCodeRef;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
@@ -103,6 +106,24 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
     }
 
     @Nullable
+    protected <T extends DictionaryItemRef> T validateDictionaryItem(String dictionaryRef, @Nullable T value) {
+        if (value == null) {
+            return null;
+        }
+        dictionaryService.lookupActive(dictionaryRef, value);
+        return value;
+    }
+
+    @Nullable
+    protected <T extends DictionaryItemRef> List<T> validateDictionaryItems(String dictionaryRef, @Nullable List<T> values) {
+        if (values == null) {
+            return null;
+        }
+        dictionaryService.lookupActive(dictionaryRef, values);
+        return values;
+    }
+
+    @Nullable
     public SaltCodeInfo saltCodeInfo(@Nullable DictionaryItemRef ref) {
         return ref != null ? dictionaryService.getSaltInfo(ref.getId()) : null;
     }
@@ -123,7 +144,8 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
         reactionInputSample.setDensity(EnteredValue.defaultValue(sample.getDensity(), DensityUnit.G_ML));
         reactionInputSample.setMolarity(EnteredValue.defaultValue(sample.getMolarity(), sample.getMolarityUnit()));
         reactionInputSample.setPurity(sample.getPurity() != null ? EnteredValue.defaultValue(sample.getPurity(), NoUnit.NO_UNIT) : DEFAULT_ONE_HUNDRED);
-        reactionInputSample.setHealthHazards(dictionaryMapper.itemToRefList(sample.getHealthHazards()));
+        reactionInputSample.setHealthHazards(dictionaryMapper.itemToRefList(sample.getHealthHazards())
+                .stream().map(i -> new HealthHazardRef(i.getId(), i.getName())).toList());
         reactionInputSample.setComment(sample.getBatchComment());
         reactionInputSample.setNbkBatchNumber(sample.getNbkBatchNumber());
         row.setSamples(List.of(reactionInputSample));
@@ -174,12 +196,13 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
     }
 
     @SuppressWarnings("OptionalAssignedToNull")
-    protected CompoundRef doUpdateCompound(ReactionRow row, @Nullable Optional<DictionaryItemRef> saltCode, @Nullable Optional<Double> saltEQ, @Nullable Optional<DictionaryItemRef> stereoisomerCode, @Nullable String molfile) {
+    protected CompoundRef doUpdateCompound(ReactionRow row, @Nullable Optional<DictionaryItemRef> saltCode, @Nullable Optional<Double> saltEQ, @Nullable Optional<StereoisomerCodeRef> stereoisomerCode, @Nullable String molfile) {
         switch (row.getCompound()) {
             case CompoundRef.StoredOrVirtual v -> {
                 DictionaryItemRef effectiveSaltCode = saltCode != null ? saltCode.orElse(null) : v.getSaltCode();
                 Double effectiveSaltEQ = saltEQ != null ? saltEQ.orElse(null) : v.getSaltEQ();
-                DictionaryItemRef effectiveStereoisomerCode = stereoisomerCode != null ? stereoisomerCode.orElse(null) : v.getStereoisomerCode();
+                StereoisomerCodeRef effectiveStereoisomerCode = stereoisomerCode != null ? stereoisomerCode.orElse(null) : v.getStereoisomerCode();
+                effectiveStereoisomerCode = validateDictionaryItem(BuiltInDictionary.STEREOISOMER_CODE.name(), effectiveStereoisomerCode);
                 if (effectiveSaltCode == null && saltEQ != null && saltEQ.isPresent()) {
                     fail("Cannot set saltEQ because saltCode is not set");
                 }

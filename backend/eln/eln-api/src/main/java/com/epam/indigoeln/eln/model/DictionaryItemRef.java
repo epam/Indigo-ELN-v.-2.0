@@ -15,7 +15,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
 @JsonIgnoreProperties({"code", "formula", "charge", "molWeight"}) // TODO remove when database is recreated
-public class DictionaryItemRef {
+public abstract class DictionaryItemRef {
 
     @NotNull
     private UUID id;

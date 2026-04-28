@@ -15,8 +15,8 @@ public class ExperimentMetamodel {
 
     public static final ModelProperty<ExperimentSnapshot, String> TITLE = property("title",ExperimentSnapshot::getTitle, ExperimentSnapshot::setTitle);
     public static final ModelProperty<ExperimentSnapshot, ExperimentStatus> STATUS = property("status", ExperimentSnapshot::getStatus, ExperimentSnapshot::setStatus);
-    public static final ModelProperty<ExperimentSnapshot, DictionaryItemRef> THERAPEUTIC_AREA = property("therapeuticArea", ExperimentSnapshot::getTherapeuticArea, ExperimentSnapshot::setTherapeuticArea);
-    public static final ModelProperty<ExperimentSnapshot, DictionaryItemRef> PROJECT_CODE = property("projectCode", ExperimentSnapshot::getProjectCode, ExperimentSnapshot::setProjectCode);
+    public static final ModelProperty<ExperimentSnapshot, TherapeuticAreaRef> THERAPEUTIC_AREA = property("therapeuticArea", ExperimentSnapshot::getTherapeuticArea, ExperimentSnapshot::setTherapeuticArea);
+    public static final ModelProperty<ExperimentSnapshot, ProjectCodeRef> PROJECT_CODE = property("projectCode", ExperimentSnapshot::getProjectCode, ExperimentSnapshot::setProjectCode);
     public static final ModelProperty<ExperimentSnapshot, String> DESCRIPTION = property("description", ExperimentSnapshot::getDescription, ExperimentSnapshot::setDescription);
     public static final ModelProperty<ExperimentSnapshot, String> LITERATURE = property("literature", ExperimentSnapshot::getLiterature, ExperimentSnapshot::setLiterature);
     public static final ModelProperty<ExperimentSnapshot, UserRef> BATCH_CREATOR = property("batchCreator", ExperimentSnapshot::getBatchCreator, ExperimentSnapshot::setBatchCreator);
