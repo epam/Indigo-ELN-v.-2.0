@@ -1,6 +1,7 @@
 package com.epam.indigoeln.common.config;
 
 import io.quarkus.runtime.configuration.ConfigUtils;
+import io.quarkus.security.UnauthorizedException;
 import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.RequestScoped;
@@ -45,7 +46,7 @@ public class UserHolder {
 
     public String getUserName() {
         if (username == null) {
-            throw new IllegalStateException("User is not authenticated");
+            throw new UnauthorizedException();
         }
         return username;
     }

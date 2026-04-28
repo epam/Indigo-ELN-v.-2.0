@@ -1,7 +1,6 @@
 plugins {
     `java-library`
     `eln-conventions`
-    id("io.quarkus")
 }
 
 dependencies {
@@ -61,9 +60,4 @@ tasks.named("processResources") { dependsOn(copyNativeLibs) }
 tasks.withType<Test> {
     environment("NATIVE_LIB_PATH", "${projectDir}/build/nativelibs")
     environment("ENABLE_PROFILER", "true")
-}
-
-tasks.withType<io.quarkus.gradle.tasks.QuarkusDev> {
-    dependsOn(copyNativeLibs)
-    environmentVariables.set(mapOf("NATIVE_LIB_PATH" to "${projectDir}/build/nativelibs"))
 }
