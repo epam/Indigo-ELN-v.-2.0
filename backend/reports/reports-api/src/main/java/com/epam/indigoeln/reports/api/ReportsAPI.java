@@ -2,7 +2,6 @@ package com.epam.indigoeln.reports.api;
 
 import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
 import com.epam.indigoeln.eln.model.ProjectDTO;
-import com.epam.indigoeln.reaction.model.ExperimentModel;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;

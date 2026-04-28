@@ -1,1 +1,382 @@
-{}
+{
+  "id": "ee5d2177-eed1-46af-bbf0-e5d8fa21de3a",
+  "createdBy": {
+    "id": "00000000-0000-0000-0000-000000000001",
+    "username": "admin",
+    "displayName": "Administrator"
+  },
+  "createdAt": "2026-04-06T16:11:17.01Z",
+  "modifiedBy": {
+    "id": "00000000-0000-0000-0000-000000000001",
+    "username": "admin",
+    "displayName": "Administrator"
+  },
+  "modifiedAt": "2026-04-07T09:45:21.652Z",
+  "name": "88888888-0011",
+  "status": "OPEN",
+  "marked": false,
+  "therapeuticArea": {
+    "id": "956f9dc9-12af-4660-af9d-c912af366024",
+    "name": "Obesity"
+  },
+  "projectCode": {
+    "id": "6a315dfb-830c-4ce1-b15d-fb830c9ce1cd",
+    "name": "Code 1"
+  },
+  "description": "Experiment with data",
+  "templateId": "8dd312ac-4211-4ed1-9312-ac42111ed101",
+  "batchCreator": {
+    "id": "00000000-0000-0000-0000-000000000001",
+    "username": "admin",
+    "displayName": "Administrator"
+  },
+  "linkedExperiments": [],
+  "continuedFrom": [],
+  "continuedTo": [],
+  "attachments": [
+    {
+      "id": "de03f1fe-5b62-4ddc-811c-6208c6b3f114",
+      "createdBy": {
+        "id": "00000000-0000-0000-0000-000000000001",
+        "username": "admin",
+        "displayName": "Administrator"
+      },
+      "createdAt": "2026-04-06T16:11:17.39Z",
+      "modifiedBy": {
+        "id": "00000000-0000-0000-0000-000000000001",
+        "username": "admin",
+        "displayName": "Administrator"
+      },
+      "modifiedAt": "2026-04-06T16:11:17.39Z",
+      "name": "attachment.txt",
+      "size": 18
+    }
+  ],
+  "acl": [
+    {
+      "userId": "00000000-0000-0000-0000-000000000001",
+      "displayName": "Administrator",
+      "level": "AUTHOR",
+      "inherited": false,
+      "username": "admin"
+    },
+    {
+      "userId": "dd2e287e-1ba5-4ce3-936f-f9c9b7418414",
+      "displayName": "Alice Smith",
+      "level": "ADMIN",
+      "inherited": true,
+      "username": "alice@eln.com"
+    },
+    {
+      "userId": "afff0f14-8850-4d13-93ea-dcf7714d82dd",
+      "displayName": "user_noroles user_noroles",
+      "level": "VIEW",
+      "inherited": true,
+      "username": "user_noroles@eln.com"
+    }
+  ],
+  "signatures": [],
+  "currentPermissions": [
+    "VIEW_EXPERIMENTS",
+    "EDIT_EXPERIMENTS",
+    "MANAGE_EXPERIMENT_ACCESS",
+    "DELETE_EXPERIMENTS",
+    "SUBMIT_EXPERIMENTS"
+  ],
+  "revision": 35,
+  "model": {
+    "reactions": [
+      {
+        "anchor": "cc53283c-46d7-4bfb-bc6d-8ba608b84f90",
+        "rxnfile": "$RXN\n\n -INDIGO- 0407260945\n\n  2  2\n$MOL\n19\n  -INDIGO-04072609452D\n\n 17 17  0  0  0  0  0  0  0  0999 V2000\n    5.1350    1.3450    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n    6.8671    0.3450    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n    2.5369   -0.1550    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n    3.4030    1.3450    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n    4.2690   -0.1550    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    5.1350    0.3450    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    6.0010   -0.1550    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    4.2690   -1.1550    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    6.0010   -1.1550    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    5.1350   -1.6550    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    3.4030    0.3450    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    3.7320   -1.4650    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0\n    6.5380   -1.4650    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0\n    5.1350   -2.2750    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0\n    5.6720    1.6550    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0\n    7.4040    0.0350    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0\n    2.0000    0.1550    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0\n  1  6  1  0  0  0  0\n  1 15  1  0  0  0  0\n  2  7  1  0  0  0  0\n  2 16  1  0  0  0  0\n  3 11  1  0  0  0  0\n  3 17  1  0  0  0  0\n  4 11  2  0  0  0  0\n  5  6  2  0  0  0  0\n  5  8  1  0  0  0  0\n  5 11  1  0  0  0  0\n  6  7  1  0  0  0  0\n  7  9  2  0  0  0  0\n  8 10  2  0  0  0  0\n  8 12  1  0  0  0  0\n  9 10  1  0  0  0  0\n  9 13  1  0  0  0  0\n 10 14  1  0  0  0  0\nM  END\n$MOL\n\n  -INDIGO-04072609452D\n\n  7  6  0  0  0  0  0  0  0  0999 V2000\n    8.5000   -7.1250    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    9.3661   -6.6250    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    9.3661   -5.6250    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n   10.2322   -7.1250    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n   10.9393   -6.4179    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   11.8053   -6.9179    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   10.9393   -5.4179    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n  1  2  1  0  0  0  0\n  2  3  2  0  0  0  0\n  2  4  1  0  0  0  0\n  4  5  1  0  0  0  0\n  5  6  1  0  0  0  0\n  5  7  2  0  0  0  0\nM  END\n$MOL\n\n  -INDIGO-04072609452D\n\n 13 13  0  0  0  0  0  0  0  0999 V2000\n   19.3757   -6.0833    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   20.2417   -6.5833    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   20.2417   -7.5833    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   19.3757   -8.0833    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   18.5097   -7.5833    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   18.5097   -6.5833    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   21.1077   -6.0833    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   21.9738   -6.5833    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n   21.1077   -5.0833    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n   21.1077   -8.0833    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n   21.1077   -9.0833    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   20.2417   -9.5834    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n   21.8148   -9.7905    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n  1  2  1  0  0  0  0\n  2  3  2  0  0  0  0\n  3  4  1  0  0  0  0\n  4  5  2  0  0  0  0\n  5  6  1  0  0  0  0\n  6  1  2  0  0  0  0\n  2  7  1  0  0  0  0\n  7  8  1  0  0  0  0\n  7  9  2  0  0  0  0\n  3 10  1  0  0  0  0\n 10 11  1  0  0  0  0\n 11 12  2  0  0  0  0\n 11 13  1  0  0  0  0\nM  END\n$MOL\n\n  -INDIGO-04072609452D\n\n  4  3  0  0  0  0  0  0  0  0999 V2000\n   26.4003   -8.0833    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   27.2663   -7.5833    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   28.1324   -8.0833    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n   27.2663   -6.5833    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n  1  2  1  0  0  0  0\n  2  3  1  0  0  0  0\n  2  4  2  0  0  0  0\nM  END\n",
+        "rxnVersion": 8,
+        "inputs": [
+          {
+            "compound": {
+              "type": "STORED",
+              "compoundID": "e3023365-95bb-4c5d-b855-7a033d1545b6",
+              "molWeight": {
+                "value": "154.12",
+                "unit": "G_PER_MOL",
+                "source": "fixed"
+              },
+              "exactMass": 154.03,
+              "formula": "C7 H6 O4",
+              "calculatedBatchMF": "C7 H6 O4"
+            },
+            "eq": {
+              "value": "0.92737",
+              "unit": "NO_UNIT",
+              "source": -33
+            },
+            "anchor": "0f8c3015-51d5-4bf4-90cb-161314859b2f",
+            "role": "REACTANT",
+            "mol": {
+              "value": "0.90838",
+              "unit": "MOL",
+              "source": -32
+            },
+            "samples": [
+              {
+                "purity": {
+                  "value": "100",
+                  "unit": "NO_UNIT",
+                  "source": "default"
+                },
+                "healthHazards": [],
+                "anchor": "db6f1d03-804c-42bb-a8a6-945620c9c60b",
+                "sampleId": "193cef50-8418-43d6-a06f-8104f9f0aee4",
+                "mol": {
+                  "value": "0.90838",
+                  "unit": "MOL",
+                  "source": -32
+                },
+                "weight": {
+                  "value": "140",
+                  "unit": "G",
+                  "source": 32
+                }
+              }
+            ],
+            "limiting": true
+          },
+          {
+            "compound": {
+              "type": "VIRTUAL",
+              "compoundID": "6e028c75-c83b-44c1-858a-c4cf936e6a67",
+              "formula": "C4 H6 O3",
+              "molWeight": {
+                "value": "102.09",
+                "unit": "G_PER_MOL",
+                "source": "fixed"
+              },
+              "exactMass": 102.03,
+              "calculatedBatchMF": "C4 H6 O3"
+            },
+            "eq": {
+              "value": "2",
+              "unit": "NO_UNIT",
+              "source": 33
+            },
+            "anchor": "7a226f74-ea87-469c-a1e9-21a2ffa64383",
+            "role": "REACTANT",
+            "mol": {
+              "value": "1.9591",
+              "unit": "MOL",
+              "source": -31
+            },
+            "samples": [
+              {
+                "purity": {
+                  "value": "100",
+                  "unit": "NO_UNIT",
+                  "source": "default"
+                },
+                "healthHazards": [],
+                "anchor": "4d0b0fa1-16b4-4b65-8054-7ae7984b24a8",
+                "mol": {
+                  "value": "1.9591",
+                  "unit": "MOL",
+                  "source": -31
+                },
+                "weight": {
+                  "value": "200",
+                  "unit": "G",
+                  "source": 31
+                }
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "compound": {
+              "type": "VIRTUAL",
+              "compoundID": "2fbe2f12-c1ce-4020-a2e5-20a9d41026dc",
+              "formula": "C9 H8 O4",
+              "stereoisomerCode": {
+                "id": "39ed9ac6-c1b5-43f7-ad9a-c6c1b503f7e2",
+                "name": "NOSTC"
+              },
+              "saltCode": {
+                "id": "5bcddddd-1167-49ec-8ddd-dd1167c9ecf9",
+                "name": "02 - Chloride"
+              },
+              "saltEQ": 0.5,
+              "molWeight": {
+                "value": "362.33",
+                "unit": "G_PER_MOL",
+                "source": "fixed"
+              },
+              "exactMass": 180.04,
+              "calculatedBatchMF": "C9 H8 O4 * 0.5 (Cl⁻)"
+            },
+            "eq": {
+              "value": "1",
+              "unit": "NO_UNIT",
+              "source": "default"
+            },
+            "anchor": "0623ce6d-d1bc-4251-b9a9-1a7b1c81a79b",
+            "outputName": "P1",
+            "type": "BY_PRODUCT",
+            "theoMol": {
+              "value": "0.97953",
+              "unit": "MOL",
+              "source": -33
+            },
+            "theoWeight": {
+              "value": "354.91",
+              "unit": "G",
+              "source": -33
+            },
+            "samples": []
+          },
+          {
+            "compound": {
+              "type": "VIRTUAL",
+              "compoundID": "c5f78d64-d480-4a5d-879d-ab8dabc843f0",
+              "formula": "C2 H4 O2",
+              "molWeight": {
+                "value": "60.05",
+                "unit": "G_PER_MOL",
+                "source": "fixed"
+              },
+              "exactMass": 60.02,
+              "calculatedBatchMF": "C2 H4 O2"
+            },
+            "eq": {
+              "value": "1",
+              "unit": "NO_UNIT",
+              "source": "default"
+            },
+            "anchor": "1c68d8f4-b020-467b-a0ac-bf91919e485b",
+            "outputName": "P0",
+            "type": "FINAL",
+            "theoMol": {
+              "value": "0.97953",
+              "unit": "MOL",
+              "source": -33
+            },
+            "theoWeight": {
+              "value": "58.821",
+              "unit": "G",
+              "source": -33
+            },
+            "samples": [
+              {
+                "purity": {
+                  "value": "0.5",
+                  "unit": "NO_UNIT",
+                  "source": 12
+                },
+                "healthHazards": [
+                  {
+                    "id": "e8f0be1d-85c4-4ff4-b0be-1d85c42ff498",
+                    "name": "Very Toxic"
+                  }
+                ],
+                "anchor": "bece923d-68c7-45bf-8cc0-3bd54a675b68",
+                "nbkBatchNumber": "88888888-0011-001",
+                "actualMol": {
+                  "value": "0.00083264",
+                  "unit": "MOL",
+                  "source": -13
+                },
+                "actualWeight": {
+                  "value": "10.0",
+                  "unit": "G",
+                  "source": 13
+                },
+                "yield": {
+                  "value": "0.085004",
+                  "unit": "NO_UNIT",
+                  "source": -33
+                },
+                "handlingPrecautions": [
+                  {
+                    "id": "c3bf2d1e-5af4-4e1f-bf2d-1e5af4ce1f5d",
+                    "name": "Electrostatic"
+                  }
+                ],
+                "storageInstructions": [
+                  {
+                    "id": "b2cb9b9c-88a5-41b3-8b9b-9c88a5f1b32b",
+                    "name": "No Special Storage Required"
+                  }
+                ],
+                "compoundProtection": [
+                  {
+                    "id": "4eb8a431-b05a-4aa3-b8a4-31b05a9aa3ca",
+                    "name": "Compound Protection 1"
+                  }
+                ],
+                "solubilityInSolvents": [
+                  {
+                    "type": "QUALITATIVE",
+                    "solvent": {
+                      "id": "8041e6ed-c302-40e2-81e6-edc30220e2ea",
+                      "name": "Acetic acid"
+                    },
+                    "comment": "comment",
+                    "qualitativeType": "PRECIPITATE"
+                  },
+                  {
+                    "type": "QUANTITATIVE",
+                    "solvent": {
+                      "id": "8041e6ed-c302-40e2-81e6-edc30220e2ea",
+                      "name": "Acetic acid"
+                    },
+                    "comment": "comment",
+                    "operator": "APPROXIMATELY",
+                    "value": 0.5,
+                    "unit": "G_ML"
+                  }
+                ],
+                "residualSolvents": [
+                  {
+                    "solvent": {
+                      "id": "8041e6ed-c302-40e2-81e6-edc30220e2ea",
+                      "name": "Acetic acid"
+                    },
+                    "eq": 1.5,
+                    "comment": "comment"
+                  }
+                ],
+                "meltingPoint": {
+                  "lower": -10.0,
+                  "upper": 20.0,
+                  "comments": "comment"
+                },
+                "externalSupplier": {
+                  "supplier": {
+                    "id": "7094c7f0-74ae-4d3b-94c7-f074ae7d3bca",
+                    "name": "External Supplier 1"
+                  },
+                  "registryNumber": "12345678"
+                },
+                "source": {
+                  "id": "66f1276f-a820-49af-b127-6fa82039af86",
+                  "name": "Sample Source 1"
+                },
+                "sourceDetails": {
+                  "id": "d4017baa-bc9f-492a-817b-aabc9f892a95",
+                  "name": "Sample Source Details 1"
+                },
+                "componentState": {
+                  "id": "ad5db380-f6b5-4690-9db3-80f6b5169016",
+                  "name": "Oil"
+                },
+                "batchComment": "batch comment",
+                "structureComment": "structure comment",
+                "shortNbkBatchNumber": "001"
+              }
+            ]
+          }
+        ],
+        "precursorReactantIds": []
+      }
+    ],
+    "schemaVersion": 1,
+    "significantFigures": 5
+  }
+}
