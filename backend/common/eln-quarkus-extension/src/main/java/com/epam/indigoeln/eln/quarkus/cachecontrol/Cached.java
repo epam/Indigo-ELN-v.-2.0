@@ -1,4 +1,4 @@
-package com.epam.indigoeln.eln.api;
+package com.epam.indigoeln.eln.quarkus.cachecontrol;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

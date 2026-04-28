@@ -1,6 +1,7 @@
 package com.epam.indigoeln.eln.api;
 
 import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.quarkus.cachecontrol.Cached;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.InputAnchor;

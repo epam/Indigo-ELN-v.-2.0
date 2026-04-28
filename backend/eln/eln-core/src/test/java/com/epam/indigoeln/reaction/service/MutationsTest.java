@@ -102,18 +102,17 @@ public class MutationsTest extends MutationsTestBase {
     }
 
     @Test
+    @Disabled // disabled because duplicate compounds were restricted
     void testLoadReactionUpdated() {
         // A + B + A => P + R
-        String rxnFile = new String(ModelUtil.loadResource(getClass(), "/reaction-with-duplicates.rxn"));
-        applyMutation(new ReactionMutation.SetScheme(reaction.getAnchor(), rxnFile), false);
+        loadScheme("/reaction-with-duplicates.rxn", false);
         InputAnchor a1 = input1.getAnchor();
         InputAnchor b = input2.getAnchor();
         InputAnchor a2 = input3.getAnchor();
         OutputAnchor p = output1.getAnchor();
         OutputAnchor r = output2.getAnchor();
         // A + B + C + A + A => R + P
-        String updatedRxnFile = new String(ModelUtil.loadResource(getClass(), "/reaction-with-duplicates-updated.rxn"));
-        applyMutation(new ReactionMutation.SetScheme(reaction.getAnchor(), updatedRxnFile), false);
+        loadScheme("/reaction-with-duplicates-updated.rxn", false);
         assertThat(input1.getAnchor()).isEqualTo(a1);
         assertThat(input2.getAnchor()).isEqualTo(b);
         assertThat(input4.getAnchor()).isEqualTo(a2);
@@ -123,9 +122,8 @@ public class MutationsTest extends MutationsTestBase {
 
     @Test
     void testLoadSameScheme() {
-        String rxnFile = new String(ModelUtil.loadResource(getClass(), "/reaction2.rxn"));
-        applyMutation(new ReactionMutation.SetScheme(reaction.getAnchor(), rxnFile), false);
-        applyMutation(new ReactionMutation.SetScheme(reaction.getAnchor(), rxnFile), false);
+        loadScheme("/reaction2.rxn", false);
+        loadScheme("/reaction2.rxn", false);
     }
 
     @Test
@@ -655,8 +653,19 @@ public class MutationsTest extends MutationsTestBase {
         applyMutation(new ReactionInputSampleMutation.SetInputWeight(input2Sample1.getAnchor(), "200", WeightUnit.G), false);
     }
 
+    @Test
+    void testCannotHaveDuplicateMoleculesInScheme() {
+        assertThatClientCall(() -> {
+            loadScheme("/duplicate-input.rxn", false);
+        }).isBadRequest("Reaction contains duplicate input compounds");
+    }
+
     private void loadScheme() {
-        String rxnFile = new String(ModelUtil.loadResource(getClass(), "/reaction.rxn"));
+       loadScheme("/reaction.rxn", true);
+    }
+
+    private void loadScheme(String resourceName, boolean undoRedo) {
+        String rxnFile = new String(ModelUtil.loadResource(getClass(), resourceName));
         applyMutation(new ReactionMutation.SetScheme(reaction.getAnchor(), rxnFile), false);
     }
 

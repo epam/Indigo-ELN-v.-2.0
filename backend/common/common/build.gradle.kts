@@ -22,6 +22,8 @@ dependencies {
     api("org.apache.commons:commons-lang3:3.20.0")
     api("one.util:streamex:0.8.4")
 
+    api(project(":common:eln-quarkus-extension"))
+
     testImplementation(project(":common:common-test"))
 }
 
