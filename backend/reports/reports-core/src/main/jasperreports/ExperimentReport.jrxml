@@ -128,13 +128,17 @@
 			</box>
 		</element>
 		<element kind="textField" uuid="94dbde48-3e42-4c2c-ade8-4963b30076e3" positionType="Float" stretchType="ContainerHeight" x="141" y="119" width="138" height="20" textAdjust="StretchHeight">
-			<expression><![CDATA[$V{PAGE_NUMBER} + " of " + $V{PAGE_COUNT}]]></expression>
+			<expression><![CDATA[$V{PAGE_NUMBER}]]></expression>
 			<box padding="4">
 				<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
 				<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
 				<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
 				<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
 			</box>
+		</element>
+		<element kind="textField" uuid="94dbde48-3e42-4c2c-ade8-4963b30076e3" positionType="Float" stretchType="ContainerHeight" x="141" y="119" width="138" height="20" hTextAlign="Right" evaluationTime="Report">
+			<expression><![CDATA["of " + $V{PAGE_NUMBER}]]></expression>
+			<box padding="4"/>
 		</element>
 		<element kind="textField" uuid="3386babf-0d26-43af-b235-eb861b74f214" positionType="Float" stretchType="ContainerHeight" x="419" y="119" width="137" height="20" textAdjust="StretchHeight">
 			<expression><![CDATA[$P{reportDate}.format($P{dateFormat})]]></expression>
