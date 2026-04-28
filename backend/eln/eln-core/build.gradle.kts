@@ -1,13 +1,11 @@
 plugins {
     `java-library`
     `eln-conventions`
-    id("io.quarkus")
 }
 
 dependencies {
     api(project(":eln:eln-api"))
     api(project(":reports:reports-api"))
-    api("io.quarkus:quarkus-oidc")
     api("io.quarkus:quarkus-smallrye-health")
     implementation(project(":database:flyway")) // TODO move flyway to a separate lambda and move dependency to testImplementation
 
@@ -62,9 +60,4 @@ tasks.named("processResources") { dependsOn(copyNativeLibs) }
 tasks.withType<Test> {
     environment("NATIVE_LIB_PATH", "${projectDir}/build/nativelibs")
     environment("ENABLE_PROFILER", "true")
-}
-
-tasks.withType<io.quarkus.gradle.tasks.QuarkusDev> {
-    dependsOn(copyNativeLibs)
-    environmentVariables.set(mapOf("NATIVE_LIB_PATH" to "${projectDir}/build/nativelibs"))
 }
