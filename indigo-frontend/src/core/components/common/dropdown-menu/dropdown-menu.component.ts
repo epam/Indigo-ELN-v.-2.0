@@ -96,7 +96,7 @@ export class DropdownMenuComponent extends DropdownBaseComponent implements Afte
 
     const newValue = item.value || item.label;
 
-    if (this._value !== newValue) {
+    if (this.controlled || this._value !== newValue) {
       this._value = newValue;
 
       if (!this.controlled) {

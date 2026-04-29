@@ -1,0 +1,21 @@
+<div class="p-6">
+  <h2 class="text-lg font-semibold text-neutral-1000 mb-3">Remove team member</h2>
+  <p class="text-sm text-neutral-900 mb-4">Are you sure you want to remove the member?</p>
+
+  @if (data.showCascadeCheckbox) {
+    <label class="flex items-start gap-2 text-sm text-neutral-900 mb-6 cursor-pointer">
+      <input
+        type="checkbox"
+        class="mt-0.5"
+        [(ngModel)]="removeFromChildren"
+        aria-label="Also remove this team member from all Notebooks and Experiments in this Project."
+      />
+      <span>Also remove this team member from all Notebooks and Experiments in this Project.</span>
+    </label>
+  }
+
+  <div class="flex items-center justify-end gap-2">
+    <eln-button variant="grey" (click)="cancel()">Cancel</eln-button>
+    <eln-button variant="red" (click)="confirm()">Remove</eln-button>
+  </div>
+</div>
