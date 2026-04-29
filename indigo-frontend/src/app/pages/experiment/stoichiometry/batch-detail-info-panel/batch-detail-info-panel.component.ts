@@ -14,6 +14,7 @@ import {
   SolubidityInSolvent,
 } from '@core/types/entities/experiments/experiment-shared.i';
 import { BuiltInDictionary, DictionaryItemRef } from '@core/types/entities/dictionary.i';
+import { MOL_UNITS, MOL_WEIGHT_UNITS, WEIGHT_UNITS } from '@core/types/entities/values.i';
 import { ChipListComponent } from '../shared/chip-list/chip-list.component';
 import { DictionarySelectComponent } from '@core/components/common/dictionary-select/dictionary-select.component';
 import { EnteredValueComponent } from '@core/components/experiment/entered-value/entered-value.component';
@@ -42,6 +43,9 @@ export class BatchDetailInfoPanelComponent {
 
   // Expose enum for template
   readonly BuiltInDictionary = BuiltInDictionary;
+  readonly molWeightUnits = MOL_WEIGHT_UNITS;
+  readonly weightUnits = WEIGHT_UNITS;
+  readonly molUnits = MOL_UNITS;
 
   // Form for editable fields
   form = new FormGroup({

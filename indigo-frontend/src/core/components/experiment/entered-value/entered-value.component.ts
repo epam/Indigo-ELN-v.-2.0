@@ -100,9 +100,16 @@ export class EnteredValueComponent<U> {
 
   private updateUnitDisplayName(): void {
     this.unitDisplayName = null;
-    if (this._value != null && this.units != null) {
-      const foundUnit = this.units.find((x) => this._value.unit === x.value);
-      this.unitDisplayName = foundUnit?.displayName;
+    if (this._value?.unit == null) {
+      return;
     }
+
+    if (this.units != null) {
+      const foundUnit = this.units.find((x) => this._value?.unit === x.value);
+      this.unitDisplayName = foundUnit?.displayName ?? String(this._value.unit);
+      return;
+    }
+
+    this.unitDisplayName = String(this._value.unit);
   }
 }

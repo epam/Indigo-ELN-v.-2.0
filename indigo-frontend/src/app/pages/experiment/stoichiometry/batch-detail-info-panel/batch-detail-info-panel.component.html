@@ -8,6 +8,7 @@
         <label class="field-label">Calculated Batch MW</label>
         <eln-entered-value
           [value]="output().compound?.molWeight"
+          [units]="molWeightUnits"
           [showUnits]="true"
           [readOnly]="true"
         />
@@ -84,12 +85,12 @@
 
       <div class="field-group">
         <label class="field-label">Theo. Weight</label>
-        <eln-entered-value [value]="output().theoWeight" [showUnits]="true" [readOnly]="true" />
+        <eln-entered-value [value]="output().theoWeight" [units]="weightUnits" [showUnits]="true" [readOnly]="true" />
       </div>
 
       <div class="field-group">
         <label class="field-label">Theo. Moles</label>
-        <eln-entered-value [value]="output().theoMol" [showUnits]="true" [readOnly]="true" />
+        <eln-entered-value [value]="output().theoMol" [units]="molUnits" [showUnits]="true" [readOnly]="true" />
       </div>
 
       <div class="field-group full-width">
