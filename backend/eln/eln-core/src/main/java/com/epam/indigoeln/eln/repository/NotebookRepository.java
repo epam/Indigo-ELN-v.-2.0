@@ -117,7 +117,7 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
     }
 
     public List<NotebookRevisionEntity> getRevisions(NotebookEntity notebook) {
-        return em.createQuery("from NotebookRevision where notebook=:notebook", NotebookRevisionEntity.class)
+        return em.createQuery("from NotebookRevision where notebook=:notebook order by revision", NotebookRevisionEntity.class)
                 .setParameter("notebook", notebook)
                 .getResultList();
     }

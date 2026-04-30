@@ -38,6 +38,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import java.util.*;
 
 import static com.epam.indigoeln.common.util.ModelUtil.ensureUnique;
+import static com.epam.indigoeln.common.util.ModelUtil.updateCollection;
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -158,11 +159,10 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation> exte
         }
 
         if (anyRxnfileChanged) {
-            experiment.getRxnfiles().clear();
             List<String> rxnFiles = StreamEx.of(model.getReactions())
                     .map(Reaction::getRxnfile)
                     .collect(StreamUtil.toListNotNull());
-            experiment.getRxnfiles().addAll(rxnFiles);
+            updateCollection(experiment.getRxnfiles(), rxnFiles);
         }
 
         Multimap<ReactionRole, CompoundRef.StoredOrVirtual> oldCompoundRefs = experimentModelHelperService.makeCompoundRefs(checkNotNull(snapshotBefore.getModel()));

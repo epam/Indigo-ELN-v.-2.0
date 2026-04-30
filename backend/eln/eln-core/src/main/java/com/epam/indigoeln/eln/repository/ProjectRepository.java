@@ -129,7 +129,7 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
     }
 
     public List<ProjectRevisionEntity> getRevisions(ProjectEntity project) {
-        return em.createQuery("from ProjectRevision where project=:project", ProjectRevisionEntity.class)
+        return em.createQuery("from ProjectRevision where project=:project order by revision", ProjectRevisionEntity.class)
                 .setParameter("project", project)
                 .getResultList();
     }

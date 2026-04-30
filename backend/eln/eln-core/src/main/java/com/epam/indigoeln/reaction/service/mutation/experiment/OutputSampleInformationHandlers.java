@@ -105,9 +105,6 @@ class SetOutputExternalSupplierHandler extends AbstractReactionOutputSampleMutat
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputExternalSupplier mutation, ExperimentMutationContext context) {
-        if (mutation.externalSupplier() != null) {
-            mutation.externalSupplier().setSupplier(mutation.externalSupplier().getSupplier());
-        }
         sample.setExternalSupplier(mutation.externalSupplier());
         return new MutationResult(formatSetterSummaryNoDetails("batch external supplier", mutation.externalSupplier() != null));
     }

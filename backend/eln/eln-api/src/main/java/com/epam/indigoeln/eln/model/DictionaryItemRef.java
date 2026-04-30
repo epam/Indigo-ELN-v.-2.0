@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -38,12 +37,6 @@ public class DictionaryItemRef {
     @JsonIgnore
     public boolean isInactive() {
         return !active || deleted;
-    }
-
-    @Nullable
-    @JsonIgnore
-    public BuiltInDictionary getBuildInDictionary() {
-        return BuiltInDictionary.lookup(dictionaryID);
     }
 
     public interface Creator {

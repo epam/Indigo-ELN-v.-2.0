@@ -3,8 +3,6 @@ package com.epam.indigoeln.eln.mapper;
 import com.epam.indigoeln.eln.entity.DictionaryEntity;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.eln.service.DictionaryService;
-import jakarta.inject.Inject;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValueCheckStrategy;
@@ -16,9 +14,6 @@ import java.util.List;
 
 @Mapper(componentModel = "cdi", unmappedTargetPolicy = ReportingPolicy.ERROR, nullValueCheckStrategy =  NullValueCheckStrategy.ALWAYS)
 public abstract class DictionaryMapper extends AbstractMapper {
-
-    @Inject
-    DictionaryService dictionaryService;
 
     @IgnoreBaseFields
     @Mapping(target = "items", ignore = true)
@@ -41,8 +36,4 @@ public abstract class DictionaryMapper extends AbstractMapper {
     @Mapping(target = "deleted", constant = "false")
     @Mapping(target = "details", ignore = true)
     public abstract DictionaryItemEntity itemToEntity(DictionaryItemRequest request);
-
-    public List<SaltCodeRef> saltCodeToRefList(Collection<DictionaryItemEntity> entities) {
-        return dictionaryService.get(entities);
-    }
 }
