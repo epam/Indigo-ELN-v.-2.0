@@ -111,7 +111,8 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
     }
 
     public void setInputLineSample(ReactionInput row, SampleEntity sample, InputSampleAnchor anchor, ExperimentMutationContext context) {
-        row.setCompound(compoundService.realCompoundRef(sample.getCompound()));
+        row.getSamples().clear(); // TODO don't remove existing samples when multi-sample support is implemented on a frontend
+        row.updateCompound(compoundService.realCompoundRef(sample.getCompound()));
 
         ReactionInputSample reactionInputSample = ReactionInputSample.create(row, anchor);
         reactionInputSample.setSampleId(sample.getId());
@@ -127,10 +128,10 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
     }
 
     public ReactionInput createInputLine(Reaction reaction, @Nullable IndigoMolecule molecule, ReactionRole role, InputAnchor createdInputAnchor, InputSampleAnchor createdSampleAnchor) {
-        ReactionInput row = ReactionInput.create(reaction, role, createdInputAnchor);
-        row.setCompound(molecule != null
+        CompoundRef compound = molecule != null
                 ? compoundService.virtualCompoundRef(molecule, null, null, null)
-                : compoundService.unknownCompoundRef());
+                : compoundService.unknownCompoundRef();
+        ReactionInput row = ReactionInput.create(reaction, role, createdInputAnchor, compound);
         row.setEq(DEFAULT_ONE);
         ReactionInputSample reactionInputSample = ReactionInputSample.create(row, createdSampleAnchor);
         reactionInputSample.setPurity(DEFAULT_ONE_HUNDRED);
@@ -142,8 +143,7 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
     }
 
     public ReactionOutput createOutputLine(Reaction reaction, CompoundRef compound, boolean intended, OutputAnchor anchor) {
-        ReactionOutput row = ReactionOutput.create(reaction, reaction.getFinalOutput() != null ? ReactionOutputType.BY_PRODUCT : ReactionOutputType.FINAL, intended, reaction.generateNextProductName(), anchor);
-        row.setCompound(compound);
+        ReactionOutput row = ReactionOutput.create(reaction, reaction.getFinalOutput() != null ? ReactionOutputType.BY_PRODUCT : ReactionOutputType.FINAL, intended, reaction.generateNextProductName(), anchor, compound);
         row.setEq(DEFAULT_ONE);
         row.setSamples(new ArrayList<>());
         return row;

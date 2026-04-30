@@ -76,6 +76,7 @@ export class NotebookDetailComponent implements OnInit {
   async openExperimentModal() {
     const ref = this.dialog.open(ExperimentAddComponent);
     ref.componentInstance.notebookId = this.activatedRoute.snapshot.paramMap.get('notebookId');
+    ref.componentInstance.projectId = this.activatedRoute.snapshot.paramMap.get('projectId');
     ref
       .afterClosed()
       .pipe(take(1))

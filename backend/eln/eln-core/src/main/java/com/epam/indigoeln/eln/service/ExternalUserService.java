@@ -15,7 +15,7 @@ public interface ExternalUserService {
 
         @Override
         public void createUser(UserRequest request) {
-            // no nothing
+            // do nothing
         }
     }
 

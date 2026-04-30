@@ -4,4 +4,5 @@ public sealed interface MeasurementUnit permits MolUnit, MolWeightUnit, VolumeUn
 
     String name();
     double getMultiplier();
+    String getDisplayName();
 }

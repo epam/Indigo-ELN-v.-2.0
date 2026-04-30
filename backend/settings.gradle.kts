@@ -19,6 +19,9 @@ include("common:common-service")
 include("common:common-lambda")
 include("common:common-test")
 
+include("common:eln-quarkus-extension")
+include("common:eln-quarkus-extension-deployment")
+
 include("database:flyway")
 
 include("signature:signature-api")
@@ -30,7 +33,7 @@ include("database:flyway")
 
 include("eln:eln-api")
 include("eln:eln-core")
-//include("eln:eln-service")
+include("eln:eln-service")
 include("eln:eln-lambda")
 
 include("reports:reports-api")

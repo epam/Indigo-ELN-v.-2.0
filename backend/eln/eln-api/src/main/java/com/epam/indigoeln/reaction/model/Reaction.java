@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
+
 @Data
 @ToString(exclude = "model")
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
@@ -48,6 +50,22 @@ public final class Reaction extends AbstractExperimentNode<ExperimentModel> {
         reaction.model = model;
         reaction.anchor = anchor;
         return reaction;
+    }
+
+    public void validateDuplicateInputs(ReactionInput newInput) {
+        for (ReactionInput input : inputs) {
+            if (input != newInput) {
+                validate(!input.getCompound().compoundKeyEquals(newInput.getCompound()), "Reaction contains duplicate input compounds");
+            }
+        }
+    }
+
+    public void validateDuplicateOutputs(ReactionOutput newOutput) {
+        for (ReactionOutput output : outputs) {
+            if (output != newOutput) {
+                validate(!output.getCompound().compoundKeyEquals(newOutput.getCompound()), "Reaction contains duplicate output compounds");
+            }
+        }
     }
 
     @JsonIgnore

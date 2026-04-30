@@ -13,6 +13,8 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
+
 @Getter
 @Setter
 @ToString(exclude = "reaction")
@@ -45,15 +47,23 @@ public final class ReactionOutput extends ReactionRow {
     @JsonManagedReference
     private List<@Valid ReactionOutputSample> samples = new ArrayList<>();
 
-    public static ReactionOutput create(Reaction reaction, ReactionOutputType type, boolean intended, String outputName, OutputAnchor anchor) {
+    public static ReactionOutput create(Reaction reaction, ReactionOutputType type, boolean intended, String outputName, OutputAnchor anchor, CompoundRef compound) {
         ReactionOutput row = new ReactionOutput();
         row.reaction = reaction;
         row.anchor = anchor;
         row.type = type;
         row.outputName = outputName;
         row.intended = intended;
+        row.compound = compound;
         reaction.getOutputs().add(row);
+        reaction.validateDuplicateOutputs(row);
         return row;
+    }
+
+    public void updateCompound(CompoundRef newCompound) {
+        validate(!hasSamplesWithRegistrationStarted(), "Cannot update compound when samples already sent for registration");
+        this.compound = newCompound;
+        reaction.validateDuplicateOutputs(this);
     }
 
     public boolean hasSamplesWithRegistrationStarted() {

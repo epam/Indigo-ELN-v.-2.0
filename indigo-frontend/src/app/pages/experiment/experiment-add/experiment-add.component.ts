@@ -13,6 +13,7 @@ import { NotificationType } from '@core/types/notification.i';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { finalize, map } from 'rxjs/operators';
 import { ItemTemplate, RootTemplate } from '@/core/types/entities/template.i';
+import { ExperimentDetail } from '@core/types/entities/experiments/experiment-detail.i';
 
 interface ExperimentForm {
   templateId: string;
@@ -43,6 +44,7 @@ export class ExperimentAddComponent implements OnInit {
   templatesLoading = false; // true while fetching template options
   submitting = false; // true while submitting create request
   ready = false;
+  projectId: string;
   notebookId: string;
 
   ngOnInit(): void {
@@ -54,7 +56,7 @@ export class ExperimentAddComponent implements OnInit {
     this.submitting = true;
 
     this.api
-      .request<void>('post', `/notebooks/${this.notebookId}/experiments`, {
+      .request<ExperimentDetail>('post', `/notebooks/${this.notebookId}/experiments`, {
         templateID: formData.templateId,
       })
       .pipe(
@@ -63,9 +65,17 @@ export class ExperimentAddComponent implements OnInit {
         }),
       )
       .subscribe({
-        next: () => {
+        next: (newExperiment: ExperimentDetail) => {
           this.showNotification('Experiment created', NotificationType.Success);
           this.dialogRef.close('refresh');
+          this.router.navigate([
+            '/projects',
+            this.projectId,
+            'notebooks',
+            this.notebookId,
+            'experiments',
+            newExperiment.id,
+          ]);
         },
       });
   }

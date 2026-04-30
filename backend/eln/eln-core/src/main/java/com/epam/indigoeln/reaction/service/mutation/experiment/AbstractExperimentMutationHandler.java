@@ -1,5 +1,6 @@
 package com.epam.indigoeln.reaction.service.mutation.experiment;
 
+import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.eln.entity.ExperimentEditSessionEntity;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentReferencedCompound;
@@ -36,6 +37,7 @@ import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.*;
 
+import static com.epam.indigoeln.common.util.ModelUtil.ensureUnique;
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -220,6 +222,13 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation> exte
                     checkState(previous == null, "rxnPosition %s is used by both %s and %s", r.getRxnPosition(), previous, r);
                 }
             });
+            // check input compounds are unique
+            for (Reaction reaction : model.getReactions()) {
+                StreamEx.of(reaction.getInputs())
+                        .map(x -> x.getCompound().getCompoundID())
+                        .nonNull()
+                        .collect(ensureUnique((a, b) -> new InvalidRequestException("Reaction cannot have duplicate input compounds")));
+            }
         } catch (Exception e) {
             throw new RuntimeException("Mutation produced invalid model: " + e.getMessage(), e);
         }

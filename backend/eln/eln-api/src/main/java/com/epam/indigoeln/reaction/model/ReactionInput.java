@@ -13,6 +13,8 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
+
 @Getter
 @Setter
 @ToString(exclude = "reaction")
@@ -40,18 +42,23 @@ public final class ReactionInput extends ReactionRow {
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private boolean limiting;
 
-    public static ReactionInput create(Reaction reaction, ReactionRole role, InputAnchor anchor) {
+    public static ReactionInput create(Reaction reaction, ReactionRole role, InputAnchor anchor, CompoundRef compound) {
         ReactionInput row = new ReactionInput();
         row.reaction = reaction;
         row.anchor = anchor;
         row.role = role;
+        row.compound = compound;
         reaction.getInputs().add(row);
+        reaction.validateDuplicateInputs(row);
         return row;
     }
 
-    public boolean hasRealSamples() {
-        return samples.stream()
-                .anyMatch(s -> s.getSampleId() != null);
+    public void updateCompound(CompoundRef newCompound) {
+        for (ReactionInputSample sample : samples) {
+            validate(sample.getSampleId() == null, "Cannot update compound with real samples attached");
+        }
+        this.compound = newCompound;
+        reaction.validateDuplicateInputs(this);
     }
 
     @Override
