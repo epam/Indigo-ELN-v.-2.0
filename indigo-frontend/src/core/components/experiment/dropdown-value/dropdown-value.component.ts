@@ -50,7 +50,7 @@ export class DropdownValueComponent implements ControlValueAccessor {
   }
 
   writeValue(obj: any): void {
-    this.value = obj?.value;
+    this.value = obj?.id ?? null;
   }
 
   registerOnChange(fn: any): void {
