@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -29,7 +30,7 @@ public class TemplateEntity {
     private UserEntity author;
     @OneToMany(mappedBy = "template", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @OrderBy("index")
-    private List<TemplateSignatureBlockEntity> signatureBlocks;
+    private List<TemplateSignatureBlockEntity> signatureBlocks = new ArrayList<>(0);
     @NotNull
     private ZonedDateTime createdDate;
     @NotNull

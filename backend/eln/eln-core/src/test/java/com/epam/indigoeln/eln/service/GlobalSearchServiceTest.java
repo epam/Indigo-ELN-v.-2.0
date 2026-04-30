@@ -52,12 +52,12 @@ class GlobalSearchServiceTest extends ELNBaseTest {
     @BeforeAll
     void setUp() {
         withUser(MAGGIE_USERNAME, () -> {
-            List<DictionaryItemRef> therapeuticAreas = dictionaryClient.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA);
-            therapeuticArea1 = new TherapeuticAreaRef(therapeuticAreas.get(0).getId(), therapeuticAreas.get(0).getName());
-            therapeuticArea2 = new TherapeuticAreaRef(therapeuticAreas.get(1).getId(), therapeuticAreas.get(1).getName());
-            List<DictionaryItemRef> projectCodes = dictionaryClient.getDictionary(BuiltInDictionary.PROJECT_CODE);
-            projectCode1 = new ProjectCodeRef(projectCodes.get(0).getId(), projectCodes.get(0).getName());
-            projectCode2 = new ProjectCodeRef(projectCodes.get(1).getId(), projectCodes.get(1).getName());
+            List<TherapeuticAreaRef> therapeuticAreas = dictionaryClient.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA);
+            therapeuticArea1 = therapeuticAreas.get(0);
+            therapeuticArea2 = therapeuticAreas.get(1);
+            List<ProjectCodeRef> projectCodes = dictionaryClient.getDictionary(BuiltInDictionary.PROJECT_CODE);
+            projectCode1 = projectCodes.get(0);
+            projectCode2 = projectCodes.get(1);
             project1 = projectClient.createProject(new ProjectRequest("p1", List.of("k1", "k2"), "l1 xx", "pd1"));
             project2 = projectClient.createProject(new ProjectRequest("p2", List.of("k2", "k3"), "l2 xx", "pd2"));
             notebook1 = notebookClient.createNotebook(project1.getId(), new NotebookRequest("00000001", "nd1 xx"));

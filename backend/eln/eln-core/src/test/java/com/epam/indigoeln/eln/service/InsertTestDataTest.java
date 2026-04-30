@@ -148,8 +148,7 @@ class InsertTestDataTest {
         model = applyMutation(experiment, model, new ReactionOutputMutation.SetOutputRowSaltEQ(output1Anchor, 0.5));
 
         // select stereoisomer code
-        DictionaryItemRef stereoisomerCodeRef = dictionaryClient.getDictionary(BuiltInDictionary.STEREOISOMER_CODE).getFirst();
-        StereoisomerCodeRef stereoisomerCode = new StereoisomerCodeRef(stereoisomerCodeRef.getId(), stereoisomerCodeRef.getName());
+        StereoisomerCodeRef stereoisomerCode = dictionaryClient.getFirst(BuiltInDictionary.STEREOISOMER_CODE);
         model = applyMutation(experiment, model, new ReactionOutputMutation.SetOutputCompoundStereoisomerCode(output1Anchor, stereoisomerCode));
 
         // set input weight
@@ -172,34 +171,26 @@ class InsertTestDataTest {
         model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputActualWeight(output2Sample1Anchor, "10.0", WeightUnit.G));
 
         // fill secondary fields
-        DictionaryItemRef sourceRef = dictionaryClient.getDictionary(BuiltInDictionary.SAMPLE_SOURCE).getFirst();
-        SampleSourceRef source = new SampleSourceRef(sourceRef.getId(), sourceRef.getName());
+        SampleSourceRef source = dictionaryClient.getFirst(BuiltInDictionary.SAMPLE_SOURCE);
         model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputSource(output2Sample1Anchor, source));
-        DictionaryItemRef sourceDetailsRef = dictionaryClient.getDictionary(BuiltInDictionary.SAMPLE_SOURCE_DETAILS).getFirst();
-        SampleSourceDetailsRef sourceDetails = new SampleSourceDetailsRef(sourceDetailsRef.getId(), sourceDetailsRef.getName());
+        SampleSourceDetailsRef sourceDetails = dictionaryClient.getFirst(BuiltInDictionary.SAMPLE_SOURCE_DETAILS);
         model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputSourceDetails(output2Sample1Anchor, sourceDetails));
-        DictionaryItemRef externalSupplier = dictionaryClient.getDictionary(BuiltInDictionary.EXTERNAL_SUPPLIER).getFirst();
-        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputExternalSupplier(output2Sample1Anchor, new ExternalSupplier(new ExternalSupplierRef(externalSupplier.getId(), externalSupplier.getName()), "12345678")));
+        ExternalSupplierRef externalSupplier = dictionaryClient.getFirst(BuiltInDictionary.EXTERNAL_SUPPLIER);
+        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputExternalSupplier(output2Sample1Anchor, new ExternalSupplier(externalSupplier, "12345678")));
         model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputBatchComment(output2Sample1Anchor, "batch comment"));
         model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputStructureComment(output2Sample1Anchor, "structure comment"));
-        DictionaryItemRef componentStateRef = dictionaryClient.getDictionary(BuiltInDictionary.COMPONENT_STATE).getFirst();
-        ComponentStateRef componentState = new ComponentStateRef(componentStateRef.getId(), componentStateRef.getName());
+        ComponentStateRef componentState = dictionaryClient.getFirst(BuiltInDictionary.COMPONENT_STATE);
         model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputComponentState(output2Sample1Anchor, componentState));
-        DictionaryItemRef compoundProtectionRef = dictionaryClient.getDictionary(BuiltInDictionary.COMPOUND_PROTECTION).getFirst();
-        CompoundProtectionRef compoundProtection = new CompoundProtectionRef(compoundProtectionRef.getId(), compoundProtectionRef.getName());
+        CompoundProtectionRef compoundProtection = dictionaryClient.getFirst(BuiltInDictionary.COMPOUND_PROTECTION);
         model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputCompoundProtection(output2Sample1Anchor, List.of(compoundProtection)));
-        DictionaryItemRef storageInstructionsRef = dictionaryClient.getDictionary(BuiltInDictionary.STORAGE_INSTRUCTIONS).getFirst();
-        StorageInstructionsRef storageInstructions = new StorageInstructionsRef(storageInstructionsRef.getId(), storageInstructionsRef.getName());
+        StorageInstructionsRef storageInstructions = dictionaryClient.getFirst(BuiltInDictionary.STORAGE_INSTRUCTIONS);
         model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputStorageInstructions(output2Sample1Anchor, List.of(storageInstructions)));
-        DictionaryItemRef healthHazardsRef = dictionaryClient.getDictionary(BuiltInDictionary.HEALTH_HAZARD).getFirst();
-        HealthHazardRef healthHazards = new HealthHazardRef(healthHazardsRef.getId(), healthHazardsRef.getName());
+        HealthHazardRef healthHazards = dictionaryClient.getFirst(BuiltInDictionary.HEALTH_HAZARD);
         model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputHealthHazards(output2Sample1Anchor, List.of(healthHazards)));
-        DictionaryItemRef handlingPrecautionsRef = dictionaryClient.getDictionary(BuiltInDictionary.HANDLING_PRECAUTIONS).getFirst();
-        HandlingPrecautionsRef handlingPrecautions = new HandlingPrecautionsRef(handlingPrecautionsRef.getId(), handlingPrecautionsRef.getName());
+        HandlingPrecautionsRef handlingPrecautions = dictionaryClient.getFirst(BuiltInDictionary.HANDLING_PRECAUTIONS);
         model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputHandlingPrecautions(output2Sample1Anchor, List.of(handlingPrecautions)));
         model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputMeltingPoint(output2Sample1Anchor, new MeltingPoint(-10.0, 20.0, "comment")));
-        DictionaryItemRef solventRef = dictionaryClient.getDictionary(BuiltInDictionary.SOLVENT).getFirst();
-        SolventRef solvent = new SolventRef(solventRef.getId(), solventRef.getName());
+        SolventRef solvent = dictionaryClient.getFirst(BuiltInDictionary.SOLVENT);
         model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputResidualSolvents(output2Sample1Anchor, List.of(
                 new ResidualSolvent(solvent, 1.5, "comment")
         )));
@@ -251,10 +242,8 @@ class InsertTestDataTest {
         NotebookDetailsDTO notebook = existingNotebooks.getItems().isEmpty()
                 ? notebookClient.createNotebook(project.getId(), new NotebookRequest(notebookName))
                 : notebookClient.getNotebook(existingNotebooks.getItems().getFirst().getId());
-        DictionaryItemRef therapeuticAreaRef = dictionaryClient.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA).getFirst();
-        TherapeuticAreaRef therapeuticArea = new TherapeuticAreaRef(therapeuticAreaRef.getId(), therapeuticAreaRef.getName());
-        DictionaryItemRef projectCodeRef = dictionaryClient.getDictionary(BuiltInDictionary.PROJECT_CODE).getFirst();
-        ProjectCodeRef projectCode = new ProjectCodeRef(projectCodeRef.getId(), projectCodeRef.getName());
+        TherapeuticAreaRef therapeuticArea = dictionaryClient.getFirst(BuiltInDictionary.THERAPEUTIC_AREA);
+        ProjectCodeRef projectCode = dictionaryClient.getFirst(BuiltInDictionary.PROJECT_CODE);
         return experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(
                 template.getId(),
                 experimentDescription,

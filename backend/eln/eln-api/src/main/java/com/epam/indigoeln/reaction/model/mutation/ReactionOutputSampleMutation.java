@@ -1,14 +1,6 @@
 package com.epam.indigoeln.reaction.model.mutation;
 
-import com.epam.indigoeln.eln.model.ComponentStateRef;
-import com.epam.indigoeln.eln.model.CompoundProtectionRef;
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
-import com.epam.indigoeln.eln.model.HandlingPrecautionsRef;
-import com.epam.indigoeln.eln.model.HealthHazardRef;
-import com.epam.indigoeln.eln.model.SampleSourceDetailsRef;
-import com.epam.indigoeln.eln.model.SampleSourceRef;
-import com.epam.indigoeln.eln.model.StereoisomerCodeRef;
-import com.epam.indigoeln.eln.model.StorageInstructionsRef;
+import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.OutputAnchor;
 import com.epam.indigoeln.reaction.model.OutputSampleAnchor;
 import com.epam.indigoeln.reaction.model.outputsample.*;
@@ -160,10 +152,10 @@ public interface ReactionOutputSampleMutation extends Mutation {
 
     record SetOutputSaltCode (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable DictionaryItemRef saltCode,
+            @Nullable SaltCodeRef saltCode,
             @Nullable OutputAnchor createdOutputAnchor
     ) implements ReactionOutputSampleMutation {
-        public SetOutputSaltCode(@NotNull OutputSampleAnchor anchor, @Nullable DictionaryItemRef saltCode) {
+        public SetOutputSaltCode(@NotNull OutputSampleAnchor anchor, @Nullable SaltCodeRef saltCode) {
             this(anchor, saltCode, null);
         }
     }

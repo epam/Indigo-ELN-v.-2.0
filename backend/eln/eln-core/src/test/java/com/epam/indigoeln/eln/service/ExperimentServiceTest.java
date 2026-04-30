@@ -43,12 +43,8 @@ class ExperimentServiceTest extends ELNBaseTest {
 
     @BeforeEach
     void setUp() {
-        therapeuticAreas = dictionaryClient.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA).stream()
-                .map(x -> new TherapeuticAreaRef(x.getId(), x.getName()))
-                .toList();
-        projectCodes = dictionaryClient.getDictionary(BuiltInDictionary.PROJECT_CODE).stream()
-                .map(x -> new ProjectCodeRef(x.getId(), x.getName()))
-                .toList();
+        therapeuticAreas = dictionaryClient.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA);
+        projectCodes = dictionaryClient.getDictionary(BuiltInDictionary.PROJECT_CODE);
         project = projectClient.createProject(new ProjectRequest("ExperimentServiceTest" + UUID.randomUUID()));
         notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
     }
@@ -62,8 +58,8 @@ class ExperimentServiceTest extends ELNBaseTest {
 
     @Test
     void testCreateExperimentBadDictionary() {
-        assertThatClientCall(() -> experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID, null, new TherapeuticAreaRef(UUID.randomUUID(), "Invalid"), null)))
-                .isNotFound(".+ in dictionary THERAPEUTIC_AREA not found");
+        assertThatClientCall(() -> experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID, null, new TherapeuticAreaRef(UUID.randomUUID(), "Invalid", true, false, BuiltInDictionary.THERAPEUTIC_AREA.getId()), null)))
+                .isBadRequest("DICTIONARY_ITEM .+ not found");
     }
 
     @Test

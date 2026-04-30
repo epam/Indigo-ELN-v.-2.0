@@ -115,4 +115,10 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
                 .setParameter("since", ZonedDateTime.now().minusSeconds(period.toSeconds()))
                 .getResultList();
     }
+
+    public List<NotebookRevisionEntity> getRevisions(NotebookEntity notebook) {
+        return em.createQuery("from NotebookRevision where notebook=:notebook", NotebookRevisionEntity.class)
+                .setParameter("notebook", notebook)
+                .getResultList();
+    }
 }

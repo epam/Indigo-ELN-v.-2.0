@@ -1,6 +1,5 @@
 package com.epam.indigoeln.reaction.metamodel;
 
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.model.HealthHazardRef;
 import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.reaction.metamodel.property.Metamodel;

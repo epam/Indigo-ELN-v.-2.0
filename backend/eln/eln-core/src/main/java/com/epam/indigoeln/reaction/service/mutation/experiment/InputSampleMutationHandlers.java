@@ -1,7 +1,6 @@
 package com.epam.indigoeln.reaction.service.mutation.experiment;
 
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
-import com.epam.indigoeln.eln.model.BuiltInDictionary;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.ReactionInput;
@@ -39,7 +38,7 @@ class SetInputHealthHazardsHandler extends AbstractReactionInputSampleMutationHa
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputHealthHazards mutation, ExperimentMutationContext context) {
-        sample.setHealthHazards(validateDictionaryItems(BuiltInDictionary.HEALTH_HAZARD.name(), mutation.healthHazards()));
+        sample.setHealthHazards(mutation.healthHazards());
         return new MutationResult(formatSetterSummary("input sample health hazards", mutation.healthHazards()));
     }
 }

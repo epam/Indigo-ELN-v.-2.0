@@ -98,6 +98,6 @@ public class ProjectService {
     public List<RevisionDetailsDTO> getProjectRevisions(UUID projectId) {
         ProjectEntity project = projectRepository.get(projectId);
         aclService.ensureAccess(project, ApplicationPermission.VIEW_PROJECTS);
-        return projectMapper.revisionToDTOList(project.getRevisions());
+        return projectMapper.revisionToDTOList(projectRepository.getRevisions(project));
     }
 }

@@ -3,7 +3,6 @@ package com.epam.indigoeln.compound.entity;
 import com.epam.indigoeln.eln.config.hibernate.STRCodeCompoundConverter;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
 import com.epam.indigoeln.eln.entity.IdentifiableEntity;
-import com.epam.indigoeln.eln.entity.SaltCodeEntity;
 import com.epam.indigoeln.eln.model.CompoundExternalSource;
 import com.epam.indigoeln.eln.model.STRCodeCompound;
 import jakarta.persistence.*;
@@ -53,7 +52,7 @@ public class CompoundEntity extends IdentifiableEntity {
 
     @Nullable
     @ManyToOne
-    private SaltCodeEntity saltCode;
+    private DictionaryItemEntity saltCode;
 
     @Nullable
     @Column(name = "salt_eq_100")

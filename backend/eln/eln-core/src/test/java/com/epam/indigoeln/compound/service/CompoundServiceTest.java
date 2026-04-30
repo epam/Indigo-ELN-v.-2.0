@@ -4,13 +4,7 @@ import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.model.SampleRegistrationRequest;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.entity.IdentifiableEntity;
-import com.epam.indigoeln.eln.entity.SaltCodeInfo;
-import com.epam.indigoeln.eln.model.BuiltInDictionary;
-import com.epam.indigoeln.eln.model.ComponentStateRef;
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
-import com.epam.indigoeln.eln.model.HealthHazardRef;
-import com.epam.indigoeln.eln.model.NbkBatchNumber;
-import com.epam.indigoeln.eln.model.STRCodeSample;
+import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
@@ -49,7 +43,7 @@ public class CompoundServiceTest extends ELNBaseTest {
     @Inject
     DictionaryService dictionaryService;
 
-    SaltCodeInfo saltCode;
+    SaltCodeRef saltCode;
     HealthHazardRef healthHazard;
     ComponentStateRef compoundState;
     CompoundRef.Virtual compound1;
@@ -66,12 +60,10 @@ public class CompoundServiceTest extends ELNBaseTest {
     @Test
     @Order(-1000)
     void testInit() {
-        List<DictionaryItemRef> saltCodes = dictionaryService.getSaltCodes();
-        saltCode = dictionaryService.getSaltInfo(saltCodes.getFirst().getId());
-        DictionaryItemRef healthHazardRef = dictionaryService.getDictionary(BuiltInDictionary.HEALTH_HAZARD.name()).getFirst();
-        healthHazard = new HealthHazardRef(healthHazardRef.getId(), healthHazardRef.getName());
-        DictionaryItemRef componentStateRef = dictionaryService.getDictionary(BuiltInDictionary.COMPONENT_STATE.name()).getFirst();
-        compoundState = new ComponentStateRef(componentStateRef.getId(), componentStateRef.getName());
+        List<SaltCodeRef> saltCodes = dictionaryService.getSaltCodes();
+        saltCode = dictionaryService.<SaltCodeRef>getDictionary(BuiltInDictionary.SALT_CODE.name(), false).getFirst();
+        healthHazard = dictionaryService.<HealthHazardRef>getDictionary(BuiltInDictionary.HEALTH_HAZARD.name(), false).getFirst();
+        compoundState = dictionaryService.<ComponentStateRef>getDictionary(BuiltInDictionary.COMPONENT_STATE.name(), false).getFirst();
         IndigoReaction reaction = indigo.loadReaction(loadResource(getClass(), "/reaction.rxn"));
         Iterator<IndigoMolecule> it = reaction.products().iterator();
         IndigoMolecule molecule = it.next();

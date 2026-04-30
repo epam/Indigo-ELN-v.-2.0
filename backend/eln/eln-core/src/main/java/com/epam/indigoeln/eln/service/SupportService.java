@@ -47,8 +47,8 @@ public class SupportService {
 
     @Transactional
     public Map<String, String> insertTestData() {
-        List<DictionaryItemRef> therapeuticAreas = dictionaryService.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA.name());
-        List<DictionaryItemRef> projectCodes = dictionaryService.getDictionary(BuiltInDictionary.PROJECT_CODE.name());
+        List<TherapeuticAreaRef> therapeuticAreas = dictionaryService.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA.name(), false);
+        List<ProjectCodeRef> projectCodes = dictionaryService.getDictionary(BuiltInDictionary.PROJECT_CODE.name(), false);
         TemplateDTO template = templateService.getByName("Default");
         int lastUsedNotebookNumber = 0;
         int projectCount = 0, notebookCount = 0, experimentCount = 0, attachmentCount = 0;
@@ -73,12 +73,10 @@ public class SupportService {
                 }
                 for (int experimentNo = 1; experimentNo <= random.nextInt(1, 12); experimentNo++) {
                     System.out.println("\t\texperiment " + experimentNo);
-                    DictionaryItemRef therapeuticArea = randomOrNone(therapeuticAreas);
-                    DictionaryItemRef projectCode = randomOrNone(projectCodes);
                     ExperimentDetailsDTO experiment = experimentService.createExperiment(notebook.getId(), new ExperimentRequest(template.getId()
                             , "image"
-                            , therapeuticArea != null ? new TherapeuticAreaRef(therapeuticArea.getId(), therapeuticArea.getName()) : null
-                            , projectCode != null ? new ProjectCodeRef(projectCode.getId(), projectCode.getName()) : null
+                            , randomOrNone(therapeuticAreas)
+                            , randomOrNone(projectCodes)
                     ));
                     experimentCount++;
                     for (int attachmentNo = 1; attachmentNo <= random.nextInt(0, 4); attachmentNo++) {

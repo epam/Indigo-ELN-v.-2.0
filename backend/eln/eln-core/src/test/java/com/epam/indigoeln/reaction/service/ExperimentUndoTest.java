@@ -39,10 +39,8 @@ public class ExperimentUndoTest extends MutationsTestBase {
 
     @BeforeAll
     void beforeAll() {
-        DictionaryItemRef therapeuticAreaRef = dictionaryClient.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA).getFirst();
-        therapeuticArea = new TherapeuticAreaRef(therapeuticAreaRef.getId(), therapeuticAreaRef.getName());
-        DictionaryItemRef projectCodeRef = dictionaryClient.getDictionary(BuiltInDictionary.PROJECT_CODE).getFirst();
-        projectCode = new ProjectCodeRef(projectCodeRef.getId(), projectCodeRef.getName());
+        therapeuticArea = dictionaryClient.getFirst(BuiltInDictionary.THERAPEUTIC_AREA);
+        projectCode = dictionaryClient.getFirst(BuiltInDictionary.PROJECT_CODE);
         ProjectDetailsDTO project = getOrCreateProject("ExperimentUndoTest");
         notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
         experiment1 = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));

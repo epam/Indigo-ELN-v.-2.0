@@ -37,7 +37,7 @@ public abstract class SignatureMapper {
                 date,
                 date
         );
-        entity.setSignatureBlocks(EntryStream.of(template.getSignatureBlocks())
+        entity.getSignatureBlocks().addAll(EntryStream.of(template.getSignatureBlocks())
                 .mapKeyValue((ix, block) -> new TemplateSignatureBlockEntity(
                         null,
                         entity,
@@ -63,7 +63,7 @@ public abstract class SignatureMapper {
                 null,
                 content
         );
-        entity.setSignatureBlocks(EntryStream.of(template.getSignatureBlocks())
+        entity.getSignatureBlocks().addAll(EntryStream.of(template.getSignatureBlocks())
                 .mapKeyValue((ix, block) -> new DocumentSignatureBlockEntity(
                         null,
                         entity,

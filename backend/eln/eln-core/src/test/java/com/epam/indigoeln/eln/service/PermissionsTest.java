@@ -84,8 +84,7 @@ class PermissionsTest extends ELNBaseTest {
         cleanupDatabase();
         withUser(JOHN_USERNAME, () -> {
             template = templateClient.createTemplate(new TemplateRequest("PermissionsTest", templateTabs));
-            DictionaryItemRef ref = dictionaryClient.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA).getFirst();
-            therapeuticArea = new TherapeuticAreaRef(ref.getId(), ref.getName());
+            therapeuticArea = dictionaryClient.getFirst(BuiltInDictionary.THERAPEUTIC_AREA);
             iterateRows(row -> {
                 row.projectId = projectClient.createProject(new ProjectRequest("project" + row.testId)).getId();
                 projectClient.createProjectAttachment(row.projectId, "attachment.txt", tempDir, new byte[0]);
@@ -315,7 +314,11 @@ class PermissionsTest extends ELNBaseTest {
     @Test
     void testEditExperiment() {
         iterateRows(row -> {
-            assertThatClientCall(() -> experimentClient.editExperiment(row.experimentId, new ExperimentEditRequest().withTherapeuticArea(Optional.of(therapeuticArea))))
+            assertThatClientCall(() -> {
+                log.info("!!! row: {}", row);
+                experimentClient.editExperiment(row.experimentId, new ExperimentEditRequest().withTherapeuticArea(Optional.of(therapeuticArea)));
+                log.info("!!! done");
+            })
                     .as(row.toString())
                     .isAllowedIf(row.effectiveExperiment.isSufficientFor(EDIT), "Operation not permitted");
         });

@@ -127,4 +127,10 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
                 .setParameter("since", ZonedDateTime.now().minusSeconds(period.toSeconds()))
                 .getResultList();
     }
+
+    public List<ProjectRevisionEntity> getRevisions(ProjectEntity project) {
+        return em.createQuery("from ProjectRevision where project=:project", ProjectRevisionEntity.class)
+                .setParameter("project", project)
+                .getResultList();
+    }
 }

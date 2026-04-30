@@ -9,6 +9,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.jspecify.annotations.Nullable;
 
 @Getter
@@ -36,4 +38,8 @@ public class DictionaryItemEntity extends BaseEntity {
 
     @NotNull
     private Boolean deleted;
+
+    @Nullable
+    @JdbcTypeCode(SqlTypes.JSON)
+    private String details;
 }

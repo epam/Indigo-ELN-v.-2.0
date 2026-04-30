@@ -63,12 +63,10 @@ public class SignatureTemplateService {
     }
 
     private void updateBlocks(SignatureTemplateEntity template, List<SignatureBlock> blocks) {
-        template.setBlocks(blocks.stream()
-                .map(block -> {
-                    UserEntity user = block.getUser() != null ? userRepository.get(block.getUser().getId()) : null;
-                    return new SignatureTemplateBlockEmbedded(user, block.getReason());
-                })
-                .toList()
-        );
+        template.getBlocks().clear();
+        for (SignatureBlock block : blocks) {
+            UserEntity user = block.getUser() != null ? userRepository.get(block.getUser().getId()) : null;
+            template.getBlocks().add(new SignatureTemplateBlockEmbedded(user, block.getReason()));
+        }
     }
 }

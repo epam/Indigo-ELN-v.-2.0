@@ -14,6 +14,7 @@ import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
 
 import java.sql.Types;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -47,7 +48,7 @@ public class DocumentEntity {
     @NotEmpty
     @OrderBy("index")
     @OneToMany(mappedBy = "document", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private List<DocumentSignatureBlockEntity> signatureBlocks;
+    private List<DocumentSignatureBlockEntity> signatureBlocks = new ArrayList<>(0);
     @Lob
     @NotNull
     @JdbcTypeCode(Types.BINARY)

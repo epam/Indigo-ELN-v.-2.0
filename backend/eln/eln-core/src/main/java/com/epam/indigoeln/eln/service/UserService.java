@@ -100,7 +100,7 @@ public class UserService {
                 .flatMap(Collection::stream)
                 .map(ref -> roleRepository.get(ref.getId()))
                 .toSet();
-        entity.setRoles(roles);
+        entity.getRoles().addAll(roles);
         updateDates(entity, getCurrentUserEntity());
         userRepository.persist(entity);
         externalUserService.createUser(request);

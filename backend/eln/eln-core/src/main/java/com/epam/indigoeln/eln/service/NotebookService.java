@@ -104,6 +104,6 @@ public class NotebookService {
     public List<RevisionDetailsDTO> getNotebookRevisions(UUID notebookId) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
         aclService.ensureAccess(notebook, ApplicationPermission.VIEW_NOTEBOOKS);
-        return notebookMapper.revisionToDTOList(notebook.getRevisions());
+        return notebookMapper.revisionToDTOList(notebookRepository.getRevisions(notebook));
     }
 }

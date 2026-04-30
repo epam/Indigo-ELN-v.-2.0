@@ -8,7 +8,6 @@ import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.search.NumericSearch;
 import com.epam.indigoeln.compound.model.search.TextSearch;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
-import com.epam.indigoeln.eln.model.BuiltInDictionary;
 import com.epam.indigoeln.eln.model.EntityType;
 import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.eln.repository.BaseRepository;
@@ -73,11 +72,11 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
         addTextSearch(conditions, request.getExternalNumber(), "externalNumber");
         addTextSearch(conditions, request.getBatchComment(), "batchComment");
         if (request.getCompoundState() != null) {
-            DictionaryItemEntity compoundState = dictionaryService.lookup(BuiltInDictionary.COMPONENT_STATE.name(), request.getCompoundState());
+            DictionaryItemEntity compoundState = dictionaryService.lookup(request.getCompoundState());
             conditions.add("compoundState = ?", compoundState);
         }
         if (request.getHealthHazards() != null) {
-            DictionaryItemEntity healthHazard = dictionaryService.lookup(BuiltInDictionary.HEALTH_HAZARD.name(), request.getHealthHazards());
+            DictionaryItemEntity healthHazard = dictionaryService.lookup(request.getHealthHazards());
             conditions.add("? member of healthHazards", healthHazard);
         }
         if (marked == Boolean.TRUE) {

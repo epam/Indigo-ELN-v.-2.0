@@ -13,7 +13,7 @@ public abstract class RoleMapper extends AbstractMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "permissions", expression = "java(new ApplicationPermission[0])")
-    @Mapping(target = "users", expression = "java(new java.util.HashSet<>(0))")
+    @Mapping(target = "users", ignore = true)
     public abstract RoleEntity requestToRole(RoleRequest user);
 
     public abstract RoleDTO entityToDTO(RoleEntity entity);

@@ -156,10 +156,11 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation> exte
         }
 
         if (anyRxnfileChanged) {
+            experiment.getRxnfiles().clear();
             List<String> rxnFiles = StreamEx.of(model.getReactions())
                     .map(Reaction::getRxnfile)
                     .collect(StreamUtil.toListNotNull());
-            experiment.setRxnfiles(rxnFiles);
+            experiment.getRxnfiles().addAll(rxnFiles);
         }
 
         Multimap<ReactionRole, CompoundRef.StoredOrVirtual> oldCompoundRefs = experimentModelHelperService.makeCompoundRefs(checkNotNull(snapshotBefore.getModel()));

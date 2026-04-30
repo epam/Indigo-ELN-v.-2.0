@@ -26,7 +26,6 @@ public class RevisionService {
         revision.setProject(project);
         doAddRevision(revision, revisionNo, datetime, summary, mutation, objectMapper.writeValueAsString(diff));
         project.setRevision(revisionNo);
-        project.getRevisions().add(revision);
         return revision;
     }
 
@@ -36,7 +35,6 @@ public class RevisionService {
         revision.setNotebook(notebook);
         doAddRevision(revision, revisionNo, datetime, summary, mutation, objectMapper.writeValueAsString(diff));
         notebook.setRevision(revisionNo);
-        notebook.getRevisions().add(revision);
         return revision;
     }
 
@@ -46,7 +44,6 @@ public class RevisionService {
         revision.setExperiment(experiment);
         doAddRevision(revision, revisionNo, datetime, summary, mutation, objectMapper.writeValueAsString(diff));
         experiment.setRevision(revisionNo);
-        experiment.getRevisions().add(revision);
         return revision;
     }
 

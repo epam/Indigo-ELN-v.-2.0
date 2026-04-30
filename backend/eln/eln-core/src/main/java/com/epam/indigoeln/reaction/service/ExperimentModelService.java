@@ -119,7 +119,6 @@ public class ExperimentModelService {
         session.setUser(user);
         session.setStarted(dateTime);
         session.setLastActive(dateTime);
-        experiment.getEditSessions().add(session);
         experimentRepository.persistEditSession(session);
         return session;
     }
