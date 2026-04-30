@@ -17,6 +17,7 @@ import { EnteredValue } from '@core/types/entities/values.i';
 import { determineCellClasses } from '@core/utils/experiment-model.util';
 import { ButtonComponent } from '@/core/components/common/button/button.component';
 import { MatIcon } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 
 interface OutputSampleRow {
   output: ReactionOutput;
@@ -26,7 +27,7 @@ interface OutputSampleRow {
 @Component({
   selector: 'eln-product-batch-summary-table',
   templateUrl: './product-batch-summary-table.component.html',
-  imports: [MatSnackBarModule, EditableDataTableComponent, ButtonComponent, MatIcon],
+  imports: [MatSnackBarModule, EditableDataTableComponent, ButtonComponent, MatIcon, MatMenuModule],
 })
 export class ProductBatchSummaryTableComponent {
   private experimentDetailService = inject(ExperimentDetailService);
@@ -43,6 +44,8 @@ export class ProductBatchSummaryTableComponent {
     const outputs = this.reaction()?.outputs;
     return outputs?.flatMap((output) => output.samples.map((sample) => ({ output, sample })));
   });
+
+  linkableProducts = computed(() => this.reaction()?.outputs ?? []);
 
   readonly columns = computed<ColumnConfig<OutputSampleRow>[]>(() => [
     {
@@ -246,10 +249,26 @@ export class ProductBatchSummaryTableComponent {
     return determineCellClasses(value, this.experimentDetailService.updatedNodes());
   }
 
+  getProductMenuLabel(output: ReactionOutput, index: number): string {
+    return output.outputName?.trim() || output.chemicalName?.trim() || `P${index + 1}`;
+  }
+
+  addBatchForOutput(output: ReactionOutput) {
+    this.experimentDetailService
+      .updateDataModel({
+        type: 'AddProductSample',
+        anchor: output.anchor,
+      })
+      .subscribe({});
+  }
+
   addNewRow() {
-    // TODO: Implement mutation for adding new output sample row
-    this.snackBar.open('Add row functionality not yet implemented', 'Close', {
-      duration: 3000,
-    });
+    this.snackBar.open(
+      'Add New Batch still needs a backend mutation to create an unlinked side product batch.',
+      'Close',
+      {
+        duration: 4000,
+      },
+    );
   }
 }
