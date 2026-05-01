@@ -13,7 +13,10 @@ CREATE TABLE Experiment (
     status Experiment_Status NOT NULL,
     therapeutic_area_id UUID,
     project_code_id UUID,
+    title VARCHAR(1024),
     description TEXT,
+    literature TEXT,
+    batch_creator_id UUID NOT NULL,
     model JSONB NOT NULL,
     picture BYTEA,
     search_vector TSVECTOR,
@@ -30,7 +33,33 @@ CREATE TABLE Experiment (
     CONSTRAINT experiment_name_uq UNIQUE (name),
     CONSTRAINT experiment_report_for_signature_id_fk FOREIGN KEY (report_for_signature_id) REFERENCES Attachment (id) ON DELETE SET NULL
 );
+
 CREATE INDEX ix_experiment_search_vector ON Experiment USING GIN(search_vector);
+CREATE INDEX ix_experiment_name ON Experiment USING GIN (name gin_trgm_ops);
+
+CREATE TABLE Experiment_Linked_Experiment (
+    parent_id UUID NOT NULL,
+    experiment_id UUID NOT NULL,
+    CONSTRAINT experiment_linked_experiment_pk PRIMARY KEY (parent_id, experiment_id),
+    CONSTRAINT experiment_linked_experiment_parent_id_fk FOREIGN KEY (parent_id) REFERENCES Experiment (id) ON DELETE CASCADE,
+    CONSTRAINT experiment_linked_experiment_experiment_id_fk FOREIGN KEY (experiment_id) REFERENCES Experiment (id) ON DELETE CASCADE
+);
+
+CREATE TABLE Experiment_Continued_From (
+    parent_id UUID NOT NULL,
+    experiment_id UUID NOT NULL,
+    CONSTRAINT experiment_continued_from_pk PRIMARY KEY (parent_id, experiment_id),
+    CONSTRAINT experiment_continued_from_parent_id_fk FOREIGN KEY (parent_id) REFERENCES Experiment (id) ON DELETE CASCADE,
+    CONSTRAINT experiment_continued_from_experiment_id_fk FOREIGN KEY (experiment_id) REFERENCES Experiment (id) ON DELETE CASCADE
+);
+
+CREATE TABLE Experiment_Continued_To (
+    parent_id UUID NOT NULL,
+    experiment_id UUID NOT NULL,
+    CONSTRAINT experiment_continued_to_pk PRIMARY KEY (parent_id, experiment_id),
+    CONSTRAINT experiment_continued_to_parent_id_fk FOREIGN KEY (parent_id) REFERENCES Experiment (id) ON DELETE CASCADE,
+    CONSTRAINT experiment_continued_to_experiment_id_fk FOREIGN KEY (experiment_id) REFERENCES Experiment (id) ON DELETE CASCADE
+);
 
 CREATE TABLE Experiment_Attachment (
     experiment_id UUID NOT NULL,
@@ -61,7 +90,7 @@ CREATE TABLE Experiment_Referenced_Compound (
     experiment_id UUID NOT NULL,
     compound_id UUID NOT NULL,
     reaction_role Reaction_Role NOT NULL,
-    CONSTRAINT experiment_referenced_compound_pk PRIMARY KEY (compound_id, experiment_id),
+    CONSTRAINT experiment_referenced_compound_pk PRIMARY KEY (compound_id, experiment_id, reaction_role),
     CONSTRAINT experiment_referenced_compound_experiment_id_fk FOREIGN KEY (experiment_id) REFERENCES Experiment(id) ON DELETE CASCADE,
     CONSTRAINT experiment_referenced_compound_compound_id_fk FOREIGN KEY (compound_id) REFERENCES Compound(id)
 );
@@ -88,17 +117,34 @@ CREATE TABLE Experiment_Rxnfile (
 
 CREATE INDEX ix_experiment_rxnfile_rxnfile ON Experiment_Rxnfile USING bingo_idx (rxnfile bingo.reaction);
 
+CREATE TABLE Experiment_Edit_Session (
+    id UUID PRIMARY KEY,
+    experiment_id UUID NOT NULL,
+    user_id UUID NOT NULL,
+    started TIMESTAMPTZ NOT NULL,
+    last_active TIMESTAMPTZ NOT NULL,
+    finished TIMESTAMPTZ,
+    CONSTRAINT experiment_edit_session_experiment_id_fk FOREIGN KEY (experiment_id) REFERENCES Experiment (id),
+    CONSTRAINT experiment_edit_session_user_id_fk FOREIGN KEY (user_id) REFERENCES User_Account (id)
+);
+
 CREATE TABLE Experiment_Revision (
     experiment_id UUID NOT NULL,
     revision INT NOT NULL,
     user_id UUID NOT NULL,
     datetime TIMESTAMPTZ NOT NULL,
+    edit_session_id UUID,
     summary VARCHAR(1000) NOT NULL,
     mutation JSONB NOT NULL,
-    reverse_mutation JSONB,
     diff JSONB NOT NULL,
+    undo_for INT,
+    redo_for INT,
+    version INT,
+    snapshot JSONB,
     CONSTRAINT experiment_revision_pk PRIMARY KEY (experiment_id, revision),
-    CONSTRAINT experiment_revision_experiment_id_fk FOREIGN KEY (experiment_id) REFERENCES Experiment (id)
+    CONSTRAINT experiment_revision_experiment_id_fk FOREIGN KEY (experiment_id) REFERENCES Experiment (id),
+    CONSTRAINT experiment_revision_edit_session_id_fk FOREIGN KEY (edit_session_id) REFERENCES Experiment_Edit_Session (id),
+    CONSTRAINT experiment_revision_experiment_id_version_uq UNIQUE (experiment_id, version)
 );
 
 ALTER TABLE Experiment ADD CONSTRAINT experiment_id_revision_fk FOREIGN KEY (id, revision) REFERENCES Experiment_Revision (experiment_id, revision) DEFERRABLE INITIALLY DEFERRED;

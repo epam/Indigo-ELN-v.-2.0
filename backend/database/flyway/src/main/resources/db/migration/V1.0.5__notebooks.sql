@@ -18,6 +18,7 @@ CREATE TABLE Notebook (
     CONSTRAINT notebook_name_uq UNIQUE (name)
 );
 CREATE INDEX ix_notebook_search_vector ON Notebook USING GIN(search_vector);
+CREATE INDEX ix_notebook_name ON Notebook USING GIN (name gin_trgm_ops);
 
 CREATE TABLE Notebook_Attachment (
     notebook_id UUID NOT NULL,
@@ -43,8 +44,9 @@ CREATE TABLE Notebook_Revision (
     datetime TIMESTAMPTZ NOT NULL,
     summary VARCHAR(1000) NOT NULL,
     mutation JSONB NOT NULL,
-    reverse_mutation JSONB,
     diff JSONB NOT NULL,
+    undo_for INT,
+    redo_for INT,
     CONSTRAINT notebook_revision_pk PRIMARY KEY (notebook_id, revision),
     CONSTRAINT notebook_revision_experiment_id_fk FOREIGN KEY (notebook_id) REFERENCES Notebook (id)
 );

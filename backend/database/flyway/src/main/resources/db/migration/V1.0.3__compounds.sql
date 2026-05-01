@@ -1,4 +1,4 @@
-CREATE TYPE Compound_Source AS ENUM ('ELN');
+CREATE TYPE Compound_External_Source AS ENUM ('PUBCHEM');
 
 CREATE TABLE Compound (
     id UUID PRIMARY KEY,
@@ -6,7 +6,8 @@ CREATE TABLE Compound (
     stereoisomer_code_id UUID,
     salt_code_id UUID,
     salt_eq_100 INT,
-    source Compound_Source NOT NULL,
+    external_source Compound_External_Source,
+    external_number VARCHAR(1000),
     chemical_name VARCHAR(1000),
     compound_key VARCHAR(1000),
     str_code VARCHAR(1000),
