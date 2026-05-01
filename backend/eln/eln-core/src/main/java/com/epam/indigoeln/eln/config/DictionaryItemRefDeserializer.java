@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -27,6 +28,7 @@ public class DictionaryItemRefDeserializer extends StdDeserializer<DictionaryIte
         return dictionaryService.get(idAndName.id());
     }
 
+    @RegisterForReflection
     record IdAndName (
             UUID id,
             String name

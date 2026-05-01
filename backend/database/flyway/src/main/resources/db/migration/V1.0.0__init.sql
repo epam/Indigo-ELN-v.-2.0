@@ -1,3 +1,4 @@
+CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 CREATE TYPE Experiment_Status AS ENUM (

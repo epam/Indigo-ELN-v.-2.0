@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import io.quarkus.cache.Cache;
 import io.quarkus.cache.CacheName;
 import io.quarkus.panache.common.Sort;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -244,6 +245,7 @@ public class DictionaryService {
         }
     }
 
+    @RegisterForReflection
     private record SaltCodeDetails (
             String code,
             String formula,
