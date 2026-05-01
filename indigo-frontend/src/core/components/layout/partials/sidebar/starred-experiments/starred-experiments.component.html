@@ -37,7 +37,7 @@
         </eln-badge>
       </li>
       <li
-        *ngIf="experiments.length === 0"
+        *ngIf="(experiments?.length ?? 0) === 0"
         class="py-2 text-neutral-600 text-sm"
       >
         No starred experiments

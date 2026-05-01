@@ -20,13 +20,13 @@ import { ExperimentDetailService } from '@/core/services/experiment/experiment-d
   imports: [CommonModule, CardComponent, BadgeComponent, NormalizeLabelPipe],
 })
 export class StarredExperimentsComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
-  private service = inject(ApiService);
+  private readonly destroy$ = new Subject<void>();
+  private readonly service = inject(ApiService);
   private readonly experimentDetailService = inject(ExperimentDetailService);
 
   loading = false;
   error: string | null = null;
-  experiments: ExperimentDetail[] = [];
+  experiments: ExperimentDetail[] | null = null;
 
   readonly statusDecorMap: Record<
     ExperimentStatus,
@@ -41,14 +41,14 @@ export class StarredExperimentsComponent implements OnInit, OnDestroy {
   }
 
   private fetchMarkedExperiments(): void {
-    if (this.experiments.length === 0) {
+    if (!this.experiments?.length) {
       this.loading = true;
     }
     this.service
       .request<ExperimentDetail[]>('get', 'experiments/marked')
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
-        next: (resp) => (this.experiments = Array.isArray(resp) ? resp : []),
+        next: (resp) => (this.experiments = Array.isArray(resp) ? resp : null),
         error: () => (this.error = 'Failed to load starred experiments'),
       });
   }

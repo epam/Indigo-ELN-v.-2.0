@@ -14,7 +14,6 @@ import { getExperimentStatusBadgeVariant } from '@/core/utils/experiment-status.
 import { SvgIconComponent } from '@/core/components/common/svg-icon/svg-icon.component';
 import { ExperimentDetailService } from '@/core/services/experiment/experiment-detail.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError } from 'rxjs';
 
 @Component({
   selector: 'eln-experiment-item',
@@ -62,14 +61,12 @@ export class ExperimentItemComponent {
       : this.experimentDetailService.unmark(this.experiment.id);
 
     request$
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        catchError(() => {
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        error: () => {
           this.isMarked.set(wasMarked);
-          return [];
-        }),
-      )
-      .subscribe();
+        },
+      });
   }
 
   openDetails(): void {
