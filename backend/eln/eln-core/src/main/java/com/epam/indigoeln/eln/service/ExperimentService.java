@@ -89,7 +89,6 @@ public class ExperimentService {
         experiment.setProject(notebook.getProject());
         experiment.setNotebook(notebook);
         TemplateEntity template = templateRepository.get(request.getTemplateID());
-        template.getExperiments().add(experiment);
         experiment.setTemplate(template);
         experimentModelService.applyMutation(experiment, experimentMapper.requestToMutation(request));
         return getExperimentDetails(experiment);

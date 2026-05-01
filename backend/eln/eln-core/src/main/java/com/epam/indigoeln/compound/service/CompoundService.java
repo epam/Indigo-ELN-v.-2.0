@@ -9,11 +9,10 @@ import com.epam.indigoeln.compound.model.SampleRegistrationRequest;
 import com.epam.indigoeln.compound.repository.CompoundRepository;
 import com.epam.indigoeln.compound.repository.SampleRepository;
 import com.epam.indigoeln.eln.config.DataAccess;
-import com.epam.indigoeln.eln.entity.SaltCodeInfo;
-import com.epam.indigoeln.eln.model.BuiltInDictionary;
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.model.STRCodeCompound;
 import com.epam.indigoeln.eln.model.STRCodeSample;
+import com.epam.indigoeln.eln.model.SaltCodeRef;
+import com.epam.indigoeln.eln.model.StereoisomerCodeRef;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
@@ -74,7 +73,7 @@ public class CompoundService {
     @Inject
     UserService userService;
 
-    public CompoundEntity findOrCreate(IndigoMolecule molecule, @Nullable DictionaryItemRef stereoisomerCode, @Nullable SaltCodeInfo saltCode, @Nullable Double saltEQ, @Nullable Consumer<CompoundEntity> compoundConfigurer) {
+    public CompoundEntity findOrCreate(IndigoMolecule molecule, @Nullable StereoisomerCodeRef stereoisomerCode, @Nullable SaltCodeRef saltCode, @Nullable Double saltEQ, @Nullable Consumer<CompoundEntity> compoundConfigurer) {
         String canSmiles = molecule.canonicalSmiles();
         CompoundKey key = new CompoundKey(canSmiles, stereoisomerCode != null ? stereoisomerCode.getId() : null, saltCode != null ? saltCode.getId() : null, saltEQ != null ? (int) (saltEQ * 100) : null);
         CompoundEntity compound = compoundRepository.findByCompoundKey(key);
@@ -84,8 +83,8 @@ public class CompoundService {
                 compoundConfigurer.accept(compound);
             }
             compound.setCanSmiles(canSmiles);
-            compound.setStereoisomerCode(stereoisomerCode != null ? dictionaryService.get(stereoisomerCode.getId()) : null);
-            compound.setSaltCode(saltCode != null ? dictionaryService.getSalt(saltCode.getId()) : null);
+            compound.setStereoisomerCode(dictionaryService.lookup(stereoisomerCode, true));
+            compound.setSaltCode(dictionaryService.lookup(saltCode));
             compound.setSaltEQ100(saltEQ != null ? (int) (saltEQ * 100) : null);
             compound.setMolFile(molecule.molfile());
             compound.setMolWeight(molWeightCalculator.calculateMolWeight(molecule.molfile(), saltCode, saltEQ));
@@ -131,9 +130,9 @@ public class CompoundService {
         return new CompoundRef.Stored(compound.getId(), fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL), compound.getExactMass(), compound.getFormula(), compound.getCompoundKey(), compound.getCasNumber(), calculateBatchMF(compound));
     }
 
-    public CompoundRef.Virtual virtualCompoundRef(IndigoMolecule molecule, @Nullable DictionaryItemRef stereoisomerCode, @Nullable SaltCodeInfo saltCode, @Nullable Double saltEQ) {
+    public CompoundRef.Virtual virtualCompoundRef(IndigoMolecule molecule, @Nullable StereoisomerCodeRef stereoisomerCode, @Nullable SaltCodeRef saltCode, @Nullable Double saltEQ) {
         CompoundEntity compound = findOrCreate(molecule, stereoisomerCode, saltCode, saltEQ, null);
-        return new CompoundRef.Virtual(compound.getId(), molecule.grossFormula(), compound.getCompoundKey(), stereoisomerCode, saltCode != null ? saltCode.toRef() : null, saltEQ, EnteredValue.fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL), compound.getExactMass(), compound.getCasNumber(), calculateBatchMF(compound));
+        return new CompoundRef.Virtual(compound.getId(), molecule.grossFormula(), compound.getCompoundKey(), stereoisomerCode, saltCode, saltEQ, EnteredValue.fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL), compound.getExactMass(), compound.getCasNumber(), calculateBatchMF(compound));
     }
 
     public CompoundRef.Unknown unknownCompoundRef() {
@@ -217,9 +216,9 @@ public class CompoundService {
         sample.setMolarityUnit(request.getMolarity() != null ? request.getMolarity().getUnit() : null);
         sample.setPurity(request.getPurity());
         if (request.getHealthHazards() != null) {
-            sample.getHealthHazards().addAll(dictionaryService.lookup(BuiltInDictionary.HEALTH_HAZARD.name(), request.getHealthHazards()));
+            sample.getHealthHazards().addAll(dictionaryService.lookup(request.getHealthHazards()));
         }
-        sample.setCompoundState(dictionaryService.lookup(BuiltInDictionary.COMPONENT_STATE.name(), request.getCompoundState()));
+        sample.setCompoundState(dictionaryService.lookup(request.getCompoundState()));
         sample.setBatchComment(request.getBatchComment());
         compound.getSamples().add(sample);
         updateDates(sample, userService.getCurrentUserEntity());
@@ -239,7 +238,8 @@ public class CompoundService {
             int compoundCode = strCodeWithoutSaltCode != null
                     ? strCodeWithoutSaltCode.getCompoundCode()
                     : compoundRepository.getNextSTRCodeCompoundCode();
-            compoundStrCode = new STRCodeCompound(compoundCode, compound.getSaltCode() != null ? Integer.parseInt(compound.getSaltCode().getCode()) : 0);
+            SaltCodeRef saltCode = dictionaryService.get(compound.getSaltCode());
+            compoundStrCode = new STRCodeCompound(compoundCode, saltCode != null ? Integer.parseInt(saltCode.getCode()) : 0);
             compound.setStrCode(compoundStrCode);
         }
         log.debug("registerSample: compoundStrCode={}", compoundStrCode);
@@ -266,7 +266,7 @@ public class CompoundService {
         String parentFormula = compound.getFormula();
         sb.append(parentFormula);
         if (compound.getSaltCode() != null) {
-            SaltCodeInfo salt = dictionaryService.getSaltInfo(compound.getSaltCode().getId());
+            SaltCodeRef salt = dictionaryService.get(compound.getSaltCode().getId());
             Preconditions.checkState(compound.getSaltEQ100() != null);
             sb.append(" * ").append((compound.getSaltEQ100() / 100.0)).append(" (").append(salt.getFormula()).append(")");
         }

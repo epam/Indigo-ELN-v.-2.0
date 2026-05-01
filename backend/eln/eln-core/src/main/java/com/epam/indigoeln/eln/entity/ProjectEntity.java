@@ -116,11 +116,6 @@ public class ProjectEntity extends BaseEntity implements WithAttachments, WithAC
     @OrderBy("createdAt")
     private List<AttachmentEntity> attachments = new ArrayList<>(0);
 
-    @NotNull
-    @OneToMany(mappedBy = "project")
-    @OrderBy("revision")
-    private List<ProjectRevisionEntity> revisions = new ArrayList<>(0);
-
     @Basic(fetch = FetchType.LAZY)
     @Column(insertable = false, updatable = false)
     private Integer notebookCount;

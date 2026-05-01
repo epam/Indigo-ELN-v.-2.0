@@ -1,6 +1,7 @@
 package com.epam.indigoeln.compound.model.search;
 
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
+import com.epam.indigoeln.eln.model.ComponentStateRef;
+import com.epam.indigoeln.eln.model.HealthHazardRef;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -62,7 +63,7 @@ public class FindSamplesRequest {
 
     @Valid
     @Nullable
-    DictionaryItemRef compoundState;
+    ComponentStateRef compoundState;
 
     @Valid
     @Nullable
@@ -70,5 +71,5 @@ public class FindSamplesRequest {
 
     @Valid
     @Nullable
-    DictionaryItemRef healthHazards;
+    HealthHazardRef healthHazards;
 }

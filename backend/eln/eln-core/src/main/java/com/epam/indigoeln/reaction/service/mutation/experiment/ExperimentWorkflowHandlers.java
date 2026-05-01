@@ -24,8 +24,10 @@ import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
+import static com.epam.indigoeln.common.util.ModelUtil.updateCollection;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.SUBMIT_EXPERIMENTS;
 import static com.epam.indigoeln.eln.model.ExperimentStatus.*;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -98,8 +100,7 @@ class SubmitExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
         ExperimentService.ExperimentReportContent report = experimentService.printReport(experiment);
         AttachmentEntity attachment = attachmentService.createExperimentAttachment(experiment, report.filename(), report.content(), false);
         experiment.setReportForSignature(attachment);
-        experiment.getSignatures().clear();
-        experiment.getSignatures().addAll(signatureTemplate.getBlocks().stream()
+        List<ExperimentSignatureEntity> signatures = signatureTemplate.getBlocks().stream()
                 .map(block -> {
                     UserEntity user = switch (block.getReason()) {
                         case WITNESS -> checkNotNull(block.getUser());
@@ -107,8 +108,8 @@ class SubmitExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
                     };
                     return new ExperimentSignatureEntity(experiment, user, block.getReason(), null, null);
                 })
-                .toList()
-        );
+                .toList();
+        updateCollection(experiment.getSignatures(), signatures);
         helper.doCheckSignatures(experiment);
         return new MutationResult("Experiment submitted for signature");
     }

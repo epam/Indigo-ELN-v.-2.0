@@ -19,10 +19,10 @@ public class ExperimentDetailsDTO extends BaseExperimentDTO {
     String title;
 
     @Nullable
-    DictionaryItemRef therapeuticArea;
+    TherapeuticAreaRef therapeuticArea;
 
     @Nullable
-    DictionaryItemRef projectCode;
+    ProjectCodeRef projectCode;
 
     @Nullable
     String description;

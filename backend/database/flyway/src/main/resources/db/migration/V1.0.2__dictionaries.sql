@@ -25,6 +25,7 @@ CREATE TABLE Dictionary_Item (
     ordinal INT NOT NULL,
     name VARCHAR(1000) NOT NULL,
     description VARCHAR(1000),
+    details JSONB,
     active BOOL NOT NULL,
     deleted BOOL NOT NULL,
     CONSTRAINT dictionary_item_created_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
@@ -33,12 +34,3 @@ CREATE TABLE Dictionary_Item (
 );
 CREATE UNIQUE INDEX ix_dictionary_item_ordinal ON Dictionary_Item (dictionary_id, ordinal) WHERE active AND NOT deleted;
 CREATE UNIQUE INDEX ix_dictionary_item_name ON Dictionary_Item (dictionary_id, name) WHERE active AND NOT deleted;
-
-CREATE TABLE Salt_Code (
-    id UUID PRIMARY KEY,
-    code VARCHAR(2) NOT NULL UNIQUE,
-    name VARCHAR(200) NOT NULL UNIQUE,
-    formula VARCHAR(200) NOT NULL,
-    charge INT NOT NULL,
-    mol_weight FLOAT8 NOT NULL
-);

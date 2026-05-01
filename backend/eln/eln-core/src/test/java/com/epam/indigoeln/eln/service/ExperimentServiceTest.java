@@ -38,8 +38,8 @@ class ExperimentServiceTest extends ELNBaseTest {
 
     ProjectDetailsDTO project;
     NotebookDetailsDTO notebook;
-    List<DictionaryItemRef> therapeuticAreas;
-    List<DictionaryItemRef> projectCodes;
+    List<TherapeuticAreaRef> therapeuticAreas;
+    List<ProjectCodeRef> projectCodes;
 
     @BeforeEach
     void setUp() {
@@ -58,8 +58,8 @@ class ExperimentServiceTest extends ELNBaseTest {
 
     @Test
     void testCreateExperimentBadDictionary() {
-        assertThatClientCall(() -> experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID, null, new DictionaryItemRef(UUID.randomUUID(), "Invalid"), null)))
-                .isNotFound(".+ in dictionary THERAPEUTIC_AREA not found");
+        assertThatClientCall(() -> experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID, null, new TherapeuticAreaRef(UUID.randomUUID(), "Invalid", true, false, BuiltInDictionary.THERAPEUTIC_AREA.getId()), null)))
+                .isBadRequest("DICTIONARY_ITEM .+ not found");
     }
 
     @Test

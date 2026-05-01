@@ -54,5 +54,5 @@ public interface DictionaryAPI extends BaseAPI {
 
     @GET
     @Path("/saltCodes")
-    List<DictionaryItemRef> getSaltCodes();
+    List<SaltCodeRef> getSaltCodes();
 }

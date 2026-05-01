@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
 
+import static com.google.common.base.Preconditions.checkState;
+
 @RequiredArgsConstructor
 public abstract class BaseRepository<E extends IdentifiableEntity> implements PanacheRepositoryBase<E, UUID> {
 
@@ -47,8 +49,9 @@ public abstract class BaseRepository<E extends IdentifiableEntity> implements Pa
     @Nullable
     protected <DTO> DTO doFindOne(Conditions conditions, @Nullable EntityGraph<?> entityGraph, Function<E, DTO> mapper) {
         PanacheQuery<E> query = doCreateQuery(conditions, entityGraph);
-        E entity = query.firstResult();
-        return entity == null ? null : mapper.apply(entity);
+        List<E> list = query.list();
+        checkState(list.size() <= 1);
+        return list.isEmpty() ? null : mapper.apply(list.getFirst());
     }
 
     protected <DTO> List<DTO> doFind(Conditions conditions, Paging paging, Sort sort, @Nullable EntityGraph<?> entityGraph, Function<E, DTO> mapper) {

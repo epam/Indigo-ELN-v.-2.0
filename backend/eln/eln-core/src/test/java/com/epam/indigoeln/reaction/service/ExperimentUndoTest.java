@@ -33,14 +33,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
 public class ExperimentUndoTest extends MutationsTestBase {
 
-    DictionaryItemRef therapeuticArea;
-    DictionaryItemRef projectCode;
+    TherapeuticAreaRef therapeuticArea;
+    ProjectCodeRef projectCode;
     ExperimentDetailsDTO experiment1, experiment2;
 
     @BeforeAll
     void beforeAll() {
-        therapeuticArea = dictionaryClient.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA).getFirst();
-        projectCode = dictionaryClient.getDictionary(BuiltInDictionary.PROJECT_CODE).getFirst();
+        therapeuticArea = dictionaryClient.getFirst(BuiltInDictionary.THERAPEUTIC_AREA);
+        projectCode = dictionaryClient.getFirst(BuiltInDictionary.PROJECT_CODE);
         ProjectDetailsDTO project = getOrCreateProject("ExperimentUndoTest");
         notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
         experiment1 = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));

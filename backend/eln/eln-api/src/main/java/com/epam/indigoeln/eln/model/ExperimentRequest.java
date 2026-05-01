@@ -19,10 +19,10 @@ public class ExperimentRequest {
     String description;
 
     @Nullable
-    DictionaryItemRef therapeuticArea;
+    TherapeuticAreaRef therapeuticArea;
 
     @Nullable
-    DictionaryItemRef projectCode;
+    ProjectCodeRef projectCode;
 
     public ExperimentRequest(UUID templateID) {
         this(templateID, null, null, null);

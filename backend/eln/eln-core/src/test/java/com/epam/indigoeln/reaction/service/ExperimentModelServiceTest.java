@@ -6,8 +6,6 @@ import com.epam.indigoeln.compound.model.search.SampleSearchResult;
 import com.epam.indigoeln.compound.model.search.SearchCatalog;
 import com.epam.indigoeln.compound.model.search.TextSearch;
 import com.epam.indigoeln.eln.ELNBaseTest;
-import com.epam.indigoeln.eln.model.BuiltInDictionary;
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.model.Paging;
 import com.epam.indigoeln.reaction.model.ReactionInput;
 import com.epam.indigoeln.reaction.model.ReactionOutputSample;
@@ -37,14 +35,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
 public class ExperimentModelServiceTest extends MutationsTestBase {
 
-    DictionaryItemRef healthHazard;
-
     ReactionOutputSample output2Sample2;
 
     @BeforeAll
     void setUpClass(@TempDir Path tempDir) {
         miscClient.loadCompoundsFromFileClient("compounds.sdf", tempDir, loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"));
-        healthHazard = dictionaryClient.getDictionary(BuiltInDictionary.HEALTH_HAZARD).getFirst();
         withUser(JOHN_USERNAME, () -> {
             initExperiment("ExperimentModelServiceTest");
         });

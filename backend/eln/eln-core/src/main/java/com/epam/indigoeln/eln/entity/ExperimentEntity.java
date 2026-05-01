@@ -149,20 +149,19 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @ManyToOne(fetch = FetchType.LAZY)
     private UserEntity batchCreator;
 
-    @NotNull
-    @OneToMany
+    @ManyToMany
     @JoinTable(name = "Experiment_Linked_Experiment", joinColumns = @JoinColumn(name = "parent_id"), inverseJoinColumns = @JoinColumn(name = "experiment_id"))
-    private Set<ExperimentEntity> linkedExperiments;
+    private Set<ExperimentEntity> linkedExperiments = new HashSet<>(0);
 
     @NotNull
-    @OneToMany
+    @ManyToMany
     @JoinTable(name = "Experiment_Continued_From", joinColumns = @JoinColumn(name = "parent_id"), inverseJoinColumns = @JoinColumn(name = "experiment_id"))
-    private Set<ExperimentEntity> continuedFrom;
+    private Set<ExperimentEntity> continuedFrom = new HashSet<>(0);
 
     @NotNull
-    @OneToMany
+    @ManyToMany
     @JoinTable(name = "Experiment_Continued_To", joinColumns = @JoinColumn(name = "parent_id"), inverseJoinColumns = @JoinColumn(name = "experiment_id"))
-    private Set<ExperimentEntity> continuedTo;
+    private Set<ExperimentEntity> continuedTo = new HashSet<>(0);
 
     @Nullable
     @Basic(fetch = FetchType.LAZY)
@@ -212,15 +211,6 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @JoinTable(name = "experiment_attachment", joinColumns = @JoinColumn(name = "experiment_id"), inverseJoinColumns = @JoinColumn(name = "attachment_id"))
     @OrderBy("createdAt")
     private List<AttachmentEntity> attachments = new ArrayList<>(0);
-
-    @NotNull
-    @OneToMany(mappedBy = "experiment")
-    @OrderBy("revision")
-    private List<ExperimentRevisionEntity> revisions = new ArrayList<>(0);
-
-    @NotNull
-    @OneToMany(mappedBy = "experiment")
-    private Set<ExperimentEditSessionEntity> editSessions = new HashSet<>(0);
 
     @Nullable
     @OneToOne(fetch = FetchType.LAZY)

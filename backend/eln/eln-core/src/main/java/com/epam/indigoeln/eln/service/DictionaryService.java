@@ -1,38 +1,27 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.exception.EntityNotFoundException;
-import com.epam.indigoeln.common.exception.InvalidRequestException;
-import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.DictionaryEntity;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
-import com.epam.indigoeln.eln.entity.SaltCodeEntity;
-import com.epam.indigoeln.eln.entity.SaltCodeInfo;
 import com.epam.indigoeln.eln.mapper.DictionaryMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.DictionaryItemRepository;
 import com.epam.indigoeln.eln.repository.DictionaryRepository;
-import com.epam.indigoeln.eln.repository.SaltCodeRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import io.quarkus.cache.Cache;
 import io.quarkus.cache.CacheName;
-import io.quarkus.cache.CacheResult;
+import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import one.util.streamex.StreamEx;
-import org.hibernate.exception.ConstraintViolationException;
 import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 
-import static com.epam.indigoeln.common.util.ModelUtil.editProperty;
-import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
-
 @Slf4j
-@DataAccess
-@Transactional
 @ApplicationScoped
 public class DictionaryService {
 
@@ -43,226 +32,222 @@ public class DictionaryService {
     DictionaryItemRepository dictionaryItemRepository;
 
     @Inject
-    SaltCodeRepository saltCodeRepository;
-
-    @Inject
     DictionaryMapper dictionaryMapper;
 
     @Inject
-    ACLService aclService;
-
-    @Inject
-    UserService userService;
-
-    @Inject
-    @CacheName("dictionary.items")
+    @CacheName("dictionaryItems")
     Cache dictionaryItemsCache;
 
-    @PersistenceContext
-    EntityManager em;
+    ObjectReader saltCodeDetailsReader;
 
-    public List<DictionaryDTO> getDictionaries() {
-        return dictionaryRepository.list();
+    DictionaryService(ObjectMapper objectMapper) {
+        saltCodeDetailsReader = objectMapper.readerFor(SaltCodeDetails.class);
     }
 
-    public DictionaryDTO createDictionary(DictionaryRequest request) {
-        aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_DICTIONARIES);
-        DictionaryEntity dictionary = dictionaryMapper.requestToEntity(request);
-        updateDates(dictionary, userService.getCurrentUserEntity());
-        dictionaryRepository.persist(dictionary);
-        dictionaryRepository.flushAndRefresh(dictionary);
-        return dictionaryMapper.dictionaryToDTO(dictionary);
+    void invalidate() {
+        dictionaryItemsCache.invalidate("all").await().indefinitely();
     }
 
-    public DictionaryDTO updateDictionary(String dictionaryRef, DictionaryEditRequest request) {
-        aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_DICTIONARIES);
-        DictionaryEntity dictionary = dictionaryRepository.get(refToID(dictionaryRef));
-        InvalidRequestException.validate(!dictionary.getDeleted(), "Dictionary is deleted");
-        editProperty(request.getCode(), dictionary::setCode);
-        editProperty(request.getName(), dictionary::setName);
-        editProperty(request.getUserEditable(), dictionary::setUserEditable);
-        editProperty(request.getDescription(), dictionary::setDescription);
-        return dictionaryMapper.dictionaryToDTO(dictionary);
+    private <T extends DictionaryItemRef> CachedItems<T> cached(String dictionaryRef) {
+        //noinspection unchecked
+        return (CachedItems<T>) cached().byDictionary.get(refToID(dictionaryRef));
     }
 
-    public void removeDictionary(String dictionaryRef) {
-        aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_DICTIONARIES);
-        DictionaryEntity dictionary = dictionaryRepository.get(refToID(dictionaryRef));
-        InvalidRequestException.validate(!dictionary.getDeleted(), "Dictionary is deleted");
-        dictionary.setDeleted(true);
+    private CachedAllItems cached() {
+        return dictionaryItemsCache.get("all", key -> getCachedAllItems())
+                .await().indefinitely();
     }
 
-    public List<DictionaryItemRef> getDictionary(String dictionaryRef) {
-        return dictionaryMapper.itemToRefList(dictionaryItemRepository.list(refToID(dictionaryRef), false));
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
+    CachedAllItems getCachedAllItems() {
+        CachedAllItems result = new CachedAllItems();
+        for (DictionaryEntity dictionary : dictionaryRepository.listAll()) {
+            result.byDictionary.put(dictionary.getId(), new CachedItems<>());
+        }
+        for (DictionaryItemEntity item : dictionaryItemRepository.listAll(Sort.by("name"))) {
+            CachedItems<DictionaryItemRef> cachedItems = result.byDictionary.get(item.getDictionary().getId());
+            DictionaryItemRef ref = convertToRef(item);
+            result.add(ref);
+        }
+        return result;
     }
 
+    public <T extends DictionaryItemRef> List<T> getDictionary(String dictionaryRef, boolean allowInactive) {
+        CachedItems<T> cached = cached(dictionaryRef);
+        return cached.list(allowInactive);
+    }
+
+    @Transactional
     public List<DictionaryItemDTO> getDictionaryFull(String dictionaryRef) {
         return dictionaryMapper.itemToDTOList(dictionaryItemRepository.list(refToID(dictionaryRef), true));
     }
 
+    @Transactional(Transactional.TxType.SUPPORTS) // !!! remove
+    public <T extends DictionaryItemRef> T get(UUID id) {
+        DictionaryItemRef ref = cached().all.get(id);
+        if (ref == null) {
+            throw new EntityNotFoundException(EntityType.DICTIONARY_ITEM, id);
+        }
+        //noinspection unchecked
+        return (T) ref;
+    }
+
     @Nullable
-    public DictionaryItemEntity lookup(String dictionaryRef, @Nullable DictionaryItemRef ref) {
+    public <T extends DictionaryItemRef> T get(@Nullable DictionaryItemEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+        DictionaryItemRef ref = cached().all.get(entity.getId());
+        if (ref == null) {
+            throw new EntityNotFoundException(EntityType.DICTIONARY_ITEM, entity.getId());
+        }
+        //noinspection unchecked
+        return (T) ref;
+    }
+
+    public <T extends DictionaryItemRef> List<T> get(Collection<DictionaryItemEntity> entities) {
+        //noinspection unchecked,DataFlowIssue
+        return entities.stream()
+                .map(e -> (T) get(e))
+                .toList();
+    }
+
+    @Nullable
+    @Transactional(Transactional.TxType.REQUIRED)
+    public DictionaryItemEntity lookup(@Nullable DictionaryItemRef ref) {
+        return lookup(ref, true);
+    }
+
+    @Nullable
+    @Transactional(Transactional.TxType.REQUIRED)
+    public DictionaryItemEntity lookup(@Nullable DictionaryItemRef ref, boolean allowInactive) {
         if (ref == null) {
             return null;
         }
-        DictionaryItemRef item = doGetDictionaryItems(refToID(dictionaryRef)).get(ref.getId());
-        if (item == null) {
-            throw new EntityNotFoundException(EntityType.DICTIONARY_ITEM, ref.getId() + " in dictionary " + dictionaryRef);
+        if (!allowInactive && ref.isInactive()) {
+            throw new EntityNotFoundException(EntityType.DICTIONARY_ITEM, ref.getId() + " is not active or deleted");
         }
         return dictionaryItemRepository.getReference(ref.getId());
     }
 
-    public List<DictionaryItemEntity> lookup(String dictionaryRef, Collection<DictionaryItemRef> refs) {
-        Map<UUID, DictionaryItemRef> allItems = doGetDictionaryItems(refToID(dictionaryRef));
+    @Transactional(Transactional.TxType.REQUIRED)
+    public List<DictionaryItemEntity> lookup(Collection<? extends DictionaryItemRef> refs) {
+        return lookup(refs, true);
+    }
+
+    @Transactional(Transactional.TxType.REQUIRED)
+    public List<DictionaryItemEntity> lookup(Collection<? extends DictionaryItemRef> refs, boolean allowInactive) {
         List<DictionaryItemEntity> found = new ArrayList<>(refs.size());
-        List<UUID> notFound = new ArrayList<>(refs.size());
         for (DictionaryItemRef ref : refs) {
-            if (allItems.containsKey(ref.getId())) {
-                found.add(dictionaryItemRepository.getReference(ref.getId()));
+            if (!allowInactive && ref.isInactive()) {
+                throw new EntityNotFoundException(EntityType.DICTIONARY_ITEM, ref.getId());
             } else {
-                notFound.add(ref.getId());
+                found.add(dictionaryItemRepository.getReference(ref.getId()));
             }
-        }
-        if (!notFound.isEmpty()) {
-            throw new EntityNotFoundException(EntityType.DICTIONARY_ITEM, notFound + " in dictionary " + dictionaryRef);
         }
         return found;
     }
 
-    @CacheResult(cacheName = "dictionary.items")
-    protected Map<UUID, DictionaryItemRef> doGetDictionaryItems(UUID dictionaryID) {
-        return StreamEx.of(dictionaryItemRepository.list(dictionaryID, true))
-                .mapToEntry(DictionaryItemEntity::getId, dictionaryMapper::itemToRef)
-                .toCustomMap(LinkedHashMap::new);
-    }
-
+    @Transactional
     public List<DictionaryItemRef> suggestDictionaryItems(String dictionaryRef, String search) {
         return dictionaryItemRepository.suggest(refToID(dictionaryRef), search);
     }
 
-    // TODO use cache
-    public DictionaryItemEntity get(UUID id) {
-        return dictionaryItemRepository.findById(id);
+    @Deprecated // !!! remove after no usages from frontend
+    public List<SaltCodeRef> getSaltCodes() {
+        return getDictionary(BuiltInDictionary.SALT_CODE.name(), false);
     }
 
-    @Nullable
-    public DictionaryItemEntity get(@Nullable DictionaryItemRef ref) {
-        return ref != null ? dictionaryItemRepository.get(ref.getId()) : null;
-    }
-
-    public List<DictionaryItemRef> getSaltCodes() {
-        return dictionaryMapper.saltCodeToRefList(saltCodeRepository.listAll());
-    }
-
-    public SaltCodeEntity getSalt(UUID id) {
-        return saltCodeRepository.findById(id);
-    }
-
-    @CacheResult(cacheName = "dictionary.saltCodes")
-    public SaltCodeInfo getSaltInfo(UUID id) {
-        return dictionaryMapper.saltCodeToInfo(getSalt(id));
-    }
-
-    public DictionaryItemRef getSaltRef(UUID id) {
-        return getSaltInfo(id).toRef();
-    }
-
-    public List<DictionaryItemEntity> addDictionaryItems(String dictionaryRef, List<DictionaryItemRequest> items) {
-        DictionaryEntity dictionary = dictionaryRepository.findById(refToID(dictionaryRef));
-        if (!dictionary.getUserEditable()) {
-            aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_DICTIONARIES);
+    public static UUID refToID(String dictionaryRef) {
+        BuiltInDictionary builtInDictionary = BuiltInDictionary.lookup(dictionaryRef);
+        if (builtInDictionary != null) {
+            return builtInDictionary.getId();
         }
-        List<DictionaryItemEntity> list = dictionaryItemRepository.list(refToID(dictionaryRef), true);
-        List<DictionaryItemEntity> inserted = new ArrayList<>(items.size());
-        for (DictionaryItemRequest item : items) {
-            DictionaryItemEntity entity = dictionaryMapper.itemToEntity(item);
-            entity.setDictionary(dictionary);
-            updateDates(entity, userService.getCurrentUserEntity());
-            inserted.add(entity);
-        }
-        list.addAll(inserted);
-        renumberItems(list, true);
-        em.flush();
-        renumberItems(list, false);
-        dictionaryItemRepository.persist(inserted);
-        dictionaryItemsCache.invalidate(refToID(dictionaryRef)).await().indefinitely();
-        return list;
-    }
-
-    public List<DictionaryItemDTO> updateDictionaryItem(String dictionaryRef, UUID itemID, DictionaryItemEditRequest request) {
-        aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_DICTIONARIES);
-        List<DictionaryItemEntity> list = dictionaryItemRepository.list(refToID(dictionaryRef), true);
-        DictionaryItemEntity entity = StreamEx.of(list).filterBy(DictionaryItemEntity::getId, itemID).findFirst()
-                .orElseThrow(() -> new EntityNotFoundException(EntityType.DICTIONARY, itemID + " of dictionary " + dictionaryRef));
-        editProperty(request.getName(), entity::setName);
-        editProperty(request.getDescription(), entity::setDescription);
-        editProperty(request.getActive(), entity::setActive);
-        editProperty(request.getOrdinal(), order -> {
-            // assign items negative numbers first, to avoid unique index violations;
-            // if we had unique constraint, we could use deferred constraint, but we have to use partial unique index to cover only non-deleted items
-            renumberItems(list, true);
-            em.flush();
-            // reorder items, move item to new position and reorder again
-            renumberItems(list, false);
-            list.remove(entity);
-            list.add(order - 1, entity);
-            renumberItems(list, false);
-        });
-        dictionaryItemsCache.invalidate(refToID(dictionaryRef)).await().indefinitely();
-        return dictionaryMapper.itemToDTOList(list);
-    }
-
-    public List<DictionaryItemDTO> removeDictionaryItem(String dictionaryRef, UUID itemID) {
-        aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_DICTIONARIES);
-        List<DictionaryItemEntity> list = dictionaryItemRepository.list(refToID(dictionaryRef), true);
-        DictionaryItemEntity entity = StreamEx.of(list).filterBy(DictionaryItemEntity::getId, itemID).findFirst()
-                .orElseThrow(() -> new EntityNotFoundException(EntityType.DICTIONARY_ITEM, itemID + " of dictionary " + dictionaryRef));
-        list.remove(entity);
-        try {
-            entity.setDeleted(true);
-        } catch (ConstraintViolationException e) {
-            log.error("Failed to delete dictionary item {}", itemID, e);
-            throw new InvalidRequestException("This word is selected in other inputs. Please deactivate the word to remove it from available options of the inputs");
-        }
-        renumberItems(list, true);
-        em.flush();
-        renumberItems(list, false);
-        dictionaryItemsCache.invalidate(refToID(dictionaryRef)).await().indefinitely();
-        return dictionaryMapper.itemToDTOList(list);
-    }
-
-    public List<DictionaryItemEntity> findOrCreateByNames(String dictionaryRef, Collection<String> names) {
-        DictionaryEntity dictionary = dictionaryRepository.findById(refToID(dictionaryRef));
-        if (!dictionary.getUserEditable()) {
-            throw new IllegalArgumentException("findOrCreateByNames cannot be used with dictionary " + dictionary);
-        }
-        List<DictionaryItemEntity> result = new ArrayList<>(names.size());
-        Map<String, DictionaryItemEntity> found = dictionaryItemRepository.findByNames(dictionary.getId(), names);
-        if (found.size() < names.size()) {
-            Set<String> remainingNames = new HashSet<>(names);
-            remainingNames.removeAll(found.keySet());
-            List<DictionaryItemEntity> newAllItems = addDictionaryItems(dictionaryRef, remainingNames.stream().map(x -> new DictionaryItemRequest(x, null)).toList());
-            found = StreamEx.of(newAllItems).toMap(DictionaryItemEntity::getName, x -> x);
-        }
-        dictionaryItemsCache.invalidate(refToID(dictionaryRef)).await().indefinitely();
-        return StreamEx.of(names).map(found::get).toList();
-    }
-
-    private void renumberItems(List<DictionaryItemEntity> items, boolean negative) {
-        for (int i = 0; i < items.size(); i++) {
-            items.get(i).setOrdinal((i + 1) * (negative ? -1 : 1));
-        }
-    }
-
-    private UUID refToID(String dictionaryRef) {
         try {
             return UUID.fromString(dictionaryRef);
         } catch (IllegalArgumentException e) {
-            try {
-                return BuiltInDictionary.valueOf(dictionaryRef).getId();
-            } catch (IllegalArgumentException ex) {
-                throw new EntityNotFoundException(EntityType.DICTIONARY, dictionaryRef);
-            }
+            throw new EntityNotFoundException(EntityType.DICTIONARY, dictionaryRef);
         }
     }
+
+    @SneakyThrows
+    private DictionaryItemRef convertToRef(DictionaryItemEntity entity) {
+        BuiltInDictionary builtInDictionary = BuiltInDictionary.lookup(entity.getDictionary().getId());
+        DictionaryItemRef.Creator creator = switch (builtInDictionary) {
+            case null -> DictionaryItemRef::new;
+            case THERAPEUTIC_AREA -> TherapeuticAreaRef::new;
+            case PROJECT_CODE -> ProjectCodeRef::new;
+            case PROJECT_KEYWORD -> ProjectKeywordRef::new;
+            case STEREOISOMER_CODE -> StereoisomerCodeRef::new;
+            case HEALTH_HAZARD -> HealthHazardRef::new;
+            case HANDLING_PRECAUTIONS -> HandlingPrecautionsRef::new;
+            case STORAGE_INSTRUCTIONS -> StorageInstructionsRef::new;
+            case COMPOUND_PROTECTION -> CompoundProtectionRef::new;
+            case SOLVENT -> SolventRef::new;
+            case EXTERNAL_SUPPLIER -> ExternalSupplierRef::new;
+            case SAMPLE_SOURCE -> SampleSourceRef::new;
+            case SAMPLE_SOURCE_DETAILS -> SampleSourceDetailsRef::new;
+            case COMPONENT_STATE -> ComponentStateRef::new;
+            default -> null;
+        };
+        if (creator != null) {
+            return creator.create(entity.getId(), entity.getName(), entity.getActive(), entity.getDeleted(), entity.getDictionary().getId());
+        }
+        //noinspection SwitchStatementWithTooFewBranches
+        switch (builtInDictionary) {
+            case SALT_CODE -> {
+                SaltCodeDetails details = saltCodeDetailsReader.readValue(entity.getDetails());
+                return new SaltCodeRef(entity.getId(), entity.getName(), entity.getActive(), entity.getDeleted(), entity.getDictionary().getId(), details.code(), details.formula(), details.charge(), details.molWeight());
+            }
+            default -> throw new UnsupportedOperationException(builtInDictionary.name());
+        }
+    }
+
+    private static class CachedAllItems {
+
+        private final Map<UUID, DictionaryItemRef> all = new HashMap<>();
+        private final Map<UUID, CachedItems<DictionaryItemRef>> byDictionary = new HashMap<>();
+
+        public void add(DictionaryItemRef ref) {
+            all.put(ref.getId(), ref);
+            CachedItems<DictionaryItemRef> items = byDictionary.get(ref.getDictionaryID());
+            items.map.put(ref.getId(), ref);
+            items.list.add(ref);
+        }
+    }
+
+    private static class CachedItems<T extends DictionaryItemRef> {
+
+        private final Map<UUID, T> map = new HashMap<>();
+        private final List<T> list = new ArrayList<>();
+
+        @Nullable
+        T get(UUID id, boolean allowInactive) {
+            T ref = map.get(id);
+            if (!allowInactive && ref.isInactive()) {
+                ref = null;
+            }
+            return ref;
+        }
+
+        boolean contains(UUID id, boolean allowInactive) {
+            return get(id, allowInactive) != null;
+        }
+
+        List<T> list(boolean allowInactive) {
+            if (!allowInactive) {
+                return list.stream()
+                        .filter(x -> !x.isInactive())
+                        .toList();
+            }
+            return list;
+        }
+    }
+
+    private record SaltCodeDetails (
+            String code,
+            String formula,
+            int charge,
+            double molWeight
+    ) {}
 }

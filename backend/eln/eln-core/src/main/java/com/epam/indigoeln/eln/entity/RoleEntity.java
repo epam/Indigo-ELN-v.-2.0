@@ -9,9 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.HashSet;
-import java.util.Set;
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -30,7 +27,4 @@ public class RoleEntity extends IdentifiableEntity {
 //    @Type(value = EnumArrayType.class, parameters = @Parameter(name = AbstractArrayType.SQL_ARRAY_TYPE, value = "Application_Role"))
     // TODO make array of enum in Postgres when https://hibernate.atlassian.net/browse/HHH-18329 is fixed
     private ApplicationPermission[] permissions;
-
-    @ManyToMany(mappedBy = "roles")
-    private Set<UserEntity> users = new HashSet<>(0);
 }

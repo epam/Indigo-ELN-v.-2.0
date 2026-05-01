@@ -34,10 +34,10 @@ import static org.assertj.core.api.Assertions.tuple;
 @TestSecurity(user = ELNBaseTest.MAGGIE_USERNAME)
 class GlobalSearchServiceTest extends ELNBaseTest {
 
-    DictionaryItemRef therapeuticArea1;
-    DictionaryItemRef therapeuticArea2;
-    DictionaryItemRef projectCode1;
-    DictionaryItemRef projectCode2;
+    TherapeuticAreaRef therapeuticArea1;
+    TherapeuticAreaRef therapeuticArea2;
+    ProjectCodeRef projectCode1;
+    ProjectCodeRef projectCode2;
 
     ProjectDetailsDTO project1;
     ProjectDetailsDTO project2;
@@ -52,10 +52,10 @@ class GlobalSearchServiceTest extends ELNBaseTest {
     @BeforeAll
     void setUp() {
         withUser(MAGGIE_USERNAME, () -> {
-            List<DictionaryItemRef> therapeuticAreas = dictionaryClient.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA);
+            List<TherapeuticAreaRef> therapeuticAreas = dictionaryClient.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA);
             therapeuticArea1 = therapeuticAreas.get(0);
             therapeuticArea2 = therapeuticAreas.get(1);
-            List<DictionaryItemRef> projectCodes = dictionaryClient.getDictionary(BuiltInDictionary.PROJECT_CODE);
+            List<ProjectCodeRef> projectCodes = dictionaryClient.getDictionary(BuiltInDictionary.PROJECT_CODE);
             projectCode1 = projectCodes.get(0);
             projectCode2 = projectCodes.get(1);
             project1 = projectClient.createProject(new ProjectRequest("p1", List.of("k1", "k2"), "l1 xx", "pd1"));

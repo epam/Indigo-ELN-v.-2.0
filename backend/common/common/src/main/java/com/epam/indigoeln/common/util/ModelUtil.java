@@ -5,10 +5,7 @@ import lombok.experimental.UtilityClass;
 import org.jspecify.annotations.Nullable;
 
 import java.io.InputStream;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -91,5 +88,17 @@ public class ModelUtil {
         return Collectors.<T, T, T>toMap(Function.identity(), Function.identity(), (a, b) -> {
             throw exceptionFn.apply(a, b);
         });
+    }
+
+    public <T> void updateCollection(Collection<T> target, Collection<T> source) {
+        Set<T> presentInTarget = target instanceof Set<T> ? (Set<T>) target : new HashSet<>(target);
+        Set<T> deleted = new HashSet<>(target);
+        for (T item : source) {
+            if (!presentInTarget.contains(item)) {
+                target.add(item);
+            }
+            deleted.remove(item);
+        }
+        target.removeAll(deleted);
     }
 }

@@ -1,6 +1,6 @@
 package com.epam.indigoeln.reaction.model.outputsample;
 
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
+import com.epam.indigoeln.eln.model.SolventRef;
 import com.epam.indigoeln.reaction.model.ComparisonOperator;
 import com.epam.indigoeln.reaction.model.units.DensityUnit;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 public abstract class SolubidityInSolvent {
 
     @NotNull
-    protected DictionaryItemRef solvent;
+    protected SolventRef solvent;
 
     @Nullable
     protected String comment;
@@ -41,7 +41,7 @@ public abstract class SolubidityInSolvent {
         @Nullable
         private DensityUnit unit;
 
-        public Quantitative(DictionaryItemRef solvent, @Nullable String comment, ComparisonOperator operator, Double value, DensityUnit unit) {
+        public Quantitative(SolventRef solvent, @Nullable String comment, ComparisonOperator operator, Double value, DensityUnit unit) {
             this.solvent = solvent;
             this.comment = comment;
             this.operator = operator;
@@ -58,7 +58,7 @@ public abstract class SolubidityInSolvent {
         @Nullable
         private SolubidityQualitativeType qualitativeType;
 
-        public Qualitative(DictionaryItemRef solvent, @Nullable String comment, SolubidityQualitativeType qualitativeType) {
+        public Qualitative(SolventRef solvent, @Nullable String comment, SolubidityQualitativeType qualitativeType) {
             this.solvent = solvent;
             this.comment = comment;
             this.qualitativeType = qualitativeType;

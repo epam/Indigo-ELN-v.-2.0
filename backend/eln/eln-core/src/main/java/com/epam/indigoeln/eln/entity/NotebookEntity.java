@@ -112,11 +112,6 @@ public class NotebookEntity extends BaseEntity implements WithAttachments, WithA
     @OrderBy("createdAt")
     private List<AttachmentEntity> attachments = new ArrayList<>(0);
 
-    @NotNull
-    @OneToMany(mappedBy = "notebook")
-    @OrderBy("revision")
-    private List<NotebookRevisionEntity> revisions = new ArrayList<>(0);
-
     @Nullable
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id", referencedColumnName = "id")

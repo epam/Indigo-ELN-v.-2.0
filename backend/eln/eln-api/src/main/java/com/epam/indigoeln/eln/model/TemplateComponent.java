@@ -1,11 +1,8 @@
 package com.epam.indigoeln.eln.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.quarkus.runtime.annotations.RegisterForReflection;
-import lombok.AllArgsConstructor;
-import lombok.Value;
 
 @RegisterForReflection
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
@@ -38,43 +35,42 @@ public sealed interface TemplateComponent permits
         TemplateComponent.Reactants,
         TemplateComponent.IntendedProducts {
 
-    final class Attachments implements TemplateComponent {
+    record Attachments () implements TemplateComponent {
     }
 
-    final class Batches implements TemplateComponent {
+    record Batches () implements TemplateComponent {
     }
 
-    final class ConceptDetails implements TemplateComponent {
+    record ConceptDetails () implements TemplateComponent {
     }
 
-    final class ExperimentDetails implements TemplateComponent {
+    record ExperimentDetails () implements TemplateComponent {
     }
 
-    final class ExperimentDescription implements TemplateComponent {
+    record ExperimentDescription () implements TemplateComponent {
     }
 
-    final class PreferredCompoundsDetails implements TemplateComponent {
+    record PreferredCompoundsDetails () implements TemplateComponent {
     }
 
-    final class PreferredCompoundsSummary implements TemplateComponent {
+    record PreferredCompoundsSummary () implements TemplateComponent {
     }
 
-    final class ReactionsDetails implements TemplateComponent {
+    record ReactionsDetails () implements TemplateComponent {
     }
 
-    @Value
-    @AllArgsConstructor(onConstructor_ = @JsonCreator)
-    class StoichiometryTable implements TemplateComponent {
-        boolean reactantsReagentsSolvents;
-        boolean reactionProducts;
+    record StoichiometryTable (
+        boolean reactantsReagentsSolvents,
+        boolean reactionProducts
+    ) implements TemplateComponent {
     }
 
-    final class ReactionScheme implements TemplateComponent {
+    record ReactionScheme () implements TemplateComponent {
     }
 
-    final class Reactants implements TemplateComponent {
+    record Reactants () implements TemplateComponent {
     }
 
-    final class IntendedProducts implements TemplateComponent {
+    record IntendedProducts () implements TemplateComponent {
     }
 }

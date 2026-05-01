@@ -4,10 +4,7 @@ import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.search.SampleSearchResult;
 import com.epam.indigoeln.eln.ELNBaseTest;
-import com.epam.indigoeln.eln.model.BuiltInDictionary;
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
-import com.epam.indigoeln.eln.model.MutationResponse;
-import com.epam.indigoeln.eln.model.Paging;
+import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.*;
 import com.epam.indigoeln.reaction.model.outputsample.*;
@@ -35,14 +32,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
 public class MutationsTest extends MutationsTestBase {
 
-    DictionaryItemRef saltCode;
-    DictionaryItemRef stereoisomerCode;
+    SaltCodeRef saltCode;
+    StereoisomerCodeRef stereoisomerCode;
 
     @BeforeAll
     void beforeAll(@TempDir Path tempDir) {
         miscClient.loadCompoundsFromFileClient("compounds.sdf", tempDir, loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"));
         saltCode = dictionaryClient.getSaltCodes().get(1);
-        stereoisomerCode = dictionaryClient.getDictionary(BuiltInDictionary.STEREOISOMER_CODE).get(1);
+        stereoisomerCode = dictionaryClient.<StereoisomerCodeRef>getDictionary(BuiltInDictionary.STEREOISOMER_CODE).get(1);
     }
 
     @BeforeEach
@@ -294,7 +291,7 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testSetInputHealthHazards() {
         applyMutation(new ReactionMutation.AddEmptyInput(reaction.getAnchor()), false);
-        DictionaryItemRef healthHazard = dictionaryClient.getDictionary(BuiltInDictionary.HEALTH_HAZARD).getFirst();
+        HealthHazardRef healthHazard = dictionaryClient.getFirst(BuiltInDictionary.HEALTH_HAZARD);
         applyMutation(new ReactionInputSampleMutation.SetInputHealthHazards(input1Sample1.getAnchor(), List.of(healthHazard)));
         assertThat(input1Sample1.getHealthHazards()).containsExactly(healthHazard);
     }
@@ -374,7 +371,7 @@ public class MutationsTest extends MutationsTestBase {
     void testSetOutputHealthHazards() {
         loadScheme();
         addOutputSample();
-        DictionaryItemRef healthHazard = dictionaryClient.getDictionary(BuiltInDictionary.HEALTH_HAZARD).getFirst();
+        HealthHazardRef healthHazard = dictionaryClient.getFirst(BuiltInDictionary.HEALTH_HAZARD);
         applyMutation(new ReactionOutputSampleMutation.SetOutputHealthHazards(output1Sample1.getAnchor(), List.of(healthHazard)));
         assertThat(output1Sample1.getHealthHazards()).containsExactly(healthHazard);
     }
@@ -411,7 +408,7 @@ public class MutationsTest extends MutationsTestBase {
     void testSetOutputComponentState() {
         loadScheme();
         addOutputSample();
-        DictionaryItemRef componentState = dictionaryClient.getDictionary(BuiltInDictionary.COMPONENT_STATE).getFirst();
+        ComponentStateRef componentState = dictionaryClient.getFirst(BuiltInDictionary.COMPONENT_STATE);
         applyMutation(new ReactionOutputSampleMutation.SetOutputComponentState(output1Sample1.getAnchor(), componentState));
         assertThat(output1Sample1.getComponentState()).isEqualTo(componentState);
     }
@@ -420,7 +417,7 @@ public class MutationsTest extends MutationsTestBase {
     void testSetOutputHandlingPrecautions() {
         loadScheme();
         addOutputSample();
-        DictionaryItemRef handlingPrecautions = dictionaryClient.getDictionary(BuiltInDictionary.HANDLING_PRECAUTIONS).getFirst();
+        HandlingPrecautionsRef handlingPrecautions = dictionaryClient.getFirst(BuiltInDictionary.HANDLING_PRECAUTIONS);
         applyMutation(new ReactionOutputSampleMutation.SetOutputHandlingPrecautions(output1Sample1.getAnchor(), List.of(handlingPrecautions)));
         assertThat(output1Sample1.getHandlingPrecautions()).containsExactly(handlingPrecautions);
     }
@@ -429,7 +426,7 @@ public class MutationsTest extends MutationsTestBase {
     void testSetOutputCompoundProtection() {
         loadScheme();
         addOutputSample();
-        DictionaryItemRef compoundProtection = dictionaryClient.getDictionary(BuiltInDictionary.COMPOUND_PROTECTION).getFirst();
+        CompoundProtectionRef compoundProtection = dictionaryClient.getFirst(BuiltInDictionary.COMPOUND_PROTECTION);
         applyMutation(new ReactionOutputSampleMutation.SetOutputCompoundProtection(output1Sample1.getAnchor(), List.of(compoundProtection)));
         assertThat(output1Sample1.getCompoundProtection()).containsExactly(compoundProtection);
     }
@@ -438,7 +435,7 @@ public class MutationsTest extends MutationsTestBase {
     void testSetOutputStorageInstructions() {
         loadScheme();
         addOutputSample();
-        DictionaryItemRef storageInstructions = dictionaryClient.getDictionary(BuiltInDictionary.STORAGE_INSTRUCTIONS).getFirst();
+        StorageInstructionsRef storageInstructions = dictionaryClient.getFirst(BuiltInDictionary.STORAGE_INSTRUCTIONS);
         applyMutation(new ReactionOutputSampleMutation.SetOutputStorageInstructions(output1Sample1.getAnchor(), List.of(storageInstructions)));
         assertThat(output1Sample1.getStorageInstructions()).containsExactly(storageInstructions);
     }
@@ -447,7 +444,7 @@ public class MutationsTest extends MutationsTestBase {
     void testSetOutputSolubilityInSolvents() {
         loadScheme();
         addOutputSample();
-        DictionaryItemRef solvent = dictionaryClient.getDictionary(BuiltInDictionary.SOLVENT).getFirst();
+        SolventRef solvent = dictionaryClient.getFirst(BuiltInDictionary.SOLVENT);
         SolubidityInSolvent solubidityInSolvent = new SolubidityInSolvent.Quantitative(solvent, "comment", ComparisonOperator.EQUALS, 10.0, DensityUnit.G_ML);
         applyMutation(new ReactionOutputSampleMutation.SetOutputSolubilityInSolvents(output1Sample1.getAnchor(), List.of(solubidityInSolvent)));
         assertThat(output1Sample1.getSolubilityInSolvents()).containsExactly(solubidityInSolvent);
@@ -457,7 +454,7 @@ public class MutationsTest extends MutationsTestBase {
     void testSetOutputResidualSolvents() {
         loadScheme();
         addOutputSample();
-        DictionaryItemRef solvent = dictionaryClient.getDictionary(BuiltInDictionary.SOLVENT).getFirst();
+        SolventRef solvent = dictionaryClient.getFirst(BuiltInDictionary.SOLVENT);
         ResidualSolvent residualSolvent = new ResidualSolvent(solvent, 10.0, "comment");
         applyMutation(new ReactionOutputSampleMutation.SetOutputResidualSolvents(output1Sample1.getAnchor(), List.of(residualSolvent)));
         assertThat(output1Sample1.getResidualSolvents()).containsExactly(residualSolvent);
@@ -485,7 +482,7 @@ public class MutationsTest extends MutationsTestBase {
     void testSetOutputExternalSupplier() {
         loadScheme();
         addOutputSample();
-        DictionaryItemRef supplier = dictionaryClient.getDictionary(BuiltInDictionary.EXTERNAL_SUPPLIER).getFirst();
+        ExternalSupplierRef supplier = dictionaryClient.getFirst(BuiltInDictionary.EXTERNAL_SUPPLIER);
         ExternalSupplier externalSupplier = new ExternalSupplier(supplier, "1111");
         applyMutation(new ReactionOutputSampleMutation.SetOutputExternalSupplier(output1Sample1.getAnchor(), externalSupplier));
         assertThat(output1Sample1.getExternalSupplier()).isEqualTo(externalSupplier);
@@ -495,10 +492,10 @@ public class MutationsTest extends MutationsTestBase {
     void testSetOutputSourceAndSourceDetails() {
         loadScheme();
         addOutputSample();
-        DictionaryItemRef source = dictionaryClient.getDictionary(BuiltInDictionary.SAMPLE_SOURCE).getFirst();
+        SampleSourceRef source = dictionaryClient.getFirst(BuiltInDictionary.SAMPLE_SOURCE);
         applyMutation(new ReactionOutputSampleMutation.SetOutputSource(output1Sample1.getAnchor(), source));
         assertThat(output1Sample1.getSource()).isEqualTo(source);
-        DictionaryItemRef sourceDetails = dictionaryClient.getDictionary(BuiltInDictionary.SAMPLE_SOURCE_DETAILS).getFirst();
+        SampleSourceDetailsRef sourceDetails = dictionaryClient.getFirst(BuiltInDictionary.SAMPLE_SOURCE_DETAILS);
         applyMutation(new ReactionOutputSampleMutation.SetOutputSourceDetails(output1Sample1.getAnchor(), sourceDetails));
         assertThat(output1Sample1.getSourceDetails()).isEqualTo(sourceDetails);
     }

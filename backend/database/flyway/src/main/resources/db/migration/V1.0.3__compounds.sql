@@ -16,8 +16,8 @@ CREATE TABLE Compound (
     exact_mass NUMERIC NOT NULL,
     cas_number VARCHAR(1000),
     picture BYTEA NOT NULL,
-    CONSTRAINT compound_stereoisomer_code_fk FOREIGN KEY (stereoisomer_code_id) REFERENCES dictionary_item (id),
-    CONSTRAINT compound_salt_code_fk FOREIGN KEY (salt_code_id) REFERENCES salt_code (id),
+    CONSTRAINT compound_stereoisomer_code_fk FOREIGN KEY (stereoisomer_code_id) REFERENCES Dictionary_Item (id),
+    CONSTRAINT compound_salt_code_fk FOREIGN KEY (salt_code_id) REFERENCES Dictionary_Item (id),
     CONSTRAINT compound_uq UNIQUE (can_smiles, stereoisomer_code_id, salt_code_id, salt_eq_100),
     CONSTRAINT compound_str_code_salt_eq_uq UNIQUE (str_code, salt_eq_100) -- str_code is shared across saltEQ
 );
