@@ -28,7 +28,6 @@ public class StageParameters {
     private String postgresImageTag;
     private String apiGatewaySecret;
     private String internalApiGatewaySecret;
-    private String ec2Ip;
 
     @SneakyThrows
     public static StageParameters load(String env) {
