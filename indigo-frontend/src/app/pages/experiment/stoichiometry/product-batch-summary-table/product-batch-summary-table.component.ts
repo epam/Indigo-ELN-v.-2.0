@@ -10,7 +10,6 @@ import {
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { EditableDataTableComponent } from '../editable-data-table/editable-data-table.component';
 import { BatchDetailData, BatchDetailPanelComponent } from '../batch-detail-panel/batch-detail-panel.component';
-// import { MOCK_OUTPUT_SAMPLES } from './product-batch-summary-table.mock';
 import { ColumnConfig, ColumnInputType, ColumnOption, ExpandableConfig } from '../shared/editable-table.types';
 import { ExperimentDetailService } from '@core/services/experiment/experiment-detail.service';
 import { EnteredValue } from '@core/types/entities/values.i';
@@ -263,12 +262,26 @@ export class ProductBatchSummaryTableComponent {
   }
 
   addNewRow() {
-    this.snackBar.open(
-      'Add New Batch still needs a backend mutation to create an unlinked side product batch.',
-      'Close',
-      {
-        duration: 4000,
-      },
-    );
+    const reaction = this.reaction();
+
+    if (!reaction) {
+      this.snackBar.open('No reaction available', 'Close', {
+        duration: 3000,
+      });
+      return;
+    }
+
+    this.experimentDetailService
+      .updateDataModel({
+        type: 'AddNoProductSample',
+        anchor: reaction.anchor,
+      })
+      .subscribe({
+        error: () => {
+          this.snackBar.open('Failed to add new batch.', 'Close', {
+            duration: 4000,
+          });
+        },
+      });
   }
 }

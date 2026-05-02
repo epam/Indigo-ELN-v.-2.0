@@ -62,6 +62,10 @@ interface AddInput extends ReactionMutation {
   sampleId: UUID;
 }
 
+interface AddNoProductSample extends ReactionMutation {
+  type: 'AddNoProductSample';
+}
+
 interface RemoveInputMutation extends ReactionInputMutation {
   type: 'RemoveInput';
   anchor: ReactionInputAnchor;
@@ -373,6 +377,7 @@ export type Mutation =
   | ResolveInputsMutation
   | AddEmptyInputMutation
   | AddInput
+  | AddNoProductSample
   | RemoveInputMutation
   // Input mutations
   | SetInputRowRole
