@@ -1,5 +1,6 @@
 package com.epam.indigoeln.integrationtests.lambda;
 
+import com.epam.indigoeln.test.FeignUtil;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.PortBinding;
 import com.github.dockerjava.api.model.Ports;
@@ -8,15 +9,12 @@ import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.Testcontainers;
-import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
-import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 import org.testcontainers.utility.DockerImageName;
 
 import java.io.File;
 import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 
 public class IntegrationEnvironmentResource implements BeforeAllCallback {
 
@@ -24,6 +22,7 @@ public class IntegrationEnvironmentResource implements BeforeAllCallback {
 
     @Override
     public void beforeAll(ExtensionContext context) throws Exception {
+        FeignUtil.setApiSecret("integrationTestsAPISecret");
         context.getRoot().getStore(NAMESPACE).getOrComputeIfAbsent(
                 "integration-environment-resource",
                 key -> {
@@ -38,24 +37,15 @@ public class IntegrationEnvironmentResource implements BeforeAllCallback {
 }
 
 @Slf4j
-class ResourceImpl implements ExtensionContext.Store.CloseableResource {
+class ResourceImpl implements AutoCloseable {
 
-    private final LambdaInvoker elnInvoker = new LambdaInvoker(20001, "apiSecret");
-    private final LambdaInvoker reportsInvoker = new LambdaInvoker(20002, "internalApiSecret");
-    private final MockAPIGateway mockAPIGateway = new MockAPIGateway(28080, elnInvoker, reportsInvoker);
+    private final SAMRunner samRunner;
     private final PostgreSQLContainer<?> postgresContainer;
-    private final GenericContainer<?> elnContainer;
-    private final GenericContainer<?> reportsContainer;
 
     ResourceImpl() throws Exception {
         log.info("Starting integration environment");
 
-        reportsInvoker.start();
-        elnInvoker.start();
-        mockAPIGateway.start();
-        Testcontainers.exposeHostPorts(20001, 20002, 28080);
-        log.info("Mock API gateway started");
-
+        log.info("Starting PostgreSQL...");
         postgresContainer = new PostgreSQLContainer<>(DockerImageName.parse("public.ecr.aws/m5k0g6n7/indigoeln/indigo-eln-postgres:latest").asCompatibleSubstituteFor("postgres"))
                 .withAccessToHost(true)
                 .withLogConsumer(new Slf4jLogConsumer(LoggerFactory.getLogger("POSTGRES")))
@@ -73,62 +63,30 @@ class ResourceImpl implements ExtensionContext.Store.CloseableResource {
         log.info("Postgres container started");
         Testcontainers.exposeHostPorts(25432);
 
-        elnContainer = new GenericContainer<>("indigoeln/eln-lambda:built")
-                .withAccessToHost(true)
-                .withLogConsumer(new Slf4jLogConsumer(LoggerFactory.getLogger("ELN_LAMBDA")))
-                .waitingFor(new LogMessageWaitStrategy().withRegEx(".+Installed features: \\[.+"))
-                .withStartupTimeout(Duration.ofSeconds(30))
-                .withEnv("AWS_LAMBDA_RUNTIME_API", "host.testcontainers.internal:20001")
-                .withEnv("QUARKUS_PROFILE", "integration-test")
-                .withEnv("QUARKUS_DATASOURCE_JDBC_URL", "jdbc:postgresql://host.testcontainers.internal:25432/eln")
-                .withEnv("QUARKUS_DATASOURCE_USERNAME", "eln")
-                .withEnv("QUARKUS_DATASOURCE_PASSWORD", "eln")
-                .withEnv("ELN_COGNITO_USER_POOL_ID", "xxx")
-                .withEnv("ELN_API_SECRET", "apiSecret")
-                .withEnv("ELN_INTERNAL_API_SECRET", "internalApiSecret")
-                .withEnv("QUARKUS_REST_CLIENT_REPORTS_API_URL", "http://host.testcontainers.internal:28080")
-                .withEnv("QUARKUS_REST_CLIENT_LOGGING_SCOPE", "request-response")
-                .withEnv("QUARKUS_REST_CLIENT_LOGGING_BODY_LIMIT", "9999")
-                .withEnv("QUARKUS_REST_CLIENT_EXTENSIONS_API_SCOPE", "all");
-        elnContainer.start();
-        log.info("ELN container started");
-
-        log.info("Building reports image");
-        Process buildProcess = new ProcessBuilder("docker", "build", "-t", "indigoeln/reports-lambda:built", "-f", "src/main/docker/Dockerfile.jvm-integrationTests", ".")
-                .directory(new File("../reports/reports-lambda").getAbsoluteFile())
+        log.info("Building SAM-compatible ELN lambda...");
+        Process elnBuilder = new ProcessBuilder("docker", "build"
+                , "-f", "../eln/eln-lambda/src/main/docker/Dockerfile.native.integrationtests"
+                , "-t", "indigoeln/eln-lambda:built.integrationtests"
+                , "../eln/eln-lambda/build")
                 .inheritIO()
                 .start();
-        if (!buildProcess.waitFor(10, TimeUnit.MINUTES)) {
-            throw new RuntimeException("Reports image wasn't built");
+        int elnBuilderResult = elnBuilder.waitFor();
+        if (elnBuilderResult != 0) {
+            throw new RuntimeException("Failed to build SAM-compatible ELN lambda, exit code " + elnBuilderResult);
         }
-        if (buildProcess.exitValue() != 0) {
-            throw new RuntimeException("Reports image build failed");
-        }
-        log.info("Reports image built");
-        reportsContainer = new GenericContainer<>("indigoeln/reports-lambda:built")
-                .withAccessToHost(true)
-                .withLogConsumer(new Slf4jLogConsumer(LoggerFactory.getLogger("REPORTS_LAMBDA")))
-                .waitingFor(new LogMessageWaitStrategy().withRegEx(".+Installed features: \\[.+"))
-                .withStartupTimeout(Duration.ofSeconds(30))
-                .withEnv("AWS_LAMBDA_RUNTIME_API", "host.testcontainers.internal:20002")
-                .withEnv("QUARKUS_PROFILE", "integration-test")
-                .withEnv("ELN_API_SECRET", "internalApiSecret");
-        reportsContainer.start();
-        log.info("Reports container started");
+
+        log.info("Starting SAM...");
+        samRunner = new SAMRunner(new File("sam.integrationtests.yaml"), 28080, "SAM");
+        samRunner.start();
+        log.info("Integration environment started");
     }
 
     @Override
-    public void close() throws Throwable {
+    public void close() {
         log.info("Stopping integration environment");
-        reportsContainer.stop();
-        log.info("Reports container stopped");
-        elnContainer.stop();
-        log.info("ELN container stopped");
+        samRunner.stop();
+        log.info("SAM stopped");
         postgresContainer.stop();
         log.info("Postgres container stopped");
-        mockAPIGateway.stop();
-        elnInvoker.stop();
-        reportsInvoker.stop();
-        log.info("Mock API gateway stopped");
     }
 }

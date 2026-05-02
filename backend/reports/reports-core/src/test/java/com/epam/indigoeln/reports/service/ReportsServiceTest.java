@@ -1,7 +1,8 @@
 package com.epam.indigoeln.reports.service;
 
 import com.epam.indigoeln.common.util.ModelUtil;
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
+import com.epam.indigoeln.eln.model.ProjectDTO;
 import com.epam.indigoeln.reports.api.ReportsAPI;
 import com.epam.indigoeln.reports.api.ReportsClient;
 import com.epam.indigoeln.test.BaseTest;
@@ -16,7 +17,6 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
@@ -36,7 +36,7 @@ public class ReportsServiceTest extends BaseTest {
     @SuppressWarnings("unused")
     public static List<ReportsAPI.ExperimentReportDataDTO> fillExperimentDataForJasperReportsStudio() {
         ObjectMapper objectMapper = com.epam.indigoeln.test.FeignUtil.OBJECT_MAPPER;
-        String experimentJson = Files.readString(Path.of("src/test/resources/experiment-model.json"));
+        byte[] experimentJson = ModelUtil.loadResource(ReportsServiceTest.class, "/experiment-model.json");
         ProjectDTO project = new ProjectDTO();
         project.setName("Demo project");
         ExperimentDetailsDTO experiment = objectMapper.readValue(experimentJson, ExperimentDetailsDTO.class);

@@ -11,3 +11,4 @@ dependencies {
 
 group = "com.epam.indigoeln"
 version = "3.0.0-SNAPSHOT"
+

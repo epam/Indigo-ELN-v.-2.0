@@ -9,12 +9,10 @@ import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguratio
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Timeout;
 import org.mockito.Mockito;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -84,7 +82,6 @@ public abstract class ELNBaseTest extends BaseTest {
     protected UUID emptyTemplateID;
 
     @BeforeAll
-    @Timeout(value = 30, unit = TimeUnit.SECONDS)
     void setupAllBase() {
         projectClient = buildClient(ProjectClient.class);
         notebookClient = buildClient(NotebookClient.class);

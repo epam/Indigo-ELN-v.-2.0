@@ -6,12 +6,11 @@ plugins {
 }
 
 dependencies {
-    api(project(":common:common"))
     api(project(":reports:reports-api"))
     api(project(":eln:eln-api"))
 //    implementation(project(":database:flyway")) // TODO move flyway to a separate lambda and move dependency to testImplementation
 
-    implementation("io.quarkiverse.jasperreports:quarkus-jasperreports:1.0.11")
+    implementation("io.quarkiverse.jasperreports:quarkus-jasperreports:1.3.0")
 
 //    implementation("net.sf.jasperreports:jasperreports:7.0.3") {
 //        exclude(group = "org.apache.xmlgraphics")

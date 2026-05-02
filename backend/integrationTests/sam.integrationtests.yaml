@@ -1,0 +1,54 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 512
+
+Resources:
+
+  ElnLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      ImageUri: indigoeln/eln-lambda:built.integrationtests
+      Environment:
+        Variables:
+          QUARKUS_PROFILE: "integration-test"
+          QUARKUS_DATASOURCE_JDBC_URL: "jdbc:postgresql://172.17.0.1:25432/eln"
+          QUARKUS_DATASOURCE_USERNAME: "eln"
+          QUARKUS_DATASOURCE_PASSWORD: "eln"
+          ELN_COGNITO_USER_POOL_ID: "xxx"
+          ELN_API_SECRET: "integrationTestsAPISecret"
+          ELN_INTERNAL_API_SECRET: "integrationTestsAPISecret"
+          QUARKUS_REST_CLIENT_REPORTS_API_URL: "http://172.17.0.1:28080"
+          QUARKUS_REST_CLIENT_LOGGING_SCOPE: "request-response"
+          QUARKUS_REST_CLIENT_LOGGING_BODY_LIMIT: "9999"
+          QUARKUS_REST_CLIENT_EXTENSIONS_API_SCOPE: "all"
+      Events:
+        HttpApiEvent:
+          Type: HttpApi
+          Properties:
+            Path: /api/eln/{proxy+}
+            Method: ANY
+    Metadata:
+      DockerContext: ../eln/eln-lambda/build
+      Dockerfile: ../eln/eln-lambda/src/main/docker/Dockerfile.native.integrationtests
+      DockerTag: built.integrationtests
+
+  ReportsLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      ImageUri: indigoeln/reports-lambda:built
+      Environment:
+        Variables:
+          QUARKUS_PROFILE: "integration-test"
+          ELN_API_SECRET: "integrationTestsAPISecret"
+      Events:
+        HttpApiEvent:
+          Type: HttpApi
+          Properties:
+            Path: /internalapi/reports/{proxy+}
+            Method: ANY
