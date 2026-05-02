@@ -64,7 +64,7 @@ public class ELNLambdaStack extends NestedStack {
                 .build();
 
         Map<String, String> elnFunctionEnvironment = mapOf(
-                "QUARKUS_DATASOURCE_JDBC_URL", String.format("jdbc:postgresql://%s/%s", props.getDbHostname(), props.getDbCredentials().getUsername())
+                "QUARKUS_DATASOURCE_JDBC_URL", String.format("jdbc:postgresql://pgbouncer.indigoeln.local:6432/%s", props.getDbCredentials().getUsername())
                 , "QUARKUS_DATASOURCE_USERNAME", props.getDbCredentials().getUsername()
                 , "QUARKUS_DATASOURCE_PASSWORD", props.getDbCredentials().getPassword().unsafeUnwrap() // TODO retrieve credentials in lambda code
                 , "ELN_COGNITO_USER_POOL_ID", props.getUserPool().getUserPoolId()
@@ -164,7 +164,6 @@ public class ELNLambdaStack extends NestedStack {
 
         IVpc vpc;
         ISecurityGroup ec2SecurityGroup;
-        String dbHostname;
         Credentials dbCredentials;
         ISecurityGroup lambdaSecurityGroup;
         IUserPool userPool;
