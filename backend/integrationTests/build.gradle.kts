@@ -32,8 +32,6 @@ tasks.named("test", Test::class) {
 }
 
 tasks.named("quarkusIntTest", Test::class) {
-    systemProperty("quarkus.http.test-host", "localhost")
-    systemProperty("quarkus.http.test-port", "28080")
     outputs.upToDateWhen { false }
     dependsOn(":eln:eln-lambda:assemble")
     dependsOn(":reports:reports-lambda:assemble")

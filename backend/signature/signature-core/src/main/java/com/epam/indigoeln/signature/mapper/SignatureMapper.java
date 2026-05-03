@@ -7,6 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Mapper(componentModel = "cdi", unmappedTargetPolicy = ReportingPolicy.ERROR)
@@ -33,7 +34,7 @@ public abstract class SignatureMapper {
                 null,
                 template.getName(),
                 author,
-                null,
+                new ArrayList<>(),
                 date,
                 date
         );
@@ -60,7 +61,7 @@ public abstract class SignatureMapper {
                 Status.SUBMITTED,
                 now,
                 now,
-                null,
+                new ArrayList<>(),
                 content
         );
         entity.getSignatureBlocks().addAll(EntryStream.of(template.getSignatureBlocks())
