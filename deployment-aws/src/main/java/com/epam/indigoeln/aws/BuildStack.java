@@ -1,6 +1,5 @@
 package com.epam.indigoeln.aws;
 
-import com.epam.indigoeln.aws.util.Utils;
 import lombok.Getter;
 import lombok.Value;
 import one.util.streamex.EntryStream;
@@ -21,6 +20,9 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.epam.indigoeln.aws.util.Utils.entry;
+import static com.epam.indigoeln.aws.util.Utils.mapOf;
 
 public class BuildStack extends NestedStack {
 
@@ -66,10 +68,10 @@ public class BuildStack extends NestedStack {
                 , "deployment-aws/codebuild/eln-build-postgres.yaml"
                 , buildLogsBucket
                 , ecrPublicPermissions
-                , Utils.mapOf(
-                        "REGISTRY_URI", postgresRepo.getRegistryUri(),
-                        "REPO_URI", postgresRepo.getRepositoryUri(),
-                        "REPO_URI_PUBLIC", "public.ecr.aws/m5k0g6n7/indigoeln/indigo-eln-postgres"
+                , mapOf(
+                        entry("REGISTRY_URI", postgresRepo.getRegistryUri()),
+                        entry("REPO_URI", postgresRepo.getRepositoryUri()),
+                        entry("REPO_URI_PUBLIC", "public.ecr.aws/m5k0g6n7/indigoeln/indigo-eln-postgres")
                 )
         );
         postgresRepo.grantPullPush(postgresBuild);
@@ -79,17 +81,17 @@ public class BuildStack extends NestedStack {
                 , "deployment-aws/codebuild/eln-build.yaml"
                 , buildLogsBucket
                 , ecrPublicPermissions
-                , Utils.mapOf(
-                        "BUILD_ELN_LAMBDA", "true",
-                        "BUILD_REPORTS_LAMBDA", "false",
-                        "BUILD_SIGNATURE_LAMBDA", "false",
-                        "ELN_REGISTRY_URI", elnLambdaRepo.getRegistryUri(),
-                        "ELN_REPO_URI", elnLambdaRepo.getRepositoryUri(),
-                        "REPORTS_REGISTRY_URI", reportsLambdaRepo.getRegistryUri(),
-                        "REPORTS_REPO_URI", reportsLambdaRepo.getRepositoryUri(),
-                        "SIGNATURE_REGISTRY_URI", signatureLambdaRepo.getRegistryUri(),
-                        "SIGNATURE_REPO_URI", signatureLambdaRepo.getRepositoryUri(),
-                        "S3_LOGS", buildLogsBucket.getBucketName()
+                , mapOf(
+                        entry("BUILD_ELN_LAMBDA", "true"),
+                        entry("BUILD_REPORTS_LAMBDA", "false"),
+                        entry("BUILD_SIGNATURE_LAMBDA", "false"),
+                        entry("ELN_REGISTRY_URI", elnLambdaRepo.getRegistryUri()),
+                        entry("ELN_REPO_URI", elnLambdaRepo.getRepositoryUri()),
+                        entry("REPORTS_REGISTRY_URI", reportsLambdaRepo.getRegistryUri()),
+                        entry("REPORTS_REPO_URI", reportsLambdaRepo.getRepositoryUri()),
+                        entry("SIGNATURE_REGISTRY_URI", signatureLambdaRepo.getRegistryUri()),
+                        entry("SIGNATURE_REPO_URI", signatureLambdaRepo.getRepositoryUri()),
+                        entry("S3_LOGS", buildLogsBucket.getBucketName())
                 )
         );
         elnLambdaRepo.grantPullPush(elnBuild);

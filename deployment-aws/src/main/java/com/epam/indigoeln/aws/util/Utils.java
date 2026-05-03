@@ -51,7 +51,7 @@ public class Utils {
         }
     }
 
-    public static Function createNativeFunction(Construct parent, ELNLambdaStack.Props props, String id, Repository repository, String imageTag, ISecurityGroup securityGroup, Map<String, String> environment) {
+    public static Function createDockerFunction(Construct parent, ELNLambdaStack.Props props, String id, Repository repository, String imageTag, ISecurityGroup securityGroup, Map<String, String> environment) {
         return doCreateFunction(parent, props, id, null, repository, imageTag, securityGroup, environment);
     }
 
@@ -125,32 +125,16 @@ public class Utils {
         return map;
     }
 
-    public static <K, V> Map<K, V> mapOf(K k1, V v1, K k2, V v2) {
-        Map<K, V> map = mapOf(k1, v1);
-        map.put(k2, v2);
-        return map;
-    }
-
-    public static <K, V> Map<K, V> mapOf(K k1, V v1, K k2, V v2, K k3, V v3) {
-        Map<K, V> map = mapOf(k1, v1, k2, v2);
-        map.put(k3, v3);
-        return map;
-    }
-
-    public static <K, V> Map<K, V> mapOf(K k1, V v1, K k2, V v2, K k3, V v3, K k4, V v4) {
-        Map<K, V> map = mapOf(k1, v1, k2, v2, k3, v3);
-        map.put(k4, v4);
-        return map;
-    }
-
     @SafeVarargs
-    public static <KV> Map<KV, KV> mapOf(KV... keysAndValues) {
-        Map<KV, KV> map = mapOf();
-        for (Iterator<KV> it = Arrays.asList(keysAndValues).iterator(); it.hasNext(); ) {
-            KV key = it.next();
-            KV value = it.next();
-            map.put(key, value);
+    public static <K, V> Map<K, V> mapOf(Map.Entry<K, V>... entries) {
+        Map<K, V> map = mapOf();
+        for (Map.Entry<K, V> entry : entries) {
+            map.put(entry.getKey(), entry.getValue());
         }
         return map;
+    }
+
+    public static <K, V> Map.Entry<K, V> entry(K k, V v) {
+        return new AbstractMap.SimpleImmutableEntry<>(k, v);
     }
 }

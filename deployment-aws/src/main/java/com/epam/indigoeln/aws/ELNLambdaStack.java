@@ -23,10 +23,10 @@ import software.amazon.awscdk.services.ssm.IStringParameter;
 import software.amazon.awscdk.services.ssm.StringParameter;
 import software.constructs.Construct;
 
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+import static com.epam.indigoeln.aws.util.Utils.entry;
 import static com.epam.indigoeln.aws.util.Utils.mapOf;
 
 public class ELNLambdaStack extends NestedStack {
@@ -64,20 +64,20 @@ public class ELNLambdaStack extends NestedStack {
                 .build();
 
         Map<String, String> elnFunctionEnvironment = mapOf(
-                "QUARKUS_DATASOURCE_JDBC_URL", String.format("jdbc:postgresql://pgbouncer.indigoeln.local:6432/%s", props.getDbCredentials().getUsername())
-                , "QUARKUS_DATASOURCE_USERNAME", props.getDbCredentials().getUsername()
-                , "QUARKUS_DATASOURCE_PASSWORD", props.getDbCredentials().getPassword().unsafeUnwrap() // TODO retrieve credentials in lambda code
-                , "ELN_COGNITO_USER_POOL_ID", props.getUserPool().getUserPoolId()
-                , "ELN_API_SECRET", apiGatewaySecret.getStringValue()
-                , "ELN_INTERNAL_API_SECRET", internalApiGatewaySecret.getStringValue()
-                , "QUARKUS_REST_CLIENT_REPORTS_API_URL", httpApi.getApiEndpoint()
-                , "QUARKUS_REST_CLIENT_LOGGING_SCOPE", "request-response"
-                , "QUARKUS_REST_CLIENT_LOGGING_BODY_LIMIT", "9999"
-                , "QUARKUS_REST_CLIENT_EXTENSIONS_API_SCOPE", "all"
-                , "QUARKUS_LOG_LEVEL", "INFO"
-                , "QUARKUS_LOG_CATEGORY__COM_EPAM__LEVEL", "DEBUG"
+                entry("QUARKUS_DATASOURCE_JDBC_URL", String.format("jdbc:postgresql://pgbouncer.indigoeln.local:6432/%s", props.getDbCredentials().getUsername())),
+                entry("QUARKUS_DATASOURCE_USERNAME", props.getDbCredentials().getUsername()),
+                entry("QUARKUS_DATASOURCE_PASSWORD", props.getDbCredentials().getPassword().unsafeUnwrap()), // TODO retrieve credentials in lambda code
+                entry("ELN_COGNITO_USER_POOL_ID", props.getUserPool().getUserPoolId()),
+                entry("ELN_API_SECRET", apiGatewaySecret.getStringValue()),
+                entry("ELN_INTERNAL_API_SECRET", internalApiGatewaySecret.getStringValue()),
+                entry("QUARKUS_REST_CLIENT_REPORTS_API_URL", httpApi.getApiEndpoint()),
+                entry("QUARKUS_REST_CLIENT_LOGGING_SCOPE", "request-response"),
+                entry("QUARKUS_REST_CLIENT_LOGGING_BODY_LIMIT", "9999"),
+                entry("QUARKUS_REST_CLIENT_EXTENSIONS_API_SCOPE", "all"),
+                entry("QUARKUS_LOG_LEVEL", "INFO"),
+                entry("QUARKUS_LOG_CATEGORY__COM_EPAM__LEVEL", "DEBUG")
         );
-        elnFunction = Utils.createNativeFunction(
+        elnFunction = Utils.createDockerFunction(
                 this,
                 props,
                 "eln-function",
@@ -93,16 +93,17 @@ public class ELNLambdaStack extends NestedStack {
         );
 
         Map<String, String> reportsFunctionEnvironment = mapOf(
-                "ELN_API_SECRET", internalApiGatewaySecret.getStringValue()
-//                , "QUARKUS_LOG_LEVEL", "DEBUG"
+                entry("JAVA_TOOL_OPTIONS", "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"),
+                entry("ELN_API_SECRET", internalApiGatewaySecret.getStringValue()),
+                entry("QUARKUS_LOG_LEVEL", "INFO"),
+                entry("QUARKUS_LOG_CATEGORY__COM_EPAM__LEVEL", "DEBUG")
         );
-        reportsFunction = Utils.createSnapStartFunction(
+        reportsFunction = Utils.createDockerFunction(
                 this,
                 props,
                 "reports-function",
-                new File("../backend/reports/reports-lambda/build/function.zip"),
-//                props.getReportsRepository(),
-//                props.getReportsImageTag(),
+                props.getReportsRepository(),
+                props.getReportsImageTag(),
                 props.getLambdaSecurityGroup(),
                 reportsFunctionEnvironment
         );
