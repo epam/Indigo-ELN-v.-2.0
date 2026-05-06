@@ -28,6 +28,11 @@ import { InitialsPipe } from '../../../pipes/avatars.pipe';
 import { TextOverflowTooltipDirective } from '@/core/directives/text-overflow-tooltip.directive';
 import { UserRef } from '@/core/types/entities/user.i';
 import { SvgIconComponent } from '@core/components/common/svg-icon/svg-icon.component';
+import { MatDialog } from '@angular/material/dialog';
+import {
+  RemoveMemberConfirmationDialogComponent,
+  RemoveMemberConfirmationResult,
+} from '../remove-member-confirmation-dialog/remove-member-confirmation-dialog.component';
 
 type UserRefWithState = UserRef & { added?: boolean };
 
@@ -88,6 +93,7 @@ export class TeamComponent implements OnInit {
   aclLevelOptions = ELIGIBLE_ACL_LEVELS;
 
   private api = inject(ApiService);
+  private dialog = inject(MatDialog);
 
   @ViewChild(NgSelectComponent) ngSelectComponent!: NgSelectComponent;
 
@@ -142,6 +148,28 @@ export class TeamComponent implements OnInit {
       console.error('Invalid ACL level:', rawLevel);
       return;
     }
+
+    if (newLevel === AclLevel.NONE) {
+      this.dialog
+        .open<
+          RemoveMemberConfirmationDialogComponent,
+          { showCascadeCheckbox: boolean },
+          RemoveMemberConfirmationResult
+        >(RemoveMemberConfirmationDialogComponent, {
+          data: { showCascadeCheckbox: true },
+        })
+        .afterClosed()
+        .subscribe((result) => {
+          if (!result?.confirmed) return;
+          this.performAclUpdate(member, newLevel);
+        });
+      return;
+    }
+
+    this.performAclUpdate(member, newLevel);
+  }
+
+  private performAclUpdate(member: ProjectAcl, newLevel: AclLevel): void {
     const endpoint = this.endpoint();
     if (!endpoint) return;
 

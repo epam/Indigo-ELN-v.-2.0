@@ -6,6 +6,11 @@ import { ButtonComponent } from '../button/button.component';
 
 export interface RemoveMemberConfirmationDialogData {
   showCascadeCheckbox: boolean;
+  title?: string;
+  message?: string;
+  cascadeCheckboxLabel?: string;
+  confirmButtonLabel?: string;
+  cancelButtonLabel?: string;
 }
 
 export interface RemoveMemberConfirmationResult {
@@ -23,7 +28,7 @@ export class RemoveMemberConfirmationDialogComponent {
   readonly data = inject<RemoveMemberConfirmationDialogData>(MAT_DIALOG_DATA);
   private dialogRef = inject(MatDialogRef<RemoveMemberConfirmationDialogComponent, RemoveMemberConfirmationResult>);
 
-  removeFromChildren = false;
+  removeFromChildren = true;
 
   cancel(): void {
     this.dialogRef.close({
