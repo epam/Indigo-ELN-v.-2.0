@@ -121,6 +121,7 @@ export class TeamComponent implements OnInit {
   }
 
   updateAclLevel(member: ProjectAcl, rawLevel: string): void {
+    console.log(member);
     const newLevel = AclLevel[rawLevel as keyof typeof AclLevel];
     if (!newLevel) {
       console.error('Invalid ACL level:', rawLevel);
