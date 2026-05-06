@@ -1,4 +1,5 @@
 #build eln-service (transitively builds eln-core)
+cd ..
 cd backend && ./gradlew :eln:eln-service:quarkusBuild -Dquarkus-profile=devtest
 
 #docker compose
