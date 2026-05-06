@@ -145,7 +145,7 @@ export class TeamComponent implements OnInit {
         .afterClosed()
         .subscribe((result) => {
           if (!result?.confirmed) return;
-          this.performAclUpdate(member, newLevel);
+          this.performAclUpdate(member, newLevel, true);
         });
       return;
     }
@@ -153,7 +153,7 @@ export class TeamComponent implements OnInit {
     this.performAclUpdate(member, newLevel);
   }
 
-  private performAclUpdate(member: ProjectAcl, newLevel: AclLevel): void {
+  private performAclUpdate(member: ProjectAcl, newLevel: AclLevel, removeMember = false): void {
     const endpoint = this.endpoint();
     if (!endpoint) return;
 
@@ -174,8 +174,11 @@ export class TeamComponent implements OnInit {
       )
       .subscribe((projectAcl) => {
         if (projectAcl) {
-          const updated = this._team().map((m) => (m.userId === member.userId ? { ...m, level: newLevel } : m));
+          const updated = removeMember
+            ? this._team().filter((m) => m.userId !== member.userId)
+            : this._team().map((m) => (m.userId === member.userId ? { ...m, level: newLevel } : m));
           this._team.set(updated);
+          this.rebuildSuggestionsState();
         }
       });
   }
