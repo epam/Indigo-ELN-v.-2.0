@@ -18,7 +18,7 @@ public class ExperimentRevisionSummaryDTO {
     private UUID editSessionID;
 
     @NotNull
-    private UserRef user;
+    private com.epam.indigoeln.common.model.UserRef user;
 
     @NotNull
     private String summary;

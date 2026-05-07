@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.model;
 
+import com.epam.indigoeln.common.model.BaseDTO;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -23,7 +24,7 @@ public class UserDTO extends BaseDTO {
     @Override
     public String toString() {
         return "UserDTO{" +
-                "id=" + id +
+                "id=" + getId() +
                 ", username='" + username + '\'' +
                 ", roles="  + roles +
                 '}';

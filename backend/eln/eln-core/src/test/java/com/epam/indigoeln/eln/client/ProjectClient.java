@@ -16,11 +16,11 @@ public interface ProjectClient extends ProjectAPI {
 
     @SneakyThrows
     default List<AttachmentDTO> createProjectAttachment(UUID projectId, String filename, java.nio.file.Path tempDirectory, byte[] content) {
-        return createProjectAttachmentClient(projectId, ClientUtil.createFileUpload("file", filename, content, tempDirectory));
+        return createProjectAttachmentClient(projectId, com.epam.indigoeln.test.ClientUtil.createFileUpload("file", filename, content, tempDirectory));
     }
 
     @POST
     @Path("/projects/{projectId}/attachments")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    List<AttachmentDTO> createProjectAttachmentClient(@PathParam("projectId") UUID projectId, ClientUtil.ClientUploadForm form);
+    List<AttachmentDTO> createProjectAttachmentClient(@PathParam("projectId") UUID projectId, com.epam.indigoeln.test.ClientUtil.ClientUploadForm form);
 }

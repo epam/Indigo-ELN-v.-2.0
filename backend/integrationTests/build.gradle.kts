@@ -11,6 +11,7 @@ dependencies {
     testImplementation(project(":common:common-lambda"))
     testImplementation(project(path = ":eln:eln-core", configuration = "testArtifacts"))
     testImplementation(project(path = ":reports:reports-core", configuration = "testArtifacts"))
+    testImplementation(project(path = ":signature:signature-core", configuration = "testArtifacts"))
 
     testImplementation("io.quarkus:quarkus-apache-httpclient")
 
@@ -24,6 +25,7 @@ version = "3.0.0-SNAPSHOT"
 tasks.named("compileIntegrationTestJava") {
     dependsOn(":eln:eln-core:testJar")
     dependsOn(":reports:reports-core:testJar")
+    dependsOn(":signature:signature-core:testJar")
     dependsOn(":integrationTests:testClasses")
 }
 
@@ -32,7 +34,10 @@ tasks.named("test", Test::class) {
 }
 
 tasks.named("quarkusIntTest", Test::class) {
+    systemProperty("quarkus.http.test-host", "localhost")
+    systemProperty("quarkus.http.test-port", "28080")
     outputs.upToDateWhen { false }
-    dependsOn(":eln:eln-lambda:assemble")
-    dependsOn(":reports:reports-lambda:assemble")
+//    dependsOn(":eln:eln-lambda:assemble")
+//    dependsOn(":reports:reports-lambda:assemble")
+//    dependsOn(":signature:signature-lambda:assemble")
 }

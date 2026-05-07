@@ -1,16 +1,19 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.model.DocumentStatus;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
+import com.epam.indigoeln.signature.model.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,9 +23,10 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.epam.indigoeln.eln.model.ExperimentStatus.*;
-import static com.epam.indigoeln.eln.test.SignaturesAssert.assertThatSignatures;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 
 
@@ -34,29 +38,64 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
     ProjectDetailsDTO project;
     NotebookDetailsDTO notebook;
     ExperimentDetailsDTO experiment;
-    SignatureTemplateDetailsDTO noSignersTemplate;
-    SignatureTemplateDetailsDTO oneSignerTemplate;
-    SignatureTemplateDetailsDTO twoSignersTemplate;
+    UUID noSignersTemplateID;
+    UUID oneSignerTemplateID;
+    UUID twoSignersTemplateID;
+    UUID documentID;
 
     @BeforeAll
     void setUpAll() {
+        if (!integrationTest) {
+            Mockito.when(reportsClient.generateExperimentReport(any()))
+                    .thenAnswer(inv -> Response.ok("contentcontentcontent".getBytes()).header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"report.pdf\"").build());
+            noSignersTemplateID = UUID.randomUUID();
+            oneSignerTemplateID = UUID.randomUUID();
+            twoSignersTemplateID = UUID.randomUUID();
+            Mockito.when(signatureClient.getTemplates())
+                    .thenReturn(List.of(
+                            createMockTemplateDTO(noSignersTemplateID, "ExperimentWorkflowServiceTest-noSigners"),
+                            createMockTemplateDTO(oneSignerTemplateID, "ExperimentWorkflowServiceTest-oneSigner"),
+                            createMockTemplateDTO(twoSignersTemplateID, "ExperimentWorkflowServiceTest-twoSigners")
+                    ));
+        } else {
+            noSignersTemplateID = signatureClient.createTemplate(new SignatureTemplateRequest("ExperimentWorkflowServiceTest-noSigners", List.of(
+                    )))
+                    .getId();
+            oneSignerTemplateID = signatureClient.createTemplate(new SignatureTemplateRequest("ExperimentWorkflowServiceTest-oneSigner", List.of(
+                        new SignatureTemplateBlock(getBartUserRef(), SignatureReason.WITNESS)
+                    )))
+                    .getId();
+            twoSignersTemplateID = signatureClient.createTemplate(new SignatureTemplateRequest("ExperimentWorkflowServiceTest-twoSigners", List.of(
+                        new SignatureTemplateBlock(getBartUserRef(), SignatureReason.WITNESS),
+                        new SignatureTemplateBlock(null, SignatureReason.AUTHOR)
+                    )))
+                    .getId();
+        }
+
         project = projectClient.createProject(new ProjectRequest("ExperimentWorkflowServiceTest" + UUID.randomUUID()));
         notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
-        noSignersTemplate = signatureClient.createSignatureTemplate(new SignatureTemplateRequest("ExperimentWorkflowServiceTest-noSigners"
-                , List.of()));
-        oneSignerTemplate = signatureClient.createSignatureTemplate(new SignatureTemplateRequest("ExperimentWorkflowServiceTest-oneSigner"
-                , List.of(new SignatureBlock(getBartUserRef(), SignatureReason.WITNESS))));
-        twoSignersTemplate = signatureClient.createSignatureTemplate(new SignatureTemplateRequest("ExperimentWorkflowServiceTest-twoSigners"
-                , List.of(new SignatureBlock(getBartUserRef(), SignatureReason.WITNESS), new SignatureBlock(null, SignatureReason.AUTHOR))));
-        if (mockReportsClient != null) {
-            Mockito.when(mockReportsClient.generateExperimentReport(any()))
-                    .thenAnswer(inv -> Response.ok(new byte[0]).header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"report.pdf\"").build());
-        }
     }
 
     @BeforeEach
     void setUp() {
         experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
+        if (!integrationTest) {
+            documentID = UUID.randomUUID();
+            DocumentDTO document = new DocumentDTO();
+            document.setId(documentID);
+            Mockito.when(signatureClient.uploadDocument(any(), any(), any()))
+                    .thenReturn(document);
+        }
+    }
+
+    @Test
+    void testGetSignatureTemplates() {
+        assertThat(experimentClient.getSignatureTemplates())
+                .containsExactlyInAnyOrder(
+                        new SignatureTemplateRef(noSignersTemplateID, "ExperimentWorkflowServiceTest-noSigners"),
+                        new SignatureTemplateRef(oneSignerTemplateID, "ExperimentWorkflowServiceTest-oneSigner"),
+                        new SignatureTemplateRef(twoSignersTemplateID, "ExperimentWorkflowServiceTest-twoSigners")
+                );
     }
 
     @Test
@@ -80,7 +119,8 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
 
     @Test
     void testReopenArchived() {
-        experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), noSignersTemplate.getId());
+        experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), noSignersTemplateID);
+        simulateSignatureUpdate("no signing required", DocumentStatus.SIGNED);
         assertThat(experiment.getStatus()).isEqualTo(ARCHIVED);
         experiment = experimentClient.reopenExperiment(experiment.getId());
         assertThat(experiment.getStatus()).isEqualTo(REOPEN);
@@ -96,21 +136,19 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
 
     @Test
     void testReopenSubmitted() {
-        experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), oneSignerTemplate.getId());
+        experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), oneSignerTemplateID);
         assertThat(experiment.getStatus()).isEqualTo(SUBMITTED);
         experiment = experimentClient.reopenExperiment(experiment.getId());
         assertThat(experiment.getStatus()).isEqualTo(REOPEN);
-        assertThat(experiment.getSignatures()).isEmpty();
     }
 
     @Test
     void testReopenRejected() {
-        experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), twoSignersTemplate.getId());
+        experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), twoSignersTemplateID);
         assertThat(experiment.getStatus()).isEqualTo(SUBMITTED);
-        experimentClient.rejectExperiment(experiment.getId());
+        rejectDocument(JOHN_USERNAME);
         experiment = experimentClient.reopenExperiment(experiment.getId());
         assertThat(experiment.getStatus()).isEqualTo(REOPEN);
-        assertThat(experiment.getSignatures()).isEmpty();
     }
 
     @Test
@@ -130,85 +168,84 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
     @Test
     void testSubmitNoSigners() {
         experiment = experimentClient.completeExperiment(experiment.getId());
-        experiment = experimentClient.submitExperiment(experiment.getId(), noSignersTemplate.getId());
+        experiment = experimentClient.submitExperiment(experiment.getId(), noSignersTemplateID);
+        simulateSignatureUpdate("no signing required", DocumentStatus.SIGNED);
         assertThat(experiment.getStatus()).isEqualTo(ARCHIVED);
+        assertThat(experiment.getSignatureNumber()).isNotNull();
     }
 
     @Test
     void testCompleteAndSubmitNoSigners() {
-        experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), noSignersTemplate.getId());
+        experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), noSignersTemplateID);
+        simulateSignatureUpdate("no signing required", DocumentStatus.SIGNED);
         assertThat(experiment.getStatus()).isEqualTo(ARCHIVED);
+        assertThat(experiment.getSignatureNumber()).isNotNull();
     }
 
     @Test
     void testSubmitOneSigner() {
-        experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), oneSignerTemplate.getId());
-        assertThatSignatures(experiment.getSignatures()).containsOnly(
-                getBartUserRef(), SignatureReason.WITNESS, null
-        );
+        experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), oneSignerTemplateID);
         assertThat(experiment.getStatus()).isEqualTo(SUBMITTED);
+        verifySignature(
+                tuple(getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.WAITING)
+        );
     }
 
     @Test
     void testApproveOneSigner() {
-        experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), oneSignerTemplate.getId());
-        ExperimentForSignatureDTO experimentForSignature = withUser(BART_USERNAME
-                , () -> experimentClient.approveExperiment(experiment.getId()));
-        assertThatSignatures(experimentForSignature.getSignatures()).containsOnly(
-                getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.APPROVED
+        experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), oneSignerTemplateID);
+        approveDocument(BART_USERNAME, DocumentStatus.SIGNED);
+        verifySignature(
+                tuple(getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.APPROVED)
         );
-        assertThat(experimentForSignature.getStatus()).isEqualTo(ARCHIVED);
+        assertThat(experiment.getStatus()).isEqualTo(ARCHIVED);
     }
 
     @Test
     void testRejectOneSigner() {
-        experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), oneSignerTemplate.getId());
-        ExperimentForSignatureDTO experimentForSignature = withUser(BART_USERNAME
-                , () -> experimentClient.rejectExperiment(experiment.getId()));
-        assertThatSignatures(experimentForSignature.getSignatures()).containsOnly(
-                getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.REJECTED
+        experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), oneSignerTemplateID);
+        rejectDocument(BART_USERNAME);
+        verifySignature(
+                tuple(getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.REJECTED)
         );
-        assertThat(experimentForSignature.getStatus()).isEqualTo(REJECTED);
+        assertThat(experiment.getStatus()).isEqualTo(REJECTED);
     }
 
     @Test
     void testApproveTwoSigners() {
-        experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), twoSignersTemplate.getId());
-        ExperimentForSignatureDTO experimentForSignature = withUser(BART_USERNAME
-                , () -> experimentClient.approveExperiment(experiment.getId()));
-        assertThatSignatures(experimentForSignature.getSignatures()).containsOnly(
-            getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.APPROVED,
-            getJohnUserRef(), SignatureReason.AUTHOR, null
+        experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), twoSignersTemplateID);
+        approveDocument(BART_USERNAME, DocumentStatus.SIGNING);
+        verifySignature(
+            tuple(getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.APPROVED),
+            tuple(getJohnUserRef(), SignatureReason.AUTHOR, SignatureStatus.WAITING)
         );
-        assertThat(experimentForSignature.getStatus()).isEqualTo(SIGNING);
+        assertThat(experiment.getStatus()).isEqualTo(SIGNING);
 
-        experimentForSignature = experimentClient.approveExperiment(experiment.getId());
-        assertThatSignatures(experimentForSignature.getSignatures()).containsOnly(
-                getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.APPROVED,
-                getJohnUserRef(), SignatureReason.AUTHOR, SignatureStatus.APPROVED
+        approveDocument(JOHN_USERNAME, DocumentStatus.SIGNED);
+        verifySignature(
+                tuple(getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.APPROVED),
+                tuple(getJohnUserRef(), SignatureReason.AUTHOR, SignatureStatus.APPROVED)
         );
-        assertThat(experimentForSignature.getStatus()).isEqualTo(ARCHIVED);
+        assertThat(experiment.getStatus()).isEqualTo(ARCHIVED);
     }
 
     @Test
     void testRejectTwoSigners() {
-        experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), twoSignersTemplate.getId());
-        ExperimentForSignatureDTO experimentForSignature = withUser(BART_USERNAME
-                , () -> experimentClient.approveExperiment(experiment.getId()));
-
-        experimentForSignature = experimentClient.rejectExperiment(experimentForSignature.getId());
-        assertThatSignatures(experimentForSignature.getSignatures()).containsOnly(
-                getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.APPROVED,
-                getJohnUserRef(), SignatureReason.AUTHOR, SignatureStatus.REJECTED
+        experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), twoSignersTemplateID);
+        approveDocument(BART_USERNAME, DocumentStatus.SIGNING);
+        rejectDocument(JOHN_USERNAME);
+        verifySignature(
+                tuple(getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.APPROVED),
+                tuple(getJohnUserRef(), SignatureReason.AUTHOR, SignatureStatus.REJECTED)
         );
-        assertThat(experimentForSignature.getStatus()).isEqualTo(REJECTED);
+        assertThat(experiment.getStatus()).isEqualTo(REJECTED);
     }
 
     @Test
     void testResubmitRejected() {
-        experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), twoSignersTemplate.getId());
-        ExperimentForSignatureDTO experimentForSignature = experimentClient.rejectExperiment(experiment.getId());
-        experiment = experimentClient.resubmitExperiment(experimentForSignature.getId());
+        experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), twoSignersTemplateID);
+        rejectDocument(JOHN_USERNAME);
+        experiment = experimentClient.submitExperiment(experiment.getId(), twoSignersTemplateID);
         assertThat(experiment.getStatus()).isEqualTo(SUBMITTED);
     }
 
@@ -217,10 +254,10 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
         Reaction reaction = experiment.getModel().getReactions().getFirst();
         experimentClient.mutateExperimentModel2(experiment.getId(), experiment.getRevision(), new ReactionMutation.AddEmptyInput(reaction.getAnchor()));
         experimentClient.mutateExperimentModel2(experiment.getId(), experiment.getRevision(), new ReactionMutation.AddEmptyInput(reaction.getAnchor()));
-        experimentClient.completeAndSubmitExperiment(experiment.getId(), noSignersTemplate.getId());
+        experimentClient.completeAndSubmitExperiment(experiment.getId(), noSignersTemplateID);
         experimentClient.reopenExperiment(experiment.getId());
         experimentClient.mutateExperimentModel2(experiment.getId(), experiment.getRevision(), new ReactionMutation.AddEmptyInput(reaction.getAnchor()));
-        experimentClient.completeAndSubmitExperiment(experiment.getId(), noSignersTemplate.getId());
+        experimentClient.completeAndSubmitExperiment(experiment.getId(), noSignersTemplateID);
 
         List<RevisionDetailsDTO> revisions = experimentClient.getExperimentRevisions(experiment.getId(), null, null);
         assertThat(revisions).<Class<?>>map(r -> r.getMutation().getClass()).containsExactly(
@@ -262,5 +299,51 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
 
         experimentClient.compareVersions(experiment.getId(), 1, null);
         experimentClient.compareVersionsHTML(experiment.getId(), 1, null);
+    }
+
+    private void approveDocument(String username, DocumentStatus simulatedStatus) {
+        if (integrationTest) {
+            UUID documentId = UUID.fromString(checkNotNull(experiment.getSignatureNumber()));
+            withUser(username, () -> signatureClient.signDocument(documentId));
+            this.experiment = experimentClient.getExperiment(experiment.getId());
+        } else {
+            simulateSignatureUpdate(
+                    "signed by " + username,
+                    simulatedStatus
+            );
+        }
+    }
+
+    private void rejectDocument(String username) {
+        if (integrationTest) {
+            UUID documentId = UUID.fromString(checkNotNull(experiment.getSignatureNumber()));
+            withUser(username, () -> signatureClient.rejectDocument(documentId));
+            this.experiment = experimentClient.getExperiment(experiment.getId());
+        } else {
+            simulateSignatureUpdate("rejected by " + username, DocumentStatus.REJECTED);
+        }
+    }
+
+    private SignatureTemplateDTO createMockTemplateDTO(UUID id, String name) {
+        SignatureTemplateDTO dto = new SignatureTemplateDTO();
+        dto.setId(id);
+        dto.setName(name);
+        return dto;
+    }
+
+    private void verifySignature(Tuple... tuples) {
+        if (integrationTest) {
+            DocumentDTO document = signatureClient.getDocument(UUID.fromString(checkNotNull(experiment.getSignatureNumber())));
+            assertThat(document.getSignatures())
+                    .map(DocumentSignatureDTO::getUser, DocumentSignatureDTO::getReason, DocumentSignatureDTO::getStatus)
+                    .containsExactly(tuples);
+        }
+    }
+
+    private void simulateSignatureUpdate(String message, DocumentStatus updatedStatus) {
+        if (!integrationTest) {
+            experimentClient.internalSignatureUpdated(documentID, "SIMULATED " + message, updatedStatus);
+            experiment = experimentClient.getExperiment(experiment.getId());
+        }
     }
 }

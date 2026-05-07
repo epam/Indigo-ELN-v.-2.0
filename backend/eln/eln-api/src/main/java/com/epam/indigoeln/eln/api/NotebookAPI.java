@@ -40,7 +40,7 @@ public interface NotebookAPI extends BaseAPI {
     @POST
     @Path("/notebooks/{notebookId}/attachments")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    List<AttachmentDTO> createNotebookAttachment(@PathParam("notebookId") UUID notebookId, UploadForm form);
+    List<AttachmentDTO> createNotebookAttachment(@PathParam("notebookId") UUID notebookId, com.epam.indigoeln.common.model.UploadForm form);
 
     @GET
     @Path("/notebook/{notebookId}/attachments/{attachmentId}")

@@ -1,5 +1,6 @@
 package com.epam.indigoeln.integrationtests.lambda;
 
+import com.epam.indigoeln.test.BaseTest;
 import com.epam.indigoeln.test.FeignUtil;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.PortBinding;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.testcontainers.Testcontainers;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.images.builder.Transferable;
 import org.testcontainers.utility.DockerImageName;
 
 import java.io.File;
@@ -22,6 +24,7 @@ public class IntegrationEnvironmentResource implements BeforeAllCallback {
 
     @Override
     public void beforeAll(ExtensionContext context) throws Exception {
+        BaseTest.setIntegrationTest(true);
         FeignUtil.setApiSecret("integrationTestsAPISecret");
         context.getRoot().getStore(NAMESPACE).getOrComputeIfAbsent(
                 "integration-environment-resource",
@@ -54,6 +57,9 @@ class ResourceImpl implements AutoCloseable {
                 .withPassword("eln")
                 .withDatabaseName("eln")
                 .withExposedPorts(5432)
+                .withCopyToContainer(
+                        Transferable.of("CREATE DATABASE signature OWNER eln"),
+                        "/docker-entrypoint-initdb.d/99_create_db.sql")
                 .withCreateContainerCmdModifier(cmd -> {
                     cmd.getHostConfig().withPortBindings(
                             new PortBinding(Ports.Binding.bindPort(25432), new ExposedPort(5432))
@@ -62,6 +68,7 @@ class ResourceImpl implements AutoCloseable {
         postgresContainer.start();
         log.info("Postgres container started");
         Testcontainers.exposeHostPorts(25432);
+//        Thread.sleep(Integer.MAX_VALUE);
 
         log.info("Building SAM-compatible ELN lambda...");
         Process elnBuilder = new ProcessBuilder("docker", "build"

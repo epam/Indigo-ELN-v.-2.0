@@ -33,7 +33,7 @@ public final class ExperimentSnapshot implements ExperimentNode {
     String literature;
 
     @NotNull
-    UserRef batchCreator;
+    com.epam.indigoeln.common.model.UserRef batchCreator;
 
     @NotNull
     UUID templateId;

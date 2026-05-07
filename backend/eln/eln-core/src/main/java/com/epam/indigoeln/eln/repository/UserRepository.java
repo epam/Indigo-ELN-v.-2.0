@@ -3,7 +3,10 @@ package com.epam.indigoeln.eln.repository;
 import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.entity.UserInfo;
 import com.epam.indigoeln.eln.mapper.UserMapper;
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.model.EntityType;
+import com.epam.indigoeln.eln.model.Page;
+import com.epam.indigoeln.eln.model.Paging;
+import com.epam.indigoeln.eln.model.UserDTO;
 import com.epam.indigoeln.eln.util.Conditions;
 import io.quarkus.panache.common.Sort;
 import jakarta.annotation.Nullable;
@@ -29,7 +32,7 @@ public class UserRepository extends BaseRepository<UserEntity> {
         return doFindOne(new Conditions().add("username=?", username), em.getEntityGraph("User.info"), userMapper::entityToInfo);
     }
 
-    public List<UserRef> suggest(@Nullable String search) {
+    public List<com.epam.indigoeln.common.model.UserRef> suggest(@Nullable String search) {
         return doFind(
                 new Conditions()
                         .addIfNotNull("lower(displayName) like ?", search != null ? search.toLowerCase() + '%' : null),

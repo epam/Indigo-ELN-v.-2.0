@@ -46,7 +46,7 @@ public class UserResource implements UserAPI {
     }
 
     @Override
-    public List<UserRef> suggestUsers(@Nullable String search) {
+    public List<com.epam.indigoeln.common.model.UserRef> suggestUsers(@Nullable String search) {
         return userService.suggestUsers(search);
     }
 }

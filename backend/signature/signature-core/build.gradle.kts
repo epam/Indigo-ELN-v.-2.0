@@ -10,11 +10,11 @@ repositories {
 
 dependencies {
     //implementation(project(":database:flyway"))
+    api(project(":common:common"))
+    api(project(":common:common-hibernate"))
+    api(project(":signature:signature-api"))
 
     api("io.quarkus:quarkus-flyway")
-    api("io.quarkus:quarkus-jdbc-postgresql")
-    api("io.quarkus:quarkus-hibernate-orm")
-    api("io.hypersistence:hypersistence-utils-hibernate-71:3.11.0")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.20.0")
 
     implementation("io.quarkus:quarkus-cache")
@@ -24,8 +24,6 @@ dependencies {
 
     implementation("one.util:streamex:0.8.3")
     implementation("io.quarkiverse.openpdf:quarkus-openpdf:3.3.2")
-
-    api(project(":signature:signature-api"))
 
     implementation("io.quarkiverse.amazonservices:quarkus-amazon-cognito-user-pools")
     implementation("software.amazon.awssdk:url-connection-client")

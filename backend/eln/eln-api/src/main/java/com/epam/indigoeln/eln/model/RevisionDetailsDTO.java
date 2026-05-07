@@ -21,7 +21,7 @@ public class RevisionDetailsDTO {
     private ZonedDateTime datetime;
 
     @NotNull
-    private UserRef user;
+    private com.epam.indigoeln.common.model.UserRef user;
 
     @NotNull
     private Mutation mutation;

@@ -1,7 +1,7 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.eln.model.ProjectEditRequest;
-import com.epam.indigoeln.eln.model.UserRef;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.EnteredValueSource;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;

@@ -79,6 +79,12 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
                 .getSingleResult();
     }
 
+    public ExperimentEntity findBySignatureNumber(String signatureNumber) {
+        return (ExperimentEntity) em.createQuery("from Experiment where signatureNumber = :signatureNumber")
+                .setParameter("signatureNumber", signatureNumber)
+                .getSingleResult();
+    }
+
     public List<ExperimentDTO> findMarked() {
         return em.createQuery("from Experiment e where e.calculatedInfo.marked order by name", ExperimentEntity.class)
                 .getResultList().stream()
@@ -200,7 +206,7 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
         return stream
                 .map(r -> new ExperimentRevisionSummaryDTO(
                         (UUID) r[6],
-                        new UserRef((UUID) r[0], (String) r[1], (String) r[2]),
+                        new com.epam.indigoeln.common.model.UserRef((UUID) r[0], (String) r[1], (String) r[2]),
                         (String) r[3],
                         r[4] != null ? ((Instant) r[4]).atZone(ZoneId.systemDefault()) : null,
                         ((Instant) r[5]).atZone(ZoneId.systemDefault())

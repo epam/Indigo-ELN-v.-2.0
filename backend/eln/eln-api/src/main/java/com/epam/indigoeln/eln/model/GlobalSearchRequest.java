@@ -33,7 +33,7 @@ public class GlobalSearchRequest {
     Set<ExperimentStatus> experimentStatus;
 
     @Nullable
-    Set<UserRef> author;
+    Set<com.epam.indigoeln.common.model.UserRef> author;
 
     @Nullable
     NumericSearch batchYield;

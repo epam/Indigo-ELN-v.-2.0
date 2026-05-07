@@ -23,9 +23,12 @@ Resources:
           ELN_API_SECRET: "integrationTestsAPISecret"
           ELN_INTERNAL_API_SECRET: "integrationTestsAPISecret"
           QUARKUS_REST_CLIENT_REPORTS_API_URL: "http://172.17.0.1:28080"
+          QUARKUS_REST_CLIENT_SIGNATURE_API_URL: "http://172.17.0.1:28080"
           QUARKUS_REST_CLIENT_LOGGING_SCOPE: "request-response"
           QUARKUS_REST_CLIENT_LOGGING_BODY_LIMIT: "9999"
           QUARKUS_REST_CLIENT_EXTENSIONS_API_SCOPE: "all"
+          QUARKUS_LOG_CONSOLE_FORMAT: "[ELN] %d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
+          QUARKUS_LOG_LEVEL: DEBUG
       Events:
         HttpApiEvent:
           Type: HttpApi
@@ -46,9 +49,40 @@ Resources:
         Variables:
           QUARKUS_PROFILE: "integration-test"
           ELN_API_SECRET: "integrationTestsAPISecret"
+          QUARKUS_LOG_CONSOLE_FORMAT: "[REPORTS] %d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
+          QUARKUS_LOG_LEVEL: DEBUG
+          QUARKUS_LOG_CATEGORY__NET_SF_JASPERREPORTS__LEVEL: INFO
       Events:
         HttpApiEvent:
           Type: HttpApi
           Properties:
             Path: /internalapi/reports/{proxy+}
+            Method: ANY
+
+  SignatureLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      ImageUri: indigoeln/signature-lambda:built
+      Environment:
+        Variables:
+          QUARKUS_PROFILE: "integration-test"
+          QUARKUS_DATASOURCE_JDBC_URL: "jdbc:postgresql://172.17.0.1:25432/signature"
+          QUARKUS_DATASOURCE_USERNAME: "eln"
+          QUARKUS_DATASOURCE_PASSWORD: "eln"
+          ELN_API_SECRET: "integrationTestsAPISecret"
+          ELN_INTERNAL_API_SECRET: "integrationTestsAPISecret"
+#          ELN_SIGNATURE_KEYSTORE_PATH: "/keystore.p12"
+          ELN_SIGNATURE_KEYSTORE_PASSWORD: "1234"
+          QUARKUS_LOG_CONSOLE_FORMAT: "[SIGNATURE] %d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
+#          QUARKUS_REST_CLIENT_REPORTS_API_URL: "http://172.17.0.1:28080"
+          QUARKUS_REST_CLIENT_LOGGING_SCOPE: "request-response"
+          QUARKUS_REST_CLIENT_LOGGING_BODY_LIMIT: "9999"
+          QUARKUS_REST_CLIENT_EXTENSIONS_API_SCOPE: "all"
+          QUARKUS_LOG_LEVEL: DEBUG
+      Events:
+        HttpApiEvent:
+          Type: HttpApi
+          Properties:
+            Path: /api/signature/{proxy+}
             Method: ANY

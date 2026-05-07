@@ -39,5 +39,5 @@ public interface UserAPI extends BaseAPI {
 
     @GET
     @Path("/users/suggest")
-    List<UserRef> suggestUsers(@QueryParam("search") @Nullable String search);
+    List<com.epam.indigoeln.common.model.UserRef> suggestUsers(@QueryParam("search") @Nullable String search);
 }

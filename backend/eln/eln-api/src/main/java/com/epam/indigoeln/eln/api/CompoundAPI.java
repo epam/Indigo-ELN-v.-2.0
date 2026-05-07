@@ -21,7 +21,7 @@ public interface CompoundAPI extends BaseAPI {
     @POST
     @Path("/compounds/loadFromFile")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    void loadCompoundsFromFile(UploadForm form);
+    void loadCompoundsFromFile(com.epam.indigoeln.common.model.UploadForm form);
 
     @GET
     @Path("/compounds/{compoundID}/picture")

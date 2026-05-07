@@ -34,7 +34,7 @@ public class ExperimentDetailsDTO extends BaseExperimentDTO {
     UUID templateId;
 
     @NotNull
-    UserRef batchCreator;
+    com.epam.indigoeln.common.model.UserRef batchCreator;
 
     @NotNull
     List<ExperimentRef> linkedExperiments;
@@ -50,9 +50,6 @@ public class ExperimentDetailsDTO extends BaseExperimentDTO {
 
     @NotNull
     List<ACLDetailsEntryDTO> acl;
-
-    @NotNull
-    List<ExperimentSignature> signatures;
 
     @NotNull
     List<ApplicationPermission> currentPermissions;
@@ -72,10 +69,13 @@ public class ExperimentDetailsDTO extends BaseExperimentDTO {
     @NotNull
     String notebookName;
 
+    @Nullable
+    String signatureNumber;
+
     @Override
     public String toString() {
         return "ExperimentDetailsDTO{" +
-                "id=" + id +
+                "id=" + getId() +
                 ", name='" + name + '\'' +
                 '}';
     }

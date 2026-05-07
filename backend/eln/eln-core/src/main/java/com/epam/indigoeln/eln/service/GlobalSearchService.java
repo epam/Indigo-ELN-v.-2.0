@@ -51,7 +51,7 @@ public class GlobalSearchService {
         }
         if (request.getAuthor() != null) {
             String condition = "created_by_id in :author";
-            List<UUID> ids = request.getAuthor().stream().map(UserRef::getId).toList();
+            List<UUID> ids = request.getAuthor().stream().map(com.epam.indigoeln.common.model.UserRef::getId).toList();
             projectConditions.add(condition, "author", ids);
             notebookConditions.add(condition, "author", ids);
             experimentConditions.add(condition, "author", ids);
@@ -184,9 +184,9 @@ public class GlobalSearchService {
                     item.setName((String) row[1]);
                     item.setId((UUID) row[2]);
                     item.setFragment((String) row[3]);
-                    item.setCreatedBy(new UserRef((UUID) row[4], (String) row[5], (String) row[6]));
+                    item.setCreatedBy(new com.epam.indigoeln.common.model.UserRef((UUID) row[4], (String) row[5], (String) row[6]));
                     item.setCreatedAt(((Instant) row[7]).atZone(ZoneId.systemDefault()));
-                    item.setModifiedBy(new UserRef((UUID) row[8], (String) row[9], (String) row[10]));
+                    item.setModifiedBy(new com.epam.indigoeln.common.model.UserRef((UUID) row[8], (String) row[9], (String) row[10]));
                     item.setModifiedAt(((Instant) row[11]).atZone(ZoneId.systemDefault()));
                     //noinspection ConstantValue
                     if (row[12] != null) {

@@ -36,7 +36,7 @@ public class NotebookDetailsDTO extends BaseNotebookDTO {
     @Override
     public String toString() {
         return "NotebookDetailsDTO{" +
-                "id=" + id +
+                "id=" + getId() +
                 ", name='" + name + '\'' +
                 '}';
     }

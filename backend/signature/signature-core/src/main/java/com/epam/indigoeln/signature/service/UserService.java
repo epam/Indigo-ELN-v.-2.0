@@ -1,9 +1,9 @@
 package com.epam.indigoeln.signature.service;
 
 import com.epam.indigoeln.common.config.UserHolder;
+import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.signature.entity.UserEntity;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
@@ -27,7 +27,7 @@ public class UserService {
     }
 
     public UserEntity findUser(String username) {
-        List<UserEntity> foundUsers = em.createQuery("from UserAccount where username = :username", UserEntity.class)
+        List<UserEntity> foundUsers = em.createQuery("from User where username = :username", UserEntity.class)
                 .setParameter("username", username)
                 .setMaxResults(1)
                 .getResultList();
@@ -44,14 +44,10 @@ public class UserService {
             user.setFirstName(firstName);
             user.setLastName(lastName);
         }
+        user.setDisplayName(ModelUtil.formatUser(user.getFirstName(), user.getLastName(), username));
         if (user.getId() == null) {
             em.persist(user);
         }
         return user;
-    }
-
-    @RequestScoped
-    public static class UserContext {
-
     }
 }

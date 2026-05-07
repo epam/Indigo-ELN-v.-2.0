@@ -1,8 +1,8 @@
 package com.epam.indigoeln.compound.entity;
 
+import com.epam.indigoeln.eln.common.entity.IdentifiableEntity;
 import com.epam.indigoeln.eln.config.hibernate.STRCodeCompoundConverter;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
-import com.epam.indigoeln.eln.entity.IdentifiableEntity;
 import com.epam.indigoeln.eln.model.CompoundExternalSource;
 import com.epam.indigoeln.eln.model.STRCodeCompound;
 import jakarta.persistence.*;

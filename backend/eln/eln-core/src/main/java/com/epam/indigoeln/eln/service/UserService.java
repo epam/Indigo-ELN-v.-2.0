@@ -11,14 +11,10 @@ import com.epam.indigoeln.eln.repository.RoleRepository;
 import com.epam.indigoeln.eln.repository.UserRepository;
 import io.quarkus.cache.CacheResult;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
-import jakarta.inject.Provider;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
@@ -43,8 +39,6 @@ public class UserService {
     UserHolder userHolder;
     @Inject
     UserRepository userRepository;
-    @Inject
-    Provider<UserContext> userContext;
     @Inject
     UserMapper userMapper;
     @Inject
@@ -89,7 +83,7 @@ public class UserService {
         return em.getReference(UserEntity.class, userID);
     }
 
-    public List<UserRef> suggestUsers(@Nullable String search) {
+    public List<com.epam.indigoeln.common.model.UserRef> suggestUsers(@Nullable String search) {
         return userRepository.suggest(search);
     }
 
@@ -109,11 +103,5 @@ public class UserService {
 
     public Page<UserDTO> getUsers(@Nullable String search, @Nullable String username, Paging paging) {
         return userRepository.findAll(search, username, paging);
-    }
-
-    @Getter
-    @Setter
-    @RequestScoped
-    public static class UserContext {
     }
 }

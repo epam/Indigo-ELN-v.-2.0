@@ -182,7 +182,7 @@ class TemplateServiceTest extends ELNBaseTest {
 
         assertThat(templates.getItems())
                 .extracting(TemplateDTO::getCreatedBy)
-                .extracting(UserRef::getDisplayName)
+                .extracting(com.epam.indigoeln.common.model.UserRef::getDisplayName)
                 .containsOnly(LISA_DISPLAY_NAME);
     }
 
@@ -292,7 +292,7 @@ class TemplateServiceTest extends ELNBaseTest {
 
         assertThat(searchTemplates)
                 .extracting(TemplateDTO::getCreatedBy)
-                .extracting(UserRef::getDisplayName)
+                .extracting(com.epam.indigoeln.common.model.UserRef::getDisplayName)
                 .containsOnly(LISA_DISPLAY_NAME);
     }
 

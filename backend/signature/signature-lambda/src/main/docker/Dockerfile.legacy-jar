@@ -1,0 +1,12 @@
+FROM public.ecr.aws/lambda/java:21
+
+# Install fonts required by JasperReports
+#RUN dnf install -y freetype fontconfig && \
+#    dnf clean all && \
+#    fc-cache -f
+
+COPY build/lib/            ${LAMBDA_TASK_ROOT}/lib/
+COPY build/*-runner.jar    ${LAMBDA_TASK_ROOT}/
+RUN cd ${LAMBDA_TASK_ROOT} && jar xf *-runner.jar && rm *-runner.jar
+
+CMD ["io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"]

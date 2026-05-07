@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.entity;
 
+import com.epam.indigoeln.eln.common.entity.IdentifiableEntity;
 import com.epam.indigoeln.eln.config.hibernate.ACLEntryArrayType;
 import com.epam.indigoeln.eln.model.AccessLevel;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
@@ -53,7 +54,6 @@ import java.util.*;
                 @NamedAttributeNode("therapeuticArea"),
                 @NamedAttributeNode("projectCode"),
                 @NamedAttributeNode("aclEntities"),
-                @NamedAttributeNode("signatures"),
                 @NamedAttributeNode("model"),
                 @NamedAttributeNode("batchCreator"),
                 @NamedAttributeNode(value = "linkedExperiments", subgraph = "Experiment.linkedExperiments"),
@@ -75,14 +75,6 @@ import java.util.*;
                                 @NamedAttributeNode("name")
                         }
                 )
-        }
-)
-@NamedEntityGraph(
-        name = "Experiment.forSignature",
-        attributeNodes = {
-                @NamedAttributeNode("createdBy"),
-                @NamedAttributeNode("modifiedBy"),
-                @NamedAttributeNode("signatures"),
         }
 )
 @NamedEntityGraph(
@@ -169,10 +161,6 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @Column(insertable = false, updatable = false)
     private String searchVector;
 
-    @Nullable
-    @OneToOne(fetch = FetchType.LAZY)
-    private AttachmentEntity reportForSignature;
-
     @NotNull
     @JdbcTypeCode(SqlTypes.JSON)
     @Basic(fetch = FetchType.LAZY)
@@ -201,6 +189,9 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @NotNull
     private Integer revision;
 
+    @Nullable
+    private String signatureNumber;
+
     @NotNull
     @OneToMany(mappedBy = "experiment", cascade = CascadeType.ALL, orphanRemoval = true)
     @MapKeyJoinColumn(name = "user_id")
@@ -216,11 +207,6 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id", referencedColumnName = "id")
     private CalculatedInfo calculatedInfo;
-
-    @NotNull
-    @OrderColumn(name = "ordinal")
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "experiment")
-    private List<ExperimentSignatureEntity> signatures = new ArrayList<>(0);
 
     @NotNull
     @ElementCollection

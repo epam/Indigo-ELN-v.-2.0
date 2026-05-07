@@ -41,7 +41,7 @@ public interface ProjectAPI extends BaseAPI {
     @POST
     @Path("/projects/{projectId}/attachments")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    List<AttachmentDTO> createProjectAttachment(@PathParam("projectId") UUID projectId, UploadForm form);
+    List<AttachmentDTO> createProjectAttachment(@PathParam("projectId") UUID projectId, com.epam.indigoeln.common.model.UploadForm form);
 
     @GET
     @Path("/project/{projectId}/attachments/{attachmentId}")

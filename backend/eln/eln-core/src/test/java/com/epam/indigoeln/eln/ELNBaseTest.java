@@ -3,11 +3,12 @@ package com.epam.indigoeln.eln;
 import com.epam.indigoeln.eln.client.*;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reports.api.ReportsClient;
+import com.epam.indigoeln.signature.api.SignatureAdminClient;
+import com.epam.indigoeln.signature.api.SignatureClient;
 import com.epam.indigoeln.test.BaseTest;
 import io.quarkus.test.junit.QuarkusMock;
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeAll;
 import org.mockito.Mockito;
 
@@ -61,7 +62,6 @@ public abstract class ELNBaseTest extends BaseTest {
     protected NotebookClient notebookClient;
     protected ExperimentClient experimentClient;
     protected TemplateClient templateClient;
-    protected SignatureClient signatureClient;
     protected CompoundClient compoundClient;
     protected MiscClient miscClient;
     protected TestSupportClient testSupportClient;
@@ -69,8 +69,9 @@ public abstract class ELNBaseTest extends BaseTest {
     protected DictionaryClient dictionaryClient;
     protected RoleClient roleClient;
     protected GlobalSearchClient globalSearchClient;
-    @Nullable
-    protected ReportsClient mockReportsClient;
+
+    protected ReportsClient reportsClient;
+    protected SignatureClient signatureClient;
 
     private int lastUsedNotebookNumber = 0;
 
@@ -87,7 +88,6 @@ public abstract class ELNBaseTest extends BaseTest {
         notebookClient = buildClient(NotebookClient.class);
         experimentClient = buildClient(ExperimentClient.class);
         templateClient = buildClient(TemplateClient.class);
-        signatureClient = buildClient(SignatureClient.class);
         compoundClient = buildClient(CompoundClient.class);
         miscClient = buildClient(MiscClient.class);
         userClient = buildClient(UserClient.class);
@@ -97,8 +97,16 @@ public abstract class ELNBaseTest extends BaseTest {
         globalSearchClient = buildClient(GlobalSearchClient.class);
         assertThat(miscClient.getInfo().getApplication()).isEqualTo("Indigo ELN");
         if (!integrationTest) {
-            mockReportsClient = Mockito.mock(ReportsClient.class);
-            QuarkusMock.installMockForType(mockReportsClient, ReportsClient.class, RestClient.LITERAL);
+            reportsClient = Mockito.mock(ReportsClient.class);
+            QuarkusMock.installMockForType(reportsClient, ReportsClient.class, RestClient.LITERAL);
+            signatureClient = Mockito.mock(SignatureClient.class);
+            QuarkusMock.installMockForType(signatureClient, SignatureClient.class, RestClient.LITERAL);
+        } else {
+            reportsClient = buildClient(ReportsClient.class);
+            signatureClient = buildClient(SignatureClient.class);
+            SignatureAdminClient signatureAdminClient;
+            signatureAdminClient = buildClient(SignatureAdminClient.class);
+            signatureAdminClient.migrate();
         }
         miscClient.migrate();
         createBasicTestData();
@@ -129,24 +137,24 @@ public abstract class ELNBaseTest extends BaseTest {
         emptyTemplateID = templateClient.getByName("Default").getId();
     }
 
-    public UserRef getJohnUserRef() {
-        return new UserRef(johnUserID, ELNBaseTest.JOHN_USERNAME, JOHN_DISPLAY_NAME);
+    public com.epam.indigoeln.common.model.UserRef getJohnUserRef() {
+        return new com.epam.indigoeln.common.model.UserRef(johnUserID, ELNBaseTest.JOHN_USERNAME, JOHN_DISPLAY_NAME);
     }
 
-    public UserRef getWillowUserRef() {
-        return new UserRef(willowUserID, WILLOW_USERNAME, WILLOW_DISPLAY_NAME);
+    public com.epam.indigoeln.common.model.UserRef getWillowUserRef() {
+        return new com.epam.indigoeln.common.model.UserRef(willowUserID, WILLOW_USERNAME, WILLOW_DISPLAY_NAME);
     }
 
-    public UserRef getBartUserRef() {
-        return new UserRef(bartUserID, BART_USERNAME, BART_DISPLAY_NAME);
+    public com.epam.indigoeln.common.model.UserRef getBartUserRef() {
+        return new com.epam.indigoeln.common.model.UserRef(bartUserID, BART_USERNAME, BART_DISPLAY_NAME);
     }
 
-    public UserRef getLisaUserRef() {
-        return new UserRef(lisaUserID, LISA_USERNAME, LISA_DISPLAY_NAME);
+    public com.epam.indigoeln.common.model.UserRef getLisaUserRef() {
+        return new com.epam.indigoeln.common.model.UserRef(lisaUserID, LISA_USERNAME, LISA_DISPLAY_NAME);
     }
 
-    public UserRef getMaggieUserRef() {
-        return new UserRef(maggieUserID, MAGGIE_USERNAME, MAGGIE_DISPLAY_NAME);
+    public com.epam.indigoeln.common.model.UserRef getMaggieUserRef() {
+        return new com.epam.indigoeln.common.model.UserRef(maggieUserID, MAGGIE_USERNAME, MAGGIE_DISPLAY_NAME);
     }
 
     private UserDTO getOrCreateUser(UserRequest request) {

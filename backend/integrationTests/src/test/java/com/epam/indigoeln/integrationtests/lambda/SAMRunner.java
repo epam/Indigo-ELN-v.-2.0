@@ -40,7 +40,7 @@ public class SAMRunner {
         CompletableFuture<Process> ended = process.onExit();
         new Thread(this::processOutput).start();
         try {
-            CompletableFuture.anyOf(started, ended).get(10, TimeUnit.SECONDS);
+            CompletableFuture.anyOf(started, ended).get(10, TimeUnit.MINUTES);
             if (ended.isDone()) {
                 throw new RuntimeException("SAM failed to start");
             }

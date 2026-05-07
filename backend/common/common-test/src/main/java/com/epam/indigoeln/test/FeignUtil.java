@@ -71,6 +71,7 @@ public class FeignUtil {
                     }
                 })
                 .logLevel(Logger.Level.FULL)
+//                .logger(new BinaryAwareSlf4jLogger("feign"))
                 .logger(new Slf4jLogger("feign"))
                 .retryer(Retryer.NEVER_RETRY)
                 .errorDecoder((methodKey, response) -> {

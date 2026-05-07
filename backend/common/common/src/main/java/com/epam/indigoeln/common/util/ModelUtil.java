@@ -20,6 +20,9 @@ public class ModelUtil {
     }
 
     public String formatUser(@Nullable String firstName, @Nullable String lastName, String username) {
+        if (firstName == null && lastName == null) {
+            return username;
+        }
         StringBuilder s = new StringBuilder();
         if (firstName != null) {
             s.append(firstName);
@@ -30,7 +33,7 @@ public class ModelUtil {
             }
             s.append(lastName);
         }
-        return !s.isEmpty() ? s.toString() : username;
+        return s.toString();
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
