@@ -1,4 +1,4 @@
-package com.epam.indigoeln.integrationtests.lambda;
+package com.epam.indigoeln.integrationtests.service;
 
 import com.epam.indigoeln.test.BaseTest;
 import com.epam.indigoeln.test.FeignUtil;

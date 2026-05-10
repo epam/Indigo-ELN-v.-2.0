@@ -89,7 +89,8 @@ public interface ExperimentMutation extends Mutation {
 
     record SignatureUpdated(
             @NotNull String message,
-            @NotNull DocumentStatus documentStatus
+            @NotNull DocumentStatus documentStatus,
+            @NotNull UUID attachmentID
     ) implements ExperimentMutation {
     }
 

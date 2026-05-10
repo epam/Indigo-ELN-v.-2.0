@@ -29,6 +29,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.epam.indigoeln.common.model.DocumentStatus.*;
+import static com.epam.indigoeln.common.util.ModelUtil.useTempFile;
 import static com.epam.indigoeln.signature.model.SignatureStatus.WAITING;
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -150,9 +151,12 @@ public class SignatureService {
             throw new InvalidInputException("Document doesn't require signature by current user");
         }
         updateDocumentStatus(document);
-        elnInternalClient.internalSignatureUpdated(document.getId(), message, document.getStatus());
-        document.setLastModifiedDate(ZonedDateTime.now());
-        return mapper.entityToDocument(document);
+        String message1 = message;
+        return useTempFile(document.getFilename(), document.getContent(), file -> {
+            elnInternalClient.internalSignatureUpdatedClient(document.getId(), message1, document.getStatus(), file);
+            document.setLastModifiedDate(ZonedDateTime.now());
+            return mapper.entityToDocument(document);
+        });
     }
 
     private void updateDocumentStatus(DocumentEntity document) {

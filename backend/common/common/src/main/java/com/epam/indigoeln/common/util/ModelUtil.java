@@ -4,7 +4,10 @@ import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import org.jspecify.annotations.Nullable;
 
+import java.io.File;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -103,5 +106,24 @@ public class ModelUtil {
             deleted.remove(item);
         }
         target.removeAll(deleted);
+    }
+
+    public static <T> T useTempFile(String filename, byte[] bytes, Function<File, T> block) {
+        try {
+            Path directory = Files.createTempDirectory("eln");
+            try {
+                Path file = directory.resolve(filename);
+                try {
+                    Files.write(file, bytes);
+                    return block.apply(file.toFile());
+                } finally {
+                    Files.delete(file);
+                }
+            } finally {
+                Files.delete(directory);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to use temp file", e);
+        }
     }
 }

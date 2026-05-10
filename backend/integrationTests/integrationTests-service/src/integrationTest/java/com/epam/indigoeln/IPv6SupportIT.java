@@ -1,7 +1,7 @@
 package com.epam.indigoeln;
 
 import com.epam.indigoeln.eln.ELNBaseTest;
-import com.epam.indigoeln.integrationtests.lambda.ServiceIntegrationEnvironmentResource;
+import com.epam.indigoeln.integrationtests.service.ServiceIntegrationEnvironmentResource;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

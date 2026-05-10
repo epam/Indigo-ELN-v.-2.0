@@ -21,6 +21,7 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
+import org.jspecify.annotations.Nullable;
 
 import java.nio.file.Files;
 import java.util.Collection;
@@ -88,22 +89,22 @@ public class AttachmentService {
         return attachmentMapper.attachmentToDTOList(notebook.getAttachments());
     }
 
-    public List<AttachmentDTO> createExperimentAttachment(UUID experimentId, FileUpload file, boolean useMutation) {
+    public List<AttachmentDTO> createExperimentAttachment(UUID experimentId, FileUpload file, @Nullable Boolean useMutation) {
         return createExperimentAttachment(experimentId, file.fileName(), readFile(file), useMutation);
     }
 
-    public List<AttachmentDTO> createExperimentAttachment(UUID experimentId, String filename, byte[] content, boolean useMutation) {
+    public List<AttachmentDTO> createExperimentAttachment(UUID experimentId, String filename, byte[] content, @Nullable Boolean useMutation) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         createExperimentAttachment(experiment, filename, content, useMutation);
         return attachmentMapper.attachmentToDTOList(experiment.getAttachments());
     }
 
-    public AttachmentEntity createExperimentAttachment(ExperimentEntity experiment, String filename, byte[] content, boolean useMutation) {
+    public AttachmentEntity createExperimentAttachment(ExperimentEntity experiment, String filename, byte[] content, @Nullable Boolean useMutation) {
         aclService.ensureAccess(experiment, ApplicationPermission.EDIT_EXPERIMENTS);
         AttachmentEntity attachment = doCreateAttachment(filename, content);
-        if (useMutation) {
+        if (useMutation == Boolean.TRUE) {
             experimentModelService.applyMutation(experiment, new ExperimentMutation.CreateExperimentAttachment(attachment.getId()));
-        } else {
+        } else if (useMutation == Boolean.FALSE) {
             doAddExperimentAttachment(experiment, attachment);
         }
         return attachment;

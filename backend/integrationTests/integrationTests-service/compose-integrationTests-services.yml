@@ -43,7 +43,7 @@ services:
       QUARKUS_REST_CLIENT_LOGGING_BODY_LIMIT: "9999"
       QUARKUS_REST_CLIENT_EXTENSIONS_API_SCOPE: "all"
       QUARKUS_LOG_CONSOLE_FORMAT: "[ELN] %d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
-      QUARKUS_LOG_LEVEL: DEBUG
+      QUARKUS_LOG_LEVEL: INFO # DEBUG
 #      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Dquarkus.profile=dev"
     depends_on:
       postgres:
@@ -70,7 +70,7 @@ services:
       QUARKUS_PROFILE: integration-test
       ELN_API_SECRET: integrationTestsAPISecret
       QUARKUS_LOG_CONSOLE_FORMAT: "[REPORTS] %d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
-      QUARKUS_LOG_LEVEL: DEBUG
+      QUARKUS_LOG_LEVEL: INFO # DEBUG
       QUARKUS_LOG_CATEGORY__NET_SF_JASPERREPORTS__LEVEL: INFO
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/q/health/ready" ]
@@ -105,7 +105,7 @@ services:
       QUARKUS_REST_CLIENT_LOGGING_SCOPE: "request-response"
       QUARKUS_REST_CLIENT_LOGGING_BODY_LIMIT: "9999"
       QUARKUS_REST_CLIENT_EXTENSIONS_API_SCOPE: "all"
-      QUARKUS_LOG_LEVEL: DEBUG
+      QUARKUS_LOG_LEVEL: INFO # DEBUG
     depends_on:
       postgres:
         condition: service_healthy

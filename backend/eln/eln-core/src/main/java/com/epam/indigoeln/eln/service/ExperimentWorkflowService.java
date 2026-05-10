@@ -2,6 +2,7 @@ package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.model.DocumentStatus;
 import com.epam.indigoeln.eln.config.DataAccess;
+import com.epam.indigoeln.eln.entity.AttachmentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
 import com.epam.indigoeln.eln.model.SignatureTemplateRef;
@@ -13,11 +14,16 @@ import com.epam.indigoeln.signature.api.SignatureClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Slf4j
 @DataAccess
@@ -85,9 +91,13 @@ public class ExperimentWorkflowService {
         }
     }
 
-    public void signatureUpdated(UUID documentId, String message, DocumentStatus updatedStatus) {
+    @SneakyThrows
+    public void signatureUpdated(UUID documentId, String message, DocumentStatus updatedStatus, Path path) {
         ExperimentEntity experiment = experimentRepository.findBySignatureNumber(documentId.toString());
-        Mutation mutation = new ExperimentMutation.SignatureUpdated(message, updatedStatus);
+        AttachmentEntity submittedAttachment = checkNotNull(experiment.getSignatureAttachment());
+        byte[] bytes = Files.readAllBytes(path);
+        AttachmentEntity attachment = attachmentService.createExperimentAttachment(experiment, submittedAttachment.getName(), bytes, null);
+        Mutation mutation = new ExperimentMutation.SignatureUpdated(message, updatedStatus, attachment.getId());
         experimentModelService.applyMutation(experiment, mutation);
     }
 }

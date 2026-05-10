@@ -27,7 +27,7 @@ Resources:
           QUARKUS_REST_CLIENT_LOGGING_BODY_LIMIT: "9999"
           QUARKUS_REST_CLIENT_EXTENSIONS_API_SCOPE: "all"
           QUARKUS_LOG_CONSOLE_FORMAT: "[ELN] %d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
-          QUARKUS_LOG_LEVEL: DEBUG
+          QUARKUS_LOG_LEVEL: INFO # DEBUG
       Events:
         API:
           Type: HttpApi
@@ -54,7 +54,7 @@ Resources:
           QUARKUS_PROFILE: "integration-test"
           ELN_API_SECRET: "integrationTestsAPISecret"
           QUARKUS_LOG_CONSOLE_FORMAT: "[REPORTS] %d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
-          QUARKUS_LOG_LEVEL: DEBUG
+          QUARKUS_LOG_LEVEL: INFO # DEBUG
           QUARKUS_LOG_CATEGORY__NET_SF_JASPERREPORTS__LEVEL: INFO
       Events:
         InternalAPI:
@@ -82,7 +82,7 @@ Resources:
           QUARKUS_REST_CLIENT_LOGGING_SCOPE: "request-response"
           QUARKUS_REST_CLIENT_LOGGING_BODY_LIMIT: "9999"
           QUARKUS_REST_CLIENT_EXTENSIONS_API_SCOPE: "all"
-          QUARKUS_LOG_LEVEL: DEBUG
+          QUARKUS_LOG_LEVEL: INFO # DEBUG
       Events:
         API:
           Type: HttpApi

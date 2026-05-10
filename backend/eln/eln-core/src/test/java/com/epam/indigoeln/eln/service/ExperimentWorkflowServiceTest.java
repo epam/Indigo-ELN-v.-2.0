@@ -13,11 +13,15 @@ import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
+import lombok.SneakyThrows;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,7 +47,12 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
     UUID twoSignersTemplateID;
     UUID documentID;
 
+    @TempDir
+    File tempDir;
+    File mockFile;
+
     @BeforeAll
+    @SneakyThrows
     void setUpAll() {
         if (!integrationTest) {
             when(reportsClient.generateExperimentReport(any()))
@@ -57,6 +66,8 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
                             createMockTemplateDTO(oneSignerTemplateID, "ExperimentWorkflowServiceTest-oneSigner"),
                             createMockTemplateDTO(twoSignersTemplateID, "ExperimentWorkflowServiceTest-twoSigners")
                     ));
+            mockFile = new File(tempDir, "updated.txt");
+            Files.write(mockFile.toPath(), "updatedcontent".getBytes());
         } else {
             noSignersTemplateID = signatureClient.createTemplate(new SignatureTemplateRequest("ExperimentWorkflowServiceTest-noSigners", List.of(
                     )))
@@ -188,7 +199,7 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
         experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), oneSignerTemplateID);
         assertThat(experiment.getStatus()).isEqualTo(SUBMITTED);
         verifySignature(
-                tuple(getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.WAITING)
+                tuple(BART_USERNAME, SignatureReason.WITNESS, SignatureStatus.WAITING)
         );
     }
 
@@ -197,7 +208,7 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
         experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), oneSignerTemplateID);
         approveDocument(BART_USERNAME, DocumentStatus.SIGNED);
         verifySignature(
-                tuple(getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.APPROVED)
+                tuple(BART_USERNAME, SignatureReason.WITNESS, SignatureStatus.APPROVED)
         );
         assertThat(experiment.getStatus()).isEqualTo(ARCHIVED);
     }
@@ -207,7 +218,7 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
         experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), oneSignerTemplateID);
         rejectDocument(BART_USERNAME);
         verifySignature(
-                tuple(getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.REJECTED)
+                tuple(BART_USERNAME, SignatureReason.WITNESS, SignatureStatus.REJECTED)
         );
         assertThat(experiment.getStatus()).isEqualTo(REJECTED);
     }
@@ -217,15 +228,15 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
         experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), twoSignersTemplateID);
         approveDocument(BART_USERNAME, DocumentStatus.SIGNING);
         verifySignature(
-            tuple(getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.APPROVED),
-            tuple(getJohnUserRef(), SignatureReason.AUTHOR, SignatureStatus.WAITING)
+            tuple(BART_USERNAME, SignatureReason.WITNESS, SignatureStatus.APPROVED),
+            tuple(JOHN_USERNAME, SignatureReason.AUTHOR, SignatureStatus.WAITING)
         );
         assertThat(experiment.getStatus()).isEqualTo(SIGNING);
 
         approveDocument(JOHN_USERNAME, DocumentStatus.SIGNED);
         verifySignature(
-                tuple(getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.APPROVED),
-                tuple(getJohnUserRef(), SignatureReason.AUTHOR, SignatureStatus.APPROVED)
+                tuple(BART_USERNAME, SignatureReason.WITNESS, SignatureStatus.APPROVED),
+                tuple(JOHN_USERNAME, SignatureReason.AUTHOR, SignatureStatus.APPROVED)
         );
         assertThat(experiment.getStatus()).isEqualTo(ARCHIVED);
     }
@@ -236,8 +247,8 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
         approveDocument(BART_USERNAME, DocumentStatus.SIGNING);
         rejectDocument(JOHN_USERNAME);
         verifySignature(
-                tuple(getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.APPROVED),
-                tuple(getJohnUserRef(), SignatureReason.AUTHOR, SignatureStatus.REJECTED)
+                tuple(BART_USERNAME, SignatureReason.WITNESS, SignatureStatus.APPROVED),
+                tuple(JOHN_USERNAME, SignatureReason.AUTHOR, SignatureStatus.REJECTED)
         );
         assertThat(experiment.getStatus()).isEqualTo(REJECTED);
     }
@@ -336,14 +347,14 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
         if (integrationTest) {
             DocumentDTO document = signatureClient.getDocument(UUID.fromString(checkNotNull(experiment.getSignatureNumber())));
             assertThat(document.getSignatures())
-                    .map(DocumentSignatureDTO::getUser, DocumentSignatureDTO::getReason, DocumentSignatureDTO::getStatus)
+                    .map(x -> x.getUser().getUsername(), DocumentSignatureDTO::getReason, DocumentSignatureDTO::getStatus)
                     .containsExactly(tuples);
         }
     }
 
     private void simulateSignatureUpdate(String message, DocumentStatus updatedStatus) {
         if (!integrationTest) {
-            elnInternalClient.internalSignatureUpdated(documentID, "SIMULATED " + message, updatedStatus);
+            elnInternalClient.internalSignatureUpdatedClient(documentID, "SIMULATED " + message, updatedStatus, mockFile);
             experiment = experimentClient.getExperiment(experiment.getId());
         }
     }

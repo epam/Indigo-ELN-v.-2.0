@@ -7,6 +7,7 @@ import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
+import com.epam.indigoeln.eln.repository.AttachmentRepository;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.AttachmentService;
@@ -28,10 +29,9 @@ import one.util.streamex.StreamEx;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jspecify.annotations.Nullable;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
 
+import static com.epam.indigoeln.common.util.ModelUtil.useTempFile;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.SUBMIT_EXPERIMENTS;
 import static com.epam.indigoeln.eln.model.ExperimentStatus.*;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -104,20 +104,12 @@ class SubmitExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
         ExperimentService.ExperimentReportContent report = experimentService.printReport(experiment);
         AttachmentEntity attachment = attachmentService.createExperimentAttachment(experiment, report.filename(), report.content(), false);
         String documentName = experiment.getName(); // !!! add version number
-        Path tempDirectory = Files.createTempDirectory("eln-fileupload");
-        Path uploadedFile = null;
-        try {
-            uploadedFile = tempDirectory.resolve(attachment.getName());
-            Files.write(uploadedFile, attachment.getContent());
-            DocumentDTO document = signatureClient.uploadDocumentClient(experiment.getName(), mutation.signatureTemplateID(), uploadedFile.toFile());
-            experiment.setSignatureNumber(document.getId().toString());
-            helper.updateStatusFromSignature(experiment, document.getStatus());
-        } finally {
-            if (uploadedFile != null) {
-                Files.delete(uploadedFile);
-            }
-            Files.delete(tempDirectory);
-        }
+        DocumentDTO document = useTempFile(attachment.getName(), attachment.getContent(), file -> {
+            return signatureClient.uploadDocumentClient(experiment.getName(), mutation.signatureTemplateID(), file);
+        });
+        experiment.setSignatureNumber(document.getId().toString());
+        experiment.setSignatureAttachment(attachment);
+        helper.updateStatusFromSignature(experiment, document.getStatus());
         return new MutationResult("Experiment submitted for signature");
     }
 }
@@ -128,10 +120,21 @@ class SignatureUpdatedHandler extends ExperimentMutationHandlerBase<ExperimentMu
 
     @Inject
     ExperimentWorkflowHelper helper;
+    @Inject
+    AttachmentService attachmentService;
+    @Inject
+    AttachmentRepository attachmentRepository;
+
+    @Override
+    public void doPrepare(ExperimentEntity entity, ExperimentMutation.SignatureUpdated mutation, ExperimentMutationContext context) {
+        context.setAffectsAttachments(true);
+    }
 
     @Override
     public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.SignatureUpdated mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         helper.updateStatusFromSignature(experiment, mutation.documentStatus());
+        AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
+        attachmentService.doAddExperimentAttachment(experiment, attachment);
         return new MutationResult("Signatures update: " + mutation.message());
     }
 }

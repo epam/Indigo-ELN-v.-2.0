@@ -1,6 +1,7 @@
 package com.epam.indigoeln.eln.api;
 
 import com.epam.indigoeln.common.model.DocumentStatus;
+import com.epam.indigoeln.common.model.UploadForm;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -16,5 +17,6 @@ public interface ELNInternalAPI extends BaseAPI {
 
     @POST
     @Path("/internal/signatureUpdated")
-    void internalSignatureUpdated(@NotNull @QueryParam("documentId") UUID documentId, @NotNull @QueryParam("message") String message, @QueryParam("documentStatus") DocumentStatus updatedStatus);
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    void internalSignatureUpdated(@NotNull @QueryParam("documentId") UUID documentId, @NotNull @QueryParam("message") String message, @QueryParam("documentStatus") DocumentStatus updatedStatus, UploadForm form);
 }
