@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.api;
 
+import com.epam.indigoeln.common.model.UploadForm;
 import com.epam.indigoeln.eln.model.*;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotEmpty;
@@ -41,7 +42,7 @@ public interface ProjectAPI extends BaseAPI {
     @POST
     @Path("/projects/{projectId}/attachments")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    List<AttachmentDTO> createProjectAttachment(@PathParam("projectId") UUID projectId, com.epam.indigoeln.common.model.UploadForm form);
+    List<AttachmentDTO> createProjectAttachment(@PathParam("projectId") UUID projectId, UploadForm form);
 
     @GET
     @Path("/project/{projectId}/attachments/{attachmentId}")

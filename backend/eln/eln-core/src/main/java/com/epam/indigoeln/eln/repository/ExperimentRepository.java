@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.repository;
 
+import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.mapper.ExperimentMapper;
 import com.epam.indigoeln.eln.model.*;
@@ -206,7 +207,7 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
         return stream
                 .map(r -> new ExperimentRevisionSummaryDTO(
                         (UUID) r[6],
-                        new com.epam.indigoeln.common.model.UserRef((UUID) r[0], (String) r[1], (String) r[2]),
+                        new UserRef((UUID) r[0], (String) r[1], (String) r[2]),
                         (String) r[3],
                         r[4] != null ? ((Instant) r[4]).atZone(ZoneId.systemDefault()) : null,
                         ((Instant) r[5]).atZone(ZoneId.systemDefault())

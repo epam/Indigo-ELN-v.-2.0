@@ -33,16 +33,6 @@ public class ReportsServiceTest extends BaseTest {
     @SuppressWarnings("unused")
     public static List<ReportsAPI.ExperimentReportDataDTO> fillExperimentDataForJasperReportsStudio() {
         ObjectMapper objectMapper = com.epam.indigoeln.test.FeignUtil.OBJECT_MAPPER;
-//        byte[] experimentJson = ModelUtil.loadResource(ReportsServiceTest.class, "/experiment-model.json");
-//        ProjectDTO project = new ProjectDTO();
-//        project.setName("Demo project");
-//        ExperimentDetailsDTO experiment = objectMapper.readValue(experimentJson, ExperimentDetailsDTO.class);
-//
-//        return List.of(new ReportsAPI.ExperimentReportDataDTO(
-//                project,
-//                experiment,
-//                new String(ModelUtil.loadResource(ReportsServiceTest.class, "/experiment-image.svg"), StandardCharsets.UTF_8)
-//        ));
         return List.of(
                 objectMapper.readValue(ModelUtil.loadResource(ReportsServiceTest.class, "/experiment-input.json"), ReportsAPI.ExperimentReportDataDTO.class)
         );

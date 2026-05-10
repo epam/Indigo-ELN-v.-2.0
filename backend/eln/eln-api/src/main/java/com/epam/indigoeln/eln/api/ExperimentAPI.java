@@ -1,6 +1,6 @@
 package com.epam.indigoeln.eln.api;
 
-import com.epam.indigoeln.common.model.DocumentStatus;
+import com.epam.indigoeln.common.model.UploadForm;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.quarkus.cachecontrol.Cached;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
@@ -10,7 +10,6 @@ import com.epam.indigoeln.reaction.model.ReactionAnchor;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -58,7 +57,7 @@ public interface ExperimentAPI extends BaseAPI {
     @POST
     @Path("/experiments/{experimentId}/attachments")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    List<AttachmentDTO> createExperimentAttachment(@PathParam("experimentId") UUID experimentId, com.epam.indigoeln.common.model.UploadForm form);
+    List<AttachmentDTO> createExperimentAttachment(@PathParam("experimentId") UUID experimentId, UploadForm form);
 
     @GET
     @Path("/experiment/{experimentId}/attachments/{attachmentId}")
@@ -162,8 +161,4 @@ public interface ExperimentAPI extends BaseAPI {
     @GET
     @Path("/experiments/suggest")
     List<ExperimentRef> suggestExperiments(@QueryParam("search") String search);
-
-    @POST
-    @Path("/internal/signatureUpdated")
-    void internalSignatureUpdated(@NotNull @QueryParam("documentId") UUID documentId, @NotNull @QueryParam("message") String message, @QueryParam("documentStatus") DocumentStatus updatedStatus);
 }

@@ -19,7 +19,6 @@ public class TestSupportService {
         if (!ConfigUtils.isProfileActive("devtest")) {
             throw new UnsupportedOperationException("Only available in tests");
         }
-        // experiments, notebooks, projects
         em.createNativeQuery("delete from Document").executeUpdate();
         em.createNativeQuery("delete from Signature_Template").executeUpdate();
     }

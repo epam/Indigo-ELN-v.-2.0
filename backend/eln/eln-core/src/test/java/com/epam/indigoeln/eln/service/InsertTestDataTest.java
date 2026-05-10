@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.api.MutateModelForm;
 import com.epam.indigoeln.eln.client.*;
@@ -114,7 +115,7 @@ class InsertTestDataTest {
 //    @Test
     @Order(5)
     void insertSignatureTemplate() {
-        com.epam.indigoeln.common.model.UserRef bob = userClient.suggestUsers("Bob").getFirst();
+        UserRef bob = userClient.suggestUsers("Bob").getFirst();
         signatureClient.createTemplate(new SignatureTemplateRequest("Author and Bob", List.of(
                 new SignatureTemplateBlock(null, SignatureReason.AUTHOR),
                 new SignatureTemplateBlock(bob, SignatureReason.WITNESS)

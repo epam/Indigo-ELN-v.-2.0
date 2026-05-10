@@ -1,17 +1,23 @@
 package com.epam.indigoeln.test;
 
 import io.quarkus.test.common.http.TestHTTPResource;
+import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.security.TestSecurity;
 import lombok.Setter;
 import lombok.SneakyThrows;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.platform.commons.support.AnnotationSupport;
+import org.mockito.quality.Strictness;
 
 import java.net.URI;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.withSettings;
 
 @Timeout(value = 30, unit = TimeUnit.SECONDS)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -51,6 +57,12 @@ public abstract class BaseTest {
     protected <T> T buildClient(Class<T> klass) {
         AtomicReference<String> authorization = new AtomicReference<>();
         return FeignUtil.buildFeignClient(getServerURL(), klass, username, authorization);
+    }
+
+    protected <T> T mockClient(Class<T> klass) {
+        T instance = mock(klass, withSettings().strictness(Strictness.STRICT_STUBS).verboseLogging());
+        QuarkusMock.installMockForType(instance, klass, RestClient.LITERAL);
+        return instance;
     }
 
     protected void withUser(String username, Runnable runnable) {

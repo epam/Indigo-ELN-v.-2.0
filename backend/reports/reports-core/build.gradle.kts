@@ -11,6 +11,7 @@ dependencies {
 //    implementation(project(":database:flyway")) // TODO move flyway to a separate lambda and move dependency to testImplementation
 
     implementation("io.quarkiverse.jasperreports:quarkus-jasperreports:1.3.0")
+    runtimeOnly("xerces:xercesImpl:2.12.2")
 
 //    implementation("net.sf.jasperreports:jasperreports:7.0.3") {
 //        exclude(group = "org.apache.xmlgraphics")

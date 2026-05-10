@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.api;
 
+import com.epam.indigoeln.common.model.UploadForm;
 import com.epam.indigoeln.eln.model.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.ws.rs.*;
@@ -40,7 +41,7 @@ public interface NotebookAPI extends BaseAPI {
     @POST
     @Path("/notebooks/{notebookId}/attachments")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    List<AttachmentDTO> createNotebookAttachment(@PathParam("notebookId") UUID notebookId, com.epam.indigoeln.common.model.UploadForm form);
+    List<AttachmentDTO> createNotebookAttachment(@PathParam("notebookId") UUID notebookId, UploadForm form);
 
     @GET
     @Path("/notebook/{notebookId}/attachments/{attachmentId}")

@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.model;
 
+import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotNull;
@@ -34,7 +35,7 @@ public class ExperimentDetailsDTO extends BaseExperimentDTO {
     UUID templateId;
 
     @NotNull
-    com.epam.indigoeln.common.model.UserRef batchCreator;
+    UserRef batchCreator;
 
     @NotNull
     List<ExperimentRef> linkedExperiments;

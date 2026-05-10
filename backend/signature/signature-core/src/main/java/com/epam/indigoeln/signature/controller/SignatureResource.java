@@ -3,7 +3,6 @@ package com.epam.indigoeln.signature.controller;
 
 import com.epam.indigoeln.common.model.UploadForm;
 import com.epam.indigoeln.signature.api.SignatureAPI;
-import com.epam.indigoeln.signature.api.SignatureClient;
 import com.epam.indigoeln.signature.entity.DocumentEntity;
 import com.epam.indigoeln.signature.model.DocumentDTO;
 import com.epam.indigoeln.signature.model.SignatureTemplateDTO;
@@ -19,7 +18,6 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import java.util.List;
 import java.util.UUID;
@@ -30,10 +28,6 @@ public class SignatureResource implements SignatureAPI {
 
     @Inject
     SignatureService service;
-
-    @Inject
-    @RestClient
-    SignatureClient signatureClient;
 
     @Context
     RoutingContext routingContext;

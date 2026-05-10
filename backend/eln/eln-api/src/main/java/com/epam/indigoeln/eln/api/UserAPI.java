@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.api;
 
+import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.quarkus.cachecontrol.Cached;
 import jakarta.annotation.Nullable;
@@ -39,5 +40,5 @@ public interface UserAPI extends BaseAPI {
 
     @GET
     @Path("/users/suggest")
-    List<com.epam.indigoeln.common.model.UserRef> suggestUsers(@QueryParam("search") @Nullable String search);
+    List<UserRef> suggestUsers(@QueryParam("search") @Nullable String search);
 }

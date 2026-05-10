@@ -1,6 +1,7 @@
 package com.epam.indigoeln.signature.service;
 
 import com.epam.indigoeln.common.util.ModelUtil;
+import com.epam.indigoeln.eln.api.ELNInternalClient;
 import com.epam.indigoeln.signature.entity.DocumentEntity;
 import com.epam.indigoeln.signature.entity.DocumentSignatureEntity;
 import com.epam.indigoeln.signature.entity.SignatureTemplateEntity;
@@ -17,6 +18,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -43,6 +45,9 @@ public class SignatureService {
     UserService userService;
     @Inject
     SignatureApplier signatureApplier;
+    @Inject
+    @RestClient
+    ELNInternalClient elnInternalClient;
 
     private final byte[] keyStore;
     private final String keyStorePassword;
@@ -123,6 +128,7 @@ public class SignatureService {
     public DocumentDTO signOrRejectDocument(UUID documentId, boolean reject) {
         DocumentEntity document = em.find(DocumentEntity.class, documentId);
         boolean found = false;
+        String message = null;
         for (DocumentSignatureEntity block : document.getSignatures()) {
             if (block.getUser().equals(userService.getCurrentUser())) {
                 if (block.getStatus() != WAITING) {
@@ -136,6 +142,7 @@ public class SignatureService {
                         ? signatureApplier.rejectDocument(document.getContent(), block, signatureIndex)
                         : signatureApplier.signDocument(document.getContent(), block, signatureIndex, keyStore, keyStorePassword);
                 document.setContent(content);
+                message = "%s by %s".formatted(reject ? "Rejected" : "Approved", userService.getCurrentUser().getDisplayName());
                 found = true;
             }
         }
@@ -143,6 +150,7 @@ public class SignatureService {
             throw new InvalidInputException("Document doesn't require signature by current user");
         }
         updateDocumentStatus(document);
+        elnInternalClient.internalSignatureUpdated(document.getId(), message, document.getStatus());
         document.setLastModifiedDate(ZonedDateTime.now());
         return mapper.entityToDocument(document);
     }
@@ -180,7 +188,6 @@ public class SignatureService {
         };
         if (newStatus != null) {
             document.setStatus(newStatus);
-            // !!! notify ELN service
         }
     }
 }

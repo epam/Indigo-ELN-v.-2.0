@@ -10,8 +10,9 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import java.io.File;
 import java.util.UUID;
 
+@Path(SignatureAPI.BASE_PATH)
 @RegisterRestClient(configKey = "signature-api")
-@RegisterClientHeaders(APISecretHeaderFactory.Public.class)
+@RegisterClientHeaders(APISecretHeaderFactory.class)
 public interface SignatureClient extends SignatureAPI {
 
     @POST

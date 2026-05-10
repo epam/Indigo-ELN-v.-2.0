@@ -71,24 +71,31 @@ public class FeignUtil {
                     }
                 })
                 .logLevel(Logger.Level.FULL)
-//                .logger(new BinaryAwareSlf4jLogger("feign"))
                 .logger(new Slf4jLogger("feign"))
                 .retryer(Retryer.NEVER_RETRY)
-                .errorDecoder((methodKey, response) -> {
-                    String body = "";
-                    try (InputStream is = response.body().asInputStream()) {
-                        body = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-                    } catch (Exception ignore) {
-                    }
-                    try {
-                        List<ErrorDTO> errors = OBJECT_MAPPER.readValue(body, new TypeReference<>() {});
-                        return new APICallException(response.status(), response.reason(), errors);
-                    } catch (Exception e) {
-                        throw new RuntimeException("Server didn't return a valid JSON error response: " + body, e);
-                    }
-                })
+                .errorDecoder(FeignUtil::decodeError)
                 .target(klass, baseURL.toString());
-//        client = RestClientBuilder.newBuilder().baseUri(baseURL).build(ELNClient.class);
+    }
+
+    private static Exception decodeError(String methodKey, Response response) {
+        String body = null;
+        try (InputStream is = response.body().asInputStream()) {
+            body = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (Exception ignore) {
+        }
+        List<ErrorDTO> errors = List.of();
+        if (body != null) {
+            try {
+                errors = OBJECT_MAPPER.readValue(body, new TypeReference<>() {});
+            } catch (Exception e) {
+                try {
+                    errors = List.of(OBJECT_MAPPER.readValue(body, ErrorDTO.class));
+                } catch (Exception e2) {
+                    errors = List.of(new ErrorDTO(body));
+                }
+            }
+        }
+        return new APICallException(response.status(), response.reason(), errors);
     }
 
     // workaround for Feign client incorrect handling of @BeanParam

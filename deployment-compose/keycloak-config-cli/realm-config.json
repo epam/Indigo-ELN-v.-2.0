@@ -2,6 +2,26 @@
   "realm": "indigo-eln",
   "enabled": true,
   "users" : [ {
+    "username" : "admin",
+    "firstName" : "Administrator",
+    "lastName" : "Administrator",
+    "email" : "admin@eln.com",
+    "emailVerified" : false,
+    "createdTimestamp" : 1770723906766,
+    "enabled" : true,
+    "totp" : false,
+    "credentials" : [ {
+      "type" : "password",
+      "value" : "admin",
+      "temporary" : false
+    } ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-indigo-eln" ],
+    "notBefore" : 0,
+    "groups" : [ ]
+  },
+  {
     "username" : "testuser1",
     "firstName" : "Test",
     "lastName" : "User1",
@@ -33,6 +53,106 @@
     "credentials" : [ {
       "type" : "password",
       "value" : "testuser2",
+      "temporary" : false
+    } ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-indigo-eln" ],
+    "notBefore" : 0,
+    "groups" : [ ]
+  },
+  {
+    "username" : "john",
+    "firstName" : "John",
+    "lastName" : "Doe",
+    "email" : "john@eln.com",
+    "emailVerified" : false,
+    "createdTimestamp" : 1770723906766,
+    "enabled" : true,
+    "totp" : false,
+    "credentials" : [ {
+      "type" : "password",
+      "value" : "password",
+      "temporary" : false
+    } ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-indigo-eln" ],
+    "notBefore" : 0,
+    "groups" : [ ]
+  },
+  {
+    "username" : "willow",
+    "firstName" : "Willow",
+    "lastName" : "Johnson",
+    "email" : "willow@eln.com",
+    "emailVerified" : false,
+    "createdTimestamp" : 1770723906766,
+    "enabled" : true,
+    "totp" : false,
+    "credentials" : [ {
+      "type" : "password",
+      "value" : "password",
+      "temporary" : false
+    } ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-indigo-eln" ],
+    "notBefore" : 0,
+    "groups" : [ ]
+  },
+  {
+    "username" : "bart",
+    "firstName" : "Bart",
+    "lastName" : "Brown",
+    "email" : "bart@eln.com",
+    "emailVerified" : false,
+    "createdTimestamp" : 1770723906766,
+    "enabled" : true,
+    "totp" : false,
+    "credentials" : [ {
+      "type" : "password",
+      "value" : "password",
+      "temporary" : false
+    } ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-indigo-eln" ],
+    "notBefore" : 0,
+    "groups" : [ ]
+  },
+  {
+    "username" : "lisa",
+    "firstName" : "Lisa",
+    "lastName" : "Green",
+    "email" : "lisa@eln.com",
+    "emailVerified" : false,
+    "createdTimestamp" : 1770723906766,
+    "enabled" : true,
+    "totp" : false,
+    "credentials" : [ {
+      "type" : "password",
+      "value" : "password",
+      "temporary" : false
+    } ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-indigo-eln" ],
+    "notBefore" : 0,
+    "groups" : [ ]
+  },
+  {
+    "username" : "maggie",
+    "firstName" : "Maggie",
+    "lastName" : "Green",
+    "email" : "maggie@eln.com",
+    "emailVerified" : false,
+    "createdTimestamp" : 1770723906766,
+    "enabled" : true,
+    "totp" : false,
+    "credentials" : [ {
+      "type" : "password",
+      "value" : "password",
       "temporary" : false
     } ],
     "disableableCredentialTypes" : [ ],

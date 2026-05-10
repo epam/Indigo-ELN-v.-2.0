@@ -1,6 +1,7 @@
 package com.epam.indigoeln.eln.controller;
 
 
+import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.eln.api.BaseAPI;
 import com.epam.indigoeln.eln.api.UserAPI;
 import com.epam.indigoeln.eln.model.*;
@@ -46,7 +47,7 @@ public class UserResource implements UserAPI {
     }
 
     @Override
-    public List<com.epam.indigoeln.common.model.UserRef> suggestUsers(@Nullable String search) {
+    public List<UserRef> suggestUsers(@Nullable String search) {
         return userService.suggestUsers(search);
     }
 }

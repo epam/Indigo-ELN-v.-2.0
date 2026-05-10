@@ -1,6 +1,7 @@
 package com.epam.indigoeln.reaction.service.mutation.experiment;
 
 import com.epam.indigoeln.common.exception.InvalidRequestException;
+import com.epam.indigoeln.common.model.DocumentStatus;
 import com.epam.indigoeln.eln.entity.AttachmentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
@@ -15,7 +16,6 @@ import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
-import com.epam.indigoeln.signature.api.SignatureAPI;
 import com.epam.indigoeln.signature.api.SignatureClient;
 import com.epam.indigoeln.signature.model.DocumentDTO;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -109,8 +109,9 @@ class SubmitExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
         try {
             uploadedFile = tempDirectory.resolve(attachment.getName());
             Files.write(uploadedFile, attachment.getContent());
-            DocumentDTO document = signatureClient.uploadDocument(experiment.getName(), mutation.signatureTemplateID(), new SignatureAPI.UploadFormXXx(uploadedFile.toFile()));
+            DocumentDTO document = signatureClient.uploadDocumentClient(experiment.getName(), mutation.signatureTemplateID(), uploadedFile.toFile());
             experiment.setSignatureNumber(document.getId().toString());
+            helper.updateStatusFromSignature(experiment, document.getStatus());
         } finally {
             if (uploadedFile != null) {
                 Files.delete(uploadedFile);
@@ -130,20 +131,7 @@ class SignatureUpdatedHandler extends ExperimentMutationHandlerBase<ExperimentMu
 
     @Override
     public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.SignatureUpdated mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
-        switch (mutation.documentStatus()) {
-            case SIGNING -> {
-                if (experiment.getStatus() != SIGNING) {
-                    helper.transition(experiment, SIGNING, null, SUBMITTED);
-                }
-            }
-            case SIGNED -> {
-                helper.transition(experiment, SIGNED, null, SUBMITTED, SIGNING);
-                helper.transition(experiment, ARCHIVED, null, SIGNED);
-            }
-            case REJECTED -> {
-                helper.transition(experiment, REJECTED, null, SUBMITTED, SIGNING);
-            }
-        }
+        helper.updateStatusFromSignature(experiment, mutation.documentStatus());
         return new MutationResult("Signatures update: " + mutation.message());
     }
 }
@@ -198,6 +186,23 @@ class ExperimentWorkflowHelper {
     void ensureStatus(ExperimentEntity experiment, ExperimentStatus... allowedStatuses) {
         if (!Arrays.asList(allowedStatuses).contains(experiment.getStatus())) {
             InvalidRequestException.fail("Experiment is " + experiment.getStatus() + ", must be " + StreamEx.of(allowedStatuses).joining(" or "));
+        }
+    }
+
+    void updateStatusFromSignature(ExperimentEntity experiment, DocumentStatus documentStatus) {
+        switch (documentStatus) {
+            case SIGNING -> {
+                if (experiment.getStatus() != SIGNING) {
+                    transition(experiment, SIGNING, null, SUBMITTED);
+                }
+            }
+            case SIGNED -> {
+                transition(experiment, SIGNED, null, SUBMITTED, SIGNING);
+                transition(experiment, ARCHIVED, null, SIGNED);
+            }
+            case REJECTED -> {
+                transition(experiment, REJECTED, null, SUBMITTED, SIGNING);
+            }
         }
     }
 }

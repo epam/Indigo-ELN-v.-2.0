@@ -13,6 +13,7 @@ dependencies {
     api(project(":common:common"))
     api(project(":common:common-hibernate"))
     api(project(":signature:signature-api"))
+    api(project(":eln:eln-api"))
 
     api("io.quarkus:quarkus-flyway")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.20.0")

@@ -2,6 +2,7 @@ package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.config.UserHolder;
 import com.epam.indigoeln.common.exception.AccessDeniedException;
+import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.eln.entity.RoleEntity;
 import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.entity.UserInfo;
@@ -83,7 +84,7 @@ public class UserService {
         return em.getReference(UserEntity.class, userID);
     }
 
-    public List<com.epam.indigoeln.common.model.UserRef> suggestUsers(@Nullable String search) {
+    public List<UserRef> suggestUsers(@Nullable String search) {
         return userRepository.suggest(search);
     }
 

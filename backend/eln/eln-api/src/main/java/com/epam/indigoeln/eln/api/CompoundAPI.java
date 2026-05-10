@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.api;
 
+import com.epam.indigoeln.common.model.UploadForm;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.search.SampleSearchResult;
@@ -21,7 +22,7 @@ public interface CompoundAPI extends BaseAPI {
     @POST
     @Path("/compounds/loadFromFile")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    void loadCompoundsFromFile(com.epam.indigoeln.common.model.UploadForm form);
+    void loadCompoundsFromFile(UploadForm form);
 
     @GET
     @Path("/compounds/{compoundID}/picture")

@@ -1,7 +1,7 @@
 package com.epam.indigoeln.eln.controller;
 
 
-import com.epam.indigoeln.common.model.DocumentStatus;
+import com.epam.indigoeln.common.model.UploadForm;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.api.BaseAPI;
 import com.epam.indigoeln.eln.api.ExperimentAPI;
@@ -75,7 +75,7 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
-    public List<AttachmentDTO> createExperimentAttachment(UUID experimentId, com.epam.indigoeln.common.model.UploadForm form) {
+    public List<AttachmentDTO> createExperimentAttachment(UUID experimentId, UploadForm form) {
         return attachmentService.createExperimentAttachment(experimentId, form.getFile(), true);
     }
 
@@ -199,10 +199,5 @@ public class ExperimentResource implements ExperimentAPI {
     @Override
     public List<ExperimentRef> suggestExperiments(String search) {
         return experimentService.suggestExperiments(search);
-    }
-
-    @Override
-    public void internalSignatureUpdated(UUID documentId, String message, DocumentStatus documentStatus) {
-        experimentWorkflowService.signatureUpdated(documentId, message, documentStatus);
     }
 }

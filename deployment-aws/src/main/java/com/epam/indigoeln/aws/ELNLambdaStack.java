@@ -41,8 +41,6 @@ public class ELNLambdaStack extends NestedStack {
     private final IHttpRouteAuthorizer httpAuthorizer;
     @Getter
     private final IStringParameter apiGatewaySecret;
-    @Getter
-    private final IStringParameter internalApiGatewaySecret;
 
     public ELNLambdaStack(final Construct scope, final String id, final Props props) {
         super(scope, id, props);
@@ -50,10 +48,6 @@ public class ELNLambdaStack extends NestedStack {
         apiGatewaySecret = StringParameter.Builder.create(this, "api-gateway-secret")
                 .parameterName("api-gateway-secret")
                 .stringValue(props.getApiGatewaySecret())
-                .build();
-        internalApiGatewaySecret = StringParameter.Builder.create(this, "internal-api-gateway-secret")
-                .parameterName("internal-api-gateway-secret")
-                .stringValue(props.getInternalApiGatewaySecret())
                 .build();
 
         httpApi = HttpApi.Builder.create(this, "http-api")
@@ -69,7 +63,6 @@ public class ELNLambdaStack extends NestedStack {
                 entry("QUARKUS_DATASOURCE_PASSWORD", props.getDbCredentials().getPassword().unsafeUnwrap()), // TODO retrieve credentials in lambda code
                 entry("ELN_COGNITO_USER_POOL_ID", props.getUserPool().getUserPoolId()),
                 entry("ELN_API_SECRET", apiGatewaySecret.getStringValue()),
-                entry("ELN_INTERNAL_API_SECRET", internalApiGatewaySecret.getStringValue()),
                 entry("QUARKUS_REST_CLIENT_REPORTS_API_URL", httpApi.getApiEndpoint()),
                 entry("QUARKUS_REST_CLIENT_LOGGING_SCOPE", "request-response"),
                 entry("QUARKUS_REST_CLIENT_LOGGING_BODY_LIMIT", "9999"),
@@ -94,7 +87,7 @@ public class ELNLambdaStack extends NestedStack {
 
         Map<String, String> reportsFunctionEnvironment = mapOf(
                 entry("JAVA_TOOL_OPTIONS", "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"),
-                entry("ELN_API_SECRET", internalApiGatewaySecret.getStringValue()),
+                entry("ELN_API_SECRET", apiGatewaySecret.getStringValue()),
                 entry("QUARKUS_LOG_LEVEL", "INFO"),
                 entry("QUARKUS_LOG_CATEGORY__COM_EPAM__LEVEL", "DEBUG")
         );
@@ -110,6 +103,12 @@ public class ELNLambdaStack extends NestedStack {
 
         httpApi.addRoutes(AddRoutesOptions.builder()
                 .path("/api/eln/{proxy+}")
+                .integration(HttpLambdaIntegration.Builder.create("eln-api-integration", elnFunction).build())
+                .authorizer(httpAuthorizer)
+                .build()
+        );
+        httpApi.addRoutes(AddRoutesOptions.builder()
+                .path("/internalapi/eln/{proxy+}")
                 .integration(HttpLambdaIntegration.Builder.create("eln-api-integration", elnFunction).build())
                 .authorizer(httpAuthorizer)
                 .build()
@@ -175,6 +174,5 @@ public class ELNLambdaStack extends NestedStack {
         String elnImageTag;
         String reportsImageTag;
         String apiGatewaySecret;
-        String internalApiGatewaySecret;
     }
 }

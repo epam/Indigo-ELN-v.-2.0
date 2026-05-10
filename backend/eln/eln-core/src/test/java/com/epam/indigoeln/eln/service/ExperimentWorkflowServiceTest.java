@@ -17,7 +17,6 @@ import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.util.List;
 import java.util.UUID;
@@ -28,6 +27,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 
 @QuarkusTest
@@ -46,12 +46,12 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
     @BeforeAll
     void setUpAll() {
         if (!integrationTest) {
-            Mockito.when(reportsClient.generateExperimentReport(any()))
+            when(reportsClient.generateExperimentReport(any()))
                     .thenAnswer(inv -> Response.ok("contentcontentcontent".getBytes()).header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"report.pdf\"").build());
             noSignersTemplateID = UUID.randomUUID();
             oneSignerTemplateID = UUID.randomUUID();
             twoSignersTemplateID = UUID.randomUUID();
-            Mockito.when(signatureClient.getTemplates())
+            when(signatureClient.getTemplates())
                     .thenReturn(List.of(
                             createMockTemplateDTO(noSignersTemplateID, "ExperimentWorkflowServiceTest-noSigners"),
                             createMockTemplateDTO(oneSignerTemplateID, "ExperimentWorkflowServiceTest-oneSigner"),
@@ -83,7 +83,8 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
             documentID = UUID.randomUUID();
             DocumentDTO document = new DocumentDTO();
             document.setId(documentID);
-            Mockito.when(signatureClient.uploadDocument(any(), any(), any()))
+            document.setStatus(DocumentStatus.SUBMITTED);
+            when(signatureClient.uploadDocumentClient(any(), any(), any()))
                     .thenReturn(document);
         }
     }
@@ -342,7 +343,7 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
 
     private void simulateSignatureUpdate(String message, DocumentStatus updatedStatus) {
         if (!integrationTest) {
-            experimentClient.internalSignatureUpdated(documentID, "SIMULATED " + message, updatedStatus);
+            elnInternalClient.internalSignatureUpdated(documentID, "SIMULATED " + message, updatedStatus);
             experiment = experimentClient.getExperiment(experiment.getId());
         }
     }

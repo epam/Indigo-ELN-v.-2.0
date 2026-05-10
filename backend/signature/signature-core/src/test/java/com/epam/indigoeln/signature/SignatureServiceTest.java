@@ -2,14 +2,12 @@ package com.epam.indigoeln.signature;
 
 import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.common.util.ModelUtil;
+import com.epam.indigoeln.eln.api.ELNInternalClient;
+import com.epam.indigoeln.signature.api.SignatureAdminClient;
 import com.epam.indigoeln.signature.api.SignatureClient;
-import com.epam.indigoeln.signature.client.SignatureAdminClient;
-import com.epam.indigoeln.signature.controller.SignatureResource;
 import com.epam.indigoeln.signature.model.*;
 import com.epam.indigoeln.test.APICallException;
 import com.epam.indigoeln.test.BaseTest;
-import io.quarkus.test.common.http.TestHTTPEndpoint;
-import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.Claim;
@@ -19,7 +17,6 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.FileOutputStream;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -37,12 +34,9 @@ import static org.assertj.core.api.Assumptions.assumeThat;
 @JwtSecurity(claims = {@Claim(key = "given_name", value = "John"), @Claim(key = "family_name", value = "Doe")})
 class SignatureServiceTest extends BaseTest {
 
-    @TestHTTPResource
-    @TestHTTPEndpoint(SignatureResource.class)
-    URI serverURL;
-
     SignatureClient signatureClient;
     SignatureAdminClient signatureAdminClient;
+    ELNInternalClient elnInternalClient;
 
     UUID templateID;
     UUID documentID;
@@ -55,6 +49,7 @@ class SignatureServiceTest extends BaseTest {
         signatureClient = buildClient(SignatureClient.class);
         signatureAdminClient = buildClient(SignatureAdminClient.class);
         signatureAdminClient.cleanupDatabase();
+        elnInternalClient = integrationTest ? buildClient(ELNInternalClient.class) : mockClient(ELNInternalClient.class);
 
         johnUserRef = signatureAdminClient.getOrCreateUser("john", "John", "Doe");
         willowUserRef = signatureAdminClient.getOrCreateUser("willow", "Willow", "Johnson");

@@ -42,4 +42,5 @@ include("reports:reports-core")
 include("reports:reports-lambda")
 include("reports:reports-service")
 
-include("integrationTests")
+include("integrationTests:integrationTests-lambda")
+include("integrationTests:integrationTests-service")

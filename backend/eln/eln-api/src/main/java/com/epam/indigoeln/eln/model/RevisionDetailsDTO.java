@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.model;
 
+import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.validation.constraints.NotNull;
@@ -21,7 +22,7 @@ public class RevisionDetailsDTO {
     private ZonedDateTime datetime;
 
     @NotNull
-    private com.epam.indigoeln.common.model.UserRef user;
+    private UserRef user;
 
     @NotNull
     private Mutation mutation;

@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.*;
 import io.quarkus.test.junit.QuarkusTest;
@@ -182,7 +183,7 @@ class TemplateServiceTest extends ELNBaseTest {
 
         assertThat(templates.getItems())
                 .extracting(TemplateDTO::getCreatedBy)
-                .extracting(com.epam.indigoeln.common.model.UserRef::getDisplayName)
+                .extracting(UserRef::getDisplayName)
                 .containsOnly(LISA_DISPLAY_NAME);
     }
 
@@ -292,7 +293,7 @@ class TemplateServiceTest extends ELNBaseTest {
 
         assertThat(searchTemplates)
                 .extracting(TemplateDTO::getCreatedBy)
-                .extracting(com.epam.indigoeln.common.model.UserRef::getDisplayName)
+                .extracting(UserRef::getDisplayName)
                 .containsOnly(LISA_DISPLAY_NAME);
     }
 
