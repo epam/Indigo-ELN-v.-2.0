@@ -6,6 +6,7 @@ import { map, Observable } from 'rxjs';
 import { IdentityService } from '@/core/services/identity.service';
 import { ApplicationPermission, CurrentUser } from '@/core/types/entities/user.i';
 import { MatIconModule } from '@angular/material/icon';
+import { SvgIconComponent } from '@core/components/common/svg-icon/svg-icon.component';
 
 interface MenuItem {
   name: string;
@@ -13,11 +14,12 @@ interface MenuItem {
   requiredPermission?: string;
   icon?: string;
   materialIcon?: string;
+  iconSvg?: string;
 }
 
 @Component({
   standalone: true,
-  imports: [CommonModule, RouterModule, StarredExperimentsComponent, MatIconModule],
+  imports: [CommonModule, RouterModule, StarredExperimentsComponent, MatIconModule, SvgIconComponent],
   selector: 'eln-sidebar',
   templateUrl: './sidebar.component.html',
 })
@@ -39,7 +41,7 @@ export class SidebarComponent {
     },
     {
       name: 'Dictionaries',
-      materialIcon: 'import_contacts',
+      iconSvg: 'dictionaries',
       path: '/dictionary',
       requiredPermission: ApplicationPermission.MANAGE_DICTIONARIES,
     },

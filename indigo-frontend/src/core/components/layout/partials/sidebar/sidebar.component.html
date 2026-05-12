@@ -35,6 +35,9 @@
         >
           {{ item.materialIcon }}
         </mat-icon>
+
+        <eln-svg *ngIf="item.iconSvg" [icon]="item.iconSvg"></eln-svg>
+
         <span class="font-semibold text-h4 whitespace-nowrap" *ngIf="isSidebarOpen">{{ item.name }}</span>
       </a>
     </li>

@@ -14,9 +14,7 @@
       <div class="hover:cursor-pointer rounded-2xl overflow-hidden shadow hover:shadow-lg transition-shadow">
         <eln-card (click)="selectDictionary(dictionary)" classList="p-4">
           <div class="flex gap-2 items-center">
-            <mat-icon class="material-icons-outlined" [style.color]="'var(--color-primary-400)'"
-              >import_contacts</mat-icon
-            >
+            <eln-svg icon="dictionaries"></eln-svg>
             <h2 class="font-semibold text-base">{{ dictionary.name }}</h2>
           </div>
 
