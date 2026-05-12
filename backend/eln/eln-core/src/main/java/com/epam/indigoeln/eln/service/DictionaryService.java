@@ -24,6 +24,7 @@ import java.util.*;
 
 @Slf4j
 @ApplicationScoped
+@Transactional(Transactional.TxType.SUPPORTS) // cached methods don't require transaction
 public class DictionaryService {
 
     @Inject
@@ -83,7 +84,6 @@ public class DictionaryService {
         return dictionaryMapper.itemToDTOList(dictionaryItemRepository.list(refToID(dictionaryRef), true));
     }
 
-    @Transactional(Transactional.TxType.SUPPORTS) // !!! remove
     public <T extends DictionaryItemRef> T get(UUID id) {
         DictionaryItemRef ref = cached().all.get(id);
         if (ref == null) {

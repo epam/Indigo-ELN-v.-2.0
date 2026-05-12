@@ -49,9 +49,11 @@ public class MainStack extends Stack {
                 cognitoStack.getUserPoolClient(),
                 buildStack.getElnLambdaRepo(),
                 buildStack.getReportsLambdaRepo(),
+                buildStack.getSignatureLambdaRepo(),
                 parameters.getLambdaSubnets(),
                 parameters.getElnLambdaImageTag(),
                 parameters.getReportsLambdaImageTag(),
+                parameters.getSignatureLambdaImageTag(),
                 parameters.getApiGatewaySecret()
         ));
         elnLambdaStack.addDependency(buildStack);

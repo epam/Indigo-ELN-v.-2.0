@@ -36,6 +36,7 @@ public class UserService {
 
     public UserEntity getOrCreateUser(String username, String firstName, String lastName) {
         UserEntity user = findUser(username);
+        boolean exists = user != null;
         if (user == null) {
             user = new UserEntity();
             user.setUsername(username);
@@ -43,9 +44,9 @@ public class UserService {
         if (user.getFirstName() == null && user.getLastName() == null) {
             user.setFirstName(firstName);
             user.setLastName(lastName);
+            user.setDisplayName(ModelUtil.formatUser(user.getFirstName(), user.getLastName(), username));
         }
-        user.setDisplayName(ModelUtil.formatUser(user.getFirstName(), user.getLastName(), username));
-        if (user.getId() == null) {
+        if (!exists) {
             em.persist(user);
         }
         return user;

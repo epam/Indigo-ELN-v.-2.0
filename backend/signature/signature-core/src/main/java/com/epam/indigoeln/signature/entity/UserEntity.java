@@ -36,6 +36,6 @@ public class UserEntity extends IdentifiableEntity {
     }
 
     public UserRef toRef() {
-        return new UserRef(id, username, displayName);
+        return new UserRef(username, displayName);
     }
 }

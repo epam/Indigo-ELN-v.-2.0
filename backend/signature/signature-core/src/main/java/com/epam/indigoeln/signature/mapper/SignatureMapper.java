@@ -61,6 +61,11 @@ public abstract class SignatureMapper {
     }
 
     @Nullable
+    protected UserRef entityToUserRef(@Nullable UserEntity entity) {
+        return entity != null ? entity.toRef() : null;
+    }
+
+    @Nullable
     protected UserEntity userRefToEntity(@Nullable UserRef ref) {
         return ref != null ? userService.getOrCreateUser(ref.getUsername(), null, null) : null;
     }

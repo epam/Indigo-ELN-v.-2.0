@@ -5,6 +5,7 @@ import com.epam.indigoeln.eln.api.ELNInternalClient;
 import com.epam.indigoeln.signature.entity.DocumentEntity;
 import com.epam.indigoeln.signature.entity.DocumentSignatureEntity;
 import com.epam.indigoeln.signature.entity.SignatureTemplateEntity;
+import com.epam.indigoeln.signature.entity.UserEntity;
 import com.epam.indigoeln.signature.exception.InvalidInputException;
 import com.epam.indigoeln.signature.mapper.SignatureMapper;
 import com.epam.indigoeln.signature.model.*;
@@ -95,7 +96,10 @@ public class SignatureService {
                     signature.setTemplateBlock(block);
                     signature.setUser(switch (block.getReason()) {
                         case AUTHOR -> userService.getCurrentUser();
-                        case WITNESS -> userService.getOrCreateUser(checkNotNull(block.getUser()).getUsername(), null, null);
+                        case WITNESS -> {
+                            UserEntity user = checkNotNull(block.getUser());
+                            yield userService.getOrCreateUser(user.getUsername(), null, null);
+                        }
                     });
                     signature.setReason(block.getReason());
                     signature.setStatus(WAITING);

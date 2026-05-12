@@ -108,22 +108,19 @@ public class ModelUtil {
         target.removeAll(deleted);
     }
 
+    @SneakyThrows
     public static <T> T useTempFile(String filename, byte[] bytes, Function<File, T> block) {
+        Path directory = Files.createTempDirectory("eln");
         try {
-            Path directory = Files.createTempDirectory("eln");
+            Path file = directory.resolve(filename);
             try {
-                Path file = directory.resolve(filename);
-                try {
-                    Files.write(file, bytes);
-                    return block.apply(file.toFile());
-                } finally {
-                    Files.delete(file);
-                }
+                Files.write(file, bytes);
+                return block.apply(file.toFile());
             } finally {
-                Files.delete(directory);
+                Files.delete(file);
             }
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to use temp file", e);
+        } finally {
+            Files.delete(directory);
         }
     }
 }

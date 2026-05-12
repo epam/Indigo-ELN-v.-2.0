@@ -30,30 +30,35 @@ public abstract class ELNBaseTest extends BaseTest {
     public static final String JOHN_LAST_NAME = "Doe";
     public static final String JOHN_DISPLAY_NAME = "John Doe";
     public static final List<RoleRef> JOHN_ROLES = List.of(ROLE_CONTENT_EDITOR, ROLE_TEMPLATE_EDITOR, ROLE_ADMINISTRATOR);
+    public static final UserRef JOHN_USER_REF = new UserRef(JOHN_USERNAME, JOHN_DISPLAY_NAME);
 
     public static final String WILLOW_USERNAME = "willow";
     public static final String WILLOW_FIRST_NAME = "Willow";
     public static final String WILLOW_LAST_NAME = "Johnson";
     public static final String WILLOW_DISPLAY_NAME = "Willow Johnson";
     public static final List<RoleRef> WILLOW_ROLES = List.of();
+    public static final UserRef WILLOW_USER_REF = new UserRef(WILLOW_USERNAME, WILLOW_DISPLAY_NAME);
 
     public static final String BART_USERNAME = "bart";
     public static final String BART_FIRST_NAME = "Bart";
     public static final String BART_LAST_NAME = "Brown";
     public static final String BART_DISPLAY_NAME = "Bart Brown";
     public static final List<RoleRef> BART_ROLES = List.of(ROLE_CONTENT_EDITOR);
+    public static final UserRef BART_USER_REF = new UserRef(BART_USERNAME, BART_DISPLAY_NAME);
 
     public static final String LISA_USERNAME = "lisa";
     public static final String LISA_FIRST_NAME = "Lisa";
     public static final String LISA_LAST_NAME = "Green";
     public static final String LISA_DISPLAY_NAME = "Lisa Green";
     public static final List<RoleRef> LISA_ROLES = List.of(ROLE_TEMPLATE_EDITOR);
+    public static final UserRef LISA_USER_REF = new UserRef(LISA_USERNAME, LISA_DISPLAY_NAME);
 
     public static final String MAGGIE_USERNAME = "maggie";
     public static final String MAGGIE_FIRST_NAME = "Maggie";
     public static final String MAGGIE_LAST_NAME = "Green";
     public static final String MAGGIE_DISPLAY_NAME = "Maggie Green";
     public static final List<RoleRef> MAGGIE_ROLES = List.of(ROLE_PROJECT_CREATOR);
+    public static final UserRef MAGGIE_USER_REF = new UserRef(MAGGIE_USERNAME, MAGGIE_DISPLAY_NAME);
 
     protected ProjectClient projectClient;
     protected NotebookClient notebookClient;
@@ -94,8 +99,8 @@ public abstract class ELNBaseTest extends BaseTest {
         testSupportClient = buildClient(TestSupportClient.class);
         globalSearchClient = buildClient(GlobalSearchClient.class);
         elnInternalClient = buildClient(ELNInternalClient.class);
-        reportsClient = integrationTest ? buildClient(ReportsClient.class) : mockClient(ReportsClient.class);
-        signatureClient = integrationTest ? buildClient(SignatureClient.class) : mockClient(SignatureClient.class);
+        reportsClient = buildClient(ReportsClient.class);
+        signatureClient = buildClient(SignatureClient.class);
         if (integrationTest) {
             SignatureAdminClient signatureAdminClient;
             signatureAdminClient = buildClient(SignatureAdminClient.class);
@@ -128,26 +133,6 @@ public abstract class ELNBaseTest extends BaseTest {
         lisaUserID = getOrCreateUser(new UserRequest(LISA_USERNAME, LISA_FIRST_NAME, LISA_LAST_NAME, "password", LISA_ROLES)).getId();
         maggieUserID = getOrCreateUser(new UserRequest(MAGGIE_USERNAME, MAGGIE_FIRST_NAME, MAGGIE_LAST_NAME, "password", MAGGIE_ROLES)).getId();
         emptyTemplateID = templateClient.getByName("Default").getId();
-    }
-
-    public UserRef getJohnUserRef() {
-        return new UserRef(johnUserID, ELNBaseTest.JOHN_USERNAME, JOHN_DISPLAY_NAME);
-    }
-
-    public UserRef getWillowUserRef() {
-        return new UserRef(willowUserID, WILLOW_USERNAME, WILLOW_DISPLAY_NAME);
-    }
-
-    public UserRef getBartUserRef() {
-        return new UserRef(bartUserID, BART_USERNAME, BART_DISPLAY_NAME);
-    }
-
-    public UserRef getLisaUserRef() {
-        return new UserRef(lisaUserID, LISA_USERNAME, LISA_DISPLAY_NAME);
-    }
-
-    public UserRef getMaggieUserRef() {
-        return new UserRef(maggieUserID, MAGGIE_USERNAME, MAGGIE_DISPLAY_NAME);
     }
 
     private UserDTO getOrCreateUser(UserRequest request) {

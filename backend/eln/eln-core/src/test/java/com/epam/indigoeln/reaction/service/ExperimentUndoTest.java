@@ -163,8 +163,8 @@ public class ExperimentUndoTest extends MutationsTestBase {
     @Test
     void testParallelEditsUndoRedo() {
         applyMutation(new ExperimentMutation.EditExperimentAccess(Stream.of(
-                AccessForm.of(lisaUserID, AccessLevel.ADMIN),
-                AccessForm.of(bartUserID, AccessLevel.ADMIN)
+                AccessForm.of(LISA_USERNAME, AccessLevel.ADMIN),
+                AccessForm.of(BART_USERNAME, AccessLevel.ADMIN)
         ).flatMap(Collection::stream).toList()), false);
         applyMutation(new ReactionMutation.AddEmptyInput(reaction.getAnchor()), false);
         applyMutation(new ReactionMutation.AddEmptyInput(reaction.getAnchor()), false);

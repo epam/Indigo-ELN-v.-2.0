@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -15,18 +14,18 @@ import java.util.UUID;
 public class AccessForm {
 
     @NotNull
-    private UUID userID;
+    private String username;
 
     @NotNull
     private AccessLevel level;
 
     private boolean deleteNested;
 
-    public static List<AccessForm> of(UUID userID, AccessLevel level) {
-        return List.of(new AccessForm(userID, level, false));
+    public static List<AccessForm> of(String username, AccessLevel level) {
+        return List.of(new AccessForm(username, level, false));
     }
 
-    public static List<AccessForm> of(UUID userID, AccessLevel level, boolean includeNested) {
-        return List.of(new AccessForm(userID, level, includeNested));
+    public static List<AccessForm> of(String username, AccessLevel level, boolean includeNested) {
+        return List.of(new AccessForm(username, level, includeNested));
     }
 }

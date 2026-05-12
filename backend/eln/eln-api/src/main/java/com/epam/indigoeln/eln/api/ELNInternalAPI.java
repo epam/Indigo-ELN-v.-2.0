@@ -16,7 +16,7 @@ public interface ELNInternalAPI extends BaseAPI {
     String BASE_PATH = "/internalapi/eln";
 
     @POST
-    @Path("/internal/signatureUpdated")
+    @Path("/signatureUpdated")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     void internalSignatureUpdated(@NotNull @QueryParam("documentId") UUID documentId, @NotNull @QueryParam("message") String message, @QueryParam("documentStatus") DocumentStatus updatedStatus, UploadForm form);
 }

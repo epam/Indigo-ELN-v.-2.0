@@ -71,13 +71,31 @@ public class PostgresStack extends NestedStack {
                         entry("DB_PASSWORD", Credentials.fromSecret(dbSecret).getPassword().unsafeUnwrap()),
                         entry("DB_NAME", Credentials.fromSecret(dbSecret).getUsername()),
                         entry("POOL_MODE", "transaction"),
-                        entry("MAX_CLIENT_CONN", "200"),
-                        entry("DEFAULT_POOL_SIZE", "20"),
+                        entry("MAX_CLIENT_CONN", "40"),
+                        entry("DEFAULT_POOL_SIZE", "10"),
                         entry("AUTH_TYPE", "scram-sha-256"),
                         entry("LISTEN_PORT", "6432")
                 ))
                 .portMappings(List.of(PortMapping.builder().containerPort(6432).build()))
                 .logging(LogDriver.awsLogs(AwsLogDriverProps.builder().streamPrefix("pgbouncer").build()))
+                .build());
+
+        postgresTask.addContainer("ecs-task-pgbouncer-container-2", ContainerDefinitionOptions.builder()
+                .image(ContainerImage.fromRegistry("edoburu/pgbouncer:latest"))
+                .environment(mapOf(
+                        entry("DB_HOST", "127.0.0.1"), // explicit IPv4 to avoid accidentally resolving localhost to ::1
+                        entry("DB_PORT", "5432"),
+                        entry("DB_USER", Credentials.fromSecret(dbSecret).getUsername()),
+                        entry("DB_PASSWORD", Credentials.fromSecret(dbSecret).getPassword().unsafeUnwrap()),
+                        entry("DB_NAME", "signature"),
+                        entry("POOL_MODE", "transaction"),
+                        entry("MAX_CLIENT_CONN", "40"),
+                        entry("DEFAULT_POOL_SIZE", "10"),
+                        entry("AUTH_TYPE", "scram-sha-256"),
+                        entry("LISTEN_PORT", "6433")
+                ))
+                .portMappings(List.of(PortMapping.builder().containerPort(6433).build()))
+                .logging(LogDriver.awsLogs(AwsLogDriverProps.builder().streamPrefix("pgbouncer2").build()))
                 .build());
 
         Ec2Service.Builder.create(this, "ecs-postgres-service")

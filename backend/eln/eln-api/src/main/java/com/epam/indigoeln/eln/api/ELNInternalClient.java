@@ -17,7 +17,7 @@ import java.util.UUID;
 public interface ELNInternalClient extends ELNInternalAPI {
 
     @POST
-    @Path("/internal/signatureUpdated")
+    @Path("/signatureUpdated")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     void internalSignatureUpdatedClient(@NotNull @QueryParam("documentId") UUID documentId, @NotNull @QueryParam("message") String message, @QueryParam("documentStatus") DocumentStatus updatedStatus, @FormParam("file") File form);
 }

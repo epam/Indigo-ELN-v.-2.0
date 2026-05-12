@@ -9,7 +9,6 @@ import jakarta.ws.rs.core.MediaType;
 
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.UUID;
 
 @Path(BaseAPI.BASE_PATH)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -29,14 +28,14 @@ public interface UserAPI extends BaseAPI {
     Page<UserDTO> getUsers(@QueryParam("search") @Nullable String search, @QueryParam("username") @Nullable String username, @BeanParam Paging paging);
 
     @GET
-    @Path("/users/{userId}")
-    UserDTO getUser(@PathParam("userId") UUID userId);
+    @Path("/users/{username}")
+    UserDTO getUser(@PathParam("username") String username);
 
     @GET
-    @Path("/users/{userId}/picture")
+    @Path("/users/{username}/picture")
     @Cached(interval = 1, unit = ChronoUnit.DAYS)
     @Produces("image/png")
-    byte[] getUserPicture(@PathParam("userId") UUID userId, @QueryParam("small") @Nullable Boolean large);
+    byte[] getUserPicture(@PathParam("username") String username, @QueryParam("small") @Nullable Boolean large);
 
     @GET
     @Path("/users/suggest")

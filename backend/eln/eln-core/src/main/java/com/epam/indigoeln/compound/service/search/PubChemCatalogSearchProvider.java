@@ -31,7 +31,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @ApplicationScoped
 class PubChemCatalogSearchProvider implements CatalogSearchProvider {
 
-    @ConfigProperty(name = "quarkus.rest-client.pubchem.uri")
+    @ConfigProperty(name = "quarkus.rest-client.pubchem.url")
     String baseUrl;
 
     @Inject

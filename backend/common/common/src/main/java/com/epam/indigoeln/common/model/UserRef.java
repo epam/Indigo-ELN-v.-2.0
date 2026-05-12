@@ -1,23 +1,21 @@
 package com.epam.indigoeln.common.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Value;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
-import java.util.UUID;
-
-@Value
+@Getter
+@JsonIgnoreProperties("id") // !!! remove after recreating the DB
 @AllArgsConstructor(onConstructor_ = @JsonCreator)
+@EqualsAndHashCode(of = "username")
 public class UserRef {
 
-    @NotNull
-    UUID id;
+    @NotEmpty
+    private final String username;
 
     @NotEmpty
-    String username;
-
-    @NotEmpty
-    String displayName;
+    private final String displayName;
 }

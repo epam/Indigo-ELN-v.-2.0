@@ -1,5 +1,6 @@
 package com.epam.indigoeln.signature;
 
+import com.epam.indigoeln.common.model.DocumentStatus;
 import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.api.ELNInternalClient;
@@ -8,6 +9,8 @@ import com.epam.indigoeln.signature.api.SignatureClient;
 import com.epam.indigoeln.signature.model.*;
 import com.epam.indigoeln.test.APICallException;
 import com.epam.indigoeln.test.BaseTest;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import io.quarkiverse.wiremock.devservice.ConnectWireMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.Claim;
@@ -28,11 +31,14 @@ import static org.assertj.core.api.Assumptions.assumeThat;
 
 
 @QuarkusTest
+@ConnectWireMock
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestSecurity(user = "john")
 @JwtSecurity(claims = {@Claim(key = "given_name", value = "John"), @Claim(key = "family_name", value = "Doe")})
 class SignatureServiceTest extends BaseTest {
+
+    WireMock wireMock;
 
     SignatureClient signatureClient;
     SignatureAdminClient signatureAdminClient;
@@ -49,10 +55,15 @@ class SignatureServiceTest extends BaseTest {
         signatureClient = buildClient(SignatureClient.class);
         signatureAdminClient = buildClient(SignatureAdminClient.class);
         signatureAdminClient.cleanupDatabase();
-        elnInternalClient = integrationTest ? buildClient(ELNInternalClient.class) : mockClient(ELNInternalClient.class);
+        elnInternalClient = buildClient(ELNInternalClient.class);
 
         johnUserRef = signatureAdminClient.getOrCreateUser("john", "John", "Doe");
         willowUserRef = signatureAdminClient.getOrCreateUser("willow", "Willow", "Johnson");
+
+        if (!integrationTest) {
+            wireMock.register(WireMock.post(WireMock.urlPathEqualTo("/internalapi/eln/signatureUpdated")).willReturn(WireMock.aResponse()
+                    .withStatus(Response.Status.NO_CONTENT.getStatusCode())));
+        }
     }
 
     @Test
@@ -108,7 +119,7 @@ class SignatureServiceTest extends BaseTest {
         documentID = document.getId();
         assertThat(document.getId()).isNotNull();
         assertThat(document.getName()).isEqualTo("document.pdf");
-        assertThat(document.getStatus()).isEqualTo(com.epam.indigoeln.common.model.DocumentStatus.SUBMITTED);
+        assertThat(document.getStatus()).isEqualTo(DocumentStatus.SUBMITTED);
         assertThat(document.getCreatedDate()).isNotNull();
         assertThat(document.getLastModifiedDate()).isNotNull();
         assertThat(document.getAuthor()).isEqualTo(johnUserRef);
@@ -131,9 +142,10 @@ class SignatureServiceTest extends BaseTest {
     @Test
     @Order(300)
     void testSign() throws Exception {
+        assumeThat(!integrationTest); // no matching document in ELN
         assumeThat(documentID).isNotNull();
         DocumentDTO document = signatureClient.signDocument(documentID);
-        assertThat(document.getStatus()).isEqualTo(com.epam.indigoeln.common.model.DocumentStatus.SIGNING);
+        assertThat(document.getStatus()).isEqualTo(DocumentStatus.SIGNING);
         assertThat(document.getLastModifiedDate()).isNotEqualTo(document.getCreatedDate());
         assertThat(document.getSignatures()).first().satisfies(block -> {
             assertThat(block.getStatus()).isEqualTo(SignatureStatus.APPROVED);
@@ -147,9 +159,10 @@ class SignatureServiceTest extends BaseTest {
     @TestSecurity(user = "willow")
     @JwtSecurity(claims = {@Claim(key = "given_name", value = "Willow"), @Claim(key = "family_name", value = "Johnson")})
     void testReject() {
+        assumeThat(!integrationTest); // no matching document in ELN
         assumeThat(documentID).isNotNull();
         DocumentDTO document = signatureClient.rejectDocument(documentID);
-        assertThat(document.getStatus()).isEqualTo(com.epam.indigoeln.common.model.DocumentStatus.REJECTED);
+        assertThat(document.getStatus()).isEqualTo(DocumentStatus.REJECTED);
         assertThat(document.getLastModifiedDate()).isNotEqualTo(document.getCreatedDate());
         assertThat(document.getSignatures()).last().satisfies(block -> {
             assertThat(block.getStatus()).isEqualTo(SignatureStatus.REJECTED);
@@ -161,10 +174,11 @@ class SignatureServiceTest extends BaseTest {
     @Test
     @Order(500)
     void testGetDocuments() {
+        assumeThat(!integrationTest); // no matching document in ELN
         assumeThat(documentID).isNotNull();
         List<DocumentDTO> documents = signatureClient.getDocuments();
         assertThat(documents).filteredOn(d -> d.getId().equals(documentID)).hasSize(1).first().satisfies(document -> {
-            assertThat(document.getStatus()).isEqualTo(com.epam.indigoeln.common.model.DocumentStatus.REJECTED);
+            assertThat(document.getStatus()).isEqualTo(DocumentStatus.REJECTED);
             assertThat(document.getSignatures()).hasSize(2);
         });
     }
@@ -172,6 +186,7 @@ class SignatureServiceTest extends BaseTest {
     @Test
     @Order(600)
     void testDownloadDocument() throws Exception {
+        assumeThat(!integrationTest); // no matching document in ELN
         assumeThat(documentID).isNotNull();
         Response content = signatureClient.downloadDocument(documentID);
         try (FileOutputStream fos = new FileOutputStream("downloaded.pdf")) {

@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.api.AccessForm;
@@ -7,7 +8,6 @@ import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.NotebookEntity;
 import com.epam.indigoeln.eln.entity.TemplateEntity;
-import com.epam.indigoeln.eln.entity.UserInfo;
 import com.epam.indigoeln.eln.mapper.ExperimentMapper;
 import com.epam.indigoeln.eln.mapper.ProjectMapper;
 import com.epam.indigoeln.eln.mapper.SnapshotMapper;
@@ -95,7 +95,7 @@ public class ExperimentService {
     }
 
     public Page<ExperimentDTO> getExperiments(@Nullable UUID projectId, @Nullable UUID notebookId, @Nullable String search, @Nullable SortOrder sort, @Nullable Boolean createdByMe, Paging paging) {
-        UserInfo currentUser = Boolean.TRUE.equals(createdByMe) ? userService.getCurrentUser() : null;
+        UserRef currentUser = Boolean.TRUE.equals(createdByMe) ? userService.getCurrentUser() : null;
         boolean showAll = userService.getCurrentUser().getPermissions().contains(VIEW_EXPERIMENTS);
         return experimentRepository.findAll(projectId, notebookId, search, sort, currentUser, paging, showAll);
     }

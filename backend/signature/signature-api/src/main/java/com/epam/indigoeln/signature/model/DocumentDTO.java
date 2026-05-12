@@ -1,5 +1,6 @@
 package com.epam.indigoeln.signature.model;
 
+import com.epam.indigoeln.common.model.DocumentStatus;
 import com.epam.indigoeln.common.model.UserRef;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -23,7 +24,7 @@ public class DocumentDTO {
     private String name;
 
     @NotNull
-    private com.epam.indigoeln.common.model.DocumentStatus status;
+    private DocumentStatus status;
 
     @NotNull
     private ZonedDateTime createdDate;
