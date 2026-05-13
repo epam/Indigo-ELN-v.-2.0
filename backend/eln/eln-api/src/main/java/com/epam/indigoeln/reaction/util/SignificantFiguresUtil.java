@@ -10,6 +10,10 @@ public class SignificantFiguresUtil {
 
     private static final ThreadLocal<Integer> SIGNIFICANT_FIGURES = new ThreadLocal<>();
 
+    public static int getSignificantFigures() {
+        return SIGNIFICANT_FIGURES.get();
+    }
+
     public static void setSignificantFigures(int significantFigures) {
         SIGNIFICANT_FIGURES.set(significantFigures);
     }

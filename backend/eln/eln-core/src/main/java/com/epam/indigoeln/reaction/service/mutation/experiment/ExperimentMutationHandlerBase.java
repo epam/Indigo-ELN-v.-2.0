@@ -13,7 +13,10 @@ import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.units.*;
+import com.epam.indigoeln.reaction.model.units.DensityUnit;
+import com.epam.indigoeln.reaction.model.units.EnteredValue;
+import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
+import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.google.common.base.Preconditions;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
@@ -56,8 +59,7 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
             ev = defaultValue;
         } else { // create or update value
             Preconditions.checkArgument(unit != null);
-            double effectiveValue = Double.parseDouble(stringValue);
-            ev = new EnteredValue<>(effectiveValue, stringValue, unit, EnteredValueSource.userEntered(revisionNo));
+            ev = EnteredValue.userEntered(stringValue, unit, revisionNo);
         }
         setter.accept(ev);
     }
