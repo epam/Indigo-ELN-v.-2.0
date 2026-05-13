@@ -1,8 +1,8 @@
 package com.epam.indigoeln.test;
 
 import io.quarkus.test.common.http.TestHTTPResource;
-import io.quarkus.test.junit.QuarkusIntegrationTest;
 import io.quarkus.test.security.TestSecurity;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,7 +22,8 @@ public abstract class BaseTest {
     public static final String ADMIN_USERNAME = "admin";
     public static final String ADMIN_DISPLAY_NAME = "Administrator";
 
-    protected final boolean integrationTest = AnnotationSupport.isAnnotated(getClass(), QuarkusIntegrationTest.class);
+    @Setter
+    protected static boolean integrationTest = false;
 
     protected final AtomicReference<String> username = new AtomicReference<>();
 
@@ -31,7 +32,7 @@ public abstract class BaseTest {
 
     protected URI getServerURL() {
         if (integrationTest) {
-            return URI.create("http://localhost:28080");
+            return URI.create("http://%s:%s".formatted(System.getProperty("quarkus.http.test-host"), System.getProperty("quarkus.http.test-port")));
         }
         return serverBaseURL;
     }

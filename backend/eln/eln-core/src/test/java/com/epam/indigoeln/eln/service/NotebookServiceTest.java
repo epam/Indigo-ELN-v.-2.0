@@ -153,7 +153,7 @@ class NotebookServiceTest extends ELNBaseTest {
                 .first().satisfies(revision -> {
                     assertThat(revision.getRevision()).isOne();
                     assertThat(revision.getDatetime()).isEqualTo(notebook.getCreatedAt());
-                    assertThat(revision.getUser()).isEqualTo(getJohnUserRef());
+                    assertThat(revision.getUser()).isEqualTo(JOHN_USER_REF);
                     assertThat(revision.getMutation()).isInstanceOf(NotebookMutation.CreateNotebook.class);
                     assertThat(revision.getSummary()).isEqualTo("Create notebook");
                 });
@@ -252,7 +252,7 @@ class NotebookServiceTest extends ELNBaseTest {
                 .last().satisfies(revision -> {
                     assertThat(revision.getRevision()).isEqualTo(2);
                     assertThat(revision.getDatetime()).isEqualTo(modified.getModifiedAt());
-                    assertThat(revision.getUser()).isEqualTo(getJohnUserRef());
+                    assertThat(revision.getUser()).isEqualTo(JOHN_USER_REF);
                     assertThat(revision.getMutation()).isInstanceOf(NotebookMutation.EditNotebookAttributes.class);
                     assertThat(revision.getSummary()).matches("Edit: name=.+, description=.+");
                 });
@@ -327,17 +327,17 @@ class NotebookServiceTest extends ELNBaseTest {
     @Test
     void testUpdateAccess() {
         NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
-        notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(maggieUserID, AccessLevel.EDIT));
+        notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(MAGGIE_USERNAME, AccessLevel.EDIT));
         assertThat(notebookClient.getNotebookRevisions(notebook.getId()))
                 .hasSize(2)
                 .last().satisfies(revision -> {
                     assertThat(revision.getRevision()).isEqualTo(2);
-                    assertThat(revision.getUser()).isEqualTo(getJohnUserRef());
+                    assertThat(revision.getUser()).isEqualTo(JOHN_USER_REF);
                     assertThat(revision.getMutation()).isInstanceOf(NotebookMutation.EditNotebookAccess.class);
                     assertThat(revision.getSummary()).isEqualTo("Edited Team: granted maggie EDIT access");
                     assertThat(revision.getDiff()).isNotNull(); // !!! verify diff old and new ACL
                 });
-        notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(maggieUserID, AccessLevel.NONE));
+        notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(MAGGIE_USERNAME, AccessLevel.NONE));
         assertThat(notebookClient.getNotebookRevisions(notebook.getId()))
                 .hasSize(3)
                 .last().satisfies(revision -> {
@@ -362,10 +362,10 @@ class NotebookServiceTest extends ELNBaseTest {
             withUser(JOHN_USERNAME, () -> {
                 project = projectClient.createProject(new ProjectRequest(testInfo.getTestMethod().get().getName()));
                 notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
-                notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(bartUserID, AccessLevel.ADMIN));
+                notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(BART_USERNAME, AccessLevel.ADMIN));
                 experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
-                experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(bartUserID, AccessLevel.VIEW));
-                experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(lisaUserID, AccessLevel.VIEW));
+                experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(BART_USERNAME, AccessLevel.VIEW));
+                experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(LISA_USERNAME, AccessLevel.VIEW));
             });
         }
 
@@ -380,7 +380,7 @@ class NotebookServiceTest extends ELNBaseTest {
 
         @Test
         void testRemoveAccess() {
-            List<ACLDetailsEntryDTO> notebookAccess = notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(bartUserID, AccessLevel.NONE));
+            List<ACLDetailsEntryDTO> notebookAccess = notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(BART_USERNAME, AccessLevel.NONE));
             assertThatACL(notebookAccess).containsOnly(
                     JOHN_DISPLAY_NAME, AccessLevel.AUTHOR, false,
                     BART_DISPLAY_NAME, AccessLevel.IMPLICIT_VIEW, false,
@@ -390,12 +390,12 @@ class NotebookServiceTest extends ELNBaseTest {
 
         @Test
         void testRemoveAccessIncludeNested() {
-            List<ACLDetailsEntryDTO> projectAccess = notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(bartUserID, AccessLevel.NONE, true));
+            List<ACLDetailsEntryDTO> projectAccess = notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(BART_USERNAME, AccessLevel.NONE, true));
             assertThatACL(projectAccess).containsOnly(
                     JOHN_DISPLAY_NAME, AccessLevel.AUTHOR, false,
                     LISA_DISPLAY_NAME, AccessLevel.IMPLICIT_VIEW, false
             );
-            projectAccess = notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(lisaUserID, AccessLevel.NONE, true));
+            projectAccess = notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(LISA_USERNAME, AccessLevel.NONE, true));
             assertThatACL(projectAccess).containsOnly(
                     JOHN_DISPLAY_NAME, AccessLevel.AUTHOR, false
             );

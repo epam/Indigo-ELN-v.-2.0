@@ -85,7 +85,8 @@ public class ACLService {
     }
 
     public Set<ApplicationPermission> getCurrentPermissions(@Nullable AccessLevel currentAccess) {
-        Set<ApplicationPermission> permissions = EnumSet.copyOf(userService.getCurrentUser().getPermissions());
+        //noinspection unchecked,rawtypes
+        Set<ApplicationPermission> permissions = EnumSet.copyOf((Set) userService.getCurrentUser().getPermissions());
         if (currentAccess != null) {
             permissions.addAll(currentAccess.getGrants());
         }
@@ -93,8 +94,7 @@ public class ACLService {
     }
 
     private boolean isUserRolesAllow(ApplicationPermission operation) {
-        Set<ApplicationPermission> permissions = userService.getCurrentUser().getPermissions();
-        return permissions.contains(operation);
+        return userService.getCurrentUser().getPermissions().contains(operation);
     }
 
     public void initProjectACL(ProjectEntity project) {
@@ -128,7 +128,7 @@ public class ACLService {
 
         boolean updated = false;
         for (AccessForm update : updates) {
-            UserEntity user = userService.getUserEntity(update.getUserID());
+            UserEntity user = userService.getEntity(update.getUsername());
             if (applyAccess(project, user, update.getLevel(), update.isDeleteNested())) {
                 updated = true;
             }
@@ -151,7 +151,7 @@ public class ACLService {
 
         boolean updated = false, updatedImplicitViewProject = false;
         for (AccessForm update : updates) {
-            UserEntity user = userService.getUserEntity(update.getUserID());
+            UserEntity user = userService.getEntity(update.getUsername());
             if (applyAccess(notebook, user, update.getLevel(), update.isDeleteNested())) {
                 updated = true;
                 updatedImplicitViewProject |= applyImplicitAccess(project, user, update.getLevel(), () -> notebookRepository.hasAccessibleNotebooks(project));
@@ -172,7 +172,7 @@ public class ACLService {
     public void updateExperimentACL(ProjectEntity project, NotebookEntity notebook, ExperimentEntity experiment, List<AccessForm> updates) {
         boolean updated = false, updatedImplicitViewNotebook = false, updatedImplicitViewProject = false;
         for (AccessForm update : updates) {
-            UserEntity user = userService.getUserEntity(update.getUserID());
+            UserEntity user = userService.getEntity(update.getUsername());
             if (applyAccess(experiment, user, update.getLevel(), update.isDeleteNested())) {
                 updated = true;
                 if (applyImplicitAccess(notebook, user, update.getLevel(), () -> experimentRepository.hasAccessibleExperiments(notebook))) {
@@ -254,7 +254,7 @@ public class ACLService {
                         .sorted(Comparator.<Map.Entry<UserEntity, Pair<AccessLevel, Boolean>>, Boolean>comparing(e -> e.getValue().b())
                                 .thenComparing(e -> e.getValue().a(), Comparator.reverseOrder()))
                         .toCustomMap(LinkedHashMap::new);
-        child.setFullACL(EntryStream.of(users)
+        child.setFullACL(EntryStream.of(sortedUsers)
                 .map(e -> new ACLEntry(e.getKey().getId(), e.getKey().getDisplayName(), e.getKey().getUsername(),  e.getValue().a(), e.getValue().b())).sortedBy(e -> - e.getLevel().ordinal()).toArray(ACLEntry[]::new)
         );
         child.setShortACL(StreamEx.of(child.getFullACL())

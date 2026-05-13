@@ -5,7 +5,7 @@ import {
   TextSearchTypeNames,
 } from '@core/types/entities/experiments/search.i';
 import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
-import { UserMetadata } from '@core/types/entities/user.i';
+import { UserRef } from '@core/types/entities/user.i';
 import { AbstractControl } from '@angular/forms';
 
 export function textSearchSummary(name: string, search: TextSearch | null): string | null {
@@ -26,7 +26,7 @@ export function numericSearchSummary(name: string, search: NumericSearch | null)
 
 export function dictionarySearchSummary(
   name: string,
-  value: DictionaryItemRef | DictionaryItemRef[] | UserMetadata | UserMetadata[] | null,
+  value: DictionaryItemRef | DictionaryItemRef[] | UserRef | UserRef[] | null,
 ): string | null {
   if (value != null) {
     const array = Array.isArray(value) ? value : [value];

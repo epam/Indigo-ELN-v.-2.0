@@ -14,7 +14,7 @@ import {
   WeightUnit,
 } from './experiment-shared.i';
 import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
-import { UserMetadata } from '@core/types/entities/user.i';
+import { UserRef } from '@core/types/entities/user.i';
 
 // Base mutation interface
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -28,7 +28,7 @@ export type ReactionOutputSampleAnchor = string;
 
 interface SetBatchCreatorMutation extends BaseMutation {
   type: 'SetBatchCreator';
-  batchCreator: UserMetadata;
+  batchCreator: UserRef;
 }
 
 interface UndoMutation extends BaseMutation {

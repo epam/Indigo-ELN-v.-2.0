@@ -1,10 +1,10 @@
 package com.epam.indigoeln.eln.controller;
 
 
+import com.epam.indigoeln.common.model.UploadForm;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.api.BaseAPI;
 import com.epam.indigoeln.eln.api.ProjectAPI;
-import com.epam.indigoeln.eln.api.UploadForm;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.ProjectService;

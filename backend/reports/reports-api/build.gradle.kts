@@ -7,7 +7,6 @@ plugins {
 dependencies {
     api(project(":common:common"))
     api(project(":eln:eln-api"))
-    api("io.quarkus:quarkus-rest-client-jackson")
 }
 
 group = "com.epam.indigoeln"

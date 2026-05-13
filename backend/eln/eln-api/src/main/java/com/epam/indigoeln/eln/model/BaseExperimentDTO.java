@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.model;
 
+import com.epam.indigoeln.common.model.BaseDTO;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -22,6 +23,14 @@ public abstract class BaseExperimentDTO extends BaseDTO {
     Integer revision;
 
     public ExperimentRef toRef() {
-        return new ExperimentRef(id, name);
+        return new ExperimentRef(getId(), name);
+    }
+
+    @Override
+    public String toString() {
+        return "Experiment{" +
+                "id=" + getId() +
+                ", name='" + name + '\'' +
+                '}';
     }
 }

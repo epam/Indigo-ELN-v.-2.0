@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.api;
 
+import com.epam.indigoeln.common.model.UploadForm;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.quarkus.cachecontrol.Cached;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
@@ -120,6 +121,10 @@ public interface ExperimentAPI extends BaseAPI {
     @Path("/experiments/{experimentId}/workflow/reopen")
     ExperimentDetailsDTO reopenExperiment(@PathParam("experimentId") UUID experimentId);
 
+    @GET
+    @Path("/signatureTemplates")
+    List<SignatureTemplateRef> getSignatureTemplates();
+
     @POST
     @Path("/experiments/{experimentId}/workflow/complete")
     ExperimentDetailsDTO completeExperiment(@PathParam("experimentId") UUID experimentId);
@@ -131,18 +136,6 @@ public interface ExperimentAPI extends BaseAPI {
     @POST
     @Path("/experiments/{experimentId}/workflow/completeAndSubmit")
     ExperimentDetailsDTO completeAndSubmitExperiment(@PathParam("experimentId") UUID experimentId, @QueryParam("signatureTemplateId") UUID signatureTemplateId);
-
-    @POST
-    @Path("/experiments/{experimentId}/workflow/approve")
-    ExperimentForSignatureDTO approveExperiment(@PathParam("experimentId") UUID experimentId);
-
-    @POST
-    @Path("/experiments/{experimentId}/workflow/reject")
-    ExperimentForSignatureDTO rejectExperiment(@PathParam("experimentId") UUID experimentId);
-
-    @POST
-    @Path("/experiments/{experimentId}/workflow/resubmit")
-    ExperimentDetailsDTO resubmitExperiment(@PathParam("experimentId") UUID experimentId);
 
     @POST
     @Path("/experiments/{experimentId}/print")

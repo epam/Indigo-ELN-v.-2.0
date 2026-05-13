@@ -11,11 +11,11 @@ public interface MiscClient extends MiscAPI {
 
     @SneakyThrows
     default void loadCompoundsFromFileClient(String filename, java.nio.file.Path tempDirectory, byte[] content) {
-        loadCompoundsFromFileClient(ClientUtil.createFileUpload("file", filename, content, tempDirectory));
+        loadCompoundsFromFileClient(com.epam.indigoeln.test.ClientUtil.createFileUpload("file", filename, content, tempDirectory));
     }
 
     @POST
     @Path("/compounds/loadFromFile")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    void loadCompoundsFromFileClient(ClientUtil.ClientUploadForm form);
+    void loadCompoundsFromFileClient(com.epam.indigoeln.test.ClientUtil.ClientUploadForm form);
 }

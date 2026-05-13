@@ -1,6 +1,7 @@
 package com.epam.indigoeln.signature.entity;
 
-import com.epam.indigoeln.signature.model.Status;
+import com.epam.indigoeln.common.model.DocumentStatus;
+import com.epam.indigoeln.eln.common.entity.IdentifiableEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -22,33 +23,40 @@ import java.util.List;
 @Entity(name = "Document")
 @NoArgsConstructor
 @AllArgsConstructor
-public class DocumentEntity {
+public class DocumentEntity extends IdentifiableEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
     @NotEmpty
     private String name;
+
     @NotNull
     @ManyToOne
-    @JoinColumn(name = "templateId")
-    private TemplateEntity template;
+    @JoinColumn(name = "template_id")
+    private SignatureTemplateEntity template;
+
     @NotNull
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "authorId")
     private UserEntity author;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     @JdbcType(PostgreSQLEnumJdbcType.class)
-    private Status status;
+    private DocumentStatus status;
+
     @NotNull
     private ZonedDateTime createdDate;
+
     @NotNull
     private ZonedDateTime lastModifiedDate;
+
+    @NotNull
+    @OrderBy("ordinal")
+    @OneToMany(mappedBy = "document", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DocumentSignatureEntity> signatures = new ArrayList<>(0);
+
     @NotEmpty
-    @OrderBy("index")
-    @OneToMany(mappedBy = "document", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private List<DocumentSignatureBlockEntity> signatureBlocks = new ArrayList<>(0);
+    private String filename;
+
     @Lob
     @NotNull
     @JdbcTypeCode(Types.BINARY)

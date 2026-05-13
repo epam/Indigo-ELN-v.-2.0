@@ -160,6 +160,7 @@ public class InfraStack extends NestedStack {
                 .allowAllOutbound(true)
                 .build();
         ec2SecurityGroup.addIngressRule(lambdaSecurityGroup, Port.tcp(6432), "from-lambda");
+        ec2SecurityGroup.addIngressRule(lambdaSecurityGroup, Port.tcp(6433), "from-lambda");
     }
 
     @Value

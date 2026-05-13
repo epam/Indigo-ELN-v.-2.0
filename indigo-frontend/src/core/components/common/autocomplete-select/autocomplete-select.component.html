@@ -1,7 +1,7 @@
 <form [formGroup]="form">
   <div class="w-full flex border">
     <mat-chip-grid #chipGrid class="w-full">
-      @for (item of selected$ | async; track item.id) {
+      @for (item of selected$ | async; track item.id || item.username) {
         <mat-chip-row (removed)="removeItem(item)" [removable]="true">
           <ng-container *ngIf="optionTemplate; else defaultOptionTemplate">
             <ng-container *ngTemplateOutlet="optionTemplate; context: { $implicit: item }"></ng-container>
@@ -30,7 +30,7 @@
       [displayWith]="display"
       (optionSelected)="onItemSelected($event.option.value)"
     >
-      @for (item of options$ | async; track item.id) {
+      @for (item of options$ | async; track item.id || item.username) {
         <mat-option [value]="item">
           <ng-container *ngIf="optionTemplate; else defaultOptionTemplate">
             <ng-container *ngTemplateOutlet="optionTemplate; context: { $implicit: item }"></ng-container>

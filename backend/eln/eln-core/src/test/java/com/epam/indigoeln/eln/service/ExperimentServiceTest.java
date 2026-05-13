@@ -88,7 +88,7 @@ class ExperimentServiceTest extends ELNBaseTest {
                 .first().satisfies(revision -> {
                     assertThat(revision.getRevision()).isOne();
                     assertThat(revision.getDatetime()).isEqualTo(experiment.getCreatedAt());
-                    assertThat(revision.getUser()).isEqualTo(getJohnUserRef());
+                    assertThat(revision.getUser()).isEqualTo(JOHN_USER_REF);
                     assertThat(revision.getMutation()).isInstanceOf(ExperimentMutation.CreateExperiment.class);
                     assertThat(revision.getSummary()).isEqualTo("Experiment created");
                 });
@@ -209,7 +209,7 @@ class ExperimentServiceTest extends ELNBaseTest {
                 .last().satisfies(revision -> {
                     assertThat(revision.getRevision()).isEqualTo(2);
                     assertThat(revision.getDatetime()).isEqualTo(modified.getModifiedAt());
-                    assertThat(revision.getUser()).isEqualTo(getJohnUserRef());
+                    assertThat(revision.getUser()).isEqualTo(JOHN_USER_REF);
                     assertThat(revision.getMutation()).isInstanceOf(ExperimentMutation.EditExperimentAttributes.class);
                     assertThat(revision.getSummary()).matches("Edit: multiple attributes");
                 });
@@ -324,17 +324,17 @@ class ExperimentServiceTest extends ELNBaseTest {
     @Test
     void testUpdateAccess() {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
-        experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(maggieUserID, AccessLevel.EDIT));
+        experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(MAGGIE_USERNAME, AccessLevel.EDIT));
         assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
                 .hasSize(2)
                 .last().satisfies(revision -> {
                     assertThat(revision.getRevision()).isEqualTo(2);
-                    assertThat(revision.getUser()).isEqualTo(getJohnUserRef());
+                    assertThat(revision.getUser()).isEqualTo(JOHN_USER_REF);
                     assertThat(revision.getMutation()).isInstanceOf(ExperimentMutation.EditExperimentAccess.class);
                     assertThat(revision.getSummary()).isEqualTo("Edited Team: granted maggie EDIT access");
                     assertThat(revision.getDiff()).isNotNull(); // !!! verify diff old and new ACL
                 });
-        experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(maggieUserID, AccessLevel.NONE));
+        experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(MAGGIE_USERNAME, AccessLevel.NONE));
         assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
                 .hasSize(3)
                 .last().satisfies(revision -> {

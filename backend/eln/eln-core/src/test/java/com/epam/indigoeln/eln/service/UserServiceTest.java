@@ -1,9 +1,9 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.model.CurrentUserDTO;
-import com.epam.indigoeln.eln.model.UserRef;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import jakarta.inject.Inject;
@@ -48,7 +48,7 @@ class UserServiceTest extends ELNBaseTest {
     @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
     void testGetUserPicture() {
         List<UserRef> all = userClient.suggestUsers(null);
-        byte[] response = userClient.getUserPicture(all.getFirst().getId(), null);
+        byte[] response = userClient.getUserPicture(all.getFirst().getUsername(), null);
         Files.write(Paths.get("user.png"), response);
     }
 }

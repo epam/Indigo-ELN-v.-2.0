@@ -574,8 +574,8 @@ public class MutationsTest extends MutationsTestBase {
 
     @Test
     void testSetBatchCreator() {
-        applyMutation(new ExperimentMutation.SetBatchCreator(getMaggieUserRef()));
-        assertThat(experiment.getBatchCreator()).isEqualTo(getMaggieUserRef());
+        applyMutation(new ExperimentMutation.SetBatchCreator(MAGGIE_USER_REF));
+        assertThat(experiment.getBatchCreator()).isEqualTo(MAGGIE_USER_REF);
     }
 
     @Test

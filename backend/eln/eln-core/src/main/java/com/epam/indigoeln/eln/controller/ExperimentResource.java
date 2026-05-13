@@ -1,7 +1,11 @@
 package com.epam.indigoeln.eln.controller;
 
 
-import com.epam.indigoeln.eln.api.*;
+import com.epam.indigoeln.common.model.UploadForm;
+import com.epam.indigoeln.eln.api.AccessForm;
+import com.epam.indigoeln.eln.api.BaseAPI;
+import com.epam.indigoeln.eln.api.ExperimentAPI;
+import com.epam.indigoeln.eln.api.MutateModelForm;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.ExperimentService;
@@ -148,6 +152,11 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
+    public List<SignatureTemplateRef> getSignatureTemplates() {
+        return experimentWorkflowService.getSignatureTemplates();
+    }
+
+    @Override
     public ExperimentDetailsDTO completeExperiment(UUID experimentId) {
         return experimentWorkflowService.completeExperiment(experimentId);
     }
@@ -160,21 +169,6 @@ public class ExperimentResource implements ExperimentAPI {
     @Override
     public ExperimentDetailsDTO completeAndSubmitExperiment(UUID experimentId, UUID signatureTemplateId) {
         return experimentWorkflowService.completeAndSubmitExperiment(experimentId, signatureTemplateId);
-    }
-
-    @Override
-    public ExperimentForSignatureDTO approveExperiment(UUID experimentId) {
-        return experimentWorkflowService.approveOrRejectExperiment(experimentId, false);
-    }
-
-    @Override
-    public ExperimentForSignatureDTO rejectExperiment(UUID experimentId) {
-        return experimentWorkflowService.approveOrRejectExperiment(experimentId, true);
-    }
-
-    @Override
-    public ExperimentDetailsDTO resubmitExperiment(UUID experimentId) {
-        return experimentWorkflowService.resubmitExperiment(experimentId);
     }
 
     @Override

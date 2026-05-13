@@ -4,7 +4,10 @@ import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import org.jspecify.annotations.Nullable;
 
+import java.io.File;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -20,6 +23,9 @@ public class ModelUtil {
     }
 
     public String formatUser(@Nullable String firstName, @Nullable String lastName, String username) {
+        if (firstName == null && lastName == null) {
+            return username;
+        }
         StringBuilder s = new StringBuilder();
         if (firstName != null) {
             s.append(firstName);
@@ -30,7 +36,7 @@ public class ModelUtil {
             }
             s.append(lastName);
         }
-        return !s.isEmpty() ? s.toString() : username;
+        return s.toString();
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
@@ -100,5 +106,21 @@ public class ModelUtil {
             deleted.remove(item);
         }
         target.removeAll(deleted);
+    }
+
+    @SneakyThrows
+    public static <T> T useTempFile(String filename, byte[] bytes, Function<File, T> block) {
+        Path directory = Files.createTempDirectory("eln");
+        try {
+            Path file = directory.resolve(filename);
+            try {
+                Files.write(file, bytes);
+                return block.apply(file.toFile());
+            } finally {
+                Files.delete(file);
+            }
+        } finally {
+            Files.delete(directory);
+        }
     }
 }

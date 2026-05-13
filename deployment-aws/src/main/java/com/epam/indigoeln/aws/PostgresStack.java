@@ -17,6 +17,7 @@ import software.constructs.Construct;
 
 import java.util.List;
 
+import static com.epam.indigoeln.aws.util.Utils.entry;
 import static com.epam.indigoeln.aws.util.Utils.mapOf;
 
 public class PostgresStack extends NestedStack {
@@ -48,9 +49,9 @@ public class PostgresStack extends NestedStack {
         ContainerDefinition postgresContainer = postgresTask.addContainer("ecs-task-postgres-container", ContainerDefinitionOptions.builder()
                 .image(ContainerImage.fromEcrRepository(props.getPostgresRepo(), props.getPostgresImageTag()))
                 .environment(mapOf(
-                        "POSTGRES_USER", Credentials.fromSecret(dbSecret).getUsername(),
-                        "POSTGRES_PASSWORD", Credentials.fromSecret(dbSecret).getPassword().unsafeUnwrap(),
-                        "PGDATA", "/var/lib/postgresql/data/pgdata"
+                        entry("POSTGRES_USER", Credentials.fromSecret(dbSecret).getUsername()),
+                        entry("POSTGRES_PASSWORD", Credentials.fromSecret(dbSecret).getPassword().unsafeUnwrap()),
+                        entry("PGDATA", "/var/lib/postgresql/data/pgdata")
                 ))
                 .portMappings(List.of(PortMapping.builder().containerPort(5432).build()))
                 .logging(LogDriver.awsLogs(AwsLogDriverProps.builder().streamPrefix("postgres").build()))
@@ -64,19 +65,37 @@ public class PostgresStack extends NestedStack {
         postgresTask.addContainer("ecs-task-pgbouncer-container", ContainerDefinitionOptions.builder()
                 .image(ContainerImage.fromRegistry("edoburu/pgbouncer:latest"))
                 .environment(mapOf(
-                        "DB_HOST", "127.0.0.1", // explicit IPv4 to avoid accidently resolving localhost to ::1
-                        "DB_PORT", "5432",
-                        "DB_USER", Credentials.fromSecret(dbSecret).getUsername(),
-                        "DB_PASSWORD", Credentials.fromSecret(dbSecret).getPassword().unsafeUnwrap(),
-                        "DB_NAME", Credentials.fromSecret(dbSecret).getUsername(),
-                        "POOL_MODE", "transaction",
-                        "MAX_CLIENT_CONN", "200",
-                        "DEFAULT_POOL_SIZE", "20",
-                        "AUTH_TYPE", "scram-sha-256",
-                        "LISTEN_PORT", "6432"
+                        entry("DB_HOST", "127.0.0.1"), // explicit IPv4 to avoid accidentally resolving localhost to ::1
+                        entry("DB_PORT", "5432"),
+                        entry("DB_USER", Credentials.fromSecret(dbSecret).getUsername()),
+                        entry("DB_PASSWORD", Credentials.fromSecret(dbSecret).getPassword().unsafeUnwrap()),
+                        entry("DB_NAME", Credentials.fromSecret(dbSecret).getUsername()),
+                        entry("POOL_MODE", "transaction"),
+                        entry("MAX_CLIENT_CONN", "40"),
+                        entry("DEFAULT_POOL_SIZE", "10"),
+                        entry("AUTH_TYPE", "scram-sha-256"),
+                        entry("LISTEN_PORT", "6432")
                 ))
                 .portMappings(List.of(PortMapping.builder().containerPort(6432).build()))
                 .logging(LogDriver.awsLogs(AwsLogDriverProps.builder().streamPrefix("pgbouncer").build()))
+                .build());
+
+        postgresTask.addContainer("ecs-task-pgbouncer-container-2", ContainerDefinitionOptions.builder()
+                .image(ContainerImage.fromRegistry("edoburu/pgbouncer:latest"))
+                .environment(mapOf(
+                        entry("DB_HOST", "127.0.0.1"), // explicit IPv4 to avoid accidentally resolving localhost to ::1
+                        entry("DB_PORT", "5432"),
+                        entry("DB_USER", Credentials.fromSecret(dbSecret).getUsername()),
+                        entry("DB_PASSWORD", Credentials.fromSecret(dbSecret).getPassword().unsafeUnwrap()),
+                        entry("DB_NAME", "signature"),
+                        entry("POOL_MODE", "transaction"),
+                        entry("MAX_CLIENT_CONN", "40"),
+                        entry("DEFAULT_POOL_SIZE", "10"),
+                        entry("AUTH_TYPE", "scram-sha-256"),
+                        entry("LISTEN_PORT", "6433")
+                ))
+                .portMappings(List.of(PortMapping.builder().containerPort(6433).build()))
+                .logging(LogDriver.awsLogs(AwsLogDriverProps.builder().streamPrefix("pgbouncer2").build()))
                 .build());
 
         Ec2Service.Builder.create(this, "ecs-postgres-service")

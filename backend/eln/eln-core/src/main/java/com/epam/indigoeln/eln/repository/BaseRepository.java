@@ -3,7 +3,7 @@ package com.epam.indigoeln.eln.repository;
 import com.epam.indigoeln.common.exception.AccessDeniedException;
 import com.epam.indigoeln.common.exception.EntityNotFoundException;
 import com.epam.indigoeln.common.util.ModelUtil;
-import com.epam.indigoeln.eln.entity.IdentifiableEntity;
+import com.epam.indigoeln.eln.common.entity.IdentifiableEntity;
 import com.epam.indigoeln.eln.model.EntityType;
 import com.epam.indigoeln.eln.model.Page;
 import com.epam.indigoeln.eln.model.Paging;

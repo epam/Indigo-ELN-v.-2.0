@@ -106,7 +106,7 @@ class ProjectServiceTest extends ELNBaseTest {
                 .first().satisfies(revision -> {
                     assertThat(revision.getRevision()).isOne();
                     assertThat(revision.getDatetime()).isEqualTo(project.getCreatedAt());
-                    assertThat(revision.getUser()).isEqualTo(getJohnUserRef());
+                    assertThat(revision.getUser()).isEqualTo(JOHN_USER_REF);
                     assertThat(revision.getMutation()).isInstanceOf(ProjectMutation.CreateProject.class);
                     assertThat(revision.getSummary()).isEqualTo("Create project");
                 });
@@ -371,7 +371,7 @@ class ProjectServiceTest extends ELNBaseTest {
                 .last().satisfies(revision -> {
                     assertThat(revision.getRevision()).isEqualTo(2);
                     assertThat(revision.getDatetime()).isEqualTo(modified.getModifiedAt());
-                    assertThat(revision.getUser()).isEqualTo(getJohnUserRef());
+                    assertThat(revision.getUser()).isEqualTo(JOHN_USER_REF);
                     assertThat(revision.getMutation()).isInstanceOf(ProjectMutation.EditProjectAttributes.class);
                     assertThat(revision.getSummary()).matches("Edit: multiple attributes");
                 });
@@ -565,7 +565,7 @@ class ProjectServiceTest extends ELNBaseTest {
     void testAdminCanUpdateAccessForUserCreatedProject() {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testAdminCanUpdateAccessForUserCreatedProject"));
         withUser(ADMIN_USERNAME, () -> {
-            projectClient.updateProjectAccess(project.getId(), AccessForm.of(bartUserID, AccessLevel.EDIT));
+            projectClient.updateProjectAccess(project.getId(), AccessForm.of(BART_USERNAME, AccessLevel.EDIT));
         });
     }
 
@@ -574,12 +574,12 @@ class ProjectServiceTest extends ELNBaseTest {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testUpdateAccess"));
         NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
-        projectClient.updateProjectAccess(project.getId(), AccessForm.of(maggieUserID, AccessLevel.EDIT));
+        projectClient.updateProjectAccess(project.getId(), AccessForm.of(MAGGIE_USERNAME, AccessLevel.EDIT));
         assertThat(projectClient.getProjectRevisions(project.getId()))
                 .hasSize(2)
                 .last().satisfies(revision -> {
                     assertThat(revision.getRevision()).isEqualTo(2);
-                    assertThat(revision.getUser()).isEqualTo(getJohnUserRef());
+                    assertThat(revision.getUser()).isEqualTo(JOHN_USER_REF);
                     assertThat(revision.getMutation()).isInstanceOf(ProjectMutation.EditProjectAccess.class);
                     assertThat(revision.getSummary()).isEqualTo("Edited Team: granted maggie EDIT access");
                 });
@@ -592,7 +592,7 @@ class ProjectServiceTest extends ELNBaseTest {
                     assertThat(revision.getMutation()).isInstanceOf(ExperimentMutation.ExperimentAccessUpdated.class);
                 });
 
-        projectClient.updateProjectAccess(project.getId(), AccessForm.of(maggieUserID, AccessLevel.NONE));
+        projectClient.updateProjectAccess(project.getId(), AccessForm.of(MAGGIE_USERNAME, AccessLevel.NONE));
         assertThat(projectClient.getProjectRevisions(project.getId()))
                 .hasSize(3)
                 .last().satisfies(revision -> {
@@ -615,11 +615,11 @@ class ProjectServiceTest extends ELNBaseTest {
         void setUp(TestInfo testInfo) {
             withUser(JOHN_USERNAME, () -> {
                 project = projectClient.createProject(new ProjectRequest(testInfo.getTestMethod().get().getName()));
-                projectClient.updateProjectAccess(project.getId(), AccessForm.of(bartUserID, AccessLevel.EDIT));
+                projectClient.updateProjectAccess(project.getId(), AccessForm.of(BART_USERNAME, AccessLevel.EDIT));
                 notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
-                notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(bartUserID, AccessLevel.ADMIN));
+                notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(BART_USERNAME, AccessLevel.ADMIN));
                 experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
-                experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(lisaUserID, AccessLevel.VIEW));
+                experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(LISA_USERNAME, AccessLevel.VIEW));
             });
         }
 
@@ -634,7 +634,7 @@ class ProjectServiceTest extends ELNBaseTest {
 
         @Test
         void testRemoveAccess() {
-            List<ACLDetailsEntryDTO> projectAccess = projectClient.updateProjectAccess(project.getId(), AccessForm.of(bartUserID, AccessLevel.NONE));
+            List<ACLDetailsEntryDTO> projectAccess = projectClient.updateProjectAccess(project.getId(), AccessForm.of(BART_USERNAME, AccessLevel.NONE));
             assertThatACL(projectAccess).containsOnly(
                     JOHN_DISPLAY_NAME, AccessLevel.AUTHOR, false,
                     BART_DISPLAY_NAME, AccessLevel.IMPLICIT_VIEW, false,
@@ -644,12 +644,12 @@ class ProjectServiceTest extends ELNBaseTest {
 
         @Test
         void testRemoveAccessIncludeNested() {
-            List<ACLDetailsEntryDTO> projectAccess = projectClient.updateProjectAccess(project.getId(), AccessForm.of(lisaUserID, AccessLevel.NONE, true));
+            List<ACLDetailsEntryDTO> projectAccess = projectClient.updateProjectAccess(project.getId(), AccessForm.of(LISA_USERNAME, AccessLevel.NONE, true));
             assertThatACL(projectAccess).containsOnly(
                     JOHN_DISPLAY_NAME, AccessLevel.AUTHOR, false,
                     BART_DISPLAY_NAME, AccessLevel.EDIT, false
             );
-            projectAccess = projectClient.updateProjectAccess(project.getId(), AccessForm.of(bartUserID, AccessLevel.NONE, true));
+            projectAccess = projectClient.updateProjectAccess(project.getId(), AccessForm.of(BART_USERNAME, AccessLevel.NONE, true));
             assertThatACL(projectAccess).containsOnly(
                     JOHN_DISPLAY_NAME, AccessLevel.AUTHOR, false
             );

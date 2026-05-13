@@ -18,7 +18,7 @@ public interface ReportsAPI {
     String BASE_PATH = "/internalapi/reports";
 
     @POST
-    @Path("/experiment/")
+    @Path("/experiment")
     @Produces("application/pdf")
     Response generateExperimentReport(ExperimentReportDataDTO data);
 

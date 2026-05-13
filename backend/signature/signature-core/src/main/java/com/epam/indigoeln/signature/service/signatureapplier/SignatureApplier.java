@@ -1,8 +1,158 @@
 package com.epam.indigoeln.signature.service.signatureapplier;
 
-import com.epam.indigoeln.signature.entity.DocumentSignatureBlockEntity;
+import com.epam.indigoeln.common.util.ModelUtil;
+import com.epam.indigoeln.signature.entity.DocumentSignatureEntity;
+import com.epam.indigoeln.signature.exception.InvalidInputException;
+import com.lowagie.text.Image;
+import com.lowagie.text.Rectangle;
+import com.lowagie.text.pdf.*;
+import jakarta.enterprise.context.ApplicationScoped;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
-public interface SignatureApplier {
-    byte[] signDocument(byte[] documentContent, DocumentSignatureBlockEntity DocumentSignatureBlockEntity, byte[] keyStorage, String keyStoragePassword) throws Exception;
-    byte[] rejectDocument(byte[] documentContent, DocumentSignatureBlockEntity signatureTemplateBlock) throws Exception;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.security.Security;
+import java.security.cert.Certificate;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
+
+@Slf4j
+@ApplicationScoped
+public class SignatureApplier {
+
+    private final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss zzz");
+    private final byte[] signatureApprovedImage;
+    private final byte[] signatureRejectedImage;
+    private final SignatureVerifier signatureVerifier = new SignatureVerifier();
+
+    @SneakyThrows
+    SignatureApplier() {
+        signatureApprovedImage = ModelUtil.loadResource(getClass(), "/approved.jpg");
+        signatureRejectedImage = ModelUtil.loadResource(getClass(), "/rejected.jpg");
+    }
+
+    public byte[] signDocument(byte[] documentContent, DocumentSignatureEntity signatureBlockEntity, int signatureIndex, byte[] keyStorage, String keyStoragePassword) throws Exception {
+        signatureVerifier.verifySignatures(documentContent);
+
+        KeyStore ks = KeyStore.getInstance("PKCS12");
+        try {
+            ks.load(new ByteArrayInputStream(keyStorage), keyStoragePassword.toCharArray());
+        } catch (Exception e) {
+            throw new InvalidInputException("Probably password for certificate is wrong: " + e.getMessage(), e);
+        }
+
+        String alias = ks.aliases().nextElement();
+        PrivateKey pk = (PrivateKey) ks.getKey(alias, keyStoragePassword.toCharArray());
+        Certificate[] chain = ks.getCertificateChain(alias);
+        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+
+        return stampDocument(documentContent, signatureBlockEntity, signatureIndex, getSignatureApprovedText(signatureBlockEntity), signatureApprovedImage, pk, chain);
+    }
+
+    public byte[] rejectDocument(byte[] documentContent, DocumentSignatureEntity signatureBlockEntity, int signatureIndex) throws Exception {
+        signatureVerifier.verifySignatures(documentContent);
+        return stampDocument(documentContent, signatureBlockEntity, signatureIndex, getSignatureRejectedText(signatureBlockEntity), signatureRejectedImage, null, null);
+    }
+
+    protected byte[] stampDocument(byte[] documentContent, DocumentSignatureEntity signatureBlock, int signatureIndex,
+                                String stampText, byte[] image, PrivateKey key, Certificate[] chain) throws Exception {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        PdfReader reader = new PdfReader(documentContent);
+        int i = signatureIndex + 1;
+        boolean first = i == 1;
+        PdfStamper stamper = PdfStamper.createSignature(reader, outputStream, '\0', null, !first);
+        PdfSignatureAppearance appearance = stamper.getSignatureAppearance();
+        int pageNum = reader.getNumberOfPages();
+
+        if (first) {
+            stamper.insertPage(++pageNum, reader.getPageSizeWithRotation(1));
+        }
+
+        prepareSignatureAppearance(appearance, reader, pageNum, i, stampText, image,
+                signatureBlock.getReason().getSignatureText(), key, chain);
+
+        if (key == null) {
+            closeSignatureAppearance(appearance);
+        } else {
+            stamper.close();
+        }
+
+        return outputStream.toByteArray();
+    }
+
+    protected void prepareSignatureAppearance(PdfSignatureAppearance appearance, PdfReader reader, int pageNum, int index, String layer2Text,
+                                           byte[] image, String reason, PrivateKey key, Certificate[] chain) throws IOException {
+        Calendar signDate = Calendar.getInstance();
+
+        if (key != null) {
+            appearance.setCrypto(key, chain, null, PdfSignatureAppearance.SELF_SIGNED);
+            appearance.setRender(PdfSignatureAppearance.SignatureRenderNameAndDescription);
+        } else {
+            PdfDictionary dic = new PdfDictionary();
+            dic.put(PdfName.FILTER, PdfName.ADOBE_PPKLITE);
+            dic.put(PdfName.M, new PdfDate(signDate));
+            appearance.setCryptoDictionary(dic);
+        }
+
+        appearance.setVisibleSignature(createNewRectangle(index, (int) reader.getPageSize(pageNum).getHeight()), pageNum, "Signature " + index);
+        appearance.setLayer2Text(layer2Text);
+        appearance.setImage(Image.getInstance(image));
+        appearance.setReason(reason);
+        appearance.setSignDate(signDate);
+    }
+
+    protected void closeSignatureAppearance(PdfSignatureAppearance appearance) throws IOException {
+        Map<PdfName, Integer> exc = new HashMap<>();
+        exc.put(PdfName.CONTENTS, 10);
+        appearance.preClose(exc);
+        PdfDictionary update = new PdfDictionary();
+        update.put(PdfName.CONTENTS, new PdfString("aaaa").setHexWriting(true));
+        appearance.close(update);
+    }
+
+    protected static Rectangle createNewRectangle(int position, int pageHeight) {
+        int stampHeight = 75;
+        int stampWidth = 400;
+
+        int llx = 100;
+        int lly = pageHeight - ((position-1) * stampHeight + 250);
+        int urx = llx + stampWidth;
+        int ury = lly + stampHeight;
+        return new Rectangle(llx, lly, urx, ury);
+    }
+
+    protected String getSignatureApprovedText(DocumentSignatureEntity signatureTemplateBlock) {
+        StringBuilder sb = new StringBuilder();
+//        sb.append("Digitally signed by ").append(signatureTemplateBlock.getSigner().getFirstName()).append(" ").append(signatureTemplateBlock.getSigner().getLastName()).append("\n");
+        sb.append("\n\n\n\n\n");
+        sb.append("Date: ").append(DATE_FORMAT.format(ZonedDateTime.now())).append("\n");
+        sb.append("Reason: ").append(cutLongText(signatureTemplateBlock.getReason().getSignatureText())).append("\n");
+        if(!"".equals(signatureTemplateBlock.getComment()) && signatureTemplateBlock.getComment() != null) {
+            sb.append("Comment: ").append(cutLongText(signatureTemplateBlock.getComment().replace("\n", " ").replace("\r", " "))).append("\n");
+        }
+        return sb.toString();
+    }
+
+    protected String getSignatureRejectedText(DocumentSignatureEntity signatureTemplateBlock) {
+        return "Rejected by " + signatureTemplateBlock.getUser().getDisplayName() + "\n" +
+                "Date: " + DATE_FORMAT.format(ZonedDateTime.now()) + "\n" +
+                "Comment: " + cutLongText(signatureTemplateBlock.getComment()) + "\n";
+    }
+
+    protected String cutLongText(String text) {
+        if (text == null || text.length() <= 35) {
+            return text;
+        } else if (text.length() < 70) {
+            return text.substring(0, 35) + "\n" + text.substring(35);
+        } else {
+            return text.substring(0, 35) + "\n" + text.substring(35, 70) + "...";
+        }
+    }
 }

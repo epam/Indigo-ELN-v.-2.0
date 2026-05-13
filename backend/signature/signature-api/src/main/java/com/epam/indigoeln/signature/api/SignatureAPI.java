@@ -1,19 +1,16 @@
 package com.epam.indigoeln.signature.api;
 
-import com.epam.indigoeln.signature.model.Document;
-import com.epam.indigoeln.signature.model.Template;
-import com.epam.indigoeln.signature.model.TemplateRequest;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import com.epam.indigoeln.common.model.UploadForm;
+import com.epam.indigoeln.signature.model.DocumentDTO;
+import com.epam.indigoeln.signature.model.SignatureTemplateDTO;
+import com.epam.indigoeln.signature.model.SignatureTemplateDetailsDTO;
+import com.epam.indigoeln.signature.model.SignatureTemplateRequest;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.jboss.resteasy.reactive.PartType;
 
 import java.util.List;
+import java.util.UUID;
 
 @Path(SignatureAPI.BASE_PATH)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -24,65 +21,36 @@ public interface SignatureAPI {
 
     @POST
     @Path("/templates")
-    Template createTemplate(TemplateRequest template);
+    SignatureTemplateDetailsDTO createTemplate(SignatureTemplateRequest template);
 
     @GET
     @Path("/templates")
-    List<Template> getTemplates();
+    List<SignatureTemplateDTO> getTemplates();
 
     @POST
     @Path("/documents/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    Document uploadDocument(FileUploadForm form);
+    DocumentDTO uploadDocument(@QueryParam("name") String name, @QueryParam("templateId") UUID templateId, UploadForm form);
 
     @GET
     @Path("/documents")
-    List<Document> getDocuments();
+    List<DocumentDTO> getDocuments();
+
+    @GET
+    @Path("/documents/{id}")
+    DocumentDTO getDocument(@PathParam("id") UUID id);
 
     @POST
     @Path("/documents/{documentId}/sign")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    Document signDocument(@PathParam("documentId") int documentId, SignForm form);
+    DocumentDTO signDocument(@PathParam("documentId") UUID documentId);
 
     @POST
     @Path("/documents/{documentId}/reject")
-    Document rejectDocument(@PathParam("documentId") int documentId);
+    DocumentDTO rejectDocument(@PathParam("documentId") UUID documentId);
 
     @GET
     @Path("/documents/{documentId}/download")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    Response downloadDocument(@PathParam("documentId") int documentId);
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    class FileUploadForm {
-
-        @NotNull
-        @FormParam("templateId")
-        private Integer templateId;
-
-        @NotEmpty
-        @FormParam("name")
-        private String name;
-
-        @NotEmpty
-        @FormParam("file")
-        @PartType(MediaType.APPLICATION_OCTET_STREAM)
-        private byte[] file;
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    class SignForm {
-
-        @NotNull
-        @FormParam("keyStore")
-        private byte[] keyStore;
-
-        @NotNull
-        @FormParam("keyStorePassword")
-        private String keyStorePassword;
-    }
+    Response downloadDocument(@PathParam("documentId") UUID documentId);
 }

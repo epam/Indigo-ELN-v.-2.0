@@ -13,7 +13,6 @@ import java.util.UUID;
 
 public class DictionaryItemRefDeserializer extends StdDeserializer<DictionaryItemRef> {
 
-    // injected via Jackson InjectableValues
     private final DictionaryService dictionaryService;
 
     public DictionaryItemRefDeserializer(DictionaryService dictionaryService) {
@@ -24,12 +23,12 @@ public class DictionaryItemRefDeserializer extends StdDeserializer<DictionaryIte
     @Override
     public DictionaryItemRef deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
         ObjectCodec codec = p.getCodec();
-        IdAndName idAndName = codec.readValue(p, IdAndName.class);
-        return dictionaryService.get(idAndName.id());
+        Representation representation = codec.readValue(p, Representation.class);
+        return dictionaryService.get(representation.id());
     }
 
     @RegisterForReflection
-    record IdAndName (
+    record Representation(
             UUID id,
             String name
     ) {}

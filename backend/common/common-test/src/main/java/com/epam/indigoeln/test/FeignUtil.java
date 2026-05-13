@@ -21,6 +21,7 @@ import io.vertx.core.json.jackson.VertxModule;
 import jakarta.ws.rs.core.HttpHeaders;
 import lombok.Getter;
 import lombok.Setter;
+import org.jspecify.annotations.Nullable;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -45,6 +46,11 @@ public class FeignUtil {
 
     @Getter
     @Setter
+    @Nullable
+    private static String apiSecret;
+
+    @Getter
+    @Setter
     private static Response lastResponse;
 
     public static <T> T buildFeignClient(URI baseURL, Class<T> klass, AtomicReference<String> testUsername, AtomicReference<String> authorization) {
@@ -60,25 +66,36 @@ public class FeignUtil {
                     // use admin by default; to allow testing without need to specify username, and also to enable calls from setUp/tearDown methods, where @TestSecurity doesn't work
                     request.header(UserHolder.X_TEST_AUTHORIZATION, MoreObjects.firstNonNull(testUsername.get(), BaseTest.ADMIN_USERNAME));
                     request.header(HttpHeaders.AUTHORIZATION, authorization.get());
+                    if (apiSecret != null) {
+                        request.header("X-API-Secret", apiSecret);
+                    }
                 })
                 .logLevel(Logger.Level.FULL)
                 .logger(new Slf4jLogger("feign"))
                 .retryer(Retryer.NEVER_RETRY)
-                .errorDecoder((methodKey, response) -> {
-                    String body = "";
-                    try (InputStream is = response.body().asInputStream()) {
-                        body = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-                    } catch (Exception ignore) {
-                    }
-                    try {
-                        List<ErrorDTO> errors = OBJECT_MAPPER.readValue(body, new TypeReference<>() {});
-                        return new APICallException(response.status(), response.reason(), errors);
-                    } catch (Exception e) {
-                        throw new RuntimeException("Server didn't return a valid JSON error response: " + body, e);
-                    }
-                })
+                .errorDecoder(FeignUtil::decodeError)
                 .target(klass, baseURL.toString());
-//        client = RestClientBuilder.newBuilder().baseUri(baseURL).build(ELNClient.class);
+    }
+
+    private static Exception decodeError(String methodKey, Response response) {
+        String body = null;
+        try (InputStream is = response.body().asInputStream()) {
+            body = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (Exception ignore) {
+        }
+        List<ErrorDTO> errors = List.of();
+        if (body != null) {
+            try {
+                errors = OBJECT_MAPPER.readValue(body, new TypeReference<>() {});
+            } catch (Exception e) {
+                try {
+                    errors = List.of(OBJECT_MAPPER.readValue(body, ErrorDTO.class));
+                } catch (Exception e2) {
+                    errors = List.of(new ErrorDTO(body));
+                }
+            }
+        }
+        return new APICallException(response.status(), response.reason(), errors);
     }
 
     // workaround for Feign client incorrect handling of @BeanParam

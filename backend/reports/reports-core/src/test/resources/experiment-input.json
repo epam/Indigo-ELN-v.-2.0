@@ -1,0 +1,83 @@
+{
+  "project": {
+    "id": "5c8e8b38-0c46-4898-a995-ab357df6df77",
+    "createdBy": {
+      "username": "admin",
+      "displayName": "Administrator"
+    },
+    "createdAt": "2026-05-05T17:03:43.952Z",
+    "modifiedBy": {
+      "username": "john",
+      "displayName": "John Doe"
+    },
+    "modifiedAt": "2026-05-05T17:03:44.736Z",
+    "name": "ExperimentWorkflowServiceTest797402b6-1f62-4468-9974-c9ecc7bd2961",
+    "notebookCount": 1,
+    "experimentCount": 2,
+    "experimentCountByStatus": {
+      "OPEN": 1,
+      "COMPLETED": 1
+    },
+    "acl": [
+      {
+        "userId": "00000000-0000-0000-0000-000000000001",
+        "displayName": "Administrator",
+        "level": "AUTHOR",
+        "inherited": false
+      }
+    ],
+    "aclCount": 2
+  },
+  "experiment": {
+    "id": "373976fe-e7df-4fcf-a4a2-8575aa0386b5",
+    "createdBy": {
+      "username": "john",
+      "displayName": "John Doe"
+    },
+    "createdAt": "2026-05-05T17:03:46.05Z",
+    "modifiedBy": {
+      "username": "john",
+      "displayName": "John Doe"
+    },
+    "modifiedAt": "2026-05-05T17:03:46.142Z",
+    "name": "00000001-0002",
+    "status": "SUBMITTED",
+    "marked": false,
+    "revision": 4,
+    "templateId": "8dd312ac-4211-4ed1-9312-ac42111ed101",
+    "batchCreator": {
+      "username": "john",
+      "displayName": "John Doe"
+    },
+    "linkedExperiments": [],
+    "continuedFrom": [],
+    "continuedTo": [],
+    "attachments": [],
+    "acl": [
+      {
+        "userId": "a7f7400b-7e71-45d9-b8dc-262bb4fa9998",
+        "displayName": "John Doe",
+        "level": "AUTHOR",
+        "inherited": false,
+        "username": "john"
+      }
+    ],
+    "currentPermissions": [],
+    "model": {
+      "reactions": [
+        {
+          "anchor": "d60b4b63-bb9f-4a31-b6c1-805fbdec24af",
+          "inputs": [],
+          "outputs": [],
+          "precursorReactantIds": []
+        }
+      ],
+      "significantFigures": 5
+    },
+    "projectId": "5c8e8b38-0c46-4898-a995-ab357df6df77",
+    "projectName": "ExperimentWorkflowServiceTest797402b6-1f62-4468-9974-c9ecc7bd2961",
+    "notebookId": "cbfd07a0-1efb-49ab-8038-8fa42695035b",
+    "notebookName": "00000001"
+  },
+  "picture": null
+}

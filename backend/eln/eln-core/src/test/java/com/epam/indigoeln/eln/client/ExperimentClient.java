@@ -14,13 +14,13 @@ public interface ExperimentClient extends ExperimentAPI {
 
     @SneakyThrows
     default List<AttachmentDTO> createExperimentAttachment(UUID experimentId, String filename, java.nio.file.Path tempDirectory, byte[] content) {
-        return createExperimentAttachment(experimentId, ClientUtil.createFileUpload("file", filename, content, tempDirectory));
+        return createExperimentAttachment(experimentId, com.epam.indigoeln.test.ClientUtil.createFileUpload("file", filename, content, tempDirectory));
     }
 
     @POST
     @Path("/experiments/{experimentId}/attachments")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    List<AttachmentDTO> createExperimentAttachment(@PathParam("experimentId") UUID experimentId, ClientUtil.ClientUploadForm form);
+    List<AttachmentDTO> createExperimentAttachment(@PathParam("experimentId") UUID experimentId, com.epam.indigoeln.test.ClientUtil.ClientUploadForm form);
 
     @POST
     @Path("/experiments/{experimentId}/datamodel2")

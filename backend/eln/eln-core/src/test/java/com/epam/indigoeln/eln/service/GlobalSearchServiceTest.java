@@ -78,7 +78,7 @@ class GlobalSearchServiceTest extends ELNBaseTest {
         });
         withUser(BART_USERNAME, () -> {
             project3 = projectClient.createProject(new ProjectRequest("p3"));
-            projectClient.updateProjectAccess(project3.getId(), AccessForm.of(maggieUserID, AccessLevel.VIEW));
+            projectClient.updateProjectAccess(project3.getId(), AccessForm.of(MAGGIE_USERNAME, AccessLevel.VIEW));
             notebook3 = notebookClient.createNotebook(project3.getId(), new NotebookRequest("00000003", null));
             experiment3 = experimentClient.createExperiment(notebook3.getId(), new ExperimentRequest(emptyTemplateID, null, null, null));
             experimentClient.cancelExperiment(experiment3.getId());
@@ -116,12 +116,12 @@ class GlobalSearchServiceTest extends ELNBaseTest {
                 , tuple(EntityType.EXPERIMENT, experiment2.getName(), experiment2.getId())
         );
         assertThat(results.getItems()).map(GlobalSearchResultDTO::getFragment, GlobalSearchResultDTO::getCreatedBy).containsExactly(
-                tuple(project1.getDescription(), getMaggieUserRef()),
-                tuple(project2.getDescription(), getMaggieUserRef()),
-                tuple("nd1 <mark>xx</mark>", getMaggieUserRef()),
-                tuple("nd2 <mark>xx</mark>", getMaggieUserRef()),
-                tuple("ed1 <mark>xx</mark>", getMaggieUserRef()),
-                tuple("ed2 <mark>xx</mark>", getMaggieUserRef())
+                tuple(project1.getDescription(), MAGGIE_USER_REF),
+                tuple(project2.getDescription(), MAGGIE_USER_REF),
+                tuple("nd1 <mark>xx</mark>", MAGGIE_USER_REF),
+                tuple("nd2 <mark>xx</mark>", MAGGIE_USER_REF),
+                tuple("ed1 <mark>xx</mark>", MAGGIE_USER_REF),
+                tuple("ed2 <mark>xx</mark>", MAGGIE_USER_REF)
         );
     }
 
@@ -148,7 +148,7 @@ class GlobalSearchServiceTest extends ELNBaseTest {
 
     @Test
     void testFindAllByAuthor() {
-        Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withAuthor(Set.of(getBartUserRef())), Paging.DEFAULT);
+        Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withAuthor(Set.of(BART_USER_REF)), Paging.DEFAULT);
         assertResults(results
                 , tuple(EntityType.PROJECT, project3.getName(), project3.getId())
                 , tuple(EntityType.NOTEBOOK, notebook3.getName(), notebook3.getId())
@@ -222,7 +222,7 @@ class GlobalSearchServiceTest extends ELNBaseTest {
 
     @Test
     void testFindAllEntitiesQuickSearchAndAuthor() {
-        Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withQuery("xx").withAuthor(Set.of(getMaggieUserRef())), Paging.DEFAULT);
+        Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withQuery("xx").withAuthor(Set.of(MAGGIE_USER_REF)), Paging.DEFAULT);
         assertResults(results
                 , tuple(EntityType.PROJECT, project1.getName(), project1.getId())
                 , tuple(EntityType.PROJECT, project2.getName(), project2.getId())
@@ -241,7 +241,7 @@ class GlobalSearchServiceTest extends ELNBaseTest {
                 .withTherapeuticArea(therapeuticArea2)
                 .withProjectCode(projectCode2)
                 .withExperimentStatus(Set.of(ExperimentStatus.OPEN))
-                .withAuthor(Set.of(getMaggieUserRef()))
+                .withAuthor(Set.of(MAGGIE_USER_REF))
                 .withBatchYield(new NumericSearch.GreaterThanOrEqual(0.1))
                 .withBatchPurity(new NumericSearch.GreaterThanOrEqual(10.0))
                 .withMoleculeStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, molFile))
