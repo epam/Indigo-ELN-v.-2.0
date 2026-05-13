@@ -29,6 +29,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @Dependent
 public class ReactionCalculator {
 
+    private static final Comparator<EnteredValueOpt.Property<?, ?>> CONFLICT_SELECTOR =
+            Comparator.<EnteredValueOpt.Property<?, ?>, Integer>comparing(x -> isUnderLimitingInput(x) ? 1 : 0)
+                    .thenComparing(Comparator.comparing(x -> checkNotNull(x.getValue()).getSource().getPriority()));
+
     private ModelProps model;
     private final Set<EnteredValueOpt.Property<?, ?>> overwrittenConflicts = new HashSet<>();
 
@@ -235,8 +239,7 @@ public class ReactionCalculator {
             }
             log.debug("tryUpdate: conflict at {}, candidates to overwrite: {}", value.getName(), collector.getInputs());
             EnteredValueOpt.Property<?, ?> chosen = collector.getInputs().stream()
-                    .min(Comparator.<EnteredValueOpt.Property<?, ?>, Integer>comparing(x -> checkNotNull(x.getValue()).getSource().getPriority())
-                            .thenComparing(x -> x.getContainer() instanceof ReactionInput i && i.isLimiting() ? 1 : 0))
+                    .min(CONFLICT_SELECTOR)
                     .orElseThrow(() -> new RuntimeException("Cannot find a value to resolve conflict"));
             log.debug("overwrite input value to resolve conflict: {}", chosen);
             chosen.setValue(empty());
@@ -484,5 +487,13 @@ public class ReactionCalculator {
             doPrepareToRecalculate(density);
             doPrepareToRecalculate(yield);
         }
+    }
+
+    private static boolean isUnderLimitingInput(EnteredValueOpt.Property<?, ?> value) {
+        return switch (value.getContainer()) {
+            case ReactionInput i -> i.isLimiting();
+            case ReactionInputSample s -> s.getRow().isLimiting();
+            default -> false;
+        };
     }
 }

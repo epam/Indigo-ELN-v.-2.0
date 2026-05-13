@@ -35,10 +35,6 @@ public final class EnteredValue<U extends MeasurementUnit> {
     private final String stringValue; // for now, always set; maybe postpone initialization for calculated values if gets recalculated too often
     @Setter
     private EnteredValueSource source;
-    @Setter
-    @Deprecated // !!! only to deserialize existing models; remove
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    private boolean overwritten = false;
 
     @JsonCreator
     EnteredValue(String stringValue, U unit, EnteredValueSource source) {
