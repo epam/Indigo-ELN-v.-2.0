@@ -1,7 +1,6 @@
 package com.epam.indigoeln.integrationtests.lambda;
 
 import com.epam.indigoeln.test.BaseTest;
-import com.epam.indigoeln.test.FeignUtil;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.PortBinding;
 import com.github.dockerjava.api.model.Ports;
@@ -25,7 +24,6 @@ public class LambdaIntegrationEnvironmentResource implements BeforeAllCallback {
     @Override
     public void beforeAll(ExtensionContext context) throws Exception {
         BaseTest.setIntegrationTest(true);
-        FeignUtil.setApiSecret("integrationTestsAPISecret");
         context.getRoot().getStore(NAMESPACE).getOrComputeIfAbsent(
                 "integration-environment-resource",
                 key -> {

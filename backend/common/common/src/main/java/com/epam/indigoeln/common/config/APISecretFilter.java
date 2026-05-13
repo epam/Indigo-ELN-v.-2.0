@@ -7,24 +7,20 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.resteasy.reactive.server.ServerRequestFilter;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Optional;
-
 @Slf4j
 public class APISecretFilter {
 
     @ConfigProperty(name = "eln.api.secret")
-    Optional<String> apiSecret;
+    String apiSecret;
 
     @Nullable
     @ServerRequestFilter
     public Response responseFilter(ContainerRequestContext requestContext) {
-        if (apiSecret.isPresent()) {
-            if (!apiSecret.get().equals(requestContext.getHeaders().getFirst("X-API-Secret"))) {
-                log.debug("Invalid API secret: {}", requestContext.getHeaderString("X-API-Secret"));
-                return Response.status(Response.Status.UNAUTHORIZED)
-                        .entity("Invalid API secret")
-                        .build();
-            }
+        if (!apiSecret.equals(requestContext.getHeaders().getFirst("X-API-Secret"))) {
+            log.debug("Invalid API secret: {}", requestContext.getHeaderString("X-API-Secret"));
+            return Response.status(Response.Status.UNAUTHORIZED)
+                    .entity("Invalid API secret")
+                    .build();
         }
         return null;
     }

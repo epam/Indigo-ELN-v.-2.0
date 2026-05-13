@@ -1,7 +1,6 @@
 package com.epam.indigoeln.integrationtests.service;
 
 import com.epam.indigoeln.test.BaseTest;
-import com.epam.indigoeln.test.FeignUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -18,7 +17,6 @@ public class ServiceIntegrationEnvironmentResource implements BeforeAllCallback 
     @Override
     public void beforeAll(ExtensionContext context) throws Exception {
         BaseTest.setIntegrationTest(true);
-        FeignUtil.setApiSecret("integrationTestsAPISecret");
         context.getRoot().getStore(NAMESPACE).getOrComputeIfAbsent(
                 "integration-environment-resource",
                 key -> {
