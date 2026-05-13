@@ -75,7 +75,7 @@ public final class EnteredValue<U extends MeasurementUnit> {
     @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> calculated(@Nullable Double value, U unit, EnteredValue<?> from1, EnteredValue<?> from2) {
         // !!! remove EnteredValueSource.calculated
-        return value != null ? new EnteredValue<>(value, getSignificantFigures(), null, unit, EnteredValueSource.calculated(from1.source, from2.source)) : null;
+        return value != null ? new EnteredValue<>(value, getSignificantFigures(), null, unit, EnteredValueSource.CALCULATED) : null;
     }
 
     @Nullable
