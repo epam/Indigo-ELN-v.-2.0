@@ -465,8 +465,6 @@ class ProjectServiceTest extends ELNBaseTest {
 
     @Test
     void testUploadLargeAttachment(@TempDir Path tempDir) {
-        System.out.println("Max body size = " + System.getProperty("quarkus.http.limits.max-body-size"));
-
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testUploadLargeAttachment"));
 
         // Use 7 MB file to stay safely below AWS API Gateway limit

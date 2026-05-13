@@ -142,7 +142,7 @@ class SignatureServiceTest extends BaseTest {
     @Test
     @Order(300)
     void testSign() throws Exception {
-        assumeThat(!integrationTest); // no matching document in ELN
+        assumeThat(integrationTest).isFalse(); // no matching document in ELN
         assumeThat(documentID).isNotNull();
         DocumentDTO document = signatureClient.signDocument(documentID);
         assertThat(document.getStatus()).isEqualTo(DocumentStatus.SIGNING);
@@ -159,7 +159,7 @@ class SignatureServiceTest extends BaseTest {
     @TestSecurity(user = "willow")
     @JwtSecurity(claims = {@Claim(key = "given_name", value = "Willow"), @Claim(key = "family_name", value = "Johnson")})
     void testReject() {
-        assumeThat(!integrationTest); // no matching document in ELN
+        assumeThat(integrationTest).isFalse(); // no matching document in ELN
         assumeThat(documentID).isNotNull();
         DocumentDTO document = signatureClient.rejectDocument(documentID);
         assertThat(document.getStatus()).isEqualTo(DocumentStatus.REJECTED);
@@ -174,7 +174,7 @@ class SignatureServiceTest extends BaseTest {
     @Test
     @Order(500)
     void testGetDocuments() {
-        assumeThat(!integrationTest); // no matching document in ELN
+        assumeThat(integrationTest).isFalse(); // no matching document in ELN
         assumeThat(documentID).isNotNull();
         List<DocumentDTO> documents = signatureClient.getDocuments();
         assertThat(documents).filteredOn(d -> d.getId().equals(documentID)).hasSize(1).first().satisfies(document -> {
@@ -186,7 +186,7 @@ class SignatureServiceTest extends BaseTest {
     @Test
     @Order(600)
     void testDownloadDocument() throws Exception {
-        assumeThat(!integrationTest); // no matching document in ELN
+        assumeThat(integrationTest).isFalse(); // no matching document in ELN
         assumeThat(documentID).isNotNull();
         Response content = signatureClient.downloadDocument(documentID);
         try (FileOutputStream fos = new FileOutputStream("downloaded.pdf")) {
