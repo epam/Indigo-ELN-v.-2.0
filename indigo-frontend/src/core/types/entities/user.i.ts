@@ -47,9 +47,9 @@ export interface CurrentUser {
 
 export interface User {
   id: string;
-  createdBy: UserMetadata;
+  createdBy: UserRef;
   createdAt: string;
-  modifiedBy: UserMetadata;
+  modifiedBy: UserRef;
   modifiedAt: string;
   username: string;
   firstName: string | null;
@@ -67,4 +67,9 @@ export interface UserMetadata {
 export interface Role {
   id: string;
   name: string;
+}
+
+export interface UserRef {
+  username: string;
+  displayName: string;
 }

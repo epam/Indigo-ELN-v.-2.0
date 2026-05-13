@@ -22,6 +22,11 @@ export interface HasId {
   id: string;
 }
 
+export interface HasIdOrUsername {
+  id?: string;
+  username?: string;
+}
+
 @Component({
   selector: 'eln-autocomplete-select',
   imports: [
@@ -49,7 +54,10 @@ export interface HasId {
     },
   ],
 })
-export class AutocompleteSelectComponent<T extends HasId> extends DelegatingControlBase<T[]> implements OnInit {
+export class AutocompleteSelectComponent<T extends HasIdOrUsername>
+  extends DelegatingControlBase<T[]>
+  implements OnInit
+{
   @Input({ required: true }) search: (query: string) => Observable<T[]>;
   @Input({ required: true }) display: (item: T) => string;
   @Input() allowEmptySearch = false;
@@ -78,8 +86,8 @@ export class AutocompleteSelectComponent<T extends HasId> extends DelegatingCont
       }),
       combineLatestWith(this.selected$),
       map(([items, selected]) => {
-        const selectedIds = new Set(selected.map((item) => item.id));
-        return items.filter((item) => !selectedIds.has(item.id));
+        const selectedKeys = new Set(selected.map(this.key));
+        return items.filter((item) => !selectedKeys.has(this.key(item)));
       }),
       takeUntilDestroyed(this.destroyRef),
     );
@@ -95,7 +103,7 @@ export class AutocompleteSelectComponent<T extends HasId> extends DelegatingCont
 
   onItemSelected(item: T) {
     const currentValue = this.selected$.value;
-    if (item && !currentValue.some((u) => u.id === item.id)) {
+    if (item && !currentValue.some((u) => this.key(u) === this.key(item))) {
       const nextValue = [...currentValue, item];
       this.selected$.next(nextValue);
       this.form.get('query').setValue('');
@@ -106,7 +114,7 @@ export class AutocompleteSelectComponent<T extends HasId> extends DelegatingCont
 
   removeItem(item: T) {
     const currentValue = this.selected$.value;
-    const index = currentValue.findIndex((u) => u.id === item.id);
+    const index = currentValue.findIndex((u) => this.key(u) === this.key(item));
     if (index >= 0) {
       const nextValue = [...currentValue];
       nextValue.splice(index, 1);
@@ -120,5 +128,9 @@ export class AutocompleteSelectComponent<T extends HasId> extends DelegatingCont
     if (this.form.get('query').value === null) {
       this.form.get('query').setValue('');
     }
+  }
+
+  key(item: T) {
+    return item.id || item.username;
   }
 }

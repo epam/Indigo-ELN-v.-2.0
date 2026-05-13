@@ -3,7 +3,7 @@ import { Attachment } from '../attachment.i';
 import { ProjectAcl } from '../acl.i';
 import { ExperimentStatus } from '@/core/enums/experiment-status.enum';
 import { ExperimentModel } from '@core/types/entities/experiments/experiment.i';
-import { UserMetadata } from '@core/types/entities/user.i';
+import { UserRef } from '@core/types/entities/user.i';
 import { ExperimentRef } from '@core/types/entities/experiments/experiment-shared.i';
 
 export enum SignatureReason {
@@ -49,7 +49,7 @@ export interface ExperimentDetail extends BaseEntity {
   description?: string;
   literature?: string;
   templateId: string;
-  batchCreator: UserMetadata;
+  batchCreator: UserRef;
   linkedExperiments: ExperimentRef[];
   continuedFrom: ExperimentRef[];
   continuedTo: ExperimentRef[];
