@@ -15,7 +15,7 @@ public class EnteredValueSource {
     private static final int DEFAULT_VALUE = Integer.MIN_VALUE;
     private static final String DEFAULT_STR = "default";
     private static final int CALCULATED_VALUE = -1;
-    private static final String CALCULATE_STR = "calculated";
+    private static final String CALCULATED_STR = "calculated";
 
     public static final EnteredValueSource FIXED = new EnteredValueSource(FIXED_VALUE);
     public static final EnteredValueSource DEFAULT = new EnteredValueSource(DEFAULT_VALUE);
@@ -40,7 +40,7 @@ public class EnteredValueSource {
             this.priority = FIXED_VALUE;
         } else if (from.equals(DEFAULT_STR)) {
             this.priority = DEFAULT_VALUE;
-        } else if (from.equals(CALCULATE_STR)) {
+        } else if (from.equals(CALCULATED_STR)) {
             this.priority = CALCULATED_VALUE;
         } else if (from instanceof Number number) {
             int intValue = number.intValue();
@@ -56,7 +56,7 @@ public class EnteredValueSource {
         return switch (priority) {
             case FIXED_VALUE -> FIXED_STR;
             case DEFAULT_VALUE -> DEFAULT_STR;
-            case CALCULATED_VALUE -> CALCULATE_STR;
+            case CALCULATED_VALUE -> CALCULATED_STR;
             default -> priority;
         };
     }
@@ -86,7 +86,7 @@ public class EnteredValueSource {
         return switch (priority) {
             case FIXED_VALUE -> FIXED_STR;
             case DEFAULT_VALUE -> DEFAULT_STR;
-            case CALCULATED_VALUE -> CALCULATE_STR;
+            case CALCULATED_VALUE -> CALCULATED_STR;
             default -> "userEntered(" + priority + ")";
         };
     }

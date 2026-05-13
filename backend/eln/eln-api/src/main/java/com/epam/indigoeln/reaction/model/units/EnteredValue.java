@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 import static com.epam.indigoeln.reaction.model.units.EnteredValueSource.DEFAULT;
 import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.*;
 
-@EqualsAndHashCode
+@EqualsAndHashCode(of = {"stringValue", "unit", "source"})
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class EnteredValue<U extends MeasurementUnit> {
 
@@ -58,7 +58,6 @@ public final class EnteredValue<U extends MeasurementUnit> {
 
     @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> fixed(@Nullable Double value, int precision, U unit) {
-        // !! should we round here?
         return value != null ? new EnteredValue<>(roundToSignificantFigures(value, precision), precision, null, unit, EnteredValueSource.FIXED) : null;
     }
 
@@ -74,13 +73,11 @@ public final class EnteredValue<U extends MeasurementUnit> {
 
     @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> calculated(@Nullable Double value, U unit, EnteredValue<?> from1, EnteredValue<?> from2) {
-        // !!! remove EnteredValueSource.calculated
         return value != null ? new EnteredValue<>(value, getSignificantFigures(), null, unit, EnteredValueSource.CALCULATED) : null;
     }
 
     @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> defaultValue(@Nullable Double value, int precision, @Nullable U unit) {
-        // !!! should we round to significant figures?
         return value != null && unit != null ? new EnteredValue<>(roundToSignificantFigures(value, precision), precision, null, unit, DEFAULT) : null;
     }
 

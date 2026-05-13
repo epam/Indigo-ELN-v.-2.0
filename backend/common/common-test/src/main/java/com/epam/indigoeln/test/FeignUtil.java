@@ -17,11 +17,11 @@ import feign.jackson.JacksonDecoder;
 import feign.jackson.JacksonEncoder;
 import feign.jaxrs3.JAXRS3Contract;
 import feign.slf4j.Slf4jLogger;
-import io.quarkus.runtime.configuration.ConfigUtils;
 import io.vertx.core.json.jackson.VertxModule;
 import jakarta.ws.rs.core.HttpHeaders;
 import lombok.Getter;
 import lombok.Setter;
+import org.eclipse.microprofile.config.ConfigProvider;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -30,7 +30,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class FeignUtil {
@@ -50,7 +49,7 @@ public class FeignUtil {
     private static Response lastResponse;
 
     public static <T> T buildFeignClient(URI baseURL, Class<T> klass, AtomicReference<String> testUsername, AtomicReference<String> authorization) {
-        Optional<String> apiSecret = ConfigUtils.getFirstOptionalValue(List.of("eln.api.secret"), String.class);
+        String apiSecret = ConfigProvider.getConfig().getValue("eln.api.secret", String.class);
         return Feign.builder()
                 .client(new ApacheHttpClient())
                 .options(new Request.Options(Duration.ofSeconds(1), Duration.ofDays(1), false))
@@ -63,9 +62,7 @@ public class FeignUtil {
                     // use admin by default; to allow testing without need to specify username, and also to enable calls from setUp/tearDown methods, where @TestSecurity doesn't work
                     request.header(UserHolder.X_TEST_AUTHORIZATION, MoreObjects.firstNonNull(testUsername.get(), BaseTest.ADMIN_USERNAME));
                     request.header(HttpHeaders.AUTHORIZATION, authorization.get());
-                    apiSecret.ifPresent(s -> {
-                        request.header("X-API-Secret", s);
-                    });
+                    request.header("X-API-Secret", apiSecret);
                 })
                 .logLevel(Logger.Level.FULL)
                 .logger(new Slf4jLogger("feign"))

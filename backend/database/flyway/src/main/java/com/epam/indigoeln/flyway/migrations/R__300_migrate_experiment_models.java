@@ -48,7 +48,7 @@ public class R__300_migrate_experiment_models extends BaseJavaMigration {
                     // UserRef, remove ID
                     node.remove("id");
                     userRefsFixed++;
-                } if (node.has("value") && node.get("source") instanceof NumericNode n && n.intValue() < 0) {
+                } else if (node.has("value") && node.get("source") instanceof NumericNode n && n.intValue() < 0) {
                     node.set("source", OBJECT_MAPPER.getNodeFactory().textNode("calculated"));
                     enteredValuesFixed++;
                 }
