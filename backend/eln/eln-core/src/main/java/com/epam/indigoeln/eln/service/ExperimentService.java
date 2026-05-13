@@ -133,12 +133,12 @@ public class ExperimentService {
         return isMarked;
     }
 
-    public List<ACLDetailsEntryDTO> updateExperimentAccess(UUID experimentId, List<AccessForm> form) {
+    public List<ACLEntryDTO> updateExperimentAccess(UUID experimentId, List<AccessForm> form) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, MANAGE_EXPERIMENT_ACCESS);
         Mutation mutation = new ExperimentMutation.EditExperimentAccess(form);
         experimentModelService.applyMutation(experiment, mutation);
-        return experimentMapper.convertDetailsACLList(experiment.getFullACL());
+        return experimentMapper.convertACLList(experiment.getFullACL());
     }
 
     public ExperimentModel mutateModel(UUID experimentId, Mutation mutation) {

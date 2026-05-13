@@ -489,7 +489,7 @@ class PermissionsTest extends ELNBaseTest {
         @Test
         @Order(200)
         void testAddUser() {
-            List<ACLDetailsEntryDTO> acl = projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, VIEW));
+            List<ACLEntryDTO> acl = projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, VIEW));
             assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, VIEW, false);
             acl = notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(WILLOW_USERNAME, VIEW));
             assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, VIEW, false);
@@ -500,7 +500,7 @@ class PermissionsTest extends ELNBaseTest {
         @Test
         @Order(201)
         void testRemoveUser() {
-            List<ACLDetailsEntryDTO> acl = projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, NONE));
+            List<ACLEntryDTO> acl = projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, NONE));
             assertThatACL(acl).containsOnly(
                     JOHN_DISPLAY_NAME, AUTHOR, false,
                     WILLOW_DISPLAY_NAME, IMPLICIT_VIEW, false
@@ -553,7 +553,7 @@ class PermissionsTest extends ELNBaseTest {
         void testACLInListLimitedTo3() {
             projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, EDIT));
             projectClient.updateProjectAccess(project.getId(), AccessForm.of(BART_USERNAME, EDIT));
-            List<ACLDetailsEntryDTO> acl = projectClient.updateProjectAccess(project.getId(), AccessForm.of(LISA_USERNAME, EDIT));
+            List<ACLEntryDTO> acl = projectClient.updateProjectAccess(project.getId(), AccessForm.of(LISA_USERNAME, EDIT));
             assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, BART_DISPLAY_NAME, EDIT, false, LISA_DISPLAY_NAME, EDIT, false, WILLOW_DISPLAY_NAME, EDIT, false);
             Paging paging = new Paging(0, 1);
             ProjectDTO projectDTO = projectClient.getProjects(project.getName(), null, null, paging).getItems().getFirst();

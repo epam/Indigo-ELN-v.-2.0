@@ -55,7 +55,7 @@ public final class ExperimentSnapshot implements ExperimentNode {
     private Set<AttachmentDTO> attachments;
 
     @Nullable
-    private Set<ACLDetailsEntryDTO> acl;
+    private Set<ACLEntryDTO> acl;
 
     @Nullable
     private ExperimentModel model;

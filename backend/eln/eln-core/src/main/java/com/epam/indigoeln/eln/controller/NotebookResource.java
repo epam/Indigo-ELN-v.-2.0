@@ -71,7 +71,7 @@ public class NotebookResource implements NotebookAPI {
     }
 
     @Override
-    public List<ACLDetailsEntryDTO> updateNotebookAccess(@NotNull UUID notebookId, @NotNull @Valid List<AccessForm> form) {
+    public List<ACLEntryDTO> updateNotebookAccess(@NotNull UUID notebookId, @NotNull @Valid List<AccessForm> form) {
         return notebookService.updateNotebookAccess(notebookId, form);
     }
 

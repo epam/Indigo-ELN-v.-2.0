@@ -9,7 +9,7 @@
       <div class="flex items-center gap-x-3">
         @if (variant === 'grid') {
           <div class="flex -space-x-2">
-            @for (user of notebook.acl; track user.userId) {
+            @for (user of notebook.acl; track user.username) {
               <div
                 class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white"
                 [matTooltip]="user.displayName"
@@ -73,7 +73,7 @@
           <div class="text-neutral-1000 text-sm">Members</div>
           <div class="flex items-center">
             <div class="flex -space-x-2">
-              @for (user of notebook.acl; track user.userId) {
+              @for (user of notebook.acl; track user.username) {
                 <div
                   class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white"
                   [matTooltip]="user.displayName"

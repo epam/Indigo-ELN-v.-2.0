@@ -625,14 +625,14 @@ class ProjectServiceTest extends ELNBaseTest {
         void testGetNestedAccess() {
             assertThat(projectClient.getNestedProjectAccess(project.getId()))
                     .containsExactly(
-                            new NestedACLEntryDTO(EntityType.NOTEBOOK, notebook.getId(), notebook.getName(), bartUserID, BART_DISPLAY_NAME, AccessLevel.ADMIN),
-                            new NestedACLEntryDTO(EntityType.EXPERIMENT, experiment.getId(), experiment.getName(), lisaUserID, LISA_DISPLAY_NAME, AccessLevel.VIEW)
+                            new NestedACLEntryDTO(EntityType.NOTEBOOK, notebook.getId(), notebook.getName(), BART_DISPLAY_NAME, AccessLevel.ADMIN),
+                            new NestedACLEntryDTO(EntityType.EXPERIMENT, experiment.getId(), experiment.getName(), LISA_DISPLAY_NAME, AccessLevel.VIEW)
                     );
         }
 
         @Test
         void testRemoveAccess() {
-            List<ACLDetailsEntryDTO> projectAccess = projectClient.updateProjectAccess(project.getId(), AccessForm.of(BART_USERNAME, AccessLevel.NONE));
+            List<ACLEntryDTO> projectAccess = projectClient.updateProjectAccess(project.getId(), AccessForm.of(BART_USERNAME, AccessLevel.NONE));
             assertThatACL(projectAccess).containsOnly(
                     JOHN_DISPLAY_NAME, AccessLevel.AUTHOR, false,
                     BART_DISPLAY_NAME, AccessLevel.IMPLICIT_VIEW, false,
@@ -642,7 +642,7 @@ class ProjectServiceTest extends ELNBaseTest {
 
         @Test
         void testRemoveAccessIncludeNested() {
-            List<ACLDetailsEntryDTO> projectAccess = projectClient.updateProjectAccess(project.getId(), AccessForm.of(LISA_USERNAME, AccessLevel.NONE, true));
+            List<ACLEntryDTO> projectAccess = projectClient.updateProjectAccess(project.getId(), AccessForm.of(LISA_USERNAME, AccessLevel.NONE, true));
             assertThatACL(projectAccess).containsOnly(
                     JOHN_DISPLAY_NAME, AccessLevel.AUTHOR, false,
                     BART_DISPLAY_NAME, AccessLevel.EDIT, false

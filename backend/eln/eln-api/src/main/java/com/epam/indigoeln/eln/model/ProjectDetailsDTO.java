@@ -27,7 +27,7 @@ public class ProjectDetailsDTO extends BaseProjectDTO {
     List<AttachmentDTO> attachments;
 
     @NotNull
-    List<ACLDetailsEntryDTO> acl;
+    List<ACLEntryDTO> acl;
 
     @NotNull
     List<ApplicationPermission> currentPermissions;

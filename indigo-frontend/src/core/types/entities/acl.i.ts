@@ -1,13 +1,13 @@
 import { AclLevel } from '@/core/enums/acl-levels.enum';
 
-export interface ProjectAcl {
+export interface ACLEntry {
   username: string;
   displayName: string;
   level: AclLevel;
   inherited: boolean;
 }
 
-export interface ProjectAclUpdate {
+export interface ACLUpdate {
   username: string;
   level: AclLevel;
 }

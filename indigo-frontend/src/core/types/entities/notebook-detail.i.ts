@@ -1,6 +1,6 @@
 import { BaseEntity } from './base-entity.i';
 import { Attachment } from './attachment.i';
-import { ProjectAcl } from './acl.i';
+import { ACLEntry } from './acl.i';
 
 export interface NotebookDetail extends BaseEntity {
   name: string;
@@ -8,5 +8,5 @@ export interface NotebookDetail extends BaseEntity {
   experimentCount?: Record<string, number>;
   attachments: Attachment[];
   projectName: string;
-  acl: ProjectAcl[];
+  acl: ACLEntry[];
 }

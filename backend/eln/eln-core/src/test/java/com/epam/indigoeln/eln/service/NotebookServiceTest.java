@@ -373,14 +373,14 @@ class NotebookServiceTest extends ELNBaseTest {
         void testGetNestedAccess() {
             assertThat(notebookClient.getNestedNotebookAccess(notebook.getId()))
                     .containsExactly(
-                            new NestedACLEntryDTO(EntityType.EXPERIMENT, experiment.getId(), experiment.getName(), bartUserID, BART_DISPLAY_NAME, AccessLevel.VIEW),
-                            new NestedACLEntryDTO(EntityType.EXPERIMENT, experiment.getId(), experiment.getName(), lisaUserID, LISA_DISPLAY_NAME, AccessLevel.VIEW)
+                            new NestedACLEntryDTO(EntityType.EXPERIMENT, experiment.getId(), experiment.getName(), BART_DISPLAY_NAME, AccessLevel.VIEW),
+                            new NestedACLEntryDTO(EntityType.EXPERIMENT, experiment.getId(), experiment.getName(), LISA_DISPLAY_NAME, AccessLevel.VIEW)
                     );
         }
 
         @Test
         void testRemoveAccess() {
-            List<ACLDetailsEntryDTO> notebookAccess = notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(BART_USERNAME, AccessLevel.NONE));
+            List<ACLEntryDTO> notebookAccess = notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(BART_USERNAME, AccessLevel.NONE));
             assertThatACL(notebookAccess).containsOnly(
                     JOHN_DISPLAY_NAME, AccessLevel.AUTHOR, false,
                     BART_DISPLAY_NAME, AccessLevel.IMPLICIT_VIEW, false,
@@ -390,7 +390,7 @@ class NotebookServiceTest extends ELNBaseTest {
 
         @Test
         void testRemoveAccessIncludeNested() {
-            List<ACLDetailsEntryDTO> projectAccess = notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(BART_USERNAME, AccessLevel.NONE, true));
+            List<ACLEntryDTO> projectAccess = notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(BART_USERNAME, AccessLevel.NONE, true));
             assertThatACL(projectAccess).containsOnly(
                     JOHN_DISPLAY_NAME, AccessLevel.AUTHOR, false,
                     LISA_DISPLAY_NAME, AccessLevel.IMPLICIT_VIEW, false

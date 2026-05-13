@@ -106,7 +106,7 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
-    public List<ACLDetailsEntryDTO> updateExperimentAccess(@NotNull UUID experimentId, @NotNull @Valid List<AccessForm> form) {
+    public List<ACLEntryDTO> updateExperimentAccess(@NotNull UUID experimentId, @NotNull @Valid List<AccessForm> form) {
         return experimentService.updateExperimentAccess(experimentId, form);
     }
 

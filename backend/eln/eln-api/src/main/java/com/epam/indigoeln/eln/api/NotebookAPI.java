@@ -55,7 +55,7 @@ public interface NotebookAPI extends BaseAPI {
 
     @POST
     @Path("/notebooks/{notebookId}/access")
-    List<ACLDetailsEntryDTO> updateNotebookAccess(@PathParam("notebookId") UUID notebookId, List<AccessForm> form);
+    List<ACLEntryDTO> updateNotebookAccess(@PathParam("notebookId") UUID notebookId, List<AccessForm> form);
 
     @GET
     @Path("/notebooks/{notebookId}/nestedAccess")

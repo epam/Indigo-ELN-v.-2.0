@@ -1,7 +1,7 @@
 package com.epam.indigoeln.eln.mapper;
 
 import com.epam.indigoeln.eln.entity.*;
-import com.epam.indigoeln.eln.model.ACLDetailsEntryDTO;
+import com.epam.indigoeln.eln.model.ACLEntryDTO;
 import com.epam.indigoeln.eln.model.AttachmentDTO;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
@@ -38,7 +38,7 @@ public abstract class SnapshotMapper extends AbstractMapper {
 
     protected abstract Set<AttachmentDTO> copyAttachments(List<AttachmentEntity> attachments);
 
-    protected abstract Set<ACLDetailsEntryDTO> copyACL(ACLEntry[] aclEntries);
+    protected abstract Set<ACLEntryDTO> copyACL(ACLEntry[] aclEntries);
 
     protected Set<String> convertKeywords(List<DictionaryItemEntity> keywords) {
         return StreamEx.of(keywords).map(DictionaryItemEntity::getName).toSet();
