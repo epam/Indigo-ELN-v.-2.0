@@ -162,7 +162,7 @@ public final class EnteredValue<U extends MeasurementUnit> {
     @Override
     public String toString() {
         StringBuilder str = new StringBuilder();
-        str.append(source).append(": ").append(stringValue);
+        str.append(source).append(": ").append(getStringValue());
         if (unit != NoUnit.NO_UNIT) {
             str.append(' ').append(unit);
         }

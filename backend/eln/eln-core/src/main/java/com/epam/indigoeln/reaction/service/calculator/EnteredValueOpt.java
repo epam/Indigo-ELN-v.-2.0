@@ -1,7 +1,7 @@
-package com.epam.indigoeln.reaction.service;
+package com.epam.indigoeln.reaction.service.calculator;
 
 import com.epam.indigoeln.reaction.metamodel.property.ModelProperty;
-import com.epam.indigoeln.reaction.model.ExperimentNode;
+import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
@@ -12,8 +12,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -25,7 +23,6 @@ import static com.epam.indigoeln.reaction.model.units.EnteredValue.fixed;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public abstract class EnteredValueOpt<U extends MeasurementUnit> {
 
-    private static final EnteredValueOpt<NoUnit> EMPTY = opt(null);
     public static final EnteredValueOpt<MolUnit> ZERO_MOL = opt(EnteredValue.ZERO_MOL);
     public static final EnteredValueOpt<NoUnit> DEFAULT_ONE_HUNDRED = opt(defaultValue(100.0, 1, NoUnit.NO_UNIT));
     public static final EnteredValueOpt<NoUnit> ONE_HUNDREDTH = opt(fixed(0.01, 1, NoUnit.NO_UNIT));
@@ -46,23 +43,6 @@ public abstract class EnteredValueOpt<U extends MeasurementUnit> {
     }
 
     public abstract void collectInputs(Consumer<@Nullable EnteredValueOpt<?>> consumer);
-
-    // !!! remove
-    public Set<EnteredValueOpt<?>> collectInputsAsList() {
-        Set<EnteredValueOpt<?>> set = new LinkedHashSet<>();
-        var consumer = new Consumer<EnteredValueOpt<?>>() {
-            Consumer<EnteredValueOpt<?>> self = null;
-            @Override
-            public void accept(EnteredValueOpt<?> x) {
-                if (x != null) {
-                    set.add(x);
-                    x.collectInputs(self);
-                }
-            }
-        };
-        consumer.self = consumer;
-        return set;
-    }
 
     public EnteredValueOpt<U> add(EnteredValueOpt<U> other) {
         return opt(this, other, EnteredValue.add(getValue(), other.getValue()));
@@ -139,6 +119,23 @@ public abstract class EnteredValueOpt<U extends MeasurementUnit> {
         public void collectInputs(Consumer<@Nullable EnteredValueOpt<?>> consumer) {
             consumer.accept(this);
             consumer.accept(lastSetValue);
+        }
+
+        private String containerDisplayName(ExperimentNode container) {
+            return switch (container) {
+                case ExperimentModel m -> "Model";
+                case Reaction r -> "Reaction" + r.getModel().getReactions().indexOf(container);
+                case ReactionInput i -> containerDisplayName(i.getReaction()) + "/Input" + i.getReaction().getInputs().indexOf(container);
+                case ReactionInputSample s -> containerDisplayName(s.getRow()) + "/Sample" + s.getRow().getSamples().indexOf(s);
+                case ReactionOutput o -> containerDisplayName(o.getReaction()) + "/Outputs" + o.getReaction().getOutputs().indexOf(container);
+                case ReactionOutputSample s -> containerDisplayName(s.getRow()) + "/Samples" + s.getRow().getSamples().indexOf(s);
+                default -> throw new IllegalArgumentException(container.getClass().getName());
+            };
+        }
+
+        @Override
+        public String toString() {
+            return containerDisplayName(container) + '.' + property.name() + ": " + super.toString();
         }
     }
 
