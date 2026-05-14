@@ -1,4 +1,4 @@
-package com.epam.indigoeln.compound.service.search;
+package com.epam.indigoeln.compound.service.search.pubchem;
 
 import com.epam.indigoeln.compound.model.SampleDTO;
 import org.mapstruct.Mapper;

@@ -1,4 +1,4 @@
-package com.epam.indigoeln.compound.service.search;
+package com.epam.indigoeln.compound.service.search.pubchem;
 
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.entity.SampleEntity;
@@ -6,6 +6,8 @@ import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.search.SearchCatalog;
 import com.epam.indigoeln.compound.service.CompoundService;
+import com.epam.indigoeln.compound.service.search.CatalogSearchProvider;
+import com.epam.indigoeln.compound.service.search.CatalogSearchResult;
 import com.epam.indigoeln.eln.model.CompoundExternalSource;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
@@ -60,6 +62,10 @@ class PubChemCatalogSearchProvider implements CatalogSearchProvider {
         try {
             List<SampleDTO> list = executeQuery(request, limit);
             return new CatalogSearchResult(list, null, null);
+        } catch (PubChemException.NotFound e) {
+            return new CatalogSearchResult(List.of(), null, null);
+        } catch (PubChemException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException("PubChem search failed: " + e.getMessage(), e);
         }
