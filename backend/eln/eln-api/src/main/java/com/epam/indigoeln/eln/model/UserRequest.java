@@ -2,6 +2,7 @@ package com.epam.indigoeln.eln.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
@@ -15,10 +16,10 @@ public class UserRequest {
     @NotEmpty
     private String username;
 
-    @Nullable
+    @NotNull
     private String firstName;
 
-    @Nullable
+    @NotNull
     private String lastName;
 
     @Nullable
