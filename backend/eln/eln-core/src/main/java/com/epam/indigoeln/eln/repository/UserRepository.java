@@ -41,9 +41,14 @@ public class UserRepository extends BaseRepository<UserEntity> {
     }
 
     public List<UserRef> suggest(@Nullable String search) {
+        Conditions conditions = new Conditions();
+        if (search != null) {
+            String searchQuery = search.toLowerCase() + '%';
+            conditions.add("lower(displayName) like ? OR lower(firstName) like ? OR lower(lastName) like ?", searchQuery, searchQuery, searchQuery);
+        }
+
         return doFind(
-                new Conditions()
-                        .addIfNotNull("lower(displayName) like ?", search != null ? search.toLowerCase() + '%' : null),
+                conditions,
                 Paging.DEFAULT,
                 USER_SORT,
                 null,

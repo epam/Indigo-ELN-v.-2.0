@@ -39,11 +39,11 @@ public class UserEntity extends BaseEntity {
     @Basic(fetch = FetchType.LAZY)
     private String username;
 
-    @Nullable
+    @NotNull
     @Basic(fetch = FetchType.LAZY)
     private String firstName;
 
-    @Nullable
+    @NotNull
     @Basic(fetch = FetchType.LAZY)
     private String lastName;
 
