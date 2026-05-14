@@ -53,6 +53,9 @@
             (keydown.enter)="callSave(column, row, $any($event.target).value)"
           />
 
+          <!-- HTML -->
+          <span *ngIf="column.type === ColumnInputType.HTML" [innerHTML]="column.field(row) || '—'"></span>
+
           <!-- Number Input -->
           <input
             *ngIf="column.type === ColumnInputType.NUMBER"

@@ -52,7 +52,7 @@ export class ReactionProductsTableComponent implements OnInit {
     {
       id: 'molFormula',
       header: 'Mol Formula',
-      type: ColumnInputType.TEXT,
+      type: ColumnInputType.HTML,
       editable: () => false,
       field: (row) => row.compound.formula,
     },

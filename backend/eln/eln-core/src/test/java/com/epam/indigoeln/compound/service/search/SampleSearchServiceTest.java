@@ -106,7 +106,7 @@ public class SampleSearchServiceTest extends ELNBaseTest {
     void testAdvancedSearch() {
         SampleSearchResult found = compoundClient.search(request(ELN)
                 .withNbkBatchNumber(new TextSearch.ExactSearch("00000000-0000-001"))
-                .withMolecularFormula(new TextSearch.ExactSearch("C9 H8 O4"))
+                .withMolecularFormula(new TextSearch.ExactSearch("C9H8O4"))
                 .withMolWeight(new NumericSearch.Equals(180.0))
                 .withCompoundState(compoundState)
                 .withBatchComment(new TextSearch.ExactSearch("batch comment"))

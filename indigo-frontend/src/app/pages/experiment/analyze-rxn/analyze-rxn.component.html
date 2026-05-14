@@ -23,12 +23,13 @@
     [selectedIndex]="selectedTab"
   >
     @for (tab of tabs; track $index) {
-      <mat-tab
-        [label]="
-          tab.name + (tab.loader != null && tab.loader.totalItems != null ? ' (' + tab.loader.totalItems + ')' : '')
-        "
-        [disabled]="tab.loader == null"
-      >
+      <mat-tab [disabled]="tab.loader == null">
+        <ng-template mat-tab-label>
+          <span [innerHTML]="tab.name"></span>
+          @if (tab.loader != null && tab.loader.totalItems != null) {
+            <span>({{ tab.loader.totalItems }})</span>
+          }
+        </ng-template>
         @if (tab.loader != null) {
           <eln-sample-search-results [loader]="tab.loader" (addToExperiment)="addToExperiment(tab, $event)" />
         } @else {

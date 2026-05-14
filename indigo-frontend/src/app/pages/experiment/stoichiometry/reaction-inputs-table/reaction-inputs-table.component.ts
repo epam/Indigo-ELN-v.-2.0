@@ -288,9 +288,9 @@ export class ReactionInputsTableComponent implements OnInit {
     {
       id: 'molFormula',
       header: 'Mol Formula',
-      type: ColumnInputType.TEXT,
+      type: ColumnInputType.HTML,
       field: (row: InputSampleRow) => row.input.compound.formula,
-      editable: () => false, // TODO define if editable or not
+      editable: () => false,
     },
     {
       id: 'saltCode',

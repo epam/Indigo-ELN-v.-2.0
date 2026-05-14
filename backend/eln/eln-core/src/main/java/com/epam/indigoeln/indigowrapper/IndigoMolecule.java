@@ -20,8 +20,8 @@ public class IndigoMolecule extends AbstractIndigoObject {
         return obj.molfile();
     }
 
-    public String grossFormula() {
-        return obj.grossFormula();
+    public String molecularFormula() {
+        return obj.molecularFormula();
     }
 
     public double molecularWeight() {

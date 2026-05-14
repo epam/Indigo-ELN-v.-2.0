@@ -3,6 +3,7 @@ import { Type } from '@angular/core';
 
 export enum ColumnInputType {
   TEXT = 'text',
+  HTML = 'html',
   NUMBER = 'number',
   SELECT = 'select',
   CHECKBOX = 'checkbox',
