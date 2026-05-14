@@ -64,7 +64,7 @@ public class CalculationReportBuilder implements AutoCloseable {
                 outputStream.write(bytes.toByteArray());
             }
             closed = true;
-            System.err.println("Calculation report is available at file://wsl$/Ubuntu" + file.getAbsolutePath());
+            System.err.println("Calculation report is available at file://///wsl.localhost/Ubuntu" + file.getAbsolutePath());
         }
     }
 

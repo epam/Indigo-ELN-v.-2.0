@@ -13,17 +13,17 @@ export function determineCellClasses(
     } else if (hasAnyUpdates && previous != null && isUserEntered(previous) && !isUserEntered(value)) {
       // overwritten
       classes.push('animate-[flash-red_500ms_ease-in-out]');
-      classes.push('test-animal-red');
-      console.log('determineCellClasses: overwritten', previous, value);
     } else if (value.source === 'default') {
       classes.push('value-state-default');
     } else if (value.source === 'fixed') {
       classes.push('value-state-fixed');
-    } else if (hasAnyUpdates && previous != null && value.source !== previous.source) {
+    } else if (
+      hasAnyUpdates &&
+      previous != null &&
+      (value.source !== previous.source || value.value !== previous.value)
+    ) {
       // recalculated
       classes.push('animate-[flash-green_500ms_ease-in-out]');
-      classes.push('test-animal-green');
-      console.log('determineCellClasses: recalculated', previous, value);
     }
   }
   return classes;

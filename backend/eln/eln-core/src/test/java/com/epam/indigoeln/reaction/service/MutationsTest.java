@@ -640,7 +640,9 @@ public class MutationsTest extends MutationsTestBase {
     void testConflicts() {
         loadScheme();
         applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "100", WeightUnit.G));
-        applyMutation(new ReactionInputSampleMutation.SetInputMol(input1Sample1.getAnchor(), "1", MolUnit.MOL), false);
+        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input2Sample1.getAnchor(), "200", WeightUnit.G));
+        applyMutation(new ReactionInputMutation.SetInputRowEQ(input1.getAnchor(), "1"));
+        applyMutation(new ReactionInputMutation.SetInputRowEQ(input2.getAnchor(), "2"));
     }
 
     @Test

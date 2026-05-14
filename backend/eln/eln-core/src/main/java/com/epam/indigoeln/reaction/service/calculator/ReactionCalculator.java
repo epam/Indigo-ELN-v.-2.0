@@ -24,14 +24,32 @@ import java.util.function.Consumer;
 
 import static com.epam.indigoeln.reaction.service.EnteredValueOpt.*;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 @Slf4j
 @Dependent
 public class ReactionCalculator {
 
     private static final Comparator<EnteredValueOpt.Property<?, ?>> CONFLICT_SELECTOR =
-            Comparator.<EnteredValueOpt.Property<?, ?>, Integer>comparing(x -> isUnderLimitingInput(x) ? 1 : 0)
-                    .thenComparing(Comparator.comparing(x -> checkNotNull(x.getValue()).getSource().getPriority()));
+            Comparator.comparing(x -> {
+                EnteredValue<?> value = checkNotNull(x.getValue());
+                checkState(!value.getSource().isCalculated());
+                int priority1; // 0 - default, 1 - user-entered
+                int priority2 = isUnderLimitingInput(x) ? 1 : 0;
+                int priority3;
+                if (value.getSource().isDefault()) {
+                    priority1 = 0;
+                    // !!! make stable choice between defaults
+                    // !!! use bitset to track sources, use position in this bitmap
+                    priority3 = 0;
+                } else if (value.getSource().isUserEntered()) {
+                    priority1 = 1;
+                    priority3 = value.getSource().getPriority(); // older edits is less valuable
+                } else {
+                    throw new IllegalArgumentException(value.getSource().toString());
+                }
+                return (((long) priority1) << 33) | (((long) priority2) << 32) | ((long) priority3);
+            });
 
     private ModelProps model;
     private final Set<EnteredValueOpt.Property<?, ?>> overwrittenConflicts = new HashSet<>();
