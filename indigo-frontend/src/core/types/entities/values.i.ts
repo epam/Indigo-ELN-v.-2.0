@@ -33,9 +33,3 @@ export interface EnteredValue<U> {
   source: number | 'fixed' | 'default' | 'calculated';
   overwritten?: boolean;
 }
-
-export const REACTION_INPUT_ROLES = [
-  { id: 'REACTANT', name: 'Reactant' },
-  { id: 'CATALYST', name: 'Catalyst' },
-  { id: 'SOLVENT', name: 'Solvent' },
-];

@@ -3,7 +3,7 @@ package com.epam.indigoeln.reaction.util;
 import com.epam.indigoeln.reaction.model.*;
 import org.jspecify.annotations.Nullable;
 
-public class ExperimentModelUtil2 {
+public class ExperimentModelUtil {
 
     @Nullable
     public static ReactionRole getRoleInSchema(ReactionRow row) {

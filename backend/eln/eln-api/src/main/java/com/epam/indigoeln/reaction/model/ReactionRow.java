@@ -2,7 +2,7 @@ package com.epam.indigoeln.reaction.model;
 
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
-import com.epam.indigoeln.reaction.util.ExperimentModelUtil2;
+import com.epam.indigoeln.reaction.util.ExperimentModelUtil;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.AssertTrue;
@@ -44,7 +44,7 @@ public sealed abstract class ReactionRow extends AbstractExperimentNode<Reaction
     @JsonIgnore
     @AssertTrue(message = "invalid rxnPosition")
     protected boolean isRxnPositionValid() {
-        boolean rxnPositionExpected = ExperimentModelUtil2.getRoleInSchema(this) != null;
+        boolean rxnPositionExpected = ExperimentModelUtil.getRoleInSchema(this) != null;
         return (rxnPosition != null) == rxnPositionExpected;
     }
 }

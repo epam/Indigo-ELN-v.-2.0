@@ -240,6 +240,15 @@ public class MutationsTest extends MutationsTestBase {
     }
 
     @Test
+    void testSetInputRowRoleAndBack() {
+        loadScheme();
+        applyMutation(new ReactionInputMutation.SetInputRowRole(input1.getAnchor(), ReactionRole.CATALYST));
+        applyMutation(new ReactionInputMutation.SetInputRowRole(input1.getAnchor(), ReactionRole.REAGENT));
+        applyMutation(new ReactionInputMutation.SetInputRowRole(input1.getAnchor(), ReactionRole.REACTANT));
+        assertThat(input1.getRole()).isEqualTo(ReactionRole.REACTANT);
+    }
+
+    @Test
     void testSetInputMol() {
         applyMutation(new ReactionMutation.AddEmptyInput(reaction.getAnchor()), false);
         applyMutation(new ReactionInputSampleMutation.SetInputMol(input1Sample1.getAnchor(), "10.0", MolUnit.MMOL));

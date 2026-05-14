@@ -73,7 +73,7 @@ class SetSchemeHandler extends AbstractReactionMutationHandler<ReactionMutation.
             for (ReactionInput row : reaction.getInputs()) {
                 switch (row.getRole()) {
                     case REACTANT -> updateMoleculeLinkRow(reactantLinks, row);
-                    case CATALYST -> updateMoleculeLinkRow(catalystLinks, row);
+                    case REAGENT, CATALYST -> updateMoleculeLinkRow(catalystLinks, row);
                 }
             }
             collectMoleculeLinks(indigoReaction.products(), productLinks, false);
@@ -94,7 +94,7 @@ class SetSchemeHandler extends AbstractReactionMutationHandler<ReactionMutation.
         Iterator<InputSampleAnchor> createdCatalystSampleAnchors = checkNotNull(mutation.createdCatalystSampleAnchors()).iterator();
         Iterator<OutputAnchor> createdProductAnchors = checkNotNull(mutation.createdProductAnchors()).iterator();
         createRows(reactantLinks, link -> createInputLine(reaction, link.molecule, ReactionRole.REACTANT, createdReactantAnchors.next(), createdReactantSampleAnchors.next()));
-        createRows(catalystLinks, link -> createInputLine(reaction, link.molecule, ReactionRole.CATALYST, createdCatalystAnchors.next(), createdCatalystSampleAnchors.next()));
+        createRows(catalystLinks, link -> createInputLine(reaction, link.molecule, ReactionRole.REAGENT, createdCatalystAnchors.next(), createdCatalystSampleAnchors.next()));
         createRows(productLinks, link -> createOutputLine(reaction, link.molecule, true, createdProductAnchors.next()));
 
         reaction.getInputs().sort(INPUT_COMPARATOR);

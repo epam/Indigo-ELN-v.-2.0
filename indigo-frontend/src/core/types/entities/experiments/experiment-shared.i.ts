@@ -77,6 +77,7 @@ export const UNIT_DISPLAY_NAMES: Record<
 // ================================
 export enum ReactionRole {
   REACTANT = 'REACTANT',
+  REAGENT = 'REAGENT',
   CATALYST = 'CATALYST',
   SOLVENT = 'SOLVENT',
   OUTPUT = 'OUTPUT',
@@ -84,6 +85,7 @@ export enum ReactionRole {
 
 export const ReactionRoleNames: Record<ReactionRole, string> = {
   REACTANT: 'Reactant',
+  REAGENT: 'Reagent',
   CATALYST: 'Catalyst',
   SOLVENT: 'Solvent',
   OUTPUT: 'Output',

@@ -1,0 +1,1 @@
+ALTER TYPE Reaction_Role ADD VALUE 'REAGENT';

@@ -221,10 +221,12 @@ export class ReactionInputsTableComponent implements OnInit {
           })
           .subscribe({});
       },
-      options: [ReactionRole.REACTANT, ReactionRole.CATALYST, ReactionRole.SOLVENT].map((role) => ({
-        id: role,
-        name: role.toLocaleLowerCase(),
-      })) as ColumnOption[],
+      options: [ReactionRole.REACTANT, ReactionRole.REAGENT, ReactionRole.CATALYST, ReactionRole.SOLVENT].map(
+        (role) => ({
+          id: role,
+          name: role.toLocaleLowerCase(),
+        }),
+      ) as ColumnOption[],
     },
     {
       id: 'density',
