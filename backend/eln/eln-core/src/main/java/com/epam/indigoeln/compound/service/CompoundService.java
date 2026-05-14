@@ -264,12 +264,12 @@ public class CompoundService {
 
     private String calculateBatchMF(CompoundEntity compound) {
         StringBuilder sb = new StringBuilder();
-        String parentFormula = compound.getFormula();
+        String parentFormula = MolFormulaFormatter.format(compound.getFormula());
         sb.append(parentFormula);
         if (compound.getSaltCode() != null) {
             SaltCodeRef salt = dictionaryService.get(compound.getSaltCode().getId());
             Preconditions.checkState(compound.getSaltEQ100() != null);
-            sb.append(" * ").append((compound.getSaltEQ100() / 100.0)).append(" (").append(salt.getFormula()).append(")");
+            sb.append("&nbsp;*&nbsp;").append((compound.getSaltEQ100() / 100.0)).append(" (").append(salt.getFormula()).append(")");
         }
         return sb.toString();
     }
