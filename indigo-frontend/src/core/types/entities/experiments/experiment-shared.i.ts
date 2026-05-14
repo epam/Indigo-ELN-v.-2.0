@@ -46,6 +46,32 @@ export enum NoUnit {
   NO_UNIT = 'NO_UNIT',
 }
 
+export const UNIT_DISPLAY_NAMES: Record<
+  MolUnit | WeightUnit | VolumeUnit | DensityUnit | MolarityUnit | MolWeightUnit | NoUnit,
+  string
+> = {
+  // mol
+  UMOL: 'μmol',
+  MMOL: 'mmol',
+  MOL: 'mol',
+  // mol weight
+  G_PER_MOL: 'g/mol',
+  // volume
+  ML: 'mL',
+  L: 'L',
+  // weight
+  MG: 'mg',
+  G: 'g',
+  KG: 'kg',
+  // molarity
+  MM: 'mM',
+  M: 'M',
+  // density
+  G_ML: 'g/mL',
+  // no unit
+  NO_UNIT: '',
+};
+
 // ================================
 // 3. ENUMS - DOMAIN SPECIFIC
 // ================================

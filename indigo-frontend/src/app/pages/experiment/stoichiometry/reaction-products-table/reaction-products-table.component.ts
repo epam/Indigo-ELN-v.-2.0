@@ -12,7 +12,7 @@ import { determineCellClasses } from '@core/utils/experiment-model.util';
 import { CompoundType } from '@core/types/entities/compound.i';
 import { BuiltInDictionary, DictionaryItemRef } from '@core/types/entities/dictionary.i';
 import { BuiltInDictionaryService } from '@core/services/health-hazards/built-in-dictionary.service';
-import { MolUnit, WeightUnit } from '@core/types/entities/experiments/experiment-shared.i';
+import { MolUnit, UNIT_DISPLAY_NAMES, WeightUnit } from '@core/types/entities/experiments/experiment-shared.i';
 
 @Component({
   selector: 'eln-reaction-products-table',
@@ -78,7 +78,7 @@ export class ReactionProductsTableComponent implements OnInit {
       editable: () => false,
       options: Object.values(WeightUnit).map((unit) => ({
         id: unit,
-        name: unit,
+        name: UNIT_DISPLAY_NAMES[unit],
       })) as ColumnOption[],
     },
     {
@@ -89,7 +89,7 @@ export class ReactionProductsTableComponent implements OnInit {
       editable: () => false,
       options: Object.values(MolUnit).map((unit) => ({
         id: unit,
-        name: unit,
+        name: UNIT_DISPLAY_NAMES[unit],
       })) as ColumnOption[],
     },
     {

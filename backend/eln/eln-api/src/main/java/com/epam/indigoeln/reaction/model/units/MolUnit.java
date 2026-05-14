@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum MolUnit implements MeasurementUnit {
 
-    UMOL(0.000001, "umol"),
+    UMOL(0.000001, "μmol"),
     MMOL(0.001, "mmol"),
     MOL(1.0, "mol");
 

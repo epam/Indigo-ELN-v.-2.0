@@ -6,6 +6,7 @@ import {
   MolarityUnit,
   MolUnit,
   ReactionRole,
+  UNIT_DISPLAY_NAMES,
   VolumeUnit,
   WeightUnit,
 } from '@core/types/entities/experiments/experiment-shared.i';
@@ -129,7 +130,7 @@ export class ReactionInputsTableComponent implements OnInit {
       },
       options: Object.values(WeightUnit).map((unit) => ({
         id: unit,
-        name: unit,
+        name: UNIT_DISPLAY_NAMES[unit],
       })) as ColumnOption[],
     },
     {
@@ -151,7 +152,7 @@ export class ReactionInputsTableComponent implements OnInit {
       },
       options: Object.values(VolumeUnit).map((unit) => ({
         id: unit,
-        name: unit,
+        name: UNIT_DISPLAY_NAMES[unit],
       })) as ColumnOption[],
     },
     {
@@ -173,7 +174,7 @@ export class ReactionInputsTableComponent implements OnInit {
       },
       options: Object.values(MolUnit).map((unit) => ({
         id: unit,
-        name: unit,
+        name: UNIT_DISPLAY_NAMES[unit],
       })) as ColumnOption[],
     },
     {
@@ -244,7 +245,7 @@ export class ReactionInputsTableComponent implements OnInit {
       },
       options: Object.values(DensityUnit).map((unit) => ({
         id: unit,
-        name: unit,
+        name: UNIT_DISPLAY_NAMES[unit],
       })) as ColumnOption[],
     },
     {
@@ -266,7 +267,7 @@ export class ReactionInputsTableComponent implements OnInit {
       },
       options: Object.values(MolarityUnit).map((unit) => ({
         id: unit,
-        name: unit,
+        name: UNIT_DISPLAY_NAMES[unit],
       })) as ColumnOption[],
     },
     {

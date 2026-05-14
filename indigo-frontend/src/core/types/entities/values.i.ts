@@ -30,7 +30,7 @@ export const MOL_WEIGHT_UNITS = [new MeasurementUnit('G_PER_MOL', 'g/mol')];
 export interface EnteredValue<U> {
   value: string;
   unit: U;
-  source: number | 'fixed' | 'default';
+  source: number | 'fixed' | 'default' | 'calculated';
   overwritten?: boolean;
 }
 
