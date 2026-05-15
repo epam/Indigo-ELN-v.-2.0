@@ -58,7 +58,6 @@ public class CompoundServiceTest extends ELNBaseTest {
     @Test
     @Order(-1000)
     void testInit() {
-        List<SaltCodeRef> saltCodes = dictionaryService.getSaltCodes();
         saltCode = dictionaryService.<SaltCodeRef>getDictionary(BuiltInDictionary.SALT_CODE.name(), false).getFirst();
         healthHazard = dictionaryService.<HealthHazardRef>getDictionary(BuiltInDictionary.HEALTH_HAZARD.name(), false).getFirst();
         compoundState = dictionaryService.<ComponentStateRef>getDictionary(BuiltInDictionary.COMPONENT_STATE.name(), false).getFirst();

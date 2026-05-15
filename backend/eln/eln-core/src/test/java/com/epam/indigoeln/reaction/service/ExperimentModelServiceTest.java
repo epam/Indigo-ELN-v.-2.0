@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
+import static com.epam.indigoeln.eln.model.BuiltInDictionary.SALT_CODE;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @QuarkusTest
@@ -75,7 +76,7 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     @Test
     @Order(210)
     void testSetInputRowSaltCode() {
-        ReactionInputMutation.SetInputRowSaltCode mutation = new ReactionInputMutation.SetInputRowSaltCode(input2.getAnchor(), dictionaryClient.getSaltCodes().get(1));
+        ReactionInputMutation.SetInputRowSaltCode mutation = new ReactionInputMutation.SetInputRowSaltCode(input2.getAnchor(), dictionaryClient.getNth(SALT_CODE, 1));
         applyMutation(mutation);
     }
 
@@ -110,7 +111,7 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     @Test
     @Order(300)
     void testSelectSaltCode() {
-        applyMutation(new ReactionOutputMutation.SetOutputRowSaltCode(output1.getAnchor(), dictionaryClient.getSaltCodes().get(1)));
+        applyMutation(new ReactionOutputMutation.SetOutputRowSaltCode(output1.getAnchor(), dictionaryClient.getNth(SALT_CODE, 1)));
     }
 
     @Test
@@ -196,7 +197,7 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
 //    @Order(1200)
 //    void testProtectDictionaryItemsFromDeletion() {
 //        applyMutation(new ReactionOutputSampleMutation.SetOutputHealthHazards(output2Sample1.getAnchor(), List.of(healthHazard)));
-//        assertThatClientCall(() -> dictionaryClient.removeDictionaryItem(BuiltInDictionary.HEALTH_HAZARD, healthHazard.getId()))
+//        assertThatClientCall(() -> dictionaryClient.removeDictionaryItem(HEALTH_HAZARD, healthHazard.getId()))
 //                .isBadRequest("This word is selected in other inputs. Please deactivate the word to remove it from available options of the inputs");
 //    }
 

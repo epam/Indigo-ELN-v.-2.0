@@ -38,7 +38,7 @@ public class MutationsTest extends MutationsTestBase {
     @BeforeAll
     void beforeAll(@TempDir Path tempDir) {
         miscClient.loadCompoundsFromFileClient("compounds.sdf", tempDir, loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"));
-        saltCode = dictionaryClient.getSaltCodes().get(1);
+        saltCode = dictionaryClient.getNth(BuiltInDictionary.SALT_CODE, 1);
         stereoisomerCode = dictionaryClient.<StereoisomerCodeRef>getDictionary(BuiltInDictionary.STEREOISOMER_CODE).get(1);
     }
 

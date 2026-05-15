@@ -72,9 +72,4 @@ public class DictionaryResource implements DictionaryAPI {
     public List<DictionaryItemDTO> removeDictionaryItem(String dictionaryRef, UUID itemID) {
         return dictionaryUpdateService.removeDictionaryItem(dictionaryRef, itemID);
     }
-
-    @Override
-    public List<SaltCodeRef> getSaltCodes() {
-        return dictionaryService.getSaltCodes();
-    }
 }

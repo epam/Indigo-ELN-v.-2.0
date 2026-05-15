@@ -154,11 +154,6 @@ public class DictionaryService {
         return dictionaryItemRepository.suggest(refToID(dictionaryRef), search);
     }
 
-    @Deprecated // !!! remove after no usages from frontend
-    public List<SaltCodeRef> getSaltCodes() {
-        return getDictionary(BuiltInDictionary.SALT_CODE.name(), false);
-    }
-
     public static UUID refToID(String dictionaryRef) {
         BuiltInDictionary builtInDictionary = BuiltInDictionary.lookup(dictionaryRef);
         if (builtInDictionary != null) {

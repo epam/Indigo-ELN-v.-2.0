@@ -148,7 +148,7 @@ class InsertTestDataTest {
         InputSampleAnchor input1Sample1Anchor = model.getReactions().getFirst().getInputs().get(0).getSamples().get(0).getAnchor();
 
         // select salt code
-        model = applyMutation(experiment, model, new ReactionOutputMutation.SetOutputRowSaltCode(output1Anchor, dictionaryClient.getSaltCodes().get(1)));
+        model = applyMutation(experiment, model, new ReactionOutputMutation.SetOutputRowSaltCode(output1Anchor, dictionaryClient.getNth(BuiltInDictionary.SALT_CODE, 1)));
 
         // select salt eq
         model = applyMutation(experiment, model, new ReactionOutputMutation.SetOutputRowSaltEQ(output1Anchor, 0.5));

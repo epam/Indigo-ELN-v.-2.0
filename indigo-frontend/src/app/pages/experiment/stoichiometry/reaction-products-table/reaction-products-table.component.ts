@@ -26,11 +26,10 @@ export class ReactionProductsTableComponent implements OnInit {
   reaction = input<Reaction | null>(null);
   dataSource = computed(() => this.reaction()?.outputs);
 
-  saltCodes = computed(() => this.builtInDictionaryService.getSaltCodes());
+  saltCodes = computed(() => this.builtInDictionaryService.getDictionaryItem(BuiltInDictionary.SALT_CODE));
 
   ngOnInit() {
-    this.builtInDictionaryService.load([BuiltInDictionary.HEALTH_HAZARD]);
-    this.builtInDictionaryService.loadSaltCodes();
+    this.builtInDictionaryService.load([BuiltInDictionary.HEALTH_HAZARD, BuiltInDictionary.SALT_CODE]);
   }
 
   columns: ColumnConfig<ReactionOutput>[] = [

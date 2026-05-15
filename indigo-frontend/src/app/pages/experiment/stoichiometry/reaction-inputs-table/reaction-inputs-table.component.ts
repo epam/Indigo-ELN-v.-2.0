@@ -49,11 +49,10 @@ export class ReactionInputsTableComponent implements OnInit {
     return inputs?.flatMap((input) => input.samples.map((sample) => ({ input, sample })));
   });
   healthHazards = computed(() => this.builtInDictionaryService.getDictionaryItem(BuiltInDictionary.HEALTH_HAZARD));
-  saltCodes = computed(() => this.builtInDictionaryService.getSaltCodes());
+  saltCodes = computed(() => this.builtInDictionaryService.getDictionaryItem(BuiltInDictionary.SALT_CODE));
 
   ngOnInit() {
-    this.builtInDictionaryService.load([BuiltInDictionary.HEALTH_HAZARD]);
-    this.builtInDictionaryService.loadSaltCodes();
+    this.builtInDictionaryService.load([BuiltInDictionary.HEALTH_HAZARD, BuiltInDictionary.SALT_CODE]);
   }
 
   readonly columns = computed<ColumnConfig<InputSampleRow>[]>(() => [
