@@ -98,8 +98,7 @@ public class MutationsTest extends MutationsTestBase {
         assertThat(output1.getCompound()).isInstanceOf(CompoundRef.Virtual.class);
     }
 
-    @Test
-    @Disabled // disabled because duplicate compounds were restricted
+//    @Test // duplicate compounds are currently restricted
     void testLoadReactionUpdated() {
         // A + B + A => P + R
         loadScheme("/reaction-with-duplicates.rxn", false);

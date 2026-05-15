@@ -6,7 +6,6 @@ import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.mutation.NotebookMutation;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.*;
@@ -25,7 +24,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 @QuarkusTest
-@JwtSecurity
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
 class NotebookServiceTest extends ELNBaseTest {
 
@@ -347,7 +345,6 @@ class NotebookServiceTest extends ELNBaseTest {
     }
 
     @Nested
-    @JwtSecurity
     @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)

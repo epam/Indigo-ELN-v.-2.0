@@ -12,7 +12,6 @@ import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +38,6 @@ import static org.assertj.core.api.Assertions.tuple;
 
 @Slf4j
 @QuarkusTest
-@JwtSecurity
 @TestSecurity(user = ELNBaseTest.WILLOW_USERNAME)
 class PermissionsTest extends ELNBaseTest {
 
@@ -166,7 +164,6 @@ class PermissionsTest extends ELNBaseTest {
     }
 
     @Test
-    @JwtSecurity
     @TestSecurity(user = LISA_USERNAME)
     void testEditTemplateAllowed() {
         assertThatClientCall(() -> templateClient.editTemplate(template.getId(), new TemplateEditRequest()))
@@ -442,7 +439,6 @@ class PermissionsTest extends ELNBaseTest {
     }
 
     @Nested
-    @JwtSecurity
     @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -539,7 +535,6 @@ class PermissionsTest extends ELNBaseTest {
 
         @Test
         @Order(401)
-        @JwtSecurity
         @TestSecurity(user = WILLOW_USERNAME)
         void testImplicitViewDoesntListSiblingEntities() {
             Page<NotebookDTO> notebooks = notebookClient.getProjectNotebooks(project.getId(), null, null, null, PAGING);

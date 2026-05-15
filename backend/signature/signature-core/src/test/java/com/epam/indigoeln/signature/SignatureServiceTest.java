@@ -13,8 +13,6 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import io.quarkiverse.wiremock.devservice.ConnectWireMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import io.quarkus.test.security.jwt.Claim;
-import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
@@ -35,7 +33,6 @@ import static org.assertj.core.api.Assumptions.assumeThat;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestSecurity(user = "john")
-@JwtSecurity(claims = {@Claim(key = "given_name", value = "John"), @Claim(key = "family_name", value = "Doe")})
 class SignatureServiceTest extends BaseTest {
 
     WireMock wireMock;
@@ -157,7 +154,6 @@ class SignatureServiceTest extends BaseTest {
     @Test
     @Order(400)
     @TestSecurity(user = "willow")
-    @JwtSecurity(claims = {@Claim(key = "given_name", value = "Willow"), @Claim(key = "family_name", value = "Johnson")})
     void testReject() {
         assumeThat(integrationTest).isFalse(); // no matching document in ELN
         assumeThat(documentID).isNotNull();

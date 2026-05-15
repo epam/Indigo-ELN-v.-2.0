@@ -12,7 +12,6 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import io.quarkiverse.wiremock.devservice.ConnectWireMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import lombok.SneakyThrows;
@@ -35,7 +34,6 @@ import static org.assertj.core.api.Assertions.tuple;
 
 
 @QuarkusTest
-@JwtSecurity
 @ConnectWireMock
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
 class ExperimentWorkflowServiceTest extends ELNBaseTest {

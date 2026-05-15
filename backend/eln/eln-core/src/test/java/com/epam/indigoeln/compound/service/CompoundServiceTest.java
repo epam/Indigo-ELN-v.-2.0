@@ -15,7 +15,6 @@ import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolarityUnit;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Order;
@@ -32,7 +31,6 @@ import static com.epam.indigoeln.common.util.ModelUtil.loadResourceAsStream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
-@JwtSecurity
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
 public class CompoundServiceTest extends ELNBaseTest {
 
