@@ -1,8 +1,8 @@
 <div appUndoRedo>
   <eln-card classList="px-4 sm:px-2 md:px-4 shadow-md pb-0 mb-6">
-    <div class="flex items-center justify-between flex-wrap gap-4">
-      <eln-breadcrumbs [items]="(breadcrumbsState.items$ | async) ?? []"></eln-breadcrumbs>
-      <div class="flex items-center gap-2 ml-auto"></div>
+    <div class="flex items-center gap-4">
+      <eln-breadcrumbs [items]="(breadcrumbsState.items$ | async) ?? []" class="shrink-0"></eln-breadcrumbs>
+      <eln-experiment-actions class="flex-1 min-w-0"></eln-experiment-actions>
     </div>
 
     <div class="flex items-center mt-6 overflow-x-auto">
