@@ -7,7 +7,6 @@ import com.epam.indigoeln.test.BaseTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeAll;
@@ -18,7 +17,6 @@ import java.nio.file.Paths;
 import java.util.List;
 
 @QuarkusTest
-@JwtSecurity
 @TestSecurity(user = BaseTest.ADMIN_USERNAME)
 public class ReportsServiceTest extends BaseTest {
 

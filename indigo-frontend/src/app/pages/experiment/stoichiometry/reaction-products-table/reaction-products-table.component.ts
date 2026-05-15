@@ -12,7 +12,7 @@ import { determineCellClasses } from '@core/utils/experiment-model.util';
 import { CompoundType } from '@core/types/entities/compound.i';
 import { BuiltInDictionary, DictionaryItemRef } from '@core/types/entities/dictionary.i';
 import { BuiltInDictionaryService } from '@core/services/health-hazards/built-in-dictionary.service';
-import { MolUnit, WeightUnit } from '@core/types/entities/experiments/experiment-shared.i';
+import { MolUnit, UNIT_DISPLAY_NAMES, WeightUnit } from '@core/types/entities/experiments/experiment-shared.i';
 
 @Component({
   selector: 'eln-reaction-products-table',
@@ -26,11 +26,10 @@ export class ReactionProductsTableComponent implements OnInit {
   reaction = input<Reaction | null>(null);
   dataSource = computed(() => this.reaction()?.outputs);
 
-  saltCodes = computed(() => this.builtInDictionaryService.getSaltCodes());
+  saltCodes = computed(() => this.builtInDictionaryService.getDictionaryItem(BuiltInDictionary.SALT_CODE));
 
   ngOnInit() {
-    this.builtInDictionaryService.load([BuiltInDictionary.HEALTH_HAZARD]);
-    this.builtInDictionaryService.loadSaltCodes();
+    this.builtInDictionaryService.load([BuiltInDictionary.HEALTH_HAZARD, BuiltInDictionary.SALT_CODE]);
   }
 
   columns: ColumnConfig<ReactionOutput>[] = [
@@ -52,7 +51,7 @@ export class ReactionProductsTableComponent implements OnInit {
     {
       id: 'molFormula',
       header: 'Mol Formula',
-      type: ColumnInputType.TEXT,
+      type: ColumnInputType.HTML,
       editable: () => false,
       field: (row) => row.compound.formula,
     },
@@ -78,7 +77,7 @@ export class ReactionProductsTableComponent implements OnInit {
       editable: () => false,
       options: Object.values(WeightUnit).map((unit) => ({
         id: unit,
-        name: unit,
+        name: UNIT_DISPLAY_NAMES[unit],
       })) as ColumnOption[],
     },
     {
@@ -89,7 +88,7 @@ export class ReactionProductsTableComponent implements OnInit {
       editable: () => false,
       options: Object.values(MolUnit).map((unit) => ({
         id: unit,
-        name: unit,
+        name: UNIT_DISPLAY_NAMES[unit],
       })) as ColumnOption[],
     },
     {

@@ -46,7 +46,7 @@ public class CompoundRepository extends BaseRepository<CompoundEntity> {
     public STRCodeCompound findSameSTRCodeByCompoundKeyWithoutSaltCode(CompoundKey compoundKey) {
         return em.createQuery("select strCode from Compound "
                         + "where canSmiles = ?1 "
-                        + "and stereoisomerCode is not distinct from ?2 "
+                        + "and stereoisomerCode.id is not distinct from ?2 "
                         + "and strCode is not null", STRCodeCompound.class)
                 .setParameter(1, compoundKey.getCanSmiles())
                 .setParameter(2, compoundKey.getStereoisomerCode())

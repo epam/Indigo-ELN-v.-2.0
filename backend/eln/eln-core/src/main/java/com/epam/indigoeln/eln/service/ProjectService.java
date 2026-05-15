@@ -79,10 +79,10 @@ public class ProjectService {
         return projectRepository.getTotalCounts();
     }
 
-    public List<ACLDetailsEntryDTO> updateProjectAccess(UUID projectId, List<AccessForm> form) {
+    public List<ACLEntryDTO> updateProjectAccess(UUID projectId, List<AccessForm> form) {
         ProjectEntity project = projectRepository.get(projectId);
         applyMutation(project, new ProjectMutation.EditProjectAccess(form));
-        return projectMapper.convertDetailsACLList(project.getFullACL());
+        return projectMapper.convertACLList(project.getFullACL());
     }
 
     public List<NestedACLEntryDTO> getNestedProjectAccess(UUID projectId) {

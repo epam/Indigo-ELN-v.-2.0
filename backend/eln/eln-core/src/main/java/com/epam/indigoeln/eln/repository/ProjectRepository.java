@@ -105,7 +105,7 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
                     BaseACLEntity entry = (BaseACLEntity) arr[1];
                     EntityType entityType = entity instanceof NotebookEntity ? EntityType.NOTEBOOK : EntityType.EXPERIMENT;
                     String entityName = entity instanceof NotebookEntity ? ((NotebookEntity) entity).getName() : ((ExperimentEntity) entity).getName();
-                    return new NestedACLEntryDTO(entityType, entity.getId(), entityName, entry.getUser().getId(), entry.getUser().getDisplayName(), entry.getLevel());
+                    return new NestedACLEntryDTO(entityType, entity.getId(), entityName, entry.getUser().getDisplayName(), entry.getLevel());
                 })
                 .toList();
     }

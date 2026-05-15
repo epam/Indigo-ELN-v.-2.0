@@ -1,6 +1,6 @@
 package com.epam.indigoeln.reaction.metamodel;
 
-import com.epam.indigoeln.eln.model.ACLDetailsEntryDTO;
+import com.epam.indigoeln.eln.model.ACLEntryDTO;
 import com.epam.indigoeln.eln.model.AttachmentDTO;
 import com.epam.indigoeln.reaction.metamodel.property.Metamodel;
 import com.epam.indigoeln.reaction.metamodel.property.ModelProperty;
@@ -18,7 +18,7 @@ public class ProjectMetamodel {
     public static final ModelProperty<ProjectSnapshot, String> LITERATURE = property("literature", ProjectSnapshot::getLiterature, ProjectSnapshot::setLiterature);
     public static final ModelProperty<ProjectSnapshot, String> DESCRIPTION = property("description", ProjectSnapshot::getDescription, ProjectSnapshot::setDescription);
     public static final ModelProperty<ProjectSnapshot, Set<AttachmentDTO>> ATTACHMENTS = property("attachments", ProjectSnapshot::getAttachments, ProjectSnapshot::setAttachments);
-    public static final ModelProperty<ProjectSnapshot, Set<ACLDetailsEntryDTO>> ACL = property("acl", ProjectSnapshot::getAcl, ProjectSnapshot::setAcl);
+    public static final ModelProperty<ProjectSnapshot, Set<ACLEntryDTO>> ACL = property("acl", ProjectSnapshot::getAcl, ProjectSnapshot::setAcl);
 
     public static final Metamodel<ProjectSnapshot> INSTANCE = new Metamodel<>("Project", List.of(
             NAME,

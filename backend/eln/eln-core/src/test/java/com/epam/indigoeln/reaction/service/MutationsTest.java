@@ -38,7 +38,7 @@ public class MutationsTest extends MutationsTestBase {
     @BeforeAll
     void beforeAll(@TempDir Path tempDir) {
         miscClient.loadCompoundsFromFileClient("compounds.sdf", tempDir, loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"));
-        saltCode = dictionaryClient.getSaltCodes().get(1);
+        saltCode = dictionaryClient.getNth(BuiltInDictionary.SALT_CODE, 1);
         stereoisomerCode = dictionaryClient.<StereoisomerCodeRef>getDictionary(BuiltInDictionary.STEREOISOMER_CODE).get(1);
     }
 
@@ -98,8 +98,7 @@ public class MutationsTest extends MutationsTestBase {
         assertThat(output1.getCompound()).isInstanceOf(CompoundRef.Virtual.class);
     }
 
-    @Test
-    @Disabled // disabled because duplicate compounds were restricted
+//    @Test // duplicate compounds are currently restricted
     void testLoadReactionUpdated() {
         // A + B + A => P + R
         loadScheme("/reaction-with-duplicates.rxn", false);
@@ -237,6 +236,15 @@ public class MutationsTest extends MutationsTestBase {
         loadScheme();
         applyMutation(new ReactionInputMutation.SetInputRowRole(input1.getAnchor(), ReactionRole.CATALYST));
         assertThat(input1.getRole()).isEqualTo(ReactionRole.CATALYST);
+    }
+
+    @Test
+    void testSetInputRowRoleAndBack() {
+        loadScheme();
+        applyMutation(new ReactionInputMutation.SetInputRowRole(input1.getAnchor(), ReactionRole.CATALYST));
+        applyMutation(new ReactionInputMutation.SetInputRowRole(input1.getAnchor(), ReactionRole.REAGENT));
+        applyMutation(new ReactionInputMutation.SetInputRowRole(input1.getAnchor(), ReactionRole.REACTANT));
+        assertThat(input1.getRole()).isEqualTo(ReactionRole.REACTANT);
     }
 
     @Test
@@ -640,7 +648,9 @@ public class MutationsTest extends MutationsTestBase {
     void testConflicts() {
         loadScheme();
         applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "100", WeightUnit.G));
-        applyMutation(new ReactionInputSampleMutation.SetInputMol(input1Sample1.getAnchor(), "1", MolUnit.MOL), false);
+        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input2Sample1.getAnchor(), "200", WeightUnit.G));
+        applyMutation(new ReactionInputMutation.SetInputRowEQ(input1.getAnchor(), "1"));
+        applyMutation(new ReactionInputMutation.SetInputRowEQ(input2.getAnchor(), "2"));
     }
 
     @Test

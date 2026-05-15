@@ -6,15 +6,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
-
 @Data
 @NoArgsConstructor(onConstructor_ = @JsonCreator)
 @AllArgsConstructor
 public class ACLEntryDTO {
 
     @NotNull
-    private UUID userId;
+    private String username;
 
     @NotNull
     private String displayName;

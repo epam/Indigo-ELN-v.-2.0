@@ -18,9 +18,6 @@ public class NestedACLEntryDTO {
     String entityName;
 
     @NotNull
-    UUID userId;
-
-    @NotNull
     String displayName;
 
     @NotNull

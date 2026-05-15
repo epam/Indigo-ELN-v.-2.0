@@ -11,7 +11,6 @@ import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.test.FeignUtil;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.ws.rs.core.CacheControl;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
@@ -32,7 +31,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 @QuarkusTest
-@JwtSecurity
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
 class ExperimentServiceTest extends ELNBaseTest {
 

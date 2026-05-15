@@ -93,7 +93,7 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
                 .map(arr -> {
                     ExperimentEntity entity = (ExperimentEntity) arr[0];
                     ExperimentACLEntity entry = (ExperimentACLEntity) arr[1];
-                    return new NestedACLEntryDTO(EntityType.EXPERIMENT, entity.getId(), entity.getName(), entry.getUser().getId(), entry.getUser().getDisplayName(), entry.getLevel());
+                    return new NestedACLEntryDTO(EntityType.EXPERIMENT, entity.getId(), entity.getName(), entry.getUser().getDisplayName(), entry.getLevel());
                 })
                 .toList();
     }

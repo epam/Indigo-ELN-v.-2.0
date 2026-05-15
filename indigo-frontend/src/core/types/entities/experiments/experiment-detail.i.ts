@@ -1,6 +1,6 @@
 import { BaseEntity } from '../base-entity.i';
 import { Attachment } from '../attachment.i';
-import { ProjectAcl } from '../acl.i';
+import { ACLEntry } from '../acl.i';
 import { ExperimentStatus } from '@/core/enums/experiment-status.enum';
 import { ExperimentModel } from '@core/types/entities/experiments/experiment.i';
 import { UserRef } from '@core/types/entities/user.i';
@@ -54,7 +54,7 @@ export interface ExperimentDetail extends BaseEntity {
   continuedFrom: ExperimentRef[];
   continuedTo: ExperimentRef[];
   attachments?: Attachment[];
-  acl?: ProjectAcl[];
+  acl?: ACLEntry[];
   model: ExperimentModel;
   projectName: string;
   notebookName: string;

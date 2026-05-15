@@ -14,7 +14,6 @@ import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import io.quarkus.test.security.jwt.JwtSecurity;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -30,7 +29,6 @@ import static org.assertj.core.api.Assertions.tuple;
 
 
 @QuarkusTest
-@JwtSecurity
 @TestSecurity(user = ELNBaseTest.MAGGIE_USERNAME)
 class GlobalSearchServiceTest extends ELNBaseTest {
 

@@ -12,7 +12,6 @@ import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +38,6 @@ import static org.assertj.core.api.Assertions.tuple;
 
 @Slf4j
 @QuarkusTest
-@JwtSecurity
 @TestSecurity(user = ELNBaseTest.WILLOW_USERNAME)
 class PermissionsTest extends ELNBaseTest {
 
@@ -166,7 +164,6 @@ class PermissionsTest extends ELNBaseTest {
     }
 
     @Test
-    @JwtSecurity
     @TestSecurity(user = LISA_USERNAME)
     void testEditTemplateAllowed() {
         assertThatClientCall(() -> templateClient.editTemplate(template.getId(), new TemplateEditRequest()))
@@ -442,7 +439,6 @@ class PermissionsTest extends ELNBaseTest {
     }
 
     @Nested
-    @JwtSecurity
     @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -489,7 +485,7 @@ class PermissionsTest extends ELNBaseTest {
         @Test
         @Order(200)
         void testAddUser() {
-            List<ACLDetailsEntryDTO> acl = projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, VIEW));
+            List<ACLEntryDTO> acl = projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, VIEW));
             assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, VIEW, false);
             acl = notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(WILLOW_USERNAME, VIEW));
             assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, VIEW, false);
@@ -500,7 +496,7 @@ class PermissionsTest extends ELNBaseTest {
         @Test
         @Order(201)
         void testRemoveUser() {
-            List<ACLDetailsEntryDTO> acl = projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, NONE));
+            List<ACLEntryDTO> acl = projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, NONE));
             assertThatACL(acl).containsOnly(
                     JOHN_DISPLAY_NAME, AUTHOR, false,
                     WILLOW_DISPLAY_NAME, IMPLICIT_VIEW, false
@@ -539,7 +535,6 @@ class PermissionsTest extends ELNBaseTest {
 
         @Test
         @Order(401)
-        @JwtSecurity
         @TestSecurity(user = WILLOW_USERNAME)
         void testImplicitViewDoesntListSiblingEntities() {
             Page<NotebookDTO> notebooks = notebookClient.getProjectNotebooks(project.getId(), null, null, null, PAGING);
@@ -553,7 +548,7 @@ class PermissionsTest extends ELNBaseTest {
         void testACLInListLimitedTo3() {
             projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, EDIT));
             projectClient.updateProjectAccess(project.getId(), AccessForm.of(BART_USERNAME, EDIT));
-            List<ACLDetailsEntryDTO> acl = projectClient.updateProjectAccess(project.getId(), AccessForm.of(LISA_USERNAME, EDIT));
+            List<ACLEntryDTO> acl = projectClient.updateProjectAccess(project.getId(), AccessForm.of(LISA_USERNAME, EDIT));
             assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, BART_DISPLAY_NAME, EDIT, false, LISA_DISPLAY_NAME, EDIT, false, WILLOW_DISPLAY_NAME, EDIT, false);
             Paging paging = new Paging(0, 1);
             ProjectDTO projectDTO = projectClient.getProjects(project.getName(), null, null, paging).getItems().getFirst();

@@ -50,7 +50,7 @@ public class ExperimentDetailsDTO extends BaseExperimentDTO {
     List<AttachmentDTO> attachments;
 
     @NotNull
-    List<ACLDetailsEntryDTO> acl;
+    List<ACLEntryDTO> acl;
 
     @NotNull
     List<ApplicationPermission> currentPermissions;

@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum VolumeUnit implements MeasurementUnit {
 
-    ML(0.001, "ml"),
-    L(1.0, "l");
+    ML(0.001, "mL"),
+    L(1.0, "L");
 
     private final double multiplier;
     private final String displayName;

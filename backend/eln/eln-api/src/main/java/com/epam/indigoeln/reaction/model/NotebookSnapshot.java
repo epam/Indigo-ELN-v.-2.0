@@ -1,6 +1,6 @@
 package com.epam.indigoeln.reaction.model;
 
-import com.epam.indigoeln.eln.model.ACLDetailsEntryDTO;
+import com.epam.indigoeln.eln.model.ACLEntryDTO;
 import com.epam.indigoeln.eln.model.AttachmentDTO;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotEmpty;
@@ -24,5 +24,5 @@ public class NotebookSnapshot {
     Set<AttachmentDTO> attachments;
 
     @NotNull
-    Set<ACLDetailsEntryDTO> acl;
+    Set<ACLEntryDTO> acl;
 }

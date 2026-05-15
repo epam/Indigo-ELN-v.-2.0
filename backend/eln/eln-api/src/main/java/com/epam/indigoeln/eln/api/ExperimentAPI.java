@@ -85,7 +85,7 @@ public interface ExperimentAPI extends BaseAPI {
 
     @POST
     @Path("/experiments/{experimentId}/access")
-    List<ACLDetailsEntryDTO> updateExperimentAccess(@PathParam("experimentId") UUID experimentId, List<AccessForm> form);
+    List<ACLEntryDTO> updateExperimentAccess(@PathParam("experimentId") UUID experimentId, List<AccessForm> form);
 
     @POST
     @Path("/experiments/{experimentId}/mutate")

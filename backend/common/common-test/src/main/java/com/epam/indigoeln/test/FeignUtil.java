@@ -21,7 +21,7 @@ import io.vertx.core.json.jackson.VertxModule;
 import jakarta.ws.rs.core.HttpHeaders;
 import lombok.Getter;
 import lombok.Setter;
-import org.jspecify.annotations.Nullable;
+import org.eclipse.microprofile.config.ConfigProvider;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -46,14 +46,10 @@ public class FeignUtil {
 
     @Getter
     @Setter
-    @Nullable
-    private static String apiSecret;
-
-    @Getter
-    @Setter
     private static Response lastResponse;
 
     public static <T> T buildFeignClient(URI baseURL, Class<T> klass, AtomicReference<String> testUsername, AtomicReference<String> authorization) {
+        String apiSecret = ConfigProvider.getConfig().getValue("eln.api.secret", String.class);
         return Feign.builder()
                 .client(new ApacheHttpClient())
                 .options(new Request.Options(Duration.ofSeconds(1), Duration.ofDays(1), false))
@@ -66,9 +62,7 @@ public class FeignUtil {
                     // use admin by default; to allow testing without need to specify username, and also to enable calls from setUp/tearDown methods, where @TestSecurity doesn't work
                     request.header(UserHolder.X_TEST_AUTHORIZATION, MoreObjects.firstNonNull(testUsername.get(), BaseTest.ADMIN_USERNAME));
                     request.header(HttpHeaders.AUTHORIZATION, authorization.get());
-                    if (apiSecret != null) {
-                        request.header("X-API-Secret", apiSecret);
-                    }
+                    request.header("X-API-Secret", apiSecret);
                 })
                 .logLevel(Logger.Level.FULL)
                 .logger(new Slf4jLogger("feign"))

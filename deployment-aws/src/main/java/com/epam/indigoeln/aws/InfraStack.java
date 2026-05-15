@@ -137,16 +137,6 @@ public class InfraStack extends NestedStack {
                         .build())
                 .build();
 
-//        new CfnOutput(this, "ec2-public-ip", CfnOutputProps.builder()
-//                .value(autoScalingGroup.getInstances().get(0).getPublicIp())
-//                .description("The public IP address of the EC2 instance")
-//                .build());
-//
-//        new CfnOutput(this, "ec2-private-ip", CfnOutputProps.builder()
-//                .value(autoScalingGroup.getInstances().get(0).getPrivateIp())
-//                .description("The private IP address of the EC2 instance")
-//                .build());
-
         ecsCluster = Cluster.Builder.create(this, "ecs-cluster")
                 .vpc(vpc)
                 .build();

@@ -15,11 +15,9 @@ import org.jspecify.annotations.Nullable;
 import java.math.BigDecimal;
 
 import static com.epam.indigoeln.reaction.model.units.EnteredValueSource.DEFAULT;
-import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.formatToSignificantFigures;
-import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.roundToSignificantFigures;
+import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.*;
 
-@Getter
-@EqualsAndHashCode
+@EqualsAndHashCode(of = {"stringValue", "unit", "source"})
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class EnteredValue<U extends MeasurementUnit> {
 
@@ -28,25 +26,31 @@ public final class EnteredValue<U extends MeasurementUnit> {
     public static final EnteredValue<MolUnit> ZERO_MOL = defaultValue(0.0, 0, MolUnit.MOL);
     public static final EnteredValue<NoUnit> ONE_HUNDREDTH = fixed(0.01, 1, NoUnit.NO_UNIT);
 
+    @Getter
     @JsonIgnore
     private final double value;
+
+    @Getter
     private final U unit;
-    @JsonProperty("value")
-    private final String stringValue; // for now, always set; maybe postpone initialization for calculated values if gets recalculated too often
+
+    @JsonIgnore
+    private final int significantFigures; // used only to lazily format stringValue
+
+    @Nullable
+    private String stringValue;
+
+    @Getter
     @Setter
     private EnteredValueSource source;
-    @Setter
-    @Deprecated // !!! only to deserialize existing models; remove
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    private boolean overwritten = false;
 
     @JsonCreator
     EnteredValue(String stringValue, U unit, EnteredValueSource source) {
-        this(Double.parseDouble(stringValue), stringValue, unit, source);
+        this(Double.parseDouble(stringValue), -1, stringValue, unit, source);
     }
 
-    public EnteredValue(double value, String stringValue, U unit, EnteredValueSource source) {
+    private EnteredValue(double value, int significantFigures, @Nullable String stringValue, U unit, EnteredValueSource source) {
         this.value = value;
+        this.significantFigures = significantFigures;
         this.stringValue = stringValue;
         this.unit = unit;
         this.source = source;
@@ -54,32 +58,32 @@ public final class EnteredValue<U extends MeasurementUnit> {
 
     @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> fixed(@Nullable Double value, int precision, U unit) {
-        return value != null ? new EnteredValue<>(roundToSignificantFigures(value, precision), formatToSignificantFigures(value, precision), unit, EnteredValueSource.FIXED) : null;
+        return value != null ? new EnteredValue<>(roundToSignificantFigures(value, precision), precision, null, unit, EnteredValueSource.FIXED) : null;
     }
 
     @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> fixed(@Nullable BigDecimal value, U unit) {
-        return value != null ? new EnteredValue<>(value.doubleValue(), value.toString(), unit, EnteredValueSource.FIXED) : null;
+        return value != null ? new EnteredValue<>(value.doubleValue(), -1, value.toString(), unit, EnteredValueSource.FIXED) : null;
     }
 
     @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> userEntered(@Nullable String stringValue, @Nullable U unit, int revision) {
-        return stringValue != null && unit != null ? new EnteredValue<>(Double.parseDouble(stringValue), stringValue, unit, EnteredValueSource.userEntered(revision)) : null;
+        return stringValue != null && unit != null ? new EnteredValue<>(Double.parseDouble(stringValue), -1, stringValue, unit, EnteredValueSource.userEntered(revision)) : null;
     }
 
     @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> calculated(@Nullable Double value, U unit, EnteredValue<?> from1, EnteredValue<?> from2) {
-        return value != null ? new EnteredValue<>(value, formatToSignificantFigures(value), unit, EnteredValueSource.calculated(from1.source, from2.source)) : null;
+        return value != null ? new EnteredValue<>(value, getSignificantFigures(), null, unit, EnteredValueSource.CALCULATED) : null;
     }
 
     @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> defaultValue(@Nullable Double value, int precision, @Nullable U unit) {
-        return value != null && unit != null ? new EnteredValue<>(roundToSignificantFigures(value, precision), formatToSignificantFigures(value, precision), unit, DEFAULT) : null;
+        return value != null && unit != null ? new EnteredValue<>(roundToSignificantFigures(value, precision), precision, null, unit, DEFAULT) : null;
     }
 
     @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> defaultValue(@Nullable BigDecimal value, @Nullable U unit) {
-        return value != null && unit != null ? new EnteredValue<>(value.doubleValue(), value.toString(), unit, DEFAULT) : null;
+        return value != null && unit != null ? new EnteredValue<>(value.doubleValue(), -1, value.toString(), unit, DEFAULT) : null;
     }
 
     @Nullable
@@ -130,6 +134,15 @@ public final class EnteredValue<U extends MeasurementUnit> {
         return calculated(self.value / by, self.unit, self, self);
     }
 
+    @JsonProperty("value")
+    public String getStringValue() {
+        if (stringValue == null) {
+            Preconditions.checkState(significantFigures != -1);
+            stringValue = formatToSignificantFigures(value, significantFigures);
+        }
+        return stringValue;
+    }
+
     public boolean valueEquals(EnteredValue<?> other) {
         Preconditions.checkArgument(unit.getClass().equals(other.unit.getClass()), "Non-comparable units: %s and %s", unit, other.unit);
         double thisValue = value * unit.getMultiplier();
@@ -149,7 +162,7 @@ public final class EnteredValue<U extends MeasurementUnit> {
     @Override
     public String toString() {
         StringBuilder str = new StringBuilder();
-        str.append(source).append(": ").append(stringValue);
+        str.append(source).append(": ").append(getStringValue());
         if (unit != NoUnit.NO_UNIT) {
             str.append(' ').append(unit);
         }

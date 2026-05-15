@@ -13,8 +13,6 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import io.quarkiverse.wiremock.devservice.ConnectWireMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import io.quarkus.test.security.jwt.Claim;
-import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
@@ -35,7 +33,6 @@ import static org.assertj.core.api.Assumptions.assumeThat;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestSecurity(user = "john")
-@JwtSecurity(claims = {@Claim(key = "given_name", value = "John"), @Claim(key = "family_name", value = "Doe")})
 class SignatureServiceTest extends BaseTest {
 
     WireMock wireMock;
@@ -142,7 +139,7 @@ class SignatureServiceTest extends BaseTest {
     @Test
     @Order(300)
     void testSign() throws Exception {
-        assumeThat(!integrationTest); // no matching document in ELN
+        assumeThat(integrationTest).isFalse(); // no matching document in ELN
         assumeThat(documentID).isNotNull();
         DocumentDTO document = signatureClient.signDocument(documentID);
         assertThat(document.getStatus()).isEqualTo(DocumentStatus.SIGNING);
@@ -157,9 +154,8 @@ class SignatureServiceTest extends BaseTest {
     @Test
     @Order(400)
     @TestSecurity(user = "willow")
-    @JwtSecurity(claims = {@Claim(key = "given_name", value = "Willow"), @Claim(key = "family_name", value = "Johnson")})
     void testReject() {
-        assumeThat(!integrationTest); // no matching document in ELN
+        assumeThat(integrationTest).isFalse(); // no matching document in ELN
         assumeThat(documentID).isNotNull();
         DocumentDTO document = signatureClient.rejectDocument(documentID);
         assertThat(document.getStatus()).isEqualTo(DocumentStatus.REJECTED);
@@ -174,7 +170,7 @@ class SignatureServiceTest extends BaseTest {
     @Test
     @Order(500)
     void testGetDocuments() {
-        assumeThat(!integrationTest); // no matching document in ELN
+        assumeThat(integrationTest).isFalse(); // no matching document in ELN
         assumeThat(documentID).isNotNull();
         List<DocumentDTO> documents = signatureClient.getDocuments();
         assertThat(documents).filteredOn(d -> d.getId().equals(documentID)).hasSize(1).first().satisfies(document -> {
@@ -186,7 +182,7 @@ class SignatureServiceTest extends BaseTest {
     @Test
     @Order(600)
     void testDownloadDocument() throws Exception {
-        assumeThat(!integrationTest); // no matching document in ELN
+        assumeThat(integrationTest).isFalse(); // no matching document in ELN
         assumeThat(documentID).isNotNull();
         Response content = signatureClient.downloadDocument(documentID);
         try (FileOutputStream fos = new FileOutputStream("downloaded.pdf")) {

@@ -17,7 +17,6 @@ import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolarityUnit;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -35,7 +34,6 @@ import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
-@JwtSecurity
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
 public class SampleSearchServiceTest extends ELNBaseTest {
 
@@ -106,7 +104,7 @@ public class SampleSearchServiceTest extends ELNBaseTest {
     void testAdvancedSearch() {
         SampleSearchResult found = compoundClient.search(request(ELN)
                 .withNbkBatchNumber(new TextSearch.ExactSearch("00000000-0000-001"))
-                .withMolecularFormula(new TextSearch.ExactSearch("C9 H8 O4"))
+                .withMolecularFormula(new TextSearch.ExactSearch("C9H8O4"))
                 .withMolWeight(new NumericSearch.Equals(180.0))
                 .withCompoundState(compoundState)
                 .withBatchComment(new TextSearch.ExactSearch("batch comment"))

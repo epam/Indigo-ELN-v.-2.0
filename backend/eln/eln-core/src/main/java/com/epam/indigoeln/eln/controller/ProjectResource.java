@@ -69,7 +69,7 @@ public class ProjectResource implements ProjectAPI {
     }
 
     @Override
-    public List<ACLDetailsEntryDTO> updateProjectAccess(@NotNull UUID projectId, @NotNull @Valid List<AccessForm> form) {
+    public List<ACLEntryDTO> updateProjectAccess(@NotNull UUID projectId, @NotNull @Valid List<AccessForm> form) {
         return projectService.updateProjectAccess(projectId, form);
     }
 

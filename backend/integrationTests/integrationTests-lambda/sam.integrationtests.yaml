@@ -8,6 +8,13 @@ Globals:
 
 Resources:
 
+  Api: # workaround to make SAM work with binary data, see https://github.com/aws/aws-sam-cli/issues/3110
+    Type: AWS::Serverless::Api
+    Properties:
+      BinaryMediaTypes:
+        - "*~1*"   # SAM local requires ~ instead of / in media types
+      StageName: dev
+
   ElnLambda:
     Type: AWS::Serverless::Function
     Properties:

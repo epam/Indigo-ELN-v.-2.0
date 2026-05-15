@@ -4,6 +4,7 @@ import {
   MolUnit,
   ReactionOutputType,
   SampleRegistrationStatus,
+  UNIT_DISPLAY_NAMES,
   VolumeUnit,
   WeightUnit,
 } from '@core/types/entities/experiments/experiment-shared.i';
@@ -17,6 +18,8 @@ import { determineCellClasses } from '@core/utils/experiment-model.util';
 import { ButtonComponent } from '@/core/components/common/button/button.component';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { NotificationService } from '@core/services/notification/notification.service';
+import { NotificationType } from '@core/types/notification.i';
 
 interface OutputSampleRow {
   output: ReactionOutput;
@@ -31,6 +34,7 @@ interface OutputSampleRow {
 export class ProductBatchSummaryTableComponent {
   private experimentDetailService = inject(ExperimentDetailService);
   private snackBar = inject(MatSnackBar);
+  private notificationService = inject(NotificationService);
 
   reaction = input<Reaction | null>(null);
   experimentId = input<string | null>(null);
@@ -111,7 +115,7 @@ export class ProductBatchSummaryTableComponent {
       },
       options: Object.values(WeightUnit).map((unit) => ({
         id: unit,
-        name: unit,
+        name: UNIT_DISPLAY_NAMES[unit],
       })) as ColumnOption[],
     },
     {
@@ -133,7 +137,7 @@ export class ProductBatchSummaryTableComponent {
       },
       options: Object.values(VolumeUnit).map((unit) => ({
         id: unit,
-        name: unit,
+        name: UNIT_DISPLAY_NAMES[unit],
       })) as ColumnOption[],
     },
     {
@@ -160,7 +164,7 @@ export class ProductBatchSummaryTableComponent {
       },
       options: Object.values(MolUnit).map((unit) => ({
         id: unit,
-        name: unit,
+        name: UNIT_DISPLAY_NAMES[unit],
       })) as ColumnOption[],
     },
     {
@@ -197,15 +201,55 @@ export class ProductBatchSummaryTableComponent {
     },
     {
       id: 'syncWithProducts',
-      header: 'Sync with Products',
-      type: ColumnInputType.BUTTON,
-      field: () => '🔄',
+      header: '',
+      type: ColumnInputType.ICON,
+      field: () => null,
+      iconClasses: () => ['indicon-link', 'text-[20px]', 'text-blue-600'],
+      tooltip: () => 'Sync with Products',
       onSave: (row: OutputSampleRow) => {
         // TODO: Implement sync with products functionality
         console.log('TODO: Sync with products', row.sample.anchor);
         this.snackBar.open('Sync functionality not yet implemented', 'Close', {
           duration: 3000,
         });
+      },
+    },
+    {
+      id: 'register',
+      header: '',
+      type: ColumnInputType.ICON,
+      field: () => null,
+      iconClasses: (row: OutputSampleRow) => [
+        'indicon-add',
+        'text-[20px]',
+        row.sample.registrationStatus in [null, SampleRegistrationStatus.FAILED] ? 'text-green-600' : 'text-green-100',
+      ],
+      tooltip: () => 'Register Sample',
+      onSave: (row: OutputSampleRow) => {
+        const error = (() => {
+          switch (row.sample.registrationStatus) {
+            case SampleRegistrationStatus.REGISTERED:
+              return 'Sample is already registered';
+            case SampleRegistrationStatus.IN_PROGRESS:
+              return 'Sample is already sent for registration';
+            default:
+              return null;
+          }
+        })();
+        if (error != null) {
+          this.notificationService.notify({
+            type: NotificationType.Error,
+            message: error,
+            isInline: false,
+          });
+          return;
+        }
+        this.experimentDetailService
+          .updateDataModel({
+            type: 'RegisterSample',
+            anchor: row.sample.anchor,
+          })
+          .subscribe({});
       },
     },
   ]);

@@ -6,7 +6,6 @@ import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.mutation.NotebookMutation;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.*;
@@ -25,7 +24,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 @QuarkusTest
-@JwtSecurity
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
 class NotebookServiceTest extends ELNBaseTest {
 
@@ -347,7 +345,6 @@ class NotebookServiceTest extends ELNBaseTest {
     }
 
     @Nested
-    @JwtSecurity
     @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -373,14 +370,14 @@ class NotebookServiceTest extends ELNBaseTest {
         void testGetNestedAccess() {
             assertThat(notebookClient.getNestedNotebookAccess(notebook.getId()))
                     .containsExactly(
-                            new NestedACLEntryDTO(EntityType.EXPERIMENT, experiment.getId(), experiment.getName(), bartUserID, BART_DISPLAY_NAME, AccessLevel.VIEW),
-                            new NestedACLEntryDTO(EntityType.EXPERIMENT, experiment.getId(), experiment.getName(), lisaUserID, LISA_DISPLAY_NAME, AccessLevel.VIEW)
+                            new NestedACLEntryDTO(EntityType.EXPERIMENT, experiment.getId(), experiment.getName(), BART_DISPLAY_NAME, AccessLevel.VIEW),
+                            new NestedACLEntryDTO(EntityType.EXPERIMENT, experiment.getId(), experiment.getName(), LISA_DISPLAY_NAME, AccessLevel.VIEW)
                     );
         }
 
         @Test
         void testRemoveAccess() {
-            List<ACLDetailsEntryDTO> notebookAccess = notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(BART_USERNAME, AccessLevel.NONE));
+            List<ACLEntryDTO> notebookAccess = notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(BART_USERNAME, AccessLevel.NONE));
             assertThatACL(notebookAccess).containsOnly(
                     JOHN_DISPLAY_NAME, AccessLevel.AUTHOR, false,
                     BART_DISPLAY_NAME, AccessLevel.IMPLICIT_VIEW, false,
@@ -390,7 +387,7 @@ class NotebookServiceTest extends ELNBaseTest {
 
         @Test
         void testRemoveAccessIncludeNested() {
-            List<ACLDetailsEntryDTO> projectAccess = notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(BART_USERNAME, AccessLevel.NONE, true));
+            List<ACLEntryDTO> projectAccess = notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(BART_USERNAME, AccessLevel.NONE, true));
             assertThatACL(projectAccess).containsOnly(
                     JOHN_DISPLAY_NAME, AccessLevel.AUTHOR, false,
                     LISA_DISPLAY_NAME, AccessLevel.IMPLICIT_VIEW, false

@@ -45,7 +45,7 @@ public class PatchTestUtil {
             }
         });
         JsonLocator.<ArrayNode>findNodes(root, "acl").forEach(acl -> {
-            sortArray(acl, "userId");
+            sortArray(acl, "username");
         });
         for (String refArrayKey : List.of("attachments", "linkedExperiments", "continuedFrom", "continuedTo")) {
             JsonLocator.<ArrayNode>findNodes(root, refArrayKey).forEach(array -> {

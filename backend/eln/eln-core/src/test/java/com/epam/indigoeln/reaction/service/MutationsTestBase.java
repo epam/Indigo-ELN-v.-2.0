@@ -10,7 +10,6 @@ import com.epam.indigoeln.reaction.util.PatchTestUtil;
 import com.epam.indigoeln.test.FeignUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.math.Stats;
-import jakarta.ws.rs.core.HttpHeaders;
 import lombok.SneakyThrows;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterAll;
@@ -114,7 +113,7 @@ public abstract class MutationsTestBase extends ELNBaseTest {
         String newPicture = response.getReactionImages() != null ? response.getReactionImages().get(reaction.getAnchor()) : null;
         if (newPicture != null) {
             picture = newPicture.getBytes();
-            reportBuilder.addPicture(reportClass, picture, FeignUtil.getLastResponse().headers().get(HttpHeaders.CONTENT_TYPE).iterator().next());
+            reportBuilder.addPicture(reportClass, picture, "image/svg+xml");
         }
         ExperimentSnapshot updatedSnapshot = experimentClient.getExperimentSnapshot(experiment.getId());
 

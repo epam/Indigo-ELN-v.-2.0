@@ -20,7 +20,7 @@ public abstract class SampleMapper {
     @Mapping(target = "compoundID", source = "compound.id")
     @Mapping(target = "compoundKey", source = "compound.compoundKey")
     @Mapping(target = "molWeight", source = "compound.molWeight")
-    @Mapping(target = "molFormula", source = "compound.formula")
+    @Mapping(target = "molFormula", expression = "java(com.epam.indigoeln.eln.util.MolFormulaFormatter.format(entity.getCompound().getFormula()))")
     @Mapping(target = "saltCode", expression = "java(dictionaryService.get(entity.getCompound().getSaltCode()))")
     @Mapping(target = "saltEQ", expression = "java(entity.getCompound().getSaltEQ100() != null ? entity.getCompound().getSaltEQ100() / 100.0 : null)")
     @Mapping(target = "marked", expression = "java(entity.getMarked() == Boolean.TRUE)")

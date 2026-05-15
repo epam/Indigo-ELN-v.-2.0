@@ -4,7 +4,7 @@ import { CardComponent } from '../card/card.component';
 import { CopyComponent } from '../copy/copy.component';
 import { CounterComponent } from '../counter/counter.component';
 import { DropdownMenuComponent } from '../dropdown-menu/dropdown-menu.component';
-import { ProjectAcl, ProjectAclUpdate } from '@/core/types/entities/acl.i';
+import { ACLEntry, ACLUpdate } from '@/core/types/entities/acl.i';
 import { AclLevel, ELIGIBLE_ACL_LEVELS, isInmutableLevel } from '@/core/enums/acl-levels.enum';
 import { ApiService } from '@/core/services/api.service';
 import { finalize } from 'rxjs';
@@ -45,11 +45,11 @@ interface TeamLoadingState {
 })
 export class TeamComponent implements OnInit {
   @Input() entityId?: string;
-  @Input() set team(value: ProjectAcl[]) {
+  @Input() set team(value: ACLEntry[]) {
     this._team.set(value);
     this.rebuildSuggestionsState();
   }
-  private _team: WritableSignal<ProjectAcl[]> = signal<ProjectAcl[]>([]);
+  private _team: WritableSignal<ACLEntry[]> = signal<ACLEntry[]>([]);
   @Input({ required: true }) config: TeamComponentConfig;
 
   userSuggestions: UserRefWithState[] = [];
@@ -101,18 +101,18 @@ export class TeamComponent implements OnInit {
       return;
     }
     this.loading.update((l) => ({ ...l, addingUsers: true }));
-    const existingPayload: ProjectAclUpdate[] = this._team().map((m) => ({
+    const existingPayload: ACLUpdate[] = this._team().map((m) => ({
       username: m.username,
       level: m.level,
     }));
-    const newPayload: ProjectAclUpdate[] = this.selectedUsers.map((username) => ({
+    const newPayload: ACLUpdate[] = this.selectedUsers.map((username) => ({
       username: username,
       level: AclLevel.VIEW,
     }));
-    const fullPayload: ProjectAclUpdate[] = [...existingPayload, ...newPayload];
+    const fullPayload: ACLUpdate[] = [...existingPayload, ...newPayload];
 
     this.api
-      .request<ProjectAclUpdate[] | ProjectAclUpdate>('post', endpoint, fullPayload)
+      .request<ACLUpdate[] | ACLUpdate>('post', endpoint, fullPayload)
       .pipe(
         finalize(() => {
           this.loading.update((l) => ({ ...l, addingUsers: false }));
@@ -121,7 +121,7 @@ export class TeamComponent implements OnInit {
       .subscribe(() => this.handleSuccessfulUserAddition());
   }
 
-  updateAclLevel(member: ProjectAcl, rawLevel: string): void {
+  updateAclLevel(member: ACLEntry, rawLevel: string): void {
     const newLevel = AclLevel[rawLevel as keyof typeof AclLevel];
     if (!newLevel) {
       console.error('Invalid ACL level:', rawLevel);
@@ -135,7 +135,7 @@ export class TeamComponent implements OnInit {
       updatingMembers: new Set(l.updatingMembers).add(member.username),
     }));
     this.api
-      .request<ProjectAclUpdate>('post', endpoint, [{ username: member.username, level: newLevel }])
+      .request<ACLUpdate>('post', endpoint, [{ username: member.username, level: newLevel }])
       .pipe(
         finalize(() => {
           this.loading.update((l) => {
@@ -173,7 +173,7 @@ export class TeamComponent implements OnInit {
 
   private handleSuccessfulUserAddition(): void {
     const current = this._team();
-    const toAdd: ProjectAcl[] = [];
+    const toAdd: ACLEntry[] = [];
     this.selectedUsers.forEach((username) => {
       const suggestion = this.userSuggestions.find((u) => u.username === username);
       if (!suggestion) return;

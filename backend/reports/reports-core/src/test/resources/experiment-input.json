@@ -20,7 +20,6 @@
     },
     "acl": [
       {
-        "userId": "00000000-0000-0000-0000-000000000001",
         "displayName": "Administrator",
         "level": "AUTHOR",
         "inherited": false
@@ -55,7 +54,6 @@
     "attachments": [],
     "acl": [
       {
-        "userId": "a7f7400b-7e71-45d9-b8dc-262bb4fa9998",
         "displayName": "John Doe",
         "level": "AUTHOR",
         "inherited": false,
