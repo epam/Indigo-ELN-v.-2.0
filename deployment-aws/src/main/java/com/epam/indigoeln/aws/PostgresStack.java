@@ -1,5 +1,6 @@
 package com.epam.indigoeln.aws;
 
+import com.google.common.collect.ImmutableList;
 import lombok.Getter;
 import lombok.Value;
 import software.amazon.awscdk.NestedStack;
@@ -105,7 +106,7 @@ public class PostgresStack extends NestedStack {
                 .desiredCount(1)
                 // awsvpc: place the task ENI in the same public subnet as the EC2 host
                 .vpcSubnets(SubnetSelection.builder().subnetType(SubnetType.PUBLIC).build())
-                .securityGroups(List.of(props.getEc2SecurityGroup()))
+                .securityGroups(ImmutableList.<ISecurityGroup>builder().add(props.ec2SecurityGroup).addAll(props.additionalSecurityGroups).build())
                 .cloudMapOptions(CloudMapOptions.builder()
                         .cloudMapNamespace(props.getPrivateDnsNamespace())
                         .name("pgbouncer")
@@ -122,6 +123,7 @@ public class PostgresStack extends NestedStack {
         String postgresMasterUsername;
         ICluster ecsCluster;
         ISecurityGroup ec2SecurityGroup;
+        List<ISecurityGroup> additionalSecurityGroups;
         Repository postgresRepo;
         String postgresImageTag;
     }

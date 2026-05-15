@@ -29,6 +29,7 @@ public class MainStack extends Stack {
                 parameters.getPostgresMasterUsername(),
                 infraStack.getEcsCluster(),
                 infraStack.getEc2SecurityGroup(),
+                infraStack.getAdditionalSecurityGroups(),
                 buildStack.getPostgresRepo(),
                 parameters.getPostgresImageTag()
         ));
