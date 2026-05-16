@@ -1,15 +1,16 @@
 package com.epam.indigoeln.eln.repository;
 
 import com.epam.indigoeln.common.exception.EntityNotFoundException;
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.UserRef;
+import com.epam.indigoeln.eln.common.repository.BaseRepository;
+import com.epam.indigoeln.eln.common.util.Conditions;
 import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.entity.UserInfo;
 import com.epam.indigoeln.eln.mapper.UserMapper;
 import com.epam.indigoeln.eln.model.EntityType;
-import com.epam.indigoeln.eln.model.Page;
-import com.epam.indigoeln.eln.model.Paging;
 import com.epam.indigoeln.eln.model.UserDTO;
-import com.epam.indigoeln.eln.util.Conditions;
 import io.quarkus.panache.common.Sort;
 import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -21,7 +22,7 @@ import java.util.UUID;
 @ApplicationScoped
 public class UserRepository extends BaseRepository<UserEntity> {
 
-    protected static final Sort USER_SORT = io.quarkus.panache.common.Sort.by("displayName");
+    protected static final Sort USER_SORT = Sort.by("displayName");
 
     @Inject
     UserMapper userMapper;

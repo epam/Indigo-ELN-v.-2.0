@@ -12,8 +12,8 @@
     'md:grid-cols-2 2xl:grid-cols-3': false,
   }"
 >
-  @for (experiment of data; track experiment.id) {
-    <eln-signature-item [experiment]="experiment" [currentUser]="username" />
+  @for (document of data; track document.id) {
+    <eln-signature-item [document]="document" />
   }
   <eln-infinite-loader
     [classNames]="

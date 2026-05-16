@@ -1,7 +1,6 @@
 package com.epam.indigoeln.signature;
 
-import com.epam.indigoeln.common.model.DocumentStatus;
-import com.epam.indigoeln.common.model.UserRef;
+import com.epam.indigoeln.common.model.*;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.api.ELNInternalClient;
 import com.epam.indigoeln.signature.api.SignatureAdminClient;
@@ -46,6 +45,7 @@ class SignatureServiceTest extends BaseTest {
 
     UserRef johnUserRef;
     UserRef willowUserRef;
+    UserRef bartUserRef;
 
     @BeforeAll
     void setup() {
@@ -56,6 +56,7 @@ class SignatureServiceTest extends BaseTest {
 
         johnUserRef = signatureAdminClient.getOrCreateUser("john", "John", "Doe");
         willowUserRef = signatureAdminClient.getOrCreateUser("willow", "Willow", "Johnson");
+        bartUserRef = signatureAdminClient.getOrCreateUser("bart", "Bart", "Simpson");
 
         if (!integrationTest) {
             wireMock.register(WireMock.post(WireMock.urlPathEqualTo("/internalapi/eln/signatureUpdated")).willReturn(WireMock.aResponse()
@@ -137,6 +138,21 @@ class SignatureServiceTest extends BaseTest {
     }
 
     @Test
+    @Order(250)
+    void testGetDocumentsForSignature() {
+        Page<DocumentDTO> documents = signatureClient.getDocuments(null, null, true, Paging.DEFAULT);
+        assertThat(documents.getTotalItems()).isEqualTo(1L);
+    }
+
+    @Test
+    @Order(250)
+    @TestSecurity(user = "bart")
+    void testGetDocumentsForSignatureOtherUser() {
+        Page<DocumentDTO> documents = signatureClient.getDocuments(null, null, true, Paging.DEFAULT);
+        assertThat(documents.getTotalItems()).isZero();
+    }
+
+    @Test
     @Order(300)
     void testSign() throws Exception {
         assumeThat(integrationTest).isFalse(); // no matching document in ELN
@@ -172,8 +188,8 @@ class SignatureServiceTest extends BaseTest {
     void testGetDocuments() {
         assumeThat(integrationTest).isFalse(); // no matching document in ELN
         assumeThat(documentID).isNotNull();
-        List<DocumentDTO> documents = signatureClient.getDocuments();
-        assertThat(documents).filteredOn(d -> d.getId().equals(documentID)).hasSize(1).first().satisfies(document -> {
+        Page<DocumentDTO> documents = signatureClient.getDocuments(null, SortOrder.EARLIEST, null, Paging.DEFAULT);
+        assertThat(documents.getItems()).filteredOn(d -> d.getId().equals(documentID)).hasSize(1).first().satisfies(document -> {
             assertThat(document.getStatus()).isEqualTo(DocumentStatus.REJECTED);
             assertThat(document.getSignatures()).hasSize(2);
         });

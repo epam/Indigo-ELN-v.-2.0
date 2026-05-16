@@ -10,10 +10,10 @@ export class DownloadService {
   private httpClient = inject(HttpClient);
   private document = inject(DOCUMENT);
 
-  downloadPost(url: string, fallbackFilename = 'download'): Observable<void> {
+  download(method: 'get' | 'post', url: string, fallbackFilename = 'download'): Observable<void> {
     return new Observable<void>((observer) => {
       this.httpClient
-        .post(url, null, {
+        .request(method, url, {
           responseType: 'blob',
           observe: 'response',
         })

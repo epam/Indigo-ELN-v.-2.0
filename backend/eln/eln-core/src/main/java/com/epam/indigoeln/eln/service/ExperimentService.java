@@ -1,5 +1,8 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.service.CompoundService;
@@ -255,7 +258,7 @@ public class ExperimentService {
         return experimentModelService.createPatch(getSnapshotToCompare(experiment, versionFrom), getSnapshotToCompare(experiment, versionTo));
     }
 
-    public String compareVersionsHTML(UUID experimentId, @org.jspecify.annotations.Nullable Integer versionFrom, @org.jspecify.annotations.Nullable Integer versionTo) {
+    public String compareVersionsHTML(UUID experimentId, @Nullable Integer versionFrom, @Nullable Integer versionTo) {
         JsonNode patch = compareVersions(experimentId, versionFrom, versionTo);
         return PatchUtil.formatJSONDiff(patch);
     }

@@ -1,11 +1,12 @@
 package com.epam.indigoeln.eln.repository;
 
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.eln.common.repository.BaseRepository;
+import com.epam.indigoeln.eln.common.util.Conditions;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
 import com.epam.indigoeln.eln.mapper.DictionaryMapper;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.model.EntityType;
-import com.epam.indigoeln.eln.model.Paging;
-import com.epam.indigoeln.eln.util.Conditions;
 import com.google.common.base.Strings;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;

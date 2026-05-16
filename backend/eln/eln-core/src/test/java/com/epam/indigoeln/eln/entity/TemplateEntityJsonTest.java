@@ -8,6 +8,8 @@ import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -77,7 +79,7 @@ public class TemplateEntityJsonTest {
         ObjectMapper testObjectMapper = objectMapper.copy();
         testObjectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 
-        java.nio.file.Path outputPath = java.nio.file.Paths.get("build", "test-results", "test", "template_entity.json");
+        Path outputPath = Paths.get("build", "test-results", "test", "template_entity.json");
         testObjectMapper.writeValue(outputPath.toFile(), template);
 
     }

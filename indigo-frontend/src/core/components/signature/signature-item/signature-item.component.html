@@ -1,9 +1,9 @@
-<eln-card [classList]="'cursor-pointer'" [routerLink]="['/experiments', experiment.id]">
+<eln-card [classList]="'cursor-pointer'">
   <div class="flex flex-col w-full px-4">
     <div class="flex justify-between items-center mb-3 w-full">
       <h3 class="flex items-center gap-x-2 font-semibold text-neutral-1000 text-base">
         <em class="text-primary-400 text-xl indicon-briefcase"></em>
-        {{ experiment.name }}
+        {{ document.name }}
       </h3>
       <div class="relative -right-1">
         <button
@@ -38,13 +38,13 @@
               Download Report
             </button>
           </div>
-          @for (signature of experiment.signatures; track signature.user.id) {
+          @for (signature of document.signatures; track signature.user.username) {
             <div class="col-start-2">{{ signature.user.displayName }} ({{ signature.reason.toLowerCase() }})</div>
             @if (signature.status === 'APPROVED') {
               <span>Approved</span>
             } @else if (signature.status === 'REJECTED') {
               <span class="text-red">Rejected</span>
-            } @else if (signature.user.username === currentUser) {
+            } @else if (signature.canSignOrReject) {
               <button class="text-sm text-blue-600 hover:underline cursor-pointer" (click)="approve()">Approve</button>
               &emsp;
               <button class="text-sm text-blue-600 hover:underline cursor-pointer" (click)="reject()">Reject</button>
@@ -54,54 +54,20 @@
           }
         </div>
 
-        <div class="flex flex-col" [ngClass]="{ 'flex-col space-y-2': variant == 'list' }" *ngIf="variant === 'list'">
-          <div class="text-neutral-1000 text-sm">Members</div>
-          <div class="flex items-center">
-            <div class="flex -space-x-2">
-              @for (user of mock_users.slice(0, 3); track user) {
-                <eln-avatar classList="w-6 h-6" [img]="user" />
-              }
-              @if (mock_users.length > 3) {
-                <span class="flex justify-center items-center bg-primary-400 rounded-full w-6 h-6 text-white text-xs">
-                  +{{ mock_users.length - 3 }}
-                </span>
-              }
-            </div>
-          </div>
-        </div>
-
         <div class="flex flex-col text-sm" [ngClass]="{ 'flex-col space-y-2': variant == 'list' }">
           <div class="text-neutral-1000 text-sm">Last Edited</div>
           <div [ngClass]="{ 'ml-auto': variant === 'grid' }">
-            {{ experiment.modifiedAt | date: 'dd MMM yyyy' }} by
-            {{ experiment.modifiedBy.displayName }}
+            {{ document.lastModifiedDate | date: 'dd MMM yyyy' }}
           </div>
         </div>
 
         <div class="flex flex-col text-sm" [ngClass]="{ 'flex-col space-y-2': variant == 'list' }">
           <div class="text-neutral-1000">Created</div>
           <div [ngClass]="{ 'ml-auto': variant === 'grid' }">
-            {{ experiment.createdAt | date: 'dd MMM yyyy' }} by
-            {{ experiment.createdBy.displayName }}
+            {{ document.createdDate | date: 'dd MMM yyyy' }}
           </div>
         </div>
       </div>
     </div>
-
-    @if (variant === 'grid') {
-      <div class="flex items-center mt-2 pt-3 border-t border-t-neutral-300 w-full">
-        <div class="flex -space-x-2">
-          @for (user of mock_users.slice(0, 3); track user) {
-            <eln-avatar classList="w-6 h-6" [img]="user" />
-          }
-          @if (mock_users.length > 3) {
-            <span class="flex justify-center items-center bg-primary-400 rounded-full w-6 h-6 text-white text-xs">
-              +{{ mock_users.length - 3 }}
-            </span>
-          }
-        </div>
-        <span class="ml-2 text-b2 text-neutral-1000">{{ mock_users.length }} Members</span>
-      </div>
-    }
   </div>
 </eln-card>

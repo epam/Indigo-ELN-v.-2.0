@@ -1,10 +1,14 @@
 package com.epam.indigoeln.signature.api;
 
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.common.model.UploadForm;
 import com.epam.indigoeln.signature.model.DocumentDTO;
 import com.epam.indigoeln.signature.model.SignatureTemplateDTO;
 import com.epam.indigoeln.signature.model.SignatureTemplateDetailsDTO;
 import com.epam.indigoeln.signature.model.SignatureTemplateRequest;
+import jakarta.annotation.Nullable;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -34,7 +38,7 @@ public interface SignatureAPI {
 
     @GET
     @Path("/documents")
-    List<DocumentDTO> getDocuments();
+    Page<DocumentDTO> getDocuments(@QueryParam("search") @Nullable String search, @QueryParam("sort") @Nullable SortOrder sort, @QueryParam("waitingMySignature") @Nullable Boolean waitingMySignature, @BeanParam Paging paging);
 
     @GET
     @Path("/documents/{id}")

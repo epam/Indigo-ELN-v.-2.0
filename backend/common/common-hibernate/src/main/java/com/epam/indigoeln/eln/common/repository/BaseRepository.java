@@ -1,18 +1,15 @@
-package com.epam.indigoeln.eln.repository;
+package com.epam.indigoeln.eln.common.repository;
 
 import com.epam.indigoeln.common.exception.AccessDeniedException;
 import com.epam.indigoeln.common.exception.EntityNotFoundException;
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.common.entity.IdentifiableEntity;
-import com.epam.indigoeln.eln.model.EntityType;
-import com.epam.indigoeln.eln.model.Page;
-import com.epam.indigoeln.eln.model.Paging;
-import com.epam.indigoeln.eln.service.UserService;
-import com.epam.indigoeln.eln.util.Conditions;
+import com.epam.indigoeln.eln.common.util.Conditions;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import io.quarkus.panache.common.Sort;
-import jakarta.inject.Inject;
 import jakarta.persistence.EntityGraph;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -28,15 +25,13 @@ import static com.google.common.base.Preconditions.checkState;
 @RequiredArgsConstructor
 public abstract class BaseRepository<E extends IdentifiableEntity> implements PanacheRepositoryBase<E, UUID> {
 
-    protected static final Sort DEFAULT_SORT = io.quarkus.panache.common.Sort.descending("modifiedAt");
+    protected static final Sort DEFAULT_SORT = Sort.descending("modifiedAt");
 
-    protected final EntityType entityType;
+    protected final Object entityType;
     protected final Class<E> entityClass;
 
     @PersistenceContext
     protected EntityManager em;
-    @Inject
-    UserService userService;
 
     protected <DTO> Page<DTO> doFindWithTotals(Conditions conditions, @Nullable Paging paging, Sort sort, @Nullable EntityGraph<?> entityGraph, Function<E, DTO> mapper) {
         paging = ModelUtil.firstNotNull(paging, Paging.DEFAULT);

@@ -85,7 +85,7 @@ public class ELNLambdaStack extends NestedStack {
         );
 
         Map<String, String> reportsFunctionEnvironment = mapOf(
-                entry("JAVA_TOOL_OPTIONS", "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"),
+                entry("JAVA_TOOL_OPTIONS", "-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Djava.net.preferIPv6Addresses=true"),
                 entry("ELN_API_SECRET", apiGatewaySecret.getStringValue()),
                 entry("QUARKUS_LOG_LEVEL", "INFO"),
                 entry("QUARKUS_LOG_CATEGORY__COM_EPAM__LEVEL", "DEBUG")
@@ -101,6 +101,7 @@ public class ELNLambdaStack extends NestedStack {
         );
 
         Map<String, String> signatureFunctionEnvironment = mapOf(
+                entry("JAVA_TOOL_OPTIONS", "-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Djava.net.preferIPv6Addresses=true"),
                 entry("QUARKUS_DATASOURCE_JDBC_URL", String.format("jdbc:postgresql://pgbouncer.indigoeln.local:6433/%s", "signature")),
                 entry("QUARKUS_DATASOURCE_USERNAME", props.getDbCredentials().getUsername()),
                 entry("QUARKUS_DATASOURCE_PASSWORD", props.getDbCredentials().getPassword().unsafeUnwrap()), // TODO retrieve credentials in lambda code

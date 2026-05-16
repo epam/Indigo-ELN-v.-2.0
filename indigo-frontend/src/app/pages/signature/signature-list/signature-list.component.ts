@@ -5,16 +5,17 @@ import { InfiniteLoaderComponent } from '@/core/components/util/infinite-loader/
 import { InfiniteScrollBase } from '@/core/components/util/infinite-scroll.base';
 import { ClassPickerPipe } from '@/core/pipes/classPicker.pipe';
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { Subject, Subscription, take, takeUntil } from 'rxjs';
+import { Subject, Subscription, take } from 'rxjs';
 import { ExperimentAddComponent } from '../../experiment/experiment-add/experiment-add.component';
 import { ProjectAddComponent } from '../../project/project-add/project-add.component';
 import { SignatureItemComponent } from '@core/components/signature/signature-item/signature-item.component';
 import { UserService } from '@core/services/user.service';
-import { ExperimentForSignature } from '@core/types/entities/experiments/experiment-detail.i';
+import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
+import { Document } from '@core/types/entities/document.i';
 
 @Component({
   selector: 'eln-signature-list',
@@ -29,9 +30,10 @@ import { ExperimentForSignature } from '@core/types/entities/experiments/experim
     ButtonComponent,
     ListHeaderComponent,
     SignatureItemComponent,
+    ProjectOverviewWidgetDirective,
   ],
 })
-export class SignatureListComponent extends InfiniteScrollBase<ExperimentForSignature> implements OnInit, OnDestroy {
+export class SignatureListComponent extends InfiniteScrollBase<Document> implements OnDestroy {
   destroy$ = new Subject<void>();
   dialog = inject(MatDialog);
   userService = inject(UserService);
@@ -43,7 +45,7 @@ export class SignatureListComponent extends InfiniteScrollBase<ExperimentForSign
   constructor() {
     super();
     this.setup({
-      loadUrl: 'signature/experiments/pending',
+      loadUrl: '/api/signature/documents',
       sortOptions: [
         { label: 'Sort by: Earliest', value: 'createdAt', defaultOrder: 'EARLIEST' },
         { label: 'Sort by: Latest', value: 'createdAt', defaultOrder: 'LATEST' },
@@ -64,12 +66,6 @@ export class SignatureListComponent extends InfiniteScrollBase<ExperimentForSign
 
   refreshList(): void {
     this.reload();
-  }
-
-  ngOnInit(): void {
-    this.userService.user$.pipe(takeUntil(this.destroy$)).subscribe((user) => {
-      this.username = user['cognito:username'];
-    });
   }
 
   ngOnDestroy(): void {

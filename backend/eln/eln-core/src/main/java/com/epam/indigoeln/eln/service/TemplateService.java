@@ -1,6 +1,9 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.exception.InvalidRequestException;
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.TemplateEntity;
 import com.epam.indigoeln.eln.entity.UserEntity;
@@ -11,6 +14,7 @@ import com.epam.indigoeln.eln.util.TemplateValidationUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import org.hibernate.exception.ConstraintViolationException;
 import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
@@ -43,7 +47,7 @@ public class TemplateService {
         try {
             templateRepository.persist(template);
             templateRepository.flushAndRefresh(template);
-        } catch (org.hibernate.exception.ConstraintViolationException e) {
+        } catch (ConstraintViolationException e) {
             if ("template_name_uq".equals(e.getConstraintName())) {
                 throw new InvalidRequestException("Template with name '" + request.getName() + "' already exists.");
             }

@@ -86,7 +86,6 @@ public class ExperimentWorkflowService {
             experimentModelService.applyMutation(experiment, new ExperimentMutation.SubmitExperiment(signatureTemplateId));
             return experimentService.getExperimentDetails(experiment);
         } catch (Exception e) {
-            log.error("!!! completeAndSubmitExperiment error", e);
             throw e;
         }
     }

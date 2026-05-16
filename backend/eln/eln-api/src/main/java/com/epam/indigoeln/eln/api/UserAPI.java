@@ -1,7 +1,11 @@
 package com.epam.indigoeln.eln.api;
 
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.UserRef;
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.model.CurrentUserDTO;
+import com.epam.indigoeln.eln.model.UserDTO;
+import com.epam.indigoeln.eln.model.UserRequest;
 import com.epam.indigoeln.eln.quarkus.cachecontrol.Cached;
 import jakarta.annotation.Nullable;
 import jakarta.ws.rs.*;

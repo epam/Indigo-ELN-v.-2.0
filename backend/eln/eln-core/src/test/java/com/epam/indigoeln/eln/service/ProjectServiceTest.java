@@ -1,5 +1,8 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.*;
@@ -13,6 +16,7 @@ import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -475,7 +479,7 @@ class ProjectServiceTest extends ELNBaseTest {
         String fileName = "large_test_file_7MB.pptx";
         Path filePath = tempDir.resolve(fileName);
         try {
-            java.nio.file.Files.write(filePath, largeContent);
+            Files.write(filePath, largeContent);
         } catch (Exception e) {
             throw new RuntimeException("Failed to write large test file", e);
         }

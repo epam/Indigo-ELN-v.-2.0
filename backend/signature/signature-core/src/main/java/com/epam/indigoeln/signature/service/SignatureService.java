@@ -1,5 +1,9 @@
 package com.epam.indigoeln.signature.service;
 
+import com.epam.indigoeln.common.model.DocumentStatus;
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.api.ELNInternalClient;
 import com.epam.indigoeln.signature.entity.DocumentEntity;
@@ -9,6 +13,7 @@ import com.epam.indigoeln.signature.entity.UserEntity;
 import com.epam.indigoeln.signature.exception.InvalidInputException;
 import com.epam.indigoeln.signature.mapper.SignatureMapper;
 import com.epam.indigoeln.signature.model.*;
+import com.epam.indigoeln.signature.repository.DocumentRepository;
 import com.epam.indigoeln.signature.service.signatureapplier.SignatureApplier;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -50,6 +55,8 @@ public class SignatureService {
     @Inject
     @RestClient
     ELNInternalClient elnInternalClient;
+    @Inject
+    DocumentRepository documentRepository;
 
     private final byte[] keyStore;
     private final String keyStorePassword;
@@ -67,7 +74,6 @@ public class SignatureService {
     }
 
     public List<SignatureTemplateDTO> getTemplates() {
-        log.info("!!! getTemplates");
         return mapper.entityToTemplateList(
                 em.createQuery("from SignatureTemplate order by name", SignatureTemplateEntity.class).getResultList()
         );
@@ -75,11 +81,8 @@ public class SignatureService {
 
     @SneakyThrows
     public DocumentDTO createDocument(UUID templateID, String name, File file) {
-        log.info("!!! createDocument.1");
         SignatureTemplateEntity template = em.find(SignatureTemplateEntity.class, templateID);
-        log.info("!!! createDocument.2");
         DocumentEntity document = new DocumentEntity();
-        log.info("!!! createDocument.3");
         document.setName(name);
         document.setTemplate(template);
         document.setAuthor(userService.getCurrentUser());
@@ -88,7 +91,6 @@ public class SignatureService {
         document.setLastModifiedDate(document.getCreatedDate());
         document.setFilename(file.getName());
         document.setContent(Files.readAllBytes(file.toPath()));
-        log.info("!!! createDocument.4");
         document.getSignatures().addAll(StreamEx.of(template.getBlocks())
                 .map(block -> {
                     DocumentSignatureEntity signature = new DocumentSignatureEntity();
@@ -106,19 +108,13 @@ public class SignatureService {
                     return signature;
                 })
                 .toList());
-        log.info("!!! createDocument.5");
         em.persist(document);
-        log.info("!!! createDocument.6");
         updateDocumentStatus(document);
-        log.info("!!! createDocument.7");
-        DocumentDTO document1 = mapper.entityToDocument(document);
-        log.info("!!! createDocument.8");
-        return document1;
+        return mapper.entityToDocument(document);
     }
 
-    public List<DocumentDTO> getDocuments() {
-        List<DocumentEntity> documents = em.createQuery("from Document order by createdDate desc", DocumentEntity.class).getResultList();
-        return mapper.entityToDocumentList(documents);
+    public Page<DocumentDTO> getDocuments(String search, SortOrder sort, Boolean waitingMySignature, Paging paging) {
+        return documentRepository.findAll(search, sort, waitingMySignature == Boolean.TRUE ? userService.getCurrentUser() : null, paging);
     }
 
     public DocumentEntity getDocumentEntity(UUID documentId) {
@@ -170,7 +166,7 @@ public class SignatureService {
         boolean hasApproved = statuses.contains(SignatureStatus.APPROVED);
         boolean hasRejected = statuses.contains(SignatureStatus.REJECTED);
         boolean hasWaiting = statuses.contains(WAITING);
-        com.epam.indigoeln.common.model.DocumentStatus newStatus = switch (document.getStatus()) {
+        DocumentStatus newStatus = switch (document.getStatus()) {
             case SUBMITTED -> {
                 if (hasRejected) {
                     yield REJECTED;

@@ -1,4 +1,4 @@
-package com.epam.indigoeln.eln.model;
+package com.epam.indigoeln.common.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.Positive;

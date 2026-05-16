@@ -151,7 +151,7 @@ export class ExperimentActionsComponent {
 
       case Action.PRINT:
         this.downloadService
-          .downloadPost(`/api/eln/experiments/${this.experiment().id}/print`, 'report.pdf')
+          .download('post', `/api/eln/experiments/${this.experiment().id}/print`, 'report.pdf')
           .subscribe({});
         this.notificationService.notify({
           type: NotificationType.Info,

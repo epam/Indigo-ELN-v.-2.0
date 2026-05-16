@@ -1,4 +1,4 @@
-package com.epam.indigoeln.eln.util;
+package com.epam.indigoeln.eln.common.util;
 
 import org.jspecify.annotations.Nullable;
 

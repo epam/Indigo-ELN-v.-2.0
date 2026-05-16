@@ -1,6 +1,8 @@
 package com.epam.indigoeln.eln.client;
 
 import com.epam.indigoeln.eln.api.MiscAPI;
+import com.epam.indigoeln.test.ClientUtil;
+import com.epam.indigoeln.test.ClientUtil.ClientUploadForm;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -11,11 +13,11 @@ public interface MiscClient extends MiscAPI {
 
     @SneakyThrows
     default void loadCompoundsFromFileClient(String filename, java.nio.file.Path tempDirectory, byte[] content) {
-        loadCompoundsFromFileClient(com.epam.indigoeln.test.ClientUtil.createFileUpload("file", filename, content, tempDirectory));
+        loadCompoundsFromFileClient(ClientUtil.createFileUpload("file", filename, content, tempDirectory));
     }
 
     @POST
     @Path("/compounds/loadFromFile")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    void loadCompoundsFromFileClient(com.epam.indigoeln.test.ClientUtil.ClientUploadForm form);
+    void loadCompoundsFromFileClient(ClientUploadForm form);
 }

@@ -1,5 +1,6 @@
 package com.epam.indigoeln.signature.mapper;
 
+import com.epam.indigoeln.common.model.DocumentStatus;
 import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.signature.entity.*;
 import com.epam.indigoeln.signature.model.*;
@@ -10,6 +11,9 @@ import org.mapstruct.*;
 
 import java.time.ZonedDateTime;
 import java.util.List;
+
+import static com.epam.indigoeln.common.model.DocumentStatus.SIGNING;
+import static com.epam.indigoeln.common.model.DocumentStatus.SUBMITTED;
 
 @Mapper(componentModel = "cdi", unmappedTargetPolicy = ReportingPolicy.ERROR)
 public abstract class SignatureMapper {
@@ -54,8 +58,8 @@ public abstract class SignatureMapper {
     public abstract List<DocumentDTO> entityToDocumentList(List<DocumentEntity> entities);
 
     protected boolean canSignOrReject(DocumentSignatureEntity block) {
-        com.epam.indigoeln.common.model.DocumentStatus documentStatus = block.getDocument().getStatus();
-        return (documentStatus == com.epam.indigoeln.common.model.DocumentStatus.SUBMITTED || documentStatus == com.epam.indigoeln.common.model.DocumentStatus.SIGNING)
+        DocumentStatus documentStatus = block.getDocument().getStatus();
+        return (documentStatus == SUBMITTED || documentStatus == SIGNING)
                 && userService.getCurrentUser().equals(block.getUser())
                 && block.getStatus() == SignatureStatus.WAITING;
     }

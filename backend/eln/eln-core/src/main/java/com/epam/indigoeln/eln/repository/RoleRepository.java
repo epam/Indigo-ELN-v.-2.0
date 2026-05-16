@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.repository;
 
+import com.epam.indigoeln.eln.common.repository.BaseRepository;
 import com.epam.indigoeln.eln.entity.RoleEntity;
 import com.epam.indigoeln.eln.mapper.RoleMapper;
 import com.epam.indigoeln.eln.model.EntityType;

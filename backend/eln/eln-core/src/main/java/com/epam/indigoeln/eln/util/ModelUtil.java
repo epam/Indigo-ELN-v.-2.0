@@ -53,7 +53,7 @@ public class ModelUtil {
     public static <T> T wrapConstraintViolation(Callable<T> function, Function<ConstraintViolationException, @Nullable String> errorMapper) {
         try {
             return function.call();
-        } catch (org.hibernate.exception.ConstraintViolationException e) {
+        } catch (ConstraintViolationException e) {
             String error = errorMapper.apply(e);
             if (error != null) {
                 throw new InvalidRequestException(error);

@@ -1,5 +1,8 @@
 package com.epam.indigoeln.eln.api;
 
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.common.model.UploadForm;
 import com.epam.indigoeln.eln.model.*;
 import jakarta.validation.constraints.NotEmpty;
@@ -27,7 +30,7 @@ public interface NotebookAPI extends BaseAPI {
     @GET
     @Path("/projects/{projectId}/notebooks")
     Page<NotebookDTO> getProjectNotebooks(@PathParam("projectId") UUID projectId, @QueryParam("search") @Nullable String search, @QueryParam("sort") @Nullable SortOrder sort,
-                                          @QueryParam("createdByMe") @Nullable Boolean createdByMe, @BeanParam Paging paging);
+                                                                          @QueryParam("createdByMe") @Nullable Boolean createdByMe, @BeanParam Paging paging);
 
     @GET
     @Path("/notebooks/existence")

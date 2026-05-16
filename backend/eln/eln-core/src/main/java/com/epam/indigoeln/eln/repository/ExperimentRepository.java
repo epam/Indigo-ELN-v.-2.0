@@ -1,11 +1,16 @@
 package com.epam.indigoeln.eln.repository;
 
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.common.model.UserRef;
+import com.epam.indigoeln.eln.common.repository.BaseRepository;
+import com.epam.indigoeln.eln.common.util.Conditions;
 import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.mapper.ExperimentMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.ACLService;
-import com.epam.indigoeln.eln.util.Conditions;
+import com.epam.indigoeln.eln.service.UserService;
 import com.google.common.base.MoreObjects;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -37,6 +42,8 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
     ExperimentMapper experimentMapper;
     @Inject
     ACLService aclService;
+    @Inject
+    UserService userService;
 
     public Page<ExperimentDTO> findAll(@Nullable UUID projectId, @Nullable UUID notebookId, @Nullable String search, @Nullable SortOrder sort, @Nullable UserRef createdByUser, Paging paging, boolean showAll) {
         Sort panacheSort = switch (MoreObjects.firstNonNull(sort, SortOrder.LATEST)) {
