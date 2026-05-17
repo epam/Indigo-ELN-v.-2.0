@@ -24,7 +24,7 @@ public class ContentDispositionUtil {
     @SneakyThrows
     public static String generateContentDisposition(boolean attachment, String filename) {
         return (attachment ? "attachment" : "inline")
-                + "; filename=\"" + filename.replace("\"", "\"\"")
-                + "\"; filename*=UTF-8''" + URLEncoder.encode(filename, StandardCharsets.UTF_8);
+                + "; filename=\"" + filename.replace("\"", "\\\"")
+                + "\"; filename*=UTF-8''" + URLEncoder.encode(filename, StandardCharsets.UTF_8).replace("+", "%20");
     }
 }

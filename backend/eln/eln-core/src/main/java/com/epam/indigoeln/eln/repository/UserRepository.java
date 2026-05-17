@@ -9,7 +9,7 @@ import com.epam.indigoeln.eln.common.util.Conditions;
 import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.entity.UserInfo;
 import com.epam.indigoeln.eln.mapper.UserMapper;
-import com.epam.indigoeln.eln.model.EntityType;
+import com.epam.indigoeln.eln.model.ELNEntityType;
 import com.epam.indigoeln.eln.model.UserDTO;
 import io.quarkus.panache.common.Sort;
 import jakarta.annotation.Nullable;
@@ -28,7 +28,7 @@ public class UserRepository extends BaseRepository<UserEntity> {
     UserMapper userMapper;
 
     public UserRepository() {
-        super(EntityType.USER, UserEntity.class);
+        super(ELNEntityType.USER, UserEntity.class);
     }
 
     @Nullable
@@ -64,7 +64,7 @@ public class UserRepository extends BaseRepository<UserEntity> {
                 userMapper::entityToDetailsDTO
         );
         if (user == null) {
-            throw new EntityNotFoundException(EntityType.USER, username);
+            throw new EntityNotFoundException(ELNEntityType.USER, username);
         }
         return user;
     }

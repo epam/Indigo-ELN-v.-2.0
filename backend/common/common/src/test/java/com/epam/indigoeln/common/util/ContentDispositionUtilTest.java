@@ -54,9 +54,9 @@ class ContentDispositionUtilTest {
             // inline, simple ASCII filename
             { false, "preview.html", "inline; filename=\"preview.html\"; filename*=UTF-8''preview.html" },
             // spaces → %20 in filename*
-            { true,  "my report 2024.pdf", "attachment; filename=\"my report 2024.pdf\"; filename*=UTF-8''my+report+2024.pdf" },
+            { true,  "my report 2024.pdf", "attachment; filename=\"my report 2024.pdf\"; filename*=UTF-8''my%20report%202024.pdf" },
             // double-quote in filename → escaped as "" in quoted part, %22 in filename*
-            { true,  "the \"best\" report.pdf", "attachment; filename=\"the \"\"best\"\" report.pdf\"; filename*=UTF-8''the+%22best%22+report.pdf" },
+            { true,  "the \"best\" report.pdf", "attachment; filename=\"the \\\"best\\\" report.pdf\"; filename*=UTF-8''the%20%22best%22%20report.pdf" },
         });
     }
 

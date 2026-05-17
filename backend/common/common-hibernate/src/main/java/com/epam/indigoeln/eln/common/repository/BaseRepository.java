@@ -2,6 +2,7 @@ package com.epam.indigoeln.eln.common.repository;
 
 import com.epam.indigoeln.common.exception.AccessDeniedException;
 import com.epam.indigoeln.common.exception.EntityNotFoundException;
+import com.epam.indigoeln.common.model.EntityType;
 import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.util.ModelUtil;
@@ -27,7 +28,7 @@ public abstract class BaseRepository<E extends IdentifiableEntity> implements Pa
 
     protected static final Sort DEFAULT_SORT = Sort.descending("modifiedAt");
 
-    protected final Object entityType;
+    protected final EntityType entityType;
     protected final Class<E> entityClass;
 
     @PersistenceContext

@@ -23,6 +23,9 @@ import java.time.ZonedDateTime;
 public class DocumentSignatureEntity extends IdentifiableEntity {
 
     @NotNull
+    private Integer ordinal;
+
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "document_id")
     private DocumentEntity document;

@@ -7,7 +7,7 @@ import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.model.AccessLevel;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
-import com.epam.indigoeln.eln.model.EntityType;
+import com.epam.indigoeln.eln.model.ELNEntityType;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
@@ -60,7 +60,7 @@ public class ACLService {
         }
         AccessLevel currentAccess = project.getCalculatedInfo() != null ? project.getCalculatedInfo().getCurrentAccess() : NONE;
         if (!operation.isAllowedBy(currentAccess)) {
-            throw new AccessDeniedException(EntityType.PROJECT, project.getId(), operation, currentAccess);
+            throw new AccessDeniedException(ELNEntityType.PROJECT, project.getId(), operation, currentAccess);
         }
     }
 
@@ -70,7 +70,7 @@ public class ACLService {
         }
         AccessLevel currentAccess = notebook.getCalculatedInfo() != null ? notebook.getCalculatedInfo().getCurrentAccess() : NONE;
         if (!operation.isAllowedBy(currentAccess)) {
-            throw new AccessDeniedException(EntityType.NOTEBOOK, notebook.getId(), operation, currentAccess);
+            throw new AccessDeniedException(ELNEntityType.NOTEBOOK, notebook.getId(), operation, currentAccess);
         }
     }
 
@@ -80,7 +80,7 @@ public class ACLService {
         }
         AccessLevel currentAccess = experiment.getCalculatedInfo() != null ? experiment.getCalculatedInfo().getCurrentAccess() : NONE;
         if (!operation.isAllowedBy(currentAccess)) {
-            throw new AccessDeniedException(EntityType.EXPERIMENT, experiment.getId(), operation, currentAccess);
+            throw new AccessDeniedException(ELNEntityType.EXPERIMENT, experiment.getId(), operation, currentAccess);
         }
     }
 

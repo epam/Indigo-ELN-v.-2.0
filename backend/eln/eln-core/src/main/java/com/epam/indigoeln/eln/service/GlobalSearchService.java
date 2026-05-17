@@ -5,7 +5,7 @@ import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.eln.common.util.NamedConditions;
 import com.epam.indigoeln.eln.config.DataAccess;
-import com.epam.indigoeln.eln.model.EntityType;
+import com.epam.indigoeln.eln.model.ELNEntityType;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
 import com.epam.indigoeln.eln.model.GlobalSearchRequest;
 import com.epam.indigoeln.eln.model.GlobalSearchResultDTO;
@@ -193,7 +193,7 @@ public class GlobalSearchService {
                 .map(row -> {
                     int fieldNo = -1;
                     GlobalSearchResultDTO item = new GlobalSearchResultDTO();
-                    item.setType(EntityType.valueOf(row[++fieldNo].toString()));
+                    item.setType(ELNEntityType.valueOf(row[++fieldNo].toString()));
                     item.setName((String) row[++fieldNo]);
                     item.setId((UUID) row[++fieldNo]);
                     item.setFragment((String) row[++fieldNo]);

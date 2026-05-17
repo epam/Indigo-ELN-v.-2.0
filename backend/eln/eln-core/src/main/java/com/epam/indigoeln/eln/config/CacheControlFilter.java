@@ -17,7 +17,7 @@ public class CacheControlFilter {
 
     @ServerResponseFilter
     public void filter(ContainerResponseContext responseContext, SimpleResourceInfo resourceInfo) {
-        if (resourceInfo.getResourceClass() == null) {
+        if (resourceInfo.getResourceClass() == null) { // 404 not found or request is not handled by a resource endpoint
             return;
         }
         String key = resourceInfo.getResourceClass().getName() + "#" + resourceInfo.getMethodName();

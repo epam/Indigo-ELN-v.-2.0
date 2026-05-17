@@ -10,7 +10,7 @@ import com.epam.indigoeln.compound.model.search.TextSearch;
 import com.epam.indigoeln.eln.common.repository.BaseRepository;
 import com.epam.indigoeln.eln.common.util.Conditions;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
-import com.epam.indigoeln.eln.model.EntityType;
+import com.epam.indigoeln.eln.model.ELNEntityType;
 import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.eln.repository.DictionaryItemRepository;
 import com.epam.indigoeln.eln.service.DictionaryService;
@@ -36,7 +36,7 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
     DictionaryService dictionaryService;
 
     public SampleRepository() {
-        super(EntityType.SAMPLE, SampleEntity.class);
+        super(ELNEntityType.SAMPLE, SampleEntity.class);
     }
 
     @Nullable

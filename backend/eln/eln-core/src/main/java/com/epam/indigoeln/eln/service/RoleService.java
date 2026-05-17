@@ -56,7 +56,7 @@ public class RoleService {
         aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_ROLES);
         RoleEntity role = roleRepository.findById(roleID);
         if (role == null) {
-            throw new EntityNotFoundException(EntityType.ROLE, roleID);
+            throw new EntityNotFoundException(ELNEntityType.ROLE, roleID);
         }
         editProperty(request.getName(), role::setName);
         editProperty(request.getPermissions(), p -> role.setPermissions(p.toArray(ApplicationPermission[]::new)));
@@ -67,7 +67,7 @@ public class RoleService {
         aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_ROLES);
         RoleEntity role = roleRepository.findById(roleID);
         if (role == null) {
-            throw new EntityNotFoundException(EntityType.ROLE, roleID);
+            throw new EntityNotFoundException(ELNEntityType.ROLE, roleID);
         }
         roleRepository.delete(role);
     }

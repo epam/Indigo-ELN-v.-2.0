@@ -5,7 +5,7 @@ import com.epam.indigoeln.compound.mapper.CompoundMapper;
 import com.epam.indigoeln.compound.model.CompoundKey;
 import com.epam.indigoeln.eln.common.repository.BaseRepository;
 import com.epam.indigoeln.eln.common.util.Conditions;
-import com.epam.indigoeln.eln.model.EntityType;
+import com.epam.indigoeln.eln.model.ELNEntityType;
 import com.epam.indigoeln.eln.model.STRCodeCompound;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -26,7 +26,7 @@ public class CompoundRepository extends BaseRepository<CompoundEntity> {
     EntityManager em;
 
     public CompoundRepository() {
-        super(EntityType.COMPOUND, CompoundEntity.class);
+        super(ELNEntityType.COMPOUND, CompoundEntity.class);
     }
 
     @Nullable

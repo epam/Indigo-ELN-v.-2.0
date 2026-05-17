@@ -109,7 +109,7 @@ public class UserService {
         Preconditions.checkArgument(id != null || username != null);
         UserInfo user = id != null ? userRepository.findByID(id) : userRepository.findByUsername(username);
         if (user == null) {
-            throw new EntityNotFoundException(EntityType.USER, firstNotNull(id, username));
+            throw new EntityNotFoundException(ELNEntityType.USER, firstNotNull(id, username));
         }
         return user;
     }

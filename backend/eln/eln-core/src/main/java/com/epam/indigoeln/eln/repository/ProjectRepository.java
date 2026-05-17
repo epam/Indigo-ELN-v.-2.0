@@ -34,7 +34,7 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
     ACLService aclService;
 
     public ProjectRepository() {
-        super(EntityType.PROJECT, ProjectEntity.class);
+        super(ELNEntityType.PROJECT, ProjectEntity.class);
     }
 
     public Page<ProjectDTO> findAll(@Nullable String search, @Nullable SortOrder sort, @Nullable UserEntity createdByUser, Paging paging, boolean showAll) {
@@ -107,7 +107,7 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
                 .map(arr -> {
                     BaseEntity entity = (BaseEntity) arr[0];
                     BaseACLEntity entry = (BaseACLEntity) arr[1];
-                    EntityType entityType = entity instanceof NotebookEntity ? EntityType.NOTEBOOK : EntityType.EXPERIMENT;
+                    ELNEntityType entityType = entity instanceof NotebookEntity ? ELNEntityType.NOTEBOOK : ELNEntityType.EXPERIMENT;
                     String entityName = entity instanceof NotebookEntity ? ((NotebookEntity) entity).getName() : ((ExperimentEntity) entity).getName();
                     return new NestedACLEntryDTO(entityType, entity.getId(), entityName, entry.getUser().getDisplayName(), entry.getLevel());
                 })

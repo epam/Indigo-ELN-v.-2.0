@@ -1,6 +1,8 @@
 package com.epam.indigoeln.eln.model;
 
-public enum EntityType {
+import com.epam.indigoeln.common.model.EntityType;
+
+public enum ELNEntityType implements EntityType {
 
     SYSTEM,
 

@@ -10,7 +10,7 @@ import java.util.Set;
 @Data
 public class GlobalSearchResultDTO extends BaseDTO {
 
-    private EntityType type;
+    private ELNEntityType type;
     private String name;
     @Nullable
     private String fragment;

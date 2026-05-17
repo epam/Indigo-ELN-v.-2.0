@@ -6,7 +6,7 @@ import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.mapper.AttachmentMapper;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.model.AttachmentDTO;
-import com.epam.indigoeln.eln.model.EntityType;
+import com.epam.indigoeln.eln.model.ELNEntityType;
 import com.epam.indigoeln.eln.repository.AttachmentRepository;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
@@ -214,6 +214,6 @@ public class AttachmentService {
             }
         }
         log.error("Attachment {} doesn't belong to requested parent entity {}", attachment, expected);
-        throw new EntityNotFoundException(EntityType.ATTACHMENT, attachment.getId());
+        throw new EntityNotFoundException(ELNEntityType.ATTACHMENT, attachment.getId());
     }
 }

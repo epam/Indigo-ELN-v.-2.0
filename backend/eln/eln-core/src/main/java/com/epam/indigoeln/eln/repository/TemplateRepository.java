@@ -8,7 +8,7 @@ import com.epam.indigoeln.eln.common.util.Conditions;
 import com.epam.indigoeln.eln.entity.TemplateEntity;
 import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.mapper.TemplateMapper;
-import com.epam.indigoeln.eln.model.EntityType;
+import com.epam.indigoeln.eln.model.ELNEntityType;
 import com.epam.indigoeln.eln.model.TemplateDTO;
 import com.epam.indigoeln.eln.model.TemplateDetailsDTO;
 import com.google.common.base.MoreObjects;
@@ -27,7 +27,7 @@ public class TemplateRepository extends BaseRepository<TemplateEntity> {
     TemplateMapper templateMapper;
 
     public TemplateRepository() {
-        super(EntityType.TEMPLATE, TemplateEntity.class);
+        super(ELNEntityType.TEMPLATE, TemplateEntity.class);
     }
 
     public Page<TemplateDTO> findAll(

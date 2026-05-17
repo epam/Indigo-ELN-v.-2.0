@@ -6,7 +6,7 @@ import com.epam.indigoeln.eln.common.util.Conditions;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
 import com.epam.indigoeln.eln.mapper.DictionaryMapper;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
-import com.epam.indigoeln.eln.model.EntityType;
+import com.epam.indigoeln.eln.model.ELNEntityType;
 import com.google.common.base.Strings;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -29,7 +29,7 @@ public class DictionaryItemRepository extends BaseRepository<DictionaryItemEntit
     DictionaryMapper dictionaryMapper;
 
     public DictionaryItemRepository() {
-        super(EntityType.DICTIONARY_ITEM, DictionaryItemEntity.class);
+        super(ELNEntityType.DICTIONARY_ITEM, DictionaryItemEntity.class);
     }
 
     public List<DictionaryItemEntity> list(UUID dictionaryID, boolean includeInactive) {

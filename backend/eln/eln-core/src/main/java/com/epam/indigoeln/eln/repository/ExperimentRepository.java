@@ -35,7 +35,7 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
     private static final Sort SORT_SUGGEST = Sort.by("name");
 
     public ExperimentRepository() {
-        super(EntityType.EXPERIMENT, ExperimentEntity.class);
+        super(ELNEntityType.EXPERIMENT, ExperimentEntity.class);
     }
 
     @Inject

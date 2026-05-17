@@ -32,7 +32,7 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
     ACLService aclService;
 
     public NotebookRepository() {
-        super(EntityType.NOTEBOOK, NotebookEntity.class);
+        super(ELNEntityType.NOTEBOOK, NotebookEntity.class);
     }
 
     public Page<NotebookDTO> findAll(UUID projectId, @Nullable String search, @QueryParam("sort") @Nullable SortOrder sort, @Nullable UserEntity createdByUser, Paging paging, boolean showAll) {
@@ -97,7 +97,7 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
                 .map(arr -> {
                     ExperimentEntity entity = (ExperimentEntity) arr[0];
                     ExperimentACLEntity entry = (ExperimentACLEntity) arr[1];
-                    return new NestedACLEntryDTO(EntityType.EXPERIMENT, entity.getId(), entity.getName(), entry.getUser().getDisplayName(), entry.getLevel());
+                    return new NestedACLEntryDTO(ELNEntityType.EXPERIMENT, entity.getId(), entity.getName(), entry.getUser().getDisplayName(), entry.getLevel());
                 })
                 .toList();
     }

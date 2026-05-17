@@ -375,8 +375,8 @@ class NotebookServiceTest extends ELNBaseTest {
         void testGetNestedAccess() {
             assertThat(notebookClient.getNestedNotebookAccess(notebook.getId()))
                     .containsExactly(
-                            new NestedACLEntryDTO(EntityType.EXPERIMENT, experiment.getId(), experiment.getName(), BART_DISPLAY_NAME, AccessLevel.VIEW),
-                            new NestedACLEntryDTO(EntityType.EXPERIMENT, experiment.getId(), experiment.getName(), LISA_DISPLAY_NAME, AccessLevel.VIEW)
+                            new NestedACLEntryDTO(ELNEntityType.EXPERIMENT, experiment.getId(), experiment.getName(), BART_DISPLAY_NAME, AccessLevel.VIEW),
+                            new NestedACLEntryDTO(ELNEntityType.EXPERIMENT, experiment.getId(), experiment.getName(), LISA_DISPLAY_NAME, AccessLevel.VIEW)
                     );
         }
 

@@ -6,7 +6,7 @@ import com.epam.indigoeln.eln.common.util.Conditions;
 import com.epam.indigoeln.eln.entity.DictionaryEntity;
 import com.epam.indigoeln.eln.mapper.DictionaryMapper;
 import com.epam.indigoeln.eln.model.DictionaryDTO;
-import com.epam.indigoeln.eln.model.EntityType;
+import com.epam.indigoeln.eln.model.ELNEntityType;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -22,7 +22,7 @@ public class DictionaryRepository extends BaseRepository<DictionaryEntity> {
     DictionaryMapper dictionaryMapper;
 
     public DictionaryRepository() {
-        super(EntityType.DICTIONARY, DictionaryEntity.class);
+        super(ELNEntityType.DICTIONARY, DictionaryEntity.class);
     }
 
     public List<DictionaryDTO> list() {

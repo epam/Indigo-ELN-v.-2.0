@@ -6,6 +6,7 @@ import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.common.repository.BaseRepository;
 import com.epam.indigoeln.eln.common.util.Conditions;
 import com.epam.indigoeln.signature.entity.DocumentEntity;
+import com.epam.indigoeln.signature.entity.SignatureEntityType;
 import com.epam.indigoeln.signature.entity.UserEntity;
 import com.epam.indigoeln.signature.mapper.SignatureMapper;
 import com.epam.indigoeln.signature.model.DocumentDTO;
@@ -22,7 +23,7 @@ public class DocumentRepository extends BaseRepository<DocumentEntity> {
     SignatureMapper signatureMapper;
 
     public DocumentRepository() {
-        super("Project", DocumentEntity.class);
+        super(SignatureEntityType.DOCUMENT, DocumentEntity.class);
     }
 
     public Page<DocumentDTO> findAll(@Nullable String search, @Nullable SortOrder sort, @Nullable UserEntity waitingForUserSignature, Paging paging) {

@@ -628,8 +628,8 @@ class ProjectServiceTest extends ELNBaseTest {
         void testGetNestedAccess() {
             assertThat(projectClient.getNestedProjectAccess(project.getId()))
                     .containsExactly(
-                            new NestedACLEntryDTO(EntityType.NOTEBOOK, notebook.getId(), notebook.getName(), BART_DISPLAY_NAME, AccessLevel.ADMIN),
-                            new NestedACLEntryDTO(EntityType.EXPERIMENT, experiment.getId(), experiment.getName(), LISA_DISPLAY_NAME, AccessLevel.VIEW)
+                            new NestedACLEntryDTO(ELNEntityType.NOTEBOOK, notebook.getId(), notebook.getName(), BART_DISPLAY_NAME, AccessLevel.ADMIN),
+                            new NestedACLEntryDTO(ELNEntityType.EXPERIMENT, experiment.getId(), experiment.getName(), LISA_DISPLAY_NAME, AccessLevel.VIEW)
                     );
         }
 

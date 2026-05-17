@@ -21,7 +21,7 @@ export class DownloadService {
         .subscribe({
           next: (response) => {
             const filename =
-              parse(response.headers.get('Content-Disposition'))?.parameters?.['filename'] || 'attachment';
+              parse(response.headers.get('Content-Disposition'))?.parameters?.['filename'] || fallbackFilename;
             this.triggerDownload(response.body, filename);
             observer.next();
             observer.complete();

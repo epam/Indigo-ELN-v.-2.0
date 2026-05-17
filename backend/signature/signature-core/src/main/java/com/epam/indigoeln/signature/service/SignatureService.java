@@ -6,10 +6,7 @@ import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.api.ELNInternalClient;
-import com.epam.indigoeln.signature.entity.DocumentEntity;
-import com.epam.indigoeln.signature.entity.DocumentSignatureEntity;
-import com.epam.indigoeln.signature.entity.SignatureTemplateEntity;
-import com.epam.indigoeln.signature.entity.UserEntity;
+import com.epam.indigoeln.signature.entity.*;
 import com.epam.indigoeln.signature.exception.InvalidInputException;
 import com.epam.indigoeln.signature.mapper.SignatureMapper;
 import com.epam.indigoeln.signature.model.*;
@@ -22,7 +19,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import one.util.streamex.StreamEx;
+import one.util.streamex.EntryStream;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
@@ -91,9 +88,12 @@ public class SignatureService {
         document.setLastModifiedDate(document.getCreatedDate());
         document.setFilename(file.fileName());
         document.setContent(Files.readAllBytes(file.filePath()));
-        document.getSignatures().addAll(StreamEx.of(template.getBlocks())
-                .map(block -> {
+        document.getSignatures().addAll(EntryStream.of(template.getBlocks())
+                .map(entry -> {
+                    Integer index = entry.getKey();
+                    SignatureTemplateBlockEntity block = entry.getValue();
                     DocumentSignatureEntity signature = new DocumentSignatureEntity();
+                    signature.setOrdinal(index);
                     signature.setDocument(document);
                     signature.setTemplateBlock(block);
                     signature.setUser(switch (block.getReason()) {
