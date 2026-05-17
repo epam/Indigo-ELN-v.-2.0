@@ -25,8 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.jboss.resteasy.reactive.multipart.FileUpload;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -80,7 +80,7 @@ public class SignatureService {
     }
 
     @SneakyThrows
-    public DocumentDTO createDocument(UUID templateID, String name, File file) {
+    public DocumentDTO createDocument(UUID templateID, String name, FileUpload file) {
         SignatureTemplateEntity template = em.find(SignatureTemplateEntity.class, templateID);
         DocumentEntity document = new DocumentEntity();
         document.setName(name);
@@ -89,8 +89,8 @@ public class SignatureService {
         document.setStatus(SUBMITTED);
         document.setCreatedDate(ZonedDateTime.now());
         document.setLastModifiedDate(document.getCreatedDate());
-        document.setFilename(file.getName());
-        document.setContent(Files.readAllBytes(file.toPath()));
+        document.setFilename(file.fileName());
+        document.setContent(Files.readAllBytes(file.filePath()));
         document.getSignatures().addAll(StreamEx.of(template.getBlocks())
                 .map(block -> {
                     DocumentSignatureEntity signature = new DocumentSignatureEntity();

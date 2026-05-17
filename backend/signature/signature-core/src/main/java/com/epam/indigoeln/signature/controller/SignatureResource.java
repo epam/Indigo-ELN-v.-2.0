@@ -28,6 +28,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.UUID;
 
+import static com.epam.indigoeln.common.util.ContentDispositionUtil.generateContentDisposition;
+
 @Slf4j
 @Path(SignatureAPI.BASE_PATH)
 public class SignatureResource implements SignatureAPI {
@@ -54,7 +56,7 @@ public class SignatureResource implements SignatureAPI {
     @SneakyThrows
     public DocumentDTO uploadDocument(String name, UUID templateId, UploadForm form) {
         try {
-            return service.createDocument(templateId, name, form.getFile().uploadedFile().toFile());
+            return service.createDocument(templateId, name, form.getFile());
         } catch (Throwable e) {
             throw e;
         }
@@ -86,7 +88,7 @@ public class SignatureResource implements SignatureAPI {
     public Response downloadDocument(UUID documentId) {
         DocumentEntity document = service.getDocumentEntity(documentId);
         return Response.ok(document.getContent())
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + document.getFilename())
+                .header(HttpHeaders.CONTENT_DISPOSITION, generateContentDisposition(true, document.getFilename()))
                 .build();
     }
 }

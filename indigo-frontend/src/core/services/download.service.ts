@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DOCUMENT } from '@angular/common';
 import { Observable } from 'rxjs';
+import { parse } from 'content-disposition';
 
 @Injectable({
   providedIn: 'root',
@@ -19,7 +20,8 @@ export class DownloadService {
         })
         .subscribe({
           next: (response) => {
-            const filename = this.extractFilename(response.headers.get('Content-Disposition'), fallbackFilename);
+            const filename =
+              parse(response.headers.get('Content-Disposition'))?.parameters?.['filename'] || 'attachment';
             this.triggerDownload(response.body, filename);
             observer.next();
             observer.complete();
@@ -27,17 +29,6 @@ export class DownloadService {
           error: (err) => observer.error(err),
         });
     });
-  }
-
-  private extractFilename(contentDisposition: string | null, fallback: string): string {
-    if (!contentDisposition) return fallback;
-    // Try filename*=UTF-8''... first (RFC 5987)
-    const rfcMatch = contentDisposition.match(/filename\*=(?:UTF-8'')?([^;]+)/i);
-    if (rfcMatch) return decodeURIComponent(rfcMatch[1].trim().replace(/^["']|["']$/g, ''));
-    // Fall back to plain filename="..."
-    const plainMatch = contentDisposition.match(/filename="?([^";]+)"?/i);
-    if (plainMatch) return plainMatch[1].trim();
-    return fallback;
   }
 
   private triggerDownload(blob: Blob, filename: string): void {

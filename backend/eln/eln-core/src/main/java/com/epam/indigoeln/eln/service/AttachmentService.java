@@ -18,6 +18,7 @@ import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
@@ -28,6 +29,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+import static com.epam.indigoeln.common.util.ContentDispositionUtil.generateContentDisposition;
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 
 @Slf4j
@@ -171,7 +173,8 @@ public class AttachmentService {
 
     private Response doDownloadAttachment(AttachmentEntity attachment) {
         return Response.ok(attachment.getContent())
-                .header("Content-Disposition", "attachment; filename=" + attachment.getName()).build();
+                .header(HttpHeaders.CONTENT_DISPOSITION, generateContentDisposition(true, attachment.getName()))
+                .build();
     }
 
     public void deleteProjectAttachment(UUID projectId, UUID attachmentId) {

@@ -27,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
+import static com.epam.indigoeln.common.util.ContentDispositionUtil.extractFilename;
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
@@ -275,9 +276,10 @@ class ExperimentServiceTest extends ELNBaseTest {
     void testDownloadAttachment(@TempDir Path tempDir) throws Exception {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", tempDir, "content".getBytes());
-        Response response = experimentClient.downloadExperimentAttachment(experiment.getId(), attachments.getFirst().getId());
-        assertThat(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION)).containsExactly("attachment; filename=attachment.txt");
-        assertThat((byte[]) response.getEntity()).asString().isEqualTo("content");
+        try (Response response = experimentClient.downloadExperimentAttachment(experiment.getId(), attachments.getFirst().getId())) {
+            assertThat(extractFilename(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION))).isEqualTo("attachment.txt");
+            assertThat((byte[]) response.getEntity()).asString().isEqualTo("content");
+        }
     }
 
     @Test
