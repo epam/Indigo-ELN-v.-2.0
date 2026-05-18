@@ -8,11 +8,13 @@ import { TeamComponent } from '@/core/components/common/team/team.component';
 import { TeamComponentConfig } from '@/core/components/common/team/team.config';
 import { NotebookEditComponent } from '@pages/notebook/notebook-edit/notebook-edit.component';
 import { MatDialog } from '@angular/material/dialog';
+import { AttachmentsComponent } from '@core/components/common/attachments/attachments.component';
+import { Attachment } from '@core/types/entities/attachment.i';
 
 @Component({
   selector: 'eln-notebook-info',
   standalone: true,
-  imports: [CommonModule, ButtonComponent, CardComponent, TeamComponent],
+  imports: [CommonModule, ButtonComponent, CardComponent, TeamComponent, AttachmentsComponent],
   templateUrl: './notebook-info.component.html',
 })
 export class NotebookInfoComponent {
@@ -46,5 +48,9 @@ export class NotebookInfoComponent {
 
   get hasError(): boolean {
     return this.store.hasError();
+  }
+
+  onAttachmentsChanged(attachments: Attachment[]) {
+    this.notebook.attachments = attachments;
   }
 }

@@ -31,7 +31,11 @@
             <div class="text-sm text-neutral-800 whitespace-pre-line" [innerHTML]="notebook?.description"></div>
           </div>
 
-          <!-- TODO: Attachments list and actions -->
+          <eln-attachments
+            [attachments]="notebook.attachments"
+            [baseURL]="`/api/eln/notebooks/${this.notebook.id}`"
+            (attachmentsChanged)="onAttachmentsChanged($event)"
+          />
         </div>
       </div>
     </eln-card>

@@ -1,0 +1,12 @@
+@if (attachments().length > 0) {
+  <div>
+    <h3 class="text-neutral-800 mb-2 font-semibold">Attachments</h3>
+    <div class="space-y-2 grid">
+      @for (file of attachments(); track file.id) {
+        <eln-attachment [attachment]="file" [baseURL]="baseURL()" (attachmentDeleted)="onAttachmentDeleted($event)" />
+      }
+    </div>
+  </div>
+}
+
+<eln-file-upload (filesSelected)="onUpload($event)" [uploadingFile]="isUploadingAttachment" [withPreview]="false" />
