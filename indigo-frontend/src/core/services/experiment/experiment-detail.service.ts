@@ -106,6 +106,11 @@ export class ExperimentDetailService {
     );
   }
 
+  dataModelUpdated(updater: (model: ExperimentDetail) => ExperimentDetail) {
+    this.experimentDetail.update(updater);
+    this.lastLoadedDetail.update(updater);
+  }
+
   editExperiment(patch: ExperimentEditRequest): Observable<ExperimentDetail> {
     const id = this.currentId();
     return this.service.request<ExperimentDetail>('patch', `experiments/${id}`, patch).pipe(

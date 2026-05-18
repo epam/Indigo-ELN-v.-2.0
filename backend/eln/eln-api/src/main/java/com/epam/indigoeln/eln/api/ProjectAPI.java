@@ -46,7 +46,7 @@ public interface ProjectAPI extends BaseAPI {
     List<AttachmentDTO> createProjectAttachment(@PathParam("projectId") UUID projectId, UploadForm form);
 
     @GET
-    @Path("/project/{projectId}/attachments/{attachmentId}")
+    @Path("/projects/{projectId}/attachments/{attachmentId}")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     Response downloadProjectAttachment(@PathParam("projectId") UUID projectId, @PathParam("attachmentId") UUID attachmentId);
 
