@@ -1,5 +1,8 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.*;
@@ -13,6 +16,7 @@ import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +24,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static com.epam.indigoeln.common.exception.InvalidRequestException.fail;
+import static com.epam.indigoeln.common.util.ContentDispositionUtil.extractFilename;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
 import static com.epam.indigoeln.eln.test.ACLListAssert.assertThatACL;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
@@ -442,9 +447,10 @@ class ProjectServiceTest extends ELNBaseTest {
     void testDownloadAttachment(@TempDir Path tempDir) throws Exception {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testDownloadAttachment"));
         List<AttachmentDTO> attachments = projectClient.createProjectAttachment(project.getId(), "attachment.txt", tempDir, "content".getBytes());
-        Response response = projectClient.downloadProjectAttachment(project.getId(), attachments.getFirst().getId());
-        assertThat(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION)).containsExactly("attachment; filename=attachment.txt");
-        assertThat((byte[]) response.getEntity()).asString().isEqualTo("content");
+        try (Response response = projectClient.downloadProjectAttachment(project.getId(), attachments.getFirst().getId())) {
+            assertThat(extractFilename(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION))).isEqualTo("attachment.txt");
+            assertThat((byte[]) response.getEntity()).asString().isEqualTo("content");
+        }
     }
 
     @Test
@@ -475,7 +481,7 @@ class ProjectServiceTest extends ELNBaseTest {
         String fileName = "large_test_file_7MB.pptx";
         Path filePath = tempDir.resolve(fileName);
         try {
-            java.nio.file.Files.write(filePath, largeContent);
+            Files.write(filePath, largeContent);
         } catch (Exception e) {
             throw new RuntimeException("Failed to write large test file", e);
         }
@@ -622,8 +628,8 @@ class ProjectServiceTest extends ELNBaseTest {
         void testGetNestedAccess() {
             assertThat(projectClient.getNestedProjectAccess(project.getId()))
                     .containsExactly(
-                            new NestedACLEntryDTO(EntityType.NOTEBOOK, notebook.getId(), notebook.getName(), BART_DISPLAY_NAME, AccessLevel.ADMIN),
-                            new NestedACLEntryDTO(EntityType.EXPERIMENT, experiment.getId(), experiment.getName(), LISA_DISPLAY_NAME, AccessLevel.VIEW)
+                            new NestedACLEntryDTO(ELNEntityType.NOTEBOOK, notebook.getId(), notebook.getName(), BART_DISPLAY_NAME, AccessLevel.ADMIN),
+                            new NestedACLEntryDTO(ELNEntityType.EXPERIMENT, experiment.getId(), experiment.getName(), LISA_DISPLAY_NAME, AccessLevel.VIEW)
                     );
         }
 

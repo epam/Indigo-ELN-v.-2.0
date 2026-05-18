@@ -102,6 +102,22 @@ export class ExperimentDetailService {
       );
   }
 
+  executeWorkflow(operation: string, params?: Record<string, string>): Observable<ExperimentDetail> {
+    this.isLoading.set(true);
+    this.hasError.set(false);
+    const query = params ? '?' + new URLSearchParams(params).toString() : '';
+    return this.service.request('post', `experiments/${this.currentId()}/workflow/${operation}${query}`).pipe(
+      finalize(() => this.isLoading.set(false)),
+      tap({
+        next: (response: ExperimentDetail) => {
+          this.experimentDetail.set(response);
+          this.lastLoadedDetail.set(structuredClone(response));
+        },
+        error: () => this.hasError.set(true),
+      }),
+    );
+  }
+
   // Utility methods
   refresh() {
     const id = this.currentId();

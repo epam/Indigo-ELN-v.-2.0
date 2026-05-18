@@ -1,12 +1,12 @@
 package com.epam.indigoeln.reaction.service;
 
+import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.search.SampleSearchResult;
 import com.epam.indigoeln.compound.model.search.SearchCatalog;
 import com.epam.indigoeln.compound.model.search.TextSearch;
 import com.epam.indigoeln.eln.ELNBaseTest;
-import com.epam.indigoeln.eln.model.Paging;
 import com.epam.indigoeln.reaction.model.ReactionInput;
 import com.epam.indigoeln.reaction.model.ReactionOutputSample;
 import com.epam.indigoeln.reaction.model.ReactionRole;

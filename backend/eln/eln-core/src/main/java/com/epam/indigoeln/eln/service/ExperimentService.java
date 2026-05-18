@@ -1,5 +1,8 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.service.CompoundService;
@@ -41,10 +44,9 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
+import static com.epam.indigoeln.common.util.ContentDispositionUtil.extractFilename;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -55,7 +57,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class ExperimentService {
 
     static final byte[] EMPTY_PICTURE = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1\" height=\"1\"/>".getBytes(StandardCharsets.UTF_8);
-    public static final Pattern FILENAME_REGEX = Pattern.compile("filename\\s*=\\s*\"?([^\";]+)\"?", Pattern.CASE_INSENSITIVE);
 
     @Inject
     NotebookRepository notebookRepository;
@@ -221,11 +222,7 @@ public class ExperimentService {
         try (Response response = reportsClient.generateExperimentReport(data)) {
             String contentType = response.getHeaderString(HttpHeaders.CONTENT_TYPE);
             String contentDisposition = response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION);
-            String filename = "report.pdf";
-            Matcher matcher = FILENAME_REGEX.matcher(contentDisposition);
-            if (matcher.find()) {
-                filename = matcher.group(1);
-            }
+            String filename = MoreObjects.firstNonNull(extractFilename(contentDisposition), "report.pdf");
             byte[] body = switch (response.getEntity()) {
                 case byte[] bytes -> bytes;
                 case InputStream is -> is.readAllBytes();
@@ -255,7 +252,7 @@ public class ExperimentService {
         return experimentModelService.createPatch(getSnapshotToCompare(experiment, versionFrom), getSnapshotToCompare(experiment, versionTo));
     }
 
-    public String compareVersionsHTML(UUID experimentId, @org.jspecify.annotations.Nullable Integer versionFrom, @org.jspecify.annotations.Nullable Integer versionTo) {
+    public String compareVersionsHTML(UUID experimentId, @Nullable Integer versionFrom, @Nullable Integer versionTo) {
         JsonNode patch = compareVersions(experimentId, versionFrom, versionTo);
         return PatchUtil.formatJSONDiff(patch);
     }

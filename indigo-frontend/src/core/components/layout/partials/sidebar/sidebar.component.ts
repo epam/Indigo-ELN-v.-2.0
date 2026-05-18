@@ -43,6 +43,11 @@ export class SidebarComponent {
       path: '/dictionary',
       requiredPermission: ApplicationPermission.MANAGE_DICTIONARIES,
     },
+    {
+      name: 'Signatures',
+      icon: 'indicon-layers', // TODO icon
+      path: '/signatures',
+    },
   ];
 
   menu$: Observable<MenuItem[]> = this.identityService.user$.pipe(

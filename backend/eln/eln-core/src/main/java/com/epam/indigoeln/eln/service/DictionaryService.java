@@ -87,7 +87,7 @@ public class DictionaryService {
     public <T extends DictionaryItemRef> T get(UUID id) {
         DictionaryItemRef ref = cached().all.get(id);
         if (ref == null) {
-            throw new EntityNotFoundException(EntityType.DICTIONARY_ITEM, id);
+            throw new EntityNotFoundException(ELNEntityType.DICTIONARY_ITEM, id);
         }
         //noinspection unchecked
         return (T) ref;
@@ -100,7 +100,7 @@ public class DictionaryService {
         }
         DictionaryItemRef ref = cached().all.get(entity.getId());
         if (ref == null) {
-            throw new EntityNotFoundException(EntityType.DICTIONARY_ITEM, entity.getId());
+            throw new EntityNotFoundException(ELNEntityType.DICTIONARY_ITEM, entity.getId());
         }
         //noinspection unchecked
         return (T) ref;
@@ -126,7 +126,7 @@ public class DictionaryService {
             return null;
         }
         if (!allowInactive && ref.isInactive()) {
-            throw new EntityNotFoundException(EntityType.DICTIONARY_ITEM, ref.getId() + " is not active or deleted");
+            throw new EntityNotFoundException(ELNEntityType.DICTIONARY_ITEM, ref.getId() + " is not active or deleted");
         }
         return dictionaryItemRepository.getReference(ref.getId());
     }
@@ -141,7 +141,7 @@ public class DictionaryService {
         List<DictionaryItemEntity> found = new ArrayList<>(refs.size());
         for (DictionaryItemRef ref : refs) {
             if (!allowInactive && ref.isInactive()) {
-                throw new EntityNotFoundException(EntityType.DICTIONARY_ITEM, ref.getId());
+                throw new EntityNotFoundException(ELNEntityType.DICTIONARY_ITEM, ref.getId());
             } else {
                 found.add(dictionaryItemRepository.getReference(ref.getId()));
             }
@@ -162,7 +162,7 @@ public class DictionaryService {
         try {
             return UUID.fromString(dictionaryRef);
         } catch (IllegalArgumentException e) {
-            throw new EntityNotFoundException(EntityType.DICTIONARY, dictionaryRef);
+            throw new EntityNotFoundException(ELNEntityType.DICTIONARY, dictionaryRef);
         }
     }
 

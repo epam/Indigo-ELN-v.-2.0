@@ -1,6 +1,9 @@
 package com.epam.indigoeln.signature.controller;
 
 
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.common.model.UploadForm;
 import com.epam.indigoeln.signature.api.SignatureAPI;
 import com.epam.indigoeln.signature.entity.DocumentEntity;
@@ -10,9 +13,12 @@ import com.epam.indigoeln.signature.model.SignatureTemplateDetailsDTO;
 import com.epam.indigoeln.signature.model.SignatureTemplateRequest;
 import com.epam.indigoeln.signature.service.SignatureService;
 import io.vertx.ext.web.RoutingContext;
+import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
+import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
@@ -21,6 +27,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.UUID;
+
+import static com.epam.indigoeln.common.util.ContentDispositionUtil.generateContentDisposition;
 
 @Slf4j
 @Path(SignatureAPI.BASE_PATH)
@@ -48,20 +56,15 @@ public class SignatureResource implements SignatureAPI {
     @SneakyThrows
     public DocumentDTO uploadDocument(String name, UUID templateId, UploadForm form) {
         try {
-            log.info("!!! uploadDocument");
-            log.info("!!! uploadDocument: name={}", name);
-            log.info("!!! uploadDocument: templateId={}", templateId);
-            log.info("!!! uploadDocument: form={}", form);
-            return service.createDocument(templateId, name, form.getFile().uploadedFile().toFile());
+            return service.createDocument(templateId, name, form.getFile());
         } catch (Throwable e) {
-            log.info("!!! uploadDocument: exception={}", e.getMessage(), e);
             throw e;
         }
     }
 
     @Override
-    public List<@Valid DocumentDTO> getDocuments() {
-        return service.getDocuments();
+    public Page<DocumentDTO> getDocuments(@QueryParam("search") @Nullable String search, @QueryParam("sort") @Nullable SortOrder sort, @QueryParam("waitingMySignature") @Nullable Boolean waitingMySignature, @BeanParam Paging paging) {
+        return service.getDocuments(search, sort, waitingMySignature, paging);
     }
 
     @Override
@@ -85,7 +88,7 @@ public class SignatureResource implements SignatureAPI {
     public Response downloadDocument(UUID documentId) {
         DocumentEntity document = service.getDocumentEntity(documentId);
         return Response.ok(document.getContent())
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + document.getName())
+                .header(HttpHeaders.CONTENT_DISPOSITION, generateContentDisposition(true, document.getFilename()))
                 .build();
     }
 }

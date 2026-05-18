@@ -1,5 +1,8 @@
 package com.epam.indigoeln.eln.api;
 
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.common.model.UploadForm;
 import com.epam.indigoeln.eln.model.*;
 import jakarta.annotation.Nullable;
@@ -22,9 +25,7 @@ public interface ProjectAPI extends BaseAPI {
 
     @GET
     @Path("/projects")
-    Page<ProjectDTO> getProjects(@QueryParam("search") @Nullable String search, @QueryParam("sort") @Nullable SortOrder sort,
-                                 @QueryParam("createdByMe") @Nullable Boolean createdByMe,
-                                 @BeanParam Paging paging);
+    Page<ProjectDTO> getProjects(@QueryParam("search") @Nullable String search, @QueryParam("sort") @Nullable SortOrder sort, @QueryParam("createdByMe") @Nullable Boolean createdByMe, @BeanParam Paging paging);
 
     @GET
     @Path("/projects/existence")

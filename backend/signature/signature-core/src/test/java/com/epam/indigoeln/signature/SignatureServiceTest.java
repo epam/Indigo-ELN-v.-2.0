@@ -1,7 +1,6 @@
 package com.epam.indigoeln.signature;
 
-import com.epam.indigoeln.common.model.DocumentStatus;
-import com.epam.indigoeln.common.model.UserRef;
+import com.epam.indigoeln.common.model.*;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.api.ELNInternalClient;
 import com.epam.indigoeln.signature.api.SignatureAdminClient;
@@ -9,10 +8,12 @@ import com.epam.indigoeln.signature.api.SignatureClient;
 import com.epam.indigoeln.signature.model.*;
 import com.epam.indigoeln.test.APICallException;
 import com.epam.indigoeln.test.BaseTest;
+import com.epam.indigoeln.test.FeignUtil;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import io.quarkiverse.wiremock.devservice.ConnectWireMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
@@ -23,6 +24,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 
+import static com.epam.indigoeln.common.util.ContentDispositionUtil.extractFilename;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assumptions.assumeThat;
@@ -46,6 +48,7 @@ class SignatureServiceTest extends BaseTest {
 
     UserRef johnUserRef;
     UserRef willowUserRef;
+    UserRef bartUserRef;
 
     @BeforeAll
     void setup() {
@@ -56,6 +59,7 @@ class SignatureServiceTest extends BaseTest {
 
         johnUserRef = signatureAdminClient.getOrCreateUser("john", "John", "Doe");
         willowUserRef = signatureAdminClient.getOrCreateUser("willow", "Willow", "Johnson");
+        bartUserRef = signatureAdminClient.getOrCreateUser("bart", "Bart", "Simpson");
 
         if (!integrationTest) {
             wireMock.register(WireMock.post(WireMock.urlPathEqualTo("/internalapi/eln/signatureUpdated")).willReturn(WireMock.aResponse()
@@ -137,8 +141,23 @@ class SignatureServiceTest extends BaseTest {
     }
 
     @Test
+    @Order(250)
+    void testGetDocumentsForSignature() {
+        Page<DocumentDTO> documents = signatureClient.getDocuments(null, null, true, Paging.DEFAULT);
+        assertThat(documents.getTotalItems()).isEqualTo(1L);
+    }
+
+    @Test
+    @Order(250)
+    @TestSecurity(user = "bart")
+    void testGetDocumentsForSignatureOtherUser() {
+        Page<DocumentDTO> documents = signatureClient.getDocuments(null, null, true, Paging.DEFAULT);
+        assertThat(documents.getTotalItems()).isZero();
+    }
+
+    @Test
     @Order(300)
-    void testSign() throws Exception {
+    void testSign() {
         assumeThat(integrationTest).isFalse(); // no matching document in ELN
         assumeThat(documentID).isNotNull();
         DocumentDTO document = signatureClient.signDocument(documentID);
@@ -172,8 +191,8 @@ class SignatureServiceTest extends BaseTest {
     void testGetDocuments() {
         assumeThat(integrationTest).isFalse(); // no matching document in ELN
         assumeThat(documentID).isNotNull();
-        List<DocumentDTO> documents = signatureClient.getDocuments();
-        assertThat(documents).filteredOn(d -> d.getId().equals(documentID)).hasSize(1).first().satisfies(document -> {
+        Page<DocumentDTO> documents = signatureClient.getDocuments(null, SortOrder.EARLIEST, null, Paging.DEFAULT);
+        assertThat(documents.getItems()).filteredOn(d -> d.getId().equals(documentID)).hasSize(1).first().satisfies(document -> {
             assertThat(document.getStatus()).isEqualTo(DocumentStatus.REJECTED);
             assertThat(document.getSignatures()).hasSize(2);
         });
@@ -184,9 +203,12 @@ class SignatureServiceTest extends BaseTest {
     void testDownloadDocument() throws Exception {
         assumeThat(integrationTest).isFalse(); // no matching document in ELN
         assumeThat(documentID).isNotNull();
-        Response content = signatureClient.downloadDocument(documentID);
-        try (FileOutputStream fos = new FileOutputStream("downloaded.pdf")) {
-            fos.write(content.readEntity(byte[].class));
+        try (Response content = signatureClient.downloadDocument(documentID)) {
+            String filename = extractFilename(FeignUtil.getLastResponse().headers().get(HttpHeaders.CONTENT_DISPOSITION));
+            assertThat(filename).isEqualTo("document.pdf");
+            try (FileOutputStream fos = new FileOutputStream(filename)) {
+                fos.write(content.readEntity(byte[].class));
+            }
         }
     }
 }

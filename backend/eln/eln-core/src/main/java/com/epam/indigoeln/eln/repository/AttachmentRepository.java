@@ -1,8 +1,9 @@
 package com.epam.indigoeln.eln.repository;
 
+import com.epam.indigoeln.eln.common.repository.BaseRepository;
 import com.epam.indigoeln.eln.entity.AttachmentEntity;
 import com.epam.indigoeln.eln.model.AttachmentDTO;
-import com.epam.indigoeln.eln.model.EntityType;
+import com.epam.indigoeln.eln.model.ELNEntityType;
 import jakarta.enterprise.context.ApplicationScoped;
 import one.util.streamex.StreamEx;
 
@@ -15,7 +16,7 @@ import java.util.function.Function;
 public class AttachmentRepository extends BaseRepository<AttachmentEntity> {
 
     public AttachmentRepository() {
-        super(EntityType.ATTACHMENT, AttachmentEntity.class);
+        super(ELNEntityType.ATTACHMENT, AttachmentEntity.class);
     }
 
     public AttachmentEntity load(UUID id) {

@@ -47,5 +47,10 @@ export class ApiService<T> {
     return this.httpClient.delete<T>(this.buildUrl(`${url}/${id}`));
   }
 
-  private buildUrl = (str?: string) => `/api/eln/${str || ''}`.replace(/\/\//g, '/').replace(/\/+$/, '');
+  private buildUrl = (str?: string) => {
+    if (str?.startsWith('/api/')) {
+      return str;
+    }
+    return `/api/eln/${str || ''}`.replace(/\/\//g, '/').replace(/\/+$/, '');
+  };
 }

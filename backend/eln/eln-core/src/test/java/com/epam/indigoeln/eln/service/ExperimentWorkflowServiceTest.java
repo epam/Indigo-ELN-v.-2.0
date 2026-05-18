@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.UUID;
 
+import static com.epam.indigoeln.common.util.ContentDispositionUtil.generateContentDisposition;
 import static com.epam.indigoeln.eln.model.ExperimentStatus.*;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -57,8 +58,8 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
     void setUpAll() {
         if (!integrationTest) {
             wireMock.register(WireMock.post(WireMock.urlPathEqualTo("/internalapi/reports/experiment")).willReturn(WireMock.aResponse()
-                    .withHeader(HttpHeaders.CONTENT_DISPOSITION,  "attachment; filename=\"report.pdf\"")
-                    .withBody("contentcontentcontent")
+                    .withHeader(HttpHeaders.CONTENT_DISPOSITION,  generateContentDisposition(true, "report.pdf"))
+                    .withBody("\"content content content\"")
             ));
             noSignersTemplateID = UUID.randomUUID();
             oneSignerTemplateID = UUID.randomUUID();
@@ -343,13 +344,6 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
         } else {
             simulateSignatureUpdate("rejected by " + username, DocumentStatus.REJECTED);
         }
-    }
-
-    private SignatureTemplateDTO createMockTemplateDTO(UUID id, String name) {
-        SignatureTemplateDTO dto = new SignatureTemplateDTO();
-        dto.setId(id);
-        dto.setName(name);
-        return dto;
     }
 
     private void verifySignature(Tuple... tuples) {

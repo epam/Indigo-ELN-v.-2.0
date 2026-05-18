@@ -1,5 +1,6 @@
 package com.epam.indigoeln.compound.service.search.pubchem;
 
+import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
@@ -7,7 +8,6 @@ import com.epam.indigoeln.compound.model.search.SampleSearchResult;
 import com.epam.indigoeln.compound.service.search.CatalogSearchResult;
 import com.epam.indigoeln.compound.service.search.SampleSearchService;
 import com.epam.indigoeln.eln.ELNBaseTest;
-import com.epam.indigoeln.eln.model.Paging;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import io.quarkiverse.wiremock.devservice.ConnectWireMock;

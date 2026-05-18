@@ -513,9 +513,7 @@ public class ReactionCalculator {
         int priority3;
         if (value.getSource().isDefault()) {
             priority1 = 0;
-            // !!! make stable choice between defaults
-            // !!! use bitset to track sources, use position in this bitmap
-            priority3 = 0;
+            priority3 = x.getName().hashCode(); // make stable choice between defaults when performing redo
         } else if (value.getSource().isUserEntered()) {
             priority1 = 1;
             priority3 = value.getSource().getPriority(); // older edits is less valuable

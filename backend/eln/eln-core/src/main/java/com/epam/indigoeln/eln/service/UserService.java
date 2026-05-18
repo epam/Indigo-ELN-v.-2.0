@@ -2,6 +2,8 @@ package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.config.UserHolder;
 import com.epam.indigoeln.common.exception.EntityNotFoundException;
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.eln.entity.RoleEntity;
 import com.epam.indigoeln.eln.entity.UserEntity;
@@ -107,7 +109,7 @@ public class UserService {
         Preconditions.checkArgument(id != null || username != null);
         UserInfo user = id != null ? userRepository.findByID(id) : userRepository.findByUsername(username);
         if (user == null) {
-            throw new EntityNotFoundException(EntityType.USER, firstNotNull(id, username));
+            throw new EntityNotFoundException(ELNEntityType.USER, firstNotNull(id, username));
         }
         return user;
     }

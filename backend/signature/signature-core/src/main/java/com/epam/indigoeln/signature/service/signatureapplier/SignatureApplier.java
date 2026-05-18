@@ -9,6 +9,7 @@ import com.lowagie.text.pdf.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -51,7 +52,7 @@ public class SignatureApplier {
         String alias = ks.aliases().nextElement();
         PrivateKey pk = (PrivateKey) ks.getKey(alias, keyStoragePassword.toCharArray());
         Certificate[] chain = ks.getCertificateChain(alias);
-        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+        Security.addProvider(new BouncyCastleProvider());
 
         return stampDocument(documentContent, signatureBlockEntity, signatureIndex, getSignatureApprovedText(signatureBlockEntity), signatureApprovedImage, pk, chain);
     }

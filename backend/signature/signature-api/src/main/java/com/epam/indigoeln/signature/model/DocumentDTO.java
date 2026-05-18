@@ -36,5 +36,8 @@ public class DocumentDTO {
     private UserRef author;
 
     @NotNull
+    private String filename;
+
+    @NotNull
     private List<DocumentSignatureDTO> signatures;
 }

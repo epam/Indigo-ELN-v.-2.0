@@ -1,5 +1,8 @@
 package com.epam.indigoeln.eln.api;
 
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.common.model.UploadForm;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.quarkus.cachecontrol.Cached;
@@ -38,13 +41,11 @@ public interface ExperimentAPI extends BaseAPI {
 
     @GET
     @Path("/projects/{projectId}/experiments")
-    Page<ExperimentDTO> getProjectExperiments(@PathParam("projectId") UUID projectId, @QueryParam("search") @Nullable String search,
-            @QueryParam("sort") @Nullable SortOrder sort, @QueryParam("createdByMe") @Nullable Boolean createdByMe, @BeanParam Paging paging);
+    Page<ExperimentDTO> getProjectExperiments(@PathParam("projectId") UUID projectId, @QueryParam("search") @Nullable String search, @QueryParam("sort") @Nullable SortOrder sort, @QueryParam("createdByMe") @Nullable Boolean createdByMe, @BeanParam Paging paging);
 
     @GET
     @Path("/notebooks/{notebookId}/experiments")
-    Page<ExperimentDTO> getNotebookExperiments(@PathParam("notebookId") UUID notebookId, @QueryParam("search") @Nullable String search,
-            @QueryParam("sort") @Nullable SortOrder sort, @QueryParam("createdByMe") @Nullable Boolean createdByMe, @BeanParam Paging paging);
+    Page<ExperimentDTO> getNotebookExperiments(@PathParam("notebookId") UUID notebookId, @QueryParam("search") @Nullable String search, @QueryParam("sort") @Nullable SortOrder sort, @QueryParam("createdByMe") @Nullable Boolean createdByMe, @BeanParam Paging paging);
 
     @GET
     @Path("/experiments/marked")

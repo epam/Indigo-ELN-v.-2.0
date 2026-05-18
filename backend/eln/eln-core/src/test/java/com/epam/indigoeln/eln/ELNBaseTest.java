@@ -1,5 +1,8 @@
 package com.epam.indigoeln.eln;
 
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.eln.api.ELNInternalClient;
 import com.epam.indigoeln.eln.client.*;

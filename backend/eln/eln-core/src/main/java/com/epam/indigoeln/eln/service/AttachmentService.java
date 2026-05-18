@@ -6,7 +6,7 @@ import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.mapper.AttachmentMapper;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.model.AttachmentDTO;
-import com.epam.indigoeln.eln.model.EntityType;
+import com.epam.indigoeln.eln.model.ELNEntityType;
 import com.epam.indigoeln.eln.repository.AttachmentRepository;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
@@ -18,6 +18,7 @@ import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
@@ -28,6 +29,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+import static com.epam.indigoeln.common.util.ContentDispositionUtil.generateContentDisposition;
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 
 @Slf4j
@@ -171,7 +173,8 @@ public class AttachmentService {
 
     private Response doDownloadAttachment(AttachmentEntity attachment) {
         return Response.ok(attachment.getContent())
-                .header("Content-Disposition", "attachment; filename=" + attachment.getName()).build();
+                .header(HttpHeaders.CONTENT_DISPOSITION, generateContentDisposition(true, attachment.getName()))
+                .build();
     }
 
     public void deleteProjectAttachment(UUID projectId, UUID attachmentId) {
@@ -211,6 +214,6 @@ public class AttachmentService {
             }
         }
         log.error("Attachment {} doesn't belong to requested parent entity {}", attachment, expected);
-        throw new EntityNotFoundException(EntityType.ATTACHMENT, attachment.getId());
+        throw new EntityNotFoundException(ELNEntityType.ATTACHMENT, attachment.getId());
     }
 }

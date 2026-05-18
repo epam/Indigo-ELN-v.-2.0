@@ -1,10 +1,14 @@
 package com.epam.indigoeln.eln.controller;
 
 
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.eln.api.BaseAPI;
 import com.epam.indigoeln.eln.api.UserAPI;
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.model.CurrentUserDTO;
+import com.epam.indigoeln.eln.model.UserDTO;
+import com.epam.indigoeln.eln.model.UserRequest;
 import com.epam.indigoeln.eln.service.UserService;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
