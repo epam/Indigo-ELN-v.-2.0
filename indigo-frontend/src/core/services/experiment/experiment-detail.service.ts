@@ -49,6 +49,16 @@ export class ExperimentDetailService {
 
   // Update methods
   updateDataModel(mutation: Mutation): Observable<MutationResponse> {
+    return this.updateDataModel2(
+      this.service.request<MutationResponse>(
+        'post',
+        `experiments/${this.currentId()}/mutate4?revision=${this.experimentDetail().revision}`,
+        mutation,
+      ),
+    );
+  }
+
+  updateDataModel2(operation: Observable<MutationResponse>): Observable<MutationResponse> {
     const id = this.currentId();
 
     if (!id) {
@@ -60,46 +70,40 @@ export class ExperimentDetailService {
 
     this.isUpdating.set(true);
 
-    return this.service
-      .request<MutationResponse>(
-        'post',
-        `experiments/${id}/mutate4?revision=${this.experimentDetail().revision}`,
-        mutation,
-      )
-      .pipe(
-        tap({
-          next: (response) => {
-            const previous = this.experimentDetail();
-            const [updated, updatedNodes] = JSON_PATCHER.apply(previous, response.patch);
-            this.experimentDetail.set(updated as ExperimentDetail);
-            this.lastLoadedDetail.set(structuredClone(updated) as ExperimentDetail);
-            this.updatedNodes.set(updatedNodes);
-            if (response.reactionImages) {
-              this.updatedReactionImages.update((map) => {
-                const map1 = new Map(map.entries());
-                for (const [anchor, image] of Object.entries(response.reactionImages)) {
-                  map1.set(anchor, image);
-                }
-                return map1;
+    return operation.pipe(
+      tap({
+        next: (response) => {
+          const previous = this.experimentDetail();
+          const [updated, updatedNodes] = JSON_PATCHER.apply(previous, response.patch);
+          this.experimentDetail.set(updated as ExperimentDetail);
+          this.lastLoadedDetail.set(structuredClone(updated) as ExperimentDetail);
+          this.updatedNodes.set(updatedNodes);
+          if (response.reactionImages) {
+            this.updatedReactionImages.update((map) => {
+              const map1 = new Map(map.entries());
+              for (const [anchor, image] of Object.entries(response.reactionImages)) {
+                map1.set(anchor, image);
+              }
+              return map1;
+            });
+          }
+          this.isUpdating.set(false);
+          if (response.messages) {
+            for (const message of response.messages) {
+              this.notificationService.notify({
+                type: NotificationType.Info,
+                isInline: true,
+                message: message,
               });
             }
-            this.isUpdating.set(false);
-            if (response.messages) {
-              for (const message of response.messages) {
-                this.notificationService.notify({
-                  type: NotificationType.Info,
-                  isInline: true,
-                  message: message,
-                });
-              }
-            }
-          },
-          error: () => {
-            this.isUpdating.set(false);
-            this.experimentDetail.set(this.lastLoadedDetail()); // revert to last known server state
-          },
-        }),
-      );
+          }
+        },
+        error: () => {
+          this.isUpdating.set(false);
+          this.experimentDetail.set(this.lastLoadedDetail()); // revert to last known server state
+        },
+      }),
+    );
   }
 
   executeWorkflow(operation: string, params?: Record<string, string>): Observable<ExperimentDetail> {

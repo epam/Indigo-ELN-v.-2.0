@@ -185,7 +185,13 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
                 IndigoMolecule molecule = indigoAPI.get().loadMolecule(effectiveMolfile);
                 return compoundService.virtualCompoundRef(molecule, effectiveStereoisomerCode, effectiveSaltCode, effectiveSaltEQ);
             }
-            case CompoundRef.Unknown u -> throw new InvalidRequestException("Cannot set saltCode/saltEQ/stereoisomerCode/molfile for unknown compound");
+            case CompoundRef.Unknown u -> {
+                if (molfile != null) {
+                    IndigoMolecule molecule = indigoAPI.get().loadMolecule(molfile);
+                    return compoundService.virtualCompoundRef(molecule, null, null, null);
+                }
+                throw new InvalidRequestException("Cannot set saltCode/saltEQ/stereoisomerCode for unknown compound");
+            }
         }
     }
 

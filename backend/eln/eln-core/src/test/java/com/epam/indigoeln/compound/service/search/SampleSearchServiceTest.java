@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
+import static com.epam.indigoeln.common.util.ModelUtil.loadResourceAsString;
 import static com.epam.indigoeln.compound.model.search.SearchCatalog.ELN;
 import static com.epam.indigoeln.compound.model.search.SearchCatalog.MY_MATERIALS;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
@@ -172,7 +173,7 @@ public class SampleSearchServiceTest extends ELNBaseTest {
 
     @Test
     void testPaginationAndTotalItems() {
-        String molFile = new String(loadResource(getClass(), "/ring-substructure.mol"));
+        String molFile = loadResourceAsString(getClass(), "/ring-substructure.mol");
         SearchCatalog nextCatalog = null;
         String nextAfter = null;
         boolean hasNext = true;

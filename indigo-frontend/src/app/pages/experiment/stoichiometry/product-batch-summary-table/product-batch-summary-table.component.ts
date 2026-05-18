@@ -1,4 +1,5 @@
 import { Component, computed, inject, input } from '@angular/core';
+import { Observable, switchMap } from 'rxjs';
 import { Reaction, ReactionOutput, ReactionOutputSample } from '@core/types/entities/experiments/experiment.i';
 import {
   MolUnit,
@@ -20,6 +21,8 @@ import { MatIcon } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { NotificationService } from '@core/services/notification/notification.service';
 import { NotificationType } from '@core/types/notification.i';
+import { MatTooltip } from '@angular/material/tooltip';
+import { ApiService } from '@core/services/api.service';
 
 interface OutputSampleRow {
   output: ReactionOutput;
@@ -29,18 +32,16 @@ interface OutputSampleRow {
 @Component({
   selector: 'eln-product-batch-summary-table',
   templateUrl: './product-batch-summary-table.component.html',
-  imports: [MatSnackBarModule, EditableDataTableComponent, ButtonComponent, MatIcon, MatMenuModule],
+  imports: [MatSnackBarModule, EditableDataTableComponent, ButtonComponent, MatIcon, MatMenuModule, MatTooltip],
 })
 export class ProductBatchSummaryTableComponent {
   private experimentDetailService = inject(ExperimentDetailService);
   private snackBar = inject(MatSnackBar);
   private notificationService = inject(NotificationService);
+  private apiService = inject(ApiService);
 
   reaction = input<Reaction | null>(null);
   experimentId = input<string | null>(null);
-
-  // TODO: Remove mock data once backend provides real output samples
-  // private mockOutputSamples = computed<OutputSampleRow[]>(() => MOCK_OUTPUT_SAMPLES);
 
   dataSource = computed(() => {
     // Use real data from reaction outputs
@@ -48,7 +49,7 @@ export class ProductBatchSummaryTableComponent {
     return outputs?.flatMap((output) => output.samples.map((sample) => ({ output, sample })));
   });
 
-  linkableProducts = computed(() => this.reaction()?.outputs ?? []);
+  linkableProducts = computed(() => (this.reaction()?.outputs ?? []).filter((p) => p.intended));
 
   readonly columns = computed<ColumnConfig<OutputSampleRow>[]>(() => [
     {
@@ -206,12 +207,15 @@ export class ProductBatchSummaryTableComponent {
       field: () => null,
       iconClasses: () => ['indicon-link', 'text-[20px]', 'text-blue-600'],
       tooltip: () => 'Sync with Products',
+      editable: (row: OutputSampleRow) => !row.output.intended,
       onSave: (row: OutputSampleRow) => {
-        // TODO: Implement sync with products functionality
-        console.log('TODO: Sync with products', row.sample.anchor);
-        this.snackBar.open('Sync functionality not yet implemented', 'Close', {
-          duration: 3000,
-        });
+        this.experimentDetailService
+          .updateDataModel({
+            type: 'SetOutputRowIntended',
+            anchor: row.output.anchor,
+            intended: true,
+          })
+          .subscribe({});
       },
     },
     {
@@ -225,6 +229,7 @@ export class ProductBatchSummaryTableComponent {
         row.sample.registrationStatus in [null, SampleRegistrationStatus.FAILED] ? 'text-green-600' : 'text-green-100',
       ],
       tooltip: () => 'Register Sample',
+      editable: (row: OutputSampleRow) => row.sample.registrationStatus == null,
       onSave: (row: OutputSampleRow) => {
         const error = (() => {
           switch (row.sample.registrationStatus) {
@@ -305,27 +310,65 @@ export class ProductBatchSummaryTableComponent {
       .subscribe({});
   }
 
-  addNewRow() {
-    const reaction = this.reaction();
-
-    if (!reaction) {
-      this.snackBar.open('No reaction available', 'Close', {
-        duration: 3000,
-      });
-      return;
-    }
-
+  addNoProductBatch() {
     this.experimentDetailService
       .updateDataModel({
         type: 'AddNoProductSample',
-        anchor: reaction.anchor,
+        anchor: this.reaction().anchor,
       })
-      .subscribe({
-        error: () => {
-          this.snackBar.open('Failed to add new batch.', 'Close', {
-            duration: 4000,
-          });
-        },
-      });
+      .subscribe({});
+  }
+
+  importSDF() {
+    const reaction = this.reaction();
+    const experimentId = this.experimentId();
+    if (!reaction || !experimentId) return;
+
+    this.openFileDialog('.sdf')
+      .pipe(
+        switchMap((file) => {
+          const formData = new FormData();
+          formData.append('file', file);
+          return this.experimentDetailService.updateDataModel2(
+            this.apiService.request(
+              'post',
+              `experiments/${experimentId}/datamodel/reactions/${reaction.anchor}/importSDF`,
+              formData,
+            ),
+          );
+        }),
+      )
+      .subscribe({});
+  }
+
+  private openFileDialog(accept: string): Observable<File> {
+    return new Observable((observer) => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = accept;
+
+      const onChange = () => {
+        const file = input.files?.[0];
+        if (file) {
+          observer.next(file);
+        }
+        observer.complete();
+      };
+
+      // Fired when focus returns to the window after the picker closes (with or without a selection).
+      const onCancel = () => {
+        observer.complete();
+      };
+
+      input.addEventListener('change', onChange);
+      window.addEventListener('focus', onCancel, { once: true });
+
+      input.click();
+
+      return () => {
+        input.removeEventListener('change', onChange);
+        window.removeEventListener('focus', onCancel);
+      };
+    });
   }
 }

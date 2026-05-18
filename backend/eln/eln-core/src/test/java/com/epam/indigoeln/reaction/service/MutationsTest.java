@@ -26,6 +26,7 @@ import java.util.Set;
 
 import static com.epam.indigoeln.common.model.Paging.DEFAULT_PAGE_SIZE;
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
+import static com.epam.indigoeln.common.util.ModelUtil.loadResourceAsString;
 import static com.epam.indigoeln.compound.model.search.SearchCatalog.ELN;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -675,6 +676,13 @@ public class MutationsTest extends MutationsTestBase {
                 () -> experimentClient.importSDF(experiment.getId(), reaction.getAnchor(), ClientUtil.createFileUpload("file.sdf", loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"))),
                 () -> "Import SDF"
         );
+    }
+
+    @Test
+    void testAddSampleAndMakeItIntended() {
+        applyMutation(new ReactionMutation.AddNoProductSample(reaction.getAnchor()));
+        applyMutation(new ReactionOutputSampleMutation.SetOutputMolfile(output1Sample1.getAnchor(), loadResourceAsString(getClass(), "/ring-substructure.mol")));
+        applyMutation(new ReactionOutputMutation.SetOutputRowIntended(output1.getAnchor(), true));
     }
 
     private void loadScheme() {

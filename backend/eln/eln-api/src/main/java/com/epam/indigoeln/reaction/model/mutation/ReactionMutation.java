@@ -65,6 +65,16 @@ public interface ReactionMutation extends Mutation {
         }
     }
 
+    record AddNoProductSample (
+            @NotNull ReactionAnchor anchor,
+            @Nullable OutputAnchor createdOutputAnchor,
+            @Nullable OutputSampleAnchor createdSampleAnchor
+    ) implements ReactionMutation {
+        public AddNoProductSample(ReactionAnchor anchor) {
+            this(anchor, null, null);
+        }
+    }
+
     record ImportSDF (
         @NotNull ReactionAnchor anchor,
         @NotNull List<@NotNull UUID> compoundIDs,

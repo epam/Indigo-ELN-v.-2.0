@@ -221,6 +221,32 @@ class AddInputHandler extends AbstractReactionMutationHandler<ReactionMutation.A
 }
 
 @Dependent
+@MutationHandlerFor(ReactionMutation.AddNoProductSample.class)
+class AddNoProductSampleHandler extends AbstractReactionMutationHandler<ReactionMutation.AddNoProductSample> {
+
+    @Inject
+    CompoundService compoundService;
+
+    @Override
+    protected ReactionMutation.AddNoProductSample doPrepareMutation(ExperimentEntity entity, ReactionMutation.AddNoProductSample mutation, ExperimentMutationContext context) {
+        return new ReactionMutation.AddNoProductSample(
+                mutation.anchor(),
+                mutation.createdOutputAnchor() != null ? mutation.createdOutputAnchor() : OutputAnchor.create(),
+                mutation.createdSampleAnchor() != null ? mutation.createdSampleAnchor() : OutputSampleAnchor.create()
+        );
+    }
+
+    @Override
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddNoProductSample mutation, ExperimentMutationContext context) {
+        CompoundRef compoundRef = compoundService.unknownCompoundRef();
+        ReactionOutput row = ReactionOutput.create(reaction, ReactionOutputType.BY_PRODUCT, false, reaction.generateNextProductName(), mutation.createdOutputAnchor(), compoundRef, EnteredValue.DEFAULT_ONE);
+        ReactionOutputSample.create(row, experiment.getName(), mutation.createdSampleAnchor(), EnteredValue.DEFAULT_ONE_HUNDRED);
+
+        return new MutationResult("Add empty batch");
+    }
+}
+
+@Dependent
 @MutationHandlerFor(ReactionMutation.ResolveInputs.class)
 class ResolveInputsHandler extends AbstractReactionMutationHandler<ReactionMutation.ResolveInputs> {
 
@@ -281,6 +307,7 @@ class ImportSDFHandler extends AbstractReactionMutationHandler<ReactionMutation.
             ReactionOutputSample.create(output, experiment.getName(), sampleAnchorIt.next(), EnteredValue.DEFAULT_ONE_HUNDRED);
         }
         adjustLimitingInput(reaction);
-        return new MutationResult("SDF imported, " + mutation.compoundIDs().size() + " samples added");
+        context.getResponse().getMessages().add(mutation.compoundIDs().size() + " samples imported from SDF");
+        return new MutationResult("Import SDF (" + mutation.compoundIDs().size() + " samples)");
     }
 }

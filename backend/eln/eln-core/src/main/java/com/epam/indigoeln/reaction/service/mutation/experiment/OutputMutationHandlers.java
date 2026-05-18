@@ -69,3 +69,14 @@ class SetOutputRowChemicalNameHandler extends AbstractReactionOutputMutationHand
         return new MutationResult(formatSetterSummary("chemical name", mutation.chemicalName()));
     }
 }
+
+@Dependent
+@MutationHandlerFor(ReactionOutputMutation.SetOutputRowIntended.class)
+class SetOutputRowIntended extends AbstractReactionOutputMutationHandler<ReactionOutputMutation.SetOutputRowIntended> {
+
+    @Override
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputRowIntended mutation, ExperimentMutationContext context) {
+        row.setIntended(mutation.intended());
+        return new MutationResult("Product marked as " + (mutation.intended() ? "intended" : "not intended"));
+    }
+}

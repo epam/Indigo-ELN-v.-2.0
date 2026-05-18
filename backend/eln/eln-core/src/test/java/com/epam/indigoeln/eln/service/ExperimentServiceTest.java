@@ -28,7 +28,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 import static com.epam.indigoeln.common.util.ContentDispositionUtil.extractFilename;
-import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
+import static com.epam.indigoeln.common.util.ModelUtil.loadResourceAsString;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -307,7 +307,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         response = experimentClient.getReactionPicture(experiment.getId(), reaction.getAnchor(), experiment.getRevision());
         assertThat(response).containsExactly(ExperimentService.EMPTY_PICTURE);
 
-        String rxnFile = new String(loadResource(getClass(), "/reaction.rxn"));
+        String rxnFile = loadResourceAsString(getClass(), "/reaction.rxn");
         experimentClient.mutateExperimentModel(experiment.getId(), new MutateModelForm(experiment.getModel(), new ReactionMutation.SetScheme(model.getReactions().getFirst().getAnchor(), rxnFile)));
 
         model = experimentClient.getExperiment(experiment.getId()).getModel();

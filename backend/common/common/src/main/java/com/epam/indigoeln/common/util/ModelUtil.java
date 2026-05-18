@@ -6,6 +6,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -69,6 +70,13 @@ public class ModelUtil {
     public byte[] loadResource(Class<?> klass, String resourceName) {
         try (InputStream is = loadResourceAsStream(klass, resourceName)) {
             return is.readAllBytes();
+        }
+    }
+
+    @SneakyThrows
+    public String loadResourceAsString(Class<?> klass, String resourceName) {
+        try (InputStream is = loadResourceAsStream(klass, resourceName)) {
+            return new String(is.readAllBytes(), StandardCharsets.UTF_8);
         }
     }
 
