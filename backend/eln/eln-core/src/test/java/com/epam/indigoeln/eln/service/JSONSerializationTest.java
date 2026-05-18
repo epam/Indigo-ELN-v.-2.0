@@ -3,6 +3,8 @@ package com.epam.indigoeln.eln.service;
 import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.ProjectEditRequest;
+import com.epam.indigoeln.eln.model.TemplateComponent;
+import com.epam.indigoeln.eln.model.TemplateTab;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.EnteredValueSource;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
@@ -47,7 +49,7 @@ public class JSONSerializationTest {
 
     @ParameterizedTest
     @MethodSource("mappers")
-    void testSerializeUserRef(MapperType serializer, MapperType deserializer) throws Exception {
+    void testSerializeUserRef(MapperType serializer, MapperType deserializer) {
         UserRef userRef = ELNBaseTest.JOHN_USER_REF;
         String serialized = serialize(serializer, userRef);
         assertThat(serialized).isEqualToIgnoringWhitespace("{\"username\":\"john\",\"displayName\":\"John Doe\"}");
@@ -58,7 +60,7 @@ public class JSONSerializationTest {
 
     @ParameterizedTest
     @MethodSource("mappers")
-    void testSerializeProjectEditRequest(MapperType serializer, MapperType deserializer) throws Exception {
+    void testSerializeProjectEditRequest(MapperType serializer, MapperType deserializer) {
         // name - update, keywords - set to null, literature - not changed
         ProjectEditRequest request = new ProjectEditRequest(Optional.of("name_new"), Optional.empty(), null, null);
         String serialized = serialize(serializer, request);
@@ -71,7 +73,7 @@ public class JSONSerializationTest {
 
     @ParameterizedTest
     @MethodSource("mappers")
-    void testSerializeEnteredValue(MapperType serializer, MapperType deserializer) throws Exception {
+    void testSerializeEnteredValue(MapperType serializer, MapperType deserializer) {
         EnteredValue<WeightUnit> value = EnteredValue.userEntered("5.00", WeightUnit.G, 1);
         String serialized = serialize(serializer, value);
         assertThat(serialized).isEqualToIgnoringWhitespace("""
@@ -85,7 +87,7 @@ public class JSONSerializationTest {
 
     @ParameterizedTest
     @MethodSource("mappers")
-    void testSerializeByteArray(MapperType serializer, MapperType deserializer) throws Exception {
+    void testSerializeByteArray(MapperType serializer, MapperType deserializer) {
         ByteData value = new ByteData(new byte[] {0, 1, 2});
         String serialized = serialize(serializer, value);
         assertThat(serialized).startsWith("{\"data\":");
@@ -95,12 +97,34 @@ public class JSONSerializationTest {
 
     @ParameterizedTest
     @MethodSource("mappers")
-    void testSerializeDate(MapperType serializer, MapperType deserializer) throws Exception {
-        ZonedDateTime value = ZonedDateTime.of(2026, 3, 25, 13, 00, 00, 00, ZoneId.of("UTC"));
+    void testSerializeDate(MapperType serializer, MapperType deserializer) {
+        ZonedDateTime value = ZonedDateTime.of(2026, 3, 25, 13, 0, 0, 0, ZoneId.of("UTC"));
         String serialized = serialize(serializer, value);
         assertThat(serialized).isEqualTo("\"2026-03-25T13:00:00Z\"");
         ZonedDateTime value2 = deserialize(deserializer, serialized, ZonedDateTime.class);
         assertThat(value2).isEqualTo(value);
+    }
+
+    @ParameterizedTest
+    @MethodSource("mappers")
+    void testSerializeTemplateTabs(MapperType serializer, MapperType deserializer) {
+        List<TemplateTab> list = List.of(
+                new TemplateTab("Tab 1", List.of(
+                        new TemplateComponent.Batches(),
+                        new TemplateComponent.ExperimentDetails(),
+                        new TemplateComponent.ExperimentDescription()
+                )),
+                new TemplateTab("Tab 2", List.of(
+                        new TemplateComponent.StoichiometryTable(false, true, false)
+                )),
+                new TemplateTab("Tab 3", List.of(
+                        new TemplateComponent.Attachments()
+                ))
+        );
+
+        String serialized = serialize(serializer, list);
+        List<TemplateTab> list2 = deserialize(deserializer, serialized, new TypeReference<>() {});
+        assertThat(list2).isEqualTo(list);
     }
 
     ObjectMapper getMapper(MapperType mapperType) {

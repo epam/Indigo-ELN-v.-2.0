@@ -7,6 +7,8 @@ import { NotificationService } from '@core/services/notification/notification.se
 import { NotificationType } from '@core/types/notification.i';
 import { Reaction } from '@core/types/entities/experiments/experiment.i';
 import { JSON_PATCHER } from '@core/utils/json-patcher';
+import { Template } from '@core/types/entities/template.i';
+import { switchMap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -18,6 +20,7 @@ export class ExperimentDetailService {
   // Signals for experiment detail state
   readonly experimentDetail = signal<ExperimentDetail | null>(null);
   readonly experimentModel = computed(() => this.experimentDetail()?.model);
+  readonly experimentTemplate = signal<Template | null>(null);
   readonly lastLoadedDetail = signal<ExperimentDetail | null>(null);
   readonly isLoading = signal<boolean>(false);
   readonly hasError = signal<boolean>(false);
@@ -37,13 +40,19 @@ export class ExperimentDetailService {
 
     this.service
       .request<ExperimentDetail>('get', `experiments/${id}`)
-      .pipe(finalize(() => this.isLoading.set(false)))
-      .subscribe({
-        next: (exp) => {
+      .pipe(
+        finalize(() => this.isLoading.set(false)),
+        switchMap((exp) => {
           this.experimentDetail.set(exp);
           this.lastLoadedDetail.set(structuredClone(exp));
-        },
-        error: () => this.hasError.set(true),
+          return this.service.request<Template>('get', `/api/eln/templates/${exp.templateId}`);
+        }),
+        tap({
+          error: () => this.hasError.set(true),
+        }),
+      )
+      .subscribe((template) => {
+        this.experimentTemplate.set(template);
       });
   }
 
@@ -59,15 +68,6 @@ export class ExperimentDetailService {
   }
 
   updateDataModel2(operation: Observable<MutationResponse>): Observable<MutationResponse> {
-    const id = this.currentId();
-
-    if (!id) {
-      console.warn('No experiment ID in context');
-      return new Observable((observer) => {
-        observer.error(new Error('No experiment ID available'));
-      });
-    }
-
     this.isUpdating.set(true);
 
     return operation.pipe(

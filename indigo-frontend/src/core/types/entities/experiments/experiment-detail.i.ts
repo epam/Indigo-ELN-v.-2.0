@@ -4,7 +4,7 @@ import { ACLEntry } from '../acl.i';
 import { ExperimentStatus } from '@/core/enums/experiment-status.enum';
 import { ExperimentModel } from '@core/types/entities/experiments/experiment.i';
 import { UserRef } from '@core/types/entities/user.i';
-import { ExperimentRef } from '@core/types/entities/experiments/experiment-shared.i';
+import { ExperimentRef, UUID } from '@core/types/entities/experiments/experiment-shared.i';
 import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
 
 export interface TherapeuticArea {
@@ -45,6 +45,8 @@ export interface ExperimentDetail extends BaseEntity {
   attachments?: Attachment[];
   acl?: ACLEntry[];
   model: ExperimentModel;
+  projectId: UUID;
   projectName: string;
+  notebookId: UUID;
   notebookName: string;
 }

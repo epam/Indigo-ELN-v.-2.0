@@ -1,28 +1,5 @@
-<cdk-accordion>
-  <cdk-accordion-item #accordionItem="cdkAccordionItem" [expanded]="false">
-    <eln-card classList="p-4">
-      <button
-        class="flex items-center gap-2 w-full bg-none border-none p-0 text-left hover:cursor-pointer"
-        (click)="accordionItem.toggle()"
-        type="button"
-      >
-        <span class="text-lg flex items-center">
-          <em
-            [class.indicon-chevron_up]="accordionItem.expanded"
-            [class.indicon-chevron_down]="!accordionItem.expanded"
-          >
-          </em>
-        </span>
-        <h2 class="font-semibold text-md">Description</h2>
-      </button>
-
-      @if (accordionItem.expanded) {
-        <div class="border-t-1 border-neutral-300 mt-[19px] pt-[12px]">
-          <form [formGroup]="form">
-            <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
-          </form>
-        </div>
-      }
-    </eln-card>
-  </cdk-accordion-item>
-</cdk-accordion>
+<div class="border-t-1 border-neutral-300 mt-[19px] pt-[12px]">
+  <form [formGroup]="form">
+    <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+  </form>
+</div>

@@ -1,6 +1,5 @@
 import { Component, computed, DestroyRef, effect, inject, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CardComponent } from '@core/components/common/card/card.component';
 import { ExperimentDetailService } from '@core/services/experiment/experiment-detail.service';
 import { CdkAccordionModule } from '@angular/cdk/accordion';
 import { FormlyFieldConfig, FormlyModule } from '@ngx-formly/core';
@@ -9,17 +8,17 @@ import { BuiltInDictionary, DictionaryItemRef } from '@core/types/entities/dicti
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EMPTY, switchMap } from 'rxjs';
 import { ExperimentDetail, ExperimentEditRequest } from '@core/types/entities/experiments/experiment-detail.i';
-import { ExperimentRef } from '@core/types/entities/experiments/experiment-shared.i';
+import { ExperimentRef, UUID } from '@core/types/entities/experiments/experiment-shared.i';
 
 @Component({
   selector: 'eln-experiment-details',
   standalone: true,
-  imports: [CommonModule, CardComponent, CdkAccordionModule, FormlyModule, ReactiveFormsModule],
+  imports: [CommonModule, CdkAccordionModule, FormlyModule, ReactiveFormsModule],
   templateUrl: './experiment-details.component.html',
   styleUrl: './experiment-details.component.scss',
 })
 export class ExperimentDetailsComponent {
-  experimentId = input.required<string>();
+  experimentId = input.required<UUID>();
 
   private experimentDetailService = inject(ExperimentDetailService);
   private destroyRef = inject(DestroyRef);

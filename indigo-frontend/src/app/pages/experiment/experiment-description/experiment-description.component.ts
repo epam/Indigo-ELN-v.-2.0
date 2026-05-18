@@ -1,5 +1,4 @@
 import { Component, DestroyRef, effect, inject, input } from '@angular/core';
-import { CardComponent } from '@core/components/common/card/card.component';
 import { ExperimentDetailService } from '@core/services/experiment/experiment-detail.service';
 import { CdkAccordionModule } from '@angular/cdk/accordion';
 import { FormlyFieldConfig, FormlyModule } from '@ngx-formly/core';
@@ -7,15 +6,16 @@ import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EMPTY, switchMap } from 'rxjs';
 import { ExperimentDetail } from '@core/types/entities/experiments/experiment-detail.i';
+import { UUID } from '@core/types/entities/experiments/experiment-shared.i';
 
 @Component({
   selector: 'eln-experiment-description',
   standalone: true,
-  imports: [CardComponent, CdkAccordionModule, FormlyModule, ReactiveFormsModule],
+  imports: [CdkAccordionModule, FormlyModule, ReactiveFormsModule],
   templateUrl: './experiment-description.component.html',
 })
 export class ExperimentDescriptionComponent {
-  experimentId = input.required<string>();
+  experimentId = input.required<UUID>();
 
   private experimentDetailService = inject(ExperimentDetailService);
   private destroyRef = inject(DestroyRef);

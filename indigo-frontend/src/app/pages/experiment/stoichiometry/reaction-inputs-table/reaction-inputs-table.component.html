@@ -3,15 +3,19 @@
   <div class="flex justify-between items-center gap-3">
     Significant Figures :
     <eln-select
-      [items]="items()"
+      [items]="significantFiguresOptions()"
       [placeholder]="''"
-      [ngModel]="experimentModel()?.significantFigures?.toString()"
+      [ngModel]="model().significantFigures.toString()"
       (selectionChange)="onSignificantFiguresChange($event)"
     >
     </eln-select>
 
-    <eln-button (click)="addNewRow()" variant="grey">
-      <mat-icon class="text-md">add</mat-icon>
+    <eln-button (click)="addMaterial()" variant="grey" matTooltip="Add material">
+      <em class="indicon-plus"></em>
+    </eln-button>
+
+    <eln-button (click)="addNewRow()" variant="grey" matTooltip="Add empty row">
+      <em class="indicon-add"></em>
     </eln-button>
   </div>
 </div>
