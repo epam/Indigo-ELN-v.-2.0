@@ -1,6 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { ApiService } from '@/core/services/api.service';
-import { ExperimentDetail } from '@core/types/entities/experiments/experiment-detail.i';
+import { ExperimentDetail, ExperimentEditRequest } from '@core/types/entities/experiments/experiment-detail.i';
 import { Mutation, MutationResponse, ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
 import { finalize, Observable, tap } from 'rxjs';
 import { NotificationService } from '@core/services/notification/notification.service';
@@ -102,6 +102,16 @@ export class ExperimentDetailService {
           this.isUpdating.set(false);
           this.experimentDetail.set(this.lastLoadedDetail()); // revert to last known server state
         },
+      }),
+    );
+  }
+
+  editExperiment(patch: ExperimentEditRequest): Observable<ExperimentDetail> {
+    const id = this.currentId();
+    return this.service.request<ExperimentDetail>('patch', `experiments/${id}`, patch).pipe(
+      tap((updated) => {
+        this.experimentDetail.set(updated);
+        this.lastLoadedDetail.set(structuredClone(updated));
       }),
     );
   }

@@ -1,2 +1,56 @@
-<h1>=== EXPERIMENT DETAILS COMPONENT ===</h1>
-<formly-form [model]="experiment" [fields]="fields" [form]="form" />
+<cdk-accordion>
+  <cdk-accordion-item #accordionItem="cdkAccordionItem" [expanded]="false">
+    <eln-card classList="p-4">
+      <button
+        class="flex items-center gap-2 w-full bg-none border-none p-0 text-left hover:cursor-pointer"
+        (click)="accordionItem.toggle()"
+        type="button"
+      >
+        <span class="text-lg flex items-center">
+          <em
+            [class.indicon-chevron_up]="accordionItem.expanded"
+            [class.indicon-chevron_down]="!accordionItem.expanded"
+          >
+          </em>
+        </span>
+        <h2 class="font-semibold text-md">Experiment Details</h2>
+      </button>
+
+      @if (accordionItem.expanded) {
+        <div class="grid grid-cols-3 border-t-1 border-neutral-300 mt-[19px] pt-[12px]">
+          <div class="col-span-2 pr-[16px] relative">
+            <form
+              [formGroup]="form"
+              class="after:absolute after:content-[] after:border after:border-neutral-300 after:h-full after:left-full after:top-0"
+            >
+              <formly-form [form]="form" , [fields]="fields" [model]="model"> </formly-form>
+            </form>
+          </div>
+          <div class="flex flex-col pl-[12px] gap-[16px]">
+            <div class="flex flex-col gap-[4px]">
+              <span class="info-title">Experiment Name</span>
+              <input class="flex" />
+              <span class="info-desc">{{ experiment().name }}</span>
+            </div>
+            <div class="flex flex-col gap-[4px]">
+              <span class="info-title">Batch Creator</span>
+              <!-- <span class="info-desc"></span> should be implemented after the API will be ready -->
+            </div>
+            <div class="flex flex-col gap-[4px]">
+              <span class="info-title">Created</span>
+              <span class="info-desc">
+                {{ experiment().createdAt | date: 'dd MMM yyyy' }} by {{ experiment().createdBy.displayName }}
+              </span>
+            </div>
+            <div class="flex flex-col gap-[4px]">
+              <span class="info-title">Last Edited</span>
+              <span class="info-desc">
+                {{ experiment().modifiedAt | date: 'dd MMM yyyy' }} by {{ experiment().modifiedBy.displayName }}
+              </span>
+            </div>
+          </div>
+        </div>
+      }
+    </eln-card>
+  </cdk-accordion-item>
+</cdk-accordion>
