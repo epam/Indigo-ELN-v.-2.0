@@ -12,8 +12,8 @@ import lombok.SneakyThrows;
 public interface MiscClient extends MiscAPI {
 
     @SneakyThrows
-    default void loadCompoundsFromFileClient(String filename, java.nio.file.Path tempDirectory, byte[] content) {
-        loadCompoundsFromFileClient(ClientUtil.createFileUpload("file", filename, content, tempDirectory));
+    default void loadCompoundsFromFileClient(String filename, byte[] content) {
+        loadCompoundsFromFileClient(ClientUtil.createFileUpload(filename, content));
     }
 
     @POST

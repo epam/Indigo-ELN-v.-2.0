@@ -18,6 +18,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
 
@@ -99,6 +100,16 @@ public final class Reaction extends AbstractExperimentNode<ExperimentModel> {
     public ReactionOutput getFinalOutput() {
         for (ReactionOutput output : outputs) {
             if (output.getType() == ReactionOutputType.FINAL) {
+                return output;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    public ReactionOutput findOutput(UUID compoundID) {
+        for (ReactionOutput output : outputs) {
+            if (compoundID.equals(output.getCompound().getCompoundID())) {
                 return output;
             }
         }

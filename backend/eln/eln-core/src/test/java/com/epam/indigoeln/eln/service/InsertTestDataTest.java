@@ -112,7 +112,7 @@ class InsertTestDataTest {
     //    @Test
     @Order(4)
     void loadCompounds(@TempDir Path tempDir) {
-        miscClient.loadCompoundsFromFileClient("compounds.sdf", tempDir, loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"));
+        miscClient.loadCompoundsFromFileClient("compounds.sdf", loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"));
     }
 
 //    @Test
@@ -131,7 +131,7 @@ class InsertTestDataTest {
         ExperimentDetailsDTO experiment = createExperiment("ProjectWithData", "88888888", templateClient.getByName("Default"), "Experiment with data");
 
         // add attachment
-        experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", tempDir, "This is attachment".getBytes());
+        experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", "This is attachment".getBytes());
 
         // load initial model
         ExperimentModel model = experimentClient.getExperiment(experiment.getId()).getModel();

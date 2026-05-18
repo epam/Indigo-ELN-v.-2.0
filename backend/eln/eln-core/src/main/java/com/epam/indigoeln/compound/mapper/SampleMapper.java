@@ -22,7 +22,7 @@ public abstract class SampleMapper {
     @Mapping(target = "molWeight", source = "compound.molWeight")
     @Mapping(target = "molFormula", expression = "java(com.epam.indigoeln.eln.util.MolFormulaFormatter.format(entity.getCompound().getFormula()))")
     @Mapping(target = "saltCode", expression = "java(dictionaryService.get(entity.getCompound().getSaltCode()))")
-    @Mapping(target = "saltEQ", expression = "java(entity.getCompound().getSaltEQ100() != null ? entity.getCompound().getSaltEQ100() / 100.0 : null)")
+    @Mapping(target = "saltEQ", source = "entity.compound.saltEQ")
     @Mapping(target = "marked", expression = "java(entity.getMarked() == Boolean.TRUE)")
     @Mapping(target = "inchi", ignore = true)
     public abstract SampleDTO sampleToDTO(SampleEntity entity);

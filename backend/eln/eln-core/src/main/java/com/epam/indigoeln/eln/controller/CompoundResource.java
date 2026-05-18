@@ -17,9 +17,6 @@ import jakarta.ws.rs.QueryParam;
 import lombok.SneakyThrows;
 import org.jspecify.annotations.Nullable;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.util.UUID;
 
 @Path(BaseAPI.BASE_PATH)
@@ -33,9 +30,7 @@ public class CompoundResource implements CompoundAPI {
     @Override
     @SneakyThrows
     public void loadCompoundsFromFile(UploadForm form) {
-        try (InputStream is = new BufferedInputStream(new FileInputStream(form.getFile().uploadedFile().toFile()))) {
-            compoundService.loadCompoundsFromFile(is);
-        }
+        compoundService.loadCompoundsFromFile(form.getFile().filePath(), true);
     }
 
     @Override

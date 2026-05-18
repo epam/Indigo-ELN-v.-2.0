@@ -8,8 +8,6 @@ import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import jakarta.enterprise.context.Dependent;
 
-import java.util.UUID;
-
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE_HUNDRED;
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -21,15 +19,14 @@ class AddProductSampleHandler extends AbstractReactionOutputMutationHandler<Reac
     protected ReactionOutputMutation.AddProductSample doPrepareMutation(ExperimentEntity entity, ReactionOutputMutation.AddProductSample mutation, ExperimentMutationContext context) {
         return new ReactionOutputMutation.AddProductSample(
                 mutation.anchor(),
-                mutation.createdSampleAnchor() != null ? mutation.createdSampleAnchor() : new OutputSampleAnchor(UUID.randomUUID())
+                mutation.createdSampleAnchor() != null ? mutation.createdSampleAnchor() : OutputSampleAnchor.create()
         );
     }
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.AddProductSample mutation, ExperimentMutationContext context) {
         OutputSampleAnchor anchor = checkNotNull(mutation.createdSampleAnchor());
-        ReactionOutputSample sample = ReactionOutputSample.create(row, experiment.getName(), anchor);
-        sample.setPurity(DEFAULT_ONE_HUNDRED);
+        ReactionOutputSample.create(row, experiment.getName(), anchor, DEFAULT_ONE_HUNDRED);
         return new MutationResult("Add batch");
     }
 }

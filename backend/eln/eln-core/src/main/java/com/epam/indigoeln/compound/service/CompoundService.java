@@ -9,10 +9,7 @@ import com.epam.indigoeln.compound.model.SampleRegistrationRequest;
 import com.epam.indigoeln.compound.repository.CompoundRepository;
 import com.epam.indigoeln.compound.repository.SampleRepository;
 import com.epam.indigoeln.eln.config.DataAccess;
-import com.epam.indigoeln.eln.model.STRCodeCompound;
-import com.epam.indigoeln.eln.model.STRCodeSample;
-import com.epam.indigoeln.eln.model.SaltCodeRef;
-import com.epam.indigoeln.eln.model.StereoisomerCodeRef;
+import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.eln.util.MolFormulaFormatter;
@@ -22,23 +19,19 @@ import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
 import com.epam.indigoeln.reaction.model.CompoundRef;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
+import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.epam.indigoeln.reaction.service.calculator.MolWeightCalculator;
-import com.google.common.base.Preconditions;
 import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import lombok.Data;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import one.util.streamex.StreamEx;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -54,8 +47,10 @@ import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.roundToDec
 @ApplicationScoped
 public class CompoundService {
 
-//    private static final String[] NAME_PROPERTIES = {"PUBCHEM_IUPAC_TRADITIONAL_NAME", "PUBCHEM_IUPAC_SYSTEMATIC_NAME", "PUBCHEM_IUPAC_OPENEYE_NAME"};
-    private static final String[] COMPOUND_ID_PROPERTIES = {"PUBCHEM_COMPOUND_CID"};
+    private static final String[] NAME_PROPERTIES = {"PUBCHEM_IUPAC_TRADITIONAL_NAME", "PUBCHEM_IUPAC_SYSTEMATIC_NAME", "PUBCHEM_IUPAC_OPENEYE_NAME"};
+    private static final Map<String, CompoundExternalSource> COMPOUND_ID_PROPERTIES = Map.of(
+            "PUBCHEM_COMPOUND_CID", CompoundExternalSource.PUBCHEM
+    );
 
     @Inject
     CompoundRepository compoundRepository;
@@ -86,7 +81,7 @@ public class CompoundService {
             compound.setCanSmiles(canSmiles);
             compound.setStereoisomerCode(dictionaryService.lookup(stereoisomerCode, true));
             compound.setSaltCode(dictionaryService.lookup(saltCode));
-            compound.setSaltEQ100(saltEQ != null ? (int) (saltEQ * 100) : null);
+            compound.setSaltEQ(saltEQ);
             compound.setMolFile(molecule.molfile());
             compound.setMolWeight(molWeightCalculator.calculateMolWeight(molecule.molfile(), saltCode, saltEQ));
             compound.setExactMass(molWeightCalculator.calculateExactMass(molecule.molfile()));
@@ -101,18 +96,16 @@ public class CompoundService {
         return compound;
     }
 
-    public LoadStatistics loadCompoundsFromFile(InputStream is) throws IOException {
-        LoadStatistics stats = new LoadStatistics();
-        StreamEx.of(readSDFFile(is))
-                .map(indigo::loadMolecule)
-                .forEach(molecule -> {
-                    CompoundEntity compound = findOrCreate(molecule, null, null, null, null);
-                    fillCompoundFromIndigo(molecule, compound);
-                    findOrCreateDefaultSample(compound);
-                    stats.processed++;
-                });
-        log.info("Loaded compounds from file: {}", stats);
-        return stats;
+    public List<UUID> loadCompoundsFromFile(Path file, boolean createSamples) throws IOException {
+        List<UUID> list = new ArrayList<>();
+        for (IndigoMolecule molecule : indigo.iterateSDFile(file.toAbsolutePath().toString())) {
+            CompoundEntity compound = findOrCreate(molecule, null, null, null, null);
+            fillCompoundFromIndigo(molecule, compound);
+            SampleEntity sample = createSamples ? findOrCreateDefaultSample(compound) : null;
+            list.add(compound.getId());
+        }
+        log.info("Loaded {} compounds from file", list.size());
+        return list;
     }
 
     public SampleEntity findOrCreateDefaultSample(CompoundEntity compound) {
@@ -128,58 +121,58 @@ public class CompoundService {
     }
 
     public CompoundRef.Stored realCompoundRef(CompoundEntity compound) {
-        return new CompoundRef.Stored(compound.getId(), fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL), compound.getExactMass(), MolFormulaFormatter.format(compound.getFormula()), compound.getCompoundKey(), compound.getCasNumber(), calculateBatchMF(compound));
+        return new CompoundRef.Stored(
+                compound.getId(),
+                fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL),
+                fixed(compound.getExactMass(), NoUnit.NO_UNIT),
+                MolFormulaFormatter.format(compound.getFormula()),
+                compound.getCompoundKey(),
+                compound.getCasNumber(),
+                calculateBatchMF(compound)
+        );
     }
 
     public CompoundRef.Virtual virtualCompoundRef(IndigoMolecule molecule, @Nullable StereoisomerCodeRef stereoisomerCode, @Nullable SaltCodeRef saltCode, @Nullable Double saltEQ) {
         CompoundEntity compound = findOrCreate(molecule, stereoisomerCode, saltCode, saltEQ, null);
-        return new CompoundRef.Virtual(compound.getId(), MolFormulaFormatter.format(molecule.molecularFormula()), compound.getCompoundKey(), stereoisomerCode, saltCode, saltEQ, EnteredValue.fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL), compound.getExactMass(), compound.getCasNumber(), calculateBatchMF(compound));
+        return virtualCompoundRef(compound);
+    }
+
+    public CompoundRef.Virtual virtualCompoundRef(CompoundEntity compound) {
+        return new CompoundRef.Virtual(
+                compound.getId(),
+                MolFormulaFormatter.format(compound.getFormula()),
+                compound.getCompoundKey(),
+                dictionaryService.get(compound.getStereoisomerCode()),
+                dictionaryService.get(compound.getSaltCode()),
+                compound.getSaltEQ(),
+                EnteredValue.fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL),
+                EnteredValue.fixed(compound.getExactMass(), NoUnit.NO_UNIT),
+                compound.getCasNumber(),
+                calculateBatchMF(compound)
+        );
     }
 
     public CompoundRef.Unknown unknownCompoundRef() {
         return new CompoundRef.Unknown();
     }
 
-    @SneakyThrows
-    private List<String> readSDFFile(InputStream is) {
-        List<String> result = new ArrayList<>();
-        StringBuilder current = new StringBuilder();
-        try (BufferedReader rd = new BufferedReader(new InputStreamReader(is))) {
-            while (true) {
-                String line = rd.readLine();
-                if (line == null || line.startsWith("$$$$")) {
-                    if (!current.isEmpty()) {
-                        result.add(current.toString());
-                    }
-                    if (line == null) {
-                        break;
-                    }
-                    current.setLength(0);
-                } else {
-                    current.append(line).append('\n');
-                }
-            }
-        }
-        return result;
-    }
-
     private void fillCompoundFromIndigo(IndigoMolecule molecule, CompoundEntity compound) {
+        Map<String, String> properties = molecule.getProperties();
         compound.setFormula(molecule.molecularFormula());
         compound.setMolFile(molecule.molfile());
         compound.setMolWeight(roundToDecimalPlaces(molecule.molecularWeight(), MOL_WEIGHT_DECIMAL_PLACES));
-//        for (String property : NAME_PROPERTIES) {
-//            if (molecule.hasProperty(property)) {
-//                compound.setName(molecule.getProperty(property));
-//                break;
-//            }
-//        }
-        // TODO if PubChem compoundID found, search in PubChem?
-//        for (String property : COMPOUND_ID_PROPERTIES) {
-//            if (molecule.hasProperty(property)) {
-//                compound.setCompoundId(molecule.getProperty(property));
-//                break;
-//            }
-//        }
+        for (String property : NAME_PROPERTIES) {
+            if (properties.containsKey(property)) {
+                compound.setChemicalName(properties.get(property));
+                break;
+            }
+        }
+        COMPOUND_ID_PROPERTIES.forEach((property, source) -> {
+            if (properties.containsKey(property)) {
+                compound.setExternalSource(source);
+                compound.setExternalNumber(properties.get(property));
+            }
+        });
     }
 
     public byte[] getCompoundPicture(UUID compoundID) {
@@ -268,15 +261,8 @@ public class CompoundService {
         sb.append(parentFormula);
         if (compound.getSaltCode() != null) {
             SaltCodeRef salt = dictionaryService.get(compound.getSaltCode().getId());
-            Preconditions.checkState(compound.getSaltEQ100() != null);
-            sb.append("&nbsp;*&nbsp;").append((compound.getSaltEQ100() / 100.0)).append(" (").append(salt.getFormula()).append(")");
+            sb.append("&nbsp;*&nbsp;").append((compound.getSaltEQ())).append(" (").append(salt.getFormula()).append(")");
         }
         return sb.toString();
-    }
-
-    @Data
-    public static class LoadStatistics {
-
-        private int processed;
     }
 }

@@ -11,6 +11,7 @@ import com.epam.indigoeln.reaction.model.outputsample.*;
 import com.epam.indigoeln.reaction.model.units.*;
 import com.epam.indigoeln.reaction.util.CalculationReportBuilder;
 import com.epam.indigoeln.reaction.util.MutationsTestUtil;
+import com.epam.indigoeln.test.ClientUtil;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import jakarta.validation.constraints.NotNull;
@@ -38,7 +39,7 @@ public class MutationsTest extends MutationsTestBase {
 
     @BeforeAll
     void beforeAll(@TempDir Path tempDir) {
-        miscClient.loadCompoundsFromFileClient("compounds.sdf", tempDir, loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"));
+        miscClient.loadCompoundsFromFileClient("compounds.sdf", loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"));
         saltCode = dictionaryClient.getNth(BuiltInDictionary.SALT_CODE, 1);
         stereoisomerCode = dictionaryClient.<StereoisomerCodeRef>getDictionary(BuiltInDictionary.STEREOISOMER_CODE).get(1);
     }
@@ -666,6 +667,14 @@ public class MutationsTest extends MutationsTestBase {
         assertThatClientCall(() -> {
             loadScheme("/duplicate-input.rxn", false);
         }).isBadRequest("Reaction contains duplicate input compounds");
+    }
+
+    @Test
+    void testImportSDF() {
+        applyMutation(
+                () -> experimentClient.importSDF(experiment.getId(), reaction.getAnchor(), ClientUtil.createFileUpload("file.sdf", loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"))),
+                () -> "Import SDF"
+        );
     }
 
     private void loadScheme() {

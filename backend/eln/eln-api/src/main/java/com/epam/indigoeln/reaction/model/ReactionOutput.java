@@ -2,6 +2,7 @@ package com.epam.indigoeln.reaction.model;
 
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
+import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -47,7 +48,7 @@ public final class ReactionOutput extends ReactionRow {
     @JsonManagedReference
     private List<@Valid ReactionOutputSample> samples = new ArrayList<>();
 
-    public static ReactionOutput create(Reaction reaction, ReactionOutputType type, boolean intended, String outputName, OutputAnchor anchor, CompoundRef compound) {
+    public static ReactionOutput create(Reaction reaction, ReactionOutputType type, boolean intended, String outputName, OutputAnchor anchor, CompoundRef compound, EnteredValue<NoUnit> eq) {
         ReactionOutput row = new ReactionOutput();
         row.reaction = reaction;
         row.anchor = anchor;
@@ -55,6 +56,8 @@ public final class ReactionOutput extends ReactionRow {
         row.outputName = outputName;
         row.intended = intended;
         row.compound = compound;
+        row.eq = eq;
+        row.setSamples(new ArrayList<>());
         reaction.getOutputs().add(row);
         reaction.validateDuplicateOutputs(row);
         return row;

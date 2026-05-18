@@ -66,7 +66,7 @@ export class ReactionProductsTableComponent implements OnInit {
       id: 'exactMass',
       header: 'Exact Mass',
       type: ColumnInputType.NUMBER,
-      field: (row) => row.compound.exactMass?.toString(),
+      field: (row) => row.compound.exactMass?.value?.toString(),
       editable: () => false,
     },
     {

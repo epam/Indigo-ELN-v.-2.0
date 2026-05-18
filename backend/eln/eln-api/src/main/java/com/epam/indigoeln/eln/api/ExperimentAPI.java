@@ -115,6 +115,11 @@ public interface ExperimentAPI extends BaseAPI {
     Map<InputAnchor, String> analyzeRXN(@PathParam("experimentId") UUID experimentId, @PathParam("reactionAnchor") ReactionAnchor reactionAnchor);
 
     @POST
+    @Path("/experiments/{experimentId}/datamodel/reactions/{reactionAnchor}/importSDF")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    MutationResponse importSDF(@PathParam("experimentId") UUID experimentId, @PathParam("reactionAnchor") ReactionAnchor reactionAnchor, UploadForm form);
+
+    @POST
     @Path("/experiments/{experimentId}/workflow/cancel")
     ExperimentDetailsDTO cancelExperiment(@PathParam("experimentId") UUID experimentId);
 

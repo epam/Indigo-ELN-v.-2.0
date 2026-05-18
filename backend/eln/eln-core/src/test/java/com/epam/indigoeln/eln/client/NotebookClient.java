@@ -17,8 +17,8 @@ import java.util.UUID;
 public interface NotebookClient extends NotebookAPI {
 
     @SneakyThrows
-    default List<AttachmentDTO> createNotebookAttachment(UUID notebookId, String filename, java.nio.file.Path tempDirectory, byte[] content) {
-        return createNotebookAttachment(notebookId, ClientUtil.createFileUpload("file", filename, content, tempDirectory));
+    default List<AttachmentDTO> createNotebookAttachment(UUID notebookId, String filename, byte[] content) {
+        return createNotebookAttachment(notebookId, ClientUtil.createFileUpload(filename, content));
     }
 
     @POST

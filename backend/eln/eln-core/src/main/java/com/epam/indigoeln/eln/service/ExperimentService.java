@@ -22,6 +22,7 @@ import com.epam.indigoeln.eln.util.PatchUtil;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import com.epam.indigoeln.reaction.service.mutation.experiment.ExperimentMutationContext;
 import com.epam.indigoeln.reports.api.ReportsAPI;
@@ -31,6 +32,7 @@ import com.google.common.base.MoreObjects;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
@@ -38,6 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.tuple.Triple;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.jboss.resteasy.reactive.multipart.FileUpload;
 import org.jspecify.annotations.Nullable;
 
 import java.io.InputStream;
@@ -267,6 +270,17 @@ public class ExperimentService {
 
     public List<ExperimentRef> suggestExperiments(String search) {
         return experimentRepository.suggest(search);
+    }
+
+    @SneakyThrows
+    public MutationResponse importSDF(UUID experimentId, ReactionAnchor reactionAnchor, @NotNull FileUpload file) {
+        ExperimentEntity experiment = experimentRepository.get(experimentId);
+        aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
+        List<UUID> compoundIDs = compoundService.loadCompoundsFromFile(file.filePath(), false);
+        Triple<ExperimentSnapshot, JsonNode, ExperimentMutationContext> triple = experimentModelService.applyMutation(experiment, new ReactionMutation.ImportSDF(reactionAnchor, compoundIDs));
+        MutationResponse response = triple.getRight().getResponse();
+        response.setPatch(triple.getMiddle());
+        return response;
     }
 
     public record ExperimentReportContent (
