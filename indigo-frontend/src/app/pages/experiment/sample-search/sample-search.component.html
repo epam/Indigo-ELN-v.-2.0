@@ -160,9 +160,9 @@
 
             <div class="chips-container flex flex-wrap w-full">
               @if (advancedSearchSummary) {
-                @for (item of advancedSearchSummary; track item[0]) {
+                @for (item of advancedSearchSummary; track $index) {
                   <div class="chip">
-                    <b>{{ item[0] }}</b> &nbsp; {{ item[1] }}
+                    <div [innerHTML]="item"></div>
                     <button>
                       <mat-icon>clear</mat-icon>
                     </button>

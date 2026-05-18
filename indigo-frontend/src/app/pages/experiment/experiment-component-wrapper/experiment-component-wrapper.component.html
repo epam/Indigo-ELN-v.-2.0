@@ -13,16 +13,12 @@
           >
           </em>
         </span>
-        <h2 class="font-semibold text-md">Stoichiometric Calculation</h2>
+        <h2 class="font-semibold text-md">{{ title() }}</h2>
       </button>
 
       @if (accordionItem.expanded) {
-        <div class="mt-4">
-          <eln-reaction-view [experimentId]="experimentId()" />
-        </div>
+        <ng-content />
       }
     </eln-card>
   </cdk-accordion-item>
 </cdk-accordion>
-
-<eln-button type="button" variant="blue" (click)="showAddMaterialDialog()"> Add Material </eln-button>

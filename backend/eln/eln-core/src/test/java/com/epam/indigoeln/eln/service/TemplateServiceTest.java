@@ -23,8 +23,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestSecurity(user = ELNBaseTest.LISA_USERNAME)
 class TemplateServiceTest extends ELNBaseTest {
 
-    List<TemplateComponent> components_1 = List.of(new TemplateComponent.Attachments(), new TemplateComponent.StoichiometryTable(true, true));
-    List<TemplateComponent> components_2 = List.of(new TemplateComponent.Batches(), new TemplateComponent.PreferredCompoundsDetails());
+    List<TemplateComponent> components_1 = List.of(new TemplateComponent.Attachments(), new TemplateComponent.StoichiometryTable(true, true, true));
+    List<TemplateComponent> components_2 = List.of(new TemplateComponent.Batches(), new TemplateComponent.ExperimentDescription());
 
     List<TemplateTab> templateTabs = List.of(new TemplateTab("tabName", components_1), new TemplateTab("tabName2", components_2));
     List<TemplateDetailsDTO> templatesToRemove = new ArrayList<>();

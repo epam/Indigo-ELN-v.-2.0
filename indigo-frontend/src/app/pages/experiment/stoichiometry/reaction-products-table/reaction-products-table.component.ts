@@ -1,5 +1,5 @@
 import { Component, computed, inject, input, OnInit } from '@angular/core';
-import { Reaction, ReactionOutput } from '@core/types/entities/experiments/experiment.i';
+import { ReactionOutput } from '@core/types/entities/experiments/experiment.i';
 import {
   ColumnConfig,
   ColumnInputType,
@@ -12,7 +12,8 @@ import { determineCellClasses } from '@core/utils/experiment-model.util';
 import { CompoundType } from '@core/types/entities/compound.i';
 import { BuiltInDictionary, DictionaryItemRef } from '@core/types/entities/dictionary.i';
 import { BuiltInDictionaryService } from '@core/services/health-hazards/built-in-dictionary.service';
-import { MolUnit, UNIT_DISPLAY_NAMES, WeightUnit } from '@core/types/entities/experiments/experiment-shared.i';
+import { MolUnit, UNIT_DISPLAY_NAMES, UUID, WeightUnit } from '@core/types/entities/experiments/experiment-shared.i';
+import { ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
 
 @Component({
   selector: 'eln-reaction-products-table',
@@ -23,13 +24,18 @@ export class ReactionProductsTableComponent implements OnInit {
   private experimentDetailService = inject(ExperimentDetailService);
   private builtInDictionaryService = inject(BuiltInDictionaryService);
 
-  reaction = input<Reaction | null>(null);
-  dataSource = computed(() => this.reaction()?.outputs.filter((p) => p.intended));
+  experimentId = input.required<UUID>();
+  reactionAnchor = input.required<ReactionAnchor>();
+
+  reaction = computed(() => this.experimentDetailService.getReaction(this.reactionAnchor()));
+  dataSource = computed(() => {
+    return this.reaction().outputs.filter((p) => p.intended);
+  });
 
   saltCodes = computed(() => this.builtInDictionaryService.getDictionaryItem(BuiltInDictionary.SALT_CODE));
 
   ngOnInit() {
-    this.builtInDictionaryService.load([BuiltInDictionary.HEALTH_HAZARD, BuiltInDictionary.SALT_CODE]);
+    this.builtInDictionaryService.load([BuiltInDictionary.SALT_CODE]);
   }
 
   columns: ColumnConfig<ReactionOutput>[] = [

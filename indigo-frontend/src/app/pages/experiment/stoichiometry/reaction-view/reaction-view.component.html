@@ -1,17 +1,19 @@
-<div class="flex flex-col gap-4">
-  <div>
-    <eln-reaction-scheme-view [reaction]="reaction()" [experimentId]="experimentId()" />
-  </div>
+<div class="flex flex-col gap-4 mt-4">
+  @if (reactionScheme()) {
+    <div>
+      <eln-reaction-scheme-view [experimentId]="experimentId()" [reactionAnchor]="reactionAnchor()" />
+    </div>
+  }
 
-  <div>
-    <eln-reaction-inputs-table />
-  </div>
+  @if (reactantsReagentsSolvents()) {
+    <div>
+      <eln-reaction-inputs-table [experimentId]="experimentId()" [reactionAnchor]="reactionAnchor()" />
+    </div>
+  }
 
-  <div>
-    <eln-reaction-products-table [reaction]="reaction()" />
-  </div>
-
-  <div>
-    <eln-product-batch-summary-table [reaction]="reaction()" [experimentId]="experimentId()" />
-  </div>
+  @if (intendedProducts()) {
+    <div>
+      <eln-reaction-products-table [experimentId]="experimentId()" [reactionAnchor]="reactionAnchor()" />
+    </div>
+  }
 </div>

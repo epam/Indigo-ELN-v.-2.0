@@ -1,15 +1,16 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { Observable, switchMap } from 'rxjs';
-import { Reaction, ReactionOutput, ReactionOutputSample } from '@core/types/entities/experiments/experiment.i';
+import { switchMap } from 'rxjs';
+import { ReactionOutput, ReactionOutputSample } from '@core/types/entities/experiments/experiment.i';
 import {
   MolUnit,
   ReactionOutputType,
   SampleRegistrationStatus,
   UNIT_DISPLAY_NAMES,
+  UUID,
   VolumeUnit,
   WeightUnit,
 } from '@core/types/entities/experiments/experiment-shared.i';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { EditableDataTableComponent } from '../editable-data-table/editable-data-table.component';
 import { BatchDetailData, BatchDetailPanelComponent } from '../batch-detail-panel/batch-detail-panel.component';
 import { ColumnConfig, ColumnInputType, ColumnOption, ExpandableConfig } from '../shared/editable-table.types';
@@ -23,6 +24,8 @@ import { NotificationService } from '@core/services/notification/notification.se
 import { NotificationType } from '@core/types/notification.i';
 import { MatTooltip } from '@angular/material/tooltip';
 import { ApiService } from '@core/services/api.service';
+import { openFileDialog } from '@core/utils/file.util';
+import { MutationResponse, ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
 
 interface OutputSampleRow {
   output: ReactionOutput;
@@ -36,20 +39,21 @@ interface OutputSampleRow {
 })
 export class ProductBatchSummaryTableComponent {
   private experimentDetailService = inject(ExperimentDetailService);
-  private snackBar = inject(MatSnackBar);
   private notificationService = inject(NotificationService);
   private apiService = inject(ApiService);
 
-  reaction = input<Reaction | null>(null);
-  experimentId = input<string | null>(null);
+  experimentId = input.required<UUID>();
+  reactionAnchor = input.required<ReactionAnchor>();
+
+  reaction = computed(() => this.experimentDetailService.getReaction(this.reactionAnchor()));
 
   dataSource = computed(() => {
-    // Use real data from reaction outputs
-    const outputs = this.reaction()?.outputs;
-    return outputs?.flatMap((output) => output.samples.map((sample) => ({ output, sample })));
+    return this.reaction().outputs.flatMap((output) => output.samples.map((sample) => ({ output, sample })));
   });
 
-  linkableProducts = computed(() => (this.reaction()?.outputs ?? []).filter((p) => p.intended));
+  linkableProducts = computed(() => {
+    return this.reaction().outputs.filter((p) => p.intended);
+  });
 
   readonly columns = computed<ColumnConfig<OutputSampleRow>[]>(() => [
     {
@@ -320,55 +324,20 @@ export class ProductBatchSummaryTableComponent {
   }
 
   importSDF() {
-    const reaction = this.reaction();
-    const experimentId = this.experimentId();
-    if (!reaction || !experimentId) return;
-
-    this.openFileDialog('.sdf')
+    openFileDialog('.sdf')
       .pipe(
         switchMap((file) => {
+          console.log('importSDF, switchMap, file = ', file);
           const formData = new FormData();
           formData.append('file', file);
-          return this.experimentDetailService.updateDataModel2(
-            this.apiService.request(
-              'post',
-              `experiments/${experimentId}/datamodel/reactions/${reaction.anchor}/importSDF`,
-              formData,
-            ),
+          const operation = this.apiService.request<MutationResponse>(
+            'post',
+            `experiments/${this.experimentId()}/datamodel/reactions/${this.reactionAnchor()}/importSDF`,
+            formData,
           );
+          return this.experimentDetailService.updateDataModel2(operation);
         }),
       )
       .subscribe({});
-  }
-
-  private openFileDialog(accept: string): Observable<File> {
-    return new Observable((observer) => {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = accept;
-
-      const onChange = () => {
-        const file = input.files?.[0];
-        if (file) {
-          observer.next(file);
-        }
-        observer.complete();
-      };
-
-      // Fired when focus returns to the window after the picker closes (with or without a selection).
-      const onCancel = () => {
-        observer.complete();
-      };
-
-      input.addEventListener('change', onChange);
-      window.addEventListener('focus', onCancel, { once: true });
-
-      input.click();
-
-      return () => {
-        input.removeEventListener('change', onChange);
-        window.removeEventListener('focus', onCancel);
-      };
-    });
   }
 }
