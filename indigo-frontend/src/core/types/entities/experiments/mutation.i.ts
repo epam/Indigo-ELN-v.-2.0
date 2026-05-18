@@ -215,6 +215,11 @@ interface SetOutputRowChemicalName extends ReactionOutputMutation {
   chemicalName: string | null;
 }
 
+interface SetOutputRowIntended extends ReactionOutputMutation {
+  type: 'SetOutputRowIntended';
+  intended: boolean;
+}
+
 interface SetOutputCompoundStereoisomerCode extends ReactionOutputMutation {
   type: 'SetOutputCompoundStereoisomerCode';
   stereoisomerCode: DictionaryItemRef | null;
@@ -408,6 +413,7 @@ export type Mutation =
   | SetOutputRowEQ
   | SetOutputRowName
   | SetOutputRowChemicalName
+  | SetOutputRowIntended
   | SetOutputCompoundStereoisomerCode
   | SetOutputCompoundMolWeight
   // Output sample mutations

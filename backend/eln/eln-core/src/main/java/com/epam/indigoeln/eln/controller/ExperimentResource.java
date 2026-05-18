@@ -203,4 +203,9 @@ public class ExperimentResource implements ExperimentAPI {
     public List<ExperimentRef> suggestExperiments(String search) {
         return experimentService.suggestExperiments(search);
     }
+
+    @Override
+    public MutationResponse importSDF(UUID experimentId, ReactionAnchor reactionAnchor, UploadForm form) {
+        return experimentService.importSDF(experimentId, reactionAnchor, form.getFile());
+    }
 }

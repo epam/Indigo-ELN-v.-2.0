@@ -11,6 +11,7 @@ import com.epam.indigoeln.reaction.model.outputsample.*;
 import com.epam.indigoeln.reaction.model.units.*;
 import com.epam.indigoeln.reaction.util.CalculationReportBuilder;
 import com.epam.indigoeln.reaction.util.MutationsTestUtil;
+import com.epam.indigoeln.test.ClientUtil;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import jakarta.validation.constraints.NotNull;
@@ -25,6 +26,7 @@ import java.util.Set;
 
 import static com.epam.indigoeln.common.model.Paging.DEFAULT_PAGE_SIZE;
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
+import static com.epam.indigoeln.common.util.ModelUtil.loadResourceAsString;
 import static com.epam.indigoeln.compound.model.search.SearchCatalog.ELN;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,7 +40,7 @@ public class MutationsTest extends MutationsTestBase {
 
     @BeforeAll
     void beforeAll(@TempDir Path tempDir) {
-        miscClient.loadCompoundsFromFileClient("compounds.sdf", tempDir, loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"));
+        miscClient.loadCompoundsFromFileClient("compounds.sdf", loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"));
         saltCode = dictionaryClient.getNth(BuiltInDictionary.SALT_CODE, 1);
         stereoisomerCode = dictionaryClient.<StereoisomerCodeRef>getDictionary(BuiltInDictionary.STEREOISOMER_CODE).get(1);
     }
@@ -666,6 +668,21 @@ public class MutationsTest extends MutationsTestBase {
         assertThatClientCall(() -> {
             loadScheme("/duplicate-input.rxn", false);
         }).isBadRequest("Reaction contains duplicate input compounds");
+    }
+
+    @Test
+    void testImportSDF() {
+        applyMutation(
+                () -> experimentClient.importSDF(experiment.getId(), reaction.getAnchor(), ClientUtil.createFileUpload("file.sdf", loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"))),
+                () -> "Import SDF"
+        );
+    }
+
+    @Test
+    void testAddSampleAndMakeItIntended() {
+        applyMutation(new ReactionMutation.AddNoProductSample(reaction.getAnchor()));
+        applyMutation(new ReactionOutputSampleMutation.SetOutputMolfile(output1Sample1.getAnchor(), loadResourceAsString(getClass(), "/ring-substructure.mol")));
+        applyMutation(new ReactionOutputMutation.SetOutputRowIntended(output1.getAnchor(), true));
     }
 
     private void loadScheme() {

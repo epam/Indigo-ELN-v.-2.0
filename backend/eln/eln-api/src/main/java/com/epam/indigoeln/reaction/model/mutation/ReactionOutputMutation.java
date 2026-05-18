@@ -57,6 +57,12 @@ public interface ReactionOutputMutation extends Mutation {
     ) implements ReactionOutputMutation {
     }
 
+    record SetOutputRowIntended(
+            @NotNull OutputAnchor anchor,
+            @NotNull Boolean intended
+    ) implements ReactionOutputMutation {
+    }
+
     record SetOutputCompoundStereoisomerCode(
             @NotNull OutputAnchor anchor,
             @Nullable StereoisomerCodeRef stereoisomerCode

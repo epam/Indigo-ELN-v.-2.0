@@ -9,12 +9,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 
-import java.nio.file.Path;
-
 public class ClientUtil {
 
     @SneakyThrows
-    public static ClientUploadForm createFileUpload(String inputName, String filename, byte[] content, Path tempDirectory) {
+    public static ClientUploadForm createFileUpload(String filename, byte[] content) {
         FormData file = new FormData(MediaType.APPLICATION_OCTET_STREAM, filename, content);
         return new ClientUploadForm(file);
     }

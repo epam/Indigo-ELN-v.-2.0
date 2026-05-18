@@ -24,7 +24,7 @@ export class ReactionProductsTableComponent implements OnInit {
   private builtInDictionaryService = inject(BuiltInDictionaryService);
 
   reaction = input<Reaction | null>(null);
-  dataSource = computed(() => this.reaction()?.outputs);
+  dataSource = computed(() => this.reaction()?.outputs.filter((p) => p.intended));
 
   saltCodes = computed(() => this.builtInDictionaryService.getDictionaryItem(BuiltInDictionary.SALT_CODE));
 
@@ -66,7 +66,7 @@ export class ReactionProductsTableComponent implements OnInit {
       id: 'exactMass',
       header: 'Exact Mass',
       type: ColumnInputType.NUMBER,
-      field: (row) => row.compound.exactMass?.toString(),
+      field: (row) => row.compound.exactMass?.value?.toString(),
       editable: () => false,
     },
     {

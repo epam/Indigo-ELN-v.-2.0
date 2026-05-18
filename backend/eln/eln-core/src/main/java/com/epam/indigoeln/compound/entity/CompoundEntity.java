@@ -80,4 +80,14 @@ public class CompoundEntity extends IdentifiableEntity {
 
     @OneToMany(mappedBy = "compound") // TODO make many-to-many and store percentage in link entity
     private Set<SampleEntity> samples = new HashSet<>(0);
+
+    @Nullable
+    @Transient
+    public Double getSaltEQ() {
+        return saltEQ100 != null ? saltEQ100 / 100.0 : null;
+    }
+
+    public void setSaltEQ(@Nullable Double saltEQ) {
+        this.saltEQ100 = saltEQ != null ? (int) (saltEQ * 100.0) : null;
+    }
 }

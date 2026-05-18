@@ -4,13 +4,13 @@ import com.epam.indigoeln.eln.model.SaltCodeRef;
 import com.epam.indigoeln.eln.model.StereoisomerCodeRef;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
+import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.fasterxml.jackson.annotation.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
 import org.jspecify.annotations.Nullable;
 
-import java.math.BigDecimal;
 import java.util.UUID;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
@@ -44,7 +44,7 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
     EnteredValue<MolWeightUnit> getMolWeight();
 
     @Nullable
-    BigDecimal getExactMass();
+    EnteredValue<NoUnit> getExactMass();
 
     @Nullable
     String getCasNumber();
@@ -64,7 +64,7 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
 
         EnteredValue<MolWeightUnit> getMolWeight();
 
-        BigDecimal getExactMass();
+        EnteredValue<NoUnit> getExactMass();
 
         String getFormula();
 
@@ -96,7 +96,7 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
         private final EnteredValue<MolWeightUnit> molWeight;
 
         @NotNull
-        private final BigDecimal exactMass;
+        private final EnteredValue<NoUnit> exactMass;
 
         @NotNull
         private final String formula;
@@ -142,7 +142,7 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
         private EnteredValue<MolWeightUnit> molWeight;
 
         @NotNull
-        private BigDecimal exactMass;
+        private EnteredValue<NoUnit> exactMass;
 
         @Nullable
         private final String casNumber;
@@ -203,7 +203,7 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
         @Override
         @Nullable
         @JsonIgnore
-        public BigDecimal getExactMass() {
+        public EnteredValue<NoUnit> getExactMass() {
             return null;
         }
 

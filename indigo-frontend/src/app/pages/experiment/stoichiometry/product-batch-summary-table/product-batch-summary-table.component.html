@@ -4,8 +4,11 @@
     <eln-button [matMenuTriggerFor]="addBatchMenu" variant="grey">
       <mat-icon class="text-md">add</mat-icon>
     </eln-button>
+    <eln-button variant="grey" matTooltip="Import SDF" (click)="importSDF()">
+      <em class="indicon-file-plus text-md"></em>
+    </eln-button>
     <mat-menu #addBatchMenu="matMenu" xPosition="before">
-      <button mat-menu-item (click)="addNewRow()">
+      <button mat-menu-item (click)="addNoProductBatch()">
         <mat-icon>add</mat-icon>
         <span>Add New Batch</span>
       </button>

@@ -87,19 +87,19 @@ class PermissionsTest extends ELNBaseTest {
             therapeuticArea = dictionaryClient.getFirst(BuiltInDictionary.THERAPEUTIC_AREA);
             iterateRows(row -> {
                 row.projectId = projectClient.createProject(new ProjectRequest("project" + row.testId)).getId();
-                projectClient.createProjectAttachment(row.projectId, "attachment.txt", tempDir, new byte[0]);
+                projectClient.createProjectAttachment(row.projectId, "attachment.txt", new byte[0]);
                 if (row.project != NONE) {
                     projectClient.updateProjectAccess(row.projectId, AccessForm.of(WILLOW_USERNAME, row.project));
                 }
                 row.projectDetails = projectClient.getProject(row.projectId);
                 row.notebookId = notebookClient.createNotebook(row.projectId, new NotebookRequest(nextNotebookName())).getId();
-                notebookClient.createNotebookAttachment(row.notebookId, "attachment.txt", tempDir, new byte[0]);
+                notebookClient.createNotebookAttachment(row.notebookId, "attachment.txt", new byte[0]);
                 if (row.notebook != NONE) {
                     notebookClient.updateNotebookAccess(row.notebookId, AccessForm.of(WILLOW_USERNAME, row.notebook));
                 }
                 row.notebookDetails = notebookClient.getNotebook(row.notebookId);
                 row.experimentId = experimentClient.createExperiment(row.notebookId, new ExperimentRequest(emptyTemplateID)).getId();
-                experimentClient.createExperimentAttachment(row.experimentId, "attachment.txt", tempDir, new byte[0]);
+                experimentClient.createExperimentAttachment(row.experimentId, "attachment.txt", new byte[0]);
                 if (row.experiment != NONE) {
                     experimentClient.updateExperimentAccess(row.experimentId, AccessForm.of(WILLOW_USERNAME, row.experiment));
                 }
@@ -193,7 +193,7 @@ class PermissionsTest extends ELNBaseTest {
     @Test
     void testProjectAttachments(@TempDir Path tempDir) {
         iterateRows(row -> {
-            assertThatClientCall(() -> projectClient.createProjectAttachment(row.projectId, "a", tempDir, new byte[0]))
+            assertThatClientCall(() -> projectClient.createProjectAttachment(row.projectId, "a", new byte[0]))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "Operation not permitted");
             assertThatClientCall(() -> projectClient.downloadProjectAttachment(row.projectId, row.projectDetails.getAttachments().getFirst().getId()))
@@ -258,7 +258,7 @@ class PermissionsTest extends ELNBaseTest {
     @Test
     void testNotebookAttachments(@TempDir Path tempDir) {
         iterateRows(row -> {
-            assertThatClientCall(() -> notebookClient.createNotebookAttachment(row.notebookId, "a", tempDir, new byte[0]))
+            assertThatClientCall(() -> notebookClient.createNotebookAttachment(row.notebookId, "a", new byte[0]))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "Operation not permitted");
             assertThatClientCall(() -> notebookClient.downloadNotebookAttachment(row.notebookId, row.notebookDetails.getAttachments().getFirst().getId()))
@@ -324,7 +324,7 @@ class PermissionsTest extends ELNBaseTest {
     @Test
     void testExperimentAttachments(@TempDir Path tempDir) {
         iterateRows(row -> {
-            assertThatClientCall(() -> experimentClient.createExperimentAttachment(row.experimentId, "a", tempDir, "content".getBytes(StandardCharsets.UTF_8)))
+            assertThatClientCall(() -> experimentClient.createExperimentAttachment(row.experimentId, "a", "content".getBytes(StandardCharsets.UTF_8)))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveExperiment.isSufficientFor(EDIT), "Operation not permitted");
             assertThatClientCall(() -> experimentClient.downloadExperimentAttachment(row.experimentId, row.experimentDetails.getAttachments().getFirst().getId()))

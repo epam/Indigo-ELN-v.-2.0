@@ -1,12 +1,6 @@
 package com.epam.indigoeln.reaction.model;
 
-import com.epam.indigoeln.eln.model.ComponentStateRef;
-import com.epam.indigoeln.eln.model.CompoundProtectionRef;
-import com.epam.indigoeln.eln.model.HandlingPrecautionsRef;
-import com.epam.indigoeln.eln.model.NbkBatchNumber;
-import com.epam.indigoeln.eln.model.SampleSourceDetailsRef;
-import com.epam.indigoeln.eln.model.SampleSourceRef;
-import com.epam.indigoeln.eln.model.StorageInstructionsRef;
+import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.outputsample.*;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
@@ -18,6 +12,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import lombok.AccessLevel;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -107,11 +102,12 @@ public final class ReactionOutputSample extends ReactionSample<ReactionOutput> {
         return nbkBatchNumber.getShortForm();
     }
 
-    public static ReactionOutputSample create(ReactionOutput row, String experimentName, OutputSampleAnchor anchor) {
+    public static ReactionOutputSample create(ReactionOutput row, String experimentName, OutputSampleAnchor anchor, EnteredValue<NoUnit> purity) {
         ReactionOutputSample sample = new ReactionOutputSample();
         sample.row = row;
         sample.anchor = anchor;
         sample.nbkBatchNumber = new NbkBatchNumber(experimentName, row.getReaction().getModel().generateNextNbkBatchNumber());
+        sample.purity = purity;
         row.getSamples().add(sample);
         return sample;
     }

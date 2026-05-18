@@ -24,7 +24,6 @@ import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -141,14 +140,8 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
     }
 
     public ReactionOutput createOutputLine(Reaction reaction, IndigoMolecule molecule, boolean intended, OutputAnchor anchor) {
-        return createOutputLine(reaction, compoundService.virtualCompoundRef(molecule, null, null, null), intended, anchor);
-    }
-
-    public ReactionOutput createOutputLine(Reaction reaction, CompoundRef compound, boolean intended, OutputAnchor anchor) {
-        ReactionOutput row = ReactionOutput.create(reaction, reaction.getFinalOutput() != null ? ReactionOutputType.BY_PRODUCT : ReactionOutputType.FINAL, intended, reaction.generateNextProductName(), anchor, compound);
-        row.setEq(DEFAULT_ONE);
-        row.setSamples(new ArrayList<>());
-        return row;
+        CompoundRef compound = compoundService.virtualCompoundRef(molecule, null, null, null);
+        return ReactionOutput.create(reaction, reaction.getFinalOutput() != null ? ReactionOutputType.BY_PRODUCT : ReactionOutputType.FINAL, intended, reaction.generateNextProductName(), anchor, compound, DEFAULT_ONE);
     }
 
     protected void adjustLimitingInput(Reaction reaction) {
@@ -192,7 +185,13 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
                 IndigoMolecule molecule = indigoAPI.get().loadMolecule(effectiveMolfile);
                 return compoundService.virtualCompoundRef(molecule, effectiveStereoisomerCode, effectiveSaltCode, effectiveSaltEQ);
             }
-            case CompoundRef.Unknown u -> throw new InvalidRequestException("Cannot set saltCode/saltEQ/stereoisomerCode/molfile for unknown compound");
+            case CompoundRef.Unknown u -> {
+                if (molfile != null) {
+                    IndigoMolecule molecule = indigoAPI.get().loadMolecule(molfile);
+                    return compoundService.virtualCompoundRef(molecule, null, null, null);
+                }
+                throw new InvalidRequestException("Cannot set saltCode/saltEQ/stereoisomerCode for unknown compound");
+            }
         }
     }
 
@@ -200,6 +199,6 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
         return StreamEx.of(reaction.getOutputs())
                 .filter(x -> x.getCompound().compoundKeyEquals(compound))
                 .findFirst()
-                .orElseGet(() -> createOutputLine(reaction, compound, false, createdOutputAnchor));
+                .orElseGet(() -> ReactionOutput.create(reaction, reaction.getFinalOutput() != null ? ReactionOutputType.BY_PRODUCT : ReactionOutputType.FINAL, false, reaction.generateNextProductName(), createdOutputAnchor, compound, DEFAULT_ONE));
     }
 }

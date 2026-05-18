@@ -10,6 +10,10 @@ public class ReactionAnchor extends Anchor {
         super(value);
     }
 
+    public static ReactionAnchor create() {
+        return new ReactionAnchor(UUID.randomUUID());
+    }
+
     @JsonCreator
     public ReactionAnchor(String str) {
         super(str);

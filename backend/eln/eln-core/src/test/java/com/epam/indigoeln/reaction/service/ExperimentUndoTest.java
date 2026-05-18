@@ -16,10 +16,8 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -134,8 +132,8 @@ public class ExperimentUndoTest extends MutationsTestBase {
     }
 
     @Test
-    void testAttachments(@TempDir Path tempDir) {
-        List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.getId(), ClientUtil.createFileUpload("file", "attachment.txt", "content".getBytes(), tempDir));
+    void testAttachments() {
+        List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.getId(), ClientUtil.createFileUpload("attachment.txt", "content".getBytes()));
         experiment = experimentClient.getExperiment(experiment.getId());
 
         applyMutation(new ExperimentMutation.Undo());

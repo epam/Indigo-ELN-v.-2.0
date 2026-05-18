@@ -20,14 +20,12 @@ import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
-import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
-import static com.epam.indigoeln.common.util.ModelUtil.loadResourceAsStream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
@@ -67,14 +65,6 @@ public class CompoundServiceTest extends ELNBaseTest {
         compound1 = compoundService.virtualCompoundRef(molecule, null, null, null);
         molecule = it.next();
         compound2 = compoundService.virtualCompoundRef(molecule, null, null, null);
-    }
-
-//    @Test
-    void testLoadCompounds() throws Exception {
-        try (InputStream is = loadResourceAsStream(getClass(), "/Compound_000000001_000500000.1.sdf")) {
-            var stats = compoundService.loadCompoundsFromFile(is);
-            assertThat(stats.getProcessed()).isPositive();
-        }
     }
 
     @Test

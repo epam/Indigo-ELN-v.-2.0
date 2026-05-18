@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
-import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
+import static com.epam.indigoeln.common.util.ModelUtil.loadResourceAsString;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
@@ -64,7 +64,7 @@ class GlobalSearchServiceTest extends ELNBaseTest {
             notebook2 = notebookClient.createNotebook(project2.getId(), new NotebookRequest("00000002", "nd2 xx"));
             experiment1 = experimentClient.createExperiment(notebook1.getId(), new ExperimentRequest(emptyTemplateID, "ed1 xx", therapeuticArea1, projectCode1));
             experiment2 = experimentClient.createExperiment(notebook2.getId(), new ExperimentRequest(emptyTemplateID, "ed2 xx", therapeuticArea2, projectCode2));
-            String rxnFile = new String(loadResource(getClass(), "/reaction.rxn"));
+            String rxnFile = loadResourceAsString(getClass(), "/reaction.rxn");
             ExperimentModel experimentModel = experiment2.getModel();
             experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionMutation.SetScheme(experimentModel.getReactions().getFirst().getAnchor(), rxnFile)));
             InputSampleAnchor inputSample = experimentModel.getReactions().getFirst().getInputs().getFirst().getSamples().getFirst().getAnchor();
@@ -158,7 +158,7 @@ class GlobalSearchServiceTest extends ELNBaseTest {
 
     @Test
     void testFindByMoleculeSubstructure() {
-        String molFile = new String(loadResource(getClass(), "/ring-substructure.mol"));
+        String molFile = loadResourceAsString(getClass(), "/ring-substructure.mol");
         Page<GlobalSearchResultDTO> results = globalSearchClient.search(
                 new GlobalSearchRequest().withMoleculeStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, molFile)),
                 Paging.DEFAULT
@@ -169,7 +169,7 @@ class GlobalSearchServiceTest extends ELNBaseTest {
 
     @Test
     void testFindByMoleculeSubstructureAndRole() {
-        String molFile = new String(loadResource(getClass(), "/ring-substructure.mol"));
+        String molFile = loadResourceAsString(getClass(), "/ring-substructure.mol");
         Page<GlobalSearchResultDTO> results = globalSearchClient.search(
                 new GlobalSearchRequest().withMoleculeStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, molFile)).withReactionRole(ReactionRole.REACTANT),
                 Paging.DEFAULT
@@ -180,7 +180,7 @@ class GlobalSearchServiceTest extends ELNBaseTest {
 
     @Test
     void testFindByMoleculeSubstructureAndRoleNotFound() {
-        String molFile = new String(loadResource(getClass(), "/ring-substructure.mol"));
+        String molFile = loadResourceAsString(getClass(), "/ring-substructure.mol");
         Page<GlobalSearchResultDTO> results = globalSearchClient.search(
                 new GlobalSearchRequest().withMoleculeStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, molFile)).withReactionRole(ReactionRole.SOLVENT),
                 Paging.DEFAULT
@@ -192,7 +192,7 @@ class GlobalSearchServiceTest extends ELNBaseTest {
 
     @Test
     void testFindByReactionSubstructure() {
-        String rxnFile = new String(loadResource(getClass(), "/reaction-substructure.rxn"));
+        String rxnFile = loadResourceAsString(getClass(), "/reaction-substructure.rxn");
         Page<GlobalSearchResultDTO> results = globalSearchClient.search(
                 new GlobalSearchRequest().withReactionStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, rxnFile)),
                 Paging.DEFAULT
@@ -235,7 +235,7 @@ class GlobalSearchServiceTest extends ELNBaseTest {
 
     @Test
     void testFindByAllAttributes() {
-        String molFile = new String(loadResource(getClass(), "/ring-substructure.mol"));
+        String molFile = loadResourceAsString(getClass(), "/ring-substructure.mol");
         Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest()
                 .withQuery("xx")
                 .withTherapeuticArea(therapeuticArea2)

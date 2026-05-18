@@ -10,6 +10,10 @@ public class OutputAnchor extends Anchor {
         super(value);
     }
 
+    public static OutputAnchor create() {
+        return new OutputAnchor(UUID.randomUUID());
+    }
+
     @JsonCreator
     public OutputAnchor(String str) {
         super(str);

@@ -1,6 +1,7 @@
 package com.epam.indigoeln.reaction.service.mutation.experiment;
 
 import com.epam.indigoeln.common.util.Pair;
+import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
@@ -10,6 +11,7 @@ import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
+import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import com.google.common.base.Function;
@@ -54,11 +56,11 @@ class SetSchemeHandler extends AbstractReactionMutationHandler<ReactionMutation.
         return new ReactionMutation.SetScheme(
                 mutation.anchor(),
                 mutation.rxnFile(),
-                mutation.createdReactantAnchors() != null ? mutation.createdReactantAnchors() : IntStreamEx.range(reactantCount).mapToObj(x -> new InputAnchor(UUID.randomUUID())).toList(),
-                mutation.createdReactantSampleAnchors() != null ? mutation.createdReactantSampleAnchors() : IntStreamEx.range(reactantCount).mapToObj(x -> new InputSampleAnchor(UUID.randomUUID())).toList(),
-                mutation.createdCatalystAnchors() != null ? mutation.createdCatalystAnchors() : IntStreamEx.range(catalystCount).mapToObj(x -> new InputAnchor(UUID.randomUUID())).toList(),
-                mutation.createdCatalystSampleAnchors() != null ? mutation.createdCatalystSampleAnchors() : IntStreamEx.range(catalystCount).mapToObj(x -> new InputSampleAnchor(UUID.randomUUID())).toList(),
-                mutation.createdProductAnchors() != null ? mutation.createdProductAnchors() : IntStreamEx.range(productCount).mapToObj(x -> new OutputAnchor(UUID.randomUUID())).toList()
+                mutation.createdReactantAnchors() != null ? mutation.createdReactantAnchors() : IntStreamEx.range(reactantCount).mapToObj(x -> InputAnchor.create()).toList(),
+                mutation.createdReactantSampleAnchors() != null ? mutation.createdReactantSampleAnchors() : IntStreamEx.range(reactantCount).mapToObj(x -> InputSampleAnchor.create()).toList(),
+                mutation.createdCatalystAnchors() != null ? mutation.createdCatalystAnchors() : IntStreamEx.range(catalystCount).mapToObj(x -> InputAnchor.create()).toList(),
+                mutation.createdCatalystSampleAnchors() != null ? mutation.createdCatalystSampleAnchors() : IntStreamEx.range(catalystCount).mapToObj(x -> InputSampleAnchor.create()).toList(),
+                mutation.createdProductAnchors() != null ? mutation.createdProductAnchors() : IntStreamEx.range(productCount).mapToObj(x -> OutputAnchor.create()).toList()
         );
     }
 
@@ -177,8 +179,8 @@ class AddEmptyInputHandler extends AbstractReactionMutationHandler<ReactionMutat
     protected ReactionMutation.AddEmptyInput doPrepareMutation(ExperimentEntity entity, ReactionMutation.AddEmptyInput mutation, ExperimentMutationContext context) {
         return new ReactionMutation.AddEmptyInput(
                 mutation.anchor(),
-                mutation.createdInputAnchor() != null ? mutation.createdInputAnchor() : new InputAnchor(UUID.randomUUID()),
-                mutation.createdSampleAnchor() != null ? mutation.createdSampleAnchor() : new InputSampleAnchor(UUID.randomUUID())
+                mutation.createdInputAnchor() != null ? mutation.createdInputAnchor() : InputAnchor.create(),
+                mutation.createdSampleAnchor() != null ? mutation.createdSampleAnchor() : InputSampleAnchor.create()
         );
     }
 
@@ -202,8 +204,8 @@ class AddInputHandler extends AbstractReactionMutationHandler<ReactionMutation.A
         return new ReactionMutation.AddInput(
                 mutation.anchor(),
                 mutation.sampleId(),
-                mutation.createdInputAnchor() != null ? mutation.createdInputAnchor() : new InputAnchor(UUID.randomUUID()),
-                mutation.createdSampleAnchor() != null ? mutation.createdSampleAnchor() : new InputSampleAnchor(UUID.randomUUID())
+                mutation.createdInputAnchor() != null ? mutation.createdInputAnchor() : InputAnchor.create(),
+                mutation.createdSampleAnchor() != null ? mutation.createdSampleAnchor() : InputSampleAnchor.create()
         );
     }
 
@@ -215,6 +217,32 @@ class AddInputHandler extends AbstractReactionMutationHandler<ReactionMutation.A
         adjustLimitingInput(reaction);
 
         return new MutationResult("Add input sample: " + getSampleIdentifier(sample));
+    }
+}
+
+@Dependent
+@MutationHandlerFor(ReactionMutation.AddNoProductSample.class)
+class AddNoProductSampleHandler extends AbstractReactionMutationHandler<ReactionMutation.AddNoProductSample> {
+
+    @Inject
+    CompoundService compoundService;
+
+    @Override
+    protected ReactionMutation.AddNoProductSample doPrepareMutation(ExperimentEntity entity, ReactionMutation.AddNoProductSample mutation, ExperimentMutationContext context) {
+        return new ReactionMutation.AddNoProductSample(
+                mutation.anchor(),
+                mutation.createdOutputAnchor() != null ? mutation.createdOutputAnchor() : OutputAnchor.create(),
+                mutation.createdSampleAnchor() != null ? mutation.createdSampleAnchor() : OutputSampleAnchor.create()
+        );
+    }
+
+    @Override
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddNoProductSample mutation, ExperimentMutationContext context) {
+        CompoundRef compoundRef = compoundService.unknownCompoundRef();
+        ReactionOutput row = ReactionOutput.create(reaction, ReactionOutputType.BY_PRODUCT, false, reaction.generateNextProductName(), mutation.createdOutputAnchor(), compoundRef, EnteredValue.DEFAULT_ONE);
+        ReactionOutputSample.create(row, experiment.getName(), mutation.createdSampleAnchor(), EnteredValue.DEFAULT_ONE_HUNDRED);
+
+        return new MutationResult("Add empty batch");
     }
 }
 
@@ -231,7 +259,7 @@ class ResolveInputsHandler extends AbstractReactionMutationHandler<ReactionMutat
                 mutation.anchor(),
                 mutation.inputSamples(),
                 mutation.createdSampleAnchors() != null ? mutation.createdSampleAnchors() : EntryStream.of(mutation.inputSamples())
-                        .mapValues(k -> new InputSampleAnchor(UUID.randomUUID()))
+                        .mapValues(k -> InputSampleAnchor.create())
                         .toMap()
         );
     }
@@ -244,5 +272,42 @@ class ResolveInputsHandler extends AbstractReactionMutationHandler<ReactionMutat
             setInputLineSample(row, sample, checkNotNull(mutation.createdSampleAnchors()).get(inputAnchor), context);
         });
         return new MutationResult("Resolve input samples");
+    }
+}
+
+@Dependent
+@MutationHandlerFor(ReactionMutation.ImportSDF.class)
+class ImportSDFHandler extends AbstractReactionMutationHandler<ReactionMutation.ImportSDF> {
+
+    @Inject
+    CompoundService compoundService;
+
+    @Override
+    protected ReactionMutation.ImportSDF doPrepareMutation(ExperimentEntity entity, ReactionMutation.ImportSDF mutation, ExperimentMutationContext context) {
+        return new ReactionMutation.ImportSDF(
+                mutation.anchor(),
+                mutation.compoundIDs(),
+                mutation.createdOutputAnchors() != null ? mutation.createdOutputAnchors() : mutation.compoundIDs().stream().map(x -> OutputAnchor.create()).toList(),
+                mutation.createdSampleAnchors() != null ? mutation.createdSampleAnchors() : mutation.compoundIDs().stream().map(x -> OutputSampleAnchor.create()).toList()
+        );
+    }
+
+    @Override
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.ImportSDF mutation, ExperimentMutationContext context) {
+        Iterator<OutputAnchor> anchorIt = mutation.createdOutputAnchors().iterator();
+        Iterator<OutputSampleAnchor> sampleAnchorIt = mutation.createdSampleAnchors().iterator();
+        for (UUID compoundID : mutation.compoundIDs()) {
+            CompoundEntity compound = compoundService.getCompound(compoundID);
+            ReactionOutput output = reaction.findOutput(compoundID);
+            if (output == null) {
+                CompoundRef compound1 = compoundService.virtualCompoundRef(compound);
+                OutputAnchor anchor = anchorIt.next();
+                output = ReactionOutput.create(reaction, reaction.getFinalOutput() != null ? ReactionOutputType.BY_PRODUCT : ReactionOutputType.FINAL, false, reaction.generateNextProductName(), anchor, compound1, EnteredValue.DEFAULT_ONE);
+            }
+            ReactionOutputSample.create(output, experiment.getName(), sampleAnchorIt.next(), EnteredValue.DEFAULT_ONE_HUNDRED);
+        }
+        adjustLimitingInput(reaction);
+        context.getResponse().getMessages().add(mutation.compoundIDs().size() + " samples imported from SDF");
+        return new MutationResult("Import SDF (" + mutation.compoundIDs().size() + " samples)");
     }
 }

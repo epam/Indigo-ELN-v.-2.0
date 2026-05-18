@@ -17,8 +17,8 @@ import java.util.UUID;
 public interface ProjectClient extends ProjectAPI {
 
     @SneakyThrows
-    default List<AttachmentDTO> createProjectAttachment(UUID projectId, String filename, java.nio.file.Path tempDirectory, byte[] content) {
-        return createProjectAttachmentClient(projectId, ClientUtil.createFileUpload("file", filename, content, tempDirectory));
+    default List<AttachmentDTO> createProjectAttachment(UUID projectId, String filename, byte[] content) {
+        return createProjectAttachmentClient(projectId, ClientUtil.createFileUpload(filename, content));
     }
 
     @POST
