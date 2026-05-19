@@ -148,7 +148,7 @@ public class MutationsTest extends MutationsTestBase {
         @NotNull InputSampleAnchor removedAnchor = input1Sample1.getAnchor();
         assertThat(reaction.getInputs()).hasSize(2);
         MutationResponse response = applyMutation(new ReactionInputSampleMutation.RemoveInput(removedAnchor));
-        assertThat(response.getMessages()).contains("Removed, press Ctrl-Z/Cmd-Z to undo (not yet implemented)");
+        assertThat(response.getMessages()).contains("Removed, press Ctrl-Z/Cmd-Z to undo");
 
         assertThat(reaction.getInputs()).hasSize(1);
     }

@@ -164,11 +164,15 @@
           </div>
 
           <!-- Icon -->
-          <div
-            *ngIf="column.type === ColumnInputType.ICON && (column.editable == null || column.editable(row))"
-            class="p-2"
-          >
-            <button mat-icon-button (click)="column.onSave?.(row)" [matTooltip]="column.tooltip?.(row)">
+          <div *ngIf="column.type === ColumnInputType.ICON" class="p-2">
+            @let editable = column.editable == null || column.editable(row);
+            <button
+              mat-icon-button
+              (click)="editable ? column.onSave?.(row) : null"
+              [matTooltip]="column.tooltip?.(row)"
+              [class.opacity-30]="!editable"
+              [class.!cursor-default]="!editable"
+            >
               <em [ngClass]="column.iconClasses(row)"></em>
             </button>
           </div>

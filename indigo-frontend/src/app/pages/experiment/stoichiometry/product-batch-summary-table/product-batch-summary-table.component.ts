@@ -21,7 +21,6 @@ import { ButtonComponent } from '@/core/components/common/button/button.componen
 import { MatIcon } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { NotificationService } from '@core/services/notification/notification.service';
-import { NotificationType } from '@core/types/notification.i';
 import { MatTooltip } from '@angular/material/tooltip';
 import { ApiService } from '@core/services/api.service';
 import { openFileDialog } from '@core/utils/file.util';
@@ -210,7 +209,7 @@ export class ProductBatchSummaryTableComponent {
       type: ColumnInputType.ICON,
       field: () => null,
       iconClasses: () => ['indicon-link', 'text-[20px]', 'text-blue-600'],
-      tooltip: () => 'Sync with Products',
+      tooltip: (row: OutputSampleRow) => (row.output.intended ? 'Already synced with Products' : 'Sync with Products'),
       editable: (row: OutputSampleRow) => !row.output.intended,
       onSave: (row: OutputSampleRow) => {
         this.experimentDetailService
@@ -227,35 +226,48 @@ export class ProductBatchSummaryTableComponent {
       header: '',
       type: ColumnInputType.ICON,
       field: () => null,
-      iconClasses: (row: OutputSampleRow) => [
-        'indicon-add',
-        'text-[20px]',
-        row.sample.registrationStatus in [null, SampleRegistrationStatus.FAILED] ? 'text-green-600' : 'text-green-100',
-      ],
-      tooltip: () => 'Register Sample',
-      editable: (row: OutputSampleRow) => row.sample.registrationStatus == null,
-      onSave: (row: OutputSampleRow) => {
-        const error = (() => {
-          switch (row.sample.registrationStatus) {
-            case SampleRegistrationStatus.REGISTERED:
-              return 'Sample is already registered';
-            case SampleRegistrationStatus.IN_PROGRESS:
-              return 'Sample is already sent for registration';
-            default:
-              return null;
-          }
-        })();
-        if (error != null) {
-          this.notificationService.notify({
-            type: NotificationType.Error,
-            message: error,
-            isInline: false,
-          });
-          return;
+      iconClasses: () => ['indicon-add', 'text-[20px]', 'text-green-600'],
+      tooltip: (row: OutputSampleRow) => {
+        switch (row.sample.registrationStatus) {
+          case SampleRegistrationStatus.IN_PROGRESS:
+            return 'Sample already sent for registration';
+          case SampleRegistrationStatus.REGISTERED:
+            return 'Sample already registered';
+          default:
+            return 'Register Sample';
         }
+      },
+      editable: (row: OutputSampleRow) => !this.isSampleProtected(row),
+      onSave: (row: OutputSampleRow) => {
         this.experimentDetailService
           .updateDataModel({
             type: 'RegisterSample',
+            anchor: row.sample.anchor,
+          })
+          .subscribe({});
+      },
+    },
+    {
+      id: 'delete',
+      header: '',
+      type: ColumnInputType.ICON,
+      field: () => null,
+      iconClasses: () => ['indicon-delete', 'text-[20px]', 'text-red-600'],
+      tooltip: (row: OutputSampleRow) => {
+        switch (row.sample.registrationStatus) {
+          case SampleRegistrationStatus.IN_PROGRESS:
+            return 'Cannot delete sample that is already sent for registration';
+          case SampleRegistrationStatus.REGISTERED:
+            return 'Cannot delete registered sample';
+          default:
+            return 'Delete Sample';
+        }
+      },
+      editable: (row: OutputSampleRow) => !this.isSampleProtected(row),
+      onSave: (row: OutputSampleRow) => {
+        this.experimentDetailService
+          .updateDataModel({
+            type: 'RemoveProductSample',
             anchor: row.sample.anchor,
           })
           .subscribe({});
@@ -299,6 +311,10 @@ export class ProductBatchSummaryTableComponent {
 
   private determineClasses(value?: EnteredValue<unknown>): string[] {
     return determineCellClasses(value, this.experimentDetailService.updatedNodes());
+  }
+
+  private isSampleProtected(row: OutputSampleRow): boolean {
+    return row.sample.registrationStatus != null && row.sample.registrationStatus != SampleRegistrationStatus.FAILED;
   }
 
   getProductMenuLabel(output: ReactionOutput, index: number): string {
