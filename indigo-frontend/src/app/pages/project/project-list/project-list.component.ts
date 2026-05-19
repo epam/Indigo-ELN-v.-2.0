@@ -15,6 +15,7 @@ import { Subscription, take } from 'rxjs';
 import { ProjectAddComponent } from '../project-add/project-add.component';
 import { ProjectItemComponent } from '@pages/project/project-item/project-item.component';
 import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
+import { BreadcrumbsStateService } from '@core/services/breadcrumbs/breadcrumbs.state.service';
 
 @Component({
   selector: 'eln-project-list',
@@ -42,6 +43,8 @@ import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview
 })
 export class ProjectListComponent extends InfiniteScrollBase<Project> implements OnDestroy {
   dialog = inject(MatDialog);
+  breadcrumbsState = inject(BreadcrumbsStateService);
+
   selectedView: 'grid' | 'list' = 'grid';
   private refreshSub!: Subscription;
 
@@ -49,6 +52,17 @@ export class ProjectListComponent extends InfiniteScrollBase<Project> implements
 
   constructor() {
     super();
+
+    // breadcrumbs are shown in ProjectsOverviewWidgetComponent, but initialized here, because
+    // ProjectsOverviewWidgetComponent is not reinitialized when navigating inside /projects paths
+    this.breadcrumbsState.setItems([
+      {
+        label: 'All Projects',
+        url: '/projects',
+        active: true,
+      },
+    ]);
+
     this.setup({
       loadUrl: 'projects',
       sortOptions: [

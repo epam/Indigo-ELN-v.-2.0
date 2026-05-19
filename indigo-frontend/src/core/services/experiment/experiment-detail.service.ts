@@ -37,6 +37,8 @@ export class ExperimentDetailService {
     this.currentId.set(id);
     this.isLoading.set(true);
     this.hasError.set(false);
+    this.experimentDetail.set(null);
+    this.experimentTemplate.set(null);
 
     this.service
       .request<ExperimentDetail>('get', `experiments/${id}`)
@@ -47,12 +49,12 @@ export class ExperimentDetailService {
           this.lastLoadedDetail.set(structuredClone(exp));
           return this.service.request<Template>('get', `/api/eln/templates/${exp.templateId}`);
         }),
-        tap({
-          error: () => this.hasError.set(true),
-        }),
       )
-      .subscribe((template) => {
-        this.experimentTemplate.set(template);
+      .subscribe({
+        next: (template) => {
+          this.experimentTemplate.set(template);
+        },
+        error: () => this.hasError.set(true),
       });
   }
 
@@ -147,6 +149,7 @@ export class ExperimentDetailService {
     this.currentId.set(null);
     this.experimentDetail.set(null);
     this.lastLoadedDetail.set(null);
+    this.experimentTemplate.set(null);
     this.isLoading.set(false);
     this.isUpdating.set(false);
     this.hasError.set(false);
