@@ -41,7 +41,6 @@ export class ExperimentDescriptionComponent {
         switchMap((value) => {
           const exp = this.experimentDetailService.experimentDetail();
           const description = (value as Record<string, unknown>)['description'] as string | null;
-          console.log(description);
           if (description === (exp.description ?? null)) return EMPTY;
           return this.experimentDetailService.editExperiment({ description });
         }),

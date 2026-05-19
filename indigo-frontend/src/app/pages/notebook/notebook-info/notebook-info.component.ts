@@ -3,7 +3,7 @@ import { CardComponent } from '@/core/components/common/card/card.component';
 import { NotebookDetail } from '@/core/types/entities/notebook-detail.i';
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { NotebookService } from '../../../../core/services/notebook/notebook.service';
+import { NotebookService } from '@core/services/notebook/notebook.service';
 import { TeamComponent } from '@/core/components/common/team/team.component';
 import { TeamComponentConfig } from '@/core/components/common/team/team.config';
 import { NotebookEditComponent } from '@pages/notebook/notebook-edit/notebook-edit.component';

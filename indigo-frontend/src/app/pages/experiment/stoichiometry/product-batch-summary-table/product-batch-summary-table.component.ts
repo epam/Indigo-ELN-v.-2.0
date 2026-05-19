@@ -327,7 +327,6 @@ export class ProductBatchSummaryTableComponent {
     openFileDialog('.sdf')
       .pipe(
         switchMap((file) => {
-          console.log('importSDF, switchMap, file = ', file);
           const formData = new FormData();
           formData.append('file', file);
           const operation = this.apiService.request<MutationResponse>(

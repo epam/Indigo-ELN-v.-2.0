@@ -63,25 +63,23 @@ export class ExperimentLayoutComponent implements OnInit, OnDestroy {
 
   private readonly breadcrumbsEffect = effect(() => {
     const experiment = this.experiment();
-    if (experiment != null) {
-      this.breadcrumbsState.setItems([
-        { label: 'All Projects', url: '/projects', active: false },
-        {
-          label: `Project: ${experiment.projectName}`,
-          url: `/projects/${experiment.projectId}`,
-          active: false,
-        },
-        {
-          label: `Notebook: ${experiment.notebookName}`,
-          url: `/projects/${experiment.projectId}/notebooks/${experiment.notebookId}`,
-          active: false,
-        },
-        {
-          label: `Experiment: ${experiment.name}`,
-          active: true,
-        },
-      ]);
-    }
+    this.breadcrumbsState.setItems([
+      { label: 'All Projects', url: '/projects', active: false },
+      {
+        label: `Project: ${experiment?.projectName ?? ''}`,
+        url: experiment ? `/projects/${experiment.projectId}` : null,
+        active: false,
+      },
+      {
+        label: `Notebook: ${experiment?.notebookName ?? ''}`,
+        url: experiment ? `/projects/${experiment.projectId}/notebooks/${experiment.notebookId}` : null,
+        active: false,
+      },
+      {
+        label: `Experiment: ${experiment?.name ?? ''}`,
+        active: true,
+      },
+    ]);
   });
 
   private readonly tabsEffect = effect(() => {

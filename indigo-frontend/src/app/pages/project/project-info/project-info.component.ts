@@ -5,7 +5,7 @@ import { TeamComponent } from '@/core/components/common/team/team.component';
 import { ApiService } from '@/core/services/api.service';
 import { Project } from '@/core/types/entities/project.i';
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, effect, inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { finalize, Subject, take } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -52,11 +52,17 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
+  private readonly breadcrumbsEffect = effect(() => {});
+
   projectTeamConfig: TeamComponentConfig = {
     buildAccessEndpoint: (id: string) => `projects/${id}/access`,
   };
 
   ngOnInit() {
+    this.breadcrumbsState.setItems([
+      { label: 'All Projects', url: '/projects', active: false },
+      { label: `Project: `, active: true },
+    ]);
     this.activatedRoute.params.pipe(takeUntil(this.destroy$)).subscribe(({ id }) => {
       if (id) {
         this.loadProject(id);
