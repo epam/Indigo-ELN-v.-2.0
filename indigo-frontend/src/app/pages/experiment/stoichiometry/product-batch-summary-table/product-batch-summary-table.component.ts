@@ -1,15 +1,16 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { Observable, switchMap } from 'rxjs';
-import { Reaction, ReactionOutput, ReactionOutputSample } from '@core/types/entities/experiments/experiment.i';
+import { switchMap } from 'rxjs';
+import { ReactionOutput, ReactionOutputSample } from '@core/types/entities/experiments/experiment.i';
 import {
   MolUnit,
   ReactionOutputType,
   SampleRegistrationStatus,
   UNIT_DISPLAY_NAMES,
+  UUID,
   VolumeUnit,
   WeightUnit,
 } from '@core/types/entities/experiments/experiment-shared.i';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { EditableDataTableComponent } from '../editable-data-table/editable-data-table.component';
 import { BatchDetailData, BatchDetailPanelComponent } from '../batch-detail-panel/batch-detail-panel.component';
 import { ColumnConfig, ColumnInputType, ColumnOption, ExpandableConfig } from '../shared/editable-table.types';
@@ -20,9 +21,10 @@ import { ButtonComponent } from '@/core/components/common/button/button.componen
 import { MatIcon } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { NotificationService } from '@core/services/notification/notification.service';
-import { NotificationType } from '@core/types/notification.i';
 import { MatTooltip } from '@angular/material/tooltip';
 import { ApiService } from '@core/services/api.service';
+import { openFileDialog } from '@core/utils/file.util';
+import { MutationResponse, ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
 
 interface OutputSampleRow {
   output: ReactionOutput;
@@ -36,20 +38,21 @@ interface OutputSampleRow {
 })
 export class ProductBatchSummaryTableComponent {
   private experimentDetailService = inject(ExperimentDetailService);
-  private snackBar = inject(MatSnackBar);
   private notificationService = inject(NotificationService);
   private apiService = inject(ApiService);
 
-  reaction = input<Reaction | null>(null);
-  experimentId = input<string | null>(null);
+  experimentId = input.required<UUID>();
+  reactionAnchor = input.required<ReactionAnchor>();
+
+  reaction = computed(() => this.experimentDetailService.getReaction(this.reactionAnchor()));
 
   dataSource = computed(() => {
-    // Use real data from reaction outputs
-    const outputs = this.reaction()?.outputs;
-    return outputs?.flatMap((output) => output.samples.map((sample) => ({ output, sample })));
+    return this.reaction().outputs.flatMap((output) => output.samples.map((sample) => ({ output, sample })));
   });
 
-  linkableProducts = computed(() => (this.reaction()?.outputs ?? []).filter((p) => p.intended));
+  linkableProducts = computed(() => {
+    return this.reaction().outputs.filter((p) => p.intended);
+  });
 
   readonly columns = computed<ColumnConfig<OutputSampleRow>[]>(() => [
     {
@@ -206,7 +209,7 @@ export class ProductBatchSummaryTableComponent {
       type: ColumnInputType.ICON,
       field: () => null,
       iconClasses: () => ['indicon-link', 'text-[20px]', 'text-blue-600'],
-      tooltip: () => 'Sync with Products',
+      tooltip: (row: OutputSampleRow) => (row.output.intended ? 'Already synced with Products' : 'Sync with Products'),
       editable: (row: OutputSampleRow) => !row.output.intended,
       onSave: (row: OutputSampleRow) => {
         this.experimentDetailService
@@ -223,35 +226,48 @@ export class ProductBatchSummaryTableComponent {
       header: '',
       type: ColumnInputType.ICON,
       field: () => null,
-      iconClasses: (row: OutputSampleRow) => [
-        'indicon-add',
-        'text-[20px]',
-        row.sample.registrationStatus in [null, SampleRegistrationStatus.FAILED] ? 'text-green-600' : 'text-green-100',
-      ],
-      tooltip: () => 'Register Sample',
-      editable: (row: OutputSampleRow) => row.sample.registrationStatus == null,
-      onSave: (row: OutputSampleRow) => {
-        const error = (() => {
-          switch (row.sample.registrationStatus) {
-            case SampleRegistrationStatus.REGISTERED:
-              return 'Sample is already registered';
-            case SampleRegistrationStatus.IN_PROGRESS:
-              return 'Sample is already sent for registration';
-            default:
-              return null;
-          }
-        })();
-        if (error != null) {
-          this.notificationService.notify({
-            type: NotificationType.Error,
-            message: error,
-            isInline: false,
-          });
-          return;
+      iconClasses: () => ['indicon-add', 'text-[20px]', 'text-green-600'],
+      tooltip: (row: OutputSampleRow) => {
+        switch (row.sample.registrationStatus) {
+          case SampleRegistrationStatus.IN_PROGRESS:
+            return 'Sample already sent for registration';
+          case SampleRegistrationStatus.REGISTERED:
+            return 'Sample already registered';
+          default:
+            return 'Register Sample';
         }
+      },
+      editable: (row: OutputSampleRow) => !this.isSampleProtected(row),
+      onSave: (row: OutputSampleRow) => {
         this.experimentDetailService
           .updateDataModel({
             type: 'RegisterSample',
+            anchor: row.sample.anchor,
+          })
+          .subscribe({});
+      },
+    },
+    {
+      id: 'delete',
+      header: '',
+      type: ColumnInputType.ICON,
+      field: () => null,
+      iconClasses: () => ['indicon-delete', 'text-[20px]', 'text-red-600'],
+      tooltip: (row: OutputSampleRow) => {
+        switch (row.sample.registrationStatus) {
+          case SampleRegistrationStatus.IN_PROGRESS:
+            return 'Cannot delete sample that is already sent for registration';
+          case SampleRegistrationStatus.REGISTERED:
+            return 'Cannot delete registered sample';
+          default:
+            return 'Delete Sample';
+        }
+      },
+      editable: (row: OutputSampleRow) => !this.isSampleProtected(row),
+      onSave: (row: OutputSampleRow) => {
+        this.experimentDetailService
+          .updateDataModel({
+            type: 'RemoveProductSample',
             anchor: row.sample.anchor,
           })
           .subscribe({});
@@ -297,6 +313,10 @@ export class ProductBatchSummaryTableComponent {
     return determineCellClasses(value, this.experimentDetailService.updatedNodes());
   }
 
+  private isSampleProtected(row: OutputSampleRow): boolean {
+    return row.sample.registrationStatus != null && row.sample.registrationStatus != SampleRegistrationStatus.FAILED;
+  }
+
   getProductMenuLabel(output: ReactionOutput, index: number): string {
     return output.outputName?.trim() || output.chemicalName?.trim() || `P${index + 1}`;
   }
@@ -320,55 +340,19 @@ export class ProductBatchSummaryTableComponent {
   }
 
   importSDF() {
-    const reaction = this.reaction();
-    const experimentId = this.experimentId();
-    if (!reaction || !experimentId) return;
-
-    this.openFileDialog('.sdf')
+    openFileDialog('.sdf')
       .pipe(
         switchMap((file) => {
           const formData = new FormData();
           formData.append('file', file);
-          return this.experimentDetailService.updateDataModel2(
-            this.apiService.request(
-              'post',
-              `experiments/${experimentId}/datamodel/reactions/${reaction.anchor}/importSDF`,
-              formData,
-            ),
+          const operation = this.apiService.request<MutationResponse>(
+            'post',
+            `experiments/${this.experimentId()}/datamodel/reactions/${this.reactionAnchor()}/importSDF`,
+            formData,
           );
+          return this.experimentDetailService.updateDataModel2(operation);
         }),
       )
       .subscribe({});
-  }
-
-  private openFileDialog(accept: string): Observable<File> {
-    return new Observable((observer) => {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = accept;
-
-      const onChange = () => {
-        const file = input.files?.[0];
-        if (file) {
-          observer.next(file);
-        }
-        observer.complete();
-      };
-
-      // Fired when focus returns to the window after the picker closes (with or without a selection).
-      const onCancel = () => {
-        observer.complete();
-      };
-
-      input.addEventListener('change', onChange);
-      window.addEventListener('focus', onCancel, { once: true });
-
-      input.click();
-
-      return () => {
-        input.removeEventListener('change', onChange);
-        window.removeEventListener('focus', onCancel);
-      };
-    });
   }
 }

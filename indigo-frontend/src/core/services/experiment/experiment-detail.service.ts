@@ -1,12 +1,14 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { ApiService } from '@/core/services/api.service';
-import { ExperimentDetail } from '@core/types/entities/experiments/experiment-detail.i';
+import { ExperimentDetail, ExperimentEditRequest } from '@core/types/entities/experiments/experiment-detail.i';
 import { Mutation, MutationResponse, ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
 import { finalize, Observable, tap } from 'rxjs';
 import { NotificationService } from '@core/services/notification/notification.service';
 import { NotificationType } from '@core/types/notification.i';
 import { Reaction } from '@core/types/entities/experiments/experiment.i';
 import { JSON_PATCHER } from '@core/utils/json-patcher';
+import { Template } from '@core/types/entities/template.i';
+import { switchMap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -18,6 +20,7 @@ export class ExperimentDetailService {
   // Signals for experiment detail state
   readonly experimentDetail = signal<ExperimentDetail | null>(null);
   readonly experimentModel = computed(() => this.experimentDetail()?.model);
+  readonly experimentTemplate = signal<Template | null>(null);
   readonly lastLoadedDetail = signal<ExperimentDetail | null>(null);
   readonly isLoading = signal<boolean>(false);
   readonly hasError = signal<boolean>(false);
@@ -34,14 +37,22 @@ export class ExperimentDetailService {
     this.currentId.set(id);
     this.isLoading.set(true);
     this.hasError.set(false);
+    this.experimentDetail.set(null);
+    this.experimentTemplate.set(null);
 
     this.service
       .request<ExperimentDetail>('get', `experiments/${id}`)
-      .pipe(finalize(() => this.isLoading.set(false)))
-      .subscribe({
-        next: (exp) => {
+      .pipe(
+        finalize(() => this.isLoading.set(false)),
+        switchMap((exp) => {
           this.experimentDetail.set(exp);
           this.lastLoadedDetail.set(structuredClone(exp));
+          return this.service.request<Template>('get', `/api/eln/templates/${exp.templateId}`);
+        }),
+      )
+      .subscribe({
+        next: (template) => {
+          this.experimentTemplate.set(template);
         },
         error: () => this.hasError.set(true),
       });
@@ -59,15 +70,6 @@ export class ExperimentDetailService {
   }
 
   updateDataModel2(operation: Observable<MutationResponse>): Observable<MutationResponse> {
-    const id = this.currentId();
-
-    if (!id) {
-      console.warn('No experiment ID in context');
-      return new Observable((observer) => {
-        observer.error(new Error('No experiment ID available'));
-      });
-    }
-
     this.isUpdating.set(true);
 
     return operation.pipe(
@@ -106,6 +108,21 @@ export class ExperimentDetailService {
     );
   }
 
+  dataModelUpdated(updater: (model: ExperimentDetail) => ExperimentDetail) {
+    this.experimentDetail.update(updater);
+    this.lastLoadedDetail.update(updater);
+  }
+
+  editExperiment(patch: ExperimentEditRequest): Observable<ExperimentDetail> {
+    const id = this.currentId();
+    return this.service.request<ExperimentDetail>('patch', `experiments/${id}`, patch).pipe(
+      tap((updated) => {
+        this.experimentDetail.set(updated);
+        this.lastLoadedDetail.set(structuredClone(updated));
+      }),
+    );
+  }
+
   executeWorkflow(operation: string, params?: Record<string, string>): Observable<ExperimentDetail> {
     this.isLoading.set(true);
     this.hasError.set(false);
@@ -132,6 +149,7 @@ export class ExperimentDetailService {
     this.currentId.set(null);
     this.experimentDetail.set(null);
     this.lastLoadedDetail.set(null);
+    this.experimentTemplate.set(null);
     this.isLoading.set(false);
     this.isUpdating.set(false);
     this.hasError.set(false);

@@ -1,9 +1,8 @@
-import { Component, computed, inject, Input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { ButtonComponent } from '@/core/components/common/button/button.component';
-import { Mutation } from '@/core/types/entities/experiments/mutation.i';
-import { Reaction } from '@/core/types/entities/experiments/experiment.i';
+import { Mutation, ReactionAnchor } from '@/core/types/entities/experiments/mutation.i';
 import {
   StructureEditorModalComponent,
   StructureEditorModalResult,
@@ -14,6 +13,7 @@ import { SvgIconComponent } from '@/core/components/common/svg-icon/svg-icon.com
 import { ApiService } from '@core/services/api.service';
 import { AnalyzeRxnComponent } from '@pages/experiment/analyze-rxn/analyze-rxn.component';
 import { SlideInPanelService } from '@core/components/common/slide-in-panel/slide-in-panel.service';
+import { UUID } from '@core/types/entities/experiments/experiment-shared.i';
 
 @Component({
   selector: 'eln-reaction-scheme-view',
@@ -22,43 +22,26 @@ import { SlideInPanelService } from '@core/components/common/slide-in-panel/slid
   templateUrl: './reaction-scheme-view.component.html',
 })
 export class ReactionSchemeViewComponent {
-  @Input({ required: true }) reaction: Reaction | null = null;
-  @Input({ required: true }) experimentId: string;
+  experimentId = input.required<UUID>();
+  reactionAnchor = input.required<ReactionAnchor>();
 
   dialog = inject(MatDialog);
   experimentDetailService = inject(ExperimentDetailService);
   service = inject(ApiService);
   slideInPanelService = inject(SlideInPanelService);
 
+  experiment = computed(() => this.experimentDetailService.experimentDetail());
+  reaction = computed(() => this.experimentDetailService.getReaction(this.reactionAnchor()));
+
   reactionSchemeBlob = computed(() => {
-    if (!this.reaction) {
-      return null;
-    }
-    return this.experimentDetailService.updatedReactionImages().get(this.reaction.anchor);
+    return this.experimentDetailService.updatedReactionImages().get(this.reaction().anchor);
   });
 
   reactionSchemeImageUrl = computed(() => {
-    if (!this.reaction) {
-      return null;
-    }
-    return `experiments/${this.experimentId}/datamodel/reactions/${this.reaction.anchor}/picture?revision=${this.experimentDetailService.experimentDetail().revision}`;
+    return `experiments/${this.experimentId()}/datamodel/reactions/${this.reaction().anchor}/picture?revision=${this.experimentDetailService.experimentDetail().revision}`;
   });
 
   openChemicalEditor(): void {
-    if (!this.experimentId) {
-      console.warn('No experiment ID available');
-      return;
-    }
-
-    this.openModal();
-  }
-
-  private openModal(): void {
-    if (!this.reaction) {
-      console.warn('No reaction available');
-      return;
-    }
-
     const dialogRef = this.dialog.open(StructureEditorModalComponent, {
       width: '90vw',
       height: '80vh',
@@ -69,7 +52,7 @@ export class ReactionSchemeViewComponent {
         height: '600px',
         width: '100%',
         isReaction: true,
-        reaction: this.reaction,
+        reaction: this.reaction(),
       },
     });
 
@@ -77,7 +60,7 @@ export class ReactionSchemeViewComponent {
       if (result?.success) {
         this.updateExperiment({
           type: 'SetScheme',
-          anchor: this.reaction.anchor,
+          anchor: this.reaction().anchor,
           rxnFile: result.molOrRxnFile,
         } as Mutation);
       }
@@ -89,7 +72,7 @@ export class ReactionSchemeViewComponent {
       if (response.unresolvedInputs && Object.keys(response.unresolvedInputs).length != 0) {
         this.slideInPanelService.open(AnalyzeRxnComponent, {
           inputs: {
-            reaction: this.experimentDetailService.getReaction(this.reaction.anchor),
+            reaction: this.reaction(),
             unresolvedInputs: response.unresolvedInputs,
           },
         });

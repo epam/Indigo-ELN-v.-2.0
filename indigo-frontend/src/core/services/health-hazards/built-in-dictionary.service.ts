@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { ApiService } from '@/core/services/api.service';
 import { BuiltInDictionary, DictionaryItemRef } from '@/core/types/entities/dictionary.i';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',

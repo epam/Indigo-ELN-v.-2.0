@@ -61,7 +61,7 @@ public interface ExperimentAPI extends BaseAPI {
     List<AttachmentDTO> createExperimentAttachment(@PathParam("experimentId") UUID experimentId, UploadForm form);
 
     @GET
-    @Path("/experiment/{experimentId}/attachments/{attachmentId}")
+    @Path("/experiments/{experimentId}/attachments/{attachmentId}")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     Response downloadExperimentAttachment(@PathParam("experimentId") UUID experimentId, @PathParam("attachmentId") UUID attachmentId);
 

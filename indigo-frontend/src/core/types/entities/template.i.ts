@@ -1,17 +1,5 @@
 import { BaseEntity } from './base-entity.i';
 
-export interface TemplateComponentAttachments {
-  type: 'attachments';
-}
-
-export interface TemplateComponentBatches {
-  type: 'batches';
-}
-
-export interface TemplateComponentConceptDetails {
-  type: 'conceptDetails';
-}
-
 export interface TemplateComponentExperimentDetails {
   type: 'experimentDetails';
 }
@@ -20,49 +8,32 @@ export interface TemplateComponentExperimentDescription {
   type: 'experimentDescription';
 }
 
-export interface TemplateComponentPreferredCompoundsDetails {
-  type: 'preferredCompoundsDetails';
-}
-
-export interface TemplateComponentPreferredCompoundsSummary {
-  type: 'preferredCompoundsSummary';
-}
-
-export interface TemplateComponentReactionDetails {
-  type: 'reactionsDetails';
+export interface TemplateComponentAttachments {
+  type: 'attachments';
 }
 
 export interface TemplateComponentStoichiometryTable {
   type: 'stoichiometryTable';
+  reactionScheme: boolean;
   reactantsReagentsSolvents: boolean;
-  reactionProducts: boolean;
+  intendedProducts: boolean;
 }
 
-export interface TemplateComponentReactionScheme {
-  type: 'reactionScheme';
+export interface TemplateComponentBatches {
+  type: 'batches';
 }
 
-export interface TemplateComponentReactants {
-  type: 'reactants';
-}
-
-export interface TemplateComponentIntendedProducts {
-  type: 'intendedProducts';
+export interface TemplateComponentVersionHistory {
+  type: 'versionHistory';
 }
 
 export type TemplateComponent =
-  | TemplateComponentAttachments
-  | TemplateComponentBatches
-  | TemplateComponentConceptDetails
   | TemplateComponentExperimentDetails
   | TemplateComponentExperimentDescription
-  | TemplateComponentPreferredCompoundsDetails
-  | TemplateComponentPreferredCompoundsSummary
-  | TemplateComponentReactionDetails
+  | TemplateComponentAttachments
   | TemplateComponentStoichiometryTable
-  | TemplateComponentReactionScheme
-  | TemplateComponentReactants
-  | TemplateComponentIntendedProducts;
+  | TemplateComponentBatches
+  | TemplateComponentVersionHistory;
 
 export interface TemplateTab {
   name: string;

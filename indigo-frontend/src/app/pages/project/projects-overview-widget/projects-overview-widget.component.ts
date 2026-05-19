@@ -1,6 +1,6 @@
 import { ClassPickerPipe } from '@/core/pipes/classPicker.pipe';
 import { AsyncPipe, NgIf, NgTemplateOutlet } from '@angular/common';
-import { Component, inject, OnInit, Signal } from '@angular/core';
+import { Component, inject, Signal } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ProjectsOverviewWidgetService } from './services/projects-overview-widget.service';
 import { ApiService } from '@core/services/api.service';
@@ -46,21 +46,11 @@ interface TotalCounts {
   templateUrl: './projects-overview-widget.component.html',
   styleUrls: ['./project-overview-widget.component.scss'],
 })
-export class ProjectsOverviewWidgetComponent implements OnInit {
+export class ProjectsOverviewWidgetComponent {
   public projectsOverviewWidgetService = inject(ProjectsOverviewWidgetService);
   public breadcrumbsState = inject(BreadcrumbsStateService);
 
   apiService = inject(ApiService);
 
   totalCounts: Signal<TotalCounts> = toSignal(this.apiService.request('get', 'total-counts'));
-
-  ngOnInit(): void {
-    this.breadcrumbsState.setItems([
-      {
-        label: 'All Projects',
-        url: '/projects',
-        active: true,
-      },
-    ]);
-  }
 }

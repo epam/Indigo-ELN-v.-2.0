@@ -13,17 +13,6 @@ export class NotebookService {
   readonly hasError = signal<boolean>(false);
   private readonly currentId = signal<string | null>(null);
 
-  // Public API
-  setNotebook(notebookDetail: NotebookDetail | null) {
-    this.notebook.set(notebookDetail);
-  }
-  setLoading(value: boolean) {
-    this.isLoading.set(value);
-  }
-  setError(value: boolean) {
-    this.hasError.set(value);
-  }
-
   load(id: string) {
     this.currentId.set(id);
     this.isLoading.set(true);
