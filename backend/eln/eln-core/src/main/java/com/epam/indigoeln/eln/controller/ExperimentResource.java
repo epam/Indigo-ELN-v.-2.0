@@ -208,4 +208,9 @@ public class ExperimentResource implements ExperimentAPI {
     public MutationResponse importSDF(UUID experimentId, ReactionAnchor reactionAnchor, UploadForm form) {
         return experimentService.importSDF(experimentId, reactionAnchor, form.getFile());
     }
+
+    @Override
+    public String exportSDF(UUID experimentId) {
+        return experimentService.exportSDF(experimentId);
+    }
 }

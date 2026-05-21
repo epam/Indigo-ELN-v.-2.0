@@ -22,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -367,5 +368,19 @@ class ExperimentServiceTest extends ELNBaseTest {
 
         Page<ExperimentDTO> result3 = experimentClient.getNotebookExperiments(notebook.getId(), e1.getName().substring(4), null, null, Paging.DEFAULT);
         assertThat(result2.getItems()).map(ExperimentDTO::getName).containsOnly(e1.getName());
+    }
+
+    @Test
+    @SneakyThrows
+    void testExportSDF() {
+        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID, "An experiment", therapeuticAreas.getFirst(), projectCodes.getFirst()));
+        ExperimentModel model = experiment.getModel();
+        Path sdfFilePath = Path.of("src/test/resources/reaction.sdf");
+
+        String rxnFile = loadResourceAsString(getClass(), "/reaction.rxn");
+        experimentClient.mutateExperimentModel(experiment.getId(), new MutateModelForm(experiment.getModel(), new ReactionMutation.SetScheme(model.getReactions().getFirst().getAnchor(), rxnFile)));
+
+        String result = experimentClient.exportSDF(experiment.getId());
+        assertThat(result).containsIgnoringWhitespaces(Files.readString(sdfFilePath));
     }
 }

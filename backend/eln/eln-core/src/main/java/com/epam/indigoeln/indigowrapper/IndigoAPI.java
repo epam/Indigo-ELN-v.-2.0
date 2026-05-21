@@ -75,4 +75,8 @@ public class IndigoAPI {
     public IndigoIterable<IndigoMolecule> iterateSDFile(String path) {
         return new IndigoIterable<>(() -> indigo.iterateSDFile(path), o -> new IndigoMolecule(this, o));
     }
+
+    public IndigoSDFSaver writeFile(String filename) {
+        return new IndigoSDFSaver(this, indigo.writeFile(filename));
+    }
 }
