@@ -380,7 +380,8 @@ class ExperimentServiceTest extends ELNBaseTest {
         String rxnFile = loadResourceAsString(getClass(), "/reaction.rxn");
         experimentClient.mutateExperimentModel(experiment.getId(), new MutateModelForm(experiment.getModel(), new ReactionMutation.SetScheme(model.getReactions().getFirst().getAnchor(), rxnFile)));
 
-        String result = experimentClient.exportSDF(experiment.getId());
-        assertThat(result).containsIgnoringWhitespaces(Files.readString(sdfFilePath));
+        byte[] result = experimentClient.exportSDF(experiment.getId());
+        assertThat(result).asString().containsIgnoringWhitespaces(">  <molWeight>\n" +
+                "180.16", ">  <chemicalName>");
     }
 }

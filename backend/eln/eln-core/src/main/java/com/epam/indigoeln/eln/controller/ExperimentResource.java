@@ -210,7 +210,7 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
-    public String exportSDF(UUID experimentId) {
+    public byte[] exportSDF(UUID experimentId) {
         return experimentService.exportSDF(experimentId);
     }
 }
