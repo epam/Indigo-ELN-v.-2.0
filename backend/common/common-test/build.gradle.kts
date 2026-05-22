@@ -14,6 +14,7 @@ dependencies {
     api("io.quarkus:quarkus-junit5-mockito")
     api("io.rest-assured:rest-assured")
     api("org.assertj:assertj-core:3.27.7")
+    api("com.tngtech.archunit:archunit-junit5:1.4.1")
     api("org.mockito:mockito-core:5.23.0")
     api("org.mockito:mockito-junit-jupiter:5.23.0")
     api("io.quarkiverse.wiremock:quarkus-wiremock-test:1.6.3")
