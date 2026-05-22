@@ -40,7 +40,6 @@ class ResourceImpl implements AutoCloseable {
 
         composeContainer = new ComposeContainer(new File("compose-integrationTests-services.yml"))
                 .withBuild(true)
-                .withLocalCompose(true)
                 .waitingFor("eln-service", Wait.forHealthcheck().withStartupTimeout(Duration.ofMinutes(5)))
                 .withTailChildContainers(true);
 

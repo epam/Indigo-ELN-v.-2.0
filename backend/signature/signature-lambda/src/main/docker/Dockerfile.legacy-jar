@@ -1,4 +1,4 @@
-FROM public.ecr.aws/lambda/java:21
+FROM public.ecr.aws/lambda/java:25
 
 # Install fonts required by JasperReports
 #RUN dnf install -y freetype fontconfig && \
