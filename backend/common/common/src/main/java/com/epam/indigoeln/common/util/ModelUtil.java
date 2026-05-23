@@ -10,11 +10,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 @UtilityClass
 public class ModelUtil {
@@ -96,12 +93,6 @@ public class ModelUtil {
 
     public boolean isNotEmpty(@Nullable Collection<?> list) {
         return list != null && !list.isEmpty();
-    }
-
-    public <T> Collector<T, ?, ?> ensureUnique(BiFunction<T, T, RuntimeException> exceptionFn) {
-        return Collectors.<T, T, T>toMap(Function.identity(), Function.identity(), (a, b) -> {
-            throw exceptionFn.apply(a, b);
-        });
     }
 
     public <T> void updateCollection(Collection<T> target, Collection<T> source) {
