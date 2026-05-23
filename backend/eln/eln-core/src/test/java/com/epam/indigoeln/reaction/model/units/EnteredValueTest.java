@@ -1,23 +1,26 @@
 package com.epam.indigoeln.reaction.model.units;
 
-import com.epam.indigoeln.reaction.util.SignificantFiguresUtil;
 import one.util.streamex.StreamEx;
 import org.assertj.core.api.AbstractThrowableAssert;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.data.Offset;
 import org.jspecify.annotations.Nullable;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.InvocationInterceptor;
+import org.junit.jupiter.api.extension.ReflectiveInvocationContext;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.userEntered;
+import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.callWithSignificantFigures;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
@@ -38,15 +41,17 @@ class EnteredValueTest {
 
     private static final Offset<Double> EPSILON = Offset.offset(0.0001);
 
-    @BeforeAll
-    static void setUpClass() {
-        SignificantFiguresUtil.setSignificantFigures(5);
-    }
-
-    @AfterAll
-    static void tearDownClass() {
-        SignificantFiguresUtil.clearSignificantFigures();
-    }
+    @RegisterExtension
+    static final InvocationInterceptor SIG_FIGS_5 = new InvocationInterceptor() {
+        @Override
+        public void interceptTestMethod(Invocation<Void> invocation, ReflectiveInvocationContext<Method> ctx, ExtensionContext ext) throws Throwable {
+            callWithSignificantFigures(5, invocation::proceed);
+        }
+        @Override
+        public void interceptTestTemplateMethod(Invocation<Void> invocation, ReflectiveInvocationContext<Method> ctx, ExtensionContext ext) throws Throwable {
+            callWithSignificantFigures(5, invocation::proceed);
+        }
+    };
 
     @Test
     void testAddUnitsCombinations() {

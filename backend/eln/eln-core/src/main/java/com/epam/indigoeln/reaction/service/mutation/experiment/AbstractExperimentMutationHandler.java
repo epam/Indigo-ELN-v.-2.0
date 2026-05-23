@@ -19,7 +19,6 @@ import com.epam.indigoeln.reaction.service.calculator.ReactionCalculator;
 import com.epam.indigoeln.reaction.service.mutation.ExperimentModelMutationListener;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandler;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
-import com.epam.indigoeln.reaction.util.SignificantFiguresUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.quarkus.arc.All;
 import jakarta.enterprise.inject.Instance;
@@ -33,6 +32,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
+import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.runWithSignificantFigures;
 
 @Slf4j
 public abstract class AbstractExperimentMutationHandler<T extends ExperimentMutation> extends MutationHandler<T, ExperimentEntity, ExperimentSnapshot, ExperimentRevisionEntity, ExperimentMutationContext> {
@@ -88,12 +88,12 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
     protected final JsonNode doUpdateEntity(ExperimentEntity experiment, ExperimentSnapshot snapshotBefore, ExperimentSnapshot snapshotAfter, ExperimentMutationContext context) {
         ExperimentModel model = experiment.getModelObj();
         if (model != null) {
-            SignificantFiguresUtil.setSignificantFigures(model.getSignificantFigures());
-            doNotifyBeforeRecalculate(experiment, model, context);
-            reactionCalculatorFactory.get().recalculate(model);
-            doNotifyAfterRecalculate(experiment, model, context);
-            doValidateModel(model);
-            SignificantFiguresUtil.clearSignificantFigures();
+            runWithSignificantFigures(model.getSignificantFigures(), () -> {
+                doNotifyBeforeRecalculate(experiment, model, context);
+                reactionCalculatorFactory.get().recalculate(model);
+                doNotifyAfterRecalculate(experiment, model, context);
+                doValidateModel(model);
+            });
         }
         updateDates(experiment, userService.getCurrentUserEntity());
         JsonNode patch = experimentModelService.createPatch(snapshotBefore, snapshotAfter);
