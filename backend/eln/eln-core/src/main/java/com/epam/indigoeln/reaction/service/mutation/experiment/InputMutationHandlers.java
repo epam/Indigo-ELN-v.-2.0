@@ -16,10 +16,7 @@ class SetInputRowLimitingHandler extends AbstractReactionInputMutationHandler<Re
 
     @Override
     public MutationResult doHandle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowLimiting mutation, ExperimentMutationContext context) {
-        for (ReactionInput otherRow : row.getReaction().getInputs()) {
-            otherRow.setLimiting(false);
-        }
-        row.setLimiting(true);
+        reaction.setLimitingAnchor(row.getAnchor());
         return new MutationResult("Change limiting input");
     }
 }

@@ -4,6 +4,7 @@ import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -39,9 +40,6 @@ public final class ReactionInput extends ReactionRow {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<@Valid ReactionInputSample> samples = new ArrayList<>();
 
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    private boolean limiting;
-
     public static ReactionInput create(Reaction reaction, ReactionRole role, InputAnchor anchor, CompoundRef compound) {
         ReactionInput row = new ReactionInput();
         row.reaction = reaction;
@@ -51,6 +49,12 @@ public final class ReactionInput extends ReactionRow {
         reaction.getInputs().add(row);
         validateDuplicateInputs(reaction, row);
         return row;
+    }
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    public boolean isLimiting() {
+        return anchor.equals(reaction.getLimitingAnchor());
     }
 
     public void updateCompound(CompoundRef newCompound) {

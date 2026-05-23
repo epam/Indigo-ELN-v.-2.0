@@ -39,6 +39,9 @@ public final class Reaction extends AbstractExperimentNode<ExperimentModel> {
     @JsonManagedReference
     private List<@Valid ReactionInput> inputs = new ArrayList<>();
 
+    @Nullable
+    private InputAnchor limitingAnchor;
+
     @NotNull
     @JsonManagedReference
     private List<@Valid ReactionOutput> outputs = new ArrayList<>();
@@ -54,7 +57,7 @@ public final class Reaction extends AbstractExperimentNode<ExperimentModel> {
     @JsonIgnore
     public ReactionInput getLimitingInput() {
         for (ReactionInput input : inputs) {
-            if (input.isLimiting()) {
+            if (input.getAnchor().equals(limitingAnchor)) {
                 return input;
             }
         }
