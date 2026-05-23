@@ -5,6 +5,7 @@ import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.service.mutation.ExperimentModelMutationListener;
 import com.epam.indigoeln.reaction.service.mutation.experiment.ExperimentMutationContext;
+import jakarta.annotation.Priority;
 import jakarta.enterprise.context.Dependent;
 
 import java.util.HashSet;
@@ -14,8 +15,8 @@ import java.util.UUID;
 import static com.google.common.base.Preconditions.checkState;
 
 @Dependent
-//@MutationListener(priority = xxx)
-public class ModelTreeValidationListener extends ExperimentModelMutationListener {
+@Priority(ExperimentModelMutationListener.VALIDATION_PRIORITY)
+public class ModelTreeValidationListener implements ExperimentModelMutationListener {
 
     @Override
     public void afterRecalculate(ExperimentEntity experiment, ExperimentModel model, ExperimentMutationContext context) {

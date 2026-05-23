@@ -49,7 +49,7 @@ public final class ReactionInput extends ReactionRow {
         row.role = role;
         row.compound = compound;
         reaction.getInputs().add(row);
-        reaction.validateDuplicateInputs(row);
+        validateDuplicateInputs(reaction, row);
         return row;
     }
 
@@ -58,11 +58,19 @@ public final class ReactionInput extends ReactionRow {
             validate(sample.getSampleId() == null, "Cannot update compound with real samples attached");
         }
         this.compound = newCompound;
-        reaction.validateDuplicateInputs(this);
+        validateDuplicateInputs(reaction, this);
     }
 
     @Override
     protected List<? extends AbstractExperimentNode<Reaction>> internalGetSiblings(Reaction parent) {
         return parent.getInputs();
+    }
+
+    private static void validateDuplicateInputs(Reaction reaction, ReactionInput newInput) {
+        for (ReactionInput input : reaction.getInputs()) {
+            if (input != newInput) {
+                validate(!input.getCompound().compoundKeyEquals(newInput.getCompound()), "Reaction contains duplicate input compounds");
+            }
+        }
     }
 }

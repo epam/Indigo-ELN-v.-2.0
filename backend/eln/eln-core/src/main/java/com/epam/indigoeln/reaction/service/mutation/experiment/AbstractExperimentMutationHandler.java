@@ -19,12 +19,9 @@ import com.epam.indigoeln.reaction.service.calculator.ReactionCalculator;
 import com.epam.indigoeln.reaction.service.mutation.ExperimentModelMutationListener;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandler;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
-import com.epam.indigoeln.reaction.service.mutation.experiment.listener.AdjustLimitingInputListener;
-import com.epam.indigoeln.reaction.service.mutation.experiment.listener.ModelTreeValidationListener;
-import com.epam.indigoeln.reaction.service.mutation.experiment.listener.UpdateCompoundReferencesListener;
-import com.epam.indigoeln.reaction.service.mutation.experiment.listener.UpdateExperimentRxnfilesListener;
 import com.epam.indigoeln.reaction.util.SignificantFiguresUtil;
 import com.fasterxml.jackson.databind.JsonNode;
+import io.quarkus.arc.All;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.validation.ConstraintViolation;
@@ -61,15 +58,9 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
     @Inject
     protected ACLService aclService;
 
-    // !!! replace with injected list
+    @All
     @Inject
-    AdjustLimitingInputListener adjustLimitingInputListener;
-    @Inject
-    UpdateExperimentRxnfilesListener updateExperimentRxnfilesListener;
-    @Inject
-    UpdateCompoundReferencesListener updateCompoundReferencesListener;
-    @Inject
-    ModelTreeValidationListener modelTreeValidationListener;
+    List<ExperimentModelMutationListener> listeners;
 
     @Override
     protected ExperimentMutationContext createContext() {
@@ -98,10 +89,10 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
         ExperimentModel model = experiment.getModelObj();
         if (model != null) {
             SignificantFiguresUtil.setSignificantFigures(model.getSignificantFigures());
+            doNotifyBeforeRecalculate(experiment, model, context);
             reactionCalculatorFactory.get().recalculate(model);
             doNotifyAfterRecalculate(experiment, model, context);
             doValidateModel(model);
-            // call listeners here!
             SignificantFiguresUtil.clearSignificantFigures();
         }
         updateDates(experiment, userService.getCurrentUserEntity());
@@ -152,24 +143,21 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
     @Override
     protected void doNotifyBeforeHandle(ExperimentEntity entity, T mutation, ExperimentMutationContext context) {
         if (entity.getModelObj() != null) {
-            for (ExperimentModelMutationListener listener : getListeners()) {
+            for (ExperimentModelMutationListener listener : listeners) {
                 listener.beforeHandle(entity, entity.getModelObj(), context);
             }
         }
     }
 
-    private void doNotifyAfterRecalculate(ExperimentEntity entity, ExperimentModel model, ExperimentMutationContext context) {
-        for (ExperimentModelMutationListener listener : getListeners()) {
-            listener.afterRecalculate(entity, model, context);
+    private void doNotifyBeforeRecalculate(ExperimentEntity entity, ExperimentModel model, ExperimentMutationContext context) {
+        for (ExperimentModelMutationListener listener : listeners) {
+            listener.beforeRecalculate(entity, model, context);
         }
     }
 
-    private List<ExperimentModelMutationListener> getListeners() {
-        return List.of(
-                adjustLimitingInputListener,
-                updateExperimentRxnfilesListener,
-                updateCompoundReferencesListener,
-                modelTreeValidationListener
-        );
+    private void doNotifyAfterRecalculate(ExperimentEntity entity, ExperimentModel model, ExperimentMutationContext context) {
+        for (ExperimentModelMutationListener listener : listeners) {
+            listener.afterRecalculate(entity, model, context);
+        }
     }
 }

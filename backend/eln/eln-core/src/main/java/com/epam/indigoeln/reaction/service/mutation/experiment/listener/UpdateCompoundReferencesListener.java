@@ -7,6 +7,7 @@ import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.service.ExperimentModelHelperService;
 import com.epam.indigoeln.reaction.service.mutation.ExperimentModelMutationListener;
 import com.epam.indigoeln.reaction.service.mutation.experiment.ExperimentMutationContext;
+import jakarta.annotation.Priority;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
@@ -14,8 +15,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Dependent
-//@MutationListener(priority = xxx)
-public class UpdateCompoundReferencesListener extends ExperimentModelMutationListener {
+@Priority(ExperimentModelMutationListener.DEFAULT_PRIORITY)
+public class UpdateCompoundReferencesListener implements ExperimentModelMutationListener {
 
     @Inject
     ExperimentModelHelperService experimentModelHelperService;

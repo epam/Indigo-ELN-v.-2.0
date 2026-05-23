@@ -7,7 +7,6 @@ import com.epam.indigoeln.reaction.model.ReactionInput;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
-import com.google.common.base.Preconditions;
 import jakarta.enterprise.context.Dependent;
 import one.util.streamex.StreamEx;
 
@@ -17,7 +16,6 @@ class SetInputRowLimitingHandler extends AbstractReactionInputMutationHandler<Re
 
     @Override
     public MutationResult doHandle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowLimiting mutation, ExperimentMutationContext context) {
-        Preconditions.checkState(row.getReaction().getLimitingInput() != null);
         for (ReactionInput otherRow : row.getReaction().getInputs()) {
             otherRow.setLimiting(false);
         }

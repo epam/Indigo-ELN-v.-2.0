@@ -336,7 +336,7 @@ public class ReactionCalculator {
         ModelProps(ExperimentModel model) {
             super(model);
             reactions = StreamEx.of(model.getReactions())
-                    .filter(x -> x.getLimitingInput() != null)
+                    .filter(x -> !x.getInputs().isEmpty())
                     .map(ReactionProps::new)
                     .toList();
         }

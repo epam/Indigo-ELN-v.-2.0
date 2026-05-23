@@ -23,5 +23,5 @@ public class ExperimentMutationContext extends AbstractMutationContext<Experimen
     @Nullable
     private Integer createdVersion;
 
-    private MutationResponse response = new MutationResponse();
+    private final MutationResponse response = new MutationResponse();
 }
