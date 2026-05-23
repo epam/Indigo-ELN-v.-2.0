@@ -16,12 +16,14 @@ import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.reaction.metamodel.ExperimentModelMetamodel;
 import com.epam.indigoeln.reaction.model.*;
-import com.epam.indigoeln.reaction.model.mutation.Mutation;
+import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.service.ExperimentModelHelperService;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import com.epam.indigoeln.reaction.service.calculator.ReactionCalculator;
+import com.epam.indigoeln.reaction.service.mutation.ExperimentMutationListener;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandler;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
+import com.epam.indigoeln.reaction.service.mutation.experiment.listener.AdjustLimitingInputListener;
 import com.epam.indigoeln.reaction.util.SignificantFiguresUtil;
 import com.epam.indigoeln.reaction.util.StreamUtil;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -34,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.EntryStream;
 import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.tuple.Triple;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 
@@ -44,7 +47,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 @Slf4j
-public abstract class AbstractExperimentMutationHandler<T extends Mutation> extends MutationHandler<T, ExperimentEntity, ExperimentSnapshot, ExperimentRevisionEntity, ExperimentMutationContext> {
+public abstract class AbstractExperimentMutationHandler<T extends ExperimentMutation> extends MutationHandler<T, ExperimentEntity, ExperimentSnapshot, ExperimentRevisionEntity, ExperimentMutationContext> {
 
     @Inject
     SnapshotMapper snapshotMapper;
@@ -66,6 +69,10 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation> exte
     ExperimentRepository experimentRepository;
     @Inject
     protected ACLService aclService;
+
+    // !!! replace with injected list
+    @Inject
+    AdjustLimitingInputListener adjustLimitingInputListener;
 
     @Override
     protected ExperimentMutationContext createContext() {
@@ -203,7 +210,7 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation> exte
             }
             // check anchors and rxnPositions are unique
             Map<Anchor, ExperimentNode> anchors = new HashMap<>();
-            Map<Triple<ReactionAnchor, ReactionRole, Integer>, ReactionRow> rxnPositions = new HashMap<>();
+            Map<Triple<ReactionAnchor, ReactionRole, @Nullable Integer>, ReactionRow> rxnPositions = new HashMap<>();
             ExperimentModelUtil.walk(ExperimentModelMetamodel.INSTANCE, model, node -> {
                 Anchor anchor = switch (node) {
                     case Reaction r -> r.getAnchor();
@@ -232,5 +239,26 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation> exte
         } catch (Exception e) {
             throw new RuntimeException("Mutation produced invalid model: " + e.getMessage(), e);
         }
+    }
+
+    @Override
+    protected void doNotifyBeforeHandle(ExperimentEntity entity, T mutation, ExperimentMutationContext context) {
+        for (ExperimentMutationListener<T> listener : getListeners()) {
+            listener.beforeHandle(entity, mutation, context);
+        }
+    }
+
+    @Override
+    protected void doNotifyAfterHandle(ExperimentEntity entity, T mutation, ExperimentMutationContext context) {
+        for (ExperimentMutationListener<T> listener : getListeners()) {
+            listener.afterHandle(entity, mutation, context);
+        }
+    }
+
+    private List<ExperimentMutationListener<T>> getListeners() {
+        //noinspection rawtypes,unchecked
+        return (List) List.of(
+                adjustLimitingInputListener
+        );
     }
 }

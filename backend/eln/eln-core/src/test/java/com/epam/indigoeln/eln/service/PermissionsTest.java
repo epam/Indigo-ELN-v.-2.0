@@ -34,8 +34,7 @@ import static com.epam.indigoeln.common.util.ModelUtil.loadResourceAsStream;
 import static com.epam.indigoeln.eln.model.AccessLevel.*;
 import static com.epam.indigoeln.eln.test.ACLListAssert.assertThatACL;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
+import static org.assertj.core.api.Assertions.*;
 
 
 @Slf4j
@@ -59,8 +58,9 @@ class PermissionsTest extends ELNBaseTest {
     TemplateDetailsDTO template;
     TherapeuticAreaRef therapeuticArea;
 
-    List<TemplateComponent> components = List.of(new TemplateComponent.Attachments());
-    List<TemplateTab> templateTabs = List.of(new TemplateTab("tabName", components));
+    List<TemplateTab> templateTabs = List.of(new TemplateTab("tabName", List.of(
+            new TemplateComponent.Attachments()))
+    );
 
     static {
         rows = new BufferedReader(new InputStreamReader(loadResourceAsStream(PermissionsTest.class, "/com/epam/indigoeln/eln/service/permissions.csv")))
@@ -85,7 +85,7 @@ class PermissionsTest extends ELNBaseTest {
         withUser(JOHN_USERNAME, () -> {
             template = templateClient.createTemplate(new TemplateRequest("PermissionsTest", templateTabs));
             therapeuticArea = dictionaryClient.getFirst(BuiltInDictionary.THERAPEUTIC_AREA);
-            iterateRows(row -> {
+            iterateRowsParallel(row -> {
                 row.projectId = projectClient.createProject(new ProjectRequest("project" + row.testId)).getId();
                 projectClient.createProjectAttachment(row.projectId, "attachment.txt", new byte[0]);
                 if (row.project != NONE) {
@@ -174,7 +174,7 @@ class PermissionsTest extends ELNBaseTest {
 
     @Test
     void testGetProject() {
-        iterateRows(row -> {
+        iterateRowsParallel(row -> {
             assertThatClientCall(() -> projectClient.getProject(row.projectId))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveProject.isSufficientFor(IMPLICIT_VIEW), "Operation not permitted");
@@ -183,7 +183,7 @@ class PermissionsTest extends ELNBaseTest {
 
     @Test
     void testEditProject() {
-        iterateRows(row -> {
+        iterateRowsParallel(row -> {
             assertThatClientCall(() -> projectClient.editProject(row.projectId, new ProjectEditRequest().withDescription(Optional.of("updated"))))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "Operation not permitted");
@@ -192,7 +192,7 @@ class PermissionsTest extends ELNBaseTest {
 
     @Test
     void testProjectAttachments(@TempDir Path tempDir) {
-        iterateRows(row -> {
+        iterateRowsParallel(row -> {
             assertThatClientCall(() -> projectClient.createProjectAttachment(row.projectId, "a", new byte[0]))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "Operation not permitted");
@@ -207,7 +207,7 @@ class PermissionsTest extends ELNBaseTest {
 
     @Test
     void testUpdateProjectAccess() {
-        iterateRows(row -> {
+        iterateRowsParallel(row -> {
             if (row.project != NONE) {
                 assertThatClientCall(() -> projectClient.updateProjectAccess(row.projectId, AccessForm.of(WILLOW_USERNAME, row.project)))
                         .isAllowedIf(row.effectiveProject.isSufficientFor(ADMIN), "Operation not permitted");
@@ -217,7 +217,7 @@ class PermissionsTest extends ELNBaseTest {
 
     @Test
     void testListNotebooks() {
-        iterateRows(row -> {
+        iterateRowsParallel(row -> {
             Page<NotebookDTO> notebooks = notebookClient.getProjectNotebooks(row.projectId, null, null, null, PAGING);
             if (row.effectiveNotebook != NONE) {
                 assertThat(notebooks.getItems()).extracting(NotebookDTO::getName).containsExactly(row.notebookDetails.getName());
@@ -230,7 +230,7 @@ class PermissionsTest extends ELNBaseTest {
     // TODO assuming EDIT is required to create children
     @Test
     void testCreateNotebook() {
-        iterateRows(row -> {
+        iterateRowsParallel(row -> {
             assertThatClientCall(() -> notebookClient.createNotebook(row.projectId, new NotebookRequest(nextNotebookName())))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "Operation not permitted");
@@ -239,7 +239,7 @@ class PermissionsTest extends ELNBaseTest {
 
     @Test
     void testGetNotebook() {
-        iterateRows(row -> {
+        iterateRowsParallel(row -> {
             assertThatClientCall(() -> notebookClient.getNotebook(row.notebookId))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveNotebook.isSufficientFor(IMPLICIT_VIEW), "Operation not permitted");
@@ -248,7 +248,7 @@ class PermissionsTest extends ELNBaseTest {
 
     @Test
     void testEditNotebook() {
-        iterateRows(row -> {
+        iterateRowsParallel(row -> {
             assertThatClientCall(() -> notebookClient.editNotebook(row.notebookId, new NotebookEditRequest().withDescription(Optional.of("updated"))))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "Operation not permitted");
@@ -257,7 +257,7 @@ class PermissionsTest extends ELNBaseTest {
 
     @Test
     void testNotebookAttachments(@TempDir Path tempDir) {
-        iterateRows(row -> {
+        iterateRowsParallel(row -> {
             assertThatClientCall(() -> notebookClient.createNotebookAttachment(row.notebookId, "a", new byte[0]))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "Operation not permitted");
@@ -272,7 +272,7 @@ class PermissionsTest extends ELNBaseTest {
 
     @Test
     void testUpdateNotebookAccess() {
-        iterateRows(row -> {
+        iterateRowsParallel(row -> {
             if (row.notebook != NONE) {
                 assertThatClientCall(() -> notebookClient.updateNotebookAccess(row.notebookId, AccessForm.of(WILLOW_USERNAME, row.notebook)))
                         .isAllowedIf(row.effectiveNotebook.isSufficientFor(ADMIN), "Operation not permitted");
@@ -282,7 +282,7 @@ class PermissionsTest extends ELNBaseTest {
 
     @Test
     void testCreateExperiment() {
-        iterateRows(row -> {
+        iterateRowsParallel(row -> {
             assertThatClientCall(() -> experimentClient.createExperiment(row.notebookId, new ExperimentRequest(emptyTemplateID)))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "Operation not permitted");
@@ -291,7 +291,7 @@ class PermissionsTest extends ELNBaseTest {
 
     @Test
     void testListExperiments() {
-        iterateRows(row -> {
+        iterateRowsParallel(row -> {
             Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(row.notebookId, null, null, null, PAGING);
             if (row.effectiveExperiment != NONE) {
                 assertThat(experiments.getItems()).extracting(ExperimentDTO::getName).containsExactly(row.experimentDetails.getName());
@@ -303,7 +303,7 @@ class PermissionsTest extends ELNBaseTest {
 
     @Test
     void testGetExperiment() {
-        iterateRows(row -> {
+        iterateRowsParallel(row -> {
             assertThatClientCall(() -> experimentClient.getExperiment(row.experimentId))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveExperiment.isSufficientFor(IMPLICIT_VIEW), "Operation not permitted");
@@ -312,7 +312,7 @@ class PermissionsTest extends ELNBaseTest {
 
     @Test
     void testEditExperiment() {
-        iterateRows(row -> {
+        iterateRowsParallel(row -> {
             assertThatClientCall(() -> {
                 experimentClient.editExperiment(row.experimentId, new ExperimentEditRequest().withTherapeuticArea(Optional.of(therapeuticArea)));
             })
@@ -323,7 +323,7 @@ class PermissionsTest extends ELNBaseTest {
 
     @Test
     void testExperimentAttachments(@TempDir Path tempDir) {
-        iterateRows(row -> {
+        iterateRowsParallel(row -> {
             assertThatClientCall(() -> experimentClient.createExperimentAttachment(row.experimentId, "a", "content".getBytes(StandardCharsets.UTF_8)))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveExperiment.isSufficientFor(EDIT), "Operation not permitted");
@@ -338,7 +338,7 @@ class PermissionsTest extends ELNBaseTest {
 
     @Test
     void testMarkExperiment() {
-        iterateRows(row -> {
+        iterateRowsParallel(row -> {
             assertThatClientCall(() -> experimentClient.markExperiment(row.experimentId))
                     .isAllowedIf(row.effectiveExperiment.isSufficientFor(VIEW), "Operation not permitted");
         });
@@ -346,7 +346,7 @@ class PermissionsTest extends ELNBaseTest {
 
     @Test
     void testUpdateExperimentAccess() {
-        iterateRows(row -> {
+        iterateRowsParallel(row -> {
             if (row.experiment != NONE) {
                 assertThatClientCall(() -> experimentClient.updateExperimentAccess(row.experimentId, AccessForm.of(WILLOW_USERNAME, row.experiment)))
                         .isAllowedIf(row.effectiveExperiment.isSufficientFor(ADMIN), "Operation not permitted");
@@ -358,7 +358,7 @@ class PermissionsTest extends ELNBaseTest {
     @TestSecurity(user = BART_USERNAME)
     void testContentEditorCanSeeEverything() {
         assertThat(projectClient.getProjects(null, null, null, PAGING).getTotalItems()).isEqualTo(rows.size());
-        iterateRows(row -> {
+        iterateRowsParallel(row -> {
             assertThatClientCall(() -> projectClient.getProject(row.projectId))
                     .isSuccessful();
             assertThatClientCall(() -> notebookClient.getProjectNotebooks(row.projectId, null, null, null, PAGING))
@@ -437,6 +437,23 @@ class PermissionsTest extends ELNBaseTest {
         for (TestRow row : rows) {
             log.info("Row: {}", row);
             block.accept(row);
+        }
+    }
+
+    private void iterateRowsParallel(Consumer<TestRow> block) {
+        Map<TestRow, ? extends Exception> failures = StreamEx.of(rows).parallel()
+                .mapToEntryPartial(row -> {
+                    try {
+                        block.accept(row);
+                        return Optional.empty();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return Optional.of(e);
+                    }
+                })
+                .toMap();
+        if (!failures.isEmpty()) {
+            fail(failures.size() + " test cases failed:\n" + StreamEx.ofKeys(failures).joining("\n"));
         }
     }
 

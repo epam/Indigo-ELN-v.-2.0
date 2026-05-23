@@ -5,7 +5,6 @@ import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.common.util.ModelUtil;
-import com.epam.indigoeln.eln.api.MutateModelForm;
 import com.epam.indigoeln.eln.client.*;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.*;
@@ -264,8 +263,6 @@ class InsertTestDataTest {
     @SneakyThrows
     private ExperimentModel applyMutation(ExperimentDetailsDTO experiment, ExperimentModel model, Mutation mutation) {
         System.out.println("Applying mutation: " + mutation);
-        ExperimentModel model1 = experimentClient.mutateExperimentModel(experiment.getId(), new MutateModelForm(model, mutation));
-        System.out.println(model1);
-        return model1;
+        return experimentClient.mutateExperimentModel(experiment.getId(), mutation);
     }
 }

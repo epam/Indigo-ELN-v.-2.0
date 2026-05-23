@@ -5,7 +5,6 @@ import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
-import com.epam.indigoeln.eln.api.MutateModelForm;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.Reaction;
@@ -309,7 +308,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         assertThat(response).containsExactly(ExperimentService.EMPTY_PICTURE);
 
         String rxnFile = loadResourceAsString(getClass(), "/reaction.rxn");
-        experimentClient.mutateExperimentModel(experiment.getId(), new MutateModelForm(experiment.getModel(), new ReactionMutation.SetScheme(model.getReactions().getFirst().getAnchor(), rxnFile)));
+        experimentClient.mutateExperimentModel4(experiment.getId(), experiment.getRevision(), new ReactionMutation.SetScheme(model.getReactions().getFirst().getAnchor(), rxnFile));
 
         model = experimentClient.getExperiment(experiment.getId()).getModel();
         reaction = model.getReactions().getFirst();

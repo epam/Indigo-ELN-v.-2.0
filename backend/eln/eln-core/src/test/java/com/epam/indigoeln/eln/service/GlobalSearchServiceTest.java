@@ -6,7 +6,6 @@ import com.epam.indigoeln.compound.model.search.NumericSearch;
 import com.epam.indigoeln.compound.model.search.StructuralSearch;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
-import com.epam.indigoeln.eln.api.MutateModelForm;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputSampleMutation;
@@ -66,15 +65,14 @@ class GlobalSearchServiceTest extends ELNBaseTest {
             experiment2 = experimentClient.createExperiment(notebook2.getId(), new ExperimentRequest(emptyTemplateID, "ed2 xx", therapeuticArea2, projectCode2));
             String rxnFile = loadResourceAsString(getClass(), "/reaction.rxn");
             ExperimentModel experimentModel = experiment2.getModel();
-            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionMutation.SetScheme(experimentModel.getReactions().getFirst().getAnchor(), rxnFile)));
+            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new ReactionMutation.SetScheme(experimentModel.getReactions().getFirst().getAnchor(), rxnFile));
             InputSampleAnchor inputSample = experimentModel.getReactions().getFirst().getInputs().getFirst().getSamples().getFirst().getAnchor();
             OutputAnchor output = experimentModel.getReactions().getFirst().getOutputs().getFirst().getAnchor();
-            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionOutputMutation.AddProductSample(output)));
+            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new ReactionOutputMutation.AddProductSample(output));
             OutputSampleAnchor outputSample = experimentModel.getReactions().getFirst().getOutputs().getFirst().getSamples().getFirst().getAnchor();
-            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionOutputSampleMutation.SetOutputPurity(outputSample, "30")));
-            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionInputSampleMutation.SetInputWeight(inputSample, "10.0", WeightUnit.G)));
-            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionOutputSampleMutation.SetOutputActualWeight(outputSample, "5.0", WeightUnit.G)));
-            System.out.println(experimentModel);
+            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new ReactionOutputSampleMutation.SetOutputPurity(outputSample, "30"));
+            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new ReactionInputSampleMutation.SetInputWeight(inputSample, "10.0", WeightUnit.G));
+            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new ReactionOutputSampleMutation.SetOutputActualWeight(outputSample, "5.0", WeightUnit.G));
         });
         withUser(BART_USERNAME, () -> {
             project3 = projectClient.createProject(new ProjectRequest("p3"));
