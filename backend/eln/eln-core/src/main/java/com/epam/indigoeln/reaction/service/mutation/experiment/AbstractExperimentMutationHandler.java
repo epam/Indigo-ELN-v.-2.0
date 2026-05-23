@@ -3,7 +3,6 @@ package com.epam.indigoeln.reaction.service.mutation.experiment;
 import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.eln.entity.ExperimentEditSessionEntity;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
-import com.epam.indigoeln.eln.entity.ExperimentReferencedCompound;
 import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
 import com.epam.indigoeln.eln.mapper.SnapshotMapper;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
@@ -13,37 +12,36 @@ import com.epam.indigoeln.eln.service.RevisionService;
 import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.eln.util.ExperimentModelUtil;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
-import com.epam.indigoeln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.reaction.metamodel.ExperimentModelMetamodel;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.service.ExperimentModelHelperService;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import com.epam.indigoeln.reaction.service.calculator.ReactionCalculator;
-import com.epam.indigoeln.reaction.service.mutation.ExperimentMutationListener;
+import com.epam.indigoeln.reaction.service.mutation.ExperimentModelMutationListener;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandler;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import com.epam.indigoeln.reaction.service.mutation.experiment.listener.AdjustLimitingInputListener;
+import com.epam.indigoeln.reaction.service.mutation.experiment.listener.UpdateCompoundReferencesListener;
+import com.epam.indigoeln.reaction.service.mutation.experiment.listener.UpdateExperimentRxnfilesListener;
 import com.epam.indigoeln.reaction.util.SignificantFiguresUtil;
-import com.epam.indigoeln.reaction.util.StreamUtil;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.collect.Multimap;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
-import one.util.streamex.EntryStream;
 import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jspecify.annotations.Nullable;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.epam.indigoeln.common.util.ModelUtil.ensureUnique;
-import static com.epam.indigoeln.common.util.ModelUtil.updateCollection;
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 @Slf4j
@@ -73,6 +71,10 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
     // !!! replace with injected list
     @Inject
     AdjustLimitingInputListener adjustLimitingInputListener;
+    @Inject
+    UpdateExperimentRxnfilesListener updateExperimentRxnfilesListener;
+    @Inject
+    UpdateCompoundReferencesListener updateCompoundReferencesListener;
 
     @Override
     protected ExperimentMutationContext createContext() {
@@ -102,8 +104,9 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
         if (model != null) {
             SignificantFiguresUtil.setSignificantFigures(model.getSignificantFigures());
             reactionCalculatorFactory.get().recalculate(model);
-            doUpdateReferences(experiment, model,  snapshotBefore, snapshotAfter, context);
+            doNotifyAfterRecalculate(experiment, model, context);
             doValidateModel(model);
+            // call listeners here!
             SignificantFiguresUtil.clearSignificantFigures();
         }
         updateDates(experiment, userService.getCurrentUserEntity());
@@ -141,47 +144,6 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
             }
         }
         return revision;
-    }
-
-    protected void doUpdateReferences(ExperimentEntity experiment, ExperimentModel model, ExperimentSnapshot snapshotBefore, ExperimentSnapshot snapshotAfter, ExperimentMutationContext context) {
-        boolean anyRxnfileChanged = false;
-        for (Reaction reaction : model.getReactions()) {
-            Reaction oldReaction = checkNotNull(snapshotBefore.getModel()).tryLocate(reaction.getAnchor());
-            IndigoReaction indigoReaction;
-            String oldRxnfile = oldReaction != null ? oldReaction.getRxnfile() : null;
-            List<Object> oldReactionKey = oldRxnfile != null ? experimentModelHelperService.makeReactionKey(oldReaction) : List.of();
-            if (!Objects.equals(oldRxnfile, reaction.getRxnfile())) {
-                // rxnfile was modified
-                indigoReaction = reaction.getRxnfile() == null ? indigoAPI.createReaction() : indigoAPI.loadReaction(reaction.getRxnfile());
-            } else if (!Objects.equals(oldReactionKey, experimentModelHelperService.makeReactionKey(reaction))) {
-                // inputs/outputs was modified, update rxnfile accordingly
-                indigoReaction = experimentModelHelperService.rebuildReactionRxnFile(reaction.getInputs(), reaction.getOutputs());
-                reaction.setRxnfile(indigoReaction.rxnfile());
-            } else {
-                continue; // nothing changed
-            }
-            anyRxnfileChanged = true;
-            String image = experimentModelHelperService.rebuildReactionPicture(experiment, reaction, indigoReaction);
-            context.getResponse().getReactionImages().put(reaction.getAnchor(), image);
-        }
-
-        if (anyRxnfileChanged) {
-            List<String> rxnFiles = StreamEx.of(model.getReactions())
-                    .map(Reaction::getRxnfile)
-                    .collect(StreamUtil.toListNotNull());
-            updateCollection(experiment.getRxnfiles(), rxnFiles);
-        }
-
-        Multimap<ReactionRole, CompoundRef.StoredOrVirtual> oldCompoundRefs = experimentModelHelperService.makeCompoundRefs(checkNotNull(snapshotBefore.getModel()));
-        Multimap<ReactionRole, CompoundRef.StoredOrVirtual> newCompoundRefs = experimentModelHelperService.makeCompoundRefs(model);
-        if (!oldCompoundRefs.equals(newCompoundRefs)) {
-            Set<ExperimentReferencedCompound> ids = EntryStream.of(newCompoundRefs.asMap())
-                    .flatMapValues(Collection::stream)
-                    .map(e -> new ExperimentReferencedCompound(e.getKey(), e.getValue().getCompoundID()))
-                    .toSet();
-            experiment.getReferencedCompounds().clear();
-            experiment.getReferencedCompounds().addAll(ids);
-        }
     }
 
     protected void doValidateModel(ExperimentModel model) {
@@ -243,22 +205,24 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
 
     @Override
     protected void doNotifyBeforeHandle(ExperimentEntity entity, T mutation, ExperimentMutationContext context) {
-        for (ExperimentMutationListener<T> listener : getListeners()) {
-            listener.beforeHandle(entity, mutation, context);
+        if (entity.getModelObj() != null) {
+            for (ExperimentModelMutationListener listener : getListeners()) {
+                listener.beforeHandle(entity, entity.getModelObj(), context);
+            }
         }
     }
 
-    @Override
-    protected void doNotifyAfterHandle(ExperimentEntity entity, T mutation, ExperimentMutationContext context) {
-        for (ExperimentMutationListener<T> listener : getListeners()) {
-            listener.afterHandle(entity, mutation, context);
+    private void doNotifyAfterRecalculate(ExperimentEntity entity, ExperimentModel model, ExperimentMutationContext context) {
+        for (ExperimentModelMutationListener listener : getListeners()) {
+            listener.afterRecalculate(entity, model, context);
         }
     }
 
-    private List<ExperimentMutationListener<T>> getListeners() {
-        //noinspection rawtypes,unchecked
-        return (List) List.of(
-                adjustLimitingInputListener
+    private List<ExperimentModelMutationListener> getListeners() {
+        return List.of(
+                adjustLimitingInputListener,
+                updateExperimentRxnfilesListener,
+                updateCompoundReferencesListener
         );
     }
 }

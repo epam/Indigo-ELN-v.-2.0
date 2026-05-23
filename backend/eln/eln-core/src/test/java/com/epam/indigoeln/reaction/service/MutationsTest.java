@@ -131,6 +131,7 @@ public class MutationsTest extends MutationsTestBase {
         applyMutation(prepareResolveInputs());
         assertThat(input1.getCompound()).isInstanceOf(CompoundRef.Stored.class);
         assertThat(input1Sample1.getSampleId()).isNotNull();
+        assertThat(lastMutationResponse.getReactionImages()).containsOnlyKeys(reaction.getAnchor());
     }
 
     @Test
