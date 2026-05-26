@@ -24,7 +24,7 @@ public class NotebookUndoHelper extends AbstractUndoHelper<NotebookEntity, Noteb
 
     @Override
     protected List<NotebookRevisionEntity> loadRevisions(NotebookEntity entity) {
-        // !!! load last 1 hour, and then drop leftmost revisions, so all remaining undo/redo has their initial revision loaded
+        // TODO load last 1 hour, and either deny undoing beyond that, or load previous data if needed for redo
         return notebookRepository.findRecentRevisions(entity, Duration.of(365, ChronoUnit.DAYS));
     }
 }
