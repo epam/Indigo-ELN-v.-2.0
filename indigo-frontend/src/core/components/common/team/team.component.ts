@@ -16,6 +16,7 @@ import { TeamComponentConfig } from './team.config';
 import { InitialsPipe } from '../../../pipes/avatars.pipe';
 import { TextOverflowTooltipDirective } from '@/core/directives/text-overflow-tooltip.directive';
 import { UserRef } from '@/core/types/entities/user.i';
+import { SvgIconComponent } from '@core/components/common/svg-icon/svg-icon.component';
 
 type UserRefWithState = UserRef & { added?: boolean };
 
@@ -41,6 +42,7 @@ interface TeamLoadingState {
     FormsModule,
     InitialsPipe,
     TextOverflowTooltipDirective,
+    SvgIconComponent,
   ],
 })
 export class TeamComponent implements OnInit {
