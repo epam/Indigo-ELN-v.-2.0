@@ -11,4 +11,8 @@ public class IndigoSDFSaver extends AbstractIndigoObject {
     public void sdfAppend(IndigoMolecule item) {
         obj.sdfAppend(item.obj);
     }
+
+    public void close() {
+        obj.close();
+    }
 }
