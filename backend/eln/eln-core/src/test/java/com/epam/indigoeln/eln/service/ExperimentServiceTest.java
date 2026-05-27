@@ -375,7 +375,6 @@ class ExperimentServiceTest extends ELNBaseTest {
     void testExportSDF() {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID, "An experiment", therapeuticAreas.getFirst(), projectCodes.getFirst()));
         ExperimentModel model = experiment.getModel();
-        Path sdfFilePath = Path.of("src/test/resources/reaction.sdf");
 
         String rxnFile = loadResourceAsString(getClass(), "/reaction.rxn");
         experimentClient.mutateExperimentModel(experiment.getId(), new MutateModelForm(experiment.getModel(), new ReactionMutation.SetScheme(model.getReactions().getFirst().getAnchor(), rxnFile)));
