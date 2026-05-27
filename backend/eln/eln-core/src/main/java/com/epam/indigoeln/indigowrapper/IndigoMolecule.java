@@ -36,6 +36,10 @@ public class IndigoMolecule extends AbstractIndigoObject {
         obj.remove();
     }
 
+    public void setProperty(String property, String value) {
+        obj.setProperty(property, value);
+    }
+
     @Override
     public String toString() {
         return obj.grossFormula();

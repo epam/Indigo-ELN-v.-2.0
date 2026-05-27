@@ -19,6 +19,9 @@ import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.eln.repository.TemplateRepository;
 import com.epam.indigoeln.eln.util.PatchUtil;
+import com.epam.indigoeln.indigowrapper.IndigoAPI;
+import com.epam.indigoeln.indigowrapper.IndigoMolecule;
+import com.epam.indigoeln.indigowrapper.IndigoSDFSaver;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
@@ -43,8 +46,11 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
 import org.jspecify.annotations.Nullable;
 
+import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.*;
 
@@ -84,6 +90,8 @@ public class ExperimentService {
     CompoundService compoundService;
     @Inject
     SnapshotMapper snapshotMapper;
+    @Inject
+    IndigoAPI indigo;
 
     public ExperimentDetailsDTO createExperiment(UUID notebookId, ExperimentRequest request) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
@@ -289,4 +297,34 @@ public class ExperimentService {
             String contentType,
             String filename
     ) {}
+
+    @SneakyThrows
+    public byte[] exportSDF(UUID experimentId) {
+        Path tempFilePath = Files.createTempFile("IndigoELN-export", ".sdf");
+
+        try (IndigoSDFSaver saver = indigo.writeFile(tempFilePath.toString())) {
+            ExperimentEntity experiment = experimentRepository.get(experimentId);
+            ExperimentModel model = experimentModelService.getModel(experiment);
+
+            for (Reaction reaction : model.getReactions()) {
+                for (ReactionOutput output : reaction.getOutputs()) {
+                    UUID moleculeId = output.getCompound().getCompoundID();
+
+                    if (moleculeId != null) {
+                        CompoundEntity compound = compoundService.getCompound(moleculeId);
+                        IndigoMolecule molecule = indigo.loadMolecule(compound.getMolFile());
+
+                        molecule.setProperty("chemicalName", Objects.requireNonNullElse(compound.getChemicalName(), ""));
+                        molecule.setProperty("molWeight", compound.getMolWeight().toString());
+
+                        saver.sdfAppend(molecule);
+                    }
+                }
+            }
+
+            return Files.readAllBytes(tempFilePath);
+        } finally {
+            Files.deleteIfExists(tempFilePath);
+        }
+    }
 }

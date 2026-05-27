@@ -167,4 +167,9 @@ public interface ExperimentAPI extends BaseAPI {
     @GET
     @Path("/experiments/suggest")
     List<ExperimentRef> suggestExperiments(@QueryParam("search") String search);
+
+    @GET
+    @Produces("chemical/x-mdl-sdfile")
+    @Path("/experiments/{experimentId}/exportSdf")
+    byte[] exportSDF(@PathParam("experimentId") UUID experimentId);
 }
