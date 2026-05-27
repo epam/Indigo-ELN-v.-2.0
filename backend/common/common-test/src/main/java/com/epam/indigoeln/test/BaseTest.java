@@ -5,7 +5,6 @@ import io.quarkus.test.security.TestSecurity;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.platform.commons.support.AnnotationSupport;
 
 import java.net.URI;
@@ -16,7 +15,6 @@ import java.util.concurrent.atomic.AtomicReference;
 @Timeout(value = 30, unit = TimeUnit.SECONDS)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@ExtendWith(ProfilerResource.class)
 public abstract class BaseTest {
 
     public static final String ADMIN_USERNAME = "admin";
