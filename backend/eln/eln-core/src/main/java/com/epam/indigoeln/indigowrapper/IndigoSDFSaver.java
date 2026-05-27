@@ -2,7 +2,7 @@ package com.epam.indigoeln.indigowrapper;
 
 import com.epam.indigo.IndigoObject;
 
-public class IndigoSDFSaver extends AbstractIndigoObject {
+public class IndigoSDFSaver extends AbstractIndigoObject implements AutoCloseable {
 
     IndigoSDFSaver(IndigoAPI indigo, IndigoObject obj) {
         super(indigo, obj);

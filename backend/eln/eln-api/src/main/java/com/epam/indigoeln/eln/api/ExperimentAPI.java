@@ -170,7 +170,6 @@ public interface ExperimentAPI extends BaseAPI {
 
     @GET
     @Produces("chemical/x-mdl-sdfile")
-    //@Produces("text/plain")
     @Path("/experiments/{experimentId}/exportSdf")
     byte[] exportSDF(@PathParam("experimentId") UUID experimentId);
 }

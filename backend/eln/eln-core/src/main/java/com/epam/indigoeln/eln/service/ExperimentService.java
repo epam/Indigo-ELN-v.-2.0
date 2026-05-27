@@ -302,10 +302,9 @@ public class ExperimentService {
     public byte[] exportSDF(UUID experimentId) {
         Path tempFilePath = Files.createTempFile("IndigoELN-export", ".sdf");
 
-        try {
+        try (IndigoSDFSaver saver = indigo.writeFile(tempFilePath.toString())) {
             ExperimentEntity experiment = experimentRepository.get(experimentId);
             ExperimentModel model = experimentModelService.getModel(experiment);
-            IndigoSDFSaver saver = indigo.writeFile(tempFilePath.toString());
 
             for (Reaction reaction : model.getReactions()) {
                 for (ReactionOutput output : reaction.getOutputs()) {
@@ -327,8 +326,7 @@ public class ExperimentService {
 
             return Files.readAllBytes(tempFilePath);
         } finally {
-            if (tempFilePath != null)
-                Files.deleteIfExists(tempFilePath);
+            Files.deleteIfExists(tempFilePath);
         }
     }
 }
