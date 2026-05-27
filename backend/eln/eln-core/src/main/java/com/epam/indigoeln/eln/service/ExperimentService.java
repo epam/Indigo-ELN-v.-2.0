@@ -158,18 +158,6 @@ public class ExperimentService {
         return checkNotNull(experimentModelService.applyMutation(experiment, mutation).getLeft().getModel());
     }
 
-    public JsonNode mutateModel2(UUID experimentId, Integer revision, ExperimentMutation mutation) {
-        ExperimentEntity experiment = experimentRepository.get(experimentId);
-        aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
-        return experimentModelService.applyMutation(experiment, mutation).getMiddle();
-    }
-
-    public ExperimentSnapshot mutateModel3(UUID experimentId, Integer revision, ExperimentMutation mutation) {
-        ExperimentEntity experiment = experimentRepository.get(experimentId);
-        aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
-        return experimentModelService.applyMutation(experiment, mutation).getLeft();
-    }
-
     public MutationResponse mutateModel4(UUID experimentId, Integer revision, ExperimentMutation mutation) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);

@@ -11,10 +11,7 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import net.sf.jasperreports.engine.JasperExportManager;
-import net.sf.jasperreports.engine.JasperFillManager;
-import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.util.JRLoader;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -42,11 +39,10 @@ public class ReportsService {
     private final DateTimeFormatter dateTimeFormatter;
 
     @Inject
-    @SneakyThrows
     public ReportsService(
             ReadOnlyStreamingService readOnlyStreamingService,
             @ConfigProperty(name = "report.timezone", defaultValue = "UTC") String timezone
-    ) {
+    ) throws JRException {
         this.readOnlyStreamingService = readOnlyStreamingService;
         this.jasperReport = (JasperReport) JRLoader.loadObject(ReportsService.class.getResourceAsStream("/reports/ExperimentReport.jasper"));
         this.logoImage = ModelUtil.loadResource(ReportsService.class, "/reports/logo_new_blue.png");

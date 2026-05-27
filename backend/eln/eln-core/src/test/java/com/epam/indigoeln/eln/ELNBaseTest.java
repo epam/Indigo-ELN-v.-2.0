@@ -16,6 +16,7 @@ import org.junit.jupiter.api.BeforeAll;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class ELNBaseTest extends BaseTest {
 
@@ -79,7 +80,7 @@ public abstract class ELNBaseTest extends BaseTest {
     protected ReportsClient reportsClient;
     protected SignatureClient signatureClient;
 
-    private int lastUsedNotebookNumber = 0;
+    private final AtomicInteger lastUsedNotebookNumber = new AtomicInteger();
 
     protected UUID johnUserID;
     protected UUID willowUserID;
@@ -122,7 +123,7 @@ public abstract class ELNBaseTest extends BaseTest {
     }
 
     protected String nextNotebookName() {
-        return "%08d".formatted(++lastUsedNotebookNumber);
+        return "%08d".formatted(lastUsedNotebookNumber.incrementAndGet());
     }
 
     protected void cleanupDatabase() {

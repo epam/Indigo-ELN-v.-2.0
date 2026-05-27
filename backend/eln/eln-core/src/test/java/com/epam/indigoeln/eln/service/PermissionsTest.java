@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
+import org.assertj.core.util.Throwables;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -447,13 +448,12 @@ class PermissionsTest extends ELNBaseTest {
                         block.accept(row);
                         return Optional.empty();
                     } catch (Exception e) {
-                        e.printStackTrace();
                         return Optional.of(e);
                     }
                 })
                 .toMap();
         if (!failures.isEmpty()) {
-            fail(failures.size() + " test cases failed:\n" + StreamEx.ofKeys(failures).joining("\n"));
+            fail(failures.size() + " test cases failed:\n" + StreamEx.ofKeys(failures).joining("\n") + "\nerrors: \n" + StreamEx.of(Throwables.describeErrors(List.copyOf(failures.values()))).joining("\n"));
         }
     }
 

@@ -65,9 +65,11 @@ public class UpdateExperimentRxnfilesListener implements ExperimentModelMutation
             String image = experimentModelHelperService.rebuildReactionPicture(experiment, reaction, indigoReaction);
             context.getResponse().getReactionImages().put(reaction.getAnchor(), image);
         }
-        List<String> rxnFiles = StreamEx.of(model.getReactions())
-                .map(Reaction::getRxnfile)
-                .collect(StreamUtil.toListNotNull());
-        updateCollection(experiment.getRxnfiles(), rxnFiles);
+        if (anyRxnfileChanged || oldRxnfiles.size() != model.getReactions().size()) {
+            List<String> rxnFiles = StreamEx.of(model.getReactions())
+                    .map(Reaction::getRxnfile)
+                    .collect(StreamUtil.toListNotNull());
+            updateCollection(experiment.getRxnfiles(), rxnFiles);
+        }
     }
 }
