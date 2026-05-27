@@ -300,25 +300,20 @@ public class ExperimentService {
 
     @SneakyThrows
     public byte[] exportSDF(UUID experimentId) {
-        String fileContent;
-        Path tempFilePath = null;
+        Path tempFilePath = Files.createTempFile("IndigoELN-export", ".sdf");
 
         try {
-            tempFilePath = Files.createTempFile("IndigoELN-export", ".sdf");
             ExperimentEntity experiment = experimentRepository.get(experimentId);
             ExperimentModel model = experimentModelService.getModel(experiment);
             IndigoSDFSaver saver = indigo.writeFile(tempFilePath.toString());
-            IndigoMolecule molecule;
-            UUID moleculeId;
-            CompoundEntity compound;
 
             for (Reaction reaction : model.getReactions()) {
                 for (ReactionOutput output : reaction.getOutputs()) {
-                    moleculeId = output.getCompound().getCompoundID();
+                    UUID moleculeId = output.getCompound().getCompoundID();
 
                     if (moleculeId != null) {
-                        compound = compoundService.getCompound(moleculeId);
-                        molecule = indigo.loadMolecule(compound.getMolFile());
+                        CompoundEntity compound = compoundService.getCompound(moleculeId);
+                        IndigoMolecule molecule = indigo.loadMolecule(compound.getMolFile());
 
                         molecule.setProperty("chemicalName", Objects.requireNonNullElse(compound.getChemicalName(), ""));
                         molecule.setProperty("molWeight", compound.getMolWeight().toString());
@@ -328,12 +323,12 @@ public class ExperimentService {
                 }
             }
 
-            fileContent = Files.readString(tempFilePath);
+            saver.close();
+
+            return Files.readAllBytes(tempFilePath);
         } finally {
             if (tempFilePath != null)
                 Files.deleteIfExists(tempFilePath);
         }
-
-        return fileContent.getBytes();
     }
 }
