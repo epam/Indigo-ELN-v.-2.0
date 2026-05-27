@@ -1,6 +1,5 @@
 import { Component, ContentChild, DestroyRef, forwardRef, inject, Input, OnInit, TemplateRef } from '@angular/core';
-import { MatOption, MatPrefix } from '@angular/material/select';
-import { MatInput } from '@angular/material/input';
+import { MatOption } from '@angular/material/select';
 import {
   AbstractControl,
   FormControl,
@@ -9,14 +8,13 @@ import {
   NG_VALUE_ACCESSOR,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { MatChipGrid, MatChipInput, MatChipRow } from '@angular/material/chips';
-import { MatIcon } from '@angular/material/icon';
 import { MatAutocomplete, MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { combineLatestWith, debounce, map } from 'rxjs/operators';
 import { BehaviorSubject, distinctUntilChanged, filter, interval, Observable, of, switchMap } from 'rxjs';
 import { AsyncPipe, NgIf, NgTemplateOutlet } from '@angular/common';
 import { DelegatingControlBase } from '@core/components/common/delegating-control/delegating-control-base.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ChipComponent } from '@core/components/common/chip/chip.component';
 
 export interface HasId {
   id: string;
@@ -31,19 +29,14 @@ export interface HasIdOrUsername {
   selector: 'eln-autocomplete-select',
   imports: [
     MatOption,
-    MatInput,
     FormsModule,
-    MatChipGrid,
-    MatChipRow,
-    MatIcon,
     MatAutocompleteTrigger,
-    MatChipInput,
-    MatPrefix,
     MatAutocomplete,
     ReactiveFormsModule,
     AsyncPipe,
     NgTemplateOutlet,
     NgIf,
+    ChipComponent,
   ],
   templateUrl: './autocomplete-select.component.html',
   providers: [

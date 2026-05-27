@@ -1,42 +1,45 @@
 <form [formGroup]="form">
-  <div class="w-full flex border">
-    <mat-chip-grid #chipGrid class="w-full">
-      @for (item of selected$ | async; track item.id || item.username) {
-        <mat-chip-row (removed)="removeItem(item)" [removable]="true">
-          <ng-container *ngIf="optionTemplate; else defaultOptionTemplate">
-            <ng-container *ngTemplateOutlet="optionTemplate; context: { $implicit: item }"></ng-container>
-          </ng-container>
-          <em class="indicon-close" (click)="removeItem(item)"></em>
-        </mat-chip-row>
-      }
-      <input
-        type="text"
-        matInput
-        formControlName="query"
-        [matAutocomplete]="auto"
-        [matChipInputFor]="chipGrid"
-        (focus)="inputFocused()"
-        placeholder="Type to search..."
-        (blur)="triggerTouched()"
-        class="flex-1"
-      />
-      <mat-icon matPrefix class="w-16">search</mat-icon>
-    </mat-chip-grid>
+  <div
+    class="relative inline-flex w-full flex-wrap items-center gap-1.5 rounded-sm border border-neutral-300 pl-3 pr-8 py-2 transition-colors duration-200 focus-within:border-primary-400 min-h-[38px]"
+  >
+    @for (item of selected$ | async; track item.id || item.username) {
+      <eln-chip [deleteable]="true" (emitClose)="removeItem(item)">
+        <ng-container *ngIf="optionTemplate; else defaultChipTemplate">
+          <ng-container *ngTemplateOutlet="optionTemplate; context: { $implicit: item }"></ng-container>
+        </ng-container>
+      </eln-chip>
+    }
 
-    <ng-template #defaultOptionTemplate let-item> defaultOptionTemplate( {{ item.name }} ) </ng-template>
+    <input
+      type="text"
+      formControlName="query"
+      [matAutocomplete]="auto"
+      (focus)="inputFocused()"
+      (blur)="triggerTouched()"
+      class="flex-1 min-w-[60px] outline-none text-sm placeholder:text-neutral-600 bg-transparent"
+      placeholder="Type to search..."
+    />
 
-    <mat-autocomplete
-      #auto="matAutocomplete"
-      [displayWith]="display"
-      (optionSelected)="onItemSelected($event.option.value)"
-    >
-      @for (item of options$ | async; track item.id || item.username) {
-        <mat-option [value]="item">
-          <ng-container *ngIf="optionTemplate; else defaultOptionTemplate">
-            <ng-container *ngTemplateOutlet="optionTemplate; context: { $implicit: item }"></ng-container>
-          </ng-container>
-        </mat-option>
-      }
-    </mat-autocomplete>
+    <em
+      class="indicon-chevron_down text-neutral-600 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+    ></em>
   </div>
+
+  <ng-template #defaultChipTemplate let-item>{{ item.name }}</ng-template>
+
+  <mat-autocomplete
+    #auto="matAutocomplete"
+    [displayWith]="display"
+    (optionSelected)="onItemSelected($event.option.value)"
+  >
+    @for (item of options$ | async; track item.id || item.username) {
+      <mat-option [value]="item">
+        <ng-container *ngIf="optionTemplate; else defaultOptionTemplate">
+          <ng-container *ngTemplateOutlet="optionTemplate; context: { $implicit: item }"></ng-container>
+        </ng-container>
+      </mat-option>
+    }
+  </mat-autocomplete>
+
+  <ng-template #defaultOptionTemplate let-item>{{ item.name }}</ng-template>
 </form>
