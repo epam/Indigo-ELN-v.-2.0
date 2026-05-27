@@ -8,7 +8,6 @@ FROM quay.io/quarkus/ubi9-quarkus-micro-image:2.0
 # for indigo-renderer
 COPY --from=packages \
    /usr/lib64/libbrotlicommon.so.1 \
-   /usr/lib64/libbrotlicommon.so.1 \
    /usr/lib64/libbrotlidec.so.1 \
    /usr/lib64/libbrotlienc.so.1 \
    /usr/lib64/libbz2.so.1 \
