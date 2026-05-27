@@ -1,6 +1,7 @@
 package com.epam.indigoeln.reaction.model.mutation;
 
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
+import com.epam.indigoeln.eln.model.SaltCodeRef;
+import com.epam.indigoeln.eln.model.StereoisomerCodeRef;
 import com.epam.indigoeln.reaction.model.OutputAnchor;
 import com.epam.indigoeln.reaction.model.OutputSampleAnchor;
 import com.epam.indigoeln.reaction.model.ReactionOutputType;
@@ -28,7 +29,7 @@ public interface ReactionOutputMutation extends Mutation {
 
     record SetOutputRowSaltCode(
             @NotNull OutputAnchor anchor,
-            @Nullable DictionaryItemRef saltCode
+            @Nullable SaltCodeRef saltCode
     ) implements ReactionOutputMutation {
     }
 
@@ -56,9 +57,15 @@ public interface ReactionOutputMutation extends Mutation {
     ) implements ReactionOutputMutation {
     }
 
+    record SetOutputRowIntended(
+            @NotNull OutputAnchor anchor,
+            @NotNull Boolean intended
+    ) implements ReactionOutputMutation {
+    }
+
     record SetOutputCompoundStereoisomerCode(
             @NotNull OutputAnchor anchor,
-            @Nullable DictionaryItemRef stereoisomerCode
+            @Nullable StereoisomerCodeRef stereoisomerCode
     ) implements ReactionOutputMutation {
     }
 

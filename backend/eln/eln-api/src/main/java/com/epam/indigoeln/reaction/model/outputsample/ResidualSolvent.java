@@ -1,6 +1,6 @@
 package com.epam.indigoeln.reaction.model.outputsample;
 
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
+import com.epam.indigoeln.eln.model.SolventRef;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,7 +13,7 @@ import org.jspecify.annotations.Nullable;
 public class ResidualSolvent {
 
     @NotNull
-    private DictionaryItemRef solvent;
+    private SolventRef solvent;
 
     @NotNull
     private Double eq;

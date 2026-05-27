@@ -36,12 +36,9 @@ export class AuditLogComponent implements OnInit {
     this.loading = true;
     this.loader(this.entityId)
       .pipe(finalize(() => (this.loading = false)))
-      .subscribe({
-        next: (result) => {
-          this.revisions = result;
-          this.loading = false;
-        },
-        error: (error) => console.log('Failed to load revisions', error),
+      .subscribe((result) => {
+        this.revisions = result;
+        this.loading = false;
       });
   }
 }

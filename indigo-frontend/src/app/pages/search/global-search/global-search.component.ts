@@ -30,7 +30,7 @@ import {
 } from '@core/components/experiment/structure-editor-modal/structure-editor-modal.component';
 import { ReactionRole, ReactionRoleNames } from '@core/types/entities/experiments/experiment-shared.i';
 import { ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
-import { UserMetadata } from '@core/types/entities/user.i';
+import { UserRef } from '@core/types/entities/user.i';
 import { UserSelectComponent } from '@core/components/common/user-multiselect/user-select.component';
 import { DictionarySelectComponent } from '@core/components/common/dictionary-select/dictionary-select.component';
 import { ExperimentStatus, ExperimentStatusNames } from '@core/enums/experiment-status.enum';
@@ -103,7 +103,7 @@ export class GlobalSearchComponent implements OnInit {
     projectCode: new FormControl<DictionaryItemRef | null>(null),
     batchYield: new FormControl<NumericSearch | null>(null),
     batchPurity: new FormControl<NumericSearch | null>(null),
-    author: new FormControl<UserMetadata[] | null>(null),
+    author: new FormControl<UserRef[] | null>(null),
     experimentStatus: new FormControl<ExperimentStatus>(null),
     reactionRole: new FormControl<ReactionRole>(null),
   });
@@ -145,11 +145,10 @@ export class GlobalSearchComponent implements OnInit {
   addMeAsAuthor() {
     this.userService.user$.pipe(first()).subscribe((user) => {
       let selectedUsers = this.form.get('author').value || [];
-      if (!selectedUsers.some((x) => x.id === user.id)) {
+      if (!selectedUsers.some((x) => x.username === user.username)) {
         this.form.get('author').setValue([
           ...selectedUsers,
           {
-            id: user.id,
             username: user.username,
             displayName: user.displayName,
           },

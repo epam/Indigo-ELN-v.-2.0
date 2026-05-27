@@ -2,6 +2,7 @@ import { ChipGridFieldComponent } from '@/core/components/formly/fields/chip-gri
 import { InputFieldComponent } from '@/core/components/formly/fields/input-field.component';
 import { ElnWrapperFormField } from '@/core/components/formly/wrappers/field-wrapper.component';
 import { DropdownFieldComponent } from '@/core/components/formly/fields/dropdown-field.component';
+import { ExperimentSelectFieldComponent } from '@/core/components/formly/fields/experiment-select-field.component';
 
 import { HttpInterceptorFn, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { ApplicationConfig, importProvidersFrom, inject, provideZoneChangeDetection } from '@angular/core';
@@ -71,6 +72,11 @@ export const appConfig: ApplicationConfig = {
           {
             name: 'dropdown',
             component: DropdownFieldComponent,
+            wrappers: ['raw'],
+          },
+          {
+            name: 'experiment-select',
+            component: ExperimentSelectFieldComponent,
             wrappers: ['raw'],
           },
         ],

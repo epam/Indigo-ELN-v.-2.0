@@ -1,7 +1,14 @@
 package com.epam.indigoeln.eln.controller;
 
 
-import com.epam.indigoeln.eln.api.*;
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.SortOrder;
+import com.epam.indigoeln.common.model.UploadForm;
+import com.epam.indigoeln.eln.api.AccessForm;
+import com.epam.indigoeln.eln.api.BaseAPI;
+import com.epam.indigoeln.eln.api.ExperimentAPI;
+import com.epam.indigoeln.eln.api.MutateModelForm;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.ExperimentService;
@@ -12,13 +19,13 @@ import com.epam.indigoeln.reaction.model.InputAnchor;
 import com.epam.indigoeln.reaction.model.ReactionAnchor;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.fasterxml.jackson.databind.JsonNode;
-import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -102,7 +109,7 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
-    public List<ACLDetailsEntryDTO> updateExperimentAccess(@NotNull UUID experimentId, @NotNull @Valid List<AccessForm> form) {
+    public List<ACLEntryDTO> updateExperimentAccess(@NotNull UUID experimentId, @NotNull @Valid List<AccessForm> form) {
         return experimentService.updateExperimentAccess(experimentId, form);
     }
 
@@ -148,6 +155,11 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
+    public List<SignatureTemplateRef> getSignatureTemplates() {
+        return experimentWorkflowService.getSignatureTemplates();
+    }
+
+    @Override
     public ExperimentDetailsDTO completeExperiment(UUID experimentId) {
         return experimentWorkflowService.completeExperiment(experimentId);
     }
@@ -160,21 +172,6 @@ public class ExperimentResource implements ExperimentAPI {
     @Override
     public ExperimentDetailsDTO completeAndSubmitExperiment(UUID experimentId, UUID signatureTemplateId) {
         return experimentWorkflowService.completeAndSubmitExperiment(experimentId, signatureTemplateId);
-    }
-
-    @Override
-    public ExperimentForSignatureDTO approveExperiment(UUID experimentId) {
-        return experimentWorkflowService.approveOrRejectExperiment(experimentId, false);
-    }
-
-    @Override
-    public ExperimentForSignatureDTO rejectExperiment(UUID experimentId) {
-        return experimentWorkflowService.approveOrRejectExperiment(experimentId, true);
-    }
-
-    @Override
-    public ExperimentDetailsDTO resubmitExperiment(UUID experimentId) {
-        return experimentWorkflowService.resubmitExperiment(experimentId);
     }
 
     @Override
@@ -198,12 +195,17 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
-    public String compareVersionsHTML(UUID experimentId, @org.jspecify.annotations.Nullable Integer versionFrom, @org.jspecify.annotations.Nullable Integer versionTo) {
+    public String compareVersionsHTML(UUID experimentId, @Nullable Integer versionFrom, @Nullable Integer versionTo) {
         return experimentService.compareVersionsHTML(experimentId, versionFrom, versionTo);
     }
 
     @Override
     public List<ExperimentRef> suggestExperiments(String search) {
         return experimentService.suggestExperiments(search);
+    }
+
+    @Override
+    public MutationResponse importSDF(UUID experimentId, ReactionAnchor reactionAnchor, UploadForm form) {
+        return experimentService.importSDF(experimentId, reactionAnchor, form.getFile());
     }
 }

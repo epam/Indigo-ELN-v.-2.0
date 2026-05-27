@@ -5,16 +5,16 @@ import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
-import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
-import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.epam.indigoeln.test.FeignUtil;
 import com.fasterxml.jackson.core.JacksonException;
 import org.junit.jupiter.api.Test;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
+import static com.epam.indigoeln.reaction.model.units.EnteredValue.fixed;
+import static com.epam.indigoeln.reaction.model.units.MolWeightUnit.G_PER_MOL;
+import static com.epam.indigoeln.reaction.model.units.NoUnit.NO_UNIT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -33,16 +33,17 @@ public class ExperimentModelSerializationTest {
         model.setReactions(List.of(reaction));
         reaction.setRxnfile("molFile");
 
-        ReactionInput input1 = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Stored(UUID.randomUUID(), EnteredValue.fixed(1.0, 1, MolWeightUnit.G_PER_MOL), new BigDecimal("1.1"), "C", "compoundKey", null, "batchMF"));
-        input1.setEq(EnteredValue.userEntered("10.0", NoUnit.NO_UNIT, 1));
-        ReactionInput input2 = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Virtual(UUID.randomUUID(), "C", null, null, null, null, EnteredValue.fixed(1.0, 1, MolWeightUnit.G_PER_MOL), new BigDecimal("1.1"), null, "batchMF"));
+        ReactionInput input1 = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Stored(UUID.randomUUID(), fixed(1.0, 1, G_PER_MOL), fixed(1.1, 2, NO_UNIT), "C", "compoundKey", null, "batchMF"));
+        input1.setEq(EnteredValue.userEntered("10.0", NO_UNIT, 1));
+        ReactionInput input2 = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Virtual(UUID.randomUUID(), "C", null, null, null, null, fixed(1.0, 1, G_PER_MOL), fixed(1.1, 2, NO_UNIT), null, "batchMF"));
         ReactionInput input3 = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Unknown());
         ReactionInputSample inputSample1 = ReactionInputSample.create(input1, INPUT_SAMPLE);
         input1.setSamples(List.of(inputSample1));
         reaction.setInputs(List.of(input1, input2, input3));
 
-        ReactionOutput output = ReactionOutput.create(reaction, ReactionOutputType.FINAL, true, "P1", OUTPUT, new CompoundRef.Virtual(UUID.randomUUID(), "C", null, null, null, null, EnteredValue.fixed(2.0, 1, MolWeightUnit.G_PER_MOL), new BigDecimal("2.2"), null, "batchMF"));
-        ReactionOutputSample outputSample = ReactionOutputSample.create(output, "00000000-0000", OUTPUT_SAMPLE);
+        CompoundRef.Virtual compoundRef = new CompoundRef.Virtual(UUID.randomUUID(), "C", null, null, null, null, fixed(2.0, 1, G_PER_MOL), fixed(2.2, 2, NO_UNIT), null, "batchMF");
+        ReactionOutput output = ReactionOutput.create(reaction, ReactionOutputType.FINAL, true, "P1", OUTPUT, compoundRef, EnteredValue.DEFAULT_ONE);
+        ReactionOutputSample outputSample = ReactionOutputSample.create(output, "00000000-0000", OUTPUT_SAMPLE, EnteredValue.DEFAULT_ONE_HUNDRED);
         output.setSamples(List.of(outputSample));
         reaction.setOutputs(List.of(output));
 

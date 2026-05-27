@@ -21,6 +21,7 @@ import { routes } from './app.routes';
 import { SelectFieldComponent } from '@/core/components/formly/fields/select-field.component';
 import { SelectChipsComponent } from '@/core/components/formly/fields/select-chips.component';
 import { DropdownFieldComponent } from '@/core/components/formly/fields/dropdown-field.component';
+import { ExperimentSelectFieldComponent } from '@/core/components/formly/fields/experiment-select-field.component';
 import { ErrorInterceptor } from '@core/interceptors/error.interceptor';
 
 export const appConfig: ApplicationConfig = {
@@ -57,6 +58,11 @@ export const appConfig: ApplicationConfig = {
           {
             name: 'select-chips',
             component: SelectChipsComponent,
+            wrappers: ['raw'],
+          },
+          {
+            name: 'experiment-select',
+            component: ExperimentSelectFieldComponent,
             wrappers: ['raw'],
           },
         ],

@@ -25,8 +25,11 @@ public class MainStack extends Stack {
         BuildStack buildStack = new BuildStack(this, "build-stack", new BuildStack.Props());
 
         PostgresStack postgresStack = new PostgresStack(this, "postgres-stack", new PostgresStack.Props(
+                infraStack.getPrivateDnsNamespace(),
                 parameters.getPostgresMasterUsername(),
                 infraStack.getEcsCluster(),
+                infraStack.getEc2SecurityGroup(),
+                infraStack.getAdditionalSecurityGroups(),
                 buildStack.getPostgresRepo(),
                 parameters.getPostgresImageTag()
         ));
@@ -41,18 +44,18 @@ public class MainStack extends Stack {
         ELNLambdaStack elnLambdaStack = new ELNLambdaStack(this, "eln-lambda-stack", new ELNLambdaStack.Props(
                 infraStack.getVpc(),
                 infraStack.getEc2SecurityGroup(),
-                parameters.getEc2Ip(),
                 Credentials.fromSecret(postgresStack.getDbSecret()),
                 infraStack.getLambdaSecurityGroup(),
                 cognitoStack.getUserPool(),
                 cognitoStack.getUserPoolClient(),
                 buildStack.getElnLambdaRepo(),
                 buildStack.getReportsLambdaRepo(),
+                buildStack.getSignatureLambdaRepo(),
                 parameters.getLambdaSubnets(),
                 parameters.getElnLambdaImageTag(),
                 parameters.getReportsLambdaImageTag(),
-                parameters.getApiGatewaySecret(),
-                parameters.getInternalApiGatewaySecret()
+                parameters.getSignatureLambdaImageTag(),
+                parameters.getApiGatewaySecret()
         ));
         elnLambdaStack.addDependency(buildStack);
         elnLambdaStack.addDependency(infraStack);

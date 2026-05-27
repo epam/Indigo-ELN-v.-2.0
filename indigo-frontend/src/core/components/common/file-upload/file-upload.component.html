@@ -33,7 +33,6 @@
             <em class="indicon-file-text text-4xl"></em>
           }
           <span>{{ file.name | titlecase }}</span>
-          <span>by {{ user.given_name }} {{ user.family_name }}</span>
           <span>{{ file.size | filesize }}</span>
           <span>{{ today | date: 'long' }}</span>
           <button class="text-red-500 hover:text-red-700" (click)="removeFile(i)">

@@ -1,8 +1,8 @@
 package com.epam.indigoeln.reaction.service.mutation;
 
+import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.entity.AttachmentEntity;
-import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.model.AccessLevel;
 import com.epam.indigoeln.eln.service.UserService;
 import com.google.common.base.Preconditions;
@@ -29,7 +29,7 @@ public class EntityMutationHelper {
     public String formatEditAccessSummary(List<AccessForm> edits) {
         if (edits.size() == 1) {
             AccessForm update = edits.getFirst();
-            UserEntity user = userService.getUserEntity(update.getUserID());
+            UserRef user = userService.getUserInfo(update.getUsername());
             if (update.getLevel() == AccessLevel.NONE) {
                 return "Edited Team: removed " + user.getUsername();
             } else {

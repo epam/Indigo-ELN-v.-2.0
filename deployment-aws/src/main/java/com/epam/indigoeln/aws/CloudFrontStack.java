@@ -36,6 +36,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static com.epam.indigoeln.aws.util.Utils.entry;
 import static com.epam.indigoeln.aws.util.Utils.mapOf;
 
 public class CloudFrontStack extends NestedStack {
@@ -109,9 +110,9 @@ public class CloudFrontStack extends NestedStack {
                         .build()
                 )
                 .additionalBehaviors(mapOf(
-                        "/api/*", apiBehavior,
-                        "/openapi/*", apiBehavior,
-                        "/swagger/*", apiBehavior
+                        entry("/api/*", apiBehavior),
+                        entry("/openapi/*", apiBehavior),
+                        entry("/swagger/*", apiBehavior)
                 ))
                 .domainNames(List.of(props.getDomainName()))
                 .certificate(certificate)

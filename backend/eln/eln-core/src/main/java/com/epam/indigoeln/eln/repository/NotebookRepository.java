@@ -1,10 +1,14 @@
 package com.epam.indigoeln.eln.repository;
 
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.SortOrder;
+import com.epam.indigoeln.eln.common.repository.BaseRepository;
+import com.epam.indigoeln.eln.common.util.Conditions;
 import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.mapper.NotebookMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.ACLService;
-import com.epam.indigoeln.eln.util.Conditions;
 import com.google.common.base.MoreObjects;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -28,7 +32,7 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
     ACLService aclService;
 
     public NotebookRepository() {
-        super(EntityType.NOTEBOOK, NotebookEntity.class);
+        super(ELNEntityType.NOTEBOOK, NotebookEntity.class);
     }
 
     public Page<NotebookDTO> findAll(UUID projectId, @Nullable String search, @QueryParam("sort") @Nullable SortOrder sort, @Nullable UserEntity createdByUser, Paging paging, boolean showAll) {
@@ -93,7 +97,7 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
                 .map(arr -> {
                     ExperimentEntity entity = (ExperimentEntity) arr[0];
                     ExperimentACLEntity entry = (ExperimentACLEntity) arr[1];
-                    return new NestedACLEntryDTO(EntityType.EXPERIMENT, entity.getId(), entity.getName(), entry.getUser().getId(), entry.getUser().getDisplayName(), entry.getLevel());
+                    return new NestedACLEntryDTO(ELNEntityType.EXPERIMENT, entity.getId(), entity.getName(), entry.getUser().getDisplayName(), entry.getLevel());
                 })
                 .toList();
     }
@@ -113,6 +117,12 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
         return em.createQuery("from NotebookRevision where notebook=:notebook and datetime>=:since order by revision", NotebookRevisionEntity.class)
                 .setParameter("notebook", notebook)
                 .setParameter("since", ZonedDateTime.now().minusSeconds(period.toSeconds()))
+                .getResultList();
+    }
+
+    public List<NotebookRevisionEntity> getRevisions(NotebookEntity notebook) {
+        return em.createQuery("from NotebookRevision where notebook=:notebook order by revision", NotebookRevisionEntity.class)
+                .setParameter("notebook", notebook)
                 .getResultList();
     }
 }

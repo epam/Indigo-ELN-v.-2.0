@@ -1,68 +1,72 @@
 CREATE TABLE User_Account
 (
-    id SERIAL NOT NULL PRIMARY KEY,
-    userName VARCHAR(1024) NOT NULL,
-    first_Name VARCHAR(1024),
-    last_Name VARCHAR(1024),
-    CONSTRAINT UserName_Uq UNIQUE (userName)
+    id UUID NOT NULL PRIMARY KEY,
+    username VARCHAR(1024) NOT NULL,
+    first_name VARCHAR(1024),
+    last_name VARCHAR(1024),
+    display_name VARCHAR(1024) NOT NULL,
+    CONSTRAINT user_account_uq1 UNIQUE (username)
 );
 
-CREATE TYPE Reason AS ENUM ('AUTHOR', 'WITNESS');
+CREATE TYPE Signature_Reason AS ENUM ('AUTHOR', 'WITNESS');
 
-CREATE TYPE Status AS ENUM ('SUBMITTED', 'SIGNING', 'SIGNED', 'REJECTED', 'WAITING', 'CANCELLED', 'ARCHIVING', 'ARCHIVED');
+CREATE TYPE Document_Status AS ENUM ('SUBMITTED', 'SIGNING', 'SIGNED', 'REJECTED', 'CANCELLED');
 
-CREATE TYPE Signature_Status AS ENUM ('WAITING', 'SIGNED', 'REJECTED');
+CREATE TYPE Signature_Status AS ENUM ('WAITING', 'APPROVED', 'REJECTED');
 
-CREATE TABLE Template
+CREATE TABLE Signature_Template
 (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    author_Id INT NOT NULL,
-    created_Date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    last_Modified_Date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    CONSTRAINT User_Id_FK FOREIGN KEY (author_Id) REFERENCES User_Account (id)
+    id UUID PRIMARY KEY,
+    created_by_id UUID NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL,
+    modified_by_id UUID NOT NULL,
+    modified_at TIMESTAMPTZ NOT NULL,
+    name VARCHAR(256) NOT NULL,
+    CONSTRAINT signature_template_fk1 FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
+    CONSTRAINT signature_template_fk2 FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
+    CONSTRAINT signature_template_uq1 UNIQUE (name)
 );
 
-CREATE TABLE Template_Signature_Block
+CREATE TABLE Signature_Template_Block
 (
-    id SERIAL PRIMARY KEY,
-    template_Id INT NOT NULL,
-    index INT NOT NULL,
-    user_Id INT,
-    reason Reason NOT NULL,
-    template_Signature_Block_Index SMALLINT,
-    CONSTRAINT UserId_Fk FOREIGN KEY (user_Id) REFERENCES User_Account (id),
-    CONSTRAINT Template_Id_Fk FOREIGN KEY (template_Id) REFERENCES Template (id) ON DELETE CASCADE,
-    CONSTRAINT Template_Id_Index_Uq UNIQUE (template_Id, index)
+    id UUID PRIMARY KEY,
+    template_id UUID NOT NULL,
+    ordinal INT, -- should be NOT NULL, but Hibernate first inserts null here
+    user_id UUID,
+    reason Signature_Reason NOT NULL,
+    CONSTRAINT signature_template_block_uq1 UNIQUE (template_id, ordinal),
+    CONSTRAINT signature_template_block_fk1 FOREIGN KEY (template_id) REFERENCES Signature_Template (id) ON DELETE CASCADE,
+    CONSTRAINT signature_template_block_fk2 FOREIGN KEY (user_id) REFERENCES User_Account (id)
 );
 
 CREATE TABLE Document
 (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY,
     name VARCHAR(1024) NOT NULL,
-    template_Id INT NOT NULL,
-    author_Id INT NOT NULL,
-    status Status NOT NULL,
-    created_Date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    last_Modified_Date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    template_id UUID NOT NULL,
+    author_id UUID NOT NULL,
+    status Document_Status NOT NULL,
+    created_date TIMESTAMPTZ NOT NULL,
+    last_modified_date TIMESTAMPTZ NOT NULL,
+    filename VARCHAR(1024) NOT NULL,
     content BYTEA NOT NULL,
-    CONSTRAINT Template_Id_Fk FOREIGN KEY (template_Id) REFERENCES Template (id),
-    CONSTRAINT Author_Id_Fk FOREIGN KEY (author_Id) REFERENCES User_Account (id)
+    CONSTRAINT document_fk1 FOREIGN KEY (template_id) REFERENCES Signature_Template (id),
+    CONSTRAINT document_fk2 FOREIGN KEY (author_id) REFERENCES User_Account (id)
 );
 
-CREATE TABLE Document_Signature_Block
+CREATE TABLE Document_Signature
 (
-    id SERIAL PRIMARY KEY,
-    document_Id INT NOT NULL,
-    index INT NOT NULL,
-    template_Block_Id INT NOT NULL,
-    user_Id INT NOT NULL,
-    reason Reason NOT NULL,
-    action_Date TIMESTAMP WITHOUT TIME ZONE,
+    id UUID PRIMARY KEY,
+    document_id UUID NOT NULL,
+    ordinal INT, -- should be NOT NULL, but Hibernate initially inserts NULL
+    template_block_id UUID NOT NULL,
+    user_id UUID NOT NULL,
+    reason Signature_Reason NOT NULL,
+    action_date TIMESTAMPTZ,
     status Signature_Status NOT NULL,
     comment TEXT,
-    CONSTRAINT User_Id_Fk FOREIGN KEY (user_Id) REFERENCES User_Account (id),
-    CONSTRAINT Document_Id_Fk FOREIGN KEY (document_Id) REFERENCES Document (id) ON DELETE CASCADE,
-    CONSTRAINT Template_Block_Id_Fk FOREIGN KEY (template_Block_Id) REFERENCES Template_Signature_Block (id),
-    CONSTRAINT Document_Id_Index_Uq UNIQUE (document_Id, index)
+    CONSTRAINT document_signature_fk1 FOREIGN KEY (user_id) REFERENCES User_Account (id),
+    CONSTRAINT document_signature_fk2 FOREIGN KEY (document_id) REFERENCES Document (id) ON DELETE CASCADE,
+    CONSTRAINT document_signature_fk3 FOREIGN KEY (template_block_id) REFERENCES Signature_Template_Block (id),
+    CONSTRAINT document_signature_uq1 UNIQUE (document_id, ordinal)
 );

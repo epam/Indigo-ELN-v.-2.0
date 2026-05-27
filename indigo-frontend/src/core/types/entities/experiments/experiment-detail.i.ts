@@ -1,20 +1,11 @@
 import { BaseEntity } from '../base-entity.i';
 import { Attachment } from '../attachment.i';
-import { ProjectAcl } from '../acl.i';
+import { ACLEntry } from '../acl.i';
 import { ExperimentStatus } from '@/core/enums/experiment-status.enum';
 import { ExperimentModel } from '@core/types/entities/experiments/experiment.i';
-import { UserMetadata } from '@core/types/entities/user.i';
-import { ExperimentRef } from '@core/types/entities/experiments/experiment-shared.i';
-
-export enum SignatureReason {
-  AUTHOR = 'AUTHOR',
-  WITNESS = 'WITNESS',
-}
-
-export enum SignatureStatus {
-  APPROVED = 'APPROVED',
-  REJECTED = 'REJECTED',
-}
+import { UserRef } from '@core/types/entities/user.i';
+import { ExperimentRef, UUID } from '@core/types/entities/experiments/experiment-shared.i';
+import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
 
 export interface TherapeuticArea {
   id: string;
@@ -26,17 +17,15 @@ export interface ProjectCode {
   name: string;
 }
 
-export interface SignatureUser {
-  id: string;
-  username: string;
-  displayName: string;
-}
-
-export interface Signature {
-  user: SignatureUser;
-  reason: SignatureReason;
-  status: SignatureStatus;
-  signedAt: string;
+export interface ExperimentEditRequest {
+  title?: string | null;
+  therapeuticArea?: DictionaryItemRef | null;
+  projectCode?: DictionaryItemRef | null;
+  description?: string | null;
+  literature?: string | null;
+  linkedExperiments?: ExperimentRef[] | null;
+  continuedFrom?: ExperimentRef[] | null;
+  continuedTo?: ExperimentRef[] | null;
 }
 
 export interface ExperimentDetail extends BaseEntity {
@@ -49,13 +38,15 @@ export interface ExperimentDetail extends BaseEntity {
   description?: string;
   literature?: string;
   templateId: string;
-  batchCreator: UserMetadata;
+  batchCreator: UserRef;
   linkedExperiments: ExperimentRef[];
   continuedFrom: ExperimentRef[];
   continuedTo: ExperimentRef[];
   attachments?: Attachment[];
-  acl?: ProjectAcl[];
+  acl?: ACLEntry[];
   model: ExperimentModel;
+  projectId: UUID;
   projectName: string;
+  notebookId: UUID;
   notebookName: string;
 }

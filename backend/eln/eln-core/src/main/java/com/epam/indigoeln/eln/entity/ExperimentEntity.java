@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.entity;
 
+import com.epam.indigoeln.eln.common.entity.IdentifiableEntity;
 import com.epam.indigoeln.eln.config.hibernate.ACLEntryArrayType;
 import com.epam.indigoeln.eln.model.AccessLevel;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
@@ -53,7 +54,6 @@ import java.util.*;
                 @NamedAttributeNode("therapeuticArea"),
                 @NamedAttributeNode("projectCode"),
                 @NamedAttributeNode("aclEntities"),
-                @NamedAttributeNode("signatures"),
                 @NamedAttributeNode("model"),
                 @NamedAttributeNode("batchCreator"),
                 @NamedAttributeNode(value = "linkedExperiments", subgraph = "Experiment.linkedExperiments"),
@@ -75,14 +75,6 @@ import java.util.*;
                                 @NamedAttributeNode("name")
                         }
                 )
-        }
-)
-@NamedEntityGraph(
-        name = "Experiment.forSignature",
-        attributeNodes = {
-                @NamedAttributeNode("createdBy"),
-                @NamedAttributeNode("modifiedBy"),
-                @NamedAttributeNode("signatures"),
         }
 )
 @NamedEntityGraph(
@@ -149,30 +141,25 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @ManyToOne(fetch = FetchType.LAZY)
     private UserEntity batchCreator;
 
-    @NotNull
-    @OneToMany
+    @ManyToMany
     @JoinTable(name = "Experiment_Linked_Experiment", joinColumns = @JoinColumn(name = "parent_id"), inverseJoinColumns = @JoinColumn(name = "experiment_id"))
-    private Set<ExperimentEntity> linkedExperiments;
+    private Set<ExperimentEntity> linkedExperiments = new HashSet<>(0);
 
     @NotNull
-    @OneToMany
+    @ManyToMany
     @JoinTable(name = "Experiment_Continued_From", joinColumns = @JoinColumn(name = "parent_id"), inverseJoinColumns = @JoinColumn(name = "experiment_id"))
-    private Set<ExperimentEntity> continuedFrom;
+    private Set<ExperimentEntity> continuedFrom = new HashSet<>(0);
 
     @NotNull
-    @OneToMany
+    @ManyToMany
     @JoinTable(name = "Experiment_Continued_To", joinColumns = @JoinColumn(name = "parent_id"), inverseJoinColumns = @JoinColumn(name = "experiment_id"))
-    private Set<ExperimentEntity> continuedTo;
+    private Set<ExperimentEntity> continuedTo = new HashSet<>(0);
 
     @Nullable
     @Basic(fetch = FetchType.LAZY)
     @Type(PostgreSQLTSVectorType.class)
     @Column(insertable = false, updatable = false)
     private String searchVector;
-
-    @Nullable
-    @OneToOne(fetch = FetchType.LAZY)
-    private AttachmentEntity reportForSignature;
 
     @NotNull
     @JdbcTypeCode(SqlTypes.JSON)
@@ -202,6 +189,14 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @NotNull
     private Integer revision;
 
+    @Nullable
+    private String signatureNumber;
+
+    @Nullable
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "signature_attachment_id")
+    private AttachmentEntity signatureAttachment;
+
     @NotNull
     @OneToMany(mappedBy = "experiment", cascade = CascadeType.ALL, orphanRemoval = true)
     @MapKeyJoinColumn(name = "user_id")
@@ -213,24 +208,10 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @OrderBy("createdAt")
     private List<AttachmentEntity> attachments = new ArrayList<>(0);
 
-    @NotNull
-    @OneToMany(mappedBy = "experiment")
-    @OrderBy("revision")
-    private List<ExperimentRevisionEntity> revisions = new ArrayList<>(0);
-
-    @NotNull
-    @OneToMany(mappedBy = "experiment")
-    private Set<ExperimentEditSessionEntity> editSessions = new HashSet<>(0);
-
     @Nullable
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id", referencedColumnName = "id")
     private CalculatedInfo calculatedInfo;
-
-    @NotNull
-    @OrderColumn(name = "ordinal")
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "experiment")
-    private List<ExperimentSignatureEntity> signatures = new ArrayList<>(0);
 
     @NotNull
     @ElementCollection

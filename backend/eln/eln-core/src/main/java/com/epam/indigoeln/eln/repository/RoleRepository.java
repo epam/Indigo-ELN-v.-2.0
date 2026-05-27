@@ -1,8 +1,9 @@
 package com.epam.indigoeln.eln.repository;
 
+import com.epam.indigoeln.eln.common.repository.BaseRepository;
 import com.epam.indigoeln.eln.entity.RoleEntity;
 import com.epam.indigoeln.eln.mapper.RoleMapper;
-import com.epam.indigoeln.eln.model.EntityType;
+import com.epam.indigoeln.eln.model.ELNEntityType;
 import com.epam.indigoeln.eln.model.RoleDTO;
 import com.epam.indigoeln.eln.model.RoleRef;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -17,7 +18,7 @@ public class RoleRepository extends BaseRepository<RoleEntity> {
     RoleMapper roleMapper;
 
     public RoleRepository() {
-        super(EntityType.ROLE, RoleEntity.class);
+        super(ELNEntityType.ROLE, RoleEntity.class);
     }
 
     public List<RoleDTO> list() {

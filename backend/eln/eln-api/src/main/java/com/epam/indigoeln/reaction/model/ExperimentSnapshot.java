@@ -1,5 +1,6 @@
 package com.epam.indigoeln.reaction.model;
 
+import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.eln.model.*;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotNull;
@@ -21,10 +22,10 @@ public final class ExperimentSnapshot implements ExperimentNode {
     private ExperimentStatus status;
 
     @Nullable
-    private DictionaryItemRef therapeuticArea;
+    private TherapeuticAreaRef therapeuticArea;
 
     @Nullable
-    private DictionaryItemRef projectCode;
+    private ProjectCodeRef projectCode;
 
     @Nullable
     private String description;
@@ -54,7 +55,7 @@ public final class ExperimentSnapshot implements ExperimentNode {
     private Set<AttachmentDTO> attachments;
 
     @Nullable
-    private Set<ACLDetailsEntryDTO> acl;
+    private Set<ACLEntryDTO> acl;
 
     @Nullable
     private ExperimentModel model;

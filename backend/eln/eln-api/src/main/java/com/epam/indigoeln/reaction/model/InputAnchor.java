@@ -10,6 +10,10 @@ public class InputAnchor extends Anchor {
         super(value);
     }
 
+    public static InputAnchor create() {
+        return new InputAnchor(UUID.randomUUID());
+    }
+
     @JsonCreator
     public InputAnchor(String str) {
         super(str);

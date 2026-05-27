@@ -16,6 +16,7 @@ dependencies {
     api("org.assertj:assertj-core:3.27.6")
     api("org.mockito:mockito-core:5.20.0")
     api("org.mockito:mockito-junit-jupiter:5.20.0")
+    api("io.quarkiverse.wiremock:quarkus-wiremock-test:1.6.3")
 
     api("io.github.openfeign:feign-core:13.6")
     api("io.github.openfeign:feign-jackson:13.6")

@@ -18,21 +18,57 @@ However, you can copy images to your own ECR repository and adjust XXXServiceTag
 
 
 ## Local Installation
-- You must have recent version of Docker installed
-- Check our Indigo ELN repository:
+
+The local docker-compose stack runs the full application — frontend, backend (`eln-service`), PostgreSQL, and Keycloak — and is the recommended setup for local development.
+
+### Prerequisites
+
+- Docker with Docker Compose v2 (`docker compose ...`)
+- Java 21 (required for the Gradle backend build)
+- ~4 GB of free RAM
+
+### Setup
+
 ```bash
 git clone https://github.com/epam/Indigo-ELN-v.-2.0.git
 cd Indigo-ELN-v.-2.0
+./deploy.sh
 ```
-- Create directories for persistent data:
+### Access
+
+| URL | Purpose |
+|---|---|
+| `http://localhost` | Frontend (use this — port 80 via nginx) |
+| `http://localhost:10020` | `eln-service` REST API |
+| `http://localhost:8088` | Keycloak admin console (admin / admin) |
+
+> **Important:** open the app at `http://localhost` (port 80), not `http://localhost:8080`. Port 8080 is the Angular dev server, whose `indigo-frontend/src/proxy.conf.js` forwards `/api` calls to the EPAM-hosted dev backend; local Keycloak tokens will not validate there and you will see `401 Unauthorized` on every API call.
+
+### Users and realm
+
+The `indigo-eln` Keycloak realm — including users, roles, and clients — is provisioned declaratively from `deployment-compose/keycloak-config-cli/realm-config.json` on first start. Edit that file to add or change users.
+
+Two test users are seeded out of the box:
+
+| Username | Password |
+|---|---|
+| `testuser1` | `testuser1` |
+| `testuser2` | `testuser2` |
+
+Use either to log in at `http://localhost` once the stack is up.
+
+### Stopping
+
 ```bash
-sudo mkdir -p /var/local/indigoeln/{mongo-db,postgres-signature,postgres-crs,bingodb}
+./stop.sh
 ```
-- From the root of the repository, run:
+
+### Manual build (without `deploy.sh`)
+
 ```bash
-docker compose -f docker-compose-local.yml up
+cd backend && ./gradlew :eln:eln-service:quarkusBuild
+cd ../deployment-compose && docker compose up --build
 ```
-It will build all containers and start the application. You can access the application UI at `http://localhost:9000`
 
 
 ## Installation on AWS

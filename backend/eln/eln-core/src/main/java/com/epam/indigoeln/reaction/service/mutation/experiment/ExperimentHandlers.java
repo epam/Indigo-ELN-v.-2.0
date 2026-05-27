@@ -2,7 +2,6 @@ package com.epam.indigoeln.reaction.service.mutation.experiment;
 
 import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
-import com.epam.indigoeln.eln.model.BuiltInDictionary;
 import com.epam.indigoeln.eln.model.ExperimentRef;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
 import com.epam.indigoeln.eln.repository.AttachmentRepository;
@@ -35,6 +34,7 @@ import java.util.Set;
 import static com.epam.indigoeln.common.exception.InvalidRequestException.fail;
 import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
 import static com.epam.indigoeln.common.util.ModelUtil.editProperty;
+import static com.epam.indigoeln.common.util.ModelUtil.updateCollection;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Dependent
@@ -62,12 +62,9 @@ class CreateExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
         experimentModelService.setModel(experiment, experimentModelService.createNewModel());
         experiment.setStatus(ExperimentStatus.OPEN);
         experiment.setDeleted(false);
-        experiment.setTherapeuticArea(dictionaryService.lookup(BuiltInDictionary.THERAPEUTIC_AREA.name(), mutation.therapeuticArea()));
-        experiment.setProjectCode(dictionaryService.lookup(BuiltInDictionary.PROJECT_CODE.name(), mutation.projectCode()));
+        experiment.setTherapeuticArea(dictionaryService.lookup(mutation.therapeuticArea()));
+        experiment.setProjectCode(dictionaryService.lookup(mutation.projectCode()));
         experiment.setDescription(mutation.description());
-        experiment.setLinkedExperiments(Set.of());
-        experiment.setContinuedFrom(Set.of());
-        experiment.setContinuedTo(Set.of());
 
         experiment.setName(generateExperimentName(experiment.getNotebook()));
         experiment.setCreatedBy(userService.getCurrentUserEntity());
@@ -127,7 +124,7 @@ class EditExperimentAttributesHandler extends ExperimentMutationHandlerBase<Expe
         );
         updated |= editProperty(mutation.therapeuticArea()
                 , v -> {
-                    DictionaryItemEntity value = dictionaryService.lookup(BuiltInDictionary.THERAPEUTIC_AREA.name(), v);
+                    DictionaryItemEntity value = dictionaryService.lookup(v);
                     experiment.setTherapeuticArea(value);
                 }
                 , summaryList
@@ -135,7 +132,7 @@ class EditExperimentAttributesHandler extends ExperimentMutationHandlerBase<Expe
         );
         updated |= editProperty(mutation.projectCode()
                 , v -> {
-                    DictionaryItemEntity value = dictionaryService.lookup(BuiltInDictionary.PROJECT_CODE.name(), v);
+                    DictionaryItemEntity value = dictionaryService.lookup(v);
                     experiment.setProjectCode(value);
                 }
                 , summaryList
@@ -152,17 +149,23 @@ class EditExperimentAttributesHandler extends ExperimentMutationHandlerBase<Expe
                 , "literature"
         );
         updated |= editProperty(mutation.linkedExperiments()
-                , v -> experiment.setLinkedExperiments(experimentsFromRefs(v))
+                , v -> {
+                    updateCollection(experiment.getLinkedExperiments(), experimentsFromRefs(v));
+                }
                 , summaryList
                 , "linked experiments"
         );
         updated |= editProperty(mutation.continuedFrom()
-                , v -> experiment.setContinuedFrom(experimentsFromRefs(v))
+                , v -> {
+                    updateCollection(experiment.getContinuedFrom(), experimentsFromRefs(v));
+                }
                 , summaryList
                 , "continued from"
         );
         updated |= editProperty(mutation.continuedTo()
-                , v -> experiment.setContinuedTo(experimentsFromRefs(v))
+                , v -> {
+                    updateCollection(experiment.getContinuedTo(), experimentsFromRefs(v));
+                }
                 , summaryList
                 , "continued to"
         );
@@ -179,18 +182,18 @@ class EditExperimentAttributesHandler extends ExperimentMutationHandlerBase<Expe
     @SuppressWarnings("OptionalAssignedToNull")
     public void doRestoreStateAfterUndo(ExperimentEntity experiment, ExperimentSnapshot snapshot, ExperimentMutation.EditExperimentAttributes mutation) {
         experiment.setTitle(snapshot.getTitle());
-        experiment.setTherapeuticArea(dictionaryService.get(snapshot.getTherapeuticArea()));
-        experiment.setProjectCode(dictionaryService.get(snapshot.getProjectCode()));
+        experiment.setTherapeuticArea(dictionaryService.lookup(snapshot.getTherapeuticArea()));
+        experiment.setProjectCode(dictionaryService.lookup(snapshot.getProjectCode()));
         experiment.setDescription(snapshot.getDescription());
         experiment.setLiterature(snapshot.getLiterature());
         if (mutation.linkedExperiments() != null) {
-            experiment.setLinkedExperiments(experimentsFromRefs(snapshot.getLinkedExperiments()));
+            updateCollection(experiment.getLinkedExperiments(), experimentsFromRefs(snapshot.getLinkedExperiments()));
         }
         if (mutation.continuedFrom() != null) {
-            experiment.setContinuedFrom(experimentsFromRefs(snapshot.getContinuedFrom()));
+            updateCollection(experiment.getContinuedFrom(), experimentsFromRefs(snapshot.getContinuedFrom()));
         }
         if (mutation.continuedTo() != null) {
-            experiment.setContinuedTo(experimentsFromRefs(snapshot.getContinuedTo()));
+            updateCollection(experiment.getContinuedTo(), experimentsFromRefs(snapshot.getContinuedTo()));
         }
     }
 
@@ -222,8 +225,8 @@ class SetBatchCreatorHandler extends ExperimentMutationHandlerBase<ExperimentMut
                 }
             }
         }
-        UserEntity batchCreator = userRepository.get(mutation.batchCreator().getId());
-        entity.setBatchCreator(batchCreator);
+        UserInfo batchCreator = userService.getUserInfo(mutation.batchCreator());
+        entity.setBatchCreator(userRepository.getReference(batchCreator.getId()));
         return new MutationResult(formatSetterSummary("batch creator", batchCreator.getDisplayName()));
     }
 
@@ -234,7 +237,8 @@ class SetBatchCreatorHandler extends ExperimentMutationHandlerBase<ExperimentMut
 
     @Override
     public void doRestoreStateAfterUndo(ExperimentEntity experiment, ExperimentSnapshot snapshot, ExperimentMutation.SetBatchCreator mutation) {
-        experiment.setBatchCreator(userRepository.getReference(snapshot.getBatchCreator().getId()));
+        UserInfo batchCreator = userService.getUserInfo(snapshot.getBatchCreator());
+        experiment.setBatchCreator(userRepository.getReference(batchCreator.getId()));
     }
 }
 
@@ -297,7 +301,7 @@ class CreateExperimentAttachmentHandler extends ExperimentMutationHandlerBase<Ex
 
     @Override
     public void doRestoreStateAfterUndo(ExperimentEntity experiment, ExperimentSnapshot snapshot, ExperimentMutation.CreateExperimentAttachment mutation) {
-        experiment.setAttachments(attachmentRepository.getReferences(checkNotNull(snapshot.getAttachments())));
+        updateCollection(experiment.getAttachments(), attachmentRepository.getReferences(checkNotNull(snapshot.getAttachments())));
     }
 }
 
@@ -329,7 +333,7 @@ class DeleteExperimentAttachmentHandler extends ExperimentMutationHandlerBase<Ex
 
     @Override
     public void doRestoreStateAfterUndo(ExperimentEntity experiment, ExperimentSnapshot snapshot, ExperimentMutation.DeleteExperimentAttachment mutation) {
-        experiment.setAttachments(attachmentRepository.getReferences(checkNotNull(snapshot.getAttachments())));
+        updateCollection(experiment.getAttachments(), attachmentRepository.getReferences(checkNotNull(snapshot.getAttachments())));
     }
 }
 

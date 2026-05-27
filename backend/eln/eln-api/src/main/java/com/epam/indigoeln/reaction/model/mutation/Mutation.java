@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(ReactionMutation.ResolveInputs.class),
         @JsonSubTypes.Type(ReactionMutation.AddEmptyInput.class),
         @JsonSubTypes.Type(ReactionMutation.AddInput.class),
+        @JsonSubTypes.Type(ReactionMutation.AddNoProductSample.class),
+        @JsonSubTypes.Type(ReactionMutation.ImportSDF.class),
 
         @JsonSubTypes.Type(ReactionInputMutation.SetInputRowRole.class),
         @JsonSubTypes.Type(ReactionInputMutation.SetInputRowMol.class),
@@ -38,6 +40,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(ReactionOutputMutation.SetOutputRowEQ.class),
         @JsonSubTypes.Type(ReactionOutputMutation.SetOutputRowName.class),
         @JsonSubTypes.Type(ReactionOutputMutation.SetOutputRowChemicalName.class),
+        @JsonSubTypes.Type(ReactionOutputMutation.SetOutputRowIntended.class),
         @JsonSubTypes.Type(ReactionOutputMutation.SetOutputCompoundStereoisomerCode.class),
         @JsonSubTypes.Type(ReactionOutputMutation.SetOutputCompoundMolWeight.class),
 
@@ -79,9 +82,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(ExperimentMutation.ReopenExperiment.class),
         @JsonSubTypes.Type(ExperimentMutation.CompleteExperiment.class),
         @JsonSubTypes.Type(ExperimentMutation.SubmitExperiment.class),
-        @JsonSubTypes.Type(ExperimentMutation.ApproveExperiment.class),
-        @JsonSubTypes.Type(ExperimentMutation.RejectExperiment.class),
-        @JsonSubTypes.Type(ExperimentMutation.ResubmitExperiment.class),
+        @JsonSubTypes.Type(ExperimentMutation.SignatureUpdated.class),
         @JsonSubTypes.Type(ExperimentMutation.MakeVersion.class),
         @JsonSubTypes.Type(ExperimentMutation.ExperimentAccessUpdated.class),
         @JsonSubTypes.Type(ExperimentMutation.Undo.class),

@@ -53,6 +53,9 @@
             (keydown.enter)="callSave(column, row, $any($event.target).value)"
           />
 
+          <!-- HTML -->
+          <span *ngIf="column.type === ColumnInputType.HTML" [innerHTML]="column.field(row) || '—'"></span>
+
           <!-- Number Input -->
           <input
             *ngIf="column.type === ColumnInputType.NUMBER"
@@ -148,7 +151,10 @@
           </mat-select>
 
           <!-- Button -->
-          <div *ngIf="column.type === ColumnInputType.BUTTON" class="p-2">
+          <div
+            *ngIf="column.type === ColumnInputType.BUTTON && (column.editable == null || column.editable(row))"
+            class="p-2"
+          >
             <button
               class="px-3 py-1 text-xs font-medium text-primary-700 bg-primary-50 border border-primary-200 rounded hover:bg-primary-100 transition-colors"
               (click)="column.onSave?.(row)"
@@ -159,7 +165,14 @@
 
           <!-- Icon -->
           <div *ngIf="column.type === ColumnInputType.ICON" class="p-2">
-            <button mat-icon-button (click)="column.onSave?.(row)" [matTooltip]="column.tooltip?.(row)">
+            @let editable = column.editable == null || column.editable(row);
+            <button
+              mat-icon-button
+              (click)="editable ? column.onSave?.(row) : null"
+              [matTooltip]="column.tooltip?.(row)"
+              [class.opacity-30]="!editable"
+              [class.!cursor-default]="!editable"
+            >
               <em [ngClass]="column.iconClasses(row)"></em>
             </button>
           </div>

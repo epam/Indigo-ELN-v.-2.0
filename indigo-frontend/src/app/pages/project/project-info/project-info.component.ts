@@ -1,4 +1,3 @@
-import { AttachmentComponent } from '@/core/components/common/attachment/attachment.component';
 import { ButtonComponent } from '@/core/components/common/button/button.component';
 import { CardComponent } from '@/core/components/common/card/card.component';
 import { ChipComponent } from '@/core/components/common/chip/chip.component';
@@ -6,18 +5,18 @@ import { TeamComponent } from '@/core/components/common/team/team.component';
 import { ApiService } from '@/core/services/api.service';
 import { Project } from '@/core/types/entities/project.i';
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, effect, inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { finalize, from, Subject, take } from 'rxjs';
-import { concatMap, takeUntil } from 'rxjs/operators';
-import { FileUploadComponent } from '@/core/components/common/file-upload/file-upload.component';
-import { Attachment } from '@/core/types/entities/attachment.i';
+import { finalize, Subject, take } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ProjectAddComponent } from '../project-add/project-add.component';
 import { TeamComponentConfig } from '@/core/components/common/team/team.config';
 import { NotebookAddComponent } from '@pages/notebook/notebook-add/notebook-add.component';
 import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
 import { BreadcrumbsStateService } from '@/core/services/breadcrumbs/breadcrumbs.state.service';
+import { AttachmentsComponent } from '@core/components/common/attachments/attachments.component';
+import { Attachment } from '@core/types/entities/attachment.i';
 
 enum projectInfoModalEnum {
   EDIT = 'edit',
@@ -31,11 +30,10 @@ enum projectInfoModalEnum {
     CommonModule,
     ButtonComponent,
     ChipComponent,
-    AttachmentComponent,
     TeamComponent,
     CardComponent,
-    FileUploadComponent,
     ProjectOverviewWidgetDirective,
+    AttachmentsComponent,
   ],
   templateUrl: './project-info.component.html',
 })
@@ -51,15 +49,20 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
 
   isLoading = false;
   hasError = false;
-  isUploadingAttachment = false;
 
   private destroy$ = new Subject<void>();
+
+  private readonly breadcrumbsEffect = effect(() => {});
 
   projectTeamConfig: TeamComponentConfig = {
     buildAccessEndpoint: (id: string) => `projects/${id}/access`,
   };
 
   ngOnInit() {
+    this.breadcrumbsState.setItems([
+      { label: 'All Projects', url: '/projects', active: false },
+      { label: `Project: `, active: true },
+    ]);
     this.activatedRoute.params.pipe(takeUntil(this.destroy$)).subscribe(({ id }) => {
       if (id) {
         this.loadProject(id);
@@ -72,40 +75,8 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  onAttachmentDeleted(attachmentId: string): void {
-    if (this.project) {
-      this.project.attachments = this.project.attachments.filter((attachment) => attachment.id !== attachmentId);
-    }
-  }
-
-  onUpload(newFiles: File[]): void {
-    this.isUploadingAttachment = true;
-
-    if (!newFiles.length || !this.project) {
-      console.error('No project or file selected for upload');
-      this.isUploadingAttachment = false;
-      return;
-    }
-
-    const formDatas = newFiles.map((file) => {
-      const formData = new FormData();
-      formData.append('file', file, file.name);
-      return formData;
-    });
-
-    from(formDatas)
-      .pipe(
-        concatMap((formData) =>
-          this.service.request<Attachment[]>('post', `projects/${this.project!.id}/attachments`, formData),
-        ),
-        finalize(() => (this.isUploadingAttachment = false)),
-        takeUntil(this.destroy$),
-      )
-      .subscribe((attachments) => {
-        if (this.project) {
-          this.project.attachments = attachments;
-        }
-      });
+  onAttachmentsChanged(attachments: Attachment[]) {
+    this.project.attachments = attachments;
   }
 
   private loadProject(id: string): void {

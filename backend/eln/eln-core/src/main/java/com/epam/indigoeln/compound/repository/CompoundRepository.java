@@ -3,10 +3,10 @@ package com.epam.indigoeln.compound.repository;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.mapper.CompoundMapper;
 import com.epam.indigoeln.compound.model.CompoundKey;
-import com.epam.indigoeln.eln.model.EntityType;
+import com.epam.indigoeln.eln.common.repository.BaseRepository;
+import com.epam.indigoeln.eln.common.util.Conditions;
+import com.epam.indigoeln.eln.model.ELNEntityType;
 import com.epam.indigoeln.eln.model.STRCodeCompound;
-import com.epam.indigoeln.eln.repository.BaseRepository;
-import com.epam.indigoeln.eln.util.Conditions;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -26,7 +26,7 @@ public class CompoundRepository extends BaseRepository<CompoundEntity> {
     EntityManager em;
 
     public CompoundRepository() {
-        super(EntityType.COMPOUND, CompoundEntity.class);
+        super(ELNEntityType.COMPOUND, CompoundEntity.class);
     }
 
     @Nullable
@@ -46,7 +46,7 @@ public class CompoundRepository extends BaseRepository<CompoundEntity> {
     public STRCodeCompound findSameSTRCodeByCompoundKeyWithoutSaltCode(CompoundKey compoundKey) {
         return em.createQuery("select strCode from Compound "
                         + "where canSmiles = ?1 "
-                        + "and stereoisomerCode is not distinct from ?2 "
+                        + "and stereoisomerCode.id is not distinct from ?2 "
                         + "and strCode is not null", STRCodeCompound.class)
                 .setParameter(1, compoundKey.getCanSmiles())
                 .setParameter(2, compoundKey.getStereoisomerCode())

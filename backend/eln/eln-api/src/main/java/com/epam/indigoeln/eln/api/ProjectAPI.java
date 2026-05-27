@@ -1,5 +1,9 @@
 package com.epam.indigoeln.eln.api;
 
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.SortOrder;
+import com.epam.indigoeln.common.model.UploadForm;
 import com.epam.indigoeln.eln.model.*;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotEmpty;
@@ -21,9 +25,7 @@ public interface ProjectAPI extends BaseAPI {
 
     @GET
     @Path("/projects")
-    Page<ProjectDTO> getProjects(@QueryParam("search") @Nullable String search, @QueryParam("sort") @Nullable SortOrder sort,
-                                 @QueryParam("createdByMe") @Nullable Boolean createdByMe,
-                                 @BeanParam Paging paging);
+    Page<ProjectDTO> getProjects(@QueryParam("search") @Nullable String search, @QueryParam("sort") @Nullable SortOrder sort, @QueryParam("createdByMe") @Nullable Boolean createdByMe, @BeanParam Paging paging);
 
     @GET
     @Path("/projects/existence")
@@ -44,7 +46,7 @@ public interface ProjectAPI extends BaseAPI {
     List<AttachmentDTO> createProjectAttachment(@PathParam("projectId") UUID projectId, UploadForm form);
 
     @GET
-    @Path("/project/{projectId}/attachments/{attachmentId}")
+    @Path("/projects/{projectId}/attachments/{attachmentId}")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     Response downloadProjectAttachment(@PathParam("projectId") UUID projectId, @PathParam("attachmentId") UUID attachmentId);
 
@@ -55,7 +57,7 @@ public interface ProjectAPI extends BaseAPI {
 
     @POST
     @Path("/projects/{projectId}/access")
-    List<ACLDetailsEntryDTO> updateProjectAccess(@PathParam("projectId") UUID projectId, List<AccessForm> form);
+    List<ACLEntryDTO> updateProjectAccess(@PathParam("projectId") UUID projectId, List<AccessForm> form);
 
     @GET
     @Path("/projects/{projectId}/nestedAccess")

@@ -12,13 +12,13 @@
       <ng-select
         [items]="userSuggestions"
         bindLabel="displayName"
-        bindValue="id"
+        bindValue="username"
         [multiple]="true"
         [closeOnSelect]="false"
         [searchable]="true"
         placeholder="Emails, comma separated"
-        [(ngModel)]="selectedUserIds"
-        (change)="onUsersSelectedIds(selectedUserIds)"
+        [(ngModel)]="selectedUsers"
+        (change)="onUsersSelected(selectedUsers)"
         [clearable]="true"
         class="w-[300px]"
       >
@@ -39,7 +39,7 @@
       <eln-button
         variant="blue"
         (click)="addSelectedUsers()"
-        [disabled]="selectedUserIds.length === 0 || loading().addingUsers"
+        [disabled]="selectedUsers.length === 0 || loading().addingUsers"
       >
         <em class="indicon-plus"></em>
         Add member
@@ -49,7 +49,7 @@
 
   <!-- Team members list -->
   <div class="space-y-2 py-3">
-    @for (member of teamVm(); track member.userId) {
+    @for (member of teamVm(); track member.username) {
       <div
         class="grid grid-cols-[auto_1fr_1fr_auto] gap-4 items-center p-2 hover:bg-neutral-100 rounded-lg text-neutral-1000"
       >

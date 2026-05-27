@@ -19,7 +19,7 @@ public class ProjectDTO extends BaseProjectDTO {
     @Override
     public String toString() {
         return "ProjectDTO{" +
-                "id=" + id +
+                "id=" + getId() +
                 ", name='" + name + '\'' +
                 '}';
     }

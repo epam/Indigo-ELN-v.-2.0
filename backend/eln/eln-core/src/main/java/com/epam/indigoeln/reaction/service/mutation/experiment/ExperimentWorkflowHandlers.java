@@ -1,12 +1,14 @@
 package com.epam.indigoeln.reaction.service.mutation.experiment;
 
 import com.epam.indigoeln.common.exception.InvalidRequestException;
-import com.epam.indigoeln.eln.entity.*;
+import com.epam.indigoeln.common.model.DocumentStatus;
+import com.epam.indigoeln.eln.entity.AttachmentEntity;
+import com.epam.indigoeln.eln.entity.ExperimentEntity;
+import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
-import com.epam.indigoeln.eln.model.SignatureStatus;
+import com.epam.indigoeln.eln.repository.AttachmentRepository;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
-import com.epam.indigoeln.eln.repository.SignatureTemplateRepository;
 import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.ExperimentService;
@@ -15,17 +17,21 @@ import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
+import com.epam.indigoeln.signature.api.SignatureClient;
+import com.epam.indigoeln.signature.model.DocumentDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.MoreObjects;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
+import lombok.SneakyThrows;
 import one.util.streamex.StreamEx;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 
-import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
+import static com.epam.indigoeln.common.util.ModelUtil.useTempFile;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.SUBMIT_EXPERIMENTS;
 import static com.epam.indigoeln.eln.model.ExperimentStatus.*;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -54,7 +60,6 @@ class ReopenExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
     @Override
     public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.ReopenExperiment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         helper.transition(experiment, REOPEN, SUBMIT_EXPERIMENTS, CANCELLED, ARCHIVED, COMPLETED, SUBMITTED, REJECTED);
-        experiment.getSignatures().clear();
         return new MutationResult("Experiment reopened");
     }
 }
@@ -84,7 +89,8 @@ class SubmitExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
     @Inject
     AttachmentService attachmentService;
     @Inject
-    SignatureTemplateRepository signatureTemplateRepository;
+    @RestClient
+    SignatureClient signatureClient;
 
     @Override
     public void doPrepare(ExperimentEntity entity, ExperimentMutation.SubmitExperiment mutation, ExperimentMutationContext context) {
@@ -92,70 +98,44 @@ class SubmitExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
     }
 
     @Override
+    @SneakyThrows
     public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.SubmitExperiment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
-        SignatureTemplateEntity signatureTemplate = signatureTemplateRepository.get(mutation.signatureTemplateID());
-        helper.transition(experiment, SUBMITTED, SUBMIT_EXPERIMENTS, COMPLETED);
+        helper.transition(experiment, SUBMITTED, SUBMIT_EXPERIMENTS, COMPLETED, REJECTED);
         ExperimentService.ExperimentReportContent report = experimentService.printReport(experiment);
         AttachmentEntity attachment = attachmentService.createExperimentAttachment(experiment, report.filename(), report.content(), false);
-        experiment.setReportForSignature(attachment);
-        experiment.getSignatures().clear();
-        experiment.getSignatures().addAll(signatureTemplate.getBlocks().stream()
-                .map(block -> {
-                    UserEntity user = switch (block.getReason()) {
-                        case WITNESS -> checkNotNull(block.getUser());
-                        case AUTHOR -> experiment.getCreatedBy();
-                    };
-                    return new ExperimentSignatureEntity(experiment, user, block.getReason(), null, null);
-                })
-                .toList()
-        );
-        helper.doCheckSignatures(experiment);
+        String documentName = experiment.getName(); // !!! add version number
+        DocumentDTO document = useTempFile(attachment.getName(), attachment.getContent(), file -> {
+            return signatureClient.uploadDocumentClient(experiment.getName(), mutation.signatureTemplateID(), file);
+        });
+        experiment.setSignatureNumber(document.getId().toString());
+        experiment.setSignatureAttachment(attachment);
+        helper.updateStatusFromSignature(experiment, document.getStatus());
         return new MutationResult("Experiment submitted for signature");
     }
 }
 
 @Dependent
-@MutationHandlerFor(ExperimentMutation.ApproveExperiment.class)
-class ApproveExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMutation.ApproveExperiment> {
+@MutationHandlerFor(ExperimentMutation.SignatureUpdated.class)
+class SignatureUpdatedHandler extends ExperimentMutationHandlerBase<ExperimentMutation.SignatureUpdated> {
 
     @Inject
     ExperimentWorkflowHelper helper;
+    @Inject
+    AttachmentService attachmentService;
+    @Inject
+    AttachmentRepository attachmentRepository;
 
     @Override
-    public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.ApproveExperiment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
-        helper.doApproveOrReject(SignatureStatus.APPROVED, experiment);
-        return new MutationResult("Experiment approved");
+    public void doPrepare(ExperimentEntity entity, ExperimentMutation.SignatureUpdated mutation, ExperimentMutationContext context) {
+        context.setAffectsAttachments(true);
     }
-}
-
-@Dependent
-@MutationHandlerFor(ExperimentMutation.RejectExperiment.class)
-class RejectExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMutation.RejectExperiment> {
-
-    @Inject
-    ExperimentWorkflowHelper helper;
 
     @Override
-    public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.RejectExperiment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
-        helper.doApproveOrReject(SignatureStatus.REJECTED, experiment);
-        return new MutationResult("Experiment rejected");
-    }
-}
-
-@Dependent
-@MutationHandlerFor(ExperimentMutation.ResubmitExperiment.class)
-class ResubmitExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMutation.ResubmitExperiment> {
-
-    @Inject
-    ExperimentWorkflowHelper helper;
-
-    @Override
-    public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.ResubmitExperiment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
-        helper.transition(experiment, SUBMITTED, SUBMIT_EXPERIMENTS, REJECTED);
-        for (ExperimentSignatureEntity signature : experiment.getSignatures()) {
-            signature.setStatus(null);
-        }
-        return new MutationResult("Experiment resubmitted for signature");
+    public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.SignatureUpdated mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
+        helper.updateStatusFromSignature(experiment, mutation.documentStatus());
+        AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
+        attachmentService.doAddExperimentAttachment(experiment, attachment);
+        return new MutationResult("Signatures update: " + mutation.message());
     }
 }
 
@@ -212,39 +192,20 @@ class ExperimentWorkflowHelper {
         }
     }
 
-    void doCheckSignatures(ExperimentEntity experiment) {
-        boolean hasPending = false, hasApproved = false, hasRejected = false;
-        for (ExperimentSignatureEntity signature : experiment.getSignatures()) {
-            switch (signature.getStatus()) {
-                case null -> hasPending = true;
-                case APPROVED -> hasApproved = true;
-                case REJECTED -> hasRejected = true;
+    void updateStatusFromSignature(ExperimentEntity experiment, DocumentStatus documentStatus) {
+        switch (documentStatus) {
+            case SIGNING -> {
+                if (experiment.getStatus() != SIGNING) {
+                    transition(experiment, SIGNING, null, SUBMITTED);
+                }
+            }
+            case SIGNED -> {
+                transition(experiment, SIGNED, null, SUBMITTED, SIGNING);
+                transition(experiment, ARCHIVED, null, SIGNED);
+            }
+            case REJECTED -> {
+                transition(experiment, REJECTED, null, SUBMITTED, SIGNING);
             }
         }
-        if (hasRejected) {
-            transition(experiment, REJECTED, null, SUBMITTED, SIGNING);
-            return;
-        }
-        if (!hasPending) {
-            transition(experiment, SIGNED, null, SUBMITTED, SIGNING);
-            transition(experiment, ARCHIVED, null, SIGNED);
-            return;
-        }
-        if (hasApproved && experiment.getStatus() == SUBMITTED) {
-            transition(experiment, SIGNING, null, SUBMITTED);
-        }
-    }
-
-    void doApproveOrReject(SignatureStatus status, ExperimentEntity experiment) {
-        boolean found = false;
-        for (ExperimentSignatureEntity signature : experiment.getSignatures()) {
-            if (signature.getUser().equals(userService.getCurrentUserEntity())) {
-                validate(signature.getStatus() == null, "Experiment was already approved or rejected by " + userService.getCurrentUser());
-                signature.setStatus(status);
-                found = true;
-            }
-        }
-        validate(found, userService.getCurrentUser().getUsername() + " is not listed as a signer of experiment " + experiment.getName());
-        doCheckSignatures(experiment);
     }
 }

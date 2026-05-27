@@ -1,5 +1,8 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.api.MutateModelForm;
@@ -11,7 +14,6 @@ import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.test.FeignUtil;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.ws.rs.core.CacheControl;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
@@ -25,21 +27,21 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
-import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
+import static com.epam.indigoeln.common.util.ContentDispositionUtil.extractFilename;
+import static com.epam.indigoeln.common.util.ModelUtil.loadResourceAsString;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
 @QuarkusTest
-@JwtSecurity
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
 class ExperimentServiceTest extends ELNBaseTest {
 
     ProjectDetailsDTO project;
     NotebookDetailsDTO notebook;
-    List<DictionaryItemRef> therapeuticAreas;
-    List<DictionaryItemRef> projectCodes;
+    List<TherapeuticAreaRef> therapeuticAreas;
+    List<ProjectCodeRef> projectCodes;
 
     @BeforeEach
     void setUp() {
@@ -58,8 +60,8 @@ class ExperimentServiceTest extends ELNBaseTest {
 
     @Test
     void testCreateExperimentBadDictionary() {
-        assertThatClientCall(() -> experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID, null, new DictionaryItemRef(UUID.randomUUID(), "Invalid"), null)))
-                .isNotFound(".+ in dictionary THERAPEUTIC_AREA not found");
+        assertThatClientCall(() -> experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID, null, new TherapeuticAreaRef(UUID.randomUUID(), "Invalid", true, false, BuiltInDictionary.THERAPEUTIC_AREA.getId()), null)))
+                .isBadRequest("DICTIONARY_ITEM .+ not found");
     }
 
     @Test
@@ -88,7 +90,7 @@ class ExperimentServiceTest extends ELNBaseTest {
                 .first().satisfies(revision -> {
                     assertThat(revision.getRevision()).isOne();
                     assertThat(revision.getDatetime()).isEqualTo(experiment.getCreatedAt());
-                    assertThat(revision.getUser()).isEqualTo(getJohnUserRef());
+                    assertThat(revision.getUser()).isEqualTo(JOHN_USER_REF);
                     assertThat(revision.getMutation()).isInstanceOf(ExperimentMutation.CreateExperiment.class);
                     assertThat(revision.getSummary()).isEqualTo("Experiment created");
                 });
@@ -209,7 +211,7 @@ class ExperimentServiceTest extends ELNBaseTest {
                 .last().satisfies(revision -> {
                     assertThat(revision.getRevision()).isEqualTo(2);
                     assertThat(revision.getDatetime()).isEqualTo(modified.getModifiedAt());
-                    assertThat(revision.getUser()).isEqualTo(getJohnUserRef());
+                    assertThat(revision.getUser()).isEqualTo(JOHN_USER_REF);
                     assertThat(revision.getMutation()).isInstanceOf(ExperimentMutation.EditExperimentAttributes.class);
                     assertThat(revision.getSummary()).matches("Edit: multiple attributes");
                 });
@@ -254,7 +256,7 @@ class ExperimentServiceTest extends ELNBaseTest {
     @Test
     void testCreateAttachment(@TempDir Path tempDir) {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
-        List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", tempDir, "content".getBytes());
+        List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", "content".getBytes());
         assertThat(attachments).singleElement().satisfies(a -> {
             assertThat(a.getId()).isNotNull();
             assertThat(a.getName()).isEqualTo("attachment.txt");
@@ -273,16 +275,17 @@ class ExperimentServiceTest extends ELNBaseTest {
     @Test
     void testDownloadAttachment(@TempDir Path tempDir) throws Exception {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
-        List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", tempDir, "content".getBytes());
-        Response response = experimentClient.downloadExperimentAttachment(experiment.getId(), attachments.getFirst().getId());
-        assertThat(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION)).containsExactly("attachment; filename=attachment.txt");
-        assertThat((byte[]) response.getEntity()).asString().isEqualTo("content");
+        List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", "content".getBytes());
+        try (Response response = experimentClient.downloadExperimentAttachment(experiment.getId(), attachments.getFirst().getId())) {
+            assertThat(extractFilename(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION))).isEqualTo("attachment.txt");
+            assertThat((byte[]) response.getEntity()).asString().isEqualTo("content");
+        }
     }
 
     @Test
     void testDeleteAttachment(@TempDir Path tempDir) {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
-        List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", tempDir, "content".getBytes());
+        List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", "content".getBytes());
         experimentClient.deleteExperimentAttachment(experiment.getId(), attachments.getFirst().getId());
         experiment = experimentClient.getExperiment(experiment.getId());
         assertThat(experiment.getAttachments()).isEmpty();
@@ -304,7 +307,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         response = experimentClient.getReactionPicture(experiment.getId(), reaction.getAnchor(), experiment.getRevision());
         assertThat(response).containsExactly(ExperimentService.EMPTY_PICTURE);
 
-        String rxnFile = new String(loadResource(getClass(), "/reaction.rxn"));
+        String rxnFile = loadResourceAsString(getClass(), "/reaction.rxn");
         experimentClient.mutateExperimentModel(experiment.getId(), new MutateModelForm(experiment.getModel(), new ReactionMutation.SetScheme(model.getReactions().getFirst().getAnchor(), rxnFile)));
 
         model = experimentClient.getExperiment(experiment.getId()).getModel();
@@ -324,17 +327,17 @@ class ExperimentServiceTest extends ELNBaseTest {
     @Test
     void testUpdateAccess() {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
-        experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(maggieUserID, AccessLevel.EDIT));
+        experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(MAGGIE_USERNAME, AccessLevel.EDIT));
         assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
                 .hasSize(2)
                 .last().satisfies(revision -> {
                     assertThat(revision.getRevision()).isEqualTo(2);
-                    assertThat(revision.getUser()).isEqualTo(getJohnUserRef());
+                    assertThat(revision.getUser()).isEqualTo(JOHN_USER_REF);
                     assertThat(revision.getMutation()).isInstanceOf(ExperimentMutation.EditExperimentAccess.class);
                     assertThat(revision.getSummary()).isEqualTo("Edited Team: granted maggie EDIT access");
                     assertThat(revision.getDiff()).isNotNull(); // !!! verify diff old and new ACL
                 });
-        experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(maggieUserID, AccessLevel.NONE));
+        experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(MAGGIE_USERNAME, AccessLevel.NONE));
         assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
                 .hasSize(3)
                 .last().satisfies(revision -> {

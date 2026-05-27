@@ -45,25 +45,10 @@
           <p class="text-neutral-1000 mt-4">{{ project.details }}</p>
         </div>
 
-        @if (project.attachments.length > 0) {
-          <div>
-            <h3 class="text-neutral-800 mb-2 font-semibold">Attachments</h3>
-            <div class="space-y-2 grid">
-              @for (file of project.attachments; track file) {
-                <eln-attachment
-                  [attachment]="file"
-                  [projectId]="project.id"
-                  (attachmentDeleted)="onAttachmentDeleted($event)"
-                />
-              }
-            </div>
-          </div>
-        }
-
-        <eln-file-upload
-          (filesSelected)="onUpload($event)"
-          [uploadingFile]="isUploadingAttachment"
-          [withPreview]="false"
+        <eln-attachments
+          [attachments]="project.attachments"
+          [baseURL]="`/api/eln/projects/${project.id}`"
+          (attachmentsChanged)="onAttachmentsChanged($event)"
         />
       </div>
     </eln-card>

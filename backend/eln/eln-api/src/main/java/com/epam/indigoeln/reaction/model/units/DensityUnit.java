@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum DensityUnit implements MeasurementUnit {
 
-    G_ML(1.0, "g/ml");
+    G_ML(1.0, "g/mL");
 
     private final double multiplier;
     private final String displayName;

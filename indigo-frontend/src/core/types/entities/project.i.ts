@@ -1,14 +1,13 @@
 import { ExperimentStatus } from '@/core/enums/experiment-status.enum';
 import { BaseEntity } from './base-entity.i';
 import { Attachment } from './attachment.i';
-import { ProjectAcl } from './acl.i';
+import { ACLEntry } from './acl.i';
 
 export interface TeamMember {
   name: string;
   email: string;
   role: string;
   avatar: string;
-  userId?: string;
   inherited?: boolean;
 }
 
@@ -17,7 +16,7 @@ export interface Project extends BaseEntity {
   notebookCount: number;
   experimentCount: number;
   experimentCountByStatus: ExperimentCountByStatus;
-  acl?: ProjectAcl[];
+  acl?: ACLEntry[];
   aclCount?: number;
   keywords?: string[];
   literature?: string;

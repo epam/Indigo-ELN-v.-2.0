@@ -2,7 +2,6 @@ package com.epam.indigoeln.reaction.service;
 
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
-import com.epam.indigoeln.eln.client.ClientUtil;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.InputAnchor;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
@@ -12,14 +11,13 @@ import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.model.units.VolumeUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
 import com.epam.indigoeln.reaction.util.CalculationReportBuilder;
+import com.epam.indigoeln.test.ClientUtil;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -33,14 +31,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
 public class ExperimentUndoTest extends MutationsTestBase {
 
-    DictionaryItemRef therapeuticArea;
-    DictionaryItemRef projectCode;
+    TherapeuticAreaRef therapeuticArea;
+    ProjectCodeRef projectCode;
     ExperimentDetailsDTO experiment1, experiment2;
 
     @BeforeAll
     void beforeAll() {
-        therapeuticArea = dictionaryClient.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA).getFirst();
-        projectCode = dictionaryClient.getDictionary(BuiltInDictionary.PROJECT_CODE).getFirst();
+        therapeuticArea = dictionaryClient.getFirst(BuiltInDictionary.THERAPEUTIC_AREA);
+        projectCode = dictionaryClient.getFirst(BuiltInDictionary.PROJECT_CODE);
         ProjectDetailsDTO project = getOrCreateProject("ExperimentUndoTest");
         notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
         experiment1 = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
@@ -134,8 +132,8 @@ public class ExperimentUndoTest extends MutationsTestBase {
     }
 
     @Test
-    void testAttachments(@TempDir Path tempDir) {
-        List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.getId(), ClientUtil.createFileUpload("file", "attachment.txt", "content".getBytes(), tempDir));
+    void testAttachments() {
+        List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.getId(), ClientUtil.createFileUpload("attachment.txt", "content".getBytes()));
         experiment = experimentClient.getExperiment(experiment.getId());
 
         applyMutation(new ExperimentMutation.Undo());
@@ -163,8 +161,8 @@ public class ExperimentUndoTest extends MutationsTestBase {
     @Test
     void testParallelEditsUndoRedo() {
         applyMutation(new ExperimentMutation.EditExperimentAccess(Stream.of(
-                AccessForm.of(lisaUserID, AccessLevel.ADMIN),
-                AccessForm.of(bartUserID, AccessLevel.ADMIN)
+                AccessForm.of(LISA_USERNAME, AccessLevel.ADMIN),
+                AccessForm.of(BART_USERNAME, AccessLevel.ADMIN)
         ).flatMap(Collection::stream).toList()), false);
         applyMutation(new ReactionMutation.AddEmptyInput(reaction.getAnchor()), false);
         applyMutation(new ReactionMutation.AddEmptyInput(reaction.getAnchor()), false);

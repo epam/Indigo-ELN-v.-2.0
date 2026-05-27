@@ -1,5 +1,7 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.config.DataAccess;
@@ -12,7 +14,6 @@ import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +40,6 @@ import static org.assertj.core.api.Assertions.tuple;
 
 @Slf4j
 @QuarkusTest
-@JwtSecurity
 @TestSecurity(user = ELNBaseTest.WILLOW_USERNAME)
 class PermissionsTest extends ELNBaseTest {
 
@@ -57,7 +57,7 @@ class PermissionsTest extends ELNBaseTest {
     ACLService aclService;
 
     TemplateDetailsDTO template;
-    DictionaryItemRef therapeuticArea;
+    TherapeuticAreaRef therapeuticArea;
 
     List<TemplateComponent> components = List.of(new TemplateComponent.Attachments());
     List<TemplateTab> templateTabs = List.of(new TemplateTab("tabName", components));
@@ -84,24 +84,24 @@ class PermissionsTest extends ELNBaseTest {
         cleanupDatabase();
         withUser(JOHN_USERNAME, () -> {
             template = templateClient.createTemplate(new TemplateRequest("PermissionsTest", templateTabs));
-            therapeuticArea = dictionaryClient.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA).getFirst();
+            therapeuticArea = dictionaryClient.getFirst(BuiltInDictionary.THERAPEUTIC_AREA);
             iterateRows(row -> {
                 row.projectId = projectClient.createProject(new ProjectRequest("project" + row.testId)).getId();
-                projectClient.createProjectAttachment(row.projectId, "attachment.txt", tempDir, new byte[0]);
+                projectClient.createProjectAttachment(row.projectId, "attachment.txt", new byte[0]);
                 if (row.project != NONE) {
-                    projectClient.updateProjectAccess(row.projectId, AccessForm.of(willowUserID, row.project));
+                    projectClient.updateProjectAccess(row.projectId, AccessForm.of(WILLOW_USERNAME, row.project));
                 }
                 row.projectDetails = projectClient.getProject(row.projectId);
                 row.notebookId = notebookClient.createNotebook(row.projectId, new NotebookRequest(nextNotebookName())).getId();
-                notebookClient.createNotebookAttachment(row.notebookId, "attachment.txt", tempDir, new byte[0]);
+                notebookClient.createNotebookAttachment(row.notebookId, "attachment.txt", new byte[0]);
                 if (row.notebook != NONE) {
-                    notebookClient.updateNotebookAccess(row.notebookId, AccessForm.of(willowUserID, row.notebook));
+                    notebookClient.updateNotebookAccess(row.notebookId, AccessForm.of(WILLOW_USERNAME, row.notebook));
                 }
                 row.notebookDetails = notebookClient.getNotebook(row.notebookId);
                 row.experimentId = experimentClient.createExperiment(row.notebookId, new ExperimentRequest(emptyTemplateID)).getId();
-                experimentClient.createExperimentAttachment(row.experimentId, "attachment.txt", tempDir, new byte[0]);
+                experimentClient.createExperimentAttachment(row.experimentId, "attachment.txt", new byte[0]);
                 if (row.experiment != NONE) {
-                    experimentClient.updateExperimentAccess(row.experimentId, AccessForm.of(willowUserID, row.experiment));
+                    experimentClient.updateExperimentAccess(row.experimentId, AccessForm.of(WILLOW_USERNAME, row.experiment));
                 }
                 row.experimentDetails = experimentClient.getExperiment(row.experimentId);
             });
@@ -166,7 +166,6 @@ class PermissionsTest extends ELNBaseTest {
     }
 
     @Test
-    @JwtSecurity
     @TestSecurity(user = LISA_USERNAME)
     void testEditTemplateAllowed() {
         assertThatClientCall(() -> templateClient.editTemplate(template.getId(), new TemplateEditRequest()))
@@ -194,7 +193,7 @@ class PermissionsTest extends ELNBaseTest {
     @Test
     void testProjectAttachments(@TempDir Path tempDir) {
         iterateRows(row -> {
-            assertThatClientCall(() -> projectClient.createProjectAttachment(row.projectId, "a", tempDir, new byte[0]))
+            assertThatClientCall(() -> projectClient.createProjectAttachment(row.projectId, "a", new byte[0]))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "Operation not permitted");
             assertThatClientCall(() -> projectClient.downloadProjectAttachment(row.projectId, row.projectDetails.getAttachments().getFirst().getId()))
@@ -210,7 +209,7 @@ class PermissionsTest extends ELNBaseTest {
     void testUpdateProjectAccess() {
         iterateRows(row -> {
             if (row.project != NONE) {
-                assertThatClientCall(() -> projectClient.updateProjectAccess(row.projectId, AccessForm.of(willowUserID, row.project)))
+                assertThatClientCall(() -> projectClient.updateProjectAccess(row.projectId, AccessForm.of(WILLOW_USERNAME, row.project)))
                         .isAllowedIf(row.effectiveProject.isSufficientFor(ADMIN), "Operation not permitted");
             }
         });
@@ -259,7 +258,7 @@ class PermissionsTest extends ELNBaseTest {
     @Test
     void testNotebookAttachments(@TempDir Path tempDir) {
         iterateRows(row -> {
-            assertThatClientCall(() -> notebookClient.createNotebookAttachment(row.notebookId, "a", tempDir, new byte[0]))
+            assertThatClientCall(() -> notebookClient.createNotebookAttachment(row.notebookId, "a", new byte[0]))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "Operation not permitted");
             assertThatClientCall(() -> notebookClient.downloadNotebookAttachment(row.notebookId, row.notebookDetails.getAttachments().getFirst().getId()))
@@ -275,7 +274,7 @@ class PermissionsTest extends ELNBaseTest {
     void testUpdateNotebookAccess() {
         iterateRows(row -> {
             if (row.notebook != NONE) {
-                assertThatClientCall(() -> notebookClient.updateNotebookAccess(row.notebookId, AccessForm.of(willowUserID, row.notebook)))
+                assertThatClientCall(() -> notebookClient.updateNotebookAccess(row.notebookId, AccessForm.of(WILLOW_USERNAME, row.notebook)))
                         .isAllowedIf(row.effectiveNotebook.isSufficientFor(ADMIN), "Operation not permitted");
             }
         });
@@ -314,7 +313,9 @@ class PermissionsTest extends ELNBaseTest {
     @Test
     void testEditExperiment() {
         iterateRows(row -> {
-            assertThatClientCall(() -> experimentClient.editExperiment(row.experimentId, new ExperimentEditRequest().withTherapeuticArea(Optional.of(therapeuticArea))))
+            assertThatClientCall(() -> {
+                experimentClient.editExperiment(row.experimentId, new ExperimentEditRequest().withTherapeuticArea(Optional.of(therapeuticArea)));
+            })
                     .as(row.toString())
                     .isAllowedIf(row.effectiveExperiment.isSufficientFor(EDIT), "Operation not permitted");
         });
@@ -323,7 +324,7 @@ class PermissionsTest extends ELNBaseTest {
     @Test
     void testExperimentAttachments(@TempDir Path tempDir) {
         iterateRows(row -> {
-            assertThatClientCall(() -> experimentClient.createExperimentAttachment(row.experimentId, "a", tempDir, "content".getBytes(StandardCharsets.UTF_8)))
+            assertThatClientCall(() -> experimentClient.createExperimentAttachment(row.experimentId, "a", "content".getBytes(StandardCharsets.UTF_8)))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveExperiment.isSufficientFor(EDIT), "Operation not permitted");
             assertThatClientCall(() -> experimentClient.downloadExperimentAttachment(row.experimentId, row.experimentDetails.getAttachments().getFirst().getId()))
@@ -347,7 +348,7 @@ class PermissionsTest extends ELNBaseTest {
     void testUpdateExperimentAccess() {
         iterateRows(row -> {
             if (row.experiment != NONE) {
-                assertThatClientCall(() -> experimentClient.updateExperimentAccess(row.experimentId, AccessForm.of(willowUserID, row.experiment)))
+                assertThatClientCall(() -> experimentClient.updateExperimentAccess(row.experimentId, AccessForm.of(WILLOW_USERNAME, row.experiment)))
                         .isAllowedIf(row.effectiveExperiment.isSufficientFor(ADMIN), "Operation not permitted");
             }
         });
@@ -440,7 +441,6 @@ class PermissionsTest extends ELNBaseTest {
     }
 
     @Nested
-    @JwtSecurity
     @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -473,53 +473,53 @@ class PermissionsTest extends ELNBaseTest {
         @Test
         @Order(101)
         void testCannotAssignAuthorPermission() {
-            assertThatClientCall(() -> projectClient.updateProjectAccess(project.getId(), AccessForm.of(willowUserID, AUTHOR)))
+            assertThatClientCall(() -> projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, AUTHOR)))
                     .isBadRequest("Cannot assign AUTHOR permission to anyone else");
         }
 
         @Test
         @Order(101)
         void testCannotRemoveAuthorPermission() {
-            assertThatClientCall(() -> projectClient.updateProjectAccess(project.getId(), AccessForm.of(johnUserID, VIEW)))
+            assertThatClientCall(() -> projectClient.updateProjectAccess(project.getId(), AccessForm.of(JOHN_USERNAME, VIEW)))
                     .isBadRequest("AUTHOR permission cannot be removed");
         }
 
         @Test
         @Order(200)
         void testAddUser() {
-            List<ACLDetailsEntryDTO> acl = projectClient.updateProjectAccess(project.getId(), AccessForm.of(willowUserID, VIEW));
+            List<ACLEntryDTO> acl = projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, VIEW));
             assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, VIEW, false);
-            acl = notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(willowUserID, VIEW));
+            acl = notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(WILLOW_USERNAME, VIEW));
             assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, VIEW, false);
-            acl = experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(willowUserID, VIEW));
+            acl = experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(WILLOW_USERNAME, VIEW));
             assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, VIEW, false);
         }
 
         @Test
         @Order(201)
         void testRemoveUser() {
-            List<ACLDetailsEntryDTO> acl = projectClient.updateProjectAccess(project.getId(), AccessForm.of(willowUserID, NONE));
+            List<ACLEntryDTO> acl = projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, NONE));
             assertThatACL(acl).containsOnly(
                     JOHN_DISPLAY_NAME, AUTHOR, false,
                     WILLOW_DISPLAY_NAME, IMPLICIT_VIEW, false
             );
-            acl = notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(willowUserID, NONE));
+            acl = notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(WILLOW_USERNAME, NONE));
             assertThatACL(acl).containsOnly(
                     JOHN_DISPLAY_NAME, AUTHOR, false,
                     WILLOW_DISPLAY_NAME, IMPLICIT_VIEW, false
             );
-            acl = experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(willowUserID, NONE));
+            acl = experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(WILLOW_USERNAME, NONE));
             assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false);
         }
 
         @Test
         @Order(300)
         void testInheritedPermissionsAreListedInACL() {
-            projectClient.updateProjectAccess(project.getId(), AccessForm.of(willowUserID, EDIT));
+            projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, EDIT));
             assertThatACL(projectClient.getProject(project.getId()).getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, EDIT, false);
             assertThatACL(notebookClient.getNotebook(notebook.getId()).getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, EDIT, true);
             assertThatACL(experimentClient.getExperiment(experiment.getId()).getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, EDIT, true);
-            notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(willowUserID, ADMIN));
+            notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(WILLOW_USERNAME, ADMIN));
             assertThatACL(notebookClient.getNotebook(notebook.getId()).getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, ADMIN, false);
             assertThatACL(experimentClient.getExperiment(experiment.getId()).getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, ADMIN, true);
         }
@@ -527,17 +527,16 @@ class PermissionsTest extends ELNBaseTest {
         @Test
         @Order(400)
         void testCreateSecondExperiment() {
-            projectClient.updateProjectAccess(project.getId(), AccessForm.of(willowUserID, NONE));
-            notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(willowUserID, NONE));
+            projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, NONE));
+            notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(WILLOW_USERNAME, NONE));
             secondNotebookName = nextNotebookName();
             notebook2 = notebookClient.createNotebook(project.getId(), new NotebookRequest(secondNotebookName));
             experiment2 = experimentClient.createExperiment(notebook2.getId(), new ExperimentRequest(emptyTemplateID));
-            experimentClient.updateExperimentAccess(experiment2.getId(), AccessForm.of(willowUserID, EDIT));
+            experimentClient.updateExperimentAccess(experiment2.getId(), AccessForm.of(WILLOW_USERNAME, EDIT));
         }
 
         @Test
         @Order(401)
-        @JwtSecurity
         @TestSecurity(user = WILLOW_USERNAME)
         void testImplicitViewDoesntListSiblingEntities() {
             Page<NotebookDTO> notebooks = notebookClient.getProjectNotebooks(project.getId(), null, null, null, PAGING);
@@ -549,9 +548,9 @@ class PermissionsTest extends ELNBaseTest {
         @Test
         @Order(500)
         void testACLInListLimitedTo3() {
-            projectClient.updateProjectAccess(project.getId(), AccessForm.of(willowUserID, EDIT));
-            projectClient.updateProjectAccess(project.getId(), AccessForm.of(bartUserID, EDIT));
-            List<ACLDetailsEntryDTO> acl = projectClient.updateProjectAccess(project.getId(), AccessForm.of(lisaUserID, EDIT));
+            projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, EDIT));
+            projectClient.updateProjectAccess(project.getId(), AccessForm.of(BART_USERNAME, EDIT));
+            List<ACLEntryDTO> acl = projectClient.updateProjectAccess(project.getId(), AccessForm.of(LISA_USERNAME, EDIT));
             assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, BART_DISPLAY_NAME, EDIT, false, LISA_DISPLAY_NAME, EDIT, false, WILLOW_DISPLAY_NAME, EDIT, false);
             Paging paging = new Paging(0, 1);
             ProjectDTO projectDTO = projectClient.getProjects(project.getName(), null, null, paging).getItems().getFirst();
@@ -559,18 +558,18 @@ class PermissionsTest extends ELNBaseTest {
             assertThatACL(projectDTO.getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, BART_DISPLAY_NAME, EDIT, false, LISA_DISPLAY_NAME, EDIT, false);
             assertThat(projectDTO.getAclCount()).isEqualTo(4);
 
-            notebookClient.updateNotebookAccess(notebook2.getId(), AccessForm.of(willowUserID, EDIT));
-            notebookClient.updateNotebookAccess(notebook2.getId(), AccessForm.of(bartUserID, EDIT));
-            acl = notebookClient.updateNotebookAccess(notebook2.getId(), AccessForm.of(lisaUserID, EDIT));
+            notebookClient.updateNotebookAccess(notebook2.getId(), AccessForm.of(WILLOW_USERNAME, EDIT));
+            notebookClient.updateNotebookAccess(notebook2.getId(), AccessForm.of(BART_USERNAME, EDIT));
+            acl = notebookClient.updateNotebookAccess(notebook2.getId(), AccessForm.of(LISA_USERNAME, EDIT));
             assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, BART_DISPLAY_NAME, EDIT, false, LISA_DISPLAY_NAME, EDIT, false, WILLOW_DISPLAY_NAME, EDIT, false);
             NotebookDTO notebookDTO = notebookClient.getProjectNotebooks(project.getId(), notebook2.getName(), null, null, PAGING).getItems().getFirst();
             assertThat(notebookDTO.getId()).isEqualTo(notebook2.getId());
             assertThatACL(notebookDTO.getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, BART_DISPLAY_NAME, EDIT, false, LISA_DISPLAY_NAME, EDIT, false);
             assertThat(notebookDTO.getAclCount()).isEqualTo(4);
 
-            experimentClient.updateExperimentAccess(experiment2.getId(), AccessForm.of(willowUserID, EDIT));
-            experimentClient.updateExperimentAccess(experiment2.getId(), AccessForm.of(bartUserID, EDIT));
-            acl = experimentClient.updateExperimentAccess(experiment2.getId(), AccessForm.of(lisaUserID, EDIT));
+            experimentClient.updateExperimentAccess(experiment2.getId(), AccessForm.of(WILLOW_USERNAME, EDIT));
+            experimentClient.updateExperimentAccess(experiment2.getId(), AccessForm.of(BART_USERNAME, EDIT));
+            acl = experimentClient.updateExperimentAccess(experiment2.getId(), AccessForm.of(LISA_USERNAME, EDIT));
             assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, BART_DISPLAY_NAME, EDIT, false, LISA_DISPLAY_NAME, EDIT, false, WILLOW_DISPLAY_NAME, EDIT, false);
             ExperimentDTO experimentDTO = experimentClient.getNotebookExperiments(notebook2.getId(), null, null, null, PAGING).getItems().getFirst();
             assertThat(experimentDTO.getId()).isEqualTo(experiment2.getId());

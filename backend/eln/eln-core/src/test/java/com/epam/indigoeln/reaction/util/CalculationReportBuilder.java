@@ -6,7 +6,6 @@ import com.epam.indigoeln.eln.util.PatchUtil;
 import com.epam.indigoeln.eln.util.ToStringUtil;
 import com.epam.indigoeln.reaction.metamodel.ExperimentMetamodel;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
-import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.test.FeignUtil;
 import com.github.difflib.text.DiffRow;
 import com.github.difflib.text.DiffRowGenerator;
@@ -64,11 +63,11 @@ public class CalculationReportBuilder implements AutoCloseable {
                 outputStream.write(bytes.toByteArray());
             }
             closed = true;
-            System.err.println("Calculation report is available at file://wsl$/Ubuntu" + file.getAbsolutePath());
+            System.err.println("Calculation report is available at file://///wsl.localhost/Ubuntu" + file.getAbsolutePath());
         }
     }
 
-    public void addMutation(String reportClass, Mutation mutation) {
+    public void addMutation(String reportClass, Object mutation) {
         pr.printf("<h1 id='section%s' class='%s'>%s</h1>\n", ++ordinal, reportClass, mutation);
     }
 

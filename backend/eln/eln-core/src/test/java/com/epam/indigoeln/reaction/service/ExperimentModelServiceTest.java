@@ -1,14 +1,12 @@
 package com.epam.indigoeln.reaction.service;
 
+import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.search.SampleSearchResult;
 import com.epam.indigoeln.compound.model.search.SearchCatalog;
 import com.epam.indigoeln.compound.model.search.TextSearch;
 import com.epam.indigoeln.eln.ELNBaseTest;
-import com.epam.indigoeln.eln.model.BuiltInDictionary;
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
-import com.epam.indigoeln.eln.model.Paging;
 import com.epam.indigoeln.reaction.model.ReactionInput;
 import com.epam.indigoeln.reaction.model.ReactionOutputSample;
 import com.epam.indigoeln.reaction.model.ReactionRole;
@@ -31,20 +29,18 @@ import java.util.List;
 import java.util.Set;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
+import static com.epam.indigoeln.eln.model.BuiltInDictionary.SALT_CODE;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @QuarkusTest
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
 public class ExperimentModelServiceTest extends MutationsTestBase {
 
-    DictionaryItemRef healthHazard;
-
     ReactionOutputSample output2Sample2;
 
     @BeforeAll
     void setUpClass(@TempDir Path tempDir) {
-        miscClient.loadCompoundsFromFileClient("compounds.sdf", tempDir, loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"));
-        healthHazard = dictionaryClient.getDictionary(BuiltInDictionary.HEALTH_HAZARD).getFirst();
+        miscClient.loadCompoundsFromFileClient("compounds.sdf", loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"));
         withUser(JOHN_USERNAME, () -> {
             initExperiment("ExperimentModelServiceTest");
         });
@@ -80,7 +76,7 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     @Test
     @Order(210)
     void testSetInputRowSaltCode() {
-        ReactionInputMutation.SetInputRowSaltCode mutation = new ReactionInputMutation.SetInputRowSaltCode(input2.getAnchor(), dictionaryClient.getSaltCodes().get(1));
+        ReactionInputMutation.SetInputRowSaltCode mutation = new ReactionInputMutation.SetInputRowSaltCode(input2.getAnchor(), dictionaryClient.getNth(SALT_CODE, 1));
         applyMutation(mutation);
     }
 
@@ -115,7 +111,7 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     @Test
     @Order(300)
     void testSelectSaltCode() {
-        applyMutation(new ReactionOutputMutation.SetOutputRowSaltCode(output1.getAnchor(), dictionaryClient.getSaltCodes().get(1)));
+        applyMutation(new ReactionOutputMutation.SetOutputRowSaltCode(output1.getAnchor(), dictionaryClient.getNth(SALT_CODE, 1)));
     }
 
     @Test
@@ -201,7 +197,7 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
 //    @Order(1200)
 //    void testProtectDictionaryItemsFromDeletion() {
 //        applyMutation(new ReactionOutputSampleMutation.SetOutputHealthHazards(output2Sample1.getAnchor(), List.of(healthHazard)));
-//        assertThatClientCall(() -> dictionaryClient.removeDictionaryItem(BuiltInDictionary.HEALTH_HAZARD, healthHazard.getId()))
+//        assertThatClientCall(() -> dictionaryClient.removeDictionaryItem(HEALTH_HAZARD, healthHazard.getId()))
 //                .isBadRequest("This word is selected in other inputs. Please deactivate the word to remove it from available options of the inputs");
 //    }
 
@@ -210,7 +206,7 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     void testAddInput() {
         SampleSearchResult foundSamples = compoundClient.search(new FindSamplesRequest()
                 .withCatalogs(Set.of(SearchCatalog.ELN))
-                .withMolecularFormula(new TextSearch.ExactSearch("C12 H22 N2 O2"))
+                .withMolecularFormula(new TextSearch.ExactSearch("C12H22N2O2"))
                 , null, null, Paging.DEFAULT_PAGE_SIZE
         );
         applyMutation(new ReactionMutation.AddInput(reaction.getAnchor(), checkNotNull(foundSamples.items().getFirst().getId())));

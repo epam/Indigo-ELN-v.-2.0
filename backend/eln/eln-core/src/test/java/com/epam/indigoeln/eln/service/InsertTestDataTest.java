@@ -1,5 +1,9 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.SortOrder;
+import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.api.MutateModelForm;
 import com.epam.indigoeln.eln.client.*;
@@ -11,6 +15,11 @@ import com.epam.indigoeln.reaction.model.units.DensityUnit;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
 import com.epam.indigoeln.reaction.util.MutationsTestUtil;
+import com.epam.indigoeln.signature.api.SignatureClient;
+import com.epam.indigoeln.signature.model.SignatureReason;
+import com.epam.indigoeln.signature.model.SignatureTemplateBlock;
+import com.epam.indigoeln.signature.model.SignatureTemplateDTO;
+import com.epam.indigoeln.signature.model.SignatureTemplateRequest;
 import com.epam.indigoeln.test.FeignUtil;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.*;
@@ -103,16 +112,16 @@ class InsertTestDataTest {
     //    @Test
     @Order(4)
     void loadCompounds(@TempDir Path tempDir) {
-        miscClient.loadCompoundsFromFileClient("compounds.sdf", tempDir, loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"));
+        miscClient.loadCompoundsFromFileClient("compounds.sdf", loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"));
     }
 
 //    @Test
     @Order(5)
     void insertSignatureTemplate() {
         UserRef bob = userClient.suggestUsers("Bob").getFirst();
-        signatureClient.createSignatureTemplate(new SignatureTemplateRequest("Author and Bob", List.of(
-                new SignatureBlock(null, SignatureReason.AUTHOR),
-                new SignatureBlock(bob, SignatureReason.WITNESS)
+        signatureClient.createTemplate(new SignatureTemplateRequest("Author and Bob", List.of(
+                new SignatureTemplateBlock(null, SignatureReason.AUTHOR),
+                new SignatureTemplateBlock(bob, SignatureReason.WITNESS)
         )));
     }
 
@@ -122,7 +131,7 @@ class InsertTestDataTest {
         ExperimentDetailsDTO experiment = createExperiment("ProjectWithData", "88888888", templateClient.getByName("Default"), "Experiment with data");
 
         // add attachment
-        experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", tempDir, "This is attachment".getBytes());
+        experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", "This is attachment".getBytes());
 
         // load initial model
         ExperimentModel model = experimentClient.getExperiment(experiment.getId()).getModel();
@@ -142,13 +151,13 @@ class InsertTestDataTest {
         InputSampleAnchor input1Sample1Anchor = model.getReactions().getFirst().getInputs().get(0).getSamples().get(0).getAnchor();
 
         // select salt code
-        model = applyMutation(experiment, model, new ReactionOutputMutation.SetOutputRowSaltCode(output1Anchor, dictionaryClient.getSaltCodes().get(1)));
+        model = applyMutation(experiment, model, new ReactionOutputMutation.SetOutputRowSaltCode(output1Anchor, dictionaryClient.getNth(BuiltInDictionary.SALT_CODE, 1)));
 
         // select salt eq
         model = applyMutation(experiment, model, new ReactionOutputMutation.SetOutputRowSaltEQ(output1Anchor, 0.5));
 
         // select stereoisomer code
-        DictionaryItemRef stereoisomerCode = dictionaryClient.getDictionary(BuiltInDictionary.STEREOISOMER_CODE).getFirst();
+        StereoisomerCodeRef stereoisomerCode = dictionaryClient.getFirst(BuiltInDictionary.STEREOISOMER_CODE);
         model = applyMutation(experiment, model, new ReactionOutputMutation.SetOutputCompoundStereoisomerCode(output1Anchor, stereoisomerCode));
 
         // set input weight
@@ -171,26 +180,26 @@ class InsertTestDataTest {
         model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputActualWeight(output2Sample1Anchor, "10.0", WeightUnit.G));
 
         // fill secondary fields
-        DictionaryItemRef source = dictionaryClient.getDictionary(BuiltInDictionary.SAMPLE_SOURCE).getFirst();
+        SampleSourceRef source = dictionaryClient.getFirst(BuiltInDictionary.SAMPLE_SOURCE);
         model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputSource(output2Sample1Anchor, source));
-        DictionaryItemRef sourceDetails = dictionaryClient.getDictionary(BuiltInDictionary.SAMPLE_SOURCE_DETAILS).getFirst();
+        SampleSourceDetailsRef sourceDetails = dictionaryClient.getFirst(BuiltInDictionary.SAMPLE_SOURCE_DETAILS);
         model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputSourceDetails(output2Sample1Anchor, sourceDetails));
-        DictionaryItemRef externalSupplier = dictionaryClient.getDictionary(BuiltInDictionary.EXTERNAL_SUPPLIER).getFirst();
+        ExternalSupplierRef externalSupplier = dictionaryClient.getFirst(BuiltInDictionary.EXTERNAL_SUPPLIER);
         model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputExternalSupplier(output2Sample1Anchor, new ExternalSupplier(externalSupplier, "12345678")));
         model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputBatchComment(output2Sample1Anchor, "batch comment"));
         model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputStructureComment(output2Sample1Anchor, "structure comment"));
-        DictionaryItemRef componentState = dictionaryClient.getDictionary(BuiltInDictionary.COMPONENT_STATE).getFirst();
+        ComponentStateRef componentState = dictionaryClient.getFirst(BuiltInDictionary.COMPONENT_STATE);
         model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputComponentState(output2Sample1Anchor, componentState));
-        DictionaryItemRef compoundProtection = dictionaryClient.getDictionary(BuiltInDictionary.COMPOUND_PROTECTION).getFirst();
+        CompoundProtectionRef compoundProtection = dictionaryClient.getFirst(BuiltInDictionary.COMPOUND_PROTECTION);
         model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputCompoundProtection(output2Sample1Anchor, List.of(compoundProtection)));
-        DictionaryItemRef storageInstructions = dictionaryClient.getDictionary(BuiltInDictionary.STORAGE_INSTRUCTIONS).getFirst();
+        StorageInstructionsRef storageInstructions = dictionaryClient.getFirst(BuiltInDictionary.STORAGE_INSTRUCTIONS);
         model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputStorageInstructions(output2Sample1Anchor, List.of(storageInstructions)));
-        DictionaryItemRef healthHazards = dictionaryClient.getDictionary(BuiltInDictionary.HEALTH_HAZARD).getFirst();
+        HealthHazardRef healthHazards = dictionaryClient.getFirst(BuiltInDictionary.HEALTH_HAZARD);
         model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputHealthHazards(output2Sample1Anchor, List.of(healthHazards)));
-        DictionaryItemRef handlingPrecautions = dictionaryClient.getDictionary(BuiltInDictionary.HANDLING_PRECAUTIONS).getFirst();
+        HandlingPrecautionsRef handlingPrecautions = dictionaryClient.getFirst(BuiltInDictionary.HANDLING_PRECAUTIONS);
         model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputHandlingPrecautions(output2Sample1Anchor, List.of(handlingPrecautions)));
         model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputMeltingPoint(output2Sample1Anchor, new MeltingPoint(-10.0, 20.0, "comment")));
-        DictionaryItemRef solvent = dictionaryClient.getDictionary(BuiltInDictionary.SOLVENT).getFirst();
+        SolventRef solvent = dictionaryClient.getFirst(BuiltInDictionary.SOLVENT);
         model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputResidualSolvents(output2Sample1Anchor, List.of(
                 new ResidualSolvent(solvent, 1.5, "comment")
         )));
@@ -200,7 +209,7 @@ class InsertTestDataTest {
         )));
 
         // submit and reopen
-        SignatureTemplateDTO signatureTemplate = signatureClient.getSignatureTemplates(Paging.ALL).getItems().stream()
+        SignatureTemplateDTO signatureTemplate = signatureClient.getTemplates().stream()
                 .filter(t -> t.getName().equals("Author and Bob"))
                 .findFirst().orElseThrow();
         experimentClient.completeAndSubmitExperiment(experiment.getId(), signatureTemplate.getId());
@@ -226,7 +235,7 @@ class InsertTestDataTest {
     @Order(7)
     void submitExperiment() {
         ExperimentDetailsDTO experiment = createExperiment("ProjectWithData", "88888888", templateClient.getByName("Default"), "Experiment to submit");
-        SignatureTemplateDTO signatureTemplate = signatureClient.getSignatureTemplates(Paging.ALL).getItems().stream()
+        SignatureTemplateDTO signatureTemplate = signatureClient.getTemplates().stream()
                 .filter(t -> t.getName().equals("Author and Bob"))
                 .findFirst().orElseThrow();
         experimentClient.completeAndSubmitExperiment(experiment.getId(), signatureTemplate.getId());
@@ -242,8 +251,8 @@ class InsertTestDataTest {
         NotebookDetailsDTO notebook = existingNotebooks.getItems().isEmpty()
                 ? notebookClient.createNotebook(project.getId(), new NotebookRequest(notebookName))
                 : notebookClient.getNotebook(existingNotebooks.getItems().getFirst().getId());
-        DictionaryItemRef therapeuticArea = dictionaryClient.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA).getFirst();
-        DictionaryItemRef projectCode = dictionaryClient.getDictionary(BuiltInDictionary.PROJECT_CODE).getFirst();
+        TherapeuticAreaRef therapeuticArea = dictionaryClient.getFirst(BuiltInDictionary.THERAPEUTIC_AREA);
+        ProjectCodeRef projectCode = dictionaryClient.getFirst(BuiltInDictionary.PROJECT_CODE);
         return experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(
                 template.getId(),
                 experimentDescription,

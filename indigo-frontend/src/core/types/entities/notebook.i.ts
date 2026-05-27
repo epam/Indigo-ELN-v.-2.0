@@ -1,21 +1,14 @@
 import { BaseEntity } from './base-entity.i';
 import { ExperimentCountByStatus } from './project.i';
+import { ACLEntry } from '@core/types/entities/acl.i';
 
-interface NotebookAcl {
-  userId: string;
-  displayName: string;
-  level: string;
-  avatarUrl: string;
-}
-
-type NotebookAcls = NotebookAcl[];
 export interface Notebook extends BaseEntity {
   name: string;
   description: string;
   projectId: string;
 
   aclCount?: number;
-  acl?: NotebookAcls;
+  acl?: ACLEntry[];
   experimentCount: number;
   experimentCountByStatus: ExperimentCountByStatus;
 

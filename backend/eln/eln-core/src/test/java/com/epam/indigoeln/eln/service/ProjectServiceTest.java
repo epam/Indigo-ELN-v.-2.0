@@ -1,5 +1,8 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.*;
@@ -8,12 +11,12 @@ import com.epam.indigoeln.reaction.model.mutation.NotebookMutation;
 import com.epam.indigoeln.reaction.model.mutation.ProjectMutation;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +24,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static com.epam.indigoeln.common.exception.InvalidRequestException.fail;
+import static com.epam.indigoeln.common.util.ContentDispositionUtil.extractFilename;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
 import static com.epam.indigoeln.eln.test.ACLListAssert.assertThatACL;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
@@ -29,7 +33,6 @@ import static org.assertj.core.api.Assertions.entry;
 
 
 @QuarkusTest
-@JwtSecurity
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
 class ProjectServiceTest extends ELNBaseTest {
 
@@ -106,7 +109,7 @@ class ProjectServiceTest extends ELNBaseTest {
                 .first().satisfies(revision -> {
                     assertThat(revision.getRevision()).isOne();
                     assertThat(revision.getDatetime()).isEqualTo(project.getCreatedAt());
-                    assertThat(revision.getUser()).isEqualTo(getJohnUserRef());
+                    assertThat(revision.getUser()).isEqualTo(JOHN_USER_REF);
                     assertThat(revision.getMutation()).isInstanceOf(ProjectMutation.CreateProject.class);
                     assertThat(revision.getSummary()).isEqualTo("Create project");
                 });
@@ -371,7 +374,7 @@ class ProjectServiceTest extends ELNBaseTest {
                 .last().satisfies(revision -> {
                     assertThat(revision.getRevision()).isEqualTo(2);
                     assertThat(revision.getDatetime()).isEqualTo(modified.getModifiedAt());
-                    assertThat(revision.getUser()).isEqualTo(getJohnUserRef());
+                    assertThat(revision.getUser()).isEqualTo(JOHN_USER_REF);
                     assertThat(revision.getMutation()).isInstanceOf(ProjectMutation.EditProjectAttributes.class);
                     assertThat(revision.getSummary()).matches("Edit: multiple attributes");
                 });
@@ -424,7 +427,7 @@ class ProjectServiceTest extends ELNBaseTest {
     @Test
     void testCreateAttachment(@TempDir Path tempDir) {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testCreateAttachment"));
-        List<AttachmentDTO> attachments = projectClient.createProjectAttachment(project.getId(), "attachment.txt", tempDir, "content".getBytes());
+        List<AttachmentDTO> attachments = projectClient.createProjectAttachment(project.getId(), "attachment.txt", "content".getBytes());
         assertThat(attachments).singleElement().satisfies(a -> {
             assertThat(a.getId()).isNotNull();
             assertThat(a.getName()).isEqualTo("attachment.txt");
@@ -443,16 +446,17 @@ class ProjectServiceTest extends ELNBaseTest {
     @Test
     void testDownloadAttachment(@TempDir Path tempDir) throws Exception {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testDownloadAttachment"));
-        List<AttachmentDTO> attachments = projectClient.createProjectAttachment(project.getId(), "attachment.txt", tempDir, "content".getBytes());
-        Response response = projectClient.downloadProjectAttachment(project.getId(), attachments.getFirst().getId());
-        assertThat(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION)).containsExactly("attachment; filename=attachment.txt");
-        assertThat((byte[]) response.getEntity()).asString().isEqualTo("content");
+        List<AttachmentDTO> attachments = projectClient.createProjectAttachment(project.getId(), "attachment.txt", "content".getBytes());
+        try (Response response = projectClient.downloadProjectAttachment(project.getId(), attachments.getFirst().getId())) {
+            assertThat(extractFilename(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION))).isEqualTo("attachment.txt");
+            assertThat((byte[]) response.getEntity()).asString().isEqualTo("content");
+        }
     }
 
     @Test
     void testDeleteAttachment(@TempDir Path tempDir) {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testDeleteAttachment"));
-        List<AttachmentDTO> attachments = projectClient.createProjectAttachment(project.getId(), "attachment.txt", tempDir, "content".getBytes());
+        List<AttachmentDTO> attachments = projectClient.createProjectAttachment(project.getId(), "attachment.txt", "content".getBytes());
         projectClient.deleteProjectAttachment(project.getId(), attachments.getFirst().getId());
         project = projectClient.getProject(project.getId());
         assertThat(project.getAttachments()).isEmpty();
@@ -465,8 +469,6 @@ class ProjectServiceTest extends ELNBaseTest {
 
     @Test
     void testUploadLargeAttachment(@TempDir Path tempDir) {
-        System.out.println("Max body size = " + System.getProperty("quarkus.http.limits.max-body-size"));
-
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testUploadLargeAttachment"));
 
         // Use 7 MB file to stay safely below AWS API Gateway limit
@@ -479,7 +481,7 @@ class ProjectServiceTest extends ELNBaseTest {
         String fileName = "large_test_file_7MB.pptx";
         Path filePath = tempDir.resolve(fileName);
         try {
-            java.nio.file.Files.write(filePath, largeContent);
+            Files.write(filePath, largeContent);
         } catch (Exception e) {
             throw new RuntimeException("Failed to write large test file", e);
         }
@@ -490,7 +492,6 @@ class ProjectServiceTest extends ELNBaseTest {
             List<AttachmentDTO> attachments = projectClient.createProjectAttachment(
                     project.getId(),
                     fileName,
-                    tempDir,
                     largeContent
             );
 
@@ -512,7 +513,7 @@ class ProjectServiceTest extends ELNBaseTest {
         UUID missingProjectId = UUID.randomUUID();
 
         assertThatClientCall(() ->
-                projectClient.createProjectAttachment(missingProjectId, "file.txt", Path.of("."), "content".getBytes())
+                projectClient.createProjectAttachment(missingProjectId, "file.txt", "content".getBytes())
         )
                 .isNotFound("PROJECT " + missingProjectId + " not found");
     }
@@ -565,7 +566,7 @@ class ProjectServiceTest extends ELNBaseTest {
     void testAdminCanUpdateAccessForUserCreatedProject() {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testAdminCanUpdateAccessForUserCreatedProject"));
         withUser(ADMIN_USERNAME, () -> {
-            projectClient.updateProjectAccess(project.getId(), AccessForm.of(bartUserID, AccessLevel.EDIT));
+            projectClient.updateProjectAccess(project.getId(), AccessForm.of(BART_USERNAME, AccessLevel.EDIT));
         });
     }
 
@@ -574,12 +575,12 @@ class ProjectServiceTest extends ELNBaseTest {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testUpdateAccess"));
         NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
-        projectClient.updateProjectAccess(project.getId(), AccessForm.of(maggieUserID, AccessLevel.EDIT));
+        projectClient.updateProjectAccess(project.getId(), AccessForm.of(MAGGIE_USERNAME, AccessLevel.EDIT));
         assertThat(projectClient.getProjectRevisions(project.getId()))
                 .hasSize(2)
                 .last().satisfies(revision -> {
                     assertThat(revision.getRevision()).isEqualTo(2);
-                    assertThat(revision.getUser()).isEqualTo(getJohnUserRef());
+                    assertThat(revision.getUser()).isEqualTo(JOHN_USER_REF);
                     assertThat(revision.getMutation()).isInstanceOf(ProjectMutation.EditProjectAccess.class);
                     assertThat(revision.getSummary()).isEqualTo("Edited Team: granted maggie EDIT access");
                 });
@@ -592,7 +593,7 @@ class ProjectServiceTest extends ELNBaseTest {
                     assertThat(revision.getMutation()).isInstanceOf(ExperimentMutation.ExperimentAccessUpdated.class);
                 });
 
-        projectClient.updateProjectAccess(project.getId(), AccessForm.of(maggieUserID, AccessLevel.NONE));
+        projectClient.updateProjectAccess(project.getId(), AccessForm.of(MAGGIE_USERNAME, AccessLevel.NONE));
         assertThat(projectClient.getProjectRevisions(project.getId()))
                 .hasSize(3)
                 .last().satisfies(revision -> {
@@ -601,7 +602,6 @@ class ProjectServiceTest extends ELNBaseTest {
     }
 
     @Nested
-    @JwtSecurity
     @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -615,11 +615,11 @@ class ProjectServiceTest extends ELNBaseTest {
         void setUp(TestInfo testInfo) {
             withUser(JOHN_USERNAME, () -> {
                 project = projectClient.createProject(new ProjectRequest(testInfo.getTestMethod().get().getName()));
-                projectClient.updateProjectAccess(project.getId(), AccessForm.of(bartUserID, AccessLevel.EDIT));
+                projectClient.updateProjectAccess(project.getId(), AccessForm.of(BART_USERNAME, AccessLevel.EDIT));
                 notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
-                notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(bartUserID, AccessLevel.ADMIN));
+                notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(BART_USERNAME, AccessLevel.ADMIN));
                 experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
-                experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(lisaUserID, AccessLevel.VIEW));
+                experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(LISA_USERNAME, AccessLevel.VIEW));
             });
         }
 
@@ -627,14 +627,14 @@ class ProjectServiceTest extends ELNBaseTest {
         void testGetNestedAccess() {
             assertThat(projectClient.getNestedProjectAccess(project.getId()))
                     .containsExactly(
-                            new NestedACLEntryDTO(EntityType.NOTEBOOK, notebook.getId(), notebook.getName(), bartUserID, BART_DISPLAY_NAME, AccessLevel.ADMIN),
-                            new NestedACLEntryDTO(EntityType.EXPERIMENT, experiment.getId(), experiment.getName(), lisaUserID, LISA_DISPLAY_NAME, AccessLevel.VIEW)
+                            new NestedACLEntryDTO(ELNEntityType.NOTEBOOK, notebook.getId(), notebook.getName(), BART_DISPLAY_NAME, AccessLevel.ADMIN),
+                            new NestedACLEntryDTO(ELNEntityType.EXPERIMENT, experiment.getId(), experiment.getName(), LISA_DISPLAY_NAME, AccessLevel.VIEW)
                     );
         }
 
         @Test
         void testRemoveAccess() {
-            List<ACLDetailsEntryDTO> projectAccess = projectClient.updateProjectAccess(project.getId(), AccessForm.of(bartUserID, AccessLevel.NONE));
+            List<ACLEntryDTO> projectAccess = projectClient.updateProjectAccess(project.getId(), AccessForm.of(BART_USERNAME, AccessLevel.NONE));
             assertThatACL(projectAccess).containsOnly(
                     JOHN_DISPLAY_NAME, AccessLevel.AUTHOR, false,
                     BART_DISPLAY_NAME, AccessLevel.IMPLICIT_VIEW, false,
@@ -644,12 +644,12 @@ class ProjectServiceTest extends ELNBaseTest {
 
         @Test
         void testRemoveAccessIncludeNested() {
-            List<ACLDetailsEntryDTO> projectAccess = projectClient.updateProjectAccess(project.getId(), AccessForm.of(lisaUserID, AccessLevel.NONE, true));
+            List<ACLEntryDTO> projectAccess = projectClient.updateProjectAccess(project.getId(), AccessForm.of(LISA_USERNAME, AccessLevel.NONE, true));
             assertThatACL(projectAccess).containsOnly(
                     JOHN_DISPLAY_NAME, AccessLevel.AUTHOR, false,
                     BART_DISPLAY_NAME, AccessLevel.EDIT, false
             );
-            projectAccess = projectClient.updateProjectAccess(project.getId(), AccessForm.of(bartUserID, AccessLevel.NONE, true));
+            projectAccess = projectClient.updateProjectAccess(project.getId(), AccessForm.of(BART_USERNAME, AccessLevel.NONE, true));
             assertThatACL(projectAccess).containsOnly(
                     JOHN_DISPLAY_NAME, AccessLevel.AUTHOR, false
             );

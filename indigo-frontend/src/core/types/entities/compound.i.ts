@@ -1,6 +1,6 @@
 import { DictionaryItemRef, SaltCodeRef } from '@core/types/entities/dictionary.i';
 import { EnteredValue } from '@core/types/entities/values.i';
-import { MolWeightUnit } from '@core/types/entities/experiments/experiment-shared.i';
+import { MolWeightUnit, NoUnit } from '@core/types/entities/experiments/experiment-shared.i';
 
 export enum CompoundType {
   STORED = 'STORED',
@@ -16,7 +16,7 @@ export interface CompoundRef {
   saltEQ?: number;
   compoundKey?: string;
   molWeight?: EnteredValue<MolWeightUnit>;
-  exactMass?: number;
+  exactMass?: EnteredValue<NoUnit>;
   calculatedBatchMF?: string;
   compoundID?: string | null;
   name?: string | null;

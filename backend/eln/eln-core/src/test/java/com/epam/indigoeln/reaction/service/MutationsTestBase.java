@@ -10,7 +10,6 @@ import com.epam.indigoeln.reaction.util.PatchTestUtil;
 import com.epam.indigoeln.test.FeignUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.math.Stats;
-import jakarta.ws.rs.core.HttpHeaders;
 import lombok.SneakyThrows;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterAll;
@@ -19,6 +18,7 @@ import org.junit.jupiter.api.TestInfo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public abstract class MutationsTestBase extends ELNBaseTest {
 
@@ -97,27 +97,46 @@ public abstract class MutationsTestBase extends ELNBaseTest {
         return applyMutation(mutation, !undoOrRedo);
     }
 
+    protected MutationResponse applyMutation(Supplier<MutationResponse> executor, Supplier<String> mutationStr) {
+        return applyMutation(executor, mutationStr, "mutation", true);
+    }
+
     protected MutationResponse applyMutation(Mutation mutation, boolean undoRedo) {
         return applyMutation(mutation, "mutation", undoRedo);
     }
 
-    @SneakyThrows
+    protected MutationResponse applyMutation(Supplier<MutationResponse> executor, Supplier<String> mutationStr, boolean undoRedo) {
+        return applyMutation(executor, mutationStr, "mutation", undoRedo);
+    }
+
     protected MutationResponse applyMutation(Mutation mutation, String reportClass, boolean undoRedo) {
-        System.out.println("Applying mutation: " + mutation);
-        reportBuilder.addMutation(reportClass, mutation);
+        return applyMutation(
+                () -> experimentClient.mutateExperimentModel4(experiment.getId(), experiment.getRevision(), mutation),
+                mutation::toString,
+                "mutation",
+                undoRedo
+        );
+    }
+
+    @SneakyThrows
+    protected MutationResponse applyMutation(Supplier<MutationResponse> executor, Supplier<String> mutationStr, String reportClass, boolean undoRedo) {
+        System.out.println("Applying mutation: " + mutationStr.get());
+        reportBuilder.addMutation(reportClass, mutationStr.get());
 
         ExperimentSnapshot initialSnapshot = experimentClient.getExperimentSnapshot(experiment.getId());
-        MutationResponse response = experimentClient.mutateExperimentModel4(experiment.getId(), experiment.getRevision(), mutation);
+        MutationResponse response = executor.get();
         JsonNode patch = response.getPatch();
         ExperimentDetailsDTO updatedExperiment = experimentClient.getExperiment(experiment.getId());
 
+        //noinspection ConstantValue
         String newPicture = response.getReactionImages() != null ? response.getReactionImages().get(reaction.getAnchor()) : null;
         if (newPicture != null) {
             picture = newPicture.getBytes();
-            reportBuilder.addPicture(reportClass, picture, FeignUtil.getLastResponse().headers().get(HttpHeaders.CONTENT_TYPE).iterator().next());
+            reportBuilder.addPicture(reportClass, picture, "image/svg+xml");
         }
         ExperimentSnapshot updatedSnapshot = experimentClient.getExperimentSnapshot(experiment.getId());
 
+        //noinspection ConstantValue
         if (response.getMessages() != null) {
             for (String message : response.getMessages()) {
                 reportBuilder.addMessage("", "Message: " + message);

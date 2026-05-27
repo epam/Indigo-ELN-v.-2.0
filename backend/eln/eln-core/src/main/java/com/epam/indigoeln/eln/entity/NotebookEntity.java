@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.entity;
 
+import com.epam.indigoeln.eln.common.entity.IdentifiableEntity;
 import com.epam.indigoeln.eln.config.hibernate.ACLEntryArrayType;
 import com.epam.indigoeln.eln.config.hibernate.ExperimentCountArrayType;
 import com.epam.indigoeln.eln.model.AccessLevel;
@@ -111,11 +112,6 @@ public class NotebookEntity extends BaseEntity implements WithAttachments, WithA
     @JoinTable(name = "notebook_attachment", joinColumns = @JoinColumn(name = "notebook_id"), inverseJoinColumns = @JoinColumn(name = "attachment_id"))
     @OrderBy("createdAt")
     private List<AttachmentEntity> attachments = new ArrayList<>(0);
-
-    @NotNull
-    @OneToMany(mappedBy = "notebook")
-    @OrderBy("revision")
-    private List<NotebookRevisionEntity> revisions = new ArrayList<>(0);
 
     @Nullable
     @OneToOne(fetch = FetchType.LAZY)

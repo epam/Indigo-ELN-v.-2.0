@@ -9,16 +9,13 @@ import java.util.UUID;
 public class NestedACLEntryDTO {
 
     @NotNull
-    EntityType entityType;
+    ELNEntityType entityType;
 
     @NotNull
     UUID entityId;
 
     @NotNull
     String entityName;
-
-    @NotNull
-    UUID userId;
 
     @NotNull
     String displayName;

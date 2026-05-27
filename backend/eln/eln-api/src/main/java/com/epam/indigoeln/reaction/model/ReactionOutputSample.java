@@ -1,7 +1,6 @@
 package com.epam.indigoeln.reaction.model;
 
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
-import com.epam.indigoeln.eln.model.NbkBatchNumber;
+import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.outputsample.*;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
@@ -13,6 +12,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import lombok.AccessLevel;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -51,15 +51,15 @@ public final class ReactionOutputSample extends ReactionSample<ReactionOutput> {
 
     @Nullable
     @Size(min = 1)
-    private List<DictionaryItemRef> handlingPrecautions;
+    private List<HandlingPrecautionsRef> handlingPrecautions;
 
     @Nullable
     @Size(min = 1)
-    private List<DictionaryItemRef> storageInstructions;
+    private List<StorageInstructionsRef> storageInstructions;
 
     @Nullable
     @Size(min = 1)
-    private List<DictionaryItemRef> compoundProtection;
+    private List<CompoundProtectionRef> compoundProtection;
 
     @Nullable
     @Size(min = 1)
@@ -82,13 +82,13 @@ public final class ReactionOutputSample extends ReactionSample<ReactionOutput> {
     private ExternalSupplier externalSupplier;
 
     @Nullable
-    private DictionaryItemRef source;
+    private SampleSourceRef source;
 
     @Nullable
-    private DictionaryItemRef sourceDetails;
+    private SampleSourceDetailsRef sourceDetails;
 
     @Nullable
-    private DictionaryItemRef componentState;
+    private ComponentStateRef componentState;
 
     @Nullable
     private String batchComment;
@@ -102,11 +102,12 @@ public final class ReactionOutputSample extends ReactionSample<ReactionOutput> {
         return nbkBatchNumber.getShortForm();
     }
 
-    public static ReactionOutputSample create(ReactionOutput row, String experimentName, OutputSampleAnchor anchor) {
+    public static ReactionOutputSample create(ReactionOutput row, String experimentName, OutputSampleAnchor anchor, EnteredValue<NoUnit> purity) {
         ReactionOutputSample sample = new ReactionOutputSample();
         sample.row = row;
         sample.anchor = anchor;
         sample.nbkBatchNumber = new NbkBatchNumber(experimentName, row.getReaction().getModel().generateNextNbkBatchNumber());
+        sample.purity = purity;
         row.getSamples().add(sample);
         return sample;
     }

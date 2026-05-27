@@ -1,10 +1,13 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.SortOrder;
+import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.*;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import io.quarkus.test.security.jwt.JwtSecurity;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 
@@ -17,12 +20,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 @QuarkusTest
-@JwtSecurity
 @TestSecurity(user = ELNBaseTest.LISA_USERNAME)
 class TemplateServiceTest extends ELNBaseTest {
 
-    List<TemplateComponent> components_1 = List.of(new TemplateComponent.Attachments(), new TemplateComponent.StoichiometryTable(true, true));
-    List<TemplateComponent> components_2 = List.of(new TemplateComponent.Batches(), new TemplateComponent.PreferredCompoundsDetails());
+    List<TemplateComponent> components_1 = List.of(new TemplateComponent.Attachments(), new TemplateComponent.StoichiometryTable(true, true, true));
+    List<TemplateComponent> components_2 = List.of(new TemplateComponent.Batches(), new TemplateComponent.ExperimentDescription());
 
     List<TemplateTab> templateTabs = List.of(new TemplateTab("tabName", components_1), new TemplateTab("tabName2", components_2));
     List<TemplateDetailsDTO> templatesToRemove = new ArrayList<>();

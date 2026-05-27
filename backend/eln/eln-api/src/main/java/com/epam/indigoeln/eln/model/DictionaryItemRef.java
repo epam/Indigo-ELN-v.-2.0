@@ -1,30 +1,46 @@
 package com.epam.indigoeln.eln.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
-@JsonIgnoreProperties({"code", "formula", "charge", "molWeight"}) // TODO remove when database is recreated
 public class DictionaryItemRef {
 
     @NotNull
-    private UUID id;
+    private final UUID id;
 
     @NotEmpty
-    private String name;
+    private final String name;
+
+    @JsonIgnore
+    private final boolean active;
+
+    @JsonIgnore
+    private final boolean deleted;
+
+    @JsonIgnore
+    private final UUID dictionaryID;
 
     @Override
     public String toString() {
         return name;
+    }
+
+    @JsonIgnore
+    public boolean isInactive() {
+        return !active || deleted;
+    }
+
+    public interface Creator {
+
+        DictionaryItemRef create(UUID id, String name, boolean active, boolean deleted, UUID dictionaryID);
     }
 }

@@ -1,6 +1,7 @@
 package com.epam.indigoeln.compound.model;
 
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
+import com.epam.indigoeln.eln.model.ComponentStateRef;
+import com.epam.indigoeln.eln.model.HealthHazardRef;
 import com.epam.indigoeln.eln.model.NbkBatchNumber;
 import com.epam.indigoeln.reaction.model.CompoundRef;
 import com.epam.indigoeln.reaction.model.units.DensityUnit;
@@ -39,10 +40,10 @@ public class SampleRegistrationRequest {
 
     @Nullable
     @Size(min = 1)
-    private List<DictionaryItemRef> healthHazards;
+    private List<HealthHazardRef> healthHazards;
 
     @Nullable
-    private DictionaryItemRef compoundState;
+    private ComponentStateRef compoundState;
 
     @Nullable
     private String batchComment;

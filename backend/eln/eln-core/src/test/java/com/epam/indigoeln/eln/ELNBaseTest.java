@@ -1,22 +1,21 @@
 package com.epam.indigoeln.eln;
 
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.SortOrder;
+import com.epam.indigoeln.common.model.UserRef;
+import com.epam.indigoeln.eln.api.ELNInternalClient;
 import com.epam.indigoeln.eln.client.*;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reports.api.ReportsClient;
+import com.epam.indigoeln.signature.api.SignatureAdminClient;
+import com.epam.indigoeln.signature.api.SignatureClient;
 import com.epam.indigoeln.test.BaseTest;
-import io.quarkus.test.junit.QuarkusMock;
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Timeout;
-import org.mockito.Mockito;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class ELNBaseTest extends BaseTest {
 
@@ -34,36 +33,40 @@ public abstract class ELNBaseTest extends BaseTest {
     public static final String JOHN_LAST_NAME = "Doe";
     public static final String JOHN_DISPLAY_NAME = "John Doe";
     public static final List<RoleRef> JOHN_ROLES = List.of(ROLE_CONTENT_EDITOR, ROLE_TEMPLATE_EDITOR, ROLE_ADMINISTRATOR);
+    public static final UserRef JOHN_USER_REF = new UserRef(JOHN_USERNAME, JOHN_DISPLAY_NAME);
 
     public static final String WILLOW_USERNAME = "willow";
     public static final String WILLOW_FIRST_NAME = "Willow";
     public static final String WILLOW_LAST_NAME = "Johnson";
     public static final String WILLOW_DISPLAY_NAME = "Willow Johnson";
     public static final List<RoleRef> WILLOW_ROLES = List.of();
+    public static final UserRef WILLOW_USER_REF = new UserRef(WILLOW_USERNAME, WILLOW_DISPLAY_NAME);
 
     public static final String BART_USERNAME = "bart";
     public static final String BART_FIRST_NAME = "Bart";
     public static final String BART_LAST_NAME = "Brown";
     public static final String BART_DISPLAY_NAME = "Bart Brown";
     public static final List<RoleRef> BART_ROLES = List.of(ROLE_CONTENT_EDITOR);
+    public static final UserRef BART_USER_REF = new UserRef(BART_USERNAME, BART_DISPLAY_NAME);
 
     public static final String LISA_USERNAME = "lisa";
     public static final String LISA_FIRST_NAME = "Lisa";
     public static final String LISA_LAST_NAME = "Green";
     public static final String LISA_DISPLAY_NAME = "Lisa Green";
     public static final List<RoleRef> LISA_ROLES = List.of(ROLE_TEMPLATE_EDITOR);
+    public static final UserRef LISA_USER_REF = new UserRef(LISA_USERNAME, LISA_DISPLAY_NAME);
 
     public static final String MAGGIE_USERNAME = "maggie";
     public static final String MAGGIE_FIRST_NAME = "Maggie";
     public static final String MAGGIE_LAST_NAME = "Green";
     public static final String MAGGIE_DISPLAY_NAME = "Maggie Green";
     public static final List<RoleRef> MAGGIE_ROLES = List.of(ROLE_PROJECT_CREATOR);
+    public static final UserRef MAGGIE_USER_REF = new UserRef(MAGGIE_USERNAME, MAGGIE_DISPLAY_NAME);
 
     protected ProjectClient projectClient;
     protected NotebookClient notebookClient;
     protected ExperimentClient experimentClient;
     protected TemplateClient templateClient;
-    protected SignatureClient signatureClient;
     protected CompoundClient compoundClient;
     protected MiscClient miscClient;
     protected TestSupportClient testSupportClient;
@@ -71,8 +74,10 @@ public abstract class ELNBaseTest extends BaseTest {
     protected DictionaryClient dictionaryClient;
     protected RoleClient roleClient;
     protected GlobalSearchClient globalSearchClient;
-    @Nullable
-    protected ReportsClient mockReportsClient;
+    protected ELNInternalClient elnInternalClient;
+
+    protected ReportsClient reportsClient;
+    protected SignatureClient signatureClient;
 
     private int lastUsedNotebookNumber = 0;
 
@@ -84,13 +89,11 @@ public abstract class ELNBaseTest extends BaseTest {
     protected UUID emptyTemplateID;
 
     @BeforeAll
-    @Timeout(value = 30, unit = TimeUnit.SECONDS)
     void setupAllBase() {
         projectClient = buildClient(ProjectClient.class);
         notebookClient = buildClient(NotebookClient.class);
         experimentClient = buildClient(ExperimentClient.class);
         templateClient = buildClient(TemplateClient.class);
-        signatureClient = buildClient(SignatureClient.class);
         compoundClient = buildClient(CompoundClient.class);
         miscClient = buildClient(MiscClient.class);
         userClient = buildClient(UserClient.class);
@@ -98,10 +101,13 @@ public abstract class ELNBaseTest extends BaseTest {
         roleClient = buildClient(RoleClient.class);
         testSupportClient = buildClient(TestSupportClient.class);
         globalSearchClient = buildClient(GlobalSearchClient.class);
-        assertThat(miscClient.getInfo().getApplication()).isEqualTo("Indigo ELN");
-        if (!integrationTest) {
-            mockReportsClient = Mockito.mock(ReportsClient.class);
-            QuarkusMock.installMockForType(mockReportsClient, ReportsClient.class, RestClient.LITERAL);
+        elnInternalClient = buildClient(ELNInternalClient.class);
+        reportsClient = buildClient(ReportsClient.class);
+        signatureClient = buildClient(SignatureClient.class);
+        if (integrationTest) {
+            SignatureAdminClient signatureAdminClient;
+            signatureAdminClient = buildClient(SignatureAdminClient.class);
+            signatureAdminClient.migrate();
         }
         miscClient.migrate();
         createBasicTestData();
@@ -130,26 +136,6 @@ public abstract class ELNBaseTest extends BaseTest {
         lisaUserID = getOrCreateUser(new UserRequest(LISA_USERNAME, LISA_FIRST_NAME, LISA_LAST_NAME, "password", LISA_ROLES)).getId();
         maggieUserID = getOrCreateUser(new UserRequest(MAGGIE_USERNAME, MAGGIE_FIRST_NAME, MAGGIE_LAST_NAME, "password", MAGGIE_ROLES)).getId();
         emptyTemplateID = templateClient.getByName("Default").getId();
-    }
-
-    public UserRef getJohnUserRef() {
-        return new UserRef(johnUserID, ELNBaseTest.JOHN_USERNAME, JOHN_DISPLAY_NAME);
-    }
-
-    public UserRef getWillowUserRef() {
-        return new UserRef(willowUserID, WILLOW_USERNAME, WILLOW_DISPLAY_NAME);
-    }
-
-    public UserRef getBartUserRef() {
-        return new UserRef(bartUserID, BART_USERNAME, BART_DISPLAY_NAME);
-    }
-
-    public UserRef getLisaUserRef() {
-        return new UserRef(lisaUserID, LISA_USERNAME, LISA_DISPLAY_NAME);
-    }
-
-    public UserRef getMaggieUserRef() {
-        return new UserRef(maggieUserID, MAGGIE_USERNAME, MAGGIE_DISPLAY_NAME);
     }
 
     private UserDTO getOrCreateUser(UserRequest request) {

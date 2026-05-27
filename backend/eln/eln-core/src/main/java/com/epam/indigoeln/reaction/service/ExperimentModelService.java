@@ -30,7 +30,6 @@ import org.jspecify.annotations.Nullable;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.UUID;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -61,7 +60,7 @@ public class ExperimentModelService {
     @Valid
     public ExperimentModel createNewModel() {
         ExperimentModel model = new ExperimentModel();
-        Reaction reaction = Reaction.create(model, new ReactionAnchor(UUID.randomUUID()));
+        Reaction reaction = Reaction.create(model, ReactionAnchor.create());
         model.setReactions(List.of(reaction));
         model.setSignificantFigures(ExperimentModel.DEFAULT_SIGNIFICANT_FIGURES);
         return model;
@@ -119,7 +118,6 @@ public class ExperimentModelService {
         session.setUser(user);
         session.setStarted(dateTime);
         session.setLastActive(dateTime);
-        experiment.getEditSessions().add(session);
         experimentRepository.persistEditSession(session);
         return session;
     }

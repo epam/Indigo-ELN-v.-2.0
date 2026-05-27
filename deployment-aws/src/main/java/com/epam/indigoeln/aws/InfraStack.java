@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Value;
 import software.amazon.awscdk.NestedStack;
 import software.amazon.awscdk.NestedStackProps;
+import software.amazon.awscdk.RemovalPolicy;
+import software.amazon.awscdk.Size;
 import software.amazon.awscdk.services.autoscaling.AutoScalingGroup;
 import software.amazon.awscdk.services.ec2.*;
 import software.amazon.awscdk.services.ecs.AmiHardwareType;
@@ -17,6 +19,7 @@ import software.amazon.awscdk.services.iam.ServicePrincipal;
 import software.amazon.awscdk.services.route53.HostedZone;
 import software.amazon.awscdk.services.route53.HostedZoneAttributes;
 import software.amazon.awscdk.services.route53.IHostedZone;
+import software.amazon.awscdk.services.servicediscovery.PrivateDnsNamespace;
 import software.constructs.Construct;
 
 import java.util.ArrayList;
@@ -26,6 +29,8 @@ public class InfraStack extends NestedStack {
 
     @Getter
     private final IVpc vpc;
+    @Getter
+    private final PrivateDnsNamespace privateDnsNamespace;
     @Getter
     private final List<ISecurityGroup> additionalSecurityGroups;
     @Getter
@@ -59,6 +64,11 @@ public class InfraStack extends NestedStack {
                 .build()
         );
 
+        privateDnsNamespace = PrivateDnsNamespace.Builder.create(this, "vpc-dns-namespace")
+                .name("indigoeln.local")
+                .vpc(vpc)
+                .build();
+
         ec2SecurityGroup = SecurityGroup.Builder.create(this, "ec2-security-group")
                 .vpc(vpc)
                 .allowAllOutbound(true)
@@ -70,10 +80,42 @@ public class InfraStack extends NestedStack {
                 .managedPolicies(List.of(policy))
                 .build();
 
+        String dataVolumeAz = vpc.getAvailabilityZones().get(0);
+        Volume dataVolume = Volume.Builder.create(this, "postgres-data-volume")
+                .availabilityZone(dataVolumeAz)
+                .size(Size.gibibytes(10))
+                .volumeType(EbsDeviceVolumeType.GP3)
+                .removalPolicy(RemovalPolicy.RETAIN)
+                .build();
+        dataVolume.grantAttachVolume(ec2Role);
+
+        UserData userData = UserData.forLinux();
+        // attach and format EBS storage if needed
+        userData.addCommands(
+                "VOLUME_ID=" + dataVolume.getVolumeId(),
+                "DEVICE=/dev/xvdb",
+                "MOUNT_POINT=/data/postgres",
+                "echo VOLUME_ID=$VOLUME_ID, DEVICE=$DEVICE, MOUNT_POINT=$MOUNT_POINT",
+                "TOKEN=$(curl -s -X PUT http://169.254.169.254/latest/api/token -H 'X-aws-ec2-metadata-token-ttl-seconds: 21600')",
+                "INSTANCE_ID=$(curl -s -H \"X-aws-ec2-metadata-token: $TOKEN\" http://169.254.169.254/latest/meta-data/instance-id)",
+                "REGION=$(curl -s -H \"X-aws-ec2-metadata-token: $TOKEN\" http://169.254.169.254/latest/meta-data/placement/region)",
+                // Attach only when the device isn't present (new instance, not a restart)
+                "if [ ! -b $DEVICE ]; then",
+                "  aws ec2 attach-volume --volume-id $VOLUME_ID --instance-id $INSTANCE_ID --device $DEVICE --region $REGION",
+                "  while [ ! -b $DEVICE ]; do sleep 1; done",
+                "fi",
+                // Format only on very first use
+                "if ! blkid $DEVICE > /dev/null 2>&1; then mkfs.ext4 -F $DEVICE; fi",
+                "mkdir -p $MOUNT_POINT",
+                "mount $DEVICE $MOUNT_POINT || true",
+                "grep -q \"$DEVICE\" /etc/fstab || echo \"$DEVICE $MOUNT_POINT ext4 defaults 0 2\" >> /etc/fstab",
+                "chown -R 999:999 $MOUNT_POINT"  // UID 999 = postgres user in the official postgres image
+        );
+
         LaunchTemplate launchTemplate = LaunchTemplate.Builder.create(this, "ec2-launch-template")
-                .instanceType(InstanceType.of(InstanceClass.T3, InstanceSize.MICRO))
+                .instanceType(InstanceType.of(InstanceClass.T3A, InstanceSize.MICRO))
                 .machineImage(EcsOptimizedImage.amazonLinux2023(AmiHardwareType.STANDARD))
-                .userData(UserData.forLinux())
+                .userData(userData)
                 .securityGroup(ec2SecurityGroup)
                 .role(ec2Role)
                 .keyPair(ec2KeyPair)
@@ -88,18 +130,12 @@ public class InfraStack extends NestedStack {
                 .minCapacity(1)
                 .maxCapacity(1)
                 .desiredCapacity(1)
-                .vpcSubnets(SubnetSelection.builder().subnetType(SubnetType.PUBLIC).build())
+                // Must match the EBS volume's AZ — a standalone EBS can only attach to instances in the same AZ
+                .vpcSubnets(SubnetSelection.builder()
+                        .subnetType(SubnetType.PUBLIC)
+                        .availabilityZones(List.of(dataVolumeAz))
+                        .build())
                 .build();
-
-//        new CfnOutput(this, "ec2-public-ip", CfnOutputProps.builder()
-//                .value(autoScalingGroup.getInstances().get(0).getPublicIp())
-//                .description("The public IP address of the EC2 instance")
-//                .build());
-//
-//        new CfnOutput(this, "ec2-private-ip", CfnOutputProps.builder()
-//                .value(autoScalingGroup.getInstances().get(0).getPrivateIp())
-//                .description("The private IP address of the EC2 instance")
-//                .build());
 
         ecsCluster = Cluster.Builder.create(this, "ecs-cluster")
                 .vpc(vpc)
@@ -113,7 +149,8 @@ public class InfraStack extends NestedStack {
                 .vpc(vpc)
                 .allowAllOutbound(true)
                 .build();
-        ec2SecurityGroup.addIngressRule(lambdaSecurityGroup, Port.tcp(5432), "from-lambda");
+        ec2SecurityGroup.addIngressRule(lambdaSecurityGroup, Port.tcp(6432), "from-lambda");
+        ec2SecurityGroup.addIngressRule(lambdaSecurityGroup, Port.tcp(6433), "from-lambda");
     }
 
     @Value

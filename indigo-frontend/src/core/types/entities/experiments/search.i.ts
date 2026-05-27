@@ -1,7 +1,7 @@
 import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
 import { ReactionRole, UUID } from '@core/types/entities/experiments/experiment-shared.i';
 import { ExperimentStatus } from '@core/enums/experiment-status.enum';
-import { UserMetadata } from '@core/types/entities/user.i';
+import { UserRef } from '@core/types/entities/user.i';
 
 export enum StructuralSearchType {
   EXACT = 'EXACT',
@@ -143,7 +143,7 @@ export interface GlobalSearchRequest {
   therapeuticArea?: DictionaryItemRef;
   projectCode?: DictionaryItemRef;
   experimentStatus?: ExperimentStatus[];
-  author?: UserMetadata[];
+  author?: UserRef[];
   batchYield?: NumericSearch;
   batchPurity?: NumericSearch;
   moleculeStructure?: StructuralSearch;
@@ -159,7 +159,7 @@ export enum GlobalSearchEntityType {
 
 export interface GlobalSearchResult {
   id: string;
-  createdBy: UserMetadata;
+  createdBy: UserRef;
   type: GlobalSearchEntityType;
   name: string;
   fragment?: string;

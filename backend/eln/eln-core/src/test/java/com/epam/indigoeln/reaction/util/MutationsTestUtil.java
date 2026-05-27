@@ -1,12 +1,12 @@
 package com.epam.indigoeln.reaction.util;
 
+import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.search.SampleSearchResult;
 import com.epam.indigoeln.compound.model.search.StructuralSearch;
 import com.epam.indigoeln.eln.client.CompoundClient;
 import com.epam.indigoeln.eln.client.ExperimentClient;
 import com.epam.indigoeln.eln.model.BaseExperimentDTO;
-import com.epam.indigoeln.eln.model.Paging;
 import com.epam.indigoeln.reaction.model.InputAnchor;
 import com.epam.indigoeln.reaction.model.ReactionAnchor;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;

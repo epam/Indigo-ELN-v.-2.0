@@ -32,6 +32,7 @@ CREATE TABLE Project (
     CONSTRAINT project_name_uq UNIQUE (name)
 );
 CREATE INDEX ix_project_search_vector ON Project USING GIN(search_vector);
+CREATE INDEX ix_project_name ON Project USING GIN (name gin_trgm_ops);
 
 CREATE TABLE Project_Keyword (
     project_id UUID NOT NULL,
@@ -67,8 +68,9 @@ CREATE TABLE Project_Revision (
     datetime TIMESTAMPTZ NOT NULL,
     summary VARCHAR(1000) NOT NULL,
     mutation JSONB NOT NULL,
-    reverse_mutation JSONB,
     diff JSONB NOT NULL,
+    undo_for INT,
+    redo_for INT,
     CONSTRAINT project_revision_pk PRIMARY KEY (project_id, revision),
     CONSTRAINT project_revision_experiment_id_fk FOREIGN KEY (project_id) REFERENCES Project (id)
 );

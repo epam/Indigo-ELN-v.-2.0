@@ -3,12 +3,8 @@ package com.epam.indigoeln.compound.service;
 import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.model.SampleRegistrationRequest;
 import com.epam.indigoeln.eln.ELNBaseTest;
-import com.epam.indigoeln.eln.entity.IdentifiableEntity;
-import com.epam.indigoeln.eln.entity.SaltCodeInfo;
-import com.epam.indigoeln.eln.model.BuiltInDictionary;
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
-import com.epam.indigoeln.eln.model.NbkBatchNumber;
-import com.epam.indigoeln.eln.model.STRCodeSample;
+import com.epam.indigoeln.eln.common.entity.IdentifiableEntity;
+import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
@@ -19,24 +15,20 @@ import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolarityUnit;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
-import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
-import static com.epam.indigoeln.common.util.ModelUtil.loadResourceAsStream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
-@JwtSecurity
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
 public class CompoundServiceTest extends ELNBaseTest {
 
@@ -47,9 +39,9 @@ public class CompoundServiceTest extends ELNBaseTest {
     @Inject
     DictionaryService dictionaryService;
 
-    SaltCodeInfo saltCode;
-    DictionaryItemRef healthHazard;
-    DictionaryItemRef compoundState;
+    SaltCodeRef saltCode;
+    HealthHazardRef healthHazard;
+    ComponentStateRef compoundState;
     CompoundRef.Virtual compound1;
     CompoundRef.Virtual compound2;
     STRCodeSample str1;
@@ -64,24 +56,15 @@ public class CompoundServiceTest extends ELNBaseTest {
     @Test
     @Order(-1000)
     void testInit() {
-        List<DictionaryItemRef> saltCodes = dictionaryService.getSaltCodes();
-        saltCode = dictionaryService.getSaltInfo(saltCodes.getFirst().getId());
-        healthHazard = dictionaryService.getDictionary(BuiltInDictionary.HEALTH_HAZARD.name()).getFirst();
-        compoundState = dictionaryService.getDictionary(BuiltInDictionary.COMPONENT_STATE.name()).getFirst();
+        saltCode = dictionaryService.<SaltCodeRef>getDictionary(BuiltInDictionary.SALT_CODE.name(), false).getFirst();
+        healthHazard = dictionaryService.<HealthHazardRef>getDictionary(BuiltInDictionary.HEALTH_HAZARD.name(), false).getFirst();
+        compoundState = dictionaryService.<ComponentStateRef>getDictionary(BuiltInDictionary.COMPONENT_STATE.name(), false).getFirst();
         IndigoReaction reaction = indigo.loadReaction(loadResource(getClass(), "/reaction.rxn"));
         Iterator<IndigoMolecule> it = reaction.products().iterator();
         IndigoMolecule molecule = it.next();
         compound1 = compoundService.virtualCompoundRef(molecule, null, null, null);
         molecule = it.next();
         compound2 = compoundService.virtualCompoundRef(molecule, null, null, null);
-    }
-
-//    @Test
-    void testLoadCompounds() throws Exception {
-        try (InputStream is = loadResourceAsStream(getClass(), "/Compound_000000001_000500000.1.sdf")) {
-            var stats = compoundService.loadCompoundsFromFile(is);
-            assertThat(stats.getProcessed()).isPositive();
-        }
     }
 
     @Test
