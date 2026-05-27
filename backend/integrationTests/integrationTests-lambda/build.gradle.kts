@@ -16,7 +16,7 @@ dependencies {
     testImplementation("io.quarkus:quarkus-apache-httpclient")
 
     testImplementation("org.testcontainers:testcontainers")
-    testImplementation("org.testcontainers:postgresql")
+    testImplementation("org.testcontainers:testcontainers-postgresql")
 }
 
 group = "com.epam.indigoeln"
