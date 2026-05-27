@@ -322,8 +322,6 @@ public class ExperimentService {
                 }
             }
 
-            saver.close();
-
             return Files.readAllBytes(tempFilePath);
         } finally {
             Files.deleteIfExists(tempFilePath);

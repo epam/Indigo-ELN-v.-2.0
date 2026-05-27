@@ -12,6 +12,7 @@ public class IndigoSDFSaver extends AbstractIndigoObject implements AutoCloseabl
         obj.sdfAppend(item.obj);
     }
 
+    @Override
     public void close() {
         obj.close();
     }
