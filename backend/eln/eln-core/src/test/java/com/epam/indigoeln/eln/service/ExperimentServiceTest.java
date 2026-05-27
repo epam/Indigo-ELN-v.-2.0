@@ -21,7 +21,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -376,7 +375,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         ExperimentModel model = experiment.getModel();
 
         String rxnFile = loadResourceAsString(getClass(), "/reaction.rxn");
-        experimentClient.mutateExperimentModel(experiment.getId(), new MutateModelForm(experiment.getModel(), new ReactionMutation.SetScheme(model.getReactions().getFirst().getAnchor(), rxnFile)));
+        experimentClient.mutateExperimentModel(experiment.getId(), new ReactionMutation.SetScheme(model.getReactions().getFirst().getAnchor(), rxnFile));
 
         byte[] result = experimentClient.exportSDF(experiment.getId());
         assertThat(result).asString().containsIgnoringWhitespaces(">  <molWeight>\n" +
