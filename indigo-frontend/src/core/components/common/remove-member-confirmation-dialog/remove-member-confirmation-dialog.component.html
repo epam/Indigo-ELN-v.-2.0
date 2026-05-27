@@ -8,9 +8,13 @@
         type="checkbox"
         class="mt-0.5"
         [(ngModel)]="removeFromChildren"
-        [attr.aria-label]="'Also remove this team member from all Notebooks and Experiments in this Project.'"
+        [attr.aria-label]="
+          'Also removes the team member from the Project, and from all Notebooks and Experiments associated with the Project'
+        "
       />
-      <span>{{ 'Also remove this team member from all Notebooks and Experiments in this Project.' }}</span>
+      <span>{{
+        'Also removes the team member from the Project, and from all Notebooks and Experiments associated with the Project'
+      }}</span>
     </label>
   }
 
