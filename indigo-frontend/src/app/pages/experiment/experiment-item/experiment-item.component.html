@@ -2,7 +2,7 @@
   <div class="flex flex-col w-full px-4">
     <div class="flex justify-between items-center mb-3 w-full">
       <h3 class="flex items-center gap-x-2 font-semibold text-neutral-1000 text-base">
-        <em class="text-primary-400 text-xl indicon-flask"></em>
+        <eln-svg icon="experiments/file"></eln-svg>
         {{ experiment.name }}
       </h3>
 
@@ -27,6 +27,20 @@
             }
           </div>
         }
+
+        <button
+          class="flex items-center hover:bg-neutral-200 rounded-full cursor-pointer p-1"
+          (click)="toggleMark($event)"
+          matTooltip="Add to starred experiments"
+          matTooltipPosition="above"
+          [attr.aria-label]="isMarked() ? 'Remove from starred experiments' : 'Add to starred experiments'"
+        >
+          @if (isMarked()) {
+            <eln-svg icon="experiments/star-filled" classList="text-yellow-400"></eln-svg>
+          } @else {
+            <eln-svg icon="experiments/star" classList="text-neutral-400"></eln-svg>
+          }
+        </button>
 
         <div class="relative -right-1">
           <button
