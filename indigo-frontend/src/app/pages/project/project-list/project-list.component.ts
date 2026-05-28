@@ -16,7 +16,6 @@ import { ProjectAddComponent } from '../project-add/project-add.component';
 import { ProjectItemComponent } from '@pages/project/project-item/project-item.component';
 import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
 import { BreadcrumbsStateService } from '@core/services/breadcrumbs/breadcrumbs.state.service';
-import { SvgIconComponent } from '@core/components/common/svg-icon/svg-icon.component';
 
 @Component({
   selector: 'eln-project-list',
@@ -40,7 +39,6 @@ import { SvgIconComponent } from '@core/components/common/svg-icon/svg-icon.comp
     ProjectOverviewWidgetDirective,
     ButtonComponent,
     ListHeaderComponent,
-    SvgIconComponent,
   ],
 })
 export class ProjectListComponent extends InfiniteScrollBase<Project> implements OnDestroy {

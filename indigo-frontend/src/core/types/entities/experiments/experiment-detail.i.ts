@@ -44,6 +44,7 @@ export interface ExperimentDetail extends BaseEntity {
   continuedTo: ExperimentRef[];
   attachments?: Attachment[];
   acl?: ACLEntry[];
+  marked?: boolean;
   model: ExperimentModel;
   projectId: UUID;
   projectName: string;

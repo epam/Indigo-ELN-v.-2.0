@@ -2,7 +2,7 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { ApiService } from '@/core/services/api.service';
 import { ExperimentDetail, ExperimentEditRequest } from '@core/types/entities/experiments/experiment-detail.i';
 import { Mutation, MutationResponse, ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
-import { finalize, Observable, tap } from 'rxjs';
+import { finalize, Observable, Subject, tap } from 'rxjs';
 import { NotificationService } from '@core/services/notification/notification.service';
 import { NotificationType } from '@core/types/notification.i';
 import { Reaction } from '@core/types/entities/experiments/experiment.i';
@@ -28,6 +28,8 @@ export class ExperimentDetailService {
   readonly currentId = signal<string | null>(null);
   readonly updatedNodes = signal<Map<unknown, unknown>>(new Map());
   readonly updatedReactionImages = signal<Map<ReactionAnchor, string>>(new Map());
+
+  readonly markedChanged$ = new Subject<void>();
 
   // Query methods
   load(id: string) {
@@ -140,6 +142,16 @@ export class ExperimentDetailService {
   }
 
   // Utility methods
+  mark(id: string): Observable<boolean> {
+    return this.service.request<boolean>('post', `experiments/${id}/mark`).pipe(tap(() => this.markedChanged$.next()));
+  }
+
+  unmark(id: string): Observable<boolean> {
+    return this.service
+      .request<boolean>('post', `experiments/${id}/unmark`)
+      .pipe(tap(() => this.markedChanged$.next()));
+  }
+
   refresh() {
     const id = this.currentId();
     if (id) this.load(id);
