@@ -35,7 +35,7 @@ export class StarredExperimentsComponent implements OnInit, OnDestroy {
   }
 
   private fetchMarkedExperiments(): void {
-    if (!this.experiments?.length) {
+    if (this.experiments == null) {
       this.loading = true;
     }
     this.service

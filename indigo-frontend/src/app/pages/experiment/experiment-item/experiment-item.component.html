@@ -31,7 +31,7 @@
         <button
           class="flex items-center hover:bg-neutral-200 rounded-full cursor-pointer p-1"
           (click)="toggleMark($event)"
-          matTooltip="Add to starred experiments"
+          [matTooltip]="isMarked() ? 'Remove from starred experiments' : 'Add to starred experiments'"
           matTooltipPosition="above"
           [attr.aria-label]="isMarked() ? 'Remove from starred experiments' : 'Add to starred experiments'"
         >
