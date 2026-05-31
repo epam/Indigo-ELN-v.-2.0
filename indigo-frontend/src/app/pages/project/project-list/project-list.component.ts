@@ -4,17 +4,19 @@ import { ListHeaderComponent, SortChangeEvent } from '@/core/components/common/l
 import { InfiniteLoaderComponent } from '@/core/components/util/infinite-loader/infinite-loader.component';
 import { InfiniteScrollBase } from '@/core/components/util/infinite-scroll.base';
 import { ClassPickerPipe } from '@/core/pipes/classPicker.pipe';
+import { BreadcrumbsStateService } from '@/core/services/breadcrumbs/breadcrumbs.state.service';
 import { Project } from '@/core/types/entities/project.i';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnDestroy } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Subscription, take } from 'rxjs';
-import { ProjectAddComponent } from '../project-add/project-add.component';
+
 import { ProjectItemComponent } from '@pages/project/project-item/project-item.component';
 import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
+import { ProjectAddComponent } from '../project-add/project-add.component';
 
 @Component({
   selector: 'eln-project-list',
@@ -40,8 +42,10 @@ import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview
     ListHeaderComponent,
   ],
 })
-export class ProjectListComponent extends InfiniteScrollBase<Project> implements OnDestroy {
+export class ProjectListComponent extends InfiniteScrollBase<Project> implements OnInit, OnDestroy {
   dialog = inject(MatDialog);
+  breadcrumbsState = inject(BreadcrumbsStateService);
+
   selectedView: 'grid' | 'list' = 'grid';
   private refreshSub!: Subscription;
 
@@ -49,6 +53,7 @@ export class ProjectListComponent extends InfiniteScrollBase<Project> implements
 
   constructor() {
     super();
+
     this.setup({
       loadUrl: 'projects',
       sortOptions: [
@@ -69,12 +74,21 @@ export class ProjectListComponent extends InfiniteScrollBase<Project> implements
       },
     });
 
-    // Convert sort options to dropdown menu items
     this.headerSortOptions = this.getSortOptions().map((option) => ({
       label: `${option.label}`,
       value: `${option.value}:${option.defaultOrder}`,
       icon: 'indicon-sort',
     }));
+  }
+
+  ngOnInit(): void {
+    this.breadcrumbsState.setItems([
+      {
+        label: 'All Projects',
+        url: '/projects',
+        active: true,
+      },
+    ]);
   }
 
   refreshList(): void {
@@ -87,6 +101,7 @@ export class ProjectListComponent extends InfiniteScrollBase<Project> implements
 
   async openModal() {
     const ref = this.dialog.open(ProjectAddComponent);
+
     ref
       .afterClosed()
       .pipe(take(1))

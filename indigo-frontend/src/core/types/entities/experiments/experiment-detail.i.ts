@@ -1,10 +1,10 @@
-import { BaseEntity } from '../base-entity.i';
-import { Attachment } from '../attachment.i';
-import { ProjectAcl } from '../acl.i';
 import { ExperimentStatus } from '@/core/enums/experiment-status.enum';
+import { ExperimentRef } from '@core/types/entities/experiments/experiment-shared.i';
 import { ExperimentModel } from '@core/types/entities/experiments/experiment.i';
 import { UserMetadata } from '@core/types/entities/user.i';
-import { ExperimentRef } from '@core/types/entities/experiments/experiment-shared.i';
+import { ProjectAcl } from '../acl.i';
+import { Attachment } from '../attachment.i';
+import { BaseEntity } from '../base-entity.i';
 
 export enum SignatureReason {
   AUTHOR = 'AUTHOR',
@@ -58,4 +58,6 @@ export interface ExperimentDetail extends BaseEntity {
   model: ExperimentModel;
   projectName: string;
   notebookName: string;
+  projectId: string;
+  notebookId: string;
 }

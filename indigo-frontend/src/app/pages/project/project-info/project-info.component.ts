@@ -2,22 +2,22 @@ import { AttachmentComponent } from '@/core/components/common/attachment/attachm
 import { ButtonComponent } from '@/core/components/common/button/button.component';
 import { CardComponent } from '@/core/components/common/card/card.component';
 import { ChipComponent } from '@/core/components/common/chip/chip.component';
+import { FileUploadComponent } from '@/core/components/common/file-upload/file-upload.component';
 import { TeamComponent } from '@/core/components/common/team/team.component';
+import { TeamComponentConfig } from '@/core/components/common/team/team.config';
 import { ApiService } from '@/core/services/api.service';
+import { BreadcrumbsStateService } from '@/core/services/breadcrumbs/breadcrumbs.state.service';
+import { Attachment } from '@/core/types/entities/attachment.i';
 import { Project } from '@/core/types/entities/project.i';
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { finalize, from, Subject, take } from 'rxjs';
-import { concatMap, takeUntil } from 'rxjs/operators';
-import { FileUploadComponent } from '@/core/components/common/file-upload/file-upload.component';
-import { Attachment } from '@/core/types/entities/attachment.i';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { ProjectAddComponent } from '../project-add/project-add.component';
-import { TeamComponentConfig } from '@/core/components/common/team/team.config';
+import { ActivatedRoute } from '@angular/router';
 import { NotebookAddComponent } from '@pages/notebook/notebook-add/notebook-add.component';
 import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
-import { BreadcrumbsStateService } from '@/core/services/breadcrumbs/breadcrumbs.state.service';
+import { finalize, from, Subject, take } from 'rxjs';
+import { concatMap, takeUntil } from 'rxjs/operators';
+import { ProjectAddComponent } from '../project-add/project-add.component';
 
 enum projectInfoModalEnum {
   EDIT = 'edit',

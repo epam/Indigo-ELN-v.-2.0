@@ -11,8 +11,8 @@ import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ActivatedRoute } from '@angular/router';
-import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
 import { ExperimentItemComponent } from '@pages/experiment/experiment-item/experiment-item.component';
+import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
 
 @Component({
   selector: 'eln-notebook-notebook-experiments-tab',
@@ -41,16 +41,12 @@ import { ExperimentItemComponent } from '@pages/experiment/experiment-item/exper
 export class NotebookExperimentsTabComponent extends InfiniteScrollBase<ExperimentDetail> {
   dialog = inject(MatDialog);
   selectedView: 'grid' | 'list' = 'grid';
-  notebookId: string;
-  projectId: string;
+  notebookId = '';
 
   constructor(activatedRoute: ActivatedRoute) {
     super();
-    const notebookId = activatedRoute.parent?.snapshot.paramMap.get('notebookId');
-    const projectId = activatedRoute.parent?.snapshot.paramMap.get('projectId');
 
-    this.notebookId = notebookId || '';
-    this.projectId = projectId || '';
+    this.notebookId = activatedRoute.parent?.snapshot.paramMap.get('notebookId') ?? '';
 
     this.setup({
       loadUrl: `notebooks/${this.notebookId}/experiments`,

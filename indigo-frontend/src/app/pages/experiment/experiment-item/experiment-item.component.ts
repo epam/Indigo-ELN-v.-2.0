@@ -1,16 +1,16 @@
 import { BadgeComponent } from '@/core/components/common/badge/badge.component';
 import { CardComponent } from '@/core/components/common/card/card.component';
+import { InitialsPipe } from '@/core/pipes/avatars.pipe';
+import { NormalizeLabelPipe } from '@/core/pipes/normalizeLabe.pipe';
 import { ExperimentDetail } from '@/core/types/entities/experiments/experiment-detail.i';
+import { getExperimentStatusBadgeVariant } from '@/core/utils/experiment-status.util';
 import { CommonModule } from '@angular/common';
 import { Component, inject, Input } from '@angular/core';
-import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltip } from '@angular/material/tooltip';
-import { NormalizeLabelPipe } from '@/core/pipes/normalizeLabe.pipe';
-import { InitialsPipe } from '@/core/pipes/avatars.pipe';
-import { getExperimentStatusBadgeVariant } from '@/core/utils/experiment-status.util';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'eln-experiment-item',
@@ -33,13 +33,13 @@ export class ExperimentItemComponent {
 
   @Input() experiment!: ExperimentDetail;
   @Input() variant: 'grid' | 'list' = 'grid';
-  @Input() projectId!: string;
-  @Input() notebookId!: string;
 
   openDetails(): void {
-    if (!this.experiment || !this.projectId || !this.notebookId) return;
-    const url = `/projects/${this.projectId}/notebooks/${this.notebookId}/experiments/${this.experiment.id}`;
-    this.router.navigateByUrl(url);
+    if (!this.experiment) {
+      return;
+    }
+
+    this.router.navigateByUrl(`/experiments/${this.experiment.id}`);
   }
 
   getStatusBadgeVariant = getExperimentStatusBadgeVariant;

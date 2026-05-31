@@ -8,12 +8,13 @@ import { finalize, Subject } from 'rxjs';
 import { ExperimentStatus } from '@/core/enums/experiment-status.enum';
 import { ExperimentDetail } from '@/core/types/entities/experiments/experiment-detail.i';
 import { EXPERIMENT_STATUS_DECORATION_MAP, ExperimentStatusDecoration } from '@/core/utils/experiment-status.util';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'eln-starred-experiments',
   templateUrl: './starred-experiments.component.html',
   standalone: true,
-  imports: [CommonModule, CardComponent, BadgeComponent, NormalizeLabelPipe],
+  imports: [CommonModule, RouterLink, CardComponent, BadgeComponent, NormalizeLabelPipe],
 })
 export class StarredExperimentsComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
