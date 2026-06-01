@@ -10,6 +10,7 @@
         type="text"
         placeholder="Search"
         [formControl]="searchControl"
+        (keydown.enter)="showSearch()"
       />
     </div>
     <div class="flex items-center gap-2">

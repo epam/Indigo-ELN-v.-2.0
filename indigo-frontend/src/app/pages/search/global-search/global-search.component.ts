@@ -50,6 +50,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 export interface GlobalSearchDialogData {
   reactionAnchor: ReactionAnchor;
+  initialQuery?: string;
 }
 
 @Component({
@@ -114,6 +115,10 @@ export class GlobalSearchComponent implements OnInit {
 
   ngOnInit(): void {
     this.loader = new GlobalSearchLoader(this.apiService);
+    if (this.data?.initialQuery) {
+      this.form.get('quickSearch').setValue(this.data.initialQuery);
+      this.performSearch();
+    }
     this.form.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((formValues) => {
       setEnabled(this.form.get('structureSearchType'), formValues.isReaction !== null, false);
       setEnabled(this.form.get('reactionRole'), formValues.isReaction === false, false);
