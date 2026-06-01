@@ -111,7 +111,14 @@ export class EditableDataTableComponent<TRow = unknown> {
     }
   }
 
-  callSaveEV(column: ColumnConfig<TRow, unknown>, row: TRow, selectedValue: string, selectedUnit: unknown): void {
+  callSaveEV(
+    column: ColumnConfig<TRow, unknown>,
+    row: TRow,
+    selectedValue: string,
+    selectedUnit: unknown,
+    linkedInput: HTMLInputElement | null,
+    linkedUnitSelect: MatSelect | null,
+  ): void {
     const columnEV = column as ColumnConfig<TRow, EnteredValue<unknown>>;
     const oldValue = columnEV.field(row);
     const newValue = {
@@ -131,6 +138,13 @@ export class EditableDataTableComponent<TRow = unknown> {
     } else if (oldSet) {
       // remove old value
       columnEV?.onSave(row, null);
+    } else if (linkedUnitSelect != null && newValue.value != null && newValue.unit == null) {
+      // user entered number only; expand units combobox automatically
+      linkedUnitSelect.open();
+      linkedUnitSelect.focus();
+    } else if (linkedInput != null && newValue.unit == null) {
+      // user didn't select unit; reset numeric input
+      linkedInput.value = '';
     }
   }
 
