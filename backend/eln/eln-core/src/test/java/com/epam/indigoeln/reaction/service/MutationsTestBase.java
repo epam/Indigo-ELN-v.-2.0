@@ -25,6 +25,7 @@ public abstract class MutationsTestBase extends ELNBaseTest {
     protected NotebookDetailsDTO notebook;
     protected ExperimentDetailsDTO experiment;
     protected Reaction reaction;
+    protected MutationResponse lastMutationResponse;
     protected ReactionInput input1;
     protected ReactionInputSample input1Sample1;
     protected ReactionInput input2;
@@ -125,6 +126,7 @@ public abstract class MutationsTestBase extends ELNBaseTest {
 
         ExperimentSnapshot initialSnapshot = experimentClient.getExperimentSnapshot(experiment.getId());
         MutationResponse response = executor.get();
+        lastMutationResponse = response;
         JsonNode patch = response.getPatch();
         ExperimentDetailsDTO updatedExperiment = experimentClient.getExperiment(experiment.getId());
 

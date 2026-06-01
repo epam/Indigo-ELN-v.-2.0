@@ -7,7 +7,6 @@ import com.epam.indigoeln.reaction.model.ReactionInput;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
-import com.google.common.base.Preconditions;
 import jakarta.enterprise.context.Dependent;
 import one.util.streamex.StreamEx;
 
@@ -17,11 +16,7 @@ class SetInputRowLimitingHandler extends AbstractReactionInputMutationHandler<Re
 
     @Override
     public MutationResult doHandle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowLimiting mutation, ExperimentMutationContext context) {
-        Preconditions.checkState(row.getReaction().getLimitingInput() != null);
-        for (ReactionInput otherRow : row.getReaction().getInputs()) {
-            otherRow.setLimiting(false);
-        }
-        row.setLimiting(true);
+        reaction.setLimitingAnchor(row.getAnchor());
         return new MutationResult("Change limiting input");
     }
 }
@@ -73,7 +68,6 @@ class RemoveInputRowHandler extends AbstractReactionInputMutationHandler<Reactio
     @Override
     public MutationResult doHandle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.RemoveInputRow mutation, ExperimentMutationContext context) {
         row.delete();
-        adjustLimitingInput(reaction);
 
         context.getResponse().getMessages().add("Removed, press Ctrl-Z/Cmd-Z to undo");
         return new MutationResult("Remove input");

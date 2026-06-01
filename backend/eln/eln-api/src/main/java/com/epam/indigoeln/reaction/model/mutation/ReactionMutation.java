@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public interface ReactionMutation extends Mutation {
+public interface ReactionMutation extends ExperimentMutation {
 
     ReactionAnchor anchor();
 

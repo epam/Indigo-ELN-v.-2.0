@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-public record ModelProperty<C, I>(
+public record ModelProperty<C, I extends @Nullable Object>(
         String name,
         Function<C, I> getter,
         @Nullable BiConsumer<C, I> setter,

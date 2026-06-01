@@ -59,14 +59,14 @@ public final class ReactionOutput extends ReactionRow {
         row.eq = eq;
         row.setSamples(new ArrayList<>());
         reaction.getOutputs().add(row);
-        reaction.validateDuplicateOutputs(row);
+        validateDuplicateOutputs(reaction, row);
         return row;
     }
 
     public void updateCompound(CompoundRef newCompound) {
         validate(!hasSamplesWithRegistrationStarted(), "Cannot update compound when samples already sent for registration");
         this.compound = newCompound;
-        reaction.validateDuplicateOutputs(this);
+        validateDuplicateOutputs(reaction, this);
     }
 
     public boolean hasSamplesWithRegistrationStarted() {
@@ -77,5 +77,13 @@ public final class ReactionOutput extends ReactionRow {
     @Override
     protected List<? extends AbstractExperimentNode<Reaction>> internalGetSiblings(Reaction parent) {
         return parent.getOutputs();
+    }
+
+    private static void validateDuplicateOutputs(Reaction reaction, ReactionOutput newOutput) {
+        for (ReactionOutput output : reaction.getOutputs()) {
+            if (output != newOutput) {
+                validate(!output.getCompound().compoundKeyEquals(newOutput.getCompound()), "Reaction contains duplicate output compounds");
+            }
+        }
     }
 }

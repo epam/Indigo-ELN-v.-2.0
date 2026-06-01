@@ -8,7 +8,6 @@ import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
 import com.epam.indigoeln.eln.model.SignatureTemplateRef;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
-import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import com.epam.indigoeln.signature.api.SignatureClient;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -79,15 +78,11 @@ public class ExperimentWorkflowService {
     }
 
     public ExperimentDetailsDTO completeAndSubmitExperiment(UUID experimentId, UUID signatureTemplateId) {
-        try {
-            ExperimentEntity experiment = experimentRepository.get(experimentId);
-            experimentModelService.applyMutation(experiment, new ExperimentMutation.CompleteExperiment());
-            experimentModelService.applyMutation(experiment, new ExperimentMutation.MakeVersion());
-            experimentModelService.applyMutation(experiment, new ExperimentMutation.SubmitExperiment(signatureTemplateId));
-            return experimentService.getExperimentDetails(experiment);
-        } catch (Exception e) {
-            throw e;
-        }
+        ExperimentEntity experiment = experimentRepository.get(experimentId);
+        experimentModelService.applyMutation(experiment, new ExperimentMutation.CompleteExperiment());
+        experimentModelService.applyMutation(experiment, new ExperimentMutation.MakeVersion());
+        experimentModelService.applyMutation(experiment, new ExperimentMutation.SubmitExperiment(signatureTemplateId));
+        return experimentService.getExperimentDetails(experiment);
     }
 
     @SneakyThrows
@@ -96,7 +91,7 @@ public class ExperimentWorkflowService {
         AttachmentEntity submittedAttachment = checkNotNull(experiment.getSignatureAttachment());
         byte[] bytes = Files.readAllBytes(path);
         AttachmentEntity attachment = attachmentService.createExperimentAttachment(experiment, submittedAttachment.getName(), bytes, null);
-        Mutation mutation = new ExperimentMutation.SignatureUpdated(message, updatedStatus, attachment.getId());
+        ExperimentMutation mutation = new ExperimentMutation.SignatureUpdated(message, updatedStatus, attachment.getId());
         experimentModelService.applyMutation(experiment, mutation);
     }
 }

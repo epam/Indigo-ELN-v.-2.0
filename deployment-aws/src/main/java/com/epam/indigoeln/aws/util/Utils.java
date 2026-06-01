@@ -1,7 +1,6 @@
 package com.epam.indigoeln.aws.util;
 
 import com.epam.indigoeln.aws.ELNLambdaStack;
-import org.jspecify.annotations.Nullable;
 import software.amazon.awscdk.Duration;
 import software.amazon.awscdk.RemovalPolicy;
 import software.amazon.awscdk.services.ec2.ISecurityGroup;
@@ -15,7 +14,6 @@ import software.amazon.awscdk.services.lambda.*;
 import software.amazon.awscdk.services.lambda.Runtime;
 import software.amazon.awscdk.services.logs.LogGroup;
 import software.amazon.awscdk.services.logs.RetentionDays;
-import software.amazon.awscdk.services.s3.assets.AssetOptions;
 import software.constructs.Construct;
 
 import java.io.*;
@@ -52,22 +50,10 @@ public class Utils {
     }
 
     public static Function createDockerFunction(Construct parent, ELNLambdaStack.Props props, String id, Repository repository, String imageTag, ISecurityGroup securityGroup, Map<String, String> environment) {
-        return doCreateFunction(parent, props, id, null, repository, imageTag, securityGroup, environment);
+        return doCreateFunction(parent, props, id, repository, imageTag, securityGroup, environment);
     }
 
-    public static Function createSnapStartFunction(Construct parent, ELNLambdaStack.Props props, String id, File functionCode, ISecurityGroup securityGroup, Map<String, String> environment) {
-        environment = new LinkedHashMap<>(environment);
-        environment.putIfAbsent("JAVA_TOOL_OPTIONS", "-XX:+TieredCompilation -XX:TieredStopAtLevel=1");
-        return doCreateFunction(parent, props, id, functionCode, null, null, securityGroup, environment);
-    }
-
-    public static Function createSnapStartFunction(Construct parent, ELNLambdaStack.Props props, String id, Repository repository, String imageTag, ISecurityGroup securityGroup, Map<String, String> environment) {
-        environment = new LinkedHashMap<>(environment);
-        environment.putIfAbsent("JAVA_TOOL_OPTIONS", "-XX:+TieredCompilation -XX:TieredStopAtLevel=1");
-        return doCreateFunction(parent, props, id, null, repository, imageTag, securityGroup, environment);
-    }
-
-    public static Function doCreateFunction(Construct parent, ELNLambdaStack.Props props, String id, @Nullable File functionCode, @Nullable Repository repository, @Nullable String imageTag, ISecurityGroup securityGroup, Map<String, String> environment) {
+    public static Function doCreateFunction(Construct parent, ELNLambdaStack.Props props, String id, Repository repository, String imageTag, ISecurityGroup securityGroup, Map<String, String> environment) {
         LogGroup logGroup = LogGroup.Builder.create(parent, id + "-log-group")
                 .logGroupName("/aws/lambda/" + id)
                 .removalPolicy(RemovalPolicy.DESTROY)
@@ -94,22 +80,10 @@ public class Utils {
                 .timeout(Duration.seconds(120))
                 .currentVersionOptions(VersionOptions.builder().removalPolicy(RemovalPolicy.DESTROY).build())
                 .tracing(Tracing.ACTIVE)
-                .logGroup(logGroup);
-        if (functionCode != null) {
-            builder
-                .runtime(Runtime.JAVA_21)
-                .handler("io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest")
-//                .code(Code.fromAsset(functionCode.getPath(), AssetOptions.builder().assetHash(Utils.calculateHashCode(functionCode)).build()))
-                .code(Code.fromAsset(functionCode.getPath(), AssetOptions.builder().assetHash("2").build())) // !!! to avoid redeploy on every change
-                .snapStart(SnapStartConf.ON_PUBLISHED_VERSIONS);
-        } else if (repository != null && imageTag != null) {
-            builder
+                .logGroup(logGroup)
                 .runtime(Runtime.FROM_IMAGE)
                 .handler(Handler.FROM_IMAGE)
                 .code(Code.fromEcrImage(repository, EcrImageCodeProps.builder().tagOrDigest(imageTag).build()));
-        } else {
-            throw new IllegalArgumentException("either functionCode or repository/imageTag must be provided");
-        }
         return builder.build();
     }
 

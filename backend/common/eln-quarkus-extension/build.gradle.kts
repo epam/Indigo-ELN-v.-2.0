@@ -9,6 +9,7 @@ quarkusExtension {
 
 dependencies {
     implementation("io.quarkus:quarkus-arc")
+    implementation("org.jspecify:jspecify:1.0.0")
 }
 
 group = "com.epam.indigoeln"

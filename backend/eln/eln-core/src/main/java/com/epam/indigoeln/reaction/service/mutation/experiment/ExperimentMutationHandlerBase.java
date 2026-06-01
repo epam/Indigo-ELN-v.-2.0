@@ -12,7 +12,7 @@ import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.reaction.model.*;
-import com.epam.indigoeln.reaction.model.mutation.Mutation;
+import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.units.DensityUnit;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
@@ -33,7 +33,7 @@ import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE;
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE_HUNDRED;
 import static com.google.common.base.MoreObjects.firstNonNull;
 
-public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends AbstractExperimentMutationHandler<T> {
+public abstract class ExperimentMutationHandlerBase<T extends ExperimentMutation> extends AbstractExperimentMutationHandler<T> {
 
     @Inject
     Instance<IndigoAPI> indigoAPI;
@@ -142,22 +142,6 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
     public ReactionOutput createOutputLine(Reaction reaction, IndigoMolecule molecule, boolean intended, OutputAnchor anchor) {
         CompoundRef compound = compoundService.virtualCompoundRef(molecule, null, null, null);
         return ReactionOutput.create(reaction, reaction.getFinalOutput() != null ? ReactionOutputType.BY_PRODUCT : ReactionOutputType.FINAL, intended, reaction.generateNextProductName(), anchor, compound, DEFAULT_ONE);
-    }
-
-    protected void adjustLimitingInput(Reaction reaction) {
-        ReactionInput limiting = null;
-        for (ReactionInput input : reaction.getInputs()) {
-            if (input.isLimiting()) {
-                if (limiting == null) {
-                    limiting = input;
-                } else {
-                    input.setLimiting(false);
-                }
-            }
-        }
-        if (limiting == null && !reaction.getInputs().isEmpty()) {
-            reaction.getInputs().getFirst().setLimiting(true);
-        }
     }
 
     protected void cleanupUnintendedProducts(Reaction reaction) {

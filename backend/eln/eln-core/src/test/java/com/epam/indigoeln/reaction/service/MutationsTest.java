@@ -77,14 +77,14 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testIncorrectAnchor() {
         assertThatClientCall(() -> {
-            experimentClient.mutateExperimentModel2Raw(experiment.getId(), experiment.getRevision(), "{\"type\": \"AddEmptyInput\", \"anchor\": \"invalid\"}");
+            experimentClient.mutateExperimentModel4Raw(experiment.getId(), experiment.getRevision(), "{\"type\": \"AddEmptyInput\", \"anchor\": \"invalid\"}");
         }).isBadRequest("Cannot construct instance of `com.epam.indigoeln.reaction.model.ReactionAnchor");
     }
 
     @Test
     void testUnknownField() {
         assertThatClientCall(() -> {
-            experimentClient.mutateExperimentModel2Raw(experiment.getId(), experiment.getRevision(), "{\"type\": \"AddEmptyInput\", \"anchor\": \"00000000-0000-0000-0000-000000000001\", \"unknownField\": 123}");
+            experimentClient.mutateExperimentModel4Raw(experiment.getId(), experiment.getRevision(), "{\"type\": \"AddEmptyInput\", \"anchor\": \"00000000-0000-0000-0000-000000000001\", \"unknownField\": 123}");
         }).isBadRequest("Unrecognized field \"unknownField\"");
     }
 
@@ -131,6 +131,7 @@ public class MutationsTest extends MutationsTestBase {
         applyMutation(prepareResolveInputs());
         assertThat(input1.getCompound()).isInstanceOf(CompoundRef.Stored.class);
         assertThat(input1Sample1.getSampleId()).isNotNull();
+        assertThat(lastMutationResponse.getReactionImages()).containsOnlyKeys(reaction.getAnchor());
     }
 
     @Test

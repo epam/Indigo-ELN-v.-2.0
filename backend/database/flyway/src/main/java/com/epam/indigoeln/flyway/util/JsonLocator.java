@@ -18,13 +18,20 @@ public class JsonLocator {
     private static final String ANY_PATH = "**";
 
     public static <N extends JsonNode> List<N> findNodes(JsonNode root, String path) {
-        return findNodes(root, path, true);
+        return findNodes(root, path, false, true);
     }
 
-    public static <N extends JsonNode> List<N> findNodes(JsonNode root, String path, boolean skipNulls) {
+    public static List<ObjectNode> findObjects(JsonNode root, String path) {
+        return findNodes(root, path, true, true);
+    }
+
+    public static <N extends JsonNode> List<N> findNodes(JsonNode root, String path, boolean onlyObjects, boolean skipNulls) {
         Stream<JsonNode> stream = doFindNodes(Stream.of(root), Arrays.asList(path.split("/")));
         if (skipNulls) {
             stream = stream.filter(node -> !node.isNull());
+        }
+        if (onlyObjects) {
+            stream = stream.filter(node -> node instanceof ObjectNode);
         }
         //noinspection unchecked
         return (List<N>) stream.toList();

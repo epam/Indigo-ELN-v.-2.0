@@ -24,7 +24,6 @@ import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.indigowrapper.IndigoSDFSaver;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
-import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import com.epam.indigoeln.reaction.service.mutation.experiment.ExperimentMutationContext;
@@ -148,30 +147,18 @@ public class ExperimentService {
     public List<ACLEntryDTO> updateExperimentAccess(UUID experimentId, List<AccessForm> form) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, MANAGE_EXPERIMENT_ACCESS);
-        Mutation mutation = new ExperimentMutation.EditExperimentAccess(form);
+        ExperimentMutation mutation = new ExperimentMutation.EditExperimentAccess(form);
         experimentModelService.applyMutation(experiment, mutation);
         return experimentMapper.convertACLList(experiment.getFullACL());
     }
 
-    public ExperimentModel mutateModel(UUID experimentId, Mutation mutation) {
+    public ExperimentModel mutateModel(UUID experimentId, ExperimentMutation mutation) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
         return checkNotNull(experimentModelService.applyMutation(experiment, mutation).getLeft().getModel());
     }
 
-    public JsonNode mutateModel2(UUID experimentId, Integer revision, Mutation mutation) {
-        ExperimentEntity experiment = experimentRepository.get(experimentId);
-        aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
-        return experimentModelService.applyMutation(experiment, mutation).getMiddle();
-    }
-
-    public ExperimentSnapshot mutateModel3(UUID experimentId, Integer revision, Mutation mutation) {
-        ExperimentEntity experiment = experimentRepository.get(experimentId);
-        aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
-        return experimentModelService.applyMutation(experiment, mutation).getLeft();
-    }
-
-    public MutationResponse mutateModel4(UUID experimentId, Integer revision, Mutation mutation) {
+    public MutationResponse mutateModel4(UUID experimentId, Integer revision, ExperimentMutation mutation) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
         Triple<ExperimentSnapshot, JsonNode, ExperimentMutationContext> triple = experimentModelService.applyMutation(experiment, mutation);

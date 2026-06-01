@@ -338,14 +338,14 @@ class NotebookServiceTest extends ELNBaseTest {
                     assertThat(revision.getUser()).isEqualTo(JOHN_USER_REF);
                     assertThat(revision.getMutation()).isInstanceOf(NotebookMutation.EditNotebookAccess.class);
                     assertThat(revision.getSummary()).isEqualTo("Edited Team: granted maggie EDIT access");
-                    assertThat(revision.getDiff()).isNotNull(); // !!! verify diff old and new ACL
+                    assertThat(revision.getDiff()).isNotNull(); // TODO verify diff old and new ACL
                 });
         notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(MAGGIE_USERNAME, AccessLevel.NONE));
         assertThat(notebookClient.getNotebookRevisions(notebook.getId()))
                 .hasSize(3)
                 .last().satisfies(revision -> {
                     assertThat(revision.getSummary()).isEqualTo("Edited Team: removed maggie");
-                    assertThat(revision.getDiff()).isNotNull(); // !!! verify diff old and new ACL
+                    assertThat(revision.getDiff()).isNotNull(); // TODO verify diff old and new ACL
                 });
     }
 

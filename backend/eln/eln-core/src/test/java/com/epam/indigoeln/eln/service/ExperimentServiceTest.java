@@ -5,7 +5,6 @@ import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
-import com.epam.indigoeln.eln.api.MutateModelForm;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.Reaction;
@@ -22,7 +21,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -309,7 +307,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         assertThat(response).containsExactly(ExperimentService.EMPTY_PICTURE);
 
         String rxnFile = loadResourceAsString(getClass(), "/reaction.rxn");
-        experimentClient.mutateExperimentModel(experiment.getId(), new MutateModelForm(experiment.getModel(), new ReactionMutation.SetScheme(model.getReactions().getFirst().getAnchor(), rxnFile)));
+        experimentClient.mutateExperimentModel4(experiment.getId(), experiment.getRevision(), new ReactionMutation.SetScheme(model.getReactions().getFirst().getAnchor(), rxnFile));
 
         model = experimentClient.getExperiment(experiment.getId()).getModel();
         reaction = model.getReactions().getFirst();
@@ -336,14 +334,14 @@ class ExperimentServiceTest extends ELNBaseTest {
                     assertThat(revision.getUser()).isEqualTo(JOHN_USER_REF);
                     assertThat(revision.getMutation()).isInstanceOf(ExperimentMutation.EditExperimentAccess.class);
                     assertThat(revision.getSummary()).isEqualTo("Edited Team: granted maggie EDIT access");
-                    assertThat(revision.getDiff()).isNotNull(); // !!! verify diff old and new ACL
+                    assertThat(revision.getDiff()).isNotNull(); // TODO verify diff old and new ACL
                 });
         experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(MAGGIE_USERNAME, AccessLevel.NONE));
         assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
                 .hasSize(3)
                 .last().satisfies(revision -> {
                     assertThat(revision.getSummary()).isEqualTo("Edited Team: removed maggie");
-                    assertThat(revision.getDiff()).isNotNull(); // !!! verify diff old and new ACL
+                    assertThat(revision.getDiff()).isNotNull(); // TODO verify diff old and new ACL
                 });
     }
 
@@ -377,7 +375,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         ExperimentModel model = experiment.getModel();
 
         String rxnFile = loadResourceAsString(getClass(), "/reaction.rxn");
-        experimentClient.mutateExperimentModel(experiment.getId(), new MutateModelForm(experiment.getModel(), new ReactionMutation.SetScheme(model.getReactions().getFirst().getAnchor(), rxnFile)));
+        experimentClient.mutateExperimentModel(experiment.getId(), new ReactionMutation.SetScheme(model.getReactions().getFirst().getAnchor(), rxnFile));
 
         byte[] result = experimentClient.exportSDF(experiment.getId());
         assertThat(result).asString().containsIgnoringWhitespaces(">  <molWeight>\n" +

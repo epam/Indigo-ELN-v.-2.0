@@ -5,7 +5,6 @@ import com.epam.indigoeln.reaction.util.StreamUtil;
 import com.fasterxml.jackson.annotation.*;
 import com.google.common.primitives.Ints;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
@@ -19,8 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-
-import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
 
 @Data
 @ToString(exclude = "model")
@@ -42,6 +39,9 @@ public final class Reaction extends AbstractExperimentNode<ExperimentModel> {
     @JsonManagedReference
     private List<@Valid ReactionInput> inputs = new ArrayList<>();
 
+    @Nullable
+    private InputAnchor limitingAnchor;
+
     @NotNull
     @JsonManagedReference
     private List<@Valid ReactionOutput> outputs = new ArrayList<>();
@@ -53,42 +53,11 @@ public final class Reaction extends AbstractExperimentNode<ExperimentModel> {
         return reaction;
     }
 
-    public void validateDuplicateInputs(ReactionInput newInput) {
-        for (ReactionInput input : inputs) {
-            if (input != newInput) {
-                validate(!input.getCompound().compoundKeyEquals(newInput.getCompound()), "Reaction contains duplicate input compounds");
-            }
-        }
-    }
-
-    public void validateDuplicateOutputs(ReactionOutput newOutput) {
-        for (ReactionOutput output : outputs) {
-            if (output != newOutput) {
-                validate(!output.getCompound().compoundKeyEquals(newOutput.getCompound()), "Reaction contains duplicate output compounds");
-            }
-        }
-    }
-
-    @JsonIgnore
-    @AssertTrue(message = "Reaction must have one and only one limiting input")
-    public boolean isOnlyOneLimitingInput() {
-        if (inputs.isEmpty()) {
-            return true;
-        }
-        int count = 0;
-        for (ReactionInput input : inputs) {
-            if (input.isLimiting()) {
-                count++;
-            }
-        }
-        return count == 1;
-    }
-
     @Nullable
     @JsonIgnore
     public ReactionInput getLimitingInput() {
         for (ReactionInput input : inputs) {
-            if (input.isLimiting()) {
+            if (input.getAnchor().equals(limitingAnchor)) {
                 return input;
             }
         }

@@ -102,7 +102,6 @@ class SetSchemeHandler extends AbstractReactionMutationHandler<ReactionMutation.
         reaction.getInputs().sort(INPUT_COMPARATOR);
         reaction.getOutputs().sort(RXN_POSITION_COMPARATOR);
 
-        adjustLimitingInput(reaction);
         reaction.setRxnfile(mutation.rxnFile());
 
         context.getResponse().setUnresolvedInputs(experimentService.analyzeRXN(reaction));
@@ -187,7 +186,6 @@ class AddEmptyInputHandler extends AbstractReactionMutationHandler<ReactionMutat
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddEmptyInput mutation, ExperimentMutationContext context) {
         createInputLine(reaction, null, ReactionRole.REACTANT, checkNotNull(mutation.createdInputAnchor()), checkNotNull(mutation.createdSampleAnchor()));
-        adjustLimitingInput(reaction);
         return new MutationResult("Add empty input");
     }
 }
@@ -214,7 +212,6 @@ class AddInputHandler extends AbstractReactionMutationHandler<ReactionMutation.A
         ReactionInput row = createInputLine(reaction, null, ReactionRole.REACTANT, checkNotNull(mutation.createdInputAnchor()), checkNotNull(mutation.createdSampleAnchor()));
         SampleEntity sample = compoundService.getSample(mutation.sampleId());
         setInputLineSample(row, sample, mutation.createdSampleAnchor(), context);
-        adjustLimitingInput(reaction);
 
         return new MutationResult("Add input sample: " + getSampleIdentifier(sample));
     }
@@ -306,7 +303,6 @@ class ImportSDFHandler extends AbstractReactionMutationHandler<ReactionMutation.
             }
             ReactionOutputSample.create(output, experiment.getName(), sampleAnchorIt.next(), EnteredValue.DEFAULT_ONE_HUNDRED);
         }
-        adjustLimitingInput(reaction);
         context.getResponse().getMessages().add(mutation.compoundIDs().size() + " samples imported from SDF");
         return new MutationResult("Import SDF (" + mutation.compoundIDs().size() + " samples)");
     }

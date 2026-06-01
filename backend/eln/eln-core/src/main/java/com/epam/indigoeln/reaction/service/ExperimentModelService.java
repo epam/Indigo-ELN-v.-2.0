@@ -10,7 +10,7 @@ import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.ReactionAnchor;
-import com.epam.indigoeln.reaction.model.mutation.Mutation;
+import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerRegistry;
 import com.epam.indigoeln.reaction.service.mutation.experiment.AbstractExperimentMutationHandler;
 import com.epam.indigoeln.reaction.service.mutation.experiment.ExperimentMutationContext;
@@ -30,8 +30,6 @@ import org.jspecify.annotations.Nullable;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.List;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 @Slf4j
 @Transactional
@@ -66,9 +64,9 @@ public class ExperimentModelService {
         return model;
     }
 
-    public Triple<ExperimentSnapshot, JsonNode, ExperimentMutationContext> applyMutation(ExperimentEntity experiment, Mutation mutation) {
+    public Triple<ExperimentSnapshot, JsonNode, ExperimentMutationContext> applyMutation(ExperimentEntity experiment, ExperimentMutation mutation) {
         log.debug("Mutating experiment {}: {}", experiment.getId(), mutation);
-        AbstractExperimentMutationHandler<Mutation> handler = mutationHandlerRegistry.findHandler(mutation);
+        AbstractExperimentMutationHandler<ExperimentMutation> handler = mutationHandlerRegistry.findHandler(mutation);
         return handler.applyMutation(experiment, mutation);
     }
 
@@ -81,10 +79,6 @@ public class ExperimentModelService {
 
     public void readModel(ExperimentEntity experiment) {
         experiment.setModelObj(getModel(experiment));
-    }
-
-    public void writeModel(ExperimentEntity experiment) {
-        setModel(experiment, checkNotNull(experiment.getModelObj()));
     }
 
     public ExperimentModel getModel(ExperimentEntity experiment) {

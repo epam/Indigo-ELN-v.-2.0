@@ -63,7 +63,6 @@ class RemoveInputHandler extends AbstractReactionInputSampleMutationHandler<Reac
         sample.delete();
         if (row.getSamples().isEmpty()) {
             row.delete();
-            adjustLimitingInput(reaction);
         }
 
         context.getResponse().getMessages().add("Removed, press Ctrl-Z/Cmd-Z to undo");

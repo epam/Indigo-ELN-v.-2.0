@@ -9,9 +9,7 @@ import com.epam.indigoeln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.util.ExperimentModelUtil;
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Multimap;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -49,23 +47,6 @@ public class ExperimentModelHelperService {
             }
         }
         return key;
-    }
-
-    public Multimap<ReactionRole, CompoundRef.StoredOrVirtual> makeCompoundRefs(ExperimentModel model) {
-        Multimap<ReactionRole, CompoundRef.StoredOrVirtual> map = HashMultimap.create();
-        for (Reaction reaction : model.getReactions()) {
-            for (ReactionInput input : reaction.getInputs()) {
-                if (input.getCompound() instanceof CompoundRef.StoredOrVirtual c) {
-                    map.put(input.getRole(), c);
-                }
-            }
-            for (ReactionOutput output : reaction.getOutputs()) {
-                if (output.getCompound() instanceof CompoundRef.StoredOrVirtual c) {
-                    map.put(ReactionRole.OUTPUT, c);
-                }
-            }
-        }
-        return map;
     }
 
     public IndigoReaction rebuildReactionRxnFile(List<ReactionInput> inputs, List<ReactionOutput> outputs) {

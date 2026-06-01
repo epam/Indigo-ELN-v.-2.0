@@ -5,7 +5,9 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @EqualsAndHashCode(of = "value")
@@ -23,5 +25,16 @@ public abstract class Anchor {
     @Override
     public String toString() {
         return value.toString();
+    }
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+        if (!(o instanceof Anchor anchor)) return false;
+        return value.equals(anchor.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(value);
     }
 }

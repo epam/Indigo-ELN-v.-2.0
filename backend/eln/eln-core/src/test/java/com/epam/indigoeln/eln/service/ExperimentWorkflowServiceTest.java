@@ -274,11 +274,11 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
     @Test
     void testVersions() {
         Reaction reaction = experiment.getModel().getReactions().getFirst();
-        experimentClient.mutateExperimentModel2(experiment.getId(), experiment.getRevision(), new ReactionMutation.AddEmptyInput(reaction.getAnchor()));
-        experimentClient.mutateExperimentModel2(experiment.getId(), experiment.getRevision(), new ReactionMutation.AddEmptyInput(reaction.getAnchor()));
+        experimentClient.mutateExperimentModel4(experiment.getId(), experiment.getRevision(), new ReactionMutation.AddEmptyInput(reaction.getAnchor()));
+        experimentClient.mutateExperimentModel4(experiment.getId(), experiment.getRevision(), new ReactionMutation.AddEmptyInput(reaction.getAnchor()));
         experimentClient.completeAndSubmitExperiment(experiment.getId(), noSignersTemplateID);
         experimentClient.reopenExperiment(experiment.getId());
-        experimentClient.mutateExperimentModel2(experiment.getId(), experiment.getRevision(), new ReactionMutation.AddEmptyInput(reaction.getAnchor()));
+        experimentClient.mutateExperimentModel4(experiment.getId(), experiment.getRevision(), new ReactionMutation.AddEmptyInput(reaction.getAnchor()));
         experimentClient.completeAndSubmitExperiment(experiment.getId(), noSignersTemplateID);
 
         List<RevisionDetailsDTO> revisions = experimentClient.getExperimentRevisions(experiment.getId(), null, null);

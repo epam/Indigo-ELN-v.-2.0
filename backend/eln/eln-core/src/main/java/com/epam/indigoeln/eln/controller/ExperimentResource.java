@@ -8,7 +8,6 @@ import com.epam.indigoeln.common.model.UploadForm;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.api.BaseAPI;
 import com.epam.indigoeln.eln.api.ExperimentAPI;
-import com.epam.indigoeln.eln.api.MutateModelForm;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.ExperimentService;
@@ -17,6 +16,7 @@ import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.InputAnchor;
 import com.epam.indigoeln.reaction.model.ReactionAnchor;
+import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.inject.Inject;
@@ -114,23 +114,13 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
-    public ExperimentModel mutateExperimentModel(UUID experimentId, MutateModelForm modelAndMutation) {
-        return experimentService.mutateModel(experimentId, modelAndMutation.getMutation());
-    }
-
-    @Override
-    public ExperimentSnapshot mutateExperimentModel3(UUID experimentId, Integer revision, Mutation mutation) {
-        return experimentService.mutateModel3(experimentId, revision, mutation);
+    public ExperimentModel mutateExperimentModel(UUID experimentId, Mutation mutation) {
+        return experimentService.mutateModel(experimentId, (ExperimentMutation) mutation);
     }
 
     @Override
     public MutationResponse mutateExperimentModel4(UUID experimentId, Integer revision, Mutation mutation) {
-        return experimentService.mutateModel4(experimentId, revision, mutation);
-    }
-
-    @Override
-    public JsonNode mutateExperimentModel2(UUID experimentId, Integer revision, Mutation mutation) {
-        return experimentService.mutateModel2(experimentId, revision, mutation);
+        return experimentService.mutateModel4(experimentId, revision, (ExperimentMutation) mutation);
     }
 
     @Override
