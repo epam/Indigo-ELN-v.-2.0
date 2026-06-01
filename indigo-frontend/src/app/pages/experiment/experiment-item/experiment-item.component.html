@@ -82,6 +82,13 @@
           </div>
         </div>
 
+        <div class="w-full h-32">
+          <eln-api-image
+            [url]="`/api/eln/experiments/${experiment.id}/picture?revision=${experiment.revision}`"
+            altText="Reaction Picture"
+          />
+        </div>
+
         <div class="flex flex-col" [ngClass]="{ 'flex-col space-y-2': variant == 'list' }" *ngIf="variant === 'list'">
           <div class="text-neutral-1000 text-sm">Members</div>
           <div class="flex items-center">

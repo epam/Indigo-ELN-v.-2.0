@@ -13,6 +13,7 @@ import { InitialsPipe } from '@/core/pipes/avatars.pipe';
 import { getExperimentStatusBadgeVariant } from '@/core/utils/experiment-status.util';
 import { SvgIconComponent } from '@/core/components/common/svg-icon/svg-icon.component';
 import { ExperimentDetailService } from '@/core/services/experiment/experiment-detail.service';
+import { ApiImageComponent } from '@core/components/common/image/api-image.component';
 
 @Component({
   selector: 'eln-experiment-item',
@@ -28,6 +29,7 @@ import { ExperimentDetailService } from '@/core/services/experiment/experiment-d
     InitialsPipe,
     MatTooltip,
     SvgIconComponent,
+    ApiImageComponent,
   ],
   templateUrl: './experiment-item.component.html',
 })
