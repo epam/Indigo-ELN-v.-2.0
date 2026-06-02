@@ -104,8 +104,12 @@
               style="outline: none"
               [value]="unitField?.value ?? ''"
               [disabled]="!(column.editable?.(row) ?? true)"
-              (blur)="callSaveEV(column, row, $any($event.target).value, unitField?.unit, null, unitSelect)"
-              (keydown.enter)="callSaveEV(column, row, $any($event.target).value, unitField?.unit, null, unitSelect)"
+              (blur)="
+                callSaveEV(column, row, 'value', $any($event.target).value, unitField?.unit, valueInput, unitSelect)
+              "
+              (keydown.enter)="
+                callSaveEV(column, row, 'value', $any($event.target).value, unitField?.unit, valueInput, unitSelect)
+              "
             />
             <mat-divider vertical style="opacity: 0.3" />
             <mat-select
@@ -115,8 +119,10 @@
               style="min-width: 4rem; text-align: center"
               [value]="unitField?.unit"
               [disabled]="!(column.editable?.(row) ?? true)"
-              (blur)="callSaveEV(column, row, valueInput.value, unitSelect.value, valueInput, null)"
-              (selectionChange)="callSaveEV(column, row, valueInput.value, $event.value, valueInput, null)"
+              (blur)="callSaveEV(column, row, 'unit', valueInput.value, unitSelect.value, valueInput, unitSelect)"
+              (selectionChange)="
+                callSaveEV(column, row, 'unit', valueInput.value, $event.value, valueInput, unitSelect)
+              "
             >
               @for (unit of column.options; track unit.id) {
                 <mat-option [value]="unit.id" style="font-size: 0.8rem">{{ unit.name }}</mat-option>
