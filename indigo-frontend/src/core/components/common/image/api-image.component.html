@@ -1,5 +1,5 @@
 @if (src) {
-  <img [src]="src" [alt]="altText" />
+  <img [src]="src" [alt]="altText" class="w-full h-full object-contain" />
 } @else if (loading) {
   <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
 } @else {
