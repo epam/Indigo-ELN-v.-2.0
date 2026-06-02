@@ -25,6 +25,7 @@ import { MatTooltip } from '@angular/material/tooltip';
 import { ApiService } from '@core/services/api.service';
 import { openFileDialog } from '@core/utils/file.util';
 import { MutationResponse, ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
+import { DownloadService } from '@core/services/download.service';
 
 interface OutputSampleRow {
   output: ReactionOutput;
@@ -40,6 +41,7 @@ export class ProductBatchSummaryTableComponent {
   private experimentDetailService = inject(ExperimentDetailService);
   private notificationService = inject(NotificationService);
   private apiService = inject(ApiService);
+  private downloadService = inject(DownloadService);
 
   experimentId = input.required<UUID>();
   reactionAnchor = input.required<ReactionAnchor>();
@@ -354,5 +356,11 @@ export class ProductBatchSummaryTableComponent {
         }),
       )
       .subscribe({});
+  }
+
+  exportSDF() {
+    this.downloadService
+      .download('get', `/api/eln/experiments/${this.experimentId()}/exportSdf`, 'export.sdf')
+      .subscribe();
   }
 }
