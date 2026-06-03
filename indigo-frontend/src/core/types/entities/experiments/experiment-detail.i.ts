@@ -1,11 +1,21 @@
-import { BaseEntity } from '../base-entity.i';
-import { Attachment } from '../attachment.i';
-import { ACLEntry } from '../acl.i';
 import { ExperimentStatus } from '@/core/enums/experiment-status.enum';
-import { ExperimentModel } from '@core/types/entities/experiments/experiment.i';
-import { UserRef } from '@core/types/entities/user.i';
 import { ExperimentRef, UUID } from '@core/types/entities/experiments/experiment-shared.i';
-import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
+import { ExperimentModel } from '@core/types/entities/experiments/experiment.i';
+import { ACLEntry } from '../acl.i';
+import { Attachment } from '../attachment.i';
+import { BaseEntity } from '../base-entity.i';
+import { DictionaryItemRef } from '../dictionary.i';
+import { UserRef } from '../user.i';
+
+export enum SignatureReason {
+  AUTHOR = 'AUTHOR',
+  WITNESS = 'WITNESS',
+}
+
+export enum SignatureStatus {
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+}
 
 export interface TherapeuticArea {
   id: string;

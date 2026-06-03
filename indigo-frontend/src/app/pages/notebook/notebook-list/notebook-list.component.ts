@@ -1,10 +1,3 @@
-import { ButtonComponent } from '@core/components/common/button/button.component';
-import { DropdownMenuItem } from '@core/components/common/dropdown-menu/dropdown-menu.i';
-import { ListHeaderComponent, SortChangeEvent } from '@core/components/common/list-header/list-header.component';
-import { InfiniteLoaderComponent } from '@core/components/util/infinite-loader/infinite-loader.component';
-import { InfiniteScrollBase } from '@core/components/util/infinite-scroll.base';
-import { ClassPickerPipe } from '@core/pipes/classPicker.pipe';
-import { Notebook } from '@core/types/entities/notebook.i';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy } from '@angular/core';
@@ -12,10 +5,17 @@ import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription, take } from 'rxjs';
+import { ButtonComponent } from '@core/components/common/button/button.component';
+import { DropdownMenuItem } from '@core/components/common/dropdown-menu/dropdown-menu.i';
+import { ListHeaderComponent, SortChangeEvent } from '@core/components/common/list-header/list-header.component';
+import { InfiniteLoaderComponent } from '@core/components/util/infinite-loader/infinite-loader.component';
+import { InfiniteScrollBase } from '@core/components/util/infinite-scroll.base';
+import { ClassPickerPipe } from '@core/pipes/classPicker.pipe';
+import { Notebook } from '@core/types/entities/notebook.i';
 import { NotebookAddComponent } from '@pages/notebook/notebook-add/notebook-add.component';
 import { NotebookItemComponent } from '@pages/notebook/notebook-item/notebook-item.component';
 import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
+import { Subscription, take } from 'rxjs';
 
 @Component({
   selector: 'eln-notebook-list',
