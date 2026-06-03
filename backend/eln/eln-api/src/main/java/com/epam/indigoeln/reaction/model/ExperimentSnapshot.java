@@ -51,12 +51,12 @@ public final class ExperimentSnapshot implements ExperimentNode {
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private Boolean deleted;
 
-    @Nullable
+    @NotNull
     private Set<AttachmentDTO> attachments;
 
-    @Nullable
+    @NotNull
     private Set<ACLEntryDTO> acl;
 
-    @Nullable
+    @NotNull
     private ExperimentModel model;
 }

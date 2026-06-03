@@ -3,12 +3,12 @@ package com.epam.indigoeln.eln.mapper;
 import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.model.ACLEntryDTO;
 import com.epam.indigoeln.eln.model.AttachmentDTO;
-import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.NotebookSnapshot;
 import com.epam.indigoeln.reaction.model.ProjectSnapshot;
+import com.epam.indigoeln.reaction.service.ExperimentModelService;
+import jakarta.inject.Inject;
 import one.util.streamex.StreamEx;
-import org.jspecify.annotations.Nullable;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValueCheckStrategy;
@@ -19,6 +19,9 @@ import java.util.Set;
 
 @Mapper(componentModel = "cdi", unmappedTargetPolicy = ReportingPolicy.ERROR, nullValueCheckStrategy =  NullValueCheckStrategy.ALWAYS)
 public abstract class SnapshotMapper extends AbstractMapper {
+
+    @Inject
+    ExperimentModelService experimentModelService;
 
     @Mapping(target = "attachments", ignore = true)
     @Mapping(target = "acl", ignore = true)
@@ -44,15 +47,11 @@ public abstract class SnapshotMapper extends AbstractMapper {
         return StreamEx.of(keywords).map(DictionaryItemEntity::getName).toSet();
     }
 
-    public ExperimentSnapshot createSnapshot(ExperimentEntity experiment, boolean copyAttachments, boolean copyACL, @Nullable ExperimentModel model) {
+    public ExperimentSnapshot createSnapshot(ExperimentEntity experiment) {
         ExperimentSnapshot snapshot = copyBasicFields(experiment);
-        if (copyAttachments) {
-            snapshot.setAttachments(copyAttachments(experiment.getAttachments()));
-        }
-        if (copyACL) {
-            snapshot.setAcl(copyACL(experiment.getFullACL()));
-        }
-        snapshot.setModel(model);
+        snapshot.setAttachments(copyAttachments(experiment.getAttachments()));
+        snapshot.setAcl(copyACL(experiment.getFullACL()));
+        snapshot.setModel(experimentModelService.deepCopy(experiment.getModel()));
         return snapshot;
     }
 

@@ -73,33 +73,22 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
     }
 
     protected final ExperimentSnapshot doSnapshotBefore(ExperimentEntity experiment, ExperimentMutationContext context) {
-        if (context.isAffectsModel()) {
-            experimentModelService.readModel(experiment);
-        }
-        ExperimentSnapshot snapshot = snapshotMapper.createSnapshot(experiment, context.isAffectsAttachments(), context.isAffectsACL(), experiment.getModelObj());
-        if (context.isAffectsModel()) {
-            // read another copy that will be updated during the mutation
-            experimentModelService.readModel(experiment);
-        }
+        ExperimentSnapshot snapshot = snapshotMapper.createSnapshot(experiment);
+        // read another copy that will be updated during the mutation
+        experiment.setModel(experimentModelService.deepCopy(experiment.getModel()));
         return snapshot;
     }
 
     @Override
     protected final JsonNode doUpdateEntity(ExperimentEntity experiment, ExperimentSnapshot snapshotBefore, ExperimentSnapshot snapshotAfter, ExperimentMutationContext context) {
-        ExperimentModel model = experiment.getModelObj();
-        if (model != null) {
-            runWithSignificantFigures(model.getSignificantFigures(), () -> {
-                doNotifyBeforeRecalculate(experiment, model, context);
-                reactionCalculatorFactory.get().recalculate(model);
-                doNotifyAfterRecalculate(experiment, model, context);
-                doValidateModel(model);
-            });
-        }
+        runWithSignificantFigures(experiment.getModel().getSignificantFigures(), () -> {
+            doNotifyBeforeRecalculate(experiment, context);
+            reactionCalculatorFactory.get().recalculate(experiment.getModel());
+            doNotifyAfterRecalculate(experiment, context);
+            doValidateModel(experiment.getModel());
+        });
         updateDates(experiment, userService.getCurrentUserEntity());
         JsonNode patch = experimentModelService.createPatch(snapshotBefore, snapshotAfter);
-        if (model != null) {
-            experimentModelService.setModel(experiment, model);
-        }
         //noinspection ConstantValue
         if (experiment.getId() == null) {
             experimentRepository.persist(experiment);
@@ -110,7 +99,7 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
 
     @Override
     protected ExperimentSnapshot doSnapshotAfter(ExperimentEntity experiment, ExperimentMutationContext context) {
-        return snapshotMapper.createSnapshot(experiment, context.isAffectsAttachments(), context.isAffectsACL(), experiment.getModelObj());
+        return snapshotMapper.createSnapshot(experiment);
     }
 
     @Override
@@ -142,22 +131,20 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
 
     @Override
     protected void doNotifyBeforeHandle(ExperimentEntity entity, T mutation, ExperimentMutationContext context) {
-        if (entity.getModelObj() != null) {
-            for (ExperimentModelMutationListener listener : listeners) {
-                listener.beforeHandle(entity, entity.getModelObj(), context);
-            }
+        for (ExperimentModelMutationListener listener : listeners) {
+            listener.beforeHandle(entity, context);
         }
     }
 
-    private void doNotifyBeforeRecalculate(ExperimentEntity entity, ExperimentModel model, ExperimentMutationContext context) {
+    private void doNotifyBeforeRecalculate(ExperimentEntity entity, ExperimentMutationContext context) {
         for (ExperimentModelMutationListener listener : listeners) {
-            listener.beforeRecalculate(entity, model, context);
+            listener.beforeRecalculate(entity, context);
         }
     }
 
-    private void doNotifyAfterRecalculate(ExperimentEntity entity, ExperimentModel model, ExperimentMutationContext context) {
+    private void doNotifyAfterRecalculate(ExperimentEntity entity, ExperimentMutationContext context) {
         for (ExperimentModelMutationListener listener : listeners) {
-            listener.afterRecalculate(entity, model, context);
+            listener.afterRecalculate(entity, context);
         }
     }
 }

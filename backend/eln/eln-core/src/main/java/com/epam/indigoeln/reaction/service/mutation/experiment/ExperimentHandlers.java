@@ -12,7 +12,6 @@ import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.eln.service.UserService;
-import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.ReactionOutput;
@@ -59,7 +58,6 @@ class CreateExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
 
     @Override
     public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.CreateExperiment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
-        experimentModelService.setModel(experiment, experimentModelService.createNewModel());
         experiment.setStatus(ExperimentStatus.OPEN);
         experiment.setDeleted(false);
         experiment.setTherapeuticArea(dictionaryService.lookup(mutation.therapeuticArea()));
@@ -86,14 +84,12 @@ class SetExperimentSignificantFiguresHandler extends ExperimentMutationHandlerBa
 
     @Override
     public void doPrepare(ExperimentEntity entity, ExperimentMutation.SetExperimentSignificantFigures mutation, ExperimentMutationContext context) {
-        context.setAffectsModel(true);
         context.setRequiresEditSession(true);
     }
 
     @Override
     public MutationResult doHandle(ExperimentEntity entity, ExperimentMutation.SetExperimentSignificantFigures mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
-        ExperimentModel model = checkNotNull(entity.getModelObj());
-        model.setSignificantFigures(mutation.significantFigures());
+        entity.getModel().setSignificantFigures(mutation.significantFigures());
         return new MutationResult(formatSetterSummary("significant figures", mutation.significantFigures()));
     }
 
@@ -212,13 +208,8 @@ class SetBatchCreatorHandler extends ExperimentMutationHandlerBase<ExperimentMut
     UserRepository userRepository;
 
     @Override
-    public void doPrepare(ExperimentEntity entity, ExperimentMutation.SetBatchCreator mutation, ExperimentMutationContext context) {
-        context.setAffectsModel(true);
-    }
-
-    @Override
     public MutationResult doHandle(ExperimentEntity entity, ExperimentMutation.SetBatchCreator mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
-        for (Reaction reaction : checkNotNull(entity.getModelObj()).getReactions()) {
+        for (Reaction reaction : entity.getModel().getReactions()) {
             for (ReactionOutput row : reaction.getOutputs()) {
                 if (row.hasSamplesWithRegistrationStarted()) {
                     fail("Cannot modify batch creator after at least one batch is submitted for registration");
@@ -254,11 +245,6 @@ class EditExperimentAccessHandler extends ExperimentMutationHandlerBase<Experime
     EntityMutationHelper entityMutationHelper;
 
     @Override
-    public void doPrepare(ExperimentEntity entity, ExperimentMutation.EditExperimentAccess mutation, ExperimentMutationContext context) {
-        context.setAffectsACL(true);
-    }
-
-    @Override
     protected void doValidateAccess(ExperimentEntity experiment, ExperimentMutation.EditExperimentAccess mutation, ExperimentMutationContext context) {
         aclService.ensureAccess(experiment, ApplicationPermission.MANAGE_EXPERIMENT_ACCESS);
     }
@@ -281,11 +267,6 @@ class CreateExperimentAttachmentHandler extends ExperimentMutationHandlerBase<Ex
     AttachmentRepository attachmentRepository;
     @Inject
     AttachmentService attachmentService;
-
-    @Override
-    public void doPrepare(ExperimentEntity entity, ExperimentMutation.CreateExperimentAttachment mutation, ExperimentMutationContext context) {
-        context.setAffectsAttachments(true);
-    }
 
     @Override
     public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.CreateExperimentAttachment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
@@ -313,11 +294,6 @@ class DeleteExperimentAttachmentHandler extends ExperimentMutationHandlerBase<Ex
     AttachmentRepository attachmentRepository;
 
     @Override
-    public void doPrepare(ExperimentEntity entity, ExperimentMutation.DeleteExperimentAttachment mutation, ExperimentMutationContext context) {
-        context.setAffectsAttachments(true);
-    }
-
-    @Override
     public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.DeleteExperimentAttachment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
         experiment.getAttachments().remove(attachment);
@@ -340,11 +316,6 @@ class DeleteExperimentAttachmentHandler extends ExperimentMutationHandlerBase<Ex
 @Dependent
 @MutationHandlerFor(ExperimentMutation.ExperimentAccessUpdated.class)
 class ExperimentAccessUpdatedHandler extends AbstractExperimentMutationHandler<ExperimentMutation.ExperimentAccessUpdated> {
-
-    @Override
-    public void doPrepare(ExperimentEntity entity, ExperimentMutation.ExperimentAccessUpdated mutation, ExperimentMutationContext context) {
-        context.setAffectsACL(true);
-    }
 
     @Override
     public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.ExperimentAccessUpdated mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {

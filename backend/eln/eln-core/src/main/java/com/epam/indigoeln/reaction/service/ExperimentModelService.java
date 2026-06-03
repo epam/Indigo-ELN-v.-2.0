@@ -77,24 +77,11 @@ public class ExperimentModelService {
         return jsonPatcher.createTopLevel(aJSON, bJSON);
     }
 
-    public void readModel(ExperimentEntity experiment) {
-        experiment.setModelObj(getModel(experiment));
-    }
-
-    public ExperimentModel getModel(ExperimentEntity experiment) {
-        try {
-            return modelReader.readValue(experiment.getModel());
-        } catch (Exception e) {
-            throw new RuntimeException("Cannot read experiment model: " + e.getMessage(), e);
-        }
-    }
-
-    public void setModel(ExperimentEntity experiment, ExperimentModel model) {
-        try {
-            experiment.setModel(modelWriter.writeValueAsString(model));
-        } catch (Exception e) {
-            throw new RuntimeException("Cannot write experiment model: " + e.getMessage(), e);
-        }
+    // !!! replace with change tracking
+    @SneakyThrows
+    public ExperimentModel deepCopy(ExperimentModel model) {
+        byte[] bytes = modelWriter.writeValueAsBytes(model);
+        return modelReader.readValue(bytes, ExperimentModel.class);
     }
 
     @Nullable
