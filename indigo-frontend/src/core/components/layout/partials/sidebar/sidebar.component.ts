@@ -14,7 +14,6 @@ interface MenuItem {
   requiredPermission?: string;
   icon?: string;
   materialIcon?: string;
-  iconSvg?: string;
 }
 
 @Component({
@@ -41,9 +40,8 @@ export class SidebarComponent {
     },
     {
       name: 'Dictionaries',
-      iconSvg: 'dictionaries',
+      icon: 'dictionaries',
       path: '/dictionary',
-      requiredPermission: ApplicationPermission.MANAGE_DICTIONARIES,
     },
   ];
 
