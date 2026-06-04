@@ -47,11 +47,14 @@ public abstract class SnapshotMapper extends AbstractMapper {
         return StreamEx.of(keywords).map(DictionaryItemEntity::getName).toSet();
     }
 
-    public ExperimentSnapshot createSnapshot(ExperimentEntity experiment) {
+    public ExperimentSnapshot createSnapshot(ExperimentEntity experiment, boolean snapshotModel) {
         ExperimentSnapshot snapshot = copyBasicFields(experiment);
         snapshot.setAttachments(copyAttachments(experiment.getAttachments()));
         snapshot.setAcl(copyACL(experiment.getFullACL()));
-        snapshot.setModel(experimentModelService.deepCopy(experiment.getModel()));
+        snapshot.setModel(snapshotModel
+                ? experimentModelService.deepCopy(experiment.getModel())
+                : experiment.getModel()
+        );
         return snapshot;
     }
 

@@ -83,13 +83,13 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
         private final UUID compoundID;
 
         @Nullable
-        private StereoisomerCodeRef stereoisomerCode;
+        private final StereoisomerCodeRef stereoisomerCode;
 
         @Nullable
-        private SaltCodeRef saltCode;
+        private final SaltCodeRef saltCode;
 
         @Nullable
-        private Double saltEQ;
+        private final Double saltEQ;
 
         @NotNull
         @Positive
@@ -139,10 +139,10 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
 
         @NotNull
         @Positive
-        private EnteredValue<MolWeightUnit> molWeight;
+        private final EnteredValue<MolWeightUnit> molWeight;
 
         @NotNull
-        private EnteredValue<NoUnit> exactMass;
+        private final EnteredValue<NoUnit> exactMass;
 
         @Nullable
         private final String casNumber;

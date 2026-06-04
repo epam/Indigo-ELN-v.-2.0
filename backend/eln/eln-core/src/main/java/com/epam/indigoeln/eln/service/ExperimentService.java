@@ -122,7 +122,7 @@ public class ExperimentService {
 
     public ExperimentSnapshot getExperimentSnapshot(UUID experimentId) {
         ExperimentEntity experiment = experimentRepository.load(experimentId);
-        return snapshotMapper.createSnapshot(experiment);
+        return snapshotMapper.createSnapshot(experiment, false);
     }
 
     public ExperimentDetailsDTO getExperimentDetails(ExperimentEntity experiment) {
@@ -259,7 +259,7 @@ public class ExperimentService {
         if (version != null) {
             return checkNotNull(experimentRepository.getVersion(experiment, version).getSnapshot());
         }
-        return snapshotMapper.createSnapshot(experiment);
+        return snapshotMapper.createSnapshot(experiment, false);
     }
 
     public List<ExperimentRef> suggestExperiments(String search) {

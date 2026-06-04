@@ -49,7 +49,7 @@ public final class ExperimentSnapshot implements ExperimentNode {
     Set<ExperimentRef> continuedTo;
 
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    private Boolean deleted;
+    private boolean deleted;
 
     @NotNull
     private Set<AttachmentDTO> attachments;

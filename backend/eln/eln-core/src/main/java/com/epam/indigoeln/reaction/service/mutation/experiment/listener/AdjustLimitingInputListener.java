@@ -6,7 +6,9 @@ import com.epam.indigoeln.reaction.service.mutation.ExperimentModelMutationListe
 import com.epam.indigoeln.reaction.service.mutation.experiment.ExperimentMutationContext;
 import jakarta.annotation.Priority;
 import jakarta.enterprise.context.Dependent;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Dependent
 @Priority(ExperimentModelMutationListener.DEFAULT_PRIORITY)
 public class AdjustLimitingInputListener implements ExperimentModelMutationListener {
@@ -19,6 +21,7 @@ public class AdjustLimitingInputListener implements ExperimentModelMutationListe
             } else if (reaction.getLimitingInput() == null) {
                 reaction.setLimitingAnchor(reaction.getInputs().getFirst().getAnchor());
             }
+            log.info("!!! AdjustLimitingInputListener: limitingAnchor = {}", reaction.getLimitingAnchor());
         }
     }
 }

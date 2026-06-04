@@ -73,10 +73,7 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
     }
 
     protected final ExperimentSnapshot doSnapshotBefore(ExperimentEntity experiment, ExperimentMutationContext context) {
-        ExperimentSnapshot snapshot = snapshotMapper.createSnapshot(experiment);
-        // read another copy that will be updated during the mutation
-        experiment.setModel(experimentModelService.deepCopy(experiment.getModel()));
-        return snapshot;
+        return snapshotMapper.createSnapshot(experiment, true);
     }
 
     @Override
@@ -99,7 +96,7 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
 
     @Override
     protected ExperimentSnapshot doSnapshotAfter(ExperimentEntity experiment, ExperimentMutationContext context) {
-        return snapshotMapper.createSnapshot(experiment);
+        return snapshotMapper.createSnapshot(experiment, false);
     }
 
     @Override
