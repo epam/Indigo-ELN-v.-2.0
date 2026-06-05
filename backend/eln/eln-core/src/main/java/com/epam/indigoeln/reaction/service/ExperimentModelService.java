@@ -60,7 +60,6 @@ public class ExperimentModelService {
         ExperimentModel model = new ExperimentModel();
         Reaction reaction = Reaction.create(model, ReactionAnchor.create());
         model.setReactions(List.of(reaction));
-        model.setSignificantFigures(ExperimentModel.DEFAULT_SIGNIFICANT_FIGURES);
         return model;
     }
 

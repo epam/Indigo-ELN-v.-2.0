@@ -16,9 +16,9 @@ import java.util.List;
 
 import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
 
-@Getter
-@Setter
-@ToString(exclude = "reaction")
+@Data
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class ReactionInput extends ReactionRow {

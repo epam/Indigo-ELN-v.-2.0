@@ -7,18 +7,14 @@ import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-@Getter
-@Setter
-@ToString
+@Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class ExperimentModel implements ExperimentNode {
 
@@ -29,7 +25,7 @@ public final class ExperimentModel implements ExperimentNode {
     private List<@Valid Reaction> reactions = new ArrayList<>();
 
     @NotNull
-    private Integer significantFigures;
+    private int significantFigures = DEFAULT_SIGNIFICANT_FIGURES;
 
     public int generateNextNbkBatchNumber() {
         int[] last = {0};

@@ -2,6 +2,7 @@ package com.epam.indigoeln.eln.config.hibernate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Preconditions;
 import io.quarkus.arc.Arc;
 import lombok.SneakyThrows;
 import org.hibernate.type.descriptor.WrapperOptions;
@@ -70,7 +71,10 @@ public abstract class AbstractJsonUserType<T> implements UserType<T> {
         if (value == null) {
             return null;
         }
-        return mapper().readValue(mapper().writeValueAsString(value), clazz);
+        // !!! use proper deepCopy
+        T copy = mapper().readValue(mapper().writeValueAsString(value), clazz);
+        Preconditions.checkState(copy.equals(value));
+        return copy;
     }
 
     @Override

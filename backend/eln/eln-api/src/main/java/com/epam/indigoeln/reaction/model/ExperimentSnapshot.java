@@ -14,7 +14,7 @@ import java.util.UUID;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class ExperimentSnapshot implements ExperimentNode {
 
-    private Integer revision;
+    private int revision;
 
     @Nullable
     private String title;

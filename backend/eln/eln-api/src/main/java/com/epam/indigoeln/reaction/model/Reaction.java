@@ -7,10 +7,7 @@ import com.google.common.primitives.Ints;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
@@ -21,6 +18,7 @@ import java.util.UUID;
 
 @Data
 @ToString(exclude = "model")
+@EqualsAndHashCode(exclude = "model", callSuper = false)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class Reaction extends AbstractExperimentNode<ExperimentModel> {

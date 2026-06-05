@@ -18,9 +18,9 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.UUID;
 
-@Getter
-@Setter
-@ToString(exclude = "row")
+@Data
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class ReactionOutputSample extends ReactionSample<ReactionOutput> {

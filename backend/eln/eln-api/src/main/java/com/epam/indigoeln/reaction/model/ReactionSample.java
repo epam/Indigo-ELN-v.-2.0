@@ -5,17 +5,17 @@ import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.reaction.model.units.*;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
-@Setter
-@NoArgsConstructor
+@Data
+@ToString(exclude = "row", callSuper = false)
+@EqualsAndHashCode(exclude = "row", callSuper = false)
 public sealed abstract class ReactionSample<P extends ReactionRow> extends AbstractExperimentNode<P> permits ReactionInputSample, ReactionOutputSample {
 
     @JsonBackReference
