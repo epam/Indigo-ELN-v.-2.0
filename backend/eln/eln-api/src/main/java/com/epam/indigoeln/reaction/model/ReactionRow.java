@@ -12,11 +12,12 @@ import org.jspecify.annotations.Nullable;
 
 @Data
 @ToString(exclude = "reaction")
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(exclude = "reaction", callSuper = false)
 public sealed abstract class ReactionRow extends AbstractExperimentNode<Reaction> permits ReactionInput, ReactionOutput {
 
     @JsonBackReference
-    protected Reaction reaction;
+    protected final Reaction reaction;
 
     @NotNull
     @Setter(AccessLevel.PROTECTED)
@@ -28,20 +29,12 @@ public sealed abstract class ReactionRow extends AbstractExperimentNode<Reaction
     @Nullable
     protected Integer rxnPosition;
 
-    @Override
-    protected Reaction internalGetParent() {
-        return reaction;
-    }
-
-    @Override
-    protected void internalSetParent(Reaction parent) {
-        reaction = parent;
-    }
-
     @JsonIgnore
     @AssertTrue(message = "invalid rxnPosition")
     protected boolean isRxnPositionValid() {
         boolean rxnPositionExpected = ExperimentModelUtil.getRoleInSchema(this) != null;
         return (rxnPosition != null) == rxnPositionExpected;
     }
+
+    public abstract void delete();
 }

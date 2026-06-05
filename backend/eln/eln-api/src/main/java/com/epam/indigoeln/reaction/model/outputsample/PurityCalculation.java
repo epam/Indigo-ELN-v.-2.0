@@ -2,25 +2,23 @@ package com.epam.indigoeln.reaction.model.outputsample;
 
 import com.epam.indigoeln.reaction.model.ComparisonOperator;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class PurityCalculation {
 
     @NotNull
-    private PurityCalculationType type;
+    private final PurityCalculationType type;
 
     @NotNull
-    private ComparisonOperator operator;
+    private final ComparisonOperator operator;
 
     @NotNull
-    private Double purity;
+    private final Double purity;
 
     @Nullable
-    private String comment;
+    private final String comment;
 }

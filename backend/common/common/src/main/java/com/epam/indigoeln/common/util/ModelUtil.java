@@ -2,6 +2,7 @@ package com.epam.indigoeln.common.util;
 
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
+import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
 import java.io.File;
@@ -121,5 +122,13 @@ public class ModelUtil {
         } finally {
             Files.delete(directory);
         }
+    }
+
+    public static <T> List<T> appendToList(List<T> list, T item) {
+        return StreamEx.of(list).append(item).toImmutableList();
+    }
+
+    public static <T> List<T> removeFromList(List<T> list, T item) {
+        return StreamEx.of(list).without(item).toImmutableList();
     }
 }

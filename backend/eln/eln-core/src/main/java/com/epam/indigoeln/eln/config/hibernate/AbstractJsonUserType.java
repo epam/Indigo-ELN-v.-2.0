@@ -2,7 +2,6 @@ package com.epam.indigoeln.eln.config.hibernate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Preconditions;
 import io.quarkus.arc.Arc;
 import lombok.SneakyThrows;
 import org.hibernate.type.descriptor.WrapperOptions;
@@ -63,21 +62,6 @@ public abstract class AbstractJsonUserType<T> implements UserType<T> {
     }
 
     @Override
-    @Nullable
-    @SneakyThrows
-    public T deepCopy(@Nullable T value) {
-        // Hibernate calls this to snapshot the value at load time.
-        // The snapshot is compared via equals() at flush time.
-        if (value == null) {
-            return null;
-        }
-        // !!! use proper deepCopy
-        T copy = mapper().readValue(mapper().writeValueAsString(value), clazz);
-        Preconditions.checkState(copy.equals(value));
-        return copy;
-    }
-
-    @Override
     public Serializable disassemble(T value) {
         try {
             return mapper().writeValueAsString(value);
@@ -97,7 +81,11 @@ public abstract class AbstractJsonUserType<T> implements UserType<T> {
 
     private ObjectMapper mapper() {
         if (objectMapper == null) {
-            objectMapper = Arc.container().instance(ObjectMapper.class).get();
+            synchronized(this) {
+                if (objectMapper == null) {
+                    objectMapper = Arc.container().instance(ObjectMapper.class).get();
+                }
+            }
         }
         return checkNotNull(objectMapper);
     }

@@ -16,8 +16,6 @@ import com.epam.indigoeln.reaction.service.mutation.experiment.AbstractExperimen
 import com.epam.indigoeln.reaction.service.mutation.experiment.ExperimentMutationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -44,16 +42,8 @@ public class ExperimentModelService {
     SnapshotMapper snapshotMapper;
     @Inject
     JSONPatcher jsonPatcher;
-
-    private final ObjectMapper objectMapper;
-    private final ObjectReader modelReader;
-    private final ObjectWriter modelWriter;
-
-    ExperimentModelService(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-        modelReader = objectMapper.readerFor(ExperimentModel.class);
-        modelWriter = objectMapper.writerFor(ExperimentModel.class);
-    }
+    @Inject
+    ObjectMapper objectMapper;
 
     @Valid
     public ExperimentModel createNewModel() {
@@ -74,13 +64,6 @@ public class ExperimentModelService {
         JsonNode aJSON = objectMapper.valueToTree(a);
         JsonNode bJSON = objectMapper.valueToTree(b);
         return jsonPatcher.createTopLevel(aJSON, bJSON);
-    }
-
-    // !!! replace with change tracking
-    @SneakyThrows
-    public ExperimentModel deepCopy(ExperimentModel model) {
-        byte[] bytes = modelWriter.writeValueAsBytes(model);
-        return modelReader.readValue(bytes, ExperimentModel.class);
     }
 
     @Nullable

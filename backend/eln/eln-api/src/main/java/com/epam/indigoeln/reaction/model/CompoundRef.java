@@ -5,7 +5,10 @@ import com.epam.indigoeln.eln.model.StereoisomerCodeRef;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
@@ -114,7 +117,7 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
     @Getter
     @ToString
     @EqualsAndHashCode(of = {"compoundID"})
-    @AllArgsConstructor(onConstructor_ = @JsonCreator)
+    @AllArgsConstructor
     final class Virtual implements CompoundRef.StoredOrVirtual {
 
         public static final String TYPE = "VIRTUAL";

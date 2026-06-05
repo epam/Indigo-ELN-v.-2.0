@@ -9,7 +9,6 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -22,7 +21,7 @@ public final class ExperimentModel implements ExperimentNode {
 
     @NotEmpty
     @JsonManagedReference
-    private List<@Valid Reaction> reactions = new ArrayList<>();
+    private List<@Valid Reaction> reactions = List.of();
 
     @NotNull
     private int significantFigures = DEFAULT_SIGNIFICANT_FIGURES;

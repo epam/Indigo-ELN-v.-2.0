@@ -30,7 +30,6 @@ public class ExperimentModelSerializationTest {
     void testSerialize() throws Exception {
         ExperimentModel model = new ExperimentModel();
         Reaction reaction = Reaction.create(model, REACTION);
-        model.setReactions(List.of(reaction));
         reaction.setRxnfile("molFile");
 
         ReactionInput input1 = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Stored(UUID.randomUUID(), null, null, null, fixed(1.0, 1, G_PER_MOL), fixed(1.1, 2, NO_UNIT), "C", "compoundKey", null, "batchMF"));
