@@ -23,25 +23,22 @@ public abstract class SnapshotMapper extends AbstractMapper {
     @Inject
     ExperimentModelService experimentModelService;
 
-    @Mapping(target = "attachments", ignore = true)
-    @Mapping(target = "acl", ignore = true)
     @Mapping(target = "model", ignore = true)
+    @Mapping(target = "acl", source = "fullACL")
     @Mapping(target = "templateId", source = "template.id")
     public abstract ExperimentSnapshot copyBasicFields(ExperimentEntity entity);
 
-    @Mapping(target = "attachments", ignore = true)
-    @Mapping(target = "acl", ignore = true)
-    public abstract ProjectSnapshot copyBasicFields(ProjectEntity entity);
+    @Mapping(target = "acl", source = "fullACL")
+    public abstract ProjectSnapshot createSnapshot(ProjectEntity entity);
 
-    @Mapping(target = "attachments", ignore = true)
-    @Mapping(target = "acl", ignore = true)
-    public abstract NotebookSnapshot copyBasicFields(NotebookEntity entity);
+    @Mapping(target = "acl", source = "fullACL")
+    public abstract NotebookSnapshot createSnapshot(NotebookEntity entity);
 
     protected abstract AttachmentDTO convertAttachment(AttachmentEntity entity);
 
-    protected abstract Set<AttachmentDTO> copyAttachments(List<AttachmentEntity> attachments);
+    protected abstract Set<AttachmentDTO> convertAttachments(List<AttachmentEntity> attachments);
 
-    protected abstract Set<ACLEntryDTO> copyACL(ACLEntry[] aclEntries);
+    protected abstract Set<ACLEntryDTO> convertACLs(ACLEntry[] aclEntries);
 
     protected Set<String> convertKeywords(List<DictionaryItemEntity> keywords) {
         return StreamEx.of(keywords).map(DictionaryItemEntity::getName).toSet();
@@ -49,34 +46,10 @@ public abstract class SnapshotMapper extends AbstractMapper {
 
     public ExperimentSnapshot createSnapshot(ExperimentEntity experiment, boolean snapshotModel) {
         ExperimentSnapshot snapshot = copyBasicFields(experiment);
-        snapshot.setAttachments(copyAttachments(experiment.getAttachments()));
-        snapshot.setAcl(copyACL(experiment.getFullACL()));
         snapshot.setModel(snapshotModel
                 ? experimentModelService.deepCopy(experiment.getModel())
                 : experiment.getModel()
         );
-        return snapshot;
-    }
-
-    public ProjectSnapshot createSnapshot(ProjectEntity project, boolean copyAttachments, boolean copyACL) {
-        ProjectSnapshot snapshot = copyBasicFields(project);
-        if (copyAttachments) {
-            snapshot.setAttachments(copyAttachments(project.getAttachments()));
-        }
-        if (copyACL) {
-            snapshot.setAcl(copyACL(project.getFullACL()));
-        }
-        return snapshot;
-    }
-
-    public NotebookSnapshot createSnapshot(NotebookEntity notebook, boolean copyAttachments, boolean copyACL) {
-        NotebookSnapshot snapshot = copyBasicFields(notebook);
-        if (copyAttachments) {
-            snapshot.setAttachments(copyAttachments(notebook.getAttachments()));
-        }
-        if (copyACL) {
-            snapshot.setAcl(copyACL(notebook.getFullACL()));
-        }
         return snapshot;
     }
 }
