@@ -24,7 +24,7 @@ import java.util.UUID;
 @EqualsAndHashCode(exclude = "model", callSuper = false)
 @RequiredArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class Reaction extends AbstractExperimentNode<ExperimentModel> {
+public final class Reaction implements ExperimentNode {
 
     @JsonBackReference
     private final ExperimentModel model;

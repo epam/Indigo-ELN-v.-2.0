@@ -14,7 +14,7 @@ import org.jspecify.annotations.Nullable;
 @ToString(exclude = "reaction")
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(exclude = "reaction", callSuper = false)
-public sealed abstract class ReactionRow extends AbstractExperimentNode<Reaction> permits ReactionInput, ReactionOutput {
+public sealed abstract class ReactionRow implements ExperimentNode permits ReactionInput, ReactionOutput {
 
     @JsonBackReference
     protected final Reaction reaction;

@@ -14,7 +14,7 @@ import java.util.List;
 @ToString(exclude = "row", callSuper = false)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(exclude = "row", callSuper = false)
-public sealed abstract class ReactionSample<P extends ReactionRow> extends AbstractExperimentNode<P> permits ReactionInputSample, ReactionOutputSample {
+public sealed abstract class ReactionSample<P extends ReactionRow> implements ExperimentNode permits ReactionInputSample, ReactionOutputSample {
 
     @JsonBackReference
     @Setter(AccessLevel.PACKAGE)
