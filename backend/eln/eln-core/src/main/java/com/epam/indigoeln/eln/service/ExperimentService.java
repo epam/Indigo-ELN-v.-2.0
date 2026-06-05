@@ -45,7 +45,6 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
 import org.jspecify.annotations.Nullable;
 
-import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -101,6 +100,7 @@ public class ExperimentService {
         experiment.setNotebook(notebook);
         TemplateEntity template = templateRepository.get(request.getTemplateID());
         experiment.setTemplate(template);
+        experiment.setModel(experimentModelService.createNewModel());
         experimentModelService.applyMutation(experiment, experimentMapper.requestToMutation(request));
         return getExperimentDetails(experiment);
     }
@@ -122,13 +122,13 @@ public class ExperimentService {
 
     public ExperimentSnapshot getExperimentSnapshot(UUID experimentId) {
         ExperimentEntity experiment = experimentRepository.load(experimentId);
-        return snapshotMapper.createSnapshot(experiment, true, true, experimentModelService.getModel(experiment));
+        return snapshotMapper.createSnapshot(experiment, false);
     }
 
     public ExperimentDetailsDTO getExperimentDetails(ExperimentEntity experiment) {
         Set<ApplicationPermission> currentPermissions = aclService.getCurrentPermissions(experiment.getCalculatedInfo() != null ? experiment.getCalculatedInfo().getCurrentAccess() : null);
         currentPermissions.retainAll(EnumSet.of(VIEW_EXPERIMENTS, EDIT_EXPERIMENTS, MANAGE_EXPERIMENT_ACCESS, DELETE_EXPERIMENTS, SUBMIT_EXPERIMENTS));
-        return experimentMapper.entityToDetailsDTO(experiment, experimentModelService.getModel(experiment), currentPermissions);
+        return experimentMapper.entityToDetailsDTO(experiment, currentPermissions);
     }
 
     public ExperimentDetailsDTO editExperiment(UUID experimentId, ExperimentEditRequest request) {
@@ -177,15 +177,15 @@ public class ExperimentService {
         // TODO generate on the fly from reaction rxnfile; shouldn't be heavyweight, because it will only be used when editing experiment, and most of the calls should be cached
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, VIEW_EXPERIMENTS);
-        Reaction reaction = experimentModelService.getModel(experiment).locate(reactionAnchor);
+        Reaction reaction = experiment.getModel().locate(reactionAnchor);
+        checkNotNull(reaction); // reaction is not used for now, but will be used with multi-reaction experiments
         return experiment.getPicture() != null ? experiment.getPicture() : EMPTY_PICTURE;
     }
 
     public Map<InputAnchor, String> analyzeRXN(UUID experimentId, ReactionAnchor reactionAnchor) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, VIEW_EXPERIMENTS);
-        ExperimentModel model = experimentModelService.getModel(experiment);
-        Reaction reaction = model.locate(reactionAnchor);
+        Reaction reaction = experiment.getModel().locate(reactionAnchor);
         return analyzeRXN(reaction);
     }
 
@@ -198,7 +198,7 @@ public class ExperimentService {
                     }
                     return null;
                 })
-                .filterValues(Objects::nonNull)
+                .nonNullValues()
                 .toCustomMap(LinkedHashMap::new);
     }
 
@@ -214,7 +214,7 @@ public class ExperimentService {
     public ExperimentReportContent printReport(ExperimentEntity experiment) {
         ReportsAPI.ExperimentReportDataDTO data = new ReportsAPI.ExperimentReportDataDTO(
                 projectMapper.entityToDTO(experiment.getProject()),
-                experimentMapper.entityToDetailsDTO(experiment, experimentModelService.getModel(experiment), Set.of()),
+                experimentMapper.entityToDetailsDTO(experiment, Set.of()),
                 experiment.getPicture() != null ? new String(experiment.getPicture(), StandardCharsets.UTF_8) : null
         );
         try (Response response = reportsClient.generateExperimentReport(data)) {
@@ -259,8 +259,7 @@ public class ExperimentService {
         if (version != null) {
             return checkNotNull(experimentRepository.getVersion(experiment, version).getSnapshot());
         }
-        ExperimentModel model = experimentModelService.getModel(experiment);
-        return snapshotMapper.createSnapshot(experiment, true, true, model);
+        return snapshotMapper.createSnapshot(experiment, false);
     }
 
     public List<ExperimentRef> suggestExperiments(String search) {
@@ -291,9 +290,8 @@ public class ExperimentService {
 
         try (IndigoSDFSaver saver = indigo.writeFile(tempFilePath.toString())) {
             ExperimentEntity experiment = experimentRepository.get(experimentId);
-            ExperimentModel model = experimentModelService.getModel(experiment);
 
-            for (Reaction reaction : model.getReactions()) {
+            for (Reaction reaction : experiment.getModel().getReactions()) {
                 for (ReactionOutput output : reaction.getOutputs()) {
                     UUID moleculeId = output.getCompound().getCompoundID();
 

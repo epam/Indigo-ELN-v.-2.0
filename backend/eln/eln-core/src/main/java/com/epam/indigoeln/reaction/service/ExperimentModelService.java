@@ -16,8 +16,6 @@ import com.epam.indigoeln.reaction.service.mutation.experiment.AbstractExperimen
 import com.epam.indigoeln.reaction.service.mutation.experiment.ExperimentMutationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -44,23 +42,14 @@ public class ExperimentModelService {
     SnapshotMapper snapshotMapper;
     @Inject
     JSONPatcher jsonPatcher;
-
-    private final ObjectMapper objectMapper;
-    private final ObjectReader modelReader;
-    private final ObjectWriter modelWriter;
-
-    ExperimentModelService(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-        modelReader = objectMapper.readerFor(ExperimentModel.class);
-        modelWriter = objectMapper.writerFor(ExperimentModel.class);
-    }
+    @Inject
+    ObjectMapper objectMapper;
 
     @Valid
     public ExperimentModel createNewModel() {
         ExperimentModel model = new ExperimentModel();
         Reaction reaction = Reaction.create(model, ReactionAnchor.create());
         model.setReactions(List.of(reaction));
-        model.setSignificantFigures(ExperimentModel.DEFAULT_SIGNIFICANT_FIGURES);
         return model;
     }
 
@@ -75,26 +64,6 @@ public class ExperimentModelService {
         JsonNode aJSON = objectMapper.valueToTree(a);
         JsonNode bJSON = objectMapper.valueToTree(b);
         return jsonPatcher.createTopLevel(aJSON, bJSON);
-    }
-
-    public void readModel(ExperimentEntity experiment) {
-        experiment.setModelObj(getModel(experiment));
-    }
-
-    public ExperimentModel getModel(ExperimentEntity experiment) {
-        try {
-            return modelReader.readValue(experiment.getModel());
-        } catch (Exception e) {
-            throw new RuntimeException("Cannot read experiment model: " + e.getMessage(), e);
-        }
-    }
-
-    public void setModel(ExperimentEntity experiment, ExperimentModel model) {
-        try {
-            experiment.setModel(modelWriter.writeValueAsString(model));
-        } catch (Exception e) {
-            throw new RuntimeException("Cannot write experiment model: " + e.getMessage(), e);
-        }
     }
 
     @Nullable

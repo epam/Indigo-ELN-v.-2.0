@@ -2,7 +2,6 @@ package com.epam.indigoeln.reaction.model;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
@@ -10,7 +9,6 @@ import org.jspecify.annotations.Nullable;
 import java.util.Objects;
 import java.util.UUID;
 
-@EqualsAndHashCode(of = "value")
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class Anchor {
 

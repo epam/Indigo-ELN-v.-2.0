@@ -15,9 +15,6 @@ import org.jspecify.annotations.Nullable;
 @ToString
 public class ExperimentMutationContext extends AbstractMutationContext<ExperimentEntity, ExperimentSnapshot, ExperimentRevisionEntity, ExperimentMutationContext> {
 
-    private boolean affectsModel;
-    private boolean affectsAttachments;
-    private boolean affectsACL;
     private boolean requiresEditSession;
 
     @Nullable

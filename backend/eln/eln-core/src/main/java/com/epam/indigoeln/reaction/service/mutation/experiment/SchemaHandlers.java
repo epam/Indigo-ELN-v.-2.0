@@ -99,8 +99,8 @@ class SetSchemeHandler extends AbstractReactionMutationHandler<ReactionMutation.
         createRows(catalystLinks, link -> createInputLine(reaction, link.molecule, ReactionRole.REAGENT, createdCatalystAnchors.next(), createdCatalystSampleAnchors.next()));
         createRows(productLinks, link -> createOutputLine(reaction, link.molecule, true, createdProductAnchors.next()));
 
-        reaction.getInputs().sort(INPUT_COMPARATOR);
-        reaction.getOutputs().sort(RXN_POSITION_COMPARATOR);
+        reaction.setInputs(StreamEx.of(reaction.getInputs()).sorted(INPUT_COMPARATOR).toImmutableList());
+        reaction.setOutputs(StreamEx.of(reaction.getOutputs()).sorted(RXN_POSITION_COMPARATOR).toImmutableList());
 
         reaction.setRxnfile(mutation.rxnFile());
 

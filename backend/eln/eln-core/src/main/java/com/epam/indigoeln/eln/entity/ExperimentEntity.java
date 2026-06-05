@@ -2,6 +2,7 @@ package com.epam.indigoeln.eln.entity;
 
 import com.epam.indigoeln.eln.common.entity.IdentifiableEntity;
 import com.epam.indigoeln.eln.config.hibernate.ACLEntryArrayType;
+import com.epam.indigoeln.eln.config.hibernate.ExperimentModelType;
 import com.epam.indigoeln.eln.model.AccessLevel;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
@@ -162,13 +163,10 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     private String searchVector;
 
     @NotNull
-    @JdbcTypeCode(SqlTypes.JSON)
     @Basic(fetch = FetchType.LAZY)
-    private String model;
-
-    @Nullable
-    @Transient
-    private ExperimentModel modelObj;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Type(ExperimentModelType.class)
+    private ExperimentModel model;
 
     @Basic(fetch = FetchType.LAZY)
     private byte @Nullable [] picture;

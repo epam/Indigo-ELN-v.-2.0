@@ -66,7 +66,7 @@ public abstract class AbstractProjectMutationHandler<T extends Mutation> extends
 
     @Override
     protected final ProjectSnapshot doSnapshotBefore(ProjectEntity project, ProjectMutationContext context) {
-        return snapshotMapper.createSnapshot(project, context.isAffectsAttachments(), context.isAffectsACL());
+        return snapshotMapper.createSnapshot(project);
     }
 
     @Override
@@ -85,7 +85,7 @@ public abstract class AbstractProjectMutationHandler<T extends Mutation> extends
 
     @Override
     protected final ProjectSnapshot doSnapshotAfter(ProjectEntity project, ProjectMutationContext context) {
-        return snapshotMapper.createSnapshot(project, context.isAffectsAttachments(), context.isAffectsACL());
+        return snapshotMapper.createSnapshot(project);
     }
 
     @Override

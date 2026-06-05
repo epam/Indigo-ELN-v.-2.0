@@ -210,7 +210,7 @@ public abstract class AbstractUndoHelper<E extends BaseEntity & WithRevision, S,
         private RevisionInfo undoFor;
         @Nullable
         private RevisionInfo redoFor;
-        private Boolean undone;
+        private boolean undone;
 
         public Integer getRevisionNo() {
             return entity.getRevision();

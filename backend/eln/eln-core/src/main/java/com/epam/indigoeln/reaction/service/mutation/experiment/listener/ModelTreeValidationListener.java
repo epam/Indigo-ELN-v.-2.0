@@ -7,6 +7,7 @@ import com.epam.indigoeln.reaction.service.mutation.ExperimentModelMutationListe
 import com.epam.indigoeln.reaction.service.mutation.experiment.ExperimentMutationContext;
 import jakarta.annotation.Priority;
 import jakarta.enterprise.context.Dependent;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -19,9 +20,9 @@ import static com.google.common.base.Preconditions.checkState;
 public class ModelTreeValidationListener implements ExperimentModelMutationListener {
 
     @Override
-    public void afterRecalculate(ExperimentEntity experiment, ExperimentModel model, ExperimentMutationContext context) {
+    public void afterRecalculate(ExperimentEntity experiment, ExperimentMutationContext context) {
         try {
-            doValidate(model);
+            doValidate(experiment.getModel());
         } catch (Exception e) {
             throw new RuntimeException("Mutation produced invalid model: " + e.getMessage(), e);
         }
@@ -53,7 +54,7 @@ public class ModelTreeValidationListener implements ExperimentModelMutationListe
         }
         // validate rxnPositions are unique
         for (Reaction reaction : model.getReactions()) {
-            Set<Pair<ReactionRole, Integer>> inputPositions = new HashSet<>();
+            Set<Pair<ReactionRole, @Nullable Integer>> inputPositions = new HashSet<>();
             for (ReactionInput input : reaction.getInputs()) {
                 if (input.getRxnPosition() != null) {
                     checkState(inputPositions.add(Pair.of(input.getRole(), input.getRxnPosition())));
