@@ -1,5 +1,6 @@
 package com.epam.indigoeln.reaction.model;
 
+import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.eln.model.*;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotNull;
@@ -13,7 +14,7 @@ import java.util.UUID;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class ExperimentSnapshot implements ExperimentNode {
 
-    private Integer revision;
+    private int revision;
 
     @Nullable
     private String title;
@@ -48,14 +49,14 @@ public final class ExperimentSnapshot implements ExperimentNode {
     Set<ExperimentRef> continuedTo;
 
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    private Boolean deleted;
+    private boolean deleted;
 
-    @Nullable
+    @NotNull
     private Set<AttachmentDTO> attachments;
 
-    @Nullable
-    private Set<ACLDetailsEntryDTO> acl;
+    @NotNull
+    private Set<ACLEntryDTO> acl;
 
-    @Nullable
+    @NotNull
     private ExperimentModel model;
 }

@@ -15,13 +15,10 @@ import org.jspecify.annotations.Nullable;
 @ToString
 public class ExperimentMutationContext extends AbstractMutationContext<ExperimentEntity, ExperimentSnapshot, ExperimentRevisionEntity, ExperimentMutationContext> {
 
-    private boolean affectsModel;
-    private boolean affectsAttachments;
-    private boolean affectsACL;
     private boolean requiresEditSession;
 
     @Nullable
     private Integer createdVersion;
 
-    private MutationResponse response = new MutationResponse();
+    private final MutationResponse response = new MutationResponse();
 }

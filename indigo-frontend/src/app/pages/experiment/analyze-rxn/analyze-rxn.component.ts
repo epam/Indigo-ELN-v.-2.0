@@ -4,7 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { Mutation, ReactionInputAnchor } from '@core/types/entities/experiments/mutation.i';
-import { MatTab, MatTabGroup } from '@angular/material/tabs';
+import { MatTab, MatTabGroup, MatTabLabel } from '@angular/material/tabs';
 import { SampleSearchComponent } from '@pages/experiment/sample-search/sample-search.component';
 import {
   Sample,
@@ -46,6 +46,7 @@ interface Tab {
     SampleSearchResultsComponent,
     ReactiveFormsModule,
     FormsModule,
+    MatTabLabel,
   ],
   templateUrl: './analyze-rxn.component.html',
 })

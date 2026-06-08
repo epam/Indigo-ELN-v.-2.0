@@ -51,7 +51,7 @@ public abstract class AbstractUndoHelper<E extends BaseEntity & WithRevision, S,
     }
 
     public void doPrepare(E entity, UserEntity user, boolean redo, C context) {
-        // !!! load last 1 hour, and then drop leftmost revisions, so all remaining undo/redo has their initial revision loaded
+        // TODO load last 1 hour, and either deny undoing beyond that, or load previous data if needed for redo
         List<R> revisions = loadRevisions(entity);
         UndoInfo info = findRevisionToUndoOrRedo(revisions, user, redo);
         validate(info != null, redo ? "Nothing to redo" : "Nothing to undo");
@@ -210,7 +210,7 @@ public abstract class AbstractUndoHelper<E extends BaseEntity & WithRevision, S,
         private RevisionInfo undoFor;
         @Nullable
         private RevisionInfo redoFor;
-        private Boolean undone;
+        private boolean undone;
 
         public Integer getRevisionNo() {
             return entity.getRevision();

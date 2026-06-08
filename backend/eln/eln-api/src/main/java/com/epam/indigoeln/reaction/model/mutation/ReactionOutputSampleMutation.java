@@ -11,7 +11,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-public interface ReactionOutputSampleMutation extends Mutation {
+public interface ReactionOutputSampleMutation extends ExperimentMutation {
 
     OutputSampleAnchor anchor();
 

@@ -8,7 +8,7 @@ import com.epam.indigoeln.reaction.model.ReactionOutputType;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 
-public interface ReactionOutputMutation extends Mutation {
+public interface ReactionOutputMutation extends ExperimentMutation {
 
     OutputAnchor anchor();
 
@@ -54,6 +54,12 @@ public interface ReactionOutputMutation extends Mutation {
     record SetOutputRowChemicalName(
             @NotNull OutputAnchor anchor,
             @Nullable String chemicalName
+    ) implements ReactionOutputMutation {
+    }
+
+    record SetOutputRowIntended(
+            @NotNull OutputAnchor anchor,
+            @NotNull Boolean intended
     ) implements ReactionOutputMutation {
     }
 

@@ -11,6 +11,7 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.ConstraintViolationException;
 
 import java.util.List;
 import java.util.UUID;
@@ -34,7 +35,7 @@ public class RoleService {
         RoleEntity entity = roleMapper.requestToRole(request);
         try {
             roleRepository.persist(entity);
-        } catch (org.hibernate.exception.ConstraintViolationException e) {
+        } catch (ConstraintViolationException e) {
             if ("application_role_name_uq".equals(e.getConstraintName())) {
                 throw new InvalidRequestException("Role with name '" + request.getName() + "' already exists");
             }
@@ -55,7 +56,7 @@ public class RoleService {
         aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_ROLES);
         RoleEntity role = roleRepository.findById(roleID);
         if (role == null) {
-            throw new EntityNotFoundException(EntityType.ROLE, roleID);
+            throw new EntityNotFoundException(ELNEntityType.ROLE, roleID);
         }
         editProperty(request.getName(), role::setName);
         editProperty(request.getPermissions(), p -> role.setPermissions(p.toArray(ApplicationPermission[]::new)));
@@ -66,7 +67,7 @@ public class RoleService {
         aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_ROLES);
         RoleEntity role = roleRepository.findById(roleID);
         if (role == null) {
-            throw new EntityNotFoundException(EntityType.ROLE, roleID);
+            throw new EntityNotFoundException(ELNEntityType.ROLE, roleID);
         }
         roleRepository.delete(role);
     }

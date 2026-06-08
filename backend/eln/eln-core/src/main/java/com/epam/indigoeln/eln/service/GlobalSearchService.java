@@ -1,11 +1,17 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.exception.InvalidRequestException;
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.eln.common.util.NamedConditions;
 import com.epam.indigoeln.eln.config.DataAccess;
-import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.eln.util.NamedConditions;
+import com.epam.indigoeln.eln.model.ELNEntityType;
+import com.epam.indigoeln.eln.model.ExperimentStatus;
+import com.epam.indigoeln.eln.model.GlobalSearchRequest;
+import com.epam.indigoeln.eln.model.GlobalSearchResultDTO;
 import com.epam.indigoeln.reaction.model.ReactionRole;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
@@ -23,8 +29,14 @@ import java.util.stream.Stream;
 @ApplicationScoped
 public class GlobalSearchService {
 
+    private final UserService userService;
     @PersistenceContext
     EntityManager em;
+
+    @Inject
+    public GlobalSearchService(UserService userService) {
+        this.userService = userService;
+    }
 
     public Page<GlobalSearchResultDTO> search(GlobalSearchRequest request, Paging paging) {
         if (request.isEmpty()) {
@@ -51,7 +63,9 @@ public class GlobalSearchService {
         }
         if (request.getAuthor() != null) {
             String condition = "created_by_id in :author";
-            List<UUID> ids = request.getAuthor().stream().map(UserRef::getId).toList();
+            List<UUID> ids = request.getAuthor().stream()
+                    .map(u -> userService.getUserInfo(u).getId())
+                    .toList();
             projectConditions.add(condition, "author", ids);
             notebookConditions.add(condition, "author", ids);
             experimentConditions.add(condition, "author", ids);
@@ -162,13 +176,11 @@ public class GlobalSearchService {
         }
         sql.append(")\n");
         sql.append("SELECT t.type, t.name, t.id, ").append(fragmentSelector).append(" fragment");
-        sql.append("\n, t.created_by_id, c.username, c.display_name, t.created_at" +
-                "\n, t.modified_by_id, m.username, m.display_name, t.modified_at" +
+        sql.append("\n, t.created_by_id, t.created_at" +
+                "\n, t.modified_by_id, t.modified_at" +
                 "\n, t.reaction_roles, t.experiment_status, t.revision" +
                 "\n, count(*) over (partition by 1)" +
                 "\nFROM t" +
-                "\nJOIN User_Account c on c.id = t.created_by_id" +
-                "\nJOIN User_Account m on m.id = t.modified_by_id" +
                 "\nORDER by t.created_at");
         long[] totalCount = new long[] {0};
         Query query = em.createNativeQuery(sql.toString())
@@ -179,25 +191,26 @@ public class GlobalSearchService {
         Stream<Object[]> stream = query.getResultStream();
         List<GlobalSearchResultDTO> list = stream
                 .map(row -> {
+                    int fieldNo = -1;
                     GlobalSearchResultDTO item = new GlobalSearchResultDTO();
-                    item.setType(EntityType.valueOf(row[0].toString()));
-                    item.setName((String) row[1]);
-                    item.setId((UUID) row[2]);
-                    item.setFragment((String) row[3]);
-                    item.setCreatedBy(new UserRef((UUID) row[4], (String) row[5], (String) row[6]));
-                    item.setCreatedAt(((Instant) row[7]).atZone(ZoneId.systemDefault()));
-                    item.setModifiedBy(new UserRef((UUID) row[8], (String) row[9], (String) row[10]));
-                    item.setModifiedAt(((Instant) row[11]).atZone(ZoneId.systemDefault()));
-                    //noinspection ConstantValue
-                    if (row[12] != null) {
-                        String[] reactionRoles = (String[]) row[12];
+                    item.setType(ELNEntityType.valueOf(row[++fieldNo].toString()));
+                    item.setName((String) row[++fieldNo]);
+                    item.setId((UUID) row[++fieldNo]);
+                    item.setFragment((String) row[++fieldNo]);
+                    item.setCreatedBy(userService.getUserInfo((UUID) row[++fieldNo]));
+                    item.setCreatedAt(((Instant) row[++fieldNo]).atZone(ZoneId.systemDefault()));
+                    item.setModifiedBy(userService.getUserInfo((UUID) row[++fieldNo]));
+                    item.setModifiedAt(((Instant) row[++fieldNo]).atZone(ZoneId.systemDefault()));
+                    String[] reactionRoles = (String[]) row[++fieldNo];
+                    if (reactionRoles != null) {
                         item.setReactionRoles(StreamEx.of(reactionRoles).map(ReactionRole::valueOf).toCollection(() -> EnumSet.noneOf(ReactionRole.class)));
                     }
-                    if (row[13] != null) {
-                        item.setExperimentStatus(ExperimentStatus.valueOf((String) row[13]));
+                    String experimentStatus = (String) row[++fieldNo];
+                    if (experimentStatus != null) {
+                        item.setExperimentStatus(ExperimentStatus.valueOf(experimentStatus));
                     }
-                    item.setRevision((Integer) row[14]);
-                    totalCount[0] = (Long) row[15];
+                    item.setRevision((Integer) row[++fieldNo]);
+                    totalCount[0] = (Long) row[++fieldNo];
                     return item;
                 })
                 .toList();

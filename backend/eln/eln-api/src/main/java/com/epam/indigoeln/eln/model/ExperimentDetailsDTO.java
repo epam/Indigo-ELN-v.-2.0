@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.model;
 
+import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotNull;
@@ -49,10 +50,7 @@ public class ExperimentDetailsDTO extends BaseExperimentDTO {
     List<AttachmentDTO> attachments;
 
     @NotNull
-    List<ACLDetailsEntryDTO> acl;
-
-    @NotNull
-    List<ExperimentSignature> signatures;
+    List<ACLEntryDTO> acl;
 
     @NotNull
     List<ApplicationPermission> currentPermissions;
@@ -72,10 +70,13 @@ public class ExperimentDetailsDTO extends BaseExperimentDTO {
     @NotNull
     String notebookName;
 
+    @Nullable
+    String signatureNumber;
+
     @Override
     public String toString() {
         return "ExperimentDetailsDTO{" +
-                "id=" + id +
+                "id=" + getId() +
                 ", name='" + name + '\'' +
                 '}';
     }

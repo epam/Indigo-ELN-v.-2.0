@@ -1,13 +1,12 @@
 import { Attachment } from '@/core/types/entities/attachment.i';
 import { DatePipe } from '@angular/common';
-import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
+import { Component, DestroyRef, inject, input, output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { CardComponent } from '../card/card.component';
 import { ApiService } from '@/core/services/api.service';
-import { Subject } from 'rxjs';
-import { downloadBlob } from '@/core/utils/download.util';
 import { BytesConvertingPipe } from '@/core/pipes/bytesConverting.pipe';
+import { DownloadService } from '@core/services/download.service';
 
 @Component({
   standalone: true,
@@ -15,26 +14,18 @@ import { BytesConvertingPipe } from '@/core/pipes/bytesConverting.pipe';
   selector: 'eln-attachment',
   templateUrl: './attachment.component.html',
 })
-export class AttachmentComponent implements OnDestroy {
-  @Input() icon = '';
-  @Input() attachment: Attachment = {
-    id: '',
-    name: '',
-    size: 0,
-  };
-  @Input() projectId = '';
-  @Output() attachmentDeleted = new EventEmitter<string>();
+export class AttachmentComponent {
+  attachment = input.required<Attachment>();
+  baseURL = input.required<string>();
 
-  private destroy$ = new Subject<void>();
+  attachmentDeleted = output<string>();
 
-  constructor(protected service: ApiService<Attachment>) {}
+  service = inject(ApiService);
+  downloadService = inject(DownloadService);
+  destroyRef = inject(DestroyRef);
 
   get computedIcon() {
-    if (this.icon.length) {
-      return this.icon;
-    }
-
-    const extension = this.attachment.name.split('.').pop();
+    const extension = this.attachment().name.split('.').pop();
     switch (extension) {
       case 'pdf':
       case 'doc':
@@ -53,21 +44,14 @@ export class AttachmentComponent implements OnDestroy {
   }
 
   downloadAttachment() {
-    this.service
-      .request<Blob>('get', `project/${this.projectId}/attachments/${this.attachment.id}`, undefined, {
-        responseType: 'blob',
-      })
-      .subscribe((blob: Blob | null) => downloadBlob(blob, this.attachment.name));
+    this.downloadService
+      .download('get', `${this.baseURL()}/attachments/${this.attachment().id}`, 'attachment')
+      .subscribe();
   }
 
   deleteAttachment() {
     this.service
-      .request<void>('delete', `projects/${this.projectId}/attachments/${this.attachment.id}`)
-      .subscribe(() => this.attachmentDeleted.emit(this.attachment.id));
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
+      .request<void>('delete', `${this.baseURL()}/attachments/${this.attachment().id}`)
+      .subscribe(() => this.attachmentDeleted.emit(this.attachment().id));
   }
 }

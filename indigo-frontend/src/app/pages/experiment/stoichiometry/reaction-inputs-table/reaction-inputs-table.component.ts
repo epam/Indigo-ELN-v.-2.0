@@ -1,16 +1,17 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { catchError, EMPTY } from 'rxjs';
+import { Component, computed, inject, input, OnInit, signal } from '@angular/core';
 import { ReactionInput, ReactionInputSample } from '@core/types/entities/experiments/experiment.i';
 import {
   DensityUnit,
   MolarityUnit,
   MolUnit,
   ReactionRole,
+  UNIT_DISPLAY_NAMES,
+  UUID,
   VolumeUnit,
   WeightUnit,
 } from '@core/types/entities/experiments/experiment-shared.i';
 import { BuiltInDictionary, DictionaryItemRef } from '@core/types/entities/dictionary.i';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BuiltInDictionaryService } from '@core/services/health-hazards/built-in-dictionary.service';
 import { CompoundType } from '@/core/types/entities/compound.i';
 import { EditableDataTableComponent } from '../editable-data-table/editable-data-table.component';
@@ -20,10 +21,13 @@ import { EnteredValue } from '@core/types/entities/values.i';
 import { determineCellClasses } from '@core/utils/experiment-model.util';
 import { SelectComponent } from '@/core/components/common/select/select.component';
 import { ButtonComponent } from '@/core/components/common/button/button.component';
-import { MatIcon } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
 import { SIGNIFICANT_FIGURES } from '../significant-figures.constants';
 import { DropdownMenuItem } from '@/core/components/common/dropdown-menu/dropdown-menu.i';
+import { ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
+import { MatTooltip } from '@angular/material/tooltip';
+import { SlideInPanelService } from '@core/components/common/slide-in-panel/slide-in-panel.service';
+import { SampleSearchComponent } from '@pages/experiment/sample-search/sample-search.component';
 
 interface InputSampleRow {
   input: ReactionInput;
@@ -33,26 +37,28 @@ interface InputSampleRow {
 @Component({
   selector: 'eln-reaction-inputs-table',
   templateUrl: './reaction-inputs-table.component.html',
-  imports: [MatSnackBarModule, EditableDataTableComponent, SelectComponent, ButtonComponent, MatIcon, FormsModule],
+  imports: [MatSnackBarModule, EditableDataTableComponent, SelectComponent, ButtonComponent, FormsModule, MatTooltip],
 })
 export class ReactionInputsTableComponent implements OnInit {
   private experimentDetailService = inject(ExperimentDetailService);
   private builtInDictionaryService = inject(BuiltInDictionaryService);
-  private snackBar = inject(MatSnackBar);
-  readonly experimentModel = this.experimentDetailService.experimentModel;
-  readonly items = signal<DropdownMenuItem[]>([...SIGNIFICANT_FIGURES]);
+  private slideInPanel = inject(SlideInPanelService);
 
-  reaction = computed(() => this.experimentDetailService.experimentDetail()?.model.reactions[0]);
+  experimentId = input.required<UUID>();
+  reactionAnchor = input.required<ReactionAnchor>();
+
+  model = computed(() => this.experimentDetailService.experimentModel());
+  significantFiguresOptions = signal<DropdownMenuItem[]>([...SIGNIFICANT_FIGURES]);
+
+  reaction = computed(() => this.experimentDetailService.getReaction(this.reactionAnchor()));
   dataSource = computed(() => {
-    const inputs = this.reaction()?.inputs;
-    return inputs?.flatMap((input) => input.samples.map((sample) => ({ input, sample })));
+    return this.reaction().inputs.flatMap((input) => input.samples.map((sample) => ({ input, sample })));
   });
   healthHazards = computed(() => this.builtInDictionaryService.getDictionaryItem(BuiltInDictionary.HEALTH_HAZARD));
-  saltCodes = computed(() => this.builtInDictionaryService.getSaltCodes());
+  saltCodes = computed(() => this.builtInDictionaryService.getDictionaryItem(BuiltInDictionary.SALT_CODE));
 
   ngOnInit() {
-    this.builtInDictionaryService.load([BuiltInDictionary.HEALTH_HAZARD]);
-    this.builtInDictionaryService.loadSaltCodes();
+    this.builtInDictionaryService.load([BuiltInDictionary.HEALTH_HAZARD, BuiltInDictionary.SALT_CODE]);
   }
 
   readonly columns = computed<ColumnConfig<InputSampleRow>[]>(() => [
@@ -129,7 +135,7 @@ export class ReactionInputsTableComponent implements OnInit {
       },
       options: Object.values(WeightUnit).map((unit) => ({
         id: unit,
-        name: unit,
+        name: UNIT_DISPLAY_NAMES[unit],
       })) as ColumnOption[],
     },
     {
@@ -151,7 +157,7 @@ export class ReactionInputsTableComponent implements OnInit {
       },
       options: Object.values(VolumeUnit).map((unit) => ({
         id: unit,
-        name: unit,
+        name: UNIT_DISPLAY_NAMES[unit],
       })) as ColumnOption[],
     },
     {
@@ -173,7 +179,7 @@ export class ReactionInputsTableComponent implements OnInit {
       },
       options: Object.values(MolUnit).map((unit) => ({
         id: unit,
-        name: unit,
+        name: UNIT_DISPLAY_NAMES[unit],
       })) as ColumnOption[],
     },
     {
@@ -220,10 +226,12 @@ export class ReactionInputsTableComponent implements OnInit {
           })
           .subscribe({});
       },
-      options: [ReactionRole.REACTANT, ReactionRole.CATALYST, ReactionRole.SOLVENT].map((role) => ({
-        id: role,
-        name: role.toLocaleLowerCase(),
-      })) as ColumnOption[],
+      options: [ReactionRole.REACTANT, ReactionRole.REAGENT, ReactionRole.CATALYST, ReactionRole.SOLVENT].map(
+        (role) => ({
+          id: role,
+          name: role.toLocaleLowerCase(),
+        }),
+      ) as ColumnOption[],
     },
     {
       id: 'density',
@@ -244,7 +252,7 @@ export class ReactionInputsTableComponent implements OnInit {
       },
       options: Object.values(DensityUnit).map((unit) => ({
         id: unit,
-        name: unit,
+        name: UNIT_DISPLAY_NAMES[unit],
       })) as ColumnOption[],
     },
     {
@@ -266,7 +274,7 @@ export class ReactionInputsTableComponent implements OnInit {
       },
       options: Object.values(MolarityUnit).map((unit) => ({
         id: unit,
-        name: unit,
+        name: UNIT_DISPLAY_NAMES[unit],
       })) as ColumnOption[],
     },
     {
@@ -288,9 +296,9 @@ export class ReactionInputsTableComponent implements OnInit {
     {
       id: 'molFormula',
       header: 'Mol Formula',
-      type: ColumnInputType.TEXT,
+      type: ColumnInputType.HTML,
       field: (row: InputSampleRow) => row.input.compound.formula,
-      editable: () => false, // TODO define if editable or not
+      editable: () => false,
     },
     {
       id: 'saltCode',
@@ -379,18 +387,20 @@ export class ReactionInputsTableComponent implements OnInit {
     return determineCellClasses(value, this.experimentDetailService.updatedNodes());
   }
 
-  addNewRow() {
-    if (!this.reaction()) {
-      this.snackBar.open('No reaction available', 'Close', { duration: 3000 });
-      return;
-    }
+  addMaterial() {
+    const ref = this.slideInPanel.open(SampleSearchComponent, {
+      inputs: { reactionAnchor: this.reactionAnchor() },
+    });
+    ref.instance.close.subscribe(() => ref.close());
+  }
 
+  addNewRow() {
     this.experimentDetailService
       .updateDataModel({
         type: 'AddEmptyInput',
-        anchor: this.reaction()!.anchor,
+        anchor: this.reaction().anchor,
       })
-      .subscribe(() => this.snackBar.open('Material added', 'Close', { duration: 2000 }));
+      .subscribe();
   }
 
   onSignificantFiguresChange(value: string | string[] | null): void {
@@ -402,7 +412,6 @@ export class ReactionInputsTableComponent implements OnInit {
         type: 'SetExperimentSignificantFigures',
         significantFigures: parsedValue,
       })
-      .pipe(catchError(() => EMPTY))
       .subscribe();
   }
 

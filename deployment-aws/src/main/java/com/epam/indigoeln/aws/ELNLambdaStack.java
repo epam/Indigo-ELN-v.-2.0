@@ -23,16 +23,14 @@ import software.amazon.awscdk.services.ssm.IStringParameter;
 import software.amazon.awscdk.services.ssm.StringParameter;
 import software.constructs.Construct;
 
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+import static com.epam.indigoeln.aws.util.Utils.entry;
 import static com.epam.indigoeln.aws.util.Utils.mapOf;
 
 public class ELNLambdaStack extends NestedStack {
 
-    @Getter
-    private final Function elnFunction;
     @Getter
     private final Function reportsFunction;
     @Getter
@@ -41,8 +39,6 @@ public class ELNLambdaStack extends NestedStack {
     private final IHttpRouteAuthorizer httpAuthorizer;
     @Getter
     private final IStringParameter apiGatewaySecret;
-    @Getter
-    private final IStringParameter internalApiGatewaySecret;
 
     public ELNLambdaStack(final Construct scope, final String id, final Props props) {
         super(scope, id, props);
@@ -50,10 +46,6 @@ public class ELNLambdaStack extends NestedStack {
         apiGatewaySecret = StringParameter.Builder.create(this, "api-gateway-secret")
                 .parameterName("api-gateway-secret")
                 .stringValue(props.getApiGatewaySecret())
-                .build();
-        internalApiGatewaySecret = StringParameter.Builder.create(this, "internal-api-gateway-secret")
-                .parameterName("internal-api-gateway-secret")
-                .stringValue(props.getInternalApiGatewaySecret())
                 .build();
 
         httpApi = HttpApi.Builder.create(this, "http-api")
@@ -64,20 +56,20 @@ public class ELNLambdaStack extends NestedStack {
                 .build();
 
         Map<String, String> elnFunctionEnvironment = mapOf(
-                "QUARKUS_DATASOURCE_JDBC_URL", String.format("jdbc:postgresql://pgbouncer.indigoeln.local:6432/%s", props.getDbCredentials().getUsername())
-                , "QUARKUS_DATASOURCE_USERNAME", props.getDbCredentials().getUsername()
-                , "QUARKUS_DATASOURCE_PASSWORD", props.getDbCredentials().getPassword().unsafeUnwrap() // TODO retrieve credentials in lambda code
-                , "ELN_COGNITO_USER_POOL_ID", props.getUserPool().getUserPoolId()
-                , "ELN_API_SECRET", apiGatewaySecret.getStringValue()
-                , "ELN_INTERNAL_API_SECRET", internalApiGatewaySecret.getStringValue()
-                , "QUARKUS_REST_CLIENT_REPORTS_API_URL", httpApi.getApiEndpoint()
-                , "QUARKUS_REST_CLIENT_LOGGING_SCOPE", "request-response"
-                , "QUARKUS_REST_CLIENT_LOGGING_BODY_LIMIT", "9999"
-                , "QUARKUS_REST_CLIENT_EXTENSIONS_API_SCOPE", "all"
-                , "QUARKUS_LOG_LEVEL", "INFO"
-                , "QUARKUS_LOG_CATEGORY__COM_EPAM__LEVEL", "DEBUG"
+                entry("QUARKUS_DATASOURCE_JDBC_URL", String.format("jdbc:postgresql://pgbouncer.indigoeln.local:6432/%s", props.getDbCredentials().getUsername())),
+                entry("QUARKUS_DATASOURCE_USERNAME", props.getDbCredentials().getUsername()),
+                entry("QUARKUS_DATASOURCE_PASSWORD", props.getDbCredentials().getPassword().unsafeUnwrap()), // TODO retrieve credentials in lambda code
+                entry("ELN_COGNITO_USER_POOL_ID", props.getUserPool().getUserPoolId()),
+                entry("ELN_API_SECRET", apiGatewaySecret.getStringValue()),
+                entry("QUARKUS_REST_CLIENT_REPORTS_API_URL", httpApi.getApiEndpoint()),
+                entry("QUARKUS_REST_CLIENT_SIGNATURE_API_URL", httpApi.getApiEndpoint()),
+                entry("QUARKUS_REST_CLIENT_LOGGING_SCOPE", "request-response"),
+                entry("QUARKUS_REST_CLIENT_LOGGING_BODY_LIMIT", "9999"),
+                entry("QUARKUS_REST_CLIENT_EXTENSIONS_API_SCOPE", "all"),
+                entry("QUARKUS_LOG_LEVEL", "INFO"),
+                entry("QUARKUS_LOG_CATEGORY__COM_EPAM__LEVEL", "DEBUG")
         );
-        elnFunction = Utils.createNativeFunction(
+        Function elnFunction = Utils.createDockerFunction(
                 this,
                 props,
                 "eln-function",
@@ -93,22 +85,54 @@ public class ELNLambdaStack extends NestedStack {
         );
 
         Map<String, String> reportsFunctionEnvironment = mapOf(
-                "ELN_API_SECRET", internalApiGatewaySecret.getStringValue()
-//                , "QUARKUS_LOG_LEVEL", "DEBUG"
+                entry("JAVA_TOOL_OPTIONS", "-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Djava.net.preferIPv6Addresses=true"),
+                entry("ELN_API_SECRET", apiGatewaySecret.getStringValue()),
+                entry("QUARKUS_LOG_LEVEL", "INFO"),
+                entry("QUARKUS_LOG_CATEGORY__COM_EPAM__LEVEL", "DEBUG")
         );
-        reportsFunction = Utils.createSnapStartFunction(
+        reportsFunction = Utils.createDockerFunction(
                 this,
                 props,
                 "reports-function",
-                new File("../backend/reports/reports-lambda/build/function.zip"),
-//                props.getReportsRepository(),
-//                props.getReportsImageTag(),
+                props.getReportsRepository(),
+                props.getReportsImageTag(),
                 props.getLambdaSecurityGroup(),
                 reportsFunctionEnvironment
         );
 
+        Map<String, String> signatureFunctionEnvironment = mapOf(
+                entry("JAVA_TOOL_OPTIONS", "-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Djava.net.preferIPv6Addresses=true"),
+                entry("QUARKUS_DATASOURCE_JDBC_URL", String.format("jdbc:postgresql://pgbouncer.indigoeln.local:6433/%s", "signature")),
+                entry("QUARKUS_DATASOURCE_USERNAME", props.getDbCredentials().getUsername()),
+                entry("QUARKUS_DATASOURCE_PASSWORD", props.getDbCredentials().getPassword().unsafeUnwrap()), // TODO retrieve credentials in lambda code
+                entry("ELN_COGNITO_USER_POOL_ID", props.getUserPool().getUserPoolId()),
+                entry("ELN_API_SECRET", apiGatewaySecret.getStringValue()),
+                entry("ELN_SIGNATURE_KEYSTORE_PASSWORD", "1234"),
+                entry("QUARKUS_REST_CLIENT_ELN_INTERNAL_API_URL", httpApi.getApiEndpoint()),
+                entry("QUARKUS_REST_CLIENT_LOGGING_SCOPE", "request-response"),
+                entry("QUARKUS_REST_CLIENT_LOGGING_BODY_LIMIT", "9999"),
+                entry("QUARKUS_REST_CLIENT_EXTENSIONS_API_SCOPE", "all"),
+                entry("QUARKUS_LOG_LEVEL", "INFO"),
+                entry("QUARKUS_LOG_CATEGORY__COM_EPAM__LEVEL", "DEBUG")
+        );
+        Function signatureFunction = Utils.createDockerFunction(
+                this,
+                props,
+                "signature-function",
+                props.getSignatureRepository(),
+                props.getSignatureImageTag(),
+                props.getLambdaSecurityGroup(),
+                signatureFunctionEnvironment
+        );
+
         httpApi.addRoutes(AddRoutesOptions.builder()
                 .path("/api/eln/{proxy+}")
+                .integration(HttpLambdaIntegration.Builder.create("eln-api-integration", elnFunction).build())
+                .authorizer(httpAuthorizer)
+                .build()
+        );
+        httpApi.addRoutes(AddRoutesOptions.builder()
+                .path("/internalapi/eln/{proxy+}")
                 .integration(HttpLambdaIntegration.Builder.create("eln-api-integration", elnFunction).build())
                 .authorizer(httpAuthorizer)
                 .build()
@@ -123,6 +147,7 @@ public class ELNLambdaStack extends NestedStack {
                 .integration(HttpLambdaIntegration.Builder.create("eln-api-integration", elnFunction).build())
                 .build()
         );
+
         httpApi.addRoutes(AddRoutesOptions.builder()
                 .path("/internalapi/reports/{proxy+}")
                 .integration(HttpLambdaIntegration.Builder.create("reports-api-integration", reportsFunction)
@@ -130,33 +155,14 @@ public class ELNLambdaStack extends NestedStack {
                         .build())
                 .build()
         );
-/*
-        httpAPI.addRoutes(AddRoutesOptions.builder()
-                .path("/api/example/{proxy+}")
-                .integration(HttpLambdaIntegration.Builder.create("example-api-integration", exampleFunction).build())
-                .authorizer(authorizer)
-                .build()
-        );
-*/
-/*
-        httpAPI.addRoutes(AddRoutesOptions.builder()
+        httpApi.addRoutes(AddRoutesOptions.builder()
                 .path("/api/signature/{proxy+}")
-                .integration(HttpLambdaIntegration.Builder.create("signature-api-integration", signatureFunction).build())
-                .authorizer(authorizer)
+                .integration(HttpLambdaIntegration.Builder.create("signature-api-integration", signatureFunction)
+                        .timeout(Duration.seconds(29))
+                        .build())
+                .authorizer(httpAuthorizer)
                 .build()
         );
-*/
-//        httpAPI.addRoutes(AddRoutesOptions.builder()
-//                .path("/api/print_all")
-//                .integration(HttpLambdaIntegration.Builder.create("print-api-integration", printFunction).build())
-//                .build()
-//        );
-//        httpAPI.addRoutes(AddRoutesOptions.builder()
-//                .path("/api/print_all_secure")
-//                .integration(HttpLambdaIntegration.Builder.create("print-api-integration-secure", printFunction).build())
-//                .authorizer(authorizer)
-//                .build()
-//        );
     }
 
     @Value
@@ -170,10 +176,11 @@ public class ELNLambdaStack extends NestedStack {
         IUserPoolClient userPoolClient;
         Repository elnRepository;
         Repository reportsRepository;
+        Repository signatureRepository;
         List<String> lambdaSubnets;
         String elnImageTag;
         String reportsImageTag;
+        String signatureImageTag;
         String apiGatewaySecret;
-        String internalApiGatewaySecret;
     }
 }

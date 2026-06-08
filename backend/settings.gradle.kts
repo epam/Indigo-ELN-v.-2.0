@@ -15,6 +15,7 @@ pluginManagement {
 }
 
 include("common:common")
+include("common:common-hibernate")
 include("common:common-service")
 include("common:common-lambda")
 include("common:common-test")
@@ -41,4 +42,5 @@ include("reports:reports-core")
 include("reports:reports-lambda")
 include("reports:reports-service")
 
-include("integrationTests")
+include("integrationTests:integrationTests-lambda")
+include("integrationTests:integrationTests-service")

@@ -15,12 +15,4 @@ public class ExperimentDTO extends BaseExperimentDTO {
 
     @NotNull
     Integer aclCount;
-
-    @Override
-    public String toString() {
-        return "ExperimentDTO{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
-    }
 }

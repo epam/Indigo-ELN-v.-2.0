@@ -8,7 +8,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-public interface ReactionInputSampleMutation extends Mutation {
+public interface ReactionInputSampleMutation extends ExperimentMutation {
 
     InputSampleAnchor anchor();
 

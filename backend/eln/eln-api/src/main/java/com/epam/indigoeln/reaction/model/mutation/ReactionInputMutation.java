@@ -8,7 +8,7 @@ import com.epam.indigoeln.reaction.model.units.MolUnit;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 
-public interface ReactionInputMutation extends Mutation {
+public interface ReactionInputMutation extends ExperimentMutation {
 
     InputAnchor anchor();
 

@@ -26,7 +26,11 @@ public interface DictionaryClient extends DictionaryAPI {
     JsonNode getDictionaryRaw(@PathParam("dictionary") String dictionaryRef);
 
     default <T extends DictionaryItemRef> T getFirst(BuiltInDictionary dictionary) {
-        return this.<T>getDictionary(dictionary).getFirst();
+        return getNth(dictionary, 0);
+    }
+
+    default <T extends DictionaryItemRef> T getNth(BuiltInDictionary dictionary, int ordinal) {
+        return this.<T>getDictionary(dictionary).get(ordinal);
     }
 
     default List<DictionaryItemDTO> getDictionaryFull(BuiltInDictionary dictionary) {

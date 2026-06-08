@@ -51,8 +51,4 @@ public interface DictionaryAPI extends BaseAPI {
     @DELETE
     @Path("/dictionaries/{dictionary}/{itemID}")
     List<DictionaryItemDTO> removeDictionaryItem(@PathParam("dictionary") String dictionaryRef, @PathParam("itemID") UUID itemID);
-
-    @GET
-    @Path("/saltCodes")
-    List<SaltCodeRef> getSaltCodes();
 }

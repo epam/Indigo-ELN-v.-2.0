@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.entity;
 
+import com.epam.indigoeln.eln.common.entity.IdentifiableEntity;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;

@@ -29,6 +29,7 @@ public class MainStack extends Stack {
                 parameters.getPostgresMasterUsername(),
                 infraStack.getEcsCluster(),
                 infraStack.getEc2SecurityGroup(),
+                infraStack.getAdditionalSecurityGroups(),
                 buildStack.getPostgresRepo(),
                 parameters.getPostgresImageTag()
         ));
@@ -49,11 +50,12 @@ public class MainStack extends Stack {
                 cognitoStack.getUserPoolClient(),
                 buildStack.getElnLambdaRepo(),
                 buildStack.getReportsLambdaRepo(),
+                buildStack.getSignatureLambdaRepo(),
                 parameters.getLambdaSubnets(),
                 parameters.getElnLambdaImageTag(),
                 parameters.getReportsLambdaImageTag(),
-                parameters.getApiGatewaySecret(),
-                parameters.getInternalApiGatewaySecret()
+                parameters.getSignatureLambdaImageTag(),
+                parameters.getApiGatewaySecret()
         ));
         elnLambdaStack.addDependency(buildStack);
         elnLambdaStack.addDependency(infraStack);

@@ -1,7 +1,10 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.SortOrder;
+import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.common.util.ModelUtil;
-import com.epam.indigoeln.eln.api.MutateModelForm;
 import com.epam.indigoeln.eln.client.*;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.*;
@@ -11,6 +14,11 @@ import com.epam.indigoeln.reaction.model.units.DensityUnit;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
 import com.epam.indigoeln.reaction.util.MutationsTestUtil;
+import com.epam.indigoeln.signature.api.SignatureClient;
+import com.epam.indigoeln.signature.model.SignatureReason;
+import com.epam.indigoeln.signature.model.SignatureTemplateBlock;
+import com.epam.indigoeln.signature.model.SignatureTemplateDTO;
+import com.epam.indigoeln.signature.model.SignatureTemplateRequest;
 import com.epam.indigoeln.test.FeignUtil;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.*;
@@ -103,16 +111,16 @@ class InsertTestDataTest {
     //    @Test
     @Order(4)
     void loadCompounds(@TempDir Path tempDir) {
-        miscClient.loadCompoundsFromFileClient("compounds.sdf", tempDir, loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"));
+        miscClient.loadCompoundsFromFileClient("compounds.sdf", loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"));
     }
 
 //    @Test
     @Order(5)
     void insertSignatureTemplate() {
         UserRef bob = userClient.suggestUsers("Bob").getFirst();
-        signatureClient.createSignatureTemplate(new SignatureTemplateRequest("Author and Bob", List.of(
-                new SignatureBlock(null, SignatureReason.AUTHOR),
-                new SignatureBlock(bob, SignatureReason.WITNESS)
+        signatureClient.createTemplate(new SignatureTemplateRequest("Author and Bob", List.of(
+                new SignatureTemplateBlock(null, SignatureReason.AUTHOR),
+                new SignatureTemplateBlock(bob, SignatureReason.WITNESS)
         )));
     }
 
@@ -122,7 +130,7 @@ class InsertTestDataTest {
         ExperimentDetailsDTO experiment = createExperiment("ProjectWithData", "88888888", templateClient.getByName("Default"), "Experiment with data");
 
         // add attachment
-        experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", tempDir, "This is attachment".getBytes());
+        experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", "This is attachment".getBytes());
 
         // load initial model
         ExperimentModel model = experimentClient.getExperiment(experiment.getId()).getModel();
@@ -142,7 +150,7 @@ class InsertTestDataTest {
         InputSampleAnchor input1Sample1Anchor = model.getReactions().getFirst().getInputs().get(0).getSamples().get(0).getAnchor();
 
         // select salt code
-        model = applyMutation(experiment, model, new ReactionOutputMutation.SetOutputRowSaltCode(output1Anchor, dictionaryClient.getSaltCodes().get(1)));
+        model = applyMutation(experiment, model, new ReactionOutputMutation.SetOutputRowSaltCode(output1Anchor, dictionaryClient.getNth(BuiltInDictionary.SALT_CODE, 1)));
 
         // select salt eq
         model = applyMutation(experiment, model, new ReactionOutputMutation.SetOutputRowSaltEQ(output1Anchor, 0.5));
@@ -200,7 +208,7 @@ class InsertTestDataTest {
         )));
 
         // submit and reopen
-        SignatureTemplateDTO signatureTemplate = signatureClient.getSignatureTemplates(Paging.ALL).getItems().stream()
+        SignatureTemplateDTO signatureTemplate = signatureClient.getTemplates().stream()
                 .filter(t -> t.getName().equals("Author and Bob"))
                 .findFirst().orElseThrow();
         experimentClient.completeAndSubmitExperiment(experiment.getId(), signatureTemplate.getId());
@@ -226,7 +234,7 @@ class InsertTestDataTest {
     @Order(7)
     void submitExperiment() {
         ExperimentDetailsDTO experiment = createExperiment("ProjectWithData", "88888888", templateClient.getByName("Default"), "Experiment to submit");
-        SignatureTemplateDTO signatureTemplate = signatureClient.getSignatureTemplates(Paging.ALL).getItems().stream()
+        SignatureTemplateDTO signatureTemplate = signatureClient.getTemplates().stream()
                 .filter(t -> t.getName().equals("Author and Bob"))
                 .findFirst().orElseThrow();
         experimentClient.completeAndSubmitExperiment(experiment.getId(), signatureTemplate.getId());
@@ -255,8 +263,6 @@ class InsertTestDataTest {
     @SneakyThrows
     private ExperimentModel applyMutation(ExperimentDetailsDTO experiment, ExperimentModel model, Mutation mutation) {
         System.out.println("Applying mutation: " + mutation);
-        ExperimentModel model1 = experimentClient.mutateExperimentModel(experiment.getId(), new MutateModelForm(model, mutation));
-        System.out.println(model1);
-        return model1;
+        return experimentClient.mutateExperimentModel(experiment.getId(), mutation);
     }
 }

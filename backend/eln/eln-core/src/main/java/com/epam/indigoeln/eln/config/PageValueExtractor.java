@@ -1,6 +1,6 @@
 package com.epam.indigoeln.eln.config;
 
-import com.epam.indigoeln.eln.model.Page;
+import com.epam.indigoeln.common.model.Page;
 import jakarta.validation.valueextraction.ExtractedValue;
 import jakarta.validation.valueextraction.UnwrapByDefault;
 import jakarta.validation.valueextraction.ValueExtractor;

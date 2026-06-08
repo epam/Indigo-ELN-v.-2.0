@@ -1,5 +1,8 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.ProjectEntity;
@@ -79,10 +82,10 @@ public class ProjectService {
         return projectRepository.getTotalCounts();
     }
 
-    public List<ACLDetailsEntryDTO> updateProjectAccess(UUID projectId, List<AccessForm> form) {
+    public List<ACLEntryDTO> updateProjectAccess(UUID projectId, List<AccessForm> form) {
         ProjectEntity project = projectRepository.get(projectId);
         applyMutation(project, new ProjectMutation.EditProjectAccess(form));
-        return projectMapper.convertDetailsACLList(project.getFullACL());
+        return projectMapper.convertACLList(project.getFullACL());
     }
 
     public List<NestedACLEntryDTO> getNestedProjectAccess(UUID projectId) {

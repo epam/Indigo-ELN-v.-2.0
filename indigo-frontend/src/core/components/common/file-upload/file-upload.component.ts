@@ -1,7 +1,5 @@
-import { IdentityService } from '@/core/services/identity.service';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
-import { take } from 'rxjs';
 import { FileSizePipe } from './file-size.pipe';
 import { fileTypeConfig } from './file-upload.config';
 import { NotificationService } from '@/core/services/notification/notification.service';
@@ -21,8 +19,6 @@ export class FileUploadComponent implements OnInit {
   @Input() loadingText = 'Uploading...';
   mimeTypes: string[] = [];
   acceptedExtensions = '';
-  identityService = inject(IdentityService);
-  user;
   @Output() filesSelected = new EventEmitter<File[]>();
 
   files: File[] = [];
@@ -32,9 +28,6 @@ export class FileUploadComponent implements OnInit {
   private notificationService = inject(NotificationService);
 
   ngOnInit(): void {
-    this.identityService.user$.pipe(take(1)).subscribe((user) => {
-      this.user = user;
-    });
     this.allowedTypes.forEach((type) => {
       const config = fileTypeConfig[type];
       if (config) {
@@ -92,14 +85,5 @@ export class FileUploadComponent implements OnInit {
   removeFile(index: number) {
     this.files.splice(index, 1);
     this.previews.splice(index, 1);
-  }
-
-  clearFiles() {
-    this.files = [];
-    this.previews = [];
-    const fileInput = document.getElementById('fileInput') as HTMLInputElement;
-    if (fileInput) {
-      fileInput.value = '';
-    }
   }
 }

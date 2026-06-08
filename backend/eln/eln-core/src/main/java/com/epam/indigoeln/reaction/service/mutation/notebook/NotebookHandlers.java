@@ -69,11 +69,6 @@ class EditNotebookAccessHandler extends AbstractNotebookMutationHandler<Notebook
     EntityMutationHelper entityMutationHelper;
 
     @Override
-    public void doPrepare(NotebookEntity entity, NotebookMutation.EditNotebookAccess mutation, NotebookMutationContext context) {
-        context.setAffectsACL(true);
-    }
-
-    @Override
     protected void doValidateAccess(NotebookEntity notebook, NotebookMutation.EditNotebookAccess mutation, NotebookMutationContext context) {
         aclService.ensureAccess(notebook, ApplicationPermission.MANAGE_NOTEBOOK_ACCESS);
     }
@@ -98,11 +93,6 @@ class CreateNotebookAttachmentHandler extends AbstractNotebookMutationHandler<No
     AttachmentService attachmentService;
 
     @Override
-    public void doPrepare(NotebookEntity entity, NotebookMutation.CreateNotebookAttachment mutation, NotebookMutationContext context) {
-        context.setAffectsAttachments(true);
-    }
-
-    @Override
     public MutationResult doHandle(NotebookEntity notebook, NotebookMutation.CreateNotebookAttachment mutation, NotebookMutationContext context, NotebookSnapshot snapshotBefore) {
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
         attachmentService.doAddNotebookAttachment(notebook, attachment);
@@ -118,11 +108,6 @@ class DeleteNotebookAttachmentHandler extends AbstractNotebookMutationHandler<No
     AttachmentRepository attachmentRepository;
 
     @Override
-    public void doPrepare(NotebookEntity entity, NotebookMutation.DeleteNotebookAttachment mutation, NotebookMutationContext context) {
-        context.setAffectsAttachments(true);
-    }
-
-    @Override
     public MutationResult doHandle(NotebookEntity notebook, NotebookMutation.DeleteNotebookAttachment mutation, NotebookMutationContext context, NotebookSnapshot snapshotBefore) {
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
         notebook.getAttachments().remove(attachment);
@@ -135,11 +120,6 @@ class DeleteNotebookAttachmentHandler extends AbstractNotebookMutationHandler<No
 @Dependent
 @MutationHandlerFor(NotebookMutation.NotebookAccessUpdated.class)
 class NotebookAccessUpdatedHandler extends AbstractNotebookMutationHandler<NotebookMutation.NotebookAccessUpdated> {
-
-    @Override
-    public void doPrepare(NotebookEntity entity, NotebookMutation.NotebookAccessUpdated mutation, NotebookMutationContext context) {
-        context.setAffectsACL(true);
-    }
 
     @Override
     public MutationResult doHandle(NotebookEntity notebook, NotebookMutation.NotebookAccessUpdated mutation, NotebookMutationContext context, NotebookSnapshot snapshotBefore) {

@@ -11,7 +11,3 @@ dependencies {
 
 group = "com.epam.indigoeln"
 version = "3.0.0-SNAPSHOT"
-
-tasks.withType<Test> {
-    environment("NATIVE_LIB_PATH", "${projectDir}/build/nativelibs")
-}

@@ -26,7 +26,7 @@
           <span class="flex-1 truncate">{{ exp.status | normalizeLabel }}</span>
         </eln-badge>
       </li>
-      <li *ngIf="experiments.length === 0" class="py-2 text-neutral-600 text-sm">No starred experiments</li>
+      <li *ngIf="experiments?.length === 0" class="py-2 text-neutral-600 text-sm">No starred experiments</li>
     </ul>
   </div>
 </eln-card>

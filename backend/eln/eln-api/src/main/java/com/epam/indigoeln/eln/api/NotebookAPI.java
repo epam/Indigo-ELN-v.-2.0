@@ -1,5 +1,9 @@
 package com.epam.indigoeln.eln.api;
 
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.SortOrder;
+import com.epam.indigoeln.common.model.UploadForm;
 import com.epam.indigoeln.eln.model.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.ws.rs.*;
@@ -26,7 +30,7 @@ public interface NotebookAPI extends BaseAPI {
     @GET
     @Path("/projects/{projectId}/notebooks")
     Page<NotebookDTO> getProjectNotebooks(@PathParam("projectId") UUID projectId, @QueryParam("search") @Nullable String search, @QueryParam("sort") @Nullable SortOrder sort,
-                                          @QueryParam("createdByMe") @Nullable Boolean createdByMe, @BeanParam Paging paging);
+                                                                          @QueryParam("createdByMe") @Nullable Boolean createdByMe, @BeanParam Paging paging);
 
     @GET
     @Path("/notebooks/existence")
@@ -43,7 +47,7 @@ public interface NotebookAPI extends BaseAPI {
     List<AttachmentDTO> createNotebookAttachment(@PathParam("notebookId") UUID notebookId, UploadForm form);
 
     @GET
-    @Path("/notebook/{notebookId}/attachments/{attachmentId}")
+    @Path("/notebooks/{notebookId}/attachments/{attachmentId}")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     Response downloadNotebookAttachment(@PathParam("notebookId") UUID notebookId, @PathParam("attachmentId") UUID attachmentId);
 
@@ -54,7 +58,7 @@ public interface NotebookAPI extends BaseAPI {
 
     @POST
     @Path("/notebooks/{notebookId}/access")
-    List<ACLDetailsEntryDTO> updateNotebookAccess(@PathParam("notebookId") UUID notebookId, List<AccessForm> form);
+    List<ACLEntryDTO> updateNotebookAccess(@PathParam("notebookId") UUID notebookId, List<AccessForm> form);
 
     @GET
     @Path("/notebooks/{notebookId}/nestedAccess")

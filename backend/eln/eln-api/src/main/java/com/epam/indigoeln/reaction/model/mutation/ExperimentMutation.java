@@ -1,10 +1,11 @@
 package com.epam.indigoeln.reaction.model.mutation;
 
+import com.epam.indigoeln.common.model.DocumentStatus;
+import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.ExperimentRef;
 import com.epam.indigoeln.eln.model.ProjectCodeRef;
 import com.epam.indigoeln.eln.model.TherapeuticAreaRef;
-import com.epam.indigoeln.eln.model.UserRef;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -86,15 +87,10 @@ public interface ExperimentMutation extends Mutation {
     ) implements ExperimentMutation {
     }
 
-    record ApproveExperiment(
-    ) implements ExperimentMutation {
-    }
-
-    record RejectExperiment(
-    ) implements ExperimentMutation {
-    }
-
-    record ResubmitExperiment(
+    record SignatureUpdated(
+            @NotNull String message,
+            @NotNull DocumentStatus documentStatus,
+            @NotNull UUID attachmentID
     ) implements ExperimentMutation {
     }
 

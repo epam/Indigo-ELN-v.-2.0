@@ -2,6 +2,8 @@ package com.epam.indigoeln.eln.client;
 
 import com.epam.indigoeln.eln.api.NotebookAPI;
 import com.epam.indigoeln.eln.model.AttachmentDTO;
+import com.epam.indigoeln.test.ClientUtil;
+import com.epam.indigoeln.test.ClientUtil.ClientUploadForm;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -15,12 +17,12 @@ import java.util.UUID;
 public interface NotebookClient extends NotebookAPI {
 
     @SneakyThrows
-    default List<AttachmentDTO> createNotebookAttachment(UUID notebookId, String filename, java.nio.file.Path tempDirectory, byte[] content) {
-        return createNotebookAttachment(notebookId, ClientUtil.createFileUpload("file", filename, content, tempDirectory));
+    default List<AttachmentDTO> createNotebookAttachment(UUID notebookId, String filename, byte[] content) {
+        return createNotebookAttachment(notebookId, ClientUtil.createFileUpload(filename, content));
     }
 
     @POST
     @Path("/notebooks/{notebookId}/attachments")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    List<AttachmentDTO> createNotebookAttachment(@PathParam("notebookId") UUID notebookId, ClientUtil.ClientUploadForm form);
+    List<AttachmentDTO> createNotebookAttachment(@PathParam("notebookId") UUID notebookId, ClientUploadForm form);
 }

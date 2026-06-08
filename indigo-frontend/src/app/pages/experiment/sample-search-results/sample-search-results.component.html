@@ -53,7 +53,7 @@
             <div class="flex flex-col">
               <div><b>Compound ID: </b>{{ element.compoundKey }}</div>
               <div><b>Nbk Batch Number: </b>{{ element.nbkBatchNumber }}</div>
-              <div><b>Molecular Formula: </b>{{ element.molFormula }}</div>
+              <div><b>Molecular Formula: </b><span [innerHTML]="element.molFormula"></span></div>
               <div><b>Molecular Weight: </b>{{ element.molWeight | number: '1.2-2' }}</div>
               <div><b>Chemical Name: </b>{{ element.name }}</div>
               <div><b>Salt Code: </b>{{ element.saltCode?.name }}</div>

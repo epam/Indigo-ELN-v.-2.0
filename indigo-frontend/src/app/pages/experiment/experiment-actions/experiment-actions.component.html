@@ -1,0 +1,60 @@
+<div class="flex items-center gap-2">
+  @if (experiment()) {
+    <eln-badge
+      [variant]="EXPERIMENT_STATUS_DECORATION_MAP[experiment().status]?.variant ?? 'grey'"
+      size="default"
+      classList="w-20 overflow-hidden min-w-0 text-center"
+    >
+      <span
+        class="inline-block w-2 h-2 rounded-full"
+        [class]="EXPERIMENT_STATUS_DECORATION_MAP[experiment().status]?.dotClass ?? 'bg-neutral-500'"
+      ></span>
+      <span class="flex-1 truncate">{{ experiment().status | normalizeLabel }}</span>
+    </eln-badge>
+
+    <div class="flex-1"></div>
+
+    @for (button of BUTTONS; track button.action) {
+      @if (
+        !button.inDetailsMenu &&
+        (button.allowedStatuses == null || button.allowedStatuses.includes(experiment()?.status))
+      ) {
+        <button
+          mat-flat-button
+          [color]="button.color"
+          class="flex items-center gap-1"
+          (click)="onPerformAction(button.action)"
+          [attr.aria-label]="button.title"
+        >
+          <em [class]="button.iconClasses"></em>
+          {{ button.title }}
+        </button>
+      }
+    }
+
+    <!-- "..." menu trigger -->
+    <button
+      mat-icon-button
+      class="flex items-center hover:bg-neutral-200 rounded-full"
+      [matMenuTriggerFor]="actionsMenu"
+      (click)="$event.stopPropagation()"
+      aria-label="More actions"
+    >
+      <mat-icon>more_horiz</mat-icon>
+    </button>
+
+    <mat-menu #actionsMenu="matMenu">
+      @for (button of BUTTONS; track button.action) {
+        @if (
+          button.inDetailsMenu &&
+          (button.allowedStatuses == null || button.allowedStatuses.includes(experiment()?.status))
+        ) {
+          <button mat-menu-item (click)="onPerformAction(button.action)" [attr.aria-label]="button.title">
+            <em [class]="button.iconClasses"></em>
+            {{ button.title }}
+          </button>
+        }
+      }
+    </mat-menu>
+  }
+</div>

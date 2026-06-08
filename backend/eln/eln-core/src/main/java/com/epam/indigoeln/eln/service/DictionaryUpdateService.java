@@ -109,7 +109,7 @@ public class DictionaryUpdateService {
         aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_DICTIONARIES);
         List<DictionaryItemEntity> list = dictionaryItemRepository.list(refToID(dictionaryRef), true);
         DictionaryItemEntity entity = StreamEx.of(list).filterBy(DictionaryItemEntity::getId, itemID).findFirst()
-                .orElseThrow(() -> new EntityNotFoundException(EntityType.DICTIONARY, itemID + " of dictionary " + dictionaryRef));
+                .orElseThrow(() -> new EntityNotFoundException(ELNEntityType.DICTIONARY, itemID + " of dictionary " + dictionaryRef));
         editProperty(request.getName(), entity::setName);
         editProperty(request.getDescription(), entity::setDescription);
         editProperty(request.getActive(), entity::setActive);
@@ -132,7 +132,7 @@ public class DictionaryUpdateService {
         aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_DICTIONARIES);
         List<DictionaryItemEntity> list = dictionaryItemRepository.list(refToID(dictionaryRef), true);
         DictionaryItemEntity entity = StreamEx.of(list).filterBy(DictionaryItemEntity::getId, itemID).findFirst()
-                .orElseThrow(() -> new EntityNotFoundException(EntityType.DICTIONARY_ITEM, itemID + " of dictionary " + dictionaryRef));
+                .orElseThrow(() -> new EntityNotFoundException(ELNEntityType.DICTIONARY_ITEM, itemID + " of dictionary " + dictionaryRef));
         list.remove(entity);
         try {
             entity.setDeleted(true);

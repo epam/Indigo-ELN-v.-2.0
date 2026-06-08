@@ -11,6 +11,7 @@ import com.epam.indigoeln.reaction.model.outputsample.*;
 import com.epam.indigoeln.reaction.model.units.*;
 import com.epam.indigoeln.reaction.util.CalculationReportBuilder;
 import com.epam.indigoeln.reaction.util.MutationsTestUtil;
+import com.epam.indigoeln.test.ClientUtil;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import jakarta.validation.constraints.NotNull;
@@ -23,7 +24,9 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 
+import static com.epam.indigoeln.common.model.Paging.DEFAULT_PAGE_SIZE;
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
+import static com.epam.indigoeln.common.util.ModelUtil.loadResourceAsString;
 import static com.epam.indigoeln.compound.model.search.SearchCatalog.ELN;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,8 +40,8 @@ public class MutationsTest extends MutationsTestBase {
 
     @BeforeAll
     void beforeAll(@TempDir Path tempDir) {
-        miscClient.loadCompoundsFromFileClient("compounds.sdf", tempDir, loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"));
-        saltCode = dictionaryClient.getSaltCodes().get(1);
+        miscClient.loadCompoundsFromFileClient("compounds.sdf", loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"));
+        saltCode = dictionaryClient.getNth(BuiltInDictionary.SALT_CODE, 1);
         stereoisomerCode = dictionaryClient.<StereoisomerCodeRef>getDictionary(BuiltInDictionary.STEREOISOMER_CODE).get(1);
     }
 
@@ -63,7 +66,7 @@ public class MutationsTest extends MutationsTestBase {
 
     @Test
     void testAddInputToEmptyReaction() {
-        SampleSearchResult samples = compoundClient.search(new FindSamplesRequest().withCatalogs(Set.of(ELN)), null, null, Paging.DEFAULT_PAGE_SIZE);
+        SampleSearchResult samples = compoundClient.search(new FindSamplesRequest().withCatalogs(Set.of(ELN)), null, null, DEFAULT_PAGE_SIZE);
         applyMutation(new ReactionMutation.AddInput(reaction.getAnchor(), samples.items().getFirst().getId()));
         assertThat(input1).isNotNull();
         assertThat(input1.getCompound()).isInstanceOf(CompoundRef.Stored.class);
@@ -74,14 +77,14 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testIncorrectAnchor() {
         assertThatClientCall(() -> {
-            experimentClient.mutateExperimentModel2Raw(experiment.getId(), experiment.getRevision(), "{\"type\": \"AddEmptyInput\", \"anchor\": \"invalid\"}");
+            experimentClient.mutateExperimentModel4Raw(experiment.getId(), experiment.getRevision(), "{\"type\": \"AddEmptyInput\", \"anchor\": \"invalid\"}");
         }).isBadRequest("Cannot construct instance of `com.epam.indigoeln.reaction.model.ReactionAnchor");
     }
 
     @Test
     void testUnknownField() {
         assertThatClientCall(() -> {
-            experimentClient.mutateExperimentModel2Raw(experiment.getId(), experiment.getRevision(), "{\"type\": \"AddEmptyInput\", \"anchor\": \"00000000-0000-0000-0000-000000000001\", \"unknownField\": 123}");
+            experimentClient.mutateExperimentModel4Raw(experiment.getId(), experiment.getRevision(), "{\"type\": \"AddEmptyInput\", \"anchor\": \"00000000-0000-0000-0000-000000000001\", \"unknownField\": 123}");
         }).isBadRequest("Unrecognized field \"unknownField\"");
     }
 
@@ -98,8 +101,7 @@ public class MutationsTest extends MutationsTestBase {
         assertThat(output1.getCompound()).isInstanceOf(CompoundRef.Virtual.class);
     }
 
-    @Test
-    @Disabled // disabled because duplicate compounds were restricted
+//    @Test // duplicate compounds are currently restricted
     void testLoadReactionUpdated() {
         // A + B + A => P + R
         loadScheme("/reaction-with-duplicates.rxn", false);
@@ -129,6 +131,7 @@ public class MutationsTest extends MutationsTestBase {
         applyMutation(prepareResolveInputs());
         assertThat(input1.getCompound()).isInstanceOf(CompoundRef.Stored.class);
         assertThat(input1Sample1.getSampleId()).isNotNull();
+        assertThat(lastMutationResponse.getReactionImages()).containsOnlyKeys(reaction.getAnchor());
     }
 
     @Test
@@ -146,7 +149,7 @@ public class MutationsTest extends MutationsTestBase {
         @NotNull InputSampleAnchor removedAnchor = input1Sample1.getAnchor();
         assertThat(reaction.getInputs()).hasSize(2);
         MutationResponse response = applyMutation(new ReactionInputSampleMutation.RemoveInput(removedAnchor));
-        assertThat(response.getMessages()).contains("Removed, press Ctrl-Z/Cmd-Z to undo (not yet implemented)");
+        assertThat(response.getMessages()).contains("Removed, press Ctrl-Z/Cmd-Z to undo");
 
         assertThat(reaction.getInputs()).hasSize(1);
     }
@@ -237,6 +240,15 @@ public class MutationsTest extends MutationsTestBase {
         loadScheme();
         applyMutation(new ReactionInputMutation.SetInputRowRole(input1.getAnchor(), ReactionRole.CATALYST));
         assertThat(input1.getRole()).isEqualTo(ReactionRole.CATALYST);
+    }
+
+    @Test
+    void testSetInputRowRoleAndBack() {
+        loadScheme();
+        applyMutation(new ReactionInputMutation.SetInputRowRole(input1.getAnchor(), ReactionRole.CATALYST));
+        applyMutation(new ReactionInputMutation.SetInputRowRole(input1.getAnchor(), ReactionRole.REAGENT));
+        applyMutation(new ReactionInputMutation.SetInputRowRole(input1.getAnchor(), ReactionRole.REACTANT));
+        assertThat(input1.getRole()).isEqualTo(ReactionRole.REACTANT);
     }
 
     @Test
@@ -574,8 +586,8 @@ public class MutationsTest extends MutationsTestBase {
 
     @Test
     void testSetBatchCreator() {
-        applyMutation(new ExperimentMutation.SetBatchCreator(getMaggieUserRef()));
-        assertThat(experiment.getBatchCreator()).isEqualTo(getMaggieUserRef());
+        applyMutation(new ExperimentMutation.SetBatchCreator(MAGGIE_USER_REF));
+        assertThat(experiment.getBatchCreator()).isEqualTo(MAGGIE_USER_REF);
     }
 
     @Test
@@ -640,7 +652,9 @@ public class MutationsTest extends MutationsTestBase {
     void testConflicts() {
         loadScheme();
         applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "100", WeightUnit.G));
-        applyMutation(new ReactionInputSampleMutation.SetInputMol(input1Sample1.getAnchor(), "1", MolUnit.MOL), false);
+        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input2Sample1.getAnchor(), "200", WeightUnit.G));
+        applyMutation(new ReactionInputMutation.SetInputRowEQ(input1.getAnchor(), "1"));
+        applyMutation(new ReactionInputMutation.SetInputRowEQ(input2.getAnchor(), "2"));
     }
 
     @Test
@@ -655,6 +669,21 @@ public class MutationsTest extends MutationsTestBase {
         assertThatClientCall(() -> {
             loadScheme("/duplicate-input.rxn", false);
         }).isBadRequest("Reaction contains duplicate input compounds");
+    }
+
+    @Test
+    void testImportSDF() {
+        applyMutation(
+                () -> experimentClient.importSDF(experiment.getId(), reaction.getAnchor(), ClientUtil.createFileUpload("file.sdf", loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"))),
+                () -> "Import SDF"
+        );
+    }
+
+    @Test
+    void testAddSampleAndMakeItIntended() {
+        applyMutation(new ReactionMutation.AddNoProductSample(reaction.getAnchor()));
+        applyMutation(new ReactionOutputSampleMutation.SetOutputMolfile(output1Sample1.getAnchor(), loadResourceAsString(getClass(), "/ring-substructure.mol")));
+        applyMutation(new ReactionOutputMutation.SetOutputRowIntended(output1.getAnchor(), true));
     }
 
     private void loadScheme() {

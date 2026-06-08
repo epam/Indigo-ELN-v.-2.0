@@ -5,22 +5,25 @@ import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.google.common.base.Preconditions;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.jspecify.annotations.Nullable;
 
-import java.util.List;
 import java.util.UUID;
 
-@Getter
-@Setter
-@ToString(exclude = "row")
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
+import static com.epam.indigoeln.common.util.ModelUtil.appendToList;
+import static com.epam.indigoeln.common.util.ModelUtil.removeFromList;
+
+@Data
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class ReactionInputSample extends ReactionSample<ReactionInput> {
 
     @NotNull
-    private InputSampleAnchor anchor;
+    private final InputSampleAnchor anchor;
 
     @Nullable
     private UUID sampleId;
@@ -38,15 +41,25 @@ public final class ReactionInputSample extends ReactionSample<ReactionInput> {
     private String comment;
 
     public static ReactionInputSample create(ReactionInput row, InputSampleAnchor anchor) {
-        ReactionInputSample sample = new ReactionInputSample();
-        sample.row = row;
-        sample.anchor = anchor;
-        row.getSamples().add(sample);
+        ReactionInputSample sample = new ReactionInputSample(anchor);
+        sample.insertInto(row);
         return sample;
     }
 
     @Override
-    protected List<? extends AbstractExperimentNode<ReactionInput>> internalGetSiblings(ReactionInput parent) {
-        return parent.getSamples();
+    public void insertInto(ReactionInput newParent) {
+        //noinspection ConstantValue,DataFlowIssue
+        Preconditions.checkState(row == null);
+        row = newParent;
+        row.setSamples(appendToList(row.getSamples(), this));
+    }
+
+    @Override
+    public void delete() {
+        //noinspection ConstantValue
+        Preconditions.checkState(row != null);
+        row.setSamples(removeFromList(row.getSamples(), this));
+        //noinspection DataFlowIssue
+        row = null;
     }
 }

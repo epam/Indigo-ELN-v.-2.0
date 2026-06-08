@@ -1,4 +1,4 @@
 package com.epam.indigoeln.reaction.model;
 
-public sealed interface ExperimentNode permits ExperimentSnapshot, ExperimentModel, AbstractExperimentNode {
+public sealed interface ExperimentNode permits ExperimentSnapshot, ExperimentModel, Reaction, ReactionRow, ReactionSample {
 }

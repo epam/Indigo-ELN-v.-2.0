@@ -16,9 +16,7 @@
 
       <div class="field-group">
         <label class="field-label">Calculated Batch MF</label>
-        <div class="field-value read-only">
-          {{ output().compound?.calculatedBatchMF || '—' }}
-        </div>
+        <div class="field-value read-only" [innerHTML]="output().compound?.calculatedBatchMF || '—'"></div>
       </div>
 
       <div class="field-group">

@@ -161,7 +161,7 @@ class RemoveProductSampleHandler extends AbstractReactionOutputSampleMutationHan
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.RemoveProductSample mutation, ExperimentMutationContext context) {
         sample.delete();
-        context.getResponse().getMessages().add("Removed, press Ctrl-Z/Cmd-Z to undo (not yet implemented)");
+        context.getResponse().getMessages().add("Removed, press Ctrl-Z/Cmd-Z to undo");
         return new MutationResult("Remove batch");
     }
 }

@@ -1,7 +1,7 @@
 import { Component, DestroyRef, forwardRef, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AutocompleteSelectComponent } from '@core/components/common/autocomplete-select/autocomplete-select.component';
-import { UserMetadata } from '@core/types/entities/user.i';
+import { UserRef } from '@core/types/entities/user.i';
 import { Observable } from 'rxjs';
 import { ApiService } from '@core/services/api.service';
 import { AbstractControl, FormControl, FormGroup, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
@@ -22,9 +22,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     },
   ],
 })
-export class UserSelectComponent extends DelegatingControlBase<UserMetadata> implements OnInit {
+export class UserSelectComponent extends DelegatingControlBase<UserRef> implements OnInit {
   form = new FormGroup({
-    search: new FormControl<UserMetadata | null>(null),
+    search: new FormControl<UserRef | null>(null),
   });
 
   private api = inject(ApiService);
@@ -37,13 +37,13 @@ export class UserSelectComponent extends DelegatingControlBase<UserMetadata> imp
       .subscribe((value) => this.triggerChange(value));
   }
 
-  search(query: string): Observable<UserMetadata[]> {
-    return this.api.request<UserMetadata[]>('get', 'users/suggest', {
+  search(query: string): Observable<UserRef[]> {
+    return this.api.request<UserRef[]>('get', 'users/suggest', {
       params: new HttpParams().set('search', query),
     });
   }
 
-  displayFn(user: UserMetadata | null): string {
+  displayFn(user: UserRef | null): string {
     return user ? `${user.displayName} <${user.username}>` : '';
   }
 
@@ -51,7 +51,7 @@ export class UserSelectComponent extends DelegatingControlBase<UserMetadata> imp
     return Object.values(this.form.controls);
   }
 
-  setValue(obj: UserMetadata | null): void {
+  setValue(obj: UserRef | null): void {
     this.form.get('search').setValue(obj);
   }
 }

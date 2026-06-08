@@ -30,5 +30,5 @@ public class ACLEntry implements Serializable {
     private AccessLevel level;
 
     @NotNull
-    private Boolean inherited;
+    private boolean inherited;
 }

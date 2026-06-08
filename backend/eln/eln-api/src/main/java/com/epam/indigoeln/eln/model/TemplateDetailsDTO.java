@@ -14,7 +14,7 @@ public class TemplateDetailsDTO extends TemplateDTO {
     @Override
     public String toString() {
         return "TemplateDetailsDTO{" +
-                "id=" + id +
+                "id=" + getId() +
                 ", name='" + name + '\'' +
                 '}';
     }

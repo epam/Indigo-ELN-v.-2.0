@@ -144,6 +144,6 @@ export class GlobalSearchLoader extends InfiniteSearchLoader<
   }
 
   protected hasNext(currentPage: PaginatedResponse<GlobalSearchResult>): boolean {
-    return currentPage.items.length === 0 || currentPage.pageNo + 1 >= currentPage.totalPages;
+    return currentPage.items.length !== 0 && currentPage.pageNo + 1 >= currentPage.totalPages;
   }
 }

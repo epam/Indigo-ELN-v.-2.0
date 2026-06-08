@@ -1,9 +1,9 @@
-import { UserMetadata } from '@core/types/entities/user.i';
+import { UserRef } from '@core/types/entities/user.i';
 
 export interface Revision {
   revision: number;
   datetime: string;
-  user: UserMetadata;
+  user: UserRef;
   displayName: string;
   summary: string;
   diff: unknown;

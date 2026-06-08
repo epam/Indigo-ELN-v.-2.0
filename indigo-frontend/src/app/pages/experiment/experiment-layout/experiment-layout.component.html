@@ -1,15 +1,21 @@
 <div appUndoRedo>
   <eln-card classList="px-4 sm:px-2 md:px-4 shadow-md pb-0 mb-6">
-    <div class="flex items-center justify-between flex-wrap gap-4">
-      <eln-breadcrumbs [items]="(breadcrumbsState.items$ | async) ?? []"></eln-breadcrumbs>
-      <div class="flex items-center gap-2 ml-auto"></div>
+    <div class="flex items-center gap-4">
+      <eln-breadcrumbs [items]="(breadcrumbsState.items$ | async) ?? []" class="shrink-0"></eln-breadcrumbs>
+      <eln-experiment-actions class="flex-1 min-w-0"></eln-experiment-actions>
     </div>
 
     <div class="flex items-center mt-6 overflow-x-auto">
-      <eln-project-tab-button [routerLink]="infoUrl" label="Info" />
-      <eln-project-tab-button [routerLink]="attachmentsUrl" label="Attachments" />
-      <eln-project-tab-button [routerLink]="summaryUrl" label="Summary" />
-      <eln-project-tab-button [routerLink]="versionsUrl" label="Versions" />
+      <!-- tabs -->
+      @for (tab of tabs; track $index) {
+        <a
+          [class]="['p-3 md:p-4 text-primary-400 whitespace-nowrap h-[56px]', 'cursor-pointer'] | twsx"
+          (click)="selectTab(tab)"
+          [class.border-b-primary-400]="tab.selected"
+          [class.border-b-2]="tab.selected"
+          >{{ tab.data.name }}
+        </a>
+      }
     </div>
   </eln-card>
 
@@ -57,7 +63,51 @@
   }
 
   <!-- Tab Content -->
-  <div *ngIf="experiment() && !isLoading() && !hasError()">
-    <router-outlet></router-outlet>
-  </div>
+  @if (template() && !isLoading() && !hasError()) {
+    @if (experiment(); as exp) {
+      @let reactionAnchor = exp.model.reactions[0].anchor;
+      @for (tab of tabs; track $index) {
+        @if (tab.created) {
+          <div [hidden]="!tab.selected" class="flex flex-col gap-4">
+            @for (component of tab.data.components; track $index) {
+              @switch (component.type) {
+                @case ('experimentDetails') {
+                  <eln-experiment-component-wrapper title="Experiment Details">
+                    <eln-experiment-details [experimentId]="exp.id" />
+                  </eln-experiment-component-wrapper>
+                }
+                @case ('experimentDescription') {
+                  <eln-experiment-component-wrapper title="Experiment Description">
+                    <eln-experiment-description [experimentId]="exp.id" />
+                  </eln-experiment-component-wrapper>
+                }
+                @case ('attachments') {
+                  <eln-experiment-component-wrapper title="Attachments">
+                    <eln-experiment-attachments [experimentId]="exp.id" />
+                  </eln-experiment-component-wrapper>
+                }
+                @case ('stoichiometryTable') {
+                  <eln-experiment-component-wrapper title="Stoichiometric Calculation">
+                    <eln-reaction-view
+                      [experimentId]="exp.id"
+                      [reactionAnchor]="reactionAnchor"
+                      [reactionScheme]="component.reactionScheme"
+                      [reactantsReagentsSolvents]="component.reactantsReagentsSolvents"
+                      [intendedProducts]="component.intendedProducts"
+                    />
+                  </eln-experiment-component-wrapper>
+                }
+                @case ('batches') {
+                  <eln-product-batch-summary-table [experimentId]="exp.id" [reactionAnchor]="reactionAnchor" />
+                }
+                @case ('versionHistory') {
+                  <eln-experiment-versions [experimentId]="exp.id" />
+                }
+              }
+            }
+          </div>
+        }
+      }
+    }
+  }
 </div>

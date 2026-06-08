@@ -12,8 +12,11 @@ import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.reaction.model.*;
-import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.units.*;
+import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
+import com.epam.indigoeln.reaction.model.units.DensityUnit;
+import com.epam.indigoeln.reaction.model.units.EnteredValue;
+import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
+import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.google.common.base.Preconditions;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
@@ -21,7 +24,6 @@ import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -31,7 +33,7 @@ import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE;
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE_HUNDRED;
 import static com.google.common.base.MoreObjects.firstNonNull;
 
-public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends AbstractExperimentMutationHandler<T> {
+public abstract class ExperimentMutationHandlerBase<T extends ExperimentMutation> extends AbstractExperimentMutationHandler<T> {
 
     @Inject
     Instance<IndigoAPI> indigoAPI;
@@ -56,8 +58,7 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
             ev = defaultValue;
         } else { // create or update value
             Preconditions.checkArgument(unit != null);
-            double effectiveValue = Double.parseDouble(stringValue);
-            ev = new EnteredValue<>(effectiveValue, stringValue, unit, EnteredValueSource.userEntered(revisionNo));
+            ev = EnteredValue.userEntered(stringValue, unit, revisionNo);
         }
         setter.accept(ev);
     }
@@ -111,7 +112,7 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
     }
 
     public void setInputLineSample(ReactionInput row, SampleEntity sample, InputSampleAnchor anchor, ExperimentMutationContext context) {
-        row.getSamples().clear(); // TODO don't remove existing samples when multi-sample support is implemented on a frontend
+        row.setSamples(List.of()); // TODO don't remove existing samples when multi-sample support is implemented on a frontend
         row.updateCompound(compoundService.realCompoundRef(sample.getCompound()));
 
         ReactionInputSample reactionInputSample = ReactionInputSample.create(row, anchor);
@@ -139,34 +140,12 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
     }
 
     public ReactionOutput createOutputLine(Reaction reaction, IndigoMolecule molecule, boolean intended, OutputAnchor anchor) {
-        return createOutputLine(reaction, compoundService.virtualCompoundRef(molecule, null, null, null), intended, anchor);
-    }
-
-    public ReactionOutput createOutputLine(Reaction reaction, CompoundRef compound, boolean intended, OutputAnchor anchor) {
-        ReactionOutput row = ReactionOutput.create(reaction, reaction.getFinalOutput() != null ? ReactionOutputType.BY_PRODUCT : ReactionOutputType.FINAL, intended, reaction.generateNextProductName(), anchor, compound);
-        row.setEq(DEFAULT_ONE);
-        row.setSamples(new ArrayList<>());
-        return row;
-    }
-
-    protected void adjustLimitingInput(Reaction reaction) {
-        ReactionInput limiting = null;
-        for (ReactionInput input : reaction.getInputs()) {
-            if (input.isLimiting()) {
-                if (limiting == null) {
-                    limiting = input;
-                } else {
-                    input.setLimiting(false);
-                }
-            }
-        }
-        if (limiting == null && !reaction.getInputs().isEmpty()) {
-            reaction.getInputs().getFirst().setLimiting(true);
-        }
+        CompoundRef compound = compoundService.virtualCompoundRef(molecule, null, null, null);
+        return ReactionOutput.create(reaction, reaction.getFinalOutput() != null ? ReactionOutputType.BY_PRODUCT : ReactionOutputType.FINAL, intended, reaction.generateNextProductName(), anchor, compound, DEFAULT_ONE);
     }
 
     protected void cleanupUnintendedProducts(Reaction reaction) {
-        reaction.getOutputs().removeIf(r -> !r.isIntended() && r.getSamples().isEmpty());
+        reaction.setOutputs(StreamEx.of(reaction.getOutputs()).remove(r -> !r.isIntended() && r.getSamples().isEmpty()).toImmutableList());
     }
 
     @SuppressWarnings("OptionalAssignedToNull")
@@ -190,7 +169,13 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
                 IndigoMolecule molecule = indigoAPI.get().loadMolecule(effectiveMolfile);
                 return compoundService.virtualCompoundRef(molecule, effectiveStereoisomerCode, effectiveSaltCode, effectiveSaltEQ);
             }
-            case CompoundRef.Unknown u -> throw new InvalidRequestException("Cannot set saltCode/saltEQ/stereoisomerCode/molfile for unknown compound");
+            case CompoundRef.Unknown u -> {
+                if (molfile != null) {
+                    IndigoMolecule molecule = indigoAPI.get().loadMolecule(molfile);
+                    return compoundService.virtualCompoundRef(molecule, null, null, null);
+                }
+                throw new InvalidRequestException("Cannot set saltCode/saltEQ/stereoisomerCode for unknown compound");
+            }
         }
     }
 
@@ -198,6 +183,6 @@ public abstract class ExperimentMutationHandlerBase<T extends Mutation> extends 
         return StreamEx.of(reaction.getOutputs())
                 .filter(x -> x.getCompound().compoundKeyEquals(compound))
                 .findFirst()
-                .orElseGet(() -> createOutputLine(reaction, compound, false, createdOutputAnchor));
+                .orElseGet(() -> ReactionOutput.create(reaction, reaction.getFinalOutput() != null ? ReactionOutputType.BY_PRODUCT : ReactionOutputType.FINAL, false, reaction.generateNextProductName(), createdOutputAnchor, compound, DEFAULT_ONE));
     }
 }

@@ -1,5 +1,9 @@
 package com.epam.indigoeln.eln.api;
 
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.SortOrder;
+import com.epam.indigoeln.common.model.UploadForm;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.quarkus.cachecontrol.Cached;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
@@ -37,13 +41,11 @@ public interface ExperimentAPI extends BaseAPI {
 
     @GET
     @Path("/projects/{projectId}/experiments")
-    Page<ExperimentDTO> getProjectExperiments(@PathParam("projectId") UUID projectId, @QueryParam("search") @Nullable String search,
-            @QueryParam("sort") @Nullable SortOrder sort, @QueryParam("createdByMe") @Nullable Boolean createdByMe, @BeanParam Paging paging);
+    Page<ExperimentDTO> getProjectExperiments(@PathParam("projectId") UUID projectId, @QueryParam("search") @Nullable String search, @QueryParam("sort") @Nullable SortOrder sort, @QueryParam("createdByMe") @Nullable Boolean createdByMe, @BeanParam Paging paging);
 
     @GET
     @Path("/notebooks/{notebookId}/experiments")
-    Page<ExperimentDTO> getNotebookExperiments(@PathParam("notebookId") UUID notebookId, @QueryParam("search") @Nullable String search,
-            @QueryParam("sort") @Nullable SortOrder sort, @QueryParam("createdByMe") @Nullable Boolean createdByMe, @BeanParam Paging paging);
+    Page<ExperimentDTO> getNotebookExperiments(@PathParam("notebookId") UUID notebookId, @QueryParam("search") @Nullable String search, @QueryParam("sort") @Nullable SortOrder sort, @QueryParam("createdByMe") @Nullable Boolean createdByMe, @BeanParam Paging paging);
 
     @GET
     @Path("/experiments/marked")
@@ -59,7 +61,7 @@ public interface ExperimentAPI extends BaseAPI {
     List<AttachmentDTO> createExperimentAttachment(@PathParam("experimentId") UUID experimentId, UploadForm form);
 
     @GET
-    @Path("/experiment/{experimentId}/attachments/{attachmentId}")
+    @Path("/experiments/{experimentId}/attachments/{attachmentId}")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     Response downloadExperimentAttachment(@PathParam("experimentId") UUID experimentId, @PathParam("attachmentId") UUID attachmentId);
 
@@ -84,23 +86,15 @@ public interface ExperimentAPI extends BaseAPI {
 
     @POST
     @Path("/experiments/{experimentId}/access")
-    List<ACLDetailsEntryDTO> updateExperimentAccess(@PathParam("experimentId") UUID experimentId, List<AccessForm> form);
+    List<ACLEntryDTO> updateExperimentAccess(@PathParam("experimentId") UUID experimentId, List<AccessForm> form);
 
     @POST
     @Path("/experiments/{experimentId}/mutate")
-    ExperimentModel mutateExperimentModel(@PathParam("experimentId") UUID experimentId, MutateModelForm modelAndMutation);
-
-    @POST
-    @Path("/experiments/{experimentId}/mutate3")
-    ExperimentSnapshot mutateExperimentModel3(@PathParam("experimentId") UUID experimentId, @QueryParam("revision") Integer revision, Mutation mutation);
+    ExperimentModel mutateExperimentModel(@PathParam("experimentId") UUID experimentId, Mutation mutation);
 
     @POST
     @Path("/experiments/{experimentId}/mutate4")
     MutationResponse mutateExperimentModel4(@PathParam("experimentId") UUID experimentId, @QueryParam("revision") Integer revision, Mutation mutation);
-
-    @POST
-    @Path("/experiments/{experimentId}/datamodel2")
-    JsonNode mutateExperimentModel2(@PathParam("experimentId") UUID experimentId, @QueryParam("revision") Integer revision, Mutation mutation);
 
     @GET
     @Path("/experiments/{experimentId}/datamodel/reactions/{reactionAnchor}/picture")
@@ -113,12 +107,21 @@ public interface ExperimentAPI extends BaseAPI {
     Map<InputAnchor, String> analyzeRXN(@PathParam("experimentId") UUID experimentId, @PathParam("reactionAnchor") ReactionAnchor reactionAnchor);
 
     @POST
+    @Path("/experiments/{experimentId}/datamodel/reactions/{reactionAnchor}/importSDF")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    MutationResponse importSDF(@PathParam("experimentId") UUID experimentId, @PathParam("reactionAnchor") ReactionAnchor reactionAnchor, UploadForm form);
+
+    @POST
     @Path("/experiments/{experimentId}/workflow/cancel")
     ExperimentDetailsDTO cancelExperiment(@PathParam("experimentId") UUID experimentId);
 
     @POST
     @Path("/experiments/{experimentId}/workflow/reopen")
     ExperimentDetailsDTO reopenExperiment(@PathParam("experimentId") UUID experimentId);
+
+    @GET
+    @Path("/signatureTemplates")
+    List<SignatureTemplateRef> getSignatureTemplates();
 
     @POST
     @Path("/experiments/{experimentId}/workflow/complete")
@@ -131,18 +134,6 @@ public interface ExperimentAPI extends BaseAPI {
     @POST
     @Path("/experiments/{experimentId}/workflow/completeAndSubmit")
     ExperimentDetailsDTO completeAndSubmitExperiment(@PathParam("experimentId") UUID experimentId, @QueryParam("signatureTemplateId") UUID signatureTemplateId);
-
-    @POST
-    @Path("/experiments/{experimentId}/workflow/approve")
-    ExperimentForSignatureDTO approveExperiment(@PathParam("experimentId") UUID experimentId);
-
-    @POST
-    @Path("/experiments/{experimentId}/workflow/reject")
-    ExperimentForSignatureDTO rejectExperiment(@PathParam("experimentId") UUID experimentId);
-
-    @POST
-    @Path("/experiments/{experimentId}/workflow/resubmit")
-    ExperimentDetailsDTO resubmitExperiment(@PathParam("experimentId") UUID experimentId);
 
     @POST
     @Path("/experiments/{experimentId}/print")
@@ -168,4 +159,9 @@ public interface ExperimentAPI extends BaseAPI {
     @GET
     @Path("/experiments/suggest")
     List<ExperimentRef> suggestExperiments(@QueryParam("search") String search);
+
+    @GET
+    @Produces("chemical/x-mdl-sdfile")
+    @Path("/experiments/{experimentId}/exportSdf")
+    byte[] exportSDF(@PathParam("experimentId") UUID experimentId);
 }

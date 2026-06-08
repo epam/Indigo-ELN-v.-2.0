@@ -12,7 +12,4 @@ import lombok.ToString;
 @Setter
 @ToString
 public class NotebookMutationContext extends AbstractMutationContext<NotebookEntity, NotebookSnapshot, NotebookRevisionEntity, NotebookMutationContext> {
-
-    private boolean affectsAttachments;
-    private boolean affectsACL;
 }
