@@ -59,23 +59,23 @@ public class ExperimentUndoTest extends MutationsTestBase {
     @Test
     void testSimpleUndoRedo() {
         applyMutation(new ReactionMutation.AddEmptyInput(reaction.getAnchor()), false);
-        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
-                .extracting(RevisionDetailsDTO::getSummary)
+        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), true))
+                .extracting(RevisionSummaryDTO::getSummary)
                 .containsExactly("Experiment created", "Add empty input");
         InputAnchor anchor = input1.getAnchor();
         assertThat(anchor).isNotNull();
         // undo
         applyMutation(new ExperimentMutation.Undo());
         assertThat(input1).isNull();
-        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
-                .extracting(RevisionDetailsDTO::getSummary)
+        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), true))
+                .extracting(RevisionSummaryDTO::getSummary)
                 .containsExactly("Experiment created", "Add empty input", "Undo: Add empty input");
         // redo
         applyMutation(new ExperimentMutation.Redo());
         assertThat(input1).isNotNull();
         assertThat(input1.getAnchor()).isEqualTo(anchor);
-        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
-                .extracting(RevisionDetailsDTO::getSummary)
+        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), true))
+                .extracting(RevisionSummaryDTO::getSummary)
                 .containsExactly("Experiment created", "Add empty input", "Undo: Add empty input", "Redo: Add empty input");
     }
 
@@ -266,9 +266,9 @@ public class ExperimentUndoTest extends MutationsTestBase {
     }
 
     private List<String> getRevisions(int skip) {
-        return experimentClient.getExperimentRevisions(experiment.getId(), null, false).stream()
+        return experimentClient.getExperimentRevisions(experiment.getId(), true).stream()
                 .skip(skip)
-                .map(RevisionDetailsDTO::getSummary)
+                .map(RevisionSummaryDTO::getSummary)
                 .toList();
     }
 }

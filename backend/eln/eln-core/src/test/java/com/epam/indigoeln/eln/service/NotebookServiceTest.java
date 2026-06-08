@@ -6,7 +6,6 @@ import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.reaction.model.mutation.NotebookMutation;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import jakarta.ws.rs.core.HttpHeaders;
@@ -154,9 +153,8 @@ class NotebookServiceTest extends ELNBaseTest {
                 .hasSize(1)
                 .first().satisfies(revision -> {
                     assertThat(revision.getRevision()).isOne();
-                    assertThat(revision.getDatetime()).isEqualTo(notebook.getCreatedAt());
+                    assertThat(revision.getDate()).isEqualTo(notebook.getCreatedAt());
                     assertThat(revision.getUser()).isEqualTo(JOHN_USER_REF);
-                    assertThat(revision.getMutation()).isInstanceOf(NotebookMutation.CreateNotebook.class);
                     assertThat(revision.getSummary()).isEqualTo("Create notebook");
                 });
     }
@@ -253,9 +251,8 @@ class NotebookServiceTest extends ELNBaseTest {
                 .hasSize(2)
                 .last().satisfies(revision -> {
                     assertThat(revision.getRevision()).isEqualTo(2);
-                    assertThat(revision.getDatetime()).isEqualTo(modified.getModifiedAt());
+                    assertThat(revision.getDate()).isEqualTo(modified.getModifiedAt());
                     assertThat(revision.getUser()).isEqualTo(JOHN_USER_REF);
-                    assertThat(revision.getMutation()).isInstanceOf(NotebookMutation.EditNotebookAttributes.class);
                     assertThat(revision.getSummary()).matches("Edit: name=.+, description=.+");
                 });
     }
@@ -274,7 +271,6 @@ class NotebookServiceTest extends ELNBaseTest {
         });
         assertThat(notebookClient.getNotebookRevisions(notebook.getId()))
                 .last().satisfies(revision -> {
-                    assertThat(revision.getMutation()).isInstanceOf(NotebookMutation.CreateNotebookAttachment.class);
                     assertThat(revision.getSummary()).isEqualTo("Created attachment: attachment.txt, 7 bytes");
                 });
     }
@@ -298,7 +294,6 @@ class NotebookServiceTest extends ELNBaseTest {
         assertThat(notebook.getAttachments()).isEmpty();
         assertThat(notebookClient.getNotebookRevisions(notebook.getId()))
                 .last().satisfies(revision -> {
-                    assertThat(revision.getMutation()).isInstanceOf(NotebookMutation.DeleteNotebookAttachment.class);
                     assertThat(revision.getSummary()).isEqualTo("Deleted attachment: attachment.txt");
                 });
     }
@@ -336,16 +331,13 @@ class NotebookServiceTest extends ELNBaseTest {
                 .last().satisfies(revision -> {
                     assertThat(revision.getRevision()).isEqualTo(2);
                     assertThat(revision.getUser()).isEqualTo(JOHN_USER_REF);
-                    assertThat(revision.getMutation()).isInstanceOf(NotebookMutation.EditNotebookAccess.class);
                     assertThat(revision.getSummary()).isEqualTo("Edited Team: granted maggie EDIT access");
-                    assertThat(revision.getDiff()).isNotNull(); // TODO verify diff old and new ACL
                 });
         notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(MAGGIE_USERNAME, AccessLevel.NONE));
         assertThat(notebookClient.getNotebookRevisions(notebook.getId()))
                 .hasSize(3)
                 .last().satisfies(revision -> {
                     assertThat(revision.getSummary()).isEqualTo("Edited Team: removed maggie");
-                    assertThat(revision.getDiff()).isNotNull(); // TODO verify diff old and new ACL
                 });
     }
 

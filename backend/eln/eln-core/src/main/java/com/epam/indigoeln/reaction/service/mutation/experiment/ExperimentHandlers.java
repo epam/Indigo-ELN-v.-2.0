@@ -83,11 +83,6 @@ class CreateExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
 class SetExperimentSignificantFiguresHandler extends ExperimentMutationHandlerBase<ExperimentMutation.SetExperimentSignificantFigures> {
 
     @Override
-    public void doPrepare(ExperimentEntity entity, ExperimentMutation.SetExperimentSignificantFigures mutation, ExperimentMutationContext context) {
-        context.setRequiresEditSession(true);
-    }
-
-    @Override
     public MutationResult doHandle(ExperimentEntity entity, ExperimentMutation.SetExperimentSignificantFigures mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         entity.getModel().setSignificantFigures(mutation.significantFigures());
         return new MutationResult(formatSetterSummary("significant figures", mutation.significantFigures()));

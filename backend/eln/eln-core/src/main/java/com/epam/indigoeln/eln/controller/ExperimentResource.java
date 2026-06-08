@@ -18,7 +18,6 @@ import com.epam.indigoeln.reaction.model.InputAnchor;
 import com.epam.indigoeln.reaction.model.ReactionAnchor;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -170,23 +169,13 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
-    public List<RevisionDetailsDTO> getExperimentRevisions(UUID experimentId, @Nullable UUID editSessionId, @Nullable Boolean reverseOrder) {
-        return experimentService.getExperimentRevisions(experimentId, editSessionId, reverseOrder);
+    public List<RevisionSummaryDTO> getExperimentRevisions(UUID experimentId, @Nullable Boolean flatten) {
+        return experimentService.getExperimentRevisions(experimentId, flatten);
     }
 
     @Override
-    public List<ExperimentRevisionSummaryDTO> getExperimentRevisionsSummary(UUID experimentId) {
-        return experimentService.getExperimentRevisionsSummary(experimentId);
-    }
-
-    @Override
-    public JsonNode compareVersions(UUID experimentId, @Nullable Integer versionFrom, @Nullable Integer versionTo) {
-        return experimentService.compareVersions(experimentId, versionFrom, versionTo);
-    }
-
-    @Override
-    public String compareVersionsHTML(UUID experimentId, @Nullable Integer versionFrom, @Nullable Integer versionTo) {
-        return experimentService.compareVersionsHTML(experimentId, versionFrom, versionTo);
+    public String getRevisionDiff(UUID experimentId, int revisionNo) {
+        return experimentService.getRevisionDiff(experimentId, revisionNo);
     }
 
     @Override

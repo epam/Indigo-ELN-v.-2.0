@@ -66,5 +66,5 @@ public interface NotebookAPI extends BaseAPI {
 
     @GET
     @Path("/notebooks/{notebookId}/revisions")
-    List<RevisionDetailsDTO> getNotebookRevisions(@PathParam("notebookId") UUID notebookId);
+    List<RevisionSummaryDTO> getNotebookRevisions(@PathParam("notebookId") UUID notebookId);
 }

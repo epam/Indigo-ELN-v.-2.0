@@ -144,7 +144,7 @@ public abstract class MutationsTestBase extends ELNBaseTest {
                 reportBuilder.addMessage("", "Message: " + message);
             }
         }
-        reportBuilder.addModel(reportClass, FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(patch), updatedSnapshot);
+        reportBuilder.addModel(reportClass, initialSnapshot, patch, updatedSnapshot);
 
         // verify if patch is correct
         PatchTestUtil.verifyModelPatch(experiment, patch, updatedExperiment, reportBuilder);

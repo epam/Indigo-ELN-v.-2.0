@@ -11,11 +11,6 @@ import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 public abstract class AbstractReactionOutputMutationHandler<T extends ReactionOutputMutation> extends ExperimentMutationHandlerBase<T> {
 
     @Override
-    public void doPrepare(ExperimentEntity entity, T mutation, ExperimentMutationContext context) {
-        context.setRequiresEditSession(true);
-    }
-
-    @Override
     public MutationResult doHandle(ExperimentEntity experiment, T mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         ReactionOutput row = experiment.getModel().locate(mutation.anchor());
         return handle(experiment, experiment.getModel(), row.getReaction(), row, mutation, context);

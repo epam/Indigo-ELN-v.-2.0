@@ -71,7 +71,7 @@ public abstract class AbstractUndoHelper<E extends BaseEntity & WithRevision, S,
         // rewind
         JsonNode snapshotJSON = objectMapper.valueToTree(snapshotBefore);
         for (RevisionInfo revision : info.rewind.reversed()) {
-            JsonNode diff = objectMapper.readTree(revision.entity.getDiff());
+            JsonNode diff = revision.entity.getDiff();
             snapshotJSON = jsonPatcher.reverse(snapshotJSON, diff);
         }
         // store rewound model back in entity

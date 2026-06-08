@@ -84,7 +84,7 @@ public class NotebookResource implements NotebookAPI {
     }
 
     @Override
-    public List<RevisionDetailsDTO> getNotebookRevisions(UUID notebookId) {
+    public List<RevisionSummaryDTO> getNotebookRevisions(UUID notebookId) {
         return notebookService.getNotebookRevisions(notebookId);
     }
 }

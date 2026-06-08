@@ -4,10 +4,8 @@ import com.epam.indigoeln.common.model.DocumentStatus;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.Reaction;
-import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.signature.model.*;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import io.quarkiverse.wiremock.devservice.ConnectWireMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -281,46 +279,25 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
         experimentClient.mutateExperimentModel4(experiment.getId(), experiment.getRevision(), new ReactionMutation.AddEmptyInput(reaction.getAnchor()));
         experimentClient.completeAndSubmitExperiment(experiment.getId(), noSignersTemplateID);
 
-        List<RevisionDetailsDTO> revisions = experimentClient.getExperimentRevisions(experiment.getId(), null, null);
-        assertThat(revisions).<Class<?>>map(r -> r.getMutation().getClass()).containsExactly(
-                ExperimentMutation.CreateExperiment.class,
-                ReactionMutation.AddEmptyInput.class,
-                ReactionMutation.AddEmptyInput.class,
-                ExperimentMutation.CompleteExperiment.class,
-                ExperimentMutation.MakeVersion.class,
-                ExperimentMutation.SubmitExperiment.class,
-                ExperimentMutation.ReopenExperiment.class,
-                ReactionMutation.AddEmptyInput.class,
-                ExperimentMutation.CompleteExperiment.class,
-                ExperimentMutation.MakeVersion.class,
-                ExperimentMutation.SubmitExperiment.class
-        );
-
-        List<ExperimentRevisionSummaryDTO> revisionsSummary = experimentClient.getExperimentRevisionsSummary(experiment.getId()).reversed();
-        assertThat(revisionsSummary).map(ExperimentRevisionSummaryDTO::getSummary).containsExactly(
+        List<RevisionSummaryDTO> revisions = experimentClient.getExperimentRevisions(experiment.getId(), false);
+        assertThat(revisions).map(RevisionSummaryDTO::getSummary).containsExactly(
                 "Experiment created",
                 "Edited experiment",
                 "Experiment completed",
                 "Version 1",
                 "Experiment submitted for signature",
                 "Experiment reopened",
-                "Edited experiment",
+                "Add empty input",
                 "Experiment completed",
                 "Version 2",
                 "Experiment submitted for signature"
         );
-        ExperimentRevisionSummaryDTO firstEditSession = revisionsSummary.get(1);
+        RevisionSummaryDTO firstEditSession = revisions.get(1);
 
-        List<RevisionDetailsDTO> editRevisions = experimentClient.getExperimentRevisions(experiment.getId(), firstEditSession.getEditSessionID(), null);
-        assertThat(editRevisions).map(RevisionDetailsDTO::getRevision).containsExactly(
-                revisions.get(1).getRevision(), revisions.get(2).getRevision()
-        );
+        List<RevisionSummaryDTO> editRevisions = firstEditSession.getDetails();
+        assertThat(editRevisions).map(RevisionSummaryDTO::getRevision).containsExactly(2, 3);
 
-        JsonNode versionDiff = experimentClient.compareVersions(experiment.getId(), 1, 2);
-        assertThat(versionDiff).isNotNull();
-
-        experimentClient.compareVersions(experiment.getId(), 1, null);
-        experimentClient.compareVersionsHTML(experiment.getId(), 1, null);
+        experimentClient.getRevisionDiff(experiment.getId(), 2);
     }
 
     private void approveDocument(String username, DocumentStatus simulatedStatus) {

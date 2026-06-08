@@ -20,6 +20,12 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Entity(name = "ExperimentRevision")
 @IdClass(ExperimentRevisionEntity.CompositeID.class)
+@NamedEntityGraph(
+        name = "ExperimentRevision.range",
+        attributeNodes = {
+                @NamedAttributeNode("diff")
+        }
+)
 public class ExperimentRevisionEntity extends BaseRevisionEntity {
 
     @Id
@@ -35,11 +41,6 @@ public class ExperimentRevisionEntity extends BaseRevisionEntity {
     @JdbcTypeCode(SqlTypes.JSON)
     @Convert(converter = ExperimentSnapshotConverter.class)
     private ExperimentSnapshot snapshot;
-
-    @Nullable
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(updatable = false)
-    private ExperimentEditSessionEntity editSession;
 
     public record CompositeID(
             ExperimentEntity experiment,

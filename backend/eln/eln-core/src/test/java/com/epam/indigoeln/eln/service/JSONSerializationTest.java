@@ -2,9 +2,12 @@ package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.eln.ELNBaseTest;
+import com.epam.indigoeln.eln.model.ExperimentRef;
 import com.epam.indigoeln.eln.model.ProjectEditRequest;
 import com.epam.indigoeln.eln.model.TemplateComponent;
 import com.epam.indigoeln.eln.model.TemplateTab;
+import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
+import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.EnteredValueSource;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
@@ -25,6 +28,8 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -125,6 +130,26 @@ public class JSONSerializationTest {
         String serialized = serialize(serializer, list);
         List<TemplateTab> list2 = deserialize(deserializer, serialized, new TypeReference<>() {});
         assertThat(list2).isEqualTo(list);
+    }
+
+    @ParameterizedTest
+    @MethodSource("mappers")
+    void testSerializeMutation(MapperType serializer, MapperType deserializer) {
+        Mutation mutation = new ExperimentMutation.EditExperimentAttributes(
+                Optional.of("new title"),
+                Optional.empty(),
+                null,
+                null,
+                null,
+                Optional.of(Set.of(new ExperimentRef(UUID.fromString("63c03dfa-803c-4d89-bf8d-16c536c28a40"), "00000001-0001"))),
+                null,
+                null
+        );
+        String json = serialize(serializer, mutation);
+        System.out.println(json);
+        assertThat(json).isEqualToIgnoringWhitespace("{\"type\": \"EditExperimentAttributes\", \"title\": \"new title\", \"therapeuticArea\": null, \"linkedExperiments\": [{\"id\": \"63c03dfa-803c-4d89-bf8d-16c536c28a40\", \"name\": \"00000001-0001\"}]}");
+        Mutation mutation2 = deserialize(deserializer, json, Mutation.class);
+        assertThat(mutation2).isEqualTo(mutation);
     }
 
     ObjectMapper getMapper(MapperType mapperType) {

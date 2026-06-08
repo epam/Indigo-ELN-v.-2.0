@@ -7,6 +7,10 @@ import com.epam.indigoeln.compound.model.search.SampleSearchResult;
 import com.epam.indigoeln.compound.model.search.SearchCatalog;
 import com.epam.indigoeln.compound.model.search.TextSearch;
 import com.epam.indigoeln.eln.ELNBaseTest;
+import com.epam.indigoeln.eln.api.AccessForm;
+import com.epam.indigoeln.eln.model.AccessLevel;
+import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
+import com.epam.indigoeln.eln.model.ExperimentRequest;
 import com.epam.indigoeln.reaction.model.ReactionInput;
 import com.epam.indigoeln.reaction.model.ReactionOutputSample;
 import com.epam.indigoeln.reaction.model.ReactionRole;
@@ -26,10 +30,12 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
 import static com.epam.indigoeln.eln.model.BuiltInDictionary.SALT_CODE;
+import static com.epam.indigoeln.eln.model.BuiltInDictionary.THERAPEUTIC_AREA;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @QuarkusTest
@@ -210,5 +216,24 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
                 , null, null, Paging.DEFAULT_PAGE_SIZE
         );
         applyMutation(new ReactionMutation.AddInput(reaction.getAnchor(), checkNotNull(foundSamples.items().getFirst().getId())));
+    }
+
+    @Test
+    @Order(1400)
+    void testEditProperties() {
+        ExperimentDetailsDTO experiment2 = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
+        applyMutation(new ExperimentMutation.EditExperimentAttributes(
+                Optional.of("new title"),
+                Optional.of(dictionaryClient.getFirst(THERAPEUTIC_AREA)),
+                null,
+                null,
+                null,
+                Optional.of(Set.of(experiment2.toRef())),
+                null,
+                null
+        ));
+        applyMutation(new ExperimentMutation.EditExperimentAccess(
+                AccessForm.of(LISA_USERNAME, AccessLevel.EDIT)
+        ));
     }
 }

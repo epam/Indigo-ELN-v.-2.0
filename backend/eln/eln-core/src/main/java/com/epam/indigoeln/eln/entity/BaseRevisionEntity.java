@@ -2,6 +2,7 @@ package com.epam.indigoeln.eln.entity;
 
 import com.epam.indigoeln.eln.config.hibernate.MutationConverter;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -42,7 +43,7 @@ public abstract class BaseRevisionEntity {
     @NotNull
     @JdbcTypeCode(SqlTypes.JSON)
     @Basic(fetch = FetchType.LAZY)
-    private String diff;
+    private JsonNode diff;
 
     @Nullable
     private Integer undoFor;

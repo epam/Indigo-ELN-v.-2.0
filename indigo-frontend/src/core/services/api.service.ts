@@ -1,4 +1,4 @@
-import { HttpClient, HttpRequest, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpHeaders, HttpParams, HttpRequest, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { filter, map, Observable } from 'rxjs';
 import { PagedRequest } from '../types/request/paged-request.i';
@@ -15,7 +15,19 @@ export class ApiService<T> {
     method: 'get' | 'post' | 'put' | 'delete' | 'patch',
     url: string,
     body?: unknown,
-    options?: unknown,
+    options?: {
+      headers?: HttpHeaders;
+      context?: HttpContext;
+      reportProgress?: boolean;
+      params?: HttpParams;
+      responseType?: 'arraybuffer' | 'blob' | 'json' | 'text';
+      withCredentials?: boolean;
+      transferCache?:
+        | {
+            includeHeaders?: string[];
+          }
+        | boolean;
+    },
   ): Observable<T> {
     const httpReq = new HttpRequest(method, this.buildUrl(url), body, options);
 

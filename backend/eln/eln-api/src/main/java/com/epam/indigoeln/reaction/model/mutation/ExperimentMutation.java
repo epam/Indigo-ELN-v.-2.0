@@ -35,6 +35,11 @@ public interface ExperimentMutation extends Mutation {
     record SetExperimentSignificantFigures(
             @NotNull @Min(1) @Max(5) Integer significantFigures
     ) implements ExperimentMutation {
+
+        @Override
+        public boolean isApplicableToEditSession() {
+            return true;
+        }
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)

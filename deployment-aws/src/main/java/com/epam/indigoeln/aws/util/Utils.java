@@ -1,12 +1,15 @@
 package com.epam.indigoeln.aws.util;
 
 import com.epam.indigoeln.aws.ELNLambdaStack;
+import org.jspecify.annotations.Nullable;
+import software.amazon.awscdk.Aspects;
 import software.amazon.awscdk.Duration;
 import software.amazon.awscdk.RemovalPolicy;
 import software.amazon.awscdk.services.ec2.ISecurityGroup;
 import software.amazon.awscdk.services.ec2.SubnetFilter;
 import software.amazon.awscdk.services.ec2.SubnetSelection;
-import software.amazon.awscdk.services.ecr.Repository;
+import software.amazon.awscdk.services.ecr.IRepository;
+import software.amazon.awscdk.services.iam.CfnRole;
 import software.amazon.awscdk.services.iam.ManagedPolicy;
 import software.amazon.awscdk.services.iam.Role;
 import software.amazon.awscdk.services.iam.ServicePrincipal;
@@ -15,6 +18,7 @@ import software.amazon.awscdk.services.lambda.Runtime;
 import software.amazon.awscdk.services.logs.LogGroup;
 import software.amazon.awscdk.services.logs.RetentionDays;
 import software.constructs.Construct;
+import software.constructs.IConstruct;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -49,11 +53,11 @@ public class Utils {
         }
     }
 
-    public static Function createDockerFunction(Construct parent, ELNLambdaStack.Props props, String id, Repository repository, String imageTag, ISecurityGroup securityGroup, Map<String, String> environment) {
+    public static Function createDockerFunction(Construct parent, ELNLambdaStack.Props props, String id, IRepository repository, String imageTag, ISecurityGroup securityGroup, Map<String, String> environment) {
         return doCreateFunction(parent, props, id, repository, imageTag, securityGroup, environment);
     }
 
-    public static Function doCreateFunction(Construct parent, ELNLambdaStack.Props props, String id, Repository repository, String imageTag, ISecurityGroup securityGroup, Map<String, String> environment) {
+    public static Function doCreateFunction(Construct parent, ELNLambdaStack.Props props, String id, IRepository repository, String imageTag, ISecurityGroup securityGroup, Map<String, String> environment) {
         LogGroup logGroup = LogGroup.Builder.create(parent, id + "-log-group")
                 .logGroupName("/aws/lambda/" + id)
                 .removalPolicy(RemovalPolicy.DESTROY)
@@ -110,5 +114,15 @@ public class Utils {
 
     public static <K, V> Map.Entry<K, V> entry(K k, V v) {
         return new AbstractMap.SimpleImmutableEntry<>(k, v);
+    }
+
+    public static void applyPermissionBoundary(IConstruct scope, @Nullable String permissionBoundary) {
+        if (permissionBoundary != null) {
+            Aspects.of(scope).add(node -> {
+                if (node instanceof CfnRole role && role.getPermissionsBoundary() == null) {
+                    role.setPermissionsBoundary(permissionBoundary);
+                }
+            });
+        }
     }
 }

@@ -40,6 +40,7 @@ export class ColumnDefDirective {
 })
 export class ExpandableTableComponent<T> implements AfterContentInit {
   @Input({ required: true }) dataSource: T[] | MatTableDataSource<T>;
+  @Input() expandable: (row: T) => boolean = () => true;
   @ContentChild('details') details: TemplateRef<unknown>;
   @ContentChildren(ColumnDefDirective)
   columnDefs!: QueryList<ColumnDefDirective>;
@@ -51,11 +52,18 @@ export class ExpandableTableComponent<T> implements AfterContentInit {
     this.columnNames = ['expand', ...this.columnDefs.map((c) => c.name)];
   }
 
+  expandRow(element: T): void {
+    this.expandedElements.add(element);
+  }
+
+  collapseRow(element: T): void {
+    this.expandedElements.delete(element);
+  }
   toggleRow(element: T): void {
     if (this.expandedElements.has(element)) {
-      this.expandedElements.delete(element);
+      this.collapseRow(element);
     } else {
-      this.expandedElements.add(element);
+      this.expandRow(element);
     }
   }
 }
