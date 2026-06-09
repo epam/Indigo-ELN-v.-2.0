@@ -25,6 +25,7 @@ import com.epam.indigoeln.indigowrapper.IndigoSDFSaver;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import com.epam.indigoeln.reaction.service.mutation.experiment.ExperimentMutationContext;
 import com.epam.indigoeln.reports.api.ReportsAPI;
@@ -45,7 +46,6 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
 import org.jspecify.annotations.Nullable;
 
-import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -55,6 +55,7 @@ import java.util.*;
 
 import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
 import static com.epam.indigoeln.common.util.ContentDispositionUtil.extractFilename;
+import static com.epam.indigoeln.common.util.ContentDispositionUtil.generateContentDisposition;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -286,16 +287,20 @@ public class ExperimentService {
     ) {}
 
     @SneakyThrows
-    public byte[] exportSDF(UUID experimentId) {
+    public Response exportSDF(UUID experimentId) {
         Path tempFilePath = Files.createTempFile("IndigoELN-export", ".sdf");
 
         try (IndigoSDFSaver saver = indigo.writeFile(tempFilePath.toString())) {
             ExperimentEntity experiment = experimentRepository.get(experimentId);
+            aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
             ExperimentModel model = experimentModelService.getModel(experiment);
 
             for (Reaction reaction : model.getReactions()) {
                 for (ReactionOutput output : reaction.getOutputs()) {
                     UUID moleculeId = output.getCompound().getCompoundID();
+                    //System.err.println(output.getSamples());
+                    //experimentModelService.applyMutation(experiment, new ReactionOutputMutation.AddProductSample(output.getAnchor()));
+                    System.err.println(output.getSamples());
 
                     if (moleculeId != null) {
                         CompoundEntity compound = compoundService.getCompound(moleculeId);
@@ -309,7 +314,9 @@ public class ExperimentService {
                 }
             }
 
-            return Files.readAllBytes(tempFilePath);
+            return Response.ok(Files.readAllBytes(tempFilePath))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, generateContentDisposition(false, experiment.getName() + ".sdf"))
+                    .build();
         } finally {
             Files.deleteIfExists(tempFilePath);
         }

@@ -8,8 +8,11 @@ import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.Reaction;
+import com.epam.indigoeln.reaction.model.ReactionAnchor;
+import com.epam.indigoeln.reaction.model.ReactionOutput;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
 import com.epam.indigoeln.test.FeignUtil;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
@@ -377,8 +380,18 @@ class ExperimentServiceTest extends ELNBaseTest {
         String rxnFile = loadResourceAsString(getClass(), "/reaction.rxn");
         experimentClient.mutateExperimentModel(experiment.getId(), new ReactionMutation.SetScheme(model.getReactions().getFirst().getAnchor(), rxnFile));
 
-        byte[] result = experimentClient.exportSDF(experiment.getId());
-        assertThat(result).asString().containsIgnoringWhitespaces(">  <molWeight>\n" +
+        assertThat(model.getReactions().isEmpty()).isFalse();
+        for (Reaction reaction : model.getReactions()) {
+            assertThat(reaction.getOutputs().isEmpty()).isFalse();
+            for (ReactionOutput output : reaction.getOutputs()) {
+                experimentClient.mutateExperimentModel(experiment.getId(), new ReactionOutputMutation.AddProductSample(output.getAnchor()));
+                assertThat(output.getSamples().isEmpty()).isFalse();
+            }
+        }
+
+        Response result = experimentClient.exportSDF(experiment.getId());
+        assertThat((byte[]) result.getEntity()).asString().containsIgnoringWhitespaces(">  <molWeight>\n" +
                 "180.16", ">  <chemicalName>");
+        assertThat(result.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION)).asString().contains(".sdf");
     }
 }
