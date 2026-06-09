@@ -22,7 +22,7 @@ public class NotebookDetailsDTO extends BaseNotebookDTO {
     List<AttachmentDTO> attachments;
 
     @NotNull
-    List<ACLDetailsEntryDTO> acl;
+    List<ACLEntryDTO> acl;
 
     @NotNull
     List<ApplicationPermission> currentPermissions;
@@ -36,7 +36,7 @@ public class NotebookDetailsDTO extends BaseNotebookDTO {
     @Override
     public String toString() {
         return "NotebookDetailsDTO{" +
-                "id=" + id +
+                "id=" + getId() +
                 ", name='" + name + '\'' +
                 '}';
     }

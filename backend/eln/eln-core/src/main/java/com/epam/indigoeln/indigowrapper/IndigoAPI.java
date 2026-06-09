@@ -71,4 +71,12 @@ public class IndigoAPI {
     public IndigoReaction loadReactionFromFile(String path) {
         return new IndigoReaction(this, indigo.loadReactionFromFile(path));
     }
+
+    public IndigoIterable<IndigoMolecule> iterateSDFile(String path) {
+        return new IndigoIterable<>(() -> indigo.iterateSDFile(path), o -> new IndigoMolecule(this, o));
+    }
+
+    public IndigoSDFSaver writeFile(String filename) {
+        return new IndigoSDFSaver(this, indigo.writeFile(filename));
+    }
 }

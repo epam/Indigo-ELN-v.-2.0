@@ -1,13 +1,14 @@
 package com.epam.indigoeln.reaction.model.mutation;
 
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
+import com.epam.indigoeln.eln.model.SaltCodeRef;
+import com.epam.indigoeln.eln.model.StereoisomerCodeRef;
 import com.epam.indigoeln.reaction.model.InputAnchor;
 import com.epam.indigoeln.reaction.model.ReactionRole;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 
-public interface ReactionInputMutation extends Mutation {
+public interface ReactionInputMutation extends ExperimentMutation {
 
     InputAnchor anchor();
 
@@ -37,7 +38,7 @@ public interface ReactionInputMutation extends Mutation {
 
     record SetInputRowSaltCode(
             @NotNull InputAnchor anchor,
-            @Nullable DictionaryItemRef saltCode
+            @Nullable SaltCodeRef saltCode
     ) implements ReactionInputMutation {
     }
 
@@ -55,7 +56,7 @@ public interface ReactionInputMutation extends Mutation {
 
     record SetInputCompoundStereoisomerCode(
             @NotNull InputAnchor anchor,
-            @Nullable DictionaryItemRef stereoisomerCode
+            @Nullable StereoisomerCodeRef stereoisomerCode
     ) implements ReactionInputMutation {
     }
 

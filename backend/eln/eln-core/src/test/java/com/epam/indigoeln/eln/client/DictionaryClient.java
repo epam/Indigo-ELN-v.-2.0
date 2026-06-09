@@ -2,15 +2,35 @@ package com.epam.indigoeln.eln.client;
 
 import com.epam.indigoeln.eln.api.DictionaryAPI;
 import com.epam.indigoeln.eln.model.*;
-import jakarta.ws.rs.*;
+import com.epam.indigoeln.test.FeignUtil;
+import com.fasterxml.jackson.databind.JsonNode;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.QueryParam;
+import lombok.SneakyThrows;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface DictionaryClient extends DictionaryAPI {
 
-    default List<DictionaryItemRef> getDictionary(BuiltInDictionary dictionary) {
-        return getDictionary(dictionary.name());
+    @SneakyThrows
+    default <T extends DictionaryItemRef> List<T> getDictionary(BuiltInDictionary dictionary) {
+        JsonNode node = getDictionaryRaw(dictionary.name());
+        return FeignUtil.OBJECT_MAPPER.readerForListOf(dictionary.getRefClass()).readValue(node);
+    }
+
+    @GET
+    @Path("/dictionaries/{dictionary}")
+    JsonNode getDictionaryRaw(@PathParam("dictionary") String dictionaryRef);
+
+    default <T extends DictionaryItemRef> T getFirst(BuiltInDictionary dictionary) {
+        return getNth(dictionary, 0);
+    }
+
+    default <T extends DictionaryItemRef> T getNth(BuiltInDictionary dictionary, int ordinal) {
+        return this.<T>getDictionary(dictionary).get(ordinal);
     }
 
     default List<DictionaryItemDTO> getDictionaryFull(BuiltInDictionary dictionary) {

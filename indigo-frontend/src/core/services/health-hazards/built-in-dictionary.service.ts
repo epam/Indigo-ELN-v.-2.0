@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { ApiService } from '@/core/services/api.service';
 import { BuiltInDictionary, DictionaryItemRef } from '@/core/types/entities/dictionary.i';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -11,8 +12,6 @@ export class BuiltInDictionaryService {
   // Private cache to track loaded dictionaries
   private cache = new Map<BuiltInDictionary, DictionaryItemRef[]>();
   private loading = new Set<BuiltInDictionary>();
-  private saltCodeCache: DictionaryItemRef[] | null = null;
-  private saltCodeLoading = false;
 
   /**
    * Load one or more dictionaries into cache.
@@ -28,10 +27,6 @@ export class BuiltInDictionaryService {
    */
   getDictionaryItem(dictionary: BuiltInDictionary): DictionaryItemRef[] {
     return this.cache.get(dictionary) ?? [];
-  }
-
-  getSaltCodes(): DictionaryItemRef[] {
-    return this.saltCodeCache ?? [];
   }
 
   private loadSingle(dictionary: BuiltInDictionary, forceReload = false) {
@@ -55,26 +50,6 @@ export class BuiltInDictionaryService {
       error: () => {
         this.cache.set(dictionary, []);
         this.loading.delete(dictionary);
-      },
-    });
-  }
-
-  public loadSaltCodes(forceReload = false) {
-    if (!forceReload && this.saltCodeCache != null) {
-      return;
-    }
-    if (this.saltCodeLoading) {
-      return;
-    }
-    this.saltCodeLoading = true;
-    this.service.request<DictionaryItemRef[]>('get', 'saltCodes').subscribe({
-      next: (items) => {
-        this.saltCodeCache = items;
-        this.saltCodeLoading = false;
-      },
-      error: () => {
-        this.saltCodeCache = [];
-        this.saltCodeLoading = false;
       },
     });
   }

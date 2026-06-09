@@ -19,7 +19,7 @@ public class NotebookDTO extends BaseNotebookDTO {
     @Override
     public String toString() {
         return "NotebookDTO{" +
-                "id=" + id +
+                "id=" + getId() +
                 ", name='" + name + '\'' +
                 '}';
     }

@@ -6,17 +6,17 @@
     <div class="fields-grid">
       <div class="field-group">
         <label class="field-label">Calculated Batch MW</label>
-        <div class="field-value read-only">
-          {{ output().compound?.molWeight?.value || '—' }}
-          {{ output().compound?.molWeight?.unit || '' }}
-        </div>
+        <eln-entered-value
+          [value]="output().compound?.molWeight"
+          [units]="molWeightUnits"
+          [showUnits]="true"
+          [readOnly]="true"
+        />
       </div>
 
       <div class="field-group">
         <label class="field-label">Calculated Batch MF</label>
-        <div class="field-value read-only">
-          {{ output().compound?.calculatedBatchMF || '—' }}
-        </div>
+        <div class="field-value read-only" [innerHTML]="output().compound?.calculatedBatchMF || '—'"></div>
       </div>
 
       <div class="field-group">
@@ -83,12 +83,12 @@
 
       <div class="field-group">
         <label class="field-label">Theo. Weight</label>
-        <eln-entered-value [value]="output().theoWeight" [showUnits]="true" [readOnly]="true" />
+        <eln-entered-value [value]="output().theoWeight" [units]="weightUnits" [showUnits]="true" [readOnly]="true" />
       </div>
 
       <div class="field-group">
         <label class="field-label">Theo. Moles</label>
-        <eln-entered-value [value]="output().theoMol" [showUnits]="true" [readOnly]="true" />
+        <eln-entered-value [value]="output().theoMol" [units]="molUnits" [showUnits]="true" [readOnly]="true" />
       </div>
 
       <div class="field-group full-width">
@@ -196,9 +196,7 @@
 
             <div class="field-group">
               <label class="field-label">Purity</label>
-              <div class="field-value read-only">
-                {{ formatPurityValue(sample().purity) }}
-              </div>
+              <eln-entered-value [value]="sample().purity" [showUnits]="false" [readOnly]="true" />
             </div>
           </div>
         </div>

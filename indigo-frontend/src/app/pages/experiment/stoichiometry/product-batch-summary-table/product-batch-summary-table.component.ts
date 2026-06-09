@@ -1,22 +1,31 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { Reaction, ReactionOutput, ReactionOutputSample } from '@core/types/entities/experiments/experiment.i';
+import { switchMap } from 'rxjs';
+import { ReactionOutput, ReactionOutputSample } from '@core/types/entities/experiments/experiment.i';
 import {
   MolUnit,
   ReactionOutputType,
   SampleRegistrationStatus,
+  UNIT_DISPLAY_NAMES,
+  UUID,
   VolumeUnit,
   WeightUnit,
 } from '@core/types/entities/experiments/experiment-shared.i';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { EditableDataTableComponent } from '../editable-data-table/editable-data-table.component';
 import { BatchDetailData, BatchDetailPanelComponent } from '../batch-detail-panel/batch-detail-panel.component';
-// import { MOCK_OUTPUT_SAMPLES } from './product-batch-summary-table.mock';
 import { ColumnConfig, ColumnInputType, ColumnOption, ExpandableConfig } from '../shared/editable-table.types';
 import { ExperimentDetailService } from '@core/services/experiment/experiment-detail.service';
 import { EnteredValue } from '@core/types/entities/values.i';
 import { determineCellClasses } from '@core/utils/experiment-model.util';
 import { ButtonComponent } from '@/core/components/common/button/button.component';
 import { MatIcon } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { NotificationService } from '@core/services/notification/notification.service';
+import { MatTooltip } from '@angular/material/tooltip';
+import { ApiService } from '@core/services/api.service';
+import { openFileDialog } from '@core/utils/file.util';
+import { MutationResponse, ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
+import { DownloadService } from '@core/services/download.service';
 
 interface OutputSampleRow {
   output: ReactionOutput;
@@ -26,22 +35,25 @@ interface OutputSampleRow {
 @Component({
   selector: 'eln-product-batch-summary-table',
   templateUrl: './product-batch-summary-table.component.html',
-  imports: [MatSnackBarModule, EditableDataTableComponent, ButtonComponent, MatIcon],
+  imports: [MatSnackBarModule, EditableDataTableComponent, ButtonComponent, MatIcon, MatMenuModule, MatTooltip],
 })
 export class ProductBatchSummaryTableComponent {
   private experimentDetailService = inject(ExperimentDetailService);
-  private snackBar = inject(MatSnackBar);
+  private notificationService = inject(NotificationService);
+  private apiService = inject(ApiService);
+  private downloadService = inject(DownloadService);
 
-  reaction = input<Reaction | null>(null);
-  experimentId = input<string | null>(null);
+  experimentId = input.required<UUID>();
+  reactionAnchor = input.required<ReactionAnchor>();
 
-  // TODO: Remove mock data once backend provides real output samples
-  // private mockOutputSamples = computed<OutputSampleRow[]>(() => MOCK_OUTPUT_SAMPLES);
+  reaction = computed(() => this.experimentDetailService.getReaction(this.reactionAnchor()));
 
   dataSource = computed(() => {
-    // Use real data from reaction outputs
-    const outputs = this.reaction()?.outputs;
-    return outputs?.flatMap((output) => output.samples.map((sample) => ({ output, sample })));
+    return this.reaction().outputs.flatMap((output) => output.samples.map((sample) => ({ output, sample })));
+  });
+
+  linkableProducts = computed(() => {
+    return this.reaction().outputs.filter((p) => p.intended);
   });
 
   readonly columns = computed<ColumnConfig<OutputSampleRow>[]>(() => [
@@ -109,7 +121,7 @@ export class ProductBatchSummaryTableComponent {
       },
       options: Object.values(WeightUnit).map((unit) => ({
         id: unit,
-        name: unit,
+        name: UNIT_DISPLAY_NAMES[unit],
       })) as ColumnOption[],
     },
     {
@@ -131,7 +143,7 @@ export class ProductBatchSummaryTableComponent {
       },
       options: Object.values(VolumeUnit).map((unit) => ({
         id: unit,
-        name: unit,
+        name: UNIT_DISPLAY_NAMES[unit],
       })) as ColumnOption[],
     },
     {
@@ -158,7 +170,7 @@ export class ProductBatchSummaryTableComponent {
       },
       options: Object.values(MolUnit).map((unit) => ({
         id: unit,
-        name: unit,
+        name: UNIT_DISPLAY_NAMES[unit],
       })) as ColumnOption[],
     },
     {
@@ -195,15 +207,72 @@ export class ProductBatchSummaryTableComponent {
     },
     {
       id: 'syncWithProducts',
-      header: 'Sync with Products',
-      type: ColumnInputType.BUTTON,
-      field: () => '🔄',
+      header: '',
+      type: ColumnInputType.ICON,
+      field: () => null,
+      iconClasses: () => ['indicon-link', 'text-[20px]', 'text-blue-600'],
+      tooltip: (row: OutputSampleRow) => (row.output.intended ? 'Already synced with Products' : 'Sync with Products'),
+      editable: (row: OutputSampleRow) => !row.output.intended,
       onSave: (row: OutputSampleRow) => {
-        // TODO: Implement sync with products functionality
-        console.log('TODO: Sync with products', row.sample.anchor);
-        this.snackBar.open('Sync functionality not yet implemented', 'Close', {
-          duration: 3000,
-        });
+        this.experimentDetailService
+          .updateDataModel({
+            type: 'SetOutputRowIntended',
+            anchor: row.output.anchor,
+            intended: true,
+          })
+          .subscribe({});
+      },
+    },
+    {
+      id: 'register',
+      header: '',
+      type: ColumnInputType.ICON,
+      field: () => null,
+      iconClasses: () => ['indicon-add', 'text-[20px]', 'text-green-600'],
+      tooltip: (row: OutputSampleRow) => {
+        switch (row.sample.registrationStatus) {
+          case SampleRegistrationStatus.IN_PROGRESS:
+            return 'Sample already sent for registration';
+          case SampleRegistrationStatus.REGISTERED:
+            return 'Sample already registered';
+          default:
+            return 'Register Sample';
+        }
+      },
+      editable: (row: OutputSampleRow) => !this.isSampleProtected(row),
+      onSave: (row: OutputSampleRow) => {
+        this.experimentDetailService
+          .updateDataModel({
+            type: 'RegisterSample',
+            anchor: row.sample.anchor,
+          })
+          .subscribe({});
+      },
+    },
+    {
+      id: 'delete',
+      header: '',
+      type: ColumnInputType.ICON,
+      field: () => null,
+      iconClasses: () => ['indicon-delete', 'text-[20px]', 'text-red-600'],
+      tooltip: (row: OutputSampleRow) => {
+        switch (row.sample.registrationStatus) {
+          case SampleRegistrationStatus.IN_PROGRESS:
+            return 'Cannot delete sample that is already sent for registration';
+          case SampleRegistrationStatus.REGISTERED:
+            return 'Cannot delete registered sample';
+          default:
+            return 'Delete Sample';
+        }
+      },
+      editable: (row: OutputSampleRow) => !this.isSampleProtected(row),
+      onSave: (row: OutputSampleRow) => {
+        this.experimentDetailService
+          .updateDataModel({
+            type: 'RemoveProductSample',
+            anchor: row.sample.anchor,
+          })
+          .subscribe({});
       },
     },
   ]);
@@ -246,10 +315,52 @@ export class ProductBatchSummaryTableComponent {
     return determineCellClasses(value, this.experimentDetailService.updatedNodes());
   }
 
-  addNewRow() {
-    // TODO: Implement mutation for adding new output sample row
-    this.snackBar.open('Add row functionality not yet implemented', 'Close', {
-      duration: 3000,
-    });
+  private isSampleProtected(row: OutputSampleRow): boolean {
+    return row.sample.registrationStatus != null && row.sample.registrationStatus != SampleRegistrationStatus.FAILED;
+  }
+
+  getProductMenuLabel(output: ReactionOutput, index: number): string {
+    return output.outputName?.trim() || output.chemicalName?.trim() || `P${index + 1}`;
+  }
+
+  addBatchForOutput(output: ReactionOutput) {
+    this.experimentDetailService
+      .updateDataModel({
+        type: 'AddProductSample',
+        anchor: output.anchor,
+      })
+      .subscribe({});
+  }
+
+  addNoProductBatch() {
+    this.experimentDetailService
+      .updateDataModel({
+        type: 'AddNoProductSample',
+        anchor: this.reaction().anchor,
+      })
+      .subscribe({});
+  }
+
+  importSDF() {
+    openFileDialog('.sdf')
+      .pipe(
+        switchMap((file) => {
+          const formData = new FormData();
+          formData.append('file', file);
+          const operation = this.apiService.request<MutationResponse>(
+            'post',
+            `experiments/${this.experimentId()}/datamodel/reactions/${this.reactionAnchor()}/importSDF`,
+            formData,
+          );
+          return this.experimentDetailService.updateDataModel2(operation);
+        }),
+      )
+      .subscribe({});
+  }
+
+  exportSDF() {
+    this.downloadService
+      .download('get', `/api/eln/experiments/${this.experimentId()}/exportSdf`, 'export.sdf')
+      .subscribe();
   }
 }

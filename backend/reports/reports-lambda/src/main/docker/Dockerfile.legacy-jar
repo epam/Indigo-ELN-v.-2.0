@@ -1,14 +1,18 @@
-FROM registry.access.redhat.com/ubi9/openjdk-21
+FROM public.ecr.aws/lambda/java:25
 
-ENV LANGUAGE='en_US:en'
+# Install fonts required by JasperReports
+RUN dnf install -y freetype fontconfig && \
+    dnf clean all && \
+    fc-cache -f
 
-COPY --chown=185 build/lib/* /app/lib/
-COPY --chown=185 build/*-runner.jar /app/quarkus-run.jar
+# Copy the contents that Quarkus would zip into function.zip, directly.
+# This avoids a race where Docker reads function.zip before Quarkus finishes writing it.
+COPY build/lib/            ${LAMBDA_TASK_ROOT}/lib/
+COPY build/*-runner.jar    ${LAMBDA_TASK_ROOT}/
+RUN cd ${LAMBDA_TASK_ROOT} && jar xf *-runner.jar && rm *-runner.jar
 
-EXPOSE 8080
-EXPOSE 5005
-USER 185
-ENV JAVA_OPTS_APPEND="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager --add-opens java.base/jdk.internal.misc=ALL-UNNAMED -Djava.net.preferIPv6Addresses=false"
-ENV JAVA_APP_JAR="/app/quarkus-run.jar"
+# Enable IPv6 in the container
+RUN echo 'net.ipv6.conf.all.disable_ipv6 = 0' >> /etc/sysctl.conf
+RUN echo 'net.ipv6.conf.default.disable_ipv6 = 0' >> /etc/sysctl.conf
 
-ENTRYPOINT [ "/opt/jboss/container/java/run/run-java.sh" ]
+CMD ["io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"]

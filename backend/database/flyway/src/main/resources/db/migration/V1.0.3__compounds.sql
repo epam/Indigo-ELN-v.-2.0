@@ -1,4 +1,4 @@
-CREATE TYPE Compound_Source AS ENUM ('ELN');
+CREATE TYPE Compound_External_Source AS ENUM ('PUBCHEM');
 
 CREATE TABLE Compound (
     id UUID PRIMARY KEY,
@@ -6,7 +6,8 @@ CREATE TABLE Compound (
     stereoisomer_code_id UUID,
     salt_code_id UUID,
     salt_eq_100 INT,
-    source Compound_Source NOT NULL,
+    external_source Compound_External_Source,
+    external_number VARCHAR(1000),
     chemical_name VARCHAR(1000),
     compound_key VARCHAR(1000),
     str_code VARCHAR(1000),
@@ -16,8 +17,8 @@ CREATE TABLE Compound (
     exact_mass NUMERIC NOT NULL,
     cas_number VARCHAR(1000),
     picture BYTEA NOT NULL,
-    CONSTRAINT compound_stereoisomer_code_fk FOREIGN KEY (stereoisomer_code_id) REFERENCES dictionary_item (id),
-    CONSTRAINT compound_salt_code_fk FOREIGN KEY (salt_code_id) REFERENCES salt_code (id),
+    CONSTRAINT compound_stereoisomer_code_fk FOREIGN KEY (stereoisomer_code_id) REFERENCES Dictionary_Item (id),
+    CONSTRAINT compound_salt_code_fk FOREIGN KEY (salt_code_id) REFERENCES Dictionary_Item (id),
     CONSTRAINT compound_uq UNIQUE (can_smiles, stereoisomer_code_id, salt_code_id, salt_eq_100),
     CONSTRAINT compound_str_code_salt_eq_uq UNIQUE (str_code, salt_eq_100) -- str_code is shared across saltEQ
 );

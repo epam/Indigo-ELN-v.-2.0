@@ -29,6 +29,7 @@ public abstract class MutationHandler<T extends Mutation, E extends WithRevision
         mutation = doPrepareMutation(entity, mutation, context);
         // perform the actual mutation;
         // undo/redo handlers must delegate to undo service
+        doNotifyBeforeHandle(entity, mutation, context);
         MutationResult result = doHandle(entity, mutation, context, snapshotBefore);
         // flush database to make sure all constraints hold
         em.flush();
@@ -52,6 +53,9 @@ public abstract class MutationHandler<T extends Mutation, E extends WithRevision
 
     protected T doPrepareMutation(E entity, T mutation, C context) {
         return mutation;
+    }
+
+    protected void doNotifyBeforeHandle(E entity, T mutation, C context) {
     }
 
     public abstract MutationResult doHandle(E entity, T mutation, C context, S snapshotBefore);

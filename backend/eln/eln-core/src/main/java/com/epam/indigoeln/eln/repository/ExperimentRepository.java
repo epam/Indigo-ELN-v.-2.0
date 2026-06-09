@@ -1,10 +1,16 @@
 package com.epam.indigoeln.eln.repository;
 
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.SortOrder;
+import com.epam.indigoeln.common.model.UserRef;
+import com.epam.indigoeln.eln.common.repository.BaseRepository;
+import com.epam.indigoeln.eln.common.util.Conditions;
 import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.mapper.ExperimentMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.ACLService;
-import com.epam.indigoeln.eln.util.Conditions;
+import com.epam.indigoeln.eln.service.UserService;
 import com.google.common.base.MoreObjects;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -29,15 +35,17 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
     private static final Sort SORT_SUGGEST = Sort.by("name");
 
     public ExperimentRepository() {
-        super(EntityType.EXPERIMENT, ExperimentEntity.class);
+        super(ELNEntityType.EXPERIMENT, ExperimentEntity.class);
     }
 
     @Inject
     ExperimentMapper experimentMapper;
     @Inject
     ACLService aclService;
+    @Inject
+    UserService userService;
 
-    public Page<ExperimentDTO> findAll(@Nullable UUID projectId, @Nullable UUID notebookId, @Nullable String search, @Nullable SortOrder sort, @Nullable UserInfo createdByUser, Paging paging, boolean showAll) {
+    public Page<ExperimentDTO> findAll(@Nullable UUID projectId, @Nullable UUID notebookId, @Nullable String search, @Nullable SortOrder sort, @Nullable UserRef createdByUser, Paging paging, boolean showAll) {
         Sort panacheSort = switch (MoreObjects.firstNonNull(sort, SortOrder.LATEST)) {
             case EARLIEST -> Sort.ascending("modifiedAt");
             case LATEST -> Sort.descending("modifiedAt");
@@ -47,7 +55,7 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
                 .addIf(!showAll, "calculatedInfo.currentAccess is not null")
                 .addIfNotNull("project.id=?", projectId)
                 .addIfNotNull("notebook.id=?", notebookId)
-                .addIfNotNull("createdBy.id = ?", createdByUser != null ? createdByUser.getId() : null);
+                .addIfNotNull("createdBy.id = ?", createdByUser != null ? userService.getUserInfo(createdByUser).getId() : null);
         if (search != null) {
             conditions.add("(name ilike ?) or full_text_search(searchVector, websearch_to_tsquery('english', ?))", '%' + search + '%', search);
         }
@@ -76,6 +84,12 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
                 .setParameter(1, experimentId)
                 .setParameter(2, user.getId())
                 .setParameter(3, mark)
+                .getSingleResult();
+    }
+
+    public ExperimentEntity findBySignatureNumber(String signatureNumber) {
+        return (ExperimentEntity) em.createQuery("from Experiment where signatureNumber = :signatureNumber")
+                .setParameter("signatureNumber", signatureNumber)
                 .getSingleResult();
     }
 
@@ -190,7 +204,7 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
                         GROUP BY edit_session_id, user_id
                     )
                 )
-                SELECT u.id, u.username, u.display_name, t.summary, t.date_from, t.date_to, t.edit_session_id
+                SELECT u.id, t.summary, t.date_from, t.date_to, t.edit_session_id
                 FROM t
                 JOIN User_Account u on u.id = t.user_id
                 ORDER BY t.date_to DESC, t.date_from DESC;
@@ -199,11 +213,11 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
                 .getResultStream();
         return stream
                 .map(r -> new ExperimentRevisionSummaryDTO(
-                        (UUID) r[6],
-                        new UserRef((UUID) r[0], (String) r[1], (String) r[2]),
-                        (String) r[3],
-                        r[4] != null ? ((Instant) r[4]).atZone(ZoneId.systemDefault()) : null,
-                        ((Instant) r[5]).atZone(ZoneId.systemDefault())
+                        (UUID) r[4],
+                        userService.getUserInfo((UUID) r[0]),
+                        (String) r[1],
+                        r[4] != null ? ((Instant) r[2]).atZone(ZoneId.systemDefault()) : null,
+                        ((Instant) r[3]).atZone(ZoneId.systemDefault())
                 ))
                 .toList();
     }

@@ -19,6 +19,7 @@ import { Editor, NgxEditorModule, Toolbar } from 'ngx-editor';
           [formlyAttributes]="field"
           [placeholder]="props.placeholder || 'Type here...'"
           [disabled]="props.disabled || false"
+          outputFormat="html"
         ></ngx-editor>
       </div>
     </div>
@@ -28,7 +29,14 @@ import { Editor, NgxEditorModule, Toolbar } from 'ngx-editor';
 export class EditorFormlyFieldComponent extends FieldType<FieldTypeConfig> implements OnInit, OnDestroy {
   editor: Editor;
 
-  toolbar: Toolbar = [['bold', 'italic', 'underline']];
+  toolbar: Toolbar = [
+    ['bold', 'italic', 'underline', 'strike'],
+    ['code', 'blockquote'],
+    ['superscript', 'subscript'],
+    ['text_color', 'background_color'],
+    ['horizontal_rule', 'format_clear'],
+    ['indent', 'outdent'],
+  ];
 
   ngOnInit(): void {
     this.editor = new Editor({

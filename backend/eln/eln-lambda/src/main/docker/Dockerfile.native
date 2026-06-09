@@ -1,34 +1,31 @@
-#FROM registry.access.redhat.com/ubi9/ubi-minimal:9.5 as packages
-
-FROM registry.access.redhat.com/ubi9/ubi-minimal:9.5
+FROM registry.access.redhat.com/ubi9/ubi-minimal:9.5 AS packages
 
 # for indigo-renderer
 RUN microdnf update -y && microdnf install -y freetype fontconfig && microdnf clean all
 
-#FROM quay.io/quarkus/ubi9-quarkus-micro-image:2.0
+FROM quay.io/quarkus/ubi9-quarkus-micro-image:2.0
 
-# TODO switch back to ubi-minimal image, copy all needed libraries from builder
-
-# for indigo-renderer (likely the same will be needed for JasperReports)
-#COPY --from=packages \
-#   /lib64/libpng16.so.16 \
-#   /lib64/libfreetype.so.6 \
-#   /lib64/libbz2.so.1 \
-#   /lib64/libxml2.so.2 \
-#   /lib64/
-#COPY --from=packages \
-#   /usr/lib64/libfontconfig.so.1 \
-#   /usr/lib64/libbrotlicommon.so.1 \
-#   /usr/lib64/libgraphite2.so.3 \
-#   /usr/lib64/libharfbuzz-gobject.so.0 \
-#   /usr/lib64/libharfbuzz-subset.so.0 \
-#   /usr/lib64/libharfbuzz.so.0 \
-#   /usr/lib64/libbrotlicommon.so.1 \
-#   /usr/lib64/libbrotlidec.so.1 \
-#   /usr/lib64/libbrotlienc.so.1 \
-#   /usr/lib64/
-#COPY --from=packages /etc/fonts/conf.d/ /etc/fonts/conf.d/
-#COPY --from=packages /usr/share/fontconfig/conf.avail/ /usr/share/fontconfig/conf.avail/
+# for indigo-renderer
+COPY --from=packages \
+   /usr/lib64/libbrotlicommon.so.1 \
+   /usr/lib64/libbrotlidec.so.1 \
+   /usr/lib64/libbrotlienc.so.1 \
+   /usr/lib64/libbz2.so.1 \
+   /usr/lib64/libfontconfig.so.1 \
+   /usr/lib64/libfreetype.so.6 \
+   /usr/lib64/libglib-2.0.so.0 \
+   /usr/lib64/libgraphite2.so.3 \
+   /usr/lib64/libharfbuzz-gobject.so.0 \
+   /usr/lib64/libharfbuzz-subset.so.0 \
+   /usr/lib64/libharfbuzz.so.0 \
+   /usr/lib64/liblzma.so.5 \
+   /usr/lib64/libpcre.so.1 \
+   /usr/lib64/libpng16.so.16 \
+   /usr/lib64/libxml2.so.2 \
+   /usr/lib64/
+COPY --from=packages /etc/fonts/conf.d/ /etc/fonts/conf.d/
+COPY --from=packages /usr/share/fonts/ /usr/share/fonts/
+COPY --from=packages /usr/share/fontconfig/conf.avail/ /usr/share/fontconfig/conf.avail/
 
 WORKDIR /work/
 RUN chown 1001 /work \

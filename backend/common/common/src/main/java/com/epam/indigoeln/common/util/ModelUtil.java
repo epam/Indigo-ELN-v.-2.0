@@ -2,13 +2,15 @@ package com.epam.indigoeln.common.util;
 
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
+import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
+import java.io.File;
 import java.io.InputStream;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -20,6 +22,9 @@ public class ModelUtil {
     }
 
     public String formatUser(@Nullable String firstName, @Nullable String lastName, String username) {
+        if (firstName == null && lastName == null) {
+            return username;
+        }
         StringBuilder s = new StringBuilder();
         if (firstName != null) {
             s.append(firstName);
@@ -30,7 +35,7 @@ public class ModelUtil {
             }
             s.append(lastName);
         }
-        return !s.isEmpty() ? s.toString() : username;
+        return s.toString();
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
@@ -67,6 +72,13 @@ public class ModelUtil {
     }
 
     @SneakyThrows
+    public String loadResourceAsString(Class<?> klass, String resourceName) {
+        try (InputStream is = loadResourceAsStream(klass, resourceName)) {
+            return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+        }
+    }
+
+    @SneakyThrows
     public InputStream loadResourceAsStream(Class<?> klass, String resourceName) {
         InputStream is = ModelUtil.class.getResourceAsStream(resourceName);
         if (is == null) {
@@ -82,5 +94,41 @@ public class ModelUtil {
 
     public boolean isNotEmpty(@Nullable Collection<?> list) {
         return list != null && !list.isEmpty();
+    }
+
+    public <T> void updateCollection(Collection<T> target, Collection<T> source) {
+        Set<T> presentInTarget = target instanceof Set<T> ? (Set<T>) target : new HashSet<>(target);
+        Set<T> deleted = new HashSet<>(target);
+        for (T item : source) {
+            if (!presentInTarget.contains(item)) {
+                target.add(item);
+            }
+            deleted.remove(item);
+        }
+        target.removeAll(deleted);
+    }
+
+    @SneakyThrows
+    public static <T> T useTempFile(String filename, byte[] bytes, Function<File, T> block) {
+        Path directory = Files.createTempDirectory("eln");
+        try {
+            Path file = directory.resolve(filename);
+            try {
+                Files.write(file, bytes);
+                return block.apply(file.toFile());
+            } finally {
+                Files.delete(file);
+            }
+        } finally {
+            Files.delete(directory);
+        }
+    }
+
+    public static <T> List<T> appendToList(List<T> list, T item) {
+        return StreamEx.of(list).append(item).toImmutableList();
+    }
+
+    public static <T> List<T> removeFromList(List<T> list, T item) {
+        return StreamEx.of(list).without(item).toImmutableList();
     }
 }

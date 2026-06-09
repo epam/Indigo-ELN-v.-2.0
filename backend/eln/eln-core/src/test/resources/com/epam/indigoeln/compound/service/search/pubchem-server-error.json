@@ -1,0 +1,9 @@
+{
+  "Fault": {
+    "Code": "PUGREST.ServerBusy",
+    "Message": "Too many requests",
+    "Details": [
+      "No more than 5 requests per second"
+    ]
+  }
+}

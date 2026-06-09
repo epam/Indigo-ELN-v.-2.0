@@ -14,7 +14,7 @@ import {
   WeightUnit,
 } from './experiment-shared.i';
 import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
-import { UserMetadata } from '@core/types/entities/user.i';
+import { UserRef } from '@core/types/entities/user.i';
 
 // Base mutation interface
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -28,7 +28,7 @@ export type ReactionOutputSampleAnchor = string;
 
 interface SetBatchCreatorMutation extends BaseMutation {
   type: 'SetBatchCreator';
-  batchCreator: UserMetadata;
+  batchCreator: UserRef;
 }
 
 interface UndoMutation extends BaseMutation {
@@ -60,6 +60,10 @@ interface AddEmptyInputMutation extends ReactionMutation {
 interface AddInput extends ReactionMutation {
   type: 'AddInput';
   sampleId: UUID;
+}
+
+interface AddNoProductSample extends ReactionMutation {
+  type: 'AddNoProductSample';
 }
 
 interface RemoveInputMutation extends ReactionInputMutation {
@@ -209,6 +213,11 @@ interface SetOutputRowName extends ReactionOutputMutation {
 interface SetOutputRowChemicalName extends ReactionOutputMutation {
   type: 'SetOutputRowChemicalName';
   chemicalName: string | null;
+}
+
+interface SetOutputRowIntended extends ReactionOutputMutation {
+  type: 'SetOutputRowIntended';
+  intended: boolean;
 }
 
 interface SetOutputCompoundStereoisomerCode extends ReactionOutputMutation {
@@ -373,6 +382,7 @@ export type Mutation =
   | ResolveInputsMutation
   | AddEmptyInputMutation
   | AddInput
+  | AddNoProductSample
   | RemoveInputMutation
   // Input mutations
   | SetInputRowRole
@@ -403,6 +413,7 @@ export type Mutation =
   | SetOutputRowEQ
   | SetOutputRowName
   | SetOutputRowChemicalName
+  | SetOutputRowIntended
   | SetOutputCompoundStereoisomerCode
   | SetOutputCompoundMolWeight
   // Output sample mutations

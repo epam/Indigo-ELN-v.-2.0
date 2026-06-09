@@ -1,9 +1,6 @@
 package com.epam.indigoeln.reaction.model.mutation;
 
-import com.epam.indigoeln.reaction.model.InputAnchor;
-import com.epam.indigoeln.reaction.model.InputSampleAnchor;
-import com.epam.indigoeln.reaction.model.OutputAnchor;
-import com.epam.indigoeln.reaction.model.ReactionAnchor;
+import com.epam.indigoeln.reaction.model.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
@@ -12,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public interface ReactionMutation extends Mutation {
+public interface ReactionMutation extends ExperimentMutation {
 
     ReactionAnchor anchor();
 
@@ -25,7 +22,7 @@ public interface ReactionMutation extends Mutation {
         @Nullable List<InputSampleAnchor> createdCatalystSampleAnchors,
         @Nullable List<OutputAnchor> createdProductAnchors
     ) implements ReactionMutation {
-        public SetScheme(@NotNull ReactionAnchor anchor, @Nullable String rxnFile) {
+        public SetScheme(ReactionAnchor anchor, String rxnFile) {
             this(anchor, rxnFile, null, null, null, null, null);
         }
 
@@ -52,7 +49,7 @@ public interface ReactionMutation extends Mutation {
         @Nullable InputAnchor createdInputAnchor,
         @Nullable InputSampleAnchor createdSampleAnchor
     ) implements ReactionMutation {
-        public AddEmptyInput(@NotNull ReactionAnchor anchor) {
+        public AddEmptyInput(ReactionAnchor anchor) {
             this(anchor, null, null);
         }
     }
@@ -63,8 +60,29 @@ public interface ReactionMutation extends Mutation {
         @Nullable InputAnchor createdInputAnchor,
         @Nullable InputSampleAnchor createdSampleAnchor
     ) implements ReactionMutation {
-        public AddInput(@NotNull ReactionAnchor anchor, @NotNull UUID sampleId) {
+        public AddInput(ReactionAnchor anchor, UUID sampleId) {
             this(anchor, sampleId, null, null);
+        }
+    }
+
+    record AddNoProductSample (
+            @NotNull ReactionAnchor anchor,
+            @Nullable OutputAnchor createdOutputAnchor,
+            @Nullable OutputSampleAnchor createdSampleAnchor
+    ) implements ReactionMutation {
+        public AddNoProductSample(ReactionAnchor anchor) {
+            this(anchor, null, null);
+        }
+    }
+
+    record ImportSDF (
+        @NotNull ReactionAnchor anchor,
+        @NotNull List<@NotNull UUID> compoundIDs,
+        @Nullable List<OutputAnchor> createdOutputAnchors,
+        @Nullable List<OutputSampleAnchor> createdSampleAnchors
+    ) implements ReactionMutation {
+        public ImportSDF(ReactionAnchor anchor, List<UUID> compoundIDs) {
+            this(anchor, compoundIDs, null, null);
         }
     }
 }

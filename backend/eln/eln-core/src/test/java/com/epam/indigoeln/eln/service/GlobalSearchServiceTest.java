@@ -1,10 +1,11 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.compound.model.search.NumericSearch;
 import com.epam.indigoeln.compound.model.search.StructuralSearch;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
-import com.epam.indigoeln.eln.api.MutateModelForm;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputSampleMutation;
@@ -14,7 +15,6 @@ import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import io.quarkus.test.security.jwt.JwtSecurity;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -24,20 +24,19 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
-import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
+import static com.epam.indigoeln.common.util.ModelUtil.loadResourceAsString;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 
 @QuarkusTest
-@JwtSecurity
 @TestSecurity(user = ELNBaseTest.MAGGIE_USERNAME)
 class GlobalSearchServiceTest extends ELNBaseTest {
 
-    DictionaryItemRef therapeuticArea1;
-    DictionaryItemRef therapeuticArea2;
-    DictionaryItemRef projectCode1;
-    DictionaryItemRef projectCode2;
+    TherapeuticAreaRef therapeuticArea1;
+    TherapeuticAreaRef therapeuticArea2;
+    ProjectCodeRef projectCode1;
+    ProjectCodeRef projectCode2;
 
     ProjectDetailsDTO project1;
     ProjectDetailsDTO project2;
@@ -52,10 +51,10 @@ class GlobalSearchServiceTest extends ELNBaseTest {
     @BeforeAll
     void setUp() {
         withUser(MAGGIE_USERNAME, () -> {
-            List<DictionaryItemRef> therapeuticAreas = dictionaryClient.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA);
+            List<TherapeuticAreaRef> therapeuticAreas = dictionaryClient.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA);
             therapeuticArea1 = therapeuticAreas.get(0);
             therapeuticArea2 = therapeuticAreas.get(1);
-            List<DictionaryItemRef> projectCodes = dictionaryClient.getDictionary(BuiltInDictionary.PROJECT_CODE);
+            List<ProjectCodeRef> projectCodes = dictionaryClient.getDictionary(BuiltInDictionary.PROJECT_CODE);
             projectCode1 = projectCodes.get(0);
             projectCode2 = projectCodes.get(1);
             project1 = projectClient.createProject(new ProjectRequest("p1", List.of("k1", "k2"), "l1 xx", "pd1"));
@@ -64,21 +63,20 @@ class GlobalSearchServiceTest extends ELNBaseTest {
             notebook2 = notebookClient.createNotebook(project2.getId(), new NotebookRequest("00000002", "nd2 xx"));
             experiment1 = experimentClient.createExperiment(notebook1.getId(), new ExperimentRequest(emptyTemplateID, "ed1 xx", therapeuticArea1, projectCode1));
             experiment2 = experimentClient.createExperiment(notebook2.getId(), new ExperimentRequest(emptyTemplateID, "ed2 xx", therapeuticArea2, projectCode2));
-            String rxnFile = new String(loadResource(getClass(), "/reaction.rxn"));
+            String rxnFile = loadResourceAsString(getClass(), "/reaction.rxn");
             ExperimentModel experimentModel = experiment2.getModel();
-            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionMutation.SetScheme(experimentModel.getReactions().getFirst().getAnchor(), rxnFile)));
+            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new ReactionMutation.SetScheme(experimentModel.getReactions().getFirst().getAnchor(), rxnFile));
             InputSampleAnchor inputSample = experimentModel.getReactions().getFirst().getInputs().getFirst().getSamples().getFirst().getAnchor();
             OutputAnchor output = experimentModel.getReactions().getFirst().getOutputs().getFirst().getAnchor();
-            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionOutputMutation.AddProductSample(output)));
+            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new ReactionOutputMutation.AddProductSample(output));
             OutputSampleAnchor outputSample = experimentModel.getReactions().getFirst().getOutputs().getFirst().getSamples().getFirst().getAnchor();
-            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionOutputSampleMutation.SetOutputPurity(outputSample, "30")));
-            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionInputSampleMutation.SetInputWeight(inputSample, "10.0", WeightUnit.G)));
-            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionOutputSampleMutation.SetOutputActualWeight(outputSample, "5.0", WeightUnit.G)));
-            System.out.println(experimentModel);
+            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new ReactionOutputSampleMutation.SetOutputPurity(outputSample, "30"));
+            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new ReactionInputSampleMutation.SetInputWeight(inputSample, "10.0", WeightUnit.G));
+            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new ReactionOutputSampleMutation.SetOutputActualWeight(outputSample, "5.0", WeightUnit.G));
         });
         withUser(BART_USERNAME, () -> {
             project3 = projectClient.createProject(new ProjectRequest("p3"));
-            projectClient.updateProjectAccess(project3.getId(), AccessForm.of(maggieUserID, AccessLevel.VIEW));
+            projectClient.updateProjectAccess(project3.getId(), AccessForm.of(MAGGIE_USERNAME, AccessLevel.VIEW));
             notebook3 = notebookClient.createNotebook(project3.getId(), new NotebookRequest("00000003", null));
             experiment3 = experimentClient.createExperiment(notebook3.getId(), new ExperimentRequest(emptyTemplateID, null, null, null));
             experimentClient.cancelExperiment(experiment3.getId());
@@ -88,19 +86,19 @@ class GlobalSearchServiceTest extends ELNBaseTest {
     @Test
     void testFindProjects() {
         Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withQuery("p1"), Paging.DEFAULT);
-        assertResults(results, tuple(EntityType.PROJECT, "p1", project1.getId()));
+        assertResults(results, tuple(ELNEntityType.PROJECT, "p1", project1.getId()));
     }
 
     @Test
     void testFindNotebooks() {
         Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withQuery("nd2"), Paging.DEFAULT);
-        assertResults(results, tuple(EntityType.NOTEBOOK, "00000002", notebook2.getId()));
+        assertResults(results, tuple(ELNEntityType.NOTEBOOK, "00000002", notebook2.getId()));
     }
 
     @Test
     void testFindExperiments() {
         Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withQuery("ed1"), Paging.DEFAULT);
-        assertResults(results, tuple(EntityType.EXPERIMENT, experiment1.getName(), experiment1.getId()));
+        assertResults(results, tuple(ELNEntityType.EXPERIMENT, experiment1.getName(), experiment1.getId()));
         assertThat(results.getItems().getFirst().getExperimentStatus()).isEqualTo(experiment1.getStatus());
     }
 
@@ -108,33 +106,33 @@ class GlobalSearchServiceTest extends ELNBaseTest {
     void testFindAll() {
         Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withQuery("xx"), Paging.DEFAULT);
         assertResults(results
-                , tuple(EntityType.PROJECT, project1.getName(), project1.getId())
-                , tuple(EntityType.PROJECT, project2.getName(), project2.getId())
-                , tuple(EntityType.NOTEBOOK, notebook1.getName(), notebook1.getId())
-                , tuple(EntityType.NOTEBOOK, notebook2.getName(), notebook2.getId())
-                , tuple(EntityType.EXPERIMENT, experiment1.getName(), experiment1.getId())
-                , tuple(EntityType.EXPERIMENT, experiment2.getName(), experiment2.getId())
+                , tuple(ELNEntityType.PROJECT, project1.getName(), project1.getId())
+                , tuple(ELNEntityType.PROJECT, project2.getName(), project2.getId())
+                , tuple(ELNEntityType.NOTEBOOK, notebook1.getName(), notebook1.getId())
+                , tuple(ELNEntityType.NOTEBOOK, notebook2.getName(), notebook2.getId())
+                , tuple(ELNEntityType.EXPERIMENT, experiment1.getName(), experiment1.getId())
+                , tuple(ELNEntityType.EXPERIMENT, experiment2.getName(), experiment2.getId())
         );
         assertThat(results.getItems()).map(GlobalSearchResultDTO::getFragment, GlobalSearchResultDTO::getCreatedBy).containsExactly(
-                tuple(project1.getDescription(), getMaggieUserRef()),
-                tuple(project2.getDescription(), getMaggieUserRef()),
-                tuple("nd1 <mark>xx</mark>", getMaggieUserRef()),
-                tuple("nd2 <mark>xx</mark>", getMaggieUserRef()),
-                tuple("ed1 <mark>xx</mark>", getMaggieUserRef()),
-                tuple("ed2 <mark>xx</mark>", getMaggieUserRef())
+                tuple(project1.getDescription(), MAGGIE_USER_REF),
+                tuple(project2.getDescription(), MAGGIE_USER_REF),
+                tuple("nd1 <mark>xx</mark>", MAGGIE_USER_REF),
+                tuple("nd2 <mark>xx</mark>", MAGGIE_USER_REF),
+                tuple("ed1 <mark>xx</mark>", MAGGIE_USER_REF),
+                tuple("ed2 <mark>xx</mark>", MAGGIE_USER_REF)
         );
     }
 
     @Test
     void testFindExperimentsByTherapeuticArea() {
         Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withTherapeuticArea(therapeuticArea1), Paging.DEFAULT);
-        assertResults(results, tuple(EntityType.EXPERIMENT, experiment1.getName(), experiment1.getId()));
+        assertResults(results, tuple(ELNEntityType.EXPERIMENT, experiment1.getName(), experiment1.getId()));
     }
 
     @Test
     void testFindExperimentsByProjectCode() {
         Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withProjectCode(projectCode2), Paging.DEFAULT);
-        assertResults(results, tuple(EntityType.EXPERIMENT, experiment2.getName(), experiment2.getId()));
+        assertResults(results, tuple(ELNEntityType.EXPERIMENT, experiment2.getName(), experiment2.getId()));
     }
 
     @Test
@@ -142,45 +140,45 @@ class GlobalSearchServiceTest extends ELNBaseTest {
         Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withExperimentStatus(Set.of(ExperimentStatus.CANCELLED, ExperimentStatus.SUBMITTED)), Paging.DEFAULT);
         System.out.println(results);
         assertResults(results
-                , tuple(EntityType.EXPERIMENT, experiment3.getName(), experiment3.getId())
+                , tuple(ELNEntityType.EXPERIMENT, experiment3.getName(), experiment3.getId())
         );
     }
 
     @Test
     void testFindAllByAuthor() {
-        Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withAuthor(Set.of(getBartUserRef())), Paging.DEFAULT);
+        Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withAuthor(Set.of(BART_USER_REF)), Paging.DEFAULT);
         assertResults(results
-                , tuple(EntityType.PROJECT, project3.getName(), project3.getId())
-                , tuple(EntityType.NOTEBOOK, notebook3.getName(), notebook3.getId())
-                , tuple(EntityType.EXPERIMENT, experiment3.getName(), experiment3.getId())
+                , tuple(ELNEntityType.PROJECT, project3.getName(), project3.getId())
+                , tuple(ELNEntityType.NOTEBOOK, notebook3.getName(), notebook3.getId())
+                , tuple(ELNEntityType.EXPERIMENT, experiment3.getName(), experiment3.getId())
         );
     }
 
     @Test
     void testFindByMoleculeSubstructure() {
-        String molFile = new String(loadResource(getClass(), "/ring-substructure.mol"));
+        String molFile = loadResourceAsString(getClass(), "/ring-substructure.mol");
         Page<GlobalSearchResultDTO> results = globalSearchClient.search(
                 new GlobalSearchRequest().withMoleculeStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, molFile)),
                 Paging.DEFAULT
         );
-        assertResults(results, tuple(EntityType.EXPERIMENT, experiment2.getName(), experiment2.getId()));
+        assertResults(results, tuple(ELNEntityType.EXPERIMENT, experiment2.getName(), experiment2.getId()));
         assertThat(results.getItems().getFirst().getReactionRoles()).isEqualTo(Set.of(ReactionRole.REACTANT, ReactionRole.OUTPUT));
     }
 
     @Test
     void testFindByMoleculeSubstructureAndRole() {
-        String molFile = new String(loadResource(getClass(), "/ring-substructure.mol"));
+        String molFile = loadResourceAsString(getClass(), "/ring-substructure.mol");
         Page<GlobalSearchResultDTO> results = globalSearchClient.search(
                 new GlobalSearchRequest().withMoleculeStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, molFile)).withReactionRole(ReactionRole.REACTANT),
                 Paging.DEFAULT
         );
-        assertResults(results, tuple(EntityType.EXPERIMENT, experiment2.getName(), experiment2.getId()));
+        assertResults(results, tuple(ELNEntityType.EXPERIMENT, experiment2.getName(), experiment2.getId()));
         assertThat(results.getItems().getFirst().getReactionRoles()).isEqualTo(Set.of(ReactionRole.REACTANT));
     }
 
     @Test
     void testFindByMoleculeSubstructureAndRoleNotFound() {
-        String molFile = new String(loadResource(getClass(), "/ring-substructure.mol"));
+        String molFile = loadResourceAsString(getClass(), "/ring-substructure.mol");
         Page<GlobalSearchResultDTO> results = globalSearchClient.search(
                 new GlobalSearchRequest().withMoleculeStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, molFile)).withReactionRole(ReactionRole.SOLVENT),
                 Paging.DEFAULT
@@ -192,12 +190,12 @@ class GlobalSearchServiceTest extends ELNBaseTest {
 
     @Test
     void testFindByReactionSubstructure() {
-        String rxnFile = new String(loadResource(getClass(), "/reaction-substructure.rxn"));
+        String rxnFile = loadResourceAsString(getClass(), "/reaction-substructure.rxn");
         Page<GlobalSearchResultDTO> results = globalSearchClient.search(
                 new GlobalSearchRequest().withReactionStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, rxnFile)),
                 Paging.DEFAULT
         );
-        assertResults(results, tuple(EntityType.EXPERIMENT, experiment2.getName(), experiment2.getId()));
+        assertResults(results, tuple(ELNEntityType.EXPERIMENT, experiment2.getName(), experiment2.getId()));
     }
 
     // TODO test for EXACT rxnfile
@@ -208,7 +206,7 @@ class GlobalSearchServiceTest extends ELNBaseTest {
                 new GlobalSearchRequest().withBatchPurity(new NumericSearch.GreaterThanOrEqual(10.0)),
                 Paging.DEFAULT
         );
-        assertResults(results, tuple(EntityType.EXPERIMENT, experiment2.getName(), experiment2.getId()));
+        assertResults(results, tuple(ELNEntityType.EXPERIMENT, experiment2.getName(), experiment2.getId()));
     }
 
     @Test
@@ -217,36 +215,36 @@ class GlobalSearchServiceTest extends ELNBaseTest {
                 new GlobalSearchRequest().withBatchYield(new NumericSearch.GreaterThanOrEqual(0.1)),
                 Paging.DEFAULT
         );
-        assertResults(results, tuple(EntityType.EXPERIMENT, experiment2.getName(), experiment2.getId()));
+        assertResults(results, tuple(ELNEntityType.EXPERIMENT, experiment2.getName(), experiment2.getId()));
     }
 
     @Test
     void testFindAllEntitiesQuickSearchAndAuthor() {
-        Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withQuery("xx").withAuthor(Set.of(getMaggieUserRef())), Paging.DEFAULT);
+        Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withQuery("xx").withAuthor(Set.of(MAGGIE_USER_REF)), Paging.DEFAULT);
         assertResults(results
-                , tuple(EntityType.PROJECT, project1.getName(), project1.getId())
-                , tuple(EntityType.PROJECT, project2.getName(), project2.getId())
-                , tuple(EntityType.NOTEBOOK, notebook1.getName(), notebook1.getId())
-                , tuple(EntityType.NOTEBOOK, notebook2.getName(), notebook2.getId())
-                , tuple(EntityType.EXPERIMENT, experiment1.getName(), experiment1.getId())
-                , tuple(EntityType.EXPERIMENT, experiment2.getName(), experiment2.getId())
+                , tuple(ELNEntityType.PROJECT, project1.getName(), project1.getId())
+                , tuple(ELNEntityType.PROJECT, project2.getName(), project2.getId())
+                , tuple(ELNEntityType.NOTEBOOK, notebook1.getName(), notebook1.getId())
+                , tuple(ELNEntityType.NOTEBOOK, notebook2.getName(), notebook2.getId())
+                , tuple(ELNEntityType.EXPERIMENT, experiment1.getName(), experiment1.getId())
+                , tuple(ELNEntityType.EXPERIMENT, experiment2.getName(), experiment2.getId())
         );
     }
 
     @Test
     void testFindByAllAttributes() {
-        String molFile = new String(loadResource(getClass(), "/ring-substructure.mol"));
+        String molFile = loadResourceAsString(getClass(), "/ring-substructure.mol");
         Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest()
                 .withQuery("xx")
                 .withTherapeuticArea(therapeuticArea2)
                 .withProjectCode(projectCode2)
                 .withExperimentStatus(Set.of(ExperimentStatus.OPEN))
-                .withAuthor(Set.of(getMaggieUserRef()))
+                .withAuthor(Set.of(MAGGIE_USER_REF))
                 .withBatchYield(new NumericSearch.GreaterThanOrEqual(0.1))
                 .withBatchPurity(new NumericSearch.GreaterThanOrEqual(10.0))
                 .withMoleculeStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, molFile))
                 , Paging.DEFAULT);
-        assertResults(results, tuple(EntityType.EXPERIMENT, experiment2.getName(), experiment2.getId()));
+        assertResults(results, tuple(ELNEntityType.EXPERIMENT, experiment2.getName(), experiment2.getId()));
     }
 
     private void assertResults(Page<GlobalSearchResultDTO> results, Tuple... expected) {

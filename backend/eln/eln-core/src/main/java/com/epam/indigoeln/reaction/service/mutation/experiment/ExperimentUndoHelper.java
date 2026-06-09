@@ -24,15 +24,13 @@ public class ExperimentUndoHelper extends AbstractUndoHelper<ExperimentEntity, E
 
     @Override
     protected List<ExperimentRevisionEntity> loadRevisions(ExperimentEntity entity) {
-        // !!! load last 1 hour, and then drop leftmost revisions, so all remaining undo/redo has their initial revision loaded
+        // TODO load last 1 hour, and either deny undoing beyond that, or load previous data if needed for redo
         return experimentRepository.findRecentRevisions(entity, Duration.of(365, ChronoUnit.DAYS));
     }
 
     @Override
     protected void restoreStateAfterUndo(ExperimentEntity entity, ExperimentMutationContext context, ExperimentSnapshot snapshot, UndoInfo info) {
-        if (context.isAffectsModel()) {
-            entity.setModelObj(snapshot.getModel());
-        }
+        entity.setModel(snapshot.getModel());
         super.restoreStateAfterUndo(entity, context, snapshot, info);
     }
 

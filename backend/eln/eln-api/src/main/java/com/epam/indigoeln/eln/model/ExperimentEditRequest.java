@@ -23,10 +23,10 @@ public class ExperimentEditRequest {
     Optional<String> title;
 
     @Nullable
-    Optional<DictionaryItemRef> therapeuticArea;
+    Optional<TherapeuticAreaRef> therapeuticArea;
 
     @Nullable
-    Optional<DictionaryItemRef> projectCode;
+    Optional<ProjectCodeRef> projectCode;
 
     @Nullable
     Optional<String> description;

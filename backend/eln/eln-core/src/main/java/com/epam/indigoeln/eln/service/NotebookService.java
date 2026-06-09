@@ -1,5 +1,8 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.NotebookEntity;
@@ -84,11 +87,11 @@ public class NotebookService {
         return getNotebook(notebookId);
     }
 
-    public List<ACLDetailsEntryDTO> updateNotebookAccess(UUID notebookId, List<AccessForm> form) {
+    public List<ACLEntryDTO> updateNotebookAccess(UUID notebookId, List<AccessForm> form) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
         aclService.ensureAccess(notebook, ApplicationPermission.MANAGE_NOTEBOOK_ACCESS);
         applyMutation(notebook, new NotebookMutation.EditNotebookAccess(form));
-        return notebookMapper.convertDetailsACLList(notebook.getFullACL());
+        return notebookMapper.convertACLList(notebook.getFullACL());
     }
 
     public List<NestedACLEntryDTO> getNestedNotebookAccess(UUID projectId) {
@@ -104,6 +107,6 @@ public class NotebookService {
     public List<RevisionDetailsDTO> getNotebookRevisions(UUID notebookId) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
         aclService.ensureAccess(notebook, ApplicationPermission.VIEW_NOTEBOOKS);
-        return notebookMapper.revisionToDTOList(notebook.getRevisions());
+        return notebookMapper.revisionToDTOList(notebookRepository.getRevisions(notebook));
     }
 }

@@ -92,6 +92,7 @@ export interface ReactionInput {
 export interface ReactionOutput {
   anchor: UUID;
   outputName: string;
+  intended: boolean;
   chemicalName?: string;
   compound: CompoundRef;
   eq: EnteredValue<NoUnit>;

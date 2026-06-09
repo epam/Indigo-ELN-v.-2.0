@@ -1,2 +1,5 @@
-<h1>=== EXPERIMENT DESCRIPTION COMPONENT ===</h1>
-<formly-form [model]="experiment" [fields]="fields" [form]="form" />
+<div class="border-t-1 border-neutral-300 mt-[19px] pt-[12px]">
+  <form [formGroup]="form">
+    <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+  </form>
+</div>

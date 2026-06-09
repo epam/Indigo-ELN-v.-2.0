@@ -1,15 +1,19 @@
 package com.epam.indigoeln.reaction.model;
 
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
+import com.epam.indigoeln.eln.model.SaltCodeRef;
+import com.epam.indigoeln.eln.model.StereoisomerCodeRef;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
-import com.fasterxml.jackson.annotation.*;
+import com.epam.indigoeln.reaction.model.units.NoUnit;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
 import org.jspecify.annotations.Nullable;
 
-import java.math.BigDecimal;
 import java.util.UUID;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
@@ -28,10 +32,10 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
     String getFormula();
 
     @Nullable
-    DictionaryItemRef getStereoisomerCode();
+    StereoisomerCodeRef getStereoisomerCode();
 
     @Nullable
-    DictionaryItemRef getSaltCode();
+    SaltCodeRef getSaltCode();
 
     @Nullable
     Double getSaltEQ();
@@ -43,7 +47,7 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
     EnteredValue<MolWeightUnit> getMolWeight();
 
     @Nullable
-    BigDecimal getExactMass();
+    EnteredValue<NoUnit> getExactMass();
 
     @Nullable
     String getCasNumber();
@@ -63,7 +67,7 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
 
         EnteredValue<MolWeightUnit> getMolWeight();
 
-        BigDecimal getExactMass();
+        EnteredValue<NoUnit> getExactMass();
 
         String getFormula();
 
@@ -82,20 +86,20 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
         private final UUID compoundID;
 
         @Nullable
-        private DictionaryItemRef stereoisomerCode;
+        private final StereoisomerCodeRef stereoisomerCode;
 
         @Nullable
-        private DictionaryItemRef saltCode;
+        private final SaltCodeRef saltCode;
 
         @Nullable
-        private Double saltEQ;
+        private final Double saltEQ;
 
         @NotNull
         @Positive
         private final EnteredValue<MolWeightUnit> molWeight;
 
         @NotNull
-        private final BigDecimal exactMass;
+        private final EnteredValue<NoUnit> exactMass;
 
         @NotNull
         private final String formula;
@@ -113,7 +117,7 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
     @Getter
     @ToString
     @EqualsAndHashCode(of = {"compoundID"})
-    @AllArgsConstructor(onConstructor_ = @JsonCreator)
+    @AllArgsConstructor
     final class Virtual implements CompoundRef.StoredOrVirtual {
 
         public static final String TYPE = "VIRTUAL";
@@ -128,20 +132,20 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
         private final String compoundKey;
 
         @Nullable
-        private final DictionaryItemRef stereoisomerCode;
+        private final StereoisomerCodeRef stereoisomerCode;
 
         @Nullable
-        private final DictionaryItemRef saltCode;
+        private final SaltCodeRef saltCode;
 
         @Nullable
         private final Double saltEQ;
 
         @NotNull
         @Positive
-        private EnteredValue<MolWeightUnit> molWeight;
+        private final EnteredValue<MolWeightUnit> molWeight;
 
         @NotNull
-        private BigDecimal exactMass;
+        private final EnteredValue<NoUnit> exactMass;
 
         @Nullable
         private final String casNumber;
@@ -174,14 +178,14 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
         @Override
         @Nullable
         @JsonIgnore
-        public DictionaryItemRef getStereoisomerCode() {
+        public StereoisomerCodeRef getStereoisomerCode() {
             return null;
         }
 
         @Override
         @Nullable
         @JsonIgnore
-        public DictionaryItemRef getSaltCode() {
+        public SaltCodeRef getSaltCode() {
             return null;
         }
 
@@ -202,7 +206,7 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
         @Override
         @Nullable
         @JsonIgnore
-        public BigDecimal getExactMass() {
+        public EnteredValue<NoUnit> getExactMass() {
             return null;
         }
 

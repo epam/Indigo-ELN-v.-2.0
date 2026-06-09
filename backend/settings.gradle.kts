@@ -15,9 +15,13 @@ pluginManagement {
 }
 
 include("common:common")
+include("common:common-hibernate")
 include("common:common-service")
 include("common:common-lambda")
 include("common:common-test")
+
+include("common:eln-quarkus-extension")
+include("common:eln-quarkus-extension-deployment")
 
 include("database:flyway")
 
@@ -30,7 +34,7 @@ include("database:flyway")
 
 include("eln:eln-api")
 include("eln:eln-core")
-//include("eln:eln-service")
+include("eln:eln-service")
 include("eln:eln-lambda")
 
 include("reports:reports-api")
@@ -38,4 +42,5 @@ include("reports:reports-core")
 include("reports:reports-lambda")
 include("reports:reports-service")
 
-include("integrationTests")
+include("integrationTests:integrationTests-lambda")
+include("integrationTests:integrationTests-service")

@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.model;
 
+import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.validation.constraints.NotNull;

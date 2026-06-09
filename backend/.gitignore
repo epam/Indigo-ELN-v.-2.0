@@ -3,4 +3,3 @@
 .quarkus
 build
 *.http
-*.json

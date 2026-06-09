@@ -2,7 +2,7 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      java: corretto21
+      java: corretto25
   pre_build:
     commands:
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)

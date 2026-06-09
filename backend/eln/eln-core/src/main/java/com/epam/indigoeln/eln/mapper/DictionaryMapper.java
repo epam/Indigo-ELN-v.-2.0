@@ -2,8 +2,6 @@ package com.epam.indigoeln.eln.mapper;
 
 import com.epam.indigoeln.eln.entity.DictionaryEntity;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
-import com.epam.indigoeln.eln.entity.SaltCodeEntity;
-import com.epam.indigoeln.eln.entity.SaltCodeInfo;
 import com.epam.indigoeln.eln.model.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -26,7 +24,9 @@ public abstract class DictionaryMapper extends AbstractMapper {
 
     public abstract List<DictionaryItemDTO> itemToDTOList(Collection<DictionaryItemEntity> entities);
 
-    public abstract DictionaryItemRef itemToRef(DictionaryItemEntity entities);
+    public DictionaryItemRef itemToRef(DictionaryItemEntity entity) {
+        return new DictionaryItemRef(entity.getId(), entity.getName(), entity.getActive(), entity.getDeleted(), entity.getDictionary().getId());
+    }
     public abstract List<DictionaryItemRef> itemToRefList(Collection<DictionaryItemEntity> entities);
 
     @IgnoreBaseFields
@@ -34,8 +34,6 @@ public abstract class DictionaryMapper extends AbstractMapper {
     @Mapping(target = "dictionary", ignore = true)
     @Mapping(target = "active", constant = "true")
     @Mapping(target = "deleted", constant = "false")
+    @Mapping(target = "details", ignore = true)
     public abstract DictionaryItemEntity itemToEntity(DictionaryItemRequest request);
-
-    public abstract SaltCodeInfo saltCodeToInfo(SaltCodeEntity entity);
-    public abstract List<DictionaryItemRef> saltCodeToRefList(Collection<SaltCodeEntity> entities);
 }

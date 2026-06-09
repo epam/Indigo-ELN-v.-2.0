@@ -7,7 +7,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum MolWeightUnit implements MeasurementUnit {
 
-    G_PER_MOL(1.0);
+    G_PER_MOL(1.0, "g/mol");
 
     private final double multiplier;
+    private final String displayName;
 }

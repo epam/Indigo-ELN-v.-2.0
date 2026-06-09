@@ -2,7 +2,6 @@ package com.epam.indigoeln.reaction.service.mutation.experiment;
 
 import com.epam.indigoeln.eln.entity.ExperimentEditSessionEntity;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
-import com.epam.indigoeln.eln.entity.ExperimentReferencedCompound;
 import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
 import com.epam.indigoeln.eln.mapper.SnapshotMapper;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
@@ -10,38 +9,33 @@ import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.RevisionService;
 import com.epam.indigoeln.eln.service.UserService;
-import com.epam.indigoeln.eln.util.ExperimentModelUtil;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
-import com.epam.indigoeln.indigowrapper.IndigoReaction;
-import com.epam.indigoeln.reaction.metamodel.ExperimentModelMetamodel;
-import com.epam.indigoeln.reaction.model.*;
-import com.epam.indigoeln.reaction.model.mutation.Mutation;
+import com.epam.indigoeln.reaction.model.ExperimentModel;
+import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
+import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.service.ExperimentModelHelperService;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import com.epam.indigoeln.reaction.service.calculator.ReactionCalculator;
+import com.epam.indigoeln.reaction.service.mutation.ExperimentModelMutationListener;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandler;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
-import com.epam.indigoeln.reaction.util.SignificantFiguresUtil;
-import com.epam.indigoeln.reaction.util.StreamUtil;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.collect.Multimap;
+import io.quarkus.arc.All;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
-import one.util.streamex.EntryStream;
 import one.util.streamex.StreamEx;
-import org.apache.commons.lang3.tuple.Triple;
 
-import java.util.*;
+import java.util.List;
+import java.util.Set;
 
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.runWithSignificantFigures;
 
 @Slf4j
-public abstract class AbstractExperimentMutationHandler<T extends Mutation> extends MutationHandler<T, ExperimentEntity, ExperimentSnapshot, ExperimentRevisionEntity, ExperimentMutationContext> {
+public abstract class AbstractExperimentMutationHandler<T extends ExperimentMutation> extends MutationHandler<T, ExperimentEntity, ExperimentSnapshot, ExperimentRevisionEntity, ExperimentMutationContext> {
 
     @Inject
     SnapshotMapper snapshotMapper;
@@ -64,6 +58,10 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation> exte
     @Inject
     protected ACLService aclService;
 
+    @All
+    @Inject
+    List<ExperimentModelMutationListener> listeners;
+
     @Override
     protected ExperimentMutationContext createContext() {
         return new ExperimentMutationContext();
@@ -75,32 +73,19 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation> exte
     }
 
     protected final ExperimentSnapshot doSnapshotBefore(ExperimentEntity experiment, ExperimentMutationContext context) {
-        if (context.isAffectsModel()) {
-            experimentModelService.readModel(experiment);
-        }
-        ExperimentSnapshot snapshot = snapshotMapper.createSnapshot(experiment, context.isAffectsAttachments(), context.isAffectsACL(), experiment.getModelObj());
-        if (context.isAffectsModel()) {
-            // read another copy that will be updated during the mutation
-            experimentModelService.readModel(experiment);
-        }
-        return snapshot;
+        return snapshotMapper.createSnapshot(experiment, true);
     }
 
     @Override
     protected final JsonNode doUpdateEntity(ExperimentEntity experiment, ExperimentSnapshot snapshotBefore, ExperimentSnapshot snapshotAfter, ExperimentMutationContext context) {
-        ExperimentModel model = experiment.getModelObj();
-        if (model != null) {
-            SignificantFiguresUtil.setSignificantFigures(model.getSignificantFigures());
-            reactionCalculatorFactory.get().recalculate(model);
-            doUpdateReferences(experiment, model,  snapshotBefore, snapshotAfter, context);
-            doValidateModel(model);
-            SignificantFiguresUtil.clearSignificantFigures();
-        }
+        runWithSignificantFigures(experiment.getModel().getSignificantFigures(), () -> {
+            doNotifyBeforeRecalculate(experiment, context);
+            reactionCalculatorFactory.get().recalculate(experiment.getModel());
+            doNotifyAfterRecalculate(experiment, context);
+            doValidateModel(experiment.getModel());
+        });
         updateDates(experiment, userService.getCurrentUserEntity());
         JsonNode patch = experimentModelService.createPatch(snapshotBefore, snapshotAfter);
-        if (model != null) {
-            experimentModelService.setModel(experiment, model);
-        }
         //noinspection ConstantValue
         if (experiment.getId() == null) {
             experimentRepository.persist(experiment);
@@ -111,7 +96,7 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation> exte
 
     @Override
     protected ExperimentSnapshot doSnapshotAfter(ExperimentEntity experiment, ExperimentMutationContext context) {
-        return snapshotMapper.createSnapshot(experiment, context.isAffectsAttachments(), context.isAffectsACL(), experiment.getModelObj());
+        return snapshotMapper.createSnapshot(experiment, false);
     }
 
     @Override
@@ -133,94 +118,30 @@ public abstract class AbstractExperimentMutationHandler<T extends Mutation> exte
         return revision;
     }
 
-    protected void doUpdateReferences(ExperimentEntity experiment, ExperimentModel model, ExperimentSnapshot snapshotBefore, ExperimentSnapshot snapshotAfter, ExperimentMutationContext context) {
-        boolean anyRxnfileChanged = false;
-        for (Reaction reaction : model.getReactions()) {
-            Reaction oldReaction = checkNotNull(snapshotBefore.getModel()).tryLocate(reaction.getAnchor());
-            IndigoReaction indigoReaction;
-            String oldRxnfile = oldReaction != null ? oldReaction.getRxnfile() : null;
-            List<Object> oldReactionKey = oldRxnfile != null ? experimentModelHelperService.makeReactionKey(oldReaction) : List.of();
-            if (!Objects.equals(oldRxnfile, reaction.getRxnfile())) {
-                // rxnfile was modified
-                indigoReaction = reaction.getRxnfile() == null ? indigoAPI.createReaction() : indigoAPI.loadReaction(reaction.getRxnfile());
-            } else if (!Objects.equals(oldReactionKey, experimentModelHelperService.makeReactionKey(reaction))) {
-                // inputs/outputs was modified, update rxnfile accordingly
-                indigoReaction = experimentModelHelperService.rebuildReactionRxnFile(reaction.getInputs(), reaction.getOutputs());
-                reaction.setRxnfile(indigoReaction.rxnfile());
-            } else {
-                continue; // nothing changed
-            }
-            anyRxnfileChanged = true;
-            String image = experimentModelHelperService.rebuildReactionPicture(experiment, reaction, indigoReaction);
-            context.getResponse().getReactionImages().put(reaction.getAnchor(), image);
-        }
-
-        if (anyRxnfileChanged) {
-            List<String> rxnFiles = StreamEx.of(model.getReactions())
-                    .map(Reaction::getRxnfile)
-                    .collect(StreamUtil.toListNotNull());
-            experiment.setRxnfiles(rxnFiles);
-        }
-
-        Multimap<ReactionRole, CompoundRef.StoredOrVirtual> oldCompoundRefs = experimentModelHelperService.makeCompoundRefs(checkNotNull(snapshotBefore.getModel()));
-        Multimap<ReactionRole, CompoundRef.StoredOrVirtual> newCompoundRefs = experimentModelHelperService.makeCompoundRefs(model);
-        if (!oldCompoundRefs.equals(newCompoundRefs)) {
-            Set<ExperimentReferencedCompound> ids = EntryStream.of(newCompoundRefs.asMap())
-                    .flatMapValues(Collection::stream)
-                    .map(e -> new ExperimentReferencedCompound(e.getKey(), e.getValue().getCompoundID()))
-                    .toSet();
-            experiment.getReferencedCompounds().clear();
-            experiment.getReferencedCompounds().addAll(ids);
-        }
-    }
-
     protected void doValidateModel(ExperimentModel model) {
         Set<ConstraintViolation<ExperimentModel>> violations = validator.validate(model);
         if (!violations.isEmpty()) {
             log.error("Mutation produced invalid model:\n{}", StreamEx.of(violations).joining("\n"));
             throw new RuntimeException("Mutation produced invalid model:\n" + StreamEx.of(violations).joining("\n"));
         }
+    }
 
-        try {
-            // check all parent links are correct
-            for (Reaction reaction : model.getReactions()) {
-                checkState(reaction.getModel() == model);
-                for (ReactionInput input : reaction.getInputs()) {
-                    checkState(input.getReaction() == reaction);
-                    for (ReactionInputSample sample : input.getSamples()) {
-                        checkState(sample.getRow() == input);
-                    }
-                }
-                for (ReactionOutput output : reaction.getOutputs()) {
-                    checkState(output.getReaction() == reaction);
-                    for (ReactionOutputSample sample : output.getSamples()) {
-                        checkState(sample.getRow() == output);
-                    }
-                }
-            }
-            // check anchors and rxnPositions are unique
-            Map<Anchor, ExperimentNode> anchors = new HashMap<>();
-            Map<Triple<ReactionAnchor, ReactionRole, Integer>, ReactionRow> rxnPositions = new HashMap<>();
-            ExperimentModelUtil.walk(ExperimentModelMetamodel.INSTANCE, model, node -> {
-                Anchor anchor = switch (node) {
-                    case Reaction r -> r.getAnchor();
-                    case ReactionInput i -> i.getAnchor();
-                    case ReactionInputSample s -> s.getAnchor();
-                    case ReactionOutput o -> o.getAnchor();
-                    case ReactionOutputSample s -> s.getAnchor();
-                    default -> null;
-                };
-                if (anchor != null) {
-                    ExperimentNode previous = anchors.put(anchor, node);
-                    checkState(previous == null, "Anchor %s used by both %s and %s", anchor, previous, node);
-                }
-                if (node instanceof ReactionRow r && r.getRxnPosition() != null) {
-                    ReactionRow previous = rxnPositions.put(Triple.of(r.getReaction().getAnchor(), r instanceof ReactionInput ri ? ri.getRole() : ReactionRole.OUTPUT, r.getRxnPosition()), r);
-                    checkState(previous == null, "rxnPosition %s is used by both %s and %s", r.getRxnPosition(), previous, r);
-                }
-            });
-        } catch (Exception e) {
-            throw new RuntimeException("Mutation produced invalid model: " + e.getMessage(), e);
+    @Override
+    protected void doNotifyBeforeHandle(ExperimentEntity entity, T mutation, ExperimentMutationContext context) {
+        for (ExperimentModelMutationListener listener : listeners) {
+            listener.beforeHandle(entity, context);
+        }
+    }
+
+    private void doNotifyBeforeRecalculate(ExperimentEntity entity, ExperimentMutationContext context) {
+        for (ExperimentModelMutationListener listener : listeners) {
+            listener.beforeRecalculate(entity, context);
+        }
+    }
+
+    private void doNotifyAfterRecalculate(ExperimentEntity entity, ExperimentMutationContext context) {
+        for (ExperimentModelMutationListener listener : listeners) {
+            listener.afterRecalculate(entity, context);
         }
     }
 }

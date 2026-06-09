@@ -7,21 +7,17 @@ import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 public abstract class AbstractReactionMutationHandler<T extends ReactionMutation> extends ExperimentMutationHandlerBase<T> {
 
     @Override
     public void doPrepare(ExperimentEntity entity, T mutation, ExperimentMutationContext context) {
-        context.setAffectsModel(true);
         context.setRequiresEditSession(true);
     }
 
     @Override
     public MutationResult doHandle(ExperimentEntity experiment, T mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
-        ExperimentModel model = checkNotNull(experiment.getModelObj());
-        Reaction reaction = model.locate(mutation.anchor());
-        return handle(experiment, model, reaction, mutation, context);
+        Reaction reaction = experiment.getModel().locate(mutation.anchor());
+        return handle(experiment, experiment.getModel(), reaction, mutation, context);
     }
 
     @Override

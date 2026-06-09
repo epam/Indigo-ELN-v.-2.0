@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { StarredExperimentsComponent } from './starred-experiments/starred-experiments.component';
-import { map, Observable } from 'rxjs';
 import { IdentityService } from '@/core/services/identity.service';
-import { ApplicationPermission, CurrentUser } from '@/core/types/entities/user.i';
+import { ApplicationPermission } from '@/core/types/entities/user.i';
 import { MatIconModule } from '@angular/material/icon';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 interface MenuItem {
   name: string;
@@ -21,9 +21,10 @@ interface MenuItem {
   selector: 'eln-sidebar',
   templateUrl: './sidebar.component.html',
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit {
   private identityService = inject(IdentityService);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
 
   private fullMenu = [
     {
@@ -43,18 +44,26 @@ export class SidebarComponent {
       path: '/dictionary',
       requiredPermission: ApplicationPermission.MANAGE_DICTIONARIES,
     },
+    {
+      name: 'Signatures',
+      icon: 'indicon-layers', // TODO icon
+      path: '/signatures',
+    },
   ];
 
-  menu$: Observable<MenuItem[]> = this.identityService.user$.pipe(
-    map((user: CurrentUser) => {
-      return this.fullMenu.filter(
-        (menuItem) => !menuItem.requiredPermission || user.permissions.includes(menuItem.requiredPermission),
-      );
-    }),
-  );
+  menu = signal<MenuItem[]>([]);
 
   isSidebarOpen = true;
   isHovered = false;
+
+  ngOnInit() {
+    this.menu.set(this.fullMenu.filter((x) => !x.requiredPermission));
+    this.identityService.user$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((user) => {
+      this.menu.set(
+        this.fullMenu.filter((x) => !x.requiredPermission || user.permissions.includes(x.requiredPermission)),
+      );
+    });
+  }
 
   toggleSidebar() {
     this.isSidebarOpen = !this.isSidebarOpen;

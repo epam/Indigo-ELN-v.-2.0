@@ -1,15 +1,11 @@
+import { UserRef } from '@core/types/entities/user.i';
+
 export interface BaseEntity {
   id: string;
-  createdBy?: EdBy;
+  createdBy?: UserRef;
   createdAt?: Date;
-  modifiedBy?: EdBy;
+  modifiedBy?: UserRef;
   modifiedAt?: Date;
-}
-
-export interface EdBy {
-  id: string;
-  username: string;
-  displayName: string;
 }
 
 export interface BackendError {

@@ -111,7 +111,15 @@ export class EditableDataTableComponent<TRow = unknown> {
     }
   }
 
-  callSaveEV(column: ColumnConfig<TRow, unknown>, row: TRow, selectedValue: string, selectedUnit: unknown): void {
+  callSaveEV(
+    column: ColumnConfig<TRow, unknown>,
+    row: TRow,
+    updatedField: 'value' | 'unit',
+    selectedValue: string,
+    selectedUnit: unknown,
+    input: HTMLInputElement,
+    combobox: MatSelect,
+  ): void {
     const columnEV = column as ColumnConfig<TRow, EnteredValue<unknown>>;
     const oldValue = columnEV.field(row);
     const newValue = {
@@ -120,6 +128,7 @@ export class EditableDataTableComponent<TRow = unknown> {
     } as EnteredValue<unknown>;
     const oldSet = this.isFullySet(oldValue),
       newSet = this.isFullySet(newValue);
+    console.log('callSaveEV', oldValue, newValue, newSet, updatedField);
     if (newSet && oldSet) {
       // update existing value
       if (newValue.value !== oldValue?.value || newValue.unit !== oldValue.unit) {
@@ -131,6 +140,16 @@ export class EditableDataTableComponent<TRow = unknown> {
     } else if (oldSet) {
       // remove old value
       columnEV?.onSave(row, null);
+    } else if (updatedField === 'value' && newValue.value != null && newValue.unit == null) {
+      // user entered number only; expand units combobox automatically
+      combobox.open();
+      combobox.focus();
+    } else if (updatedField === 'unit' && newValue.unit == null) {
+      // user didn't select unit; reset numeric input
+      input.value = '';
+    } else if (updatedField === 'unit' && newValue.unit != null && newValue.value == '') {
+      // user selected unit, but there is no numeric value; reset unit
+      combobox.value = null;
     }
   }
 

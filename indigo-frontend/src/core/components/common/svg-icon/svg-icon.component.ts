@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, HostBinding, inject, Input, OnInit } from '@angular/core';
 import { MatIcon, MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 
@@ -16,6 +16,7 @@ export class SvgIconComponent implements OnInit {
   @Input() icon!: string;
   @Input() size: IconSize = 'medium';
   @Input() classList = '';
+  @HostBinding('style.color') @Input() color = '';
 
   private iconRegistry = inject(MatIconRegistry);
   private sanitizer = inject(DomSanitizer);

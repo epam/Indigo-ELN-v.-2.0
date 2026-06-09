@@ -27,7 +27,7 @@ public class ProjectDetailsDTO extends BaseProjectDTO {
     List<AttachmentDTO> attachments;
 
     @NotNull
-    List<ACLDetailsEntryDTO> acl;
+    List<ACLEntryDTO> acl;
 
     @NotNull
     List<ApplicationPermission> currentPermissions;
@@ -35,7 +35,7 @@ public class ProjectDetailsDTO extends BaseProjectDTO {
     @Override
     public String toString() {
         return "ProjectDetailsDTO{" +
-                "id=" + id +
+                "id=" + getId() +
                 ", name='" + name + '\'' +
                 '}';
     }

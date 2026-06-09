@@ -1,0 +1,9 @@
+{
+  "Fault": {
+    "Code": "PUGREST.NotFound",
+    "Message": "No CID found",
+    "Details": [
+      "No CID found that matches the given name"
+    ]
+  }
+}

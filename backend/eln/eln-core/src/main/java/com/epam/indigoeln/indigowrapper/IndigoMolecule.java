@@ -20,8 +20,8 @@ public class IndigoMolecule extends AbstractIndigoObject {
         return obj.molfile();
     }
 
-    public String grossFormula() {
-        return obj.grossFormula();
+    public String molecularFormula() {
+        return obj.molecularFormula();
     }
 
     public double molecularWeight() {
@@ -34,6 +34,10 @@ public class IndigoMolecule extends AbstractIndigoObject {
 
     public void remove() {
         obj.remove();
+    }
+
+    public void setProperty(String property, String value) {
+        obj.setProperty(property, value);
     }
 
     @Override

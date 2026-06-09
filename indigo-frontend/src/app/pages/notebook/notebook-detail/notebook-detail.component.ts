@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, effect, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterOutlet } from '@angular/router';
 import { take } from 'rxjs';
 import { ButtonComponent } from '@/core/components/common/button/button.component';
@@ -46,6 +46,22 @@ export class NotebookDetailComponent implements OnInit {
   public infoUrl = '';
   public experimentsUrl = '';
 
+  private readonly breadcrumbsEffect = effect(() => {
+    const notebook = this.store.notebook();
+    this.breadcrumbsState.setItems([
+      { label: 'All Projects', url: '/projects', active: false },
+      {
+        label: `Project:  ${notebook?.projectName ?? ''}`,
+        url: notebook ? `/projects/${notebook.projectId}` : null,
+        active: false,
+      },
+      {
+        label: `Notebook: ${notebook?.name ?? ''}`,
+        active: true,
+      },
+    ]);
+  });
+
   ngOnInit() {
     const notebookId = this.activatedRoute.snapshot.paramMap.get('notebookId');
     const projectId = this.activatedRoute.snapshot.paramMap.get('projectId');
@@ -57,25 +73,13 @@ export class NotebookDetailComponent implements OnInit {
       this.store.load(notebookId);
     }
 
-    this.store.load(notebookId).subscribe((notebook) => {
-      this.breadcrumbsState.setItems([
-        { label: 'All Projects', url: '/projects', active: false },
-        {
-          label: `Project:  ${notebook.projectName}`,
-          url: `/projects/${projectId}`,
-          active: false,
-        },
-        {
-          label: `Notebook: ${notebook.name}`,
-          active: true,
-        },
-      ]);
-    });
+    this.store.load(notebookId).subscribe();
   }
 
   async openExperimentModal() {
     const ref = this.dialog.open(ExperimentAddComponent);
     ref.componentInstance.notebookId = this.activatedRoute.snapshot.paramMap.get('notebookId');
+    ref.componentInstance.projectId = this.activatedRoute.snapshot.paramMap.get('projectId');
     ref
       .afterClosed()
       .pipe(take(1))

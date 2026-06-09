@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.entity;
 
+import com.epam.indigoeln.eln.common.entity.IdentifiableEntity;
 import com.epam.indigoeln.eln.config.hibernate.ACLEntryArrayType;
 import com.epam.indigoeln.eln.config.hibernate.ExperimentCountArrayType;
 import com.epam.indigoeln.eln.model.AccessLevel;
@@ -115,11 +116,6 @@ public class ProjectEntity extends BaseEntity implements WithAttachments, WithAC
     @JoinTable(name = "project_attachment", joinColumns = @JoinColumn(name = "project_id"), inverseJoinColumns = @JoinColumn(name = "attachment_id"))
     @OrderBy("createdAt")
     private List<AttachmentEntity> attachments = new ArrayList<>(0);
-
-    @NotNull
-    @OneToMany(mappedBy = "project")
-    @OrderBy("revision")
-    private List<ProjectRevisionEntity> revisions = new ArrayList<>(0);
 
     @Basic(fetch = FetchType.LAZY)
     @Column(insertable = false, updatable = false)

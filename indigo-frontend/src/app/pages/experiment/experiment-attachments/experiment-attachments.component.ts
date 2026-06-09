@@ -1,18 +1,24 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, computed, inject, input } from '@angular/core';
+import { CdkAccordionModule } from '@angular/cdk/accordion';
+import { AttachmentsComponent } from '@core/components/common/attachments/attachments.component';
+import { ExperimentDetailService } from '@core/services/experiment/experiment-detail.service';
+import { Attachment } from '@core/types/entities/attachment.i';
+import { UUID } from '@core/types/entities/experiments/experiment-shared.i';
 
 @Component({
   selector: 'eln-experiment-attachments',
   standalone: true,
-  imports: [CommonModule],
-  template: `
-    <div class="p-6">
-      <div class="text-center py-12">
-        <div class="text-6xl mb-4">📎</div>
-        <h3 class="text-lg font-medium text-gray-900 mb-2">Attachments</h3>
-        <p class="text-gray-600">Attachments functionality coming soon...</p>
-      </div>
-    </div>
-  `,
+  imports: [CdkAccordionModule, AttachmentsComponent],
+  templateUrl: './experiment-attachments.component.html',
 })
-export class ExperimentAttachmentsComponent {}
+export class ExperimentAttachmentsComponent {
+  experimentId = input.required<UUID>();
+
+  experimentDetailService = inject(ExperimentDetailService);
+
+  experiment = computed(() => this.experimentDetailService.experimentDetail());
+
+  onAttachmentsChanged(attachments: Attachment[]) {
+    this.experimentDetailService.dataModelUpdated((model) => ({ ...model, attachments: [...attachments] }));
+  }
+}

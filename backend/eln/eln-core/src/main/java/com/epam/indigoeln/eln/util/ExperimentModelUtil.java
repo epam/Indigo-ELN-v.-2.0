@@ -8,22 +8,8 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class ExperimentModelUtil {
-
-    public static <N extends ExperimentNode> void walk(Metamodel<N> metamodel, N node, Consumer<ExperimentNode> visitor) {
-        visitor.accept(node);
-        for (ModelProperty<N, ?> property : metamodel.getProperties()) {
-            Pair<Metamodel<?>, Collection<ExperimentNode>> children = doGetChildren(node, property);
-            if (children != null) {
-                for (ExperimentNode child : children.b()) {
-                    //noinspection rawtypes,unchecked
-                    walk((Metamodel) children.a(), child, visitor);
-                }
-            }
-        }
-    }
 
     @SuppressWarnings("unchecked")
     public static <N extends ExperimentNode> void walkProperties(Metamodel<N> metamodel, N node, PropertyVisitor visitor) {

@@ -6,7 +6,7 @@ import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.mapper.AttachmentMapper;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.model.AttachmentDTO;
-import com.epam.indigoeln.eln.model.EntityType;
+import com.epam.indigoeln.eln.model.ELNEntityType;
 import com.epam.indigoeln.eln.repository.AttachmentRepository;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
@@ -18,15 +18,18 @@ import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
+import org.jspecify.annotations.Nullable;
 
 import java.nio.file.Files;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+import static com.epam.indigoeln.common.util.ContentDispositionUtil.generateContentDisposition;
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 
 @Slf4j
@@ -88,22 +91,22 @@ public class AttachmentService {
         return attachmentMapper.attachmentToDTOList(notebook.getAttachments());
     }
 
-    public List<AttachmentDTO> createExperimentAttachment(UUID experimentId, FileUpload file, boolean useMutation) {
+    public List<AttachmentDTO> createExperimentAttachment(UUID experimentId, FileUpload file, @Nullable Boolean useMutation) {
         return createExperimentAttachment(experimentId, file.fileName(), readFile(file), useMutation);
     }
 
-    public List<AttachmentDTO> createExperimentAttachment(UUID experimentId, String filename, byte[] content, boolean useMutation) {
+    public List<AttachmentDTO> createExperimentAttachment(UUID experimentId, String filename, byte[] content, @Nullable Boolean useMutation) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         createExperimentAttachment(experiment, filename, content, useMutation);
         return attachmentMapper.attachmentToDTOList(experiment.getAttachments());
     }
 
-    public AttachmentEntity createExperimentAttachment(ExperimentEntity experiment, String filename, byte[] content, boolean useMutation) {
+    public AttachmentEntity createExperimentAttachment(ExperimentEntity experiment, String filename, byte[] content, @Nullable Boolean useMutation) {
         aclService.ensureAccess(experiment, ApplicationPermission.EDIT_EXPERIMENTS);
         AttachmentEntity attachment = doCreateAttachment(filename, content);
-        if (useMutation) {
+        if (useMutation == Boolean.TRUE) {
             experimentModelService.applyMutation(experiment, new ExperimentMutation.CreateExperimentAttachment(attachment.getId()));
-        } else {
+        } else if (useMutation == Boolean.FALSE) {
             doAddExperimentAttachment(experiment, attachment);
         }
         return attachment;
@@ -170,7 +173,8 @@ public class AttachmentService {
 
     private Response doDownloadAttachment(AttachmentEntity attachment) {
         return Response.ok(attachment.getContent())
-                .header("Content-Disposition", "attachment; filename=" + attachment.getName()).build();
+                .header(HttpHeaders.CONTENT_DISPOSITION, generateContentDisposition(true, attachment.getName()))
+                .build();
     }
 
     public void deleteProjectAttachment(UUID projectId, UUID attachmentId) {
@@ -210,6 +214,6 @@ public class AttachmentService {
             }
         }
         log.error("Attachment {} doesn't belong to requested parent entity {}", attachment, expected);
-        throw new EntityNotFoundException(EntityType.ATTACHMENT, attachment.getId());
+        throw new EntityNotFoundException(ELNEntityType.ATTACHMENT, attachment.getId());
     }
 }

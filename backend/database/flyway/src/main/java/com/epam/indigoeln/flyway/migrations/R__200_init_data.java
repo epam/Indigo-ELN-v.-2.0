@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 import org.flywaydb.core.api.migration.BaseJavaMigration;
 import org.flywaydb.core.api.migration.Context;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.sql.*;
@@ -22,6 +23,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import static com.google.common.base.Strings.emptyToNull;
+
 @Slf4j
 public class R__200_init_data extends BaseJavaMigration {
 
@@ -29,7 +32,6 @@ public class R__200_init_data extends BaseJavaMigration {
     private final Supplier<byte[]> USERS_CSV = () -> ModelUtil.loadResource(getClass(), "/db/data/users.csv");
     private final Supplier<byte[]> DICTIONARIES_CSV = () -> ModelUtil.loadResource(getClass(), "/db/data/dictionaries.csv");
     private final Supplier<byte[]> DICTIONARY_ITEMS_CSV = () -> ModelUtil.loadResource(getClass(), "/db/data/dictionary_items.csv");
-    private final Supplier<byte[]> SALT_CODES_CSV = () -> ModelUtil.loadResource(getClass(), "/db/data/salt_codes.csv");
     private final Supplier<byte[]> TEMPLATES_CSV = () -> ModelUtil.loadResource(getClass(), "/db/data/templates.csv");
 
     private final CsvMapper mapper = new CsvMapper();
@@ -60,7 +62,6 @@ public class R__200_init_data extends BaseJavaMigration {
         Map<String, DictionarySpec> dictionaryMap = StreamEx.of(dictionaries)
                 .toMap(DictionarySpec::code, Function.identity());
         log.info("items: {}", insertDictionaryItems(context.getConnection(), readCSV(DictionaryItemSpec.class, DICTIONARY_ITEMS_CSV), dictionaryMap));
-        log.info("salt codes: {}", insertSaltCodes(context.getConnection(), readCSV(SaltCodeSpec.class, SALT_CODES_CSV)));
         // templates
         log.info("templates: {}", insertTemplates(context.getConnection(), readCSV(TemplateSpec.class, TEMPLATES_CSV)));
     }
@@ -72,7 +73,6 @@ public class R__200_init_data extends BaseJavaMigration {
         checksum |= Arrays.hashCode(USERS_CSV.get());
         checksum |= Arrays.hashCode(DICTIONARIES_CSV.get());
         checksum |= Arrays.hashCode(DICTIONARY_ITEMS_CSV.get());
-        checksum |= Arrays.hashCode(SALT_CODES_CSV.get());
         checksum |= Arrays.hashCode(TEMPLATES_CSV.get());
         return checksum;
     }
@@ -178,10 +178,10 @@ public class R__200_init_data extends BaseJavaMigration {
 
     private int insertDictionaryItems(Connection conn, List<DictionaryItemSpec> items, Map<String, DictionarySpec> dictionaryMap) throws SQLException {
         try (PreparedStatement st = conn.prepareStatement("""
-                INSERT INTO Dictionary_Item (id, created_by_id, created_at, modified_by_id, modified_at, dictionary_id, ordinal, name, description, active, deleted)
-                VALUES (?, ?, now(), ?, now(), ?, ?, ?, ?, ?, false)
-                ON CONFLICT (id) DO UPDATE 
-                SET ordinal=?, name=?, description=?, active=?, modified_by_id=?, modified_at=now()
+                INSERT INTO Dictionary_Item (id, created_by_id, created_at, modified_by_id, modified_at, dictionary_id, ordinal, name, description, details, active, deleted)
+                VALUES (?, ?, now(), ?, now(), ?, ?, ?, ?, cast(? as jsonb), ?, false)
+                ON CONFLICT (id) DO UPDATE
+                SET ordinal=?, name=?, description=?, details=cast(? as jsonb), active=?, modified_by_id=?, modified_at=now()
                 """)) {
             for (DictionaryItemSpec item : items) {
                 DictionarySpec dictionary = dictionaryMap.get(item.dictionary);
@@ -194,35 +194,15 @@ public class R__200_init_data extends BaseJavaMigration {
                 st.setObject(++parameterNo, adminID.get());
                 st.setObject(++parameterNo, dictionary.id);
                 for (int i = 0; i < 2; i++) {
+                    String description = emptyToNull(item.description());
+                    String details = emptyToNull(item.details());
                     st.setInt(++parameterNo, item.ordinal());
                     st.setString(++parameterNo, item.name());
-                    st.setString(++parameterNo, item.description());
+                    st.setString(++parameterNo, description);
+                    st.setString(++parameterNo, details);
                     st.setBoolean(++parameterNo, item.active());
                 }
                 st.setObject(++parameterNo, adminID.get());
-                st.addBatch();
-            }
-            return st.executeBatch().length;
-        }
-    }
-
-    private int insertSaltCodes(Connection conn, List<SaltCodeSpec> saltCodes) throws SQLException {
-        try (PreparedStatement st = conn.prepareStatement("""
-                INSERT INTO Salt_Code (id, code, name, formula, charge, mol_weight)
-                VALUES (?, ?, ?, ?, ?, ?)
-                ON CONFLICT (id) DO UPDATE
-                SET code=?, name=?, formula=?, charge=?, mol_weight=?
-                """)) {
-            for (SaltCodeSpec salt : saltCodes) {
-                int parameterNo = 0;
-                st.setObject(++parameterNo, salt.id);
-                for (int i = 0; i < 2; i++) {
-                    st.setString(++parameterNo, salt.code);
-                    st.setString(++parameterNo, salt.name);
-                    st.setString(++parameterNo, salt.formula);
-                    st.setInt(++parameterNo, salt.charge);
-                    st.setDouble(++parameterNo, salt.molWeight);
-                }
                 st.addBatch();
             }
             return st.executeBatch().length;
@@ -292,17 +272,8 @@ public class R__200_init_data extends BaseJavaMigration {
             int ordinal,
             String name,
             String description,
-            boolean active
-    ) {}
-
-    @RegisterForReflection
-    public record SaltCodeSpec (
-            UUID id,
-            String code,
-            String name,
-            String formula,
-            int charge,
-            double molWeight
+            boolean active,
+            @Nullable String details
     ) {}
 
     @RegisterForReflection

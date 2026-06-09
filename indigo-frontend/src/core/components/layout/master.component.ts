@@ -1,7 +1,7 @@
 import { IdentityService } from '@/core/services/identity.service';
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
@@ -30,6 +30,7 @@ import { MatDialog } from '@angular/material/dialog';
     MatMenuModule,
     MatRippleModule,
     SidebarComponent,
+    FormsModule,
   ],
   templateUrl: './master.component.html',
 })
@@ -73,6 +74,7 @@ export class MasterComponent implements OnInit, OnDestroy {
   }
 
   showSearch(): void {
-    this.dialog.open(GlobalSearchComponent, {});
+    this.dialog.open(GlobalSearchComponent, { data: { initialQuery: this.searchControl.value } });
+    this.searchControl.reset();
   }
 }

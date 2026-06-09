@@ -6,11 +6,7 @@ import com.epam.indigoeln.compound.model.SampleRegistrationRequest;
 import com.epam.indigoeln.compound.model.search.*;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.ELNBaseTest;
-import com.epam.indigoeln.eln.entity.SaltCodeInfo;
-import com.epam.indigoeln.eln.model.BuiltInDictionary;
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
-import com.epam.indigoeln.eln.model.NbkBatchNumber;
-import com.epam.indigoeln.eln.model.STRCodeSample;
+import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
@@ -21,7 +17,6 @@ import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolarityUnit;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -33,13 +28,13 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
+import static com.epam.indigoeln.common.util.ModelUtil.loadResourceAsString;
 import static com.epam.indigoeln.compound.model.search.SearchCatalog.ELN;
 import static com.epam.indigoeln.compound.model.search.SearchCatalog.MY_MATERIALS;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
-@JwtSecurity
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
 public class SampleSearchServiceTest extends ELNBaseTest {
 
@@ -50,9 +45,9 @@ public class SampleSearchServiceTest extends ELNBaseTest {
     @Inject
     DictionaryService dictionaryService;
 
-    SaltCodeInfo saltCode;
-    DictionaryItemRef healthHazard;
-    DictionaryItemRef compoundState;
+    SaltCodeRef saltCode;
+    HealthHazardRef healthHazard;
+    ComponentStateRef compoundState;
     CompoundRef.Virtual compound1;
     CompoundRef.Virtual compound2;
     STRCodeSample str1;
@@ -63,10 +58,9 @@ public class SampleSearchServiceTest extends ELNBaseTest {
     @Test
     @Order(Integer.MIN_VALUE)
     void init() {
-        List<DictionaryItemRef> saltCodes = dictionaryService.getSaltCodes();
-        saltCode = dictionaryService.getSaltInfo(saltCodes.getFirst().getId());
-        healthHazard = dictionaryService.getDictionary(BuiltInDictionary.HEALTH_HAZARD.name()).getFirst();
-        compoundState = dictionaryService.getDictionary(BuiltInDictionary.COMPONENT_STATE.name()).getFirst();
+        saltCode = dictionaryService.<SaltCodeRef>getDictionary(BuiltInDictionary.SALT_CODE.name(), false).getFirst();
+        healthHazard = dictionaryService.<HealthHazardRef>getDictionary(BuiltInDictionary.HEALTH_HAZARD.name(), false).getFirst();
+        compoundState = dictionaryService.<ComponentStateRef>getDictionary(BuiltInDictionary.COMPONENT_STATE.name(), false).getFirst();
         IndigoReaction reaction = indigo.loadReaction(loadResource(getClass(), "/reaction.rxn"));
         Iterator<IndigoMolecule> it = reaction.products().iterator();
         IndigoMolecule molecule = it.next();
@@ -111,7 +105,7 @@ public class SampleSearchServiceTest extends ELNBaseTest {
     void testAdvancedSearch() {
         SampleSearchResult found = compoundClient.search(request(ELN)
                 .withNbkBatchNumber(new TextSearch.ExactSearch("00000000-0000-001"))
-                .withMolecularFormula(new TextSearch.ExactSearch("C9 H8 O4"))
+                .withMolecularFormula(new TextSearch.ExactSearch("C9H8O4"))
                 .withMolWeight(new NumericSearch.Equals(180.0))
                 .withCompoundState(compoundState)
                 .withBatchComment(new TextSearch.ExactSearch("batch comment"))
@@ -179,7 +173,7 @@ public class SampleSearchServiceTest extends ELNBaseTest {
 
     @Test
     void testPaginationAndTotalItems() {
-        String molFile = new String(loadResource(getClass(), "/ring-substructure.mol"));
+        String molFile = loadResourceAsString(getClass(), "/ring-substructure.mol");
         SearchCatalog nextCatalog = null;
         String nextAfter = null;
         boolean hasNext = true;

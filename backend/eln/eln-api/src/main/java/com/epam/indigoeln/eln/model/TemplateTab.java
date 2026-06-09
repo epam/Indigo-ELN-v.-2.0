@@ -6,8 +6,8 @@ import lombok.Data;
 
 import java.util.List;
 
-@RegisterForReflection
 @Data
+@RegisterForReflection
 public class TemplateTab {
 
     @NotEmpty

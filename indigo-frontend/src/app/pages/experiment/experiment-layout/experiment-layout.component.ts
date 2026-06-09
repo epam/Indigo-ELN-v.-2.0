@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, RouterOutlet } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 import { BreadcrumbsComponent } from '@/core/components/breadcrumbs/breadcrumbs.component';
@@ -8,8 +8,23 @@ import { CardComponent } from '@/core/components/common/card/card.component';
 import { BreadcrumbsStateService } from '@/core/services/breadcrumbs/breadcrumbs.state.service';
 import { ExperimentDetailService } from '@/core/services/experiment/experiment-detail.service';
 import { ExperimentDetail } from '@/core/types/entities/experiments/experiment-detail.i';
-import { ProjectTabButtonComponent } from '@pages/project/project-tab-button/project-tab-button.component';
 import { UndoRedoDirective } from '@core/directives/undo-redo.directive';
+import { ExperimentActionsComponent } from '@pages/experiment/experiment-actions/experiment-actions.component';
+import { TwsxPipe } from '@core/pipes/twsx.pipe';
+import { TemplateTab } from '@core/types/entities/template.i';
+import { ExperimentAttachmentsComponent } from '@pages/experiment/experiment-attachments/experiment-attachments.component';
+import { ProductBatchSummaryTableComponent } from '@pages/experiment/stoichiometry/product-batch-summary-table/product-batch-summary-table.component';
+import { ExperimentDetailsComponent } from '@pages/experiment/experiment-details/experiment-details.component';
+import { ExperimentDescriptionComponent } from '@pages/experiment/experiment-description/experiment-description.component';
+import { ExperimentVersionsComponent } from '@pages/experiment/experiment-versions/experiment-versions.component';
+import { ExperimentComponentWrapperComponent } from '@pages/experiment/experiment-component-wrapper/experiment-component-wrapper.component';
+import { ReactionViewComponent } from '@pages/experiment/stoichiometry/reaction-view/reaction-view.component';
+
+interface Tab {
+  data: TemplateTab;
+  created: boolean;
+  selected: boolean;
+}
 
 @Component({
   selector: 'eln-experiment-layout',
@@ -17,77 +32,80 @@ import { UndoRedoDirective } from '@core/directives/undo-redo.directive';
   standalone: true,
   imports: [
     CommonModule,
-    RouterOutlet,
-    ProjectTabButtonComponent,
     CardComponent,
     MatProgressSpinner,
     UndoRedoDirective,
     BreadcrumbsComponent,
+    ExperimentActionsComponent,
+    TwsxPipe,
+    ExperimentAttachmentsComponent,
+    ProductBatchSummaryTableComponent,
+    ExperimentDetailsComponent,
+    ExperimentDescriptionComponent,
+    ExperimentVersionsComponent,
+    ExperimentComponentWrapperComponent,
+    ReactionViewComponent,
   ],
 })
 export class ExperimentLayoutComponent implements OnInit, OnDestroy {
-  private activatedRoute = inject(ActivatedRoute);
+  activatedRoute = inject(ActivatedRoute);
   experimentDetailService = inject(ExperimentDetailService);
   breadcrumbsState = inject(BreadcrumbsStateService);
 
-  projectId = '';
-  notebookId = '';
-  experimentId = '';
-
   // Computed signals from the service
   experiment = computed<ExperimentDetail | null>(() => this.experimentDetailService.experimentDetail());
+  template = computed(() => this.experimentDetailService.experimentTemplate());
   isLoading = computed<boolean>(() => this.experimentDetailService.isLoading());
   isUpdating = computed<boolean>(() => this.experimentDetailService.isUpdating());
   hasError = computed<boolean>(() => this.experimentDetailService.hasError());
 
-  infoUrl = '';
-  attachmentsUrl = '';
-  summaryUrl = '';
-  versionsUrl = '';
+  tabs: Tab[] | null = null;
 
   private readonly breadcrumbsEffect = effect(() => {
     const experiment = this.experiment();
-
-    if (!experiment || !this.projectId || !this.notebookId) {
-      return;
-    }
-
     this.breadcrumbsState.setItems([
       { label: 'All Projects', url: '/projects', active: false },
       {
-        label: `Project: ${experiment.projectName}`,
-        url: `/projects/${this.projectId}`,
+        label: `Project: ${experiment?.projectName ?? ''}`,
+        url: experiment ? `/projects/${experiment.projectId}` : null,
         active: false,
       },
       {
-        label: `Notebook: ${experiment.notebookName}`,
-        url: `/projects/${this.projectId}/notebooks/${this.notebookId}`,
+        label: `Notebook: ${experiment?.notebookName ?? ''}`,
+        url: experiment ? `/projects/${experiment.projectId}/notebooks/${experiment.notebookId}` : null,
         active: false,
       },
       {
-        label: `Experiment: ${experiment.name}`,
+        label: `Experiment: ${experiment?.name ?? ''}`,
         active: true,
       },
     ]);
   });
 
-  ngOnInit(): void {
-    this.experimentId = this.activatedRoute.snapshot.params['experimentId'];
-    this.notebookId = this.activatedRoute.snapshot.params['notebookId'];
-    this.projectId = this.activatedRoute.snapshot.params['projectId'];
-
-    if (this.experimentId) {
-      // Set tab URLs using relative paths
-      this.infoUrl = 'info';
-      this.attachmentsUrl = 'attachments';
-      this.summaryUrl = 'summary';
-      this.versionsUrl = 'versions';
-      this.experimentDetailService.load(this.experimentId);
+  private readonly tabsEffect = effect(() => {
+    const template = this.template();
+    if (!template) {
+      this.tabs = null;
+    } else {
+      this.tabs = template.templateTabs.map((t) => ({ data: t, created: false, selected: false }) as Tab);
+      this.tabs[0].selected = true;
+      this.tabs[0].created = true;
     }
+  });
+
+  ngOnInit(): void {
+    const experimentId = this.activatedRoute.snapshot.params['experimentId'];
+    this.experimentDetailService.load(experimentId);
   }
 
   ngOnDestroy(): void {
     this.experimentDetailService.reset();
+  }
+
+  selectTab(tab: Tab) {
+    this.tabs.forEach((tab) => (tab.selected = false));
+    tab.selected = true;
+    tab.created = true;
   }
 
   refreshData(): void {

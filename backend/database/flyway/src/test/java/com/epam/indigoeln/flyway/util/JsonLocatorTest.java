@@ -95,7 +95,7 @@ class JsonLocatorTest {
         JsonNode root = FeignUtil.OBJECT_MAPPER.readTree("""
                 [{"key": 1}, {"key": null}, {"a": {"key": 2}}, {"a": null}, {"a": {"key": null}}]
                 """);
-        assertThat(JsonLocator.<JsonNode>findNodes(root, "**/key", true)).extracting(JsonNode::intValue).containsExactly(1, 2);
-        assertThat(JsonLocator.<JsonNode>findNodes(root, "**/key", false)).extracting(JsonNode::intValue).containsExactly(1, 0, 2, 0);
+        assertThat(JsonLocator.<JsonNode>findNodes(root, "**/key", false, true)).extracting(JsonNode::intValue).containsExactly(1, 2);
+        assertThat(JsonLocator.<JsonNode>findNodes(root, "**/key", false, false)).extracting(JsonNode::intValue).containsExactly(1, 0, 2, 0);
     }
 }

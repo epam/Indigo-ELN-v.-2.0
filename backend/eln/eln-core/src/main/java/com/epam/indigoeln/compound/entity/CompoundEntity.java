@@ -1,9 +1,8 @@
 package com.epam.indigoeln.compound.entity;
 
+import com.epam.indigoeln.eln.common.entity.IdentifiableEntity;
 import com.epam.indigoeln.eln.config.hibernate.STRCodeCompoundConverter;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
-import com.epam.indigoeln.eln.entity.IdentifiableEntity;
-import com.epam.indigoeln.eln.entity.SaltCodeEntity;
 import com.epam.indigoeln.eln.model.CompoundExternalSource;
 import com.epam.indigoeln.eln.model.STRCodeCompound;
 import jakarta.persistence.*;
@@ -53,7 +52,7 @@ public class CompoundEntity extends IdentifiableEntity {
 
     @Nullable
     @ManyToOne
-    private SaltCodeEntity saltCode;
+    private DictionaryItemEntity saltCode;
 
     @Nullable
     @Column(name = "salt_eq_100")
@@ -81,4 +80,14 @@ public class CompoundEntity extends IdentifiableEntity {
 
     @OneToMany(mappedBy = "compound") // TODO make many-to-many and store percentage in link entity
     private Set<SampleEntity> samples = new HashSet<>(0);
+
+    @Nullable
+    @Transient
+    public Double getSaltEQ() {
+        return saltEQ100 != null ? saltEQ100 / 100.0 : null;
+    }
+
+    public void setSaltEQ(@Nullable Double saltEQ) {
+        this.saltEQ100 = saltEQ != null ? (int) (saltEQ * 100.0) : null;
+    }
 }

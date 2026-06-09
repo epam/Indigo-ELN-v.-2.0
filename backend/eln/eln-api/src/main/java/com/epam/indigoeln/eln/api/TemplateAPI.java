@@ -1,6 +1,12 @@
 package com.epam.indigoeln.eln.api;
 
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.SortOrder;
+import com.epam.indigoeln.eln.model.TemplateDTO;
+import com.epam.indigoeln.eln.model.TemplateDetailsDTO;
+import com.epam.indigoeln.eln.model.TemplateEditRequest;
+import com.epam.indigoeln.eln.model.TemplateRequest;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.jspecify.annotations.Nullable;

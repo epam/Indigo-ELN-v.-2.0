@@ -1,0 +1,7 @@
+<div class="border-t-1 border-neutral-300 mt-[19px] pt-[12px]">
+  <eln-attachments
+    [attachments]="experiment().attachments"
+    [baseURL]="`/api/eln/experiments/${this.experimentId()}`"
+    (attachmentsChanged)="onAttachmentsChanged($event)"
+  />
+</div>

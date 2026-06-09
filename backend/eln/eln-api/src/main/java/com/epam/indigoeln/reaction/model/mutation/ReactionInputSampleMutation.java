@@ -1,6 +1,6 @@
 package com.epam.indigoeln.reaction.model.mutation;
 
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
+import com.epam.indigoeln.eln.model.HealthHazardRef;
 import com.epam.indigoeln.reaction.model.InputSampleAnchor;
 import com.epam.indigoeln.reaction.model.units.*;
 import jakarta.validation.constraints.NotNull;
@@ -8,7 +8,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-public interface ReactionInputSampleMutation extends Mutation {
+public interface ReactionInputSampleMutation extends ExperimentMutation {
 
     InputSampleAnchor anchor();
 
@@ -41,7 +41,7 @@ public interface ReactionInputSampleMutation extends Mutation {
 
     record SetInputHealthHazards (
             @NotNull InputSampleAnchor anchor,
-            @NotNull List<DictionaryItemRef> healthHazards
+            @NotNull List<HealthHazardRef> healthHazards
     ) implements ReactionInputSampleMutation {
     }
 

@@ -1,5 +1,5 @@
 import { Component, computed, inject, input, OnInit } from '@angular/core';
-import { Reaction, ReactionOutput } from '@core/types/entities/experiments/experiment.i';
+import { ReactionOutput } from '@core/types/entities/experiments/experiment.i';
 import {
   ColumnConfig,
   ColumnInputType,
@@ -12,7 +12,8 @@ import { determineCellClasses } from '@core/utils/experiment-model.util';
 import { CompoundType } from '@core/types/entities/compound.i';
 import { BuiltInDictionary, DictionaryItemRef } from '@core/types/entities/dictionary.i';
 import { BuiltInDictionaryService } from '@core/services/health-hazards/built-in-dictionary.service';
-import { MolUnit, WeightUnit } from '@core/types/entities/experiments/experiment-shared.i';
+import { MolUnit, UNIT_DISPLAY_NAMES, UUID, WeightUnit } from '@core/types/entities/experiments/experiment-shared.i';
+import { ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
 
 @Component({
   selector: 'eln-reaction-products-table',
@@ -23,14 +24,18 @@ export class ReactionProductsTableComponent implements OnInit {
   private experimentDetailService = inject(ExperimentDetailService);
   private builtInDictionaryService = inject(BuiltInDictionaryService);
 
-  reaction = input<Reaction | null>(null);
-  dataSource = computed(() => this.reaction()?.outputs);
+  experimentId = input.required<UUID>();
+  reactionAnchor = input.required<ReactionAnchor>();
 
-  saltCodes = computed(() => this.builtInDictionaryService.getSaltCodes());
+  reaction = computed(() => this.experimentDetailService.getReaction(this.reactionAnchor()));
+  dataSource = computed(() => {
+    return this.reaction().outputs.filter((p) => p.intended);
+  });
+
+  saltCodes = computed(() => this.builtInDictionaryService.getDictionaryItem(BuiltInDictionary.SALT_CODE));
 
   ngOnInit() {
-    this.builtInDictionaryService.load([BuiltInDictionary.HEALTH_HAZARD]);
-    this.builtInDictionaryService.loadSaltCodes();
+    this.builtInDictionaryService.load([BuiltInDictionary.SALT_CODE]);
   }
 
   columns: ColumnConfig<ReactionOutput>[] = [
@@ -52,7 +57,7 @@ export class ReactionProductsTableComponent implements OnInit {
     {
       id: 'molFormula',
       header: 'Mol Formula',
-      type: ColumnInputType.TEXT,
+      type: ColumnInputType.HTML,
       editable: () => false,
       field: (row) => row.compound.formula,
     },
@@ -67,7 +72,7 @@ export class ReactionProductsTableComponent implements OnInit {
       id: 'exactMass',
       header: 'Exact Mass',
       type: ColumnInputType.NUMBER,
-      field: (row) => row.compound.exactMass?.toString(),
+      field: (row) => row.compound.exactMass?.value?.toString(),
       editable: () => false,
     },
     {
@@ -78,7 +83,7 @@ export class ReactionProductsTableComponent implements OnInit {
       editable: () => false,
       options: Object.values(WeightUnit).map((unit) => ({
         id: unit,
-        name: unit,
+        name: UNIT_DISPLAY_NAMES[unit],
       })) as ColumnOption[],
     },
     {
@@ -89,7 +94,7 @@ export class ReactionProductsTableComponent implements OnInit {
       editable: () => false,
       options: Object.values(MolUnit).map((unit) => ({
         id: unit,
-        name: unit,
+        name: UNIT_DISPLAY_NAMES[unit],
       })) as ColumnOption[],
     },
     {
