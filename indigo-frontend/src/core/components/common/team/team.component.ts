@@ -1,22 +1,27 @@
-import { Component, computed, inject, Input, OnInit, signal, ViewChild, WritableSignal } from '@angular/core';
+import { TextOverflowTooltipDirective } from '@/core/directives/text-overflow-tooltip.directive';
+import { AclLevel, ELIGIBLE_ACL_LEVELS, isInmutableLevel } from '@/core/enums/acl-levels.enum';
+import { NormalizeLabelPipe } from '@/core/pipes/normalizeLabe.pipe';
+import { ApiService } from '@/core/services/api.service';
+import { ACLEntry, ACLUpdate } from '@/core/types/entities/acl.i';
+import { UserRef } from '@/core/types/entities/user.i';
 import { CommonModule } from '@angular/common';
+import { Component, computed, inject, Input, OnInit, signal, ViewChild, WritableSignal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
+import { SvgIconComponent } from '@core/components/common/svg-icon/svg-icon.component';
+import { NgSelectComponent, NgSelectModule } from '@ng-select/ng-select';
+import { finalize } from 'rxjs';
+import { InitialsPipe } from '../../../pipes/avatars.pipe';
+import { ButtonComponent } from '../button/button.component';
 import { CardComponent } from '../card/card.component';
 import { CopyComponent } from '../copy/copy.component';
 import { CounterComponent } from '../counter/counter.component';
 import { DropdownMenuComponent } from '../dropdown-menu/dropdown-menu.component';
-import { ACLEntry, ACLUpdate } from '@/core/types/entities/acl.i';
-import { AclLevel, ELIGIBLE_ACL_LEVELS, isInmutableLevel } from '@/core/enums/acl-levels.enum';
-import { ApiService } from '@/core/services/api.service';
-import { finalize } from 'rxjs';
-import { NormalizeLabelPipe } from '@/core/pipes/normalizeLabe.pipe';
-import { ButtonComponent } from '../button/button.component';
-import { NgSelectComponent, NgSelectModule } from '@ng-select/ng-select';
-import { FormsModule } from '@angular/forms';
+import {
+  RemoveMemberConfirmationDialogComponent,
+  RemoveMemberConfirmationResult,
+} from '../remove-member-confirmation-dialog/remove-member-confirmation-dialog.component';
 import { TeamComponentConfig } from './team.config';
-import { InitialsPipe } from '../../../pipes/avatars.pipe';
-import { TextOverflowTooltipDirective } from '@/core/directives/text-overflow-tooltip.directive';
-import { UserRef } from '@/core/types/entities/user.i';
-import { SvgIconComponent } from '@core/components/common/svg-icon/svg-icon.component';
 
 type UserRefWithState = UserRef & { added?: boolean };
 
@@ -75,6 +80,7 @@ export class TeamComponent implements OnInit {
   aclLevelOptions = ELIGIBLE_ACL_LEVELS;
 
   private api = inject(ApiService);
+  private dialog = inject(MatDialog);
 
   @ViewChild(NgSelectComponent) ngSelectComponent!: NgSelectComponent;
 
@@ -129,6 +135,30 @@ export class TeamComponent implements OnInit {
       console.error('Invalid ACL level:', rawLevel);
       return;
     }
+
+    if (newLevel === AclLevel.NONE) {
+      this.dialog
+        .open(RemoveMemberConfirmationDialogComponent, {
+          data: {
+            showCascadeCheckbox: true,
+            title: 'Remove Member',
+            message: `Are you sure you want to remove ${member.displayName || member.username} from the team?`,
+            confirmButtonLabel: 'Remove',
+            cancelButtonLabel: 'Cancel',
+          },
+        })
+        .afterClosed()
+        .subscribe((result?: RemoveMemberConfirmationResult) => {
+          if (!result?.confirmed) return;
+          this.applyAclLevelUpdate(member, newLevel);
+        });
+      return;
+    }
+
+    this.applyAclLevelUpdate(member, newLevel);
+  }
+
+  private applyAclLevelUpdate(member: ACLEntry, newLevel: AclLevel): void {
     const endpoint = this.endpoint();
     if (!endpoint) return;
 
