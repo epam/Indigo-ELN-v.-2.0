@@ -1,15 +1,19 @@
 package com.epam.indigoeln.reaction.service.mutation.notebook;
 
 import com.epam.indigoeln.eln.entity.AttachmentEntity;
+import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.NotebookEntity;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.repository.AttachmentRepository;
+import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.reaction.model.NotebookSnapshot;
+import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.NotebookMutation;
+import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import com.epam.indigoeln.reaction.service.mutation.EntityMutationHelper;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
@@ -18,6 +22,7 @@ import jakarta.inject.Inject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.epam.indigoeln.common.util.ModelUtil.editProperty;
 
@@ -48,11 +53,26 @@ class CreateNotebookHandler extends AbstractNotebookMutationHandler<NotebookMuta
 @MutationHandlerFor(NotebookMutation.EditNotebookAttributes.class)
 class EditNotebookAttributesHandler extends AbstractNotebookMutationHandler<NotebookMutation.EditNotebookAttributes> {
 
+    @Inject
+    ExperimentRepository experimentRepository;
+    @Inject
+    ExperimentModelService experimentModelService;
+
     @Override
     public MutationResult doHandle(NotebookEntity notebook, NotebookMutation.EditNotebookAttributes mutation, NotebookMutationContext context, NotebookSnapshot snapshotBefore) {
         List<String> summaryList = new ArrayList<>();
-        editProperty(mutation.name(), notebook::setName, summaryList, "name");
+        boolean nameChanged = editProperty(mutation.name(), notebook::setName, summaryList, "name");
         editProperty(mutation.description(), notebook::setDescription, summaryList, "description");
+
+        if (nameChanged) {
+            assert Objects.requireNonNull(mutation.name()).isPresent();
+            String newNotebookName = mutation.name().get();
+            List<ExperimentEntity> experiments = experimentRepository.findByNotebookWithACLEntities(notebook);
+            for (ExperimentEntity experiment : experiments) {
+                experimentModelService.applyMutation(experiment, new ExperimentMutation.ExperimentNameUpdated(newNotebookName));
+            }
+        }
+
         return new MutationResult(entityMutationHelper.formatEditAttributesSummary(summaryList));
     }
 }
