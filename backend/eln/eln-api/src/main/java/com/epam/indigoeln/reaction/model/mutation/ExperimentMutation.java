@@ -104,6 +104,11 @@ public interface ExperimentMutation extends Mutation {
     ) implements ExperimentMutation {
     }
 
+    record ExperimentNameUpdated(
+            @NotNull String notebookName
+    ) implements ExperimentMutation {
+    }
+
     record Undo(
     ) implements ExperimentMutation {
     }
