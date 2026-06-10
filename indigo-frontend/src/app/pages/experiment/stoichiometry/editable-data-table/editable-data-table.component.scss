@@ -2,6 +2,32 @@
   height: auto !important;
 }
 
+:host {
+  --mat-table-row-item-outline-width: 0;
+}
+
+:host input[type='number'] {
+  field-sizing: content;
+  appearance: textfield;
+}
+
+:host input[type='number']::-webkit-outer-spin-button,
+:host input[type='number']::-webkit-inner-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+:host ::ng-deep .unit-select {
+  .mat-mdc-select-arrow-wrapper {
+    display: none;
+  }
+
+  &:hover .mat-mdc-select-value,
+  &.mat-mdc-select-focused .mat-mdc-select-value {
+    text-decoration: underline;
+  }
+}
+
 .expanded-row-content {
   animation: slideDown 0.3s ease-out;
 }

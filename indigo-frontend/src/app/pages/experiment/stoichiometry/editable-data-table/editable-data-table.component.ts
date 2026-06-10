@@ -15,7 +15,6 @@ import {
 import { MatIconModule } from '@angular/material/icon';
 import { MatOption, MatSelect, MatSelectTrigger } from '@angular/material/select';
 import { MatInput } from '@angular/material/input';
-import { MatDivider } from '@angular/material/divider';
 import { FormsModule } from '@angular/forms';
 import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
 import {
@@ -50,7 +49,6 @@ import { EnteredValue } from '@core/types/entities/values.i';
     MatSelectTrigger,
     MatOption,
     MatInput,
-    MatDivider,
     FormsModule,
     CommonModule,
     MatIconButton,
