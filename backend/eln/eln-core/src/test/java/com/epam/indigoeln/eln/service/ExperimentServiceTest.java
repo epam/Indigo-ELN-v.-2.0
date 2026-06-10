@@ -378,13 +378,20 @@ class ExperimentServiceTest extends ELNBaseTest {
         ExperimentModel model = experiment.getModel();
 
         String rxnFile = loadResourceAsString(getClass(), "/reaction.rxn");
-        experimentClient.mutateExperimentModel(experiment.getId(), new ReactionMutation.SetScheme(model.getReactions().getFirst().getAnchor(), rxnFile));
+        model = experimentClient.mutateExperimentModel(experiment.getId(), new ReactionMutation.SetScheme(model.getReactions().getFirst().getAnchor(), rxnFile));
 
         assertThat(model.getReactions().isEmpty()).isFalse();
-        for (Reaction reaction : model.getReactions()) {
+        for (int i = 0; i < model.getReactions().size(); i++ ) {
+            Reaction reaction = model.getReactions().get(i);
             assertThat(reaction.getOutputs().isEmpty()).isFalse();
-            for (ReactionOutput output : reaction.getOutputs()) {
-                experimentClient.mutateExperimentModel(experiment.getId(), new ReactionOutputMutation.AddProductSample(output.getAnchor()));
+
+            for (int j = 0; j < reaction.getOutputs().size(); j++) {
+                ReactionOutput output = reaction.getOutputs().get(j);
+
+                model = experimentClient.mutateExperimentModel(experiment.getId(), new ReactionOutputMutation.AddProductSample(output.getAnchor()));
+                reaction = model.getReactions().get(i);
+                output = reaction.getOutputs().get(j);
+
                 assertThat(output.getSamples().isEmpty()).isFalse();
             }
         }
