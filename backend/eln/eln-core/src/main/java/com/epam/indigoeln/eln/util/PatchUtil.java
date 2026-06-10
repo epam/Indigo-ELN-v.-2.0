@@ -73,10 +73,12 @@ public class PatchUtil {
             case ObjectNode objectPatch when (objectPatch.size() == 2 && objectPatch.get("id") instanceof ValueNode id && objectPatch.get("name") instanceof ValueNode name) -> {
                 // DictionaryRef or ExperimentRef
                 String s = "<span class='%s'>%s</span>".formatted(nestedClass, name);
+                grid.right(s).left().newRow();
             }
             case ObjectNode objectPatch when (objectPatch.size() == 2 && objectPatch.get("username") instanceof ValueNode username && objectPatch.get("displayName") instanceof ValueNode displayName) -> {
                 // UserRef
                 String s = "<span class='%s'>%s (%s)</span>".formatted(nestedClass, displayName, username);
+                grid.right(s).left().newRow();
             }
             case ObjectNode objectPatch when (JSONPatcher.EXPERIMENT_LIST_PATHS.containsKey(path)) -> {
                 // list format, iterate indices
@@ -122,12 +124,17 @@ public class PatchUtil {
                 }
             }
             case ArrayNode arrayPatch -> {
-                String s = !arrayPatch.isEmpty()
-                        ? StreamEx.of(arrayPatch.elements())
-                                .map(JsonNode::toString)
-                                .joining("<br/>")
-                        : "[ ]";
-                grid.right("<span class='%s'>%s</span>".formatted(nestedClass, s)).left().newRow();
+                if (arrayPatch.isEmpty()) {
+                    grid.right("<span class='%s'>[ ]</span>".formatted(nestedClass)).left().newRow();
+                } else {
+                    grid.right("<span class='%s'>[</span>".formatted(nestedClass)).left().newRow();
+                    path.add("#");
+                    for (JsonNode item : arrayPatch) {
+                        formatJSONDiff(null, item, grid, path, newOrOld, rxnfileFn, molfileFn);
+                    }
+                    path.removeLast();
+                    grid.right("<span class='%s'>]</span>".formatted(nestedClass)).left().newRow();
+                }
             }
             default -> {
                 grid.right("<span class='%s'>%s</span>".formatted(nestedClass, patch.asText())).left().newRow();

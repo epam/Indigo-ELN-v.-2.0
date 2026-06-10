@@ -12,11 +12,11 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
+import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ContentDispositionUtil.extractFilename;
@@ -63,7 +63,7 @@ class NotebookServiceTest extends ELNBaseTest {
         notebookClient.createNotebook(project.getId(), new NotebookRequest(name));
         String name2 = nextNotebookName();
         NotebookDetailsDTO notebook2 = notebookClient.createNotebook(project.getId(), new NotebookRequest(name2));
-        assertThatClientCall(() -> notebookClient.editNotebook(notebook2.getId(), new NotebookEditRequest().withName(Optional.of(name))))
+        assertThatClientCall(() -> notebookClient.editNotebook(notebook2.getId(), new NotebookEditRequest().withName(JsonNullable.of(name))))
                 .isBadRequest("Unique name is required");
     }
 
@@ -233,7 +233,7 @@ class NotebookServiceTest extends ELNBaseTest {
     void testEditNotebookNoChanges() {
         String oldName = nextNotebookName();
         NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(oldName, "d"));
-        assertThatClientCall(() -> notebookClient.editNotebook(notebook.getId(), new NotebookEditRequest(null, null)))
+        assertThatClientCall(() -> notebookClient.editNotebook(notebook.getId(), new NotebookEditRequest(JsonNullable.undefined(), JsonNullable.undefined())))
                 .isBadRequest("Nothing to update");
     }
 
@@ -242,7 +242,7 @@ class NotebookServiceTest extends ELNBaseTest {
         String oldName = nextNotebookName();
         NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(oldName, "d"));
         String newName = nextNotebookName();
-        NotebookDetailsDTO modified = notebookClient.editNotebook(notebook.getId(), new NotebookEditRequest(Optional.of(newName), Optional.of("d2")));
+        NotebookDetailsDTO modified = notebookClient.editNotebook(notebook.getId(), new NotebookEditRequest(JsonNullable.of(newName), JsonNullable.of("d2")));
         assertThat(modified.getName()).isEqualTo(newName);
         assertThat(modified.getDescription()).isEqualTo("d2");
         NotebookDetailsDTO saved = notebookClient.getNotebook(notebook.getId());
@@ -311,7 +311,7 @@ class NotebookServiceTest extends ELNBaseTest {
         Page<NotebookDTO> result2 = notebookClient.getProjectNotebooks(project.getId(), "qs1", null, null, Paging.DEFAULT);
         assertThat(result2.getItems()).map(NotebookDTO::getName).containsExactlyInAnyOrder(p1, p2);
 
-        notebookClient.editNotebook(notebook.getId(), new NotebookEditRequest(null, Optional.of("QS1 QSNew")));
+        notebookClient.editNotebook(notebook.getId(), new NotebookEditRequest(JsonNullable.undefined(), JsonNullable.of("QS1 QSNew")));
         Page<NotebookDTO> result3 = notebookClient.getProjectNotebooks(project.getId(), "QSOld", null, null, Paging.DEFAULT);
         assertThat(result3.getItems()).isEmpty();
 

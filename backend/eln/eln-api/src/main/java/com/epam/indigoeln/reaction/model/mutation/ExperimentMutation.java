@@ -12,9 +12,9 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
+import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -42,16 +42,16 @@ public interface ExperimentMutation extends Mutation {
         }
     }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonInclude(JsonInclude.Include.NON_ABSENT)
     record EditExperimentAttributes(
-            @Nullable Optional<String> title,
-            @Nullable Optional<TherapeuticAreaRef> therapeuticArea,
-            @Nullable Optional<ProjectCodeRef> projectCode,
-            @Nullable Optional<String> description,
-            @Nullable Optional<String> literature,
-            @Nullable Optional<Set<ExperimentRef>> linkedExperiments,
-            @Nullable Optional<Set<ExperimentRef>> continuedFrom,
-            @Nullable Optional<Set<ExperimentRef>> continuedTo
+            JsonNullable<String> title,
+            JsonNullable<TherapeuticAreaRef> therapeuticArea,
+            JsonNullable<ProjectCodeRef> projectCode,
+            JsonNullable<String> description,
+            JsonNullable<String> literature,
+            JsonNullable<Set<ExperimentRef>> linkedExperiments,
+            JsonNullable<Set<ExperimentRef>> continuedFrom,
+            JsonNullable<Set<ExperimentRef>> continuedTo
     ) implements ExperimentMutation {
     }
 

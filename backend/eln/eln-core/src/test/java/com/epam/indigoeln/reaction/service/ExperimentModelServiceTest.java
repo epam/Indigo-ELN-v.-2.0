@@ -26,11 +26,11 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
@@ -223,17 +223,17 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     void testEditProperties() {
         ExperimentDetailsDTO experiment2 = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         applyMutation(new ExperimentMutation.EditExperimentAttributes(
-                Optional.of("new title"),
-                Optional.of(dictionaryClient.getFirst(THERAPEUTIC_AREA)),
-                null,
-                null,
-                null,
-                Optional.of(Set.of(experiment2.toRef())),
-                null,
-                null
+                JsonNullable.of("new title"),
+                JsonNullable.of(dictionaryClient.getFirst(THERAPEUTIC_AREA)),
+                JsonNullable.undefined(),
+                JsonNullable.undefined(),
+                JsonNullable.undefined(),
+                JsonNullable.of(Set.of(experiment2.toRef())),
+                JsonNullable.undefined(),
+                JsonNullable.undefined()
         ));
         applyMutation(new ExperimentMutation.EditExperimentAccess(
                 AccessForm.of(LISA_USERNAME, AccessLevel.EDIT)
-        ));
+        ), false);
     }
 }

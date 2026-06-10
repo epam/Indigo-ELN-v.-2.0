@@ -4,6 +4,7 @@ import com.epam.indigoeln.eln.model.TemplateTab;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,6 +36,7 @@ import java.util.List;
 public class TemplateEntity extends BaseEntity {
 
     @NotEmpty
+    @Size(max = 256)
     private String name;
 
     @NotNull

@@ -19,11 +19,15 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ContentDispositionUtil.extractFilename;
 import static com.epam.indigoeln.common.util.ModelUtil.loadResourceAsString;
@@ -183,14 +187,14 @@ class ExperimentServiceTest extends ELNBaseTest {
         ExperimentDetailsDTO e3 = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID, "e3", therapeuticAreas.getFirst(), projectCodes.getFirst()));
         ExperimentDetailsDTO e4 = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID, "e4", therapeuticAreas.getFirst(), projectCodes.getFirst()));
         ExperimentDetailsDTO modified = experimentClient.editExperiment(experiment.getId(), new ExperimentEditRequest(
-                Optional.of("newTitle"),
-                Optional.of(therapeuticAreas.get(1)),
-                Optional.of(projectCodes.get(1)),
-                Optional.of("newDescription"),
-                Optional.of("newLiterature"),
-                Optional.of(Set.of(e2.toRef())),
-                Optional.of(Set.of(e3.toRef())),
-                Optional.of(Set.of(e4.toRef()))
+                JsonNullable.of("newTitle"),
+                JsonNullable.of(therapeuticAreas.get(1)),
+                JsonNullable.of(projectCodes.get(1)),
+                JsonNullable.of("newDescription"),
+                JsonNullable.of("newLiterature"),
+                JsonNullable.of(Set.of(e2.toRef())),
+                JsonNullable.of(Set.of(e3.toRef())),
+                JsonNullable.of(Set.of(e4.toRef()))
         ));
         assertThat(modified.getName()).isEqualTo(experiment.getName());
         assertThat(modified.getTitle()).isEqualTo("newTitle");

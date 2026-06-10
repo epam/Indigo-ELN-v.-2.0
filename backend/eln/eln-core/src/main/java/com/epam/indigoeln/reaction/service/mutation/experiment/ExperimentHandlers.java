@@ -170,20 +170,19 @@ class EditExperimentAttributesHandler extends ExperimentMutationHandlerBase<Expe
     }
 
     @Override
-    @SuppressWarnings("OptionalAssignedToNull")
     public void doRestoreStateAfterUndo(ExperimentEntity experiment, ExperimentSnapshot snapshot, ExperimentMutation.EditExperimentAttributes mutation) {
         experiment.setTitle(snapshot.getTitle());
         experiment.setTherapeuticArea(dictionaryService.lookup(snapshot.getTherapeuticArea()));
         experiment.setProjectCode(dictionaryService.lookup(snapshot.getProjectCode()));
         experiment.setDescription(snapshot.getDescription());
         experiment.setLiterature(snapshot.getLiterature());
-        if (mutation.linkedExperiments() != null) {
+        if (mutation.linkedExperiments().isPresent()) {
             updateCollection(experiment.getLinkedExperiments(), experimentsFromRefs(snapshot.getLinkedExperiments()));
         }
-        if (mutation.continuedFrom() != null) {
+        if (mutation.continuedFrom().isPresent()) {
             updateCollection(experiment.getContinuedFrom(), experimentsFromRefs(snapshot.getContinuedFrom()));
         }
-        if (mutation.continuedTo() != null) {
+        if (mutation.continuedTo().isPresent()) {
             updateCollection(experiment.getContinuedTo(), experimentsFromRefs(snapshot.getContinuedTo()));
         }
     }

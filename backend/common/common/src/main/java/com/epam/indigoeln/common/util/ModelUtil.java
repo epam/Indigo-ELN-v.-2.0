@@ -4,6 +4,7 @@ import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
+import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.io.File;
 import java.io.InputStream;
@@ -38,22 +39,17 @@ public class ModelUtil {
         return s.toString();
     }
 
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    public <T> boolean editProperty(@Nullable Optional<T> property, Consumer<T> consumer) {
+    public <T> boolean editProperty(JsonNullable<T> property, Consumer<T> consumer) {
         return editProperty(property, consumer, null, (Function<T, String>) null);
     }
 
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    public <T> boolean editProperty(@Nullable Optional<T> property, Consumer<T> consumer, @Nullable List<String> summaryList, String propertyName) {
+    public <T> boolean editProperty(JsonNullable<T> property, Consumer<T> consumer, @Nullable List<String> summaryList, String propertyName) {
         return editProperty(property, consumer, summaryList, v -> propertyName + "=" + v);
     }
 
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    public <T> boolean editProperty(@Nullable Optional<T> property, Consumer<T> consumer, @Nullable List<String> summaryList, @Nullable Function<T, String> summaryFn) {
-        //noinspection OptionalAssignedToNull
-        if (property != null) {
-            T value = property.orElse(null);
-            //noinspection DataFlowIssue
+    public <T> boolean editProperty(JsonNullable<T> property, Consumer<T> consumer, @Nullable List<String> summaryList, @Nullable Function<T, String> summaryFn) {
+        if (property.isPresent()) {
+            T value = property.get();
             consumer.accept(value);
             if (summaryList != null) {
                 String summary = summaryFn != null ? summaryFn.apply(value) : Objects.toString(value);

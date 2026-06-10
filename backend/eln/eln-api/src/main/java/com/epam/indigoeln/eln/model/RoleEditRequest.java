@@ -5,21 +5,17 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jspecify.annotations.Nullable;
+import org.openapitools.jackson.nullable.JsonNullable;
 
-import java.util.Optional;
 import java.util.Set;
 
 @Data
 @NoArgsConstructor(onConstructor_ = {@JsonCreator})
 @AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+@JsonInclude(JsonInclude.Include.NON_ABSENT)
 public class RoleEditRequest {
 
-    @Nullable
-    Optional<String> name;
+    JsonNullable<String> name = JsonNullable.undefined();
 
-    @Nullable
-    Optional<Set<ApplicationPermission>> permissions;
+    JsonNullable<Set<ApplicationPermission>> permissions = JsonNullable.undefined();
 }

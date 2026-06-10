@@ -4,6 +4,7 @@ import com.epam.indigoeln.eln.common.entity.IdentifiableEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -51,6 +52,7 @@ public class SignatureTemplateEntity extends IdentifiableEntity {
     protected ZonedDateTime modifiedAt;
 
     @NotEmpty
+    @Size(max = 256)
     private String name;
 
     @NotNull

@@ -12,10 +12,14 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
+import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ContentDispositionUtil.extractFilename;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
@@ -126,7 +130,7 @@ class ProjectServiceTest extends ELNBaseTest {
         assertThatClientCall(() ->
                 projectClient.editProject(
                         project.getId(),
-                        new ProjectEditRequest().withName(Optional.of(longName))
+                        new ProjectEditRequest().withName(JsonNullable.of(longName))
                 )
         ).isBadRequest("must be at most 256 characters");
     }
@@ -139,7 +143,7 @@ class ProjectServiceTest extends ELNBaseTest {
         assertThatClientCall(() ->
                 projectClient.editProject(
                         project.getId(),
-                        new ProjectEditRequest().withName(Optional.of(""))
+                        new ProjectEditRequest().withName(JsonNullable.of(""))
                 )
         ).isBadRequest("Project Name is required");
     }
@@ -155,7 +159,7 @@ class ProjectServiceTest extends ELNBaseTest {
     void testRenameDuplicateNames() {
         projectClient.createProject(new ProjectRequest("testRenameDuplicateNames"));
         ProjectDetailsDTO project2 = projectClient.createProject(new ProjectRequest("testRenameDuplicateNames2"));
-        assertThatClientCall(() -> projectClient.editProject(project2.getId(), new ProjectEditRequest().withName(Optional.of("testRenameDuplicateNames"))))
+        assertThatClientCall(() -> projectClient.editProject(project2.getId(), new ProjectEditRequest().withName(JsonNullable.of("testRenameDuplicateNames"))))
                 .isBadRequest("Unique name is required");
     }
 
@@ -347,14 +351,14 @@ class ProjectServiceTest extends ELNBaseTest {
     @Test
     void testEditProjectNoChanges() {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testEditProject", List.of("k1", "k2"), "l", "d"));
-        assertThatClientCall(() -> projectClient.editProject(project.getId(), new ProjectEditRequest(null, null, null, null)))
+        assertThatClientCall(() -> projectClient.editProject(project.getId(), new ProjectEditRequest(JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.undefined())))
                 .isBadRequest("Nothing to update");
     }
 
     @Test
     void testEditProject() {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testEditProject", List.of("k1", "k2"), "l", "d"));
-        ProjectDetailsDTO modified = projectClient.editProject(project.getId(), new ProjectEditRequest(Optional.of("testEditProject_new"), Optional.of(List.of("k2", "k3")), Optional.of("l2"), Optional.of("d2")));
+        ProjectDetailsDTO modified = projectClient.editProject(project.getId(), new ProjectEditRequest(JsonNullable.of("testEditProject_new"), JsonNullable.of(List.of("k2", "k3")), JsonNullable.of("l2"), JsonNullable.of("d2")));
         assertThat(modified.getName()).isEqualTo("testEditProject_new");
         assertThat(modified.getKeywords()).containsExactly("k2", "k3");
         assertThat(modified.getLiterature()).isEqualTo("l2");
@@ -522,7 +526,7 @@ class ProjectServiceTest extends ELNBaseTest {
         Page<ProjectDTO> result5 = projectClient.getProjects("QSLiterature", null, null, Paging.DEFAULT);
         assertThat(result5.getItems()).map(ProjectDTO::getName).containsOnly(p3);
 
-        projectClient.editProject(project.getId(), new ProjectEditRequest(null, null, null, Optional.of("QS1 QS2 QSNew")));
+        projectClient.editProject(project.getId(), new ProjectEditRequest(JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.of("QS1 QS2 QSNew")));
         Page<ProjectDTO> result6 = projectClient.getProjects("QSOld", null, null, Paging.DEFAULT);
         assertThat(result6.getItems()).isEmpty();
 
