@@ -1,6 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog } from '@angular/material/dialog';
@@ -19,6 +18,7 @@ import { ExperimentTeamDrawerComponent } from '@pages/experiment/experiment-team
 import { SvgIconComponent } from '@core/components/common/svg-icon/svg-icon.component';
 import { ButtonComponent } from '@core/components/common/button/button.component';
 import { MemberAvatarsComponent } from '@core/components/common/member-avatars/member-avatars.component';
+import { ButtonVariants } from '@core/components/common/button/button.variant';
 
 enum Action {
   COMPLETE = 'COMPLETE',
@@ -110,7 +110,6 @@ const BUTTONS: ActionButton[] = [
   standalone: true,
   imports: [
     CommonModule,
-    MatButtonModule,
     MatIconModule,
     MatMenuModule,
     BadgeComponent,
@@ -133,6 +132,11 @@ export class ExperimentActionsComponent {
   readonly BUTTONS = BUTTONS;
 
   readonly EXPERIMENT_STATUS_DECORATION_MAP = EXPERIMENT_STATUS_DECORATION_MAP;
+
+  private readonly colorToVariantMap = new Map<string, ButtonVariants['variant']>([
+    ['primary', 'blue'],
+    ['warn', 'red-outline'],
+  ]);
 
   onPerformAction(action: Action): void {
     switch (action) {
@@ -210,6 +214,10 @@ export class ExperimentActionsComponent {
         experimentId: experimentId,
       },
     });
+  }
+
+  getButtonVariant(color: string): ButtonVariants['variant'] {
+    return this.colorToVariantMap.get(color) ?? 'grey';
   }
 
   protected readonly statusDecorMap = EXPERIMENT_STATUS_DECORATION_MAP;

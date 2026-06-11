@@ -14,4 +14,5 @@ export class ButtonComponent {
   @Input() disabled = false;
   @Input() type: 'button' | 'submit' | 'reset' = 'button';
   @Input() classList = '';
+  @Input() ariaLabel?: string;
 }

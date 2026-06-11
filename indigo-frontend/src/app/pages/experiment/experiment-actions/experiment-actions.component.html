@@ -33,16 +33,14 @@
         !button.inDetailsMenu &&
         (button.allowedStatuses == null || button.allowedStatuses.includes(experiment()?.status))
       ) {
-        <button
-          mat-flat-button
-          [color]="button.color"
-          class="flex items-center gap-1"
+        <eln-button
+          [variant]="getButtonVariant(button.color)"
+          [ariaLabel]="button.title"
           (click)="onPerformAction(button.action)"
-          [attr.aria-label]="button.title"
         >
           <em [class]="button.iconClasses"></em>
           {{ button.title }}
-        </button>
+        </eln-button>
       }
     }
 
