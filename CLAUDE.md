@@ -1,0 +1,129 @@
+# CLAUDE.md
+
+Guidance for AI agents working in this repository.
+
+## What this project is
+
+Indigo ELN — an open-source chemistry Electronic Lab Notebook by EPAM. Chemists
+organize work as **Projects → Notebooks → Experiments**; an experiment contains a
+reaction scheme (drawn in Ketcher), stoichiometry tables, product batches,
+attachments, and can be signed/witnessed via a document-signature workflow.
+
+## Branch landscape — read this first
+
+The repo is mid-rewrite, and **which branch you're on changes everything**:
+
+- **`master`** — legacy 2.x application. Java 8/Spring Boot monolith (`server/`),
+  AngularJS 1.x UI (`ui/`), MongoDB, plus `CRS/`, `bingodb/`, and `signature/`
+  services. Effectively frozen; only touch it if a task explicitly targets 2.x.
+- **`3.0`** — active development. Complete rewrite of both backend and frontend
+  (structure below). Nearly all feature branches fork from and merge into `3.0`
+  via pull requests. **Default to `3.0` as the base for new work unless told
+  otherwise.**
+
+The 2.x folders were removed from `3.0`, so the two branches share almost no
+code. Don't cherry-pick between them.
+
+## 3.0 repository layout
+
+```
+backend/              Quarkus (Java) multi-module Gradle build (Kotlin DSL)
+  common/             shared code: model, hibernate utils, service & lambda glue, test support
+  eln/                main ELN service (eln-api / eln-core / eln-service / eln-lambda)
+  signature/          document signing service (same api/core/service/lambda split)
+  reports/            PDF/report generation (JasperReports, .jrxml templates)
+  database/flyway/    Flyway SQL migrations (V* versioned, R__* repeatable views)
+  integrationTests/   integration test modules
+  buildSrc/           shared Gradle conventions (Java toolchain lives here)
+indigo-frontend/      Angular 19 SPA (Material + Tailwind, Ketcher 3.x editor)
+deployment-compose/   local docker-compose stack (Postgres, Keycloak, nginx, traefik)
+deployment-aws/       AWS CDK deployment (services also ship as Lambdas)
+```
+
+Each backend domain follows `*-api` (DTOs/interfaces) → `*-core` (entities,
+repositories, services, REST resources) → `*-service` (runnable Quarkus app) →
+`*-lambda` (AWS Lambda packaging). REST resources live in
+`backend/eln/eln-core/.../eln/controller/` (Project, Notebook, Experiment,
+Compound, Dictionary, Template, GlobalSearch, User, Role).
+
+## Key architectural concepts (3.0)
+
+- **Database**: PostgreSQL with Hibernate; schema managed exclusively by Flyway
+  migrations in `backend/database/flyway/`. Calculated/derived data uses SQL
+  views (repeatable `R__*` migrations). The 2.x MongoDB is gone.
+- **Auth**: Keycloak (OIDC/JWT) end to end — `keycloak-angular` +
+  `angular-auth-oidc-client` on the frontend, JWT validation in Quarkus. Local
+  realm (`indigo-eln`) is provisioned from
+  `deployment-compose/keycloak-config-cli/realm-config.json`.
+- **Mutations & audit**: experiment edits are expressed as deterministic,
+  auditable *mutations* (see the "Big Audit Refactor"). Undo/redo, conflict
+  detection, and edit history are built on this — when changing experiment
+  editing logic, look at the mutation handlers in `eln-core` rather than
+  mutating entities directly.
+- **Chemistry**: the Indigo toolkit wrapper lives in
+  `eln-core` (`indigowrapper`, `reaction`, `compound` packages); the frontend
+  embeds Ketcher (`indigo-frontend/src/core/components/common/ketcher/`).
+- **Frontend structure**: feature pages in `src/app/pages/`
+  (project, notebook, experiment, template, dictionary, search, signature);
+  shared building blocks in `src/core/` (components, services, interceptors,
+  types). Forms make heavy use of `@ngx-formly`.
+
+## Common commands
+
+Backend (from `backend/`, requires Java 21+; Gradle toolchain targets a newer
+JDK — check `buildSrc/src/main/kotlin/eln-conventions.gradle.kts`):
+
+```bash
+./gradlew build                          # build + unit tests
+./gradlew :eln:eln-service:quarkusBuild  # build the main service
+./gradlew :eln:eln-service:quarkusDev    # dev mode with live reload
+./gradlew test                           # all unit tests
+```
+
+Frontend (from `indigo-frontend/`):
+
+```bash
+npm ci
+npm start            # dev server on :4200 (proxy.conf.js points /api at a remote dev backend)
+npm run start-local  # serve against local stack config
+npm test             # Karma/Jasmine unit tests
+npm run lint         # ESLint
+npm run prettier     # format
+```
+
+Full local stack (from repo root on `3.0`):
+
+```bash
+./deploy.sh   # builds backend + runs docker compose: frontend, eln-service, Postgres, Keycloak
+./stop.sh
+```
+
+- App: `http://localhost` (port 80 via nginx — **not** :8080/:4200, local
+  Keycloak tokens won't validate against the proxied remote backend)
+- API: `http://localhost:10020`; Keycloak admin: `http://localhost:8088` (admin/admin)
+- Seeded users: `testuser1`/`testuser1`, `testuser2`/`testuser2`
+
+## Conventions
+
+- **Formatting/hooks**: lefthook pre-commit runs Prettier and `tsc --noEmit` on
+  frontend files (`.lefthook.yml`). Run `npm run prettier` before committing
+  frontend changes; keep TypeScript compiling.
+- **Branches/PRs**: short-lived branches named after the GitHub issue
+  (e.g. `ng-544`, `296-frontend-auth-via-keycloak`), merged into `3.0` via PR.
+  Reference the issue number (`#NNN`) in commit messages.
+- **Database changes**: never edit an applied `V*` migration — add a new one.
+  View changes go in the matching `R__*` repeatable migration.
+- **Backend style**: Gradle Kotlin DSL, Quarkus idioms (CDI, Panache-style
+  repositories in `eln/repository`), DTOs in `*-api` modules, mappers in
+  `eln/mapper`.
+- **Tests**: backend unit tests sit next to modules (`src/test/java`);
+  cross-service tests live in `backend/integrationTests/`. Frontend specs are
+  `*.spec.ts` beside the component.
+
+## Legacy 2.x notes (master branch only)
+
+`server/` is Spring Boot + MongoDB (Mongock migrations), built with Maven
+(`./mvnw`). `ui/` is AngularJS 1.x built with npm/gulp. `CRS/` (compound
+registration), `bingodb/` (chemical search), and `signature/` are separate
+services wired together by the root `docker-compose.yml`. Treat all of it as
+maintenance-only.
