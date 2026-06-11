@@ -6,6 +6,7 @@ import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
 import com.epam.indigoeln.eln.entity.NotebookEntity;
 import com.epam.indigoeln.eln.entity.UserEntity;
+import com.epam.indigoeln.eln.entity.UserInfo;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.model.ExperimentRef;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
