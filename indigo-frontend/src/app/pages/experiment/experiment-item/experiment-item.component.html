@@ -4,6 +4,16 @@
       <h3 class="flex items-center gap-x-2 font-semibold text-neutral-1000 text-base">
         <eln-svg icon="experiments/file"></eln-svg>
         {{ experiment.name }}
+        <div class="flex flex-col" [ngClass]="{ 'flex-col space-y-2': variant == 'list' }">
+          <div class="flex items-center" [ngClass]="{ 'ml-auto': variant === 'grid' }">
+            <eln-badge [variant]="getStatusBadgeVariant(experiment.status)">
+              <div class="text-xs flex justify-around items-center h-[18px] w-[49px]">
+                <span class="inline-block w-[6px] h-[6px] rounded-full bg-primary-400"></span>
+                {{ statusLabel | normalizeLabel }}
+              </div>
+            </eln-badge>
+          </div>
+        </div>
       </h3>
 
       <div class="flex items-center gap-x-3">
@@ -60,15 +70,6 @@
           'space-y-2': variant === 'grid',
         }"
       >
-        <div class="flex flex-col" [ngClass]="{ 'flex-col space-y-2': variant == 'list' }">
-          <div class="text-neutral-1000 text-sm">Status</div>
-          <div class="flex items-center" [ngClass]="{ 'ml-auto': variant === 'grid' }">
-            <eln-badge [variant]="getStatusBadgeVariant(experiment.status)">
-              {{ statusLabel | normalizeLabel }}
-            </eln-badge>
-          </div>
-        </div>
-
         <div class="w-full h-32">
           <eln-api-image
             [url]="`/api/eln/experiments/${experiment.id}/picture?revision=${experiment.revision}`"
