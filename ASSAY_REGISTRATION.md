@@ -36,15 +36,20 @@ definitions that are snapshotted onto a plate when applied, so later edits don't
   sandboxed `FormulaEvaluator` for custom formulas (`+ - * / ^`, parentheses, named vector inputs,
   whitelisted functions `mean/sum/min/max/sd/count/abs/sqrt/ln/log10/exp/pow`).
 - **Tests** — JUnit 5 + AssertJ tests for the graph and calculation engines under
-  `backend/eln/eln-core/src/test/.../assay/service/`. The pure-Java engine logic was additionally
-  compiled and executed standalone under JDK 21 (29 assertions passing) to verify the algorithms.
+  `backend/eln/eln-core/src/test/.../assay/service/`.
 
-### Verification note
-The 3.0 backend's convention plugin (`buildSrc/.../eln-conventions.gradle.kts`) pins
-**Java 25** source/target. This environment only has **JDK 21**, so the full Quarkus build and the
-in-repo JUnit suite cannot be executed here. The dependency-free engine code was verified by
-compiling and running it standalone under JDK 21. The entity/Flyway layer follows existing patterns
-but should be compiled and migrated on a JDK 25 toolchain (see verification steps below).
+### Verification status (done)
+The 3.0 backend's convention plugin (`buildSrc/.../eln-conventions.gradle.kts`) pins **Java 25**
+source/target. With `openjdk-25-jdk` installed:
+- `./gradlew :eln:eln-core:compileJava` — **BUILD SUCCESSFUL**; the entities and engine compile.
+- The assay engine JUnit suite (`DependencyGraphTest`, `FormulaEvaluatorTest`,
+  `CalculationLibraryTest`) runs **17/17 green** under the JUnit 5 platform.
+
+Note: compiling the module required one unrelated pre-existing fix on the 3.0 branch — a missing
+`import com.epam.indigoeln.eln.entity.UserInfo` in `ExperimentHandlers.java`. The full `:eln:eln-core:test`
+source set still has a separate pre-existing breakage unrelated to this feature
+(`NotebookServiceTest` imports `Paging`/`SortOrder` from the wrong package), so the assay tests were
+executed directly via the JUnit platform launcher against the compiled classpath.
 
 ### Not yet implemented (next steps)
 - **Repositories** (`assay/repository/`) — Panache repositories incl. recursive-CTE traversal for
