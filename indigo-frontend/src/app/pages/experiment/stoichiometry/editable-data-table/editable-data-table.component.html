@@ -1,10 +1,5 @@
 <div class="w-full overflow-x-auto">
-  <table
-    mat-table
-    [dataSource]="dataSource() || []"
-    style="background-color: white; min-width: 0"
-    multiTemplateDataRows
-  >
+  <table mat-table [dataSource]="dataSource() || []" style="background-color: white" multiTemplateDataRows>
     <!-- Expand Column -->
     @if (expandableConfig()?.enabled) {
       <ng-container matColumnDef="expand">
@@ -90,15 +85,6 @@
             }
           </mat-select>
 
-          <!-- Checkbox -->
-          <input
-            *ngIf="column.type === ColumnInputType.CHECKBOX"
-            type="checkbox"
-            [checked]="column.field(row)"
-            [disabled]="!(column.editable?.(row) ?? true)"
-            (change)="callSave(column, row, $any($event.target).checked)"
-          />
-
           <!-- Radio (single selection per column) -->
           <input
             *ngIf="column.type === ColumnInputType.RADIO"
@@ -121,10 +107,8 @@
               style="outline: none"
               [value]="unitField?.value ?? ''"
               [disabled]="!(column.editable?.(row) ?? true)"
-              (blur)="callSaveEV('input.blur', column, row, 'value', valueInput, unitSelect)"
-              (keydown.enter)="
-                callSaveEV('input.enter', column, row, 'value', valueInput, unitSelect); valueInput.blur()
-              "
+              (blur)="callSaveEV(column, row, 'value', valueInput, unitSelect)"
+              (keydown.enter)="callSaveEV(column, row, 'value', valueInput, unitSelect); valueInput.blur()"
               (keydown.escape)="valueInput.value = unitField?.value ?? ''; valueInput.blur()"
             />
             <mat-select
@@ -135,10 +119,8 @@
               style="min-width: 2rem; text-align: left"
               [value]="unitField?.unit"
               [disabled]="!(column.editable?.(row) ?? true) || !valueInput.value"
-              (openedChange)="
-                !unitSelect.panelOpen && callSaveEV('select.openedChange', column, row, 'unit', valueInput, unitSelect)
-              "
-              (valueChange)="callSaveEV('select.selectionChange', column, row, 'unit', valueInput, unitSelect)"
+              (openedChange)="!unitSelect.panelOpen && callSaveEV(column, row, 'unit', valueInput, unitSelect)"
+              (valueChange)="callSaveEV(column, row, 'unit', valueInput, unitSelect)"
             >
               @for (unit of column.options; track unit.id) {
                 <mat-option [value]="unit.id" style="font-size: 0.8rem">{{ unit.name }}</mat-option>

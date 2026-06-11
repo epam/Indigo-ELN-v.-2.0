@@ -112,12 +112,7 @@ export class EditableDataTableComponent<TRow = unknown> {
     }
   }
 
-  print(str: string) {
-    console.log(str);
-  }
-
   callSaveEV(
-    reason: string,
     column: ColumnConfig<TRow, unknown>,
     row: TRow,
     updatedField: 'value' | 'unit',
@@ -132,8 +127,6 @@ export class EditableDataTableComponent<TRow = unknown> {
     } as EnteredValue<unknown>;
     const oldSet = this.isFullySet(oldValue),
       newSet = this.isFullySet(newValue);
-    console.log('callSaveEV', reason, updatedField, oldValue, newValue, oldSet, newSet, updatedField);
-    console.log('!!! input.value = ', input.value, ', combobox.value = ', combobox.value);
     if (newSet && oldSet) {
       // update existing value
       if (newValue.value !== oldValue?.value || newValue.unit !== oldValue.unit) {
@@ -147,7 +140,7 @@ export class EditableDataTableComponent<TRow = unknown> {
       columnEV?.onSave(row, null);
     } else if (updatedField === 'value' && newValue.value != null && newValue.unit == null) {
       // user entered number only; expand units combobox to demand a unit.
-      // Defer so the disabled binding re-enables the combobox first.
+      // defer so the disabled binding re-enables the combobox first.
       setTimeout(() => combobox.open());
     } else if (updatedField === 'unit' && newValue.unit == null) {
       // user didn't select unit; reset numeric input

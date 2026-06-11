@@ -27,6 +27,7 @@
   margin: 0;
 }
 
+// Remove combobox arrow and show value underlined instead to be more compact
 :host ::ng-deep .unit-select {
   .mat-mdc-select-arrow-wrapper {
     display: none;

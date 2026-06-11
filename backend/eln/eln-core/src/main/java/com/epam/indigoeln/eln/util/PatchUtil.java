@@ -53,7 +53,7 @@ public class PatchUtil {
             }
             case ObjectNode objectPatch when (objectPatch.get("value") instanceof ValueNode value && objectPatch.get("unit") instanceof ValueNode unit && objectPatch.get("source") instanceof ValueNode source) -> {
                 // EnteredValue created or deleted
-                String s = formatEnteredValue(before == null ? true : false, value.asText(), unit.asText(), source.asText());
+                String s = formatEnteredValue(before == null, value.asText(), unit.asText(), source.asText());
                 grid.right(s).left().newRow();
             }
             case ObjectNode objectPatch when (before instanceof ObjectNode objectBefore && objectBefore.has("value") && objectBefore.has("unit") && objectBefore.has("source")) -> {
@@ -115,7 +115,7 @@ public class PatchUtil {
                     JsonNode node = arrayPatch.get(i);
                     String displayPath = path.getLast();
                     displayPath = displayPath.substring(0, displayPath.length() - 1); // remove plural "s"; should have displayName for every field instead
-                    grid.left(); // ??? // overwrite collection name
+                    grid.left(); // overwrite collection name
                     grid.right("<span class='key%s'>%s %d<br/><span class='comment'>%s</span>".formatted(nestedClass, displayPath, i + 1, newOrOld == Boolean.TRUE ? "inserted" : "removed"));
                     path.add("#");
                     formatJSONDiff(null, node, grid, path, newOrOld, rxnfileFn, molfileFn);

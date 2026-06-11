@@ -151,7 +151,6 @@ public class JSONSerializationTest {
                 JsonNullable.undefined()
         );
         String json = serialize(serializer, mutation);
-        System.out.println(json);
         assertThat(json).isEqualToIgnoringWhitespace("{\"type\": \"EditExperimentAttributes\", \"title\": \"new title\", \"therapeuticArea\": null, \"linkedExperiments\": [{\"id\": \"63c03dfa-803c-4d89-bf8d-16c536c28a40\", \"name\": \"00000001-0001\"}]}");
         Mutation mutation2 = deserialize(deserializer, json, Mutation.class);
         assertThat(mutation2).isEqualTo(mutation);

@@ -168,9 +168,10 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
 
     public List<ExperimentRevisionEntity> getRevisions(ExperimentEntity experiment, boolean reverseOrder) {
         String order = reverseOrder ? "desc" : "";
-        TypedQuery<ExperimentRevisionEntity> query = em.createQuery("from ExperimentRevision where experiment=:experiment order by revision " + order, ExperimentRevisionEntity.class)
-                .setParameter("experiment", experiment);
-        return query.getResultList();
+        return em.createQuery("from ExperimentRevision where experiment=:experiment order by revision " + order, ExperimentRevisionEntity.class)
+                .setParameter("experiment", experiment)
+                .setHint("jakarta.persistence.loadgraph", "ExperimentRevision.list")
+                .getResultList();
     }
 
     public List<ExperimentRevisionEntity> getRevisionRange(ExperimentEntity experiment, int revisionFrom) {

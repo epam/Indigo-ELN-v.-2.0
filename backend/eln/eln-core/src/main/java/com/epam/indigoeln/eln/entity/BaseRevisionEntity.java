@@ -38,6 +38,7 @@ public abstract class BaseRevisionEntity {
     @NotNull
     @JdbcTypeCode(SqlTypes.JSON)
     @Convert(converter = MutationConverter.class)
+    @Basic(fetch = FetchType.LAZY)
     private Mutation mutation;
 
     @NotNull

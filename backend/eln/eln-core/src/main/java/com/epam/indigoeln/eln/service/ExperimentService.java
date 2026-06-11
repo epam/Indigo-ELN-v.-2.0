@@ -1,6 +1,5 @@
 package com.epam.indigoeln.eln.service;
 
-import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
@@ -31,6 +30,7 @@ import com.epam.indigoeln.reports.api.ReportsAPI;
 import com.epam.indigoeln.reports.api.ReportsClient;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.MoreObjects;
+import com.google.common.base.Preconditions;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -234,7 +234,7 @@ public class ExperimentService {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, VIEW_EXPERIMENTS);
         List<ExperimentRevisionEntity> revisions = experimentRepository.getRevisions(experiment, false);
-        if (flatten == Boolean.TRUE) {
+        if (Boolean.TRUE.equals(flatten)) {
             return StreamEx.of(revisions)
                     .map(experimentMapper::revisionToSummary)
                     .toList();
@@ -256,10 +256,9 @@ public class ExperimentService {
         aclService.ensureAccess(experiment, VIEW_EXPERIMENTS);
         // rewind to get old state
         ExperimentSnapshot snapshot = snapshotMapper.createSnapshot(experiment, false);
-        List<ExperimentRevisionEntity> range = experimentRepository.getRevisionRange(experiment, revision - 1);
-        ExperimentRevisionEntity targetRevision = StreamEx.of(range)
-                .findAny(r -> r.getRevision().equals(revision))
-                .orElseThrow(() -> new InvalidRequestException("Revision " + revision + " not found for experiment " + experimentId));
+        List<ExperimentRevisionEntity> range = experimentRepository.getRevisionRange(experiment, revision);
+        ExperimentRevisionEntity targetRevision = range.getFirst();
+        Preconditions.checkState(targetRevision.getRevision().equals(revision));
         JsonNode before = experimentModelService.rewindSnapshot(snapshot, range);
         return PatchUtil.formatJSONDiff(
                 before,

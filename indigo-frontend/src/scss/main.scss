@@ -103,6 +103,8 @@ body {
 // Unit select trigger is narrow (3rem); let its dropdown be wider than the field
 // so option labels (e.g. µmol) fit. The panelClass lands on the CDK overlay pane,
 // whose min-width CDK sets inline to the trigger width — !important overrides it.
+// Combobox popup is out of normal element hierarchy, so it cannot be styles on a
+// component level and requires global styles.
 .unit-select-panel {
   min-width: 4rem !important;
 }

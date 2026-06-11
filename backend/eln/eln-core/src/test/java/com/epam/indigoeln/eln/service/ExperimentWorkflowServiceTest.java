@@ -297,7 +297,8 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
         List<RevisionSummaryDTO> editRevisions = firstEditSession.getDetails();
         assertThat(editRevisions).map(RevisionSummaryDTO::getRevision).containsExactly(2, 3);
 
-        experimentClient.getRevisionDiff(experiment.getId(), 2);
+        String diff = experimentClient.getRevisionDiff(experiment.getId(), 7);
+        assertThat(diff).contains("SUBMITTED", "REOPEN");
     }
 
     private void approveDocument(String username, DocumentStatus simulatedStatus) {
