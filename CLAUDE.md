@@ -11,18 +11,19 @@ attachments, and can be signed/witnessed via a document-signature workflow.
 
 ## Branch landscape — read this first
 
-The repo is mid-rewrite, and **which branch you're on changes everything**:
+- **`master`** — active development. Carries the 3.0 rewrite (structure below);
+  the former `3.0` branch was promoted to `master` in PR #2. **Default to
+  `master` as the base for new work.** (A `3.0` branch may still exist upstream
+  or locally; treat it as historical.)
+- **`2.x`** — frozen legacy 2.x application. Java 8/Spring Boot monolith
+  (`server/`), AngularJS 1.x UI (`ui/`), MongoDB, plus `CRS/`, `bingodb/`, and
+  `signature/` services. Only touch it if a task explicitly targets 2.x.
 
-- **`master`** — legacy 2.x application. Java 8/Spring Boot monolith (`server/`),
-  AngularJS 1.x UI (`ui/`), MongoDB, plus `CRS/`, `bingodb/`, and `signature/`
-  services. Effectively frozen; only touch it if a task explicitly targets 2.x.
-- **`3.0`** — active development. Complete rewrite of both backend and frontend
-  (structure below). Nearly all feature branches fork from and merge into `3.0`
-  via pull requests. **Default to `3.0` as the base for new work unless told
-  otherwise.**
-
-The 2.x folders were removed from `3.0`, so the two branches share almost no
-code. Don't cherry-pick between them.
+The 2.x folders were removed during the rewrite, so the two branches share
+almost no code. Don't cherry-pick between them. Note: the upstream
+`epam/Indigo-ELN-v.-2.0` repository still uses the old split (`master` = 2.x,
+`3.0` = rewrite), so syncing from upstream means pulling upstream `3.0` into
+this repo's `master`.
 
 ## 3.0 repository layout
 
@@ -91,7 +92,7 @@ npm run lint         # ESLint
 npm run prettier     # format
 ```
 
-Full local stack (from repo root on `3.0`):
+Full local stack (from repo root):
 
 ```bash
 ./deploy.sh   # builds backend + runs docker compose: frontend, eln-service, Postgres, Keycloak
@@ -109,8 +110,8 @@ Full local stack (from repo root on `3.0`):
   frontend files (`.lefthook.yml`). Run `npm run prettier` before committing
   frontend changes; keep TypeScript compiling.
 - **Branches/PRs**: short-lived branches named after the GitHub issue
-  (e.g. `ng-544`, `296-frontend-auth-via-keycloak`), merged into `3.0` via PR.
-  Reference the issue number (`#NNN`) in commit messages.
+  (e.g. `ng-544`, `296-frontend-auth-via-keycloak`), merged into `master` via
+  PR. Reference the issue number (`#NNN`) in commit messages.
 - **Database changes**: never edit an applied `V*` migration — add a new one.
   View changes go in the matching `R__*` repeatable migration.
 - **Backend style**: Gradle Kotlin DSL, Quarkus idioms (CDI, Panache-style
@@ -120,7 +121,7 @@ Full local stack (from repo root on `3.0`):
   cross-service tests live in `backend/integrationTests/`. Frontend specs are
   `*.spec.ts` beside the component.
 
-## Legacy 2.x notes (master branch only)
+## Legacy 2.x notes (2.x branch only)
 
 `server/` is Spring Boot + MongoDB (Mongock migrations), built with Maven
 (`./mvnw`). `ui/` is AngularJS 1.x built with npm/gulp. `CRS/` (compound
