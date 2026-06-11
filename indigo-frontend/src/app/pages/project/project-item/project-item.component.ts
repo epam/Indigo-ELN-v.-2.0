@@ -6,8 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterLink } from '@angular/router';
 import { CardComponent } from '@core/components/common/card/card.component';
-import { InitialsPipe } from '@/core/pipes/avatars.pipe';
-import { MatTooltip } from '@angular/material/tooltip';
+import { MemberAvatarsComponent } from '@core/components/common/member-avatars/member-avatars.component';
 
 @Component({
   selector: 'eln-project-item',
@@ -19,30 +18,12 @@ import { MatTooltip } from '@angular/material/tooltip';
     MatIconModule,
     MatMenuModule,
     RouterLink,
-    InitialsPipe,
-    MatTooltip,
+    MemberAvatarsComponent,
   ],
   templateUrl: './project-item.component.html',
   styleUrls: ['./project-item.component.scss'],
 })
 export class ProjectItemComponent {
-  mock_users = [
-    'assets/avatar1.png',
-    'assets/avatar2.png',
-    'assets/avatar3.png',
-    '-',
-    '-',
-    '-',
-    '-',
-    '-',
-    '-',
-    '-',
-    '-',
-    '-',
-    '-',
-    '-',
-    '-',
-  ];
   @Input() project: Project;
   @Input() variant: 'grid' | 'list' = 'grid';
 }

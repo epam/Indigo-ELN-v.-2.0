@@ -1,10 +1,12 @@
 <eln-card classList="h-full">
-  <div class="flex items-center justify-between border-b border-b-neutral-200 pb-3">
-    <div class="flex items-center gap-2">
-      <h2 class="font-semibold text-base">Team</h2>
-      <eln-counter [count]="teamVm().length" variant="grey" size="large" />
+  @if (showHeader) {
+    <div class="flex items-center justify-between border-b border-b-neutral-200 pb-3">
+      <div class="flex items-center gap-2">
+        <h2 class="font-semibold text-base">Team</h2>
+        <eln-counter [count]="teamVm().length" variant="grey" size="large" />
+      </div>
     </div>
-  </div>
+  }
 
   <!-- Suggestions field -->
   <div class="flex items-center justify-between py-3 gap-2">
@@ -20,7 +22,7 @@
         [(ngModel)]="selectedUsers"
         (change)="onUsersSelected(selectedUsers)"
         [clearable]="true"
-        class="w-[300px]"
+        class="w-full"
       >
         <ng-template ng-option-tmp let-item="item" let-index="index">
           <div class="flex justify-between" [class.opacity-50]="item.added" [class.pointer-events-none]="item.added">
@@ -48,36 +50,36 @@
   </div>
 
   <!-- Team members list -->
-  <div class="space-y-2 py-3">
+  <div class="py-3 grid grid-cols-[auto_1fr_1fr_auto] gap-x-4 gap-y-2 items-center">
     @for (member of teamVm(); track member.username) {
       <div
-        class="grid grid-cols-[auto_1fr_1fr_auto] gap-4 items-center p-2 hover:bg-neutral-100 rounded-lg text-neutral-1000"
+        class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white"
       >
-        <div
-          class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white"
-        >
-          {{ member.displayName | initials }}
-        </div>
+        {{ member.displayName | initials }}
+      </div>
 
-        <p class="text-neutral-1000">{{ member.displayName }}</p>
+      <p class="text-neutral-1000 overflow-hidden text-ellipsis whitespace-nowrap">
+        {{ member.displayName }}
+      </p>
+      <div class="flex items-center gap-1">
         <p
-          class="text-neutral-800 overflow-hidden text-ellipsis whitespace-nowrap max-w-[148px] text-ellipsis"
+          class="text-neutral-800 overflow-hidden text-ellipsis whitespace-nowrap"
           [appTextOverflowTooltip]="member.username"
         >
           {{ member.username }}
         </p>
-        <div class="flex items-center gap-1 justify-self-end">
-          <eln-copy [text]="member.username" />
-          <eln-dropdown-menu
-            align="end"
-            class="[&_.dd-trigger]:pr-0 [&_.dd-trigger]:pl-2 [&_.dd-trigger]:text-primary-400 [&_.dd-container]:min-w-22"
-            [controlled]="true"
-            [selected]="member.level | normalizeLabel"
-            [items]="aclLevelOptions"
-            (itemSelected)="updateAclLevel(member, $event)"
-            [disabled]="member.disabled"
-          />
-        </div>
+        <eln-copy [text]="member.username" class="flex-shrink-0" />
+      </div>
+      <div class="flex items-center gap-1 justify-self-end">
+        <eln-dropdown-menu
+          align="end"
+          class="[&_.dd-trigger]:pr-0 [&_.dd-trigger]:pl-2 [&_.dd-trigger]:text-primary-400 [&_.dd-container]:min-w-22"
+          [controlled]="true"
+          [selected]="member.level | normalizeLabel"
+          [items]="aclLevelOptions"
+          (itemSelected)="updateAclLevel(member, $event)"
+          [disabled]="member.disabled"
+        />
       </div>
     }
   </div>
