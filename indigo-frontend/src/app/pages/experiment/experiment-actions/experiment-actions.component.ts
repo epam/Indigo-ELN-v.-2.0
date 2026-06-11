@@ -14,6 +14,10 @@ import { DownloadService } from '@core/services/download.service';
 import { BadgeComponent } from '@core/components/common/badge/badge.component';
 import { NormalizeLabelPipe } from '@core/pipes/normalizeLabe.pipe';
 import { EXPERIMENT_STATUS_DECORATION_MAP } from '@core/utils/experiment-status.util';
+import { SlideInPanelService } from '@core/components/common/slide-in-panel/slide-in-panel.service';
+import { ExperimentTeamDrawerComponent } from '@pages/experiment/experiment-team-drawer/experiment-team-drawer.component';
+import { SvgIconComponent } from '@core/components/common/svg-icon/svg-icon.component';
+import { ButtonComponent } from '@core/components/common/button/button.component';
 
 enum Action {
   COMPLETE = 'COMPLETE',
@@ -103,7 +107,16 @@ const BUTTONS: ActionButton[] = [
 @Component({
   selector: 'eln-experiment-actions',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule, MatMenuModule, BadgeComponent, NormalizeLabelPipe],
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatIconModule,
+    MatMenuModule,
+    BadgeComponent,
+    NormalizeLabelPipe,
+    SvgIconComponent,
+    ButtonComponent,
+  ],
   templateUrl: './experiment-actions.component.html',
 })
 export class ExperimentActionsComponent {
@@ -111,6 +124,7 @@ export class ExperimentActionsComponent {
   downloadService = inject(DownloadService);
   notificationService = inject(NotificationService);
   dialog = inject(MatDialog);
+  slideInPanelService = inject(SlideInPanelService);
 
   experiment = computed(() => this.experimentDetailService.experimentDetail());
 
@@ -183,6 +197,17 @@ export class ExperimentActionsComponent {
           onConfirmed(templateId);
         }
       });
+  }
+
+  openAddMemberDrawer(): void {
+    const experimentId = this.experiment()?.id;
+    if (!experimentId) return;
+
+    this.slideInPanelService.open(ExperimentTeamDrawerComponent, {
+      inputs: {
+        experimentId: experimentId,
+      },
+    });
   }
 
   protected readonly statusDecorMap = EXPERIMENT_STATUS_DECORATION_MAP;

@@ -14,6 +14,14 @@
 
     <div class="flex-1"></div>
 
+    <eln-button
+      variant="grey-outline"
+      classList="!rounded-lg border border-neutral-400 text-primary-400"
+      (click)="openAddMemberDrawer()"
+    >
+      <eln-svg icon="user-add" />
+    </eln-button>
+
     @for (button of BUTTONS; track button.action) {
       @if (
         !button.inDetailsMenu &&
