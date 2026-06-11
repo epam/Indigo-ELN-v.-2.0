@@ -201,7 +201,7 @@ export class ReactionInputsTableComponent implements OnInit {
     {
       id: 'limiting',
       header: 'Limiting',
-      type: ColumnInputType.CHECKBOX,
+      type: ColumnInputType.RADIO,
       field: (row: InputSampleRow) => row.input.limiting,
       onSave: (row: InputSampleRow) => {
         this.experimentDetailService

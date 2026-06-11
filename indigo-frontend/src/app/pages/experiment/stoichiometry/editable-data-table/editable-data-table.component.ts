@@ -60,6 +60,9 @@ export class EditableDataTableComponent<TRow = unknown> {
   readonly experimentModel = this.experimentDetailService.experimentModel;
 
   readonly ColumnInputType = ColumnInputType;
+  // Unique per component instance so radio columns group within this table only.
+  private static instanceCounter = 0;
+  readonly radioGroupId = `eln-radio-${EditableDataTableComponent.instanceCounter++}`;
   @ViewChild(MatTable) table?: MatTable<TRow>;
 
   dataSource = input.required<TRow[] | null>();
@@ -109,24 +112,28 @@ export class EditableDataTableComponent<TRow = unknown> {
     }
   }
 
+  print(str: string) {
+    console.log(str);
+  }
+
   callSaveEV(
+    reason: string,
     column: ColumnConfig<TRow, unknown>,
     row: TRow,
     updatedField: 'value' | 'unit',
-    selectedValue: string,
-    selectedUnit: unknown,
     input: HTMLInputElement,
     combobox: MatSelect,
   ): void {
     const columnEV = column as ColumnConfig<TRow, EnteredValue<unknown>>;
     const oldValue = columnEV.field(row);
     const newValue = {
-      value: selectedValue,
-      unit: selectedUnit,
+      value: !Number.isNaN(input.valueAsNumber) ? input.value : null,
+      unit: combobox.value as unknown,
     } as EnteredValue<unknown>;
     const oldSet = this.isFullySet(oldValue),
       newSet = this.isFullySet(newValue);
-    console.log('callSaveEV', oldValue, newValue, newSet, updatedField);
+    console.log('callSaveEV', reason, updatedField, oldValue, newValue, oldSet, newSet, updatedField);
+    console.log('!!! input.value = ', input.value, ', combobox.value = ', combobox.value);
     if (newSet && oldSet) {
       // update existing value
       if (newValue.value !== oldValue?.value || newValue.unit !== oldValue.unit) {
@@ -139,9 +146,9 @@ export class EditableDataTableComponent<TRow = unknown> {
       // remove old value
       columnEV?.onSave(row, null);
     } else if (updatedField === 'value' && newValue.value != null && newValue.unit == null) {
-      // user entered number only; expand units combobox automatically
-      combobox.open();
-      combobox.focus();
+      // user entered number only; expand units combobox to demand a unit.
+      // Defer so the disabled binding re-enables the combobox first.
+      setTimeout(() => combobox.open());
     } else if (updatedField === 'unit' && newValue.unit == null) {
       // user didn't select unit; reset numeric input
       input.value = '';
@@ -151,7 +158,7 @@ export class EditableDataTableComponent<TRow = unknown> {
     }
   }
 
-  private isFullySet(value: EnteredValue<unknown> | null): boolean {
+  private isFullySet(value: { value: string; unit: unknown } | null): boolean {
     return value != null && value.value != null && value.value !== '' && value.unit != null && value.unit !== '';
   }
 }

@@ -8,18 +8,24 @@
       <ng-template elnColumnDef="summary" displayName="Summary" let-r>{{ r.summary }}</ng-template>
       <ng-template elnColumnDef="buttons" displayName="" let-r>
         @if (r.details == null && r.revision !== 1) {
-          <eln-button variant="grey" matTooltip="Show Diff" (click)="showDiff(r)">
-            <em class="indicon-file text-md"></em>
-          </eln-button>
+          @if (!diffs.has(r)) {
+            <eln-button variant="grey" matTooltip="Show Diff" (click)="showDiff(r)">
+              <em class="indicon-file text-md"></em>
+            </eln-button>
+          } @else if (diffs.get(r).isLoading()) {
+            <div class="p-2">
+              <mat-spinner diameter="20" />
+            </div>
+          }
         }
       </ng-template>
 
       <ng-template #details let-parent>
         <table class="w-full bg-gray-50/50">
-          @if (diffs.has(parent)) {
+          @if (diffs.get(parent)?.value(); as v) {
             <tr>
               <td colspan="5">
-                <div class="px-12" [innerHTML]="diffs.get(parent)"></div>
+                <div class="px-12" [innerHTML]="v"></div>
               </td>
             </tr>
           }
@@ -28,18 +34,24 @@
               <td class="px-6 py-3 text-sm text-gray-600">{{ r.date | date: 'short' }}</td>
               <td class="px-6 py-3 text-sm text-gray-600">{{ r.user.displayName }}</td>
               <td class="px-6 py-3 text-sm text-gray-600">{{ r.summary }}</td>
-              <td class="px-6 py-3 text-right">
+              <td class="px-6 py-3">
                 @if (r.revision !== 1) {
-                  <eln-button variant="grey" matTooltip="Show Diff" (click)="showDiff(r)">
-                    <em class="indicon-file text-md"></em>
-                  </eln-button>
+                  @if (!diffs.has(r)) {
+                    <eln-button variant="grey" matTooltip="Show Diff" (click)="showDiff(r)">
+                      <em class="indicon-file text-md"></em>
+                    </eln-button>
+                  } @else if (diffs.get(r).isLoading()) {
+                    <div class="p-2">
+                      <mat-spinner diameter="20" />
+                    </div>
+                  }
                 }
               </td>
             </tr>
-            @if (diffs.has(r)) {
+            @if (diffs.get(r)?.value(); as v) {
               <tr>
                 <td colspan="5">
-                  <div class="px-12" [innerHTML]="diffs.get(r)"></div>
+                  <div class="px-12" [innerHTML]="v"></div>
                 </td>
               </tr>
             }

@@ -11,6 +11,16 @@
   appearance: textfield;
 }
 
+// Centre the "—" absence placeholder; real values keep their own alignment.
+:host input:placeholder-shown {
+  text-align: center;
+}
+
+// Hide the "—" placeholder once the input is focused.
+:host input:focus::placeholder {
+  color: transparent;
+}
+
 :host input[type='number']::-webkit-outer-spin-button,
 :host input[type='number']::-webkit-inner-spin-button {
   appearance: none;

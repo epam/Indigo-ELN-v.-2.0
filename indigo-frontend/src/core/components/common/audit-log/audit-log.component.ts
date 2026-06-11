@@ -1,7 +1,7 @@
-import { Component, inject, Input, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Component, inject, Injector, Input, OnInit, ResourceRef, ViewChild, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardComponent } from '../card/card.component';
-import { finalize, Observable } from 'rxjs';
+import { finalize, Observable, tap } from 'rxjs';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,6 +13,9 @@ import { RevisionSummary } from '@core/types/entities/revision.i';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ButtonComponent } from '@core/components/common/button/button.component';
 import { MatTooltip } from '@angular/material/tooltip';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs/operators';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'eln-audit-log',
@@ -65,6 +68,7 @@ import { MatTooltip } from '@angular/material/tooltip';
     ColumnDefDirective,
     ButtonComponent,
     MatTooltip,
+    MatProgressSpinner,
   ],
 })
 export class AuditLogComponent implements OnInit {
@@ -75,10 +79,11 @@ export class AuditLogComponent implements OnInit {
   @ViewChild(ExpandableTableComponent) expandableTable: ExpandableTableComponent<RevisionSummary>;
 
   domSanitizer = inject(DomSanitizer);
+  injector = inject(Injector);
 
   loading = false;
   revisions: RevisionSummary[] = [];
-  diffs = new Map<RevisionSummary, SafeHtml>();
+  diffs = new Map<RevisionSummary, ResourceRef<SafeHtml>>();
   hasDetails = (revision: RevisionSummary): boolean => !!revision.details?.length;
 
   ngOnInit(): void {
@@ -93,10 +98,20 @@ export class AuditLogComponent implements OnInit {
 
   showDiff(revision: RevisionSummary): void {
     if (!this.diffs.has(revision)) {
-      this.diffLoader(revision).subscribe((html) => {
-        this.diffs.set(revision, this.domSanitizer.bypassSecurityTrustHtml(html));
-        this.expandableTable.expandRow(revision);
-      });
+      this.diffs.set(
+        revision,
+        rxResource({
+          injector: this.injector,
+          loader: () =>
+            this.diffLoader(revision).pipe(
+              map((html) => this.domSanitizer.bypassSecurityTrustHtml(html)),
+              tap({
+                error: () => this.diffs.delete(revision),
+              }),
+            ),
+        }),
+      );
+      this.expandableTable.expandRow(revision);
     }
   }
 }
