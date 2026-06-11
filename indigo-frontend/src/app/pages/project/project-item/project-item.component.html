@@ -8,24 +8,7 @@
 
       <div class="flex items-center gap-x-3">
         @if (variant === 'grid') {
-          <div class="flex -space-x-2">
-            @for (member of project.acl; track member) {
-              <div
-                class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white"
-                [matTooltip]="member.displayName ?? member.username"
-                matTooltipPosition="above"
-              >
-                {{ member.displayName ?? member.username | initials }}
-              </div>
-            }
-            @if (project.aclCount > 3) {
-              <span
-                class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-primary-400 text-white text-[0.75rem]"
-              >
-                +{{ project.aclCount - 3 }}
-              </span>
-            }
-          </div>
+          <eln-member-avatars [members]="project.acl" [totalCount]="project.aclCount" [maxVisible]="3" />
         }
 
         <div class="relative -right-1">
@@ -88,24 +71,7 @@
         <div class="flex flex-col" [ngClass]="{ 'flex-col space-y-2': variant == 'list' }" *ngIf="variant === 'list'">
           <div class="text-neutral-1000 text-sm">Members</div>
           <div class="flex items-center">
-            <div class="flex -space-x-2">
-              @for (member of project.acl; track member) {
-                <div
-                  class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white"
-                  [matTooltip]="member.displayName ?? member.username"
-                  matTooltipPosition="above"
-                >
-                  {{ member.displayName ?? member.username | initials }}
-                </div>
-              }
-              @if (project.aclCount > 3) {
-                <span
-                  class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-primary-400 text-white text-[0.75rem]"
-                >
-                  +{{ project.aclCount - 3 }}
-                </span>
-              }
-            </div>
+            <eln-member-avatars [members]="project.acl" [totalCount]="project.aclCount" [maxVisible]="3" />
           </div>
         </div>
 

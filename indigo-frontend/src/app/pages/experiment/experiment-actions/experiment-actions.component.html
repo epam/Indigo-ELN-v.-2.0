@@ -14,6 +14,12 @@
 
     <div class="flex-1"></div>
 
+    <eln-member-avatars
+      [members]="experiment().acl ?? []"
+      [totalCount]="experiment().acl?.length ?? 0"
+      [maxVisible]="3"
+    />
+
     <eln-button
       variant="grey-outline"
       classList="!rounded-lg border border-neutral-400 text-primary-400"

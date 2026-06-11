@@ -18,6 +18,7 @@ import { SlideInPanelService } from '@core/components/common/slide-in-panel/slid
 import { ExperimentTeamDrawerComponent } from '@pages/experiment/experiment-team-drawer/experiment-team-drawer.component';
 import { SvgIconComponent } from '@core/components/common/svg-icon/svg-icon.component';
 import { ButtonComponent } from '@core/components/common/button/button.component';
+import { MemberAvatarsComponent } from '@core/components/common/member-avatars/member-avatars.component';
 
 enum Action {
   COMPLETE = 'COMPLETE',
@@ -116,6 +117,7 @@ const BUTTONS: ActionButton[] = [
     NormalizeLabelPipe,
     SvgIconComponent,
     ButtonComponent,
+    MemberAvatarsComponent,
   ],
   templateUrl: './experiment-actions.component.html',
 })
