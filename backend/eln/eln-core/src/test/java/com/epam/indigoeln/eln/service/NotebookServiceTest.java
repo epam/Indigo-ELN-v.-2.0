@@ -5,37 +5,12 @@ import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
-import com.epam.indigoeln.eln.model.ACLDetailsEntryDTO;
-import com.epam.indigoeln.eln.model.AccessLevel;
-import com.epam.indigoeln.eln.model.AttachmentDTO;
-import com.epam.indigoeln.eln.model.EntityType;
-import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
-import com.epam.indigoeln.eln.model.ExperimentRequest;
-import com.epam.indigoeln.eln.model.NestedACLEntryDTO;
-import com.epam.indigoeln.eln.model.NotebookDTO;
-import com.epam.indigoeln.eln.model.NotebookDetailsDTO;
-import com.epam.indigoeln.eln.model.NotebookEditRequest;
-import com.epam.indigoeln.eln.model.NotebookExistenceCheckDTO;
-import com.epam.indigoeln.eln.model.NotebookRequest;
-import com.epam.indigoeln.eln.model.Page;
-import com.epam.indigoeln.eln.model.Paging;
-import com.epam.indigoeln.eln.model.ProjectDetailsDTO;
-import com.epam.indigoeln.eln.model.ProjectRequest;
-import com.epam.indigoeln.eln.model.RevisionDetailsDTO;
-import com.epam.indigoeln.eln.model.SortOrder;
-import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
-import com.epam.indigoeln.reaction.model.mutation.NotebookMutation;
+import com.epam.indigoeln.eln.model.*;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInfo;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 import org.openapitools.jackson.nullable.JsonNullable;
 
@@ -300,7 +275,7 @@ class NotebookServiceTest extends ELNBaseTest {
         String exp3Number = experiment3.getName().substring(experiment3.getName().lastIndexOf('-') + 1);
 
         String newNotebookName = nextNotebookName();
-        NotebookDetailsDTO modifiedNotebook = notebookClient.editNotebook(notebook.getId(), new NotebookEditRequest(Optional.of(newNotebookName), Optional.empty()));
+        NotebookDetailsDTO modifiedNotebook = notebookClient.editNotebook(notebook.getId(), new NotebookEditRequest(JsonNullable.of(newNotebookName), JsonNullable.undefined()));
 
         assertThat(modifiedNotebook.getName()).isEqualTo(newNotebookName);
 
@@ -312,10 +287,9 @@ class NotebookServiceTest extends ELNBaseTest {
         assertThat(updatedExp2.getName()).isEqualTo(newNotebookName + "-" + exp2Number);
         assertThat(updatedExp3.getName()).isEqualTo(newNotebookName + "-" + exp3Number);
 
-        List<RevisionDetailsDTO> exp1Revisions = experimentClient.getExperimentRevisions(experiment1.getId(), null, null);
+        List<RevisionSummaryDTO> exp1Revisions = experimentClient.getExperimentRevisions(experiment1.getId(), null);
         assertThat(exp1Revisions).hasSizeGreaterThan(1);
         assertThat(exp1Revisions).last().satisfies(revision -> {
-            assertThat(revision.getMutation()).isInstanceOf(ExperimentMutation.ExperimentNameUpdated.class);
             assertThat(revision.getSummary()).contains("Experiment name updated");
             assertThat(revision.getSummary()).contains(oldNotebookName);
             assertThat(revision.getSummary()).contains(newNotebookName);
