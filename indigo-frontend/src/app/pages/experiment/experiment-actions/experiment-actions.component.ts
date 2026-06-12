@@ -33,7 +33,7 @@ enum Action {
 interface ActionButton {
   action: Action;
   title: string;
-  color: string;
+  variant: ButtonVariants['variant'];
   iconClasses: string;
   allowedStatuses?: ExperimentStatus[];
   inDetailsMenu: boolean;
@@ -43,7 +43,7 @@ const BUTTONS: ActionButton[] = [
   {
     action: Action.COMPLETE,
     title: 'Complete',
-    color: 'primary',
+    variant: 'blue',
     iconClasses: 'indicon-check-circle',
     allowedStatuses: [ExperimentStatus.OPEN, ExperimentStatus.REOPEN],
     inDetailsMenu: false,
@@ -51,7 +51,7 @@ const BUTTONS: ActionButton[] = [
   {
     action: Action.COMPLETE_AND_SIGN,
     title: 'Complete and Sign',
-    color: 'primary',
+    variant: 'blue',
     iconClasses: 'indicon-check-circle',
     allowedStatuses: [ExperimentStatus.OPEN, ExperimentStatus.REOPEN],
     inDetailsMenu: false,
@@ -59,7 +59,7 @@ const BUTTONS: ActionButton[] = [
   {
     action: Action.REOPEN,
     title: 'Reopen',
-    color: 'primary',
+    variant: 'blue',
     iconClasses: 'indicon-edit',
     allowedStatuses: [
       ExperimentStatus.COMPLETED,
@@ -75,7 +75,7 @@ const BUTTONS: ActionButton[] = [
   {
     action: Action.CANCEL,
     title: 'Cancel',
-    color: 'warn',
+    variant: 'red-outline',
     iconClasses: 'indicon-close',
     allowedStatuses: [ExperimentStatus.OPEN, ExperimentStatus.REOPEN],
     inDetailsMenu: false,
@@ -83,7 +83,7 @@ const BUTTONS: ActionButton[] = [
   {
     action: Action.SUBMIT,
     title: 'Submit',
-    color: 'primary',
+    variant: 'blue',
     iconClasses: 'indicon-paperclip',
     allowedStatuses: [ExperimentStatus.COMPLETED],
     inDetailsMenu: false,
@@ -91,7 +91,7 @@ const BUTTONS: ActionButton[] = [
   {
     action: Action.RESUBMIT,
     title: 'Resubmit',
-    color: 'primary',
+    variant: 'blue',
     iconClasses: 'indicon-paperclip',
     allowedStatuses: [ExperimentStatus.REJECTED],
     inDetailsMenu: false,
@@ -99,7 +99,7 @@ const BUTTONS: ActionButton[] = [
   {
     action: Action.PRINT,
     title: 'Print',
-    color: '',
+    variant: 'grey',
     iconClasses: 'indicon-printer',
     inDetailsMenu: true,
   },
@@ -132,11 +132,6 @@ export class ExperimentActionsComponent {
   readonly BUTTONS = BUTTONS;
 
   readonly EXPERIMENT_STATUS_DECORATION_MAP = EXPERIMENT_STATUS_DECORATION_MAP;
-
-  private readonly colorToVariantMap = new Map<string, ButtonVariants['variant']>([
-    ['primary', 'blue'],
-    ['warn', 'red-outline'],
-  ]);
 
   onPerformAction(action: Action): void {
     switch (action) {
@@ -215,10 +210,4 @@ export class ExperimentActionsComponent {
       },
     });
   }
-
-  getButtonVariant(color: string): ButtonVariants['variant'] {
-    return this.colorToVariantMap.get(color) ?? 'grey';
-  }
-
-  protected readonly statusDecorMap = EXPERIMENT_STATUS_DECORATION_MAP;
 }

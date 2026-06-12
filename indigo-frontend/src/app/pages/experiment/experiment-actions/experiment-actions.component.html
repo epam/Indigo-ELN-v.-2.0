@@ -33,11 +33,7 @@
         !button.inDetailsMenu &&
         (button.allowedStatuses == null || button.allowedStatuses.includes(experiment()?.status))
       ) {
-        <eln-button
-          [variant]="getButtonVariant(button.color)"
-          [ariaLabel]="button.title"
-          (click)="onPerformAction(button.action)"
-        >
+        <eln-button [variant]="button.variant" [ariaLabel]="button.title" (click)="onPerformAction(button.action)">
           <em [class]="button.iconClasses"></em>
           {{ button.title }}
         </eln-button>
