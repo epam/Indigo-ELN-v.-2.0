@@ -101,9 +101,8 @@
             <input
               #valueInput
               type="number"
-              matInput
               placeholder="—"
-              class="min-w-12 text-right"
+              class="flex-1 min-w-12 text-right"
               style="outline: none"
               [value]="unitField?.value ?? ''"
               [disabled]="!(column.editable?.(row) ?? true)"
@@ -113,7 +112,7 @@
             />
             <mat-select
               #unitSelect
-              class="unit-select !h-full !text-xs"
+              class="unit-select !h-full !w-auto !text-xs shrink-0"
               panelClass="unit-select-panel"
               hideSingleSelectionIndicator
               style="min-width: 2rem; text-align: left"

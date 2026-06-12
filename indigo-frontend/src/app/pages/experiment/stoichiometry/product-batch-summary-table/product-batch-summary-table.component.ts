@@ -16,11 +16,9 @@ import { BatchDetailData, BatchDetailPanelComponent } from '../batch-detail-pane
 import { ColumnConfig, ColumnInputType, ColumnOption, ExpandableConfig } from '../shared/editable-table.types';
 import { ExperimentDetailService } from '@core/services/experiment/experiment-detail.service';
 import { EnteredValue } from '@core/types/entities/values.i';
-import { determineCellClasses } from '@core/utils/experiment-model.util';
 import { ButtonComponent } from '@/core/components/common/button/button.component';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { NotificationService } from '@core/services/notification/notification.service';
 import { MatTooltip } from '@angular/material/tooltip';
 import { ApiService } from '@core/services/api.service';
 import { openFileDialog } from '@core/utils/file.util';
@@ -39,7 +37,6 @@ interface OutputSampleRow {
 })
 export class ProductBatchSummaryTableComponent {
   private experimentDetailService = inject(ExperimentDetailService);
-  private notificationService = inject(NotificationService);
   private apiService = inject(ApiService);
   private downloadService = inject(DownloadService);
 
@@ -312,7 +309,7 @@ export class ProductBatchSummaryTableComponent {
   }
 
   private determineClasses(value?: EnteredValue<unknown>): string[] {
-    return determineCellClasses(value, this.experimentDetailService.updatedNodes());
+    return this.experimentDetailService.determineCellClasses(value);
   }
 
   private isSampleProtected(row: OutputSampleRow): boolean {

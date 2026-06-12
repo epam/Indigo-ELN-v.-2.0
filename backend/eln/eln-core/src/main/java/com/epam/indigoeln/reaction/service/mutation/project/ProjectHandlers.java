@@ -84,11 +84,6 @@ class EditProjectAccessHandler extends AbstractProjectMutationHandler<ProjectMut
     EntityMutationHelper entityMutationHelper;
 
     @Override
-    public void doPrepare(ProjectEntity entity, ProjectMutation.EditProjectAccess mutation, ProjectMutationContext context) {
-        context.setAffectsACL(true);
-    }
-
-    @Override
     protected void doValidateAccess(ProjectEntity project, ProjectMutation.EditProjectAccess mutation, ProjectMutationContext context) {
         aclService.ensureAccess(project, ApplicationPermission.MANAGE_PROJECT_ACCESS);
     }
@@ -113,11 +108,6 @@ class CreateProjectAttachmentHandler extends AbstractProjectMutationHandler<Proj
     AttachmentService attachmentService;
 
     @Override
-    public void doPrepare(ProjectEntity entity, ProjectMutation.CreateProjectAttachment mutation, ProjectMutationContext context) {
-        context.setAffectsAttachments(true);
-    }
-
-    @Override
     public MutationResult doHandle(ProjectEntity project, ProjectMutation.CreateProjectAttachment mutation, ProjectMutationContext context, ProjectSnapshot snapshotBefore) {
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
         attachmentService.doAddProjectAttachment(project, attachment);
@@ -133,11 +123,6 @@ class DeleteProjectAttachmentHandler extends AbstractProjectMutationHandler<Proj
     AttachmentRepository attachmentRepository;
 
     @Override
-    public void doPrepare(ProjectEntity entity, ProjectMutation.DeleteProjectAttachment mutation, ProjectMutationContext context) {
-        context.setAffectsAttachments(true);
-    }
-
-    @Override
     public MutationResult doHandle(ProjectEntity project, ProjectMutation.DeleteProjectAttachment mutation, ProjectMutationContext context, ProjectSnapshot snapshotBefore) {
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
         project.getAttachments().remove(attachment);
@@ -150,11 +135,6 @@ class DeleteProjectAttachmentHandler extends AbstractProjectMutationHandler<Proj
 @Dependent
 @MutationHandlerFor(ProjectMutation.ProjectAccessUpdated.class)
 class ProjectAccessUpdatedHandler extends AbstractProjectMutationHandler<ProjectMutation.ProjectAccessUpdated> {
-
-    @Override
-    public void doPrepare(ProjectEntity entity, ProjectMutation.ProjectAccessUpdated mutation, ProjectMutationContext context) {
-        context.setAffectsACL(true);
-    }
 
     @Override
     public MutationResult doHandle(ProjectEntity project, ProjectMutation.ProjectAccessUpdated mutation, ProjectMutationContext context, ProjectSnapshot snapshotBefore) {

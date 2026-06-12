@@ -22,7 +22,6 @@ import jakarta.inject.Inject;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
 import static com.epam.indigoeln.common.util.ModelUtil.editProperty;
@@ -67,7 +66,6 @@ class EditNotebookAttributesHandler extends AbstractNotebookMutationHandler<Note
         updated |= editProperty(mutation.description(), notebook::setDescription, summaryList, "description");
 
         if (nameChanged) {
-            assert Objects.requireNonNull(mutation.name()).isPresent();
             String newNotebookName = mutation.name().get();
             List<ExperimentEntity> experiments = experimentRepository.findByNotebookWithACLEntities(notebook);
             for (ExperimentEntity experiment : experiments) {

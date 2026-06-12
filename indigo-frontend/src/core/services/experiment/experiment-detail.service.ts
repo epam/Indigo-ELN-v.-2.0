@@ -9,6 +9,7 @@ import { Reaction } from '@core/types/entities/experiments/experiment.i';
 import { JSON_PATCHER } from '@core/utils/json-patcher';
 import { Template } from '@core/types/entities/template.i';
 import { switchMap } from 'rxjs/operators';
+import { EnteredValue } from '@core/types/entities/values.i';
 
 @Injectable({
   providedIn: 'root',
@@ -175,4 +176,37 @@ export class ExperimentDetailService {
     }
     return null;
   }
+
+  determineCellClasses(value: EnteredValue<unknown> | null): string[] {
+    if (value != null) {
+      const hasAnyUpdates = this.updatedNodes().size !== 0; // to prevent animation on initial load
+      const previous = this.updatedNodes().get(value) as EnteredValue<unknown> | null;
+      if (isUserEntered(value)) {
+        return ['value-state-set-manually'];
+      }
+      const classes = [];
+      if (value.source === 'default') {
+        classes.push('value-state-default');
+      } else if (value.source === 'fixed') {
+        classes.push('value-state-fixed');
+      }
+      if (hasAnyUpdates && previous != null && isUserEntered(previous) && !isUserEntered(value)) {
+        // overwritten
+        classes.push('animate-[flash-red_500ms_ease-in-out]');
+      } else if (
+        hasAnyUpdates &&
+        value.source === 'calculated' &&
+        (value.source !== previous?.source || value.value !== previous?.value)
+      ) {
+        // recalculated
+        classes.push('animate-[flash-green_500ms_ease-in-out]');
+      }
+      return classes;
+    }
+    return [];
+  }
+}
+
+function isUserEntered(value: EnteredValue<unknown>): boolean {
+  return typeof value.source === 'number' && value.source > 0;
 }

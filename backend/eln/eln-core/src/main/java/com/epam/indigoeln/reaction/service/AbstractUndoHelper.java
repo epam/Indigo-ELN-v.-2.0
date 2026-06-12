@@ -55,9 +55,6 @@ public abstract class AbstractUndoHelper<E extends BaseEntity & WithRevision, S,
         List<R> revisions = loadRevisions(entity);
         UndoInfo info = findRevisionToUndoOrRedo(revisions, user, redo);
         validate(info != null, redo ? "Nothing to redo" : "Nothing to undo");
-        for (RevisionInfo revision : info.prepare) {
-            revision.handler.doPrepare(entity, revision.mutation, context);
-        }
         context.setUndoInfo(info);
     }
 

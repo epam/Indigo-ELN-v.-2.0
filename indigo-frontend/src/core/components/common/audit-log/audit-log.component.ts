@@ -21,36 +21,36 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
   selector: 'eln-audit-log',
   templateUrl: './audit-log.component.html',
   styles: `
-    .old {
+    .audit-log .old {
       background-color: #f8d7da;
     }
-    .old svg {
+    .audit-log .old svg {
       background-color: #f8d7da;
     }
-    .new {
+    .audit-log .new {
       background-color: #d4edda;
     }
-    .new svg {
+    .audit-log .new svg {
       background-color: #d4edda;
     }
-    .key {
+    .audit-log .key {
       font-weight: bold;
     }
-    .comment {
+    .audit-log .comment {
       font-weight: normal;
       font-style: italic;
       background-color: white;
     }
-    .ev-fixed {
+    .audit-log .ev-fixed {
       color: purple;
     }
-    .ev-default {
+    .audit-log .ev-default {
       color: darkgray;
     }
-    .ev-user-entered {
+    .audit-log .ev-user-entered {
       font-weight: bold;
     }
-    svg {
+    .audit-log svg {
       height: 100px;
       width: auto;
       display: inline;
