@@ -4,28 +4,25 @@
       <h3 class="flex items-center gap-x-2 font-semibold text-neutral-1000 text-base">
         <eln-svg icon="experiments/file"></eln-svg>
         {{ experiment.name }}
+        <div class="flex flex-col" [ngClass]="{ 'flex-col space-y-2': variant == 'list' }">
+          <div class="flex items-center" [ngClass]="{ 'ml-auto': variant === 'grid' }">
+            <eln-badge [variant]="getStatusBadgeVariant(experiment.status)">
+              <div class="text-xs flex justify-around items-center h-[18px] w-[49px]">
+                <span class="inline-block w-[6px] h-[6px] rounded-full bg-primary-400"></span>
+                {{ statusLabel | normalizeLabel }}
+              </div>
+            </eln-badge>
+          </div>
+        </div>
       </h3>
 
       <div class="flex items-center gap-x-3">
         @if (variant === 'grid') {
-          <div class="flex -space-x-2">
-            @for (user of experiment.acl; track user.username) {
-              <div
-                class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white"
-                [matTooltip]="user.displayName"
-                matTooltipPosition="above"
-              >
-                {{ user.displayName | initials }}
-              </div>
-            }
-            @if ((experiment.acl?.length ?? 0) > 3) {
-              <span
-                class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-primary-400 text-white text-[0.75rem]"
-              >
-                +{{ (experiment.acl?.length ?? 0) - 3 }}
-              </span>
-            }
-          </div>
+          <eln-member-avatars
+            [members]="experiment.acl ?? []"
+            [totalCount]="experiment.acl?.length ?? 0"
+            [maxVisible]="3"
+          />
         }
 
         <button
@@ -73,15 +70,6 @@
           'space-y-2': variant === 'grid',
         }"
       >
-        <div class="flex flex-col" [ngClass]="{ 'flex-col space-y-2': variant == 'list' }">
-          <div class="text-neutral-1000 text-sm">Status</div>
-          <div class="flex items-center" [ngClass]="{ 'ml-auto': variant === 'grid' }">
-            <eln-badge [variant]="getStatusBadgeVariant(experiment.status)">
-              {{ statusLabel | normalizeLabel }}
-            </eln-badge>
-          </div>
-        </div>
-
         <div class="w-full h-32">
           <eln-api-image
             [url]="`/api/eln/experiments/${experiment.id}/picture?revision=${experiment.revision}`"
@@ -92,24 +80,11 @@
         <div class="flex flex-col" [ngClass]="{ 'flex-col space-y-2': variant == 'list' }" *ngIf="variant === 'list'">
           <div class="text-neutral-1000 text-sm">Members</div>
           <div class="flex items-center">
-            <div class="flex -space-x-2">
-              @for (user of experiment.acl; track user.username) {
-                <div
-                  class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white"
-                  [matTooltip]="user.displayName ?? user.username"
-                  matTooltipPosition="above"
-                >
-                  {{ user.displayName ?? user.username | initials }}
-                </div>
-              }
-              @if ((experiment.acl?.length ?? 0) > 3) {
-                <span
-                  class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-primary-400 text-white text-[0.75rem]"
-                >
-                  +{{ (experiment.acl?.length ?? 0) - 3 }}
-                </span>
-              }
-            </div>
+            <eln-member-avatars
+              [members]="experiment.acl ?? []"
+              [totalCount]="experiment.acl?.length ?? 0"
+              [maxVisible]="3"
+            />
           </div>
         </div>
 

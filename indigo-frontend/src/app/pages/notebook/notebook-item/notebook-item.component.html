@@ -8,24 +8,7 @@
 
       <div class="flex items-center gap-x-3">
         @if (variant === 'grid') {
-          <div class="flex -space-x-2">
-            @for (user of notebook.acl; track user.username) {
-              <div
-                class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white"
-                [matTooltip]="user.displayName"
-                matTooltipPosition="above"
-              >
-                {{ user.displayName | initials }}
-              </div>
-            }
-            @if (notebook.aclCount > 3) {
-              <span
-                class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-primary-400 text-white text-[0.75rem]"
-              >
-                +{{ notebook.aclCount - 3 }}
-              </span>
-            }
-          </div>
+          <eln-member-avatars [members]="notebook.acl ?? []" [totalCount]="notebook.aclCount ?? 0" [maxVisible]="3" />
         }
 
         <div class="relative -right-1">
@@ -72,24 +55,7 @@
         <div class="flex flex-col" [ngClass]="{ 'flex-col space-y-2': variant == 'list' }" *ngIf="variant === 'list'">
           <div class="text-neutral-1000 text-sm">Members</div>
           <div class="flex items-center">
-            <div class="flex -space-x-2">
-              @for (user of notebook.acl; track user.username) {
-                <div
-                  class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white"
-                  [matTooltip]="user.displayName"
-                  matTooltipPosition="above"
-                >
-                  {{ user.displayName | initials }}
-                </div>
-              }
-              @if (notebook.aclCount > 3) {
-                <span
-                  class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-primary-400 text-white text-[0.75rem]"
-                >
-                  +{{ notebook.aclCount - 3 }}
-                </span>
-              }
-            </div>
+            <eln-member-avatars [members]="notebook.acl ?? []" [totalCount]="notebook.aclCount ?? 0" [maxVisible]="3" />
           </div>
         </div>
 
