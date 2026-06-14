@@ -1,15 +1,12 @@
 package com.epam.indigoeln.aws.util;
 
 import com.epam.indigoeln.aws.ELNLambdaStack;
-import org.jspecify.annotations.Nullable;
-import software.amazon.awscdk.Aspects;
 import software.amazon.awscdk.Duration;
 import software.amazon.awscdk.RemovalPolicy;
 import software.amazon.awscdk.services.ec2.ISecurityGroup;
 import software.amazon.awscdk.services.ec2.SubnetFilter;
 import software.amazon.awscdk.services.ec2.SubnetSelection;
 import software.amazon.awscdk.services.ecr.IRepository;
-import software.amazon.awscdk.services.iam.CfnRole;
 import software.amazon.awscdk.services.iam.ManagedPolicy;
 import software.amazon.awscdk.services.iam.Role;
 import software.amazon.awscdk.services.iam.ServicePrincipal;
@@ -18,7 +15,6 @@ import software.amazon.awscdk.services.lambda.Runtime;
 import software.amazon.awscdk.services.logs.LogGroup;
 import software.amazon.awscdk.services.logs.RetentionDays;
 import software.constructs.Construct;
-import software.constructs.IConstruct;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -30,8 +26,6 @@ import java.util.*;
 
 public class Utils {
 
-//    public static final Map<String, String> FUNCTION_IMAGE_URIS = new ConcurrentHashMap<>();
-//
     public static String calculateHashCode(File location) {
         try {
             List<File> files = location.isDirectory()
@@ -64,9 +58,9 @@ public class Utils {
                 .retention(RetentionDays.ONE_MONTH)
                 .build();
         Function.Builder builder = Function.Builder.create(parent, id)
-                .vpc(props.getVpc())
+                .vpc(props.vpc())
                 .vpcSubnets(SubnetSelection.builder()
-                        .subnetFilters(List.of(SubnetFilter.byIds(props.getLambdaSubnets())))
+                        .subnetFilters(List.of(SubnetFilter.byIds(props.lambdaSubnets())))
                         .build()
                 )
                 .ipv6AllowedForDualStack(true)
@@ -114,15 +108,5 @@ public class Utils {
 
     public static <K, V> Map.Entry<K, V> entry(K k, V v) {
         return new AbstractMap.SimpleImmutableEntry<>(k, v);
-    }
-
-    public static void applyPermissionBoundary(IConstruct scope, @Nullable String permissionBoundary) {
-        if (permissionBoundary != null) {
-            Aspects.of(scope).add(node -> {
-                if (node instanceof CfnRole role && role.getPermissionsBoundary() == null) {
-                    role.setPermissionsBoundary(permissionBoundary);
-                }
-            });
-        }
     }
 }

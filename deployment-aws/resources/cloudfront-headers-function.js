@@ -28,7 +28,11 @@ function handler(event) {
     if (contentType != null && contentType.value != null && contentType.value.startsWith('text/html')) {
         response.headers['x-frame-options'] = {value: 'SAMEORIGIN'};
     }
-    response.headers['cache-control'] = {value: cacheControl};
+
+    const status = response.statusCode;
+    if (status === 200 || status === 301 || status === 304) {
+        response.headers['cache-control'] = {value: cacheControl};
+    }
     response.headers['strict-transport-security'] = {value: 'max-age=63072000; includeSubDomains; preload'};
     response.headers['x-content-type-options'] = {value: 'nosniff'};
 

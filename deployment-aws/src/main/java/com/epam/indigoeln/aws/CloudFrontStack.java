@@ -3,9 +3,9 @@ package com.epam.indigoeln.aws;
 import com.epam.indigoeln.aws.util.Utils;
 import lombok.Getter;
 import lombok.SneakyThrows;
-import lombok.Value;
-import org.jetbrains.annotations.Nullable;
-import software.amazon.awscdk.*;
+import software.amazon.awscdk.Duration;
+import software.amazon.awscdk.Fn;
+import software.amazon.awscdk.Size;
 import software.amazon.awscdk.services.apigatewayv2.IHttpApi;
 import software.amazon.awscdk.services.certificatemanager.Certificate;
 import software.amazon.awscdk.services.certificatemanager.CertificateValidation;
@@ -39,23 +39,21 @@ import java.util.List;
 import static com.epam.indigoeln.aws.util.Utils.entry;
 import static com.epam.indigoeln.aws.util.Utils.mapOf;
 
-public class CloudFrontStack extends NestedStack {
+public class CloudFrontStack {
 
     @Getter
     private final Distribution distribution;
 
-    public CloudFrontStack(Construct scope, String id, @Nullable Props props) {
-        super(scope, id, props);
-
-        Certificate certificate = Certificate.Builder.create(this, "certificate")
+    public CloudFrontStack(Construct scope, Props props) {
+        Certificate certificate = Certificate.Builder.create(scope, "certificate")
                 .domainName("indigo-eln-dev.test.lifescience.opensource.epam.com")
-                .validation(CertificateValidation.fromDns(props.getHostedZone()))
+                .validation(CertificateValidation.fromDns(props.hostedZone()))
                 .build();
 
-        Bucket frontendCodeS3 = Bucket.Builder.create(this, "signature-frontend-s3")
+        Bucket frontendCodeS3 = Bucket.Builder.create(scope, "signature-frontend-s3")
                 .build();
 
-        CachePolicy defaultCachePolicy = CachePolicy.Builder.create(this, "default-cache-policy")
+        CachePolicy defaultCachePolicy = CachePolicy.Builder.create(scope, "default-cache-policy")
                 .cachePolicyName("default-cache-policy")
                 .defaultTtl(Duration.minutes(10))
                 .minTtl(Duration.minutes(1))
@@ -63,9 +61,9 @@ public class CloudFrontStack extends NestedStack {
                 .build();
 
         BehaviorOptions apiBehavior = BehaviorOptions.builder()
-                .origin(HttpOrigin.Builder.create(Fn.parseDomainName(props.getHttpApi().getApiEndpoint()))
+                .origin(HttpOrigin.Builder.create(Fn.parseDomainName(props.httpApi().getApiEndpoint()))
                         .protocolPolicy(OriginProtocolPolicy.HTTPS_ONLY)
-                        .customHeaders(mapOf("X-API-Secret", props.getApiGatewaySecret().getStringValue()))
+                        .customHeaders(mapOf("X-API-Secret", props.apiGatewaySecret().getStringValue()))
                         .build()
                 )
                 .allowedMethods(AllowedMethods.ALLOW_ALL)
@@ -75,7 +73,7 @@ public class CloudFrontStack extends NestedStack {
                 .viewerProtocolPolicy(ViewerProtocolPolicy.HTTPS_ONLY)
                 .build();
 
-        Function rewriteToIndexHtmlFunction = Function.Builder.create(this, "rewrite-index-html-function")
+        Function rewriteToIndexHtmlFunction = Function.Builder.create(scope, "rewrite-index-html-function")
                 .runtime(FunctionRuntime.JS_2_0)
                 .code(FunctionCode.fromFile(FileCodeOptions.builder()
                         .filePath("resources/cloudfront-rewrite-to-index-html-function.js")
@@ -87,12 +85,12 @@ public class CloudFrontStack extends NestedStack {
 //        File frontendCode = new File("/home/user/Work/indigoeln-frontend/indigo-frontend/dist/indigo-frontend/browser");
 
         String headersFunctionCode = generateHeadersFunction(frontendCode, Paths.get("resources/cloudfront-headers-function.js"));
-        Function headersFunction = Function.Builder.create(this, "headers-function")
+        Function headersFunction = Function.Builder.create(scope, "headers-function")
                 .runtime(FunctionRuntime.JS_2_0)
                 .code(FunctionCode.fromInline(headersFunctionCode))
                 .build();
 
-        distribution = Distribution.Builder.create(this, "cloudfront")
+        distribution = Distribution.Builder.create(scope, "cloudfront")
                 .defaultBehavior(BehaviorOptions.builder()
                         .origin(S3BucketOrigin.withOriginAccessControl(frontendCodeS3))
                         .viewerProtocolPolicy(ViewerProtocolPolicy.HTTPS_ONLY)
@@ -114,7 +112,7 @@ public class CloudFrontStack extends NestedStack {
                         entry("/openapi/*", apiBehavior),
                         entry("/swagger/*", apiBehavior)
                 ))
-                .domainNames(List.of(props.getDomainName()))
+                .domainNames(List.of(props.domainName()))
                 .certificate(certificate)
                 .defaultRootObject("index.html")
                 .priceClass(PriceClass.PRICE_CLASS_200)
@@ -133,19 +131,19 @@ public class CloudFrontStack extends NestedStack {
         ));
         CfnWebACL.RuleProperty knownBadInputRuleSet = createWAFRuleSet("AWS", "AWSManagedRulesKnownBadInputsRuleSet", 2, "AWS-AWSManagedRulesKnownBadInputsRuleSet", List.of());
 
-        CfnWebACL wafWebACL = CfnWebACL.Builder.create(this, "wafwebacl")
+        CfnWebACL wafWebACL = CfnWebACL.Builder.create(scope, "wafwebacl")
                 .scope("CLOUDFRONT")
                 .rules(List.of(ipReputationsRuleSet, commonRuleSet, knownBadInputRuleSet))
                 .defaultAction(CfnWebACL.DefaultActionProperty.builder().allow(CfnWebACL.AllowActionProperty.builder().build()).build())
                 .visibilityConfig(CfnWebACL.VisibilityConfigProperty.builder().cloudWatchMetricsEnabled(true).metricName("WebACLMetric").sampledRequestsEnabled(true).build())
                 .build();
-        new WafwebaclToCloudFront(this, "wafwebacl-cloudfront", WafwebaclToCloudFrontProps.builder()
+        new WafwebaclToCloudFront(scope, "wafwebacl-cloudfront", WafwebaclToCloudFrontProps.builder()
                 .existingWebaclObj(wafWebACL)
                 .existingCloudFrontWebDistribution(distribution)
                 .build()
         );
 
-        BucketDeployment frontendDeployment = BucketDeployment.Builder.create(this, "eln-frontend-s3-deployment")
+        BucketDeployment frontendDeployment = BucketDeployment.Builder.create(scope, "eln-frontend-s3-deployment")
                 .sources(List.of(Source.asset(frontendCode.getPath(), AssetOptions.builder().assetHash(Utils.calculateHashCode(frontendCode)).build())))
                 .destinationBucket(frontendCodeS3)
                 .distribution(distribution) // invalidate distribution
@@ -154,7 +152,7 @@ public class CloudFrontStack extends NestedStack {
                         CacheControl.immutable(),
                         CacheControl.maxAge(Duration.days(365))
                 ))
-                .role(Role.Builder.create(this, "frontend-deployment-role")
+                .role(Role.Builder.create(scope, "frontend-deployment-role")
                                 .assumedBy(ServicePrincipal.fromStaticServicePrincipleName("lambda.amazonaws.com"))
                                 .managedPolicies(List.of(
                                         ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaBasicExecutionRole"),
@@ -166,8 +164,8 @@ public class CloudFrontStack extends NestedStack {
                 .ephemeralStorageSize(Size.mebibytes(2048))
                 .build();
 
-        ARecord.Builder.create(this, "domain-record")
-                .zone(props.getHostedZone())
+        ARecord.Builder.create(scope, "domain-record")
+                .zone(props.hostedZone())
                 .recordName("indigo-eln-dev.test.lifescience.opensource.epam.com.")
                 .target(RecordTarget.fromAlias(new CloudFrontTarget(distribution)))
                 .build();
@@ -203,12 +201,10 @@ public class CloudFrontStack extends NestedStack {
                 .build();
     }
 
-    @Value
-    public static class Props implements NestedStackProps {
-
-        IHostedZone hostedZone;
-        IHttpApi httpApi;
-        String domainName;
-        IStringParameter apiGatewaySecret;
-    }
+    public record Props(
+            IHostedZone hostedZone,
+            IHttpApi httpApi,
+            String domainName,
+            IStringParameter apiGatewaySecret
+    ) {}
 }
