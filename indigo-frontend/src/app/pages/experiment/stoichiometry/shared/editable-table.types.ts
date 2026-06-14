@@ -6,7 +6,7 @@ export enum ColumnInputType {
   HTML = 'html',
   NUMBER = 'number',
   SELECT = 'select',
-  CHECKBOX = 'checkbox',
+  RADIO = 'radio',
   UNIT_INPUT = 'unit-input',
   MULTI_SELECT = 'multi-select',
   BUTTON = 'button',

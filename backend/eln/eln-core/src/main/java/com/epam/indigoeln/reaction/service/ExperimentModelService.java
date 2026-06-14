@@ -1,8 +1,7 @@
 package com.epam.indigoeln.reaction.service;
 
-import com.epam.indigoeln.eln.entity.ExperimentEditSessionEntity;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
-import com.epam.indigoeln.eln.entity.UserEntity;
+import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
 import com.epam.indigoeln.eln.mapper.SnapshotMapper;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.util.JSONPatcher;
@@ -23,10 +22,7 @@ import jakarta.validation.Valid;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Triple;
-import org.jspecify.annotations.Nullable;
 
-import java.time.Duration;
-import java.time.ZonedDateTime;
 import java.util.List;
 
 @Slf4j
@@ -66,32 +62,12 @@ public class ExperimentModelService {
         return jsonPatcher.createTopLevel(aJSON, bJSON);
     }
 
-    @Nullable
-    public ExperimentEditSessionEntity getEditSession(ExperimentEntity experiment, UserEntity user) {
-        ExperimentEditSessionEntity session = experimentRepository.findActiveEditSession(experiment, user);
-        if (session != null) {
-            session = closeEditSessionIfInactive(session);
+    @SneakyThrows
+    public JsonNode rewindSnapshot(ExperimentSnapshot snapshot, List<ExperimentRevisionEntity> revisions) {
+        JsonNode json = objectMapper.valueToTree(snapshot);
+        for (ExperimentRevisionEntity revision : revisions.reversed()) {
+            json = jsonPatcher.reverse(json, revision.getDiff());
         }
-        return session;
-    }
-
-    public ExperimentEditSessionEntity createEditSession(ExperimentEntity experiment, UserEntity user, ZonedDateTime dateTime) {
-        ExperimentEditSessionEntity session = new ExperimentEditSessionEntity();
-        session.setExperiment(experiment);
-        session.setUser(user);
-        session.setStarted(dateTime);
-        session.setLastActive(dateTime);
-        experimentRepository.persistEditSession(session);
-        return session;
-    }
-
-    @Nullable
-    private ExperimentEditSessionEntity closeEditSessionIfInactive(ExperimentEditSessionEntity editSession) {
-        Duration durationSinceLastActive = Duration.between(editSession.getLastActive(), ZonedDateTime.now());
-        if (durationSinceLastActive.compareTo(Duration.ofHours(1)) > 0) {
-            editSession.setFinished(editSession.getLastActive());
-            return null;
-        }
-        return editSession;
+        return json;
     }
 }

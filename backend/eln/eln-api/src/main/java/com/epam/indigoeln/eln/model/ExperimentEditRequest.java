@@ -6,40 +6,30 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.With;
-import org.jspecify.annotations.Nullable;
+import org.openapitools.jackson.nullable.JsonNullable;
 
-import java.util.Optional;
 import java.util.Set;
 
 @Data
 @With
 @NoArgsConstructor(onConstructor_ = {@JsonCreator})
 @AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+@JsonInclude(JsonInclude.Include.NON_ABSENT)
 public class ExperimentEditRequest {
 
-    @Nullable
-    Optional<String> title;
+    JsonNullable<String> title = JsonNullable.undefined();
 
-    @Nullable
-    Optional<TherapeuticAreaRef> therapeuticArea;
+    JsonNullable<TherapeuticAreaRef> therapeuticArea = JsonNullable.undefined();
 
-    @Nullable
-    Optional<ProjectCodeRef> projectCode;
+    JsonNullable<ProjectCodeRef> projectCode = JsonNullable.undefined();
 
-    @Nullable
-    Optional<String> description;
+    JsonNullable<String> description = JsonNullable.undefined();
 
-    @Nullable
-    Optional<String> literature;
+    JsonNullable<String> literature = JsonNullable.undefined();
 
-    @Nullable
-    Optional<Set<ExperimentRef>> linkedExperiments;
+    JsonNullable<Set<ExperimentRef>> linkedExperiments = JsonNullable.undefined();
 
-    @Nullable
-    Optional<Set<ExperimentRef>> continuedFrom;
+    JsonNullable<Set<ExperimentRef>> continuedFrom = JsonNullable.undefined();
 
-    @Nullable
-    Optional<Set<ExperimentRef>> continuedTo;
+    JsonNullable<Set<ExperimentRef>> continuedTo = JsonNullable.undefined();
 }

@@ -1,11 +1,11 @@
 import { UserRef } from '@core/types/entities/user.i';
 
-export interface Revision {
-  revision: number;
-  datetime: string;
+export interface RevisionSummary {
   user: UserRef;
-  displayName: string;
   summary: string;
-  diff: unknown;
-  stringDiff: string;
+  date: string;
+  dateTo?: string;
+  revision: number;
+  revisionTo?: number;
+  details?: RevisionSummary[];
 }

@@ -1,18 +1,24 @@
 package com.epam.indigoeln.aws;
 
 import lombok.Value;
-import org.jetbrains.annotations.Nullable;
 import software.amazon.awscdk.Stack;
 import software.amazon.awscdk.StackProps;
+import software.amazon.awscdk.services.ecr.IRepository;
+import software.amazon.awscdk.services.ecr.Repository;
 import software.amazon.awscdk.services.rds.Credentials;
 import software.constructs.Construct;
 
 public class MainStack extends Stack {
 
-    public MainStack(@Nullable Construct scope, @Nullable String id, @Nullable Props props) {
+    public MainStack(Construct scope, String id, Props props) {
         super(scope, id, props);
 
         StageParameters parameters = StageParameters.load(props.getEnvName());
+
+        IRepository elnLambdaRepo = Repository.fromRepositoryName(this, "ecr-indigo-eln",  "indigoeln/indigo-eln-lambda");
+        IRepository reportsLambdaRepo = Repository.fromRepositoryName(this, "ecr-indigo-eln-reports", "indigoeln/indigo-eln-reports-lambda");
+        IRepository signatureLambdaRepo = Repository.fromRepositoryName(this, "ecr-indigo-eln-signature", "indigoeln/indigo-eln-signature-lambda");
+        IRepository postgresRepo = Repository.fromRepositoryName(this, "ecr-indigo-eln-postgres", "indigoeln/indigo-eln-postgres");
 
         InfraStack infraStack = new InfraStack(this, "infra-stack", new InfraStack.Props(
                 parameters.getVpc(),
@@ -22,18 +28,15 @@ public class MainStack extends Stack {
                 parameters.getSecurityGroups()
         ));
 
-        BuildStack buildStack = new BuildStack(this, "build-stack", new BuildStack.Props());
-
         PostgresStack postgresStack = new PostgresStack(this, "postgres-stack", new PostgresStack.Props(
                 infraStack.getPrivateDnsNamespace(),
                 parameters.getPostgresMasterUsername(),
                 infraStack.getEcsCluster(),
                 infraStack.getEc2SecurityGroup(),
                 infraStack.getAdditionalSecurityGroups(),
-                buildStack.getPostgresRepo(),
+                postgresRepo,
                 parameters.getPostgresImageTag()
         ));
-        postgresStack.addDependency(buildStack);
         postgresStack.addDependency(infraStack);
 
         CognitoStack cognitoStack = new CognitoStack(this, "cognito-stack", new CognitoStack.Props(
@@ -48,16 +51,15 @@ public class MainStack extends Stack {
                 infraStack.getLambdaSecurityGroup(),
                 cognitoStack.getUserPool(),
                 cognitoStack.getUserPoolClient(),
-                buildStack.getElnLambdaRepo(),
-                buildStack.getReportsLambdaRepo(),
-                buildStack.getSignatureLambdaRepo(),
+                elnLambdaRepo,
+                reportsLambdaRepo,
+                signatureLambdaRepo,
                 parameters.getLambdaSubnets(),
                 parameters.getElnLambdaImageTag(),
                 parameters.getReportsLambdaImageTag(),
                 parameters.getSignatureLambdaImageTag(),
                 parameters.getApiGatewaySecret()
         ));
-        elnLambdaStack.addDependency(buildStack);
         elnLambdaStack.addDependency(infraStack);
         elnLambdaStack.addDependency(postgresStack);
 

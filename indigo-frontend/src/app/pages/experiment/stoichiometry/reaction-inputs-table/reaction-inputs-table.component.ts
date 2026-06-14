@@ -18,7 +18,6 @@ import { EditableDataTableComponent } from '../editable-data-table/editable-data
 import { ColumnConfig, ColumnInputType, ColumnOption } from '../shared/editable-table.types';
 import { ExperimentDetailService } from '@core/services/experiment/experiment-detail.service';
 import { EnteredValue } from '@core/types/entities/values.i';
-import { determineCellClasses } from '@core/utils/experiment-model.util';
 import { SelectComponent } from '@/core/components/common/select/select.component';
 import { ButtonComponent } from '@/core/components/common/button/button.component';
 import { FormsModule } from '@angular/forms';
@@ -201,7 +200,7 @@ export class ReactionInputsTableComponent implements OnInit {
     {
       id: 'limiting',
       header: 'Limiting',
-      type: ColumnInputType.CHECKBOX,
+      type: ColumnInputType.RADIO,
       field: (row: InputSampleRow) => row.input.limiting,
       onSave: (row: InputSampleRow) => {
         this.experimentDetailService
@@ -384,7 +383,7 @@ export class ReactionInputsTableComponent implements OnInit {
   displayedColumns = computed(() => this.columns().map((col) => col.id));
 
   private determineClasses(value?: EnteredValue<unknown>): string[] {
-    return determineCellClasses(value, this.experimentDetailService.updatedNodes());
+    return this.experimentDetailService.determineCellClasses(value);
   }
 
   addMaterial() {

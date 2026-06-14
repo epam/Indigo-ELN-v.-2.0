@@ -12,7 +12,4 @@ import lombok.ToString;
 @Setter
 @ToString
 public class ProjectMutationContext extends AbstractMutationContext<ProjectEntity, ProjectSnapshot, ProjectRevisionEntity, ProjectMutationContext> {
-
-    private boolean affectsAttachments;
-    private boolean affectsACL;
 }

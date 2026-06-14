@@ -44,8 +44,10 @@ public abstract class ProjectMapper extends AbstractMapper {
         return entity != null ? entity.getName() : null;
     }
 
-    @Mapping(target = "diff", expression = "java(revisionService.getPatch(entity))")
-    @Mapping(target = "stringDiff", expression = "java(revisionService.formatPatch(entity.getDiff()))")
-    public abstract RevisionDetailsDTO revisionToDTO(ProjectRevisionEntity entity);
-    public abstract List<RevisionDetailsDTO> revisionToDTOList(List<ProjectRevisionEntity> entity);
+    @Mapping(target = "date", source = "datetime")
+    @Mapping(target = "dateTo", ignore = true)
+    @Mapping(target = "revisionTo", ignore = true)
+    @Mapping(target = "details", ignore = true)
+    public abstract RevisionSummaryDTO revisionToDTO(ProjectRevisionEntity entity);
+    public abstract List<RevisionSummaryDTO> revisionToDTOList(List<ProjectRevisionEntity> entity);
 }

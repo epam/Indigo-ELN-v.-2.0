@@ -8,7 +8,7 @@ import software.amazon.awscdk.NestedStackProps;
 import software.amazon.awscdk.services.ec2.ISecurityGroup;
 import software.amazon.awscdk.services.ec2.SubnetSelection;
 import software.amazon.awscdk.services.ec2.SubnetType;
-import software.amazon.awscdk.services.ecr.Repository;
+import software.amazon.awscdk.services.ecr.IRepository;
 import software.amazon.awscdk.services.ecs.*;
 import software.amazon.awscdk.services.rds.Credentials;
 import software.amazon.awscdk.services.rds.DatabaseSecret;
@@ -124,7 +124,7 @@ public class PostgresStack extends NestedStack {
         ICluster ecsCluster;
         ISecurityGroup ec2SecurityGroup;
         List<ISecurityGroup> additionalSecurityGroups;
-        Repository postgresRepo;
+        IRepository postgresRepo;
         String postgresImageTag;
     }
 }

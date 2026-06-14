@@ -1,13 +1,16 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.eln.ELNBaseTest;
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.model.ApplicationPermission;
+import com.epam.indigoeln.eln.model.RoleDTO;
+import com.epam.indigoeln.eln.model.RoleEditRequest;
+import com.epam.indigoeln.eln.model.RoleRequest;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.openapitools.jackson.nullable.JsonNullable;
 
-import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,8 +33,8 @@ class RoleServiceTest extends ELNBaseTest {
     @Order(2)
     void testEditRole() {
         var updatedRole = roleClient.updateRole(role.getId(), new RoleEditRequest(
-                Optional.of("testRoleUpdated"),
-                Optional.of(Set.of(ApplicationPermission.MANAGE_DICTIONARIES, ApplicationPermission.CREATE_NOTEBOOKS))
+                JsonNullable.of("testRoleUpdated"),
+                JsonNullable.of(Set.of(ApplicationPermission.MANAGE_DICTIONARIES, ApplicationPermission.CREATE_NOTEBOOKS))
         ));
         assertThat(updatedRole.getName()).isEqualTo("testRoleUpdated");
         assertThat(updatedRole.getPermissions()).containsExactlyInAnyOrder(ApplicationPermission.MANAGE_DICTIONARIES, ApplicationPermission.CREATE_NOTEBOOKS);

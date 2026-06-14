@@ -24,7 +24,7 @@ public class JSONPatcher {
             List.of("attachments"), "id",
             List.of("acl"), "username"
     );
-    private static final Map<List<String>, String> EXPERIMENT_LIST_PATHS = Map.of(
+    public static final Map<List<String>, String> EXPERIMENT_LIST_PATHS = Map.of(
             List.of("model", "reactions"), "anchor",
             List.of("model", "reactions", "#", "inputs"), "anchor",
             List.of("model", "reactions", "#", "inputs", "#", "samples"), "anchor",
@@ -367,7 +367,7 @@ public class JSONPatcher {
         return str.toString();
     }
 
-    private static int[] parseListKey(String str) {
+    public static int[] parseListKey(String str) {
         int p = str.indexOf('>');
         if (p == -1) {
             int v = Integer.parseInt(str);

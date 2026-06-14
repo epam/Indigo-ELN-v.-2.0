@@ -13,6 +13,11 @@ public interface ReactionMutation extends ExperimentMutation {
 
     ReactionAnchor anchor();
 
+    @Override
+    default boolean isApplicableToEditSession() {
+        return true;
+    }
+
     record SetScheme (
         @NotNull ReactionAnchor anchor,
         @Nullable String rxnFile,

@@ -8,7 +8,6 @@ import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.Reaction;
-import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.test.FeignUtil;
 import io.quarkus.test.junit.QuarkusTest;
@@ -20,11 +19,15 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ContentDispositionUtil.extractFilename;
 import static com.epam.indigoeln.common.util.ModelUtil.loadResourceAsString;
@@ -84,13 +87,12 @@ class ExperimentServiceTest extends ELNBaseTest {
         assertThat(experiment.getTemplateId()).isEqualTo(emptyTemplateID);
         assertThat(experiment.getCurrentPermissions()).containsExactlyInAnyOrder(VIEW_EXPERIMENTS, EDIT_EXPERIMENTS, MANAGE_EXPERIMENT_ACCESS, DELETE_EXPERIMENTS, SUBMIT_EXPERIMENTS);
         assertThat(experiment.getRevision()).isOne();
-        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
+        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null))
                 .hasSize(1)
                 .first().satisfies(revision -> {
                     assertThat(revision.getRevision()).isOne();
-                    assertThat(revision.getDatetime()).isEqualTo(experiment.getCreatedAt());
+                    assertThat(revision.getDate()).isEqualTo(experiment.getCreatedAt());
                     assertThat(revision.getUser()).isEqualTo(JOHN_USER_REF);
-                    assertThat(revision.getMutation()).isInstanceOf(ExperimentMutation.CreateExperiment.class);
                     assertThat(revision.getSummary()).isEqualTo("Experiment created");
                 });
     }
@@ -185,14 +187,14 @@ class ExperimentServiceTest extends ELNBaseTest {
         ExperimentDetailsDTO e3 = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID, "e3", therapeuticAreas.getFirst(), projectCodes.getFirst()));
         ExperimentDetailsDTO e4 = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID, "e4", therapeuticAreas.getFirst(), projectCodes.getFirst()));
         ExperimentDetailsDTO modified = experimentClient.editExperiment(experiment.getId(), new ExperimentEditRequest(
-                Optional.of("newTitle"),
-                Optional.of(therapeuticAreas.get(1)),
-                Optional.of(projectCodes.get(1)),
-                Optional.of("newDescription"),
-                Optional.of("newLiterature"),
-                Optional.of(Set.of(e2.toRef())),
-                Optional.of(Set.of(e3.toRef())),
-                Optional.of(Set.of(e4.toRef()))
+                JsonNullable.of("newTitle"),
+                JsonNullable.of(therapeuticAreas.get(1)),
+                JsonNullable.of(projectCodes.get(1)),
+                JsonNullable.of("newDescription"),
+                JsonNullable.of("newLiterature"),
+                JsonNullable.of(Set.of(e2.toRef())),
+                JsonNullable.of(Set.of(e3.toRef())),
+                JsonNullable.of(Set.of(e4.toRef()))
         ));
         assertThat(modified.getName()).isEqualTo(experiment.getName());
         assertThat(modified.getTitle()).isEqualTo("newTitle");
@@ -205,13 +207,12 @@ class ExperimentServiceTest extends ELNBaseTest {
         assertThat(modified.getContinuedTo()).containsExactly(e4.toRef());
         ExperimentDetailsDTO saved = experimentClient.getExperiment(experiment.getId());
         assertThat(saved).usingRecursiveComparison().isEqualTo(modified);
-        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
+        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), true))
                 .hasSize(2)
                 .last().satisfies(revision -> {
                     assertThat(revision.getRevision()).isEqualTo(2);
-                    assertThat(revision.getDatetime()).isEqualTo(modified.getModifiedAt());
+                    assertThat(revision.getDate()).isEqualTo(modified.getModifiedAt());
                     assertThat(revision.getUser()).isEqualTo(JOHN_USER_REF);
-                    assertThat(revision.getMutation()).isInstanceOf(ExperimentMutation.EditExperimentAttributes.class);
                     assertThat(revision.getSummary()).matches("Edit: multiple attributes");
                 });
     }
@@ -264,9 +265,8 @@ class ExperimentServiceTest extends ELNBaseTest {
             assertThat(a.getModifiedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME);
             assertThat(a.getModifiedAt()).isNotNull();
         });
-        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
+        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), true))
                 .last().satisfies(revision -> {
-                    assertThat(revision.getMutation()).isInstanceOf(ExperimentMutation.CreateExperimentAttachment.class);
                     assertThat(revision.getSummary()).isEqualTo("Created attachment: attachment.txt, 7 bytes");
                 });
     }
@@ -288,9 +288,8 @@ class ExperimentServiceTest extends ELNBaseTest {
         experimentClient.deleteExperimentAttachment(experiment.getId(), attachments.getFirst().getId());
         experiment = experimentClient.getExperiment(experiment.getId());
         assertThat(experiment.getAttachments()).isEmpty();
-        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
+        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), true))
                 .last().satisfies(revision -> {
-                    assertThat(revision.getMutation()).isInstanceOf(ExperimentMutation.DeleteExperimentAttachment.class);
                     assertThat(revision.getSummary()).isEqualTo("Deleted attachment: attachment.txt");
                 });
     }
@@ -327,21 +326,18 @@ class ExperimentServiceTest extends ELNBaseTest {
     void testUpdateAccess() {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(MAGGIE_USERNAME, AccessLevel.EDIT));
-        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
+        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), true))
                 .hasSize(2)
                 .last().satisfies(revision -> {
                     assertThat(revision.getRevision()).isEqualTo(2);
                     assertThat(revision.getUser()).isEqualTo(JOHN_USER_REF);
-                    assertThat(revision.getMutation()).isInstanceOf(ExperimentMutation.EditExperimentAccess.class);
                     assertThat(revision.getSummary()).isEqualTo("Edited Team: granted maggie EDIT access");
-                    assertThat(revision.getDiff()).isNotNull(); // TODO verify diff old and new ACL
                 });
         experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(MAGGIE_USERNAME, AccessLevel.NONE));
-        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
+        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), true))
                 .hasSize(3)
                 .last().satisfies(revision -> {
                     assertThat(revision.getSummary()).isEqualTo("Edited Team: removed maggie");
-                    assertThat(revision.getDiff()).isNotNull(); // TODO verify diff old and new ACL
                 });
     }
 

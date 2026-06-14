@@ -98,7 +98,7 @@ public class ProjectService {
         return handler.applyMutation(project, mutation);
     }
 
-    public List<RevisionDetailsDTO> getProjectRevisions(UUID projectId) {
+    public List<RevisionSummaryDTO> getProjectRevisions(UUID projectId) {
         ProjectEntity project = projectRepository.get(projectId);
         aclService.ensureAccess(project, ApplicationPermission.VIEW_PROJECTS);
         return projectMapper.revisionToDTOList(projectRepository.getRevisions(project));

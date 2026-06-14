@@ -55,9 +55,6 @@ public abstract class AbstractUndoHelper<E extends BaseEntity & WithRevision, S,
         List<R> revisions = loadRevisions(entity);
         UndoInfo info = findRevisionToUndoOrRedo(revisions, user, redo);
         validate(info != null, redo ? "Nothing to redo" : "Nothing to undo");
-        for (RevisionInfo revision : info.prepare) {
-            revision.handler.doPrepare(entity, revision.mutation, context);
-        }
         context.setUndoInfo(info);
     }
 
@@ -71,7 +68,7 @@ public abstract class AbstractUndoHelper<E extends BaseEntity & WithRevision, S,
         // rewind
         JsonNode snapshotJSON = objectMapper.valueToTree(snapshotBefore);
         for (RevisionInfo revision : info.rewind.reversed()) {
-            JsonNode diff = objectMapper.readTree(revision.entity.getDiff());
+            JsonNode diff = revision.entity.getDiff();
             snapshotJSON = jsonPatcher.reverse(snapshotJSON, diff);
         }
         // store rewound model back in entity

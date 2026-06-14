@@ -6,27 +6,27 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.jspecify.annotations.Nullable;
+import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface ProjectMutation extends Mutation {
 
     record CreateProject(
-            @NotEmpty String name,
-            @Nullable @Size(min = 1) List<@NotEmpty String> keywords,
+            String name,
+            @Nullable @Size(min = 1) List<String> keywords,
             @Nullable String literature,
             @Nullable String description
     ) implements ProjectMutation {
     }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonInclude(JsonInclude.Include.NON_ABSENT)
     record EditProjectAttributes(
-            @Nullable Optional<@NotEmpty String> name,
-            @Nullable Optional<List<@NotEmpty String>> keywords,
-            @Nullable Optional<String> literature,
-            @Nullable Optional<String> description
+            JsonNullable<String> name,
+            JsonNullable<List<String>> keywords,
+            JsonNullable<String> literature,
+            JsonNullable<String> description
     ) implements ProjectMutation {
     }
 

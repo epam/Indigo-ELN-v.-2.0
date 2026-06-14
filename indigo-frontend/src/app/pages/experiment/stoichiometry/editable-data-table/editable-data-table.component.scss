@@ -2,6 +2,43 @@
   height: auto !important;
 }
 
+:host {
+  --mat-table-row-item-outline-width: 0;
+
+  input[type='number'] {
+    field-sizing: content;
+    appearance: textfield;
+  }
+
+  // Center the "—" absence placeholder; real values keep their own alignment.
+  input:placeholder-shown {
+    text-align: center;
+  }
+
+  // Hide the "—" placeholder once the input is focused.
+  input:focus::placeholder {
+    color: transparent;
+  }
+
+  input[type='number']::-webkit-outer-spin-button,
+  input[type='number']::-webkit-inner-spin-button {
+    appearance: none;
+    margin: 0;
+  }
+
+  // Remove combobox arrow and show value underlined instead to be more compact
+  ::ng-deep .unit-select {
+    .mat-mdc-select-arrow-wrapper {
+      display: none;
+    }
+
+    &:hover .mat-mdc-select-value,
+    &.mat-mdc-select-focused .mat-mdc-select-value {
+      text-decoration: underline;
+    }
+  }
+}
+
 .expanded-row-content {
   animation: slideDown 0.3s ease-out;
 }

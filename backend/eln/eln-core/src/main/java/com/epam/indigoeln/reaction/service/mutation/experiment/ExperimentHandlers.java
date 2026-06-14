@@ -1,11 +1,6 @@
 package com.epam.indigoeln.reaction.service.mutation.experiment;
 
-import com.epam.indigoeln.eln.entity.AttachmentEntity;
-import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
-import com.epam.indigoeln.eln.entity.ExperimentEntity;
-import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
-import com.epam.indigoeln.eln.entity.NotebookEntity;
-import com.epam.indigoeln.eln.entity.UserEntity;
+import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.model.ExperimentRef;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
@@ -86,11 +81,6 @@ class CreateExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
 @Dependent
 @MutationHandlerFor(ExperimentMutation.SetExperimentSignificantFigures.class)
 class SetExperimentSignificantFiguresHandler extends ExperimentMutationHandlerBase<ExperimentMutation.SetExperimentSignificantFigures> {
-
-    @Override
-    public void doPrepare(ExperimentEntity entity, ExperimentMutation.SetExperimentSignificantFigures mutation, ExperimentMutationContext context) {
-        context.setRequiresEditSession(true);
-    }
 
     @Override
     public MutationResult doHandle(ExperimentEntity entity, ExperimentMutation.SetExperimentSignificantFigures mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
@@ -180,20 +170,19 @@ class EditExperimentAttributesHandler extends ExperimentMutationHandlerBase<Expe
     }
 
     @Override
-    @SuppressWarnings("OptionalAssignedToNull")
     public void doRestoreStateAfterUndo(ExperimentEntity experiment, ExperimentSnapshot snapshot, ExperimentMutation.EditExperimentAttributes mutation) {
         experiment.setTitle(snapshot.getTitle());
         experiment.setTherapeuticArea(dictionaryService.lookup(snapshot.getTherapeuticArea()));
         experiment.setProjectCode(dictionaryService.lookup(snapshot.getProjectCode()));
         experiment.setDescription(snapshot.getDescription());
         experiment.setLiterature(snapshot.getLiterature());
-        if (mutation.linkedExperiments() != null) {
+        if (mutation.linkedExperiments().isPresent()) {
             updateCollection(experiment.getLinkedExperiments(), experimentsFromRefs(snapshot.getLinkedExperiments()));
         }
-        if (mutation.continuedFrom() != null) {
+        if (mutation.continuedFrom().isPresent()) {
             updateCollection(experiment.getContinuedFrom(), experimentsFromRefs(snapshot.getContinuedFrom()));
         }
-        if (mutation.continuedTo() != null) {
+        if (mutation.continuedTo().isPresent()) {
             updateCollection(experiment.getContinuedTo(), experimentsFromRefs(snapshot.getContinuedTo()));
         }
     }

@@ -12,6 +12,11 @@ public interface ReactionOutputMutation extends ExperimentMutation {
 
     OutputAnchor anchor();
 
+    @Override
+    default boolean isApplicableToEditSession() {
+        return true;
+    }
+
     record AddProductSample(
             @NotNull OutputAnchor anchor,
             @Nullable OutputSampleAnchor createdSampleAnchor

@@ -10,10 +10,10 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
+import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -323,9 +323,9 @@ class TemplateServiceTest extends ELNBaseTest {
     @Test
     void testEditTemplate() {
         TemplateDetailsDTO template = createTemplate(new TemplateRequest("testEditTemplate", templateTabs));
-        TemplateDetailsDTO notModified = templateClient.editTemplate(template.getId(), new TemplateEditRequest(null));
+        TemplateDetailsDTO notModified = templateClient.editTemplate(template.getId(), new TemplateEditRequest(JsonNullable.undefined()));
         assertThat(notModified).usingRecursiveComparison(COMPARE_WITHOUT_MODIFIED_AT).isEqualTo(template);
-        TemplateDetailsDTO modified = templateClient.editTemplate(template.getId(), new TemplateEditRequest(Optional.of("testEditTemplate_new")));
+        TemplateDetailsDTO modified = templateClient.editTemplate(template.getId(), new TemplateEditRequest(JsonNullable.of("testEditTemplate_new")));
         assertThat(modified.getName()).isEqualTo("testEditTemplate_new");
         TemplateDetailsDTO saved = templateClient.getTemplate(template.getId());
         assertThat(saved).usingRecursiveComparison().isEqualTo(modified);

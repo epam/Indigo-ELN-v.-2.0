@@ -16,7 +16,7 @@ import software.amazon.awscdk.services.cognito.IUserPool;
 import software.amazon.awscdk.services.cognito.IUserPoolClient;
 import software.amazon.awscdk.services.ec2.ISecurityGroup;
 import software.amazon.awscdk.services.ec2.IVpc;
-import software.amazon.awscdk.services.ecr.Repository;
+import software.amazon.awscdk.services.ecr.IRepository;
 import software.amazon.awscdk.services.lambda.Function;
 import software.amazon.awscdk.services.rds.Credentials;
 import software.amazon.awscdk.services.ssm.IStringParameter;
@@ -72,7 +72,7 @@ public class ELNLambdaStack extends NestedStack {
         Function elnFunction = Utils.createDockerFunction(
                 this,
                 props,
-                "eln-function",
+                "eln-function-2", // !!! rename back to "eln-function" when recreating the stack
                 props.getElnRepository(),
                 props.getElnImageTag(),
                 props.getLambdaSecurityGroup(),
@@ -93,7 +93,7 @@ public class ELNLambdaStack extends NestedStack {
         reportsFunction = Utils.createDockerFunction(
                 this,
                 props,
-                "reports-function",
+                "reports-function-2",
                 props.getReportsRepository(),
                 props.getReportsImageTag(),
                 props.getLambdaSecurityGroup(),
@@ -118,7 +118,7 @@ public class ELNLambdaStack extends NestedStack {
         Function signatureFunction = Utils.createDockerFunction(
                 this,
                 props,
-                "signature-function",
+                "signature-function-2",
                 props.getSignatureRepository(),
                 props.getSignatureImageTag(),
                 props.getLambdaSecurityGroup(),
@@ -174,9 +174,9 @@ public class ELNLambdaStack extends NestedStack {
         ISecurityGroup lambdaSecurityGroup;
         IUserPool userPool;
         IUserPoolClient userPoolClient;
-        Repository elnRepository;
-        Repository reportsRepository;
-        Repository signatureRepository;
+        IRepository elnRepository;
+        IRepository reportsRepository;
+        IRepository signatureRepository;
         List<String> lambdaSubnets;
         String elnImageTag;
         String reportsImageTag;

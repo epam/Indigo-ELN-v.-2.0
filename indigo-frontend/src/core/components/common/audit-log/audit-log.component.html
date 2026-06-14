@@ -1,19 +1,63 @@
-<eln-card classList="h-full">
-  <eln-expandable-table [dataSource]="revisions">
-    <ng-template elnColumnDef="revision" displayName="Revision No" let-element>
-      <span class="font-medium text-gray-900">{{ element.revision }}</span>
-    </ng-template>
-    <ng-template elnColumnDef="datetime" displayName="Date/Time" let-element>
-      <span class="font-medium text-gray-900">{{ element.datetime }}</span>
-    </ng-template>
-    <ng-template elnColumnDef="user" displayName="User" let-element>
-      <span class="font-medium text-gray-900">{{ element.user.displayName }}</span>
-    </ng-template>
-    <ng-template elnColumnDef="summary" displayName="Summary" let-element>
-      <span class="font-medium text-gray-900">{{ element.summary }}</span>
-    </ng-template>
-    <ng-template #details let-element>
-      <pre [innerHTML]="element.stringDiff" style="width: 100px"></pre>
-    </ng-template>
-  </eln-expandable-table>
+<eln-card classList="h-full audit-log">
+  @if (loading) {
+    <p class="p-6 text-sm text-gray-500">Loading…</p>
+  } @else {
+    <eln-expandable-table [dataSource]="revisions" [expandable]="hasDetails">
+      <ng-template elnColumnDef="date" displayName="Date" let-r>{{ r.date | date: 'short' }}</ng-template>
+      <ng-template elnColumnDef="user" displayName="User" let-r>{{ r.user.displayName }}</ng-template>
+      <ng-template elnColumnDef="summary" displayName="Summary" let-r>{{ r.summary }}</ng-template>
+      <ng-template elnColumnDef="buttons" displayName="" let-r>
+        @if (r.details == null && r.revision !== 1) {
+          @if (!diffs.has(r)) {
+            <eln-button variant="grey" matTooltip="Show Diff" (click)="showDiff(r)">
+              <em class="indicon-file text-md"></em>
+            </eln-button>
+          } @else if (diffs.get(r).isLoading()) {
+            <div class="p-2">
+              <mat-spinner diameter="20" />
+            </div>
+          }
+        }
+      </ng-template>
+
+      <ng-template #details let-parent>
+        <table class="w-full bg-gray-50/50">
+          @if (diffs.get(parent)?.value(); as v) {
+            <tr>
+              <td colspan="5">
+                <div class="px-12" [innerHTML]="v"></div>
+              </td>
+            </tr>
+          }
+          @for (r of parent.details; track r) {
+            <tr class="border-t border-gray-100">
+              <td class="px-6 py-3 text-sm text-gray-600">{{ r.date | date: 'short' }}</td>
+              <td class="px-6 py-3 text-sm text-gray-600">{{ r.user.displayName }}</td>
+              <td class="px-6 py-3 text-sm text-gray-600">{{ r.summary }}</td>
+              <td class="px-6 py-3">
+                @if (r.revision !== 1) {
+                  @if (!diffs.has(r)) {
+                    <eln-button variant="grey" matTooltip="Show Diff" (click)="showDiff(r)">
+                      <em class="indicon-file text-md"></em>
+                    </eln-button>
+                  } @else if (diffs.get(r).isLoading()) {
+                    <div class="p-2">
+                      <mat-spinner diameter="20" />
+                    </div>
+                  }
+                }
+              </td>
+            </tr>
+            @if (diffs.get(r)?.value(); as v) {
+              <tr>
+                <td colspan="5">
+                  <div class="px-12" [innerHTML]="v"></div>
+                </td>
+              </tr>
+            }
+          }
+        </table>
+      </ng-template>
+    </eln-expandable-table>
+  }
 </eln-card>

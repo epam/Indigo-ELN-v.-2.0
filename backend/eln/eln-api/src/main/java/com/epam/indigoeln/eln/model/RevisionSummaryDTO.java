@@ -1,6 +1,7 @@
 package com.epam.indigoeln.eln.model;
 
 import com.epam.indigoeln.common.model.UserRef;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,15 +9,13 @@ import lombok.NoArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
 import java.time.ZonedDateTime;
-import java.util.UUID;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ExperimentRevisionSummaryDTO {
-
-    @Nullable
-    private UUID editSessionID;
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class RevisionSummaryDTO {
 
     @NotNull
     private UserRef user;
@@ -24,9 +23,18 @@ public class ExperimentRevisionSummaryDTO {
     @NotNull
     private String summary;
 
+    @NotNull
+    private ZonedDateTime date;
+
     @Nullable
-    private ZonedDateTime dateFrom;
+    private ZonedDateTime dateTo;
 
     @NotNull
-    private ZonedDateTime dateTo;
+    private int revision;
+
+    @Nullable
+    private Integer revisionTo;
+
+    @Nullable
+    private List<RevisionSummaryDTO> details;
 }
