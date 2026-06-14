@@ -10,6 +10,8 @@ import java.io.File;
 @Data
 public class GlobalParameters {
 
+    private String account;
+    private String region;
     @Nullable
     private String permissionBoundary;
 

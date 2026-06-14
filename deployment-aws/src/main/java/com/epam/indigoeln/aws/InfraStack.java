@@ -1,9 +1,6 @@
 package com.epam.indigoeln.aws;
 
 import lombok.Getter;
-import lombok.Value;
-import software.amazon.awscdk.NestedStack;
-import software.amazon.awscdk.NestedStackProps;
 import software.amazon.awscdk.RemovalPolicy;
 import software.amazon.awscdk.Size;
 import software.amazon.awscdk.services.autoscaling.AutoScalingGroup;
@@ -25,7 +22,7 @@ import software.constructs.Construct;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InfraStack extends NestedStack {
+public class InfraStack {
 
     @Getter
     private final IVpc vpc;
@@ -43,45 +40,41 @@ public class InfraStack extends NestedStack {
     private final SecurityGroup ec2SecurityGroup;
     @Getter
     private final SecurityGroup lambdaSecurityGroup;
-//    @Getter
-//    private final CfnOutput ec2PrivateIP;
 
-    public InfraStack(final Construct scope, final String id, final Props props) {
-        super(scope, id, props);
-
-        vpc = Vpc.fromLookup(this, "vpc", VpcLookupOptions.builder().vpcId(props.getVpcId()).build());
+    public InfraStack(final Construct scope, final Props props) {
+        vpc = Vpc.fromLookup(scope, "vpc", VpcLookupOptions.builder().vpcId(props.vpcId()).build());
         additionalSecurityGroups = new ArrayList<>();
-        for (String groupId : props.getSecurityGroups()) {
-            ISecurityGroup group = SecurityGroup.fromSecurityGroupId(this, "security-group-" + (additionalSecurityGroups.size() + 1), groupId);
+        for (String groupId : props.securityGroups()) {
+            ISecurityGroup group = SecurityGroup.fromSecurityGroupId(scope, "security-group-" + (additionalSecurityGroups.size() + 1), groupId);
             additionalSecurityGroups.add(group);
         }
 
-        ec2KeyPair = KeyPair.fromKeyPairName(this, "ec2-key-pair", props.getEc2KeyPair());
+        ec2KeyPair = KeyPair.fromKeyPairName(scope, "ec2-key-pair", props.ec2KeyPair());
 
-        hostedZone = HostedZone.fromHostedZoneAttributes(this, "hosted-zone", HostedZoneAttributes.builder()
-                .hostedZoneId(props.getHostedZone())
-                .zoneName(props.getHostedZoneName())
+        hostedZone = HostedZone.fromHostedZoneAttributes(scope, "hosted-zone", HostedZoneAttributes.builder()
+                .hostedZoneId(props.hostedZone())
+                .zoneName(props.hostedZoneName())
                 .build()
         );
 
-        privateDnsNamespace = PrivateDnsNamespace.Builder.create(this, "vpc-dns-namespace")
+        privateDnsNamespace = PrivateDnsNamespace.Builder.create(scope, "vpc-dns-namespace")
                 .name("indigoeln.local")
                 .vpc(vpc)
                 .build();
 
-        ec2SecurityGroup = SecurityGroup.Builder.create(this, "ec2-security-group")
+        ec2SecurityGroup = SecurityGroup.Builder.create(scope, "ec2-security-group")
                 .vpc(vpc)
                 .allowAllOutbound(true)
                 .build();
 
         IManagedPolicy policy = ManagedPolicy.fromAwsManagedPolicyName("service-role/AmazonEC2ContainerServiceforEC2Role");
-        Role ec2Role = Role.Builder.create(this, "ec2-role")
+        Role ec2Role = Role.Builder.create(scope, "ec2-role")
                 .assumedBy(new ServicePrincipal("ec2.amazonaws.com"))
                 .managedPolicies(List.of(policy))
                 .build();
 
         String dataVolumeAz = vpc.getAvailabilityZones().get(0);
-        Volume dataVolume = Volume.Builder.create(this, "postgres-data-volume")
+        Volume dataVolume = Volume.Builder.create(scope, "postgres-data-volume")
                 .availabilityZone(dataVolumeAz)
                 .size(Size.gibibytes(10))
                 .volumeType(EbsDeviceVolumeType.GP3)
@@ -112,7 +105,7 @@ public class InfraStack extends NestedStack {
                 "chown -R 999:999 $MOUNT_POINT"  // UID 999 = postgres user in the official postgres image
         );
 
-        LaunchTemplate launchTemplate = LaunchTemplate.Builder.create(this, "ec2-launch-template")
+        LaunchTemplate launchTemplate = LaunchTemplate.Builder.create(scope, "ec2-launch-template")
                 .instanceType(InstanceType.of(InstanceClass.T3A, InstanceSize.MICRO))
                 .machineImage(EcsOptimizedImage.amazonLinux2023(AmiHardwareType.STANDARD))
                 .userData(userData)
@@ -124,7 +117,7 @@ public class InfraStack extends NestedStack {
             launchTemplate.addSecurityGroup(sg);
         }
 
-        AutoScalingGroup autoScalingGroup = AutoScalingGroup.Builder.create(this, "ec2-auto-scaling-group")
+        AutoScalingGroup autoScalingGroup = AutoScalingGroup.Builder.create(scope, "ec2-auto-scaling-group")
                 .vpc(vpc)
                 .launchTemplate(launchTemplate)
                 .minCapacity(1)
@@ -137,29 +130,28 @@ public class InfraStack extends NestedStack {
                         .build())
                 .build();
 
-        ecsCluster = Cluster.Builder.create(this, "ecs-cluster")
+        ecsCluster = Cluster.Builder.create(scope, "ecs-cluster")
                 .vpc(vpc)
                 .build();
 
-        ecsCluster.addAsgCapacityProvider(AsgCapacityProvider.Builder.create(this, "ec2-capacity-provider")
+        ecsCluster.addAsgCapacityProvider(AsgCapacityProvider.Builder.create(scope, "ec2-capacity-provider")
                 .autoScalingGroup(autoScalingGroup)
                 .build());
 
-        lambdaSecurityGroup = SecurityGroup.Builder.create(this, "lambda-security-group")
+        lambdaSecurityGroup = SecurityGroup.Builder.create(scope, "lambda-security-group")
                 .vpc(vpc)
                 .allowAllOutbound(true)
+                .allowAllIpv6Outbound(true)
                 .build();
         ec2SecurityGroup.addIngressRule(lambdaSecurityGroup, Port.tcp(6432), "from-lambda");
         ec2SecurityGroup.addIngressRule(lambdaSecurityGroup, Port.tcp(6433), "from-lambda");
     }
 
-    @Value
-    public static class Props implements NestedStackProps {
-
-        String vpcId;
-        String ec2KeyPair;
-        String hostedZone;
-        String hostedZoneName;
-        List<String> securityGroups;
-    }
+    public record Props(
+            String vpcId,
+            String ec2KeyPair,
+            String hostedZone,
+            String hostedZoneName,
+            List<String> securityGroups
+    ) {}
 }

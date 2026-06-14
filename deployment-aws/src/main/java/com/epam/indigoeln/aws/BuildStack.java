@@ -1,9 +1,6 @@
 package com.epam.indigoeln.aws;
 
-import com.epam.indigoeln.aws.util.Utils;
-import lombok.Value;
 import one.util.streamex.EntryStream;
-import org.jspecify.annotations.Nullable;
 import software.amazon.awscdk.Duration;
 import software.amazon.awscdk.RemovalPolicy;
 import software.amazon.awscdk.Stack;
@@ -28,8 +25,8 @@ import static com.epam.indigoeln.aws.util.Utils.mapOf;
 
 public class BuildStack extends Stack {
 
-    public BuildStack(final Construct scope, final String id, Props props) {
-        super(scope, id);
+    public BuildStack(final Construct scope, final String id, StackProps stackProps) {
+        super(scope, id, stackProps);
 
         Repository elnLambdaRepo = createECRRepo("ecr-indigo-eln", "indigoeln/indigo-eln-lambda");
         Repository reportsLambdaRepo = createECRRepo("ecr-indigo-eln-reports", "indigoeln/indigo-eln-reports-lambda");
@@ -90,8 +87,6 @@ public class BuildStack extends Stack {
         elnLambdaRepo.grantPullPush(elnBuild);
         reportsLambdaRepo.grantPullPush(elnBuild);
         signatureLambdaRepo.grantPullPush(elnBuild);
-
-        Utils.applyPermissionBoundary(this, props.getPermissionBoundary());
     }
 
     private Project createBuild(String id, String projectName, String buildSpecFile, Bucket buildLogsBucket, PolicyStatement policy, Map<String, String> environment) {
@@ -147,12 +142,5 @@ public class BuildStack extends Stack {
                 .build();
         publicRepo.applyRemovalPolicy(RemovalPolicy.RETAIN);
         return repo;
-    }
-
-    @Value
-    public static class Props implements StackProps {
-
-        @Nullable
-        String permissionBoundary;
     }
 }

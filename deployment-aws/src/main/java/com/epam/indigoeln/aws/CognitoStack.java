@@ -1,25 +1,20 @@
 package com.epam.indigoeln.aws;
 
 import lombok.Getter;
-import lombok.Value;
-import software.amazon.awscdk.NestedStack;
-import software.amazon.awscdk.NestedStackProps;
 import software.amazon.awscdk.services.cognito.*;
 import software.constructs.Construct;
 
 import java.util.List;
 
-public class CognitoStack extends NestedStack {
+public class CognitoStack {
 
     @Getter
     private final UserPool userPool;
     @Getter
     private final UserPoolClient userPoolClient;
 
-    public CognitoStack(final Construct scope, final String id, final Props props) {
-        super(scope, id, props);
-
-        userPool = UserPool.Builder.create(this, "user-pool")
+    public CognitoStack(Construct scope, Props props) {
+        userPool = UserPool.Builder.create(scope, "user-pool")
                 .passwordPolicy(PasswordPolicy.builder()
                         .minLength(6)
                         .requireDigits(false)
@@ -28,18 +23,18 @@ public class CognitoStack extends NestedStack {
                         .requireSymbols(false)
                         .build())
                 .build();
-        UserPoolDomain.Builder.create(this, "user-pool-domain")
+        UserPoolDomain.Builder.create(scope, "user-pool-domain")
                 .userPool(userPool)
-                .cognitoDomain(CognitoDomainOptions.builder().domainPrefix("indigoeln-" + props.getEnvName()).build())
+                .cognitoDomain(CognitoDomainOptions.builder().domainPrefix("indigoeln-" + props.envName()).build())
                 .build();
 
-        createUser(userPool, "admin", "Administrator", "Administrator");
+        createUser(scope, userPool, "admin", "Administrator", "Administrator");
         userPoolClient = userPool.addClient("user-pool-eln-client", UserPoolClientOptions.builder()
                 .userPoolClientName("eln-client")
                 .generateSecret(false)
                 .oAuth(OAuthSettings.builder()
                         .callbackUrls(List.of(
-                                "https://" + props.getDomainName() + "/",
+                                "https://" + props.domainName() + "/",
                                 "http://localhost:5173/",
                                 "http://localhost:4200"
                         ))
@@ -48,8 +43,8 @@ public class CognitoStack extends NestedStack {
                 .build());
     }
 
-    private void createUser(UserPool userPool, String username, String givenName, String familyName) {
-        CfnUserPoolUser.Builder.create(this, "user-" + username)
+    private void createUser(Construct scope, UserPool userPool, String username, String givenName, String familyName) {
+        CfnUserPoolUser.Builder.create(scope, "user-" + username)
                 .userPoolId(userPool.getUserPoolId())
                 .username(username)
                 .userAttributes(List.of(
@@ -59,10 +54,8 @@ public class CognitoStack extends NestedStack {
                 .build();
     }
 
-    @Value
-    public static class Props implements NestedStackProps {
-
-        String domainName;
-        String envName;
-    }
+    public record Props(
+            String domainName,
+            String envName
+    ) {}
 }
