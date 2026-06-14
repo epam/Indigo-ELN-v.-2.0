@@ -89,7 +89,7 @@
           <input
             *ngIf="column.type === ColumnInputType.RADIO"
             type="radio"
-            [name]="radioGroupId + '-' + column.id"
+            [name]="'eln-editable-table-radio-' + column.id"
             [checked]="column.field(row)"
             [disabled]="!(column.editable?.(row) ?? true)"
             (change)="callSave(column, row, true)"

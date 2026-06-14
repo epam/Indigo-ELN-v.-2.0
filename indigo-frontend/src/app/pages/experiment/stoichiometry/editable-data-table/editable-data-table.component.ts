@@ -60,9 +60,6 @@ export class EditableDataTableComponent<TRow = unknown> {
   readonly experimentModel = this.experimentDetailService.experimentModel;
 
   readonly ColumnInputType = ColumnInputType;
-  // Unique per component instance so radio columns group within this table only.
-  private static instanceCounter = 0;
-  readonly radioGroupId = `eln-radio-${EditableDataTableComponent.instanceCounter++}`;
   @ViewChild(MatTable) table?: MatTable<TRow>;
 
   dataSource = input.required<TRow[] | null>();
