@@ -22,8 +22,6 @@ public final class EnteredValue<U extends MeasurementUnit> {
 
     public static final EnteredValue<NoUnit> DEFAULT_ONE = defaultValue(1.0, 1, NoUnit.NO_UNIT);
     public static final EnteredValue<NoUnit> DEFAULT_ONE_HUNDRED = defaultValue(100.0, 1, NoUnit.NO_UNIT);
-    public static final EnteredValue<MolUnit> ZERO_MOL = defaultValue(0.0, 0, MolUnit.MOL);
-    public static final EnteredValue<NoUnit> ONE_HUNDREDTH = fixed(0.01, 1, NoUnit.NO_UNIT);
 
     @Getter
     @JsonIgnore

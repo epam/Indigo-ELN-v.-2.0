@@ -12,9 +12,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
-import java.util.stream.Stream;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.defaultValue;
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.fixed;
@@ -23,41 +22,31 @@ import static com.epam.indigoeln.reaction.model.units.EnteredValue.fixed;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public abstract class EnteredValueOpt<U extends MeasurementUnit> {
 
-    public static final EnteredValueOpt<MolUnit> ZERO_MOL = opt(EnteredValue.ZERO_MOL);
+    public static final EnteredValueOpt<MolUnit> ZERO_MOL = opt(defaultValue(0.0, 0, MolUnit.MOL));
     public static final EnteredValueOpt<NoUnit> DEFAULT_ONE_HUNDRED = opt(defaultValue(100.0, 1, NoUnit.NO_UNIT));
     public static final EnteredValueOpt<NoUnit> ONE_HUNDREDTH = opt(fixed(0.01, 1, NoUnit.NO_UNIT));
 
     @Nullable
     public abstract EnteredValue<U> getValue();
 
-    public static <U extends MeasurementUnit> EnteredValueOpt<U> opt(@Nullable EnteredValueOpt<?> left, @Nullable EnteredValueOpt<?> right, @Nullable EnteredValue<U> value) {
-        return value != null ? new Value<>(left, right, value) : empty();
-    }
-
     public static <U extends MeasurementUnit> EnteredValueOpt<U> opt(@Nullable EnteredValue<U> value) {
-        return value != null ? new Value<>(null, null, value) : empty();
+        return value != null ? new Value<>(value) : empty();
     }
-
-    public static <C extends ExperimentNode, U extends MeasurementUnit> EnteredValueOpt.Property<C, U> prop(C container, ModelProperty<C, EnteredValue<U>> property, boolean canOverwrite) {
-        return new Property<>(container, property, canOverwrite);
-    }
-
-    public abstract void collectInputs(Consumer<@Nullable EnteredValueOpt<?>> consumer);
 
     public EnteredValueOpt<U> add(EnteredValueOpt<U> other) {
-        return opt(this, other, EnteredValue.add(getValue(), other.getValue()));
+        return opt(EnteredValue.add(getValue(), other.getValue()));
     }
 
     public EnteredValueOpt<U> subtract(EnteredValueOpt<U> other) {
-        return opt(this, other, EnteredValue.subtract(this.getValue(), other.getValue()));
+        return opt(EnteredValue.subtract(this.getValue(), other.getValue()));
     }
 
     public <R extends MeasurementUnit> EnteredValueOpt<R> multiply(EnteredValueOpt<?> other) {
-        return opt(this, other, EnteredValue.multiply(getValue(), other.getValue()));
+        return opt(EnteredValue.multiply(getValue(), other.getValue()));
     }
 
     public <R extends MeasurementUnit> EnteredValueOpt<R> divide(EnteredValueOpt<?> other) {
-        return EnteredValueOpt.opt(this, other, EnteredValue.divide(getValue(), other.getValue()));
+        return EnteredValueOpt.opt(EnteredValue.divide(getValue(), other.getValue()));
     }
 
     public static <U extends MeasurementUnit> EnteredValueOpt<U> empty() {
@@ -70,12 +59,12 @@ public abstract class EnteredValueOpt<U extends MeasurementUnit> {
         return getValue() != null ? getValue().toString() : "EMPTY";
     }
 
-    public static EnteredValueOpt<MolUnit> sum(Stream<EnteredValueOpt<MolUnit>> stream) {
-        AtomicReference<EnteredValueOpt<MolUnit>> sum = new AtomicReference<>(opt(null, null, EnteredValue.ZERO_MOL));
-        stream.forEach(x -> {
-            sum.accumulateAndGet(x, EnteredValueOpt::add);
-        });
-        return sum.get();
+    public static EnteredValueOpt<MolUnit> sum(List<? extends EnteredValueOpt<MolUnit>> list) {
+        EnteredValueOpt<MolUnit> sum = ZERO_MOL;
+        for (EnteredValueOpt<MolUnit> item : list) {
+            sum = sum.add(item);
+        }
+        return sum;
     }
 
     @RequiredArgsConstructor
@@ -84,16 +73,14 @@ public abstract class EnteredValueOpt<U extends MeasurementUnit> {
 
         @Getter
         private final C container;
-        private final ModelProperty<C, EnteredValue<U>> property;
         @Getter
-        private final boolean canOverwrite;
-
+        private final ModelProperty<C, @Nullable EnteredValue<U>> property;
+        @Getter
+        private final int ordinal;
         @Nullable
-        private EnteredValueOpt<U> lastSetValue;
-
-        public String getName() {
-            return property.name();
-        }
+        private EnteredValue<U> snapshot;
+        @Getter
+        private final List<Formula<?>> downstream = new ArrayList<>();
 
         @Override
         @Nullable
@@ -101,41 +88,42 @@ public abstract class EnteredValueOpt<U extends MeasurementUnit> {
             return property.get(container);
         }
 
-        public void setValue(EnteredValueOpt<U> value) {
-            property.set(container, value.getValue());
-            lastSetValue = value;
+        public void setValue(@Nullable EnteredValue<U> value) {
+            property.set(container, value);
         }
 
-        public void reset(boolean eraseDefault) {
-            if (eraseDefault) {
-                property.set(container, null);
-            } else {
-                property.set(container, property.defaultValue());
-            }
-            lastSetValue = null;
+        public void setValueUnchecked(@Nullable EnteredValue<?> value) {
+            //noinspection unchecked
+            property.set(container, (EnteredValue<U>) value);
         }
 
-        @Override
-        public void collectInputs(Consumer<@Nullable EnteredValueOpt<?>> consumer) {
-            consumer.accept(this);
-            consumer.accept(lastSetValue);
+        public void snapshot() {
+            snapshot = getValue();
+        }
+
+        public void revert() {
+            setValue(snapshot);
         }
 
         private String containerDisplayName(ExperimentNode container) {
             return switch (container) {
-                case ExperimentModel m -> "Model";
-                case Reaction r -> "Reaction" + r.getModel().getReactions().indexOf(container);
-                case ReactionInput i -> containerDisplayName(i.getReaction()) + "/Input" + i.getReaction().getInputs().indexOf(container);
-                case ReactionInputSample s -> containerDisplayName(s.getRow()) + "/Sample" + s.getRow().getSamples().indexOf(s);
-                case ReactionOutput o -> containerDisplayName(o.getReaction()) + "/Outputs" + o.getReaction().getOutputs().indexOf(container);
-                case ReactionOutputSample s -> containerDisplayName(s.getRow()) + "/Samples" + s.getRow().getSamples().indexOf(s);
+                case ExperimentModel m -> "model";
+                case Reaction r -> "reactions." + r.getModel().getReactions().indexOf(container);
+                case ReactionInput i -> containerDisplayName(i.getReaction()) + ".inputs." + i.getReaction().getInputs().indexOf(container);
+                case ReactionInputSample s -> containerDisplayName(s.getRow()) + ".samples." + s.getRow().getSamples().indexOf(s);
+                case ReactionOutput o -> containerDisplayName(o.getReaction()) + ".outputs." + o.getReaction().getOutputs().indexOf(container);
+                case ReactionOutputSample s -> containerDisplayName(s.getRow()) + ".samples." + s.getRow().getSamples().indexOf(s);
                 default -> throw new IllegalArgumentException(container.getClass().getName());
             };
         }
 
+        public String getName() {
+            return containerDisplayName(container) + '.' + property.name();
+        }
+
         @Override
         public String toString() {
-            return containerDisplayName(container) + '.' + property.name() + ": " + super.toString();
+            return getName() + ": " + super.toString();
         }
     }
 
@@ -143,21 +131,10 @@ public abstract class EnteredValueOpt<U extends MeasurementUnit> {
     @EqualsAndHashCode(of = "value", callSuper = false)
     public static class Value<U extends MeasurementUnit> extends EnteredValueOpt<U> {
 
-        static final EnteredValueOpt<MeasurementUnit> EMPTY = new Value<>(null, null, null);
-
-        @Nullable
-        private final EnteredValueOpt<?> left;
-        @Nullable
-        private final EnteredValueOpt<?> right;
+        static final EnteredValueOpt<MeasurementUnit> EMPTY = new Value<>(null);
 
         @Getter
         @Nullable
         private final EnteredValue<U> value;
-
-        @Override
-        public void collectInputs(Consumer<@Nullable EnteredValueOpt<?>> consumer) {
-            consumer.accept(left);
-            consumer.accept(right);
-        }
     }
 }

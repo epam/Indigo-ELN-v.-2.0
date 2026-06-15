@@ -4,7 +4,6 @@ import one.util.streamex.StreamEx;
 import org.assertj.core.api.AbstractThrowableAssert;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.data.Offset;
-import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.InvocationInterceptor;
@@ -175,7 +174,7 @@ class EnteredValueTest {
             "MOL,M,L,1",
     })
     void testDivideSuccess(String unitA, String unitB, String expectedUnit, double expectedValue) {
-        @Nullable EnteredValue<MeasurementUnit> valueA = userEntered("1.0", getUnit(unitA), 1);
+        EnteredValue<MeasurementUnit> valueA = userEntered("1.0", getUnit(unitA), 1);
         EnteredValue<MeasurementUnit> valueB = userEntered("1.0", getUnit(unitB), 1);
         EnteredValue<MeasurementUnit> result = EnteredValue.divide(valueA, valueB);
         assertThat(result.getUnit()).isEqualTo(getUnit(expectedUnit));
@@ -185,10 +184,10 @@ class EnteredValueTest {
     @Test
     void testDivideInconvertibleUnitsThrows() {
         EnteredValue<WeightUnit> weight = userEntered("1.0", WeightUnit.G, 1);
-        EnteredValue<VolumeUnit> volume = userEntered("1.0", VolumeUnit.ML, 1);
+        EnteredValue<MolarityUnit> volume = userEntered("1.0", MolarityUnit.MM, 1);
         Assertions.assertThatThrownBy(() -> EnteredValue.divide(weight, volume))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Cannot divide units: G and ML");
+                .hasMessage("Cannot divide units: G and MM");
     }
 
     private static MeasurementUnit getUnit(String name) {
