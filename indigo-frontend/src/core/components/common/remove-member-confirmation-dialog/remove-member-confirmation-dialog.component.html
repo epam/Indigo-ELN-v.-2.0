@@ -4,17 +4,8 @@
 
   @if (data.showCascadeCheckbox) {
     <label class="flex items-start gap-2 text-sm text-neutral-900 mb-6 cursor-pointer">
-      <input
-        type="checkbox"
-        class="mt-0.5"
-        [(ngModel)]="removeFromChildren"
-        [attr.aria-label]="
-          'Also removes the team member from the Project, and from all Notebooks and Experiments associated with the Project'
-        "
-      />
-      <span>{{
-        'Also removes the team member from the Project, and from all Notebooks and Experiments associated with the Project'
-      }}</span>
+      <input type="checkbox" class="mt-0.5" [(ngModel)]="removeFromChildren" [attr.aria-label]="cascadeCheckboxLabel" />
+      <span>{{ cascadeCheckboxLabel }}</span>
     </label>
   }
 

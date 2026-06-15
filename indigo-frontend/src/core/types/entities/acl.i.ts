@@ -10,4 +10,5 @@ export interface ACLEntry {
 export interface ACLUpdate {
   username: string;
   level: AclLevel;
+  deleteNested?: boolean;
 }

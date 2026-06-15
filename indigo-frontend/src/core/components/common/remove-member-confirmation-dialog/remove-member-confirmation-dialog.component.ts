@@ -6,11 +6,7 @@ import { ButtonComponent } from '../button/button.component';
 
 export interface RemoveMemberConfirmationDialogData {
   showCascadeCheckbox: boolean;
-  title?: string;
-  message?: string;
-  cascadeCheckboxLabel?: string;
-  confirmButtonLabel?: string;
-  cancelButtonLabel?: string;
+  cascadeCheckboxLabel: string;
 }
 
 export interface RemoveMemberConfirmationResult {
@@ -28,7 +24,10 @@ export class RemoveMemberConfirmationDialogComponent {
   readonly data = inject<RemoveMemberConfirmationDialogData>(MAT_DIALOG_DATA);
   private dialogRef = inject(MatDialogRef<RemoveMemberConfirmationDialogComponent, RemoveMemberConfirmationResult>);
 
-  removeFromChildren = true;
+  readonly cascadeCheckboxLabel = this.data.cascadeCheckboxLabel;
+
+  // Project/Notebook show cascade option (default true), Experiment does not (default false).
+  removeFromChildren = this.data.showCascadeCheckbox;
 
   cancel(): void {
     this.dialogRef.close({
@@ -40,7 +39,7 @@ export class RemoveMemberConfirmationDialogComponent {
   confirm(): void {
     this.dialogRef.close({
       confirmed: true,
-      removeFromChildren: this.data.showCascadeCheckbox ? this.removeFromChildren : false,
+      removeFromChildren: this.removeFromChildren,
     });
   }
 }
