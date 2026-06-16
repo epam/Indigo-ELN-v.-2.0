@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 
 import static com.epam.indigoeln.reaction.model.units.EnteredValueSource.DEFAULT;
 import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.*;
+import static com.google.common.base.Preconditions.checkArgument;
 
 @EqualsAndHashCode(of = {"stringValue", "unit", "source"})
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -84,22 +85,29 @@ public final class EnteredValue<U extends MeasurementUnit> {
 
     @Nullable
     public static <R extends MeasurementUnit> EnteredValue<R> add(@Nullable EnteredValue<R> left, @Nullable EnteredValue<R> right) {
-        if (left == null || right == null) {
-            return null;
-        }
-        MeasurementUtil.UnitAndMultiplier2 pair = MeasurementUtil.addOrSubtract(left.unit, right.unit);
-        //noinspection unchecked
-        return (EnteredValue<R>) calculated(left.value * pair.multiplier1() + right.value * pair.multiplier2(), pair.unit());
+        return addOrSubtract(left, right, 1.0);
     }
 
     @Nullable
     public static <R extends MeasurementUnit> EnteredValue<R> subtract(@Nullable EnteredValue<R> left, @Nullable EnteredValue<R> right) {
+        return addOrSubtract(left, right, -1.0);
+    }
+
+    @Nullable
+    private static <R extends MeasurementUnit> EnteredValue<R> addOrSubtract(@Nullable EnteredValue<R> left, @Nullable EnteredValue<R> right, double rightSign) {
         if (left == null || right == null) {
             return null;
         }
-        MeasurementUtil.UnitAndMultiplier2 pair = MeasurementUtil.addOrSubtract(left.unit, right.unit);
-        //noinspection unchecked
-        return (EnteredValue<R>) calculated(left.value * pair.multiplier1() - right.value * pair.multiplier2(), pair.unit());
+        checkArgument(left.unit.getClass().equals(right.unit.getClass()), "Inconvertible units: %s and %s", left.unit, right.unit);
+        R unit;
+        if (left.getValue() == 0.0 && right.getValue() != 0.0) {
+            unit = right.unit;
+        } else if (right.getValue() == 0.0 && left.getValue() != 0.0) {
+            unit = left.unit;
+        } else {
+            unit = left.unit.getMultiplier() >= right.getUnit().getMultiplier() ? left.unit : right.unit;
+        }
+        return calculated(left.convert(unit) + rightSign * right.convert(unit), unit);
     }
 
     @Nullable
@@ -140,7 +148,7 @@ public final class EnteredValue<U extends MeasurementUnit> {
     }
 
     public boolean valueEquals(EnteredValue<?> other) {
-        Preconditions.checkArgument(unit.getClass().equals(other.unit.getClass()), "Non-comparable units: %s and %s", unit, other.unit);
+        checkArgument(unit.getClass().equals(other.unit.getClass()), "Non-comparable units: %s and %s", unit, other.unit);
         double thisValue = value * unit.getMultiplier();
         double otherValue = other.value * other.unit.getMultiplier();
         return Precision.equalsWithRelativeTolerance(thisValue, otherValue, 1e-6);
@@ -148,6 +156,10 @@ public final class EnteredValue<U extends MeasurementUnit> {
 
     public BigDecimal toBigDecimal() {
         return new BigDecimal(getStringValue());
+    }
+
+    private double convert(U toUnit) {
+        return value * unit.getMultiplier() / toUnit.getMultiplier();
     }
 
     @Override

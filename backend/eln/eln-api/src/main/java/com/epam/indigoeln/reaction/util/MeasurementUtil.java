@@ -2,7 +2,6 @@ package com.epam.indigoeln.reaction.util;
 
 import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import lombok.extern.slf4j.Slf4j;
@@ -85,12 +84,6 @@ public class MeasurementUtil {
         DIVIDE_TABLE.put(G_ML, G_PER_MOL, new UnitAndMultiplier(M, 1e+3));
     }
 
-    public static UnitAndMultiplier2 addOrSubtract(MeasurementUnit left, MeasurementUnit right) {
-        Preconditions.checkArgument(left.getClass().equals(right.getClass()), "Inconvertible units: %s and %s", left, right);
-        double multiplierLeft = left.getMultiplier() / right.getMultiplier();
-        return new UnitAndMultiplier2(right, multiplierLeft, 1.0);
-    }
-
     public static UnitAndMultiplier multiply(MeasurementUnit left, MeasurementUnit right) {
         if (left instanceof NoUnit) {
             return new UnitAndMultiplier(right, 1.0);
@@ -125,24 +118,5 @@ public class MeasurementUtil {
         return target;
     }
 
-    public static boolean nearlyEqual(double a, double b, double epsilon) {
-        final double absA = Math.abs(a);
-        final double absB = Math.abs(b);
-        final double diff = Math.abs(a - b);
-
-        if (a == b) {
-            // shortcut, handles infinities
-            return true;
-        } else if (a == 0 || b == 0 || (absA + absB < Double.MIN_NORMAL)) {
-            // a or b is zero or both are extremely close to it relative error is less meaningful here
-            return diff < (epsilon * Double.MIN_NORMAL);
-        } else {
-            // use relative error
-            return diff / Math.min((absA + absB), Double.MAX_VALUE) < epsilon;
-        }
-    }
-
     public record UnitAndMultiplier(MeasurementUnit unit, double multiplier) {}
-
-    public record UnitAndMultiplier2(MeasurementUnit unit, double multiplier1, double multiplier2) {}
 }

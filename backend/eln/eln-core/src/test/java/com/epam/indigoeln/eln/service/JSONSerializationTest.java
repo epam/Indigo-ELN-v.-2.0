@@ -9,7 +9,6 @@ import com.epam.indigoeln.eln.model.TemplateTab;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
-import com.epam.indigoeln.reaction.model.units.EnteredValueSource;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
 import com.epam.indigoeln.test.FeignUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -31,6 +30,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.epam.indigoeln.eln.test.EnteredValueAssert.assertThat;
+import static com.epam.indigoeln.reaction.model.units.WeightUnit.G;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
@@ -84,15 +85,13 @@ public class JSONSerializationTest {
     @ParameterizedTest
     @MethodSource("mappers")
     void testSerializeEnteredValue(MapperType serializer, MapperType deserializer) {
-        EnteredValue<WeightUnit> value = EnteredValue.userEntered("5.00", WeightUnit.G, 1);
+        EnteredValue<WeightUnit> value = EnteredValue.userEntered("5.00", G, 1);
         String serialized = serialize(serializer, value);
         assertThat(serialized).isEqualToIgnoringWhitespace("""
                 {"value": "5.00", "unit": "G", "source": 1}
                 """);
         EnteredValue<WeightUnit> value2 = deserialize(deserializer, serialized, new TypeReference<>() {});
-        assertThat(value2.getValue()).isEqualTo(5.0);
-        assertThat(value2.getUnit()).isEqualTo(WeightUnit.G);
-        assertThat(value2.getSource()).isEqualTo(EnteredValueSource.userEntered(1));
+        assertThat(value2).hasValue(5, G).isUserEntered(1);
     }
 
     @ParameterizedTest
