@@ -25,8 +25,10 @@ import { SIGNIFICANT_FIGURES } from '../significant-figures.constants';
 import { DropdownMenuItem } from '@/core/components/common/dropdown-menu/dropdown-menu.i';
 import { ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
 import { MatTooltip } from '@angular/material/tooltip';
-import { SlideInPanelService } from '@core/components/common/slide-in-panel/slide-in-panel.service';
 import { SampleSearchComponent } from '@pages/experiment/sample-search/sample-search.component';
+import { NotificationService } from '@core/services/notification/notification.service';
+import { NotificationType } from '@core/types/notification.i';
+import { SlideInPanelService } from '@core/components/common/slide-in-panel/slide-in-panel.service';
 
 interface InputSampleRow {
   input: ReactionInput;
@@ -42,6 +44,7 @@ export class ReactionInputsTableComponent implements OnInit {
   private experimentDetailService = inject(ExperimentDetailService);
   private builtInDictionaryService = inject(BuiltInDictionaryService);
   private slideInPanel = inject(SlideInPanelService);
+  private notificationService = inject(NotificationService);
 
   experimentId = input.required<UUID>();
   reactionAnchor = input.required<ReactionAnchor>();
@@ -375,7 +378,13 @@ export class ReactionInputsTableComponent implements OnInit {
             type: 'RemoveInput',
             anchor: row.sample.anchor,
           })
-          .subscribe({});
+          .subscribe(() =>
+            this.notificationService.notify({
+              type: NotificationType.Info,
+              isInline: true,
+              message: 'Removed, press Ctrl-Z/Cmd-Z to undo',
+            }),
+          );
       },
     },
   ]);

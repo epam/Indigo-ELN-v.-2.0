@@ -4,8 +4,10 @@ import com.epam.indigoeln.eln.model.MiscInfo;
 import com.epam.indigoeln.eln.model.TotalCounts;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import java.util.Map;
+import java.util.UUID;
 
 @Path(BaseAPI.BASE_PATH)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -28,4 +30,9 @@ public interface MiscAPI extends BaseAPI {
     @POST
     @Path("/admin/insertTestData")
     Map<String, String> insertTestData();
+
+    @POST
+    @Path("/support/experiment-details-report/{experimentID}")
+    @Produces(MediaType.TEXT_HTML)
+    Response generateExperimentDetailsReport(@PathParam("experimentID") UUID experimentID);
 }

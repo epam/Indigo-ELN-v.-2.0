@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.function.Function;
+
 @Slf4j
 @ApplicationScoped
 public class MutationHandlerRegistry {
@@ -20,12 +22,17 @@ public class MutationHandlerRegistry {
     Instance<MutationHandler<?, ?, ?, ?, ?>> handlers;
     
     @SuppressWarnings("unchecked")
-    public <H> H findHandler(Mutation mutation) {
+    public <H, R> R withHandler(Mutation mutation, Function<H, R> block) {
         Instance<MutationHandler<?, ?, ?, ?, ?>> selected = handlers.select(new MutationHandlerForLiteral(mutation.getClass()));
         if (selected.isUnsatisfied()) {
             throw new IllegalArgumentException("No handler found for: " + mutation.getClass().getName());
         }
-        return (H) selected.get();
+        MutationHandler<?, ?, ?, ?, ?> handler = selected.get();
+        try {
+            return block.apply((H) handler);
+        } finally {
+            selected.destroy(handler);
+        }
     }
 }
 

@@ -24,6 +24,8 @@ import { ApiService } from '@core/services/api.service';
 import { openFileDialog } from '@core/utils/file.util';
 import { MutationResponse, ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
 import { DownloadService } from '@core/services/download.service';
+import { NotificationService } from '@core/services/notification/notification.service';
+import { NotificationType } from '@core/types/notification.i';
 
 interface OutputSampleRow {
   output: ReactionOutput;
@@ -39,6 +41,7 @@ export class ProductBatchSummaryTableComponent {
   private experimentDetailService = inject(ExperimentDetailService);
   private apiService = inject(ApiService);
   private downloadService = inject(DownloadService);
+  private notificationService = inject(NotificationService);
 
   experimentId = input.required<UUID>();
   reactionAnchor = input.required<ReactionAnchor>();
@@ -269,7 +272,13 @@ export class ProductBatchSummaryTableComponent {
             type: 'RemoveProductSample',
             anchor: row.sample.anchor,
           })
-          .subscribe({});
+          .subscribe(() =>
+            this.notificationService.notify({
+              type: NotificationType.Info,
+              isInline: true,
+              message: 'Removed, press Ctrl-Z/Cmd-Z to undo',
+            }),
+          );
       },
     },
   ]);

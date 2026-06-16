@@ -19,8 +19,10 @@ import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.eln.repository.TemplateRepository;
-import com.epam.indigoeln.eln.util.PatchUtil;
-import com.epam.indigoeln.indigowrapper.*;
+import com.epam.indigoeln.indigowrapper.IndigoAPI;
+import com.epam.indigoeln.indigowrapper.IndigoMolecule;
+import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
+import com.epam.indigoeln.indigowrapper.IndigoSDFSaver;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
@@ -260,20 +262,7 @@ public class ExperimentService {
         ExperimentRevisionEntity targetRevision = range.getFirst();
         Preconditions.checkState(targetRevision.getRevision().equals(revision));
         JsonNode before = experimentModelService.rewindSnapshot(snapshot, range);
-        return PatchUtil.formatJSONDiff(
-                before,
-                targetRevision.getDiff(),
-                rxnfile -> {
-                    IndigoReaction reaction = indigo.loadReaction(rxnfile);
-                    indigoRenderer.setRenderOptions("svg", 500, 200);
-                    byte[] bytes = indigoRenderer.renderToBuffer(reaction);
-                    return new String(bytes, StandardCharsets.UTF_8);
-                },
-                compoundID -> {
-                    byte[] bytes = compoundService.getCompoundPicture(compoundID);
-                    return new String(bytes, StandardCharsets.UTF_8);
-                }
-        );
+        return experimentModelService.formatDiff(before, targetRevision);
     }
 
     public List<ExperimentRef> suggestExperiments(String search) {

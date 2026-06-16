@@ -13,7 +13,6 @@ import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.reaction.model.NotebookSnapshot;
-import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.mutation.NotebookMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerRegistry;
 import com.epam.indigoeln.reaction.service.mutation.notebook.AbstractNotebookMutationHandler;
@@ -100,8 +99,7 @@ public class NotebookService {
 
     public Triple<NotebookSnapshot, JsonNode, NotebookMutationContext> applyMutation(NotebookEntity notebook, NotebookMutation mutation) {
         log.debug("Mutating notebook {}: {}", notebook.getId(), mutation);
-        AbstractNotebookMutationHandler<Mutation> handler = mutationHandlerRegistry.findHandler(mutation);
-        return handler.applyMutation(notebook, mutation);
+        return mutationHandlerRegistry.withHandler(mutation, (AbstractNotebookMutationHandler<NotebookMutation> handler) -> handler.applyMutation(notebook, mutation));
     }
 
     public List<RevisionSummaryDTO> getNotebookRevisions(UUID notebookId) {

@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entity History Report</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: system-ui, sans-serif;
+    font-size: 14px;
+    color: #1a1a1a;
+    background: #f5f5f5;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    min-height: 100vh;
+  }
+
+  /* TOC */
+  nav {
+    background: #fff;
+    border-right: 1px solid #e0e0e0;
+    padding: 24px 16px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  nav h2 {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 12px;
+  }
+  nav ol {
+    list-style: none;
+    counter-reset: toc;
+  }
+  nav ol li {
+    counter-increment: toc;
+    margin-bottom: 4px;
+  }
+  nav ol li a {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+    padding: 6px 8px;
+    border-radius: 6px;
+    text-decoration: none;
+    color: #333;
+    transition: background .15s;
+  }
+  nav ol li a:hover { background: #f0f0f0; }
+  nav ol li a::before {
+    content: counter(toc);
+    font-size: 11px;
+    color: #bbb;
+    min-width: 16px;
+  }
+  nav ol li a .toc-meta {
+    font-size: 11px;
+    color: #aaa;
+    white-space: nowrap;
+  }
+
+  /* Main */
+  main {
+    padding: 32px;
+  }
+  main h1 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+
+  /* Entry */
+  .entry {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .entry > summary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+  }
+  .entry > summary::-webkit-details-marker { display: none; }
+  .entry > summary:hover { background: #fafafa; }
+  .entry-index { font-size: 11px; color: #bbb; min-width: 20px; }
+  .entry-name  { font-weight: 600; flex: 1; }
+  .entry-meta  { font-size: 12px; color: #aaa; }
+  .entry-chevron { color: #bbb; font-size: 12px; transition: transform .2s; }
+  .entry[open] > summary .entry-chevron { transform: rotate(90deg); }
+
+  .entry-body { border-top: 1px solid #f0f0f0; }
+
+  /* Sub-sections */
+  .section { border-bottom: 1px solid #f0f0f0; }
+  .section:last-child { border-bottom: none; }
+  .section > summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    cursor: pointer;
+    list-style: none;
+    font-size: 12px;
+    font-weight: 600;
+    color: #555;
+    user-select: none;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+  .section > summary::-webkit-details-marker { display: none; }
+  .section > summary:hover { background: #fafafa; }
+  .section-chevron { color: #ccc; font-size: 10px; transition: transform .2s; }
+  .section[open] > summary .section-chevron { transform: rotate(90deg); }
+
+  /* Code blocks */
+  .code-block {
+    margin: 0;
+    padding: 12px;
+    font-family: ui-monospace, "Cascadia Code", monospace;
+    font-size: 12.5px;
+    line-height: 1.6;
+    overflow-x: auto;
+    background: #fafafa;
+  }
+
+  /* Diff colors */
+  .code-block .hunk    { color: #888; display: block; }
+  .code-block .added   { background: #eaffea; color: #1a5c1a; display: block; }
+  .code-block .removed { background: #ffeaea; color: #7a1a1a; display: block; }
+  .code-block .ctx     { color: #555; display: block; }
+
+  /* Op badge */
+  .op-badge {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: #f0f0f0;
+    color: #777;
+  }
+  .op-badge.undo { background: #fff3cd; color: #856404; }
+  .op-badge.redo { background: #cfe2ff; color: #084298; }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .controls button {
+    font-size: 12px;
+    padding: 5px 12px;
+    border: 1px solid #d0d0d0;
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+    color: #444;
+  }
+  .controls button:hover { background: #f0f0f0; }
+  .filter-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #555;
+    cursor: pointer;
+    padding: 5px 10px;
+    border: 1px solid #d0d0d0;
+    border-radius: 6px;
+    background: #fff;
+    user-select: none;
+  }
+  .filter-label:hover { background: #f0f0f0; }
+  .filter-label input { cursor: pointer; }
+
+  .audit-log {
+    margin: 0;
+    padding: 12px;
+  }
+  .audit-log .old {
+    background-color: #f8d7da;
+  }
+  .audit-log .old svg {
+    background-color: #f8d7da;
+  }
+  .audit-log .new {
+    background-color: #d4edda;
+  }
+  .audit-log .new svg {
+    background-color: #d4edda;
+  }
+  .audit-log .key {
+    font-weight: bold;
+  }
+  .audit-log .comment {
+    font-weight: normal;
+    font-style: italic;
+    background-color: white;
+  }
+  .audit-log .warning {
+    font-weight: bold;
+    font-style: italic;
+    color: white;
+    background-color: darkred;
+  }
+  .audit-log .ev-fixed {
+    color: purple;
+  }
+  .audit-log .ev-default {
+    color: darkgray;
+  }
+  .audit-log .ev-user-entered {
+    font-weight: bold;
+  }
+  .audit-log svg {
+    height: 100px;
+    width: auto;
+    display: inline;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <h2>Revisions</h2>
+  <ol id="toc"></ol>
+</nav>
+
+<main>
+  <h1 id="report-title"></h1>
+  <div class="controls">
+    <button onclick="setAll(true)">Expand all</button>
+    <button onclick="setAll(false)">Collapse all</button>
+    <label class="filter-label">
+      <input type="checkbox" id="hideUndoRedo" onchange="applyUndoRedoFilter()">
+      Hide undo / redo
+    </label>
+  </div>
+  <div id="entries"></div>
+</main>
+
+<script type="application/json" id="report-data">
+%JSON_DATA%
+</script>
+
+<script>
+const report = JSON.parse(document.getElementById('report-data').textContent);
+
+function renderJson(val) {
+  return JSON.stringify(val, null, 2);
+}
+
+// --- Section builder ---
+function makeSection(label, contentHtml, open) {
+  const d = document.createElement('details');
+  d.className = 'section';
+  d.open = open;
+  d.innerHTML = `
+    <summary><span class="section-chevron">&#9658;</span> ${label}</summary>
+    ${contentHtml}`;
+  return d;
+}
+
+// --- Entry builder ---
+function makeEntry(rev) {
+  const id = `entry-${rev.revision}`;
+  const date = rev.datetime.slice(0, 10);
+  const badge = rev.category
+    ? `<span class="op-badge ${rev.category}">${rev.category}</span>` : '';
+
+  const d = document.createElement('details');
+  d.className = 'entry';
+  d.id = id;
+  if (rev.category) d.dataset.op = rev.category;
+  d.open = true;
+  d.innerHTML = `
+    <summary>
+      <span class="entry-index">${rev.revision}</span>
+      <span class="entry-name">${rev.summary}</span>
+      ${badge}
+      <span class="entry-meta">${date} &nbsp;&middot;&nbsp; ${rev.user}</span>
+      <span class="entry-chevron">&#9658;</span>
+    </summary>
+    <div class="entry-body"></div>`;
+
+  const body = d.querySelector('.entry-body');
+  if (rev.messages != null && rev.messages.length > 0) {
+    body.appendChild(makeSection('Messages', '<pre class="code-block">' + rev.messages.join('\n') + '</pre>', true));
+  }
+  body.appendChild(makeSection('Mutation',     '<pre class="code-block">' + renderJson(rev.mutation) + '</pre>', false));
+  body.appendChild(makeSection('JSON Diff',    '<pre class="code-block">' + renderJson(rev.jsonDiff) + '</pre>', false));
+  body.appendChild(makeSection('Diff',         '<div class="audit-log">' + rev.diff + '</div>', true));
+  body.appendChild(makeSection('Entity State', '<pre class="code-block">' + renderJson(rev.entityState) + '</pre>', false));
+  return d;
+}
+
+// --- TOC item builder ---
+function makeTocItem(rev) {
+  const id = `entry-${rev.revision}`;
+  const date = rev.datetime.slice(0, 10);
+  const badge = rev.category
+    ? `<span class="op-badge ${rev.category}">${rev.category}</span>` : '';
+
+  const li = document.createElement('li');
+  li.dataset.for = id;
+  li.innerHTML = `
+    <a href="#${id}">
+      <span>${rev.summary}</span>
+      ${badge}
+      <span class="toc-meta">${date}</span>
+    </a>`;
+  return li;
+}
+
+// --- Undo/redo filter ---
+function applyUndoRedoFilter() {
+  const hide = document.getElementById('hideUndoRedo').checked;
+  document.querySelectorAll('.entry[data-op]').forEach(entry => {
+    const display = hide ? 'none' : '';
+    entry.style.display = display;
+    const li = document.querySelector(`#toc li[data-for="${entry.id}"]`);
+    if (li) li.style.display = display;
+  });
+}
+
+// --- Expand / collapse all ---
+function setAll(open) {
+  document.querySelectorAll('details').forEach(d => d.open = open);
+}
+
+// --- Init ---
+document.getElementById('report-title').textContent = report.name;
+const entriesEl = document.getElementById('entries');
+const tocEl     = document.getElementById('toc');
+report.revisions.forEach(rev => {
+  entriesEl.appendChild(makeEntry(rev));
+  tocEl.appendChild(makeTocItem(rev));
+});
+</script>
+</body>
+</html>

@@ -41,6 +41,12 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
       font-style: italic;
       background-color: white;
     }
+    .audit-log .warning {
+      font-weight: bold;
+      font-style: italic;
+      color: white;
+      background-color: darkred;
+    }
     .audit-log .ev-fixed {
       color: purple;
     }

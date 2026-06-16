@@ -102,7 +102,9 @@ public abstract class AbstractUndoHelper<E extends BaseEntity & WithRevision, S,
         Map<Integer, RevisionInfo> revisionMap = StreamEx.of(revisions)
                 .mapToEntry(BaseRevisionEntity::getRevision, x -> {
                     Mutation mutation = x.getMutation();
-                    return new RevisionInfo(x, mutation, mutationHandlerRegistry.findHandler(mutation), x.getUser().getId().equals(user.getId()));
+                    return mutationHandlerRegistry.withHandler(mutation, (MutationHandler<Mutation, E, S, R, C> handler) -> {
+                        return new RevisionInfo(x, mutation, handler, x.getUser().getId().equals(user.getId()));
+                    });
                 })
                 .toNavigableMap();
         for (RevisionInfo revision : revisionMap.values()) {

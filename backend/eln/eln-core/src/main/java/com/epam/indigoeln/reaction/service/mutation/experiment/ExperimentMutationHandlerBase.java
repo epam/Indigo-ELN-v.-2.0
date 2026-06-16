@@ -18,7 +18,6 @@ import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.google.common.base.Preconditions;
-import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.StringUtils;
@@ -36,7 +35,7 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 public abstract class ExperimentMutationHandlerBase<T extends ExperimentMutation> extends AbstractExperimentMutationHandler<T> {
 
     @Inject
-    Instance<IndigoAPI> indigoAPI;
+    IndigoAPI indigoAPI;
     @Inject
     CompoundService compoundService;
     @Inject
@@ -166,12 +165,12 @@ public abstract class ExperimentMutationHandlerBase<T extends ExperimentMutation
                 }
                 CompoundEntity compound = compoundService.getCompound(v.getCompoundID());
                 String effectiveMolfile = molfile != null ? molfile : compound.getMolFile();
-                IndigoMolecule molecule = indigoAPI.get().loadMolecule(effectiveMolfile);
+                IndigoMolecule molecule = indigoAPI.loadMolecule(effectiveMolfile);
                 return compoundService.virtualCompoundRef(molecule, effectiveStereoisomerCode, effectiveSaltCode, effectiveSaltEQ);
             }
             case CompoundRef.Unknown u -> {
                 if (molfile != null) {
-                    IndigoMolecule molecule = indigoAPI.get().loadMolecule(molfile);
+                    IndigoMolecule molecule = indigoAPI.loadMolecule(molfile);
                     return compoundService.virtualCompoundRef(molecule, null, null, null);
                 }
                 throw new InvalidRequestException("Cannot set saltCode/saltEQ/stereoisomerCode for unknown compound");

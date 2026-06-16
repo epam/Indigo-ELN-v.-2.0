@@ -11,7 +11,6 @@ import com.epam.indigoeln.eln.mapper.ProjectMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.reaction.model.ProjectSnapshot;
-import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.mutation.ProjectMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerRegistry;
 import com.epam.indigoeln.reaction.service.mutation.project.AbstractProjectMutationHandler;
@@ -94,8 +93,7 @@ public class ProjectService {
 
     public Triple<ProjectSnapshot, JsonNode, ProjectMutationContext> applyMutation(ProjectEntity project, ProjectMutation mutation) {
         log.debug("Mutating project {}: {}", project.getId(), mutation);
-        AbstractProjectMutationHandler<Mutation> handler = mutationHandlerRegistry.findHandler(mutation);
-        return handler.applyMutation(project, mutation);
+        return mutationHandlerRegistry.withHandler(mutation, (AbstractProjectMutationHandler<ProjectMutation> handler) -> handler.applyMutation(project, mutation));
     }
 
     public List<RevisionSummaryDTO> getProjectRevisions(UUID projectId) {

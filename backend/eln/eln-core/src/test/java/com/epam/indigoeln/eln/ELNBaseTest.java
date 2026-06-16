@@ -7,6 +7,7 @@ import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.eln.api.ELNInternalClient;
 import com.epam.indigoeln.eln.client.*;
 import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.reaction.util.ExperimentObject;
 import com.epam.indigoeln.reports.api.ReportsClient;
 import com.epam.indigoeln.signature.api.SignatureAdminClient;
 import com.epam.indigoeln.signature.api.SignatureClient;
@@ -120,6 +121,11 @@ public abstract class ELNBaseTest extends BaseTest {
         return existingProjects.getItems().isEmpty()
                 ? projectClient.createProject(new ProjectRequest(projectName))
                 : projectClient.getProject(existingProjects.getItems().getFirst().getId());
+    }
+
+    protected ExperimentObject createExperiment(NotebookDetailsDTO notebook, ExperimentRequest request) {
+        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), request);
+        return new ExperimentObject(experiment, experimentClient, compoundClient, miscClient);
     }
 
     protected String nextNotebookName() {

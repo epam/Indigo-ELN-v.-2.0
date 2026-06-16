@@ -3,7 +3,6 @@ package com.epam.indigoeln.eln.util;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
-import com.epam.indigoeln.reaction.util.PatchTestUtil;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -22,7 +21,9 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.epam.indigoeln.test.FeignUtil.OBJECT_MAPPER;
+import static com.epam.indigoeln.test.FeignUtil.OBJECT_MAPPER_FORMATTED;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 public class JSONPatcherTest {
 
@@ -452,11 +453,15 @@ public class JSONPatcherTest {
     }
 
     private void verifyModel(@Language("JSON") String expectedPatchStr) throws Exception {
-        JsonNode patch = JSON_MODEL_PATCHER.createTopLevel(OBJECT_MAPPER.valueToTree(baseExperiment), OBJECT_MAPPER.valueToTree(experiment));
+        JsonNode before = OBJECT_MAPPER.valueToTree(baseExperiment);
+        JsonNode after = OBJECT_MAPPER.valueToTree(experiment);
+        JsonNode patch = JSON_MODEL_PATCHER.createTopLevel(before, after);
         String patchStr = OBJECT_MAPPER.writeValueAsString(patch);
         assertThat(patchStr).isEqualToIgnoringWhitespace(expectedPatchStr.trim());
-        PatchTestUtil.verifyModelPatch(baseExperiment, patch, experiment, null);
-        PatchTestUtil.verifyReversePatch(baseExperiment, patch, experiment, null);
+        JsonNode applied = JSON_MODEL_PATCHER.apply(before, patch);
+        assertJSONEquals(applied, after);
+        JsonNode reversed = JSON_MODEL_PATCHER.reverse(after, patch);
+        assertJSONEquals(reversed, before);
     }
 
     @SneakyThrows
@@ -486,12 +491,19 @@ public class JSONPatcherTest {
 //        System.out.println("doVerifyPatchApplication: patch = " + patchJSON);
         JsonNode restoredJSON = jsonPatcher.apply(oldValueJSON, patchJSON);
 //        System.out.println("doVerifyPatchApplication: restored = " + restoredJSON);
-        assertThat(PatchTestUtil.minimizeJSON(restoredJSON)).isEqualTo(PatchTestUtil.minimizeJSON(newValueJSON));
+        assertJSONEquals(restoredJSON, newValueJSON);
+//        assertThat(PatchTestUtil.minimizeJSON(restoredJSON)).isEqualTo(PatchTestUtil.minimizeJSON(newValueJSON));
 
         JsonNode revertedJSON = jsonPatcher.reverse(newValueJSON, patchJSON);
 //        System.out.println("doVerifyPatchApplication: revered = " + revertedJSON);
-        assertThat(PatchTestUtil.minimizeJSON(revertedJSON)).isEqualTo(PatchTestUtil.minimizeJSON(oldValueJSON));
+        assertJSONEquals(revertedJSON, oldValueJSON);
+    }
 
+    @SneakyThrows
+    private static void assertJSONEquals(JsonNode actual, JsonNode expected) {
+        if (!actual.equals(expected)) {
+            fail("expected:\n%s\n but was:\n%s", OBJECT_MAPPER_FORMATTED.writeValueAsString(expected), OBJECT_MAPPER_FORMATTED.writeValueAsString(actual));
+        }
     }
 }
 

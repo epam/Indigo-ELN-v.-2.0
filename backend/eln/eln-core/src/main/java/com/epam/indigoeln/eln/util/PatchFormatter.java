@@ -1,54 +1,94 @@
 package com.epam.indigoeln.eln.util;
 
+import com.epam.indigoeln.compound.service.CompoundService;
+import com.epam.indigoeln.indigowrapper.IndigoAPI;
+import com.epam.indigoeln.indigowrapper.IndigoReaction;
+import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
 import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.primitives.Ints;
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
 import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
-public class PatchUtil {
+@Dependent
+public class PatchFormatter {
 
-    public static String formatJSONDiff(JsonNode before, JsonNode patch, Function<String, String> rxnfileFn, Function<UUID, String> molfileFn) {
-        GridBuilder grid = new GridBuilder(16);
-        formatJSONDiff(before, patch, grid, new ArrayList<>(), null, rxnfileFn, molfileFn);
+    @Inject
+    IndigoAPI indigo;
+    @Inject
+    IndigoRendererAPI indigoRenderer;
+    @Inject
+    CompoundService compoundService;
+
+    private final GridBuilder grid = new GridBuilder(16);
+    private final List<String> path = new ArrayList<>();
+    private final List<Object> exactPath = new ArrayList<>();
+    private Set<List<Object>> overwritten = Set.of();
+
+    public String format(JsonNode before, JsonNode patch, String @Nullable[] overwritten) {
+        if (overwritten != null) {
+            this.overwritten = StreamEx.of(overwritten)
+                    .map(s -> {
+                        String[] split = s.split("\\.");
+                        List<Object> x = new ArrayList<>(split.length + 1);
+                        x.add("model");
+                        for (String part : split) {
+                            Integer number = Ints.tryParse(part);
+                            x.add(number != null ? number : part);
+                        }
+                        return x;
+                    })
+                    .toSet();
+        }
+        doFormat(before, patch, null);
         return grid.build();
     }
 
-    private static void formatJSONDiff(@Nullable JsonNode before, @Nullable JsonNode patch, GridBuilder grid, List<String> path, @Nullable Boolean newOrOld, Function<String, String> rxnfileFn, Function<UUID, String> molfileFn) {
+    private String formatScalar(@Nullable JsonNode node) {
+        if (node == null || node instanceof NullNode) {
+            return "null";
+        }
+        String value = node.asText();
+        if (!path.isEmpty()) {
+            return switch (path.getLast()) {
+                case "rxnfile" -> generateRxnfileImage(value);
+                case "compoundID" -> generateCompoundImage(UUID.fromString(value));
+                default -> value;
+            };
+        }
+        return value;
+    }
+
+    private void doFormat(@Nullable JsonNode before, @Nullable JsonNode patch, @Nullable Boolean newOrOld) {
         String nestedClass = newOrOld == null ? "" : newOrOld ? " new" : " old";
         switch (patch) {
             case ObjectNode objectPatch when (objectPatch.get("$old") instanceof ValueNode || objectPatch.get("$new") instanceof ValueNode) -> {
                 // patch: old-new if old/new are scalars -> show inline
-                String oldValue = objectPatch.has("$old") ? objectPatch.get("$old").asText() : null;
-                String newValue = objectPatch.has("$new") ? objectPatch.get("$new").asText() : null;
-                if (path.equals(List.of("model", "reactions", "#", "rxnfile"))) {
-                    oldValue = oldValue != null ? rxnfileFn.apply(oldValue) : null;
-                    newValue = newValue != null ? rxnfileFn.apply(newValue) : null;
-                } else if (path.equals(List.of("model", "reactions", "#", "inputs", "#", "compound", "compoundID"))) {
-                    oldValue = oldValue != null ? molfileFn.apply(UUID.fromString(oldValue)) : null;
-                    newValue = newValue != null ? molfileFn.apply(UUID.fromString(newValue)) : null;
-                } else if (path.equals(List.of("model", "reactions", "#", "outputs", "#", "compound", "compoundID"))) {
-                    oldValue = oldValue != null ? molfileFn.apply(UUID.fromString(oldValue)) : null;
-                    newValue = newValue != null ? molfileFn.apply(UUID.fromString(newValue)) : null;
-                }
+                String oldValue = formatScalar(objectPatch.get("$old"));
+                String newValue = formatScalar(objectPatch.get("$new"));
                 String s = "<span class='old'>%s</span> → <span class='new'>%s</span>".formatted(oldValue, newValue);
                 grid.right(s).left().newRow();
             }
             case ObjectNode objectPatch when (objectPatch.has("$old") || objectPatch.has("$new")) -> {
                 // patch: old-new if old/new are not scalars -> set oldOrNew, nest into old and new
                 if (objectPatch.has("$old")) {
-                    formatJSONDiff(before, objectPatch.get("$old"), grid, path, false, rxnfileFn, molfileFn);
+                    doFormat(before, objectPatch.get("$old"), false);
                 }
                 if (objectPatch.has("$new")) {
-                    formatJSONDiff(before, objectPatch.get("$new"), grid, path, true, rxnfileFn, molfileFn);
+                    doFormat(before, objectPatch.get("$new"), true);
                 }
             }
             case ObjectNode objectPatch when (objectPatch.get("value") instanceof ValueNode value && objectPatch.get("unit") instanceof ValueNode unit && objectPatch.get("source") instanceof ValueNode source) -> {
@@ -64,9 +104,11 @@ public class PatchUtil {
                 String newSource = objectPatch.get("source") instanceof ObjectNode s && s.get("$new") instanceof ValueNode n ? n.asText() : oldSource;
                 String newValue = objectPatch.get("value") instanceof ObjectNode v && v.get("$new") instanceof ValueNode n ? n.asText() : oldValue;
                 String newUnit = objectPatch.get("unit") instanceof ObjectNode u && u.get("$new") instanceof ValueNode n ? n.asText() : oldUnit;
-                String s = "%s → %s".formatted(
+                boolean isOverwritten = overwritten.contains(exactPath);
+                String s = "%s → %s%s".formatted(
                         formatEnteredValue(false, oldValue, oldUnit, oldSource),
-                        formatEnteredValue(true, newValue, newUnit, newSource)
+                        formatEnteredValue(true, newValue, newUnit, newSource),
+                        isOverwritten ? " <span class='warning'>[overwritten]</span>" : ""
                 );
                 grid.right(s).left().newRow();
             }
@@ -92,22 +134,22 @@ public class PatchUtil {
                             : "<span class='old'>%d</span> → <span class='new'>%d</span>:<br/><span class='comment'>repositioned</span>".formatted(indices[0] + 1, indices[1] + 1); // repositioned
                     grid.left(); // overwrite collection name
                     grid.right("<span class='key%s'>%s %s</span>".formatted(nestedClass, displayPath, s));
-                    path.add("#");
+                    pushPath(indices[1]);
                     JsonNode node = before != null ? before.get(indices[0]) : null;
-                    formatJSONDiff(node, value, grid, path, newOrOld, rxnfileFn, molfileFn);
-                    path.removeLast();
+                    doFormat(node, value, newOrOld);
+                    popPath();
                     grid.newRow();
                 });
             }
             case ObjectNode objectPatch -> {
                 // set format or properties, iterate keys
                 objectPatch.forEachEntry((key, value) -> {
-                    path.add(key);
+                    pushPath(key);
                     JsonNode node = before != null ? before.get(key) : null;
                     grid.right("<span class='key%s'>%s:</span>".formatted(nestedClass, key));
-                    formatJSONDiff(node, value, grid, path, newOrOld, rxnfileFn, molfileFn);
+                    doFormat(node, value, newOrOld);
                     grid.left().newRow();
-                    path.removeLast();
+                    popPath();
                 });
             }
             case ArrayNode arrayPatch when (JSONPatcher.EXPERIMENT_LIST_PATHS.containsKey(path)) -> {
@@ -117,9 +159,9 @@ public class PatchUtil {
                     displayPath = displayPath.substring(0, displayPath.length() - 1); // remove plural "s"; should have displayName for every field instead
                     grid.left(); // overwrite collection name
                     grid.right("<span class='key%s'>%s %d<br/><span class='comment'>%s</span>".formatted(nestedClass, displayPath, i + 1, newOrOld == Boolean.TRUE ? "inserted" : "removed"));
-                    path.add("#");
-                    formatJSONDiff(null, node, grid, path, newOrOld, rxnfileFn, molfileFn);
-                    path.removeLast();
+                    pushPath(i);
+                    doFormat(null, node, newOrOld);
+                    popPath();
                     grid.newRow();
                 }
             }
@@ -128,18 +170,33 @@ public class PatchUtil {
                     grid.right("<span class='%s'>[ ]</span>".formatted(nestedClass)).left().newRow();
                 } else {
                     grid.right("<span class='%s'>[</span>".formatted(nestedClass)).left().newRow();
-                    path.add("#");
+                    pushPath("#"); // don't use index for set collections
                     for (JsonNode item : arrayPatch) {
-                        formatJSONDiff(null, item, grid, path, newOrOld, rxnfileFn, molfileFn);
+                        doFormat(null, item, newOrOld);
                     }
-                    path.removeLast();
+                    popPath();
                     grid.right("<span class='%s'>]</span>".formatted(nestedClass)).left().newRow();
                 }
             }
             default -> {
-                grid.right("<span class='%s'>%s</span>".formatted(nestedClass, patch.asText())).left().newRow();
+                grid.right("<span class='%s'>%s</span>".formatted(nestedClass, formatScalar(patch))).left().newRow();
             }
         }
+    }
+
+    private void pushPath(String key) {
+        path.add(key);
+        exactPath.add(key);
+    }
+
+    private void pushPath(int key) {
+        path.add("#");
+        exactPath.add(key);
+    }
+
+    private void popPath() {
+        path.removeLast();
+        exactPath.removeLast();
     }
 
     private static String formatEnteredValue(boolean newOrOld, String value, String unit, String source) {
@@ -210,5 +267,17 @@ public class PatchUtil {
             sb.append("</div>\n");
             return sb.toString();
         }
+    }
+
+    private String generateRxnfileImage(String rxnfile) {
+        IndigoReaction reaction = indigo.loadReaction(rxnfile);
+        indigoRenderer.setRenderOptions("svg", 500, 200);
+        byte[] bytes = indigoRenderer.renderToBuffer(reaction);
+        return new String(bytes, StandardCharsets.UTF_8);
+    }
+
+    private String generateCompoundImage(UUID compoundID) {
+        byte[] bytes = compoundService.getCompoundPicture(compoundID);
+        return new String(bytes, StandardCharsets.UTF_8);
     }
 }

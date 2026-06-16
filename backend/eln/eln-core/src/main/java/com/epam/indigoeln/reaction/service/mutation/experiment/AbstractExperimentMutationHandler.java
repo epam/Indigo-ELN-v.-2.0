@@ -14,6 +14,7 @@ import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.service.ExperimentModelHelperService;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
+import com.epam.indigoeln.reaction.service.calculator.EnteredValueOpt;
 import com.epam.indigoeln.reaction.service.calculator.ReactionCalculator;
 import com.epam.indigoeln.reaction.service.mutation.ExperimentModelMutationListener;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandler;
@@ -79,7 +80,18 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
     protected final JsonNode doUpdateEntity(ExperimentEntity experiment, ExperimentSnapshot snapshotBefore, ExperimentSnapshot snapshotAfter, ExperimentMutationContext context) {
         runWithSignificantFigures(experiment.getModel().getSignificantFigures(), () -> {
             doNotifyBeforeRecalculate(experiment, context);
-            reactionCalculatorFactory.get().recalculate(experiment.getModel());
+            ReactionCalculator calculator = reactionCalculatorFactory.get();
+            try {
+                calculator.recalculate(experiment.getModel());
+            } finally {
+                reactionCalculatorFactory.destroy(calculator);
+            }
+            if (!calculator.getOverwritten().isEmpty()) {
+                context.getResponse().setOverwritten(StreamEx.of(calculator.getOverwritten())
+                        .map(EnteredValueOpt.Property::getName)
+                        .toList()
+                );
+            }
             doNotifyAfterRecalculate(experiment, context);
             doValidateModel(experiment.getModel());
         });
@@ -100,7 +112,14 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
 
     @Override
     protected ExperimentRevisionEntity doCreateRevision(ExperimentEntity experiment, T mutation, MutationResult result, Integer revisionNo, JsonNode patch, ExperimentMutationContext context, ExperimentSnapshot snapshotAfter) {
-        return revisionService.addRevision(experiment, revisionNo, experiment.getModifiedAt(), result.summary(), mutation, patch);
+        ExperimentRevisionEntity revision = revisionService.addRevision(experiment, revisionNo, experiment.getModifiedAt(), result.summary(), mutation, patch);
+        if (!context.getResponse().getMessages().isEmpty()) {
+            revision.setMessages(context.getResponse().getMessages().toArray(new String[0]));
+        }
+        if (context.getResponse().getOverwritten() != null && !context.getResponse().getOverwritten().isEmpty()) {
+            revision.setOverwritten(context.getResponse().getOverwritten().toArray(new String[0]));
+        }
+        return revision;
     }
 
     protected void doValidateModel(ExperimentModel model) {

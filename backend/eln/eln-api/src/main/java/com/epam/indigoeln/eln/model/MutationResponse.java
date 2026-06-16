@@ -26,6 +26,10 @@ public class MutationResponse {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     List<String> messages = new ArrayList<>();
 
+    @Nullable
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    List<String> overwritten;
+
     @NotNull
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     Map<ReactionAnchor, String> reactionImages = new HashMap<>();

@@ -99,9 +99,9 @@ class EnteredValueTest {
 
     @ParameterizedTest
     @CsvSource({
-//            "3,G,1,G,2,G",
-//            "1,G,500,MG,0.5,G", // take bigger units (regardless of operand order)
-//            "1500,MG,1,G,0.5,G",
+            "3,G,1,G,2,G",
+            "1,G,500,MG,0.5,G", // take bigger units (regardless of operand order)
+            "1500,MG,1,G,0.5,G",
             "0,G,1,MG,-1,MG", // except for zero: zero doesn't affect target units (regardless of operand order)
             "1,MG,0,G,1,MG",
             "0,G,0,MG,0,G", // if both operands are zero, take bigger units

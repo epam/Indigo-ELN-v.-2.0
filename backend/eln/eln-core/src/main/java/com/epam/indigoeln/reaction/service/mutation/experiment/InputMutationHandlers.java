@@ -68,8 +68,6 @@ class RemoveInputRowHandler extends AbstractReactionInputMutationHandler<Reactio
     @Override
     public MutationResult doHandle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.RemoveInputRow mutation, ExperimentMutationContext context) {
         row.delete();
-
-        context.getResponse().getMessages().add("Removed, press Ctrl-Z/Cmd-Z to undo");
         return new MutationResult("Remove input");
     }
 }

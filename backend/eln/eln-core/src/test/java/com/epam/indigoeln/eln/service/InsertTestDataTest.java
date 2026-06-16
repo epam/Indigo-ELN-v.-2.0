@@ -4,23 +4,24 @@ import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.common.model.UserRef;
-import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.client.*;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.reaction.model.*;
-import com.epam.indigoeln.reaction.model.mutation.*;
+import com.epam.indigoeln.reaction.model.ComparisonOperator;
+import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionInputSampleMutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
 import com.epam.indigoeln.reaction.model.outputsample.*;
 import com.epam.indigoeln.reaction.model.units.DensityUnit;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
-import com.epam.indigoeln.reaction.util.MutationsTestUtil;
+import com.epam.indigoeln.reaction.util.ExperimentObject;
 import com.epam.indigoeln.signature.api.SignatureClient;
 import com.epam.indigoeln.signature.model.SignatureReason;
 import com.epam.indigoeln.signature.model.SignatureTemplateBlock;
 import com.epam.indigoeln.signature.model.SignatureTemplateDTO;
 import com.epam.indigoeln.signature.model.SignatureTemplateRequest;
 import com.epam.indigoeln.test.FeignUtil;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.api.io.TempDir;
@@ -127,82 +128,70 @@ class InsertTestDataTest {
 //    @Test
     @Order(6)
     void fillExperiment(@TempDir Path tempDir) {
-        ExperimentDetailsDTO experiment = createExperiment("ProjectWithData", "88888888", templateClient.getByName("Default"), "Experiment with data");
+        ExperimentObject experiment = createExperiment("ProjectWithData", "88888888", templateClient.getByName("Default"), "Experiment with data");
 
         // add attachment
-        experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", "This is attachment".getBytes());
-
-        // load initial model
-        ExperimentModel model = experimentClient.getExperiment(experiment.getId()).getModel();
-        ReactionAnchor reactionAnchor = model.getReactions().getFirst().getAnchor();
+        experimentClient.createExperimentAttachment(experiment.id(), "attachment.txt", "This is attachment".getBytes());
 
         // load reaction
-        String rxnFile = new String(ModelUtil.loadResource(getClass(), "/reaction.rxn"));
-        model = applyMutation(experiment, model, new ReactionMutation.SetScheme(reactionAnchor, rxnFile));
-        InputAnchor input1Anchor = model.getReactions().getFirst().getInputs().get(0).getAnchor();
-        InputAnchor input2Anchor = model.getReactions().getFirst().getInputs().get(1).getAnchor();
-        OutputAnchor output1Anchor = model.getReactions().getFirst().getOutputs().get(0).getAnchor();
-        OutputAnchor output2Anchor = model.getReactions().getFirst().getOutputs().get(1).getAnchor();
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
 
         // resolve inputs
-        ReactionMutation.ResolveInputs mutation = MutationsTestUtil.prepareResolveInputs(experiment, reactionAnchor, experimentClient, compoundClient);
-        model = applyMutation(experiment, model, mutation);
-        InputSampleAnchor input1Sample1Anchor = model.getReactions().getFirst().getInputs().get(0).getSamples().get(0).getAnchor();
+        experiment.mutateResolveInputs();
 
         // select salt code
-        model = applyMutation(experiment, model, new ReactionOutputMutation.SetOutputRowSaltCode(output1Anchor, dictionaryClient.getNth(BuiltInDictionary.SALT_CODE, 1)));
+        experiment.mutate(new ReactionOutputMutation.SetOutputRowSaltCode(experiment.output(1).getAnchor(), dictionaryClient.getNth(BuiltInDictionary.SALT_CODE, 1)));
 
         // select salt eq
-        model = applyMutation(experiment, model, new ReactionOutputMutation.SetOutputRowSaltEQ(output1Anchor, 0.5));
+        experiment.mutate(new ReactionOutputMutation.SetOutputRowSaltEQ(experiment.output(1).getAnchor(), 0.5));
 
         // select stereoisomer code
         StereoisomerCodeRef stereoisomerCode = dictionaryClient.getFirst(BuiltInDictionary.STEREOISOMER_CODE);
-        model = applyMutation(experiment, model, new ReactionOutputMutation.SetOutputCompoundStereoisomerCode(output1Anchor, stereoisomerCode));
+        experiment.mutate(new ReactionOutputMutation.SetOutputCompoundStereoisomerCode(experiment.output(1).getAnchor(), stereoisomerCode));
 
         // set input weight
-        model = applyMutation(experiment, model, new ReactionInputSampleMutation.SetInputWeight(input1Sample1Anchor, "100.0", WeightUnit.G));
+        experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(1, 1).getAnchor(), "100.0", WeightUnit.G));
 
         // set input eq
-        model = applyMutation(experiment, model, new ReactionInputMutation.SetInputRowEQ(input2Anchor, "2"));
+        experiment.mutate(new ReactionInputMutation.SetInputRowEQ(experiment.input(2).getAnchor(), "2"));
 
         // add product sample
-        model = applyMutation(experiment, model, new ReactionOutputMutation.AddProductSample(output2Anchor));
-        OutputSampleAnchor output2Sample1Anchor = model.getReactions().getFirst().getOutputs().get(1).getSamples().get(0).getAnchor();
+        experiment.mutateAddProductSample(2);
 
         // set output actual mol
-        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputActualMol(output2Sample1Anchor, "200.0", MolUnit.MMOL));
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputActualMol(experiment.outputSample(2, 1).getAnchor(), "200.0", MolUnit.MMOL));
 
         // set output purity
-        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputPurity(output2Sample1Anchor, "0.5"));
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputPurity(experiment.outputSample(2, 1).getAnchor(), "0.5"));
 
         // set actual weight
-        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputActualWeight(output2Sample1Anchor, "10.0", WeightUnit.G));
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputActualWeight(experiment.outputSample(2, 1).getAnchor(), "10.0", WeightUnit.G));
 
         // fill secondary fields
         SampleSourceRef source = dictionaryClient.getFirst(BuiltInDictionary.SAMPLE_SOURCE);
-        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputSource(output2Sample1Anchor, source));
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputSource(experiment.outputSample(2, 1).getAnchor(), source));
         SampleSourceDetailsRef sourceDetails = dictionaryClient.getFirst(BuiltInDictionary.SAMPLE_SOURCE_DETAILS);
-        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputSourceDetails(output2Sample1Anchor, sourceDetails));
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputSourceDetails(experiment.outputSample(2, 1).getAnchor(), sourceDetails));
         ExternalSupplierRef externalSupplier = dictionaryClient.getFirst(BuiltInDictionary.EXTERNAL_SUPPLIER);
-        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputExternalSupplier(output2Sample1Anchor, new ExternalSupplier(externalSupplier, "12345678")));
-        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputBatchComment(output2Sample1Anchor, "batch comment"));
-        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputStructureComment(output2Sample1Anchor, "structure comment"));
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputExternalSupplier(experiment.outputSample(2, 1).getAnchor(), new ExternalSupplier(externalSupplier, "12345678")));
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputBatchComment(experiment.outputSample(2, 1).getAnchor(), "batch comment"));
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputStructureComment(experiment.outputSample(2, 1).getAnchor(), "structure comment"));
         ComponentStateRef componentState = dictionaryClient.getFirst(BuiltInDictionary.COMPONENT_STATE);
-        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputComponentState(output2Sample1Anchor, componentState));
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputComponentState(experiment.outputSample(2, 1).getAnchor(), componentState));
         CompoundProtectionRef compoundProtection = dictionaryClient.getFirst(BuiltInDictionary.COMPOUND_PROTECTION);
-        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputCompoundProtection(output2Sample1Anchor, List.of(compoundProtection)));
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputCompoundProtection(experiment.outputSample(2, 1).getAnchor(), List.of(compoundProtection)));
         StorageInstructionsRef storageInstructions = dictionaryClient.getFirst(BuiltInDictionary.STORAGE_INSTRUCTIONS);
-        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputStorageInstructions(output2Sample1Anchor, List.of(storageInstructions)));
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputStorageInstructions(experiment.outputSample(2, 1).getAnchor(), List.of(storageInstructions)));
         HealthHazardRef healthHazards = dictionaryClient.getFirst(BuiltInDictionary.HEALTH_HAZARD);
-        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputHealthHazards(output2Sample1Anchor, List.of(healthHazards)));
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputHealthHazards(experiment.outputSample(2, 1).getAnchor(), List.of(healthHazards)));
         HandlingPrecautionsRef handlingPrecautions = dictionaryClient.getFirst(BuiltInDictionary.HANDLING_PRECAUTIONS);
-        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputHandlingPrecautions(output2Sample1Anchor, List.of(handlingPrecautions)));
-        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputMeltingPoint(output2Sample1Anchor, new MeltingPoint(-10.0, 20.0, "comment")));
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputHandlingPrecautions(experiment.outputSample(2, 1).getAnchor(), List.of(handlingPrecautions)));
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputMeltingPoint(experiment.outputSample(2, 1).getAnchor(), new MeltingPoint(-10.0, 20.0, "comment")));
         SolventRef solvent = dictionaryClient.getFirst(BuiltInDictionary.SOLVENT);
-        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputResidualSolvents(output2Sample1Anchor, List.of(
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputResidualSolvents(experiment.outputSample(2, 1).getAnchor(), List.of(
                 new ResidualSolvent(solvent, 1.5, "comment")
         )));
-        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputSolubilityInSolvents(output2Sample1Anchor, List.of(
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputSolubilityInSolvents(experiment.outputSample(2, 1).getAnchor(), List.of(
                 new SolubidityInSolvent.Qualitative(solvent, "comment", SolubidityQualitativeType.PRECIPITATE),
                 new SolubidityInSolvent.Quantitative(solvent, "comment", ComparisonOperator.APPROXIMATELY, 0.5, DensityUnit.G_ML)
         )));
@@ -211,36 +200,34 @@ class InsertTestDataTest {
         SignatureTemplateDTO signatureTemplate = signatureClient.getTemplates().stream()
                 .filter(t -> t.getName().equals("Author and Bob"))
                 .findFirst().orElseThrow();
-        experimentClient.completeAndSubmitExperiment(experiment.getId(), signatureTemplate.getId());
-        experimentClient.reopenExperiment(experiment.getId());
-        model = experimentClient.getExperiment(experiment.getId()).getModel();
+        experimentClient.completeAndSubmitExperiment(experiment.id(), signatureTemplate.getId());
+        experimentClient.reopenExperiment(experiment.id());
 
         // register sample
-        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.RegisterSample(output2Sample1Anchor));
+        experiment.mutate(new ReactionOutputSampleMutation.RegisterSample(experiment.outputSample(2, 1).getAnchor()));
 
         // add another output sample
-        model = applyMutation(experiment, model, new ReactionOutputMutation.AddProductSample(output2Anchor));
-        OutputSampleAnchor output2Sample2Anchor = model.getReactions().getFirst().getOutputs().get(1).getSamples().get(1).getAnchor();
+        experiment.mutateAddProductSample(2);
 
         // register another sample
-        model = applyMutation(experiment, model, new ReactionOutputSampleMutation.RegisterSample(output2Sample2Anchor));
+        experiment.mutate(new ReactionOutputSampleMutation.RegisterSample(experiment.outputSample(2, 2).getAnchor()));
 
         // submit and reopen
-        experimentClient.completeAndSubmitExperiment(experiment.getId(), signatureTemplate.getId());
-        experimentClient.reopenExperiment(experiment.getId());
+        experimentClient.completeAndSubmitExperiment(experiment.id(), signatureTemplate.getId());
+        experimentClient.reopenExperiment(experiment.id());
     }
 
 //    @Test
     @Order(7)
     void submitExperiment() {
-        ExperimentDetailsDTO experiment = createExperiment("ProjectWithData", "88888888", templateClient.getByName("Default"), "Experiment to submit");
+        ExperimentObject experiment = createExperiment("ProjectWithData", "88888888", templateClient.getByName("Default"), "Experiment to submit");
         SignatureTemplateDTO signatureTemplate = signatureClient.getTemplates().stream()
                 .filter(t -> t.getName().equals("Author and Bob"))
                 .findFirst().orElseThrow();
-        experimentClient.completeAndSubmitExperiment(experiment.getId(), signatureTemplate.getId());
+        experimentClient.completeAndSubmitExperiment(experiment.id(), signatureTemplate.getId());
     }
 
-    private ExperimentDetailsDTO createExperiment(String projectName, String notebookName, TemplateDTO template, String experimentDescription) {
+    private ExperimentObject createExperiment(String projectName, String notebookName, TemplateDTO template, String experimentDescription) {
         // create experiment
         Page<ProjectDTO> existingProjects = projectClient.getProjects(projectName, SortOrder.EARLIEST, null, Paging.DEFAULT);
         ProjectDetailsDTO project = existingProjects.getItems().isEmpty()
@@ -252,17 +239,13 @@ class InsertTestDataTest {
                 : notebookClient.getNotebook(existingNotebooks.getItems().getFirst().getId());
         TherapeuticAreaRef therapeuticArea = dictionaryClient.getFirst(BuiltInDictionary.THERAPEUTIC_AREA);
         ProjectCodeRef projectCode = dictionaryClient.getFirst(BuiltInDictionary.PROJECT_CODE);
-        return experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(
+        ExperimentRequest request = new ExperimentRequest(
                 template.getId(),
                 experimentDescription,
                 therapeuticArea,
                 projectCode
-        ));
-    }
-
-    @SneakyThrows
-    private ExperimentModel applyMutation(ExperimentDetailsDTO experiment, ExperimentModel model, Mutation mutation) {
-        System.out.println("Applying mutation: " + mutation);
-        return experimentClient.mutateExperimentModel(experiment.getId(), mutation);
+        );
+        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), request);
+        return new ExperimentObject(experiment, experimentClient, compoundClient, miscClient);
     }
 }

@@ -8,8 +8,7 @@ import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.*;
 import com.epam.indigoeln.reaction.model.outputsample.*;
-import com.epam.indigoeln.reaction.util.CalculationReportBuilder;
-import com.epam.indigoeln.reaction.util.MutationsTestUtil;
+import com.epam.indigoeln.reaction.model.units.*;
 import com.epam.indigoeln.test.ClientUtil;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
@@ -25,7 +24,6 @@ import java.util.Set;
 
 import static com.epam.indigoeln.common.model.Paging.DEFAULT_PAGE_SIZE;
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
-import static com.epam.indigoeln.common.util.ModelUtil.loadResourceAsString;
 import static com.epam.indigoeln.compound.model.search.SearchCatalog.ELN;
 import static com.epam.indigoeln.eln.test.EnteredValueAssert.assertThat;
 import static com.epam.indigoeln.reaction.model.units.DensityUnit.G_ML;
@@ -52,646 +50,625 @@ public class MutationsTest extends MutationsTestBase {
 
     @BeforeEach
     void setUp(TestInfo testInfo) {
-        reportBuilder = new CalculationReportBuilder(new File("build/calculations-" + testInfo.getTestMethod().get().getName() + ".html"));
         initExperiment("MutationsTest");
     }
 
     @AfterEach
-    void tearDown() {
-        reportBuilder.close();
+    void tearDown(TestInfo testInfo) throws Exception {
+        experiment.generateDetailsReport(new File("build/experiment-" + testInfo.getTestMethod().get().getName() + ".html"));
     }
 
     @Test
     void testAddEmptyInputToEmptyReaction() {
-        applyMutation(new ReactionMutation.AddEmptyInput(reaction.getAnchor()));
-        assertThat(input1).isNotNull();
-        assertThat(input1.getCompound()).isInstanceOf(CompoundRef.Unknown.class);
-        assertThat(input1Sample1).isNotNull();
+        experiment.mutateAddEmptyInput();
+        assertThat(experiment.input(1)).isNotNull();
+        assertThat(experiment.input(1).getCompound()).isInstanceOf(CompoundRef.Unknown.class);
+        assertThat(experiment.inputSample(1, 1)).isNotNull();
     }
 
     @Test
     void testAddInputToEmptyReaction() {
         SampleSearchResult samples = compoundClient.search(new FindSamplesRequest().withCatalogs(Set.of(ELN)), null, null, DEFAULT_PAGE_SIZE);
-        applyMutation(new ReactionMutation.AddInput(reaction.getAnchor(), samples.items().getFirst().getId()));
-        assertThat(input1).isNotNull();
-        assertThat(input1.getCompound()).isInstanceOf(CompoundRef.Stored.class);
-        assertThat(input1Sample1).isNotNull();
-        assertThat(input1Sample1.getSampleId()).isEqualTo(samples.items().getFirst().getId());
+        experiment.mutate(new ReactionMutation.AddInput(experiment.reaction().getAnchor(), samples.items().getFirst().getId()));
+        assertThat(experiment.input(1)).isNotNull();
+        assertThat(experiment.input(1).getCompound()).isInstanceOf(CompoundRef.Stored.class);
+        assertThat(experiment.inputSample(1, 1)).isNotNull();
+        assertThat(experiment.inputSample(1, 1).getSampleId()).isEqualTo(samples.items().getFirst().getId());
     }
 
     @Test
     void testIncorrectAnchor() {
         assertThatClientCall(() -> {
-            experimentClient.mutateExperimentModel4Raw(experiment.getId(), experiment.getRevision(), "{\"type\": \"AddEmptyInput\", \"anchor\": \"invalid\"}");
+            experimentClient.mutateExperimentModel4Raw(experiment.id(), 1, "{\"type\": \"AddEmptyInput\", \"anchor\": \"invalid\"}");
         }).isBadRequest("Cannot construct instance of `com.epam.indigoeln.reaction.model.ReactionAnchor");
     }
 
     @Test
     void testUnknownField() {
         assertThatClientCall(() -> {
-            experimentClient.mutateExperimentModel4Raw(experiment.getId(), experiment.getRevision(), "{\"type\": \"AddEmptyInput\", \"anchor\": \"00000000-0000-0000-0000-000000000001\", \"unknownField\": 123}");
+            experimentClient.mutateExperimentModel4Raw(experiment.id(), 1, "{\"type\": \"AddEmptyInput\", \"anchor\": \"00000000-0000-0000-0000-000000000001\", \"unknownField\": 123}");
         }).isBadRequest("Unrecognized field \"unknownField\"");
     }
 
     @Test
     void testLoadReaction() {
-        loadScheme();
-        assertThat(input1).isNotNull();
-        assertThat(input1.getCompound()).isInstanceOf(CompoundRef.Virtual.class);
-        assertThat(input1Sample1).isNotNull();
-        assertThat(input2).isNotNull();
-        assertThat(input2.getCompound()).isInstanceOf(CompoundRef.Virtual.class);
-        assertThat(input2Sample1).isNotNull();
-        assertThat(output1).isNotNull();
-        assertThat(output1.getCompound()).isInstanceOf(CompoundRef.Virtual.class);
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        assertThat(experiment.input(1)).isNotNull();
+        assertThat(experiment.input(1).getCompound()).isInstanceOf(CompoundRef.Virtual.class);
+        assertThat(experiment.inputSample(1, 1)).isNotNull();
+        assertThat(experiment.input(2)).isNotNull();
+        assertThat(experiment.input(2).getCompound()).isInstanceOf(CompoundRef.Virtual.class);
+        assertThat(experiment.inputSample(2, 1)).isNotNull();
+        assertThat(experiment.output(1)).isNotNull();
+        assertThat(experiment.output(1).getCompound()).isInstanceOf(CompoundRef.Virtual.class);
     }
 
 //    @Test // duplicate compounds are currently restricted
     void testLoadReactionUpdated() {
         // A + B + A => P + R
-        loadScheme("/reaction-with-duplicates.rxn", false);
-        InputAnchor a1 = input1.getAnchor();
-        InputAnchor b = input2.getAnchor();
-        InputAnchor a2 = input3.getAnchor();
-        OutputAnchor p = output1.getAnchor();
-        OutputAnchor r = output2.getAnchor();
+        experiment.mutateSetSchemeFromResource("/reaction-with-duplicates.rxn");
+        InputAnchor a1 = experiment.input(1).getAnchor();
+        InputAnchor b = experiment.input(2).getAnchor();
+        InputAnchor a2 = experiment.input(3).getAnchor();
+        OutputAnchor p = experiment.output(1).getAnchor();
+        OutputAnchor r = experiment.output(2).getAnchor();
         // A + B + C + A + A => R + P
-        loadScheme("/reaction-with-duplicates-updated.rxn", false);
-        assertThat(input1.getAnchor()).isEqualTo(a1);
-        assertThat(input2.getAnchor()).isEqualTo(b);
-        assertThat(input4.getAnchor()).isEqualTo(a2);
-        assertThat(output1.getAnchor()).isEqualTo(r);
-        assertThat(output2.getAnchor()).isEqualTo(p);
+        experiment.mutateSetSchemeFromResource("/reaction-with-duplicates-updated.rxn");
+        assertThat(experiment.input(1).getAnchor()).isEqualTo(a1);
+        assertThat(experiment.input(2).getAnchor()).isEqualTo(b);
+        assertThat(experiment.input(4).getAnchor()).isEqualTo(a2);
+        assertThat(experiment.output(1).getAnchor()).isEqualTo(r);
+        assertThat(experiment.output(2).getAnchor()).isEqualTo(p);
     }
 
     @Test
     void testLoadSameScheme() {
-        loadScheme("/reaction2.rxn", false);
-        loadScheme("/reaction2.rxn", false);
+        experiment.mutateSetSchemeFromResource("/reaction2.rxn");
+        experiment.mutateSetSchemeFromResource("/reaction2.rxn");
     }
 
     @Test
     void testResolveInputs() {
-        loadScheme();
-        applyMutation(prepareResolveInputs());
-        assertThat(input1.getCompound()).isInstanceOf(CompoundRef.Stored.class);
-        assertThat(input1Sample1.getSampleId()).isNotNull();
-        assertThat(lastMutationResponse.getReactionImages()).containsOnlyKeys(reaction.getAnchor());
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutateResolveInputs();
+        assertThat(experiment.input(1).getCompound()).isInstanceOf(CompoundRef.Stored.class);
+        assertThat(experiment.inputSample(1, 1).getSampleId()).isNotNull();
+        assertThat(experiment.lastMutationResponse().getReactionImages()).containsOnlyKeys(experiment.reaction().getAnchor());
     }
 
     @Test
     void testRemoveInputRow() {
-        loadScheme();
-        InputAnchor removedAnchor = input1.getAnchor();
-        applyMutation(new ReactionInputMutation.RemoveInputRow(removedAnchor));
-        assertThat(reaction.getInputs()).hasSize(1);
-        assertThat(input1.getAnchor()).isNotEqualTo(removedAnchor);
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        InputAnchor removedAnchor = experiment.input(1).getAnchor();
+        experiment.mutate(new ReactionInputMutation.RemoveInputRow(removedAnchor));
+        assertThat(experiment.reaction().getInputs()).hasSize(1);
+        assertThat(experiment.input(1).getAnchor()).isNotEqualTo(removedAnchor);
     }
 
     @Test
     void testRemoveInput() {
-        loadScheme();
-        @NotNull InputSampleAnchor removedAnchor = input1Sample1.getAnchor();
-        assertThat(reaction.getInputs()).hasSize(2);
-        MutationResponse response = applyMutation(new ReactionInputSampleMutation.RemoveInput(removedAnchor));
-        assertThat(response.getMessages()).contains("Removed, press Ctrl-Z/Cmd-Z to undo");
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        @NotNull InputSampleAnchor removedAnchor = experiment.inputSample(1, 1).getAnchor();
+        assertThat(experiment.reaction().getInputs()).hasSize(2);
+        experiment.mutate(new ReactionInputSampleMutation.RemoveInput(removedAnchor));
 
-        assertThat(reaction.getInputs()).hasSize(1);
+        assertThat(experiment.reaction().getInputs()).hasSize(1);
     }
 
     @Test
     void testSetInputRowEQ() {
-        loadScheme();
-        applyMutation(new ReactionInputMutation.SetInputRowEQ(input1.getAnchor(), "2"));
-        assertThat(input1.getEq()).hasValue(2).hasStringValue("2");
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutate(new ReactionInputMutation.SetInputRowEQ(experiment.input(1).getAnchor(), "2"));
+        assertThat(experiment.input(1).getEq()).hasValue(2).hasStringValue("2");
     }
 
     @Test
     void testUnsetInputRowEq() {
-        loadScheme();
-        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "100", G));
-        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input2Sample1.getAnchor(), "200", G));
-        applyMutation(new ReactionInputMutation.SetInputRowEQ(input2.getAnchor(), "2"));
-        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), null, null));
-        applyMutation(new ReactionInputMutation.SetInputRowEQ(input2.getAnchor(), null));
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(1, 1).getAnchor(), "100", WeightUnit.G));
+        experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(2, 1).getAnchor(), "200", WeightUnit.G));
+        experiment.mutate(new ReactionInputMutation.SetInputRowEQ(experiment.input(2).getAnchor(), "2"));
+        experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(1, 1).getAnchor(), null, null));
+        experiment.mutate(new ReactionInputMutation.SetInputRowEQ(experiment.input(2).getAnchor(), null));
     }
 
     @Test
     void testUnsetInputRowEq2() {
-        loadScheme();
-        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "100.0", G), false);
-        applyMutation(new ReactionInputMutation.SetInputRowEQ(input2.getAnchor(), "2"), false);
-        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "10", G), false);
-        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input2Sample1.getAnchor(), "20", G), false);
-        applyMutation(new ReactionInputMutation.SetInputRowEQ(input2.getAnchor(), null), false);
-        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "10.20", G), false);
-        applyMutation(new ReactionInputMutation.SetInputRowEQ(input1.getAnchor(), "1"), false);
-        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), null, null), false);
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(1, 1).getAnchor(), "100.0", G), false);
+        experiment.mutate(new ReactionInputMutation.SetInputRowEQ(experiment.input(2).getAnchor(), "2"), false);
+        experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(1, 1).getAnchor(), "10", G), false);
+        experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(2, 1).getAnchor(), "20", G), false);
+        experiment.mutate(new ReactionInputMutation.SetInputRowEQ(experiment.input(2).getAnchor(), null), false);
+        experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(1, 1).getAnchor(), "10.20", G), false);
+        experiment.mutate(new ReactionInputMutation.SetInputRowEQ(experiment.input(1).getAnchor(), "1"), false);
+        experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(1, 1).getAnchor(), null, null), false);
     }
 
     @Test
     void testSetInputRowSaltCodeAndEQ() {
-        loadScheme();
-        applyMutation(new ReactionInputMutation.SetInputRowSaltCode(input1.getAnchor(), saltCode));
-        assertThat(input1.getCompound()).isInstanceOf(CompoundRef.Virtual.class);
-        assertThat(input1.getCompound().getSaltCode()).isEqualTo(saltCode);
-        applyMutation(new ReactionInputMutation.SetInputRowSaltEQ(input1.getAnchor(), 2.0));
-        assertThat(input1.getCompound().getSaltCode()).isEqualTo(saltCode);
-        assertThat(input1.getCompound().getSaltEQ()).isCloseTo(2.0, Offset.offset(1e-6));
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutate(new ReactionInputMutation.SetInputRowSaltCode(experiment.input(1).getAnchor(), saltCode));
+        assertThat(experiment.input(1).getCompound()).isInstanceOf(CompoundRef.Virtual.class);
+        assertThat(experiment.input(1).getCompound().getSaltCode()).isEqualTo(saltCode);
+        experiment.mutate(new ReactionInputMutation.SetInputRowSaltEQ(experiment.input(1).getAnchor(), 2.0));
+        assertThat(experiment.input(1).getCompound().getSaltCode()).isEqualTo(saltCode);
+        assertThat(experiment.input(1).getCompound().getSaltEQ()).isCloseTo(2.0, Offset.offset(1e-6));
     }
 
     @Test
     void testSetInputRowStereoisomerCode() {
-        loadScheme();
-        applyMutation(new ReactionInputMutation.SetInputCompoundStereoisomerCode(input1.getAnchor(), stereoisomerCode));
-        assertThat(input1.getCompound()).isInstanceOf(CompoundRef.Virtual.class);
-        assertThat(input1.getCompound().getStereoisomerCode()).isEqualTo(stereoisomerCode);
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutate(new ReactionInputMutation.SetInputCompoundStereoisomerCode(experiment.input(1).getAnchor(), stereoisomerCode));
+        assertThat(experiment.input(1).getCompound()).isInstanceOf(CompoundRef.Virtual.class);
+        assertThat(experiment.input(1).getCompound().getStereoisomerCode()).isEqualTo(stereoisomerCode);
     }
 
     @Test
     void testSetInputCompoundMolWeight() {
-        applyMutation(new ReactionMutation.AddEmptyInput(reaction.getAnchor()), false);
-        applyMutation(new ReactionInputMutation.SetInputCompoundMolWeight(input1.getAnchor(), "100.0"));
-        assertThat(input1.getCompound().getMolWeight()).hasValue(100).isUserEntered(experiment.getRevision());
+        experiment.mutateAddEmptyInput();
+        experiment.mutate(new ReactionInputMutation.SetInputCompoundMolWeight(experiment.input(1).getAnchor(), "100.0"));
+        assertThat(experiment.input(1).getCompound().getMolWeight()).hasValue(100).isUserEntered(experiment.revision());
     }
 
     @Test
     void testSetInputRowLimiting() {
-        loadScheme();
-        applyMutation(new ReactionInputMutation.SetInputRowLimiting(input2.getAnchor()));
-        assertThat(input1.isLimiting()).isFalse();
-        assertThat(input2.isLimiting()).isTrue();
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutate(new ReactionInputMutation.SetInputRowLimiting(experiment.input(2).getAnchor()));
+        assertThat(experiment.input(1).isLimiting()).isFalse();
+        assertThat(experiment.input(2).isLimiting()).isTrue();
     }
 
     @Test
     void testSetInputRowChemicalName() {
-        applyMutation(new ReactionMutation.AddEmptyInput(reaction.getAnchor()), false);
-        applyMutation(new ReactionInputMutation.SetInputRowChemicalName(input1.getAnchor(), "newChemicalName"));
-        assertThat(input1.getChemicalName()).isEqualTo("newChemicalName");
+        experiment.mutateAddEmptyInput();
+        experiment.mutate(new ReactionInputMutation.SetInputRowChemicalName(experiment.input(1).getAnchor(), "newChemicalName"));
+        assertThat(experiment.input(1).getChemicalName()).isEqualTo("newChemicalName");
     }
 
     @Test
     void testSetInputRowMol() {
-        applyMutation(new ReactionMutation.AddEmptyInput(reaction.getAnchor()), false);
-        applyMutation(new ReactionInputMutation.SetInputRowMol(input1.getAnchor(), "10.0", MMOL));
-        assertThat(input1.getMol()).hasValue(10, MMOL);
+        experiment.mutateAddEmptyInput();
+        experiment.mutate(new ReactionInputMutation.SetInputRowMol(experiment.input(1).getAnchor(), "10.0", MolUnit.MMOL));
+        assertThat(experiment.input(1).getMol()).hasValue(10, MMOL);
     }
 
     @Test
     void testSetInputRowRole() {
-        loadScheme();
-        applyMutation(new ReactionInputMutation.SetInputRowRole(input1.getAnchor(), ReactionRole.CATALYST));
-        assertThat(input1.getRole()).isEqualTo(ReactionRole.CATALYST);
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutate(new ReactionInputMutation.SetInputRowRole(experiment.input(1).getAnchor(), ReactionRole.CATALYST));
+        assertThat(experiment.input(1).getRole()).isEqualTo(ReactionRole.CATALYST);
     }
 
     @Test
     void testSetInputRowRoleAndBack() {
-        loadScheme();
-        applyMutation(new ReactionInputMutation.SetInputRowRole(input1.getAnchor(), ReactionRole.CATALYST));
-        applyMutation(new ReactionInputMutation.SetInputRowRole(input1.getAnchor(), ReactionRole.REAGENT));
-        applyMutation(new ReactionInputMutation.SetInputRowRole(input1.getAnchor(), ReactionRole.REACTANT));
-        assertThat(input1.getRole()).isEqualTo(ReactionRole.REACTANT);
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutate(new ReactionInputMutation.SetInputRowRole(experiment.input(1).getAnchor(), ReactionRole.CATALYST));
+        experiment.mutate(new ReactionInputMutation.SetInputRowRole(experiment.input(1).getAnchor(), ReactionRole.REAGENT));
+        experiment.mutate(new ReactionInputMutation.SetInputRowRole(experiment.input(1).getAnchor(), ReactionRole.REACTANT));
+        assertThat(experiment.input(1).getRole()).isEqualTo(ReactionRole.REACTANT);
     }
 
     @Test
     void testSetInputMol() {
-        applyMutation(new ReactionMutation.AddEmptyInput(reaction.getAnchor()), false);
-        applyMutation(new ReactionInputSampleMutation.SetInputMol(input1Sample1.getAnchor(), "10.0", MMOL));
-        assertThat(input1Sample1.getMol()).hasValue(10, MMOL);
-        assertThat(input1.getMol()).hasValue(10, MMOL);
+        experiment.mutateAddEmptyInput();
+        experiment.mutate(new ReactionInputSampleMutation.SetInputMol(experiment.inputSample(1, 1).getAnchor(), "10.0", MolUnit.MMOL));
+        assertThat(experiment.inputSample(1, 1).getMol()).hasValue(10, MMOL);
+        assertThat(experiment.input(1).getMol()).hasValue(10, MMOL);
     }
 
     @Test
     void testSetInputWeight() {
-        applyMutation(new ReactionMutation.AddEmptyInput(reaction.getAnchor()), false);
-        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "10.0", G));
-        assertThat(input1Sample1.getWeight()).hasValue(10, G);
+        experiment.mutateAddEmptyInput();
+        experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(1, 1).getAnchor(), "10.0", WeightUnit.G));
+        assertThat(experiment.inputSample(1, 1).getWeight()).hasValue(10, G);
     }
 
     @Test
     void testSetInputDensity() {
-        applyMutation(new ReactionMutation.AddEmptyInput(reaction.getAnchor()), false);
-        applyMutation(new ReactionInputSampleMutation.SetInputDensity(input1Sample1.getAnchor(), "10.0", G_ML));
-        assertThat(input1Sample1.getDensity()).hasValue(10, G_ML);
+        experiment.mutateAddEmptyInput();
+        experiment.mutate(new ReactionInputSampleMutation.SetInputDensity(experiment.inputSample(1, 1).getAnchor(), "10.0", DensityUnit.G_ML));
+        assertThat(experiment.inputSample(1, 1).getDensity()).hasValue(10, G_ML);
     }
 
     @Test
     void testSetInputMolarity() {
-        applyMutation(new ReactionMutation.AddEmptyInput(reaction.getAnchor()), false);
-        applyMutation(new ReactionInputSampleMutation.SetInputMolarity(input1Sample1.getAnchor(), "10.0", MM));
-        assertThat(input1Sample1.getMolarity()).hasValue(10, MM);
+        experiment.mutateAddEmptyInput();
+        experiment.mutate(new ReactionInputSampleMutation.SetInputMolarity(experiment.inputSample(1, 1).getAnchor(), "10.0", MolarityUnit.MM));
+        assertThat(experiment.inputSample(1, 1).getMolarity()).hasValue(10, MM);
     }
 
     @Test
     void testSetInputVolume() {
-        applyMutation(new ReactionMutation.AddEmptyInput(reaction.getAnchor()), false);
-        applyMutation(new ReactionInputSampleMutation.SetInputVolume(input1Sample1.getAnchor(), "10.0", ML));
-        assertThat(input1Sample1.getVolume()).hasValue(10, ML);
+        experiment.mutateAddEmptyInput();
+        experiment.mutate(new ReactionInputSampleMutation.SetInputVolume(experiment.inputSample(1, 1).getAnchor(), "10.0", VolumeUnit.ML));
+        assertThat(experiment.inputSample(1, 1).getVolume()).hasValue(10, ML);
     }
 
     @Test
     void testSetInputPurity() {
-        applyMutation(new ReactionMutation.AddEmptyInput(reaction.getAnchor()), false);
-        applyMutation(new ReactionInputSampleMutation.SetInputPurity(input1Sample1.getAnchor(), "10"));
-        assertThat(input1Sample1.getPurity()).hasValue(10);
+        experiment.mutateAddEmptyInput();
+        experiment.mutate(new ReactionInputSampleMutation.SetInputPurity(experiment.inputSample(1, 1).getAnchor(), "10"));
+        assertThat(experiment.inputSample(1, 1).getPurity()).hasValue(10);
     }
 
     @Test
     void testSetInputHealthHazards() {
-        applyMutation(new ReactionMutation.AddEmptyInput(reaction.getAnchor()), false);
+        experiment.mutateAddEmptyInput();
         HealthHazardRef healthHazard = dictionaryClient.getFirst(BuiltInDictionary.HEALTH_HAZARD);
-        applyMutation(new ReactionInputSampleMutation.SetInputHealthHazards(input1Sample1.getAnchor(), List.of(healthHazard)));
-        assertThat(input1Sample1.getHealthHazards()).containsExactly(healthHazard);
+        experiment.mutate(new ReactionInputSampleMutation.SetInputHealthHazards(experiment.inputSample(1, 1).getAnchor(), List.of(healthHazard)));
+        assertThat(experiment.inputSample(1, 1).getHealthHazards()).containsExactly(healthHazard);
     }
 
     @Test
     void testSetInputComment() {
-        loadScheme();
-        applyMutation(prepareResolveInputs(), false);
-        applyMutation(new ReactionInputSampleMutation.SetInputComment(input1Sample1.getAnchor(), "newComment"));
-        assertThat(input1Sample1.getComment()).isEqualTo("newComment");
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutateResolveInputs();
+        experiment.mutate(new ReactionInputSampleMutation.SetInputComment(experiment.inputSample(1, 1).getAnchor(), "newComment"));
+        assertThat(experiment.inputSample(1, 1).getComment()).isEqualTo("newComment");
     }
 
     @Test
     void testAddProductSample() {
-        loadScheme();
-        applyMutation(new ReactionOutputMutation.AddProductSample(output1.getAnchor()));
-        assertThat(output1Sample1).isNotNull();
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutateAddProductSample(1);
+        assertThat(experiment.outputSample(1, 1)).isNotNull();
     }
 
     @Test
     void testSetOutputRowType() {
-        loadScheme();
-        applyMutation(new ReactionOutputMutation.SetOutputRowType(output1.getAnchor(), ReactionOutputType.INTERMEDIATE));
-        assertThat(output1.getType()).isEqualTo(ReactionOutputType.INTERMEDIATE);
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutate(new ReactionOutputMutation.SetOutputRowType(experiment.output(1).getAnchor(), ReactionOutputType.INTERMEDIATE));
+        assertThat(experiment.output(1).getType()).isEqualTo(ReactionOutputType.INTERMEDIATE);
     }
 
     @Test
     void testSetOutputRowName() {
-        loadScheme();
-        applyMutation(new ReactionOutputMutation.SetOutputRowName(output1.getAnchor(), "newOutputName"));
-        assertThat(output1.getOutputName()).isEqualTo("newOutputName");
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutate(new ReactionOutputMutation.SetOutputRowName(experiment.output(1).getAnchor(), "newOutputName"));
+        assertThat(experiment.output(1).getOutputName()).isEqualTo("newOutputName");
     }
 
     @Test
     void testSetOutputRowChemicalName() {
-        loadScheme();
-        applyMutation(new ReactionOutputMutation.SetOutputRowChemicalName(output1.getAnchor(), "newChemicalName"));
-        assertThat(output1.getChemicalName()).isEqualTo("newChemicalName");
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutate(new ReactionOutputMutation.SetOutputRowChemicalName(experiment.output(1).getAnchor(), "newChemicalName"));
+        assertThat(experiment.output(1).getChemicalName()).isEqualTo("newChemicalName");
     }
 
     @Test
     void testSetOutputRowSaltCodeAndEQ() {
-        loadScheme();
-        applyMutation(new ReactionOutputMutation.SetOutputRowSaltCode(output1.getAnchor(), saltCode));
-        assertThat(output1.getCompound()).isInstanceOf(CompoundRef.Virtual.class);
-        assertThat(output1.getCompound().getSaltCode()).isEqualTo(saltCode);
-        applyMutation(new ReactionOutputMutation.SetOutputRowSaltEQ(output1.getAnchor(), 2.0));
-        assertThat(output1.getCompound().getSaltCode()).isEqualTo(saltCode);
-        assertThat(output1.getCompound().getSaltEQ()).isCloseTo(2.0, Offset.offset(1e-6));
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutate(new ReactionOutputMutation.SetOutputRowSaltCode(experiment.output(1).getAnchor(), saltCode));
+        assertThat(experiment.output(1).getCompound()).isInstanceOf(CompoundRef.Virtual.class);
+        assertThat(experiment.output(1).getCompound().getSaltCode()).isEqualTo(saltCode);
+        experiment.mutate(new ReactionOutputMutation.SetOutputRowSaltEQ(experiment.output(1).getAnchor(), 2.0));
+        assertThat(experiment.output(1).getCompound().getSaltCode()).isEqualTo(saltCode);
+        assertThat(experiment.output(1).getCompound().getSaltEQ()).isCloseTo(2.0, Offset.offset(1e-6));
     }
 
     @Test
     void testSetOutputRowStereoisomerCode() {
-        loadScheme();
-        applyMutation(new ReactionOutputMutation.SetOutputCompoundStereoisomerCode(output1.getAnchor(), stereoisomerCode));
-        assertThat(output1.getCompound()).isInstanceOf(CompoundRef.Virtual.class);
-        assertThat(output1.getCompound().getStereoisomerCode()).isEqualTo(stereoisomerCode);
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutate(new ReactionOutputMutation.SetOutputCompoundStereoisomerCode(experiment.output(1).getAnchor(), stereoisomerCode));
+        assertThat(experiment.output(1).getCompound()).isInstanceOf(CompoundRef.Virtual.class);
+        assertThat(experiment.output(1).getCompound().getStereoisomerCode()).isEqualTo(stereoisomerCode);
     }
 
 // TODO need unknown compound for that
 //    @Test
 //    void testSetOutputCompoundMolWeight() {
 //        loadScheme();
-//        applyMutation(new ReactionOutputMutation.SetOutputCompoundMolWeight(output1.getAnchor(), 100.0, null));
-//        assertThat(output1.getCompound().getMolWeight()).hasValue(100).isUserEntered();
+//        applyMutation(new ReactionOutputMutation.SetOutputCompoundMolWeight(experiment.output(1).getAnchor(), 100.0, null));
+//        assertThat(experiment.output(1).getCompound().getMolWeight()).hasValue(100).isUserEntered();
 //    }
 
     @Test
     void testSetOutputRowEQ() {
-        loadScheme();
-        applyMutation(new ReactionOutputMutation.SetOutputRowEQ(output1.getAnchor(), "2.0"));
-        assertThat(output1.getEq()).hasValue(2).hasStringValue("2.0");
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutate(new ReactionOutputMutation.SetOutputRowEQ(experiment.output(1).getAnchor(), "2.0"));
+        assertThat(experiment.output(1).getEq()).hasValue(2).hasStringValue("2.0");
     }
 
     @Test
     void testSetOutputHealthHazards() {
-        loadScheme();
-        addOutputSample();
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutateAddProductSample(1);
         HealthHazardRef healthHazard = dictionaryClient.getFirst(BuiltInDictionary.HEALTH_HAZARD);
-        applyMutation(new ReactionOutputSampleMutation.SetOutputHealthHazards(output1Sample1.getAnchor(), List.of(healthHazard)));
-        assertThat(output1Sample1.getHealthHazards()).containsExactly(healthHazard);
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputHealthHazards(experiment.outputSample(1, 1).getAnchor(), List.of(healthHazard)));
+        assertThat(experiment.outputSample(1, 1).getHealthHazards()).containsExactly(healthHazard);
     }
 
     @Test
     void testSetOutputActualMol() {
-        loadScheme();
-        addOutputSample();
-        applyMutation(new ReactionOutputSampleMutation.SetOutputActualMol(output1Sample1.getAnchor(), "10.0", MMOL));
-        assertThat(output1Sample1.getActualMol()).hasValue(10, MMOL);
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutateAddProductSample(1);
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputActualMol(experiment.outputSample(1, 1).getAnchor(), "10.0", MolUnit.MMOL));
+        assertThat(experiment.outputSample(1, 1).getActualMol()).hasValue(10, MMOL);
     }
 
     @Test
     void testSetOutputActualWeight() {
-        loadScheme();
-        addOutputSample();
-        applyMutation(new ReactionOutputSampleMutation.SetOutputActualWeight(output1Sample1.getAnchor(), "10.0", G));
-        assertThat(output1Sample1.getActualWeight()).hasValue(10, G);
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutateAddProductSample(1);
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputActualWeight(experiment.outputSample(1, 1).getAnchor(), "10.0", WeightUnit.G));
+        assertThat(experiment.outputSample(1, 1).getActualWeight()).hasValue(10, G);
     }
 
     @Test
     void testRegisterSample() {
-        loadScheme();
-        addOutputSample();
-        applyMutation(new ReactionOutputSampleMutation.RegisterSample(output1Sample1.getAnchor()), false); // register sample is not undoable
-        assertThat(output1Sample1.getRegistrationStatus()).isEqualTo(SampleRegistrationStatus.REGISTERED);
-        assertThat(output1Sample1.getSampleId()).isNotNull();
-        assertThat(output1Sample1.getStrCode()).isNotNull();
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutateAddProductSample(1);
+        experiment.mutate(new ReactionOutputSampleMutation.RegisterSample(experiment.outputSample(1, 1).getAnchor()), false); // register sample is not undoable
+        assertThat(experiment.outputSample(1, 1).getRegistrationStatus()).isEqualTo(SampleRegistrationStatus.REGISTERED);
+        assertThat(experiment.outputSample(1, 1).getSampleId()).isNotNull();
+        assertThat(experiment.outputSample(1, 1).getStrCode()).isNotNull();
     }
 
     @Test
     void testSetOutputComponentState() {
-        loadScheme();
-        addOutputSample();
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutateAddProductSample(1);
         ComponentStateRef componentState = dictionaryClient.getFirst(BuiltInDictionary.COMPONENT_STATE);
-        applyMutation(new ReactionOutputSampleMutation.SetOutputComponentState(output1Sample1.getAnchor(), componentState));
-        assertThat(output1Sample1.getComponentState()).isEqualTo(componentState);
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputComponentState(experiment.outputSample(1, 1).getAnchor(), componentState));
+        assertThat(experiment.outputSample(1, 1).getComponentState()).isEqualTo(componentState);
     }
 
     @Test
     void testSetOutputHandlingPrecautions() {
-        loadScheme();
-        addOutputSample();
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutateAddProductSample(1);
         HandlingPrecautionsRef handlingPrecautions = dictionaryClient.getFirst(BuiltInDictionary.HANDLING_PRECAUTIONS);
-        applyMutation(new ReactionOutputSampleMutation.SetOutputHandlingPrecautions(output1Sample1.getAnchor(), List.of(handlingPrecautions)));
-        assertThat(output1Sample1.getHandlingPrecautions()).containsExactly(handlingPrecautions);
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputHandlingPrecautions(experiment.outputSample(1, 1).getAnchor(), List.of(handlingPrecautions)));
+        assertThat(experiment.outputSample(1, 1).getHandlingPrecautions()).containsExactly(handlingPrecautions);
     }
 
     @Test
     void testSetOutputCompoundProtection() {
-        loadScheme();
-        addOutputSample();
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutateAddProductSample(1);
         CompoundProtectionRef compoundProtection = dictionaryClient.getFirst(BuiltInDictionary.COMPOUND_PROTECTION);
-        applyMutation(new ReactionOutputSampleMutation.SetOutputCompoundProtection(output1Sample1.getAnchor(), List.of(compoundProtection)));
-        assertThat(output1Sample1.getCompoundProtection()).containsExactly(compoundProtection);
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputCompoundProtection(experiment.outputSample(1, 1).getAnchor(), List.of(compoundProtection)));
+        assertThat(experiment.outputSample(1, 1).getCompoundProtection()).containsExactly(compoundProtection);
     }
 
     @Test
     void testSetOutputStorageInstructions() {
-        loadScheme();
-        addOutputSample();
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutateAddProductSample(1);
         StorageInstructionsRef storageInstructions = dictionaryClient.getFirst(BuiltInDictionary.STORAGE_INSTRUCTIONS);
-        applyMutation(new ReactionOutputSampleMutation.SetOutputStorageInstructions(output1Sample1.getAnchor(), List.of(storageInstructions)));
-        assertThat(output1Sample1.getStorageInstructions()).containsExactly(storageInstructions);
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputStorageInstructions(experiment.outputSample(1, 1).getAnchor(), List.of(storageInstructions)));
+        assertThat(experiment.outputSample(1, 1).getStorageInstructions()).containsExactly(storageInstructions);
     }
 
     @Test
     void testSetOutputSolubilityInSolvents() {
-        loadScheme();
-        addOutputSample();
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutateAddProductSample(1);
         SolventRef solvent = dictionaryClient.getFirst(BuiltInDictionary.SOLVENT);
         SolubidityInSolvent solubidityInSolvent = new SolubidityInSolvent.Quantitative(solvent, "comment", ComparisonOperator.EQUALS, 10.0, G_ML);
-        applyMutation(new ReactionOutputSampleMutation.SetOutputSolubilityInSolvents(output1Sample1.getAnchor(), List.of(solubidityInSolvent)));
-        assertThat(output1Sample1.getSolubilityInSolvents()).containsExactly(solubidityInSolvent);
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputSolubilityInSolvents(experiment.outputSample(1, 1).getAnchor(), List.of(solubidityInSolvent)));
+        assertThat(experiment.outputSample(1, 1).getSolubilityInSolvents()).containsExactly(solubidityInSolvent);
     }
 
     @Test
     void testSetOutputResidualSolvents() {
-        loadScheme();
-        addOutputSample();
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutateAddProductSample(1);
         SolventRef solvent = dictionaryClient.getFirst(BuiltInDictionary.SOLVENT);
         ResidualSolvent residualSolvent = new ResidualSolvent(solvent, 10.0, "comment");
-        applyMutation(new ReactionOutputSampleMutation.SetOutputResidualSolvents(output1Sample1.getAnchor(), List.of(residualSolvent)));
-        assertThat(output1Sample1.getResidualSolvents()).containsExactly(residualSolvent);
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputResidualSolvents(experiment.outputSample(1, 1).getAnchor(), List.of(residualSolvent)));
+        assertThat(experiment.outputSample(1, 1).getResidualSolvents()).containsExactly(residualSolvent);
     }
 
     @Test
     void testSetOutputMeltingPoint() {
-        loadScheme();
-        addOutputSample();
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutateAddProductSample(1);
         MeltingPoint meltingPoint = new MeltingPoint(-10.0, 10.0, "comment");
-        applyMutation(new ReactionOutputSampleMutation.SetOutputMeltingPoint(output1Sample1.getAnchor(), meltingPoint));
-        assertThat(output1Sample1.getMeltingPoint()).isEqualTo(meltingPoint);
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputMeltingPoint(experiment.outputSample(1, 1).getAnchor(), meltingPoint));
+        assertThat(experiment.outputSample(1, 1).getMeltingPoint()).isEqualTo(meltingPoint);
     }
 
     @Test
     void testSetOutputPurityCalculations() {
-        loadScheme();
-        addOutputSample();
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutateAddProductSample(1);
         PurityCalculation purityCalculation = new PurityCalculation(PurityCalculationType.MS, ComparisonOperator.EQUALS, 0.1, "comment");
-        applyMutation(new ReactionOutputSampleMutation.SetOutputPurityCalculations(output1Sample1.getAnchor(), List.of(purityCalculation)));
-        assertThat(output1Sample1.getPurityCalculations()).containsExactly(purityCalculation);
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputPurityCalculations(experiment.outputSample(1, 1).getAnchor(), List.of(purityCalculation)));
+        assertThat(experiment.outputSample(1, 1).getPurityCalculations()).containsExactly(purityCalculation);
     }
 
     @Test
     void testSetOutputExternalSupplier() {
-        loadScheme();
-        addOutputSample();
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutateAddProductSample(1);
         ExternalSupplierRef supplier = dictionaryClient.getFirst(BuiltInDictionary.EXTERNAL_SUPPLIER);
         ExternalSupplier externalSupplier = new ExternalSupplier(supplier, "1111");
-        applyMutation(new ReactionOutputSampleMutation.SetOutputExternalSupplier(output1Sample1.getAnchor(), externalSupplier));
-        assertThat(output1Sample1.getExternalSupplier()).isEqualTo(externalSupplier);
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputExternalSupplier(experiment.outputSample(1, 1).getAnchor(), externalSupplier));
+        assertThat(experiment.outputSample(1, 1).getExternalSupplier()).isEqualTo(externalSupplier);
     }
 
     @Test
     void testSetOutputSourceAndSourceDetails() {
-        loadScheme();
-        addOutputSample();
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutateAddProductSample(1);
         SampleSourceRef source = dictionaryClient.getFirst(BuiltInDictionary.SAMPLE_SOURCE);
-        applyMutation(new ReactionOutputSampleMutation.SetOutputSource(output1Sample1.getAnchor(), source));
-        assertThat(output1Sample1.getSource()).isEqualTo(source);
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputSource(experiment.outputSample(1, 1).getAnchor(), source));
+        assertThat(experiment.outputSample(1, 1).getSource()).isEqualTo(source);
         SampleSourceDetailsRef sourceDetails = dictionaryClient.getFirst(BuiltInDictionary.SAMPLE_SOURCE_DETAILS);
-        applyMutation(new ReactionOutputSampleMutation.SetOutputSourceDetails(output1Sample1.getAnchor(), sourceDetails));
-        assertThat(output1Sample1.getSourceDetails()).isEqualTo(sourceDetails);
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputSourceDetails(experiment.outputSample(1, 1).getAnchor(), sourceDetails));
+        assertThat(experiment.outputSample(1, 1).getSourceDetails()).isEqualTo(sourceDetails);
     }
 
     @Test
     void testSetOutputBatchComment() {
-        loadScheme();
-        addOutputSample();
-        applyMutation(new ReactionOutputSampleMutation.SetOutputBatchComment(output1Sample1.getAnchor(), "batchComment"));
-        assertThat(output1Sample1.getBatchComment()).isEqualTo("batchComment");
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutateAddProductSample(1);
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputBatchComment(experiment.outputSample(1, 1).getAnchor(), "batchComment"));
+        assertThat(experiment.outputSample(1, 1).getBatchComment()).isEqualTo("batchComment");
     }
 
     @Test
     void testSetOutputStructureComment() {
-        loadScheme();
-        addOutputSample();
-        applyMutation(new ReactionOutputSampleMutation.SetOutputStructureComment(output1Sample1.getAnchor(), "structureComment"));
-        assertThat(output1Sample1.getStructureComment()).isEqualTo("structureComment");
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutateAddProductSample(1);
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputStructureComment(experiment.outputSample(1, 1).getAnchor(), "structureComment"));
+        assertThat(experiment.outputSample(1, 1).getStructureComment()).isEqualTo("structureComment");
     }
 
     @Test
     void testSetOutputDensity() {
-        loadScheme();
-        addOutputSample();
-        applyMutation(new ReactionOutputSampleMutation.SetOutputDensity(output1Sample1.getAnchor(), "10.0", G_ML));
-        assertThat(output1Sample1.getDensity()).hasValue(10, G_ML);
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutateAddProductSample(1);
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputDensity(experiment.outputSample(1, 1).getAnchor(), "10.0", DensityUnit.G_ML));
+        assertThat(experiment.outputSample(1, 1).getDensity()).hasValue(10, G_ML);
     }
 
     @Test
     void testSetOutputMolarity() {
-        loadScheme();
-        addOutputSample();
-        applyMutation(new ReactionOutputSampleMutation.SetOutputMolarity(output1Sample1.getAnchor(), "10.0", MM));
-        assertThat(output1Sample1.getMolarity()).hasValue(10, MM);
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutateAddProductSample(1);
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputMolarity(experiment.outputSample(1, 1).getAnchor(), "10.0", MolarityUnit.MM));
+        assertThat(experiment.outputSample(1, 1).getMolarity()).hasValue(10, MM);
     }
 
     @Test
     void testSetOutputVolume() {
-        loadScheme();
-        addOutputSample();
-        applyMutation(new ReactionOutputSampleMutation.SetOutputVolume(output1Sample1.getAnchor(), "10.0", ML));
-        assertThat(output1Sample1.getVolume()).hasValue(10, ML);
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutateAddProductSample(1);
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputVolume(experiment.outputSample(1, 1).getAnchor(), "10.0", VolumeUnit.ML));
+        assertThat(experiment.outputSample(1, 1).getVolume()).hasValue(10, ML);
     }
 
     @Test
     void testSetOutputPurity() {
-        loadScheme();
-        addOutputSample();
-        applyMutation(new ReactionOutputSampleMutation.SetOutputPurity(output1Sample1.getAnchor(), "10"));
-        assertThat(output1Sample1.getPurity()).hasValue(10);
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutateAddProductSample(1);
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputPurity(experiment.outputSample(1, 1).getAnchor(), "10"));
+        assertThat(experiment.outputSample(1, 1).getPurity()).hasValue(10);
     }
 
     @Test
     void testRemoveProductSample() {
-        loadScheme();
-        addOutputSample();
-        applyMutation(new ReactionOutputSampleMutation.RemoveProductSample(output1Sample1.getAnchor()));
-        assertThat(output1.getSamples()).isEmpty();
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutateAddProductSample(1);
+        experiment.mutate(new ReactionOutputSampleMutation.RemoveProductSample(experiment.outputSample(1, 1).getAnchor()));
+        assertThat(experiment.output(1).getSamples()).isEmpty();
     }
 
     @Test
     void testSetExperimentSignificantFigures() {
-        loadScheme();
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
 
-        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "1234", G));
-        assertThat(experiment.getModel().getSignificantFigures()).isEqualTo(5);
-        assertThat(input1Sample1.getWeight()).hasStringValue("1234");
-        assertThat(input1Sample1.getMol()).hasStringValue("8.9343");
+        experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(1, 1).getAnchor(), "1234", WeightUnit.G));
+        assertThat(experiment.model().getSignificantFigures()).isEqualTo(5);
+        assertThat(experiment.inputSample(1, 1).getWeight()).hasStringValue("1234");
+        assertThat(experiment.inputSample(1, 1).getMol()).hasStringValue("8.9343");
 
-        applyMutation(new ExperimentMutation.SetExperimentSignificantFigures(3));
-        assertThat(experiment.getModel().getSignificantFigures()).isEqualTo(3);
-        assertThat(input1Sample1.getWeight()).hasStringValue("1234");
-        assertThat(input1Sample1.getMol()).hasStringValue("8.93");
+        experiment.mutate(new ExperimentMutation.SetExperimentSignificantFigures(3));
+        assertThat(experiment.model().getSignificantFigures()).isEqualTo(3);
+        assertThat(experiment.inputSample(1, 1).getWeight()).hasStringValue("1234");
+        assertThat(experiment.inputSample(1, 1).getMol()).hasStringValue("8.93");
     }
 
     @Test
     void testSetBatchCreator() {
-        applyMutation(new ExperimentMutation.SetBatchCreator(MAGGIE_USER_REF));
-        assertThat(experiment.getBatchCreator()).isEqualTo(MAGGIE_USER_REF);
+        experiment.mutate(new ExperimentMutation.SetBatchCreator(MAGGIE_USER_REF));
+        assertThat(experiment.experiment().getBatchCreator()).isEqualTo(MAGGIE_USER_REF);
     }
 
     @Test
     void testSetOutputSaltCode() {
-        loadScheme();
-        addOutputSample();
-        addOutputSample();
-        assertThat(output2.isIntended()).isTrue();
-        OutputSampleAnchor anchor = output1Sample1.getAnchor();
-        applyMutation(new ReactionOutputSampleMutation.SetOutputSaltCode(anchor, saltCode), false);
-        assertThat(output3.isIntended()).isFalse();
-        assertThat(output3.getSamples()).singleElement().satisfies(s -> {
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutateAddProductSample(1);
+        experiment.mutateAddProductSample(1);
+        assertThat(experiment.output(2).isIntended()).isTrue();
+        OutputSampleAnchor anchor = experiment.outputSample(1, 1).getAnchor();
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputSaltCode(anchor, saltCode), false);
+        assertThat(experiment.output(3).isIntended()).isFalse();
+        assertThat(experiment.output(3).getSamples()).singleElement().satisfies(s -> {
             assertThat(s.getAnchor()).isEqualTo(anchor);
         });
     }
 
     @Test
     void testSetOutputSaltEQ() {
-        loadScheme();
-        addOutputSample();
-        addOutputSample();
-        assertThat(output2.isIntended()).isTrue();
-        OutputSampleAnchor anchor = output1Sample1.getAnchor();
-        applyMutation(new ReactionOutputSampleMutation.SetOutputSaltCode(anchor, saltCode), false);
-        applyMutation(new ReactionOutputSampleMutation.SetOutputSaltEQ(anchor, 2.0), false);
-        assertThat(output3.isIntended()).isFalse();
-        assertThat(output3.getSamples()).singleElement().satisfies(s -> {
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutateAddProductSample(1);
+        experiment.mutateAddProductSample(1);
+        assertThat(experiment.output(2).isIntended()).isTrue();
+        OutputSampleAnchor anchor = experiment.outputSample(1, 1).getAnchor();
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputSaltCode(anchor, saltCode), false);
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputSaltEQ(anchor, 2.0), false);
+        assertThat(experiment.output(3).isIntended()).isFalse();
+        assertThat(experiment.output(3).getSamples()).singleElement().satisfies(s -> {
             assertThat(s.getAnchor()).isEqualTo(anchor);
         });
     }
 
     @Test
     void testSetOutputStereoisomerCode() {
-        loadScheme();
-        addOutputSample();
-        addOutputSample();
-        assertThat(output2.isIntended()).isTrue();
-        OutputSampleAnchor anchor = output1Sample1.getAnchor();
-        applyMutation(new ReactionOutputSampleMutation.SetOutputStereoisomerCode(anchor, stereoisomerCode), false);
-        assertThat(output3.isIntended()).isFalse();
-        assertThat(output3.getSamples()).singleElement().satisfies(s -> {
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutateAddProductSample(1);
+        experiment.mutateAddProductSample(1);
+        assertThat(experiment.output(2).isIntended()).isTrue();
+        OutputSampleAnchor anchor = experiment.outputSample(1, 1).getAnchor();
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputStereoisomerCode(anchor, stereoisomerCode), false);
+        assertThat(experiment.output(3).isIntended()).isFalse();
+        assertThat(experiment.output(3).getSamples()).singleElement().satisfies(s -> {
             assertThat(s.getAnchor()).isEqualTo(anchor);
         });
     }
 
     @Test
     void testSetOutputMolfile() {
-        loadScheme();
-        addOutputSample();
-        addOutputSample();
-        assertThat(output2.isIntended()).isTrue();
-        OutputSampleAnchor anchor = output1Sample1.getAnchor();
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutateAddProductSample(1);
+        experiment.mutateAddProductSample(1);
+        assertThat(experiment.output(2).isIntended()).isTrue();
+        OutputSampleAnchor anchor = experiment.outputSample(1, 1).getAnchor();
         String molfile = new String(ModelUtil.loadResource(getClass(), "/updated-molfile.mol"));
-        applyMutation(new ReactionOutputSampleMutation.SetOutputMolfile(anchor, molfile), false);
-        assertThat(output3.isIntended()).isFalse();
-        assertThat(output3.getSamples()).singleElement().satisfies(s -> {
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputMolfile(anchor, molfile), false);
+        assertThat(experiment.output(3).isIntended()).isFalse();
+        assertThat(experiment.output(3).getSamples()).singleElement().satisfies(s -> {
             assertThat(s.getAnchor()).isEqualTo(anchor);
         });
     }
 
     @Test
     void testConflicts() {
-        loadScheme();
-        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "100", G));
-        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input2Sample1.getAnchor(), "200", G));
-        applyMutation(new ReactionInputMutation.SetInputRowEQ(input1.getAnchor(), "1"));
-        applyMutation(new ReactionInputMutation.SetInputRowEQ(input2.getAnchor(), "2"));
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(1, 1).getAnchor(), "100", WeightUnit.G));
+        experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(2, 1).getAnchor(), "200", WeightUnit.G));
+        experiment.mutate(new ReactionInputMutation.SetInputRowEQ(experiment.input(1).getAnchor(), "1"));
+        experiment.mutate(new ReactionInputMutation.SetInputRowEQ(experiment.input(2).getAnchor(), "2"));
+        assertThat(experiment.lastMutationResponse().getOverwritten()).containsExactly("reactions.0.inputs.1.samples.0.weight");
     }
 
     @Test
     void testUpdateNonLimitingInput() {
-        loadScheme();
-        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "100", G), false);
-        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input2Sample1.getAnchor(), "200", G), false);
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(1, 1).getAnchor(), "100", G), false);
+        experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(2, 1).getAnchor(), "200", G), false);
     }
 
     @Test
     void testCannotHaveDuplicateMoleculesInScheme() {
         assertThatClientCall(() -> {
-            loadScheme("/duplicate-input.rxn", false);
+            experiment.mutateSetSchemeFromResource("/duplicate-input.rxn");
         }).isBadRequest("Reaction contains duplicate input compounds");
     }
 
     @Test
     void testImportSDF() {
-        applyMutation(
-                () -> experimentClient.importSDF(experiment.getId(), reaction.getAnchor(), ClientUtil.createFileUpload("file.sdf", loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"))),
-                () -> "Import SDF"
-        );
+        experimentClient.importSDF(experiment.id(), experiment.reaction().getAnchor(), ClientUtil.createFileUpload("file.sdf", loadResource(getClass(), "/Compound_000000001_000500000.1.sdf")));
     }
 
     @Test
     void testAddSampleAndMakeItIntended() {
-        applyMutation(new ReactionMutation.AddNoProductSample(reaction.getAnchor()));
-        applyMutation(new ReactionOutputSampleMutation.SetOutputMolfile(output1Sample1.getAnchor(), loadResourceAsString(getClass(), "/ring-substructure.mol")));
-        applyMutation(new ReactionOutputMutation.SetOutputRowIntended(output1.getAnchor(), true));
-    }
-
-    private void loadScheme() {
-       loadScheme("/reaction.rxn", true);
-    }
-
-    private void loadScheme(String resourceName, boolean undoRedo) {
-        String rxnFile = new String(ModelUtil.loadResource(getClass(), resourceName));
-        applyMutation(new ReactionMutation.SetScheme(reaction.getAnchor(), rxnFile), false);
-    }
-
-    private ReactionMutation.ResolveInputs prepareResolveInputs() {
-        return MutationsTestUtil.prepareResolveInputs(experiment, reaction.getAnchor(), experimentClient, compoundClient);
-    }
-
-    private void addOutputSample() {
-        applyMutation(new ReactionOutputMutation.AddProductSample(output1.getAnchor()), false);
+        experiment.mutate(new ReactionMutation.AddNoProductSample(experiment.reaction().getAnchor()));
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputMolfile(experiment.outputSample(1, 1).getAnchor(), ModelUtil.loadResourceAsString(getClass(), "/ring-substructure.mol")));
+        experiment.mutate(new ReactionOutputMutation.SetOutputRowIntended(experiment.output(1).getAnchor(), true));
     }
 }

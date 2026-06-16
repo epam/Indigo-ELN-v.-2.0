@@ -3,3 +3,4 @@
 .quarkus
 build
 *.http
+.env

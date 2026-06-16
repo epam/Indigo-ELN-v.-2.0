@@ -5,6 +5,7 @@ import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
 import com.epam.indigoeln.eln.mapper.SnapshotMapper;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.util.JSONPatcher;
+import com.epam.indigoeln.eln.util.PatchFormatter;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.Reaction;
@@ -16,6 +17,7 @@ import com.epam.indigoeln.reaction.service.mutation.experiment.ExperimentMutatio
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -40,6 +42,8 @@ public class ExperimentModelService {
     JSONPatcher jsonPatcher;
     @Inject
     ObjectMapper objectMapper;
+    @Inject
+    Instance<PatchFormatter> patchFormatterInstance;
 
     @Valid
     public ExperimentModel createNewModel() {
@@ -51,8 +55,7 @@ public class ExperimentModelService {
 
     public Triple<ExperimentSnapshot, JsonNode, ExperimentMutationContext> applyMutation(ExperimentEntity experiment, ExperimentMutation mutation) {
         log.debug("Mutating experiment {}: {}", experiment.getId(), mutation);
-        AbstractExperimentMutationHandler<ExperimentMutation> handler = mutationHandlerRegistry.findHandler(mutation);
-        return handler.applyMutation(experiment, mutation);
+        return mutationHandlerRegistry.withHandler(mutation, (AbstractExperimentMutationHandler<ExperimentMutation> handler) -> handler.applyMutation(experiment, mutation));
     }
 
     @SneakyThrows
@@ -69,5 +72,14 @@ public class ExperimentModelService {
             json = jsonPatcher.reverse(json, revision.getDiff());
         }
         return json;
+    }
+
+    public String formatDiff(JsonNode before, ExperimentRevisionEntity targetRevision) {
+        PatchFormatter formatter = patchFormatterInstance.get();
+        try {
+            return formatter.format(before, targetRevision.getDiff(), targetRevision.getOverwritten());
+        } finally {
+            patchFormatterInstance.destroy(formatter);
+        }
     }
 }

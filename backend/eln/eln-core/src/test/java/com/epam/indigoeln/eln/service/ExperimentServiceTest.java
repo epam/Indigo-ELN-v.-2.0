@@ -7,8 +7,8 @@ import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
-import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
+import com.epam.indigoeln.reaction.util.ExperimentObject;
 import com.epam.indigoeln.test.FeignUtil;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
@@ -297,24 +297,18 @@ class ExperimentServiceTest extends ELNBaseTest {
     @Test
     @SneakyThrows
     void testGetPicture() {
-        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
-        ExperimentModel model = experiment.getModel();
-        Reaction reaction = model.getReactions().getFirst();
-        byte[] response = experimentClient.getExperimentPicture(experiment.getId(), experiment.getRevision());
+        ExperimentObject experiment = createExperiment(notebook, new ExperimentRequest(emptyTemplateID));
+        byte[] response = experimentClient.getExperimentPicture(experiment.id(), experiment.revision());
         assertThat(response).containsExactly(ExperimentService.EMPTY_PICTURE);
-        response = experimentClient.getReactionPicture(experiment.getId(), reaction.getAnchor(), experiment.getRevision());
+        response = experimentClient.getReactionPicture(experiment.id(), experiment.reaction().getAnchor(), experiment.revision());
         assertThat(response).containsExactly(ExperimentService.EMPTY_PICTURE);
 
-        String rxnFile = loadResourceAsString(getClass(), "/reaction.rxn");
-        experimentClient.mutateExperimentModel4(experiment.getId(), experiment.getRevision(), new ReactionMutation.SetScheme(model.getReactions().getFirst().getAnchor(), rxnFile));
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
 
-        model = experimentClient.getExperiment(experiment.getId()).getModel();
-        reaction = model.getReactions().getFirst();
-
-        response = experimentClient.getExperimentPicture(experiment.getId(), experiment.getRevision());
+        response = experimentClient.getExperimentPicture(experiment.id(), experiment.revision());
         assertThat(response).isNotEqualTo(ExperimentService.EMPTY_PICTURE);
-        Files.write(Paths.get("picture.svg"), response);
-        response = experimentClient.getReactionPicture(experiment.getId(), reaction.getAnchor(), experiment.getRevision());
+        Files.write(Paths.get("build/picture.svg"), response);
+        response = experimentClient.getReactionPicture(experiment.id(), experiment.reaction().getAnchor(), experiment.revision());
         assertThat(response).isNotEqualTo(ExperimentService.EMPTY_PICTURE);
         assertThat(FeignUtil.getLastResponse().headers().get(HttpHeaders.CONTENT_TYPE).iterator().next()).isEqualTo("image/svg+xml");
         //noinspection deprecation

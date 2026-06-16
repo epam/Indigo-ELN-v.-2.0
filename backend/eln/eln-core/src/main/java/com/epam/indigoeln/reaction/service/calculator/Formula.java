@@ -29,9 +29,6 @@ public class Formula<U extends MeasurementUnit> {
         addSources(Arrays.asList(sources));
     }
 
-    @Nullable
-    private EnteredValueOpt<U> calculated;
-
     public Formula<U> addSources(Collection<? extends EnteredValueOpt.Property<?, ?>> sources) {
         for (EnteredValueOpt.Property<?, ?> source : sources) {
             source.getDownstream().add(this);
