@@ -297,19 +297,18 @@ public class ExperimentService {
 
             for (Reaction reaction : model.getReactions()) {
                 for (ReactionOutput output : reaction.getOutputs()) {
-                    UUID moleculeId = output.getCompound().getCompoundID();
-                    //System.err.println(output.getSamples());
-                    //experimentModelService.applyMutation(experiment, new ReactionOutputMutation.AddProductSample(output.getAnchor()));
-                    System.err.println(output.getSamples());
+                    for (ReactionOutputSample sample: output.getSamples()) {
+                        UUID moleculeId = sample.getRow().getCompound().getCompoundID();
 
-                    if (moleculeId != null) {
-                        CompoundEntity compound = compoundService.getCompound(moleculeId);
-                        IndigoMolecule molecule = indigo.loadMolecule(compound.getMolFile());
+                        if (moleculeId != null) {
+                            CompoundEntity compound = compoundService.getCompound(moleculeId);
+                            IndigoMolecule molecule = indigo.loadMolecule(compound.getMolFile());
 
-                        molecule.setProperty("chemicalName", Objects.requireNonNullElse(compound.getChemicalName(), ""));
-                        molecule.setProperty("molWeight", compound.getMolWeight().toString());
+                            molecule.setProperty("chemicalName", Objects.requireNonNullElse(compound.getChemicalName(), ""));
+                            molecule.setProperty("molWeight", compound.getMolWeight().toString());
 
-                        saver.sdfAppend(molecule);
+                            saver.sdfAppend(molecule);
+                        }
                     }
                 }
             }
