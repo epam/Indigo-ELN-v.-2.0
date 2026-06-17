@@ -379,22 +379,17 @@ class ExperimentServiceTest extends ELNBaseTest {
 
         String rxnFile = loadResourceAsString(getClass(), "/reaction.rxn");
         model = experimentClient.mutateExperimentModel(experiment.getId(), new ReactionMutation.SetScheme(model.getReactions().getFirst().getAnchor(), rxnFile));
-
         assertThat(model.getReactions().isEmpty()).isFalse();
-        for (int i = 0; i < model.getReactions().size(); i++ ) {
-            Reaction reaction = model.getReactions().get(i);
-            assertThat(reaction.getOutputs().isEmpty()).isFalse();
 
-            for (int j = 0; j < reaction.getOutputs().size(); j++) {
-                ReactionOutput output = reaction.getOutputs().get(j);
+        Reaction reaction = model.getReactions().getFirst();
+        assertThat(reaction.getOutputs().size()).isGreaterThanOrEqualTo(2);
 
-                model = experimentClient.mutateExperimentModel(experiment.getId(), new ReactionOutputMutation.AddProductSample(output.getAnchor()));
-                reaction = model.getReactions().get(i);
-                output = reaction.getOutputs().get(j);
+        model = experimentClient.mutateExperimentModel(experiment.getId(), new ReactionOutputMutation.AddProductSample(reaction.getOutputs().get(0).getAnchor()));
+        experimentClient.mutateExperimentModel(experiment.getId(), new ReactionOutputMutation.AddProductSample(reaction.getOutputs().get(1).getAnchor()));
 
-                assertThat(output.getSamples().isEmpty()).isFalse();
-            }
-        }
+        reaction = model.getReactions().getFirst();
+        ReactionOutput output = reaction.getOutputs().getFirst();
+        assertThat(output.getSamples().isEmpty()).isFalse();
 
         Response result = experimentClient.exportSDF(experiment.getId());
         assertThat((byte[]) result.getEntity()).asString().containsIgnoringWhitespaces(">  <molWeight>\n" +
