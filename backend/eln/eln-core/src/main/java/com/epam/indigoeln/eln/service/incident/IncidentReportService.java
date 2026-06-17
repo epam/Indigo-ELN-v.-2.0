@@ -78,7 +78,8 @@ public class IncidentReportService {
         if (file == null) {
             return null;
         }
-        String filename = "incident-" + incidentId + "-" + file.fileName();
+        String basename = Path.of(file.fileName()).getFileName().toString();
+        String filename = "incident-" + incidentId + "-" + basename;
         Files.copy(file.filePath(), directory.resolve(filename));
         return filename;
     }
