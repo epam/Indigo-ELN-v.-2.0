@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import org.eclipse.microprofile.config.ConfigProvider;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -28,17 +27,13 @@ class IncidentServiceTest extends ELNBaseTest {
 
     private IncidentClient incidentClient;
     private Path incidentDir;
+    private List<Path> existingReports;
 
     @BeforeEach
     void setUp() throws IOException {
         incidentClient = buildClient(IncidentClient.class);
         incidentDir = Path.of(ConfigProvider.getConfig().getValue("eln.incident.directory", String.class));
-        clearDirectory();
-    }
-
-    @AfterEach
-    void tearDown() throws IOException {
-        clearDirectory();
+        existingReports = listAllJsonFiles();
     }
 
     @Test
@@ -108,6 +103,21 @@ class IncidentServiceTest extends ELNBaseTest {
     }
 
     @Test
+    void testCreateReportWithAttachmentUsesSafeFilename() throws IOException {
+        byte[] content = "malicious-filename-content".getBytes(StandardCharsets.UTF_8);
+
+        incidentClient.createIncidentReport("Suspicious upload", null, null, content, "../../evil.sh");
+
+        JsonNode report = readReport(listJsonFiles().getFirst());
+        String attachmentFilename = report.path("attachmentFilename").asText();
+        assertThat(attachmentFilename).isNotBlank().doesNotContain("..").endsWith("-evil.sh");
+
+        Path savedAttachment = incidentDir.resolve(attachmentFilename);
+        assertThat(savedAttachment).exists();
+        assertThat(Files.readAllBytes(savedAttachment)).isEqualTo(content);
+    }
+
+    @Test
     void testCreateReportWithAllFields() throws IOException {
         ExperimentDetailsDTO experiment = createExperiment();
         String mutationJson = "{\"type\":\"EditExperimentAttributes\"}";
@@ -158,6 +168,12 @@ class IncidentServiceTest extends ELNBaseTest {
     }
 
     private List<Path> listJsonFiles() throws IOException {
+        return listAllJsonFiles().stream()
+                .filter(f -> !existingReports.contains(f))
+                .toList();
+    }
+
+    private List<Path> listAllJsonFiles() throws IOException {
         Files.createDirectories(incidentDir);
         try (var stream = Files.list(incidentDir)) {
             return stream
@@ -169,18 +185,5 @@ class IncidentServiceTest extends ELNBaseTest {
 
     private JsonNode readReport(Path file) throws IOException {
         return FeignUtil.OBJECT_MAPPER.readTree(file.toFile());
-    }
-
-    private void clearDirectory() throws IOException {
-        if (Files.exists(incidentDir)) {
-            try (var stream = Files.list(incidentDir)) {
-                stream.forEach(f -> {
-                    try {
-                        Files.deleteIfExists(f);
-                    } catch (IOException ignore) {
-                    }
-                });
-            }
-        }
     }
 }
