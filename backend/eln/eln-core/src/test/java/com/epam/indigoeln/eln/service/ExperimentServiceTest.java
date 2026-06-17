@@ -385,6 +385,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         assertThat(reaction.getOutputs().size()).isGreaterThanOrEqualTo(2);
 
         model = experimentClient.mutateExperimentModel(experiment.getId(), new ReactionOutputMutation.AddProductSample(reaction.getOutputs().get(0).getAnchor()));
+        experimentClient.mutateExperimentModel(experiment.getId(), new ReactionOutputMutation.AddProductSample(reaction.getOutputs().get(0).getAnchor()));
         experimentClient.mutateExperimentModel(experiment.getId(), new ReactionOutputMutation.AddProductSample(reaction.getOutputs().get(1).getAnchor()));
 
         reaction = model.getReactions().getFirst();
