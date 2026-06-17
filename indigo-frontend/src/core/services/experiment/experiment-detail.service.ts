@@ -66,7 +66,7 @@ export class ExperimentDetailService {
     return this.updateDataModel2(
       this.service.request<MutationResponse>(
         'post',
-        `experiments/${this.currentId()}/mutate4?revision=${this.experimentDetail().revision}`,
+        `experiments/${this.currentId()}/mutate?revision=${this.experimentDetail().revision}`,
         mutation,
       ),
     );

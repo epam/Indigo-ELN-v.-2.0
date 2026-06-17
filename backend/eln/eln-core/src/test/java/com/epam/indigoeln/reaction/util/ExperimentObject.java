@@ -9,6 +9,7 @@ import com.epam.indigoeln.eln.client.CompoundClient;
 import com.epam.indigoeln.eln.client.ExperimentClient;
 import com.epam.indigoeln.eln.client.MiscClient;
 import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
+import com.epam.indigoeln.eln.model.ExperimentStatus;
 import com.epam.indigoeln.eln.model.MutationResponse;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
@@ -108,8 +109,16 @@ public class ExperimentObject {
         return checkNotNull(lastMutationResponse);
     }
 
+    public String name() {
+        return experiment().getName();
+    }
+
     public int revision() {
         return experiment().getRevision();
+    }
+
+    public ExperimentStatus status() {
+        return experiment().getStatus();
     }
 
     public void mutateSetSchemeFromResource(String resourceName) {

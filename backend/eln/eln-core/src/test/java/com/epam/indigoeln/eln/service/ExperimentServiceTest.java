@@ -6,8 +6,6 @@ import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.reaction.model.ExperimentModel;
-import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.util.ExperimentObject;
 import com.epam.indigoeln.test.FeignUtil;
 import io.quarkus.test.junit.QuarkusTest;
@@ -30,7 +28,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ContentDispositionUtil.extractFilename;
-import static com.epam.indigoeln.common.util.ModelUtil.loadResourceAsString;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -361,13 +358,11 @@ class ExperimentServiceTest extends ELNBaseTest {
     @Test
     @SneakyThrows
     void testExportSDF() {
-        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID, "An experiment", therapeuticAreas.getFirst(), projectCodes.getFirst()));
-        ExperimentModel model = experiment.getModel();
+        ExperimentObject experiment = createExperiment(notebook, new ExperimentRequest(emptyTemplateID));
 
-        String rxnFile = loadResourceAsString(getClass(), "/reaction.rxn");
-        experimentClient.mutateExperimentModel(experiment.getId(), new ReactionMutation.SetScheme(model.getReactions().getFirst().getAnchor(), rxnFile));
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
 
-        byte[] result = experimentClient.exportSDF(experiment.getId());
+        byte[] result = experimentClient.exportSDF(experiment.id());
         assertThat(result).asString().containsIgnoringWhitespaces(">  <molWeight>\n" +
                 "180.16", ">  <chemicalName>");
     }
