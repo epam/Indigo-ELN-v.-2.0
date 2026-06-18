@@ -89,7 +89,7 @@ public interface ExperimentAPI extends BaseAPI {
 
     @POST
     @Path("/experiments/{experimentId}/mutate")
-    MutationResponse mutateExperimentModel(@PathParam("experimentId") UUID experimentId, @QueryParam("revision") Integer revision, Mutation mutation);
+    MutationResponse mutateExperimentModel(@PathParam("experimentId") UUID experimentId, @QueryParam("revision") Integer revision, @Nullable @QueryParam("verifyUndoRedo") Boolean verifyUndoRedo, Mutation mutation);
 
     // TODO remove after frontend is updated
     @POST

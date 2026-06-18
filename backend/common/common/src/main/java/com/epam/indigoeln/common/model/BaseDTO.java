@@ -1,14 +1,16 @@
 package com.epam.indigoeln.common.model;
 
 import jakarta.validation.constraints.NotNull;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Getter
 @Setter
+@EqualsAndHashCode
 public abstract class BaseDTO {
 
     @NotNull
@@ -18,11 +20,11 @@ public abstract class BaseDTO {
     UserRef createdBy;
 
     @NotNull
-    ZonedDateTime createdAt;
+    Instant createdAt;
 
     @NotNull
     UserRef modifiedBy;
 
     @NotNull
-    ZonedDateTime modifiedAt;
+    Instant modifiedAt;
 }

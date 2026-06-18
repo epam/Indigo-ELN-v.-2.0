@@ -24,6 +24,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.openapitools.jackson.nullable.JsonNullable;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -106,12 +107,12 @@ public class JSONSerializationTest {
 
     @ParameterizedTest
     @MethodSource("mappers")
-    void testSerializeDate(MapperType serializer, MapperType deserializer) {
-        ZonedDateTime value = ZonedDateTime.of(2026, 3, 25, 13, 0, 0, 0, ZoneId.of("UTC"));
+    void testSerializeInstant(MapperType serializer, MapperType deserializer) {
+        Instant value = ZonedDateTime.of(2026, 3, 25, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant();
         String serialized = serialize(serializer, value);
         assertThat(serialized).isEqualTo("\"2026-03-25T13:00:00Z\"");
-        ZonedDateTime value2 = deserialize(deserializer, serialized, ZonedDateTime.class);
-        assertThat(value2).isEqualTo(value);
+        Instant value2 = deserialize(deserializer, serialized, Instant.class);
+        assertThat((Object) value2).isEqualTo(value);
     }
 
     @ParameterizedTest

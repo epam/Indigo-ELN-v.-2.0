@@ -8,7 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,10 +27,10 @@ public class DocumentDTO {
     private DocumentStatus status;
 
     @NotNull
-    private ZonedDateTime createdDate;
+    private Instant createdDate;
 
     @NotNull
-    private ZonedDateTime lastModifiedDate;
+    private Instant lastModifiedDate;
 
     @NotNull
     private UserRef author;

@@ -62,7 +62,26 @@ public class ExperimentModelService {
     public JsonNode createPatch(ExperimentSnapshot a, ExperimentSnapshot b) {
         JsonNode aJSON = objectMapper.valueToTree(a);
         JsonNode bJSON = objectMapper.valueToTree(b);
-        return jsonPatcher.createTopLevel(aJSON, bJSON);
+        JsonNode patch = jsonPatcher.createTopLevel(aJSON, bJSON);
+        // TODO remove after testing
+        JsonNode applied = jsonPatcher.apply(aJSON, patch);
+        ExperimentSnapshot restoredB = objectMapper.treeToValue(applied, ExperimentSnapshot.class);
+        restoredB.setRevision(b.getRevision()); // diff doesn't contain revision
+        if (!restoredB.equals(b)) {
+            restoredB.getAttachments().iterator().next().getCreatedAt().equals(b.getAttachments().iterator().next().getCreatedAt());
+            throw new IllegalStateException("Diff calculated incorrectly:\nBefore: %s\nDiff: %s\nAfter: %s\nRestored: %s\n".formatted(
+                    objectMapper.writeValueAsString(a), objectMapper.writeValueAsString(patch), objectMapper.writeValueAsString(b), objectMapper.writeValueAsString(restoredB)
+            ));
+        }
+        applied = jsonPatcher.reverse(bJSON, patch);
+        ExperimentSnapshot restoredA = objectMapper.treeToValue(applied, ExperimentSnapshot.class);
+        restoredA.setRevision(a.getRevision());
+        if (!restoredA.equals(a)) {
+            throw new IllegalStateException("Reverse diff calculated incorrectly:\nBefore: %s\nDiff: %s\nAfter: %s\nRestored: %s\n".formatted(
+                    objectMapper.writeValueAsString(a), objectMapper.writeValueAsString(patch), objectMapper.writeValueAsString(b), objectMapper.writeValueAsString(restoredA)
+            ));
+        }
+        return patch;
     }
 
     @SneakyThrows

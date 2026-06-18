@@ -11,7 +11,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import org.jspecify.annotations.Nullable;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -30,7 +30,7 @@ public abstract class BaseRevisionEntity {
 
     @NotNull
     @Column(updatable = false)
-    protected ZonedDateTime datetime;
+    protected Instant datetime;
 
     @NotNull
     private String summary;

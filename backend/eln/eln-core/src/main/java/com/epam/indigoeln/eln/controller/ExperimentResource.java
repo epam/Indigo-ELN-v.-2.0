@@ -112,13 +112,13 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
-    public MutationResponse mutateExperimentModel(UUID experimentId, Integer revision, Mutation mutation) {
-        return experimentService.mutateModel(experimentId, revision, (ExperimentMutation) mutation);
+    public MutationResponse mutateExperimentModel(UUID experimentId, Integer revision, @Nullable Boolean verifyUndoRedo, Mutation mutation) {
+        return experimentService.mutateModel(experimentId, revision, verifyUndoRedo == Boolean.TRUE, (ExperimentMutation) mutation);
     }
 
     @Override
     public MutationResponse mutateExperimentModel4(UUID experimentId, Integer revision, Mutation mutation) {
-        return experimentService.mutateModel(experimentId, revision, (ExperimentMutation) mutation);
+        return experimentService.mutateModel(experimentId, revision, false, (ExperimentMutation) mutation);
     }
 
     @Override

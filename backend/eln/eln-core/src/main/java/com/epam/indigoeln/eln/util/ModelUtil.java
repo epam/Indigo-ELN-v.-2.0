@@ -10,7 +10,7 @@ import one.util.streamex.StreamEx;
 import org.hibernate.exception.ConstraintViolationException;
 import org.jspecify.annotations.Nullable;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
@@ -18,7 +18,7 @@ import java.util.function.Function;
 public class ModelUtil {
 
     public static void updateDates(BaseEntity model, UserEntity currentUser) {
-        ZonedDateTime date = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+        Instant date = Instant.now().truncatedTo(ChronoUnit.MILLIS);
         //noinspection ConstantValue
         if (model.getCreatedAt() == null) {
             model.setCreatedBy(currentUser);

@@ -20,7 +20,7 @@ import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -95,7 +95,7 @@ public class ExperimentDetailsReportBuilder {
             int revision,
             String summary,
             String user,
-            ZonedDateTime datetime,
+            Instant datetime,
             @Nullable Category category,
             Mutation mutation,
             JsonNode jsonDiff,

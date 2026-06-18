@@ -154,7 +154,7 @@ public class ExperimentService {
         return experimentMapper.convertACLList(experiment.getFullACL());
     }
 
-    public MutationResponse mutateModel(UUID experimentId, Integer revision, ExperimentMutation mutation) {
+    public MutationResponse mutateModel(UUID experimentId, Integer revision, boolean verifyUndoRedo, ExperimentMutation mutation) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
         Triple<ExperimentSnapshot, JsonNode, ExperimentMutationContext> triple = experimentModelService.applyMutation(experiment, mutation);

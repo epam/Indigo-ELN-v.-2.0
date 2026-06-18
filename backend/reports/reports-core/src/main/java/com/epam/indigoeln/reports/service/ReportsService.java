@@ -19,7 +19,6 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import java.io.ByteArrayInputStream;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
@@ -63,11 +62,12 @@ public class ReportsService {
     @Transactional(Transactional.TxType.NOT_SUPPORTED)
     byte[] doGenerateExperimentReport(List<ReportsAPI.ExperimentReportDataDTO> experiments) {
         int significantFigures = !experiments.isEmpty() ? experiments.getFirst().getExperiment().getModel().getSignificantFigures() : ExperimentModel.DEFAULT_SIGNIFICANT_FIGURES;
+        //noinspection DataFlowIssue
         return callWithSignificantFigures(significantFigures, () -> {
             JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(experiments);
             Map<String, Object> params = new HashMap<>();
             params.put("dateFormat", dateTimeFormatter);
-            params.put("reportDate", ZonedDateTime.ofInstant(Instant.now(), dateTimeFormatter.getZone()));
+            params.put("reportDate", Instant.now());
             params.put("logoImage", new ByteArrayInputStream(logoImage));
             JasperPrint jasperPrint = JasperFillManager.getInstance(readOnlyStreamingService.getContext()).fill(jasperReport, params, dataSource);
             return JasperExportManager.exportReportToPdf(jasperPrint);

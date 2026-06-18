@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
@@ -162,7 +162,7 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
     public List<ExperimentRevisionEntity> findRecentRevisions(ExperimentEntity experiment, Duration period) {
         return em.createQuery("from ExperimentRevision where experiment=:experiment and datetime>=:since order by revision", ExperimentRevisionEntity.class)
                 .setParameter("experiment", experiment)
-                .setParameter("since", ZonedDateTime.now().minusSeconds(period.toSeconds()))
+                .setParameter("since", Instant.now().minus(period))
                 .getResultList();
     }
 

@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -20,12 +20,12 @@ public abstract class BaseEntity extends IdentifiableEntity {
 
     @NotNull
     @Column(updatable = false)
-    protected ZonedDateTime createdAt;
+    protected Instant createdAt;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     protected UserEntity modifiedBy;
 
     @NotNull
-    protected ZonedDateTime modifiedAt;
+    protected Instant modifiedAt;
 }
