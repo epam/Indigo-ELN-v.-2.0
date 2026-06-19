@@ -188,6 +188,9 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     private Integer revision;
 
     @Nullable
+    private Integer version;
+
+    @Nullable
     private String signatureNumber;
 
     @Nullable

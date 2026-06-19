@@ -97,9 +97,9 @@ class SubmitExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
         helper.transition(experiment, SUBMITTED, SUBMIT_EXPERIMENTS, COMPLETED, REJECTED);
         ExperimentService.ExperimentReportContent report = experimentService.printReport(experiment);
         AttachmentEntity attachment = attachmentService.createExperimentAttachment(experiment, report.filename(), report.content(), false);
-        String documentName = experiment.getName(); // !!! add version number
+        String documentName = experiment.getName() + (experiment.getVersion() != null ? ", version " + experiment.getVersion() : "");
         DocumentDTO document = useTempFile(attachment.getName(), attachment.getContent(), file -> {
-            return signatureClient.uploadDocumentClient(experiment.getName(), mutation.signatureTemplateID(), file);
+            return signatureClient.uploadDocumentClient(documentName, mutation.signatureTemplateID(), file);
         });
         experiment.setSignatureNumber(document.getId().toString());
         experiment.setSignatureAttachment(attachment);
@@ -139,6 +139,7 @@ class MakeVersionHandler extends ExperimentMutationHandlerBase<ExperimentMutatio
     public String doHandle(ExperimentEntity experiment, ExperimentMutation.MakeVersion mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         int lastUsedVersion = MoreObjects.firstNonNull(experimentRepository.getLastUsedVersion(experiment), 0);
         context.setCreatedVersion(lastUsedVersion + 1);
+        experiment.setVersion(context.getCreatedVersion());
         return "Version " + context.getCreatedVersion();
     }
 
