@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.Ints;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import one.util.streamex.StreamEx;
@@ -20,7 +19,6 @@ import org.jspecify.annotations.Nullable;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 @Dependent
@@ -35,24 +33,8 @@ public class PatchFormatter {
 
     private final GridBuilder grid = new GridBuilder(16);
     private final List<String> path = new ArrayList<>();
-    private final List<Object> exactPath = new ArrayList<>();
-    private Set<List<Object>> overwritten = Set.of();
 
-    public String format(JsonNode before, JsonNode patch, String @Nullable[] overwritten) {
-        if (overwritten != null) {
-            this.overwritten = StreamEx.of(overwritten)
-                    .map(s -> {
-                        String[] split = s.split("\\.");
-                        List<Object> x = new ArrayList<>(split.length + 1);
-                        x.add("model");
-                        for (String part : split) {
-                            Integer number = Ints.tryParse(part);
-                            x.add(number != null ? number : part);
-                        }
-                        return x;
-                    })
-                    .toSet();
-        }
+    public String format(JsonNode before, JsonNode patch) {
         doFormat(before, patch, null);
         return grid.build();
     }
@@ -104,7 +86,7 @@ public class PatchFormatter {
                 String newSource = objectPatch.get("source") instanceof ObjectNode s && s.get("$new") instanceof ValueNode n ? n.asText() : oldSource;
                 String newValue = objectPatch.get("value") instanceof ObjectNode v && v.get("$new") instanceof ValueNode n ? n.asText() : oldValue;
                 String newUnit = objectPatch.get("unit") instanceof ObjectNode u && u.get("$new") instanceof ValueNode n ? n.asText() : oldUnit;
-                boolean isOverwritten = overwritten.contains(exactPath);
+                boolean isOverwritten = objectPatch.has("$overwritten");
                 String s = "%s → %s%s".formatted(
                         formatEnteredValue(false, oldValue, oldUnit, oldSource),
                         formatEnteredValue(true, newValue, newUnit, newSource),
@@ -134,22 +116,22 @@ public class PatchFormatter {
                             : "<span class='old'>%d</span> → <span class='new'>%d</span>:<br/><span class='comment'>repositioned</span>".formatted(indices[0] + 1, indices[1] + 1); // repositioned
                     grid.left(); // overwrite collection name
                     grid.right("<span class='key%s'>%s %s</span>".formatted(nestedClass, displayPath, s));
-                    pushPath(indices[1]);
+                    path.add("#");
                     JsonNode node = before != null ? before.get(indices[0]) : null;
                     doFormat(node, value, newOrOld);
-                    popPath();
+                    path.removeLast();
                     grid.newRow();
                 });
             }
             case ObjectNode objectPatch -> {
                 // set format or properties, iterate keys
                 objectPatch.forEachEntry((key, value) -> {
-                    pushPath(key);
+                    path.add(key);
                     JsonNode node = before != null ? before.get(key) : null;
                     grid.right("<span class='key%s'>%s:</span>".formatted(nestedClass, key));
                     doFormat(node, value, newOrOld);
                     grid.left().newRow();
-                    popPath();
+                    path.removeLast();
                 });
             }
             case ArrayNode arrayPatch when (JSONPatcher.EXPERIMENT_LIST_PATHS.containsKey(path)) -> {
@@ -159,9 +141,9 @@ public class PatchFormatter {
                     displayPath = displayPath.substring(0, displayPath.length() - 1); // remove plural "s"; should have displayName for every field instead
                     grid.left(); // overwrite collection name
                     grid.right("<span class='key%s'>%s %d<br/><span class='comment'>%s</span>".formatted(nestedClass, displayPath, i + 1, newOrOld == Boolean.TRUE ? "inserted" : "removed"));
-                    pushPath(i);
+                    path.add("#");
                     doFormat(null, node, newOrOld);
-                    popPath();
+                    path.removeLast();
                     grid.newRow();
                 }
             }
@@ -170,11 +152,11 @@ public class PatchFormatter {
                     grid.right("<span class='%s'>[ ]</span>".formatted(nestedClass)).left().newRow();
                 } else {
                     grid.right("<span class='%s'>[</span>".formatted(nestedClass)).left().newRow();
-                    pushPath("#"); // don't use index for set collections
+                    path.add("#");
                     for (JsonNode item : arrayPatch) {
                         doFormat(null, item, newOrOld);
                     }
-                    popPath();
+                    path.removeLast();
                     grid.right("<span class='%s'>]</span>".formatted(nestedClass)).left().newRow();
                 }
             }
@@ -182,21 +164,6 @@ public class PatchFormatter {
                 grid.right("<span class='%s'>%s</span>".formatted(nestedClass, formatScalar(patch))).left().newRow();
             }
         }
-    }
-
-    private void pushPath(String key) {
-        path.add(key);
-        exactPath.add(key);
-    }
-
-    private void pushPath(int key) {
-        path.add("#");
-        exactPath.add(key);
-    }
-
-    private void popPath() {
-        path.removeLast();
-        exactPath.removeLast();
     }
 
     private static String formatEnteredValue(boolean newOrOld, String value, String unit, String source) {

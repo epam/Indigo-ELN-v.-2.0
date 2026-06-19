@@ -22,7 +22,6 @@ import java.util.UUID;
 
 import static com.epam.indigoeln.test.FeignUtil.OBJECT_MAPPER;
 import static com.epam.indigoeln.test.FeignUtil.OBJECT_MAPPER_FORMATTED;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
 public class JSONPatcherTest {
@@ -486,16 +485,9 @@ public class JSONPatcherTest {
     private <T> void doVerifyPatchApplication(T oldValue, T newValue, JsonNode patchJSON, JSONPatcher jsonPatcher) {
         JsonNode oldValueJSON = OBJECT_MAPPER.valueToTree(oldValue);
         JsonNode newValueJSON = OBJECT_MAPPER.valueToTree(newValue);
-//        System.out.println("doVerifyPatchApplication: oldValue = " + oldValueJSON);
-//        System.out.println("doVerifyPatchApplication: newValue = " + newValueJSON);
-//        System.out.println("doVerifyPatchApplication: patch = " + patchJSON);
         JsonNode restoredJSON = jsonPatcher.apply(oldValueJSON, patchJSON);
-//        System.out.println("doVerifyPatchApplication: restored = " + restoredJSON);
         assertJSONEquals(restoredJSON, newValueJSON);
-//        assertThat(PatchTestUtil.minimizeJSON(restoredJSON)).isEqualTo(PatchTestUtil.minimizeJSON(newValueJSON));
-
         JsonNode revertedJSON = jsonPatcher.reverse(newValueJSON, patchJSON);
-//        System.out.println("doVerifyPatchApplication: revered = " + revertedJSON);
         assertJSONEquals(revertedJSON, oldValueJSON);
     }
 

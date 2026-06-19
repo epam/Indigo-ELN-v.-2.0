@@ -54,9 +54,6 @@ public class ExperimentRevisionEntity extends BaseRevisionEntity {
     @Basic(fetch = FetchType.LAZY)
     private String @Nullable [] messages;
 
-    @Basic(fetch = FetchType.LAZY)
-    private String @Nullable [] overwritten;
-
     public record CompositeID(
             ExperimentEntity experiment,
             Integer revision

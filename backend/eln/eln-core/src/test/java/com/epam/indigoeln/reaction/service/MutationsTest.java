@@ -5,11 +5,13 @@ import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.search.SampleSearchResult;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.flyway.util.JsonLocator;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.*;
 import com.epam.indigoeln.reaction.model.outputsample.*;
 import com.epam.indigoeln.reaction.model.units.*;
 import com.epam.indigoeln.test.ClientUtil;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import jakarta.validation.constraints.NotNull;
@@ -31,7 +33,6 @@ import static com.epam.indigoeln.reaction.model.units.MolUnit.MMOL;
 import static com.epam.indigoeln.reaction.model.units.MolarityUnit.MM;
 import static com.epam.indigoeln.reaction.model.units.VolumeUnit.ML;
 import static com.epam.indigoeln.reaction.model.units.WeightUnit.G;
-import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
@@ -643,7 +644,10 @@ public class MutationsTest extends MutationsTestBase {
         experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(2, 1).getAnchor(), "200", WeightUnit.G));
         experiment.mutate(new ReactionInputMutation.SetInputRowEQ(experiment.input(1).getAnchor(), "1"));
         experiment.mutate(new ReactionInputMutation.SetInputRowEQ(experiment.input(2).getAnchor(), "2"));
-        assertThat(experiment.lastMutationResponse().getOverwritten()).containsExactly("reactions.0.inputs.1.samples.0.weight");
+        List<JsonNode> overwritten = JsonLocator.findNodes(experiment.lastMutationResponse().getPatch(), "model/reactions/0/inputs/1/samples/0/weight/$overwritten");
+        assertThat(overwritten).hasSize(1);
+        experiment.mutate(new ReactionInputSampleMutation.SetInputVolume(experiment.inputSample(2, 1).getAnchor(), "2", VolumeUnit.ML));
+        assertThat(JsonLocator.findNodes(experiment.lastMutationResponse().getPatch(), "**/$overwritten")).isEmpty();
     }
 
     @Test

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Preconditions;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.math3.util.Precision;
 import org.jspecify.annotations.Nullable;
 
@@ -15,7 +16,6 @@ import java.math.BigDecimal;
 
 import static com.epam.indigoeln.reaction.model.units.EnteredValueSource.DEFAULT;
 import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.*;
-import static com.google.common.base.Preconditions.checkArgument;
 
 @EqualsAndHashCode(of = {"stringValue", "unit", "source"})
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -39,6 +39,11 @@ public final class EnteredValue<U extends MeasurementUnit> {
 
     @Nullable
     private String stringValue;
+
+    @Setter
+    @JsonProperty("$overwritten")
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    private boolean overwritten;
 
     @JsonCreator
     EnteredValue(String stringValue, U unit, EnteredValueSource source) {

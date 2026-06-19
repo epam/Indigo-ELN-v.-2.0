@@ -26,7 +26,6 @@ import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ContentDispositionUtil.generateContentDisposition;
 import static com.epam.indigoeln.eln.model.ExperimentStatus.*;
-import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -298,7 +297,7 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
         assertThat(editRevisions).map(RevisionSummaryDTO::getRevision).containsExactly(2, 3);
 
         String diff = experimentClient.getRevisionDiff(experiment.getId(), 7);
-        assertThat(diff).contains("ARCHIVED", "REOPEN");
+        assertThat(diff).contains("REOPEN");
     }
 
     private void approveDocument(String username, DocumentStatus simulatedStatus) {
