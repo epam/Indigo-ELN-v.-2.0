@@ -9,7 +9,7 @@ import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
-import com.epam.indigoeln.reaction.service.mutation.*;
+import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import jakarta.enterprise.context.Dependent;
 
 @Dependent
@@ -17,9 +17,9 @@ import jakarta.enterprise.context.Dependent;
 class SetInputRowEQHandler extends AbstractReactionInputMutationHandler<ReactionInputMutation.SetInputRowEQ> {
 
     @Override
-    public MutationResult doHandle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowEQ mutation, ExperimentMutationContext context) {
+    public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowEQ mutation, ExperimentMutationContext context) {
         setEnteredValue(row::setEq, mutation.eq(), NoUnit.NO_UNIT, experiment.getRevision(), EnteredValue.DEFAULT_ONE);
-        return new MutationResult(formatSetterSummary("input EQ", mutation.eq(), NoUnit.NO_UNIT));
+        return formatSetterSummary("input EQ", mutation.eq(), NoUnit.NO_UNIT);
     }
 }
 
@@ -28,8 +28,8 @@ class SetInputRowEQHandler extends AbstractReactionInputMutationHandler<Reaction
 class SetOutputRowEQHandler extends AbstractReactionOutputMutationHandler<ReactionOutputMutation.SetOutputRowEQ> {
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputRowEQ mutation, ExperimentMutationContext context) {
+    public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputRowEQ mutation, ExperimentMutationContext context) {
         setEnteredValue(row::setEq, mutation.eq(), NoUnit.NO_UNIT, experiment.getRevision(), EnteredValue.DEFAULT_ONE);
-        return new MutationResult(formatSetterSummary("output EQ", mutation.eq()));
+        return formatSetterSummary("output EQ", mutation.eq());
     }
 }

@@ -15,15 +15,14 @@ import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.reaction.model.NotebookSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.NotebookMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerRegistry;
+import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import com.epam.indigoeln.reaction.service.mutation.notebook.AbstractNotebookMutationHandler;
 import com.epam.indigoeln.reaction.service.mutation.notebook.NotebookMutationContext;
-import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.QueryParam;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Triple;
 import org.jspecify.annotations.Nullable;
 
 import java.util.EnumSet;
@@ -97,7 +96,7 @@ public class NotebookService {
         return notebookRepository.findNestedAccess(projectId);
     }
 
-    public Triple<NotebookSnapshot, JsonNode, NotebookMutationContext> applyMutation(NotebookEntity notebook, NotebookMutation mutation) {
+    public MutationResult<NotebookSnapshot, NotebookMutationContext> applyMutation(NotebookEntity notebook, NotebookMutation mutation) {
         log.debug("Mutating notebook {}: {}", notebook.getId(), mutation);
         return mutationHandlerRegistry.withHandler(mutation, (AbstractNotebookMutationHandler<NotebookMutation> handler) -> handler.applyMutation(notebook, mutation));
     }

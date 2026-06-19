@@ -9,7 +9,6 @@ import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.service.mutation.AbstractMutationContext;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandler;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerRegistry;
-import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -61,7 +60,7 @@ public abstract class AbstractUndoHelper<E extends BaseEntity & WithRevision, S,
     protected abstract List<R> loadRevisions(E entity);
 
     @SneakyThrows
-    public MutationResult doHandle(E entity, S snapshotBefore, C context, boolean redo) {
+    public String doHandle(E entity, S snapshotBefore, C context, boolean redo) {
         // --- not undoable --
 
         UndoInfo info = checkNotNull(context.getUndoInfo());
@@ -84,7 +83,7 @@ public abstract class AbstractUndoHelper<E extends BaseEntity & WithRevision, S,
         }
 
         afterHandle(info, context, redo);
-        return new MutationResult((redo ? "Redo: " : "Undo: ") + info.revision.getRevisionSummary());
+        return (redo ? "Redo: " : "Undo: ") + info.revision.getRevisionSummary();
     }
 
     protected void restoreStateAfterUndo(E entity, C context, S snapshot, UndoInfo info) {

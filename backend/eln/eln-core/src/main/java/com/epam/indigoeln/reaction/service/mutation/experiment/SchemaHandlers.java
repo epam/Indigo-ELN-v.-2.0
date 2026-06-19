@@ -13,7 +13,6 @@ import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
-import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import com.google.common.base.Function;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
@@ -65,7 +64,7 @@ class SetSchemeHandler extends AbstractReactionMutationHandler<ReactionMutation.
     }
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.SetScheme mutation, ExperimentMutationContext context) {
+    public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.SetScheme mutation, ExperimentMutationContext context) {
         Map<Pair<String, Integer>, MoleculeLink<ReactionInput>> reactantLinks = new HashMap<>(), catalystLinks = new HashMap<>();
         Map<Pair<String, Integer>, MoleculeLink<ReactionOutput>> productLinks = new HashMap<>();
         if (reaction.getRxnfile() != null) {
@@ -106,7 +105,7 @@ class SetSchemeHandler extends AbstractReactionMutationHandler<ReactionMutation.
 
         context.getResponse().setUnresolvedInputs(experimentService.analyzeRXN(reaction));
 
-        return new MutationResult("Update reaction scheme");
+        return "Update reaction scheme";
     }
 
     private static <R extends ReactionRow> void updateMoleculeLinkRow(Map<Pair<String, Integer>, MoleculeLink<R>> links, R row) {
@@ -184,9 +183,9 @@ class AddEmptyInputHandler extends AbstractReactionMutationHandler<ReactionMutat
     }
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddEmptyInput mutation, ExperimentMutationContext context) {
+    public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddEmptyInput mutation, ExperimentMutationContext context) {
         createInputLine(reaction, null, ReactionRole.REACTANT, checkNotNull(mutation.createdInputAnchor()), checkNotNull(mutation.createdSampleAnchor()));
-        return new MutationResult("Add empty input");
+        return "Add empty input";
     }
 }
 
@@ -208,12 +207,12 @@ class AddInputHandler extends AbstractReactionMutationHandler<ReactionMutation.A
     }
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddInput mutation, ExperimentMutationContext context) {
+    public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddInput mutation, ExperimentMutationContext context) {
         ReactionInput row = createInputLine(reaction, null, ReactionRole.REACTANT, checkNotNull(mutation.createdInputAnchor()), checkNotNull(mutation.createdSampleAnchor()));
         SampleEntity sample = compoundService.getSample(mutation.sampleId());
         setInputLineSample(row, sample, mutation.createdSampleAnchor(), context);
 
-        return new MutationResult("Add input sample: " + getSampleIdentifier(sample));
+        return "Add input sample: " + getSampleIdentifier(sample);
     }
 }
 
@@ -234,12 +233,12 @@ class AddNoProductSampleHandler extends AbstractReactionMutationHandler<Reaction
     }
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddNoProductSample mutation, ExperimentMutationContext context) {
+    public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddNoProductSample mutation, ExperimentMutationContext context) {
         CompoundRef compoundRef = compoundService.unknownCompoundRef();
         ReactionOutput row = ReactionOutput.create(reaction, ReactionOutputType.BY_PRODUCT, false, reaction.generateNextProductName(), mutation.createdOutputAnchor(), compoundRef, EnteredValue.DEFAULT_ONE);
         ReactionOutputSample.create(row, experiment.getName(), mutation.createdSampleAnchor(), EnteredValue.DEFAULT_ONE_HUNDRED);
 
-        return new MutationResult("Add empty batch");
+        return "Add empty batch";
     }
 }
 
@@ -262,13 +261,13 @@ class ResolveInputsHandler extends AbstractReactionMutationHandler<ReactionMutat
     }
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.ResolveInputs mutation, ExperimentMutationContext context) {
+    public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.ResolveInputs mutation, ExperimentMutationContext context) {
         mutation.inputSamples().forEach((inputAnchor, sampleId) -> {
             ReactionInput row = model.locate(inputAnchor);
             SampleEntity sample = compoundService.getSample(sampleId);
             setInputLineSample(row, sample, checkNotNull(mutation.createdSampleAnchors()).get(inputAnchor), context);
         });
-        return new MutationResult("Resolve input samples");
+        return "Resolve input samples";
     }
 }
 
@@ -290,7 +289,7 @@ class ImportSDFHandler extends AbstractReactionMutationHandler<ReactionMutation.
     }
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.ImportSDF mutation, ExperimentMutationContext context) {
+    public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.ImportSDF mutation, ExperimentMutationContext context) {
         Iterator<OutputAnchor> anchorIt = mutation.createdOutputAnchors().iterator();
         Iterator<OutputSampleAnchor> sampleAnchorIt = mutation.createdSampleAnchors().iterator();
         for (UUID compoundID : mutation.compoundIDs()) {
@@ -304,6 +303,6 @@ class ImportSDFHandler extends AbstractReactionMutationHandler<ReactionMutation.
             ReactionOutputSample.create(output, experiment.getName(), sampleAnchorIt.next(), EnteredValue.DEFAULT_ONE_HUNDRED);
         }
         context.getResponse().getMessages().add(mutation.compoundIDs().size() + " samples imported from SDF");
-        return new MutationResult("Import SDF (" + mutation.compoundIDs().size() + " samples)");
+        return "Import SDF (" + mutation.compoundIDs().size() + " samples)";
     }
 }

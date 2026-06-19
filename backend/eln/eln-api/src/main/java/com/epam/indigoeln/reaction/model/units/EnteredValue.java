@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 
 import static com.epam.indigoeln.reaction.model.units.EnteredValueSource.DEFAULT;
 import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.*;
+import static com.google.common.base.Preconditions.checkArgument;
 
 @EqualsAndHashCode(of = {"stringValue", "unit", "source"})
 @JsonInclude(JsonInclude.Include.NON_NULL)

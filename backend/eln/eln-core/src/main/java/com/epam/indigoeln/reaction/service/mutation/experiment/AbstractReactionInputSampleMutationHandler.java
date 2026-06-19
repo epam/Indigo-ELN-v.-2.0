@@ -3,12 +3,11 @@ package com.epam.indigoeln.reaction.service.mutation.experiment;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputSampleMutation;
-import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 
 public abstract class AbstractReactionInputSampleMutationHandler<T extends ReactionInputSampleMutation> extends ExperimentMutationHandlerBase<T> {
 
     @Override
-    public MutationResult doHandle(ExperimentEntity experiment, T mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
+    public String doHandle(ExperimentEntity experiment, T mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         ReactionInputSample sample = experiment.getModel().locate(mutation.anchor());
         return handle(experiment, experiment.getModel(), sample.getRow().getReaction(), sample.getRow(), sample, mutation, context);
     }
@@ -18,5 +17,5 @@ public abstract class AbstractReactionInputSampleMutationHandler<T extends React
         return true;
     }
 
-    protected abstract MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, T mutation, ExperimentMutationContext context);
+    protected abstract String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, T mutation, ExperimentMutationContext context);
 }

@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.inject.Inject;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Triple;
 import org.hibernate.exception.ConstraintViolationException;
 import org.jspecify.annotations.Nullable;
 
@@ -52,7 +51,7 @@ public abstract class AbstractProjectMutationHandler<T extends Mutation> extends
     }
 
     @Override
-    public Triple<ProjectSnapshot, JsonNode, ProjectMutationContext> applyMutation(ProjectEntity project, T mutation) {
+    public MutationResult<ProjectSnapshot, ProjectMutationContext> applyMutation(ProjectEntity project, T mutation) {
         return wrapConstraintViolation(
                 () -> super.applyMutation(project, mutation),
                 this::mapConstraintToError
@@ -89,8 +88,8 @@ public abstract class AbstractProjectMutationHandler<T extends Mutation> extends
     }
 
     @Override
-    protected final ProjectRevisionEntity doCreateRevision(ProjectEntity project, T mutation, MutationResult result, Integer revisionNo, JsonNode patch, ProjectMutationContext context, ProjectSnapshot snapshotAfter) {
-        return revisionService.addRevision(project, revisionNo, project.getModifiedAt(), result.summary(), mutation, patch);
+    protected final ProjectRevisionEntity doCreateRevision(ProjectEntity project, T mutation, String summary, Integer revisionNo, JsonNode patch, ProjectMutationContext context, ProjectSnapshot snapshotAfter) {
+        return revisionService.addRevision(project, revisionNo, project.getModifiedAt(), summary, mutation, patch);
     }
 
     @Nullable

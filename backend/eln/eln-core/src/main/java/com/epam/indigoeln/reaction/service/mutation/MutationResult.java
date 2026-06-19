@@ -1,5 +1,11 @@
 package com.epam.indigoeln.reaction.service.mutation;
 
-public record MutationResult (
-    String summary
-) {}
+import com.fasterxml.jackson.databind.JsonNode;
+
+public record MutationResult<S, C>(
+        S snapshotBefore,
+        S snapshotAfter,
+        JsonNode patch,
+        C context
+) {
+}

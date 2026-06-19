@@ -33,6 +33,7 @@ import static com.epam.indigoeln.reaction.model.units.MolUnit.MMOL;
 import static com.epam.indigoeln.reaction.model.units.MolarityUnit.MM;
 import static com.epam.indigoeln.reaction.model.units.VolumeUnit.ML;
 import static com.epam.indigoeln.reaction.model.units.WeightUnit.G;
+import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest

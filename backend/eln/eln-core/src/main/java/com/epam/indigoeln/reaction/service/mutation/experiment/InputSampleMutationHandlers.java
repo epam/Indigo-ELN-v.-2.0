@@ -7,7 +7,6 @@ import com.epam.indigoeln.reaction.model.ReactionInput;
 import com.epam.indigoeln.reaction.model.ReactionInputSample;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputSampleMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
-import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import jakarta.enterprise.context.Dependent;
 
 @Dependent
@@ -15,9 +14,9 @@ import jakarta.enterprise.context.Dependent;
 class SetInputMolHandler extends AbstractReactionInputSampleMutationHandler<ReactionInputSampleMutation.SetInputMol> {
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputMol mutation, ExperimentMutationContext context) {
+    public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputMol mutation, ExperimentMutationContext context) {
         setEnteredValue(sample::setMol, mutation.mol(), mutation.unit(), experiment.getRevision());
-        return new MutationResult(formatSetterSummary("input sample mol", mutation.mol(), mutation.unit()));
+        return formatSetterSummary("input sample mol", mutation.mol(), mutation.unit());
     }
 }
 
@@ -26,9 +25,9 @@ class SetInputMolHandler extends AbstractReactionInputSampleMutationHandler<Reac
 class SetInputWeightHandler extends AbstractReactionInputSampleMutationHandler<ReactionInputSampleMutation.SetInputWeight> {
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputWeight mutation, ExperimentMutationContext context) {
+    public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputWeight mutation, ExperimentMutationContext context) {
         setEnteredValue(sample::setWeight, mutation.weight(), mutation.unit(), experiment.getRevision());
-        return new MutationResult(formatSetterSummary("input sample weight", mutation.weight(), mutation.unit()));
+        return formatSetterSummary("input sample weight", mutation.weight(), mutation.unit());
     }
 }
 
@@ -37,9 +36,9 @@ class SetInputWeightHandler extends AbstractReactionInputSampleMutationHandler<R
 class SetInputHealthHazardsHandler extends AbstractReactionInputSampleMutationHandler<ReactionInputSampleMutation.SetInputHealthHazards> {
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputHealthHazards mutation, ExperimentMutationContext context) {
+    public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputHealthHazards mutation, ExperimentMutationContext context) {
         sample.setHealthHazards(mutation.healthHazards());
-        return new MutationResult(formatSetterSummary("input sample health hazards", mutation.healthHazards()));
+        return formatSetterSummary("input sample health hazards", mutation.healthHazards());
     }
 }
 
@@ -48,9 +47,9 @@ class SetInputHealthHazardsHandler extends AbstractReactionInputSampleMutationHa
 class SetInputCommentHandler extends AbstractReactionInputSampleMutationHandler<ReactionInputSampleMutation.SetInputComment> {
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputComment mutation, ExperimentMutationContext context) {
+    public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputComment mutation, ExperimentMutationContext context) {
         sample.setComment(mutation.comment());
-        return new MutationResult(formatSetterSummary("input sample comment", mutation.comment()));
+        return formatSetterSummary("input sample comment", mutation.comment());
     }
 }
 
@@ -59,12 +58,12 @@ class SetInputCommentHandler extends AbstractReactionInputSampleMutationHandler<
 class RemoveInputHandler extends AbstractReactionInputSampleMutationHandler<ReactionInputSampleMutation.RemoveInput> {
 
     @Override
-    protected MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.RemoveInput mutation, ExperimentMutationContext context) {
+    protected String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.RemoveInput mutation, ExperimentMutationContext context) {
         sample.delete();
         if (row.getSamples().isEmpty()) {
             row.delete();
         }
 
-        return new MutationResult("Remove input sample");
+        return "Remove input sample";
     }
 }

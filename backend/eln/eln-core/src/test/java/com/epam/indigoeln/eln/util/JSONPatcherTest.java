@@ -22,6 +22,7 @@ import java.util.UUID;
 
 import static com.epam.indigoeln.test.FeignUtil.OBJECT_MAPPER;
 import static com.epam.indigoeln.test.FeignUtil.OBJECT_MAPPER_FORMATTED;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
 public class JSONPatcherTest {

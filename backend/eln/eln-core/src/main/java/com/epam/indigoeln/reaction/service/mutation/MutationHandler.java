@@ -6,7 +6,6 @@ import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.apache.commons.lang3.tuple.Triple;
 
 public abstract class MutationHandler<T extends Mutation, E extends WithRevision, S, R extends BaseRevisionEntity, C> {
 
@@ -15,7 +14,7 @@ public abstract class MutationHandler<T extends Mutation, E extends WithRevision
 
     protected abstract C createContext();
 
-    public Triple<S, JsonNode, C> applyMutation(E entity, T mutation) {
+    public MutationResult<S, C> applyMutation(E entity, T mutation) {
         C context = createContext();
         // do the very early preparation; currently only used by undo/redo handlers
         doPrepare(entity, mutation, context);
@@ -30,7 +29,7 @@ public abstract class MutationHandler<T extends Mutation, E extends WithRevision
         // perform the actual mutation;
         // undo/redo handlers must delegate to undo service
         doNotifyBeforeHandle(entity, mutation, context);
-        MutationResult result = doHandle(entity, mutation, context, snapshotBefore);
+        String summary = doHandle(entity, mutation, context, snapshotBefore);
         // flush database to make sure all constraints hold
         em.flush();
         // make snapshot of "after" state
@@ -38,10 +37,10 @@ public abstract class MutationHandler<T extends Mutation, E extends WithRevision
         // write changes back to the entity
         JsonNode patch = doUpdateEntity(entity, snapshotBefore, snapshotAfter, context);
         // create revision
-        R revision = doCreateRevision(entity, mutation, result, revisionNo, patch, context, snapshotAfter);
+        R revision = doCreateRevision(entity, mutation, summary, revisionNo, patch, context, snapshotAfter);
         em.persist(revision);
 
-        return Triple.of(snapshotAfter, patch, context);
+        return new MutationResult<>(snapshotBefore, snapshotAfter, patch, context);
     }
 
     protected abstract void doValidateAccess(E entity, T mutation, C context);
@@ -58,13 +57,13 @@ public abstract class MutationHandler<T extends Mutation, E extends WithRevision
     protected void doNotifyBeforeHandle(E entity, T mutation, C context) {
     }
 
-    public abstract MutationResult doHandle(E entity, T mutation, C context, S snapshotBefore);
+    public abstract String doHandle(E entity, T mutation, C context, S snapshotBefore);
 
     protected abstract JsonNode doUpdateEntity(E entity, S snapshotBefore, S snapshotAfter, C context);
 
     protected abstract S doSnapshotAfter(E entity, C context);
 
-    protected abstract R doCreateRevision(E experiment, T mutation, MutationResult result, Integer revisionNo, JsonNode patch, C context, S snapshotAfter);
+    protected abstract R doCreateRevision(E experiment, T mutation, String summary, Integer revisionNo, JsonNode patch, C context, S snapshotAfter);
 
     public boolean isUndoable() {
         return false;

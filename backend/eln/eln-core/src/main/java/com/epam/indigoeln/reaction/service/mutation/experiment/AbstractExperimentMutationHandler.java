@@ -17,7 +17,6 @@ import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import com.epam.indigoeln.reaction.service.calculator.ReactionCalculator;
 import com.epam.indigoeln.reaction.service.mutation.ExperimentModelMutationListener;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandler;
-import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.quarkus.arc.All;
 import jakarta.enterprise.inject.Instance;
@@ -31,6 +30,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
+import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.runWithSignificantFigures;
 
 @Slf4j
 public abstract class AbstractExperimentMutationHandler<T extends ExperimentMutation> extends MutationHandler<T, ExperimentEntity, ExperimentSnapshot, ExperimentRevisionEntity, ExperimentMutationContext> {
@@ -105,8 +105,8 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
     }
 
     @Override
-    protected ExperimentRevisionEntity doCreateRevision(ExperimentEntity experiment, T mutation, MutationResult result, Integer revisionNo, JsonNode patch, ExperimentMutationContext context, ExperimentSnapshot snapshotAfter) {
-        ExperimentRevisionEntity revision = revisionService.addRevision(experiment, revisionNo, experiment.getModifiedAt(), result.summary(), mutation, patch);
+    protected ExperimentRevisionEntity doCreateRevision(ExperimentEntity experiment, T mutation, String summary, Integer revisionNo, JsonNode patch, ExperimentMutationContext context, ExperimentSnapshot snapshotAfter) {
+        ExperimentRevisionEntity revision = revisionService.addRevision(experiment, revisionNo, experiment.getModifiedAt(), summary, mutation, patch);
         if (!context.getResponse().getMessages().isEmpty()) {
             revision.setMessages(context.getResponse().getMessages().toArray(new String[0]));
         }

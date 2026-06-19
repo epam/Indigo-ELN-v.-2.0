@@ -12,6 +12,7 @@ import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.ReactionAnchor;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerRegistry;
+import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import com.epam.indigoeln.reaction.service.mutation.experiment.AbstractExperimentMutationHandler;
 import com.epam.indigoeln.reaction.service.mutation.experiment.ExperimentMutationContext;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -23,7 +24,6 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.List;
 
@@ -53,7 +53,7 @@ public class ExperimentModelService {
         return model;
     }
 
-    public Triple<ExperimentSnapshot, JsonNode, ExperimentMutationContext> applyMutation(ExperimentEntity experiment, ExperimentMutation mutation) {
+    public MutationResult<ExperimentSnapshot, ExperimentMutationContext> applyMutation(ExperimentEntity experiment, ExperimentMutation mutation) {
         log.debug("Mutating experiment {}: {}", experiment.getId(), mutation);
         return mutationHandlerRegistry.withHandler(mutation, (AbstractExperimentMutationHandler<ExperimentMutation> handler) -> handler.applyMutation(experiment, mutation));
     }
@@ -68,7 +68,6 @@ public class ExperimentModelService {
         ExperimentSnapshot restoredB = objectMapper.treeToValue(applied, ExperimentSnapshot.class);
         restoredB.setRevision(b.getRevision()); // diff doesn't contain revision
         if (!restoredB.equals(b)) {
-            restoredB.getAttachments().iterator().next().getCreatedAt().equals(b.getAttachments().iterator().next().getCreatedAt());
             throw new IllegalStateException("Diff calculated incorrectly:\nBefore: %s\nDiff: %s\nAfter: %s\nRestored: %s\n".formatted(
                     objectMapper.writeValueAsString(a), objectMapper.writeValueAsString(patch), objectMapper.writeValueAsString(b), objectMapper.writeValueAsString(restoredB)
             ));
