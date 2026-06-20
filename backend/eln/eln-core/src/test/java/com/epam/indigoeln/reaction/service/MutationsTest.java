@@ -160,18 +160,18 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testSetInputRowEQ() {
         experiment.mutateSetSchemeFromResource("/reaction.rxn");
-        experiment.mutate(new ReactionInputMutation.SetInputRowEQ(experiment.input(1).getAnchor(), "2"));
+        experiment.mutateSetInputRowEQ(1, "2");
         assertThat(experiment.input(1).getEq()).hasValue(2).hasStringValue("2");
     }
 
     @Test
     void testUnsetInputRowEq() {
         experiment.mutateSetSchemeFromResource("/reaction.rxn");
-        experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(1, 1).getAnchor(), "100", WeightUnit.G));
-        experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(2, 1).getAnchor(), "200", WeightUnit.G));
-        experiment.mutate(new ReactionInputMutation.SetInputRowEQ(experiment.input(2).getAnchor(), "2"));
-        experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(1, 1).getAnchor(), null, null));
-        experiment.mutate(new ReactionInputMutation.SetInputRowEQ(experiment.input(2).getAnchor(), null));
+        experiment.mutateSetInputWeight(1, 1, "100", G);
+        experiment.mutateSetInputWeight(2, 1, "200", G);
+        experiment.mutateSetInputRowEQ(2, "2");
+        experiment.mutateSetInputWeight(1, 1, null, null);
+        experiment.mutateSetInputRowEQ(2, null);
     }
 
     @Test
@@ -216,7 +216,7 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testSetInputRowLimiting() {
         experiment.mutateSetSchemeFromResource("/reaction.rxn");
-        experiment.mutate(new ReactionInputMutation.SetInputRowLimiting(experiment.input(2).getAnchor()));
+        experiment.mutateSetInputRowLimiting(2);
         assertThat(experiment.input(1).isLimiting()).isFalse();
         assertThat(experiment.input(2).isLimiting()).isTrue();
     }
@@ -231,30 +231,30 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testSetInputRowMol() {
         experiment.mutateAddEmptyInput();
-        experiment.mutate(new ReactionInputMutation.SetInputRowMol(experiment.input(1).getAnchor(), "10.0", MolUnit.MMOL));
+        experiment.mutateSetInputRowMol(1, "10.0", MMOL);
         assertThat(experiment.input(1).getMol()).hasValue(10, MMOL);
     }
 
     @Test
     void testSetInputRowRole() {
         experiment.mutateSetSchemeFromResource("/reaction.rxn");
-        experiment.mutate(new ReactionInputMutation.SetInputRowRole(experiment.input(1).getAnchor(), ReactionRole.CATALYST));
+        experiment.mutateSetInputRowRole(1, ReactionRole.CATALYST);
         assertThat(experiment.input(1).getRole()).isEqualTo(ReactionRole.CATALYST);
     }
 
     @Test
     void testSetInputRowRoleAndBack() {
         experiment.mutateSetSchemeFromResource("/reaction.rxn");
-        experiment.mutate(new ReactionInputMutation.SetInputRowRole(experiment.input(1).getAnchor(), ReactionRole.CATALYST));
-        experiment.mutate(new ReactionInputMutation.SetInputRowRole(experiment.input(1).getAnchor(), ReactionRole.REAGENT));
-        experiment.mutate(new ReactionInputMutation.SetInputRowRole(experiment.input(1).getAnchor(), ReactionRole.REACTANT));
+        experiment.mutateSetInputRowRole(1, ReactionRole.CATALYST);
+        experiment.mutateSetInputRowRole(1, ReactionRole.REAGENT);
+        experiment.mutateSetInputRowRole(1, ReactionRole.REACTANT);
         assertThat(experiment.input(1).getRole()).isEqualTo(ReactionRole.REACTANT);
     }
 
     @Test
     void testSetInputMol() {
         experiment.mutateAddEmptyInput();
-        experiment.mutate(new ReactionInputSampleMutation.SetInputMol(experiment.inputSample(1, 1).getAnchor(), "10.0", MolUnit.MMOL));
+        experiment.mutateSetInputMol(1, 1, "10.0", MolUnit.MMOL);
         assertThat(experiment.inputSample(1, 1).getMol()).hasValue(10, MMOL);
         assertThat(experiment.input(1).getMol()).hasValue(10, MMOL);
     }
@@ -262,35 +262,35 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testSetInputWeight() {
         experiment.mutateAddEmptyInput();
-        experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(1, 1).getAnchor(), "10.0", WeightUnit.G));
+        experiment.mutateSetInputWeight(1, 1, "10.0", G);
         assertThat(experiment.inputSample(1, 1).getWeight()).hasValue(10, G);
     }
 
     @Test
     void testSetInputDensity() {
         experiment.mutateAddEmptyInput();
-        experiment.mutate(new ReactionInputSampleMutation.SetInputDensity(experiment.inputSample(1, 1).getAnchor(), "10.0", DensityUnit.G_ML));
+        experiment.mutateSetInputDensity(1, 1, "10.0", G_ML);
         assertThat(experiment.inputSample(1, 1).getDensity()).hasValue(10, G_ML);
     }
 
     @Test
     void testSetInputMolarity() {
         experiment.mutateAddEmptyInput();
-        experiment.mutate(new ReactionInputSampleMutation.SetInputMolarity(experiment.inputSample(1, 1).getAnchor(), "10.0", MolarityUnit.MM));
+        experiment.mutateSetInputMolarity(1, 1, "10.0", MM);
         assertThat(experiment.inputSample(1, 1).getMolarity()).hasValue(10, MM);
     }
 
     @Test
     void testSetInputVolume() {
         experiment.mutateAddEmptyInput();
-        experiment.mutate(new ReactionInputSampleMutation.SetInputVolume(experiment.inputSample(1, 1).getAnchor(), "10.0", VolumeUnit.ML));
+        experiment.mutateSetInputVolume(1, 1, "10.0", ML);
         assertThat(experiment.inputSample(1, 1).getVolume()).hasValue(10, ML);
     }
 
     @Test
     void testSetInputPurity() {
         experiment.mutateAddEmptyInput();
-        experiment.mutate(new ReactionInputSampleMutation.SetInputPurity(experiment.inputSample(1, 1).getAnchor(), "10"));
+        experiment.mutateSetInputPurity(1, 1, "10");
         assertThat(experiment.inputSample(1, 1).getPurity()).hasValue(10);
     }
 
@@ -563,7 +563,7 @@ public class MutationsTest extends MutationsTestBase {
     void testSetExperimentSignificantFigures() {
         experiment.mutateSetSchemeFromResource("/reaction.rxn");
 
-        experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(1, 1).getAnchor(), "1234", WeightUnit.G));
+        experiment.mutateSetInputWeight(1, 1, "1234", G);
         assertThat(experiment.model().getSignificantFigures()).isEqualTo(5);
         assertThat(experiment.inputSample(1, 1).getWeight()).hasStringValue("1234");
         assertThat(experiment.inputSample(1, 1).getMol()).hasStringValue("8.9343");
@@ -641,13 +641,13 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testConflicts() {
         experiment.mutateSetSchemeFromResource("/reaction.rxn");
-        experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(1, 1).getAnchor(), "100", WeightUnit.G));
-        experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(2, 1).getAnchor(), "200", WeightUnit.G));
-        experiment.mutate(new ReactionInputMutation.SetInputRowEQ(experiment.input(1).getAnchor(), "1"));
-        experiment.mutate(new ReactionInputMutation.SetInputRowEQ(experiment.input(2).getAnchor(), "2"));
+        experiment.mutateSetInputWeight(1, 1, "100", G);
+        experiment.mutateSetInputWeight(2, 1, "200", G);
+        experiment.mutateSetInputRowEQ(1, "1");
+        experiment.mutateSetInputRowEQ(2, "2");
         List<JsonNode> overwritten = JsonLocator.findNodes(experiment.lastMutationResponse().getPatch(), "model/reactions/0/inputs/1/samples/0/weight/$overwritten");
         assertThat(overwritten).hasSize(1);
-        experiment.mutate(new ReactionInputSampleMutation.SetInputVolume(experiment.inputSample(2, 1).getAnchor(), "2", VolumeUnit.ML));
+        experiment.mutateSetInputVolume(2, 1, "2", ML);
         assertThat(JsonLocator.findNodes(experiment.lastMutationResponse().getPatch(), "**/$overwritten")).isEmpty();
     }
 

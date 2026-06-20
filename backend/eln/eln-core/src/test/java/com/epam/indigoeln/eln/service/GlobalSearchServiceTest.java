@@ -8,7 +8,6 @@ import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.ReactionRole;
-import com.epam.indigoeln.reaction.model.mutation.ReactionInputSampleMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
 import com.epam.indigoeln.reaction.util.ExperimentObject;
@@ -65,7 +64,7 @@ class GlobalSearchServiceTest extends ELNBaseTest {
             experiment2.mutateSetSchemeFromResource("/reaction.rxn");
             experiment2.mutateAddProductSample(1);
             experiment2.mutate(new ReactionOutputSampleMutation.SetOutputPurity(experiment2.outputSample(1, 1).getAnchor(), "30"));
-            experiment2.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment2.inputSample(1, 1).getAnchor(), "10.0", WeightUnit.G));
+            experiment2.mutateSetInputWeight(1, 1, "10.0", WeightUnit.G);
             experiment2.mutate(new ReactionOutputSampleMutation.SetOutputActualWeight(experiment2.outputSample(1, 1).getAnchor(), "5.0", WeightUnit.G));
         });
         withUser(BART_USERNAME, () -> {

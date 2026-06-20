@@ -7,8 +7,6 @@ import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.eln.client.*;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.ComparisonOperator;
-import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
-import com.epam.indigoeln.reaction.model.mutation.ReactionInputSampleMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
 import com.epam.indigoeln.reaction.model.outputsample.*;
@@ -150,10 +148,10 @@ class InsertTestDataTest {
         experiment.mutate(new ReactionOutputMutation.SetOutputCompoundStereoisomerCode(experiment.output(1).getAnchor(), stereoisomerCode));
 
         // set input weight
-        experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(1, 1).getAnchor(), "100.0", WeightUnit.G));
+        experiment.mutateSetInputWeight(1, 1, "100.0", WeightUnit.G);
 
         // set input eq
-        experiment.mutate(new ReactionInputMutation.SetInputRowEQ(experiment.input(2).getAnchor(), "2"));
+        experiment.mutateSetInputRowEQ(2, "2");
 
         // add product sample
         experiment.mutateAddProductSample(2);

@@ -58,36 +58,31 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     @Test
     @Order(210)
     void testSetInputRowSaltCode() {
-        ReactionInputMutation.SetInputRowSaltCode mutation = new ReactionInputMutation.SetInputRowSaltCode(experiment.input(2).getAnchor(), dictionaryClient.getNth(SALT_CODE, 1));
-        experiment.mutate(mutation);
+        experiment.mutate(new ReactionInputMutation.SetInputRowSaltCode(experiment.input(2).getAnchor(), dictionaryClient.getNth(SALT_CODE, 1)));
     }
 
     @Test
     @Order(211)
     void testSetInputRowSaltEQ() {
-        ReactionInputMutation.SetInputRowSaltEQ mutation = new ReactionInputMutation.SetInputRowSaltEQ(experiment.input(2).getAnchor(), 2.0);
-        experiment.mutate(mutation);
+        experiment.mutate(new ReactionInputMutation.SetInputRowSaltEQ(experiment.input(2).getAnchor(), 2.0));
     }
 
     @Test
     @Order(250)
     void testSetInputRoleToCatalyst() {
-        ReactionInputMutation.SetInputRowRole mutation = new ReactionInputMutation.SetInputRowRole(experiment.input(2).getAnchor(), ReactionRole.CATALYST);
-        experiment.mutate(mutation);
+        experiment.mutateSetInputRowRole(2, ReactionRole.CATALYST);
     }
 
     @Test
     @Order(251)
     void testSetInputRoleToSolvent() {
-        ReactionInputMutation.SetInputRowRole mutation = new ReactionInputMutation.SetInputRowRole(experiment.input(2).getAnchor(), ReactionRole.SOLVENT);
-        experiment.mutate(mutation);
+        experiment.mutateSetInputRowRole(2, ReactionRole.SOLVENT);
     }
 
     @Test
     @Order(252)
     void testSetInputRoleBack() {
-        ReactionInputMutation.SetInputRowRole mutation = new ReactionInputMutation.SetInputRowRole(experiment.input(2).getAnchor(), ReactionRole.REACTANT);
-        experiment.mutate(mutation);
+        experiment.mutateSetInputRowRole(2, ReactionRole.REACTANT);
     }
 
     @Test
@@ -105,19 +100,19 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     @Test
     @Order(500)
     void testSetInputWeight() {
-        experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(1, 1).getAnchor(), "100.0", WeightUnit.G));
+        experiment.mutateSetInputWeight(1, 1, "100.0", WeightUnit.G);
     }
 
     @Test
     @Order(501)
     void testSetInputWeightInKG() {
-        experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(1, 1).getAnchor(), "0.1", WeightUnit.KG));
+        experiment.mutateSetInputWeight(1, 1, "0.1", WeightUnit.KG);
     }
 
     @Test
     @Order(600)
     void testSetInputEQ() {
-        experiment.mutate(new ReactionInputMutation.SetInputRowEQ(experiment.input(2).getAnchor(), "2"));
+        experiment.mutateSetInputRowEQ(2, "2");
     }
 
     @Test

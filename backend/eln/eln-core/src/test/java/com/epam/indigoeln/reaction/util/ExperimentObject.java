@@ -12,10 +12,8 @@ import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
 import com.epam.indigoeln.eln.model.MutationResponse;
 import com.epam.indigoeln.reaction.model.*;
-import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
-import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
-import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
+import com.epam.indigoeln.reaction.model.mutation.*;
+import com.epam.indigoeln.reaction.model.units.*;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import jakarta.ws.rs.core.Response;
@@ -139,6 +137,22 @@ public class ExperimentObject {
         mutate(new ReactionMutation.ResolveInputs(reaction().getAnchor(), sampleIDs));
     }
 
+    public void mutateSetInputMol(int inputNo, int sampleNo, String mol, MolUnit unit) {
+        mutate(new ReactionInputSampleMutation.SetInputMol(inputSample(inputNo, sampleNo).getAnchor(), mol, unit));
+    }
+
+    public void mutateSetInputWeight(int inputNo, int sampleNo, String weight, WeightUnit unit) {
+        mutate(new ReactionInputSampleMutation.SetInputWeight(inputSample(inputNo, sampleNo).getAnchor(), weight, unit));
+    }
+
+    public void mutateSetInputVolume(int inputNo, int sampleNo, String volume, VolumeUnit unit) {
+        mutate(new ReactionInputSampleMutation.SetInputVolume(inputSample(inputNo, sampleNo).getAnchor(), volume, unit));
+    }
+
+    public void mutateSetInputDensity(int inputNo, int sampleNo, String density, DensityUnit unit) {
+        mutate(new ReactionInputSampleMutation.SetInputDensity(inputSample(inputNo, sampleNo).getAnchor(), density, unit));
+    }
+
     public void mutateAddEmptyInput() {
         mutate(new ReactionMutation.AddEmptyInput(reaction().getAnchor()));
     }
@@ -172,5 +186,29 @@ public class ExperimentObject {
     private static <T> T getByIndex(List<T> collection, int index, String collectionName) {
         Preconditions.checkArgument(1 <= index && index <= collection.size(), "%s %s is out of bounds: [1, %s]", collectionName, index, collection.size());
         return collection.get(index - 1);
+    }
+
+    public void mutateSetInputRowMol(int inputNo, String mol, MolUnit unit) {
+        mutate(new ReactionInputMutation.SetInputRowMol(input(inputNo).getAnchor(), mol, unit));
+    }
+
+    public void mutateSetInputMolarity(int inputNo, int sampleNo, String molarity, MolarityUnit unit) {
+        mutate(new ReactionInputSampleMutation.SetInputMolarity(inputSample(inputNo, sampleNo).getAnchor(), molarity, unit));
+    }
+
+    public void mutateSetInputPurity(int inputNo, int sampleNo, String purity) {
+        mutate(new ReactionInputSampleMutation.SetInputPurity(inputSample(inputNo, sampleNo).getAnchor(), purity));
+    }
+
+    public void mutateSetInputRowEQ(int inputNo, String eq) {
+        mutate(new ReactionInputMutation.SetInputRowEQ(input(inputNo).getAnchor(), eq));
+    }
+
+    public void mutateSetInputRowRole(int inputNo, ReactionRole role) {
+        mutate(new ReactionInputMutation.SetInputRowRole(input(inputNo).getAnchor(), role));
+    }
+
+    public void mutateSetInputRowLimiting(int inputNo) {
+        mutate(new ReactionInputMutation.SetInputRowLimiting(input(inputNo).getAnchor()));
     }
 }
