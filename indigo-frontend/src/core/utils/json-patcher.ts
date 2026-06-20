@@ -6,7 +6,6 @@ type JSONObject = { [key: string]: JSONNode };
 // Counterpart of backend's JSONPatcher.java, see its usage and tests for ddetails
 export class JSONPatcher {
   updatedNodes = new Map<unknown, unknown>();
-  overwrittenNodes = new Set<unknown>();
 
   setPaths: Record<string, string>;
   listPaths: Record<string, string>;
@@ -16,11 +15,10 @@ export class JSONPatcher {
     this.listPaths = listPaths;
   }
 
-  apply(base: unknown, patch: unknown): [unknown, Map<unknown, unknown>, Set<unknown>] {
+  apply(base: unknown, patch: unknown): [unknown, Map<unknown, unknown>] {
     this.updatedNodes = new Map();
-    this.overwrittenNodes = new Set();
     const updated = this.doApply(structuredClone(base) as JSONNode, patch as JSONNode, '');
-    return [updated, this.updatedNodes, this.overwrittenNodes];
+    return [updated, this.updatedNodes];
   }
 
   private doApply(base: JSONNode, patch: JSONNode, path: string): JSONNode {
@@ -50,10 +48,6 @@ export class JSONPatcher {
   private doRestoreObject(base: JSONObject | null, patch: JSONNode, path: string): JSONNode {
     const target = base != null ? { ...base } : {};
     for (const [key, value] of Object.entries(patch)) {
-      if (key === '$overwritten') {
-        this.overwrittenNodes.add(target);
-        continue;
-      }
       const oldValue = base != null && key in base ? base[key] : null;
       const newValue = this.doApply(oldValue, value, path + '/' + key);
       if (newValue == null) {

@@ -14,6 +14,7 @@ import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.service.ExperimentModelHelperService;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
+import com.epam.indigoeln.reaction.service.calculator.EnteredValueOpt;
 import com.epam.indigoeln.reaction.service.calculator.ReactionCalculator;
 import com.epam.indigoeln.reaction.service.mutation.ExperimentModelMutationListener;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandler;
@@ -76,27 +77,31 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
 
     @Override
     protected final JsonNode doUpdateEntity(ExperimentEntity experiment, ExperimentSnapshot snapshotBefore, ExperimentSnapshot snapshotAfter, ExperimentMutationContext context) {
-        return runWithSignificantFigures(experiment.getModel().getSignificantFigures(), () -> {
-            JsonNode patch;
+        runWithSignificantFigures(experiment.getModel().getSignificantFigures(), () -> {
             doNotifyBeforeRecalculate(experiment, context);
             ReactionCalculator calculator = reactionCalculatorFactory.get();
             try {
                 calculator.recalculate(experiment.getModel());
-                doNotifyAfterRecalculate(experiment, context);
-                doValidateModel(experiment.getModel());
-                updateDates(experiment, userService.getCurrentUserEntity());
-                patch = experimentModelService.createPatch(snapshotBefore, snapshotAfter);
-                calculator.cleanupOverwritten();
             } finally {
                 reactionCalculatorFactory.destroy(calculator);
             }
-            //noinspection ConstantValue
-            if (experiment.getId() == null) {
-                experimentRepository.persist(experiment);
-                experimentRepository.flushAndRefresh(experiment);
+            if (!calculator.getOverwritten().isEmpty()) {
+                context.getResponse().setOverwritten(StreamEx.of(calculator.getOverwritten())
+                        .map(EnteredValueOpt.Property::getName)
+                        .toList()
+                );
             }
-            return patch;
+            doNotifyAfterRecalculate(experiment, context);
+            doValidateModel(experiment.getModel());
         });
+        updateDates(experiment, userService.getCurrentUserEntity());
+        JsonNode patch = experimentModelService.createPatch(snapshotBefore, snapshotAfter);
+        //noinspection ConstantValue
+        if (experiment.getId() == null) {
+            experimentRepository.persist(experiment);
+            experimentRepository.flushAndRefresh(experiment);
+        }
+        return patch;
     }
 
     @Override
@@ -109,6 +114,9 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
         ExperimentRevisionEntity revision = revisionService.addRevision(experiment, revisionNo, experiment.getModifiedAt(), summary, mutation, patch);
         if (!context.getResponse().getMessages().isEmpty()) {
             revision.setMessages(context.getResponse().getMessages().toArray(new String[0]));
+        }
+        if (context.getResponse().getOverwritten() != null && !context.getResponse().getOverwritten().isEmpty()) {
+            revision.setOverwritten(context.getResponse().getOverwritten().toArray(new String[0]));
         }
         return revision;
     }
