@@ -13,8 +13,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
-import java.util.UUID;
-
 public interface IncidentClient extends IncidentAPI {
 
     @POST
@@ -22,23 +20,24 @@ public interface IncidentClient extends IncidentAPI {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     void createIncidentReport(ClientIncidentReportForm form);
 
-    default void createIncidentReport(String description) {
-        createIncidentReport(new ClientIncidentReportForm(description, null, null, null));
-    }
-
-    default void createIncidentReport(String description,
-                                      @Nullable UUID experimentId,
-                                      @Nullable String mutationJson,
-                                      @Nullable byte[] fileContent,
-                                      @Nullable String filename) {
+    default void createIncidentReport(
+            @Nullable String url, @Nullable String message, @Nullable String experiment,
+            @Nullable String requestURL, @Nullable String requestMethod,
+            @Nullable String requestBody, @Nullable String responseBody,
+            byte @Nullable [] fileContent, @Nullable String filename) {
         FormData file = fileContent != null
                 ? new FormData(MediaType.APPLICATION_OCTET_STREAM, filename, fileContent)
                 : null;
         createIncidentReport(new ClientIncidentReportForm(
-                description,
-                experimentId != null ? experimentId.toString() : null,
-                mutationJson,
-                file));
+                url,
+                message,
+                experiment,
+                requestURL,
+                requestMethod,
+                requestBody,
+                responseBody,
+                file
+        ));
     }
 
     @Data
@@ -46,17 +45,34 @@ public interface IncidentClient extends IncidentAPI {
     @AllArgsConstructor
     class ClientIncidentReportForm {
 
+        @Nullable
+        @FormProperty("url")
+        private String url;
+
+        @Nullable
         @NotBlank
-        @FormProperty("description")
-        private String description;
+        @FormProperty("message")
+        private String message;
 
         @Nullable
-        @FormProperty("experimentId")
-        private String experimentId;
+        @FormProperty("experiment")
+        private String experiment;
 
         @Nullable
-        @FormProperty("mutation")
-        private String mutationJson;
+        @FormProperty("requestURL")
+        private String requestURL;
+
+        @Nullable
+        @FormProperty("requestMethod")
+        private String requestMethod;
+
+        @Nullable
+        @FormProperty("requestBody")
+        private String requestBody;
+
+        @Nullable
+        @FormProperty("responseBody")
+        private String responseBody;
 
         @Nullable
         @FormProperty("file")
