@@ -1,10 +1,11 @@
 import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { ReportErrorContext } from '@core/components/common/report-error-dialog/report-error-dialog.component';
 import { NotificationService } from '@core/services/notification/notification.service';
+import { INCIDENTS_ENDPOINT } from '@core/services/report-bug.service';
 import { ReportErrorDialogService } from '@core/services/report-error-dialog.service';
 import { BackendError } from '@core/types/entities/base-entity.i';
 import { NotificationType } from '@core/types/notification.i';
+import { ReportErrorContext } from '@core/types/report-error.i';
 import { catchError, Observable, throwError } from 'rxjs';
 
 @Injectable()
@@ -33,7 +34,7 @@ export class ErrorInterceptor implements HttpInterceptor {
               : {
                   action: {
                     label: 'Report Error',
-                    callback: () => this.reportErrorDialogService.openWithDraft(reportDraft),
+                    callback: () => this.reportErrorDialogService.open(reportDraft),
                   },
                 }),
           });
@@ -120,5 +121,5 @@ function normalizeErrorBody(errorBody: unknown): string | null {
 }
 
 function isReportBugRequest(req: HttpRequest<unknown>): boolean {
-  return req.url.includes('/api/eln/incidents') || req.url.endsWith('incidents');
+  return req.url.includes(`/${INCIDENTS_ENDPOINT}`);
 }

@@ -4,18 +4,18 @@ import { Component, ElementRef, inject, OnDestroy, OnInit, ViewChild } from '@an
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { AuthenticatorService } from '@aws-amplify/ui-angular';
+import { ReportErrorDialogService } from '@core/services/report-error-dialog.service';
+import { GlobalSearchComponent } from '@pages/search/global-search/global-search.component';
 import { Observable, Subject, takeUntil } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { SidebarComponent } from './partials/sidebar/sidebar.component';
-import { GlobalSearchComponent } from '@pages/search/global-search/global-search.component';
-import { MatDialog } from '@angular/material/dialog';
-import { ReportErrorDialogService } from '@core/services/report-error-dialog.service';
 
 @Component({
   selector: 'eln-master',
@@ -81,6 +81,6 @@ export class MasterComponent implements OnInit, OnDestroy {
   }
 
   openReportError(): void {
-    this.reportErrorDialogService.openBlank();
+    this.reportErrorDialogService.open();
   }
 }

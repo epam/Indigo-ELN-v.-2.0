@@ -1,45 +1,28 @@
 import { Injectable, inject } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import {
-  ReportErrorDialogComponent,
-  ReportErrorDialogData,
-  ReportErrorFormValue,
-} from '@core/components/common/report-error-dialog/report-error-dialog.component';
-
-export type ReportErrorDraft = ReportErrorDialogData;
+import { ReportErrorDialogComponent } from '@core/components/common/report-error-dialog/report-error-dialog.component';
+import { ReportErrorDialogData, ReportErrorFormValue } from '@core/types/report-error.i';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ReportErrorDialogService {
   private dialog = inject(MatDialog);
-  private lastErrorDraft: ReportErrorDraft | null = null;
+  private lastErrorDraft: ReportErrorDialogData | null = null;
 
-  openBlank(): MatDialogRef<ReportErrorDialogComponent, ReportErrorFormValue> {
-    return this.open();
+  open(data?: ReportErrorDialogData): MatDialogRef<ReportErrorDialogComponent, ReportErrorFormValue> {
+    return this.dialog.open(ReportErrorDialogComponent, {
+      data: data ?? null,
+      autoFocus: false,
+      restoreFocus: false,
+    });
   }
 
-  openWithLastError(): MatDialogRef<ReportErrorDialogComponent, ReportErrorFormValue> {
-    return this.open(this.lastErrorDraft ?? undefined);
-  }
-
-  openWithDraft(draft: ReportErrorDraft): MatDialogRef<ReportErrorDialogComponent, ReportErrorFormValue> {
-    return this.open(draft);
-  }
-
-  setLastErrorDraft(draft: ReportErrorDraft): void {
+  setLastErrorDraft(draft: ReportErrorDialogData): void {
     this.lastErrorDraft = draft;
   }
 
   clearLastErrorDraft(): void {
     this.lastErrorDraft = null;
-  }
-
-  open(initialValue?: ReportErrorDraft): MatDialogRef<ReportErrorDialogComponent, ReportErrorFormValue> {
-    return this.dialog.open(ReportErrorDialogComponent, {
-      data: initialValue ?? null,
-      autoFocus: false,
-      restoreFocus: false,
-    });
   }
 }

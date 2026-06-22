@@ -1,30 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
-import { FormDialogComponent } from '@core/components/common/form-dialog/form-dialog.component';
+import { Component, inject, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { FormlyFieldConfig } from '@ngx-formly/core';
-import { ReportBugService, ReportErrorTechnicalDetails } from '@core/services/report-bug.service';
+import { FormDialogComponent } from '@core/components/common/form-dialog/form-dialog.component';
 import { NotificationService } from '@core/services/notification/notification.service';
+import { ReportBugService, ReportErrorTechnicalDetails } from '@core/services/report-bug.service';
 import { NotificationType } from '@core/types/notification.i';
+import { ReportErrorDialogData, ReportErrorFormValue } from '@core/types/report-error.i';
+import { FormlyFieldConfig } from '@ngx-formly/core';
 import { finalize } from 'rxjs';
-import { signal } from '@angular/core';
 
-export interface ReportErrorFormValue {
-  title: string;
-  problemDescription: string;
-}
-
-export interface ReportErrorContext {
-  requestURL?: string;
-  requestMethod?: string;
-  requestBody?: string;
-  responseBody?: string;
-}
-
-export interface ReportErrorDialogData {
-  initialValue?: Partial<ReportErrorFormValue>;
-  context?: ReportErrorContext | null;
-}
+export type { ReportErrorContext, ReportErrorDialogData, ReportErrorFormValue } from '@core/types/report-error.i';
 
 @Component({
   selector: 'eln-report-error-dialog',
