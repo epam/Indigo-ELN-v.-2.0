@@ -95,7 +95,7 @@ public class ExperimentModelService {
     public String formatDiff(JsonNode before, ExperimentRevisionEntity targetRevision) {
         PatchFormatter formatter = patchFormatterInstance.get();
         try {
-            return formatter.format(before, targetRevision.getDiff(), targetRevision.getOverwritten());
+            return formatter.format(before, targetRevision.getDiff());
         } finally {
             patchFormatterInstance.destroy(formatter);
         }

@@ -9,7 +9,6 @@ import com.epam.indigoeln.reaction.metamodel.property.ModelProperty;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.units.*;
 import jakarta.enterprise.context.Dependent;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
@@ -111,6 +110,15 @@ public class ReactionCalculator {
         log.debug("recalculation done");
         if (!overwritten.isEmpty()) {
             log.debug("overwritten: {}", overwritten);
+            for (Property<?, ?> property : overwritten) {
+                checkNotNull(property.getValue()).setOverwritten(true);
+            }
+        }
+    }
+
+    public void cleanupOverwritten() {
+        for (Property<?, ?> property : overwritten) {
+            checkNotNull(property.getValue()).setOverwritten(false);
         }
     }
 

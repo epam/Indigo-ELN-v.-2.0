@@ -20,6 +20,10 @@ public class SignificantFiguresUtil {
         ScopedValue.where(SIGNIFICANT_FIGURES, significantFigures).run(action);
     }
 
+    public static <T, X extends Exception> T runWithSignificantFigures(int significantFigures, ScopedValue.CallableOp<T, X> action) throws X {
+        return ScopedValue.where(SIGNIFICANT_FIGURES, significantFigures).call(action);
+    }
+
     public static <T extends @Nullable Object, X extends Throwable> T callWithSignificantFigures(int significantFigures, ScopedValue.CallableOp<T, X> action) throws X {
         return ScopedValue.where(SIGNIFICANT_FIGURES, significantFigures).call(action);
     }

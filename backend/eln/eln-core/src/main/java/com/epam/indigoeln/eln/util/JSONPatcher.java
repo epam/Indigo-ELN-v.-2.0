@@ -114,6 +114,13 @@ public class JSONPatcher {
         }
         for (Map.Entry<String, JsonNode> updatedEntry : updated.properties()) {
             String key = updatedEntry.getKey();
+            if (key.equals("$overwritten")) { // shortcut for $overwritten - return updated value directly
+                if (diff == null) {
+                    diff = nodeFactory.objectNode();
+                }
+                diff.set(key, updatedEntry.getValue());
+                continue;
+            }
             if (!base.has(key)) {
                 path.add(key);
                 JsonNode propertyDiff = doCreate(null, updatedEntry.getValue(), path);
@@ -251,6 +258,9 @@ public class JSONPatcher {
         }
         for (Map.Entry<String, JsonNode> entry : patchObject.properties()) {
             String key = entry.getKey();
+            if (key.equals("$overwritten")) {
+                continue; // don't update target
+            }
             JsonNode oldValue = base.has(key) ? base.get(key) : nodeFactory.nullNode();
             path.add(key);
             JsonNode newValue = doApply(oldValue, entry.getValue(), path, reverse);
