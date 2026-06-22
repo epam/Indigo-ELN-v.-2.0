@@ -30,26 +30,16 @@ export class ReportBugService {
   }
 
   getTechnicalDetails(context?: ReportErrorContext | null): ReportErrorTechnicalDetails | null {
-    if (!context) {
-      return null;
-    }
-
     const experiment = this.experimentDetailService.experimentDetail();
 
-    return {
-      currentUrl: this.getCurrentUrl(),
-      experimentJson: experiment ? safePrettyStringify(experiment) : undefined,
-      requestURL: context.requestURL,
-      requestMethod: context.requestMethod,
-      requestBody: context.requestBody,
-      responseBody: context.responseBody,
-    };
+    return buildTechnicalDetails(this.getCurrentUrl(), experiment, context);
   }
 
   private buildPayload(formValue: ReportErrorFormValue, context?: ReportErrorContext | null): FormData {
     const experiment = this.experimentDetailService.experimentDetail();
     const payload = new FormData();
-    const message = buildIncidentMessage(formValue, this.getCurrentUrl(), context);
+    const technicalDetails = buildTechnicalDetails(this.getCurrentUrl(), experiment, context);
+    const message = buildIncidentMessage(formValue, technicalDetails);
 
     payload.append('message', message);
 
@@ -69,22 +59,36 @@ function buildUserMessage(formValue: ReportErrorFormValue): string {
   return [formValue.title.trim(), formValue.problemDescription.trim()].filter(Boolean).join('\n\n');
 }
 
-function buildIncidentMessage(
-  formValue: ReportErrorFormValue,
+function buildTechnicalDetails(
   currentUrl: string,
+  experiment: unknown | null,
   context?: ReportErrorContext | null,
-): string {
-  const details = {
+): ReportErrorTechnicalDetails | null {
+  if (!context) {
+    return null;
+  }
+
+  return {
     currentUrl,
+    experimentJson: experiment ? safePrettyStringify(experiment) : undefined,
     ...(context?.requestURL ? { requestURL: context.requestURL } : {}),
     ...(context?.requestMethod ? { requestMethod: context.requestMethod } : {}),
     ...(context?.requestBody ? { requestBody: context.requestBody } : {}),
     ...(context?.responseBody ? { responseBody: context.responseBody } : {}),
   };
+}
 
-  const technicalDetails = safePrettyStringify(details);
+function buildIncidentMessage(
+  formValue: ReportErrorFormValue,
+  technicalDetails: ReportErrorTechnicalDetails | null,
+): string {
+  if (!technicalDetails) {
+    return buildUserMessage(formValue);
+  }
 
-  return [buildUserMessage(formValue), 'Technical details:', technicalDetails].filter(Boolean).join('\n\n');
+  const technicalDetailsText = safePrettyStringify(technicalDetails);
+
+  return [buildUserMessage(formValue), 'Technical details:', technicalDetailsText].filter(Boolean).join('\n\n');
 }
 
 function safePrettyStringify(value: unknown): string {

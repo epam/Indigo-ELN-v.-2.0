@@ -34,7 +34,7 @@ import { ButtonComponent } from '../button/button.component';
   `,
 })
 export class NotificationComponent {
-  readonly params = inject<NotificationParams>(MAT_SNACK_BAR_DATA);
+  readonly params: NotificationParams = inject(MAT_SNACK_BAR_DATA);
 
   readonly #iconRegistry = inject(MatIconRegistry);
   readonly #sanitizer = inject(DomSanitizer);

@@ -4,8 +4,15 @@ import { TextareaFieldComponent } from '@/core/components/formly/fields/textarea
 import { ElnWrapperFormField } from '@/core/components/formly/wrappers/field-wrapper.component';
 import { DropdownFieldComponent } from '@/core/components/formly/fields/dropdown-field.component';
 import { ExperimentSelectFieldComponent } from '@/core/components/formly/fields/experiment-select-field.component';
+import { ErrorInterceptor } from '@core/interceptors/error.interceptor';
 
-import { HttpInterceptorFn, provideHttpClient, withInterceptors } from '@angular/common/http';
+import {
+  HTTP_INTERCEPTORS,
+  HttpInterceptorFn,
+  provideHttpClient,
+  withInterceptors,
+  withInterceptorsFromDi,
+} from '@angular/common/http';
 import { ApplicationConfig, importProvidersFrom, inject, provideZoneChangeDetection } from '@angular/core';
 
 import { EditorFormlyFieldComponent } from '@/core/components/formly/fields/editor/editor-field.component';
@@ -108,6 +115,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideAnimationsAsync(),
-    provideHttpClient(withInterceptors([keycloakBearerInterceptor])),
+    provideHttpClient(withInterceptors([keycloakBearerInterceptor]), withInterceptorsFromDi()),
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
   ],
 };

@@ -6,7 +6,7 @@ import {
   ReportErrorFormValue,
 } from '@core/components/common/report-error-dialog/report-error-dialog.component';
 
-export interface ReportErrorDraft extends ReportErrorDialogData {}
+export type ReportErrorDraft = ReportErrorDialogData;
 
 @Injectable({
   providedIn: 'root',
@@ -21,6 +21,10 @@ export class ReportErrorDialogService {
 
   openWithLastError(): MatDialogRef<ReportErrorDialogComponent, ReportErrorFormValue> {
     return this.open(this.lastErrorDraft ?? undefined);
+  }
+
+  openWithDraft(draft: ReportErrorDraft): MatDialogRef<ReportErrorDialogComponent, ReportErrorFormValue> {
+    return this.open(draft);
   }
 
   setLastErrorDraft(draft: ReportErrorDraft): void {

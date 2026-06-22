@@ -1,10 +1,10 @@
 import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
-import { BackendError } from '@core/types/entities/base-entity.i';
-import { NotificationType } from '@core/types/notification.i';
 import { inject, Injectable } from '@angular/core';
+import { ReportErrorContext } from '@core/components/common/report-error-dialog/report-error-dialog.component';
 import { NotificationService } from '@core/services/notification/notification.service';
 import { ReportErrorDialogService } from '@core/services/report-error-dialog.service';
-import { ReportErrorContext } from '@core/components/common/report-error-dialog/report-error-dialog.component';
+import { BackendError } from '@core/types/entities/base-entity.i';
+import { NotificationType } from '@core/types/notification.i';
 import { catchError, Observable, throwError } from 'rxjs';
 
 @Injectable()
@@ -18,7 +18,9 @@ export class ErrorInterceptor implements HttpInterceptor {
         try {
           const [message, log]: [string, string] = detectMessage(error);
           const reportDraft = buildReportErrorDraft(req, error, message);
-          if (!isReportBugRequest(req)) {
+          const isIncidentRequest = isReportBugRequest(req);
+
+          if (!isIncidentRequest) {
             this.reportErrorDialogService.setLastErrorDraft(reportDraft);
           }
           console.error(log, error);
@@ -26,12 +28,12 @@ export class ErrorInterceptor implements HttpInterceptor {
             message,
             type: NotificationType.Error,
             isInline: false,
-            ...(isReportBugRequest(req)
+            ...(isIncidentRequest
               ? {}
               : {
                   action: {
                     label: 'Report Error',
-                    callback: () => this.reportErrorDialogService.openWithLastError(),
+                    callback: () => this.reportErrorDialogService.openWithDraft(reportDraft),
                   },
                 }),
           });
