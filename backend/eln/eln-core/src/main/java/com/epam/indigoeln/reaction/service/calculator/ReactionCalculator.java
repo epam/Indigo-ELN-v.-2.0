@@ -1,5 +1,6 @@
 package com.epam.indigoeln.reaction.service.calculator;
 
+import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.reaction.metamodel.ReactionInputMetamodel;
 import com.epam.indigoeln.reaction.metamodel.ReactionInputSampleMetamodel;
 import com.epam.indigoeln.reaction.metamodel.ReactionOutputMetamodel;
@@ -17,12 +18,12 @@ import org.jspecify.annotations.Nullable;
 import java.util.*;
 import java.util.function.Supplier;
 
+import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE;
 import static com.epam.indigoeln.reaction.service.calculator.EnteredValueOpt.*;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 /**
- * Calculates based on system of equations:
+ * Calculates reaction based on system of equations:
  *
  * <p>F1. input.mol = ∑ sample.mol</p>
  * <p>F2. nonLimiting.mol = limiting.mol / limiting.eq * nonLimiting.eq</p>
@@ -38,10 +39,12 @@ import static com.google.common.base.Preconditions.checkState;
 @Dependent
 public class ReactionCalculator {
 
+    private static final Comparator<Pair<Property<?, ?>, EnteredValue<?>>> SEED_COMPARATOR = ((Comparator<Pair<Property<?,?>, EnteredValue<?>>>) ReactionCalculator::compareProperties).reversed();
+
     private int nodeOrdinal = 0;
     private final List<Property<?, ?>> properties = new ArrayList<>();
     private final List<Formula<?>> formulas = new ArrayList<>();
-    private final Map<Property<?, ?>, EnteredValue<?>> seedValues = new IdentityHashMap<>();
+    private final List<Pair<Property<?, ?>, EnteredValue<?>>> seeds = new ArrayList<>();
     @Getter
     private final List<Property<?, ?>> overwritten = new ArrayList<>();
 
@@ -50,66 +53,46 @@ public class ReactionCalculator {
         new ModelProps(experimentModel);
 
         // collect seeds
-        List<Property<?, ?>> seeds = new ArrayList<>();
         for (Property<?, ?> property : properties) {
             EnteredValue<?> value = property.getValue();
             if (value != null) {
                 if (value.getSource().isUserEntered() || value.getSource().isDefault()) {
-                    seeds.add(property);
-                    seedValues.put(property, value);
+                    seeds.add(Pair.of(property, value));
                 } else if (value.getSource().isCalculated()) {
                     property.setValue(null);
                 }
             }
         }
 
-        // add defaults
-        for (Property<?, ?> property : properties) {
-            if (!seedValues.containsKey(property)) {
-                switch (property.getProperty().name()) {
-                    case "eq": {
-                        seeds.add(property);
-                        seedValues.put(property, EnteredValue.DEFAULT_ONE);
-                        break;
-                    }
-                    case "purity": {
-                        seeds.add(property);
-                        seedValues.put(property, EnteredValue.DEFAULT_ONE_HUNDRED);
-                        break;
-                    }
-                }
-            }
-        }
-
-        seeds.sort(((Comparator<? super Property<?,?>>) this::compareProperties).reversed());
+        seeds.sort(SEED_COMPARATOR);
         if (log.isDebugEnabled()) {
             log.debug("seeds:\n\t{}", StreamEx.of(seeds).joining("\t\n"));
         }
 
-        for (Property<?, ?> seed : seeds) {
-            if (seed.getValue() != null && !seed.getValue().getSource().isFixed()) {
-                seed.setValue(null);
+        for (Pair<Property<?, ?>, EnteredValue<?>> seed : seeds) {
+            if (seed.a().getValue() != null && !seed.a().getValue().getSource().isFixed()) {
+                seed.a().setValue(null);
             }
         }
 
-        for (Property<?, ?> seed : seeds) {
+        for (Pair<Property<?, ?>, EnteredValue<?>> pair : seeds) {
             snapshot();
             try {
+                Property<?, ?> seed = pair.a();
                 // set selected value
                 EnteredValue<?> existingValue = seed.getValue();
-                EnteredValue<?> seedValue = seedValues.get(seed);
+                EnteredValue<?> seedValue = pair.b();
                 log.debug("apply seed: {} = {}", seed.getName(), seedValue);
-                if (existingValue != null && seedValue != null && !existingValue.valueEquals(seedValue)) {
+                if (existingValue != null && seedValue != null) {
                     if (seedValue.getSource().isDefault()) {
                         log.debug("value already set to {}, ignoring default", existingValue);
-                        seedValue = null; // default value silently overwritten
-                    } else {
+                        continue;
+                    }
+                    if (!existingValue.valueEquals(seedValue)) {
                         throw new RecalculationConflictException();
                     }
                 }
-                if (seedValue != null) {
-                    seed.setValueUnchecked(seedValue);
-                }
+                seed.setValueUnchecked(seedValue);
                 Deque<Formula<?>> queue = new ArrayDeque<>(seed.getDownstream());
                 // walk the graph
                 while (!queue.isEmpty()) {
@@ -119,8 +102,8 @@ public class ReactionCalculator {
                     }
                 }
             } catch (RecalculationConflictException e) {
-                log.debug("conflict! overwritten: {}", seed);
-                overwritten.add(seed);
+                log.debug("conflict! overwritten: {}", pair.a());
+                overwritten.add(pair.a());
                 revert();
                 // proceed with the next seed
             }
@@ -134,6 +117,12 @@ public class ReactionCalculator {
     private <C extends ExperimentNode, U extends MeasurementUnit> EnteredValueOpt.Property<C, U> prop(C container, ModelProperty<C, @Nullable EnteredValue<U>> property) {
         Property<C, U> node = new Property<>(container, property, ++nodeOrdinal);
         properties.add(node);
+        return node;
+    }
+
+    private <C extends ExperimentNode, U extends MeasurementUnit> EnteredValueOpt.Property<C, U> prop(C container, ModelProperty<C, @Nullable EnteredValue<U>> property, EnteredValue<U> defaultValue) {
+        Property<C, U> node = prop(container, property);
+        seeds.add(Pair.of(node, defaultValue));
         return node;
     }
 
@@ -252,7 +241,7 @@ public class ReactionCalculator {
             super(input);
             this.reaction = reaction;
             mol = prop(input, ReactionInputMetamodel.MOL);
-            eq = prop(input, ReactionInputMetamodel.EQ);
+            eq = prop(input, ReactionInputMetamodel.EQ, DEFAULT_ONE);
             samples = StreamEx.of(input.getSamples())
                     .map(x -> new InputSampleProps(this, x))
                     .toList();
@@ -326,7 +315,7 @@ public class ReactionCalculator {
             this.input = input;
             mol = prop(sample, ReactionInputSampleMetamodel.MOL);
             weight = prop(sample, ReactionInputSampleMetamodel.WEIGHT);
-            purity = prop(sample, ReactionInputSampleMetamodel.PURITY);
+            purity = prop(sample, ReactionInputSampleMetamodel.PURITY, EnteredValue.DEFAULT_ONE_HUNDRED);
             molarity = prop(sample, ReactionInputSampleMetamodel.MOLARITY);
             volume = prop(sample, ReactionInputSampleMetamodel.VOLUME);
             density = prop(sample, ReactionInputSampleMetamodel.DENSITY);
@@ -428,7 +417,7 @@ public class ReactionCalculator {
             super(output);
             this.reaction = reaction;
             theoMol = prop(output, ReactionOutputMetamodel.THEO_MOL);
-            eq = prop(output, ReactionOutputMetamodel.EQ);
+            eq = prop(output, ReactionOutputMetamodel.EQ, DEFAULT_ONE);
             theoWeight = prop(output, ReactionOutputMetamodel.THEO_WEIGHT);
             samples = StreamEx.of(output.getSamples())
                     .map(x -> new OutputSampleProps(this, x))
@@ -485,7 +474,7 @@ public class ReactionCalculator {
             this.output = output;
             actualMol = prop(sample, ReactionOutputSampleMetamodel.ACTUAL_MOL);
             actualWeight = prop(sample, ReactionOutputSampleMetamodel.ACTUAL_WEIGHT);
-            purity = prop(sample, ReactionOutputSampleMetamodel.PURITY);
+            purity = prop(sample, ReactionOutputSampleMetamodel.PURITY, EnteredValue.DEFAULT_ONE_HUNDRED);
             molarity = prop(sample, ReactionOutputSampleMetamodel.MOLARITY);
             volume = prop(sample, ReactionOutputSampleMetamodel.VOLUME);
             density = prop(sample, ReactionOutputSampleMetamodel.DENSITY);
@@ -587,8 +576,9 @@ public class ReactionCalculator {
         };
     }
 
-    private int compareProperties(Property<?, ?> a, Property<?, ?> b) {
-        EnteredValue<?> valueA = checkNotNull(seedValues.get(a)), valueB = checkNotNull((seedValues.get(b)));
+    private static int compareProperties(Pair<Property<?, ?>, EnteredValue<?>> pa, Pair<Property<?, ?>, EnteredValue<?>> pb) {
+        Property<?, ?> a = pa.a(), b = pb.a();
+        EnteredValue<?> valueA = pa.b(), valueB = pb.b();
         EnteredValueSource sourceA = valueA.getSource(), sourceB = valueB.getSource();
         checkState(sourceA.isUserEntered() || sourceA.isDefault());
         checkState(sourceB.isUserEntered() || sourceB.isDefault());
@@ -598,10 +588,10 @@ public class ReactionCalculator {
 
         int result;
 
-        // default purity is more priority than other defaults and even user-entered
+        // purity is more priority than other (default purity is more important than other defaults and even other user-entered)
         // (since in case of conflict we can likely recalculate user-entered, but we are not allowed to calculate purity)
-        boolean purityA = valueA.getSource().isDefault() && a.getProperty().name().equals("purity");
-        boolean purityB = valueB.getSource().isDefault() && b.getProperty().name().equals("purity");
+        boolean purityA = a.getProperty().name().equals("purity");
+        boolean purityB = b.getProperty().name().equals("purity");
         result = Boolean.compare(purityA, purityB);
         if (result != 0) {
             return result;

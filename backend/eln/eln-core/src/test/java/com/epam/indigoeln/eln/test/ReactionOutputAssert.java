@@ -19,8 +19,18 @@ public class ReactionOutputAssert extends AbstractReactionRowAssert<ReactionOutp
         return this;
     }
 
-    public ReactionOutputAssert hasTheoWeight(double theoWight, WeightUnit unit) {
-        EnteredValueAssert.assertThat(actual.getTheoWeight()).hasValue(theoWight, unit);
+    public ReactionOutputAssert hasNoTheoMol() {
+        EnteredValueAssert.assertThat(actual.getTheoMol()).isNull();
+        return this;
+    }
+
+    public ReactionOutputAssert hasTheoWeight(double theoWeight, WeightUnit unit) {
+        EnteredValueAssert.assertThat(actual.getTheoWeight()).hasValue(theoWeight, unit);
+        return this;
+    }
+
+    public ReactionOutputAssert hasNoTheoWeight() {
+        EnteredValueAssert.assertThat(actual.getTheoWeight()).isNull();
         return this;
     }
 }

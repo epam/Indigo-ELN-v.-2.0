@@ -20,8 +20,18 @@ public class ReactionInputSampleAssert extends AbstractReactionSampleAssert<Reac
         return this;
     }
 
+    public ReactionInputSampleAssert hasNoMol() {
+        EnteredValueAssert.assertThat(actual.getMol()).isNull();
+        return this;
+    }
+
     public ReactionInputSampleAssert hasWeight(double weight, WeightUnit unit) {
         EnteredValueAssert.assertThat(actual.getWeight()).hasValue(weight, unit);
+        return this;
+    }
+
+    public ReactionInputSampleAssert hasNoWeight() {
+        EnteredValueAssert.assertThat(actual.getWeight()).isNull();
         return this;
     }
 }

@@ -137,19 +137,19 @@ public class ExperimentObject {
         mutate(new ReactionMutation.ResolveInputs(reaction().getAnchor(), sampleIDs));
     }
 
-    public void mutateSetInputMol(int inputNo, int sampleNo, String mol, MolUnit unit) {
+    public void mutateSetInputMol(int inputNo, int sampleNo, @Nullable String mol, @Nullable MolUnit unit) {
         mutate(new ReactionInputSampleMutation.SetInputMol(inputSample(inputNo, sampleNo).getAnchor(), mol, unit));
     }
 
-    public void mutateSetInputWeight(int inputNo, int sampleNo, String weight, WeightUnit unit) {
+    public void mutateSetInputWeight(int inputNo, int sampleNo, @Nullable String weight, @Nullable WeightUnit unit) {
         mutate(new ReactionInputSampleMutation.SetInputWeight(inputSample(inputNo, sampleNo).getAnchor(), weight, unit));
     }
 
-    public void mutateSetInputVolume(int inputNo, int sampleNo, String volume, VolumeUnit unit) {
+    public void mutateSetInputVolume(int inputNo, int sampleNo, @Nullable String volume, @Nullable VolumeUnit unit) {
         mutate(new ReactionInputSampleMutation.SetInputVolume(inputSample(inputNo, sampleNo).getAnchor(), volume, unit));
     }
 
-    public void mutateSetInputDensity(int inputNo, int sampleNo, String density, DensityUnit unit) {
+    public void mutateSetInputDensity(int inputNo, int sampleNo, @Nullable String density, @Nullable DensityUnit unit) {
         mutate(new ReactionInputSampleMutation.SetInputDensity(inputSample(inputNo, sampleNo).getAnchor(), density, unit));
     }
 
@@ -159,6 +159,10 @@ public class ExperimentObject {
 
     public void mutateAddProductSample(int outputNo) {
         mutate(new ReactionOutputMutation.AddProductSample(output(outputNo).getAnchor()));
+    }
+
+    public void mutateAddNoProductSample() {
+        mutate(new ReactionMutation.AddNoProductSample(reaction().getAnchor()));
     }
 
     public void update(Runnable updater) {
@@ -188,19 +192,19 @@ public class ExperimentObject {
         return collection.get(index - 1);
     }
 
-    public void mutateSetInputRowMol(int inputNo, String mol, MolUnit unit) {
+    public void mutateSetInputRowMol(int inputNo, @Nullable String mol, @Nullable MolUnit unit) {
         mutate(new ReactionInputMutation.SetInputRowMol(input(inputNo).getAnchor(), mol, unit));
     }
 
-    public void mutateSetInputMolarity(int inputNo, int sampleNo, String molarity, MolarityUnit unit) {
+    public void mutateSetInputMolarity(int inputNo, int sampleNo, @Nullable String molarity, @Nullable MolarityUnit unit) {
         mutate(new ReactionInputSampleMutation.SetInputMolarity(inputSample(inputNo, sampleNo).getAnchor(), molarity, unit));
     }
 
-    public void mutateSetInputPurity(int inputNo, int sampleNo, String purity) {
+    public void mutateSetInputPurity(int inputNo, int sampleNo, @Nullable String purity) {
         mutate(new ReactionInputSampleMutation.SetInputPurity(inputSample(inputNo, sampleNo).getAnchor(), purity));
     }
 
-    public void mutateSetInputRowEQ(int inputNo, String eq) {
+    public void mutateSetInputRowEQ(int inputNo, @Nullable String eq) {
         mutate(new ReactionInputMutation.SetInputRowEQ(input(inputNo).getAnchor(), eq));
     }
 

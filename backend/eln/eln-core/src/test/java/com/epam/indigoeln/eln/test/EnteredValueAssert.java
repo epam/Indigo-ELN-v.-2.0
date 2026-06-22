@@ -1,9 +1,6 @@
 package com.epam.indigoeln.eln.test;
 
-import com.epam.indigoeln.reaction.model.units.EnteredValue;
-import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
-import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
-import com.epam.indigoeln.reaction.model.units.NoUnit;
+import com.epam.indigoeln.reaction.model.units.*;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import org.apache.commons.math3.util.Precision;
@@ -26,7 +23,7 @@ public class EnteredValueAssert<U extends MeasurementUnit> extends AbstractAsser
 
     public EnteredValueAssert<U> hasValue(double value) {
         Assertions.assertThat(actual).isNotNull();
-        if (!(actual.getUnit() instanceof MolWeightUnit) && !(actual.getUnit() instanceof NoUnit)) {
+        if (!(actual.getUnit() instanceof MolWeightUnit) && !(actual.getUnit() instanceof NoUnit) && !(actual.getUnit() instanceof DensityUnit)) {
             throw new IllegalStateException("Must use hasValue(value, unit) for " + actual.getUnit().getClass().getSimpleName());
         }
         Assertions.assertThat(actual.getValue()).describedAs(actual::toString).isCloseTo(value, EPSILON);
