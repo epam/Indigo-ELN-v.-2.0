@@ -1,5 +1,6 @@
 import { ChipGridFieldComponent } from '@/core/components/formly/fields/chip-grid-field.component';
 import { InputFieldComponent } from '@/core/components/formly/fields/input-field.component';
+import { TextareaFieldComponent } from '@/core/components/formly/fields/textarea-field.component';
 import { ElnWrapperFormField } from '@/core/components/formly/wrappers/field-wrapper.component';
 import { DropdownFieldComponent } from '@/core/components/formly/fields/dropdown-field.component';
 import { ExperimentSelectFieldComponent } from '@/core/components/formly/fields/experiment-select-field.component';
@@ -57,6 +58,11 @@ export const appConfig: ApplicationConfig = {
           {
             name: 'input',
             component: InputFieldComponent,
+            wrappers: ['raw'],
+          },
+          {
+            name: 'textarea',
+            component: TextareaFieldComponent,
             wrappers: ['raw'],
           },
           {

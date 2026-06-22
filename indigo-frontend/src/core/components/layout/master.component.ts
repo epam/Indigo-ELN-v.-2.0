@@ -15,6 +15,7 @@ import { filter } from 'rxjs/operators';
 import { SidebarComponent } from './partials/sidebar/sidebar.component';
 import { GlobalSearchComponent } from '@pages/search/global-search/global-search.component';
 import { MatDialog } from '@angular/material/dialog';
+import { ReportErrorDialogService } from '@core/services/report-error-dialog.service';
 
 @Component({
   selector: 'eln-master',
@@ -39,6 +40,7 @@ export class MasterComponent implements OnInit, OnDestroy {
   authenticatorService = inject(AuthenticatorService);
   identityService = inject(IdentityService);
   dialog = inject(MatDialog);
+  reportErrorDialogService = inject(ReportErrorDialogService);
   public isCollapsed = false;
   public searchControl = new FormControl('');
   router = inject(Router);
@@ -76,5 +78,9 @@ export class MasterComponent implements OnInit, OnDestroy {
   showSearch(): void {
     this.dialog.open(GlobalSearchComponent, { data: { initialQuery: this.searchControl.value } });
     this.searchControl.reset();
+  }
+
+  openReportError(): void {
+    this.reportErrorDialogService.openBlank();
   }
 }
