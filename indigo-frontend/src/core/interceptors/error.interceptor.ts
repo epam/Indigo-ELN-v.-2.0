@@ -118,5 +118,5 @@ function normalizeErrorBody(errorBody: unknown): string | null {
 }
 
 function isReportBugRequest(req: HttpRequest<unknown>): boolean {
-  return req.url.includes('/api/eln/report-bug') || req.url.endsWith('report-bug');
+  return req.url.includes('/api/eln/incidents') || req.url.endsWith('incidents');
 }
