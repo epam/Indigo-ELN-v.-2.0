@@ -5,6 +5,7 @@ import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.search.SampleSearchResult;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.flyway.util.JsonLocator;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.*;
 import com.epam.indigoeln.reaction.model.outputsample.*;
@@ -657,10 +658,10 @@ public class MutationsTest extends MutationsTestBase {
         experiment.mutateSetInputWeight(2, 1, "200", G);
         experiment.mutateSetInputRowEQ(1, "1");
         experiment.mutateSetInputRowEQ(2, "2");
-        assertThat(experiment.lastMutationResponse().getOverwritten()).containsExactly( "reactions.0.inputs.1.samples.0.weight");
+        assertThat(JsonLocator.findNodes(experiment.lastMutationResponse().getPatch(), "model/reactions/0/inputs/1/samples/0/weight/$overwritten")).hasSize(1);
 
         experiment.mutateSetInputVolume(2, 1, "2", ML);
-        assertThat(experiment.lastMutationResponse().getOverwritten()).isEmpty();
+        assertThat(JsonLocator.findNodes(experiment.lastMutationResponse().getPatch(), "**/$overwritten")).isEmpty();
     }
 
     @Test
