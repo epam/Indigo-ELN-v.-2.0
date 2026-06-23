@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Preconditions;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.math3.util.Precision;
 import org.jspecify.annotations.Nullable;
 
@@ -41,52 +40,52 @@ public final class EnteredValue<U extends MeasurementUnit> {
     @Nullable
     private String stringValue;
 
-    @Setter
     @JsonProperty("$overwritten")
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private boolean overwritten;
 
     @JsonCreator
     EnteredValue(String stringValue, U unit, EnteredValueSource source) {
-        this(Double.parseDouble(stringValue), -1, stringValue, unit, source);
+        this(Double.parseDouble(stringValue), -1, stringValue, unit, source, false);
     }
 
-    private EnteredValue(double value, int significantFigures, @Nullable String stringValue, U unit, EnteredValueSource source) {
+    private EnteredValue(double value, int significantFigures, @Nullable String stringValue, U unit, EnteredValueSource source, boolean overwritten) {
         this.value = value;
         this.significantFigures = significantFigures;
         this.stringValue = stringValue;
         this.unit = unit;
         this.source = source;
+        this.overwritten = overwritten;
     }
 
     @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> fixed(@Nullable Double value, int precision, U unit) {
-        return value != null ? new EnteredValue<>(roundToSignificantFigures(value, precision), precision, null, unit, EnteredValueSource.FIXED) : null;
+        return value != null ? new EnteredValue<>(roundToSignificantFigures(value, precision), precision, null, unit, EnteredValueSource.FIXED, false) : null;
     }
 
     @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> fixed(@Nullable BigDecimal value, U unit) {
-        return value != null ? new EnteredValue<>(value.doubleValue(), -1, value.toString(), unit, EnteredValueSource.FIXED) : null;
+        return value != null ? new EnteredValue<>(value.doubleValue(), -1, value.toString(), unit, EnteredValueSource.FIXED, false) : null;
     }
 
     @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> userEntered(@Nullable String stringValue, @Nullable U unit, int revision) {
-        return stringValue != null && unit != null ? new EnteredValue<>(Double.parseDouble(stringValue), -1, stringValue, unit, EnteredValueSource.userEntered(revision)) : null;
+        return stringValue != null && unit != null ? new EnteredValue<>(Double.parseDouble(stringValue), -1, stringValue, unit, EnteredValueSource.userEntered(revision), false) : null;
     }
 
     @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> calculated(@Nullable Double value, U unit) {
-        return value != null ? new EnteredValue<>(value, getSignificantFigures(), null, unit, EnteredValueSource.CALCULATED) : null;
+        return value != null ? new EnteredValue<>(value, getSignificantFigures(), null, unit, EnteredValueSource.CALCULATED, false) : null;
     }
 
     @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> defaultValue(@Nullable Double value, int precision, @Nullable U unit) {
-        return value != null && unit != null ? new EnteredValue<>(roundToSignificantFigures(value, precision), precision, null, unit, DEFAULT) : null;
+        return value != null && unit != null ? new EnteredValue<>(roundToSignificantFigures(value, precision), precision, null, unit, DEFAULT, false) : null;
     }
 
     @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> defaultValue(@Nullable BigDecimal value, @Nullable U unit) {
-        return value != null && unit != null ? new EnteredValue<>(value.doubleValue(), -1, value.toString(), unit, DEFAULT) : null;
+        return value != null && unit != null ? new EnteredValue<>(value.doubleValue(), -1, value.toString(), unit, DEFAULT, false) : null;
     }
 
     @Nullable
@@ -162,6 +161,10 @@ public final class EnteredValue<U extends MeasurementUnit> {
 
     public BigDecimal toBigDecimal() {
         return new BigDecimal(getStringValue());
+    }
+
+    public EnteredValue<U> withOverwritten(boolean overwritten) {
+        return new EnteredValue<>(value, significantFigures, stringValue, unit, source, overwritten);
     }
 
     private double convert(U toUnit) {

@@ -84,7 +84,7 @@ public class ReactionCalculator {
                 EnteredValue<?> existingValue = seed.getValue();
                 EnteredValue<?> seedValue = pair.b();
                 log.debug("apply seed: {} = {}", seed.getName(), seedValue);
-                if (existingValue != null && seedValue != null) {
+                if (existingValue != null) {
                     if (seedValue.getSource().isDefault()) {
                         log.debug("value already set to {}, ignoring default", existingValue);
                         continue;
@@ -113,14 +113,16 @@ public class ReactionCalculator {
         if (!overwritten.isEmpty()) {
             log.debug("overwritten: {}", overwritten);
             for (Property<?, ?> property : overwritten) {
-                checkNotNull(property.getValue()).setOverwritten(true);
+                EnteredValue<?> value = checkNotNull(property.getValue()).withOverwritten(true);
+                property.setValueUnchecked(value);
             }
         }
     }
 
     public void cleanupOverwritten() {
         for (Property<?, ?> property : overwritten) {
-            checkNotNull(property.getValue()).setOverwritten(false);
+            EnteredValue<?> value = checkNotNull(property.getValue()).withOverwritten(false);
+            property.setValueUnchecked(value);
         }
     }
 
