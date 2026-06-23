@@ -1,15 +1,16 @@
+import { CommonModule } from '@angular/common';
 import { Component, effect, inject, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, RouterOutlet } from '@angular/router';
 import { take } from 'rxjs';
+
+import { BreadcrumbsComponent } from '@/core/components/breadcrumbs/breadcrumbs.component';
 import { ButtonComponent } from '@/core/components/common/button/button.component';
 import { CardComponent } from '@/core/components/common/card/card.component';
+import { BreadcrumbsStateService } from '@/core/services/breadcrumbs/breadcrumbs.state.service';
 import { NotebookService } from '@core/services/notebook/notebook.service';
 import { ExperimentAddComponent } from '@pages/experiment/experiment-add/experiment-add.component';
-import { MatDialog } from '@angular/material/dialog';
 import { ProjectTabButtonComponent } from '@pages/project/project-tab-button/project-tab-button.component';
-import { CommonModule } from '@angular/common';
-import { BreadcrumbsComponent } from '@/core/components/breadcrumbs/breadcrumbs.component';
-import { BreadcrumbsStateService } from '@/core/services/breadcrumbs/breadcrumbs.state.service';
 
 @Component({
   selector: 'eln-notebook-detail',
@@ -62,24 +63,25 @@ export class NotebookDetailComponent implements OnInit {
     ]);
   });
 
-  ngOnInit() {
+  ngOnInit(): void {
     const notebookId = this.activatedRoute.snapshot.paramMap.get('notebookId');
-    const projectId = this.activatedRoute.snapshot.paramMap.get('projectId');
 
-    if (notebookId && projectId) {
-      const base = `/projects/${projectId}/notebooks/${notebookId}`;
-      this.infoUrl = base;
-      this.experimentsUrl = `${base}/experiments`;
-      this.store.load(notebookId);
+    if (!notebookId) {
+      return;
     }
 
-    this.store.load(notebookId).subscribe();
+    this.store.load(notebookId).subscribe((notebook) => {
+      this.infoUrl = `/notebooks/${notebook.id}`;
+      this.experimentsUrl = `/notebooks/${notebook.id}/experiments`;
+    });
   }
 
-  async openExperimentModal() {
+  async openExperimentModal(): Promise<void> {
     const ref = this.dialog.open(ExperimentAddComponent);
-    ref.componentInstance.notebookId = this.activatedRoute.snapshot.paramMap.get('notebookId');
-    ref.componentInstance.projectId = this.activatedRoute.snapshot.paramMap.get('projectId');
+    const notebook = this.notebook;
+
+    ref.componentInstance.notebookId = notebook?.id;
+
     ref
       .afterClosed()
       .pipe(take(1))

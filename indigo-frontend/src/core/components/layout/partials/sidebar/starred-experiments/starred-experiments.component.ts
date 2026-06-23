@@ -1,20 +1,21 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { CardComponent } from '@/core/components/common/card/card.component';
 import { BadgeComponent } from '@/core/components/common/badge/badge.component';
-import { ApiService } from '@/core/services/api.service';
-import { NormalizeLabelPipe } from '@/core/pipes/normalizeLabe.pipe';
-import { finalize, Subject, takeUntil } from 'rxjs';
+import { CardComponent } from '@/core/components/common/card/card.component';
 import { ExperimentStatus } from '@/core/enums/experiment-status.enum';
+import { NormalizeLabelPipe } from '@/core/pipes/normalizeLabe.pipe';
+import { ApiService } from '@/core/services/api.service';
 import { ExperimentDetail } from '@/core/types/entities/experiments/experiment-detail.i';
 import { EXPERIMENT_STATUS_DECORATION_MAP, ExperimentStatusDecoration } from '@/core/utils/experiment-status.util';
+import { CommonModule } from '@angular/common';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { ExperimentDetailService } from '@core/services/experiment/experiment-detail.service';
+import { finalize, Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'eln-starred-experiments',
   templateUrl: './starred-experiments.component.html',
   standalone: true,
-  imports: [CommonModule, CardComponent, BadgeComponent, NormalizeLabelPipe],
+  imports: [CommonModule, RouterLink, CardComponent, BadgeComponent, NormalizeLabelPipe],
 })
 export class StarredExperimentsComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();

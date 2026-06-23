@@ -1,12 +1,13 @@
-import { CardComponent } from '@/core/components/common/card/card.component';
-import { Notebook } from '@/core/types/entities/notebook.i';
 import { CommonModule } from '@angular/common';
 import { Component, inject, Input } from '@angular/core';
-import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { Router } from '@angular/router';
 import { MemberAvatarsComponent } from '@core/components/common/member-avatars/member-avatars.component';
+
+import { CardComponent } from '@/core/components/common/card/card.component';
+import { Notebook } from '@/core/types/entities/notebook.i';
 
 @Component({
   selector: 'eln-notebook-item',
@@ -16,13 +17,15 @@ import { MemberAvatarsComponent } from '@core/components/common/member-avatars/m
 })
 export class NotebookItemComponent {
   private router = inject(Router);
+
   @Input() notebook: Notebook;
   @Input() variant: 'grid' | 'list' = 'grid';
-  @Input() projectId: string;
 
   openDetails(): void {
-    if (!this.notebook || !this.projectId) return;
-    const url = `/projects/${this.projectId}/notebooks/${this.notebook.id}`;
-    this.router.navigateByUrl(url);
+    if (!this.notebook) {
+      return;
+    }
+
+    this.router.navigateByUrl(`/notebooks/${this.notebook.id}`);
   }
 }

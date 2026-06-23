@@ -1,22 +1,22 @@
+import { AttachmentsComponent } from '@/core/components/common/attachments/attachments.component';
 import { ButtonComponent } from '@/core/components/common/button/button.component';
 import { CardComponent } from '@/core/components/common/card/card.component';
 import { ChipComponent } from '@/core/components/common/chip/chip.component';
 import { TeamComponent } from '@/core/components/common/team/team.component';
+import { TeamComponentConfig } from '@/core/components/common/team/team.config';
 import { ApiService } from '@/core/services/api.service';
+import { BreadcrumbsStateService } from '@/core/services/breadcrumbs/breadcrumbs.state.service';
+import { Attachment } from '@/core/types/entities/attachment.i';
 import { Project } from '@/core/types/entities/project.i';
 import { CommonModule } from '@angular/common';
-import { Component, effect, inject, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { finalize, Subject, take } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { ProjectAddComponent } from '../project-add/project-add.component';
-import { TeamComponentConfig } from '@/core/components/common/team/team.config';
+import { ActivatedRoute } from '@angular/router';
 import { NotebookAddComponent } from '@pages/notebook/notebook-add/notebook-add.component';
 import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
-import { BreadcrumbsStateService } from '@/core/services/breadcrumbs/breadcrumbs.state.service';
-import { AttachmentsComponent } from '@core/components/common/attachments/attachments.component';
-import { Attachment } from '@core/types/entities/attachment.i';
+import { finalize, Subject, take } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { ProjectAddComponent } from '../project-add/project-add.component';
 
 enum projectInfoModalEnum {
   EDIT = 'edit',
@@ -52,8 +52,6 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  private readonly breadcrumbsEffect = effect(() => {});
-
   projectTeamConfig: TeamComponentConfig = {
     buildAccessEndpoint: (id: string) => `projects/${id}/access`,
   };
@@ -61,8 +59,9 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.breadcrumbsState.setItems([
       { label: 'All Projects', url: '/projects', active: false },
-      { label: `Project: `, active: true },
+      { label: 'Project: ', active: true },
     ]);
+
     this.activatedRoute.params.pipe(takeUntil(this.destroy$)).subscribe(({ id }) => {
       if (id) {
         this.loadProject(id);
@@ -76,6 +75,10 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
   }
 
   onAttachmentsChanged(attachments: Attachment[]) {
+    if (!this.project) {
+      return;
+    }
+
     this.project.attachments = attachments;
   }
 
@@ -102,7 +105,7 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
   }
 
   async openModal(mode: projectInfoModalEnum) {
-    let ref: MatDialogRef<ProjectAddComponent | NotebookAddComponent>;
+    let ref: MatDialogRef<ProjectAddComponent | NotebookAddComponent> | undefined;
 
     if (mode === projectInfoModalEnum.EDIT) {
       ref = this.dialog.open(ProjectAddComponent, {
@@ -112,7 +115,7 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
       });
     }
 
-    if (mode === projectInfoModalEnum.NOTEBOOK) {
+    if (mode === projectInfoModalEnum.NOTEBOOK && this.project) {
       ref = this.dialog.open(NotebookAddComponent);
       (ref.componentInstance as NotebookAddComponent).projectId = this.project.id;
     }
@@ -121,7 +124,7 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
       ?.afterClosed()
       .pipe(take(1))
       .subscribe((result) => {
-        if (result === 'refresh') {
+        if (result === 'refresh' && this.project) {
           this.loadProject(this.project.id);
         }
       });

@@ -1,4 +1,5 @@
 <eln-list-header (viewChange)="selectedView = $any($event)" />
+
 <div
   [@viewChange]="selectedView"
   [ngClass]="{
@@ -8,13 +9,9 @@
   }"
 >
   @for (experiment of (data$ | async) ?? []; track experiment.id) {
-    <eln-experiment-item
-      [experiment]="experiment"
-      [variant]="selectedView"
-      [projectId]="projectId"
-      [notebookId]="notebookId"
-    />
+    <eln-experiment-item [experiment]="experiment" [variant]="selectedView" />
   }
+
   <eln-infinite-loader
     [classNames]="
       {

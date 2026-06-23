@@ -5,27 +5,42 @@
     </div>
 
     <div class="py-2" *ngIf="loading">Loading...</div>
-    <div class="py-2 text-red-500" *ngIf="!loading && error">{{ error }}</div>
 
-    <!-- max-h approximates the height of ~6 items; tweak if needed -->
+    <div class="py-2 text-red-500" *ngIf="!loading && error">
+      {{ error }}
+    </div>
+
     <ul class="divide-y divide-neutral-200 max-h-64 overflow-y-auto pr-1" *ngIf="!loading && !error">
-      <li *ngFor="let exp of experiments" class="py-2 flex items-center justify-between">
-        <div class="flex items-center gap-1">
-          <em class="indicon-file-text text-neutral-700 text-lg"></em>
-          <span class="text-sm font-medium text-neutral-1000">{{ exp.name || exp['code'] || exp.id }}</span>
-        </div>
-        <eln-badge
-          [variant]="statusDecorMap[exp.status]?.variant ?? 'grey'"
-          size="default"
-          classList="w-20 overflow-hidden min-w-0 text-center"
+      <li *ngFor="let exp of experiments">
+        <a
+          [routerLink]="['/experiments', exp.id]"
+          class="py-2 flex items-center justify-between gap-2 cursor-pointer hover:bg-neutral-200 rounded px-1"
         >
-          <span
-            class="inline-block w-2 h-2 rounded-full"
-            [class]="statusDecorMap[exp.status]?.dotClass ?? 'bg-neutral-500'"
-          ></span>
-          <span class="flex-1 truncate">{{ exp.status | normalizeLabel }}</span>
-        </eln-badge>
+          <div class="flex items-center gap-1 min-w-0">
+            <em class="indicon-file-text text-neutral-700 text-lg"></em>
+
+            <span class="text-sm font-medium text-neutral-1000 truncate">
+              {{ exp.name || exp['code'] || exp.id }}
+            </span>
+          </div>
+
+          <eln-badge
+            [variant]="statusDecorMap[exp.status]?.variant ?? 'grey'"
+            size="default"
+            classList="w-20 overflow-hidden min-w-0 text-center"
+          >
+            <span
+              class="inline-block w-2 h-2 rounded-full"
+              [class]="statusDecorMap[exp.status]?.dotClass ?? 'bg-neutral-500'"
+            ></span>
+
+            <span class="flex-1 truncate">
+              {{ exp.status | normalizeLabel }}
+            </span>
+          </eln-badge>
+        </a>
       </li>
+
       <li *ngIf="experiments?.length === 0" class="py-2 text-neutral-600 text-sm">No starred experiments</li>
     </ul>
   </div>

@@ -1,19 +1,19 @@
 import { FormDialogComponent } from '@/core/components/common/form-dialog/form-dialog.component';
 import { ApiService } from '@/core/services/api.service';
 import { NotebookService } from '@/core/services/notebook/notebook.service';
+import { ItemTemplate, RootTemplate } from '@/core/types/entities/template.i';
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { NotificationService } from '@core/services/notification/notification.service';
+import { ExperimentDetail } from '@core/types/entities/experiments/experiment-detail.i';
 import { NotificationType } from '@core/types/notification.i';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { finalize, map } from 'rxjs/operators';
-import { ItemTemplate, RootTemplate } from '@/core/types/entities/template.i';
-import { ExperimentDetail } from '@core/types/entities/experiments/experiment-detail.i';
 
 interface ExperimentForm {
   templateId: string;
@@ -37,14 +37,12 @@ export class ExperimentAddComponent implements OnInit {
   private api = inject(ApiService);
   private router = inject(Router);
   private dialogRef = inject(MatDialogRef<ExperimentAddComponent>);
-  private dialogData = inject(MAT_DIALOG_DATA) as any;
   private notification = inject(NotificationService);
 
   fields: FormlyFieldConfig[] = [];
-  templatesLoading = false; // true while fetching template options
-  submitting = false; // true while submitting create request
+  templatesLoading = false;
+  submitting = false;
   ready = false;
-  projectId: string;
   notebookId: string;
 
   ngOnInit(): void {
@@ -68,14 +66,7 @@ export class ExperimentAddComponent implements OnInit {
         next: (newExperiment: ExperimentDetail) => {
           this.showNotification('Experiment created', NotificationType.Success);
           this.dialogRef.close('refresh');
-          this.router.navigate([
-            '/projects',
-            this.projectId,
-            'notebooks',
-            this.notebookId,
-            'experiments',
-            newExperiment.id,
-          ]);
+          this.router.navigate(['/experiments', newExperiment.id]);
         },
       });
   }
