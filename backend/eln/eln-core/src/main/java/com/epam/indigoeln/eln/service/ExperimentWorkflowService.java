@@ -47,13 +47,13 @@ public class ExperimentWorkflowService {
     SignatureClient signatureClient;
 
     public ExperimentDetailsDTO cancelExperiment(UUID experimentId) {
-        ExperimentEntity experiment = experimentRepository.get(experimentId);
+        ExperimentEntity experiment = experimentRepository.getAndLock(experimentId);
         experimentModelService.applyMutation(experiment, new ExperimentMutation.CancelExperiment());
         return experimentService.getExperimentDetails(experiment);
     }
 
     public ExperimentDetailsDTO reopenExperiment(UUID experimentId) {
-        ExperimentEntity experiment = experimentRepository.get(experimentId);
+        ExperimentEntity experiment = experimentRepository.getAndLock(experimentId);
         experimentModelService.applyMutation(experiment, new ExperimentMutation.ReopenExperiment());
         return experimentService.getExperimentDetails(experiment);
     }
@@ -65,20 +65,20 @@ public class ExperimentWorkflowService {
     }
 
     public ExperimentDetailsDTO completeExperiment(UUID experimentId) {
-        ExperimentEntity experiment = experimentRepository.get(experimentId);
+        ExperimentEntity experiment = experimentRepository.getAndLock(experimentId);
         experimentModelService.applyMutation(experiment, new ExperimentMutation.CompleteExperiment());
         experimentModelService.applyMutation(experiment, new ExperimentMutation.MakeVersion());
         return experimentService.getExperimentDetails(experiment);
     }
 
     public ExperimentDetailsDTO submitExperiment(UUID experimentId, UUID signatureTemplateId) {
-        ExperimentEntity experiment = experimentRepository.get(experimentId);
+        ExperimentEntity experiment = experimentRepository.getAndLock(experimentId);
         experimentModelService.applyMutation(experiment, new ExperimentMutation.SubmitExperiment(signatureTemplateId));
         return experimentService.getExperimentDetails(experiment);
     }
 
     public ExperimentDetailsDTO completeAndSubmitExperiment(UUID experimentId, UUID signatureTemplateId) {
-        ExperimentEntity experiment = experimentRepository.get(experimentId);
+        ExperimentEntity experiment = experimentRepository.getAndLock(experimentId);
         experimentModelService.applyMutation(experiment, new ExperimentMutation.CompleteExperiment());
         experimentModelService.applyMutation(experiment, new ExperimentMutation.MakeVersion());
         experimentModelService.applyMutation(experiment, new ExperimentMutation.SubmitExperiment(signatureTemplateId));

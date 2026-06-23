@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.repository;
 
+import com.epam.indigoeln.common.exception.EntityNotFoundException;
 import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
@@ -18,6 +19,7 @@ import com.google.common.base.MoreObjects;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.LockModeType;
 import jakarta.persistence.TypedQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
@@ -67,6 +69,14 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
                 em.getEntityGraph("Experiment.list"),
                 experimentMapper::entityToDTO
         );
+    }
+
+    public ExperimentEntity getAndLock(UUID id) {
+        ExperimentEntity entity = findById(id, LockModeType.PESSIMISTIC_WRITE);
+        if (entity == null) {
+            throw new EntityNotFoundException(ELNEntityType.EXPERIMENT, id);
+        }
+        return entity;
     }
 
     public ExperimentEntity load(UUID id) {

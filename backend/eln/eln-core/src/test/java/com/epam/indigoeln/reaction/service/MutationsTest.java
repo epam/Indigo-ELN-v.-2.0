@@ -13,6 +13,7 @@ import com.epam.indigoeln.test.ClientUtil;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import jakarta.validation.constraints.NotNull;
+import one.util.streamex.IntStreamEx;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.*;
@@ -37,6 +38,7 @@ import static com.epam.indigoeln.reaction.model.units.VolumeUnit.ML;
 import static com.epam.indigoeln.reaction.model.units.WeightUnit.G;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 @QuarkusTest
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
@@ -687,5 +689,19 @@ public class MutationsTest extends MutationsTestBase {
         experiment.mutate(new ReactionMutation.AddNoProductSample(experiment.reaction().getAnchor()));
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputMolfile(experiment.outputSample(1, 1).getAnchor(), ModelUtil.loadResourceAsString(getClass(), "/ring-substructure.mol")));
         experiment.mutate(new ReactionOutputMutation.SetOutputRowIntended(experiment.output(1).getAnchor(), true));
+    }
+
+    @Test
+    void testParallelMutations() {
+        ReactionAnchor reactionAnchor = experiment.reaction().getAnchor();
+        assertThatNoException().isThrownBy(() -> {
+            IntStreamEx.range(4).parallel().map(i -> {
+                withUser(JOHN_USERNAME, () -> {
+                    experimentClient.mutateExperimentModel(experiment.id(), 1, false, new ReactionMutation.AddNoProductSample(reactionAnchor));
+                    experiment.mutate(new ReactionMutation.AddNoProductSample(reactionAnchor));
+                });
+                return 1;
+            }).toArray();
+        });
     }
 }
