@@ -17,7 +17,7 @@ import static com.epam.indigoeln.reaction.model.units.EnteredValueSource.DEFAULT
 import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.*;
 import static com.google.common.base.Preconditions.checkArgument;
 
-@EqualsAndHashCode(of = {"stringValue", "unit", "source"})
+@EqualsAndHashCode(of = {"stringValue", "exactValue", "unit", "source"})
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class EnteredValue<U extends MeasurementUnit> {
 
@@ -27,6 +27,10 @@ public final class EnteredValue<U extends MeasurementUnit> {
     @Getter
     @JsonIgnore
     private final double value;
+
+    @Nullable
+    @JsonProperty("exactValue")
+    private final Double exactValue;
 
     @Getter
     private final U unit;
@@ -42,15 +46,17 @@ public final class EnteredValue<U extends MeasurementUnit> {
 
     @JsonProperty("$overwritten")
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    private boolean overwritten;
+    @SuppressWarnings({"FieldCanBeLocal", "unused"}) // used in JSON serialization
+    private final boolean overwritten;
 
     @JsonCreator
-    EnteredValue(String stringValue, U unit, EnteredValueSource source) {
-        this(Double.parseDouble(stringValue), -1, stringValue, unit, source, false);
+    EnteredValue(String stringValue, @Nullable Double exactValue, U unit, EnteredValueSource source) {
+        this(exactValue != null ? exactValue : Double.parseDouble(stringValue), exactValue, -1, stringValue, unit, source, false);
     }
 
-    private EnteredValue(double value, int significantFigures, @Nullable String stringValue, U unit, EnteredValueSource source, boolean overwritten) {
+    private EnteredValue(double value, @Nullable Double exactValue, int significantFigures, @Nullable String stringValue, U unit, EnteredValueSource source, boolean overwritten) {
         this.value = value;
+        this.exactValue = exactValue;
         this.significantFigures = significantFigures;
         this.stringValue = stringValue;
         this.unit = unit;
@@ -60,32 +66,32 @@ public final class EnteredValue<U extends MeasurementUnit> {
 
     @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> fixed(@Nullable Double value, int precision, U unit) {
-        return value != null ? new EnteredValue<>(roundToSignificantFigures(value, precision), precision, null, unit, EnteredValueSource.FIXED, false) : null;
+        return value != null ? new EnteredValue<>(roundToSignificantFigures(value, precision), null, precision, null, unit, EnteredValueSource.FIXED, false) : null;
     }
 
     @Nullable
-    public static <U extends MeasurementUnit> EnteredValue<U> fixed(@Nullable BigDecimal value, U unit) {
-        return value != null ? new EnteredValue<>(value.doubleValue(), -1, value.toString(), unit, EnteredValueSource.FIXED, false) : null;
+    public static <U extends MeasurementUnit> EnteredValue<U> fixedExact(@Nullable Double value, int decimalPlaces, U unit) {
+        return value != null ? new EnteredValue<>(value, value, -1, roundToDecimalPlaces(value, decimalPlaces).toString(), unit, EnteredValueSource.FIXED, false) : null;
     }
 
     @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> userEntered(@Nullable String stringValue, @Nullable U unit, int revision) {
-        return stringValue != null && unit != null ? new EnteredValue<>(Double.parseDouble(stringValue), -1, stringValue, unit, EnteredValueSource.userEntered(revision), false) : null;
+        return stringValue != null && unit != null ? new EnteredValue<>(Double.parseDouble(stringValue), null, -1, stringValue, unit, EnteredValueSource.userEntered(revision), false) : null;
     }
 
     @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> calculated(@Nullable Double value, U unit) {
-        return value != null ? new EnteredValue<>(value, getSignificantFigures(), null, unit, EnteredValueSource.CALCULATED, false) : null;
+        return value != null ? new EnteredValue<>(value, null, getSignificantFigures(), null, unit, EnteredValueSource.CALCULATED, false) : null;
     }
 
     @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> defaultValue(@Nullable Double value, int precision, @Nullable U unit) {
-        return value != null && unit != null ? new EnteredValue<>(roundToSignificantFigures(value, precision), precision, null, unit, DEFAULT, false) : null;
+        return value != null && unit != null ? new EnteredValue<>(roundToSignificantFigures(value, precision), null, precision, null, unit, DEFAULT, false) : null;
     }
 
     @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> defaultValue(@Nullable BigDecimal value, @Nullable U unit) {
-        return value != null && unit != null ? new EnteredValue<>(value.doubleValue(), -1, value.toString(), unit, DEFAULT, false) : null;
+        return value != null && unit != null ? new EnteredValue<>(value.doubleValue(), null, -1, value.toString(), unit, DEFAULT, false) : null;
     }
 
     @Nullable
@@ -164,7 +170,7 @@ public final class EnteredValue<U extends MeasurementUnit> {
     }
 
     public EnteredValue<U> withOverwritten(boolean overwritten) {
-        return new EnteredValue<>(value, significantFigures, stringValue, unit, source, overwritten);
+        return new EnteredValue<>(value, exactValue, significantFigures, stringValue, unit, source, overwritten);
     }
 
     private double convert(U toUnit) {

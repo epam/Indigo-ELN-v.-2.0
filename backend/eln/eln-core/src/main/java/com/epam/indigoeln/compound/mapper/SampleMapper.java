@@ -7,7 +7,13 @@ import com.epam.indigoeln.eln.service.DictionaryService;
 import jakarta.inject.Inject;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
+
+import java.math.BigDecimal;
+
+import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.MOL_WEIGHT_DECIMAL_PLACES;
+import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.roundToDecimalPlaces;
 
 @Mapper(componentModel = "cdi", unmappedTargetPolicy = ReportingPolicy.ERROR)
 public abstract class SampleMapper {
@@ -19,11 +25,16 @@ public abstract class SampleMapper {
     @Mapping(target = "name", source = "compound.chemicalName")
     @Mapping(target = "compoundID", source = "compound.id")
     @Mapping(target = "compoundKey", source = "compound.compoundKey")
-    @Mapping(target = "molWeight", source = "compound.molWeight")
+    @Mapping(target = "molWeight", source = "compound.molWeight", qualifiedByName = "convertMolWeightLike")
     @Mapping(target = "molFormula", expression = "java(com.epam.indigoeln.eln.util.MolFormulaFormatter.format(entity.getCompound().getFormula()))")
     @Mapping(target = "saltCode", expression = "java(dictionaryService.get(entity.getCompound().getSaltCode()))")
     @Mapping(target = "saltEQ", source = "entity.compound.saltEQ")
     @Mapping(target = "marked", expression = "java(entity.getMarked() == Boolean.TRUE)")
     @Mapping(target = "inchi", ignore = true)
     public abstract SampleDTO sampleToDTO(SampleEntity entity);
+
+    @Named("convertMolWeightLike")
+    protected BigDecimal convertMolWeight(double value) {
+        return roundToDecimalPlaces(value, MOL_WEIGHT_DECIMAL_PLACES);
+    }
 }

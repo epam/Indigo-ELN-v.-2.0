@@ -97,6 +97,18 @@ public class JSONSerializationTest {
 
     @ParameterizedTest
     @MethodSource("mappers")
+    void testSerializeExactEnteredValue(MapperType serializer, MapperType deserializer) {
+        EnteredValue<WeightUnit> value = EnteredValue.fixedExact(0.1234567, 2, G);
+        String serialized = serialize(serializer, value);
+        assertThat(serialized).isEqualToIgnoringWhitespace("""
+                {"value": "0.12", "exactValue": 0.1234567, "unit": "G", "source": "fixed"}
+                """);
+        EnteredValue<WeightUnit> value2 = deserialize(deserializer, serialized, new TypeReference<>() {});
+        assertThat(value2).isEqualTo(value);
+    }
+
+    @ParameterizedTest
+    @MethodSource("mappers")
     void testSerializeByteArray(MapperType serializer, MapperType deserializer) {
         ByteData value = new ByteData(new byte[] {0, 1, 2});
         String serialized = serialize(serializer, value);

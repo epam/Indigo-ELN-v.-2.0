@@ -11,11 +11,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
-import java.math.BigDecimal;
-
 import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
-import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.MOL_WEIGHT_DECIMAL_PLACES;
-import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.roundToDecimalPlaces;
 
 @Slf4j
 @ApplicationScoped
@@ -26,16 +22,15 @@ public class MolWeightCalculator {
     @Inject
     IndigoAPI indigo;
 
-    public BigDecimal calculateMolWeight(String molFile, @Nullable SaltCodeRef salt, @Nullable Double saltEQ) {
-        double value = salt != null && saltEQ != null
+    public double calculateMolWeight(String molFile, @Nullable SaltCodeRef salt, @Nullable Double saltEQ) {
+        return salt != null && saltEQ != null
                 ? calculateMolWeightWithSalt(molFile, salt, saltEQ)
                 : calculateMolWeightWithoutSalt(molFile);
-        return roundToDecimalPlaces(value, MOL_WEIGHT_DECIMAL_PLACES);
     }
 
-    public BigDecimal calculateExactMass(String molFile) {
+    public double calculateExactMass(String molFile) {
         IndigoMolecule molecule = indigo.loadMolecule(molFile);
-        return roundToDecimalPlaces(molecule.monoisotopicMass(), MOL_WEIGHT_DECIMAL_PLACES);
+        return molecule.monoisotopicMass();
     }
 
     private double calculateMolWeightWithoutSalt(String molFile) {

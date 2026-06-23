@@ -364,6 +364,6 @@ class ExperimentServiceTest extends ELNBaseTest {
 
         byte[] result = experimentClient.exportSDF(experiment.id());
         assertThat(result).asString().containsIgnoringWhitespaces(">  <molWeight>\n" +
-                "180.16", ">  <chemicalName>");
+                "180.1589", ">  <chemicalName>");
     }
 }
