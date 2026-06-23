@@ -94,7 +94,8 @@ function normalizeErrorBody(errorBody: unknown): string | null {
 
   try {
     return JSON.stringify(errorBody);
-  } catch {
+  } catch (serializationError) {
+    console.error('Unable to serialize error details', serializationError, errorBody);
     return 'Unable to serialize error details';
   }
 }

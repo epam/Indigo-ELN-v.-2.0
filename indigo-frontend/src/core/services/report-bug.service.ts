@@ -85,7 +85,8 @@ function buildTechnicalDetails(
 function safePrettyStringify(value: unknown): string {
   try {
     return JSON.stringify(value, null, 2);
-  } catch {
+  } catch (serializationError) {
+    console.error('Unable to serialize report bug payload value', serializationError, value);
     return 'Unable to serialize value';
   }
 }
