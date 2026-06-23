@@ -6,13 +6,13 @@ import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.reaction.model.ExperimentModel;
-import com.epam.indigoeln.reaction.model.Reaction;
-import com.epam.indigoeln.reaction.model.ReactionAnchor;
-import com.epam.indigoeln.reaction.model.ReactionOutput;
+import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
+import com.epam.indigoeln.reaction.model.outputsample.ResidualSolvent;
+import com.epam.indigoeln.reaction.model.units.WeightUnit;
 import com.epam.indigoeln.test.FeignUtil;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
@@ -392,9 +392,33 @@ class ExperimentServiceTest extends ELNBaseTest {
         ReactionOutput output = reaction.getOutputs().getFirst();
         assertThat(output.getSamples().isEmpty()).isFalse();
 
+        ReactionOutputSample sample = output.getSamples().getFirst();
+        experimentClient.mutateExperimentModel(experiment.getId(),
+                new ReactionOutputSampleMutation.SetOutputActualWeight(sample.getAnchor(), "10.0", WeightUnit.G)
+        );
+
+        experimentClient.mutateExperimentModel(experiment.getId(),
+                new ReactionOutputSampleMutation.SetOutputHealthHazards(sample.getAnchor(),
+                        List.of(
+                                (HealthHazardRef) dictionaryClient.getDictionary(BuiltInDictionary.HEALTH_HAZARD).getFirst(),
+                                (HealthHazardRef) dictionaryClient.getDictionary(BuiltInDictionary.HEALTH_HAZARD).getLast()
+                        )
+                )
+        );
+
         Response result = experimentClient.exportSDF(experiment.getId());
-        assertThat((byte[]) result.getEntity()).asString().containsIgnoringWhitespaces(">  <molWeight>\n" +
-                "180.16", ">  <chemicalName>");
+        assertThat((byte[]) result.getEntity()).asString().containsIgnoringWhitespaces("""
+                >  <molWeight>180.16
+                """, """
+                >  <chemicalName>
+                """, """
+                >  <actualWeight>
+                10.0 G
+                """, """
+                >  <healthHazards>
+                Carcinogen
+                Very Toxic
+                """);
         assertThat(result.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION)).asString().contains(".sdf");
     }
 }
