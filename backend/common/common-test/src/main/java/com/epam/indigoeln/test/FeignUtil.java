@@ -22,6 +22,7 @@ import jakarta.ws.rs.core.HttpHeaders;
 import lombok.Getter;
 import lombok.Setter;
 import org.eclipse.microprofile.config.ConfigProvider;
+import org.jspecify.annotations.Nullable;
 import org.openapitools.jackson.nullable.JsonNullableModule;
 
 import java.io.InputStream;
@@ -50,7 +51,7 @@ public class FeignUtil {
     @Setter
     private static Response lastResponse;
 
-    public static <T> T buildFeignClient(URI baseURL, Class<T> klass, AtomicReference<String> testUsername, AtomicReference<String> authorization) {
+    public static <T> T buildFeignClient(URI baseURL, Class<T> klass, AtomicReference<@Nullable String> testUsername, AtomicReference<@Nullable String> authorization) {
         String apiSecret = ConfigProvider.getConfig().getValue("eln.api.secret", String.class);
         return Feign.builder()
                 .client(new ApacheHttpClient())

@@ -43,15 +43,15 @@ public abstract class ExperimentMutationHandlerBase<T extends ExperimentMutation
     @Inject
     DictionaryMapper dictionaryMapper;
 
-    public <U extends MeasurementUnit> void setEnteredValue(Consumer<@Nullable EnteredValue<U>> setter, @Nullable String stringValue, @Nullable U unit, int revisionNo) {
-        doSetEnteredValue(setter, stringValue, unit, revisionNo, null);
+    public <U extends MeasurementUnit> void setEnteredValue(Consumer<EnteredValue<U>> setter, @Nullable String stringValue, @Nullable U unit, int revisionNo) {
+        doSetEnteredValue(setter, stringValue, unit, revisionNo, EnteredValue.empty());
     }
 
     public <U extends MeasurementUnit> void setEnteredValue(Consumer<EnteredValue<U>> setter, @Nullable String stringValue, @Nullable U unit, int revisionNo, EnteredValue<U> defaultValue) {
         doSetEnteredValue(setter, stringValue, unit, revisionNo, defaultValue);
     }
 
-    private <U extends MeasurementUnit> void doSetEnteredValue(Consumer<@Nullable EnteredValue<U>> setter, @Nullable String stringValue, @Nullable U unit, int revisionNo, @Nullable EnteredValue<U> defaultValue) {
+    private <U extends MeasurementUnit> void doSetEnteredValue(Consumer<EnteredValue<U>> setter, @Nullable String stringValue, @Nullable U unit, int revisionNo, EnteredValue<U> defaultValue) {
         EnteredValue<U> ev;
         if (stringValue == null) { // remove old value
             ev = defaultValue;

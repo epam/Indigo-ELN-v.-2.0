@@ -206,9 +206,9 @@ public class CompoundService {
         sample.setCompound(compound);
         sample.setStrCode(generateStrCode(compound));
         sample.setNbkBatchNumber(request.getNbkBatchNumber());
-        sample.setDensity(request.getDensity() != null ? request.getDensity().toBigDecimal() : null);
-        sample.setMolarity(request.getMolarity() != null ? request.getMolarity().toBigDecimal() : null);
-        sample.setMolarityUnit(request.getMolarity() != null ? request.getMolarity().getUnit() : null);
+        sample.setDensity(!request.getDensity().isEmpty() ? request.getDensity().toBigDecimal() : null);
+        sample.setMolarity(!request.getMolarity().isEmpty() ? request.getMolarity().toBigDecimal() : null);
+        sample.setMolarityUnit(!request.getMolarity().isEmpty() ? request.getMolarity().getUnit() : null);
         sample.setPurity(request.getPurity());
         if (request.getHealthHazards() != null) {
             sample.getHealthHazards().addAll(dictionaryService.lookup(request.getHealthHazards()));

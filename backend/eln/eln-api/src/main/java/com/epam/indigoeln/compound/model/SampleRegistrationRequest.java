@@ -8,6 +8,7 @@ import com.epam.indigoeln.reaction.model.units.DensityUnit;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolarityUnit;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -29,11 +30,11 @@ public class SampleRegistrationRequest {
     @Nullable
     private NbkBatchNumber nbkBatchNumber;
 
-    @Nullable
-    private EnteredValue<DensityUnit> density;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private EnteredValue<DensityUnit> density = EnteredValue.empty();
 
-    @Nullable
-    private EnteredValue<MolarityUnit> molarity;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private EnteredValue<MolarityUnit> molarity = EnteredValue.empty();
 
     @Nullable
     private BigDecimal purity;

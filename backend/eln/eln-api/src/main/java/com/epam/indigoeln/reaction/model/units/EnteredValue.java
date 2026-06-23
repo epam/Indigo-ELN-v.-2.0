@@ -3,36 +3,40 @@ package com.epam.indigoeln.reaction.model.units;
 import com.epam.indigoeln.reaction.util.MeasurementUtil;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Preconditions;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.apache.commons.math3.util.Precision;
 import org.jspecify.annotations.Nullable;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 
 import static com.epam.indigoeln.reaction.model.units.EnteredValueSource.DEFAULT;
 import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.*;
-import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.*;
 
-@EqualsAndHashCode(of = {"stringValue", "exactValue", "unit", "source"})
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@EqualsAndHashCode(of = {"stringValue", "unit", "source", "present", "exact"})
+@JsonSerialize(using = EnteredValue.Serializer.class)
 public final class EnteredValue<U extends MeasurementUnit> {
 
     public static final EnteredValue<NoUnit> DEFAULT_ONE = defaultValue(1.0, 1, NoUnit.NO_UNIT);
     public static final EnteredValue<NoUnit> DEFAULT_ONE_HUNDRED = defaultValue(100.0, 1, NoUnit.NO_UNIT);
 
-    @Getter
+    private static final EnteredValue<?> EMPTY = new EnteredValue<>();
+    private static final EnteredValue<?> EMPTY_OVERWRITTEN = new EnteredValue<>().withOverwritten(true);
+
+    private final boolean present;
+
+    private final boolean exact;
+
     @JsonIgnore
     private final double value;
 
-    @Nullable
-    @JsonProperty("exactValue")
-    private final Double exactValue;
-
-    @Getter
     private final U unit;
 
     @JsonIgnore
@@ -44,19 +48,41 @@ public final class EnteredValue<U extends MeasurementUnit> {
     @Nullable
     private String stringValue;
 
-    @JsonProperty("$overwritten")
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    @SuppressWarnings({"FieldCanBeLocal", "unused"}) // used in JSON serialization
+    @Getter
     private final boolean overwritten;
 
-    @JsonCreator
-    EnteredValue(String stringValue, @Nullable Double exactValue, U unit, EnteredValueSource source) {
-        this(exactValue != null ? exactValue : Double.parseDouble(stringValue), exactValue, -1, stringValue, unit, source, false);
+    @SuppressWarnings("unchecked")
+    private EnteredValue() {
+        this.present = false;
+        this.exact = false;
+        this.value = 0.0;
+        this.significantFigures = 0;
+        this.stringValue = "0";
+        this.unit = (U) NoUnit.NO_UNIT;
+        this.source = DEFAULT;
+        this.overwritten = false;
     }
 
-    private EnteredValue(double value, @Nullable Double exactValue, int significantFigures, @Nullable String stringValue, U unit, EnteredValueSource source, boolean overwritten) {
+    @JsonCreator
+    static <U extends MeasurementUnit> EnteredValue<U> fromJSON(@Nullable String stringValue, @Nullable Double exactValue, @Nullable U unit, @Nullable EnteredValueSource source, @Nullable Boolean overwritten) {
+        if (stringValue == null && overwritten == null) {
+            return empty();
+        }
+        boolean overwrittenTrue = Boolean.TRUE.equals(overwritten);
+        if (exactValue != null) {
+            return new EnteredValue<U>(true, exactValue, true, -1, stringValue, checkNotNull(unit), checkNotNull(source), overwrittenTrue);
+        }
+        if (stringValue != null) {
+            return new EnteredValue<U>(true, Double.parseDouble(stringValue), false, -1, stringValue, checkNotNull(unit), checkNotNull(source), overwrittenTrue);
+        }
+        //noinspection unchecked
+        return (EnteredValue<U>) EMPTY_OVERWRITTEN;
+    }
+
+    private EnteredValue(boolean present, double value, boolean exact, int significantFigures, @Nullable String stringValue, U unit, EnteredValueSource source, boolean overwritten) {
+        this.present = present;
         this.value = value;
-        this.exactValue = exactValue;
+        this.exact = exact;
         this.significantFigures = significantFigures;
         this.stringValue = stringValue;
         this.unit = unit;
@@ -64,50 +90,46 @@ public final class EnteredValue<U extends MeasurementUnit> {
         this.overwritten = overwritten;
     }
 
-    @Nullable
+    @SuppressWarnings("unchecked")
+    public static <U extends MeasurementUnit> EnteredValue<U> empty() {
+        return (EnteredValue<U>) EMPTY;
+    }
+
     public static <U extends MeasurementUnit> EnteredValue<U> fixed(@Nullable Double value, int precision, U unit) {
-        return value != null ? new EnteredValue<>(roundToSignificantFigures(value, precision), null, precision, null, unit, EnteredValueSource.FIXED, false) : null;
+        return value != null ? new EnteredValue<>(true, roundToSignificantFigures(value, precision), false, precision, null, unit, EnteredValueSource.FIXED, false) : empty();
     }
 
-    @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> fixedExact(@Nullable Double value, int decimalPlaces, U unit) {
-        return value != null ? new EnteredValue<>(value, value, -1, roundToDecimalPlaces(value, decimalPlaces).toString(), unit, EnteredValueSource.FIXED, false) : null;
+        return value != null ? new EnteredValue<>(true, value, true, -1, roundToDecimalPlaces(value, decimalPlaces).toString(), unit, EnteredValueSource.FIXED, false) : empty();
     }
 
-    @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> userEntered(@Nullable String stringValue, @Nullable U unit, int revision) {
-        return stringValue != null && unit != null ? new EnteredValue<>(Double.parseDouble(stringValue), null, -1, stringValue, unit, EnteredValueSource.userEntered(revision), false) : null;
+        return stringValue != null && unit != null ? new EnteredValue<U>(true, Double.parseDouble(stringValue), false, -1, stringValue, unit, EnteredValueSource.userEntered(revision), false) : empty();
     }
 
-    @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> calculated(@Nullable Double value, U unit) {
-        return value != null ? new EnteredValue<>(value, null, getSignificantFigures(), null, unit, EnteredValueSource.CALCULATED, false) : null;
+        return value != null ? new EnteredValue<>(true, value, false, getSignificantFigures(), null, unit, EnteredValueSource.CALCULATED, false) : empty();
     }
 
-    @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> defaultValue(@Nullable Double value, int precision, @Nullable U unit) {
-        return value != null && unit != null ? new EnteredValue<>(roundToSignificantFigures(value, precision), null, precision, null, unit, DEFAULT, false) : null;
+        return value != null && unit != null ? new EnteredValue<U>(true, roundToSignificantFigures(value, precision), false, precision, null, unit, DEFAULT, false) : empty();
     }
 
-    @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> defaultValue(@Nullable BigDecimal value, @Nullable U unit) {
-        return value != null && unit != null ? new EnteredValue<>(value.doubleValue(), null, -1, value.toString(), unit, DEFAULT, false) : null;
+        return value != null && unit != null ? new EnteredValue<U>(true, value.doubleValue(), false, -1, value.toString(), unit, DEFAULT, false) : empty();
     }
 
-    @Nullable
-    public static <R extends MeasurementUnit> EnteredValue<R> add(@Nullable EnteredValue<R> left, @Nullable EnteredValue<R> right) {
+    public static <R extends MeasurementUnit> EnteredValue<R> add(EnteredValue<R> left, EnteredValue<R> right) {
         return addOrSubtract(left, right, 1.0);
     }
 
-    @Nullable
-    public static <R extends MeasurementUnit> EnteredValue<R> subtract(@Nullable EnteredValue<R> left, @Nullable EnteredValue<R> right) {
+    public static <R extends MeasurementUnit> EnteredValue<R> subtract(EnteredValue<R> left, EnteredValue<R> right) {
         return addOrSubtract(left, right, -1.0);
     }
 
-    @Nullable
-    private static <R extends MeasurementUnit> EnteredValue<R> addOrSubtract(@Nullable EnteredValue<R> left, @Nullable EnteredValue<R> right, double rightSign) {
-        if (left == null || right == null) {
-            return null;
+    private static <R extends MeasurementUnit> EnteredValue<R> addOrSubtract(EnteredValue<R> left, EnteredValue<R> right, double rightSign) {
+        if (left.isEmpty() || right.isEmpty()) {
+            return empty();
         }
         checkArgument(left.unit.getClass().equals(right.unit.getClass()), "Inconvertible units: %s and %s", left.unit, right.unit);
         R unit;
@@ -121,10 +143,9 @@ public final class EnteredValue<U extends MeasurementUnit> {
         return calculated(left.convert(unit) + rightSign * right.convert(unit), unit);
     }
 
-    @Nullable
-    public static <A extends MeasurementUnit, B extends MeasurementUnit, R extends MeasurementUnit> EnteredValue<R> multiply(@Nullable EnteredValue<A> left, @Nullable EnteredValue<B> right) {
-        if (left == null || right == null) {
-            return null;
+    public static <A extends MeasurementUnit, B extends MeasurementUnit, R extends MeasurementUnit> EnteredValue<R> multiply(EnteredValue<A> left, EnteredValue<B> right) {
+        if (left.isEmpty() || right.isEmpty()) {
+            return empty();
         }
         MeasurementUtil.UnitAndMultiplier pair = MeasurementUtil.multiply(left.unit, right.unit);
         //noinspection unchecked
@@ -135,10 +156,9 @@ public final class EnteredValue<U extends MeasurementUnit> {
         return calculated(self.value * by, self.unit);
     }
 
-    @Nullable
-    public static <R extends MeasurementUnit> EnteredValue<R> divide(@Nullable EnteredValue<?> left, @Nullable EnteredValue<?> right) {
-        if (left == null || right == null) {
-            return null;
+    public static <R extends MeasurementUnit> EnteredValue<R> divide(EnteredValue<?> left, EnteredValue<?> right) {
+        if (left.isEmpty() || right.isEmpty()) {
+            return empty();
         }
         MeasurementUtil.UnitAndMultiplier pair = MeasurementUtil.divide(left.unit, right.unit);
         //noinspection unchecked
@@ -149,10 +169,25 @@ public final class EnteredValue<U extends MeasurementUnit> {
         return calculated(self.value / by, self.unit);
     }
 
+    @JsonIgnore
+    public boolean isEmpty() {
+        return !present;
+    }
+
+    public double getValue() {
+        checkState(present);
+        return value;
+    }
+
+    public U getUnit() {
+        checkState(present);
+        return unit;
+    }
+
     @JsonProperty("value")
     public String getStringValue() {
         if (stringValue == null) {
-            Preconditions.checkState(significantFigures != -1);
+            checkState(significantFigures != -1);
             stringValue = formatToSignificantFigures(value, significantFigures);
         }
         return stringValue;
@@ -170,7 +205,7 @@ public final class EnteredValue<U extends MeasurementUnit> {
     }
 
     public EnteredValue<U> withOverwritten(boolean overwritten) {
-        return new EnteredValue<>(value, exactValue, significantFigures, stringValue, unit, source, overwritten);
+        return new EnteredValue<>(present, value, exact, significantFigures, stringValue, unit, source, overwritten);
     }
 
     private double convert(U toUnit) {
@@ -179,11 +214,47 @@ public final class EnteredValue<U extends MeasurementUnit> {
 
     @Override
     public String toString() {
+        if (!present && !overwritten) {
+            return "EMPTY";
+        }
         StringBuilder str = new StringBuilder();
-        str.append(source).append(": ").append(getStringValue());
-        if (unit != NoUnit.NO_UNIT) {
-            str.append(' ').append(unit);
+        if (present) {
+            str.append(source).append(": ").append(getStringValue());
+            if (unit != NoUnit.NO_UNIT) {
+                str.append(' ').append(unit);
+            }
+        }
+        if (overwritten) {
+            if (!str.isEmpty()) {
+                str.append(' ');
+            }
+            str.append("(overwritten)");
         }
         return str.toString();
+    }
+
+    public static class Serializer extends JsonSerializer<EnteredValue<?>> {
+
+        @Override
+        public boolean isEmpty(SerializerProvider provider, @Nullable EnteredValue<?> value) {
+            return value == null || (!value.present && !value.overwritten);
+        }
+
+        @Override
+        public void serialize(EnteredValue<?> value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+            gen.writeStartObject();
+            if (value.present) {
+                gen.writeStringField("value", value.getStringValue());
+                if (value.exact) {
+                    gen.writeNumberField("exactValue", value.value);
+                }
+                gen.writeObjectField("unit", value.unit);
+                gen.writeObjectField("source", value.source);
+            }
+            if (value.overwritten) {
+                gen.writeBooleanField("overwritten", true);
+            }
+            gen.writeEndObject();
+        }
     }
 }

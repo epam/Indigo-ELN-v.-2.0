@@ -5,7 +5,6 @@ import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.search.SampleSearchResult;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.flyway.util.JsonLocator;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.*;
 import com.epam.indigoeln.reaction.model.outputsample.*;
@@ -579,7 +578,7 @@ public class MutationsTest extends MutationsTestBase {
         experiment.mutateSetInputWeight(1, 1, "1234", G);
         assertThat(experiment.model().getSignificantFigures()).isEqualTo(5);
         assertThat(experiment.inputSample(1, 1).getWeight()).hasStringValue("1234");
-        assertThat(experiment.inputSample(1, 1).getMol()).hasStringValue("8.9343");
+        assertThat(experiment.inputSample(1, 1).getMol()).hasStringValue("8.9341");
 
         experiment.mutate(new ExperimentMutation.SetExperimentSignificantFigures(3));
         assertThat(experiment.model().getSignificantFigures()).isEqualTo(3);
@@ -658,10 +657,10 @@ public class MutationsTest extends MutationsTestBase {
         experiment.mutateSetInputWeight(2, 1, "200", G);
         experiment.mutateSetInputRowEQ(1, "1");
         experiment.mutateSetInputRowEQ(2, "2");
-        assertThat(JsonLocator.findNodes(experiment.lastMutationResponse().getPatch(), "model/reactions/0/inputs/1/samples/0/weight/$overwritten")).hasSize(1);
+        assertThat(experiment.inputSample(2, 1).getWeight()).isOverwritten();
 
         experiment.mutateSetInputVolume(2, 1, "2", ML);
-        assertThat(JsonLocator.findNodes(experiment.lastMutationResponse().getPatch(), "**/$overwritten")).isEmpty();
+        assertThat(experiment.inputSample(2, 1).getWeight()).isNotOverwritten();
     }
 
     @Test

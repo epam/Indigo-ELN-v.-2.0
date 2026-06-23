@@ -11,6 +11,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.jpa.AvailableHints;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Set;
@@ -26,7 +27,7 @@ public class DataAccessInterceptor {
     @PersistenceContext
     EntityManager em;
 
-    private final ThreadLocal<Boolean> invoked = new ThreadLocal<>();
+    private final ThreadLocal<@Nullable Boolean> invoked = new ThreadLocal<>();
 
     @AroundInvoke
     public Object intercept(InvocationContext context) throws Exception {

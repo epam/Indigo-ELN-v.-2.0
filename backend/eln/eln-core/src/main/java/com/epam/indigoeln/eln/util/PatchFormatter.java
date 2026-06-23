@@ -6,10 +6,7 @@ import com.epam.indigoeln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
 import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.NullNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.ValueNode;
+import com.fasterxml.jackson.databind.node.*;
 import com.google.common.base.Preconditions;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
@@ -75,7 +72,7 @@ public class PatchFormatter {
             }
             case ObjectNode objectPatch when (objectPatch.get("value") instanceof ValueNode value && objectPatch.get("unit") instanceof ValueNode unit && objectPatch.get("source") instanceof ValueNode source) -> {
                 // EnteredValue created or deleted
-                String s = formatEnteredValue(before == null, value.asText(), unit.asText(), source.asText());
+                String s = formatEnteredValue(before == null, value.asText(), objectPatch.get("exactValue"), unit.asText(), source.asText());
                 grid.right(s).left().newRow();
             }
             case ObjectNode objectPatch when (before instanceof ObjectNode objectBefore && objectBefore.has("value") && objectBefore.has("unit") && objectBefore.has("source")) -> {
@@ -86,11 +83,11 @@ public class PatchFormatter {
                 String newSource = objectPatch.get("source") instanceof ObjectNode s && s.get("$new") instanceof ValueNode n ? n.asText() : oldSource;
                 String newValue = objectPatch.get("value") instanceof ObjectNode v && v.get("$new") instanceof ValueNode n ? n.asText() : oldValue;
                 String newUnit = objectPatch.get("unit") instanceof ObjectNode u && u.get("$new") instanceof ValueNode n ? n.asText() : oldUnit;
-                boolean isOverwritten = objectPatch.has("$overwritten");
+                boolean newOverwritten = objectPatch.get("overwritten") instanceof ObjectNode o && o.get("$new") instanceof BooleanNode b && b.booleanValue();
                 String s = "%s → %s%s".formatted(
-                        formatEnteredValue(false, oldValue, oldUnit, oldSource),
-                        formatEnteredValue(true, newValue, newUnit, newSource),
-                        isOverwritten ? " <span class='warning'>[overwritten]</span>" : ""
+                        formatEnteredValue(false, oldValue, objectBefore.get("exactValue"), oldUnit, oldSource),
+                        formatEnteredValue(true, newValue, objectPatch.get("exactValue"), newUnit, newSource),
+                        newOverwritten ? " <span class='warning'>[overwritten]</span>" : ""
                 );
                 grid.right(s).left().newRow();
             }
@@ -166,10 +163,11 @@ public class PatchFormatter {
         }
     }
 
-    private static String formatEnteredValue(boolean newOrOld, String value, String unit, String source) {
+    private static String formatEnteredValue(boolean newOrOld, String value, @Nullable JsonNode exactValue, String unit, String source) {
         unit = MeasurementUnit.ALL_UNITS.get(unit).getDisplayName();
         source = Character.isDigit(source.charAt(0)) ? "user-entered" : source;
-        return "<span class='%s ev-%s'>%s %s</span>&ensp;<span class='comment'>[%s]</span>".formatted(newOrOld ? "new" : "old", source, value, unit, source);
+        String exactValueStr = exactValue != null ? "&ensp;(exact value %s)".formatted(exactValue.doubleValue()) : "";
+        return "<span class='%s ev-%s'>%s %s%s</span>&ensp;<span class='comment'>[%s]</span>".formatted(newOrOld ? "new" : "old", source, value, unit, exactValueStr, source);
     }
 
     private static class GridBuilder {

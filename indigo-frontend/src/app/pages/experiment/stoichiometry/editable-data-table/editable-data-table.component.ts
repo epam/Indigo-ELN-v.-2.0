@@ -17,13 +17,7 @@ import { MatOption, MatSelect, MatSelectTrigger } from '@angular/material/select
 import { MatInput } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
-import {
-  ColumnConfig,
-  ColumnInputType,
-  ExpandableConfig,
-  FieldValue,
-  UnitFieldValue,
-} from '../shared/editable-table.types';
+import { ColumnConfig, ColumnInputType, ExpandableConfig, FieldValue } from '../shared/editable-table.types';
 import { ExperimentDetailService } from '@/core/services/experiment/experiment-detail.service';
 import { MatIconButton } from '@angular/material/button';
 import { MatTooltip } from '@angular/material/tooltip';
@@ -57,7 +51,6 @@ import { EnteredValue } from '@core/types/entities/values.i';
 })
 export class EditableDataTableComponent<TRow = unknown> {
   experimentDetailService = inject(ExperimentDetailService);
-  readonly experimentModel = this.experimentDetailService.experimentModel;
 
   readonly ColumnInputType = ColumnInputType;
   @ViewChild(MatTable) table?: MatTable<TRow>;
@@ -74,8 +67,8 @@ export class EditableDataTableComponent<TRow = unknown> {
   compareDictionaryItems = (a?: DictionaryItemRef | null, b?: DictionaryItemRef | null) =>
     !!a && !!b ? a.id === b.id : a === b;
 
-  toUnitField(fieldValue: FieldValue): UnitFieldValue | null {
-    return fieldValue as UnitFieldValue;
+  toUnitField(fieldValue: FieldValue): EnteredValue<unknown> | null {
+    return fieldValue as EnteredValue<unknown>;
   }
 
   toggleRow(row: TRow) {
@@ -148,7 +141,7 @@ export class EditableDataTableComponent<TRow = unknown> {
     }
   }
 
-  private isFullySet(value: { value: string; unit: unknown } | null): boolean {
+  private isFullySet(value: EnteredValue<unknown> | null): boolean {
     return value != null && value.value != null && value.value !== '' && value.unit != null && value.unit !== '';
   }
 }

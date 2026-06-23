@@ -10,7 +10,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,11 +25,10 @@ public abstract class EnteredValueOpt<U extends MeasurementUnit> {
     public static final EnteredValueOpt<NoUnit> DEFAULT_ONE_HUNDRED = opt(defaultValue(100.0, 1, NoUnit.NO_UNIT));
     public static final EnteredValueOpt<NoUnit> ONE_HUNDREDTH = opt(fixed(0.01, 1, NoUnit.NO_UNIT));
 
-    @Nullable
     public abstract EnteredValue<U> getValue();
 
-    public static <U extends MeasurementUnit> EnteredValueOpt<U> opt(@Nullable EnteredValue<U> value) {
-        return value != null ? new Value<>(value) : empty();
+    public static <U extends MeasurementUnit> EnteredValueOpt<U> opt(EnteredValue<U> value) {
+        return value.isEmpty() ? empty() : new Value<>(value);
     }
 
     public EnteredValueOpt<U> add(EnteredValueOpt<U> other) {
@@ -56,7 +54,7 @@ public abstract class EnteredValueOpt<U extends MeasurementUnit> {
 
     @Override
     public String toString() {
-        return getValue() != null ? getValue().toString() : "EMPTY";
+        return getValue().isEmpty() ? "EMPTY" : getValue().toString();
     }
 
     public static EnteredValueOpt<MolUnit> sum(List<? extends EnteredValueOpt<MolUnit>> list) {
@@ -74,25 +72,24 @@ public abstract class EnteredValueOpt<U extends MeasurementUnit> {
         @Getter
         private final C container;
         @Getter
-        private final ModelProperty<C, @Nullable EnteredValue<U>> property;
+        private final ModelProperty<C, EnteredValue<U>> property;
         @Getter
         private final int ordinal;
-        @Nullable
-        private EnteredValue<U> snapshot;
+        private EnteredValue<U> snapshot = EnteredValue.empty();
         @Getter
         private final List<Formula<?>> downstream = new ArrayList<>();
 
         @Override
-        @Nullable
         public EnteredValue<U> getValue() {
-            return property.get(container);
+            EnteredValue<U> v = property.get(container);
+            return v != null ? v : EnteredValue.empty();
         }
 
-        public void setValue(@Nullable EnteredValue<U> value) {
+        public void setValue(EnteredValue<U> value) {
             property.set(container, value);
         }
 
-        public void setValueUnchecked(@Nullable EnteredValue<?> value) {
+        public void setValueUnchecked(EnteredValue<?> value) {
             //noinspection unchecked
             property.set(container, (EnteredValue<U>) value);
         }
@@ -131,10 +128,9 @@ public abstract class EnteredValueOpt<U extends MeasurementUnit> {
     @EqualsAndHashCode(of = "value", callSuper = false)
     public static class Value<U extends MeasurementUnit> extends EnteredValueOpt<U> {
 
-        static final EnteredValueOpt<MeasurementUnit> EMPTY = new Value<>(null);
+        static final EnteredValueOpt<MeasurementUnit> EMPTY = new Value<>(EnteredValue.empty());
 
         @Getter
-        @Nullable
         private final EnteredValue<U> value;
     }
 }

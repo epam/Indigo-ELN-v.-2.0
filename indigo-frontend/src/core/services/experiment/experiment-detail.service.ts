@@ -28,7 +28,6 @@ export class ExperimentDetailService {
   readonly isUpdating = signal<boolean>(false);
   readonly currentId = signal<string | null>(null);
   readonly updatedNodes = signal<Map<unknown, unknown>>(new Map());
-  readonly overwrittenNodes = signal<Set<unknown>>(new Set());
   readonly updatedReactionImages = signal<Map<ReactionAnchor, string>>(new Map());
 
   readonly markedChanged$ = new Subject<void>();
@@ -80,11 +79,10 @@ export class ExperimentDetailService {
       tap({
         next: (response) => {
           const previous = this.experimentDetail();
-          const [updated, updatedNodes, overwrittenNodes] = JSON_PATCHER.apply(previous, response.patch);
+          const [updated, updatedNodes] = JSON_PATCHER.apply(previous, response.patch);
           this.experimentDetail.set(updated as ExperimentDetail);
           this.lastLoadedDetail.set(structuredClone(updated) as ExperimentDetail);
           this.updatedNodes.set(updatedNodes);
-          this.overwrittenNodes.set(overwrittenNodes);
           if (response.reactionImages) {
             this.updatedReactionImages.update((map) => {
               const map1 = new Map(map.entries());
@@ -192,7 +190,7 @@ export class ExperimentDetailService {
       } else if (value.source === 'fixed') {
         classes.push('value-state-fixed');
       }
-      if (this.overwrittenNodes().has(value)) {
+      if (value.overwritten) {
         classes.push('animate-[flash-red_500ms_ease-in-out]');
       } else if (
         hasAnyUpdates &&
@@ -209,5 +207,5 @@ export class ExperimentDetailService {
 }
 
 function isUserEntered(value: EnteredValue<unknown>): boolean {
-  return typeof value.source === 'number' && value.source > 0;
+  return typeof value?.source === 'number';
 }

@@ -4,6 +4,7 @@ import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.security.TestSecurity;
 import lombok.Setter;
 import lombok.SneakyThrows;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.*;
 import org.junit.platform.commons.support.AnnotationSupport;
 
@@ -23,7 +24,7 @@ public abstract class BaseTest {
     @Setter
     protected static boolean integrationTest = false;
 
-    protected final AtomicReference<String> username = new AtomicReference<>();
+    protected final AtomicReference<@Nullable String> username = new AtomicReference<>();
 
     @TestHTTPResource("/")
     URI serverBaseURL;
@@ -47,7 +48,7 @@ public abstract class BaseTest {
     }
 
     protected <T> T buildClient(Class<T> klass) {
-        AtomicReference<String> authorization = new AtomicReference<>();
+        AtomicReference<@Nullable String> authorization = new AtomicReference<>();
         return FeignUtil.buildFeignClient(getServerURL(), klass, username, authorization);
     }
 

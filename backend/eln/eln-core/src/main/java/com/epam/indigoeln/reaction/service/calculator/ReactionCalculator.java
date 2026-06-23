@@ -13,7 +13,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
-import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -55,11 +54,11 @@ public class ReactionCalculator {
         // collect seeds
         for (Property<?, ?> property : properties) {
             EnteredValue<?> value = property.getValue();
-            if (value != null) {
+            if (!value.isEmpty()) {
                 if (value.getSource().isUserEntered() || value.getSource().isDefault()) {
                     seeds.add(Pair.of(property, value));
                 } else if (value.getSource().isCalculated()) {
-                    property.setValue(null);
+                    property.setValue(EnteredValue.empty());
                 }
             }
         }
@@ -70,8 +69,8 @@ public class ReactionCalculator {
         }
 
         for (Pair<Property<?, ?>, EnteredValue<?>> seed : seeds) {
-            if (seed.a().getValue() != null && !seed.a().getValue().getSource().isFixed()) {
-                seed.a().setValue(null);
+            if (!seed.a().getValue().getSource().isFixed()) {
+                seed.a().setValue(EnteredValue.empty());
             }
         }
 
@@ -83,7 +82,7 @@ public class ReactionCalculator {
                 EnteredValue<?> existingValue = seed.getValue();
                 EnteredValue<?> seedValue = pair.b();
                 log.debug("apply seed: {} = {}", seed.getName(), seedValue);
-                if (existingValue != null) {
+                if (!existingValue.isEmpty()) {
                     if (seedValue.getSource().isDefault()) {
                         log.debug("value already set to {}, ignoring default", existingValue);
                         continue;
@@ -113,31 +112,19 @@ public class ReactionCalculator {
             log.debug("overwritten: {}", overwritten);
             for (Property<?, ?> property : overwritten) {
                 EnteredValue<?> value = property.getValue();
-                if (value != null) { // !!! make EnteredValue non-nullable
-                    value = value.withOverwritten(true);
-                    property.setValueUnchecked(value);
-                }
-            }
-        }
-    }
-
-    public void cleanupOverwritten() {
-        for (Property<?, ?> property : overwritten) {
-            EnteredValue<?> value = property.getValue();
-            if (value != null) { // !!! make EnteredValue non-nullable
                 value = value.withOverwritten(true);
                 property.setValueUnchecked(value);
             }
         }
     }
 
-    private <C extends ExperimentNode, U extends MeasurementUnit> EnteredValueOpt.Property<C, U> prop(C container, ModelProperty<C, @Nullable EnteredValue<U>> property) {
+    private <C extends ExperimentNode, U extends MeasurementUnit> EnteredValueOpt.Property<C, U> prop(C container, ModelProperty<C, EnteredValue<U>> property) {
         Property<C, U> node = new Property<>(container, property, ++nodeOrdinal);
         properties.add(node);
         return node;
     }
 
-    private <C extends ExperimentNode, U extends MeasurementUnit> EnteredValueOpt.Property<C, U> prop(C container, ModelProperty<C, @Nullable EnteredValue<U>> property, EnteredValue<U> defaultValue) {
+    private <C extends ExperimentNode, U extends MeasurementUnit> EnteredValueOpt.Property<C, U> prop(C container, ModelProperty<C, EnteredValue<U>> property, EnteredValue<U> defaultValue) {
         Property<C, U> node = prop(container, property);
         seeds.add(Pair.of(node, defaultValue));
         return node;
@@ -168,16 +155,16 @@ public class ReactionCalculator {
     }
 
     private <U extends MeasurementUnit> boolean recalculateFormula(Formula<U> formula) {
-        if (formula.value != null) {
+        if (!formula.value.isEmpty()) {
             return false;
         }
         EnteredValue<U> calculated = formula.supplier.get().getValue();
-        if (calculated == null) {
+        if (calculated.isEmpty()) {
             return false;
         }
         Property<?, U> target = formula.target;
         EnteredValue<U> stored = target.getValue();
-        if (stored == null) {
+        if (stored.isEmpty()) {
             log.debug("calculated {} to {} from formula {}", target.getName(), calculated, formula);
             formula.value = calculated;
             target.setValue(calculated);

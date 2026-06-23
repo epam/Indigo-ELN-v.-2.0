@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.Supplier;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class Formula<U extends MeasurementUnit> {
 
     final String name;
@@ -16,8 +18,7 @@ public class Formula<U extends MeasurementUnit> {
 
     final Supplier<EnteredValueOpt<U>> supplier;
 
-    @Nullable
-    EnteredValue<U> value;
+    EnteredValue<U> value = EnteredValue.empty();
 
     @Nullable
     EnteredValue<U> snapshot;
@@ -41,7 +42,7 @@ public class Formula<U extends MeasurementUnit> {
     }
 
     public void revert() {
-        value = snapshot;
+        value = checkNotNull(snapshot);
     }
 
     @Override

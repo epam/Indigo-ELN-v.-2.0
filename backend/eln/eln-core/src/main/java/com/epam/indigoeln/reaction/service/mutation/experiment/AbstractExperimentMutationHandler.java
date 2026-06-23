@@ -86,7 +86,6 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
                 doValidateModel(experiment.getModel());
                 updateDates(experiment, userService.getCurrentUserEntity());
                 patch = experimentModelService.createPatch(snapshotBefore, snapshotAfter);
-                calculator.cleanupOverwritten();
             } finally {
                 reactionCalculatorFactory.destroy(calculator);
             }

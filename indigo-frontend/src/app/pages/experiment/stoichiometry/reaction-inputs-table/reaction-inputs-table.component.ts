@@ -122,8 +122,7 @@ export class ReactionInputsTableComponent implements OnInit {
       id: 'weight',
       header: 'Weight',
       type: ColumnInputType.UNIT_INPUT,
-      field: (row: InputSampleRow) =>
-        row.sample.weight?.value ? { value: row.sample.weight.value, unit: row.sample.weight.unit } : null,
+      field: (row: InputSampleRow) => row.sample.weight,
       classes: (row) => this.determineClasses(row.sample.weight),
       onSave: (row: InputSampleRow, value: EnteredValue<WeightUnit> | null) => {
         this.experimentDetailService
@@ -144,8 +143,7 @@ export class ReactionInputsTableComponent implements OnInit {
       id: 'volume',
       header: 'Volume',
       type: ColumnInputType.UNIT_INPUT,
-      field: (row: InputSampleRow) =>
-        row.sample.volume?.value ? { value: row.sample.volume.value, unit: row.sample.volume.unit } : null,
+      field: (row: InputSampleRow) => row.sample.volume,
       classes: (row) => this.determineClasses(row.sample.volume),
       onSave: (row: InputSampleRow, value: EnteredValue<VolumeUnit> | null) => {
         this.experimentDetailService
@@ -166,8 +164,7 @@ export class ReactionInputsTableComponent implements OnInit {
       id: 'mol',
       header: 'Mol',
       type: ColumnInputType.UNIT_INPUT,
-      field: (row: InputSampleRow) =>
-        row.sample.mol?.value ? { value: row.sample.mol.value, unit: row.sample.mol.unit } : null,
+      field: (row: InputSampleRow) => row.sample.mol,
       classes: (row) => this.determineClasses(row.sample.mol),
       onSave: (row: InputSampleRow, value: EnteredValue<MolUnit> | null) => {
         this.experimentDetailService
@@ -239,8 +236,7 @@ export class ReactionInputsTableComponent implements OnInit {
       id: 'density',
       header: 'Density',
       type: ColumnInputType.UNIT_INPUT,
-      field: (row: InputSampleRow) =>
-        row.sample.density?.value ? { value: row.sample.density.value, unit: row.sample.density.unit } : null,
+      field: (row: InputSampleRow) => row.sample.density,
       classes: (row) => this.determineClasses(row.sample.density),
       onSave: (row: InputSampleRow, value: EnteredValue<DensityUnit> | null) => {
         this.experimentDetailService
@@ -261,8 +257,7 @@ export class ReactionInputsTableComponent implements OnInit {
       id: 'molarity',
       header: 'Molarity',
       type: ColumnInputType.UNIT_INPUT,
-      field: (row: InputSampleRow) =>
-        row.sample.molarity?.value ? { value: row.sample.molarity.value, unit: row.sample.molarity.unit } : null,
+      field: (row: InputSampleRow) => row.sample.molarity,
       classes: (row) => this.determineClasses(row.sample.molarity),
       onSave: (row: InputSampleRow, value: EnteredValue<MolarityUnit> | null) => {
         this.experimentDetailService

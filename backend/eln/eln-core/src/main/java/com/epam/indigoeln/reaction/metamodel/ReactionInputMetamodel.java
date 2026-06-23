@@ -21,7 +21,7 @@ public class ReactionInputMetamodel {
     // ReactionInput
     public static final ModelProperty<ReactionInput, InputAnchor> ANCHOR = property("anchor", ReactionInput::getAnchor, null);
     public static final ModelProperty<ReactionInput, ReactionRole> ROLE = property("role", ReactionInput::getRole, ReactionInput::setRole);
-    public static final ModelProperty<ReactionInput, @Nullable EnteredValue<MolUnit>> MOL = enteredValueProperty("mol", ReactionInput::getMol, ReactionInput::setMol);
+    public static final ModelProperty<ReactionInput, EnteredValue<MolUnit>> MOL = enteredValueProperty("mol", ReactionInput::getMol, ReactionInput::setMol);
     public static final ModelProperty<ReactionInput, @Nullable String> CHEMICAL_NAME = property("chemicalName", ReactionInput::getChemicalName, ReactionInput::setChemicalName);
     public static final ModelProperty<ReactionInput, Boolean> LIMITING = property("limiting", ReactionInput::isLimiting, null);
     public static final ModelProperty<ReactionInput, List<ReactionInputSample>> SAMPLES = listProperty("samples", ReactionInput::getSamples, ReactionInput::setSamples, ReactionInputSampleMetamodel.INSTANCE);

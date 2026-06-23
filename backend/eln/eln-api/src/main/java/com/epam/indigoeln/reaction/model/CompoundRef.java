@@ -45,7 +45,6 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
     @SuppressWarnings("unused") // used on frontend
     String getCompoundKey();
 
-    @Nullable
     EnteredValue<MolWeightUnit> getMolWeight();
 
     @Nullable
@@ -169,9 +168,9 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
         @Nullable
         private String formula;
 
-        @Nullable
         @Setter
-        private EnteredValue<MolWeightUnit> molWeight;
+        @JsonInclude(JsonInclude.Include.NON_EMPTY)
+        private EnteredValue<MolWeightUnit> molWeight = EnteredValue.empty();
 
         @Override
         @Nullable

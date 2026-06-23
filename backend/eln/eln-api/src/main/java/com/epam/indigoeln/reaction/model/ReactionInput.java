@@ -32,8 +32,8 @@ public final class ReactionInput extends ReactionRow {
     @NotNull
     private ReactionRole role;
 
-    @Nullable
-    private EnteredValue<MolUnit> mol;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private EnteredValue<MolUnit> mol = EnteredValue.empty();
 
     @Nullable
     private String chemicalName;

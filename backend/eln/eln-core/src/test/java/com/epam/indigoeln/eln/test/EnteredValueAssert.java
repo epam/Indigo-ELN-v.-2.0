@@ -9,6 +9,7 @@ import org.assertj.core.api.Assertions;
 import org.assertj.core.data.Offset;
 import org.jspecify.annotations.Nullable;
 
+@SuppressWarnings("UnusedReturnValue")
 public class EnteredValueAssert<U extends MeasurementUnit> extends AbstractAssert<EnteredValueAssert<U>, @Nullable EnteredValue<U>> {
 
     private static final Offset<Double> EPSILON = Offset.offset(0.0001);
@@ -54,6 +55,16 @@ public class EnteredValueAssert<U extends MeasurementUnit> extends AbstractAsser
     public EnteredValueAssert<U> isUserEntered(int priority) {
         isUserEntered();
         Assertions.assertThat(Preconditions.checkNotNull(actual).getSource().getPriority()).describedAs(actual::toString).isEqualTo(priority);
+        return this;
+    }
+
+    public EnteredValueAssert<U> isOverwritten() {
+        Assertions.assertThat(actual.isOverwritten()).describedAs(actual::toString).isTrue();
+        return this;
+    }
+
+    public EnteredValueAssert<U> isNotOverwritten() {
+        Assertions.assertThat(actual.isOverwritten()).describedAs(actual::toString).isFalse();
         return this;
     }
 }

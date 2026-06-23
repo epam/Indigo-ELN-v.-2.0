@@ -41,11 +41,11 @@ public final class ReactionOutput extends ReactionRow {
     @NotNull
     private boolean intended;
 
-    @Nullable
-    private EnteredValue<MolUnit> theoMol;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private EnteredValue<MolUnit> theoMol = EnteredValue.empty();
 
-    @Nullable
-    private EnteredValue<WeightUnit> theoWeight;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private EnteredValue<WeightUnit> theoWeight = EnteredValue.empty();
 
     @NotNull
     @JsonManagedReference

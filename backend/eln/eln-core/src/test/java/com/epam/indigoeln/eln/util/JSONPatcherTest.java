@@ -218,7 +218,7 @@ public class JSONPatcherTest {
                 List.of(new Anchored("A1", "a")),
                 List.of(new Anchored("A1", "a"), new Anchored("A2", "b")),
                 """
-                    {"A2": {"$new": {"anchor": "A2", "name": "b"}}}
+                    {"A2":{"$new":{"anchor":"A2","name":"b"}}}
         """);
     }
 
@@ -228,7 +228,7 @@ public class JSONPatcherTest {
                 List.of(new Anchored("A1", "a"), new Anchored("A2", "b")),
                 List.of(new Anchored("A1", "a")),
                 """
-                    {"A2": {"$old": {"anchor": "A2", "name": "b"}}}
+                    {"A2":{"$old":{"anchor":"A2","name":"b"}}}
         """);
     }
 
@@ -238,7 +238,7 @@ public class JSONPatcherTest {
                 List.of(new Anchored("A2", "b")),
                 List.of(new Anchored("A2", "c")),
                 """
-                    {"A2": {"name": {"$old": "b", "$new": "c"}}}
+                    {"A2":{"name":{"$old":"b","$new":"c"}}}
         """);
     }
 
@@ -291,7 +291,7 @@ public class JSONPatcherTest {
                 List.of(new Anchored("A1", "a")),
                 List.of(new Anchored("A1", "a"), new Anchored("A2", "b")),
                 """
-                    {">1": {"$new": {"anchor": "A2", "name": "b"}}}
+                    {">1":{"$new":{"anchor":"A2","name":"b"}}}
                 """
         );
     }
@@ -302,7 +302,7 @@ public class JSONPatcherTest {
                 List.of(new Anchored("A1", "a"), new Anchored("A2", "b")),
                 List.of(new Anchored("A1", "a")),
                 """
-                    {"1>": {"$old": {"anchor": "A2", "name": "b"}}}
+                    {"1>":{"$old":{"anchor":"A2","name":"b"}}}
                 """
         );
     }
@@ -313,7 +313,7 @@ public class JSONPatcherTest {
                 List.of(new Anchored("A1", "a")),
                 List.of(new Anchored("A1", "b")),
                 """
-                    {"0": {"name": {"$old": "a", "$new": "b"}}}
+                    {"0":{"name":{"$old":"a","$new":"b"}}}
                 """
         );
     }
@@ -324,7 +324,7 @@ public class JSONPatcherTest {
                 List.of(new Anchored("A1", "a"), new Anchored("A2", "b")),
                 List.of(new Anchored("A2", "b"), new Anchored("A1", "a")),
                 """
-                    {"1>0": "$unchanged", "0>1": "$unchanged"}
+                    {"1>0":"$unchanged","0>1":"$unchanged"}
                 """
         );
     }
@@ -335,7 +335,7 @@ public class JSONPatcherTest {
                 List.of(new Anchored("A1", "a"), new Anchored("A2", "b")),
                 List.of(new Anchored("A2", "b"), new Anchored("A1", "aa")),
                 """
-                    {"1>0": "$unchanged", "0>1": {"name": {"$old": "a", "$new": "aa"}}}
+                    {"1>0":"$unchanged","0>1":{"name":{"$old":"a","$new":"aa"}}}
                 """
         );
     }
@@ -347,7 +347,7 @@ public class JSONPatcherTest {
                 List.of(new InnerList("K1", List.of(new Anchored("A1", "a"), new Anchored("A2", "b")))),
                 JSON_PATCHER_LIST_INSIDE_LIST,
                 """
-                        {"0": {"items": {">1": {"$new": {"anchor": "A2", "name": "b"}}}}}
+                        {"0":{"items":{">1":{"$new":{"anchor":"A2","name":"b"}}}}}
                 """
         );
     }
@@ -365,7 +365,7 @@ public class JSONPatcherTest {
     void testReactionAdded() throws Exception {
         Reaction reaction2 = Reaction.create(model, REACTION_2);
         verifyModel("""
-                {"model": {"reactions": {">1": {"$new": {"anchor": "00000000-0000-0000-0000-000000000002", "inputs": [], "outputs": [], "precursorReactantIds": []}}}}}
+                {"model":{"reactions":{">1":{"$new":{"anchor":"00000000-0000-0000-0000-000000000002","inputs":[],"outputs":[],"precursorReactantIds":[]}}}}}
         """);
     }
 
@@ -373,7 +373,7 @@ public class JSONPatcherTest {
     void testReactionUpdated() throws Exception {
         reaction.setRxnfile("new");
         verifyModel("""
-                {"model": {"reactions": {"0": {"rxnfile": {"$new": "new"}}}}}
+                {"model":{"reactions":{"0":{"rxnfile":{"$new":"new"}}}}}
         """);
     }
 
@@ -382,7 +382,7 @@ public class JSONPatcherTest {
         Reaction reaction2 = Reaction.create(baseModel, REACTION_2);
         model.setReactions(List.of(reaction));
         verifyModel("""
-                {"model": {"reactions": {"1>": {"$old": {"anchor": "00000000-0000-0000-0000-000000000002", "inputs": [], "outputs": [], "precursorReactantIds": []}}}}}
+                {"model":{"reactions":{"1>":{"$old":{"anchor":"00000000-0000-0000-0000-000000000002","inputs":[],"outputs":[],"precursorReactantIds":[]}}}}}
         """);
     }
 
@@ -395,7 +395,7 @@ public class JSONPatcherTest {
         reaction.setRxnfile("new");
         model.setReactions(List.of(reaction2, reaction, reaction3));
         verifyModel("""
-                {"model": {"reactions": {"1>0": "$unchanged", "0>1": {"rxnfile": {"$new": "new"}}}}}
+                {"model":{"reactions":{"1>0":"$unchanged","0>1":{"rxnfile":{"$new":"new"}}}}}
         """);
     }
 
@@ -407,7 +407,7 @@ public class JSONPatcherTest {
         reaction.setInputs(List.of(input));
         input.setMol(EnteredValue.userEntered("10.0", MolUnit.MMOL, 1));
         verifyModel("""
-                {"model": {"reactions": {"0": {"inputs": {"0": {"mol": {"$new": {"value": "10.0", "unit": "MMOL", "source": 1}}}}}}}}
+                {"model":{"reactions":{"0":{"inputs":{"0":{"mol":{"$new":{"value":"10.0","unit":"MMOL","source":1}}}}}}}}
         """);
     }
 
@@ -420,7 +420,7 @@ public class JSONPatcherTest {
         baseInput.setMol(EnteredValue.userEntered("15.0", MolUnit.MMOL, 1));
         input.setMol(EnteredValue.userEntered("10.0", MolUnit.MMOL, 1));
         verifyModel("""
-                {"model": {"reactions": {"0": {"inputs": {"0": {"mol": {"value": {"$old": "15.0", "$new": "10.0"}}}}}}}}
+                {"model":{"reactions":{"0":{"inputs":{"0":{"mol":{"value":{"$old":"15.0","$new":"10.0"}}}}}}}}
         """);
     }
 
@@ -432,8 +432,34 @@ public class JSONPatcherTest {
         reaction.setInputs(List.of(input));
         baseInput.setMol(EnteredValue.userEntered("15.0", MolUnit.MMOL, 1));
         verifyModel("""
-                {"model": {"reactions": {"0": {"inputs": {"0": {"mol": {"$old": {"value": "15.0", "unit": "MMOL", "source": 1}}}}}}}}
+                {"model":{"reactions":{"0":{"inputs":{"0":{"mol":{"$old":{"value":"15.0","unit":"MMOL","source":1}}}}}}}}
         """);
+    }
+
+    @Test
+    void testEnteredValueOverwritten() throws Exception {
+        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Unknown());
+        baseReaction.setInputs(List.of(baseInput));
+        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Unknown());
+        reaction.setInputs(List.of(input));
+        baseInput.setMol(EnteredValue.userEntered("15.0", MolUnit.MMOL, 1));
+        input.setMol(EnteredValue.userEntered("10.0", MolUnit.MMOL, 1).withOverwritten(true));
+        verifyModel("""
+                {"model":{"reactions":{"0":{"inputs":{"0":{"mol":{"value":{"$old":"15.0","$new":"10.0"},"overwritten":{"$new":true}}}}}}}}
+        """, false);
+    }
+
+    @Test
+    void testEnteredValueOverwrittenWithEmpty() throws Exception {
+        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Unknown());
+        baseReaction.setInputs(List.of(baseInput));
+        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Unknown());
+        reaction.setInputs(List.of(input));
+        baseInput.setMol(EnteredValue.userEntered("15.0", MolUnit.MMOL, 1));
+        input.setMol(EnteredValue.<MolUnit>empty().withOverwritten(true));
+        verifyModel("""
+                {"model":{"reactions":{"0":{"inputs":{"0":{"mol":{"value":{"$old":"15.0"},"unit":{"$old":"MMOL"},"source":{"$old":1},"overwritten":{"$new":true}}}}}}}}
+        """, false);
     }
 
     private void verifySimple(@Nullable String oldValue, @Nullable String newValue, @Language("JSON") String expectedStr) {
@@ -453,15 +479,21 @@ public class JSONPatcherTest {
     }
 
     private void verifyModel(@Language("JSON") String expectedPatchStr) throws Exception {
+        verifyModel(expectedPatchStr, true);
+    }
+
+    private void verifyModel(@Language("JSON") String expectedPatchStr, boolean verifyPatchApplication) throws Exception {
         JsonNode before = OBJECT_MAPPER.valueToTree(baseExperiment);
         JsonNode after = OBJECT_MAPPER.valueToTree(experiment);
         JsonNode patch = JSON_MODEL_PATCHER.createTopLevel(before, after);
         String patchStr = OBJECT_MAPPER.writeValueAsString(patch);
         assertThat(patchStr).isEqualToIgnoringWhitespace(expectedPatchStr.trim());
-        JsonNode applied = JSON_MODEL_PATCHER.apply(before, patch);
-        assertJSONEquals(applied, after);
-        JsonNode reversed = JSON_MODEL_PATCHER.reverse(after, patch);
-        assertJSONEquals(reversed, before);
+        if (verifyPatchApplication) {
+            JsonNode applied = JSON_MODEL_PATCHER.apply(before, patch);
+            assertJSONEquals(applied, after);
+            JsonNode reversed = JSON_MODEL_PATCHER.reverse(after, patch);
+            assertJSONEquals(reversed, before);
+        }
     }
 
     @SneakyThrows

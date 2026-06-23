@@ -3,6 +3,7 @@ package com.epam.indigoeln.reaction.model.units;
 import one.util.streamex.StreamEx;
 import org.assertj.core.api.AbstractThrowableAssert;
 import org.assertj.core.api.Assertions;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.*;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -42,11 +43,11 @@ class EnteredValueTest {
     @RegisterExtension
     static final InvocationInterceptor SIG_FIGS_5 = new InvocationInterceptor() {
         @Override
-        public void interceptTestMethod(Invocation<Void> invocation, ReflectiveInvocationContext<Method> ctx, ExtensionContext ext) throws Throwable {
+        public void interceptTestMethod(Invocation<@Nullable Void> invocation, ReflectiveInvocationContext<Method> ctx, ExtensionContext ext) throws Throwable {
             callWithSignificantFigures(5, invocation::proceed);
         }
         @Override
-        public void interceptTestTemplateMethod(Invocation<Void> invocation, ReflectiveInvocationContext<Method> ctx, ExtensionContext ext) throws Throwable {
+        public void interceptTestTemplateMethod(Invocation<@Nullable Void> invocation, ReflectiveInvocationContext<Method> ctx, ExtensionContext ext) throws Throwable {
             callWithSignificantFigures(5, invocation::proceed);
         }
     };
@@ -315,16 +316,10 @@ class EnteredValueTest {
                 .hasMessage("Cannot divide units: G and MM");
     }
 
-    private static MeasurementUnit getUnit(String name) {
-        MeasurementUnit unit = UNIT_NAMES.get(name);
-        checkArgument(unit != null, "Unknown unit: %s", name);
-        return unit;
-    }
-
     static class UnitConverter implements ArgumentConverter {
 
         @Override
-        public Object convert(Object source, ParameterContext context) throws ArgumentConversionException {
+        public Object convert(@Nullable Object source, ParameterContext context) throws ArgumentConversionException {
             MeasurementUnit unit = UNIT_NAMES.get((String) source);
             checkArgument(unit != null, "Unknown unit: %s", source);
             return unit;

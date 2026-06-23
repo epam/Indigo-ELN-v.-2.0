@@ -16,11 +16,8 @@ public class SignatureVerifier {
 
     public void verifySignatures(byte[] documentContent) throws IOException, GeneralSecurityException {
         Security.addProvider(new BouncyCastleProvider()); // TODO is it still needed with Quarkus?
-        PdfReader reader = new PdfReader(documentContent);
-        try {
+        try (PdfReader reader = new PdfReader(documentContent)) {
             verifySignatures(reader);
-        } finally {
-            reader.close();
         }
     }
 
