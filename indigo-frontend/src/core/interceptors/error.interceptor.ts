@@ -21,9 +21,6 @@ export class ErrorInterceptor implements HttpInterceptor {
           const reportDraft = buildReportErrorDraft(req, error, message);
           const isIncidentRequest = isReportBugRequest(req);
 
-          if (!isIncidentRequest) {
-            this.reportErrorDialogService.setLastErrorDraft(reportDraft);
-          }
           console.error(log, error);
           this.notificationService.notify({
             message,
@@ -95,29 +92,11 @@ function normalizeErrorBody(errorBody: unknown): string | null {
     return errorBody;
   }
 
-  if (Array.isArray(errorBody)) {
-    return errorBody
-      .map((item) => {
-        if (item && typeof item === 'object' && 'message' in item) {
-          const path = 'path' in item && typeof item.path === 'string' ? `${item.path}: ` : '';
-          const itemMessage = typeof item.message === 'string' ? item.message : JSON.stringify(item);
-          return `${path}${itemMessage}`;
-        }
-
-        return typeof item === 'string' ? item : JSON.stringify(item);
-      })
-      .join('\n');
+  try {
+    return JSON.stringify(errorBody);
+  } catch {
+    return 'Unable to serialize error details';
   }
-
-  if (typeof errorBody === 'object') {
-    try {
-      return JSON.stringify(errorBody, null, 2);
-    } catch {
-      return 'Unable to serialize error details';
-    }
-  }
-
-  return String(errorBody);
 }
 
 function isReportBugRequest(req: HttpRequest<unknown>): boolean {

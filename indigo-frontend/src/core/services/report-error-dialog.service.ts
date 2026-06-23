@@ -8,7 +8,6 @@ import { ReportErrorDialogData, ReportErrorFormValue } from '@core/types/report-
 })
 export class ReportErrorDialogService {
   private dialog = inject(MatDialog);
-  private lastErrorDraft: ReportErrorDialogData | null = null;
 
   open(data?: ReportErrorDialogData): MatDialogRef<ReportErrorDialogComponent, ReportErrorFormValue> {
     return this.dialog.open(ReportErrorDialogComponent, {
@@ -16,13 +15,5 @@ export class ReportErrorDialogService {
       autoFocus: false,
       restoreFocus: false,
     });
-  }
-
-  setLastErrorDraft(draft: ReportErrorDialogData): void {
-    this.lastErrorDraft = draft;
-  }
-
-  clearLastErrorDraft(): void {
-    this.lastErrorDraft = null;
   }
 }

@@ -37,14 +37,19 @@ export class ReportBugService {
   private buildPayload(formValue: ReportErrorFormValue, context?: ReportErrorContext | null): FormData {
     const experiment = this.experimentDetailService.experimentDetail();
     const payload = new FormData();
-    const technicalDetails = buildTechnicalDetails(this.getCurrentUrl(), experiment, context);
-    const message = buildIncidentMessage(formValue, technicalDetails);
+    const currentUrl = this.getCurrentUrl();
 
-    payload.append('message', message);
+    payload.append('url', currentUrl);
+    payload.append('message', buildUserMessage(formValue));
 
-    if (experiment?.id) {
-      payload.append('experimentId', experiment.id);
+    if (experiment != null) {
+      payload.append('experiment', safePrettyStringify(experiment));
     }
+
+    appendContextField(payload, 'requestURL', context?.requestURL);
+    appendContextField(payload, 'requestMethod', context?.requestMethod);
+    appendContextField(payload, 'requestBody', context?.requestBody);
+    appendContextField(payload, 'responseBody', context?.responseBody);
 
     return payload;
   }
@@ -77,23 +82,16 @@ function buildTechnicalDetails(
   };
 }
 
-function buildIncidentMessage(
-  formValue: ReportErrorFormValue,
-  technicalDetails: ReportErrorTechnicalDetails | null,
-): string {
-  if (!technicalDetails) {
-    return buildUserMessage(formValue);
-  }
-
-  const technicalDetailsText = safePrettyStringify(technicalDetails);
-
-  return [buildUserMessage(formValue), 'Technical details:', technicalDetailsText].filter(Boolean).join('\n\n');
-}
-
 function safePrettyStringify(value: unknown): string {
   try {
     return JSON.stringify(value, null, 2);
   } catch {
     return 'Unable to serialize value';
+  }
+}
+
+function appendContextField(payload: FormData, key: string, value: string | undefined): void {
+  if (value) {
+    payload.append(key, value);
   }
 }

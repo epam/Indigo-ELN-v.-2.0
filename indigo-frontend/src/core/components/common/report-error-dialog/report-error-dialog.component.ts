@@ -9,8 +9,6 @@ import { ReportErrorDialogData, ReportErrorFormValue } from '@core/types/report-
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { finalize } from 'rxjs';
 
-export type { ReportErrorContext, ReportErrorDialogData, ReportErrorFormValue } from '@core/types/report-error.i';
-
 @Component({
   selector: 'eln-report-error-dialog',
   standalone: true,
