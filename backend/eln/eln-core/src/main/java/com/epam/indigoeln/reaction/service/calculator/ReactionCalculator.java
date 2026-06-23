@@ -20,7 +20,6 @@ import java.util.function.Supplier;
 
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE;
 import static com.epam.indigoeln.reaction.service.calculator.EnteredValueOpt.*;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 /**
@@ -113,16 +112,22 @@ public class ReactionCalculator {
         if (!overwritten.isEmpty()) {
             log.debug("overwritten: {}", overwritten);
             for (Property<?, ?> property : overwritten) {
-                EnteredValue<?> value = checkNotNull(property.getValue()).withOverwritten(true);
-                property.setValueUnchecked(value);
+                EnteredValue<?> value = property.getValue();
+                if (value != null) { // !!! make EnteredValue non-nullable
+                    value = value.withOverwritten(true);
+                    property.setValueUnchecked(value);
+                }
             }
         }
     }
 
     public void cleanupOverwritten() {
         for (Property<?, ?> property : overwritten) {
-            EnteredValue<?> value = checkNotNull(property.getValue()).withOverwritten(false);
-            property.setValueUnchecked(value);
+            EnteredValue<?> value = property.getValue();
+            if (value != null) { // !!! make EnteredValue non-nullable
+                value = value.withOverwritten(true);
+                property.setValueUnchecked(value);
+            }
         }
     }
 

@@ -4,6 +4,7 @@ import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.BuiltInDictionary;
 import com.epam.indigoeln.eln.model.SaltCodeRef;
 import com.epam.indigoeln.eln.model.StereoisomerCodeRef;
+import com.epam.indigoeln.reaction.model.ReactionRole;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
@@ -19,6 +20,7 @@ import static com.epam.indigoeln.eln.test.ReactionOutputAssert.assertThat;
 import static com.epam.indigoeln.reaction.model.units.DensityUnit.G_ML;
 import static com.epam.indigoeln.reaction.model.units.MolUnit.MMOL;
 import static com.epam.indigoeln.reaction.model.units.MolUnit.MOL;
+import static com.epam.indigoeln.reaction.model.units.MolarityUnit.M;
 import static com.epam.indigoeln.reaction.model.units.VolumeUnit.ML;
 import static com.epam.indigoeln.reaction.model.units.WeightUnit.G;
 import static com.epam.indigoeln.reaction.model.units.WeightUnit.MG;
@@ -111,17 +113,53 @@ public class ExperimentEditingTest extends MutationsTestBase {
         assertThat(experiment.output(2)).hasTheoWeight(2.9924, G);
     }
 
-//    @Test
-//    void testCase5() {
-//        experiment.mutateSetSchemeFromResource("/reaction-testCase1.rxn");
-        // !!! solvent toluene
-//    }
+    @Test
+    @Disabled // until resolve questions with BAs
+    void testCase5() {
+        experiment.mutateSetSchemeFromResource("/reaction-testCase5.rxn");
+        experiment.mutateSetInputRowRole(3, ReactionRole.SOLVENT);
 
-//    @Test
-//    void testCase6() {
-//        experiment.mutateSetSchemeFromResource("/reaction-testCase1.rxn");
-    // !!! solvent sulphuric acid
-//    }
+        assertThat(experiment.input(3)).compound().hasMolWeight(92.141);
+
+        experiment.mutateSetInputRowEQ(2, "1.5");
+        experiment.mutateSetInputVolume(1, 1, "100", ML);
+        experiment.mutateSetInputDensity(1, 1, "0.789", G_ML);
+        experiment.mutateSetInputMolarity(1, 1, "2", M);
+        experiment.mutateSetInputDensity(2, 1, "1.05", G_ML);
+        experiment.mutateSetInputVolume(3, 1, "50", ML);
+        experiment.mutateSetInputDensity(3, 1, "0.867", G_ML);
+
+        assertThat(experiment.inputSample(1, 1)).hasMol(200, MMOL).hasWeight(9.2138, G);
+        assertThat(experiment.inputSample(2, 1)).hasMol(300, MMOL).hasWeight(18.016, G).hasVolume(17.158, ML);
+        assertThat(experiment.inputSample(3, 1)).hasWeight(43.350, G);
+        assertThat(experiment.output(1)).hasTheoMol(200, MMOL).hasTheoWeight(17.621, G);
+        assertThat(experiment.output(2)).hasTheoMol(200, MMOL).hasTheoWeight(3.6030, G);
+    }
+
+    @Test
+    @Disabled // until resolve questions with BAs
+    void testCase6() {
+        experiment.mutateSetSchemeFromResource("/reaction-testCase6.rxn");
+        experiment.mutateSetInputRowRole(3, ReactionRole.REAGENT);
+
+        assertThat(experiment.input(3)).compound().hasMolWeight(98.072);
+
+        experiment.mutateSetInputWeight(1, 1, "5", G);
+        experiment.mutateSetInputDensity(1, 1, "0.789", G_ML);
+        experiment.mutateSetInputPurity(1, 1, "0.98");
+        experiment.mutateSetInputRowEQ(2, "1.2");
+        experiment.mutateSetInputDensity(2, 1, "1.04", G_ML);
+        experiment.mutateSetInputPurity(2, 1, "0.99");
+        experiment.mutateSetInputRowEQ(3, "0.05");
+        experiment.mutateSetInputDensity(3, 1, "1.84", G_ML);
+        experiment.mutateSetInputPurity(3, 1, "0.98");
+
+        assertThat(experiment.inputSample(1, 1)).hasMol(0.10636, MMOL).hasVolume(6.3371, ML);
+        assertThat(experiment.inputSample(2, 1)).hasMol(0.12763, MMOL).hasWeight(0.0077421, G).hasVolume(0.0074444, ML);
+        assertThat(experiment.inputSample(3, 1)).hasMol(0.0053181, MMOL).hasWeight(0.0005322, G).hasVolume(0.0002893, ML);
+        assertThat(experiment.output(1)).hasTheoMol(0.10636, MMOL).hasTheoWeight(0.0093711, G);
+        assertThat(experiment.output(2)).hasTheoMol(0.10636, MMOL).hasTheoWeight(0.0019161, G);
+    }
 
 //    @Test
 //    void testCase7() {
