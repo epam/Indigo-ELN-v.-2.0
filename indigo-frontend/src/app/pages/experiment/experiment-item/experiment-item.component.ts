@@ -37,17 +37,21 @@ export class ExperimentItemComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly experimentDetailService = inject(ExperimentDetailService);
 
-  @Input() experiment!: ExperimentDetail;
-  @Input() variant: 'grid' | 'list' = 'grid';
+  @Input({ required: true })
+  experiment!: ExperimentDetail;
+
+  @Input()
+  variant: 'grid' | 'list' = 'grid';
 
   isMarked = signal(false);
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.isMarked.set(this.experiment.marked ?? false);
   }
 
   toggleMark(event: Event): void {
     event.stopPropagation();
+
     const wasMarked = this.isMarked();
     const nowMarked = !wasMarked;
     this.isMarked.set(nowMarked);
@@ -64,10 +68,6 @@ export class ExperimentItemComponent implements OnInit {
   }
 
   openDetails(): void {
-    if (!this.experiment) {
-      return;
-    }
-
     this.router.navigateByUrl(`/experiments/${this.experiment.id}`);
   }
 

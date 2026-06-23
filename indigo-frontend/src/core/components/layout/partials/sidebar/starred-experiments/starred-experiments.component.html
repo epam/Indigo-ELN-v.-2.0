@@ -13,7 +13,7 @@
     <ul class="divide-y divide-neutral-200 max-h-64 overflow-y-auto pr-1" *ngIf="!loading && !error">
       <li *ngFor="let exp of experiments">
         <a
-          [routerLink]="['/experiments', exp.id, 'info']"
+          [routerLink]="['/experiments', exp.id]"
           class="py-2 flex items-center justify-between gap-2 cursor-pointer hover:bg-neutral-200 rounded px-1"
         >
           <div class="flex items-center gap-1 min-w-0">

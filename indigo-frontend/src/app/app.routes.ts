@@ -1,42 +1,6 @@
 import { Routes } from '@angular/router';
 import { RoleGuard } from './role.guard';
 
-const experimentChildren: Routes = [
-  {
-    path: '',
-    redirectTo: 'info',
-    pathMatch: 'full',
-  },
-  {
-    path: 'info',
-    loadComponent: () =>
-      import('@pages/experiment/experiment-details/experiment-details.component').then(
-        (c) => c.ExperimentDetailsComponent,
-      ),
-  },
-  {
-    path: 'attachments',
-    loadComponent: () =>
-      import('@pages/experiment/experiment-attachments/experiment-attachments.component').then(
-        (c) => c.ExperimentAttachmentsComponent,
-      ),
-  },
-  {
-    path: 'summary',
-    loadComponent: () =>
-      import('@pages/experiment/experiment-summary/experiment-summary.component').then(
-        (c) => c.ExperimentSummaryComponent,
-      ),
-  },
-  {
-    path: 'versions',
-    loadComponent: () =>
-      import('@pages/experiment/experiment-versions/experiment-versions.component').then(
-        (c) => c.ExperimentVersionsComponent,
-      ),
-  },
-];
-
 export const routes: Routes = [
   {
     path: '',
@@ -113,7 +77,6 @@ export const routes: Routes = [
           import('@/app/pages/experiment/experiment-layout/experiment-layout.component').then(
             (c) => c.ExperimentLayoutComponent,
           ),
-        children: experimentChildren,
       },
       {
         path: 'templates',

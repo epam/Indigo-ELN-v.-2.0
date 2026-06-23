@@ -52,8 +52,6 @@ export class ExperimentLayoutComponent implements OnInit, OnDestroy {
   experimentDetailService = inject(ExperimentDetailService);
   breadcrumbsState = inject(BreadcrumbsStateService);
 
-  experimentId = '';
-
   experiment = computed<ExperimentDetail | null>(() => this.experimentDetailService.experimentDetail());
   template = computed(() => this.experimentDetailService.experimentTemplate());
   isLoading = computed<boolean>(() => this.experimentDetailService.isLoading());

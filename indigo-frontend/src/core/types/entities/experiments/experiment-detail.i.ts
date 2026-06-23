@@ -7,16 +7,6 @@ import { BaseEntity } from '../base-entity.i';
 import { DictionaryItemRef } from '../dictionary.i';
 import { UserRef } from '../user.i';
 
-export enum SignatureReason {
-  AUTHOR = 'AUTHOR',
-  WITNESS = 'WITNESS',
-}
-
-export enum SignatureStatus {
-  APPROVED = 'APPROVED',
-  REJECTED = 'REJECTED',
-}
-
 export interface TherapeuticArea {
   id: string;
   name: string;
