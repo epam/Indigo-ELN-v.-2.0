@@ -1,15 +1,19 @@
 package com.epam.indigoeln.reaction.service.mutation.notebook;
 
 import com.epam.indigoeln.eln.entity.AttachmentEntity;
+import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.NotebookEntity;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.repository.AttachmentRepository;
+import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.reaction.model.NotebookSnapshot;
+import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.NotebookMutation;
+import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import com.epam.indigoeln.reaction.service.mutation.EntityMutationHelper;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
@@ -19,6 +23,7 @@ import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
 import static com.epam.indigoeln.common.util.ModelUtil.editProperty;
 
 @Dependent
@@ -48,11 +53,27 @@ class CreateNotebookHandler extends AbstractNotebookMutationHandler<NotebookMuta
 @MutationHandlerFor(NotebookMutation.EditNotebookAttributes.class)
 class EditNotebookAttributesHandler extends AbstractNotebookMutationHandler<NotebookMutation.EditNotebookAttributes> {
 
+    @Inject
+    ExperimentRepository experimentRepository;
+    @Inject
+    ExperimentModelService experimentModelService;
+
     @Override
     public MutationResult doHandle(NotebookEntity notebook, NotebookMutation.EditNotebookAttributes mutation, NotebookMutationContext context, NotebookSnapshot snapshotBefore) {
         List<String> summaryList = new ArrayList<>();
-        editProperty(mutation.name(), notebook::setName, summaryList, "name");
-        editProperty(mutation.description(), notebook::setDescription, summaryList, "description");
+        boolean nameChanged = editProperty(mutation.name(), notebook::setName, summaryList, "name");
+        boolean updated = nameChanged;
+        updated |= editProperty(mutation.description(), notebook::setDescription, summaryList, "description");
+
+        if (nameChanged) {
+            String newNotebookName = mutation.name().get();
+            List<ExperimentEntity> experiments = experimentRepository.findByNotebookWithACLEntities(notebook);
+            for (ExperimentEntity experiment : experiments) {
+                experimentModelService.applyMutation(experiment, new ExperimentMutation.ExperimentNameUpdated(newNotebookName));
+            }
+        }
+
+        validate(updated, "Nothing to update");
         return new MutationResult(entityMutationHelper.formatEditAttributesSummary(summaryList));
     }
 }
@@ -67,11 +88,6 @@ class EditNotebookAccessHandler extends AbstractNotebookMutationHandler<Notebook
     ProjectRepository projectRepository;
     @Inject
     EntityMutationHelper entityMutationHelper;
-
-    @Override
-    public void doPrepare(NotebookEntity entity, NotebookMutation.EditNotebookAccess mutation, NotebookMutationContext context) {
-        context.setAffectsACL(true);
-    }
 
     @Override
     protected void doValidateAccess(NotebookEntity notebook, NotebookMutation.EditNotebookAccess mutation, NotebookMutationContext context) {
@@ -98,11 +114,6 @@ class CreateNotebookAttachmentHandler extends AbstractNotebookMutationHandler<No
     AttachmentService attachmentService;
 
     @Override
-    public void doPrepare(NotebookEntity entity, NotebookMutation.CreateNotebookAttachment mutation, NotebookMutationContext context) {
-        context.setAffectsAttachments(true);
-    }
-
-    @Override
     public MutationResult doHandle(NotebookEntity notebook, NotebookMutation.CreateNotebookAttachment mutation, NotebookMutationContext context, NotebookSnapshot snapshotBefore) {
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
         attachmentService.doAddNotebookAttachment(notebook, attachment);
@@ -118,11 +129,6 @@ class DeleteNotebookAttachmentHandler extends AbstractNotebookMutationHandler<No
     AttachmentRepository attachmentRepository;
 
     @Override
-    public void doPrepare(NotebookEntity entity, NotebookMutation.DeleteNotebookAttachment mutation, NotebookMutationContext context) {
-        context.setAffectsAttachments(true);
-    }
-
-    @Override
     public MutationResult doHandle(NotebookEntity notebook, NotebookMutation.DeleteNotebookAttachment mutation, NotebookMutationContext context, NotebookSnapshot snapshotBefore) {
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
         notebook.getAttachments().remove(attachment);
@@ -135,11 +141,6 @@ class DeleteNotebookAttachmentHandler extends AbstractNotebookMutationHandler<No
 @Dependent
 @MutationHandlerFor(NotebookMutation.NotebookAccessUpdated.class)
 class NotebookAccessUpdatedHandler extends AbstractNotebookMutationHandler<NotebookMutation.NotebookAccessUpdated> {
-
-    @Override
-    public void doPrepare(NotebookEntity entity, NotebookMutation.NotebookAccessUpdated mutation, NotebookMutationContext context) {
-        context.setAffectsACL(true);
-    }
 
     @Override
     public MutationResult doHandle(NotebookEntity notebook, NotebookMutation.NotebookAccessUpdated mutation, NotebookMutationContext context, NotebookSnapshot snapshotBefore) {

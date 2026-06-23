@@ -46,7 +46,7 @@ public class CacheControlProcessor {
 
             // Find every concrete class that implements the annotated interface and
             // map "ConcreteClass#methodName" → maxAge so the filter needs no reflection
-            for (ClassInfo implementor : indexBuildItem.getIndex().getAllKnownImplementors(declaringInterface.name())) {
+            for (ClassInfo implementor : indexBuildItem.getIndex().getAllKnownImplementations(declaringInterface.name())) {
                 String key = implementor.name().toString() + "#" + method.name();
                 maxAgeByMethod.put(key, maxAge);
             }

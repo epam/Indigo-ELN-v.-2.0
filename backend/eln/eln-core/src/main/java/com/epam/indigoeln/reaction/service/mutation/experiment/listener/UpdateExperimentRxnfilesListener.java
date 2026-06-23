@@ -3,7 +3,6 @@ package com.epam.indigoeln.reaction.service.mutation.experiment.listener;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoReaction;
-import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.ReactionAnchor;
 import com.epam.indigoeln.reaction.service.ExperimentModelHelperService;
@@ -37,17 +36,17 @@ public class UpdateExperimentRxnfilesListener implements ExperimentModelMutation
     private final Map<ReactionAnchor, List<Object>> oldReactionKeys = new HashMap<>();
 
     @Override
-    public void beforeHandle(ExperimentEntity experiment, ExperimentModel model, ExperimentMutationContext context) {
-        for (Reaction reaction : model.getReactions()) {
+    public void beforeHandle(ExperimentEntity experiment, ExperimentMutationContext context) {
+        for (Reaction reaction : experiment.getModel().getReactions()) {
             oldRxnfiles.put(reaction.getAnchor(), reaction.getRxnfile());
             oldReactionKeys.put(reaction.getAnchor(), experimentModelHelperService.makeReactionKey(reaction));
         }
     }
 
     @Override
-    public void afterRecalculate(ExperimentEntity experiment, ExperimentModel model, ExperimentMutationContext context) {
+    public void afterRecalculate(ExperimentEntity experiment, ExperimentMutationContext context) {
         boolean anyRxnfileChanged = false;
-        for (Reaction reaction : model.getReactions()) {
+        for (Reaction reaction : experiment.getModel().getReactions()) {
             IndigoReaction indigoReaction;
             String oldRxnfile = oldRxnfiles.get(reaction.getAnchor());
             List<Object> oldReactionKey = oldReactionKeys.get(reaction.getAnchor());
@@ -65,8 +64,8 @@ public class UpdateExperimentRxnfilesListener implements ExperimentModelMutation
             String image = experimentModelHelperService.rebuildReactionPicture(experiment, reaction, indigoReaction);
             context.getResponse().getReactionImages().put(reaction.getAnchor(), image);
         }
-        if (anyRxnfileChanged || oldRxnfiles.size() != model.getReactions().size()) {
-            List<String> rxnFiles = StreamEx.of(model.getReactions())
+        if (anyRxnfileChanged || oldRxnfiles.size() != experiment.getModel().getReactions().size()) {
+            List<String> rxnFiles = StreamEx.of(experiment.getModel().getReactions())
                     .map(Reaction::getRxnfile)
                     .collect(StreamUtil.toListNotNull());
             updateCollection(experiment.getRxnfiles(), rxnFiles);

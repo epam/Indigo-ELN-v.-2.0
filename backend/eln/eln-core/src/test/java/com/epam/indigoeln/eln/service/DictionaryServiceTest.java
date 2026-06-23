@@ -13,9 +13,9 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -105,10 +105,10 @@ public class DictionaryServiceTest extends ELNBaseTest {
     @Order(5)
     void testUpdateItem() {
         items = dictionaryClient.updateDictionaryItem(dictionaryID, items.getFirst().getId(), new DictionaryItemEditRequest(
-                Optional.of("Anew"),
-                Optional.of("AdescriptionNew"),
-                null,
-                null
+                JsonNullable.of("Anew"),
+                JsonNullable.of("AdescriptionNew"),
+                JsonNullable.undefined(),
+                JsonNullable.undefined()
         ));
         verify(items).containsExactly(
                 tuple("Anew", "AdescriptionNew", 1, true),
@@ -120,10 +120,10 @@ public class DictionaryServiceTest extends ELNBaseTest {
     @Order(6)
     void testDeactivateItem() {
         items = dictionaryClient.updateDictionaryItem(dictionaryID, items.getFirst().getId(), new DictionaryItemEditRequest(
-                null,
-                null,
-                null,
-                Optional.of(false)
+                JsonNullable.undefined(),
+                JsonNullable.undefined(),
+                JsonNullable.undefined(),
+                JsonNullable.of(false)
         ));
         verify(items).containsExactly(
                 tuple("Anew", "AdescriptionNew", 1, false),
@@ -149,10 +149,10 @@ public class DictionaryServiceTest extends ELNBaseTest {
     @Order(8)
     void testReorderItems() {
         items = dictionaryClient.updateDictionaryItem(dictionaryID, items.get(2).getId(), new DictionaryItemEditRequest(
-                null,
-                null,
-                Optional.of(2), // move C to position 2
-                null
+                JsonNullable.undefined(),
+                JsonNullable.undefined(),
+                JsonNullable.of(2), // move C to position 2
+                JsonNullable.undefined()
         ));
         verify(items).containsExactly(
                 tuple("Anew", "AdescriptionNew", 1, false),

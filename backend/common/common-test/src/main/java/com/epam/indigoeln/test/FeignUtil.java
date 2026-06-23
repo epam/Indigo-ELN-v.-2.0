@@ -22,6 +22,7 @@ import jakarta.ws.rs.core.HttpHeaders;
 import lombok.Getter;
 import lombok.Setter;
 import org.eclipse.microprofile.config.ConfigProvider;
+import org.openapitools.jackson.nullable.JsonNullableModule;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -39,6 +40,7 @@ public class FeignUtil {
             .registerModule(new JavaTimeModule())
             .registerModule(new Jdk8Module())
             .registerModule(new ParameterNamesModule())
+            .registerModule(new JsonNullableModule())
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
     public static final ObjectMapper OBJECT_MAPPER_FORMATTED = OBJECT_MAPPER.copy()

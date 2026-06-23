@@ -20,6 +20,7 @@ import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
 import static com.epam.indigoeln.common.util.ModelUtil.editProperty;
 import static com.epam.indigoeln.common.util.ModelUtil.updateCollection;
 
@@ -60,12 +61,13 @@ class EditProjectAttributesHandler extends AbstractProjectMutationHandler<Projec
     @Override
     public MutationResult doHandle(ProjectEntity project, ProjectMutation.EditProjectAttributes mutation, ProjectMutationContext context, ProjectSnapshot snapshotBefore) {
         List<String> summaryList = new ArrayList<>();
-        editProperty(mutation.name(), project::setName, summaryList, "name");
-        editProperty(mutation.keywords(), v -> {
+        boolean updated = editProperty(mutation.name(), project::setName, summaryList, "name");
+        updated |= editProperty(mutation.keywords(), v -> {
             updateCollection(project.getKeywords(), dictionaryUpdateService.findOrCreateByNames(BuiltInDictionary.PROJECT_KEYWORD.name(), v));
         }, summaryList, "keywords");
-        editProperty(mutation.literature(), project::setLiterature, summaryList, "literature");
-        editProperty(mutation.description(), project::setDescription, summaryList, "description");
+        updated |= editProperty(mutation.literature(), project::setLiterature, summaryList, "literature");
+        updated |= editProperty(mutation.description(), project::setDescription, summaryList, "description");
+        validate(updated, "Nothing to update");
         return new MutationResult(entityMutationHelper.formatEditAttributesSummary(summaryList));
     }
 }
@@ -80,11 +82,6 @@ class EditProjectAccessHandler extends AbstractProjectMutationHandler<ProjectMut
     ProjectRepository projectRepository;
     @Inject
     EntityMutationHelper entityMutationHelper;
-
-    @Override
-    public void doPrepare(ProjectEntity entity, ProjectMutation.EditProjectAccess mutation, ProjectMutationContext context) {
-        context.setAffectsACL(true);
-    }
 
     @Override
     protected void doValidateAccess(ProjectEntity project, ProjectMutation.EditProjectAccess mutation, ProjectMutationContext context) {
@@ -111,11 +108,6 @@ class CreateProjectAttachmentHandler extends AbstractProjectMutationHandler<Proj
     AttachmentService attachmentService;
 
     @Override
-    public void doPrepare(ProjectEntity entity, ProjectMutation.CreateProjectAttachment mutation, ProjectMutationContext context) {
-        context.setAffectsAttachments(true);
-    }
-
-    @Override
     public MutationResult doHandle(ProjectEntity project, ProjectMutation.CreateProjectAttachment mutation, ProjectMutationContext context, ProjectSnapshot snapshotBefore) {
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
         attachmentService.doAddProjectAttachment(project, attachment);
@@ -131,11 +123,6 @@ class DeleteProjectAttachmentHandler extends AbstractProjectMutationHandler<Proj
     AttachmentRepository attachmentRepository;
 
     @Override
-    public void doPrepare(ProjectEntity entity, ProjectMutation.DeleteProjectAttachment mutation, ProjectMutationContext context) {
-        context.setAffectsAttachments(true);
-    }
-
-    @Override
     public MutationResult doHandle(ProjectEntity project, ProjectMutation.DeleteProjectAttachment mutation, ProjectMutationContext context, ProjectSnapshot snapshotBefore) {
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
         project.getAttachments().remove(attachment);
@@ -148,11 +135,6 @@ class DeleteProjectAttachmentHandler extends AbstractProjectMutationHandler<Proj
 @Dependent
 @MutationHandlerFor(ProjectMutation.ProjectAccessUpdated.class)
 class ProjectAccessUpdatedHandler extends AbstractProjectMutationHandler<ProjectMutation.ProjectAccessUpdated> {
-
-    @Override
-    public void doPrepare(ProjectEntity entity, ProjectMutation.ProjectAccessUpdated mutation, ProjectMutationContext context) {
-        context.setAffectsACL(true);
-    }
 
     @Override
     public MutationResult doHandle(ProjectEntity project, ProjectMutation.ProjectAccessUpdated mutation, ProjectMutationContext context, ProjectSnapshot snapshotBefore) {

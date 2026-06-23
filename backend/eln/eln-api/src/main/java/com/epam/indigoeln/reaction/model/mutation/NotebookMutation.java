@@ -5,23 +5,23 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
+import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface NotebookMutation extends Mutation {
 
     record CreateNotebook(
-            @NotEmpty String name,
+            String name,
             @Nullable String description
     ) implements NotebookMutation {
     }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonInclude(JsonInclude.Include.NON_ABSENT)
     record EditNotebookAttributes(
-            @Nullable Optional<@NotEmpty String> name,
-            @Nullable Optional<String> description
+            JsonNullable<String> name,
+            JsonNullable<String> description
     ) implements NotebookMutation {
     }
 

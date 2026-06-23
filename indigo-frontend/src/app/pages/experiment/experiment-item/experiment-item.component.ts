@@ -1,7 +1,6 @@
 import { BadgeComponent } from '@/core/components/common/badge/badge.component';
 import { CardComponent } from '@/core/components/common/card/card.component';
 import { SvgIconComponent } from '@/core/components/common/svg-icon/svg-icon.component';
-import { InitialsPipe } from '@/core/pipes/avatars.pipe';
 import { NormalizeLabelPipe } from '@/core/pipes/normalizeLabe.pipe';
 import { ExperimentDetailService } from '@/core/services/experiment/experiment-detail.service';
 import { ExperimentDetail } from '@/core/types/entities/experiments/experiment-detail.i';
@@ -11,9 +10,10 @@ import { Component, inject, Input, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatTooltip } from '@angular/material/tooltip';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { ApiImageComponent } from '@core/components/common/image/api-image.component';
+import { MemberAvatarsComponent } from '@core/components/common/member-avatars/member-avatars.component';
 
 @Component({
   selector: 'eln-experiment-item',
@@ -24,12 +24,12 @@ import { ApiImageComponent } from '@core/components/common/image/api-image.compo
     MatButtonModule,
     MatIconModule,
     MatMenuModule,
+    MatTooltipModule,
     BadgeComponent,
     NormalizeLabelPipe,
-    InitialsPipe,
-    MatTooltip,
     SvgIconComponent,
     ApiImageComponent,
+    MemberAvatarsComponent,
   ],
   templateUrl: './experiment-item.component.html',
 })

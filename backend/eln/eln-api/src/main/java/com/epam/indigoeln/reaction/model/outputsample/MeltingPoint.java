@@ -1,21 +1,19 @@
 package com.epam.indigoeln.reaction.model.outputsample;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class MeltingPoint {
 
     @Nullable
-    private Double lower;
+    private final Double lower;
 
     @Nullable
-    private Double upper;
+    private final Double upper;
 
     @Nullable
-    private String comments;
+    private final String comments;
 }

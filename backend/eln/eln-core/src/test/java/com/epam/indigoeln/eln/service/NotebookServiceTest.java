@@ -6,18 +6,17 @@ import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.reaction.model.mutation.NotebookMutation;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
+import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ContentDispositionUtil.extractFilename;
@@ -64,7 +63,7 @@ class NotebookServiceTest extends ELNBaseTest {
         notebookClient.createNotebook(project.getId(), new NotebookRequest(name));
         String name2 = nextNotebookName();
         NotebookDetailsDTO notebook2 = notebookClient.createNotebook(project.getId(), new NotebookRequest(name2));
-        assertThatClientCall(() -> notebookClient.editNotebook(notebook2.getId(), new NotebookEditRequest().withName(Optional.of(name))))
+        assertThatClientCall(() -> notebookClient.editNotebook(notebook2.getId(), new NotebookEditRequest().withName(JsonNullable.of(name))))
                 .isBadRequest("Unique name is required");
     }
 
@@ -154,9 +153,8 @@ class NotebookServiceTest extends ELNBaseTest {
                 .hasSize(1)
                 .first().satisfies(revision -> {
                     assertThat(revision.getRevision()).isOne();
-                    assertThat(revision.getDatetime()).isEqualTo(notebook.getCreatedAt());
+                    assertThat(revision.getDate()).isEqualTo(notebook.getCreatedAt());
                     assertThat(revision.getUser()).isEqualTo(JOHN_USER_REF);
-                    assertThat(revision.getMutation()).isInstanceOf(NotebookMutation.CreateNotebook.class);
                     assertThat(revision.getSummary()).isEqualTo("Create notebook");
                 });
     }
@@ -235,7 +233,7 @@ class NotebookServiceTest extends ELNBaseTest {
     void testEditNotebookNoChanges() {
         String oldName = nextNotebookName();
         NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(oldName, "d"));
-        assertThatClientCall(() -> notebookClient.editNotebook(notebook.getId(), new NotebookEditRequest(null, null)))
+        assertThatClientCall(() -> notebookClient.editNotebook(notebook.getId(), new NotebookEditRequest(JsonNullable.undefined(), JsonNullable.undefined())))
                 .isBadRequest("Nothing to update");
     }
 
@@ -244,7 +242,7 @@ class NotebookServiceTest extends ELNBaseTest {
         String oldName = nextNotebookName();
         NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(oldName, "d"));
         String newName = nextNotebookName();
-        NotebookDetailsDTO modified = notebookClient.editNotebook(notebook.getId(), new NotebookEditRequest(Optional.of(newName), Optional.of("d2")));
+        NotebookDetailsDTO modified = notebookClient.editNotebook(notebook.getId(), new NotebookEditRequest(JsonNullable.of(newName), JsonNullable.of("d2")));
         assertThat(modified.getName()).isEqualTo(newName);
         assertThat(modified.getDescription()).isEqualTo("d2");
         NotebookDetailsDTO saved = notebookClient.getNotebook(notebook.getId());
@@ -253,11 +251,49 @@ class NotebookServiceTest extends ELNBaseTest {
                 .hasSize(2)
                 .last().satisfies(revision -> {
                     assertThat(revision.getRevision()).isEqualTo(2);
-                    assertThat(revision.getDatetime()).isEqualTo(modified.getModifiedAt());
+                    assertThat(revision.getDate()).isEqualTo(modified.getModifiedAt());
                     assertThat(revision.getUser()).isEqualTo(JOHN_USER_REF);
-                    assertThat(revision.getMutation()).isInstanceOf(NotebookMutation.EditNotebookAttributes.class);
                     assertThat(revision.getSummary()).matches("Edit: name=.+, description=.+");
                 });
+    }
+
+    @Test
+    void testEditNotebookNameUpdatesExperimentNames() {
+        String oldNotebookName = nextNotebookName();
+        NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(oldNotebookName, "notebook description"));
+
+        ExperimentDetailsDTO experiment1 = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
+        ExperimentDetailsDTO experiment2 = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
+        ExperimentDetailsDTO experiment3 = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
+
+        assertThat(experiment1.getName()).startsWith(oldNotebookName + "-");
+        assertThat(experiment2.getName()).startsWith(oldNotebookName + "-");
+        assertThat(experiment3.getName()).startsWith(oldNotebookName + "-");
+
+        String exp1Number = experiment1.getName().substring(experiment1.getName().lastIndexOf('-') + 1);
+        String exp2Number = experiment2.getName().substring(experiment2.getName().lastIndexOf('-') + 1);
+        String exp3Number = experiment3.getName().substring(experiment3.getName().lastIndexOf('-') + 1);
+
+        String newNotebookName = nextNotebookName();
+        NotebookDetailsDTO modifiedNotebook = notebookClient.editNotebook(notebook.getId(), new NotebookEditRequest(JsonNullable.of(newNotebookName), JsonNullable.undefined()));
+
+        assertThat(modifiedNotebook.getName()).isEqualTo(newNotebookName);
+
+        ExperimentDetailsDTO updatedExp1 = experimentClient.getExperiment(experiment1.getId());
+        ExperimentDetailsDTO updatedExp2 = experimentClient.getExperiment(experiment2.getId());
+        ExperimentDetailsDTO updatedExp3 = experimentClient.getExperiment(experiment3.getId());
+
+        assertThat(updatedExp1.getName()).isEqualTo(newNotebookName + "-" + exp1Number);
+        assertThat(updatedExp2.getName()).isEqualTo(newNotebookName + "-" + exp2Number);
+        assertThat(updatedExp3.getName()).isEqualTo(newNotebookName + "-" + exp3Number);
+
+        List<RevisionSummaryDTO> exp1Revisions = experimentClient.getExperimentRevisions(experiment1.getId(), null);
+        assertThat(exp1Revisions).hasSizeGreaterThan(1);
+        assertThat(exp1Revisions).last().satisfies(revision -> {
+            assertThat(revision.getSummary()).contains("Experiment name updated");
+            assertThat(revision.getSummary()).contains(oldNotebookName);
+            assertThat(revision.getSummary()).contains(newNotebookName);
+        });
     }
 
     @Test
@@ -274,7 +310,6 @@ class NotebookServiceTest extends ELNBaseTest {
         });
         assertThat(notebookClient.getNotebookRevisions(notebook.getId()))
                 .last().satisfies(revision -> {
-                    assertThat(revision.getMutation()).isInstanceOf(NotebookMutation.CreateNotebookAttachment.class);
                     assertThat(revision.getSummary()).isEqualTo("Created attachment: attachment.txt, 7 bytes");
                 });
     }
@@ -298,7 +333,6 @@ class NotebookServiceTest extends ELNBaseTest {
         assertThat(notebook.getAttachments()).isEmpty();
         assertThat(notebookClient.getNotebookRevisions(notebook.getId()))
                 .last().satisfies(revision -> {
-                    assertThat(revision.getMutation()).isInstanceOf(NotebookMutation.DeleteNotebookAttachment.class);
                     assertThat(revision.getSummary()).isEqualTo("Deleted attachment: attachment.txt");
                 });
     }
@@ -316,7 +350,7 @@ class NotebookServiceTest extends ELNBaseTest {
         Page<NotebookDTO> result2 = notebookClient.getProjectNotebooks(project.getId(), "qs1", null, null, Paging.DEFAULT);
         assertThat(result2.getItems()).map(NotebookDTO::getName).containsExactlyInAnyOrder(p1, p2);
 
-        notebookClient.editNotebook(notebook.getId(), new NotebookEditRequest(null, Optional.of("QS1 QSNew")));
+        notebookClient.editNotebook(notebook.getId(), new NotebookEditRequest(JsonNullable.undefined(), JsonNullable.of("QS1 QSNew")));
         Page<NotebookDTO> result3 = notebookClient.getProjectNotebooks(project.getId(), "QSOld", null, null, Paging.DEFAULT);
         assertThat(result3.getItems()).isEmpty();
 
@@ -336,16 +370,13 @@ class NotebookServiceTest extends ELNBaseTest {
                 .last().satisfies(revision -> {
                     assertThat(revision.getRevision()).isEqualTo(2);
                     assertThat(revision.getUser()).isEqualTo(JOHN_USER_REF);
-                    assertThat(revision.getMutation()).isInstanceOf(NotebookMutation.EditNotebookAccess.class);
                     assertThat(revision.getSummary()).isEqualTo("Edited Team: granted maggie EDIT access");
-                    assertThat(revision.getDiff()).isNotNull(); // TODO verify diff old and new ACL
                 });
         notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(MAGGIE_USERNAME, AccessLevel.NONE));
         assertThat(notebookClient.getNotebookRevisions(notebook.getId()))
                 .hasSize(3)
                 .last().satisfies(revision -> {
                     assertThat(revision.getSummary()).isEqualTo("Edited Team: removed maggie");
-                    assertThat(revision.getDiff()).isNotNull(); // TODO verify diff old and new ACL
                 });
     }
 

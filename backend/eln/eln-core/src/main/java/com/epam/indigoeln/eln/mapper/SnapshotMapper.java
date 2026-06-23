@@ -3,16 +3,9 @@ package com.epam.indigoeln.eln.mapper;
 import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.model.ACLEntryDTO;
 import com.epam.indigoeln.eln.model.AttachmentDTO;
-import com.epam.indigoeln.reaction.model.ExperimentModel;
-import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
-import com.epam.indigoeln.reaction.model.NotebookSnapshot;
-import com.epam.indigoeln.reaction.model.ProjectSnapshot;
+import com.epam.indigoeln.reaction.model.*;
 import one.util.streamex.StreamEx;
-import org.jspecify.annotations.Nullable;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.NullValueCheckStrategy;
-import org.mapstruct.ReportingPolicy;
+import org.mapstruct.*;
 
 import java.util.List;
 import java.util.Set;
@@ -20,61 +13,99 @@ import java.util.Set;
 @Mapper(componentModel = "cdi", unmappedTargetPolicy = ReportingPolicy.ERROR, nullValueCheckStrategy =  NullValueCheckStrategy.ALWAYS)
 public abstract class SnapshotMapper extends AbstractMapper {
 
-    @Mapping(target = "attachments", ignore = true)
-    @Mapping(target = "acl", ignore = true)
     @Mapping(target = "model", ignore = true)
+    @Mapping(target = "acl", source = "fullACL")
     @Mapping(target = "templateId", source = "template.id")
     public abstract ExperimentSnapshot copyBasicFields(ExperimentEntity entity);
 
-    @Mapping(target = "attachments", ignore = true)
-    @Mapping(target = "acl", ignore = true)
-    public abstract ProjectSnapshot copyBasicFields(ProjectEntity entity);
+    @Mapping(target = "acl", source = "fullACL")
+    public abstract ProjectSnapshot createSnapshot(ProjectEntity entity);
 
-    @Mapping(target = "attachments", ignore = true)
-    @Mapping(target = "acl", ignore = true)
-    public abstract NotebookSnapshot copyBasicFields(NotebookEntity entity);
+    @Mapping(target = "acl", source = "fullACL")
+    public abstract NotebookSnapshot createSnapshot(NotebookEntity entity);
 
     protected abstract AttachmentDTO convertAttachment(AttachmentEntity entity);
 
-    protected abstract Set<AttachmentDTO> copyAttachments(List<AttachmentEntity> attachments);
+    protected abstract Set<AttachmentDTO> convertAttachments(List<AttachmentEntity> attachments);
 
-    protected abstract Set<ACLEntryDTO> copyACL(ACLEntry[] aclEntries);
+    protected abstract Set<ACLEntryDTO> convertACLs(ACLEntry[] aclEntries);
 
     protected Set<String> convertKeywords(List<DictionaryItemEntity> keywords) {
         return StreamEx.of(keywords).map(DictionaryItemEntity::getName).toSet();
     }
 
-    public ExperimentSnapshot createSnapshot(ExperimentEntity experiment, boolean copyAttachments, boolean copyACL, @Nullable ExperimentModel model) {
+    public ExperimentSnapshot createSnapshot(ExperimentEntity experiment, boolean snapshotModel) {
         ExperimentSnapshot snapshot = copyBasicFields(experiment);
-        if (copyAttachments) {
-            snapshot.setAttachments(copyAttachments(experiment.getAttachments()));
-        }
-        if (copyACL) {
-            snapshot.setAcl(copyACL(experiment.getFullACL()));
-        }
-        snapshot.setModel(model);
+        snapshot.setModel(snapshotModel
+                ? copyModel(experiment.getModel())
+                : experiment.getModel()
+        );
         return snapshot;
     }
 
-    public ProjectSnapshot createSnapshot(ProjectEntity project, boolean copyAttachments, boolean copyACL) {
-        ProjectSnapshot snapshot = copyBasicFields(project);
-        if (copyAttachments) {
-            snapshot.setAttachments(copyAttachments(project.getAttachments()));
+    public ExperimentModel copyModel(ExperimentModel model) {
+        ExperimentModel modelCopy = new ExperimentModel();
+        doCopyModel(model, modelCopy);
+        for (Reaction reaction : model.getReactions()) {
+            Reaction reactionCopy = Reaction.create(modelCopy, reaction.getAnchor());
+            copyReaction(reaction, reactionCopy);
+            for (ReactionInput input : reaction.getInputs()) {
+                ReactionInput inputCopy = ReactionInput.create(reactionCopy, input.getRole(), input.getAnchor(), copyCompoundRef(input.getCompound()));
+                copyReactionInput(input, inputCopy);
+                for (ReactionInputSample sample : input.getSamples()) {
+                    ReactionInputSample sampleCopy = ReactionInputSample.create(inputCopy, sample.getAnchor());
+                    copyReactionInputSample(sample, sampleCopy);
+                }
+            }
+            for (ReactionOutput output : reaction.getOutputs()) {
+                ReactionOutput outputCopy = ReactionOutput.create(reactionCopy, output.getType(), output.isIntended(), output.getOutputName(), output.getAnchor(), copyCompoundRef(output.getCompound()), output.getEq());
+                copyReactionOutput(output, outputCopy);
+                for (ReactionOutputSample sample : output.getSamples()) {
+                    ReactionOutputSample sampleCopy = ReactionOutputSample.create(outputCopy, sample.getNbkBatchNumber(), sample.getAnchor(), sample.getPurity());
+                    copyReactionOutputSample(sample, sampleCopy);
+                }
+            }
         }
-        if (copyACL) {
-            snapshot.setAcl(copyACL(project.getFullACL()));
-        }
-        return snapshot;
+        return modelCopy;
     }
 
-    public NotebookSnapshot createSnapshot(NotebookEntity notebook, boolean copyAttachments, boolean copyACL) {
-        NotebookSnapshot snapshot = copyBasicFields(notebook);
-        if (copyAttachments) {
-            snapshot.setAttachments(copyAttachments(notebook.getAttachments()));
-        }
-        if (copyACL) {
-            snapshot.setAcl(copyACL(notebook.getFullACL()));
-        }
-        return snapshot;
+    @Mapping(target = "reactions", ignore = true)
+    protected abstract void doCopyModel(ExperimentModel model, @MappingTarget ExperimentModel copy);
+
+    @Mapping(target = "inputs", ignore = true)
+    @Mapping(target = "outputs", ignore = true)
+    protected abstract void copyReaction(Reaction reaction, @MappingTarget Reaction copy);
+
+    @Mapping(target = "role", ignore = true)
+    @Mapping(target = "samples", ignore = true)
+    protected abstract void copyReactionInput(ReactionInput row, @MappingTarget ReactionInput copy);
+
+    @Mapping(target = "healthHazards", expression = "java(List.copyOf(sample.getHealthHazards()))")
+    protected abstract void copyReactionInputSample(ReactionInputSample sample, @MappingTarget ReactionInputSample copy);
+
+    @Mapping(target = "type", ignore = true)
+    @Mapping(target = "intended", ignore = true)
+    @Mapping(target = "outputName", ignore = true)
+    @Mapping(target = "eq", ignore = true)
+    @Mapping(target = "samples", ignore = true)
+    protected abstract void copyReactionOutput(ReactionOutput row, @MappingTarget ReactionOutput copy);
+
+    @Mapping(target = "purity", ignore = true)
+    @Mapping(target = "healthHazards", expression = "java(List.copyOf(sample.getHealthHazards()))")
+    @Mapping(target = "handlingPrecautions", expression = "java(List.copyOf(sample.getHandlingPrecautions()))")
+    @Mapping(target = "storageInstructions", expression = "java(List.copyOf(sample.getStorageInstructions()))")
+    @Mapping(target = "compoundProtection", expression = "java(List.copyOf(sample.getCompoundProtection()))")
+    @Mapping(target = "solubilityInSolvents", expression = "java(List.copyOf(sample.getSolubilityInSolvents()))")
+    @Mapping(target = "residualSolvents", expression = "java(List.copyOf(sample.getResidualSolvents()))")
+    @Mapping(target = "purityCalculations", expression = "java(List.copyOf(sample.getPurityCalculations()))")
+    protected abstract void copyReactionOutputSample(ReactionOutputSample sample, @MappingTarget ReactionOutputSample copy);
+
+    protected CompoundRef copyCompoundRef(CompoundRef ref) {
+        return switch (ref) {
+            case CompoundRef.StoredOrVirtual s -> ref; // immutable
+            case CompoundRef.Unknown u -> copyUnknownCompoundRef(u);
+        };
     }
+
+    protected abstract CompoundRef.Unknown copyUnknownCompoundRef(CompoundRef.Unknown ref);
 }

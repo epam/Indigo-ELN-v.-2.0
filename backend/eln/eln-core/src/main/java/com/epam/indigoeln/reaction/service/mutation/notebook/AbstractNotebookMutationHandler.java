@@ -64,7 +64,7 @@ public abstract class AbstractNotebookMutationHandler<T extends Mutation> extend
 
     @Override
     protected final NotebookSnapshot doSnapshotBefore(NotebookEntity notebook, NotebookMutationContext context) {
-        return snapshotMapper.createSnapshot(notebook, context.isAffectsAttachments(), context.isAffectsACL());
+        return snapshotMapper.createSnapshot(notebook);
     }
 
     @Override
@@ -83,7 +83,7 @@ public abstract class AbstractNotebookMutationHandler<T extends Mutation> extend
 
     @Override
     protected final NotebookSnapshot doSnapshotAfter(NotebookEntity notebook, NotebookMutationContext context) {
-        return snapshotMapper.createSnapshot(notebook, context.isAffectsAttachments(), context.isAffectsACL());
+        return snapshotMapper.createSnapshot(notebook);
     }
 
     @Override

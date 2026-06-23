@@ -2,13 +2,19 @@ package com.epam.indigoeln.reaction.util;
 
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.common.util.Pair;
+import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.util.PatchUtil;
 import com.epam.indigoeln.eln.util.ToStringUtil;
+import com.epam.indigoeln.indigowrapper.IndigoAPI;
+import com.epam.indigoeln.indigowrapper.IndigoReaction;
+import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
 import com.epam.indigoeln.reaction.metamodel.ExperimentMetamodel;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
-import com.epam.indigoeln.test.FeignUtil;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.github.difflib.text.DiffRow;
 import com.github.difflib.text.DiffRowGenerator;
+import com.google.common.base.Function;
+import io.quarkus.arc.Arc;
 import lombok.SneakyThrows;
 import org.jspecify.annotations.Nullable;
 
@@ -17,7 +23,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
+
+import static com.epam.indigoeln.test.FeignUtil.OBJECT_MAPPER;
 
 public class CalculationReportBuilder implements AutoCloseable {
 
@@ -32,8 +41,6 @@ public class CalculationReportBuilder implements AutoCloseable {
     private final File file;
     private final ByteArrayOutputStream bytes;
     private final PrintWriter pr;
-    @Nullable
-    private String previousModel;
     private boolean closed;
     private int ordinal;
 
@@ -71,15 +78,12 @@ public class CalculationReportBuilder implements AutoCloseable {
         pr.printf("<h1 id='section%s' class='%s'>%s</h1>\n", ++ordinal, reportClass, mutation);
     }
 
-    public void addModel(String reportClass, String patch, ExperimentSnapshot model) {
-        String currentModel = ToStringUtil.toStringBuild(ExperimentMetamodel.INSTANCE, model);
-        if (previousModel == null) {
-            addComparison(reportClass, formatPatch(patch), List.of(), currentModel.lines().toList());
-        } else {
-            Pair<List<String>, List<String>> result = prepareDiff(previousModel, currentModel);
-            addComparison(reportClass, formatPatch(patch), result.a(), result.b());
-        }
-        previousModel = currentModel;
+    @SneakyThrows
+    public void addModel(String reportClass, ExperimentSnapshot previousModel, JsonNode patch, ExperimentSnapshot model) {
+        String modelStr = ToStringUtil.toStringBuild(ExperimentMetamodel.INSTANCE, model);
+        String previousModelStr = ToStringUtil.toStringBuild(ExperimentMetamodel.INSTANCE, previousModel);
+        Pair<List<String>, List<String>> result = prepareDiff(previousModelStr, modelStr);
+        addComparison(reportClass, formatPatch(OBJECT_MAPPER.readTree(OBJECT_MAPPER.writeValueAsBytes(previousModel)), patch), result.a(), result.b());
     }
 
     public void addPicture(String reportClass, byte[] content, String contentType) {
@@ -94,10 +98,10 @@ public class CalculationReportBuilder implements AutoCloseable {
         pr.printf("<div class='%s'>%s</h1>\n", reportClass, message);
     }
 
-    public void addFailedComparison(String reportClass, String summary, @Nullable String patch, String expected, String applied) {
+    public void addFailedComparison(String reportClass, String summary, @Nullable JsonNode initialJSON, @Nullable JsonNode patch, String expected, String applied) {
         pr.printf("<h1 id='section%s' class='error %s'>%s</h1>\n", ++ordinal, reportClass, summary);
         Pair<List<String>, List<String>> result = prepareDiff(expected, applied);
-        addComparison(reportClass, patch != null ? formatPatch(patch) : List.of(), result.a(), result.b());
+        addComparison(reportClass, patch != null ? formatPatch(initialJSON, patch) : "", result.a(), result.b());
     }
 
     private Pair<List<String>, List<String>> prepareDiff(String left, String right) {
@@ -111,13 +115,33 @@ public class CalculationReportBuilder implements AutoCloseable {
     }
 
     @SneakyThrows
-    private List<String> formatPatch(String patch) {
-        return PatchUtil.formatJSONDiff(FeignUtil.OBJECT_MAPPER.readTree(patch)).lines().toList();
+    private String formatPatch(JsonNode previousModel, JsonNode patch) {
+        Function<String, String> rxnfileFn;
+        Function<UUID, String> molfileFn;
+        if (Arc.container() != null) {
+            IndigoAPI indigo = Arc.container().instance(IndigoAPI.class).get();
+            IndigoRendererAPI indigoRenderer = Arc.container().instance(IndigoRendererAPI.class).get();
+            CompoundService compoundService = Arc.container().instance(CompoundService.class).get();
+            rxnfileFn = rxnfile -> {
+                IndigoReaction reaction = indigo.loadReaction(rxnfile);
+                byte[] bytes = indigoRenderer.renderToBuffer(reaction);
+                return new String(bytes, StandardCharsets.UTF_8);
+            };
+            molfileFn = compoundID -> {
+                byte[] bytes = compoundService.getCompoundPicture(compoundID);
+                return new String(bytes, StandardCharsets.UTF_8);
+            };
+        } else {
+            rxnfileFn = rxnfile -> "(reaction image)";
+            molfileFn = molfile -> "(molecule image)";
+        }
+        return PatchUtil.formatJSONDiff(previousModel, patch, rxnfileFn, molfileFn);
     }
 
-    private void addComparison(String reportClass, List<String> leftContent, List<String> middleContent, List<String> rightContent) {
-        pr.printf("<div class='diff-wrapper %s'>\n", reportClass);
-        for (List<String> content : List.of(leftContent, middleContent, rightContent)) {
+    private void addComparison(String reportClass, String leftContent, List<String> middleContent, List<String> rightContent) {
+        pr.printf("<div class='diff-wrapper %s'><div class='diff-pane-top'>\n%s\n</div>\n</div>\n", reportClass, leftContent);
+        pr.printf("<div class='diff-wrapper text-sm %s'>\n", reportClass);
+        for (List<String> content : List.of(middleContent, rightContent)) {
             pr.println("""
                     <div class='diff-pane'>
                         <table class='diff-table'>

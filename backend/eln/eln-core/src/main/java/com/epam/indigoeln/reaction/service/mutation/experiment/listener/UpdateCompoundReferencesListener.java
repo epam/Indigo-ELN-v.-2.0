@@ -24,14 +24,14 @@ public class UpdateCompoundReferencesListener implements ExperimentModelMutation
     private final Set<ExperimentReferencedCompound> oldCompoundRefs = new HashSet<>();
 
     @Override
-    public void beforeHandle(ExperimentEntity experiment, ExperimentModel model, ExperimentMutationContext context) {
-        collectCompoundRefs(model, oldCompoundRefs);
+    public void beforeHandle(ExperimentEntity experiment, ExperimentMutationContext context) {
+        collectCompoundRefs(experiment.getModel(), oldCompoundRefs);
     }
 
     @Override
-    public void afterRecalculate(ExperimentEntity experiment, ExperimentModel model, ExperimentMutationContext context) {
+    public void afterRecalculate(ExperimentEntity experiment, ExperimentMutationContext context) {
         Set<ExperimentReferencedCompound> newCompoundRefs = new HashSet<>();
-        collectCompoundRefs(model, newCompoundRefs);
+        collectCompoundRefs(experiment.getModel(), newCompoundRefs);
         if (!oldCompoundRefs.equals(newCompoundRefs)) {
             ModelUtil.updateCollection(experiment.getReferencedCompounds(), newCompoundRefs);
         }

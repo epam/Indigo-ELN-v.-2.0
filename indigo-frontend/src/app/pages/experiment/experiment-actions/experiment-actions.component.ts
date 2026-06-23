@@ -1,6 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog } from '@angular/material/dialog';
@@ -14,6 +13,12 @@ import { DownloadService } from '@core/services/download.service';
 import { BadgeComponent } from '@core/components/common/badge/badge.component';
 import { NormalizeLabelPipe } from '@core/pipes/normalizeLabe.pipe';
 import { EXPERIMENT_STATUS_DECORATION_MAP } from '@core/utils/experiment-status.util';
+import { SlideInPanelService } from '@core/components/common/slide-in-panel/slide-in-panel.service';
+import { ExperimentTeamDrawerComponent } from '@pages/experiment/experiment-team-drawer/experiment-team-drawer.component';
+import { SvgIconComponent } from '@core/components/common/svg-icon/svg-icon.component';
+import { ButtonComponent } from '@core/components/common/button/button.component';
+import { MemberAvatarsComponent } from '@core/components/common/member-avatars/member-avatars.component';
+import { ButtonVariants } from '@core/components/common/button/button.variant';
 
 enum Action {
   COMPLETE = 'COMPLETE',
@@ -28,7 +33,7 @@ enum Action {
 interface ActionButton {
   action: Action;
   title: string;
-  color: string;
+  variant: ButtonVariants['variant'];
   iconClasses: string;
   allowedStatuses?: ExperimentStatus[];
   inDetailsMenu: boolean;
@@ -38,7 +43,7 @@ const BUTTONS: ActionButton[] = [
   {
     action: Action.COMPLETE,
     title: 'Complete',
-    color: 'primary',
+    variant: 'blue',
     iconClasses: 'indicon-check-circle',
     allowedStatuses: [ExperimentStatus.OPEN, ExperimentStatus.REOPEN],
     inDetailsMenu: false,
@@ -46,7 +51,7 @@ const BUTTONS: ActionButton[] = [
   {
     action: Action.COMPLETE_AND_SIGN,
     title: 'Complete and Sign',
-    color: 'primary',
+    variant: 'blue',
     iconClasses: 'indicon-check-circle',
     allowedStatuses: [ExperimentStatus.OPEN, ExperimentStatus.REOPEN],
     inDetailsMenu: false,
@@ -54,7 +59,7 @@ const BUTTONS: ActionButton[] = [
   {
     action: Action.REOPEN,
     title: 'Reopen',
-    color: 'primary',
+    variant: 'blue',
     iconClasses: 'indicon-edit',
     allowedStatuses: [
       ExperimentStatus.COMPLETED,
@@ -70,7 +75,7 @@ const BUTTONS: ActionButton[] = [
   {
     action: Action.CANCEL,
     title: 'Cancel',
-    color: 'warn',
+    variant: 'red-outline',
     iconClasses: 'indicon-close',
     allowedStatuses: [ExperimentStatus.OPEN, ExperimentStatus.REOPEN],
     inDetailsMenu: false,
@@ -78,7 +83,7 @@ const BUTTONS: ActionButton[] = [
   {
     action: Action.SUBMIT,
     title: 'Submit',
-    color: 'primary',
+    variant: 'blue',
     iconClasses: 'indicon-paperclip',
     allowedStatuses: [ExperimentStatus.COMPLETED],
     inDetailsMenu: false,
@@ -86,7 +91,7 @@ const BUTTONS: ActionButton[] = [
   {
     action: Action.RESUBMIT,
     title: 'Resubmit',
-    color: 'primary',
+    variant: 'blue',
     iconClasses: 'indicon-paperclip',
     allowedStatuses: [ExperimentStatus.REJECTED],
     inDetailsMenu: false,
@@ -94,7 +99,7 @@ const BUTTONS: ActionButton[] = [
   {
     action: Action.PRINT,
     title: 'Print',
-    color: '',
+    variant: 'grey',
     iconClasses: 'indicon-printer',
     inDetailsMenu: true,
   },
@@ -103,7 +108,16 @@ const BUTTONS: ActionButton[] = [
 @Component({
   selector: 'eln-experiment-actions',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule, MatMenuModule, BadgeComponent, NormalizeLabelPipe],
+  imports: [
+    CommonModule,
+    MatIconModule,
+    MatMenuModule,
+    BadgeComponent,
+    NormalizeLabelPipe,
+    SvgIconComponent,
+    ButtonComponent,
+    MemberAvatarsComponent,
+  ],
   templateUrl: './experiment-actions.component.html',
 })
 export class ExperimentActionsComponent {
@@ -111,6 +125,7 @@ export class ExperimentActionsComponent {
   downloadService = inject(DownloadService);
   notificationService = inject(NotificationService);
   dialog = inject(MatDialog);
+  slideInPanelService = inject(SlideInPanelService);
 
   experiment = computed(() => this.experimentDetailService.experimentDetail());
 
@@ -185,5 +200,14 @@ export class ExperimentActionsComponent {
       });
   }
 
-  protected readonly statusDecorMap = EXPERIMENT_STATUS_DECORATION_MAP;
+  openAddMemberDrawer(): void {
+    const experimentId = this.experiment()?.id;
+    if (!experimentId) return;
+
+    this.slideInPanelService.open(ExperimentTeamDrawerComponent, {
+      inputs: {
+        experimentId: experimentId,
+      },
+    });
+  }
 }

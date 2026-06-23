@@ -30,9 +30,7 @@ public class ExperimentUndoHelper extends AbstractUndoHelper<ExperimentEntity, E
 
     @Override
     protected void restoreStateAfterUndo(ExperimentEntity entity, ExperimentMutationContext context, ExperimentSnapshot snapshot, UndoInfo info) {
-        if (context.isAffectsModel()) {
-            entity.setModelObj(snapshot.getModel());
-        }
+        entity.setModel(snapshot.getModel());
         super.restoreStateAfterUndo(entity, context, snapshot, info);
     }
 

@@ -112,7 +112,7 @@ public abstract class ExperimentMutationHandlerBase<T extends ExperimentMutation
     }
 
     public void setInputLineSample(ReactionInput row, SampleEntity sample, InputSampleAnchor anchor, ExperimentMutationContext context) {
-        row.getSamples().clear(); // TODO don't remove existing samples when multi-sample support is implemented on a frontend
+        row.setSamples(List.of()); // TODO don't remove existing samples when multi-sample support is implemented on a frontend
         row.updateCompound(compoundService.realCompoundRef(sample.getCompound()));
 
         ReactionInputSample reactionInputSample = ReactionInputSample.create(row, anchor);
@@ -145,7 +145,7 @@ public abstract class ExperimentMutationHandlerBase<T extends ExperimentMutation
     }
 
     protected void cleanupUnintendedProducts(Reaction reaction) {
-        reaction.getOutputs().removeIf(r -> !r.isIntended() && r.getSamples().isEmpty());
+        reaction.setOutputs(StreamEx.of(reaction.getOutputs()).remove(r -> !r.isIntended() && r.getSamples().isEmpty()).toImmutableList());
     }
 
     @SuppressWarnings("OptionalAssignedToNull")

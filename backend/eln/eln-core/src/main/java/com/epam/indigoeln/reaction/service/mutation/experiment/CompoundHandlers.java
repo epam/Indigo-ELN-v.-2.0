@@ -137,7 +137,7 @@ class SetOutputSaltCodeHandler extends AbstractReactionOutputSampleMutationHandl
         CompoundRef compound = doUpdateCompound(row, Optional.ofNullable(mutation.saltCode()), null, null, null);
         ReactionOutput newRow = findOrCreateOutputRow(reaction, compound, checkNotNull(mutation.createdOutputAnchor()));
         if (newRow != row) {
-            sample.move(newRow);
+            sample.moveInto(newRow);
             cleanupUnintendedProducts(reaction);
         }
         return new MutationResult(formatSetterSummary("output sample salt code", mutation.saltCode()));
@@ -163,7 +163,7 @@ class SetOutputSaltEQHandler extends AbstractReactionOutputSampleMutationHandler
         CompoundRef compound = doUpdateCompound(row, null, Optional.ofNullable(mutation.saltEQ()), null, null);
         ReactionOutput newRow = findOrCreateOutputRow(reaction, compound, checkNotNull(mutation.createdOutputAnchor()));
         if (newRow != row) {
-            sample.move(newRow);
+            sample.moveInto(newRow);
             cleanupUnintendedProducts(reaction);
         }
         return new MutationResult(formatSetterSummary("output sample salt eq", mutation.saltEQ()));
@@ -189,7 +189,7 @@ class SetOutputStereoisomerCodeHandler extends AbstractReactionOutputSampleMutat
         CompoundRef compound = doUpdateCompound(row, null, null, Optional.ofNullable(mutation.stereoisomerCode()), null);
         ReactionOutput newRow = findOrCreateOutputRow(reaction, compound, checkNotNull(mutation.createdOutputAnchor()));
         if (newRow != row) {
-            sample.move(newRow);
+            sample.moveInto(newRow);
             cleanupUnintendedProducts(reaction);
         }
         return new MutationResult(formatSetterSummary("output sample stereoisomer code", mutation.stereoisomerCode()));
@@ -215,7 +215,7 @@ class SetOutputMolfileHandler extends AbstractReactionOutputSampleMutationHandle
         CompoundRef compound = doUpdateCompound(row, null, null, null, mutation.molfile());
         ReactionOutput newRow = findOrCreateOutputRow(reaction, compound, checkNotNull(mutation.createdOutputAnchor()));
         if (newRow != row) {
-            sample.move(newRow);
+            sample.moveInto(newRow);
             cleanupUnintendedProducts(reaction);
         }
         return new MutationResult("Update output sample molfile");

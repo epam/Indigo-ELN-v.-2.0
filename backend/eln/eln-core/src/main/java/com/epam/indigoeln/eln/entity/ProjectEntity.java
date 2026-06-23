@@ -9,6 +9,7 @@ import io.hypersistence.utils.hibernate.type.search.PostgreSQLTSVectorType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.JdbcType;
@@ -62,7 +63,8 @@ import java.util.*;
 @DynamicUpdate
 public class ProjectEntity extends BaseEntity implements WithAttachments, WithACL<ProjectACLEntity>, WithRevision {
 
-    @NotEmpty
+    @NotEmpty(message = "Project Name is required")
+    @Size(max = 256, message = "Project name must be at most 256 characters")
     private String name;
 
     @NotNull

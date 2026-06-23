@@ -65,5 +65,5 @@ public interface ProjectAPI extends BaseAPI {
 
     @GET
     @Path("/projects/{projectId}/revisions")
-    List<RevisionDetailsDTO> getProjectRevisions(@PathParam("projectId") UUID projectId);
+    List<RevisionSummaryDTO> getProjectRevisions(@PathParam("projectId") UUID projectId);
 }

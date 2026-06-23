@@ -1,5 +1,6 @@
 package com.epam.indigoeln.reaction.model.mutation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -85,6 +86,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(ExperimentMutation.SignatureUpdated.class),
         @JsonSubTypes.Type(ExperimentMutation.MakeVersion.class),
         @JsonSubTypes.Type(ExperimentMutation.ExperimentAccessUpdated.class),
+        @JsonSubTypes.Type(ExperimentMutation.ExperimentNameUpdated.class),
         @JsonSubTypes.Type(ExperimentMutation.Undo.class),
         @JsonSubTypes.Type(ExperimentMutation.Redo.class),
 
@@ -107,4 +109,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(NotebookMutation.NotebookRedo.class),
 })
 public interface Mutation {
+
+    @JsonIgnore
+    default boolean isApplicableToEditSession() {
+        return false;
+    }
 }

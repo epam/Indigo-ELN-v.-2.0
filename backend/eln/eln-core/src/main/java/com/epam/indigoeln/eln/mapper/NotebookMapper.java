@@ -34,8 +34,10 @@ public abstract class NotebookMapper extends AbstractMapper {
     @Mapping(target = "projectName", source = "entity.project.name")
     public abstract NotebookDetailsDTO entityToDetailsDTO(NotebookEntity entity, Set<ApplicationPermission> currentPermissions);
 
-    @Mapping(target = "diff", expression = "java(revisionService.getPatch(entity))")
-    @Mapping(target = "stringDiff", expression = "java(revisionService.formatPatch(entity.getDiff()))")
-    public abstract RevisionDetailsDTO revisionToDTO(NotebookRevisionEntity entity);
-    public abstract List<RevisionDetailsDTO> revisionToDTOList(List<NotebookRevisionEntity> entity);
+    @Mapping(target = "date", source = "datetime")
+    @Mapping(target = "dateTo", ignore = true)
+    @Mapping(target = "revisionTo", ignore = true)
+    @Mapping(target = "details", ignore = true)
+    public abstract RevisionSummaryDTO revisionToDTO(NotebookRevisionEntity entity);
+    public abstract List<RevisionSummaryDTO> revisionToDTOList(List<NotebookRevisionEntity> entity);
 }

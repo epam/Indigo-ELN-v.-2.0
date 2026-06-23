@@ -12,7 +12,6 @@ import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.eln.service.UserService;
-import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.ReactionOutput;
@@ -59,7 +58,6 @@ class CreateExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
 
     @Override
     public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.CreateExperiment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
-        experimentModelService.setModel(experiment, experimentModelService.createNewModel());
         experiment.setStatus(ExperimentStatus.OPEN);
         experiment.setDeleted(false);
         experiment.setTherapeuticArea(dictionaryService.lookup(mutation.therapeuticArea()));
@@ -85,15 +83,8 @@ class CreateExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
 class SetExperimentSignificantFiguresHandler extends ExperimentMutationHandlerBase<ExperimentMutation.SetExperimentSignificantFigures> {
 
     @Override
-    public void doPrepare(ExperimentEntity entity, ExperimentMutation.SetExperimentSignificantFigures mutation, ExperimentMutationContext context) {
-        context.setAffectsModel(true);
-        context.setRequiresEditSession(true);
-    }
-
-    @Override
     public MutationResult doHandle(ExperimentEntity entity, ExperimentMutation.SetExperimentSignificantFigures mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
-        ExperimentModel model = checkNotNull(entity.getModelObj());
-        model.setSignificantFigures(mutation.significantFigures());
+        entity.getModel().setSignificantFigures(mutation.significantFigures());
         return new MutationResult(formatSetterSummary("significant figures", mutation.significantFigures()));
     }
 
@@ -179,20 +170,19 @@ class EditExperimentAttributesHandler extends ExperimentMutationHandlerBase<Expe
     }
 
     @Override
-    @SuppressWarnings("OptionalAssignedToNull")
     public void doRestoreStateAfterUndo(ExperimentEntity experiment, ExperimentSnapshot snapshot, ExperimentMutation.EditExperimentAttributes mutation) {
         experiment.setTitle(snapshot.getTitle());
         experiment.setTherapeuticArea(dictionaryService.lookup(snapshot.getTherapeuticArea()));
         experiment.setProjectCode(dictionaryService.lookup(snapshot.getProjectCode()));
         experiment.setDescription(snapshot.getDescription());
         experiment.setLiterature(snapshot.getLiterature());
-        if (mutation.linkedExperiments() != null) {
+        if (mutation.linkedExperiments().isPresent()) {
             updateCollection(experiment.getLinkedExperiments(), experimentsFromRefs(snapshot.getLinkedExperiments()));
         }
-        if (mutation.continuedFrom() != null) {
+        if (mutation.continuedFrom().isPresent()) {
             updateCollection(experiment.getContinuedFrom(), experimentsFromRefs(snapshot.getContinuedFrom()));
         }
-        if (mutation.continuedTo() != null) {
+        if (mutation.continuedTo().isPresent()) {
             updateCollection(experiment.getContinuedTo(), experimentsFromRefs(snapshot.getContinuedTo()));
         }
     }
@@ -212,13 +202,8 @@ class SetBatchCreatorHandler extends ExperimentMutationHandlerBase<ExperimentMut
     UserRepository userRepository;
 
     @Override
-    public void doPrepare(ExperimentEntity entity, ExperimentMutation.SetBatchCreator mutation, ExperimentMutationContext context) {
-        context.setAffectsModel(true);
-    }
-
-    @Override
     public MutationResult doHandle(ExperimentEntity entity, ExperimentMutation.SetBatchCreator mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
-        for (Reaction reaction : checkNotNull(entity.getModelObj()).getReactions()) {
+        for (Reaction reaction : entity.getModel().getReactions()) {
             for (ReactionOutput row : reaction.getOutputs()) {
                 if (row.hasSamplesWithRegistrationStarted()) {
                     fail("Cannot modify batch creator after at least one batch is submitted for registration");
@@ -254,11 +239,6 @@ class EditExperimentAccessHandler extends ExperimentMutationHandlerBase<Experime
     EntityMutationHelper entityMutationHelper;
 
     @Override
-    public void doPrepare(ExperimentEntity entity, ExperimentMutation.EditExperimentAccess mutation, ExperimentMutationContext context) {
-        context.setAffectsACL(true);
-    }
-
-    @Override
     protected void doValidateAccess(ExperimentEntity experiment, ExperimentMutation.EditExperimentAccess mutation, ExperimentMutationContext context) {
         aclService.ensureAccess(experiment, ApplicationPermission.MANAGE_EXPERIMENT_ACCESS);
     }
@@ -281,11 +261,6 @@ class CreateExperimentAttachmentHandler extends ExperimentMutationHandlerBase<Ex
     AttachmentRepository attachmentRepository;
     @Inject
     AttachmentService attachmentService;
-
-    @Override
-    public void doPrepare(ExperimentEntity entity, ExperimentMutation.CreateExperimentAttachment mutation, ExperimentMutationContext context) {
-        context.setAffectsAttachments(true);
-    }
 
     @Override
     public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.CreateExperimentAttachment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
@@ -313,11 +288,6 @@ class DeleteExperimentAttachmentHandler extends ExperimentMutationHandlerBase<Ex
     AttachmentRepository attachmentRepository;
 
     @Override
-    public void doPrepare(ExperimentEntity entity, ExperimentMutation.DeleteExperimentAttachment mutation, ExperimentMutationContext context) {
-        context.setAffectsAttachments(true);
-    }
-
-    @Override
     public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.DeleteExperimentAttachment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
         experiment.getAttachments().remove(attachment);
@@ -342,15 +312,33 @@ class DeleteExperimentAttachmentHandler extends ExperimentMutationHandlerBase<Ex
 class ExperimentAccessUpdatedHandler extends AbstractExperimentMutationHandler<ExperimentMutation.ExperimentAccessUpdated> {
 
     @Override
-    public void doPrepare(ExperimentEntity entity, ExperimentMutation.ExperimentAccessUpdated mutation, ExperimentMutationContext context) {
-        context.setAffectsACL(true);
-    }
-
-    @Override
     public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.ExperimentAccessUpdated mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         aclService.recalculateACL(experiment);
         String reason = mutation.projectName() != null ? "project " + mutation.projectName() : "notebook " + mutation.notebookName();
         return new MutationResult("Access updated because of the changes in " + reason);
+    }
+}
+
+@Dependent
+@MutationHandlerFor(ExperimentMutation.ExperimentNameUpdated.class)
+class ExperimentNameUpdatedHandler extends AbstractExperimentMutationHandler<ExperimentMutation.ExperimentNameUpdated> {
+
+    @Inject
+    ExperimentRepository experimentRepository;
+
+    @Override
+    public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.ExperimentNameUpdated mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
+        String oldName = experiment.getName();
+        String newName = regenerateExperimentName(experiment, mutation.notebookName());
+        experiment.setName(newName);
+        return new MutationResult("Experiment name updated from " + oldName + " to " + newName + " due to notebook rename");
+    }
+
+    private String regenerateExperimentName(ExperimentEntity experiment, String notebookName) {
+        String oldName = experiment.getName();
+        int lastDash = oldName.lastIndexOf('-');
+        String experimentNumber = oldName.substring(lastDash + 1);
+        return "%s-%s".formatted(notebookName, experimentNumber);
     }
 }
 

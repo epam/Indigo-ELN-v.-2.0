@@ -1,18 +1,17 @@
 package com.epam.indigoeln.aws;
 
-import lombok.Getter;
-import lombok.Value;
 import one.util.streamex.EntryStream;
 import software.amazon.awscdk.Duration;
-import software.amazon.awscdk.NestedStack;
-import software.amazon.awscdk.NestedStackProps;
 import software.amazon.awscdk.RemovalPolicy;
+import software.amazon.awscdk.Stack;
+import software.amazon.awscdk.StackProps;
 import software.amazon.awscdk.services.codebuild.*;
 import software.amazon.awscdk.services.ecr.CfnPublicRepository;
 import software.amazon.awscdk.services.ecr.Repository;
 import software.amazon.awscdk.services.ecr.TagMutability;
 import software.amazon.awscdk.services.iam.Effect;
 import software.amazon.awscdk.services.iam.PolicyStatement;
+import software.amazon.awscdk.services.iam.ServicePrincipal;
 import software.amazon.awscdk.services.s3.Bucket;
 import software.constructs.Construct;
 
@@ -24,24 +23,15 @@ import java.util.Map;
 import static com.epam.indigoeln.aws.util.Utils.entry;
 import static com.epam.indigoeln.aws.util.Utils.mapOf;
 
-public class BuildStack extends NestedStack {
+public class BuildStack extends Stack {
 
-    @Getter
-    Repository elnLambdaRepo;
-    @Getter
-    Repository reportsLambdaRepo;
-    @Getter
-    Repository signatureLambdaRepo;
-    @Getter
-    Repository postgresRepo;
+    public BuildStack(final Construct scope, final String id, StackProps stackProps) {
+        super(scope, id, stackProps);
 
-    public BuildStack(final Construct scope, final String id, final Props props) {
-        super(scope, id, props);
-
-        elnLambdaRepo = createECRRepo("ecr-indigo-eln", "indigoeln/indigo-eln-lambda");
-        reportsLambdaRepo = createECRRepo("ecr-indigo-eln-reports", "indigoeln/indigo-eln-reports-lambda");
-        signatureLambdaRepo = createECRRepo("ecr-indigo-eln-signature", "indigoeln/indigo-eln-signature-lambda");
-        postgresRepo = createECRRepo("ecr-indigo-eln-postgres", "indigoeln/indigo-eln-postgres");
+        Repository elnLambdaRepo = createECRRepo("ecr-indigo-eln", "indigoeln/indigo-eln-lambda");
+        Repository reportsLambdaRepo = createECRRepo("ecr-indigo-eln-reports", "indigoeln/indigo-eln-reports-lambda");
+        Repository signatureLambdaRepo = createECRRepo("ecr-indigo-eln-signature", "indigoeln/indigo-eln-signature-lambda");
+        Repository postgresRepo = createECRRepo("ecr-indigo-eln-postgres", "indigoeln/indigo-eln-postgres");
 
         Bucket buildLogsBucket = Bucket.Builder.create(this, "build-logs-bucket")
                 .build();
@@ -134,14 +124,23 @@ public class BuildStack extends NestedStack {
                 .repositoryName(repositoryName)
                 .imageTagMutability(TagMutability.MUTABLE)
                 .build();
-        CfnPublicRepository privateRepo = CfnPublicRepository.Builder.create(this, id + "-public")
+        repo.applyRemovalPolicy(RemovalPolicy.RETAIN);
+        repo.addToResourcePolicy(PolicyStatement.Builder.create()
+                .sid("LambdaECRImageRetrievalPolicy")
+                .effect(Effect.ALLOW)
+                .principals(List.of(new ServicePrincipal("lambda.amazonaws.com")))
+                .actions(List.of(
+                        "ecr:BatchGetImage",
+                        "ecr:GetDownloadUrlForLayer"
+                ))
+                .conditions(Map.of("StringLike", Map.of(
+                        "aws:sourceArn", "arn:aws:lambda:" + getRegion() + ":" + getAccount() + ":function:*"
+                )))
+                .build());
+        CfnPublicRepository publicRepo = CfnPublicRepository.Builder.create(this, id + "-public")
                 .repositoryName(repositoryName)
                 .build();
-        repo.applyRemovalPolicy(RemovalPolicy.RETAIN);
+        publicRepo.applyRemovalPolicy(RemovalPolicy.RETAIN);
         return repo;
-    }
-
-    @Value
-    public static class Props implements NestedStackProps {
     }
 }

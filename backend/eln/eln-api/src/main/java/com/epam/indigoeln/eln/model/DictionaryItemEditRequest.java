@@ -5,26 +5,19 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jspecify.annotations.Nullable;
-
-import java.util.Optional;
+import org.openapitools.jackson.nullable.JsonNullable;
 
 @Data
 @NoArgsConstructor(onConstructor_ = {@JsonCreator})
 @AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+@JsonInclude(JsonInclude.Include.NON_ABSENT)
 public class DictionaryItemEditRequest {
 
-    @Nullable
-    private Optional<String> name;
+    private JsonNullable<String> name = JsonNullable.undefined();
 
-    @Nullable
-    private Optional<String> description;
+    private JsonNullable<String> description = JsonNullable.undefined();
 
-    @Nullable
-    private Optional<Integer> ordinal;
+    private JsonNullable<Integer> ordinal = JsonNullable.undefined();
 
-    @Nullable
-    private Optional<Boolean> active;
+    private JsonNullable<Boolean> active = JsonNullable.undefined();
 }

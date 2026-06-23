@@ -47,9 +47,7 @@ public class JSONPatcherTest {
     @BeforeEach
     void setUp() {
         baseExperiment.setModel(baseModel);
-        baseModel.setReactions(List.of(baseReaction));
         experiment.setModel(model);
-        model.setReactions(List.of(reaction));
     }
 
     // Simple value
@@ -365,7 +363,6 @@ public class JSONPatcherTest {
     @Test
     void testReactionAdded() throws Exception {
         Reaction reaction2 = Reaction.create(model, REACTION_2);
-        model.setReactions(List.of(reaction, reaction2));
         verifyModel("""
                 {"model": {"reactions": {">1": {"$new": {"anchor": "00000000-0000-0000-0000-000000000002", "inputs": [], "outputs": [], "precursorReactantIds": []}}}}}
         """);
@@ -381,8 +378,7 @@ public class JSONPatcherTest {
 
     @Test
     void testReactionDeleted() throws Exception {
-        Reaction reaction2 = Reaction.create(model, REACTION_2);
-        baseModel.setReactions(List.of(reaction, reaction2));
+        Reaction reaction2 = Reaction.create(baseModel, REACTION_2);
         model.setReactions(List.of(reaction));
         verifyModel("""
                 {"model": {"reactions": {"1>": {"$old": {"anchor": "00000000-0000-0000-0000-000000000002", "inputs": [], "outputs": [], "precursorReactantIds": []}}}}}
@@ -396,7 +392,6 @@ public class JSONPatcherTest {
         Reaction reaction2 = Reaction.create(model, REACTION_2);
         Reaction reaction3 = Reaction.create(model, REACTION_3);
         reaction.setRxnfile("new");
-        baseModel.setReactions(List.of(baseReaction, baseReaction2, baseReaction3));
         model.setReactions(List.of(reaction2, reaction, reaction3));
         verifyModel("""
                 {"model": {"reactions": {"1>0": "$unchanged", "0>1": {"rxnfile": {"$new": "new"}}}}}

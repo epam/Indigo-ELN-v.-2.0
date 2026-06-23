@@ -6,7 +6,7 @@ import software.amazon.awscdk.RemovalPolicy;
 import software.amazon.awscdk.services.ec2.ISecurityGroup;
 import software.amazon.awscdk.services.ec2.SubnetFilter;
 import software.amazon.awscdk.services.ec2.SubnetSelection;
-import software.amazon.awscdk.services.ecr.Repository;
+import software.amazon.awscdk.services.ecr.IRepository;
 import software.amazon.awscdk.services.iam.ManagedPolicy;
 import software.amazon.awscdk.services.iam.Role;
 import software.amazon.awscdk.services.iam.ServicePrincipal;
@@ -26,8 +26,6 @@ import java.util.*;
 
 public class Utils {
 
-//    public static final Map<String, String> FUNCTION_IMAGE_URIS = new ConcurrentHashMap<>();
-//
     public static String calculateHashCode(File location) {
         try {
             List<File> files = location.isDirectory()
@@ -49,20 +47,20 @@ public class Utils {
         }
     }
 
-    public static Function createDockerFunction(Construct parent, ELNLambdaStack.Props props, String id, Repository repository, String imageTag, ISecurityGroup securityGroup, Map<String, String> environment) {
+    public static Function createDockerFunction(Construct parent, ELNLambdaStack.Props props, String id, IRepository repository, String imageTag, ISecurityGroup securityGroup, Map<String, String> environment) {
         return doCreateFunction(parent, props, id, repository, imageTag, securityGroup, environment);
     }
 
-    public static Function doCreateFunction(Construct parent, ELNLambdaStack.Props props, String id, Repository repository, String imageTag, ISecurityGroup securityGroup, Map<String, String> environment) {
+    public static Function doCreateFunction(Construct parent, ELNLambdaStack.Props props, String id, IRepository repository, String imageTag, ISecurityGroup securityGroup, Map<String, String> environment) {
         LogGroup logGroup = LogGroup.Builder.create(parent, id + "-log-group")
                 .logGroupName("/aws/lambda/" + id)
                 .removalPolicy(RemovalPolicy.DESTROY)
                 .retention(RetentionDays.ONE_MONTH)
                 .build();
         Function.Builder builder = Function.Builder.create(parent, id)
-                .vpc(props.getVpc())
+                .vpc(props.vpc())
                 .vpcSubnets(SubnetSelection.builder()
-                        .subnetFilters(List.of(SubnetFilter.byIds(props.getLambdaSubnets())))
+                        .subnetFilters(List.of(SubnetFilter.byIds(props.lambdaSubnets())))
                         .build()
                 )
                 .ipv6AllowedForDualStack(true)
