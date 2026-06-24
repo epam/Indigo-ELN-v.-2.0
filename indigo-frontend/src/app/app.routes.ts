@@ -42,7 +42,7 @@ export const routes: Routes = [
         ],
       },
       {
-        path: 'projects/:projectId/notebooks/:notebookId',
+        path: 'notebooks/:notebookId',
         loadComponent: () =>
           import('@/app/pages/notebook/notebook-detail/notebook-detail.component').then(
             (c) => c.NotebookDetailComponent,
@@ -72,7 +72,7 @@ export const routes: Routes = [
         data: { requiredPermission: 'MANAGE_DICTIONARIES' },
       },
       {
-        path: 'projects/:projectId/notebooks/:notebookId/experiments/:experimentId',
+        path: 'experiments/:experimentId',
         loadComponent: () =>
           import('@/app/pages/experiment/experiment-layout/experiment-layout.component').then(
             (c) => c.ExperimentLayoutComponent,

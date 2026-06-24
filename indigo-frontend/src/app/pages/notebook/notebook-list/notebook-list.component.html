@@ -15,7 +15,7 @@
   }"
 >
   @for (notebook of (data$ | async) ?? []; track notebook.id) {
-    <eln-notebook-item [notebook]="notebook" [variant]="selectedView" [projectId]="projectId" />
+    <eln-notebook-item [notebook]="notebook" [variant]="selectedView" />
   }
   <eln-infinite-loader
     [classNames]="

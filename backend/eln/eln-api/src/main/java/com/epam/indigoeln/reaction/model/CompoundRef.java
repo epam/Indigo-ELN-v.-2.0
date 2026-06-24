@@ -5,7 +5,10 @@ import com.epam.indigoeln.eln.model.StereoisomerCodeRef;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
@@ -83,13 +86,13 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
         private final UUID compoundID;
 
         @Nullable
-        private StereoisomerCodeRef stereoisomerCode;
+        private final StereoisomerCodeRef stereoisomerCode;
 
         @Nullable
-        private SaltCodeRef saltCode;
+        private final SaltCodeRef saltCode;
 
         @Nullable
-        private Double saltEQ;
+        private final Double saltEQ;
 
         @NotNull
         @Positive
@@ -114,7 +117,7 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
     @Getter
     @ToString
     @EqualsAndHashCode(of = {"compoundID"})
-    @AllArgsConstructor(onConstructor_ = @JsonCreator)
+    @AllArgsConstructor
     final class Virtual implements CompoundRef.StoredOrVirtual {
 
         public static final String TYPE = "VIRTUAL";
@@ -139,10 +142,10 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
 
         @NotNull
         @Positive
-        private EnteredValue<MolWeightUnit> molWeight;
+        private final EnteredValue<MolWeightUnit> molWeight;
 
         @NotNull
-        private EnteredValue<NoUnit> exactMass;
+        private final EnteredValue<NoUnit> exactMass;
 
         @Nullable
         private final String casNumber;

@@ -12,6 +12,11 @@ public interface ReactionInputMutation extends ExperimentMutation {
 
     InputAnchor anchor();
 
+    @Override
+    default boolean isApplicableToEditSession() {
+        return true;
+    }
+
     record SetInputRowRole(
             @NotNull InputAnchor anchor,
             @NotNull ReactionRole role

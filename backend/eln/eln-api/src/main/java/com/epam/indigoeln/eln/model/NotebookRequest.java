@@ -1,7 +1,6 @@
 package com.epam.indigoeln.eln.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
@@ -10,13 +9,12 @@ import org.jspecify.annotations.Nullable;
 @AllArgsConstructor(onConstructor_ = @JsonCreator)
 public class NotebookRequest {
 
-    @NotEmpty
     String name;
 
     @Nullable
     String description;
 
-    public NotebookRequest(@NotEmpty String name) {
+    public NotebookRequest(String name) {
         this(name, null);
     }
 }

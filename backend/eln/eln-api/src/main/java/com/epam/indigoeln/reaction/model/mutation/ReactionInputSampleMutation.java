@@ -12,6 +12,11 @@ public interface ReactionInputSampleMutation extends ExperimentMutation {
 
     InputSampleAnchor anchor();
 
+    @Override
+    default boolean isApplicableToEditSession() {
+        return true;
+    }
+
     record SetInputDensity (
             @NotNull InputSampleAnchor anchor,
             @Nullable String density,

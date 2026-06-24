@@ -16,15 +16,14 @@ import { BatchDetailData, BatchDetailPanelComponent } from '../batch-detail-pane
 import { ColumnConfig, ColumnInputType, ColumnOption, ExpandableConfig } from '../shared/editable-table.types';
 import { ExperimentDetailService } from '@core/services/experiment/experiment-detail.service';
 import { EnteredValue } from '@core/types/entities/values.i';
-import { determineCellClasses } from '@core/utils/experiment-model.util';
 import { ButtonComponent } from '@/core/components/common/button/button.component';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { NotificationService } from '@core/services/notification/notification.service';
 import { MatTooltip } from '@angular/material/tooltip';
 import { ApiService } from '@core/services/api.service';
 import { openFileDialog } from '@core/utils/file.util';
 import { MutationResponse, ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
+import { DownloadService } from '@core/services/download.service';
 
 interface OutputSampleRow {
   output: ReactionOutput;
@@ -38,8 +37,8 @@ interface OutputSampleRow {
 })
 export class ProductBatchSummaryTableComponent {
   private experimentDetailService = inject(ExperimentDetailService);
-  private notificationService = inject(NotificationService);
   private apiService = inject(ApiService);
+  private downloadService = inject(DownloadService);
 
   experimentId = input.required<UUID>();
   reactionAnchor = input.required<ReactionAnchor>();
@@ -310,7 +309,7 @@ export class ProductBatchSummaryTableComponent {
   }
 
   private determineClasses(value?: EnteredValue<unknown>): string[] {
-    return determineCellClasses(value, this.experimentDetailService.updatedNodes());
+    return this.experimentDetailService.determineCellClasses(value);
   }
 
   private isSampleProtected(row: OutputSampleRow): boolean {
@@ -354,5 +353,11 @@ export class ProductBatchSummaryTableComponent {
         }),
       )
       .subscribe({});
+  }
+
+  exportSDF() {
+    this.downloadService
+      .download('get', `/api/eln/experiments/${this.experimentId()}/exportSdf`, 'export.sdf')
+      .subscribe();
   }
 }

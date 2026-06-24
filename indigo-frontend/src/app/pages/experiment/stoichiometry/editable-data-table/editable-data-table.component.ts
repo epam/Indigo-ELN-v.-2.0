@@ -15,7 +15,6 @@ import {
 import { MatIconModule } from '@angular/material/icon';
 import { MatOption, MatSelect, MatSelectTrigger } from '@angular/material/select';
 import { MatInput } from '@angular/material/input';
-import { MatDivider } from '@angular/material/divider';
 import { FormsModule } from '@angular/forms';
 import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
 import {
@@ -50,7 +49,6 @@ import { EnteredValue } from '@core/types/entities/values.i';
     MatSelectTrigger,
     MatOption,
     MatInput,
-    MatDivider,
     FormsModule,
     CommonModule,
     MatIconButton,
@@ -111,12 +109,18 @@ export class EditableDataTableComponent<TRow = unknown> {
     }
   }
 
-  callSaveEV(column: ColumnConfig<TRow, unknown>, row: TRow, selectedValue: string, selectedUnit: unknown): void {
+  callSaveEV(
+    column: ColumnConfig<TRow, unknown>,
+    row: TRow,
+    updatedField: 'value' | 'unit',
+    input: HTMLInputElement,
+    combobox: MatSelect,
+  ): void {
     const columnEV = column as ColumnConfig<TRow, EnteredValue<unknown>>;
     const oldValue = columnEV.field(row);
     const newValue = {
-      value: selectedValue,
-      unit: selectedUnit,
+      value: !Number.isNaN(input.valueAsNumber) ? input.value : null,
+      unit: combobox.value as unknown,
     } as EnteredValue<unknown>;
     const oldSet = this.isFullySet(oldValue),
       newSet = this.isFullySet(newValue);
@@ -131,10 +135,20 @@ export class EditableDataTableComponent<TRow = unknown> {
     } else if (oldSet) {
       // remove old value
       columnEV?.onSave(row, null);
+    } else if (updatedField === 'value' && newValue.value != null && newValue.unit == null) {
+      // user entered number only; expand units combobox to demand a unit.
+      // defer so the disabled binding re-enables the combobox first.
+      setTimeout(() => combobox.open());
+    } else if (updatedField === 'unit' && newValue.unit == null) {
+      // user didn't select unit; reset numeric input
+      input.value = '';
+    } else if (updatedField === 'unit' && newValue.unit != null && newValue.value == '') {
+      // user selected unit, but there is no numeric value; reset unit
+      combobox.value = null;
     }
   }
 
-  private isFullySet(value: EnteredValue<unknown> | null): boolean {
+  private isFullySet(value: { value: string; unit: unknown } | null): boolean {
     return value != null && value.value != null && value.value !== '' && value.unit != null && value.unit !== '';
   }
 }

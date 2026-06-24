@@ -9,6 +9,7 @@ import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
+import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
 import com.epam.indigoeln.eln.entity.NotebookEntity;
 import com.epam.indigoeln.eln.entity.TemplateEntity;
 import com.epam.indigoeln.eln.mapper.ExperimentMapper;
@@ -19,9 +20,7 @@ import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.eln.repository.TemplateRepository;
 import com.epam.indigoeln.eln.util.PatchUtil;
-import com.epam.indigoeln.indigowrapper.IndigoAPI;
-import com.epam.indigoeln.indigowrapper.IndigoMolecule;
-import com.epam.indigoeln.indigowrapper.IndigoSDFSaver;
+import com.epam.indigoeln.indigowrapper.*;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
@@ -32,6 +31,7 @@ import com.epam.indigoeln.reports.api.ReportsAPI;
 import com.epam.indigoeln.reports.api.ReportsClient;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.MoreObjects;
+import com.google.common.base.Preconditions;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -50,10 +50,8 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.*;
 
-import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
 import static com.epam.indigoeln.common.util.ContentDispositionUtil.extractFilename;
 import static com.epam.indigoeln.common.util.ContentDispositionUtil.generateContentDisposition;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
@@ -92,6 +90,8 @@ public class ExperimentService {
     SnapshotMapper snapshotMapper;
     @Inject
     IndigoAPI indigo;
+    @Inject
+    IndigoRendererAPI indigoRenderer;
 
     public ExperimentDetailsDTO createExperiment(UUID notebookId, ExperimentRequest request) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
@@ -102,6 +102,7 @@ public class ExperimentService {
         experiment.setNotebook(notebook);
         TemplateEntity template = templateRepository.get(request.getTemplateID());
         experiment.setTemplate(template);
+        experiment.setModel(experimentModelService.createNewModel());
         experimentModelService.applyMutation(experiment, experimentMapper.requestToMutation(request));
         return getExperimentDetails(experiment);
     }
@@ -123,13 +124,13 @@ public class ExperimentService {
 
     public ExperimentSnapshot getExperimentSnapshot(UUID experimentId) {
         ExperimentEntity experiment = experimentRepository.load(experimentId);
-        return snapshotMapper.createSnapshot(experiment, true, true, experimentModelService.getModel(experiment));
+        return snapshotMapper.createSnapshot(experiment, false);
     }
 
     public ExperimentDetailsDTO getExperimentDetails(ExperimentEntity experiment) {
         Set<ApplicationPermission> currentPermissions = aclService.getCurrentPermissions(experiment.getCalculatedInfo() != null ? experiment.getCalculatedInfo().getCurrentAccess() : null);
         currentPermissions.retainAll(EnumSet.of(VIEW_EXPERIMENTS, EDIT_EXPERIMENTS, MANAGE_EXPERIMENT_ACCESS, DELETE_EXPERIMENTS, SUBMIT_EXPERIMENTS));
-        return experimentMapper.entityToDetailsDTO(experiment, experimentModelService.getModel(experiment), currentPermissions);
+        return experimentMapper.entityToDetailsDTO(experiment, currentPermissions);
     }
 
     public ExperimentDetailsDTO editExperiment(UUID experimentId, ExperimentEditRequest request) {
@@ -178,15 +179,15 @@ public class ExperimentService {
         // TODO generate on the fly from reaction rxnfile; shouldn't be heavyweight, because it will only be used when editing experiment, and most of the calls should be cached
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, VIEW_EXPERIMENTS);
-        Reaction reaction = experimentModelService.getModel(experiment).locate(reactionAnchor);
+        Reaction reaction = experiment.getModel().locate(reactionAnchor);
+        checkNotNull(reaction); // reaction is not used for now, but will be used with multi-reaction experiments
         return experiment.getPicture() != null ? experiment.getPicture() : EMPTY_PICTURE;
     }
 
     public Map<InputAnchor, String> analyzeRXN(UUID experimentId, ReactionAnchor reactionAnchor) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, VIEW_EXPERIMENTS);
-        ExperimentModel model = experimentModelService.getModel(experiment);
-        Reaction reaction = model.locate(reactionAnchor);
+        Reaction reaction = experiment.getModel().locate(reactionAnchor);
         return analyzeRXN(reaction);
     }
 
@@ -199,7 +200,7 @@ public class ExperimentService {
                     }
                     return null;
                 })
-                .filterValues(Objects::nonNull)
+                .nonNullValues()
                 .toCustomMap(LinkedHashMap::new);
     }
 
@@ -215,7 +216,7 @@ public class ExperimentService {
     public ExperimentReportContent printReport(ExperimentEntity experiment) {
         ReportsAPI.ExperimentReportDataDTO data = new ReportsAPI.ExperimentReportDataDTO(
                 projectMapper.entityToDTO(experiment.getProject()),
-                experimentMapper.entityToDetailsDTO(experiment, experimentModelService.getModel(experiment), Set.of()),
+                experimentMapper.entityToDetailsDTO(experiment, Set.of()),
                 experiment.getPicture() != null ? new String(experiment.getPicture(), StandardCharsets.UTF_8) : null
         );
         try (Response response = reportsClient.generateExperimentReport(data)) {
@@ -231,37 +232,50 @@ public class ExperimentService {
         }
     }
 
-    public List<RevisionDetailsDTO> getExperimentRevisions(UUID experimentId, @Nullable UUID editSessionId, @Nullable Boolean reverseOrder) {
+    public List<RevisionSummaryDTO> getExperimentRevisions(UUID experimentId, @Nullable Boolean flatten) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, VIEW_EXPERIMENTS);
-        return experimentMapper.revisionToDTOList(experimentRepository.getRevisions(experiment, editSessionId, MoreObjects.firstNonNull(reverseOrder, false)));
-    }
-
-    public List<ExperimentRevisionSummaryDTO> getExperimentRevisionsSummary(UUID experimentId) {
-        ExperimentEntity experiment = experimentRepository.get(experimentId);
-        aclService.ensureAccess(experiment, VIEW_EXPERIMENTS);
-        experimentRepository.closeInactiveEditSessions(experiment, Duration.ofHours(1));
-        return experimentRepository.getRevisionsSummary(experiment);
-    }
-
-    public JsonNode compareVersions(UUID experimentId, @Nullable Integer versionFrom, @Nullable Integer versionTo) {
-        validate(!Objects.equals(versionFrom, versionTo), "Versions to compare must be different");
-        ExperimentEntity experiment = experimentRepository.get(experimentId);
-        aclService.ensureAccess(experiment, VIEW_EXPERIMENTS);
-        return experimentModelService.createPatch(getSnapshotToCompare(experiment, versionFrom), getSnapshotToCompare(experiment, versionTo));
-    }
-
-    public String compareVersionsHTML(UUID experimentId, @Nullable Integer versionFrom, @Nullable Integer versionTo) {
-        JsonNode patch = compareVersions(experimentId, versionFrom, versionTo);
-        return PatchUtil.formatJSONDiff(patch);
-    }
-
-    private ExperimentSnapshot getSnapshotToCompare(ExperimentEntity experiment, @Nullable Integer version) {
-        if (version != null) {
-            return checkNotNull(experimentRepository.getVersion(experiment, version).getSnapshot());
+        List<ExperimentRevisionEntity> revisions = experimentRepository.getRevisions(experiment, false);
+        if (Boolean.TRUE.equals(flatten)) {
+            return StreamEx.of(revisions)
+                    .map(experimentMapper::revisionToSummary)
+                    .toList();
         }
-        ExperimentModel model = experimentModelService.getModel(experiment);
-        return snapshotMapper.createSnapshot(experiment, true, true, model);
+        return StreamEx.of(revisions)
+                .groupRuns((a, b) -> {
+                    return a.getMutation().isApplicableToEditSession() && b.getMutation().isApplicableToEditSession() && a.getUser().getId().equals(b.getUser().getId());
+                })
+                .map(group -> {
+                    return group.size() == 1
+                            ? experimentMapper.revisionToSummary(group.getFirst())
+                            : experimentMapper.revisionGroupToSummary(group);
+                })
+                .toList();
+    }
+
+    public String getRevisionDiff(UUID experimentId, int revision) {
+        ExperimentEntity experiment = experimentRepository.get(experimentId);
+        aclService.ensureAccess(experiment, VIEW_EXPERIMENTS);
+        // rewind to get old state
+        ExperimentSnapshot snapshot = snapshotMapper.createSnapshot(experiment, false);
+        List<ExperimentRevisionEntity> range = experimentRepository.getRevisionRange(experiment, revision);
+        ExperimentRevisionEntity targetRevision = range.getFirst();
+        Preconditions.checkState(targetRevision.getRevision().equals(revision));
+        JsonNode before = experimentModelService.rewindSnapshot(snapshot, range);
+        return PatchUtil.formatJSONDiff(
+                before,
+                targetRevision.getDiff(),
+                rxnfile -> {
+                    IndigoReaction reaction = indigo.loadReaction(rxnfile);
+                    indigoRenderer.setRenderOptions("svg", 500, 200);
+                    byte[] bytes = indigoRenderer.renderToBuffer(reaction);
+                    return new String(bytes, StandardCharsets.UTF_8);
+                },
+                compoundID -> {
+                    byte[] bytes = compoundService.getCompoundPicture(compoundID);
+                    return new String(bytes, StandardCharsets.UTF_8);
+                }
+        );
     }
 
     public List<ExperimentRef> suggestExperiments(String search) {
@@ -314,7 +328,7 @@ public class ExperimentService {
         try (IndigoSDFSaver saver = indigo.writeFile(tempFilePath.toString())) {
             ExperimentEntity experiment = experimentRepository.get(experimentId);
             aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
-            ExperimentModel model = experimentModelService.getModel(experiment);
+            ExperimentModel model = experiment.getModel();
 
             for (Reaction reaction : model.getReactions()) {
                 for (ReactionOutput output : reaction.getOutputs()) {

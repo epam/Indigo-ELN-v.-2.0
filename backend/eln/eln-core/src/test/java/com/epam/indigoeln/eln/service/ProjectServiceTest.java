@@ -6,24 +6,21 @@ import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
-import com.epam.indigoeln.reaction.model.mutation.NotebookMutation;
-import com.epam.indigoeln.reaction.model.mutation.ProjectMutation;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
+import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 
-import static com.epam.indigoeln.common.exception.InvalidRequestException.fail;
 import static com.epam.indigoeln.common.util.ContentDispositionUtil.extractFilename;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
 import static com.epam.indigoeln.eln.test.ACLListAssert.assertThatACL;
@@ -108,9 +105,8 @@ class ProjectServiceTest extends ELNBaseTest {
                 .hasSize(1)
                 .first().satisfies(revision -> {
                     assertThat(revision.getRevision()).isOne();
-                    assertThat(revision.getDatetime()).isEqualTo(project.getCreatedAt());
+                    assertThat(revision.getDate()).isEqualTo(project.getCreatedAt());
                     assertThat(revision.getUser()).isEqualTo(JOHN_USER_REF);
-                    assertThat(revision.getMutation()).isInstanceOf(ProjectMutation.CreateProject.class);
                     assertThat(revision.getSummary()).isEqualTo("Create project");
                 });
     }
@@ -134,7 +130,7 @@ class ProjectServiceTest extends ELNBaseTest {
         assertThatClientCall(() ->
                 projectClient.editProject(
                         project.getId(),
-                        new ProjectEditRequest().withName(Optional.of(longName))
+                        new ProjectEditRequest().withName(JsonNullable.of(longName))
                 )
         ).isBadRequest("must be at most 256 characters");
     }
@@ -147,7 +143,7 @@ class ProjectServiceTest extends ELNBaseTest {
         assertThatClientCall(() ->
                 projectClient.editProject(
                         project.getId(),
-                        new ProjectEditRequest().withName(Optional.of(""))
+                        new ProjectEditRequest().withName(JsonNullable.of(""))
                 )
         ).isBadRequest("Project Name is required");
     }
@@ -163,7 +159,7 @@ class ProjectServiceTest extends ELNBaseTest {
     void testRenameDuplicateNames() {
         projectClient.createProject(new ProjectRequest("testRenameDuplicateNames"));
         ProjectDetailsDTO project2 = projectClient.createProject(new ProjectRequest("testRenameDuplicateNames2"));
-        assertThatClientCall(() -> projectClient.editProject(project2.getId(), new ProjectEditRequest().withName(Optional.of("testRenameDuplicateNames"))))
+        assertThatClientCall(() -> projectClient.editProject(project2.getId(), new ProjectEditRequest().withName(JsonNullable.of("testRenameDuplicateNames"))))
                 .isBadRequest("Unique name is required");
     }
 
@@ -355,14 +351,14 @@ class ProjectServiceTest extends ELNBaseTest {
     @Test
     void testEditProjectNoChanges() {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testEditProject", List.of("k1", "k2"), "l", "d"));
-        assertThatClientCall(() -> projectClient.editProject(project.getId(), new ProjectEditRequest(null, null, null, null)))
+        assertThatClientCall(() -> projectClient.editProject(project.getId(), new ProjectEditRequest(JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.undefined())))
                 .isBadRequest("Nothing to update");
     }
 
     @Test
     void testEditProject() {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testEditProject", List.of("k1", "k2"), "l", "d"));
-        ProjectDetailsDTO modified = projectClient.editProject(project.getId(), new ProjectEditRequest(Optional.of("testEditProject_new"), Optional.of(List.of("k2", "k3")), Optional.of("l2"), Optional.of("d2")));
+        ProjectDetailsDTO modified = projectClient.editProject(project.getId(), new ProjectEditRequest(JsonNullable.of("testEditProject_new"), JsonNullable.of(List.of("k2", "k3")), JsonNullable.of("l2"), JsonNullable.of("d2")));
         assertThat(modified.getName()).isEqualTo("testEditProject_new");
         assertThat(modified.getKeywords()).containsExactly("k2", "k3");
         assertThat(modified.getLiterature()).isEqualTo("l2");
@@ -373,9 +369,8 @@ class ProjectServiceTest extends ELNBaseTest {
                 .hasSize(2)
                 .last().satisfies(revision -> {
                     assertThat(revision.getRevision()).isEqualTo(2);
-                    assertThat(revision.getDatetime()).isEqualTo(modified.getModifiedAt());
+                    assertThat(revision.getDate()).isEqualTo(modified.getModifiedAt());
                     assertThat(revision.getUser()).isEqualTo(JOHN_USER_REF);
-                    assertThat(revision.getMutation()).isInstanceOf(ProjectMutation.EditProjectAttributes.class);
                     assertThat(revision.getSummary()).matches("Edit: multiple attributes");
                 });
     }
@@ -438,7 +433,6 @@ class ProjectServiceTest extends ELNBaseTest {
         });
         assertThat(projectClient.getProjectRevisions(project.getId()))
                 .last().satisfies(revision -> {
-                    assertThat(revision.getMutation()).isInstanceOf(ProjectMutation.CreateProjectAttachment.class);
                     assertThat(revision.getSummary()).isEqualTo("Created attachment: attachment.txt, 7 bytes");
                 });
     }
@@ -462,50 +456,33 @@ class ProjectServiceTest extends ELNBaseTest {
         assertThat(project.getAttachments()).isEmpty();
         assertThat(projectClient.getProjectRevisions(project.getId()))
                 .last().satisfies(revision -> {
-                    assertThat(revision.getMutation()).isInstanceOf(ProjectMutation.DeleteProjectAttachment.class);
                     assertThat(revision.getSummary()).isEqualTo("Deleted attachment: attachment.txt");
                 });
     }
 
     @Test
-    void testUploadLargeAttachment(@TempDir Path tempDir) {
+    void testUploadLargeAttachment(@TempDir Path tempDir) throws Exception {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testUploadLargeAttachment"));
 
         // Use 7 MB file to stay safely below AWS API Gateway limit
         int fileSizeInBytes = 7 * 1024 * 1024; // 7 MB
         byte[] largeContent = new byte[fileSizeInBytes];
-        for (int i = 0; i < largeContent.length; i++) {
-            largeContent[i] = (byte) (i % 128);
-        }
+        new Random().nextBytes(largeContent);
 
         String fileName = "large_test_file_7MB.pptx";
         Path filePath = tempDir.resolve(fileName);
-        try {
-            Files.write(filePath, largeContent);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to write large test file", e);
-        }
+        Files.write(filePath, largeContent);
 
-        try {
-            long startTime = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
 
-            List<AttachmentDTO> attachments = projectClient.createProjectAttachment(
-                    project.getId(),
-                    fileName,
-                    largeContent
-            );
+        List<AttachmentDTO> attachments = projectClient.createProjectAttachment(
+                project.getId(),
+                fileName,
+                largeContent
+        );
 
-            long elapsedTime = System.currentTimeMillis() - startTime;
-            System.out.println("Upload succeeded. Response time: " + elapsedTime + " ms");
-            assertThat(attachments).isNotEmpty();
-
-        } catch (Exception e) {
-            System.out.println("Upload failed with exception: " + e.getClass().getName());
-            System.out.println("Message: " + e.getMessage());
-            e.printStackTrace();
-
-            fail("Upload failed unexpectedly: " + e.getMessage());
-        }
+        long elapsedTime = System.currentTimeMillis() - startTime;
+        assertThat(attachments).isNotEmpty();
     }
 
     @Test
@@ -514,10 +491,8 @@ class ProjectServiceTest extends ELNBaseTest {
 
         assertThatClientCall(() ->
                 projectClient.createProjectAttachment(missingProjectId, "file.txt", "content".getBytes())
-        )
-                .isNotFound("PROJECT " + missingProjectId + " not found");
+        ).isNotFound("PROJECT " + missingProjectId + " not found");
     }
-
 
     @Test
     void testSuggestKeywords() {
@@ -551,7 +526,7 @@ class ProjectServiceTest extends ELNBaseTest {
         Page<ProjectDTO> result5 = projectClient.getProjects("QSLiterature", null, null, Paging.DEFAULT);
         assertThat(result5.getItems()).map(ProjectDTO::getName).containsOnly(p3);
 
-        projectClient.editProject(project.getId(), new ProjectEditRequest(null, null, null, Optional.of("QS1 QS2 QSNew")));
+        projectClient.editProject(project.getId(), new ProjectEditRequest(JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.of("QS1 QS2 QSNew")));
         Page<ProjectDTO> result6 = projectClient.getProjects("QSOld", null, null, Paging.DEFAULT);
         assertThat(result6.getItems()).isEmpty();
 
@@ -581,16 +556,15 @@ class ProjectServiceTest extends ELNBaseTest {
                 .last().satisfies(revision -> {
                     assertThat(revision.getRevision()).isEqualTo(2);
                     assertThat(revision.getUser()).isEqualTo(JOHN_USER_REF);
-                    assertThat(revision.getMutation()).isInstanceOf(ProjectMutation.EditProjectAccess.class);
                     assertThat(revision.getSummary()).isEqualTo("Edited Team: granted maggie EDIT access");
                 });
         assertThat(notebookClient.getNotebookRevisions(notebook.getId()))
                 .last().satisfies(revision -> {
-                    assertThat(revision.getMutation()).isInstanceOf(NotebookMutation.NotebookAccessUpdated.class);
+                    assertThat(revision.getSummary()).isEqualTo("Access updated because of the changes in project testUpdateAccess");
                 });
-        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
+        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), true))
                 .last().satisfies(revision -> {
-                    assertThat(revision.getMutation()).isInstanceOf(ExperimentMutation.ExperimentAccessUpdated.class);
+                    assertThat(revision.getSummary()).isEqualTo("Access updated because of the changes in project testUpdateAccess");
                 });
 
         projectClient.updateProjectAccess(project.getId(), AccessForm.of(MAGGIE_USERNAME, AccessLevel.NONE));

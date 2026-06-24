@@ -2,10 +2,11 @@
 <html>
     <head>
         <meta http-equiv='Content-Type' content='text/html; charset=utf-8'/>
+        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
         <style>
-            body { font-family: Arial, sans-serif; }
             .diff-wrapper { display: flex; width: 100%; }
-            .diff-pane { flex: 0 0 33%; overflow-x: auto; border: 1px solid #ccc; }
+            .diff-pane-top { overflow-x: scroll; border: 1px solid #ccc; width: 100%;}
+            .diff-pane { flex: 0 0 50%; overflow-x: auto; border: 1px solid #ccc; }
             .diff { width: 100%; border-collapse: collapse; }
             .diff td { white-space: nowrap; padding: 0; text-align: left, vertical-align: top; }
             pre { margin: 0; }
@@ -13,6 +14,14 @@
             h1.error { color: darkred; }
             .old { background-color: #f8d7da; }
             .new { background-color: #d4edda; }
+            .key { font-weight: bold; }
+            .comment { font-weight: normal; background-color: white; font-style: italic; }
+            .ev-fixed { color: purple; }
+            .ev-default { color: darkgray; }
+            .ev-user-entered { font-weight: bold; }
+            svg { height: 100px; width: auto; display: inline; }
+            .old svg { background-color: #f8d7da; }
+            .new svg { background-color: #d4edda; }
         </style>
         <script type='text/javascript'>
             function setShowClass(show, className) {

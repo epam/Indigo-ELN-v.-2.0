@@ -16,11 +16,11 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.*;
+import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -59,23 +59,23 @@ public class ExperimentUndoTest extends MutationsTestBase {
     @Test
     void testSimpleUndoRedo() {
         applyMutation(new ReactionMutation.AddEmptyInput(reaction.getAnchor()), false);
-        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
-                .extracting(RevisionDetailsDTO::getSummary)
+        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), true))
+                .extracting(RevisionSummaryDTO::getSummary)
                 .containsExactly("Experiment created", "Add empty input");
         InputAnchor anchor = input1.getAnchor();
         assertThat(anchor).isNotNull();
         // undo
         applyMutation(new ExperimentMutation.Undo());
         assertThat(input1).isNull();
-        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
-                .extracting(RevisionDetailsDTO::getSummary)
+        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), true))
+                .extracting(RevisionSummaryDTO::getSummary)
                 .containsExactly("Experiment created", "Add empty input", "Undo: Add empty input");
         // redo
         applyMutation(new ExperimentMutation.Redo());
         assertThat(input1).isNotNull();
         assertThat(input1.getAnchor()).isEqualTo(anchor);
-        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), null, null))
-                .extracting(RevisionDetailsDTO::getSummary)
+        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), true))
+                .extracting(RevisionSummaryDTO::getSummary)
                 .containsExactly("Experiment created", "Add empty input", "Undo: Add empty input", "Redo: Add empty input");
     }
 
@@ -96,9 +96,9 @@ public class ExperimentUndoTest extends MutationsTestBase {
     void testAttributesUndoRedo() {
         String oldTitle = experiment.getTitle();
 
-        applyMutation(new ExperimentMutation.EditExperimentAttributes(Optional.of("newTitle"), Optional.of(therapeuticArea), Optional.of(projectCode)
-                , Optional.of("newDescription"), Optional.of("newLiterature")
-                , Optional.of(Set.of(experiment1.toRef())), Optional.of(Set.of(experiment2.toRef())), Optional.of(Set.of(experiment1.toRef(), experiment2.toRef()))
+        applyMutation(new ExperimentMutation.EditExperimentAttributes(JsonNullable.of("newTitle"), JsonNullable.of(therapeuticArea), JsonNullable.of(projectCode)
+                , JsonNullable.of("newDescription"), JsonNullable.of("newLiterature")
+                , JsonNullable.of(Set.of(experiment1.toRef())), JsonNullable.of(Set.of(experiment2.toRef())), JsonNullable.of(Set.of(experiment1.toRef(), experiment2.toRef()))
         ), false);
         assertUpdatedAttributes();
 
@@ -266,9 +266,9 @@ public class ExperimentUndoTest extends MutationsTestBase {
     }
 
     private List<String> getRevisions(int skip) {
-        return experimentClient.getExperimentRevisions(experiment.getId(), null, false).stream()
+        return experimentClient.getExperimentRevisions(experiment.getId(), true).stream()
                 .skip(skip)
-                .map(RevisionDetailsDTO::getSummary)
+                .map(RevisionSummaryDTO::getSummary)
                 .toList();
     }
 }

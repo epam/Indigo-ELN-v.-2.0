@@ -82,7 +82,7 @@ public class ProjectResource implements ProjectAPI {
     }
 
     @Override
-    public List<RevisionDetailsDTO> getProjectRevisions(UUID projectId) {
+    public List<RevisionSummaryDTO> getProjectRevisions(UUID projectId) {
         return projectService.getProjectRevisions(projectId);
     }
 }

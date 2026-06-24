@@ -22,6 +22,7 @@ dependencies {
     api("org.apache.commons:commons-math3:3.6.1")
     api("org.apache.commons:commons-lang3:3.20.0")
     api("one.util:streamex:0.8.4")
+    api("org.openapitools:jackson-databind-nullable:0.2.10")
 
     api(project(":common:eln-quarkus-extension"))
 

@@ -1,0 +1,18 @@
+<div class="flex -space-x-2">
+  @for (member of visibleMembers(); track member) {
+    <div
+      class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-[#e0e0e0] text-[#646464] text-[0.625rem] font-semibold uppercase border border-white"
+      [matTooltip]="member.displayName ?? member.username"
+      matTooltipPosition="above"
+    >
+      {{ member.displayName ?? member.username | initials }}
+    </div>
+  }
+  @if (totalCount() > maxVisible()) {
+    <span
+      class="flex items-center justify-center w-[1.6rem] h-[1.6rem] rounded-full bg-primary-400 text-white text-[0.75rem]"
+    >
+      +{{ totalCount() - maxVisible() }}
+    </span>
+  }
+</div>

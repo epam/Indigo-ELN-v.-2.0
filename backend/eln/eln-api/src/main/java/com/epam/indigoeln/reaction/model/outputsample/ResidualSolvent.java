@@ -2,22 +2,20 @@ package com.epam.indigoeln.reaction.model.outputsample;
 
 import com.epam.indigoeln.eln.model.SolventRef;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ResidualSolvent {
 
     @NotNull
-    private SolventRef solvent;
+    private final SolventRef solvent;
 
     @NotNull
-    private Double eq;
+    private final Double eq;
 
     @Nullable
-    private String comment;
+    private final String comment;
 }

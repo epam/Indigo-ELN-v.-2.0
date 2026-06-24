@@ -2,30 +2,22 @@ package com.epam.indigoeln.eln.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jspecify.annotations.Nullable;
-
-import java.util.Optional;
+import org.openapitools.jackson.nullable.JsonNullable;
 
 @Data
 @NoArgsConstructor(onConstructor_ = {@JsonCreator})
 @AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+@JsonInclude(JsonInclude.Include.NON_ABSENT)
 public class DictionaryEditRequest {
 
-    @Nullable
-    private Optional<String> code;
+    private JsonNullable<String> code = JsonNullable.undefined();
 
-    @Nullable
-    private Optional<String> name;
+    private JsonNullable<String> name = JsonNullable.undefined();
 
-    @Nullable
-    private Optional<Boolean> userEditable;
+    private JsonNullable<Boolean> userEditable = JsonNullable.undefined();
 
-    @Nullable
-    private Optional<String> description;
+    private JsonNullable<String> description = JsonNullable.undefined();
 }

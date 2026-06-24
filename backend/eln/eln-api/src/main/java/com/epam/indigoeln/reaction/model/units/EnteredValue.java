@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Preconditions;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.math3.util.Precision;
 import org.jspecify.annotations.Nullable;
 
@@ -36,12 +35,11 @@ public final class EnteredValue<U extends MeasurementUnit> {
     @JsonIgnore
     private final int significantFigures; // used only to lazily format stringValue
 
+    @Getter
+    private final EnteredValueSource source;
+
     @Nullable
     private String stringValue;
-
-    @Getter
-    @Setter
-    private EnteredValueSource source;
 
     @JsonCreator
     EnteredValue(String stringValue, U unit, EnteredValueSource source) {
@@ -72,7 +70,7 @@ public final class EnteredValue<U extends MeasurementUnit> {
     }
 
     @Nullable
-    public static <U extends MeasurementUnit> EnteredValue<U> calculated(@Nullable Double value, U unit, EnteredValue<?> from1, EnteredValue<?> from2) {
+    public static <U extends MeasurementUnit> EnteredValue<U> calculated(@Nullable Double value, U unit) {
         return value != null ? new EnteredValue<>(value, getSignificantFigures(), null, unit, EnteredValueSource.CALCULATED) : null;
     }
 
@@ -93,7 +91,7 @@ public final class EnteredValue<U extends MeasurementUnit> {
         }
         MeasurementUtil.UnitAndMultiplier2 pair = MeasurementUtil.addOrSubtract(left.unit, right.unit);
         //noinspection unchecked
-        return (EnteredValue<R>) calculated(left.value * pair.multiplier1() + right.value * pair.multiplier2(), pair.unit(), left, right);
+        return (EnteredValue<R>) calculated(left.value * pair.multiplier1() + right.value * pair.multiplier2(), pair.unit());
     }
 
     @Nullable
@@ -103,7 +101,7 @@ public final class EnteredValue<U extends MeasurementUnit> {
         }
         MeasurementUtil.UnitAndMultiplier2 pair = MeasurementUtil.addOrSubtract(left.unit, right.unit);
         //noinspection unchecked
-        return (EnteredValue<R>) calculated(left.value * pair.multiplier1() - right.value * pair.multiplier2(), pair.unit(), left, right);
+        return (EnteredValue<R>) calculated(left.value * pair.multiplier1() - right.value * pair.multiplier2(), pair.unit());
     }
 
     @Nullable
@@ -113,11 +111,11 @@ public final class EnteredValue<U extends MeasurementUnit> {
         }
         MeasurementUtil.UnitAndMultiplier pair = MeasurementUtil.multiply(left.unit, right.unit);
         //noinspection unchecked
-        return (EnteredValue<R>) calculated(left.value * right.value * pair.multiplier(), pair.unit(), left, right);
+        return (EnteredValue<R>) calculated(left.value * right.value * pair.multiplier(), pair.unit());
     }
 
     public static <U extends MeasurementUnit> EnteredValue<U> multiply(EnteredValue<U> self, double by) {
-        return calculated(self.value * by, self.unit, self, self);
+        return calculated(self.value * by, self.unit);
     }
 
     @Nullable
@@ -127,11 +125,11 @@ public final class EnteredValue<U extends MeasurementUnit> {
         }
         MeasurementUtil.UnitAndMultiplier pair = MeasurementUtil.divide(left.unit, right.unit);
         //noinspection unchecked
-        return (EnteredValue<R>) calculated(left.value / right.value * pair.multiplier(), pair.unit(), left, right);
+        return (EnteredValue<R>) calculated(left.value / right.value * pair.multiplier(), pair.unit());
     }
 
     public static <U extends MeasurementUnit> EnteredValue<U> divide(EnteredValue<U> self, double by) {
-        return calculated(self.value / by, self.unit, self, self);
+        return calculated(self.value / by, self.unit);
     }
 
     @JsonProperty("value")
@@ -150,13 +148,8 @@ public final class EnteredValue<U extends MeasurementUnit> {
         return Precision.equalsWithRelativeTolerance(thisValue, otherValue, 1e-6);
     }
 
-    public <T extends MeasurementUnit> EnteredValue<T> cast() {
-        //noinspection unchecked
-        return (EnteredValue<T>) this;
-    }
-
     public BigDecimal toBigDecimal() {
-        return new BigDecimal(stringValue);
+        return new BigDecimal(getStringValue());
     }
 
     @Override

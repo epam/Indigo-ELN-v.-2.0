@@ -8,12 +8,14 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
 @Getter
 @Setter
 @EqualsAndHashCode
+@RequiredArgsConstructor
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = SolubidityInSolvent.Quantitative.class, name = "QUANTITATIVE"),
@@ -22,10 +24,10 @@ import org.jspecify.annotations.Nullable;
 public abstract class SolubidityInSolvent {
 
     @NotNull
-    protected SolventRef solvent;
+    protected final SolventRef solvent;
 
     @Nullable
-    protected String comment;
+    protected final String comment;
 
     @Getter
     @Setter
@@ -33,17 +35,16 @@ public abstract class SolubidityInSolvent {
     public static class Quantitative extends SolubidityInSolvent {
 
         @Nullable
-        private ComparisonOperator operator;
+        private final ComparisonOperator operator;
 
         @Nullable
-        private Double value;
+        private final Double value;
 
         @Nullable
-        private DensityUnit unit;
+        private final DensityUnit unit;
 
         public Quantitative(SolventRef solvent, @Nullable String comment, ComparisonOperator operator, Double value, DensityUnit unit) {
-            this.solvent = solvent;
-            this.comment = comment;
+            super(solvent, comment);
             this.operator = operator;
             this.value = value;
             this.unit = unit;
@@ -56,11 +57,10 @@ public abstract class SolubidityInSolvent {
     public static class Qualitative extends SolubidityInSolvent {
 
         @Nullable
-        private SolubidityQualitativeType qualitativeType;
+        private final SolubidityQualitativeType qualitativeType;
 
         public Qualitative(SolventRef solvent, @Nullable String comment, SolubidityQualitativeType qualitativeType) {
-            this.solvent = solvent;
-            this.comment = comment;
+            super(solvent, comment);
             this.qualitativeType = qualitativeType;
         }
     }

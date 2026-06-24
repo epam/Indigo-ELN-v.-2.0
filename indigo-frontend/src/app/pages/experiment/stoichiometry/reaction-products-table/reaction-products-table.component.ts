@@ -8,7 +8,6 @@ import {
 import { EditableDataTableComponent } from '@pages/experiment/stoichiometry/editable-data-table/editable-data-table.component';
 import { ExperimentDetailService } from '@core/services/experiment/experiment-detail.service';
 import { EnteredValue } from '@core/types/entities/values.i';
-import { determineCellClasses } from '@core/utils/experiment-model.util';
 import { CompoundType } from '@core/types/entities/compound.i';
 import { BuiltInDictionary, DictionaryItemRef } from '@core/types/entities/dictionary.i';
 import { BuiltInDictionaryService } from '@core/services/health-hazards/built-in-dictionary.service';
@@ -166,6 +165,6 @@ export class ReactionProductsTableComponent implements OnInit {
   displayedColumns = this.columns.map((col) => col.id);
 
   private determineClasses(value?: EnteredValue<unknown>): string[] {
-    return determineCellClasses(value, this.experimentDetailService.updatedNodes());
+    return this.experimentDetailService.determineCellClasses(value);
   }
 }

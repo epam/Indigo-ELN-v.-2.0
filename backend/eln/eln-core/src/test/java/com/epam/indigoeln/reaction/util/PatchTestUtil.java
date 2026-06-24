@@ -92,6 +92,7 @@ public class PatchTestUtil {
         JsonNode expectedJSON = prepareForComparison(FeignUtil.OBJECT_MAPPER.valueToTree(expected));
         assertObjectsEqual(reportBuilder
                 , null
+                , null
                 , actualJSON
                 , expectedJSON
                 , "failure"
@@ -124,7 +125,8 @@ public class PatchTestUtil {
         if (reverse) {
             JsonNode appliedWithJSON = PATCHER.reverse(updatedJSON.deepCopy(), FeignUtil.OBJECT_MAPPER.readTree(patchStr));
             assertObjectsEqual(reportBuilder
-                    , patchStr
+                    , updatedJSON
+                    , patch
                     , prepareForComparison((ObjectNode) minimizeJSON(appliedWithJSON))
                     , prepareForComparison((ObjectNode) minimizeJSON(initialJSON))
                     , "patched"
@@ -132,7 +134,8 @@ public class PatchTestUtil {
         } else {
             JsonNode appliedWithJSON = PATCHER.apply(initialJSON.deepCopy(), FeignUtil.OBJECT_MAPPER.readTree(patchStr));
             assertObjectsEqual(reportBuilder
-                    , patchStr
+                    , initialJSON
+                    , patch
                     , prepareForComparison((ObjectNode) minimizeJSON(appliedWithJSON))
                     , prepareForComparison((ObjectNode) minimizeJSON(updatedJSON))
                     , "patched"
@@ -140,14 +143,14 @@ public class PatchTestUtil {
         }
     }
 
-    private static void assertObjectsEqual(@Nullable CalculationReportBuilder reportBuilder, @Nullable String patch, JsonNode actualJSON, JsonNode expectedJSON, String reportClass, String message) throws JsonProcessingException {
+    private static void assertObjectsEqual(@Nullable CalculationReportBuilder reportBuilder, @Nullable JsonNode initialJSON, @Nullable JsonNode patch, JsonNode actualJSON, JsonNode expectedJSON, String reportClass, String message) throws JsonProcessingException {
         String expected = FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(minimizeJSON(expectedJSON.deepCopy()));
         String actual = FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(minimizeJSON(actualJSON.deepCopy()));
         try {
             assertThat(actual).isEqualTo(expected);
         } catch (AssertionError e) {
             if (reportBuilder != null) {
-                reportBuilder.addFailedComparison(reportClass, message, patch, expected, actual);
+                reportBuilder.addFailedComparison(reportClass, message, initialJSON, patch, expected, actual);
             }
             throw e;
         }

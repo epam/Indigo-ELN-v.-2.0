@@ -23,6 +23,7 @@ import one.util.streamex.StreamEx;
 import org.assertj.core.util.Throwables;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
+import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -185,7 +186,7 @@ class PermissionsTest extends ELNBaseTest {
     @Test
     void testEditProject() {
         iterateRowsParallel(row -> {
-            assertThatClientCall(() -> projectClient.editProject(row.projectId, new ProjectEditRequest().withDescription(Optional.of("updated"))))
+            assertThatClientCall(() -> projectClient.editProject(row.projectId, new ProjectEditRequest().withDescription(JsonNullable.of("updated"))))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "Operation not permitted");
         });
@@ -250,7 +251,7 @@ class PermissionsTest extends ELNBaseTest {
     @Test
     void testEditNotebook() {
         iterateRowsParallel(row -> {
-            assertThatClientCall(() -> notebookClient.editNotebook(row.notebookId, new NotebookEditRequest().withDescription(Optional.of("updated"))))
+            assertThatClientCall(() -> notebookClient.editNotebook(row.notebookId, new NotebookEditRequest().withDescription(JsonNullable.of("updated"))))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "Operation not permitted");
         });
@@ -315,7 +316,7 @@ class PermissionsTest extends ELNBaseTest {
     void testEditExperiment() {
         iterateRowsParallel(row -> {
             assertThatClientCall(() -> {
-                experimentClient.editExperiment(row.experimentId, new ExperimentEditRequest().withTherapeuticArea(Optional.of(therapeuticArea)));
+                experimentClient.editExperiment(row.experimentId, new ExperimentEditRequest().withTherapeuticArea(JsonNullable.of(therapeuticArea)));
             })
                     .as(row.toString())
                     .isAllowedIf(row.effectiveExperiment.isSufficientFor(EDIT), "Operation not permitted");
@@ -403,10 +404,10 @@ class PermissionsTest extends ELNBaseTest {
         try {
             List<DictionaryItemDTO> items = dictionaryClient.addDictionaryItem(dictionary.getId().toString(), new DictionaryItemRequest("A", "Adescription"));
             dictionaryClient.updateDictionaryItem(dictionary.getId().toString(), items.getFirst().getId(), new DictionaryItemEditRequest(
-                    Optional.of("Anew"),
-                    Optional.of("AdescriptionNew"),
-                    Optional.of(1),
-                    Optional.of(false)
+                    JsonNullable.of("Anew"),
+                    JsonNullable.of("AdescriptionNew"),
+                    JsonNullable.of(1),
+                    JsonNullable.of(false)
             ));
             dictionaryClient.removeDictionaryItem(dictionary.getId().toString(), items.getFirst().getId());
         } finally {
@@ -421,14 +422,14 @@ class PermissionsTest extends ELNBaseTest {
     void testNotAdminCannotManageDictionaries() {
         assertThatClientCall(() -> dictionaryClient.createDictionary(new DictionaryRequest("TEST", "Test", false, null)))
                 .isForbidden("Operation not permitted");
-        assertThatClientCall(() -> dictionaryClient.updateDictionary(BuiltInDictionary.SAMPLE_SOURCE.name(), new DictionaryEditRequest(Optional.of("TEST1"), null, null, null)))
+        assertThatClientCall(() -> dictionaryClient.updateDictionary(BuiltInDictionary.SAMPLE_SOURCE.name(), new DictionaryEditRequest(JsonNullable.of("TEST1"), JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.undefined())))
                 .isForbidden("Operation not permitted");
         assertThatClientCall(() -> dictionaryClient.removeDictionary(BuiltInDictionary.SAMPLE_SOURCE.name()))
                 .isForbidden("Operation not permitted");
 
         assertThatClientCall(() -> dictionaryClient.addDictionaryItem(BuiltInDictionary.THERAPEUTIC_AREA, new DictionaryItemRequest("A", "Adescription")))
                 .isForbidden("Operation not permitted");
-        assertThatClientCall(() -> dictionaryClient.updateDictionaryItem(BuiltInDictionary.THERAPEUTIC_AREA, UUID.randomUUID(), new DictionaryItemEditRequest(null, null, null, null)))
+        assertThatClientCall(() -> dictionaryClient.updateDictionaryItem(BuiltInDictionary.THERAPEUTIC_AREA, UUID.randomUUID(), new DictionaryItemEditRequest(JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.undefined())))
                 .isForbidden("Operation not permitted");
         assertThatClientCall(() -> dictionaryClient.removeDictionaryItem(BuiltInDictionary.THERAPEUTIC_AREA, UUID.randomUUID()))
                 .isForbidden("Operation not permitted"); // TODO

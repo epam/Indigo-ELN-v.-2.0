@@ -2,13 +2,10 @@ package com.epam.indigoeln.aws;
 
 import com.google.common.collect.ImmutableList;
 import lombok.Getter;
-import lombok.Value;
-import software.amazon.awscdk.NestedStack;
-import software.amazon.awscdk.NestedStackProps;
 import software.amazon.awscdk.services.ec2.ISecurityGroup;
 import software.amazon.awscdk.services.ec2.SubnetSelection;
 import software.amazon.awscdk.services.ec2.SubnetType;
-import software.amazon.awscdk.services.ecr.Repository;
+import software.amazon.awscdk.services.ecr.IRepository;
 import software.amazon.awscdk.services.ecs.*;
 import software.amazon.awscdk.services.rds.Credentials;
 import software.amazon.awscdk.services.rds.DatabaseSecret;
@@ -21,19 +18,17 @@ import java.util.List;
 import static com.epam.indigoeln.aws.util.Utils.entry;
 import static com.epam.indigoeln.aws.util.Utils.mapOf;
 
-public class PostgresStack extends NestedStack {
+public class PostgresStack {
 
     @Getter
     private final DatabaseSecret dbSecret;
 
-    public PostgresStack(final Construct scope, final String id, final Props props) {
-        super(scope, id, props);
-
-        dbSecret = DatabaseSecret.Builder.create(this, "db-secret")
-                .username(props.getPostgresMasterUsername())
+    public PostgresStack(Construct scope, Props props) {
+        dbSecret = DatabaseSecret.Builder.create(scope, "db-secret")
+                .username(props.postgresMasterUsername())
                 .build();
 
-        final TaskDefinition postgresTask = TaskDefinition.Builder.create(this, "ecs-task-postgres")
+        final TaskDefinition postgresTask = TaskDefinition.Builder.create(scope, "ecs-task-postgres")
                 .compatibility(Compatibility.EC2)
                 .networkMode(NetworkMode.AWS_VPC)
                 .cpu("256")
@@ -48,7 +43,7 @@ public class PostgresStack extends NestedStack {
                 .build());
 
         ContainerDefinition postgresContainer = postgresTask.addContainer("ecs-task-postgres-container", ContainerDefinitionOptions.builder()
-                .image(ContainerImage.fromEcrRepository(props.getPostgresRepo(), props.getPostgresImageTag()))
+                .image(ContainerImage.fromEcrRepository(props.postgresRepo(), props.postgresImageTag()))
                 .environment(mapOf(
                         entry("POSTGRES_USER", Credentials.fromSecret(dbSecret).getUsername()),
                         entry("POSTGRES_PASSWORD", Credentials.fromSecret(dbSecret).getPassword().unsafeUnwrap()),
@@ -99,8 +94,8 @@ public class PostgresStack extends NestedStack {
                 .logging(LogDriver.awsLogs(AwsLogDriverProps.builder().streamPrefix("pgbouncer2").build()))
                 .build());
 
-        Ec2Service.Builder.create(this, "ecs-postgres-service")
-                .cluster(props.getEcsCluster())
+        Ec2Service.Builder.create(scope, "ecs-postgres-service")
+                .cluster(props.ecsCluster())
                 .taskDefinition(postgresTask)
                 .minHealthyPercent(0)
                 .desiredCount(1)
@@ -108,7 +103,7 @@ public class PostgresStack extends NestedStack {
                 .vpcSubnets(SubnetSelection.builder().subnetType(SubnetType.PUBLIC).build())
                 .securityGroups(ImmutableList.<ISecurityGroup>builder().add(props.ec2SecurityGroup).addAll(props.additionalSecurityGroups).build())
                 .cloudMapOptions(CloudMapOptions.builder()
-                        .cloudMapNamespace(props.getPrivateDnsNamespace())
+                        .cloudMapNamespace(props.privateDnsNamespace())
                         .name("pgbouncer")
                         // awsvpc gives each task its own IP → A record works, Lambda resolves pgbouncer.indigoeln.local directly
                         .dnsRecordType(DnsRecordType.A)
@@ -116,15 +111,13 @@ public class PostgresStack extends NestedStack {
                 .build();
     }
 
-    @Value
-    public static class Props implements NestedStackProps {
-
-        PrivateDnsNamespace privateDnsNamespace;
-        String postgresMasterUsername;
-        ICluster ecsCluster;
-        ISecurityGroup ec2SecurityGroup;
-        List<ISecurityGroup> additionalSecurityGroups;
-        Repository postgresRepo;
-        String postgresImageTag;
-    }
+    public record Props(
+             PrivateDnsNamespace privateDnsNamespace,
+             String postgresMasterUsername,
+             ICluster ecsCluster,
+             ISecurityGroup ec2SecurityGroup,
+             List<ISecurityGroup> additionalSecurityGroups,
+             IRepository postgresRepo,
+             String postgresImageTag
+    ) {}
 }

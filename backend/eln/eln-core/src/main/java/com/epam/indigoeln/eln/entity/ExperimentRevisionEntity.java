@@ -20,6 +20,20 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Entity(name = "ExperimentRevision")
 @IdClass(ExperimentRevisionEntity.CompositeID.class)
+@NamedEntityGraph(
+        name = "ExperimentRevision.list",
+        attributeNodes = {
+                @NamedAttributeNode("diff"),
+                @NamedAttributeNode("mutation"),
+                @NamedAttributeNode("user"),
+        }
+)
+@NamedEntityGraph(
+        name = "ExperimentRevision.range",
+        attributeNodes = {
+                @NamedAttributeNode("diff")
+        }
+)
 public class ExperimentRevisionEntity extends BaseRevisionEntity {
 
     @Id
@@ -34,12 +48,8 @@ public class ExperimentRevisionEntity extends BaseRevisionEntity {
     @Nullable
     @JdbcTypeCode(SqlTypes.JSON)
     @Convert(converter = ExperimentSnapshotConverter.class)
+    @Basic(fetch = FetchType.LAZY)
     private ExperimentSnapshot snapshot;
-
-    @Nullable
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(updatable = false)
-    private ExperimentEditSessionEntity editSession;
 
     public record CompositeID(
             ExperimentEntity experiment,

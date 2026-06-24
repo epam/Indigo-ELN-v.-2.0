@@ -8,7 +8,10 @@ import com.epam.indigoeln.eln.common.repository.BaseRepository;
 import com.epam.indigoeln.eln.common.util.Conditions;
 import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.mapper.ExperimentMapper;
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.model.ApplicationPermission;
+import com.epam.indigoeln.eln.model.ELNEntityType;
+import com.epam.indigoeln.eln.model.ExperimentDTO;
+import com.epam.indigoeln.eln.model.ExperimentRef;
 import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.UserService;
 import com.google.common.base.MoreObjects;
@@ -20,13 +23,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
-import java.time.Instant;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 @Slf4j
 @ApplicationScoped
@@ -159,14 +159,6 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
                 .getSingleResult();
     }
 
-    @Nullable
-    public ExperimentEditSessionEntity findActiveEditSession(ExperimentEntity experiment, UserEntity user) {
-        return em.createQuery("from ExperimentEditSession where experiment=:experiment and user=:user and finished is null", ExperimentEditSessionEntity.class)
-                .setParameter("experiment", experiment)
-                .setParameter("user", user)
-                .getSingleResultOrNull();
-    }
-
     public List<ExperimentRevisionEntity> findRecentRevisions(ExperimentEntity experiment, Duration period) {
         return em.createQuery("from ExperimentRevision where experiment=:experiment and datetime>=:since order by revision", ExperimentRevisionEntity.class)
                 .setParameter("experiment", experiment)
@@ -174,66 +166,19 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
                 .getResultList();
     }
 
-    public void closeInactiveEditSessions(ExperimentEntity experiment, Duration inactivityThreshold) {
-        ZonedDateTime cutoff = ZonedDateTime.now().minus(inactivityThreshold);
-        int updated = em.createQuery("""
-                        update ExperimentEditSession
-                        set finished=lastActive
-                        where experiment=:experiment
-                            and finished is null
-                            and lastActive<:cutoff
-                """)
-                .setParameter("experiment", experiment)
-                .setParameter("cutoff", cutoff)
-                .executeUpdate();
-        if (updated > 0) {
-            log.info("{} edit sessions closed for inactivity", updated);
-        }
-    }
-
-    public List<ExperimentRevisionSummaryDTO> getRevisionsSummary(ExperimentEntity experiment) {
-        Stream<Object[]> stream = em.createNativeQuery("""
-                WITH t AS (
-                    SELECT user_id, summary, NULL date_from, datetime date_to, NULL edit_session_id
-                    FROM Experiment_Revision
-                    WHERE experiment_id=:experiment_id AND edit_session_id IS NULL
-                    UNION ALL (
-                        SELECT user_id, 'Edited experiment', MIN(datetime), MAX(datetime), edit_session_id
-                        FROM Experiment_Revision
-                        WHERE experiment_id=:experiment_id AND edit_session_id IS NOT NULL
-                        GROUP BY edit_session_id, user_id
-                    )
-                )
-                SELECT u.id, t.summary, t.date_from, t.date_to, t.edit_session_id
-                FROM t
-                JOIN User_Account u on u.id = t.user_id
-                ORDER BY t.date_to DESC, t.date_from DESC;
-                """)
-                .setParameter("experiment_id", experiment.getId())
-                .getResultStream();
-        return stream
-                .map(r -> new ExperimentRevisionSummaryDTO(
-                        (UUID) r[4],
-                        userService.getUserInfo((UUID) r[0]),
-                        (String) r[1],
-                        r[4] != null ? ((Instant) r[2]).atZone(ZoneId.systemDefault()) : null,
-                        ((Instant) r[3]).atZone(ZoneId.systemDefault())
-                ))
-                .toList();
-    }
-
-    public List<ExperimentRevisionEntity> getRevisions(ExperimentEntity experiment, @Nullable UUID editSessionId, boolean reverseOrder) {
-        String condition = editSessionId != null ? "and editSession.id=:editSessionId" : "";
+    public List<ExperimentRevisionEntity> getRevisions(ExperimentEntity experiment, boolean reverseOrder) {
         String order = reverseOrder ? "desc" : "";
-        TypedQuery<ExperimentRevisionEntity> query = em.createQuery("from ExperimentRevision where experiment=:experiment " + condition + " order by revision " + order, ExperimentRevisionEntity.class)
-                .setParameter("experiment", experiment);
-        if (editSessionId != null) {
-            query.setParameter("editSessionId", editSessionId);
-        }
-        return query.getResultList();
+        return em.createQuery("from ExperimentRevision where experiment=:experiment order by revision " + order, ExperimentRevisionEntity.class)
+                .setParameter("experiment", experiment)
+                .setHint("jakarta.persistence.loadgraph", "ExperimentRevision.list")
+                .getResultList();
     }
 
-    public void persistEditSession(ExperimentEditSessionEntity session) {
-        em.persist(session);
+    public List<ExperimentRevisionEntity> getRevisionRange(ExperimentEntity experiment, int revisionFrom) {
+        return em.createQuery("from ExperimentRevision where experiment=:experiment and revision>=:revisionFrom order by revision", ExperimentRevisionEntity.class)
+                .setParameter("experiment", experiment)
+                .setParameter("revisionFrom", revisionFrom)
+                .setHint("jakarta.persistence.loadgraph", "ExperimentRevision.range")
+                .getResultList();
     }
 }

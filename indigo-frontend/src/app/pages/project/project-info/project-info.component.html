@@ -47,7 +47,7 @@
 
         <eln-attachments
           [attachments]="project.attachments"
-          [baseURL]="`/api/eln/projects/${project.id}`"
+          [baseURL]="'/api/eln/projects/' + project.id"
           (attachmentsChanged)="onAttachmentsChanged($event)"
         />
       </div>

@@ -1,16 +1,10 @@
-<div class="w-full overflow-x-auto border border-gray-300 rounded">
-  <table
-    mat-table
-    [dataSource]="dataSource() || []"
-    class="w-full"
-    style="background-color: white"
-    multiTemplateDataRows
-  >
+<div class="w-full overflow-x-auto">
+  <table mat-table [dataSource]="dataSource() || []" style="background-color: white" multiTemplateDataRows>
     <!-- Expand Column -->
     @if (expandableConfig()?.enabled) {
       <ng-container matColumnDef="expand">
-        <th mat-header-cell *matHeaderCellDef class="!w-12 !p-2 border-b border-r !border-gray-200"></th>
-        <td mat-cell *matCellDef="let row" class="!w-12 !p-2 border-b border-r !border-gray-200">
+        <th mat-header-cell *matHeaderCellDef class="!w-12 !p-2 !border-t !border-b !border-gray-200"></th>
+        <td mat-cell *matCellDef="let row" class="!w-12 !p-2">
           <button
             type="button"
             (click)="toggleRow(row)"
@@ -29,14 +23,19 @@
         <th
           mat-header-cell
           *matHeaderCellDef
-          class="text-left !font-bold text-xs text-gray-900 p-1 border-b border-r !border-gray-200 last:border-r-0 min-w-32 overflow-hidden text-ellipsis whitespace-nowrap"
+          class="!text-center !font-bold text-xs text-gray-900 !px-2 py-0.5 !border-t !border-b !border-gray-200 overflow-hidden text-ellipsis whitespace-nowrap"
+          [class.w-25]="column.type !== ColumnInputType.ICON"
+          [class.min-w-25]="column.type !== ColumnInputType.ICON"
         >
           {{ column.header }}
         </th>
         <td
           mat-cell
           *matCellDef="let row"
-          class="text-xs p-0 border-b border-r !border-gray-200 min-w-32 overflow-visible"
+          class="text-xs py-0"
+          [class.!px-2]="column.type !== ColumnInputType.ICON"
+          [class.!px-0]="column.type === ColumnInputType.ICON"
+          [class.min-w-25]="column.type !== ColumnInputType.ICON"
           style="color: #3f50b5"
           [ngClass]="column.classes?.(row) ?? []"
         >
@@ -46,6 +45,7 @@
             type="text"
             placeholder="—"
             matInput
+            class="w-full"
             style="outline: none"
             [value]="column.field(row) || ''"
             [disabled]="!(column.editable?.(row) ?? true)"
@@ -61,6 +61,7 @@
             *ngIf="column.type === ColumnInputType.NUMBER"
             type="number"
             placeholder="—"
+            class="min-w-full text-right"
             style="outline: none"
             [value]="column.field(row) || ''"
             [disabled]="!(column.editable?.(row) ?? true)"
@@ -84,37 +85,41 @@
             }
           </mat-select>
 
-          <!-- Checkbox -->
+          <!-- Radio (single selection per column) -->
           <input
-            *ngIf="column.type === ColumnInputType.CHECKBOX"
-            type="checkbox"
+            *ngIf="column.type === ColumnInputType.RADIO"
+            type="radio"
+            [name]="'eln-editable-table-radio-' + column.id"
             [checked]="column.field(row)"
             [disabled]="!(column.editable?.(row) ?? true)"
-            (change)="callSave(column, row, $any($event.target).checked)"
+            (change)="callSave(column, row, true)"
           />
 
           <!-- Unit Input (weight, volume, etc) -->
-          <div *ngIf="column.type === ColumnInputType.UNIT_INPUT" class="flex w-full h-full">
+          <div *ngIf="column.type === ColumnInputType.UNIT_INPUT" class="flex w-full h-full gap-1 items-baseline">
             @let unitField = toUnitField(column.field(row));
             <input
               #valueInput
               type="number"
-              matInput
               placeholder="—"
+              class="flex-1 min-w-12 text-right"
               style="outline: none"
               [value]="unitField?.value ?? ''"
               [disabled]="!(column.editable?.(row) ?? true)"
-              (blur)="callSaveEV(column, row, $any($event.target).value, unitField?.unit)"
-              (keydown.enter)="callSaveEV(column, row, $any($event.target).value, unitField?.unit)"
+              (blur)="callSaveEV(column, row, 'value', valueInput, unitSelect)"
+              (keydown.enter)="callSaveEV(column, row, 'value', valueInput, unitSelect); valueInput.blur()"
+              (keydown.escape)="valueInput.value = unitField?.value ?? ''; valueInput.blur()"
             />
-            <mat-divider vertical style="opacity: 0.3" />
             <mat-select
-              class="!h-full !text-xs"
+              #unitSelect
+              class="unit-select !h-full !w-auto !text-xs shrink-0"
+              panelClass="unit-select-panel"
               hideSingleSelectionIndicator
-              style="min-width: 4rem; text-align: center"
+              style="min-width: 2rem; text-align: left"
               [value]="unitField?.unit"
-              [disabled]="!(column.editable?.(row) ?? true)"
-              (selectionChange)="callSaveEV(column, row, valueInput.value, $event.value)"
+              [disabled]="!(column.editable?.(row) ?? true) || !valueInput.value"
+              (openedChange)="!unitSelect.panelOpen && callSaveEV(column, row, 'unit', valueInput, unitSelect)"
+              (valueChange)="callSaveEV(column, row, 'unit', valueInput, unitSelect)"
             >
               @for (unit of column.options; track unit.id) {
                 <mat-option [value]="unit.id" style="font-size: 0.8rem">{{ unit.name }}</mat-option>
@@ -153,7 +158,7 @@
           <!-- Button -->
           <div
             *ngIf="column.type === ColumnInputType.BUTTON && (column.editable == null || column.editable(row))"
-            class="p-2"
+            class="p-1"
           >
             <button
               class="px-3 py-1 text-xs font-medium text-primary-700 bg-primary-50 border border-primary-200 rounded hover:bg-primary-100 transition-colors"
@@ -164,7 +169,7 @@
           </div>
 
           <!-- Icon -->
-          <div *ngIf="column.type === ColumnInputType.ICON" class="p-2">
+          <div *ngIf="column.type === ColumnInputType.ICON" class="p-1">
             @let editable = column.editable == null || column.editable(row);
             <button
               mat-icon-button
@@ -183,12 +188,7 @@
     <!-- Expanded Content Column -->
     @if (expandableConfig()?.enabled) {
       <ng-container matColumnDef="expandedDetail">
-        <td
-          mat-cell
-          *matCellDef="let row"
-          [attr.colspan]="getDisplayedColumnsWithExpand().length"
-          class="!p-0 border-b !border-gray-200"
-        >
+        <td mat-cell *matCellDef="let row" [attr.colspan]="getDisplayedColumnsWithExpand().length" class="!p-0">
           @if (isRowExpanded(row)) {
             <div class="expanded-row-content p-4 bg-gray-50">
               <ng-container

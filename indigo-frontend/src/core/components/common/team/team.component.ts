@@ -1,4 +1,15 @@
-import { Component, computed, inject, Input, OnInit, signal, ViewChild, WritableSignal } from '@angular/core';
+import {
+  Component,
+  computed,
+  EventEmitter,
+  inject,
+  Input,
+  OnInit,
+  Output,
+  signal,
+  ViewChild,
+  WritableSignal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardComponent } from '../card/card.component';
 import { CopyComponent } from '../copy/copy.component';
@@ -53,6 +64,8 @@ export class TeamComponent implements OnInit {
   }
   private _team: WritableSignal<ACLEntry[]> = signal<ACLEntry[]>([]);
   @Input({ required: true }) config: TeamComponentConfig;
+  @Input() showHeader = true;
+  @Output() teamChanged = new EventEmitter<ACLEntry[]>();
 
   userSuggestions: UserRefWithState[] = [];
   selectedUsers: string[] = [];
@@ -151,6 +164,7 @@ export class TeamComponent implements OnInit {
         if (projectAcl) {
           const updated = this._team().map((m) => (m.username === member.username ? { ...m, level: newLevel } : m));
           this._team.set(updated);
+          this.teamChanged.emit(updated);
         }
       });
   }
@@ -186,8 +200,10 @@ export class TeamComponent implements OnInit {
         inherited: false,
       });
     });
-    this._team.set([...current, ...toAdd]);
+    const updatedTeam = [...current, ...toAdd];
+    this._team.set(updatedTeam);
     this.rebuildSuggestionsState();
     this.selectedUsers = [];
+    this.teamChanged.emit(updatedTeam);
   }
 }

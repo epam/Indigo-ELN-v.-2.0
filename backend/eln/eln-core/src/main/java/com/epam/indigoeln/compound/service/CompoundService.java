@@ -123,6 +123,9 @@ public class CompoundService {
     public CompoundRef.Stored realCompoundRef(CompoundEntity compound) {
         return new CompoundRef.Stored(
                 compound.getId(),
+                dictionaryService.get(compound.getStereoisomerCode()),
+                dictionaryService.get(compound.getSaltCode()),
+                compound.getSaltEQ(),
                 fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL),
                 fixed(compound.getExactMass(), NoUnit.NO_UNIT),
                 MolFormulaFormatter.format(compound.getFormula()),

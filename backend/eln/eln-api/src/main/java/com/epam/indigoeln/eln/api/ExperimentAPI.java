@@ -11,8 +11,8 @@ import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.InputAnchor;
 import com.epam.indigoeln.reaction.model.ReactionAnchor;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.Min;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -141,20 +141,12 @@ public interface ExperimentAPI extends BaseAPI {
 
     @GET
     @Path("/experiments/{experimentId}/revisions")
-    List<RevisionDetailsDTO> getExperimentRevisions(@PathParam("experimentId") UUID experimentId, @Nullable @QueryParam("editSessionId") UUID editSessionId, @Nullable @QueryParam("reverseOrder") Boolean reverseOrder);
-
-    @GET
-    @Path("/experiments/{experimentId}/revisions/summary")
-    List<ExperimentRevisionSummaryDTO> getExperimentRevisionsSummary(@PathParam("experimentId") UUID experimentId);
-
-    @GET
-    @Path("/experiments/{experimentId}/versions/compare")
-    JsonNode compareVersions(@PathParam("experimentId") UUID experimentId, @Nullable @QueryParam("from") Integer versionFrom, @Nullable @QueryParam("to") Integer versionTo);
+    List<RevisionSummaryDTO> getExperimentRevisions(@PathParam("experimentId") UUID experimentId, @Nullable @QueryParam("flatten") Boolean flatten);
 
     @GET
     @Produces(MediaType.TEXT_HTML)
-    @Path("/experiments/{experimentId}/versions/compare")
-    String compareVersionsHTML(@PathParam("experimentId") UUID experimentId, @Nullable @QueryParam("from") Integer versionFrom, @Nullable @QueryParam("to") Integer versionTo);
+    @Path("/experiments/{experimentId}/revisions/{revisionNo}/diff")
+    String getRevisionDiff(@PathParam("experimentId") UUID experimentId, @PathParam("revisionNo") @Min(2) int revisionNo);
 
     @GET
     @Path("/experiments/suggest")

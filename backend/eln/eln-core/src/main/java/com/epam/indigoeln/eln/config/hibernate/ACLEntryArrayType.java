@@ -30,7 +30,7 @@ public class ACLEntryArrayType extends AbstractArrayOfStructType<ACLEntry[], ACL
 
     @Override
     protected Object[] doWrite(ACLEntry item) {
-        return new Object[]{item.getUserId(), item.getDisplayName(), item.getUsername(), item.getLevel(), item.getInherited()};
+        return new Object[]{item.getUserId(), item.getDisplayName(), item.getUsername(), item.getLevel(), item.isInherited()};
     }
 
     @Override

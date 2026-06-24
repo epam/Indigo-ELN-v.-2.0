@@ -1,6 +1,5 @@
 package com.epam.indigoeln.reaction.service.mutation.experiment;
 
-import com.epam.indigoeln.eln.entity.ExperimentEditSessionEntity;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
 import com.epam.indigoeln.eln.mapper.SnapshotMapper;
@@ -73,33 +72,19 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
     }
 
     protected final ExperimentSnapshot doSnapshotBefore(ExperimentEntity experiment, ExperimentMutationContext context) {
-        if (context.isAffectsModel()) {
-            experimentModelService.readModel(experiment);
-        }
-        ExperimentSnapshot snapshot = snapshotMapper.createSnapshot(experiment, context.isAffectsAttachments(), context.isAffectsACL(), experiment.getModelObj());
-        if (context.isAffectsModel()) {
-            // read another copy that will be updated during the mutation
-            experimentModelService.readModel(experiment);
-        }
-        return snapshot;
+        return snapshotMapper.createSnapshot(experiment, true);
     }
 
     @Override
     protected final JsonNode doUpdateEntity(ExperimentEntity experiment, ExperimentSnapshot snapshotBefore, ExperimentSnapshot snapshotAfter, ExperimentMutationContext context) {
-        ExperimentModel model = experiment.getModelObj();
-        if (model != null) {
-            runWithSignificantFigures(model.getSignificantFigures(), () -> {
-                doNotifyBeforeRecalculate(experiment, model, context);
-                reactionCalculatorFactory.get().recalculate(model);
-                doNotifyAfterRecalculate(experiment, model, context);
-                doValidateModel(model);
-            });
-        }
+        runWithSignificantFigures(experiment.getModel().getSignificantFigures(), () -> {
+            doNotifyBeforeRecalculate(experiment, context);
+            reactionCalculatorFactory.get().recalculate(experiment.getModel());
+            doNotifyAfterRecalculate(experiment, context);
+            doValidateModel(experiment.getModel());
+        });
         updateDates(experiment, userService.getCurrentUserEntity());
         JsonNode patch = experimentModelService.createPatch(snapshotBefore, snapshotAfter);
-        if (model != null) {
-            experimentModelService.setModel(experiment, model);
-        }
         //noinspection ConstantValue
         if (experiment.getId() == null) {
             experimentRepository.persist(experiment);
@@ -110,26 +95,12 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
 
     @Override
     protected ExperimentSnapshot doSnapshotAfter(ExperimentEntity experiment, ExperimentMutationContext context) {
-        return snapshotMapper.createSnapshot(experiment, context.isAffectsAttachments(), context.isAffectsACL(), experiment.getModelObj());
+        return snapshotMapper.createSnapshot(experiment, false);
     }
 
     @Override
     protected ExperimentRevisionEntity doCreateRevision(ExperimentEntity experiment, T mutation, MutationResult result, Integer revisionNo, JsonNode patch, ExperimentMutationContext context, ExperimentSnapshot snapshotAfter) {
-        ExperimentRevisionEntity revision = revisionService.addRevision(experiment, revisionNo, experiment.getModifiedAt(), result.summary(), mutation, patch);
-        ExperimentEditSessionEntity editSession = experimentModelService.getEditSession(experiment, userService.getCurrentUserEntity());
-        if (context.isRequiresEditSession()) {
-            if (editSession == null) {
-                editSession = experimentModelService.createEditSession(experiment, userService.getCurrentUserEntity(), revision.getDatetime());
-            } else {
-                editSession.setLastActive(revision.getDatetime());
-            }
-            revision.setEditSession(editSession);
-        } else {
-            if (editSession != null) {
-                editSession.setFinished(editSession.getLastActive());
-            }
-        }
-        return revision;
+        return revisionService.addRevision(experiment, revisionNo, experiment.getModifiedAt(), result.summary(), mutation, patch);
     }
 
     protected void doValidateModel(ExperimentModel model) {
@@ -142,22 +113,20 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
 
     @Override
     protected void doNotifyBeforeHandle(ExperimentEntity entity, T mutation, ExperimentMutationContext context) {
-        if (entity.getModelObj() != null) {
-            for (ExperimentModelMutationListener listener : listeners) {
-                listener.beforeHandle(entity, entity.getModelObj(), context);
-            }
+        for (ExperimentModelMutationListener listener : listeners) {
+            listener.beforeHandle(entity, context);
         }
     }
 
-    private void doNotifyBeforeRecalculate(ExperimentEntity entity, ExperimentModel model, ExperimentMutationContext context) {
+    private void doNotifyBeforeRecalculate(ExperimentEntity entity, ExperimentMutationContext context) {
         for (ExperimentModelMutationListener listener : listeners) {
-            listener.beforeRecalculate(entity, model, context);
+            listener.beforeRecalculate(entity, context);
         }
     }
 
-    private void doNotifyAfterRecalculate(ExperimentEntity entity, ExperimentModel model, ExperimentMutationContext context) {
+    private void doNotifyAfterRecalculate(ExperimentEntity entity, ExperimentMutationContext context) {
         for (ExperimentModelMutationListener listener : listeners) {
-            listener.afterRecalculate(entity, model, context);
+            listener.afterRecalculate(entity, context);
         }
     }
 }

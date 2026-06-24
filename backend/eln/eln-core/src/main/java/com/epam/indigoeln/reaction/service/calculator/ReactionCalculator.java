@@ -35,8 +35,8 @@ public class ReactionCalculator {
     @Nullable
     private Property<?, ?> overwritten = null;
 
-    public void recalculate(ExperimentModel modelObj) {
-        model = new ModelProps(modelObj);
+    public void recalculate(ExperimentModel experimentModel) {
+        model = new ModelProps(experimentModel);
         try {
             model.prepareToRecalculate();
             recalculateModel(model);

@@ -15,6 +15,11 @@ public interface ReactionOutputSampleMutation extends ExperimentMutation {
 
     OutputSampleAnchor anchor();
 
+    @Override
+    default boolean isApplicableToEditSession() {
+        return true;
+    }
+
     record SetOutputDensity (
             @NotNull OutputSampleAnchor anchor,
             @Nullable String density,

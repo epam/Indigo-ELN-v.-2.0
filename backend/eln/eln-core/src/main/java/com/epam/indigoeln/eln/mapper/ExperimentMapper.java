@@ -4,7 +4,6 @@ import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.RevisionService;
-import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import jakarta.inject.Inject;
 import org.mapstruct.Mapper;
@@ -32,15 +31,29 @@ public abstract class ExperimentMapper extends AbstractMapper {
     @Mapping(target = "acl", source = "entity.fullACL")
     @Mapping(target = "marked", source = "entity.calculatedInfo.marked")
     @Mapping(target = "templateId", source = "entity.template.id")
-    @Mapping(target = "model", source = "model")
     @Mapping(target = "projectId", source = "entity.project.id")
     @Mapping(target = "projectName", source = "entity.project.name")
     @Mapping(target = "notebookId", source = "entity.notebook.id")
     @Mapping(target = "notebookName", source = "entity.notebook.name")
-    public abstract ExperimentDetailsDTO entityToDetailsDTO(ExperimentEntity entity, ExperimentModel model, Set<ApplicationPermission> currentPermissions);
+    public abstract ExperimentDetailsDTO entityToDetailsDTO(ExperimentEntity entity, Set<ApplicationPermission> currentPermissions);
 
-    @Mapping(target = "diff", expression = "java(revisionService.getPatch(entity))")
-    @Mapping(target = "stringDiff", expression = "java(revisionService.formatPatch(entity.getDiff()))")
-    public abstract RevisionDetailsDTO revisionToDTO(ExperimentRevisionEntity entity);
-    public abstract List<RevisionDetailsDTO> revisionToDTOList(List<ExperimentRevisionEntity> entity);
+    @Mapping(target = "date", source = "datetime")
+    @Mapping(target = "dateTo", ignore = true)
+    @Mapping(target = "revisionTo", ignore = true)
+    @Mapping(target = "details", ignore = true)
+    public abstract RevisionSummaryDTO revisionToSummary(ExperimentRevisionEntity entity);
+
+    public abstract List<RevisionSummaryDTO> revisionToSummaryList(List<ExperimentRevisionEntity> list);
+
+    public RevisionSummaryDTO revisionGroupToSummary(List<ExperimentRevisionEntity> list) {
+        return new RevisionSummaryDTO(
+                list.getFirst().getUser().toInfo(),
+                "Edited experiment",
+                list.getFirst().getDatetime(),
+                list.getLast().getDatetime(),
+                list.getFirst().getRevision(),
+                list.getLast().getRevision(),
+                revisionToSummaryList(list)
+        );
+    }
 }

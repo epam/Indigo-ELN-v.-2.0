@@ -93,11 +93,6 @@ class SubmitExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
     SignatureClient signatureClient;
 
     @Override
-    public void doPrepare(ExperimentEntity entity, ExperimentMutation.SubmitExperiment mutation, ExperimentMutationContext context) {
-        context.setAffectsAttachments(true);
-    }
-
-    @Override
     @SneakyThrows
     public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.SubmitExperiment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         helper.transition(experiment, SUBMITTED, SUBMIT_EXPERIMENTS, COMPLETED, REJECTED);
@@ -126,11 +121,6 @@ class SignatureUpdatedHandler extends ExperimentMutationHandlerBase<ExperimentMu
     AttachmentRepository attachmentRepository;
 
     @Override
-    public void doPrepare(ExperimentEntity entity, ExperimentMutation.SignatureUpdated mutation, ExperimentMutationContext context) {
-        context.setAffectsAttachments(true);
-    }
-
-    @Override
     public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.SignatureUpdated mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         helper.updateStatusFromSignature(experiment, mutation.documentStatus());
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
@@ -145,14 +135,6 @@ class MakeVersionHandler extends ExperimentMutationHandlerBase<ExperimentMutatio
 
     @Inject
     ExperimentRepository experimentRepository;
-
-    @Override
-    public void doPrepare(ExperimentEntity entity, ExperimentMutation.MakeVersion mutation, ExperimentMutationContext context) {
-        // make sure snapshot contains all fields
-        context.setAffectsModel(true);
-        context.setAffectsAttachments(true);
-        context.setAffectsACL(true);
-    }
 
     @Override
     public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.MakeVersion mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {

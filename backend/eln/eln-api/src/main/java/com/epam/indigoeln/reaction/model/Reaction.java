@@ -1,5 +1,6 @@
 package com.epam.indigoeln.reaction.model;
 
+import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.reaction.util.StreamUtil;
 import com.fasterxml.jackson.annotation.*;
@@ -7,29 +8,29 @@ import com.google.common.primitives.Ints;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AccessLevel;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 @Data
 @ToString(exclude = "model")
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
+@EqualsAndHashCode(exclude = "model", callSuper = false)
+@RequiredArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class Reaction extends AbstractExperimentNode<ExperimentModel> {
+public final class Reaction implements ExperimentNode {
 
     @JsonBackReference
-    private ExperimentModel model;
+    private final ExperimentModel model;
 
     @NotNull
-    private ReactionAnchor anchor;
+    private final ReactionAnchor anchor;
 
     @Nullable
     @Size(min = 1)
@@ -37,19 +38,18 @@ public final class Reaction extends AbstractExperimentNode<ExperimentModel> {
 
     @NotNull
     @JsonManagedReference
-    private List<@Valid ReactionInput> inputs = new ArrayList<>();
+    private List<@Valid ReactionInput> inputs = List.of();
 
     @Nullable
     private InputAnchor limitingAnchor;
 
     @NotNull
     @JsonManagedReference
-    private List<@Valid ReactionOutput> outputs = new ArrayList<>();
+    private List<@Valid ReactionOutput> outputs = List.of();
 
     public static Reaction create(ExperimentModel model, ReactionAnchor anchor) {
-        Reaction reaction = new Reaction();
-        reaction.model = model;
-        reaction.anchor = anchor;
+        Reaction reaction = new Reaction(model, anchor);
+        model.setReactions(ModelUtil.appendToList(model.getReactions(), reaction));
         return reaction;
     }
 
@@ -102,20 +102,5 @@ public final class Reaction extends AbstractExperimentNode<ExperimentModel> {
                 .flatMap(r -> r.getSamples().stream())
                 .map(ReactionSample::getStrCode)
                 .collect(StreamUtil.toListNotNull());
-    }
-
-    @Override
-    protected ExperimentModel internalGetParent() {
-        return model;
-    }
-
-    @Override
-    protected void internalSetParent(ExperimentModel parent) {
-        model = parent;
-    }
-
-    @Override
-    protected List<? extends AbstractExperimentNode<ExperimentModel>> internalGetSiblings(ExperimentModel parent) {
-        return parent.getReactions();
     }
 }

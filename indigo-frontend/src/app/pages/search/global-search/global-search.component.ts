@@ -1,6 +1,6 @@
 import { FormDialogComponent } from '@/core/components/common/form-dialog/form-dialog.component';
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, inject, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, inject, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
@@ -50,6 +50,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 export interface GlobalSearchDialogData {
   reactionAnchor: ReactionAnchor;
+  initialQuery?: string;
 }
 
 @Component({
@@ -80,7 +81,7 @@ export interface GlobalSearchDialogData {
   ],
   templateUrl: './global-search.component.html',
 })
-export class GlobalSearchComponent implements OnInit {
+export class GlobalSearchComponent implements OnInit, AfterViewInit {
   data: GlobalSearchDialogData = inject(MAT_DIALOG_DATA);
 
   loader: GlobalSearchLoader;
@@ -121,6 +122,13 @@ export class GlobalSearchComponent implements OnInit {
         .filter(([k, _]) => k !== 'structureSearchType')
         .some(([_, v]) => isFormValueNotEmpty(v));
     });
+  }
+
+  ngAfterViewInit(): void {
+    if (this.data?.initialQuery) {
+      this.form.get('quickSearch').setValue(this.data.initialQuery);
+      this.performSearch();
+    }
   }
 
   updateAdvancedSearchSummary(show: boolean) {

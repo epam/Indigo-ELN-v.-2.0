@@ -9,8 +9,8 @@ export const environment = mergeEnvironments({
     clientId: '',
   },
   authConfig: {
-    userPoolId: 'us-east-1_6DirgtQ1p',
-    userPoolClientId: 'a4kkh00ob23l7upm88hh3mmj5',
+    userPoolId: 'us-east-1_bgZNcyeDz',
+    userPoolClientId: '3bqu2iod15b0otft0ap8umlfgh',
     identityPoolId: '',
   },
 });

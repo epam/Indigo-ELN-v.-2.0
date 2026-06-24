@@ -19,10 +19,10 @@ public class ReactionInputMetamodel {
     public static final ModelProperty<ReactionInput, EnteredValue<NoUnit>> EQ = enteredValueProperty("eq", ReactionRow::getEq, ReactionRow::setEq, EnteredValue.DEFAULT_ONE);
     public static final ModelProperty<ReactionInput, @Nullable Integer> RXN_POSITION = property("rxnPosition", ReactionRow::getRxnPosition, ReactionRow::setRxnPosition);
     // ReactionInput
-    public static final ModelProperty<ReactionInput, InputAnchor> ANCHOR = property("anchor", ReactionInput::getAnchor, ReactionInput::setAnchor);
+    public static final ModelProperty<ReactionInput, InputAnchor> ANCHOR = property("anchor", ReactionInput::getAnchor, null);
     public static final ModelProperty<ReactionInput, ReactionRole> ROLE = property("role", ReactionInput::getRole, ReactionInput::setRole);
     public static final ModelProperty<ReactionInput, @Nullable EnteredValue<MolUnit>> MOL = enteredValueProperty("mol", ReactionInput::getMol, ReactionInput::setMol);
-    public static final ModelProperty<ReactionInput, String> CHEMICAL_NAME = property("chemicalName", ReactionInput::getChemicalName, ReactionInput::setChemicalName);
+    public static final ModelProperty<ReactionInput, @Nullable String> CHEMICAL_NAME = property("chemicalName", ReactionInput::getChemicalName, ReactionInput::setChemicalName);
     public static final ModelProperty<ReactionInput, Boolean> LIMITING = property("limiting", ReactionInput::isLimiting, null);
     public static final ModelProperty<ReactionInput, List<ReactionInputSample>> SAMPLES = listProperty("samples", ReactionInput::getSamples, ReactionInput::setSamples, ReactionInputSampleMetamodel.INSTANCE);
 
