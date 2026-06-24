@@ -22,7 +22,8 @@ public class MainStack extends Stack {
                 props.getEc2KeyPair(),
                 props.getHostedZone(),
                 props.getHostedZoneName(),
-                props.getSecurityGroups()
+                props.getSecurityGroups(),
+                parameters.getStorageBucketName()
         ));
 
         PostgresStack postgresStack = new PostgresStack(this, new PostgresStack.Props(
@@ -54,7 +55,8 @@ public class MainStack extends Stack {
                 props.getElnLambdaImageTag(),
                 props.getReportsLambdaImageTag(),
                 props.getSignatureLambdaImageTag(),
-                props.getApiGatewaySecret()
+                props.getApiGatewaySecret(),
+                infraStack.getStorageBucket()
         ));
 
         CloudFrontStack cloudFrontStack = new CloudFrontStack(this, new CloudFrontStack.Props(
