@@ -29,7 +29,7 @@ public interface IncidentClient extends IncidentAPI {
     default void createIncidentReport(String description,
                                       @Nullable UUID experimentId,
                                       @Nullable String mutationJson,
-                                      @Nullable byte[] fileContent,
+                                      byte @Nullable [] fileContent,
                                       @Nullable String filename) {
         FormData file = fileContent != null
                 ? new FormData(MediaType.APPLICATION_OCTET_STREAM, filename, fileContent)

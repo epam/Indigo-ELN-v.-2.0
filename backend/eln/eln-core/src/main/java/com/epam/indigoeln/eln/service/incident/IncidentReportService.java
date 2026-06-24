@@ -1,6 +1,7 @@
 package com.epam.indigoeln.eln.service.incident;
 
 import com.epam.indigoeln.common.config.UserHolder;
+import com.epam.indigoeln.common.storage.FileStorage;
 import com.epam.indigoeln.eln.api.IncidentReportForm;
 import com.epam.indigoeln.eln.service.ExperimentService;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
@@ -10,7 +11,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
 import org.jspecify.annotations.Nullable;
 
@@ -23,8 +23,8 @@ import java.util.UUID;
 @ApplicationScoped
 public class IncidentReportService {
 
-    @ConfigProperty(name = "eln.incident.directory")
-    String incidentDirectory;
+    @Inject
+    FileStorage fileStorage;
 
     @Inject
     UserHolder userHolder;
@@ -37,9 +37,6 @@ public class IncidentReportService {
 
     @SneakyThrows
     public void createIncidentReport(IncidentReportForm form) {
-        Path directory = Path.of(incidentDirectory);
-        Files.createDirectories(directory);
-
         UUID incidentId = UUID.randomUUID();
 
         IncidentReport report = new IncidentReport();
@@ -48,11 +45,11 @@ public class IncidentReportService {
         report.setDescription(form.getDescription());
         report.setExperimentSnapshot(loadSnapshot(form.getExperimentId()));
         report.setMutation(parseMutation(form.getMutationJson()));
-        report.setAttachmentFilename(saveAttachment(directory, incidentId, form.getFile()));
+        report.setAttachmentFilename(saveAttachment(incidentId, form.getFile()));
 
-        Path reportFile = directory.resolve("incident-" + incidentId + ".json");
-        objectMapper.writerWithDefaultPrettyPrinter().writeValue(reportFile.toFile(), report);
-        log.info("Incident report saved: {}", reportFile);
+        String reportKey = "incidents/incident-" + incidentId + ".json";
+        fileStorage.put(reportKey, objectMapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(report));
+        log.info("Incident report saved: {}", reportKey);
     }
 
     @Nullable
@@ -74,13 +71,13 @@ public class IncidentReportService {
 
     @SneakyThrows
     @Nullable
-    private String saveAttachment(Path directory, UUID incidentId, @Nullable FileUpload file) {
+    private String saveAttachment(UUID incidentId, @Nullable FileUpload file) {
         if (file == null) {
             return null;
         }
         String basename = Path.of(file.fileName()).getFileName().toString();
         String filename = "incident-" + incidentId + "-" + basename;
-        Files.copy(file.filePath(), directory.resolve(filename));
+        fileStorage.put("incidents/" + filename, Files.readAllBytes(file.filePath()));
         return filename;
     }
 }

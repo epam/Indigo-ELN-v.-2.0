@@ -57,7 +57,7 @@ public class ELNLambdaStack {
                 entry("QUARKUS_DATASOURCE_PASSWORD", props.dbCredentials().getPassword().unsafeUnwrap()), // TODO retrieve credentials in lambda code
                 entry("ELN_COGNITO_USER_POOL_ID", props.userPool().getUserPoolId()),
                 entry("ELN_API_SECRET", apiGatewaySecret.getStringValue()),
-                entry("ELN_STORAGE_S3_BUCKET", props.getStorageBucket().getBucketName()),
+                entry("ELN_STORAGE_S3_BUCKET", props.storageBucket().getBucketName()),
                 entry("QUARKUS_REST_CLIENT_REPORTS_API_URL", httpApi.getApiEndpoint()),
                 entry("QUARKUS_REST_CLIENT_SIGNATURE_API_URL", httpApi.getApiEndpoint()),
                 entry("QUARKUS_REST_CLIENT_LOGGING_SCOPE", "request-response"),

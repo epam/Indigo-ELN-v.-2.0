@@ -8,6 +8,7 @@ dependencies {
     api("io.quarkus:quarkus-amazon-lambda-http")
     implementation("io.quarkus:quarkus-amazon-lambda-xray")
     implementation("io.quarkiverse.amazonservices:quarkus-amazon-s3")
+    implementation("software.amazon.awssdk:url-connection-client")
 
 //    implementation("io.quarkus:quarkus-credentials")
 //    implementation("io.quarkiverse.amazonservices:quarkus-amazon-secretsmanager")

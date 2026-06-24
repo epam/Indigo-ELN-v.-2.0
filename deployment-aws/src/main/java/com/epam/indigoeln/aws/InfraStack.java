@@ -150,8 +150,8 @@ public class InfraStack {
         ec2SecurityGroup.addIngressRule(lambdaSecurityGroup, Port.tcp(6432), "from-lambda");
         ec2SecurityGroup.addIngressRule(lambdaSecurityGroup, Port.tcp(6433), "from-lambda");
 
-        storageBucket = Bucket.Builder.create(this, "storage-bucket")
-                .bucketName(props.getStorageBucketName())
+        storageBucket = Bucket.Builder.create(scope, "storage-bucket")
+                .bucketName(props.storageBucketName())
                 .removalPolicy(RemovalPolicy.RETAIN)
                 .build();
     }

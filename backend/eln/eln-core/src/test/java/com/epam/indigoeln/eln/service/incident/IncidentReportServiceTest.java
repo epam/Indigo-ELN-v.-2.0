@@ -1,13 +1,13 @@
-package com.epam.indigoeln.eln.service;
+package com.epam.indigoeln.eln.service.incident;
 
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.client.IncidentClient;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.test.FeignUtil;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.io.MoreFiles;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import org.eclipse.microprofile.config.ConfigProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,24 +24,27 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
-class IncidentServiceTest extends ELNBaseTest {
+class IncidentReportServiceTest extends ELNBaseTest {
 
-    private IncidentClient incidentClient;
-    private Path incidentDir;
-    private List<Path> existingReports;
+    IncidentClient incidentClient;
+
+    Path incidentsDir = Paths.get("build/incidents");
 
     @BeforeEach
     void setUp() throws IOException {
         incidentClient = buildClient(IncidentClient.class);
-        incidentDir = Path.of(ConfigProvider.getConfig().getValue("eln.incident.directory", String.class));
-        existingReports = listAllJsonFiles();
+        if (Files.exists(incidentsDir)) {
+            MoreFiles.deleteDirectoryContents(incidentsDir);
+        } else {
+            Files.createDirectories(incidentsDir);
+        }
     }
 
     @Test
     void testCreateReportDescriptionOnly() throws IOException {
         incidentClient.createIncidentReport("Something went wrong");
 
-        List<Path> jsonFiles = listJsonFiles();
+        List<Path> jsonFiles = listAllJsonFiles();
         assertThat(jsonFiles).hasSize(1);
 
         JsonNode report = readReport(jsonFiles.getFirst());
@@ -57,7 +61,7 @@ class IncidentServiceTest extends ELNBaseTest {
         withUser(BART_USERNAME, () ->
                 incidentClient.createIncidentReport("Bart's report"));
 
-        JsonNode report = readReport(listJsonFiles().getFirst());
+        JsonNode report = readReport(listAllJsonFiles().getFirst());
         assertThat(report.path("username").asText()).isEqualTo(BART_USERNAME);
     }
 
@@ -67,7 +71,7 @@ class IncidentServiceTest extends ELNBaseTest {
 
         incidentClient.createIncidentReport("Experiment broke", experiment.getId(), null, null, null);
 
-        JsonNode report = readReport(listJsonFiles().getFirst());
+        JsonNode report = readReport(listAllJsonFiles().getFirst());
         assertThat(report.path("experimentSnapshot").isMissingNode()).isFalse();
         assertThat(report.path("experimentSnapshot").path("status").asText()).isNotBlank();
         assertThat(report.path("experimentSnapshot").path("revision").asInt()).isGreaterThanOrEqualTo(0);
@@ -79,7 +83,7 @@ class IncidentServiceTest extends ELNBaseTest {
 
         incidentClient.createIncidentReport("Mutation failed", null, mutationJson, null, null);
 
-        JsonNode report = readReport(listJsonFiles().getFirst());
+        JsonNode report = readReport(listAllJsonFiles().getFirst());
         assertThat(report.path("mutation").isMissingNode()).isFalse();
         assertThat(report.path("mutation").path("type").asText()).isEqualTo("CreateExperiment");
     }
@@ -90,14 +94,14 @@ class IncidentServiceTest extends ELNBaseTest {
 
         incidentClient.createIncidentReport("UI glitch", null, null, screenshot, "screenshot.png");
 
-        List<Path> jsonFiles = listJsonFiles();
+        List<Path> jsonFiles = listAllJsonFiles();
         assertThat(jsonFiles).hasSize(1);
 
         JsonNode report = readReport(jsonFiles.getFirst());
         String attachmentFilename = report.path("attachmentFilename").asText();
         assertThat(attachmentFilename).isNotBlank().endsWith("-screenshot.png");
 
-        Path savedAttachment = incidentDir.resolve(attachmentFilename);
+        Path savedAttachment = incidentsDir.resolve(attachmentFilename);
         assertThat(savedAttachment).exists();
         assertThat(Files.readAllBytes(savedAttachment)).isEqualTo(screenshot);
     }
@@ -108,11 +112,11 @@ class IncidentServiceTest extends ELNBaseTest {
 
         incidentClient.createIncidentReport("Suspicious upload", null, null, content, "../../evil.sh");
 
-        JsonNode report = readReport(listJsonFiles().getFirst());
+        JsonNode report = readReport(listAllJsonFiles().getFirst());
         String attachmentFilename = report.path("attachmentFilename").asText();
         assertThat(attachmentFilename).isNotBlank().doesNotContain("..").endsWith("-evil.sh");
 
-        Path savedAttachment = incidentDir.resolve(attachmentFilename);
+        Path savedAttachment = incidentsDir.resolve(attachmentFilename);
         assertThat(savedAttachment).exists();
         assertThat(Files.readAllBytes(savedAttachment)).isEqualTo(content);
     }
@@ -125,7 +129,7 @@ class IncidentServiceTest extends ELNBaseTest {
 
         incidentClient.createIncidentReport("Full report", experiment.getId(), mutationJson, screenshot, "screen.png");
 
-        List<Path> jsonFiles = listJsonFiles();
+        List<Path> jsonFiles = listAllJsonFiles();
         assertThat(jsonFiles).hasSize(1);
 
         JsonNode report = readReport(jsonFiles.getFirst());
@@ -142,7 +146,7 @@ class IncidentServiceTest extends ELNBaseTest {
         incidentClient.createIncidentReport("First report");
         incidentClient.createIncidentReport("Second report");
 
-        assertThat(listJsonFiles()).hasSize(2);
+        assertThat(listAllJsonFiles()).hasSize(2);
     }
 
     @Test
@@ -167,15 +171,8 @@ class IncidentServiceTest extends ELNBaseTest {
         return experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
     }
 
-    private List<Path> listJsonFiles() throws IOException {
-        return listAllJsonFiles().stream()
-                .filter(f -> !existingReports.contains(f))
-                .toList();
-    }
-
     private List<Path> listAllJsonFiles() throws IOException {
-        Files.createDirectories(incidentDir);
-        try (var stream = Files.list(incidentDir)) {
+        try (var stream = Files.list(incidentsDir)) {
             return stream
                     .filter(f -> f.getFileName().toString().endsWith(".json"))
                     .sorted()
