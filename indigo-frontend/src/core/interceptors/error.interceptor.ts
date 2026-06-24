@@ -1,24 +1,39 @@
 import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
-import { BackendError } from '@core/types/entities/base-entity.i';
-import { NotificationType } from '@core/types/notification.i';
 import { inject, Injectable } from '@angular/core';
 import { NotificationService } from '@core/services/notification/notification.service';
+import { INCIDENTS_ENDPOINT } from '@core/services/report-bug.service';
+import { ReportErrorDialogService } from '@core/services/report-error-dialog.service';
+import { BackendError } from '@core/types/entities/base-entity.i';
+import { NotificationType } from '@core/types/notification.i';
+import { ReportErrorContext } from '@core/types/report-error.i';
 import { catchError, Observable, throwError } from 'rxjs';
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
   notificationService = inject(NotificationService);
+  reportErrorDialogService = inject(ReportErrorDialogService);
 
   intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     return next.handle(req).pipe(
       catchError((error: HttpErrorResponse) => {
         try {
           const [message, log]: [string, string] = detectMessage(error);
+          const reportDraft = buildReportErrorDraft(req, error, message);
+          const isIncidentRequest = isReportBugRequest(req);
+
           console.error(log, error);
           this.notificationService.notify({
             message,
             type: NotificationType.Error,
             isInline: false,
+            ...(isIncidentRequest
+              ? {}
+              : {
+                  action: {
+                    label: 'Report Error',
+                    callback: () => this.reportErrorDialogService.open(reportDraft),
+                  },
+                }),
           });
         } catch (e) {
           console.error('Error handling error', e, error);
@@ -44,4 +59,47 @@ function detectMessage(error: unknown): [string, string] {
     return [error.message, error.message];
   }
   return ['Unknown error', 'Unknown error'];
+}
+
+function buildReportErrorDraft(
+  req: HttpRequest<unknown>,
+  error: HttpErrorResponse,
+  message: string,
+): { initialValue: { title: string; problemDescription: string }; context: ReportErrorContext } {
+  const requestBody = normalizeErrorBody(req.body);
+  const responseBody = normalizeErrorBody(error.error);
+
+  return {
+    initialValue: {
+      title: `Backend error ${error.status || 'unknown'}`,
+      problemDescription: message,
+    },
+    context: {
+      requestURL: req.urlWithParams,
+      requestMethod: req.method,
+      ...(requestBody ? { requestBody } : {}),
+      ...(responseBody ? { responseBody } : {}),
+    },
+  };
+}
+
+function normalizeErrorBody(errorBody: unknown): string | null {
+  if (errorBody == null) {
+    return null;
+  }
+
+  if (typeof errorBody === 'string') {
+    return errorBody;
+  }
+
+  try {
+    return JSON.stringify(errorBody);
+  } catch (serializationError) {
+    console.error('Unable to serialize error details', serializationError, errorBody);
+    return 'Unable to serialize error details';
+  }
+}
+
+function isReportBugRequest(req: HttpRequest<unknown>): boolean {
+  return req.url.includes(`/${INCIDENTS_ENDPOINT}`);
 }
