@@ -24,6 +24,7 @@ import com.epam.indigoeln.indigowrapper.*;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
+import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import com.epam.indigoeln.reaction.service.mutation.experiment.ExperimentMutationContext;
 import com.epam.indigoeln.reports.api.ReportsAPI;
@@ -52,6 +53,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 import static com.epam.indigoeln.common.util.ContentDispositionUtil.extractFilename;
+import static com.epam.indigoeln.common.util.ContentDispositionUtil.generateContentDisposition;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -298,30 +300,95 @@ public class ExperimentService {
             String filename
     ) {}
 
+    private String getPropertySDFRepresentation(Object property) {
+        if (property instanceof EnteredValue<?>) {
+            return ((EnteredValue<?>) property).getStringValue() + " " +
+                    ((EnteredValue<?>) property).getUnit().name();
+        }
+        if (property instanceof Iterable<?>) {
+            StringBuilder builder = new StringBuilder();
+            for (Object obj: (Iterable<?>) property) {
+                builder.append(getPropertySDFRepresentation(obj));
+                builder.append(System.lineSeparator());
+            }
+            return builder.toString();
+        }
+        return property.toString();
+    }
+
+    private void setMoleculePropertyIfExists(IndigoMolecule molecule, @Nullable Object property, String propertyName) {
+        if (property != null)
+            molecule.setProperty(propertyName, getPropertySDFRepresentation(property));
+    }
+
     @SneakyThrows
-    public byte[] exportSDF(UUID experimentId) {
+    public Response exportSDF(UUID experimentId) {
         Path tempFilePath = Files.createTempFile("IndigoELN-export", ".sdf");
 
         try (IndigoSDFSaver saver = indigo.writeFile(tempFilePath.toString())) {
             ExperimentEntity experiment = experimentRepository.get(experimentId);
+            aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
+            ExperimentModel model = experiment.getModel();
 
-            for (Reaction reaction : experiment.getModel().getReactions()) {
+            for (Reaction reaction : model.getReactions()) {
                 for (ReactionOutput output : reaction.getOutputs()) {
-                    UUID moleculeId = output.getCompound().getCompoundID();
+                    CompoundRef compoundRef = output.getCompound();
 
-                    if (moleculeId != null) {
-                        CompoundEntity compound = compoundService.getCompound(moleculeId);
-                        IndigoMolecule molecule = indigo.loadMolecule(compound.getMolFile());
+                    for (ReactionOutputSample sample: output.getSamples()) {
+                        UUID moleculeId = sample.getRow().getCompound().getCompoundID();
 
-                        molecule.setProperty("chemicalName", Objects.requireNonNullElse(compound.getChemicalName(), ""));
-                        molecule.setProperty("molWeight", compound.getMolWeight().toString());
+                        if (moleculeId != null) {
+                            CompoundEntity compound = compoundService.getCompound(moleculeId);
+                            IndigoMolecule molecule = indigo.loadMolecule(compound.getMolFile());
 
-                        saver.sdfAppend(molecule);
+                            molecule.setProperty("chemicalName", Objects.requireNonNullElse(compound.getChemicalName(), ""));
+
+                            molecule.setProperty("shortNbkBatchNumber", sample.getShortNbkBatchNumber());
+                            molecule.setProperty("outputName", output.getOutputName());
+
+                            molecule.setProperty("type", output.getType().toString());
+                            setMoleculePropertyIfExists(molecule, sample.getRegistrationStatus(), "registrationStatus");
+                            setMoleculePropertyIfExists(molecule, sample.getActualWeight(), "actualWeight");
+                            setMoleculePropertyIfExists(molecule, sample.getVolume(), "volume");
+                            setMoleculePropertyIfExists(molecule, sample.getActualMol(), "actualMol");
+                            setMoleculePropertyIfExists(molecule, sample.getMolarity(), "molarity");
+                            setMoleculePropertyIfExists(molecule, sample.getYield(), "yield");
+                            molecule.setProperty("purity", getPropertySDFRepresentation(sample.getPurity()));
+
+                            setMoleculePropertyIfExists(molecule, compoundRef.getMolWeight(), "molWeight");
+                            setMoleculePropertyIfExists(molecule, sample.getSource(), "source");
+                            setMoleculePropertyIfExists(molecule, compoundRef.getSaltCode(), "saltCode");
+                            setMoleculePropertyIfExists(molecule, compoundRef.getStereoisomerCode(), "stereoisomerCode");
+                            setMoleculePropertyIfExists(molecule, compoundRef.getSaltEQ(), "saltEQ");
+                            setMoleculePropertyIfExists(molecule, output.getTheoWeight(), "theoWeight");
+                            setMoleculePropertyIfExists(molecule, compoundRef.getCalculatedBatchMF(), "calculatedBatchMF");
+                            setMoleculePropertyIfExists(molecule, sample.getStructureComment(), "structureComment");
+                            setMoleculePropertyIfExists(molecule, sample.getSourceDetails(), "sourceDetails");
+                            molecule.setProperty("precursorReactantId", getPropertySDFRepresentation(reaction.getPrecursorReactantIds()));
+                            setMoleculePropertyIfExists(molecule, sample.getStrCode(), "strCode");
+                            setMoleculePropertyIfExists(molecule, output.getTheoMol(), "theoMol");
+                            setMoleculePropertyIfExists(molecule, sample.getBatchComment(), "batchComment");
+
+                            setMoleculePropertyIfExists(molecule, sample.getComponentState(), "componentState");
+                            setMoleculePropertyIfExists(molecule, sample.getCompoundProtection(), "compoundProtection");
+                            setMoleculePropertyIfExists(molecule, sample.getResidualSolvents(), "residualSolvents");
+                            molecule.setProperty("healthHazards", getPropertySDFRepresentation(sample.getHealthHazards()));
+                            setMoleculePropertyIfExists(molecule, sample.getHandlingPrecautions(), "handlingPrecautions");
+
+                            setMoleculePropertyIfExists(molecule, sample.getMeltingPoint(), "meltingPoint");
+                            setMoleculePropertyIfExists(molecule, sample.getStorageInstructions(), "storageInstructions");
+                            setMoleculePropertyIfExists(molecule, sample.getSolubilityInSolvents(), "solubilityInSolvents");
+                            setMoleculePropertyIfExists(molecule, sample.getExternalSupplier(), "externalSupplier");
+
+                            saver.sdfAppend(molecule);
+                        }
                     }
                 }
             }
 
-            return Files.readAllBytes(tempFilePath);
+            return Response.ok(Files.readAllBytes(tempFilePath))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, generateContentDisposition(false, experiment.getName() + ".sdf"))
+                    .build();
         } finally {
             Files.deleteIfExists(tempFilePath);
         }
