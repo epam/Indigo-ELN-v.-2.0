@@ -154,6 +154,14 @@ public class InfraStack {
                 .bucketName(props.storageBucketName())
                 .removalPolicy(RemovalPolicy.RETAIN)
                 .build();
+
+        GatewayVpcEndpoint.Builder.create(scope, "s3-gateway-endpoint")
+                .vpc(vpc)
+                .service(GatewayVpcEndpointAwsService.S3)
+                .subnets(List.of(SubnetSelection.builder()
+                        .subnetFilters(List.of(SubnetFilter.byIds(props.lambdaSubnets())))
+                        .build()))
+                .build();
     }
 
     public record Props(
@@ -162,6 +170,7 @@ public class InfraStack {
             String hostedZone,
             String hostedZoneName,
             List<String> securityGroups,
-            String storageBucketName
+            String storageBucketName,
+            List<String> lambdaSubnets
     ) {}
 }

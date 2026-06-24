@@ -23,7 +23,8 @@ public class MainStack extends Stack {
                 props.getHostedZone(),
                 props.getHostedZoneName(),
                 props.getSecurityGroups(),
-                props.getStorageBucketName()
+                props.getStorageBucketName(),
+                props.getLambdaSubnets()
         ));
 
         PostgresStack postgresStack = new PostgresStack(this, new PostgresStack.Props(

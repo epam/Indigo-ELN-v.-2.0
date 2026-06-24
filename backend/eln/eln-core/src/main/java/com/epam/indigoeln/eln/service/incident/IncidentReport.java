@@ -14,7 +14,7 @@ public class IncidentReport {
 
     private Instant incidentTime;
     private String username;
-    private String description;
+    private String message;
     @Nullable private ExperimentSnapshot experimentSnapshot;
     @Nullable private JsonNode mutation;
     @Nullable private String attachmentFilename;

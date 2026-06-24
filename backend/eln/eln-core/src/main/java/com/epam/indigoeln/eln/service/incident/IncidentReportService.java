@@ -42,7 +42,7 @@ public class IncidentReportService {
         IncidentReport report = new IncidentReport();
         report.setIncidentTime(Instant.now());
         report.setUsername(userHolder.getUserName());
-        report.setDescription(form.getDescription());
+        report.setMessage(form.getMessage());
         report.setExperimentSnapshot(loadSnapshot(form.getExperimentId()));
         report.setMutation(parseMutation(form.getMutationJson()));
         report.setAttachmentFilename(saveAttachment(incidentId, form.getFile()));

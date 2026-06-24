@@ -1,0 +1,10 @@
+<eln-form-dialog
+  title="Report Error"
+  submitButtonText="Submit"
+  [fields]="fields"
+  [model]="model"
+  [size]="technicalDetails ? 'lg' : 'md'"
+  [containerClass]="technicalDetails ? '!h-auto min-h-[620px]' : '!h-auto min-h-[420px]'"
+  [submitEnabled]="!submitting()"
+  (formSubmit)="onSubmit($event)"
+></eln-form-dialog>

@@ -1,10 +1,18 @@
 import { ChipGridFieldComponent } from '@/core/components/formly/fields/chip-grid-field.component';
 import { InputFieldComponent } from '@/core/components/formly/fields/input-field.component';
+import { TextareaFieldComponent } from '@/core/components/formly/fields/textarea-field.component';
 import { ElnWrapperFormField } from '@/core/components/formly/wrappers/field-wrapper.component';
 import { DropdownFieldComponent } from '@/core/components/formly/fields/dropdown-field.component';
 import { ExperimentSelectFieldComponent } from '@/core/components/formly/fields/experiment-select-field.component';
+import { ErrorInterceptor } from '@core/interceptors/error.interceptor';
 
-import { HttpInterceptorFn, provideHttpClient, withInterceptors } from '@angular/common/http';
+import {
+  HTTP_INTERCEPTORS,
+  HttpInterceptorFn,
+  provideHttpClient,
+  withInterceptors,
+  withInterceptorsFromDi,
+} from '@angular/common/http';
 import { ApplicationConfig, importProvidersFrom, inject, provideZoneChangeDetection } from '@angular/core';
 
 import { EditorFormlyFieldComponent } from '@/core/components/formly/fields/editor/editor-field.component';
@@ -60,6 +68,11 @@ export const appConfig: ApplicationConfig = {
             wrappers: ['raw'],
           },
           {
+            name: 'textarea',
+            component: TextareaFieldComponent,
+            wrappers: ['raw'],
+          },
+          {
             name: 'chip-grid',
             component: ChipGridFieldComponent,
             wrappers: ['raw'],
@@ -102,6 +115,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideAnimationsAsync(),
-    provideHttpClient(withInterceptors([keycloakBearerInterceptor])),
+    provideHttpClient(withInterceptors([keycloakBearerInterceptor]), withInterceptorsFromDi()),
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
   ],
 };

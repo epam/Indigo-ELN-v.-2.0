@@ -14,8 +14,8 @@ import java.util.UUID;
 public class IncidentReportForm {
 
     @NotBlank
-    @FormParam("description")
-    private String description;
+    @FormParam("message")
+    private String message;
 
     @Nullable
     @FormParam("experimentId")
