@@ -6,6 +6,9 @@ import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.reaction.model.Reaction;
+import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
+import com.epam.indigoeln.reaction.model.units.WeightUnit;
 import com.epam.indigoeln.reaction.util.ExperimentObject;
 import com.epam.indigoeln.test.FeignUtil;
 import io.quarkus.test.junit.QuarkusTest;
@@ -361,46 +364,37 @@ class ExperimentServiceTest extends ELNBaseTest {
         ExperimentObject experiment = createExperiment(notebook, new ExperimentRequest(emptyTemplateID));
 
         experiment.mutateSetSchemeFromResource("/reaction.rxn");
-        assertThat(model.getReactions().isEmpty()).isFalse();
 
-        Reaction reaction = model.getReactions().getFirst();
-        assertThat(reaction.getOutputs().size()).isGreaterThanOrEqualTo(2);
+        Reaction reaction = experiment.reaction();
+        assertThat(reaction.getOutputs().size()).isEqualTo(2);
 
-        model = experimentClient.mutateExperimentModel(experiment.id(), new ReactionOutputMutation.AddProductSample(reaction.getOutputs().get(0).getAnchor()));
-        experimentClient.mutateExperimentModel(experiment.getId(), new ReactionOutputMutation.AddProductSample(reaction.getOutputs().get(0).getAnchor()));
-        experimentClient.mutateExperimentModel(experiment.getId(), new ReactionOutputMutation.AddProductSample(reaction.getOutputs().get(1).getAnchor()));
+        experiment.mutateAddProductSample(1);
+        experiment.mutateAddProductSample(1);
+        experiment.mutateAddProductSample(2);
 
-        reaction = model.getReactions().getFirst();
-        ReactionOutput output = reaction.getOutputs().getFirst();
-        assertThat(output.getSamples().isEmpty()).isFalse();
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputActualWeight(experiment.outputSample(1, 1).getAnchor(), "10.0", WeightUnit.G));
 
-        ReactionOutputSample sample = output.getSamples().getFirst();
-        experimentClient.mutateExperimentModel(experiment.getId(),
-                new ReactionOutputSampleMutation.SetOutputActualWeight(sample.getAnchor(), "10.0", WeightUnit.G)
-        );
-
-        experimentClient.mutateExperimentModel(experiment.getId(),
-                new ReactionOutputSampleMutation.SetOutputHealthHazards(sample.getAnchor(),
-                        List.of(
-                                (HealthHazardRef) dictionaryClient.getDictionary(BuiltInDictionary.HEALTH_HAZARD).getFirst(),
-                                (HealthHazardRef) dictionaryClient.getDictionary(BuiltInDictionary.HEALTH_HAZARD).getLast()
-                        )
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputHealthHazards(experiment.outputSample(1, 1).getAnchor(),
+                List.of(
+                        (HealthHazardRef) dictionaryClient.getDictionary(BuiltInDictionary.HEALTH_HAZARD).getFirst(),
+                        (HealthHazardRef) dictionaryClient.getDictionary(BuiltInDictionary.HEALTH_HAZARD).getLast()
                 )
-        );
+        ));
 
-        Response result = experimentClient.exportSDF(experiment.getId());
-        assertThat((byte[]) result.getEntity()).asString().containsIgnoringWhitespaces("""
-                >  <molWeight>180.16
-                """, """
-                >  <chemicalName>
-                """, """
-                >  <actualWeight>
-                10.0 G
-                """, """
-                >  <healthHazards>
-                Carcinogen
-                Very Toxic
-                """);
-        assertThat(result.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION)).asString().contains(".sdf");
+        try (Response result = experimentClient.exportSDF(experiment.id())) {
+            assertThat((byte[]) result.getEntity()).asString().containsIgnoringWhitespaces("""
+                    >  <molWeight>180.16
+                    """, """
+                    >  <chemicalName>
+                    """, """
+                    >  <actualWeight>
+                    10.0 G
+                    """, """
+                    >  <healthHazards>
+                    Carcinogen
+                    Very Toxic
+                    """);
+            assertThat(result.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION)).asString().contains(".sdf");
+        }
     }
 }

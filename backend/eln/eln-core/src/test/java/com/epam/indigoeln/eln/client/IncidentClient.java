@@ -26,7 +26,7 @@ public interface IncidentClient extends IncidentAPI {
         createIncidentReport(new ClientIncidentReportForm(description, null, null, null));
     }
 
-    default void createIncidentReport(String description,
+    default void createIncidentReport(String message,
                                       @Nullable UUID experimentId,
                                       @Nullable String mutationJson,
                                       byte @Nullable [] fileContent,
@@ -35,7 +35,7 @@ public interface IncidentClient extends IncidentAPI {
                 ? new FormData(MediaType.APPLICATION_OCTET_STREAM, filename, fileContent)
                 : null;
         createIncidentReport(new ClientIncidentReportForm(
-                description,
+                message,
                 experimentId != null ? experimentId.toString() : null,
                 mutationJson,
                 file));
@@ -47,8 +47,8 @@ public interface IncidentClient extends IncidentAPI {
     class ClientIncidentReportForm {
 
         @NotBlank
-        @FormProperty("description")
-        private String description;
+        @FormProperty("message")
+        private String message;
 
         @Nullable
         @FormProperty("experimentId")

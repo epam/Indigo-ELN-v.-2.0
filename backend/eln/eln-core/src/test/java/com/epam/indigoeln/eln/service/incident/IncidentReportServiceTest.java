@@ -49,7 +49,7 @@ class IncidentReportServiceTest extends ELNBaseTest {
 
         JsonNode report = readReport(jsonFiles.getFirst());
         assertThat(report.path("username").asText()).isEqualTo(JOHN_USERNAME);
-        assertThat(report.path("description").asText()).isEqualTo("Something went wrong");
+        assertThat(report.path("message").asText()).isEqualTo("Something went wrong");
         assertThat(report.path("incidentTime").asText()).isNotBlank();
         assertThat(report.has("experimentSnapshot")).isFalse();
         assertThat(report.has("mutation")).isFalse();
@@ -134,7 +134,7 @@ class IncidentReportServiceTest extends ELNBaseTest {
 
         JsonNode report = readReport(jsonFiles.getFirst());
         assertThat(report.path("username").asText()).isEqualTo(JOHN_USERNAME);
-        assertThat(report.path("description").asText()).isEqualTo("Full report");
+        assertThat(report.path("message").asText()).isEqualTo("Full report");
         assertThat(report.path("incidentTime").asText()).isNotBlank();
         assertThat(report.path("experimentSnapshot").isMissingNode()).isFalse();
         assertThat(report.path("mutation").path("type").asText()).isEqualTo("EditExperimentAttributes");

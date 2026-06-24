@@ -303,25 +303,27 @@ public class ExperimentService {
             String filename
     ) {}
 
-    private String getPropertySDFRepresentation(Object property) {
-        if (property instanceof EnteredValue<?>) {
-            return ((EnteredValue<?>) property).getStringValue() + " " +
-                    ((EnteredValue<?>) property).getUnit().name();
-        }
-        if (property instanceof Iterable<?>) {
-            StringBuilder builder = new StringBuilder();
-            for (Object obj: (Iterable<?>) property) {
-                builder.append(getPropertySDFRepresentation(obj));
-                builder.append(System.lineSeparator());
+    @Nullable
+    private String getPropertySDFRepresentation(@Nullable Object property) {
+        return switch (property) {
+            case null -> null;
+            case EnteredValue<?> ev when ev.isEmpty() -> null;
+            case EnteredValue<?> ev -> ev.getStringValue() + ' ' + ev.getUnit().name();
+            case Iterable<?> collection -> {
+                yield StreamEx.of(collection.iterator())
+                        .map(this::getPropertySDFRepresentation)
+                        .nonNull()
+                        .joining(System.lineSeparator());
             }
-            return builder.toString();
-        }
-        return property.toString();
+            default -> property.toString();
+        };
     }
 
     private void setMoleculePropertyIfExists(IndigoMolecule molecule, @Nullable Object property, String propertyName) {
-        if (property != null)
-            molecule.setProperty(propertyName, getPropertySDFRepresentation(property));
+        String value = getPropertySDFRepresentation(property);
+        if (value != null) {
+            molecule.setProperty(propertyName, value);
+        }
     }
 
     @SneakyThrows
@@ -356,7 +358,7 @@ public class ExperimentService {
                             setMoleculePropertyIfExists(molecule, sample.getActualMol(), "actualMol");
                             setMoleculePropertyIfExists(molecule, sample.getMolarity(), "molarity");
                             setMoleculePropertyIfExists(molecule, sample.getYield(), "yield");
-                            molecule.setProperty("purity", getPropertySDFRepresentation(sample.getPurity()));
+                            setMoleculePropertyIfExists(molecule, sample.getPurity(), "purity");
 
                             setMoleculePropertyIfExists(molecule, compoundRef.getMolWeight(), "molWeight");
                             setMoleculePropertyIfExists(molecule, sample.getSource(), "source");
@@ -367,7 +369,7 @@ public class ExperimentService {
                             setMoleculePropertyIfExists(molecule, compoundRef.getCalculatedBatchMF(), "calculatedBatchMF");
                             setMoleculePropertyIfExists(molecule, sample.getStructureComment(), "structureComment");
                             setMoleculePropertyIfExists(molecule, sample.getSourceDetails(), "sourceDetails");
-                            molecule.setProperty("precursorReactantId", getPropertySDFRepresentation(reaction.getPrecursorReactantIds()));
+                            setMoleculePropertyIfExists(molecule, reaction.getPrecursorReactantIds(), "precursorReactantId");
                             setMoleculePropertyIfExists(molecule, sample.getStrCode(), "strCode");
                             setMoleculePropertyIfExists(molecule, output.getTheoMol(), "theoMol");
                             setMoleculePropertyIfExists(molecule, sample.getBatchComment(), "batchComment");
@@ -375,7 +377,7 @@ public class ExperimentService {
                             setMoleculePropertyIfExists(molecule, sample.getComponentState(), "componentState");
                             setMoleculePropertyIfExists(molecule, sample.getCompoundProtection(), "compoundProtection");
                             setMoleculePropertyIfExists(molecule, sample.getResidualSolvents(), "residualSolvents");
-                            molecule.setProperty("healthHazards", getPropertySDFRepresentation(sample.getHealthHazards()));
+                            setMoleculePropertyIfExists(molecule, sample.getHealthHazards(), "healthHazards");
                             setMoleculePropertyIfExists(molecule, sample.getHandlingPrecautions(), "handlingPrecautions");
 
                             setMoleculePropertyIfExists(molecule, sample.getMeltingPoint(), "meltingPoint");
