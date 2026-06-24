@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { ActivatedRoute } from '@angular/router';
 
 import { BreadcrumbsComponent } from '@/core/components/breadcrumbs/breadcrumbs.component';
 import { CardComponent } from '@/core/components/common/card/card.component';
@@ -9,15 +9,15 @@ import { BreadcrumbsStateService } from '@/core/services/breadcrumbs/breadcrumbs
 import { ExperimentDetailService } from '@/core/services/experiment/experiment-detail.service';
 import { ExperimentDetail } from '@/core/types/entities/experiments/experiment-detail.i';
 import { UndoRedoDirective } from '@core/directives/undo-redo.directive';
-import { ExperimentActionsComponent } from '@pages/experiment/experiment-actions/experiment-actions.component';
 import { TwsxPipe } from '@core/pipes/twsx.pipe';
 import { TemplateTab } from '@core/types/entities/template.i';
+import { ExperimentActionsComponent } from '@pages/experiment/experiment-actions/experiment-actions.component';
 import { ExperimentAttachmentsComponent } from '@pages/experiment/experiment-attachments/experiment-attachments.component';
-import { ProductBatchSummaryTableComponent } from '@pages/experiment/stoichiometry/product-batch-summary-table/product-batch-summary-table.component';
-import { ExperimentDetailsComponent } from '@pages/experiment/experiment-details/experiment-details.component';
-import { ExperimentDescriptionComponent } from '@pages/experiment/experiment-description/experiment-description.component';
-import { ExperimentVersionsComponent } from '@pages/experiment/experiment-versions/experiment-versions.component';
 import { ExperimentComponentWrapperComponent } from '@pages/experiment/experiment-component-wrapper/experiment-component-wrapper.component';
+import { ExperimentDescriptionComponent } from '@pages/experiment/experiment-description/experiment-description.component';
+import { ExperimentDetailsComponent } from '@pages/experiment/experiment-details/experiment-details.component';
+import { ExperimentVersionsComponent } from '@pages/experiment/experiment-versions/experiment-versions.component';
+import { ProductBatchSummaryTableComponent } from '@pages/experiment/stoichiometry/product-batch-summary-table/product-batch-summary-table.component';
 import { ReactionViewComponent } from '@pages/experiment/stoichiometry/reaction-view/reaction-view.component';
 
 interface Tab {
@@ -52,7 +52,6 @@ export class ExperimentLayoutComponent implements OnInit, OnDestroy {
   experimentDetailService = inject(ExperimentDetailService);
   breadcrumbsState = inject(BreadcrumbsStateService);
 
-  // Computed signals from the service
   experiment = computed<ExperimentDetail | null>(() => this.experimentDetailService.experimentDetail());
   template = computed(() => this.experimentDetailService.experimentTemplate());
   isLoading = computed<boolean>(() => this.experimentDetailService.isLoading());
@@ -63,20 +62,25 @@ export class ExperimentLayoutComponent implements OnInit, OnDestroy {
 
   private readonly breadcrumbsEffect = effect(() => {
     const experiment = this.experiment();
+
+    if (!experiment) {
+      return;
+    }
+
     this.breadcrumbsState.setItems([
       { label: 'All Projects', url: '/projects', active: false },
       {
-        label: `Project: ${experiment?.projectName ?? ''}`,
-        url: experiment ? `/projects/${experiment.projectId}` : null,
+        label: `Project: ${experiment.projectName ?? ''}`,
+        url: `/projects/${experiment.projectId}`,
         active: false,
       },
       {
-        label: `Notebook: ${experiment?.notebookName ?? ''}`,
-        url: experiment ? `/projects/${experiment.projectId}/notebooks/${experiment.notebookId}` : null,
+        label: `Notebook: ${experiment.notebookName ?? ''}`,
+        url: `/notebooks/${experiment.notebookId}`,
         active: false,
       },
       {
-        label: `Experiment: ${experiment?.name ?? ''}`,
+        label: `Experiment: ${experiment.name ?? ''}`,
         active: true,
       },
     ]);
