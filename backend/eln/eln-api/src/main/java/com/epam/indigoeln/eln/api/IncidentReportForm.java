@@ -11,10 +11,11 @@ import org.jspecify.annotations.Nullable;
 @NoArgsConstructor
 public class IncidentReportForm {
 
-    @NotBlank
+    @Nullable
     @FormParam("url")
     private String url;
 
+    @Nullable
     @NotBlank
     @FormParam("message")
     private String message;
