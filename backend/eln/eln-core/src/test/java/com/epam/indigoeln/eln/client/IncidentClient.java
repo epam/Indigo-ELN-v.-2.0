@@ -9,6 +9,7 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.MediaType;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jspecify.annotations.Nullable;
@@ -42,21 +43,38 @@ public interface IncidentClient extends IncidentAPI {
     }
 
     @Data
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     class ClientIncidentReportForm {
+
+        @NotBlank
+        @FormProperty("url")
+        private String url;
 
         @NotBlank
         @FormProperty("message")
         private String message;
 
         @Nullable
-        @FormProperty("experimentId")
-        private String experimentId;
+        @FormProperty("experiment")
+        private String experiment;
 
         @Nullable
-        @FormProperty("mutation")
-        private String mutationJson;
+        @FormProperty("requestURL")
+        private String requestURL;
+
+        @Nullable
+        @FormProperty("requestMethod")
+        private String requestMethod;
+
+        @Nullable
+        @FormProperty("requestBody")
+        private String requestBody;
+
+        @Nullable
+        @FormProperty("responseBody")
+        private String responseBody;
 
         @Nullable
         @FormProperty("file")

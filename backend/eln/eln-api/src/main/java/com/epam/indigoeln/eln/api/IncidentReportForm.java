@@ -7,23 +7,37 @@ import lombok.NoArgsConstructor;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
 import org.jspecify.annotations.Nullable;
 
-import java.util.UUID;
-
 @Data
 @NoArgsConstructor
 public class IncidentReportForm {
+
+    @NotBlank
+    @FormParam("url")
+    private String url;
 
     @NotBlank
     @FormParam("message")
     private String message;
 
     @Nullable
-    @FormParam("experimentId")
-    private UUID experimentId;
+    @FormParam("experiment")
+    private String experiment;
 
     @Nullable
-    @FormParam("mutation")
-    private String mutationJson;
+    @FormParam("requestURL")
+    private String requestURL;
+
+    @Nullable
+    @FormParam("requestMethod")
+    private String requestMethod;
+
+    @Nullable
+    @FormParam("requestBody")
+    private String requestBody;
+
+    @Nullable
+    @FormParam("responseBody")
+    private String responseBody;
 
     @Nullable
     @FormParam("file")
