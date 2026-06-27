@@ -233,6 +233,17 @@ public final class EnteredValue<U extends MeasurementUnit> {
         return str.toString();
     }
 
+    public String toUserFriendlyString(boolean useFriendlyUnitNames, String emptyString) {
+        if (!present) {
+            return emptyString;
+        }
+        StringBuilder str = new StringBuilder(getStringValue());
+        if (unit != NoUnit.NO_UNIT) {
+            str.append(' ').append(useFriendlyUnitNames ? unit.getDisplayName() : unit.name());
+        }
+        return str.toString();
+    }
+
     public static class Serializer extends JsonSerializer<EnteredValue<?>> {
 
         @Override

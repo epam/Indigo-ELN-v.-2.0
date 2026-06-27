@@ -308,7 +308,7 @@ public class ExperimentService {
         return switch (property) {
             case null -> null;
             case EnteredValue<?> ev when ev.isEmpty() -> null;
-            case EnteredValue<?> ev -> ev.getStringValue() + ' ' + ev.getUnit().name();
+            case EnteredValue<?> ev -> ev.toUserFriendlyString(false, "");
             case Iterable<?> collection -> {
                 yield StreamEx.of(collection.iterator())
                         .map(this::getPropertySDFRepresentation)

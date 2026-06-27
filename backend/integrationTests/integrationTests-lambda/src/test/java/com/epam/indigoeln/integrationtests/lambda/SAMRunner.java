@@ -66,6 +66,5 @@ public class SAMRunner {
                 }
             }
         }
-        System.out.println("!!");
     }
 }

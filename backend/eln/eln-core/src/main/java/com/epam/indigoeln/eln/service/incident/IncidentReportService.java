@@ -38,9 +38,10 @@ public class IncidentReportService {
     @SneakyThrows
     public void createIncidentReport(IncidentReportForm form) {
         UUID incidentId = UUID.randomUUID();
+        Instant incidentTime = Instant.now();
 
         IncidentReport report = new IncidentReport();
-        report.setIncidentTime(Instant.now());
+        report.setIncidentTime(incidentTime);
         report.setUsername(userHolder.getUserName());
         report.setMessage(form.getMessage());
         report.setExperimentSnapshot(loadSnapshot(form.getExperimentId()));
@@ -76,8 +77,8 @@ public class IncidentReportService {
             return null;
         }
         String basename = Path.of(file.fileName()).getFileName().toString();
-        String filename = "incident-" + incidentId + "-" + basename;
-        fileStorage.put("incidents/" + filename, Files.readAllBytes(file.filePath()));
+        String filename = "incidents/incident-" + incidentId + "-" + basename;
+        fileStorage.put(filename, Files.readAllBytes(file.filePath()));
         return filename;
     }
 }

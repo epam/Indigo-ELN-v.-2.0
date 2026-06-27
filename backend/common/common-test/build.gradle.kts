@@ -18,6 +18,7 @@ dependencies {
     api("org.mockito:mockito-core:5.23.0")
     api("org.mockito:mockito-junit-jupiter:5.23.0")
     api("io.quarkiverse.wiremock:quarkus-wiremock-test:1.6.3")
+    implementation("io.quarkiverse.amazonservices:quarkus-amazon-s3")
 
     api("io.github.openfeign:feign-core:13.12")
     api("io.github.openfeign:feign-jackson:13.12")

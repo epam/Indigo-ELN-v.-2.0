@@ -4,8 +4,8 @@ import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.client.IncidentClient;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.test.FeignUtil;
+import com.epam.indigoeln.test.StorageClient;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.io.MoreFiles;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,9 +13,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,26 +25,20 @@ class IncidentReportServiceTest extends ELNBaseTest {
 
     IncidentClient incidentClient;
 
-    Path incidentsDir = Paths.get("build/incidents");
+    static StorageClient storage = StorageClient.instance();
 
     @BeforeEach
     void setUp() throws IOException {
         incidentClient = buildClient(IncidentClient.class);
-        if (Files.exists(incidentsDir)) {
-            MoreFiles.deleteDirectoryContents(incidentsDir);
-        } else {
-            Files.createDirectories(incidentsDir);
-        }
+        storage.mkdir("incidents");
+        storage.clearDir("incidents");
     }
 
     @Test
     void testCreateReportDescriptionOnly() throws IOException {
         incidentClient.createIncidentReport("Something went wrong");
 
-        List<Path> jsonFiles = listAllJsonFiles();
-        assertThat(jsonFiles).hasSize(1);
-
-        JsonNode report = readReport(jsonFiles.getFirst());
+        JsonNode report = findReport();
         assertThat(report.path("username").asText()).isEqualTo(JOHN_USERNAME);
         assertThat(report.path("message").asText()).isEqualTo("Something went wrong");
         assertThat(report.path("incidentTime").asText()).isNotBlank();
@@ -61,7 +52,7 @@ class IncidentReportServiceTest extends ELNBaseTest {
         withUser(BART_USERNAME, () ->
                 incidentClient.createIncidentReport("Bart's report"));
 
-        JsonNode report = readReport(listAllJsonFiles().getFirst());
+        JsonNode report = findReport();
         assertThat(report.path("username").asText()).isEqualTo(BART_USERNAME);
     }
 
@@ -71,7 +62,7 @@ class IncidentReportServiceTest extends ELNBaseTest {
 
         incidentClient.createIncidentReport("Experiment broke", experiment.getId(), null, null, null);
 
-        JsonNode report = readReport(listAllJsonFiles().getFirst());
+        JsonNode report = findReport();
         assertThat(report.path("experimentSnapshot").isMissingNode()).isFalse();
         assertThat(report.path("experimentSnapshot").path("status").asText()).isNotBlank();
         assertThat(report.path("experimentSnapshot").path("revision").asInt()).isGreaterThanOrEqualTo(0);
@@ -83,7 +74,7 @@ class IncidentReportServiceTest extends ELNBaseTest {
 
         incidentClient.createIncidentReport("Mutation failed", null, mutationJson, null, null);
 
-        JsonNode report = readReport(listAllJsonFiles().getFirst());
+        JsonNode report = findReport();
         assertThat(report.path("mutation").isMissingNode()).isFalse();
         assertThat(report.path("mutation").path("type").asText()).isEqualTo("CreateExperiment");
     }
@@ -94,16 +85,12 @@ class IncidentReportServiceTest extends ELNBaseTest {
 
         incidentClient.createIncidentReport("UI glitch", null, null, screenshot, "screenshot.png");
 
-        List<Path> jsonFiles = listAllJsonFiles();
-        assertThat(jsonFiles).hasSize(1);
-
-        JsonNode report = readReport(jsonFiles.getFirst());
+        JsonNode report = findReport();
         String attachmentFilename = report.path("attachmentFilename").asText();
         assertThat(attachmentFilename).isNotBlank().endsWith("-screenshot.png");
 
-        Path savedAttachment = incidentsDir.resolve(attachmentFilename);
-        assertThat(savedAttachment).exists();
-        assertThat(Files.readAllBytes(savedAttachment)).isEqualTo(screenshot);
+        byte[] bytes = storage.read(attachmentFilename);
+        assertThat(bytes).isEqualTo(screenshot);
     }
 
     @Test
@@ -112,13 +99,12 @@ class IncidentReportServiceTest extends ELNBaseTest {
 
         incidentClient.createIncidentReport("Suspicious upload", null, null, content, "../../evil.sh");
 
-        JsonNode report = readReport(listAllJsonFiles().getFirst());
+        JsonNode report = findReport();
         String attachmentFilename = report.path("attachmentFilename").asText();
         assertThat(attachmentFilename).isNotBlank().doesNotContain("..").endsWith("-evil.sh");
 
-        Path savedAttachment = incidentsDir.resolve(attachmentFilename);
-        assertThat(savedAttachment).exists();
-        assertThat(Files.readAllBytes(savedAttachment)).isEqualTo(content);
+        byte[] bytes = storage.read(attachmentFilename);
+        assertThat(bytes).isEqualTo(content);
     }
 
     @Test
@@ -129,10 +115,7 @@ class IncidentReportServiceTest extends ELNBaseTest {
 
         incidentClient.createIncidentReport("Full report", experiment.getId(), mutationJson, screenshot, "screen.png");
 
-        List<Path> jsonFiles = listAllJsonFiles();
-        assertThat(jsonFiles).hasSize(1);
-
-        JsonNode report = readReport(jsonFiles.getFirst());
+        JsonNode report = findReport();
         assertThat(report.path("username").asText()).isEqualTo(JOHN_USERNAME);
         assertThat(report.path("message").asText()).isEqualTo("Full report");
         assertThat(report.path("incidentTime").asText()).isNotBlank();
@@ -146,7 +129,7 @@ class IncidentReportServiceTest extends ELNBaseTest {
         incidentClient.createIncidentReport("First report");
         incidentClient.createIncidentReport("Second report");
 
-        assertThat(listAllJsonFiles()).hasSize(2);
+        assertThat(findReportFiles()).hasSize(2);
     }
 
     @Test
@@ -171,16 +154,16 @@ class IncidentReportServiceTest extends ELNBaseTest {
         return experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
     }
 
-    private List<Path> listAllJsonFiles() throws IOException {
-        try (var stream = Files.list(incidentsDir)) {
-            return stream
-                    .filter(f -> f.getFileName().toString().endsWith(".json"))
-                    .sorted()
-                    .toList();
-        }
+    private List<String> findReportFiles() {
+        return storage.listFiles("incidents").stream()
+                .filter(f -> f.endsWith(".json"))
+                .toList();
     }
 
-    private JsonNode readReport(Path file) throws IOException {
-        return FeignUtil.OBJECT_MAPPER.readTree(file.toFile());
+    private JsonNode findReport() throws IOException {
+        List<String> files = findReportFiles();
+        assertThat(files).hasSize(1);
+        byte[] bytes = storage.read(files.getFirst());
+        return FeignUtil.OBJECT_MAPPER.readTree(bytes);
     }
 }

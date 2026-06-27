@@ -17,8 +17,6 @@ dependencies {
     implementation("com.epam.indigo:indigo:1.43.0")
     implementation("com.epam.indigo:indigo-renderer:1.43.0")
 
-    implementation("io.quarkiverse.amazonservices:quarkus-amazon-cognito-user-pools")
-    implementation("software.amazon.awssdk:url-connection-client")
     testImplementation(project(":common:common-test"))
 
     // for calculation reports

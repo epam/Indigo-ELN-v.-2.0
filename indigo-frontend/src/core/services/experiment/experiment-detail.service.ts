@@ -190,7 +190,7 @@ export class ExperimentDetailService {
       } else if (value.source === 'fixed') {
         classes.push('value-state-fixed');
       }
-      if (value.overwritten) {
+      if (hasAnyUpdates && value.overwritten) {
         classes.push('animate-[flash-red_500ms_ease-in-out]');
       } else if (
         hasAnyUpdates &&

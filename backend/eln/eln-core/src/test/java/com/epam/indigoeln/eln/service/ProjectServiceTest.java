@@ -464,8 +464,8 @@ class ProjectServiceTest extends ELNBaseTest {
     void testUploadLargeAttachment(@TempDir Path tempDir) throws Exception {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testUploadLargeAttachment"));
 
-        // Use 7 MB file to stay safely below AWS API Gateway limit
-        int fileSizeInBytes = 7 * 1024 * 1024; // 7 MB
+        // Use 3 MB file to stay safely below AWS API Gateway limit (it should be 7Mb, but SAM doesn't handle above 3Mb in lambda integration tests)
+        int fileSizeInBytes = 3 * 1024 * 1024; // 3 MB
         byte[] largeContent = new byte[fileSizeInBytes];
         new Random().nextBytes(largeContent);
 
