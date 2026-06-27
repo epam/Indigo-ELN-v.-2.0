@@ -46,6 +46,7 @@ public class IncidentReportService {
         IncidentReport report = new IncidentReport();
         report.setIncidentTime(incidentTime);
         report.setUsername(userHolder.getUserName());
+        report.setUrl(form.getUrl());
         report.setMessage(form.getMessage());
         if (form.getExperiment() != null) {
             try {
@@ -57,7 +58,6 @@ public class IncidentReportService {
                 log.error("Failed to load experiment", e);
             }
         }
-        report.setAttachmentFilename(saveAttachment(incidentId, form.getFile()));
         report.setRequestURL(form.getRequestURL());
         report.setRequestMethod(form.getRequestMethod());
         if (form.getRequestBody() != null) {
@@ -67,10 +67,16 @@ public class IncidentReportService {
                 log.error("Failed to parse request body", e);
             }
         }
-        report.setResponseBody(form.getResponseBody());
+        if (form.getResponseBody() != null) {
+            try {
+                report.setResponseBody(objectMapper.readTree(form.getResponseBody()));
+            } catch (Exception e) {
+                report.setResponseBody(objectMapper.getNodeFactory().textNode(form.getResponseBody()));
+            }
+        }
         if (form.getFile() != null) {
             try {
-                report.setAttachmentFilename(saveAttachment(directory, baseName, form.getFile()));
+                report.setAttachmentFilename(saveAttachment(baseName, form.getFile()));
             } catch (Exception e) {
                 log.error("Failed to save attachment", e);
             }
@@ -82,22 +88,9 @@ public class IncidentReportService {
     }
 
     @SneakyThrows
-    @Nullable
-    private JsonNode parseMutation(@Nullable String mutationJson) {
-        if (mutationJson == null || mutationJson.isBlank()) {
-            return null;
-        }
-        return objectMapper.readTree(mutationJson);
-    }
-
-    @SneakyThrows
-    @Nullable
-    private String saveAttachment(UUID incidentId, @Nullable FileUpload file) {
-        if (file == null) {
-            return null;
-        }
-        String basename = Path.of(file.fileName()).getFileName().toString();
-        String filename = "incidents/incident-" + incidentId + "-" + basename;
+    private String saveAttachment(String baseName, FileUpload file) {
+        String attachmentName = Path.of(file.fileName()).getFileName().toString();
+        String filename = baseName + attachmentName;
         fileStorage.put(filename, Files.readAllBytes(file.filePath()));
         return filename;
     }

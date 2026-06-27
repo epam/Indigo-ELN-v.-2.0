@@ -6,15 +6,16 @@ import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.test.FeignUtil;
 import com.epam.indigoeln.test.StorageClient;
 import com.fasterxml.jackson.databind.JsonNode;
+import feign.form.FormData;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
+import jakarta.ws.rs.core.MediaType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.UUID;
 
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,22 +36,27 @@ class IncidentReportServiceTest extends ELNBaseTest {
     }
 
     @Test
-    void testCreateReportDescriptionOnly() throws IOException {
-        incidentClient.createIncidentReport("Something went wrong");
+    void testCreateReportBasicFieldsOnly() throws IOException {
+        incidentClient.createIncidentReport(IncidentClient.ClientIncidentReportForm.builder()
+                .url("http://localhost/")
+                .message("Something went wrong")
+                .build()
+        );
 
         JsonNode report = findReport();
         assertThat(report.path("username").asText()).isEqualTo(JOHN_USERNAME);
+        assertThat(report.path("url").asText()).isEqualTo("http://localhost/");
         assertThat(report.path("message").asText()).isEqualTo("Something went wrong");
         assertThat(report.path("incidentTime").asText()).isNotBlank();
         assertThat(report.has("experimentSnapshot")).isFalse();
-        assertThat(report.has("mutation")).isFalse();
+        assertThat(report.has("requestBody")).isFalse();
         assertThat(report.has("attachmentFilename")).isFalse();
     }
 
     @Test
     void testCreateReportRecordsActingUser() throws IOException {
         withUser(BART_USERNAME, () ->
-                incidentClient.createIncidentReport("Bart's report"));
+                incidentClient.createIncidentReport(IncidentClient.ClientIncidentReportForm.builder().message("Bart's report").build()));
 
         JsonNode report = findReport();
         assertThat(report.path("username").asText()).isEqualTo(BART_USERNAME);
@@ -58,32 +64,50 @@ class IncidentReportServiceTest extends ELNBaseTest {
 
     @Test
     void testCreateReportWithExperimentSnapshot() throws IOException {
-        ExperimentDetailsDTO experiment = createExperiment();
-
-        incidentClient.createIncidentReport("Experiment broke", experiment.getId(), null, null, null);
+        ProjectDetailsDTO project = getOrCreateProject("IncidentReportServiceTest");
+        NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
+        incidentClient.createIncidentReport(IncidentClient.ClientIncidentReportForm.builder()
+                .message("Experiment broke")
+                .experiment("{\"id\": \"%s\"}".formatted(experiment.getId()))
+                .build()
+        );
 
         JsonNode report = findReport();
-        assertThat(report.path("experimentSnapshot").isMissingNode()).isFalse();
-        assertThat(report.path("experimentSnapshot").path("status").asText()).isNotBlank();
-        assertThat(report.path("experimentSnapshot").path("revision").asInt()).isGreaterThanOrEqualTo(0);
+        assertThat(report.path("experimentFrontend").path("id").asText()).isEqualTo(experiment.getId().toString());
+        assertThat(report.path("experimentBackend").path("status").asText()).isEqualTo("OPEN");
+        assertThat(report.path("experimentBackend").path("revision").asInt()).isGreaterThanOrEqualTo(0);
     }
 
     @Test
-    void testCreateReportWithMutationJson() throws IOException {
+    void testCreateReportWithRequestAndResponse() throws IOException {
         String mutationJson = "{\"type\":\"CreateExperiment\",\"templateId\":\"00000000-0000-0000-0000-000000000001\"}";
 
-        incidentClient.createIncidentReport("Mutation failed", null, mutationJson, null, null);
+        incidentClient.createIncidentReport(IncidentClient.ClientIncidentReportForm.builder()
+                .message("Mutation failed")
+                .requestURL("http://localhost:8080/api/find")
+                .requestMethod("POST")
+                .requestBody(mutationJson)
+                .responseBody("{\"error\": \"Not found!\"}")
+                .build()
+        );
 
         JsonNode report = findReport();
-        assertThat(report.path("mutation").isMissingNode()).isFalse();
-        assertThat(report.path("mutation").path("type").asText()).isEqualTo("CreateExperiment");
+        assertThat(report.path("requestURL").asText()).isEqualTo("http://localhost:8080/api/find");
+        assertThat(report.path("requestMethod").asText()).isEqualTo("POST");
+        assertThat(report.path("requestBody").path("type").asText()).isEqualTo("CreateExperiment");
+        assertThat(report.path("responseBody").path("error").asText()).isEqualTo("Not found!");
     }
 
     @Test
     void testCreateReportWithAttachment() throws IOException {
         byte[] screenshot = "fake-screenshot-data".getBytes(StandardCharsets.UTF_8);
 
-        incidentClient.createIncidentReport("UI glitch", null, null, screenshot, "screenshot.png");
+        incidentClient.createIncidentReport(IncidentClient.ClientIncidentReportForm.builder()
+                .message("UI glitch")
+                .file(new FormData(MediaType.APPLICATION_OCTET_STREAM, "screenshot.png", screenshot))
+                .build()
+        );
 
         JsonNode report = findReport();
         String attachmentFilename = report.path("attachmentFilename").asText();
@@ -97,7 +121,11 @@ class IncidentReportServiceTest extends ELNBaseTest {
     void testCreateReportWithAttachmentUsesSafeFilename() throws IOException {
         byte[] content = "malicious-filename-content".getBytes(StandardCharsets.UTF_8);
 
-        incidentClient.createIncidentReport("Suspicious upload", null, null, content, "../../evil.sh");
+        incidentClient.createIncidentReport(IncidentClient.ClientIncidentReportForm.builder()
+                .message("Suspicious upload")
+                .file(new FormData(MediaType.TEXT_PLAIN, "../../evil.sh", content))
+                .build()
+        );
 
         JsonNode report = findReport();
         String attachmentFilename = report.path("attachmentFilename").asText();
@@ -108,50 +136,17 @@ class IncidentReportServiceTest extends ELNBaseTest {
     }
 
     @Test
-    void testCreateReportWithAllFields() throws IOException {
-        ExperimentDetailsDTO experiment = createExperiment();
-        String mutationJson = "{\"type\":\"EditExperimentAttributes\"}";
-        byte[] screenshot = "screenshot-bytes".getBytes(StandardCharsets.UTF_8);
-
-        incidentClient.createIncidentReport("Full report", experiment.getId(), mutationJson, screenshot, "screen.png");
-
-        JsonNode report = findReport();
-        assertThat(report.path("username").asText()).isEqualTo(JOHN_USERNAME);
-        assertThat(report.path("message").asText()).isEqualTo("Full report");
-        assertThat(report.path("incidentTime").asText()).isNotBlank();
-        assertThat(report.path("experimentSnapshot").isMissingNode()).isFalse();
-        assertThat(report.path("mutation").path("type").asText()).isEqualTo("EditExperimentAttributes");
-        assertThat(report.path("attachmentFilename").asText()).endsWith("-screen.png");
-    }
-
-    @Test
     void testEachReportGetsUniqueFile() throws IOException {
-        incidentClient.createIncidentReport("First report");
-        incidentClient.createIncidentReport("Second report");
+        incidentClient.createIncidentReport(IncidentClient.ClientIncidentReportForm.builder().message("First report").build());
+        incidentClient.createIncidentReport(IncidentClient.ClientIncidentReportForm.builder().message("Second report").build());
 
         assertThat(findReportFiles()).hasSize(2);
     }
 
     @Test
     void testCreateReportRejectsBlankDescription() {
-        assertThatClientCall(() -> incidentClient.createIncidentReport(""))
+        assertThatClientCall(() -> incidentClient.createIncidentReport(IncidentClient.ClientIncidentReportForm.builder().message("").build()))
                 .isBadRequest("must not be blank");
-    }
-
-    @Test
-    void testCreateReportWithNonExistentExperimentReturnsForbidden() {
-        UUID missingId = UUID.randomUUID();
-        assertThatClientCall(() ->
-                incidentClient.createIncidentReport("Error", missingId, null, null, null))
-                .isForbidden("not found or not accessible");
-    }
-
-    private ExperimentDetailsDTO createExperiment() {
-        ProjectDetailsDTO project = projectClient.createProject(
-                new ProjectRequest("IncidentTest-" + UUID.randomUUID()));
-        NotebookDetailsDTO notebook = notebookClient.createNotebook(
-                project.getId(), new NotebookRequest(nextNotebookName()));
-        return experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
     }
 
     private List<String> findReportFiles() {

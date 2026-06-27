@@ -15,7 +15,6 @@ public class IncidentReportForm {
     @FormParam("url")
     private String url;
 
-    @Nullable
     @NotBlank
     @FormParam("message")
     private String message;

@@ -17,6 +17,8 @@ public class IncidentReport {
     private Instant incidentTime;
     private String username;
     @Nullable
+    private String url;
+    @Nullable
     private String message;
     @Nullable
     private JsonNode experimentFrontend;

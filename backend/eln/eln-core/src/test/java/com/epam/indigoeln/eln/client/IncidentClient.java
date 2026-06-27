@@ -21,26 +21,6 @@ public interface IncidentClient extends IncidentAPI {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     void createIncidentReport(ClientIncidentReportForm form);
 
-    default void createIncidentReport(
-            @Nullable String url, @Nullable String message, @Nullable String experiment,
-            @Nullable String requestURL, @Nullable String requestMethod,
-            @Nullable String requestBody, @Nullable String responseBody,
-            byte @Nullable [] fileContent, @Nullable String filename) {
-        FormData file = fileContent != null
-                ? new FormData(MediaType.APPLICATION_OCTET_STREAM, filename, fileContent)
-                : null;
-        createIncidentReport(new ClientIncidentReportForm(
-                url,
-                message,
-                experiment,
-                requestURL,
-                requestMethod,
-                requestBody,
-                responseBody,
-                file
-        ));
-    }
-
     @Data
     @Builder
     @NoArgsConstructor
