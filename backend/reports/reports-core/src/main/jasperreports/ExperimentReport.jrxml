@@ -4,7 +4,7 @@
 	<style name="Default Style" default="true" fontName="Arimo" fontSize="10.0"/>
 	<style name="Section Header" style="Default Style"/>
 	<parameter name="logoImage" forPrompting="false" class="java.io.ByteArrayInputStream"/>
-	<parameter name="reportDate" forPrompting="false" class="java.time.ZonedDateTime"/>
+	<parameter name="reportDate" forPrompting="false" class="java.time.Instant"/>
 	<parameter name="dateFormat" forPrompting="false" class="java.time.format.DateTimeFormatter"/>
 	<dataset name="Inputs" uuid="701269d9-ac0a-4cc3-b899-85b26bd171c2">
 		<field name="row" class="com.epam.indigoeln.reaction.model.ReactionInput"/>
@@ -141,7 +141,7 @@
 			<box padding="4"/>
 		</element>
 		<element kind="textField" uuid="3386babf-0d26-43af-b235-eb861b74f214" positionType="Float" stretchType="ContainerHeight" x="419" y="119" width="137" height="20" textAdjust="StretchHeight">
-			<expression><![CDATA[$P{reportDate}.format($P{dateFormat})]]></expression>
+			<expression><![CDATA[$P{dateFormat}.format($P{reportDate})]]></expression>
 			<box padding="4">
 				<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
 				<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
@@ -199,7 +199,7 @@
 				</box>
 			</element>
 			<element kind="textField" uuid="3926cfa2-01c8-4d04-be7e-d6cc4519ff2c" stretchType="ContainerHeight" x="141" y="24" width="138" height="20" textAdjust="StretchHeight">
-				<expression><![CDATA[$F{experiment}.getCreatedAt().format($P{dateFormat})]]></expression>
+				<expression><![CDATA[$P{dateFormat}.format($F{experiment}.getCreatedAt())]]></expression>
 				<box padding="4">
 					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
@@ -492,7 +492,7 @@
 								</box>
 							</element>
 							<element kind="textField" x="170" y="0" width="50" height="140">
-								<expression><![CDATA[$F{row}.getCompound().getMolWeight().getStringValue() + " " + $F{row}.getCompound().getMolWeight().getUnit().getDisplayName()]]></expression>
+								<expression><![CDATA[$F{row}.getCompound().getMolWeight().toUserFriendlyString(true, "")]]></expression>
 								<property name="com.jaspersoft.studio.unit.x" value="px"/>
 								<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 								<property name="com.jaspersoft.studio.unit.width" value="px"/>
@@ -504,7 +504,7 @@
 								</box>
 							</element>
 							<element kind="textField" x="220" y="0" width="45" height="140">
-								<expression><![CDATA[$F{weight} != null ? $F{weight}.getStringValue() + " " + $F{weight}.getUnit().getDisplayName() : ""]]></expression>
+								<expression><![CDATA[$F{weight}.toUserFriendlyString(true, "")]]></expression>
 								<property name="com.jaspersoft.studio.unit.x" value="px"/>
 								<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 								<property name="com.jaspersoft.studio.unit.width" value="px"/>
@@ -516,7 +516,7 @@
 								</box>
 							</element>
 							<element kind="textField" x="265" y="0" width="40" height="140">
-								<expression><![CDATA[$F{mol} != null ? $F{mol}.getStringValue() + " " + $F{mol}.getUnit().getDisplayName() : ""]]></expression>
+								<expression><![CDATA[$F{mol}.toUserFriendlyString(true, "")]]></expression>
 								<property name="com.jaspersoft.studio.unit.x" value="px"/>
 								<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 								<property name="com.jaspersoft.studio.unit.width" value="px"/>
@@ -528,7 +528,7 @@
 								</box>
 							</element>
 							<element kind="textField" x="305" y="0" width="50" height="140">
-								<expression><![CDATA[$F{volume} != null ? $F{volume}.getStringValue() + " " + $F{volume}.getUnit().getDisplayName() : ""]]></expression>
+								<expression><![CDATA[$F{volume}.toUserFriendlyString(true, "")]]></expression>
 								<property name="com.jaspersoft.studio.unit.x" value="px"/>
 								<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 								<property name="com.jaspersoft.studio.unit.width" value="px"/>
@@ -540,7 +540,7 @@
 								</box>
 							</element>
 							<element kind="textField" x="355" y="0" width="45" height="140">
-								<expression><![CDATA[$F{row}.getEq().getStringValue()]]></expression>
+								<expression><![CDATA[$F{row}.getEq().toUserFriendlyString(true, "")]]></expression>
 								<property name="com.jaspersoft.studio.unit.x" value="px"/>
 								<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 								<property name="com.jaspersoft.studio.unit.width" value="px"/>
@@ -568,13 +568,13 @@
 									<text><![CDATA[Purity:]]></text>
 								</element>
 								<element kind="textField" x="74" y="32" width="74" height="16">
-									<expression><![CDATA[$F{purity}.getStringValue()]]></expression>
+									<expression><![CDATA[$F{purity}.toUserFriendlyString(true, "")]]></expression>
 								</element>
 								<element kind="staticText" x="0" y="48" width="74" height="16">
 									<text><![CDATA[Molarity:]]></text>
 								</element>
 								<element kind="textField" x="74" y="48" width="74" height="16">
-									<expression><![CDATA[$F{molarity} != null ? $F{molarity} : ""]]></expression>
+									<expression><![CDATA[!$F{molarity}.isEmpty() ? $F{molarity} : ""]]></expression>
 								</element>
 								<element kind="staticText" x="0" y="64" width="74" height="16">
 									<text><![CDATA[Hazard:]]></text>
@@ -709,7 +709,7 @@
 								</box>
 							</element>
 							<element kind="textField" x="170" y="0" width="50" height="140">
-								<expression><![CDATA[$F{row}.getCompound().getMolWeight().getStringValue() + " " + $F{row}.getCompound().getMolWeight().getUnit().getDisplayName()]]></expression>
+								<expression><![CDATA[$F{row}.getCompound().getMolWeight().toUserFriendlyString(true, "")]]></expression>
 								<property name="com.jaspersoft.studio.unit.x" value="px"/>
 								<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 								<property name="com.jaspersoft.studio.unit.width" value="px"/>
@@ -721,7 +721,7 @@
 								</box>
 							</element>
 							<element kind="textField" x="220" y="0" width="45" height="140">
-								<expression><![CDATA[$F{actualWeight} != null ? $F{actualWeight}.getStringValue() + " " + $F{actualWeight}.getUnit().getDisplayName() : ""]]></expression>
+								<expression><![CDATA[$F{actualWeight}.toUserFriendlyString(true, "")]]></expression>
 								<property name="com.jaspersoft.studio.unit.x" value="px"/>
 								<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 								<property name="com.jaspersoft.studio.unit.width" value="px"/>
@@ -733,7 +733,7 @@
 								</box>
 							</element>
 							<element kind="textField" x="265" y="0" width="40" height="140">
-								<expression><![CDATA[$F{actualMol} != null ? $F{actualMol}.getStringValue() + " " + $F{actualMol}.getUnit().getDisplayName() : ""]]></expression>
+								<expression><![CDATA[$F{actualMol}.toUserFriendlyString(true, "")]]></expression>
 								<property name="com.jaspersoft.studio.unit.x" value="px"/>
 								<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 								<property name="com.jaspersoft.studio.unit.width" value="px"/>
@@ -745,7 +745,7 @@
 								</box>
 							</element>
 							<element kind="textField" x="305" y="0" width="50" height="140">
-								<expression><![CDATA[$F{volume} != null ? $F{volume}.getStringValue() + " " + $F{volume}.getUnit().getDisplayName() : ""]]></expression>
+								<expression><![CDATA[$F{volume}.toUserFriendlyString(true, "")]]></expression>
 								<property name="com.jaspersoft.studio.unit.x" value="px"/>
 								<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 								<property name="com.jaspersoft.studio.unit.width" value="px"/>
@@ -757,7 +757,7 @@
 								</box>
 							</element>
 							<element kind="textField" x="355" y="0" width="45" height="140">
-								<expression><![CDATA[$F{row}.getEq().getStringValue()]]></expression>
+								<expression><![CDATA[$F{row}.getEq().toUserFriendlyString(true, "")]]></expression>
 								<property name="com.jaspersoft.studio.unit.x" value="px"/>
 								<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 								<property name="com.jaspersoft.studio.unit.width" value="px"/>
@@ -785,13 +785,13 @@
 									<text><![CDATA[Purity:]]></text>
 								</element>
 								<element kind="textField" x="74" y="32" width="74" height="16">
-									<expression><![CDATA[$F{purity}.getStringValue()]]></expression>
+									<expression><![CDATA[$F{purity}.toUserFriendlyString(true, "")]]></expression>
 								</element>
 								<element kind="staticText" x="0" y="48" width="74" height="16">
 									<text><![CDATA[Molarity:]]></text>
 								</element>
 								<element kind="textField" x="74" y="48" width="74" height="16">
-									<expression><![CDATA[$F{molarity} != null ? $F{molarity} : ""]]></expression>
+									<expression><![CDATA[$F{molarity}.toUserFriendlyString(true, "")]]></expression>
 								</element>
 								<element kind="staticText" x="0" y="64" width="74" height="16">
 									<text><![CDATA[Hazard:]]></text>

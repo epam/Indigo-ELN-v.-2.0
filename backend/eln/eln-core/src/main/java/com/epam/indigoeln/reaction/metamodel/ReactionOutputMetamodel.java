@@ -25,8 +25,8 @@ public class ReactionOutputMetamodel {
     public static final ModelProperty<ReactionOutput, @Nullable String> CHEMICAL_NAME = property("chemicalName", ReactionOutput::getChemicalName, ReactionOutput::setChemicalName);
     public static final ModelProperty<ReactionOutput, ReactionOutputType> TYPE = property("type", ReactionOutput::getType, ReactionOutput::setType);
     public static final ModelProperty<ReactionOutput, Boolean> INTENDED = property("intended", ReactionOutput::isIntended, ReactionOutput::setIntended);
-    public static final ModelProperty<ReactionOutput, @Nullable EnteredValue<MolUnit>> THEO_MOL = enteredValueProperty("theoMol", ReactionOutput::getTheoMol, ReactionOutput::setTheoMol);
-    public static final ModelProperty<ReactionOutput, @Nullable EnteredValue<WeightUnit>> THEO_WEIGHT = enteredValueProperty("theoWeight", ReactionOutput::getTheoWeight, ReactionOutput::setTheoWeight);
+    public static final ModelProperty<ReactionOutput, EnteredValue<MolUnit>> THEO_MOL = enteredValueProperty("theoMol", ReactionOutput::getTheoMol, ReactionOutput::setTheoMol);
+    public static final ModelProperty<ReactionOutput, EnteredValue<WeightUnit>> THEO_WEIGHT = enteredValueProperty("theoWeight", ReactionOutput::getTheoWeight, ReactionOutput::setTheoWeight);
     public static final ModelProperty<ReactionOutput, List<ReactionOutputSample>> SAMPLES = listProperty("samples", ReactionOutput::getSamples, ReactionOutput::setSamples, ReactionOutputSampleMetamodel.INSTANCE);
 
     public static final Metamodel<ReactionOutput> INSTANCE = new Metamodel<>("ReactionOutput", List.of(

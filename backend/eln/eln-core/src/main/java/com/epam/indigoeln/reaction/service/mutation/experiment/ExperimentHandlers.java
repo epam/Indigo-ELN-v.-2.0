@@ -19,7 +19,6 @@ import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import com.epam.indigoeln.reaction.service.mutation.EntityMutationHelper;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
-import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
@@ -57,7 +56,7 @@ class CreateExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
     }
 
     @Override
-    public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.CreateExperiment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
+    public String doHandle(ExperimentEntity experiment, ExperimentMutation.CreateExperiment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         experiment.setStatus(ExperimentStatus.OPEN);
         experiment.setDeleted(false);
         experiment.setTherapeuticArea(dictionaryService.lookup(mutation.therapeuticArea()));
@@ -68,7 +67,7 @@ class CreateExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
         experiment.setCreatedBy(userService.getCurrentUserEntity());
         experiment.setBatchCreator(experiment.getCreatedBy());
         aclService.initExperimentACL(experiment);
-        return new MutationResult("Experiment created");
+        return "Experiment created";
     }
 
     private String generateExperimentName(NotebookEntity notebook) {
@@ -83,9 +82,9 @@ class CreateExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
 class SetExperimentSignificantFiguresHandler extends ExperimentMutationHandlerBase<ExperimentMutation.SetExperimentSignificantFigures> {
 
     @Override
-    public MutationResult doHandle(ExperimentEntity entity, ExperimentMutation.SetExperimentSignificantFigures mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
+    public String doHandle(ExperimentEntity entity, ExperimentMutation.SetExperimentSignificantFigures mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         entity.getModel().setSignificantFigures(mutation.significantFigures());
-        return new MutationResult(formatSetterSummary("significant figures", mutation.significantFigures()));
+        return formatSetterSummary("significant figures", mutation.significantFigures());
     }
 
     @Override
@@ -106,7 +105,7 @@ class EditExperimentAttributesHandler extends ExperimentMutationHandlerBase<Expe
     ExperimentRepository experimentRepository;
 
     @Override
-    public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.EditExperimentAttributes mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
+    public String doHandle(ExperimentEntity experiment, ExperimentMutation.EditExperimentAttributes mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         List<String> summaryList = new ArrayList<>();
         boolean updated = false;
         updated |= editProperty(mutation.title()
@@ -132,12 +131,12 @@ class EditExperimentAttributesHandler extends ExperimentMutationHandlerBase<Expe
         updated |= editProperty(mutation.description()
                 , experiment::setDescription
                 , summaryList
-                , "description"
+                , x -> "description"
         );
         updated |= editProperty(mutation.literature()
                 , experiment::setLiterature
                 , summaryList
-                , "literature"
+                , x -> "literature"
         );
         updated |= editProperty(mutation.linkedExperiments()
                 , v -> {
@@ -161,7 +160,7 @@ class EditExperimentAttributesHandler extends ExperimentMutationHandlerBase<Expe
                 , "continued to"
         );
         validate(updated, "Nothing to update");
-        return new MutationResult(entityMutationHelper.formatEditAttributesSummary(summaryList));
+        return entityMutationHelper.formatEditAttributesSummary(summaryList);
     }
 
     @Override
@@ -202,7 +201,7 @@ class SetBatchCreatorHandler extends ExperimentMutationHandlerBase<ExperimentMut
     UserRepository userRepository;
 
     @Override
-    public MutationResult doHandle(ExperimentEntity entity, ExperimentMutation.SetBatchCreator mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
+    public String doHandle(ExperimentEntity entity, ExperimentMutation.SetBatchCreator mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         for (Reaction reaction : entity.getModel().getReactions()) {
             for (ReactionOutput row : reaction.getOutputs()) {
                 if (row.hasSamplesWithRegistrationStarted()) {
@@ -212,7 +211,7 @@ class SetBatchCreatorHandler extends ExperimentMutationHandlerBase<ExperimentMut
         }
         UserInfo batchCreator = userService.getUserInfo(mutation.batchCreator());
         entity.setBatchCreator(userRepository.getReference(batchCreator.getId()));
-        return new MutationResult(formatSetterSummary("batch creator", batchCreator.getDisplayName()));
+        return formatSetterSummary("batch creator", batchCreator.getDisplayName());
     }
 
     @Override
@@ -244,12 +243,12 @@ class EditExperimentAccessHandler extends ExperimentMutationHandlerBase<Experime
     }
 
     @Override
-    public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.EditExperimentAccess mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
+    public String doHandle(ExperimentEntity experiment, ExperimentMutation.EditExperimentAccess mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         String summary = entityMutationHelper.formatEditAccessSummary(mutation.edits());
         projectRepository.lockProject(experiment.getProject());
         aclService.updateExperimentACL(experiment.getNotebook().getProject(), experiment.getNotebook(), experiment, mutation.edits());
         // !!! create revisions for notebook/project, if they are affected
-        return new MutationResult(summary);
+        return summary;
     }
 }
 
@@ -263,10 +262,10 @@ class CreateExperimentAttachmentHandler extends ExperimentMutationHandlerBase<Ex
     AttachmentService attachmentService;
 
     @Override
-    public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.CreateExperimentAttachment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
+    public String doHandle(ExperimentEntity experiment, ExperimentMutation.CreateExperimentAttachment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
         attachmentService.doAddExperimentAttachment(experiment, attachment);
-        return new MutationResult("Created attachment: %s, %d bytes".formatted(attachment.getName(), attachment.getSize()));
+        return "Created attachment: %s, %d bytes".formatted(attachment.getName(), attachment.getSize());
     }
 
     @Override
@@ -288,12 +287,12 @@ class DeleteExperimentAttachmentHandler extends ExperimentMutationHandlerBase<Ex
     AttachmentRepository attachmentRepository;
 
     @Override
-    public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.DeleteExperimentAttachment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
+    public String doHandle(ExperimentEntity experiment, ExperimentMutation.DeleteExperimentAttachment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
         experiment.getAttachments().remove(attachment);
         attachment.getExperiments().remove(experiment);
         attachment.setDeleted(true);
-        return new MutationResult("Deleted attachment: " + attachment.getName());
+        return "Deleted attachment: " + attachment.getName();
     }
 
     @Override
@@ -312,10 +311,10 @@ class DeleteExperimentAttachmentHandler extends ExperimentMutationHandlerBase<Ex
 class ExperimentAccessUpdatedHandler extends AbstractExperimentMutationHandler<ExperimentMutation.ExperimentAccessUpdated> {
 
     @Override
-    public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.ExperimentAccessUpdated mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
+    public String doHandle(ExperimentEntity experiment, ExperimentMutation.ExperimentAccessUpdated mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         aclService.recalculateACL(experiment);
         String reason = mutation.projectName() != null ? "project " + mutation.projectName() : "notebook " + mutation.notebookName();
-        return new MutationResult("Access updated because of the changes in " + reason);
+        return "Access updated because of the changes in " + reason;
     }
 }
 
@@ -327,11 +326,11 @@ class ExperimentNameUpdatedHandler extends AbstractExperimentMutationHandler<Exp
     ExperimentRepository experimentRepository;
 
     @Override
-    public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.ExperimentNameUpdated mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
+    public String doHandle(ExperimentEntity experiment, ExperimentMutation.ExperimentNameUpdated mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         String oldName = experiment.getName();
         String newName = regenerateExperimentName(experiment, mutation.notebookName());
         experiment.setName(newName);
-        return new MutationResult("Experiment name updated from " + oldName + " to " + newName + " due to notebook rename");
+        return "Experiment name updated from " + oldName + " to " + newName + " due to notebook rename";
     }
 
     private String regenerateExperimentName(ExperimentEntity experiment, String notebookName) {
@@ -357,13 +356,13 @@ class ExperimentUndoHandler extends ExperimentMutationHandlerBase<ExperimentMuta
     }
 
     @Override
-    public MutationResult doHandle(ExperimentEntity entity, ExperimentMutation.Undo mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
+    public String doHandle(ExperimentEntity entity, ExperimentMutation.Undo mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         return experimentUndoHelper.doHandle(entity, snapshotBefore, context, false);
     }
 
     @Override
-    protected ExperimentRevisionEntity doCreateRevision(ExperimentEntity experiment, ExperimentMutation.Undo mutation, MutationResult result, Integer revisionNo, JsonNode patch, ExperimentMutationContext context, ExperimentSnapshot snapshotAfter) {
-        ExperimentRevisionEntity revision = super.doCreateRevision(experiment, mutation, result, revisionNo, patch, context, snapshotAfter);
+    protected ExperimentRevisionEntity doCreateRevision(ExperimentEntity experiment, ExperimentMutation.Undo mutation, String summary, Integer revisionNo, JsonNode patch, ExperimentMutationContext context, ExperimentSnapshot snapshotAfter) {
+        ExperimentRevisionEntity revision = super.doCreateRevision(experiment, mutation, summary, revisionNo, patch, context, snapshotAfter);
         revision.setUndoFor(checkNotNull(context.getUndoInfo()).getRevision().getRevisionNo());
         return revision;
     }
@@ -384,13 +383,13 @@ class ExperimentRedoHandler extends ExperimentMutationHandlerBase<ExperimentMuta
     }
 
     @Override
-    public MutationResult doHandle(ExperimentEntity entity, ExperimentMutation.Redo mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
+    public String doHandle(ExperimentEntity entity, ExperimentMutation.Redo mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         return experimentUndoHelper.doHandle(entity, snapshotBefore, context, true);
     }
 
     @Override
-    protected ExperimentRevisionEntity doCreateRevision(ExperimentEntity experiment, ExperimentMutation.Redo mutation, MutationResult result, Integer revisionNo, JsonNode patch, ExperimentMutationContext context, ExperimentSnapshot snapshotAfter) {
-        ExperimentRevisionEntity revision = super.doCreateRevision(experiment, mutation, result, revisionNo, patch, context, snapshotAfter);
+    protected ExperimentRevisionEntity doCreateRevision(ExperimentEntity experiment, ExperimentMutation.Redo mutation, String summary, Integer revisionNo, JsonNode patch, ExperimentMutationContext context, ExperimentSnapshot snapshotAfter) {
+        ExperimentRevisionEntity revision = super.doCreateRevision(experiment, mutation, summary, revisionNo, patch, context, snapshotAfter);
         revision.setRedoFor(checkNotNull(context.getUndoInfo()).getRevision().getRevisionNo());
         return revision;
     }

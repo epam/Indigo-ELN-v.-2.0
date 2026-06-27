@@ -89,6 +89,8 @@ export const routes: Routes = [
           import('@pages/signature/signature-layout/signature-layout.component').then(
             (c) => c.SignatureLayoutComponent,
           ),
+        canActivate: [RoleGuard],
+        data: { requiredPermission: 'SIGN_EXPERIMENTS' },
         children: [
           {
             path: '',

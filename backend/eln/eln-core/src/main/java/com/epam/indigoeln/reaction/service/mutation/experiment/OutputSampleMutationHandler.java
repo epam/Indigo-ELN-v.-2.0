@@ -8,7 +8,6 @@ import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
-import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
@@ -17,9 +16,9 @@ import jakarta.inject.Inject;
 class SetOutputHealthHazardsHandler extends AbstractReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputHealthHazards> {
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputHealthHazards mutation, ExperimentMutationContext context) {
+    public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputHealthHazards mutation, ExperimentMutationContext context) {
         sample.setHealthHazards(mutation.healthHazards());
-        return new MutationResult(formatSetterSummary("batch health hazards", mutation.healthHazards()));
+        return formatSetterSummary("batch health hazards", mutation.healthHazards());
     }
 }
 
@@ -28,9 +27,9 @@ class SetOutputHealthHazardsHandler extends AbstractReactionOutputSampleMutation
 class SetOutputActualMolHandler extends AbstractReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputActualMol> {
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputActualMol mutation, ExperimentMutationContext context) {
+    public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputActualMol mutation, ExperimentMutationContext context) {
         setEnteredValue(sample::setActualMol, mutation.actualMol(), mutation.unit(), experiment.getRevision());
-        return new MutationResult(formatSetterSummary("batch actual mol", mutation.actualMol(), mutation.unit()));
+        return formatSetterSummary("batch actual mol", mutation.actualMol(), mutation.unit());
     }
 }
 
@@ -39,9 +38,9 @@ class SetOutputActualMolHandler extends AbstractReactionOutputSampleMutationHand
 class SetOutputActualWeightHandler extends AbstractReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputActualWeight> {
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputActualWeight mutation, ExperimentMutationContext context) {
+    public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputActualWeight mutation, ExperimentMutationContext context) {
         setEnteredValue(sample::setActualWeight, mutation.actualWeight(), mutation.unit(), experiment.getRevision());
-        return new MutationResult(formatSetterSummary("batch actual weight", mutation.actualWeight(), mutation.unit()));
+        return formatSetterSummary("batch actual weight", mutation.actualWeight(), mutation.unit());
     }
 }
 
@@ -53,7 +52,7 @@ class RegisterSampleHandler extends AbstractReactionOutputSampleMutationHandler<
     CompoundService compoundService;
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sampleRow, ReactionOutputSampleMutation.RegisterSample mutation, ExperimentMutationContext context) {
+    public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sampleRow, ReactionOutputSampleMutation.RegisterSample mutation, ExperimentMutationContext context) {
         if (sampleRow.getRegistrationStatus() != null) {
             throw new InvalidRequestException("Sample already sent for registration");
         }
@@ -76,6 +75,6 @@ class RegisterSampleHandler extends AbstractReactionOutputSampleMutationHandler<
         sampleRow.setRegistrationStatus(SampleRegistrationStatus.REGISTERED);
         sampleRow.setStrCode(sample.getStrCode());
         sampleRow.setSampleId(sample.getId());
-        return new MutationResult("Register sample");
+        return "Register sample";
     }
 }

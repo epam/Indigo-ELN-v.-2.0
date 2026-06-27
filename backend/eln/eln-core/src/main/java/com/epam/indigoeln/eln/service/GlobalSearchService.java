@@ -20,7 +20,6 @@ import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
 import java.time.Instant;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -198,9 +197,9 @@ public class GlobalSearchService {
                     item.setId((UUID) row[++fieldNo]);
                     item.setFragment((String) row[++fieldNo]);
                     item.setCreatedBy(userService.getUserInfo((UUID) row[++fieldNo]));
-                    item.setCreatedAt(((Instant) row[++fieldNo]).atZone(ZoneId.systemDefault()));
+                    item.setCreatedAt((Instant) row[++fieldNo]);
                     item.setModifiedBy(userService.getUserInfo((UUID) row[++fieldNo]));
-                    item.setModifiedAt(((Instant) row[++fieldNo]).atZone(ZoneId.systemDefault()));
+                    item.setModifiedAt((Instant) row[++fieldNo]);
                     String[] reactionRoles = (String[]) row[++fieldNo];
                     if (reactionRoles != null) {
                         item.setReactionRoles(StreamEx.of(reactionRoles).map(ReactionRole::valueOf).toCollection(() -> EnumSet.noneOf(ReactionRole.class)));

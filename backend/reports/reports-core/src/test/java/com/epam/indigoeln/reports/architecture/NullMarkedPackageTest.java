@@ -1,5 +1,6 @@
 package com.epam.indigoeln.reports.architecture;
 
+import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.domain.JavaPackage;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
@@ -22,7 +23,7 @@ class NullMarkedPackageTest {
                 .importPackages("com.epam.indigoeln");
 
         SortedSet<String> violating = classes.stream()
-                .map(c -> c.getPackage())
+                .map(JavaClass::getPackage)
                 .filter(pkg -> !pkg.isAnnotatedWith(NullMarked.class))
                 .map(JavaPackage::getName)
                 .collect(Collectors.toCollection(TreeSet::new));

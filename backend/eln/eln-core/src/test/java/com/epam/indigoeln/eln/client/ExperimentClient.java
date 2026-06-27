@@ -27,7 +27,7 @@ public interface ExperimentClient extends ExperimentAPI {
     List<AttachmentDTO> createExperimentAttachment(@PathParam("experimentId") UUID experimentId, ClientUploadForm form);
 
     @POST
-    @Path("/experiments/{experimentId}/mutate4")
+    @Path("/experiments/{experimentId}/mutate")
     JsonNode mutateExperimentModel4Raw(@PathParam("experimentId") UUID experimentId, @QueryParam("revision") Integer revision, String mutation);
 
     @POST

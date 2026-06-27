@@ -19,9 +19,9 @@ import static com.epam.indigoeln.reaction.metamodel.property.ModelProperty.prope
 public class ReactionOutputSampleMetamodel {
 
     // ReactionSample
-    public static final ModelProperty<ReactionOutputSample, @Nullable EnteredValue<DensityUnit>> DENSITY = enteredValueProperty("density", ReactionOutputSample::getDensity, ReactionOutputSample::setDensity);
-    public static final ModelProperty<ReactionOutputSample, @Nullable EnteredValue<MolarityUnit>> MOLARITY = enteredValueProperty("molarity", ReactionOutputSample::getMolarity, ReactionOutputSample::setMolarity);
-    public static final ModelProperty<ReactionOutputSample, @Nullable EnteredValue<VolumeUnit>> VOLUME = enteredValueProperty("volume", ReactionOutputSample::getVolume, ReactionOutputSample::setVolume);
+    public static final ModelProperty<ReactionOutputSample, EnteredValue<DensityUnit>> DENSITY = enteredValueProperty("density", ReactionOutputSample::getDensity, ReactionOutputSample::setDensity);
+    public static final ModelProperty<ReactionOutputSample, EnteredValue<MolarityUnit>> MOLARITY = enteredValueProperty("molarity", ReactionOutputSample::getMolarity, ReactionOutputSample::setMolarity);
+    public static final ModelProperty<ReactionOutputSample, EnteredValue<VolumeUnit>> VOLUME = enteredValueProperty("volume", ReactionOutputSample::getVolume, ReactionOutputSample::setVolume);
     public static final ModelProperty<ReactionOutputSample, EnteredValue<NoUnit>> PURITY = enteredValueProperty("purity", ReactionOutputSample::getPurity, ReactionOutputSample::setPurity, EnteredValue.DEFAULT_ONE_HUNDRED);
     public static final ModelProperty<ReactionOutputSample, @Nullable STRCodeSample> STR_CODE = property("strCode", ReactionOutputSample::getStrCode, ReactionOutputSample::setStrCode);
     public static final ModelProperty<ReactionOutputSample, List<HealthHazardRef>> HEALTH_HAZARDS = property("healthHazards", ReactionOutputSample::getHealthHazards, ReactionOutputSample::setHealthHazards);
@@ -29,9 +29,9 @@ public class ReactionOutputSampleMetamodel {
     public static final ModelProperty<ReactionOutputSample, OutputSampleAnchor> ANCHOR = property("anchor", ReactionOutputSample::getAnchor, null);
     public static final ModelProperty<ReactionOutputSample, NbkBatchNumber> NBK_BATCH_NUMBER = property("nbkBatchNumber", ReactionOutputSample::getNbkBatchNumber, null);
     public static final ModelProperty<ReactionOutputSample, String> SHORT_NBK_BATCH_NUMBER = property("shortNbkBatchNumber", ReactionOutputSample::getShortNbkBatchNumber, null);
-    public static final ModelProperty<ReactionOutputSample, @Nullable EnteredValue<MolUnit>> ACTUAL_MOL = enteredValueProperty("actualMol", ReactionOutputSample::getActualMol, ReactionOutputSample::setActualMol);
-    public static final ModelProperty<ReactionOutputSample, @Nullable EnteredValue<WeightUnit>> ACTUAL_WEIGHT = enteredValueProperty("actualWeight", ReactionOutputSample::getActualWeight, ReactionOutputSample::setActualWeight);
-    public static final ModelProperty<ReactionOutputSample, @Nullable EnteredValue<NoUnit>> YIELD = enteredValueProperty("yield", ReactionOutputSample::getYield, ReactionOutputSample::setYield);
+    public static final ModelProperty<ReactionOutputSample, EnteredValue<MolUnit>> ACTUAL_MOL = enteredValueProperty("actualMol", ReactionOutputSample::getActualMol, ReactionOutputSample::setActualMol);
+    public static final ModelProperty<ReactionOutputSample, EnteredValue<WeightUnit>> ACTUAL_WEIGHT = enteredValueProperty("actualWeight", ReactionOutputSample::getActualWeight, ReactionOutputSample::setActualWeight);
+    public static final ModelProperty<ReactionOutputSample, EnteredValue<NoUnit>> YIELD = enteredValueProperty("yield", ReactionOutputSample::getYield, ReactionOutputSample::setYield);
     public static final ModelProperty<ReactionOutputSample, @Nullable SampleRegistrationStatus> REGISTRATION_STATUS = property("registrationStatus", ReactionOutputSample::getRegistrationStatus, ReactionOutputSample::setRegistrationStatus);
     public static final ModelProperty<ReactionOutputSample, @Nullable String> REGISTRATION_STATUS_MESSAGE = property("registrationStatusMessage", ReactionOutputSample::getRegistrationStatusMessage, ReactionOutputSample::setRegistrationStatusMessage);
     public static final ModelProperty<ReactionOutputSample, @Nullable UUID> SAMPLE_ID = property("sampleId", ReactionOutputSample::getSampleId, ReactionOutputSample::setSampleId);

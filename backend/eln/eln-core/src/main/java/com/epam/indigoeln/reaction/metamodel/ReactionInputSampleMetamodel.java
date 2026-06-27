@@ -19,17 +19,17 @@ import static com.epam.indigoeln.reaction.metamodel.property.ModelProperty.prope
 public class ReactionInputSampleMetamodel {
 
     // ReactionSample
-    public static final ModelProperty<ReactionInputSample, @Nullable EnteredValue<DensityUnit>> DENSITY = enteredValueProperty("density", ReactionSample::getDensity, ReactionSample::setDensity);
-    public static final ModelProperty<ReactionInputSample, @Nullable EnteredValue<MolarityUnit>> MOLARITY = enteredValueProperty("molarity", ReactionSample::getMolarity, ReactionSample::setMolarity);
-    public static final ModelProperty<ReactionInputSample, @Nullable EnteredValue<VolumeUnit>> VOLUME = enteredValueProperty("volume", ReactionSample::getVolume, ReactionSample::setVolume);
+    public static final ModelProperty<ReactionInputSample, EnteredValue<DensityUnit>> DENSITY = enteredValueProperty("density", ReactionSample::getDensity, ReactionSample::setDensity);
+    public static final ModelProperty<ReactionInputSample, EnteredValue<MolarityUnit>> MOLARITY = enteredValueProperty("molarity", ReactionSample::getMolarity, ReactionSample::setMolarity);
+    public static final ModelProperty<ReactionInputSample, EnteredValue<VolumeUnit>> VOLUME = enteredValueProperty("volume", ReactionSample::getVolume, ReactionSample::setVolume);
     public static final ModelProperty<ReactionInputSample, EnteredValue<NoUnit>> PURITY = enteredValueProperty("purity", ReactionSample::getPurity, ReactionSample::setPurity, EnteredValue.DEFAULT_ONE_HUNDRED);
     public static final ModelProperty<ReactionInputSample, @Nullable STRCodeSample> STR_CODE = property("strCode", ReactionSample::getStrCode, ReactionSample::setStrCode);
     public static final ModelProperty<ReactionInputSample, List<HealthHazardRef>> HEALTH_HAZARDS = property("healthHazards", ReactionSample::getHealthHazards, ReactionSample::setHealthHazards);
     // ReactionInputSample
     public static final ModelProperty<ReactionInputSample, InputSampleAnchor> ANCHOR = property("anchor", ReactionInputSample::getAnchor, null);
     public static final ModelProperty<ReactionInputSample, @Nullable UUID> SAMPLE_ID = property("sampleId", ReactionInputSample::getSampleId, ReactionInputSample::setSampleId);
-    public static final ModelProperty<ReactionInputSample, @Nullable EnteredValue<MolUnit>> MOL = enteredValueProperty("mol", ReactionInputSample::getMol, ReactionInputSample::setMol);
-    public static final ModelProperty<ReactionInputSample, @Nullable EnteredValue<WeightUnit>> WEIGHT = enteredValueProperty("weight", ReactionInputSample::getWeight, ReactionInputSample::setWeight);
+    public static final ModelProperty<ReactionInputSample, EnteredValue<MolUnit>> MOL = enteredValueProperty("mol", ReactionInputSample::getMol, ReactionInputSample::setMol);
+    public static final ModelProperty<ReactionInputSample, EnteredValue<WeightUnit>> WEIGHT = enteredValueProperty("weight", ReactionInputSample::getWeight, ReactionInputSample::setWeight);
     public static final ModelProperty<ReactionInputSample, @Nullable String> COMMENT = property("comment", ReactionInputSample::getComment, ReactionInputSample::setComment);
 
     public static final Metamodel<ReactionInputSample> INSTANCE = new Metamodel<>("ReactionInputSample", List.of(

@@ -9,7 +9,6 @@ import com.epam.indigoeln.eln.model.TemplateTab;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
-import com.epam.indigoeln.reaction.model.units.EnteredValueSource;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
 import com.epam.indigoeln.test.FeignUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -25,12 +24,15 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.openapitools.jackson.nullable.JsonNullable;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.epam.indigoeln.eln.test.EnteredValueAssert.assertThat;
+import static com.epam.indigoeln.reaction.model.units.WeightUnit.G;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
@@ -84,15 +86,25 @@ public class JSONSerializationTest {
     @ParameterizedTest
     @MethodSource("mappers")
     void testSerializeEnteredValue(MapperType serializer, MapperType deserializer) {
-        EnteredValue<WeightUnit> value = EnteredValue.userEntered("5.00", WeightUnit.G, 1);
+        EnteredValue<WeightUnit> value = EnteredValue.userEntered("5.00", G, 1);
         String serialized = serialize(serializer, value);
         assertThat(serialized).isEqualToIgnoringWhitespace("""
                 {"value": "5.00", "unit": "G", "source": 1}
                 """);
         EnteredValue<WeightUnit> value2 = deserialize(deserializer, serialized, new TypeReference<>() {});
-        assertThat(value2.getValue()).isEqualTo(5.0);
-        assertThat(value2.getUnit()).isEqualTo(WeightUnit.G);
-        assertThat(value2.getSource()).isEqualTo(EnteredValueSource.userEntered(1));
+        assertThat(value2).hasValue(5, G).isUserEntered(1);
+    }
+
+    @ParameterizedTest
+    @MethodSource("mappers")
+    void testSerializeExactEnteredValue(MapperType serializer, MapperType deserializer) {
+        EnteredValue<WeightUnit> value = EnteredValue.fixedExact(0.1234567, 2, G);
+        String serialized = serialize(serializer, value);
+        assertThat(serialized).isEqualToIgnoringWhitespace("""
+                {"value": "0.12", "exactValue": 0.1234567, "unit": "G", "source": "fixed"}
+                """);
+        EnteredValue<WeightUnit> value2 = deserialize(deserializer, serialized, new TypeReference<>() {});
+        assertThat(value2).isEqualTo(value);
     }
 
     @ParameterizedTest
@@ -107,12 +119,12 @@ public class JSONSerializationTest {
 
     @ParameterizedTest
     @MethodSource("mappers")
-    void testSerializeDate(MapperType serializer, MapperType deserializer) {
-        ZonedDateTime value = ZonedDateTime.of(2026, 3, 25, 13, 0, 0, 0, ZoneId.of("UTC"));
+    void testSerializeInstant(MapperType serializer, MapperType deserializer) {
+        Instant value = ZonedDateTime.of(2026, 3, 25, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant();
         String serialized = serialize(serializer, value);
         assertThat(serialized).isEqualTo("\"2026-03-25T13:00:00Z\"");
-        ZonedDateTime value2 = deserialize(deserializer, serialized, ZonedDateTime.class);
-        assertThat(value2).isEqualTo(value);
+        Instant value2 = deserialize(deserializer, serialized, Instant.class);
+        assertThat((Object) value2).isEqualTo(value);
     }
 
     @ParameterizedTest

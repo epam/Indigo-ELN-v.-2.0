@@ -34,14 +34,14 @@ public final class ReactionOutputSample extends ReactionSample<ReactionOutput> {
     @NotNull
     private final NbkBatchNumber nbkBatchNumber;
 
-    @Nullable
-    private EnteredValue<MolUnit> actualMol;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private EnteredValue<MolUnit> actualMol = EnteredValue.empty();
 
-    @Nullable
-    private EnteredValue<WeightUnit> actualWeight;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private EnteredValue<WeightUnit> actualWeight = EnteredValue.empty();
 
-    @Nullable
-    private EnteredValue<NoUnit> yield;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private EnteredValue<NoUnit> yield = EnteredValue.empty();
 
     @Nullable
     private SampleRegistrationStatus registrationStatus;

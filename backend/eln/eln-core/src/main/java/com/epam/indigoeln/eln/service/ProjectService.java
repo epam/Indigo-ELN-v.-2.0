@@ -11,17 +11,15 @@ import com.epam.indigoeln.eln.mapper.ProjectMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.reaction.model.ProjectSnapshot;
-import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.mutation.ProjectMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerRegistry;
+import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import com.epam.indigoeln.reaction.service.mutation.project.AbstractProjectMutationHandler;
 import com.epam.indigoeln.reaction.service.mutation.project.ProjectMutationContext;
-import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Triple;
 import org.jspecify.annotations.Nullable;
 
 import java.util.EnumSet;
@@ -92,10 +90,9 @@ public class ProjectService {
         return projectRepository.findNestedAccess(projectId);
     }
 
-    public Triple<ProjectSnapshot, JsonNode, ProjectMutationContext> applyMutation(ProjectEntity project, ProjectMutation mutation) {
+    public MutationResult<ProjectSnapshot, ProjectMutationContext> applyMutation(ProjectEntity project, ProjectMutation mutation) {
         log.debug("Mutating project {}: {}", project.getId(), mutation);
-        AbstractProjectMutationHandler<Mutation> handler = mutationHandlerRegistry.findHandler(mutation);
-        return handler.applyMutation(project, mutation);
+        return mutationHandlerRegistry.withHandler(mutation, (AbstractProjectMutationHandler<ProjectMutation> handler) -> handler.applyMutation(project, mutation));
     }
 
     public List<RevisionSummaryDTO> getProjectRevisions(UUID projectId) {

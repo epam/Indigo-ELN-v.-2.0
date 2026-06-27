@@ -16,7 +16,6 @@ import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
-import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import com.epam.indigoeln.signature.api.SignatureClient;
 import com.epam.indigoeln.signature.model.DocumentDTO;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -44,9 +43,9 @@ class CancelExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
     ExperimentWorkflowHelper helper;
 
     @Override
-    public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.CancelExperiment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
+    public String doHandle(ExperimentEntity experiment, ExperimentMutation.CancelExperiment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         helper.transition(experiment, CANCELLED, SUBMIT_EXPERIMENTS, OPEN, REOPEN);
-        return new MutationResult("Experiment cancelled");
+        return "Experiment cancelled";
     }
 }
 
@@ -58,9 +57,9 @@ class ReopenExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
     ExperimentWorkflowHelper helper;
 
     @Override
-    public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.ReopenExperiment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
+    public String doHandle(ExperimentEntity experiment, ExperimentMutation.ReopenExperiment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         helper.transition(experiment, REOPEN, SUBMIT_EXPERIMENTS, CANCELLED, ARCHIVED, COMPLETED, SUBMITTED, REJECTED);
-        return new MutationResult("Experiment reopened");
+        return "Experiment reopened";
     }
 }
 
@@ -72,9 +71,9 @@ class CompleteExperimentHandler extends ExperimentMutationHandlerBase<Experiment
     ExperimentWorkflowHelper helper;
 
     @Override
-    public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.CompleteExperiment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
+    public String doHandle(ExperimentEntity experiment, ExperimentMutation.CompleteExperiment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         helper.transition(experiment, COMPLETED, SUBMIT_EXPERIMENTS, OPEN, REOPEN);
-        return new MutationResult("Experiment completed");
+        return "Experiment completed";
     }
 }
 
@@ -94,18 +93,18 @@ class SubmitExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
 
     @Override
     @SneakyThrows
-    public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.SubmitExperiment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
+    public String doHandle(ExperimentEntity experiment, ExperimentMutation.SubmitExperiment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         helper.transition(experiment, SUBMITTED, SUBMIT_EXPERIMENTS, COMPLETED, REJECTED);
         ExperimentService.ExperimentReportContent report = experimentService.printReport(experiment);
         AttachmentEntity attachment = attachmentService.createExperimentAttachment(experiment, report.filename(), report.content(), false);
-        String documentName = experiment.getName(); // !!! add version number
+        String documentName = experiment.getName() + (experiment.getVersion() != null ? ", version " + experiment.getVersion() : "");
         DocumentDTO document = useTempFile(attachment.getName(), attachment.getContent(), file -> {
-            return signatureClient.uploadDocumentClient(experiment.getName(), mutation.signatureTemplateID(), file);
+            return signatureClient.uploadDocumentClient(documentName, mutation.signatureTemplateID(), file);
         });
         experiment.setSignatureNumber(document.getId().toString());
         experiment.setSignatureAttachment(attachment);
         helper.updateStatusFromSignature(experiment, document.getStatus());
-        return new MutationResult("Experiment submitted for signature");
+        return "Experiment submitted for signature";
     }
 }
 
@@ -121,11 +120,11 @@ class SignatureUpdatedHandler extends ExperimentMutationHandlerBase<ExperimentMu
     AttachmentRepository attachmentRepository;
 
     @Override
-    public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.SignatureUpdated mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
+    public String doHandle(ExperimentEntity experiment, ExperimentMutation.SignatureUpdated mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         helper.updateStatusFromSignature(experiment, mutation.documentStatus());
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
         attachmentService.doAddExperimentAttachment(experiment, attachment);
-        return new MutationResult("Signatures update: " + mutation.message());
+        return "Signatures update: " + mutation.message();
     }
 }
 
@@ -137,15 +136,16 @@ class MakeVersionHandler extends ExperimentMutationHandlerBase<ExperimentMutatio
     ExperimentRepository experimentRepository;
 
     @Override
-    public MutationResult doHandle(ExperimentEntity experiment, ExperimentMutation.MakeVersion mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
+    public String doHandle(ExperimentEntity experiment, ExperimentMutation.MakeVersion mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         int lastUsedVersion = MoreObjects.firstNonNull(experimentRepository.getLastUsedVersion(experiment), 0);
         context.setCreatedVersion(lastUsedVersion + 1);
-        return new MutationResult("Version " + context.getCreatedVersion());
+        experiment.setVersion(context.getCreatedVersion());
+        return "Version " + context.getCreatedVersion();
     }
 
     @Override
-    protected ExperimentRevisionEntity doCreateRevision(ExperimentEntity experiment, ExperimentMutation.MakeVersion mutation, MutationResult result, Integer revisionNo, JsonNode patch, ExperimentMutationContext context, ExperimentSnapshot snapshotAfter) {
-        ExperimentRevisionEntity revision = super.doCreateRevision(experiment, mutation, result, revisionNo, patch, context, snapshotAfter);
+    protected ExperimentRevisionEntity doCreateRevision(ExperimentEntity experiment, ExperimentMutation.MakeVersion mutation, String summary, Integer revisionNo, JsonNode patch, ExperimentMutationContext context, ExperimentSnapshot snapshotAfter) {
+        ExperimentRevisionEntity revision = super.doCreateRevision(experiment, mutation, summary, revisionNo, patch, context, snapshotAfter);
         revision.setVersion(checkNotNull(context.getCreatedVersion()));
         revision.setSnapshot(snapshotAfter);
         return revision;

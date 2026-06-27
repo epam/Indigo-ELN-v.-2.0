@@ -2,7 +2,6 @@ package com.epam.indigoeln.reaction.util;
 
 import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import lombok.extern.slf4j.Slf4j;
@@ -29,30 +28,60 @@ public class MeasurementUtil {
         MULTIPLY_TABLE.put(MM, L, new UnitAndMultiplier(MMOL, 1));
         MULTIPLY_TABLE.put(M, ML, new UnitAndMultiplier(MMOL, 1));
         MULTIPLY_TABLE.put(MM, ML, new UnitAndMultiplier(UMOL, 1));
+
         MULTIPLY_TABLE.put(G_PER_MOL, MOL, new UnitAndMultiplier(G, 1));
         MULTIPLY_TABLE.put(G_PER_MOL, MMOL, new UnitAndMultiplier(MG, 1));
         MULTIPLY_TABLE.put(G_PER_MOL, UMOL, new UnitAndMultiplier(MG, 1e-3));
+
         MULTIPLY_TABLE.put(G_ML, ML, new UnitAndMultiplier(G, 1));
         MULTIPLY_TABLE.put(G_ML, L, new UnitAndMultiplier(KG, 1));
+
+        MULTIPLY_TABLE.put(MM, G_PER_MOL, new UnitAndMultiplier(G_ML, 1e-6));
+        MULTIPLY_TABLE.put(M, G_PER_MOL, new UnitAndMultiplier(G_ML, 1e-3));
 
         DIVIDE_TABLE.put(MG, G_PER_MOL, new UnitAndMultiplier(MMOL, 1));
         DIVIDE_TABLE.put(G, G_PER_MOL, new UnitAndMultiplier(MOL, 1));
         DIVIDE_TABLE.put(KG, G_PER_MOL, new UnitAndMultiplier(MOL, 1000));
+
         DIVIDE_TABLE.put(MG, G_ML, new UnitAndMultiplier(ML, 1e-3));
         DIVIDE_TABLE.put(G, G_ML, new UnitAndMultiplier(ML, 1));
         DIVIDE_TABLE.put(KG, G_ML, new UnitAndMultiplier(L, 1));
+
+        DIVIDE_TABLE.put(MG, ML, new UnitAndMultiplier(G_ML, 1e-3));
+        DIVIDE_TABLE.put(MG, L, new UnitAndMultiplier(G_ML, 1e-6));
+        DIVIDE_TABLE.put(G, ML, new UnitAndMultiplier(G_ML, 1));
+        DIVIDE_TABLE.put(G, L, new UnitAndMultiplier(G_ML, 1e-3));
+        DIVIDE_TABLE.put(KG, ML, new UnitAndMultiplier(G_ML, 1e+3));
+        DIVIDE_TABLE.put(KG, L, new UnitAndMultiplier(G_ML, 1));
+
+        DIVIDE_TABLE.put(MG, UMOL, new UnitAndMultiplier(G_PER_MOL, 1e+3));
+        DIVIDE_TABLE.put(MG, MMOL, new UnitAndMultiplier(G_PER_MOL, 1));
+        DIVIDE_TABLE.put(MG, MOL, new UnitAndMultiplier(G_PER_MOL, 1e-3));
+        DIVIDE_TABLE.put(G, UMOL, new UnitAndMultiplier(G_PER_MOL, 1e+6));
+        DIVIDE_TABLE.put(G, MMOL, new UnitAndMultiplier(G_PER_MOL, 1e+3));
+        DIVIDE_TABLE.put(G, MOL, new UnitAndMultiplier(G_PER_MOL, 1));
+        DIVIDE_TABLE.put(KG, UMOL, new UnitAndMultiplier(G_PER_MOL, 1e+9));
+        DIVIDE_TABLE.put(KG, MMOL, new UnitAndMultiplier(G_PER_MOL, 1e+6));
+        DIVIDE_TABLE.put(KG, MOL, new UnitAndMultiplier(G_PER_MOL, 1e+3));
+
         DIVIDE_TABLE.put(UMOL, MM, new UnitAndMultiplier(ML, 1));
         DIVIDE_TABLE.put(UMOL, M, new UnitAndMultiplier(ML, 1e-3));
         DIVIDE_TABLE.put(MMOL, MM, new UnitAndMultiplier(ML, 1000));
         DIVIDE_TABLE.put(MMOL, M, new UnitAndMultiplier(ML, 1));
         DIVIDE_TABLE.put(MOL, MM, new UnitAndMultiplier(L, 1000));
         DIVIDE_TABLE.put(MOL, M, new UnitAndMultiplier(L, 1));
-    }
 
-    public static UnitAndMultiplier2 addOrSubtract(MeasurementUnit left, MeasurementUnit right) {
-        Preconditions.checkArgument(left.getClass().equals(right.getClass()), "Inconvertible units: %s and %s", left, right);
-        double multiplierLeft = left.getMultiplier() / right.getMultiplier();
-        return new UnitAndMultiplier2(right, multiplierLeft, 1.0);
+        DIVIDE_TABLE.put(UMOL, ML, new UnitAndMultiplier(MM, 1));
+        DIVIDE_TABLE.put(UMOL, L, new UnitAndMultiplier(MM, 1e-3));
+        DIVIDE_TABLE.put(MMOL, ML, new UnitAndMultiplier(M, 1));
+        DIVIDE_TABLE.put(MMOL, L, new UnitAndMultiplier(MM, 1));
+        DIVIDE_TABLE.put(MOL, ML, new UnitAndMultiplier(M, 1000));
+        DIVIDE_TABLE.put(MOL, L, new UnitAndMultiplier(M, 1));
+
+        DIVIDE_TABLE.put(G_ML, MM, new UnitAndMultiplier(G_PER_MOL, 1e+6));
+        DIVIDE_TABLE.put(G_ML, M, new UnitAndMultiplier(G_PER_MOL, 1e+3));
+
+        DIVIDE_TABLE.put(G_ML, G_PER_MOL, new UnitAndMultiplier(M, 1e+3));
     }
 
     public static UnitAndMultiplier multiply(MeasurementUnit left, MeasurementUnit right) {
@@ -89,24 +118,5 @@ public class MeasurementUtil {
         return target;
     }
 
-    public static boolean nearlyEqual(double a, double b, double epsilon) {
-        final double absA = Math.abs(a);
-        final double absB = Math.abs(b);
-        final double diff = Math.abs(a - b);
-
-        if (a == b) {
-            // shortcut, handles infinities
-            return true;
-        } else if (a == 0 || b == 0 || (absA + absB < Double.MIN_NORMAL)) {
-            // a or b is zero or both are extremely close to it relative error is less meaningful here
-            return diff < (epsilon * Double.MIN_NORMAL);
-        } else {
-            // use relative error
-            return diff / Math.min((absA + absB), Double.MAX_VALUE) < epsilon;
-        }
-    }
-
     public record UnitAndMultiplier(MeasurementUnit unit, double multiplier) {}
-
-    public record UnitAndMultiplier2(MeasurementUnit unit, double multiplier1, double multiplier2) {}
 }

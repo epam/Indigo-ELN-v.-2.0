@@ -8,7 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.List;
 
 @Data
@@ -24,10 +24,10 @@ public class RevisionSummaryDTO {
     private String summary;
 
     @NotNull
-    private ZonedDateTime date;
+    private Instant date;
 
     @Nullable
-    private ZonedDateTime dateTo;
+    private Instant dateTo;
 
     @NotNull
     private int revision;

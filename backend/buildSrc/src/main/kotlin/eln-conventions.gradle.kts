@@ -1,3 +1,5 @@
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
 plugins {
     java
     id("com.github.ben-manes.versions")
@@ -38,6 +40,10 @@ tasks.withType<org.gradle.api.tasks.compile.JavaCompile> {
 tasks.withType<Test> {
     systemProperty("java.util.logging.manager", "org.jboss.logmanager.LogManager")
     jvmArgs("--add-opens", "java.base/java.lang=ALL-UNNAMED")
+    testLogging {
+        showStandardStreams = false
+        events = setOf(/*TestLogEvent.PASSED, */TestLogEvent.FAILED, TestLogEvent.SKIPPED)
+    }
 }
 
 // Register the aggregated report task on the root project (first subproject creates it, rest skip).

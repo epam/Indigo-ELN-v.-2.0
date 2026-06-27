@@ -31,11 +31,11 @@ public final class ReactionInputSample extends ReactionSample<ReactionInput> {
     @Nullable
     private NbkBatchNumber nbkBatchNumber;
 
-    @Nullable
-    private EnteredValue<MolUnit> mol;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private EnteredValue<MolUnit> mol = EnteredValue.empty();
 
-    @Nullable
-    private EnteredValue<WeightUnit> weight;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private EnteredValue<WeightUnit> weight = EnteredValue.empty();
 
     @Nullable
     private String comment;

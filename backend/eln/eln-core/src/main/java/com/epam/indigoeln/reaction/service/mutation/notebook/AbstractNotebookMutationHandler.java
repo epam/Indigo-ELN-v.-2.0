@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.inject.Inject;
 import lombok.SneakyThrows;
-import org.apache.commons.lang3.tuple.Triple;
 import org.hibernate.exception.ConstraintViolationException;
 import org.jspecify.annotations.Nullable;
 
@@ -50,7 +49,7 @@ public abstract class AbstractNotebookMutationHandler<T extends Mutation> extend
     }
 
     @Override
-    public Triple<NotebookSnapshot, JsonNode, NotebookMutationContext> applyMutation(NotebookEntity notebook, T mutation) {
+    public MutationResult<NotebookSnapshot, NotebookMutationContext> applyMutation(NotebookEntity notebook, T mutation) {
         return wrapConstraintViolation(
                 () -> super.applyMutation(notebook, mutation),
                 this::mapConstraintToError
@@ -87,8 +86,8 @@ public abstract class AbstractNotebookMutationHandler<T extends Mutation> extend
     }
 
     @Override
-    protected final NotebookRevisionEntity doCreateRevision(NotebookEntity notebook, T mutation, MutationResult result, Integer revisionNo, JsonNode patch, NotebookMutationContext context, NotebookSnapshot snapshotAfter) {
-        return revisionService.addRevision(notebook, revisionNo, notebook.getModifiedAt(), result.summary(), mutation, patch);
+    protected final NotebookRevisionEntity doCreateRevision(NotebookEntity notebook, T mutation, String summary, Integer revisionNo, JsonNode patch, NotebookMutationContext context, NotebookSnapshot snapshotAfter) {
+        return revisionService.addRevision(notebook, revisionNo, notebook.getModifiedAt(), summary, mutation, patch);
     }
 
     @Nullable

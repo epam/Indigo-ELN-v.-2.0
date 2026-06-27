@@ -23,9 +23,10 @@ import one.util.streamex.EntryStream;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
+import org.jspecify.annotations.Nullable;
 
 import java.nio.file.Files;
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -65,7 +66,7 @@ public class SignatureService {
     }
 
     public SignatureTemplateDetailsDTO createTemplate(@Valid SignatureTemplateRequest request) {
-        SignatureTemplateEntity entity = mapper.requestToEntity(request, ZonedDateTime.now());
+        SignatureTemplateEntity entity = mapper.requestToEntity(request, Instant.now());
         em.persist(entity);
         return mapper.entityToTemplateDetails(entity);
     }
@@ -84,7 +85,7 @@ public class SignatureService {
         document.setTemplate(template);
         document.setAuthor(userService.getCurrentUser());
         document.setStatus(SUBMITTED);
-        document.setCreatedDate(ZonedDateTime.now());
+        document.setCreatedDate(Instant.now());
         document.setLastModifiedDate(document.getCreatedDate());
         document.setFilename(file.fileName());
         document.setContent(Files.readAllBytes(file.filePath()));
@@ -113,7 +114,7 @@ public class SignatureService {
         return mapper.entityToDocument(document);
     }
 
-    public Page<DocumentDTO> getDocuments(String search, SortOrder sort, Boolean waitingMySignature, Paging paging) {
+    public Page<DocumentDTO> getDocuments(@Nullable String search, @Nullable SortOrder sort, @Nullable Boolean waitingMySignature, Paging paging) {
         return documentRepository.findAll(search, sort, waitingMySignature == Boolean.TRUE ? userService.getCurrentUser() : null, paging);
     }
 
@@ -136,7 +137,7 @@ public class SignatureService {
                     throw new InvalidInputException("User already signed or rejected this document");
                 }
                 block.setStatus(reject ? SignatureStatus.REJECTED : SignatureStatus.APPROVED);
-                block.setActionDate(ZonedDateTime.now());
+                block.setActionDate(Instant.now());
                 document.setStatus(SIGNING);
                 int signatureIndex = document.getSignatures().indexOf(block);
                 byte[] content = reject
@@ -154,7 +155,7 @@ public class SignatureService {
         String message1 = message;
         return useTempFile(document.getFilename(), document.getContent(), file -> {
             elnInternalClient.internalSignatureUpdatedClient(document.getId(), message1, document.getStatus(), file);
-            document.setLastModifiedDate(ZonedDateTime.now());
+            document.setLastModifiedDate(Instant.now());
             return mapper.entityToDocument(document);
         });
     }

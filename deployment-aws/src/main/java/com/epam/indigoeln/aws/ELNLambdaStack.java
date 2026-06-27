@@ -16,6 +16,7 @@ import software.amazon.awscdk.services.ec2.IVpc;
 import software.amazon.awscdk.services.ecr.IRepository;
 import software.amazon.awscdk.services.lambda.Function;
 import software.amazon.awscdk.services.rds.Credentials;
+import software.amazon.awscdk.services.s3.IBucket;
 import software.amazon.awscdk.services.ssm.IStringParameter;
 import software.amazon.awscdk.services.ssm.StringParameter;
 import software.constructs.Construct;
@@ -56,6 +57,7 @@ public class ELNLambdaStack {
                 entry("QUARKUS_DATASOURCE_PASSWORD", props.dbCredentials().getPassword().unsafeUnwrap()), // TODO retrieve credentials in lambda code
                 entry("ELN_COGNITO_USER_POOL_ID", props.userPool().getUserPoolId()),
                 entry("ELN_API_SECRET", apiGatewaySecret.getStringValue()),
+                entry("ELN_STORAGE_S3_BUCKET", props.storageBucket().getBucketName()),
                 entry("QUARKUS_REST_CLIENT_REPORTS_API_URL", httpApi.getApiEndpoint()),
                 entry("QUARKUS_REST_CLIENT_SIGNATURE_API_URL", httpApi.getApiEndpoint()),
                 entry("QUARKUS_REST_CLIENT_LOGGING_SCOPE", "request-response"),
@@ -73,6 +75,7 @@ public class ELNLambdaStack {
                 props.lambdaSecurityGroup(),
                 elnFunctionEnvironment
         );
+        props.storageBucket().grantPut(elnFunction);
         props.userPool().grant(elnFunction.getRole(),
                 "cognito-idp:AdminCreateUser",
                 "cognito-idp:AdminSetUserPassword",
@@ -174,6 +177,7 @@ public class ELNLambdaStack {
             String elnImageTag,
             String reportsImageTag,
             String signatureImageTag,
-            String apiGatewaySecret
+            String apiGatewaySecret,
+            IBucket storageBucket
     ) {}
 }

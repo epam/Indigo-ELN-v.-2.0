@@ -8,7 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Data
@@ -20,7 +20,7 @@ public class DictionaryItemDTO {
     private UUID id;
 
     @NotNull
-    ZonedDateTime createdAt;
+    Instant createdAt;
 
     @NotEmpty
     private String name;

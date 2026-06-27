@@ -19,17 +19,21 @@ import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.eln.repository.TemplateRepository;
-import com.epam.indigoeln.eln.util.PatchUtil;
-import com.epam.indigoeln.indigowrapper.*;
+import com.epam.indigoeln.indigowrapper.IndigoAPI;
+import com.epam.indigoeln.indigowrapper.IndigoMolecule;
+import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
+import com.epam.indigoeln.indigowrapper.IndigoSDFSaver;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
+import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import com.epam.indigoeln.reaction.service.mutation.experiment.ExperimentMutationContext;
 import com.epam.indigoeln.reports.api.ReportsAPI;
 import com.epam.indigoeln.reports.api.ReportsClient;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -41,7 +45,6 @@ import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
-import org.apache.commons.lang3.tuple.Triple;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
 import org.jspecify.annotations.Nullable;
@@ -92,6 +95,8 @@ public class ExperimentService {
     IndigoAPI indigo;
     @Inject
     IndigoRendererAPI indigoRenderer;
+    @Inject
+    ObjectMapper objectMapper;
 
     public ExperimentDetailsDTO createExperiment(UUID notebookId, ExperimentRequest request) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
@@ -134,7 +139,7 @@ public class ExperimentService {
     }
 
     public ExperimentDetailsDTO editExperiment(UUID experimentId, ExperimentEditRequest request) {
-        ExperimentEntity experiment = experimentRepository.get(experimentId);
+        ExperimentEntity experiment = experimentRepository.getAndLock(experimentId);
         experimentModelService.applyMutation(experiment, experimentMapper.requestToMutation(request));
         return getExperimentDetails(experiment);
     }
@@ -147,25 +152,36 @@ public class ExperimentService {
     }
 
     public List<ACLEntryDTO> updateExperimentAccess(UUID experimentId, List<AccessForm> form) {
-        ExperimentEntity experiment = experimentRepository.get(experimentId);
+        ExperimentEntity experiment = experimentRepository.getAndLock(experimentId);
         aclService.ensureAccess(experiment, MANAGE_EXPERIMENT_ACCESS);
         ExperimentMutation mutation = new ExperimentMutation.EditExperimentAccess(form);
         experimentModelService.applyMutation(experiment, mutation);
         return experimentMapper.convertACLList(experiment.getFullACL());
     }
 
-    public ExperimentModel mutateModel(UUID experimentId, ExperimentMutation mutation) {
-        ExperimentEntity experiment = experimentRepository.get(experimentId);
+    @SneakyThrows
+    public MutationResponse mutateModel(UUID experimentId, Integer revision, boolean verifyUndoRedo, ExperimentMutation mutation) {
+        ExperimentEntity experiment = experimentRepository.getAndLock(experimentId);
         aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
-        return checkNotNull(experimentModelService.applyMutation(experiment, mutation).getLeft().getModel());
-    }
-
-    public MutationResponse mutateModel4(UUID experimentId, Integer revision, ExperimentMutation mutation) {
-        ExperimentEntity experiment = experimentRepository.get(experimentId);
-        aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
-        Triple<ExperimentSnapshot, JsonNode, ExperimentMutationContext> triple = experimentModelService.applyMutation(experiment, mutation);
-        MutationResponse response = triple.getRight().getResponse();
-        response.setPatch(triple.getMiddle());
+        MutationResult<ExperimentSnapshot, ExperimentMutationContext> result = experimentModelService.applyMutation(experiment, mutation);
+        if (verifyUndoRedo) {
+            MutationResult<ExperimentSnapshot, ExperimentMutationContext> undoResult = experimentModelService.applyMutation(experiment, new ExperimentMutation.Undo());
+            undoResult.snapshotAfter().setRevision(result.snapshotBefore().getRevision());
+            if (!undoResult.snapshotAfter().equals(result.snapshotBefore())) {
+                throw new IllegalStateException("Experiment state after undo doesn't match the state before the initial mutation:\nBefore: %s\nAfter undo: %s\n".formatted(
+                        objectMapper.writeValueAsString(result.snapshotBefore()), objectMapper.writeValueAsString(undoResult.snapshotAfter())
+                ));
+            }
+            MutationResult<ExperimentSnapshot, ExperimentMutationContext> redoResult = experimentModelService.applyMutation(experiment, new ExperimentMutation.Redo());
+            redoResult.snapshotAfter().setRevision(result.snapshotAfter().getRevision());
+            if (!redoResult.snapshotAfter().equals(result.snapshotAfter())) {
+                throw new IllegalStateException("Experiment state after redo doesn't match the state after initial mutation:\nAfter: %s\nAfter redo: %s\n".formatted(
+                        objectMapper.writeValueAsString(result.snapshotAfter()), objectMapper.writeValueAsString(redoResult.snapshotAfter())
+                ));
+            }
+        }
+        MutationResponse response = result.context().getResponse();
+        response.setPatch(result.patch());
         return response;
     }
 
@@ -262,20 +278,7 @@ public class ExperimentService {
         ExperimentRevisionEntity targetRevision = range.getFirst();
         Preconditions.checkState(targetRevision.getRevision().equals(revision));
         JsonNode before = experimentModelService.rewindSnapshot(snapshot, range);
-        return PatchUtil.formatJSONDiff(
-                before,
-                targetRevision.getDiff(),
-                rxnfile -> {
-                    IndigoReaction reaction = indigo.loadReaction(rxnfile);
-                    indigoRenderer.setRenderOptions("svg", 500, 200);
-                    byte[] bytes = indigoRenderer.renderToBuffer(reaction);
-                    return new String(bytes, StandardCharsets.UTF_8);
-                },
-                compoundID -> {
-                    byte[] bytes = compoundService.getCompoundPicture(compoundID);
-                    return new String(bytes, StandardCharsets.UTF_8);
-                }
-        );
+        return experimentModelService.formatDiff(before, targetRevision);
     }
 
     public List<ExperimentRef> suggestExperiments(String search) {
@@ -284,12 +287,12 @@ public class ExperimentService {
 
     @SneakyThrows
     public MutationResponse importSDF(UUID experimentId, ReactionAnchor reactionAnchor, @NotNull FileUpload file) {
-        ExperimentEntity experiment = experimentRepository.get(experimentId);
+        ExperimentEntity experiment = experimentRepository.getAndLock(experimentId);
         aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
         List<UUID> compoundIDs = compoundService.loadCompoundsFromFile(file.filePath(), false);
-        Triple<ExperimentSnapshot, JsonNode, ExperimentMutationContext> triple = experimentModelService.applyMutation(experiment, new ReactionMutation.ImportSDF(reactionAnchor, compoundIDs));
-        MutationResponse response = triple.getRight().getResponse();
-        response.setPatch(triple.getMiddle());
+        MutationResult<ExperimentSnapshot, ExperimentMutationContext> result = experimentModelService.applyMutation(experiment, new ReactionMutation.ImportSDF(reactionAnchor, compoundIDs));
+        MutationResponse response = result.context().getResponse();
+        response.setPatch(result.patch());
         return response;
     }
 
@@ -300,25 +303,27 @@ public class ExperimentService {
             String filename
     ) {}
 
-    private String getPropertySDFRepresentation(Object property) {
-        if (property instanceof EnteredValue<?>) {
-            return ((EnteredValue<?>) property).getStringValue() + " " +
-                    ((EnteredValue<?>) property).getUnit().name();
-        }
-        if (property instanceof Iterable<?>) {
-            StringBuilder builder = new StringBuilder();
-            for (Object obj: (Iterable<?>) property) {
-                builder.append(getPropertySDFRepresentation(obj));
-                builder.append(System.lineSeparator());
+    @Nullable
+    private String getPropertySDFRepresentation(@Nullable Object property) {
+        return switch (property) {
+            case null -> null;
+            case EnteredValue<?> ev when ev.isEmpty() -> null;
+            case EnteredValue<?> ev -> ev.toUserFriendlyString(false, "");
+            case Iterable<?> collection -> {
+                yield StreamEx.of(collection.iterator())
+                        .map(this::getPropertySDFRepresentation)
+                        .nonNull()
+                        .joining(System.lineSeparator());
             }
-            return builder.toString();
-        }
-        return property.toString();
+            default -> property.toString();
+        };
     }
 
     private void setMoleculePropertyIfExists(IndigoMolecule molecule, @Nullable Object property, String propertyName) {
-        if (property != null)
-            molecule.setProperty(propertyName, getPropertySDFRepresentation(property));
+        String value = getPropertySDFRepresentation(property);
+        if (value != null) {
+            molecule.setProperty(propertyName, value);
+        }
     }
 
     @SneakyThrows
@@ -353,7 +358,7 @@ public class ExperimentService {
                             setMoleculePropertyIfExists(molecule, sample.getActualMol(), "actualMol");
                             setMoleculePropertyIfExists(molecule, sample.getMolarity(), "molarity");
                             setMoleculePropertyIfExists(molecule, sample.getYield(), "yield");
-                            molecule.setProperty("purity", getPropertySDFRepresentation(sample.getPurity()));
+                            setMoleculePropertyIfExists(molecule, sample.getPurity(), "purity");
 
                             setMoleculePropertyIfExists(molecule, compoundRef.getMolWeight(), "molWeight");
                             setMoleculePropertyIfExists(molecule, sample.getSource(), "source");
@@ -364,7 +369,7 @@ public class ExperimentService {
                             setMoleculePropertyIfExists(molecule, compoundRef.getCalculatedBatchMF(), "calculatedBatchMF");
                             setMoleculePropertyIfExists(molecule, sample.getStructureComment(), "structureComment");
                             setMoleculePropertyIfExists(molecule, sample.getSourceDetails(), "sourceDetails");
-                            molecule.setProperty("precursorReactantId", getPropertySDFRepresentation(reaction.getPrecursorReactantIds()));
+                            setMoleculePropertyIfExists(molecule, reaction.getPrecursorReactantIds(), "precursorReactantId");
                             setMoleculePropertyIfExists(molecule, sample.getStrCode(), "strCode");
                             setMoleculePropertyIfExists(molecule, output.getTheoMol(), "theoMol");
                             setMoleculePropertyIfExists(molecule, sample.getBatchComment(), "batchComment");
@@ -372,7 +377,7 @@ public class ExperimentService {
                             setMoleculePropertyIfExists(molecule, sample.getComponentState(), "componentState");
                             setMoleculePropertyIfExists(molecule, sample.getCompoundProtection(), "compoundProtection");
                             setMoleculePropertyIfExists(molecule, sample.getResidualSolvents(), "residualSolvents");
-                            molecule.setProperty("healthHazards", getPropertySDFRepresentation(sample.getHealthHazards()));
+                            setMoleculePropertyIfExists(molecule, sample.getHealthHazards(), "healthHazards");
                             setMoleculePropertyIfExists(molecule, sample.getHandlingPrecautions(), "handlingPrecautions");
 
                             setMoleculePropertyIfExists(molecule, sample.getMeltingPoint(), "meltingPoint");

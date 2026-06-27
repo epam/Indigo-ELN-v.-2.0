@@ -7,6 +7,9 @@ plugins {
 dependencies {
     api("io.quarkus:quarkus-amazon-lambda-http")
     implementation("io.quarkus:quarkus-amazon-lambda-xray")
+    api("io.quarkiverse.amazonservices:quarkus-amazon-s3")
+    api("io.quarkiverse.amazonservices:quarkus-amazon-cognito-user-pools")
+    api("software.amazon.awssdk:url-connection-client")
 
 //    implementation("io.quarkus:quarkus-credentials")
 //    implementation("io.quarkiverse.amazonservices:quarkus-amazon-secretsmanager")

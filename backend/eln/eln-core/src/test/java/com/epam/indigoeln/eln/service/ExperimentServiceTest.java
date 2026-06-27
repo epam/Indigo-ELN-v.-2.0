@@ -6,14 +6,10 @@ import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.Reaction;
-import com.epam.indigoeln.reaction.model.ReactionOutput;
-import com.epam.indigoeln.reaction.model.ReactionOutputSample;
-import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
-import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
+import com.epam.indigoeln.reaction.util.ExperimentObject;
 import com.epam.indigoeln.test.FeignUtil;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
@@ -35,7 +31,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ContentDispositionUtil.extractFilename;
-import static com.epam.indigoeln.common.util.ModelUtil.loadResourceAsString;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -302,24 +297,18 @@ class ExperimentServiceTest extends ELNBaseTest {
     @Test
     @SneakyThrows
     void testGetPicture() {
-        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
-        ExperimentModel model = experiment.getModel();
-        Reaction reaction = model.getReactions().getFirst();
-        byte[] response = experimentClient.getExperimentPicture(experiment.getId(), experiment.getRevision());
+        ExperimentObject experiment = createExperiment(notebook, new ExperimentRequest(emptyTemplateID));
+        byte[] response = experimentClient.getExperimentPicture(experiment.id(), experiment.revision());
         assertThat(response).containsExactly(ExperimentService.EMPTY_PICTURE);
-        response = experimentClient.getReactionPicture(experiment.getId(), reaction.getAnchor(), experiment.getRevision());
+        response = experimentClient.getReactionPicture(experiment.id(), experiment.reaction().getAnchor(), experiment.revision());
         assertThat(response).containsExactly(ExperimentService.EMPTY_PICTURE);
 
-        String rxnFile = loadResourceAsString(getClass(), "/reaction.rxn");
-        experimentClient.mutateExperimentModel4(experiment.getId(), experiment.getRevision(), new ReactionMutation.SetScheme(model.getReactions().getFirst().getAnchor(), rxnFile));
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
 
-        model = experimentClient.getExperiment(experiment.getId()).getModel();
-        reaction = model.getReactions().getFirst();
-
-        response = experimentClient.getExperimentPicture(experiment.getId(), experiment.getRevision());
+        response = experimentClient.getExperimentPicture(experiment.id(), experiment.revision());
         assertThat(response).isNotEqualTo(ExperimentService.EMPTY_PICTURE);
-        Files.write(Paths.get("picture.svg"), response);
-        response = experimentClient.getReactionPicture(experiment.getId(), reaction.getAnchor(), experiment.getRevision());
+        Files.write(Paths.get("build/picture.svg"), response);
+        response = experimentClient.getReactionPicture(experiment.id(), experiment.reaction().getAnchor(), experiment.revision());
         assertThat(response).isNotEqualTo(ExperimentService.EMPTY_PICTURE);
         assertThat(FeignUtil.getLastResponse().headers().get(HttpHeaders.CONTENT_TYPE).iterator().next()).isEqualTo("image/svg+xml");
         //noinspection deprecation
@@ -372,51 +361,40 @@ class ExperimentServiceTest extends ELNBaseTest {
     @Test
     @SneakyThrows
     void testExportSDF() {
-        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID, "An experiment", therapeuticAreas.getFirst(), projectCodes.getFirst()));
-        ExperimentModel model = experiment.getModel();
+        ExperimentObject experiment = createExperiment(notebook, new ExperimentRequest(emptyTemplateID));
 
-        String rxnFile = loadResourceAsString(getClass(), "/reaction.rxn");
-        model = experimentClient.mutateExperimentModel(experiment.getId(), new ReactionMutation.SetScheme(model.getReactions().getFirst().getAnchor(), rxnFile));
-        assertThat(model.getReactions().isEmpty()).isFalse();
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
 
-        Reaction reaction = model.getReactions().getFirst();
-        assertThat(reaction.getOutputs().size()).isGreaterThanOrEqualTo(2);
+        Reaction reaction = experiment.reaction();
+        assertThat(reaction.getOutputs().size()).isEqualTo(2);
 
-        model = experimentClient.mutateExperimentModel(experiment.getId(), new ReactionOutputMutation.AddProductSample(reaction.getOutputs().get(0).getAnchor()));
-        experimentClient.mutateExperimentModel(experiment.getId(), new ReactionOutputMutation.AddProductSample(reaction.getOutputs().get(0).getAnchor()));
-        experimentClient.mutateExperimentModel(experiment.getId(), new ReactionOutputMutation.AddProductSample(reaction.getOutputs().get(1).getAnchor()));
+        experiment.mutateAddProductSample(1);
+        experiment.mutateAddProductSample(1);
+        experiment.mutateAddProductSample(2);
 
-        reaction = model.getReactions().getFirst();
-        ReactionOutput output = reaction.getOutputs().getFirst();
-        assertThat(output.getSamples().isEmpty()).isFalse();
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputActualWeight(experiment.outputSample(1, 1).getAnchor(), "10.0", WeightUnit.G));
 
-        ReactionOutputSample sample = output.getSamples().getFirst();
-        experimentClient.mutateExperimentModel(experiment.getId(),
-                new ReactionOutputSampleMutation.SetOutputActualWeight(sample.getAnchor(), "10.0", WeightUnit.G)
-        );
-
-        experimentClient.mutateExperimentModel(experiment.getId(),
-                new ReactionOutputSampleMutation.SetOutputHealthHazards(sample.getAnchor(),
-                        List.of(
-                                (HealthHazardRef) dictionaryClient.getDictionary(BuiltInDictionary.HEALTH_HAZARD).getFirst(),
-                                (HealthHazardRef) dictionaryClient.getDictionary(BuiltInDictionary.HEALTH_HAZARD).getLast()
-                        )
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputHealthHazards(experiment.outputSample(1, 1).getAnchor(),
+                List.of(
+                        (HealthHazardRef) dictionaryClient.getDictionary(BuiltInDictionary.HEALTH_HAZARD).getFirst(),
+                        (HealthHazardRef) dictionaryClient.getDictionary(BuiltInDictionary.HEALTH_HAZARD).getLast()
                 )
-        );
+        ));
 
-        Response result = experimentClient.exportSDF(experiment.getId());
-        assertThat((byte[]) result.getEntity()).asString().containsIgnoringWhitespaces("""
-                >  <molWeight>180.16
-                """, """
-                >  <chemicalName>
-                """, """
-                >  <actualWeight>
-                10.0 G
-                """, """
-                >  <healthHazards>
-                Carcinogen
-                Very Toxic
-                """);
-        assertThat(result.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION)).asString().contains(".sdf");
+        try (Response result = experimentClient.exportSDF(experiment.id())) {
+            assertThat((byte[]) result.getEntity()).asString().containsIgnoringWhitespaces("""
+                    >  <molWeight>180.16
+                    """, """
+                    >  <chemicalName>
+                    """, """
+                    >  <actualWeight>
+                    10.0 G
+                    """, """
+                    >  <healthHazards>
+                    Carcinogen
+                    Very Toxic
+                    """);
+            assertThat(result.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION)).asString().contains(".sdf");
+        }
     }
 }

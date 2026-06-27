@@ -253,7 +253,7 @@ class NotebookServiceTest extends ELNBaseTest {
                     assertThat(revision.getRevision()).isEqualTo(2);
                     assertThat(revision.getDate()).isEqualTo(modified.getModifiedAt());
                     assertThat(revision.getUser()).isEqualTo(JOHN_USER_REF);
-                    assertThat(revision.getSummary()).matches("Edit: name=.+, description=.+");
+                    assertThat(revision.getSummary()).matches("Edit: name=.+, description");
                 });
     }
 

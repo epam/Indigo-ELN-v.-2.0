@@ -14,7 +14,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
 
 import java.sql.Types;
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,10 +44,10 @@ public class DocumentEntity extends IdentifiableEntity {
     private DocumentStatus status;
 
     @NotNull
-    private ZonedDateTime createdDate;
+    private Instant createdDate;
 
     @NotNull
-    private ZonedDateTime lastModifiedDate;
+    private Instant lastModifiedDate;
 
     @NotNull
     @OrderBy("ordinal")

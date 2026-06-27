@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,14 +42,14 @@ public class SignatureTemplateEntity extends IdentifiableEntity {
 
     @NotNull
     @Column(updatable = false)
-    protected ZonedDateTime createdAt;
+    protected Instant createdAt;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     protected UserEntity modifiedBy;
 
     @NotNull
-    protected ZonedDateTime modifiedAt;
+    protected Instant modifiedAt;
 
     @NotEmpty
     @Size(max = 256)

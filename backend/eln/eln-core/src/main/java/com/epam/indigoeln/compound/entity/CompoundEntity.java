@@ -13,7 +13,6 @@ import org.hibernate.annotations.JdbcType;
 import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
 import org.jspecify.annotations.Nullable;
 
-import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -65,10 +64,10 @@ public class CompoundEntity extends IdentifiableEntity {
     private String formula;
 
     @NotNull
-    private BigDecimal molWeight;
+    private Double molWeight;
 
     @NotNull
-    private BigDecimal exactMass;
+    private Double exactMass;
 
     @NotEmpty
     @Basic(fetch = FetchType.LAZY)

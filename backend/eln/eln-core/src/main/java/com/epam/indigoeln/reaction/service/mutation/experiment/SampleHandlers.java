@@ -7,7 +7,6 @@ import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
-import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import jakarta.enterprise.context.Dependent;
 
 @Dependent
@@ -15,9 +14,9 @@ import jakarta.enterprise.context.Dependent;
 class SetInputDensityHandler extends AbstractReactionInputSampleMutationHandler<ReactionInputSampleMutation.SetInputDensity> {
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputDensity mutation, ExperimentMutationContext context) {
+    public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputDensity mutation, ExperimentMutationContext context) {
         setEnteredValue(sample::setDensity, mutation.density(), mutation.unit(), experiment.getRevision());
-        return new MutationResult(formatSetterSummary("input sample density", mutation.density(), mutation.unit()));
+        return formatSetterSummary("input sample density", mutation.density(), mutation.unit());
     }
 }
 
@@ -26,9 +25,9 @@ class SetInputDensityHandler extends AbstractReactionInputSampleMutationHandler<
 class SetOutputDensityHandler extends AbstractReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputDensity> {
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputDensity mutation, ExperimentMutationContext context) {
+    public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputDensity mutation, ExperimentMutationContext context) {
         setEnteredValue(sample::setDensity, mutation.density(), mutation.unit(), experiment.getRevision());
-        return new MutationResult(formatSetterSummary("batch density", mutation.density(), mutation.unit()));
+        return formatSetterSummary("batch density", mutation.density(), mutation.unit());
     }
 }
 
@@ -37,9 +36,9 @@ class SetOutputDensityHandler extends AbstractReactionOutputSampleMutationHandle
 class SetInputMolarityHandler extends AbstractReactionInputSampleMutationHandler<ReactionInputSampleMutation.SetInputMolarity> {
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputMolarity mutation, ExperimentMutationContext context) {
+    public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputMolarity mutation, ExperimentMutationContext context) {
         setEnteredValue(sample::setMolarity, mutation.molarity(), mutation.unit(), experiment.getRevision());
-        return new MutationResult(formatSetterSummary("input sample molarity", mutation.molarity(), mutation.unit()));
+        return formatSetterSummary("input sample molarity", mutation.molarity(), mutation.unit());
     }
 }
 
@@ -48,9 +47,9 @@ class SetInputMolarityHandler extends AbstractReactionInputSampleMutationHandler
 class SetOutputMolarityHandler extends AbstractReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputMolarity> {
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputMolarity mutation, ExperimentMutationContext context) {
+    public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputMolarity mutation, ExperimentMutationContext context) {
         setEnteredValue(sample::setMolarity, mutation.molarity(), mutation.unit(), experiment.getRevision());
-        return new MutationResult(formatSetterSummary("batch molarity", mutation.molarity(), mutation.unit()));
+        return formatSetterSummary("batch molarity", mutation.molarity(), mutation.unit());
     }
 }
 
@@ -59,9 +58,9 @@ class SetOutputMolarityHandler extends AbstractReactionOutputSampleMutationHandl
 class SetInputPurityHandler extends AbstractReactionInputSampleMutationHandler<ReactionInputSampleMutation.SetInputPurity> {
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputPurity mutation, ExperimentMutationContext context) {
+    public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputPurity mutation, ExperimentMutationContext context) {
         setEnteredValue(sample::setPurity, mutation.purity(), NoUnit.NO_UNIT, experiment.getRevision(), EnteredValue.DEFAULT_ONE_HUNDRED);
-        return new MutationResult(formatSetterSummary("input sample purity", mutation.purity()));
+        return formatSetterSummary("input sample purity", mutation.purity());
     }
 }
 
@@ -70,9 +69,9 @@ class SetInputPurityHandler extends AbstractReactionInputSampleMutationHandler<R
 class SetOutputPurityHandler extends AbstractReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputPurity> {
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputPurity mutation, ExperimentMutationContext context) {
+    public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputPurity mutation, ExperimentMutationContext context) {
         setEnteredValue(sample::setPurity, mutation.purity(), NoUnit.NO_UNIT, experiment.getRevision(), EnteredValue.DEFAULT_ONE_HUNDRED);
-        return new MutationResult(formatSetterSummary("batch purity", mutation.purity()));
+        return formatSetterSummary("batch purity", mutation.purity());
     }
 }
 
@@ -81,9 +80,9 @@ class SetOutputPurityHandler extends AbstractReactionOutputSampleMutationHandler
 class SetInputVolumeHandler extends AbstractReactionInputSampleMutationHandler<ReactionInputSampleMutation.SetInputVolume> {
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputVolume mutation, ExperimentMutationContext context) {
+    public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputVolume mutation, ExperimentMutationContext context) {
         setEnteredValue(sample::setVolume, mutation.volume(), mutation.unit(), experiment.getRevision());
-        return new MutationResult(formatSetterSummary("input sample volume", mutation.volume(), mutation.unit()));
+        return formatSetterSummary("input sample volume", mutation.volume(), mutation.unit());
     }
 }
 
@@ -92,8 +91,8 @@ class SetInputVolumeHandler extends AbstractReactionInputSampleMutationHandler<R
 class SetOutputVolumeHandler extends AbstractReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputVolume> {
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputVolume mutation, ExperimentMutationContext context) {
+    public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputVolume mutation, ExperimentMutationContext context) {
         setEnteredValue(sample::setVolume, mutation.volume(), mutation.unit(), experiment.getRevision());
-        return new MutationResult(formatSetterSummary("batch volume", mutation.volume(), mutation.unit()));
+        return formatSetterSummary("batch volume", mutation.volume(), mutation.unit());
     }
 }

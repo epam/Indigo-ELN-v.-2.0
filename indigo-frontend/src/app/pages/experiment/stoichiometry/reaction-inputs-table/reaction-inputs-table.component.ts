@@ -25,8 +25,10 @@ import { SIGNIFICANT_FIGURES } from '../significant-figures.constants';
 import { DropdownMenuItem } from '@/core/components/common/dropdown-menu/dropdown-menu.i';
 import { ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
 import { MatTooltip } from '@angular/material/tooltip';
-import { SlideInPanelService } from '@core/components/common/slide-in-panel/slide-in-panel.service';
 import { SampleSearchComponent } from '@pages/experiment/sample-search/sample-search.component';
+import { NotificationService } from '@core/services/notification/notification.service';
+import { NotificationType } from '@core/types/notification.i';
+import { SlideInPanelService } from '@core/components/common/slide-in-panel/slide-in-panel.service';
 
 interface InputSampleRow {
   input: ReactionInput;
@@ -42,6 +44,7 @@ export class ReactionInputsTableComponent implements OnInit {
   private experimentDetailService = inject(ExperimentDetailService);
   private builtInDictionaryService = inject(BuiltInDictionaryService);
   private slideInPanel = inject(SlideInPanelService);
+  private notificationService = inject(NotificationService);
 
   experimentId = input.required<UUID>();
   reactionAnchor = input.required<ReactionAnchor>();
@@ -119,8 +122,7 @@ export class ReactionInputsTableComponent implements OnInit {
       id: 'weight',
       header: 'Weight',
       type: ColumnInputType.UNIT_INPUT,
-      field: (row: InputSampleRow) =>
-        row.sample.weight?.value ? { value: row.sample.weight.value, unit: row.sample.weight.unit } : null,
+      field: (row: InputSampleRow) => row.sample.weight,
       classes: (row) => this.determineClasses(row.sample.weight),
       onSave: (row: InputSampleRow, value: EnteredValue<WeightUnit> | null) => {
         this.experimentDetailService
@@ -141,8 +143,7 @@ export class ReactionInputsTableComponent implements OnInit {
       id: 'volume',
       header: 'Volume',
       type: ColumnInputType.UNIT_INPUT,
-      field: (row: InputSampleRow) =>
-        row.sample.volume?.value ? { value: row.sample.volume.value, unit: row.sample.volume.unit } : null,
+      field: (row: InputSampleRow) => row.sample.volume,
       classes: (row) => this.determineClasses(row.sample.volume),
       onSave: (row: InputSampleRow, value: EnteredValue<VolumeUnit> | null) => {
         this.experimentDetailService
@@ -163,8 +164,7 @@ export class ReactionInputsTableComponent implements OnInit {
       id: 'mol',
       header: 'Mol',
       type: ColumnInputType.UNIT_INPUT,
-      field: (row: InputSampleRow) =>
-        row.sample.mol?.value ? { value: row.sample.mol.value, unit: row.sample.mol.unit } : null,
+      field: (row: InputSampleRow) => row.sample.mol,
       classes: (row) => this.determineClasses(row.sample.mol),
       onSave: (row: InputSampleRow, value: EnteredValue<MolUnit> | null) => {
         this.experimentDetailService
@@ -236,8 +236,7 @@ export class ReactionInputsTableComponent implements OnInit {
       id: 'density',
       header: 'Density',
       type: ColumnInputType.UNIT_INPUT,
-      field: (row: InputSampleRow) =>
-        row.sample.density?.value ? { value: row.sample.density.value, unit: row.sample.density.unit } : null,
+      field: (row: InputSampleRow) => row.sample.density,
       classes: (row) => this.determineClasses(row.sample.density),
       onSave: (row: InputSampleRow, value: EnteredValue<DensityUnit> | null) => {
         this.experimentDetailService
@@ -258,8 +257,7 @@ export class ReactionInputsTableComponent implements OnInit {
       id: 'molarity',
       header: 'Molarity',
       type: ColumnInputType.UNIT_INPUT,
-      field: (row: InputSampleRow) =>
-        row.sample.molarity?.value ? { value: row.sample.molarity.value, unit: row.sample.molarity.unit } : null,
+      field: (row: InputSampleRow) => row.sample.molarity,
       classes: (row) => this.determineClasses(row.sample.molarity),
       onSave: (row: InputSampleRow, value: EnteredValue<MolarityUnit> | null) => {
         this.experimentDetailService
@@ -375,7 +373,13 @@ export class ReactionInputsTableComponent implements OnInit {
             type: 'RemoveInput',
             anchor: row.sample.anchor,
           })
-          .subscribe({});
+          .subscribe(() =>
+            this.notificationService.notify({
+              type: NotificationType.Info,
+              isInline: true,
+              message: 'Removed, press Ctrl-Z/Cmd-Z to undo',
+            }),
+          );
       },
     },
   ]);

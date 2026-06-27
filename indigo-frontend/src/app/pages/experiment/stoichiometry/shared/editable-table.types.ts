@@ -1,5 +1,6 @@
 import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
 import { Type } from '@angular/core';
+import { EnteredValue } from '@core/types/entities/values.i';
 
 export enum ColumnInputType {
   TEXT = 'text',
@@ -13,12 +14,7 @@ export enum ColumnInputType {
   ICON = 'icon',
 }
 
-export interface UnitFieldValue {
-  value: string;
-  unit: string;
-}
-
-export type FieldValue = string | null | boolean | UnitFieldValue | DictionaryItemRef | DictionaryItemRef[];
+export type FieldValue = string | null | boolean | EnteredValue<unknown> | DictionaryItemRef | DictionaryItemRef[];
 
 export interface UnitInputChange {
   value?: string | null;

@@ -13,7 +13,7 @@ import org.hibernate.annotations.JdbcType;
 import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
 import org.jspecify.annotations.Nullable;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -46,7 +46,7 @@ public class DocumentSignatureEntity extends IdentifiableEntity {
     private SignatureReason reason;
 
     @Nullable
-    private ZonedDateTime actionDate;
+    private Instant actionDate;
 
     @NotNull
     @Enumerated(EnumType.STRING)

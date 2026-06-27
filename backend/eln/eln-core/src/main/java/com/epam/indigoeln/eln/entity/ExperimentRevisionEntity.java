@@ -51,6 +51,9 @@ public class ExperimentRevisionEntity extends BaseRevisionEntity {
     @Basic(fetch = FetchType.LAZY)
     private ExperimentSnapshot snapshot;
 
+    @Basic(fetch = FetchType.LAZY)
+    private String @Nullable [] messages;
+
     public record CompositeID(
             ExperimentEntity experiment,
             Integer revision

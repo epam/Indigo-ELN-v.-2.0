@@ -16,6 +16,8 @@ import software.amazon.awscdk.services.iam.ServicePrincipal;
 import software.amazon.awscdk.services.route53.HostedZone;
 import software.amazon.awscdk.services.route53.HostedZoneAttributes;
 import software.amazon.awscdk.services.route53.IHostedZone;
+import software.amazon.awscdk.services.s3.Bucket;
+import software.amazon.awscdk.services.s3.IBucket;
 import software.amazon.awscdk.services.servicediscovery.PrivateDnsNamespace;
 import software.constructs.Construct;
 
@@ -40,6 +42,8 @@ public class InfraStack {
     private final SecurityGroup ec2SecurityGroup;
     @Getter
     private final SecurityGroup lambdaSecurityGroup;
+    @Getter
+    private final IBucket storageBucket;
 
     public InfraStack(final Construct scope, final Props props) {
         vpc = Vpc.fromLookup(scope, "vpc", VpcLookupOptions.builder().vpcId(props.vpcId()).build());
@@ -145,6 +149,19 @@ public class InfraStack {
                 .build();
         ec2SecurityGroup.addIngressRule(lambdaSecurityGroup, Port.tcp(6432), "from-lambda");
         ec2SecurityGroup.addIngressRule(lambdaSecurityGroup, Port.tcp(6433), "from-lambda");
+
+        storageBucket = Bucket.Builder.create(scope, "storage-bucket")
+                .bucketName(props.storageBucketName())
+                .removalPolicy(RemovalPolicy.RETAIN)
+                .build();
+
+        GatewayVpcEndpoint.Builder.create(scope, "s3-gateway-endpoint")
+                .vpc(vpc)
+                .service(GatewayVpcEndpointAwsService.S3)
+                .subnets(List.of(SubnetSelection.builder()
+                        .subnetFilters(List.of(SubnetFilter.byIds(props.lambdaSubnets())))
+                        .build()))
+                .build();
     }
 
     public record Props(
@@ -152,6 +169,8 @@ public class InfraStack {
             String ec2KeyPair,
             String hostedZone,
             String hostedZoneName,
-            List<String> securityGroups
+            List<String> securityGroups,
+            String storageBucketName,
+            List<String> lambdaSubnets
     ) {}
 }

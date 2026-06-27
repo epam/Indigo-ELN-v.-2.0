@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.repository;
 
+import com.epam.indigoeln.common.exception.EntityNotFoundException;
 import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
@@ -18,12 +19,13 @@ import com.google.common.base.MoreObjects;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.LockModeType;
 import jakarta.persistence.TypedQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
@@ -67,6 +69,14 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
                 em.getEntityGraph("Experiment.list"),
                 experimentMapper::entityToDTO
         );
+    }
+
+    public ExperimentEntity getAndLock(UUID id) {
+        ExperimentEntity entity = findById(id, LockModeType.PESSIMISTIC_WRITE);
+        if (entity == null) {
+            throw new EntityNotFoundException(ELNEntityType.EXPERIMENT, id);
+        }
+        return entity;
     }
 
     public ExperimentEntity load(UUID id) {
@@ -162,7 +172,7 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
     public List<ExperimentRevisionEntity> findRecentRevisions(ExperimentEntity experiment, Duration period) {
         return em.createQuery("from ExperimentRevision where experiment=:experiment and datetime>=:since order by revision", ExperimentRevisionEntity.class)
                 .setParameter("experiment", experiment)
-                .setParameter("since", ZonedDateTime.now().minusSeconds(period.toSeconds()))
+                .setParameter("since", Instant.now().minus(period))
                 .getResultList();
     }
 

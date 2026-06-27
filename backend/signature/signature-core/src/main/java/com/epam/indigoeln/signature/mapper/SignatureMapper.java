@@ -9,7 +9,7 @@ import jakarta.inject.Inject;
 import org.jspecify.annotations.Nullable;
 import org.mapstruct.*;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.List;
 
 import static com.epam.indigoeln.common.model.DocumentStatus.SIGNING;
@@ -35,7 +35,7 @@ public abstract class SignatureMapper {
     @Mapping(target = "modifiedAt", source = "date")
     @Mapping(target = "modifiedBy", expression = "java(userService.getCurrentUser())")
     @Mapping(target = "blocks", ignore = true)
-    public abstract SignatureTemplateEntity requestToEntity(SignatureTemplateRequest request, ZonedDateTime date);
+    public abstract SignatureTemplateEntity requestToEntity(SignatureTemplateRequest request, Instant date);
 
     @AfterMapping
     protected void afterRequestToEntity(@MappingTarget SignatureTemplateEntity entity, SignatureTemplateRequest request) {

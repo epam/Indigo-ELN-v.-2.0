@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Data
@@ -23,7 +23,7 @@ public class DocumentSignatureDTO {
     private SignatureReason reason;
 
     @Nullable
-    private ZonedDateTime actionDate;
+    private Instant actionDate;
 
     @NotNull
     private SignatureStatus status;

@@ -37,9 +37,7 @@ import java.util.function.Consumer;
 
 import static com.epam.indigoeln.eln.util.ModelUtil.calculateCompoundKey;
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
-import static com.epam.indigoeln.reaction.model.units.EnteredValue.fixed;
 import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.MOL_WEIGHT_DECIMAL_PLACES;
-import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.roundToDecimalPlaces;
 
 @Slf4j
 @DataAccess
@@ -126,8 +124,8 @@ public class CompoundService {
                 dictionaryService.get(compound.getStereoisomerCode()),
                 dictionaryService.get(compound.getSaltCode()),
                 compound.getSaltEQ(),
-                fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL),
-                fixed(compound.getExactMass(), NoUnit.NO_UNIT),
+                EnteredValue.fixedExact(compound.getMolWeight(), MOL_WEIGHT_DECIMAL_PLACES, MolWeightUnit.G_PER_MOL),
+                EnteredValue.fixedExact(compound.getExactMass(), MOL_WEIGHT_DECIMAL_PLACES, NoUnit.NO_UNIT),
                 MolFormulaFormatter.format(compound.getFormula()),
                 compound.getCompoundKey(),
                 compound.getCasNumber(),
@@ -148,8 +146,8 @@ public class CompoundService {
                 dictionaryService.get(compound.getStereoisomerCode()),
                 dictionaryService.get(compound.getSaltCode()),
                 compound.getSaltEQ(),
-                EnteredValue.fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL),
-                EnteredValue.fixed(compound.getExactMass(), NoUnit.NO_UNIT),
+                EnteredValue.fixedExact(compound.getMolWeight(), MOL_WEIGHT_DECIMAL_PLACES, MolWeightUnit.G_PER_MOL),
+                EnteredValue.fixedExact(compound.getExactMass(), MOL_WEIGHT_DECIMAL_PLACES, NoUnit.NO_UNIT),
                 compound.getCasNumber(),
                 calculateBatchMF(compound)
         );
@@ -163,7 +161,7 @@ public class CompoundService {
         Map<String, String> properties = molecule.getProperties();
         compound.setFormula(molecule.molecularFormula());
         compound.setMolFile(molecule.molfile());
-        compound.setMolWeight(roundToDecimalPlaces(molecule.molecularWeight(), MOL_WEIGHT_DECIMAL_PLACES));
+        compound.setMolWeight(molecule.molecularWeight());
         for (String property : NAME_PROPERTIES) {
             if (properties.containsKey(property)) {
                 compound.setChemicalName(properties.get(property));
@@ -208,9 +206,9 @@ public class CompoundService {
         sample.setCompound(compound);
         sample.setStrCode(generateStrCode(compound));
         sample.setNbkBatchNumber(request.getNbkBatchNumber());
-        sample.setDensity(request.getDensity() != null ? request.getDensity().toBigDecimal() : null);
-        sample.setMolarity(request.getMolarity() != null ? request.getMolarity().toBigDecimal() : null);
-        sample.setMolarityUnit(request.getMolarity() != null ? request.getMolarity().getUnit() : null);
+        sample.setDensity(!request.getDensity().isEmpty() ? request.getDensity().toBigDecimal() : null);
+        sample.setMolarity(!request.getMolarity().isEmpty() ? request.getMolarity().toBigDecimal() : null);
+        sample.setMolarityUnit(!request.getMolarity().isEmpty() ? request.getMolarity().getUnit() : null);
         sample.setPurity(request.getPurity());
         if (request.getHealthHazards() != null) {
             sample.getHealthHazards().addAll(dictionaryService.lookup(request.getHealthHazards()));

@@ -35,6 +35,8 @@ tasks.named("test", Test::class) {
 tasks.named("quarkusIntTest", Test::class) {
     systemProperty("quarkus.http.test-host", "localhost")
     systemProperty("quarkus.http.test-port", "28080")
+    systemProperty("eln.storage.s3.bucket", "indigoeln-data")
+    systemProperty("quarkus.s3.endpoint.override", "http://172.17.0.1:4566")
     outputs.upToDateWhen { false }
     dependsOn(":eln:eln-lambda:assemble")
     dependsOn(":reports:reports-lambda:assemble")

@@ -66,7 +66,7 @@ export class ExperimentDetailService {
     return this.updateDataModel2(
       this.service.request<MutationResponse>(
         'post',
-        `experiments/${this.currentId()}/mutate4?revision=${this.experimentDetail().revision}`,
+        `experiments/${this.currentId()}/mutate?revision=${this.experimentDetail().revision}`,
         mutation,
       ),
     );
@@ -190,8 +190,7 @@ export class ExperimentDetailService {
       } else if (value.source === 'fixed') {
         classes.push('value-state-fixed');
       }
-      if (hasAnyUpdates && previous != null && isUserEntered(previous) && !isUserEntered(value)) {
-        // overwritten
+      if (hasAnyUpdates && value.overwritten) {
         classes.push('animate-[flash-red_500ms_ease-in-out]');
       } else if (
         hasAnyUpdates &&
@@ -208,5 +207,5 @@ export class ExperimentDetailService {
 }
 
 function isUserEntered(value: EnteredValue<unknown>): boolean {
-  return typeof value.source === 'number' && value.source > 0;
+  return typeof value?.source === 'number';
 }

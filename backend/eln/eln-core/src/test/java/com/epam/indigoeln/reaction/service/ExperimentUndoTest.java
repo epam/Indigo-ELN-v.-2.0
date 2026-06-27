@@ -7,18 +7,18 @@ import com.epam.indigoeln.reaction.model.InputAnchor;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputSampleMutation;
-import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.model.units.VolumeUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
-import com.epam.indigoeln.reaction.util.CalculationReportBuilder;
 import com.epam.indigoeln.test.ClientUtil;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import org.jspecify.annotations.Nullable;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.openapitools.jackson.nullable.JsonNullable;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -47,150 +47,145 @@ public class ExperimentUndoTest extends MutationsTestBase {
 
     @BeforeEach
     void setUp(TestInfo testInfo) {
-        reportBuilder = new CalculationReportBuilder(new File("build/calculations-" + testInfo.getTestMethod().get().getName() + ".html"));
         initExperiment("ExperimentUndoServiceTest");
-    }
-
-    @AfterEach
-    void tearDown() {
-        reportBuilder.close();
     }
 
     @Test
     void testSimpleUndoRedo() {
-        applyMutation(new ReactionMutation.AddEmptyInput(reaction.getAnchor()), false);
-        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), true))
+        experiment.mutateAddEmptyInput();
+        assertThat(experimentClient.getExperimentRevisions(experiment.id(), true))
                 .extracting(RevisionSummaryDTO::getSummary)
                 .containsExactly("Experiment created", "Add empty input");
-        InputAnchor anchor = input1.getAnchor();
+        InputAnchor anchor = experiment.input(1).getAnchor();
         assertThat(anchor).isNotNull();
         // undo
-        applyMutation(new ExperimentMutation.Undo());
-        assertThat(input1).isNull();
-        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), true))
+        experiment.mutate(new ExperimentMutation.Undo());
+        assertThat(experiment.reaction().getInputs()).isEmpty();
+        assertThat(experimentClient.getExperimentRevisions(experiment.id(), true))
                 .extracting(RevisionSummaryDTO::getSummary)
                 .containsExactly("Experiment created", "Add empty input", "Undo: Add empty input");
         // redo
-        applyMutation(new ExperimentMutation.Redo());
-        assertThat(input1).isNotNull();
-        assertThat(input1.getAnchor()).isEqualTo(anchor);
-        assertThat(experimentClient.getExperimentRevisions(experiment.getId(), true))
+        experiment.mutate(new ExperimentMutation.Redo());
+        assertThat(experiment.input(1)).isNotNull();
+        assertThat(experiment.input(1).getAnchor()).isEqualTo(anchor);
+        assertThat(experimentClient.getExperimentRevisions(experiment.id(), true))
                 .extracting(RevisionSummaryDTO::getSummary)
                 .containsExactly("Experiment created", "Add empty input", "Undo: Add empty input", "Redo: Add empty input");
     }
 
     @Test
     void testSimpleNotUndoable() {
-        applyMutation(new ExperimentMutation.CompleteExperiment(), false);
-        assertThatClientCall(() -> applyMutation(new ExperimentMutation.Undo()))
+        experiment.mutate(new ExperimentMutation.CompleteExperiment(), false);
+        assertThatClientCall(() -> experiment.mutate(new ExperimentMutation.Undo()))
                 .isBadRequest("Not undoable: Experiment completed");
     }
 
     @Test
     void testSimpleNotRedoable() {
-        assertThatClientCall(() -> applyMutation(new ExperimentMutation.Redo()))
-                .isBadRequest("Nothing to redo");
+        assertThatClientCall(() -> {
+            experiment.mutate(new ExperimentMutation.Redo());
+        }).isBadRequest("Nothing to redo");
     }
 
     @Test
     void testAttributesUndoRedo() {
-        String oldTitle = experiment.getTitle();
+        String oldTitle = experiment.experiment().getTitle();
 
-        applyMutation(new ExperimentMutation.EditExperimentAttributes(JsonNullable.of("newTitle"), JsonNullable.of(therapeuticArea), JsonNullable.of(projectCode)
+        experiment.mutate(new ExperimentMutation.EditExperimentAttributes(
+                JsonNullable.of("newTitle"), JsonNullable.of(therapeuticArea), JsonNullable.of(projectCode)
                 , JsonNullable.of("newDescription"), JsonNullable.of("newLiterature")
                 , JsonNullable.of(Set.of(experiment1.toRef())), JsonNullable.of(Set.of(experiment2.toRef())), JsonNullable.of(Set.of(experiment1.toRef(), experiment2.toRef()))
         ), false);
         assertUpdatedAttributes();
 
-        applyMutation(new ExperimentMutation.Undo());
+        experiment.mutate(new ExperimentMutation.Undo());
         assertInitialAttributes(oldTitle);
 
-        applyMutation(new ExperimentMutation.Redo());
+        experiment.mutate(new ExperimentMutation.Redo());
         assertUpdatedAttributes();
     }
 
     private void assertInitialAttributes(@Nullable String oldTitle) {
-        assertThat(experiment.getTitle()).isEqualTo(oldTitle);
-        assertThat(experiment.getTherapeuticArea()).isNull();
-        assertThat(experiment.getProjectCode()).isNull();
-        assertThat(experiment.getDescription()).isNull();
-        assertThat(experiment.getLiterature()).isNull();
-        assertThat(experiment.getLinkedExperiments()).isEmpty();
-        assertThat(experiment.getContinuedFrom()).isEmpty();
-        assertThat(experiment.getContinuedTo()).isEmpty();
+        assertThat(experiment.experiment().getTitle()).isEqualTo(oldTitle);
+        assertThat(experiment.experiment().getTherapeuticArea()).isNull();
+        assertThat(experiment.experiment().getProjectCode()).isNull();
+        assertThat(experiment.experiment().getDescription()).isNull();
+        assertThat(experiment.experiment().getLiterature()).isNull();
+        assertThat(experiment.experiment().getLinkedExperiments()).isEmpty();
+        assertThat(experiment.experiment().getContinuedFrom()).isEmpty();
+        assertThat(experiment.experiment().getContinuedTo()).isEmpty();
     }
 
     private void assertUpdatedAttributes() {
-        assertThat(experiment.getTitle()).isEqualTo("newTitle");
-        assertThat(experiment.getTherapeuticArea()).isEqualTo(therapeuticArea);
-        assertThat(experiment.getProjectCode()).isEqualTo(projectCode);
-        assertThat(experiment.getDescription()).isEqualTo("newDescription");
-        assertThat(experiment.getLiterature()).isEqualTo("newLiterature");
-        assertThat(experiment.getLinkedExperiments()).containsExactlyInAnyOrder(experiment1.toRef());
-        assertThat(experiment.getContinuedFrom()).containsExactlyInAnyOrder(experiment2.toRef());
-        assertThat(experiment.getContinuedTo()).containsExactlyInAnyOrder(experiment1.toRef(), experiment2.toRef());
+        assertThat(experiment.experiment().getTitle()).isEqualTo("newTitle");
+        assertThat(experiment.experiment().getTherapeuticArea()).isEqualTo(therapeuticArea);
+        assertThat(experiment.experiment().getProjectCode()).isEqualTo(projectCode);
+        assertThat(experiment.experiment().getDescription()).isEqualTo("newDescription");
+        assertThat(experiment.experiment().getLiterature()).isEqualTo("newLiterature");
+        assertThat(experiment.experiment().getLinkedExperiments()).containsExactlyInAnyOrder(experiment1.toRef());
+        assertThat(experiment.experiment().getContinuedFrom()).containsExactlyInAnyOrder(experiment2.toRef());
+        assertThat(experiment.experiment().getContinuedTo()).containsExactlyInAnyOrder(experiment1.toRef(), experiment2.toRef());
     }
 
     @Test
     void testAttachments() {
-        List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.getId(), ClientUtil.createFileUpload("attachment.txt", "content".getBytes()));
-        experiment = experimentClient.getExperiment(experiment.getId());
+        List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.id(), ClientUtil.createFileUpload("attachment.txt", "content".getBytes()));
 
-        applyMutation(new ExperimentMutation.Undo());
-        assertThat(experiment.getAttachments()).isEmpty();
+        experiment.mutate(new ExperimentMutation.Undo());
+        assertThat(experiment.experiment().getAttachments()).isEmpty();
 
-        applyMutation(new ExperimentMutation.Redo());
-        assertThat(experiment.getAttachments()).singleElement().usingRecursiveComparison().isEqualTo(attachments.getFirst());
+        experiment.mutate(new ExperimentMutation.Redo());
+        assertThat(experiment.experiment().getAttachments()).singleElement().usingRecursiveComparison().isEqualTo(attachments.getFirst());
     }
 
     @Test
     void testNotUndoable() {
-        applyMutation(new ExperimentMutation.CompleteExperiment(), false);
+        experiment.mutate(new ExperimentMutation.CompleteExperiment(), false);
         assertThatClientCall(() -> {
-            applyMutation(new ExperimentMutation.Undo(), false);
+            experiment.mutate(new ExperimentMutation.Undo(), false);
         }).isBadRequest("Not undoable: Experiment completed");
     }
 
     @Test
     void testNothingToRedo() {
         assertThatClientCall(() -> {
-            applyMutation(new ExperimentMutation.Redo(), false);
+            experiment.mutate(new ExperimentMutation.Redo(), false);
         }).isBadRequest("Nothing to redo");
     }
 
     @Test
     void testParallelEditsUndoRedo() {
-        applyMutation(new ExperimentMutation.EditExperimentAccess(Stream.of(
+        experiment.mutate(new ExperimentMutation.EditExperimentAccess(Stream.of(
                 AccessForm.of(LISA_USERNAME, AccessLevel.ADMIN),
                 AccessForm.of(BART_USERNAME, AccessLevel.ADMIN)
         ).flatMap(Collection::stream).toList()), false);
-        applyMutation(new ReactionMutation.AddEmptyInput(reaction.getAnchor()), false);
-        applyMutation(new ReactionMutation.AddEmptyInput(reaction.getAnchor()), false);
+        experiment.mutateAddEmptyInput();
+        experiment.mutateAddEmptyInput();
 
-        // lisa: L1 (input1, weight 10G)
+        // lisa: L1 (experiment.input(1), weight 10G)
         //     -> L1
-        withUser(LISA_USERNAME, () -> applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), "10", WeightUnit.G), false));
+        withUser(LISA_USERNAME, () -> experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(1, 1).getAnchor(), "10", WeightUnit.G), false));
         assertThat(getRevisions(4)).containsExactly(
                 "Set input sample weight to 10 G"
         );
-        // lisa: L2 (input1, volume 20ML)
+        // lisa: L2 (experiment.input(1), volume 20ML)
         //     -> L1, L2
-        withUser(LISA_USERNAME, () -> applyMutation(new ReactionInputSampleMutation.SetInputVolume(input1Sample1.getAnchor(), "20", VolumeUnit.ML), false));
+        withUser(LISA_USERNAME, () -> experiment.mutate(new ReactionInputSampleMutation.SetInputVolume(experiment.inputSample(1, 1).getAnchor(), "20", VolumeUnit.ML), false));
         assertThat(getRevisions(4)).containsExactly(
                 "Set input sample weight to 10 G",
                 "Set input sample volume to 20 ML"
         );
-        // bart: B3 (input2, weight 5G)
+        // bart: B3 (experiment.input(2), weight 5G)
         //     -> L1, L2, B3
-        withUser(BART_USERNAME, () -> applyMutation(new ReactionInputSampleMutation.SetInputWeight(input2Sample1.getAnchor(), "5", WeightUnit.G), false));
+        withUser(BART_USERNAME, () -> experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(2, 1).getAnchor(), "5", WeightUnit.G), false));
         assertThat(getRevisions(4)).containsExactly(
                 "Set input sample weight to 10 G",
                 "Set input sample volume to 20 ML",
                 "Set input sample weight to 5 G"
         );
-        // bart: B4 (input2, volume 7.5ML)
+        // bart: B4 (experiment.input(2), volume 7.5ML)
         //     -> L1, L2, B3, B4
-        withUser(BART_USERNAME, () -> applyMutation(new ReactionInputSampleMutation.SetInputVolume(input2Sample1.getAnchor(), "7.5", VolumeUnit.ML), false));
+        withUser(BART_USERNAME, () -> experiment.mutate(new ReactionInputSampleMutation.SetInputVolume(experiment.inputSample(2, 1).getAnchor(), "7.5", VolumeUnit.ML), false));
         assertThat(getRevisions(4)).containsExactly(
                 "Set input sample weight to 10 G",
                 "Set input sample volume to 20 ML",
@@ -199,7 +194,7 @@ public class ExperimentUndoTest extends MutationsTestBase {
         );
         // lisa: undo (L2)
         //     -> L1, L2 (undone), B3, B4, UndoL2
-        withUser(LISA_USERNAME, () -> applyMutation(new ExperimentMutation.Undo(), false));
+        withUser(LISA_USERNAME, () -> experiment.mutate(new ExperimentMutation.Undo(), false));
         assertThat(getRevisions(4)).containsExactly(
                 "Set input sample weight to 10 G",
                 "Set input sample volume to 20 ML",
@@ -209,7 +204,7 @@ public class ExperimentUndoTest extends MutationsTestBase {
         );
         // lisa: undo (L1)
         //     -> L1 (undone), L2 (undone), B3, B4, UndoL2, UndoL1
-        withUser(LISA_USERNAME, () -> applyMutation(new ExperimentMutation.Undo(), false));
+        withUser(LISA_USERNAME, () -> experiment.mutate(new ExperimentMutation.Undo(), false));
         assertThat(getRevisions(4)).containsExactly(
                 "Set input sample weight to 10 G",
                 "Set input sample volume to 20 ML",
@@ -220,7 +215,7 @@ public class ExperimentUndoTest extends MutationsTestBase {
         );
         // bart: undo (B4)
         //     -> L1 (undone), L2 (undone), B3, B4 (undone), UndoL2, UndoL1, UndoB4
-        withUser(BART_USERNAME, () -> applyMutation(new ExperimentMutation.Undo(), false));
+        withUser(BART_USERNAME, () -> experiment.mutate(new ExperimentMutation.Undo(), false));
         assertThat(getRevisions(4)).containsExactly(
                 "Set input sample weight to 10 G",
                 "Set input sample volume to 20 ML",
@@ -232,7 +227,7 @@ public class ExperimentUndoTest extends MutationsTestBase {
         );
         // lisa: redo (L1)
         //     -> L1, L2 (undone), B3, B4 (undone), UndoL2, UndoL1, UndoB4, RedoL1
-        withUser(LISA_USERNAME, () -> applyMutation(new ExperimentMutation.Redo(), false));
+        withUser(LISA_USERNAME, () -> experiment.mutate(new ExperimentMutation.Redo(), false));
         assertThat(getRevisions(4)).containsExactly(
                 "Set input sample weight to 10 G",
                 "Set input sample volume to 20 ML",
@@ -246,7 +241,7 @@ public class ExperimentUndoTest extends MutationsTestBase {
         // lisa: L5
         //     L2 is forever left undone
         //     -> L1, L2 (undone), B3, B4 (undone), UndoL2, UndoL1, UndoB4, RedoL1, L5
-        withUser(LISA_USERNAME, () -> applyMutation(new ReactionInputMutation.SetInputRowChemicalName(input1.getAnchor(), "chemicalName"), false));
+        withUser(LISA_USERNAME, () -> experiment.mutate(new ReactionInputMutation.SetInputRowChemicalName(experiment.input(1).getAnchor(), "chemicalName"), false));
         assertThat(getRevisions(4)).containsExactly(
                 "Set input sample weight to 10 G",
                 "Set input sample volume to 20 ML",
@@ -261,12 +256,12 @@ public class ExperimentUndoTest extends MutationsTestBase {
         // lisa: redo
         //     Error: nothing to redo! (L2 is not suitable)
         assertThatClientCall(() -> {
-            withUser(LISA_USERNAME, () -> applyMutation(new ExperimentMutation.Redo(), false));
+            withUser(LISA_USERNAME, () -> experiment.mutate(new ExperimentMutation.Redo(), false));
         }).isBadRequest("Nothing to red");
     }
 
     private List<String> getRevisions(int skip) {
-        return experimentClient.getExperimentRevisions(experiment.getId(), true).stream()
+        return experimentClient.getExperimentRevisions(experiment.id(), true).stream()
                 .skip(skip)
                 .map(RevisionSummaryDTO::getSummary)
                 .toList();

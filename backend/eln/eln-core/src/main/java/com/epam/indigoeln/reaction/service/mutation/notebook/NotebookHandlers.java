@@ -16,7 +16,6 @@ import com.epam.indigoeln.reaction.model.mutation.NotebookMutation;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import com.epam.indigoeln.reaction.service.mutation.EntityMutationHelper;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
-import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
@@ -39,13 +38,13 @@ class CreateNotebookHandler extends AbstractNotebookMutationHandler<NotebookMuta
     }
 
     @Override
-    public MutationResult doHandle(NotebookEntity notebook, NotebookMutation.CreateNotebook mutation, NotebookMutationContext context, NotebookSnapshot snapshotBefore) {
+    public String doHandle(NotebookEntity notebook, NotebookMutation.CreateNotebook mutation, NotebookMutationContext context, NotebookSnapshot snapshotBefore) {
         notebook.setName(mutation.name());
         notebook.setDescription(mutation.description());
         notebook.setRevision(0);
         notebook.setCreatedBy(userService.getCurrentUserEntity());
         aclService.initNotebookACL(notebook);
-        return new MutationResult("Create notebook");
+        return "Create notebook";
     }
 }
 
@@ -59,11 +58,21 @@ class EditNotebookAttributesHandler extends AbstractNotebookMutationHandler<Note
     ExperimentModelService experimentModelService;
 
     @Override
-    public MutationResult doHandle(NotebookEntity notebook, NotebookMutation.EditNotebookAttributes mutation, NotebookMutationContext context, NotebookSnapshot snapshotBefore) {
+    public String doHandle(NotebookEntity notebook, NotebookMutation.EditNotebookAttributes mutation, NotebookMutationContext context, NotebookSnapshot snapshotBefore) {
         List<String> summaryList = new ArrayList<>();
-        boolean nameChanged = editProperty(mutation.name(), notebook::setName, summaryList, "name");
+        boolean nameChanged = editProperty(
+                mutation.name(),
+                notebook::setName,
+                summaryList,
+                "name"
+        );
         boolean updated = nameChanged;
-        updated |= editProperty(mutation.description(), notebook::setDescription, summaryList, "description");
+        updated |= editProperty(
+                mutation.description(),
+                notebook::setDescription,
+                summaryList,
+                x -> "description"
+        );
 
         if (nameChanged) {
             String newNotebookName = mutation.name().get();
@@ -74,7 +83,7 @@ class EditNotebookAttributesHandler extends AbstractNotebookMutationHandler<Note
         }
 
         validate(updated, "Nothing to update");
-        return new MutationResult(entityMutationHelper.formatEditAttributesSummary(summaryList));
+        return entityMutationHelper.formatEditAttributesSummary(summaryList);
     }
 }
 
@@ -95,12 +104,12 @@ class EditNotebookAccessHandler extends AbstractNotebookMutationHandler<Notebook
     }
 
     @Override
-    public MutationResult doHandle(NotebookEntity notebook, NotebookMutation.EditNotebookAccess mutation, NotebookMutationContext context, NotebookSnapshot snapshotBefore) {
+    public String doHandle(NotebookEntity notebook, NotebookMutation.EditNotebookAccess mutation, NotebookMutationContext context, NotebookSnapshot snapshotBefore) {
         String summary = entityMutationHelper.formatEditAccessSummary(mutation.edits());
         projectRepository.lockProject(notebook.getProject());
         aclService.updateNotebookACL(notebook.getProject(), notebook, mutation.edits());
         // !!! create revisions for project/experiment, if they are affected
-        return new MutationResult(summary);
+        return summary;
     }
 }
 
@@ -114,10 +123,10 @@ class CreateNotebookAttachmentHandler extends AbstractNotebookMutationHandler<No
     AttachmentService attachmentService;
 
     @Override
-    public MutationResult doHandle(NotebookEntity notebook, NotebookMutation.CreateNotebookAttachment mutation, NotebookMutationContext context, NotebookSnapshot snapshotBefore) {
+    public String doHandle(NotebookEntity notebook, NotebookMutation.CreateNotebookAttachment mutation, NotebookMutationContext context, NotebookSnapshot snapshotBefore) {
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
         attachmentService.doAddNotebookAttachment(notebook, attachment);
-        return new MutationResult(entityMutationHelper.formatCreateAttachmentSummary(attachment));
+        return entityMutationHelper.formatCreateAttachmentSummary(attachment);
     }
 }
 
@@ -129,12 +138,12 @@ class DeleteNotebookAttachmentHandler extends AbstractNotebookMutationHandler<No
     AttachmentRepository attachmentRepository;
 
     @Override
-    public MutationResult doHandle(NotebookEntity notebook, NotebookMutation.DeleteNotebookAttachment mutation, NotebookMutationContext context, NotebookSnapshot snapshotBefore) {
+    public String doHandle(NotebookEntity notebook, NotebookMutation.DeleteNotebookAttachment mutation, NotebookMutationContext context, NotebookSnapshot snapshotBefore) {
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
         notebook.getAttachments().remove(attachment);
         attachment.getNotebooks().remove(notebook);
         attachment.setDeleted(true);
-        return new MutationResult("Deleted attachment: " + attachment.getName());
+        return "Deleted attachment: " + attachment.getName();
     }
 }
 
@@ -143,9 +152,9 @@ class DeleteNotebookAttachmentHandler extends AbstractNotebookMutationHandler<No
 class NotebookAccessUpdatedHandler extends AbstractNotebookMutationHandler<NotebookMutation.NotebookAccessUpdated> {
 
     @Override
-    public MutationResult doHandle(NotebookEntity notebook, NotebookMutation.NotebookAccessUpdated mutation, NotebookMutationContext context, NotebookSnapshot snapshotBefore) {
+    public String doHandle(NotebookEntity notebook, NotebookMutation.NotebookAccessUpdated mutation, NotebookMutationContext context, NotebookSnapshot snapshotBefore) {
         aclService.recalculateACL(notebook);
         String reason = mutation.projectName() != null ? "project " + mutation.projectName() : "experiment " + mutation.experimentName();
-        return new MutationResult("Access updated because of the changes in " + reason);
+        return "Access updated because of the changes in " + reason;
     }
 }

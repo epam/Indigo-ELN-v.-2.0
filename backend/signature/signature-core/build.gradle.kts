@@ -26,8 +26,6 @@ dependencies {
     implementation("one.util:streamex:0.8.3")
     implementation("io.quarkiverse.openpdf:quarkus-openpdf:3.3.2")
 
-    implementation("io.quarkiverse.amazonservices:quarkus-amazon-cognito-user-pools")
-    implementation("software.amazon.awssdk:url-connection-client")
     testImplementation(project(":common:common-test"))
 }
 

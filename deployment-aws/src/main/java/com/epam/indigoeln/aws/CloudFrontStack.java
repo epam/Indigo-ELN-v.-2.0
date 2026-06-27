@@ -118,8 +118,8 @@ public class CloudFrontStack {
                 .priceClass(PriceClass.PRICE_CLASS_200)
                 .build();
 
-        CfnWebACL.RuleProperty ipReputationsRuleSet = createWAFRuleSet("AWS", "AWSManagedRulesAmazonIpReputationList", 0, "AWS-AWSManagedRulesAmazonIpReputationList", List.of());
-        CfnWebACL.RuleProperty commonRuleSet = createWAFRuleSet("AWS", "AWSManagedRulesCommonRuleSet", 1, "AWS-AWSManagedRulesCommonRuleSet", List.of(
+        CfnWebACL.RuleProperty ipReputationsRuleSet = createWAFRuleSet("AWS", "AWSManagedRulesAmazonIpReputationList", 0, List.of());
+        CfnWebACL.RuleProperty commonRuleSet = createWAFRuleSet("AWS", "AWSManagedRulesCommonRuleSet", 1, List.of(
                 CfnWebACL.RuleActionOverrideProperty.builder()
                         .name("SizeRestrictions_BODY")
                         .actionToUse(CfnWebACL.RuleActionProperty.builder().count(CfnWebACL.CountActionProperty.builder().build()).build())
@@ -127,13 +127,25 @@ public class CloudFrontStack {
                 CfnWebACL.RuleActionOverrideProperty.builder()
                         .name("CrossSiteScripting_BODY")
                         .actionToUse(CfnWebACL.RuleActionProperty.builder().count(CfnWebACL.CountActionProperty.builder().build()).build())
+                        .build(),
+                // Count instead of block so we can re-block selectively via label matching below
+                CfnWebACL.RuleActionOverrideProperty.builder()
+                        .name("EC2MetaDataSSRF_BODY")
+                        .actionToUse(CfnWebACL.RuleActionProperty.builder().count(CfnWebACL.CountActionProperty.builder().build()).build())
                         .build()
         ));
-        CfnWebACL.RuleProperty knownBadInputRuleSet = createWAFRuleSet("AWS", "AWSManagedRulesKnownBadInputsRuleSet", 2, "AWS-AWSManagedRulesKnownBadInputsRuleSet", List.of());
+        CfnWebACL.RuleProperty knownBadInputRuleSet = createWAFRuleSet("AWS", "AWSManagedRulesKnownBadInputsRuleSet", 2, List.of());
+
+        // Re-block EC2MetaDataSSRF_BODY for all paths except /api/eln/incidents, which legitimately receives URLs in the body
+        CfnWebACL.RuleProperty ssrfReblockRule = createLabelReblockExceptPath(
+                "reblock-ssrf-except-incidents", 10,
+                "awswaf:managed:aws:core-rule-set:EC2MetaDataSSRF_BODY",
+                "/api/eln/incidents"
+        );
 
         CfnWebACL wafWebACL = CfnWebACL.Builder.create(scope, "wafwebacl")
                 .scope("CLOUDFRONT")
-                .rules(List.of(ipReputationsRuleSet, commonRuleSet, knownBadInputRuleSet))
+                .rules(List.of(ipReputationsRuleSet, commonRuleSet, knownBadInputRuleSet, ssrfReblockRule))
                 .defaultAction(CfnWebACL.DefaultActionProperty.builder().allow(CfnWebACL.AllowActionProperty.builder().build()).build())
                 .visibilityConfig(CfnWebACL.VisibilityConfigProperty.builder().cloudWatchMetricsEnabled(true).metricName("WebACLMetric").sampledRequestsEnabled(true).build())
                 .build();
@@ -153,12 +165,12 @@ public class CloudFrontStack {
                         CacheControl.maxAge(Duration.days(365))
                 ))
                 .role(Role.Builder.create(scope, "frontend-deployment-role")
-                                .assumedBy(ServicePrincipal.fromStaticServicePrincipleName("lambda.amazonaws.com"))
-                                .managedPolicies(List.of(
-                                        ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaBasicExecutionRole"),
-                                        ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaVPCAccessExecutionRole")
-                                ))
-                                .build()
+                        .assumedBy(ServicePrincipal.fromStaticServicePrincipleName("lambda.amazonaws.com"))
+                        .managedPolicies(List.of(
+                                ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaBasicExecutionRole"),
+                                ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaVPCAccessExecutionRole")
+                        ))
+                        .build()
                 )
                 .memoryLimit(1024)
                 .ephemeralStorageSize(Size.mebibytes(2048))
@@ -179,7 +191,7 @@ public class CloudFrontStack {
 //                .replace("{{STYLES_SHA}}", hashes[0]);
     }
 
-    private CfnWebACL.RuleProperty createWAFRuleSet(String vendor, String name, int priority, String metric, List<CfnWebACL.RuleActionOverrideProperty> overrides) {
+    private CfnWebACL.RuleProperty createWAFRuleSet(String vendor, String name, int priority, List<CfnWebACL.RuleActionOverrideProperty> overrides) {
         return CfnWebACL.RuleProperty.builder()
                 .name("rule-" + name)
                 .priority(priority)
@@ -201,10 +213,49 @@ public class CloudFrontStack {
                 .build();
     }
 
+    private CfnWebACL.RuleProperty createLabelReblockExceptPath(String name, int priority, String label, String excludedPath) {
+        return CfnWebACL.RuleProperty.builder()
+                .name(name)
+                .priority(priority)
+                .statement(CfnWebACL.StatementProperty.builder()
+                        .andStatement(CfnWebACL.AndStatementProperty.builder()
+                                .statements(List.of(
+                                        CfnWebACL.StatementProperty.builder()
+                                                .labelMatchStatement(CfnWebACL.LabelMatchStatementProperty.builder().scope("LABEL").key(label).build())
+                                                .build(),
+                                        CfnWebACL.StatementProperty.builder()
+                                                .notStatement(CfnWebACL.NotStatementProperty.builder()
+                                                        .statement(CfnWebACL.StatementProperty.builder()
+                                                                .byteMatchStatement(CfnWebACL.ByteMatchStatementProperty.builder()
+                                                                        .searchString(excludedPath)
+                                                                        .fieldToMatch(CfnWebACL.FieldToMatchProperty.builder().uriPath(mapOf()).build())
+                                                                        .textTransformations(List.of(
+                                                                                CfnWebACL.TextTransformationProperty.builder().priority(0).type("NONE").build()
+                                                                        ))
+                                                                        .positionalConstraint("STARTS_WITH")
+                                                                        .build())
+                                                                .build())
+                                                        .build())
+                                                .build()
+                                ))
+                                .build())
+                        .build())
+                .action(CfnWebACL.RuleActionProperty.builder()
+                        .block(CfnWebACL.BlockActionProperty.builder().build())
+                        .build())
+                .visibilityConfig(CfnWebACL.VisibilityConfigProperty.builder()
+                        .sampledRequestsEnabled(true)
+                        .cloudWatchMetricsEnabled(true)
+                        .metricName("metric-" + name)
+                        .build())
+                .build();
+    }
+
     public record Props(
             IHostedZone hostedZone,
             IHttpApi httpApi,
             String domainName,
             IStringParameter apiGatewaySecret
-    ) {}
+    ) {
+    }
 }

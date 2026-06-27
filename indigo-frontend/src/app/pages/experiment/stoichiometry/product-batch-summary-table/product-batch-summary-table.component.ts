@@ -24,6 +24,8 @@ import { ApiService } from '@core/services/api.service';
 import { openFileDialog } from '@core/utils/file.util';
 import { MutationResponse, ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
 import { DownloadService } from '@core/services/download.service';
+import { NotificationService } from '@core/services/notification/notification.service';
+import { NotificationType } from '@core/types/notification.i';
 
 interface OutputSampleRow {
   output: ReactionOutput;
@@ -39,6 +41,7 @@ export class ProductBatchSummaryTableComponent {
   private experimentDetailService = inject(ExperimentDetailService);
   private apiService = inject(ApiService);
   private downloadService = inject(DownloadService);
+  private notificationService = inject(NotificationService);
 
   experimentId = input.required<UUID>();
   reactionAnchor = input.required<ReactionAnchor>();
@@ -98,13 +101,7 @@ export class ProductBatchSummaryTableComponent {
       id: 'totalWeight',
       header: 'Actual Weight',
       type: ColumnInputType.UNIT_INPUT,
-      field: (row: OutputSampleRow) =>
-        row.sample.actualWeight?.value
-          ? {
-              value: row.sample.actualWeight.value,
-              unit: row.sample.actualWeight.unit,
-            }
-          : null,
+      field: (row: OutputSampleRow) => row.sample.actualWeight,
       classes: (row) => this.determineClasses(row.sample.actualWeight),
       onSave: (row: OutputSampleRow, value: EnteredValue<WeightUnit> | null) => {
         this.experimentDetailService
@@ -125,8 +122,7 @@ export class ProductBatchSummaryTableComponent {
       id: 'totalVolume',
       header: 'Volume',
       type: ColumnInputType.UNIT_INPUT,
-      field: (row: OutputSampleRow) =>
-        row.sample.volume?.value ? { value: row.sample.volume.value, unit: row.sample.volume.unit } : null,
+      field: (row: OutputSampleRow) => row.sample.volume,
       classes: (row) => this.determineClasses(row.sample.volume),
       onSave: (row: OutputSampleRow, value: EnteredValue<VolumeUnit> | null) => {
         this.experimentDetailService
@@ -147,13 +143,7 @@ export class ProductBatchSummaryTableComponent {
       id: 'totalMoles',
       header: 'Actual Moles',
       type: ColumnInputType.UNIT_INPUT,
-      field: (row: OutputSampleRow) =>
-        row.sample.actualMol?.value
-          ? {
-              value: row.sample.actualMol.value,
-              unit: row.sample.actualMol.unit,
-            }
-          : null,
+      field: (row: OutputSampleRow) => row.sample.actualMol?.value,
       classes: (row) => this.determineClasses(row.sample.actualMol),
       onSave: (row: OutputSampleRow, value: EnteredValue<MolUnit> | null) => {
         this.experimentDetailService
@@ -173,8 +163,8 @@ export class ProductBatchSummaryTableComponent {
     {
       id: 'molarity',
       header: 'Molarity',
-      type: ColumnInputType.TEXT,
-      field: (row: OutputSampleRow) => row.sample.molarity?.value?.toString() ?? null,
+      type: ColumnInputType.UNIT_INPUT,
+      field: (row: OutputSampleRow) => row.sample.molarity,
       classes: (row) => this.determineClasses(row.sample.molarity),
       editable: () => false,
     },
@@ -269,7 +259,13 @@ export class ProductBatchSummaryTableComponent {
             type: 'RemoveProductSample',
             anchor: row.sample.anchor,
           })
-          .subscribe({});
+          .subscribe(() =>
+            this.notificationService.notify({
+              type: NotificationType.Info,
+              isInline: true,
+              message: 'Removed, press Ctrl-Z/Cmd-Z to undo',
+            }),
+          );
       },
     },
   ]);

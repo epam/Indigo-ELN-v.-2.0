@@ -1,6 +1,12 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.util.Pair;
+import com.epam.indigoeln.eln.config.DataAccess;
+import com.epam.indigoeln.eln.entity.ExperimentEntity;
+import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
 import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.repository.ExperimentRepository;
+import com.epam.indigoeln.eln.util.ExperimentDetailsReportBuilder;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -11,7 +17,10 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 import java.util.stream.IntStream;
+
+import static com.epam.indigoeln.eln.model.ApplicationPermission.VIEW_EXPERIMENTS;
 
 // no @Transactional
 @ApplicationScoped
@@ -33,7 +42,11 @@ public class SupportService {
     @Inject
     ExperimentService experimentService;
     @Inject
+    ExperimentRepository experimentRepository;
+    @Inject
     AttachmentService attachmentService;
+    @Inject
+    ExperimentDetailsReportBuilder experimentDetailsReportBuilder;
 
     private final Random random = new Random();
 
@@ -98,5 +111,15 @@ public class SupportService {
     private <T> @Nullable T randomOrNone(List<T> list) {
         int no = random.nextInt(-1, list.size());
         return no == -1 ? null : list.get(no);
+    }
+
+    @DataAccess
+    @Transactional
+    public Pair<String, byte[]> generateExperimentDetailsReport(UUID experimentID) {
+        ExperimentEntity experiment = experimentRepository.load(experimentID);
+        aclService.ensureAccess(experiment, VIEW_EXPERIMENTS);
+        List<ExperimentRevisionEntity> revisions = experimentRepository.getRevisions(experiment, false);
+        byte[] bytes = experimentDetailsReportBuilder.build(experiment, revisions);
+        return Pair.of("experiment-" + experiment.getName() + ".html", bytes);
     }
 }

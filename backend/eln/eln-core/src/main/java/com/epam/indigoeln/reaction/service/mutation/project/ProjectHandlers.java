@@ -13,7 +13,6 @@ import com.epam.indigoeln.reaction.model.ProjectSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.ProjectMutation;
 import com.epam.indigoeln.reaction.service.mutation.EntityMutationHelper;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
-import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
@@ -37,7 +36,7 @@ class CreateProjectHandler extends AbstractProjectMutationHandler<ProjectMutatio
     }
 
     @Override
-    public MutationResult doHandle(ProjectEntity project, ProjectMutation.CreateProject mutation, ProjectMutationContext context, ProjectSnapshot snapshotBefore) {
+    public String doHandle(ProjectEntity project, ProjectMutation.CreateProject mutation, ProjectMutationContext context, ProjectSnapshot snapshotBefore) {
         project.setName(mutation.name());
         project.setLiterature(mutation.literature());
         project.setDescription(mutation.description());
@@ -47,7 +46,7 @@ class CreateProjectHandler extends AbstractProjectMutationHandler<ProjectMutatio
         project.setRevision(0);
         project.setCreatedBy(userService.getCurrentUserEntity());
         aclService.initProjectACL(project);
-        return new MutationResult("Create project");
+        return "Create project";
     }
 }
 
@@ -59,16 +58,36 @@ class EditProjectAttributesHandler extends AbstractProjectMutationHandler<Projec
     DictionaryUpdateService dictionaryUpdateService;
 
     @Override
-    public MutationResult doHandle(ProjectEntity project, ProjectMutation.EditProjectAttributes mutation, ProjectMutationContext context, ProjectSnapshot snapshotBefore) {
+    public String doHandle(ProjectEntity project, ProjectMutation.EditProjectAttributes mutation, ProjectMutationContext context, ProjectSnapshot snapshotBefore) {
         List<String> summaryList = new ArrayList<>();
-        boolean updated = editProperty(mutation.name(), project::setName, summaryList, "name");
-        updated |= editProperty(mutation.keywords(), v -> {
-            updateCollection(project.getKeywords(), dictionaryUpdateService.findOrCreateByNames(BuiltInDictionary.PROJECT_KEYWORD.name(), v));
-        }, summaryList, "keywords");
-        updated |= editProperty(mutation.literature(), project::setLiterature, summaryList, "literature");
-        updated |= editProperty(mutation.description(), project::setDescription, summaryList, "description");
+        boolean updated = editProperty(
+                mutation.name(),
+                project::setName,
+                summaryList,
+                "name"
+        );
+        updated |= editProperty(
+                mutation.keywords(),
+                v -> {
+                    updateCollection(project.getKeywords(), dictionaryUpdateService.findOrCreateByNames(BuiltInDictionary.PROJECT_KEYWORD.name(), v));
+                },
+                summaryList,
+                "keywords"
+        );
+        updated |= editProperty(
+                mutation.literature(),
+                project::setLiterature,
+                summaryList,
+                x -> "literature"
+        );
+        updated |= editProperty(
+                mutation.description(),
+                project::setDescription,
+                summaryList,
+                x -> "description"
+        );
         validate(updated, "Nothing to update");
-        return new MutationResult(entityMutationHelper.formatEditAttributesSummary(summaryList));
+        return entityMutationHelper.formatEditAttributesSummary(summaryList);
     }
 }
 
@@ -89,12 +108,12 @@ class EditProjectAccessHandler extends AbstractProjectMutationHandler<ProjectMut
     }
 
     @Override
-    public MutationResult doHandle(ProjectEntity project, ProjectMutation.EditProjectAccess mutation, ProjectMutationContext context, ProjectSnapshot snapshotBefore) {
+    public String doHandle(ProjectEntity project, ProjectMutation.EditProjectAccess mutation, ProjectMutationContext context, ProjectSnapshot snapshotBefore) {
         String summary = entityMutationHelper.formatEditAccessSummary(mutation.edits());
         projectRepository.lockProject(project);
         aclService.updateProjectACL(project, mutation.edits());
         // !!! create revisions for notebook/experiment, if they are affected
-        return new MutationResult(summary);
+        return summary;
     }
 }
 
@@ -108,10 +127,10 @@ class CreateProjectAttachmentHandler extends AbstractProjectMutationHandler<Proj
     AttachmentService attachmentService;
 
     @Override
-    public MutationResult doHandle(ProjectEntity project, ProjectMutation.CreateProjectAttachment mutation, ProjectMutationContext context, ProjectSnapshot snapshotBefore) {
+    public String doHandle(ProjectEntity project, ProjectMutation.CreateProjectAttachment mutation, ProjectMutationContext context, ProjectSnapshot snapshotBefore) {
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
         attachmentService.doAddProjectAttachment(project, attachment);
-        return new MutationResult(entityMutationHelper.formatCreateAttachmentSummary(attachment));
+        return entityMutationHelper.formatCreateAttachmentSummary(attachment);
     }
 }
 
@@ -123,12 +142,12 @@ class DeleteProjectAttachmentHandler extends AbstractProjectMutationHandler<Proj
     AttachmentRepository attachmentRepository;
 
     @Override
-    public MutationResult doHandle(ProjectEntity project, ProjectMutation.DeleteProjectAttachment mutation, ProjectMutationContext context, ProjectSnapshot snapshotBefore) {
+    public String doHandle(ProjectEntity project, ProjectMutation.DeleteProjectAttachment mutation, ProjectMutationContext context, ProjectSnapshot snapshotBefore) {
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
         project.getAttachments().remove(attachment);
         attachment.getProjects().remove(project);
         attachment.setDeleted(true);
-        return new MutationResult("Deleted attachment: " + attachment.getName());
+        return "Deleted attachment: " + attachment.getName();
     }
 }
 
@@ -137,9 +156,9 @@ class DeleteProjectAttachmentHandler extends AbstractProjectMutationHandler<Proj
 class ProjectAccessUpdatedHandler extends AbstractProjectMutationHandler<ProjectMutation.ProjectAccessUpdated> {
 
     @Override
-    public MutationResult doHandle(ProjectEntity project, ProjectMutation.ProjectAccessUpdated mutation, ProjectMutationContext context, ProjectSnapshot snapshotBefore) {
+    public String doHandle(ProjectEntity project, ProjectMutation.ProjectAccessUpdated mutation, ProjectMutationContext context, ProjectSnapshot snapshotBefore) {
         aclService.recalculateACL(project);
         String reason = mutation.notebookName() != null ? "notebook " + mutation.notebookName() : "experiment " + mutation.experimentName();
-        return new MutationResult("Access updated because of the changes in " + reason);
+        return "Access updated because of the changes in " + reason;
     }
 }

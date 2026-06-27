@@ -6,7 +6,6 @@ import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.ReactionInput;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
-import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import jakarta.enterprise.context.Dependent;
 import one.util.streamex.StreamEx;
 
@@ -15,9 +14,9 @@ import one.util.streamex.StreamEx;
 class SetInputRowLimitingHandler extends AbstractReactionInputMutationHandler<ReactionInputMutation.SetInputRowLimiting> {
 
     @Override
-    public MutationResult doHandle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowLimiting mutation, ExperimentMutationContext context) {
+    public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowLimiting mutation, ExperimentMutationContext context) {
         reaction.setLimitingAnchor(row.getAnchor());
-        return new MutationResult("Change limiting input");
+        return "Change limiting input";
     }
 }
 
@@ -26,9 +25,9 @@ class SetInputRowLimitingHandler extends AbstractReactionInputMutationHandler<Re
 class SetInputRowChemicalNameHandler extends AbstractReactionInputMutationHandler<ReactionInputMutation.SetInputRowChemicalName> {
 
     @Override
-    public MutationResult doHandle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowChemicalName mutation, ExperimentMutationContext context) {
+    public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowChemicalName mutation, ExperimentMutationContext context) {
         row.setChemicalName(mutation.chemicalName());
-        return new MutationResult(formatSetterSummary("input chemical name", mutation.chemicalName()));
+        return formatSetterSummary("input chemical name", mutation.chemicalName());
     }
 }
 
@@ -37,9 +36,9 @@ class SetInputRowChemicalNameHandler extends AbstractReactionInputMutationHandle
 class SetInputRowMolHandler extends AbstractReactionInputMutationHandler<ReactionInputMutation.SetInputRowMol> {
 
     @Override
-    public MutationResult doHandle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowMol mutation, ExperimentMutationContext context) {
+    public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowMol mutation, ExperimentMutationContext context) {
         setEnteredValue(row::setMol, mutation.mol(), mutation.molUnit(), experiment.getRevision());
-        return new MutationResult(formatSetterSummary("input mol", mutation.mol(), mutation.molUnit()));
+        return formatSetterSummary("input mol", mutation.mol(), mutation.molUnit());
     }
 }
 
@@ -48,7 +47,7 @@ class SetInputRowMolHandler extends AbstractReactionInputMutationHandler<Reactio
 class SetInputRowRoleHandler extends AbstractReactionInputMutationHandler<ReactionInputMutation.SetInputRowRole> {
 
     @Override
-    public MutationResult doHandle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowRole mutation, ExperimentMutationContext context) {
+    public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowRole mutation, ExperimentMutationContext context) {
         StreamEx.of(row.getReaction().getInputs())
                 .filter(x -> x != row && x.getRole() == row.getRole() && x.getCompound().equals(row.getCompound()))
                 .findAny()
@@ -57,7 +56,7 @@ class SetInputRowRoleHandler extends AbstractReactionInputMutationHandler<Reacti
                 });
 
         row.setRole(mutation.role());
-        return new MutationResult(formatSetterSummary("input role", mutation.role()));
+        return formatSetterSummary("input role", mutation.role());
     }
 }
 
@@ -66,10 +65,8 @@ class SetInputRowRoleHandler extends AbstractReactionInputMutationHandler<Reacti
 class RemoveInputRowHandler extends AbstractReactionInputMutationHandler<ReactionInputMutation.RemoveInputRow> {
 
     @Override
-    public MutationResult doHandle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.RemoveInputRow mutation, ExperimentMutationContext context) {
+    public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.RemoveInputRow mutation, ExperimentMutationContext context) {
         row.delete();
-
-        context.getResponse().getMessages().add("Removed, press Ctrl-Z/Cmd-Z to undo");
-        return new MutationResult("Remove input");
+        return "Remove input";
     }
 }

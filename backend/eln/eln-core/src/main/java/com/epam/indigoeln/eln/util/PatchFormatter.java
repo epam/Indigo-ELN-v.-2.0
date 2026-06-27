@@ -1,59 +1,78 @@
 package com.epam.indigoeln.eln.util;
 
+import com.epam.indigoeln.compound.service.CompoundService;
+import com.epam.indigoeln.indigowrapper.IndigoAPI;
+import com.epam.indigoeln.indigowrapper.IndigoReaction;
+import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
 import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.ValueNode;
-import com.google.common.base.Function;
+import com.fasterxml.jackson.databind.node.*;
 import com.google.common.base.Preconditions;
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
 import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class PatchUtil {
+@Dependent
+public class PatchFormatter {
 
-    public static String formatJSONDiff(JsonNode before, JsonNode patch, Function<String, String> rxnfileFn, Function<UUID, String> molfileFn) {
-        GridBuilder grid = new GridBuilder(16);
-        formatJSONDiff(before, patch, grid, new ArrayList<>(), null, rxnfileFn, molfileFn);
+    @Inject
+    IndigoAPI indigo;
+    @Inject
+    IndigoRendererAPI indigoRenderer;
+    @Inject
+    CompoundService compoundService;
+
+    private final GridBuilder grid = new GridBuilder(16);
+    private final List<String> path = new ArrayList<>();
+
+    public String format(JsonNode before, JsonNode patch) {
+        doFormat(before, patch, null);
         return grid.build();
     }
 
-    private static void formatJSONDiff(@Nullable JsonNode before, @Nullable JsonNode patch, GridBuilder grid, List<String> path, @Nullable Boolean newOrOld, Function<String, String> rxnfileFn, Function<UUID, String> molfileFn) {
+    private String formatScalar(@Nullable JsonNode node) {
+        if (node == null || node instanceof NullNode) {
+            return "null";
+        }
+        String value = node.asText();
+        if (!path.isEmpty()) {
+            return switch (path.getLast()) {
+                case "rxnfile" -> generateRxnfileImage(value);
+                case "compoundID" -> generateCompoundImage(UUID.fromString(value));
+                default -> value;
+            };
+        }
+        return value;
+    }
+
+    private void doFormat(@Nullable JsonNode before, @Nullable JsonNode patch, @Nullable Boolean newOrOld) {
         String nestedClass = newOrOld == null ? "" : newOrOld ? " new" : " old";
         switch (patch) {
             case ObjectNode objectPatch when (objectPatch.get("$old") instanceof ValueNode || objectPatch.get("$new") instanceof ValueNode) -> {
                 // patch: old-new if old/new are scalars -> show inline
-                String oldValue = objectPatch.has("$old") ? objectPatch.get("$old").asText() : null;
-                String newValue = objectPatch.has("$new") ? objectPatch.get("$new").asText() : null;
-                if (path.equals(List.of("model", "reactions", "#", "rxnfile"))) {
-                    oldValue = oldValue != null ? rxnfileFn.apply(oldValue) : null;
-                    newValue = newValue != null ? rxnfileFn.apply(newValue) : null;
-                } else if (path.equals(List.of("model", "reactions", "#", "inputs", "#", "compound", "compoundID"))) {
-                    oldValue = oldValue != null ? molfileFn.apply(UUID.fromString(oldValue)) : null;
-                    newValue = newValue != null ? molfileFn.apply(UUID.fromString(newValue)) : null;
-                } else if (path.equals(List.of("model", "reactions", "#", "outputs", "#", "compound", "compoundID"))) {
-                    oldValue = oldValue != null ? molfileFn.apply(UUID.fromString(oldValue)) : null;
-                    newValue = newValue != null ? molfileFn.apply(UUID.fromString(newValue)) : null;
-                }
+                String oldValue = formatScalar(objectPatch.get("$old"));
+                String newValue = formatScalar(objectPatch.get("$new"));
                 String s = "<span class='old'>%s</span> → <span class='new'>%s</span>".formatted(oldValue, newValue);
                 grid.right(s).left().newRow();
             }
             case ObjectNode objectPatch when (objectPatch.has("$old") || objectPatch.has("$new")) -> {
                 // patch: old-new if old/new are not scalars -> set oldOrNew, nest into old and new
                 if (objectPatch.has("$old")) {
-                    formatJSONDiff(before, objectPatch.get("$old"), grid, path, false, rxnfileFn, molfileFn);
+                    doFormat(before, objectPatch.get("$old"), false);
                 }
                 if (objectPatch.has("$new")) {
-                    formatJSONDiff(before, objectPatch.get("$new"), grid, path, true, rxnfileFn, molfileFn);
+                    doFormat(before, objectPatch.get("$new"), true);
                 }
             }
             case ObjectNode objectPatch when (objectPatch.get("value") instanceof ValueNode value && objectPatch.get("unit") instanceof ValueNode unit && objectPatch.get("source") instanceof ValueNode source) -> {
                 // EnteredValue created or deleted
-                String s = formatEnteredValue(before == null, value.asText(), unit.asText(), source.asText());
+                String s = formatEnteredValue(before == null, value.asText(), objectPatch.get("exactValue"), unit.asText(), source.asText());
                 grid.right(s).left().newRow();
             }
             case ObjectNode objectPatch when (before instanceof ObjectNode objectBefore && objectBefore.has("value") && objectBefore.has("unit") && objectBefore.has("source")) -> {
@@ -64,9 +83,11 @@ public class PatchUtil {
                 String newSource = objectPatch.get("source") instanceof ObjectNode s && s.get("$new") instanceof ValueNode n ? n.asText() : oldSource;
                 String newValue = objectPatch.get("value") instanceof ObjectNode v && v.get("$new") instanceof ValueNode n ? n.asText() : oldValue;
                 String newUnit = objectPatch.get("unit") instanceof ObjectNode u && u.get("$new") instanceof ValueNode n ? n.asText() : oldUnit;
-                String s = "%s → %s".formatted(
-                        formatEnteredValue(false, oldValue, oldUnit, oldSource),
-                        formatEnteredValue(true, newValue, newUnit, newSource)
+                boolean newOverwritten = objectPatch.get("overwritten") instanceof ObjectNode o && o.get("$new") instanceof BooleanNode b && b.booleanValue();
+                String s = "%s → %s%s".formatted(
+                        formatEnteredValue(false, oldValue, objectBefore.get("exactValue"), oldUnit, oldSource),
+                        formatEnteredValue(true, newValue, objectPatch.get("exactValue"), newUnit, newSource),
+                        newOverwritten ? " <span class='warning'>[overwritten]</span>" : ""
                 );
                 grid.right(s).left().newRow();
             }
@@ -94,7 +115,7 @@ public class PatchUtil {
                     grid.right("<span class='key%s'>%s %s</span>".formatted(nestedClass, displayPath, s));
                     path.add("#");
                     JsonNode node = before != null ? before.get(indices[0]) : null;
-                    formatJSONDiff(node, value, grid, path, newOrOld, rxnfileFn, molfileFn);
+                    doFormat(node, value, newOrOld);
                     path.removeLast();
                     grid.newRow();
                 });
@@ -105,7 +126,7 @@ public class PatchUtil {
                     path.add(key);
                     JsonNode node = before != null ? before.get(key) : null;
                     grid.right("<span class='key%s'>%s:</span>".formatted(nestedClass, key));
-                    formatJSONDiff(node, value, grid, path, newOrOld, rxnfileFn, molfileFn);
+                    doFormat(node, value, newOrOld);
                     grid.left().newRow();
                     path.removeLast();
                 });
@@ -118,7 +139,7 @@ public class PatchUtil {
                     grid.left(); // overwrite collection name
                     grid.right("<span class='key%s'>%s %d<br/><span class='comment'>%s</span>".formatted(nestedClass, displayPath, i + 1, newOrOld == Boolean.TRUE ? "inserted" : "removed"));
                     path.add("#");
-                    formatJSONDiff(null, node, grid, path, newOrOld, rxnfileFn, molfileFn);
+                    doFormat(null, node, newOrOld);
                     path.removeLast();
                     grid.newRow();
                 }
@@ -130,22 +151,23 @@ public class PatchUtil {
                     grid.right("<span class='%s'>[</span>".formatted(nestedClass)).left().newRow();
                     path.add("#");
                     for (JsonNode item : arrayPatch) {
-                        formatJSONDiff(null, item, grid, path, newOrOld, rxnfileFn, molfileFn);
+                        doFormat(null, item, newOrOld);
                     }
                     path.removeLast();
                     grid.right("<span class='%s'>]</span>".formatted(nestedClass)).left().newRow();
                 }
             }
             default -> {
-                grid.right("<span class='%s'>%s</span>".formatted(nestedClass, patch.asText())).left().newRow();
+                grid.right("<span class='%s'>%s</span>".formatted(nestedClass, formatScalar(patch))).left().newRow();
             }
         }
     }
 
-    private static String formatEnteredValue(boolean newOrOld, String value, String unit, String source) {
+    private static String formatEnteredValue(boolean newOrOld, String value, @Nullable JsonNode exactValue, String unit, String source) {
         unit = MeasurementUnit.ALL_UNITS.get(unit).getDisplayName();
         source = Character.isDigit(source.charAt(0)) ? "user-entered" : source;
-        return "<span class='%s ev-%s'>%s %s</span>&ensp;<span class='comment'>[%s]</span>".formatted(newOrOld ? "new" : "old", source, value, unit, source);
+        String exactValueStr = exactValue != null ? "&ensp;(exact value %s)".formatted(exactValue.doubleValue()) : "";
+        return "<span class='%s ev-%s'>%s %s%s</span>&ensp;<span class='comment'>[%s]</span>".formatted(newOrOld ? "new" : "old", source, value, unit, exactValueStr, source);
     }
 
     private static class GridBuilder {
@@ -210,5 +232,17 @@ public class PatchUtil {
             sb.append("</div>\n");
             return sb.toString();
         }
+    }
+
+    private String generateRxnfileImage(String rxnfile) {
+        IndigoReaction reaction = indigo.loadReaction(rxnfile);
+        indigoRenderer.setRenderOptions("svg", 500, 200);
+        byte[] bytes = indigoRenderer.renderToBuffer(reaction);
+        return new String(bytes, StandardCharsets.UTF_8);
+    }
+
+    private String generateCompoundImage(UUID compoundID) {
+        byte[] bytes = compoundService.getCompoundPicture(compoundID);
+        return new String(bytes, StandardCharsets.UTF_8);
     }
 }

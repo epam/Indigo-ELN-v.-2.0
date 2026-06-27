@@ -4,6 +4,7 @@ import com.epam.indigoeln.eln.model.HealthHazardRef;
 import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.reaction.model.units.*;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.jspecify.annotations.Nullable;
@@ -20,14 +21,14 @@ public sealed abstract class ReactionSample<P extends ReactionRow> implements Ex
     @Setter(AccessLevel.PACKAGE)
     protected P row;
 
-    @Nullable
-    protected EnteredValue<DensityUnit> density;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    protected EnteredValue<DensityUnit> density = EnteredValue.empty();
 
-    @Nullable
-    protected EnteredValue<MolarityUnit> molarity;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    protected EnteredValue<MolarityUnit> molarity = EnteredValue.empty();
 
-    @Nullable
-    protected EnteredValue<VolumeUnit> volume;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    protected EnteredValue<VolumeUnit> volume = EnteredValue.empty();
 
     @NotNull
     protected EnteredValue<NoUnit> purity;

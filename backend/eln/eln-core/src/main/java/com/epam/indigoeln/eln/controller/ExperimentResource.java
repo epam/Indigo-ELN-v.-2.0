@@ -12,7 +12,6 @@ import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.ExperimentService;
 import com.epam.indigoeln.eln.service.ExperimentWorkflowService;
-import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.InputAnchor;
 import com.epam.indigoeln.reaction.model.ReactionAnchor;
@@ -113,13 +112,13 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
-    public ExperimentModel mutateExperimentModel(UUID experimentId, Mutation mutation) {
-        return experimentService.mutateModel(experimentId, (ExperimentMutation) mutation);
+    public MutationResponse mutateExperimentModel(UUID experimentId, Integer revision, @Nullable Boolean verifyUndoRedo, Mutation mutation) {
+        return experimentService.mutateModel(experimentId, revision, verifyUndoRedo == Boolean.TRUE, (ExperimentMutation) mutation);
     }
 
     @Override
     public MutationResponse mutateExperimentModel4(UUID experimentId, Integer revision, Mutation mutation) {
-        return experimentService.mutateModel4(experimentId, revision, (ExperimentMutation) mutation);
+        return experimentService.mutateModel(experimentId, revision, false, (ExperimentMutation) mutation);
     }
 
     @Override

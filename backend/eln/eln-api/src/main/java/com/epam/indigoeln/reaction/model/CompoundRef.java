@@ -29,6 +29,7 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
     UUID getCompoundID();
 
     @Nullable
+    @SuppressWarnings("unused") // used on frontend
     String getFormula();
 
     @Nullable
@@ -41,18 +42,21 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
     Double getSaltEQ();
 
     @Nullable
+    @SuppressWarnings("unused") // used on frontend
     String getCompoundKey();
 
-    @Nullable
     EnteredValue<MolWeightUnit> getMolWeight();
 
     @Nullable
+    @SuppressWarnings("unused") // used on frontend
     EnteredValue<NoUnit> getExactMass();
 
     @Nullable
+    @SuppressWarnings("unused") // used on frontend
     String getCasNumber();
 
     @Nullable
+    @SuppressWarnings("unused") // used on frontend
     String getCalculatedBatchMF();
 
     default boolean compoundKeyEquals(CompoundRef other) {
@@ -164,9 +168,9 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
         @Nullable
         private String formula;
 
-        @Nullable
         @Setter
-        private EnteredValue<MolWeightUnit> molWeight;
+        @JsonInclude(JsonInclude.Include.NON_EMPTY)
+        private EnteredValue<MolWeightUnit> molWeight = EnteredValue.empty();
 
         @Override
         @Nullable

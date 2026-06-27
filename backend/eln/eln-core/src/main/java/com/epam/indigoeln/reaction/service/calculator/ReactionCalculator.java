@@ -1,9 +1,11 @@
 package com.epam.indigoeln.reaction.service.calculator;
 
+import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.reaction.metamodel.ReactionInputMetamodel;
 import com.epam.indigoeln.reaction.metamodel.ReactionInputSampleMetamodel;
 import com.epam.indigoeln.reaction.metamodel.ReactionOutputMetamodel;
 import com.epam.indigoeln.reaction.metamodel.ReactionOutputSampleMetamodel;
+import com.epam.indigoeln.reaction.metamodel.property.ModelProperty;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.units.*;
 import jakarta.enterprise.context.Dependent;
@@ -11,316 +13,171 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
-import org.hibernate.internal.util.collections.IdentitySet;
-import org.jspecify.annotations.Nullable;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-import java.util.function.BooleanSupplier;
-import java.util.function.Consumer;
+import java.util.*;
+import java.util.function.Supplier;
 
+import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE;
 import static com.epam.indigoeln.reaction.service.calculator.EnteredValueOpt.*;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
+/**
+ * Calculates reaction based on system of equations:
+ *
+ * <p>F1. input.mol = ∑ sample.mol</p>
+ * <p>F2. nonLimiting.mol = limiting.mol / limiting.eq * nonLimiting.eq</p>
+ * <p>F3. sample.mol = sample.weight * sample.purity / molWeight</p>
+ * <p>F4. sample.mol = sample.molarity * sample.volume</p>
+ * <p>F5. sample.weight = sample.volume * sample.density</p>
+ * <p>F6. output.theoMol = limiting.mol / limiting.eq * output.eq</p>
+ * <p>F7. output.theoWeight = output.theoMol * molWeight</p>
+ * <p>F8. outputSample.yield = outputSample.actualMol / output.theoMol</p>
+ * <p>F9. outputSample.yield = outputSample.actualWeight * outputSample.purity / output.theoWeight</p>
+ */
 @Slf4j
 @Dependent
 public class ReactionCalculator {
 
-    private static final Comparator<Property<?, ?>> CONFLICT_SELECTOR = Comparator.comparing(ReactionCalculator::conflictResolutionScore);
+    private static final Comparator<Pair<Property<?, ?>, EnteredValue<?>>> SEED_COMPARATOR = ((Comparator<Pair<Property<?,?>, EnteredValue<?>>>) ReactionCalculator::compareProperties).reversed();
 
-    private ModelProps model;
-
-    @Nullable
-    private Property<?, ?> overwritten = null;
+    private int nodeOrdinal = 0;
+    private final List<Property<?, ?>> properties = new ArrayList<>();
+    private final List<Formula<?>> formulas = new ArrayList<>();
+    private final List<Pair<Property<?, ?>, EnteredValue<?>>> seeds = new ArrayList<>();
+    @Getter
+    private final List<Property<?, ?>> overwritten = new ArrayList<>();
 
     public void recalculate(ExperimentModel experimentModel) {
-        model = new ModelProps(experimentModel);
-        try {
-            model.prepareToRecalculate();
-            recalculateModel(model);
-        } catch (RecalculationConflictException e) {
-            log.info("Conflict at {}: values {} vs {}, possible targets are: {}", e.property, e.conflictValue1, e.conflictValue2, e.possibleTargets);
-            for (Property<?, ?> target : e.possibleTargets) {
-                EnteredValue<?> previousValue = target.getValue();
-                overwritten = target;
-                try {
-                    model.prepareToRecalculate();
-                    recalculateModel(model);
-                    log.info("Overwritten {}, conflict resolved", target);
-                    return;
-                } catch (RecalculationConflictException e2) {
-                    log.info("Tried {}, conflict NOT resolved", target);
-                    overwritten = null;
-                    //noinspection unchecked,rawtypes
-                    target.setValue((EnteredValueOpt) opt(previousValue));
-                    // continue with the next target
+        log.debug("recalculation started");
+        new ModelProps(experimentModel);
+
+        // collect seeds
+        for (Property<?, ?> property : properties) {
+            EnteredValue<?> value = property.getValue();
+            if (!value.isEmpty()) {
+                if (value.getSource().isUserEntered() || value.getSource().isDefault()) {
+                    seeds.add(Pair.of(property, value));
+                } else if (value.getSource().isCalculated()) {
+                    property.setValue(EnteredValue.empty());
                 }
             }
-            throw new RecalculationException("Cannot resolve calculation conflicts");
         }
-    }
 
-    private void recalculateModel(ModelProps model) {
-        updateCycle(model, () -> {
-            boolean updated = false;
-            for (ReactionProps reaction : model.reactions) {
-                InputProps limitingInput = reaction.limitingInput;
-                updated |= recalculateInput(reaction, limitingInput);
-                for (InputProps input : reaction.inputs) {
-                    if (input != limitingInput) {
-                        updated |= recalculateInput(reaction, input);
+        seeds.sort(SEED_COMPARATOR);
+        if (log.isDebugEnabled()) {
+            log.debug("seeds:\n\t{}", StreamEx.of(seeds).joining("\t\n"));
+        }
+
+        for (Pair<Property<?, ?>, EnteredValue<?>> seed : seeds) {
+            if (!seed.a().getValue().getSource().isFixed()) {
+                seed.a().setValue(EnteredValue.empty());
+            }
+        }
+
+        for (Pair<Property<?, ?>, EnteredValue<?>> pair : seeds) {
+            snapshot();
+            try {
+                Property<?, ?> seed = pair.a();
+                // set selected value
+                EnteredValue<?> existingValue = seed.getValue();
+                EnteredValue<?> seedValue = pair.b();
+                log.debug("apply seed: {} = {}", seed.getName(), seedValue);
+                if (!existingValue.isEmpty()) {
+                    if (seedValue.getSource().isDefault()) {
+                        log.debug("value already set to {}, ignoring default", existingValue);
+                        continue;
+                    }
+                    if (!existingValue.valueEquals(seedValue)) {
+                        throw new RecalculationConflictException();
                     }
                 }
-                for (OutputProps output : reaction.outputs) {
-                    updated |= recalculateOutput(reaction, output);
+                seed.setValueUnchecked(seedValue);
+                Deque<Formula<?>> queue = new ArrayDeque<>(seed.getDownstream());
+                // walk the graph
+                while (!queue.isEmpty()) {
+                    Formula<?> formula = queue.removeFirst();
+                    if (recalculateFormula(formula)) {
+                        queue.addAll(formula.target.getDownstream());
+                    }
                 }
-            }
-            return updated;
-        });
-    }
-
-    private boolean recalculateInput(ReactionProps reaction, InputProps input) {
-        EnteredValueOpt<MolWeightUnit> molWeight = opt(input.container.getCompound().getMolWeight());
-        return updateCycle(input, () -> {
-            boolean updated = false;
-            EnteredValueOpt<MolUnit> molFromSamples = ZERO_MOL;
-            for (InputSampleProps sample : input.samples) {
-                molFromSamples = molFromSamples.add(sample.mol);
-            }
-            EnteredValueOpt<MolUnit> molFromLimiting = empty();
-            InputProps limitingInput = reaction.limitingInput;
-            boolean isLimiting = input == limitingInput;
-            if (!isLimiting) {
-                molFromLimiting = limitingInput.mol.divide(limitingInput.eq).multiply(input.eq);
-            }
-            updated |= tryUpdate(
-                    input.mol,
-                    // molCompound = sum(molSamples)
-                    molFromSamples,
-                    // molCompound = molCompoundLimiting / eqLimiting * eq
-                    molFromLimiting
-            );
-            if (!isLimiting) {
-                EnteredValueOpt<NoUnit> eq = input.mol.divide(limitingInput.mol).multiply(limitingInput.eq);
-                updated |= tryUpdate(
-                        input.eq,
-                        eq
-                );
-            } else {
-                //noinspection unchecked
-                updated |= tryUpdate(
-                        input.eq,
-                        StreamEx.of(reaction.inputs)
-                                .filter(other -> other != input)
-                                // eqLimiting = molLimiting * eqNonLimiting / molNonLimiting
-                                .map(other -> input.mol.multiply(other.eq).divide(other.mol))
-                                .toArray(EnteredValueOpt[]::new)
-                );
-            }
-            for (InputSampleProps sample : input.samples) {
-                updated |= recalculateInputSample(input, sample, molWeight);
-            }
-            return updated;
-        });
-    }
-
-    private boolean recalculateInputSample(InputProps row, InputSampleProps sample, EnteredValueOpt<MolWeightUnit> molWeight) {
-        return updateCycle(sample, () -> {
-            boolean updated = false;
-            EnteredValueOpt<MolUnit> otherSamplesMol = sum(StreamEx.of(row.samples.iterator())
-                    .filter(s -> s != sample)
-                    .map(s -> s.mol)
-            );
-            updated |= tryUpdate(
-                    sample.mol,
-                    // mol = molCompound - sum(molOtherSamples)
-                    row.mol.subtract(otherSamplesMol),
-                    // mol = weight * purity / molWeight
-                    sample.weight.multiply(sample.purityAsFraction()).divide(molWeight),
-                    // mol = molarity * volume
-                    sample.molarity.multiply(sample.volume)
-            );
-            updated |= tryUpdate(
-                    sample.weight,
-                    // weight = mol * molWeight / purity
-                    sample.mol.multiply(molWeight).divide(sample.purityAsFraction()),
-                    // weight = volume * density
-                    sample.volume.multiply(sample.density)
-            );
-            updated |= tryUpdate(
-                    sample.volume,
-                    // volume = weight / density
-                    sample.weight.divide(sample.density),
-                    // volume = mol / molarity
-                    sample.mol.divide(sample.molarity)
-            );
-            return updated;
-        });
-    }
-
-    private boolean recalculateOutput(ReactionProps reaction, OutputProps output) {
-        EnteredValueOpt<MolWeightUnit> molWeight = opt(output.container.getCompound().getMolWeight());
-        return updateCycle(output, () -> {
-            boolean updated = false;
-            InputProps limitingInput = reaction.limitingInput;
-            EnteredValueOpt<MolUnit> theoMol = limitingInput.mol.divide(limitingInput.eq).multiply(output.eq);
-            EnteredValueOpt<NoUnit> eq = limitingInput.mol.divide(limitingInput.eq).divide(output.theoMol);
-            updated |= tryUpdate(
-                    output.theoMol,
-                    // theoMol = molInputCompoundLimiting / eqInputCompoundLimiting * eq
-                    theoMol
-            );
-            updated |= tryUpdate(
-                    output.eq,
-                    eq
-            );
-            updated |= tryUpdate(
-                    output.theoWeight,
-                    output.theoMol.multiply(molWeight)
-            );
-            for (OutputSampleProps sample : output.samples) {
-                updated |= recalculateOutputSample(output, sample, molWeight);
-            }
-            return updated;
-        });
-    }
-
-    private boolean recalculateOutputSample(OutputProps row, OutputSampleProps sample, EnteredValueOpt<MolWeightUnit> molWeight) {
-        return updateCycle(sample, () -> {
-            boolean updated = false;
-            updated |= tryUpdate(
-                    sample.actualMol,
-                    // actualMol = actualWeight * purity / molWeight
-                    sample.actualWeight.multiply(sample.purityAsFraction()).divide(molWeight),
-                    // actualMol = molarity * volume
-                    sample.molarity.multiply(sample.volume)
-            );
-            updated |= tryUpdate(
-                    sample.actualWeight,
-                    // actualWeight = actualMol * molWeight / purity
-                    sample.actualMol.<WeightUnit>multiply(molWeight).divide(sample.purityAsFraction()),
-                    // actualWeight = volume * density
-                    sample.volume.multiply(sample.density)
-            );
-            updated |= tryUpdate(
-                    sample.volume,
-                    // volume = actualWeight / density
-                    sample.actualWeight.divide(sample.density),
-                    // volume = actualMol / molarity
-                    sample.actualMol.divide(sample.molarity)
-            );
-            updated |= tryUpdate(
-                    sample.yield,
-                    // yield = actualMol / theoMol
-                    sample.actualMol.<NoUnit>divide(row.theoMol).multiply(DEFAULT_ONE_HUNDRED),
-                    // yield = actualWeight * purity / theoWeight
-                    sample.actualWeight.multiply(sample.purityAsFraction()).<NoUnit>divide(row.theoWeight).multiply(DEFAULT_ONE_HUNDRED)
-            );
-            return updated;
-        });
-    }
-
-    @SafeVarargs
-    private <C extends ExperimentNode, R extends MeasurementUnit> boolean tryUpdate(Property<C, R> value, EnteredValueOpt<R>... results) {
-        boolean updated = false;
-        EnteredValue<R> targetCurrent = value.getValue();
-        EnteredValue<R> conflictValue1 = null, conflictValue2 = null;
-        for (EnteredValueOpt<R> result : results) {
-            if (result.getValue() != null) {
-                if (targetCurrent == null) {
-                    log.debug("tryUpdate: {}: no previous value, set to {}", value.getName(), result.getValue());
-                    value.setValue(result);
-                    targetCurrent = result.getValue();
-                    updated = true;
-                    continue;
-                }
-                if (targetCurrent.valueEquals(result.getValue())) {
-                    continue;
-                }
-                conflictValue1 = targetCurrent;
-                conflictValue2 = result.getValue();
+            } catch (RecalculationConflictException e) {
+                log.debug("conflict! overwritten: {}", pair.a());
+                overwritten.add(pair.a());
+                revert();
+                // proceed with the next seed
             }
         }
-        if (conflictValue1 != null && conflictValue2 != null) {
-            InputCollector collector = new InputCollector();
-            value.collectInputs(collector);
-            for (EnteredValueOpt<R> result : results) {
-                if (result.getValue() != null) {
-                    result.collectInputs(collector);
-                }
-            }
-            log.debug("tryUpdate: conflict at {}, candidates to overwrite: {}", value.getName(), collector.getInputs());
-            List<Property<?, ?>> possibleTargets = collector.getInputs().stream()
-                    .sorted(CONFLICT_SELECTOR)
-                    .toList();
-            checkState(!possibleTargets.isEmpty(), "No targets to overwrite");
-            throw new RecalculationConflictException(value, conflictValue1, conflictValue2, possibleTargets);
-        }
-        return updated;
-    }
-
-    private boolean updateCycle(AbstractProps object, BooleanSupplier block) {
-        log.debug("updateCycle: started: {}", object);
-        boolean anyUpdates = false;
-        boolean lastUpdated = true;
-        while (lastUpdated) {
-            lastUpdated = block.getAsBoolean();
-            anyUpdates |= lastUpdated;
-            log.debug("updateCycle: iteration done: {}", object);
-        }
-        log.debug("updateCycle: complete{}: {}", anyUpdates ? " with updates" : " without updates", object);
-        return anyUpdates;
-    }
-
-    private void doPrepareToRecalculate(Property<?, ?> evp) {
-        EnteredValue<?> value = evp.getValue();
-        if (value != null) {
-            if (value.getSource().isCalculated()) {
-                evp.reset(false);
-            } else if (overwritten == evp) {
-                evp.reset(true);
+        log.debug("recalculation done");
+        if (!overwritten.isEmpty()) {
+            log.debug("overwritten: {}", overwritten);
+            for (Property<?, ?> property : overwritten) {
+                EnteredValue<?> value = property.getValue();
+                value = value.withOverwritten(true);
+                property.setValueUnchecked(value);
             }
         }
     }
 
-    @RequiredArgsConstructor
+    private <C extends ExperimentNode, U extends MeasurementUnit> EnteredValueOpt.Property<C, U> prop(C container, ModelProperty<C, EnteredValue<U>> property) {
+        Property<C, U> node = new Property<>(container, property, ++nodeOrdinal);
+        properties.add(node);
+        return node;
+    }
+
+    private <C extends ExperimentNode, U extends MeasurementUnit> EnteredValueOpt.Property<C, U> prop(C container, ModelProperty<C, EnteredValue<U>> property, EnteredValue<U> defaultValue) {
+        Property<C, U> node = prop(container, property);
+        seeds.add(Pair.of(node, defaultValue));
+        return node;
+    }
+
+    private <U extends MeasurementUnit> Formula<U> formula(String name, Property<?, U> target, Supplier<EnteredValueOpt<U>> supplier, Property<?, ?>... sources) {
+        Formula<U> formula = new Formula<>(name, target, supplier, sources);
+        formulas.add(formula);
+        return formula;
+    }
+
+    private void snapshot() {
+        for (Property<?, ?> property : properties) {
+            property.snapshot();
+        }
+        for (Formula<?> formula : formulas) {
+            formula.snapshot();
+        }
+    }
+
+    private void revert() {
+        for (Property<?, ?> property : properties) {
+            property.revert();
+        }
+        for (Formula<?> formula : formulas) {
+            formula.revert();
+        }
+    }
+
+    private <U extends MeasurementUnit> boolean recalculateFormula(Formula<U> formula) {
+        if (!formula.value.isEmpty()) {
+            return false;
+        }
+        EnteredValue<U> calculated = formula.supplier.get().getValue();
+        if (calculated.isEmpty()) {
+            return false;
+        }
+        Property<?, U> target = formula.target;
+        EnteredValue<U> stored = target.getValue();
+        if (stored.isEmpty()) {
+            log.debug("calculated {} to {} from formula {}", target.getName(), calculated, formula);
+            formula.value = calculated;
+            target.setValue(calculated);
+            return true;
+        }
+        if (stored.valueEquals(calculated)) {
+            return false;
+        }
+        log.debug("calculated value {} from formula {} conflicts with existing value {} for {}", calculated, formula, stored, target.getName());
+        throw new RecalculationConflictException();
+    }
+
     private static class RecalculationConflictException extends RuntimeException {
-
-        private final EnteredValueOpt.Property<?, ?> property;
-        private final EnteredValue<?> conflictValue1;
-        private final EnteredValue<?> conflictValue2;
-        private final List<Property<?, ?>> possibleTargets;
-    }
-
-    public static class RecalculationException extends RuntimeException {
-
-        public RecalculationException(String message) {
-            super(message);
-        }
-    }
-
-    private static class InputCollector implements Consumer<@Nullable EnteredValueOpt<?>> {
-
-        @Getter
-        private final Set<Property<?, ?>> inputs = new IdentitySet<>();
-        private final Set<EnteredValueOpt<?>> visited = new IdentitySet<>();
-
-        @Override
-        public void accept(@Nullable EnteredValueOpt<?> ev) {
-            if (ev != null) {
-                if (visited.add(ev)) {
-                    if (ev instanceof EnteredValueOpt.Property<?, ?> evp && evp.isCanOverwrite()) {
-                        EnteredValue<?> value = evp.getValue();
-                        if (value != null && (value.getSource().isUserEntered() || value.getSource().isDefault())) {
-                            inputs.add(evp);
-                        }
-                    }
-                    ev.collectInputs(this);
-                }
-            }
-        }
     }
 
     @RequiredArgsConstructor
@@ -339,11 +196,20 @@ public class ReactionCalculator {
                     .filter(x -> !x.getInputs().isEmpty())
                     .map(ReactionProps::new)
                     .toList();
-        }
 
-        void prepareToRecalculate() {
             for (ReactionProps reaction : reactions) {
-                reaction.prepareToRecalculate();
+                for (InputProps input : reaction.inputs) {
+                    input.init();
+                    for (InputSampleProps sample : input.samples) {
+                        sample.init();
+                    }
+                }
+                for (OutputProps output : reaction.outputs) {
+                    output.init();
+                    for (OutputSampleProps sample : output.samples) {
+                        sample.init();
+                    }
+                }
             }
         }
     }
@@ -351,58 +217,92 @@ public class ReactionCalculator {
     class ReactionProps extends AbstractProps<Reaction> {
 
         final List<InputProps> inputs;
-        final InputProps limitingInput;
+        final InputProps limiting;
         final List<OutputProps> outputs;
 
         private ReactionProps(Reaction reaction) {
             super(reaction);
             inputs = StreamEx.of(reaction.getInputs())
-                    .map(x -> new InputProps(x))
+                    .map(x -> new InputProps(this, x))
                     .toList();
-            limitingInput = StreamEx.of(inputs)
+            limiting = StreamEx.of(inputs)
                     .filter(x -> x.container.isLimiting())
                     .findAny().orElseThrow();
             outputs = StreamEx.of(reaction.getOutputs())
-                    .map(x -> new OutputProps(x))
+                    .map(x -> new OutputProps(this, x))
                     .toList();
-        }
-
-        void prepareToRecalculate() {
-            for (InputProps input : inputs) {
-                input.prepareToRecalculate();
-            }
-            for (OutputProps output : outputs) {
-                output.prepareToRecalculate();
-            }
         }
     }
 
     class InputProps extends AbstractProps<ReactionInput> {
 
-        final Property<ReactionInput, NoUnit> eq;
+        final ReactionProps reaction;
         final Property<ReactionInput, MolUnit> mol;
+        final Property<ReactionInput, NoUnit> eq;
         final List<InputSampleProps> samples;
 
-        private InputProps(ReactionInput input) {
+        private InputProps(ReactionProps reaction, ReactionInput input) {
             super(input);
-            eq = prop(input, ReactionInputMetamodel.EQ, true);
-            mol = prop(input, ReactionInputMetamodel.MOL, true);
+            this.reaction = reaction;
+            mol = prop(input, ReactionInputMetamodel.MOL);
+            eq = prop(input, ReactionInputMetamodel.EQ, DEFAULT_ONE);
             samples = StreamEx.of(input.getSamples())
-                    .map(x -> new InputSampleProps(x))
+                    .map(x -> new InputSampleProps(this, x))
                     .toList();
         }
 
-        void prepareToRecalculate() {
-            doPrepareToRecalculate(eq);
-            doPrepareToRecalculate(mol);
-            for (InputSampleProps sample : samples) {
-                sample.prepareToRecalculate();
+        private void init() {
+            List<Property<ReactionInputSample, MolUnit>> sampleMols = StreamEx.of(samples)
+                    .map(s -> s.mol)
+                    .toList();
+            InputProps limiting = reaction.limiting;
+
+            // F1. mol = ∑ sampleN.mol
+            formula(
+                    "F1.1",
+                    mol,
+                    () -> EnteredValueOpt.sum(sampleMols)
+            ).addSources(sampleMols);
+
+            if (this != limiting) {
+
+                // F2. mol = limiting.mol / limiting.eq * input.eq
+                formula(
+                        "F2.1",
+                        mol,
+                        () -> limiting.mol.divide(limiting.eq).multiply(eq),
+                        limiting.mol, limiting.eq, eq
+                );
+
+                // F2. eq = input.mol / limiting.mol * limiting.eq
+                formula(
+                        "F2.2",
+                        eq,
+                        () -> mol.divide(limiting.mol).multiply(limiting.eq),
+                        mol, limiting.mol, limiting.eq
+                );
+            } else {
+
+                // F2 - never calculate limiting.mol from nonLimiting.mol
+
+                // F2. eq = mol * nonLimiting.eq / nonLimiting.mol
+                for (InputProps nonLimiting : reaction.inputs) {
+                    if (this != nonLimiting) {
+                        formula(
+                                "F2.3",
+                                eq,
+                                () -> mol.multiply(nonLimiting.eq).divide(nonLimiting.mol),
+                                mol, nonLimiting.mol, nonLimiting.eq
+                        );
+                    }
+                }
             }
         }
     }
 
     class InputSampleProps extends AbstractProps<ReactionInputSample> {
 
+        final InputProps input;
         final Property<ReactionInputSample, MolUnit> mol;
         final Property<ReactionInputSample, WeightUnit> weight;
         final Property<ReactionInputSample, NoUnit> purity;
@@ -414,55 +314,153 @@ public class ReactionCalculator {
             return purity.multiply(ONE_HUNDREDTH);
         }
 
-        private InputSampleProps(ReactionInputSample sample) {
+        private InputSampleProps(InputProps input, ReactionInputSample sample) {
             super(sample);
-            mol = prop(sample, ReactionInputSampleMetamodel.MOL, true);
-            weight = prop(sample, ReactionInputSampleMetamodel.WEIGHT, true);
-            purity = prop(sample, ReactionInputSampleMetamodel.PURITY, false);
-            molarity = prop(sample, ReactionInputSampleMetamodel.MOLARITY, true);
-            volume = prop(sample, ReactionInputSampleMetamodel.VOLUME, true);
-            density = prop(sample, ReactionInputSampleMetamodel.DENSITY, true);
+            this.input = input;
+            mol = prop(sample, ReactionInputSampleMetamodel.MOL);
+            weight = prop(sample, ReactionInputSampleMetamodel.WEIGHT);
+            purity = prop(sample, ReactionInputSampleMetamodel.PURITY, EnteredValue.DEFAULT_ONE_HUNDRED);
+            molarity = prop(sample, ReactionInputSampleMetamodel.MOLARITY);
+            volume = prop(sample, ReactionInputSampleMetamodel.VOLUME);
+            density = prop(sample, ReactionInputSampleMetamodel.DENSITY);
         }
 
-        void prepareToRecalculate() {
-            doPrepareToRecalculate(mol);
-            doPrepareToRecalculate(weight);
-            doPrepareToRecalculate(purity);
-            doPrepareToRecalculate(molarity);
-            doPrepareToRecalculate(volume);
-            doPrepareToRecalculate(density);
+        private void init() {
+            EnteredValueOpt<MolWeightUnit> molWeight = opt(input.container.getCompound().getMolWeight());
+
+            List<Property<ReactionInputSample, MolUnit>> otherSampleMols = StreamEx.of(input.samples)
+                    .filter(s -> s != this)
+                    .map(s -> s.mol)
+                    .toList();
+
+            // F1. mol = input.mol - ∑ otherSampleN.mol
+            formula(
+                    "F1.2",
+                    mol,
+                    () -> input.mol.subtract(sum(otherSampleMols)),
+                    input.mol
+            ).addSources(otherSampleMols);
+
+            // F3. sample.mol = sample.weight * sample.purity / molWeight
+            formula(
+                    "F3.1",
+                    mol,
+                    () -> weight.multiply(purityAsFraction()).divide(molWeight),
+                    weight, purity
+            );
+
+            // F4. sample.mol = sample.molarity * sample.volume
+            formula(
+                    "F4.1",
+                    mol,
+                    () -> molarity.multiply(volume),
+                    molarity, volume
+            );
+
+            // F3. sample.weight = sample.mol * molWeight / sample.purity
+            formula(
+                    "F3.2",
+                    weight,
+                    () -> mol.multiply(molWeight).divide(purityAsFraction()),
+                    mol, purity
+            );
+
+            // F5. sample.weight = sample.volume * sample.density
+            formula(
+                    "F5.1",
+                    weight,
+                    () -> volume.multiply(density),
+                    volume, density
+            );
+
+            // purity is not calculated (can be either default or user-entered)
+
+            // F4. sample.molarity = sample.mol / sample.volume
+            formula(
+                    "F4.2",
+                    molarity,
+                    () -> mol.divide(volume),
+                    mol, volume
+            );
+
+            // F4. sample.volume = sample.mol / sample.molarity
+            formula(
+                    "F4.3",
+                    volume,
+                    () -> mol.divide(molarity),
+                    mol, molarity
+            );
+
+            // F5. sample.volume = sample.weight / sample.density
+            formula(
+                    "F5.2",
+                    volume,
+                    () -> weight.divide(density),
+                    weight, density
+            );
+
+            // F5. sample.density = sample.weight / sample.volume
+            formula(
+                    "F5.3",
+                    density,
+                    () -> weight.divide(volume),
+                    weight, volume
+            );
         }
     }
 
     class OutputProps extends AbstractProps<ReactionOutput> {
 
-        final Property<ReactionOutput, NoUnit> eq;
+        final ReactionProps reaction;
         final Property<ReactionOutput, MolUnit> theoMol;
+        final Property<ReactionOutput, NoUnit> eq;
         final Property<ReactionOutput, WeightUnit> theoWeight;
         final List<OutputSampleProps> samples;
 
-        private OutputProps(ReactionOutput output) {
+        private OutputProps(ReactionProps reaction, ReactionOutput output) {
             super(output);
-            eq = prop(output, ReactionOutputMetamodel.EQ, true);
-            theoMol = prop(output, ReactionOutputMetamodel.THEO_MOL, true);
-            theoWeight = prop(output, ReactionOutputMetamodel.THEO_WEIGHT, true);
+            this.reaction = reaction;
+            theoMol = prop(output, ReactionOutputMetamodel.THEO_MOL);
+            eq = prop(output, ReactionOutputMetamodel.EQ, DEFAULT_ONE);
+            theoWeight = prop(output, ReactionOutputMetamodel.THEO_WEIGHT);
             samples = StreamEx.of(output.getSamples())
-                    .map(OutputSampleProps::new)
+                    .map(x -> new OutputSampleProps(this, x))
                     .toList();
         }
 
-        void prepareToRecalculate() {
-            doPrepareToRecalculate(eq);
-            doPrepareToRecalculate(theoMol);
-            doPrepareToRecalculate(theoWeight);
-            for (OutputSampleProps sample : samples) {
-                sample.prepareToRecalculate();
-            }
+        private void init() {
+            EnteredValueOpt<MolWeightUnit> molWeight = opt(container.getCompound().getMolWeight());
+            InputProps limiting = reaction.limiting;
+
+            // F6. output.theoMol = limiting.mol / limiting.eq * output.eq
+            formula(
+                    "F6.1",
+                    theoMol,
+                    () -> limiting.mol.divide(limiting.eq).multiply(eq),
+                    limiting.mol, limiting.eq, eq
+            );
+
+            // F6. output.eq = limiting.mol / limiting.eq / output.theoMol
+            formula(
+                    "F6.2",
+                    eq,
+                    () -> limiting.mol.divide(limiting.eq).divide(theoMol),
+                    limiting.mol, limiting.eq, theoMol
+            );
+
+            // F7. output.theoWeight = output.theoMol * molWeight
+            formula(
+                    "F7.1",
+                    theoWeight,
+                    () -> theoMol.multiply(molWeight),
+                    theoMol
+            );
         }
     }
 
     class OutputSampleProps extends AbstractProps<ReactionOutputSample> {
 
+        final OutputProps output;
         final Property<ReactionOutputSample, MolUnit> actualMol;
         final Property<ReactionOutputSample, WeightUnit> actualWeight;
         final Property<ReactionOutputSample, NoUnit> purity;
@@ -475,25 +473,102 @@ public class ReactionCalculator {
             return purity.multiply(ONE_HUNDREDTH);
         }
 
-        private OutputSampleProps(ReactionOutputSample sample) {
+        private OutputSampleProps(OutputProps output, ReactionOutputSample sample) {
             super(sample);
-            actualMol = prop(sample, ReactionOutputSampleMetamodel.ACTUAL_MOL, true);
-            actualWeight = prop(sample, ReactionOutputSampleMetamodel.ACTUAL_WEIGHT, true);
-            purity = prop(sample, ReactionOutputSampleMetamodel.PURITY, false);
-            molarity = prop(sample, ReactionOutputSampleMetamodel.MOLARITY, true);
-            volume = prop(sample, ReactionOutputSampleMetamodel.VOLUME, true);
-            density = prop(sample, ReactionOutputSampleMetamodel.DENSITY, true);
-            yield = prop(sample, ReactionOutputSampleMetamodel.YIELD, true);
+            this.output = output;
+            actualMol = prop(sample, ReactionOutputSampleMetamodel.ACTUAL_MOL);
+            actualWeight = prop(sample, ReactionOutputSampleMetamodel.ACTUAL_WEIGHT);
+            purity = prop(sample, ReactionOutputSampleMetamodel.PURITY, EnteredValue.DEFAULT_ONE_HUNDRED);
+            molarity = prop(sample, ReactionOutputSampleMetamodel.MOLARITY);
+            volume = prop(sample, ReactionOutputSampleMetamodel.VOLUME);
+            density = prop(sample, ReactionOutputSampleMetamodel.DENSITY);
+            yield = prop(sample, ReactionOutputSampleMetamodel.YIELD);
         }
 
-        public void prepareToRecalculate() {
-            doPrepareToRecalculate(actualMol);
-            doPrepareToRecalculate(actualWeight);
-            doPrepareToRecalculate(purity);
-            doPrepareToRecalculate(molarity);
-            doPrepareToRecalculate(volume);
-            doPrepareToRecalculate(density);
-            doPrepareToRecalculate(yield);
+        private void init() {
+            EnteredValueOpt<MolWeightUnit> molWeight = opt(output.container.getCompound().getMolWeight());
+
+            // F3. sample.actualMol = sample.actualWeight * sample.purity / molWeight
+            formula(
+                    "F3.3",
+                    actualMol,
+                    () -> actualWeight.multiply(purityAsFraction()).divide(molWeight),
+                    actualWeight, purity
+            );
+
+            // F4. sample.actualMol = sample.molarity * sample.volume
+            formula(
+                    "F4.4",
+                    actualMol,
+                    () -> molarity.multiply(volume),
+                    molarity, volume
+            );
+
+            // F3. sample.actualWeight = sample.actualMol * molWeight / sample.purity
+            formula(
+                    "F3.4",
+                    actualWeight,
+                    () -> actualMol.multiply(molWeight).divide(purityAsFraction()),
+                    actualMol, purity
+            );
+
+            // F5. sample.actualWeight = sample.volume * sample.density
+            formula(
+                    "F5.4",
+                    actualWeight,
+                    () -> volume.multiply(density),
+                    volume, density
+            );
+
+            // purity is not calculated (can be either default or user-entered)
+
+            // F4. sample.molarity = sample.actualMol / sample.volume
+            formula(
+                    "F4.5",
+                    molarity,
+                    () -> actualMol.divide(volume),
+                    actualMol, volume
+            );
+
+            // F4. sample.volume = sample.actualMol / sample.molarity
+            formula(
+                    "F4.6",
+                    volume,
+                    () -> actualMol.divide(molarity),
+                    actualMol, molarity
+            );
+
+            // F5. sample.volume = sample.actualWeight / sample.density
+            formula(
+                    "F5.5",
+                    volume,
+                    () -> actualWeight.divide(density),
+                    actualWeight, density
+            );
+
+            // F5. sample.density = sample.actualWeight / sample.volume
+            formula(
+                    "F5.6",
+                    density,
+                    () -> actualWeight.divide(volume),
+                    actualWeight, volume
+            );
+
+            // F8. outputSample.yield = outputSample.actualMol / output.theoMol
+            formula(
+                    "F8",
+                    yield,
+                    () -> actualMol.divide(output.theoMol).multiply(DEFAULT_ONE_HUNDRED),
+                    actualMol, output.theoMol
+            );
+
+            // F9. outputSample.yield = outputSample.actualWeight * outputSample.purity / output.theoWeight
+            formula(
+                    "F9.1",
+                    yield,
+                    () -> actualWeight.multiply(purityAsFraction()).divide(output.theoWeight).multiply(DEFAULT_ONE_HUNDRED),
+                    actualWeight, purity, output.theoWeight
+            );
         }
     }
 
@@ -505,21 +580,50 @@ public class ReactionCalculator {
         };
     }
 
-    private static long conflictResolutionScore(Property<?, ?> x) {
-        EnteredValue<?> value = checkNotNull(x.getValue());
-        checkState(!value.getSource().isCalculated());
-        int priority1; // 0 - default, 1 - user-entered
-        int priority2 = isUnderLimitingInput(x) ? 1 : 0;
-        int priority3;
-        if (value.getSource().isDefault()) {
-            priority1 = 0;
-            priority3 = x.getName().hashCode(); // make stable choice between defaults when performing redo
-        } else if (value.getSource().isUserEntered()) {
-            priority1 = 1;
-            priority3 = value.getSource().getPriority(); // older edits is less valuable
-        } else {
-            throw new IllegalArgumentException(value.getSource().toString());
+    private static int compareProperties(Pair<Property<?, ?>, EnteredValue<?>> pa, Pair<Property<?, ?>, EnteredValue<?>> pb) {
+        Property<?, ?> a = pa.a(), b = pb.a();
+        EnteredValue<?> valueA = pa.b(), valueB = pb.b();
+        EnteredValueSource sourceA = valueA.getSource(), sourceB = valueB.getSource();
+        checkState(sourceA.isUserEntered() || sourceA.isDefault());
+        checkState(sourceB.isUserEntered() || sourceB.isDefault());
+
+        boolean userEnteredA = sourceA.isUserEntered();
+        boolean userEnteredB = sourceB.isUserEntered();
+
+        int result;
+
+        // purity is more priority than other (default purity is more important than other defaults and even other user-entered)
+        // (since in case of conflict we can likely recalculate user-entered, but we are not allowed to calculate purity)
+        boolean purityA = a.getProperty().name().equals("purity");
+        boolean purityB = b.getProperty().name().equals("purity");
+        result = Boolean.compare(purityA, purityB);
+        if (result != 0) {
+            return result;
         }
-        return (((long) priority1) << 33) | (((long) priority2) << 32) | ((long) priority3);
+
+        // user-entered is more priority
+        result = Boolean.compare(userEnteredA, userEnteredB);
+        if (result != 0) {
+            return result;
+        }
+
+        // values under limiting input is more priority
+        boolean limitingA = isUnderLimitingInput(a);
+        boolean limitingB = isUnderLimitingInput(b);
+        result = Boolean.compare(limitingA, limitingB);
+        if (result != 0) {
+            return result;
+        }
+
+        // later user-entered is more priority
+        if (userEnteredA && userEnteredB) {
+            result = Integer.compare(sourceA.getPriority(), sourceB.getPriority());
+            if (result != 0) {
+                return result;
+            }
+        }
+
+        // to have total ordering, use model order as fallback
+        return Integer.compare(a.getOrdinal(), b.getOrdinal());
     }
 }
