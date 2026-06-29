@@ -1,5 +1,5 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { ActivatedRoute, RouterOutlet } from '@angular/router';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
 import { ProjectTabButtonComponent } from '@pages/project/project-tab-button/project-tab-button.component';
 
@@ -8,16 +8,16 @@ import { ProjectTabButtonComponent } from '@pages/project/project-tab-button/pro
   templateUrl: './project-detail.component.html',
   imports: [RouterOutlet, ProjectOverviewWidgetDirective, ProjectTabButtonComponent],
 })
-export class ProjectDetailComponent implements OnInit {
-  activedRoute = inject(ActivatedRoute);
+export class ProjectDetailComponent implements OnChanges {
+  @Input() projectId!: string;
 
   public projectUrl = '';
   public notebooksUrl = '';
 
-  ngOnInit() {
-    this.activedRoute.params.subscribe((params) => {
-      this.projectUrl = `/projects/${params['id']}`;
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['projectId']) {
+      this.projectUrl = `/projects/${this.projectId}`;
       this.notebooksUrl = `${this.projectUrl}/notebooks`;
-    });
+    }
   }
 }

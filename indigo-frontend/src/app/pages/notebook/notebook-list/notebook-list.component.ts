@@ -1,10 +1,9 @@
 import { animate, style, transition, trigger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnDestroy } from '@angular/core';
+import { Component, inject, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { ActivatedRoute } from '@angular/router';
 import { ButtonComponent } from '@core/components/common/button/button.component';
 import { DropdownMenuItem } from '@core/components/common/dropdown-menu/dropdown-menu.i';
 import { ListHeaderComponent, SortChangeEvent } from '@core/components/common/list-header/list-header.component';
@@ -41,44 +40,46 @@ import { Subscription, take } from 'rxjs';
     ListHeaderComponent,
   ],
 })
-export class NotebookListComponent extends InfiniteScrollBase<Notebook> implements OnDestroy {
+export class NotebookListComponent extends InfiniteScrollBase<Notebook> implements OnInit, OnChanges, OnDestroy {
   dialog = inject(MatDialog);
   selectedView: 'grid' | 'list' = 'grid';
   private refreshSub!: Subscription;
-  projectId: string;
+  @Input() projectId!: string;
   headerSortOptions: DropdownMenuItem[] = [];
 
-  constructor(activatedRoute: ActivatedRoute) {
-    super();
-    activatedRoute.parent.params.pipe(take(1)).subscribe((params) => {
-      this.projectId = params['id'];
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['projectId'] && !changes['projectId'].firstChange) {
       this.config.loadUrl = `projects/${this.projectId}/notebooks`;
-      this.setup({
-        loadUrl: `projects/${this.projectId}/notebooks`,
-        sortOptions: [
-          {
-            label: 'Sorting by: Earliest',
-            value: 'createdAt',
-            defaultOrder: 'EARLIEST',
-          },
-          {
-            label: 'Sorting by: Latest',
-            value: 'createdAt',
-            defaultOrder: 'LATEST',
-          },
-        ],
-        defaultSort: {
-          sortBy: 'createdAt',
-          sort: 'EARLIEST',
-        },
-      });
+      this.reload();
+    }
+  }
 
-      this.headerSortOptions = this.getSortOptions().map((option) => ({
-        label: `${option.label}`,
-        value: `${option.value}:${option.defaultOrder}`,
-        icon: 'indicon-sort',
-      }));
+  ngOnInit(): void {
+    this.setup({
+      loadUrl: `projects/${this.projectId}/notebooks`,
+      sortOptions: [
+        {
+          label: 'Sorting by: Earliest',
+          value: 'createdAt',
+          defaultOrder: 'EARLIEST',
+        },
+        {
+          label: 'Sorting by: Latest',
+          value: 'createdAt',
+          defaultOrder: 'LATEST',
+        },
+      ],
+      defaultSort: {
+        sortBy: 'createdAt',
+        sort: 'EARLIEST',
+      },
     });
+
+    this.headerSortOptions = this.getSortOptions().map((option) => ({
+      label: `${option.label}`,
+      value: `${option.value}:${option.defaultOrder}`,
+      icon: 'indicon-sort',
+    }));
   }
 
   refreshList(): void {

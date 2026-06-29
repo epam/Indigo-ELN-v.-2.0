@@ -23,7 +23,7 @@ export const routes: Routes = [
               import('@pages/project/project-list/project-list.component').then((c) => c.ProjectListComponent),
           },
           {
-            path: ':id',
+            path: ':projectId',
             loadComponent: () =>
               import('@pages/project/project-detail/project-detail.component').then((c) => c.ProjectDetailComponent),
             children: [

@@ -18,14 +18,10 @@ import { Notebook } from '@/core/types/entities/notebook.i';
 export class NotebookItemComponent {
   private router = inject(Router);
 
-  @Input() notebook: Notebook;
+  @Input({ required: true }) notebook: Notebook;
   @Input() variant: 'grid' | 'list' = 'grid';
 
   openDetails(): void {
-    if (!this.notebook) {
-      return;
-    }
-
     this.router.navigateByUrl(`/notebooks/${this.notebook.id}`);
   }
 }

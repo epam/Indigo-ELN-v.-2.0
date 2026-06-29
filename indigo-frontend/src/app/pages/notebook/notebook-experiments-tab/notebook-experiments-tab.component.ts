@@ -6,11 +6,10 @@ import { ClassPickerPipe } from '@/core/pipes/classPicker.pipe';
 import { ExperimentDetail } from '@/core/types/entities/experiments/experiment-detail.i';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { ActivatedRoute } from '@angular/router';
 import { ExperimentItemComponent } from '@pages/experiment/experiment-item/experiment-item.component';
 import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
 
@@ -38,16 +37,19 @@ import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview
     ListHeaderComponent,
   ],
 })
-export class NotebookExperimentsTabComponent extends InfiniteScrollBase<ExperimentDetail> {
+export class NotebookExperimentsTabComponent extends InfiniteScrollBase<ExperimentDetail> implements OnInit, OnChanges {
   dialog = inject(MatDialog);
   selectedView: 'grid' | 'list' = 'grid';
-  notebookId = '';
+  @Input() notebookId!: string;
 
-  constructor(activatedRoute: ActivatedRoute) {
-    super();
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['notebookId'] && !changes['notebookId'].firstChange) {
+      this.config.loadUrl = `notebooks/${this.notebookId}/experiments`;
+      this.reload();
+    }
+  }
 
-    this.notebookId = activatedRoute.parent?.snapshot.paramMap.get('notebookId') ?? '';
-
+  ngOnInit(): void {
     this.setup({
       loadUrl: `notebooks/${this.notebookId}/experiments`,
       sortOptions: [

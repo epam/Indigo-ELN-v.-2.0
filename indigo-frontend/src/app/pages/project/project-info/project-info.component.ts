@@ -9,13 +9,11 @@ import { BreadcrumbsStateService } from '@/core/services/breadcrumbs/breadcrumbs
 import { Attachment } from '@/core/types/entities/attachment.i';
 import { Project } from '@/core/types/entities/project.i';
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { ActivatedRoute } from '@angular/router';
 import { NotebookAddComponent } from '@pages/notebook/notebook-add/notebook-add.component';
 import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
-import { finalize, Subject, take } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { finalize, take } from 'rxjs';
 import { ProjectAddComponent } from '../project-add/project-add.component';
 
 enum projectInfoModalEnum {
@@ -37,10 +35,10 @@ enum projectInfoModalEnum {
   ],
   templateUrl: './project-info.component.html',
 })
-export class ProjectInfoComponent implements OnInit, OnDestroy {
+export class ProjectInfoComponent implements OnChanges {
   projectInfoModalEnum = projectInfoModalEnum;
 
-  activatedRoute = inject(ActivatedRoute);
+  @Input() projectId!: string;
   dialog = inject(MatDialog);
   service = inject(ApiService);
   breadcrumbsState = inject(BreadcrumbsStateService);
@@ -50,28 +48,18 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
   isLoading = false;
   hasError = false;
 
-  private destroy$ = new Subject<void>();
-
   projectTeamConfig: TeamComponentConfig = {
     buildAccessEndpoint: (id: string) => `projects/${id}/access`,
   };
 
-  ngOnInit() {
-    this.breadcrumbsState.setItems([
-      { label: 'All Projects', url: '/projects', active: false },
-      { label: 'Project: ', active: true },
-    ]);
-
-    this.activatedRoute.params.pipe(takeUntil(this.destroy$)).subscribe(({ id }) => {
-      if (id) {
-        this.loadProject(id);
-      }
-    });
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['projectId']) {
+      this.breadcrumbsState.setItems([
+        { label: 'All Projects', url: '/projects', active: false },
+        { label: 'Project: ', active: true },
+      ]);
+      this.loadProject(this.projectId);
+    }
   }
 
   onAttachmentsChanged(attachments: Attachment[]) {

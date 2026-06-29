@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, effect, inject, OnInit } from '@angular/core';
+import { Component, effect, inject, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, RouterOutlet } from '@angular/router';
+import { RouterOutlet } from '@angular/router';
 import { take } from 'rxjs';
 
 import { BreadcrumbsComponent } from '@/core/components/breadcrumbs/breadcrumbs.component';
@@ -26,8 +26,8 @@ import { ProjectTabButtonComponent } from '@pages/project/project-tab-button/pro
   ],
   providers: [NotebookService],
 })
-export class NotebookDetailComponent implements OnInit {
-  activatedRoute = inject(ActivatedRoute);
+export class NotebookDetailComponent implements OnChanges {
+  @Input() notebookId!: string;
   store = inject(NotebookService);
   dialog = inject(MatDialog);
   breadcrumbsState = inject(BreadcrumbsStateService);
@@ -63,17 +63,13 @@ export class NotebookDetailComponent implements OnInit {
     ]);
   });
 
-  ngOnInit(): void {
-    const notebookId = this.activatedRoute.snapshot.paramMap.get('notebookId');
-
-    if (!notebookId) {
-      return;
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['notebookId'] && this.notebookId) {
+      this.store.load(this.notebookId).subscribe((notebook) => {
+        this.infoUrl = `/notebooks/${notebook.id}`;
+        this.experimentsUrl = `/notebooks/${notebook.id}/experiments`;
+      });
     }
-
-    this.store.load(notebookId).subscribe((notebook) => {
-      this.infoUrl = `/notebooks/${notebook.id}`;
-      this.experimentsUrl = `/notebooks/${notebook.id}/experiments`;
-    });
   }
 
   async openExperimentModal(): Promise<void> {
