@@ -11,8 +11,8 @@
   </div>
 
   <div class="flex items-center mt-6 overflow-x-auto">
-    <eln-project-tab-button label="Notebook Info" [routerLink]="infoUrl" />
-    <eln-project-tab-button label="Experiments" [routerLink]="experimentsUrl" />
+    <eln-project-tab-button label="Notebook Info" [routerLink]="'/notebooks/' + notebookId" />
+    <eln-project-tab-button label="Experiments" [routerLink]="'/notebooks/' + notebookId + '/experiments'" />
   </div>
 </eln-card>
 

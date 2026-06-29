@@ -24,7 +24,6 @@ import { ProjectTabButtonComponent } from '@pages/project/project-tab-button/pro
     BreadcrumbsComponent,
     CommonModule,
   ],
-  providers: [NotebookService],
 })
 export class NotebookDetailComponent implements OnChanges {
   @Input() notebookId!: string;
@@ -32,23 +31,17 @@ export class NotebookDetailComponent implements OnChanges {
   dialog = inject(MatDialog);
   breadcrumbsState = inject(BreadcrumbsStateService);
 
-  get notebook() {
-    return this.store.notebook();
-  }
-
-  get isLoading() {
-    return this.store.isLoading();
-  }
-
-  get hasError() {
-    return this.store.hasError();
-  }
-
-  public infoUrl = '';
-  public experimentsUrl = '';
+  notebook = this.store.notebook;
+  isLoading = this.store.isLoading;
+  hasError = this.store.hasError;
 
   private readonly breadcrumbsEffect = effect(() => {
     const notebook = this.store.notebook();
+
+    if (!notebook) {
+      return;
+    }
+
     this.breadcrumbsState.setItems([
       { label: 'All Projects', url: '/projects', active: false },
       {
@@ -64,19 +57,15 @@ export class NotebookDetailComponent implements OnChanges {
   });
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['notebookId'] && this.notebookId) {
-      this.store.load(this.notebookId).subscribe((notebook) => {
-        this.infoUrl = `/notebooks/${notebook.id}`;
-        this.experimentsUrl = `/notebooks/${notebook.id}/experiments`;
-      });
+    if (changes['notebookId']) {
+      this.store.load(this.notebookId).subscribe();
     }
   }
 
   async openExperimentModal(): Promise<void> {
     const ref = this.dialog.open(ExperimentAddComponent);
-    const notebook = this.notebook;
 
-    ref.componentInstance.notebookId = notebook?.id;
+    ref.componentInstance.notebookId = this.notebookId;
 
     ref
       .afterClosed()

@@ -1,6 +1,5 @@
 import { FormDialogComponent } from '@/core/components/common/form-dialog/form-dialog.component';
 import { ApiService } from '@/core/services/api.service';
-import { NotebookService } from '@/core/services/notebook/notebook.service';
 import { ItemTemplate, RootTemplate } from '@/core/types/entities/template.i';
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
@@ -31,7 +30,6 @@ interface ExperimentForm {
     MatProgressSpinnerModule,
   ],
   templateUrl: './experiment-add.component.html',
-  providers: [NotebookService],
 })
 export class ExperimentAddComponent implements OnInit {
   private api = inject(ApiService);

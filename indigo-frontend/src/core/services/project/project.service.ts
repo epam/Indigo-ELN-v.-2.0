@@ -1,29 +1,29 @@
 import { Injectable, signal } from '@angular/core';
-import { NotebookDetail } from '@/core/types/entities/notebook-detail.i';
 import { ApiService } from '@/core/services/api.service';
 import { catchError, finalize, tap, throwError } from 'rxjs';
+import { Project } from '@core/types/entities/project.i';
 
 @Injectable({
   providedIn: 'root',
 })
-export class NotebookService {
+export class ProjectService {
   constructor(private api: ApiService<unknown>) {}
 
-  // Signals to hold the current notebook state
-  readonly notebook = signal<NotebookDetail | null>(null);
+  // Signals to hold the current project state
+  readonly project = signal<Project | null>(null);
   readonly isLoading = signal<boolean>(false);
   readonly hasError = signal<boolean>(false);
   private readonly currentId = signal<string | null>(null);
 
   load(id: string) {
     this.currentId.set(id);
-    this.notebook.set(null);
+    this.project.set(null);
     this.isLoading.set(true);
     this.hasError.set(false);
 
-    return this.api.request<NotebookDetail>('get', `notebooks/${id}`).pipe(
-      tap((notebook) => {
-        this.notebook.set(notebook);
+    return this.api.request<Project>('get', `projects/${id}`).pipe(
+      tap((project) => {
+        this.project.set(project);
       }),
       catchError((error) => {
         this.hasError.set(true);
@@ -37,12 +37,12 @@ export class NotebookService {
 
   refresh() {
     const id = this.currentId();
-    if (id) this.load(id).subscribe();
+    if (id) this.load(id);
   }
 
   reset() {
     this.currentId.set(null);
-    this.notebook.set(null);
+    this.project.set(null);
     this.isLoading.set(false);
     this.hasError.set(false);
   }

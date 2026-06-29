@@ -6,7 +6,7 @@ import { ClassPickerPipe } from '@/core/pipes/classPicker.pipe';
 import { ExperimentDetail } from '@/core/types/entities/experiments/experiment-detail.i';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, inject, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -37,27 +37,22 @@ import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview
     ListHeaderComponent,
   ],
 })
-export class NotebookExperimentsTabComponent extends InfiniteScrollBase<ExperimentDetail> implements OnInit, OnChanges {
+export class NotebookExperimentsTabComponent extends InfiniteScrollBase<ExperimentDetail> implements OnChanges {
   dialog = inject(MatDialog);
   selectedView: 'grid' | 'list' = 'grid';
   @Input() notebookId!: string;
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['notebookId'] && !changes['notebookId'].firstChange) {
-      this.config.loadUrl = `notebooks/${this.notebookId}/experiments`;
-      this.reload();
+    if (changes['notebookId']) {
+      this.setup({
+        loadUrl: `notebooks/${this.notebookId}/experiments`,
+        sortOptions: [
+          { label: 'Name', value: 'name' },
+          { label: 'Status', value: 'status' },
+          { label: 'Created Date', value: 'createdAt', defaultOrder: 'LATEST' },
+          { label: 'Modified Date', value: 'modifiedAt', defaultOrder: 'LATEST' },
+        ],
+      });
     }
-  }
-
-  ngOnInit(): void {
-    this.setup({
-      loadUrl: `notebooks/${this.notebookId}/experiments`,
-      sortOptions: [
-        { label: 'Name', value: 'name' },
-        { label: 'Status', value: 'status' },
-        { label: 'Created Date', value: 'createdAt', defaultOrder: 'LATEST' },
-        { label: 'Modified Date', value: 'modifiedAt', defaultOrder: 'LATEST' },
-      ],
-    });
   }
 }

@@ -98,7 +98,6 @@ export class ExperimentLayoutComponent implements OnChanges, OnDestroy {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['experimentId']) {
-      this.experimentDetailService.reset();
       this.experimentDetailService.load(this.experimentId);
     }
   }
