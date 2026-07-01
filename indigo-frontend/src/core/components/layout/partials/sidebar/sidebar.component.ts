@@ -5,6 +5,7 @@ import { StarredExperimentsComponent } from './starred-experiments/starred-exper
 import { IdentityService } from '@/core/services/identity.service';
 import { ApplicationPermission } from '@/core/types/entities/user.i';
 import { MatIconModule } from '@angular/material/icon';
+import { SvgIconComponent } from '@core/components/common/svg-icon/svg-icon.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 interface MenuItem {
@@ -17,7 +18,7 @@ interface MenuItem {
 
 @Component({
   standalone: true,
-  imports: [CommonModule, RouterModule, StarredExperimentsComponent, MatIconModule],
+  imports: [CommonModule, RouterModule, StarredExperimentsComponent, MatIconModule, SvgIconComponent],
   selector: 'eln-sidebar',
   templateUrl: './sidebar.component.html',
 })
@@ -40,9 +41,8 @@ export class SidebarComponent implements OnInit {
     },
     {
       name: 'Dictionaries',
-      materialIcon: 'import_contacts',
+      icon: 'dictionaries',
       path: '/dictionary',
-      requiredPermission: ApplicationPermission.MANAGE_DICTIONARIES,
     },
     {
       name: 'Signatures',
