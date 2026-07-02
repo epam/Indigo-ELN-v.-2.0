@@ -22,7 +22,27 @@ function handler(event) {
     if (uri === '/assets/ketcher/index.html') {
         cacheControl = 'public, max-age=3600';
         headers['x-frame-options'] = {value: 'SAMEORIGIN'};
-    } else if (STATIC_RESOURCES.test(uri) || FONT_RESOURCES.test(uri) || KETCHER_STATIC.test(uri)) {
+        // Ketcher is a third-party bundle that performs runtime code generation
+        // (Ajv `new Function` validators, acorn parser). It requires 'unsafe-eval',
+        // which the main app CSP intentionally forbids. Scope a dedicated,
+        // minimal CSP to the Ketcher iframe document so it is still protected
+        // without weakening the rest of the application.
+        var ketcherCsp =
+            "default-src 'self'; " +
+            "object-src 'none'; " +
+            "frame-ancestors 'self'; " +
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+            "style-src 'self' 'unsafe-inline'; " +
+            "connect-src 'self'; " +
+            "worker-src 'self' blob:; " +
+            "media-src 'self' data:; " +
+            "img-src 'self' blob: data:;";
+        headers['content-security-policy'] = {value: ketcherCsp};
+    } else if (
+        STATIC_RESOURCES.test(uri) ||
+        FONT_RESOURCES.test(uri) ||
+        KETCHER_STATIC.test(uri)
+    ) {
         cacheControl = 'immutable, max-age=31536000';
         if (STATIC_CORS.test(uri)) {
             headers['access-control-allow-origin'] = {value: '*'};
