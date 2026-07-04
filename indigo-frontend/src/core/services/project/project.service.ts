@@ -37,7 +37,7 @@ export class ProjectService {
 
   refresh() {
     const id = this.currentId();
-    if (id) this.load(id);
+    if (id) this.load(id).subscribe();
   }
 
   reset() {

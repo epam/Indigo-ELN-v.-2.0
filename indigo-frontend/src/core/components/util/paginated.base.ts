@@ -52,10 +52,10 @@ export abstract class PaginatedBase<T> {
       this.pager.sort = config.defaultSort.sort;
     }
 
-    this.initialize();
+    this.reinitialize();
   }
 
-  protected initialize() {
+  protected reinitialize() {
     // Initiate rxjs logic
     const dataLogic$ = this.dataSubject$.pipe(
       switchMap((res) => {
