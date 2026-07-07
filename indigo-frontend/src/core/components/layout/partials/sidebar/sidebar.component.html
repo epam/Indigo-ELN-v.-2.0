@@ -29,9 +29,8 @@
         <mat-icon
           *ngIf="item.materialIcon"
           class="text-xl flex-shrink-0"
-          [ngStyle]="{
-            color: isMenuItemActive(item.path) ? 'var(--color-primary-400)' : 'var(--neutral-color-600)',
-          }"
+          [class.text-primary-400]="isMenuItemActive(item.path)"
+          [class.text-neutral-600]="!isMenuItemActive(item.path)"
         >
           {{ item.materialIcon }}
         </mat-icon>

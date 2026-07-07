@@ -1,5 +1,5 @@
 <div class="w-full overflow-x-auto">
-  <table mat-table [dataSource]="dataSource() || []" style="background-color: white" multiTemplateDataRows>
+  <table mat-table [dataSource]="dataSource() || []" class="bg-white" multiTemplateDataRows>
     <!-- Expand Column -->
     @if (expandableConfig()?.enabled) {
       <ng-container matColumnDef="expand">
@@ -36,7 +36,7 @@
           [class.!px-2]="column.type !== ColumnInputType.ICON"
           [class.!px-0]="column.type === ColumnInputType.ICON"
           [class.min-w-25]="column.type !== ColumnInputType.ICON"
-          style="color: #3f50b5"
+          class="text-[#3f50b5]"
           [ngClass]="column.classes?.(row) ?? []"
         >
           <!-- Text Input -->
@@ -45,8 +45,7 @@
             type="text"
             placeholder="—"
             matInput
-            class="w-full"
-            style="outline: none"
+            class="w-full outline-none"
             [value]="column.field(row) || ''"
             [disabled]="!(column.editable?.(row) ?? true)"
             (blur)="callSave(column, row, $any($event.target).value)"
@@ -61,8 +60,7 @@
             *ngIf="column.type === ColumnInputType.NUMBER"
             type="number"
             placeholder="—"
-            class="min-w-full text-right"
-            style="outline: none"
+            class="min-w-full text-right outline-none"
             [value]="column.field(row) || ''"
             [disabled]="!(column.editable?.(row) ?? true)"
             (blur)="callSave(column, row, $any($event.target).value)"
@@ -79,9 +77,7 @@
             (selectionChange)="callSave(column, row, $event.value)"
           >
             @for (option of column.options; track option.id) {
-              <mat-option [value]="option.id" style="font-size: 0.8rem" class="capitalize">{{
-                option.name
-              }}</mat-option>
+              <mat-option [value]="option.id" class="capitalize text-[0.8rem]">{{ option.name }}</mat-option>
             }
           </mat-select>
 
@@ -102,8 +98,7 @@
               #valueInput
               type="number"
               placeholder="—"
-              class="flex-1 min-w-12 text-right"
-              style="outline: none"
+              class="flex-1 min-w-12 text-right outline-none"
               [value]="unitField?.value ?? ''"
               [disabled]="!(column.editable?.(row) ?? true)"
               (blur)="callSaveEV(column, row, 'value', valueInput, unitSelect)"
@@ -112,17 +107,16 @@
             />
             <mat-select
               #unitSelect
-              class="unit-select !h-full !w-auto !text-xs shrink-0"
+              class="unit-select !h-full !w-auto !text-xs shrink-0 min-w-[2rem] text-left"
               panelClass="unit-select-panel"
               hideSingleSelectionIndicator
-              style="min-width: 2rem; text-align: left"
               [value]="unitField?.unit"
               [disabled]="!(column.editable?.(row) ?? true) || !valueInput.value"
               (openedChange)="!unitSelect.panelOpen && callSaveEV(column, row, 'unit', valueInput, unitSelect)"
               (valueChange)="callSaveEV(column, row, 'unit', valueInput, unitSelect)"
             >
               @for (unit of column.options; track unit.id) {
-                <mat-option [value]="unit.id" style="font-size: 0.8rem">{{ unit.name }}</mat-option>
+                <mat-option [value]="unit.id" class="text-[0.8rem]">{{ unit.name }}</mat-option>
               }
             </mat-select>
           </div>
@@ -151,7 +145,7 @@
               </div>
             </mat-select-trigger>
             @for (option of column.options; track option.id) {
-              <mat-option [value]="option" style="font-size: 0.8rem" class="capitalize">{{ option.name }}</mat-option>
+              <mat-option [value]="option" class="capitalize text-[0.8rem]">{{ option.name }}</mat-option>
             }
           </mat-select>
 
