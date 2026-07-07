@@ -181,7 +181,7 @@ public class ExperimentObject {
     @SneakyThrows
     public void generateDetailsReport(File destinationFile) {
         try (Response response = miscClient.generateExperimentDetailsReport(id)) {
-            System.err.println("Experiment details report is available at file://///wsl.localhost/Ubuntu" + destinationFile.getAbsolutePath());
+            System.err.println("Experiment details report is available at file://" + destinationFile.getAbsolutePath());
             byte[] bytes = (byte[]) response.getEntity();
             Files.write(destinationFile.toPath(), bytes);
         }

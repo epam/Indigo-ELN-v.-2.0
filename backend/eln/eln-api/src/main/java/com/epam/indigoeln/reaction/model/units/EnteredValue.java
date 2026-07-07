@@ -8,19 +8,18 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.apache.commons.math3.util.Precision;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Objects;
 
 import static com.epam.indigoeln.reaction.model.units.EnteredValueSource.DEFAULT;
 import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.*;
 import static com.google.common.base.Preconditions.*;
 
-@EqualsAndHashCode(of = {"stringValue", "unit", "source", "present", "exact"})
 @JsonSerialize(using = EnteredValue.Serializer.class)
 public final class EnteredValue<U extends MeasurementUnit> {
 
@@ -198,6 +197,40 @@ public final class EnteredValue<U extends MeasurementUnit> {
         double thisValue = value * unit.getMultiplier();
         double otherValue = other.value * other.unit.getMultiplier();
         return Precision.equalsWithRelativeTolerance(thisValue, otherValue, 1e-6);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof EnteredValue<?> that)) {
+            return false;
+        }
+        if (present != that.present) { // one of them is empty
+            return false;
+        }
+        if (!present) { // both empty
+            return true;
+        }
+        if (exact != that.exact) { // one of them is exact
+            return false;
+        }
+        if (unit != that.unit || !source.equals(that.source)) {
+            return false;
+        }
+        if (exact) {
+            return Double.compare(value, that.value) == 0;
+        }
+        return getStringValue().equals(that.getStringValue());
+    }
+
+    @Override
+    public int hashCode() {
+        if (!present) {
+            return 0;
+        }
+        if (exact) {
+            return Objects.hash(unit, source, value);
+        }
+        return Objects.hash(unit, source, getStringValue());
     }
 
     public BigDecimal toBigDecimal() {

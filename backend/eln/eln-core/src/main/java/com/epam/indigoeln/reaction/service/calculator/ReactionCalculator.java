@@ -13,26 +13,61 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Supplier;
 
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE;
 import static com.epam.indigoeln.reaction.service.calculator.EnteredValueOpt.*;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 /**
  * Calculates reaction based on system of equations:
  *
- * <p>F1. input.mol = ∑ sample.mol</p>
- * <p>F2. nonLimiting.mol = limiting.mol / limiting.eq * nonLimiting.eq</p>
- * <p>F3. sample.mol = sample.weight * sample.purity / molWeight</p>
- * <p>F4. sample.mol = sample.molarity * sample.volume</p>
- * <p>F5. sample.weight = sample.volume * sample.density</p>
- * <p>F6. output.theoMol = limiting.mol / limiting.eq * output.eq</p>
- * <p>F7. output.theoWeight = output.theoMol * molWeight</p>
- * <p>F8. outputSample.yield = outputSample.actualMol / output.theoMol</p>
- * <p>F9. outputSample.yield = outputSample.actualWeight * outputSample.purity / output.theoWeight</p>
+ * <p>F1.1. input.mol = ∑ sample.mol</p>
+ * <p>&emsp; F1.2. sample.mol = input.mol - ∑ otherSample.mol</p>
+ *
+ * <p>F2.1. nonLimiting.mol = limiting.mol / limiting.eq * nonLimiting.eq</p>
+ * <p>&emsp; F2.2. nonLimiting.eq = nonLimiting.mol / limiting.mol * limiting.eq</p>
+ * <p>&emsp; F2.3. limiting.eq = limiting.mol * nonLimiting.eq / nonLimiting.mol</p>
+ * <p>&emsp; limiting.mol is never calculated from nonLimiting.mol</p>
+ *
+ * <p>F3.1. sample.mol = sample.weight * sample.purity / molWeight</p>
+ * <p>&emsp; F3.2. sample.weight = sample.mol * molWeight / sample.purity</p>
+ * <p>&emsp; F3.3. sample.actualMol = sample.actualWeight * sample.purity / molWeight</p>
+ * <p>&emsp; F3.4. sample.actualWeight = sample.actualMol * molWeight / sample.purity</p>
+ * <p>&emsp; purity is never calculated</p>
+ * <p>&emsp; molWeight is never calculated</p>
+ *
+ * <p>F4.1. sample.mol = sample.molarity * sample.volume</p>
+ * <p>&emsp; F4.2. sample.molarity = sample.mol / sample.volume</p>
+ * <p>&emsp; F4.3. sample.volume = sample.mol / sample.molarity</p>
+ * <p>&emsp; F4.4. sample.actualMol = sample.molarity * sample.volume</p>
+ * <p>&emsp; F4.5. sample.molarity = sample.actualMol / sample.volume</p>
+ * <p>&emsp; F4.6. sample.volume = sample.actualMol / sample.molarity</p>
+ *
+ * <p>F5.1. sample.weight = sample.volume * sample.density</p>
+ * <p>&emsp; F5.2. sample.volume = sample.weight / sample.density</p>
+ * <p>&emsp; F5.3. sample.density = sample.weight / sample.volume</p>
+ * <p>&emsp; F5.4. sample.actualWeight = sample.volume * sample.density</p>
+ * <p>&emsp; F5.5. sample.volume = sample.actualWeight / sample.density</p>
+ * <p>&emsp; F5.6. sample.density = sample.actualWeight / sample.volume</p>
+ *
+ * <p>F6.1. output.theoMol = limiting.mol / limiting.eq * output.eq</p>
+ * <p>&emsp; it's the only way to determine theoMol, so cannot calculate others based on theoMol</p>
+ *
+ * <p>F7.1. output.theoWeight = output.theoMol * molWeight</p>
+ * <p>&emsp; it's the only way to determine theoWeight, so cannot calculate others based on theoWeight</p>
+ *
+ * <p>F8.1. outputSample.yield = outputSample.actualMol / output.theoMol</p>
+ * <p>&emsp; F8.2. outputSample.actualMol = outputSample.yield * output.theoMol</p>
+ * <p>&emsp; theoMol is only determined from limiting.mol</p>
+ *
+ * <p>F9.1. outputSample.yield = outputSample.actualWeight * outputSample.purity / output.theoWeight</p>
+ * <p>&emsp; F9.2. outputSample.actualWeight = outputSample.yield / outputSample.purity * output.theoWeight</p>
+ * <p>&emsp; purity is never calculated</p>
  */
 @Slf4j
 @Dependent
@@ -188,16 +223,10 @@ public class ReactionCalculator {
 
     class ModelProps extends AbstractProps<ExperimentModel> {
 
-        final List<ReactionProps> reactions;
-
         ModelProps(ExperimentModel model) {
             super(model);
-            reactions = StreamEx.of(model.getReactions())
-                    .filter(x -> !x.getInputs().isEmpty())
-                    .map(ReactionProps::new)
-                    .toList();
-
-            for (ReactionProps reaction : reactions) {
+            for (Reaction modelReaction : model.getReactions()) {
+                ReactionProps reaction = new  ReactionProps(modelReaction);
                 for (InputProps input : reaction.inputs) {
                     input.init();
                     for (InputSampleProps sample : input.samples) {
@@ -217,6 +246,7 @@ public class ReactionCalculator {
     class ReactionProps extends AbstractProps<Reaction> {
 
         final List<InputProps> inputs;
+        @Nullable
         final InputProps limiting;
         final List<OutputProps> outputs;
 
@@ -227,7 +257,7 @@ public class ReactionCalculator {
                     .toList();
             limiting = StreamEx.of(inputs)
                     .filter(x -> x.container.isLimiting())
-                    .findAny().orElseThrow();
+                    .findAny().orElse(null);
             outputs = StreamEx.of(reaction.getOutputs())
                     .map(x -> new OutputProps(this, x))
                     .toList();
@@ -255,7 +285,7 @@ public class ReactionCalculator {
             List<Property<ReactionInputSample, MolUnit>> sampleMols = StreamEx.of(samples)
                     .map(s -> s.mol)
                     .toList();
-            InputProps limiting = reaction.limiting;
+            InputProps limiting = checkNotNull(reaction.limiting);
 
             // F1. mol = ∑ sampleN.mol
             formula(
@@ -432,21 +462,17 @@ public class ReactionCalculator {
             EnteredValueOpt<MolWeightUnit> molWeight = opt(container.getCompound().getMolWeight());
             InputProps limiting = reaction.limiting;
 
-            // F6. output.theoMol = limiting.mol / limiting.eq * output.eq
-            formula(
-                    "F6.1",
-                    theoMol,
-                    () -> limiting.mol.divide(limiting.eq).multiply(eq),
-                    limiting.mol, limiting.eq, eq
-            );
+            if (limiting != null) {
+                // F6. output.theoMol = limiting.mol / limiting.eq * output.eq
+                formula(
+                        "F6.1",
+                        theoMol,
+                        () -> limiting.mol.divide(limiting.eq).multiply(eq),
+                        limiting.mol, limiting.eq, eq
+                );
+            }
 
-            // F6. output.eq = limiting.mol / limiting.eq / output.theoMol
-            formula(
-                    "F6.2",
-                    eq,
-                    () -> limiting.mol.divide(limiting.eq).divide(theoMol),
-                    limiting.mol, limiting.eq, theoMol
-            );
+            // don't calculate eq from theoMol because theoMol can only be known from eq
 
             // F7. output.theoWeight = output.theoMol * molWeight
             formula(
@@ -504,6 +530,14 @@ public class ReactionCalculator {
                     molarity, volume
             );
 
+            // F8.2. outputSample.actualMol = outputSample.yield * output.theoMol
+            formula(
+                    "F8.2",
+                    actualMol,
+                    () -> yield.divide(DEFAULT_ONE_HUNDRED).multiply(output.theoMol),
+                    yield, output.theoMol
+            );
+
             // F3. sample.actualWeight = sample.actualMol * molWeight / sample.purity
             formula(
                     "F3.4",
@@ -556,7 +590,7 @@ public class ReactionCalculator {
 
             // F8. outputSample.yield = outputSample.actualMol / output.theoMol
             formula(
-                    "F8",
+                    "F8.1",
                     yield,
                     () -> actualMol.divide(output.theoMol).multiply(DEFAULT_ONE_HUNDRED),
                     actualMol, output.theoMol
