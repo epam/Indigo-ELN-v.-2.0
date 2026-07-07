@@ -10,6 +10,7 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,7 +76,14 @@ public abstract class EnteredValueOpt<U extends MeasurementUnit> {
         private final ModelProperty<C, EnteredValue<U>> property;
         @Getter
         private final int ordinal;
+        @Getter
+        @Nullable
+        private Formula<U> calculatedFrom;
+
         private EnteredValue<U> snapshot = EnteredValue.empty();
+        @Nullable
+        private Formula<U> snapshotCalculatedFrom;
+
         @Getter
         private final List<Formula<?>> downstream = new ArrayList<>();
 
@@ -85,8 +93,9 @@ public abstract class EnteredValueOpt<U extends MeasurementUnit> {
             return v != null ? v : EnteredValue.empty();
         }
 
-        public void setValue(EnteredValue<U> value) {
+        public void setValue(EnteredValue<U> value, @Nullable Formula<U> from) {
             property.set(container, value);
+            this.calculatedFrom = from;
         }
 
         public void setValueUnchecked(EnteredValue<?> value) {
@@ -96,10 +105,11 @@ public abstract class EnteredValueOpt<U extends MeasurementUnit> {
 
         public void snapshot() {
             snapshot = getValue();
+            snapshotCalculatedFrom = calculatedFrom;
         }
 
         public void revert() {
-            setValue(snapshot);
+            setValue(snapshot, snapshotCalculatedFrom);
         }
 
         private String containerDisplayName(ExperimentNode container) {

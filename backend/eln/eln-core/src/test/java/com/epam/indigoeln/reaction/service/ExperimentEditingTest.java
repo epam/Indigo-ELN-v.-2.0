@@ -182,18 +182,18 @@ public class ExperimentEditingTest extends MutationsTestBase {
     }
 
     // conflict!
-//    @Test
-//    void testCase9() {
-//        experiment.mutateSetSchemeFromResource("/reaction-testCase1.rxn");
-//        experiment.mutateSetInputRowEQ(2, "1.1");
-//        experiment.mutateSetInputVolume(1, 1, "50", ML);
-//        experiment.mutateSetInputDensity(1, 1, "0.789", G_ML);
-//        experiment.mutateSetInputMolarity(1, 1, "1.5", M);
-//        experiment.mutateSetInputDensity(2, 1, "1.05", G_ML);
-//
-//        assertThat(experiment.inputSample(1, 1)).hasMol(75, MMOL).hasWeight(3.4553, G);
-//        assertThat(experiment.inputSample(2, 1)).hasMol(82.5, MMOL).hasWeight(4.9541, G);
-//        assertThat(experiment.output(1)).hasTheoWeight(6.6083, G);
-//        assertThat(experiment.output(2)).hasTheoWeight(1.3508, G);
-//    }
+    @Test
+    void testCase9() {
+        experiment.mutateSetSchemeFromResource("/reaction-testCase1.rxn");
+        experiment.mutateSetInputRowEQ(2, "1.1");
+        experiment.mutateSetInputVolume(1, 1, "50", ML);
+        experiment.mutateSetInputDensity(1, 1, "0.789", G_ML);
+        experiment.mutateSetInputMolarity(1, 1, "1.5", M);
+        experiment.mutateSetInputDensity(2, 1, "1.05", G_ML);
+
+        assertThat(experiment.inputSample(1, 1)).hasMol(75, MMOL).hasWeight(3.4553, G);
+        assertThat(experiment.inputSample(2, 1)).hasMol(82.5, MMOL).hasWeight(4.9541, G);
+        assertThat(experiment.output(1)).hasTheoWeight(6.6083, G);
+        assertThat(experiment.output(2)).hasTheoWeight(1.3508, G);
+    }
 }

@@ -54,6 +54,13 @@ public class ExperimentDetailsReportBuilder {
         for (ExperimentRevisionEntity r : revisions.reversed()) {
             JsonNode snapshotBefore = jsonPatcher.reverse(snapshotAfter, r.getDiff());
             String formattedDiff = experimentModelService.formatDiff(snapshotBefore, r);
+            List<String> messages = new ArrayList<>();
+            if (r.getMessages() != null) {
+                messages.addAll(Arrays.asList(r.getMessages()));
+            }
+            if (r.getDebugMessages() != null) {
+                messages.addAll(Arrays.asList(r.getDebugMessages()));
+            }
             Revision data = new Revision(
                     r.getRevision(),
                     r.getSummary(),
@@ -65,7 +72,7 @@ public class ExperimentDetailsReportBuilder {
                     r.getMutation(),
                     r.getDiff(),
                     formattedDiff,
-                    r.getMessages() != null ? Arrays.asList(r.getMessages()) : null,
+                    messages,
                     snapshotAfter
             );
             revisionsData.add(data);
@@ -100,7 +107,7 @@ public class ExperimentDetailsReportBuilder {
             Mutation mutation,
             JsonNode jsonDiff,
             String diff,
-            @Nullable List<String> messages,
+            List<String> messages,
             JsonNode entityState
     ) {}
 
