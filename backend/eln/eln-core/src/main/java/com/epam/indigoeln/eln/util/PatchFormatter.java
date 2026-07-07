@@ -6,7 +6,10 @@ import com.epam.indigoeln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
 import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.*;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.NullNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ValueNode;
 import com.google.common.base.Preconditions;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
@@ -27,6 +30,8 @@ public class PatchFormatter {
     IndigoRendererAPI indigoRenderer;
     @Inject
     CompoundService compoundService;
+    @Inject
+    JSONPatcher jsonPatcher;
 
     private final GridBuilder grid = new GridBuilder(16);
     private final List<String> path = new ArrayList<>();
@@ -80,10 +85,11 @@ public class PatchFormatter {
                 String oldSource = objectBefore.get("source").asText();
                 String oldValue = objectBefore.get("value").asText();
                 String oldUnit = objectBefore.get("unit").asText();
-                String newSource = objectPatch.get("source") instanceof ObjectNode s && s.get("$new") instanceof ValueNode n ? n.asText() : oldSource;
-                String newValue = objectPatch.get("value") instanceof ObjectNode v && v.get("$new") instanceof ValueNode n ? n.asText() : oldValue;
-                String newUnit = objectPatch.get("unit") instanceof ObjectNode u && u.get("$new") instanceof ValueNode n ? n.asText() : oldUnit;
-                boolean newOverwritten = objectPatch.get("overwritten") instanceof ObjectNode o && o.get("$new") instanceof BooleanNode b && b.booleanValue();
+                ObjectNode objectAfter = (ObjectNode) jsonPatcher.apply(before, patch);
+                String newSource = objectAfter.has("source") ? objectAfter.get("source").asText() : null;
+                String newValue = objectAfter.has("value") ? objectAfter.get("value").asText() : null;
+                String newUnit = objectAfter.has("unit") ? objectAfter.get("unit").asText() : null;
+                boolean newOverwritten = objectAfter.has("overwritten") && objectAfter.get("overwritten").asBoolean();
                 String s = "%s → %s%s".formatted(
                         formatEnteredValue(false, oldValue, objectBefore.get("exactValue"), oldUnit, oldSource),
                         formatEnteredValue(true, newValue, objectPatch.get("exactValue"), newUnit, newSource),
@@ -163,7 +169,10 @@ public class PatchFormatter {
         }
     }
 
-    private static String formatEnteredValue(boolean newOrOld, String value, @Nullable JsonNode exactValue, String unit, String source) {
+    private static String formatEnteredValue(boolean newOrOld, @Nullable String value, @Nullable JsonNode exactValue, @Nullable String unit, @Nullable String source) {
+        if (value == null || unit == null || source == null) {
+            return "<span class='%s'>null</span>".formatted(newOrOld ? "new" : "old");
+        }
         unit = MeasurementUnit.ALL_UNITS.get(unit).getDisplayName();
         source = Character.isDigit(source.charAt(0)) ? "user-entered" : source;
         String exactValueStr = exactValue != null ? "&ensp;(exact value %s)".formatted(exactValue.doubleValue()) : "";

@@ -4,7 +4,11 @@ import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.BuiltInDictionary;
 import com.epam.indigoeln.eln.model.SaltCodeRef;
 import com.epam.indigoeln.eln.model.StereoisomerCodeRef;
+import com.epam.indigoeln.reaction.model.OutputAnchor;
+import com.epam.indigoeln.reaction.model.OutputSampleAnchor;
 import com.epam.indigoeln.reaction.model.ReactionRole;
+import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
@@ -24,6 +28,7 @@ import static com.epam.indigoeln.reaction.model.units.MolarityUnit.M;
 import static com.epam.indigoeln.reaction.model.units.VolumeUnit.ML;
 import static com.epam.indigoeln.reaction.model.units.WeightUnit.G;
 import static com.epam.indigoeln.reaction.model.units.WeightUnit.MG;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
@@ -289,5 +294,63 @@ public class ExperimentEditingTest extends MutationsTestBase {
         assertThat(experiment.inputSample(3, 1)).hasWeight(133, G);
         assertThat(experiment.output(1)).hasTheoMol(100, MMOL).hasTheoWeight(8.8106, MG);
         assertThat(experiment.output(2)).hasTheoMol(100, MMOL).hasTheoWeight(1.8015, MG);
+    }
+
+    @Test
+    void testEnterAllValues() {
+        experiment.mutateSetSchemeFromResource("/reaction-testCase1.rxn");
+
+        experiment.mutateSetInputRowMol(1, "1000", MMOL);
+        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        experiment.mutateSetInputRowEQ(1, "2");
+        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        experiment.mutateSetInputMol(1, 1, "1000", MMOL);
+        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        experiment.mutateSetInputPurity(1, 1, "90");
+        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        experiment.mutateSetInputWeight(1, 1, "51187.777", MG); // exact value 51187.776724497475
+        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        experiment.mutateSetInputMolarity(1, 1, "1.5", M);
+        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        experiment.mutateSetInputVolume(1, 1, "666.66667", ML); // exact value 666.6666702547958
+        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        experiment.mutateSetInputDensity(1, 1, "0.076781665", G_ML); // exact value 0.0767816650867462
+        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+
+        experiment.mutateSetInputRowMol(2, "3000", MMOL);
+        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        experiment.mutateSetInputRowEQ(2, "6");
+        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        experiment.mutateSetInputMol(2, 1, "3000", MMOL);
+        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        experiment.mutateSetInputPurity(2, 1, "75");
+        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        experiment.mutateSetInputWeight(2, 1, "240207.99", MG); // exact value 240207.99446105957
+        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        experiment.mutateSetInputMolarity(2, 1, "2", M);
+        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        experiment.mutateSetInputVolume(2, 1, "1500", ML);
+        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        experiment.mutateSetInputDensity(2, 1, "0.16013866", G_ML); // exact value 0.1601386629740397
+        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+
+        experiment.mutateAddProductSample(1);
+        OutputAnchor output = experiment.output(1).getAnchor();
+        experiment.mutate(new ReactionOutputMutation.SetOutputRowEQ(output, "4"));
+        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+
+        OutputSampleAnchor outputSample = experiment.outputSample(1, 1).getAnchor();
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputActualMol(outputSample, "1500", MMOL));
+        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputPurity(outputSample, "60"));
+        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputActualWeight(outputSample, "220265.0", MG)); // exact value 220264.995098114
+        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputMolarity(outputSample, "0.5", M));
+        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputVolume(outputSample, "3000.0001", ML)); // exact value 3000.0000667634818
+        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputDensity(outputSample, "0.073421665", G_ML)); // exact value 0.07342166503270467
+        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
     }
 }

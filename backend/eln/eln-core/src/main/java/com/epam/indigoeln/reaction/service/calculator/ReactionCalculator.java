@@ -101,7 +101,7 @@ public class ReactionCalculator {
 
         seeds.sort(SEED_COMPARATOR);
         if (log.isDebugEnabled()) {
-            log.debug("seeds:\n\t{}", StreamEx.of(seeds).joining("\t\n"));
+            log.debug("seeds:\n\t{}", StreamEx.of(seeds).joining("\n\t"));
         }
 
         for (Pair<Property<?, ?>, EnteredValue<?>> seed : seeds) {
@@ -124,7 +124,8 @@ public class ReactionCalculator {
                         continue;
                     }
                     if (!existingValue.valueEquals(seedValue)) {
-                        throw new RecalculationConflictException();
+                        String message = "%s: seed value conflict:\n\tcurrent : %s (exact value %s)\n\tprevious: %s (exact value %s) from %s".formatted(seed.getName(), seedValue, seedValue.toExactBigDecimal(), existingValue, existingValue.toExactBigDecimal(), seed.getCalculatedFrom());
+                        throw reportConflict(message);
                     }
                 }
                 seed.setValueUnchecked(seedValue);
@@ -201,7 +202,7 @@ public class ReactionCalculator {
         Property<?, U> target = formula.target;
         EnteredValue<U> stored = target.getValue();
         if (stored.isEmpty()) {
-            log.debug("calculated {} to {} from formula {}", target.getName(), calculated, formula);
+            log.debug("calculated {} as {} (exact value {}) from formula {}", target.getName(), calculated, calculated.toExactBigDecimal(), formula);
             formula.value = calculated;
             target.setValue(calculated, formula);
             return true;
@@ -209,10 +210,14 @@ public class ReactionCalculator {
         if (stored.valueEquals(calculated)) {
             return false;
         }
-        String message = "%s: calculated value conflict:\n\tcurrent : %s from %s\n\tprevious: %s from %s".formatted(target.getName(), calculated, formula, stored, target.getCalculatedFrom());
+        String message = "%s: calculated value conflict:\n\tcurrent : %s (exact value %s) from %s\n\tprevious: %s (exact value %s) from %s".formatted(target.getName(), calculated, calculated.toExactBigDecimal(), formula, stored, stored.toExactBigDecimal(), target.getCalculatedFrom());
+        throw reportConflict(message);
+    }
+
+    private <U extends MeasurementUnit> RecalculationConflictException reportConflict(String message) {
         log.debug(message);
         debugMessages.add(message);
-        throw new RecalculationConflictException();
+        return new RecalculationConflictException();
     }
 
     private static class RecalculationConflictException extends RuntimeException {
@@ -291,7 +296,7 @@ public class ReactionCalculator {
             InputProps limiting = checkNotNull(reaction.limiting);
 
             formula(
-                    "F1.1: mol = ∑ sampleN.mol",
+                    "F1.1: mol = sum sampleN.mol",
                     mol,
                     () -> EnteredValueOpt.sum(sampleMols)
             ).addSources(sampleMols);
@@ -532,9 +537,9 @@ public class ReactionCalculator {
             );
 
             formula(
-                    "F9.2: outputSample.actualWeight = outputSample.yield / outputSample.purity * output.theoWeight</p>",
+                    "F9.2: outputSample.actualWeight = outputSample.yield / outputSample.purity * output.theoWeight",
                     actualWeight,
-                    () -> yield.divide(ONE_HUNDREDTH).divide(purityAsFraction()).multiply(output.theoWeight),
+                    () -> yield.multiply(ONE_HUNDREDTH).divide(purityAsFraction()).multiply(output.theoWeight),
                     yield, purity, output.theoWeight
             );
 

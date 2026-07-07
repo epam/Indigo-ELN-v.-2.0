@@ -237,6 +237,10 @@ public final class EnteredValue<U extends MeasurementUnit> {
         return new BigDecimal(getStringValue());
     }
 
+    public BigDecimal toExactBigDecimal() {
+        return BigDecimal.valueOf(value);
+    }
+
     public EnteredValue<U> withOverwritten(boolean overwritten) {
         return new EnteredValue<>(present, value, exact, significantFigures, stringValue, unit, source, overwritten);
     }
