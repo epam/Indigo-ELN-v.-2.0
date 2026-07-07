@@ -17,6 +17,7 @@ import java.util.List;
 
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.defaultValue;
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.fixed;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -89,8 +90,7 @@ public abstract class EnteredValueOpt<U extends MeasurementUnit> {
 
         @Override
         public EnteredValue<U> getValue() {
-            EnteredValue<U> v = property.get(container);
-            return v != null ? v : EnteredValue.empty();
+            return checkNotNull(property.get(container));
         }
 
         public void setValue(EnteredValue<U> value, @Nullable Formula<U> from) {
