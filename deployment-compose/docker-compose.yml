@@ -9,14 +9,12 @@ services:
       - KEYCLOAK_URL=http://localhost:8088
       - KEYCLOAK_REALM=indigo-eln
       - KEYCLOAK_CLIENT_ID=frontend-client
-    ports:
-      - "8080:4200"
-      
+
   eln-service:
     image: "eln-service:development"
     build:
       context: ./../backend/eln/eln-service
-      dockerfile: Dockerfile.jvm
+      dockerfile: src/main/docker/Dockerfile.jvm
     environment:
       QUARKUS_DATASOURCE_JDBC_URL: "jdbc:postgresql://postgres:5432/eln"
       QUARKUS_DATASOURCE_USERNAME: eln

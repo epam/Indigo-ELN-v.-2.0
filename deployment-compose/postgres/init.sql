@@ -1,3 +1,6 @@
+CREATE USER eln WITH PASSWORD 'eln';
+CREATE DATABASE eln OWNER eln;
+
 CREATE USER keycloak WITH PASSWORD 'keycloak';
 CREATE DATABASE keycloak OWNER keycloak;
 
