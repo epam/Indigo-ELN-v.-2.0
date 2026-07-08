@@ -80,7 +80,7 @@ public class PatchFormatter {
                 String s = formatEnteredValue(before == null, value.asText(), objectPatch.get("exactValue"), unit.asText(), source.asText());
                 grid.right(s).left().newRow();
             }
-            case ObjectNode objectPatch when (before instanceof ObjectNode objectBefore && objectBefore.has("value") && objectBefore.has("unit") && objectBefore.has("source")) -> {
+            case ObjectNode _ when (before instanceof ObjectNode objectBefore && objectBefore.has("value") && objectBefore.has("unit") && objectBefore.has("source")) -> {
                 // EnteredValue changed
                 String oldSource = objectBefore.get("source").asText();
                 String oldValue = objectBefore.get("value").asText();
@@ -92,12 +92,12 @@ public class PatchFormatter {
                 boolean newOverwritten = objectAfter.has("overwritten") && objectAfter.get("overwritten").asBoolean();
                 String s = "%s → %s%s".formatted(
                         formatEnteredValue(false, oldValue, objectBefore.get("exactValue"), oldUnit, oldSource),
-                        formatEnteredValue(true, newValue, objectPatch.get("exactValue"), newUnit, newSource),
+                        formatEnteredValue(true, newValue, objectAfter.get("exactValue"), newUnit, newSource),
                         newOverwritten ? " <span class='warning'>[overwritten]</span>" : ""
                 );
                 grid.right(s).left().newRow();
             }
-            case ObjectNode objectPatch when (objectPatch.size() == 2 && objectPatch.get("id") instanceof ValueNode id && objectPatch.get("name") instanceof ValueNode name) -> {
+            case ObjectNode objectPatch when (objectPatch.size() == 2 && objectPatch.get("id") instanceof ValueNode _ && objectPatch.get("name") instanceof ValueNode name) -> {
                 // DictionaryRef or ExperimentRef
                 String s = "<span class='%s'>%s</span>".formatted(nestedClass, name);
                 grid.right(s).left().newRow();

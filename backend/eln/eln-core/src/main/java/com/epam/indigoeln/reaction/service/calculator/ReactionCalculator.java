@@ -20,7 +20,6 @@ import java.util.function.Supplier;
 
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE;
 import static com.epam.indigoeln.reaction.service.calculator.EnteredValueOpt.*;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 /**
@@ -88,6 +87,7 @@ public class ReactionCalculator {
         new ModelProps(experimentModel);
 
         // collect seeds
+        // TODO use sample density/molarity/purity as defaults, for samples from DB
         for (Property<?, ?> property : properties) {
             EnteredValue<?> value = property.getValue();
             if (!value.isEmpty()) {
@@ -214,7 +214,7 @@ public class ReactionCalculator {
         throw reportConflict(message);
     }
 
-    private <U extends MeasurementUnit> RecalculationConflictException reportConflict(String message) {
+    private RecalculationConflictException reportConflict(String message) {
         log.debug(message);
         debugMessages.add(message);
         return new RecalculationConflictException();
@@ -290,10 +290,11 @@ public class ReactionCalculator {
         }
 
         private void init() {
+            checkState(reaction.limiting != null);
             List<Property<ReactionInputSample, MolUnit>> sampleMols = StreamEx.of(samples)
                     .map(s -> s.mol)
                     .toList();
-            InputProps limiting = checkNotNull(reaction.limiting);
+            InputProps limiting = reaction.limiting;
 
             formula(
                     "F1.1: mol = sum sampleN.mol",
