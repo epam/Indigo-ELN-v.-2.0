@@ -64,12 +64,6 @@
               "outputHashing": "all"
             },
             "production": {
-              "optimization": {
-                "scripts": false,
-                "styles": {
-                  "inlineCritical": false
-                }
-              },
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
@@ -80,7 +74,7 @@
                 {
                   "type": "initial",
                   "maximumWarning": "500kB",
-                  "maximumError": "40MB"
+                  "maximumError": "4MB"
                 },
                 {
                   "type": "anyComponentStyle",

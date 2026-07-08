@@ -117,10 +117,10 @@ public class CloudFrontStack {
                         .build()
                 )
                 .additionalBehaviors(mapOf(
-                        entry("*.*", staticAssetsBehavior),
                         entry("/api/*", apiBehavior),
                         entry("/openapi/*", apiBehavior),
-                        entry("/swagger/*", apiBehavior)
+                        entry("/swagger/*", apiBehavior),
+                        entry("*.*", staticAssetsBehavior)
                 ))
                 .domainNames(List.of(props.domainName()))
                 .certificate(certificate)

@@ -51,7 +51,7 @@ public class PatchFormatter {
         return value;
     }
 
-    private void doFormat(@Nullable JsonNode before, @Nullable JsonNode patch, @Nullable Boolean newOrOld) {
+    private void doFormat(@Nullable JsonNode before, JsonNode patch, @Nullable Boolean newOrOld) {
         String nestedClass = newOrOld == null ? "" : newOrOld ? " new" : " old";
         switch (patch) {
             case ObjectNode objectPatch when (objectPatch.get("$old") instanceof ValueNode || objectPatch.get("$new") instanceof ValueNode) -> {
@@ -91,7 +91,7 @@ public class PatchFormatter {
                 );
                 grid.right(s).left().newRow();
             }
-            case ObjectNode objectPatch when (objectPatch.size() == 2 && objectPatch.get("id") instanceof ValueNode id && objectPatch.get("name") instanceof ValueNode name) -> {
+            case ObjectNode objectPatch when (objectPatch.size() == 2 && objectPatch.get("id") instanceof ValueNode _ && objectPatch.get("name") instanceof ValueNode name) -> {
                 // DictionaryRef or ExperimentRef
                 String s = "<span class='%s'>%s</span>".formatted(nestedClass, name);
                 grid.right(s).left().newRow();
@@ -172,6 +172,8 @@ public class PatchFormatter {
 
     private static class GridBuilder {
 
+        private static final String TAKEN = "__taken__";
+
         private final int columns;
         private final List<@Nullable String[]> rows = new ArrayList<>();
         private @Nullable String[] currentRow;
@@ -207,42 +209,31 @@ public class PatchFormatter {
             StringBuilder sb = new StringBuilder();
             sb.append("<table class='patch-grid'>\n");
             rows.removeIf(row -> StreamEx.of(row).nonNull().findAny().isEmpty());
-            int[] rowSpanRemaining = new int[columns];
-            for (int rowNo = 0; rowNo < rows.size(); rowNo++) {
-                String[] row = rows.get(rowNo);
-                int last = columns - 1;
-                while (last >= 0 && row[last] == null) {
-                    last--;
-                }
-                if (last == 0) {
-                    for (int i = 0; i < columns; i++) {
-                        if (rowSpanRemaining[i] > 0) {
-                            rowSpanRemaining[i]--;
-                        }
-                    }
-                    continue;
-                }
+            int height = rows.size();
+            int width = columns;
+            @Nullable String[][] grid = rows.toArray(new String[height][width]);
+            for (int y = 0; y < height; y++) {
                 sb.append("<tr>\n");
-                for (int i = 0; i <= last; i++) {
-                    if (rowSpanRemaining[i] > 0) {
-                        rowSpanRemaining[i]--;
-                        continue;
+                for (int x = 0; x < width; x++) {
+                    String value = grid[y][x];
+                    if (!TAKEN.equals(value)) {
+                        if (value == null) {
+                            // orphaned empty cell: not covered by any span, has nothing to display
+                            sb.append("<td></td>\n");
+                            continue;
+                        }
+                        int yLast = y, xLast = x;
+                        while (xLast + 1 < width && grid[y][xLast + 1] == null) {
+                            grid[y][++xLast] = TAKEN;
+                        }
+                        if (xLast == x) {
+                            while (yLast + 1 < height && grid[yLast + 1][x] == null) {
+                                grid[++yLast][x] = TAKEN;
+                            }
+                        }
+                        int ySpan = yLast - y + 1, xSpan = xLast - x + 1;
+                        sb.append("<td colspan='%d' rowspan='%d'>%s</td>\n".formatted(xSpan, ySpan, value));
                     }
-                    if (row[i] == null) {
-                        sb.append("<td></td>\n");
-                        continue;
-                    }
-                    int xSpan = i == last ? columns - i : 1;
-                    int ySpan = 1;
-                    while (rowNo + ySpan < rows.size() && rows.get(rowNo + ySpan)[i] == null) {
-                        ySpan++;
-                    }
-                    if (ySpan > 1) {
-                        rowSpanRemaining[i] = ySpan - 1;
-                    }
-                    String spanAttrs = (xSpan > 1 ? " colspan='%d'".formatted(xSpan) : "")
-                            + (ySpan > 1 ? " rowspan='%d'".formatted(ySpan) : "");
-                    sb.append("<td%s>%s</td>\n".formatted(spanAttrs, row[i]));
                 }
                 sb.append("</tr>\n");
             }

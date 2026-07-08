@@ -1,24 +1,17 @@
 function handler(event) {
-    var response = event.response;
-    var headers = response.headers;
-    var uri = event.request.uri;
+    const response = event.response;
+    const headers = response.headers;
+    const uri = event.request.uri;
 
     headers['strict-transport-security'] = {value: 'max-age=63072000; includeSubDomains; preload'};
     headers['x-content-type-options'] = {value: 'nosniff'};
 
-    // delete headers['x-amz-server-side-encryption'];
-    // delete headers['x-amz-server-side-encryption-aws-kms-key-id'];
-    // delete headers['x-amz-version-id'];
-    // delete headers['x-amz-delete-marker'];
-    // delete headers['x-amz-id-2'];
-    // delete headers['x-amz-request-id'];
+    const STATIC_RESOURCES = /.*[A-Z0-9]{8}\.\w+$/;
+    const STATIC_CORS = /.*\.(js|woff|eot|ttf|svg)$/;
+    const FONT_RESOURCES = /\/media\/.*[A-Z0-9]{8}\..*$/;
+    const KETCHER_STATIC = /.*\/ketcher\/static\/.*$/;
 
-    var STATIC_RESOURCES = /.*[A-Z0-9]{8}\.\w+$/;
-    var STATIC_CORS = /.*\.(js|woff|eot|ttf|svg)$/;
-    var FONT_RESOURCES = /\/media\/.*[A-Z0-9]{8}\..*$/;
-    var KETCHER_STATIC = /.*\/ketcher\/static\/.*$/;
-
-    var cacheControl;
+    let cacheControl;
     if (uri === '/assets/ketcher/index.html') {
         cacheControl = 'public, max-age=3600';
         headers['x-frame-options'] = {value: 'SAMEORIGIN'};
@@ -27,7 +20,7 @@ function handler(event) {
         // which the main app CSP intentionally forbids. Scope a dedicated,
         // minimal CSP to the Ketcher iframe document so it is still protected
         // without weakening the rest of the application.
-        var ketcherCsp =
+        const ketcherCsp =
             "default-src 'self'; " +
             "object-src 'none'; " +
             "frame-ancestors 'self'; " +
@@ -51,7 +44,10 @@ function handler(event) {
         cacheControl = 'public, max-age=86400';
     }
 
-    headers['cache-control'] = {value: cacheControl};
+    const status = response.statusCode;
+    if (status === 200 || status === 301 || status === 304) {
+        headers['cache-control'] = {value: cacheControl};
+    }
 
     return response;
 }
