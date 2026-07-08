@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'eln-dictionary-layout',
   templateUrl: './dictionary-layout.component.html',
+  styleUrls: ['./dictionary-layout.component.scss'],
   imports: [
     MatDrawerContent,
     MatDrawerContainer,
