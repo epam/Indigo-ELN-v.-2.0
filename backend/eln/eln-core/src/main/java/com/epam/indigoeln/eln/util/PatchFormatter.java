@@ -205,9 +205,9 @@ public class PatchFormatter {
 
         String build() {
             StringBuilder sb = new StringBuilder();
-            String columnsCss = "repeat(%d, fit-content(200px)) 1fr".formatted(columns - 1);
-            sb.append("<div style='display: grid; grid-template-columns: %s; gap: 4px; font-size: small'>\n".formatted(columnsCss));
+            sb.append("<table class='patch-grid'>\n");
             rows.removeIf(row -> StreamEx.of(row).nonNull().findAny().isEmpty());
+            int[] rowSpanRemaining = new int[columns];
             for (int rowNo = 0; rowNo < rows.size(); rowNo++) {
                 String[] row = rows.get(rowNo);
                 int last = columns - 1;
@@ -215,21 +215,38 @@ public class PatchFormatter {
                     last--;
                 }
                 if (last == 0) {
+                    for (int i = 0; i < columns; i++) {
+                        if (rowSpanRemaining[i] > 0) {
+                            rowSpanRemaining[i]--;
+                        }
+                    }
                     continue;
                 }
+                sb.append("<tr>\n");
                 for (int i = 0; i <= last; i++) {
-                    if (row[i] != null) {
-                        int xSpan = i == last ? columns - i : 1;
-                        int ySpan = 1;
-                        while (rowNo + ySpan < rows.size() && rows.get(rowNo + ySpan)[i] == null) {
-                            ySpan++;
-                        }
-                        String css = "grid-row: %d / span %d; grid-column: %d / span %d".formatted(rowNo + 1, ySpan, i + 1, xSpan);
-                        sb.append("<div style='%s'>%s</div>\n".formatted(css, row[i]));
+                    if (rowSpanRemaining[i] > 0) {
+                        rowSpanRemaining[i]--;
+                        continue;
                     }
+                    if (row[i] == null) {
+                        sb.append("<td></td>\n");
+                        continue;
+                    }
+                    int xSpan = i == last ? columns - i : 1;
+                    int ySpan = 1;
+                    while (rowNo + ySpan < rows.size() && rows.get(rowNo + ySpan)[i] == null) {
+                        ySpan++;
+                    }
+                    if (ySpan > 1) {
+                        rowSpanRemaining[i] = ySpan - 1;
+                    }
+                    String spanAttrs = (xSpan > 1 ? " colspan='%d'".formatted(xSpan) : "")
+                            + (ySpan > 1 ? " rowspan='%d'".formatted(ySpan) : "");
+                    sb.append("<td%s>%s</td>\n".formatted(spanAttrs, row[i]));
                 }
+                sb.append("</tr>\n");
             }
-            sb.append("</div>\n");
+            sb.append("</table>\n");
             return sb.toString();
         }
     }

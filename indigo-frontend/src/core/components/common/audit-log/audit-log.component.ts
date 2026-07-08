@@ -21,6 +21,14 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
   selector: 'eln-audit-log',
   templateUrl: './audit-log.component.html',
   styles: `
+    .audit-log .patch-grid {
+      border-collapse: separate;
+      border-spacing: 4px;
+      font-size: small;
+    }
+    .audit-log .patch-grid td {
+      vertical-align: top;
+    }
     .audit-log .old {
       background-color: #f8d7da;
     }
