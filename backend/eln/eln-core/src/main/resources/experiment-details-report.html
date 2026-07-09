@@ -307,7 +307,7 @@ function makeEntry(rev) {
     <div class="entry-body"></div>`;
 
   const body = d.querySelector('.entry-body');
-  if (rev.messages != null && rev.messages.length > 0) {
+  if (rev.messages.length > 0) {
     body.appendChild(makeSection('Messages', '<pre class="code-block">' + rev.messages.join('\n') + '</pre>', true));
   }
   body.appendChild(makeSection('Mutation',     '<pre class="code-block">' + renderJson(rev.mutation) + '</pre>', false));

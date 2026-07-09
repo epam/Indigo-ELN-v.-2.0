@@ -7,10 +7,9 @@ import org.apache.commons.math3.util.Precision;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.data.Offset;
-import org.jspecify.annotations.Nullable;
 
 @SuppressWarnings("UnusedReturnValue")
-public class EnteredValueAssert<U extends MeasurementUnit> extends AbstractAssert<EnteredValueAssert<U>, @Nullable EnteredValue<U>> {
+public class EnteredValueAssert<U extends MeasurementUnit> extends AbstractAssert<EnteredValueAssert<U>, EnteredValue<U>> {
 
     private static final Offset<Double> EPSILON = Offset.offset(0.0001);
 
@@ -23,7 +22,7 @@ public class EnteredValueAssert<U extends MeasurementUnit> extends AbstractAsser
     }
 
     public EnteredValueAssert<U> hasValue(double value) {
-        Assertions.assertThat(actual).isNotNull();
+        Assertions.assertThat(actual != null && !actual.isEmpty()).describedAs("was empty").isTrue();
         if (!(actual.getUnit() instanceof MolWeightUnit) && !(actual.getUnit() instanceof NoUnit) && !(actual.getUnit() instanceof DensityUnit)) {
             throw new IllegalStateException("Must use hasValue(value, unit) for " + actual.getUnit().getClass().getSimpleName());
         }
@@ -32,7 +31,7 @@ public class EnteredValueAssert<U extends MeasurementUnit> extends AbstractAsser
     }
 
     public EnteredValueAssert<U> hasValue(double value, U unit) {
-        Assertions.assertThat(actual).isNotNull();
+        Assertions.assertThat(actual != null && !actual.isEmpty()).describedAs("was empty").isTrue();
         if (!Precision.equalsWithRelativeTolerance(actual.getValue(), value, 1e-6) || actual.getUnit() != unit) {
             String description = Strings.isNullOrEmpty(descriptionText()) ? actual.toString() : descriptionText();
             failWithMessage("[%s]\nexpected: %s %s\n but was: %s %s", description, value, unit, actual.getStringValue(), actual.getUnit());
@@ -41,13 +40,13 @@ public class EnteredValueAssert<U extends MeasurementUnit> extends AbstractAsser
     }
 
     public EnteredValueAssert<U> hasStringValue(String stringValue) {
-        Assertions.assertThat(actual).isNotNull();
+        Assertions.assertThat(actual != null && !actual.isEmpty()).describedAs("was empty").isTrue();
         Assertions.assertThat(actual.getStringValue()).describedAs(actual::toString).isEqualTo(stringValue);
         return this;
     }
 
     public EnteredValueAssert<U> isUserEntered() {
-        Assertions.assertThat(actual).isNotNull();
+        Assertions.assertThat(actual != null && !actual.isEmpty()).describedAs("was empty").isTrue();
         Assertions.assertThat(actual.getSource().isUserEntered()).describedAs(actual::toString).isTrue();
         return this;
     }
