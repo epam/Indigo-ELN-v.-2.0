@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterOutlet, RouterLink } from '@angular/router';
 import { AuthenticatorService } from '@aws-amplify/ui-angular';
 import { ReportErrorDialogService } from '@core/services/report-error-dialog.service';
 import { GlobalSearchComponent } from '@pages/search/global-search/global-search.component';
@@ -23,6 +23,7 @@ import { SidebarComponent } from './partials/sidebar/sidebar.component';
   imports: [
     CommonModule,
     RouterOutlet,
+    RouterLink,
     ReactiveFormsModule,
     MatSidenavModule,
     MatIconModule,
