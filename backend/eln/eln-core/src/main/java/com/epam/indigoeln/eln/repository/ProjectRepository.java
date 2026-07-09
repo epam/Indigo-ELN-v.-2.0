@@ -5,9 +5,14 @@ import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.common.repository.BaseRepository;
 import com.epam.indigoeln.eln.common.util.Conditions;
-import com.epam.indigoeln.eln.entity.*;
+import com.epam.indigoeln.eln.entity.ProjectEntity;
+import com.epam.indigoeln.eln.entity.ProjectRevisionEntity;
+import com.epam.indigoeln.eln.entity.TotalCountsEntity;
+import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.mapper.ProjectMapper;
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.model.ELNEntityType;
+import com.epam.indigoeln.eln.model.ProjectDTO;
+import com.epam.indigoeln.eln.model.TotalCounts;
 import com.epam.indigoeln.eln.service.ACLService;
 import com.google.common.base.MoreObjects;
 import io.quarkus.panache.common.Sort;
@@ -21,7 +26,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 import static com.epam.indigoeln.eln.model.ApplicationPermission.VIEW_PROJECTS;
 
@@ -80,38 +84,6 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
 
     public void lockProject(ProjectEntity project) {
         em.lock(project, LockModeType.PESSIMISTIC_WRITE);
-    }
-
-    public List<NestedACLEntryDTO> findNestedAccess(UUID projectId) {
-        @SuppressWarnings("unchecked")
-        Stream<Object[]> stream1 = em.createQuery("select n, a from Notebook n " +
-                        "join n.aclEntities a " +
-                        "join fetch a.user " +
-                        "where n.project.id = :projectId " +
-                        "and a.level != :implicitView"
-                )
-                .setParameter("projectId", projectId)
-                .setParameter("implicitView", AccessLevel.IMPLICIT_VIEW)
-                .getResultStream();
-        @SuppressWarnings("unchecked")
-        Stream<Object[]> stream2 = em.createQuery("select e, a from Experiment e " +
-                        "join e.aclEntities a " +
-                        "join fetch a.user " +
-                        "where e.project.id = :projectId " +
-                        "and a.level != :implicitView"
-                )
-                .setParameter("projectId", projectId)
-                .setParameter("implicitView", AccessLevel.IMPLICIT_VIEW)
-                .getResultStream();
-        return Stream.concat(stream1, stream2)
-                .map(arr -> {
-                    BaseEntity entity = (BaseEntity) arr[0];
-                    BaseACLEntity entry = (BaseACLEntity) arr[1];
-                    ELNEntityType entityType = entity instanceof NotebookEntity ? ELNEntityType.NOTEBOOK : ELNEntityType.EXPERIMENT;
-                    String entityName = entity instanceof NotebookEntity ? ((NotebookEntity) entity).getName() : ((ExperimentEntity) entity).getName();
-                    return new NestedACLEntryDTO(entityType, entity.getId(), entityName, entry.getUser().getDisplayName(), entry.getLevel());
-                })
-                .toList();
     }
 
     public void persistRevision(ProjectRevisionEntity revision) {

@@ -92,10 +92,6 @@ public class NotebookService {
         return notebookMapper.convertACLList(notebook.getFullACL());
     }
 
-    public List<NestedACLEntryDTO> getNestedNotebookAccess(UUID projectId) {
-        return notebookRepository.findNestedAccess(projectId);
-    }
-
     public MutationResult<NotebookSnapshot, NotebookMutationContext> applyMutation(NotebookEntity notebook, NotebookMutation mutation) {
         log.debug("Mutating notebook {}: {}", notebook.getId(), mutation);
         return mutationHandlerRegistry.withHandler(mutation, (AbstractNotebookMutationHandler<NotebookMutation> handler) -> handler.applyMutation(notebook, mutation));

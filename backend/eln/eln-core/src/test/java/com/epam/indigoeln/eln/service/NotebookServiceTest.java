@@ -403,15 +403,6 @@ class NotebookServiceTest extends ELNBaseTest {
         }
 
         @Test
-        void testGetNestedAccess() {
-            assertThat(notebookClient.getNestedNotebookAccess(notebook.getId()))
-                    .containsExactly(
-                            new NestedACLEntryDTO(ELNEntityType.EXPERIMENT, experiment.getId(), experiment.getName(), BART_DISPLAY_NAME, AccessLevel.VIEW),
-                            new NestedACLEntryDTO(ELNEntityType.EXPERIMENT, experiment.getId(), experiment.getName(), LISA_DISPLAY_NAME, AccessLevel.VIEW)
-                    );
-        }
-
-        @Test
         void testRemoveAccess() {
             List<ACLEntryDTO> notebookAccess = notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(BART_USERNAME, AccessLevel.NONE));
             assertThatACL(notebookAccess).containsOnly(
