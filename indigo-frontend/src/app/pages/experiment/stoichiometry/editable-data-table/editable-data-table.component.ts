@@ -17,11 +17,18 @@ import { MatOption, MatSelect, MatSelectTrigger } from '@angular/material/select
 import { MatInput } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
-import { ColumnConfig, ColumnInputType, ExpandableConfig, FieldValue } from '../shared/editable-table.types';
+import {
+  ColumnConfig,
+  ColumnInputType,
+  ColumnOption,
+  ExpandableConfig,
+  FieldValue,
+} from '../shared/editable-table.types';
 import { ExperimentDetailService } from '@/core/services/experiment/experiment-detail.service';
 import { MatIconButton } from '@angular/material/button';
 import { MatTooltip } from '@angular/material/tooltip';
 import { EnteredValue } from '@core/types/entities/values.i';
+import { isObservable, Observable, of } from 'rxjs';
 
 @Component({
   selector: 'eln-editable-data-table',
@@ -95,10 +102,22 @@ export class EditableDataTableComponent<TRow = unknown> {
   }
   detailRow = (_index: number, row: TRow) => this.isRowExpanded(row);
 
-  callSave(column: ColumnConfig<TRow, FieldValue>, row: TRow, newValue: FieldValue): void {
-    const oldValue = column.field(row);
+  callSave(column: ColumnConfig<TRow, FieldValue>, row: TRow, newValue: FieldValue, defaultValue: FieldValue): void {
+    const oldValue = this.valueOrDefault(column.field(row), defaultValue);
+    newValue = this.valueOrDefault(newValue, defaultValue);
+    console.log('callSave, oldValue = ', oldValue, ', newValue = ', newValue, ', changed = ', oldValue !== newValue);
     if (oldValue !== newValue) {
-      column?.onSave(row, newValue || null);
+      column.onSave?.(row, newValue);
+    }
+  }
+
+  callSaveOptions(column: ColumnConfig<TRow, FieldValue>, row: TRow, newId: string, options: ColumnOption[]): void {
+    const oldId = this.valueOrDefault(column.field(row)?.['id'], null);
+    newId = this.valueOrDefault(newId, null);
+    console.log('callSaveOptions, oldId = ', oldId, ', newId = ', newId, ', changed = ', oldId !== newId);
+    if (oldId !== newId) {
+      const newValue = options.find((x) => x.id === newId);
+      column.onSave?.(row, newValue || null);
     }
   }
 
@@ -143,5 +162,16 @@ export class EditableDataTableComponent<TRow = unknown> {
 
   private isFullySet(value: EnteredValue<unknown> | null): boolean {
     return value != null && value.value != null && value.value !== '' && value.unit != null && value.unit !== '';
+  }
+
+  private valueOrDefault<T>(x: T, defaultValue: T): T {
+    if (x == null || x === '') {
+      return defaultValue;
+    }
+    return x;
+  }
+
+  toObservable<T>(x: T | Observable<T>): Observable<T> {
+    return isObservable(x) ? x : of(x);
   }
 }

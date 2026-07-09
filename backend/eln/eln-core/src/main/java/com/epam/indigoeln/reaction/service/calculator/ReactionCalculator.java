@@ -30,7 +30,7 @@ import static com.google.common.base.Preconditions.checkState;
  *
  * <p>F2.1. nonLimiting.mol = limiting.mol / limiting.eq * nonLimiting.eq</p>
  * <p>&emsp; F2.2. nonLimiting.eq = nonLimiting.mol / limiting.mol * limiting.eq</p>
- * <p>&emsp; F2.3. limiting.eq = limiting.mol * nonLimiting.eq / nonLimiting.mol</p>
+ * <p>&emsp; <s>F2.3. limiting.eq = limiting.mol * nonLimiting.eq / nonLimiting.mol</s> <i>don't calculate limiting from non-limiting</i></p>
  * <p>&emsp; limiting.mol is never calculated from nonLimiting.mol</p>
  *
  * <p>F3.1. sample.mol = sample.weight * sample.purity / molWeight</p>
@@ -318,17 +318,17 @@ public class ReactionCalculator {
                         mol, limiting.mol, limiting.eq
                 );
             } else {
-
-                for (InputProps nonLimiting : reaction.inputs) {
-                    if (this != nonLimiting) {
-                        formula(
-                                "F2.3: limiting.eq = limiting.mol * nonLimiting.eq / nonLimiting.mol",
-                                eq,
-                                () -> mol.multiply(nonLimiting.eq).divide(nonLimiting.mol),
-                                mol, nonLimiting.mol, nonLimiting.eq
-                        );
-                    }
-                }
+//
+//                for (InputProps nonLimiting : reaction.inputs) {
+//                    if (this != nonLimiting) {
+//                        formula(
+//                                "F2.3: limiting.eq = limiting.mol * nonLimiting.eq / nonLimiting.mol",
+//                                eq,
+//                                () -> mol.multiply(nonLimiting.eq).divide(nonLimiting.mol),
+//                                mol, nonLimiting.mol, nonLimiting.eq
+//                        );
+//                    }
+//                }
             }
         }
     }
@@ -617,16 +617,16 @@ public class ReactionCalculator {
             return result;
         }
 
-        // user-entered is more priority
-        result = Boolean.compare(userEnteredA, userEnteredB);
-        if (result != 0) {
-            return result;
-        }
-
         // values under limiting input is more priority
         boolean limitingA = isUnderLimitingInput(a);
         boolean limitingB = isUnderLimitingInput(b);
         result = Boolean.compare(limitingA, limitingB);
+        if (result != 0) {
+            return result;
+        }
+
+        // user-entered is more priority
+        result = Boolean.compare(userEnteredA, userEnteredB);
         if (result != 0) {
             return result;
         }

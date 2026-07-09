@@ -353,4 +353,14 @@ public class ExperimentEditingTest extends MutationsTestBase {
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputDensity(outputSample, "0.073421665", G_ML)); // exact value 0.07342166503270467
         assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
     }
+
+    @Test
+    void testDontUpdateLimitingEQ() {
+        experiment.mutateSetSchemeFromResource("/reaction-testCase1.rxn");
+        experiment.mutateSetInputWeight(1, 1, "100", G);
+        experiment.mutateSetInputRowMol(2, "2", MOL);
+        experiment.mutateSetInputWeight(2, 1, "200", G);
+        experiment.mutateSetInputRowEQ(2, "2");
+        assertThat(experiment.input(1).getEq().isOverwritten()).isFalse();
+    }
 }

@@ -1,6 +1,7 @@
 import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
 import { Type } from '@angular/core';
 import { EnteredValue } from '@core/types/entities/values.i';
+import { Observable } from 'rxjs';
 
 export enum ColumnInputType {
   TEXT = 'text',
@@ -34,8 +35,9 @@ export interface ColumnConfig<TRow = unknown, TValue = FieldValue> {
   field: (row: TRow) => TValue;
   classes?: (row: TRow) => string[];
   editable?: (row: TRow) => boolean;
+  required?: (row: TRow) => boolean;
   onSave?: (row: TRow, payload?: TValue | null) => void;
-  options?: ColumnOption[] | DictionaryItemRef[];
+  options?: ColumnOption[] | DictionaryItemRef[] | Observable<ColumnOption[]> | Observable<DictionaryItemRef[]>;
   tooltip?: (row: TRow) => string;
   iconClasses?: (row: TRow) => string[];
 }

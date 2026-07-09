@@ -90,6 +90,7 @@ public class CalculationFormulasTest extends MutationsTestBase {
         assertThat(experiment.input(2)).hasEq(4.0);
     }
 
+/*
     @Test
     // F2.3. limiting.eq = limiting.mol * nonLimiting.eq / nonLimiting.mol
     void testF2_3() {
@@ -100,6 +101,7 @@ public class CalculationFormulasTest extends MutationsTestBase {
 
         assertThat(experiment.input(1)).hasEq(4.0);
     }
+*/
 
     @Test
     // F3.1. sample.mol = sample.weight * sample.purity / molWeight

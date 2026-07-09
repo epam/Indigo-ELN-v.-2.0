@@ -1,10 +1,11 @@
-import { Component, computed, inject, input, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { ReactionInput, ReactionInputSample } from '@core/types/entities/experiments/experiment.i';
 import {
   DensityUnit,
   MolarityUnit,
   MolUnit,
   ReactionRole,
+  ReactionRoleNames,
   UNIT_DISPLAY_NAMES,
   UUID,
   VolumeUnit,
@@ -40,7 +41,7 @@ interface InputSampleRow {
   templateUrl: './reaction-inputs-table.component.html',
   imports: [MatSnackBarModule, EditableDataTableComponent, SelectComponent, ButtonComponent, FormsModule, MatTooltip],
 })
-export class ReactionInputsTableComponent implements OnInit {
+export class ReactionInputsTableComponent {
   private experimentDetailService = inject(ExperimentDetailService);
   private builtInDictionaryService = inject(BuiltInDictionaryService);
   private slideInPanel = inject(SlideInPanelService);
@@ -56,12 +57,8 @@ export class ReactionInputsTableComponent implements OnInit {
   dataSource = computed(() => {
     return this.reaction().inputs.flatMap((input) => input.samples.map((sample) => ({ input, sample })));
   });
-  healthHazards = computed(() => this.builtInDictionaryService.getDictionaryItem(BuiltInDictionary.HEALTH_HAZARD));
-  saltCodes = computed(() => this.builtInDictionaryService.getDictionaryItem(BuiltInDictionary.SALT_CODE));
-
-  ngOnInit() {
-    this.builtInDictionaryService.load([BuiltInDictionary.HEALTH_HAZARD, BuiltInDictionary.SALT_CODE]);
-  }
+  healthHazards = this.builtInDictionaryService.getDictionaryItems(BuiltInDictionary.HEALTH_HAZARD);
+  saltCodes = this.builtInDictionaryService.getDictionaryItems(BuiltInDictionary.SALT_CODE);
 
   readonly columns = computed<ColumnConfig<InputSampleRow>[]>(() => [
     {
@@ -215,20 +212,21 @@ export class ReactionInputsTableComponent implements OnInit {
       id: 'rxnRole',
       header: 'Rxn Role',
       type: ColumnInputType.SELECT,
-      field: (row: InputSampleRow) => row.input.role,
-      onSave: (row: InputSampleRow, value: ReactionRole) => {
+      field: (row: InputSampleRow) => ({ id: row.input.role, name: ReactionRoleNames[row.input.role] }) as ColumnOption,
+      required: () => true,
+      onSave: (row: InputSampleRow, value: ColumnOption) => {
         this.experimentDetailService
           .updateDataModel({
             type: 'SetInputRowRole',
             anchor: row.input.anchor,
-            role: value,
+            role: value.id as ReactionRole,
           })
           .subscribe({});
       },
       options: [ReactionRole.REACTANT, ReactionRole.REAGENT, ReactionRole.CATALYST, ReactionRole.SOLVENT].map(
         (role) => ({
           id: role,
-          name: role.toLocaleLowerCase(),
+          name: ReactionRoleNames[role],
         }),
       ) as ColumnOption[],
     },
@@ -301,7 +299,7 @@ export class ReactionInputsTableComponent implements OnInit {
       id: 'saltCode',
       header: 'Salt Code',
       type: ColumnInputType.SELECT,
-      field: (row: InputSampleRow) => row.input.compound.saltCode?.name ?? null,
+      field: (row: InputSampleRow) => row.input.compound.saltCode ?? null,
       editable: (row: InputSampleRow) => row.input.compound.type === CompoundType.VIRTUAL,
       onSave: (row: InputSampleRow, selectedSaltCode: DictionaryItemRef | null) => {
         this.experimentDetailService
@@ -312,13 +310,14 @@ export class ReactionInputsTableComponent implements OnInit {
           })
           .subscribe({});
       },
-      options: this.saltCodes(),
+      options: this.saltCodes,
     },
     {
       id: 'saltEQ',
       header: 'Salt EQ',
       type: ColumnInputType.TEXT,
       field: (row: InputSampleRow) => row.input.compound.saltEQ?.toString(),
+      editable: (row: InputSampleRow) => row.input.compound.saltCode != null,
       onSave: (row: InputSampleRow, value: string | null) => {
         this.experimentDetailService
           .updateDataModel({
@@ -343,7 +342,7 @@ export class ReactionInputsTableComponent implements OnInit {
           })
           .subscribe({});
       },
-      options: this.healthHazards(),
+      options: this.healthHazards,
     },
     {
       id: 'comments',
