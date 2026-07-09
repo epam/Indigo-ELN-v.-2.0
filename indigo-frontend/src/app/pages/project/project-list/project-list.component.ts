@@ -56,13 +56,7 @@ export class ProjectListComponent extends InfiniteScrollBase<Project> implements
 
     // breadcrumbs are shown in ProjectsOverviewWidgetComponent, but initialized here, because
     // ProjectsOverviewWidgetComponent is not reinitialized when navigating inside /projects paths
-    this.breadcrumbsState.setItems([
-      {
-        label: 'All Projects',
-        url: '/projects',
-        active: true,
-      },
-    ]);
+    this.breadcrumbsState.setItems([{ label: 'All Projects', url: '/projects', active: true }]);
 
     this.setup({
       loadUrl: 'projects',

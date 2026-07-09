@@ -13,7 +13,7 @@ import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } fr
 
 import { EditorFormlyFieldComponent } from '@/core/components/formly/fields/editor/editor-field.component';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withComponentInputBinding, withRouterConfig } from '@angular/router';
 import { FormlyModule } from '@ngx-formly/core';
 import { FormlyPresetModule } from '@ngx-formly/core/preset';
 import { FormlyMaterialModule } from '@ngx-formly/material';
@@ -92,7 +92,7 @@ export const appConfig: ApplicationConfig = {
       FormlyMatDatepickerModule,
     ),
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes),
+    provideRouter(routes, withComponentInputBinding(), withRouterConfig({ paramsInheritanceStrategy: 'always' })),
     provideAnimationsAsync(),
     provideHttpClient(
       withXsrfConfiguration({

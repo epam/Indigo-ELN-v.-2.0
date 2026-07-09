@@ -1,6 +1,6 @@
 <div *projectOverviewWidget="'tab'" class="flex items-center mt-6 overflow-x-auto">
-  <eln-project-tab-button label="Project Info" [routerLink]="projectUrl" />
-  <eln-project-tab-button label="Notebooks" [routerLink]="notebooksUrl" />
+  <eln-project-tab-button label="Project Info" [routerLink]="'/projects/' + projectId" />
+  <eln-project-tab-button label="Notebooks" [routerLink]="'/projects/' + projectId + '/notebooks'" />
 </div>
 
 <router-outlet />

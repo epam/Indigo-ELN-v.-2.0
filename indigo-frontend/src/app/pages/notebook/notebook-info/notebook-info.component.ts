@@ -1,6 +1,5 @@
 import { ButtonComponent } from '@/core/components/common/button/button.component';
 import { CardComponent } from '@/core/components/common/card/card.component';
-import { NotebookDetail } from '@/core/types/entities/notebook-detail.i';
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { NotebookService } from '@core/services/notebook/notebook.service';
@@ -21,11 +20,15 @@ export class NotebookInfoComponent {
   private store = inject(NotebookService);
   private dialog = inject(MatDialog);
 
+  notebook = this.store.notebook;
+  isLoading = this.store.isLoading;
+  hasError = this.store.hasError;
+
   openEditDialog() {
-    if (!this.notebook) return;
+    if (!this.notebook()) return;
 
     const dialogRef = this.dialog.open(NotebookEditComponent, {
-      data: { notebook: this.notebook },
+      data: { notebook: this.notebook() },
       disableClose: true,
     });
 
@@ -38,19 +41,7 @@ export class NotebookInfoComponent {
     buildAccessEndpoint: (id: string) => `notebooks/${id}/access`,
   };
 
-  get notebook(): NotebookDetail | null {
-    return this.store.notebook();
-  }
-
-  get isLoading(): boolean {
-    return this.store.isLoading();
-  }
-
-  get hasError(): boolean {
-    return this.store.hasError();
-  }
-
   onAttachmentsChanged(attachments: Attachment[]) {
-    this.notebook.attachments = attachments;
+    this.notebook.update((n) => ({ ...n, attachments }));
   }
 }

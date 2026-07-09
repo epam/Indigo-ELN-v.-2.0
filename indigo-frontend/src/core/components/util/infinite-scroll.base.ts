@@ -1,5 +1,7 @@
 import { ensureDistinct } from '@/core/utils/array.util';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { PaginatedBase } from './paginated.base';
 
 export abstract class InfiniteScrollBase<T> extends PaginatedBase<T> {
@@ -9,13 +11,18 @@ export abstract class InfiniteScrollBase<T> extends PaginatedBase<T> {
   protected override isLoading = false;
 
   private isInfiniteLoaderVisible = false;
+  private destroyRef = inject(DestroyRef);
+  private dataListSub?: Subscription;
 
-  protected override initialize(): void {
-    super.initialize();
+  protected override reinitialize(): void {
+    this.dataListSub?.unsubscribe();
+    this.dataBh.next([]);
+    this.pager.pageNo = 0;
+
+    super.reinitialize();
     this.config.enableScrollRestoration = true;
 
-    // 2. Clearer data management: avoid side effects inside switchMap
-    this.dataList$.subscribe((data) => {
+    this.dataListSub = this.dataList$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((data) => {
       const currValue = this.dataBh.value;
       const result = this.appendToTop ? [...data.items, ...currValue] : [...currValue, ...data.items];
 

@@ -1,14 +1,14 @@
-@if (isLoading) {
+@if (isLoading()) {
   <div class="flex items-center justify-center py-8">
     <span>Loading project...</span>
   </div>
-} @else if (hasError) {
+} @else if (hasError()) {
   <div class="flex items-center justify-center py-8">
     <div class="text-center">
       <span>There was an error loading the project, please try again later</span>
     </div>
   </div>
-} @else if (project) {
+} @else if (project()) {
   <div class="grid grid-cols-[1fr_auto] gap-4 pt-4">
     <eln-card>
       <div class="flex items-center justify-between pb-3 border-b border-b-neutral-200">
@@ -22,13 +22,13 @@
       <div class="space-y-6 mt-3 text-sm">
         <div>
           <h3 class="font-semibold text-neutral-800 mb-2">Project Name</h3>
-          <p class="text-neutral-1000">{{ project.name }}</p>
+          <p class="text-neutral-1000">{{ project().name }}</p>
         </div>
 
         <div>
           <h3 class="text-neutral-800 mb-2 font-semibold">Project Keywords</h3>
           <div class="flex flex-wrap gap-2">
-            @for (keyword of project.keywords; track keyword) {
+            @for (keyword of project().keywords; track keyword) {
               <eln-chip>{{ keyword }}</eln-chip>
             }
           </div>
@@ -36,24 +36,24 @@
 
         <div>
           <h3 class="text-neutral-800 mb-2 font-semibold">Literature</h3>
-          <p class="text-neutral-1000">{{ project.literature || '-' }}</p>
+          <p class="text-neutral-1000">{{ project().literature || '-' }}</p>
         </div>
 
         <div>
           <h3 class="text-neutral-800 mb-2 font-semibold">Project Details</h3>
-          <p class="text-neutral-1000" [innerHTML]="project.description"></p>
-          <p class="text-neutral-1000 mt-4">{{ project.details }}</p>
+          <p class="text-neutral-1000" [innerHTML]="project().description"></p>
+          <p class="text-neutral-1000 mt-4">{{ project().details }}</p>
         </div>
 
         <eln-attachments
-          [attachments]="project.attachments"
-          [baseURL]="'/api/eln/projects/' + project.id"
+          [attachments]="project().attachments"
+          [baseURL]="'/api/eln/projects/' + project().id"
           (attachmentsChanged)="onAttachmentsChanged($event)"
         />
       </div>
     </eln-card>
 
-    <eln-team [team]="project.acl" [entityId]="project.id" [config]="projectTeamConfig" />
+    <eln-team [team]="project().acl" [entityId]="project().id" [config]="projectTeamConfig" />
   </div>
 }
 

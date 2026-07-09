@@ -57,7 +57,7 @@ interface TeamLoadingState {
   ],
 })
 export class TeamComponent implements OnInit {
-  @Input() entityId?: string;
+  @Input({ required: true }) entityId: string;
   @Input() set team(value: ACLEntry[]) {
     this._team.set(value);
     this.rebuildSuggestionsState();
@@ -92,7 +92,6 @@ export class TeamComponent implements OnInit {
   @ViewChild(NgSelectComponent) ngSelectComponent!: NgSelectComponent;
 
   ngOnInit(): void {
-    if (!this.entityId) console.warn('TeamComponent initialized without entityId');
     this.loading.update((l) => ({ ...l, suggestions: true }));
     this.api
       .request<UserRef[]>('get', 'users/suggest')
@@ -171,7 +170,6 @@ export class TeamComponent implements OnInit {
 
   private endpoint(): string {
     const id = this.entityId;
-    if (!id) return '';
     return this.config.buildAccessEndpoint(id);
   }
 
