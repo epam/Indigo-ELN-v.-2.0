@@ -31,7 +31,7 @@ class CreateProjectHandler extends AbstractProjectMutationHandler<ProjectMutatio
     DictionaryUpdateService dictionaryUpdateService;
 
     @Override
-    protected void doValidateAccess(ProjectEntity project, ProjectMutation.CreateProject mutation, ProjectMutationContext context) {
+    protected void doValidateAccess(ProjectEntity project) {
         aclService.ensureTopLevelAccess(ApplicationPermission.CREATE_PROJECTS);
     }
 
@@ -103,7 +103,7 @@ class EditProjectAccessHandler extends AbstractProjectMutationHandler<ProjectMut
     EntityMutationHelper entityMutationHelper;
 
     @Override
-    protected void doValidateAccess(ProjectEntity project, ProjectMutation.EditProjectAccess mutation, ProjectMutationContext context) {
+    protected void doValidateAccess(ProjectEntity project) {
         aclService.ensureAccess(project, ApplicationPermission.MANAGE_PROJECT_ACCESS);
     }
 

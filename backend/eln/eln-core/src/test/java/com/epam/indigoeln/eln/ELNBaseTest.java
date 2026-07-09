@@ -12,12 +12,22 @@ import com.epam.indigoeln.reports.api.ReportsClient;
 import com.epam.indigoeln.signature.api.SignatureAdminClient;
 import com.epam.indigoeln.signature.api.SignatureClient;
 import com.epam.indigoeln.test.BaseTest;
+import com.google.common.base.Suppliers;
+import io.agroal.api.AgroalDataSource;
+import io.agroal.api.security.NamePrincipal;
+import io.agroal.api.security.SimplePassword;
+import lombok.SneakyThrows;
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
+import org.eclipse.microprofile.config.ConfigProvider;
 import org.junit.jupiter.api.BeforeAll;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 public abstract class ELNBaseTest extends BaseTest {
 
@@ -71,7 +81,6 @@ public abstract class ELNBaseTest extends BaseTest {
     protected TemplateClient templateClient;
     protected CompoundClient compoundClient;
     protected MiscClient miscClient;
-    protected TestSupportClient testSupportClient;
     protected UserClient userClient;
     protected DictionaryClient dictionaryClient;
     protected RoleClient roleClient;
@@ -81,6 +90,7 @@ public abstract class ELNBaseTest extends BaseTest {
     protected ReportsClient reportsClient;
     protected SignatureClient signatureClient;
 
+    private final static Supplier<AgroalDataSource> databasePool = Suppliers.memoize(ELNBaseTest::createDatabasePool);
     private final AtomicInteger lastUsedNotebookNumber = new AtomicInteger();
 
     protected UUID johnUserID;
@@ -101,7 +111,6 @@ public abstract class ELNBaseTest extends BaseTest {
         userClient = buildClient(UserClient.class);
         dictionaryClient = buildClient(DictionaryClient.class);
         roleClient = buildClient(RoleClient.class);
-        testSupportClient = buildClient(TestSupportClient.class);
         globalSearchClient = buildClient(GlobalSearchClient.class);
         elnInternalClient = buildClient(ELNInternalClient.class);
         reportsClient = buildClient(ReportsClient.class);
@@ -132,8 +141,29 @@ public abstract class ELNBaseTest extends BaseTest {
         return "%08d".formatted(lastUsedNotebookNumber.incrementAndGet());
     }
 
+    @SuppressWarnings("SqlWithoutWhere")
     protected void cleanupDatabase() {
-        testSupportClient.cleanupDatabase();
+        try (Connection connection = databasePool.get().getConnection()) {
+            connection.setAutoCommit(false);
+            try (Statement statement = connection.createStatement()) {
+                // experiments, notebooks, projects
+                statement.executeUpdate("delete from Attachment");
+                statement.executeUpdate("delete from Experiment_Revision");
+                statement.executeUpdate("delete from Experiment");
+                statement.executeUpdate("delete from Notebook_Revision");
+                statement.executeUpdate("delete from Notebook");
+                statement.executeUpdate("delete from Project_Revision");
+                statement.executeUpdate("delete from Project");
+                statement.executeUpdate("delete from Template where name != 'Default'");
+                // samples, compounds
+                statement.executeUpdate("delete from Sample");
+                statement.executeUpdate("delete from Compound");
+                statement.executeUpdate("alter sequence compound_str_code_compound_seq restart");
+            }
+            connection.commit();
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to clean up test database", e);
+        }
     }
 
     private void createBasicTestData() {
@@ -157,5 +187,20 @@ public abstract class ELNBaseTest extends BaseTest {
         } finally {
             username.set(oldUsername);
         }
+    }
+
+    @SneakyThrows
+    private static AgroalDataSource createDatabasePool() {
+        String jdbcUrl = integrationTest ? System.getProperty("eln.test.datasource.jdbc-url") : ConfigProvider.getConfig().getValue("quarkus.datasource.jdbc.url", String.class);
+        String username = integrationTest ? System.getProperty("eln.test.datasource.username") : ConfigProvider.getConfig().getValue("quarkus.datasource.username", String.class);
+        String password = integrationTest ? System.getProperty("eln.test.datasource.password") : ConfigProvider.getConfig().getValue("quarkus.datasource.password", String.class);
+        return AgroalDataSource.from(new io.agroal.api.configuration.supplier.AgroalDataSourceConfigurationSupplier()
+                .connectionPoolConfiguration(cp -> cp
+                        .minSize(0)
+                        .maxSize(2)
+                        .connectionFactoryConfiguration(cf -> cf
+                                .jdbcUrl(jdbcUrl)
+                                .principal(new NamePrincipal(username))
+                                .credential(new SimplePassword(password)))));
     }
 }

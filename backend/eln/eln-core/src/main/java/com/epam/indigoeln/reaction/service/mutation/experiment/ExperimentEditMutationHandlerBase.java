@@ -4,10 +4,9 @@ import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.service.CompoundService;
+import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.mapper.DictionaryMapper;
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
-import com.epam.indigoeln.eln.model.SaltCodeRef;
-import com.epam.indigoeln.eln.model.StereoisomerCodeRef;
+import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
@@ -32,7 +31,7 @@ import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE;
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE_HUNDRED;
 import static com.google.common.base.MoreObjects.firstNonNull;
 
-public abstract class ExperimentMutationHandlerBase<T extends ExperimentMutation> extends AbstractExperimentMutationHandler<T> {
+public abstract class ExperimentEditMutationHandlerBase<T extends ExperimentMutation> extends AbstractExperimentMutationHandler<T> {
 
     @Inject
     IndigoAPI indigoAPI;
@@ -42,6 +41,16 @@ public abstract class ExperimentMutationHandlerBase<T extends ExperimentMutation
     DictionaryService dictionaryService;
     @Inject
     DictionaryMapper dictionaryMapper;
+
+    @Override
+    protected void doValidateAccess(ExperimentEntity entity) {
+        aclService.ensureAccess(entity, ApplicationPermission.EDIT_EXPERIMENTS);
+    }
+
+    @Override
+    protected void doValidateStatus(ExperimentEntity entity) {
+        ensureStatus(entity, ExperimentStatus.OPEN, ExperimentStatus.REOPEN);
+    }
 
     public <U extends MeasurementUnit> void setEnteredValue(Consumer<EnteredValue<U>> setter, @Nullable String stringValue, @Nullable U unit, int revisionNo) {
         doSetEnteredValue(setter, stringValue, unit, revisionNo, EnteredValue.empty());

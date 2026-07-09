@@ -7,13 +7,13 @@ import com.epam.indigoeln.compound.model.search.SearchCatalog;
 import com.epam.indigoeln.compound.model.search.TextSearch;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
-import com.epam.indigoeln.eln.model.AccessLevel;
-import com.epam.indigoeln.eln.model.BuiltInDictionary;
-import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
-import com.epam.indigoeln.eln.model.ExperimentRequest;
+import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.ReactionInput;
 import com.epam.indigoeln.reaction.model.ReactionRole;
-import com.epam.indigoeln.reaction.model.mutation.*;
+import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
 import io.quarkus.test.junit.QuarkusTest;
@@ -193,7 +193,7 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     @Order(1400)
     void testEditProperties() {
         ExperimentDetailsDTO experiment2 = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
-        experiment.mutate(new ExperimentMutation.EditExperimentAttributes(
+        experimentClient.editExperiment(experiment.id(), new ExperimentEditRequest(
                 JsonNullable.of("new title"),
                 JsonNullable.of(dictionaryClient.getFirst(THERAPEUTIC_AREA)),
                 JsonNullable.undefined(),
@@ -203,8 +203,8 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
                 JsonNullable.undefined(),
                 JsonNullable.undefined()
         ));
-        experiment.mutate(new ExperimentMutation.EditExperimentAccess(
-                AccessForm.of(LISA_USERNAME, AccessLevel.EDIT)
-        ), false);
+        experimentClient.updateExperimentAccess(experiment.id(), AccessForm.of(
+                LISA_USERNAME, AccessLevel.EDIT
+        ));
     }
 }

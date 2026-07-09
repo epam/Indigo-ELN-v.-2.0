@@ -79,11 +79,6 @@ public class NotebookResource implements NotebookAPI {
     }
 
     @Override
-    public List<NestedACLEntryDTO> getNestedNotebookAccess(UUID notebookId) {
-        return notebookService.getNestedNotebookAccess(notebookId);
-    }
-
-    @Override
     public List<RevisionSummaryDTO> getNotebookRevisions(UUID notebookId) {
         return notebookService.getNotebookRevisions(notebookId);
     }

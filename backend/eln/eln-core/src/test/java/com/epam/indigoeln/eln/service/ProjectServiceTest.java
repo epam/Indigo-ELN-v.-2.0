@@ -598,15 +598,6 @@ class ProjectServiceTest extends ELNBaseTest {
         }
 
         @Test
-        void testGetNestedAccess() {
-            assertThat(projectClient.getNestedProjectAccess(project.getId()))
-                    .containsExactly(
-                            new NestedACLEntryDTO(ELNEntityType.NOTEBOOK, notebook.getId(), notebook.getName(), BART_DISPLAY_NAME, AccessLevel.ADMIN),
-                            new NestedACLEntryDTO(ELNEntityType.EXPERIMENT, experiment.getId(), experiment.getName(), LISA_DISPLAY_NAME, AccessLevel.VIEW)
-                    );
-        }
-
-        @Test
         void testRemoveAccess() {
             List<ACLEntryDTO> projectAccess = projectClient.updateProjectAccess(project.getId(), AccessForm.of(BART_USERNAME, AccessLevel.NONE));
             assertThatACL(projectAccess).containsOnly(

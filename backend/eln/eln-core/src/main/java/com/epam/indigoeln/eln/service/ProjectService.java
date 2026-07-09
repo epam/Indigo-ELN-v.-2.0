@@ -86,10 +86,6 @@ public class ProjectService {
         return projectMapper.convertACLList(project.getFullACL());
     }
 
-    public List<NestedACLEntryDTO> getNestedProjectAccess(UUID projectId) {
-        return projectRepository.findNestedAccess(projectId);
-    }
-
     public MutationResult<ProjectSnapshot, ProjectMutationContext> applyMutation(ProjectEntity project, ProjectMutation mutation) {
         log.debug("Mutating project {}: {}", project.getId(), mutation);
         return mutationHandlerRegistry.withHandler(mutation, (AbstractProjectMutationHandler<ProjectMutation> handler) -> handler.applyMutation(project, mutation));

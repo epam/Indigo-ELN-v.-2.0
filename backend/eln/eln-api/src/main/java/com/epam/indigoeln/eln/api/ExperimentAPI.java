@@ -128,7 +128,7 @@ public interface ExperimentAPI extends BaseAPI {
     ExperimentDetailsDTO completeExperiment(@PathParam("experimentId") UUID experimentId);
 
     @POST
-    @Path("/experiments/{experimentId}/workflow/sign")
+    @Path("/experiments/{experimentId}/workflow/submit")
     ExperimentDetailsDTO submitExperiment(@PathParam("experimentId") UUID experimentId, @QueryParam("signatureTemplateId") UUID signatureTemplateId);
 
     @POST

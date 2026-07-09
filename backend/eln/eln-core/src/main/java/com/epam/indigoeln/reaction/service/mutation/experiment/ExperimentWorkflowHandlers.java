@@ -1,18 +1,13 @@
 package com.epam.indigoeln.reaction.service.mutation.experiment;
 
-import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.common.model.DocumentStatus;
 import com.epam.indigoeln.eln.entity.AttachmentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
-import com.epam.indigoeln.eln.model.ApplicationPermission;
-import com.epam.indigoeln.eln.model.ExperimentStatus;
 import com.epam.indigoeln.eln.repository.AttachmentRepository;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
-import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.ExperimentService;
-import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
@@ -20,69 +15,105 @@ import com.epam.indigoeln.signature.api.SignatureClient;
 import com.epam.indigoeln.signature.model.DocumentDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.MoreObjects;
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import lombok.SneakyThrows;
-import one.util.streamex.StreamEx;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.jspecify.annotations.Nullable;
-
-import java.util.Arrays;
 
 import static com.epam.indigoeln.common.util.ModelUtil.useTempFile;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.SUBMIT_EXPERIMENTS;
 import static com.epam.indigoeln.eln.model.ExperimentStatus.*;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+abstract class ExperimentWorkflowMutationHandlerBase<T extends ExperimentMutation> extends AbstractExperimentMutationHandler<T> {
+
+    public void updateStatusFromSignature(ExperimentEntity experiment, DocumentStatus documentStatus) {
+        switch (documentStatus) {
+            case SIGNING -> {
+                ensureStatus(experiment, SUBMITTED, SIGNING);
+                experiment.setStatus(SIGNING);
+            }
+            case SIGNED -> {
+                ensureStatus(experiment, SUBMITTED, SIGNING);
+                experiment.setStatus(SIGNED);
+                experiment.setStatus(ARCHIVED);
+            }
+            case REJECTED -> {
+                ensureStatus(experiment, SUBMITTED, SIGNING, REJECTED);
+                experiment.setStatus(REJECTED);
+            }
+        }
+    }
+
+}
+
 @Dependent
 @MutationHandlerFor(ExperimentMutation.CancelExperiment.class)
-class CancelExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMutation.CancelExperiment> {
+class CancelExperimentHandler extends ExperimentWorkflowMutationHandlerBase<ExperimentMutation.CancelExperiment> {
 
-    @Inject
-    ExperimentWorkflowHelper helper;
+    @Override
+    protected void doValidateAccess(ExperimentEntity entity) {
+        aclService.ensureAccess(entity, SUBMIT_EXPERIMENTS);
+    }
+
+    @Override
+    protected void doValidateStatus(ExperimentEntity entity) {
+        ensureStatus(entity, OPEN, REOPEN);
+    }
 
     @Override
     public String doHandle(ExperimentEntity experiment, ExperimentMutation.CancelExperiment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
-        helper.transition(experiment, CANCELLED, SUBMIT_EXPERIMENTS, OPEN, REOPEN);
+        experiment.setStatus(CANCELLED);
         return "Experiment cancelled";
     }
 }
 
 @Dependent
 @MutationHandlerFor(ExperimentMutation.ReopenExperiment.class)
-class ReopenExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMutation.ReopenExperiment> {
+class ReopenExperimentHandler extends ExperimentWorkflowMutationHandlerBase<ExperimentMutation.ReopenExperiment> {
 
-    @Inject
-    ExperimentWorkflowHelper helper;
+    @Override
+    protected void doValidateAccess(ExperimentEntity entity) {
+        aclService.ensureAccess(entity, SUBMIT_EXPERIMENTS);
+    }
+
+    @Override
+    protected void doValidateStatus(ExperimentEntity entity) {
+        ensureStatus(entity, CANCELLED, ARCHIVED, COMPLETED, SUBMITTED, REJECTED);
+    }
 
     @Override
     public String doHandle(ExperimentEntity experiment, ExperimentMutation.ReopenExperiment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
-        helper.transition(experiment, REOPEN, SUBMIT_EXPERIMENTS, CANCELLED, ARCHIVED, COMPLETED, SUBMITTED, REJECTED);
+        experiment.setStatus(REOPEN);
         return "Experiment reopened";
     }
 }
 
 @Dependent
 @MutationHandlerFor(ExperimentMutation.CompleteExperiment.class)
-class CompleteExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMutation.CompleteExperiment> {
+class CompleteExperimentHandler extends ExperimentWorkflowMutationHandlerBase<ExperimentMutation.CompleteExperiment> {
 
-    @Inject
-    ExperimentWorkflowHelper helper;
+    @Override
+    protected void doValidateAccess(ExperimentEntity entity) {
+        aclService.ensureAccess(entity, SUBMIT_EXPERIMENTS);
+    }
+
+    @Override
+    protected void doValidateStatus(ExperimentEntity entity) {
+        ensureStatus(entity, OPEN, REOPEN);
+    }
 
     @Override
     public String doHandle(ExperimentEntity experiment, ExperimentMutation.CompleteExperiment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
-        helper.transition(experiment, COMPLETED, SUBMIT_EXPERIMENTS, OPEN, REOPEN);
+        experiment.setStatus(COMPLETED);
         return "Experiment completed";
     }
 }
 
 @Dependent
 @MutationHandlerFor(ExperimentMutation.SubmitExperiment.class)
-class SubmitExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMutation.SubmitExperiment> {
+class SubmitExperimentHandler extends ExperimentWorkflowMutationHandlerBase<ExperimentMutation.SubmitExperiment> {
 
-    @Inject
-    ExperimentWorkflowHelper helper;
     @Inject
     ExperimentService experimentService;
     @Inject
@@ -92,9 +123,19 @@ class SubmitExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
     SignatureClient signatureClient;
 
     @Override
+    protected void doValidateAccess(ExperimentEntity entity) {
+        aclService.ensureAccess(entity, SUBMIT_EXPERIMENTS);
+    }
+
+    @Override
+    protected void doValidateStatus(ExperimentEntity entity) {
+        ensureStatus(entity, COMPLETED, REJECTED);
+    }
+
+    @Override
     @SneakyThrows
     public String doHandle(ExperimentEntity experiment, ExperimentMutation.SubmitExperiment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
-        helper.transition(experiment, SUBMITTED, SUBMIT_EXPERIMENTS, COMPLETED, REJECTED);
+        experiment.setStatus(SUBMITTED);
         ExperimentService.ExperimentReportContent report = experimentService.printReport(experiment);
         AttachmentEntity attachment = attachmentService.createExperimentAttachment(experiment, report.filename(), report.content(), false);
         String documentName = experiment.getName() + (experiment.getVersion() != null ? ", version " + experiment.getVersion() : "");
@@ -103,25 +144,33 @@ class SubmitExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
         });
         experiment.setSignatureNumber(document.getId().toString());
         experiment.setSignatureAttachment(attachment);
-        helper.updateStatusFromSignature(experiment, document.getStatus());
+        updateStatusFromSignature(experiment, document.getStatus());
         return "Experiment submitted for signature";
     }
 }
 
 @Dependent
 @MutationHandlerFor(ExperimentMutation.SignatureUpdated.class)
-class SignatureUpdatedHandler extends ExperimentMutationHandlerBase<ExperimentMutation.SignatureUpdated> {
+class SignatureUpdatedHandler extends ExperimentWorkflowMutationHandlerBase<ExperimentMutation.SignatureUpdated> {
 
-    @Inject
-    ExperimentWorkflowHelper helper;
     @Inject
     AttachmentService attachmentService;
     @Inject
     AttachmentRepository attachmentRepository;
 
     @Override
+    protected void doValidateAccess(ExperimentEntity entity) {
+        // nothing
+    }
+
+    @Override
+    protected void doValidateStatus(ExperimentEntity entity) {
+        // nothing
+    }
+
+    @Override
     public String doHandle(ExperimentEntity experiment, ExperimentMutation.SignatureUpdated mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
-        helper.updateStatusFromSignature(experiment, mutation.documentStatus());
+        updateStatusFromSignature(experiment, mutation.documentStatus());
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
         attachmentService.doAddExperimentAttachment(experiment, attachment);
         return "Signatures update: " + mutation.message();
@@ -130,10 +179,20 @@ class SignatureUpdatedHandler extends ExperimentMutationHandlerBase<ExperimentMu
 
 @Dependent
 @MutationHandlerFor(ExperimentMutation.MakeVersion.class)
-class MakeVersionHandler extends ExperimentMutationHandlerBase<ExperimentMutation.MakeVersion> {
+class MakeVersionHandler extends ExperimentWorkflowMutationHandlerBase<ExperimentMutation.MakeVersion> {
 
     @Inject
     ExperimentRepository experimentRepository;
+
+    @Override
+    protected void doValidateAccess(ExperimentEntity entity) {
+        // nothing
+    }
+
+    @Override
+    protected void doValidateStatus(ExperimentEntity entity) {
+        // nothing
+    }
 
     @Override
     public String doHandle(ExperimentEntity experiment, ExperimentMutation.MakeVersion mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
@@ -149,45 +208,5 @@ class MakeVersionHandler extends ExperimentMutationHandlerBase<ExperimentMutatio
         revision.setVersion(checkNotNull(context.getCreatedVersion()));
         revision.setSnapshot(snapshotAfter);
         return revision;
-    }
-}
-
-@ApplicationScoped
-class ExperimentWorkflowHelper {
-
-    @Inject
-    ACLService aclService;
-    @Inject
-    UserService userService;
-
-    void transition(ExperimentEntity experiment, ExperimentStatus targetStatus, @Nullable ApplicationPermission requiredAccess, ExperimentStatus... allowedStatuses) {
-        if (requiredAccess != null) {
-            aclService.ensureAccess(experiment, requiredAccess);
-        }
-        ensureStatus(experiment, allowedStatuses);
-        experiment.setStatus(targetStatus);
-    }
-
-    void ensureStatus(ExperimentEntity experiment, ExperimentStatus... allowedStatuses) {
-        if (!Arrays.asList(allowedStatuses).contains(experiment.getStatus())) {
-            InvalidRequestException.fail("Experiment is " + experiment.getStatus() + ", must be " + StreamEx.of(allowedStatuses).joining(" or "));
-        }
-    }
-
-    void updateStatusFromSignature(ExperimentEntity experiment, DocumentStatus documentStatus) {
-        switch (documentStatus) {
-            case SIGNING -> {
-                if (experiment.getStatus() != SIGNING) {
-                    transition(experiment, SIGNING, null, SUBMITTED);
-                }
-            }
-            case SIGNED -> {
-                transition(experiment, SIGNED, null, SUBMITTED, SIGNING);
-                transition(experiment, ARCHIVED, null, SIGNED);
-            }
-            case REJECTED -> {
-                transition(experiment, REJECTED, null, SUBMITTED, SIGNING);
-            }
-        }
     }
 }

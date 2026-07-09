@@ -19,7 +19,9 @@ public abstract class MutationHandler<T extends Mutation, E extends WithRevision
         // do the very early preparation; currently only used by undo/redo handlers
         doPrepare(entity, mutation, context);
         // validate user is allowed to perform this mutation;
-        doValidateAccess(entity, mutation, context);
+        doValidateAccess(entity);
+        // validate entity is in appropriate status
+        doValidateStatus(entity);
         // make snapshot of "before" state
         S snapshotBefore = doSnapshotBefore(entity, context);
         // calculate next revision number
@@ -43,7 +45,9 @@ public abstract class MutationHandler<T extends Mutation, E extends WithRevision
         return new MutationResult<>(snapshotBefore, snapshotAfter, patch, context);
     }
 
-    protected abstract void doValidateAccess(E entity, T mutation, C context);
+    protected abstract void doValidateAccess(E entity);
+
+    protected abstract void doValidateStatus(E entity);
 
     public void doPrepare(E entity, T mutation, C context) {
     }

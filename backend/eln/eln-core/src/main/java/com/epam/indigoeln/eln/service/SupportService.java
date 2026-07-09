@@ -20,6 +20,7 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
+import static com.epam.indigoeln.eln.model.ApplicationPermission.CREATE_PROJECTS;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.VIEW_EXPERIMENTS;
 
 // no @Transactional
@@ -51,6 +52,7 @@ public class SupportService {
     private final Random random = new Random();
 
     public Map<String, String> migrate() {
+        aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_USERS);
         MigrateResult result = flyway.migrate();
         return Map.of(
                 "migrations executed", Integer.toString(result.migrationsExecuted),
@@ -60,6 +62,7 @@ public class SupportService {
 
     @Transactional
     public Map<String, String> insertTestData() {
+        aclService.ensureTopLevelAccess(CREATE_PROJECTS);
         List<TherapeuticAreaRef> therapeuticAreas = dictionaryService.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA.name(), false);
         List<ProjectCodeRef> projectCodes = dictionaryService.getDictionary(BuiltInDictionary.PROJECT_CODE.name(), false);
         TemplateDTO template = templateService.getByName("Default");

@@ -5,9 +5,14 @@ import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.common.repository.BaseRepository;
 import com.epam.indigoeln.eln.common.util.Conditions;
-import com.epam.indigoeln.eln.entity.*;
+import com.epam.indigoeln.eln.entity.NotebookEntity;
+import com.epam.indigoeln.eln.entity.NotebookRevisionEntity;
+import com.epam.indigoeln.eln.entity.ProjectEntity;
+import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.mapper.NotebookMapper;
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.model.ApplicationPermission;
+import com.epam.indigoeln.eln.model.ELNEntityType;
+import com.epam.indigoeln.eln.model.NotebookDTO;
 import com.epam.indigoeln.eln.service.ACLService;
 import com.google.common.base.MoreObjects;
 import io.quarkus.panache.common.Sort;
@@ -21,7 +26,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 @ApplicationScoped
 public class NotebookRepository extends BaseRepository<NotebookEntity> {
@@ -80,26 +84,6 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
 
     public boolean existsByName(String name) {
         return count("name", name) > 0;
-    }
-
-    public List<NestedACLEntryDTO> findNestedAccess(UUID notebookId) {
-        @SuppressWarnings("unchecked")
-        Stream<Object[]> stream = em.createQuery("select e, a from Experiment e " +
-                        "join e.aclEntities a " +
-                        "join fetch a.user " +
-                        "where e.notebook.id = :notebookId " +
-                        "and a.level != :implicitView"
-                )
-                .setParameter("notebookId", notebookId)
-                .setParameter("implicitView", AccessLevel.IMPLICIT_VIEW)
-                .getResultStream();
-        return stream
-                .map(arr -> {
-                    ExperimentEntity entity = (ExperimentEntity) arr[0];
-                    ExperimentACLEntity entry = (ExperimentACLEntity) arr[1];
-                    return new NestedACLEntryDTO(ELNEntityType.EXPERIMENT, entity.getId(), entity.getName(), entry.getUser().getDisplayName(), entry.getLevel());
-                })
-                .toList();
     }
 
     public void persistRevision(NotebookRevisionEntity revision) {

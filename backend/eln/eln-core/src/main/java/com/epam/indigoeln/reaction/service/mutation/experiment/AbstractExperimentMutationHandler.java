@@ -1,9 +1,10 @@
 package com.epam.indigoeln.reaction.service.mutation.experiment;
 
+import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
 import com.epam.indigoeln.eln.mapper.SnapshotMapper;
-import com.epam.indigoeln.eln.model.ApplicationPermission;
+import com.epam.indigoeln.eln.model.ExperimentStatus;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.RevisionService;
@@ -26,6 +27,7 @@ import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -63,11 +65,6 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
     @Override
     protected ExperimentMutationContext createContext() {
         return new ExperimentMutationContext();
-    }
-
-    @Override
-    protected void doValidateAccess(ExperimentEntity experiment, T mutation, ExperimentMutationContext context) {
-        aclService.ensureAccess(experiment, ApplicationPermission.EDIT_EXPERIMENTS);
     }
 
     protected final ExperimentSnapshot doSnapshotBefore(ExperimentEntity experiment, ExperimentMutationContext context) {
@@ -140,6 +137,12 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
     private void doNotifyAfterRecalculate(ExperimentEntity entity, ExperimentMutationContext context) {
         for (ExperimentModelMutationListener listener : listeners) {
             listener.afterRecalculate(entity, context);
+        }
+    }
+
+    protected void ensureStatus(ExperimentEntity experiment, ExperimentStatus... allowedStatuses) {
+        if (!Arrays.asList(allowedStatuses).contains(experiment.getStatus())) {
+            InvalidRequestException.fail("Experiment is " + experiment.getStatus() + ", must be " + StreamEx.of(allowedStatuses).joining(" or "));
         }
     }
 }

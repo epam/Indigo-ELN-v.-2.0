@@ -87,13 +87,8 @@ public class NotebookService {
 
     public List<ACLEntryDTO> updateNotebookAccess(UUID notebookId, List<AccessForm> form) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
-        aclService.ensureAccess(notebook, ApplicationPermission.MANAGE_NOTEBOOK_ACCESS);
         applyMutation(notebook, new NotebookMutation.EditNotebookAccess(form));
         return notebookMapper.convertACLList(notebook.getFullACL());
-    }
-
-    public List<NestedACLEntryDTO> getNestedNotebookAccess(UUID projectId) {
-        return notebookRepository.findNestedAccess(projectId);
     }
 
     public MutationResult<NotebookSnapshot, NotebookMutationContext> applyMutation(NotebookEntity notebook, NotebookMutation mutation) {

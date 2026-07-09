@@ -77,11 +77,6 @@ public class ProjectResource implements ProjectAPI {
     }
 
     @Override
-    public List<NestedACLEntryDTO> getNestedProjectAccess(UUID projectId) {
-        return projectService.getNestedProjectAccess(projectId);
-    }
-
-    @Override
     public List<RevisionSummaryDTO> getProjectRevisions(UUID projectId) {
         return projectService.getProjectRevisions(projectId);
     }
