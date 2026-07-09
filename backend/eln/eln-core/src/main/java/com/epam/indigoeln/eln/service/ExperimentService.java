@@ -55,6 +55,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
+import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
 import static com.epam.indigoeln.common.util.ContentDispositionUtil.extractFilename;
 import static com.epam.indigoeln.common.util.ContentDispositionUtil.generateContentDisposition;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
@@ -153,7 +154,6 @@ public class ExperimentService {
 
     public List<ACLEntryDTO> updateExperimentAccess(UUID experimentId, List<AccessForm> form) {
         ExperimentEntity experiment = experimentRepository.getAndLock(experimentId);
-        aclService.ensureAccess(experiment, MANAGE_EXPERIMENT_ACCESS);
         ExperimentMutation mutation = new ExperimentMutation.EditExperimentAccess(form);
         experimentModelService.applyMutation(experiment, mutation);
         return experimentMapper.convertACLList(experiment.getFullACL());
@@ -161,6 +161,7 @@ public class ExperimentService {
 
     @SneakyThrows
     public MutationResponse mutateModel(UUID experimentId, Integer revision, boolean verifyUndoRedo, ExperimentMutation mutation) {
+        validate(mutation.isMutateMethodAllowed(), "Mutation is not allowed for generic mutate method");
         ExperimentEntity experiment = experimentRepository.getAndLock(experimentId);
         aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
         MutationResult<ExperimentSnapshot, ExperimentMutationContext> result = experimentModelService.applyMutation(experiment, mutation);

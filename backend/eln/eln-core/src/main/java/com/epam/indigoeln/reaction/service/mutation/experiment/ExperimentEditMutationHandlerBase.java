@@ -49,7 +49,7 @@ public abstract class ExperimentEditMutationHandlerBase<T extends ExperimentMuta
 
     @Override
     protected void doValidateStatus(ExperimentEntity entity) {
-        ExperimentWorkflowHelper.ensureStatus(entity, ExperimentStatus.OPEN, ExperimentStatus.REOPEN);
+        ensureStatus(entity, ExperimentStatus.OPEN, ExperimentStatus.REOPEN);
     }
 
     public <U extends MeasurementUnit> void setEnteredValue(Consumer<EnteredValue<U>> setter, @Nullable String stringValue, @Nullable U unit, int revisionNo) {

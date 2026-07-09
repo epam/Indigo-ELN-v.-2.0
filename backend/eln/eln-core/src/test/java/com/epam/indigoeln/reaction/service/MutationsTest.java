@@ -693,7 +693,7 @@ public class MutationsTest extends MutationsTestBase {
 
     @Test
     void testEditingOnlyAllowedOnOpenExperiment() {
-        experiment.mutate(new ExperimentMutation.CompleteExperiment());
+        experimentClient.completeExperiment(experiment.id());
         assertThatClientCall(() -> experiment.mutateAddEmptyInput())
                 .isBadRequest("Experiment is COMPLETED, must be OPEN or REOPEN");
     }

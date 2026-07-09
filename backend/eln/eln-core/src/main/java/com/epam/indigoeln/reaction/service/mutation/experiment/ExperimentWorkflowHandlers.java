@@ -1,5 +1,6 @@
 package com.epam.indigoeln.reaction.service.mutation.experiment;
 
+import com.epam.indigoeln.common.model.DocumentStatus;
 import com.epam.indigoeln.eln.entity.AttachmentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
@@ -22,11 +23,27 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import static com.epam.indigoeln.common.util.ModelUtil.useTempFile;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.SUBMIT_EXPERIMENTS;
 import static com.epam.indigoeln.eln.model.ExperimentStatus.*;
-import static com.epam.indigoeln.reaction.service.mutation.experiment.ExperimentWorkflowHelper.ensureStatus;
-import static com.epam.indigoeln.reaction.service.mutation.experiment.ExperimentWorkflowHelper.updateStatusFromSignature;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 abstract class ExperimentWorkflowMutationHandlerBase<T extends ExperimentMutation> extends AbstractExperimentMutationHandler<T> {
+
+    public void updateStatusFromSignature(ExperimentEntity experiment, DocumentStatus documentStatus) {
+        switch (documentStatus) {
+            case SIGNING -> {
+                ensureStatus(experiment, SUBMITTED, SIGNING);
+                experiment.setStatus(SIGNING);
+            }
+            case SIGNED -> {
+                ensureStatus(experiment, SUBMITTED, SIGNING);
+                experiment.setStatus(SIGNED);
+                experiment.setStatus(ARCHIVED);
+            }
+            case REJECTED -> {
+                ensureStatus(experiment, SUBMITTED, SIGNING, REJECTED);
+                experiment.setStatus(REJECTED);
+            }
+        }
+    }
 
 }
 

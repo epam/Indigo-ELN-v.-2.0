@@ -233,7 +233,7 @@ class SetBatchCreatorHandler extends ExperimentEditMutationHandlerBase<Experimen
 
 @Dependent
 @MutationHandlerFor(ExperimentMutation.EditExperimentAccess.class)
-class EditExperimentAccessHandler extends ExperimentEditMutationHandlerBase<ExperimentMutation.EditExperimentAccess> {
+class EditExperimentAccessHandler extends AbstractExperimentMutationHandler<ExperimentMutation.EditExperimentAccess> {
 
     @Inject
     ACLService aclService;
@@ -245,6 +245,11 @@ class EditExperimentAccessHandler extends ExperimentEditMutationHandlerBase<Expe
     @Override
     protected void doValidateAccess(ExperimentEntity experiment) {
         aclService.ensureAccess(experiment, ApplicationPermission.MANAGE_EXPERIMENT_ACCESS);
+    }
+
+    @Override
+    protected void doValidateStatus(ExperimentEntity entity) {
+        // nothing
     }
 
     @Override
