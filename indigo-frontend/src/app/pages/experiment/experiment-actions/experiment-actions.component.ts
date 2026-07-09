@@ -158,7 +158,7 @@ export class ExperimentActionsComponent {
       case Action.SUBMIT:
       case Action.RESUBMIT:
         this.openSignDialog((templateId) =>
-          this.runWorkflow('sign', 'Experiment submitted for signature', {
+          this.runWorkflow('submit', 'Experiment submitted for signature', {
             signatureTemplateId: templateId,
           }),
         );
