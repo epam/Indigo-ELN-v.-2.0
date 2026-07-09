@@ -4,7 +4,7 @@ import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
 
-public abstract class AbstractReactionOutputSampleMutationHandler<T extends ReactionOutputSampleMutation> extends ExperimentMutationHandlerBase<T> {
+public abstract class AbstractReactionOutputSampleMutationHandler<T extends ReactionOutputSampleMutation> extends ExperimentEditMutationHandlerBase<T> {
 
     @Override
     public String doHandle(ExperimentEntity experiment, T mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {

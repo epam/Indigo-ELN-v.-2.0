@@ -37,7 +37,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 @Dependent
 @MutationHandlerFor(ExperimentMutation.CreateExperiment.class)
-class CreateExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMutation.CreateExperiment> {
+class CreateExperimentHandler extends AbstractExperimentMutationHandler<ExperimentMutation.CreateExperiment> {
 
     @Inject
     DictionaryService dictionaryService;
@@ -51,8 +51,13 @@ class CreateExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
     UserService userService;
 
     @Override
-    protected void doValidateAccess(ExperimentEntity experiment, ExperimentMutation.CreateExperiment mutation, ExperimentMutationContext context) {
+    protected void doValidateAccess(ExperimentEntity experiment) {
         aclService.ensureAccess(experiment.getNotebook(), ApplicationPermission.CREATE_EXPERIMENTS);
+    }
+
+    @Override
+    protected void doValidateStatus(ExperimentEntity entity) {
+        // nothing
     }
 
     @Override
@@ -79,7 +84,7 @@ class CreateExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
 
 @Dependent
 @MutationHandlerFor(ExperimentMutation.SetExperimentSignificantFigures.class)
-class SetExperimentSignificantFiguresHandler extends ExperimentMutationHandlerBase<ExperimentMutation.SetExperimentSignificantFigures> {
+class SetExperimentSignificantFiguresHandler extends ExperimentEditMutationHandlerBase<ExperimentMutation.SetExperimentSignificantFigures> {
 
     @Override
     public String doHandle(ExperimentEntity entity, ExperimentMutation.SetExperimentSignificantFigures mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
@@ -95,7 +100,7 @@ class SetExperimentSignificantFiguresHandler extends ExperimentMutationHandlerBa
 
 @Dependent
 @MutationHandlerFor(ExperimentMutation.EditExperimentAttributes.class)
-class EditExperimentAttributesHandler extends ExperimentMutationHandlerBase<ExperimentMutation.EditExperimentAttributes> {
+class EditExperimentAttributesHandler extends ExperimentEditMutationHandlerBase<ExperimentMutation.EditExperimentAttributes> {
 
     @Inject
     DictionaryService dictionaryService;
@@ -195,7 +200,7 @@ class EditExperimentAttributesHandler extends ExperimentMutationHandlerBase<Expe
 
 @Dependent
 @MutationHandlerFor(ExperimentMutation.SetBatchCreator.class)
-class SetBatchCreatorHandler extends ExperimentMutationHandlerBase<ExperimentMutation.SetBatchCreator> {
+class SetBatchCreatorHandler extends ExperimentEditMutationHandlerBase<ExperimentMutation.SetBatchCreator> {
 
     @Inject
     UserRepository userRepository;
@@ -228,7 +233,7 @@ class SetBatchCreatorHandler extends ExperimentMutationHandlerBase<ExperimentMut
 
 @Dependent
 @MutationHandlerFor(ExperimentMutation.EditExperimentAccess.class)
-class EditExperimentAccessHandler extends ExperimentMutationHandlerBase<ExperimentMutation.EditExperimentAccess> {
+class EditExperimentAccessHandler extends ExperimentEditMutationHandlerBase<ExperimentMutation.EditExperimentAccess> {
 
     @Inject
     ACLService aclService;
@@ -238,7 +243,7 @@ class EditExperimentAccessHandler extends ExperimentMutationHandlerBase<Experime
     EntityMutationHelper entityMutationHelper;
 
     @Override
-    protected void doValidateAccess(ExperimentEntity experiment, ExperimentMutation.EditExperimentAccess mutation, ExperimentMutationContext context) {
+    protected void doValidateAccess(ExperimentEntity experiment) {
         aclService.ensureAccess(experiment, ApplicationPermission.MANAGE_EXPERIMENT_ACCESS);
     }
 
@@ -254,7 +259,7 @@ class EditExperimentAccessHandler extends ExperimentMutationHandlerBase<Experime
 
 @Dependent
 @MutationHandlerFor(ExperimentMutation.CreateExperimentAttachment.class)
-class CreateExperimentAttachmentHandler extends ExperimentMutationHandlerBase<ExperimentMutation.CreateExperimentAttachment> {
+class CreateExperimentAttachmentHandler extends ExperimentEditMutationHandlerBase<ExperimentMutation.CreateExperimentAttachment> {
 
     @Inject
     AttachmentRepository attachmentRepository;
@@ -281,7 +286,7 @@ class CreateExperimentAttachmentHandler extends ExperimentMutationHandlerBase<Ex
 
 @Dependent
 @MutationHandlerFor(ExperimentMutation.DeleteExperimentAttachment.class)
-class DeleteExperimentAttachmentHandler extends ExperimentMutationHandlerBase<ExperimentMutation.DeleteExperimentAttachment> {
+class DeleteExperimentAttachmentHandler extends ExperimentEditMutationHandlerBase<ExperimentMutation.DeleteExperimentAttachment> {
 
     @Inject
     AttachmentRepository attachmentRepository;
@@ -311,6 +316,16 @@ class DeleteExperimentAttachmentHandler extends ExperimentMutationHandlerBase<Ex
 class ExperimentAccessUpdatedHandler extends AbstractExperimentMutationHandler<ExperimentMutation.ExperimentAccessUpdated> {
 
     @Override
+    protected void doValidateAccess(ExperimentEntity experiment) {
+        // nothing
+    }
+
+    @Override
+    protected void doValidateStatus(ExperimentEntity experiment) {
+        // nothing
+    }
+
+    @Override
     public String doHandle(ExperimentEntity experiment, ExperimentMutation.ExperimentAccessUpdated mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         aclService.recalculateACL(experiment);
         String reason = mutation.projectName() != null ? "project " + mutation.projectName() : "notebook " + mutation.notebookName();
@@ -324,6 +339,16 @@ class ExperimentNameUpdatedHandler extends AbstractExperimentMutationHandler<Exp
 
     @Inject
     ExperimentRepository experimentRepository;
+
+    @Override
+    protected void doValidateAccess(ExperimentEntity experiment) {
+        // nothing
+    }
+
+    @Override
+    protected void doValidateStatus(ExperimentEntity experiment) {
+        // nothing
+    }
 
     @Override
     public String doHandle(ExperimentEntity experiment, ExperimentMutation.ExperimentNameUpdated mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
@@ -343,7 +368,7 @@ class ExperimentNameUpdatedHandler extends AbstractExperimentMutationHandler<Exp
 
 @Dependent
 @MutationHandlerFor(ExperimentMutation.Undo.class)
-class ExperimentUndoHandler extends ExperimentMutationHandlerBase<ExperimentMutation.Undo> {
+class ExperimentUndoHandler extends ExperimentEditMutationHandlerBase<ExperimentMutation.Undo> {
 
     @Inject
     ExperimentUndoHelper experimentUndoHelper;
@@ -370,7 +395,7 @@ class ExperimentUndoHandler extends ExperimentMutationHandlerBase<ExperimentMuta
 
 @Dependent
 @MutationHandlerFor(ExperimentMutation.Redo.class)
-class ExperimentRedoHandler extends ExperimentMutationHandlerBase<ExperimentMutation.Redo> {
+class ExperimentRedoHandler extends ExperimentEditMutationHandlerBase<ExperimentMutation.Redo> {
 
     @Inject
     ExperimentUndoHelper experimentUndoHelper;

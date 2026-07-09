@@ -59,8 +59,13 @@ public abstract class AbstractProjectMutationHandler<T extends Mutation> extends
     }
 
     @Override
-    protected void doValidateAccess(ProjectEntity project, T mutation, ProjectMutationContext context) {
+    protected void doValidateAccess(ProjectEntity project) {
         aclService.ensureAccess(project, ApplicationPermission.EDIT_PROJECTS);
+    }
+
+    @Override
+    protected void doValidateStatus(ProjectEntity entity) {
+        // nothing
     }
 
     @Override

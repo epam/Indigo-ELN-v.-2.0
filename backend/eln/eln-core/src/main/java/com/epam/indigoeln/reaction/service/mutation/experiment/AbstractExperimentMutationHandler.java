@@ -3,7 +3,6 @@ package com.epam.indigoeln.reaction.service.mutation.experiment;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
 import com.epam.indigoeln.eln.mapper.SnapshotMapper;
-import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.RevisionService;
@@ -63,11 +62,6 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
     @Override
     protected ExperimentMutationContext createContext() {
         return new ExperimentMutationContext();
-    }
-
-    @Override
-    protected void doValidateAccess(ExperimentEntity experiment, T mutation, ExperimentMutationContext context) {
-        aclService.ensureAccess(experiment, ApplicationPermission.EDIT_EXPERIMENTS);
     }
 
     protected final ExperimentSnapshot doSnapshotBefore(ExperimentEntity experiment, ExperimentMutationContext context) {

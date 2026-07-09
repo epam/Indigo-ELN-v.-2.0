@@ -692,6 +692,13 @@ public class MutationsTest extends MutationsTestBase {
     }
 
     @Test
+    void testEditingOnlyAllowedOnOpenExperiment() {
+        experiment.mutate(new ExperimentMutation.CompleteExperiment());
+        assertThatClientCall(() -> experiment.mutateAddEmptyInput())
+                .isBadRequest("Experiment is COMPLETED, must be OPEN or REOPEN");
+    }
+
+    @Test
     void testParallelMutations() {
         ReactionAnchor reactionAnchor = experiment.reaction().getAnchor();
         assertThatNoException().isThrownBy(() -> {

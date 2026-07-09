@@ -33,7 +33,7 @@ class CreateNotebookHandler extends AbstractNotebookMutationHandler<NotebookMuta
     UserService userService;
 
     @Override
-    protected void doValidateAccess(NotebookEntity notebook, NotebookMutation.CreateNotebook mutation, NotebookMutationContext context) {
+    protected void doValidateAccess(NotebookEntity notebook) {
         aclService.ensureAccess(notebook.getProject(), ApplicationPermission.CREATE_NOTEBOOKS);
     }
 
@@ -99,7 +99,7 @@ class EditNotebookAccessHandler extends AbstractNotebookMutationHandler<Notebook
     EntityMutationHelper entityMutationHelper;
 
     @Override
-    protected void doValidateAccess(NotebookEntity notebook, NotebookMutation.EditNotebookAccess mutation, NotebookMutationContext context) {
+    protected void doValidateAccess(NotebookEntity notebook) {
         aclService.ensureAccess(notebook, ApplicationPermission.MANAGE_NOTEBOOK_ACCESS);
     }
 

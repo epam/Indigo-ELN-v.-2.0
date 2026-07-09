@@ -57,8 +57,13 @@ public abstract class AbstractNotebookMutationHandler<T extends Mutation> extend
     }
 
     @Override
-    protected void doValidateAccess(NotebookEntity notebook, T mutation, NotebookMutationContext context) {
+    protected void doValidateAccess(NotebookEntity notebook) {
         aclService.ensureAccess(notebook, ApplicationPermission.EDIT_NOTEBOOKS);
+    }
+
+    @Override
+    protected void doValidateStatus(NotebookEntity entity) {
+        // nothing
     }
 
     @Override
