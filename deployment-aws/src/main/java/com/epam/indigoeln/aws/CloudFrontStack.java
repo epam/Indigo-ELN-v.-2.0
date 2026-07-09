@@ -1,6 +1,7 @@
 package com.epam.indigoeln.aws;
 
 import com.epam.indigoeln.aws.util.Utils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import software.amazon.awscdk.Duration;
@@ -10,11 +11,14 @@ import software.amazon.awscdk.services.apigatewayv2.IHttpApi;
 import software.amazon.awscdk.services.certificatemanager.Certificate;
 import software.amazon.awscdk.services.certificatemanager.CertificateValidation;
 import software.amazon.awscdk.services.cloudfront.*;
+import software.amazon.awscdk.services.cloudfront.experimental.EdgeFunction;
 import software.amazon.awscdk.services.cloudfront.origins.HttpOrigin;
 import software.amazon.awscdk.services.cloudfront.origins.S3BucketOrigin;
 import software.amazon.awscdk.services.iam.ManagedPolicy;
 import software.amazon.awscdk.services.iam.Role;
 import software.amazon.awscdk.services.iam.ServicePrincipal;
+import software.amazon.awscdk.services.lambda.Code;
+import software.amazon.awscdk.services.lambda.Runtime;
 import software.amazon.awscdk.services.route53.ARecord;
 import software.amazon.awscdk.services.route53.IHostedZone;
 import software.amazon.awscdk.services.route53.RecordTarget;
@@ -31,8 +35,8 @@ import software.amazon.awsconstructs.services.wafwebaclcloudfront.WafwebaclToClo
 import software.constructs.Construct;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
@@ -56,7 +60,7 @@ public class CloudFrontStack {
         CachePolicy defaultCachePolicy = CachePolicy.Builder.create(scope, "default-cache-policy")
                 .cachePolicyName("default-cache-policy")
                 .defaultTtl(Duration.minutes(10))
-                .minTtl(Duration.minutes(1))
+                .minTtl(Duration.seconds(0))
                 .maxTtl(Duration.days(365))
                 .build();
 
@@ -73,36 +77,41 @@ public class CloudFrontStack {
                 .viewerProtocolPolicy(ViewerProtocolPolicy.HTTPS_ONLY)
                 .build();
 
-        Function rewriteToIndexHtmlFunction = Function.Builder.create(scope, "rewrite-index-html-function")
-                .runtime(FunctionRuntime.JS_2_0)
-                .code(FunctionCode.fromFile(FileCodeOptions.builder()
-                        .filePath("resources/cloudfront-rewrite-to-index-html-function.js")
-                        .build())
-                )
-                .build();
-
         File frontendCode = new File("../indigo-frontend/dist/indigo-frontend/browser");
 //        File frontendCode = new File("/home/user/Work/indigoeln-frontend/indigo-frontend/dist/indigo-frontend/browser");
 
-        String headersFunctionCode = generateHeadersFunction(frontendCode, Paths.get("resources/cloudfront-headers-function.js"));
-        Function headersFunction = Function.Builder.create(scope, "headers-function")
+        EdgeFunction indexViewerRequestFunction = EdgeFunction.Builder.create(scope, "index-viewer-request-function")
+                .runtime(Runtime.NODEJS_22_X)
+                .handler("index.handler")
+                .code(htmlGeneratorLambdaCode(frontendCode))
+                .build();
+
+        Function staticAssetsResponseFunction = Function.Builder.create(scope, "static-assets-response-function")
+                .code(FunctionCode.fromInline(readFile("resources/cloudfront-static-assets-response-function.js")))
                 .runtime(FunctionRuntime.JS_2_0)
-                .code(FunctionCode.fromInline(headersFunctionCode))
+                .build();
+
+        BehaviorOptions staticAssetsBehavior = BehaviorOptions.builder()
+                .origin(S3BucketOrigin.withOriginAccessControl(frontendCodeS3))
+                .viewerProtocolPolicy(ViewerProtocolPolicy.HTTPS_ONLY)
+                .cachePolicy(defaultCachePolicy)
+                .functionAssociations(List.of(
+                        FunctionAssociation.builder()
+                                .eventType(FunctionEventType.VIEWER_RESPONSE)
+                                .function(staticAssetsResponseFunction)
+                                .build()
+                ))
                 .build();
 
         distribution = Distribution.Builder.create(scope, "cloudfront")
                 .defaultBehavior(BehaviorOptions.builder()
                         .origin(S3BucketOrigin.withOriginAccessControl(frontendCodeS3))
                         .viewerProtocolPolicy(ViewerProtocolPolicy.HTTPS_ONLY)
-                        .cachePolicy(defaultCachePolicy)
-                        .functionAssociations(List.of(
-                                FunctionAssociation.builder()
-                                        .eventType(FunctionEventType.VIEWER_REQUEST)
-                                        .function(rewriteToIndexHtmlFunction)
-                                        .build(),
-                                FunctionAssociation.builder()
-                                        .eventType(FunctionEventType.VIEWER_RESPONSE)
-                                        .function(headersFunction)
+                        .cachePolicy(CachePolicy.CACHING_DISABLED)
+                        .edgeLambdas(List.of(
+                                EdgeLambda.builder()
+                                        .eventType(LambdaEdgeEventType.VIEWER_REQUEST)
+                                        .functionVersion(indexViewerRequestFunction.getCurrentVersion())
                                         .build()
                         ))
                         .build()
@@ -110,11 +119,11 @@ public class CloudFrontStack {
                 .additionalBehaviors(mapOf(
                         entry("/api/*", apiBehavior),
                         entry("/openapi/*", apiBehavior),
-                        entry("/swagger/*", apiBehavior)
+                        entry("/swagger/*", apiBehavior),
+                        entry("*.*", staticAssetsBehavior)
                 ))
                 .domainNames(List.of(props.domainName()))
                 .certificate(certificate)
-                .defaultRootObject("index.html")
                 .priceClass(PriceClass.PRICE_CLASS_200)
                 .build();
 
@@ -184,11 +193,22 @@ public class CloudFrontStack {
     }
 
     @SneakyThrows
-    private String generateHeadersFunction(File frontendCode, Path functionCode) {
-//        String[] hashes = CSPUtil.buildCsp(frontendCode.toPath());
-        return Files.readString(functionCode);
-//                .replace("{{SCRIPTS_SHA}}", hashes[1])
-//                .replace("{{STYLES_SHA}}", hashes[0]);
+    private Code htmlGeneratorLambdaCode(File frontendCode) {
+        String indexHtml = Files.readString(
+                frontendCode.toPath().resolve("index.html"),
+                StandardCharsets.UTF_8
+        );
+        String jsonHtml = new ObjectMapper().writeValueAsString(indexHtml);
+        String template = Files.readString(
+                Paths.get("resources/cloudfront-index-viewer-request-function.js"),
+                StandardCharsets.UTF_8
+        );
+        return Code.fromInline(template.replace("{{INDEX_HTML}}", jsonHtml));
+    }
+
+    @SneakyThrows
+    private String readFile(String path) {
+        return Files.readString(Paths.get(path), StandardCharsets.UTF_8);
     }
 
     private CfnWebACL.RuleProperty createWAFRuleSet(String vendor, String name, int priority, List<CfnWebACL.RuleActionOverrideProperty> overrides) {

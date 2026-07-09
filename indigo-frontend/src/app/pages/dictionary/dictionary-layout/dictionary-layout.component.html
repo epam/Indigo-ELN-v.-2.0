@@ -1,14 +1,5 @@
 <mat-drawer-container hasBackdrop="false">
-  <mat-drawer
-    mode="over"
-    position="end"
-    [style.width.%]="70"
-    [style.min-width.px]="600"
-    [style.boxShadow]="'0 8px 16px rgba(0, 0, 0, 0.2)'"
-    [style.background]="'white'"
-    [opened]="isDrawerOpen"
-    (closed)="closeDrawer()"
-  >
+  <mat-drawer mode="over" position="end" class="dictionary-drawer" [opened]="isDrawerOpen" (closed)="closeDrawer()">
     @if (selectedDictionary) {
       <eln-dictionary-drawer [dictionary]="selectedDictionary" (close)="closeDrawer()" />
     }
