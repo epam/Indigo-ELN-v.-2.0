@@ -1,4 +1,2 @@
 id,username,firstName,lastName,displayName,roles
 00000000-0000-0000-0000-000000000001,admin,Administrator,Administrator,Administrator,"Administrators"
-00000000-0000-0000-0000-000000000010,testuser1,Test,User1,Test User1,"Content Editor"
-00000000-0000-0000-0000-000000000011,testuser2,Test,User2,Test User2,"Content Editor"
