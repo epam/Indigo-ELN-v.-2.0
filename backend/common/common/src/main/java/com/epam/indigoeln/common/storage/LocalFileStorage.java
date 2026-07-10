@@ -26,4 +26,14 @@ public class LocalFileStorage implements FileStorage {
             throw new UncheckedIOException(e);
         }
     }
+
+    @Override
+    public byte[] get(String key) {
+        try {
+            Path path = Path.of(root).resolve(key);
+            return Files.readAllBytes(path);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
 }

@@ -17,10 +17,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Entity(name = "Attachment")
 @NamedEntityGraph(
-        name = "Attachment.download",
-        attributeNodes = {
-                @NamedAttributeNode("content"),
-        }
+        name = "Attachment.download"
 )
 public class AttachmentEntity extends BaseEntity {
 
@@ -42,6 +39,10 @@ public class AttachmentEntity extends BaseEntity {
     @NotNull
     private Boolean deleted;
 
-    @Basic(fetch = FetchType.LAZY)
+    @Transient
     private byte @NotNull[] content;
+
+    public String getKey() {
+        return "attachment/" + id + "~" + name;
+    }
 }

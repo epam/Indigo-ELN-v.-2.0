@@ -1,6 +1,6 @@
 package com.epam.indigoeln.eln.repository;
 
-import com.epam.indigoeln.common.storage.S3FileStorage;
+import com.epam.indigoeln.common.storage.FileStorage;
 import com.epam.indigoeln.eln.common.repository.BaseRepository;
 import com.epam.indigoeln.eln.entity.AttachmentEntity;
 import com.epam.indigoeln.eln.model.AttachmentDTO;
@@ -18,7 +18,7 @@ import java.util.function.Function;
 public class AttachmentRepository extends BaseRepository<AttachmentEntity> {
 
     @Inject
-    S3FileStorage s3FileStorage;
+    FileStorage fileStorage;
 
     public AttachmentRepository() {
         super(ELNEntityType.ATTACHMENT, AttachmentEntity.class);
@@ -26,20 +26,18 @@ public class AttachmentRepository extends BaseRepository<AttachmentEntity> {
 
     @Override
     public AttachmentEntity get(UUID id) {
-        return loadS3Content(super.get(id));
+        return loadFileContent(super.get(id));
     }
 
     @Override
     public void persist(AttachmentEntity attachment) {
-        s3FileStorage.put(attachment.getName(), attachment.getContent());
-        attachment.setSize((long) 0);
-        attachment.setContent(new byte[0]);
         super.persist(attachment);
+        fileStorage.put(attachment.getKey(), attachment.getContent());
     }
 
     @Override
     public AttachmentEntity getReference(UUID id) {
-        return loadS3Content(super.getReference(id));
+        return loadFileContent(super.getReference(id));
     }
 
     public AttachmentEntity load(UUID id) {
@@ -48,7 +46,7 @@ public class AttachmentRepository extends BaseRepository<AttachmentEntity> {
                 em.getEntityGraph("Attachment.download"),
                 Function.identity()
         );
-        return loadS3Content(attachment);
+        return loadFileContent(attachment);
     }
 
     public List<AttachmentEntity> getReferences(Set<AttachmentDTO> attachments) {
@@ -57,10 +55,9 @@ public class AttachmentRepository extends BaseRepository<AttachmentEntity> {
                 .toList();
     }
 
-    private AttachmentEntity loadS3Content(AttachmentEntity attachment) {
-        byte[] content = s3FileStorage.get(attachment.getName());
+    private AttachmentEntity loadFileContent(AttachmentEntity attachment) {
+        byte[] content = fileStorage.get(attachment.getKey());
         attachment.setContent(content);
-        attachment.setSize((long) content.length);
         return attachment;
     }
 }

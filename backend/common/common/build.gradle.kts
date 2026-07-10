@@ -15,8 +15,6 @@ dependencies {
     api("org.eclipse.microprofile.jwt:microprofile-jwt-auth-api")
     api("io.quarkus:quarkus-smallrye-openapi")
     api("io.quarkus:quarkus-rest-client-jackson")
-    implementation("io.quarkiverse.amazonservices:quarkus-amazon-s3")
-    api("software.amazon.awssdk:url-connection-client")
 
     api("org.jspecify:jspecify:1.0.0")
     api("org.jetbrains:annotations:26.0.2-1")
