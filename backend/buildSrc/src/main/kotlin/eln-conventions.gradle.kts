@@ -1,7 +1,9 @@
 import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.gradle.testing.jacoco.tasks.JacocoReport
 
 plugins {
     java
+    jacoco
     id("com.github.ben-manes.versions")
 }
 
@@ -43,6 +45,28 @@ tasks.withType<Test> {
     testLogging {
         showStandardStreams = false
         events = setOf(/*TestLogEvent.PASSED, */TestLogEvent.FAILED, TestLogEvent.SKIPPED)
+    }
+    finalizedBy(tasks.named("jacocoTestReport"))
+}
+
+tasks.named<JacocoReport>("jacocoTestReport") {
+    reports {
+        xml.required.set(true)
+    }
+}
+
+// Quarkus loads app classes through its own classloader, which the standard jacoco javaagent
+// doesn't see through, leaving @QuarkusTest-exercised code at 0% coverage. quarkus-jacoco
+// instruments at build time instead; point its output at the same exec file jacocoTestReport
+// already reads so no extra merging is needed.
+plugins.withId("io.quarkus") {
+    dependencies {
+        "testImplementation"("io.quarkus:quarkus-jacoco")
+    }
+
+    tasks.withType<Test> {
+        systemProperty("quarkus.jacoco.data-file", layout.buildDirectory.file("jacoco/$name.exec").get().asFile.absolutePath)
+        systemProperty("quarkus.jacoco.reuse-data-file", "true")
     }
 }
 
