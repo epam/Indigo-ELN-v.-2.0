@@ -49,6 +49,6 @@ class UserServiceTest extends ELNBaseTest {
     void testGetUserPicture() {
         List<UserRef> all = userClient.suggestUsers(null);
         byte[] response = userClient.getUserPicture(all.getFirst().getUsername(), null);
-        Files.write(Paths.get("user.png"), response);
+        Files.write(Paths.get("build/user.png"), response);
     }
 }
