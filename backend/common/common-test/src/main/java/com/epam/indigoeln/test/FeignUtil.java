@@ -27,10 +27,8 @@ import org.openapitools.jackson.nullable.JsonNullableModule;
 
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -56,12 +54,11 @@ public class FeignUtil {
         return Feign.builder()
                 .client(new ApacheHttpClient())
                 .options(new Request.Options(Duration.ofSeconds(1), Duration.ofDays(1), false))
-                .contract(new JAXRS3Contract())
+                .contract(new BeanParamContract(new JAXRS3Contract()))
+                .queryMapEncoder(new BeanParamQueryMapEncoder())
                 .encoder(new RequestEncoder(new FormEncoder(new JacksonEncoder(OBJECT_MAPPER))))
                 .decoder(new ResponseDecoder(new StringDecoder(), new JacksonDecoder(OBJECT_MAPPER)))
                 .requestInterceptor(request -> {
-                    extractParam(request, "pageNo", "pageNo=", ",");
-                    extractParam(request, "pageSize", "pageSize=", ")");
                     // use admin by default; to allow testing without need to specify username, and also to enable calls from setUp/tearDown methods, where @TestSecurity doesn't work
                     request.header(UserHolder.X_TEST_AUTHORIZATION, MoreObjects.firstNonNull(testUsername.get(), BaseTest.ADMIN_USERNAME));
                     request.header(HttpHeaders.AUTHORIZATION, authorization.get());
@@ -95,21 +92,4 @@ public class FeignUtil {
         return new APICallException(response.status(), response.reason(), errors);
     }
 
-    // workaround for Feign client incorrect handling of @BeanParam
-    private static void extractParam(RequestTemplate request, String paramName, String substringBefore, String substringAfter) {
-        Collection<String> values = request.queries().get(paramName);
-        if (values != null) {
-            String decoded = URLDecoder.decode(values.iterator().next(), StandardCharsets.UTF_8);
-            int p0 = decoded.indexOf(substringBefore);
-            int p1 = decoded.indexOf(substringAfter);
-            if (p0 == -1 || p1 == -1) {
-                throw new IllegalStateException("Incorrectly formatted param: " + decoded);
-            }
-            String value = decoded.substring(p0 + substringBefore.length(), p1);
-            request.query(paramName, (String[]) null);
-            if (!value.equals("null")) {
-                request.query(paramName, value);
-            }
-        }
-    }
 }

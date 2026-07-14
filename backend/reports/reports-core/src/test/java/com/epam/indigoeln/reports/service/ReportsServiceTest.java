@@ -40,7 +40,7 @@ public class ReportsServiceTest extends BaseTest {
     void testReport() throws Exception {
         ReportsAPI.ExperimentReportDataDTO data = new ReportsAPI.ExperimentReportDataDTO(null, null, null);
         try (Response response = reportsClient.generateExperimentReport(fillExperimentDataForJasperReportsStudio().getFirst())) {
-            Files.write(Paths.get("report.pdf"), response.readEntity(byte[].class));
+            Files.write(Paths.get("build/report.pdf"), response.readEntity(byte[].class));
         }
     }
 }
