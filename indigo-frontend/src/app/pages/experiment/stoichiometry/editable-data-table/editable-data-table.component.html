@@ -48,8 +48,8 @@
             class="w-full outline-none"
             [value]="column.field(row) || ''"
             [disabled]="!(column.editable?.(row) ?? true)"
-            (blur)="callSave(column, row, $any($event.target).value)"
-            (keydown.enter)="callSave(column, row, $any($event.target).value)"
+            (blur)="callSave(column, row, $any($event.target).value, null)"
+            (keydown.enter)="callSave(column, row, $any($event.target).value, null)"
           />
 
           <!-- HTML -->
@@ -63,23 +63,29 @@
             class="min-w-full text-right outline-none"
             [value]="column.field(row) || ''"
             [disabled]="!(column.editable?.(row) ?? true)"
-            (blur)="callSave(column, row, $any($event.target).value)"
-            (keydown.enter)="callSave(column, row, $any($event.target).value)"
+            (blur)="callSave(column, row, $any($event.target).value, null)"
+            (keydown.enter)="callSave(column, row, $any($event.target).value, null)"
           />
 
           <!-- Select -->
-          <mat-select
-            *ngIf="column.type === ColumnInputType.SELECT"
-            hideSingleSelectionIndicator
-            class="!w-full !h-full !text-xs capitalize"
-            [value]="column.field(row)"
-            [disabled]="!(column.editable?.(row) ?? true)"
-            (selectionChange)="callSave(column, row, $event.value)"
-          >
-            @for (option of column.options; track option.id) {
-              <mat-option [value]="option.id" class="capitalize text-[0.8rem]">{{ option.name }}</mat-option>
-            }
-          </mat-select>
+          @if (column.type === ColumnInputType.SELECT) {
+            @let options = asObservable(column.options) | async;
+            <mat-select
+              hideSingleSelectionIndicator
+              class="!w-full !h-full !text-xs capitalize"
+              [value]="column.field(row)?.['id']"
+              [disabled]="!(column.editable?.(row) ?? true)"
+              (selectionChange)="callSaveOptions(column, row, $event.value, options)"
+              [panelWidth]="null"
+            >
+              @if (!(column.required?.(row) ?? false)) {
+                <mat-option [value]="" class="capitalize text-[0.8rem]"></mat-option>
+              }
+              @for (option of options; track option.id) {
+                <mat-option [value]="option.id" class="capitalize text-[0.8rem]">{{ option.name }}</mat-option>
+              }
+            </mat-select>
+          }
 
           <!-- Radio (single selection per column) -->
           <input
@@ -88,7 +94,7 @@
             [name]="'eln-editable-table-radio-' + column.id"
             [checked]="column.field(row)"
             [disabled]="!(column.editable?.(row) ?? true)"
-            (change)="callSave(column, row, true)"
+            (change)="callSave(column, row, true, null)"
           />
 
           <!-- Unit Input (weight, volume, etc) -->
@@ -115,39 +121,43 @@
               (openedChange)="!unitSelect.panelOpen && callSaveEV(column, row, 'unit', valueInput, unitSelect)"
               (valueChange)="callSaveEV(column, row, 'unit', valueInput, unitSelect)"
             >
-              @for (unit of column.options; track unit.id) {
+              @let options = asObservable(column.options) | async;
+              @for (unit of options; track unit.id) {
                 <mat-option [value]="unit.id" class="text-[0.8rem]">{{ unit.name }}</mat-option>
               }
             </mat-select>
           </div>
 
           <!-- Multi-Select -->
-          <mat-select
-            #multiSelect
-            *ngIf="column.type === ColumnInputType.MULTI_SELECT"
-            multiple
-            hideSingleSelectionIndicator
-            class="!w-full !h-full !text-xs capitalize"
-            [value]="column.field(row)"
-            [compareWith]="compareDictionaryItems"
-            [disabled]="!(column.editable?.(row) ?? true)"
-            (openedChange)="!$event && callSave(column, row, multiSelect.value)"
-          >
-            <mat-select-trigger>
-              <div class="flex items-center gap-1 min-h-6 overflow-x-auto no-scrollbar pr-4">
-                @for (hazard of multiSelect.value; track hazard.id) {
-                  <span
-                    class="px-1.5 py-0.5 rounded-full bg-primary-50 text-primary-700 border border-primary-200 text-[0.65rem] whitespace-nowrap"
-                  >
-                    {{ hazard.name }}
-                  </span>
-                }
-              </div>
-            </mat-select-trigger>
-            @for (option of column.options; track option.id) {
-              <mat-option [value]="option" class="capitalize text-[0.8rem]">{{ option.name }}</mat-option>
-            }
-          </mat-select>
+          @if (column.type === ColumnInputType.MULTI_SELECT) {
+            @let options = asObservable(column.options) | async;
+            <mat-select
+              #multiSelect
+              multiple
+              hideSingleSelectionIndicator
+              class="!w-full !h-full !text-xs capitalize"
+              [value]="column.field(row)"
+              [compareWith]="compareDictionaryItems"
+              [disabled]="!(column.editable?.(row) ?? true)"
+              (openedChange)="!$event && callSave(column, row, multiSelect.value, [])"
+              [panelWidth]="null"
+            >
+              <mat-select-trigger>
+                <div class="flex items-center gap-1 min-h-6 overflow-x-auto no-scrollbar pr-4">
+                  @for (hazard of multiSelect.value; track hazard.id) {
+                    <span
+                      class="px-1.5 py-0.5 rounded-full bg-primary-50 text-primary-700 border border-primary-200 text-[0.65rem] whitespace-nowrap"
+                    >
+                      {{ hazard.name }}
+                    </span>
+                  }
+                </div>
+              </mat-select-trigger>
+              @for (option of options; track option.id) {
+                <mat-option [value]="option" class="capitalize text-[0.8rem]">{{ option.name }}</mat-option>
+              }
+            </mat-select>
+          }
 
           <!-- Button -->
           <div
