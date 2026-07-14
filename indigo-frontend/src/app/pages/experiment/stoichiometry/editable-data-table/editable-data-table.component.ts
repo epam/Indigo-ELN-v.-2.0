@@ -105,7 +105,6 @@ export class EditableDataTableComponent<TRow = unknown> {
   callSave(column: ColumnConfig<TRow, FieldValue>, row: TRow, newValue: FieldValue, defaultValue: FieldValue): void {
     const oldValue = this.valueOrDefault(column.field(row), defaultValue);
     newValue = this.valueOrDefault(newValue, defaultValue);
-    console.log('callSave, oldValue = ', oldValue, ', newValue = ', newValue, ', changed = ', oldValue !== newValue);
     if (oldValue !== newValue) {
       column.onSave?.(row, newValue);
     }
@@ -114,7 +113,6 @@ export class EditableDataTableComponent<TRow = unknown> {
   callSaveOptions(column: ColumnConfig<TRow, FieldValue>, row: TRow, newId: string, options: ColumnOption[]): void {
     const oldId = this.valueOrDefault(column.field(row)?.['id'], null);
     newId = this.valueOrDefault(newId, null);
-    console.log('callSaveOptions, oldId = ', oldId, ', newId = ', newId, ', changed = ', oldId !== newId);
     if (oldId !== newId) {
       const newValue = options.find((x) => x.id === newId);
       column.onSave?.(row, newValue || null);
@@ -171,7 +169,7 @@ export class EditableDataTableComponent<TRow = unknown> {
     return x;
   }
 
-  toObservable<T>(x: T | Observable<T>): Observable<T> {
+  asObservable<T>(x: T | Observable<T>): Observable<T> {
     return isObservable(x) ? x : of(x);
   }
 }

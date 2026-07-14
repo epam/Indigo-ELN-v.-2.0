@@ -69,7 +69,7 @@
 
           <!-- Select -->
           @if (column.type === ColumnInputType.SELECT) {
-            @let options = toObservable(column.options) | async;
+            @let options = asObservable(column.options) | async;
             <mat-select
               hideSingleSelectionIndicator
               class="!w-full !h-full !text-xs capitalize"
@@ -121,7 +121,7 @@
               (openedChange)="!unitSelect.panelOpen && callSaveEV(column, row, 'unit', valueInput, unitSelect)"
               (valueChange)="callSaveEV(column, row, 'unit', valueInput, unitSelect)"
             >
-              @let options = toObservable(column.options) | async;
+              @let options = asObservable(column.options) | async;
               @for (unit of options; track unit.id) {
                 <mat-option [value]="unit.id" class="text-[0.8rem]">{{ unit.name }}</mat-option>
               }
@@ -130,7 +130,7 @@
 
           <!-- Multi-Select -->
           @if (column.type === ColumnInputType.MULTI_SELECT) {
-            @let options = toObservable(column.options) | async;
+            @let options = asObservable(column.options) | async;
             <mat-select
               #multiSelect
               multiple
