@@ -8,12 +8,14 @@ import { Attachment } from '@/core/types/entities/attachment.i';
 import { CommonModule } from '@angular/common';
 import { Component, inject, Input } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { Router } from '@angular/router';
+import { HasPermissionDirective } from '@core/directives/has-permission.directive';
+import { ProjectService } from '@core/services/project/project.service';
+import { ApplicationPermission } from '@core/types/entities/user.i';
 import { NotebookAddComponent } from '@pages/notebook/notebook-add/notebook-add.component';
 import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
 import { take } from 'rxjs';
 import { ProjectAddComponent } from '../project-add/project-add.component';
-import { ProjectService } from '@core/services/project/project.service';
-import { Router } from '@angular/router';
 
 enum projectInfoModalEnum {
   EDIT = 'edit',
@@ -31,11 +33,13 @@ enum projectInfoModalEnum {
     CardComponent,
     ProjectOverviewWidgetDirective,
     AttachmentsComponent,
+    HasPermissionDirective,
   ],
   templateUrl: './project-info.component.html',
 })
 export class ProjectInfoComponent {
   projectInfoModalEnum = projectInfoModalEnum;
+  applicationPermission = ApplicationPermission;
 
   @Input() projectId!: string;
   dialog = inject(MatDialog);

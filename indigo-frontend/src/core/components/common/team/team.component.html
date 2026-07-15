@@ -9,45 +9,49 @@
   }
 
   <!-- Suggestions field -->
-  <div class="flex items-center justify-between py-3 gap-2">
-    <div class="flex-1">
-      <ng-select
-        [items]="userSuggestions"
-        bindLabel="displayName"
-        bindValue="username"
-        [multiple]="true"
-        [closeOnSelect]="false"
-        [searchable]="true"
-        placeholder="Emails, comma separated"
-        [(ngModel)]="selectedUsers"
-        (change)="onUsersSelected(selectedUsers)"
-        [clearable]="true"
-        class="w-full"
-      >
-        <ng-template ng-option-tmp let-item="item" let-index="index">
-          <div class="flex justify-between" [class.opacity-50]="item.added" [class.pointer-events-none]="item.added">
-            <div class="flex flex-col">
-              <span class="font-medium">{{ item.displayName }}</span>
-              <span class="text-xs text-neutral-600">{{ item.username }}</span>
+  @if (canManage()) {
+    <div class="flex items-center justify-between py-3 gap-2">
+      <div class="flex-1">
+        <ng-select
+          [items]="userSuggestions"
+          bindLabel="displayName"
+          bindValue="username"
+          [multiple]="true"
+          [closeOnSelect]="false"
+          [searchable]="true"
+          placeholder="Emails, comma separated"
+          [(ngModel)]="selectedUsers"
+          (change)="onUsersSelected(selectedUsers)"
+          [clearable]="true"
+          class="w-full"
+        >
+          <ng-template ng-option-tmp let-item="item" let-index="index">
+            <div class="flex justify-between" [class.opacity-50]="item.added" [class.pointer-events-none]="item.added">
+              <div class="flex flex-col">
+                <span class="font-medium">{{ item.displayName }}</span>
+                <span class="text-xs text-neutral-600">{{ item.username }}</span>
+              </div>
+              <div class="flex items-center">
+                <span class="text-xs" [class.text-neutral-500]="item.added">{{
+                  item.added ? 'Already Added' : ''
+                }}</span>
+              </div>
             </div>
-            <div class="flex items-center">
-              <span class="text-xs" [class.text-neutral-500]="item.added">{{ item.added ? 'Already Added' : '' }}</span>
-            </div>
-          </div>
-        </ng-template>
-      </ng-select>
+          </ng-template>
+        </ng-select>
+      </div>
+      <div>
+        <eln-button
+          variant="blue"
+          (click)="addSelectedUsers()"
+          [disabled]="selectedUsers.length === 0 || loading().addingUsers"
+        >
+          <eln-svg icon="user-add" classList="mr-1" color="white" />
+          Add Member
+        </eln-button>
+      </div>
     </div>
-    <div>
-      <eln-button
-        variant="blue"
-        (click)="addSelectedUsers()"
-        [disabled]="selectedUsers.length === 0 || loading().addingUsers"
-      >
-        <eln-svg icon="user-add" classList="mr-1" color="white" />
-        Add Member
-      </eln-button>
-    </div>
-  </div>
+  }
 
   <!-- Team members list -->
   <div class="py-3 grid grid-cols-[auto_1fr_1fr_auto] gap-x-4 gap-y-2 items-center">
@@ -71,15 +75,19 @@
         <eln-copy [text]="member.username" class="flex-shrink-0" />
       </div>
       <div class="flex items-center gap-1 justify-self-end">
-        <eln-dropdown-menu
-          align="end"
-          class="[&_.dd-trigger]:pr-0 [&_.dd-trigger]:pl-2 [&_.dd-trigger]:text-primary-400 [&_.dd-container]:min-w-22"
-          [controlled]="true"
-          [selected]="member.level | normalizeLabel"
-          [items]="aclLevelOptions"
-          (itemSelected)="updateAclLevel(member, $event)"
-          [disabled]="member.disabled"
-        />
+        @if (canManage()) {
+          <eln-dropdown-menu
+            align="end"
+            class="[&_.dd-trigger]:pr-0 [&_.dd-trigger]:pl-2 [&_.dd-trigger]:text-primary-400 [&_.dd-container]:min-w-22"
+            [controlled]="true"
+            [selected]="member.level | normalizeLabel"
+            [items]="aclLevelOptions"
+            (itemSelected)="updateAclLevel(member, $event)"
+            [disabled]="member.disabled"
+          />
+        } @else {
+          <span class="text-neutral-800">{{ member.level | normalizeLabel }}</span>
+        }
       </div>
     }
   </div>

@@ -14,6 +14,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Subscription, take } from 'rxjs';
 
+import { HasPermissionDirective } from '@core/directives/has-permission.directive';
+import { ApplicationPermission } from '@core/types/entities/user.i';
 import { ProjectItemComponent } from '@pages/project/project-item/project-item.component';
 import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
 import { ProjectAddComponent } from '../project-add/project-add.component';
@@ -40,11 +42,13 @@ import { ProjectAddComponent } from '../project-add/project-add.component';
     ProjectOverviewWidgetDirective,
     ButtonComponent,
     ListHeaderComponent,
+    HasPermissionDirective,
   ],
 })
 export class ProjectListComponent extends InfiniteScrollBase<Project> implements OnInit, OnDestroy {
   dialog = inject(MatDialog);
   breadcrumbsState = inject(BreadcrumbsStateService);
+  applicationPermission = ApplicationPermission;
 
   selectedView: 'grid' | 'list' = 'grid';
   private refreshSub!: Subscription;
