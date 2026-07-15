@@ -14,6 +14,7 @@ import com.epam.indigoeln.eln.model.ELNEntityType;
 import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.eln.repository.DictionaryItemRepository;
 import com.epam.indigoeln.eln.service.DictionaryService;
+import com.epam.indigoeln.reaction.model.MolFormula;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -24,6 +25,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
 
 @ApplicationScoped
 public class SampleRepository extends BaseRepository<SampleEntity> {
@@ -65,7 +67,7 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
         }
         addTextSearch(conditions, request.getNbkBatchNumber(), "nbkBatchNumber");;
         addTextSearch(conditions, request.getCompoundKey(), "compound.strCode");
-        addTextSearch(conditions, request.getMolecularFormula(), "compound.formula");
+        addTextSearch(conditions, request.getMolecularFormula(), "compound.formula", MolFormula::normalize);
         addNumericSearch(conditions, request.getMolWeight(), "compound.molWeight");
         addTextSearch(conditions, request.getChemicalName(), "compound.chemicalName");
         addTextSearch(conditions, request.getCasNumber(), "compound.casNumber");
@@ -99,19 +101,23 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
     }
 
     private void addTextSearch(Conditions conditions, @Nullable TextSearch search, String field) {
+        addTextSearch(conditions, search, field, Function.identity());
+    }
+
+    private void addTextSearch(Conditions conditions, @Nullable TextSearch search, String field, Function<String, String> valueConverter) {
         switch (search) {
-            case TextSearch.BetweenSearch b -> conditions
-                    .add("lower(" + field + ") >= ?", b.from().toLowerCase())
-                    .add("lower(" + field + ") <= ?", b.to().toLowerCase());
-            case TextSearch.ContainsSearch c -> conditions
-                    .add("ilike(" + field + ", ?)", '%' + c.value() + '%');
-            case TextSearch.EndsWithSearch e -> conditions
-                    .add("ilike(" + field + ", ?)", '%' + e.value());
-            case TextSearch.ExactSearch e -> conditions
-                    .add("lower(" + field + ") = ?", e.value().toLowerCase());
-            case TextSearch.StartsWithSearch s -> conditions
-                    .add("ilike(" + field + ", ?)", s.value() + '%');
             case null -> {}
+            case TextSearch.ExactSearch e -> conditions
+                    .add("lower(" + field + ") = ?", valueConverter.apply(e.value()).toLowerCase());
+            case TextSearch.StartsWithSearch s -> conditions
+                    .add("ilike(" + field + ", ?)", valueConverter.apply(s.value()) + '%');
+            case TextSearch.ContainsSearch c -> conditions
+                    .add("ilike(" + field + ", ?)", '%' + valueConverter.apply(c.value()) + '%');
+            case TextSearch.EndsWithSearch e -> conditions
+                    .add("ilike(" + field + ", ?)", '%' + valueConverter.apply(e.value()));
+            case TextSearch.BetweenSearch b -> conditions
+                    .add("lower(" + field + ") >= ?", valueConverter.apply(b.from()).toLowerCase())
+                    .add("lower(" + field + ") <= ?", valueConverter.apply(b.to()).toLowerCase());
         }
     }
 

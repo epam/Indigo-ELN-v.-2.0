@@ -16,6 +16,10 @@ public class MolFormula {
     private final String[] elements;
     private final int[] counts;
 
+    public static String normalize(String formula) {
+        return formula.replace(" ", "");
+    }
+
     @JsonCreator
     public MolFormula(String formula) {
         Matcher matcher = PATTERN.matcher(formula);

@@ -172,6 +172,28 @@ public class SampleSearchServiceTest extends ELNBaseTest {
     }
 
     @Test
+    void testSearchFormula() {
+        SampleSearchResult found = compoundClient.search(request(ELN)
+                .withMolecularFormula(new TextSearch.ContainsSearch("C2H4O2"))
+                , null, null, 10
+        );
+        assertThat(found.items()).singleElement().satisfies(x -> {
+            assertThat(x.getMolFormula()).isEqualTo("C2H4O2");
+        });
+    }
+
+    @Test
+    void testSearchFormulaWithSpaces() {
+        SampleSearchResult found = compoundClient.search(request(ELN)
+                        .withMolecularFormula(new TextSearch.ContainsSearch("C2 H4 O2"))
+                , null, null, 10
+        );
+        assertThat(found.items()).singleElement().satisfies(x -> {
+            assertThat(x.getMolFormula()).isEqualTo("C2H4O2");
+        });
+    }
+
+    @Test
     void testPaginationAndTotalItems() {
         String molFile = loadResourceAsString(getClass(), "/ring-substructure.mol");
         SearchCatalog nextCatalog = null;

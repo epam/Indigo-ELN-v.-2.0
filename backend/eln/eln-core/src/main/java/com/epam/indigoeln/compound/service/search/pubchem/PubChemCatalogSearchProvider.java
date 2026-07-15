@@ -12,6 +12,7 @@ import com.epam.indigoeln.eln.model.CompoundExternalSource;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
+import com.epam.indigoeln.reaction.model.MolFormula;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MultivaluedHashMap;
@@ -94,7 +95,7 @@ class PubChemCatalogSearchProvider implements CatalogSearchProvider {
         validate(searchRequest.getCasNumber() == null, "For PubChem, CAS number search is not supported");
         validate(searchRequest.getExternalNumber() == null, "For PubChem, External Number search is not supported");
         if (searchRequest.getMolecularFormula() != null) {
-            conditions.add("fastformula/" + URLEncoder.encode(searchRequest.getMolecularFormula().value().trim(), StandardCharsets.UTF_8));
+            conditions.add("fastformula/" + URLEncoder.encode(MolFormula.normalize(searchRequest.getMolecularFormula().value()), StandardCharsets.UTF_8));
             queryParams.put("MaxRecords", limit);
         }
         validate(searchRequest.getMolWeight() == null, "For PubChem, Molecular Weight search is not supported");
