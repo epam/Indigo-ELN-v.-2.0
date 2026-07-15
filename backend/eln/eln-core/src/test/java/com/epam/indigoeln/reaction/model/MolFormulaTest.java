@@ -1,4 +1,4 @@
-package com.epam.indigoeln.eln.util;
+package com.epam.indigoeln.reaction.model;
 
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
@@ -12,7 +12,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
-class MolFormulaFormatterTest extends ELNBaseTest {
+class MolFormulaTest extends ELNBaseTest {
 
     @Inject
     IndigoAPI indigo;
@@ -32,13 +32,19 @@ class MolFormulaFormatterTest extends ELNBaseTest {
         IndigoMolecule molecule = indigo.loadMolecule(smiles);
         String grossFormula = molecule.molecularFormula();
         assertThat(grossFormula).isEqualTo(expectedIndigo);
-        String formatted = MolFormulaFormatter.format(molecule.molecularFormula());
+        String formatted = new MolFormula(molecule.molecularFormula()).toHTMLString();
         assertThat(formatted).isEqualTo(expectedFormatted);
     }
 
     @Test
     void testFormatOldFormulaWithSpaces() {
-        String formatted = MolFormulaFormatter.format("C6 H12 O6");
+        String formatted = new MolFormula("C6 H12 O6").toHTMLString();
+        assertThat(formatted).isEqualTo("C<sub>6</sub>H<sub>12</sub>O<sub>6</sub>");
+    }
+
+    @Test
+    void testFormatHTMLFormula() {
+        String formatted = new MolFormula("C<sub>6</sub>H<sub>12</sub>O<sub>6</sub>").toHTMLString();
         assertThat(formatted).isEqualTo("C<sub>6</sub>H<sub>12</sub>O<sub>6</sub>");
     }
 }
