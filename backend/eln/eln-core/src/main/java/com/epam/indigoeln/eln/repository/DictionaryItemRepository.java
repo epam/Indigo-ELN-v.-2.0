@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.epam.indigoeln.common.util.ModelUtil.map;
+
 @ApplicationScoped
 public class DictionaryItemRepository extends BaseRepository<DictionaryItemEntity> {
 
@@ -59,11 +61,10 @@ public class DictionaryItemRepository extends BaseRepository<DictionaryItemEntit
         if (!Strings.isNullOrEmpty(search)) {
             conditions.add("LOWER(name) LIKE ?", search.toLowerCase() + "%");
         }
-        return doFind(conditions,
+        List<DictionaryItemEntity> list = doFind(conditions,
                 Paging.DEFAULT,
-                SORT_SUGGEST,
-                null,
-                dictionaryMapper::itemToRef
+                SORT_SUGGEST
         );
+        return map(list, dictionaryMapper::itemToRef);
     }
 }

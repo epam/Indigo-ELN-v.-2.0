@@ -25,7 +25,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Function;
+
+import static com.epam.indigoeln.common.util.ModelUtil.map;
 
 @ApplicationScoped
 public class NotebookRepository extends BaseRepository<NotebookEntity> {
@@ -53,21 +54,18 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
             conditions.add("(name ilike ?) or full_text_search(searchVector, websearch_to_tsquery('english', ?))", '%' + search + '%', search);
         }
 
-        return doFindWithTotals(
+        Page<NotebookEntity> page = doFindWithTotals(
                 conditions,
                 paging,
                 panacheSort,
-                em.getEntityGraph("Notebook.list"),
-                notebookMapper::entityToDTO
+                em.getEntityGraph("Notebook.list")
         );
+
+        return map(page, notebookMapper::entityToDTO);
     }
 
     public NotebookEntity loadDetails(UUID id) {
-        NotebookEntity notebook = doLoadDetails(
-                id,
-                em.getEntityGraph("Notebook.details"),
-                Function.identity()
-        );
+        NotebookEntity notebook = doLoad(id, em.getEntityGraph("Notebook.details"));
         aclService.ensureAccess(notebook, ApplicationPermission.VIEW_NOTEBOOKS);
         return notebook;
     }

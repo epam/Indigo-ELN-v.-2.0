@@ -10,7 +10,6 @@ import one.util.streamex.StreamEx;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Function;
 
 @ApplicationScoped
 public class AttachmentRepository extends BaseRepository<AttachmentEntity> {
@@ -20,11 +19,7 @@ public class AttachmentRepository extends BaseRepository<AttachmentEntity> {
     }
 
     public AttachmentEntity load(UUID id) {
-        return doLoadDetails(
-                id,
-                em.getEntityGraph("Attachment.download"),
-                Function.identity()
-        );
+        return doLoad(id, em.getEntityGraph("Attachment.download"));
     }
 
     public List<AttachmentEntity> getReferences(Set<AttachmentDTO> attachments) {

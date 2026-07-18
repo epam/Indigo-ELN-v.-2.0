@@ -25,8 +25,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Function;
 
+import static com.epam.indigoeln.common.util.ModelUtil.map;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.VIEW_PROJECTS;
 
 @ApplicationScoped
@@ -54,21 +54,18 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
             conditions.add("(name ilike ?) or (full_text_search(searchVector, websearch_to_tsquery('english', ?)))", '%' + search + '%', search);
         }
 
-        return doFindWithTotals(
+        Page<ProjectEntity> page = doFindWithTotals(
                 conditions,
                 paging,
                 panacheSort,
-                em.getEntityGraph("Project.list"),
-                projectMapper::entityToDTO
+                em.getEntityGraph("Project.list")
         );
+
+        return map(page, projectMapper::entityToDTO);
     }
 
     public ProjectEntity load(UUID id) {
-        ProjectEntity project = doLoadDetails(
-                id,
-                em.getEntityGraph("Project.details"),
-                Function.identity()
-        );
+        ProjectEntity project = doLoad(id, em.getEntityGraph("Project.details"));
         aclService.ensureAccess(project, VIEW_PROJECTS);
         return project;
     }

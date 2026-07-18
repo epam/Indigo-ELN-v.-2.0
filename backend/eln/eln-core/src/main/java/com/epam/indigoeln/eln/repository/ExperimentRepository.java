@@ -28,7 +28,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Function;
+
+import static com.epam.indigoeln.common.util.ModelUtil.map;
 
 @Slf4j
 @ApplicationScoped
@@ -62,13 +63,14 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
             conditions.add("(name ilike ?) or full_text_search(searchVector, websearch_to_tsquery('english', ?))", '%' + search + '%', search);
         }
 
-        return doFindWithTotals(
+        Page<ExperimentEntity> page = doFindWithTotals(
                 conditions,
                 paging,
                 panacheSort,
-                em.getEntityGraph("Experiment.list"),
-                experimentMapper::entityToDTO
+                em.getEntityGraph("Experiment.list")
         );
+
+        return map(page, experimentMapper::entityToDTO);
     }
 
     public ExperimentEntity loadAndLock(UUID id) {
@@ -80,11 +82,7 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
     }
 
     public ExperimentEntity load(UUID id) {
-        ExperimentEntity experiment = doLoadDetails(
-                id,
-                em.getEntityGraph("Experiment.details"),
-                Function.identity()
-        );
+        ExperimentEntity experiment = doLoad(id, em.getEntityGraph("Experiment.details"));
         aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
         return experiment;
     }

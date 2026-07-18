@@ -13,6 +13,8 @@ import jakarta.inject.Inject;
 
 import java.util.List;
 
+import static com.epam.indigoeln.common.util.ModelUtil.map;
+
 @ApplicationScoped
 public class DictionaryRepository extends BaseRepository<DictionaryEntity> {
 
@@ -26,6 +28,7 @@ public class DictionaryRepository extends BaseRepository<DictionaryEntity> {
     }
 
     public List<DictionaryDTO> list() {
-        return doFind(new Conditions().add("not deleted"), Paging.ALL, SORT_NAME, null, dictionaryMapper::dictionaryToDTO);
+        List<DictionaryEntity> list = doFind(new Conditions().add("not deleted"), Paging.ALL, SORT_NAME);
+        return map(list, dictionaryMapper::dictionaryToDTO);
     }
 }

@@ -20,6 +20,8 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
 
+import static com.epam.indigoeln.common.util.ModelUtil.map;
+
 @ApplicationScoped
 public class TemplateRepository extends BaseRepository<TemplateEntity> {
 
@@ -43,32 +45,29 @@ public class TemplateRepository extends BaseRepository<TemplateEntity> {
                 .addIfNotNull("lower(name) LIKE ?", search != null ? "%" + search.toLowerCase() + "%" : null)
                 .addIfNotNull("createdBy = ?", createdByUser);
 
-        return doFindWithTotals(
+        Page<TemplateEntity> page = doFindWithTotals(
                 conditions,
                 paging,
                 panacheSort,
-                em.getEntityGraph("Template.list"),
-                templateMapper::entityToDTO
+                em.getEntityGraph("Template.list")
         );
+
+        return map(page, templateMapper::entityToDTO);
     }
 
     public TemplateDetailsDTO load(UUID id) {
-        return doLoadDetails(
-                id,
-                em.getEntityGraph("Template.details"),
-                templateMapper::entityToDetailsDTO
-        );
+        TemplateEntity template = doLoad(id, em.getEntityGraph("Template.details"));
+        return templateMapper.entityToDetailsDTO(template);
     }
 
     public TemplateDetailsDTO findByName(String name) {
-        TemplateDetailsDTO template = doFindOne(
+        TemplateEntity template = doFindOne(
                 new Conditions().add("lower(name) = ?", name.toLowerCase()),
-                em.getEntityGraph("Template.details"),
-                templateMapper::entityToDetailsDTO
+                em.getEntityGraph("Template.details")
         );
         if (template == null) {
             throw new NotFoundException("Template not found");
         }
-        return template;
+        return templateMapper.entityToDetailsDTO(template);
     }
 }

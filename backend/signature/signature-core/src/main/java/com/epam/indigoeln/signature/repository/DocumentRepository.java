@@ -16,6 +16,8 @@ import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import static com.epam.indigoeln.common.util.ModelUtil.map;
+
 @ApplicationScoped
 public class DocumentRepository extends BaseRepository<DocumentEntity> {
 
@@ -38,12 +40,12 @@ public class DocumentRepository extends BaseRepository<DocumentEntity> {
             conditions.add("(name ilike ?)", '%' + search + '%');
         }
 
-        return doFindWithTotals(
+        Page<DocumentEntity> page = doFindWithTotals(
                 conditions,
                 paging,
-                panacheSort,
-                null,
-                signatureMapper::entityToDocument
+                panacheSort
         );
+
+        return map(page, signatureMapper::entityToDocument);
     }
 }
