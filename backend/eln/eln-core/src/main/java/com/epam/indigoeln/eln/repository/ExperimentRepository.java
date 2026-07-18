@@ -1,6 +1,5 @@
 package com.epam.indigoeln.eln.repository;
 
-import com.epam.indigoeln.common.exception.EntityNotFoundException;
 import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
@@ -74,11 +73,7 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
     }
 
     public ExperimentEntity loadAndLock(UUID id) {
-        ExperimentEntity entity = findById(id, LockModeType.PESSIMISTIC_WRITE);
-        if (entity == null) {
-            throw new EntityNotFoundException(ELNEntityType.EXPERIMENT, id);
-        }
-        return entity;
+        return doLoadAndLock(id, LockModeType.PESSIMISTIC_WRITE, null);
     }
 
     public ExperimentEntity load(UUID id) {
@@ -109,19 +104,15 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
     }
 
     public List<ExperimentEntity> findByProjectWithACLEntities(ProjectEntity project) {
-        return find("project", project)
-                .withHint("jakarta.persistence.loadgraph", em.getEntityGraph("Experiment.withACL"))
-                .list();
+        return doFind(new Conditions().add("project=?", project), null, null, em.getEntityGraph("Experiment.withACL"));
     }
 
     public List<ExperimentEntity> findByNotebookWithACLEntities(NotebookEntity notebook) {
-        return find("notebook", notebook)
-                .withHint("jakarta.persistence.loadgraph", em.getEntityGraph("Experiment.withACL"))
-                .list();
+        return doFind(new Conditions().add("notebook=?", notebook), null, null, em.getEntityGraph("Experiment.withACL"));
     }
 
     public boolean hasAccessibleExperiments(NotebookEntity notebook) {
-        return find("notebook", notebook).firstResult() != null;
+        return doFindOne(new Conditions().add("notebook=?", notebook)) != null;
     }
 
     @Nullable

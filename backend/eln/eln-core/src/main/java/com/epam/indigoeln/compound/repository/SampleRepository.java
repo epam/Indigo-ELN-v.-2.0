@@ -1,5 +1,6 @@
 package com.epam.indigoeln.compound.repository;
 
+import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.mapper.SampleMapper;
@@ -27,6 +28,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
 
+import static com.epam.indigoeln.common.util.ModelUtil.map;
+
 @ApplicationScoped
 public class SampleRepository extends BaseRepository<SampleEntity> {
 
@@ -46,7 +49,7 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
         Conditions conditions = new Conditions()
                 .add("compound.id=?", compoundId)
                 .add("nbkBatchNumber is null");
-        return find(conditions.getQuery(), conditions.getValues()).firstResult();
+        return doFindOne(conditions);
     }
 
     public Pair<List<SampleDTO>, Long> find(FindSamplesRequest request, @Nullable Boolean marked, int limit, @Nullable UUID nextAfter) {
@@ -65,7 +68,7 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
                 }
             }
         }
-        addTextSearch(conditions, request.getNbkBatchNumber(), "nbkBatchNumber");;
+        addTextSearch(conditions, request.getNbkBatchNumber(), "nbkBatchNumber");
         addTextSearch(conditions, request.getCompoundKey(), "compound.strCode");
         addTextSearch(conditions, request.getMolecularFormula(), "compound.formula", MolFormula::normalize);
         addNumericSearch(conditions, request.getMolWeight(), "compound.molWeight");
@@ -88,16 +91,14 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
         }
 
         Sort sort = Sort.by("id");
-        PanacheQuery<SampleEntity> query = find(conditions.getQuery(), sort, conditions.getValues());
+        PanacheQuery<SampleEntity> query = doCreateQuery(conditions, null, null, null);
         long totalCount = query.count();
 
         if (nextAfter != null) {
             conditions.add("id > ?", nextAfter);
         }
-        query = find(conditions.getQuery(), sort, conditions.getValues())
-                .page(0, limit)
-                .withHint("jakarta.persistence.loadgraph", em.getEntityGraph("Sample.find"));
-        return Pair.of(query.stream().map(sampleMapper::sampleToDTO).toList(), totalCount);
+        List<SampleEntity> list = doFind(conditions, new Paging(0, limit), sort, em.getEntityGraph("Sample.find"));
+        return Pair.of(map(list, sampleMapper::sampleToDTO), totalCount);
     }
 
     private void addTextSearch(Conditions conditions, @Nullable TextSearch search, String field) {

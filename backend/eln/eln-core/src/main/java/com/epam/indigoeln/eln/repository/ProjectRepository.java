@@ -76,7 +76,7 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
     }
 
     public boolean existsByName(String name) {
-        return count("name", name) > 0;
+        return doFindOne(new Conditions().add("name=?", name)) != null;
     }
 
     public void lockProject(ProjectEntity project) {

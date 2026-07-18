@@ -6,6 +6,8 @@ import com.epam.indigoeln.reaction.model.units.MolarityUnit;
 import com.epam.indigoeln.reaction.model.units.VolumeUnit;
 import org.assertj.core.api.AbstractAssert;
 
+import static com.epam.indigoeln.eln.test.EnteredValueAssert.assertThat;
+
 @SuppressWarnings("UnusedReturnValue")
 public class AbstractReactionSampleAssert<R extends ReactionRow, S extends ReactionSample<R>, SELF extends AbstractReactionSampleAssert<R, S, SELF>> extends AbstractAssert<SELF, S> {
 
@@ -14,37 +16,37 @@ public class AbstractReactionSampleAssert<R extends ReactionRow, S extends React
     }
 
     public SELF hasDensity(double density) {
-        EnteredValueAssert.assertThat(actual.getDensity()).hasValue(density);
+        assertThat(actual.getDensity()).hasValue(density);
         return myself;
     }
 
     public SELF hasNoDensity() {
-        EnteredValueAssert.assertThat(actual.getDensity()).isNull();
+        assertThat(actual.getDensity()).isNull();
         return myself;
     }
 
     public SELF hasMolarity(double molarity, MolarityUnit unit) {
-        EnteredValueAssert.assertThat(actual.getMolarity()).hasValue(molarity, unit);
+        assertThat(actual.getMolarity()).hasValue(molarity, unit);
         return myself;
     }
 
     public SELF hasNoMolarity() {
-        EnteredValueAssert.assertThat(actual.getMolarity()).isNull();
+        assertThat(actual.getMolarity()).isNull();
         return myself;
     }
 
     public SELF hasVolume(double volume, VolumeUnit unit) {
-        EnteredValueAssert.assertThat(actual.getVolume()).hasValue(volume, unit);
+        assertThat(actual.getVolume()).hasValue(volume, unit);
         return myself;
     }
 
     public SELF hasNoVolume() {
-        EnteredValueAssert.assertThat(actual.getVolume()).isNull();
+        assertThat(actual.getVolume()).isNull();
         return myself;
     }
 
     public SELF hasPurity(double purity) {
-        EnteredValueAssert.assertThat(actual.getPurity()).hasValue(purity);
+        assertThat(actual.getPurity()).hasValue(purity);
         return myself;
     }
 }

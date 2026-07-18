@@ -84,7 +84,7 @@ public class DictionaryUpdateService {
     }
 
     public List<DictionaryItemEntity> addDictionaryItems(String dictionaryRef, List<DictionaryItemRequest> items) {
-        DictionaryEntity dictionary = dictionaryRepository.findById(refToID(dictionaryRef));
+        DictionaryEntity dictionary = dictionaryRepository.get(refToID(dictionaryRef));
         if (!dictionary.getUserEditable()) {
             aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_DICTIONARIES);
         }
@@ -148,7 +148,7 @@ public class DictionaryUpdateService {
     }
 
     public List<DictionaryItemEntity> findOrCreateByNames(String dictionaryRef, Collection<String> names) {
-        DictionaryEntity dictionary = dictionaryRepository.findById(refToID(dictionaryRef));
+        DictionaryEntity dictionary = dictionaryRepository.get(refToID(dictionaryRef));
         if (!dictionary.getUserEditable()) {
             throw new IllegalArgumentException("findOrCreateByNames cannot be used with dictionary " + dictionary);
         }

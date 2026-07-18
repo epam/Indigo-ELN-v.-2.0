@@ -59,7 +59,7 @@ public abstract class SolubidityInSolvent {
         @Nullable
         private final SolubidityQualitativeType qualitativeType;
 
-        public Qualitative(SolventRef solvent, @Nullable String comment, SolubidityQualitativeType qualitativeType) {
+        public Qualitative(SolventRef solvent, @Nullable String comment, @Nullable SolubidityQualitativeType qualitativeType) {
             super(solvent, comment);
             this.qualitativeType = qualitativeType;
         }

@@ -69,10 +69,10 @@ public final class EnteredValue<U extends MeasurementUnit> {
         }
         boolean overwrittenTrue = Boolean.TRUE.equals(overwritten);
         if (exactValue != null) {
-            return new EnteredValue<U>(true, exactValue, true, -1, stringValue, checkNotNull(unit), checkNotNull(source), overwrittenTrue);
+            return new EnteredValue<>(true, exactValue, true, -1, stringValue, checkNotNull(unit), checkNotNull(source), overwrittenTrue);
         }
         if (stringValue != null) {
-            return new EnteredValue<U>(true, Double.parseDouble(stringValue), false, -1, stringValue, checkNotNull(unit), checkNotNull(source), overwrittenTrue);
+            return new EnteredValue<>(true, Double.parseDouble(stringValue), false, -1, stringValue, checkNotNull(unit), checkNotNull(source), overwrittenTrue);
         }
         //noinspection unchecked
         return (EnteredValue<U>) EMPTY_OVERWRITTEN;

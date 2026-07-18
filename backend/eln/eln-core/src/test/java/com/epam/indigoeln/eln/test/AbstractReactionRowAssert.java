@@ -3,6 +3,8 @@ package com.epam.indigoeln.eln.test;
 import com.epam.indigoeln.reaction.model.ReactionRow;
 import org.assertj.core.api.AbstractAssert;
 
+import static com.epam.indigoeln.eln.test.EnteredValueAssert.assertThat;
+
 @SuppressWarnings("UnusedReturnValue")
 public class AbstractReactionRowAssert<R extends ReactionRow, SELF extends AbstractReactionRowAssert<R, SELF>> extends AbstractAssert<SELF, R> {
 
@@ -15,7 +17,7 @@ public class AbstractReactionRowAssert<R extends ReactionRow, SELF extends Abstr
     }
 
     public SELF hasEq(double eq) {
-        EnteredValueAssert.assertThat(actual.getEq()).hasValue(eq);
+        assertThat(actual.getEq()).hasValue(eq);
         return myself;
     }
 }

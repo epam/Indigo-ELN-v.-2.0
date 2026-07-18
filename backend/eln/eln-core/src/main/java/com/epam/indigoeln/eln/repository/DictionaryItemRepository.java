@@ -34,6 +34,10 @@ public class DictionaryItemRepository extends BaseRepository<DictionaryItemEntit
         super(ELNEntityType.DICTIONARY_ITEM, DictionaryItemEntity.class);
     }
 
+    public List<DictionaryItemEntity> listAll(Sort sort) {
+        return doFind(Conditions.EMPTY, sort);
+    }
+
     public List<DictionaryItemEntity> list(UUID dictionaryID, boolean includeInactive) {
         Conditions conditions = new Conditions()
                 .add("dictionary.id=?", dictionaryID)
@@ -41,7 +45,7 @@ public class DictionaryItemRepository extends BaseRepository<DictionaryItemEntit
         if (!includeInactive) {
             conditions.add("active");
         }
-        return find(conditions.getQuery(), SORT, conditions.getValues()).list();
+        return doFind(conditions, SORT);
     }
 
     public Map<String, DictionaryItemEntity> findByNames(UUID dictionaryID, Collection<String> names) {
@@ -49,7 +53,7 @@ public class DictionaryItemRepository extends BaseRepository<DictionaryItemEntit
                 .add("dictionary.id=?", dictionaryID)
                 .add("not deleted")
                 .add("name IN ?", names);
-        return StreamEx.of(find(conditions.getQuery(), conditions.getValues()).stream())
+        return StreamEx.of(doFind(conditions))
                 .toMap(DictionaryItemEntity::getName, item -> item);
     }
 

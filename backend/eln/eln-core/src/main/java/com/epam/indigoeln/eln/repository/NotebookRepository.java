@@ -71,17 +71,15 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
     }
 
     public List<NotebookEntity> findByProjectWithACLEntities(ProjectEntity project) {
-        return find("project", project)
-                .withHint("jakarta.persistence.loadgraph", em.getEntityGraph("Notebook.withACL"))
-                .list();
+        return doFind(new Conditions().add("project=?", project), null, null, em.getEntityGraph("Notebook.withACL"));
     }
 
     public boolean hasAccessibleNotebooks(ProjectEntity project) {
-        return find("project", project).firstResult() != null;
+        return doFindOne(new Conditions().add("project=?", project)) != null;
     }
 
     public boolean existsByName(String name) {
-        return count("name", name) > 0;
+        return doFindOne(new Conditions().add("name=?", name)) != null;
     }
 
     public void persistRevision(NotebookRevisionEntity revision) {
