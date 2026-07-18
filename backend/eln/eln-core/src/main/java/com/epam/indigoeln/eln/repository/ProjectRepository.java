@@ -5,24 +5,26 @@ import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.common.repository.BaseRepository;
 import com.epam.indigoeln.eln.common.util.Conditions;
-import com.epam.indigoeln.eln.entity.ProjectEntity;
-import com.epam.indigoeln.eln.entity.ProjectRevisionEntity;
-import com.epam.indigoeln.eln.entity.TotalCountsEntity;
-import com.epam.indigoeln.eln.entity.UserEntity;
+import com.epam.indigoeln.eln.entity.*;
+import com.epam.indigoeln.eln.entity.ProjectEntity_.CalculatedInfo_;
 import com.epam.indigoeln.eln.mapper.ProjectMapper;
 import com.epam.indigoeln.eln.model.ELNEntityType;
 import com.epam.indigoeln.eln.model.ProjectDTO;
 import com.epam.indigoeln.eln.model.TotalCounts;
 import com.epam.indigoeln.eln.service.ACLService;
 import com.google.common.base.MoreObjects;
-import io.quarkus.panache.common.Sort;
 import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.LockModeType;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.criteria.Predicate;
+import org.hibernate.query.criteria.CriteriaDefinition;
+import org.hibernate.query.criteria.JpaRoot;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,22 +44,32 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
     }
 
     public Page<ProjectDTO> findAll(@Nullable String search, @Nullable SortOrder sort, @Nullable UserEntity createdByUser, Paging paging, boolean showAll) {
-        Sort panacheSort = switch (MoreObjects.firstNonNull(sort, SortOrder.LATEST)) {
-            case EARLIEST -> Sort.ascending("modifiedAt");
-            case LATEST -> Sort.descending("modifiedAt");
-        };
-
-        Conditions conditions = new Conditions()
-                .addIf(!showAll, "calculatedInfo.currentAccess is not null")
-                .addIfNotNull("createdBy = ?", createdByUser);
-        if (search != null) {
-            conditions.add("(name ilike ?) or (full_text_search(searchVector, websearch_to_tsquery('english', ?)))", '%' + search + '%', search);
-        }
+        CriteriaDefinition<Tuple> criteria = new CriteriaDefinition<>(em, Tuple.class) {{
+            JpaRoot<ProjectEntity> root = from(ProjectEntity.class);
+            select(tuple(root.id(), count(literal(1), createWindow())));
+            List<Predicate> conditions = new ArrayList<>();
+            if (!showAll) {
+                conditions.add(isNotNull(root.get(ProjectEntity_.calculatedInfo).get(CalculatedInfo_.currentAccess)));
+            }
+            if (createdByUser != null) {
+                conditions.add(root.get(ProjectEntity_.createdBy).equalTo(createdByUser));
+            }
+            if (search != null) {
+                conditions.add(or(
+                        ilike(root.get(ProjectEntity_.name), '%' + search + '%'),
+                        isTrue(function("full_text_search", Boolean.class, root.get(ProjectEntity_.searchVector), literal("english"), literal(search)))
+                ));
+            }
+            where(conditions);
+            orderBy(switch (MoreObjects.firstNonNull(sort, SortOrder.LATEST)) {
+                case EARLIEST -> asc(root.get(ProjectEntity_.modifiedAt));
+                case LATEST -> desc(root.get(ProjectEntity_.modifiedAt));
+            });
+        }};
 
         Page<ProjectEntity> page = doFindWithTotals(
-                conditions,
+                criteria,
                 paging,
-                panacheSort,
                 em.getEntityGraph("Project.list")
         );
 

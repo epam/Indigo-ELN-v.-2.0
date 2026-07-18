@@ -6,18 +6,24 @@ import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.common.repository.BaseRepository;
 import com.epam.indigoeln.eln.common.util.Conditions;
 import com.epam.indigoeln.eln.entity.TemplateEntity;
+import com.epam.indigoeln.eln.entity.TemplateEntity_;
 import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.mapper.TemplateMapper;
 import com.epam.indigoeln.eln.model.ELNEntityType;
 import com.epam.indigoeln.eln.model.TemplateDTO;
 import com.epam.indigoeln.eln.model.TemplateDetailsDTO;
 import com.google.common.base.MoreObjects;
-import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.ws.rs.NotFoundException;
+import org.hibernate.query.criteria.CriteriaDefinition;
+import org.hibernate.query.criteria.JpaRoot;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ModelUtil.map;
@@ -36,19 +42,27 @@ public class TemplateRepository extends BaseRepository<TemplateEntity> {
             @Nullable String search, @Nullable SortOrder sort,
             @Nullable UserEntity createdByUser, Paging paging, boolean showAll
     ) {
-        Sort panacheSort = switch (MoreObjects.firstNonNull(sort, SortOrder.LATEST)) {
-            case EARLIEST -> Sort.ascending("modifiedAt");
-            case LATEST -> Sort.descending("modifiedAt");
-        };
+        CriteriaDefinition<Tuple> criteria = new CriteriaDefinition<>(em, Tuple.class) {{
+            JpaRoot<TemplateEntity> root = from(TemplateEntity.class);
+            select(tuple(root.id(), count(literal(1), createWindow())));
+            List<Predicate> conditions = new ArrayList<>();
+            if (search != null) {
+                conditions.add(ilike(root.get(TemplateEntity_.name), '%' + search + '%'));
+            }
+            if (createdByUser != null) {
+                conditions.add(root.get(TemplateEntity_.createdBy).equalTo(createdByUser));
+            }
+            where(conditions);
+            orderBy(switch (MoreObjects.firstNonNull(sort, SortOrder.LATEST)) {
+                case EARLIEST -> asc(root.get(TemplateEntity_.modifiedAt));
+                case LATEST -> desc(root.get(TemplateEntity_.modifiedAt));
+            });
+        }};
 
-        Conditions conditions = new Conditions()
-                .addIfNotNull("lower(name) LIKE ?", search != null ? "%" + search.toLowerCase() + "%" : null)
-                .addIfNotNull("createdBy = ?", createdByUser);
 
         Page<TemplateEntity> page = doFindWithTotals(
-                conditions,
+                criteria,
                 paging,
-                panacheSort,
                 em.getEntityGraph("Template.list")
         );
 

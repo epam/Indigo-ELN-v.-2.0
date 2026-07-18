@@ -3,10 +3,10 @@ package com.epam.indigoeln.eln.repository;
 import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
-import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.eln.common.repository.BaseRepository;
 import com.epam.indigoeln.eln.common.util.Conditions;
 import com.epam.indigoeln.eln.entity.*;
+import com.epam.indigoeln.eln.entity.ExperimentEntity_.CalculatedInfo_;
 import com.epam.indigoeln.eln.mapper.ExperimentMapper;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.model.ELNEntityType;
@@ -19,12 +19,17 @@ import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.LockModeType;
+import jakarta.persistence.Tuple;
 import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.Predicate;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.query.criteria.CriteriaDefinition;
+import org.hibernate.query.criteria.JpaRoot;
 import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -47,25 +52,39 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
     @Inject
     UserService userService;
 
-    public Page<ExperimentDTO> findAll(@Nullable UUID projectId, @Nullable UUID notebookId, @Nullable String search, @Nullable SortOrder sort, @Nullable UserRef createdByUser, Paging paging, boolean showAll) {
-        Sort panacheSort = switch (MoreObjects.firstNonNull(sort, SortOrder.LATEST)) {
-            case EARLIEST -> Sort.ascending("modifiedAt");
-            case LATEST -> Sort.descending("modifiedAt");
-        };
-
-        Conditions conditions = new Conditions()
-                .addIf(!showAll, "calculatedInfo.currentAccess is not null")
-                .addIfNotNull("project.id=?", projectId)
-                .addIfNotNull("notebook.id=?", notebookId)
-                .addIfNotNull("createdBy.id = ?", createdByUser != null ? userService.getUserInfo(createdByUser).getId() : null);
-        if (search != null) {
-            conditions.add("(name ilike ?) or full_text_search(searchVector, websearch_to_tsquery('english', ?))", '%' + search + '%', search);
-        }
+    public Page<ExperimentDTO> findAll(@Nullable UUID projectId, @Nullable UUID notebookId, @Nullable String search, @Nullable SortOrder sort, @Nullable UserEntity createdByUser, Paging paging, boolean showAll) {
+        CriteriaDefinition<Tuple> criteria = new CriteriaDefinition<>(em, Tuple.class) {{
+            JpaRoot<ExperimentEntity> root = from(ExperimentEntity.class);
+            select(tuple(root.id(), count(literal(1), createWindow())));
+            List<Predicate> conditions = new ArrayList<>();
+            if (!showAll) {
+                conditions.add(isNotNull(root.get(ExperimentEntity_.calculatedInfo).get(CalculatedInfo_.currentAccess)));
+            }
+            if (projectId != null) {
+                conditions.add(root.get(ExperimentEntity_.project).get(ProjectEntity_.id).equalTo(projectId));
+            }
+            if (notebookId != null) {
+                conditions.add(root.get(ExperimentEntity_.notebook).get(NotebookEntity_.id).equalTo(notebookId));
+            }
+            if (createdByUser != null) {
+                conditions.add(root.get(ExperimentEntity_.createdBy).equalTo(createdByUser));
+            }
+            if (search != null) {
+                conditions.add(or(
+                        ilike(root.get(ExperimentEntity_.name), '%' + search + '%'),
+                        isTrue(function("full_text_search", Boolean.class, root.get(ExperimentEntity_.searchVector), literal("english"), literal(search)))
+                ));
+            }
+            where(conditions);
+            orderBy(switch (MoreObjects.firstNonNull(sort, SortOrder.LATEST)) {
+                case EARLIEST -> asc(root.get(ExperimentEntity_.modifiedAt));
+                case LATEST -> desc(root.get(ExperimentEntity_.modifiedAt));
+            });
+        }};
 
         Page<ExperimentEntity> page = doFindWithTotals(
-                conditions,
+                criteria,
                 paging,
-                panacheSort,
                 em.getEntityGraph("Experiment.list")
         );
 

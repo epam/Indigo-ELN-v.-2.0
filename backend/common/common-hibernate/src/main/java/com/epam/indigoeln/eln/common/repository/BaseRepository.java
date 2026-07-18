@@ -11,17 +11,18 @@ import com.epam.indigoeln.eln.common.util.Conditions;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import io.quarkus.panache.common.Sort;
-import jakarta.persistence.EntityGraph;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.LockModeType;
-import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.*;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.query.criteria.CriteriaDefinition;
 import org.jspecify.annotations.Nullable;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 
+import static com.epam.indigoeln.common.util.ModelUtil.map;
 import static com.google.common.base.Preconditions.checkState;
 
 @RequiredArgsConstructor
@@ -43,12 +44,22 @@ public abstract class BaseRepository<E extends IdentifiableEntity> implements Pa
         return Page.of(paging, count, list);
     }
 
-    protected Page<E> doFindWithTotals(Conditions conditions, @Nullable Paging paging, Sort sort, EntityGraph<?> entityGraph) {
+    protected Page<E> doFindWithTotals(CriteriaDefinition<Tuple> criteria, @Nullable Paging paging, EntityGraph<?> entityGraph) {
         paging = ModelUtil.firstNotNull(paging, Paging.DEFAULT);
-        PanacheQuery<E> query = doCreateQuery(conditions, paging, sort, entityGraph);
-        List<E> list = query.list();
-        long count = query.count();
-        return Page.of(paging, count, list);
+        TypedQuery<Tuple> query = em.createQuery(criteria);
+        if (paging != null) {
+            query.setFirstResult(paging.getFirstResult()).setMaxResults(paging.getPageSizeOrDefault());
+        }
+
+        List<Tuple> idsAndTotals = query.getResultList();
+        if (idsAndTotals.isEmpty()) {
+            return Page.of(paging, 0, List.of());
+        }
+
+        long total = idsAndTotals.getFirst().get(1, Number.class).longValue();
+        List<UUID> ids = map(idsAndTotals, (Tuple t) -> t.get(0, UUID.class));
+        List<E> list = doLoadByIDs(ids, entityGraph);
+        return Page.of(paging, total, list);
     }
 
     @Nullable
@@ -87,7 +98,7 @@ public abstract class BaseRepository<E extends IdentifiableEntity> implements Pa
         return query.list();
     }
 
-    protected List<E> doFind(Conditions conditions, @Nullable Paging paging, @Nullable Sort sort, EntityGraph<?> entityGraph) {
+    protected List<E> doFind(Conditions conditions, @Nullable Paging paging, @Nullable Sort sort, @Nullable EntityGraph<?> entityGraph) {
         PanacheQuery<E> query = doCreateQuery(conditions, paging, sort, entityGraph);
         return query.list();
     }
@@ -108,6 +119,24 @@ public abstract class BaseRepository<E extends IdentifiableEntity> implements Pa
             throw new EntityNotFoundException(entityType, id);
         }
         return entity;
+    }
+
+    protected List<E> doLoadByIDs(List<UUID> ids, @Nullable EntityGraph<?> entityGraph) {
+        Map<UUID, @Nullable E> map = new LinkedHashMap<>();
+        for (UUID id : ids) {
+            map.put(id, null);
+        }
+        List<E> list = doFind(new Conditions().add("id in ?", ids), null, null, entityGraph);
+        checkState(list.size() == ids.size());
+        for (E entity : list) {
+            checkState(map.get(entity.getId()) == null);
+            map.put(entity.getId(), entity);
+        }
+        return List.copyOf(map.values());
+    }
+
+    protected <DTO> List<DTO> doLoadByIDs(List<UUID> ids, @Nullable EntityGraph<?> entityGraph, Function<E, DTO> mapper) {
+        return doLoadByIDs(ids, entityGraph).stream().map(mapper).toList();
     }
 
     public E get(UUID id) {

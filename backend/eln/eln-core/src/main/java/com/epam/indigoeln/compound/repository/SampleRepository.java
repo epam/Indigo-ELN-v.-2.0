@@ -1,8 +1,10 @@
 package com.epam.indigoeln.compound.repository;
 
-import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.util.Pair;
+import com.epam.indigoeln.compound.entity.CompoundEntity;
+import com.epam.indigoeln.compound.entity.CompoundEntity_;
 import com.epam.indigoeln.compound.entity.SampleEntity;
+import com.epam.indigoeln.compound.entity.SampleEntity_;
 import com.epam.indigoeln.compound.mapper.SampleMapper;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
@@ -16,14 +18,19 @@ import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.eln.repository.DictionaryItemRepository;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.reaction.model.MolFormula;
-import io.quarkus.hibernate.orm.panache.PanacheQuery;
-import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Predicate;
 import org.hibernate.query.NativeQuery;
 import org.hibernate.query.SynchronizeableQuery;
+import org.hibernate.query.criteria.CriteriaDefinition;
+import org.hibernate.query.criteria.HibernateCriteriaBuilder;
+import org.hibernate.query.criteria.JpaJoin;
+import org.hibernate.query.criteria.JpaRoot;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
@@ -53,84 +60,110 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
     }
 
     public Pair<List<SampleDTO>, Long> find(FindSamplesRequest request, @Nullable Boolean marked, int limit, @Nullable UUID nextAfter) {
-        Conditions conditions = new Conditions()
-                .addIfNotNull("full_text_search(searchVector, websearch_to_tsquery('english', ?))", request.getQuickSearch());
-        if (request.getStructure() != null) {
-            switch (request.getStructure().type()) {
-                case EXACT -> {
-                    conditions.add("bingo_exact_match(compound.molFile, ?, '')", request.getStructure().query());
-                }
-                case SUBSTRUCTURE -> {
-                    conditions.add("bingo_substructure_match(compound.molFile, ?, '')", request.getStructure().query());
-                }
-                case SIMILARITY -> {
-                    conditions.add("bingo_similarity_search(compound.molFile, 0.8, null, ?, 'Tanimoto')", request.getStructure().query());
-                }
+        CriteriaDefinition<Long> totalCriteria = new CriteriaDefinition<>(em, Long.class) {{
+            JpaRoot<SampleEntity> root = from(SampleEntity.class);
+            select(count());
+            where(buildConditions(request, marked, root, getCriteriaBuilder()));
+        }};
+        long total = em.createQuery(totalCriteria).getSingleResult();
+
+        CriteriaDefinition<SampleEntity> criteria = new CriteriaDefinition<>(em, SampleEntity.class) {{
+            JpaRoot<SampleEntity> root = from(SampleEntity.class);
+            List<Predicate> conditions = buildConditions(request, marked, root, getCriteriaBuilder());
+            if (nextAfter != null) {
+                conditions.add(greaterThan(root.get(SampleEntity_.id), literal(nextAfter)));
             }
+            where(conditions);
+            orderBy(asc(root.get(SampleEntity_.id)));
+        }};
+        List<SampleEntity> list = em.createQuery(criteria)
+                .setFirstResult(0)
+                .setMaxResults(limit)
+                .setHint("jakarta.persistence.loadgraph", em.getEntityGraph("Sample.find"))
+                .getResultList();
+        return Pair.of(map(list, sampleMapper::sampleToDTO), total);
+    }
+
+    private List<Predicate> buildConditions(FindSamplesRequest request, @Nullable Boolean marked, JpaRoot<SampleEntity> root, HibernateCriteriaBuilder cb) {
+        List<Predicate> conditions = new ArrayList<>();
+        if (request.getQuickSearch() != null) {
+            conditions.add(cb.isTrue(cb.function("full_text_search", Boolean.class, root.get(SampleEntity_.searchVector), cb.literal("english"), cb.literal(request.getQuickSearch()))));
         }
-        addTextSearch(conditions, request.getNbkBatchNumber(), "nbkBatchNumber");
-        addTextSearch(conditions, request.getCompoundKey(), "compound.strCode");
-        addTextSearch(conditions, request.getMolecularFormula(), "compound.formula", MolFormula::normalize);
-        addNumericSearch(conditions, request.getMolWeight(), "compound.molWeight");
-        addTextSearch(conditions, request.getChemicalName(), "compound.chemicalName");
-        addTextSearch(conditions, request.getCasNumber(), "compound.casNumber");
-        addTextSearch(conditions, request.getExternalNumber(), "externalNumber");
-        addTextSearch(conditions, request.getBatchComment(), "batchComment");
+        addTextSearch(root.get(SampleEntity_.nbkBatchNumber).cast(String.class), request.getNbkBatchNumber(), conditions, cb);
+        addTextSearch(root.get(SampleEntity_.externalNumber), request.getExternalNumber(), conditions, cb);
+        addTextSearch(root.get(SampleEntity_.batchComment), request.getBatchComment(), conditions, cb);
         if (request.getCompoundState() != null) {
             DictionaryItemEntity compoundState = dictionaryService.lookup(request.getCompoundState());
-            conditions.add("compoundState = ?", compoundState);
+            conditions.add(root.get(SampleEntity_.compoundState).equalTo(compoundState));
         }
         if (request.getHealthHazards() != null) {
             DictionaryItemEntity healthHazard = dictionaryService.lookup(request.getHealthHazards());
-            conditions.add("? member of healthHazards", healthHazard);
+            conditions.add(cb.isMember(healthHazard, root.get(SampleEntity_.healthHazards)));
         }
-        if (marked == Boolean.TRUE) {
-            conditions.add("marked");
-        } else if (marked == Boolean.FALSE) {
-            conditions.add("marked is null");
+        if (marked != null) {
+            conditions.add(marked
+                    ? cb.isTrue(root.get(SampleEntity_.marked))
+                    : cb.isFalse(root.get(SampleEntity_.marked))
+            );
         }
-
-        Sort sort = Sort.by("id");
-        PanacheQuery<SampleEntity> query = doCreateQuery(conditions, null, null, null);
-        long totalCount = query.count();
-
-        if (nextAfter != null) {
-            conditions.add("id > ?", nextAfter);
+        if (request.getStructure() != null || request.getCompoundKey() != null || request.getMolecularFormula() != null || request.getMolWeight() != null || request.getChemicalName() != null || request.getCasNumber() != null) {
+            JpaJoin<SampleEntity, CompoundEntity> compound = root.join(SampleEntity_.compound);
+            if (request.getStructure() != null) {
+                switch (request.getStructure().type()) {
+                    case EXACT -> {
+                        conditions.add(cb.isTrue(cb.function("bingo_exact_match", Boolean.class, compound.get(CompoundEntity_.molFile), cb.literal(request.getStructure().query()), cb.literal(""))));
+                    }
+                    case SUBSTRUCTURE -> {
+                        conditions.add(cb.isTrue(cb.function("bingo_substructure_match", Boolean.class, compound.get(CompoundEntity_.molFile), cb.literal(request.getStructure().query()), cb.literal(""))));
+                    }
+                    case SIMILARITY -> {
+                        conditions.add(cb.isTrue(cb.function("bingo_similarity_match", Boolean.class, compound.get(CompoundEntity_.molFile), cb.literal(0.8), cb.nullLiteral(Double.class), cb.literal(request.getStructure().query()), cb.literal("Tanimoto"))));
+                    }
+                }
+            }
+            addTextSearch(compound.get(CompoundEntity_.compoundKey), request.getCompoundKey(), conditions, cb);
+            addTextSearch(compound.get(CompoundEntity_.formula).cast(String.class), request.getMolecularFormula(), MolFormula::normalize, conditions, cb);
+            addNumericSearch(compound.get(CompoundEntity_.molWeight), request.getMolWeight(), conditions, cb);
+            addTextSearch(compound.get(CompoundEntity_.chemicalName), request.getChemicalName(), conditions, cb);
+            addTextSearch(compound.get(CompoundEntity_.casNumber), request.getCasNumber(), conditions, cb);
         }
-        List<SampleEntity> list = doFind(conditions, new Paging(0, limit), sort, em.getEntityGraph("Sample.find"));
-        return Pair.of(map(list, sampleMapper::sampleToDTO), totalCount);
+        return conditions;
     }
 
-    private void addTextSearch(Conditions conditions, @Nullable TextSearch search, String field) {
-        addTextSearch(conditions, search, field, Function.identity());
+    private void addTextSearch(Expression<String> attribute, @Nullable TextSearch search, List<Predicate> target, HibernateCriteriaBuilder cb) {
+        addTextSearch(attribute, search, Function.identity(), target, cb);
     }
 
-    private void addTextSearch(Conditions conditions, @Nullable TextSearch search, String field, Function<String, String> valueConverter) {
-        switch (search) {
-            case null -> {}
-            case TextSearch.ExactSearch e -> conditions
-                    .add("lower(" + field + ") = ?", valueConverter.apply(e.value()).toLowerCase());
-            case TextSearch.StartsWithSearch s -> conditions
-                    .add("ilike(" + field + ", ?)", valueConverter.apply(s.value()) + '%');
-            case TextSearch.ContainsSearch c -> conditions
-                    .add("ilike(" + field + ", ?)", '%' + valueConverter.apply(c.value()) + '%');
-            case TextSearch.EndsWithSearch e -> conditions
-                    .add("ilike(" + field + ", ?)", '%' + valueConverter.apply(e.value()));
-            case TextSearch.BetweenSearch b -> conditions
-                    .add("lower(" + field + ") >= ?", valueConverter.apply(b.from()).toLowerCase())
-                    .add("lower(" + field + ") <= ?", valueConverter.apply(b.to()).toLowerCase());
+    private void addTextSearch(Expression<String> attribute, @Nullable TextSearch search, Function<String, String> valueConverter, List<Predicate> target, HibernateCriteriaBuilder cb) {
+        Predicate predicate = switch (search) {
+            case null -> null;
+            case TextSearch.WithValue w -> {
+                String value = valueConverter.apply(w.value().toLowerCase());
+                yield switch (w) {
+                    case TextSearch.ExactSearch e -> cb.lower(attribute).equalTo(value);
+                    case TextSearch.StartsWithSearch s -> cb.ilike(attribute, value + '%');
+                    case TextSearch.EndsWithSearch e -> cb.ilike(attribute, '%' + value);
+                    case TextSearch.ContainsSearch c -> cb.ilike(attribute, '%' + value + '%');
+                };
+            }
+            case TextSearch.BetweenSearch b -> {
+                yield cb.between(cb.lower(attribute), valueConverter.apply(b.from().toLowerCase()), valueConverter.apply(b.to().toLowerCase()));
+            }
+        };
+        if (predicate != null) {
+            target.add(predicate);
         }
     }
 
-    private void addNumericSearch(Conditions conditions, @Nullable NumericSearch search, String field) {
-        switch (search) {
-            case NumericSearch.Equals e -> conditions
-                    .add("floor(" + field + ") = ?", Math.floor(e.value()));
-            case NumericSearch.GreaterThanOrEqual ge -> conditions
-                    .add(field + " >= ?", ge.value());
-            case NumericSearch.LessThanOrEqual le -> conditions
-                    .add(field + " <= ?", le.value());
-            case null -> {}
+    private void addNumericSearch(Expression<Double> attribute, @Nullable NumericSearch search, List<Predicate> target, HibernateCriteriaBuilder cb) {
+        Predicate predicate = switch (search) {
+            case null -> null;
+            case NumericSearch.Equals e -> cb.floor(attribute).equalTo(Math.floor(e.value()));
+            case NumericSearch.GreaterThanOrEqual ge -> cb.greaterThanOrEqualTo(attribute, ge.value());
+            case NumericSearch.LessThanOrEqual le -> cb.lessThanOrEqualTo(attribute, le.value());
+        };
+        if (predicate != null) {
+            target.add(predicate);
         }
     }
 
