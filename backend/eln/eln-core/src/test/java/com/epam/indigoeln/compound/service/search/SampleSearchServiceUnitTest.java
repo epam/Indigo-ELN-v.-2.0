@@ -165,6 +165,38 @@ class SampleSearchServiceUnitTest {
     }
 
     @Test
+    void skippedEmptyCatalogIsNotResurrectedAfterLaterCatalogCompletes() {
+        // Regression test: catalogs sorted by priority are [A(0), C(1), B(1000)].
+        // A is empty and skipped within the same call; C then completes in one page while B still remains.
+        // The service must carry forward only the catalogs not yet fully searched (just B), not "everything but the head of the original list".
+        when(providerC.isEnabled(any())).thenReturn(true);
+
+        FindSamplesRequest request = new FindSamplesRequest().withCatalogs(Set.of(CATALOG_A, CATALOG_B, CATALOG_C));
+        when(providerA.search(request, 0, 10))
+                .thenReturn(new CatalogSearchResult(samples(), 0L, false));
+        when(providerC.search(request, 0, 10))
+                .thenReturn(new CatalogSearchResult(samples("#C1", "#C2"), 2L, false));
+        when(providerB.search(request, 0, 10))
+                .thenReturn(new CatalogSearchResult(samples("#B1"), 1L, false));
+
+        SampleSearchResult result1 = service.search(request, 10);
+
+        assertThat(result1.items()).isEqualTo(samples("#C1", "#C2"));
+        assertThat(result1.totalItems()).isEqualTo(2L);
+        assertThat(result1.next()).isNotNull();
+        // Bug: currently still contains CATALOG_C (already fully consumed), so it gets re-searched
+        // and its items are returned to the client a second time instead of moving on to B.
+        assertThat(result1.next().catalogs()).containsExactly(CATALOG_B);
+
+        request.setState(result1.next());
+        SampleSearchResult result2 = service.search(request, 10);
+
+        assertThat(result2.items()).isEqualTo(samples("#B1"));
+        assertThat(result2.totalItems()).isEqualTo(3L);
+        assertThat(result2.next()).isNull();
+    }
+
+    @Test
     void skipDisabled() {
         FindSamplesRequest request = new FindSamplesRequest().withCatalogs(Set.of(CATALOG_A, CATALOG_C));
         when(providerA.search(request, 0, 10))

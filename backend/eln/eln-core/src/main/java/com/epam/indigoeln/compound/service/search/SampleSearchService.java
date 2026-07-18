@@ -60,28 +60,32 @@ public class SampleSearchService {
             state = new FindSamplesState(catalogs, 0, pageSize != null ? pageSize : DEFAULT_PAGE_SIZE, 0L);
         }
         log.debug("search: {}, pageSize={}", request, pageSize);
-        for (Iterator<SearchCatalog> it = state.catalogs().iterator(); ; ) {
-            if (!it.hasNext()) { // no catalog returned any data
+        Deque<SearchCatalog> catalogs = new ArrayDeque<>(state.catalogs());
+        for (;;) {
+            if (catalogs.isEmpty()) { // no catalog returned any data
                 log.debug("no suitable catalogs");
                 return new SampleSearchResult(List.of(), state.oldCatalogsTotalItems(), null);
             }
-            SearchCatalog catalog = it.next();
+            SearchCatalog catalog = catalogs.peekFirst();
             CatalogSearchProvider provider = providers.get(catalog);
             CatalogSearchResult catalogResult = provider.search(request, state.pageNo(), state.pageSize());
             if (!catalogResult.items().isEmpty()) {
                 Long totalItems = plus(state.oldCatalogsTotalItems(), catalogResult.totalItems());
                 if (catalogResult.hasNext()) { // current catalog not yet complete
-                    state = new FindSamplesState(state.catalogs(), state.pageNo() + 1, state.pageSize(), state.oldCatalogsTotalItems());
-                } else if (it.hasNext()) { // current catalog complete, next catalog is available
-                    state = new FindSamplesState(state.catalogs().subList(1, state.catalogs().size()), 0, state.pageSize(), totalItems);
-                } else { // current catalog complete and it was the last
-                    state = null;
+                    state = new FindSamplesState(new ArrayList<>(catalogs), state.pageNo() + 1, state.pageSize(), state.oldCatalogsTotalItems());
+                } else {
+                    catalogs.removeFirst();
+                    if (!catalogs.isEmpty()) { // current catalog complete, next catalog is available
+                        state = new FindSamplesState(new ArrayList<>(catalogs), 0, state.pageSize(), totalItems);
+                    } else { // current catalog complete and it was the last
+                        state = null;
+                    }
                 }
                 SampleSearchResult result = new SampleSearchResult(catalogResult.items(), totalItems, state);
                 log.debug("found {} items (total {}) from {}; next={}", catalogResult.items().size(), catalogResult.totalItems(), catalog, result.next());
                 return result;
             }
-            // no results, proceed with the next catalog
+            catalogs.removeFirst(); // no results, proceed with the next catalog
         }
     }
 

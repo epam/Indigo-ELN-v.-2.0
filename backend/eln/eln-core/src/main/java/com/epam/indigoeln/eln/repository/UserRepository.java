@@ -47,7 +47,7 @@ public class UserRepository extends BaseRepository<UserEntity> {
         Conditions conditions = new Conditions();
         if (search != null) {
             String searchQuery = search.toLowerCase() + '%';
-            conditions.add("lower(displayName) like ? OR lower(firstName) like ? OR lower(lastName) like ?", searchQuery, searchQuery, searchQuery);
+            conditions.add("displayName ilike ? or firstName ilike ? or lastName ilike ? or username ilike ?", searchQuery, searchQuery, searchQuery, searchQuery);
         }
 
         List<UserEntity> list = doFind(
@@ -72,7 +72,8 @@ public class UserRepository extends BaseRepository<UserEntity> {
     public Page<UserDTO> findAll(@Nullable String search, Paging paging) {
         Conditions conditions = new Conditions();
         if (search != null) {
-            conditions.add("firstName ilike ? or lastName ilike ? or displayName ilike ?", search + '%', search + '%', search + '%');
+            String searchQuery = search + '%';
+            conditions.add("firstName ilike ? or lastName ilike ? or displayName ilike ? or username ilike ?", searchQuery, searchQuery, searchQuery, searchQuery);
         }
         Page<UserEntity> page = doFindWithTotals(
                 conditions,

@@ -46,10 +46,9 @@ public abstract class BaseRepository<E extends IdentifiableEntity> implements Pa
 
     protected Page<E> doFindWithTotals(CriteriaDefinition<Tuple> criteria, @Nullable Paging paging, EntityGraph<?> entityGraph) {
         paging = ModelUtil.firstNotNull(paging, Paging.DEFAULT);
-        TypedQuery<Tuple> query = em.createQuery(criteria);
-        if (paging != null) {
-            query.setFirstResult(paging.getFirstResult()).setMaxResults(paging.getPageSizeOrDefault());
-        }
+        TypedQuery<Tuple> query = em.createQuery(criteria)
+                .setFirstResult(paging.getFirstResult())
+                .setMaxResults(paging.getPageSizeOrDefault());
 
         List<Tuple> idsAndTotals = query.getResultList();
         if (idsAndTotals.isEmpty()) {

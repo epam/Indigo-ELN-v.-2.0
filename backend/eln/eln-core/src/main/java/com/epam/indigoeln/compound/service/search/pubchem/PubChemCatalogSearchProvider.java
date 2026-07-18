@@ -97,7 +97,7 @@ class PubChemCatalogSearchProvider implements CatalogSearchProvider {
         validate(searchRequest.getExternalNumber() == null, "For PubChem, External Number search is not supported");
         if (searchRequest.getMolecularFormula() != null) {
             if (searchRequest.getMolecularFormula() instanceof TextSearch.ExactSearch(String value)) {
-                conditions.add("fastformula/" + URLEncoder.encode(MolFormula.normalize(value),StandardCharsets.UTF_8));
+                conditions.add("fastformula/" + URLEncoder.encode(MolFormula.normalize(value), StandardCharsets.UTF_8));
                 queryParams.put("MaxRecords", pageSize);
             } else {
                 fail("For PubChem, Molecular Formula supports only exact search");

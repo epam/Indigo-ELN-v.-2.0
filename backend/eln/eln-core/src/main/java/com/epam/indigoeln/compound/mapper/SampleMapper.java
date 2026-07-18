@@ -11,7 +11,6 @@ import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.MOL_WEIGHT_DECIMAL_PLACES;
 import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.roundToDecimalPlaces;
@@ -33,8 +32,6 @@ public abstract class SampleMapper {
     @Mapping(target = "marked", expression = "java(entity.getMarked() == Boolean.TRUE)")
     @Mapping(target = "inchi", ignore = true)
     public abstract SampleDTO sampleToDTO(SampleEntity entity);
-
-    public abstract List<SampleDTO> sampleToDTOList(List<SampleEntity> entity);
 
     @Named("convertMolWeightLike")
     protected BigDecimal convertMolWeight(double value) {
