@@ -87,17 +87,17 @@ public class SampleSearchServiceTest extends ELNBaseTest {
 
     @Test
     void testQuickSearch() {
-        SampleSearchResult found = compoundClient.search(request(ELN).withQuickSearch("\"" + strOtherCompound + "\""), null, null, 10);
+        SampleSearchResult found = compoundClient.search(request(ELN).withQuickSearch("\"" + strOtherCompound + "\""), 10);
         assertThat(found.items()).singleElement().returns(strOtherCompound, SampleDTO::getStrCode);
-        assertThat(found.nextCatalog()).isNull();
-        assertThat(found.nextAfter()).isNull();
+        assertThat(found.next()).isNull();
         assertThat(found.totalItems()).isEqualTo(1L);
     }
 
     @Test
     void testSearchRequestValidation() {
         assertThatClientCall(() -> {
-            compoundClient.search(request(ELN).withCompoundKey(new TextSearch.ExactSearch(null)), null, null, 10);
+            //noinspection DataFlowIssue
+            compoundClient.search(request(ELN).withCompoundKey(new TextSearch.ExactSearch(null)), 10);
         }).isBadRequest("must not be null");
     }
 
@@ -110,7 +110,7 @@ public class SampleSearchServiceTest extends ELNBaseTest {
                 .withCompoundState(compoundState)
                 .withBatchComment(new TextSearch.ExactSearch("batch comment"))
                 .withHealthHazards(healthHazard)
-                , null, null, 10
+                , 10
         );
         assertThat(found.items()).singleElement()
                 .returns(str1, SampleDTO::getStrCode);
@@ -120,7 +120,7 @@ public class SampleSearchServiceTest extends ELNBaseTest {
     void testAdvancedSearchStartsWith() {
         SampleSearchResult found = compoundClient.search(request(ELN)
                 .withNbkBatchNumber(new TextSearch.StartsWithSearch("00000000-0000-"))
-                , null, null, 10
+                , 10
         );
         assertThat(found.items()).singleElement().returns(str1, SampleDTO::getStrCode);
     }
@@ -129,7 +129,7 @@ public class SampleSearchServiceTest extends ELNBaseTest {
     void testAdvancedSearchContains() {
         SampleSearchResult found = compoundClient.search(request(ELN)
                 .withNbkBatchNumber(new TextSearch.ContainsSearch("-0000-"))
-                , null, null, 10
+                , 10
         );
         assertThat(found.items()).singleElement().returns(str1, SampleDTO::getStrCode);
     }
@@ -138,7 +138,7 @@ public class SampleSearchServiceTest extends ELNBaseTest {
     void testAdvancedSearchEndsWith() {
         SampleSearchResult found = compoundClient.search(request(ELN)
                 .withNbkBatchNumber(new TextSearch.ContainsSearch("-001"))
-                , null, null, 10
+                , 10
         );
         assertThat(found.items()).singleElement().returns(str1, SampleDTO::getStrCode);
     }
@@ -148,7 +148,7 @@ public class SampleSearchServiceTest extends ELNBaseTest {
     void testAdvancedSearchBetween() {
         SampleSearchResult found = compoundClient.search(request(ELN)
                 .withNbkBatchNumber(new TextSearch.BetweenSearch("00000000-0000-000", "00000000-0000-999"))
-                , null, null, 10
+                , 10
         );
         assertThat(found.items()).singleElement().returns(str1, SampleDTO::getStrCode);
     }
@@ -157,7 +157,7 @@ public class SampleSearchServiceTest extends ELNBaseTest {
     void testAdvancedSearchGreaterThenOrEqual() {
         SampleSearchResult found = compoundClient.search(request(ELN)
                 .withMolWeight(new NumericSearch.GreaterThanOrEqual(100.0))
-                , null, null, 10
+                , 10
         );
         assertThat(found.items()).isNotEmpty();
     }
@@ -166,7 +166,7 @@ public class SampleSearchServiceTest extends ELNBaseTest {
     void testAdvancedSearchLessThenOrEqual() {
         SampleSearchResult found = compoundClient.search(request(ELN)
                 .withMolWeight(new NumericSearch.LessThanOrEqual(200.0))
-                , null, null, 10
+                , 10
         );
         assertThat(found.items()).isNotEmpty();
     }
@@ -175,7 +175,7 @@ public class SampleSearchServiceTest extends ELNBaseTest {
     void testSearchFormula() {
         SampleSearchResult found = compoundClient.search(request(ELN)
                 .withMolecularFormula(new TextSearch.ContainsSearch("C2H4O2"))
-                , null, null, 10
+                , 10
         );
         assertThat(found.items()).singleElement().satisfies(x -> {
             assertThat(x.getMolFormula()).isEqualTo("C<sub>2</sub>H<sub>4</sub>O<sub>2</sub>");
@@ -186,7 +186,7 @@ public class SampleSearchServiceTest extends ELNBaseTest {
     void testSearchFormulaWithSpaces() {
         SampleSearchResult found = compoundClient.search(request(ELN)
                         .withMolecularFormula(new TextSearch.ContainsSearch("C2 H4 O2"))
-                , null, null, 10
+                , 10
         );
         assertThat(found.items()).singleElement().satisfies(x -> {
             assertThat(x.getMolFormula()).isEqualTo("C<sub>2</sub>H<sub>4</sub>O<sub>2</sub>");
@@ -196,47 +196,41 @@ public class SampleSearchServiceTest extends ELNBaseTest {
     @Test
     void testPaginationAndTotalItems() {
         String molFile = loadResourceAsString(getClass(), "/ring-substructure.mol");
-        SearchCatalog nextCatalog = null;
-        String nextAfter = null;
-        boolean hasNext = true;
         Long totalItemsReported = null;
         long totalItemsActual = 0;
-        while (hasNext) {
-            SampleSearchResult found = compoundClient.search(request(ELN).withStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, molFile))
-                    , nextCatalog, nextAfter, 1
-            );
+        FindSamplesRequest request = request(ELN).withStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, molFile));
+        do {
+            SampleSearchResult found = compoundClient.search(request, 1);
             if (totalItemsReported == null) {
                 totalItemsReported = found.totalItems();
             } else {
                 assertThat(found.totalItems()).isEqualTo(totalItemsReported);
             }
             totalItemsActual += found.items().size();
-            nextCatalog = found.nextCatalog();
-            nextAfter = found.nextAfter();
-            hasNext = found.hasNext();
-        }
+            request.setState(found.next());
+        } while (request.getState() != null);
         assertThat(totalItemsActual).isEqualTo(totalItemsReported);
     }
 
     @Test
     void testSearchMyMaterials() {
-        SampleSearchResult page = compoundClient.search(request(MY_MATERIALS), null, null, 10);
+        SampleSearchResult page = compoundClient.search(request(MY_MATERIALS), 10);
         assertThat(page.items()).isEmpty();
 
         compoundService.markSample(sampleID1, true);
-        page = compoundClient.search(request(MY_MATERIALS), null, null, 10);
+        page = compoundClient.search(request(MY_MATERIALS), 10);
         assertThat(page.items()).singleElement()
                 .returns(sampleID1, SampleDTO::getId)
                 .returns(true, SampleDTO::isMarked);
 
-        page = compoundClient.search(request(MY_MATERIALS).withQuickSearch(str1.toString()), null, null, 10);
+        page = compoundClient.search(request(MY_MATERIALS).withQuickSearch(str1.toString()), 10);
         assertThat(page.items()).singleElement().returns(sampleID1, SampleDTO::getId);
 
-        page = compoundClient.search(request(MY_MATERIALS).withQuickSearch("nosuchcompound"), null, null, 10);
+        page = compoundClient.search(request(MY_MATERIALS).withQuickSearch("nosuchcompound"), 10);
         assertThat(page.items()).isEmpty();
 
         compoundService.markSample(sampleID1, false);
-        page = compoundClient.search(request(MY_MATERIALS), null, null, 10);
+        page = compoundClient.search(request(MY_MATERIALS), 10);
         assertThat(page.items()).isEmpty();
     }
 

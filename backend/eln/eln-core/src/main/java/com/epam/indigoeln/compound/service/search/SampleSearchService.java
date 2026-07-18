@@ -1,10 +1,10 @@
 package com.epam.indigoeln.compound.service.search;
 
-import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.mapper.SampleMapper;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
+import com.epam.indigoeln.compound.model.search.FindSamplesState;
 import com.epam.indigoeln.compound.model.search.SampleSearchResult;
 import com.epam.indigoeln.compound.model.search.SearchCatalog;
 import com.epam.indigoeln.eln.config.DataAccess;
@@ -12,7 +12,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import one.util.streamex.LongStreamEx;
+import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
@@ -22,12 +22,13 @@ import java.util.function.Function;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
+@Slf4j
 @DataAccess
 @Transactional
 @ApplicationScoped
 public class SampleSearchService {
 
-    private static final int DEFAULT_LIMIT = 100;
+    private static final int DEFAULT_PAGE_SIZE = 100;
 
     private final Map<SearchCatalog, CatalogSearchProvider> providers;
 
@@ -49,43 +50,39 @@ public class SampleSearchService {
                 .toCustomMap(LinkedHashMap::new);
     }
 
-    public SampleSearchResult search(FindSamplesRequest request, @Nullable SearchCatalog nextCatalog, @Nullable String nextAfter, @Nullable Integer limit) {
-        List<Pair<SearchCatalog, CatalogSearchProvider>> effectiveCatalogs = request.getCatalogs().stream()
-                .sorted(Comparator.comparing(SearchCatalog::getPriority))
-                .map(c -> Pair.of(c, providers.get(c)))
-                .filter(p -> p.b().isEnabled(request)) // filter out catalog not suitable for this request
-                .toList();
-        Map<SearchCatalog, @Nullable Long> totalItemsPerCatalog = new EnumMap<>(SearchCatalog.class);
-        for (Iterator<Pair<SearchCatalog, CatalogSearchProvider>> it = effectiveCatalogs.iterator(); ; ) {
+    public SampleSearchResult search(FindSamplesRequest request, @Nullable Integer pageSize) {
+        FindSamplesState state = request.getState();
+        if (state == null) {
+            List<SearchCatalog> catalogs = request.getCatalogs().stream()
+                    .filter(c -> providers.get(c).isEnabled(request)) // filter out catalog not suitable for this request
+                    .sorted(Comparator.comparing(SearchCatalog::getPriority))
+                    .toList();
+            state = new FindSamplesState(catalogs, 0, pageSize != null ? pageSize : DEFAULT_PAGE_SIZE, 0L);
+        }
+        log.debug("search: {}, pageSize={}", request, pageSize);
+        for (Iterator<SearchCatalog> it = state.catalogs().iterator(); ; ) {
             if (!it.hasNext()) { // no catalog returned any data
-                return new SampleSearchResult(List.of(), false, null, null, calculateTotalItems(totalItemsPerCatalog));
+                log.debug("no suitable catalogs");
+                return new SampleSearchResult(List.of(), state.oldCatalogsTotalItems(), null);
             }
-            Pair<SearchCatalog, CatalogSearchProvider> p = it.next();
-            SearchCatalog catalog = p.a();
-            CatalogSearchProvider provider = p.b();
-            if (nextCatalog != null && catalog.getPriority() < nextCatalog.getPriority()) { // skip previously searched catalogs
-                totalItemsPerCatalog.put(catalog, null);
-                continue;
-            }
-            CatalogSearchResult result = provider.search(request, nextAfter, limit != null ? limit : DEFAULT_LIMIT);
-            totalItemsPerCatalog.put(catalog, result.totalItems());
-            if (result.size() != 0) {
-                if (result.hasNext()) { // current catalog not yet complete
-                    return new SampleSearchResult(result.items(), true, catalog, result.nextAfter(), calculateTotalItems(totalItemsPerCatalog));
+            SearchCatalog catalog = it.next();
+            CatalogSearchProvider provider = providers.get(catalog);
+            CatalogSearchResult catalogResult = provider.search(request, state.pageNo(), state.pageSize());
+            if (!catalogResult.items().isEmpty()) {
+                Long totalItems = plus(state.oldCatalogsTotalItems(), catalogResult.totalItems());
+                if (catalogResult.hasNext()) { // current catalog not yet complete
+                    state = new FindSamplesState(state.catalogs(), state.pageNo() + 1, state.pageSize(), state.oldCatalogsTotalItems());
                 } else if (it.hasNext()) { // current catalog complete, next catalog is available
-                    return new SampleSearchResult(result.items(), true, it.next().a(), null, calculateTotalItems(totalItemsPerCatalog));
+                    state = new FindSamplesState(state.catalogs().subList(1, state.catalogs().size()), 0, state.pageSize(), totalItems);
                 } else { // current catalog complete and it was the last
-                    return new SampleSearchResult(result.items(), false, null, null, calculateTotalItems(totalItemsPerCatalog));
+                    state = null;
                 }
+                SampleSearchResult result = new SampleSearchResult(catalogResult.items(), totalItems, state);
+                log.debug("found {} items (total {}) from {}; next={}", catalogResult.items().size(), catalogResult.totalItems(), catalog, result.next());
+                return result;
             }
             // no results, proceed with the next catalog
         }
-    }
-
-    private static @Nullable Long calculateTotalItems(Map<SearchCatalog, @Nullable Long> totalItemsPerCatalog) {
-        return !totalItemsPerCatalog.containsValue(null)
-                ? LongStreamEx.of(totalItemsPerCatalog.values()).sum()
-                : null;
     }
 
     public SampleDTO importSample(SampleDTO searchItem) {
@@ -94,5 +91,10 @@ public class SampleSearchService {
         checkState(provider != null);
         SampleEntity sample = provider.importSample(searchItem);
         return sampleMapper.sampleToDTO(sample);
+    }
+
+    @Nullable
+    private static Long plus(@Nullable Long a, @Nullable Long b) {
+        return a != null && b != null ? a + b : null;
     }
 }

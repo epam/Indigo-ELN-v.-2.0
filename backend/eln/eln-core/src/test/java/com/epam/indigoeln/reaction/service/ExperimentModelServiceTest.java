@@ -184,7 +184,7 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
         SampleSearchResult foundSamples = compoundClient.search(new FindSamplesRequest()
                 .withCatalogs(Set.of(SearchCatalog.ELN))
                 .withMolecularFormula(new TextSearch.ExactSearch("C12H22N2O2"))
-                , null, null, Paging.DEFAULT_PAGE_SIZE
+                , Paging.DEFAULT_PAGE_SIZE
         );
         experiment.mutate(new ReactionMutation.AddInput(experiment.reaction().getAnchor(), checkNotNull(foundSamples.items().getFirst().getId())));
     }

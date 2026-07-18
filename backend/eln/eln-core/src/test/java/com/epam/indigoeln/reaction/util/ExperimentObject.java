@@ -129,7 +129,7 @@ public class ExperimentObject {
         Map<InputAnchor, String> requests = experimentClient.analyzeRXN(id, reaction().getAnchor());
         requests.forEach((anchor, structure) -> {
             FindSamplesRequest findSamplesRequest = new FindSamplesRequest().withCatalogs(Set.of(ELN)).withStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, structure));
-            SampleSearchResult samples = compoundClient.search(findSamplesRequest, null, null, Paging.DEFAULT_PAGE_SIZE);
+            SampleSearchResult samples = compoundClient.search(findSamplesRequest, Paging.DEFAULT_PAGE_SIZE);
             if (!samples.items().isEmpty()) {
                 sampleIDs.put(anchor, checkNotNull(samples.items().getFirst().getId()));
             }

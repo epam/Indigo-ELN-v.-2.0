@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+
 import java.util.List;
 import java.util.Set;
 
@@ -52,137 +53,126 @@ class SampleSearchServiceUnitTest {
     @Test
     void noResultsFromCatalogA() {
         FindSamplesRequest request = new FindSamplesRequest().withCatalogs(Set.of(CATALOG_A));
-        when(providerA.search(request, null, 10))
-                .thenReturn(new CatalogSearchResult(samples(), null, 0L));
+        when(providerA.search(request, 0, 10))
+                .thenReturn(new CatalogSearchResult(samples(), 0L, false));
 
-        SampleSearchResult result = service.search(request, null, null, 10);
+        SampleSearchResult result = service.search(request, 10);
 
         assertThat(result.items()).isEmpty();
-        assertThat(result.hasNext()).isFalse();
-        assertThat(result.nextCatalog()).isNull();
-        assertThat(result.nextAfter()).isNull();
+        assertThat(result.next()).isNull();
         assertThat(result.totalItems()).isEqualTo(0L);
     }
 
     @Test
     void onePageFromA() {
         FindSamplesRequest request = new FindSamplesRequest().withCatalogs(Set.of(CATALOG_A));
-        when(providerA.search(request, null, 10))
-                .thenReturn(new CatalogSearchResult(samples("#1", "#2"), null, 2L));
+        when(providerA.search(request, 0, 10))
+                .thenReturn(new CatalogSearchResult(samples("#1", "#2"), 2L, false));
 
-        SampleSearchResult result = service.search(request, null, null, 10);
+        SampleSearchResult result = service.search(request, 10);
 
         assertThat(result.items()).isEqualTo(samples("#1", "#2"));
-        assertThat(result.hasNext()).isFalse();
-        assertThat(result.nextCatalog()).isNull();
-        assertThat(result.nextAfter()).isNull();
+        assertThat(result.next()).isNull();
         assertThat(result.totalItems()).isEqualTo(2L);
     }
 
     @Test
-    void twoPagesFromAWithNextAfter() {
+    void twoPagesFromAWithNextPage() {
         FindSamplesRequest request = new FindSamplesRequest().withCatalogs(Set.of(CATALOG_A));
-        when(providerA.search(request, null, 10))
-                .thenReturn(new CatalogSearchResult(samples("#1", "#2"), "#2", 3L));
-        when(providerA.search(request, "#2", 10))
-                .thenReturn(new CatalogSearchResult(samples("#3"), null, 3L));
+        when(providerA.search(request, 0, 10))
+                .thenReturn(new CatalogSearchResult(samples("#1", "#2"), 3L, true));
+        when(providerA.search(request, 1, 10))
+                .thenReturn(new CatalogSearchResult(samples("#3"), 3L, false));
 
-        SampleSearchResult result1 = service.search(request, null, null, 10);
+        SampleSearchResult result1 = service.search(request, 10);
 
         assertThat(result1.items()).isEqualTo(samples("#1", "#2"));
-        assertThat(result1.hasNext()).isTrue();
-        assertThat(result1.nextCatalog()).isEqualTo(CATALOG_A);
-        assertThat(result1.nextAfter()).isEqualTo("#2");
+        assertThat(result1.next()).isNotNull();
+        assertThat(result1.next().catalogs()).containsExactly(CATALOG_A);
+        assertThat(result1.next().pageNo()).isEqualTo(1);
         assertThat(result1.totalItems()).isEqualTo(3L);
 
-        SampleSearchResult result2 = service.search(request, result1.nextCatalog(), result1.nextAfter(), 10);
+        request.setState(result1.next());
+        SampleSearchResult result2 = service.search(request, 10);
 
         assertThat(result2.items()).isEqualTo(samples("#3"));
-        assertThat(result2.hasNext()).isFalse();
-        assertThat(result2.nextCatalog()).isNull();
-        assertThat(result2.nextAfter()).isNull();
+        assertThat(result2.next()).isNull();
         assertThat(result2.totalItems()).isEqualTo(3L);
     }
 
     @Test
     void twoPagesFromAAndNextCatalog() {
         FindSamplesRequest request = new FindSamplesRequest().withCatalogs(Set.of(CATALOG_A, CATALOG_B));
-        when(providerA.search(request, null, 10))
-                .thenReturn(new CatalogSearchResult(samples("#1", "#2"), "#2", 3L));
-        when(providerA.search(request, "#2", 10))
-                .thenReturn(new CatalogSearchResult(samples("#3"), null, 3L));
-        when(providerB.search(request, null, 10))
-                .thenReturn(new CatalogSearchResult(samples("#A", "#B"), null, null));
+        when(providerA.search(request, 0, 2))
+                .thenReturn(new CatalogSearchResult(samples("#1", "#2"), 3L, true));
+        when(providerA.search(request, 1, 2))
+                .thenReturn(new CatalogSearchResult(samples("#3"), 3L, false));
+        when(providerB.search(request, 0, 2))
+                .thenReturn(new CatalogSearchResult(samples("#A", "#B"), null, false));
 
-        SampleSearchResult result1 = service.search(request, null, null, 10);
+        SampleSearchResult result1 = service.search(request, 2);
 
         assertThat(result1.items()).isEqualTo(samples("#1", "#2"));
-        assertThat(result1.hasNext()).isTrue();
-        assertThat(result1.nextCatalog()).isEqualTo(CATALOG_A);
-        assertThat(result1.nextAfter()).isEqualTo("#2");
+        assertThat(result1.next()).isNotNull();
+        assertThat(result1.next().catalogs()).containsExactly(CATALOG_A, CATALOG_B);
+        assertThat(result1.next().pageNo()).isEqualTo(1);
         assertThat(result1.totalItems()).isEqualTo(3L);
 
-        SampleSearchResult result2 = service.search(request, result1.nextCatalog(), result1.nextAfter(), 10);
+        request.setState(result1.next());
+        SampleSearchResult result2 = service.search(request, 2);
 
         assertThat(result2.items()).isEqualTo(samples("#3"));
-        assertThat(result2.hasNext()).isTrue();
-        assertThat(result2.nextCatalog()).isEqualTo(CATALOG_B);
-        assertThat(result2.nextAfter()).isNull();
+        assertThat(result2.next()).isNotNull();
+        assertThat(result2.next().catalogs()).containsExactly(CATALOG_B);
+        assertThat(result2.next().pageNo()).isEqualTo(0);
         assertThat(result2.totalItems()).isEqualTo(3L);
 
-        SampleSearchResult result3 = service.search(request, result2.nextCatalog(), result2.nextAfter(), 10);
+        request.setState(result2.next());
+        SampleSearchResult result3 = service.search(request, 2);
 
         assertThat(result3.items()).isEqualTo(samples("#A", "#B"));
-        assertThat(result3.hasNext()).isFalse();
-        assertThat(result3.nextCatalog()).isNull();
-        assertThat(result3.nextAfter()).isNull();
+        assertThat(result3.next()).isNull();
         assertThat(result3.totalItems()).isNull();
     }
 
     @Test
     void noResultsFromAAndNoResultsFromB() {
         FindSamplesRequest request = new FindSamplesRequest().withCatalogs(Set.of(CATALOG_A, CATALOG_B));
-        when(providerA.search(request, null, 10))
-                .thenReturn(new CatalogSearchResult(samples(), null, null));
-        when(providerB.search(request, null, 10))
-                .thenReturn(new CatalogSearchResult(samples(), null, null));
+        when(providerA.search(request, 0, 10))
+                .thenReturn(new CatalogSearchResult(samples(), null, false));
+        when(providerB.search(request, 0, 10))
+                .thenReturn(new CatalogSearchResult(samples(), null, false));
 
-        SampleSearchResult result1 = service.search(request, null, null, 10);
+        SampleSearchResult result1 = service.search(request, 10);
 
         assertThat(result1.items()).isEmpty();
-        assertThat(result1.hasNext()).isFalse();
-        assertThat(result1.nextCatalog()).isNull();
-        assertThat(result1.nextAfter()).isNull();
+        assertThat(result1.next()).isNull();
     }
 
     @Test
     void noResultsFromAAndOnePageFromB() {
         FindSamplesRequest request = new FindSamplesRequest().withCatalogs(Set.of(CATALOG_A, CATALOG_B));
-        when(providerA.search(request, null, 10))
-                .thenReturn(new CatalogSearchResult(samples(), null, null));
-        when(providerB.search(request, null, 10))
-                .thenReturn(new CatalogSearchResult(samples("#A", "#B"), null, 2L));
+        when(providerA.search(request, 0, 10))
+                .thenReturn(new CatalogSearchResult(samples(), null, false));
+        when(providerB.search(request, 0, 10))
+                .thenReturn(new CatalogSearchResult(samples("#A", "#B"), 2L, false));
 
-        SampleSearchResult result = service.search(request, null, null, 10);
+        SampleSearchResult result = service.search(request, 10);
 
         assertThat(result.items()).isEqualTo(samples("#A", "#B"));
-        assertThat(result.hasNext()).isFalse();
-        assertThat(result.nextCatalog()).isNull();
-        assertThat(result.nextAfter()).isNull();
-        assertThat(result.totalItems()).isNull();
+        assertThat(result.next()).isNull();
+        assertThat(result.totalItems()).isEqualTo(2);
     }
 
     @Test
     void skipDisabled() {
         FindSamplesRequest request = new FindSamplesRequest().withCatalogs(Set.of(CATALOG_A, CATALOG_C));
-        when(providerA.search(request, null, 10))
-                .thenReturn(new CatalogSearchResult(samples(), null, 0L));
-        SampleSearchResult result = service.search(request, null, null, 10);
+        when(providerA.search(request, 0, 10))
+                .thenReturn(new CatalogSearchResult(samples(), 0L, false));
+        SampleSearchResult result = service.search(request, 10);
 
         assertThat(result.items()).isEmpty();
-        assertThat(result.hasNext()).isFalse();
-        assertThat(result.nextCatalog()).isNull();
-        assertThat(result.nextAfter()).isNull();
+        assertThat(result.next()).isNull();
         assertThat(result.totalItems()).isEqualTo(0L);
     }
 

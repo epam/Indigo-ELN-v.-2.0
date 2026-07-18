@@ -1,6 +1,7 @@
 package com.epam.indigoeln.compound.repository;
 
-import com.epam.indigoeln.common.util.Pair;
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.entity.CompoundEntity_;
 import com.epam.indigoeln.compound.entity.SampleEntity;
@@ -20,6 +21,7 @@ import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.reaction.model.MolFormula;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Predicate;
 import org.hibernate.query.NativeQuery;
@@ -59,29 +61,17 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
         return doFindOne(conditions);
     }
 
-    public Pair<List<SampleDTO>, Long> find(FindSamplesRequest request, @Nullable Boolean marked, int limit, @Nullable UUID nextAfter) {
-        CriteriaDefinition<Long> totalCriteria = new CriteriaDefinition<>(em, Long.class) {{
+    public Page<SampleDTO> find(FindSamplesRequest request, @Nullable Boolean marked, int pageNo, int pageSize) {
+        CriteriaDefinition<Tuple> criteria = new CriteriaDefinition<>(em, Tuple.class) {{
             JpaRoot<SampleEntity> root = from(SampleEntity.class);
-            select(count());
+            select(tuple(root.id(), count(literal(1), createWindow())));
             where(buildConditions(request, marked, root, getCriteriaBuilder()));
-        }};
-        long total = em.createQuery(totalCriteria).getSingleResult();
-
-        CriteriaDefinition<SampleEntity> criteria = new CriteriaDefinition<>(em, SampleEntity.class) {{
-            JpaRoot<SampleEntity> root = from(SampleEntity.class);
-            List<Predicate> conditions = buildConditions(request, marked, root, getCriteriaBuilder());
-            if (nextAfter != null) {
-                conditions.add(greaterThan(root.get(SampleEntity_.id), literal(nextAfter)));
-            }
-            where(conditions);
             orderBy(asc(root.get(SampleEntity_.id)));
         }};
-        List<SampleEntity> list = em.createQuery(criteria)
-                .setFirstResult(0)
-                .setMaxResults(limit)
-                .setHint("jakarta.persistence.loadgraph", em.getEntityGraph("Sample.find"))
-                .getResultList();
-        return Pair.of(map(list, sampleMapper::sampleToDTO), total);
+
+        Paging paging = new Paging(pageNo, pageSize);
+        Page<SampleEntity> page = doFindWithTotals(criteria, paging, em.getEntityGraph("Sample.find"));
+        return map(page, sampleMapper::sampleToDTO);
     }
 
     private List<Predicate> buildConditions(FindSamplesRequest request, @Nullable Boolean marked, JpaRoot<SampleEntity> root, HibernateCriteriaBuilder cb) {

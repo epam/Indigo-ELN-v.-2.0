@@ -20,7 +20,6 @@ import jakarta.ws.rs.core.MultivaluedHashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.jspecify.annotations.Nullable;
 
 import java.net.URI;
 import java.net.URLEncoder;
@@ -61,12 +60,12 @@ class PubChemCatalogSearchProvider implements CatalogSearchProvider {
     }
 
     @Override
-    public CatalogSearchResult search(FindSamplesRequest request, @Nullable String nextAfter, int limit) {
+    public CatalogSearchResult search(FindSamplesRequest request, int pageNo, int pageSize) {
         try {
-            List<SampleDTO> list = executeQuery(request, limit);
-            return new CatalogSearchResult(list, null, null);
+            List<SampleDTO> list = executeQuery(request, pageSize);
+            return new CatalogSearchResult(list, null, false);
         } catch (PubChemException.NotFound e) {
-            return new CatalogSearchResult(List.of(), null, null);
+            return new CatalogSearchResult(List.of(), null, false);
         } catch (PubChemException e) {
             throw e;
         } catch (Exception e) {
@@ -74,7 +73,7 @@ class PubChemCatalogSearchProvider implements CatalogSearchProvider {
         }
     }
 
-    private List<SampleDTO> executeQuery(FindSamplesRequest searchRequest, int limit) {
+    private List<SampleDTO> executeQuery(FindSamplesRequest searchRequest, int pageSize) {
         Set<String> conditions = new HashSet<>();
         Map<String, Object> queryParams = new LinkedHashMap<>();
         Map<String, Object> formParams = new LinkedHashMap<>();
@@ -90,7 +89,7 @@ class PubChemCatalogSearchProvider implements CatalogSearchProvider {
             };
             conditions.add(queryType + "/sdf");
             formParams.put("sdf", searchRequest.getStructure().query());
-            queryParams.put("MaxRecords", limit);
+            queryParams.put("MaxRecords", pageSize);
         }
         validate(searchRequest.getCompoundKey() == null, "For PubChem, Compound Key search is not supported");
         validate(searchRequest.getNbkBatchNumber() == null, "For PubChem, Notebook Batch Number search is not supported");
@@ -99,7 +98,7 @@ class PubChemCatalogSearchProvider implements CatalogSearchProvider {
         if (searchRequest.getMolecularFormula() != null) {
             if (searchRequest.getMolecularFormula() instanceof TextSearch.ExactSearch(String value)) {
                 conditions.add("fastformula/" + URLEncoder.encode(MolFormula.normalize(value),StandardCharsets.UTF_8));
-                queryParams.put("MaxRecords", limit);
+                queryParams.put("MaxRecords", pageSize);
             } else {
                 fail("For PubChem, Molecular Formula supports only exact search");
             }

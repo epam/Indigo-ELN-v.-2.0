@@ -108,18 +108,13 @@ export class SamplesSearchLoader extends InfiniteSearchLoader<FindSamplesRequest
     searchParams: FindSamplesRequest,
     currentPage: SampleSearchResult | null,
   ): Observable<SampleSearchResult> {
-    let url = 'samples/search?limit=100';
-    if (currentPage?.nextCatalog) {
-      url += `&nextCatalog=${currentPage.nextCatalog}`;
-    }
-    if (currentPage?.nextAfter) {
-      url += `&nextAfter=${currentPage.nextAfter}`;
-    }
-    return this.service.request('post', url, searchParams);
+    const url = 'samples/search?pageSize=100';
+    const payload = { ...searchParams, state: currentPage?.next };
+    return this.service.request('post', url, payload);
   }
 
   protected hasNext(currentPage: SampleSearchResult): boolean {
-    return currentPage.hasNext;
+    return currentPage.next != null;
   }
 }
 
