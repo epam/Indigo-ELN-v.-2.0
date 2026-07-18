@@ -52,7 +52,7 @@ public class TemplateRepository extends BaseRepository<TemplateEntity> {
         );
     }
 
-    public TemplateDetailsDTO loadDetails(UUID id) {
+    public TemplateDetailsDTO load(UUID id) {
         return doLoadDetails(
                 id,
                 em.getEntityGraph("Template.details"),

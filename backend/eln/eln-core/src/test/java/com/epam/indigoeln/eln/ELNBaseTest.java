@@ -11,12 +11,14 @@ import com.epam.indigoeln.reaction.util.ExperimentObject;
 import com.epam.indigoeln.reports.api.ReportsClient;
 import com.epam.indigoeln.signature.api.SignatureAdminClient;
 import com.epam.indigoeln.signature.api.SignatureClient;
+import com.epam.indigoeln.test.APICallException;
 import com.epam.indigoeln.test.BaseTest;
 import com.google.common.base.Suppliers;
 import io.agroal.api.AgroalDataSource;
 import io.agroal.api.security.NamePrincipal;
 import io.agroal.api.security.SimplePassword;
 import lombok.SneakyThrows;
+import org.apache.http.HttpStatus;
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.junit.jupiter.api.BeforeAll;
@@ -179,11 +181,14 @@ public abstract class ELNBaseTest extends BaseTest {
         String oldUsername = username.get();
         try {
             username.set(ADMIN_USERNAME);
-            Page<UserDTO> found = userClient.getUsers(null, request.getUsername(), Paging.DEFAULT);
-            if (!found.getItems().isEmpty()) {
-                return found.getItems().getFirst();
+            try {
+                return userClient.getUser(request.getUsername());
+            } catch (APICallException e) {
+                if (e.getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+                    return userClient.createUser(request);
+                }
+                throw e;
             }
-            return userClient.createUser(request);
         } finally {
             username.set(oldUsername);
         }

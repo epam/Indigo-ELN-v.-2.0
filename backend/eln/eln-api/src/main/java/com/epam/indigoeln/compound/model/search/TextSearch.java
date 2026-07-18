@@ -12,38 +12,36 @@ import jakarta.validation.constraints.NotNull;
         @JsonSubTypes.Type(value = TextSearch.EndsWithSearch.class, name = "endsWith"),
         @JsonSubTypes.Type(value = TextSearch.BetweenSearch.class, name = "between")
 })
-public sealed interface TextSearch permits TextSearch.ExactSearch, TextSearch.StartsWithSearch, TextSearch.ContainsSearch, TextSearch.EndsWithSearch, TextSearch.BetweenSearch {
+public sealed interface TextSearch permits TextSearch.WithValue, TextSearch.BetweenSearch {
 
-    String value();
+    sealed interface WithValue extends TextSearch permits ExactSearch, StartsWithSearch, ContainsSearch, EndsWithSearch {
+
+        String value();
+    }
 
     record ExactSearch(
             @NotNull String value
-    ) implements TextSearch {
+    ) implements WithValue {
     }
 
     record StartsWithSearch(
             String value
-    ) implements TextSearch {
+    ) implements WithValue {
     }
 
     record ContainsSearch(
             String value
-    ) implements TextSearch {
+    ) implements WithValue {
     }
 
     record EndsWithSearch(
             String value
-    ) implements TextSearch {
+    ) implements WithValue {
     }
 
     record BetweenSearch(
             String from,
             String to
     ) implements TextSearch {
-
-        @Override
-        public String value() {
-            throw new UnsupportedOperationException();
-        }
     }
 }

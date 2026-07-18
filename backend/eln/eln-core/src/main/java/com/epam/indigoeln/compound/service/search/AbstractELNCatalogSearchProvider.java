@@ -11,6 +11,7 @@ import jakarta.inject.Inject;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.UUID;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -48,7 +49,7 @@ class ELNCatalogSearchProvider extends AbstractELNCatalogSearchProvider {
     }
 
     protected Pair<List<SampleDTO>, Long> doSearch(FindSamplesRequest request, @Nullable String nextAfter, int limit) {
-        return sampleRepository.find(request, null, limit, nextAfter);
+        return sampleRepository.find(request, null, limit, nextAfter != null ? UUID.fromString(nextAfter) : null);
     }
 }
 
@@ -66,6 +67,6 @@ class MyMaterialsCatalogSearchProvider extends AbstractELNCatalogSearchProvider 
     }
 
     protected Pair<List<SampleDTO>, Long> doSearch(FindSamplesRequest request, @Nullable String nextAfter, int limit) {
-        return sampleRepository.find(request, true, limit, nextAfter);
+        return sampleRepository.find(request, true, limit, nextAfter != null ? UUID.fromString(nextAfter) : null);
     }
 }

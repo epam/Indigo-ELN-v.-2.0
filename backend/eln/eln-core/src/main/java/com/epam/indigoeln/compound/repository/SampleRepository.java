@@ -49,7 +49,7 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
         return find(conditions.getQuery(), conditions.getValues()).firstResult();
     }
 
-    public Pair<List<SampleDTO>, Long> find(FindSamplesRequest request, @Nullable Boolean marked, int limit, @Nullable String nextAfter) {
+    public Pair<List<SampleDTO>, Long> find(FindSamplesRequest request, @Nullable Boolean marked, int limit, @Nullable UUID nextAfter) {
         Conditions conditions = new Conditions()
                 .addIfNotNull("full_text_search(searchVector, websearch_to_tsquery('english', ?))", request.getQuickSearch());
         if (request.getStructure() != null) {
@@ -92,7 +92,7 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
         long totalCount = query.count();
 
         if (nextAfter != null) {
-            conditions.add("id > ?", UUID.fromString(nextAfter));
+            conditions.add("id > ?", nextAfter);
         }
         query = find(conditions.getQuery(), sort, conditions.getValues())
                 .page(0, limit)

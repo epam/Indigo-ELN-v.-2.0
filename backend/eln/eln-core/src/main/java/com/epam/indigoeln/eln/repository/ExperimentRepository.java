@@ -71,7 +71,7 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
         );
     }
 
-    public ExperimentEntity getAndLock(UUID id) {
+    public ExperimentEntity loadAndLock(UUID id) {
         ExperimentEntity entity = findById(id, LockModeType.PESSIMISTIC_WRITE);
         if (entity == null) {
             throw new EntityNotFoundException(ELNEntityType.EXPERIMENT, id);

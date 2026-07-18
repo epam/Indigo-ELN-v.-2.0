@@ -1,9 +1,12 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.model.CurrentUserDTO;
+import com.epam.indigoeln.eln.model.UserDTO;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import jakarta.inject.Inject;
@@ -41,6 +44,19 @@ class UserServiceTest extends ELNBaseTest {
         assertThat(all).map(UserRef::getDisplayName).containsExactly(ADMIN_DISPLAY_NAME, BART_DISPLAY_NAME, JOHN_DISPLAY_NAME, LISA_DISPLAY_NAME, MAGGIE_DISPLAY_NAME, WILLOW_DISPLAY_NAME);
         List<UserRef> filtered = userClient.suggestUsers("l");
         assertThat(filtered).map(UserRef::getDisplayName).containsExactly(LISA_DISPLAY_NAME);
+    }
+
+    @Test
+    @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
+    void testGetUsersSearch() {
+        Page<UserDTO> byFirstName = userClient.getUsers("jo", Paging.DEFAULT);
+        assertThat(byFirstName.getItems()).map(UserDTO::getDisplayName).contains(JOHN_DISPLAY_NAME, WILLOW_DISPLAY_NAME);
+
+        Page<UserDTO> byLastName = userClient.getUsers("gree", Paging.DEFAULT);
+        assertThat(byLastName.getItems()).map(UserDTO::getDisplayName).contains(LISA_DISPLAY_NAME, MAGGIE_DISPLAY_NAME);
+
+        Page<UserDTO> noMatch = userClient.getUsers("zzzznomatch", Paging.DEFAULT);
+        assertThat(noMatch.getItems()).isEmpty();
     }
 
     @Test

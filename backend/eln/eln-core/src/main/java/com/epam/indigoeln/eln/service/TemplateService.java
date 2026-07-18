@@ -73,7 +73,7 @@ public class TemplateService {
     }
 
     public TemplateDetailsDTO getTemplate(UUID templateId) {
-        return templateRepository.loadDetails(templateId);
+        return templateRepository.load(templateId);
     }
 
     public TemplateDetailsDTO editTemplate(UUID templateId, TemplateEditRequest request) {

@@ -140,7 +140,7 @@ public class ExperimentService {
     }
 
     public ExperimentDetailsDTO editExperiment(UUID experimentId, ExperimentEditRequest request) {
-        ExperimentEntity experiment = experimentRepository.getAndLock(experimentId);
+        ExperimentEntity experiment = experimentRepository.loadAndLock(experimentId);
         experimentModelService.applyMutation(experiment, experimentMapper.requestToMutation(request));
         return getExperimentDetails(experiment);
     }
@@ -153,7 +153,7 @@ public class ExperimentService {
     }
 
     public List<ACLEntryDTO> updateExperimentAccess(UUID experimentId, List<AccessForm> form) {
-        ExperimentEntity experiment = experimentRepository.getAndLock(experimentId);
+        ExperimentEntity experiment = experimentRepository.loadAndLock(experimentId);
         ExperimentMutation mutation = new ExperimentMutation.EditExperimentAccess(form);
         experimentModelService.applyMutation(experiment, mutation);
         return experimentMapper.convertACLList(experiment.getFullACL());
@@ -162,7 +162,7 @@ public class ExperimentService {
     @SneakyThrows
     public MutationResponse mutateModel(UUID experimentId, Integer revision, boolean verifyUndoRedo, ExperimentMutation mutation) {
         validate(mutation.isMutateMethodAllowed(), "Mutation is not allowed for generic mutate method");
-        ExperimentEntity experiment = experimentRepository.getAndLock(experimentId);
+        ExperimentEntity experiment = experimentRepository.loadAndLock(experimentId);
         aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
         MutationResult<ExperimentSnapshot, ExperimentMutationContext> result = experimentModelService.applyMutation(experiment, mutation);
         if (verifyUndoRedo) {
@@ -288,7 +288,7 @@ public class ExperimentService {
 
     @SneakyThrows
     public MutationResponse importSDF(UUID experimentId, ReactionAnchor reactionAnchor, @NotNull FileUpload file) {
-        ExperimentEntity experiment = experimentRepository.getAndLock(experimentId);
+        ExperimentEntity experiment = experimentRepository.loadAndLock(experimentId);
         aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
         List<UUID> compoundIDs = compoundService.loadCompoundsFromFile(file.filePath(), false);
         MutationResult<ExperimentSnapshot, ExperimentMutationContext> result = experimentModelService.applyMutation(experiment, new ReactionMutation.ImportSDF(reactionAnchor, compoundIDs));

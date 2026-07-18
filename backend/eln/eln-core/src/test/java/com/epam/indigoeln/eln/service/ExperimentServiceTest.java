@@ -143,6 +143,21 @@ class ExperimentServiceTest extends ELNBaseTest {
     }
 
     @Test
+    void testGetExperimentsSearch() {
+        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
+        experimentClient.editExperiment(experiment.getId(), new ExperimentEditRequest(JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.of("uniquedescxyz"), JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.undefined()));
+
+        Page<ExperimentDTO> byName = experimentClient.getProjectExperiments(project.getId(), experiment.getName().substring(0, 5), null, null, Paging.DEFAULT);
+        assertThat(byName.getItems()).extracting(ExperimentDTO::getId).contains(experiment.getId());
+
+        Page<ExperimentDTO> byFullText = experimentClient.getProjectExperiments(project.getId(), "uniquedescxyz", null, null, Paging.DEFAULT);
+        assertThat(byFullText.getItems()).extracting(ExperimentDTO::getId).contains(experiment.getId());
+
+        Page<ExperimentDTO> noMatch = experimentClient.getProjectExperiments(project.getId(), "totallyunrelatedqueryterm", null, null, Paging.DEFAULT);
+        assertThat(noMatch.getItems()).extracting(ExperimentDTO::getId).doesNotContain(experiment.getId());
+    }
+
+    @Test
     void testGetExperimentsCreatedByMe() {
         withUser(ELNBaseTest.JOHN_USERNAME, () -> {
             experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));

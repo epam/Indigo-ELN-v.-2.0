@@ -57,9 +57,9 @@ public class UserRepository extends BaseRepository<UserEntity> {
         );
     }
 
-    public UserDTO loadDetails(String username) {
+    public UserDTO load(String username) {
         UserDTO user = doFindOne(
-                new Conditions().add("username", username),
+                new Conditions().add("username=?", username),
                 em.getEntityGraph("User.details"),
                 userMapper::entityToDetailsDTO
         );
@@ -69,11 +69,13 @@ public class UserRepository extends BaseRepository<UserEntity> {
         return user;
     }
 
-    public Page<UserDTO> findAll(@Nullable String search, @Nullable String username, Paging paging) {
+    public Page<UserDTO> findAll(@Nullable String search, Paging paging) {
+        Conditions conditions = new Conditions();
+        if (search != null) {
+            conditions.add("firstName ilike ? or lastName ilike ? or displayName ilike ?", search + '%', search + '%', search + '%');
+        }
         return doFindWithTotals(
-                new Conditions()
-                        .addIfNotNull("full_text_search(searchVector, websearch_to_tsquery('english', ?))", search)
-                        .addIfNotNull("username = ?", username),
+                conditions,
                 paging,
                 DEFAULT_SORT,
                 null,

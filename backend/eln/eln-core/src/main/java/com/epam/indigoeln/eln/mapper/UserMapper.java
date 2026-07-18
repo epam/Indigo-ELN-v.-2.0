@@ -5,7 +5,6 @@ import com.epam.indigoeln.eln.entity.UserInfo;
 import com.epam.indigoeln.eln.model.CurrentUserDTO;
 import com.epam.indigoeln.eln.model.UserDTO;
 import com.epam.indigoeln.eln.model.UserRequest;
-import org.jspecify.annotations.Nullable;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
@@ -22,13 +21,6 @@ public abstract class UserMapper extends AbstractMapper {
 
     public abstract UserDTO entityToDetailsDTO(UserEntity entity);
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
     @Mapping(target = "permissions", expression = "java((Set) Set.copyOf(user.getPermissions()))")
     public abstract CurrentUserDTO infoToCurrentUserDTO(UserInfo user);
-
-    @Override
-    @Nullable
-    public UserInfo convertUserInfo(@Nullable UserEntity entity) {
-        return super.convertUserInfo(entity);
-    }
 }

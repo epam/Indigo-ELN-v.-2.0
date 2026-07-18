@@ -25,7 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -79,10 +78,6 @@ public class UserService {
         return em.getReference(UserEntity.class, getCurrentUser().getId());
     }
 
-    public UserEntity getEntity(UserRef ref) {
-        return em.getReference(UserEntity.class, getUserInfo(ref.getUsername()).getId());
-    }
-
     public UserEntity getEntity(String username) {
         return em.getReference(UserEntity.class, getUserInfo(username).getId());
     }
@@ -115,7 +110,7 @@ public class UserService {
     }
 
     public UserDTO getUser(String username) {
-        return userRepository.loadDetails(username);
+        return userRepository.load(username);
     }
 
     public byte[] getUserPicture(String username, @Nullable Boolean large) {
@@ -130,21 +125,20 @@ public class UserService {
     public UserDTO createUser(UserRequest request) {
         aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_USERS);
         UserEntity entity = userMapper.requestToUser(request);
-        Set<RoleEntity> roles = StreamEx.ofNullable(request.getRoles())
-                .flatMap(Collection::stream)
+        Set<RoleEntity> roles = StreamEx.of(firstNotNull(request.getRoles(), List.of()))
                 .map(ref -> roleRepository.get(ref.getId()))
                 .toSet();
         entity.getRoles().addAll(roles);
         updateDates(entity, getCurrentUserEntity());
         userRepository.persist(entity);
-        em.flush(); // make sure all constraints hold
+        userRepository.flush(); // make sure all constraints hold
         externalUserService.createUser(request);
-        cacheByUsername.invalidate(request.getUsername());
-        cacheByID.invalidate(entity.getId());
+        cacheByUsername.invalidate(request.getUsername()).await().indefinitely();
+        cacheByID.invalidate(entity.getId()).await().indefinitely();
         return userMapper.entityToDetailsDTO(entity);
     }
 
-    public Page<UserDTO> getUsers(@Nullable String search, @Nullable String username, Paging paging) {
-        return userRepository.findAll(search, username, paging);
+    public Page<UserDTO> getUsers(@Nullable String search, Paging paging) {
+        return userRepository.findAll(search, paging);
     }
 }

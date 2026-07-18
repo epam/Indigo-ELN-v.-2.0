@@ -63,7 +63,7 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
         );
     }
 
-    public ProjectEntity loadDetails(UUID id) {
+    public ProjectEntity load(UUID id) {
         ProjectEntity project = doLoadDetails(
                 id,
                 em.getEntityGraph("Project.details"),

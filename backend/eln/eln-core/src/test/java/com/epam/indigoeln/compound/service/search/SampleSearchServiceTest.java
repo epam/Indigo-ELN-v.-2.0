@@ -178,7 +178,7 @@ public class SampleSearchServiceTest extends ELNBaseTest {
                 , null, null, 10
         );
         assertThat(found.items()).singleElement().satisfies(x -> {
-            assertThat(x.getMolFormula()).isEqualTo("C2H4O2");
+            assertThat(x.getMolFormula()).isEqualTo("C<sub>2</sub>H<sub>4</sub>O<sub>2</sub>");
         });
     }
 
@@ -189,7 +189,7 @@ public class SampleSearchServiceTest extends ELNBaseTest {
                 , null, null, 10
         );
         assertThat(found.items()).singleElement().satisfies(x -> {
-            assertThat(x.getMolFormula()).isEqualTo("C2H4O2");
+            assertThat(x.getMolFormula()).isEqualTo("C<sub>2</sub>H<sub>4</sub>O<sub>2</sub>");
         });
     }
 

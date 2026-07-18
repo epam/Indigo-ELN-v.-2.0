@@ -34,8 +34,8 @@ public abstract class AbstractMapper {
         return dictionaryService.get(entity);
     }
 
-    @Nullable
-    protected UserInfo convertUserInfo(@Nullable UserEntity entity) {
+    public UserInfo convertUserInfo(UserEntity entity) {
+        //noinspection ConstantValue
         return entity != null ? entity.toInfo() : null;
     }
 }

@@ -5,6 +5,7 @@ import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.search.SearchCatalog;
+import com.epam.indigoeln.compound.model.search.TextSearch;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.compound.service.search.CatalogSearchProvider;
 import com.epam.indigoeln.compound.service.search.CatalogSearchResult;
@@ -26,6 +27,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+import static com.epam.indigoeln.common.exception.InvalidRequestException.fail;
 import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -95,8 +97,12 @@ class PubChemCatalogSearchProvider implements CatalogSearchProvider {
         validate(searchRequest.getCasNumber() == null, "For PubChem, CAS number search is not supported");
         validate(searchRequest.getExternalNumber() == null, "For PubChem, External Number search is not supported");
         if (searchRequest.getMolecularFormula() != null) {
-            conditions.add("fastformula/" + URLEncoder.encode(MolFormula.normalize(searchRequest.getMolecularFormula().value()), StandardCharsets.UTF_8));
-            queryParams.put("MaxRecords", limit);
+            if (searchRequest.getMolecularFormula() instanceof TextSearch.ExactSearch(String value)) {
+                conditions.add("fastformula/" + URLEncoder.encode(MolFormula.normalize(value),StandardCharsets.UTF_8));
+                queryParams.put("MaxRecords", limit);
+            } else {
+                fail("For PubChem, Molecular Formula supports only exact search");
+            }
         }
         validate(searchRequest.getMolWeight() == null, "For PubChem, Molecular Weight search is not supported");
         validate(searchRequest.getChemicalName() == null, "For PubChem, Chemical Name search is not supported");

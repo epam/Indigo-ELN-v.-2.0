@@ -96,7 +96,7 @@ public class AttachmentService {
     }
 
     public List<AttachmentDTO> createExperimentAttachment(UUID experimentId, String filename, byte[] content, @Nullable Boolean useMutation) {
-        ExperimentEntity experiment = experimentRepository.getAndLock(experimentId);
+        ExperimentEntity experiment = experimentRepository.loadAndLock(experimentId);
         createExperimentAttachment(experiment, filename, content, useMutation);
         return attachmentMapper.attachmentToDTOList(experiment.getAttachments());
     }
@@ -194,7 +194,7 @@ public class AttachmentService {
     }
 
     public void deleteExperimentAttachment(UUID experimentId, UUID attachmentId) {
-        ExperimentEntity experiment = experimentRepository.getAndLock(experimentId);
+        ExperimentEntity experiment = experimentRepository.loadAndLock(experimentId);
         aclService.ensureAccess(experiment, ApplicationPermission.EDIT_EXPERIMENTS);
         AttachmentEntity attachment = attachmentRepository.get(attachmentId);
         ensureCorrectParent(attachment, attachment.getExperiments(), experiment);
