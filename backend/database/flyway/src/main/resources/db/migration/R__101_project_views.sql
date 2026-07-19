@@ -1,10 +1,17 @@
 DROP VIEW IF EXISTS Project_View_2;
 
+-- Postgres tend to fall back to full table scan on OR conditions, so using UNION ALL for viewAll vs normal
 CREATE OR REPLACE VIEW Project_Access_View AS
 SELECT p.id project_id, pa.level current_access_or_null, array_length(p.full_acl, 1) acl_count
 FROM Project p
 LEFT JOIN LATERAL unnest(p.full_acl) pa ON pa.user_id = current_setting('eln.currentUserId')::UUID
-WHERE current_setting('eln.viewAllProjects')::BOOLEAN OR pa.level IS NOT NULL;
+WHERE current_setting('eln.viewAllProjects')::BOOLEAN
+UNION ALL
+SELECT p.id project_id, pa.level current_access_or_null, array_length(p.full_acl, 1) acl_count
+FROM Project p
+LEFT JOIN LATERAL unnest(p.full_acl) pa ON pa.user_id = current_setting('eln.currentUserId')::UUID
+WHERE NOT current_setting('eln.viewAllProjects')::BOOLEAN
+  AND acl_user_ids(p.full_acl) @> ARRAY[current_setting('eln.currentUserId')::UUID];
 
 CREATE OR REPLACE FUNCTION get_project_search_vector(
     IN current_project_id UUID

@@ -1,10 +1,17 @@
 DROP VIEW IF EXISTS Notebook_View_2;
 
+-- Postgres tend to fall back to full table scan on OR conditions, so using UNION ALL for viewAll vs normal
 CREATE OR REPLACE VIEW Notebook_Access_View AS
 SELECT n.id notebook_id, na.level current_access_or_null, array_length(n.full_acl, 1) acl_count
 FROM Notebook n
 LEFT JOIN LATERAL unnest(n.full_acl) na ON na.user_id = current_setting('eln.currentUserId')::UUID
-WHERE current_setting('eln.viewAllNotebooks')::BOOLEAN OR na.level IS NOT NULL;
+WHERE current_setting('eln.viewAllNotebooks')::BOOLEAN
+UNION ALL
+SELECT n.id notebook_id, na.level current_access_or_null, array_length(n.full_acl, 1) acl_count
+FROM Notebook n
+LEFT JOIN LATERAL unnest(n.full_acl) na ON na.user_id = current_setting('eln.currentUserId')::UUID
+WHERE NOT current_setting('eln.viewAllNotebooks')::BOOLEAN
+  AND acl_user_ids(n.full_acl) @> ARRAY[current_setting('eln.currentUserId')::UUID];
 
 CREATE OR REPLACE FUNCTION get_notebook_search_vector(
     IN current_notebook_id UUID
