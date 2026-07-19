@@ -24,12 +24,11 @@ public abstract class ExperimentMapper extends AbstractMapper {
     public abstract ExperimentMutation.EditExperimentAttributes requestToMutation(ExperimentEditRequest request);
     
     @Mapping(target = "acl", source = "shortACL")
-    @Mapping(target = "aclCount", source = "calculatedInfo.aclCount")
-    @Mapping(target = "marked", source = "calculatedInfo.marked")
+    @Mapping(target = "marked", expression = "java(entity.getMarked() == Boolean.TRUE)")
     public abstract ExperimentDTO entityToDTO(ExperimentEntity entity);
 
     @Mapping(target = "acl", source = "entity.fullACL")
-    @Mapping(target = "marked", source = "entity.calculatedInfo.marked")
+    @Mapping(target = "marked", expression = "java(entity.getMarked() == Boolean.TRUE)")
     @Mapping(target = "templateId", source = "entity.template.id")
     @Mapping(target = "projectId", source = "entity.project.id")
     @Mapping(target = "projectName", source = "entity.project.name")

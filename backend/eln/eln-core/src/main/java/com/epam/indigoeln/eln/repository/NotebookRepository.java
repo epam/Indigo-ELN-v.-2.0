@@ -6,7 +6,6 @@ import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.common.repository.BaseRepository;
 import com.epam.indigoeln.eln.common.util.Conditions;
 import com.epam.indigoeln.eln.entity.*;
-import com.epam.indigoeln.eln.entity.NotebookEntity_.CalculatedInfo_;
 import com.epam.indigoeln.eln.mapper.NotebookMapper;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.model.ELNEntityType;
@@ -49,7 +48,7 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
             select(tuple(root.id(), count(literal(1), createWindow())));
             criteriaConditionsFactory.withConditions(this::where, conditions -> {
                 if (!showAll) {
-                    conditions.add(isNotNull(root.get(NotebookEntity_.calculatedInfo).get(CalculatedInfo_.currentAccess)));
+                    conditions.add(isNotNull(root.get(NotebookEntity_.currentAccess)));
                 }
                 conditions.add(root.get(NotebookEntity_.project).get(ProjectEntity_.id).equalTo(projectId));
                 if (createdByUser != null) {

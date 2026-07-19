@@ -12,6 +12,7 @@ import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
+import com.google.common.base.MoreObjects;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import jakarta.inject.Inject;
@@ -128,11 +129,11 @@ class PermissionsTest extends ELNBaseTest {
     void testCalculateAccessLevel() {
         iterateRows(row -> {
             ProjectEntity project = projectRepository.get(row.projectId);
-            AccessLevel projectLevel = project.getCalculatedInfo() != null ? project.getCalculatedInfo().getCurrentAccess() : NONE;
+            AccessLevel projectLevel = MoreObjects.firstNonNull(project.getCurrentAccess(), NONE);
             NotebookEntity notebook = notebookRepository.get(row.notebookId);
-            AccessLevel notebookLevel = notebook.getCalculatedInfo() != null ? notebook.getCalculatedInfo().getCurrentAccess() : NONE;
+            AccessLevel notebookLevel = MoreObjects.firstNonNull(notebook.getCurrentAccess(), NONE);
             ExperimentEntity experiment = experimentRepository.get(row.experimentId);
-            AccessLevel experimentLevel = experiment.getCalculatedInfo() != null ? experiment.getCalculatedInfo().getCurrentAccess() : NONE;
+            AccessLevel experimentLevel = MoreObjects.firstNonNull(experiment.getCurrentAccess(), NONE);
             assertThat(tuple(projectLevel, notebookLevel, experimentLevel))
                     .as(row.toString())
                     .isEqualTo(tuple(row.effectiveProject, row.effectiveNotebook, row.effectiveExperiment));

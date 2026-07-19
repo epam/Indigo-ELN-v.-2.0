@@ -24,7 +24,6 @@ public abstract class NotebookMapper extends AbstractMapper {
     public abstract NotebookMutation.EditNotebookAttributes requestToMutation(NotebookEditRequest request);
 
     @Mapping(target = "acl", source = "shortACL")
-    @Mapping(target = "aclCount", source = "calculatedInfo.aclCount")
     @Mapping(target = "experimentCountByStatus", source = "entity.experimentCount")
     public abstract NotebookDTO entityToDTO(NotebookEntity entity);
 

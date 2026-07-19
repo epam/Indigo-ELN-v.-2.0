@@ -10,14 +10,12 @@ import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.reaction.model.units.MolarityUnit;
 import io.hypersistence.utils.hibernate.type.search.PostgreSQLTSVectorType;
 import jakarta.persistence.*;
+import jakarta.persistence.NamedEntityGraph;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.JdbcType;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.*;
 import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
 import org.jspecify.annotations.Nullable;
 
@@ -96,5 +94,6 @@ public class SampleEntity extends BaseEntity {
     @Basic(fetch = FetchType.LAZY)
     @Column(table = "Sample_Is_Marked", updatable = false)
     @Fetch(FetchMode.SELECT)
+    @LazyGroup("view")
     private Boolean marked;
 }

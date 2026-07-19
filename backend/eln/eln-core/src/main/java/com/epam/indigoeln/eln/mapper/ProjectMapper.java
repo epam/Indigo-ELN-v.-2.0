@@ -28,7 +28,6 @@ public abstract class ProjectMapper extends AbstractMapper {
     public abstract ProjectMutation.EditProjectAttributes requestToMutation(ProjectEditRequest request);
 
     @Mapping(target = "acl", source = "shortACL")
-    @Mapping(target = "aclCount", source = "calculatedInfo.aclCount")
     @Mapping(target = "experimentCountByStatus", source = "entity.experimentCount")
     public abstract ProjectDTO entityToDTO(ProjectEntity entity);
 

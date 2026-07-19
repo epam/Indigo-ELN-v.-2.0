@@ -1,6 +1,5 @@
 package com.epam.indigoeln.eln.entity;
 
-import com.epam.indigoeln.eln.common.entity.IdentifiableEntity;
 import com.epam.indigoeln.eln.config.hibernate.ACLEntryArrayType;
 import com.epam.indigoeln.eln.config.hibernate.ExperimentModelType;
 import com.epam.indigoeln.eln.model.AccessLevel;
@@ -8,14 +7,13 @@ import com.epam.indigoeln.eln.model.ExperimentStatus;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import io.hypersistence.utils.hibernate.type.search.PostgreSQLTSVectorType;
 import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.NamedEntityGraph;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
-import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.JdbcType;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.*;
 import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
 import org.hibernate.type.SqlTypes;
 import org.jspecify.annotations.Nullable;
@@ -28,21 +26,18 @@ import java.util.*;
 @AllArgsConstructor
 @ToString(of = {"id", "name"}, includeFieldNames = false)
 @Entity(name = "Experiment")
+@SecondaryTable(name = "Experiment_View_2",
+        pkJoinColumns = @PrimaryKeyJoinColumn(name = "id", referencedColumnName = "id")
+)
 @NamedEntityGraph(
         name = "Experiment.list",
         attributeNodes = {
                 @NamedAttributeNode("createdBy"),
                 @NamedAttributeNode("modifiedBy"),
                 @NamedAttributeNode("shortACL"),
-                @NamedAttributeNode(value = "calculatedInfo", subgraph = "Experiment.calculatedInfo.list"),
-        },
-        subgraphs = @NamedSubgraph(
-                name = "Notebook.calculatedInfo.list",
-                attributeNodes = {
-                        @NamedAttributeNode("aclCount"),
-                        @NamedAttributeNode("marked"),
-                }
-        )
+                @NamedAttributeNode("aclCount"),
+                @NamedAttributeNode("marked"),
+        }
 )
 @NamedEntityGraph(
         name = "Experiment.details",
@@ -60,23 +55,15 @@ import java.util.*;
                 @NamedAttributeNode(value = "linkedExperiments", subgraph = "Experiment.linkedExperiments"),
                 @NamedAttributeNode(value = "continuedFrom", subgraph = "Experiment.linkedExperiments"),
                 @NamedAttributeNode(value = "continuedTo", subgraph = "Experiment.linkedExperiments"),
-                @NamedAttributeNode(value = "calculatedInfo", subgraph = "Experiment.calculatedInfo.details"),
+                @NamedAttributeNode("currentAccess"),
+                @NamedAttributeNode("marked"),
         },
-        subgraphs = {
-                @NamedSubgraph(
-                        name = "Experiment.calculatedInfo.details",
-                        attributeNodes = {
-                                @NamedAttributeNode("currentAccess"),
-                                @NamedAttributeNode("marked"),
-                        }
-                ),
-                @NamedSubgraph(
-                        name = "Experiment.linkedExperiments",
-                        attributeNodes = {
-                                @NamedAttributeNode("name")
-                        }
-                )
-        }
+        subgraphs = @NamedSubgraph(
+                name = "Experiment.linkedExperiments",
+                attributeNodes = {
+                        @NamedAttributeNode("name")
+                }
+        )
 )
 @NamedEntityGraph(
         name = "Experiment.withACL",
@@ -209,11 +196,6 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @OrderBy("createdAt")
     private List<AttachmentEntity> attachments = new ArrayList<>(0);
 
-    @Nullable
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id", referencedColumnName = "id")
-    private CalculatedInfo calculatedInfo;
-
     @NotNull
     @ElementCollection
     @CollectionTable(name = "Experiment_Referenced_Compound", joinColumns = @JoinColumn(name = "experiment_id"))
@@ -226,6 +208,28 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @OrderColumn(name = "ordinal")
     private List<String> rxnfiles = new ArrayList<>(0);
 
+    @Nullable
+    @Basic(fetch = FetchType.LAZY)
+    @Column(table = "Experiment_View_2", insertable = false, updatable = false)
+    @JdbcType(PostgreSQLEnumJdbcType.class)
+    @Fetch(FetchMode.SELECT)
+    @LazyGroup("view")
+    private AccessLevel currentAccess;
+
+    @Nullable
+    @Basic(fetch = FetchType.LAZY)
+    @Column(table = "Experiment_View_2", insertable = false, updatable = false)
+    @Fetch(FetchMode.SELECT)
+    @LazyGroup("view")
+    private Integer aclCount;
+
+    @Nullable
+    @Basic(fetch = FetchType.LAZY)
+    @Column(table = "Experiment_View_2", insertable = false, updatable = false)
+    @Fetch(FetchMode.SELECT)
+    @LazyGroup("view")
+    private Boolean marked;
+
     @Override
     public void insertACL(UserEntity user, AccessLevel access) {
         getAclEntities().put(user, new ExperimentACLEntity(this, user, access));
@@ -235,29 +239,5 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @Transient
     public NotebookEntity getACLParent() {
         return notebook;
-    }
-
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Entity(name = "ExperimentCalculatedInfo")
-    @Table(name = "Experiment_View_2")
-    public static class CalculatedInfo extends IdentifiableEntity {
-
-        @Basic
-        @Nullable
-        @Column(insertable = false, updatable = false)
-        @JdbcType(PostgreSQLEnumJdbcType.class)
-        private AccessLevel currentAccess;
-
-        @NotNull
-        @Basic(fetch = FetchType.LAZY)
-        @Column(insertable = false, updatable = false)
-        private Integer aclCount;
-
-        @NotNull
-        @Basic(fetch = FetchType.LAZY)
-        private Boolean marked;
     }
 }

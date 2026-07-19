@@ -6,7 +6,6 @@ import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.common.repository.BaseRepository;
 import com.epam.indigoeln.eln.common.util.Conditions;
 import com.epam.indigoeln.eln.entity.*;
-import com.epam.indigoeln.eln.entity.ProjectEntity_.CalculatedInfo_;
 import com.epam.indigoeln.eln.mapper.ProjectMapper;
 import com.epam.indigoeln.eln.model.ELNEntityType;
 import com.epam.indigoeln.eln.model.ProjectDTO;
@@ -51,7 +50,7 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
             select(tuple(root.id(), count(literal(1), createWindow())));
             criteriaConditionsFactory.withConditions(this::where, conditions -> {
                 if (!showAll) {
-                    conditions.add(isNotNull(root.get(ProjectEntity_.calculatedInfo).get(CalculatedInfo_.currentAccess)));
+                    conditions.add(isNotNull(root.get(ProjectEntity_.currentAccess)));
                 }
                 if (createdByUser != null) {
                     conditions.add(root.get(ProjectEntity_.createdBy).equalTo(createdByUser));

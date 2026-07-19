@@ -58,9 +58,8 @@ public class ACLService {
         if (isUserRolesAllow(operation)) {
             return;
         }
-        AccessLevel currentAccess = project.getCalculatedInfo() != null ? project.getCalculatedInfo().getCurrentAccess() : NONE;
-        if (!operation.isAllowedBy(currentAccess)) {
-            throw new AccessDeniedException(ELNEntityType.PROJECT, project.getId(), operation, currentAccess);
+        if (!operation.isAllowedBy(project.getCurrentAccess())) {
+            throw new AccessDeniedException(ELNEntityType.PROJECT, project.getId(), operation, project.getCurrentAccess());
         }
     }
 
@@ -68,9 +67,8 @@ public class ACLService {
         if (isUserRolesAllow(operation)) {
             return;
         }
-        AccessLevel currentAccess = notebook.getCalculatedInfo() != null ? notebook.getCalculatedInfo().getCurrentAccess() : NONE;
-        if (!operation.isAllowedBy(currentAccess)) {
-            throw new AccessDeniedException(ELNEntityType.NOTEBOOK, notebook.getId(), operation, currentAccess);
+        if (!operation.isAllowedBy(notebook.getCurrentAccess())) {
+            throw new AccessDeniedException(ELNEntityType.NOTEBOOK, notebook.getId(), operation, notebook.getCurrentAccess());
         }
     }
 
@@ -78,9 +76,8 @@ public class ACLService {
         if (isUserRolesAllow(operation)) {
             return;
         }
-        AccessLevel currentAccess = experiment.getCalculatedInfo() != null ? experiment.getCalculatedInfo().getCurrentAccess() : NONE;
-        if (!operation.isAllowedBy(currentAccess)) {
-            throw new AccessDeniedException(ELNEntityType.EXPERIMENT, experiment.getId(), operation, currentAccess);
+        if (!operation.isAllowedBy(experiment.getCurrentAccess())) {
+            throw new AccessDeniedException(ELNEntityType.EXPERIMENT, experiment.getId(), operation, experiment.getCurrentAccess());
         }
     }
 

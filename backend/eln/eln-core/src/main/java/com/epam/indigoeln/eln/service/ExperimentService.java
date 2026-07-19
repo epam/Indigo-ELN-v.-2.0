@@ -130,7 +130,7 @@ public class ExperimentService {
     }
 
     public ExperimentDetailsDTO getExperimentDetails(ExperimentEntity experiment) {
-        Set<ApplicationPermission> currentPermissions = aclService.getCurrentPermissions(experiment.getCalculatedInfo() != null ? experiment.getCalculatedInfo().getCurrentAccess() : null);
+        Set<ApplicationPermission> currentPermissions = aclService.getCurrentPermissions(experiment.getCurrentAccess());
         currentPermissions.retainAll(EnumSet.of(VIEW_EXPERIMENTS, EDIT_EXPERIMENTS, MANAGE_EXPERIMENT_ACCESS, DELETE_EXPERIMENTS, SUBMIT_EXPERIMENTS));
         return experimentMapper.entityToDetailsDTO(experiment, currentPermissions);
     }

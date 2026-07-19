@@ -60,7 +60,7 @@ public class ProjectService {
 
     public ProjectDetailsDTO getProject(UUID projectId) {
         ProjectEntity project = projectRepository.load(projectId);
-        Set<ApplicationPermission> currentPermissions = aclService.getCurrentPermissions(project.getCalculatedInfo() != null ? project.getCalculatedInfo().getCurrentAccess() : null);
+        Set<ApplicationPermission> currentPermissions = aclService.getCurrentPermissions(project.getCurrentAccess());
         currentPermissions.retainAll(EnumSet.of(VIEW_PROJECTS, EDIT_PROJECTS, MANAGE_PROJECT_ACCESS, DELETE_PROJECTS));
         return projectMapper.entityToDetailsDTO(project, currentPermissions);
     }

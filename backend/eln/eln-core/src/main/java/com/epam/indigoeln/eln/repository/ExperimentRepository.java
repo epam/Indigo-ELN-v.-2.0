@@ -6,7 +6,6 @@ import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.common.repository.BaseRepository;
 import com.epam.indigoeln.eln.common.util.Conditions;
 import com.epam.indigoeln.eln.entity.*;
-import com.epam.indigoeln.eln.entity.ExperimentEntity_.CalculatedInfo_;
 import com.epam.indigoeln.eln.mapper.ExperimentMapper;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.model.ELNEntityType;
@@ -60,7 +59,7 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
             select(tuple(root.id(), count(literal(1), createWindow())));
             criteriaConditionsFactory.withConditions(this::where, conditions -> {
                 if (!showAll) {
-                    conditions.add(isNotNull(root.get(ExperimentEntity_.calculatedInfo).get(CalculatedInfo_.currentAccess)));
+                    conditions.add(isNotNull(root.get(ExperimentEntity_.currentAccess)));
                 }
                 if (projectId != null) {
                     conditions.add(root.get(ExperimentEntity_.project).get(ProjectEntity_.id).equalTo(projectId));
@@ -115,7 +114,7 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
     }
 
     public List<ExperimentDTO> findMarked() {
-        return em.createQuery("from Experiment e where e.calculatedInfo.marked order by name", ExperimentEntity.class)
+        return em.createQuery("from Experiment e where e.marked order by name", ExperimentEntity.class)
                 .getResultList().stream()
                 .map(experimentMapper::entityToDTO)
                 .toList();
