@@ -32,6 +32,9 @@ public abstract class ExperimentMapper extends AbstractMapper {
     @Mapping(target = "projectName", source = "entity.project.name")
     @Mapping(target = "notebookId", source = "entity.notebook.id")
     @Mapping(target = "notebookName", source = "entity.notebook.name")
+    @Mapping(target = "linkedExperiments", ignore = true)
+    @Mapping(target = "continuedFrom", ignore = true)
+    @Mapping(target = "continuedTo", ignore = true)
     public abstract ExperimentDetailsDTO entityToDetailsDTO(ExperimentEntity entity, Set<ApplicationPermission> currentPermissions);
 
     @Mapping(target = "date", source = "datetime")

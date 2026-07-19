@@ -22,14 +22,14 @@ import jakarta.persistence.LockModeType;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.TypedQuery;
 import lombok.extern.slf4j.Slf4j;
+import one.util.streamex.StreamEx;
 import org.hibernate.query.criteria.CriteriaDefinition;
 import org.hibernate.query.criteria.JpaRoot;
 import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static com.epam.indigoeln.common.util.ModelUtil.map;
 
@@ -158,6 +158,37 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
                 .getSingleResult();
     }
 
+    public List<ExperimentRef> resolveRefs(Collection<UUID> ids) {
+        if (ids.isEmpty()) {
+            return List.of();
+        }
+        return em.createQuery("select new com.epam.indigoeln.eln.model.ExperimentRef(id, name) from Experiment where id in :ids", ExperimentRef.class)
+                .setParameter("ids", ids)
+                .getResultList();
+    }
+
+    public LinkedExperimentRefs resolveLinkedExperimentRefs(ExperimentEntity experiment) {
+        Set<UUID> ids = StreamEx.of(experiment.getLinkedExperiments())
+                .append(experiment.getContinuedFrom())
+                .append(experiment.getContinuedTo())
+                .toSet();
+        Map<UUID, String> names = StreamEx.of(resolveRefs(ids))
+                .toMap(ExperimentRef::getId, ExperimentRef::getName);
+        return new LinkedExperimentRefs(
+                toRefs(experiment.getLinkedExperiments(), names),
+                toRefs(experiment.getContinuedFrom(), names),
+                toRefs(experiment.getContinuedTo(), names)
+        );
+    }
+
+    private static List<ExperimentRef> toRefs(UUID[] ids, Map<UUID, String> names) {
+        return StreamEx.of(ids)
+                .mapToEntry(id -> id, names::get)
+                .nonNullValues()
+                .mapKeyValue(ExperimentRef::new)
+                .toList();
+    }
+
     public List<ExperimentRef> suggest(@Nullable String search) {
         String condition = search != null ? "where name like :search" : "";
         TypedQuery<ExperimentRef> query = em.createQuery("select new com.epam.indigoeln.eln.model.ExperimentRef(id, name) from Experiment " + condition + " order by name", ExperimentRef.class);
@@ -197,4 +228,10 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
                 .setHint("jakarta.persistence.loadgraph", "ExperimentRevision.range")
                 .getResultList();
     }
+
+    public record LinkedExperimentRefs(
+            List<ExperimentRef> linkedExperiments,
+            List<ExperimentRef> continuedFrom,
+            List<ExperimentRef> continuedTo
+    ) {}
 }

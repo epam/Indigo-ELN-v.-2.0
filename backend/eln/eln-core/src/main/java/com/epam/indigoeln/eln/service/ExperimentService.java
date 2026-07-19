@@ -133,7 +133,16 @@ public class ExperimentService {
     public ExperimentDetailsDTO getExperimentDetails(ExperimentEntity experiment) {
         Set<ApplicationPermission> currentPermissions = aclService.getCurrentPermissions(experiment.getCurrentAccess());
         currentPermissions.retainAll(EnumSet.of(VIEW_EXPERIMENTS, EDIT_EXPERIMENTS, MANAGE_EXPERIMENT_ACCESS, DELETE_EXPERIMENTS, SUBMIT_EXPERIMENTS));
-        return experimentMapper.entityToDetailsDTO(experiment, currentPermissions);
+        ExperimentDetailsDTO dto = experimentMapper.entityToDetailsDTO(experiment, currentPermissions);
+        setLinkedExperimentRefs(dto, experiment);
+        return dto;
+    }
+
+    private void setLinkedExperimentRefs(ExperimentDetailsDTO dto, ExperimentEntity experiment) {
+        ExperimentRepository.LinkedExperimentRefs refs = experimentRepository.resolveLinkedExperimentRefs(experiment);
+        dto.setLinkedExperiments(refs.linkedExperiments());
+        dto.setContinuedFrom(refs.continuedFrom());
+        dto.setContinuedTo(refs.continuedTo());
     }
 
     public ExperimentDetailsDTO editExperiment(UUID experimentId, ExperimentEditRequest request) {
@@ -228,9 +237,11 @@ public class ExperimentService {
 
     @SneakyThrows
     public ExperimentReportContent printReport(ExperimentEntity experiment) {
+        ExperimentDetailsDTO experimentDetails = experimentMapper.entityToDetailsDTO(experiment, Set.of());
+        setLinkedExperimentRefs(experimentDetails, experiment);
         ReportsAPI.ExperimentReportDataDTO data = new ReportsAPI.ExperimentReportDataDTO(
                 projectMapper.entityToDTO(experiment.getProject()),
-                experimentMapper.entityToDetailsDTO(experiment, Set.of()),
+                experimentDetails,
                 experiment.getPicture() != null ? new String(experiment.getPicture(), StandardCharsets.UTF_8) : null
         );
         try (Response response = reportsClient.generateExperimentReport(data)) {

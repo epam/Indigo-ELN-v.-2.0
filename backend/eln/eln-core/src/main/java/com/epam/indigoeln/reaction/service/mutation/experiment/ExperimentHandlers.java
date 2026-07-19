@@ -24,10 +24,7 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import one.util.streamex.StreamEx;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.epam.indigoeln.common.exception.InvalidRequestException.fail;
 import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
@@ -144,23 +141,17 @@ class EditExperimentAttributesHandler extends ExperimentEditMutationHandlerBase<
                 , x -> "literature"
         );
         updated |= editProperty(mutation.linkedExperiments()
-                , v -> {
-                    updateCollection(experiment.getLinkedExperiments(), experimentsFromRefs(v));
-                }
+                , v -> experiment.setLinkedExperiments(idsFromRefs(v))
                 , summaryList
                 , "linked experiments"
         );
         updated |= editProperty(mutation.continuedFrom()
-                , v -> {
-                    updateCollection(experiment.getContinuedFrom(), experimentsFromRefs(v));
-                }
+                , v -> experiment.setContinuedFrom(idsFromRefs(v))
                 , summaryList
                 , "continued from"
         );
         updated |= editProperty(mutation.continuedTo()
-                , v -> {
-                    updateCollection(experiment.getContinuedTo(), experimentsFromRefs(v));
-                }
+                , v -> experiment.setContinuedTo(idsFromRefs(v))
                 , summaryList
                 , "continued to"
         );
@@ -181,20 +172,20 @@ class EditExperimentAttributesHandler extends ExperimentEditMutationHandlerBase<
         experiment.setDescription(snapshot.getDescription());
         experiment.setLiterature(snapshot.getLiterature());
         if (mutation.linkedExperiments().isPresent()) {
-            updateCollection(experiment.getLinkedExperiments(), experimentsFromRefs(snapshot.getLinkedExperiments()));
+            experiment.setLinkedExperiments(idsFromRefs(snapshot.getLinkedExperiments()));
         }
         if (mutation.continuedFrom().isPresent()) {
-            updateCollection(experiment.getContinuedFrom(), experimentsFromRefs(snapshot.getContinuedFrom()));
+            experiment.setContinuedFrom(idsFromRefs(snapshot.getContinuedFrom()));
         }
         if (mutation.continuedTo().isPresent()) {
-            updateCollection(experiment.getContinuedTo(), experimentsFromRefs(snapshot.getContinuedTo()));
+            experiment.setContinuedTo(idsFromRefs(snapshot.getContinuedTo()));
         }
     }
 
-    private Set<ExperimentEntity> experimentsFromRefs(Collection<ExperimentRef> refs) {
-        return StreamEx.of(refs)
-                .map(ref -> experimentRepository.getReference(ref.getId()))
-                .toSet();
+    private UUID[] idsFromRefs(Collection<ExperimentRef> refs) {
+        Set<UUID> ids = StreamEx.of(refs).map(ExperimentRef::getId).toSet();
+        validate(ids.isEmpty() || experimentRepository.resolveRefs(ids).size() == ids.size(), "One or more referenced experiments do not exist");
+        return ids.toArray(UUID[]::new);
     }
 }
 

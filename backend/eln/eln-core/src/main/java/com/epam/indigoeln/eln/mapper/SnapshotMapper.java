@@ -3,7 +3,9 @@ package com.epam.indigoeln.eln.mapper;
 import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.model.ACLEntryDTO;
 import com.epam.indigoeln.eln.model.AttachmentDTO;
+import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.reaction.model.*;
+import jakarta.inject.Inject;
 import one.util.streamex.StreamEx;
 import org.mapstruct.*;
 
@@ -13,9 +15,15 @@ import java.util.Set;
 @Mapper(componentModel = "cdi", unmappedTargetPolicy = ReportingPolicy.ERROR, nullValueCheckStrategy =  NullValueCheckStrategy.ALWAYS)
 public abstract class SnapshotMapper extends AbstractMapper {
 
+    @Inject
+    ExperimentRepository experimentRepository;
+
     @Mapping(target = "model", ignore = true)
     @Mapping(target = "acl", source = "fullACL")
     @Mapping(target = "templateId", source = "template.id")
+    @Mapping(target = "linkedExperiments", ignore = true)
+    @Mapping(target = "continuedFrom", ignore = true)
+    @Mapping(target = "continuedTo", ignore = true)
     public abstract ExperimentSnapshot copyBasicFields(ExperimentEntity entity);
 
     @Mapping(target = "acl", source = "fullACL")
@@ -40,6 +48,10 @@ public abstract class SnapshotMapper extends AbstractMapper {
                 ? copyModel(experiment.getModel())
                 : experiment.getModel()
         );
+        ExperimentRepository.LinkedExperimentRefs refs = experimentRepository.resolveLinkedExperimentRefs(experiment);
+        snapshot.setLinkedExperiments(Set.copyOf(refs.linkedExperiments()));
+        snapshot.setContinuedFrom(Set.copyOf(refs.continuedFrom()));
+        snapshot.setContinuedTo(Set.copyOf(refs.continuedTo()));
         return snapshot;
     }
 

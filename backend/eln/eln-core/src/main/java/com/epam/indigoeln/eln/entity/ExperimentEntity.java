@@ -55,18 +55,12 @@ import java.util.*;
                 @NamedAttributeNode("aclEntities"),
                 @NamedAttributeNode("model"),
                 @NamedAttributeNode("batchCreator"),
-                @NamedAttributeNode(value = "linkedExperiments", subgraph = "Experiment.linkedExperiments"),
-                @NamedAttributeNode(value = "continuedFrom", subgraph = "Experiment.linkedExperiments"),
-                @NamedAttributeNode(value = "continuedTo", subgraph = "Experiment.linkedExperiments"),
+                @NamedAttributeNode("linkedExperiments"),
+                @NamedAttributeNode("continuedFrom"),
+                @NamedAttributeNode("continuedTo"),
                 @NamedAttributeNode("currentAccessOrNull"),
                 @NamedAttributeNode("markedOrNull"),
-        },
-        subgraphs = @NamedSubgraph(
-                name = "Experiment.linkedExperiments",
-                attributeNodes = {
-                        @NamedAttributeNode("name")
-                }
-        )
+        }
 )
 @NamedEntityGraph(
         name = "Experiment.withACL",
@@ -132,19 +126,20 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @ManyToOne(fetch = FetchType.LAZY)
     private UserEntity batchCreator;
 
-    @ManyToMany
-    @JoinTable(name = "Experiment_Linked_Experiment", joinColumns = @JoinColumn(name = "parent_id"), inverseJoinColumns = @JoinColumn(name = "experiment_id"))
-    private Set<ExperimentEntity> linkedExperiments = new HashSet<>(0);
+    @NotNull
+    @Basic(fetch = FetchType.LAZY)
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    private UUID[] linkedExperiments = new UUID[0];
 
     @NotNull
-    @ManyToMany
-    @JoinTable(name = "Experiment_Continued_From", joinColumns = @JoinColumn(name = "parent_id"), inverseJoinColumns = @JoinColumn(name = "experiment_id"))
-    private Set<ExperimentEntity> continuedFrom = new HashSet<>(0);
+    @Basic(fetch = FetchType.LAZY)
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    private UUID[] continuedFrom = new UUID[0];
 
     @NotNull
-    @ManyToMany
-    @JoinTable(name = "Experiment_Continued_To", joinColumns = @JoinColumn(name = "parent_id"), inverseJoinColumns = @JoinColumn(name = "experiment_id"))
-    private Set<ExperimentEntity> continuedTo = new HashSet<>(0);
+    @Basic(fetch = FetchType.LAZY)
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    private UUID[] continuedTo = new UUID[0];
 
     @Nullable
     @Basic(fetch = FetchType.LAZY)
