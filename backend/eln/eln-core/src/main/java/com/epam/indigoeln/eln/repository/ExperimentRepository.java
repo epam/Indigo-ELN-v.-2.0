@@ -14,14 +14,15 @@ import com.epam.indigoeln.eln.model.ExperimentDTO;
 import com.epam.indigoeln.eln.model.ExperimentRef;
 import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.UserService;
+import com.epam.indigoeln.eln.util.CriteriaConditions;
 import com.google.common.base.MoreObjects;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.Predicate;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.query.criteria.CriteriaDefinition;
 import org.hibernate.query.criteria.JpaRoot;
@@ -29,7 +30,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,6 +40,9 @@ import static com.epam.indigoeln.common.util.ModelUtil.map;
 public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
 
     private static final Sort SORT_SUGGEST = Sort.by("name");
+
+    @Inject
+    Instance<CriteriaConditions> criteriaConditionsInstance;
 
     public ExperimentRepository() {
         super(ELNEntityType.EXPERIMENT, ExperimentEntity.class);
@@ -56,7 +59,7 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
         CriteriaDefinition<Tuple> criteria = new CriteriaDefinition<>(em, Tuple.class) {{
             JpaRoot<ExperimentEntity> root = from(ExperimentEntity.class);
             select(tuple(root.id(), count(literal(1), createWindow())));
-            List<Predicate> conditions = new ArrayList<>();
+            CriteriaConditions conditions = criteriaConditionsInstance.get();
             if (!showAll) {
                 conditions.add(isNotNull(root.get(ExperimentEntity_.calculatedInfo).get(CalculatedInfo_.currentAccess)));
             }
@@ -69,13 +72,10 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
             if (createdByUser != null) {
                 conditions.add(root.get(ExperimentEntity_.createdBy).equalTo(createdByUser));
             }
-            if (search != null) {
-                conditions.add(or(
-                        ilike(root.get(ExperimentEntity_.name), '%' + search + '%'),
-                        isTrue(function("full_text_search", Boolean.class, root.get(ExperimentEntity_.searchVector), literal("english"), literal(search)))
-                ));
-            }
-            where(conditions);
+            conditions.fullTextSearch(root.get(ExperimentEntity_.searchVector), search, s -> List.of(
+                    ilike(root.get(ExperimentEntity_.name), '%' + s + '%')
+            ));
+            conditions.apply(this::where);
             orderBy(switch (MoreObjects.firstNonNull(sort, SortOrder.LATEST)) {
                 case EARLIEST -> asc(root.get(ExperimentEntity_.modifiedAt));
                 case LATEST -> desc(root.get(ExperimentEntity_.modifiedAt));

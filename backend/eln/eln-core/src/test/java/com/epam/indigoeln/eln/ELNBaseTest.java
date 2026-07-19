@@ -15,6 +15,7 @@ import com.epam.indigoeln.test.APICallException;
 import com.epam.indigoeln.test.BaseTest;
 import com.google.common.base.Suppliers;
 import io.agroal.api.AgroalDataSource;
+import io.agroal.api.configuration.supplier.AgroalDataSourceConfigurationSupplier;
 import io.agroal.api.security.NamePrincipal;
 import io.agroal.api.security.SimplePassword;
 import lombok.SneakyThrows;
@@ -199,7 +200,7 @@ public abstract class ELNBaseTest extends BaseTest {
         String jdbcUrl = integrationTest ? System.getProperty("eln.test.datasource.jdbc-url") : ConfigProvider.getConfig().getValue("quarkus.datasource.jdbc.url", String.class);
         String username = integrationTest ? System.getProperty("eln.test.datasource.username") : ConfigProvider.getConfig().getValue("quarkus.datasource.username", String.class);
         String password = integrationTest ? System.getProperty("eln.test.datasource.password") : ConfigProvider.getConfig().getValue("quarkus.datasource.password", String.class);
-        return AgroalDataSource.from(new io.agroal.api.configuration.supplier.AgroalDataSourceConfigurationSupplier()
+        return AgroalDataSource.from(new AgroalDataSourceConfigurationSupplier()
                 .connectionPoolConfiguration(cp -> cp
                         .minSize(0)
                         .maxSize(2)

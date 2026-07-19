@@ -12,18 +12,17 @@ import com.epam.indigoeln.eln.mapper.TemplateMapper;
 import com.epam.indigoeln.eln.model.ELNEntityType;
 import com.epam.indigoeln.eln.model.TemplateDTO;
 import com.epam.indigoeln.eln.model.TemplateDetailsDTO;
+import com.epam.indigoeln.eln.util.CriteriaConditions;
 import com.google.common.base.MoreObjects;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.persistence.Tuple;
-import jakarta.persistence.criteria.Predicate;
 import jakarta.ws.rs.NotFoundException;
 import org.hibernate.query.criteria.CriteriaDefinition;
 import org.hibernate.query.criteria.JpaRoot;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ModelUtil.map;
@@ -33,6 +32,8 @@ public class TemplateRepository extends BaseRepository<TemplateEntity> {
 
     @Inject
     TemplateMapper templateMapper;
+    @Inject
+    Instance<CriteriaConditions> criteriaConditionsInstance;
 
     public TemplateRepository() {
         super(ELNEntityType.TEMPLATE, TemplateEntity.class);
@@ -45,14 +46,14 @@ public class TemplateRepository extends BaseRepository<TemplateEntity> {
         CriteriaDefinition<Tuple> criteria = new CriteriaDefinition<>(em, Tuple.class) {{
             JpaRoot<TemplateEntity> root = from(TemplateEntity.class);
             select(tuple(root.id(), count(literal(1), createWindow())));
-            List<Predicate> conditions = new ArrayList<>();
+            CriteriaConditions conditions = criteriaConditionsInstance.get();
             if (search != null) {
                 conditions.add(ilike(root.get(TemplateEntity_.name), '%' + search + '%'));
             }
             if (createdByUser != null) {
                 conditions.add(root.get(TemplateEntity_.createdBy).equalTo(createdByUser));
             }
-            where(conditions);
+            conditions.apply(this::where);
             orderBy(switch (MoreObjects.firstNonNull(sort, SortOrder.LATEST)) {
                 case EARLIEST -> asc(root.get(TemplateEntity_.modifiedAt));
                 case LATEST -> desc(root.get(TemplateEntity_.modifiedAt));

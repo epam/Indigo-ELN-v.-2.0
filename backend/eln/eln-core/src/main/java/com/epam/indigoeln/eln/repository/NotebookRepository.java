@@ -12,11 +12,12 @@ import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.model.ELNEntityType;
 import com.epam.indigoeln.eln.model.NotebookDTO;
 import com.epam.indigoeln.eln.service.ACLService;
+import com.epam.indigoeln.eln.util.CriteriaConditions;
 import com.google.common.base.MoreObjects;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.persistence.Tuple;
-import jakarta.persistence.criteria.Predicate;
 import jakarta.ws.rs.QueryParam;
 import org.hibernate.query.criteria.CriteriaDefinition;
 import org.hibernate.query.criteria.JpaRoot;
@@ -24,7 +25,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,6 +37,8 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
     NotebookMapper notebookMapper;
     @Inject
     ACLService aclService;
+    @Inject
+    Instance<CriteriaConditions> criteriaConditionsInstance;
 
     public NotebookRepository() {
         super(ELNEntityType.NOTEBOOK, NotebookEntity.class);
@@ -46,7 +48,7 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
         CriteriaDefinition<Tuple> criteria = new CriteriaDefinition<>(em, Tuple.class) {{
             JpaRoot<NotebookEntity> root = from(NotebookEntity.class);
             select(tuple(root.id(), count(literal(1), createWindow())));
-            List<Predicate> conditions = new ArrayList<>();
+            CriteriaConditions conditions = criteriaConditionsInstance.get();
             if (!showAll) {
                 conditions.add(isNotNull(root.get(NotebookEntity_.calculatedInfo).get(CalculatedInfo_.currentAccess)));
             }
@@ -54,13 +56,10 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
             if (createdByUser != null) {
                 conditions.add(root.get(NotebookEntity_.createdBy).equalTo(createdByUser));
             }
-            if (search != null) {
-                conditions.add(or(
-                        ilike(root.get(NotebookEntity_.name), '%' + search + '%'),
-                        isTrue(function("full_text_search", Boolean.class, root.get(NotebookEntity_.searchVector), literal("english"), literal(search)))
-                ));
-            }
-            where(conditions);
+            conditions.fullTextSearch(root.get(NotebookEntity_.searchVector), search, s -> List.of(
+                    ilike(root.get(NotebookEntity_.name), '%' + s + '%')
+            ));
+            conditions.apply(this::where);
             orderBy(switch (MoreObjects.firstNonNull(sort, SortOrder.LATEST)) {
                 case EARLIEST -> asc(root.get(NotebookEntity_.modifiedAt));
                 case LATEST -> desc(root.get(NotebookEntity_.modifiedAt));

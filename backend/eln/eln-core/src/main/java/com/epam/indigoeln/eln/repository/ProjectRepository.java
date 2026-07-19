@@ -12,19 +12,19 @@ import com.epam.indigoeln.eln.model.ELNEntityType;
 import com.epam.indigoeln.eln.model.ProjectDTO;
 import com.epam.indigoeln.eln.model.TotalCounts;
 import com.epam.indigoeln.eln.service.ACLService;
+import com.epam.indigoeln.eln.util.CriteriaConditions;
 import com.google.common.base.MoreObjects;
 import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.Tuple;
-import jakarta.persistence.criteria.Predicate;
 import org.hibernate.query.criteria.CriteriaDefinition;
 import org.hibernate.query.criteria.JpaRoot;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,6 +39,9 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
     @Inject
     ACLService aclService;
 
+    @Inject
+    Instance<CriteriaConditions> criteriaConditionsInstance;
+
     public ProjectRepository() {
         super(ELNEntityType.PROJECT, ProjectEntity.class);
     }
@@ -47,20 +50,17 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
         CriteriaDefinition<Tuple> criteria = new CriteriaDefinition<>(em, Tuple.class) {{
             JpaRoot<ProjectEntity> root = from(ProjectEntity.class);
             select(tuple(root.id(), count(literal(1), createWindow())));
-            List<Predicate> conditions = new ArrayList<>();
+            CriteriaConditions conditions = criteriaConditionsInstance.get();
             if (!showAll) {
                 conditions.add(isNotNull(root.get(ProjectEntity_.calculatedInfo).get(CalculatedInfo_.currentAccess)));
             }
             if (createdByUser != null) {
                 conditions.add(root.get(ProjectEntity_.createdBy).equalTo(createdByUser));
             }
-            if (search != null) {
-                conditions.add(or(
-                        ilike(root.get(ProjectEntity_.name), '%' + search + '%'),
-                        isTrue(function("full_text_search", Boolean.class, root.get(ProjectEntity_.searchVector), literal("english"), literal(search)))
-                ));
-            }
-            where(conditions);
+            conditions.fullTextSearch(root.get(ProjectEntity_.searchVector), search, s -> List.of(
+                    ilike(root.get(ProjectEntity_.name), '%' + s + '%')
+            ));
+            conditions.apply(this::where);
             orderBy(switch (MoreObjects.firstNonNull(sort, SortOrder.LATEST)) {
                 case EARLIEST -> asc(root.get(ProjectEntity_.modifiedAt));
                 case LATEST -> desc(root.get(ProjectEntity_.modifiedAt));

@@ -12,14 +12,11 @@ import com.epam.indigoeln.eln.mapper.UserMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.RoleRepository;
 import com.epam.indigoeln.eln.repository.UserRepository;
-import com.google.common.base.Preconditions;
 import io.quarkus.cache.Cache;
 import io.quarkus.cache.CacheName;
 import io.vertx.mutiny.core.Vertx;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
@@ -32,6 +29,7 @@ import java.util.UUID;
 import static com.epam.indigoeln.common.util.ModelUtil.firstNotNull;
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
+import static com.google.common.base.Preconditions.checkArgument;
 
 @Slf4j
 @Transactional
@@ -53,8 +51,6 @@ public class UserService {
     RoleRepository roleRepository;
     @Inject
     ACLService aclService;
-    @PersistenceContext
-    EntityManager em;
     @Inject
     @CacheName("users.byUsername")
     Cache cacheByUsername;
@@ -75,11 +71,11 @@ public class UserService {
     }
 
     public UserEntity getCurrentUserEntity() {
-        return em.getReference(UserEntity.class, getCurrentUser().getId());
+        return userRepository.getReference(getCurrentUser().getId());
     }
 
     public UserEntity getEntity(String username) {
-        return em.getReference(UserEntity.class, getUserInfo(username).getId());
+        return userRepository.getReference(getUserInfo(username).getId());
     }
 
     @Transactional(Transactional.TxType.SUPPORTS) // cached methods don't require transaction
@@ -101,7 +97,7 @@ public class UserService {
 
     @Transactional(Transactional.TxType.REQUIRES_NEW)
     UserInfo doLoadUser(@Nullable UUID id, @Nullable String username) {
-        Preconditions.checkArgument(id != null || username != null);
+        checkArgument(id != null || username != null);
         UserInfo user = id != null ? userRepository.findByID(id) : userRepository.findByUsername(username);
         if (user == null) {
             throw new EntityNotFoundException(ELNEntityType.USER, firstNotNull(id, username));
