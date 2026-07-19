@@ -24,8 +24,8 @@ import java.util.*;
 @AllArgsConstructor
 @ToString(of = {"id", "name"}, includeFieldNames = false)
 @Entity(name = "Notebook")
-@SecondaryTable(name = "Notebook_View_2",
-        pkJoinColumns = @PrimaryKeyJoinColumn(name = "id", referencedColumnName = "id")
+@SecondaryTable(name = "Notebook_Access_View",
+        pkJoinColumns = @PrimaryKeyJoinColumn(name = "notebook_id", referencedColumnName = "id")
 )
 @NamedEntityGraph(
         name = "Notebook.list",
@@ -44,7 +44,7 @@ import java.util.*;
                 @NamedAttributeNode("modifiedBy"),
                 @NamedAttributeNode("fullACL"),
                 @NamedAttributeNode("experimentCount"),
-                @NamedAttributeNode("currentAccess")
+                @NamedAttributeNode("currentAccessOrNull")
         }
 )
 @NamedEntityGraph(
@@ -110,17 +110,17 @@ public class NotebookEntity extends BaseEntity implements WithAttachments, WithA
 
     @Nullable
     @Basic(fetch = FetchType.LAZY)
-    @Column(table = "Notebook_View_2", insertable = false, updatable = false)
+    @Column(table = "Notebook_Access_View", insertable = false, updatable = false)
     @JdbcType(PostgreSQLEnumJdbcType.class)
     @Fetch(FetchMode.SELECT)
-    @LazyGroup("view")
-    private AccessLevel currentAccess;
+    @LazyGroup("access_view")
+    private AccessLevel currentAccessOrNull;
 
     @Nullable
     @Basic(fetch = FetchType.LAZY)
-    @Column(table = "Notebook_View_2", insertable = false, updatable = false)
+    @Column(table = "Notebook_Access_View", insertable = false, updatable = false)
     @Fetch(FetchMode.SELECT)
-    @LazyGroup("view")
+    @LazyGroup("access_view")
     private Integer aclCount;
 
     @Override
@@ -132,5 +132,10 @@ public class NotebookEntity extends BaseEntity implements WithAttachments, WithA
     @Transient
     public WithACL<?> getACLParent() {
         return project;
+    }
+
+    @Transient
+    public AccessLevel getCurrentAccess() {
+        return currentAccessOrNull != null ? currentAccessOrNull : AccessLevel.NONE;
     }
 }

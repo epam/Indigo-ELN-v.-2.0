@@ -1,9 +1,15 @@
-CREATE OR REPLACE VIEW Experiment_View_2 AS
-SELECT e.id,
-    e.current_access,
-    exists(SELECT 1 FROM Experiment_Mark WHERE experiment_id = e.id AND user_id = current_setting('eln.currentUserId')::UUID) marked,
-    array_length(e.full_acl, 1) acl_count
-FROM Experiment_Base_View e;
+DROP VIEW IF EXISTS Experiment_View_2;
+
+CREATE OR REPLACE VIEW Experiment_Access_View AS
+SELECT e.id experiment_id, ea.level current_access_or_null, array_length(e.full_acl, 1) acl_count
+FROM Experiment e
+LEFT JOIN LATERAL unnest(e.full_acl) ea ON ea.user_id = current_setting('eln.currentUserId')::UUID
+WHERE current_setting('eln.viewAllExperiments')::BOOLEAN OR ea.level IS NOT NULL;
+
+CREATE OR REPLACE VIEW Experiment_Marked_View AS
+SELECT m.experiment_id, TRUE marked_or_null
+FROM Experiment_Mark m
+WHERE user_id = current_setting('eln.currentUserId')::UUID;
 
 CREATE OR REPLACE FUNCTION get_experiment_search_vector(
     IN current_experiment_id UUID

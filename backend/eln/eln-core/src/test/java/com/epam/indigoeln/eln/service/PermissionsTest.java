@@ -459,6 +459,23 @@ class PermissionsTest extends ELNBaseTest {
         }
     }
 
+    @Test
+    @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
+    void testFindMarkedExcludesExperimentsAfterAccessRevoked() {
+        ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testFindMarkedExcludesExperimentsAfterAccessRevoked"));
+        NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
+        experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(LISA_USERNAME, VIEW));
+        withUser(LISA_USERNAME, () -> {
+            experimentClient.markExperiment(experiment.getId());
+            assertThat(experimentClient.getMarkedExperiments()).extracting(ExperimentDTO::getId).contains(experiment.getId());
+        });
+        experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(LISA_USERNAME, NONE));
+        withUser(LISA_USERNAME, () -> {
+            assertThat(experimentClient.getMarkedExperiments()).extracting(ExperimentDTO::getId).doesNotContain(experiment.getId());
+        });
+    }
+
     @Nested
     @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)

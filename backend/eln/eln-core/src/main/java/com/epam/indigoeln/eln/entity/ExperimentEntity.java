@@ -26,8 +26,11 @@ import java.util.*;
 @AllArgsConstructor
 @ToString(of = {"id", "name"}, includeFieldNames = false)
 @Entity(name = "Experiment")
-@SecondaryTable(name = "Experiment_View_2",
-        pkJoinColumns = @PrimaryKeyJoinColumn(name = "id", referencedColumnName = "id")
+@SecondaryTable(name = "Experiment_Access_View",
+        pkJoinColumns = @PrimaryKeyJoinColumn(name = "experiment_id", referencedColumnName = "id")
+)
+@SecondaryTable(name = "Experiment_Marked_View",
+        pkJoinColumns = @PrimaryKeyJoinColumn(name = "experiment_id", referencedColumnName = "id")
 )
 @NamedEntityGraph(
         name = "Experiment.list",
@@ -36,7 +39,7 @@ import java.util.*;
                 @NamedAttributeNode("modifiedBy"),
                 @NamedAttributeNode("shortACL"),
                 @NamedAttributeNode("aclCount"),
-                @NamedAttributeNode("marked"),
+                @NamedAttributeNode("markedOrNull"),
         }
 )
 @NamedEntityGraph(
@@ -55,8 +58,8 @@ import java.util.*;
                 @NamedAttributeNode(value = "linkedExperiments", subgraph = "Experiment.linkedExperiments"),
                 @NamedAttributeNode(value = "continuedFrom", subgraph = "Experiment.linkedExperiments"),
                 @NamedAttributeNode(value = "continuedTo", subgraph = "Experiment.linkedExperiments"),
-                @NamedAttributeNode("currentAccess"),
-                @NamedAttributeNode("marked"),
+                @NamedAttributeNode("currentAccessOrNull"),
+                @NamedAttributeNode("markedOrNull"),
         },
         subgraphs = @NamedSubgraph(
                 name = "Experiment.linkedExperiments",
@@ -210,25 +213,25 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
 
     @Nullable
     @Basic(fetch = FetchType.LAZY)
-    @Column(table = "Experiment_View_2", insertable = false, updatable = false)
+    @Column(table = "Experiment_Access_View", insertable = false, updatable = false)
     @JdbcType(PostgreSQLEnumJdbcType.class)
     @Fetch(FetchMode.SELECT)
-    @LazyGroup("view")
-    private AccessLevel currentAccess;
+    @LazyGroup("access_view")
+    private AccessLevel currentAccessOrNull;
 
     @Nullable
     @Basic(fetch = FetchType.LAZY)
-    @Column(table = "Experiment_View_2", insertable = false, updatable = false)
+    @Column(table = "Experiment_Access_View", insertable = false, updatable = false)
     @Fetch(FetchMode.SELECT)
-    @LazyGroup("view")
+    @LazyGroup("access_view")
     private Integer aclCount;
 
     @Nullable
     @Basic(fetch = FetchType.LAZY)
-    @Column(table = "Experiment_View_2", insertable = false, updatable = false)
+    @Column(table = "Experiment_Marked_View", insertable = false, updatable = false)
     @Fetch(FetchMode.SELECT)
-    @LazyGroup("view")
-    private Boolean marked;
+    @LazyGroup("marked_view")
+    private Boolean markedOrNull;
 
     @Override
     public void insertACL(UserEntity user, AccessLevel access) {
@@ -239,5 +242,15 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @Transient
     public NotebookEntity getACLParent() {
         return notebook;
+    }
+
+    @Transient
+    public AccessLevel getCurrentAccess() {
+        return currentAccessOrNull != null ? currentAccessOrNull : AccessLevel.NONE;
+    }
+
+    @Transient
+    public boolean isMarked() {
+        return getMarkedOrNull() == Boolean.TRUE;
     }
 }

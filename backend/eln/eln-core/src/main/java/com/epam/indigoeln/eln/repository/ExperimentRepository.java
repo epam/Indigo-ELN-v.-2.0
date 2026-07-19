@@ -59,7 +59,7 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
             select(tuple(root.id(), count(literal(1), createWindow())));
             criteriaConditionsFactory.withConditions(this::where, conditions -> {
                 if (!showAll) {
-                    conditions.add(isNotNull(root.get(ExperimentEntity_.currentAccess)));
+                    conditions.add(isNotNull(root.get(ExperimentEntity_.currentAccessOrNull)));
                 }
                 if (projectId != null) {
                     conditions.add(root.get(ExperimentEntity_.project).get(ProjectEntity_.id).equalTo(projectId));
@@ -113,11 +113,11 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
                 .getSingleResult();
     }
 
-    public List<ExperimentDTO> findMarked() {
-        return em.createQuery("from Experiment e where e.marked order by name", ExperimentEntity.class)
-                .getResultList().stream()
-                .map(experimentMapper::entityToDTO)
-                .toList();
+    public List<ExperimentDTO> findMarked(boolean showAll) {
+        TypedQuery<ExperimentEntity> query = !showAll
+                ? em.createQuery("from Experiment e where e.markedOrNull and currentAccessOrNull is not null order by name", ExperimentEntity.class)
+                : em.createQuery("from Experiment e where e.markedOrNull order by name", ExperimentEntity.class);
+        return map(query.getResultList(), experimentMapper::entityToDTO);
     }
 
     public List<ExperimentEntity> findByProjectWithACLEntities(ProjectEntity project) {

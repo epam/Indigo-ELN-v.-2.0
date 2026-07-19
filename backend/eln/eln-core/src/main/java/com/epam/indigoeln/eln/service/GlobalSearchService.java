@@ -141,7 +141,7 @@ public class GlobalSearchService {
         if (hasProjects) {
             String projectsSQL = "SELECT 'PROJECT' AS type, p.name, p.id, p.description, p.created_by_id, p.created_at, p.modified_by_id, p.modified_at, NULL AS reaction_roles, NULL AS experiment_status, NULL::integer AS revision"
                     + "\nFROM Project p"
-                    + "\nJOIN Project_View_2 pv ON pv.id = p.id"
+                    + "\nJOIN Project_Access_View pv ON pv.project_id = p.id"
                     + "\nWHERE " + projectConditions.getQuery();
             sql.append(projectsSQL);
             params.putAll(projectConditions.getValues());
@@ -154,7 +154,7 @@ public class GlobalSearchService {
             hasUnionBlocks = true;
             String notebooksSQL = "SELECT 'NOTEBOOK' AS type, n.name, n.id, n.description, n.created_by_id, n.created_at, n.modified_by_id, n.modified_at, NULL AS reaction_roles, NULL AS experiment_status, NULL::integer AS revision"
                     + "\nFROM Notebook n"
-                    + "\nJOIN Notebook_View_2 nv ON nv.id = n.id"
+                    + "\nJOIN Notebook_Access_View nv ON nv.notebook_id = n.id"
                     + "\nWHERE " + notebookConditions.getQuery();
             params.putAll(notebookConditions.getValues());
             sql.append(notebooksSQL);
@@ -166,7 +166,7 @@ public class GlobalSearchService {
             hasUnionBlocks = true;
             String experimentsSQL = "SELECT 'EXPERIMENT' AS type, e.name, e.id, e.description, e.created_by_id, e.created_at, e.modified_by_id, e.modified_at, " + rolesSelector + ", e.status::varchar AS experiment_status, e.revision"
                     + "\nFROM Experiment e"
-                    + "\nJOIN Experiment_View_2 ev ON ev.id = e.id"
+                    + "\nJOIN Experiment_Access_View ev ON ev.experiment_id = e.id"
                     + "\n" + String.join("\n", experimentJoins)
                     + "\nWHERE " + experimentConditions.getQuery()
                     + (groupBySQL != null ? "\nGROUP BY " + groupBySQL : "");

@@ -24,8 +24,8 @@ import java.util.*;
 @AllArgsConstructor
 @ToString(of = {"id", "name"}, includeFieldNames = false)
 @Entity(name = "Project")
-@SecondaryTable(name = "Project_View_2",
-        pkJoinColumns = @PrimaryKeyJoinColumn(name = "id", referencedColumnName = "id")
+@SecondaryTable(name = "Project_Access_View",
+        pkJoinColumns = @PrimaryKeyJoinColumn(name = "project_id", referencedColumnName = "id")
 )
 @NamedEntityGraph(
         name = "Project.list",
@@ -47,7 +47,7 @@ import java.util.*;
                 @NamedAttributeNode("fullACL"),
                 @NamedAttributeNode("notebookCount"),
                 @NamedAttributeNode("experimentCount"),
-                @NamedAttributeNode("currentAccess")
+                @NamedAttributeNode("currentAccessOrNull")
         }
 )
 @DynamicUpdate
@@ -120,17 +120,17 @@ public class ProjectEntity extends BaseEntity implements WithAttachments, WithAC
 
     @Nullable
     @Basic(fetch = FetchType.LAZY)
-    @Column(table = "Project_View_2", insertable = false, updatable = false)
+    @Column(table = "Project_Access_View", insertable = false, updatable = false)
     @JdbcType(PostgreSQLEnumJdbcType.class)
     @Fetch(FetchMode.SELECT)
-    @LazyGroup("view")
-    private AccessLevel currentAccess;
+    @LazyGroup("access_view")
+    private AccessLevel currentAccessOrNull;
 
     @Nullable
     @Basic(fetch = FetchType.LAZY)
-    @Column(table = "Project_View_2", insertable = false, updatable = false)
+    @Column(table = "Project_Access_View", insertable = false, updatable = false)
     @Fetch(FetchMode.SELECT)
-    @LazyGroup("view")
+    @LazyGroup("access_view")
     private Integer aclCount;
 
     @Override
@@ -143,5 +143,10 @@ public class ProjectEntity extends BaseEntity implements WithAttachments, WithAC
     @Transient
     public WithACL<?> getACLParent() {
         return null;
+    }
+
+    @Transient
+    public AccessLevel getCurrentAccess() {
+        return currentAccessOrNull != null ? currentAccessOrNull : AccessLevel.NONE;
     }
 }

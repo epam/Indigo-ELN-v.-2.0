@@ -50,7 +50,7 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
             select(tuple(root.id(), count(literal(1), createWindow())));
             criteriaConditionsFactory.withConditions(this::where, conditions -> {
                 if (!showAll) {
-                    conditions.add(isNotNull(root.get(ProjectEntity_.currentAccess)));
+                    conditions.add(isNotNull(root.get(ProjectEntity_.currentAccessOrNull)));
                 }
                 if (createdByUser != null) {
                     conditions.add(root.get(ProjectEntity_.createdBy).equalTo(createdByUser));

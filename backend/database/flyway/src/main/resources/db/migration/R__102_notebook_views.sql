@@ -1,8 +1,10 @@
-CREATE OR REPLACE VIEW Notebook_View_2 AS
-SELECT n.id,
-    n.current_access,
-    array_length(n.full_acl, 1) acl_count
-FROM Notebook_Base_View n;
+DROP VIEW IF EXISTS Notebook_View_2;
+
+CREATE OR REPLACE VIEW Notebook_Access_View AS
+SELECT n.id notebook_id, na.level current_access_or_null, array_length(n.full_acl, 1) acl_count
+FROM Notebook n
+LEFT JOIN LATERAL unnest(n.full_acl) na ON na.user_id = current_setting('eln.currentUserId')::UUID
+WHERE current_setting('eln.viewAllNotebooks')::BOOLEAN OR na.level IS NOT NULL;
 
 CREATE OR REPLACE FUNCTION get_notebook_search_vector(
     IN current_notebook_id UUID

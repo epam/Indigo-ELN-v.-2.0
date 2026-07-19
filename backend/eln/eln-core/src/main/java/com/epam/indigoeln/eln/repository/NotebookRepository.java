@@ -48,7 +48,7 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
             select(tuple(root.id(), count(literal(1), createWindow())));
             criteriaConditionsFactory.withConditions(this::where, conditions -> {
                 if (!showAll) {
-                    conditions.add(isNotNull(root.get(NotebookEntity_.currentAccess)));
+                    conditions.add(isNotNull(root.get(NotebookEntity_.currentAccessOrNull)));
                 }
                 conditions.add(root.get(NotebookEntity_.project).get(ProjectEntity_.id).equalTo(projectId));
                 if (createdByUser != null) {

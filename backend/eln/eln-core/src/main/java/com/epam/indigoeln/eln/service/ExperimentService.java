@@ -116,7 +116,8 @@ public class ExperimentService {
     }
 
     public List<ExperimentDTO> getMarkedExperiments() {
-        return experimentRepository.findMarked();
+        boolean showAll = userService.getCurrentUser().getPermissions().contains(VIEW_EXPERIMENTS);
+        return experimentRepository.findMarked(showAll);
     }
 
     public ExperimentDetailsDTO getExperiment(UUID experimentId) {

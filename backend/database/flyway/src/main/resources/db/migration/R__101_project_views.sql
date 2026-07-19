@@ -1,8 +1,10 @@
-CREATE OR REPLACE VIEW Project_View_2 AS
-SELECT p.id,
-    p.current_access,
-    array_length(p.full_acl, 1) acl_count
-FROM Project_Base_View p;
+DROP VIEW IF EXISTS Project_View_2;
+
+CREATE OR REPLACE VIEW Project_Access_View AS
+SELECT p.id project_id, pa.level current_access_or_null, array_length(p.full_acl, 1) acl_count
+FROM Project p
+LEFT JOIN LATERAL unnest(p.full_acl) pa ON pa.user_id = current_setting('eln.currentUserId')::UUID
+WHERE current_setting('eln.viewAllProjects')::BOOLEAN OR pa.level IS NOT NULL;
 
 CREATE OR REPLACE FUNCTION get_project_search_vector(
     IN current_project_id UUID
