@@ -26,12 +26,14 @@ public class MolFormula {
         String[] elements = new String[formula.length()];
         int[] counts = new int[formula.length()];
         int count = 0;
-        while (matcher.find()) {
+        int position = 0;
+        while (position < formula.length() && matcher.find(position) && matcher.start() == position) {
             elements[count] = matcher.group(1);
             counts[count] = !matcher.group(3).isEmpty() ? Integer.parseInt(matcher.group(3)) : 1;
             count++;
+            position = matcher.end();
         }
-        Preconditions.checkArgument(count != 0, "Invalid formula: %s", formula);
+        Preconditions.checkArgument(count != 0 && position == formula.length(), "Invalid formula: %s", formula);
         this.elements = Arrays.copyOf(elements, count);
         this.counts = Arrays.copyOf(counts, count);
     }

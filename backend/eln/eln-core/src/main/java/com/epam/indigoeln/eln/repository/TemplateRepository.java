@@ -15,7 +15,6 @@ import com.epam.indigoeln.eln.model.TemplateDetailsDTO;
 import com.epam.indigoeln.eln.util.CriteriaConditions;
 import com.google.common.base.MoreObjects;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.persistence.Tuple;
 import jakarta.ws.rs.NotFoundException;
@@ -33,7 +32,7 @@ public class TemplateRepository extends BaseRepository<TemplateEntity> {
     @Inject
     TemplateMapper templateMapper;
     @Inject
-    Instance<CriteriaConditions> criteriaConditionsInstance;
+    CriteriaConditions.Factory criteriaConditionsFactory;
 
     public TemplateRepository() {
         super(ELNEntityType.TEMPLATE, TemplateEntity.class);
@@ -46,14 +45,14 @@ public class TemplateRepository extends BaseRepository<TemplateEntity> {
         CriteriaDefinition<Tuple> criteria = new CriteriaDefinition<>(em, Tuple.class) {{
             JpaRoot<TemplateEntity> root = from(TemplateEntity.class);
             select(tuple(root.id(), count(literal(1), createWindow())));
-            CriteriaConditions conditions = criteriaConditionsInstance.get();
-            if (search != null) {
-                conditions.add(ilike(root.get(TemplateEntity_.name), '%' + search + '%'));
-            }
-            if (createdByUser != null) {
-                conditions.add(root.get(TemplateEntity_.createdBy).equalTo(createdByUser));
-            }
-            conditions.apply(this::where);
+            criteriaConditionsFactory.withConditions(this::where, conditions -> {
+                if (search != null) {
+                    conditions.add(ilike(root.get(TemplateEntity_.name), '%' + search + '%'));
+                }
+                if (createdByUser != null) {
+                    conditions.add(root.get(TemplateEntity_.createdBy).equalTo(createdByUser));
+                }
+            });
             orderBy(switch (MoreObjects.firstNonNull(sort, SortOrder.LATEST)) {
                 case EARLIEST -> asc(root.get(TemplateEntity_.modifiedAt));
                 case LATEST -> desc(root.get(TemplateEntity_.modifiedAt));

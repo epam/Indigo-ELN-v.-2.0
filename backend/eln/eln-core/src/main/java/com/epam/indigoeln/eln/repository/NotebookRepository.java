@@ -15,7 +15,6 @@ import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.util.CriteriaConditions;
 import com.google.common.base.MoreObjects;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.persistence.Tuple;
 import jakarta.ws.rs.QueryParam;
@@ -38,7 +37,7 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
     @Inject
     ACLService aclService;
     @Inject
-    Instance<CriteriaConditions> criteriaConditionsInstance;
+    CriteriaConditions.Factory criteriaConditionsFactory;
 
     public NotebookRepository() {
         super(ELNEntityType.NOTEBOOK, NotebookEntity.class);
@@ -48,18 +47,18 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
         CriteriaDefinition<Tuple> criteria = new CriteriaDefinition<>(em, Tuple.class) {{
             JpaRoot<NotebookEntity> root = from(NotebookEntity.class);
             select(tuple(root.id(), count(literal(1), createWindow())));
-            CriteriaConditions conditions = criteriaConditionsInstance.get();
-            if (!showAll) {
-                conditions.add(isNotNull(root.get(NotebookEntity_.calculatedInfo).get(CalculatedInfo_.currentAccess)));
-            }
-            conditions.add(root.get(NotebookEntity_.project).get(ProjectEntity_.id).equalTo(projectId));
-            if (createdByUser != null) {
-                conditions.add(root.get(NotebookEntity_.createdBy).equalTo(createdByUser));
-            }
-            conditions.fullTextSearch(root.get(NotebookEntity_.searchVector), search, s -> List.of(
-                    ilike(root.get(NotebookEntity_.name), '%' + s + '%')
-            ));
-            conditions.apply(this::where);
+            criteriaConditionsFactory.withConditions(this::where, conditions -> {
+                if (!showAll) {
+                    conditions.add(isNotNull(root.get(NotebookEntity_.calculatedInfo).get(CalculatedInfo_.currentAccess)));
+                }
+                conditions.add(root.get(NotebookEntity_.project).get(ProjectEntity_.id).equalTo(projectId));
+                if (createdByUser != null) {
+                    conditions.add(root.get(NotebookEntity_.createdBy).equalTo(createdByUser));
+                }
+                conditions.fullTextSearch(root.get(NotebookEntity_.searchVector), search, s -> List.of(
+                        ilike(root.get(NotebookEntity_.name), '%' + s + '%')
+                ));
+            });
             orderBy(switch (MoreObjects.firstNonNull(sort, SortOrder.LATEST)) {
                 case EARLIEST -> asc(root.get(NotebookEntity_.modifiedAt));
                 case LATEST -> desc(root.get(NotebookEntity_.modifiedAt));

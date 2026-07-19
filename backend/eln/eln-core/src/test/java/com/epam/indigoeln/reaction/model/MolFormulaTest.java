@@ -10,6 +10,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @QuarkusTest
 class MolFormulaTest extends ELNBaseTest {
@@ -46,5 +47,13 @@ class MolFormulaTest extends ELNBaseTest {
     void testFormatHTMLFormula() {
         String formatted = new MolFormula("C<sub>6</sub>H<sub>12</sub>O<sub>6</sub>").toHTMLString();
         assertThat(formatted).isEqualTo("C<sub>6</sub>H<sub>12</sub>O<sub>6</sub>");
+    }
+
+    @ParameterizedTest
+    @CsvSource({"''", "'6C'", "'C6!'", "'C6Xx!'", "'C6,H12'"})
+    void testRejectsInvalidFormula(String formula) {
+        assertThatThrownBy(() -> new MolFormula(formula))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Invalid formula");
     }
 }

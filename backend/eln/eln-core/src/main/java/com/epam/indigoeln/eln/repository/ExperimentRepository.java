@@ -18,7 +18,6 @@ import com.epam.indigoeln.eln.util.CriteriaConditions;
 import com.google.common.base.MoreObjects;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.Tuple;
@@ -42,7 +41,7 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
     private static final Sort SORT_SUGGEST = Sort.by("name");
 
     @Inject
-    Instance<CriteriaConditions> criteriaConditionsInstance;
+    CriteriaConditions.Factory criteriaConditionsFactory;
 
     public ExperimentRepository() {
         super(ELNEntityType.EXPERIMENT, ExperimentEntity.class);
@@ -59,23 +58,23 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
         CriteriaDefinition<Tuple> criteria = new CriteriaDefinition<>(em, Tuple.class) {{
             JpaRoot<ExperimentEntity> root = from(ExperimentEntity.class);
             select(tuple(root.id(), count(literal(1), createWindow())));
-            CriteriaConditions conditions = criteriaConditionsInstance.get();
-            if (!showAll) {
-                conditions.add(isNotNull(root.get(ExperimentEntity_.calculatedInfo).get(CalculatedInfo_.currentAccess)));
-            }
-            if (projectId != null) {
-                conditions.add(root.get(ExperimentEntity_.project).get(ProjectEntity_.id).equalTo(projectId));
-            }
-            if (notebookId != null) {
-                conditions.add(root.get(ExperimentEntity_.notebook).get(NotebookEntity_.id).equalTo(notebookId));
-            }
-            if (createdByUser != null) {
-                conditions.add(root.get(ExperimentEntity_.createdBy).equalTo(createdByUser));
-            }
-            conditions.fullTextSearch(root.get(ExperimentEntity_.searchVector), search, s -> List.of(
-                    ilike(root.get(ExperimentEntity_.name), '%' + s + '%')
-            ));
-            conditions.apply(this::where);
+            criteriaConditionsFactory.withConditions(this::where, conditions -> {
+                if (!showAll) {
+                    conditions.add(isNotNull(root.get(ExperimentEntity_.calculatedInfo).get(CalculatedInfo_.currentAccess)));
+                }
+                if (projectId != null) {
+                    conditions.add(root.get(ExperimentEntity_.project).get(ProjectEntity_.id).equalTo(projectId));
+                }
+                if (notebookId != null) {
+                    conditions.add(root.get(ExperimentEntity_.notebook).get(NotebookEntity_.id).equalTo(notebookId));
+                }
+                if (createdByUser != null) {
+                    conditions.add(root.get(ExperimentEntity_.createdBy).equalTo(createdByUser));
+                }
+                conditions.fullTextSearch(root.get(ExperimentEntity_.searchVector), search, s -> List.of(
+                        ilike(root.get(ExperimentEntity_.name), '%' + s + '%')
+                ));
+            });
             orderBy(switch (MoreObjects.firstNonNull(sort, SortOrder.LATEST)) {
                 case EARLIEST -> asc(root.get(ExperimentEntity_.modifiedAt));
                 case LATEST -> desc(root.get(ExperimentEntity_.modifiedAt));

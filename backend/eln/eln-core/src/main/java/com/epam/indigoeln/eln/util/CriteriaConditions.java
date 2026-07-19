@@ -6,7 +6,9 @@ import com.epam.indigoeln.compound.model.search.TextSearch;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.service.DictionaryService;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.Expression;
@@ -36,10 +38,6 @@ public class CriteriaConditions {
         cb = (HibernateCriteriaBuilder) em.getCriteriaBuilder();
     }
 
-    public void apply(Consumer<List<Predicate>> consumer) {
-        consumer.accept(predicates);
-    }
-
     public void add(@Nullable Predicate predicate) {
         if (predicate != null) {
             predicates.add(predicate);
@@ -57,7 +55,7 @@ public class CriteriaConditions {
     }
 
     public void textSearch(Expression<String> attribute, @Nullable TextSearch search, Function<String, String> valueConverter) {
-        jakarta.persistence.criteria.Predicate predicate = switch (search) {
+        Predicate predicate = switch (search) {
             case null -> null;
             case TextSearch.WithValue w -> {
                 String value = valueConverter.apply(w.value().toLowerCase());
@@ -113,7 +111,7 @@ public class CriteriaConditions {
             predicates.add(predicate);
         }
     }
-    
+
     public void structureSearch(Expression<String> attribute, @Nullable StructuralSearch search) {
         if (search != null) {
             Expression<Boolean> expression = switch (search.type()) {
@@ -128,6 +126,23 @@ public class CriteriaConditions {
     public void bool(Expression<Boolean> attribute, @Nullable Boolean search) {
         if (search != null) {
             predicates.add(search ? cb.isTrue(attribute) : cb.isFalse(attribute));
+        }
+    }
+
+    @ApplicationScoped
+    public static class Factory {
+
+        @Inject
+        Instance<CriteriaConditions> instance;
+
+        public void withConditions(Consumer<List<Predicate>> applier, Consumer<CriteriaConditions> block) {
+            CriteriaConditions conditions = instance.get();
+            try {
+                block.accept(conditions);
+                applier.accept(conditions.predicates);
+            } finally {
+                instance.destroy(conditions);
+            }
         }
     }
 }
