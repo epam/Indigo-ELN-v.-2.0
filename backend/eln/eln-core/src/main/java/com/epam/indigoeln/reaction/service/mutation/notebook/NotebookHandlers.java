@@ -141,7 +141,7 @@ class DeleteNotebookAttachmentHandler extends AbstractNotebookMutationHandler<No
     public String doHandle(NotebookEntity notebook, NotebookMutation.DeleteNotebookAttachment mutation, NotebookMutationContext context, NotebookSnapshot snapshotBefore) {
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
         notebook.getAttachments().remove(attachment);
-        attachment.getNotebooks().remove(notebook);
+        attachment.setNotebook(null);
         attachment.setDeleted(true);
         return "Deleted attachment: " + attachment.getName();
     }

@@ -4,10 +4,7 @@ import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.model.ExperimentRef;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
-import com.epam.indigoeln.eln.repository.AttachmentRepository;
-import com.epam.indigoeln.eln.repository.ExperimentRepository;
-import com.epam.indigoeln.eln.repository.ProjectRepository;
-import com.epam.indigoeln.eln.repository.UserRepository;
+import com.epam.indigoeln.eln.repository.*;
 import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.DictionaryService;
@@ -29,7 +26,7 @@ import java.util.*;
 import static com.epam.indigoeln.common.exception.InvalidRequestException.fail;
 import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
 import static com.epam.indigoeln.common.util.ModelUtil.editProperty;
-import static com.epam.indigoeln.common.util.ModelUtil.updateCollection;
+import static com.epam.indigoeln.eln.util.ModelUtil.restoreAttachments;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Dependent
@@ -38,6 +35,10 @@ class CreateExperimentHandler extends AbstractExperimentMutationHandler<Experime
 
     @Inject
     DictionaryService dictionaryService;
+    @Inject
+    ProjectRepository projectRepository;
+    @Inject
+    NotebookRepository notebookRepository;
     @Inject
     ExperimentRepository experimentRepository;
     @Inject
@@ -248,7 +249,6 @@ class EditExperimentAccessHandler extends AbstractExperimentMutationHandler<Expe
         String summary = entityMutationHelper.formatEditAccessSummary(mutation.edits());
         projectRepository.lockProject(experiment.getProject());
         aclService.updateExperimentACL(experiment.getNotebook().getProject(), experiment.getNotebook(), experiment, mutation.edits());
-        // !!! create revisions for notebook/project, if they are affected
         return summary;
     }
 }
@@ -276,7 +276,7 @@ class CreateExperimentAttachmentHandler extends ExperimentEditMutationHandlerBas
 
     @Override
     public void doRestoreStateAfterUndo(ExperimentEntity experiment, ExperimentSnapshot snapshot, ExperimentMutation.CreateExperimentAttachment mutation) {
-        updateCollection(experiment.getAttachments(), attachmentRepository.getReferences(checkNotNull(snapshot.getAttachments())));
+        restoreAttachments(experiment, AttachmentEntity::setExperiment, attachmentRepository.getReferences(checkNotNull(snapshot.getAttachments())));
     }
 }
 
@@ -291,7 +291,7 @@ class DeleteExperimentAttachmentHandler extends ExperimentEditMutationHandlerBas
     public String doHandle(ExperimentEntity experiment, ExperimentMutation.DeleteExperimentAttachment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
         experiment.getAttachments().remove(attachment);
-        attachment.getExperiments().remove(experiment);
+        attachment.setExperiment(null);
         attachment.setDeleted(true);
         return "Deleted attachment: " + attachment.getName();
     }
@@ -303,7 +303,7 @@ class DeleteExperimentAttachmentHandler extends ExperimentEditMutationHandlerBas
 
     @Override
     public void doRestoreStateAfterUndo(ExperimentEntity experiment, ExperimentSnapshot snapshot, ExperimentMutation.DeleteExperimentAttachment mutation) {
-        updateCollection(experiment.getAttachments(), attachmentRepository.getReferences(checkNotNull(snapshot.getAttachments())));
+        restoreAttachments(experiment, AttachmentEntity::setExperiment, attachmentRepository.getReferences(checkNotNull(snapshot.getAttachments())));
     }
 }
 

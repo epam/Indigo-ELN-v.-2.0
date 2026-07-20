@@ -93,6 +93,7 @@ public class NotebookService {
     public List<ACLEntryDTO> updateNotebookAccess(UUID notebookId, List<AccessForm> form) {
         projectRepository.lock(notebookRepository.getProjectID(notebookId)); // protect project tree from changes
         NotebookEntity notebook = notebookRepository.loadAndLock(notebookId); // project notebook itself from changes
+        projectRepository.loadWithACL(notebook.getProject().getId());
         applyMutation(notebook, new NotebookMutation.EditNotebookAccess(form));
         return notebookMapper.convertACLList(notebook.getFullACL());
     }

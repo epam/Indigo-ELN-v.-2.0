@@ -102,6 +102,10 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
         return load(id);
     }
 
+    public ProjectEntity loadWithACL(UUID id) {
+        return doLoad(id, em.getEntityGraph("Project.withACL"));
+    }
+
     public TotalCounts getTotalCounts() {
         TotalCountsEntity entity = em.createQuery("from TotalCounts", TotalCountsEntity.class).getSingleResult();
         return projectMapper.convertTotalCounts(entity);

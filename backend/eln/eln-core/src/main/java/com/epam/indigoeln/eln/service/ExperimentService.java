@@ -99,8 +99,9 @@ public class ExperimentService {
     ObjectMapper objectMapper;
 
     public ExperimentDetailsDTO createExperiment(UUID notebookId, ExperimentRequest request) {
-        NotebookEntity notebook = notebookRepository.get(notebookId);
+        NotebookEntity notebook = notebookRepository.loadWithACL(notebookId);
         projectRepository.lock(notebook.getProject().getId()); // protect project from possible ACL changes
+        projectRepository.loadWithACL(notebook.getProject().getId());
         ExperimentEntity experiment = new ExperimentEntity();
         experiment.setProject(notebook.getProject());
         experiment.setNotebook(notebook);
@@ -163,6 +164,8 @@ public class ExperimentService {
     public List<ACLEntryDTO> updateExperimentAccess(UUID experimentId, List<AccessForm> form) {
         projectRepository.lock(experimentRepository.getProjectID(experimentId)); // protect project tree from ACL changes
         ExperimentEntity experiment = experimentRepository.loadAndLock(experimentId); // project experiment itself from non-ACL changes
+        projectRepository.loadWithACL(experiment.getProject().getId());
+        notebookRepository.loadWithACL(experiment.getNotebook().getId());
         ExperimentMutation mutation = new ExperimentMutation.EditExperimentAccess(form);
         experimentModelService.applyMutation(experiment, mutation);
         return experimentMapper.convertACLList(experiment.getFullACL());

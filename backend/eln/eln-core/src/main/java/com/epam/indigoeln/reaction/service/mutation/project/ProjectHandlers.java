@@ -144,7 +144,7 @@ class DeleteProjectAttachmentHandler extends AbstractProjectMutationHandler<Proj
     public String doHandle(ProjectEntity project, ProjectMutation.DeleteProjectAttachment mutation, ProjectMutationContext context, ProjectSnapshot snapshotBefore) {
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
         project.getAttachments().remove(attachment);
-        attachment.getProjects().remove(project);
+        attachment.setProject(null);
         attachment.setDeleted(true);
         return "Deleted attachment: " + attachment.getName();
     }

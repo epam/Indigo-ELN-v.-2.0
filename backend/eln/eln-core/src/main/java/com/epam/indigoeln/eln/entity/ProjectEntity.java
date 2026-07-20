@@ -51,6 +51,13 @@ import java.util.*;
                 @NamedAttributeNode("attachments")
         }
 )
+@NamedEntityGraph(
+        name = "Project.withACL",
+        attributeNodes = {
+                @NamedAttributeNode("aclEntities"),
+                @NamedAttributeNode("notebooks")
+        }
+)
 @DynamicUpdate
 public class ProjectEntity extends BaseEntity implements WithAttachments, WithACL<ProjectACLEntity>, WithRevision {
 
@@ -105,8 +112,7 @@ public class ProjectEntity extends BaseEntity implements WithAttachments, WithAC
     private Set<ExperimentEntity> experiments = new HashSet<>(0);
 
     @NotNull
-    @ManyToMany
-    @JoinTable(name = "project_attachment", joinColumns = @JoinColumn(name = "project_id"), inverseJoinColumns = @JoinColumn(name = "attachment_id"))
+    @OneToMany(mappedBy = "project")
     @OrderBy("createdAt")
     private List<AttachmentEntity> attachments = new ArrayList<>(0);
 

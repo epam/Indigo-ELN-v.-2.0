@@ -24,7 +24,7 @@ public class HibernateLazyLoadStatisticsExtension implements BeforeAllCallback, 
 
     @Override
     public void beforeAll(ExtensionContext context) {
-        context.getRoot().getStore(ExtensionContext.Namespace.GLOBAL).computeIfAbsent(NAME, key -> new ResourceImpl(), Object.class);
+        context.getRoot().getStore(ExtensionContext.Namespace.GLOBAL).computeIfAbsent(NAME, _ -> new ResourceImpl(), Object.class);
     }
 
     @Override
@@ -75,7 +75,7 @@ public class HibernateLazyLoadStatisticsExtension implements BeforeAllCallback, 
         }
 
         @Override
-        public void close() throws Exception {
+        public void close() {
             writer.close();
         }
 

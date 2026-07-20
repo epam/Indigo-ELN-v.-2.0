@@ -190,8 +190,7 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     private Map<UserEntity, ExperimentACLEntity> aclEntities = new HashMap<>(0);
 
     @NotNull
-    @ManyToMany
-    @JoinTable(name = "experiment_attachment", joinColumns = @JoinColumn(name = "experiment_id"), inverseJoinColumns = @JoinColumn(name = "attachment_id"))
+    @OneToMany(mappedBy = "experiment")
     @OrderBy("createdAt")
     private List<AttachmentEntity> attachments = new ArrayList<>(0);
 

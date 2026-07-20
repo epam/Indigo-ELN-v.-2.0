@@ -25,7 +25,6 @@ import org.jboss.resteasy.reactive.multipart.FileUpload;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.file.Files;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -113,14 +112,17 @@ public class AttachmentService {
     }
 
     public void doAddProjectAttachment(ProjectEntity entity, AttachmentEntity attachment) {
+        attachment.setProject(entity);
         entity.getAttachments().add(attachment);
     }
 
     public void doAddNotebookAttachment(NotebookEntity entity, AttachmentEntity attachment) {
+        attachment.setNotebook(entity);
         entity.getAttachments().add(attachment);
     }
 
     public void doAddExperimentAttachment(ExperimentEntity entity, AttachmentEntity attachment) {
+        attachment.setExperiment(entity);
         entity.getAttachments().add(attachment);
     }
 
@@ -148,7 +150,7 @@ public class AttachmentService {
         ProjectEntity project = projectRepository.get(projectId);
         aclService.ensureAccess(project, ApplicationPermission.VIEW_PROJECTS);
         AttachmentEntity attachment = attachmentRepository.load(attachmentId);
-        ensureCorrectParent(attachment, attachment.getProjects(), project);
+        ensureCorrectParent(attachment, attachment.getProject(), project);
         return doDownloadAttachment(attachment);
     }
 
@@ -156,7 +158,7 @@ public class AttachmentService {
         NotebookEntity notebook = notebookRepository.get(notebookId);
         aclService.ensureAccess(notebook, ApplicationPermission.VIEW_NOTEBOOKS);
         AttachmentEntity attachment = attachmentRepository.load(attachmentId);
-        ensureCorrectParent(attachment, attachment.getNotebooks(), notebook);
+        ensureCorrectParent(attachment, attachment.getNotebook(), notebook);
         return doDownloadAttachment(attachment);
     }
 
@@ -164,7 +166,7 @@ public class AttachmentService {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
         AttachmentEntity attachment = attachmentRepository.load(attachmentId);
-        ensureCorrectParent(attachment, attachment.getExperiments(), experiment);
+        ensureCorrectParent(attachment, attachment.getExperiment(), experiment);
         return doDownloadAttachment(attachment);
     }
 
@@ -178,7 +180,7 @@ public class AttachmentService {
         ProjectEntity project = projectRepository.loadAndLock(projectId);
         aclService.ensureAccess(project, ApplicationPermission.EDIT_PROJECTS);
         AttachmentEntity attachment = attachmentRepository.load(attachmentId);
-        ensureCorrectParent(attachment, attachment.getProjects(), project);
+        ensureCorrectParent(attachment, attachment.getProject(), project);
         projectService.applyMutation(project, new ProjectMutation.DeleteProjectAttachment(attachment.getId()));
     }
 
@@ -186,7 +188,7 @@ public class AttachmentService {
         NotebookEntity notebook = notebookRepository.loadAndLock(notebookId);
         aclService.ensureAccess(notebook, ApplicationPermission.EDIT_NOTEBOOKS);
         AttachmentEntity attachment = attachmentRepository.load(attachmentId);
-        ensureCorrectParent(attachment, attachment.getNotebooks(), notebook);
+        ensureCorrectParent(attachment, attachment.getNotebook(), notebook);
         notebookService.applyMutation(notebook, new NotebookMutation.DeleteNotebookAttachment(attachment.getId()));
     }
 
@@ -194,15 +196,13 @@ public class AttachmentService {
         ExperimentEntity experiment = experimentRepository.loadAndLock(experimentId);
         aclService.ensureAccess(experiment, ApplicationPermission.EDIT_EXPERIMENTS);
         AttachmentEntity attachment = attachmentRepository.get(attachmentId);
-        ensureCorrectParent(attachment, attachment.getExperiments(), experiment);
+        ensureCorrectParent(attachment, attachment.getExperiment(), experiment);
         experimentModelService.applyMutation(experiment, new ExperimentMutation.DeleteExperimentAttachment(attachment.getId()));
     }
 
-    private <E extends BaseEntity> void ensureCorrectParent(AttachmentEntity attachment, Collection<E> parents, E expected) {
-        for (E parent : parents) {
-            if (parent.getId().equals(expected.getId())) {
-                return;
-            }
+    private <E extends BaseEntity> void ensureCorrectParent(AttachmentEntity attachment, @Nullable E actualParent, E expected) {
+        if (actualParent != null && actualParent.getId().equals(expected.getId())) {
+            return;
         }
         log.error("Attachment {} doesn't belong to requested parent entity {}", attachment, expected);
         throw new EntityNotFoundException(ELNEntityType.ATTACHMENT, attachment.getId());

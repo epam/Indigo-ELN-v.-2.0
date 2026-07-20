@@ -80,6 +80,10 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
         return notebook;
     }
 
+    public NotebookEntity loadWithACL(UUID id) {
+        return doLoad(id, em.getEntityGraph("Notebook.withACL"));
+    }
+
     public void lock(UUID id) {
         // See ProjectRepository.lock for the reasoning
         List<?> locked = em.createNativeQuery("select id from Notebook where id = ?1 for no key update")

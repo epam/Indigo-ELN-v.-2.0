@@ -7,9 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.HashSet;
-import java.util.Set;
+import org.jspecify.annotations.Nullable;
 
 @Getter
 @Setter
@@ -24,14 +22,23 @@ import java.util.Set;
 )
 public class AttachmentEntity extends BaseEntity {
 
-    @ManyToMany(mappedBy = "attachments")
-    private Set<ProjectEntity> projects = new HashSet<>(0);
+    // At most one of these is set - an attachment belongs to exactly one project, notebook, or experiment,
+    // chosen at creation time. Modeled as three nullable @ManyToOne rather than a polymorphic parent
+    // reference so each parent side can use a plain @OneToMany(mappedBy) collection.
+    @Nullable
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id")
+    private ProjectEntity project;
 
-    @ManyToMany(mappedBy = "attachments")
-    private Set<NotebookEntity> notebooks = new HashSet<>(0);
+    @Nullable
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "notebook_id")
+    private NotebookEntity notebook;
 
-    @ManyToMany(mappedBy = "attachments")
-    private Set<ExperimentEntity> experiments = new HashSet<>(0);
+    @Nullable
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "experiment_id")
+    private ExperimentEntity experiment;
 
     @NotEmpty
     private String name;

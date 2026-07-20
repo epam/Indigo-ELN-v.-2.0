@@ -51,7 +51,8 @@ import java.util.*;
 @NamedEntityGraph(
         name = "Notebook.withACL",
         attributeNodes = {
-                @NamedAttributeNode("aclEntities")
+                @NamedAttributeNode("aclEntities"),
+                @NamedAttributeNode("experiments")
         }
 )
 @DynamicUpdate
@@ -99,8 +100,7 @@ public class NotebookEntity extends BaseEntity implements WithAttachments, WithA
     private Map<UserEntity, NotebookACLEntity> aclEntities = new HashMap<>(0);
 
     @NotNull
-    @ManyToMany()
-    @JoinTable(name = "notebook_attachment", joinColumns = @JoinColumn(name = "notebook_id"), inverseJoinColumns = @JoinColumn(name = "attachment_id"))
+    @OneToMany(mappedBy = "notebook")
     @OrderBy("createdAt")
     private List<AttachmentEntity> attachments = new ArrayList<>(0);
 

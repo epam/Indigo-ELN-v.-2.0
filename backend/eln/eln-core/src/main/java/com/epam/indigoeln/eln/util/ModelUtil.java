@@ -2,8 +2,10 @@ package com.epam.indigoeln.eln.util;
 
 import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
+import com.epam.indigoeln.eln.entity.AttachmentEntity;
 import com.epam.indigoeln.eln.entity.BaseEntity;
 import com.epam.indigoeln.eln.entity.UserEntity;
+import com.epam.indigoeln.eln.entity.WithAttachments;
 import com.epam.indigoeln.reaction.util.ThrowingRunnable;
 import lombok.SneakyThrows;
 import one.util.streamex.StreamEx;
@@ -12,7 +14,11 @@ import org.jspecify.annotations.Nullable;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public class ModelUtil {
@@ -75,5 +81,22 @@ public class ModelUtil {
             return compound.getExternalNumber();
         }
         return null;
+    }
+
+    public static <E extends WithAttachments> void restoreAttachments(E target, BiConsumer<AttachmentEntity, @Nullable E> parentSetter, List<AttachmentEntity> from) {
+        Set<AttachmentEntity> targetSet = new HashSet<>(from);
+        for (AttachmentEntity current : List.copyOf(target.getAttachments())) {
+            if (!targetSet.contains(current)) {
+                parentSetter.accept(current, null);
+                current.setExperiment(null);
+                target.getAttachments().remove(current);
+            }
+        }
+        for (AttachmentEntity attachment : from) {
+            if (!target.getAttachments().contains(attachment)) {
+                parentSetter.accept(attachment, target);
+                target.getAttachments().add(attachment);
+            }
+        }
     }
 }
