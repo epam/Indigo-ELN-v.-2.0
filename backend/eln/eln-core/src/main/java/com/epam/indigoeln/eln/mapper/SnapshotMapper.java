@@ -6,7 +6,6 @@ import com.epam.indigoeln.eln.model.AttachmentDTO;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.reaction.model.*;
 import jakarta.inject.Inject;
-import one.util.streamex.StreamEx;
 import org.mapstruct.*;
 
 import java.util.List;
@@ -37,10 +36,6 @@ public abstract class SnapshotMapper extends AbstractMapper {
     protected abstract Set<AttachmentDTO> convertAttachments(List<AttachmentEntity> attachments);
 
     protected abstract Set<ACLEntryDTO> convertACLs(ACLEntry[] aclEntries);
-
-    protected Set<String> convertKeywords(List<DictionaryItemEntity> keywords) {
-        return StreamEx.of(keywords).map(DictionaryItemEntity::getName).toSet();
-    }
 
     public ExperimentSnapshot createSnapshot(ExperimentEntity experiment, boolean snapshotModel) {
         ExperimentSnapshot snapshot = copyBasicFields(experiment);

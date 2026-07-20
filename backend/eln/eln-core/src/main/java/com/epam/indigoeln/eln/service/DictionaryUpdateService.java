@@ -15,7 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 import org.hibernate.exception.ConstraintViolationException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ModelUtil.editProperty;
 import static com.epam.indigoeln.eln.service.DictionaryService.refToID;
@@ -140,22 +142,6 @@ public class DictionaryUpdateService {
         renumberItems(list, false);
         dictionaryService.invalidate();
         return dictionaryMapper.itemToDTOList(list);
-    }
-
-    public List<DictionaryItemEntity> findOrCreateByNames(String dictionaryRef, Collection<String> names) {
-        DictionaryEntity dictionary = dictionaryRepository.get(refToID(dictionaryRef));
-        if (!dictionary.getUserEditable()) {
-            throw new IllegalArgumentException("findOrCreateByNames cannot be used with dictionary " + dictionary);
-        }
-        Map<String, DictionaryItemEntity> found = dictionaryItemRepository.findByNames(dictionary.getId(), names);
-        if (found.size() < names.size()) {
-            Set<String> remainingNames = new HashSet<>(names);
-            remainingNames.removeAll(found.keySet());
-            List<DictionaryItemEntity> newAllItems = addDictionaryItems(dictionaryRef, remainingNames.stream().map(x -> new DictionaryItemRequest(x, null)).toList());
-            found = StreamEx.of(newAllItems).toMap(DictionaryItemEntity::getName, x -> x);
-        }
-        dictionaryService.invalidate();
-        return StreamEx.of(names).map(found::get).toList();
     }
 
     private void renumberItems(List<DictionaryItemEntity> items, boolean negative) {

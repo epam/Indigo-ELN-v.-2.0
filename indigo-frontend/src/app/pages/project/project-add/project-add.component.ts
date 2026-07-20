@@ -80,6 +80,8 @@ export class ProjectAddComponent implements OnInit {
       props: {
         label: 'Project Keywords',
         placeholder: 'Add Keyword',
+        suggest: (query: string) =>
+          this.service.request<string[]>('get', `projects/keywords/suggest?search=${encodeURIComponent(query)}`),
       },
     },
     {

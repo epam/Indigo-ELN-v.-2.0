@@ -11,12 +11,9 @@ import com.google.common.base.Strings;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ModelUtil.map;
@@ -46,15 +43,6 @@ public class DictionaryItemRepository extends BaseRepository<DictionaryItemEntit
             conditions.add("active");
         }
         return doFind(conditions, SORT);
-    }
-
-    public Map<String, DictionaryItemEntity> findByNames(UUID dictionaryID, Collection<String> names) {
-        Conditions conditions = new Conditions()
-                .add("dictionary.id=?", dictionaryID)
-                .add("not deleted")
-                .add("name IN ?", names);
-        return StreamEx.of(doFind(conditions))
-                .toMap(DictionaryItemEntity::getName, item -> item);
     }
 
     public List<DictionaryItemRef> suggest(UUID dictionaryID, @Nullable String search) {

@@ -33,6 +33,10 @@ public interface ProjectAPI extends BaseAPI {
             @QueryParam("name") @NotEmpty String name);
 
     @GET
+    @Path("/projects/keywords/suggest")
+    List<String> suggestKeywords(@QueryParam("search") @Nullable String search);
+
+    @GET
     @Path("/projects/{projectId}")
     ProjectDetailsDTO getProject(@PathParam("projectId") UUID projectId);
 

@@ -33,6 +33,8 @@ import static com.epam.indigoeln.eln.model.ApplicationPermission.VIEW_PROJECTS;
 @ApplicationScoped
 public class ProjectRepository extends BaseRepository<ProjectEntity> {
 
+    private static final int SUGGEST_LIMIT = 20;
+
     @Inject
     ProjectMapper projectMapper;
     @Inject
@@ -113,6 +115,17 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
 
     public boolean existsByName(String name) {
         return doFindOne(new Conditions().add("name=?", name)) != null;
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<String> suggestKeywords(@Nullable String search) {
+        String prefix = (search == null || search.isBlank()) ? "%" : search.toLowerCase() + "%";
+        return em.createNativeQuery(
+                        "select distinct keyword from project_keyword where lower(keyword) like ?1 order by keyword",
+                        String.class)
+                .setParameter(1, prefix)
+                .setMaxResults(SUGGEST_LIMIT)
+                .getResultList();
     }
 
     public void lockProject(ProjectEntity project) {

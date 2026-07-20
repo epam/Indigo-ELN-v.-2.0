@@ -98,10 +98,11 @@ public class ProjectEntity extends BaseEntity implements WithAttachments, WithAC
     private Map<UserEntity, ProjectACLEntity> aclEntities = new HashMap<>(0);
 
     @NotNull
-    @ManyToMany
+    @ElementCollection
+    @CollectionTable(name = "project_keyword", joinColumns = @JoinColumn(name = "project_id"))
     @OrderColumn(name = "ordinal")
-    @JoinTable(name = "project_keyword", joinColumns = @JoinColumn(name = "project_id"), inverseJoinColumns = @JoinColumn(name = "keyword_id"))
-    private List<DictionaryItemEntity> keywords = new ArrayList<>(0);
+    @Column(name = "keyword", nullable = false)
+    private List<String> keywords = new ArrayList<>(0);
 
     @NotNull
     @OneToMany(mappedBy = "project")

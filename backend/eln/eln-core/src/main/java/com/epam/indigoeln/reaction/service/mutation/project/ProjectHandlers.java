@@ -3,12 +3,10 @@ package com.epam.indigoeln.reaction.service.mutation.project;
 import com.epam.indigoeln.eln.entity.AttachmentEntity;
 import com.epam.indigoeln.eln.entity.ProjectEntity;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
-import com.epam.indigoeln.eln.model.BuiltInDictionary;
 import com.epam.indigoeln.eln.repository.AttachmentRepository;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.AttachmentService;
-import com.epam.indigoeln.eln.service.DictionaryUpdateService;
 import com.epam.indigoeln.reaction.model.ProjectSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.ProjectMutation;
 import com.epam.indigoeln.reaction.service.mutation.EntityMutationHelper;
@@ -21,14 +19,10 @@ import java.util.List;
 
 import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
 import static com.epam.indigoeln.common.util.ModelUtil.editProperty;
-import static com.epam.indigoeln.common.util.ModelUtil.updateCollection;
 
 @Dependent
 @MutationHandlerFor(ProjectMutation.CreateProject.class)
 class CreateProjectHandler extends AbstractProjectMutationHandler<ProjectMutation.CreateProject> {
-
-    @Inject
-    DictionaryUpdateService dictionaryUpdateService;
 
     @Override
     protected void doValidateAccess(ProjectEntity project) {
@@ -40,8 +34,8 @@ class CreateProjectHandler extends AbstractProjectMutationHandler<ProjectMutatio
         project.setName(mutation.name());
         project.setLiterature(mutation.literature());
         project.setDescription(mutation.description());
-        if (mutation.keywords() != null && !mutation.keywords().isEmpty()) {
-            updateCollection(project.getKeywords(), dictionaryUpdateService.findOrCreateByNames(BuiltInDictionary.PROJECT_KEYWORD.name(), mutation.keywords()));
+        if (mutation.keywords() != null) {
+            project.getKeywords().addAll(mutation.keywords());
         }
         project.setRevision(0);
         project.setCreatedBy(userService.getCurrentUserEntity());
@@ -54,9 +48,6 @@ class CreateProjectHandler extends AbstractProjectMutationHandler<ProjectMutatio
 @MutationHandlerFor(ProjectMutation.EditProjectAttributes.class)
 class EditProjectAttributesHandler extends AbstractProjectMutationHandler<ProjectMutation.EditProjectAttributes> {
 
-    @Inject
-    DictionaryUpdateService dictionaryUpdateService;
-
     @Override
     public String doHandle(ProjectEntity project, ProjectMutation.EditProjectAttributes mutation, ProjectMutationContext context, ProjectSnapshot snapshotBefore) {
         List<String> summaryList = new ArrayList<>();
@@ -68,9 +59,7 @@ class EditProjectAttributesHandler extends AbstractProjectMutationHandler<Projec
         );
         updated |= editProperty(
                 mutation.keywords(),
-                v -> {
-                    updateCollection(project.getKeywords(), dictionaryUpdateService.findOrCreateByNames(BuiltInDictionary.PROJECT_KEYWORD.name(), v));
-                },
+                v -> project.setKeywords(new ArrayList<>(v)),
                 summaryList,
                 "keywords"
         );

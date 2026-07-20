@@ -74,6 +74,10 @@ public class ProjectService {
         return new ProjectExistenceCheckDTO(exists);
     }
 
+    public List<String> suggestKeywords(@Nullable String search) {
+        return projectRepository.suggestKeywords(search);
+    }
+
     public ProjectDetailsDTO editProject(UUID projectId, ProjectEditRequest request) {
         ProjectEntity project = projectRepository.loadAndLock(projectId);
         applyMutation(project, projectMapper.requestToMutation(request));

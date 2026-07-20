@@ -1,7 +1,6 @@
 id,code,name,userEditable,description
 84f97b23-7125-4847-bca2-399f351df9d7,THERAPEUTIC_AREA,Therapeutic Area,false,Therapeutic area description
 886d9a69-ae2f-4e19-ae0b-0d8f28f27e01,PROJECT_CODE,Project Code & Name,false,Project code description
-1cc9d41e-1e5e-4447-abd5-5067e9ba8210,PROJECT_KEYWORD,Project Keyword,true,Project keyword description
 8c61d750-c4da-431b-b5a1-b5ebb0a98811,STEREOISOMER_CODE,Stereoisomer Code,false,Stereoisomer code description
 f9e02f6e-9408-4d25-a9eb-06cda2f78a4f,HEALTH_HAZARD,Health Hazards,true,Health hazard description
 7f07ee6f-f89d-4d3b-9e5b-14fe4302ae62,HANDLING_PRECAUTIONS,Handling Precautions,true,Handling precautions description
