@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.mapper;
 
+import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.eln.entity.ACLEntry;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
 import com.epam.indigoeln.eln.entity.UserEntity;
@@ -32,6 +33,11 @@ public abstract class AbstractMapper {
     @Nullable
     protected <T extends DictionaryItemRef> T convertDictionaryItemRef(@Nullable DictionaryItemEntity entity) {
         return dictionaryService.get(entity);
+    }
+
+    public UserRef convertUserRef(UserEntity entity) {
+        //noinspection ConstantValue
+        return entity != null ? entity.toRef() : null;
     }
 
     public UserInfo convertUserInfo(UserEntity entity) {

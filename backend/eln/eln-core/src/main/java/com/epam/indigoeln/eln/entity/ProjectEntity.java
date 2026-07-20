@@ -47,7 +47,8 @@ import java.util.*;
                 @NamedAttributeNode("fullACL"),
                 @NamedAttributeNode("notebookCount"),
                 @NamedAttributeNode("experimentCount"),
-                @NamedAttributeNode("currentAccessOrNull")
+                @NamedAttributeNode("currentAccessOrNull"),
+                @NamedAttributeNode("attachments")
         }
 )
 @DynamicUpdate

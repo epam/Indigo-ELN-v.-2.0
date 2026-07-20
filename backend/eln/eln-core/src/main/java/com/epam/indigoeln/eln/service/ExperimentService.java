@@ -14,6 +14,7 @@ import com.epam.indigoeln.eln.mapper.SnapshotMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
+import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.eln.repository.TemplateRepository;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
@@ -66,6 +67,8 @@ public class ExperimentService {
     static final byte[] EMPTY_PICTURE = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1\" height=\"1\"/>".getBytes(StandardCharsets.UTF_8);
 
     @Inject
+    ProjectRepository projectRepository;
+    @Inject
     NotebookRepository notebookRepository;
     @Inject
     ExperimentRepository experimentRepository;
@@ -97,9 +100,8 @@ public class ExperimentService {
 
     public ExperimentDetailsDTO createExperiment(UUID notebookId, ExperimentRequest request) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
+        projectRepository.lock(notebook.getProject().getId()); // protect project from possible ACL changes
         ExperimentEntity experiment = new ExperimentEntity();
-        notebook.getProject().getExperiments().add(experiment);
-        notebook.getExperiments().add(experiment);
         experiment.setProject(notebook.getProject());
         experiment.setNotebook(notebook);
         TemplateEntity template = templateRepository.get(request.getTemplateID());
@@ -159,7 +161,8 @@ public class ExperimentService {
     }
 
     public List<ACLEntryDTO> updateExperimentAccess(UUID experimentId, List<AccessForm> form) {
-        ExperimentEntity experiment = experimentRepository.loadAndLock(experimentId);
+        projectRepository.lock(experimentRepository.getProjectID(experimentId)); // protect project tree from ACL changes
+        ExperimentEntity experiment = experimentRepository.loadAndLock(experimentId); // project experiment itself from non-ACL changes
         ExperimentMutation mutation = new ExperimentMutation.EditExperimentAccess(form);
         experimentModelService.applyMutation(experiment, mutation);
         return experimentMapper.convertACLList(experiment.getFullACL());

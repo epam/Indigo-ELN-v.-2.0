@@ -16,10 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.hibernate.query.criteria.CriteriaDefinition;
 import org.jspecify.annotations.Nullable;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 
 import static com.epam.indigoeln.common.util.ModelUtil.map;
@@ -102,22 +99,18 @@ public abstract class BaseRepository<E extends IdentifiableEntity> implements Pa
         return query.list();
     }
 
+    protected List<E> doFindByIDs(Collection<UUID> ids, EntityGraph<?> entityGraph) {
+        return find("id IN ?1", ids)
+                .withHint("jakarta.persistence.loadgraph", entityGraph)
+                .list();
+    }
+
     protected E doLoad(UUID id, EntityGraph<?> entityGraph) {
         PanacheQuery<E> query = find("id", id);
         return query
                 .withHint("jakarta.persistence.loadgraph", entityGraph)
                 .singleResultOptional()
                 .orElseThrow(() -> new AccessDeniedException(entityType, id));
-    }
-
-    public E doLoadAndLock(UUID id, LockModeType lockMode, @Nullable EntityGraph<?> entityGraph) {
-        Map<String, Object> properties = entityGraph != null ? Map.of("jakarta.persistence.loadgraph", entityGraph) : Map.of();
-        E entity = em.find(entityClass, id, lockMode, properties);
-        //noinspection ConstantValue
-        if (entity == null) {
-            throw new EntityNotFoundException(entityType, id);
-        }
-        return entity;
     }
 
     protected List<E> doLoadByIDs(List<UUID> ids, @Nullable EntityGraph<?> entityGraph) {

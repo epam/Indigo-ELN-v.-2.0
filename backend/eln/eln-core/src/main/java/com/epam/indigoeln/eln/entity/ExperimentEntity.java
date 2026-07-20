@@ -60,6 +60,7 @@ import java.util.*;
                 @NamedAttributeNode("continuedTo"),
                 @NamedAttributeNode("currentAccessOrNull"),
                 @NamedAttributeNode("markedOrNull"),
+                @NamedAttributeNode("attachments")
         }
 )
 @NamedEntityGraph(

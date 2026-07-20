@@ -17,7 +17,7 @@ public class ServiceIntegrationEnvironmentResource implements BeforeAllCallback 
     @Override
     public void beforeAll(ExtensionContext context) throws Exception {
         BaseTest.setIntegrationTest(true);
-        context.getRoot().getStore(NAMESPACE).getOrComputeIfAbsent(
+        context.getRoot().getStore(NAMESPACE).computeIfAbsent(
                 "integration-environment-resource",
                 key -> {
                     try {

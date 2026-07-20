@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.repository;
 
+import com.epam.indigoeln.common.exception.EntityNotFoundException;
 import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
@@ -74,10 +75,31 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
         return map(page, projectMapper::entityToDTO);
     }
 
+    public void lock(UUID id) {
+        // Lock the base table row directly via native SQL, entirely bypassing Hibernate's own lock tracking.
+        // Project_Access_View (backing currentAccessOrNull) is a non-simple view (UNION ALL of LATERAL joins)
+        // that Postgres cannot lock, and combining PESSIMISTIC_WRITE with it - eagerly or via a later fetch on
+        // the locked entity - fails or leaves the entity stale (Hibernate reapplies a managed entity's lock
+        // mode to later fetches, and re-find()ing an already-managed entity doesn't refresh its data). A plain
+        // native row lock sidesteps all of that: once acquired, any prior holder has committed, so the ordinary
+        // unlocked load below (via Project.details, which already includes currentAccessOrNull) reads current data.
+        List<?> locked = em.createNativeQuery("select id from Project where id = ?1 for no key update")
+                .setParameter(1, id)
+                .getResultList();
+        if (locked.isEmpty()) {
+            throw new EntityNotFoundException(entityType, id);
+        }
+    }
+
     public ProjectEntity load(UUID id) {
         ProjectEntity project = doLoad(id, em.getEntityGraph("Project.details"));
         aclService.ensureAccess(project, VIEW_PROJECTS);
         return project;
+    }
+
+    public ProjectEntity loadAndLock(UUID id) {
+        lock(id);
+        return load(id);
     }
 
     public TotalCounts getTotalCounts() {

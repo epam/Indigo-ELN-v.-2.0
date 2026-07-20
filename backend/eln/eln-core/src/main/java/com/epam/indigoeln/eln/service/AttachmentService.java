@@ -64,7 +64,7 @@ public class AttachmentService {
     }
 
     public List<AttachmentDTO> createProjectAttachment(UUID projectId, String filename, byte[] content, boolean useMutation) {
-        ProjectEntity project = projectRepository.get(projectId);
+        ProjectEntity project = projectRepository.loadAndLock(projectId);
         aclService.ensureAccess(project, ApplicationPermission.EDIT_PROJECTS);
         AttachmentEntity attachment = doCreateAttachment(filename, content);
         if (useMutation) {
@@ -80,7 +80,7 @@ public class AttachmentService {
     }
 
     public List<AttachmentDTO> createNotebookAttachment(UUID notebookId, String filename, byte[] content, boolean useMutation) {
-        NotebookEntity notebook = notebookRepository.get(notebookId);
+        NotebookEntity notebook = notebookRepository.loadAndLock(notebookId);
         aclService.ensureAccess(notebook, ApplicationPermission.EDIT_NOTEBOOKS);
         AttachmentEntity attachment = doCreateAttachment(filename, content);
         if (useMutation) {
@@ -114,17 +114,14 @@ public class AttachmentService {
 
     public void doAddProjectAttachment(ProjectEntity entity, AttachmentEntity attachment) {
         entity.getAttachments().add(attachment);
-        attachment.getProjects().add(entity);
     }
 
     public void doAddNotebookAttachment(NotebookEntity entity, AttachmentEntity attachment) {
         entity.getAttachments().add(attachment);
-        attachment.getNotebooks().add(entity);
     }
 
     public void doAddExperimentAttachment(ExperimentEntity entity, AttachmentEntity attachment) {
         entity.getAttachments().add(attachment);
-        attachment.getExperiments().add(entity);
     }
 
     private byte[] readFile(FileUpload file) {
@@ -178,7 +175,7 @@ public class AttachmentService {
     }
 
     public void deleteProjectAttachment(UUID projectId, UUID attachmentId) {
-        ProjectEntity project = projectRepository.get(projectId);
+        ProjectEntity project = projectRepository.loadAndLock(projectId);
         aclService.ensureAccess(project, ApplicationPermission.EDIT_PROJECTS);
         AttachmentEntity attachment = attachmentRepository.load(attachmentId);
         ensureCorrectParent(attachment, attachment.getProjects(), project);
@@ -186,7 +183,7 @@ public class AttachmentService {
     }
 
     public void deleteNotebookAttachment(UUID notebookId, UUID attachmentId) {
-        NotebookEntity notebook = notebookRepository.get(notebookId);
+        NotebookEntity notebook = notebookRepository.loadAndLock(notebookId);
         aclService.ensureAccess(notebook, ApplicationPermission.EDIT_NOTEBOOKS);
         AttachmentEntity attachment = attachmentRepository.load(attachmentId);
         ensureCorrectParent(attachment, attachment.getNotebooks(), notebook);
@@ -199,12 +196,6 @@ public class AttachmentService {
         AttachmentEntity attachment = attachmentRepository.get(attachmentId);
         ensureCorrectParent(attachment, attachment.getExperiments(), experiment);
         experimentModelService.applyMutation(experiment, new ExperimentMutation.DeleteExperimentAttachment(attachment.getId()));
-    }
-
-    public <E extends BaseEntity & WithAttachments> void doDeleteAttachment(E parent, Collection<E> parents, AttachmentEntity attachment) {
-        parent.getAttachments().remove(attachment);
-        parents.remove(parent);
-        attachment.setDeleted(false);
     }
 
     private <E extends BaseEntity> void ensureCorrectParent(AttachmentEntity attachment, Collection<E> parents, E expected) {

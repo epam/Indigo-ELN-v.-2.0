@@ -7,7 +7,7 @@ import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.eln.api.ELNInternalClient;
 import com.epam.indigoeln.eln.client.*;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.eln.test.LazyLoadStatistics;
+import com.epam.indigoeln.eln.test.HibernateLazyLoadStatisticsExtension;
 import com.epam.indigoeln.reaction.util.ExperimentObject;
 import com.epam.indigoeln.reports.api.ReportsClient;
 import com.epam.indigoeln.signature.api.SignatureAdminClient;
@@ -23,10 +23,8 @@ import lombok.SneakyThrows;
 import org.apache.http.HttpStatus;
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
 import org.eclipse.microprofile.config.ConfigProvider;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -36,6 +34,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
+@ExtendWith(HibernateLazyLoadStatisticsExtension.class)
 public abstract class ELNBaseTest extends BaseTest {
 
     public static final RecursiveComparisonConfiguration COMPARE_WITHOUT_MODIFIED_AT = RecursiveComparisonConfiguration.builder()
@@ -106,22 +105,6 @@ public abstract class ELNBaseTest extends BaseTest {
     protected UUID lisaUserID;
     protected UUID maggieUserID;
     protected UUID emptyTemplateID;
-
-    @BeforeEach
-    void clearLazyLoadStatistics() {
-        if (!integrationTest) {
-            LazyLoadStatistics.clear();
-        }
-    }
-
-    @AfterEach
-    void reportLazyLoadStatistics(TestInfo testInfo) {
-        if (!integrationTest) {
-            LazyLoadStatistics.reportIfAny("%s#%s".formatted(
-                    testInfo.getTestClass().map(Class::getSimpleName).orElse("?"),
-                    testInfo.getDisplayName()));
-        }
-    }
 
     @BeforeAll
     void setupAllBase() {

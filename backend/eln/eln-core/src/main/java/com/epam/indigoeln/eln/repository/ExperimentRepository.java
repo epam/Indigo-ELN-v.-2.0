@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.repository;
 
+import com.epam.indigoeln.common.exception.EntityNotFoundException;
 import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
@@ -18,7 +19,6 @@ import com.google.common.base.MoreObjects;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.persistence.LockModeType;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.TypedQuery;
 import lombok.extern.slf4j.Slf4j;
@@ -89,14 +89,25 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
         return map(page, experimentMapper::entityToDTO);
     }
 
-    public ExperimentEntity loadAndLock(UUID id) {
-        return doLoadAndLock(id, LockModeType.PESSIMISTIC_WRITE, null);
+    public void lock(UUID id) {
+        // See ProjectRepository.lock for the reasoning
+        List<?> locked = em.createNativeQuery("select id from Experiment where id = ?1 for no key update")
+                .setParameter(1, id)
+                .getResultList();
+        if (locked.isEmpty()) {
+            throw new EntityNotFoundException(entityType, id);
+        }
     }
 
     public ExperimentEntity load(UUID id) {
         ExperimentEntity experiment = doLoad(id, em.getEntityGraph("Experiment.details"));
         aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
         return experiment;
+    }
+
+    public ExperimentEntity loadAndLock(UUID id) {
+        lock(id);
+        return load(id);
     }
 
     public void markExperiment(UUID experimentId, UserEntity user, boolean mark) {
@@ -121,11 +132,19 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
     }
 
     public List<ExperimentEntity> findByProjectWithACLEntities(ProjectEntity project) {
-        return doFind(new Conditions().add("project=?", project), null, null, em.getEntityGraph("Experiment.withACL"));
+        //noinspection unchecked
+        List<UUID> ids = em.createNativeQuery("select id from Experiment where project_id = ?1 for no key update", UUID.class)
+                .setParameter(1, project.getId())
+                .getResultList();
+        return doFindByIDs(ids, em.getEntityGraph("Experiment.withACL"));
     }
 
     public List<ExperimentEntity> findByNotebookWithACLEntities(NotebookEntity notebook) {
-        return doFind(new Conditions().add("notebook=?", notebook), null, null, em.getEntityGraph("Experiment.withACL"));
+        //noinspection unchecked
+        List<UUID> ids = em.createNativeQuery("select id from Experiment where notebook_id = ?1 for no key update", UUID.class)
+                .setParameter(1, notebook.getId())
+                .getResultList();
+        return doFindByIDs(ids, em.getEntityGraph("Experiment.withACL"));
     }
 
     public boolean hasAccessibleExperiments(NotebookEntity notebook) {
@@ -138,6 +157,12 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
                 .setParameter(1, notebook.getId())
                 .getResultList();
         return found.isEmpty() || found.getFirst() == null ? null : found.getFirst();
+    }
+
+    public UUID getProjectID(UUID experimentID) {
+        return em.createQuery("select project.id from Experiment where id = ?1", UUID.class)
+                .setParameter(1, experimentID)
+                .getSingleResult();
     }
 
     public void persistRevision(ExperimentRevisionEntity revision) {

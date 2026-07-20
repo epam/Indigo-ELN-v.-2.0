@@ -44,7 +44,8 @@ import java.util.*;
                 @NamedAttributeNode("modifiedBy"),
                 @NamedAttributeNode("fullACL"),
                 @NamedAttributeNode("experimentCount"),
-                @NamedAttributeNode("currentAccessOrNull")
+                @NamedAttributeNode("currentAccessOrNull"),
+                @NamedAttributeNode("attachments")
         }
 )
 @NamedEntityGraph(

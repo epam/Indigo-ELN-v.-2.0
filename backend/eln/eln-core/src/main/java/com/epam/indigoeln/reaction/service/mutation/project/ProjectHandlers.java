@@ -112,7 +112,6 @@ class EditProjectAccessHandler extends AbstractProjectMutationHandler<ProjectMut
         String summary = entityMutationHelper.formatEditAccessSummary(mutation.edits());
         projectRepository.lockProject(project);
         aclService.updateProjectACL(project, mutation.edits());
-        // !!! create revisions for notebook/experiment, if they are affected
         return summary;
     }
 }

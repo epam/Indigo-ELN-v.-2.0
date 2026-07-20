@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.repository;
 
+import com.epam.indigoeln.common.exception.EntityNotFoundException;
 import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
@@ -73,14 +74,33 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
         return map(page, notebookMapper::entityToDTO);
     }
 
-    public NotebookEntity loadDetails(UUID id) {
+    public NotebookEntity load(UUID id) {
         NotebookEntity notebook = doLoad(id, em.getEntityGraph("Notebook.details"));
         aclService.ensureAccess(notebook, ApplicationPermission.VIEW_NOTEBOOKS);
         return notebook;
     }
 
+    public void lock(UUID id) {
+        // See ProjectRepository.lock for the reasoning
+        List<?> locked = em.createNativeQuery("select id from Notebook where id = ?1 for no key update")
+                .setParameter(1, id)
+                .getResultList();
+        if (locked.isEmpty()) {
+            throw new EntityNotFoundException(entityType, id);
+        }
+    }
+
+    public NotebookEntity loadAndLock(UUID id) {
+        lock(id);
+        return load(id);
+    }
+
     public List<NotebookEntity> findByProjectWithACLEntities(ProjectEntity project) {
-        return doFind(new Conditions().add("project=?", project), null, null, em.getEntityGraph("Notebook.withACL"));
+        //noinspection unchecked
+        List<UUID> ids = em.createNativeQuery("select id from Notebook where project_id = ?1 for no key update", UUID.class)
+                .setParameter(1, project.getId())
+                .getResultList();
+        return doFindByIDs(ids, em.getEntityGraph("Notebook.withACL"));
     }
 
     public boolean hasAccessibleNotebooks(ProjectEntity project) {
@@ -89,6 +109,12 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
 
     public boolean existsByName(String name) {
         return doFindOne(new Conditions().add("name=?", name)) != null;
+    }
+
+    public UUID getProjectID(UUID notebookID) {
+        return em.createQuery("select project.id from Notebook where id = ?1", UUID.class)
+                .setParameter(1, notebookID)
+                .getSingleResult();
     }
 
     public void persistRevision(NotebookRevisionEntity revision) {
