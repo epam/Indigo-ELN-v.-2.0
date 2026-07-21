@@ -77,7 +77,7 @@ import java.util.*;
         }
 )
 @DynamicUpdate
-public class ExperimentEntity extends BaseEntity implements WithAttachments, WithACL<ExperimentACLEntity>, WithRevision {
+public class ExperimentEntity extends BaseEntity implements WithAttachments<ExperimentAttachment>, WithACL<ExperimentACLEntity>, WithRevision {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -182,7 +182,7 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @Nullable
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "signature_attachment_id")
-    private AttachmentEntity signatureAttachment;
+    private ExperimentAttachment signatureAttachment;
 
     @NotNull
     @OneToMany(mappedBy = "experiment", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -190,9 +190,9 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     private Map<UserEntity, ExperimentACLEntity> aclEntities = new HashMap<>(0);
 
     @NotNull
-    @OneToMany(mappedBy = "experiment")
+    @OneToMany(mappedBy = "parent")
     @OrderBy("createdAt")
-    private List<AttachmentEntity> attachments = new ArrayList<>(0);
+    private List<ExperimentAttachment> attachments = new ArrayList<>(0);
 
     @NotNull
     @ElementCollection

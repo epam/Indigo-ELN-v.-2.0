@@ -56,7 +56,7 @@ import java.util.*;
         }
 )
 @DynamicUpdate
-public class NotebookEntity extends BaseEntity implements WithAttachments, WithACL<NotebookACLEntity>, WithRevision {
+public class NotebookEntity extends BaseEntity implements WithAttachments<NotebookAttachment>, WithACL<NotebookACLEntity>, WithRevision {
 
     @NotNull
     @ManyToOne
@@ -100,9 +100,9 @@ public class NotebookEntity extends BaseEntity implements WithAttachments, WithA
     private Map<UserEntity, NotebookACLEntity> aclEntities = new HashMap<>(0);
 
     @NotNull
-    @OneToMany(mappedBy = "notebook")
+    @OneToMany(mappedBy = "parent")
     @OrderBy("createdAt")
-    private List<AttachmentEntity> attachments = new ArrayList<>(0);
+    private List<NotebookAttachment> attachments = new ArrayList<>(0);
 
     @Basic(fetch = FetchType.LAZY)
     @Column(insertable = false, updatable = false)

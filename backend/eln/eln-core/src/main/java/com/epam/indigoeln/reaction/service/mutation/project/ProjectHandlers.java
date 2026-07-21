@@ -1,9 +1,9 @@
 package com.epam.indigoeln.reaction.service.mutation.project;
 
-import com.epam.indigoeln.eln.entity.AttachmentEntity;
+import com.epam.indigoeln.eln.entity.ProjectAttachment;
 import com.epam.indigoeln.eln.entity.ProjectEntity;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
-import com.epam.indigoeln.eln.repository.AttachmentRepository;
+import com.epam.indigoeln.eln.repository.ProjectAttachmentRepository;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.AttachmentService;
@@ -110,14 +110,14 @@ class EditProjectAccessHandler extends AbstractProjectMutationHandler<ProjectMut
 class CreateProjectAttachmentHandler extends AbstractProjectMutationHandler<ProjectMutation.CreateProjectAttachment> {
 
     @Inject
-    AttachmentRepository attachmentRepository;
+    ProjectAttachmentRepository attachmentRepository;
     @Inject
     AttachmentService attachmentService;
 
     @Override
     public String doHandle(ProjectEntity project, ProjectMutation.CreateProjectAttachment mutation, ProjectMutationContext context, ProjectSnapshot snapshotBefore) {
-        AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
-        attachmentService.doAddProjectAttachment(project, attachment);
+        ProjectAttachment attachment = attachmentRepository.getReference(mutation.attachmentID());
+        attachmentService.doAddAttachment(project, attachment);
         return entityMutationHelper.formatCreateAttachmentSummary(attachment);
     }
 }
@@ -127,13 +127,13 @@ class CreateProjectAttachmentHandler extends AbstractProjectMutationHandler<Proj
 class DeleteProjectAttachmentHandler extends AbstractProjectMutationHandler<ProjectMutation.DeleteProjectAttachment> {
 
     @Inject
-    AttachmentRepository attachmentRepository;
+    ProjectAttachmentRepository attachmentRepository;
 
     @Override
     public String doHandle(ProjectEntity project, ProjectMutation.DeleteProjectAttachment mutation, ProjectMutationContext context, ProjectSnapshot snapshotBefore) {
-        AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
+        ProjectAttachment attachment = attachmentRepository.getReference(mutation.attachmentID());
         project.getAttachments().remove(attachment);
-        attachment.setProject(null);
+        attachment.setParent(null);
         attachment.setDeleted(true);
         return "Deleted attachment: " + attachment.getName();
     }

@@ -1,10 +1,10 @@
 package com.epam.indigoeln.reaction.service.mutation.experiment;
 
 import com.epam.indigoeln.common.model.DocumentStatus;
-import com.epam.indigoeln.eln.entity.AttachmentEntity;
+import com.epam.indigoeln.eln.entity.ExperimentAttachment;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
-import com.epam.indigoeln.eln.repository.AttachmentRepository;
+import com.epam.indigoeln.eln.repository.ExperimentAttachmentRepository;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.ExperimentService;
@@ -137,7 +137,7 @@ class SubmitExperimentHandler extends ExperimentWorkflowMutationHandlerBase<Expe
     public String doHandle(ExperimentEntity experiment, ExperimentMutation.SubmitExperiment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         experiment.setStatus(SUBMITTED);
         ExperimentService.ExperimentReportContent report = experimentService.printReport(experiment);
-        AttachmentEntity attachment = attachmentService.createExperimentAttachment(experiment, report.filename(), report.content(), false);
+        ExperimentAttachment attachment = attachmentService.createExperimentAttachment(experiment, report.filename(), report.content(), false);
         String documentName = experiment.getName() + (experiment.getVersion() != null ? ", version " + experiment.getVersion() : "");
         DocumentDTO document = useTempFile(attachment.getName(), attachment.getContent(), file -> {
             return signatureClient.uploadDocumentClient(documentName, mutation.signatureTemplateID(), file);
@@ -156,7 +156,7 @@ class SignatureUpdatedHandler extends ExperimentWorkflowMutationHandlerBase<Expe
     @Inject
     AttachmentService attachmentService;
     @Inject
-    AttachmentRepository attachmentRepository;
+    ExperimentAttachmentRepository attachmentRepository;
 
     @Override
     protected void doValidateAccess(ExperimentEntity entity) {
@@ -171,8 +171,8 @@ class SignatureUpdatedHandler extends ExperimentWorkflowMutationHandlerBase<Expe
     @Override
     public String doHandle(ExperimentEntity experiment, ExperimentMutation.SignatureUpdated mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         updateStatusFromSignature(experiment, mutation.documentStatus());
-        AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
-        attachmentService.doAddExperimentAttachment(experiment, attachment);
+        ExperimentAttachment attachment = attachmentRepository.getReference(mutation.attachmentID());
+        attachmentService.doAddAttachment(experiment, attachment);
         return "Signatures update: " + mutation.message();
     }
 }

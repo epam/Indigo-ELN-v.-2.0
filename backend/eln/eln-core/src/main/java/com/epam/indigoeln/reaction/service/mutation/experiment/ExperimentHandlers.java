@@ -258,15 +258,17 @@ class EditExperimentAccessHandler extends AbstractExperimentMutationHandler<Expe
 class CreateExperimentAttachmentHandler extends ExperimentEditMutationHandlerBase<ExperimentMutation.CreateExperimentAttachment> {
 
     @Inject
-    AttachmentRepository attachmentRepository;
+    ExperimentAttachmentRepository attachmentRepository;
     @Inject
     AttachmentService attachmentService;
+    @Inject
+    EntityMutationHelper entityMutationHelper;
 
     @Override
     public String doHandle(ExperimentEntity experiment, ExperimentMutation.CreateExperimentAttachment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
-        AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
-        attachmentService.doAddExperimentAttachment(experiment, attachment);
-        return "Created attachment: %s, %d bytes".formatted(attachment.getName(), attachment.getSize());
+        ExperimentAttachment attachment = attachmentRepository.getReference(mutation.attachmentID());
+        attachmentService.doAddAttachment(experiment, attachment);
+        return entityMutationHelper.formatCreateAttachmentSummary(attachment);
     }
 
     @Override
@@ -276,7 +278,7 @@ class CreateExperimentAttachmentHandler extends ExperimentEditMutationHandlerBas
 
     @Override
     public void doRestoreStateAfterUndo(ExperimentEntity experiment, ExperimentSnapshot snapshot, ExperimentMutation.CreateExperimentAttachment mutation) {
-        restoreAttachments(experiment, AttachmentEntity::setExperiment, attachmentRepository.getReferences(checkNotNull(snapshot.getAttachments())));
+        restoreAttachments(experiment, attachmentRepository.getReferences(checkNotNull(snapshot.getAttachments())));
     }
 }
 
@@ -285,13 +287,13 @@ class CreateExperimentAttachmentHandler extends ExperimentEditMutationHandlerBas
 class DeleteExperimentAttachmentHandler extends ExperimentEditMutationHandlerBase<ExperimentMutation.DeleteExperimentAttachment> {
 
     @Inject
-    AttachmentRepository attachmentRepository;
+    ExperimentAttachmentRepository attachmentRepository;
 
     @Override
     public String doHandle(ExperimentEntity experiment, ExperimentMutation.DeleteExperimentAttachment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
-        AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
+        ExperimentAttachment attachment = attachmentRepository.getReference(mutation.attachmentID());
         experiment.getAttachments().remove(attachment);
-        attachment.setExperiment(null);
+        attachment.setParent(null);
         attachment.setDeleted(true);
         return "Deleted attachment: " + attachment.getName();
     }
@@ -303,7 +305,7 @@ class DeleteExperimentAttachmentHandler extends ExperimentEditMutationHandlerBas
 
     @Override
     public void doRestoreStateAfterUndo(ExperimentEntity experiment, ExperimentSnapshot snapshot, ExperimentMutation.DeleteExperimentAttachment mutation) {
-        restoreAttachments(experiment, AttachmentEntity::setExperiment, attachmentRepository.getReferences(checkNotNull(snapshot.getAttachments())));
+        restoreAttachments(experiment, attachmentRepository.getReferences(checkNotNull(snapshot.getAttachments())));
     }
 }
 

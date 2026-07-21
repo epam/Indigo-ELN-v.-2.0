@@ -2,7 +2,7 @@ package com.epam.indigoeln.eln.entity;
 
 import java.util.List;
 
-public interface WithAttachments {
+public interface WithAttachments<A extends AbstractAttachment<?>> {
 
-    List<AttachmentEntity> getAttachments();
+    List<A> getAttachments();
 }

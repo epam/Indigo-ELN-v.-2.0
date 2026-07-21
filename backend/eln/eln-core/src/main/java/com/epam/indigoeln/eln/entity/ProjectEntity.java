@@ -59,7 +59,7 @@ import java.util.*;
         }
 )
 @DynamicUpdate
-public class ProjectEntity extends BaseEntity implements WithAttachments, WithACL<ProjectACLEntity>, WithRevision {
+public class ProjectEntity extends BaseEntity implements WithAttachments<ProjectAttachment>, WithACL<ProjectACLEntity>, WithRevision {
 
     @NotEmpty(message = "Project Name is required")
     @Size(max = 256, message = "Project name must be at most 256 characters")
@@ -113,9 +113,9 @@ public class ProjectEntity extends BaseEntity implements WithAttachments, WithAC
     private Set<ExperimentEntity> experiments = new HashSet<>(0);
 
     @NotNull
-    @OneToMany(mappedBy = "project")
+    @OneToMany(mappedBy = "parent")
     @OrderBy("createdAt")
-    private List<AttachmentEntity> attachments = new ArrayList<>(0);
+    private List<ProjectAttachment> attachments = new ArrayList<>(0);
 
     @Basic(fetch = FetchType.LAZY)
     @Column(insertable = false, updatable = false)

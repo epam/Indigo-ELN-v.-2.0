@@ -153,7 +153,9 @@ public abstract class ELNBaseTest extends BaseTest {
             connection.setAutoCommit(false);
             try (Statement statement = connection.createStatement()) {
                 // experiments, notebooks, projects
-                statement.executeUpdate("delete from Attachment");
+                statement.executeUpdate("delete from Experiment_Attachment");
+                statement.executeUpdate("delete from Notebook_Attachment");
+                statement.executeUpdate("delete from Project_Attachment");
                 statement.executeUpdate("delete from Experiment_Revision");
                 statement.executeUpdate("delete from Experiment");
                 statement.executeUpdate("delete from Notebook_Revision");

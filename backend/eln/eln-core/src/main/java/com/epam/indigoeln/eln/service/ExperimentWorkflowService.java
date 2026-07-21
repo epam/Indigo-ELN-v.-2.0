@@ -2,7 +2,7 @@ package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.model.DocumentStatus;
 import com.epam.indigoeln.eln.config.DataAccess;
-import com.epam.indigoeln.eln.entity.AttachmentEntity;
+import com.epam.indigoeln.eln.entity.ExperimentAttachment;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
 import com.epam.indigoeln.eln.model.SignatureTemplateRef;
@@ -88,9 +88,9 @@ public class ExperimentWorkflowService {
     @SneakyThrows
     public void signatureUpdated(UUID documentId, String message, DocumentStatus updatedStatus, Path path) {
         ExperimentEntity experiment = experimentRepository.findBySignatureNumber(documentId.toString());
-        AttachmentEntity submittedAttachment = checkNotNull(experiment.getSignatureAttachment());
+        ExperimentAttachment submittedAttachment = checkNotNull(experiment.getSignatureAttachment());
         byte[] bytes = Files.readAllBytes(path);
-        AttachmentEntity attachment = attachmentService.createExperimentAttachment(experiment, submittedAttachment.getName(), bytes, null);
+        ExperimentAttachment attachment = attachmentService.createExperimentAttachment(experiment, submittedAttachment.getName(), bytes, null);
         ExperimentMutation mutation = new ExperimentMutation.SignatureUpdated(message, updatedStatus, attachment.getId());
         experimentModelService.applyMutation(experiment, mutation);
     }

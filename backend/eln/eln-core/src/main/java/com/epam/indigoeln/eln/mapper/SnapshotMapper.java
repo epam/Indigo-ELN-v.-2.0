@@ -31,9 +31,9 @@ public abstract class SnapshotMapper extends AbstractMapper {
     @Mapping(target = "acl", source = "fullACL")
     public abstract NotebookSnapshot createSnapshot(NotebookEntity entity);
 
-    protected abstract AttachmentDTO convertAttachment(AttachmentEntity entity);
+    protected abstract AttachmentDTO convertAttachment(AbstractAttachment<?> entity);
 
-    protected abstract Set<AttachmentDTO> convertAttachments(List<AttachmentEntity> attachments);
+    protected abstract Set<AttachmentDTO> convertAttachments(List<? extends AbstractAttachment<?>> attachments);
 
     protected abstract Set<ACLEntryDTO> convertACLs(ACLEntry[] aclEntries);
 
