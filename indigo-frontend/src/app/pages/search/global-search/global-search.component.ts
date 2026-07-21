@@ -1,44 +1,45 @@
 import { FormDialogComponent } from '@/core/components/common/form-dialog/form-dialog.component';
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, DestroyRef, inject, OnInit, ViewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
-import { MatInputModule } from '@angular/material/input';
-import { InputComponent } from '@core/components/common/input/input.component';
-import { MatRadioButton, MatRadioGroup } from '@angular/material/radio';
-import {
-  GlobalSearchEntityType,
-  GlobalSearchRequest,
-  NumericSearch,
-  StructuralSearchType,
-} from '@core/types/entities/experiments/search.i';
+import { MatChipRow, MatChipSet } from '@angular/material/chips';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDivider } from '@angular/material/divider';
 import {
   MatExpansionPanel,
   MatExpansionPanelDescription,
   MatExpansionPanelHeader,
   MatExpansionPanelTitle,
 } from '@angular/material/expansion';
-import { BuiltInDictionary, DictionaryItemRef } from '@core/types/entities/dictionary.i';
+import { MatInputModule } from '@angular/material/input';
+import { MatRadioButton, MatRadioGroup } from '@angular/material/radio';
+import { RouterLink } from '@angular/router';
+import { DictionarySelectComponent } from '@core/components/common/dictionary-select/dictionary-select.component';
+import { EnumSelectComponent } from '@core/components/common/enum-select/enum-select.component';
+import { ApiImageComponent } from '@core/components/common/image/api-image.component';
+import { InputComponent } from '@core/components/common/input/input.component';
 import { NumericSearchComponent } from '@core/components/common/numeric-search/numeric-search.component';
-import { MatChipRow, MatChipSet } from '@angular/material/chips';
-import { ApiService } from '@core/services/api.service';
-import { InfiniteLoaderComponent } from '@core/components/util/infinite-loader/infinite-loader.component';
-import { GlobalSearchLoader } from '@core/components/util/infinite-scroll-search';
+import { UserSelectComponent } from '@core/components/common/user-multiselect/user-select.component';
 import {
   StructureEditorModalComponent,
   StructureEditorModalResult,
 } from '@core/components/experiment/structure-editor-modal/structure-editor-modal.component';
+import { InfiniteLoaderComponent } from '@core/components/util/infinite-loader/infinite-loader.component';
+import { GlobalSearchLoader } from '@core/components/util/infinite-scroll-search';
+import { ExperimentStatus, ExperimentStatusNames } from '@core/enums/experiment-status.enum';
+import { ApiService } from '@core/services/api.service';
+import { UserService } from '@core/services/user.service';
+import { BuiltInDictionary, DictionaryItemRef } from '@core/types/entities/dictionary.i';
 import { ReactionRole, ReactionRoleNames } from '@core/types/entities/experiments/experiment-shared.i';
 import { ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
+import {
+  GlobalSearchEntityType,
+  GlobalSearchRequest,
+  NumericSearch,
+  StructuralSearchType,
+} from '@core/types/entities/experiments/search.i';
 import { UserRef } from '@core/types/entities/user.i';
-import { UserSelectComponent } from '@core/components/common/user-multiselect/user-select.component';
-import { DictionarySelectComponent } from '@core/components/common/dictionary-select/dictionary-select.component';
-import { ExperimentStatus, ExperimentStatusNames } from '@core/enums/experiment-status.enum';
-import { MatDivider } from '@angular/material/divider';
-import { ApiImageComponent } from '@core/components/common/image/api-image.component';
-import { EnumSelectComponent } from '@core/components/common/enum-select/enum-select.component';
-import { UserService } from '@core/services/user.service';
-import { first } from 'rxjs';
 import {
   dictionarySearchSummary,
   enumSearchSummary,
@@ -46,7 +47,7 @@ import {
   numericSearchSummary,
   setEnabled,
 } from '@core/utils/search.util';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { first } from 'rxjs';
 
 export interface GlobalSearchDialogData {
   reactionAnchor: ReactionAnchor;
@@ -78,6 +79,7 @@ export interface GlobalSearchDialogData {
     MatDivider,
     ApiImageComponent,
     EnumSelectComponent,
+    RouterLink,
   ],
   templateUrl: './global-search.component.html',
 })
@@ -92,6 +94,7 @@ export class GlobalSearchComponent implements OnInit, AfterViewInit {
   dialog = inject(MatDialog);
   userService = inject(UserService);
   destroyRef = inject(DestroyRef);
+  dialogRef = inject(MatDialogRef<GlobalSearchComponent>);
 
   title = 'Search';
 
@@ -216,6 +219,26 @@ export class GlobalSearchComponent implements OnInit, AfterViewInit {
     this.form.get('isReaction').setValue(null);
     this.form.get('structure').setValue(null);
     this.structureImage = null;
+  }
+
+  closeDialog(): void {
+    this.dialogRef.close();
+  }
+
+  getResultLink(result: { id: string; type: GlobalSearchEntityType }): string[] {
+    switch (result.type) {
+      case GlobalSearchEntityType.PROJECT:
+        return ['/projects', result.id];
+
+      case GlobalSearchEntityType.NOTEBOOK:
+        return ['/notebooks', result.id];
+
+      case GlobalSearchEntityType.EXPERIMENT:
+        return ['/experiments', result.id];
+
+      default:
+        return ['/'];
+    }
   }
 
   BuildInDictionary = BuiltInDictionary;
