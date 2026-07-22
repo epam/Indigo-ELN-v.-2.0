@@ -129,7 +129,8 @@ public class ExperimentUndoTest extends MutationsTestBase {
 
     @Test
     void testAttachments() {
-        List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.id(), ClientUtil.createFileUpload("attachment.txt", "content".getBytes()));
+        experimentClient.createExperimentAttachment(experiment.id(), ClientUtil.createFileUpload("attachment.txt", "content".getBytes()));
+        List<AttachmentDTO> attachments = experimentClient.completeExperimentAttachment(experiment.id());
 
         experiment.mutate(new ExperimentMutation.Undo());
         assertThat(experiment.experiment().getAttachments()).isEmpty();

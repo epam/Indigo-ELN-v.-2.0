@@ -80,6 +80,7 @@ public abstract class ELNBaseTest extends BaseTest {
 
     protected ReportsClient reportsClient;
     protected SignatureClient signatureClient;
+    protected UploadClient uploadClient;
 
     private final AtomicInteger lastUsedNotebookNumber = new AtomicInteger();
 
@@ -105,6 +106,7 @@ public abstract class ELNBaseTest extends BaseTest {
         globalSearchClient = buildClient(GlobalSearchClient.class);
         elnInternalClient = buildClient(ELNInternalClient.class);
         reportsClient = buildClient(ReportsClient.class);
+        uploadClient = buildClient(UploadClient.class);
         signatureClient = buildClient(SignatureClient.class);
         if (integrationTest) {
             SignatureAdminClient signatureAdminClient;

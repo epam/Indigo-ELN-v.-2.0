@@ -6,4 +6,6 @@ public interface FileStorage {
     void put(String key, byte[] bytes);
 
     byte[] get(@NotEmpty String name);
+
+    String createPresignedUrl(String keyName);
 }

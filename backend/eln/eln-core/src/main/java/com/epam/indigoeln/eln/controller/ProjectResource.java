@@ -62,6 +62,11 @@ public class ProjectResource implements ProjectAPI {
     }
 
     @Override
+    public List<AttachmentDTO> completeProjectAttachment(UUID projectId) {
+        return attachmentService.completeProjectAttachment(projectId);
+    }
+
+    @Override
     public Response downloadProjectAttachment(UUID projectId, UUID attachmentId) {
         return attachmentService.downloadProjectAttachment(projectId, attachmentId);
     }

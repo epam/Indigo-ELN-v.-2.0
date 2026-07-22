@@ -29,6 +29,7 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import static com.epam.indigoeln.common.util.ModelUtil.useTempFile;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.SUBMIT_EXPERIMENTS;
@@ -96,7 +97,7 @@ class SubmitExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
     public String doHandle(ExperimentEntity experiment, ExperimentMutation.SubmitExperiment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         helper.transition(experiment, SUBMITTED, SUBMIT_EXPERIMENTS, COMPLETED, REJECTED);
         ExperimentService.ExperimentReportContent report = experimentService.printReport(experiment);
-        AttachmentEntity attachment = attachmentService.createExperimentAttachment(experiment, report.filename(), report.content(), false);
+        AttachmentEntity attachment = Objects.requireNonNull(attachmentService.createExperimentAttachment(experiment, report.filename(), report.content(), false).a());
         String documentName = experiment.getName() + (experiment.getVersion() != null ? ", version " + experiment.getVersion() : "");
         DocumentDTO document = useTempFile(attachment.getName(), attachment.getContent(), file -> {
             return signatureClient.uploadDocumentClient(documentName, mutation.signatureTemplateID(), file);

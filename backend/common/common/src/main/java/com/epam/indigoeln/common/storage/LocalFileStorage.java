@@ -36,4 +36,9 @@ public class LocalFileStorage implements FileStorage {
             throw new UncheckedIOException(e);
         }
     }
+
+    @Override
+    public String createPresignedUrl(String keyName) {
+        return Path.of(root).resolve(keyName).toUri().toString();
+    }
 }

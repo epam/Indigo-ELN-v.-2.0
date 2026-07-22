@@ -57,7 +57,11 @@ public interface ExperimentAPI extends BaseAPI {
     @POST
     @Path("/experiments/{experimentId}/attachments")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    List<AttachmentDTO> createExperimentAttachment(@PathParam("experimentId") UUID experimentId, UploadForm form);
+    String createExperimentAttachment(@PathParam("experimentId") UUID experimentId, UploadForm form);
+
+    @POST
+    @Path("/experiments/{experimentId}/attachments/complete")
+    List<AttachmentDTO> completeExperimentAttachment(@PathParam("experimentId") UUID experimentId);
 
     @GET
     @Path("/experiments/{experimentId}/attachments/{attachmentId}")

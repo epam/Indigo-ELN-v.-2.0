@@ -1,6 +1,7 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.exception.EntityNotFoundException;
+import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.mapper.AttachmentMapper;
@@ -27,6 +28,7 @@ import org.jspecify.annotations.Nullable;
 import java.nio.file.Files;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ContentDispositionUtil.generateContentDisposition;
@@ -66,7 +68,9 @@ public class AttachmentService {
     public List<AttachmentDTO> createProjectAttachment(UUID projectId, String filename, byte[] content, boolean useMutation) {
         ProjectEntity project = projectRepository.get(projectId);
         aclService.ensureAccess(project, ApplicationPermission.EDIT_PROJECTS);
-        AttachmentEntity attachment = doCreateAttachment(filename, content);
+        Pair<AttachmentEntity, String> pair = doCreateAttachment(filename, content);
+        AttachmentEntity attachment = Objects.requireNonNull(pair.a());
+        String presignedUrl = Objects.requireNonNull(pair.b());
         if (useMutation) {
             projectService.applyMutation(project, new ProjectMutation.CreateProjectAttachment(attachment.getId()));
         } else {
@@ -82,7 +86,9 @@ public class AttachmentService {
     public List<AttachmentDTO> createNotebookAttachment(UUID notebookId, String filename, byte[] content, boolean useMutation) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
         aclService.ensureAccess(notebook, ApplicationPermission.EDIT_NOTEBOOKS);
-        AttachmentEntity attachment = doCreateAttachment(filename, content);
+        Pair<AttachmentEntity, String> pair = doCreateAttachment(filename, content);
+        AttachmentEntity attachment = Objects.requireNonNull(pair.a());
+        String presignedUrl = Objects.requireNonNull(pair.b());
         if (useMutation) {
             notebookService.applyMutation(notebook, new NotebookMutation.CreateNotebookAttachment(attachment.getId()));
         } else {
@@ -91,25 +97,42 @@ public class AttachmentService {
         return attachmentMapper.attachmentToDTOList(notebook.getAttachments());
     }
 
-    public List<AttachmentDTO> createExperimentAttachment(UUID experimentId, FileUpload file, @Nullable Boolean useMutation) {
+    public String createExperimentAttachment(UUID experimentId, FileUpload file, @Nullable Boolean useMutation) {
         return createExperimentAttachment(experimentId, file.fileName(), readFile(file), useMutation);
     }
 
-    public List<AttachmentDTO> createExperimentAttachment(UUID experimentId, String filename, byte[] content, @Nullable Boolean useMutation) {
+    public String createExperimentAttachment(UUID experimentId, String filename, byte[] content, @Nullable Boolean useMutation) {
         ExperimentEntity experiment = experimentRepository.getAndLock(experimentId);
-        createExperimentAttachment(experiment, filename, content, useMutation);
-        return attachmentMapper.attachmentToDTOList(experiment.getAttachments());
+        return Objects.requireNonNull(createExperimentAttachment(experiment, filename, content, useMutation).b());
+        //return attachmentMapper.attachmentToDTOList(experiment.getAttachments());
     }
 
-    public AttachmentEntity createExperimentAttachment(ExperimentEntity experiment, String filename, byte[] content, @Nullable Boolean useMutation) {
+    public Pair<AttachmentEntity, String> createExperimentAttachment(ExperimentEntity experiment, String filename, byte[] content, @Nullable Boolean useMutation) {
         aclService.ensureAccess(experiment, ApplicationPermission.EDIT_EXPERIMENTS);
-        AttachmentEntity attachment = doCreateAttachment(filename, content);
+        Pair<AttachmentEntity, String> pair = doCreateAttachment(filename, content);
+        AttachmentEntity attachment = Objects.requireNonNull(pair.a());
+        String presignedUrl = Objects.requireNonNull(pair.b());
         if (useMutation == Boolean.TRUE) {
             experimentModelService.applyMutation(experiment, new ExperimentMutation.CreateExperimentAttachment(attachment.getId()));
         } else if (useMutation == Boolean.FALSE) {
             doAddExperimentAttachment(experiment, attachment);
         }
-        return attachment;
+        return pair;
+    }
+
+    public List<AttachmentDTO> completeExperimentAttachment(UUID experimentId) {
+        ExperimentEntity experiment = experimentRepository.get(experimentId);
+        return attachmentMapper.attachmentToDTOList(experiment.getAttachments());
+    }
+
+    public List<AttachmentDTO> completeProjectAttachment(UUID projectId) {
+        ProjectEntity project = projectRepository.get(projectId);
+        return attachmentMapper.attachmentToDTOList(project.getAttachments());
+    }
+
+    public List<AttachmentDTO> completeNotebookAttachment(UUID notebookId) {
+        NotebookEntity notebook = notebookRepository.get(notebookId);
+        return attachmentMapper.attachmentToDTOList(notebook.getAttachments());
     }
 
     public void doAddProjectAttachment(ProjectEntity entity, AttachmentEntity attachment) {
@@ -135,7 +158,7 @@ public class AttachmentService {
         }
     }
 
-    private AttachmentEntity doCreateAttachment(String filename, byte[] content) {
+    private Pair<AttachmentEntity, String> doCreateAttachment(String filename, byte[] content) {
         AttachmentEntity attachment = new AttachmentEntity();
         attachment.setName(filename);
         attachment.setSize((long) content.length);
@@ -143,8 +166,9 @@ public class AttachmentService {
         attachment.setContent(content);
 
         updateDates(attachment, userService.getCurrentUserEntity());
-        attachmentRepository.persist(attachment);
-        return attachment;
+        String presignedUrl = attachmentRepository.persistAndCreatePresignedUrl(attachment);
+        System.err.println(presignedUrl);
+        return new Pair<>(attachment, presignedUrl);
     }
 
     public Response downloadProjectAttachment(UUID projectId, UUID attachmentId) {

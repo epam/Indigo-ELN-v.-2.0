@@ -29,16 +29,26 @@ public class AttachmentRepository extends BaseRepository<AttachmentEntity> {
         return loadFileContent(super.get(id));
     }
 
+    public String persistAndCreatePresignedUrl(AttachmentEntity attachment) {
+        super.persist(attachment);
+        //fileStorage.put(attachment.getKey(), attachment.getContent());
+        return fileStorage.createPresignedUrl(attachment.getKey());
+    }
+
+    public void store(String stringPath, byte[] content) {
+        fileStorage.put(stringPath, content);
+    }
+
     @Override
     public void persist(AttachmentEntity attachment) {
         super.persist(attachment);
         fileStorage.put(attachment.getKey(), attachment.getContent());
     }
 
-    @Override
+    /*@Override
     public AttachmentEntity getReference(UUID id) {
         return loadFileContent(super.getReference(id));
-    }
+    }*/
 
     public AttachmentEntity load(UUID id) {
         AttachmentEntity attachment = doLoadDetails(

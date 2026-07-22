@@ -20,6 +20,7 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -90,8 +91,8 @@ public class ExperimentWorkflowService {
         ExperimentEntity experiment = experimentRepository.findBySignatureNumber(documentId.toString());
         AttachmentEntity submittedAttachment = checkNotNull(experiment.getSignatureAttachment());
         byte[] bytes = Files.readAllBytes(path);
-        AttachmentEntity attachment = attachmentService.createExperimentAttachment(experiment, submittedAttachment.getName(), bytes, null);
-        ExperimentMutation mutation = new ExperimentMutation.SignatureUpdated(message, updatedStatus, attachment.getId());
+        AttachmentEntity attachment = attachmentService.createExperimentAttachment(experiment, submittedAttachment.getName(), bytes, null).a();
+        ExperimentMutation mutation = new ExperimentMutation.SignatureUpdated(message, updatedStatus, Objects.requireNonNull(attachment).getId());
         experimentModelService.applyMutation(experiment, mutation);
     }
 }
