@@ -294,7 +294,7 @@ class PermissionsTest extends ELNBaseTest {
     @Test
     void testListExperiments() {
         iterateRowsParallel(row -> {
-            Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(row.notebookId, null, null, null, PAGING);
+            Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(row.notebookId, null, null, null, null, PAGING);
             if (row.effectiveExperiment != NONE) {
                 assertThat(experiments.getItems()).extracting(ExperimentDTO::getName).containsExactly(row.experimentDetails.getName());
             } else {
@@ -367,7 +367,7 @@ class PermissionsTest extends ELNBaseTest {
                     .isSuccessfulWithResult(p -> assertThat(p.getItems()).hasSize(1));
             assertThatClientCall(() -> notebookClient.getNotebook(row.notebookId))
                     .isSuccessful();
-            assertThatClientCall(() -> experimentClient.getNotebookExperiments(row.notebookId, null, null, null, PAGING))
+            assertThatClientCall(() -> experimentClient.getNotebookExperiments(row.notebookId, null, null, null, null, PAGING))
                     .isSuccessfulWithResult(p -> assertThat(p.getItems()).hasSize(1));
             assertThatClientCall(() -> experimentClient.getExperiment(row.experimentId))
                     .isSuccessful();
@@ -559,7 +559,7 @@ class PermissionsTest extends ELNBaseTest {
         void testImplicitViewDoesntListSiblingEntities() {
             Page<NotebookDTO> notebooks = notebookClient.getProjectNotebooks(project.getId(), null, null, null, PAGING);
             assertThat(notebooks.getItems()).extracting(NotebookDTO::getName).containsOnly(secondNotebookName);
-            Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(notebook2.getId(), null, null, null, PAGING);
+            Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(notebook2.getId(), null, null, null, null, PAGING);
             assertThat(experiments.getItems()).extracting(ExperimentDTO::getName).containsOnly(experiment2.getName());
         }
 
@@ -589,7 +589,7 @@ class PermissionsTest extends ELNBaseTest {
             experimentClient.updateExperimentAccess(experiment2.getId(), AccessForm.of(BART_USERNAME, EDIT));
             acl = experimentClient.updateExperimentAccess(experiment2.getId(), AccessForm.of(LISA_USERNAME, EDIT));
             assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, BART_DISPLAY_NAME, EDIT, false, LISA_DISPLAY_NAME, EDIT, false, WILLOW_DISPLAY_NAME, EDIT, false);
-            ExperimentDTO experimentDTO = experimentClient.getNotebookExperiments(notebook2.getId(), null, null, null, PAGING).getItems().getFirst();
+            ExperimentDTO experimentDTO = experimentClient.getNotebookExperiments(notebook2.getId(), null, null, null, null, PAGING).getItems().getFirst();
             assertThat(experimentDTO.getId()).isEqualTo(experiment2.getId());
             assertThatACL(experimentDTO.getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, BART_DISPLAY_NAME, EDIT, false, LISA_DISPLAY_NAME, EDIT, false);
             assertThat(experimentDTO.getAclCount()).isEqualTo(4);

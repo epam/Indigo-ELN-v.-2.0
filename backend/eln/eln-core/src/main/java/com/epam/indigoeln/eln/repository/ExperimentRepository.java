@@ -9,10 +9,7 @@ import com.epam.indigoeln.eln.common.repository.BaseRepository;
 import com.epam.indigoeln.eln.common.util.Conditions;
 import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.mapper.ExperimentMapper;
-import com.epam.indigoeln.eln.model.ApplicationPermission;
-import com.epam.indigoeln.eln.model.ELNEntityType;
-import com.epam.indigoeln.eln.model.ExperimentDTO;
-import com.epam.indigoeln.eln.model.ExperimentRef;
+import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.UserService;
 import com.google.common.base.MoreObjects;
@@ -47,7 +44,7 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
     @Inject
     UserService userService;
 
-    public Page<ExperimentDTO> findAll(@Nullable UUID projectId, @Nullable UUID notebookId, @Nullable String search, @Nullable SortOrder sort, @Nullable UserRef createdByUser, Paging paging, boolean showAll) {
+    public Page<ExperimentDTO> findAll(@Nullable UUID projectId, @Nullable UUID notebookId, @Nullable String search, @Nullable List<ExperimentStatus> status, @Nullable SortOrder sort, @Nullable UserRef createdByUser, Paging paging, boolean showAll) {
         Sort panacheSort = switch (MoreObjects.firstNonNull(sort, SortOrder.LATEST)) {
             case EARLIEST -> Sort.ascending("modifiedAt");
             case LATEST -> Sort.descending("modifiedAt");
@@ -59,7 +56,10 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
                 .addIfNotNull("notebook.id=?", notebookId)
                 .addIfNotNull("createdBy.id = ?", createdByUser != null ? userService.getUserInfo(createdByUser).getId() : null);
         if (search != null) {
-            conditions.add("(name ilike ?) or full_text_search(searchVector, websearch_to_tsquery('english', ?))", '%' + search + '%', search);
+            conditions.add("((name ilike ?) or full_text_search(searchVector, websearch_to_tsquery('english', ?)))", '%' + search + '%', search);
+        }
+        if (status != null && !status.isEmpty()) {
+            conditions.add("status in ?", status);
         }
 
         return doFindWithTotals(
