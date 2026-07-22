@@ -40,6 +40,59 @@
     amplify-password-field input {
       border-right: 0;
     }
+
+    .amplify-field-group__field-wrapper {
+      position: relative;
+    }
+
+    .eln-auth-text-field-wrapper {
+      display: block;
+      position: relative;
+
+      input {
+        width: 100%;
+      }
+    }
+
+    .eln-auth-clear-button {
+      align-items: center;
+      background: transparent;
+      border: 0;
+      color: #555;
+      cursor: pointer;
+      display: flex;
+      height: 1.5rem;
+      justify-content: center;
+      padding: 0;
+      position: absolute;
+      right: 0.875rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 1.5rem;
+      z-index: 2;
+
+      img {
+        display: block;
+        height: 1rem;
+        width: 1rem;
+      }
+
+      &:hover {
+        color: #333;
+      }
+
+      &[hidden] {
+        display: none;
+      }
+    }
+
+    amplify-sign-in amplify-text-field input {
+      padding-right: 3rem;
+    }
+
+    amplify-sign-in amplify-password-field input {
+      padding-right: 3rem;
+    }
   }
 }
 
@@ -48,4 +101,23 @@
   top: 250px;
   margin-left: 3px;
   accent-color: var(--primary-500);
+}
+
+// Եթե input-ը autofill է արված, ստիպողաբար ցույց տալ կողքի "X" կոճակը
+input:-webkit-autofill ~ .eln-auth-clear-button,
+input:autofill ~ .eln-auth-clear-button {
+  display: flex !important;
+  liberty: visible !important;
+  opacity: 1 !important;
+}
+
+// Կախված քո wrapper-ի կառուցվածքից, եթե clearButton-ը հանդիսանում է sibling (եղբայրական) էլեմենտ
+.eln-auth-text-field-wrapper,
+.amplify-field-group__field-wrapper {
+  position: relative; // Համոզվիր որ wrapper-ը ունի սա
+
+  input:-webkit-autofill + .eln-auth-clear-button,
+  input:autofill + .eln-auth-clear-button {
+    display: block !important; // կամ flex՝ կախված քո սթայլերից
+  }
 }
