@@ -1,6 +1,5 @@
 // TODO try to unify with InfiniteScrollBase, but the latter seems to be tightly bound to router navigation
-import { BehaviorSubject, Observable } from 'rxjs';
-import { PaginatedResponse, PaginatedResponseBase } from '@core/types/response/paginated-response.i';
+import { ApiService } from '@core/services/api.service';
 import {
   FindSamplesRequest,
   GlobalSearchRequest,
@@ -8,7 +7,8 @@ import {
   Sample,
   SampleSearchResult,
 } from '@core/types/entities/experiments/search.i';
-import { ApiService } from '@core/services/api.service';
+import { PaginatedResponse, PaginatedResponseBase } from '@core/types/response/paginated-response.i';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 export abstract class InfiniteSearchLoader<R, T, P extends PaginatedResponseBase<T>> {
   private searchParams: R | null = null;
@@ -144,6 +144,6 @@ export class GlobalSearchLoader extends InfiniteSearchLoader<
   }
 
   protected hasNext(currentPage: PaginatedResponse<GlobalSearchResult>): boolean {
-    return currentPage.items.length !== 0 && currentPage.pageNo + 1 >= currentPage.totalPages;
+    return currentPage.items.length !== 0 && currentPage.pageNo + 1 < currentPage.totalPages;
   }
 }
