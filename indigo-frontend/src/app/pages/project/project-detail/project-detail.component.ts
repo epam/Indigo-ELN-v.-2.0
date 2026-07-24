@@ -1,5 +1,6 @@
 import { Component, effect, inject, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { Title } from '@angular/platform-browser';
 import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
 import { ProjectTabButtonComponent } from '@pages/project/project-tab-button/project-tab-button.component';
 import { ProjectService } from '@core/services/project/project.service';
@@ -15,6 +16,7 @@ export class ProjectDetailComponent implements OnChanges {
 
   projectService = inject(ProjectService);
   breadcrumbsState = inject(BreadcrumbsStateService);
+  titleService = inject(Title);
 
   private readonly breadcrumbsEffect = effect(() => {
     const project = this.projectService.project();
@@ -22,6 +24,14 @@ export class ProjectDetailComponent implements OnChanges {
       { label: 'All Projects', url: '/projects', active: false },
       { label: `Project: ${project?.name ?? ''}`, active: true },
     ]);
+  });
+
+  private readonly titleEffect = effect(() => {
+    const project = this.projectService.project();
+    if (!project) {
+      return;
+    }
+    this.titleService.setTitle(`IndigoELN - ${project.name ?? 'Project'}`);
   });
 
   ngOnChanges(changes: SimpleChanges): void {

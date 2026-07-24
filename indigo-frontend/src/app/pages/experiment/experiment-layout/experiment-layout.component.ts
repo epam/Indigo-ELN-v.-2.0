@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 import { BreadcrumbsComponent } from '@/core/components/breadcrumbs/breadcrumbs.component';
@@ -50,6 +51,7 @@ export class ExperimentLayoutComponent implements OnChanges, OnDestroy {
   @Input() experimentId!: string;
   experimentDetailService = inject(ExperimentDetailService);
   breadcrumbsState = inject(BreadcrumbsStateService);
+  titleService = inject(Title);
 
   experiment = computed<ExperimentDetail | null>(() => this.experimentDetailService.experimentDetail());
   template = computed(() => this.experimentDetailService.experimentTemplate());
@@ -83,6 +85,15 @@ export class ExperimentLayoutComponent implements OnChanges, OnDestroy {
         active: true,
       },
     ]);
+  });
+
+  private readonly titleEffect = effect(() => {
+    const experiment = this.experiment();
+    if (!experiment) {
+      return;
+    }
+
+    this.titleService.setTitle(`IndigoELN - ${experiment.name ?? 'Experiment'}`);
   });
 
   private readonly tabsEffect = effect(() => {

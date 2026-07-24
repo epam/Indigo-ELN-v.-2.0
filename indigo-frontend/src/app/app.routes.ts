@@ -34,7 +34,7 @@ export const routes: Routes = [
                 path: '',
                 loadComponent: () =>
                   import('@pages/project/project-info/project-info.component').then((c) => c.ProjectInfoComponent),
-                data: { title: 'IndigoELN - Project Overview' },
+                data: { title: 'IndigoELN - Project' },
               },
               {
                 path: 'notebooks',
@@ -58,7 +58,7 @@ export const routes: Routes = [
             path: '',
             loadComponent: () =>
               import('@/app/pages/notebook/notebook-info/notebook-info.component').then((c) => c.NotebookInfoComponent),
-            data: { title: 'IndigoELN - Notebook Info' },
+            data: { title: 'IndigoELN - Notebook' },
           },
           {
             path: 'experiments',
@@ -77,7 +77,7 @@ export const routes: Routes = [
             (c) => c.DictionaryLayoutComponent,
           ),
         canActivate: [RoleGuard],
-        data: { requiredPermission: 'MANAGE_DICTIONARIES', title: 'IndigoELN - Dictionary' },
+        data: { requiredPermission: 'MANAGE_DICTIONARIES' },
       },
       {
         path: 'experiments/:experimentId',
@@ -85,13 +85,11 @@ export const routes: Routes = [
           import('@/app/pages/experiment/experiment-layout/experiment-layout.component').then(
             (c) => c.ExperimentLayoutComponent,
           ),
-        data: { title: 'IndigoELN - Experiment' },
       },
       {
         path: 'templates',
         loadComponent: () =>
           import('@pages/template/template-layout/template-layout.component').then((c) => c.TemplateLayoutComponent),
-        data: { title: 'IndigoELN - Templates' },
       },
       {
         path: 'signatures',
@@ -100,13 +98,12 @@ export const routes: Routes = [
             (c) => c.SignatureLayoutComponent,
           ),
         canActivate: [RoleGuard],
-        data: { requiredPermission: 'SIGN_EXPERIMENTS', title: 'IndigoELN - Signatures' },
+        data: { requiredPermission: 'SIGN_EXPERIMENTS' },
         children: [
           {
             path: '',
             loadComponent: () =>
               import('@pages/signature/signature-list/signature-list.component').then((c) => c.SignatureListComponent),
-            data: { title: 'IndigoELN - Signatures' },
           },
         ],
       },
