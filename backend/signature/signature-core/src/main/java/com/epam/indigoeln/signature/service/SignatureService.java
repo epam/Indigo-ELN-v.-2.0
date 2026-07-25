@@ -154,7 +154,11 @@ public class SignatureService {
         updateDocumentStatus(document);
         String message1 = message;
         return useTempFile(document.getFilename(), document.getContent(), file -> {
-            elnInternalClient.internalSignatureUpdatedClient(document.getId(), message1, document.getStatus(), file);
+            try {
+                elnInternalClient.internalSignatureUpdatedClient(document.getId(), message1, document.getStatus(), file);
+            } catch (Exception e) {
+                log.warn("Error notifying ELN on document status change", e);
+            }
             document.setLastModifiedDate(Instant.now());
             return mapper.entityToDocument(document);
         });

@@ -30,7 +30,7 @@ val testArtifacts by configurations.creating {
     extendsFrom(configurations.testRuntimeClasspath.get())
 }
 
-val testJar by tasks.registering(Jar::class) {
+val testJar = tasks.register<Jar>("testJar") {
     archiveClassifier.set("tests")
     from(sourceSets.test.get().output)
     dependsOn("jar", "testClasses")
@@ -40,7 +40,7 @@ artifacts {
     add(testArtifacts.name, testJar)
 }
 
-val copyNativeLibs by tasks.registering(Copy::class) {
+val copyNativeLibs = tasks.register<Copy>("copyNativeLibs") {
     from(configurations.runtimeClasspath.get().filter { it.name.contains("indigo") }.map { zipTree(it)})
     include("**/linux-x86_64/*.so")
     include("**/darwin-x86_64/*.dylib")

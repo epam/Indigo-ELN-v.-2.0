@@ -36,7 +36,7 @@ val testArtifacts by configurations.creating {
     extendsFrom(configurations.testRuntimeClasspath.get())
 }
 
-val testJar by tasks.registering(Jar::class) {
+val testJar = tasks.register<Jar>("testJar") {
     archiveClassifier.set("tests")
     from(sourceSets.test.get().output)
     dependsOn("jar", "testClasses")

@@ -19,7 +19,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Image
-      ImageUri: indigoeln/eln-lambda:built.integrationtests
+      ImageUri: elnlambda:built.integrationtests
       Environment:
         Variables:
           QUARKUS_PROFILE: "integration-test"
@@ -53,14 +53,14 @@ Resources:
             Method: ANY
     Metadata:
       DockerContext: ../../eln/eln-lambda/build
-      Dockerfile: ../../eln/eln-lambda/src/main/docker/Dockerfile.native.integrationtests
+      Dockerfile: ../src/main/docker/Dockerfile.native.integrationtests
       DockerTag: built.integrationtests
 
   ReportsLambda:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Image
-      ImageUri: indigoeln/reports-lambda:built
+      ImageUri: reportslambda:built.integrationtests
       Environment:
         Variables:
           QUARKUS_PROFILE: "integration-test"
@@ -74,12 +74,16 @@ Resources:
           Properties:
             Path: /internalapi/reports/{proxy+}
             Method: ANY
+    Metadata:
+      DockerContext: ../../reports/reports-lambda/build
+      Dockerfile: ../src/main/docker/Dockerfile.native.integrationtests
+      DockerTag: built.integrationtests
 
   SignatureLambda:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Image
-      ImageUri: indigoeln/signature-lambda:built
+      ImageUri: signaturelambda:built.integrationtests
       Environment:
         Variables:
           QUARKUS_PROFILE: "integration-test"
@@ -101,3 +105,7 @@ Resources:
           Properties:
             Path: /api/signature/{proxy+}
             Method: ANY
+    Metadata:
+      DockerContext: ../../signature/signature-lambda/build
+      Dockerfile: ../src/main/docker/Dockerfile.native.integrationtests
+      DockerTag: built.integrationtests

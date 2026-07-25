@@ -9,8 +9,6 @@ dependencies {
     api("io.quarkus:quarkus-smallrye-health")
 
     api(project(":common:common"))
-
-    implementation("io.quarkus:quarkus-container-image-docker")
 }
 
 group = "com.epam.indigoeln"

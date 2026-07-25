@@ -5,17 +5,14 @@ import com.lowagie.text.pdf.AcroFields;
 import com.lowagie.text.pdf.PdfPKCS7;
 import com.lowagie.text.pdf.PdfReader;
 import lombok.extern.slf4j.Slf4j;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.security.Security;
 
 @Slf4j
 public class SignatureVerifier {
 
     public void verifySignatures(byte[] documentContent) throws IOException, GeneralSecurityException {
-        Security.addProvider(new BouncyCastleProvider()); // TODO is it still needed with Quarkus?
         try (PdfReader reader = new PdfReader(documentContent)) {
             verifySignatures(reader);
         }
