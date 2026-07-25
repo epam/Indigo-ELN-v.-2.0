@@ -38,7 +38,3 @@ val testJar = tasks.register<Jar>("testJar") {
 artifacts {
     add(testArtifacts.name, testJar)
 }
-
-tasks.withType(Test::class.java) {
-    jvmArgs("-agentlib:native-image-agent=config-output-dir=./build/native-config")
-}

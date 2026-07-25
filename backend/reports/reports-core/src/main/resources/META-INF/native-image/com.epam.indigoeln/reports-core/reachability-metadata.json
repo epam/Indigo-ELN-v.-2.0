@@ -1,0 +1,58 @@
+{
+  "reflection": [
+    {
+      "type": "java.util.Calendar[]"
+    },
+    {
+      "type": "java.sql.Timestamp[]"
+    },
+    {
+      "type": "java.sql.Date[]"
+    },
+    {
+      "type": "java.sql.Time[]"
+    },
+    {
+      "type": "java.util.UUID[]"
+    },
+    {
+      "type": "java.time.LocalDate[]"
+    },
+    {
+      "type": "java.time.OffsetDateTime[]"
+    },
+    {
+      "type": "java.time.OffsetTime[]"
+    },
+    {
+      "type": "java.time.ZonedDateTime[]"
+    },
+    {
+      "type": "java.time.Duration[]"
+    },
+    {
+      "type": "java.time.MonthDay[]"
+    },
+    {
+      "type": "java.util.regex.Pattern[]"
+    },
+    {
+      "type": "java.time.Period[]"
+    },
+    {
+      "type": "java.awt.Point[]"
+    },
+    {
+      "type": "java.time.Year[]"
+    },
+    {
+      "type": "java.time.YearMonth[]"
+    },
+    {
+      "type": "java.time.ZoneId[]"
+    },
+    {
+      "type": "java.time.ZoneOffset[]"
+    }
+  ]
+}
