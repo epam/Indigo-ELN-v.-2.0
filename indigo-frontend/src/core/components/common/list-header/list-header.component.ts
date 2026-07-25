@@ -27,12 +27,12 @@ export interface SortChangeEvent {
   imports: [
     CommonModule,
     FormsModule,
-    ButtonToggleComponent,
     MatSlideToggleModule,
+    ReactiveFormsModule,
+    ButtonToggleComponent,
     ToggleComponent,
     InputComponent,
     DropdownMenuComponent,
-    ReactiveFormsModule,
   ],
 })
 export class ListHeaderComponent implements OnInit, OnChanges, OnDestroy {
