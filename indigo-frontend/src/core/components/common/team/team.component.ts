@@ -74,9 +74,6 @@ export class TeamComponent implements OnInit {
 
   private permissionService = inject(PermissionService);
 
-  // Defaults to true when no permission is configured, so consumers that don't opt in
-  // (e.g. notebooks/experiments, until their own permission tickets are implemented) keep
-  // their current behavior.
   canManage = computed(() => {
     const permission = this.requiredPermission();
     return permission == null || this.permissionService.hasPermission(permission, this.entity());
