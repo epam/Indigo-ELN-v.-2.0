@@ -28,6 +28,12 @@ import { InitialsPipe } from '../../../pipes/avatars.pipe';
 import { TextOverflowTooltipDirective } from '@/core/directives/text-overflow-tooltip.directive';
 import { UserRef } from '@/core/types/entities/user.i';
 import { SvgIconComponent } from '@core/components/common/svg-icon/svg-icon.component';
+import { MatDialog } from '@angular/material/dialog';
+import {
+  RemoveMemberConfirmationDialogComponent,
+  RemoveMemberConfirmationDialogData,
+  RemoveMemberConfirmationResult,
+} from '../remove-member-confirmation-dialog/remove-member-confirmation-dialog.component';
 
 type UserRefWithState = UserRef & { added?: boolean };
 
@@ -88,6 +94,7 @@ export class TeamComponent implements OnInit {
   aclLevelOptions = ELIGIBLE_ACL_LEVELS;
 
   private api = inject(ApiService);
+  private dialog = inject(MatDialog);
 
   @ViewChild(NgSelectComponent) ngSelectComponent!: NgSelectComponent;
 
@@ -141,6 +148,30 @@ export class TeamComponent implements OnInit {
       console.error('Invalid ACL level:', rawLevel);
       return;
     }
+
+    if (newLevel === AclLevel.NONE) {
+      const dialogData = this.buildRemoveMemberDialogData();
+
+      this.dialog
+        .open<
+          RemoveMemberConfirmationDialogComponent,
+          RemoveMemberConfirmationDialogData,
+          RemoveMemberConfirmationResult
+        >(RemoveMemberConfirmationDialogComponent, {
+          data: dialogData,
+        })
+        .afterClosed()
+        .subscribe((result) => {
+          if (!result?.confirmed) return;
+          this.performAclUpdate(member, newLevel, result.removeFromChildren);
+        });
+      return;
+    }
+
+    this.performAclUpdate(member, newLevel);
+  }
+
+  private performAclUpdate(member: ACLEntry, newLevel: AclLevel, deleteNested = false): void {
     const endpoint = this.endpoint();
     if (!endpoint) return;
 
@@ -148,8 +179,13 @@ export class TeamComponent implements OnInit {
       ...l,
       updatingMembers: new Set(l.updatingMembers).add(member.username),
     }));
+    const updatePayload: ACLUpdate = {
+      username: member.username,
+      level: newLevel,
+      deleteNested: newLevel === AclLevel.NONE && deleteNested,
+    };
     this.api
-      .request<ACLUpdate>('post', endpoint, [{ username: member.username, level: newLevel }])
+      .request<ACLEntry[]>('post', endpoint, [updatePayload])
       .pipe(
         finalize(() => {
           this.loading.update((l) => {
@@ -160,11 +196,9 @@ export class TeamComponent implements OnInit {
         }),
       )
       .subscribe((projectAcl) => {
-        if (projectAcl) {
-          const updated = this._team().map((m) => (m.username === member.username ? { ...m, level: newLevel } : m));
-          this._team.set(updated);
-          this.teamChanged.emit(updated);
-        }
+        this._team.set(projectAcl);
+        this.rebuildSuggestionsState();
+        this.teamChanged.emit(projectAcl);
       });
   }
 
@@ -203,5 +237,14 @@ export class TeamComponent implements OnInit {
     this.rebuildSuggestionsState();
     this.selectedUsers = [];
     this.teamChanged.emit(updatedTeam);
+  }
+
+  private buildRemoveMemberDialogData(): RemoveMemberConfirmationDialogData {
+    const cascadeCheckboxLabel = this.config.removeMemberCascadeCheckboxLabel;
+
+    return {
+      showCascadeCheckbox: !!cascadeCheckboxLabel,
+      cascadeCheckboxLabel,
+    };
   }
 }

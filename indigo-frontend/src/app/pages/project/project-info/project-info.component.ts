@@ -48,6 +48,7 @@ export class ProjectInfoComponent {
 
   projectTeamConfig: TeamComponentConfig = {
     buildAccessEndpoint: (id: string) => `projects/${id}/access`,
+    removeMemberCascadeCheckboxLabel: 'Also remove this member from all Notebooks and Experiments in this Project.',
   };
 
   onAttachmentsChanged(attachments: Attachment[]) {

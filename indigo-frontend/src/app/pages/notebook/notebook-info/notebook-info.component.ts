@@ -39,6 +39,7 @@ export class NotebookInfoComponent {
 
   notebookTeamConfig: TeamComponentConfig = {
     buildAccessEndpoint: (id: string) => `notebooks/${id}/access`,
+    removeMemberCascadeCheckboxLabel: 'Also remove this member from all Experiments in this Notebook.',
   };
 
   onAttachmentsChanged(attachments: Attachment[]) {
