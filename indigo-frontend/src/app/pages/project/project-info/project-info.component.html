@@ -13,17 +13,15 @@
     <eln-card>
       <div class="flex items-center justify-between pb-3 border-b border-b-neutral-200">
         <h2 class="font-semibold text-base">About Project</h2>
-        @if (project(); as p) {
-          <eln-button
-            *hasPermission="applicationPermission.EDIT_PROJECTS; entity: p"
-            variant="blue-outline"
-            classList="text-primary-400"
-            (click)="openModal(projectInfoModalEnum.EDIT)"
-          >
-            <em class="indicon-edit"></em>
-            Edit
-          </eln-button>
-        }
+        <eln-button
+          variant="blue-outline"
+          classList="text-primary-400"
+          (click)="openModal(projectInfoModalEnum.EDIT)"
+          [disabled]="!canEditProject()"
+        >
+          <em class="indicon-edit"></em>
+          Edit
+        </eln-button>
       </div>
 
       <div class="space-y-6 mt-3 text-sm">

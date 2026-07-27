@@ -14,6 +14,9 @@
   </div>
 }
 
-@if (canEdit()) {
-  <eln-file-upload (filesSelected)="onUpload($event)" [uploadingFile]="isUploadingAttachment" [withPreview]="false" />
-}
+<eln-file-upload
+  (filesSelected)="onUpload($event)"
+  [uploadingFile]="isUploadingAttachment"
+  [disabled]="!canEdit()"
+  [withPreview]="false"
+/>

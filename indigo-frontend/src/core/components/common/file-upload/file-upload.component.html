@@ -1,12 +1,15 @@
 <label
-  class="block text-gray-700 text-sm font-bold mb-2 cursor-pointer text-primary-400"
-  [class.opacity-50]="uploadingFile"
-  [class.cursor-not-allowed]="uploadingFile"
+  class="block text-gray-700 text-sm font-bold mb-2 text-primary-400"
+  [class.cursor-pointer]="!isDisabled"
+  [class.opacity-50]="isDisabled"
+  [class.cursor-not-allowed]="isDisabled"
+  [class.pointer-events-none]="isDisabled"
 >
   <div
-    class="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg text-center cursor-pointer hover:bg-gray-100"
-    [class.hover:bg-gray-100]="!uploadingFile"
-    [class.cursor-not-allowed]="uploadingFile"
+    class="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg text-center"
+    [class.cursor-pointer]="!isDisabled"
+    [class.hover:bg-gray-100]="!isDisabled"
+    [class.cursor-not-allowed]="isDisabled"
   >
     <em class="indicon-paperclip"></em>
     {{ uploadingFile ? loadingText : 'Attach file' }}
@@ -15,7 +18,7 @@
       class="hidden"
       (change)="onFileSelect($event)"
       [accept]="acceptedExtensions"
-      [disabled]="uploadingFile"
+      [disabled]="isDisabled"
       multiple
     />
   </div>

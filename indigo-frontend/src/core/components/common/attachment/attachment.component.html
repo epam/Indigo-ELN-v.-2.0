@@ -22,12 +22,10 @@
           <mat-icon>download</mat-icon>
           <span>Download</span>
         </button>
-        @if (canDelete()) {
-          <button mat-menu-item (click)="deleteAttachment()">
-            <mat-icon>delete</mat-icon>
-            <span>Delete</span>
-          </button>
-        }
+        <button mat-menu-item [disabled]="!canDelete()" (click)="canDelete() && deleteAttachment()">
+          <mat-icon>delete</mat-icon>
+          <span>Delete</span>
+        </button>
       </mat-menu>
     </div>
   </div>
