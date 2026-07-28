@@ -31,7 +31,7 @@ The local docker-compose stack runs the full application — frontend, backend (
 
 ```bash
 git clone https://github.com/epam/Indigo-ELN-v.-2.0.git
-cd Indigo-ELN-v.-2.0
+cd Indigo-ELN-v.-2.0/deployment-compose
 ./deploy.sh
 ```
 ### Access
@@ -52,10 +52,9 @@ Two test users are seeded out of the box:
 
 | Username | Password |
 |---|---|
-| `testuser1` | `testuser1` |
-| `testuser2` | `testuser2` |
+| `admin` | `admin` |
 
-Use either to log in at `http://localhost` once the stack is up.
+Use to log in at `http://localhost` once the stack is up.
 
 ### Stopping
 
