@@ -48,6 +48,10 @@ export class ErrorInterceptor implements HttpInterceptor {
 function detectMessage(error: unknown): [string, string] {
   if (error instanceof HttpErrorResponse) {
     const commonLogMessage = `Server error calling ${error.url}: ${error.status} ${error.statusText}`;
+    if (error.status === 403) {
+      const message = "You don't have permission to perform this action";
+      return [message, `${commonLogMessage}: ${message}`];
+    }
     if (Array.isArray(error.error)) {
       const array: BackendError[] = error.error;
       const message = array.map((x) => (x.path ? `${x.path}: ${x.message}` : x.message)).join('\n');

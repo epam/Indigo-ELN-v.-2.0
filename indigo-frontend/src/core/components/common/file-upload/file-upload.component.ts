@@ -1,9 +1,9 @@
+import { NotificationService } from '@/core/services/notification/notification.service';
+import { NotificationType } from '@/core/types/notification.i';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { FileSizePipe } from './file-size.pipe';
 import { fileTypeConfig } from './file-upload.config';
-import { NotificationService } from '@/core/services/notification/notification.service';
-import { NotificationType } from '@/core/types/notification.i';
 
 @Component({
   imports: [CommonModule, FileSizePipe],
@@ -15,6 +15,7 @@ export class FileUploadComponent implements OnInit {
   @Input() maxSizeMB = 5; // Default max file size (5MB)
   @Input() allowedTypes = ['doc', 'image', 'pdf', 'xls', 'ppt', 'csv'];
   @Input() uploadingFile = false;
+  @Input() disabled = false;
   @Input() withPreview = true;
   @Input() loadingText = 'Uploading...';
   mimeTypes: string[] = [];
@@ -27,6 +28,10 @@ export class FileUploadComponent implements OnInit {
 
   private notificationService = inject(NotificationService);
 
+  get isDisabled(): boolean {
+    return this.disabled || this.uploadingFile;
+  }
+
   ngOnInit(): void {
     this.allowedTypes.forEach((type) => {
       const config = fileTypeConfig[type];
@@ -38,6 +43,10 @@ export class FileUploadComponent implements OnInit {
   }
 
   onFileSelect(event: Event) {
+    if (this.isDisabled) {
+      return;
+    }
+
     const input = event.target as HTMLInputElement;
 
     if (!input.files) return;
@@ -46,6 +55,10 @@ export class FileUploadComponent implements OnInit {
   }
 
   handleFiles(fileList: FileList) {
+    if (this.isDisabled) {
+      return;
+    }
+
     const files = Array.from(fileList)
       .map((file) => {
         if (this.mimeTypes.length && !this.mimeTypes.includes(file.type)) {
