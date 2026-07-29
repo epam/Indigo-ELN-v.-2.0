@@ -1,5 +1,5 @@
 import { ApiService } from '@/core/services/api.service';
-import { PagedRequest, SortOption } from '@/core/types/request/paged-request.i';
+import { FilterOption, PagedRequest, SortOption } from '@/core/types/request/paged-request.i';
 import { PaginatedResponse } from '@/core/types/response/paginated-response.i';
 import { inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -29,6 +29,7 @@ export abstract class PaginatedBase<T> {
     sort: 'EARLIEST' | 'LATEST';
   } | null = null;
   protected sortOptions: SortOption[] = [];
+  protected filterOptions: FilterOption[] = [];
 
   protected dataList$: Observable<PaginatedResponse<T>>;
   protected dataSubject$ = new BehaviorSubject<PaginatedResponse<T>>(null);
@@ -44,6 +45,10 @@ export abstract class PaginatedBase<T> {
 
     if (config.sortOptions) {
       this.sortOptions = config.sortOptions;
+    }
+
+    if (config.filterOptions) {
+      this.filterOptions = config.filterOptions;
     }
 
     if (config.defaultSort) {
@@ -231,5 +236,9 @@ export abstract class PaginatedBase<T> {
 
   public getSortOrder(sortBy: string): 'EARLIEST' | 'LATEST' | null {
     return this.isSortedBy(sortBy) ? this.currentSort!.sort : null;
+  }
+
+  public getFilterOptions() {
+    return this.filterOptions;
   }
 }

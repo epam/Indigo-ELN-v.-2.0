@@ -1,10 +1,14 @@
 <eln-list-header
+  [checkboxDropdownPlaceholder]="'Status'"
+  [enableFilter]="true"
+  [filterOptions]="headerFilterOptions"
   [sortOptions]="headerSortOptions"
   [currentSort]="getCurrentSort()"
   (viewChange)="onViewChange($event)"
   (searchChange)="onSearch($event)"
   (sortChange)="onSortChange($event)"
   (myEntitiesOnlyChange)="onMyEntitiesOnlyChange($event)"
+  (filterChange)="onFilterChange($event)"
 />
 
 <div

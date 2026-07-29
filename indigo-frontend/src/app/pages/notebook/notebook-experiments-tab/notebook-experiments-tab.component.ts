@@ -13,6 +13,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ExperimentItemComponent } from '@pages/experiment/experiment-item/experiment-item.component';
 import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
+import { ExperimentStatusNames } from '@/core/enums/experiment-status.enum';
+import { CheckboxDropdownItem } from '@/core/components/common/checkbox-dropdown/checkbox-dropdown.i';
 
 @Component({
   selector: 'eln-notebook-notebook-experiments-tab',
@@ -43,12 +45,19 @@ export class NotebookExperimentsTabComponent extends InfiniteScrollBase<Experime
   selectedView: 'grid' | 'list' = 'grid';
   headerSortOptions: DropdownMenuItem[] = [];
   @Input() notebookId!: string;
+  headerFilterOptions: CheckboxDropdownItem[] = [];
 
   ngOnInit() {
     this.headerSortOptions = this.getSortOptions().map((option) => ({
       label: `${option.label}`,
       value: `${option.value}:${option.defaultOrder}`,
       icon: 'indicon-sort',
+    }));
+
+    this.headerFilterOptions = this.getFilterOptions().map((option) => ({
+      label: option.label,
+      value: option.value,
+      checked: option.checked,
     }));
   }
 
@@ -68,6 +77,7 @@ export class NotebookExperimentsTabComponent extends InfiniteScrollBase<Experime
             defaultOrder: 'LATEST',
           },
         ],
+        filterOptions: [...this.getStatusOptions()],
         defaultSort: {
           sortBy: 'createdAt',
           sort: 'EARLIEST',
@@ -91,5 +101,27 @@ export class NotebookExperimentsTabComponent extends InfiniteScrollBase<Experime
   onMyEntitiesOnlyChange(value: boolean) {
     this.filters['createdByMe'] = value;
     this.reload();
+  }
+
+  onFilterChange(items: CheckboxDropdownItem[]) {
+    this.headerFilterOptions = items.map((item) => ({ ...item }));
+
+    const selectedValues = items.filter((item) => item.checked).map((item) => item.value);
+
+    if (selectedValues.length > 0) {
+      this.filters['status'] = selectedValues;
+    } else {
+      delete this.filters['status'];
+    }
+
+    this.reload();
+  }
+
+  getStatusOptions() {
+    return Object.entries(ExperimentStatusNames).map(([key, value]) => ({
+      label: value,
+      value: key,
+      checked: false,
+    }));
   }
 }
