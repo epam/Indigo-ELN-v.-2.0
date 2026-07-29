@@ -44,7 +44,11 @@ public interface NotebookAPI extends BaseAPI {
     @POST
     @Path("/notebooks/{notebookId}/attachments")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    List<AttachmentDTO> createNotebookAttachment(@PathParam("notebookId") UUID notebookId, UploadForm form);
+    String createNotebookAttachment(@PathParam("notebookId") UUID notebookId, UploadForm form);
+
+    @POST
+    @Path("/notebooks/{notebookId}/attachments/complete")
+    List<AttachmentDTO> completeNotebookAttachment(@PathParam("notebookId") UUID notebookId);
 
     @GET
     @Path("/notebooks/{notebookId}/attachments/{attachmentId}")

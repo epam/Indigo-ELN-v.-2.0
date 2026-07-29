@@ -57,7 +57,7 @@ public class ProjectResource implements ProjectAPI {
     }
 
     @Override
-    public List<AttachmentDTO> createProjectAttachment(UUID projectId, UploadForm form) {
+    public String createProjectAttachment(UUID projectId, UploadForm form) {
         return attachmentService.createProjectAttachment(projectId, form.getFile(), true);
     }
 

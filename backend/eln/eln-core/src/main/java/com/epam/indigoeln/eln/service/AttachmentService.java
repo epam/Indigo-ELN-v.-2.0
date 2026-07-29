@@ -61,11 +61,11 @@ public class AttachmentService {
     @Inject
     NotebookService notebookService;
 
-    public List<AttachmentDTO> createProjectAttachment(UUID projectId, FileUpload file, boolean useMutation) {
-        return createProjectAttachment(projectId, file.fileName(), readFile(file), useMutation);
+    public String createProjectAttachment(UUID projectId, FileUpload file, boolean useMutation) {
+        return Objects.requireNonNull(createProjectAttachment(projectId, file.fileName(), readFile(file), useMutation).b());
     }
 
-    public List<AttachmentDTO> createProjectAttachment(UUID projectId, String filename, byte[] content, boolean useMutation) {
+    public Pair<AttachmentEntity, String> createProjectAttachment(UUID projectId, String filename, byte[] content, boolean useMutation) {
         ProjectEntity project = projectRepository.get(projectId);
         aclService.ensureAccess(project, ApplicationPermission.EDIT_PROJECTS);
         Pair<AttachmentEntity, String> pair = doCreateAttachment(filename, content);
@@ -76,14 +76,15 @@ public class AttachmentService {
         } else {
             doAddProjectAttachment(project, attachment);
         }
-        return attachmentMapper.attachmentToDTOList(project.getAttachments());
+        //return attachmentMapper.attachmentToDTOList(project.getAttachments());
+        return pair;
     }
 
-    public List<AttachmentDTO> createNotebookAttachment(UUID notebookId, FileUpload file, boolean useMutation) {
-        return createNotebookAttachment(notebookId, file.fileName(), readFile(file), useMutation);
+    public String createNotebookAttachment(UUID notebookId, FileUpload file, boolean useMutation) {
+        return Objects.requireNonNull(createNotebookAttachment(notebookId, file.fileName(), readFile(file), useMutation).b());
     }
 
-    public List<AttachmentDTO> createNotebookAttachment(UUID notebookId, String filename, byte[] content, boolean useMutation) {
+    public Pair<AttachmentEntity, String> createNotebookAttachment(UUID notebookId, String filename, byte[] content, boolean useMutation) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
         aclService.ensureAccess(notebook, ApplicationPermission.EDIT_NOTEBOOKS);
         Pair<AttachmentEntity, String> pair = doCreateAttachment(filename, content);
@@ -94,7 +95,8 @@ public class AttachmentService {
         } else {
             doAddNotebookAttachment(notebook, attachment);
         }
-        return attachmentMapper.attachmentToDTOList(notebook.getAttachments());
+        //return attachmentMapper.attachmentToDTOList(notebook.getAttachments());
+        return pair;
     }
 
     public String createExperimentAttachment(UUID experimentId, FileUpload file, @Nullable Boolean useMutation) {

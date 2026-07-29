@@ -17,12 +17,12 @@ import java.util.UUID;
 public interface NotebookClient extends NotebookAPI {
 
     @SneakyThrows
-    default List<AttachmentDTO> createNotebookAttachment(UUID notebookId, String filename, byte[] content) {
+    default String createNotebookAttachment(UUID notebookId, String filename, byte[] content) {
         return createNotebookAttachment(notebookId, ClientUtil.createFileUpload(filename, content));
     }
 
     @POST
     @Path("/notebooks/{notebookId}/attachments")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    List<AttachmentDTO> createNotebookAttachment(@PathParam("notebookId") UUID notebookId, ClientUploadForm form);
+    String createNotebookAttachment(@PathParam("notebookId") UUID notebookId, ClientUploadForm form);
 }

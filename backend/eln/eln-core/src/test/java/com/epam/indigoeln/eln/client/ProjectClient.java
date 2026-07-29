@@ -17,12 +17,12 @@ import java.util.UUID;
 public interface ProjectClient extends ProjectAPI {
 
     @SneakyThrows
-    default List<AttachmentDTO> createProjectAttachment(UUID projectId, String filename, byte[] content) {
+    default String createProjectAttachment(UUID projectId, String filename, byte[] content) {
         return createProjectAttachmentClient(projectId, ClientUtil.createFileUpload(filename, content));
     }
 
     @POST
     @Path("/projects/{projectId}/attachments")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    List<AttachmentDTO> createProjectAttachmentClient(@PathParam("projectId") UUID projectId, ClientUploadForm form);
+    String createProjectAttachmentClient(@PathParam("projectId") UUID projectId, ClientUploadForm form);
 }

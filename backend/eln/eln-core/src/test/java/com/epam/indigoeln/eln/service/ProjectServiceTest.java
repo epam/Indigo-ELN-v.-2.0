@@ -16,10 +16,7 @@ import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 import static com.epam.indigoeln.common.util.ContentDispositionUtil.extractFilename;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
@@ -422,7 +419,10 @@ class ProjectServiceTest extends ELNBaseTest {
     @Test
     void testCreateAttachment(@TempDir Path tempDir) {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testCreateAttachment"));
-        List<AttachmentDTO> attachments = projectClient.createProjectAttachment(project.getId(), "attachment.txt", "content".getBytes());
+        String path = projectClient.createProjectAttachment(project.getId(), "attachment.txt", "content".getBytes());
+        String fileName = Arrays.stream(path.split("/")).toList().getLast();
+        uploadClient.uploadFileContent(fileName, "attachment.txt", "content".getBytes());
+        List<AttachmentDTO> attachments = projectClient.completeProjectAttachment(project.getId());
         assertThat(attachments).singleElement().satisfies(a -> {
             assertThat(a.getId()).isNotNull();
             assertThat(a.getName()).isEqualTo("attachment.txt");
@@ -440,7 +440,10 @@ class ProjectServiceTest extends ELNBaseTest {
     @Test
     void testDownloadAttachment(@TempDir Path tempDir) throws Exception {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testDownloadAttachment"));
-        List<AttachmentDTO> attachments = projectClient.createProjectAttachment(project.getId(), "attachment.txt", "content".getBytes());
+        String path = projectClient.createProjectAttachment(project.getId(), "attachment.txt", "content".getBytes());
+        String fileName = Arrays.stream(path.split("/")).toList().getLast();
+        uploadClient.uploadFileContent(fileName, "attachment.txt", "content".getBytes());
+        List<AttachmentDTO> attachments = projectClient.completeProjectAttachment(project.getId());
         try (Response response = projectClient.downloadProjectAttachment(project.getId(), attachments.getFirst().getId())) {
             assertThat(extractFilename(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION))).isEqualTo("attachment.txt");
             assertThat((byte[]) response.getEntity()).asString().isEqualTo("content");
@@ -450,7 +453,10 @@ class ProjectServiceTest extends ELNBaseTest {
     @Test
     void testDeleteAttachment(@TempDir Path tempDir) {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testDeleteAttachment"));
-        List<AttachmentDTO> attachments = projectClient.createProjectAttachment(project.getId(), "attachment.txt", "content".getBytes());
+        String path = projectClient.createProjectAttachment(project.getId(), "attachment.txt", "content".getBytes());
+        String fileName = Arrays.stream(path.split("/")).toList().getLast();
+        uploadClient.uploadFileContent(fileName, "attachment.txt", "content".getBytes());
+        List<AttachmentDTO> attachments = projectClient.completeProjectAttachment(project.getId());
         projectClient.deleteProjectAttachment(project.getId(), attachments.getFirst().getId());
         project = projectClient.getProject(project.getId());
         assertThat(project.getAttachments()).isEmpty();
@@ -475,11 +481,15 @@ class ProjectServiceTest extends ELNBaseTest {
 
         long startTime = System.currentTimeMillis();
 
-        List<AttachmentDTO> attachments = projectClient.createProjectAttachment(
+        String path = projectClient.createProjectAttachment(
                 project.getId(),
                 fileName,
                 largeContent
         );
+
+        String uploadName = Arrays.stream(path.split("/")).toList().getLast();
+        uploadClient.uploadFileContent(uploadName, fileName, largeContent);
+        List<AttachmentDTO> attachments = projectClient.completeProjectAttachment(project.getId());
 
         long elapsedTime = System.currentTimeMillis() - startTime;
         assertThat(attachments).isNotEmpty();

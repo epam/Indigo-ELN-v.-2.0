@@ -16,7 +16,7 @@ public class UploadResource implements UploadAPI {
 
     @Override
     public Response uploadFileContent(String path, UploadForm form) {
-        uploadService.uploadAttachment(path, form.getFile());
+        uploadService.uploadAttachment("attachment/" + path, form.getFile());
         return Response.ok().build();
     }
 }

@@ -25,10 +25,7 @@ import org.openapitools.jackson.nullable.JsonNullable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static com.epam.indigoeln.common.util.ContentDispositionUtil.extractFilename;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
@@ -257,7 +254,8 @@ class ExperimentServiceTest extends ELNBaseTest {
     void testCreateAttachment(@TempDir Path tempDir) {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         String path = experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", "content".getBytes());
-        uploadClient.uploadFileContent(path, "attachment.txt", "content".getBytes());
+        String fileName = Arrays.stream(path.split("/")).toList().getLast();
+        uploadClient.uploadFileContent(fileName, "attachment.txt", "content".getBytes());
         List<AttachmentDTO> attachments = experimentClient.completeExperimentAttachment(experiment.getId());
                 assertThat(attachments).singleElement().satisfies(a -> {
             assertThat(a.getId()).isNotNull();
@@ -277,7 +275,8 @@ class ExperimentServiceTest extends ELNBaseTest {
     void testDownloadAttachment(@TempDir Path tempDir) throws Exception {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         String path = experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", "content".getBytes());
-        uploadClient.uploadFileContent(path, "attachment.txt", "content".getBytes());
+        String fileName = Arrays.stream(path.split("/")).toList().getLast();
+        uploadClient.uploadFileContent(fileName, "attachment.txt", "content".getBytes());
         List<AttachmentDTO> attachments = experimentClient.completeExperimentAttachment(experiment.getId());
         try (Response response = experimentClient.downloadExperimentAttachment(experiment.getId(), attachments.getFirst().getId())) {
             assertThat(extractFilename(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION))).isEqualTo("attachment.txt");
@@ -289,7 +288,8 @@ class ExperimentServiceTest extends ELNBaseTest {
     void testDeleteAttachment(@TempDir Path tempDir) {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         String path = experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", "content".getBytes());
-        uploadClient.uploadFileContent(path, "attachment.txt", "content".getBytes());
+        String fileName = Arrays.stream(path.split("/")).toList().getLast();
+        uploadClient.uploadFileContent(fileName, "attachment.txt", "content".getBytes());
         List<AttachmentDTO> attachments = experimentClient.completeExperimentAttachment(experiment.getId());
         experimentClient.deleteExperimentAttachment(experiment.getId(), attachments.getFirst().getId());
         experiment = experimentClient.getExperiment(experiment.getId());
