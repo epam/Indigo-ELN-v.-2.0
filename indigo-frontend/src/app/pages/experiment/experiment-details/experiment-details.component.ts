@@ -131,11 +131,11 @@ export class ExperimentDetailsComponent {
 
     const expLinkedIds = (exp.linkedExperiments ?? [])
       .map((e) => e.id)
-      .sort()
+      .sort((a, b) => a.localeCompare(b))
       .join(',');
     const newLinkedIds = (linkedExperiment ?? [])
       .map((e) => e.id)
-      .sort()
+      .sort((a, b) => a.localeCompare(b))
       .join(',');
     if (expLinkedIds !== newLinkedIds) patch.linkedExperiments = linkedExperiment ?? [];
 

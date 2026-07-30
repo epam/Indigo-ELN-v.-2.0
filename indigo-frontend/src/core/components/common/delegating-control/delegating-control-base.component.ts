@@ -1,9 +1,11 @@
 import { AbstractControl, ControlValueAccessor } from '@angular/forms';
-import { Injectable } from '@angular/core';
+import { AfterViewInit, Directive } from '@angular/core';
 import { setEnabled } from '@core/utils/search.util';
 
-@Injectable()
-export abstract class DelegatingControlBase<T> implements ControlValueAccessor {
+// Abstract base for form controls; uses @Directive() (not @Injectable()) so Angular
+// invokes the ngAfterViewInit lifecycle hook on the concrete component subclasses.
+@Directive()
+export abstract class DelegatingControlBase<T> implements ControlValueAccessor, AfterViewInit {
   private change: ((arg0: T) => void) | null;
   private touched: (() => void) | null;
 
