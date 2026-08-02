@@ -84,6 +84,6 @@ export abstract class InfiniteScrollBase<T> extends PaginatedBase<T> {
   reload() {
     this.resetListState();
     this.firstLoad = true;
-    this.dataSubject$.next(null);
+    this.fetchDataAndUpdateQueryParams();
   }
 }

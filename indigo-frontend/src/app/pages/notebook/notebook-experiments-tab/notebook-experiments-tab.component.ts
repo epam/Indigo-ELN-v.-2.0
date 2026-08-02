@@ -7,7 +7,7 @@ import { ClassPickerPipe } from '@/core/pipes/classPicker.pipe';
 import { ExperimentDetail } from '@/core/types/entities/experiments/experiment-detail.i';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, inject, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -40,7 +40,7 @@ import { CheckboxDropdownItem } from '@/core/components/common/checkbox-dropdown
     ListHeaderComponent,
   ],
 })
-export class NotebookExperimentsTabComponent extends InfiniteScrollBase<ExperimentDetail> implements OnChanges {
+export class NotebookExperimentsTabComponent extends InfiniteScrollBase<ExperimentDetail> implements OnChanges, OnInit {
   dialog = inject(MatDialog);
   selectedView: 'grid' | 'list' = 'grid';
   headerSortOptions: DropdownMenuItem[] = [];
@@ -54,11 +54,7 @@ export class NotebookExperimentsTabComponent extends InfiniteScrollBase<Experime
       icon: 'indicon-sort',
     }));
 
-    this.headerFilterOptions = this.getFilterOptions().map((option) => ({
-      label: option.label,
-      value: option.value,
-      checked: option.checked,
-    }));
+    this.headerFilterOptions = this.getFilterOptions();
   }
 
   ngOnChanges(changes: SimpleChanges) {
