@@ -13,7 +13,12 @@
     <eln-card>
       <div class="flex items-center justify-between pb-3 border-b border-b-neutral-200">
         <h2 class="font-semibold text-base">About Project</h2>
-        <eln-button variant="blue-outline" classList="text-primary-400" (click)="openModal(projectInfoModalEnum.EDIT)">
+        <eln-button
+          variant="blue-outline"
+          classList="text-primary-400"
+          (click)="openModal(projectInfoModalEnum.EDIT)"
+          [disabled]="!canEditProject()"
+        >
           <em class="indicon-edit"></em>
           Edit
         </eln-button>
@@ -48,12 +53,20 @@
         <eln-attachments
           [attachments]="project().attachments"
           [baseURL]="'/api/eln/projects/' + project().id"
+          [requiredPermission]="applicationPermission.EDIT_PROJECTS"
+          [entity]="project()"
           (attachmentsChanged)="onAttachmentsChanged($event)"
         />
       </div>
     </eln-card>
 
-    <eln-team [team]="project().acl" [entityId]="project().id" [config]="projectTeamConfig" />
+    <eln-team
+      [team]="project().acl"
+      [entityId]="project().id"
+      [config]="projectTeamConfig"
+      [requiredPermission]="applicationPermission.MANAGE_PROJECT_ACCESS"
+      [entity]="project()"
+    />
   </div>
 }
 

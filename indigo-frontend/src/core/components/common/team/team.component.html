@@ -22,6 +22,7 @@
         [(ngModel)]="selectedUsers"
         (change)="onUsersSelected(selectedUsers)"
         [clearable]="true"
+        [disabled]="!canManage()"
         class="w-full"
       >
         <ng-template ng-option-tmp let-item="item" let-index="index">
@@ -41,7 +42,7 @@
       <eln-button
         variant="blue"
         (click)="addSelectedUsers()"
-        [disabled]="selectedUsers.length === 0 || loading().addingUsers"
+        [disabled]="!canManage() || selectedUsers.length === 0 || loading().addingUsers"
       >
         <eln-svg icon="user-add" classList="mr-1" color="white" />
         Add Member
@@ -78,7 +79,7 @@
           [selected]="member.level | normalizeLabel"
           [items]="aclLevelOptions"
           (itemSelected)="updateAclLevel(member, $event)"
-          [disabled]="member.disabled"
+          [disabled]="!canManage() || member.disabled"
         />
       </div>
     }

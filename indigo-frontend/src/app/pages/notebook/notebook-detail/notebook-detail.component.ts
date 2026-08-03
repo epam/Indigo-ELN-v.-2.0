@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, effect, inject, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { RouterOutlet } from '@angular/router';
+import { Title } from '@angular/platform-browser';
 import { take } from 'rxjs';
 
 import { BreadcrumbsComponent } from '@/core/components/breadcrumbs/breadcrumbs.component';
@@ -30,6 +31,7 @@ export class NotebookDetailComponent implements OnChanges {
   store = inject(NotebookService);
   dialog = inject(MatDialog);
   breadcrumbsState = inject(BreadcrumbsStateService);
+  titleService = inject(Title);
 
   notebook = this.store.notebook;
   isLoading = this.store.isLoading;
@@ -54,6 +56,14 @@ export class NotebookDetailComponent implements OnChanges {
         active: true,
       },
     ]);
+  });
+
+  private readonly titleEffect = effect(() => {
+    const notebook = this.store.notebook();
+    if (!notebook) {
+      return;
+    }
+    this.titleService.setTitle(`IndigoELN - ${notebook.name ?? 'Notebook'}`);
   });
 
   ngOnChanges(changes: SimpleChanges): void {

@@ -6,14 +6,16 @@ import { TeamComponent } from '@/core/components/common/team/team.component';
 import { TeamComponentConfig } from '@/core/components/common/team/team.config';
 import { Attachment } from '@/core/types/entities/attachment.i';
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input } from '@angular/core';
+import { Component, computed, inject, Input } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { Router } from '@angular/router';
+import { PermissionService } from '@core/services/permission/permission.service';
+import { ProjectService } from '@core/services/project/project.service';
+import { ApplicationPermission } from '@core/types/entities/user.i';
 import { NotebookAddComponent } from '@pages/notebook/notebook-add/notebook-add.component';
 import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
 import { take } from 'rxjs';
 import { ProjectAddComponent } from '../project-add/project-add.component';
-import { ProjectService } from '@core/services/project/project.service';
-import { Router } from '@angular/router';
 
 enum projectInfoModalEnum {
   EDIT = 'edit',
@@ -36,15 +38,21 @@ enum projectInfoModalEnum {
 })
 export class ProjectInfoComponent {
   projectInfoModalEnum = projectInfoModalEnum;
+  applicationPermission = ApplicationPermission;
 
   @Input() projectId!: string;
   dialog = inject(MatDialog);
   projectService = inject(ProjectService);
+  permissionService = inject(PermissionService);
   router = inject(Router);
 
   project = this.projectService.project;
   isLoading = this.projectService.isLoading;
   hasError = this.projectService.hasError;
+  canEditProject = computed(() => {
+    const project = this.project();
+    return project ? this.permissionService.hasPermission(ApplicationPermission.EDIT_PROJECTS, project) : false;
+  });
 
   projectTeamConfig: TeamComponentConfig = {
     buildAccessEndpoint: (id: string) => `projects/${id}/access`,
