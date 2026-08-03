@@ -176,11 +176,11 @@
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
         "http://localhost/*",
-        "http://localhost:8080/*"
+        "http://localhost:4200/*"
       ],
       "webOrigins": [
         "http://localhost",
-        "http://localhost:8080"
+        "http://localhost:4200"
       ],
       "notBefore": 0,
       "bearerOnly": false,

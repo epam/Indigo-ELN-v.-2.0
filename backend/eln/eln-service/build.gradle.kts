@@ -28,3 +28,12 @@ tasks.named("processResources") {
 tasks.withType<Test> {
     environment("NATIVE_LIB_PATH", "${projectDir}/build/nativelibs")
 }
+
+val buildDocker = tasks.register<Exec>("buildDocker") {
+    outputs.upToDateWhen { false }
+    commandLine("docker", "build", "-f", "src/main/docker/Dockerfile.jvm", "-t", "indigoeln/eln-service:built", ".")
+}
+
+tasks.named("assemble") {
+    finalizedBy("buildDocker")
+}
