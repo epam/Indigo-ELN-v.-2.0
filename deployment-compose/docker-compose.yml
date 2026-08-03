@@ -26,6 +26,7 @@ services:
       QUARKUS_OIDC_TOKEN_ISSUER: "any"
       QUARKUS_TLS_TRUST_ALL: true
       QUARKUS_REST_CLIENT_SIGNATURE_API_URL: "http://nginx:80/"
+      QUARKUS_REST_CLIENT_REPORTS_API_URL: "http://nginx:80/"
       JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Dquarkus.profile=devtest"
     depends_on:
       postgres:
@@ -76,6 +77,23 @@ services:
     ports:
       - "10030:8080"
       - "10031:5006"
+
+  reports-service:
+    image: "reports-service:development"
+    build:
+      context: ./../backend/reports/reports-service
+      dockerfile: src/main/docker/Dockerfile.jvm
+    environment:
+      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5007 -Dquarkus.profile=devtest"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/q/health/ready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    ports:
+      - "10040:8080"
+      - "10041:5007"
 
   postgres:
     #image: "public.ecr.aws/m5k0g6n7/indigoeln/indigo-eln-postgres:latest"
@@ -168,3 +186,4 @@ services:
       - frontend
       - eln-service
       - signature-service
+      - reports-service
