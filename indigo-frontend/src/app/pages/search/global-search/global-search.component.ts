@@ -29,7 +29,6 @@ import { InfiniteLoaderComponent } from '@core/components/util/infinite-loader/i
 import { GlobalSearchLoader } from '@core/components/util/infinite-scroll-search';
 import { ExperimentStatus, ExperimentStatusNames } from '@core/enums/experiment-status.enum';
 import { ApiService } from '@core/services/api.service';
-import { UserService } from '@core/services/user.service';
 import { BuiltInDictionary, DictionaryItemRef } from '@core/types/entities/dictionary.i';
 import { ReactionRole, ReactionRoleNames } from '@core/types/entities/experiments/experiment-shared.i';
 import { ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
@@ -48,6 +47,7 @@ import {
   setEnabled,
 } from '@core/utils/search.util';
 import { first } from 'rxjs';
+import { IdentityService } from '@core/services/identity.service';
 
 export interface GlobalSearchDialogData {
   reactionAnchor: ReactionAnchor;
@@ -92,7 +92,7 @@ export class GlobalSearchComponent implements OnInit, AfterViewInit {
 
   apiService = inject(ApiService);
   dialog = inject(MatDialog);
-  userService = inject(UserService);
+  identityService = inject(IdentityService);
   destroyRef = inject(DestroyRef);
   dialogRef = inject(MatDialogRef<GlobalSearchComponent>);
 
@@ -154,7 +154,7 @@ export class GlobalSearchComponent implements OnInit, AfterViewInit {
   }
 
   addMeAsAuthor() {
-    this.userService.user$.pipe(first()).subscribe((user) => {
+    this.identityService.user$.pipe(first()).subscribe((user) => {
       let selectedUsers = this.form.get('author').value || [];
       if (!selectedUsers.some((x) => x.username === user.username)) {
         this.form.get('author').setValue([

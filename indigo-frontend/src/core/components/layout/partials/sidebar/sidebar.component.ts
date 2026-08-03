@@ -48,6 +48,7 @@ export class SidebarComponent implements OnInit {
       name: 'Signatures',
       icon: 'indicon-layers', // TODO icon
       path: '/signatures',
+      requiredPermission: ApplicationPermission.SIGN_EXPERIMENTS,
     },
   ];
 
