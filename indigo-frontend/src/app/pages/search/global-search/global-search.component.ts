@@ -97,6 +97,7 @@ export class GlobalSearchComponent implements OnInit, AfterViewInit {
   dialogRef = inject(MatDialogRef<GlobalSearchComponent>);
 
   title = 'Search';
+  isSearching = false;
 
   form = new FormGroup({
     quickSearch: new FormControl<string | null>(null),
@@ -169,6 +170,10 @@ export class GlobalSearchComponent implements OnInit, AfterViewInit {
   }
 
   performSearch() {
+    if (this.isSearching) {
+      return;
+    }
+
     const formValue = this.form.value;
     const structureSearch = {
       type: formValue.structureSearchType,
@@ -187,6 +192,7 @@ export class GlobalSearchComponent implements OnInit, AfterViewInit {
       batchPurity,
       reactionRole,
     };
+    this.isSearching = true;
     this.loader.search(body);
     this.advancedSearchPanel.close();
   }
@@ -223,6 +229,10 @@ export class GlobalSearchComponent implements OnInit, AfterViewInit {
 
   closeDialog(): void {
     this.dialogRef.close();
+  }
+
+  onSearchCompleted(): void {
+    this.isSearching = false;
   }
 
   getResultLink(result: { id: string; type: GlobalSearchEntityType }): string[] {

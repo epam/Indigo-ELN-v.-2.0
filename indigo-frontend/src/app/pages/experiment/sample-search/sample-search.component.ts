@@ -115,6 +115,8 @@ export class SampleSearchComponent implements OnInit {
   notificationService = inject(NotificationService);
 
   title = 'Add Material';
+  isSearching = false;
+  isAddingToExperiment = false;
 
   form = new FormGroup({
     catalog: new FormControl<SearchCatalogUI>(SearchCatalogUI.ALL),
@@ -187,6 +189,10 @@ export class SampleSearchComponent implements OnInit {
   }
 
   performSearch() {
+    if (this.isSearching) {
+      return;
+    }
+
     const formValue = this.form.value;
     const {
       compoundKey,
@@ -220,6 +226,7 @@ export class SampleSearchComponent implements OnInit {
         delete body[controlName];
       }
     }
+    this.isSearching = true;
     this.loader.search(body);
     this.advancedSearchPanel.close();
   }
@@ -256,9 +263,19 @@ export class SampleSearchComponent implements OnInit {
   }
 
   addToExperiment(sample: Sample) {
+    if (this.isAddingToExperiment) {
+      return;
+    }
+
+    this.isAddingToExperiment = true;
     if (!sample.id) {
-      this.apiService.request<Sample>('post', '/samples/importFromSearch', sample).subscribe((response) => {
-        this.doAddToExperiment(response.id);
+      this.apiService.request<Sample>('post', '/samples/importFromSearch', sample).subscribe({
+        next: (response) => {
+          this.doAddToExperiment(response.id);
+        },
+        error: () => {
+          this.isAddingToExperiment = false;
+        },
       });
     } else {
       this.doAddToExperiment(sample.id);
@@ -271,12 +288,18 @@ export class SampleSearchComponent implements OnInit {
       anchor: this.reactionAnchor,
       sampleId: sampleID,
     };
-    this.experimentDetailService.updateDataModel(mutation).subscribe(() => {
-      this.notificationService.notify({
-        type: NotificationType.Info,
-        message: 'Model updated with new sample',
-        isInline: false,
-      });
+    this.experimentDetailService.updateDataModel(mutation).subscribe({
+      next: () => {
+        this.isAddingToExperiment = false;
+        this.notificationService.notify({
+          type: NotificationType.Info,
+          message: 'Model updated with new sample',
+          isInline: false,
+        });
+      },
+      error: () => {
+        this.isAddingToExperiment = false;
+      },
     });
   }
 

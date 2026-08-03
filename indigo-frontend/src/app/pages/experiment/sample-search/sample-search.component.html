@@ -317,10 +317,18 @@
 
         <button
           type="button"
-          class="ml-2 px-4 py-2 bg-[#3F50B5] text-white rounded-[5px] cursor-pointer"
+          class="ml-2 px-4 py-2 bg-[#3F50B5] text-white rounded-[5px] cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+          [disabled]="isSearching"
           (click)="performSearch()"
         >
-          Search
+          @if (isSearching) {
+            <span class="inline-flex items-center gap-2">
+              <span class="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+              Searching...
+            </span>
+          } @else {
+            Search
+          }
         </button>
       </div>
     </div>
@@ -332,5 +340,9 @@
     }
   </div>
 
-  <eln-sample-search-results [loader]="loader" (addToExperiment)="addToExperiment($event)" />
+  <eln-sample-search-results
+    [loader]="loader"
+    [isAddingToExperiment]="isAddingToExperiment"
+    (addToExperiment)="addToExperiment($event)"
+  />
 </div>

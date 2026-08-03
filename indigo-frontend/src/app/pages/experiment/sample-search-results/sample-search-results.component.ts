@@ -39,6 +39,7 @@ import { ApiService } from '@core/services/api.service';
 })
 export class SampleSearchResultsComponent {
   @Input({ required: true }) loader: SamplesSearchLoader;
+  @Input() isAddingToExperiment = false;
   @Output() addToExperiment = new EventEmitter<Sample>();
 
   destroyRef = inject(DestroyRef);

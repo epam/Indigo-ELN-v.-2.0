@@ -58,9 +58,15 @@
             }}</eln-button>
           }
           @if (!hideSubmitButton) {
-            <eln-button [type]="'button'" [variant]="'blue'" [disabled]="!submitEnabled" (click)="submit()">{{
-              submitButtonText
-            }}</eln-button>
+            <eln-button
+              [type]="'button'"
+              [variant]="'blue'"
+              [disabled]="!submitEnabled"
+              [loading]="submitLoading"
+              [loadingText]="submitLoadingText || submitButtonText"
+              (click)="submit()"
+              >{{ submitButtonText }}</eln-button
+            >
           }
         </div>
       </div>

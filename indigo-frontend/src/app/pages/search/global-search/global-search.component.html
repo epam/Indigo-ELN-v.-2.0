@@ -3,7 +3,9 @@
   size="auto"
   containerClass="w-[800px]"
   submitButtonText="Search"
-  [submitEnabled]="formNotEmpty"
+  submitLoadingText="Searching..."
+  [submitEnabled]="formNotEmpty && !isSearching"
+  [submitLoading]="isSearching"
   (formSubmit)="performSearch()"
   (keydown.enter)="performSearch()"
 >
@@ -101,7 +103,15 @@
               <div class="flex-1 self-start">Search Results ({{ loader.totalItemsStr }})</div>
             </div>
           }
-          <div class="flex flex-col gap-8 search-results">
+          <div class="relative flex flex-col gap-8 search-results">
+            @if (isSearching) {
+              <div class="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-white/80">
+                <div class="flex items-center gap-2 text-sm font-medium text-gray-600">
+                  <span class="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></span>
+                  Searching...
+                </div>
+              </div>
+            }
             @for (result of loader.data$ | async; track result.type + ':' + result.id) {
               <a
                 [routerLink]="getResultLink(result)"
@@ -168,7 +178,7 @@
             (enteredViewport)="loader.onInfiniteLoaderEntered()"
             (leftViewport)="loader.onInfiniteLoaderLeft()"
           />
-          @if (loader.error) {
+          @if (!isSearching && loader.error) {
             <div>Error loading results</div>
           }
         }
