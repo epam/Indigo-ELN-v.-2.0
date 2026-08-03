@@ -14,15 +14,8 @@ import com.epam.indigoeln.signature.api.SignatureAdminClient;
 import com.epam.indigoeln.signature.api.SignatureClient;
 import com.epam.indigoeln.test.APICallException;
 import com.epam.indigoeln.test.BaseTest;
-import com.google.common.base.Suppliers;
-import io.agroal.api.AgroalDataSource;
-import io.agroal.api.configuration.supplier.AgroalDataSourceConfigurationSupplier;
-import io.agroal.api.security.NamePrincipal;
-import io.agroal.api.security.SimplePassword;
-import lombok.SneakyThrows;
 import org.apache.http.HttpStatus;
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
-import org.eclipse.microprofile.config.ConfigProvider;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -32,7 +25,6 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
 
 @ExtendWith(HibernateLazyLoadStatisticsExtension.class)
 public abstract class ELNBaseTest extends BaseTest {
@@ -96,7 +88,6 @@ public abstract class ELNBaseTest extends BaseTest {
     protected ReportsClient reportsClient;
     protected SignatureClient signatureClient;
 
-    private final static Supplier<AgroalDataSource> databasePool = Suppliers.memoize(ELNBaseTest::createDatabasePool);
     private final AtomicInteger lastUsedNotebookNumber = new AtomicInteger();
 
     protected UUID johnUserID;
@@ -198,20 +189,5 @@ public abstract class ELNBaseTest extends BaseTest {
         } finally {
             username.set(oldUsername);
         }
-    }
-
-    @SneakyThrows
-    private static AgroalDataSource createDatabasePool() {
-        String jdbcUrl = integrationTest ? System.getProperty("eln.test.datasource.jdbc-url") : ConfigProvider.getConfig().getValue("quarkus.datasource.jdbc.url", String.class);
-        String username = integrationTest ? System.getProperty("eln.test.datasource.username") : ConfigProvider.getConfig().getValue("quarkus.datasource.username", String.class);
-        String password = integrationTest ? System.getProperty("eln.test.datasource.password") : ConfigProvider.getConfig().getValue("quarkus.datasource.password", String.class);
-        return AgroalDataSource.from(new AgroalDataSourceConfigurationSupplier()
-                .connectionPoolConfiguration(cp -> cp
-                        .minSize(0)
-                        .maxSize(2)
-                        .connectionFactoryConfiguration(cf -> cf
-                                .jdbcUrl(jdbcUrl)
-                                .principal(new NamePrincipal(username))
-                                .credential(new SimplePassword(password)))));
     }
 }

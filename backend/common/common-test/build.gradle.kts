@@ -8,6 +8,7 @@ dependencies {
     api("io.quarkus:quarkus-test-security-jwt")
 
     api(project(":common:common"))
+    api(project(":common:common-hibernate"))
 
     api("io.quarkus:quarkus-junit5")
     api("io.quarkus:quarkus-test-security")

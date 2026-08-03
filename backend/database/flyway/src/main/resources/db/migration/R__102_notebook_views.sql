@@ -41,7 +41,7 @@ CREATE OR REPLACE TRIGGER trigger_update_Notebook_search_vector
 AFTER INSERT OR UPDATE OF name, description ON Notebook
 FOR EACH ROW EXECUTE FUNCTION update_Notebook_search_vector();
 
-CREATE FUNCTION update_Notebook_counters(
+CREATE OR REPLACE FUNCTION update_Notebook_counters(
     current_notebook_id UUID
 ) RETURNS VOID AS $$
 BEGIN
@@ -59,7 +59,7 @@ WHERE id = current_notebook_id;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION update_Notebook_counters_trigger()
+CREATE OR REPLACE FUNCTION update_Notebook_counters_trigger()
     RETURNS TRIGGER AS $$
 BEGIN
     PERFORM

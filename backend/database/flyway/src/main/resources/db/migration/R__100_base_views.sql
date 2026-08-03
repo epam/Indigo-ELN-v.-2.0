@@ -1,9 +1,13 @@
+DROP VIEW IF EXISTS Project_View_2;
 DROP VIEW IF EXISTS Project_Base_View;
 
+DROP VIEW IF EXISTS Notebook_View_2;
 DROP VIEW IF EXISTS Notebook_Base_View;
 
+DROP VIEW IF EXISTS Experiment_View_2;
 DROP VIEW IF EXISTS Experiment_Base_View;
 
+DROP MATERIALIZED VIEW IF EXISTS Total_Counts_View;
 CREATE MATERIALIZED VIEW Total_Counts_View
 AS
 SELECT
@@ -23,7 +27,7 @@ SELECT
     ) experiments_by_status
 ;
 
-CREATE FUNCTION update_total_counters_trigger()
+CREATE OR REPLACE FUNCTION update_total_counters_trigger()
     RETURNS TRIGGER AS $$
 BEGIN
     REFRESH MATERIALIZED VIEW Total_Counts_View;

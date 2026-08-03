@@ -42,7 +42,7 @@ CREATE OR REPLACE TRIGGER trigger_update_Project_search_vector
 AFTER INSERT OR UPDATE OF name, description, literature ON Project
 FOR EACH ROW EXECUTE FUNCTION update_Project_search_vector();
 
-CREATE FUNCTION update_Project_counters(
+CREATE OR REPLACE FUNCTION update_Project_counters(
     current_project_id UUID
 ) RETURNS VOID AS $$
 BEGIN
@@ -65,7 +65,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION update_Project_counters_trigger()
+CREATE OR REPLACE FUNCTION update_Project_counters_trigger()
     RETURNS TRIGGER AS $$
 BEGIN
     PERFORM update_Project_counters(coalesce(NEW.project_id, OLD.project_id));
