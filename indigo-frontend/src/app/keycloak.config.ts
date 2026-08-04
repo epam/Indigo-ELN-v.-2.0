@@ -16,15 +16,8 @@ import {
 /** Log the user out after this much browser inactivity. */
 export const SESSION_TIMEOUT_MS = 30 * 60 * 1000;
 
-/**
- * Attaches the bearer token to the ELN backend endpoints only — the ones nginx routes to the
- * services. Anything else (assets, the dev-server bundles) must not receive the token.
- *
- * Note this condition fails *open*: a request that does not match simply goes out without an
- * Authorization header and comes back 401, so keep keycloak.config.spec.ts in sync with it.
- */
 export const API_BEARER_TOKEN_CONDITION = createInterceptorCondition<IncludeBearerTokenCondition>({
-  urlPattern: /^(https?:\/\/[^/]+)?\/(api|internalapi)\//i,
+  urlPattern: /^\/(api|internalapi)\//i,
 });
 
 export const buildKeycloakOptions = (config: IKeycloakConfig, origin: string): ProvideKeycloakOptions => ({

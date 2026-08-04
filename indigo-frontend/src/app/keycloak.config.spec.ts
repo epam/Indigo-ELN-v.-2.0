@@ -4,12 +4,10 @@ describe('keycloak.config', () => {
   describe('API_BEARER_TOKEN_CONDITION', () => {
     const matches = (url: string) => API_BEARER_TOKEN_CONDITION.urlPattern.test(url);
 
-    it('should match ELN backend endpoints', () => {
+    it('should match relative ELN backend endpoints', () => {
       expect(matches('/api/eln/currentUser')).toBe(true);
       expect(matches('/api/signature/signatures')).toBe(true);
       expect(matches('/internalapi/eln/something')).toBe(true);
-      expect(matches('http://localhost/api/eln/currentUser')).toBe(true);
-      expect(matches('https://indigo-eln.example.com/api/eln/currentUser')).toBe(true);
     });
 
     it('should not match anything outside the backend endpoints', () => {
@@ -17,6 +15,12 @@ describe('keycloak.config', () => {
       expect(matches('/main.js')).toBe(false);
       expect(matches('/api-docs')).toBe(false);
       expect(matches('https://cdn.example.com/apidocs')).toBe(false);
+    });
+
+    it('should not match absolute URLs, even to a same-looking or trusted host, to avoid leaking the bearer token off-origin', () => {
+      expect(matches('http://localhost/api/eln/currentUser')).toBe(false);
+      expect(matches('https://indigo-eln.example.com/api/eln/currentUser')).toBe(false);
+      expect(matches('https://evil.example.com/api/eln/currentUser')).toBe(false);
     });
   });
 
