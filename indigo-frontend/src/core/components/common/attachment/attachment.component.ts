@@ -1,12 +1,12 @@
+import { BytesConvertingPipe } from '@/core/pipes/bytesConverting.pipe';
+import { ApiService } from '@/core/services/api.service';
 import { Attachment } from '@/core/types/entities/attachment.i';
 import { DatePipe } from '@angular/common';
 import { Component, DestroyRef, inject, input, output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { CardComponent } from '../card/card.component';
-import { ApiService } from '@/core/services/api.service';
-import { BytesConvertingPipe } from '@/core/pipes/bytesConverting.pipe';
 import { DownloadService } from '@core/services/download.service';
+import { CardComponent } from '../card/card.component';
 
 @Component({
   standalone: true,
@@ -17,6 +17,7 @@ import { DownloadService } from '@core/services/download.service';
 export class AttachmentComponent {
   attachment = input.required<Attachment>();
   baseURL = input.required<string>();
+  canDelete = input<boolean>(true);
 
   attachmentDeleted = output<string>();
 
