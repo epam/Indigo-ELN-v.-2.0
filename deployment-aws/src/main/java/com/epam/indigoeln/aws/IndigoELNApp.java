@@ -28,7 +28,29 @@ public class IndigoELNApp {
                 .permissionsBoundary(permissionsBoundary)
                 .tags(Map.of("project", "IndigoELN", "stage", "common"))
                 .build()
+                , globalParameters
         );
+
+        SonarQubeStack.Props sonarQubeProps = new SonarQubeStack.Props(
+                globalParameters.getSonarDomainName(),
+                globalParameters.getSonarPostgresMasterUsername(),
+                globalParameters.getSonarImage(),
+                globalParameters.getVpc(),
+                globalParameters.getHostedZone(),
+                globalParameters.getHostedZoneName(),
+                globalParameters.getEc2KeyPair(),
+                globalParameters.getSecurityGroups()
+        );
+        SonarQubeStack sonarQubeStack = new SonarQubeStack(app, "indigoeln-sonarqube", StackProps.builder()
+                .env(Environment.builder()
+                        .account(globalParameters.getAccount())
+                        .region(globalParameters.getRegion())
+                        .build()
+                )
+                .permissionsBoundary(permissionsBoundary)
+                .tags(Map.of("project", "IndigoELN", "stage", "common", "component", "sonarqube"))
+                .build()
+                , sonarQubeProps);
 
         for (String envName : List.of("dev")) {
             StageParameters stageParameters = StageParameters.load(envName);
