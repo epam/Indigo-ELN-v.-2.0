@@ -15,12 +15,15 @@ export class UserKeycloakService {
     this.initKeycloakUser();
   }
 
-  private async initKeycloakUser(): Promise<void> {
-    const authenticated: boolean = await this.keycloakService.isLoggedIn();
+  private initKeycloakUser(): void {
+    if (!this.keycloakService.isLoggedIn()) {
+      this.userSubject.next(null);
+      return;
+    }
 
-    if (authenticated) {
-      try {
-        const userProfile = await this.keycloakService.loadUserProfile();
+    this.keycloakService
+      .loadUserProfile()
+      .then((userProfile) => {
         const currentUser: CurrentUser = {
           id: userProfile.id || '',
           username: userProfile.username || '',
@@ -28,13 +31,11 @@ export class UserKeycloakService {
           permissions: [], // Add permissions if applicable
         };
         this.userSubject.next(currentUser);
-      } catch (error) {
+      })
+      .catch((error) => {
         console.error('Failed to load user profile from Keycloak', error);
         this.userSubject.next(null);
-      }
-    } else {
-      this.userSubject.next(null);
-    }
+      });
   }
 
   logout(): void {

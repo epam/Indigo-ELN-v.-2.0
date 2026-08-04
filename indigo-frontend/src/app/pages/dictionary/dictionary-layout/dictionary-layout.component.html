@@ -1,7 +1,7 @@
 <mat-drawer-container hasBackdrop="false">
   <mat-drawer mode="over" position="end" class="dictionary-drawer" [opened]="isDrawerOpen" (closed)="closeDrawer()">
     @if (selectedDictionary) {
-      <eln-dictionary-drawer [dictionary]="selectedDictionary" (close)="closeDrawer()" />
+      <eln-dictionary-drawer [dictionary]="selectedDictionary" (closed)="closeDrawer()" />
     }
   </mat-drawer>
 

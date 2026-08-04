@@ -102,7 +102,7 @@ export class SampleSearchComponent implements OnInit {
   @Input() defaultCriteria: SampleSearchCriteria | null;
   @Input() defaultImage: string | null;
 
-  @Output() close = new EventEmitter<void>();
+  @Output() closed = new EventEmitter<void>();
 
   loader: SamplesSearchLoader;
 

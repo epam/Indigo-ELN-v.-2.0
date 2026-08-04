@@ -393,7 +393,7 @@ export class ReactionInputsTableComponent {
     const ref = this.slideInPanel.open(SampleSearchComponent, {
       inputs: { reactionAnchor: this.reactionAnchor() },
     });
-    ref.instance.close.subscribe(() => ref.close());
+    ref.instance.closed.subscribe(() => ref.close());
   }
 
   addNewRow() {
