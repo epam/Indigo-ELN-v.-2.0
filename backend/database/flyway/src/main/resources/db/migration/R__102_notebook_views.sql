@@ -1,8 +1,17 @@
-CREATE OR REPLACE VIEW Notebook_View_2 AS
-SELECT n.id,
-    n.current_access,
-    array_length(n.full_acl, 1) acl_count
-FROM Notebook_Base_View n;
+DROP VIEW IF EXISTS Notebook_View_2;
+
+-- Postgres tend to fall back to full table scan on OR conditions, so using UNION ALL for viewAll vs normal
+CREATE OR REPLACE VIEW Notebook_Access_View AS
+SELECT n.id notebook_id, na.level current_access_or_null, array_length(n.full_acl, 1) acl_count
+FROM Notebook n
+LEFT JOIN LATERAL unnest(n.full_acl) na ON na.user_id = current_setting('eln.currentUserId')::UUID
+WHERE current_setting('eln.viewAllNotebooks')::BOOLEAN
+UNION ALL
+SELECT n.id notebook_id, na.level current_access_or_null, array_length(n.full_acl, 1) acl_count
+FROM Notebook n
+LEFT JOIN LATERAL unnest(n.full_acl) na ON na.user_id = current_setting('eln.currentUserId')::UUID
+WHERE NOT current_setting('eln.viewAllNotebooks')::BOOLEAN
+  AND acl_user_ids(n.full_acl) @> ARRAY[current_setting('eln.currentUserId')::UUID];
 
 CREATE OR REPLACE FUNCTION get_notebook_search_vector(
     IN current_notebook_id UUID
@@ -32,7 +41,7 @@ CREATE OR REPLACE TRIGGER trigger_update_Notebook_search_vector
 AFTER INSERT OR UPDATE OF name, description ON Notebook
 FOR EACH ROW EXECUTE FUNCTION update_Notebook_search_vector();
 
-CREATE FUNCTION update_Notebook_counters(
+CREATE OR REPLACE FUNCTION update_Notebook_counters(
     current_notebook_id UUID
 ) RETURNS VOID AS $$
 BEGIN
@@ -50,7 +59,7 @@ WHERE id = current_notebook_id;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION update_Notebook_counters_trigger()
+CREATE OR REPLACE FUNCTION update_Notebook_counters_trigger()
     RETURNS TRIGGER AS $$
 BEGIN
     PERFORM

@@ -4,7 +4,6 @@ import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.search.SearchCatalog;
-import org.jspecify.annotations.Nullable;
 
 public interface CatalogSearchProvider {
 
@@ -14,7 +13,7 @@ public interface CatalogSearchProvider {
         return true;
     }
 
-    CatalogSearchResult search(FindSamplesRequest request, @Nullable String nextAfter, int limit);
+    CatalogSearchResult search(FindSamplesRequest request, int pageNo, int pageSize);
 
     SampleEntity importSample(SampleDTO searchItem);
 }

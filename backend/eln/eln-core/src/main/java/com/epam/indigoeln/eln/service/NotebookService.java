@@ -53,6 +53,7 @@ public class NotebookService {
 
     public NotebookDetailsDTO createNotebook(UUID projectId, NotebookRequest request) {
         NotebookEntity notebook = new NotebookEntity();
+        projectRepository.lock(projectId); // protect project from possible ACL changes
         ProjectEntity project = projectRepository.get(projectId);
         project.getNotebooks().add(notebook);
         notebook.setProject(project);
@@ -73,20 +74,26 @@ public class NotebookService {
     }
 
     public NotebookDetailsDTO getNotebook(UUID notebookId) {
-        NotebookEntity notebook = notebookRepository.loadDetails(notebookId);
-        Set<ApplicationPermission> currentPermissions = aclService.getCurrentPermissions(notebook.getCalculatedInfo() != null ? notebook.getCalculatedInfo().getCurrentAccess() : null);
+        NotebookEntity notebook = notebookRepository.load(notebookId);
+        return getNotebookDetails(notebook);
+    }
+
+    private NotebookDetailsDTO getNotebookDetails(NotebookEntity notebook) {
+        Set<ApplicationPermission> currentPermissions = aclService.getCurrentPermissions(notebook.getCurrentAccess());
         currentPermissions.retainAll(EnumSet.of(VIEW_NOTEBOOKS, EDIT_NOTEBOOKS, MANAGE_NOTEBOOK_ACCESS, DELETE_NOTEBOOKS));
         return notebookMapper.entityToDetailsDTO(notebook, currentPermissions);
     }
 
     public NotebookDetailsDTO editNotebook(UUID notebookId, NotebookEditRequest request) {
-        NotebookEntity notebook = notebookRepository.get(notebookId);
+        NotebookEntity notebook = notebookRepository.loadAndLock(notebookId);
         applyMutation(notebook, notebookMapper.requestToMutation(request));
-        return getNotebook(notebookId);
+        return getNotebookDetails(notebook);
     }
 
     public List<ACLEntryDTO> updateNotebookAccess(UUID notebookId, List<AccessForm> form) {
-        NotebookEntity notebook = notebookRepository.get(notebookId);
+        projectRepository.lock(notebookRepository.getProjectID(notebookId)); // protect project tree from changes
+        NotebookEntity notebook = notebookRepository.loadAndLock(notebookId); // project notebook itself from changes
+        projectRepository.loadWithACL(notebook.getProject().getId());
         applyMutation(notebook, new NotebookMutation.EditNotebookAccess(form));
         return notebookMapper.convertACLList(notebook.getFullACL());
     }

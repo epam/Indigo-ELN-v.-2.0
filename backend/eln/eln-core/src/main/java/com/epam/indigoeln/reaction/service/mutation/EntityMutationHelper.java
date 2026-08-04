@@ -2,7 +2,7 @@ package com.epam.indigoeln.reaction.service.mutation;
 
 import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.eln.api.AccessForm;
-import com.epam.indigoeln.eln.entity.AttachmentEntity;
+import com.epam.indigoeln.eln.entity.AbstractAttachment;
 import com.epam.indigoeln.eln.model.AccessLevel;
 import com.epam.indigoeln.eln.service.UserService;
 import com.google.common.base.Preconditions;
@@ -40,7 +40,7 @@ public class EntityMutationHelper {
         }
     }
 
-    public String formatCreateAttachmentSummary(AttachmentEntity attachment) {
+    public String formatCreateAttachmentSummary(AbstractAttachment<?> attachment) {
         return "Created attachment: %s, %d bytes".formatted(attachment.getName(), attachment.getSize());
     }
 }

@@ -1,6 +1,5 @@
 package com.epam.indigoeln.eln.entity;
 
-import com.epam.indigoeln.eln.common.entity.IdentifiableEntity;
 import com.epam.indigoeln.eln.config.hibernate.ACLEntryArrayType;
 import com.epam.indigoeln.eln.config.hibernate.ExperimentModelType;
 import com.epam.indigoeln.eln.model.AccessLevel;
@@ -8,14 +7,13 @@ import com.epam.indigoeln.eln.model.ExperimentStatus;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import io.hypersistence.utils.hibernate.type.search.PostgreSQLTSVectorType;
 import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.NamedEntityGraph;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
-import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.JdbcType;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.*;
 import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
 import org.hibernate.type.SqlTypes;
 import org.jspecify.annotations.Nullable;
@@ -28,21 +26,21 @@ import java.util.*;
 @AllArgsConstructor
 @ToString(of = {"id", "name"}, includeFieldNames = false)
 @Entity(name = "Experiment")
+@SecondaryTable(name = "Experiment_Access_View",
+        pkJoinColumns = @PrimaryKeyJoinColumn(name = "experiment_id", referencedColumnName = "id")
+)
+@SecondaryTable(name = "Experiment_Marked_View",
+        pkJoinColumns = @PrimaryKeyJoinColumn(name = "experiment_id", referencedColumnName = "id")
+)
 @NamedEntityGraph(
         name = "Experiment.list",
         attributeNodes = {
                 @NamedAttributeNode("createdBy"),
                 @NamedAttributeNode("modifiedBy"),
                 @NamedAttributeNode("shortACL"),
-                @NamedAttributeNode(value = "calculatedInfo", subgraph = "Experiment.calculatedInfo.list"),
-        },
-        subgraphs = @NamedSubgraph(
-                name = "Notebook.calculatedInfo.list",
-                attributeNodes = {
-                        @NamedAttributeNode("aclCount"),
-                        @NamedAttributeNode("marked"),
-                }
-        )
+                @NamedAttributeNode("aclCount"),
+                @NamedAttributeNode("markedOrNull"),
+        }
 )
 @NamedEntityGraph(
         name = "Experiment.details",
@@ -57,25 +55,12 @@ import java.util.*;
                 @NamedAttributeNode("aclEntities"),
                 @NamedAttributeNode("model"),
                 @NamedAttributeNode("batchCreator"),
-                @NamedAttributeNode(value = "linkedExperiments", subgraph = "Experiment.linkedExperiments"),
-                @NamedAttributeNode(value = "continuedFrom", subgraph = "Experiment.linkedExperiments"),
-                @NamedAttributeNode(value = "continuedTo", subgraph = "Experiment.linkedExperiments"),
-                @NamedAttributeNode(value = "calculatedInfo", subgraph = "Experiment.calculatedInfo.details"),
-        },
-        subgraphs = {
-                @NamedSubgraph(
-                        name = "Experiment.calculatedInfo.details",
-                        attributeNodes = {
-                                @NamedAttributeNode("currentAccess"),
-                                @NamedAttributeNode("marked"),
-                        }
-                ),
-                @NamedSubgraph(
-                        name = "Experiment.linkedExperiments",
-                        attributeNodes = {
-                                @NamedAttributeNode("name")
-                        }
-                )
+                @NamedAttributeNode("linkedExperiments"),
+                @NamedAttributeNode("continuedFrom"),
+                @NamedAttributeNode("continuedTo"),
+                @NamedAttributeNode("currentAccessOrNull"),
+                @NamedAttributeNode("markedOrNull"),
+                @NamedAttributeNode("attachments")
         }
 )
 @NamedEntityGraph(
@@ -92,7 +77,7 @@ import java.util.*;
         }
 )
 @DynamicUpdate
-public class ExperimentEntity extends BaseEntity implements WithAttachments, WithACL<ExperimentACLEntity>, WithRevision {
+public class ExperimentEntity extends BaseEntity implements WithAttachments<ExperimentAttachment>, WithACL<ExperimentACLEntity>, WithRevision {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -142,19 +127,20 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @ManyToOne(fetch = FetchType.LAZY)
     private UserEntity batchCreator;
 
-    @ManyToMany
-    @JoinTable(name = "Experiment_Linked_Experiment", joinColumns = @JoinColumn(name = "parent_id"), inverseJoinColumns = @JoinColumn(name = "experiment_id"))
-    private Set<ExperimentEntity> linkedExperiments = new HashSet<>(0);
+    @NotNull
+    @Basic(fetch = FetchType.LAZY)
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    private UUID[] linkedExperiments = new UUID[0];
 
     @NotNull
-    @ManyToMany
-    @JoinTable(name = "Experiment_Continued_From", joinColumns = @JoinColumn(name = "parent_id"), inverseJoinColumns = @JoinColumn(name = "experiment_id"))
-    private Set<ExperimentEntity> continuedFrom = new HashSet<>(0);
+    @Basic(fetch = FetchType.LAZY)
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    private UUID[] continuedFrom = new UUID[0];
 
     @NotNull
-    @ManyToMany
-    @JoinTable(name = "Experiment_Continued_To", joinColumns = @JoinColumn(name = "parent_id"), inverseJoinColumns = @JoinColumn(name = "experiment_id"))
-    private Set<ExperimentEntity> continuedTo = new HashSet<>(0);
+    @Basic(fetch = FetchType.LAZY)
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    private UUID[] continuedTo = new UUID[0];
 
     @Nullable
     @Basic(fetch = FetchType.LAZY)
@@ -196,7 +182,7 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @Nullable
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "signature_attachment_id")
-    private AttachmentEntity signatureAttachment;
+    private ExperimentAttachment signatureAttachment;
 
     @NotNull
     @OneToMany(mappedBy = "experiment", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -204,15 +190,9 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     private Map<UserEntity, ExperimentACLEntity> aclEntities = new HashMap<>(0);
 
     @NotNull
-    @ManyToMany
-    @JoinTable(name = "experiment_attachment", joinColumns = @JoinColumn(name = "experiment_id"), inverseJoinColumns = @JoinColumn(name = "attachment_id"))
+    @OneToMany(mappedBy = "parent")
     @OrderBy("createdAt")
-    private List<AttachmentEntity> attachments = new ArrayList<>(0);
-
-    @Nullable
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id", referencedColumnName = "id")
-    private CalculatedInfo calculatedInfo;
+    private List<ExperimentAttachment> attachments = new ArrayList<>(0);
 
     @NotNull
     @ElementCollection
@@ -226,6 +206,28 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @OrderColumn(name = "ordinal")
     private List<String> rxnfiles = new ArrayList<>(0);
 
+    @Nullable
+    @Basic(fetch = FetchType.LAZY)
+    @Column(table = "Experiment_Access_View", insertable = false, updatable = false)
+    @JdbcType(PostgreSQLEnumJdbcType.class)
+    @Fetch(FetchMode.SELECT)
+    @LazyGroup("access_view")
+    private AccessLevel currentAccessOrNull;
+
+    @Nullable
+    @Basic(fetch = FetchType.LAZY)
+    @Column(table = "Experiment_Access_View", insertable = false, updatable = false)
+    @Fetch(FetchMode.SELECT)
+    @LazyGroup("access_view")
+    private Integer aclCount;
+
+    @Nullable
+    @Basic(fetch = FetchType.LAZY)
+    @Column(table = "Experiment_Marked_View", insertable = false, updatable = false)
+    @Fetch(FetchMode.SELECT)
+    @LazyGroup("marked_view")
+    private Boolean markedOrNull;
+
     @Override
     public void insertACL(UserEntity user, AccessLevel access) {
         getAclEntities().put(user, new ExperimentACLEntity(this, user, access));
@@ -237,27 +239,13 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
         return notebook;
     }
 
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Entity(name = "ExperimentCalculatedInfo")
-    @Table(name = "Experiment_View_2")
-    public static class CalculatedInfo extends IdentifiableEntity {
+    @Transient
+    public AccessLevel getCurrentAccess() {
+        return currentAccessOrNull != null ? currentAccessOrNull : AccessLevel.NONE;
+    }
 
-        @Basic
-        @Nullable
-        @Column(insertable = false, updatable = false)
-        @JdbcType(PostgreSQLEnumJdbcType.class)
-        private AccessLevel currentAccess;
-
-        @NotNull
-        @Basic(fetch = FetchType.LAZY)
-        @Column(insertable = false, updatable = false)
-        private Integer aclCount;
-
-        @NotNull
-        @Basic(fetch = FetchType.LAZY)
-        private Boolean marked;
+    @Transient
+    public boolean isMarked() {
+        return getMarkedOrNull() == Boolean.TRUE;
     }
 }

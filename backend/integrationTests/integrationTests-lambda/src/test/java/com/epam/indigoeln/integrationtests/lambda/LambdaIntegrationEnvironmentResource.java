@@ -94,20 +94,11 @@ class ResourceImpl implements AutoCloseable {
         }
         log.info("Moto started, bucket 'indigoeln-data' created");
 
-        log.info("Building SAM-compatible ELN lambda...");
-        Process elnBuilder = new ProcessBuilder("docker", "build"
-                , "-f", "../../eln/eln-lambda/src/main/docker/Dockerfile.native.integrationtests"
-                , "-t", "indigoeln/eln-lambda:built.integrationtests"
-                , "../../eln/eln-lambda/build")
-                .inheritIO()
-                .start();
-        int elnBuilderResult = elnBuilder.waitFor();
-        if (elnBuilderResult != 0) {
-            throw new RuntimeException("Failed to build SAM-compatible ELN lambda, exit code " + elnBuilderResult);
-        }
+        log.info("Building SAM-compatible images...");
+        samRunner = new SAMRunner(new File("sam.integrationtests.yaml"), 28080);
+        samRunner.build();
 
         log.info("Starting SAM...");
-        samRunner = new SAMRunner(new File("sam.integrationtests.yaml"), 28080, "SAM");
         samRunner.start();
         log.info("Integration environment started");
     }

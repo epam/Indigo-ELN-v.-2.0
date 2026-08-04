@@ -33,13 +33,6 @@ import static org.assertj.core.api.Assertions.entry;
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
 class ProjectServiceTest extends ELNBaseTest {
 
-    @BeforeAll
-    void tearDownAll() {
-        dictionaryClient.getDictionary(BuiltInDictionary.PROJECT_KEYWORD).forEach(item -> {
-            dictionaryClient.removeDictionaryItem(BuiltInDictionary.PROJECT_KEYWORD, item.getId());
-        });
-    }
-
     @Test
     @Order(-100)
     void testCounters() {
@@ -496,11 +489,14 @@ class ProjectServiceTest extends ELNBaseTest {
 
     @Test
     void testSuggestKeywords() {
-        projectClient.createProject(new ProjectRequest("testSuggestKeywords", List.of("k1", "K2", "k3", "keyword1", "Keyword2"), null, null));
-        List<DictionaryItemRef> all = dictionaryClient.suggestDictionaryItems(BuiltInDictionary.PROJECT_KEYWORD, "");
-        assertThat(all).map(DictionaryItemRef::getName).contains("k1", "k2", "k3");
-        List<DictionaryItemRef> filtered = dictionaryClient.suggestDictionaryItems(BuiltInDictionary.PROJECT_KEYWORD, "ke");
-        assertThat(filtered).map(DictionaryItemRef::getName).containsExactly("keyword1", "keyword2", "Keyword2");
+        projectClient.createProject(new ProjectRequest("testSuggestKeywords", List.of("suggKwRed", "SuggKwRose", "suggKwBlue"), null, null));
+        // Empty prefix returns the keywords used across projects
+        assertThat(projectClient.suggestKeywords("")).contains("suggKwRed", "SuggKwRose", "suggKwBlue");
+        // Prefix match is case-insensitive and excludes non-matching keywords
+        assertThat(projectClient.suggestKeywords("suggkwr")).containsExactlyInAnyOrder("suggKwRed", "SuggKwRose");
+        // Keywords are suggested globally and deduplicated across projects
+        projectClient.createProject(new ProjectRequest("testSuggestKeywords2", List.of("suggKwRed"), null, null));
+        assertThat(projectClient.suggestKeywords("suggkwred")).containsExactly("suggKwRed");
     }
 
     @Test

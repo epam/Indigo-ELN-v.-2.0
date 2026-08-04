@@ -9,8 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { NavigationEnd, Router, RouterOutlet, RouterLink } from '@angular/router';
-import { AuthenticatorService } from '@aws-amplify/ui-angular';
+import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { ReportErrorDialogService } from '@core/services/report-error-dialog.service';
 import { GlobalSearchComponent } from '@pages/search/global-search/global-search.component';
 import { Observable, Subject, takeUntil } from 'rxjs';
@@ -38,7 +37,6 @@ import { SidebarComponent } from './partials/sidebar/sidebar.component';
 })
 export class MasterComponent implements OnInit, OnDestroy {
   destroy$ = new Subject<void>();
-  authenticatorService = inject(AuthenticatorService);
   identityService = inject(IdentityService);
   dialog = inject(MatDialog);
   reportErrorDialogService = inject(ReportErrorDialogService);
@@ -46,14 +44,14 @@ export class MasterComponent implements OnInit, OnDestroy {
   public searchControl = new FormControl('');
   router = inject(Router);
 
-  userName = 'John D.';
+  userName = '';
   userAvatar = 'assets/avatar-placeholder.png';
 
   @ViewChild('content', { static: true }) content!: ElementRef<HTMLElement>;
 
-  logout() {
-    this.authenticatorService.signOut();
-    this.router.navigateByUrl('/');
+  async logout() {
+    await this.identityService.logout();
+    await this.router.navigateByUrl('/');
   }
 
   ngOnInit(): void {

@@ -16,7 +16,6 @@ public enum BuiltInDictionary {
 
     THERAPEUTIC_AREA(UUID.fromString("84f97b23-7125-4847-bca2-399f351df9d7"), TherapeuticAreaRef.class, false),
     PROJECT_CODE(UUID.fromString("886d9a69-ae2f-4e19-ae0b-0d8f28f27e01"), ProjectCodeRef.class, false),
-    PROJECT_KEYWORD(UUID.fromString("1cc9d41e-1e5e-4447-abd5-5067e9ba8210"), ProjectKeywordRef.class, true),
     STEREOISOMER_CODE(UUID.fromString("8c61d750-c4da-431b-b5a1-b5ebb0a98811"), StereoisomerCodeRef.class, false),
 
     HEALTH_HAZARD(UUID.fromString("f9e02f6e-9408-4d25-a9eb-06cda2f78a4f"), HealthHazardRef.class, true),

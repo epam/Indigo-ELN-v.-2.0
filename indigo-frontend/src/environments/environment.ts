@@ -2,7 +2,6 @@ import { mergeEnvironments } from './env.util';
 
 export const environment = mergeEnvironments({
   production: false,
-  authProvider: 'cognito',
   keycloak: {
     url: '',
     realm: '',

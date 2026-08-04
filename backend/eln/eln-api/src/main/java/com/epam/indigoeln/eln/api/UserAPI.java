@@ -29,7 +29,7 @@ public interface UserAPI extends BaseAPI {
 
     @GET
     @Path("/users")
-    Page<UserDTO> getUsers(@QueryParam("search") @Nullable String search, @QueryParam("username") @Nullable String username, @BeanParam Paging paging);
+    Page<UserDTO> getUsers(@QueryParam("search") @Nullable String search, @BeanParam Paging paging);
 
     @GET
     @Path("/users/{username}")

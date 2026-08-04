@@ -1,5 +1,6 @@
 package com.epam.indigoeln.common.util;
 
+import com.epam.indigoeln.common.model.Page;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import one.util.streamex.StreamEx;
@@ -126,5 +127,18 @@ public class ModelUtil {
 
     public static <T> List<T> removeFromList(List<T> list, T item) {
         return StreamEx.of(list).without(item).toImmutableList();
+    }
+
+    @Nullable
+    public static <S, T> T map(@Nullable S value, Function<S, T> mapper) {
+        return value != null ? mapper.apply(value) : null;
+    }
+
+    public static <S, T> List<T> map(List<S> list, Function<S, T> mapper) {
+        return list.stream().map(mapper).toList();
+    }
+
+    public static <S, T> Page<T> map(Page<S> page, Function<S, T> mapper) {
+        return Page.of(page.getPaging(), page.getTotalItems(), map(page.getItems(), mapper));
     }
 }

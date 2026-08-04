@@ -3,21 +3,18 @@ package com.epam.indigoeln.eln.service;
 import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
-import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.config.DataAccess;
-import com.epam.indigoeln.eln.entity.ExperimentEntity;
-import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
-import com.epam.indigoeln.eln.entity.NotebookEntity;
-import com.epam.indigoeln.eln.entity.TemplateEntity;
+import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.mapper.ExperimentMapper;
 import com.epam.indigoeln.eln.mapper.ProjectMapper;
 import com.epam.indigoeln.eln.mapper.SnapshotMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
+import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.eln.repository.TemplateRepository;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
@@ -70,6 +67,8 @@ public class ExperimentService {
     static final byte[] EMPTY_PICTURE = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1\" height=\"1\"/>".getBytes(StandardCharsets.UTF_8);
 
     @Inject
+    ProjectRepository projectRepository;
+    @Inject
     NotebookRepository notebookRepository;
     @Inject
     ExperimentRepository experimentRepository;
@@ -100,10 +99,10 @@ public class ExperimentService {
     ObjectMapper objectMapper;
 
     public ExperimentDetailsDTO createExperiment(UUID notebookId, ExperimentRequest request) {
-        NotebookEntity notebook = notebookRepository.get(notebookId);
+        NotebookEntity notebook = notebookRepository.loadWithACL(notebookId);
+        projectRepository.lock(notebook.getProject().getId()); // protect project from possible ACL changes
+        projectRepository.loadWithACL(notebook.getProject().getId());
         ExperimentEntity experiment = new ExperimentEntity();
-        notebook.getProject().getExperiments().add(experiment);
-        notebook.getExperiments().add(experiment);
         experiment.setProject(notebook.getProject());
         experiment.setNotebook(notebook);
         TemplateEntity template = templateRepository.get(request.getTemplateID());
@@ -114,13 +113,14 @@ public class ExperimentService {
     }
 
     public Page<ExperimentDTO> getExperiments(@Nullable UUID projectId, @Nullable UUID notebookId, @Nullable String search, @Nullable SortOrder sort, @Nullable Boolean createdByMe, Paging paging) {
-        UserRef currentUser = Boolean.TRUE.equals(createdByMe) ? userService.getCurrentUser() : null;
+        UserEntity currentUser = Boolean.TRUE.equals(createdByMe) ? userService.getCurrentUserEntity() : null;
         boolean showAll = userService.getCurrentUser().getPermissions().contains(VIEW_EXPERIMENTS);
         return experimentRepository.findAll(projectId, notebookId, search, sort, currentUser, paging, showAll);
     }
 
     public List<ExperimentDTO> getMarkedExperiments() {
-        return experimentRepository.findMarked();
+        boolean showAll = userService.getCurrentUser().getPermissions().contains(VIEW_EXPERIMENTS);
+        return experimentRepository.findMarked(showAll);
     }
 
     public ExperimentDetailsDTO getExperiment(UUID experimentId) {
@@ -134,13 +134,22 @@ public class ExperimentService {
     }
 
     public ExperimentDetailsDTO getExperimentDetails(ExperimentEntity experiment) {
-        Set<ApplicationPermission> currentPermissions = aclService.getCurrentPermissions(experiment.getCalculatedInfo() != null ? experiment.getCalculatedInfo().getCurrentAccess() : null);
+        Set<ApplicationPermission> currentPermissions = aclService.getCurrentPermissions(experiment.getCurrentAccess());
         currentPermissions.retainAll(EnumSet.of(VIEW_EXPERIMENTS, EDIT_EXPERIMENTS, MANAGE_EXPERIMENT_ACCESS, DELETE_EXPERIMENTS, SUBMIT_EXPERIMENTS));
-        return experimentMapper.entityToDetailsDTO(experiment, currentPermissions);
+        ExperimentDetailsDTO dto = experimentMapper.entityToDetailsDTO(experiment, currentPermissions);
+        setLinkedExperimentRefs(dto, experiment);
+        return dto;
+    }
+
+    private void setLinkedExperimentRefs(ExperimentDetailsDTO dto, ExperimentEntity experiment) {
+        ExperimentRepository.LinkedExperimentRefs refs = experimentRepository.resolveLinkedExperimentRefs(experiment);
+        dto.setLinkedExperiments(refs.linkedExperiments());
+        dto.setContinuedFrom(refs.continuedFrom());
+        dto.setContinuedTo(refs.continuedTo());
     }
 
     public ExperimentDetailsDTO editExperiment(UUID experimentId, ExperimentEditRequest request) {
-        ExperimentEntity experiment = experimentRepository.getAndLock(experimentId);
+        ExperimentEntity experiment = experimentRepository.loadAndLock(experimentId);
         experimentModelService.applyMutation(experiment, experimentMapper.requestToMutation(request));
         return getExperimentDetails(experiment);
     }
@@ -153,7 +162,10 @@ public class ExperimentService {
     }
 
     public List<ACLEntryDTO> updateExperimentAccess(UUID experimentId, List<AccessForm> form) {
-        ExperimentEntity experiment = experimentRepository.getAndLock(experimentId);
+        projectRepository.lock(experimentRepository.getProjectID(experimentId)); // protect project tree from ACL changes
+        ExperimentEntity experiment = experimentRepository.loadAndLock(experimentId); // project experiment itself from non-ACL changes
+        projectRepository.loadWithACL(experiment.getProject().getId());
+        notebookRepository.loadWithACL(experiment.getNotebook().getId());
         ExperimentMutation mutation = new ExperimentMutation.EditExperimentAccess(form);
         experimentModelService.applyMutation(experiment, mutation);
         return experimentMapper.convertACLList(experiment.getFullACL());
@@ -162,7 +174,7 @@ public class ExperimentService {
     @SneakyThrows
     public MutationResponse mutateModel(UUID experimentId, Integer revision, boolean verifyUndoRedo, ExperimentMutation mutation) {
         validate(mutation.isMutateMethodAllowed(), "Mutation is not allowed for generic mutate method");
-        ExperimentEntity experiment = experimentRepository.getAndLock(experimentId);
+        ExperimentEntity experiment = experimentRepository.loadAndLock(experimentId);
         aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
         MutationResult<ExperimentSnapshot, ExperimentMutationContext> result = experimentModelService.applyMutation(experiment, mutation);
         if (verifyUndoRedo) {
@@ -231,9 +243,11 @@ public class ExperimentService {
 
     @SneakyThrows
     public ExperimentReportContent printReport(ExperimentEntity experiment) {
+        ExperimentDetailsDTO experimentDetails = experimentMapper.entityToDetailsDTO(experiment, Set.of());
+        setLinkedExperimentRefs(experimentDetails, experiment);
         ReportsAPI.ExperimentReportDataDTO data = new ReportsAPI.ExperimentReportDataDTO(
                 projectMapper.entityToDTO(experiment.getProject()),
-                experimentMapper.entityToDetailsDTO(experiment, Set.of()),
+                experimentDetails,
                 experiment.getPicture() != null ? new String(experiment.getPicture(), StandardCharsets.UTF_8) : null
         );
         try (Response response = reportsClient.generateExperimentReport(data)) {
@@ -288,7 +302,7 @@ public class ExperimentService {
 
     @SneakyThrows
     public MutationResponse importSDF(UUID experimentId, ReactionAnchor reactionAnchor, @NotNull FileUpload file) {
-        ExperimentEntity experiment = experimentRepository.getAndLock(experimentId);
+        ExperimentEntity experiment = experimentRepository.loadAndLock(experimentId);
         aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
         List<UUID> compoundIDs = compoundService.loadCompoundsFromFile(file.filePath(), false);
         MutationResult<ExperimentSnapshot, ExperimentMutationContext> result = experimentModelService.applyMutation(experiment, new ReactionMutation.ImportSDF(reactionAnchor, compoundIDs));

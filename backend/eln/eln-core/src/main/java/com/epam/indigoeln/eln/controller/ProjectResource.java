@@ -47,6 +47,11 @@ public class ProjectResource implements ProjectAPI {
     }
 
     @Override
+    public List<String> suggestKeywords(@Nullable String search) {
+        return projectService.suggestKeywords(search);
+    }
+
+    @Override
     public @NotNull @Valid ProjectDetailsDTO getProject(@NotNull UUID projectId) {
         return projectService.getProject(projectId);
     }

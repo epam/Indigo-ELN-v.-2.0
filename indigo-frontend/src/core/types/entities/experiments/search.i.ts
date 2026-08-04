@@ -79,6 +79,7 @@ export interface FindSamplesRequest {
   batchComment?: TextSearch;
   healthHazards?: DictionaryItemRef;
   marked?: boolean;
+  state?: unknown;
 }
 
 export const TextSearchTypeNames = {
@@ -132,10 +133,8 @@ export const SEARCH_CATALOG_MAPPING = {
 
 export interface SampleSearchResult {
   items: Sample[];
-  hasNext: boolean;
-  nextCatalog?: SearchCatalog;
-  nextAfter?: string;
   totalItems?: number;
+  next?: unknown;
 }
 
 export interface GlobalSearchRequest {

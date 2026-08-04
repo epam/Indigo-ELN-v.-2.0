@@ -173,7 +173,6 @@ public class DictionaryService {
             case null -> DictionaryItemRef::new;
             case THERAPEUTIC_AREA -> TherapeuticAreaRef::new;
             case PROJECT_CODE -> ProjectCodeRef::new;
-            case PROJECT_KEYWORD -> ProjectKeywordRef::new;
             case STEREOISOMER_CODE -> StereoisomerCodeRef::new;
             case HEALTH_HAZARD -> HealthHazardRef::new;
             case HANDLING_PRECAUTIONS -> HandlingPrecautionsRef::new;

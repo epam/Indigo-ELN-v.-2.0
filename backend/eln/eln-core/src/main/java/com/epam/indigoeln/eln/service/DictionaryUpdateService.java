@@ -10,14 +10,14 @@ import com.epam.indigoeln.eln.repository.DictionaryItemRepository;
 import com.epam.indigoeln.eln.repository.DictionaryRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 import org.hibernate.exception.ConstraintViolationException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ModelUtil.editProperty;
 import static com.epam.indigoeln.eln.service.DictionaryService.refToID;
@@ -45,9 +45,6 @@ public class DictionaryUpdateService {
 
     @Inject
     DictionaryMapper dictionaryMapper;
-
-    @PersistenceContext
-    EntityManager em;
 
     public List<DictionaryDTO> getDictionaries() {
         return dictionaryRepository.list();
@@ -84,7 +81,7 @@ public class DictionaryUpdateService {
     }
 
     public List<DictionaryItemEntity> addDictionaryItems(String dictionaryRef, List<DictionaryItemRequest> items) {
-        DictionaryEntity dictionary = dictionaryRepository.findById(refToID(dictionaryRef));
+        DictionaryEntity dictionary = dictionaryRepository.get(refToID(dictionaryRef));
         if (!dictionary.getUserEditable()) {
             aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_DICTIONARIES);
         }
@@ -98,7 +95,7 @@ public class DictionaryUpdateService {
         }
         list.addAll(inserted);
         renumberItems(list, true);
-        em.flush();
+        dictionaryRepository.flush();
         renumberItems(list, false);
         dictionaryItemRepository.persist(inserted);
         dictionaryService.invalidate();
@@ -117,7 +114,7 @@ public class DictionaryUpdateService {
             // assign items negative numbers first, to avoid unique index violations;
             // if we had unique constraint, we could use deferred constraint, but we have to use partial unique index to cover only non-deleted items
             renumberItems(list, true);
-            em.flush();
+            dictionaryItemRepository.flush();
             // reorder items, move item to new position and reorder again
             renumberItems(list, false);
             list.remove(entity);
@@ -141,26 +138,10 @@ public class DictionaryUpdateService {
             throw new InvalidRequestException("This word is selected in other inputs. Please deactivate the word to remove it from available options of the inputs");
         }
         renumberItems(list, true);
-        em.flush();
+        dictionaryRepository.flush();
         renumberItems(list, false);
         dictionaryService.invalidate();
         return dictionaryMapper.itemToDTOList(list);
-    }
-
-    public List<DictionaryItemEntity> findOrCreateByNames(String dictionaryRef, Collection<String> names) {
-        DictionaryEntity dictionary = dictionaryRepository.findById(refToID(dictionaryRef));
-        if (!dictionary.getUserEditable()) {
-            throw new IllegalArgumentException("findOrCreateByNames cannot be used with dictionary " + dictionary);
-        }
-        Map<String, DictionaryItemEntity> found = dictionaryItemRepository.findByNames(dictionary.getId(), names);
-        if (found.size() < names.size()) {
-            Set<String> remainingNames = new HashSet<>(names);
-            remainingNames.removeAll(found.keySet());
-            List<DictionaryItemEntity> newAllItems = addDictionaryItems(dictionaryRef, remainingNames.stream().map(x -> new DictionaryItemRequest(x, null)).toList());
-            found = StreamEx.of(newAllItems).toMap(DictionaryItemEntity::getName, x -> x);
-        }
-        dictionaryService.invalidate();
-        return StreamEx.of(names).map(found::get).toList();
     }
 
     private void renumberItems(List<DictionaryItemEntity> items, boolean negative) {

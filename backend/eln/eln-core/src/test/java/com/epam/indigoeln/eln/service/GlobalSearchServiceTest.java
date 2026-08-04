@@ -131,7 +131,6 @@ class GlobalSearchServiceTest extends ELNBaseTest {
     @Test
     void testFindExperimentsByStatus() {
         Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withExperimentStatus(Set.of(ExperimentStatus.CANCELLED, ExperimentStatus.SUBMITTED)), Paging.DEFAULT);
-        System.out.println(results);
         assertResults(results
                 , tuple(ELNEntityType.EXPERIMENT, experiment3.name(), experiment3.id())
         );

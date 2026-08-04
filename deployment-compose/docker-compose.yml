@@ -1,7 +1,7 @@
 services:
 
   frontend:
-    image: "frontend:development"
+    image: "indigoeln/frontend:built"
     build:
       context: ./../indigo-frontend
       dockerfile: Dockerfile
@@ -11,14 +11,16 @@ services:
       - KEYCLOAK_CLIENT_ID=frontend-client
 
   eln-service:
-    image: "eln-service:development"
+    image: "indigoeln/eln-service:built"
     build:
       context: ./../backend/eln/eln-service
       dockerfile: src/main/docker/Dockerfile.jvm
     environment:
+      QUARKUS_PROFILE: ${QUARKUS_PROFILE}
       QUARKUS_DATASOURCE_JDBC_URL: "jdbc:postgresql://postgres:5432/eln"
       QUARKUS_DATASOURCE_USERNAME: eln
       QUARKUS_DATASOURCE_PASSWORD: eln
+      ELN_API_SECRET: apiSecret
       QUARKUS_OIDC_AUTH_SERVER_URL: "http://keycloak:8080/realms/indigo-eln"
       QUARKUS_OIDC_CLIENT_ID: indigo-eln-client
       QUARKUS_OIDC_DISCOVERY_ENABLED: "false"
@@ -27,7 +29,13 @@ services:
       QUARKUS_TLS_TRUST_ALL: true
       QUARKUS_REST_CLIENT_SIGNATURE_API_URL: "http://nginx:80/"
       QUARKUS_REST_CLIENT_REPORTS_API_URL: "http://nginx:80/"
-      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Dquarkus.profile=devtest"
+      QUARKUS_LOG_CONSOLE_JSON_ENABLED: false
+      QUARKUS_LOG_CONSOLE_FORMAT: "[ELN] %d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
+      QUARKUS_LOG_LEVEL: INFO # DEBUG
+#      QUARKUS_REST_CLIENT_LOGGING_SCOPE: "request-response"
+#      QUARKUS_REST_CLIENT_LOGGING_BODY_LIMIT: "9999"
+#      QUARKUS_REST_CLIENT_EXTENSIONS_API_SCOPE: "all"
+#      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Dquarkus.profile=dev"
     depends_on:
       postgres:
         condition: service_healthy
@@ -42,17 +50,42 @@ services:
       start_period: 30s
     ports:
       - "10020:8080"
-      - "10021:5005"
+#      - "10021:5005"
+
+  reports-service:
+    image: "indigoeln/reports-service:built"
+    build:
+      context: ./../backend/reports/reports-service
+      dockerfile: src/main/docker/Dockerfile.jvm
+    environment:
+      QUARKUS_PROFILE: ${QUARKUS_PROFILE}
+      ELN_API_SECRET: apiSecret
+      QUARKUS_LOG_CONSOLE_JSON_ENABLED: false
+      QUARKUS_LOG_CONSOLE_FORMAT: "[REPORTS] %d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
+      QUARKUS_LOG_LEVEL: INFO # DEBUG
+    #      QUARKUS_LOG_CATEGORY__NET_SF_JASPERREPORTS__LEVEL: INFO
+    #      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5007 -Dquarkus.profile=devtest"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/q/health/ready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    ports:
+      - "10040:8080"
+  #      - "10041:5007"
 
   signature-service:
-    image: "signature-service:development"
+    image: "indigoeln/signature-service:built"
     build:
       context: ./../backend/signature/signature-service
       dockerfile: src/main/docker/Dockerfile.jvm
     environment:
+      QUARKUS_PROFILE: ${QUARKUS_PROFILE}
       QUARKUS_DATASOURCE_JDBC_URL: "jdbc:postgresql://postgres:5432/signature"
       QUARKUS_DATASOURCE_USERNAME: signature
       QUARKUS_DATASOURCE_PASSWORD: signature
+      ELN_API_SECRET: apiSecret
       QUARKUS_OIDC_AUTH_SERVER_URL: "http://keycloak:8080/realms/indigo-eln"
       QUARKUS_OIDC_CLIENT_ID: indigo-eln-client
       QUARKUS_OIDC_DISCOVERY_ENABLED: "false"
@@ -60,8 +93,14 @@ services:
       QUARKUS_OIDC_TOKEN_ISSUER: "any"
       QUARKUS_TLS_TRUST_ALL: true
       ELN_SIGNATURE_KEYSTORE_PASSWORD: "1234"
+      QUARKUS_LOG_CONSOLE_JSON_ENABLED: false
+      QUARKUS_LOG_CONSOLE_FORMAT: "[SIGNATURE] %d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
       QUARKUS_REST_CLIENT_ELN_INTERNAL_API_URL: "http://nginx:80/"
-      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5006 -Dquarkus.profile=devtest"
+      QUARKUS_LOG_LEVEL: INFO # DEBUG
+#      QUARKUS_REST_CLIENT_LOGGING_SCOPE: "request-response"
+#      QUARKUS_REST_CLIENT_LOGGING_BODY_LIMIT: "9999"
+#      QUARKUS_REST_CLIENT_EXTENSIONS_API_SCOPE: "all"
+#      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5006 -Dquarkus.profile=devtest"
     depends_on:
       postgres:
         condition: service_healthy
@@ -76,28 +115,10 @@ services:
       start_period: 30s
     ports:
       - "10030:8080"
-      - "10031:5006"
-
-  reports-service:
-    image: "reports-service:development"
-    build:
-      context: ./../backend/reports/reports-service
-      dockerfile: src/main/docker/Dockerfile.jvm
-    environment:
-      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5007 -Dquarkus.profile=devtest"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/q/health/ready" ]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 30s
-    ports:
-      - "10040:8080"
-      - "10041:5007"
+#      - "10031:5006"
 
   postgres:
-    #image: "public.ecr.aws/m5k0g6n7/indigoeln/indigo-eln-postgres:latest"
-    image: indigo-eln-postgres:latest
+    image: indigo-eln-postgres:built
     build:
       context: ./../backend/postgres
       dockerfile: Dockerfile
@@ -147,7 +168,7 @@ services:
       /bin/sh -c "
       while ! wget -q -O- http://keycloak:9005/health/started; do
         echo waiting for keycloak;
-        sleep 5;
+        sleep 1;
       done;
       echo keycloak is up;
       tail -f /dev/null      
@@ -159,7 +180,6 @@ services:
       retries: 5
     volumes:
       - ./healthcheck.log:/var/log/healthcheck.log
-
 
   keycloak-config-cli:
     image: quay.io/adorsys/keycloak-config-cli:6.4.0-26.1.0

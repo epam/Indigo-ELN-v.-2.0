@@ -122,6 +122,10 @@
                 {
                   "replace": "src/environments/environment.ts",
                   "with": "src/environments/environment.local.ts"
+                },
+                {
+                  "replace": "src/core/services/identity.service.ts",
+                  "with": "src/core/services/identity.service.local.ts"
                 }
               ],
               "optimization": false,
@@ -145,7 +149,8 @@
               "buildTarget": "indigo-frontend:build:development"
             },
             "local": {
-              "buildTarget": "indigo-frontend:build:local"
+              "buildTarget": "indigo-frontend:build:local",
+              "proxyConfig": "src/proxy.conf.local.js"
             }
           },
           "defaultConfiguration": "development",

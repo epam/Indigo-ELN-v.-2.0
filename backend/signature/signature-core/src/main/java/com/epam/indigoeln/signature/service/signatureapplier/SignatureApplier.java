@@ -3,20 +3,20 @@ package com.epam.indigoeln.signature.service.signatureapplier;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.signature.entity.DocumentSignatureEntity;
 import com.epam.indigoeln.signature.exception.InvalidInputException;
+import com.google.common.base.Strings;
 import com.lowagie.text.Image;
 import com.lowagie.text.Rectangle;
 import com.lowagie.text.pdf.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.jspecify.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.KeyStore;
 import java.security.PrivateKey;
-import java.security.Security;
 import java.security.cert.Certificate;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -52,7 +52,6 @@ public class SignatureApplier {
         String alias = ks.aliases().nextElement();
         PrivateKey pk = (PrivateKey) ks.getKey(alias, keyStoragePassword.toCharArray());
         Certificate[] chain = ks.getCertificateChain(alias);
-        Security.addProvider(new BouncyCastleProvider());
 
         return stampDocument(documentContent, signatureBlockEntity, signatureIndex, getSignatureApprovedText(signatureBlockEntity), signatureApprovedImage, pk, chain);
     }
@@ -62,8 +61,7 @@ public class SignatureApplier {
         return stampDocument(documentContent, signatureBlockEntity, signatureIndex, getSignatureRejectedText(signatureBlockEntity), signatureRejectedImage, null, null);
     }
 
-    protected byte[] stampDocument(byte[] documentContent, DocumentSignatureEntity signatureBlock, int signatureIndex,
-                                String stampText, byte[] image, PrivateKey key, Certificate[] chain) throws Exception {
+    protected byte[] stampDocument(byte[] documentContent, DocumentSignatureEntity signatureBlock, int signatureIndex, String stampText, byte[] image, @Nullable PrivateKey key, Certificate @Nullable [] chain) throws Exception {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         PdfReader reader = new PdfReader(documentContent);
         int i = signatureIndex + 1;
@@ -76,8 +74,7 @@ public class SignatureApplier {
             stamper.insertPage(++pageNum, reader.getPageSizeWithRotation(1));
         }
 
-        prepareSignatureAppearance(appearance, reader, pageNum, i, stampText, image,
-                signatureBlock.getReason().getSignatureText(), key, chain);
+        prepareSignatureAppearance(appearance, reader, pageNum, i, stampText, image, signatureBlock.getReason().getSignatureText(), key, chain);
 
         if (key == null) {
             closeSignatureAppearance(appearance);
@@ -88,8 +85,7 @@ public class SignatureApplier {
         return outputStream.toByteArray();
     }
 
-    protected void prepareSignatureAppearance(PdfSignatureAppearance appearance, PdfReader reader, int pageNum, int index, String layer2Text,
-                                           byte[] image, String reason, PrivateKey key, Certificate[] chain) throws IOException {
+    protected void prepareSignatureAppearance(PdfSignatureAppearance appearance, PdfReader reader, int pageNum, int index, String layer2Text, byte[] image, String reason, @Nullable PrivateKey key, Certificate @Nullable [] chain) throws IOException {
         Calendar signDate = Calendar.getInstance();
 
         if (key != null) {
@@ -144,11 +140,11 @@ public class SignatureApplier {
     protected String getSignatureRejectedText(DocumentSignatureEntity signatureTemplateBlock) {
         return "Rejected by " + signatureTemplateBlock.getUser().getDisplayName() + "\n" +
                 "Date: " + DATE_FORMAT.format(ZonedDateTime.now()) + "\n" +
-                "Comment: " + cutLongText(signatureTemplateBlock.getComment()) + "\n";
+                "Comment: " + cutLongText(Strings.nullToEmpty(signatureTemplateBlock.getComment())) + "\n";
     }
 
     protected String cutLongText(String text) {
-        if (text == null || text.length() <= 35) {
+        if (text.length() <= 35) {
             return text;
         } else if (text.length() < 70) {
             return text.substring(0, 35) + "\n" + text.substring(35);

@@ -1,107 +1,16 @@
-import { ChipGridFieldComponent } from '@/core/components/formly/fields/chip-grid-field.component';
-import { InputFieldComponent } from '@/core/components/formly/fields/input-field.component';
-import { TextareaFieldComponent } from '@/core/components/formly/fields/textarea-field.component';
-import { ElnWrapperFormField } from '@/core/components/formly/wrappers/field-wrapper.component';
 import { JwtInterceptor } from '@/core/interceptors/jwt.interceptor';
-import {
-  HTTP_INTERCEPTORS,
-  provideHttpClient,
-  withInterceptorsFromDi,
-  withXsrfConfiguration,
-} from '@angular/common/http';
-import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { ApplicationConfig } from '@angular/core';
+import { commonProviders, sharedHttpFeatures } from './app.config.shared';
 
-import { EditorFormlyFieldComponent } from '@/core/components/formly/fields/editor/editor-field.component';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { provideRouter, withComponentInputBinding, withRouterConfig } from '@angular/router';
-import { FormlyModule } from '@ngx-formly/core';
-import { FormlyPresetModule } from '@ngx-formly/core/preset';
-import { FormlyMaterialModule } from '@ngx-formly/material';
-import { FormlyMatDatepickerModule } from '@ngx-formly/material/datepicker';
-import { routes } from './app.routes';
-import { SelectFieldComponent } from '@/core/components/formly/fields/select-field.component';
-import { SelectChipsComponent } from '@/core/components/formly/fields/select-chips.component';
-import { DropdownFieldComponent } from '@/core/components/formly/fields/dropdown-field.component';
-import { ExperimentSelectFieldComponent } from '@/core/components/formly/fields/experiment-select-field.component';
-import { ErrorInterceptor } from '@core/interceptors/error.interceptor';
-
+/**
+ * Cognito bootstrap configuration (default / staging / production builds).
+ * Only auth-specific providers belong here — everything else goes in app.config.shared.ts.
+ */
 export const appConfig: ApplicationConfig = {
   providers: [
-    FormlyPresetModule,
-    importProvidersFrom(
-      FormlyModule.forRoot({
-        types: [
-          {
-            name: 'input',
-            component: InputFieldComponent,
-            wrappers: ['raw'],
-          },
-          {
-            name: 'textarea',
-            component: TextareaFieldComponent,
-            wrappers: ['raw'],
-          },
-          {
-            name: 'chip-grid',
-            component: ChipGridFieldComponent,
-            wrappers: ['raw'],
-          },
-          {
-            name: 'editor',
-            component: EditorFormlyFieldComponent,
-            wrappers: ['raw'],
-          },
-          {
-            name: 'select',
-            component: SelectFieldComponent,
-            wrappers: ['raw'],
-          },
-          {
-            name: 'dropdown',
-            component: DropdownFieldComponent,
-            wrappers: ['raw'],
-          },
-          {
-            name: 'select-chips',
-            component: SelectChipsComponent,
-            wrappers: ['raw'],
-          },
-          {
-            name: 'experiment-select',
-            component: ExperimentSelectFieldComponent,
-            wrappers: ['raw'],
-          },
-        ],
-        validationMessages: [
-          {
-            name: 'required',
-            message: (_, field) => {
-              return `${field.props.label} is required.`;
-            },
-          },
-        ],
-        wrappers: [
-          {
-            name: 'raw',
-            component: ElnWrapperFormField,
-          },
-        ],
-        presets: [],
-      }),
-      FormlyMaterialModule,
-      FormlyMatDatepickerModule,
-    ),
-    provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes, withComponentInputBinding(), withRouterConfig({ paramsInheritanceStrategy: 'always' })),
-    provideAnimationsAsync(),
-    provideHttpClient(
-      withXsrfConfiguration({
-        cookieName: 'CSRF-TOKEN',
-        headerName: 'X-CSRF-TOKEN',
-      }),
-      withInterceptorsFromDi(),
-    ),
+    ...commonProviders,
+    provideHttpClient(...sharedHttpFeatures(), withInterceptorsFromDi()),
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
-    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
   ],
 };

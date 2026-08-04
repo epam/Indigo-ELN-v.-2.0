@@ -59,8 +59,12 @@ public class ProjectService {
     }
 
     public ProjectDetailsDTO getProject(UUID projectId) {
-        ProjectEntity project = projectRepository.loadDetails(projectId);
-        Set<ApplicationPermission> currentPermissions = aclService.getCurrentPermissions(project.getCalculatedInfo() != null ? project.getCalculatedInfo().getCurrentAccess() : null);
+        ProjectEntity project = projectRepository.load(projectId);
+        return getProjectDetails(project);
+    }
+
+    private ProjectDetailsDTO getProjectDetails(ProjectEntity project) {
+        Set<ApplicationPermission> currentPermissions = aclService.getCurrentPermissions(project.getCurrentAccess());
         currentPermissions.retainAll(EnumSet.of(VIEW_PROJECTS, EDIT_PROJECTS, MANAGE_PROJECT_ACCESS, DELETE_PROJECTS));
         return projectMapper.entityToDetailsDTO(project, currentPermissions);
     }
@@ -70,10 +74,14 @@ public class ProjectService {
         return new ProjectExistenceCheckDTO(exists);
     }
 
+    public List<String> suggestKeywords(@Nullable String search) {
+        return projectRepository.suggestKeywords(search);
+    }
+
     public ProjectDetailsDTO editProject(UUID projectId, ProjectEditRequest request) {
-        ProjectEntity project = projectRepository.get(projectId);
+        ProjectEntity project = projectRepository.loadAndLock(projectId);
         applyMutation(project, projectMapper.requestToMutation(request));
-        return getProject(project.getId());
+        return getProjectDetails(project);
     }
 
     public TotalCounts getTotalCounts() {
@@ -81,7 +89,7 @@ public class ProjectService {
     }
 
     public List<ACLEntryDTO> updateProjectAccess(UUID projectId, List<AccessForm> form) {
-        ProjectEntity project = projectRepository.get(projectId);
+        ProjectEntity project = projectRepository.loadAndLock(projectId); // protect project and its tree from changes
         applyMutation(project, new ProjectMutation.EditProjectAccess(form));
         return projectMapper.convertACLList(project.getFullACL());
     }

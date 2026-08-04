@@ -1,29 +1,33 @@
 package com.epam.indigoeln.compound.repository;
 
-import com.epam.indigoeln.common.util.Pair;
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.compound.entity.CompoundEntity;
+import com.epam.indigoeln.compound.entity.CompoundEntity_;
 import com.epam.indigoeln.compound.entity.SampleEntity;
+import com.epam.indigoeln.compound.entity.SampleEntity_;
 import com.epam.indigoeln.compound.mapper.SampleMapper;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
-import com.epam.indigoeln.compound.model.search.NumericSearch;
-import com.epam.indigoeln.compound.model.search.TextSearch;
 import com.epam.indigoeln.eln.common.repository.BaseRepository;
 import com.epam.indigoeln.eln.common.util.Conditions;
-import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
 import com.epam.indigoeln.eln.model.ELNEntityType;
 import com.epam.indigoeln.eln.model.STRCodeSample;
-import com.epam.indigoeln.eln.repository.DictionaryItemRepository;
-import com.epam.indigoeln.eln.service.DictionaryService;
-import io.quarkus.hibernate.orm.panache.PanacheQuery;
-import io.quarkus.panache.common.Sort;
+import com.epam.indigoeln.eln.util.CriteriaConditions;
+import com.epam.indigoeln.reaction.model.MolFormula;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.Tuple;
 import org.hibernate.query.NativeQuery;
 import org.hibernate.query.SynchronizeableQuery;
+import org.hibernate.query.criteria.CriteriaDefinition;
+import org.hibernate.query.criteria.JpaJoin;
+import org.hibernate.query.criteria.JpaRoot;
 import org.jspecify.annotations.Nullable;
 
-import java.util.List;
 import java.util.UUID;
+
+import static com.epam.indigoeln.common.util.ModelUtil.map;
 
 @ApplicationScoped
 public class SampleRepository extends BaseRepository<SampleEntity> {
@@ -31,9 +35,7 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
     @Inject
     SampleMapper sampleMapper;
     @Inject
-    DictionaryItemRepository dictionaryItemRepository;
-    @Inject
-    DictionaryService dictionaryService;
+    CriteriaConditions.Factory criteriaConditionsFactory;
 
     public SampleRepository() {
         super(ELNEntityType.SAMPLE, SampleEntity.class);
@@ -44,87 +46,39 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
         Conditions conditions = new Conditions()
                 .add("compound.id=?", compoundId)
                 .add("nbkBatchNumber is null");
-        return find(conditions.getQuery(), conditions.getValues()).firstResult();
+        return doFindOne(conditions);
     }
 
-    public Pair<List<SampleDTO>, Long> find(FindSamplesRequest request, @Nullable Boolean marked, int limit, @Nullable String nextAfter) {
-        Conditions conditions = new Conditions()
-                .addIfNotNull("full_text_search(searchVector, websearch_to_tsquery('english', ?))", request.getQuickSearch());
-        if (request.getStructure() != null) {
-            switch (request.getStructure().type()) {
-                case EXACT -> {
-                    conditions.add("bingo_exact_match(compound.molFile, ?, '')", request.getStructure().query());
-                }
-                case SUBSTRUCTURE -> {
-                    conditions.add("bingo_substructure_match(compound.molFile, ?, '')", request.getStructure().query());
-                }
-                case SIMILARITY -> {
-                    conditions.add("bingo_similarity_search(compound.molFile, 0.8, null, ?, 'Tanimoto')", request.getStructure().query());
-                }
-            }
-        }
-        addTextSearch(conditions, request.getNbkBatchNumber(), "nbkBatchNumber");;
-        addTextSearch(conditions, request.getCompoundKey(), "compound.strCode");
-        addTextSearch(conditions, request.getMolecularFormula(), "compound.formula");
-        addNumericSearch(conditions, request.getMolWeight(), "compound.molWeight");
-        addTextSearch(conditions, request.getChemicalName(), "compound.chemicalName");
-        addTextSearch(conditions, request.getCasNumber(), "compound.casNumber");
-        addTextSearch(conditions, request.getExternalNumber(), "externalNumber");
-        addTextSearch(conditions, request.getBatchComment(), "batchComment");
-        if (request.getCompoundState() != null) {
-            DictionaryItemEntity compoundState = dictionaryService.lookup(request.getCompoundState());
-            conditions.add("compoundState = ?", compoundState);
-        }
-        if (request.getHealthHazards() != null) {
-            DictionaryItemEntity healthHazard = dictionaryService.lookup(request.getHealthHazards());
-            conditions.add("? member of healthHazards", healthHazard);
-        }
-        if (marked == Boolean.TRUE) {
-            conditions.add("marked");
-        } else if (marked == Boolean.FALSE) {
-            conditions.add("marked is null");
-        }
+    public Page<SampleDTO> find(FindSamplesRequest request, @Nullable Boolean marked, int pageNo, int pageSize) {
+        CriteriaDefinition<Tuple> criteria = new CriteriaDefinition<>(em, Tuple.class) {{
+            JpaRoot<SampleEntity> root = from(SampleEntity.class);
+            JpaJoin<SampleEntity, CompoundEntity> compound = root.join(SampleEntity_.compound); // will be optimized away if not used
+            select(tuple(root.id(), count(literal(1), createWindow())));
+            criteriaConditionsFactory.withConditions(this::where, conditions -> {
+                conditions.fullTextSearch(root.get(SampleEntity_.searchVector), request.getQuickSearch(), s -> null);
 
-        Sort sort = Sort.by("id");
-        PanacheQuery<SampleEntity> query = find(conditions.getQuery(), sort, conditions.getValues());
-        long totalCount = query.count();
+                conditions.structureSearch(compound.get(CompoundEntity_.molFile), request.getStructure());
 
-        if (nextAfter != null) {
-            conditions.add("id > ?", UUID.fromString(nextAfter));
-        }
-        query = find(conditions.getQuery(), sort, conditions.getValues())
-                .page(0, limit)
-                .withHint("jakarta.persistence.loadgraph", em.getEntityGraph("Sample.find"));
-        return Pair.of(query.stream().map(sampleMapper::sampleToDTO).toList(), totalCount);
-    }
+                conditions.textSearch(compound.get(CompoundEntity_.compoundKey), request.getCompoundKey());
+                conditions.textSearch(root.get(SampleEntity_.nbkBatchNumber).cast(String.class), request.getNbkBatchNumber());
+                conditions.textSearch(compound.get(CompoundEntity_.casNumber), request.getCasNumber());
+                conditions.textSearch(root.get(SampleEntity_.externalNumber), request.getExternalNumber());
+                conditions.textSearch(compound.get(CompoundEntity_.formula).cast(String.class), request.getMolecularFormula(), MolFormula::normalize);
+                conditions.numericSearch(compound.get(CompoundEntity_.molWeight), request.getMolWeight());
+                conditions.textSearch(compound.get(CompoundEntity_.chemicalName), request.getChemicalName());
+                conditions.textSearch(root.get(SampleEntity_.batchComment), request.getBatchComment());
 
-    private void addTextSearch(Conditions conditions, @Nullable TextSearch search, String field) {
-        switch (search) {
-            case TextSearch.BetweenSearch b -> conditions
-                    .add("lower(" + field + ") >= ?", b.from().toLowerCase())
-                    .add("lower(" + field + ") <= ?", b.to().toLowerCase());
-            case TextSearch.ContainsSearch c -> conditions
-                    .add("ilike(" + field + ", ?)", '%' + c.value() + '%');
-            case TextSearch.EndsWithSearch e -> conditions
-                    .add("ilike(" + field + ", ?)", '%' + e.value());
-            case TextSearch.ExactSearch e -> conditions
-                    .add("lower(" + field + ") = ?", e.value().toLowerCase());
-            case TextSearch.StartsWithSearch s -> conditions
-                    .add("ilike(" + field + ", ?)", s.value() + '%');
-            case null -> {}
-        }
-    }
+                conditions.dictionary(root.get(SampleEntity_.compoundState), request.getCompoundState());
+                conditions.multiDictionary(root.get(SampleEntity_.healthHazards), request.getHealthHazards());
 
-    private void addNumericSearch(Conditions conditions, @Nullable NumericSearch search, String field) {
-        switch (search) {
-            case NumericSearch.Equals e -> conditions
-                    .add("floor(" + field + ") = ?", Math.floor(e.value()));
-            case NumericSearch.GreaterThanOrEqual ge -> conditions
-                    .add(field + " >= ?", ge.value());
-            case NumericSearch.LessThanOrEqual le -> conditions
-                    .add(field + " <= ?", le.value());
-            case null -> {}
-        }
+                conditions.bool(root.get(SampleEntity_.marked), marked);
+            });
+            orderBy(asc(root.get(SampleEntity_.id)));
+        }};
+
+        Paging paging = new Paging(pageNo, pageSize);
+        Page<SampleEntity> page = doFindWithTotals(criteria, paging, em.getEntityGraph("Sample.find"));
+        return map(page, sampleMapper::sampleToDTO);
     }
 
     @Nullable

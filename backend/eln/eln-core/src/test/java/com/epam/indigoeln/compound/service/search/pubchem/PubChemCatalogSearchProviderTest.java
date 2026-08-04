@@ -42,7 +42,7 @@ class PubChemCatalogSearchProviderTest extends ELNBaseTest {
     WireMock wireMock;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         wireMock.register(WireMock.post(WireMock.urlPathEqualTo("/rest/pug/compound/name/property/MolecularFormula,MolecularWeight,IUPACName,InChI/JSON")).willReturn(WireMock.aResponse()
                 .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                 .withBody(ModelUtil.loadResource(getClass(), "/com/epam/indigoeln/compound/service/search/pubchem-response.json"))
@@ -51,7 +51,7 @@ class PubChemCatalogSearchProviderTest extends ELNBaseTest {
 
     @Test
     void testSearch() {
-        SampleSearchResult result = sampleSearchService.search(new FindSamplesRequest().withCatalogs(Set.of(PUBCHEM)).withQuickSearch("aspirin"), null, null, null);
+        SampleSearchResult result = sampleSearchService.search(new FindSamplesRequest().withCatalogs(Set.of(PUBCHEM)).withQuickSearch("aspirin"), null);
         assertThat(result.items()).hasSize(10)
                 .first().satisfies(s -> {
                     assertThat(s.getInchi()).isNotNull();
@@ -60,7 +60,7 @@ class PubChemCatalogSearchProviderTest extends ELNBaseTest {
 
     @Test
     void testImportSample() {
-        CatalogSearchResult result = provider.search(new FindSamplesRequest().withQuickSearch("aspirin"), null, Paging.DEFAULT_PAGE_SIZE);
+        CatalogSearchResult result = provider.search(new FindSamplesRequest().withQuickSearch("aspirin"), 0, Paging.DEFAULT_PAGE_SIZE);
         SampleDTO sample = sampleSearchService.importSample(result.items().getFirst());
         assertThat(sample.getId()).isNotNull();
         assertThat(sample.getCompoundID()).isNotNull();
@@ -78,7 +78,8 @@ class PubChemCatalogSearchProviderTest extends ELNBaseTest {
                 ));
 
         SampleSearchResult result = sampleSearchService.search(
-                new FindSamplesRequest().withCatalogs(Set.of(PUBCHEM)).withQuickSearch("unknownxyz"), null, null, null);
+                new FindSamplesRequest().withCatalogs(Set.of(PUBCHEM)).withQuickSearch("unknownxyz"), null
+        );
 
         assertThat(result.items()).isEmpty();
     }
@@ -93,8 +94,11 @@ class PubChemCatalogSearchProviderTest extends ELNBaseTest {
                         .withBody(ModelUtil.loadResource(getClass(), "/com/epam/indigoeln/compound/service/search/pubchem-server-error.json"))
                 ));
 
-        assertThatThrownBy(() -> sampleSearchService.search(
-                new FindSamplesRequest().withCatalogs(Set.of(PUBCHEM)).withQuickSearch("busy"), null, null, null))
+        assertThatThrownBy(() -> {
+            sampleSearchService.search(
+                    new FindSamplesRequest().withCatalogs(Set.of(PUBCHEM)).withQuickSearch("busy"), null
+            );
+        })
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("PUGREST.ServerBusy");
     }

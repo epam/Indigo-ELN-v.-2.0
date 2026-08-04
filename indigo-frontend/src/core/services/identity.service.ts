@@ -1,36 +1,24 @@
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import { Observable, shareReplay } from 'rxjs';
 import { CurrentUser } from '../types/entities/user.i';
-import { environment } from '../../environments/environment';
-
-import { UserService } from '@/core/services/user.service';
-import { UserKeycloakService } from './user-keycloak.service';
+import { ApiService } from '@core/services/api.service';
+import { AuthenticatorService } from '@aws-amplify/ui-angular';
 
 @Injectable({
   providedIn: 'root',
 })
 export class IdentityService {
-  private identityService: UserService | UserKeycloakService;
+  authenticatorService = inject(AuthenticatorService);
 
   public user$: Observable<CurrentUser>;
 
-  constructor(
-    private userService: UserService,
-    private userKeycloakService: UserKeycloakService,
-  ) {
-    if (environment.authProvider == 'keycloak') {
-      this.identityService = this.userKeycloakService;
-    } else {
-      this.identityService = this.userService;
-    }
-
-    this.user$ = this.identityService.user$;
+  constructor(private api: ApiService<unknown>) {
+    this.user$ = this.api
+      .request<CurrentUser>('get', 'currentUser')
+      .pipe(shareReplay({ bufferSize: 1, refCount: false }));
   }
 
-  logout(): void {
-    if (this.identityService instanceof UserKeycloakService) {
-      this.identityService.logout(); // Logout for Keycloak
-    } else {
-    }
+  async logout() {
+    this.authenticatorService.signOut();
   }
 }

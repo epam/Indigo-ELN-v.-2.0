@@ -12,11 +12,11 @@ import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.eln.service.UserService;
-import com.epam.indigoeln.eln.util.MolFormulaFormatter;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
 import com.epam.indigoeln.reaction.model.CompoundRef;
+import com.epam.indigoeln.reaction.model.MolFormula;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
@@ -83,7 +83,7 @@ public class CompoundService {
             compound.setMolFile(molecule.molfile());
             compound.setMolWeight(molWeightCalculator.calculateMolWeight(molecule.molfile(), saltCode, saltEQ));
             compound.setExactMass(molWeightCalculator.calculateExactMass(molecule.molfile()));
-            compound.setFormula(molecule.molecularFormula());
+            compound.setFormula(new MolFormula(molecule.molecularFormula()));
             compound.setCompoundKey(calculateCompoundKey(compound));
             indigoRenderer.setRenderOptions("svg", 300, 200);
             byte[] buf = indigoRenderer.renderToBuffer(molecule);
@@ -126,7 +126,7 @@ public class CompoundService {
                 compound.getSaltEQ(),
                 EnteredValue.fixedExact(compound.getMolWeight(), MOL_WEIGHT_DECIMAL_PLACES, MolWeightUnit.G_PER_MOL),
                 EnteredValue.fixedExact(compound.getExactMass(), MOL_WEIGHT_DECIMAL_PLACES, NoUnit.NO_UNIT),
-                MolFormulaFormatter.format(compound.getFormula()),
+                compound.getFormula(),
                 compound.getCompoundKey(),
                 compound.getCasNumber(),
                 calculateBatchMF(compound)
@@ -141,7 +141,7 @@ public class CompoundService {
     public CompoundRef.Virtual virtualCompoundRef(CompoundEntity compound) {
         return new CompoundRef.Virtual(
                 compound.getId(),
-                MolFormulaFormatter.format(compound.getFormula()),
+                compound.getFormula(),
                 compound.getCompoundKey(),
                 dictionaryService.get(compound.getStereoisomerCode()),
                 dictionaryService.get(compound.getSaltCode()),
@@ -159,7 +159,7 @@ public class CompoundService {
 
     private void fillCompoundFromIndigo(IndigoMolecule molecule, CompoundEntity compound) {
         Map<String, String> properties = molecule.getProperties();
-        compound.setFormula(molecule.molecularFormula());
+        compound.setFormula(new MolFormula(molecule.molecularFormula()));
         compound.setMolFile(molecule.molfile());
         compound.setMolWeight(molecule.molecularWeight());
         for (String property : NAME_PROPERTIES) {
@@ -258,7 +258,7 @@ public class CompoundService {
 
     private String calculateBatchMF(CompoundEntity compound) {
         StringBuilder sb = new StringBuilder();
-        String parentFormula = MolFormulaFormatter.format(compound.getFormula());
+        String parentFormula = compound.getFormula().toHTMLString();
         sb.append(parentFormula);
         if (compound.getSaltCode() != null) {
             SaltCodeRef salt = dictionaryService.get(compound.getSaltCode().getId());

@@ -74,7 +74,7 @@ public class MutationsTest extends MutationsTestBase {
 
     @Test
     void testAddInputToEmptyReaction() {
-        SampleSearchResult samples = compoundClient.search(new FindSamplesRequest().withCatalogs(Set.of(ELN)), null, null, DEFAULT_PAGE_SIZE);
+        SampleSearchResult samples = compoundClient.search(new FindSamplesRequest().withCatalogs(Set.of(ELN)), DEFAULT_PAGE_SIZE);
         experiment.mutate(new ReactionMutation.AddInput(experiment.reaction().getAnchor(), samples.items().getFirst().getId()));
         Assertions.assertThat(experiment.input(1)).isNotNull();
         assertThat(experiment.input(1).getCompound()).isInstanceOf(CompoundRef.Stored.class);

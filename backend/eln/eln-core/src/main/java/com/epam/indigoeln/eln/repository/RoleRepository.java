@@ -6,10 +6,13 @@ import com.epam.indigoeln.eln.mapper.RoleMapper;
 import com.epam.indigoeln.eln.model.ELNEntityType;
 import com.epam.indigoeln.eln.model.RoleDTO;
 import com.epam.indigoeln.eln.model.RoleRef;
+import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import java.util.List;
+
+import static com.epam.indigoeln.common.util.ModelUtil.map;
 
 @ApplicationScoped
 public class RoleRepository extends BaseRepository<RoleEntity> {
@@ -22,14 +25,10 @@ public class RoleRepository extends BaseRepository<RoleEntity> {
     }
 
     public List<RoleDTO> list() {
-        return list("from Role order by name").stream()
-                .map(roleMapper::entityToDTO)
-                .toList();
+        return map(doFind(Sort.by("name")), roleMapper::entityToDTO);
     }
 
     public List<RoleRef> suggest() {
-        return list("from Role order by name").stream()
-                .map(roleMapper::entityToRef)
-                .toList();
+        return map(doFind(Sort.by("name")), roleMapper::entityToRef);
     }
 }

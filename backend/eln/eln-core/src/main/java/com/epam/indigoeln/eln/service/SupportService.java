@@ -10,6 +10,7 @@ import com.epam.indigoeln.eln.util.ExperimentDetailsReportBuilder;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.output.MigrateResult;
 import org.jspecify.annotations.Nullable;
@@ -24,6 +25,7 @@ import static com.epam.indigoeln.eln.model.ApplicationPermission.CREATE_PROJECTS
 import static com.epam.indigoeln.eln.model.ApplicationPermission.VIEW_EXPERIMENTS;
 
 // no @Transactional
+@Slf4j
 @ApplicationScoped
 @SuppressWarnings("SqlWithoutWhere")
 public class SupportService {
@@ -69,26 +71,26 @@ public class SupportService {
         int lastUsedNotebookNumber = 0;
         int projectCount = 0, notebookCount = 0, experimentCount = 0, attachmentCount = 0;
         for (int projectNo = 1; projectNo <= random.nextInt(4, 6); projectNo++) {
-            System.out.println("project " + projectNo);
+            log.debug("project {}", projectNo);
             List<String> keywords = IntStream.range(0, random.nextInt(4)).mapToObj(i -> "keyword" + i).toList();
             ProjectDetailsDTO project = projectService.createProject(new ProjectRequest("Test Project " + projectNo, keywords, "literature", "description"));
             projectCount++;
             for (int attachmentNo = 1; attachmentNo <= random.nextInt(0, 2); attachmentNo++) {
-                System.out.println("\tattachment " + attachmentNo);
+                log.debug("project {} attachment {}", projectNo, attachmentNo);
                 attachmentService.createProjectAttachment(project.getId(), "attachment" + attachmentNo + ".txt", "content".getBytes(), true);
                 attachmentCount++;
             }
             for (int notebookNo = 1; notebookNo <= random.nextInt(1, 4); notebookNo++) {
-                System.out.println("\tnotebook " + notebookNo);
+                log.debug("project {} notebook {}", projectNo, notebookNo);
                 NotebookDetailsDTO notebook = notebookService.createNotebook(project.getId(), new NotebookRequest("%08d".formatted(++lastUsedNotebookNumber), "description"));
                 notebookCount++;
                 for (int attachmentNo = 1; attachmentNo <= random.nextInt(0, 4); attachmentNo++) {
-                    System.out.println("\tattachment " + attachmentNo);
+                    log.debug("project {} notebook {} attachment {}", projectNo, notebookNo, attachmentNo);
                     attachmentService.createNotebookAttachment(notebook.getId(), "attachment" + attachmentNo + ".txt", "content".getBytes(), true);
                     attachmentCount++;
                 }
                 for (int experimentNo = 1; experimentNo <= random.nextInt(1, 12); experimentNo++) {
-                    System.out.println("\t\texperiment " + experimentNo);
+                    log.debug("project {} notebook {} experiment {}", projectNo, notebookNo, experimentNo);
                     ExperimentDetailsDTO experiment = experimentService.createExperiment(notebook.getId(), new ExperimentRequest(template.getId()
                             , "image"
                             , randomOrNone(therapeuticAreas)
@@ -96,7 +98,7 @@ public class SupportService {
                     ));
                     experimentCount++;
                     for (int attachmentNo = 1; attachmentNo <= random.nextInt(0, 4); attachmentNo++) {
-                        System.out.println("\tattachment " + attachmentNo);
+                        log.debug("project {} notebook {} experiment {} attachment {}", projectNo, notebookNo, experimentNo, attachmentNo);
                         attachmentService.createExperimentAttachment(experiment.getId(), "attachment" + attachmentNo + ".txt", "content".getBytes(), true);
                         attachmentCount++;
                     }

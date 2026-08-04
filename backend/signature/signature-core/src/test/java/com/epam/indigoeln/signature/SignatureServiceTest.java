@@ -158,8 +158,6 @@ class SignatureServiceTest extends BaseTest {
     @Test
     @Order(300)
     void testSign() {
-        assumeThat(integrationTest).isFalse(); // no matching document in ELN
-        assumeThat(documentID).isNotNull();
         DocumentDTO document = signatureClient.signDocument(documentID);
         assertThat(document.getStatus()).isEqualTo(DocumentStatus.SIGNING);
         assertThat(document.getLastModifiedDate()).isNotEqualTo(document.getCreatedDate());
@@ -174,8 +172,6 @@ class SignatureServiceTest extends BaseTest {
     @Order(400)
     @TestSecurity(user = "willow")
     void testReject() {
-        assumeThat(integrationTest).isFalse(); // no matching document in ELN
-        assumeThat(documentID).isNotNull();
         DocumentDTO document = signatureClient.rejectDocument(documentID);
         assertThat(document.getStatus()).isEqualTo(DocumentStatus.REJECTED);
         assertThat(document.getLastModifiedDate()).isNotEqualTo(document.getCreatedDate());
@@ -189,8 +185,6 @@ class SignatureServiceTest extends BaseTest {
     @Test
     @Order(500)
     void testGetDocuments() {
-        assumeThat(integrationTest).isFalse(); // no matching document in ELN
-        assumeThat(documentID).isNotNull();
         Page<DocumentDTO> documents = signatureClient.getDocuments(null, SortOrder.EARLIEST, null, Paging.DEFAULT);
         assertThat(documents.getItems()).filteredOn(d -> d.getId().equals(documentID)).hasSize(1).first().satisfies(document -> {
             assertThat(document.getStatus()).isEqualTo(DocumentStatus.REJECTED);
@@ -201,8 +195,6 @@ class SignatureServiceTest extends BaseTest {
     @Test
     @Order(600)
     void testDownloadDocument() throws Exception {
-        assumeThat(integrationTest).isFalse(); // no matching document in ELN
-        assumeThat(documentID).isNotNull();
         try (Response content = signatureClient.downloadDocument(documentID)) {
             String filename = extractFilename(FeignUtil.getLastResponse().headers().get(HttpHeaders.CONTENT_DISPOSITION));
             assertThat(filename).isEqualTo("document.pdf");

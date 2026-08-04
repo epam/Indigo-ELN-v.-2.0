@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
-import { RoleGuard } from './role.guard';
+import { ApplicationPermission } from '@/core/types/entities/user.i';
+import { roleGuard } from './role.guard';
 
 export const routes: Routes = [
   {
@@ -76,8 +77,8 @@ export const routes: Routes = [
           import('@/app/pages/dictionary/dictionary-layout/dictionary-layout.component').then(
             (c) => c.DictionaryLayoutComponent,
           ),
-        canActivate: [RoleGuard],
-        data: { requiredPermission: 'MANAGE_DICTIONARIES' },
+        canActivate: [roleGuard],
+        data: { requiredPermission: ApplicationPermission.MANAGE_DICTIONARIES },
       },
       {
         path: 'experiments/:experimentId',
@@ -90,6 +91,8 @@ export const routes: Routes = [
         path: 'templates',
         loadComponent: () =>
           import('@pages/template/template-layout/template-layout.component').then((c) => c.TemplateLayoutComponent),
+        canActivate: [roleGuard],
+        data: { requiredPermission: ApplicationPermission.MANAGE_TEMPLATES },
       },
       {
         path: 'signatures',
@@ -97,8 +100,8 @@ export const routes: Routes = [
           import('@pages/signature/signature-layout/signature-layout.component').then(
             (c) => c.SignatureLayoutComponent,
           ),
-        canActivate: [RoleGuard],
-        data: { requiredPermission: 'SIGN_EXPERIMENTS' },
+        canActivate: [roleGuard],
+        data: { requiredPermission: ApplicationPermission.SIGN_EXPERIMENTS },
         children: [
           {
             path: '',

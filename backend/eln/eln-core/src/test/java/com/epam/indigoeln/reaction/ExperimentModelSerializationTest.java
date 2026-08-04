@@ -32,15 +32,15 @@ public class ExperimentModelSerializationTest {
         Reaction reaction = Reaction.create(model, REACTION);
         reaction.setRxnfile("molFile");
 
-        ReactionInput input1 = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Stored(UUID.randomUUID(), null, null, null, fixed(1.0, 1, G_PER_MOL), fixed(1.1, 2, NO_UNIT), "C", "compoundKey", null, "batchMF"));
+        ReactionInput input1 = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Stored(UUID.randomUUID(), null, null, null, fixed(1.0, 1, G_PER_MOL), fixed(1.1, 2, NO_UNIT), new MolFormula("C"), "compoundKey", null, "batchMF"));
         input1.setEq(EnteredValue.userEntered("10.0", NO_UNIT, 1));
-        ReactionInput input2 = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Virtual(UUID.randomUUID(), "C", null, null, null, null, fixed(1.0, 1, G_PER_MOL), fixed(1.1, 2, NO_UNIT), null, "batchMF"));
+        ReactionInput input2 = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Virtual(UUID.randomUUID(), new MolFormula("C"), null, null, null, null, fixed(1.0, 1, G_PER_MOL), fixed(1.1, 2, NO_UNIT), null, "batchMF"));
         ReactionInput input3 = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Unknown());
         ReactionInputSample inputSample1 = ReactionInputSample.create(input1, INPUT_SAMPLE);
         input1.setSamples(List.of(inputSample1));
         reaction.setInputs(List.of(input1, input2, input3));
 
-        CompoundRef.Virtual compoundRef = new CompoundRef.Virtual(UUID.randomUUID(), "C", null, null, null, null, fixed(2.0, 1, G_PER_MOL), fixed(2.2, 2, NO_UNIT), null, "batchMF");
+        CompoundRef.Virtual compoundRef = new CompoundRef.Virtual(UUID.randomUUID(), new MolFormula("C"), null, null, null, null, fixed(2.0, 1, G_PER_MOL), fixed(2.2, 2, NO_UNIT), null, "batchMF");
         ReactionOutput output = ReactionOutput.create(reaction, ReactionOutputType.FINAL, true, "P1", OUTPUT, compoundRef, EnteredValue.DEFAULT_ONE);
         ReactionOutputSample outputSample = ReactionOutputSample.create(output, "00000000-0000", OUTPUT_SAMPLE, EnteredValue.DEFAULT_ONE_HUNDRED);
         output.setSamples(List.of(outputSample));

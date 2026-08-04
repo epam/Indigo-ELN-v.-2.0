@@ -25,10 +25,8 @@ public abstract class TemplateMapper extends AbstractMapper {
 
     @Inject
     void setObjectMapper(ObjectMapper objectMapper) {
-        this.componentReader = objectMapper.readerFor(new TypeReference<List<TemplateTab>>() {
-        });
-        this.componentWriter = objectMapper.writerFor(new TypeReference<List<TemplateTab>>() {
-        });
+        this.componentReader = objectMapper.readerFor(new TypeReference<List<TemplateTab>>() {});
+        this.componentWriter = objectMapper.writerFor(new TypeReference<List<TemplateTab>>() {});
     }
 
     @IgnoreBaseFields

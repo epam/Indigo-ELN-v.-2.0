@@ -15,8 +15,6 @@ dependencies {
 //    implementation("io.quarkiverse.amazonservices:quarkus-amazon-secretsmanager")
 
     api(project(":common:common"))
-
-    implementation("io.quarkus:quarkus-container-image-docker")
 }
 
 group = "com.epam.indigoeln"

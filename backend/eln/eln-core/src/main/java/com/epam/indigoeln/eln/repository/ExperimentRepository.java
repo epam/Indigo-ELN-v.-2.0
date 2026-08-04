@@ -4,7 +4,6 @@ import com.epam.indigoeln.common.exception.EntityNotFoundException;
 import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
-import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.eln.common.repository.BaseRepository;
 import com.epam.indigoeln.eln.common.util.Conditions;
 import com.epam.indigoeln.eln.entity.*;
@@ -15,26 +14,33 @@ import com.epam.indigoeln.eln.model.ExperimentDTO;
 import com.epam.indigoeln.eln.model.ExperimentRef;
 import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.UserService;
+import com.epam.indigoeln.eln.util.CriteriaConditions;
 import com.google.common.base.MoreObjects;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.persistence.LockModeType;
+import jakarta.persistence.Tuple;
 import jakarta.persistence.TypedQuery;
 import lombok.extern.slf4j.Slf4j;
+import one.util.streamex.StreamEx;
+import org.hibernate.query.criteria.CriteriaDefinition;
+import org.hibernate.query.criteria.JpaRoot;
 import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
-import java.util.function.Function;
+import java.util.*;
+
+import static com.epam.indigoeln.common.util.ModelUtil.map;
 
 @Slf4j
 @ApplicationScoped
 public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
 
     private static final Sort SORT_SUGGEST = Sort.by("name");
+
+    @Inject
+    CriteriaConditions.Factory criteriaConditionsFactory;
 
     public ExperimentRepository() {
         super(ELNEntityType.EXPERIMENT, ExperimentEntity.class);
@@ -47,46 +53,61 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
     @Inject
     UserService userService;
 
-    public Page<ExperimentDTO> findAll(@Nullable UUID projectId, @Nullable UUID notebookId, @Nullable String search, @Nullable SortOrder sort, @Nullable UserRef createdByUser, Paging paging, boolean showAll) {
-        Sort panacheSort = switch (MoreObjects.firstNonNull(sort, SortOrder.LATEST)) {
-            case EARLIEST -> Sort.ascending("modifiedAt");
-            case LATEST -> Sort.descending("modifiedAt");
-        };
+    public Page<ExperimentDTO> findAll(@Nullable UUID projectId, @Nullable UUID notebookId, @Nullable String search, @Nullable SortOrder sort, @Nullable UserEntity createdByUser, Paging paging, boolean showAll) {
+        CriteriaDefinition<Tuple> criteria = new CriteriaDefinition<>(em, Tuple.class) {{
+            JpaRoot<ExperimentEntity> root = from(ExperimentEntity.class);
+            select(tuple(root.id(), count(literal(1), createWindow())));
+            criteriaConditionsFactory.withConditions(this::where, conditions -> {
+                if (!showAll) {
+                    conditions.add(isNotNull(root.get(ExperimentEntity_.currentAccessOrNull)));
+                }
+                if (projectId != null) {
+                    conditions.add(root.get(ExperimentEntity_.project).get(ProjectEntity_.id).equalTo(projectId));
+                }
+                if (notebookId != null) {
+                    conditions.add(root.get(ExperimentEntity_.notebook).get(NotebookEntity_.id).equalTo(notebookId));
+                }
+                if (createdByUser != null) {
+                    conditions.add(root.get(ExperimentEntity_.createdBy).equalTo(createdByUser));
+                }
+                conditions.fullTextSearch(root.get(ExperimentEntity_.searchVector), search, s -> List.of(
+                        ilike(root.get(ExperimentEntity_.name), '%' + s + '%')
+                ));
+            });
+            orderBy(switch (MoreObjects.firstNonNull(sort, SortOrder.LATEST)) {
+                case EARLIEST -> asc(root.get(ExperimentEntity_.modifiedAt));
+                case LATEST -> desc(root.get(ExperimentEntity_.modifiedAt));
+            });
+        }};
 
-        Conditions conditions = new Conditions()
-                .addIf(!showAll, "calculatedInfo.currentAccess is not null")
-                .addIfNotNull("project.id=?", projectId)
-                .addIfNotNull("notebook.id=?", notebookId)
-                .addIfNotNull("createdBy.id = ?", createdByUser != null ? userService.getUserInfo(createdByUser).getId() : null);
-        if (search != null) {
-            conditions.add("(name ilike ?) or full_text_search(searchVector, websearch_to_tsquery('english', ?))", '%' + search + '%', search);
-        }
-
-        return doFindWithTotals(
-                conditions,
+        Page<ExperimentEntity> page = doFindWithTotals(
+                criteria,
                 paging,
-                panacheSort,
-                em.getEntityGraph("Experiment.list"),
-                experimentMapper::entityToDTO
+                em.getEntityGraph("Experiment.list")
         );
+
+        return map(page, experimentMapper::entityToDTO);
     }
 
-    public ExperimentEntity getAndLock(UUID id) {
-        ExperimentEntity entity = findById(id, LockModeType.PESSIMISTIC_WRITE);
-        if (entity == null) {
-            throw new EntityNotFoundException(ELNEntityType.EXPERIMENT, id);
+    public void lock(UUID id) {
+        // See ProjectRepository.lock for the reasoning
+        List<?> locked = em.createNativeQuery("select id from Experiment where id = ?1 for no key update")
+                .setParameter(1, id)
+                .getResultList();
+        if (locked.isEmpty()) {
+            throw new EntityNotFoundException(entityType, id);
         }
-        return entity;
     }
 
     public ExperimentEntity load(UUID id) {
-        ExperimentEntity experiment = doLoadDetails(
-                id,
-                em.getEntityGraph("Experiment.details"),
-                Function.identity()
-        );
+        ExperimentEntity experiment = doLoad(id, em.getEntityGraph("Experiment.details"));
         aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
         return experiment;
+    }
+
+    public ExperimentEntity loadAndLock(UUID id) {
+        lock(id);
+        return load(id);
     }
 
     public void markExperiment(UUID experimentId, UserEntity user, boolean mark) {
@@ -103,27 +124,31 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
                 .getSingleResult();
     }
 
-    public List<ExperimentDTO> findMarked() {
-        return em.createQuery("from Experiment e where e.calculatedInfo.marked order by name", ExperimentEntity.class)
-                .getResultList().stream()
-                .map(experimentMapper::entityToDTO)
-                .toList();
+    public List<ExperimentDTO> findMarked(boolean showAll) {
+        TypedQuery<ExperimentEntity> query = !showAll
+                ? em.createQuery("from Experiment e where e.markedOrNull and currentAccessOrNull is not null order by name", ExperimentEntity.class)
+                : em.createQuery("from Experiment e where e.markedOrNull order by name", ExperimentEntity.class);
+        return map(query.getResultList(), experimentMapper::entityToDTO);
     }
 
     public List<ExperimentEntity> findByProjectWithACLEntities(ProjectEntity project) {
-        return find("project", project)
-                .withHint("jakarta.persistence.loadgraph", em.getEntityGraph("Experiment.withACL"))
-                .list();
+        //noinspection unchecked
+        List<UUID> ids = em.createNativeQuery("select id from Experiment where project_id = ?1 for no key update", UUID.class)
+                .setParameter(1, project.getId())
+                .getResultList();
+        return doFindByIDs(ids, em.getEntityGraph("Experiment.withACL"));
     }
 
     public List<ExperimentEntity> findByNotebookWithACLEntities(NotebookEntity notebook) {
-        return find("notebook", notebook)
-                .withHint("jakarta.persistence.loadgraph", em.getEntityGraph("Experiment.withACL"))
-                .list();
+        //noinspection unchecked
+        List<UUID> ids = em.createNativeQuery("select id from Experiment where notebook_id = ?1 for no key update", UUID.class)
+                .setParameter(1, notebook.getId())
+                .getResultList();
+        return doFindByIDs(ids, em.getEntityGraph("Experiment.withACL"));
     }
 
     public boolean hasAccessibleExperiments(NotebookEntity notebook) {
-        return find("notebook", notebook).firstResult() != null;
+        return doFindOne(new Conditions().add("notebook=?", notebook)) != null;
     }
 
     @Nullable
@@ -132,6 +157,12 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
                 .setParameter(1, notebook.getId())
                 .getResultList();
         return found.isEmpty() || found.getFirst() == null ? null : found.getFirst();
+    }
+
+    public UUID getProjectID(UUID experimentID) {
+        return em.createQuery("select project.id from Experiment where id = ?1", UUID.class)
+                .setParameter(1, experimentID)
+                .getSingleResult();
     }
 
     public void persistRevision(ExperimentRevisionEntity revision) {
@@ -150,6 +181,37 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
                 .setParameter("experiment", experiment)
                 .setParameter("version", version)
                 .getSingleResult();
+    }
+
+    public List<ExperimentRef> resolveRefs(Collection<UUID> ids) {
+        if (ids.isEmpty()) {
+            return List.of();
+        }
+        return em.createQuery("select new com.epam.indigoeln.eln.model.ExperimentRef(id, name) from Experiment where id in :ids", ExperimentRef.class)
+                .setParameter("ids", ids)
+                .getResultList();
+    }
+
+    public LinkedExperimentRefs resolveLinkedExperimentRefs(ExperimentEntity experiment) {
+        Set<UUID> ids = StreamEx.of(experiment.getLinkedExperiments())
+                .append(experiment.getContinuedFrom())
+                .append(experiment.getContinuedTo())
+                .toSet();
+        Map<UUID, String> names = StreamEx.of(resolveRefs(ids))
+                .toMap(ExperimentRef::getId, ExperimentRef::getName);
+        return new LinkedExperimentRefs(
+                toRefs(experiment.getLinkedExperiments(), names),
+                toRefs(experiment.getContinuedFrom(), names),
+                toRefs(experiment.getContinuedTo(), names)
+        );
+    }
+
+    private static List<ExperimentRef> toRefs(UUID[] ids, Map<UUID, String> names) {
+        return StreamEx.of(ids)
+                .mapToEntry(id -> id, names::get)
+                .nonNullValues()
+                .mapKeyValue(ExperimentRef::new)
+                .toList();
     }
 
     public List<ExperimentRef> suggest(@Nullable String search) {
@@ -191,4 +253,10 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
                 .setHint("jakarta.persistence.loadgraph", "ExperimentRevision.range")
                 .getResultList();
     }
+
+    public record LinkedExperimentRefs(
+            List<ExperimentRef> linkedExperiments,
+            List<ExperimentRef> continuedFrom,
+            List<ExperimentRef> continuedTo
+    ) {}
 }
