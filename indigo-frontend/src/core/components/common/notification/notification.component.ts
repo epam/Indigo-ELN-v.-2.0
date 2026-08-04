@@ -58,6 +58,9 @@ export class NotificationComponent {
   }
 
   #registerIcon(name: string): void {
-    this.#iconRegistry.addSvgIcon(name, this.#sanitizer.bypassSecurityTrustResourceUrl(`assets/${name}.svg`));
+    // The icon name resolves to a static SVG bundled in our own assets folder; the value is
+    // set by developers in code and never carries user- or backend-supplied data, so
+    // bypassing the sanitizer for this resource URL is safe.
+    this.#iconRegistry.addSvgIcon(name, this.#sanitizer.bypassSecurityTrustResourceUrl(`assets/${name}.svg`)); // NOSONAR
   }
 }

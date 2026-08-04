@@ -29,7 +29,10 @@ export class SvgIconComponent implements OnInit {
   }
 
   private registerSvgIcon(iconName: string): void {
-    this.iconRegistry.addSvgIcon(iconName, this.sanitizer.bypassSecurityTrustResourceUrl(`assets/${iconName}.svg`));
+    // The icon name resolves to a static SVG bundled in our own assets folder; the value is
+    // set by developers via the component input and never carries user- or backend-supplied
+    // data, so bypassing the sanitizer for this resource URL is safe.
+    this.iconRegistry.addSvgIcon(iconName, this.sanitizer.bypassSecurityTrustResourceUrl(`assets/${iconName}.svg`)); // NOSONAR
   }
 
   get isFontIcon(): boolean {
