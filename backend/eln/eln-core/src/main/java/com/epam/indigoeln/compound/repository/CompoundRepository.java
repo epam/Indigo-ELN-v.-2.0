@@ -9,8 +9,6 @@ import com.epam.indigoeln.eln.model.ELNEntityType;
 import com.epam.indigoeln.eln.model.STRCodeCompound;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.hibernate.jpa.AvailableHints;
 import org.jspecify.annotations.Nullable;
 
@@ -22,8 +20,6 @@ public class CompoundRepository extends BaseRepository<CompoundEntity> {
 
     @Inject
     CompoundMapper compoundMapper;
-    @PersistenceContext
-    EntityManager em;
 
     public CompoundRepository() {
         super(ELNEntityType.COMPOUND, CompoundEntity.class);

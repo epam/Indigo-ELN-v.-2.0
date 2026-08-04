@@ -92,7 +92,7 @@ import java.util.*;
         }
 )
 @DynamicUpdate
-public class ExperimentEntity extends BaseEntity implements WithAttachments, WithACL<ExperimentACLEntity>, WithRevision {
+public class ExperimentEntity extends BaseEntity implements WithAttachments, WithACL<ExperimentACLEntity, NotebookEntity>, WithRevision {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -144,17 +144,17 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
 
     @ManyToMany
     @JoinTable(name = "Experiment_Linked_Experiment", joinColumns = @JoinColumn(name = "parent_id"), inverseJoinColumns = @JoinColumn(name = "experiment_id"))
-    private Set<ExperimentEntity> linkedExperiments = new HashSet<>(0);
+    private Set<ExperimentEntity> linkedExperiments = HashSet.newHashSet(0);
 
     @NotNull
     @ManyToMany
     @JoinTable(name = "Experiment_Continued_From", joinColumns = @JoinColumn(name = "parent_id"), inverseJoinColumns = @JoinColumn(name = "experiment_id"))
-    private Set<ExperimentEntity> continuedFrom = new HashSet<>(0);
+    private Set<ExperimentEntity> continuedFrom = HashSet.newHashSet(0);
 
     @NotNull
     @ManyToMany
     @JoinTable(name = "Experiment_Continued_To", joinColumns = @JoinColumn(name = "parent_id"), inverseJoinColumns = @JoinColumn(name = "experiment_id"))
-    private Set<ExperimentEntity> continuedTo = new HashSet<>(0);
+    private Set<ExperimentEntity> continuedTo = HashSet.newHashSet(0);
 
     @Nullable
     @Basic(fetch = FetchType.LAZY)
@@ -217,7 +217,7 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @NotNull
     @ElementCollection
     @CollectionTable(name = "Experiment_Referenced_Compound", joinColumns = @JoinColumn(name = "experiment_id"))
-    private Set<ExperimentReferencedCompound> referencedCompounds = new HashSet<>(0);
+    private Set<ExperimentReferencedCompound> referencedCompounds = HashSet.newHashSet(0);
 
     @NotNull
     @ElementCollection

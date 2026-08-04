@@ -8,7 +8,6 @@ import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
 import com.epam.indigoeln.eln.repository.AttachmentRepository;
-import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.ExperimentService;
@@ -131,9 +130,6 @@ class SignatureUpdatedHandler extends ExperimentMutationHandlerBase<ExperimentMu
 @Dependent
 @MutationHandlerFor(ExperimentMutation.MakeVersion.class)
 class MakeVersionHandler extends ExperimentMutationHandlerBase<ExperimentMutation.MakeVersion> {
-
-    @Inject
-    ExperimentRepository experimentRepository;
 
     @Override
     public String doHandle(ExperimentEntity experiment, ExperimentMutation.MakeVersion mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {

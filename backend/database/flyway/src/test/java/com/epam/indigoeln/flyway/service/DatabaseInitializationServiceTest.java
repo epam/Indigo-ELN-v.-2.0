@@ -5,8 +5,11 @@ import com.epam.indigoeln.test.BaseTest;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.output.MigrateResult;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
 class DatabaseInitializationServiceTest extends BaseTest {
@@ -17,12 +20,14 @@ class DatabaseInitializationServiceTest extends BaseTest {
     @Test
     @Order(1)
     void testMigrate() {
-        flyway.migrate();
+        MigrateResult result = flyway.migrate();
+        assertThat(result.migrationsExecuted).isPositive();
     }
 
     @Test
     @Order(2)
     void testSubsequentMigrate() {
-        flyway.migrate();
+        MigrateResult result = flyway.migrate();
+        assertThat(result.migrationsExecuted).isZero();
     }
 }

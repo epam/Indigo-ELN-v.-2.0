@@ -78,7 +78,7 @@ public class CompoundEntity extends IdentifiableEntity {
     private byte[] picture;
 
     @OneToMany(mappedBy = "compound") // TODO make many-to-many and store percentage in link entity
-    private Set<SampleEntity> samples = new HashSet<>(0);
+    private Set<SampleEntity> samples = HashSet.newHashSet(0);
 
     @Nullable
     @Transient

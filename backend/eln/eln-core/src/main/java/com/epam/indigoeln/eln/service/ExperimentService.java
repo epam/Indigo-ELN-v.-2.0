@@ -4,6 +4,7 @@ import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.common.model.UserRef;
+import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.api.AccessForm;
@@ -258,14 +259,10 @@ public class ExperimentService {
                     .toList();
         }
         return StreamEx.of(revisions)
-                .groupRuns((a, b) -> {
-                    return a.getMutation().isApplicableToEditSession() && b.getMutation().isApplicableToEditSession() && a.getUser().getId().equals(b.getUser().getId());
-                })
-                .map(group -> {
-                    return group.size() == 1
-                            ? experimentMapper.revisionToSummary(group.getFirst())
-                            : experimentMapper.revisionGroupToSummary(group);
-                })
+                .groupRuns((a, b) -> a.getMutation().isApplicableToEditSession() && b.getMutation().isApplicableToEditSession() && a.getUser().getId().equals(b.getUser().getId()))
+                .map(group -> group.size() == 1
+                        ? experimentMapper.revisionToSummary(group.getFirst())
+                        : experimentMapper.revisionGroupToSummary(group))
                 .toList();
     }
 
@@ -301,7 +298,34 @@ public class ExperimentService {
             String contentDisposition,
             String contentType,
             String filename
-    ) {}
+    ) {
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof ExperimentReportContent that)) {
+                return false;
+            }
+            return Arrays.equals(content, that.content)
+                    && Objects.equals(contentDisposition, that.contentDisposition)
+                    && Objects.equals(contentType, that.contentType)
+                    && Objects.equals(filename, that.filename);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(Arrays.hashCode(content), contentDisposition, contentType, filename);
+        }
+
+        @Override
+        public String toString() {
+            return "ExperimentReportContent[content=" + Arrays.toString(content)
+                    + ", contentDisposition=" + contentDisposition
+                    + ", contentType=" + contentType
+                    + ", filename=" + filename + "]";
+        }
+    }
 
     @Nullable
     private String getPropertySDFRepresentation(@Nullable Object property) {
@@ -328,7 +352,7 @@ public class ExperimentService {
 
     @SneakyThrows
     public Response exportSDF(UUID experimentId) {
-        Path tempFilePath = Files.createTempFile("IndigoELN-export", ".sdf");
+        Path tempFilePath = ModelUtil.createSecureTempFile("IndigoELN-export", ".sdf");
 
         try (IndigoSDFSaver saver = indigo.writeFile(tempFilePath.toString())) {
             ExperimentEntity experiment = experimentRepository.get(experimentId);
@@ -357,7 +381,7 @@ public class ExperimentService {
                             setMoleculePropertyIfExists(molecule, sample.getVolume(), "volume");
                             setMoleculePropertyIfExists(molecule, sample.getActualMol(), "actualMol");
                             setMoleculePropertyIfExists(molecule, sample.getMolarity(), "molarity");
-                            setMoleculePropertyIfExists(molecule, sample.getYield(), "yield");
+                            setMoleculePropertyIfExists(molecule, sample.getYieldValue(), "yield");
                             setMoleculePropertyIfExists(molecule, sample.getPurity(), "purity");
 
                             setMoleculePropertyIfExists(molecule, compoundRef.getMolWeight(), "molWeight");

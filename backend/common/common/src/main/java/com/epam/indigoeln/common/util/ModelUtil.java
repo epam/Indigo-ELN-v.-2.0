@@ -7,16 +7,23 @@ import org.jspecify.annotations.Nullable;
 import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 @UtilityClass
 public class ModelUtil {
+
+    private static final String POSIX_VIEW = "posix";
 
     public <T> T firstNotNull(@Nullable T first, T second) {
         return first != null ? first : second;
@@ -106,17 +113,70 @@ public class ModelUtil {
 
     @SneakyThrows
     public static <T> T useTempFile(String filename, byte[] bytes, Function<File, T> block) {
-        Path directory = Files.createTempDirectory("eln");
+        Path directory = createSecureTempDirectory("eln");
         try {
             Path file = directory.resolve(filename);
             try {
                 Files.write(file, bytes);
                 return block.apply(file.toFile());
             } finally {
-                Files.delete(file);
+                Files.deleteIfExists(file);
             }
         } finally {
             Files.delete(directory);
+        }
+    }
+
+    private static Path createSecureTempDirectory(String prefix) throws IOException {
+        Path base = getPrivateBaseDirectory();
+        if (FileSystems.getDefault().supportedFileAttributeViews().contains(POSIX_VIEW)) {
+            FileAttribute<Set<PosixFilePermission>> attr = PosixFilePermissions.asFileAttribute(
+                PosixFilePermissions.fromString("rwx------"));
+            return Files.createTempDirectory(base, prefix, attr);
+        }
+        Path directory = Files.createTempDirectory(base, prefix);
+        restrictToOwner(directory);
+        return directory;
+    }
+
+    @SneakyThrows
+    public static Path createSecureTempFile(String prefix, String suffix) {
+        Path base = getPrivateBaseDirectory();
+        if (FileSystems.getDefault().supportedFileAttributeViews().contains(POSIX_VIEW)) {
+            FileAttribute<Set<PosixFilePermission>> attr = PosixFilePermissions.asFileAttribute(
+                PosixFilePermissions.fromString("rw-------"));
+            return Files.createTempFile(base, prefix, suffix, attr);
+        }
+        Path file = Files.createTempFile(base, prefix, suffix);
+        restrictToOwner(file);
+        return file;
+    }
+
+    private static Path privateBaseDirectory;
+
+    private static synchronized Path getPrivateBaseDirectory() throws IOException {
+        if (privateBaseDirectory == null || !Files.isDirectory(privateBaseDirectory)) {
+            Path root = Path.of(System.getProperty("java.io.tmpdir"));
+            Path candidate = root.resolve("indigo-eln-" + ProcessHandle.current().pid());
+            Path dir;
+            if (FileSystems.getDefault().supportedFileAttributeViews().contains(POSIX_VIEW)) {
+                FileAttribute<Set<PosixFilePermission>> attr = PosixFilePermissions.asFileAttribute(
+                    PosixFilePermissions.fromString("rwx------"));
+                dir = Files.createDirectories(candidate, attr);
+            } else {
+                dir = Files.createDirectories(candidate);
+                restrictToOwner(dir);
+            }
+            dir.toFile().deleteOnExit();
+            privateBaseDirectory = dir;
+        }
+        return privateBaseDirectory;
+    }
+
+    private static void restrictToOwner(Path path) throws IOException {
+        File f = path.toFile();
+        if (!f.setReadable(true, true) || !f.setWritable(true, true) || !f.setExecutable(true, true)) {
+            throw new IOException("Failed to set secure permissions on: " + path);
         }
     }
 

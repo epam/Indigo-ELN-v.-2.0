@@ -26,6 +26,8 @@ import java.util.stream.Stream;
 @ApplicationScoped
 public class NotebookRepository extends BaseRepository<NotebookEntity> {
 
+    private static final String NOTEBOOK = "notebook";
+
     @Inject
     NotebookMapper notebookMapper;
     @Inject
@@ -108,21 +110,21 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
 
     public NotebookRevisionEntity getRevision(NotebookEntity notebook, int revision) {
         return em.createQuery("from NotebookRevision where notebook = :notebook and revision = :revision", NotebookRevisionEntity.class)
-                .setParameter("notebook", notebook)
+                .setParameter(NOTEBOOK, notebook)
                 .setParameter("revision", revision)
                 .getSingleResult();
     }
 
     public List<NotebookRevisionEntity> findRecentRevisions(NotebookEntity notebook, Duration period) {
         return em.createQuery("from NotebookRevision where notebook=:notebook and datetime>=:since order by revision", NotebookRevisionEntity.class)
-                .setParameter("notebook", notebook)
+                .setParameter(NOTEBOOK, notebook)
                 .setParameter("since", Instant.now().minus(period))
                 .getResultList();
     }
 
     public List<NotebookRevisionEntity> getRevisions(NotebookEntity notebook) {
         return em.createQuery("from NotebookRevision where notebook=:notebook order by revision", NotebookRevisionEntity.class)
-                .setParameter("notebook", notebook)
+                .setParameter(NOTEBOOK, notebook)
                 .getResultList();
     }
 }

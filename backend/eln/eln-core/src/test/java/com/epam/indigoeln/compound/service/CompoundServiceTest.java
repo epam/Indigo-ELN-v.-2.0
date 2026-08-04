@@ -65,6 +65,12 @@ public class CompoundServiceTest extends ELNBaseTest {
         compound1 = compoundService.virtualCompoundRef(molecule, null, null, null);
         molecule = it.next();
         compound2 = compoundService.virtualCompoundRef(molecule, null, null, null);
+
+        assertThat(saltCode.getId()).isNotNull();
+        assertThat(healthHazard.getId()).isNotNull();
+        assertThat(compoundState.getId()).isNotNull();
+        assertThat(compound1.getCompoundID()).isNotNull();
+        assertThat(compound2.getCompoundID()).isNotEqualTo(compound1.getCompoundID());
     }
 
     @Test

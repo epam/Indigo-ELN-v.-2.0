@@ -25,13 +25,13 @@ import java.util.Set;
 public class AttachmentEntity extends BaseEntity {
 
     @ManyToMany(mappedBy = "attachments")
-    private Set<ProjectEntity> projects = new HashSet<>(0);
+    private Set<ProjectEntity> projects = HashSet.newHashSet(0);
 
     @ManyToMany(mappedBy = "attachments")
-    private Set<NotebookEntity> notebooks = new HashSet<>(0);
+    private Set<NotebookEntity> notebooks = HashSet.newHashSet(0);
 
     @ManyToMany(mappedBy = "attachments")
-    private Set<ExperimentEntity> experiments = new HashSet<>(0);
+    private Set<ExperimentEntity> experiments = HashSet.newHashSet(0);
 
     @NotEmpty
     private String name;

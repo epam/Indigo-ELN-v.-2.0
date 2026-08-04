@@ -22,6 +22,12 @@ public class EnteredValueAssert<U extends MeasurementUnit> extends AbstractAsser
         super(actual, EnteredValueAssert.class);
     }
 
+    public EnteredValueAssert<U> isEmpty() {
+        Assertions.assertThat(actual).isNotNull();
+        Assertions.assertThat(actual.isEmpty()).describedAs(actual::toString).isTrue();
+        return this;
+    }
+
     public EnteredValueAssert<U> hasValue(double value) {
         Assertions.assertThat(actual).isNotNull();
         if (!(actual.getUnit() instanceof MolWeightUnit) && !(actual.getUnit() instanceof NoUnit) && !(actual.getUnit() instanceof DensityUnit)) {

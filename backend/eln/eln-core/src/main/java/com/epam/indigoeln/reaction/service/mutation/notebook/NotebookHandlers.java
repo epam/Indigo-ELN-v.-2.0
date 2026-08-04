@@ -7,14 +7,11 @@ import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.repository.AttachmentRepository;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
-import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.AttachmentService;
-import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.reaction.model.NotebookSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.NotebookMutation;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
-import com.epam.indigoeln.reaction.service.mutation.EntityMutationHelper;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
@@ -28,9 +25,6 @@ import static com.epam.indigoeln.common.util.ModelUtil.editProperty;
 @Dependent
 @MutationHandlerFor(NotebookMutation.CreateNotebook.class)
 class CreateNotebookHandler extends AbstractNotebookMutationHandler<NotebookMutation.CreateNotebook> {
-
-    @Inject
-    UserService userService;
 
     @Override
     protected void doValidateAccess(NotebookEntity notebook, NotebookMutation.CreateNotebook mutation, NotebookMutationContext context) {
@@ -92,11 +86,7 @@ class EditNotebookAttributesHandler extends AbstractNotebookMutationHandler<Note
 class EditNotebookAccessHandler extends AbstractNotebookMutationHandler<NotebookMutation.EditNotebookAccess> {
 
     @Inject
-    ACLService aclService;
-    @Inject
     ProjectRepository projectRepository;
-    @Inject
-    EntityMutationHelper entityMutationHelper;
 
     @Override
     protected void doValidateAccess(NotebookEntity notebook, NotebookMutation.EditNotebookAccess mutation, NotebookMutationContext context) {

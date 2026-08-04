@@ -28,6 +28,8 @@ import static com.epam.indigoeln.eln.model.ApplicationPermission.VIEW_PROJECTS;
 @ApplicationScoped
 public class ProjectRepository extends BaseRepository<ProjectEntity> {
 
+    private static final String PROJECT = "project";
+
     @Inject
     ProjectMapper projectMapper;
     @Inject
@@ -120,21 +122,21 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
 
     public ProjectRevisionEntity getRevision(ProjectEntity project, int revision) {
         return em.createQuery("from ProjectRevision where project = :project and revision = :revision", ProjectRevisionEntity.class)
-                .setParameter("project", project)
+                .setParameter(PROJECT, project)
                 .setParameter("revision", revision)
                 .getSingleResult();
     }
 
     public List<ProjectRevisionEntity> findRecentRevisions(ProjectEntity project, Duration period) {
         return em.createQuery("from ProjectRevision where project=:project and datetime>=:since order by revision", ProjectRevisionEntity.class)
-                .setParameter("project", project)
+                .setParameter(PROJECT, project)
                 .setParameter("since", Instant.now().minus(period))
                 .getResultList();
     }
 
     public List<ProjectRevisionEntity> getRevisions(ProjectEntity project) {
         return em.createQuery("from ProjectRevision where project=:project order by revision", ProjectRevisionEntity.class)
-                .setParameter("project", project)
+                .setParameter(PROJECT, project)
                 .getResultList();
     }
 }

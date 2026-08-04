@@ -83,6 +83,16 @@ public class SampleSearchServiceTest extends ELNBaseTest {
         str2 = sample.getStrCode();
         sample = compoundService.registerSample(new SampleRegistrationRequest(compound2));
         strOtherCompound = sample.getStrCode();
+
+        assertThat(saltCode.getId()).isNotNull();
+        assertThat(healthHazard.getId()).isNotNull();
+        assertThat(compoundState.getId()).isNotNull();
+        assertThat(compound1.getCompoundID()).isNotNull();
+        assertThat(compound2.getCompoundID()).isNotEqualTo(compound1.getCompoundID());
+        assertThat(sampleID1).isNotNull();
+        assertThat(str1).isNotNull();
+        assertThat(str2).isNotNull();
+        assertThat(strOtherCompound).isNotEqualTo(str1);
     }
 
     @Test
@@ -96,9 +106,8 @@ public class SampleSearchServiceTest extends ELNBaseTest {
 
     @Test
     void testSearchRequestValidation() {
-        assertThatClientCall(() -> {
-            compoundClient.search(request(ELN).withCompoundKey(new TextSearch.ExactSearch(null)), null, null, 10);
-        }).isBadRequest("must not be null");
+        assertThatClientCall(() -> compoundClient.search(request(ELN).withCompoundKey(new TextSearch.ExactSearch(null)), null, null, 10))
+                .isBadRequest("must not be null");
     }
 
     @Test

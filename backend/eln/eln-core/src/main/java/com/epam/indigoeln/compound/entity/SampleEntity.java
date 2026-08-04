@@ -87,11 +87,11 @@ public class SampleEntity extends BaseEntity {
 
     @ManyToMany
     @JoinTable(name = "Sample_Health_Hazard", joinColumns = @JoinColumn(name = "sample_id"), inverseJoinColumns = @JoinColumn(name = "health_hazard_id"))
-    private Set<DictionaryItemEntity> healthHazards = new HashSet<>(0);
+    private Set<DictionaryItemEntity> healthHazards = HashSet.newHashSet(0);
 
     @ManyToMany
     @JoinTable(name = "Sample_Mark", joinColumns = @JoinColumn(name = "sample_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private Set<UserEntity> markedBy = new HashSet<>(0);
+    private Set<UserEntity> markedBy = HashSet.newHashSet(0);
 
     @Basic(fetch = FetchType.LAZY)
     @Column(table = "Sample_Is_Marked", updatable = false)

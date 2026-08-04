@@ -7,13 +7,11 @@ import com.epam.indigoeln.eln.model.CurrentUserDTO;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import jakarta.inject.Inject;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 
+import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -44,11 +42,10 @@ class UserServiceTest extends ELNBaseTest {
     }
 
     @Test
-    @SneakyThrows
     @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
     void testGetUserPicture() {
         List<UserRef> all = userClient.suggestUsers(null);
         byte[] response = userClient.getUserPicture(all.getFirst().getUsername(), null);
-        Files.write(Paths.get("user.png"), response);
+        assertThat(response).isEqualTo(loadResource(UserService.class, "/user-default-picture-small.png"));
     }
 }

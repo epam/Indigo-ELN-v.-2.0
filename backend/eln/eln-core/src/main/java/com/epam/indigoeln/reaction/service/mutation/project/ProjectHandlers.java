@@ -5,13 +5,10 @@ import com.epam.indigoeln.eln.entity.ProjectEntity;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.model.BuiltInDictionary;
 import com.epam.indigoeln.eln.repository.AttachmentRepository;
-import com.epam.indigoeln.eln.repository.ProjectRepository;
-import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.DictionaryUpdateService;
 import com.epam.indigoeln.reaction.model.ProjectSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.ProjectMutation;
-import com.epam.indigoeln.reaction.service.mutation.EntityMutationHelper;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
@@ -94,13 +91,6 @@ class EditProjectAttributesHandler extends AbstractProjectMutationHandler<Projec
 @Dependent
 @MutationHandlerFor(ProjectMutation.EditProjectAccess.class)
 class EditProjectAccessHandler extends AbstractProjectMutationHandler<ProjectMutation.EditProjectAccess> {
-
-    @Inject
-    ACLService aclService;
-    @Inject
-    ProjectRepository projectRepository;
-    @Inject
-    EntityMutationHelper entityMutationHelper;
 
     @Override
     protected void doValidateAccess(ProjectEntity project, ProjectMutation.EditProjectAccess mutation, ProjectMutationContext context) {

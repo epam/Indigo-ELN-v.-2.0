@@ -28,6 +28,9 @@ import java.util.UUID;
 @ApplicationScoped
 public class SampleRepository extends BaseRepository<SampleEntity> {
 
+    private static final String LOWER_FUNCTION = "lower(";
+    private static final String ILIKE_FUNCTION = "ilike(";
+
     @Inject
     SampleMapper sampleMapper;
     @Inject
@@ -101,16 +104,16 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
     private void addTextSearch(Conditions conditions, @Nullable TextSearch search, String field) {
         switch (search) {
             case TextSearch.BetweenSearch b -> conditions
-                    .add("lower(" + field + ") >= ?", b.from().toLowerCase())
-                    .add("lower(" + field + ") <= ?", b.to().toLowerCase());
+                    .add(LOWER_FUNCTION + field + ") >= ?", b.from().toLowerCase())
+                    .add(LOWER_FUNCTION + field + ") <= ?", b.to().toLowerCase());
             case TextSearch.ContainsSearch c -> conditions
-                    .add("ilike(" + field + ", ?)", '%' + c.value() + '%');
+                    .add(ILIKE_FUNCTION + field + ", ?)", '%' + c.value() + '%');
             case TextSearch.EndsWithSearch e -> conditions
-                    .add("ilike(" + field + ", ?)", '%' + e.value());
+                    .add(ILIKE_FUNCTION + field + ", ?)", '%' + e.value());
             case TextSearch.ExactSearch e -> conditions
-                    .add("lower(" + field + ") = ?", e.value().toLowerCase());
+                    .add(LOWER_FUNCTION + field + ") = ?", e.value().toLowerCase());
             case TextSearch.StartsWithSearch s -> conditions
-                    .add("ilike(" + field + ", ?)", s.value() + '%');
+                    .add(ILIKE_FUNCTION + field + ", ?)", s.value() + '%');
             case null -> {}
         }
     }

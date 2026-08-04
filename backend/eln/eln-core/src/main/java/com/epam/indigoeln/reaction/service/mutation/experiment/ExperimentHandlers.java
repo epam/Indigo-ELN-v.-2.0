@@ -5,18 +5,13 @@ import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.model.ExperimentRef;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
 import com.epam.indigoeln.eln.repository.AttachmentRepository;
-import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.eln.repository.UserRepository;
-import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.AttachmentService;
-import com.epam.indigoeln.eln.service.DictionaryService;
-import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.ReactionOutput;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
-import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import com.epam.indigoeln.reaction.service.mutation.EntityMutationHelper;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -38,17 +33,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @Dependent
 @MutationHandlerFor(ExperimentMutation.CreateExperiment.class)
 class CreateExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMutation.CreateExperiment> {
-
-    @Inject
-    DictionaryService dictionaryService;
-    @Inject
-    ExperimentRepository experimentRepository;
-    @Inject
-    ExperimentModelService experimentModelService;
-    @Inject
-    ACLService aclService;
-    @Inject
-    UserService userService;
 
     @Override
     protected void doValidateAccess(ExperimentEntity experiment, ExperimentMutation.CreateExperiment mutation, ExperimentMutationContext context) {
@@ -96,13 +80,8 @@ class SetExperimentSignificantFiguresHandler extends ExperimentMutationHandlerBa
 @Dependent
 @MutationHandlerFor(ExperimentMutation.EditExperimentAttributes.class)
 class EditExperimentAttributesHandler extends ExperimentMutationHandlerBase<ExperimentMutation.EditExperimentAttributes> {
-
-    @Inject
-    DictionaryService dictionaryService;
     @Inject
     EntityMutationHelper entityMutationHelper;
-    @Inject
-    ExperimentRepository experimentRepository;
 
     @Override
     public String doHandle(ExperimentEntity experiment, ExperimentMutation.EditExperimentAttributes mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
@@ -139,23 +118,17 @@ class EditExperimentAttributesHandler extends ExperimentMutationHandlerBase<Expe
                 , x -> "literature"
         );
         updated |= editProperty(mutation.linkedExperiments()
-                , v -> {
-                    updateCollection(experiment.getLinkedExperiments(), experimentsFromRefs(v));
-                }
+                , v -> updateCollection(experiment.getLinkedExperiments(), experimentsFromRefs(v))
                 , summaryList
                 , "linked experiments"
         );
         updated |= editProperty(mutation.continuedFrom()
-                , v -> {
-                    updateCollection(experiment.getContinuedFrom(), experimentsFromRefs(v));
-                }
+                , v -> updateCollection(experiment.getContinuedFrom(), experimentsFromRefs(v))
                 , summaryList
                 , "continued from"
         );
         updated |= editProperty(mutation.continuedTo()
-                , v -> {
-                    updateCollection(experiment.getContinuedTo(), experimentsFromRefs(v));
-                }
+                , v -> updateCollection(experiment.getContinuedTo(), experimentsFromRefs(v))
                 , summaryList
                 , "continued to"
         );
@@ -229,9 +202,6 @@ class SetBatchCreatorHandler extends ExperimentMutationHandlerBase<ExperimentMut
 @Dependent
 @MutationHandlerFor(ExperimentMutation.EditExperimentAccess.class)
 class EditExperimentAccessHandler extends ExperimentMutationHandlerBase<ExperimentMutation.EditExperimentAccess> {
-
-    @Inject
-    ACLService aclService;
     @Inject
     ProjectRepository projectRepository;
     @Inject
@@ -322,9 +292,6 @@ class ExperimentAccessUpdatedHandler extends AbstractExperimentMutationHandler<E
 @MutationHandlerFor(ExperimentMutation.ExperimentNameUpdated.class)
 class ExperimentNameUpdatedHandler extends AbstractExperimentMutationHandler<ExperimentMutation.ExperimentNameUpdated> {
 
-    @Inject
-    ExperimentRepository experimentRepository;
-
     @Override
     public String doHandle(ExperimentEntity experiment, ExperimentMutation.ExperimentNameUpdated mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         String oldName = experiment.getName();
@@ -347,8 +314,6 @@ class ExperimentUndoHandler extends ExperimentMutationHandlerBase<ExperimentMuta
 
     @Inject
     ExperimentUndoHelper experimentUndoHelper;
-    @Inject
-    UserService userService;
 
     @Override
     public void doPrepare(ExperimentEntity entity, ExperimentMutation.Undo mutation, ExperimentMutationContext context) {
@@ -374,8 +339,6 @@ class ExperimentRedoHandler extends ExperimentMutationHandlerBase<ExperimentMuta
 
     @Inject
     ExperimentUndoHelper experimentUndoHelper;
-    @Inject
-    UserService userService;
 
     @Override
     public void doPrepare(ExperimentEntity entity, ExperimentMutation.Redo mutation, ExperimentMutationContext context) {

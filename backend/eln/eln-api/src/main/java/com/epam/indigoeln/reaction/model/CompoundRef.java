@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
@@ -49,7 +50,7 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
 
     @Nullable
     @SuppressWarnings("unused") // used on frontend
-    EnteredValue<NoUnit> getExactMass();
+    EnteredValue<@NonNull NoUnit> getExactMass();
 
     @Nullable
     @SuppressWarnings("unused") // used on frontend
@@ -71,7 +72,7 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
 
         EnteredValue<MolWeightUnit> getMolWeight();
 
-        EnteredValue<NoUnit> getExactMass();
+        EnteredValue<@NonNull NoUnit> getExactMass();
 
         String getFormula();
 
@@ -103,7 +104,7 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
         private final EnteredValue<MolWeightUnit> molWeight;
 
         @NotNull
-        private final EnteredValue<NoUnit> exactMass;
+        private final EnteredValue<@NonNull NoUnit> exactMass;
 
         @NotNull
         private final String formula;
@@ -149,7 +150,7 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
         private final EnteredValue<MolWeightUnit> molWeight;
 
         @NotNull
-        private final EnteredValue<NoUnit> exactMass;
+        private final EnteredValue<@NonNull NoUnit> exactMass;
 
         @Nullable
         private final String casNumber;
@@ -210,7 +211,7 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
         @Override
         @Nullable
         @JsonIgnore
-        public EnteredValue<NoUnit> getExactMass() {
+        public EnteredValue<@NonNull NoUnit> getExactMass() {
             return null;
         }
 

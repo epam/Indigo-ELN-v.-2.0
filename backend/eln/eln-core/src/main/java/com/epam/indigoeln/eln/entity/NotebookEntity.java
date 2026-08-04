@@ -64,7 +64,7 @@ import java.util.*;
         }
 )
 @DynamicUpdate
-public class NotebookEntity extends BaseEntity implements WithAttachments, WithACL<NotebookACLEntity>, WithRevision {
+public class NotebookEntity extends BaseEntity implements WithAttachments, WithACL<NotebookACLEntity, ProjectEntity>, WithRevision {
 
     @NotNull
     @ManyToOne
@@ -90,7 +90,7 @@ public class NotebookEntity extends BaseEntity implements WithAttachments, WithA
 
     @NotNull
     @OneToMany(mappedBy = "notebook")
-    private Set<ExperimentEntity> experiments = new HashSet<>(0);
+    private Set<ExperimentEntity> experiments = HashSet.newHashSet(0);
 
     @NotNull
     @Basic(fetch = FetchType.LAZY)
@@ -130,7 +130,7 @@ public class NotebookEntity extends BaseEntity implements WithAttachments, WithA
 
     @Override
     @Transient
-    public WithACL<?> getACLParent() {
+    public ProjectEntity getACLParent() {
         return project;
     }
 

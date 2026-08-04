@@ -27,6 +27,10 @@ import static com.epam.indigoeln.eln.model.ApplicationPermission.VIEW_EXPERIMENT
 @SuppressWarnings("SqlWithoutWhere")
 public class SupportService {
 
+    private static final String ATTACHMENT_LOG = "\tattachment ";
+    private static final String CONTENT = "content";
+    private static final String ATTACHMENT = "attachment";
+
     @Inject
     Flyway flyway;
     @Inject
@@ -71,8 +75,8 @@ public class SupportService {
             ProjectDetailsDTO project = projectService.createProject(new ProjectRequest("Test Project " + projectNo, keywords, "literature", "description"));
             projectCount++;
             for (int attachmentNo = 1; attachmentNo <= random.nextInt(0, 2); attachmentNo++) {
-                System.out.println("\tattachment " + attachmentNo);
-                attachmentService.createProjectAttachment(project.getId(), "attachment" + attachmentNo + ".txt", "content".getBytes(), true);
+                System.out.println(ATTACHMENT_LOG + attachmentNo);
+                attachmentService.createProjectAttachment(project.getId(), ATTACHMENT + attachmentNo + ".txt", CONTENT.getBytes(), true);
                 attachmentCount++;
             }
             for (int notebookNo = 1; notebookNo <= random.nextInt(1, 4); notebookNo++) {
@@ -80,8 +84,8 @@ public class SupportService {
                 NotebookDetailsDTO notebook = notebookService.createNotebook(project.getId(), new NotebookRequest("%08d".formatted(++lastUsedNotebookNumber), "description"));
                 notebookCount++;
                 for (int attachmentNo = 1; attachmentNo <= random.nextInt(0, 4); attachmentNo++) {
-                    System.out.println("\tattachment " + attachmentNo);
-                    attachmentService.createNotebookAttachment(notebook.getId(), "attachment" + attachmentNo + ".txt", "content".getBytes(), true);
+                    System.out.println(ATTACHMENT_LOG + attachmentNo);
+                    attachmentService.createNotebookAttachment(notebook.getId(), ATTACHMENT + attachmentNo + ".txt", CONTENT.getBytes(), true);
                     attachmentCount++;
                 }
                 for (int experimentNo = 1; experimentNo <= random.nextInt(1, 12); experimentNo++) {
@@ -93,8 +97,8 @@ public class SupportService {
                     ));
                     experimentCount++;
                     for (int attachmentNo = 1; attachmentNo <= random.nextInt(0, 4); attachmentNo++) {
-                        System.out.println("\tattachment " + attachmentNo);
-                        attachmentService.createExperimentAttachment(experiment.getId(), "attachment" + attachmentNo + ".txt", "content".getBytes(), true);
+                        System.out.println(ATTACHMENT_LOG + attachmentNo);
+                        attachmentService.createExperimentAttachment(experiment.getId(), ATTACHMENT + attachmentNo + ".txt", CONTENT.getBytes(), true);
                         attachmentCount++;
                     }
                 }

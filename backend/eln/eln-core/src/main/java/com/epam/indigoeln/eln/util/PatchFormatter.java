@@ -21,6 +21,9 @@ import java.util.UUID;
 @Dependent
 public class PatchFormatter {
 
+    private static final String SOURCE = "source";
+    private static final String VALUE = "value";
+
     @Inject
     IndigoAPI indigo;
     @Inject
@@ -70,18 +73,18 @@ public class PatchFormatter {
                     doFormat(before, objectPatch.get("$new"), true);
                 }
             }
-            case ObjectNode objectPatch when (objectPatch.get("value") instanceof ValueNode value && objectPatch.get("unit") instanceof ValueNode unit && objectPatch.get("source") instanceof ValueNode source) -> {
+            case ObjectNode objectPatch when (objectPatch.get(VALUE) instanceof ValueNode value && objectPatch.get("unit") instanceof ValueNode unit && objectPatch.get(SOURCE) instanceof ValueNode source) -> {
                 // EnteredValue created or deleted
                 String s = formatEnteredValue(before == null, value.asText(), objectPatch.get("exactValue"), unit.asText(), source.asText());
                 grid.right(s).left().newRow();
             }
-            case ObjectNode objectPatch when (before instanceof ObjectNode objectBefore && objectBefore.has("value") && objectBefore.has("unit") && objectBefore.has("source")) -> {
+            case ObjectNode objectPatch when (before instanceof ObjectNode objectBefore && objectBefore.has(VALUE) && objectBefore.has("unit") && objectBefore.has(SOURCE)) -> {
                 // EnteredValue changed
-                String oldSource = objectBefore.get("source").asText();
-                String oldValue = objectBefore.get("value").asText();
+                String oldSource = objectBefore.get(SOURCE).asText();
+                String oldValue = objectBefore.get(VALUE).asText();
                 String oldUnit = objectBefore.get("unit").asText();
-                String newSource = objectPatch.get("source") instanceof ObjectNode s && s.get("$new") instanceof ValueNode n ? n.asText() : oldSource;
-                String newValue = objectPatch.get("value") instanceof ObjectNode v && v.get("$new") instanceof ValueNode n ? n.asText() : oldValue;
+                String newSource = objectPatch.get(SOURCE) instanceof ObjectNode s && s.get("$new") instanceof ValueNode n ? n.asText() : oldSource;
+                String newValue = objectPatch.get(VALUE) instanceof ObjectNode v && v.get("$new") instanceof ValueNode n ? n.asText() : oldValue;
                 String newUnit = objectPatch.get("unit") instanceof ObjectNode u && u.get("$new") instanceof ValueNode n ? n.asText() : oldUnit;
                 boolean newOverwritten = objectPatch.get("overwritten") instanceof ObjectNode o && o.get("$new") instanceof BooleanNode b && b.booleanValue();
                 String s = "%s → %s%s".formatted(
