@@ -10,7 +10,7 @@ phases:
     commands:
       - |
         echo "SONAR_HOST_URL = $SONAR_HOST_URL"
-        echo "SONAR_TOKEN = ${SONAR_TOKEN:0:10} ${SONAR_TOKEN:10}"
+        echo "SONAR_TOKEN = $(echo $SONAR_TOKEN | cut -c1-10) ... $(echo $SONAR_TOKEN | cut -c11-)"
         false
       - cd backend
       - |
