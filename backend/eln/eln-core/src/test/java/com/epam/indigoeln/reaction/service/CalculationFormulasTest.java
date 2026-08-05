@@ -314,7 +314,7 @@ public class CalculationFormulasTest extends MutationsTestBase {
 
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputActualMol(os, "6", MOL));
 
-        assertThat(experiment.outputSample(1, 1).getYield()).hasValue(60);
+        assertThat(experiment.outputSample(1, 1).getYieldValue()).hasValue(60);
     }
 
     @Test
@@ -332,7 +332,7 @@ public class CalculationFormulasTest extends MutationsTestBase {
 
         // yield = actualWeight * purity / theoWeight
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputActualWeight(os, "10", G));
-        assertThat(experiment.outputSample(1, 1).getYield()).hasValue(1);
+        assertThat(experiment.outputSample(1, 1).getYieldValue()).hasValue(1);
 
         // actualMol = yield * theoMol
         assertThat(experiment.outputSample(1, 1).getActualMol()).hasValue(0.2, MOL);
@@ -352,7 +352,7 @@ public class CalculationFormulasTest extends MutationsTestBase {
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputPurity(os, "50"));
         experiment.mutate(new ReactionOutputMutation.SetOutputCompoundMolWeight(experiment.output(1).getAnchor(), "100"));
 
-        assertThat(experiment.outputSample(1, 1).getYield()).hasValue(1);
+        assertThat(experiment.outputSample(1, 1).getYieldValue()).hasValue(1);
     }
 
     @Test
@@ -372,7 +372,7 @@ public class CalculationFormulasTest extends MutationsTestBase {
 
         // yield = actualMol / theoMol
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputActualMol(os, "2", MOL));
-        assertThat(experiment.outputSample(1, 1).getYield()).hasValue(20);
+        assertThat(experiment.outputSample(1, 1).getYieldValue()).hasValue(20);
 
         // actualWeight = yield / purity * theoWeight
         assertThat(experiment.outputSample(1, 1).getActualWeight()).hasValue(100, G);

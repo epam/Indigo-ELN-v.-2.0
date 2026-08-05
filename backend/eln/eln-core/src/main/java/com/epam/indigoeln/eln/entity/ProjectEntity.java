@@ -59,7 +59,7 @@ import java.util.*;
         }
 )
 @DynamicUpdate
-public class ProjectEntity extends BaseEntity implements WithAttachments<ProjectAttachment>, WithACL<ProjectACLEntity>, WithRevision {
+public class ProjectEntity extends BaseEntity implements WithAttachments<ProjectAttachment>, WithACL<ProjectACLEntity, ProjectEntity>, WithRevision {
 
     @NotEmpty(message = "Project Name is required")
     @Size(max = 256, message = "Project name must be at most 256 characters")

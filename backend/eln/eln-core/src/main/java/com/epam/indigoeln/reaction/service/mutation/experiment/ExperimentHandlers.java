@@ -4,9 +4,12 @@ import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.model.ExperimentRef;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
-import com.epam.indigoeln.eln.repository.*;
-import com.epam.indigoeln.eln.service.ACLService;
+import com.epam.indigoeln.eln.repository.ExperimentAttachmentRepository;
+import com.epam.indigoeln.eln.repository.ExperimentRepository;
+import com.epam.indigoeln.eln.repository.ProjectRepository;
+import com.epam.indigoeln.eln.repository.UserRepository;
 import com.epam.indigoeln.eln.service.AttachmentService;
+import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.ReactionOutput;
@@ -29,6 +32,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @Dependent
 @MutationHandlerFor(ExperimentMutation.CreateExperiment.class)
 class CreateExperimentHandler extends AbstractExperimentMutationHandler<ExperimentMutation.CreateExperiment> {
+
+    @Inject
+    DictionaryService dictionaryService;
 
     @Override
     protected void doValidateAccess(ExperimentEntity experiment) {

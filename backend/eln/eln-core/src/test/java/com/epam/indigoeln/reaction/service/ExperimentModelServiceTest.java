@@ -8,23 +8,17 @@ import com.epam.indigoeln.compound.model.search.TextSearch;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.reaction.model.ReactionInput;
-import com.epam.indigoeln.reaction.model.ReactionRole;
+import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
-import com.epam.indigoeln.reaction.model.units.WeightUnit;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.data.Offset;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.util.List;
@@ -252,12 +246,13 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
                 JsonNullable.undefined(),
                 JsonNullable.undefined()
         ));
+        experiment.invalidate();
         assertThat(experiment.experiment().getTitle()).isEqualTo("new title");
         assertThat(experiment.experiment().getTherapeuticArea()).isEqualTo(therapeuticArea);
         assertThat(experiment.experiment().getLinkedExperiments()).containsExactly(experiment2.toRef());
-        experiment.mutate(new ExperimentMutation.EditExperimentAccess(
-                AccessForm.of(LISA_USERNAME, AccessLevel.EDIT)
-        ), false);
+
+        experimentClient.updateExperimentAccess(experiment.id(), AccessForm.of(LISA_USERNAME, AccessLevel.EDIT));
+        experiment.invalidate();
         assertThat(experiment.experiment().getAcl())
                 .filteredOn(entry -> LISA_USERNAME.equals(entry.getUsername()))
                 .extracting(ACLEntryDTO::getLevel)

@@ -12,6 +12,8 @@ import io.quarkus.test.security.TestSecurity;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
@@ -59,7 +61,7 @@ class UserServiceTest extends ELNBaseTest {
 
     @Test
     @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
-    void testGetUserPicture() {
+    void testGetUserPicture() throws Exception {
         List<UserRef> all = userClient.suggestUsers(null);
         byte[] response = userClient.getUserPicture(all.getFirst().getUsername(), null);
         Files.write(Paths.get("build/user.png"), response);

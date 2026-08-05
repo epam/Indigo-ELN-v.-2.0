@@ -25,10 +25,8 @@ import com.epam.indigoeln.signature.model.SignatureTemplateRequest;
 import com.epam.indigoeln.test.FeignUtil;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
-import org.junit.jupiter.api.io.TempDir;
 
 import java.net.URI;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -142,10 +140,10 @@ class InsertTestDataTest {
 
     @Test
     @Order(4)
-    void loadCompounds(@TempDir Path tempDir) {
+    void loadCompounds() {
         miscClient.loadCompoundsFromFileClient("compounds.sdf", loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"));
 
-        SampleSearchResult samples = compoundClient.search(new FindSamplesRequest().withCatalogs(Set.of(ELN)), null, null, DEFAULT_PAGE_SIZE);
+        SampleSearchResult samples = compoundClient.search(new FindSamplesRequest().withCatalogs(Set.of(ELN)), DEFAULT_PAGE_SIZE);
         assertThat(samples.items()).isNotEmpty();
     }
 
@@ -163,7 +161,7 @@ class InsertTestDataTest {
 
     @Test
     @Order(6)
-    void fillExperiment(@TempDir Path tempDir) {
+    void fillExperiment() {
         ExperimentObject experiment = createExperiment(PROJECT_WITH_DATA, NOTEBOOK_88888888, templateClient.getByName(TEMPLATE_DEFAULT), EXPERIMENT_WITH_DATA);
 
         // add attachment
