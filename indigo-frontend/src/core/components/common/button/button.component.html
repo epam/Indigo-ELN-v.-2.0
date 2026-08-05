@@ -5,14 +5,12 @@
   [attr.aria-label]="ariaLabel"
   [attr.aria-busy]="loading"
 >
-  @if (loading) {
-    <span class="inline-flex items-center gap-2">
-      <span class="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></span>
-      @if (loadingText) {
-        <span>{{ loadingText }}</span>
-      }
-    </span>
-  } @else {
-    <ng-content></ng-content>
-  }
+  <span class="relative inline-flex items-center justify-center">
+    <span [class.opacity-0]="loading"><ng-content></ng-content></span>
+    @if (loading) {
+      <span class="absolute inset-0 flex items-center justify-center">
+        <span class="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></span>
+      </span>
+    }
+  </span>
 </button>

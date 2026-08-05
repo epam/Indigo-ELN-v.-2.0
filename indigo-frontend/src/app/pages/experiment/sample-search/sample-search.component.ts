@@ -4,6 +4,7 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angul
 import { MatDialog } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioButton, MatRadioGroup } from '@angular/material/radio';
+import { ButtonComponent } from '@core/components/common/button/button.component';
 import {
   FindSamplesRequest,
   NumericSearch,
@@ -43,6 +44,8 @@ import { ExperimentDetailService } from '@core/services/experiment/experiment-de
 import { NotificationService } from '@core/services/notification/notification.service';
 import { NotificationType } from '@core/types/notification.i';
 import { UUID } from '@core/types/entities/experiments/experiment-shared.i';
+import { withLoading } from '@core/utils/with-loading';
+import { Observable, switchMap, tap } from 'rxjs';
 
 export interface SampleSearchCriteria {
   catalogs?: SearchCatalogUI;
@@ -94,6 +97,7 @@ const PUBCHEM_DISABLED_CONTROLS = [
     MatButtonModule,
     MatIconModule,
     SampleSearchResultsComponent,
+    ButtonComponent,
   ],
   templateUrl: './sample-search.component.html',
 })
@@ -115,8 +119,8 @@ export class SampleSearchComponent implements OnInit {
   notificationService = inject(NotificationService);
 
   title = 'Add Material';
-  isSearching = false;
   isAddingToExperiment = false;
+  loadingSampleKey: string | null = null;
 
   form = new FormGroup({
     catalog: new FormControl<SearchCatalogUI>(SearchCatalogUI.ALL),
@@ -189,7 +193,7 @@ export class SampleSearchComponent implements OnInit {
   }
 
   performSearch() {
-    if (this.isSearching) {
+    if (this.loader?.loading) {
       return;
     }
 
@@ -226,7 +230,6 @@ export class SampleSearchComponent implements OnInit {
         delete body[controlName];
       }
     }
-    this.isSearching = true;
     this.loader.search(body);
     this.advancedSearchPanel.close();
   }
@@ -267,40 +270,48 @@ export class SampleSearchComponent implements OnInit {
       return;
     }
 
-    this.isAddingToExperiment = true;
-    if (!sample.id) {
-      this.apiService.request<Sample>('post', '/samples/importFromSearch', sample).subscribe({
-        next: (response) => {
-          this.doAddToExperiment(response.id);
-        },
-        error: () => {
-          this.isAddingToExperiment = false;
-        },
-      });
-    } else {
-      this.doAddToExperiment(sample.id);
-    }
+    this.loadingSampleKey = this.getSampleKey(sample);
+    const request$ = (
+      !sample.id
+        ? this.apiService
+            .request<Sample>('post', '/samples/importFromSearch', sample)
+            .pipe(switchMap((response) => this.doAddToExperiment(response.id)))
+        : this.doAddToExperiment(sample.id)
+    ).pipe(
+      withLoading((loading) => {
+        this.isAddingToExperiment = loading;
+        if (!loading) {
+          this.loadingSampleKey = null;
+        }
+      }),
+    );
+
+    request$.subscribe({
+      error: () => {
+        this.loadingSampleKey = null;
+      },
+    });
   }
 
-  doAddToExperiment(sampleID: UUID) {
+  doAddToExperiment(sampleID: UUID): Observable<unknown> {
     const mutation = {
       type: 'AddInput' as const,
       anchor: this.reactionAnchor,
       sampleId: sampleID,
     };
-    this.experimentDetailService.updateDataModel(mutation).subscribe({
-      next: () => {
-        this.isAddingToExperiment = false;
+    return this.experimentDetailService.updateDataModel(mutation).pipe(
+      tap(() => {
         this.notificationService.notify({
           type: NotificationType.Info,
           message: 'Model updated with new sample',
           isInline: false,
         });
-      },
-      error: () => {
-        this.isAddingToExperiment = false;
-      },
-    });
+      }),
+    );
+  }
+
+  getSampleKey(sample: Sample): string {
+    return sample.id ?? sample.compoundKey ?? sample.name ?? 'new-sample';
   }
 
   BuildInDictionary = BuiltInDictionary;

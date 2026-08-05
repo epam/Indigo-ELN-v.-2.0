@@ -39,19 +39,15 @@
         }
       </ng-template>
       <ng-template elnColumnDef="add" displayName="" let-element>
-        <button
-          class="ml-2 px-4 py-2 bg-[#f3f3f3] text-black rounded-[5px] cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
-          [disabled]="isAddingToExperiment"
+        <eln-button
+          variant="grey"
+          classList="ml-2 min-w-[42px]"
+          [disabled]="isAddingToExperiment || (loadingSampleKey != null && !isRowLoading(element))"
+          [loading]="isRowLoading(element)"
           (click)="addToExperiment.emit(element)"
         >
-          @if (isAddingToExperiment) {
-            <span class="inline-flex items-center gap-2">
-              <span class="h-4 w-4 animate-spin rounded-full border-2 border-[#3f50b5] border-t-transparent"></span>
-            </span>
-          } @else {
-            <mat-icon matTooltip="Add to current experiment" class="text-[#3f50b5]">add </mat-icon>
-          }
-        </button>
+          <mat-icon matTooltip="Add to current experiment" class="text-[#3f50b5]">add </mat-icon>
+        </eln-button>
       </ng-template>
 
       <ng-template #details let-element>

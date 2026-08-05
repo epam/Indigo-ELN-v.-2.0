@@ -4,8 +4,8 @@
   containerClass="w-[800px]"
   submitButtonText="Search"
   submitLoadingText="Searching..."
-  [submitEnabled]="formNotEmpty && !isSearching"
-  [submitLoading]="isSearching"
+  [submitEnabled]="formNotEmpty && !loader.loading"
+  [submitLoading]="loader.loading"
   (formSubmit)="performSearch()"
   (keydown.enter)="performSearch()"
 >
@@ -104,7 +104,7 @@
             </div>
           }
           <div class="relative flex flex-col gap-8 search-results">
-            @if (isSearching) {
+            @if (loader.loading) {
               <div class="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-white/80">
                 <div class="flex items-center gap-2 text-sm font-medium text-gray-600">
                   <span class="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></span>
@@ -178,7 +178,7 @@
             (enteredViewport)="loader.onInfiniteLoaderEntered()"
             (leftViewport)="loader.onInfiniteLoaderLeft()"
           />
-          @if (!isSearching && loader.error) {
+          @if (!loader.loading && loader.error) {
             <div>Error loading results</div>
           }
         }
