@@ -35,5 +35,5 @@ public class DictionaryEntity extends BaseEntity {
 
     @NotNull
     @OneToMany(mappedBy = "dictionary")
-    private Set<DictionaryItemEntity> items = new HashSet<>(0);
+    private Set<DictionaryItemEntity> items = HashSet.newHashSet(0);
 }

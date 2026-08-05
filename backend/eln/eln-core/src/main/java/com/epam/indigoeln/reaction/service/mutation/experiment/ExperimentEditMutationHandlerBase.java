@@ -8,7 +8,6 @@ import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.mapper.DictionaryMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.DictionaryService;
-import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
@@ -23,7 +22,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 import static com.epam.indigoeln.common.exception.InvalidRequestException.fail;
@@ -33,8 +31,9 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 
 public abstract class ExperimentEditMutationHandlerBase<T extends ExperimentMutation> extends AbstractExperimentMutationHandler<T> {
 
-    @Inject
-    IndigoAPI indigoAPI;
+    private static final String CLEAR_SUMMARY_FORMAT = "Clear %s";
+    private static final String SET_SUMMARY_FORMAT = "Set %s to %s";
+
     @Inject
     CompoundService compoundService;
     @Inject
@@ -73,31 +72,31 @@ public abstract class ExperimentEditMutationHandlerBase<T extends ExperimentMuta
 
     public String formatSetterSummary(String what, @Nullable String value, @Nullable MeasurementUnit unit) {
         if (value == null) {
-            return "Clear %s".formatted(what);
+            return CLEAR_SUMMARY_FORMAT.formatted(what);
         }
         if (unit == null) {
-            return "Set %s to %s".formatted(what, value);
+            return SET_SUMMARY_FORMAT.formatted(what, value);
         }
         return "Set %s to %s %s".formatted(what, value, unit);
     }
 
     public String formatSetterSummary(String what, @Nullable Object value) {
         if (value == null) {
-            return "Clear %s".formatted(what);
+            return CLEAR_SUMMARY_FORMAT.formatted(what);
         }
-        return "Set %s to %s".formatted(what, StringUtils.abbreviate(value.toString(), 100));
+        return SET_SUMMARY_FORMAT.formatted(what, StringUtils.abbreviate(value.toString(), 100));
     }
 
     public String formatSetterSummary(String what, @Nullable String value) {
         if (value == null || value.isEmpty()) {
-            return "Clear %s".formatted(what);
+            return CLEAR_SUMMARY_FORMAT.formatted(what);
         }
-        return "Set %s to %s".formatted(what, StringUtils.abbreviate(value, 100));
+        return SET_SUMMARY_FORMAT.formatted(what, StringUtils.abbreviate(value, 100));
     }
 
     public String formatSetterSummary(String what, @Nullable List<? extends DictionaryItemRef> value) {
         if (value == null || value.isEmpty()) {
-            return "Clear %s".formatted(what);
+            return CLEAR_SUMMARY_FORMAT.formatted(what);
         }
         if (value.size() == 1) {
             return "Set %s to [%s]".formatted(what, value.getFirst());
@@ -107,7 +106,7 @@ public abstract class ExperimentEditMutationHandlerBase<T extends ExperimentMuta
 
     public String formatSetterSummaryNoDetails(String what, boolean isPresent) {
         if (!isPresent) {
-            return "Clear %s".formatted(what);
+            return CLEAR_SUMMARY_FORMAT.formatted(what);
         }
         return "Updated %s".formatted(what);
     }
@@ -156,14 +155,29 @@ public abstract class ExperimentEditMutationHandlerBase<T extends ExperimentMuta
         reaction.setOutputs(StreamEx.of(reaction.getOutputs()).remove(r -> !r.isIntended() && r.getSamples().isEmpty()).toImmutableList());
     }
 
-    @SuppressWarnings("OptionalAssignedToNull")
-    protected CompoundRef doUpdateCompound(ReactionRow row, @Nullable Optional<SaltCodeRef> saltCode, @Nullable Optional<Double> saltEQ, @Nullable Optional<StereoisomerCodeRef> stereoisomerCode, @Nullable String molfile) {
+    protected CompoundRef doUpdateSaltCode(ReactionRow row, @Nullable SaltCodeRef saltCode) {
+        return doUpdateCompound(row, CompoundField.SALT_CODE, saltCode, null, null, null);
+    }
+
+    protected CompoundRef doUpdateSaltEQ(ReactionRow row, @Nullable Double saltEQ) {
+        return doUpdateCompound(row, CompoundField.SALT_EQ, null, saltEQ, null, null);
+    }
+
+    protected CompoundRef doUpdateStereoisomerCode(ReactionRow row, @Nullable StereoisomerCodeRef stereoisomerCode) {
+        return doUpdateCompound(row, CompoundField.STEREOISOMER_CODE, null, null, stereoisomerCode, null);
+    }
+
+    protected CompoundRef doUpdateMolfile(ReactionRow row, @Nullable String molfile) {
+        return doUpdateCompound(row, CompoundField.MOLFILE, null, null, null, molfile);
+    }
+
+    private CompoundRef doUpdateCompound(ReactionRow row, CompoundField field, @Nullable SaltCodeRef saltCode, @Nullable Double saltEQ, @Nullable StereoisomerCodeRef stereoisomerCode, @Nullable String molfile) {
         switch (row.getCompound()) {
             case CompoundRef.StoredOrVirtual v -> {
-                SaltCodeRef effectiveSaltCode = saltCode != null ? saltCode.orElse(null) : v.getSaltCode();
-                Double effectiveSaltEQ = saltEQ != null ? saltEQ.orElse(null) : v.getSaltEQ();
-                StereoisomerCodeRef effectiveStereoisomerCode = stereoisomerCode != null ? stereoisomerCode.orElse(null) : v.getStereoisomerCode();
-                if (effectiveSaltCode == null && saltEQ != null && saltEQ.isPresent()) {
+                SaltCodeRef effectiveSaltCode = updatedValue(field, CompoundField.SALT_CODE, saltCode, v.getSaltCode());
+                Double effectiveSaltEQ = updatedValue(field, CompoundField.SALT_EQ, saltEQ, v.getSaltEQ());
+                StereoisomerCodeRef effectiveStereoisomerCode = updatedValue(field, CompoundField.STEREOISOMER_CODE, stereoisomerCode, v.getStereoisomerCode());
+                if (effectiveSaltCode == null && field == CompoundField.SALT_EQ && saltEQ != null) {
                     fail("Cannot set saltEQ because saltCode is not set");
                 }
                 // normalize saltEQ
@@ -173,7 +187,7 @@ public abstract class ExperimentEditMutationHandlerBase<T extends ExperimentMuta
                     effectiveSaltEQ = null;
                 }
                 CompoundEntity compound = compoundService.getCompound(v.getCompoundID());
-                String effectiveMolfile = molfile != null ? molfile : compound.getMolFile();
+                String effectiveMolfile = field == CompoundField.MOLFILE && molfile != null ? molfile : compound.getMolFile();
                 IndigoMolecule molecule = indigoAPI.loadMolecule(effectiveMolfile);
                 return compoundService.virtualCompoundRef(molecule, effectiveStereoisomerCode, effectiveSaltCode, effectiveSaltEQ);
             }
@@ -185,6 +199,17 @@ public abstract class ExperimentEditMutationHandlerBase<T extends ExperimentMuta
                 throw new InvalidRequestException("Cannot set saltCode/saltEQ/stereoisomerCode for unknown compound");
             }
         }
+    }
+
+    private <V> @Nullable V updatedValue(CompoundField field, CompoundField updatedField, @Nullable V value, @Nullable V previousValue) {
+        return field == updatedField ? value : previousValue;
+    }
+
+    private enum CompoundField {
+        SALT_CODE,
+        SALT_EQ,
+        STEREOISOMER_CODE,
+        MOLFILE
     }
 
     protected ReactionOutput findOrCreateOutputRow(Reaction reaction, CompoundRef compound, OutputAnchor createdOutputAnchor) {

@@ -82,7 +82,7 @@ public class NotebookEntity extends BaseEntity implements WithAttachments<Notebo
 
     @NotNull
     @OneToMany(mappedBy = "notebook")
-    private Set<ExperimentEntity> experiments = new HashSet<>(0);
+    private Set<ExperimentEntity> experiments = HashSet.newHashSet(0);
 
     @NotNull
     @Basic(fetch = FetchType.LAZY)
@@ -131,7 +131,7 @@ public class NotebookEntity extends BaseEntity implements WithAttachments<Notebo
 
     @Override
     @Transient
-    public WithACL<?> getACLParent() {
+    public ProjectEntity getACLParent() {
         return project;
     }
 

@@ -77,7 +77,7 @@ import java.util.*;
         }
 )
 @DynamicUpdate
-public class ExperimentEntity extends BaseEntity implements WithAttachments<ExperimentAttachment>, WithACL<ExperimentACLEntity>, WithRevision {
+public class ExperimentEntity extends BaseEntity implements WithAttachments, WithACL<ExperimentACLEntity, NotebookEntity>, WithRevision {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -127,20 +127,19 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments<Expe
     @ManyToOne(fetch = FetchType.LAZY)
     private UserEntity batchCreator;
 
-    @NotNull
-    @Basic(fetch = FetchType.LAZY)
-    @JdbcTypeCode(SqlTypes.ARRAY)
-    private UUID[] linkedExperiments = new UUID[0];
+    @ManyToMany
+    @JoinTable(name = "Experiment_Linked_Experiment", joinColumns = @JoinColumn(name = "parent_id"), inverseJoinColumns = @JoinColumn(name = "experiment_id"))
+    private Set<ExperimentEntity> linkedExperiments = HashSet.newHashSet(0);
 
     @NotNull
-    @Basic(fetch = FetchType.LAZY)
-    @JdbcTypeCode(SqlTypes.ARRAY)
-    private UUID[] continuedFrom = new UUID[0];
+    @ManyToMany
+    @JoinTable(name = "Experiment_Continued_From", joinColumns = @JoinColumn(name = "parent_id"), inverseJoinColumns = @JoinColumn(name = "experiment_id"))
+    private Set<ExperimentEntity> continuedFrom = HashSet.newHashSet(0);
 
     @NotNull
-    @Basic(fetch = FetchType.LAZY)
-    @JdbcTypeCode(SqlTypes.ARRAY)
-    private UUID[] continuedTo = new UUID[0];
+    @ManyToMany
+    @JoinTable(name = "Experiment_Continued_To", joinColumns = @JoinColumn(name = "parent_id"), inverseJoinColumns = @JoinColumn(name = "experiment_id"))
+    private Set<ExperimentEntity> continuedTo = HashSet.newHashSet(0);
 
     @Nullable
     @Basic(fetch = FetchType.LAZY)
@@ -197,7 +196,7 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments<Expe
     @NotNull
     @ElementCollection
     @CollectionTable(name = "Experiment_Referenced_Compound", joinColumns = @JoinColumn(name = "experiment_id"))
-    private Set<ExperimentReferencedCompound> referencedCompounds = new HashSet<>(0);
+    private Set<ExperimentReferencedCompound> referencedCompounds = HashSet.newHashSet(0);
 
     @NotNull
     @ElementCollection

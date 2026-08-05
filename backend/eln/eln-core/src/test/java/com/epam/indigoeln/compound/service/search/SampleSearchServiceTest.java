@@ -83,6 +83,16 @@ public class SampleSearchServiceTest extends ELNBaseTest {
         str2 = sample.getStrCode();
         sample = compoundService.registerSample(new SampleRegistrationRequest(compound2));
         strOtherCompound = sample.getStrCode();
+
+        assertThat(saltCode.getId()).isNotNull();
+        assertThat(healthHazard.getId()).isNotNull();
+        assertThat(compoundState.getId()).isNotNull();
+        assertThat(compound1.getCompoundID()).isNotNull();
+        assertThat(compound2.getCompoundID()).isNotEqualTo(compound1.getCompoundID());
+        assertThat(sampleID1).isNotNull();
+        assertThat(str1).isNotNull();
+        assertThat(str2).isNotNull();
+        assertThat(strOtherCompound).isNotEqualTo(str1);
     }
 
     @Test

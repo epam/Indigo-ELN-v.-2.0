@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
 
+import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -20,6 +21,9 @@ class UserServiceTest {
     @Test
     @TestSecurity(user = "john")
     void testGetCurrentUser() {
-        userService.getCurrentUser();
+        var user = userService.getCurrentUser();
+        assertThat(user.getId()).isNotNull();
+        assertThat(user.getUsername()).isEqualTo("john");
+        assertThat(user.getDisplayName()).isEqualTo("John Doe");
     }
 }

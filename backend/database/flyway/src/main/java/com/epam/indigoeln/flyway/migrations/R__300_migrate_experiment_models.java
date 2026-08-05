@@ -20,6 +20,7 @@ import java.util.UUID;
 public class R__300_migrate_experiment_models extends BaseJavaMigration {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final String SOURCE = "source";
 
     @Override
     public void migrate(Context context) throws Exception {
@@ -53,15 +54,15 @@ public class R__300_migrate_experiment_models extends BaseJavaMigration {
             if (node.has("id") && node.has("username") && node.has("displayName")) {
                 // UserRef, remove ID
                 node.remove("id");
-            } else if (node.has("value") && node.get("source") instanceof NumericNode n && n.intValue() < 0) {
+            } else if (node.has("value") && node.get(SOURCE) instanceof NumericNode n && n.intValue() < 0) {
                 // update negative EnteredValue.source to word "calculated"
-                node.set("source", nodeFactory.textNode("calculated"));
+                node.set(SOURCE, nodeFactory.textNode("calculated"));
             } else if (node.get("exactMass") instanceof NumericNode n) {
                 // update numeric exactMass
                 ObjectNode obj = nodeFactory.objectNode();
                 obj.set("value", nodeFactory.textNode(n.decimalValue().toString()));
                 obj.set("unit", nodeFactory.textNode(NoUnit.NO_UNIT.name()));
-                obj.set("source", nodeFactory.textNode("fixed"));
+                obj.set(SOURCE, nodeFactory.textNode("fixed"));
                 node.set("exactMass", obj);
             }
         }

@@ -24,6 +24,9 @@ import java.util.UUID;
 @Dependent
 public class PatchFormatter {
 
+    private static final String SOURCE = "source";
+    private static final String VALUE = "value";
+
     @Inject
     IndigoAPI indigo;
     @Inject
@@ -75,15 +78,15 @@ public class PatchFormatter {
                     doFormat(before, objectPatch.get("$new"), true);
                 }
             }
-            case ObjectNode objectPatch when (objectPatch.get("value") instanceof ValueNode value && objectPatch.get("unit") instanceof ValueNode unit && objectPatch.get("source") instanceof ValueNode source) -> {
+            case ObjectNode objectPatch when (objectPatch.get(VALUE) instanceof ValueNode value && objectPatch.get("unit") instanceof ValueNode unit && objectPatch.get(SOURCE) instanceof ValueNode source) -> {
                 // EnteredValue created or deleted
                 String s = formatEnteredValue(before == null, value.asText(), objectPatch.get("exactValue"), unit.asText(), source.asText());
                 grid.right(s).left().newRow();
             }
             case ObjectNode _ when (before instanceof ObjectNode objectBefore && objectBefore.has("value") && objectBefore.has("unit") && objectBefore.has("source")) -> {
                 // EnteredValue changed
-                String oldSource = objectBefore.get("source").asText();
-                String oldValue = objectBefore.get("value").asText();
+                String oldSource = objectBefore.get(SOURCE).asText();
+                String oldValue = objectBefore.get(VALUE).asText();
                 String oldUnit = objectBefore.get("unit").asText();
                 ObjectNode objectAfter = (ObjectNode) jsonPatcher.apply(before, patch);
                 String newSource = objectAfter.has("source") ? objectAfter.get("source").asText() : null;

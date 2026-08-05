@@ -106,11 +106,11 @@ public class ProjectEntity extends BaseEntity implements WithAttachments<Project
 
     @NotNull
     @OneToMany(mappedBy = "project")
-    private Set<NotebookEntity> notebooks = new HashSet<>(0);
+    private Set<NotebookEntity> notebooks = HashSet.newHashSet(0);
 
     @NotNull
     @OneToMany(mappedBy = "project")
-    private Set<ExperimentEntity> experiments = new HashSet<>(0);
+    private Set<ExperimentEntity> experiments = HashSet.newHashSet(0);
 
     @NotNull
     @OneToMany(mappedBy = "parent")
@@ -149,7 +149,7 @@ public class ProjectEntity extends BaseEntity implements WithAttachments<Project
     @Override
     @Nullable
     @Transient
-    public WithACL<?> getACLParent() {
+    public ProjectEntity getACLParent() {
         return null;
     }
 
