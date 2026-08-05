@@ -8,17 +8,13 @@ phases:
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
   build:
     commands:
-      - |
-        echo "SONAR_HOST_URL = $SONAR_HOST_URL"
-        echo "SONAR_TOKEN = $(echo $SONAR_TOKEN | cut -c1-10) ... $(echo $SONAR_TOKEN | cut -c11-)"
-        false
       - cd backend
       - |
         TARGETS=":common:common:build :common:common-lambda:build "
         if [ "$BUILD_ELN_LAMBDA" = "true" ]; then TARGETS="$TARGETS :eln:eln-api:build :eln:eln-core:build :eln:eln-lambda:build"; fi
         if [ "$BUILD_REPORTS_LAMBDA" = "true" ]; then TARGETS="$TARGETS :reports:reports-api:build :reports:reports-core:build :reports:reports-lambda:build"; fi
         if [ "$BUILD_SIGNATURE_LAMBDA" = "true" ]; then TARGETS="$TARGETS :signature:signature-api:build :signature:signature-core:build :signature:signature-lambda:build"; fi
-        ./gradlew test $TARGETS sonar --info --profile -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.token=$SONAR_TOKEN
+        ./gradlew test $TARGETS sonar -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.token=$SONAR_TOKEN
   post_build:
     commands:
       - |
@@ -45,9 +41,9 @@ phases:
           docker push $SIGNATURE_REPO_URI:latest
           docker push $SIGNATURE_REPO_URI:$IMAGE_TAG
         fi
-      - tar czf build_profile_$IMAGE_TAG.tgz build/reports/profile
-      - echo "aws s3 cp build_profile_$IMAGE_TAG.tgz s3://$S3_LOGS/build_profile_$IMAGE_TAG.tgz"
-      - aws s3 cp build_profile_$IMAGE_TAG.tgz s3://$S3_LOGS/build_profile_$IMAGE_TAG.tgz
+#      - tar czf build_profile_$IMAGE_TAG.tgz build/reports/profile
+#      - echo "aws s3 cp build_profile_$IMAGE_TAG.tgz s3://$S3_LOGS/build_profile_$IMAGE_TAG.tgz"
+#      - aws s3 cp build_profile_$IMAGE_TAG.tgz s3://$S3_LOGS/build_profile_$IMAGE_TAG.tgz
 reports:
   unit_tests:
     files:

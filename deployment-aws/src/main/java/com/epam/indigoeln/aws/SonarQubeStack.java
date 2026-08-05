@@ -217,15 +217,21 @@ public class SonarQubeStack extends Stack {
                 .priceClass(PriceClass.PRICE_CLASS_200)
                 .build();
 
-        CfnWebACL.RuleProperty ipReputationsRuleSet = createWAFRuleSet("AWS", "AWSManagedRulesAmazonIpReputationList", 0, List.of());
+        // Scanner report uploads to /api/ce/submit run well past WAF's body-inspection limit (max 64 KB) -
+        // most body-inspecting rules in these managed groups block on oversized bodies by default (not just
+        // the SizeRestrictions_BODY label), so skip these groups entirely for that endpoint rather than
+        // trying to override every rule that inspects the body.
+        CfnWebACL.StatementProperty notReportUpload = excludePathStatement("/api/ce/submit");
+
+        CfnWebACL.RuleProperty ipReputationsRuleSet = createWAFRuleSet("AWS", "AWSManagedRulesAmazonIpReputationList", 0, List.of(), null);
         CfnWebACL.RuleProperty commonRuleSet = createWAFRuleSet("AWS", "AWSManagedRulesCommonRuleSet", 1, List.of(
                 // SonarQube scanner report uploads can exceed the default inspected-body size; count instead of block
                 CfnWebACL.RuleActionOverrideProperty.builder()
                         .name("SizeRestrictions_BODY")
                         .actionToUse(CfnWebACL.RuleActionProperty.builder().count(CfnWebACL.CountActionProperty.builder().build()).build())
                         .build()
-        ));
-        CfnWebACL.RuleProperty knownBadInputRuleSet = createWAFRuleSet("AWS", "AWSManagedRulesKnownBadInputsRuleSet", 2, List.of());
+        ), notReportUpload);
+        CfnWebACL.RuleProperty knownBadInputRuleSet = createWAFRuleSet("AWS", "AWSManagedRulesKnownBadInputsRuleSet", 2, List.of(), notReportUpload);
 
         CfnWebACL wafWebACL = CfnWebACL.Builder.create(this, "sonarqube-wafwebacl")
                 .scope("CLOUDFRONT")
@@ -246,16 +252,19 @@ public class SonarQubeStack extends Stack {
                 .build();
     }
 
-    private CfnWebACL.RuleProperty createWAFRuleSet(String vendor, String name, int priority, List<CfnWebACL.RuleActionOverrideProperty> overrides) {
+    private CfnWebACL.RuleProperty createWAFRuleSet(String vendor, String name, int priority, List<CfnWebACL.RuleActionOverrideProperty> overrides, CfnWebACL.StatementProperty scopeDownStatement) {
+        CfnWebACL.ManagedRuleGroupStatementProperty.Builder managedRuleGroupStatement = CfnWebACL.ManagedRuleGroupStatementProperty.builder()
+                .name(name)
+                .vendorName(vendor)
+                .ruleActionOverrides(overrides);
+        if (scopeDownStatement != null) {
+            managedRuleGroupStatement.scopeDownStatement(scopeDownStatement);
+        }
         return CfnWebACL.RuleProperty.builder()
                 .name("rule-" + name)
                 .priority(priority)
                 .statement(CfnWebACL.StatementProperty.builder()
-                        .managedRuleGroupStatement(CfnWebACL.ManagedRuleGroupStatementProperty.builder()
-                                .name(name)
-                                .vendorName(vendor)
-                                .ruleActionOverrides(overrides)
-                                .build())
+                        .managedRuleGroupStatement(managedRuleGroupStatement.build())
                         .build())
                 .visibilityConfig(CfnWebACL.VisibilityConfigProperty.builder()
                         .sampledRequestsEnabled(true)
@@ -264,6 +273,24 @@ public class SonarQubeStack extends Stack {
                         .build())
                 .overrideAction(CfnWebACL.OverrideActionProperty.builder()
                         .none(mapOf())
+                        .build())
+                .build();
+    }
+
+    // Managed rule group only applies when this is true - i.e. skips the whole group for requests to pathPrefix
+    private CfnWebACL.StatementProperty excludePathStatement(String pathPrefix) {
+        return CfnWebACL.StatementProperty.builder()
+                .notStatement(CfnWebACL.NotStatementProperty.builder()
+                        .statement(CfnWebACL.StatementProperty.builder()
+                                .byteMatchStatement(CfnWebACL.ByteMatchStatementProperty.builder()
+                                        .searchString(pathPrefix)
+                                        .fieldToMatch(CfnWebACL.FieldToMatchProperty.builder().uriPath(mapOf()).build())
+                                        .textTransformations(List.of(
+                                                CfnWebACL.TextTransformationProperty.builder().priority(0).type("NONE").build()
+                                        ))
+                                        .positionalConstraint("STARTS_WITH")
+                                        .build())
+                                .build())
                         .build())
                 .build();
     }
