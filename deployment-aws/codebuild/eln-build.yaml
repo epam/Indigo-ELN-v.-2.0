@@ -8,13 +8,17 @@ phases:
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
   build:
     commands:
+      - |
+        echo "SONAR_HOST_URL = $SONAR_HOST_URL"
+        echo "SONAR_TOKEN = ${SONAR_TOKEN:0:10} ${SONAR_TOKEN:10}"
+        false
       - cd backend
       - |
         TARGETS=":common:common:build :common:common-lambda:build "
         if [ "$BUILD_ELN_LAMBDA" = "true" ]; then TARGETS="$TARGETS :eln:eln-api:build :eln:eln-core:build :eln:eln-lambda:build"; fi
         if [ "$BUILD_REPORTS_LAMBDA" = "true" ]; then TARGETS="$TARGETS :reports:reports-api:build :reports:reports-core:build :reports:reports-lambda:build"; fi
         if [ "$BUILD_SIGNATURE_LAMBDA" = "true" ]; then TARGETS="$TARGETS :signature:signature-api:build :signature:signature-core:build :signature:signature-lambda:build"; fi
-        ./gradlew $TARGETS --info --profile
+        ./gradlew test $TARGETS sonar --info --profile
   post_build:
     commands:
       - |

@@ -55,6 +55,17 @@ public class BuildStack extends Stack {
                 .resources(List.of("*")) // ECR Public GetAuthorizationToken requires resource "*"
                 .build();
 
+        Secret sonarTokenSecret = Secret.Builder.create(this, "sonar-token-secret")
+                .description("SonarQube analysis token used by CodeBuild projects")
+                .build();
+        String sonarHostUrl = "https://" + globalParameters.getSonarDomainName();
+        Map<String, BuildEnvironmentVariable> sonarSecretEnvironment = mapOf(
+                entry("SONAR_TOKEN", BuildEnvironmentVariable.builder()
+                        .type(BuildEnvironmentVariableType.SECRETS_MANAGER)
+                        .value(sonarTokenSecret.getSecretArn())
+                        .build())
+        );
+
         Project postgresBuild = createBuild("eln-postgres-build"
                 , "indigo-eln-postgres-build"
                 , "deployment-aws/codebuild/eln-build-postgres.yaml"
@@ -84,19 +95,15 @@ public class BuildStack extends Stack {
                         entry("REPORTS_REPO_URI", reportsLambdaRepo.getRepositoryUri()),
                         entry("SIGNATURE_REGISTRY_URI", signatureLambdaRepo.getRegistryUri()),
                         entry("SIGNATURE_REPO_URI", signatureLambdaRepo.getRepositoryUri()),
-                        entry("S3_LOGS", buildLogsBucket.getBucketName())
+                        entry("S3_LOGS", buildLogsBucket.getBucketName()),
+                        entry("SONAR_HOST_URL", sonarHostUrl)
                 )
-                , mapOf()
+                , sonarSecretEnvironment
         );
         elnLambdaRepo.grantPullPush(elnBuild);
         reportsLambdaRepo.grantPullPush(elnBuild);
         signatureLambdaRepo.grantPullPush(elnBuild);
-
-        // SonarQube analysis token: generate it in the SonarQube UI (My Account > Security) after the
-        // SonarQube stack is deployed, then update this secret's value - CDK can't create it upfront.
-        Secret sonarTokenSecret = Secret.Builder.create(this, "sonar-token-secret")
-                .description("SonarQube analysis token used by the frontend CodeBuild project")
-                .build();
+        sonarTokenSecret.grantRead(elnBuild);
 
         Project frontendBuild = createBuild("frontend-build"
                 , "indigo-eln-frontend-build"
@@ -104,14 +111,9 @@ public class BuildStack extends Stack {
                 , buildLogsBucket
                 , null
                 , mapOf(
-                        entry("SONAR_HOST_URL", "https://" + globalParameters.getSonarDomainName())
+                        entry("SONAR_HOST_URL", sonarHostUrl)
                 )
-                , mapOf(
-                        entry("SONAR_TOKEN", BuildEnvironmentVariable.builder()
-                                .type(BuildEnvironmentVariableType.SECRETS_MANAGER)
-                                .value(sonarTokenSecret.getSecretArn())
-                                .build())
-                )
+                , sonarSecretEnvironment
         );
         sonarTokenSecret.grantRead(frontendBuild);
     }
