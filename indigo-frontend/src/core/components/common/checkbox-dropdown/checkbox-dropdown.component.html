@@ -9,7 +9,7 @@
     [class.bg-primary-100]="isOpen"
     (click)="toggleDropdown($event)"
   >
-    <span>{{ placeholder }}</span>
+    <span class="min-w-0 flex-1 truncate">{{ selectedLabel }}</span>
     <em
       *ngIf="!disabled"
       class="indicon-chevron_down ml-auto transition-transform duration-200"

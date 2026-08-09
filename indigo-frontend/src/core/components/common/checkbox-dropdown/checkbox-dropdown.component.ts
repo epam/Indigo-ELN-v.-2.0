@@ -78,4 +78,17 @@ export class CheckboxDropdownComponent extends DropdownBaseComponent implements 
   private syncItemsFromValue(): void {
     this.items = this.items.map((item) => ({ ...item, checked: this._value.includes(item.value) }));
   }
+
+  get selectedLabel(): string {
+    const selectedItems = this._value
+      .map((value) => this.items.find((item) => item.value === value))
+      .filter((item): item is CheckboxDropdownItem => item !== undefined);
+
+    if (selectedItems.length === 0) return this.placeholder;
+
+    const selectedLabel = `${this.placeholder}: ${selectedItems[0].label}`;
+    const additionalCount = selectedItems.length - 1;
+
+    return additionalCount > 0 ? `${selectedLabel} (+${additionalCount})` : selectedLabel;
+  }
 }
