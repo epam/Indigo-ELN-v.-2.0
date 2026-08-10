@@ -107,7 +107,7 @@ class ExperimentServiceTest extends ELNBaseTest {
     @Test
     void testGetExperiments() {
         ExperimentDetailsDTO createdExperiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
-        Page<ExperimentDTO> experiments = experimentClient.getProjectExperiments(project.getId(), null, null, null, Paging.DEFAULT);
+        Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(notebook.getId(), null, null, null, Paging.DEFAULT);
         assertThat(experiments.getItems()).hasSize(1).first().satisfies(experiment -> {
             assertThat(experiment.getId()).isNotNull();
             assertThat(experiment.getName()).isEqualTo(createdExperiment.getName());
@@ -124,7 +124,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
 
-        Page<ExperimentDTO> experiments = experimentClient.getProjectExperiments(project.getId(), null, SortOrder.EARLIEST, null, Paging.DEFAULT);
+        Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(notebook.getId(), null, SortOrder.EARLIEST, null, Paging.DEFAULT);
 
         assertThat(experiments.getItems())
                 .isSortedAccordingTo(Comparator.comparing(ExperimentDTO::getModifiedAt));
@@ -136,7 +136,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
 
-        Page<ExperimentDTO> experiments = experimentClient.getProjectExperiments(project.getId(), null, SortOrder.LATEST, null, Paging.DEFAULT);
+        Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(notebook.getId(), null, SortOrder.LATEST, null, Paging.DEFAULT);
 
         assertThat(experiments.getItems())
                 .isSortedAccordingTo(Comparator.comparing(ExperimentDTO::getModifiedAt).reversed());
@@ -147,13 +147,13 @@ class ExperimentServiceTest extends ELNBaseTest {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         experimentClient.editExperiment(experiment.getId(), new ExperimentEditRequest(JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.of("uniquedescxyz"), JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.undefined()));
 
-        Page<ExperimentDTO> byName = experimentClient.getProjectExperiments(project.getId(), experiment.getName().substring(0, 5), null, null, Paging.DEFAULT);
+        Page<ExperimentDTO> byName = experimentClient.getNotebookExperiments(notebook.getId(), experiment.getName().substring(0, 5), null, null, Paging.DEFAULT);
         assertThat(byName.getItems()).extracting(ExperimentDTO::getId).contains(experiment.getId());
 
-        Page<ExperimentDTO> byFullText = experimentClient.getProjectExperiments(project.getId(), "uniquedescxyz", null, null, Paging.DEFAULT);
+        Page<ExperimentDTO> byFullText = experimentClient.getNotebookExperiments(notebook.getId(), "uniquedescxyz", null, null, Paging.DEFAULT);
         assertThat(byFullText.getItems()).extracting(ExperimentDTO::getId).contains(experiment.getId());
 
-        Page<ExperimentDTO> noMatch = experimentClient.getProjectExperiments(project.getId(), "totallyunrelatedqueryterm", null, null, Paging.DEFAULT);
+        Page<ExperimentDTO> noMatch = experimentClient.getNotebookExperiments(notebook.getId(), "totallyunrelatedqueryterm", null, null, Paging.DEFAULT);
         assertThat(noMatch.getItems()).extracting(ExperimentDTO::getId).doesNotContain(experiment.getId());
     }
 
@@ -169,7 +169,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         });
 
         withUser(ELNBaseTest.JOHN_USERNAME, () -> {
-            Page<ExperimentDTO> experiments = experimentClient.getProjectExperiments(project.getId(), null, null, true, Paging.DEFAULT);
+            Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(notebook.getId(), null, null, true, Paging.DEFAULT);
 
             assertThat(experiments.getItems())
                     .allSatisfy(experiment -> assertThat(experiment.getCreatedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME));
@@ -239,7 +239,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         assertThat(experimentClient.getMarkedExperiments()).isEmpty();
 
         assertThat(experimentClient.markExperiment(experiment.getId())).isTrue();
-        Page<ExperimentDTO> experiments = experimentClient.getProjectExperiments(project.getId(), null, null, null, Paging.DEFAULT);
+        Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(notebook.getId(), null, null, null, Paging.DEFAULT);
         assertThat(experiments.getItems()).singleElement().satisfies(e -> {
             assertThat(e.getMarked()).isTrue();
         });
@@ -255,7 +255,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         });
 
         assertThat(experimentClient.unmarkExperiment(experiment.getId())).isFalse();
-        experiments = experimentClient.getProjectExperiments(project.getId(), null, null, null, Paging.DEFAULT);
+        experiments = experimentClient.getNotebookExperiments(notebook.getId(), null, null, null, Paging.DEFAULT);
         assertThat(experiments.getItems()).singleElement().satisfies(e -> {
             assertThat(e.getMarked()).isFalse();
         });
