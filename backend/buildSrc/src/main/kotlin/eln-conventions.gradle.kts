@@ -25,7 +25,7 @@ dependencies {
     testAnnotationProcessor("org.projectlombok:lombok:1.18.46")
     implementation("org.mapstruct:mapstruct:1.6.3")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.6.3")
-    annotationProcessor("org.hibernate.orm:hibernate-jpamodelgen:7.3.7.Final")
+    annotationProcessor("org.hibernate.orm:hibernate-jpamodelgen:7.4.5.Final")
 }
 
 java {
