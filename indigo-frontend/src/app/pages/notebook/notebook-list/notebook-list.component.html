@@ -31,7 +31,13 @@
   />
 </div>
 
-<eln-button *projectOverviewWidget="'button'" variant="blue" classList="flex items-center gap-2" (click)="openModal()">
+<eln-button
+  *projectOverviewWidget="'button'"
+  variant="blue"
+  classList="flex items-center gap-2"
+  (click)="openModal()"
+  [disabled]="!canCreateNotebook()"
+>
   <em class="text-xl indicon-plus"></em>
   <span class="whitespace-nowrap">Add Notebook</span>
 </eln-button>

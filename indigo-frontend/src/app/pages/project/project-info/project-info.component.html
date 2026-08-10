@@ -75,6 +75,7 @@
   classList="flex items-center gap-2"
   *projectOverviewWidget="'button'"
   (click)="openModal(projectInfoModalEnum.NOTEBOOK)"
+  [disabled]="!canCreateNotebook()"
 >
   <em class="text-xl indicon-plus"></em>
   <span class="whitespace-nowrap">Add Notebook</span>

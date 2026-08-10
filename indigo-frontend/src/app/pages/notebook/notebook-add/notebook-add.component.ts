@@ -2,7 +2,7 @@ import { FormDialogComponent } from '@core/components/common/form-dialog/form-di
 import { ApiService } from '@core/services/api.service';
 import { Notebook } from '@core/types/entities/notebook.i';
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
@@ -13,6 +13,8 @@ import { catchError, map, of, switchMap, tap } from 'rxjs';
 import { NotificationType } from '@/core/types/notification.i';
 import { NotificationService } from '@/core/services/notification/notification.service';
 import { Router } from '@angular/router';
+import { PermissionService } from '@core/services/permission/permission.service';
+import { ApplicationPermission } from '@core/types/entities/user.i';
 
 @Component({
   standalone: true,
@@ -28,6 +30,10 @@ export class NotebookAddComponent implements OnInit {
   dialogRef = inject(MatDialogRef);
   notificationService = inject(NotificationService);
   router = inject(Router);
+  permissionService = inject(PermissionService);
+  canCreateNotebook = computed(() =>
+    this.permissionService.hasGlobalPermission(ApplicationPermission.CREATE_NOTEBOOKS),
+  );
 
   fields: FormlyFieldConfig[] = [
     {
@@ -102,8 +108,10 @@ export class NotebookAddComponent implements OnInit {
     return `Notebook with name '${name}' already exists`;
   }
 
-  createNotebookFn = (data: Notebook) =>
-    this.service
+  createNotebookFn = (data: Notebook) => {
+    if (!this.canCreateNotebook()) return of(null);
+
+    return this.service
       .create(`projects/${this.projectId}/notebooks`, {
         ...data,
         description: typeof data.description === 'object' ? toHTML(data.description) : data.description,
@@ -119,4 +127,5 @@ export class NotebookAddComponent implements OnInit {
           this.router.navigate(['/notebooks', newNotebook.id]);
         }),
       );
+  };
 }

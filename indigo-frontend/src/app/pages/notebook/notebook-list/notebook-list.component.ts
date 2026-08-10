@@ -1,6 +1,6 @@
 import { animate, style, transition, trigger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, computed, inject, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -15,6 +15,8 @@ import { NotebookAddComponent } from '@pages/notebook/notebook-add/notebook-add.
 import { NotebookItemComponent } from '@pages/notebook/notebook-item/notebook-item.component';
 import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
 import { take } from 'rxjs';
+import { PermissionService } from '@core/services/permission/permission.service';
+import { ApplicationPermission } from '@core/types/entities/user.i';
 
 @Component({
   selector: 'eln-notebook-list',
@@ -42,6 +44,10 @@ import { take } from 'rxjs';
 })
 export class NotebookListComponent extends InfiniteScrollBase<Notebook> implements OnInit, OnChanges {
   dialog = inject(MatDialog);
+  permissionService = inject(PermissionService);
+  canCreateNotebook = computed(() =>
+    this.permissionService.hasGlobalPermission(ApplicationPermission.CREATE_NOTEBOOKS),
+  );
   selectedView: 'grid' | 'list' = 'grid';
   @Input() projectId!: string;
   headerSortOptions: DropdownMenuItem[] = [];
@@ -82,6 +88,8 @@ export class NotebookListComponent extends InfiniteScrollBase<Notebook> implemen
   }
 
   async openModal() {
+    if (!this.canCreateNotebook()) return;
+
     const ref = this.dialog.open(NotebookAddComponent);
     ref.componentInstance.projectId = this.projectId;
     ref
