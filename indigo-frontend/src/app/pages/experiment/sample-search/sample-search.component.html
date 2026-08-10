@@ -315,13 +315,16 @@
           </div>
         </section>
 
-        <button
+        <eln-button
           type="button"
-          class="ml-2 px-4 py-2 bg-[#3F50B5] text-white rounded-[5px] cursor-pointer"
+          variant="blue"
+          classList="ml-2"
+          [disabled]="loader.loading"
+          [loading]="loader.loading"
           (click)="performSearch()"
         >
           Search
-        </button>
+        </eln-button>
       </div>
     </div>
   </form>
@@ -332,5 +335,10 @@
     }
   </div>
 
-  <eln-sample-search-results [loader]="loader" (addToExperiment)="addToExperiment($event)" />
+  <eln-sample-search-results
+    [loader]="loader"
+    [isAddingToExperiment]="isAddingToExperiment"
+    [loadingSampleKey]="loadingSampleKey"
+    (addToExperiment)="addToExperiment($event)"
+  />
 </div>

@@ -12,7 +12,7 @@
     [class.cursor-not-allowed]="isDisabled"
   >
     <em class="indicon-paperclip"></em>
-    {{ uploadingFile ? loadingText : 'Attach file' }}
+    {{ uploadingFile ? 'Uploading...' : 'Attach file' }}
     <input
       type="file"
       class="hidden"

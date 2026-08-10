@@ -40,6 +40,7 @@ export class FormDialogComponent {
   @Input() submitButtonText = 'Submit';
   @Input() cancelButtonText = 'Cancel';
   @Input() submitEnabled = true;
+  @Input() submitLoading = false;
   @Input() closeOnBackdropClick = false;
   @Input() containerClass = '';
   @Input() toastMessages: Record<string, string> = {};
