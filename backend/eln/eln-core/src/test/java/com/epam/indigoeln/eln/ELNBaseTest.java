@@ -83,6 +83,7 @@ public abstract class ELNBaseTest extends BaseTest {
     protected RoleClient roleClient;
     protected GlobalSearchClient globalSearchClient;
     protected ELNInternalClient elnInternalClient;
+    protected TestSupportClient testSupportClient;
 
     protected ReportsClient reportsClient;
     protected SignatureClient signatureClient;
@@ -107,6 +108,7 @@ public abstract class ELNBaseTest extends BaseTest {
         roleClient = buildClient(RoleClient.class);
         globalSearchClient = buildClient(GlobalSearchClient.class);
         elnInternalClient = buildClient(ELNInternalClient.class);
+        testSupportClient = buildClient(TestSupportClient.class);
         reportsClient = buildClient(ReportsClient.class);
         signatureClient = buildClient(SignatureClient.class);
         if (integrationTest) {

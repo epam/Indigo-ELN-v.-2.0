@@ -1,5 +1,6 @@
 package com.epam.indigoeln.common.storage;
 
+import com.google.common.io.MoreFiles;
 import io.quarkus.arc.DefaultBean;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -8,20 +9,71 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.stream.Stream;
 
 @DefaultBean
 @ApplicationScoped
 public class LocalFileStorage implements FileStorage {
 
-    @ConfigProperty(name = "eln.storage.local.root", defaultValue = ".")
-    String root;
+    private final Path root;
+
+    LocalFileStorage(
+            @ConfigProperty(name = "eln.storage.local.root", defaultValue = ".") String root
+    ) {
+        this.root = Path.of(root);
+    }
+
+    @Override
+    public void mkdir(String key) {
+        try {
+            Path path = root.resolve(key);
+            Files.createDirectories(path);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void clear(String key) {
+        try {
+            Path path = root.resolve(key);
+            if (Files.exists(path)) {
+                MoreFiles.deleteDirectoryContents(path);
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public List<String> list(String key) {
+        Path dir = root.resolve(key);
+        if (!Files.exists(dir)) {
+            return List.of();
+        }
+        try (Stream<Path> stream = Files.list(dir)) {
+            return stream.map(f -> root.relativize(f).toString()).toList();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
 
     @Override
     public void put(String key, byte[] bytes) {
         try {
-            Path path = Path.of(root).resolve(key);
+            Path path = root.resolve(key);
             Files.createDirectories(path.getParent());
             Files.write(path, bytes);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public byte[] get(String key) {
+        try {
+            return Files.readAllBytes(root.resolve(key));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
