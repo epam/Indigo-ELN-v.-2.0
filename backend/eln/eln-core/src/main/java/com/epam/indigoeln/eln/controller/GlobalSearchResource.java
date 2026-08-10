@@ -9,6 +9,7 @@ import com.epam.indigoeln.eln.model.GlobalSearchRequest;
 import com.epam.indigoeln.eln.model.GlobalSearchResultDTO;
 import com.epam.indigoeln.eln.service.GlobalSearchService;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Path;
 
 @Path(BaseAPI.BASE_PATH)
@@ -18,7 +19,7 @@ public class GlobalSearchResource implements GlobalSearchAPI {
     GlobalSearchService globalSearchService;
 
     @Override
-    public Page<GlobalSearchResultDTO> search(GlobalSearchRequest request, Paging paging) {
+    public Page<@Valid GlobalSearchResultDTO> search(GlobalSearchRequest request, Paging paging) {
         return globalSearchService.search(request, paging);
     }
 }

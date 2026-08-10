@@ -31,7 +31,7 @@ public class TemplateResource implements TemplateAPI {
     }
 
     @Override
-    public @NotNull @Valid Page<TemplateDTO> getTemplates(@Nullable String search,
+    public @NotNull Page<@Valid TemplateDTO> getTemplates(@Nullable String search,
                                                           @Nullable SortOrder sort,
                                                           @Nullable Boolean createdByMe,
                                                           @Valid Paging paging) {

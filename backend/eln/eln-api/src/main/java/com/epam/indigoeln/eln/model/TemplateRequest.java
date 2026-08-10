@@ -14,7 +14,6 @@ public class TemplateRequest {
     @NotEmpty
     String name;
 
-    @Valid
     @NotEmpty
-    List<TemplateTab> templateTabs;
+    List<@Valid TemplateTab> templateTabs;
 }
