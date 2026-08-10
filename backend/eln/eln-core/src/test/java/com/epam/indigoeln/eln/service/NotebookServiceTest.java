@@ -135,6 +135,16 @@ class NotebookServiceTest extends ELNBaseTest {
     }
 
     @Test
+    void testGetNextNotebookNumber() {
+        String created = nextNotebookName();
+        notebookClient.createNotebook(project.getId(), new NotebookRequest(created));
+
+        String next = notebookClient.getNextNotebookNumber();
+
+        assertThat(next).isEqualTo("%08d".formatted(Integer.parseInt(created) + 1));
+    }
+
+    @Test
     void testCreateNotebook() {
         String name = nextNotebookName();
         NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(name));

@@ -54,6 +54,11 @@ public class NotebookResource implements NotebookAPI {
     }
 
     @Override
+    public @NotNull String getNextNotebookNumber() {
+        return notebookService.getNextNotebookNumber();
+    }
+
+    @Override
     public @NotNull @Valid NotebookDetailsDTO editNotebook(@NotNull UUID notebookId, @NotNull @Valid NotebookEditRequest request) {
         return notebookService.editNotebook(notebookId, request);
     }

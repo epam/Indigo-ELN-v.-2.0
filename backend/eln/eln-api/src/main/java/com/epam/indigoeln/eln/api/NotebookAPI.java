@@ -37,6 +37,10 @@ public interface NotebookAPI extends BaseAPI {
     NotebookExistenceCheckDTO checkNotebookNameExistence(
             @QueryParam("name") @NotEmpty String name);
 
+    @GET
+    @Path("/notebooks/next-number")
+    String getNextNotebookNumber();
+
     @PATCH
     @Path("/notebooks/{notebookId}")
     NotebookDetailsDTO editNotebook(@PathParam("notebookId") UUID notebookId, NotebookEditRequest request);
