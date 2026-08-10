@@ -138,7 +138,7 @@ export class ProjectListComponent extends InfiniteScrollBase<Project> implements
   }
 
   onMyEntitiesOnlyChange(value: boolean) {
-    this.filters['createdByMe'] = value;
+    this.setBooleanFilter('createdByMe', value);
     this.reload();
   }
 }
