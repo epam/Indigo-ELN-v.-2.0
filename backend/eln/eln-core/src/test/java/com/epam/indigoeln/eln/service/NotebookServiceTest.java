@@ -11,10 +11,8 @@ import io.quarkus.test.security.TestSecurity;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.io.TempDir;
 import org.openapitools.jackson.nullable.JsonNullable;
 
-import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -294,7 +292,7 @@ class NotebookServiceTest extends ELNBaseTest {
     }
 
     @Test
-    void testCreateAttachment(@TempDir Path tempDir) {
+    void testCreateAttachment() {
         NotebookDetailsDTO notebook = createNotebook(project.getId());
         List<AttachmentDTO> attachments = notebookClient.createNotebookAttachment(notebook.getId(), "attachment.txt", "content".getBytes());
         assertThat(attachments).singleElement().satisfies(a -> {
@@ -312,7 +310,7 @@ class NotebookServiceTest extends ELNBaseTest {
     }
 
     @Test
-    void testDownloadAttachment(@TempDir Path tempDir) throws Exception {
+    void testDownloadAttachment() throws Exception {
         NotebookDetailsDTO notebook = createNotebook(project.getId());
         List<AttachmentDTO> attachments = notebookClient.createNotebookAttachment(notebook.getId(), "attachment.txt", "content".getBytes());
         try (Response response = notebookClient.downloadNotebookAttachment(notebook.getId(), attachments.getFirst().getId())) {
@@ -322,7 +320,7 @@ class NotebookServiceTest extends ELNBaseTest {
     }
 
     @Test
-    void testDeleteAttachment(@TempDir Path tempDir) {
+    void testDeleteAttachment() {
         NotebookDetailsDTO notebook = createNotebook(project.getId());
         List<AttachmentDTO> attachments = notebookClient.createNotebookAttachment(notebook.getId(), "attachment.txt", "content".getBytes());
         notebookClient.deleteNotebookAttachment(notebook.getId(), attachments.getFirst().getId());

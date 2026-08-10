@@ -10,10 +10,10 @@ repositories {
     mavenLocal()
 }
 
-val quarkusPlatformGroupId: String by project
-val quarkusPlatformArtifactId: String by project
-val quarkusPlatformVersion: String by project
-val quarkusAmazonServicesVersion: String by project
+val quarkusPlatformGroupId = project.property("quarkusPlatformGroupId")
+val quarkusPlatformArtifactId = project.property("quarkusPlatformArtifactId")
+val quarkusPlatformVersion = project.property("quarkusPlatformVersion")
+val quarkusAmazonServicesVersion = project.property("quarkusAmazonServicesVersion")
 
 dependencies {
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
@@ -36,6 +36,8 @@ java {
 tasks.withType<org.gradle.api.tasks.compile.JavaCompile> {
     options.encoding = "UTF-8"
     options.compilerArgs.add("-parameters")
+    options.isDeprecation = true
+    options.compilerArgs.add("-Xlint:deprecation")
 }
 
 tasks.withType<Test> {

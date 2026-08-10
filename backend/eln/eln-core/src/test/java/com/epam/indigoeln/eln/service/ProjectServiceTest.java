@@ -413,7 +413,7 @@ class ProjectServiceTest extends ELNBaseTest {
     }
 
     @Test
-    void testCreateAttachment(@TempDir Path tempDir) {
+    void testCreateAttachment() {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testCreateAttachment"));
         List<AttachmentDTO> attachments = projectClient.createProjectAttachment(project.getId(), "attachment.txt", "content".getBytes());
         assertThat(attachments).singleElement().satisfies(a -> {
@@ -431,7 +431,7 @@ class ProjectServiceTest extends ELNBaseTest {
     }
 
     @Test
-    void testDownloadAttachment(@TempDir Path tempDir) throws Exception {
+    void testDownloadAttachment() throws Exception {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testDownloadAttachment"));
         List<AttachmentDTO> attachments = projectClient.createProjectAttachment(project.getId(), "attachment.txt", "content".getBytes());
         try (Response response = projectClient.downloadProjectAttachment(project.getId(), attachments.getFirst().getId())) {
@@ -441,7 +441,7 @@ class ProjectServiceTest extends ELNBaseTest {
     }
 
     @Test
-    void testDeleteAttachment(@TempDir Path tempDir) {
+    void testDeleteAttachment() {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testDeleteAttachment"));
         List<AttachmentDTO> attachments = projectClient.createProjectAttachment(project.getId(), "attachment.txt", "content".getBytes());
         projectClient.deleteProjectAttachment(project.getId(), attachments.getFirst().getId());

@@ -23,13 +23,11 @@ import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 import org.assertj.core.util.Throwables;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.io.TempDir;
 import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -83,7 +81,7 @@ class PermissionsTest extends ELNBaseTest {
     }
 
     @BeforeAll
-    void setupAll(@TempDir Path tempDir) {
+    void setupAll() {
         cleanupDatabase();
         withUser(JOHN_USERNAME, () -> {
             template = templateClient.createTemplate(new TemplateRequest("PermissionsTest", templateTabs));
@@ -194,7 +192,7 @@ class PermissionsTest extends ELNBaseTest {
     }
 
     @Test
-    void testProjectAttachments(@TempDir Path tempDir) {
+    void testProjectAttachments() {
         iterateRowsParallel(row -> {
             assertThatClientCall(() -> projectClient.createProjectAttachment(row.projectId, "a", new byte[0]))
                     .as(row.toString())
@@ -259,7 +257,7 @@ class PermissionsTest extends ELNBaseTest {
     }
 
     @Test
-    void testNotebookAttachments(@TempDir Path tempDir) {
+    void testNotebookAttachments() {
         iterateRowsParallel(row -> {
             assertThatClientCall(() -> notebookClient.createNotebookAttachment(row.notebookId, "a", new byte[0]))
                     .as(row.toString())
@@ -325,7 +323,7 @@ class PermissionsTest extends ELNBaseTest {
     }
 
     @Test
-    void testExperimentAttachments(@TempDir Path tempDir) {
+    void testExperimentAttachments() {
         iterateRowsParallel(row -> {
             assertThatClientCall(() -> experimentClient.createExperimentAttachment(row.experimentId, "a", "content".getBytes(StandardCharsets.UTF_8)))
                     .as(row.toString())

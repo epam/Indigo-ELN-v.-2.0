@@ -16,14 +16,13 @@ import io.quarkus.test.security.TestSecurity;
 import jakarta.ws.rs.core.CacheControl;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.RuntimeDelegate;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.List;
@@ -288,7 +287,7 @@ class ExperimentServiceTest extends ELNBaseTest {
     }
 
     @Test
-    void testCreateAttachment(@TempDir Path tempDir) {
+    void testCreateAttachment() {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", "content".getBytes());
         assertThat(attachments).singleElement().satisfies(a -> {
@@ -306,7 +305,7 @@ class ExperimentServiceTest extends ELNBaseTest {
     }
 
     @Test
-    void testDownloadAttachment(@TempDir Path tempDir) throws Exception {
+    void testDownloadAttachment() {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", "content".getBytes());
         try (Response response = experimentClient.downloadExperimentAttachment(experiment.getId(), attachments.getFirst().getId())) {
@@ -316,7 +315,7 @@ class ExperimentServiceTest extends ELNBaseTest {
     }
 
     @Test
-    void testDeleteAttachment(@TempDir Path tempDir) {
+    void testDeleteAttachment() {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", "content".getBytes());
         experimentClient.deleteExperimentAttachment(experiment.getId(), attachments.getFirst().getId());
@@ -345,8 +344,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         response = experimentClient.getReactionPicture(experiment.id(), experiment.reaction().getAnchor(), experiment.revision());
         assertThat(response).isNotEqualTo(ExperimentService.EMPTY_PICTURE);
         assertThat(FeignUtil.getLastResponse().headers().get(HttpHeaders.CONTENT_TYPE).iterator().next()).isEqualTo("image/svg+xml");
-        //noinspection deprecation
-        CacheControl cacheControl = CacheControl.valueOf(FeignUtil.getLastResponse().headers().get("Cache-Control").iterator().next());
+        CacheControl cacheControl = RuntimeDelegate.getInstance().createHeaderDelegate(CacheControl.class).fromString(FeignUtil.getLastResponse().headers().get("Cache-Control").iterator().next());
         assertThat(cacheControl.getMaxAge()).isPositive();
     }
 
