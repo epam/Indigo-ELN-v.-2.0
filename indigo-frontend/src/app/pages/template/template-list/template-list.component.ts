@@ -106,7 +106,7 @@ export class TemplateListComponent extends InfiniteScrollBase<ItemTemplate> impl
     this.sort(event.sortBy, event.sort);
   }
   onMyEntitiesOnlyChange(value: boolean) {
-    this.filters['createdByMe'] = value;
+    this.setBooleanFilter('createdByMe', value);
     this.reload();
   }
 }

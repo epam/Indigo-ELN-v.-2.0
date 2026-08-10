@@ -107,7 +107,7 @@ export class NotebookListComponent extends InfiniteScrollBase<Notebook> implemen
   }
 
   onMyEntitiesOnlyChange(value: boolean) {
-    this.filters['createdByMe'] = value;
+    this.setBooleanFilter('createdByMe', value);
     this.reload();
   }
 }

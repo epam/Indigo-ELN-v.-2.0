@@ -95,7 +95,7 @@ export class NotebookExperimentsTabComponent extends InfiniteScrollBase<Experime
   }
 
   onMyEntitiesOnlyChange(value: boolean) {
-    this.filters['createdByMe'] = value;
+    this.setBooleanFilter('createdByMe', value);
     this.reload();
   }
 

@@ -192,6 +192,14 @@ export abstract class PaginatedBase<T> {
     this.fetchDataAndUpdateQueryParams();
   }
 
+  protected setBooleanFilter(key: string, value: boolean): void {
+    if (value) {
+      this.filters[key] = true;
+    } else {
+      delete this.filters[key];
+    }
+  }
+
   public sort(sortBy: string, sort?: 'EARLIEST' | 'LATEST') {
     // If no sort provided, determine it based on current sort
     if (!sort) {
