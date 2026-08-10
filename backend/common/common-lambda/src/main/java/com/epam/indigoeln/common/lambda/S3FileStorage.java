@@ -3,7 +3,6 @@ package com.epam.indigoeln.common.lambda;
 import com.epam.indigoeln.common.storage.FileStorage;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.container.ResourceContext;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import software.amazon.awssdk.core.ResponseInputStream;
@@ -25,8 +24,6 @@ public class S3FileStorage implements FileStorage {
 
     @Inject
     S3Client s3;
-    @Inject
-    ResourceContext resourceContext;
 
     @Override
     public void mkdir(String key) {
@@ -58,11 +55,15 @@ public class S3FileStorage implements FileStorage {
         }
         ListObjectsV2Response response;
         List<String> result = new ArrayList<>();
+        String continuationToken = null;
         do {
-            response = s3.listObjectsV2(ListObjectsV2Request.builder().bucket(bucket).prefix(key).build());
+            ListObjectsV2Request.Builder req = ListObjectsV2Request.builder().bucket(bucket).prefix(key);
+            if (continuationToken != null) req.continuationToken(continuationToken);
+            response = s3.listObjectsV2(req.build());
             for (S3Object object : response.contents()) {
                 result.add(object.key());
             }
+            continuationToken = response.nextContinuationToken();
         } while (response.isTruncated());
         return result;
     }

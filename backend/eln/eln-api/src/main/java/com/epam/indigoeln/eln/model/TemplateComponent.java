@@ -24,7 +24,7 @@ public sealed interface TemplateComponent permits
         TemplateComponent.Batches,
         TemplateComponent.VersionHistory {
 
-    @JsonSerialize
+    @JsonSerialize // Jackson's reflection-free serializer complains about empty beans otherwise
     record ExperimentDetails () implements TemplateComponent {
     }
 
