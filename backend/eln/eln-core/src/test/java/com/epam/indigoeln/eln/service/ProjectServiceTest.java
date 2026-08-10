@@ -46,7 +46,7 @@ class ProjectServiceTest extends ELNBaseTest {
         expected.setProjects(1);
         assertThat(miscClient.getTotalCounts()).isEqualTo(expected);
 
-        NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        NotebookDetailsDTO notebook = createNotebook(project.getId());
         assertThat(notebook.getExperimentCount()).isZero();
         assertThat(notebook.getExperimentCountByStatus()).isEmpty();
         project = projectClient.getProject(project.getId());
@@ -371,8 +371,8 @@ class ProjectServiceTest extends ELNBaseTest {
     @Test
     void testCounts() {
         UUID projectId = projectClient.createProject(new ProjectRequest("testCounts")).getId();
-        UUID notebook1Id = notebookClient.createNotebook(projectId, new NotebookRequest(nextNotebookName())).getId();
-        UUID notebook2Id = notebookClient.createNotebook(projectId, new NotebookRequest(nextNotebookName())).getId();
+        UUID notebook1Id = createNotebook(projectId).getId();
+        UUID notebook2Id = createNotebook(projectId).getId();
         experimentClient.createExperiment(notebook1Id, new ExperimentRequest(emptyTemplateID));
         experimentClient.createExperiment(notebook1Id, new ExperimentRequest(emptyTemplateID));
         experimentClient.createExperiment(notebook2Id, new ExperimentRequest(emptyTemplateID));
@@ -544,7 +544,7 @@ class ProjectServiceTest extends ELNBaseTest {
     @Test
     void testUpdateAccess() {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testUpdateAccess"));
-        NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        NotebookDetailsDTO notebook = createNotebook(project.getId());
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         projectClient.updateProjectAccess(project.getId(), AccessForm.of(MAGGIE_USERNAME, AccessLevel.EDIT));
         assertThat(projectClient.getProjectRevisions(project.getId()))
@@ -586,7 +586,7 @@ class ProjectServiceTest extends ELNBaseTest {
             withUser(JOHN_USERNAME, () -> {
                 project = projectClient.createProject(new ProjectRequest(testInfo.getTestMethod().get().getName()));
                 projectClient.updateProjectAccess(project.getId(), AccessForm.of(BART_USERNAME, AccessLevel.EDIT));
-                notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+                notebook = createNotebook(project.getId());
                 notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(BART_USERNAME, AccessLevel.ADMIN));
                 experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
                 experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(LISA_USERNAME, AccessLevel.VIEW));

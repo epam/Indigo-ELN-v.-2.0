@@ -50,7 +50,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         therapeuticAreas = dictionaryClient.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA);
         projectCodes = dictionaryClient.getDictionary(BuiltInDictionary.PROJECT_CODE);
         project = projectClient.createProject(new ProjectRequest("ExperimentServiceTest" + UUID.randomUUID()));
-        notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        notebook = createNotebook(project.getId());
     }
 
     @Test
@@ -371,7 +371,7 @@ class ExperimentServiceTest extends ELNBaseTest {
 
     @Test
     void testSuggestExperiments() {
-        NotebookDetailsDTO notebook2 = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        NotebookDetailsDTO notebook2 = createNotebook(project.getId());
         ExperimentDetailsDTO e1 = experimentClient.createExperiment(notebook2.getId(), new ExperimentRequest(emptyTemplateID));
         ExperimentDetailsDTO e2 = experimentClient.createExperiment(notebook2.getId(), new ExperimentRequest(emptyTemplateID));
         assertThat(experimentClient.suggestExperiments(notebook2.getName())).containsExactly(e1.toRef(), e2.toRef());

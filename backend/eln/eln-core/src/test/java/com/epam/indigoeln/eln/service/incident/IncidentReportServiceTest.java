@@ -2,7 +2,10 @@ package com.epam.indigoeln.eln.service.incident;
 
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.client.IncidentClient;
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
+import com.epam.indigoeln.eln.model.ExperimentRequest;
+import com.epam.indigoeln.eln.model.NotebookDetailsDTO;
+import com.epam.indigoeln.eln.model.ProjectDetailsDTO;
 import com.epam.indigoeln.test.FeignUtil;
 import com.epam.indigoeln.test.StorageClient;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -65,7 +68,7 @@ class IncidentReportServiceTest extends ELNBaseTest {
     @Test
     void testCreateReportWithExperimentSnapshot() throws IOException {
         ProjectDetailsDTO project = getOrCreateProject("IncidentReportServiceTest");
-        NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        NotebookDetailsDTO notebook = createNotebook(project.getId());
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         incidentClient.createIncidentReport(IncidentClient.ClientIncidentReportForm.builder()
                 .message("Experiment broke")

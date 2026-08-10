@@ -51,28 +51,24 @@ class NotebookServiceTest extends ELNBaseTest {
 
     @Test
     void testDuplicateNames() {
-        String name = nextNotebookName();
-        notebookClient.createNotebook(project.getId(), new NotebookRequest(name));
-        assertThatClientCall(() -> notebookClient.createNotebook(project.getId(), new NotebookRequest(name)))
+        NotebookDetailsDTO notebook = createNotebook(project.getId());
+        assertThatClientCall(() -> notebookClient.createNotebook(project.getId(), new NotebookRequest(notebook.getName())))
                 .isBadRequest("Unique name is required");
     }
 
     @Test
     void testRenameDuplicateNames() {
-        String name = nextNotebookName();
-        notebookClient.createNotebook(project.getId(), new NotebookRequest(name));
-        String name2 = nextNotebookName();
-        NotebookDetailsDTO notebook2 = notebookClient.createNotebook(project.getId(), new NotebookRequest(name2));
-        assertThatClientCall(() -> notebookClient.editNotebook(notebook2.getId(), new NotebookEditRequest().withName(JsonNullable.of(name))))
+        NotebookDetailsDTO notebook1 = createNotebook(project.getId());
+        NotebookDetailsDTO notebook2 = createNotebook(project.getId());
+        assertThatClientCall(() -> notebookClient.editNotebook(notebook2.getId(), new NotebookEditRequest().withName(JsonNullable.of(notebook1.getName()))))
                 .isBadRequest("Unique name is required");
     }
 
     @Test
     void testCheckNotebookNameExistenceEndpointSuccessWhenExists() {
-        String name = nextNotebookName();
-        notebookClient.createNotebook(project.getId(), new NotebookRequest(name));
+        NotebookDetailsDTO notebook = createNotebook(project.getId());
 
-        assertThatClientCall(() -> notebookClient.checkNotebookNameExistence(name))
+        assertThatClientCall(() -> notebookClient.checkNotebookNameExistence(notebook.getName()))
                 .isSuccessfulWithResult(result -> {
                     assertThat(result).isNotNull();
                     assertThat(result.getExists()).isTrue();
@@ -81,7 +77,7 @@ class NotebookServiceTest extends ELNBaseTest {
 
     @Test
     void testCheckNotebookNameExistenceEndpointSuccessWhenNotExists() {
-        String name = nextNotebookName();
+        String name = notebookClient.getNextNotebookNumber();
 
         assertThatClientCall(() -> notebookClient.checkNotebookNameExistence(name))
                 .isSuccessfulWithResult(result -> {
@@ -98,10 +94,9 @@ class NotebookServiceTest extends ELNBaseTest {
 
     @Test
     void testCheckNotebookNameExistenceWhenExists() {
-        String name = nextNotebookName();
-        notebookClient.createNotebook(project.getId(), new NotebookRequest(name));
+        NotebookDetailsDTO notebook = createNotebook(project.getId());
 
-        NotebookExistenceCheckDTO result = notebookClient.checkNotebookNameExistence(name);
+        NotebookExistenceCheckDTO result = notebookClient.checkNotebookNameExistence(notebook.getName());
 
         assertThat(result).isNotNull();
         assertThat(result.getExists()).isTrue();
@@ -109,7 +104,7 @@ class NotebookServiceTest extends ELNBaseTest {
 
     @Test
     void testCheckNotebookNameExistenceWhenNotExists() {
-        String name = nextNotebookName();
+        String name = notebookClient.getNextNotebookNumber();
 
         NotebookExistenceCheckDTO result = notebookClient.checkNotebookNameExistence(name);
 
@@ -119,15 +114,12 @@ class NotebookServiceTest extends ELNBaseTest {
 
     @Test
     void testCheckNotebookNameExistenceWithMultipleNotebooks() {
-        String name1 = nextNotebookName();
-        String name2 = nextNotebookName();
+        NotebookDetailsDTO notebook1 = createNotebook(project.getId());
+        NotebookDetailsDTO notebook2 = createNotebook(project.getId());
 
-        notebookClient.createNotebook(project.getId(), new NotebookRequest(name1));
-        notebookClient.createNotebook(project.getId(), new NotebookRequest(name2));
-
-        NotebookExistenceCheckDTO result1 = notebookClient.checkNotebookNameExistence(name1);
-        NotebookExistenceCheckDTO result2 = notebookClient.checkNotebookNameExistence(name2);
-        NotebookExistenceCheckDTO result3 = notebookClient.checkNotebookNameExistence(nextNotebookName());
+        NotebookExistenceCheckDTO result1 = notebookClient.checkNotebookNameExistence(notebook1.getName());
+        NotebookExistenceCheckDTO result2 = notebookClient.checkNotebookNameExistence(notebook2.getName());
+        NotebookExistenceCheckDTO result3 = notebookClient.checkNotebookNameExistence(notebookClient.getNextNotebookNumber());
 
         assertThat(result1.getExists()).isTrue();
         assertThat(result2.getExists()).isTrue();
@@ -136,20 +128,18 @@ class NotebookServiceTest extends ELNBaseTest {
 
     @Test
     void testGetNextNotebookNumber() {
-        String created = nextNotebookName();
-        notebookClient.createNotebook(project.getId(), new NotebookRequest(created));
+        NotebookDetailsDTO notebook = createNotebook(project.getId());
 
         String next = notebookClient.getNextNotebookNumber();
 
-        assertThat(next).isEqualTo("%08d".formatted(Integer.parseInt(created) + 1));
+        assertThat(next).isEqualTo("%08d".formatted(Integer.parseInt(notebook.getName()) + 1));
     }
 
     @Test
     void testCreateNotebook() {
-        String name = nextNotebookName();
-        NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(name));
+        NotebookDetailsDTO notebook = createNotebook(project.getId());
         assertThat(notebook.getId()).isNotNull();
-        assertThat(notebook.getName()).isEqualTo(name);
+        assertThat(notebook.getName()).matches("\\d{8}");
         assertThat(notebook.getCreatedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME);
         assertThat(notebook.getCreatedAt()).isNotNull();
         assertThat(notebook.getModifiedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME);
@@ -171,19 +161,18 @@ class NotebookServiceTest extends ELNBaseTest {
 
     @Test
     void testGetNotebook() {
-        NotebookDetailsDTO createdNotebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        NotebookDetailsDTO createdNotebook = createNotebook(project.getId());
         NotebookDetailsDTO loadedNotebook = notebookClient.getNotebook(createdNotebook.getId());
         assertThat(loadedNotebook).usingRecursiveComparison().isEqualTo(createdNotebook);
     }
 
     @Test
     void testGetNotebooks() {
-        String name = nextNotebookName();
-        NotebookDetailsDTO createdNotebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(name));
+        NotebookDetailsDTO createdNotebook = createNotebook(project.getId());
         Page<NotebookDTO> notebooks = notebookClient.getProjectNotebooks(project.getId(), null, null, null, Paging.DEFAULT);
         assertThat(notebooks.getItems()).hasSize(1).first().satisfies(notebook -> {
             assertThat(notebook.getId()).isNotNull();
-            assertThat(notebook.getName()).isEqualTo(name);
+            assertThat(notebook.getName()).isEqualTo(createdNotebook.getName());
             assertThat(notebook.getCreatedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME);
             assertThat(notebook.getCreatedAt()).isNotNull();
             assertThat(notebook.getModifiedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME);
@@ -195,9 +184,9 @@ class NotebookServiceTest extends ELNBaseTest {
 
     @Test
     void testGetNotebooksSortedByEarliest() {
-        notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
-        notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
-        notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        createNotebook(project.getId());
+        createNotebook(project.getId());
+        createNotebook(project.getId());
 
         Page<NotebookDTO> notebooks = notebookClient.getProjectNotebooks(project.getId(), null, SortOrder.EARLIEST, null, Paging.DEFAULT);
 
@@ -207,9 +196,9 @@ class NotebookServiceTest extends ELNBaseTest {
 
     @Test
     void testGetNotebooksSortedByLatest() {
-        notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
-        notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
-        notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        createNotebook(project.getId());
+        createNotebook(project.getId());
+        createNotebook(project.getId());
 
         Page<NotebookDTO> notebooks = notebookClient.getProjectNotebooks(project.getId(), null, SortOrder.LATEST, null, Paging.DEFAULT);
 
@@ -220,12 +209,12 @@ class NotebookServiceTest extends ELNBaseTest {
     @Test
     void testGetNotebooksCreatedByMe() {
         withUser(ELNBaseTest.JOHN_USERNAME, () -> {
-            notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
-            notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+            createNotebook(project.getId());
+            createNotebook(project.getId());
         });
 
         withUser(BART_USERNAME, () -> {
-            notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+            createNotebook(project.getId());
         });
 
         withUser(ELNBaseTest.JOHN_USERNAME, () -> {
@@ -241,17 +230,15 @@ class NotebookServiceTest extends ELNBaseTest {
 
     @Test
     void testEditNotebookNoChanges() {
-        String oldName = nextNotebookName();
-        NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(oldName, "d"));
+        NotebookDetailsDTO notebook = createNotebook(project.getId(), "d");
         assertThatClientCall(() -> notebookClient.editNotebook(notebook.getId(), new NotebookEditRequest(JsonNullable.undefined(), JsonNullable.undefined())))
                 .isBadRequest("Nothing to update");
     }
 
     @Test
     void testEditNotebook() {
-        String oldName = nextNotebookName();
-        NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(oldName, "d"));
-        String newName = nextNotebookName();
+        NotebookDetailsDTO notebook = createNotebook(project.getId(), "d");
+        String newName = notebookClient.getNextNotebookNumber();
         NotebookDetailsDTO modified = notebookClient.editNotebook(notebook.getId(), new NotebookEditRequest(JsonNullable.of(newName), JsonNullable.of("d2")));
         assertThat(modified.getName()).isEqualTo(newName);
         assertThat(modified.getDescription()).isEqualTo("d2");
@@ -269,8 +256,8 @@ class NotebookServiceTest extends ELNBaseTest {
 
     @Test
     void testEditNotebookNameUpdatesExperimentNames() {
-        String oldNotebookName = nextNotebookName();
-        NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(oldNotebookName, "notebook description"));
+        NotebookDetailsDTO notebook = createNotebook(project.getId(), "notebook description");
+        String oldNotebookName = notebook.getName();
 
         ExperimentDetailsDTO experiment1 = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         ExperimentDetailsDTO experiment2 = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
@@ -284,7 +271,7 @@ class NotebookServiceTest extends ELNBaseTest {
         String exp2Number = experiment2.getName().substring(experiment2.getName().lastIndexOf('-') + 1);
         String exp3Number = experiment3.getName().substring(experiment3.getName().lastIndexOf('-') + 1);
 
-        String newNotebookName = nextNotebookName();
+        String newNotebookName = notebookClient.getNextNotebookNumber();
         NotebookDetailsDTO modifiedNotebook = notebookClient.editNotebook(notebook.getId(), new NotebookEditRequest(JsonNullable.of(newNotebookName), JsonNullable.undefined()));
 
         assertThat(modifiedNotebook.getName()).isEqualTo(newNotebookName);
@@ -308,7 +295,7 @@ class NotebookServiceTest extends ELNBaseTest {
 
     @Test
     void testCreateAttachment(@TempDir Path tempDir) {
-        NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        NotebookDetailsDTO notebook = createNotebook(project.getId());
         List<AttachmentDTO> attachments = notebookClient.createNotebookAttachment(notebook.getId(), "attachment.txt", "content".getBytes());
         assertThat(attachments).singleElement().satisfies(a -> {
             assertThat(a.getId()).isNotNull();
@@ -326,7 +313,7 @@ class NotebookServiceTest extends ELNBaseTest {
 
     @Test
     void testDownloadAttachment(@TempDir Path tempDir) throws Exception {
-        NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        NotebookDetailsDTO notebook = createNotebook(project.getId());
         List<AttachmentDTO> attachments = notebookClient.createNotebookAttachment(notebook.getId(), "attachment.txt", "content".getBytes());
         try (Response response = notebookClient.downloadNotebookAttachment(notebook.getId(), attachments.getFirst().getId())) {
             assertThat(extractFilename(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION))).isEqualTo("attachment.txt");
@@ -336,7 +323,7 @@ class NotebookServiceTest extends ELNBaseTest {
 
     @Test
     void testDeleteAttachment(@TempDir Path tempDir) {
-        NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        NotebookDetailsDTO notebook = createNotebook(project.getId());
         List<AttachmentDTO> attachments = notebookClient.createNotebookAttachment(notebook.getId(), "attachment.txt", "content".getBytes());
         notebookClient.deleteNotebookAttachment(notebook.getId(), attachments.getFirst().getId());
         notebook = notebookClient.getNotebook(notebook.getId());
@@ -349,31 +336,31 @@ class NotebookServiceTest extends ELNBaseTest {
 
     @Test
     void testQuickSearch() {
-        String name1 = nextNotebookName(), name2 = nextNotebookName();
-        NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(name1, "QS1 QSOld"));
-        String p1 = notebook.getName();
-        String p2 = notebookClient.createNotebook(project.getId(), new NotebookRequest(name2, "QS1 QS2 quickSearchCommon")).getName();
+        NotebookDetailsDTO notebook = createNotebook(project.getId(), "QS1 QSOld");
+        String name1 = notebook.getName();
+        NotebookDetailsDTO notebook2 = createNotebook(project.getId(), "QS1 QS2 quickSearchCommon");
+        String name2 = notebook2.getName();
 
         Page<NotebookDTO> result1 = notebookClient.getProjectNotebooks(project.getId(), name1, null, null, Paging.DEFAULT);
-        assertThat(result1.getItems()).map(NotebookDTO::getName).containsOnly(p1);
+        assertThat(result1.getItems()).map(NotebookDTO::getName).containsOnly(name1);
 
         Page<NotebookDTO> result2 = notebookClient.getProjectNotebooks(project.getId(), "qs1", null, null, Paging.DEFAULT);
-        assertThat(result2.getItems()).map(NotebookDTO::getName).containsExactlyInAnyOrder(p1, p2);
+        assertThat(result2.getItems()).map(NotebookDTO::getName).containsExactlyInAnyOrder(name1, name2);
 
         notebookClient.editNotebook(notebook.getId(), new NotebookEditRequest(JsonNullable.undefined(), JsonNullable.of("QS1 QSNew")));
         Page<NotebookDTO> result3 = notebookClient.getProjectNotebooks(project.getId(), "QSOld", null, null, Paging.DEFAULT);
         assertThat(result3.getItems()).isEmpty();
 
         Page<NotebookDTO> result4 = notebookClient.getProjectNotebooks(project.getId(), "QSNew", null, null, Paging.DEFAULT);
-        assertThat(result4.getItems()).map(NotebookDTO::getName).containsExactly(p1);
+        assertThat(result4.getItems()).map(NotebookDTO::getName).containsExactly(name1);
 
         Page<NotebookDTO> result5 = notebookClient.getProjectNotebooks(project.getId(), name2.substring(4), null, null, Paging.DEFAULT);
-        assertThat(result5.getItems()).map(NotebookDTO::getName).containsExactly(p2);
+        assertThat(result5.getItems()).map(NotebookDTO::getName).containsExactly(name2);
     }
 
     @Test
     void testUpdateAccess() {
-        NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        NotebookDetailsDTO notebook = createNotebook(project.getId());
         notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(MAGGIE_USERNAME, AccessLevel.EDIT));
         assertThat(notebookClient.getNotebookRevisions(notebook.getId()))
                 .hasSize(2)
@@ -404,7 +391,7 @@ class NotebookServiceTest extends ELNBaseTest {
         void setUp(TestInfo testInfo) {
             withUser(JOHN_USERNAME, () -> {
                 project = projectClient.createProject(new ProjectRequest(testInfo.getTestMethod().get().getName()));
-                notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+                notebook = createNotebook(project.getId());
                 notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(BART_USERNAME, AccessLevel.ADMIN));
                 experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
                 experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(BART_USERNAME, AccessLevel.VIEW));

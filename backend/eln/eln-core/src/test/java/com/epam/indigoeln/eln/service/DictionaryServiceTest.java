@@ -40,7 +40,7 @@ public class DictionaryServiceTest extends ELNBaseTest {
         withUser(JOHN_USERNAME, () -> {
             therapeuticArea = dictionaryClient.getFirst(BuiltInDictionary.THERAPEUTIC_AREA);
             ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("DictionaryServiceTest"));
-            NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+            NotebookDetailsDTO notebook = createNotebook(project.getId());
             experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID, null, therapeuticArea, null));
         });
     }
