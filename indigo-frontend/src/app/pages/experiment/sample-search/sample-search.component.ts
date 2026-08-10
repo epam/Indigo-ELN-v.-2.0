@@ -193,9 +193,7 @@ export class SampleSearchComponent implements OnInit {
   }
 
   performSearch() {
-    if (this.loader?.loading) {
-      return;
-    }
+    // guard removed: button is disabled while loader.loading is true
 
     const formValue = this.form.value;
     const {
@@ -266,10 +264,6 @@ export class SampleSearchComponent implements OnInit {
   }
 
   addToExperiment(sample: Sample) {
-    if (this.isAddingToExperiment) {
-      return;
-    }
-
     this.loadingSampleKey = this.getSampleKey(sample);
     const request$ = (
       !sample.id
@@ -285,12 +279,7 @@ export class SampleSearchComponent implements OnInit {
         }
       }),
     );
-
-    request$.subscribe({
-      error: () => {
-        this.loadingSampleKey = null;
-      },
-    });
+    request$.subscribe();
   }
 
   doAddToExperiment(sampleID: UUID): Observable<unknown> {

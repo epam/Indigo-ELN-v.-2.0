@@ -169,10 +169,6 @@ export class GlobalSearchComponent implements OnInit, AfterViewInit {
   }
 
   performSearch() {
-    if (this.loader?.loading) {
-      return;
-    }
-
     const formValue = this.form.value;
     const structureSearch = {
       type: formValue.structureSearchType,

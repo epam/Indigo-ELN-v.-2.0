@@ -42,7 +42,7 @@
         <eln-button
           variant="grey"
           classList="ml-2 min-w-[42px]"
-          [disabled]="isAddingToExperiment || (loadingSampleKey != null && !isRowLoading(element))"
+          [disabled]="isAddingToExperiment"
           [loading]="isRowLoading(element)"
           (click)="addToExperiment.emit(element)"
         >

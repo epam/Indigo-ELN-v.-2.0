@@ -38,7 +38,6 @@ export class FormDialogComponent {
   @Input() hideSubmitButton = false;
   @Input() hideCancelButton = false;
   @Input() submitButtonText = 'Submit';
-  @Input() submitLoadingText = '';
   @Input() cancelButtonText = 'Cancel';
   @Input() submitEnabled = true;
   @Input() submitLoading = false;

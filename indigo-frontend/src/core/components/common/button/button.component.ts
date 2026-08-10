@@ -13,7 +13,6 @@ export class ButtonComponent {
   @Input() variant: ButtonVariants['variant'] = 'green';
   @Input() disabled = false;
   @Input() loading = false;
-  @Input() loadingText = 'Loading...';
   @Input() type: 'button' | 'submit' | 'reset' = 'button';
   @Input() classList = '';
   @Input() ariaLabel?: string;
