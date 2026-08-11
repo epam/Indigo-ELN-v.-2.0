@@ -2,10 +2,11 @@ import { FormDialogComponent } from '@core/components/common/form-dialog/form-di
 import { ApiService } from '@core/services/api.service';
 import { Notebook } from '@core/types/entities/notebook.i';
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { toHTML } from 'ngx-editor';
 import { NOTEBOOK_NAME_LENGTH } from '../notebook.constants';
@@ -17,11 +18,13 @@ import { Router } from '@angular/router';
 @Component({
   standalone: true,
   selector: 'eln-notebook-add',
-  imports: [MatInputModule, FormsModule, ReactiveFormsModule, CommonModule, FormDialogComponent],
+  imports: [MatInputModule, FormsModule, ReactiveFormsModule, CommonModule, FormDialogComponent, MatProgressSpinner],
   templateUrl: './notebook-add.component.html',
 })
-export class NotebookAddComponent {
+export class NotebookAddComponent implements OnInit {
   projectId: string;
+  loading = true;
+  model: any = {};
   dialogRef = inject(MatDialogRef);
   notificationService = inject(NotificationService);
   router = inject(Router);
@@ -80,6 +83,14 @@ export class NotebookAddComponent {
   ];
 
   constructor(protected service: ApiService<Notebook>) {}
+
+  ngOnInit() {
+    this.service.request<string>('get', 'notebooks/next-number').subscribe((name) => {
+      this.model = { name };
+      this.loading = false;
+    });
+  }
+
   get uniqueNameToastMessage(): string {
     const name = this.fields[0]?.formControl?.value ?? '';
     return `Notebook with name '${name}' already exists`;
