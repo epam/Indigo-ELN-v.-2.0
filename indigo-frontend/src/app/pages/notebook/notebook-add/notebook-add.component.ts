@@ -116,7 +116,7 @@ export class NotebookAddComponent implements OnInit {
             isInline: false,
           });
           this.dialogRef.close('refresh');
-          this.router.navigate(['/projects', this.projectId, 'notebooks', newNotebook.id]);
+          this.router.navigate(['/notebooks', newNotebook.id]);
         }),
       );
 }
