@@ -24,7 +24,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @ExtendWith(HibernateLazyLoadStatisticsExtension.class)
 public abstract class ELNBaseTest extends BaseTest {
@@ -84,11 +83,10 @@ public abstract class ELNBaseTest extends BaseTest {
     protected RoleClient roleClient;
     protected GlobalSearchClient globalSearchClient;
     protected ELNInternalClient elnInternalClient;
+    protected TestSupportClient testSupportClient;
 
     protected ReportsClient reportsClient;
     protected SignatureClient signatureClient;
-
-    private final AtomicInteger lastUsedNotebookNumber = new AtomicInteger();
 
     protected UUID johnUserID;
     protected UUID willowUserID;
@@ -110,6 +108,7 @@ public abstract class ELNBaseTest extends BaseTest {
         roleClient = buildClient(RoleClient.class);
         globalSearchClient = buildClient(GlobalSearchClient.class);
         elnInternalClient = buildClient(ELNInternalClient.class);
+        testSupportClient = buildClient(TestSupportClient.class);
         reportsClient = buildClient(ReportsClient.class);
         signatureClient = buildClient(SignatureClient.class);
         if (integrationTest) {
@@ -134,8 +133,13 @@ public abstract class ELNBaseTest extends BaseTest {
         return new ExperimentObject(experiment, experimentClient, compoundClient, miscClient);
     }
 
-    protected String nextNotebookName() {
-        return "%08d".formatted(lastUsedNotebookNumber.incrementAndGet());
+    // getNextNotebookNumber() isn't race-safe (no DB-level reservation), so creation is synchronized.
+    protected synchronized NotebookDetailsDTO createNotebook(UUID projectId) {
+        return notebookClient.createNotebook(projectId, new NotebookRequest(notebookClient.getNextNotebookNumber()));
+    }
+
+    protected synchronized NotebookDetailsDTO createNotebook(UUID projectId, String description) {
+        return notebookClient.createNotebook(projectId, new NotebookRequest(notebookClient.getNextNotebookNumber(), description));
     }
 
     @SuppressWarnings("SqlWithoutWhere")

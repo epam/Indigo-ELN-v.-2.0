@@ -10,9 +10,9 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.Testcontainers;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.images.builder.Transferable;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -29,9 +29,9 @@ public class LambdaIntegrationEnvironmentResource implements BeforeAllCallback {
     private static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(LambdaIntegrationEnvironmentResource.class);
 
     @Override
-    public void beforeAll(ExtensionContext context) throws Exception {
+    public void beforeAll(ExtensionContext context) {
         BaseTest.setIntegrationTest(true);
-        context.getRoot().getStore(NAMESPACE).getOrComputeIfAbsent(
+        context.getRoot().getStore(NAMESPACE).computeIfAbsent(
                 "integration-environment-resource",
                 key -> {
                     try {
@@ -48,14 +48,14 @@ public class LambdaIntegrationEnvironmentResource implements BeforeAllCallback {
 class ResourceImpl implements AutoCloseable {
 
     private final SAMRunner samRunner;
-    private final PostgreSQLContainer<?> postgresContainer;
+    private final PostgreSQLContainer postgresContainer;
     private final GenericContainer<?> motoContainer;
 
     ResourceImpl() throws Exception {
         log.info("Starting integration environment");
 
         log.info("Starting PostgreSQL...");
-        postgresContainer = new PostgreSQLContainer<>(DockerImageName.parse("public.ecr.aws/m5k0g6n7/indigoeln/indigo-eln-postgres:latest").asCompatibleSubstituteFor("postgres"))
+        postgresContainer = new PostgreSQLContainer(DockerImageName.parse("public.ecr.aws/m5k0g6n7/indigoeln/indigo-eln-postgres:latest").asCompatibleSubstituteFor("postgres"))
                 .withAccessToHost(true)
                 .withLogConsumer(new Slf4jLogConsumer(LoggerFactory.getLogger("POSTGRES")))
                 .withStartupTimeout(Duration.ofSeconds(30))

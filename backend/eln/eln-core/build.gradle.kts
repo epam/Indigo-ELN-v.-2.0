@@ -14,8 +14,8 @@ dependencies {
 
     implementation("io.quarkus:quarkus-cache")
 
-    implementation("com.epam.indigo:indigo:1.43.0")
-    implementation("com.epam.indigo:indigo-renderer:1.43.0")
+    implementation("com.epam.indigo:indigo:1.45.0")
+    implementation("com.epam.indigo:indigo-renderer:1.45.0")
 
     testImplementation(project(":common:common-test"))
 

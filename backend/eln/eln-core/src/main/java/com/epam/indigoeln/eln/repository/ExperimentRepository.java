@@ -8,10 +8,7 @@ import com.epam.indigoeln.eln.common.repository.BaseRepository;
 import com.epam.indigoeln.eln.common.util.Conditions;
 import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.mapper.ExperimentMapper;
-import com.epam.indigoeln.eln.model.ApplicationPermission;
-import com.epam.indigoeln.eln.model.ELNEntityType;
-import com.epam.indigoeln.eln.model.ExperimentDTO;
-import com.epam.indigoeln.eln.model.ExperimentRef;
+import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.eln.util.CriteriaConditions;
@@ -53,7 +50,7 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
     @Inject
     UserService userService;
 
-    public Page<ExperimentDTO> findAll(@Nullable UUID projectId, @Nullable UUID notebookId, @Nullable String search, @Nullable SortOrder sort, @Nullable UserEntity createdByUser, Paging paging, boolean showAll) {
+    public Page<ExperimentDTO> findAll(UUID notebookId, @Nullable String search, @Nullable SortOrder sort, @Nullable UserEntity createdByUser, @Nullable List<ExperimentStatus> statuses, Paging paging, boolean showAll) {
         CriteriaDefinition<Tuple> criteria = new CriteriaDefinition<>(em, Tuple.class) {{
             JpaRoot<ExperimentEntity> root = from(ExperimentEntity.class);
             select(tuple(root.id(), count(literal(1), createWindow())));
@@ -61,14 +58,12 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
                 if (!showAll) {
                     conditions.add(isNotNull(root.get(ExperimentEntity_.currentAccessOrNull)));
                 }
-                if (projectId != null) {
-                    conditions.add(root.get(ExperimentEntity_.project).get(ProjectEntity_.id).equalTo(projectId));
-                }
-                if (notebookId != null) {
-                    conditions.add(root.get(ExperimentEntity_.notebook).get(NotebookEntity_.id).equalTo(notebookId));
-                }
+                conditions.add(root.get(ExperimentEntity_.notebook).get(NotebookEntity_.id).equalTo(notebookId));
                 if (createdByUser != null) {
                     conditions.add(root.get(ExperimentEntity_.createdBy).equalTo(createdByUser));
+                }
+                if (statuses != null && !statuses.isEmpty()) {
+                    conditions.add(root.get(ExperimentEntity_.status).in(statuses));
                 }
                 conditions.fullTextSearch(root.get(ExperimentEntity_.searchVector), search, s -> List.of(
                         ilike(root.get(ExperimentEntity_.name), '%' + s + '%')

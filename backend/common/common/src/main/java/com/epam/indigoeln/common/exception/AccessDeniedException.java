@@ -18,7 +18,7 @@ public class AccessDeniedException extends RuntimeException {
         super(String.format("Operation not permitted: %s on %s %s; current access %s doesn't allow it", operation, entityType, id, currentLevel));
     }
 
-    public AccessDeniedException(String missingUser) {
-        super(String.format("User not found: %s", missingUser));
+    public AccessDeniedException(String message) {
+        super(message);
     }
 }

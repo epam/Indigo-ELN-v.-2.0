@@ -17,10 +17,8 @@ import one.util.streamex.IntStreamEx;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 
@@ -48,7 +46,7 @@ public class MutationsTest extends MutationsTestBase {
     StereoisomerCodeRef stereoisomerCode;
 
     @BeforeAll
-    void beforeAll(@TempDir Path tempDir) {
+    void beforeAll() {
         miscClient.loadCompoundsFromFileClient("compounds.sdf", loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"));
         saltCode = dictionaryClient.getNth(BuiltInDictionary.SALT_CODE, 1);
         stereoisomerCode = dictionaryClient.<StereoisomerCodeRef>getDictionary(BuiltInDictionary.STEREOISOMER_CODE).get(1);

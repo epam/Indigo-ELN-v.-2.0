@@ -9,7 +9,7 @@ dependencies {
     api("io.quarkus:quarkus-jdbc-postgresql")
     api("io.quarkus:quarkus-hibernate-orm")
     api("io.quarkus:quarkus-hibernate-orm-panache")
-    api("io.hypersistence:hypersistence-utils-hibernate-71:3.15.2")
+    api("io.hypersistence:hypersistence-utils-hibernate-71:3.15.4")
 }
 
 group = "com.epam.indigoeln"

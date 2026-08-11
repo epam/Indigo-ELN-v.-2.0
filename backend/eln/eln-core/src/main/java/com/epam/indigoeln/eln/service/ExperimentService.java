@@ -112,10 +112,10 @@ public class ExperimentService {
         return getExperimentDetails(experiment);
     }
 
-    public Page<ExperimentDTO> getExperiments(@Nullable UUID projectId, @Nullable UUID notebookId, @Nullable String search, @Nullable SortOrder sort, @Nullable Boolean createdByMe, Paging paging) {
+    public Page<ExperimentDTO> getExperiments(UUID notebookId, @Nullable String search, @Nullable SortOrder sort, @Nullable Boolean createdByMe, @Nullable List<ExperimentStatus> statuses, Paging paging) {
         UserEntity currentUser = Boolean.TRUE.equals(createdByMe) ? userService.getCurrentUserEntity() : null;
         boolean showAll = userService.getCurrentUser().getPermissions().contains(VIEW_EXPERIMENTS);
-        return experimentRepository.findAll(projectId, notebookId, search, sort, currentUser, paging, showAll);
+        return experimentRepository.findAll(notebookId, search, sort, currentUser, statuses, paging, showAll);
     }
 
     public List<ExperimentDTO> getMarkedExperiments() {

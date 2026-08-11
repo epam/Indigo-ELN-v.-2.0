@@ -56,13 +56,8 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
-    public @NotNull @Valid Page<ExperimentDTO> getProjectExperiments(@NotNull UUID projectId, @Nullable String search, @Nullable SortOrder sort, @Nullable Boolean createdByMe, @Valid Paging paging) {
-        return experimentService.getExperiments(projectId, null, search, sort, createdByMe, paging);
-    }
-
-    @Override
-    public @NotNull @Valid Page<ExperimentDTO> getNotebookExperiments(@NotNull UUID notebookId, @Nullable String search, @Nullable SortOrder sort, @Nullable Boolean createdByMe, @Valid Paging paging) {
-        return experimentService.getExperiments(null, notebookId, search, sort, createdByMe, paging);
+    public @NotNull Page<@Valid ExperimentDTO> getNotebookExperiments(@NotNull UUID notebookId, @Nullable String search, @Nullable SortOrder sort, @Nullable Boolean createdByMe, @Nullable List<ExperimentStatus> statuses, @Valid Paging paging) {
+        return experimentService.getExperiments(notebookId, search, sort, createdByMe, statuses, paging);
     }
 
     @Override
@@ -107,7 +102,7 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
-    public List<ACLEntryDTO> updateExperimentAccess(@NotNull UUID experimentId, @NotNull @Valid List<AccessForm> form) {
+    public List<ACLEntryDTO> updateExperimentAccess(@NotNull UUID experimentId, @NotNull List<@Valid AccessForm> form) {
         return experimentService.updateExperimentAccess(experimentId, form);
     }
 

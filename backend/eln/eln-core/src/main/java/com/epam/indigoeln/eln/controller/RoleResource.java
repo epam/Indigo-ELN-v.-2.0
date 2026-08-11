@@ -29,17 +29,15 @@ public class RoleResource implements RoleAPI {
         return roleService.createRole(request);
     }
 
-    @Valid
     @NotNull
     @Override
-    public List<RoleDTO> getRoles() {
+    public List<@Valid RoleDTO> getRoles() {
         return roleService.getRoles();
     }
 
-    @Valid
     @NotNull
     @Override
-    public List<RoleRef> suggestRoles() {
+    public List<@Valid RoleRef> suggestRoles() {
         return roleService.suggestRoles();
     }
 

@@ -16,15 +16,14 @@ dependencies {
     api(project(":eln:eln-api"))
 
     api("io.quarkus:quarkus-flyway")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.20.0")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv")
 
     implementation("io.quarkus:quarkus-cache")
 
     implementation("org.bouncycastle:bcprov-jdk18on")
     implementation("org.bouncycastle:bcpkix-jdk18on")
 
-    implementation("one.util:streamex:0.8.3")
-    implementation("io.quarkiverse.openpdf:quarkus-openpdf:3.3.2")
+    implementation("io.quarkiverse.openpdf:quarkus-openpdf:3.3.3")
 
     testImplementation(project(":common:common-test"))
 }

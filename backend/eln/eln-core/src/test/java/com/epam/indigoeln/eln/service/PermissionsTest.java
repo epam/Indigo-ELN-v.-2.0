@@ -23,13 +23,11 @@ import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 import org.assertj.core.util.Throwables;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.io.TempDir;
 import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -83,7 +81,7 @@ class PermissionsTest extends ELNBaseTest {
     }
 
     @BeforeAll
-    void setupAll(@TempDir Path tempDir) {
+    void setupAll() {
         cleanupDatabase();
         withUser(JOHN_USERNAME, () -> {
             template = templateClient.createTemplate(new TemplateRequest("PermissionsTest", templateTabs));
@@ -95,7 +93,7 @@ class PermissionsTest extends ELNBaseTest {
                     projectClient.updateProjectAccess(row.projectId, AccessForm.of(WILLOW_USERNAME, row.project));
                 }
                 row.projectDetails = projectClient.getProject(row.projectId);
-                row.notebookId = notebookClient.createNotebook(row.projectId, new NotebookRequest(nextNotebookName())).getId();
+                row.notebookId = createNotebook(row.projectId).getId();
                 notebookClient.createNotebookAttachment(row.notebookId, "attachment.txt", new byte[0]);
                 if (row.notebook != NONE) {
                     notebookClient.updateNotebookAccess(row.notebookId, AccessForm.of(WILLOW_USERNAME, row.notebook));
@@ -194,7 +192,7 @@ class PermissionsTest extends ELNBaseTest {
     }
 
     @Test
-    void testProjectAttachments(@TempDir Path tempDir) {
+    void testProjectAttachments() {
         iterateRowsParallel(row -> {
             assertThatClientCall(() -> projectClient.createProjectAttachment(row.projectId, "a", new byte[0]))
                     .as(row.toString())
@@ -234,7 +232,7 @@ class PermissionsTest extends ELNBaseTest {
     @Test
     void testCreateNotebook() {
         iterateRowsParallel(row -> {
-            assertThatClientCall(() -> notebookClient.createNotebook(row.projectId, new NotebookRequest(nextNotebookName())))
+            assertThatClientCall(() -> createNotebook(row.projectId))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "Operation not permitted");
         });
@@ -259,7 +257,7 @@ class PermissionsTest extends ELNBaseTest {
     }
 
     @Test
-    void testNotebookAttachments(@TempDir Path tempDir) {
+    void testNotebookAttachments() {
         iterateRowsParallel(row -> {
             assertThatClientCall(() -> notebookClient.createNotebookAttachment(row.notebookId, "a", new byte[0]))
                     .as(row.toString())
@@ -295,7 +293,7 @@ class PermissionsTest extends ELNBaseTest {
     @Test
     void testListExperiments() {
         iterateRowsParallel(row -> {
-            Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(row.notebookId, null, null, null, PAGING);
+            Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(row.notebookId, null, null, null, null, PAGING);
             if (row.effectiveExperiment != NONE) {
                 assertThat(experiments.getItems()).extracting(ExperimentDTO::getName).containsExactly(row.experimentDetails.getName());
             } else {
@@ -325,7 +323,7 @@ class PermissionsTest extends ELNBaseTest {
     }
 
     @Test
-    void testExperimentAttachments(@TempDir Path tempDir) {
+    void testExperimentAttachments() {
         iterateRowsParallel(row -> {
             assertThatClientCall(() -> experimentClient.createExperimentAttachment(row.experimentId, "a", "content".getBytes(StandardCharsets.UTF_8)))
                     .as(row.toString())
@@ -368,7 +366,7 @@ class PermissionsTest extends ELNBaseTest {
                     .isSuccessfulWithResult(p -> assertThat(p.getItems()).hasSize(1));
             assertThatClientCall(() -> notebookClient.getNotebook(row.notebookId))
                     .isSuccessful();
-            assertThatClientCall(() -> experimentClient.getNotebookExperiments(row.notebookId, null, null, null, PAGING))
+            assertThatClientCall(() -> experimentClient.getNotebookExperiments(row.notebookId, null, null, null, null, PAGING))
                     .isSuccessfulWithResult(p -> assertThat(p.getItems()).hasSize(1));
             assertThatClientCall(() -> experimentClient.getExperiment(row.experimentId))
                     .isSuccessful();
@@ -463,7 +461,7 @@ class PermissionsTest extends ELNBaseTest {
     @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
     void testFindMarkedExcludesExperimentsAfterAccessRevoked() {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testFindMarkedExcludesExperimentsAfterAccessRevoked"));
-        NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        NotebookDetailsDTO notebook = createNotebook(project.getId());
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(LISA_USERNAME, VIEW));
         withUser(LISA_USERNAME, () -> {
@@ -488,13 +486,11 @@ class PermissionsTest extends ELNBaseTest {
         NotebookDetailsDTO notebook2;
         ExperimentDetailsDTO experiment2;
 
-        String secondNotebookName;
-
         @Test
         @Order(0)
         void testCreate() {
             project = projectClient.createProject(new ProjectRequest("testExperimentAccess"));
-            notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+            notebook = createNotebook(project.getId());
             experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         }
 
@@ -565,8 +561,7 @@ class PermissionsTest extends ELNBaseTest {
         void testCreateSecondExperiment() {
             projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, NONE));
             notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(WILLOW_USERNAME, NONE));
-            secondNotebookName = nextNotebookName();
-            notebook2 = notebookClient.createNotebook(project.getId(), new NotebookRequest(secondNotebookName));
+            notebook2 = createNotebook(project.getId());
             experiment2 = experimentClient.createExperiment(notebook2.getId(), new ExperimentRequest(emptyTemplateID));
             experimentClient.updateExperimentAccess(experiment2.getId(), AccessForm.of(WILLOW_USERNAME, EDIT));
         }
@@ -576,8 +571,8 @@ class PermissionsTest extends ELNBaseTest {
         @TestSecurity(user = WILLOW_USERNAME)
         void testImplicitViewDoesntListSiblingEntities() {
             Page<NotebookDTO> notebooks = notebookClient.getProjectNotebooks(project.getId(), null, null, null, PAGING);
-            assertThat(notebooks.getItems()).extracting(NotebookDTO::getName).containsOnly(secondNotebookName);
-            Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(notebook2.getId(), null, null, null, PAGING);
+            assertThat(notebooks.getItems()).extracting(NotebookDTO::getName).containsOnly(notebook2.getName());
+            Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(notebook2.getId(), null, null, null, null, PAGING);
             assertThat(experiments.getItems()).extracting(ExperimentDTO::getName).containsOnly(experiment2.getName());
         }
 
@@ -607,7 +602,7 @@ class PermissionsTest extends ELNBaseTest {
             experimentClient.updateExperimentAccess(experiment2.getId(), AccessForm.of(BART_USERNAME, EDIT));
             acl = experimentClient.updateExperimentAccess(experiment2.getId(), AccessForm.of(LISA_USERNAME, EDIT));
             assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, BART_DISPLAY_NAME, EDIT, false, LISA_DISPLAY_NAME, EDIT, false, WILLOW_DISPLAY_NAME, EDIT, false);
-            ExperimentDTO experimentDTO = experimentClient.getNotebookExperiments(notebook2.getId(), null, null, null, PAGING).getItems().getFirst();
+            ExperimentDTO experimentDTO = experimentClient.getNotebookExperiments(notebook2.getId(), null, null, null, null, PAGING).getItems().getFirst();
             assertThat(experimentDTO.getId()).isEqualTo(experiment2.getId());
             assertThatACL(experimentDTO.getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, BART_DISPLAY_NAME, EDIT, false, LISA_DISPLAY_NAME, EDIT, false);
             assertThat(experimentDTO.getAclCount()).isEqualTo(4);
