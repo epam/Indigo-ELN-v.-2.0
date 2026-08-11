@@ -36,8 +36,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 @ApplicationScoped
 public class UserService {
 
-    private static final byte[] DEFAULT_PICTURE_SMALL = loadResource(UserService.class, "/user-default-picture-small.png");
-    private static final byte[] DEFAULT_PICTURE_LARGE = loadResource(UserService.class, "/user-default-picture.png");
+    private static final byte[] DEFAULT_PICTURE_SMALL = loadResource("/user-default-picture-small.png");
+    private static final byte[] DEFAULT_PICTURE_LARGE = loadResource("/user-default-picture.png");
 
     @Inject
     UserHolder userHolder;

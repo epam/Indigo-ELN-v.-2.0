@@ -21,7 +21,7 @@ public class AbstractReactionSampleAssert<R extends ReactionRow, S extends React
     }
 
     public SELF hasNoDensity() {
-        assertThat(actual.getDensity()).isNull();
+        EnteredValueAssert.assertThat(actual.getDensity()).isEmpty();
         return myself;
     }
 
@@ -31,7 +31,7 @@ public class AbstractReactionSampleAssert<R extends ReactionRow, S extends React
     }
 
     public SELF hasNoMolarity() {
-        assertThat(actual.getMolarity()).isNull();
+        EnteredValueAssert.assertThat(actual.getMolarity()).isEmpty();
         return myself;
     }
 
@@ -41,7 +41,7 @@ public class AbstractReactionSampleAssert<R extends ReactionRow, S extends React
     }
 
     public SELF hasNoVolume() {
-        assertThat(actual.getVolume()).isNull();
+        EnteredValueAssert.assertThat(actual.getVolume()).isEmpty();
         return myself;
     }
 

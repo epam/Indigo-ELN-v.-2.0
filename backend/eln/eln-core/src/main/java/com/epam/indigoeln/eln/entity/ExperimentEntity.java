@@ -77,7 +77,7 @@ import java.util.*;
         }
 )
 @DynamicUpdate
-public class ExperimentEntity extends BaseEntity implements WithAttachments<ExperimentAttachment>, WithACL<ExperimentACLEntity>, WithRevision {
+public class ExperimentEntity extends BaseEntity implements WithAttachments<ExperimentAttachment>, WithACL<ExperimentACLEntity, NotebookEntity>, WithRevision {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -197,7 +197,7 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments<Expe
     @NotNull
     @ElementCollection
     @CollectionTable(name = "Experiment_Referenced_Compound", joinColumns = @JoinColumn(name = "experiment_id"))
-    private Set<ExperimentReferencedCompound> referencedCompounds = new HashSet<>(0);
+    private Set<ExperimentReferencedCompound> referencedCompounds = HashSet.newHashSet(0);
 
     @NotNull
     @ElementCollection

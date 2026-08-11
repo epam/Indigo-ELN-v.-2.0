@@ -115,7 +115,7 @@ class SignatureServiceTest extends BaseTest {
     void testUploadDocument(@TempDir Path tempDir) throws Exception {
         assumeThat(templateID).isNotNull();
         Path file = tempDir.resolve("document.pdf");
-        Files.write(file, ModelUtil.loadResource(getClass(), "/document.pdf"));
+        Files.write(file, ModelUtil.loadResource("/document.pdf"));
         DocumentDTO document = signatureClient.uploadDocumentClient("document.pdf", templateID, file.toFile());
         documentID = document.getId();
         assertThat(document.getId()).isNotNull();

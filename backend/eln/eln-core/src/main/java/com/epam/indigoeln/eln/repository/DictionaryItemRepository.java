@@ -23,6 +23,8 @@ public class DictionaryItemRepository extends BaseRepository<DictionaryItemEntit
 
     private static final Sort SORT = Sort.by("ordinal");
     private static final Sort SORT_SUGGEST = Sort.by("name");
+    private static final String DICTIONARY_ID_CONDITION = "dictionary.id=?";
+    private static final String NOT_DELETED = "not deleted";
 
     @Inject
     DictionaryMapper dictionaryMapper;
@@ -37,8 +39,8 @@ public class DictionaryItemRepository extends BaseRepository<DictionaryItemEntit
 
     public List<DictionaryItemEntity> list(UUID dictionaryID, boolean includeInactive) {
         Conditions conditions = new Conditions()
-                .add("dictionary.id=?", dictionaryID)
-                .add("not deleted");
+                .add(DICTIONARY_ID_CONDITION, dictionaryID)
+                .add(NOT_DELETED);
         if (!includeInactive) {
             conditions.add("active");
         }
@@ -47,8 +49,8 @@ public class DictionaryItemRepository extends BaseRepository<DictionaryItemEntit
 
     public List<DictionaryItemRef> suggest(UUID dictionaryID, @Nullable String search) {
         Conditions conditions = new Conditions()
-                .add("dictionary.id=?", dictionaryID)
-                .add("not deleted")
+                .add(DICTIONARY_ID_CONDITION, dictionaryID)
+                .add(NOT_DELETED)
                 .add("active");
         if (!Strings.isNullOrEmpty(search)) {
             conditions.add("LOWER(name) LIKE ?", search.toLowerCase() + "%");

@@ -20,7 +20,7 @@ public class ReactionOutputAssert extends AbstractReactionRowAssert<ReactionOutp
     }
 
     public ReactionOutputAssert hasNoTheoMol() {
-        EnteredValueAssert.assertThat(actual.getTheoMol()).isNull();
+        EnteredValueAssert.assertThat(actual.getTheoMol()).isEmpty();
         return this;
     }
 
@@ -30,7 +30,7 @@ public class ReactionOutputAssert extends AbstractReactionRowAssert<ReactionOutp
     }
 
     public ReactionOutputAssert hasNoTheoWeight() {
-        EnteredValueAssert.assertThat(actual.getTheoWeight()).isNull();
+        EnteredValueAssert.assertThat(actual.getTheoWeight()).isEmpty();
         return this;
     }
 }

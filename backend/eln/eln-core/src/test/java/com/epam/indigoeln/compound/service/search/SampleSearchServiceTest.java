@@ -61,7 +61,7 @@ public class SampleSearchServiceTest extends ELNBaseTest {
         saltCode = dictionaryService.<SaltCodeRef>getDictionary(BuiltInDictionary.SALT_CODE.name(), false).getFirst();
         healthHazard = dictionaryService.<HealthHazardRef>getDictionary(BuiltInDictionary.HEALTH_HAZARD.name(), false).getFirst();
         compoundState = dictionaryService.<ComponentStateRef>getDictionary(BuiltInDictionary.COMPONENT_STATE.name(), false).getFirst();
-        IndigoReaction reaction = indigo.loadReaction(loadResource(getClass(), "/reaction.rxn"));
+        IndigoReaction reaction = indigo.loadReaction(loadResource("/reaction.rxn"));
         Iterator<IndigoMolecule> it = reaction.products().iterator();
         IndigoMolecule molecule = it.next();
         compound1 = compoundService.virtualCompoundRef(molecule, null, null, null);
@@ -83,6 +83,16 @@ public class SampleSearchServiceTest extends ELNBaseTest {
         str2 = sample.getStrCode();
         sample = compoundService.registerSample(new SampleRegistrationRequest(compound2));
         strOtherCompound = sample.getStrCode();
+
+        assertThat(saltCode.getId()).isNotNull();
+        assertThat(healthHazard.getId()).isNotNull();
+        assertThat(compoundState.getId()).isNotNull();
+        assertThat(compound1.getCompoundID()).isNotNull();
+        assertThat(compound2.getCompoundID()).isNotEqualTo(compound1.getCompoundID());
+        assertThat(sampleID1).isNotNull();
+        assertThat(str1).isNotNull();
+        assertThat(str2).isNotNull();
+        assertThat(strOtherCompound).isNotEqualTo(str1);
     }
 
     @Test
@@ -195,7 +205,7 @@ public class SampleSearchServiceTest extends ELNBaseTest {
 
     @Test
     void testPaginationAndTotalItems() {
-        String molFile = loadResourceAsString(getClass(), "/ring-substructure.mol");
+        String molFile = loadResourceAsString("/ring-substructure.mol");
         Long totalItemsReported = null;
         long totalItemsActual = 0;
         FindSamplesRequest request = request(ELN).withStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, molFile));

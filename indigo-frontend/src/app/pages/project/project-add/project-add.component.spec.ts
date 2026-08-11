@@ -4,6 +4,7 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormBuilder } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ProjectAddComponent } from './project-add.component';
 
 describe('ProjectAddComponent', () => {
@@ -19,6 +20,8 @@ describe('ProjectAddComponent', () => {
       providers: [
         FormBuilder,
         { provide: ApiService, useValue: mockApiService },
+        { provide: MatDialogRef, useValue: jasmine.createSpyObj('MatDialogRef', ['close']) },
+        { provide: MAT_DIALOG_DATA, useValue: {} },
         provideHttpClient(),
         provideHttpClientTesting(),
       ],

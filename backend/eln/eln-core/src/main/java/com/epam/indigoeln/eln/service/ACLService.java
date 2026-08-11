@@ -146,7 +146,8 @@ public class ACLService {
         // preload all ACL lists
         experimentRepository.findByNotebookWithACLEntities(notebook);
 
-        boolean updated = false, updatedImplicitViewProject = false;
+        boolean updated = false;
+        boolean updatedImplicitViewProject = false;
         for (AccessForm update : updates) {
             UserEntity user = userService.getEntity(update.getUsername());
             if (applyAccess(notebook, user, update.getLevel(), update.isDeleteNested())) {
@@ -167,7 +168,9 @@ public class ACLService {
     }
 
     public void updateExperimentACL(ProjectEntity project, NotebookEntity notebook, ExperimentEntity experiment, List<AccessForm> updates) {
-        boolean updated = false, updatedImplicitViewNotebook = false, updatedImplicitViewProject = false;
+        boolean updated = false;
+        boolean updatedImplicitViewNotebook = false;
+        boolean updatedImplicitViewProject = false;
         for (AccessForm update : updates) {
             UserEntity user = userService.getEntity(update.getUsername());
             if (applyAccess(experiment, user, update.getLevel(), update.isDeleteNested())) {
@@ -192,8 +195,8 @@ public class ACLService {
         }
     }
 
-    private boolean applyImplicitAccess(WithACL<?> container, UserEntity user, AccessLevel childLevel, Supplier<Boolean> isAccessible) {
-        WithACL<?> containerOrParent = container;
+    private boolean applyImplicitAccess(WithACL<?, ?> container, UserEntity user, AccessLevel childLevel, Supplier<Boolean> isAccessible) {
+        WithACL<?, ?> containerOrParent = container;
         BaseACLEntity entry = null;
         while (entry == null && containerOrParent != null) {
             entry = containerOrParent.getAclEntities().get(user);
@@ -207,7 +210,7 @@ public class ACLService {
         return false;
     }
 
-    public void recalculateACL(WithACL<?> child) {
+    public void recalculateACL(WithACL<?, ?> child) {
         log.debug("recalculateACL: {}", child);
         Map<UserEntity, Pair<AccessLevel, Boolean>> users = new HashMap<>();
         users.put(child.getCreatedBy(), Pair.of(AUTHOR, false));
@@ -218,29 +221,25 @@ public class ACLService {
             case ExperimentEntity e -> List.of(e.getNotebook().getAclEntities(), e.getProject().getAclEntities());
             default -> throw new IllegalStateException("Unexpected: " + child);
         };
-        Set<? extends WithACL<?>> nestedACLs = switch (child) {
+        Set<? extends WithACL<?, ?>> nestedACLs = switch (child) {
             case ProjectEntity p -> p.getNotebooks();
             case NotebookEntity n -> n.getExperiments();
             case ExperimentEntity e -> Set.of();
             default -> throw new IllegalStateException("Unexpected: " + child);
         };
         child.getAclEntities().forEach((user, level) -> {
-            if (level.getLevel() != IMPLICIT_VIEW) {
-                if (users.putIfAbsent(user, Pair.of(level.getLevel(), false)) == null) {
-                    log.debug("recalculateACL: added {}={} from own ACL", user, level.getLevel());
-                }
+            if (level.getLevel() != IMPLICIT_VIEW && users.putIfAbsent(user, Pair.of(level.getLevel(), false)) == null) {
+                log.debug("recalculateACL: added {}={} from own ACL", user, level.getLevel());
             }
         });
         for (Map<UserEntity, ? extends BaseACLEntity> acl : inheritedACLs) {
             acl.forEach((user, level) -> {
-                if (level.getLevel() != IMPLICIT_VIEW) {
-                    if (users.putIfAbsent(user, Pair.of(level.getLevel(), true)) == null) {
-                        log.debug("recalculateACL: added {}={} from one of parent entities", user, level.getLevel());
-                    }
+                if (level.getLevel() != IMPLICIT_VIEW && users.putIfAbsent(user, Pair.of(level.getLevel(), true)) == null) {
+                    log.debug("recalculateACL: added {}={} from one of parent entities", user, level.getLevel());
                 }
             });
         }
-        for (WithACL<?> nested : nestedACLs) {
+        for (WithACL<?, ?> nested : nestedACLs) {
             nested.getAclEntities().forEach((user, level) -> {
                 if (users.putIfAbsent(user, Pair.of(IMPLICIT_VIEW, false)) == null) {
                     log.debug("recalculateACL: added {}=IMPLICIT_VIEW from one of child entities", user);
@@ -260,7 +259,7 @@ public class ACLService {
                 .toArray(ACLEntry[]::new));
     }
 
-    private boolean applyAccess(WithACL<?> container, UserEntity user, AccessLevel level, boolean deleteNested) {
+    private boolean applyAccess(WithACL<?, ?> container, UserEntity user, AccessLevel level, boolean deleteNested) {
         if (user.equals(container.getCreatedBy()) && level != AUTHOR) {
             throw new InvalidRequestException("AUTHOR permission cannot be removed from " + user.getUsername());
         }

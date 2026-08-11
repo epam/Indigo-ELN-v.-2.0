@@ -5,7 +5,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 
-public interface WithACL<A extends BaseACLEntity> {
+public interface WithACL<A extends BaseACLEntity, P extends WithACL<?, ?>> {
 
     UserEntity getCreatedBy();
 
@@ -19,5 +19,5 @@ public interface WithACL<A extends BaseACLEntity> {
     void setShortACL(ACLEntry[] shortACL);
 
     @Nullable
-    WithACL<?> getACLParent();
+    P getACLParent();
 }

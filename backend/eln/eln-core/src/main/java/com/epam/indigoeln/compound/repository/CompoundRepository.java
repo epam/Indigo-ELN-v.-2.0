@@ -21,8 +21,6 @@ public class CompoundRepository extends BaseRepository<CompoundEntity> {
 
     @Inject
     CompoundMapper compoundMapper;
-    @PersistenceContext
-    EntityManager em;
 
     public CompoundRepository() {
         super(ELNEntityType.COMPOUND, CompoundEntity.class);

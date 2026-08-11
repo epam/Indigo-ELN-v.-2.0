@@ -5,11 +5,14 @@ import com.epam.indigoeln.test.BaseTest;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.output.MigrateResult;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
 import java.sql.Statement;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
 class DatabaseInitializationServiceTest extends BaseTest {
@@ -20,7 +23,8 @@ class DatabaseInitializationServiceTest extends BaseTest {
     @Test
     @Order(1)
     void testMigrate() {
-        flyway.migrate();
+        MigrateResult result = flyway.migrate();
+        assertThat(result.migrationsExecuted).isPositive();
     }
 
     @Test
@@ -32,6 +36,7 @@ class DatabaseInitializationServiceTest extends BaseTest {
                 st.execute("DELETE FROM flyway_schema_history WHERE version IS NULL");
             }
         }
-        flyway.migrate();
+        MigrateResult result = flyway.migrate();
+        assertThat(result.migrationsExecuted).isPositive();
     }
 }

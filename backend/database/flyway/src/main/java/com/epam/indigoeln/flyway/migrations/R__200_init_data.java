@@ -28,11 +28,11 @@ import static com.google.common.base.Strings.emptyToNull;
 @Slf4j
 public class R__200_init_data extends BaseJavaMigration {
 
-    private final Supplier<byte[]> ROLES_CSV = () -> ModelUtil.loadResource(getClass(), "/db/data/roles.csv");
-    private final Supplier<byte[]> USERS_CSV = () -> ModelUtil.loadResource(getClass(), "/db/data/users.csv");
-    private final Supplier<byte[]> DICTIONARIES_CSV = () -> ModelUtil.loadResource(getClass(), "/db/data/dictionaries.csv");
-    private final Supplier<byte[]> DICTIONARY_ITEMS_CSV = () -> ModelUtil.loadResource(getClass(), "/db/data/dictionary_items.csv");
-    private final Supplier<byte[]> TEMPLATES_CSV = () -> ModelUtil.loadResource(getClass(), "/db/data/templates.csv");
+    private final Supplier<byte[]> ROLES_CSV = () -> ModelUtil.loadResource("/db/data/roles.csv");
+    private final Supplier<byte[]> USERS_CSV = () -> ModelUtil.loadResource("/db/data/users.csv");
+    private final Supplier<byte[]> DICTIONARIES_CSV = () -> ModelUtil.loadResource("/db/data/dictionaries.csv");
+    private final Supplier<byte[]> DICTIONARY_ITEMS_CSV = () -> ModelUtil.loadResource("/db/data/dictionary_items.csv");
+    private final Supplier<byte[]> TEMPLATES_CSV = () -> ModelUtil.loadResource("/db/data/templates.csv");
 
     private final CsvMapper mapper = new CsvMapper();
     private final CsvSchema schema = CsvSchema.emptySchema().withHeader();

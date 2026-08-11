@@ -45,7 +45,7 @@ class PubChemCatalogSearchProviderTest extends ELNBaseTest {
     void setUp() {
         wireMock.register(WireMock.post(WireMock.urlPathEqualTo("/rest/pug/compound/name/property/MolecularFormula,MolecularWeight,IUPACName,InChI/JSON")).willReturn(WireMock.aResponse()
                 .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                .withBody(ModelUtil.loadResource(getClass(), "/com/epam/indigoeln/compound/service/search/pubchem-response.json"))
+                .withBody(ModelUtil.loadResource("/com/epam/indigoeln/compound/service/search/pubchem-response.json"))
         ));
     }
 
@@ -74,7 +74,7 @@ class PubChemCatalogSearchProviderTest extends ELNBaseTest {
                 .willReturn(WireMock.aResponse()
                         .withStatus(400)
                         .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                        .withBody(ModelUtil.loadResource(getClass(), "/com/epam/indigoeln/compound/service/search/pubchem-not-found.json"))
+                        .withBody(ModelUtil.loadResource("/com/epam/indigoeln/compound/service/search/pubchem-not-found.json"))
                 ));
 
         SampleSearchResult result = sampleSearchService.search(
@@ -91,7 +91,7 @@ class PubChemCatalogSearchProviderTest extends ELNBaseTest {
                 .willReturn(WireMock.aResponse()
                         .withStatus(503)
                         .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                        .withBody(ModelUtil.loadResource(getClass(), "/com/epam/indigoeln/compound/service/search/pubchem-server-error.json"))
+                        .withBody(ModelUtil.loadResource("/com/epam/indigoeln/compound/service/search/pubchem-server-error.json"))
                 ));
 
         assertThatThrownBy(() -> {

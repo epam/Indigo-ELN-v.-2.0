@@ -18,6 +18,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.TypedQuery;
+import jakarta.persistence.LockModeType;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 import org.hibernate.query.criteria.CriteriaDefinition;
@@ -34,7 +35,8 @@ import static com.epam.indigoeln.common.util.ModelUtil.map;
 @ApplicationScoped
 public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
 
-    private static final Sort SORT_SUGGEST = Sort.by("name");
+    private static final String LOAD_GRAPH_HINT = "jakarta.persistence.loadgraph";
+    private static final String EXPERIMENT_PARAM = "experiment";
 
     @Inject
     CriteriaConditions.Factory criteriaConditionsFactory;
@@ -166,14 +168,14 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
 
     public ExperimentRevisionEntity getRevision(ExperimentEntity experiment, int revision) {
         return em.createQuery("from ExperimentRevision where experiment = :experiment and revision = :revision", ExperimentRevisionEntity.class)
-                .setParameter("experiment", experiment)
+                .setParameter(EXPERIMENT_PARAM, experiment)
                 .setParameter("revision", revision)
                 .getSingleResult();
     }
 
     public ExperimentRevisionEntity getVersion(ExperimentEntity experiment, int version) {
         return em.createQuery("from ExperimentRevision where experiment = :experiment and version = :version", ExperimentRevisionEntity.class)
-                .setParameter("experiment", experiment)
+                .setParameter(EXPERIMENT_PARAM, experiment)
                 .setParameter("version", version)
                 .getSingleResult();
     }
@@ -210,42 +212,50 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
     }
 
     public List<ExperimentRef> suggest(@Nullable String search) {
-        String condition = search != null ? "where name like :search" : "";
-        TypedQuery<ExperimentRef> query = em.createQuery("select new com.epam.indigoeln.eln.model.ExperimentRef(id, name) from Experiment " + condition + " order by name", ExperimentRef.class);
         if (search != null) {
-            query.setParameter("search", search + '%');
+            return em.createQuery("select new com.epam.indigoeln.eln.model.ExperimentRef(id, name) from Experiment where name like :search order by name", ExperimentRef.class)
+                    .setParameter("search", search + '%')
+                    .setFirstResult(0)
+                    .setMaxResults(10)
+                    .getResultList();
         }
-        return query.setFirstResult(0)
+        return em.createQuery("select new com.epam.indigoeln.eln.model.ExperimentRef(id, name) from Experiment order by name", ExperimentRef.class)
+                .setFirstResult(0)
                 .setMaxResults(10)
                 .getResultList();
     }
 
     public Integer getLastUsedVersion(ExperimentEntity experiment) {
         return em.createQuery("select max(version) from ExperimentRevision where experiment=:experiment", Integer.class)
-                .setParameter("experiment", experiment)
+                .setParameter(EXPERIMENT_PARAM, experiment)
                 .getSingleResult();
     }
 
     public List<ExperimentRevisionEntity> findRecentRevisions(ExperimentEntity experiment, Duration period) {
         return em.createQuery("from ExperimentRevision where experiment=:experiment and datetime>=:since order by revision", ExperimentRevisionEntity.class)
-                .setParameter("experiment", experiment)
+                .setParameter(EXPERIMENT_PARAM, experiment)
                 .setParameter("since", Instant.now().minus(period))
                 .getResultList();
     }
 
     public List<ExperimentRevisionEntity> getRevisions(ExperimentEntity experiment, boolean reverseOrder) {
-        String order = reverseOrder ? "desc" : "";
-        return em.createQuery("from ExperimentRevision where experiment=:experiment order by revision " + order, ExperimentRevisionEntity.class)
-                .setParameter("experiment", experiment)
-                .setHint("jakarta.persistence.loadgraph", "ExperimentRevision.list")
+        if (reverseOrder) {
+            return em.createQuery("from ExperimentRevision where experiment=:experiment order by revision desc", ExperimentRevisionEntity.class)
+                    .setParameter(EXPERIMENT_PARAM, experiment)
+                    .setHint(LOAD_GRAPH_HINT, "ExperimentRevision.list")
+                    .getResultList();
+        }
+        return em.createQuery("from ExperimentRevision where experiment=:experiment order by revision", ExperimentRevisionEntity.class)
+                .setParameter(EXPERIMENT_PARAM, experiment)
+                .setHint(LOAD_GRAPH_HINT, "ExperimentRevision.list")
                 .getResultList();
     }
 
     public List<ExperimentRevisionEntity> getRevisionRange(ExperimentEntity experiment, int revisionFrom) {
         return em.createQuery("from ExperimentRevision where experiment=:experiment and revision>=:revisionFrom order by revision", ExperimentRevisionEntity.class)
-                .setParameter("experiment", experiment)
+                .setParameter(EXPERIMENT_PARAM, experiment)
                 .setParameter("revisionFrom", revisionFrom)
-                .setHint("jakarta.persistence.loadgraph", "ExperimentRevision.range")
+                .setHint(LOAD_GRAPH_HINT, "ExperimentRevision.range")
                 .getResultList();
     }
 

@@ -28,6 +28,10 @@ import java.util.stream.Stream;
 @ApplicationScoped
 public class GlobalSearchService {
 
+    private static final String AUTHOR = "author";
+    private static final String MOLFILE = "molfile";
+    private static final String QUERY = "query";
+
     private final UserService userService;
     @PersistenceContext
     EntityManager em;
@@ -65,9 +69,9 @@ public class GlobalSearchService {
             List<UUID> ids = request.getAuthor().stream()
                     .map(u -> userService.getUserInfo(u).getId())
                     .toList();
-            projectConditions.add(condition, "author", ids);
-            notebookConditions.add(condition, "author", ids);
-            experimentConditions.add(condition, "author", ids);
+            projectConditions.add(condition, AUTHOR, ids);
+            notebookConditions.add(condition, AUTHOR, ids);
+            experimentConditions.add(condition, AUTHOR, ids);
         }
         if (request.getMoleculeStructure() != null) {
             hasProjects = hasNotebooks = false;
@@ -75,13 +79,13 @@ public class GlobalSearchService {
             experimentJoins.add("join Compound c on c.id = erc.compound_id");
             switch (request.getMoleculeStructure().type()) {
                 case EXACT -> {
-                    experimentConditions.add("c.mol_file @ (:molfile, '')::bingo.exact", "molfile", request.getMoleculeStructure().query());
+                    experimentConditions.add("c.mol_file @ (:molfile, '')::bingo.exact", MOLFILE, request.getMoleculeStructure().query());
                 }
                 case SUBSTRUCTURE -> {
-                    experimentConditions.add("c.mol_file @ (:molfile, '')::bingo.sub", "molfile", request.getMoleculeStructure().query());
+                    experimentConditions.add("c.mol_file @ (:molfile, '')::bingo.sub", MOLFILE, request.getMoleculeStructure().query());
                 }
                 case SIMILARITY -> {
-                    experimentConditions.add("c.mol_file @ (0.8, null, :molfile, 'Tanimoto')::bingo.sim", "molfile", request.getMoleculeStructure().query());
+                    experimentConditions.add("c.mol_file @ (0.8, null, :molfile, 'Tanimoto')::bingo.sim", MOLFILE, request.getMoleculeStructure().query());
                 }
             }
             if (request.getReactionRole() != null) {
@@ -129,9 +133,9 @@ public class GlobalSearchService {
         String fragmentSelector = "left(t.description, 120)";
         if (request.getQuery() != null) {
             String condition = "search_vector @@ websearch_to_tsquery('english', :query)";
-            projectConditions.add(condition, "query", request.getQuery());
-            notebookConditions.add(condition, "query", request.getQuery());
-            experimentConditions.add(condition, "query", request.getQuery());
+            projectConditions.add(condition, QUERY, request.getQuery());
+            notebookConditions.add(condition, QUERY, request.getQuery());
+            experimentConditions.add(condition, QUERY, request.getQuery());
             fragmentSelector = "ts_headline('english', t.description, websearch_to_tsquery('english', :query), 'StartSel=<mark>,StopSel=</mark>')";
         }
         StringBuilder sql = new StringBuilder();

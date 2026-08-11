@@ -9,7 +9,7 @@
     "build-local": "ng build --configuration local",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "test:ci": "ng test --no-watch --no-progress --code-coverage --browsers=ChromeHeadless",
+    "test:ci": "ng test --no-watch --no-progress --code-coverage --browsers=ChromeHeadlessNoSandbox",
     "lint": "ng lint",
     "sonar": "sonar-scanner-npm",
     "prettier": "prettier --write src *.json *.js",
