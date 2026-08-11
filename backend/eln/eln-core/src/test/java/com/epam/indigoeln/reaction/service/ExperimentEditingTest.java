@@ -13,10 +13,8 @@ import com.epam.indigoeln.reaction.model.units.MolUnit;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
-import java.nio.file.Path;
 
 import static com.epam.indigoeln.eln.test.ReactionInputAssert.assertThat;
 import static com.epam.indigoeln.eln.test.ReactionInputSampleAssert.assertThat;
@@ -38,7 +36,7 @@ public class ExperimentEditingTest extends MutationsTestBase {
     StereoisomerCodeRef stereoisomerCode;
 
     @BeforeAll
-    void beforeAll(@TempDir Path tempDir) {
+    void beforeAll() {
         saltCode = dictionaryClient.getNth(BuiltInDictionary.SALT_CODE, 1);
         stereoisomerCode = dictionaryClient.<StereoisomerCodeRef>getDictionary(BuiltInDictionary.STEREOISOMER_CODE).get(1);
     }

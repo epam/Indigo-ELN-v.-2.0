@@ -12,10 +12,10 @@ repositories {
     mavenLocal()
 }
 
-val quarkusPlatformGroupId: String by project
-val quarkusPlatformArtifactId: String by project
-val quarkusPlatformVersion: String by project
-val quarkusAmazonServicesVersion: String by project
+val quarkusPlatformGroupId = project.property("quarkusPlatformGroupId")
+val quarkusPlatformArtifactId = project.property("quarkusPlatformArtifactId")
+val quarkusPlatformVersion = project.property("quarkusPlatformVersion")
+val quarkusAmazonServicesVersion = project.property("quarkusAmazonServicesVersion")
 
 dependencies {
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
@@ -27,7 +27,7 @@ dependencies {
     testAnnotationProcessor("org.projectlombok:lombok:1.18.46")
     implementation("org.mapstruct:mapstruct:1.6.3")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.6.3")
-    annotationProcessor("org.hibernate.orm:hibernate-jpamodelgen:7.3.7.Final")
+    annotationProcessor("org.hibernate.orm:hibernate-jpamodelgen:7.4.5.Final")
 }
 
 java {
@@ -38,6 +38,8 @@ java {
 tasks.withType<org.gradle.api.tasks.compile.JavaCompile> {
     options.encoding = "UTF-8"
     options.compilerArgs.add("-parameters")
+    options.isDeprecation = true
+    options.compilerArgs.add("-Xlint:deprecation")
 }
 
 tasks.withType<Test> {

@@ -117,6 +117,11 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
         return doFindOne(new Conditions().add("name=?", name)) != null;
     }
 
+    public @Nullable String getLastNotebookName() {
+        List<@Nullable String> found = em.createQuery("select max(name) from Notebook", String.class).getResultList();
+        return found.isEmpty() ? null : found.getFirst();
+    }
+
     public UUID getProjectID(UUID notebookID) {
         return em.createQuery("select project.id from Notebook where id = ?1", UUID.class)
                 .setParameter(1, notebookID)

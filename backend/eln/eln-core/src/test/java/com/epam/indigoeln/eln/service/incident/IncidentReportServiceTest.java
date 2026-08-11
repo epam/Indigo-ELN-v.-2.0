@@ -2,20 +2,24 @@ package com.epam.indigoeln.eln.service.incident;
 
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.client.IncidentClient;
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
+import com.epam.indigoeln.eln.model.ExperimentRequest;
+import com.epam.indigoeln.eln.model.NotebookDetailsDTO;
+import com.epam.indigoeln.eln.model.ProjectDetailsDTO;
 import com.epam.indigoeln.test.FeignUtil;
-import com.epam.indigoeln.test.StorageClient;
 import com.fasterxml.jackson.databind.JsonNode;
 import feign.form.FormData;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Set;
 
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,13 +30,12 @@ class IncidentReportServiceTest extends ELNBaseTest {
 
     IncidentClient incidentClient;
 
-    static StorageClient storage = StorageClient.instance();
+    Set<String> existingFiles;
 
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp() {
         incidentClient = buildClient(IncidentClient.class);
-        storage.mkdir("incidents");
-        storage.clearDir("incidents");
+        existingFiles = Set.copyOf(testSupportClient.storageList("incidents"));
     }
 
     @Test
@@ -65,7 +68,7 @@ class IncidentReportServiceTest extends ELNBaseTest {
     @Test
     void testCreateReportWithExperimentSnapshot() throws IOException {
         ProjectDetailsDTO project = getOrCreateProject("IncidentReportServiceTest");
-        NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        NotebookDetailsDTO notebook = createNotebook(project.getId());
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         incidentClient.createIncidentReport(IncidentClient.ClientIncidentReportForm.builder()
                 .message("Experiment broke")
@@ -113,8 +116,9 @@ class IncidentReportServiceTest extends ELNBaseTest {
         String attachmentFilename = report.path("attachmentFilename").asText();
         assertThat(attachmentFilename).isNotBlank().endsWith("-screenshot.png");
 
-        byte[] bytes = storage.read(attachmentFilename);
-        assertThat(bytes).isEqualTo(screenshot);
+        try (Response response = testSupportClient.storageRead(attachmentFilename)) {
+            assertThat((byte[]) response.getEntity()).isEqualTo(screenshot);
+        }
     }
 
     @Test
@@ -131,12 +135,13 @@ class IncidentReportServiceTest extends ELNBaseTest {
         String attachmentFilename = report.path("attachmentFilename").asText();
         assertThat(attachmentFilename).isNotBlank().doesNotContain("..").endsWith("-evil.sh");
 
-        byte[] bytes = storage.read(attachmentFilename);
-        assertThat(bytes).isEqualTo(content);
+        try (Response response = testSupportClient.storageRead(attachmentFilename)) {
+            assertThat((byte[]) response.getEntity()).isEqualTo(content);
+        }
     }
 
     @Test
-    void testEachReportGetsUniqueFile() throws IOException {
+    void testEachReportGetsUniqueFile() {
         incidentClient.createIncidentReport(IncidentClient.ClientIncidentReportForm.builder().message("First report").build());
         incidentClient.createIncidentReport(IncidentClient.ClientIncidentReportForm.builder().message("Second report").build());
 
@@ -150,7 +155,8 @@ class IncidentReportServiceTest extends ELNBaseTest {
     }
 
     private List<String> findReportFiles() {
-        return storage.listFiles("incidents").stream()
+        return testSupportClient.storageList("incidents").stream()
+                .filter(f -> !existingFiles.contains(f))
                 .filter(f -> f.endsWith(".json"))
                 .toList();
     }
@@ -158,7 +164,8 @@ class IncidentReportServiceTest extends ELNBaseTest {
     private JsonNode findReport() throws IOException {
         List<String> files = findReportFiles();
         assertThat(files).hasSize(1);
-        byte[] bytes = storage.read(files.getFirst());
-        return FeignUtil.OBJECT_MAPPER.readTree(bytes);
+        try (Response response = testSupportClient.storageRead(files.getFirst())) {
+            return FeignUtil.OBJECT_MAPPER.readTree((byte[]) response.getEntity());
+        }
     }
 }

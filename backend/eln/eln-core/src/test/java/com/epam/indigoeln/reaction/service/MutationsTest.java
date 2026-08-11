@@ -17,10 +17,8 @@ import one.util.streamex.IntStreamEx;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 

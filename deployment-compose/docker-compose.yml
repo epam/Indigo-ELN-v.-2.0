@@ -20,7 +20,7 @@ services:
       QUARKUS_DATASOURCE_JDBC_URL: "jdbc:postgresql://postgres:5432/eln"
       QUARKUS_DATASOURCE_USERNAME: eln
       QUARKUS_DATASOURCE_PASSWORD: eln
-      ELN_API_SECRET: apiSecret
+      ELN_API_SECRET: secret
       QUARKUS_OIDC_AUTH_SERVER_URL: "http://keycloak:8080/realms/indigo-eln"
       QUARKUS_OIDC_CLIENT_ID: indigo-eln-client
       QUARKUS_OIDC_DISCOVERY_ENABLED: "false"
@@ -59,7 +59,7 @@ services:
       dockerfile: src/main/docker/Dockerfile.jvm
     environment:
       QUARKUS_PROFILE: ${QUARKUS_PROFILE}
-      ELN_API_SECRET: apiSecret
+      ELN_API_SECRET: secret
       QUARKUS_LOG_CONSOLE_JSON_ENABLED: false
       QUARKUS_LOG_CONSOLE_FORMAT: "[REPORTS] %d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
       QUARKUS_LOG_LEVEL: INFO # DEBUG
@@ -85,7 +85,7 @@ services:
       QUARKUS_DATASOURCE_JDBC_URL: "jdbc:postgresql://postgres:5432/signature"
       QUARKUS_DATASOURCE_USERNAME: signature
       QUARKUS_DATASOURCE_PASSWORD: signature
-      ELN_API_SECRET: apiSecret
+      ELN_API_SECRET: secret
       QUARKUS_OIDC_AUTH_SERVER_URL: "http://keycloak:8080/realms/indigo-eln"
       QUARKUS_OIDC_CLIENT_ID: indigo-eln-client
       QUARKUS_OIDC_DISCOVERY_ENABLED: "false"

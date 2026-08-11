@@ -73,6 +73,12 @@ public class NotebookService {
         return new NotebookExistenceCheckDTO(exists);
     }
 
+    public String getNextNotebookNumber() {
+        String last = notebookRepository.getLastNotebookName();
+        int nextNumber = last == null ? 1 : Integer.parseInt(last) + 1;
+        return "%08d".formatted(nextNumber);
+    }
+
     public NotebookDetailsDTO getNotebook(UUID notebookId) {
         NotebookEntity notebook = notebookRepository.load(notebookId);
         return getNotebookDetails(notebook);

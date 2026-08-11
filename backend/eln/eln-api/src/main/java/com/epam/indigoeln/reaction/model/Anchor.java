@@ -1,6 +1,5 @@
 package com.epam.indigoeln.reaction.model;
 
-import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +12,6 @@ import java.util.UUID;
 public abstract class Anchor {
 
     @Getter
-    @JsonValue
     private final UUID value;
 
     protected Anchor(String str) {
