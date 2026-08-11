@@ -11,14 +11,6 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 public interface TestSupportAPI extends BaseAPI {
 
-    @POST
-    @Path("/testsupport/storage/mkdir")
-    void storageMkdir(@QueryParam("path") String path);
-
-    @POST
-    @Path("/testsupport/storage/clearDir")
-    void storageClear(@QueryParam("path") String path);
-
     @GET
     @Path("/testsupport/storage/list")
     List<String> storageList(@QueryParam("path") String path);

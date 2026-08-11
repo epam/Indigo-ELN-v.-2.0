@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Set;
 
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,11 +30,12 @@ class IncidentReportServiceTest extends ELNBaseTest {
 
     IncidentClient incidentClient;
 
+    Set<String> existingFiles;
+
     @BeforeEach
     void setUp() {
         incidentClient = buildClient(IncidentClient.class);
-        testSupportClient.storageMkdir("incidents");
-        testSupportClient.storageClear("incidents");
+        existingFiles = Set.copyOf(testSupportClient.storageList("incidents"));
     }
 
     @Test
@@ -114,8 +116,9 @@ class IncidentReportServiceTest extends ELNBaseTest {
         String attachmentFilename = report.path("attachmentFilename").asText();
         assertThat(attachmentFilename).isNotBlank().endsWith("-screenshot.png");
 
-        Response response = testSupportClient.storageRead(attachmentFilename);
-        assertThat((byte[]) response.getEntity()).isEqualTo(screenshot);
+        try (Response response = testSupportClient.storageRead(attachmentFilename)) {
+            assertThat((byte[]) response.getEntity()).isEqualTo(screenshot);
+        }
     }
 
     @Test
@@ -132,8 +135,9 @@ class IncidentReportServiceTest extends ELNBaseTest {
         String attachmentFilename = report.path("attachmentFilename").asText();
         assertThat(attachmentFilename).isNotBlank().doesNotContain("..").endsWith("-evil.sh");
 
-        Response response = testSupportClient.storageRead(attachmentFilename);
-        assertThat((byte[]) response.getEntity()).isEqualTo(content);
+        try (Response response = testSupportClient.storageRead(attachmentFilename)) {
+            assertThat((byte[]) response.getEntity()).isEqualTo(content);
+        }
     }
 
     @Test
@@ -152,6 +156,7 @@ class IncidentReportServiceTest extends ELNBaseTest {
 
     private List<String> findReportFiles() {
         return testSupportClient.storageList("incidents").stream()
+                .filter(f -> !existingFiles.contains(f))
                 .filter(f -> f.endsWith(".json"))
                 .toList();
     }
@@ -159,7 +164,8 @@ class IncidentReportServiceTest extends ELNBaseTest {
     private JsonNode findReport() throws IOException {
         List<String> files = findReportFiles();
         assertThat(files).hasSize(1);
-        Response response = testSupportClient.storageRead(files.getFirst());
-        return FeignUtil.OBJECT_MAPPER.readTree((byte[]) response.getEntity());
+        try (Response response = testSupportClient.storageRead(files.getFirst())) {
+            return FeignUtil.OBJECT_MAPPER.readTree((byte[]) response.getEntity());
+        }
     }
 }

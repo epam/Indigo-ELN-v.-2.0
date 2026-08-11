@@ -21,18 +21,6 @@ public class TestSupportResource implements TestSupportAPI {
     FileStorage storage;
 
     @Override
-    public void storageMkdir(String path) {
-        validateInTests();
-        storage.mkdir(path);
-    }
-
-    @Override
-    public void storageClear(String path) {
-        validateInTests();
-        storage.clear(path);
-    }
-
-    @Override
     public List<String> storageList(String path) {
         validateInTests();
         return storage.list(path);

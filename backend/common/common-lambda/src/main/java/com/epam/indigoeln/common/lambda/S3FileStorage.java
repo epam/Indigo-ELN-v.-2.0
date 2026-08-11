@@ -26,29 +26,6 @@ public class S3FileStorage implements FileStorage {
     S3Client s3;
 
     @Override
-    public void mkdir(String key) {
-        // no op
-    }
-
-    @Override
-    public void clear(String key) {
-        log.warn("Clearing directory: {}", key);
-        List<String> list = list(key);
-        if (!list.isEmpty()) {
-            List<ObjectIdentifier> objects = list.stream().map(k -> ObjectIdentifier.builder().key(k).build()).toList();
-            DeleteObjectsResponse deleteResponse = s3.deleteObjects(DeleteObjectsRequest.builder()
-                    .bucket(bucket)
-                    .delete(Delete.builder().objects(objects).build())
-                    .build()
-            );
-            if (deleteResponse.hasErrors()) {
-                throw new RuntimeException("Failed to clear directory: " + deleteResponse.errors().stream().map(Object::toString).toList());
-            }
-            log.info("Cleared {} files from directory {}", deleteResponse.deleted().size(), bucket);
-        }
-    }
-
-    @Override
     public List<String> list(String key) {
         if (!key.endsWith("/")) {
             key += "/";

@@ -1,6 +1,5 @@
 package com.epam.indigoeln.common.storage;
 
-import com.google.common.io.MoreFiles;
 import io.quarkus.arc.DefaultBean;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -22,28 +21,6 @@ public class LocalFileStorage implements FileStorage {
             @ConfigProperty(name = "eln.storage.local.root", defaultValue = ".") String root
     ) {
         this.root = Path.of(root);
-    }
-
-    @Override
-    public void mkdir(String key) {
-        try {
-            Path path = root.resolve(key);
-            Files.createDirectories(path);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    @Override
-    public void clear(String key) {
-        try {
-            Path path = root.resolve(key);
-            if (Files.exists(path)) {
-                MoreFiles.deleteDirectoryContents(path);
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
     }
 
     @Override
