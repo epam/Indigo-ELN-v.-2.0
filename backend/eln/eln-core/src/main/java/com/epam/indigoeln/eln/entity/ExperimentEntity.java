@@ -77,7 +77,7 @@ import java.util.*;
         }
 )
 @DynamicUpdate
-public class ExperimentEntity extends BaseEntity implements WithAttachments, WithACL<ExperimentACLEntity, NotebookEntity>, WithRevision {
+public class ExperimentEntity extends BaseEntity implements WithAttachments<ExperimentAttachment>, WithACL<ExperimentACLEntity, NotebookEntity>, WithRevision {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)

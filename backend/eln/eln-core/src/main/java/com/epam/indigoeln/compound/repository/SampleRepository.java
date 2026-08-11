@@ -32,9 +32,6 @@ import static com.epam.indigoeln.common.util.ModelUtil.map;
 @ApplicationScoped
 public class SampleRepository extends BaseRepository<SampleEntity> {
 
-    private static final String LOWER_FUNCTION = "lower(";
-    private static final String ILIKE_FUNCTION = "ilike(";
-
     @Inject
     SampleMapper sampleMapper;
     @Inject

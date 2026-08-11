@@ -37,10 +37,7 @@ import static com.epam.indigoeln.common.util.ModelUtil.loadResourceAsStream;
 import static com.epam.indigoeln.eln.model.AccessLevel.*;
 import static com.epam.indigoeln.eln.test.ACLListAssert.assertThatACL;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.fail;
-import static org.assertj.core.api.Assertions.tuple;
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 
@@ -72,7 +69,7 @@ class PermissionsTest extends ELNBaseTest {
     );
 
     static {
-        rows = new BufferedReader(new InputStreamReader(loadResourceAsStream(PermissionsTest.class, "/com/epam/indigoeln/eln/service/permissions.csv")))
+        rows = new BufferedReader(new InputStreamReader(loadResourceAsStream("/com/epam/indigoeln/eln/service/permissions.csv")))
                 .lines()
                 .skip(1)
                 .map(line -> line.split(","))
@@ -161,27 +158,27 @@ class PermissionsTest extends ELNBaseTest {
 
     @Test
     void testCreateProjectRejected() {
-        assertAll(() -> assertThatClientCall(() -> projectClient.createProject(new ProjectRequest("testCreateProjectRejected")))
-                .isForbidden("Operation not permitted"));
+        assertThatClientCall(() -> projectClient.createProject(new ProjectRequest("testCreateProjectRejected")))
+                .isForbidden("Operation not permitted");
     }
 
     @Test
     void testCreateTemplateRejected() {
-        assertAll(() -> assertThatClientCall(() -> templateClient.createTemplate(new TemplateRequest("testCreateTemplateRejected", templateTabs)))
-                .isForbidden("Operation not permitted"));
+        assertThatClientCall(() -> templateClient.createTemplate(new TemplateRequest("testCreateTemplateRejected", templateTabs)))
+                .isForbidden("Operation not permitted");
     }
 
     @Test
     void testEditTemplateRejected() {
-        assertAll(() -> assertThatClientCall(() -> templateClient.editTemplate(template.getId(), new TemplateEditRequest()))
-                .isForbidden("Operation not permitted"));
+        assertThatClientCall(() -> templateClient.editTemplate(template.getId(), new TemplateEditRequest()))
+                .isForbidden("Operation not permitted");
     }
 
     @Test
     @TestSecurity(user = LISA_USERNAME)
     void testEditTemplateAllowed() {
-        assertAll(() -> assertThatClientCall(() -> templateClient.editTemplate(template.getId(), new TemplateEditRequest()))
-                .isSuccessful());
+        assertThatClientCall(() -> templateClient.editTemplate(template.getId(), new TemplateEditRequest()))
+                .isSuccessful();
     }
 
     @Test
@@ -583,15 +580,15 @@ class PermissionsTest extends ELNBaseTest {
         @Test
         @Order(101)
         void testCannotAssignAuthorPermission() {
-            assertAll(() -> assertThatClientCall(() -> projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, AUTHOR)))
-                    .isBadRequest("Cannot assign AUTHOR permission to anyone else"));
+            assertThatClientCall(() -> projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, AUTHOR)))
+                    .isBadRequest("Cannot assign AUTHOR permission to anyone else");
         }
 
         @Test
         @Order(101)
         void testCannotRemoveAuthorPermission() {
-            assertAll(() -> assertThatClientCall(() -> projectClient.updateProjectAccess(project.getId(), AccessForm.of(JOHN_USERNAME, VIEW)))
-                    .isBadRequest("AUTHOR permission cannot be removed"));
+            assertThatClientCall(() -> projectClient.updateProjectAccess(project.getId(), AccessForm.of(JOHN_USERNAME, VIEW)))
+                    .isBadRequest("AUTHOR permission cannot be removed");
         }
 
         @Test

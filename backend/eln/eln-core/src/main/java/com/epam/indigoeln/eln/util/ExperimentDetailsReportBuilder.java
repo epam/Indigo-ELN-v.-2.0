@@ -43,7 +43,7 @@ public class ExperimentDetailsReportBuilder {
     JSONPatcher jsonPatcher;
 
     static {
-        REPORT_HTML = ModelUtil.loadResourceAsString(ExperimentDetailsReportBuilder.class, "/experiment-details-report.html").split("%JSON_DATA%", 2);
+        REPORT_HTML = ModelUtil.loadResourceAsString("/experiment-details-report.html").split("%JSON_DATA%", 2);
     }
 
     @SneakyThrows

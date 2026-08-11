@@ -43,7 +43,7 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
 
     @BeforeAll
     void setUpClass() {
-        miscClient.loadCompoundsFromFileClient("compounds.sdf", loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"));
+        miscClient.loadCompoundsFromFileClient("compounds.sdf", loadResource("/Compound_000000001_000500000.1.sdf"));
         withUser(JOHN_USERNAME, () -> initExperiment("ExperimentModelServiceTest"));
     }
 

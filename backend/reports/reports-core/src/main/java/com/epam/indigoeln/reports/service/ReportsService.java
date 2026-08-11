@@ -44,7 +44,7 @@ public class ReportsService {
     ) throws JRException {
         this.readOnlyStreamingService = readOnlyStreamingService;
         this.jasperReport = (JasperReport) JRLoader.loadObject(ReportsService.class.getResourceAsStream("/reports/ExperimentReport.jasper"));
-        this.logoImage = ModelUtil.loadResource(ReportsService.class, "/reports/logo_new_blue.png");
+        this.logoImage = ModelUtil.loadResource("/reports/logo_new_blue.png");
         this.dateTimeFormatter = DateTimeFormatter
                 .ofPattern("MMM d, u HH:mm:ss VV", Locale.ENGLISH)
                 .withZone(ZoneId.of(timezone));

@@ -69,21 +69,21 @@ public class ModelUtil {
     }
 
     @SneakyThrows
-    public byte[] loadResource(Class<?> klass, String resourceName) {
-        try (InputStream is = loadResourceAsStream(klass, resourceName)) {
+    public byte[] loadResource(String resourceName) {
+        try (InputStream is = loadResourceAsStream(resourceName)) {
             return is.readAllBytes();
         }
     }
 
     @SneakyThrows
-    public String loadResourceAsString(Class<?> klass, String resourceName) {
-        try (InputStream is = loadResourceAsStream(klass, resourceName)) {
+    public String loadResourceAsString(String resourceName) {
+        try (InputStream is = loadResourceAsStream(resourceName)) {
             return new String(is.readAllBytes(), StandardCharsets.UTF_8);
         }
     }
 
     @SneakyThrows
-    public InputStream loadResourceAsStream(Class<?> klass, String resourceName) {
+    public InputStream loadResourceAsStream(String resourceName) {
         InputStream is = ModelUtil.class.getResourceAsStream(resourceName);
         if (is == null) {
             throw new IllegalArgumentException("Resource not found: " + resourceName);
@@ -153,6 +153,7 @@ public class ModelUtil {
         return file;
     }
 
+    @Nullable
     private static Path privateBaseDirectory;
 
     private static synchronized Path getPrivateBaseDirectory() throws IOException {

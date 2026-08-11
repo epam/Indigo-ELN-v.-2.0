@@ -39,7 +39,6 @@ import static com.epam.indigoeln.reaction.model.units.WeightUnit.G;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
-import static org.junit.jupiter.api.Assertions.assertAll;
 
 @QuarkusTest
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
@@ -74,7 +73,7 @@ public class MutationsTest extends MutationsTestBase {
 
     @BeforeAll
     void beforeAll(@TempDir Path tempDir) {
-        miscClient.loadCompoundsFromFileClient("compounds.sdf", loadResource(getClass(), COMPOUND_SDF));
+        miscClient.loadCompoundsFromFileClient("compounds.sdf", loadResource(COMPOUND_SDF));
         saltCode = dictionaryClient.getNth(BuiltInDictionary.SALT_CODE, 1);
         stereoisomerCode = dictionaryClient.<StereoisomerCodeRef>getDictionary(BuiltInDictionary.STEREOISOMER_CODE).get(1);
     }
@@ -109,12 +108,12 @@ public class MutationsTest extends MutationsTestBase {
 
     @Test
     void testIncorrectAnchor() {
-        assertAll(() -> assertThatClientCall(() -> experimentClient.mutateExperimentModel4Raw(experiment.id(), 1, "{\"type\": \"AddEmptyInput\", \"anchor\": \"invalid\"}")).isBadRequest("Cannot construct instance of `com.epam.indigoeln.reaction.model.ReactionAnchor"));
+        assertThatClientCall(() -> experimentClient.mutateExperimentModel4Raw(experiment.id(), 1, "{\"type\": \"AddEmptyInput\", \"anchor\": \"invalid\"}")).isBadRequest("Cannot construct instance of `com.epam.indigoeln.reaction.model.ReactionAnchor");
     }
 
     @Test
     void testUnknownField() {
-        assertAll(() -> assertThatClientCall(() -> experimentClient.mutateExperimentModel4Raw(experiment.id(), 1, "{\"type\": \"AddEmptyInput\", \"anchor\": \"00000000-0000-0000-0000-000000000001\", \"unknownField\": 123}")).isBadRequest("Unrecognized field \"unknownField\""));
+        assertThatClientCall(() -> experimentClient.mutateExperimentModel4Raw(experiment.id(), 1, "{\"type\": \"AddEmptyInput\", \"anchor\": \"00000000-0000-0000-0000-000000000001\", \"unknownField\": 123}")).isBadRequest("Unrecognized field \"unknownField\"");
     }
 
     @Test
@@ -671,7 +670,7 @@ public class MutationsTest extends MutationsTestBase {
         experiment.mutateAddProductSample(1);
         assertThat(experiment.output(2).isIntended()).isTrue();
         OutputSampleAnchor anchor = experiment.outputSample(1, 1).getAnchor();
-        String molfile = new String(ModelUtil.loadResource(getClass(), UPDATED_MOLFILE));
+        String molfile = new String(ModelUtil.loadResource(UPDATED_MOLFILE));
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputMolfile(anchor, molfile), false);
         assertThat(experiment.output(3).isIntended()).isFalse();
         assertThat(experiment.output(3).getSamples()).singleElement().satisfies(s -> assertThat(s.getAnchor()).isEqualTo(anchor));
@@ -701,12 +700,12 @@ public class MutationsTest extends MutationsTestBase {
 
     @Test
     void testCannotHaveDuplicateMoleculesInScheme() {
-        assertAll(() -> assertThatClientCall(() -> experiment.mutateSetSchemeFromResource(DUPLICATE_INPUT_RXN)).isBadRequest("Reaction contains duplicate input compounds"));
+        assertThatClientCall(() -> experiment.mutateSetSchemeFromResource(DUPLICATE_INPUT_RXN)).isBadRequest("Reaction contains duplicate input compounds");
     }
 
     @Test
     void testImportSDF() {
-        experimentClient.importSDF(experiment.id(), experiment.reaction().getAnchor(), ClientUtil.createFileUpload("file.sdf", loadResource(getClass(), COMPOUND_SDF)));
+        experimentClient.importSDF(experiment.id(), experiment.reaction().getAnchor(), ClientUtil.createFileUpload("file.sdf", loadResource(COMPOUND_SDF)));
         experiment.invalidate();
         assertThat(experiment.reaction().getOutputs()).isNotEmpty();
         assertThat(experiment.output(1).getCompound()).isInstanceOf(CompoundRef.Virtual.class);
@@ -715,7 +714,7 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testAddSampleAndMakeItIntended() {
         experiment.mutate(new ReactionMutation.AddNoProductSample(experiment.reaction().getAnchor()));
-        experiment.mutate(new ReactionOutputSampleMutation.SetOutputMolfile(experiment.outputSample(1, 1).getAnchor(), ModelUtil.loadResourceAsString(getClass(), RING_SUBSTRUCTURE_MOL)));
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputMolfile(experiment.outputSample(1, 1).getAnchor(), ModelUtil.loadResourceAsString(RING_SUBSTRUCTURE_MOL)));
         experiment.mutate(new ReactionOutputMutation.SetOutputRowIntended(experiment.output(1).getAnchor(), true));
         assertThat(experiment.output(1).isIntended()).isTrue();
         assertThat(experiment.output(1).getSamples()).hasSize(1);

@@ -35,8 +35,8 @@ public class SignatureApplier {
 
     @SneakyThrows
     SignatureApplier() {
-        signatureApprovedImage = ModelUtil.loadResource(getClass(), "/approved.jpg");
-        signatureRejectedImage = ModelUtil.loadResource(getClass(), "/rejected.jpg");
+        signatureApprovedImage = ModelUtil.loadResource("/approved.jpg");
+        signatureRejectedImage = ModelUtil.loadResource("/rejected.jpg");
     }
 
     public byte[] signDocument(byte[] documentContent, DocumentSignatureEntity signatureBlockEntity, int signatureIndex, byte[] keyStorage, String keyStoragePassword) throws Exception {

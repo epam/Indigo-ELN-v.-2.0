@@ -65,6 +65,6 @@ class UserServiceTest extends ELNBaseTest {
         List<UserRef> all = userClient.suggestUsers(null);
         byte[] response = userClient.getUserPicture(all.getFirst().getUsername(), null);
         Files.write(Paths.get("build/user.png"), response);
-        assertThat(response).isEqualTo(loadResource(UserService.class, "/user-default-picture-small.png"));
+        assertThat(response).isEqualTo(loadResource("/user-default-picture-small.png"));
     }
 }

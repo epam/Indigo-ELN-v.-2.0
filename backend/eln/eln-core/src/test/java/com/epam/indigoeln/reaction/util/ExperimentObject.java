@@ -120,7 +120,7 @@ public class ExperimentObject {
     }
 
     public void mutateSetSchemeFromResource(String resourceName) {
-        String rxnfile = ModelUtil.loadResourceAsString(getClass(), resourceName);
+        String rxnfile = ModelUtil.loadResourceAsString(resourceName);
         mutate(new ReactionMutation.SetScheme(reaction().getAnchor(), rxnfile));
     }
 

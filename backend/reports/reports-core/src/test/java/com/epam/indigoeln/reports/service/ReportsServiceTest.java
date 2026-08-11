@@ -35,7 +35,7 @@ public class ReportsServiceTest extends BaseTest {
     @SuppressWarnings("unused")
     public static List<ReportsAPI.ExperimentReportDataDTO> fillExperimentDataForJasperReportsStudio() {
         return List.of(
-                OBJECT_MAPPER.readValue(ModelUtil.loadResource(ReportsServiceTest.class, "/experiment-input.json"), ReportsAPI.ExperimentReportDataDTO.class)
+                OBJECT_MAPPER.readValue(ModelUtil.loadResource("/experiment-input.json"), ReportsAPI.ExperimentReportDataDTO.class)
         );
     }
 

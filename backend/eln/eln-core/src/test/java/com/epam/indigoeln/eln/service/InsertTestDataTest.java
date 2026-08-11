@@ -141,7 +141,7 @@ class InsertTestDataTest {
     @Test
     @Order(4)
     void loadCompounds() {
-        miscClient.loadCompoundsFromFileClient("compounds.sdf", loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"));
+        miscClient.loadCompoundsFromFileClient("compounds.sdf", loadResource("/Compound_000000001_000500000.1.sdf"));
 
         SampleSearchResult samples = compoundClient.search(new FindSamplesRequest().withCatalogs(Set.of(ELN)), DEFAULT_PAGE_SIZE);
         assertThat(samples.items()).isNotEmpty();

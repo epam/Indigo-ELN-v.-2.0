@@ -61,7 +61,7 @@ public class SignatureService {
 
     @SneakyThrows
     SignatureService(/*@ConfigProperty(name = "eln.signature.keystore.path") String keyStorePath, */@ConfigProperty(name = "eln.signature.keystore.password") String keyStorePassword) {
-        this.keyStore = ModelUtil.loadResource(getClass(), "/keystore.p12");
+        this.keyStore = ModelUtil.loadResource("/keystore.p12");
         this.keyStorePassword = keyStorePassword;
     }
 

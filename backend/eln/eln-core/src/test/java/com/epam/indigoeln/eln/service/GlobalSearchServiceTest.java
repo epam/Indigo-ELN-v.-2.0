@@ -148,7 +148,7 @@ class GlobalSearchServiceTest extends ELNBaseTest {
 
     @Test
     void testFindByMoleculeSubstructure() {
-        String molFile = loadResourceAsString(getClass(), "/ring-substructure.mol");
+        String molFile = loadResourceAsString("/ring-substructure.mol");
         Page<GlobalSearchResultDTO> results = globalSearchClient.search(
                 new GlobalSearchRequest().withMoleculeStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, molFile)),
                 Paging.DEFAULT
@@ -159,7 +159,7 @@ class GlobalSearchServiceTest extends ELNBaseTest {
 
     @Test
     void testFindByMoleculeSubstructureAndRole() {
-        String molFile = loadResourceAsString(getClass(), "/ring-substructure.mol");
+        String molFile = loadResourceAsString("/ring-substructure.mol");
         Page<GlobalSearchResultDTO> results = globalSearchClient.search(
                 new GlobalSearchRequest().withMoleculeStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, molFile)).withReactionRole(ReactionRole.REACTANT),
                 Paging.DEFAULT
@@ -170,7 +170,7 @@ class GlobalSearchServiceTest extends ELNBaseTest {
 
     @Test
     void testFindByMoleculeSubstructureAndRoleNotFound() {
-        String molFile = loadResourceAsString(getClass(), "/ring-substructure.mol");
+        String molFile = loadResourceAsString("/ring-substructure.mol");
         Page<GlobalSearchResultDTO> results = globalSearchClient.search(
                 new GlobalSearchRequest().withMoleculeStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, molFile)).withReactionRole(ReactionRole.SOLVENT),
                 Paging.DEFAULT
@@ -182,7 +182,7 @@ class GlobalSearchServiceTest extends ELNBaseTest {
 
     @Test
     void testFindByReactionSubstructure() {
-        String rxnFile = loadResourceAsString(getClass(), "/reaction-substructure.rxn");
+        String rxnFile = loadResourceAsString("/reaction-substructure.rxn");
         Page<GlobalSearchResultDTO> results = globalSearchClient.search(
                 new GlobalSearchRequest().withReactionStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, rxnFile)),
                 Paging.DEFAULT
@@ -225,7 +225,7 @@ class GlobalSearchServiceTest extends ELNBaseTest {
 
     @Test
     void testFindByAllAttributes() {
-        String molFile = loadResourceAsString(getClass(), "/ring-substructure.mol");
+        String molFile = loadResourceAsString("/ring-substructure.mol");
         Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest()
                 .withQuery("xx")
                 .withTherapeuticArea(therapeuticArea2)

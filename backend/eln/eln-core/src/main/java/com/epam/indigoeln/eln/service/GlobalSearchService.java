@@ -79,13 +79,13 @@ public class GlobalSearchService {
             experimentJoins.add("join Compound c on c.id = erc.compound_id");
             switch (request.getMoleculeStructure().type()) {
                 case EXACT -> {
-                    experimentConditions.add("c.mol_file @ (:" + MOLFILE + ", '')::bingo.exact", MOLFILE, request.getMoleculeStructure().query());
+                    experimentConditions.add("c.mol_file @ (:molfile, '')::bingo.exact", MOLFILE, request.getMoleculeStructure().query());
                 }
                 case SUBSTRUCTURE -> {
-                    experimentConditions.add("c.mol_file @ (:" + MOLFILE + ", '')::bingo.sub", MOLFILE, request.getMoleculeStructure().query());
+                    experimentConditions.add("c.mol_file @ (:molfile, '')::bingo.sub", MOLFILE, request.getMoleculeStructure().query());
                 }
                 case SIMILARITY -> {
-                    experimentConditions.add("c.mol_file @ (0.8, null, :" + MOLFILE + ", 'Tanimoto')::bingo.sim", MOLFILE, request.getMoleculeStructure().query());
+                    experimentConditions.add("c.mol_file @ (0.8, null, :molfile, 'Tanimoto')::bingo.sim", MOLFILE, request.getMoleculeStructure().query());
                 }
             }
             if (request.getReactionRole() != null) {
@@ -132,11 +132,11 @@ public class GlobalSearchService {
 
         String fragmentSelector = "left(t.description, 120)";
         if (request.getQuery() != null) {
-            String condition = "search_vector @@ websearch_to_tsquery('english', :" + QUERY + ")";
+            String condition = "search_vector @@ websearch_to_tsquery('english', :query)";
             projectConditions.add(condition, QUERY, request.getQuery());
             notebookConditions.add(condition, QUERY, request.getQuery());
             experimentConditions.add(condition, QUERY, request.getQuery());
-            fragmentSelector = "ts_headline('english', t.description, websearch_to_tsquery('english', :" + QUERY + "), 'StartSel=<mark>,StopSel=</mark>')";
+            fragmentSelector = "ts_headline('english', t.description, websearch_to_tsquery('english', :query), 'StartSel=<mark>,StopSel=</mark>')";
         }
         StringBuilder sql = new StringBuilder();
         sql.append("WITH t AS (\n");
