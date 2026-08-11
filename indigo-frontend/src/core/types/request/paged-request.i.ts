@@ -10,3 +10,9 @@ export interface SortOption {
   value: string;
   defaultOrder?: 'EARLIEST' | 'LATEST';
 }
+
+export interface FilterOption {
+  label: string;
+  value: string;
+  checked: boolean;
+}

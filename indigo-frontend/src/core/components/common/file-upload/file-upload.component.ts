@@ -17,7 +17,7 @@ export class FileUploadComponent implements OnInit {
   @Input() uploadingFile = false;
   @Input() disabled = false;
   @Input() withPreview = true;
-  @Input() loadingText = 'Uploading...';
+  // `loadingText` was removed in favor of a fixed label to keep API surface smaller
   mimeTypes: string[] = [];
   acceptedExtensions = '';
   @Output() filesSelected = new EventEmitter<File[]>();

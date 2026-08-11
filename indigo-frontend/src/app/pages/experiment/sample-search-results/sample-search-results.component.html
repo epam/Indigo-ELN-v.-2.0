@@ -39,12 +39,15 @@
         }
       </ng-template>
       <ng-template elnColumnDef="add" displayName="" let-element>
-        <button
-          class="ml-2 px-4 py-2 bg-[#f3f3f3] text-black rounded-[5px] cursor-pointer"
+        <eln-button
+          variant="grey"
+          classList="ml-2 min-w-[42px]"
+          [disabled]="isAddingToExperiment"
+          [loading]="isRowLoading(element)"
           (click)="addToExperiment.emit(element)"
         >
           <mat-icon matTooltip="Add to current experiment" class="text-[#3f50b5]">add </mat-icon>
-        </button>
+        </eln-button>
       </ng-template>
 
       <ng-template #details let-element>

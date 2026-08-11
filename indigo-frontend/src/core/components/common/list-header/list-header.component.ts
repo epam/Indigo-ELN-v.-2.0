@@ -9,6 +9,8 @@ import { DropdownMenuComponent } from '../dropdown-menu/dropdown-menu.component'
 import { DropdownMenuItem } from '../dropdown-menu/dropdown-menu.i';
 import { InputComponent } from '../input/input.component';
 import { ToggleComponent } from '../toggle/toggle.component';
+import { CheckboxDropdownComponent } from '../checkbox-dropdown/checkbox-dropdown.component';
+import { CheckboxDropdownItem } from '../checkbox-dropdown/checkbox-dropdown.i';
 
 export interface SortChangeEvent {
   sortBy: string;
@@ -27,12 +29,13 @@ export interface SortChangeEvent {
   imports: [
     CommonModule,
     FormsModule,
-    ButtonToggleComponent,
     MatSlideToggleModule,
+    ReactiveFormsModule,
+    ButtonToggleComponent,
     ToggleComponent,
     InputComponent,
     DropdownMenuComponent,
-    ReactiveFormsModule,
+    CheckboxDropdownComponent,
   ],
 })
 export class ListHeaderComponent implements OnInit, OnChanges, OnDestroy {
@@ -45,12 +48,16 @@ export class ListHeaderComponent implements OnInit, OnChanges, OnDestroy {
   @Input() enableSearch = true;
   @Input() enableSort = true;
   @Input() myEntitiesOnly = false;
+  @Input() enableFilter = false;
+  @Input() filterOptions: CheckboxDropdownItem[] = [];
+  @Input() checkboxDropdownPlaceholder = 'Filter by';
 
   sortControl = new FormControl('');
   @Output() sortChange = new EventEmitter<SortChangeEvent>();
   @Output() viewChange = new EventEmitter<string>();
   @Output() searchChange = new EventEmitter<string>();
   @Output() myEntitiesOnlyChange = new EventEmitter<boolean>();
+  @Output() filterChange = new EventEmitter<CheckboxDropdownItem[]>();
 
   selectedView: 'grid' | 'list' = 'grid';
   searchModel = '';
@@ -125,5 +132,10 @@ export class ListHeaderComponent implements OnInit, OnChanges, OnDestroy {
   onMyEntitiesOnlyChanged(newValue: boolean) {
     this.myEntitiesOnly = newValue;
     this.myEntitiesOnlyChange.emit(this.myEntitiesOnly);
+  }
+
+  onFilterChange(items: CheckboxDropdownItem[]) {
+    this.filterOptions = items.map((item) => ({ ...item }));
+    this.filterChange.emit(items);
   }
 }
