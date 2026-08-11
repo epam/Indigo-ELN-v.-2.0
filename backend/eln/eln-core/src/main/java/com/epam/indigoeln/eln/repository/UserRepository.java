@@ -4,17 +4,20 @@ import com.epam.indigoeln.common.exception.EntityNotFoundException;
 import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.UserRef;
+import com.epam.indigoeln.eln.common.entity.IdentifiableEntity_;
 import com.epam.indigoeln.eln.common.repository.BaseRepository;
-import com.epam.indigoeln.eln.common.util.Conditions;
 import com.epam.indigoeln.eln.entity.UserEntity;
+import com.epam.indigoeln.eln.entity.UserEntity_;
 import com.epam.indigoeln.eln.entity.UserInfo;
 import com.epam.indigoeln.eln.mapper.UserMapper;
 import com.epam.indigoeln.eln.model.ELNEntityType;
 import com.epam.indigoeln.eln.model.UserDTO;
-import io.quarkus.panache.common.Sort;
 import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.Tuple;
+import org.hibernate.query.criteria.CriteriaDefinition;
+import org.hibernate.query.criteria.JpaRoot;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,8 +26,6 @@ import static com.epam.indigoeln.common.util.ModelUtil.map;
 
 @ApplicationScoped
 public class UserRepository extends BaseRepository<UserEntity> {
-
-    protected static final Sort USER_SORT = Sort.by("displayName");
 
     @Inject
     UserMapper userMapper;
@@ -35,34 +36,51 @@ public class UserRepository extends BaseRepository<UserEntity> {
 
     @Nullable
     public UserInfo findByUsername(String username) {
-        return map(doFindOne(new Conditions().add("username=?", username), em.getEntityGraph("User.info")), userMapper::convertUserInfo);
+        CriteriaDefinition<UserEntity> criteria = new CriteriaDefinition<>(em, UserEntity.class) {{
+            JpaRoot<UserEntity> root = from(UserEntity.class);
+            select(root);
+            where(root.get(UserEntity_.username).equalTo(username));
+        }};
+        return map(doFindOne(criteria, em.getEntityGraph("User.info")), userMapper::convertUserInfo);
     }
 
     @Nullable
     public UserInfo findByID(UUID id) {
-        return map(doFindOne(new Conditions().add("id=?", id), em.getEntityGraph("User.info")), userMapper::convertUserInfo);
+        CriteriaDefinition<UserEntity> criteria = new CriteriaDefinition<>(em, UserEntity.class) {{
+            JpaRoot<UserEntity> root = from(UserEntity.class);
+            select(root);
+            where(root.get(IdentifiableEntity_.id).equalTo(id));
+        }};
+        return map(doFindOne(criteria, em.getEntityGraph("User.info")), userMapper::convertUserInfo);
     }
 
     public List<UserRef> suggest(@Nullable String search) {
-        Conditions conditions = new Conditions();
-        if (search != null) {
-            String searchQuery = search.toLowerCase() + '%';
-            conditions.add("displayName ilike ? or firstName ilike ? or lastName ilike ? or username ilike ?", searchQuery, searchQuery, searchQuery, searchQuery);
-        }
+        CriteriaDefinition<UserEntity> criteria = new CriteriaDefinition<>(em, UserEntity.class) {{
+            JpaRoot<UserEntity> root = from(UserEntity.class);
+            select(root);
+            if (search != null) {
+                String searchQuery = search.toLowerCase() + '%';
+                where(or(
+                        ilike(root.get(UserEntity_.displayName), searchQuery),
+                        ilike(root.get(UserEntity_.firstName), searchQuery),
+                        ilike(root.get(UserEntity_.lastName), searchQuery),
+                        ilike(root.get(UserEntity_.username), searchQuery)
+                ));
+            }
+            orderBy(asc(root.get(UserEntity_.displayName)));
+        }};
 
-        List<UserEntity> list = doFind(
-                conditions,
-                Paging.DEFAULT,
-                USER_SORT
-        );
+        List<UserEntity> list = doFind(criteria, Paging.DEFAULT, null);
         return map(list, UserEntity::toInfo);
     }
 
     public UserDTO load(String username) {
-        UserEntity user = doFindOne(
-                new Conditions().add("username=?", username),
-                em.getEntityGraph("User.details")
-        );
+        CriteriaDefinition<UserEntity> criteria = new CriteriaDefinition<>(em, UserEntity.class) {{
+            JpaRoot<UserEntity> root = from(UserEntity.class);
+            select(root);
+            where(root.get(UserEntity_.username).equalTo(username));
+        }};
+        UserEntity user = doFindOne(criteria, em.getEntityGraph("User.details"));
         if (user == null) {
             throw new EntityNotFoundException(ELNEntityType.USER, username);
         }
@@ -70,16 +88,21 @@ public class UserRepository extends BaseRepository<UserEntity> {
     }
 
     public Page<UserDTO> findAll(@Nullable String search, Paging paging) {
-        Conditions conditions = new Conditions();
-        if (search != null) {
-            String searchQuery = search + '%';
-            conditions.add("firstName ilike ? or lastName ilike ? or displayName ilike ? or username ilike ?", searchQuery, searchQuery, searchQuery, searchQuery);
-        }
-        Page<UserEntity> page = doFindWithTotals(
-                conditions,
-                paging,
-                DEFAULT_SORT
-        );
+        CriteriaDefinition<Tuple> criteria = new CriteriaDefinition<>(em, Tuple.class) {{
+            JpaRoot<UserEntity> root = from(UserEntity.class);
+            select(tuple(root.id(), count(literal(1), createWindow())));
+            if (search != null) {
+                String searchQuery = search + '%';
+                where(or(
+                        ilike(root.get(UserEntity_.firstName), searchQuery),
+                        ilike(root.get(UserEntity_.lastName), searchQuery),
+                        ilike(root.get(UserEntity_.displayName), searchQuery),
+                        ilike(root.get(UserEntity_.username), searchQuery)
+                ));
+            }
+            orderBy(desc(root.get(UserEntity_.modifiedAt)));
+        }};
+        Page<UserEntity> page = doFindWithTotals(criteria, paging, null);
 
         return map(page, userMapper::entityToDTO);
     }

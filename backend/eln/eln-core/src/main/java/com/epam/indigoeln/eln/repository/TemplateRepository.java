@@ -4,7 +4,6 @@ import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.common.repository.BaseRepository;
-import com.epam.indigoeln.eln.common.util.Conditions;
 import com.epam.indigoeln.eln.entity.TemplateEntity;
 import com.epam.indigoeln.eln.entity.TemplateEntity_;
 import com.epam.indigoeln.eln.entity.UserEntity;
@@ -75,10 +74,12 @@ public class TemplateRepository extends BaseRepository<TemplateEntity> {
     }
 
     public TemplateDetailsDTO findByName(String name) {
-        TemplateEntity template = doFindOne(
-                new Conditions().add("lower(name) = ?", name.toLowerCase()),
-                em.getEntityGraph("Template.details")
-        );
+        CriteriaDefinition<TemplateEntity> criteria = new CriteriaDefinition<>(em, TemplateEntity.class) {{
+            JpaRoot<TemplateEntity> root = from(TemplateEntity.class);
+            select(root);
+            where(lower(root.get(TemplateEntity_.name)).equalTo(name.toLowerCase()));
+        }};
+        TemplateEntity template = doFindOne(criteria, em.getEntityGraph("Template.details"));
         if (template == null) {
             throw new NotFoundException("Template not found");
         }

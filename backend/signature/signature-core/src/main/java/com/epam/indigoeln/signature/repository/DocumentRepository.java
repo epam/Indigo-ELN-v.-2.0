@@ -4,17 +4,21 @@ import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.common.repository.BaseRepository;
-import com.epam.indigoeln.eln.common.util.Conditions;
-import com.epam.indigoeln.signature.entity.DocumentEntity;
-import com.epam.indigoeln.signature.entity.SignatureEntityType;
-import com.epam.indigoeln.signature.entity.UserEntity;
+import com.epam.indigoeln.signature.entity.*;
 import com.epam.indigoeln.signature.mapper.SignatureMapper;
 import com.epam.indigoeln.signature.model.DocumentDTO;
 import com.google.common.base.MoreObjects;
-import io.quarkus.panache.common.Sort;
 import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Subquery;
+import org.hibernate.query.criteria.CriteriaDefinition;
+import org.hibernate.query.criteria.JpaRoot;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.epam.indigoeln.common.util.ModelUtil.map;
 
@@ -29,22 +33,31 @@ public class DocumentRepository extends BaseRepository<DocumentEntity> {
     }
 
     public Page<DocumentDTO> findAll(@Nullable String search, @Nullable SortOrder sort, @Nullable UserEntity waitingForUserSignature, Paging paging) {
-        Sort panacheSort = switch (MoreObjects.firstNonNull(sort, SortOrder.LATEST)) {
-            case EARLIEST -> Sort.ascending("lastModifiedDate");
-            case LATEST -> Sort.descending("lastModifiedDate");
-        };
+        CriteriaDefinition<Tuple> criteria = new CriteriaDefinition<>(em, Tuple.class) {{
+            JpaRoot<DocumentEntity> root = from(DocumentEntity.class);
+            select(tuple(root.id(), count(literal(1), createWindow())));
 
-        Conditions conditions = new Conditions()
-                .addIfNotNull("element(signatures).user = ?", waitingForUserSignature);
-        if (search != null) {
-            conditions.add("(name ilike ?)", '%' + search + '%');
-        }
+            List<Predicate> predicates = new ArrayList<>();
+            if (waitingForUserSignature != null) {
+                Subquery<Integer> signatureExists = subquery(Integer.class);
+                var sigRoot = signatureExists.from(DocumentSignatureEntity.class);
+                signatureExists.select(literal(1));
+                signatureExists.where(equal(sigRoot.get(DocumentSignatureEntity_.document), root),
+                        equal(sigRoot.get(DocumentSignatureEntity_.user), waitingForUserSignature));
+                predicates.add(exists(signatureExists));
+            }
+            if (search != null) {
+                predicates.add(ilike(root.get(DocumentEntity_.name), '%' + search + '%'));
+            }
+            where(predicates);
 
-        Page<DocumentEntity> page = doFindWithTotals(
-                conditions,
-                paging,
-                panacheSort
-        );
+            orderBy(switch (MoreObjects.firstNonNull(sort, SortOrder.LATEST)) {
+                case EARLIEST -> asc(root.get(DocumentEntity_.lastModifiedDate));
+                case LATEST -> desc(root.get(DocumentEntity_.lastModifiedDate));
+            });
+        }};
+
+        Page<DocumentEntity> page = doFindWithTotals(criteria, paging, null);
 
         return map(page, signatureMapper::entityToDocument);
     }
