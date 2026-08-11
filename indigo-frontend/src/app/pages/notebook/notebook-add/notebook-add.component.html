@@ -4,16 +4,9 @@
   [model]="model"
   size="auto"
   containerClass="w-[800px]"
-  (formSubmit)="createNotebook($event)"
+  [contentLoading]="loading"
+  [contentError]="loadError"
+  [submitFn]="createNotebookFn"
   [toastMessages]="{ uniqueName: uniqueNameToastMessage }"
   submitButtonText="Save"
-  [hideSubmitButton]="loading"
->
-  @if (loading) {
-    <ng-template #modalContent>
-      <div class="flex items-center justify-center p-8">
-        <mat-spinner diameter="40" />
-      </div>
-    </ng-template>
-  }
-</eln-form-dialog>
+></eln-form-dialog>

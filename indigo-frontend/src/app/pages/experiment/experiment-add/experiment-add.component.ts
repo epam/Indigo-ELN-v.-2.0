@@ -6,13 +6,12 @@ import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { NotificationService } from '@core/services/notification/notification.service';
 import { ExperimentDetail } from '@core/types/entities/experiments/experiment-detail.i';
 import { NotificationType } from '@core/types/notification.i';
 import { FormlyFieldConfig } from '@ngx-formly/core';
-import { finalize, map } from 'rxjs/operators';
+import { finalize, map, tap } from 'rxjs/operators';
 
 interface ExperimentForm {
   templateId: string;
@@ -21,14 +20,7 @@ interface ExperimentForm {
 @Component({
   standalone: true,
   selector: 'app-experiment-add',
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatInputModule,
-    FormDialogComponent,
-    MatProgressSpinnerModule,
-  ],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatInputModule, FormDialogComponent],
   templateUrl: './experiment-add.component.html',
 })
 export class ExperimentAddComponent implements OnInit {
@@ -38,9 +30,8 @@ export class ExperimentAddComponent implements OnInit {
   private notification = inject(NotificationService);
 
   fields: FormlyFieldConfig[] = [];
-  templatesLoading = false;
-  submitting = false;
-  ready = false;
+  contentLoading = true;
+  contentError: string | null = null;
   notebookId: string;
 
   ngOnInit(): void {
@@ -48,26 +39,18 @@ export class ExperimentAddComponent implements OnInit {
     this.loadTemplates();
   }
 
-  createExperiment(formData: ExperimentForm): void {
-    this.submitting = true;
-
+  createExperimentFn = (formData: ExperimentForm) =>
     this.api
       .request<ExperimentDetail>('post', `/notebooks/${this.notebookId}/experiments`, {
         templateID: formData.templateId,
       })
       .pipe(
-        finalize(() => {
-          this.submitting = false;
-        }),
-      )
-      .subscribe({
-        next: (newExperiment: ExperimentDetail) => {
+        tap((newExperiment: ExperimentDetail) => {
           this.showNotification('Experiment created', NotificationType.Success);
           this.dialogRef.close('refresh');
           this.router.navigate(['/experiments', newExperiment.id]);
-        },
-      });
-  }
+        }),
+      );
 
   private initForm(): void {
     this.fields = [
@@ -86,8 +69,6 @@ export class ExperimentAddComponent implements OnInit {
   }
 
   private loadTemplates(): void {
-    this.templatesLoading = true;
-
     this.api
       .request<RootTemplate>('get', 'templates')
       .pipe(
@@ -97,14 +78,14 @@ export class ExperimentAddComponent implements OnInit {
             label: item.name,
           })),
         ),
-        finalize(() => {
-          this.templatesLoading = false;
-          this.ready = true;
-        }),
+        finalize(() => (this.contentLoading = false)),
       )
       .subscribe({
         next: (options) => {
           this.fields[0].props!.options = options;
+        },
+        error: () => {
+          this.contentError = 'Failed to load templates';
         },
       });
   }
