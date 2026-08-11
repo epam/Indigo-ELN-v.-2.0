@@ -32,12 +32,13 @@ export class SidebarComponent implements OnInit {
       icon: 'indicon-briefcase',
       path: '/',
     },
-    {
-      name: 'Templates',
-      icon: 'indicon-layers',
-      path: '/templates',
-      requiredPermission: ApplicationPermission.MANAGE_TEMPLATES,
-    },
+    // TODO templates are hidden until editing is implemented
+    // {
+    //   name: 'Templates',
+    //   icon: 'indicon-layers',
+    //   path: '/templates',
+    //   requiredPermission: ApplicationPermission.MANAGE_TEMPLATES,
+    // },
     {
       name: 'Dictionaries',
       materialIcon: 'import_contacts',
