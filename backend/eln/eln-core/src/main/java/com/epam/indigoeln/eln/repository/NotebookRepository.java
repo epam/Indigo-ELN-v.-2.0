@@ -5,7 +5,6 @@ import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.common.repository.BaseRepository;
-import com.epam.indigoeln.eln.common.util.Conditions;
 import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.mapper.NotebookMapper;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
@@ -110,11 +109,21 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
     }
 
     public boolean hasAccessibleNotebooks(ProjectEntity project) {
-        return doFindOne(new Conditions().add("project=?", project)) != null;
+        CriteriaDefinition<Integer> criteria = new CriteriaDefinition<>(em, Integer.class) {{
+            JpaRoot<NotebookEntity> root = from(NotebookEntity.class);
+            select(literal(1));
+            where(root.get(NotebookEntity_.project).equalTo(project));
+        }};
+        return doExists(criteria);
     }
 
     public boolean existsByName(String name) {
-        return doFindOne(new Conditions().add("name=?", name)) != null;
+        CriteriaDefinition<Integer> criteria = new CriteriaDefinition<>(em, Integer.class) {{
+            JpaRoot<NotebookEntity> root = from(NotebookEntity.class);
+            select(literal(1));
+            where(root.get(NotebookEntity_.name).equalTo(name));
+        }};
+        return doExists(criteria);
     }
 
     public @Nullable String getLastNotebookName() {

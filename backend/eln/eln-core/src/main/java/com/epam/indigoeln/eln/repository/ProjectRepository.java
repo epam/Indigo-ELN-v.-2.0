@@ -5,7 +5,6 @@ import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.common.repository.BaseRepository;
-import com.epam.indigoeln.eln.common.util.Conditions;
 import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.mapper.ProjectMapper;
 import com.epam.indigoeln.eln.model.ELNEntityType;
@@ -116,7 +115,12 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
     }
 
     public boolean existsByName(String name) {
-        return doFindOne(new Conditions().add("name=?", name)) != null;
+        CriteriaDefinition<Integer> criteria = new CriteriaDefinition<>(em, Integer.class) {{
+            JpaRoot<ProjectEntity> root = from(ProjectEntity.class);
+            select(literal(1));
+            where(root.get(ProjectEntity_.name).equalTo(name));
+        }};
+        return doExists(criteria);
     }
 
     @SuppressWarnings("unchecked")

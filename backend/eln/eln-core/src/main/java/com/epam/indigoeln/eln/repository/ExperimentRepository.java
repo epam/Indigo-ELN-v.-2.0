@@ -5,7 +5,6 @@ import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.common.repository.BaseRepository;
-import com.epam.indigoeln.eln.common.util.Conditions;
 import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.mapper.ExperimentMapper;
 import com.epam.indigoeln.eln.model.*;
@@ -13,12 +12,10 @@ import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.eln.util.CriteriaConditions;
 import com.google.common.base.MoreObjects;
-import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.TypedQuery;
-import jakarta.persistence.LockModeType;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 import org.hibernate.query.criteria.CriteriaDefinition;
@@ -35,7 +32,6 @@ import static com.epam.indigoeln.common.util.ModelUtil.map;
 @ApplicationScoped
 public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
 
-    private static final String LOAD_GRAPH_HINT = "jakarta.persistence.loadgraph";
     private static final String EXPERIMENT_PARAM = "experiment";
 
     @Inject
@@ -145,7 +141,12 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
     }
 
     public boolean hasAccessibleExperiments(NotebookEntity notebook) {
-        return doFindOne(new Conditions().add("notebook=?", notebook)) != null;
+        CriteriaDefinition<Integer> criteria = new CriteriaDefinition<>(em, Integer.class) {{
+            JpaRoot<ExperimentEntity> root = from(ExperimentEntity.class);
+            select(literal(1));
+            where(root.get(ExperimentEntity_.notebook).equalTo(notebook));
+        }};
+        return doExists(criteria);
     }
 
     @Nullable
@@ -242,12 +243,12 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
         if (reverseOrder) {
             return em.createQuery("from ExperimentRevision where experiment=:experiment order by revision desc", ExperimentRevisionEntity.class)
                     .setParameter(EXPERIMENT_PARAM, experiment)
-                    .setHint(LOAD_GRAPH_HINT, "ExperimentRevision.list")
+                    .setHint(JAKARTA_PERSISTENCE_LOADGRAPH, "ExperimentRevision.list")
                     .getResultList();
         }
         return em.createQuery("from ExperimentRevision where experiment=:experiment order by revision", ExperimentRevisionEntity.class)
                 .setParameter(EXPERIMENT_PARAM, experiment)
-                .setHint(LOAD_GRAPH_HINT, "ExperimentRevision.list")
+                .setHint(JAKARTA_PERSISTENCE_LOADGRAPH, "ExperimentRevision.list")
                 .getResultList();
     }
 
@@ -255,7 +256,7 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
         return em.createQuery("from ExperimentRevision where experiment=:experiment and revision>=:revisionFrom order by revision", ExperimentRevisionEntity.class)
                 .setParameter(EXPERIMENT_PARAM, experiment)
                 .setParameter("revisionFrom", revisionFrom)
-                .setHint(LOAD_GRAPH_HINT, "ExperimentRevision.range")
+                .setHint(JAKARTA_PERSISTENCE_LOADGRAPH, "ExperimentRevision.range")
                 .getResultList();
     }
 

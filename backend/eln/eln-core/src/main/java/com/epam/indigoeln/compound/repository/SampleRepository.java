@@ -10,7 +10,6 @@ import com.epam.indigoeln.compound.mapper.SampleMapper;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
 import com.epam.indigoeln.eln.common.repository.BaseRepository;
-import com.epam.indigoeln.eln.common.util.Conditions;
 import com.epam.indigoeln.eln.model.ELNEntityType;
 import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.eln.util.CriteriaConditions;
@@ -43,10 +42,13 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
 
     @Nullable
     public SampleEntity findDefaultSample(UUID compoundId) {
-        Conditions conditions = new Conditions()
-                .add("compound.id=?", compoundId)
-                .add("nbkBatchNumber is null");
-        return doFindOne(conditions);
+        CriteriaDefinition<SampleEntity> criteria = new CriteriaDefinition<>(em, SampleEntity.class) {{
+            JpaRoot<SampleEntity> root = from(SampleEntity.class);
+            select(root);
+            where(root.get(SampleEntity_.compound).get(CompoundEntity_.id).equalTo(compoundId),
+                    root.get(SampleEntity_.nbkBatchNumber).isNull());
+        }};
+        return doFindOne(criteria, null);
     }
 
     public Page<SampleDTO> find(FindSamplesRequest request, @Nullable Boolean marked, int pageNo, int pageSize) {
