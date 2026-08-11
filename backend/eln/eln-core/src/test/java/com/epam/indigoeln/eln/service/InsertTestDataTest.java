@@ -23,6 +23,7 @@ import com.epam.indigoeln.signature.model.SignatureTemplateBlock;
 import com.epam.indigoeln.signature.model.SignatureTemplateDTO;
 import com.epam.indigoeln.signature.model.SignatureTemplateRequest;
 import com.epam.indigoeln.test.FeignUtil;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
@@ -75,7 +76,7 @@ class InsertTestDataTest {
     @BeforeEach
     void setup() {
         URI baseURI = URI.create("https://indigo-eln-dev.test.lifescience.opensource.epam.com/");
-        AtomicReference<String> testUsername = new AtomicReference<>();
+        AtomicReference<@Nullable String> testUsername = new AtomicReference<>();
         String token = System.getenv("TOKEN");
         assertThat(token).describedAs("TOKEN environment variable").isNotNull();
         AtomicReference<String> authorization = new AtomicReference<>(token);
@@ -141,7 +142,7 @@ class InsertTestDataTest {
     @Test
     @Order(4)
     void loadCompounds() {
-        miscClient.loadCompoundsFromFileClient("compounds.sdf", loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"));
+        miscClient.loadCompoundsFromFileClient("compounds.sdf", loadResource("/Compound_000000001_000500000.1.sdf"));
 
         SampleSearchResult samples = compoundClient.search(new FindSamplesRequest().withCatalogs(Set.of(ELN)), DEFAULT_PAGE_SIZE);
         assertThat(samples.items()).isNotEmpty();
@@ -318,7 +319,7 @@ class InsertTestDataTest {
         Page<NotebookDTO> notebooks = notebookClient.getProjectNotebooks(project.getId(), notebookName, SortOrder.EARLIEST, null, Paging.DEFAULT);
         assertThat(notebooks.getItems()).isNotEmpty();
         NotebookDetailsDTO notebook = notebookClient.getNotebook(notebooks.getItems().getFirst().getId());
-        Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(notebook.getId(), experimentDescription, null, null, Paging.DEFAULT);
+        Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(notebook.getId(), experimentDescription, null, null, null, Paging.DEFAULT);
         assertThat(experiments.getItems()).hasSize(1);
         return new ExperimentObject(experimentClient.getExperiment(experiments.getItems().getFirst().getId()), experimentClient, compoundClient, miscClient);
     }

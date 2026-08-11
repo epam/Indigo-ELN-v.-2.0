@@ -70,7 +70,7 @@ public class MutationsTest extends MutationsTestBase {
     private static final String STRUCTURE_COMMENT = "structureComment";
 
     @BeforeAll
-    void beforeAll(@TempDir Path tempDir) {
+    void beforeAll() {
         miscClient.loadCompoundsFromFileClient("compounds.sdf", loadResource(COMPOUND_SDF));
         saltCode = dictionaryClient.getNth(BuiltInDictionary.SALT_CODE, 1);
         stereoisomerCode = dictionaryClient.<StereoisomerCodeRef>getDictionary(BuiltInDictionary.STEREOISOMER_CODE).get(1);

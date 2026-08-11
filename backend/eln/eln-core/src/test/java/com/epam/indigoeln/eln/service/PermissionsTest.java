@@ -204,7 +204,7 @@ class PermissionsTest extends ELNBaseTest {
     }
 
     @Test
-    void testProjectAttachments(@TempDir Path tempDir) {
+    void testProjectAttachments() {
         assertAll(
                 () -> assertThat(rows).hasSize(PERMISSIONS_MATRIX_SIZE),
                 () -> iterateRowsParallel(row -> {
@@ -255,7 +255,7 @@ class PermissionsTest extends ELNBaseTest {
         assertAll(
                 () -> assertThat(rows).hasSize(PERMISSIONS_MATRIX_SIZE),
                 () -> iterateRowsParallel(row -> {
-                    assertThatClientCall(() -> notebookClient.createNotebook(row.projectId, new NotebookRequest(nextNotebookName())))
+                    assertThatClientCall(() -> createNotebook(row.projectId))
                             .as(row.toString())
                             .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "Operation not permitted");
                 })
@@ -287,7 +287,7 @@ class PermissionsTest extends ELNBaseTest {
     }
 
     @Test
-    void testNotebookAttachments(@TempDir Path tempDir) {
+    void testNotebookAttachments() {
         assertAll(
                 () -> assertThat(rows).hasSize(PERMISSIONS_MATRIX_SIZE),
                 () -> iterateRowsParallel(row -> {
@@ -334,7 +334,7 @@ class PermissionsTest extends ELNBaseTest {
         assertAll(
                 () -> assertThat(rows).hasSize(PERMISSIONS_MATRIX_SIZE),
                 () -> iterateRowsParallel(row -> {
-                    Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(row.notebookId, null, null, null, PAGING);
+                    Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(row.notebookId, null, null, null, null, PAGING);
                     if (row.effectiveExperiment != NONE) {
                         assertThat(experiments.getItems()).extracting(ExperimentDTO::getName).containsExactly(row.experimentDetails.getName());
                     } else {
@@ -371,7 +371,7 @@ class PermissionsTest extends ELNBaseTest {
     }
 
     @Test
-    void testExperimentAttachments(@TempDir Path tempDir) {
+    void testExperimentAttachments() {
         assertAll(
                 () -> assertThat(rows).hasSize(PERMISSIONS_MATRIX_SIZE),
                 () -> iterateRowsParallel(row -> {

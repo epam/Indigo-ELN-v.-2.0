@@ -37,6 +37,7 @@ class NotebookServiceTest extends ELNBaseTest {
 
     @Test
     void testCreateNotebookValidation() {
+        //noinspection DataFlowIssue
         assertThatClientCall(() -> notebookClient.createNotebook(project.getId(), new NotebookRequest(null)))
                 .isBadRequest("must not be empty");
     }
