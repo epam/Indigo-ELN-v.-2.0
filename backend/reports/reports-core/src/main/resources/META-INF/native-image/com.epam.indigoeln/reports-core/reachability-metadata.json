@@ -1,6 +1,11 @@
 {
   "reflection": [
     {
+      "type": "org.apache.xerces.parsers.XIncludeAwareParserConfiguration",
+      "allPublicConstructors": true,
+      "allPublicMethods": true
+    },
+    {
       "type": "java.util.Calendar[]"
     },
     {
