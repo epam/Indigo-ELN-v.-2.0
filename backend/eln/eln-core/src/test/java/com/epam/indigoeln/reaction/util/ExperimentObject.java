@@ -165,6 +165,10 @@ public class ExperimentObject {
         mutate(new ReactionMutation.AddNoProductSample(reaction().getAnchor()));
     }
 
+    public void update(ExperimentDetailsDTO dto) {
+        experiment = dto;
+    }
+
     public void update(Runnable updater) {
         updater.run();
         invalidate();
