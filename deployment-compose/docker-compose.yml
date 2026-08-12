@@ -12,6 +12,7 @@ services:
 
   eln-service:
     image: "indigoeln/eln-service:built"
+    platform: linux/amd64
     build:
       context: ./../backend/eln/eln-service
       dockerfile: src/main/docker/Dockerfile.jvm
@@ -119,6 +120,7 @@ services:
 
   postgres:
     image: indigo-eln-postgres:built
+    platform: linux/amd64
     build:
       context: ./../backend/postgres
       dockerfile: Dockerfile
