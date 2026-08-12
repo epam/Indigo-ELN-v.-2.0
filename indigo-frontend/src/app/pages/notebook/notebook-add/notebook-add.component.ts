@@ -24,7 +24,7 @@ export class NotebookAddComponent implements OnInit {
   projectId: string;
   loading = true;
   loadError: string | null = null;
-  model: any = {};
+  model: { name?: string } = {};
   dialogRef = inject(MatDialogRef);
   notificationService = inject(NotificationService);
   router = inject(Router);
