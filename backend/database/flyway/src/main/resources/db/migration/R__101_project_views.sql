@@ -20,6 +20,11 @@ BEGIN
     RETURN (
         SELECT
             setweight(to_tsvector('english', coalesce(p.name, '')), 'A') ||
+            setweight(to_tsvector('english', coalesce((
+                SELECT string_agg(pk.keyword, ' ')
+                FROM Project_Keyword pk
+                WHERE pk.project_id = current_project_id
+            ), '')), 'B') ||
             setweight(to_tsvector('english', coalesce(p.description, '')), 'D') ||
             setweight(to_tsvector('english', coalesce(p.literature, '')), 'D') ||
             setweight(to_tsvector('english', coalesce(c.display_name, '')), 'C')
@@ -41,6 +46,24 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE TRIGGER trigger_update_Project_search_vector
 AFTER INSERT OR UPDATE OF name, description, literature ON Project
 FOR EACH ROW EXECUTE FUNCTION update_Project_search_vector();
+
+CREATE OR REPLACE FUNCTION update_Project_search_vector_on_keyword()
+RETURNS TRIGGER AS $$
+DECLARE
+    target_project_id UUID;
+BEGIN
+    target_project_id := CASE WHEN TG_OP = 'DELETE' THEN old.project_id ELSE new.project_id END;
+    UPDATE Project SET search_vector = get_project_search_vector(target_project_id)
+    WHERE id = target_project_id;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER trigger_update_Project_search_vector_on_keyword
+AFTER INSERT OR UPDATE OR DELETE ON Project_Keyword
+FOR EACH ROW EXECUTE FUNCTION update_Project_search_vector_on_keyword();
+
+UPDATE Project SET search_vector = get_project_search_vector(id);
 
 CREATE OR REPLACE FUNCTION update_Project_counters(
     current_project_id UUID

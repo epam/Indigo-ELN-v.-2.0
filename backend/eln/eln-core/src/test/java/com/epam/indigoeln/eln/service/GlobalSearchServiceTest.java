@@ -83,6 +83,12 @@ class GlobalSearchServiceTest extends ELNBaseTest {
     }
 
     @Test
+    void testFindProjectsByKeyword() {
+        Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withQuery("k1"), Paging.DEFAULT);
+        assertResults(results, tuple(ELNEntityType.PROJECT, "p1", project1.getId()));
+    }
+
+    @Test
     void testFindNotebooks() {
         Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withQuery("nd2"), Paging.DEFAULT);
         assertResults(results, tuple(ELNEntityType.NOTEBOOK, "00000002", notebook2.getId()));
