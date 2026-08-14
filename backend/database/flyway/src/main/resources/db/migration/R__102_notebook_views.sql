@@ -13,33 +13,6 @@ LEFT JOIN LATERAL unnest(n.full_acl) na ON na.user_id = current_setting('eln.cur
 WHERE NOT current_setting('eln.viewAllNotebooks')::BOOLEAN
   AND acl_user_ids(n.full_acl) @> ARRAY[current_setting('eln.currentUserId')::UUID];
 
-CREATE OR REPLACE FUNCTION get_notebook_search_vector(
-    IN current_notebook_id UUID
-) RETURNS TSVECTOR AS $$
-BEGIN
-    RETURN (
-        SELECT
-            setweight(to_tsvector('english', coalesce(n.name, '')), 'A') ||
-            setweight(to_tsvector('english', coalesce(n.description, '')), 'D') ||
-            setweight(to_tsvector('english', coalesce(c.display_name, '')), 'C')
-        FROM Notebook n
-        JOIN User_Account c ON c.id = n.created_by_id
-        WHERE n.id = current_notebook_id
-    );
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION update_Notebook_search_vector()
-RETURNS TRIGGER AS $$
-BEGIN
-    UPDATE Notebook SET search_vector = get_notebook_search_vector(new.id) WHERE id = new.id;
-    RETURN new;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE TRIGGER trigger_update_Notebook_search_vector
-AFTER INSERT OR UPDATE OF name, description ON Notebook
-FOR EACH ROW EXECUTE FUNCTION update_Notebook_search_vector();
 
 CREATE OR REPLACE FUNCTION update_Notebook_counters(
     current_notebook_id UUID

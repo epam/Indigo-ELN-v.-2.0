@@ -2,14 +2,14 @@ package com.epam.indigoeln.reaction.service.mutation.experiment.listener;
 
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.reaction.model.Reaction;
-import com.epam.indigoeln.reaction.service.mutation.ExperimentModelMutationListener;
+import com.epam.indigoeln.reaction.service.mutation.ExperimentMutationListener;
 import com.epam.indigoeln.reaction.service.mutation.experiment.ExperimentMutationContext;
 import jakarta.annotation.Priority;
 import jakarta.enterprise.context.Dependent;
 
 @Dependent
-@Priority(ExperimentModelMutationListener.DEFAULT_PRIORITY)
-public class AdjustLimitingInputListener implements ExperimentModelMutationListener {
+@Priority(ExperimentMutationListener.DEFAULT_PRIORITY)
+public class AdjustLimitingInputListener implements ExperimentMutationListener {
 
     @Override
     public void beforeRecalculate(ExperimentEntity experiment, ExperimentMutationContext context) {

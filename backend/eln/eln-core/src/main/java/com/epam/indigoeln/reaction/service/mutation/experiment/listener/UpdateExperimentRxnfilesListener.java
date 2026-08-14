@@ -6,7 +6,7 @@ import com.epam.indigoeln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.ReactionAnchor;
 import com.epam.indigoeln.reaction.service.ExperimentModelHelperService;
-import com.epam.indigoeln.reaction.service.mutation.ExperimentModelMutationListener;
+import com.epam.indigoeln.reaction.service.mutation.ExperimentMutationListener;
 import com.epam.indigoeln.reaction.service.mutation.experiment.ExperimentMutationContext;
 import com.epam.indigoeln.reaction.util.StreamUtil;
 import jakarta.annotation.Priority;
@@ -23,8 +23,8 @@ import java.util.Objects;
 import static com.epam.indigoeln.common.util.ModelUtil.updateCollection;
 
 @Dependent
-@Priority(ExperimentModelMutationListener.DEFAULT_PRIORITY)
-public class UpdateExperimentRxnfilesListener implements ExperimentModelMutationListener {
+@Priority(ExperimentMutationListener.DEFAULT_PRIORITY)
+public class UpdateExperimentRxnfilesListener implements ExperimentMutationListener {
 
     @Inject
     ExperimentModelHelperService experimentModelHelperService;

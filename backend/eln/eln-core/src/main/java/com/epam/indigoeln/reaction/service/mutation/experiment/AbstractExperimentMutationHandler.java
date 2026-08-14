@@ -7,6 +7,7 @@ import com.epam.indigoeln.eln.mapper.SnapshotMapper;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.service.ACLService;
+import com.epam.indigoeln.eln.service.ExperimentService;
 import com.epam.indigoeln.eln.service.RevisionService;
 import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
@@ -16,7 +17,7 @@ import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.service.ExperimentModelHelperService;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import com.epam.indigoeln.reaction.service.calculator.ReactionCalculator;
-import com.epam.indigoeln.reaction.service.mutation.ExperimentModelMutationListener;
+import com.epam.indigoeln.reaction.service.mutation.ExperimentMutationListener;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandler;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.quarkus.arc.All;
@@ -24,6 +25,8 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 
@@ -35,7 +38,7 @@ import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.runWithSignificantFigures;
 
 @Slf4j
-public abstract class AbstractExperimentMutationHandler<T extends ExperimentMutation> extends MutationHandler<T, ExperimentEntity, ExperimentSnapshot, ExperimentRevisionEntity, ExperimentMutationContext> {
+public abstract class AbstractExperimentMutationHandler<T extends ExperimentMutation> extends MutationHandler<T, ExperimentEntity, ExperimentSnapshot, ExperimentRevisionEntity, ExperimentMutationContext, ExperimentMutationListener> {
 
     @Inject
     SnapshotMapper snapshotMapper;
@@ -57,10 +60,13 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
     ExperimentRepository experimentRepository;
     @Inject
     protected ACLService aclService;
+    @Inject
+    ExperimentService experimentService;
 
     @All
     @Inject
-    List<ExperimentModelMutationListener> listeners;
+    @Getter(AccessLevel.PROTECTED)
+    List<ExperimentMutationListener> listeners;
 
     @Override
     protected ExperimentMutationContext createContext() {
@@ -121,21 +127,14 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
         }
     }
 
-    @Override
-    protected void doNotifyBeforeHandle(ExperimentEntity entity, T mutation, ExperimentMutationContext context) {
-        for (ExperimentModelMutationListener listener : listeners) {
-            listener.beforeHandle(entity, context);
-        }
-    }
-
     private void doNotifyBeforeRecalculate(ExperimentEntity entity, ExperimentMutationContext context) {
-        for (ExperimentModelMutationListener listener : listeners) {
+        for (ExperimentMutationListener listener : listeners) {
             listener.beforeRecalculate(entity, context);
         }
     }
 
     private void doNotifyAfterRecalculate(ExperimentEntity entity, ExperimentMutationContext context) {
-        for (ExperimentModelMutationListener listener : listeners) {
+        for (ExperimentMutationListener listener : listeners) {
             listener.afterRecalculate(entity, context);
         }
     }

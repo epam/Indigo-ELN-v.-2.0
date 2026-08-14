@@ -17,6 +17,8 @@ import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import org.openapitools.jackson.nullable.JsonNullable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -243,6 +245,23 @@ class GlobalSearchServiceTest extends ELNBaseTest {
                 .withMoleculeStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, molFile))
                 , Paging.DEFAULT);
         assertResults(results, tuple(ELNEntityType.EXPERIMENT, experiment2.name(), experiment2.id()));
+    }
+
+    @Test
+    void testEditNotebookNameUpdatesExperimentNames() {
+        NotebookDetailsDTO notebook = createNotebook(project1.getId());
+        ExperimentObject exp = createExperiment(notebook, new ExperimentRequest(emptyTemplateID));
+        String oldExperimentName = exp.name();
+
+        String newNotebookName = notebookClient.getNextNotebookNumber();
+        notebookClient.editNotebook(notebook.getId(), new NotebookEditRequest(JsonNullable.of(newNotebookName), JsonNullable.undefined()));
+
+        String newExperimentName = newNotebookName + "-0001";
+        Page<GlobalSearchResultDTO> found = globalSearchClient.search(new GlobalSearchRequest().withQuery(newExperimentName), Paging.DEFAULT);
+        assertResults(found, tuple(ELNEntityType.EXPERIMENT, newExperimentName, exp.id()));
+
+        Page<GlobalSearchResultDTO> notFound = globalSearchClient.search(new GlobalSearchRequest().withQuery(oldExperimentName), Paging.DEFAULT);
+        assertResults(notFound);
     }
 
     private void assertResults(Page<GlobalSearchResultDTO> results, Tuple... expected) {

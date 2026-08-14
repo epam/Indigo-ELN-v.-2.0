@@ -16,6 +16,9 @@ public final class ExperimentSnapshot implements ExperimentNode {
 
     private int revision;
 
+    @NotNull
+    private String name;
+
     @Nullable
     private String title;
 

@@ -1,14 +1,21 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.util.Pair;
+import com.epam.indigoeln.compound.entity.SampleEntity;
+import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
+import com.epam.indigoeln.eln.entity.NotebookEntity;
+import com.epam.indigoeln.eln.entity.ProjectEntity;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.util.ExperimentDetailsReportBuilder;
+import com.epam.indigoeln.eln.util.SearchVectorUpdater;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.flywaydb.core.Flyway;
@@ -34,6 +41,8 @@ public class SupportService {
     private static final String CONTENT = "content";
     private static final String ATTACHMENT = "attachment";
 
+    @PersistenceContext
+    EntityManager em;
     @Inject
     Flyway flyway;
     @Inject
@@ -49,11 +58,15 @@ public class SupportService {
     @Inject
     ExperimentService experimentService;
     @Inject
+    CompoundService compoundService;
+    @Inject
     ExperimentRepository experimentRepository;
     @Inject
     AttachmentService attachmentService;
     @Inject
     ExperimentDetailsReportBuilder experimentDetailsReportBuilder;
+    @Inject
+    SearchVectorUpdater searchVectorUpdater;
 
     private final Random random = new Random();
 
@@ -63,6 +76,38 @@ public class SupportService {
         return Map.of(
                 "migrations executed", Integer.toString(result.migrationsExecuted),
                 "total time", Long.toString(result.getTotalMigrationTime())
+        );
+    }
+
+    @Transactional
+    public Map<String, String> reindexSearchVectors() {
+        aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_USERS);
+
+        List<ProjectEntity> projects = em.createQuery(
+                "SELECT DISTINCT p FROM ProjectEntity p JOIN FETCH p.createdBy LEFT JOIN FETCH p.keywords",
+                ProjectEntity.class).getResultList();
+        projects.forEach(project -> projectService.updateSearchVector(project, projectService.collectSearchFields(project)));
+
+        List<NotebookEntity> notebooks = em.createQuery(
+                "SELECT n FROM NotebookEntity n JOIN FETCH n.createdBy",
+                NotebookEntity.class).getResultList();
+        notebooks.forEach(notebook -> notebookService.updateSearchVector(notebook, notebookService.collectSearchFields(notebook)));
+
+        List<ExperimentEntity> experiments = em.createQuery(
+                "SELECT e FROM ExperimentEntity e JOIN FETCH e.createdBy",
+                ExperimentEntity.class).getResultList();
+        experiments.forEach(experiment -> experimentService.updateSearchVector(experiment, experimentService.collectSearchFields(experiment)));
+
+        List<SampleEntity> samples = em.createQuery(
+                "SELECT s FROM SampleEntity s JOIN FETCH s.compound",
+                SampleEntity.class).getResultList();
+        samples.forEach(compoundService::updateSearchVector);
+
+        return Map.of(
+                "projects", String.valueOf(projects.size()),
+                "notebooks", String.valueOf(notebooks.size()),
+                "experiments", String.valueOf(experiments.size()),
+                "samples", String.valueOf(samples.size())
         );
     }
 

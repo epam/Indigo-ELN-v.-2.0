@@ -5,6 +5,7 @@ import com.epam.indigoeln.eln.entity.NotebookRevisionEntity;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.reaction.model.NotebookSnapshot;
 import com.epam.indigoeln.reaction.service.AbstractUndoHelper;
+import com.epam.indigoeln.reaction.service.mutation.NotebookMutationListener;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -13,7 +14,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @ApplicationScoped
-public class NotebookUndoHelper extends AbstractUndoHelper<NotebookEntity, NotebookSnapshot, NotebookRevisionEntity, NotebookMutationContext> {
+public class NotebookUndoHelper extends AbstractUndoHelper<NotebookEntity, NotebookSnapshot, NotebookRevisionEntity, NotebookMutationContext, NotebookMutationListener> {
 
     @Inject
     NotebookRepository notebookRepository;

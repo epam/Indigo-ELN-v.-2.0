@@ -4,6 +4,7 @@ import com.epam.indigoeln.eln.entity.NotebookEntity;
 import com.epam.indigoeln.eln.entity.NotebookRevisionEntity;
 import com.epam.indigoeln.reaction.model.NotebookSnapshot;
 import com.epam.indigoeln.reaction.service.mutation.AbstractMutationContext;
+import com.epam.indigoeln.reaction.service.mutation.NotebookMutationListener;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -11,5 +12,5 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class NotebookMutationContext extends AbstractMutationContext<NotebookEntity, NotebookSnapshot, NotebookRevisionEntity, NotebookMutationContext> {
+public class NotebookMutationContext extends AbstractMutationContext<NotebookEntity, NotebookSnapshot, NotebookRevisionEntity, NotebookMutationContext, NotebookMutationListener> {
 }
