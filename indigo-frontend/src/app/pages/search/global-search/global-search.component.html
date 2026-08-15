@@ -80,7 +80,7 @@
               <a class="underline" href="#" (click)="addMeAsAuthor(); $event.preventDefault()">Add Me as an Author</a>
             </div>
             <div class="text-xs">Experiment Status</div>
-            <div class="text-xs">Reaction Role</div>
+            <div class="text-xs" [class.invisible]="form.get('isReaction').value !== false">Reaction Role</div>
             <eln-enum-select
               formControlName="experimentStatus"
               [allowEmpty]="true"
@@ -92,6 +92,7 @@
               [allowEmpty]="true"
               [enumType]="ReactionRole"
               [displayNames]="ReactionRoleNames"
+              [class.invisible]="form.get('isReaction').value !== false"
             />
           </div>
         </mat-expansion-panel>
@@ -99,18 +100,10 @@
         @if (loader.started) {
           @if (loader.totalItemsStr != null) {
             <div class="flex justify-between">
-              <div class="flex-1 self-start">Search Results ({{ loader.totalItemsStr }})</div>
+              <div class="flex-1 self-start">{{ loader.totalItemsStr }}</div>
             </div>
           }
           <div class="relative flex flex-col gap-8 search-results">
-            @if (loader.loading) {
-              <div class="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-white/80">
-                <div class="flex items-center gap-2 text-sm font-medium text-gray-600">
-                  <span class="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></span>
-                  Searching...
-                </div>
-              </div>
-            }
             @for (result of loader.data$ | async; track result.type + ':' + result.id) {
               <a
                 [routerLink]="getResultLink(result)"
