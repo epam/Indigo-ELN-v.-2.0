@@ -55,12 +55,13 @@ export abstract class InfiniteSearchLoader<R, T, P extends PaginatedResponseBase
         this.dataSubject$.next(allItems);
         this.loading = false;
         this.totalItems = response.totalItems;
-        this.totalItemsStr =
+        const totalCountStr =
           response.totalItems != null
             ? response.totalItems.toString()
             : this.completed
               ? allItems.length.toString()
               : `${allItems.length}+`;
+        this.totalItemsStr = totalCountStr === '0' ? 'No results found' : `Search Results (${totalCountStr})`;
         if (this.isInfiniteLoaderVisible) {
           this.fetchNext();
         }

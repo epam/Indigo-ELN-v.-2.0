@@ -1,15 +1,6 @@
-<eln-form-dialog
-  [title]="title"
-  size="auto"
-  containerClass="w-[800px]"
-  submitButtonText="Search"
-  [submitEnabled]="formNotEmpty && !loader.loading"
-  [submitLoading]="loader.loading"
-  (formSubmit)="performSearch()"
-  (keydown.enter)="performSearch()"
->
-  <ng-template #modalContent>
-    <form [formGroup]="form">
+<div class="flex flex-col h-full">
+  <div class="flex-1 overflow-y-auto p-4">
+    <form id="search-form" [formGroup]="form" (ngSubmit)="performSearch()">
       <div class="flex flex-col gap-4">
         <div class="flex">
           <eln-input
@@ -80,7 +71,7 @@
               <a class="underline" href="#" (click)="addMeAsAuthor(); $event.preventDefault()">Add Me as an Author</a>
             </div>
             <div class="text-xs">Experiment Status</div>
-            <div class="text-xs">Reaction Role</div>
+            <div class="text-xs" [class.invisible]="form.get('isReaction').value !== false">Reaction Role</div>
             <eln-enum-select
               formControlName="experimentStatus"
               [allowEmpty]="true"
@@ -92,6 +83,7 @@
               [allowEmpty]="true"
               [enumType]="ReactionRole"
               [displayNames]="ReactionRoleNames"
+              [class.invisible]="form.get('isReaction').value !== false"
             />
           </div>
         </mat-expansion-panel>
@@ -99,22 +91,14 @@
         @if (loader.started) {
           @if (loader.totalItemsStr != null) {
             <div class="flex justify-between">
-              <div class="flex-1 self-start">Search Results ({{ loader.totalItemsStr }})</div>
+              <div class="flex-1 self-start">{{ loader.totalItemsStr }}</div>
             </div>
           }
           <div class="relative flex flex-col gap-8 search-results">
-            @if (loader.loading) {
-              <div class="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-white/80">
-                <div class="flex items-center gap-2 text-sm font-medium text-gray-600">
-                  <span class="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></span>
-                  Searching...
-                </div>
-              </div>
-            }
             @for (result of loader.data$ | async; track result.type + ':' + result.id) {
               <a
                 [routerLink]="getResultLink(result)"
-                (click)="closeDialog()"
+                (click)="close()"
                 class="block cursor-pointer text-inherit no-underline"
               >
                 @switch (result.type) {
@@ -126,7 +110,7 @@
                         </div>
                         <div class="flex-1"><b>Author: </b>{{ result.createdBy.displayName }}</div>
                       </div>
-                      <div class="result-fragment" [innerHTML]="result.fragment"></div>
+                      <!--                      <div class="result-fragment" [innerHTML]="result.fragment"></div>-->
                     </div>
                   }
                   @case (GlobalSearchEntityType.NOTEBOOK) {
@@ -137,7 +121,7 @@
                         </div>
                         <div class="flex-1"><b>Author: </b>{{ result.createdBy.displayName }}</div>
                       </div>
-                      <div class="result-fragment" [innerHTML]="result.fragment"></div>
+                      <!--                      <div class="result-fragment" [innerHTML]="result.fragment"></div>-->
                     </div>
                   }
                   @case (GlobalSearchEntityType.EXPERIMENT) {
@@ -161,7 +145,7 @@
                           }
                         </div>
                       </div>
-                      <div class="result-fragment" [innerHTML]="result.fragment"></div>
+                      <!--                      <div class="result-fragment" [innerHTML]="result.fragment"></div>-->
                     </div>
                   }
                 }
@@ -183,5 +167,12 @@
         }
       </div>
     </form>
-  </ng-template>
-</eln-form-dialog>
+  </div>
+
+  <div class="p-4 border-t border-neutral-200 flex justify-end gap-2">
+    <eln-button type="button" variant="grey" [disabled]="loader.loading" (click)="clearAll()">Clear All</eln-button>
+    <eln-button type="submit" form="search-form" variant="blue" [disabled]="!formNotEmpty" [loading]="loader.loading">
+      Search
+    </eln-button>
+  </div>
+</div>

@@ -37,13 +37,14 @@ export class DropdownValueComponent implements ControlValueAccessor {
   }
 
   changeValue(event: MatSelectChange) {
-    const newValue = event.value;
+    const newValue = event.value ?? null;
     if (this.value != newValue) {
+      this.value = newValue;
       if (this.onChange) {
         this.onChange(newValue);
       }
       if (this.onChangeForm) {
-        const option = event.value != null ? this.options.find((option) => option.id === newValue) : null;
+        const option = newValue != null ? this.options.find((option) => option.id === newValue) : null;
         this.onChangeForm(option);
       }
     }

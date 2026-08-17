@@ -12,6 +12,8 @@ import com.epam.indigoeln.eln.mapper.NotebookMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
+import com.epam.indigoeln.eln.util.SearchVectorField;
+import com.epam.indigoeln.eln.util.SearchVectorUpdater;
 import com.epam.indigoeln.reaction.model.NotebookSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.NotebookMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerRegistry;
@@ -25,10 +27,7 @@ import jakarta.ws.rs.QueryParam;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
 
@@ -50,6 +49,8 @@ public class NotebookService {
     ProjectRepository projectRepository;
     @Inject
     MutationHandlerRegistry mutationHandlerRegistry;
+    @Inject
+    SearchVectorUpdater searchVectorUpdater;
 
     public NotebookDetailsDTO createNotebook(UUID projectId, NotebookRequest request) {
         NotebookEntity notebook = new NotebookEntity();
@@ -113,5 +114,18 @@ public class NotebookService {
         NotebookEntity notebook = notebookRepository.get(notebookId);
         aclService.ensureAccess(notebook, ApplicationPermission.VIEW_NOTEBOOKS);
         return notebookMapper.revisionToDTOList(notebookRepository.getRevisions(notebook));
+    }
+
+    public List<@Nullable SearchVectorField> collectSearchFields(NotebookEntity entity) {
+        List<@Nullable SearchVectorField> fields = new ArrayList<>();
+        fields.add(SearchVectorField.a(entity.getName()));
+        fields.add(SearchVectorField.d(entity.getDescription()));
+        //noinspection ConstantValue
+        fields.add(SearchVectorField.c(entity.getCreatedBy() != null ? entity.getCreatedBy().getDisplayName() : null));
+        return fields;
+    }
+
+    public void updateSearchVector(NotebookEntity notebook, List<@Nullable SearchVectorField> fields) {
+        searchVectorUpdater.update("Notebook", notebook.getId(), fields);
     }
 }

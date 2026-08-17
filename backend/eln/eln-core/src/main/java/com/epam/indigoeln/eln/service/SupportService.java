@@ -1,25 +1,36 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.util.Pair;
+import com.epam.indigoeln.compound.entity.SampleEntity;
+import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
+import com.epam.indigoeln.eln.entity.NotebookEntity;
+import com.epam.indigoeln.eln.entity.ProjectEntity;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.util.ExperimentDetailsReportBuilder;
+import com.epam.indigoeln.eln.util.SearchVectorUpdater;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.output.MigrateResult;
+import org.hibernate.jpa.AvailableHints;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static com.epam.indigoeln.eln.model.ApplicationPermission.CREATE_PROJECTS;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.VIEW_EXPERIMENTS;
@@ -34,6 +45,8 @@ public class SupportService {
     private static final String CONTENT = "content";
     private static final String ATTACHMENT = "attachment";
 
+    @PersistenceContext
+    EntityManager em;
     @Inject
     Flyway flyway;
     @Inject
@@ -49,11 +62,15 @@ public class SupportService {
     @Inject
     ExperimentService experimentService;
     @Inject
+    CompoundService compoundService;
+    @Inject
     ExperimentRepository experimentRepository;
     @Inject
     AttachmentService attachmentService;
     @Inject
     ExperimentDetailsReportBuilder experimentDetailsReportBuilder;
+    @Inject
+    SearchVectorUpdater searchVectorUpdater;
 
     private final Random random = new Random();
 
@@ -64,6 +81,41 @@ public class SupportService {
                 "migrations executed", Integer.toString(result.migrationsExecuted),
                 "total time", Long.toString(result.getTotalMigrationTime())
         );
+    }
+
+    @Transactional
+    public Map<String, String> reindexSearchVectors() {
+        aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_USERS);
+
+        long projects = doReindex(
+                em.createQuery("FROM Project p JOIN FETCH p.createdBy ORDER BY p.id", ProjectEntity.class),
+                p -> projectService.updateSearchVector(p, projectService.collectSearchFields(p)));
+
+        long notebooks = doReindex(
+                em.createQuery("FROM Notebook n JOIN FETCH n.createdBy ORDER BY n.id", NotebookEntity.class),
+                n -> notebookService.updateSearchVector(n, notebookService.collectSearchFields(n)));
+
+        long experiments = doReindex(
+                em.createQuery("FROM Experiment e JOIN FETCH e.createdBy ORDER BY e.id", ExperimentEntity.class),
+                e -> experimentService.updateSearchVector(e, experimentService.collectSearchFields(e)));
+
+        long samples = doReindex(
+                em.createQuery("FROM Sample s JOIN FETCH s.compound ORDER BY s.id", SampleEntity.class),
+                compoundService::updateSearchVector);
+
+        return Map.of(
+                "projects", String.valueOf(projects),
+                "notebooks", String.valueOf(notebooks),
+                "experiments", String.valueOf(experiments),
+                "samples", String.valueOf(samples));
+    }
+
+    private <T> long doReindex(TypedQuery<T> query, Consumer<T> processor) {
+        try (Stream<T> stream = query
+                .setHint(AvailableHints.HINT_FETCH_SIZE, 1000)
+                .getResultStream()) {
+            return stream.peek(processor).peek(em::detach).count();
+        }
     }
 
     @Transactional
