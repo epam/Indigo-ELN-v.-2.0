@@ -46,6 +46,7 @@ export class ExperimentDetailsComponent {
         {
           type: 'select',
           key: 'therapeuticArea',
+          modelOptions: { updateOn: 'change' },
           props: {
             label: 'Therapeutic Area',
             multiple: false,
@@ -55,12 +56,13 @@ export class ExperimentDetailsComponent {
         },
         {
           type: 'experiment-select',
-          key: 'contToRxn',
+          key: 'continuedTo',
           props: { label: 'Cont. TO Rxn' },
         },
         {
           type: 'select',
           key: 'projectCode',
+          modelOptions: { updateOn: 'change' },
           props: {
             label: 'Project Code & Name',
             placeholder: 'PROJECT_CODE',
@@ -71,7 +73,7 @@ export class ExperimentDetailsComponent {
         },
         {
           type: 'experiment-select',
-          key: 'contFromRxn',
+          key: 'continuedFrom',
           props: { label: 'Cont. FROM Rxn' },
         },
         {
@@ -113,7 +115,16 @@ export class ExperimentDetailsComponent {
       projectCode: exp.projectCode ?? null,
       reference: exp.literature ?? null,
       linkedExperiment: exp.linkedExperiments ?? [],
+      continuedTo: exp.continuedTo ?? [],
+      continuedFrom: exp.continuedFrom ?? [],
     };
+  }
+
+  private sortedIds(arr: ExperimentRef[] | null): string {
+    return (arr ?? [])
+      .map((e) => e.id)
+      .sort((a, b) => a.localeCompare(b))
+      .join(',');
   }
 
   private buildPatch(value: Record<string, unknown>, exp: ExperimentDetail): ExperimentEditRequest {
@@ -123,21 +134,18 @@ export class ExperimentDetailsComponent {
     const projectCode = value['projectCode'] as DictionaryItemRef | null;
     const reference = value['reference'] as string | null;
     const linkedExperiment = value['linkedExperiment'] as ExperimentRef[] | null;
+    const continuedTo = value['continuedTo'] as ExperimentRef[] | null;
+    const continuedFrom = value['continuedFrom'] as ExperimentRef[] | null;
 
     if (title !== (exp.title ?? null)) patch.title = title;
     if (therapeuticArea?.id !== exp.therapeuticArea?.id) patch.therapeuticArea = therapeuticArea;
     if (projectCode?.id !== exp.projectCode?.id) patch.projectCode = projectCode;
     if (reference !== (exp.literature ?? null)) patch.literature = reference;
 
-    const expLinkedIds = (exp.linkedExperiments ?? [])
-      .map((e) => e.id)
-      .sort((a, b) => a.localeCompare(b))
-      .join(',');
-    const newLinkedIds = (linkedExperiment ?? [])
-      .map((e) => e.id)
-      .sort((a, b) => a.localeCompare(b))
-      .join(',');
-    if (expLinkedIds !== newLinkedIds) patch.linkedExperiments = linkedExperiment ?? [];
+    if (this.sortedIds(linkedExperiment) !== this.sortedIds(exp.linkedExperiments))
+      patch.linkedExperiments = linkedExperiment ?? [];
+    if (this.sortedIds(continuedTo) !== this.sortedIds(exp.continuedTo)) patch.continuedTo = continuedTo ?? [];
+    if (this.sortedIds(continuedFrom) !== this.sortedIds(exp.continuedFrom)) patch.continuedFrom = continuedFrom ?? [];
 
     return patch;
   }
