@@ -3,7 +3,7 @@ import { FilterOption, PagedRequest, SortOption } from '@/core/types/request/pag
 import { PaginatedResponse } from '@/core/types/response/paginated-response.i';
 import { inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, defer, finalize, Observable, of, switchMap, take, tap } from 'rxjs';
+import { BehaviorSubject, defer, finalize, Observable, of, switchMap, tap } from 'rxjs';
 import { PaginatedConfig } from './paginated.i';
 
 export abstract class PaginatedBase<T> {
@@ -33,6 +33,7 @@ export abstract class PaginatedBase<T> {
 
   protected dataList$: Observable<PaginatedResponse<T>>;
   protected dataSubject$ = new BehaviorSubject<PaginatedResponse<T>>(null);
+  private previousParams: any = null;
 
   constructor() {
     this.activatedRoute = inject(ActivatedRoute);
@@ -61,6 +62,8 @@ export abstract class PaginatedBase<T> {
   }
 
   protected reinitialize() {
+    this.previousParams = null;
+
     // Initiate rxjs logic
     const dataLogic$ = this.dataSubject$.pipe(
       switchMap((res) => {
@@ -108,8 +111,11 @@ export abstract class PaginatedBase<T> {
 
     this.dataList$ = this.config.enableQueryParams
       ? this.activatedRoute.queryParams.pipe(
-          take(1),
           switchMap((params) => {
+            const isExternalParamsChange =
+              this.previousParams !== null && JSON.stringify(params) !== JSON.stringify(this.previousParams);
+            this.previousParams = { ...params };
+
             const queryFilters = Object.keys(params as Record<string, unknown>).reduce(
               (acc: Record<string, unknown>, curr) => {
                 acc[curr] = params[curr];
@@ -143,6 +149,10 @@ export abstract class PaginatedBase<T> {
             Object.assign(this.filters, queryFilters);
 
             this.fetchDataAndUpdateQueryParams(false);
+
+            if (isExternalParamsChange) {
+              this.dataSubject$.next(null);
+            }
 
             return dataLogic$;
           }),
