@@ -34,7 +34,6 @@ public class UpdateCompoundReferencesListener implements ExperimentMutationListe
         Set<ExperimentReferencedCompound> newCompoundRefs = collectCompoundRefs(experiment.getModel());
         if (!oldCompoundRefs.equals(newCompoundRefs)) {
             ModelUtil.updateCollection(experiment.getReferencedCompounds(), newCompoundRefs);
-            context.setCompoundsChanged(true);
         }
     }
 

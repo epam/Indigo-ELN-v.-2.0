@@ -6,7 +6,6 @@ import com.epam.indigoeln.eln.mapper.SnapshotMapper;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.eln.service.ACLService;
-import com.epam.indigoeln.eln.service.NotebookService;
 import com.epam.indigoeln.eln.service.RevisionService;
 import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.eln.util.JSONPatcher;
@@ -49,8 +48,6 @@ public abstract class AbstractNotebookMutationHandler<T extends Mutation> extend
     ObjectMapper objectMapper;
     @Inject
     JSONPatcher jsonPatcher;
-    @Inject
-    NotebookService notebookService;
 
     @All
     @Inject

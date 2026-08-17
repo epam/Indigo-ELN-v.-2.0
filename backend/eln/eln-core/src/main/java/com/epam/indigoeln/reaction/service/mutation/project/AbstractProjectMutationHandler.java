@@ -6,7 +6,6 @@ import com.epam.indigoeln.eln.mapper.SnapshotMapper;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.eln.service.ACLService;
-import com.epam.indigoeln.eln.service.ProjectService;
 import com.epam.indigoeln.eln.service.RevisionService;
 import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.eln.util.JSONPatcher;
@@ -51,8 +50,6 @@ public abstract class AbstractProjectMutationHandler<T extends Mutation> extends
     protected ObjectMapper objectMapper;
     @Inject
     protected JSONPatcher jsonPatcher;
-    @Inject
-    ProjectService projectService;
 
     @All
     @Inject

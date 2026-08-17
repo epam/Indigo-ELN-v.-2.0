@@ -20,7 +20,4 @@ public class ExperimentMutationContext extends AbstractMutationContext<Experimen
     private Integer createdVersion;
 
     private final MutationResponse response = new MutationResponse();
-
-    private boolean compoundsChanged = false;
-    private boolean samplesChanged = false;
 }

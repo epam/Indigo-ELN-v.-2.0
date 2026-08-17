@@ -16,17 +16,21 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.output.MigrateResult;
+import org.hibernate.jpa.AvailableHints;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static com.epam.indigoeln.eln.model.ApplicationPermission.CREATE_PROJECTS;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.VIEW_EXPERIMENTS;
@@ -83,32 +87,35 @@ public class SupportService {
     public Map<String, String> reindexSearchVectors() {
         aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_USERS);
 
-        List<ProjectEntity> projects = em.createQuery(
-                "SELECT DISTINCT p FROM ProjectEntity p JOIN FETCH p.createdBy LEFT JOIN FETCH p.keywords",
-                ProjectEntity.class).getResultList();
-        projects.forEach(project -> projectService.updateSearchVector(project, projectService.collectSearchFields(project)));
+        long projects = doReindex(
+                em.createQuery("FROM Project p JOIN FETCH p.createdBy ORDER BY p.id", ProjectEntity.class),
+                p -> projectService.updateSearchVector(p, projectService.collectSearchFields(p)));
 
-        List<NotebookEntity> notebooks = em.createQuery(
-                "SELECT n FROM NotebookEntity n JOIN FETCH n.createdBy",
-                NotebookEntity.class).getResultList();
-        notebooks.forEach(notebook -> notebookService.updateSearchVector(notebook, notebookService.collectSearchFields(notebook)));
+        long notebooks = doReindex(
+                em.createQuery("FROM Notebook n JOIN FETCH n.createdBy ORDER BY n.id", NotebookEntity.class),
+                n -> notebookService.updateSearchVector(n, notebookService.collectSearchFields(n)));
 
-        List<ExperimentEntity> experiments = em.createQuery(
-                "SELECT e FROM ExperimentEntity e JOIN FETCH e.createdBy",
-                ExperimentEntity.class).getResultList();
-        experiments.forEach(experiment -> experimentService.updateSearchVector(experiment, experimentService.collectSearchFields(experiment)));
+        long experiments = doReindex(
+                em.createQuery("FROM Experiment e JOIN FETCH e.createdBy ORDER BY e.id", ExperimentEntity.class),
+                e -> experimentService.updateSearchVector(e, experimentService.collectSearchFields(e)));
 
-        List<SampleEntity> samples = em.createQuery(
-                "SELECT s FROM SampleEntity s JOIN FETCH s.compound",
-                SampleEntity.class).getResultList();
-        samples.forEach(compoundService::updateSearchVector);
+        long samples = doReindex(
+                em.createQuery("FROM Sample s JOIN FETCH s.compound ORDER BY s.id", SampleEntity.class),
+                compoundService::updateSearchVector);
 
         return Map.of(
-                "projects", String.valueOf(projects.size()),
-                "notebooks", String.valueOf(notebooks.size()),
-                "experiments", String.valueOf(experiments.size()),
-                "samples", String.valueOf(samples.size())
-        );
+                "projects", String.valueOf(projects),
+                "notebooks", String.valueOf(notebooks),
+                "experiments", String.valueOf(experiments),
+                "samples", String.valueOf(samples));
+    }
+
+    private <T> long doReindex(TypedQuery<T> query, Consumer<T> processor) {
+        try (Stream<T> stream = query
+                .setHint(AvailableHints.HINT_FETCH_SIZE, 1000)
+                .getResultStream()) {
+            return stream.peek(processor).peek(em::detach).count();
+        }
     }
 
     @Transactional

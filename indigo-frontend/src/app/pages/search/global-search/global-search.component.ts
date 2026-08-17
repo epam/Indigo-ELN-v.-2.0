@@ -220,7 +220,7 @@ export class GlobalSearchComponent implements OnInit, AfterViewInit {
     this.structureImage = null;
   }
 
-  closeDialog(): void {
+  close(): void {
     this.slideInPanelService.close();
   }
 

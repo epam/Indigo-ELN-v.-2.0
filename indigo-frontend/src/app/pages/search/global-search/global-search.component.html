@@ -98,7 +98,7 @@
             @for (result of loader.data$ | async; track result.type + ':' + result.id) {
               <a
                 [routerLink]="getResultLink(result)"
-                (click)="closeDialog()"
+                (click)="close()"
                 class="block cursor-pointer text-inherit no-underline"
               >
                 @switch (result.type) {
