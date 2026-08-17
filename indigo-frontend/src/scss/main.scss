@@ -100,6 +100,12 @@ body {
   background-color: var(--neutral-100);
 }
 
+// mat-select panel renders in CDK overlay; theme sets --mat-select-panel-background-color to gray.
+// Match AM's own selector and use !important so we always win.
+div.mat-mdc-select-panel {
+  background-color: white !important;
+}
+
 // Unit select trigger is narrow (3rem); let its dropdown be wider than the field
 // so option labels (e.g. µmol) fit. The panelClass lands on the CDK overlay pane,
 // whose min-width CDK sets inline to the trigger width — !important overrides it.

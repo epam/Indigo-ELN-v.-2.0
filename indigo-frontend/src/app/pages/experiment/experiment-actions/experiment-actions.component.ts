@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -18,6 +18,7 @@ import { ExperimentTeamDrawerComponent } from '@pages/experiment/experiment-team
 import { SvgIconComponent } from '@core/components/common/svg-icon/svg-icon.component';
 import { ButtonComponent } from '@core/components/common/button/button.component';
 import { MemberAvatarsComponent } from '@core/components/common/member-avatars/member-avatars.component';
+import { CounterComponent } from '@core/components/common/counter/counter.component';
 import { ButtonVariants } from '@core/components/common/button/button.variant';
 
 enum Action {
@@ -117,6 +118,7 @@ const BUTTONS: ActionButton[] = [
     SvgIconComponent,
     ButtonComponent,
     MemberAvatarsComponent,
+    CounterComponent,
   ],
   templateUrl: './experiment-actions.component.html',
 })
@@ -126,6 +128,8 @@ export class ExperimentActionsComponent {
   notificationService = inject(NotificationService);
   dialog = inject(MatDialog);
   slideInPanelService = inject(SlideInPanelService);
+
+  @ViewChild('teamHeader') teamHeader: TemplateRef<any>;
 
   experiment = computed(() => this.experimentDetailService.experimentDetail());
 
@@ -205,9 +209,8 @@ export class ExperimentActionsComponent {
     if (!experimentId) return;
 
     this.slideInPanelService.open(ExperimentTeamDrawerComponent, {
-      inputs: {
-        experimentId: experimentId,
-      },
+      header: this.teamHeader,
+      inputs: { experimentId: experimentId },
     });
   }
 }

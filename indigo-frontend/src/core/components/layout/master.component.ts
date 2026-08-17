@@ -1,11 +1,11 @@
 import { IdentityService } from '@/core/services/identity.service';
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
-import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { SlideInPanelService } from '@core/components/common/slide-in-panel/slide-in-panel.service';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -38,7 +38,7 @@ import { SidebarComponent } from './partials/sidebar/sidebar.component';
 export class MasterComponent implements OnInit, OnDestroy {
   destroy$ = new Subject<void>();
   identityService = inject(IdentityService);
-  dialog = inject(MatDialog);
+  slideInPanelService = inject(SlideInPanelService);
   reportErrorDialogService = inject(ReportErrorDialogService);
   public isCollapsed = false;
   public searchControl = new FormControl('');
@@ -48,6 +48,7 @@ export class MasterComponent implements OnInit, OnDestroy {
   userAvatar = 'assets/avatar-placeholder.png';
 
   @ViewChild('content', { static: true }) content!: ElementRef<HTMLElement>;
+  @ViewChild('searchHeader') searchHeader: TemplateRef<any>;
 
   async logout() {
     await this.identityService.logout();
@@ -75,7 +76,10 @@ export class MasterComponent implements OnInit, OnDestroy {
   }
 
   showSearch(): void {
-    this.dialog.open(GlobalSearchComponent, { data: { initialQuery: this.searchControl.value } });
+    this.slideInPanelService.open(GlobalSearchComponent, {
+      header: this.searchHeader,
+      inputs: { initialQuery: this.searchControl.value },
+    });
     this.searchControl.reset();
   }
 

@@ -47,6 +47,10 @@ export class SlideInPanelService {
     document.body.appendChild(panelRef.location.nativeElement);
     this.currentPanel = panelRef;
 
+    if (config?.header != null) {
+      panelRef.setInput('header', config.header);
+    }
+
     // Run initial change detection so @ViewChild (contentOutlet) is resolved
     panelRef.changeDetectorRef.detectChanges();
 

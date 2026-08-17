@@ -1,3 +1,10 @@
+<ng-template #teamHeader>
+  <h2 class="text-lg font-semibold text-neutral-1000">Add Team Member</h2>
+  @if (experiment()) {
+    <eln-counter [count]="(experiment().acl || []).length" variant="grey" size="large" />
+  }
+</ng-template>
+
 <div class="flex items-center gap-2">
   @if (experiment()) {
     <eln-badge

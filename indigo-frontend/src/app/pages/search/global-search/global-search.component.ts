@@ -1,10 +1,9 @@
-import { FormDialogComponent } from '@/core/components/common/form-dialog/form-dialog.component';
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, DestroyRef, inject, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, inject, input, OnInit, ViewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatChipRow, MatChipSet } from '@angular/material/chips';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { MatDivider } from '@angular/material/divider';
 import {
   MatExpansionPanel,
@@ -25,13 +24,14 @@ import {
   StructureEditorModalComponent,
   StructureEditorModalResult,
 } from '@core/components/experiment/structure-editor-modal/structure-editor-modal.component';
+import { ButtonComponent } from '@core/components/common/button/button.component';
+import { SlideInPanelService } from '@core/components/common/slide-in-panel/slide-in-panel.service';
 import { InfiniteLoaderComponent } from '@core/components/util/infinite-loader/infinite-loader.component';
 import { GlobalSearchLoader } from '@core/components/util/infinite-scroll-search';
 import { ExperimentStatus, ExperimentStatusNames } from '@core/enums/experiment-status.enum';
 import { ApiService } from '@core/services/api.service';
 import { BuiltInDictionary, DictionaryItemRef } from '@core/types/entities/dictionary.i';
 import { ReactionRole, ReactionRoleNames } from '@core/types/entities/experiments/experiment-shared.i';
-import { ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
 import {
   GlobalSearchEntityType,
   GlobalSearchRequest,
@@ -49,20 +49,14 @@ import {
 import { first } from 'rxjs';
 import { IdentityService } from '@core/services/identity.service';
 
-export interface GlobalSearchDialogData {
-  reactionAnchor: ReactionAnchor;
-  initialQuery?: string;
-}
-
 @Component({
   standalone: true,
-  selector: 'eln-project-add',
+  selector: 'eln-global-search',
   imports: [
     MatInputModule,
     FormsModule,
     ReactiveFormsModule,
     CommonModule,
-    FormDialogComponent,
     InputComponent,
     MatRadioGroup,
     MatRadioButton,
@@ -80,11 +74,12 @@ export interface GlobalSearchDialogData {
     ApiImageComponent,
     EnumSelectComponent,
     RouterLink,
+    ButtonComponent,
   ],
   templateUrl: './global-search.component.html',
 })
 export class GlobalSearchComponent implements OnInit, AfterViewInit {
-  data: GlobalSearchDialogData = inject(MAT_DIALOG_DATA);
+  initialQuery = input<string | null>(null);
 
   loader: GlobalSearchLoader;
 
@@ -94,9 +89,7 @@ export class GlobalSearchComponent implements OnInit, AfterViewInit {
   dialog = inject(MatDialog);
   identityService = inject(IdentityService);
   destroyRef = inject(DestroyRef);
-  dialogRef = inject(MatDialogRef<GlobalSearchComponent>);
-
-  title = 'Search';
+  slideInPanelService = inject(SlideInPanelService);
 
   form = new FormGroup({
     quickSearch: new FormControl<string | null>(null),
@@ -128,8 +121,8 @@ export class GlobalSearchComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    if (this.data?.initialQuery) {
-      this.form.get('quickSearch').setValue(this.data.initialQuery);
+    if (this.initialQuery()) {
+      this.form.get('quickSearch').setValue(this.initialQuery());
       this.performSearch();
     }
   }
@@ -215,6 +208,12 @@ export class GlobalSearchComponent implements OnInit, AfterViewInit {
     });
   }
 
+  clearAll() {
+    this.form.reset({ structureSearchType: StructuralSearchType.SUBSTRUCTURE });
+    this.structureImage = null;
+    this.loader = new GlobalSearchLoader(this.apiService);
+  }
+
   clearStructure() {
     this.form.get('isReaction').setValue(null);
     this.form.get('structure').setValue(null);
@@ -222,7 +221,7 @@ export class GlobalSearchComponent implements OnInit, AfterViewInit {
   }
 
   closeDialog(): void {
-    this.dialogRef.close();
+    this.slideInPanelService.close();
   }
 
   getResultLink(result: { id: string; type: GlobalSearchEntityType }): string[] {
