@@ -4,9 +4,8 @@ import { FormDialogComponent } from '@core/components/common/form-dialog/form-di
 import { ApiService } from '@core/services/api.service';
 import { MatDialogRef } from '@angular/material/dialog';
 import { FormlyFieldConfig } from '@ngx-formly/core';
-import { map, shareReplay, tap } from 'rxjs/operators';
+import { catchError, map, of, shareReplay, tap } from 'rxjs';
 import { UUID } from '@core/types/entities/experiments/experiment-shared.i';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 interface SignatureTemplateRef {
   id: UUID;
@@ -16,7 +15,7 @@ interface SignatureTemplateRef {
 @Component({
   selector: 'eln-sign-dialog',
   standalone: true,
-  imports: [CommonModule, FormDialogComponent, MatProgressSpinnerModule],
+  imports: [CommonModule, FormDialogComponent],
   templateUrl: './sign-dialog.component.html',
 })
 export class SignDialogComponent implements OnInit {
@@ -24,11 +23,17 @@ export class SignDialogComponent implements OnInit {
   private dialogRef = inject(MatDialogRef<SignDialogComponent>);
 
   loading = signal(true);
+  loadError = signal<string | null>(null);
 
   options$ = this.api.request<SignatureTemplateRef[]>('get', 'signatureTemplates').pipe(
     map((templates) => templates.map((t) => ({ value: t.id, label: t.name }))),
     tap(() => this.loading.set(false)),
-    shareReplay(1), // don't repeat HTTP call for every subscriber
+    catchError(() => {
+      this.loading.set(false);
+      this.loadError.set('Failed to load signature templates');
+      return of([]);
+    }),
+    shareReplay(1),
   );
 
   ngOnInit() {

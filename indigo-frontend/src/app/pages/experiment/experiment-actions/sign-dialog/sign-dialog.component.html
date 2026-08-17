@@ -2,14 +2,8 @@
   title="Select Signature Template"
   submitButtonText="Sign"
   [fields]="fields"
-  [submitEnabled]="!loading()"
+  [contentLoading]="loading()"
+  [contentError]="loadError()"
   (formSubmit)="onSubmit($event)"
 >
-  @if (loading()) {
-    <ng-template #modalContent>
-      <div class="flex justify-center items-center py-8">
-        <mat-spinner diameter="40" />
-      </div>
-    </ng-template>
-  }
 </eln-form-dialog>

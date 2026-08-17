@@ -1,9 +1,12 @@
 <eln-form-dialog
   [title]="'Add Notebook'"
   [fields]="fields"
+  [model]="model"
   size="auto"
   containerClass="w-[800px]"
-  (formSubmit)="createNotebook($event)"
+  [contentLoading]="loading"
+  [contentError]="loadError"
+  [submitFn]="createNotebookFn"
   [toastMessages]="{ uniqueName: uniqueNameToastMessage }"
   submitButtonText="Save"
 ></eln-form-dialog>

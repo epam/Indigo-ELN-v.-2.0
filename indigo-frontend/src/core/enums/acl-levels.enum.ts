@@ -17,7 +17,7 @@ export const ACL_LEVEL_LABELS: Record<AclLevel, string> = {
   [AclLevel.ADMIN]: 'Admin',
   [AclLevel.EDIT]: 'Can Edit',
   [AclLevel.VIEW]: 'Can View',
-  [AclLevel.IMPLICIT_VIEW]: 'Implicit View',
+  [AclLevel.IMPLICIT_VIEW]: 'Limited View',
   [AclLevel.NONE]: 'None',
   [AclLevel.AUTHOR]: 'Author',
 };
