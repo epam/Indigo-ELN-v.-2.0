@@ -5,6 +5,7 @@ import com.epam.indigoeln.eln.entity.ProjectRevisionEntity;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.reaction.model.ProjectSnapshot;
 import com.epam.indigoeln.reaction.service.AbstractUndoHelper;
+import com.epam.indigoeln.reaction.service.mutation.ProjectMutationListener;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -13,7 +14,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @ApplicationScoped
-public class ProjectUndoHelper extends AbstractUndoHelper<ProjectEntity, ProjectSnapshot, ProjectRevisionEntity, ProjectMutationContext> {
+public class ProjectUndoHelper extends AbstractUndoHelper<ProjectEntity, ProjectSnapshot, ProjectRevisionEntity, ProjectMutationContext, ProjectMutationListener> {
 
     @Inject
     ProjectRepository projectRepository;

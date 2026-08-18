@@ -14,19 +14,25 @@ import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.service.mutation.EntityMutationHelper;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandler;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
+import com.epam.indigoeln.reaction.service.mutation.ProjectMutationListener;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.quarkus.arc.All;
 import jakarta.inject.Inject;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
+
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 import static com.epam.indigoeln.eln.util.ModelUtil.wrapConstraintViolation;
 
 @Slf4j
-public abstract class AbstractProjectMutationHandler<T extends Mutation> extends MutationHandler<T, ProjectEntity, ProjectSnapshot, ProjectRevisionEntity, ProjectMutationContext> {
+public abstract class AbstractProjectMutationHandler<T extends Mutation> extends MutationHandler<T, ProjectEntity, ProjectSnapshot, ProjectRevisionEntity, ProjectMutationContext, ProjectMutationListener> {
 
     @Inject
     protected SnapshotMapper snapshotMapper;
@@ -44,6 +50,11 @@ public abstract class AbstractProjectMutationHandler<T extends Mutation> extends
     protected ObjectMapper objectMapper;
     @Inject
     protected JSONPatcher jsonPatcher;
+
+    @All
+    @Inject
+    @Getter(AccessLevel.PROTECTED)
+    List<ProjectMutationListener> listeners;
 
     @Override
     protected ProjectMutationContext createContext() {

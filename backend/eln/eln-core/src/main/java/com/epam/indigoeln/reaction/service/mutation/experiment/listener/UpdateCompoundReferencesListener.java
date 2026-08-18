@@ -5,7 +5,7 @@ import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentReferencedCompound;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.service.ExperimentModelHelperService;
-import com.epam.indigoeln.reaction.service.mutation.ExperimentModelMutationListener;
+import com.epam.indigoeln.reaction.service.mutation.ExperimentMutationListener;
 import com.epam.indigoeln.reaction.service.mutation.experiment.ExperimentMutationContext;
 import jakarta.annotation.Priority;
 import jakarta.enterprise.context.Dependent;
@@ -15,40 +15,42 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Dependent
-@Priority(ExperimentModelMutationListener.DEFAULT_PRIORITY)
-public class UpdateCompoundReferencesListener implements ExperimentModelMutationListener {
+@Priority(ExperimentMutationListener.DEFAULT_PRIORITY)
+public class UpdateCompoundReferencesListener implements ExperimentMutationListener {
 
     @Inject
     ExperimentModelHelperService experimentModelHelperService;
 
-    private final Set<ExperimentReferencedCompound> oldCompoundRefs = new HashSet<>();
+    @SuppressWarnings("NotNullFieldNotInitialized")
+    private Set<ExperimentReferencedCompound> oldCompoundRefs;
 
     @Override
     public void beforeHandle(ExperimentEntity experiment, ExperimentMutationContext context) {
-        collectCompoundRefs(experiment.getModel(), oldCompoundRefs);
+        oldCompoundRefs = collectCompoundRefs(experiment.getModel());
     }
 
     @Override
     public void afterRecalculate(ExperimentEntity experiment, ExperimentMutationContext context) {
-        Set<ExperimentReferencedCompound> newCompoundRefs = new HashSet<>();
-        collectCompoundRefs(experiment.getModel(), newCompoundRefs);
+        Set<ExperimentReferencedCompound> newCompoundRefs = collectCompoundRefs(experiment.getModel());
         if (!oldCompoundRefs.equals(newCompoundRefs)) {
             ModelUtil.updateCollection(experiment.getReferencedCompounds(), newCompoundRefs);
         }
     }
 
-    private static void collectCompoundRefs(ExperimentModel model, Set<ExperimentReferencedCompound> target) {
+    private static Set<ExperimentReferencedCompound> collectCompoundRefs(ExperimentModel model) {
+        Set<ExperimentReferencedCompound> refs = new HashSet<>();
         for (Reaction reaction : model.getReactions()) {
             for (ReactionInput input : reaction.getInputs()) {
                 if (input.getCompound() instanceof CompoundRef.StoredOrVirtual c) {
-                    target.add(new ExperimentReferencedCompound(input.getRole(), c.getCompoundID()));
+                    refs.add(new ExperimentReferencedCompound(input.getRole(), c.getCompoundID()));
                 }
             }
             for (ReactionOutput output : reaction.getOutputs()) {
                 if (output.getCompound() instanceof CompoundRef.StoredOrVirtual c) {
-                    target.add(new ExperimentReferencedCompound(ReactionRole.OUTPUT, c.getCompoundID()));
+                    refs.add(new ExperimentReferencedCompound(ReactionRole.OUTPUT, c.getCompoundID()));
                 }
             }
         }
+        return refs;
     }
 }

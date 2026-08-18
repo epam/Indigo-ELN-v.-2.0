@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, input, signal, TemplateRef, ViewChild } from '@angular/core';
 import { ReactionInput, ReactionInputSample } from '@core/types/entities/experiments/experiment.i';
 import {
   DensityUnit,
@@ -46,6 +46,8 @@ export class ReactionInputsTableComponent {
   private builtInDictionaryService = inject(BuiltInDictionaryService);
   private slideInPanel = inject(SlideInPanelService);
   private notificationService = inject(NotificationService);
+
+  @ViewChild('sampleHeader') sampleHeader: TemplateRef<any>;
 
   experimentId = input.required<UUID>();
   reactionAnchor = input.required<ReactionAnchor>();
@@ -391,6 +393,7 @@ export class ReactionInputsTableComponent {
 
   addMaterial() {
     const ref = this.slideInPanel.open(SampleSearchComponent, {
+      header: this.sampleHeader,
       inputs: { reactionAnchor: this.reactionAnchor() },
     });
     ref.instance.closed.subscribe(() => ref.close());

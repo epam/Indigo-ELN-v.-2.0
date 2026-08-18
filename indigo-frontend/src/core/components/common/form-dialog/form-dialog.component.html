@@ -38,6 +38,14 @@
       <div class="modal-content p-4 overflow-y-auto flex-grow">
         <ng-container *ngTemplateOutlet="modalContent"></ng-container>
       </div>
+    } @else if (contentLoading) {
+      <div class="modal-content p-4 overflow-y-auto flex-grow flex items-center justify-center">
+        <mat-spinner diameter="40" />
+      </div>
+    } @else if (contentError) {
+      <div class="modal-content p-4 overflow-y-auto flex-grow flex items-center justify-center">
+        <p class="text-sm text-red-500">{{ contentError }}</p>
+      </div>
     } @else {
       <div class="modal-content p-4 overflow-y-auto flex-grow">
         <formly-form [model]="model" [fields]="fields" [form]="form"></formly-form>
@@ -57,12 +65,12 @@
               cancelButtonText
             }}</eln-button>
           }
-          @if (!hideSubmitButton) {
+          @if (!hideSubmitButton && !contentLoading && !contentError) {
             <eln-button
               [type]="'button'"
               [variant]="'blue'"
-              [disabled]="!submitEnabled"
-              [loading]="submitLoading"
+              [disabled]="!submitEnabled || submitting"
+              [loading]="submitLoading || submitting"
               (click)="submit()"
               >{{ submitButtonText }}</eln-button
             >

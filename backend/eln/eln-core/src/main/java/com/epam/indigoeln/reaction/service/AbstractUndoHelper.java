@@ -9,6 +9,7 @@ import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.service.mutation.AbstractMutationContext;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandler;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerRegistry;
+import com.epam.indigoeln.reaction.service.mutation.MutationListener;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -33,7 +34,7 @@ import static com.google.common.base.Preconditions.checkState;
 
 @Slf4j
 @RequiredArgsConstructor
-public abstract class AbstractUndoHelper<E extends BaseEntity & WithRevision, S, R extends BaseRevisionEntity, C extends AbstractMutationContext<E, S, R, C>> {
+public abstract class AbstractUndoHelper<E extends BaseEntity & WithRevision, S, R extends BaseRevisionEntity, C extends AbstractMutationContext<E, S, R, C, L>, L extends MutationListener<E, C>> {
 
     private final Class<S> snapshotClass;
     @Inject
@@ -101,7 +102,7 @@ public abstract class AbstractUndoHelper<E extends BaseEntity & WithRevision, S,
         Map<Integer, RevisionInfo> revisionMap = StreamEx.of(revisions)
                 .mapToEntry(BaseRevisionEntity::getRevision, x -> {
                     Mutation mutation = x.getMutation();
-                    return mutationHandlerRegistry.withHandler(mutation, (MutationHandler<Mutation, E, S, R, C> handler) -> {
+                    return mutationHandlerRegistry.withHandler(mutation, (MutationHandler<Mutation, E, S, R, C, L> handler) -> {
                         return new RevisionInfo(x, mutation, handler, x.getUser().getId().equals(user.getId()));
                     });
                 })
@@ -202,7 +203,7 @@ public abstract class AbstractUndoHelper<E extends BaseEntity & WithRevision, S,
     public class RevisionInfo {
         private final R entity;
         private final Mutation mutation;
-        private final MutationHandler<Mutation, E, S, R, C> handler;
+        private final MutationHandler<Mutation, E, S, R, C, L> handler;
         private final boolean madeByCurrentUser;
         @Nullable
         private RevisionInfo undoFor;

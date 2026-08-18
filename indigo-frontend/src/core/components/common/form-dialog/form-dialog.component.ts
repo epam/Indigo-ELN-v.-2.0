@@ -6,8 +6,11 @@ import { CommonModule } from '@angular/common';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { TwsxPipe } from '@/core/pipes/twsx.pipe';
 import { FormlyFieldConfig, FormlyModule } from '@ngx-formly/core';
+import { Observable } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 import { ButtonComponent } from '../button/button.component';
 
 @Component({
@@ -24,12 +27,14 @@ import { ButtonComponent } from '../button/button.component';
     FormlyModule,
     ButtonComponent,
     TwsxPipe,
+    MatProgressSpinner,
   ],
 })
 export class FormDialogComponent {
   dialogRef: MatDialogRef<FormDialogComponent> = inject(MatDialogRef);
   private notificationService = inject(NotificationService);
   form = new FormGroup({});
+  submitting = false;
 
   @Input() model: any = {};
   @Input() title = '';
@@ -44,6 +49,9 @@ export class FormDialogComponent {
   @Input() closeOnBackdropClick = false;
   @Input() containerClass = '';
   @Input() toastMessages: Record<string, string> = {};
+  @Input() contentLoading = false;
+  @Input() contentError: string | null = null;
+  @Input() submitFn?: (data: any) => Observable<any>;
   @Output() formSubmit = new EventEmitter<any>();
   @ContentChild('modalHeader') modalHeader: TemplateRef<unknown> | null = null;
   @ContentChild('modalContent') modalContent: TemplateRef<unknown> | null = null;
@@ -55,7 +63,14 @@ export class FormDialogComponent {
       this.showValidationErrors();
       return;
     }
-    this.formSubmit.emit(this.form.value);
+    if (this.submitFn) {
+      this.submitting = true;
+      this.submitFn(this.form.value)
+        .pipe(finalize(() => (this.submitting = false)))
+        .subscribe({ error: () => {} });
+    } else {
+      this.formSubmit.emit(this.form.value);
+    }
   }
 
   private showValidationErrors(): void {

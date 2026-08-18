@@ -14,17 +14,23 @@ import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.service.mutation.EntityMutationHelper;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandler;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
+import com.epam.indigoeln.reaction.service.mutation.NotebookMutationListener;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.quarkus.arc.All;
 import jakarta.inject.Inject;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.SneakyThrows;
 import org.hibernate.exception.ConstraintViolationException;
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
+
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 import static com.epam.indigoeln.eln.util.ModelUtil.wrapConstraintViolation;
 
-public abstract class AbstractNotebookMutationHandler<T extends Mutation> extends MutationHandler<T, NotebookEntity, NotebookSnapshot, NotebookRevisionEntity, NotebookMutationContext> {
+public abstract class AbstractNotebookMutationHandler<T extends Mutation> extends MutationHandler<T, NotebookEntity, NotebookSnapshot, NotebookRevisionEntity, NotebookMutationContext, NotebookMutationListener> {
 
     @Inject
     protected SnapshotMapper snapshotMapper;
@@ -42,6 +48,11 @@ public abstract class AbstractNotebookMutationHandler<T extends Mutation> extend
     ObjectMapper objectMapper;
     @Inject
     JSONPatcher jsonPatcher;
+
+    @All
+    @Inject
+    @Getter(AccessLevel.PROTECTED)
+    List<NotebookMutationListener> listeners;
 
     @Override
     protected NotebookMutationContext createContext() {

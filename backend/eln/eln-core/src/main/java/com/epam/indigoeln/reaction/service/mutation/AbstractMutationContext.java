@@ -10,7 +10,7 @@ import org.jspecify.annotations.Nullable;
 
 @Getter
 @Setter
-public abstract class AbstractMutationContext<E extends BaseEntity & WithRevision, S, R extends BaseRevisionEntity, C extends AbstractMutationContext<E, S, R, C>> {
+public abstract class AbstractMutationContext<E extends BaseEntity & WithRevision, S, R extends BaseRevisionEntity, C extends AbstractMutationContext<E, S, R, C, L>, L extends MutationListener<E, C>> {
 
-    private AbstractUndoHelper<E, S, R, C>.@Nullable UndoInfo undoInfo;
+    private AbstractUndoHelper<E, S, R, C, L>.@Nullable UndoInfo undoInfo;
 }

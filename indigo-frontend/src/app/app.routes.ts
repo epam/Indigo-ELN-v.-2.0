@@ -87,13 +87,14 @@ export const routes: Routes = [
             (c) => c.ExperimentLayoutComponent,
           ),
       },
-      {
-        path: 'templates',
-        loadComponent: () =>
-          import('@pages/template/template-layout/template-layout.component').then((c) => c.TemplateLayoutComponent),
-        canActivate: [roleGuard],
-        data: { requiredPermission: ApplicationPermission.MANAGE_TEMPLATES },
-      },
+      // TODO templates are hidden until editing is implemented
+      // {
+      //   path: 'templates',
+      //   loadComponent: () =>
+      //     import('@pages/template/template-layout/template-layout.component').then((c) => c.TemplateLayoutComponent),
+      //   canActivate: [roleGuard],
+      //   data: { requiredPermission: ApplicationPermission.MANAGE_TEMPLATES },
+      // },
       {
         path: 'signatures',
         loadComponent: () =>

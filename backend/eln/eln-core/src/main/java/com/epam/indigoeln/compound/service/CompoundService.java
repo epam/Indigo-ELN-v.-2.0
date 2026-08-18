@@ -12,6 +12,8 @@ import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.eln.service.UserService;
+import com.epam.indigoeln.eln.util.SearchVectorField;
+import com.epam.indigoeln.eln.util.SearchVectorUpdater;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
@@ -21,11 +23,11 @@ import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.epam.indigoeln.reaction.service.calculator.MolWeightCalculator;
-import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -66,6 +68,8 @@ public class CompoundService {
     MolWeightCalculator molWeightCalculator;
     @Inject
     UserService userService;
+    @Inject
+    SearchVectorUpdater searchVectorUpdater;
 
     public CompoundEntity findOrCreate(IndigoMolecule molecule, @Nullable StereoisomerCodeRef stereoisomerCode, @Nullable SaltCodeRef saltCode, @Nullable Double saltEQ, @Nullable Consumer<CompoundEntity> compoundConfigurer) {
         String canSmiles = molecule.canonicalSmiles();
@@ -114,8 +118,19 @@ public class CompoundService {
             sample.setCompound(compound);
             updateDates(sample, userService.getCurrentUserEntity());
             sampleRepository.persist(sample);
+            updateSearchVector(sample);
         }
         return sample;
+    }
+
+    public void updateSearchVector(SampleEntity sample) {
+        CompoundEntity c = sample.getCompound();
+        List<@Nullable SearchVectorField> fields = new ArrayList<>();
+        fields.add(SearchVectorField.a(sample.getStrCode() != null ? sample.getStrCode().toString() : null));
+        fields.add(SearchVectorField.a(sample.getNbkBatchNumber() != null ? sample.getNbkBatchNumber().toString() : null));
+        fields.add(SearchVectorField.a(c.getCasNumber()));
+        fields.add(SearchVectorField.b(c.getChemicalName()));
+        searchVectorUpdater.update("Sample", sample.getId(), fields);
     }
 
     public CompoundRef.Stored realCompoundRef(CompoundEntity compound) {
@@ -218,6 +233,7 @@ public class CompoundService {
         compound.getSamples().add(sample);
         updateDates(sample, userService.getCurrentUserEntity());
         sampleRepository.persist(sample);
+        updateSearchVector(sample);
         return sample;
     }
 

@@ -7,12 +7,16 @@ import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
-public abstract class MutationHandler<T extends Mutation, E extends WithRevision, S, R extends BaseRevisionEntity, C> {
+import java.util.List;
+
+public abstract class MutationHandler<T extends Mutation, E extends WithRevision, S, R extends BaseRevisionEntity, C, L extends MutationListener<E, C>> {
 
     @PersistenceContext
     EntityManager em;
 
     protected abstract C createContext();
+
+    protected abstract List<L> getListeners();
 
     public MutationResult<S, C> applyMutation(E entity, T mutation) {
         C context = createContext();
@@ -30,7 +34,9 @@ public abstract class MutationHandler<T extends Mutation, E extends WithRevision
         mutation = doPrepareMutation(entity, mutation, context);
         // perform the actual mutation;
         // undo/redo handlers must delegate to undo service
-        doNotifyBeforeHandle(entity, mutation, context);
+        for (L listener : getListeners()) {
+            listener.beforeHandle(entity, context);
+        }
         String summary = doHandle(entity, mutation, context, snapshotBefore);
         // flush database to make sure all constraints hold
         em.flush();
@@ -38,6 +44,9 @@ public abstract class MutationHandler<T extends Mutation, E extends WithRevision
         S snapshotAfter = doSnapshotAfter(entity, context);
         // write changes back to the entity
         JsonNode patch = doUpdateEntity(entity, snapshotBefore, snapshotAfter, context);
+        for (L listener : getListeners()) {
+            listener.afterUpdateEntity(entity);
+        }
         // create revision
         R revision = doCreateRevision(entity, mutation, summary, revisionNo, patch, context, snapshotAfter);
         em.persist(revision);
@@ -56,9 +65,6 @@ public abstract class MutationHandler<T extends Mutation, E extends WithRevision
 
     protected T doPrepareMutation(E entity, T mutation, C context) {
         return mutation;
-    }
-
-    protected void doNotifyBeforeHandle(E entity, T mutation, C context) {
     }
 
     public abstract String doHandle(E entity, T mutation, C context, S snapshotBefore);
