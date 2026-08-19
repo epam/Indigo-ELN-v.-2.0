@@ -34,7 +34,7 @@ RUN chown 1001 /work \
 COPY --chown=1001:root build/*.properties /work/
 COPY --chown=1001:root --chmod=755 build/*.so /usr/lib64/
 COPY --chown=1001:root --chmod=755 build/libawt.so /usr/lib64/
-COPY --chown=1001:root --chmod=755 build/*runner* /work/application
+COPY --chown=1001:root --chmod=755 build/*runner /work/application
 
 # Enable IPv6 in the container
 RUN echo 'net.ipv6.conf.all.disable_ipv6 = 0' >> /etc/sysctl.conf

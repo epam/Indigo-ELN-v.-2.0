@@ -32,7 +32,7 @@ RUN chown 1001 /work \
     && chmod "g+rwX" /work \
     && chown 1001:root /work
 COPY --chown=1001:root --chmod=755 build/nativelibs/linux-x86_64/* /work/nativelibs/linux-x86_64/
-COPY --chown=1001:root --chmod=755 build/*runner* /work/application
+COPY --chown=1001:root --chmod=755 build/*runner /work/application
 
 # Enable IPv6 in the container
 RUN echo 'net.ipv6.conf.all.disable_ipv6 = 0' >> /etc/sysctl.conf

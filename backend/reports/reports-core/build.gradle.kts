@@ -8,8 +8,9 @@ dependencies {
     api(project(":reports:reports-api"))
     api(project(":eln:eln-api"))
 
-    implementation("io.quarkiverse.jasperreports:quarkus-jasperreports:1.3.0")
-    runtimeOnly("xerces:xercesImpl:2.12.2")
+    implementation("io.quarkiverse.jasperreports:quarkus-jasperreports:1.4.0") {
+        exclude("xerces")
+    }
 
     testImplementation(project(":common:common-test"))
 }
