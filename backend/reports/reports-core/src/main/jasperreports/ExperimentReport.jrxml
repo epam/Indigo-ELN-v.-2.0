@@ -385,7 +385,7 @@
 			<element kind="staticText" uuid="e215e390-7c18-46ac-82de-0c25f0c73e7e" x="0" y="0" width="279" height="24" fontSize="14.0">
 				<text><![CDATA[EXPERIMENT DESCRIPTION]]></text>
 			</element>
-			<element kind="textField" uuid="b172fa73-3fee-47fe-86c3-aef175f78bd3" stretchType="ContainerHeight" x="0" y="24" width="556" height="100" textAdjust="StretchHeight">
+			<element kind="textField" uuid="b172fa73-3fee-47fe-86c3-aef175f78bd3" stretchType="ContainerHeight" x="0" y="24" width="556" height="100" textAdjust="StretchHeight" markup="html">
 				<expression><![CDATA[$F{experiment}.getDescription()]]></expression>
 				<property name="com.jaspersoft.studio.unit.x" value="px"/>
 				<property name="com.jaspersoft.studio.unit.y" value="pixel"/>

@@ -40,6 +40,8 @@
     },
     "modifiedAt": "2026-05-05T17:03:46.142Z",
     "name": "00000001-0002",
+    "title": "My Test Experiment",
+    "description": "<p><strong>Header</strong></p><p></p><blockquote data-indent=\"1\" style=\"margin-left: 40px;\"><p><code><span\nstyle=\"color: rgb(14, 138, 22);\">sdfsdf</span></code><span style=\"color: rgb(14, 138,\n22);\">sdfsdf</span></p><p>H<sub>2</sub>O</p></blockquote>",
     "status": "SUBMITTED",
     "marked": false,
     "revision": 4,
