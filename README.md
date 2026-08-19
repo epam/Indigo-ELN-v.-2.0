@@ -27,6 +27,16 @@ The local docker-compose stack runs the full application — frontend, backend (
 - Java 21 (required for the Gradle backend build)
 - ~4 GB of free RAM
 
+### Running on macOS
+
+Docker Desktop is not required — [Colima](https://github.com/abiosoft/colima) works well as a Docker runtime. 
+On **Apple Silicon**, next services (`postgres`, `eln-service`) bundle x86_64-only native libraries, so the VM must run **natively as `aarch64` with Rosetta** for amd64 translation.
+
+```bash
+brew install colima docker docker-compose
+colima start --arch aarch64 --vz-rosetta --cpu 4 --memory 16 --disk 100
+```
+
 ### Setup
 
 ```bash
