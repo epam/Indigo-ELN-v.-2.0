@@ -12,14 +12,21 @@ npm run build        # tsc -b + vite build (runs codegen for routeTree.gen.ts)
 npm run lint         # eslint
 npm run format       # prettier --write src/**
 npm run format:check # prettier --check src/**
-npm test             # vitest run (single pass)
+npm test             # vitest run — both projects (unit + storybook)
 npm run test:watch   # vitest in watch mode
+npm run test:unit    # jsdom unit tests only (no browser needed)
+npm run test:stories # every story as a browser test in headless Chromium
+
+npm run storybook       # Storybook dev server at http://localhost:6006
+npm run build-storybook # static build → storybook-static/
 
 # Single test file
 npx vitest run src/lib/types/experiments.test.ts
 ```
 
 Tests are colocated: `foo.test.ts` sits next to `foo.ts`. Test files inside `src/routes/` are excluded from route generation by `routeFileIgnorePattern` in `vite.config.ts`.
+
+Stories are colocated the same way: `foo.stories.tsx` next to `foo.tsx`.
 
 `npm run build` is the authoritative type-check — it runs `tsc -b` first and regenerates `src/routeTree.gen.ts`.
 
@@ -78,6 +85,21 @@ No `tailwind.config.*` file. All theme customisation is in `src/styles.css` via 
 Styled with CVA + `cn()`, following the shadcn `base-nova` pattern. Primitives from `@base-ui/react` (not Radix). Current components: `button`, `avatar`, `badge`, `switch`, `segmented-control`. Add new ones with `npx shadcn add <name>` — the CLI respects `components.json`. Icons: `lucide-react` only; never hand-write SVG paths.
 
 `Badge` variant keys are the nine `ExperimentStatus` values verbatim (`OPEN`, `REOPEN`, …), so `experiment.status` can be passed directly as the `variant` prop. Statuses that read as near-equivalent share a hue and differ by shade (`OPEN`/`REOPEN`, `SIGNING`/`SUBMITTED`, `COMPLETED`/`SIGNED`); `EXPERIMENT_STATUS_COLOR` holds the matching text colour for non-badge surfaces.
+
+### Storybook
+
+Storybook 10 + `@storybook/react-vite`. `.storybook/main.ts` inherits the whole `vite.config.ts` (the `@` alias, Tailwind, the React plugin) — never redeclare those in `viteFinal`. It only does two things there: strips the TanStack Router codegen plugin (Storybook renders no routes, and the plugin would rewrite the gitignored `routeTree.gen.ts`), and aliases `aws-amplify/auth` to `.storybook/mocks/amplify-auth.ts` so `apiFetch`'s `authHeader()` and `AppSidebar`'s `signOut()` never reach Cognito.
+
+`.storybook/preview.tsx` imports `@/styles.css` (without it everything renders unstyled) and applies two decorators:
+
+| Decorator | Why |
+|---|---|
+| `withQuery` | A **fresh** `QueryClient` per story with `retry: false`. Never the `src/lib/query-client.ts` singleton — its cache leaks across stories and makes loading states unreachable. |
+| `withRouter` | A throwaway memory router whose root route renders the story. `LINK_PATHS` in `with-router.tsx` lists every `to` the components link to; **a `<Link>` to a path missing from that list throws**, so add new link targets there. |
+
+Mock data lives in `src/mocks/` (under `src/`, not `.storybook/`, so unit tests can import it too): `fixtures.ts` has `makeProject`/`makeExperiment`/`makeTotalCounts` override factories, `handlers.ts` has the MSW handlers for the four endpoints `apiFetch` hits. Paths there must include the `/api/eln` prefix that `buildUrl` adds. Override per story with `parameters: { msw: { handlers: errorHandlers } }` — `handlers.ts` exports `emptyHandlers`, `errorHandlers`, and `loadingHandlers` for the non-happy paths.
+
+`vite.config.ts` defines two Vitest projects: `unit` (jsdom, `src/**/*.test.{ts,tsx}`) and `storybook` (real Chromium via Playwright, every story as a smoke test with `a11y: { test: 'error' }` failing on violations). CI without a browser should run `npm run test:unit`; Chromium comes from `npx playwright install chromium`. The `storybook` project keeps `.storybook/vitest.setup.ts` even though Storybook 10.3+ can provision annotations itself — only a project setup file gets scanned for dep pre-bundling, and without one the CJS deps behind `@testing-library/dom` fail to import in the browser.
 
 ### TypeScript strictness notes
 

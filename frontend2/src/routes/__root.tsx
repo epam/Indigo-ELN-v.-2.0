@@ -43,7 +43,10 @@ function NotFound() {
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-4">
       <h1 className="text-2xl font-semibold">Page not found</h1>
-      <Button render={<Link to="/" />}>Back to start</Button>
+      {/* Renders an <a>, so Base UI must not apply native <button> semantics. */}
+      <Button nativeButton={false} render={<Link to="/" />}>
+        Back to start
+      </Button>
     </div>
   );
 }

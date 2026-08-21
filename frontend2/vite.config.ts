@@ -1,7 +1,9 @@
 import { fileURLToPath } from 'node:url';
+import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
 import tailwindcss from '@tailwindcss/vite';
 import { tanstackRouter } from '@tanstack/router-plugin/vite';
 import react from '@vitejs/plugin-react';
+import { playwright } from '@vitest/browser-playwright';
 import { defineConfig } from 'vitest/config';
 
 // The deployed app is served as static files from S3/CloudFront, where /api is
@@ -19,7 +21,7 @@ export default defineConfig({
       target: 'react',
       autoCodeSplitting: true,
       // Colocated test files live in src/routes/ but are not routes.
-      routeFileIgnorePattern: '\\.test\\.',
+      routeFileIgnorePattern: '\\.(test|stories)\\.',
     }),
     react(),
     tailwindcss(),
@@ -40,8 +42,36 @@ export default defineConfig({
     },
   },
   test: {
-    environment: 'jsdom',
-    globals: true,
-    setupFiles: ['./src/test-setup.ts'],
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: 'unit',
+          environment: 'jsdom',
+          globals: true,
+          setupFiles: ['./src/test-setup.ts'],
+          include: ['src/**/*.test.{ts,tsx}'],
+        },
+      },
+      {
+        // Every story runs as a smoke test in real Chromium, with the a11y addon
+        // configured in .storybook/preview.tsx failing the test on violations.
+        extends: true,
+        plugins: [storybookTest({ configDir: '.storybook' })],
+        test: {
+          name: 'storybook',
+          // Storybook 10.3+ can provision preview annotations itself, but only
+          // a project setup file gets scanned for dep pre-bundling — without one
+          // the CJS deps behind @testing-library/dom fail to import in the browser.
+          setupFiles: ['.storybook/vitest.setup.ts'],
+          browser: {
+            enabled: true,
+            headless: true,
+            provider: playwright(),
+            instances: [{ browser: 'chromium' }],
+          },
+        },
+      },
+    ],
   },
 });

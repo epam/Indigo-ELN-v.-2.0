@@ -11,7 +11,11 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\"",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "test:unit": "vitest run --project unit",
+    "test:stories": "vitest run --project storybook"
   },
   "dependencies": {
     "@aws-amplify/ui-react": "^6.15.5",
@@ -35,6 +39,10 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@storybook/addon-a11y": "^10.5.10",
+    "@storybook/addon-docs": "^10.5.10",
+    "@storybook/addon-vitest": "^10.5.10",
+    "@storybook/react-vite": "^10.5.10",
     "@tailwindcss/vite": "^4.3.3",
     "@tanstack/router-plugin": "^1.168.34",
     "@testing-library/jest-dom": "^7.0.1",
@@ -43,16 +51,28 @@
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^6.1.0",
+    "@vitest/browser": "^4.1.11",
+    "@vitest/browser-playwright": "^4.1.11",
     "eslint": "^10.8.1",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.4",
+    "eslint-plugin-storybook": "^10.5.10",
     "globals": "^17.11.0",
     "jsdom": "^30.0.1",
+    "msw": "^2.15.0",
+    "msw-storybook-addon": "^3.0.0",
+    "playwright": "^1.62.1",
     "prettier": "^3.9.6",
+    "storybook": "^10.5.10",
     "tailwindcss": "^4.3.3",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.67.0",
     "vite": "^8.2.2",
     "vitest": "^4.1.11"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }

@@ -15,3 +15,4 @@ src/routeTree.gen.ts
 .idea/
 .vscode/*
 !.vscode/extensions.json
+storybook-static/
