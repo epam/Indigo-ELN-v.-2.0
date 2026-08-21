@@ -16,8 +16,10 @@ npm test             # vitest run (single pass)
 npm run test:watch   # vitest in watch mode
 
 # Single test file
-npx vitest run src/lib/__tests__/eln-status.test.ts
+npx vitest run src/lib/types/experiments.test.ts
 ```
+
+Tests are colocated: `foo.test.ts` sits next to `foo.ts`. Test files inside `src/routes/` are excluded from route generation by `routeFileIgnorePattern` in `vite.config.ts`.
 
 `npm run build` is the authoritative type-check — it runs `tsc -b` first and regenerates `src/routeTree.gen.ts`.
 

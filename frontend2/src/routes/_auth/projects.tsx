@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { z } from 'zod';
 
 import { ActionBar, type ProjectView } from '@/components/projects/action-bar';
-import { ProjectGrid } from '@/components/projects/project-grid';
+import { ProjectCollection } from '@/components/projects/project-collection';
 import { StatsBar } from '@/components/projects/stats-bar';
 import type { SortOrder } from '@/lib/types/projects.ts';
 
@@ -42,7 +42,7 @@ function ProjectsPage() {
         onCreatedByMeChange={(value) => patch({ createdByMe: value })}
         onViewChange={(value: ProjectView) => patch({ view: value }, false)}
       />
-      <ProjectGrid filters={{ search: q ?? '', sort, createdByMe }} />
+      <ProjectCollection filters={{ search: q ?? '', sort, createdByMe }} view={view} />
     </>
   );
 }

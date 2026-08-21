@@ -65,6 +65,18 @@
   --color-violet-200: #b326ff;
   --color-violet-10: #b326ff1a;
 
+  /*
+   * Second steps for the statuses that used to share a bucket colour. Unlike the
+   * block above these are not in the Figma COLORS collection — they are darkened
+   * variants picked so REOPEN / SUBMITTED / SIGNED stay distinct from
+   * OPEN / SIGNING / COMPLETED.
+   */
+  --color-blue-600-10: #232c641a;
+  --color-orange-400: #c25400;
+  --color-orange-400-10: #c254001a;
+  --color-violet-400: #7a1ab3;
+  --color-violet-400-10: #7a1ab31a;
+
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -157,5 +169,8 @@
   }
   html {
     @apply font-sans;
+    /* Reserve the scrollbar gutter so the page does not narrow when a short view
+       (skeletons, an empty result set) grows tall enough to need scrolling. */
+    scrollbar-gutter: stable;
   }
 }

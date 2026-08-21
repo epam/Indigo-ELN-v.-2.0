@@ -1,4 +1,4 @@
-import { createRootRoute, Link, Outlet } from '@tanstack/react-router';
+import { createRootRoute, HeadContent, Link, Outlet } from '@tanstack/react-router';
 import { lazy, Suspense } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -28,6 +28,7 @@ export const Route = createRootRoute({
 function RootComponent() {
   return (
     <>
+      <HeadContent />
       <Outlet />
       {Devtools && (
         <Suspense>

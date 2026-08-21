@@ -14,7 +14,16 @@ import { defineConfig } from 'vitest/config';
 const API_TARGET = 'https://indigo-eln-dev.test.lifescience.opensource.epam.com';
 
 export default defineConfig({
-  plugins: [tanstackRouter({ target: 'react', autoCodeSplitting: true }), react(), tailwindcss()],
+  plugins: [
+    tanstackRouter({
+      target: 'react',
+      autoCodeSplitting: true,
+      // Colocated test files live in src/routes/ but are not routes.
+      routeFileIgnorePattern: '\\.test\\.',
+    }),
+    react(),
+    tailwindcss(),
+  ],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
