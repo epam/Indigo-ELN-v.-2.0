@@ -1,6 +1,5 @@
-import { Link, useRouter } from '@tanstack/react-router';
-import { signOut } from 'aws-amplify/auth';
-import { BookA, Briefcase, LayoutTemplate, LogOut, PanelLeft, PanelLeftClose, Users } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
+import { BookA, Briefcase, LayoutTemplate, PanelLeft, PanelLeftClose, Users } from 'lucide-react';
 import { useState } from 'react';
 
 import { StarredExperiments } from '@/components/layout/starred-experiments';
@@ -14,13 +13,7 @@ const NAV_ITEMS = [
 ] as const;
 
 export function AppSidebar() {
-  const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
-
-  const handleSignOut = async () => {
-    await signOut();
-    router.history.replace('/login');
-  };
 
   return (
     <div className="flex items-start gap-2">
@@ -60,15 +53,6 @@ export function AppSidebar() {
 
           <StarredExperiments />
         </div>
-
-        <Button
-          variant="ghost"
-          className="h-11 justify-start gap-2 rounded-md p-3 text-[16px]/6 font-semibold"
-          onClick={handleSignOut}
-        >
-          <LogOut className="size-5" />
-          Log Out
-        </Button>
       </aside>
 
       {collapsed && (
