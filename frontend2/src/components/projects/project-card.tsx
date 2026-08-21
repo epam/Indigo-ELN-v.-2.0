@@ -1,7 +1,7 @@
-import { Briefcase, Ellipsis } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
+import { Briefcase } from 'lucide-react';
 
 import { AvatarStack } from '@/components/projects/avatar-stack';
-import { Button } from '@/components/ui/button';
 
 import type { Project } from '@/lib/types/projects.ts';
 import { formatDate } from '@/lib/utils.ts';
@@ -19,15 +19,15 @@ export function ProjectCard({ project }: { project: Project }) {
   const openCount = project.experimentCountByStatus.OPEN ?? 0;
 
   return (
-    <article className="flex flex-col gap-3 rounded-6 border border-neutral-300 bg-card px-4 pt-3 pb-4">
+    <Link
+      to="/projects/$id"
+      params={{ id: project.id }}
+      className="flex cursor-pointer flex-col gap-3 rounded-6 border border-neutral-300 bg-card px-4 pt-3 pb-4"
+    >
       <header className="flex h-7 items-center gap-4">
         <Briefcase className="size-5 shrink-0 text-neutral-800" />
         <h3 className="flex-1 truncate text-[14px]/5 font-semibold">{project.name}</h3>
         <AvatarStack acl={project.acl} aclCount={project.aclCount} />
-        {/* TODO: row menu (rename / share / delete) once those actions exist. */}
-        <Button variant="ghost" size="icon-sm" aria-label={`Actions for ${project.name}`}>
-          <Ellipsis />
-        </Button>
       </header>
 
       <dl className="flex flex-col gap-1">
@@ -46,6 +46,6 @@ export function ProjectCard({ project }: { project: Project }) {
           {formatDate(project.createdAt)} {project.createdBy.displayName}
         </Row>
       </dl>
-    </article>
+    </Link>
   );
 }

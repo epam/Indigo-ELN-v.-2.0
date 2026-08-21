@@ -1,15 +1,13 @@
 import { Avatar } from '@/components/ui/avatar';
 import type { ACLEntry } from '@/lib/types/common.ts';
 
-const VISIBLE = 3;
-
 export function AvatarStack({ acl, aclCount }: { acl: ACLEntry[]; aclCount: number }) {
-  const shown = acl.slice(0, VISIBLE);
-  const overflow = aclCount - shown.length;
+  // Project.acl is capped by the backend; the badge counts everyone it left out.
+  const overflow = aclCount - acl.length;
 
   return (
     <div className="flex items-center">
-      {shown.map((entry, index) => (
+      {acl.map((entry, index) => (
         <Avatar
           key={entry.username}
           displayName={entry.displayName}

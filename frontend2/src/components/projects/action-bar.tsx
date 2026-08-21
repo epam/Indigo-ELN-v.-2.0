@@ -96,7 +96,6 @@ export function ActionBar({
           </Menu.Portal>
         </Menu.Root>
 
-        {/* The list layout is not in this design, so the toggle is presentational for now. */}
         <SegmentedControl<ProjectView>
           value={view}
           onValueChange={onViewChange}
