@@ -1,13 +1,15 @@
 import { fn } from 'storybook/test';
 
-import { ActionBar } from '@/components/projects/action-bar';
+import { ActionBar } from '@/components/common/action-bar';
+import { Button } from '@/components/ui/button';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta = {
-  title: 'Projects/ActionBar',
+  title: 'Common/ActionBar',
   component: ActionBar,
   args: {
+    entityLabel: 'projects',
     search: '',
     sort: 'LATEST',
     createdByMe: false,
@@ -32,4 +34,16 @@ export const WithSearch: Story = { args: { search: 'kinase' } };
 
 export const FiltersActive: Story = {
   args: { search: 'kinase', sort: 'EARLIEST', createdByMe: true, view: 'list' },
+};
+
+/** The `children` slot, where experiments will hang their status multiselect. */
+export const WithExtraFilter: Story = {
+  args: {
+    entityLabel: 'experiments',
+    children: (
+      <Button variant="secondary" size="lg" className="rounded-md">
+        Status
+      </Button>
+    ),
+  },
 };

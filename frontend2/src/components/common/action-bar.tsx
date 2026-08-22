@@ -6,7 +6,7 @@ import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Switch } from '@/components/ui/switch';
 import { useDebouncedDraft } from '@/lib/hooks/use-debounced-draft';
 
-import type { SortOrder } from '@/lib/types/projects.ts';
+import type { CollectionView, SortOrder } from '@/lib/types/common.ts';
 
 const SORT_LABELS: Record<SortOrder, string> = {
   EARLIEST: 'Earliest',
@@ -15,20 +15,23 @@ const SORT_LABELS: Record<SortOrder, string> = {
 
 const SEARCH_DEBOUNCE_MS = 300;
 
-export type ProjectView = 'grid' | 'list';
-
 interface ActionBarProps {
+  /** Plural entity name, e.g. "projects" — only reaches the screen reader label. */
+  entityLabel: string;
   search: string;
   sort: SortOrder;
   createdByMe: boolean;
-  view: ProjectView;
+  view: CollectionView;
   onSearchChange: (search: string) => void;
   onSortChange: (sort: SortOrder) => void;
   onCreatedByMeChange: (createdByMe: boolean) => void;
-  onViewChange: (view: ProjectView) => void;
+  onViewChange: (view: CollectionView) => void;
+  /** Extra filters for one entity only — experiments put their status multiselect here. */
+  children?: React.ReactNode;
 }
 
 export function ActionBar({
+  entityLabel,
   search,
   sort,
   createdByMe,
@@ -37,6 +40,7 @@ export function ActionBar({
   onSortChange,
   onCreatedByMeChange,
   onViewChange,
+  children,
 }: ActionBarProps) {
   // Debounced so each keystroke does not become a request or a history entry.
   const [draft, setDraft] = useDebouncedDraft(search, onSearchChange, SEARCH_DEBOUNCE_MS);
@@ -50,7 +54,7 @@ export function ActionBar({
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
           placeholder="Search"
-          aria-label="Search projects"
+          aria-label={`Search ${entityLabel}`}
           className="w-full bg-transparent text-[14px]/6 outline-none placeholder:text-neutral-700"
         />
       </label>
@@ -60,6 +64,8 @@ export function ActionBar({
           <Switch checked={createdByMe} onCheckedChange={onCreatedByMeChange} />
           My Entities
         </label>
+
+        {children}
 
         <Menu.Root>
           <Menu.Trigger
@@ -90,7 +96,7 @@ export function ActionBar({
           </Menu.Portal>
         </Menu.Root>
 
-        <SegmentedControl<ProjectView>
+        <SegmentedControl<CollectionView>
           value={view}
           onValueChange={onViewChange}
           options={[
