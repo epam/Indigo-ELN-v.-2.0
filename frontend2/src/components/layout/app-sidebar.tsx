@@ -1,19 +1,26 @@
 import { Link } from '@tanstack/react-router';
-import { BookA, Briefcase, LayoutTemplate, PanelLeft, PanelLeftClose, Users } from 'lucide-react';
+import { BookA, Briefcase, type LucideIcon, PanelLeft, PanelLeftClose, Signature } from 'lucide-react';
 import { useState } from 'react';
 
 import { StarredExperiments } from '@/components/layout/starred-experiments';
 import { Button } from '@/components/ui/button';
+import { useCurrentUser } from '@/lib/api/user';
+import type { ApplicationPermission } from '@/lib/types/user';
+
+type NavItem = { to: string; label: string; icon: LucideIcon; permission?: ApplicationPermission };
 
 const NAV_ITEMS = [
   { to: '/projects', label: 'All Projects', icon: Briefcase },
-  { to: '/templates', label: 'Templates', icon: LayoutTemplate },
-  { to: '/dictionaries', label: 'Dictionaries', icon: BookA },
-  { to: '/users', label: 'Users', icon: Users },
-] as const;
+  { to: '/dictionaries', label: 'Dictionaries', icon: BookA, permission: 'MANAGE_DICTIONARIES' },
+  { to: '/signatures', label: 'Signatures', icon: Signature, permission: 'SIGN_EXPERIMENTS' },
+] as const satisfies readonly NavItem[];
 
 export function AppSidebar() {
   const [collapsed, setCollapsed] = useState(false);
+  const { data: user } = useCurrentUser();
+
+  // Until currentUser resolves, only the unprotected items show.
+  const items = NAV_ITEMS.filter((item) => !('permission' in item) || user?.permissions.includes(item.permission));
 
   return (
     <div className="flex items-start gap-2">
@@ -38,7 +45,7 @@ export function AppSidebar() {
           <div className="h-px bg-neutral-300" />
 
           <nav className="flex flex-col gap-3">
-            {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
+            {items.map(({ to, label, icon: Icon }) => (
               <Link
                 key={to}
                 to={to}
