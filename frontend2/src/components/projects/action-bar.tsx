@@ -1,10 +1,10 @@
 import { Menu } from '@base-ui/react/menu';
 import { ArrowUpDown, ChevronDown, LayoutGrid, LayoutList, Search } from 'lucide-react';
-import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Switch } from '@/components/ui/switch';
+import { useDebouncedDraft } from '@/lib/hooks/use-debounced-draft';
 
 import type { SortOrder } from '@/lib/types/projects.ts';
 
@@ -38,14 +38,8 @@ export function ActionBar({
   onCreatedByMeChange,
   onViewChange,
 }: ActionBarProps) {
-  const [draft, setDraft] = useState(search);
-
-  // Debounce so each keystroke does not become a request or a history entry.
-  useEffect(() => {
-    if (draft === search) return;
-    const timer = setTimeout(() => onSearchChange(draft), SEARCH_DEBOUNCE_MS);
-    return () => clearTimeout(timer);
-  }, [draft, search, onSearchChange]);
+  // Debounced so each keystroke does not become a request or a history entry.
+  const [draft, setDraft] = useDebouncedDraft(search, onSearchChange, SEARCH_DEBOUNCE_MS);
 
   return (
     <div className="flex h-10 items-center justify-between gap-4">
