@@ -16,5 +16,8 @@ export function useMarkedExperiments() {
   return useQuery({
     queryKey: experimentKeys.marked(),
     queryFn: fetchMarkedExperiments,
+    // Persisted to localStorage, which drops any entry whose gcTime is shorter than the
+    // persister's maxAge — the restored list must outlive the default five minutes.
+    gcTime: Infinity,
   });
 }

@@ -7,7 +7,9 @@ export type BreadcrumbItem = { label: string; link?: LinkProps };
 export function Breadcrumbs({ items, className }: { items: BreadcrumbItem[]; className?: string }) {
   return (
     <nav aria-label="Breadcrumb" className={className}>
-      <ol className="flex items-center gap-2 text-[16px]/6 font-semibold">
+      {/* min-h-9 matches the `lg` Button next to it on the projects page, so the row keeps
+          the same height on pages that have no button and breadcrumbs don't jump between them. */}
+      <ol className="flex min-h-9 items-center gap-2 text-[16px]/6 font-semibold">
         {items.map(({ label, link }, index) => {
           const isCurrent = index === items.length - 1;
 
