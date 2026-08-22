@@ -1,5 +1,6 @@
 import { Button as ButtonPrimitive } from '@base-ui/react/button';
 import { cva, type VariantProps } from 'class-variance-authority';
+import { Loader2 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
@@ -38,13 +39,37 @@ const buttonVariants = cva(
   },
 );
 
-function Button({
-  className,
-  variant = 'default',
-  size = 'default',
-  ...props
-}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
-  return <ButtonPrimitive data-slot="button" className={cn(buttonVariants({ variant, size, className }))} {...props} />;
+type ButtonProps = ButtonPrimitive.Props &
+  VariantProps<typeof buttonVariants> & {
+    /** Disables the button and covers its contents with a centred spinner. */
+    loading?: boolean;
+  };
+
+function Button({ className, variant = 'default', size = 'default', loading, children, ...props }: ButtonProps) {
+  return (
+    <ButtonPrimitive
+      data-slot="button"
+      className={cn(buttonVariants({ variant, size, className }), loading && 'relative')}
+      {...props}
+      disabled={loading || props.disabled}
+      aria-busy={loading || undefined}
+    >
+      {loading ? (
+        <>
+          {/*
+            Faded rather than hidden: `visibility: hidden` would drop the label from the
+            button's accessible name, leaving it announced only as a spinner. Kept in the
+            flow so the button does not resize mid-submit, inheriting the button's own gap
+            so the icon/label spacing is unchanged.
+          */}
+          <span className="inline-flex items-center gap-[inherit] opacity-0">{children}</span>
+          <Loader2 aria-hidden className="absolute animate-spin" />
+        </>
+      ) : (
+        children
+      )}
+    </ButtonPrimitive>
+  );
 }
 
 export { Button, buttonVariants };

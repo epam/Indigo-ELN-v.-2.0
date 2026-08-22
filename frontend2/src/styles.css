@@ -174,3 +174,39 @@
     scrollbar-gutter: stable;
   }
 }
+
+/*
+ * Tiptap renders bare ProseMirror output with no classes of its own, so the marks the
+ * toolbar can apply are styled here rather than through Tailwind utilities.
+ */
+@layer components {
+  .tiptap-content .ProseMirror {
+    @apply min-h-[120px];
+  }
+  /* Placeholder from @tiptap/extensions, shown only on a genuinely empty document. */
+  .tiptap-content p.is-editor-empty:first-child::before {
+    @apply pointer-events-none float-left h-0 text-neutral-700;
+    content: attr(data-placeholder);
+  }
+  .tiptap-content blockquote {
+    @apply my-1 border-l-2 border-neutral-300 pl-3 text-neutral-800;
+  }
+  .tiptap-content code {
+    @apply rounded-2 bg-neutral-200 px-1 py-0.5 font-mono text-[13px];
+  }
+  .tiptap-content sub {
+    @apply align-sub text-[0.75em];
+  }
+  .tiptap-content sup {
+    @apply align-super text-[0.75em];
+  }
+  .tiptap-content img {
+    @apply my-1 max-w-full rounded-2;
+  }
+  .tiptap-content ul {
+    @apply list-disc pl-5;
+  }
+  .tiptap-content ol {
+    @apply list-decimal pl-5;
+  }
+}

@@ -22,9 +22,7 @@ function Cell({ status, children }: { status: ExperimentStatus; children: React.
 
 export function StatusCountStrip({ counts }: { counts: TotalCounts | undefined }) {
   // Zero-count statuses are dropped, so the strip is as wide as the data needs.
-  const visible = counts
-    ? EXPERIMENT_STATUSES.filter((status) => (counts.experimentsByStatus[status] ?? 0) > 0)
-    : [];
+  const visible = counts ? EXPERIMENT_STATUSES.filter((status) => (counts.experimentsByStatus[status] ?? 0) > 0) : [];
 
   return (
     // min-w-0 lets the strip shrink past its cells (overflow-clip alone does not

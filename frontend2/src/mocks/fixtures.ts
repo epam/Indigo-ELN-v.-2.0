@@ -1,6 +1,7 @@
 import type { ACLEntry, UserRef } from '@/lib/types/common.ts';
 import type { Experiment } from '@/lib/types/experiments.ts';
-import type { Project, TotalCounts } from '@/lib/types/projects.ts';
+import type { Project, ProjectDetails, TotalCounts } from '@/lib/types/projects.ts';
+import type { CurrentUser } from '@/lib/types/user.ts';
 
 export function makeUserRef(displayName: string): UserRef {
   return { username: displayName.toLowerCase().replace(/\s+/g, '.'), displayName };
@@ -8,6 +9,17 @@ export function makeUserRef(displayName: string): UserRef {
 
 export function makeAclEntry(displayName: string, overrides: Partial<ACLEntry> = {}): ACLEntry {
   return { ...makeUserRef(displayName), level: 'EDIT', inherited: false, ...overrides };
+}
+
+/** Every permission by default, so the sidebar renders its full menu. */
+export function makeCurrentUser(overrides: Partial<CurrentUser> = {}): CurrentUser {
+  return {
+    id: '99999999-9999-9999-9999-999999999999',
+    username: 'anna.petrova',
+    displayName: 'Administrator',
+    permissions: ['VIEW_PROJECTS', 'CREATE_PROJECTS', 'EDIT_PROJECTS', 'MANAGE_DICTIONARIES', 'SIGN_EXPERIMENTS'],
+    ...overrides,
+  };
 }
 
 const ADMINISTRATOR = makeUserRef('Administrator');
@@ -46,6 +58,44 @@ export function makeExperiment(overrides: Partial<Experiment> = {}): Experiment 
     ...overrides,
   };
 }
+
+export function makeProjectDetails(overrides: Partial<ProjectDetails> = {}): ProjectDetails {
+  // ProjectDetailsDTO carries acl but no aclCount, unlike the list's ProjectDTO — which
+  // is structurally harmless here, so the extra key is simply left in place.
+  const base = makeProject();
+  return {
+    ...base,
+    revision: 1,
+    keywords: ['kinase', 'screening'],
+    literature: '<p>Smith et al., <em>J. Med. Chem.</em> 2024</p>',
+    description: '<p>Screening cascade for the kinase series.</p>',
+    attachments: [],
+    currentPermissions: ['VIEW_PROJECTS', 'EDIT_PROJECTS'],
+    ...overrides,
+  };
+}
+
+/**
+ * Enough keywords to overflow one page of the suggestion list, so the PageUp/PageDown
+ * behaviour in MultiCombobox is actually exercisable.
+ */
+export const KEYWORDS: string[] = [
+  'kinase',
+  'kinase-inhibitor',
+  'kinetics',
+  'screening',
+  'scale-up',
+  'selectivity',
+  'solubility',
+  'stability',
+  'stereochemistry',
+  'sulfonamide',
+  'suzuki-coupling',
+  'synthesis',
+  'crystallisation',
+  'chromatography',
+  'catalysis',
+];
 
 export function makeTotalCounts(overrides: Partial<TotalCounts> = {}): TotalCounts {
   return {

@@ -22,6 +22,11 @@ export interface BaseDTO {
   modifiedAt: string;
 }
 
+export interface Attachment extends BaseDTO {
+  name: string;
+  size: number;
+}
+
 export interface Page<T> {
   pageNo: number;
   pageSize: number;
@@ -29,3 +34,10 @@ export interface Page<T> {
   totalPages: number;
   items: T[];
 }
+
+/** Sort and layout choices are the same on every entity list (projects, notebooks, experiments). */
+export const SORT_ORDERS = ['EARLIEST', 'LATEST'] as const;
+export type SortOrder = (typeof SORT_ORDERS)[number];
+
+export const COLLECTION_VIEWS = ['grid', 'list'] as const;
+export type CollectionView = (typeof COLLECTION_VIEWS)[number];

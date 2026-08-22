@@ -22,7 +22,7 @@ function Column({ label, children }: { label: string; children: React.ReactNode 
  */
 const COLUMNS_CLASS = 'grid gap-4 grid-cols-[repeat(auto-fit,minmax(160px,1fr))]';
 
-export function ProjectRow({ project }: { project: Project }) {
+export function ProjectRow({ item: project }: { item: Project }) {
   const openCount = project.experimentCountByStatus.OPEN ?? 0;
 
   return (

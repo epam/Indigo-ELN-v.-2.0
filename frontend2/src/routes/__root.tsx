@@ -2,6 +2,7 @@ import { createRootRoute, HeadContent, Link, Outlet } from '@tanstack/react-rout
 import { lazy, Suspense } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { ToastProvider } from '@/components/ui/toast';
 
 const Devtools = import.meta.env.DEV
   ? lazy(async () => {
@@ -27,7 +28,7 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   return (
-    <>
+    <ToastProvider>
       <HeadContent />
       <Outlet />
       {Devtools && (
@@ -35,7 +36,7 @@ function RootComponent() {
           <Devtools />
         </Suspense>
       )}
-    </>
+    </ToastProvider>
   );
 }
 

@@ -1,16 +1,16 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { z } from 'zod';
 
-import { ActionBar, type ProjectView } from '@/components/projects/action-bar';
+import { ActionBar } from '@/components/common/action-bar';
 import { ProjectCollection } from '@/components/projects/project-collection';
 import { StatsBar } from '@/components/projects/stats-bar';
-import type { SortOrder } from '@/lib/types/projects.ts';
+import { COLLECTION_VIEWS, type CollectionView, SORT_ORDERS, type SortOrder } from '@/lib/types/common.ts';
 
 const searchSchema = z.object({
   q: z.string().optional(),
-  sort: z.enum(['EARLIEST', 'LATEST']).default('LATEST'),
+  sort: z.enum(SORT_ORDERS).default('LATEST'),
   createdByMe: z.boolean().default(false),
-  view: z.enum(['grid', 'list']).default('grid'),
+  view: z.enum(COLLECTION_VIEWS).default('grid'),
 });
 
 export const Route = createFileRoute('/_auth/projects')({
@@ -33,6 +33,7 @@ function ProjectsPage() {
     <>
       <StatsBar />
       <ActionBar
+        entityLabel="projects"
         search={q ?? ''}
         sort={sort}
         createdByMe={createdByMe}
@@ -40,7 +41,7 @@ function ProjectsPage() {
         onSearchChange={(value) => patch({ q: value || undefined })}
         onSortChange={(value: SortOrder) => patch({ sort: value })}
         onCreatedByMeChange={(value) => patch({ createdByMe: value })}
-        onViewChange={(value: ProjectView) => patch({ view: value }, false)}
+        onViewChange={(value: CollectionView) => patch({ view: value }, false)}
       />
       <ProjectCollection filters={{ search: q ?? '', sort, createdByMe }} view={view} />
     </>

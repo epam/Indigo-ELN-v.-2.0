@@ -15,7 +15,7 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   );
 }
 
-export function ProjectCard({ project }: { project: Project }) {
+export function ProjectCard({ item: project }: { item: Project }) {
   const openCount = project.experimentCountByStatus.OPEN ?? 0;
 
   return (

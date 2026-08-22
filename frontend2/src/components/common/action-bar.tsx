@@ -4,7 +4,6 @@ import { ArrowUpDown, ChevronDown, LayoutGrid, LayoutList, Search } from 'lucide
 import { Button } from '@/components/ui/button';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Switch } from '@/components/ui/switch';
-import { useDebouncedDraft } from '@/lib/hooks/use-debounced-draft';
 
 import type { CollectionView, SortOrder } from '@/lib/types/common.ts';
 
@@ -12,8 +11,6 @@ const SORT_LABELS: Record<SortOrder, string> = {
   EARLIEST: 'Earliest',
   LATEST: 'Latest',
 };
-
-const SEARCH_DEBOUNCE_MS = 300;
 
 interface ActionBarProps {
   /** Plural entity name, e.g. "projects" — only reaches the screen reader label. */
@@ -42,17 +39,14 @@ export function ActionBar({
   onViewChange,
   children,
 }: ActionBarProps) {
-  // Debounced so each keystroke does not become a request or a history entry.
-  const [draft, setDraft] = useDebouncedDraft(search, onSearchChange, SEARCH_DEBOUNCE_MS);
-
   return (
     <div className="flex h-10 items-center justify-between gap-4">
       <label className="flex h-10 w-[280px] items-center gap-2 rounded-full border border-blue-10 bg-blue-5 px-4">
         <Search className="size-5 shrink-0 text-neutral-700" />
         <input
           type="search"
-          value={draft}
-          onChange={(event) => setDraft(event.target.value)}
+          value={search}
+          onChange={(event) => onSearchChange(event.target.value)}
           placeholder="Search"
           aria-label={`Search ${entityLabel}`}
           className="w-full bg-transparent text-[14px]/6 outline-none placeholder:text-neutral-700"

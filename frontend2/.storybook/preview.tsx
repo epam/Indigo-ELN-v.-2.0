@@ -2,6 +2,7 @@ import { mswLoader } from 'msw-storybook-addon/csf3';
 
 import { withQuery } from './decorators/with-query';
 import { withRouter } from './decorators/with-router';
+import { withToast } from './decorators/with-toast';
 
 import { handlers } from '@/mocks/handlers';
 import '@/styles.css';
@@ -16,7 +17,7 @@ const preview: Preview = {
     a11y: { test: 'error' },
   },
   loaders: [mswLoader()],
-  decorators: [withQuery, withRouter],
+  decorators: [withQuery, withRouter, withToast],
 };
 
 export default preview;

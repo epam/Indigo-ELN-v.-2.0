@@ -15,11 +15,13 @@ import type { Decorator } from '@storybook/react-vite';
  * route tree, so a path missing here makes the Link throw rather than render.
  */
 const LINK_PATHS = [
+  '/',
   '/projects',
   '/projects/$id',
   '/experiments/$id',
   '/templates',
   '/dictionaries',
+  '/signatures',
   '/users',
   '/login',
 ] as const;

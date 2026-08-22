@@ -6,7 +6,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 const meta = {
   title: 'Projects/ProjectRow',
   component: ProjectRow,
-  args: { project: makeProject() },
+  args: { item: makeProject() },
 } satisfies Meta<typeof ProjectRow>;
 
 export default meta;
@@ -16,7 +16,7 @@ export const Default: Story = {};
 
 export const LongName: Story = {
   args: {
-    project: makeProject({
+    item: makeProject({
       name: 'Palladium-Catalysed Cross-Coupling Route Scouting for Intermediate B-17',
     }),
   },
@@ -24,7 +24,7 @@ export const LongName: Story = {
 
 export const NoExperiments: Story = {
   args: {
-    project: makeProject({ notebookCount: 0, experimentCount: 0, experimentCountByStatus: {} }),
+    item: makeProject({ notebookCount: 0, experimentCount: 0, experimentCountByStatus: {} }),
   },
 };
 
@@ -32,9 +32,9 @@ export const NoExperiments: Story = {
 export const Stacked: Story = {
   render: () => (
     <div className="flex flex-col gap-3">
-      <ProjectRow project={makeProject()} />
-      <ProjectRow project={makeProject({ id: 'b', name: 'Fragment Library Expansion' })} />
-      <ProjectRow project={makeProject({ id: 'c', name: 'Route Scouting — Intermediate B' })} />
+      <ProjectRow item={makeProject()} />
+      <ProjectRow item={makeProject({ id: 'b', name: 'Fragment Library Expansion' })} />
+      <ProjectRow item={makeProject({ id: 'c', name: 'Route Scouting — Intermediate B' })} />
     </div>
   ),
 };

@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import { Plus } from 'lucide-react';
+import { expect, within } from 'storybook/test';
 
 import { Button } from '@/components/ui/button';
 
@@ -57,6 +58,69 @@ export const IconOnly: Story = {
 
 export const Disabled: Story = {
   args: { children: 'Unavailable', disabled: true },
+};
+
+/** `loading` disables the button and covers its label with a spinner. */
+export const Loading: Story = {
+  args: { children: 'Save', loading: true },
+};
+
+export const LoadingVariants: Story = {
+  args: { children: 'Save' },
+  render: () => (
+    <div className="flex flex-wrap items-center gap-3">
+      {VARIANTS.map((variant) => (
+        <Button key={variant} variant={variant} loading>
+          {variant}
+        </Button>
+      ))}
+    </div>
+  ),
+};
+
+export const LoadingSizes: Story = {
+  args: { children: 'Save' },
+  render: () => (
+    <div className="flex items-center gap-3">
+      {SIZES.map((size) => (
+        <Button key={size} size={size} loading>
+          {size}
+        </Button>
+      ))}
+    </div>
+  ),
+};
+
+/**
+ * The label is faded rather than hidden, and stays in the flow. Two reasons, both easy to
+ * regress: `visibility: hidden` would drop it from the accessible name, leaving the button
+ * announced as nothing but a spinner; and taking it out of the flow would let the button
+ * resize the moment a form is submitted.
+ */
+export const LoadingKeepsItsLabelAndWidth: Story = {
+  args: { children: 'Save' },
+  render: () => (
+    <div className="flex items-center gap-3">
+      <Button>
+        <Plus />
+        Add Project
+      </Button>
+      <Button loading>
+        <Plus />
+        Add Project
+      </Button>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const [idle, loading] = canvas.getAllByRole('button', { name: 'Add Project' });
+
+    await expect(loading).toBeDisabled();
+    await expect(loading).toHaveAttribute('aria-busy', 'true');
+    await expect(idle).not.toHaveAttribute('aria-busy');
+    // Same width down to the icon gap, so nothing shifts when a submit starts.
+    await expect(loading.offsetWidth).toBe(idle.offsetWidth);
+  },
 };
 
 /**

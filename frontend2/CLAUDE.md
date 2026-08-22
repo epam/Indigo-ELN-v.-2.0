@@ -49,7 +49,7 @@ Routes live in `src/routes/`. **Never edit `src/routeTree.gen.ts`** — it is re
 
 The `_auth` segment is a layout route (`src/routes/_auth.tsx`) that runs a `beforeLoad` guard: if no Cognito access token exists, it redirects to `/login?redirect=…`. Every authenticated page is nested under it as `src/routes/_auth/<page>.tsx`. The guard also wraps all children in `<AppShell>`.
 
-Search params are the source of truth for filter state. Route files validate params with Zod (`validateSearch`) and write back with `navigate({ search: prev => ({...prev, ...next}), replace: true })` so every keystroke doesn't push a history entry.
+Search params are the source of truth for filter state. Route files validate params with Zod (`validateSearch`) and write back with `navigate({ search: prev => ({...prev, ...next}), replace: true })` so every keystroke doesn't push a history entry. The search box is controlled directly by those params — `src/routes/_auth/projects.test.tsx` mounts the real route to guard against a controlled input dropping keystrokes across async navigation.
 
 ### Data fetching — TanStack Query + `apiFetch`
 
@@ -57,11 +57,32 @@ Search params are the source of truth for filter state. Route files validate par
 - Bare paths (e.g. `'projects'`) are prefixed to `/api/eln/`.
 - Fully-qualified paths starting `/api/` pass through unchanged.
 - Attaches a Cognito **access token** (not ID token) as `Authorization: Bearer`. The backend reads the `username` claim which only exists on the access token.
-- Throws `ApiError(status, body)` on non-2xx.
+- Throws `ApiError(status, body)` on non-2xx, and first raises an error toast via `notifyError` in `src/lib/toast.ts`. That mirrors indigo-frontend's `error.interceptor.ts`: every failed request is reported once, centrally, and still thrown so callers can react. `describeError` there ports the interceptor's `detectMessage` (403 → permission copy, bean-validation array → one line per field, anything else → a generic message).
 
 `src/lib/query-client.ts` — `staleTime: 30_000`; no retry on `ApiError.status < 500`.
 
 Data hooks live in `src/lib/api/` (one file per domain: `user.ts`, `projects.ts`, `experiments.ts`). Each file exports query-key factories, raw fetch functions, and `useXxx` hooks. The raw fetch functions are exported so they can be called outside React (e.g. tests).
+
+**Debouncing a search query — debounce `enabled`, not the term.** `useKeywordSuggestions` (`src/lib/api/projects.ts`) keys on the term *as typed* and holds `enabled` off via `useSettled` (`src/lib/hooks/use-settled.ts`) until it stops changing. Because the key moves on the first keystroke, **`isPending`** is then a single honest "we don't know yet" covering both the wait and the request — which is what the combobox's `loading` prop wants. Two traps:
+
+- `isLoading` is **not** that signal: query-core defines it as `isPending && isFetching`, so it reads false while the query sits disabled during the wait.
+- `placeholderData` must stay off. Holding the previous term's results flips the status to `success`, so `isPending` goes false and the UI shows answers to a question no longer being asked.
+
+`queryFn` takes `({ signal })` and passes it to `apiFetch`. That is what allows TanStack Query to abort the in-flight request when the key moves on and the old query loses its observer — `Query#removeObserver` only aborts `if (this.#abortSignalConsumed)`, i.e. only when the `queryFn` actually read `signal`.
+
+`useProjects` does the same for the projects list, gating on `filters.search` only — sort and `createdByMe` are discrete toggles that should take effect at once. `ActionBar`'s search box therefore writes **straight** to the URL search params on every keystroke (`replace: true`, so no history spam) and is controlled by them; the debounce is entirely in the query. `Collection` then shows its skeletons for the whole wait, instead of leaving the previous term's results up unannounced.
+
+`useSettled` treats the value a component *starts* with as already settled, so gating a query on it never delays a first load.
+
+### Forms — TanStack Form + Zod
+
+`@tanstack/react-form` with plain Zod schemas as validators (not the Zod adapter). The reference implementation is `src/components/projects/project-form-dialog.tsx`:
+
+- Pure schema/derivation logic lives in a sibling non-component module (`project-form.ts`) so the component file only exports components and Fast Refresh keeps working.
+- Async field validation uses `onChangeAsync` + `onChangeAsyncDebounceMs`, and returns `undefined` when the sync rules already fail so a doomed value never costs a request.
+- `form.Subscribe` with `!state.canSubmit || state.isValidating` feeds the dialog's `submitDisabled`, so Save cannot be clicked mid-validation.
+- `src/components/common/form-dialog.tsx` wraps any form in a modal and owns `isSubmitting`: a resolved `onSubmit` is the caller's cue to close (and navigate), a rejected one clears the spinner and leaves the dialog open with its values intact.
+- **Ctrl/Cmd+Enter presses the default button** from anywhere in the dialog — the conventional shortcut, and the only way to submit from a rich-text field where a plain Enter inserts a paragraph. It is a no-op while submitting or while Save is disabled, and defers to any handler that already claimed the chord (`event.defaultPrevented`). Because Tiptap binds hard break to *both* `Mod-Enter` and `Shift-Enter`, `RichTextEditor` drops the `Mod-Enter` binding so the dialog wins; `Shift-Enter` still inserts a hard break.
 
 ### Types
 
@@ -71,7 +92,7 @@ Data hooks live in `src/lib/api/` (one file per domain: `user.ts`, `projects.ts`
 |---|---|
 | `common.ts` | `BaseDTO`, `UserRef`, `ACLEntry`, `AccessLevel`, `Page<T>` |
 | `experiments.ts` | `ExperimentStatus`, `ExperimentStatusCounts`, `EXPERIMENT_STATUSES`, `EXPERIMENT_STATUS_DISPLAY`, `EXPERIMENT_STATUS_COLOR`, `BaseExperiment`, `Experiment` |
-| `projects.ts` | `Project`, `ProjectFilters`, `SortOrder`, `TotalCounts` |
+| `projects.ts` | `Project`, `ProjectDetails`, `ProjectRequest`, `ProjectFilters`, `SortOrder`, `TotalCounts` |
 | `user.ts` | `CurrentUser`, `ApplicationPermission` |
 
 `verbatimModuleSyntax` is enabled — all cross-module type imports must use `import type`. When importing from the same `types/` folder, include the `.ts` extension (e.g. `from '@/lib/types/experiments.ts'`).
@@ -82,7 +103,21 @@ No `tailwind.config.*` file. All theme customisation is in `src/styles.css` via 
 
 ### UI components — `src/components/ui/`
 
-Styled with CVA + `cn()`, following the shadcn `base-nova` pattern. Primitives from `@base-ui/react` (not Radix). Current components: `button`, `avatar`, `badge`, `switch`, `segmented-control`. Add new ones with `npx shadcn add <name>` — the CLI respects `components.json`. Icons: `lucide-react` only; never hand-write SVG paths.
+Styled with CVA + `cn()`, following the shadcn `base-nova` pattern. Primitives from `@base-ui/react` (not Radix). Current components: `button`, `avatar`, `badge`, `switch`, `segmented-control`, `dialog`, `input`, `field`, `combobox`, `toast`, `rich-text-editor`. Add new ones with `npx shadcn add <name>` — the CLI respects `components.json`. Icons: `lucide-react` only; never hand-write SVG paths.
+
+`Button` takes `loading`, which disables it, sets `aria-busy` and overlays a spinner. The label is faded with `opacity-0` rather than `visibility: hidden` on purpose — hiding it would strip the label from the button's accessible name, leaving it announced as nothing but a spinner.
+
+`Field` is deliberately **not** built on Base UI's `Field`: that only auto-associates labels with its own `Field.Control`, which the combobox and the rich-text editor are not. It renders a plain `<label>` carrying both `htmlFor={id}` and `id={`${id}-label`}`, so native controls associate normally and the editor's `contenteditable` points back with `aria-labelledby`.
+
+`MultiCombobox` gets most of its keyboard contract from Base UI (Backspace deletes the last chip, ArrowLeft/Right walk the chips, ArrowUp/Down and Home/End move through suggestions, Escape closes). Two behaviours are added on top: **PageUp/PageDown** — Base UI declares `PAGE_UP`/`PAGE_DOWN` but leaves them out of `COMPOSITE_KEYS`, and exposes no way to set the highlighted index, so the component replays arrow keydowns on the input — clamped to the distance left in the list, because Base UI's navigation wraps at the ends and a fixed count would run off the bottom and back round to the top — and committing typed text as a free-form chip on Enter when no suggestion is highlighted. `combobox.stories.tsx` pins all of it with browser-mode `play` functions.
+
+`MultiCombobox` is **suggestion-only by default**; `allowCustomValues` opts a call site into committing typed text as a new chip (`KeywordCombobox` does, because project keywords are arbitrary strings). With the prop off, Enter on unmatched text adds nothing and Base UI clears the input — the selection can only come from the list. With it on, the empty popup reads `Press Enter to add “…”` instead of the plain `emptyMessage`, but only when the typed value is not already a chip (`addChip` de-duplicates, so otherwise the hint would promise a no-op). `loading` and `error` props suppress the empty state and speak through `Combobox.Status` instead — `Searching…`, or `Could not load suggestions` when the lookup failed (the error is also toasted by `apiFetch`; this just explains the empty list). The Enter-to-add hint deliberately survives a failure, since adding a custom value never depended on the lookup. `Combobox.Status` (Base UI's live region for asynchronously loaded lists, same must-stay-mounted rule as `Empty`), with the chevron swapped for a spinner and `aria-busy` on the trigger — "no matches" is a claim about a search that has finished. Before anything is typed there is **no** empty-state message at all — neither the hint nor `emptyMessage`, since nothing has been searched for — and `open` is controlled so the popup stays shut instead of opening an empty box.
+
+Note that `Combobox.Empty` is the popup's `role="status"` live region: Base UI requires it to stay mounted and visible, nulling its *children* itself once the list has items. So vary its children, never mount/unmount it or hide it with `display: none` — and keep padding on an inner node, or a populated list gets a blank strip above its first row.
+
+`Toast` is mounted once in `src/routes/__root.tsx` and bound to the module-level manager in `src/lib/toast.ts`, which is what lets `apiFetch` raise toasts from outside React. Note that Base UI marks an unfocused high-priority toast `aria-hidden` and announces it through a visually-hidden `role="alert"` region instead — so its controls are outside the accessibility tree until the viewport is focused (F6), and tests must query them by label rather than by role.
+
+`RichTextEditor` is Tiptap (ProseMirror). StarterKit v3 already bundles bold/italic/underline/strike/code/blockquote; colour and background colour come from `@tiptap/extension-text-style`, plus separate sub/superscript and image extensions and `Placeholder` from `@tiptap/extensions`. It reads and writes **HTML strings**, matching the backend's unbounded `TEXT` columns. Mark styling lives in `@layer components` in `src/styles.css` because ProseMirror emits bare tags with no classes. Image paste/drop is wired to an optional `onUploadImage` prop; until a project-less upload endpoint exists that prop is left unset and pasted images are swallowed rather than inlined as base64.
 
 `Badge` variant keys are the nine `ExperimentStatus` values verbatim (`OPEN`, `REOPEN`, …), so `experiment.status` can be passed directly as the `variant` prop. Statuses that read as near-equivalent share a hue and differ by shade (`OPEN`/`REOPEN`, `SIGNING`/`SUBMITTED`, `COMPLETED`/`SIGNED`); `EXPERIMENT_STATUS_COLOR` holds the matching text colour for non-badge surfaces.
 
@@ -96,6 +131,9 @@ Storybook 10 + `@storybook/react-vite`. `.storybook/main.ts` inherits the whole 
 |---|---|
 | `withQuery` | A **fresh** `QueryClient` per story with `retry: false`. Never the `src/lib/query-client.ts` singleton — its cache leaks across stories and makes loading states unreachable. |
 | `withRouter` | A throwaway memory router whose root route renders the story. `LINK_PATHS` in `with-router.tsx` lists every `to` the components link to; **a `<Link>` to a path missing from that list throws**, so add new link targets there. |
+| `withToast` | Mounts `ToastProvider`. `apiFetch` toasts every failed request, so any story with failing handlers needs the context. |
+
+Anything rendered through a portal — dialogs, combobox popups, toasts — is outside `canvasElement`, so `play` functions must reach it with `screen`, not `within(canvasElement)`.
 
 Mock data lives in `src/mocks/` (under `src/`, not `.storybook/`, so unit tests can import it too): `fixtures.ts` has `makeProject`/`makeExperiment`/`makeTotalCounts` override factories, `handlers.ts` has the MSW handlers for the four endpoints `apiFetch` hits. Paths there must include the `/api/eln` prefix that `buildUrl` adds. Override per story with `parameters: { msw: { handlers: errorHandlers } }` — `handlers.ts` exports `emptyHandlers`, `errorHandlers`, and `loadingHandlers` for the non-happy paths.
 

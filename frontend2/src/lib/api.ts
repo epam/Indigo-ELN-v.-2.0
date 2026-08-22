@@ -1,5 +1,7 @@
 import { fetchAuthSession } from 'aws-amplify/auth';
 
+import { notifyError } from '@/lib/toast';
+
 /** Thrown for any non-2xx response so TanStack Query can surface it. */
 export class ApiError extends Error {
   readonly status: number;
@@ -44,7 +46,8 @@ async function parseBody(response: Response): Promise<unknown> {
 }
 
 export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const response = await fetch(buildUrl(path), {
+  const url = buildUrl(path);
+  const response = await fetch(url, {
     ...init,
     headers: {
       Accept: 'application/json',
@@ -56,7 +59,11 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
 
   const body = await parseBody(response);
   if (!response.ok) {
-    throw new ApiError(response.status, body);
+    const error = new ApiError(response.status, body);
+    // Toasted here rather than per-caller, mirroring indigo-frontend's error.interceptor.ts.
+    // Still thrown, so TanStack Query and the Collection error branch keep working.
+    notifyError(error, url);
+    throw error;
   }
   return body as T;
 }
