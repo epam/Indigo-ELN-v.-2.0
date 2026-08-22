@@ -1,6 +1,3 @@
-/** DTOs mirroring backend/eln/eln-api's UserAPI contracts. */
-
-/** Matches com.epam.indigoeln.eln.model.ApplicationPermission. */
 export type ApplicationPermission =
   | 'MANAGE_USERS'
   | 'MANAGE_ROLES'
@@ -24,10 +21,9 @@ export type ApplicationPermission =
   | 'SUBMIT_EXPERIMENTS'
   | 'SIGN_EXPERIMENTS';
 
-export interface CurrentUserDTO {
+export interface CurrentUser {
   id: string;
   username: string;
   displayName: string;
-  /** Java Set, serialised as an array. */
   permissions: ApplicationPermission[];
 }

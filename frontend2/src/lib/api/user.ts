@@ -1,14 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { apiFetch } from '@/lib/api';
-import type { CurrentUserDTO } from '@/lib/types/user';
+import type { CurrentUser } from '@/lib/types/user';
 
 export const userKeys = {
   currentUser: () => ['currentUser'] as const,
 };
 
-export function fetchCurrentUser(): Promise<CurrentUserDTO> {
-  return apiFetch<CurrentUserDTO>('currentUser');
+export function fetchCurrentUser(): Promise<CurrentUser> {
+  return apiFetch<CurrentUser>('currentUser');
 }
 
 export function useCurrentUser() {

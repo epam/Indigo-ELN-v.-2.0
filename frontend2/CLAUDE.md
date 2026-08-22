@@ -72,7 +72,7 @@ Data hooks live in `src/lib/api/` (one file per domain: `user.ts`, `projects.ts`
 | `common.ts` | `BaseDTO`, `UserRef`, `ACLEntry`, `AccessLevel`, `Page<T>` |
 | `experiments.ts` | `ExperimentStatus`, `ExperimentStatusCounts`, `EXPERIMENT_STATUSES`, `EXPERIMENT_STATUS_DISPLAY`, `EXPERIMENT_STATUS_COLOR`, `BaseExperiment`, `Experiment` |
 | `projects.ts` | `Project`, `ProjectFilters`, `SortOrder`, `TotalCounts` |
-| `user.ts` | `CurrentUserDTO`, `ApplicationPermission` |
+| `user.ts` | `CurrentUser`, `ApplicationPermission` |
 
 `verbatimModuleSyntax` is enabled — all cross-module type imports must use `import type`. When importing from the same `types/` folder, include the `.ts` extension (e.g. `from '@/lib/types/experiments.ts'`).
 
