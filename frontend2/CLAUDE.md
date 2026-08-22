@@ -103,9 +103,15 @@ No `tailwind.config.*` file. All theme customisation is in `src/styles.css` via 
 
 ### UI components — `src/components/ui/`
 
-Styled with CVA + `cn()`, following the shadcn `base-nova` pattern. Primitives from `@base-ui/react` (not Radix). Current components: `button`, `avatar`, `badge`, `switch`, `segmented-control`, `dialog`, `input`, `field`, `combobox`, `toast`, `rich-text-editor`. Add new ones with `npx shadcn add <name>` — the CLI respects `components.json`. Icons: `lucide-react` only; never hand-write SVG paths.
+Styled with CVA + `cn()`, following the shadcn `base-nova` pattern. Primitives from `@base-ui/react` (not Radix). Current components: `button`, `avatar`, `badge`, `switch`, `segmented-control`, `dialog`, `input`, `field`, `combobox`, `radio-group`, `toast`, `rich-text-editor`. Add new ones with `npx shadcn add <name>` — the CLI respects `components.json`. Icons: `lucide-react` only; never hand-write SVG paths.
 
 `Button` takes `loading`, which disables it, sets `aria-busy` and overlays a spinner. The label is faded with `opacity-0` rather than `visibility: hidden` on purpose — hiding it would strip the label from the button's accessible name, leaving it announced as nothing but a spinner.
+
+`DialogContent` takes `side`: the default `center` is the 560px modal, `right` turns the
+same frame — title row, scrolling body, pinned footer — into a full-height sheet anchored
+below the 72px `AppHeader`, with a transparent backdrop so the page behind stays legible.
+Base UI's own `Drawer` is deliberately unused: it brings a swipe-to-dismiss interaction
+model this desktop sheet does not want.
 
 `Field` is deliberately **not** built on Base UI's `Field`: that only auto-associates labels with its own `Field.Control`, which the combobox and the rich-text editor are not. It renders a plain `<label>` carrying both `htmlFor={id}` and `id={`${id}-label`}`, so native controls associate normally and the editor's `contenteditable` points back with `aria-labelledby`.
 
@@ -120,6 +126,69 @@ Note that `Combobox.Empty` is the popup's `role="status"` live region: Base UI r
 `RichTextEditor` is Tiptap (ProseMirror). StarterKit v3 already bundles bold/italic/underline/strike/code/blockquote; colour and background colour come from `@tiptap/extension-text-style`, plus separate sub/superscript and image extensions and `Placeholder` from `@tiptap/extensions`. It reads and writes **HTML strings**, matching the backend's unbounded `TEXT` columns. Mark styling lives in `@layer components` in `src/styles.css` because ProseMirror emits bare tags with no classes. Image paste/drop is wired to an optional `onUploadImage` prop; until a project-less upload endpoint exists that prop is left unset and pasted images are swallowed rather than inlined as base64.
 
 `Badge` variant keys are the nine `ExperimentStatus` values verbatim (`OPEN`, `REOPEN`, …), so `experiment.status` can be passed directly as the `variant` prop. Statuses that read as near-equivalent share a hue and differ by shade (`OPEN`/`REOPEN`, `SIGNING`/`SUBMITTED`, `COMPLETED`/`SIGNED`); `EXPERIMENT_STATUS_COLOR` holds the matching text colour for non-badge surfaces.
+
+### Chemistry — Ketcher
+
+`ketcher-react` / `ketcher-standalone` / `ketcher-core` 3.17.2. Together they are ~28 MB
+(the Indigo WASM is base64-inlined into `ketcher-standalone`'s bundle, so there is no
+separate `.wasm` asset to resolve), and **all of it must stay behind a dynamic
+`import()`** — `npm run build` should never list a ketcher chunk in `index.html`'s
+modulepreloads. Two modules, and only these two, touch the packages:
+
+| Module | Role |
+|---|---|
+| `src/components/chemistry/ketcher-editor.tsx` | the `<Editor>` itself; reached only via `lazy(() => import(…))` from `structure-editor-dialog.tsx` |
+| `src/lib/ketcher.ts` | headless SVG rendering for previews, plus the cache |
+
+`vite.config.ts` defines `global: 'globalThis'` — Ketcher's bundles were built for webpack
+and reference the bare `global`; without it the editor throws on mount. Nothing else is
+needed: the reported SWC crash (epam/ketcher#5565) does not apply here because this app
+uses `@vitejs/plugin-react` (Babel), not `-swc`.
+
+**`renderStructure` overrides `getStandardServerOptions` on its own struct service.**
+Ketcher 3.17 has no headless rendering path: every struct-service call resolves its Indigo
+defaults by looking the *calling editor* up in the global `ketcherProvider` and reading
+render settings off it, so a service with no editor throws `there are no ketcherId`. The
+override short-circuits that to Indigo's defaults. Registering a fake instance in the
+provider instead is a trap — `getKetcher(undefined)` hands out the most recently
+registered instance, so a stub sitting in there breaks a real `<Editor>` as it mounts.
+
+The first `renderStructure` on a cold page costs **~1.3 s** — ~450 ms to transfer the
+21 MB chunk (7.2 MB gzipped) and the rest to parse it and compile the WASM. Every call
+after that is 4–8 ms. `prewarmKetcher()` starts that work early and is called from
+`/_auth/experiments/$id`'s loader; it does a **throwaway render**, not just the
+`import()`, because Indigo defers WASM compilation until something is rendered —
+measured, the import alone still leaves ~540 ms, the throwaway render brings the first
+real call down to ~20 ms. Since it runs in a loader, switching on `defaultPreload` in
+`main.tsx` would start pulling 21 MB on link hover.
+
+`StructureEditorDialog` seeds the preview cache with the SVG the sketcher itself produced
+(`cacheStructureImage`), so a structure the user just drew never costs a second Indigo
+call; `renderStructure` only spins the WASM up for a structure that came from somewhere
+else, such as a persisted experiment scheme.
+
+**CSP:** the deployed policy
+(`deployment-aws/resources/cloudfront-index-viewer-request-function.js`) already allows
+what the worker needs — `worker-src 'self' blob:` for the Indigo worker, which
+`ketcher-standalone` builds with `new Blob` + `createObjectURL`, and `img-src 'self'
+blob: data:` for both preview URL kinds. It is still missing two things: `script-src`
+needs `'wasm-unsafe-eval'` (a nonce does not cover WASM compilation) or Indigo aborts,
+and `style-src` needs `'unsafe-inline'` or the editor renders unstyled, since
+ketcher-react is MUI/emotion and injects styles with no nonce. Headless rendering needs
+only the first of the two. **A CSP-blocked worker makes `renderStructure` hang rather
+than reject** — the promise never settles and `SchemeEditor` shows its skeleton forever.
+
+Storybook aliases both modules to stubs in `.storybook/mocks/`. Those two aliases have to
+precede the inherited `'@' -> src` one, and Vite merges the inherited alias *ahead* of
+anything `viteFinal` adds to an object — so `.storybook/main.ts` declares `resolve.alias`
+as an array outright rather than spreading.
+
+`SchemeEditor` (`src/components/chemistry/scheme-editor.tsx`) is the reusable surface: a
+dashed frame that offers *Draw Structure* when empty and renders the SVG with an edit
+button when not. It is controlled (`value` / `onChange`) and takes a molfile *or* a
+rxnfile — Ketcher's own `containsReaction()` decides which, and that flag rides along in
+`onChange` because the backend has separate `moleculeStructure` and `reactionStructure`
+fields.
 
 ### Storybook
 

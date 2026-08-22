@@ -13,13 +13,22 @@ const config: StorybookConfig = {
     config.plugins = config.plugins?.filter(
       (plugin) => !(plugin && 'name' in plugin && String(plugin.name).includes('tanstack-router')),
     );
-    // Stories must never reach Cognito: apiFetch calls fetchAuthSession() before
-    // every request and AppSidebar calls signOut(). MSW owns the network instead.
+    // Vite merges the inherited '@' -> src alias ahead of anything added here, and a
+    // string alias matches by prefix, so an object would never let these two win.
+    // Declaring the array outright fixes the order.
     config.resolve ??= {};
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      'aws-amplify/auth': fileURLToPath(new URL('./mocks/amplify-auth.ts', import.meta.url)),
-    };
+    config.resolve.alias = [
+      // Stories must never load the real Ketcher: ~28 MB of sketcher and Indigo WASM.
+      { find: '@/lib/ketcher', replacement: fileURLToPath(new URL('./mocks/ketcher.ts', import.meta.url)) },
+      {
+        find: '@/components/chemistry/ketcher-editor',
+        replacement: fileURLToPath(new URL('./mocks/ketcher-editor.tsx', import.meta.url)),
+      },
+      // Stories must never reach Cognito: apiFetch calls fetchAuthSession() before
+      // every request and AppSidebar calls signOut(). MSW owns the network instead.
+      { find: 'aws-amplify/auth', replacement: fileURLToPath(new URL('./mocks/amplify-auth.ts', import.meta.url)) },
+      { find: '@', replacement: fileURLToPath(new URL('../src', import.meta.url)) },
+    ];
     return config;
   },
 };

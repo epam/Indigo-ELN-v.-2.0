@@ -31,6 +31,10 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  // Ketcher's bundles were built for webpack and reference the bare `global`.
+  define: {
+    global: 'globalThis',
+  },
   server: {
     port: 5173,
     proxy: {

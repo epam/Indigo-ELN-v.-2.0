@@ -32,3 +32,14 @@ export const UserMenuOpen: Story = {
     await expect(await screen.findByRole('menuitem', { name: 'Log Out' })).toBeInTheDocument();
   },
 };
+
+/** Enter in the header box opens the sheet with the term already in it. */
+export const OpensGlobalSearch: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.type(canvas.getByLabelText('Search everything'), 'aspirin{Enter}');
+
+    const panel = await screen.findByRole('dialog', { name: 'Global Search' });
+    await expect(within(panel).getByLabelText('Quick search')).toHaveValue('aspirin');
+  },
+};
