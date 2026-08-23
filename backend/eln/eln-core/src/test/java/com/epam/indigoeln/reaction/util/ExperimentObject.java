@@ -61,11 +61,6 @@ public class ExperimentObject {
     }
 
     public MutationResponse mutate(Mutation mutation) {
-        boolean undoOrRedo = mutation instanceof ExperimentMutation.Undo || mutation instanceof ExperimentMutation.Redo;
-        return mutate(mutation, !undoOrRedo);
-    }
-
-    public MutationResponse mutate(Mutation mutation, boolean undoRedo) {
         MutationResponse response = experimentClient.mutateExperimentModel4(id, revision(), mutation);
         lastMutationResponse = response;
         invalidate();

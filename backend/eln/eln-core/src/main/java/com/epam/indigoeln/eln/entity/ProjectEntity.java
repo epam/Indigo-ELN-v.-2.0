@@ -95,7 +95,7 @@ public class ProjectEntity extends BaseEntity implements WithAttachments<Project
     @NotNull
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     @MapKeyJoinColumn(name = "user_id")
-    private Map<UserEntity, ProjectACLEntity> aclEntities = new HashMap<>(0);
+    private Map<UserEntity, ProjectACLEntity> aclEntities = HashMap.newHashMap(0);
 
     @NotNull
     @ElementCollection

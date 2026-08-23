@@ -61,14 +61,19 @@ public class ExperimentDetailsReportBuilder {
             if (r.getDebugMessages() != null) {
                 messages.addAll(Arrays.asList(r.getDebugMessages()));
             }
+            Category category = null;
+            if (r.getMutation() instanceof ExperimentMutation.Undo) {
+                category = Category.UNDO;
+            } else if (r.getMutation() instanceof ExperimentMutation.Redo) {
+                category = Category.REDO;
+            }
+
             Revision data = new Revision(
                     r.getRevision(),
                     r.getSummary(),
                     r.getUser().getUsername(),
                     r.getDatetime(),
-                    r.getMutation() instanceof ExperimentMutation.Undo ? Category.UNDO
-                            : r.getMutation() instanceof ExperimentMutation.Redo ? Category.REDO
-                              : null,
+                    category,
                     r.getMutation(),
                     r.getDiff(),
                     formattedDiff,

@@ -167,7 +167,6 @@ public class GlobalSearchService {
             if (hasUnionBlocks) {
                 sql.append("\nUNION ALL\n");
             }
-            hasUnionBlocks = true;
             String experimentsSQL = "SELECT 'EXPERIMENT' AS type, e.name, e.id, e.description, e.created_by_id, e.created_at, e.modified_by_id, e.modified_at, " + rolesSelector + ", e.status::varchar AS experiment_status, e.revision"
                     + "\nFROM Experiment e"
                     + "\nJOIN Experiment_Access_View ev ON ev.experiment_id = e.id"
@@ -179,12 +178,14 @@ public class GlobalSearchService {
         }
         sql.append(")\n");
         sql.append("SELECT t.type, t.name, t.id, ").append(fragmentSelector).append(" fragment");
-        sql.append("\n, t.created_by_id, t.created_at" +
-                "\n, t.modified_by_id, t.modified_at" +
-                "\n, t.reaction_roles, t.experiment_status, t.revision" +
-                "\n, count(*) over (partition by 1)" +
-                "\nFROM t" +
-                "\nORDER by t.created_at");
+        sql.append("""
+                
+                , t.created_by_id, t.created_at
+                , t.modified_by_id, t.modified_at
+                , t.reaction_roles, t.experiment_status, t.revision
+                , count(*) over (partition by 1)
+                FROM t
+                ORDER by t.created_at""");
         long[] totalCount = new long[] {0};
         Query query = em.createNativeQuery(sql.toString())
                 .setFirstResult(paging.getPageNoOrDefault() * paging.getPageSizeOrDefault())

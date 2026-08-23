@@ -13,6 +13,6 @@ import java.util.List;
 @Mapper(componentModel = "cdi", unmappedTargetPolicy = ReportingPolicy.ERROR, nullValueCheckStrategy =  NullValueCheckStrategy.ALWAYS)
 public abstract class AttachmentMapper extends AbstractMapper {
 
-    public abstract AttachmentDTO attachmentToDTO(AbstractAttachment<?> record);
+    public abstract AttachmentDTO attachmentToDTO(AbstractAttachment<?> attachment);
     public abstract List<AttachmentDTO> attachmentToDTOList(Collection<? extends AbstractAttachment<?>> entities);
 }
