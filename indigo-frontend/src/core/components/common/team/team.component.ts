@@ -76,7 +76,7 @@ export class TeamComponent implements OnInit {
 
   canManage = computed(() => {
     const permission = this.requiredPermission();
-    return permission == null || this.permissionService.hasPermission(permission, this.entity());
+    return permission == null || this.permissionService.hasEntityPermission(permission, this.entity());
   });
 
   userSuggestions: UserRefWithState[] = [];
@@ -121,6 +121,8 @@ export class TeamComponent implements OnInit {
   }
 
   addSelectedUsers(): void {
+    if (!this.canManage()) return;
+
     const endpoint = this.endpoint();
     if (!endpoint) {
       console.error('Cannot add users: missing entity id');
@@ -148,6 +150,8 @@ export class TeamComponent implements OnInit {
   }
 
   updateAclLevel(member: ACLEntry, rawLevel: string): void {
+    if (!this.canManage()) return;
+
     const newLevel = AclLevel[rawLevel as keyof typeof AclLevel];
     if (!newLevel) {
       console.error('Invalid ACL level:', rawLevel);

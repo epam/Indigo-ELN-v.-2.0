@@ -21,6 +21,7 @@ export class AttachmentsComponent {
   attachments = input.required<Attachment[]>();
   baseURL = input.required<string>();
   requiredPermission = input<ApplicationPermission | null>(null);
+  downloadPermission = input<ApplicationPermission | null>(null);
   entity = input<PermissionedEntity | null>(null);
 
   attachmentsChanged = output<Attachment[]>();
@@ -36,13 +37,16 @@ export class AttachmentsComponent {
   // their current behavior.
   canEdit = computed(() => {
     const permission = this.requiredPermission();
-    return permission == null || this.permissionService.hasPermission(permission, this.entity());
+    return permission == null || this.permissionService.hasEntityPermission(permission, this.entity());
+  });
+
+  canDownload = computed(() => {
+    const permission = this.downloadPermission();
+    return permission == null || this.permissionService.hasEntityPermission(permission, this.entity());
   });
 
   onUpload(newFiles: File[]): void {
-    if (!newFiles.length) {
-      return;
-    }
+    if (!this.canEdit() || !newFiles.length) return;
     this.isUploadingAttachment = true;
 
     const formDatas = newFiles.map((file) => {

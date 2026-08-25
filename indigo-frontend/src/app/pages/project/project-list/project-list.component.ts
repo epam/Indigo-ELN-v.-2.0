@@ -49,7 +49,7 @@ export class ProjectListComponent extends InfiniteScrollBase<Project> implements
   breadcrumbsState = inject(BreadcrumbsStateService);
   permissionService = inject(PermissionService);
   applicationPermission = ApplicationPermission;
-  canCreateProject = computed(() => this.permissionService.hasPermission(ApplicationPermission.CREATE_PROJECTS));
+  canCreateProject = computed(() => this.permissionService.hasGlobalPermission(ApplicationPermission.CREATE_PROJECTS));
 
   selectedView: 'grid' | 'list' = 'grid';
   private refreshSub!: Subscription;

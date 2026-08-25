@@ -14,7 +14,12 @@
       <div class="px-3">
         <div class="flex items-center justify-between pb-3 border-b border-b-neutral-200">
           <h2 class="font-semibold text-base">About Notebook</h2>
-          <eln-button variant="blue-outline" classList="text-primary-400" (click)="openEditDialog()">
+          <eln-button
+            variant="blue-outline"
+            classList="text-primary-400"
+            (click)="openEditDialog()"
+            [disabled]="!canEditNotebook()"
+          >
             <em class="indicon-edit"></em>
             Edit
           </eln-button>
@@ -34,11 +39,20 @@
           <eln-attachments
             [attachments]="notebook().attachments"
             [baseURL]="`/api/eln/notebooks/${this.notebook().id}`"
+            [requiredPermission]="applicationPermission.EDIT_NOTEBOOKS"
+            [downloadPermission]="applicationPermission.VIEW_NOTEBOOKS"
+            [entity]="notebook()"
             (attachmentsChanged)="onAttachmentsChanged($event)"
           />
         </div>
       </div>
     </eln-card>
-    <eln-team [team]="notebook().acl" [entityId]="notebook().id" [config]="notebookTeamConfig" />
+    <eln-team
+      [team]="notebook().acl"
+      [entityId]="notebook().id"
+      [config]="notebookTeamConfig"
+      [requiredPermission]="applicationPermission.MANAGE_NOTEBOOK_ACCESS"
+      [entity]="notebook()"
+    />
   </div>
 }

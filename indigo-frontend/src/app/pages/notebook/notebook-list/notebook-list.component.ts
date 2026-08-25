@@ -11,6 +11,7 @@ import { InfiniteLoaderComponent } from '@core/components/util/infinite-loader/i
 import { InfiniteScrollBase } from '@core/components/util/infinite-scroll.base';
 import { ClassPickerPipe } from '@core/pipes/classPicker.pipe';
 import { Notebook } from '@core/types/entities/notebook.i';
+import { ProjectService } from '@core/services/project/project.service';
 import { NotebookAddComponent } from '@pages/notebook/notebook-add/notebook-add.component';
 import { NotebookItemComponent } from '@pages/notebook/notebook-item/notebook-item.component';
 import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
@@ -42,6 +43,7 @@ import { take } from 'rxjs';
 })
 export class NotebookListComponent extends InfiniteScrollBase<Notebook> implements OnInit, OnChanges {
   dialog = inject(MatDialog);
+  projectService = inject(ProjectService);
   selectedView: 'grid' | 'list' = 'grid';
   @Input() projectId!: string;
   headerSortOptions: DropdownMenuItem[] = [];
@@ -82,6 +84,8 @@ export class NotebookListComponent extends InfiniteScrollBase<Notebook> implemen
   }
 
   async openModal() {
+    if (!this.projectService.canCreateNotebook()) return;
+
     const ref = this.dialog.open(NotebookAddComponent);
     ref.componentInstance.projectId = this.projectId;
     ref

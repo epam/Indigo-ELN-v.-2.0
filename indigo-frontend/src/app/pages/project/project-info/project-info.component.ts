@@ -51,7 +51,7 @@ export class ProjectInfoComponent {
   hasError = this.projectService.hasError;
   canEditProject = computed(() => {
     const project = this.project();
-    return project ? this.permissionService.hasPermission(ApplicationPermission.EDIT_PROJECTS, project) : false;
+    return this.permissionService.hasEntityPermission(ApplicationPermission.EDIT_PROJECTS, project);
   });
 
   projectTeamConfig: TeamComponentConfig = {
@@ -78,6 +78,8 @@ export class ProjectInfoComponent {
     }
 
     if (mode === projectInfoModalEnum.NOTEBOOK) {
+      if (!this.projectService.canCreateNotebook()) return;
+
       ref = this.dialog.open(NotebookAddComponent);
       (ref.componentInstance as NotebookAddComponent).projectId = this.projectId;
     }
