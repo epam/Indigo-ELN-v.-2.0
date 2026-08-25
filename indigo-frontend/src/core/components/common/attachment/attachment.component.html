@@ -18,11 +18,11 @@
         <mat-icon>more_horiz</mat-icon>
       </button>
       <mat-menu #menu="matMenu">
-        <button mat-menu-item [disabled]="!canDownload()" (click)="canDownload() && downloadAttachment()">
+        <button mat-menu-item [disabled]="!canDownload()" (click)="downloadAttachment()">
           <mat-icon>download</mat-icon>
           <span>Download</span>
         </button>
-        <button mat-menu-item [disabled]="!canDelete()" (click)="canDelete() && deleteAttachment()">
+        <button mat-menu-item [disabled]="!canDelete()" (click)="deleteAttachment()">
           <mat-icon>delete</mat-icon>
           <span>Delete</span>
         </button>

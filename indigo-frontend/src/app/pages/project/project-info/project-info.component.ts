@@ -53,9 +53,6 @@ export class ProjectInfoComponent {
     const project = this.project();
     return this.permissionService.hasEntityPermission(ApplicationPermission.EDIT_PROJECTS, project);
   });
-  canCreateNotebook = computed(() =>
-    this.permissionService.hasGlobalPermission(ApplicationPermission.CREATE_NOTEBOOKS),
-  );
 
   projectTeamConfig: TeamComponentConfig = {
     buildAccessEndpoint: (id: string) => `projects/${id}/access`,
@@ -81,7 +78,7 @@ export class ProjectInfoComponent {
     }
 
     if (mode === projectInfoModalEnum.NOTEBOOK) {
-      if (!this.canCreateNotebook()) return;
+      if (!this.projectService.canCreateNotebook()) return;
 
       ref = this.dialog.open(NotebookAddComponent);
       (ref.componentInstance as NotebookAddComponent).projectId = this.projectId;

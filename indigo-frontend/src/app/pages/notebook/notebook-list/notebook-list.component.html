@@ -36,7 +36,7 @@
   variant="blue"
   classList="flex items-center gap-2"
   (click)="openModal()"
-  [disabled]="!canCreateNotebook()"
+  [disabled]="!projectService.canCreateNotebook()"
 >
   <em class="text-xl indicon-plus"></em>
   <span class="whitespace-nowrap">Add Notebook</span>

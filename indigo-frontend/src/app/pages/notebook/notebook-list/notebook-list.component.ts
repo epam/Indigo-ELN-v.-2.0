@@ -1,6 +1,6 @@
 import { animate, style, transition, trigger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, inject, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -11,12 +11,11 @@ import { InfiniteLoaderComponent } from '@core/components/util/infinite-loader/i
 import { InfiniteScrollBase } from '@core/components/util/infinite-scroll.base';
 import { ClassPickerPipe } from '@core/pipes/classPicker.pipe';
 import { Notebook } from '@core/types/entities/notebook.i';
+import { ProjectService } from '@core/services/project/project.service';
 import { NotebookAddComponent } from '@pages/notebook/notebook-add/notebook-add.component';
 import { NotebookItemComponent } from '@pages/notebook/notebook-item/notebook-item.component';
 import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
 import { take } from 'rxjs';
-import { PermissionService } from '@core/services/permission/permission.service';
-import { ApplicationPermission } from '@core/types/entities/user.i';
 
 @Component({
   selector: 'eln-notebook-list',
@@ -44,10 +43,7 @@ import { ApplicationPermission } from '@core/types/entities/user.i';
 })
 export class NotebookListComponent extends InfiniteScrollBase<Notebook> implements OnInit, OnChanges {
   dialog = inject(MatDialog);
-  permissionService = inject(PermissionService);
-  canCreateNotebook = computed(() =>
-    this.permissionService.hasGlobalPermission(ApplicationPermission.CREATE_NOTEBOOKS),
-  );
+  projectService = inject(ProjectService);
   selectedView: 'grid' | 'list' = 'grid';
   @Input() projectId!: string;
   headerSortOptions: DropdownMenuItem[] = [];
@@ -88,7 +84,7 @@ export class NotebookListComponent extends InfiniteScrollBase<Notebook> implemen
   }
 
   async openModal() {
-    if (!this.canCreateNotebook()) return;
+    if (!this.projectService.canCreateNotebook()) return;
 
     const ref = this.dialog.open(NotebookAddComponent);
     ref.componentInstance.projectId = this.projectId;

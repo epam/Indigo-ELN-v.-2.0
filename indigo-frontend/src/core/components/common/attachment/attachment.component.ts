@@ -46,16 +46,12 @@ export class AttachmentComponent {
   }
 
   downloadAttachment() {
-    if (!this.canDownload()) return;
-
     this.downloadService
       .download('get', `${this.baseURL()}/attachments/${this.attachment().id}`, 'attachment')
       .subscribe();
   }
 
   deleteAttachment() {
-    if (!this.canDelete()) return;
-
     this.service
       .request<void>('delete', `${this.baseURL()}/attachments/${this.attachment().id}`)
       .subscribe(() => this.attachmentDeleted.emit(this.attachment().id));

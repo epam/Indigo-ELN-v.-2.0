@@ -8,6 +8,6 @@
   [contentError]="loadError"
   [submitFn]="createNotebookFn"
   [toastMessages]="{ uniqueName: uniqueNameToastMessage }"
-  [submitEnabled]="canCreateNotebook()"
+  [submitEnabled]="projectService.canCreateNotebook()"
   submitButtonText="Save"
 ></eln-form-dialog>
