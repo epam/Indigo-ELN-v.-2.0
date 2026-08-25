@@ -2,6 +2,7 @@ import { Search } from 'lucide-react';
 import { useState } from 'react';
 
 import { SchemeEditor } from '@/components/chemistry/scheme-editor';
+import { AdvancedSearch } from '@/components/search/advanced-search';
 import {
   EMPTY_GLOBAL_SEARCH_FORM,
   type GlobalSearchFormValues,
@@ -9,9 +10,11 @@ import {
   STRUCTURE_TYPE_LABELS,
   toGlobalSearchRequest,
 } from '@/components/search/global-search-form';
+import { SearchResults } from '@/components/search/search-results';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { useGlobalSearch } from '@/lib/api/search';
 
 import type { GlobalSearchRequest, StructuralSearchType } from '@/lib/types/search.ts';
 
@@ -25,21 +28,50 @@ interface GlobalSearchPanelProps {
    */
   query: string;
   onQueryChange: (query: string) => void;
-  /** Left unset for now — the results list is not built yet. */
+  /** Optional: the sheet renders its own results, so this is only for observing them. */
   onSearch?: (request: GlobalSearchRequest) => void;
 }
 
+/** Everything the sheet owns itself: the term lives one level up, in AppHeader. */
+type OwnValues = Omit<GlobalSearchFormValues, 'query'>;
+
 /**
- * The Global Search sheet: a quick text search, a structure to search by, or both.
- * Advanced search (therapeutic area, project code, author, yields, …) is not built yet.
+ * The Global Search sheet: a quick text search, a structure to search by, advanced
+ * filters, or any combination, with the results below the form.
  */
 function GlobalSearchPanel({ open, onOpenChange, query, onQueryChange, onSearch }: GlobalSearchPanelProps) {
-  const [structure, setStructure] = useState<Omit<GlobalSearchFormValues, 'query'>>(EMPTY_GLOBAL_SEARCH_FORM);
-  const values: GlobalSearchFormValues = { ...structure, query };
+  const [own, setOwn] = useState<OwnValues>(EMPTY_GLOBAL_SEARCH_FORM);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  // Bumped by Clear All to remount AdvancedSearch, which is the only way to reset the state
+  // its fields keep to themselves — a half-typed combobox term, a chosen numeric operator
+  // still waiting for a number.
+  const [generation, setGeneration] = useState(0);
+  // The request as submitted, which is what the results belong to — editing the form does
+  // not disturb them until Search is pressed again.
+  const [submitted, setSubmitted] = useState<GlobalSearchRequest | null>(null);
+
+  const values: GlobalSearchFormValues = { ...own, query };
+  const results = useGlobalSearch(submitted);
+
+  function patch(next: Partial<GlobalSearchFormValues>) {
+    setOwn((previous) => ({ ...previous, ...next }));
+  }
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    onSearch?.(toGlobalSearchRequest(values));
+    const request = toGlobalSearchRequest(values);
+    setSubmitted(request);
+    onSearch?.(request);
+    // Collapsing hands the space back to the results and leaves the summary as the record
+    // of what was searched for, as in indigo-frontend.
+    setAdvancedOpen(false);
+  }
+
+  function clearAll() {
+    setOwn(EMPTY_GLOBAL_SEARCH_FORM);
+    onQueryChange('');
+    setSubmitted(null);
+    setGeneration((previous) => previous + 1);
   }
 
   return (
@@ -61,11 +93,11 @@ function GlobalSearchPanel({ open, onOpenChange, query, onQueryChange, onSearch 
           <div className="flex min-h-8 items-center justify-between gap-4">
             <span className="text-[14px]/6 text-neutral-800">or Draw Structure</span>
             {/* Only meaningful once there is a structure to match against. */}
-            {structure.structure && (
+            {own.structure && (
               <div className="flex items-center gap-4">
                 <RadioGroup
-                  value={structure.structureType}
-                  onValueChange={(next) => setStructure({ ...structure, structureType: next as StructuralSearchType })}
+                  value={own.structureType}
+                  onValueChange={(next) => patch({ structureType: next as StructuralSearchType })}
                   aria-label="Structure search type"
                   className="flex w-auto items-center gap-4"
                 >
@@ -80,7 +112,7 @@ function GlobalSearchPanel({ open, onOpenChange, query, onQueryChange, onSearch 
                   type="button"
                   variant="link"
                   size="lg"
-                  onClick={() => setStructure({ ...structure, structure: null, isReaction: false })}
+                  onClick={() => patch({ structure: null, isReaction: false, reactionRole: null })}
                 >
                   Clear
                 </Button>
@@ -89,22 +121,29 @@ function GlobalSearchPanel({ open, onOpenChange, query, onQueryChange, onSearch 
           </div>
 
           <SchemeEditor
-            value={structure.structure}
-            onChange={(next) =>
-              setStructure({ ...structure, structure: next?.structure ?? null, isReaction: next?.isReaction ?? false })
-            }
+            value={own.structure}
+            onChange={(next) => {
+              const isReaction = next?.isReaction ?? false;
+              patch({
+                structure: next?.structure ?? null,
+                isReaction,
+                // Reaction Role applies to a drawn molecule only, so anything else clears
+                // it rather than leaving a value the request would have to drop silently.
+                reactionRole: next && !isReaction ? own.reactionRole : null,
+              });
+            }}
+          />
+
+          <AdvancedSearch
+            key={generation}
+            values={values}
+            onChange={patch}
+            open={advancedOpen}
+            onOpenChange={setAdvancedOpen}
           />
 
           <div className="flex justify-end gap-3">
-            <Button
-              type="button"
-              variant="secondary"
-              size="lg"
-              onClick={() => {
-                setStructure(EMPTY_GLOBAL_SEARCH_FORM);
-                onQueryChange('');
-              }}
-            >
+            <Button type="button" variant="secondary" size="lg" onClick={clearAll}>
               Clear All
             </Button>
             <Button type="submit" size="lg" disabled={isEmpty(values)}>
@@ -112,6 +151,8 @@ function GlobalSearchPanel({ open, onOpenChange, query, onQueryChange, onSearch 
             </Button>
           </div>
         </div>
+
+        {submitted && <SearchResults query={results} onSelect={() => onOpenChange(false)} />}
       </DialogContent>
     </Dialog>
   );

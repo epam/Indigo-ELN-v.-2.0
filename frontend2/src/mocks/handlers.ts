@@ -1,15 +1,21 @@
 import { delay, http, HttpResponse } from 'msw';
 
 import {
+  DICTIONARIES,
   KEYWORDS,
   makeCurrentUser,
   makeProjectDetails,
   makeTotalCounts,
   MARKED_EXPERIMENTS,
   PROJECTS,
+  REACTION_SCHEME_SVG,
+  SEARCH_RESULTS,
+  USERS,
 } from '@/mocks/fixtures';
 
-import type { Page } from '@/lib/types/common.ts';
+import type { Page, UserRef } from '@/lib/types/common.ts';
+import type { GlobalSearchResult } from '@/lib/types/search.ts';
+import type { BuiltInDictionary } from '@/lib/types/dictionaries.ts';
 import type { Project } from '@/lib/types/projects.ts';
 
 // buildUrl() in src/lib/api.ts prefixes bare paths with /api/eln/, so handlers
@@ -18,6 +24,31 @@ const ELN = '/api/eln';
 
 function page(items: Project[]): Page<Project> {
   return { pageNo: 0, pageSize: 20, totalItems: items.length, totalPages: 1, items };
+}
+
+/**
+ * A real slice of a real total, unlike `page()` above — infinite scroll only has something
+ * to fetch when totalPages is honest.
+ */
+function searchPage(request: Request, items: GlobalSearchResult[]): Page<GlobalSearchResult> {
+  const params = new URL(request.url).searchParams;
+  const pageNo = Number(params.get('pageNo') ?? 0);
+  const pageSize = Number(params.get('pageSize') ?? 20);
+  return {
+    pageNo,
+    pageSize,
+    totalItems: items.length,
+    totalPages: Math.ceil(items.length / pageSize),
+    items: items.slice(pageNo * pageSize, (pageNo + 1) * pageSize),
+  };
+}
+
+/** Prefix match across the ref's fields, capped at 10 — the contract of UserRepository.suggest. */
+function suggestedUsers(search: string): UserRef[] {
+  const term = search.toLowerCase();
+  return USERS.filter(
+    (user) => user.displayName.toLowerCase().startsWith(term) || user.username.toLowerCase().startsWith(term),
+  ).slice(0, 10);
 }
 
 /** The one name the mock backend claims is taken, so the duplicate path is reachable. */
@@ -44,6 +75,17 @@ export const handlers = [
   http.get(`${ELN}/total-counts`, () => HttpResponse.json(makeTotalCounts())),
   http.get(`${ELN}/experiments/marked`, () => HttpResponse.json(MARKED_EXPERIMENTS)),
   http.get(`${ELN}/currentUser`, () => HttpResponse.json(makeCurrentUser())),
+  http.get(`${ELN}/dictionaries/:dictionary`, ({ params }) =>
+    HttpResponse.json(DICTIONARIES[params.dictionary as BuiltInDictionary] ?? []),
+  ),
+  http.get(`${ELN}/users/suggest`, ({ request }) =>
+    HttpResponse.json(suggestedUsers(new URL(request.url).searchParams.get('search') ?? '')),
+  ),
+  http.post(`${ELN}/search`, ({ request }) => HttpResponse.json(searchPage(request, SEARCH_RESULTS))),
+  // image/svg+xml, which apiFetch hands back as a string because it is not valid JSON.
+  http.get(`${ELN}/experiments/:id/picture`, () =>
+    HttpResponse.text(REACTION_SCHEME_SVG, { headers: { 'Content-Type': 'image/svg+xml' } }),
+  ),
 ];
 
 /**
@@ -92,6 +134,47 @@ export const slowKeywordHandlers = [
 /** Only the keyword lookup fails, so the combobox's error branch renders in isolation. */
 export const keywordErrorHandlers = [
   http.get(`${ELN}/projects/keywords/suggest`, () => new HttpResponse(null, { status: 500 })),
+  ...handlers,
+];
+
+/** The two advanced-search lookups arrive slowly, so their loading states are observable. */
+export const slowLookupHandlers = [
+  http.get(`${ELN}/dictionaries/:dictionary`, async ({ params }) => {
+    await delay(400);
+    return HttpResponse.json(DICTIONARIES[params.dictionary as BuiltInDictionary] ?? []);
+  }),
+  http.get(`${ELN}/users/suggest`, async ({ request }) => {
+    await delay(400);
+    return HttpResponse.json(suggestedUsers(new URL(request.url).searchParams.get('search') ?? ''));
+  }),
+  ...handlers,
+];
+
+/** Only the advanced-search lookups fail, so those comboboxes' error branches render in isolation. */
+export const lookupErrorHandlers = [
+  http.get(`${ELN}/dictionaries/:dictionary`, () => new HttpResponse(null, { status: 500 })),
+  http.get(`${ELN}/users/suggest`, () => new HttpResponse(null, { status: 500 })),
+  ...handlers,
+];
+
+/** The search finds nothing, so the results' empty branch renders. */
+export const emptySearchHandlers = [
+  http.post(`${ELN}/search`, ({ request }) => HttpResponse.json(searchPage(request, []))),
+  ...handlers,
+];
+
+/** Only the search fails, so its error branch renders while the form still works. */
+export const searchErrorHandlers = [
+  http.post(`${ELN}/search`, () => new HttpResponse(null, { status: 500 })),
+  ...handlers,
+];
+
+/** The search never resolves, pinning the results on their first-load skeletons. */
+export const loadingSearchHandlers = [
+  http.post(`${ELN}/search`, async () => {
+    await delay('infinite');
+    return HttpResponse.json(null);
+  }),
   ...handlers,
 ];
 

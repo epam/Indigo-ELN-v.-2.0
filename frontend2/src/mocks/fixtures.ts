@@ -1,4 +1,6 @@
 import type { ACLEntry, UserRef } from '@/lib/types/common.ts';
+import type { BuiltInDictionary, DictionaryItemRef } from '@/lib/types/dictionaries.ts';
+import type { GlobalSearchResult } from '@/lib/types/search.ts';
 import type { Experiment } from '@/lib/types/experiments.ts';
 import type { Project, ProjectDetails, TotalCounts } from '@/lib/types/projects.ts';
 import type { CurrentUser } from '@/lib/types/user.ts';
@@ -97,6 +99,25 @@ export const KEYWORDS: string[] = [
   'catalysis',
 ];
 
+function makeDictionary(names: string[]): DictionaryItemRef[] {
+  return names.map((name, index) => ({ id: `d1c70000-0000-4000-8000-${String(index).padStart(12, '0')}`, name }));
+}
+
+/** Keyed by the same names the API takes as its `{dictionary}` path segment. */
+export const DICTIONARIES: Partial<Record<BuiltInDictionary, DictionaryItemRef[]>> = {
+  THERAPEUTIC_AREA: makeDictionary(['Obesity', 'Oncology', 'Cardiology', 'Immunology', 'Neurology']),
+  PROJECT_CODE: makeDictionary(['Code 1', 'Code 2', 'Code 3', 'Code 4']),
+};
+
+/** The pool `users/suggest` matches against. */
+export const USERS: UserRef[] = [
+  makeUserRef('Administrator'),
+  makeUserRef('Mark Liu'),
+  makeUserRef('Anna Petrova'),
+  makeUserRef('Sofia Rossi'),
+  makeUserRef('Tom Becker'),
+];
+
 export function makeTotalCounts(overrides: Partial<TotalCounts> = {}): TotalCounts {
   return {
     projects: 24,
@@ -156,4 +177,65 @@ export const MARKED_EXPERIMENTS: Experiment[] = [
     name: '12345678-0100',
     status: 'REJECTED',
   }),
+];
+
+/** A tiny valid SVG, so the reaction-scheme <img> has something real to render. */
+export const REACTION_SCHEME_SVG =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 88">' +
+  '<rect width="140" height="88" fill="#fff"/>' +
+  '<text x="70" y="48" text-anchor="middle" font-size="12" fill="#242424">A + B &#8594; C</text>' +
+  '</svg>';
+
+export function makeSearchResult(overrides: Partial<GlobalSearchResult> = {}): GlobalSearchResult {
+  return {
+    id: '11111111-1111-4111-8111-111111111111',
+    createdBy: ADMINISTRATOR,
+    createdAt: '2026-05-04T09:00:00Z',
+    modifiedBy: ADMINISTRATOR,
+    modifiedAt: '2026-05-04T09:00:00Z',
+    type: 'EXPERIMENT',
+    name: '00000001-0001',
+    title: 'Suzuki coupling of aryl bromide',
+    experimentStatus: 'OPEN',
+    reactionRoles: null,
+    revision: 3,
+    notebookCount: null,
+    experimentCount: null,
+    fragment: null,
+    ...overrides,
+  };
+}
+
+/** One of each entity type, plus enough experiments to make a second page reachable. */
+export const SEARCH_RESULTS: GlobalSearchResult[] = [
+  makeSearchResult({
+    id: '22222222-2222-4222-8222-222222222222',
+    type: 'PROJECT',
+    name: 'Kinase Inhibitor Screening',
+    title: null,
+    experimentStatus: null,
+    revision: null,
+    notebookCount: 4,
+    experimentCount: 37,
+  }),
+  makeSearchResult({
+    id: '33333333-3333-4333-8333-333333333333',
+    type: 'NOTEBOOK',
+    name: '00000001',
+    title: null,
+    experimentStatus: null,
+    revision: null,
+    experimentCount: 12,
+    createdBy: MARK,
+  }),
+  makeSearchResult({ reactionRoles: ['REACTANT', 'OUTPUT'] }),
+  ...Array.from({ length: 24 }, (_, index) =>
+    makeSearchResult({
+      id: `44444444-4444-4444-8444-${String(index).padStart(12, '0')}`,
+      name: `00000001-${String(index + 2).padStart(4, '0')}`,
+      title: index % 3 === 0 ? null : `Amide coupling step ${index + 2}`,
+      experimentStatus: index % 2 === 0 ? 'COMPLETED' : 'SIGNED',
+      createdBy: index % 2 === 0 ? MARK : ADMINISTRATOR,
+    }),
+  ),
 ];
