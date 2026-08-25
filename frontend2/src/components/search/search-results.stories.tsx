@@ -61,13 +61,18 @@ export const ShowsMatchedRole: Story = {
   },
 };
 
-/** Projects and experiments link out; a notebook has no route yet, so it is not a link. */
-export const NotebooksAreNotLinks: Story = {
+/** Every result type links to its own detail page. */
+export const LinksToDetailPages: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(await canvas.findByRole('link', { name: /Kinase Inhibitor Screening/ })).toBeInTheDocument();
-    await expect(canvas.queryByRole('link', { name: /Notebook 00000001$/ })).not.toBeInTheDocument();
-    await expect(canvas.getByText('00000001')).toBeInTheDocument();
+    await canvas.findByText('Search Results (27)');
+
+    // By href rather than by accessible name: a card's name is its whole text, and how the
+    // header's two spans concatenate is the accname algorithm's business, not this test's.
+    const hrefs = canvas.getAllByRole('link').map((link) => link.getAttribute('href'));
+    await expect(hrefs).toContain('/projects/22222222-2222-4222-8222-222222222222');
+    await expect(hrefs).toContain('/notebooks/33333333-3333-4333-8333-333333333333');
+    await expect(hrefs).toContain('/experiments/11111111-1111-4111-8111-111111111111');
   },
 };
 

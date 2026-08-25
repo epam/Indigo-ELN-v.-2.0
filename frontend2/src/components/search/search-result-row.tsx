@@ -2,11 +2,18 @@ import { Link } from '@tanstack/react-router';
 import { Briefcase, FlaskConical, NotebookText } from 'lucide-react';
 import { createContext, use } from 'react';
 
-import { ReactionScheme } from '@/components/search/reaction-scheme';
+import { ExperimentImage } from '@/components/search/experiment-image';
 import { Badge } from '@/components/ui/badge';
 import { EXPERIMENT_STATUS_DISPLAY } from '@/lib/types/experiments.ts';
 import type { GlobalSearchResult, SearchEntityType } from '@/lib/types/search.ts';
 import { REACTION_ROLE_DISPLAY } from '@/lib/types/search.ts';
+
+/** Every type has a detail page, so every result is a link. */
+const ENTITY_ROUTE: Record<SearchEntityType, '/projects/$id' | '/notebooks/$id' | '/experiments/$id'> = {
+  PROJECT: '/projects/$id',
+  NOTEBOOK: '/notebooks/$id',
+  EXPERIMENT: '/experiments/$id',
+};
 
 /**
  * Lets a row close the sheet it was clicked in. Passed by context rather than as a prop
@@ -98,7 +105,7 @@ function Body({ item }: { item: GlobalSearchResult }) {
       </header>
 
       <div className="flex items-start gap-4">
-        {item.type === 'EXPERIMENT' && <ReactionScheme experimentId={item.id} revision={item.revision} />}
+        {item.type === 'EXPERIMENT' && <ExperimentImage experimentId={item.id} revision={item.revision} />}
         <Columns item={item} />
       </div>
     </>
@@ -106,27 +113,16 @@ function Body({ item }: { item: GlobalSearchResult }) {
 }
 
 /**
- * One search hit. Which fields appear depends on the entity type: only experiments have a
- * scheme, a status, a subject and a matched role; only projects count notebooks.
- *
- * Projects and experiments link to their detail pages and close the sheet on the way.
- * Notebooks have no route in this app yet, so they render as a plain card rather than a
- * link that goes nowhere.
+ * One search hit, linking to its detail page and closing the sheet on the way. Which
+ * fields appear depends on the entity type: only experiments have a scheme, a status, a
+ * subject and a matched role; only projects count notebooks.
  */
 function SearchResultRow({ item }: { item: GlobalSearchResult }) {
   const onSelect = use(SelectResultContext);
 
-  if (item.type === 'NOTEBOOK') {
-    return (
-      <article className={CARD_CLASS}>
-        <Body item={item} />
-      </article>
-    );
-  }
-
   return (
     <Link
-      to={item.type === 'PROJECT' ? '/projects/$id' : '/experiments/$id'}
+      to={ENTITY_ROUTE[item.type]}
       params={{ id: item.id }}
       onClick={onSelect}
       className={`${CARD_CLASS} cursor-pointer`}

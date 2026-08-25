@@ -18,6 +18,7 @@ const LINK_PATHS = [
   '/',
   '/projects',
   '/projects/$id',
+  '/notebooks/$id',
   '/experiments/$id',
   '/templates',
   '/dictionaries',
