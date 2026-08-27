@@ -1,12 +1,13 @@
 import { Link } from '@tanstack/react-router';
 import { Briefcase } from 'lucide-react';
+import type { ReactNode } from 'react';
 
-import { AvatarStack } from '@/components/projects/avatar-stack';
+import { AvatarStack } from '@/components/common/avatar-stack';
 
 import type { Project } from '@/lib/types/projects.ts';
 import { formatDate } from '@/lib/utils.ts';
 
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
+function Row({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-4">
       <dt className="text-[14px]/6 text-neutral-800">{label}</dt>

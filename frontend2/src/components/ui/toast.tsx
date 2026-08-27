@@ -1,5 +1,6 @@
 import { Toast } from '@base-ui/react/toast';
 import { X } from 'lucide-react';
+import type * as React from 'react';
 
 import { toastManager } from '@/lib/toast';
 import { cn } from '@/lib/utils';

@@ -54,9 +54,9 @@ Search params are the source of truth for filter state. Route files validate par
 ### Data fetching — TanStack Query + `apiFetch`
 
 `src/lib/api.ts` — `apiFetch<T>(path, init?)`:
-- Bare paths (e.g. `'projects'`) are prefixed to `/api/eln/`.
-- Fully-qualified paths starting `/api/` pass through unchanged.
+- The path is sent verbatim — callers pass the full path including the `/api` prefix (e.g. `'/api/eln/projects'`). Nothing is rewritten, so a path is greppable end to end from the call site through the MSW handlers to the backend resource.
 - Attaches a Cognito **access token** (not ID token) as `Authorization: Bearer`. The backend reads the `username` claim which only exists on the access token.
+- `init.responseType` — `'json'` (default), `'text'`, or `'blob'` — decides how a successful body is read; there is no guessing and no fallback, so a malformed body in `json` mode throws. Overloads type the result, so `apiFetch(path, { responseType: 'text' })` is a `Promise<string>` without a generic. The default `Accept` follows from it: `application/json` for `json`, `*/*` otherwise — the image endpoints declare a concrete `@Produces` and answer 406 to a JSON-only `Accept`. Error bodies are always parsed as JSON-or-text whatever the mode, so `describeError` still gets the bean-validation shape.
 - Throws `ApiError(status, body)` on non-2xx, and first raises an error toast via `notifyError` in `src/lib/toast.ts`. That mirrors indigo-frontend's `error.interceptor.ts`: every failed request is reported once, centrally, and still thrown so callers can react. `describeError` there ports the interceptor's `detectMessage` (403 → permission copy, bean-validation array → one line per field, anything else → a generic message).
 
 `src/lib/query-client.ts` — `staleTime: 30_000`; no retry on `ApiError.status < 500`.
@@ -70,7 +70,7 @@ Data hooks live in `src/lib/api/` (one file per domain: `user.ts`, `projects.ts`
 
 `queryFn` takes `({ signal })` and passes it to `apiFetch`. That is what allows TanStack Query to abort the in-flight request when the key moves on and the old query loses its observer — `Query#removeObserver` only aborts `if (this.#abortSignalConsumed)`, i.e. only when the `queryFn` actually read `signal`.
 
-`useProjects` does the same for the projects list, gating on `filters.search` only — sort and `createdByMe` are discrete toggles that should take effect at once. `ActionBar`'s search box therefore writes **straight** to the URL search params on every keystroke (`replace: true`, so no history spam) and is controlled by them; the debounce is entirely in the query. `Collection` then shows its skeletons for the whole wait, instead of leaving the previous term's results up unannounced.
+`useProjects` does the same for the projects list, gating on `filters.search` only — sort and `createdByMe` are discrete toggles that should take effect at once. `ActionBar`'s search box therefore writes **straight** to the URL search params on every keystroke (`replace: true`, so no history spam) and is controlled by them; the debounce is entirely in the query. `InfiniteLoader` then shows its skeletons for the whole wait, instead of leaving the previous term's results up unannounced.
 
 `useSettled` treats the value a component *starts* with as already settled, so gating a query on it never delays a first load.
 
@@ -204,7 +204,7 @@ Storybook 10 + `@storybook/react-vite`. `.storybook/main.ts` inherits the whole 
 
 Anything rendered through a portal — dialogs, combobox popups, toasts — is outside `canvasElement`, so `play` functions must reach it with `screen`, not `within(canvasElement)`.
 
-Mock data lives in `src/mocks/` (under `src/`, not `.storybook/`, so unit tests can import it too): `fixtures.ts` has `makeProject`/`makeExperiment`/`makeTotalCounts` override factories, `handlers.ts` has the MSW handlers for the four endpoints `apiFetch` hits. Paths there must include the `/api/eln` prefix that `buildUrl` adds. Override per story with `parameters: { msw: { handlers: errorHandlers } }` — `handlers.ts` exports `emptyHandlers`, `errorHandlers`, and `loadingHandlers` for the non-happy paths.
+Mock data lives in `src/mocks/` (under `src/`, not `.storybook/`, so unit tests can import it too): `fixtures.ts` has `makeProject`/`makeExperiment`/`makeTotalCounts` override factories, `handlers.ts` has the MSW handlers for the four endpoints `apiFetch` hits. Paths there are the same full `/api/eln` paths the callers pass. Override per story with `parameters: { msw: { handlers: errorHandlers } }` — `handlers.ts` exports `emptyHandlers`, `errorHandlers`, and `loadingHandlers` for the non-happy paths.
 
 `vite.config.ts` defines two Vitest projects: `unit` (jsdom, `src/**/*.test.{ts,tsx}`) and `storybook` (real Chromium via Playwright, every story as a smoke test with `a11y: { test: 'error' }` failing on violations). CI without a browser should run `npm run test:unit`; Chromium comes from `npx playwright install chromium`. The `storybook` project keeps `.storybook/vitest.setup.ts` even though Storybook 10.3+ can provision annotations itself — only a project setup file gets scanned for dep pre-bundling, and without one the CJS deps behind `@testing-library/dom` fail to import in the browser.
 

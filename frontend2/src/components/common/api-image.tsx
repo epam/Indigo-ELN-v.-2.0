@@ -1,3 +1,5 @@
+import { ImageOff } from 'lucide-react';
+
 import { Skeleton } from '@/components/ui/skeleton';
 import { useApiImage } from '@/lib/api/images';
 import { useInViewport } from '@/lib/hooks/use-in-viewport';
@@ -11,10 +13,14 @@ import { cn } from '@/lib/utils';
  * ported: the frame is observed, the fetch starts on first entry, and the observer is done
  * after that.
  *
- * There is no error branch. `apiFetch` has already raised a toast, and the picture endpoint
- * never 404s — a missing picture comes back as a 1x1 placeholder — so a broken-image frame
- * would only add noise. The Angular original went further and re-armed its observer after a
- * failure, which quietly retried the request on every scroll past; this does not.
+ * Any failed fetch marks its own frame — 401, 403, 404, 500 alike. `apiFetch` has already
+ * raised a toast saying why, but a toast in the corner cannot say *which* of twenty rows
+ * came back empty, and a frame left blank is indistinguishable from one still loading. The
+ * copy stays deliberately status-agnostic: the toast carries the reason, the frame only
+ * says this picture is not coming.
+ *
+ * There is no retry: the Angular original re-armed its observer after a failure, which
+ * quietly re-requested on every scroll past.
  */
 function ApiImage({
   path,
@@ -28,7 +34,7 @@ function ApiImage({
   className?: string;
 }) {
   const [ref, seen] = useInViewport();
-  const { data } = useApiImage(path, seen);
+  const { data, isError } = useApiImage(path, seen);
 
   return (
     <div
@@ -44,6 +50,17 @@ function ApiImage({
           alt={alt}
           className="max-h-full max-w-full object-contain"
         />
+      ) : isError ? (
+        // One node with role="img" rather than an icon plus text: the frame stands in for
+        // the picture, so it should be announced as the picture that is missing.
+        <div
+          role="img"
+          aria-label={`${alt} could not be loaded`}
+          className="flex flex-col items-center gap-1 px-2 text-center text-neutral-700"
+        >
+          <ImageOff className="size-5 shrink-0" />
+          <span className="text-[12px]/4">Could not load</span>
+        </div>
       ) : (
         // Only once something is actually on its way: a screenful of pulsing placeholders
         // for images nothing has asked for yet is noise, so an unseen frame stays empty.

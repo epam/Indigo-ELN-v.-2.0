@@ -18,11 +18,11 @@ vi.mock('@/lib/api', async () => {
 const { routeTree } = await import('@/routeTree.gen');
 
 function respond(path: string) {
-  if (path.startsWith('projects?')) {
+  if (path.startsWith('/api/eln/projects?')) {
     return Promise.resolve({ pageNo: 0, pageSize: 10, totalItems: 3, totalPages: 1, items: PROJECTS });
   }
-  if (path === 'currentUser') return Promise.resolve(makeCurrentUser());
-  if (path === 'total-counts') return Promise.resolve(makeTotalCounts());
+  if (path === '/api/eln/currentUser') return Promise.resolve(makeCurrentUser());
+  if (path === '/api/eln/total-counts') return Promise.resolve(makeTotalCounts());
   return Promise.resolve([]);
 }
 
@@ -64,7 +64,7 @@ describe('projects search box', () => {
   /** Typing must not fire a request per keystroke — that is what the debounce is for. */
   it('asks the server only once the term stops changing', async () => {
     await renderProjects();
-    const listCalls = () => apiFetch.mock.calls.filter(([path]) => String(path).startsWith('projects?'));
+    const listCalls = () => apiFetch.mock.calls.filter(([path]) => String(path).startsWith('/api/eln/projects?'));
     const before = listCalls().length;
 
     await userEvent.type(screen.getByLabelText('Search projects'), 'kinase');

@@ -18,8 +18,8 @@ import type { GlobalSearchResult } from '@/lib/types/search.ts';
 import type { BuiltInDictionary } from '@/lib/types/dictionaries.ts';
 import type { Project } from '@/lib/types/projects.ts';
 
-// buildUrl() in src/lib/api.ts prefixes bare paths with /api/eln/, so handlers
-// must carry that prefix.
+// apiFetch sends the path verbatim, so handlers match the same full paths the
+// callers in src/lib/api/ pass.
 const ELN = '/api/eln';
 
 function page(items: Project[]): Page<Project> {
@@ -82,7 +82,7 @@ export const handlers = [
     HttpResponse.json(suggestedUsers(new URL(request.url).searchParams.get('search') ?? '')),
   ),
   http.post(`${ELN}/search`, ({ request }) => HttpResponse.json(searchPage(request, SEARCH_RESULTS))),
-  // image/svg+xml, which apiFetch hands back as a string because it is not valid JSON.
+  // image/svg+xml, which fetchApiImage reads as text (`responseType: 'text'`).
   http.get(`${ELN}/experiments/:id/picture`, () =>
     HttpResponse.text(REACTION_SCHEME_SVG, { headers: { 'Content-Type': 'image/svg+xml' } }),
   ),

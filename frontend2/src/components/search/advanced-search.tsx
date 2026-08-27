@@ -1,7 +1,7 @@
 import { ChevronDown } from 'lucide-react';
 
+import { DictionaryCombobox } from '@/components/common/dictionary-combobox';
 import { AuthorCombobox } from '@/components/search/author-combobox';
-import { DictionaryCombobox } from '@/components/search/dictionary-combobox';
 import {
   type GlobalSearchFormValues,
   showReactionRole,

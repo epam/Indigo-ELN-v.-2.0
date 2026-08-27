@@ -1,5 +1,6 @@
 import { Search } from 'lucide-react';
-import { useState } from 'react';
+import type { FormEvent } from 'react';
+import { useEffect, useState } from 'react';
 
 import { SchemeEditor } from '@/components/chemistry/scheme-editor';
 import { AdvancedSearch } from '@/components/search/advanced-search';
@@ -57,15 +58,36 @@ function GlobalSearchPanel({ open, onOpenChange, query, onQueryChange, onSearch 
     setOwn((previous) => ({ ...previous, ...next }));
   }
 
-  function handleSubmit(event: React.FormEvent) {
+  function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    const request = toGlobalSearchRequest(values);
-    setSubmitted(request);
-    onSearch?.(request);
+    setSubmitted(toGlobalSearchRequest(values));
     // Collapsing hands the space back to the results and leaves the summary as the record
     // of what was searched for, as in indigo-frontend.
     setAdvancedOpen(false);
   }
+
+  // Opening the sheet with something already to search for — Enter in the header box
+  // carries its term across — means the search has been asked for already, so run it
+  // rather than showing a filled-in form with an untouched Search button. The gate is the
+  // button's own: if Search would be clickable on open, it counts as pressed.
+  //
+  // Adjusted during render, the pattern React documents for reacting to a changed prop:
+  // an effect would submit a render late, and would have to distinguish the opening from
+  // every later keystroke in the sheet's own box, which must not search on its own. The
+  // initial `false` counts a panel mounted already open as an opening, since the sheet in
+  // AppHeader mounts closed and anything mounting it open is opening it.
+  const [wasOpen, setWasOpen] = useState(false);
+  if (open !== wasOpen) {
+    setWasOpen(open);
+    if (open && !isEmpty(values)) setSubmitted(toGlobalSearchRequest(values));
+  }
+
+  // One place to report a submitted search, whichever of the two started it. The
+  // observer is not part of running the search, so it belongs here rather than in
+  // either trigger.
+  useEffect(() => {
+    if (submitted) onSearch?.(submitted);
+  }, [submitted, onSearch]);
 
   function clearAll() {
     setOwn(EMPTY_GLOBAL_SEARCH_FORM);

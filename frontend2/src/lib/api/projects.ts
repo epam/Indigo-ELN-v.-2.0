@@ -20,15 +20,15 @@ export function projectsQueryString(filters: ProjectFilters, pageNo: number, pag
 }
 
 export function fetchProjects(filters: ProjectFilters, pageNo: number, signal?: AbortSignal): Promise<Page<Project>> {
-  return apiFetch<Page<Project>>(`projects?${projectsQueryString(filters, pageNo)}`, { signal });
+  return apiFetch<Page<Project>>(`/api/eln/projects?${projectsQueryString(filters, pageNo)}`, { signal });
 }
 
 export function fetchTotalCounts(): Promise<TotalCounts> {
-  return apiFetch<TotalCounts>('total-counts');
+  return apiFetch<TotalCounts>('/api/eln/total-counts');
 }
 
 export function createProject(request: ProjectRequest): Promise<ProjectDetails> {
-  return apiFetch<ProjectDetails>('projects', { method: 'POST', body: JSON.stringify(request) });
+  return apiFetch<ProjectDetails>('/api/eln/projects', { method: 'POST', body: JSON.stringify(request) });
 }
 
 /**
@@ -37,12 +37,12 @@ export function createProject(request: ProjectRequest): Promise<ProjectDetails> 
  * typed by the user would otherwise act as a wildcard.
  */
 export function suggestKeywords(search: string, signal?: AbortSignal): Promise<string[]> {
-  return apiFetch<string[]>(`projects/keywords/suggest?search=${encodeURIComponent(search)}`, { signal });
+  return apiFetch<string[]>(`/api/eln/projects/keywords/suggest?search=${encodeURIComponent(search)}`, { signal });
 }
 
 /** Pre-flight for the project_name_uq constraint, which has no friendly server message. */
 export function checkProjectNameExists(name: string): Promise<boolean> {
-  return apiFetch<{ exists: boolean }>(`projects/existence?name=${encodeURIComponent(name)}`).then(
+  return apiFetch<{ exists: boolean }>(`/api/eln/projects/existence?name=${encodeURIComponent(name)}`).then(
     (result) => result.exists,
   );
 }
@@ -63,7 +63,7 @@ export const SEARCH_DEBOUNCE_MS = 300;
 
 /**
  * Debounced by gating `enabled` while the key tracks the search term as typed, so
- * `isPending` spans both the wait and the request — Collection then shows its skeletons
+ * `isPending` spans both the wait and the request — InfiniteLoader then shows its skeletons
  * for the whole time rather than leaving the previous term's results up unannounced.
  * Only the search term is debounced; sort and createdByMe are discrete toggles that
  * should take effect at once, and leave `settled` alone.

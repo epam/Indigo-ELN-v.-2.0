@@ -13,7 +13,7 @@ export const dictionaryKeys = {
  * the BuiltInDictionary name as well as a UUID (DictionaryService.refToID).
  */
 export function fetchDictionary(dictionary: BuiltInDictionary, signal?: AbortSignal): Promise<DictionaryItemRef[]> {
-  return apiFetch<DictionaryItemRef[]>(`dictionaries/${dictionary}`, { signal });
+  return apiFetch<DictionaryItemRef[]>(`/api/eln/dictionaries/${dictionary}`, { signal });
 }
 
 /**

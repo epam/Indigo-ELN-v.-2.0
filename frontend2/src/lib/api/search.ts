@@ -18,7 +18,7 @@ export function search(
   pageNo: number,
   signal?: AbortSignal,
 ): Promise<Page<GlobalSearchResult>> {
-  return apiFetch<Page<GlobalSearchResult>>(`search?pageNo=${pageNo}&pageSize=${SEARCH_PAGE_SIZE}`, {
+  return apiFetch<Page<GlobalSearchResult>>(`/api/eln/search?pageNo=${pageNo}&pageSize=${SEARCH_PAGE_SIZE}`, {
     method: 'POST',
     body: JSON.stringify(request),
     signal,

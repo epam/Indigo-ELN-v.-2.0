@@ -76,7 +76,7 @@ export const LinksToDetailPages: Story = {
   },
 };
 
-/** Scrolling to the bottom pulls the second page in through Collection's sentinel. */
+/** Scrolling to the bottom pulls the second page in through InfiniteLoader's sentinel. */
 export const LoadsTheNextPage: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

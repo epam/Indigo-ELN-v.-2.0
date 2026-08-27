@@ -1,4 +1,4 @@
-import { AvatarStack } from '@/components/projects/avatar-stack';
+import { AvatarStack } from '@/components/common/avatar-stack';
 import { makeAclEntry } from '@/mocks/fixtures';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
@@ -6,7 +6,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 const ACL = [makeAclEntry('Administrator'), makeAclEntry('Mark Liu'), makeAclEntry('Sofia Rossi')];
 
 const meta = {
-  title: 'Projects/AvatarStack',
+  title: 'Common/AvatarStack',
   component: AvatarStack,
   parameters: { layout: 'centered' },
 } satisfies Meta<typeof AvatarStack>;

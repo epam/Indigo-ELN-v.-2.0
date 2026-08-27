@@ -9,7 +9,7 @@ export const experimentKeys = {
 
 /** Unpaged: ExperimentAPI.getMarkedExperiments returns the full list. */
 export function fetchMarkedExperiments(): Promise<Experiment[]> {
-  return apiFetch<Experiment[]>('experiments/marked');
+  return apiFetch<Experiment[]>('/api/eln/experiments/marked');
 }
 
 export function useMarkedExperiments() {
@@ -29,5 +29,5 @@ export function useMarkedExperiments() {
  */
 export function experimentPicturePath(id: string, revision: number | null): string {
   const query = revision === null ? '' : `?revision=${revision}`;
-  return `experiments/${id}/picture${query}`;
+  return `/api/eln/experiments/${id}/picture${query}`;
 }

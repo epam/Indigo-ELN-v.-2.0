@@ -1,10 +1,10 @@
-import { StatTileGroup } from '@/components/projects/stat-tile-group';
+import { StatTileGroup } from '@/components/common/stat-tile-group';
 import { makeTotalCounts } from '@/mocks/fixtures';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta = {
-  title: 'Projects/StatTileGroup',
+  title: 'Common/StatTileGroup',
   component: StatTileGroup,
   parameters: { layout: 'centered' },
 } satisfies Meta<typeof StatTileGroup>;

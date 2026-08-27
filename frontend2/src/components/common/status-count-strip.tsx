@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import {
@@ -11,7 +13,7 @@ import type { TotalCounts } from '@/lib/types/projects.ts';
 /** Shown on its own while counts load and when every status is zero. */
 const FALLBACK_STATUS: ExperimentStatus = 'OPEN';
 
-function Cell({ status, children }: { status: ExperimentStatus; children: React.ReactNode }) {
+function Cell({ status, children }: { status: ExperimentStatus; children: ReactNode }) {
   return (
     <div className="-mr-px flex w-[100px] shrink-0 flex-col gap-1 border-r border-neutral-300 bg-card px-3 py-2 last:border-r-0">
       {children}

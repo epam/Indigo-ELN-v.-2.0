@@ -2,7 +2,7 @@ import { Avatar } from '@/components/ui/avatar';
 import type { ACLEntry } from '@/lib/types/common.ts';
 
 export function AvatarStack({ acl, aclCount }: { acl: ACLEntry[]; aclCount: number }) {
-  // Project.acl is capped by the backend; the badge counts everyone it left out.
+  // The ACL is capped by the backend; the badge counts everyone it left out.
   const overflow = aclCount - acl.length;
 
   return (

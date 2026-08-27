@@ -11,7 +11,7 @@ export const userKeys = {
 };
 
 export function fetchCurrentUser(): Promise<CurrentUser> {
-  return apiFetch<CurrentUser>('currentUser');
+  return apiFetch<CurrentUser>('/api/eln/currentUser');
 }
 
 export function useCurrentUser() {
@@ -39,7 +39,7 @@ export function useHasPermission(permission: ApplicationPermission): boolean | u
  * into a SQL LIKE, as with project keywords.
  */
 export function suggestUsers(search: string, signal?: AbortSignal): Promise<UserRef[]> {
-  return apiFetch<UserRef[]>(`users/suggest?search=${encodeURIComponent(search)}`, { signal });
+  return apiFetch<UserRef[]>(`/api/eln/users/suggest?search=${encodeURIComponent(search)}`, { signal });
 }
 
 export const SUGGEST_DEBOUNCE_MS = 300;

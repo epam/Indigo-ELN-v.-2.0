@@ -42,33 +42,38 @@ function AuthorCombobox({
   }
 
   return (
-    <div className="flex flex-col items-start gap-1">
-      <MultiCombobox<UserRef>
-        id={id}
-        value={value}
-        onValueChange={onValueChange}
-        items={suggestions}
-        itemToKey={userKey}
-        itemToLabel={(user) => user.displayName}
-        inputValue={inputValue}
-        onInputValueChange={setInputValue}
-        placeholder="Type to search..."
-        emptyMessage="No matching users"
-        // An empty box is not pending anything; the query is disabled until something is typed.
-        loading={query !== '' && isPending}
-        // apiFetch has already toasted the failure; this says why the list is empty.
-        error={isError}
-      />
+    // The button sits beside the box, sized to its label, so the chips keep the whole width;
+    // aligned to the top so it stays put as chips wrap the box taller.
+    <div className="flex items-start gap-3">
+      <div className="min-w-0 flex-1">
+        <MultiCombobox<UserRef>
+          id={id}
+          value={value}
+          onValueChange={onValueChange}
+          items={suggestions}
+          itemToKey={userKey}
+          itemToLabel={(user) => user.displayName}
+          inputValue={inputValue}
+          onInputValueChange={setInputValue}
+          placeholder="Type to search..."
+          emptyMessage="No matching users"
+          // An empty box is not pending anything; the query is disabled until something is typed.
+          loading={query !== '' && isPending}
+          // apiFetch has already toasted the failure; this says why the list is empty.
+          error={isError}
+        />
+      </div>
       <Button
         type="button"
         variant="link"
         size="sm"
-        className="px-0 underline"
+        // h-10 matches the box's own min-h-10, which centres the label against a single row.
+        className="h-10 shrink-0 px-0 underline"
         // Nothing to add until currentUser resolves, and nothing to add twice.
         disabled={!currentUser || chosen.has(currentUser.username)}
         onClick={addMe}
       >
-        Add Me as an Author
+        Add Me
       </Button>
     </div>
   );

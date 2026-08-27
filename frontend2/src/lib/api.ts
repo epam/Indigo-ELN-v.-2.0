@@ -16,12 +16,13 @@ export class ApiError extends Error {
 }
 
 /**
- * Mirrors the convention in indigo-frontend/src/core/services/api.service.ts:
- * bare paths resolve against the ELN API, fully-qualified /api paths pass through.
+ * How to read a successful body. The caller declares it; `apiFetch` never guesses.
+ * `json` is the default and now *fails* on a malformed body rather than quietly
+ * handing back the raw text.
  */
-function buildUrl(path: string): string {
-  return path.startsWith('/api/') ? path : `/api/eln/${path.replace(/^\/+/, '')}`;
-}
+type ResponseType = 'json' | 'text' | 'blob';
+
+type ApiRequestInit = RequestInit & { responseType?: ResponseType };
 
 /**
  * The backend resolves the principal from the `username` claim, which only exists
@@ -34,8 +35,22 @@ async function authHeader(): Promise<Record<string, string>> {
   return accessToken ? { Authorization: `Bearer ${accessToken.toString()}` } : {};
 }
 
-async function parseBody(response: Response): Promise<unknown> {
+async function parseSuccessBody(response: Response, responseType: ResponseType): Promise<unknown> {
+  if (responseType === 'blob') return response.blob();
+  if (responseType === 'text') return response.text();
   if (response.status === 204) return null;
+  const text = await response.text();
+  if (!text) return null;
+  return JSON.parse(text);
+}
+
+/**
+ * Errors are read the same way whatever the caller asked for: the backend reports them
+ * as the JSON bean-validation shape `describeError` expects, and a failed image request
+ * has to produce a readable toast rather than a Blob. Non-JSON bodies (a proxy's HTML
+ * error page) still come through as text so the log line carries something.
+ */
+async function parseErrorBody(response: Response): Promise<unknown> {
   const text = await response.text();
   if (!text) return null;
   try {
@@ -45,25 +60,29 @@ async function parseBody(response: Response): Promise<unknown> {
   }
 }
 
-export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const url = buildUrl(path);
-  const response = await fetch(url, {
-    ...init,
+export function apiFetch<T>(path: string, init?: ApiRequestInit & { responseType?: 'json' }): Promise<T>;
+export function apiFetch(path: string, init: ApiRequestInit & { responseType: 'text' }): Promise<string>;
+export function apiFetch(path: string, init: ApiRequestInit & { responseType: 'blob' }): Promise<Blob>;
+export async function apiFetch(path: string, init: ApiRequestInit = {}): Promise<unknown> {
+  const { responseType = 'json', ...requestInit } = init;
+  const response = await fetch(path, {
+    ...requestInit,
     headers: {
-      Accept: 'application/json',
-      ...(init.body ? { 'Content-Type': 'application/json' } : {}),
+      // The image endpoints declare a concrete `@Produces` (`image/svg+xml`, `image/png`),
+      // so anything but JSON has to accept a wildcard or the backend answers 406.
+      Accept: responseType === 'json' ? 'application/json' : '*/*',
+      ...(requestInit.body ? { 'Content-Type': 'application/json' } : {}),
       ...(await authHeader()),
-      ...init.headers,
+      ...requestInit.headers,
     },
   });
 
-  const body = await parseBody(response);
   if (!response.ok) {
-    const error = new ApiError(response.status, body);
+    const error = new ApiError(response.status, await parseErrorBody(response));
     // Toasted here rather than per-caller, mirroring indigo-frontend's error.interceptor.ts.
-    // Still thrown, so TanStack Query and the Collection error branch keep working.
-    notifyError(error, url);
+    // Still thrown, so TanStack Query and the InfiniteLoader error branch keep working.
+    notifyError(error, path);
     throw error;
   }
-  return body as T;
+  return parseSuccessBody(response, responseType);
 }

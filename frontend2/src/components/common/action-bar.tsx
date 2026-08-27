@@ -1,5 +1,6 @@
 import { Menu } from '@base-ui/react/menu';
 import { ArrowUpDown, ChevronDown, LayoutGrid, LayoutList, Search } from 'lucide-react';
+import type { ReactNode } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { SegmentedControl } from '@/components/ui/segmented-control';
@@ -23,8 +24,8 @@ interface ActionBarProps {
   onSortChange: (sort: SortOrder) => void;
   onCreatedByMeChange: (createdByMe: boolean) => void;
   onViewChange: (view: CollectionView) => void;
-  /** Extra filters for one entity only — experiments put their status multiselect here. */
-  children?: React.ReactNode;
+  /** Extra filters or other controls. */
+  children?: ReactNode;
 }
 
 export function ActionBar({

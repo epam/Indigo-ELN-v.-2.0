@@ -1,10 +1,10 @@
-import { StatusCountStrip } from '@/components/projects/status-count-strip';
+import { StatusCountStrip } from '@/components/common/status-count-strip';
 import { makeTotalCounts } from '@/mocks/fixtures';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta = {
-  title: 'Projects/StatusCountStrip',
+  title: 'Common/StatusCountStrip',
   component: StatusCountStrip,
 } satisfies Meta<typeof StatusCountStrip>;
 

@@ -48,8 +48,8 @@ expects. Sign in with a Cognito user from the pool in `.env.example`.
 - **Routes** live in `src/routes/` and are compiled to `src/routeTree.gen.ts` by
   `@tanstack/router-plugin` (generated, git-ignored). `_auth.tsx` is a pathless layout route that
   guards everything beneath it on a Cognito session.
-- **API calls** go through `apiFetch` in `src/lib/api.ts`. Bare paths resolve against `/api/eln/`;
-  a path starting with `/api/` passes through. It attaches the Cognito **access token** — not the ID
+- **API calls** go through `apiFetch` in `src/lib/api.ts`. The path is sent verbatim, so callers pass
+  the full path (e.g. `'/api/eln/projects'`). It attaches the Cognito **access token** — not the ID
   token, because the backend reads the `username` claim which only access tokens carry.
 - **UI components** are added with `npx shadcn@latest add <name>` into `src/components/ui/`.
 - Import alias `@/` → `src/`.

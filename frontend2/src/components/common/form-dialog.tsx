@@ -1,3 +1,4 @@
+import type { FormEvent, KeyboardEvent, ReactNode } from 'react';
 import { useState } from 'react';
 
 import { Dialog, DialogClose, DialogContent } from '@/components/ui/dialog';
@@ -16,7 +17,7 @@ interface FormDialogProps {
    * itself has already been reported by `apiFetch`.
    */
   onSubmit: () => Promise<void>;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 /**
@@ -47,7 +48,7 @@ function FormDialog({
     }
   }
 
-  function handleSubmit(event: React.FormEvent) {
+  function handleSubmit(event: FormEvent) {
     event.preventDefault();
     void submit();
   }
@@ -57,7 +58,7 @@ function FormDialog({
    * shortcut, and the only way to submit from a rich-text field, where a plain Enter
    * inserts a paragraph instead.
    */
-  function handleKeyDown(event: React.KeyboardEvent) {
+  function handleKeyDown(event: KeyboardEvent) {
     if (event.key !== 'Enter' || !(event.ctrlKey || event.metaKey)) return;
     // Something more specific already claimed the chord (leaving a code block, say).
     if (event.defaultPrevented) return;

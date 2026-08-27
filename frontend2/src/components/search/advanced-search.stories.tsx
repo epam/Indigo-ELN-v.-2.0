@@ -115,7 +115,7 @@ export const AddsMeAsAnAuthor: Story = {
   args: { defaultOpen: true },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const addMe = canvas.getByRole('button', { name: 'Add Me as an Author' });
+    const addMe = canvas.getByRole('button', { name: 'Add Me' });
     // Disabled until currentUser resolves — and a disabled Button has pointer-events: none.
     await waitFor(() => expect(addMe).toBeEnabled());
     await userEvent.click(addMe);

@@ -18,6 +18,7 @@ import {
   Superscript as SuperscriptIcon,
   Underline,
 } from 'lucide-react';
+import type * as React from 'react';
 import { useEffect, useRef } from 'react';
 
 import { cn } from '@/lib/utils';

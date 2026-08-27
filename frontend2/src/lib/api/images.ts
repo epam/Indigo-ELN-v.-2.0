@@ -9,13 +9,12 @@ export const imageKeys = {
 /**
  * An image served by the ELN API, as its source text.
  *
- * Every image endpoint here produces `image/svg+xml`, and `apiFetch` already hands that
- * back as a string: `parseBody` reads the body, fails to parse it as JSON, and returns the
- * text. So there is no blob and no object URL to own — indigo-frontend's ApiImage created
- * one per image and never revoked it. A binary endpoint would need a separate fetcher.
+ * There is no blob and no object URL to own — indigo-frontend's ApiImage created one per
+ * image and never revoked it. A binary endpoint such as the PNG avatar would need its own
+ * fetcher (`responseType: 'blob'`), since the consumer inlines the text as an SVG data URL.
  */
 export function fetchApiImage(path: string, signal?: AbortSignal): Promise<string> {
-  return apiFetch<string>(path, { signal });
+  return apiFetch(path, { signal, responseType: 'text' });
 }
 
 /**

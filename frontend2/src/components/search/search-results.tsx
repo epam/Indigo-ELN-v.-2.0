@@ -1,4 +1,4 @@
-import { Collection, type CollectionLayout } from '@/components/common/collection';
+import { InfiniteLoader, type InfiniteLoaderLayout } from '@/components/common/infinite-loader';
 import { SearchResultRow, SelectResultContext } from '@/components/search/search-result-row';
 import { SearchResultSkeleton } from '@/components/search/search-result-skeleton';
 
@@ -13,19 +13,19 @@ import type { InfiniteData, UseInfiniteQueryResult } from '@tanstack/react-query
  */
 const FIRST_LOAD_SKELETONS = 4;
 
-const LAYOUT: CollectionLayout<GlobalSearchResult> = {
+const LAYOUT: InfiniteLoaderLayout<GlobalSearchResult> = {
   className: 'flex flex-col gap-3',
   Item: SearchResultRow,
   ItemSkeleton: SearchResultSkeleton,
 };
 
-// Results have one layout; Collection is keyed by CollectionView, so both keys point at it.
-const LAYOUTS: Record<CollectionView, CollectionLayout<GlobalSearchResult>> = { list: LAYOUT, grid: LAYOUT };
+// Results have one layout; InfiniteLoader is keyed by CollectionView, so both keys point at it.
+const LAYOUTS: Record<CollectionView, InfiniteLoaderLayout<GlobalSearchResult>> = { list: LAYOUT, grid: LAYOUT };
 
 /**
  * The results half of the search sheet: a count, then the hits.
  *
- * `Collection` already owns the first-load skeletons, the error and empty branches, the
+ * `InfiniteLoader` already owns the first-load skeletons, the error and empty branches, the
  * skeleton tail while the next page loads, and the IntersectionObserver sentinel — which
  * needs no adjusting in here, since the dialog body it scrolls in clips it just as the
  * page does.
@@ -45,12 +45,12 @@ function SearchResults({
 
   return (
     <section className="flex flex-col gap-3">
-      {/* Suppressed at zero: Collection's own empty branch already says there was nothing. */}
+      {/* Suppressed at zero: InfiniteLoader's own empty branch already says there was nothing. */}
       {totalItems !== undefined && totalItems > 0 && (
         <h2 className="text-[16px]/6 font-semibold">Search Results ({totalItems})</h2>
       )}
       <SelectResultContext value={onSelect}>
-        <Collection<GlobalSearchResult>
+        <InfiniteLoader<GlobalSearchResult>
           entityLabel="results"
           view="list"
           layouts={LAYOUTS}

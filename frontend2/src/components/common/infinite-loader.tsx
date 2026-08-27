@@ -8,17 +8,17 @@ import type { CollectionView, Page } from '@/lib/types/common.ts';
 const NEXT_PAGE_SKELETONS = 3;
 
 /** One view's container plus the two components that fill it. */
-export interface CollectionLayout<T> {
+export interface InfiniteLoaderLayout<T> {
   className: string;
   Item: ComponentType<{ item: T }>;
   ItemSkeleton: ComponentType;
 }
 
-interface CollectionProps<T extends { id: string }> {
+interface InfiniteLoaderProps<T extends { id: string }> {
   /** Plural lower-case entity name, e.g. "projects" — fills the loading/error/empty copy. */
   entityLabel: string;
   view: CollectionView;
-  layouts: Record<CollectionView, CollectionLayout<T>>;
+  layouts: Record<CollectionView, InfiniteLoaderLayout<T>>;
   /** Passed in rather than fetched here, so this never learns which endpoint it renders. */
   query: UseInfiniteQueryResult<InfiniteData<Page<T>>, Error>;
   /** A full page, so a full first page lands without resizing the document. */
@@ -30,13 +30,13 @@ interface CollectionProps<T extends { id: string }> {
  * arrives through `layouts` and `query`; the scroll sentinel, the skeleton runs and the
  * pending/error/empty branches are the same for projects, notebooks and experiments.
  */
-export function Collection<T extends { id: string }>({
+export function InfiniteLoader<T extends { id: string }>({
   entityLabel,
   view,
   layouts,
   query,
   firstLoadSkeletons,
-}: CollectionProps<T>) {
+}: InfiniteLoaderProps<T>) {
   const { className, Item, ItemSkeleton } = layouts[view];
   const { data, error, isPending, hasNextPage, isFetchingNextPage, fetchNextPage } = query;
 

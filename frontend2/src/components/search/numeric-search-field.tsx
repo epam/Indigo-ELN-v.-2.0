@@ -1,4 +1,5 @@
 import { ChevronDown } from 'lucide-react';
+import type { ChangeEvent } from 'react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -37,7 +38,7 @@ function NumericSearchField({
     if (value) onValueChange({ ...value, type: next });
   }
 
-  function handleNumberChange(event: React.ChangeEvent<HTMLInputElement>) {
+  function handleNumberChange(event: ChangeEvent<HTMLInputElement>) {
     // valueAsNumber is NaN for '' and for a half-typed '-' or '1e', all of which mean
     // "no filter yet" rather than a number to send.
     const parsed = event.target.valueAsNumber;

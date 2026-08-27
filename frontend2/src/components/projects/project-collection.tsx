@@ -1,4 +1,4 @@
-import { Collection, type CollectionLayout } from '@/components/common/collection';
+import { InfiniteLoader, type InfiniteLoaderLayout } from '@/components/common/infinite-loader';
 import { ProjectCard } from '@/components/projects/project-card';
 import { ProjectCardSkeleton } from '@/components/projects/project-card-skeleton';
 import { ProjectRow } from '@/components/projects/project-row';
@@ -21,11 +21,11 @@ const GRID_CLASS = 'grid gap-3 grid-cols-[repeat(auto-fill,minmax(max(280px,(100
 const LAYOUTS = {
   grid: { className: GRID_CLASS, Item: ProjectCard, ItemSkeleton: ProjectCardSkeleton },
   list: { className: 'flex flex-col gap-3', Item: ProjectRow, ItemSkeleton: ProjectRowSkeleton },
-} satisfies Record<CollectionView, CollectionLayout<Project>>;
+} satisfies Record<CollectionView, InfiniteLoaderLayout<Project>>;
 
 export function ProjectCollection({ filters, view }: { filters: ProjectFilters; view: CollectionView }) {
   return (
-    <Collection
+    <InfiniteLoader
       entityLabel="projects"
       view={view}
       layouts={LAYOUTS}

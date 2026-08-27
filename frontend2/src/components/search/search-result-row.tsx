@@ -1,8 +1,9 @@
 import { Link } from '@tanstack/react-router';
 import { Briefcase, FlaskConical, NotebookText } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { createContext, use } from 'react';
 
-import { ExperimentImage } from '@/components/search/experiment-image';
+import { ExperimentImage } from '@/components/common/experiment-image';
 import { Badge } from '@/components/ui/badge';
 import { EXPERIMENT_STATUS_DISPLAY } from '@/lib/types/experiments.ts';
 import type { GlobalSearchResult, SearchEntityType } from '@/lib/types/search.ts';
@@ -17,7 +18,7 @@ const ENTITY_ROUTE: Record<SearchEntityType, '/projects/$id' | '/notebooks/$id' 
 
 /**
  * Lets a row close the sheet it was clicked in. Passed by context rather than as a prop
- * because `Collection` renders items as `ComponentType<{ item: T }>` and hands them nothing
+ * because `InfiniteLoader` renders items as `ComponentType<{ item: T }>` and hands them nothing
  * else; threading it through a memoised component identity instead would remount the whole
  * list whenever the callback changed.
  */
@@ -39,7 +40,7 @@ const ENTITY_ICON: Record<SearchEntityType, typeof Briefcase> = {
 const CARD_CLASS = 'flex flex-col gap-3 rounded-6 border border-neutral-300 bg-card px-4 pt-3 pb-4';
 const COLUMNS_CLASS = 'grid min-w-0 flex-1 gap-x-4 gap-y-2 grid-cols-[repeat(auto-fit,minmax(140px,1fr))]';
 
-function Column({ label, children }: { label: string; children: React.ReactNode }) {
+function Column({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="flex min-w-0 flex-col">
       <dt className="truncate text-[14px]/6 text-neutral-800">{label}</dt>
@@ -48,7 +49,7 @@ function Column({ label, children }: { label: string; children: React.ReactNode 
   );
 }
 
-function Count({ children }: { children: React.ReactNode }) {
+function Count({ children }: { children: ReactNode }) {
   return <span className="text-[16px]/6 font-semibold">{children}</span>;
 }
 
@@ -105,7 +106,9 @@ function Body({ item }: { item: GlobalSearchResult }) {
       </header>
 
       <div className="flex items-start gap-4">
-        {item.type === 'EXPERIMENT' && <ExperimentImage experimentId={item.id} revision={item.revision} />}
+        {item.type === 'EXPERIMENT' && (
+          <ExperimentImage experimentId={item.id} revision={item.revision} className="h-[88px] w-[140px]" />
+        )}
         <Columns item={item} />
       </div>
     </>

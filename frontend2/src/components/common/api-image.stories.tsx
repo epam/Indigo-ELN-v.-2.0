@@ -6,7 +6,7 @@ import { REACTION_SCHEME_SVG } from '@/mocks/fixtures';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-const PATH = 'experiments/11111111-1111-4111-8111-111111111111/picture?revision=3';
+const PATH = '/api/eln/experiments/11111111-1111-4111-8111-111111111111/picture?revision=3';
 
 /**
  * Counts requests, so a story can assert one was *not* made. The repo's other "prove it
@@ -77,5 +77,18 @@ export const LoadsOnlyWhenScrolledTo: Story = {
       { timeout: 10_000 },
     );
     await expect(requests).toBe(1);
+  },
+};
+
+/** A failed request marks the frame; `apiFetch` has already toasted the reason. */
+export const FetchFailed: Story = {
+  parameters: {
+    msw: { handlers: [http.get('/api/eln/experiments/:id/picture', () => new HttpResponse(null, { status: 404 }))] },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(await canvas.findByLabelText('Reaction scheme could not be loaded')).toBeInTheDocument();
+    await expect(canvas.queryByAltText('Reaction scheme')).not.toBeInTheDocument();
   },
 };

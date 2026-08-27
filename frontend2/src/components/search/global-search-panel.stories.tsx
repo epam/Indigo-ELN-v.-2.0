@@ -6,8 +6,14 @@ import { GlobalSearchPanel } from '@/components/search/global-search-panel';
 import type { GlobalSearchRequest } from '@/lib/types/search.ts';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-function GlobalSearchPanelHarness({ initialQuery }: { initialQuery: string }) {
-  const [open, setOpen] = useState(true);
+function GlobalSearchPanelHarness({
+  initialQuery,
+  initialOpen = true,
+}: {
+  initialQuery: string;
+  initialOpen?: boolean;
+}) {
+  const [open, setOpen] = useState(initialOpen);
   const [query, setQuery] = useState(initialQuery);
   const [request, setRequest] = useState<GlobalSearchRequest | null>(null);
   return (
@@ -15,6 +21,10 @@ function GlobalSearchPanelHarness({ initialQuery }: { initialQuery: string }) {
       <pre role="status" className="text-[12px]">
         {request ? JSON.stringify(request) : 'Not searched yet.'}
       </pre>
+      {/* Stands in for the header's search box and button, which are what open the sheet. */}
+      <button type="button" onClick={() => setOpen(true)}>
+        Open Global Search
+      </button>
       <GlobalSearchPanel
         open={open}
         onOpenChange={setOpen}
@@ -38,11 +48,39 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 
-/** Opened from the header with a term already typed there. */
+/**
+ * Opened from the header with a term already typed there: Enter up there is the Search
+ * press, so the results are already loading — nothing left to click.
+ */
 export const SeededFromHeader: Story = {
-  args: { initialQuery: 'aspirin' },
-  play: async () => {
+  args: { initialQuery: 'aspirin', initialOpen: false },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole('status')).toHaveTextContent('Not searched yet.');
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Open Global Search' }));
+
     await expect(screen.getByLabelText('Quick search')).toHaveValue('aspirin');
+    await expect(await screen.findByText('Search Results (27)')).toBeInTheDocument();
+    // hidden: true because the open dialog inerts the page behind it, harness included.
+    await expect(JSON.parse(canvas.getByRole('status', { hidden: true }).textContent ?? '{}')).toMatchObject({
+      query: 'aspirin',
+    });
+  },
+};
+
+/** An empty form opens as a form: nothing to search for, so nothing is searched. */
+export const OpensWithoutSearchingWhenEmpty: Story = {
+  args: { initialOpen: false },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole('button', { name: 'Open Global Search' }));
+
+    await expect(screen.getByRole('button', { name: 'Search' })).toBeDisabled();
+    // Typing in the sheet's own box must not search either — only the opening does.
+    await userEvent.type(screen.getByLabelText('Quick search'), 'aspirin');
+    await expect(screen.getByRole('button', { name: 'Search' })).toBeEnabled();
+    await expect(canvas.getByRole('status', { hidden: true })).toHaveTextContent('Not searched yet.');
   },
 };
 
