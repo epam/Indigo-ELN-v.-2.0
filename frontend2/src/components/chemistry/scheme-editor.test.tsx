@@ -7,7 +7,6 @@ import { SchemeEditor } from '@/components/chemistry/scheme-editor';
 // under jsdom.
 vi.mock('@/lib/ketcher', () => ({
   renderStructure: () => Promise.resolve('data:image/svg+xml;base64,PHN2Zy8+'),
-  cacheStructureImage: () => {},
 }));
 
 describe('SchemeEditor', () => {

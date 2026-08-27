@@ -10,6 +10,26 @@ describe('describeError', () => {
     expect(message).toBe("You don't have permission to perform this action");
   });
 
+  it('reports a 401 as an authorization failure whatever produced it', () => {
+    // API Gateway's user-pool authorizer: the token was missing, expired or revoked.
+    const [message, log] = describeError(new ApiError(401, { message: 'Unauthorized' }), '/api/eln/projects');
+    expect(message).toBe('Authorization failed');
+    expect(log).toBe('Server error calling /api/eln/projects: 401: Unauthorized');
+  });
+
+  it('carries a plain-text 401 body through to the log', () => {
+    // APISecretFilter: the request did not arrive via CloudFront, so this is a proxy or
+    // deployment problem — the detail is what tells the two 401s apart.
+    const [message, log] = describeError(new ApiError(401, 'Invalid API secret'), '/api/eln/projects');
+    expect(message).toBe('Authorization failed');
+    expect(log).toBe('Server error calling /api/eln/projects: 401: Invalid API secret');
+  });
+
+  it('still logs something for a 401 with no body at all', () => {
+    const [, log] = describeError(new ApiError(401, null), '/api/eln/projects');
+    expect(log).toBe('Server error calling /api/eln/projects: 401: Authorization failed');
+  });
+
   it('joins a bean-validation body into one message per field', () => {
     const body = [{ path: 'name', message: 'must not be empty' }, { message: 'project is invalid' }];
     const [message] = describeError(new ApiError(400, body));

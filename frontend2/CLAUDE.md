@@ -8,7 +8,8 @@ Run from `frontend2/`:
 
 ```bash
 npm run dev          # dev server at http://localhost:5173 — /api proxies to the remote dev backend
-npm run build        # tsc -b + vite build (runs codegen for routeTree.gen.ts)
+npm run build        # vite build → dist/ (also emits src/routeTree.gen.ts)
+npm run typecheck    # tsc -b — run it AFTER a build; see below
 npm run lint         # eslint
 npm run format       # prettier --write src/**
 npm run format:check # prettier --check src/**
@@ -28,7 +29,27 @@ Tests are colocated: `foo.test.ts` sits next to `foo.ts`. Test files inside `src
 
 Stories are colocated the same way: `foo.stories.tsx` next to `foo.tsx`.
 
-`npm run build` is the authoritative type-check — it runs `tsc -b` first and regenerates `src/routeTree.gen.ts`.
+`npm run typecheck` (`tsc -b`) is the authoritative type-check — `vite build` does not type-check.
+
+**It has to run after a build, not before.** `src/routeTree.gen.ts` is gitignored and only
+`@tanstack/router-plugin` emits it, which means a bundler-driven command — `vite build`,
+`vite dev` or `vitest` — has to run first. On a clean checkout `tsc -b` on its own fails with
+16 errors, all downstream of `Cannot find module '@/routeTree.gen'`. The two used to be one
+`build` script in that broken order; they are separate scripts now so the ordering is
+explicit rather than a trap for a fresh clone.
+
+Full validation sequence, in order:
+
+```bash
+npm ci                                        # never `npm install`; devDependencies are required to build
+npm run build                                 # emits dist/ and src/routeTree.gen.ts
+npm run typecheck
+npm run lint
+npm run format:check
+npm run test:unit
+npx playwright install --with-deps chromium   # cacheable
+npm run test:stories
+```
 
 ## Environment
 
@@ -57,9 +78,61 @@ Search params are the source of truth for filter state. Route files validate par
 - The path is sent verbatim — callers pass the full path including the `/api` prefix (e.g. `'/api/eln/projects'`). Nothing is rewritten, so a path is greppable end to end from the call site through the MSW handlers to the backend resource.
 - Attaches a Cognito **access token** (not ID token) as `Authorization: Bearer`. The backend reads the `username` claim which only exists on the access token.
 - `init.responseType` — `'json'` (default), `'text'`, or `'blob'` — decides how a successful body is read; there is no guessing and no fallback, so a malformed body in `json` mode throws. Overloads type the result, so `apiFetch(path, { responseType: 'text' })` is a `Promise<string>` without a generic. The default `Accept` follows from it: `application/json` for `json`, `*/*` otherwise — the image endpoints declare a concrete `@Produces` and answer 406 to a JSON-only `Accept`. Error bodies are always parsed as JSON-or-text whatever the mode, so `describeError` still gets the bean-validation shape.
-- Throws `ApiError(status, body)` on non-2xx, and first raises an error toast via `notifyError` in `src/lib/toast.ts`. That mirrors indigo-frontend's `error.interceptor.ts`: every failed request is reported once, centrally, and still thrown so callers can react. `describeError` there ports the interceptor's `detectMessage` (403 → permission copy, bean-validation array → one line per field, anything else → a generic message).
+- Throws `ApiError(status, body)` on non-2xx, and first raises an error toast via `notifyError` in `src/lib/toast.ts`. That mirrors indigo-frontend's `error.interceptor.ts`: every failed request is reported once, centrally, and still thrown so callers can react. `describeError` there ports the interceptor's `detectMessage` (403 → permission copy, bean-validation array → one line per field, anything else → a generic message), plus a 401 branch the Angular original never had.
+
+**401 is reported, not acted on.** Two very different things produce one here: API Gateway's
+user-pool authorizer answers `{"message":"Unauthorized"}` when the token is missing, expired
+or revoked, and `APISecretFilter.java` answers the plain string `Invalid API secret` when the
+request did not arrive through CloudFront — a dev-proxy or deployment problem, and exactly
+the mistake `vite.config.ts` warns about. Signing the user out on either would put the second
+case in a logout loop, so `notifyError` instead raises one toast titled *Authorization failed*
+carrying the backend's own detail as the description, with a **Reload** action.
+
+Reload is the whole recovery: it re-runs `_auth`'s `beforeLoad`, which is already what sends
+an ended session to `/login?redirect=…`, while a misconfigured proxy simply reports itself
+again. Three details make the toast behave — all of them Base UI features rather than logic
+here, and all pinned by `toast.stories.tsx`:
+
+- **A fixed `id`.** Base UI updates a toast in place when one with the same id is added, so
+  the burst of 401s a screenful of parallel queries produces collapses into one toast.
+- **`timeout: 0`.** The action is the point of the toast, so it must not auto-dismiss.
+- **`Toast.Action` is mounted unconditionally** in `ToastList`; it renders `null` unless the
+  toast was added with `actionProps`, so ordinary toasts are unaffected.
+
+Not covered, deliberately: a token rejected by Cognito while Amplify still believes it valid
+(clock skew) would have needed a forced-refresh retry to fix invisibly — here it costs the
+user one click on Reload.
 
 `src/lib/query-client.ts` — `staleTime: 30_000`; no retry on `ApiError.status < 500`.
+
+**Cache persistence is per signed-in user, and follows the session.** Only the sidebar
+chrome is persisted (`currentUser`, `experiments/marked` — `PERSIST_OPTIONS`), under a
+localStorage key scoped to the Cognito sub, so a second user on the same browser cannot
+restore the first one's name, permissions and starred list.
+
+`src/lib/query-persistence.tsx` owns this rather than `PersistQueryClientProvider`, which
+**cannot** be used here: it reads `persistOptions` from a ref, keys its effect on the
+client alone, and latches `didRestore`, so a changing storage key never re-runs a restore.
+Signing in is an SPA navigation — the app never reloads — so a page that opened signed out
+would spend the rest of its life unpersisted. `QueryPersistenceProvider` instead listens on
+Amplify's `Hub` `auth` channel and re-runs restore/subscribe whenever the sub changes;
+`main.tsx` still resolves the session before the first render and passes `initialUserSub`,
+so an already-signed-in page starts restoring immediately rather than fetching its chrome
+and being handed the cached copy a moment later.
+
+Two orderings matter, both pinned by `query-persistence.test.tsx`:
+
+- **Subscribe only after the restore resolves**, or the empty cache it starts from is saved
+  straight over the data being read back.
+- **`queryClient.clear()` runs in the sign-out handler, while the subscription is still
+  live** — the persister throttles writes by a second, so a save already scheduled holds a
+  snapshot of the signed-out user's data. Clearing first replaces that snapshot with an
+  empty one; clearing only after the unsubscribe would let it land *after* the key was
+  removed. `UserMenu` therefore no longer clears anything itself.
+
+`isRestoring` is derived (`restoredSub !== userSub`), not stored: no render where a newly
+signed-in user still looks restored, and signed out it is trivially false — a stored
+boolean left true would hold every query in the app pending forever.
 
 Data hooks live in `src/lib/api/` (one file per domain: `user.ts`, `projects.ts`, `experiments.ts`). Each file exports query-key factories, raw fetch functions, and `useXxx` hooks. The raw fetch functions are exported so they can be called outside React (e.g. tests).
 
@@ -162,10 +235,21 @@ measured, the import alone still leaves ~540 ms, the throwaway render brings the
 real call down to ~20 ms. Since it runs in a loader, switching on `defaultPreload` in
 `main.tsx` would start pulling 21 MB on link hover.
 
-`StructureEditorDialog` seeds the preview cache with the SVG the sketcher itself produced
-(`cacheStructureImage`), so a structure the user just drew never costs a second Indigo
-call; `renderStructure` only spins the WASM up for a structure that came from somewhere
-else, such as a persisted experiment scheme.
+**Rendered previews are not cached, deliberately.** `ketcher-standalone` holds its Indigo
+worker as a module singleton (`var indigoWorker = new WorkerFactory()` in its bundle), and
+every struct service shares it — `src/lib/ketcher.ts`'s and the editor's alike. So the
+~1.3 s above is paid once per page by whichever of them renders first, and everything after
+that is on the 4–8 ms path regardless of which one asks. Since the sketcher must have been
+open for the user to draw anything, the preview that follows a Save is always warm.
+
+`StructureEditorDialog` used to seed a preview cache with the SVG the sketcher produced, to
+save that 4–8 ms. It cost an `images` Map that never evicted, keyed by whole molfiles, and
+an object URL from `ketcher.generateImage()` that nothing could know when to revoke — both
+leaking for the life of the tab. Both are gone: `renderStructure` returns a plain `data:`
+URL with no lifetime of its own, whoever displays it owns it, and a structure that comes
+back into view is simply rendered again. `handleSave` is one Indigo call lighter as a
+result. Don't reintroduce a cache here without a measurement showing the render is slow;
+the thing worth optimising is the cold start, and `prewarmKetcher` already does that.
 
 **CSP:** the deployed policy
 (`deployment-aws/resources/cloudfront-index-viewer-request-function.js`) already allows

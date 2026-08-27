@@ -1,7 +1,7 @@
-import {useState} from 'react';
+import { useState } from 'react';
 
-import {MultiCombobox} from '@/components/ui/combobox';
-import {useKeywordSuggestions} from '@/lib/api/projects';
+import { MultiCombobox } from '@/components/ui/combobox';
+import { useKeywordSuggestions } from '@/lib/api/projects';
 
 /**
  * Project keywords: free-form strings with server-side suggestions.

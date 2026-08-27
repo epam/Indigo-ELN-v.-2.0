@@ -6,9 +6,6 @@ import type { StructService } from 'ketcher-core';
  * the 21 MB WASM bundle into the browser test run.
  */
 
-/** SVG data: URLs by the molfile/rxnfile that produced them. */
-const images = new Map<string, string>();
-
 let servicePromise: Promise<StructService> | undefined;
 
 /**
@@ -52,22 +49,19 @@ export function prewarmKetcher(): void {
 }
 
 /**
- * Records an SVG the editor has already rendered, so a structure that was just
- * drawn never costs a second round trip through Indigo.
+ * Renders a molfile or rxnfile to an SVG `data:` URL.
+ *
+ * Deliberately not memoised. `ketcher-standalone` holds its Indigo worker as a module
+ * singleton (`var indigoWorker = new WorkerFactory()`), which every struct service —
+ * this one and the editor's alike — shares, so once anything has rendered on the page
+ * the WASM is compiled and a call costs 4–8 ms. Caching that bought nothing but an
+ * unbounded Map keyed by whole molfiles, and an object URL nothing could know when to
+ * revoke. The result is a plain string with no lifetime of its own; whoever displays it
+ * owns it, and a structure that comes back into view is simply rendered again.
  */
-export function cacheStructureImage(structure: string, url: string): void {
-  images.set(structure, url);
-}
-
-/** Renders a molfile or rxnfile to an SVG `data:` URL, memoised by the structure. */
 export async function renderStructure(structure: string): Promise<string> {
-  const cached = images.get(structure);
-  if (cached) return cached;
-
   const service = await structService();
   // Indigo answers with bare base64, not a data URL.
   const base64 = await service.generateImageAsBase64(structure, { outputFormat: 'svg' });
-  const url = `data:image/svg+xml;base64,${base64}`;
-  images.set(structure, url);
-  return url;
+  return `data:image/svg+xml;base64,${base64}`;
 }

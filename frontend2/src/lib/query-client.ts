@@ -1,6 +1,6 @@
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
 import { hashKey, QueryClient } from '@tanstack/react-query';
-import type { PersistQueryClientProviderProps } from '@tanstack/react-query-persist-client';
+import type { PersistQueryClientOptions } from '@tanstack/react-query-persist-client';
 
 import { ApiError } from '@/lib/api';
 import { experimentKeys } from '@/lib/api/experiments';
@@ -26,34 +26,30 @@ export const queryClient = new QueryClient({
  */
 const persistedHashes = new Set([userKeys.currentUser(), experimentKeys.marked()].map(hashKey));
 
-let persister: ReturnType<typeof createSyncStoragePersister> | undefined;
-
 /**
- * Scoped to the Cognito sub so a second user on the same browser starts from an empty
- * cache rather than restoring the previous user's name, permissions and starred list.
+ * A persister for one signed-in user. Scoped to the Cognito sub so a second user on the
+ * same browser starts from an empty cache rather than restoring the previous user's name,
+ * permissions and starred list.
+ *
+ * Built per user rather than once per page, because a session can change hands without a
+ * reload: signing in is an SPA navigation, so the key is only known after the fact — see
+ * `QueryPersistenceProvider`.
  */
-export function persistOptions(userSub: string): PersistQueryClientProviderProps['persistOptions'] {
-  persister = createSyncStoragePersister({
+export function createPersister(userSub: string) {
+  return createSyncStoragePersister({
     storage: window.localStorage,
     key: `indigo-query-cache:${userSub}`,
   });
-
-  return {
-    persister,
-    // Never expires on disk; each query's staleTime decides when to revalidate.
-    maxAge: Infinity,
-    dehydrateOptions: {
-      shouldDehydrateQuery: (query) => query.state.status === 'success' && persistedHashes.has(query.queryHash),
-    },
-  };
 }
 
 /**
- * Signing out must not leave the previous user's name, permissions and starred list
- * readable on disk. Clearing first means a save still in the throttle window can only
- * write an empty cache, never user data.
+ * Shared by the restore and the subscription, which have to agree on what is stored: a
+ * save that dehydrated more than the restore expects would grow the cache silently.
  */
-export async function clearPersistedCache() {
-  queryClient.clear();
-  await persister?.removeClient();
-}
+export const PERSIST_OPTIONS = {
+  // Never expires on disk; each query's staleTime decides when to revalidate.
+  maxAge: Infinity,
+  dehydrateOptions: {
+    shouldDehydrateQuery: (query) => query.state.status === 'success' && persistedHashes.has(query.queryHash),
+  },
+} satisfies Omit<PersistQueryClientOptions, 'queryClient' | 'persister'>;

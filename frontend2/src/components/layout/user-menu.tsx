@@ -5,7 +5,6 @@ import { ChevronDown, LogOut } from 'lucide-react';
 import { Avatar } from '@/components/ui/avatar';
 import { Menu, MenuContent, MenuItem, MenuTrigger } from '@/components/ui/menu';
 import { useCurrentUser } from '@/lib/api/user';
-import { clearPersistedCache } from '@/lib/query-client';
 import { notifyError } from '@/lib/toast';
 
 export function UserMenu() {
@@ -21,7 +20,8 @@ export function UserMenu() {
       notifyError(error);
       return;
     }
-    await clearPersistedCache();
+    // The cached user data is dropped by QueryPersistenceProvider, which reacts to the
+    // same Amplify sign-out event.
     await router.navigate({ to: '/login' });
   }
 

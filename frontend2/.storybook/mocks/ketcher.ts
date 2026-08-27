@@ -9,8 +9,6 @@ const BENZENE_SVG =
 
 export const MOCK_STRUCTURE_IMAGE = `data:image/svg+xml;base64,${btoa(BENZENE_SVG)}`;
 
-export function cacheStructureImage(): void {}
-
 export function prewarmKetcher(): void {}
 
 export function renderStructure(): Promise<string> {

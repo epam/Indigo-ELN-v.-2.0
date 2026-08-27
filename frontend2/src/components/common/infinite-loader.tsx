@@ -3,6 +3,8 @@ import { useEffect, useRef } from 'react';
 
 import type { InfiniteData, UseInfiniteQueryResult } from '@tanstack/react-query';
 
+import { describeError } from '@/lib/toast';
+
 import type { CollectionView, Page } from '@/lib/types/common.ts';
 
 const NEXT_PAGE_SKELETONS = 3;
@@ -66,9 +68,15 @@ export function InfiniteLoader<T extends { id: string }>({
     );
   }
   if (error) {
+    // Through describeError, not `error.message`: that is ApiError's constructor string
+    // ("Request failed with status 500"), which is a fact about the transport rather than
+    // anything a user can act on. The same call is what worded the toast apiFetch already
+    // raised — this repeats it because a toast is gone in five seconds and the empty list
+    // is not, and because it names which list is empty.
+    const [message] = describeError(error);
     return (
       <p className="text-[14px]/6 text-destructive">
-        Could not load {entityLabel}: {error.message}
+        Could not load {entityLabel}: {message}
       </p>
     );
   }

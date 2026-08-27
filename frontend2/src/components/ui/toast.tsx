@@ -42,6 +42,11 @@ function ToastList() {
       {/* whitespace-pre-line: a bean-validation body arrives as newline-joined lines. */}
       <Toast.Title className="pr-6 text-[14px]/6 font-medium whitespace-pre-line text-neutral-1000" />
       <Toast.Description className="pr-6 text-[12px]/5 whitespace-pre-line text-neutral-700" />
+      {/*
+        Mounted unconditionally: Base UI renders it as null unless the toast was added
+        with `actionProps`, so only the toasts that offer an action grow a button.
+      */}
+      <Toast.Action className="mt-2 cursor-pointer rounded-2 text-[12px]/5 font-semibold text-blue-400 underline underline-offset-2 outline-none hover:text-blue-600 focus-visible:ring-3 focus-visible:ring-ring/50" />
       <Toast.Close
         aria-label="Dismiss"
         className="absolute top-3 right-3 cursor-pointer rounded-2 p-0.5 text-neutral-700 hover:bg-neutral-200 hover:text-neutral-1000"

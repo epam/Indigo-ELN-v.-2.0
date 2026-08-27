@@ -3,7 +3,6 @@ import { lazy, Suspense, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
-import { cacheStructureImage } from '@/lib/ketcher';
 import { notifyError } from '@/lib/toast';
 
 import type { Ketcher } from 'ketcher-core';
@@ -53,9 +52,8 @@ function StructureEditorDialog({ open, onOpenChange, value, onSave }: StructureE
       // molecule or a reaction search.
       const isReaction = ketcher.containsReaction();
       const structure = isReaction ? await ketcher.getRxn() : await ketcher.getMolfile();
-      const image = await ketcher.generateImage(structure, { outputFormat: 'svg' });
-      // The sketcher has already drawn it, so the preview costs no second Indigo call.
-      cacheStructureImage(structure, URL.createObjectURL(image));
+      // No preview is generated here: SchemeEditor renders the structure itself, off the
+      // same warm Indigo worker, so doing it twice only slowed Save down.
       onSave({ structure, isReaction });
       onOpenChange(false);
     } catch (error) {

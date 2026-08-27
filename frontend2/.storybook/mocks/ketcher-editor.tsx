@@ -11,7 +11,6 @@ const fakeKetcher = {
   containsReaction: () => false,
   getMolfile: () => Promise.resolve(MOLFILE),
   getRxn: () => Promise.resolve(MOLFILE),
-  generateImage: () => Promise.resolve(new Blob(['<svg xmlns="http://www.w3.org/2000/svg" />'])),
 } as unknown as Ketcher;
 
 function KetcherEditor({ onReady }: { onReady: (ketcher: Ketcher) => void }) {

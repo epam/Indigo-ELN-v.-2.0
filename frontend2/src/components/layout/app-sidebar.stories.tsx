@@ -57,7 +57,22 @@ export const LoadingUser: Story = {
 export const Collapsed: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    // Wait for the starred list, so the collapsed panel is asserted against a sidebar
+    // that had finished filling itself in rather than one that was still empty.
+    await canvas.findByRole('link', { name: /00000001-0012/ });
     await userEvent.click(canvas.getByRole('button', { name: 'Collapse sidebar' }));
-    await expect(canvas.getByRole('button', { name: 'Expand sidebar' })).toBeInTheDocument();
+
+    const expand = canvas.getByRole('button', { name: 'Expand sidebar' });
+    await expect(expand).toBeInTheDocument();
+
+    // Collapsing has to remove the panel, not just clip it: a zero-width `overflow-hidden`
+    // sidebar keeps every link in the accessibility tree...
+    await expect(canvas.queryByRole('link', { name: 'All Projects' })).not.toBeInTheDocument();
+
+    // ...and in the tab order. The expand button follows the panel in DOM order, so it is
+    // shift+Tab that would walk backwards into it.
+    expand.focus();
+    await userEvent.tab({ shift: true });
+    await expect(canvasElement.contains(document.activeElement)).toBe(false);
   },
 };
