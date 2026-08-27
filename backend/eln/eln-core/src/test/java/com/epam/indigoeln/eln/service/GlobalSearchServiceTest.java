@@ -6,7 +6,6 @@ import com.epam.indigoeln.compound.model.search.NumericSearch;
 import com.epam.indigoeln.compound.model.search.StructuralSearch;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
-import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.ReactionRole;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
@@ -16,12 +15,12 @@ import io.quarkus.test.security.TestSecurity;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-
 import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResourceAsString;
@@ -32,6 +31,8 @@ import static org.assertj.core.api.Assertions.tuple;
 @QuarkusTest
 @TestSecurity(user = ELNBaseTest.MAGGIE_USERNAME)
 class GlobalSearchServiceTest extends ELNBaseTest {
+
+    static final String EXPERIMENT1_TITLE = "Suzuki coupling";
 
     TherapeuticAreaRef therapeuticArea1;
     TherapeuticAreaRef therapeuticArea2;
@@ -62,6 +63,8 @@ class GlobalSearchServiceTest extends ELNBaseTest {
             notebook1 = notebookClient.createNotebook(project1.getId(), new NotebookRequest("00000001", "nd1 xx"));
             notebook2 = notebookClient.createNotebook(project2.getId(), new NotebookRequest("00000002", "nd2 xx"));
             experiment1 = createExperiment(notebook1, new ExperimentRequest(emptyTemplateID, "ed1 xx", therapeuticArea1, projectCode1));
+            experimentClient.editExperiment(experiment1.id(), new ExperimentEditRequest().withTitle(JsonNullable.of(EXPERIMENT1_TITLE)));
+            experiment1.invalidate();
             experiment2 = createExperiment(notebook2, new ExperimentRequest(emptyTemplateID, "ed2 xx", therapeuticArea2, projectCode2));
             experiment2.mutateSetSchemeFromResource("/reaction.rxn");
             experiment2.mutateAddProductSample(1);
@@ -262,6 +265,53 @@ class GlobalSearchServiceTest extends ELNBaseTest {
 
         Page<GlobalSearchResultDTO> notFound = globalSearchClient.search(new GlobalSearchRequest().withQuery(oldExperimentName), Paging.DEFAULT);
         assertResults(notFound);
+    }
+
+    @Test
+    void testExperimentResultCarriesTitleAndNoCounts() {
+        Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withQuery("ed1"), Paging.DEFAULT);
+        assertResults(results, tuple(ELNEntityType.EXPERIMENT, experiment1.name(), experiment1.id()));
+        GlobalSearchResultDTO item = results.getItems().getFirst();
+        assertThat(item.getTitle()).isEqualTo(EXPERIMENT1_TITLE);
+        assertThat(item.getNotebookCount()).isNull();
+        assertThat(item.getExperimentCount()).isNull();
+    }
+
+    @Test
+    void testProjectResultCarriesBothCounts() {
+        Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withQuery("p2"), Paging.DEFAULT);
+        assertResults(results, tuple(ELNEntityType.PROJECT, project2.getName(), project2.getId()));
+        GlobalSearchResultDTO item = results.getItems().getFirst();
+        assertThat(item.getTitle()).isNull();
+        assertThat(item.getNotebookCount()).isEqualTo(1);
+        assertThat(item.getExperimentCount()).isEqualTo(1);
+    }
+
+    @Test
+    void testNotebookResultCarriesExperimentCountOnly() {
+        Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withQuery("nd2"), Paging.DEFAULT);
+        assertResults(results, tuple(ELNEntityType.NOTEBOOK, notebook2.getName(), notebook2.getId()));
+        GlobalSearchResultDTO item = results.getItems().getFirst();
+        assertThat(item.getTitle()).isNull();
+        assertThat(item.getNotebookCount()).isNull();
+        assertThat(item.getExperimentCount()).isEqualTo(1);
+    }
+
+    /** Paging must partition the result set: created_at alone is not a total order, t.id breaks the ties. */
+    @Test
+    void testPagingVisitsEveryResultExactlyOnce() {
+        GlobalSearchRequest request = new GlobalSearchRequest().withQuery("xx");
+        Page<GlobalSearchResultDTO> firstPage = globalSearchClient.search(request, new Paging(0, 2));
+        assertThat(firstPage.getTotalItems()).isEqualTo(6);
+        assertThat(firstPage.getTotalPages()).isEqualTo(3);
+
+        List<UUID> paged = new ArrayList<>();
+        for (int pageNo = 0; pageNo < firstPage.getTotalPages(); pageNo++) {
+            paged.addAll(globalSearchClient.search(request, new Paging(pageNo, 2)).getItems().stream().map(GlobalSearchResultDTO::getId).toList());
+        }
+
+        List<UUID> all = globalSearchClient.search(request, Paging.DEFAULT).getItems().stream().map(GlobalSearchResultDTO::getId).toList();
+        assertThat(paged).doesNotHaveDuplicates().containsExactlyElementsOf(all);
     }
 
     private void assertResults(Page<GlobalSearchResultDTO> results, Tuple... expected) {

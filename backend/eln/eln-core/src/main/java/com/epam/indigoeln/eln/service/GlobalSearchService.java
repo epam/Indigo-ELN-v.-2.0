@@ -20,7 +20,6 @@ import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
 import java.time.Instant;
-import java.util.*;
 import java.util.stream.Stream;
 
 @DataAccess
@@ -92,7 +91,7 @@ public class GlobalSearchService {
                 experimentConditions.add("erc.reaction_role = cast(:role as Reaction_Role)", "role", request.getReactionRole().name());
             }
             rolesSelector = "ARRAY_AGG(DISTINCT erc.reaction_role::varchar) AS reaction_roles";
-            groupBySQL = "e.name, e.id, e.description, e.created_by_id, e.created_at, e.modified_by_id, e.modified_at";
+            groupBySQL = "e.name, e.title, e.id, e.description, e.created_by_id, e.created_at, e.modified_by_id, e.modified_at";
         }
         if (request.getReactionStructure() != null) {
             hasProjects = hasNotebooks = false;
@@ -143,7 +142,11 @@ public class GlobalSearchService {
         Map<String, @Nullable Object> params = new HashMap<>();
         boolean hasUnionBlocks = false;
         if (hasProjects) {
-            String projectsSQL = "SELECT 'PROJECT' AS type, p.name, p.id, p.description, p.created_by_id, p.created_at, p.modified_by_id, p.modified_at, NULL AS reaction_roles, NULL AS experiment_status, NULL::integer AS revision"
+            String projectsSQL = "SELECT 'PROJECT' AS type, p.name, NULL::varchar AS title, p.id, p.description, p.created_by_id, p.created_at, p.modified_by_id, p.modified_at, NULL AS reaction_roles, NULL AS experiment_status, NULL::integer AS revision"
+                    + "\n, p.notebook_count"
+                    // Experiment_Count[] is an array of (status, count); summed here rather than read
+                    // as an array, since the Hibernate array type is not wired into native query rows.
+                    + "\n, (SELECT coalesce(sum((c).\"count\"), 0)::integer FROM unnest(p.experiment_count) c) AS experiment_count"
                     + "\nFROM Project p"
                     + "\nJOIN Project_Access_View pv ON pv.project_id = p.id"
                     + "\nWHERE " + projectConditions.getQuery();
@@ -156,7 +159,9 @@ public class GlobalSearchService {
                 sql.append("\nUNION ALL\n");
             }
             hasUnionBlocks = true;
-            String notebooksSQL = "SELECT 'NOTEBOOK' AS type, n.name, n.id, n.description, n.created_by_id, n.created_at, n.modified_by_id, n.modified_at, NULL AS reaction_roles, NULL AS experiment_status, NULL::integer AS revision"
+            String notebooksSQL = "SELECT 'NOTEBOOK' AS type, n.name, NULL::varchar AS title, n.id, n.description, n.created_by_id, n.created_at, n.modified_by_id, n.modified_at, NULL AS reaction_roles, NULL AS experiment_status, NULL::integer AS revision"
+                    + "\n, NULL::integer AS notebook_count"
+                    + "\n, (SELECT coalesce(sum((c).\"count\"), 0)::integer FROM unnest(n.experiment_count) c) AS experiment_count"
                     + "\nFROM Notebook n"
                     + "\nJOIN Notebook_Access_View nv ON nv.notebook_id = n.id"
                     + "\nWHERE " + notebookConditions.getQuery();
@@ -168,7 +173,8 @@ public class GlobalSearchService {
                 sql.append("\nUNION ALL\n");
             }
             hasUnionBlocks = true;
-            String experimentsSQL = "SELECT 'EXPERIMENT' AS type, e.name, e.id, e.description, e.created_by_id, e.created_at, e.modified_by_id, e.modified_at, " + rolesSelector + ", e.status::varchar AS experiment_status, e.revision"
+            String experimentsSQL = "SELECT 'EXPERIMENT' AS type, e.name, e.title, e.id, e.description, e.created_by_id, e.created_at, e.modified_by_id, e.modified_at, " + rolesSelector + ", e.status::varchar AS experiment_status, e.revision"
+                    + "\n, NULL::integer AS notebook_count, NULL::integer AS experiment_count"
                     + "\nFROM Experiment e"
                     + "\nJOIN Experiment_Access_View ev ON ev.experiment_id = e.id"
                     + "\n" + String.join("\n", experimentJoins)
@@ -178,13 +184,16 @@ public class GlobalSearchService {
             sql.append(experimentsSQL);
         }
         sql.append(")\n");
-        sql.append("SELECT t.type, t.name, t.id, ").append(fragmentSelector).append(" fragment");
+        sql.append("SELECT t.type, t.name, t.title, t.id, ").append(fragmentSelector).append(" fragment");
         sql.append("\n, t.created_by_id, t.created_at" +
                 "\n, t.modified_by_id, t.modified_at" +
                 "\n, t.reaction_roles, t.experiment_status, t.revision" +
+                "\n, t.notebook_count, t.experiment_count" +
                 "\n, count(*) over (partition by 1)" +
                 "\nFROM t" +
-                "\nORDER by t.created_at");
+                // t.id breaks ties: created_at alone leaves rows sharing a timestamp in an
+                // undefined order, which a paging client sees as a row repeated or skipped.
+                "\nORDER by t.created_at, t.id");
         long[] totalCount = new long[] {0};
         Query query = em.createNativeQuery(sql.toString())
                 .setFirstResult(paging.getPageNoOrDefault() * paging.getPageSizeOrDefault())
@@ -198,6 +207,7 @@ public class GlobalSearchService {
                     GlobalSearchResultDTO item = new GlobalSearchResultDTO();
                     item.setType(ELNEntityType.valueOf(row[++fieldNo].toString()));
                     item.setName((String) row[++fieldNo]);
+                    item.setTitle((String) row[++fieldNo]);
                     item.setId((UUID) row[++fieldNo]);
                     item.setFragment((String) row[++fieldNo]);
                     item.setCreatedBy(userService.getUserInfo((UUID) row[++fieldNo]));
@@ -213,6 +223,8 @@ public class GlobalSearchService {
                         item.setExperimentStatus(ExperimentStatus.valueOf(experimentStatus));
                     }
                     item.setRevision((Integer) row[++fieldNo]);
+                    item.setNotebookCount((Integer) row[++fieldNo]);
+                    item.setExperimentCount((Integer) row[++fieldNo]);
                     totalCount[0] = (Long) row[++fieldNo];
                     return item;
                 })
