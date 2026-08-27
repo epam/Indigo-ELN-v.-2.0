@@ -11,12 +11,18 @@ import { useEffect, useState } from 'react';
  *
  * Derived during render rather than in the effect, so there is no frame where a changed
  * value still looks settled — that frame would fire a request per keystroke.
+ *
+ * Both state calls pass `value` through a function on purpose. React reads a bare function
+ * as a lazy initialiser or an updater and *calls* it, so for a function-typed `T` the hook
+ * would store the return value instead of the value itself — `settled === value` could then
+ * never be true, and a query gated on it would stay disabled forever. The wrappers make the
+ * generic honest; every call site today passes a string.
  */
 export function useSettled<T>(value: T, delayMs: number): boolean {
-  const [settled, setSettled] = useState(value);
+  const [settled, setSettled] = useState<T>(() => value);
 
   useEffect(() => {
-    const timer = setTimeout(() => setSettled(value), delayMs);
+    const timer = setTimeout(() => setSettled(() => value), delayMs);
     return () => clearTimeout(timer);
   }, [value, delayMs]);
 

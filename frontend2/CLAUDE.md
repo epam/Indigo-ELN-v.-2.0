@@ -10,6 +10,7 @@ Run from `frontend2/`:
 npm run dev          # dev server at http://localhost:5173 — /api proxies to the remote dev backend
 npm run build        # vite build → dist/ (also emits src/routeTree.gen.ts)
 npm run typecheck    # tsc -b — run it AFTER a build; see below
+npm run check:bundle # asserts the 21 MB Ketcher chunk stayed out of the entry graph
 npm run lint         # eslint
 npm run format       # prettier --write src/**
 npm run format:check # prettier --check src/**
@@ -43,6 +44,7 @@ Full validation sequence, in order:
 ```bash
 npm ci                                        # never `npm install`; devDependencies are required to build
 npm run build                                 # emits dist/ and src/routeTree.gen.ts
+npm run check:bundle                          # nothing oversized in the initial module graph
 npm run typecheck
 npm run lint
 npm run format:check
@@ -190,7 +192,7 @@ model this desktop sheet does not want.
 
 `MultiCombobox` gets most of its keyboard contract from Base UI (Backspace deletes the last chip, ArrowLeft/Right walk the chips, ArrowUp/Down and Home/End move through suggestions, Escape closes). Two behaviours are added on top: **PageUp/PageDown** — Base UI declares `PAGE_UP`/`PAGE_DOWN` but leaves them out of `COMPOSITE_KEYS`, and exposes no way to set the highlighted index, so the component replays arrow keydowns on the input — clamped to the distance left in the list, because Base UI's navigation wraps at the ends and a fixed count would run off the bottom and back round to the top — and committing typed text as a free-form chip on Enter when no suggestion is highlighted. `combobox.stories.tsx` pins all of it with browser-mode `play` functions.
 
-`MultiCombobox` is **suggestion-only by default**; `allowCustomValues` opts a call site into committing typed text as a new chip (`KeywordCombobox` does, because project keywords are arbitrary strings). With the prop off, Enter on unmatched text adds nothing and Base UI clears the input — the selection can only come from the list. With it on, the empty popup reads `Press Enter to add “…”` instead of the plain `emptyMessage`, but only when the typed value is not already a chip (`addChip` de-duplicates, so otherwise the hint would promise a no-op). `loading` and `error` props suppress the empty state and speak through `Combobox.Status` instead — `Searching…`, or `Could not load suggestions` when the lookup failed (the error is also toasted by `apiFetch`; this just explains the empty list). The Enter-to-add hint deliberately survives a failure, since adding a custom value never depended on the lookup. `Combobox.Status` (Base UI's live region for asynchronously loaded lists, same must-stay-mounted rule as `Empty`), with the chevron swapped for a spinner and `aria-busy` on the trigger — "no matches" is a claim about a search that has finished. Before anything is typed there is **no** empty-state message at all — neither the hint nor `emptyMessage`, since nothing has been searched for — and `open` is controlled so the popup stays shut instead of opening an empty box.
+`MultiCombobox` is **suggestion-only by default**; `allowCustomValues` opts a call site into committing typed text as a new chip (`KeywordCombobox` does, because project keywords are arbitrary strings). With the prop off, Enter on unmatched text adds nothing and Base UI clears the input — the selection can only come from the list. **Enter is the only commit key, deliberately** — comma is the usual second one in a tag input, but chemistry names are full of commas (`N,N-dimethylformamide`, `1,3-butadiene`, `2,4-D`) and committing on comma makes those impossible to type. It used to, and `combobox.stories.tsx` now pins that it does not. With it on, the empty popup reads `Press Enter to add “…”` instead of the plain `emptyMessage`, but only when the typed value is not already a chip (`addChip` de-duplicates, so otherwise the hint would promise a no-op). `loading` and `error` props suppress the empty state and speak through `Combobox.Status` instead — `Searching…`, or `Could not load suggestions` when the lookup failed (the error is also toasted by `apiFetch`; this just explains the empty list). The Enter-to-add hint deliberately survives a failure, since adding a custom value never depended on the lookup. `Combobox.Status` (Base UI's live region for asynchronously loaded lists, same must-stay-mounted rule as `Empty`), with the chevron swapped for a spinner and `aria-busy` on the trigger — "no matches" is a claim about a search that has finished. Before anything is typed there is **no** empty-state message at all — neither the hint nor `emptyMessage`, since nothing has been searched for — and `open` is controlled so the popup stays shut instead of opening an empty box.
 
 Note that `Combobox.Empty` is the popup's `role="status"` live region: Base UI requires it to stay mounted and visible, nulling its *children* itself once the list has items. So vary its children, never mount/unmount it or hide it with `display: none` — and keep padding on an inner node, or a populated list gets a blank strip above its first row.
 
@@ -204,9 +206,23 @@ Note that `Combobox.Empty` is the popup's `role="status"` live region: Base UI r
 
 `ketcher-react` / `ketcher-standalone` / `ketcher-core` 3.17.2. Together they are ~28 MB
 (the Indigo WASM is base64-inlined into `ketcher-standalone`'s bundle, so there is no
-separate `.wasm` asset to resolve), and **all of it must stay behind a dynamic
-`import()`** — `npm run build` should never list a ketcher chunk in `index.html`'s
-modulepreloads. Two modules, and only these two, touch the packages:
+separate `.wasm` asset to resolve), and **the payload must stay behind a dynamic
+`import()`**.
+
+Note what that does *not* say. A small ketcher-named chunk in `index.html`'s modulepreloads
+is expected: `/_auth/experiments/$id` imports `prewarmKetcher` statically, so the ~700-byte
+module holding it joins the entry graph while the 21 MB it dynamically imports does not.
+Leaving it there is deliberate — routing `prewarmKetcher` through a dynamic import too
+would make the preload list literally clean, at the cost of a round trip for that shim
+before the prewarm can even start fetching the thing it exists to fetch early.
+
+`npm run check:bundle` guards the invariant that actually matters, by size rather than by
+name: it reads the entry and modulepreload chunks out of `dist/index.html` and fails if any
+one exceeds 1 MB or they total more than 1.5 MB (today: 24 chunks, 515 kB, largest 174 kB).
+A static import that stranded the 21 MB chunk in the entry graph would otherwise pass build,
+lint and every test, and only show up as an unusable cold load.
+
+Two modules, and only these two, touch the packages:
 
 | Module | Role |
 |---|---|
@@ -288,7 +304,7 @@ Storybook 10 + `@storybook/react-vite`. `.storybook/main.ts` inherits the whole 
 
 Anything rendered through a portal — dialogs, combobox popups, toasts — is outside `canvasElement`, so `play` functions must reach it with `screen`, not `within(canvasElement)`.
 
-Mock data lives in `src/mocks/` (under `src/`, not `.storybook/`, so unit tests can import it too): `fixtures.ts` has `makeProject`/`makeExperiment`/`makeTotalCounts` override factories, `handlers.ts` has the MSW handlers for the four endpoints `apiFetch` hits. Paths there are the same full `/api/eln` paths the callers pass. Override per story with `parameters: { msw: { handlers: errorHandlers } }` — `handlers.ts` exports `emptyHandlers`, `errorHandlers`, and `loadingHandlers` for the non-happy paths.
+Mock data lives in `src/mocks/` (under `src/`, not `.storybook/`, so unit tests can import it too): `fixtures.ts` has `makeProject`/`makeExperiment`/`makeTotalCounts` override factories, `handlers.ts` has an MSW handler per endpoint the app calls — check the file rather than trusting a count here. Paths there are the same full `/api/eln` paths the callers pass. Override per story with `parameters: { msw: { handlers: errorHandlers } }` — `handlers.ts` exports `emptyHandlers`, `errorHandlers`, and `loadingHandlers` for the non-happy paths.
 
 `vite.config.ts` defines two Vitest projects: `unit` (jsdom, `src/**/*.test.{ts,tsx}`) and `storybook` (real Chromium via Playwright, every story as a smoke test with `a11y: { test: 'error' }` failing on violations). CI without a browser should run `npm run test:unit`; Chromium comes from `npx playwright install chromium`. The `storybook` project keeps `.storybook/vitest.setup.ts` even though Storybook 10.3+ can provision annotations itself — only a project setup file gets scanned for dep pre-bundling, and without one the CJS deps behind `@testing-library/dom` fail to import in the browser.
 

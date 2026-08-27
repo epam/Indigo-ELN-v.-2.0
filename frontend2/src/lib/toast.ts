@@ -1,6 +1,6 @@
-import {Toast} from '@base-ui/react/toast';
+import { Toast } from '@base-ui/react/toast';
 
-import {ApiError} from '@/lib/api';
+import { ApiError } from '@/lib/api';
 
 /**
  * Created outside React so `apiFetch` can raise a toast without a hook. The provider

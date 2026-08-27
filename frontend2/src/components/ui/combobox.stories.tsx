@@ -92,6 +92,26 @@ export const FreeFormEntry: Story = {
   },
 };
 
+/**
+ * A comma is an ordinary character, not a commit key. Chemistry keywords are full of them
+ * — N,N-dimethylformamide, 1,3-butadiene, 2,4-D — and treating comma as "add this chip"
+ * would make every one of those impossible to type.
+ */
+export const CommaStaysInsideAKeyword: Story = {
+  args: { allowCustomValues: true },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByLabelText('Project Keywords');
+
+    await userEvent.click(input);
+    await userEvent.keyboard('N,N-dimethylformamide{Enter}');
+
+    await waitFor(() => expect(canvas.getByLabelText('Remove N,N-dimethylformamide')).toBeInTheDocument());
+    // Not split at the comma into "N" and "N-dimethylformamide".
+    await expect(canvas.queryByLabelText('Remove N')).not.toBeInTheDocument();
+  },
+};
+
 /** Backspace on an empty input removes the last chip (Base UI's own behaviour). */
 export const BackspaceRemovesLastChip: Story = {
   args: { initial: ['kinase', 'screening'] },

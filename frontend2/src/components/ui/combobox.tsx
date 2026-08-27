@@ -314,12 +314,12 @@ function MultiCombobox<T = string>({
     }
     // A highlighted suggestion belongs to Base UI; a bare Enter is a custom value, which
     // only this branch handles — without the opt-in it does nothing at all.
-    if (
-      allowCustomValues &&
-      (event.key === 'Enter' || event.key === ',') &&
-      highlightedRef.current === undefined &&
-      inputValue.trim()
-    ) {
+    //
+    // Enter and nothing else. Comma is the usual second commit key in a tag input, but not
+    // here: chemistry names are full of them (N,N-dimethylformamide, 1,3-butadiene, 2,4-D)
+    // and committing on comma would make those impossible to type. It is also what the
+    // popup's own `Press Enter to add “…”` hint promises.
+    if (allowCustomValues && event.key === 'Enter' && highlightedRef.current === undefined && inputValue.trim()) {
       event.preventDefault();
       addChip(inputValue);
     }

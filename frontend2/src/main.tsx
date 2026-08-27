@@ -3,6 +3,7 @@ import { fetchAuthSession } from 'aws-amplify/auth';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
+import { RouteError } from '@/components/common/route-error';
 import { configureAmplify } from '@/lib/amplify';
 import { QueryPersistenceProvider } from '@/lib/query-persistence';
 import { routeTree } from '@/routeTree.gen';
@@ -10,7 +11,9 @@ import '@/styles.css';
 
 configureAmplify();
 
-const router = createRouter({ routeTree });
+// defaultErrorComponent, not the root route's errorComponent: without one, TanStack mounts
+// no boundary at all and a render throw blanks the whole app. See route-error.tsx.
+const router = createRouter({ routeTree, defaultErrorComponent: RouteError });
 
 declare module '@tanstack/react-router' {
   interface Register {

@@ -50,6 +50,25 @@ describe('useSettled', () => {
     expect(view.result.current).toBe(true);
   });
 
+  it('treats a function-typed value as a value, not as an initialiser or an updater', () => {
+    // React calls a bare function passed to useState/setState. Without the wrappers the
+    // hook would store what `first`/`second` *return*, so `settled === value` could never
+    // hold and anything gated on it — a query's `enabled` — would stay off for good.
+    const first = () => 'first';
+    const second = () => 'second';
+
+    const view = renderHook(({ value }: { value: () => string }) => useSettled(value, DELAY), {
+      initialProps: { value: first },
+    });
+    expect(view.result.current).toBe(true);
+
+    view.rerender({ value: second });
+    expect(view.result.current).toBe(false);
+
+    act(() => void vi.advanceTimersByTime(DELAY));
+    expect(view.result.current).toBe(true);
+  });
+
   it('settles immediately when the value returns to one already settled', () => {
     const view = setup();
     view.rerender({ value: 'kin' });
