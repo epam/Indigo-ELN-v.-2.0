@@ -1,6 +1,6 @@
-import { z } from 'zod';
+import {z} from '@/lib/zod';
 
-import type { ProjectRequest } from '@/lib/types/projects.ts';
+import type {ProjectRequest} from '@/lib/types/projects.ts';
 
 /** ProjectEntity.name is @Size(max = 256); the column is VARCHAR(256). */
 export const PROJECT_NAME_MAX_LENGTH = 256;

@@ -1,7 +1,8 @@
-import { Authenticator, useAuthenticator } from '@aws-amplify/ui-react';
-import { createFileRoute, useRouter } from '@tanstack/react-router';
-import { useEffect } from 'react';
-import { z } from 'zod';
+import {Authenticator, useAuthenticator} from '@aws-amplify/ui-react';
+import {createFileRoute, useRouter} from '@tanstack/react-router';
+import {useEffect} from 'react';
+
+import {z} from '@/lib/zod';
 
 import '@aws-amplify/ui-react/styles.css';
 
