@@ -11,7 +11,11 @@ import { cn } from '@/lib/utils';
 interface SchemeEditorProps {
   /** molfile or rxnfile; null or empty renders the empty state. */
   value: string | null;
-  onChange: (next: StructureEditorResult | null) => void;
+  /**
+   * Passed straight to the sketcher's Save. Returning a promise holds the dialog open until
+   * it settles — see `StructureEditorDialog`'s `onSave`.
+   */
+  onChange: (next: StructureEditorResult | null) => void | Promise<void>;
   /** Sizes the frame; the height is the only thing call sites usually change. */
   className?: string;
   disabled?: boolean;

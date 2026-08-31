@@ -215,8 +215,44 @@ here rather than on either list, so neither has to import it from the other.
 | `projects.ts` | `Project`, `ProjectDetails`, `ProjectRequest`, `ProjectEditRequest`, `TotalCounts` |
 | `notebooks.ts` | `BaseNotebook`, `Notebook` |
 | `user.ts` | `CurrentUser`, `ApplicationPermission` |
+| `reactions.ts` | the `reaction/model` tree: `ExperimentModel`, `Reaction`, `ReactionInput`/`Output` and their samples, `CompoundRef`, `EnteredValue`, the unit unions |
+| `mutations.ts` | `Mutation` (only the members a screen sends), `MutationResponse` |
+
+`reactions.ts` is ported from the **Java**, not from indigo-frontend's `experiment.i.ts`. Those
+copies were generated from an older spec and have drifted: a `Reaction.rxnVersion` that does not
+exist, `STRCode*`/`NbkBatchNumber` modelled as objects when `@JsonValue` makes them strings,
+`SolubidityInSolvent` flattened when it is a `type`-discriminated union, and an
+`EnteredValueSource` enum whose members are not what is sent. Each divergence is commented at the
+type it affects.
 
 `verbatimModuleSyntax` is enabled — all cross-module type imports must use `import type`. When importing from the same `types/` folder, include the `.ts` extension (e.g. `from '@/lib/types/experiments.ts'`).
+
+### Model mutations — `/mutate` and the JSON patcher
+
+Every edit to an experiment's reaction tree goes through `POST /experiments/{id}/mutate`, which
+answers with a **JSON diff** rather than a document — a one-cell edit does not drag the whole
+stoichiometry table back. `useMutateExperimentModel` (`src/lib/api/experiments.ts`) sends the
+mutation and applies the response with `JSON_PATCHER` (`src/lib/json-patcher.ts`, an apply-only
+port of the backend's `JSONPatcher.java`, pinned by `json-patcher.test.ts` against that class's
+own cases). It joins `experimentWrite`'s scope, so it queues behind the on-blur field saves
+rather than racing them.
+
+Three properties of the diff, all easier to know than to rediscover:
+
+- **It never carries `revision`** (`JSONPatcher.EXPERIMENT_IGNORED_PATHS`), so a patched copy
+  keeps the revision it had. That is survivable only because `ExperimentService.mutateModel`
+  accepts the `revision` query param and **never reads it** — there is no optimistic-concurrency
+  check today. It is sent to match the contract; do not build conflict handling on it.
+- **It is computed between two `ExperimentSnapshot`s**, not two `ExperimentDetailsDTO`s. They
+  overlap on names, which is why applying it to the cached detail works, but it never touches
+  `currentPermissions`, `marked`, the ancestor ids and names, or the `BaseDTO` audit fields.
+- **`apply` also returns a `newNode → oldNode` map.** Nothing reads it yet; it is what
+  indigo-frontend's `determineCellClasses` uses to flash a recalculated cell, and the
+  stoichiometry table will want it.
+
+`response.messages` become toasts via `notifyInfo`. `response.reactionImages` and
+`unresolvedInputs` are both ignored: schemes are drawn client-side, and resolving unmatched
+reactants needs indigo-frontend's Analyze RXN panel, which is not ported.
 
 ### Styling — Tailwind v4 CSS-first
 
@@ -297,11 +333,31 @@ measured, the import alone still leaves ~540 ms, the throwaway render brings the
 real call down to ~20 ms. Since it runs in a loader, switching on `defaultPreload` in
 `main.tsx` would start pulling 21 MB on link hover.
 
-**Rendered previews are not cached, deliberately.** `ketcher-standalone` holds its Indigo
-worker as a module singleton (`var indigoWorker = new WorkerFactory()` in its bundle), and
-every struct service shares it — `src/lib/ketcher.ts`'s and the editor's alike. So the
-~1.3 s above is paid once per page by whichever of them renders first, and everything after
-that is on the 4–8 ms path regardless of which one asks. Since the sketcher must have been
+**That one shared worker is also the source of two bugs `src/lib/ketcher.ts` has to work
+around.** `ketcher-standalone` holds its Indigo worker as a module singleton (`var
+indigoWorker = new WorkerFactory()` in its bundle) and every `IndigoService` shares it —
+this module's and the editor's alike. That makes the ~1.3 s above a once-per-page cost
+whoever pays it, but it also means:
+
+- **A response resolves at most one pending call and consumes them all.**
+  `generateImageAsBase64` registers `EE.once(…)` with a handler that resolves only when
+  `msg.inputData` matches, so of two overlapping renders one resolves and the other is
+  dropped with its listener already gone — its promise never settles. Revisiting an
+  experiment used to hit this every time: the route loader re-runs `prewarmKetcher()` while
+  the cached query lets `SchemeEditor` mount in the same tick, and the throwaway render ate
+  the real one's reply. `renderStructure` and `prewarmKetcher` therefore share one queue.
+- **The newest service steals the channel.** `IndigoService`'s constructor does
+  `this.worker.onmessage = …`, an assignment rather than `addEventListener`, and unmounting
+  the editor restores nothing — so opening the sketcher once would leave this module deaf
+  for the rest of the page. Each call reinstalls our handler and hands the channel back.
+
+A 30 s timeout backs both up, so a reply that is never coming rejects (and drops the
+service, whose abandoned listener would otherwise eat the next response) instead of leaving
+`SchemeEditor` on its skeleton. `ketcher.test.ts` pins all of it against a fake that
+reproduces both quirks; five of its six cases hang against the pre-fix module.
+
+**Rendered previews are not cached, deliberately.** Everything after the first render is on
+the 4–8 ms path regardless of which service asks. Since the sketcher must have been
 open for the user to draw anything, the preview that follows a Save is always warm.
 
 `StructureEditorDialog` used to seed a preview cache with the SVG the sketcher produced, to
@@ -321,8 +377,9 @@ blob: data:` for both preview URL kinds. It is still missing two things: `script
 needs `'wasm-unsafe-eval'` (a nonce does not cover WASM compilation) or Indigo aborts,
 and `style-src` needs `'unsafe-inline'` or the editor renders unstyled, since
 ketcher-react is MUI/emotion and injects styles with no nonce. Headless rendering needs
-only the first of the two. **A CSP-blocked worker makes `renderStructure` hang rather
-than reject** — the promise never settles and `SchemeEditor` shows its skeleton forever.
+only the first of the two. A CSP-blocked worker makes the struct service answer nothing at
+all; that is what the render timeout above turns into a reported error rather than a
+permanent skeleton.
 
 Storybook aliases both modules to stubs in `.storybook/mocks/`. Those two aliases have to
 precede the inherited `'@' -> src` one, and Vite merges the inherited alias *ahead* of
@@ -335,6 +392,14 @@ button when not. It is controlled (`value` / `onChange`) and takes a molfile *or
 rxnfile — Ketcher's own `containsReaction()` decides which, and that flag rides along in
 `onChange` because the backend has separate `moleculeStructure` and `reactionStructure`
 fields.
+
+**`onSave` may return a promise, and the dialog awaits it before closing.** That is what lets
+`ReactionSchemePanel` hold the sketcher open — Save still spinning — until its `SetScheme`
+mutation lands, and leave the drawing in place if it fails. `StructureEditorDialog.handleSave`
+therefore has two `try` blocks rather than one: a Ketcher failure gets `notifyError`, since
+nobody else reports it, while an `onSave` rejection is deliberately silent because `apiFetch`
+has already toasted it. Global Search returns nothing from `onChange`, so `await` resolves in a
+microtask and its sketcher closes immediately, exactly as before.
 
 ### Storybook
 

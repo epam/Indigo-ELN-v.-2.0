@@ -19,6 +19,7 @@ import {
   NOTEBOOKS,
   PROJECT_ACL,
   PROJECTS,
+  REACTION_RXNFILE,
   REACTION_SCHEME_SVG,
   SEARCH_RESULTS,
   USERS,
@@ -27,8 +28,8 @@ import {
 import type { AccessForm, ACLEntry, Page, UserRef } from '@/lib/types/common.ts';
 import type { GlobalSearchResult } from '@/lib/types/search.ts';
 import type { BuiltInDictionary } from '@/lib/types/dictionaries.ts';
-import type { ExperimentStatus } from '@/lib/types/experiments.ts';
-import type { ExperimentEditRequest } from '@/lib/types/experiments.ts';
+import type { ExperimentEditRequest, ExperimentStatus } from '@/lib/types/experiments.ts';
+import type { Mutation, MutationResponse } from '@/lib/types/mutations.ts';
 import type { NotebookEditRequest } from '@/lib/types/notebooks.ts';
 import type { ProjectEditRequest } from '@/lib/types/projects.ts';
 
@@ -91,6 +92,21 @@ export const TAKEN_PROJECT_NAME = 'Kinase Inhibitor Screening';
 
 /** Likewise for notebooks, which are numbered rather than named. */
 export const TAKEN_NOTEBOOK_NAME = '00000002';
+
+/**
+ * What `/mutate` answers for a `SetScheme`: a diff, not a document. The real backend re-reads
+ * the drawing and patches the input and output rows too — this only moves `rxnfile`, which is
+ * enough to prove the round trip, since that is what the scheme redraws from.
+ *
+ * The reaction is addressed as list key `"0"` — same index in, same index out.
+ */
+function setSchemeResponse(mutation: Mutation): MutationResponse {
+  if (mutation.type !== 'SetScheme') return { patch: {} };
+  return {
+    patch: { model: { reactions: { '0': { rxnfile: { $old: REACTION_RXNFILE, $new: mutation.rxnFile } } } } },
+    messages: ['Reaction scheme updated'],
+  };
+}
 
 export const handlers = [
   http.get(`${ELN}/projects`, () => HttpResponse.json(page(PROJECTS))),
@@ -242,6 +258,9 @@ export const handlers = [
     }),
   ),
   http.delete(`${ELN}/experiments/:id/attachments/:attachmentId`, () => new HttpResponse(null, { status: 204 })),
+  http.post(`${ELN}/experiments/:id/mutate`, async ({ request }) =>
+    HttpResponse.json(setSchemeResponse((await request.json()) as Mutation)),
+  ),
   http.post(`${ELN}/experiments/:id/access`, async ({ request }) =>
     HttpResponse.json(recomputedAcl(EXPERIMENT_ACL, (await request.json()) as AccessForm[])),
   ),
@@ -360,6 +379,29 @@ export const slowExperimentWriteHandlers = [
     await delay(1_000);
     return HttpResponse.json(makeExperimentDetails({ id: String(params.id) }));
   }),
+  ...handlers,
+];
+
+/**
+ * A model mutation slow enough to observe the sketcher holding itself open, and no slower:
+ * these run in a real browser, in parallel, and a story that parks a worker for a second
+ * pushes the timing-sensitive ones around it closer to their own deadlines.
+ */
+export const slowMutateHandlers = [
+  http.post(`${ELN}/experiments/:id/mutate`, async ({ request }) => {
+    const mutation = (await request.json()) as Mutation;
+    await delay(300);
+    return HttpResponse.json(setSchemeResponse(mutation));
+  }),
+  ...handlers,
+];
+
+/**
+ * The model-mutation endpoint fails. Separate from `errorHandlers`, which only intercepts GETs
+ * — a POST would fall straight through it and hit the happy path.
+ */
+export const failingMutateHandlers = [
+  http.post(`${ELN}/experiments/:id/mutate`, () => new HttpResponse(null, { status: 500 })),
   ...handlers,
 ];
 

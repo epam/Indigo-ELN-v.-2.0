@@ -39,7 +39,7 @@ function TemplateComponentView({
     case 'attachments':
       return <AttachmentsPanel experiment={experiment} />;
     case 'stoichiometryTable':
-      return <StoichiometryPanel component={component} reactions={experiment.model.reactions} />;
+      return <StoichiometryPanel component={component} experiment={experiment} />;
     case 'batches':
       return <BatchesPanel />;
     case 'versionHistory':

@@ -15,8 +15,13 @@ vi.mock('@/lib/api', async () => {
   return { ...actual, apiFetch: (path: string) => apiFetch(path) };
 });
 
-// The route's loader pulls in 21 MB of Ketcher for real otherwise.
-vi.mock('@/lib/ketcher', () => ({ prewarmKetcher: vi.fn(), renderStructure: vi.fn() }));
+// The route's loader pulls in 21 MB of Ketcher for real otherwise. `renderStructure` has to
+// resolve rather than be a bare `vi.fn()`: the reaction scheme in the stoichiometry panel awaits
+// it on mount, and `undefined.then` would fail the render of the whole tab.
+vi.mock('@/lib/ketcher', () => ({
+  prewarmKetcher: vi.fn(),
+  renderStructure: vi.fn().mockResolvedValue('data:image/svg+xml;base64,PHN2Zy8+'),
+}));
 
 const { routeTree } = await import('@/routeTree.gen');
 

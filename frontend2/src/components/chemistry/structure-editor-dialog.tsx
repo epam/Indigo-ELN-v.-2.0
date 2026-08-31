@@ -21,7 +21,13 @@ interface StructureEditorDialogProps {
   onOpenChange: (open: boolean) => void;
   /** molfile or rxnfile to open with; null or empty starts the sketcher blank. */
   value: string | null;
-  onSave: (result: StructureEditorResult) => void;
+  /**
+   * Given the drawn structure. The dialog **awaits** it and closes only once it resolves, so
+   * a caller that saves to a server can hold the sketcher open — and its Save button
+   * spinning — until the write is confirmed, leaving the drawing intact if it fails. A
+   * caller that only updates local state returns nothing and closes immediately.
+   */
+  onSave: (result: StructureEditorResult) => void | Promise<void>;
 }
 
 /**
@@ -44,21 +50,36 @@ function StructureEditorDialog({ open, onOpenChange, value, onSave }: StructureE
     setKetcher(instance);
   }
 
+  // Two try blocks rather than one, because the two failures have different owners: nobody
+  // else reports a Ketcher error, while whatever `onSave` did has already reported itself.
   async function handleSave() {
     if (!ketcher) return;
     setIsSaving(true);
+
+    let result: StructureEditorResult;
     try {
       // Ketcher itself decides which one it is — the same structure then routes into a
       // molecule or a reaction search.
       const isReaction = ketcher.containsReaction();
-      const structure = isReaction ? await ketcher.getRxn() : await ketcher.getMolfile();
       // No preview is generated here: SchemeEditor renders the structure itself, off the
       // same warm Indigo worker, so doing it twice only slowed Save down.
-      onSave({ structure, isReaction });
-      onOpenChange(false);
+      const structure = isReaction ? await ketcher.getRxn() : await ketcher.getMolfile();
+      result = { structure, isReaction };
     } catch (error) {
-      // Leave the dialog open with the drawing intact so the work is not lost.
       notifyError(error);
+      setIsSaving(false);
+      return;
+    }
+
+    try {
+      // A synchronous handler resolves in a microtask, so a caller that only sets local
+      // state still closes immediately.
+      await onSave(result);
+      onOpenChange(false);
+    } catch {
+      // Deliberately silent: apiFetch toasts every failed request, and a second toast would
+      // say the same thing twice. Leave the dialog open with the drawing intact so the work
+      // is not lost.
     } finally {
       setIsSaving(false);
     }

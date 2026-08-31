@@ -98,3 +98,13 @@ export function notifyError(error: unknown, url?: string): void {
 
   toastManager.add({ title: message, type: 'error' });
 }
+
+/**
+ * Toasts something the backend wants the user to know that is not a failure — the
+ * `messages` a `MutationResponse` carries, explaining what a mutation did beyond what was
+ * asked of it ("Reaction scheme updated, 2 reactants added"). indigo-frontend shows these
+ * as inline info notifications; there is no inline surface here, so they are toasts.
+ */
+export function notifyInfo(message: string): void {
+  toastManager.add({ title: message });
+}

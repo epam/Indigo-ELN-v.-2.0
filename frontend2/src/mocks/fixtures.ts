@@ -5,6 +5,7 @@ import type { Experiment, ExperimentDetails, ExperimentRef } from '@/lib/types/e
 import { EXPERIMENT_STATUSES } from '@/lib/types/experiments.ts';
 import type { Notebook, NotebookDetails } from '@/lib/types/notebooks.ts';
 import type { Project, ProjectDetails, TotalCounts } from '@/lib/types/projects.ts';
+import type { Reaction } from '@/lib/types/reactions.ts';
 import type { CurrentUser } from '@/lib/types/user.ts';
 import type { TemplateDetails } from '@/lib/types/templates.ts';
 
@@ -121,6 +122,49 @@ export const EXPERIMENT_REFS: ExperimentRef[] = [
   { id: 'a0000000-0000-4000-8000-000000000003', name: '00000112-0031' },
 ];
 
+/**
+ * A one-step rxnfile. Structurally a real RXN V2000 — a `$RXN` header, a reactant count and
+ * two `$MOL` blocks — rather than chemistry worth reading: Storybook aliases Ketcher to a stub
+ * that answers with a canned benzene SVG, so what matters here is the shape, not the atoms.
+ */
+export const REACTION_RXNFILE = [
+  '$RXN',
+  '',
+  '  Ketcher',
+  '',
+  '  1  1',
+  '$MOL',
+  '',
+  '  Ketcher',
+  '',
+  '  1  0  0  0  0  0            999 V2000',
+  '    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0',
+  'M  END',
+  '$MOL',
+  '',
+  '  Ketcher',
+  '',
+  '  1  0  0  0  0  0            999 V2000',
+  '    0.0000    0.0000    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0',
+  'M  END',
+].join('\n');
+
+/**
+ * One reaction step. The row lists are empty because nothing renders them yet — the
+ * stoichiometry table is still a placeholder — so filling them in would be inventing a shape
+ * no assertion checks.
+ */
+export function makeReaction(overrides: Partial<Reaction> = {}): Reaction {
+  return {
+    anchor: 'b0000000-0000-4000-8000-000000000001',
+    rxnfile: REACTION_RXNFILE,
+    inputs: [],
+    outputs: [],
+    precursorReactantIds: [],
+    ...overrides,
+  };
+}
+
 export function makeExperimentDetails(overrides: Partial<ExperimentDetails> = {}): ExperimentDetails {
   const base = makeExperiment();
   return {
@@ -138,7 +182,8 @@ export function makeExperimentDetails(overrides: Partial<ExperimentDetails> = {}
     attachments: ATTACHMENTS,
     acl: EXPERIMENT_ACL,
     currentPermissions: ['VIEW_EXPERIMENTS', 'EDIT_EXPERIMENTS', 'MANAGE_EXPERIMENT_ACCESS'],
-    model: { reactions: [{ anchor: 'reaction-1' }], significantFigures: 5 },
+    // `ExperimentModel.reactions` is @NotEmpty on the backend, and the screen relies on it.
+    model: { reactions: [makeReaction()], significantFigures: 5 },
     projectId: '11111111-1111-1111-1111-111111111111',
     projectName: 'Kinase Inhibitor Screening',
     notebookId: '77777777-7777-7777-7777-777777777777',

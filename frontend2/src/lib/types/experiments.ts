@@ -1,5 +1,6 @@
 import type { ACLEntry, Attachment, BaseDTO, CollectionFilters, UserRef, UUID } from '@/lib/types/common.ts';
 import type { DictionaryItemRef } from '@/lib/types/dictionaries.ts';
+import type { ExperimentModel } from '@/lib/types/reactions.ts';
 import type { ApplicationPermission } from '@/lib/types/user.ts';
 
 /**
@@ -100,23 +101,6 @@ export interface ExperimentEditRequest {
 export interface ExperimentRef {
   id: UUID;
   name: string;
-}
-
-/**
- * One step of an experiment. Deliberately narrowed to what the screen frame reads: the anchor
- * that identifies it and the rxnfile it draws from. The full node tree — inputs, outputs and
- * their samples, ~200 lines of it — is only meaningful to the stoichiometry table, and is ported
- * with it rather than sitting here unused.
- */
-export interface Reaction {
-  anchor: string;
-  rxnfile?: string;
-}
-
-/** Mirrors ExperimentModel, the JSON blob in `experiment.model`. `reactions` are the steps. */
-export interface ExperimentModel {
-  reactions: Reaction[];
-  significantFigures: number;
 }
 
 /**

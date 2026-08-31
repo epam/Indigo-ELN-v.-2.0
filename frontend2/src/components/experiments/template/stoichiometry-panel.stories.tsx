@@ -1,4 +1,5 @@
 import { StoichiometryPanel } from '@/components/experiments/template/stoichiometry-panel';
+import { makeExperimentDetails, makeReaction } from '@/mocks/fixtures';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -14,14 +15,14 @@ const meta = {
   component: StoichiometryPanel,
   args: {
     component: ALL_BLOCKS,
-    reactions: [{ anchor: 'r1' }],
+    experiment: makeExperimentDetails(),
   },
 } satisfies Meta<typeof StoichiometryPanel>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Every block the template can ask for, and the single step every experiment has today. */
+/** Every block the template can ask for, over the single step every experiment has today. */
 export const Default: Story = {};
 
 /** A template that asks only for the scheme renders only the scheme. */
@@ -31,7 +32,22 @@ export const SchemeOnly: Story = {
   },
 };
 
-/** The step strip with more than one reaction — what the design shows, and what the model allows. */
+/**
+ * More than one reaction — the model allows it, even though nothing can create one yet. The step
+ * strip is gated off (`SHOW_STEP_SELECTOR`), so this must render the *first* step and no strip;
+ * it is here to catch a panel that starts depending on there being exactly one.
+ */
 export const MultipleSteps: Story = {
-  args: { reactions: [{ anchor: 'r1' }, { anchor: 'r2' }, { anchor: 'r3' }] },
+  args: {
+    experiment: makeExperimentDetails({
+      model: {
+        significantFigures: 5,
+        reactions: [
+          makeReaction(),
+          makeReaction({ anchor: 'b0000000-0000-4000-8000-000000000002' }),
+          makeReaction({ anchor: 'b0000000-0000-4000-8000-000000000003' }),
+        ],
+      },
+    }),
+  },
 };

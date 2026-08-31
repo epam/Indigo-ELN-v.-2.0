@@ -3,6 +3,8 @@ import { useInfiniteQuery, useIsMutating, useMutation, useQuery, useQueryClient 
 import { apiDownload, apiFetch } from '@/lib/api';
 import { collectionQueryString, getNextPageParam, SEARCH_DEBOUNCE_MS } from '@/lib/api/collections';
 import { useSettled } from '@/lib/hooks/use-settled';
+import { JSON_PATCHER } from '@/lib/json-patcher';
+import { notifyInfo } from '@/lib/toast';
 import type { AccessForm, ACLEntry, Attachment, Page } from '@/lib/types/common.ts';
 import type {
   Experiment,
@@ -11,6 +13,7 @@ import type {
   ExperimentFilters,
   ExperimentRef,
 } from '@/lib/types/experiments.ts';
+import type { Mutation, MutationResponse } from '@/lib/types/mutations.ts';
 
 export const EXPERIMENTS_PAGE_SIZE = 10;
 
@@ -117,6 +120,62 @@ export function useEditExperiment(id: string) {
     mutationFn: (request: ExperimentEditRequest) => editExperiment(id, request),
     onSuccess: (experiment) => {
       queryClient.setQueryData(experimentKeys.detail(id), experiment);
+      void queryClient.invalidateQueries({ queryKey: experimentKeys.all() });
+    },
+  });
+}
+
+/**
+ * The model-mutation endpoint: every edit to the reaction tree goes through one `Mutation`
+ * and comes back as a **JSON diff** rather than a new experiment, which is what keeps a
+ * response to a one-cell edit from carrying the whole stoichiometry table back.
+ *
+ * The backend's `mutateModel` accepts `revision` and never reads it: there is no optimistic
+ * concurrency check today, and the patch itself never carries a new revision (`revision` is
+ * in `JSONPatcher.EXPERIMENT_IGNORED_PATHS`), so a patched copy keeps the revision it had and
+ * no amount of care on this side would keep it fresh. It is sent to match the contract, not
+ * to guard anything — do not build conflict handling on it.
+ */
+function mutateExperimentModel(id: string, revision: number, mutation: Mutation): Promise<MutationResponse> {
+  return apiFetch<MutationResponse>(`/api/eln/experiments/${id}/mutate?revision=${revision}`, {
+    method: 'POST',
+    body: JSON.stringify(mutation),
+  });
+}
+
+/**
+ * Takes the experiment rather than its id because it needs the revision, and the caller
+ * always has one in hand — a panel is rendering it. Nothing here refetches.
+ */
+export function useMutateExperimentModel(experiment: ExperimentDetails) {
+  const queryClient = useQueryClient();
+  const id = experiment.id;
+
+  return useMutation({
+    ...experimentWrite(id),
+    mutationFn: (mutation: Mutation) => {
+      // Prefer the cached copy, which may be newer than the one this component rendered with:
+      // `useEditExperiment` replaces the whole detail, revision included, and this mutation
+      // may have been sitting in `experimentWrite`'s queue while that landed. The prop is the
+      // fallback, and the only copy there is in a story or test that never filled the cache.
+      const current = queryClient.getQueryData<ExperimentDetails>(experimentKeys.detail(id)) ?? experiment;
+      return mutateExperimentModel(id, current.revision, mutation);
+    },
+    onSuccess: (response) => {
+      // The diff is computed between two ExperimentSnapshots rather than two
+      // ExperimentDetailsDTOs. They overlap on names, which is why applying it to the detail
+      // works — but it never touches currentPermissions, marked, the ancestor ids and names,
+      // or the BaseDTO audit fields, so those survive untouched by construction.
+      patchExperimentDetails(
+        queryClient,
+        id,
+        (experiment) => JSON_PATCHER.apply(experiment, response.patch)[0] as ExperimentDetails,
+      );
+      // TODO(analyze-rxn): response.unresolvedInputs names reactants the backend could not
+      // match to a compound. Resolving them needs indigo-frontend's AnalyzeRxn slide-in panel
+      // and the ResolveInputs mutation, neither of which is ported yet.
+      for (const message of response.messages ?? []) notifyInfo(message);
+      // The write bumps modifiedAt, which every list card shows.
       void queryClient.invalidateQueries({ queryKey: experimentKeys.all() });
     },
   });

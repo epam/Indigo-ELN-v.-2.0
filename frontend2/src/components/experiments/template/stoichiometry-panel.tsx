@@ -1,12 +1,13 @@
 import { Download, MoreHorizontal, Plus, Upload } from 'lucide-react';
-import { useState } from 'react';
 
 import { CollapsibleCard } from '@/components/common/collapsible-card';
+import { ReactionSchemePanel } from '@/components/experiments/template/reaction-scheme-panel';
 import { TemplatePlaceholder } from '@/components/experiments/template/template-placeholder';
 import { Button } from '@/components/ui/button';
+import { useReactionStep } from '@/lib/hooks/use-reaction-step';
 import { cn } from '@/lib/utils';
 
-import type { Reaction } from '@/lib/types/experiments.ts';
+import type { ExperimentDetails } from '@/lib/types/experiments.ts';
 import type { TemplateComponent } from '@/lib/types/templates.ts';
 
 type StoichiometryComponent = Extract<TemplateComponent, { type: 'stoichiometryTable' }>;
@@ -16,46 +17,56 @@ const STEP_ACTIVE_CLASS = 'bg-card font-semibold text-blue-400';
 const STEP_INACTIVE_CLASS = 'text-neutral-800';
 
 /**
+ * The step strip is built and gated off rather than deleted. Every control on it needs a
+ * mutation the backend does not have — there is no AddReaction, and no rename or delete —
+ * so all it could do today is switch between steps nothing can create. Turn this on with the
+ * mutations, and give `useReactionStep` real state at the same time.
+ */
+const SHOW_STEP_SELECTOR = false;
+
+/**
  * The `stoichiometryTable` template component, and the only one that renders its own card — the
  * step strip sits *above* the card in the design, so this owns both.
  *
- * The strip picks which reaction the table below shows. `model.reactions` is that list: one step
- * per reaction, and today every experiment has exactly one. Adding a step needs a mutation, so
- * `+` is inert for now.
+ * Which reaction the blocks below show comes from `useReactionStep`, which is `0` while the
+ * strip is gated off. `model.reactions` is `@NotEmpty` on the backend, so indexing it is safe.
+ *
+ * It takes the whole experiment rather than just `model.reactions` because the scheme block
+ * writes: the mutation is keyed by experiment id, and edit rights come off `currentPermissions`.
  */
 export function StoichiometryPanel({
   component,
-  reactions,
+  experiment,
 }: {
   component: StoichiometryComponent;
-  reactions: Reaction[];
+  experiment: ExperimentDetails;
 }) {
-  const [step, setStep] = useState(0);
+  const reactions = experiment.model.reactions;
+  const step = useReactionStep();
+  const reaction = reactions[step];
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-stretch overflow-hidden rounded-6 bg-neutral-200 shadow-card">
-        {reactions.map((reaction, index) => (
-          <div
-            key={reaction.anchor}
-            className={cn(STEP_CLASS, index === step ? STEP_ACTIVE_CLASS : STEP_INACTIVE_CLASS)}
-          >
-            <button type="button" onClick={() => setStep(index)} className="cursor-pointer outline-none">
-              {index + 1} step
-            </button>
-            {/* Rename and delete live behind here; both are mutations. */}
-            {index === step && (
-              <Button variant="ghost" size="icon-xs" aria-label={`Step ${index + 1} actions`} disabled>
-                <MoreHorizontal />
-              </Button>
-            )}
-          </div>
-        ))}
-        {/* TODO(add-reaction-step): needs a mutation to create the reaction. */}
-        <Button variant="ghost" size="icon" aria-label="Add step" className="m-1 rounded-2" disabled>
-          <Plus />
-        </Button>
-      </div>
+      {SHOW_STEP_SELECTOR && (
+        <div className="flex items-stretch overflow-hidden rounded-6 bg-neutral-200 shadow-card">
+          {reactions.map((each, index) => (
+            <div key={each.anchor} className={cn(STEP_CLASS, index === step ? STEP_ACTIVE_CLASS : STEP_INACTIVE_CLASS)}>
+              {/* TODO(reaction-steps): selecting a step needs `useReactionStep` to hold state. */}
+              <span>{index + 1} step</span>
+              {/* Rename and delete live behind here; both are mutations. */}
+              {index === step && (
+                <Button variant="ghost" size="icon-xs" aria-label={`Step ${index + 1} actions`} disabled>
+                  <MoreHorizontal />
+                </Button>
+              )}
+            </div>
+          ))}
+          {/* TODO(add-reaction-step): needs a mutation to create the reaction. */}
+          <Button variant="ghost" size="icon" aria-label="Add step" className="m-1 rounded-2" disabled>
+            <Plus />
+          </Button>
+        </div>
+      )}
 
       <CollapsibleCard
         title="Stoichiometric Calculation"
@@ -77,8 +88,7 @@ export function StoichiometryPanel({
           {component.reactionScheme && (
             <section className="flex flex-col gap-2">
               <h3 className="text-[14px]/6 text-neutral-800">Reaction Scheme</h3>
-              {/* TODO(reaction-scheme): `SchemeEditor` over the reaction's rxnfile. */}
-              <TemplatePlaceholder>The reaction scheme goes here.</TemplatePlaceholder>
+              <ReactionSchemePanel experiment={experiment} reaction={reaction} />
             </section>
           )}
 
