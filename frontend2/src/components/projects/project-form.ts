@@ -1,6 +1,7 @@
-import {z} from '@/lib/zod';
+import { isBlankHtml, richTextEdit } from '@/lib/rich-text';
+import { z } from '@/lib/zod';
 
-import type {ProjectDetails, ProjectEditRequest, ProjectRequest} from '@/lib/types/projects.ts';
+import type { ProjectDetails, ProjectEditRequest, ProjectRequest } from '@/lib/types/projects.ts';
 
 /** ProjectEntity.name is @Size(max = 256); the column is VARCHAR(256). */
 export const PROJECT_NAME_MAX_LENGTH = 256;
@@ -24,11 +25,6 @@ export const EMPTY_PROJECT_FORM: ProjectFormValues = {
   literature: '',
   description: '',
 };
-
-/** An untouched rich-text field serialises to an empty paragraph, not an empty string. */
-function isBlankHtml(html: string): boolean {
-  return html.replace(/<[^>]*>/g, '').trim() === '';
-}
 
 /** Optional fields are dropped when empty so the backend stores null, not "<p></p>". */
 export function toProjectRequest(values: ProjectFormValues): ProjectRequest {
@@ -69,12 +65,10 @@ export function toProjectEditRequest(values: ProjectFormValues, initial: Project
 
   if (name !== initial.name.trim()) request.name = name;
   if (!sameKeywords(values.keywords, initial.keywords)) request.keywords = values.keywords;
-  if (values.literature !== initial.literature) {
-    request.literature = isBlankHtml(values.literature) ? null : values.literature;
-  }
-  if (values.description !== initial.description) {
-    request.description = isBlankHtml(values.description) ? null : values.description;
-  }
+  const literature = richTextEdit(values.literature, initial.literature);
+  if (literature) request.literature = literature.value;
+  const description = richTextEdit(values.description, initial.description);
+  if (description) request.description = description.value;
 
   return request;
 }

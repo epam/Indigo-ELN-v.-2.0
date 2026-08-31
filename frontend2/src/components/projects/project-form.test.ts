@@ -1,4 +1,4 @@
-import {describe, expect, it} from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import {
   EMPTY_PROJECT_FORM,
@@ -8,7 +8,7 @@ import {
   toProjectFormValues,
   toProjectRequest,
 } from '@/components/projects/project-form';
-import {makeProjectDetails} from '@/mocks/fixtures';
+import { makeProjectDetails } from '@/mocks/fixtures';
 
 describe('toProjectRequest', () => {
   it('sends only the name when nothing else was filled in', () => {
@@ -77,6 +77,14 @@ describe('toProjectEditRequest', () => {
   it('omits the fields that were not touched', () => {
     const request = toProjectEditRequest({ ...initial, name: 'Kinases II' }, initial);
     expect(request).toEqual({ name: 'Kinases II' });
+  });
+
+  it('sends nothing when empty rich-text fields are left alone', () => {
+    // Seeded from null columns the form holds `''`, and the editors render those as `<p></p>`
+    // before anything is typed. Compared as strings that reads as a change, and this used to
+    // PATCH `literature: null` and `description: null` for fields nobody touched.
+    const empty = toProjectFormValues(makeProjectDetails({ literature: undefined, description: undefined }));
+    expect(toProjectEditRequest({ ...empty, literature: '<p></p>', description: '<p><br></p>' }, empty)).toEqual({});
   });
 
   /** Where the create path drops a blank, the edit path has to say null or nothing is cleared. */

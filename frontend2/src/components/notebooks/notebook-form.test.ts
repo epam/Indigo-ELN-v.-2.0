@@ -1,4 +1,4 @@
-import {describe, expect, it} from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import {
   NOTEBOOK_NAME_LENGTH,
@@ -6,7 +6,7 @@ import {
   toNotebookEditRequest,
   toNotebookFormValues,
 } from '@/components/notebooks/notebook-form';
-import {makeNotebookDetails} from '@/mocks/fixtures';
+import { makeNotebookDetails } from '@/mocks/fixtures';
 
 describe('notebookNameSchema', () => {
   it('accepts exactly eight digits', () => {
@@ -47,6 +47,14 @@ describe('toNotebookEditRequest', () => {
   });
 
   /** Dropping the field is how you say "don't touch it", so clearing has to say null. */
+  it('sends nothing when an empty description is left alone', () => {
+    // Seeded from a null column the form holds `''`, and the editor renders that as `<p></p>`
+    // before anything is typed. Compared as strings that reads as a change, and this used to
+    // PATCH `description: null` for a field nobody touched.
+    const empty = toNotebookFormValues(makeNotebookDetails({ description: undefined }));
+    expect(toNotebookEditRequest({ ...empty, description: '<p></p>' }, empty)).toEqual({});
+  });
+
   it('sends null for a description that was emptied', () => {
     expect(toNotebookEditRequest({ ...initial, description: '<p></p>' }, initial).description).toBeNull();
   });

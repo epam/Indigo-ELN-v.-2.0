@@ -15,11 +15,14 @@ function DictionaryCombobox({
   value,
   onValueChange,
   id,
+  disabled,
 }: {
   dictionary: BuiltInDictionary;
   value: DictionaryItemRef | null;
   onValueChange: (value: DictionaryItemRef | null) => void;
   id: string;
+  /** Renders the current pick but accepts no interaction — a reader who cannot edit. */
+  disabled?: boolean;
 }) {
   const { data, isPending, isError } = useDictionary(dictionary);
 
@@ -34,6 +37,7 @@ function DictionaryCombobox({
       loading={isPending}
       // apiFetch has already toasted the failure; this says why the list is empty.
       error={isError}
+      disabled={disabled}
     />
   );
 }

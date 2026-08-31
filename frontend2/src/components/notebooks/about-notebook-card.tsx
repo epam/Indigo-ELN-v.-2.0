@@ -1,13 +1,14 @@
-import {Pencil} from 'lucide-react';
-import type {ReactNode} from 'react';
-import {useState} from 'react';
+import { Pencil } from 'lucide-react';
+import type { ReactNode } from 'react';
+import { useState } from 'react';
 
-import {AttachmentList} from '@/components/common/attachment-list';
-import {NotebookFormDialog} from '@/components/notebooks/notebook-form-dialog';
-import {Button} from '@/components/ui/button';
-import {useNotebookAttachments} from '@/lib/api/notebooks';
+import { AttachmentList } from '@/components/common/attachment-list';
+import { RichText } from '@/components/common/rich-text';
+import { NotebookFormDialog } from '@/components/notebooks/notebook-form-dialog';
+import { Button } from '@/components/ui/button';
+import { useNotebookAttachments } from '@/lib/api/notebooks';
 
-import type {NotebookDetails} from '@/lib/types/notebooks.ts';
+import type { NotebookDetails } from '@/lib/types/notebooks.ts';
 
 function Section({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -16,16 +17,6 @@ function Section({ label, children }: { label: string; children: ReactNode }) {
       {children}
     </div>
   );
-}
-
-/**
- * The description is HTML — the same strings `RichTextEditor` writes, against the backend's
- * unbounded TEXT column. `.tiptap-content` is where the mark styles live (the editor emits
- * bare tags with no classes), so read and write views render identically.
- */
-function RichText({ html }: { html: string | undefined }) {
-  if (!html?.trim()) return <p className="text-neutral-1000">-</p>;
-  return <div className="tiptap-content text-neutral-1000" dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
 export function AboutNotebookCard({ notebook }: { notebook: NotebookDetails }) {

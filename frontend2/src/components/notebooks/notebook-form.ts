@@ -1,6 +1,7 @@
-import {z} from '@/lib/zod';
+import { richTextEdit } from '@/lib/rich-text';
+import { z } from '@/lib/zod';
 
-import type {NotebookDetails, NotebookEditRequest} from '@/lib/types/notebooks.ts';
+import type { NotebookDetails, NotebookEditRequest } from '@/lib/types/notebooks.ts';
 
 /** `NOTEBOOK_NAME_LENGTH` in indigo-frontend: a notebook is numbered, never named. */
 export const NOTEBOOK_NAME_LENGTH = 8;
@@ -14,11 +15,6 @@ export const notebookNameSchema = z
 export interface NotebookFormValues {
   name: string;
   description: string;
-}
-
-/** An untouched rich-text field serialises to an empty paragraph, not an empty string. */
-function isBlankHtml(html: string): boolean {
-  return html.replace(/<[^>]*>/g, '').trim() === '';
 }
 
 /** Seeds the edit form from a loaded notebook. A null description becomes the empty string the editor wants. */
@@ -42,9 +38,8 @@ export function toNotebookEditRequest(values: NotebookFormValues, initial: Noteb
   const request: NotebookEditRequest = {};
 
   if (name !== initial.name.trim()) request.name = name;
-  if (values.description !== initial.description) {
-    request.description = isBlankHtml(values.description) ? null : values.description;
-  }
+  const description = richTextEdit(values.description, initial.description);
+  if (description) request.description = description.value;
 
   return request;
 }

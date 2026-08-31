@@ -1,15 +1,15 @@
-import {Check, ChevronDown, Copy, UserPlus} from 'lucide-react';
-import {useState} from 'react';
+import { Check, ChevronDown, Copy, UserPlus } from 'lucide-react';
+import { useState } from 'react';
 
-import {MultiCombobox} from '@/components/ui/combobox';
-import {Avatar} from '@/components/ui/avatar';
-import {Button} from '@/components/ui/button';
-import {Menu, MenuContent, MenuItem, MenuTrigger} from '@/components/ui/menu';
-import {useUserSuggestions} from '@/lib/api/user';
-import {cn} from '@/lib/utils';
-import type {UseMutationResult} from '@tanstack/react-query';
-import type {AccessForm, AccessLevel, ACLEntry, UserRef} from '@/lib/types/common.ts';
-import {ACL_LEVEL_LABELS, ELIGIBLE_ACL_LEVELS, isImmutableLevel} from '@/lib/types/common.ts';
+import { MultiCombobox } from '@/components/ui/combobox';
+import { Avatar } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Menu, MenuContent, MenuItem, MenuTrigger } from '@/components/ui/menu';
+import { useUserSuggestions } from '@/lib/api/user';
+import { cn } from '@/lib/utils';
+import type { UseMutationResult } from '@tanstack/react-query';
+import type { AccessForm, AccessLevel, ACLEntry, UserRef } from '@/lib/types/common.ts';
+import { ACL_LEVEL_LABELS, ELIGIBLE_ACL_LEVELS, isImmutableLevel } from '@/lib/types/common.ts';
 
 /** What a newly added member gets. Anything more is a deliberate step up in the level menu. */
 const DEFAULT_LEVEL: AccessLevel = 'VIEW';
@@ -114,14 +114,19 @@ function MemberRow({
 
 /**
  * The members of a project, notebook or experiment, with the controls to add one and to
- * re-level an existing one.
+ * re-level an existing one — the card's contents without its frame, so the Team sheet can show
+ * the same list under its own title instead of a card nested in a card.
  *
  * The two mutations arrive as props rather than being made here: they post to different
  * endpoints per entity, and each caller's `onSuccess` patches its own cached detail. They stay
  * two instances of the same mutation, not one — both post to /access, but each owns a spinner
  * in a different place, and a shared `isPending` could not say which asked for it.
+ *
+ * They are optional because `canManage: false` reaches neither: the add row is not rendered and
+ * every level renders as locked text. A read-only surface should not have to invent a mutation
+ * it will never fire.
  */
-export function TeamCard({
+export function TeamMembers({
   acl,
   canManage,
   addMembers,
@@ -129,8 +134,8 @@ export function TeamCard({
 }: {
   acl: ACLEntry[];
   canManage: boolean;
-  addMembers: AccessMutation;
-  changeLevel: AccessMutation;
+  addMembers?: AccessMutation;
+  changeLevel?: AccessMutation;
 }) {
   const [inputValue, setInputValue] = useState('');
   const [selected, setSelected] = useState<UserRef[]>([]);
@@ -141,17 +146,10 @@ export function TeamCard({
   const items = (suggestions.data ?? []).filter((user) => !members.has(user.username));
 
   // A level change is always one entry, so its `variables` name the row to spin.
-  const updatingUsername = changeLevel.isPending ? changeLevel.variables?.[0]?.username : undefined;
+  const updatingUsername = changeLevel?.isPending ? changeLevel.variables?.[0]?.username : undefined;
 
   return (
-    <section className="flex flex-col gap-4 rounded-6 bg-card p-4 shadow-card">
-      <div className="flex items-center gap-2 border-b border-neutral-300 pb-3">
-        <h2 className="text-[16px]/6 font-semibold">Team</h2>
-        <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-neutral-200 px-2 text-[12px]/5 font-semibold text-neutral-800">
-          {acl.length}
-        </span>
-      </div>
-
+    <>
       {canManage && (
         <div className="flex items-start gap-2">
           <div className="min-w-0 flex-1">
@@ -174,9 +172,9 @@ export function TeamCard({
           <Button
             variant="outline"
             disabled={selected.length === 0}
-            loading={addMembers.isPending}
+            loading={addMembers?.isPending}
             onClick={() =>
-              addMembers.mutate(
+              addMembers?.mutate(
                 selected.map((user) => ({ username: user.username, level: DEFAULT_LEVEL })),
                 { onSuccess: () => setSelected([]) },
               )
@@ -195,10 +193,33 @@ export function TeamCard({
             member={member}
             canManage={canManage}
             updating={updatingUsername === member.username}
-            onLevelChange={(level) => changeLevel.mutate([{ username: member.username, level }])}
+            onLevelChange={(level) => changeLevel?.mutate([{ username: member.username, level }])}
           />
         ))}
       </ul>
+    </>
+  );
+}
+
+/**
+ * `TeamMembers` in the card frame the Info tabs put it in: a heading, a count, and the shadowed
+ * white surface every other card on those pages uses.
+ */
+export function TeamCard(props: {
+  acl: ACLEntry[];
+  canManage: boolean;
+  addMembers: AccessMutation;
+  changeLevel: AccessMutation;
+}) {
+  return (
+    <section className="flex flex-col gap-4 rounded-6 bg-card p-4 shadow-card">
+      <div className="flex items-center gap-2 border-b border-neutral-300 pb-3">
+        <h2 className="text-[16px]/6 font-semibold">Team</h2>
+        <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-neutral-200 px-2 text-[12px]/5 font-semibold text-neutral-800">
+          {props.acl.length}
+        </span>
+      </div>
+      <TeamMembers {...props} />
     </section>
   );
 }

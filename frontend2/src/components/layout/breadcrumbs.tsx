@@ -3,7 +3,17 @@ import { Fragment } from 'react';
 
 export type BreadcrumbItem = { label: string; link?: LinkProps };
 
-/** The last item is the current page — always plain text, never a link. */
+/**
+ * The last item is the current page — always plain text, never a link.
+ *
+ * The trail gives way from the left when the row is tight. `All Projects` is short and fixed so
+ * it never shrinks; the ancestors carry an outsized `shrink` factor so they absorb nearly all of
+ * the squeeze before the current page starts to clip — flex distributes shrinkage in proportion
+ * to factor × basis, so an even factor would clip the page's own name alongside its ancestors'.
+ *
+ * The experiment header is what needs this: four levels plus a status, a team and three buttons
+ * in one row, and the label that has to stay readable is the experiment's own name at the end.
+ */
 export function Breadcrumbs({ items, className }: { items: BreadcrumbItem[]; className?: string }) {
   return (
     <nav aria-label="Breadcrumb" className={className}>
@@ -20,17 +30,18 @@ export function Breadcrumbs({ items, className }: { items: BreadcrumbItem[]; cla
                   /
                 </li>
               )}
-              <li className={isCurrent ? 'min-w-0' : 'shrink-0'}>
+              <li className={index === 0 ? 'shrink-0' : isCurrent ? 'min-w-0' : 'min-w-0 shrink-[100]'}>
                 {isCurrent ? (
-                  <span aria-current="page" className="block truncate text-neutral-1000">
+                  <span aria-current="page" title={label} className="block truncate text-neutral-1000">
                     {label}
                   </span>
                 ) : link ? (
-                  <Link {...link} className="text-blue-400">
+                  // title, because a squeezed trail clips these first and the name is the point.
+                  <Link {...link} title={label} className="block truncate text-blue-400">
                     {label}
                   </Link>
                 ) : (
-                  label
+                  <span className="block truncate">{label}</span>
                 )}
               </li>
             </Fragment>

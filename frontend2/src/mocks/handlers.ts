@@ -1,14 +1,17 @@
-import {delay, http, HttpResponse} from 'msw';
+import { delay, http, HttpResponse } from 'msw';
 
 import {
   ATTACHMENTS,
   DICTIONARIES,
+  EXPERIMENT_REFS,
   EXPERIMENTS,
   KEYWORDS,
   makeAttachment,
   makeCurrentUser,
+  makeExperimentDetails,
   makeNotebookDetails,
   makeProjectDetails,
+  makeTemplateDetails,
   makeTotalCounts,
   MARKED_EXPERIMENTS,
   NOTEBOOK_ACL,
@@ -20,12 +23,13 @@ import {
   USERS,
 } from '@/mocks/fixtures';
 
-import type {AccessForm, ACLEntry, Page, UserRef} from '@/lib/types/common.ts';
-import type {GlobalSearchResult} from '@/lib/types/search.ts';
-import type {BuiltInDictionary} from '@/lib/types/dictionaries.ts';
-import type {ExperimentStatus} from '@/lib/types/experiments.ts';
-import type {NotebookEditRequest} from '@/lib/types/notebooks.ts';
-import type {ProjectEditRequest} from '@/lib/types/projects.ts';
+import type { AccessForm, ACLEntry, Page, UserRef } from '@/lib/types/common.ts';
+import type { GlobalSearchResult } from '@/lib/types/search.ts';
+import type { BuiltInDictionary } from '@/lib/types/dictionaries.ts';
+import type { ExperimentStatus } from '@/lib/types/experiments.ts';
+import type { ExperimentEditRequest } from '@/lib/types/experiments.ts';
+import type { NotebookEditRequest } from '@/lib/types/notebooks.ts';
+import type { ProjectEditRequest } from '@/lib/types/projects.ts';
 
 // apiFetch sends the path verbatim, so handlers match the same full paths the
 // callers in src/lib/api/ pass.
@@ -189,6 +193,54 @@ export const handlers = [
   http.get(`${ELN}/experiments/marked`, () => HttpResponse.json(MARKED_EXPERIMENTS)),
   http.post(`${ELN}/experiments/:id/mark`, () => HttpResponse.json(true)),
   http.post(`${ELN}/experiments/:id/unmark`, () => HttpResponse.json(false)),
+  // Before /experiments/:id, which would otherwise swallow it — MSW takes the first match, the
+  // same hazard as /projects/existence and /notebooks/existence above.
+  http.get(`${ELN}/experiments/suggest`, ({ request }) => {
+    const search = (new URL(request.url).searchParams.get('search') ?? '').toLowerCase();
+    // Prefix match on name, ordered by name, capped at 10 — the contract of
+    // ExperimentRepository.suggest. Note it does *not* exclude the experiment being edited.
+    const matches = EXPERIMENT_REFS.filter((ref) => ref.name.toLowerCase().startsWith(search))
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .slice(0, 10);
+    return HttpResponse.json(matches);
+  }),
+  // After /experiments/marked, which `:id` would otherwise swallow — MSW takes the first match,
+  // and the sidebar's starred list would start answering with a single experiment.
+  http.get(`${ELN}/experiments/:id`, ({ params }) =>
+    HttpResponse.json(makeExperimentDetails({ id: String(params.id) })),
+  ),
+  http.get(`${ELN}/templates/:id`, ({ params }) => HttpResponse.json(makeTemplateDetails({ id: String(params.id) }))),
+  http.patch(`${ELN}/experiments/:id`, async ({ params, request }) => {
+    const { title, therapeuticArea, projectCode, description, literature, ...lists } =
+      (await request.json()) as ExperimentEditRequest;
+    // Absent stays absent, matching JsonNullable; an explicit null clears the field, which on
+    // the response DTO is the same as it simply not being there. The three list fields have no
+    // null state, so they pass straight through.
+    return HttpResponse.json(
+      makeExperimentDetails({
+        id: String(params.id),
+        ...(title === undefined ? {} : { title: title ?? undefined }),
+        ...(therapeuticArea === undefined ? {} : { therapeuticArea: therapeuticArea ?? undefined }),
+        ...(projectCode === undefined ? {} : { projectCode: projectCode ?? undefined }),
+        ...(description === undefined ? {} : { description: description ?? undefined }),
+        ...(literature === undefined ? {} : { literature: literature ?? undefined }),
+        ...lists,
+      }),
+    );
+  }),
+  http.post(`${ELN}/experiments/:id/attachments`, async ({ request }) => {
+    const form = await request.formData();
+    const file = form.get('file');
+    const name = file instanceof File ? file.name : 'upload.bin';
+    // The endpoint answers with the experiment's whole attachment list, not just the new file.
+    return HttpResponse.json([...ATTACHMENTS, makeAttachment(name, { id: `c99c-${name}`, size: 4_096 })]);
+  }),
+  http.get(`${ELN}/experiments/:id/attachments/:attachmentId`, () =>
+    HttpResponse.arrayBuffer(new TextEncoder().encode('mock attachment').buffer as ArrayBuffer, {
+      headers: { 'Content-Type': 'application/octet-stream' },
+    }),
+  ),
+  http.delete(`${ELN}/experiments/:id/attachments/:attachmentId`, () => new HttpResponse(null, { status: 204 })),
   http.get(`${ELN}/currentUser`, () => HttpResponse.json(makeCurrentUser())),
   http.get(`${ELN}/dictionaries/:dictionary`, ({ params }) =>
     HttpResponse.json(DICTIONARIES[params.dictionary as BuiltInDictionary] ?? []),
@@ -291,6 +343,18 @@ export const loadingSearchHandlers = [
   http.post(`${ELN}/search`, async () => {
     await delay('infinite');
     return HttpResponse.json(null);
+  }),
+  ...handlers,
+];
+
+/**
+ * The experiment PATCH resolves slowly, so the saving state is reachable at all — the default
+ * handler answers instantly, and `SavingOverlay` deliberately shows nothing for a fast save.
+ */
+export const slowExperimentWriteHandlers = [
+  http.patch(`${ELN}/experiments/:id`, async ({ params }) => {
+    await delay(1_000);
+    return HttpResponse.json(makeExperimentDetails({ id: String(params.id) }));
   }),
   ...handlers,
 ];

@@ -1,22 +1,212 @@
-import {useInfiniteQuery, useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
+import { useInfiniteQuery, useIsMutating, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import {apiFetch} from '@/lib/api';
-import {collectionQueryString, getNextPageParam, SEARCH_DEBOUNCE_MS} from '@/lib/api/collections';
-import {useSettled} from '@/lib/hooks/use-settled';
-import type {Page} from '@/lib/types/common.ts';
-import type {Experiment, ExperimentFilters} from '@/lib/types/experiments.ts';
+import { apiDownload, apiFetch } from '@/lib/api';
+import { collectionQueryString, getNextPageParam, SEARCH_DEBOUNCE_MS } from '@/lib/api/collections';
+import { useSettled } from '@/lib/hooks/use-settled';
+import type { Attachment, Page } from '@/lib/types/common.ts';
+import type {
+  Experiment,
+  ExperimentDetails,
+  ExperimentEditRequest,
+  ExperimentFilters,
+  ExperimentRef,
+} from '@/lib/types/experiments.ts';
 
 export const EXPERIMENTS_PAGE_SIZE = 10;
 
 /**
- * Exported although no component reads `marked`: `src/lib/query-client.ts` needs the hash to
- * decide what gets persisted to localStorage. Not a candidate for going private.
+ * Every query key this module issues, written out literally rather than composed from a shared
+ * prefix — the same shape, and for the same reasons, as `projectKeys` in `projects.ts`.
+ *
+ * Details sit under their own `experimentDetails` root, not under `experiments`. Starring or
+ * editing an experiment invalidates every list, and a detail nested beneath that prefix would be
+ * caught by the same call and refetched immediately after the mutation response had been written
+ * into it.
+ *
+ * Filters belong in the list key; the page number comes from pageParam.
+ *
+ * Exported although no component reads it: `src/lib/query-client.ts` hashes `marked()` to decide
+ * what gets persisted to localStorage. Not a candidate for going private.
  */
 export const experimentKeys = {
+  all: () => ['experiments'] as const,
   marked: () => ['experiments', 'marked'] as const,
   notebookList: (notebookId: string, filters: ExperimentFilters) =>
     ['experiments', 'notebook', notebookId, filters] as const,
+  detail: (id: string) => ['experimentDetails', id] as const,
+  suggestions: (search: string) => ['experimentSuggestions', search] as const,
 };
+
+/**
+ * What every write to one experiment shares: a key to count them by, and a `scope` that makes
+ * TanStack Query run them **one at a time**.
+ *
+ * The serialisation is not cosmetic. Each of these endpoints goes through
+ * `ExperimentModelService.applyMutation` on the backend, which bumps the experiment's `revision`
+ * — the token the model-mutation endpoint uses for optimistic concurrency. Two writes in flight
+ * race on it. Since fields save on blur, a quick user starts the second before the first lands,
+ * so this is the normal case rather than an edge one.
+ *
+ * `scope` does the whole job: `MutationCache.canRun` lets only the first pending mutation of a
+ * scope proceed and pauses the rest, and `runNext` fires from a `finally`, so a failed write
+ * hands off instead of wedging the queue. Two consequences worth knowing:
+ *
+ * - A **queued** mutation already reports `isPending: true` (with `isPaused: true`), so a control
+ *   gated on `isPending` stays frozen for the wait as well as the request. Nothing extra to track.
+ * - `onMutate` runs when `mutate()` is called, **not** when the request finally starts. Nothing
+ *   uses it here yet, but an optimistic update added later would land while still queued.
+ */
+function experimentWrite(id: string) {
+  return { mutationKey: experimentWriteKey(id), scope: { id: `experiment-${id}` } };
+}
+
+function experimentWriteKey(id: string) {
+  return ['experiment', id, 'write'] as const;
+}
+
+/**
+ * Whether any write to this experiment is queued or running — the page-level roll-up behind the
+ * spinner over the undo/redo buttons. `useIsMutating` filters on `status: 'pending'`, which covers
+ * both states.
+ */
+export function useExperimentSaving(id: string): boolean {
+  return useIsMutating({ mutationKey: experimentWriteKey(id) }) > 0;
+}
+
+function fetchExperiment(id: string, signal?: AbortSignal): Promise<ExperimentDetails> {
+  return apiFetch<ExperimentDetails>(`/api/eln/experiments/${id}`, { signal });
+}
+
+export function useExperiment(id: string) {
+  return useQuery({
+    queryKey: experimentKeys.detail(id),
+    queryFn: ({ signal }) => fetchExperiment(id, signal),
+  });
+}
+
+/** Patches one field of the cached detail, leaving the rest of the experiment untouched. */
+function patchExperimentDetails(
+  queryClient: ReturnType<typeof useQueryClient>,
+  id: string,
+  patch: (experiment: ExperimentDetails) => ExperimentDetails,
+) {
+  queryClient.setQueryData<ExperimentDetails>(experimentKeys.detail(id), (experiment) =>
+    experiment ? patch(experiment) : experiment,
+  );
+}
+
+function editExperiment(id: string, request: ExperimentEditRequest): Promise<ExperimentDetails> {
+  return apiFetch<ExperimentDetails>(`/api/eln/experiments/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(request),
+  });
+}
+
+/**
+ * The experiment has no edit dialog: fields save as they are left, so this fires far more often
+ * than the project and notebook equivalents and callers are expected to skip an unchanged value.
+ *
+ * The response is the whole experiment, so the detail needs no refetch — but `modifiedAt` shows
+ * on every card of the parent notebook's list, and those do.
+ */
+export function useEditExperiment(id: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...experimentWrite(id),
+    mutationFn: (request: ExperimentEditRequest) => editExperiment(id, request),
+    onSuccess: (experiment) => {
+      queryClient.setQueryData(experimentKeys.detail(id), experiment);
+      void queryClient.invalidateQueries({ queryKey: experimentKeys.all() });
+    },
+  });
+}
+
+/** Returns the experiment's full attachment list, not just the new entries. */
+function uploadExperimentAttachment(id: string, file: File): Promise<Attachment[]> {
+  const body = new FormData();
+  body.append('file', file, file.name);
+  return apiFetch<Attachment[]>(`/api/eln/experiments/${id}/attachments`, { method: 'POST', body });
+}
+
+function deleteExperimentAttachment(id: string, attachmentId: string): Promise<void> {
+  return apiFetch<void>(`/api/eln/experiments/${id}/attachments/${attachmentId}`, { method: 'DELETE' });
+}
+
+/** See `useNotebookAttachments` — the endpoints are identical bar the prefix. */
+function useUploadExperimentAttachments(id: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...experimentWrite(id),
+    // One at a time within this mutation too: the endpoint takes a single `file` part and each
+    // response carries the full list, so parallel uploads would race and the last one home would
+    // drop the others. The scope above serialises it against *other* writes; this loop serialises
+    // the files of one upload against each other.
+    mutationFn: async (files: File[]) => {
+      let attachments: Attachment[] = [];
+      for (const file of files) {
+        attachments = await uploadExperimentAttachment(id, file);
+      }
+      return attachments;
+    },
+    onSuccess: (attachments) =>
+      patchExperimentDetails(queryClient, id, (experiment) => ({ ...experiment, attachments })),
+  });
+}
+
+function useDeleteExperimentAttachment(id: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...experimentWrite(id),
+    mutationFn: (attachmentId: string) => deleteExperimentAttachment(id, attachmentId),
+    onSuccess: (_result, attachmentId) =>
+      patchExperimentDetails(queryClient, id, (experiment) => ({
+        ...experiment,
+        attachments: experiment.attachments.filter((attachment) => attachment.id !== attachmentId),
+      })),
+  });
+}
+
+/** The three calls `AttachmentList` needs, bound to one experiment. */
+export function useExperimentAttachments(id: string) {
+  const upload = useUploadExperimentAttachments(id);
+  const remove = useDeleteExperimentAttachment(id);
+
+  return {
+    upload,
+    remove,
+    download: (attachment: Attachment) =>
+      apiDownload(`/api/eln/experiments/${id}/attachments/${attachment.id}`, attachment.name),
+  };
+}
+
+function suggestExperiments(search: string, signal?: AbortSignal): Promise<ExperimentRef[]> {
+  return apiFetch<ExperimentRef[]>(`/api/eln/experiments/suggest?search=${encodeURIComponent(search)}`, { signal });
+}
+
+const SUGGEST_DEBOUNCE_MS = 300;
+
+/**
+ * Experiments to reference from another one. Same shape as `useUserSuggestions`: the key tracks
+ * the term as typed and the debounce gates `enabled`, so `isPending` is one honest "we don't know
+ * yet" spanning both the wait and the request — which is what the combobox's `loading` prop wants.
+ *
+ * Held off until something is typed. `ExperimentRepository.suggest` answers a missing term with
+ * the first ten experiments by name **across the whole system**, which is arbitrary rather than
+ * helpful — it is not scoped to this notebook or project.
+ */
+export function useExperimentSuggestions(search: string) {
+  const settled = useSettled(search, SUGGEST_DEBOUNCE_MS);
+
+  return useQuery({
+    queryKey: experimentKeys.suggestions(search),
+    // Consuming `signal` lets an abandoned lookup abort when the key moves on.
+    queryFn: ({ signal }) => suggestExperiments(search, signal),
+    enabled: settled && search.length > 0,
+  });
+}
 
 /** Unpaged: ExperimentAPI.getMarkedExperiments returns the full list. */
 function fetchMarkedExperiments(): Promise<Experiment[]> {
@@ -83,9 +273,15 @@ export function useToggleMark() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    // Deliberately **not** in `experimentWrite`'s queue. `ExperimentService.markExperiment` does
+    // not go through `applyMutation` — it writes a per-user flag and needs only VIEW_EXPERIMENTS
+    // — so it cannot conflict with anything. Queueing it would only make the star lag behind an
+    // unrelated save.
     mutationFn: ({ id, marked }: { id: string; marked: boolean }) => setMarked(id, marked),
     // One prefix: `experimentKeys.marked()` and `notebookList()` both start with 'experiments'.
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['experiments'] }),
+    // The detail is on its own root and so is left alone — a surface reading `marked` off it
+    // (the experiment header) has to patch it here when the star there is wired up.
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: experimentKeys.all() }),
   });
 }
 

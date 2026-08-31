@@ -1,11 +1,13 @@
-import {expect, waitFor, within} from 'storybook/test';
+import { http, HttpResponse } from 'msw';
+import { expect, waitFor, within } from 'storybook/test';
 
-import {SearchResults} from '@/components/search/search-results';
-import {useGlobalSearch} from '@/lib/api/search';
-import {emptySearchHandlers, loadingSearchHandlers, searchErrorHandlers} from '@/mocks/handlers';
+import { SearchResults } from '@/components/search/search-results';
+import { useGlobalSearch } from '@/lib/api/search';
+import { SEARCH_RESULTS } from '@/mocks/fixtures';
+import { emptySearchHandlers, loadingSearchHandlers, searchErrorHandlers } from '@/mocks/handlers';
 
-import type {GlobalSearchRequest} from '@/lib/types/search.ts';
-import type {Meta, StoryObj} from '@storybook/react-vite';
+import type { GlobalSearchRequest } from '@/lib/types/search.ts';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const REQUEST: GlobalSearchRequest = { query: 'coupling' };
 
@@ -70,23 +72,52 @@ export const LinksToDetailPages: Story = {
   },
 };
 
-/** Scrolling to the bottom pulls the second page in through InfiniteLoader's sentinel. */
+const SHORT_PAGE_SIZE = 3;
+
+/**
+ * Pages short enough that the sentinel is still on screen once the first one has rendered, so
+ * the second is pulled in with no scrolling at all.
+ *
+ * The default fixture is 27 results at 20 a page, which buries the sentinel far below the fold
+ * and forces a story to scroll for it. That version of this test was the least stable thing in
+ * the suite: it hung once at its own ten-second budget, in a run where every other measurement
+ * of it sat between 90 ms and 624 ms — idle, inside a full suite, and with all sixteen cores
+ * saturated. Whatever stalled it, the scroll was not what it was there to prove.
+ */
+const shortPageHandlers = [
+  http.post(`/api/eln/search`, ({ request }) => {
+    const pageNo = Number(new URL(request.url).searchParams.get('pageNo') ?? 0);
+    const page = SEARCH_RESULTS.slice(pageNo * SHORT_PAGE_SIZE, (pageNo + 1) * SHORT_PAGE_SIZE);
+    return HttpResponse.json({
+      pageNo,
+      pageSize: SHORT_PAGE_SIZE,
+      totalItems: SEARCH_RESULTS.length,
+      totalPages: Math.ceil(SEARCH_RESULTS.length / SHORT_PAGE_SIZE),
+      items: page,
+    });
+  }),
+];
+
+/**
+ * The sentinel pulls the second page in and its rows append below the first page's.
+ *
+ * What this no longer covers is a scroll bringing the sentinel into view — that part is
+ * `IntersectionObserver`'s own behaviour rather than anything here. What it still covers is the
+ * part that is ours: that the sentinel sits *below* the list, that reaching it fetches, and that
+ * the new page appends rather than replacing.
+ */
 export const LoadsTheNextPage: Story = {
+  parameters: { msw: { handlers: shortPageHandlers } },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    // The last row of page one — 20 of 27, and the sentinel sits below it.
-    await waitFor(() => expect(canvas.getByText('00000001-0018')).toBeInTheDocument());
 
-    // Re-scrolled on every attempt rather than once: the sentinel only fetches when the
-    // observer fires, and a single scroll can land before the row it needs to reveal is
-    // laid out. Scrolling again is a no-op once we are already at the bottom.
-    await waitFor(
-      () => {
-        canvasElement.ownerDocument.documentElement.scrollTo({ top: 999_999 });
-        expect(canvas.getByText('00000001-0025')).toBeInTheDocument();
-      },
-      { timeout: 10_000 },
-    );
+    const firstPageLastRow = SEARCH_RESULTS[SHORT_PAGE_SIZE - 1].name;
+    const secondPageFirstRow = SEARCH_RESULTS[SHORT_PAGE_SIZE].name;
+
+    await waitFor(() => expect(canvas.getByText(firstPageLastRow)).toBeInTheDocument());
+    await waitFor(() => expect(canvas.getByText(secondPageFirstRow)).toBeInTheDocument());
+    // Appended, not swapped in.
+    await expect(canvas.getByText(firstPageLastRow)).toBeInTheDocument();
   },
 };
 

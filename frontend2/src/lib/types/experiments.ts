@@ -1,4 +1,6 @@
-import type {ACLEntry, BaseDTO, CollectionFilters} from '@/lib/types/common.ts';
+import type { ACLEntry, Attachment, BaseDTO, CollectionFilters, UserRef, UUID } from '@/lib/types/common.ts';
+import type { DictionaryItemRef } from '@/lib/types/dictionaries.ts';
+import type { ApplicationPermission } from '@/lib/types/user.ts';
 
 /**
  * Display order for every surface that lists the statuses, and the source of truth for the
@@ -70,4 +72,82 @@ export interface Experiment extends BaseExperiment {
  */
 export interface ExperimentFilters extends CollectionFilters {
   statuses: ExperimentStatus[];
+}
+
+/**
+ * The PATCH body. As with `NotebookEditRequest`, the backend wraps every field in
+ * `JsonNullable` with `@JsonInclude(NON_ABSENT)`, so the three states are distinct over the
+ * wire: **absent** leaves the field alone, **null** clears it, a value sets it.
+ *
+ * Only the fields the screen edits today are declared; the request carries five more.
+ */
+export interface ExperimentEditRequest {
+  title?: string | null;
+  therapeuticArea?: DictionaryItemRef | null;
+  projectCode?: DictionaryItemRef | null;
+  description?: string | null;
+  literature?: string | null;
+  /**
+   * Sets the whole list. Never null — indigo-frontend sends `[]` to empty one, and the backend
+   * takes a `Set`, so order is not meaningful either way.
+   */
+  linkedExperiments?: ExperimentRef[];
+  continuedFrom?: ExperimentRef[];
+  continuedTo?: ExperimentRef[];
+}
+
+/** Mirrors ExperimentRef — how an experiment names another one it is linked to. */
+export interface ExperimentRef {
+  id: UUID;
+  name: string;
+}
+
+/**
+ * One step of an experiment. Deliberately narrowed to what the screen frame reads: the anchor
+ * that identifies it and the rxnfile it draws from. The full node tree — inputs, outputs and
+ * their samples, ~200 lines of it — is only meaningful to the stoichiometry table, and is ported
+ * with it rather than sitting here unused.
+ */
+export interface Reaction {
+  anchor: string;
+  rxnfile?: string;
+}
+
+/** Mirrors ExperimentModel, the JSON blob in `experiment.model`. `reactions` are the steps. */
+export interface ExperimentModel {
+  reactions: Reaction[];
+  significantFigures: number;
+}
+
+/**
+ * ExperimentDetailsDTO — the single-experiment response.
+ *
+ * The four ancestor fields ride along on the payload, which is what lets the breadcrumb name the
+ * project and the notebook without two more requests: the URL is flat (`/experiments/{id}`) and
+ * carries neither.
+ *
+ * `templateId` is the other half of the screen — the template it points at says which tabs the
+ * experiment has and what is in them.
+ */
+export interface ExperimentDetails extends BaseExperiment {
+  title?: string;
+  therapeuticArea?: DictionaryItemRef;
+  projectCode?: DictionaryItemRef;
+  description?: string;
+  literature?: string;
+  templateId: UUID;
+  batchCreator: UserRef;
+  linkedExperiments: ExperimentRef[];
+  continuedFrom: ExperimentRef[];
+  continuedTo: ExperimentRef[];
+  attachments: Attachment[];
+  acl: ACLEntry[];
+  /** Scoped to VIEW/EDIT/MANAGE_EXPERIMENT_ACCESS/DELETE/SUBMIT/SIGN_EXPERIMENTS by the backend. */
+  currentPermissions: ApplicationPermission[];
+  model: ExperimentModel;
+  projectId: UUID;
+  projectName: string;
+  notebookId: UUID;
+  notebookName: string;
+  signatureNumber?: string;
 }

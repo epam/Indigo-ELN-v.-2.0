@@ -1,12 +1,12 @@
-import {File as FileIcon, FileImage, FileSpreadsheet, FileText, Paperclip, Trash2} from 'lucide-react';
-import {useRef} from 'react';
+import { File as FileIcon, FileImage, FileSpreadsheet, FileText, Paperclip, Trash2 } from 'lucide-react';
+import { useRef } from 'react';
 
-import {Button} from '@/components/ui/button';
-import {useDownload} from '@/lib/hooks/use-download';
-import {formatBytes, formatDate} from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { useDownload } from '@/lib/hooks/use-download';
+import { formatBytes, formatDate } from '@/lib/utils';
 
-import type {UseMutationResult} from '@tanstack/react-query';
-import type {Attachment} from '@/lib/types/common.ts';
+import type { UseMutationResult } from '@tanstack/react-query';
+import type { Attachment } from '@/lib/types/common.ts';
 
 /**
  * The three calls an attachment list makes, passed in rather than imported: projects and
@@ -92,17 +92,23 @@ function AttachmentRow({
 export function AttachmentList({
   attachments,
   canEdit,
+  heading = 'Attachments',
   actions: { upload, remove, download },
 }: {
   attachments: Attachment[];
   canEdit: boolean;
+  /**
+   * `null` drops the heading, for a surface that already names itself — the experiment screen
+   * renders this as the whole body of a card titled *Attachments*, and would say it twice.
+   */
+  heading?: string | null;
   actions: AttachmentActions;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   return (
     <div className="flex flex-col gap-2">
-      <h3 className="font-semibold text-neutral-800">Attachments</h3>
+      {heading !== null && <h3 className="font-semibold text-neutral-800">{heading}</h3>}
 
       {attachments.length > 0 && (
         <ul className="flex flex-col gap-2">

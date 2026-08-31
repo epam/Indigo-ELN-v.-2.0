@@ -50,6 +50,12 @@ interface RichTextEditorProps {
    * rather than being inlined as multi-megabyte base64 into the description.
    */
   onUploadImage?: UploadImage;
+  /**
+   * Freezes the editor while a save is in flight. ProseMirror keeps the caret and the content;
+   * it just stops accepting input, so the user does not type into a value about to be replaced
+   * by the server's own copy.
+   */
+  disabled?: boolean;
   className?: string;
 }
 
@@ -60,6 +66,7 @@ function RichTextEditor({
   id,
   'aria-labelledby': ariaLabelledBy,
   onUploadImage,
+  disabled = false,
   className,
 }: RichTextEditorProps) {
   // Read inside ProseMirror callbacks, which are registered once and would otherwise
@@ -87,6 +94,7 @@ function RichTextEditor({
       Placeholder.configure({ placeholder: placeholder ?? '' }),
     ],
     content: value,
+    editable: !disabled,
     onUpdate: ({ editor: instance }) => onChange(instance.getHTML()),
     editorProps: {
       attributes: {
@@ -106,6 +114,22 @@ function RichTextEditor({
     editorRef.current = editor;
   }, [editor]);
 
+  /**
+   * `editable` in the config above only applies on creation, so a change after that has to be
+   * pushed in — the editor outlives every toggle of it.
+   *
+   * **The `false` is load-bearing.** `setEditable(editable, emitUpdate = true)` emits an `update`
+   * unconditionally, even when the editable state did not actually change — so this effect firing
+   * on mount reported a change the user never made, carrying `getHTML()`, which is the *canonical*
+   * form of whatever was passed in. Every consumer then believed the user had rewritten the field:
+   * plain text gained a `<p>`, a `<div>` became a `<p>`, newlines between tags vanished. That made
+   * the experiment description PATCH on a blur that changed nothing, and the project and notebook
+   * dialogs send a normalised copy of untouched text on Save.
+   */
+  useEffect(() => {
+    if (editor && !editor.isDestroyed) editor.setEditable(!disabled, false);
+  }, [editor, disabled]);
+
   // Keep an externally-reset value (e.g. reopening the dialog) in sync, without
   // clobbering the caret while the user is the one doing the typing.
   useEffect(() => {
@@ -121,11 +145,17 @@ function RichTextEditor({
       className={cn(
         'flex flex-col rounded-md border border-neutral-300 bg-background transition-colors',
         'focus-within:border-blue-400 focus-within:ring-3 focus-within:ring-ring/20',
+        // Muted rather than hidden: the text stays readable, which is the point of freezing it
+        // in place rather than swapping it for a spinner.
+        disabled && 'opacity-60',
         className,
       )}
     >
-      <Toolbar editor={editor} />
-      <EditorContent editor={editor} className="tiptap-content min-h-[120px] overflow-y-auto" />
+      <Toolbar editor={editor} disabled={disabled} />
+      <EditorContent
+        editor={editor}
+        className={cn('tiptap-content min-h-[120px] overflow-y-auto', disabled && 'cursor-not-allowed')}
+      />
     </div>
   );
 }
@@ -162,7 +192,7 @@ const TOOLBAR_BUTTONS = [
   { name: 'subscript', label: 'Subscript', icon: SubscriptIcon },
 ] as const;
 
-function Toolbar({ editor }: { editor: Editor }) {
+function Toolbar({ editor, disabled }: { editor: Editor; disabled: boolean }) {
   return (
     <div
       role="toolbar"
@@ -173,6 +203,7 @@ function Toolbar({ editor }: { editor: Editor }) {
         <ToolbarButton
           key={name}
           label={label}
+          disabled={disabled}
           active={editor.isActive(name)}
           onClick={() => {
             // Every entry above maps to a toggleX command of the same name.
@@ -185,12 +216,14 @@ function Toolbar({ editor }: { editor: Editor }) {
       ))}
       <ColorButton
         label="Font colour"
+        disabled={disabled}
         icon={<Palette className="size-4" />}
         value={editor.getAttributes('textStyle').color ?? '#242424'}
         onChange={(color) => editor.chain().focus().setColor(color).run()}
       />
       <ColorButton
         label="Background colour"
+        disabled={disabled}
         icon={<Highlighter className="size-4" />}
         value={editor.getAttributes('textStyle').backgroundColor ?? '#ffffff'}
         onChange={(color) => editor.chain().focus().setBackgroundColor(color).run()}
@@ -202,11 +235,13 @@ function Toolbar({ editor }: { editor: Editor }) {
 function ToolbarButton({
   label,
   active,
+  disabled,
   onClick,
   children,
 }: {
   label: string;
   active: boolean;
+  disabled?: boolean;
   onClick: () => void;
   children: React.ReactNode;
 }) {
@@ -215,10 +250,12 @@ function ToolbarButton({
       type="button"
       aria-label={label}
       aria-pressed={active}
+      disabled={disabled}
       onClick={onClick}
       className={cn(
         'cursor-pointer rounded-2 p-1.5 text-neutral-800 outline-none hover:bg-neutral-200 focus-visible:ring-3 focus-visible:ring-ring/50',
         active && 'bg-blue-10 text-blue-400',
+        'disabled:pointer-events-none disabled:opacity-50',
       )}
     >
       {children}
@@ -231,16 +268,21 @@ function ColorButton({
   label,
   icon,
   value,
+  disabled,
   onChange,
 }: {
   label: string;
   icon: React.ReactNode;
   value: string;
+  disabled?: boolean;
   onChange: (color: string) => void;
 }) {
   return (
     <label
-      className="relative flex cursor-pointer items-center rounded-2 p-1.5 text-neutral-800 hover:bg-neutral-200 focus-within:ring-3 focus-within:ring-ring/50"
+      className={cn(
+        'relative flex items-center rounded-2 p-1.5 text-neutral-800 focus-within:ring-3 focus-within:ring-ring/50',
+        disabled ? 'pointer-events-none opacity-50' : 'cursor-pointer hover:bg-neutral-200',
+      )}
       title={label}
     >
       {icon}
@@ -248,6 +290,7 @@ function ColorButton({
         type="color"
         aria-label={label}
         value={value}
+        disabled={disabled}
         onChange={(event) => onChange(event.target.value)}
         className="absolute inset-0 cursor-pointer opacity-0"
       />

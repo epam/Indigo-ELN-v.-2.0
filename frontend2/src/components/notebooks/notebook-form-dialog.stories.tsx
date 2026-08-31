@@ -1,23 +1,36 @@
-import {useState} from 'react';
-import {expect, screen, userEvent, waitFor} from 'storybook/test';
+import { http, HttpResponse } from 'msw';
+import { useState } from 'react';
+import { expect, screen, userEvent, waitFor } from 'storybook/test';
 
-import {NotebookFormDialog} from '@/components/notebooks/notebook-form-dialog';
-import {makeNotebookDetails} from '@/mocks/fixtures';
-import {TAKEN_NOTEBOOK_NAME} from '@/mocks/handlers';
+import { NotebookFormDialog } from '@/components/notebooks/notebook-form-dialog';
+import { makeNotebookDetails } from '@/mocks/fixtures';
+import { handlers, TAKEN_NOTEBOOK_NAME } from '@/mocks/handlers';
 
-import type {Meta, StoryObj} from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { NotebookDetails } from '@/lib/types/notebooks.ts';
 
 const NOTEBOOK = makeNotebookDetails();
 
-function NotebookFormDialogHarness() {
+function NotebookFormDialogHarness({ notebook = NOTEBOOK }: { notebook?: NotebookDetails }) {
   const [open, setOpen] = useState(true);
   return (
     <>
       {!open && <p className="text-[14px]/6">Dialog closed.</p>}
-      <NotebookFormDialog open={open} onOpenChange={setOpen} notebook={NOTEBOOK} />
+      <NotebookFormDialog open={open} onOpenChange={setOpen} notebook={notebook} />
     </>
   );
 }
+
+/** Records what actually reached the wire, so a story can assert an untouched Save sends {}. */
+const patchBodies: unknown[] = [];
+
+const patchSpyHandlers = [
+  http.patch('/api/eln/notebooks/:id', async ({ request, params }) => {
+    patchBodies.push(await request.json());
+    return HttpResponse.json(makeNotebookDetails({ id: String(params.id) }));
+  }),
+  ...handlers,
+];
 
 const meta = {
   title: 'Notebooks/NotebookFormDialog',
@@ -81,5 +94,21 @@ export const Save: Story = {
     await waitFor(() => expect(save).toBeEnabled(), { timeout: 3000 });
     await userEvent.click(save);
     await expect(await screen.findByText('Dialog closed.')).toBeInTheDocument();
+  },
+};
+
+/**
+ * **Regression guard.** Opening the dialog on a description the editor has to normalise — plain
+ * text, a `<div>`, pretty-printed HTML — and pressing Save without touching anything must send an
+ * empty body. It used to send a normalised copy of the untouched text, which can clobber an edit
+ * someone else made in the meantime; omitting untouched fields is exactly what prevents that.
+ */
+export const UntouchedSaveSendsNothing: Story = {
+  parameters: { msw: { handlers: patchSpyHandlers } },
+  render: () => <NotebookFormDialogHarness notebook={makeNotebookDetails({ description: 'Aspirin route A.' })} />,
+  play: async () => {
+    patchBodies.length = 0;
+    await userEvent.click(await screen.findByRole('button', { name: 'Save' }));
+    await waitFor(() => expect(patchBodies).toEqual([{}]));
   },
 };

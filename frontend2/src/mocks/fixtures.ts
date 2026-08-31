@@ -1,11 +1,12 @@
-import type {ACLEntry, Attachment, UserRef} from '@/lib/types/common.ts';
-import type {BuiltInDictionary, DictionaryItemRef} from '@/lib/types/dictionaries.ts';
-import type {GlobalSearchResult} from '@/lib/types/search.ts';
-import type {Experiment} from '@/lib/types/experiments.ts';
-import {EXPERIMENT_STATUSES} from '@/lib/types/experiments.ts';
-import type {Notebook, NotebookDetails} from '@/lib/types/notebooks.ts';
-import type {Project, ProjectDetails, TotalCounts} from '@/lib/types/projects.ts';
-import type {CurrentUser} from '@/lib/types/user.ts';
+import type { ACLEntry, Attachment, UserRef } from '@/lib/types/common.ts';
+import type { BuiltInDictionary, DictionaryItemRef } from '@/lib/types/dictionaries.ts';
+import type { GlobalSearchResult } from '@/lib/types/search.ts';
+import type { Experiment, ExperimentDetails, ExperimentRef } from '@/lib/types/experiments.ts';
+import { EXPERIMENT_STATUSES } from '@/lib/types/experiments.ts';
+import type { Notebook, NotebookDetails } from '@/lib/types/notebooks.ts';
+import type { Project, ProjectDetails, TotalCounts } from '@/lib/types/projects.ts';
+import type { CurrentUser } from '@/lib/types/user.ts';
+import type { TemplateDetails } from '@/lib/types/templates.ts';
 
 export function makeUserRef(displayName: string): UserRef {
   return { username: displayName.toLowerCase().replace(/\s+/g, '.'), displayName };
@@ -63,9 +64,105 @@ export function makeExperiment(overrides: Partial<Experiment> = {}): Experiment 
   };
 }
 
+export const TEMPLATE_ID = '33333333-3333-3333-3333-333333333333';
+
+/**
+ * The four tabs of the design, exercising all six component types and every stoichiometry flag —
+ * so one fixture is enough to see the whole experiment screen.
+ */
+export function makeTemplateDetails(overrides: Partial<TemplateDetails> = {}): TemplateDetails {
+  return {
+    id: TEMPLATE_ID,
+    name: 'Default',
+    createdBy: ADMINISTRATOR,
+    createdAt: '2026-01-05T09:00:00Z',
+    modifiedBy: ADMINISTRATOR,
+    modifiedAt: '2026-01-05T09:00:00Z',
+    templateTabs: [
+      {
+        name: 'Experiment Info',
+        components: [
+          { type: 'experimentDetails' },
+          {
+            type: 'stoichiometryTable',
+            reactionScheme: true,
+            reactantsReagentsSolvents: true,
+            intendedProducts: true,
+          },
+        ],
+      },
+      { name: 'Attachments', components: [{ type: 'experimentDescription' }, { type: 'attachments' }] },
+      { name: 'Summary', components: [{ type: 'batches' }] },
+      { name: 'Previous Versions', components: [{ type: 'versionHistory' }] },
+    ],
+    ...overrides,
+  };
+}
+
+/** Mixed levels and an inherited entry, as NOTEBOOK_ACL is — an experiment inherits from both. */
+export const EXPERIMENT_ACL: ACLEntry[] = [
+  makeAclEntry('Administrator', { level: 'AUTHOR' }),
+  makeAclEntry('Mark Liu', { level: 'ADMIN' }),
+  makeAclEntry('Sofia Rossi', { level: 'EDIT', inherited: true }),
+  makeAclEntry('Tom Becker', { level: 'VIEW', inherited: true }),
+];
+
+/**
+ * What `/experiments/suggest` draws from. The ids match `EXPERIMENTS` where they overlap, so a
+ * suggestion and a listed experiment are the same thing — including the one being edited, which
+ * `ExperimentRefsCombobox` has to filter out itself.
+ */
+export const EXPERIMENT_REFS: ExperimentRef[] = [
+  { id: '22222222-2222-2222-2222-222222222222', name: '00000001-0001' },
+  { id: '55555555-5555-5555-5555-555555555555', name: '00000001-0012' },
+  { id: '66666666-6666-6666-6666-666666666666', name: '12345678-0100' },
+  { id: 'a0000000-0000-4000-8000-000000000001', name: '00000112-0006' },
+  { id: 'a0000000-0000-4000-8000-000000000002', name: '00000112-0012' },
+  { id: 'a0000000-0000-4000-8000-000000000003', name: '00000112-0031' },
+];
+
+export function makeExperimentDetails(overrides: Partial<ExperimentDetails> = {}): ExperimentDetails {
+  const base = makeExperiment();
+  return {
+    ...base,
+    title: 'Acetic anhydride route',
+    therapeuticArea: DICTIONARIES.THERAPEUTIC_AREA?.[0],
+    projectCode: DICTIONARIES.PROJECT_CODE?.[0],
+    description: '<p>Acetylation of salicylic acid, second pass.</p>',
+    literature: 'J. Chem. Educ. 2019, 96, 4',
+    templateId: TEMPLATE_ID,
+    batchCreator: ADMINISTRATOR,
+    linkedExperiments: [{ id: '66666666-6666-6666-6666-666666666666', name: '12345678-0100' }],
+    continuedFrom: [],
+    continuedTo: [],
+    attachments: ATTACHMENTS,
+    acl: EXPERIMENT_ACL,
+    currentPermissions: ['VIEW_EXPERIMENTS', 'EDIT_EXPERIMENTS', 'MANAGE_EXPERIMENT_ACCESS'],
+    model: { reactions: [{ anchor: 'reaction-1' }], significantFigures: 5 },
+    projectId: '11111111-1111-1111-1111-111111111111',
+    projectName: 'Kinase Inhibitor Screening',
+    notebookId: '77777777-7777-7777-7777-777777777777',
+    notebookName: '00000001',
+    ...overrides,
+  };
+}
+
+/**
+ * A stable 12-hex-digit id suffix from a name. This used to be `name.length`, which collided —
+ * `protocol.docx` and `raw-trace.dat` are both 13 characters, as are `yields.xlsx` and
+ * `spectra.png` at 11 — so `ATTACHMENTS` shipped two pairs of duplicate ids. React cannot
+ * reconcile a removal from a keyed list whose keys repeat, which made a deleted row stay on
+ * screen; every story run also logged a duplicate-key error.
+ */
+function fixtureSuffix(name: string): string {
+  let hash = 0;
+  for (const char of name) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+  return hash.toString(16).padStart(12, '0');
+}
+
 export function makeAttachment(name: string, overrides: Partial<Attachment> = {}): Attachment {
   return {
-    id: `a77a0000-0000-4000-8000-${name.length.toString().padStart(12, '0')}`,
+    id: `a77a0000-0000-4000-8000-${fixtureSuffix(name)}`,
     name,
     size: 16_384,
     createdBy: MARK,

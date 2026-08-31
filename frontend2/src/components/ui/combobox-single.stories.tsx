@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { expect, screen, userEvent, within } from 'storybook/test';
+import { expect, screen, userEvent, waitFor, within } from 'storybook/test';
 
+import { SavingOverlay } from '@/components/common/saving-overlay';
 import { Combobox } from '@/components/ui/combobox';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
@@ -19,24 +20,43 @@ const OPTIONS: Option[] = [
 ];
 
 /** Object items, as every real call site has — the filtering itself is Base UI's. */
-function ComboboxHarness({ loading = false, error = false }: { loading?: boolean; error?: boolean }) {
-  const [value, setValue] = useState<Option | null>(null);
+function ComboboxHarness({
+  initial = null,
+  loading = false,
+  error = false,
+  disabled = false,
+  saving = false,
+}: {
+  initial?: Option | null;
+  loading?: boolean;
+  error?: boolean;
+  disabled?: boolean;
+  /** Wraps the control the way a blur-saved form field does — see the `Saving` story. */
+  saving?: boolean;
+}) {
+  const [value, setValue] = useState<Option | null>(initial);
+
+  const control = (
+    <Combobox<Option>
+      id="therapeutic-area"
+      value={value}
+      onValueChange={setValue}
+      items={loading || error ? [] : OPTIONS}
+      itemToKey={(item) => item.id}
+      itemToLabel={(item) => item.name}
+      loading={loading}
+      error={error}
+      disabled={disabled}
+    />
+  );
 
   return (
     <div className="w-[420px]">
       <label htmlFor="therapeutic-area" className="text-[14px]/6">
         Therapeutic Area
       </label>
-      <Combobox<Option>
-        id="therapeutic-area"
-        value={value}
-        onValueChange={setValue}
-        items={loading || error ? [] : OPTIONS}
-        itemToKey={(item) => item.id}
-        itemToLabel={(item) => item.name}
-        loading={loading}
-        error={error}
-      />
+      {/* Only wrapped when the story asks for it, so every other story keeps the plain markup. */}
+      {saving ? <SavingOverlay pending>{control}</SavingOverlay> : control}
     </div>
   );
 }
@@ -51,6 +71,36 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+
+/**
+ * Mid-save, as a blur-saved form field looks: `SavingOverlay` freezes the control and puts a
+ * spinner at its right edge, and the chevron and clear button get out of the way rather than
+ * crowding it — they read `data-saving` off the group the overlay publishes.
+ *
+ * The spinner is deliberately delayed, so a save quick enough to beat it never disturbs the
+ * chevron at all.
+ */
+export const Saving: Story = {
+  args: { initial: OPTIONS[1], saving: true },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Saving…'));
+
+    // Still in the DOM, so the row keeps its width and the spinner lands where the chevron was.
+    const chevron = canvas.getByLabelText('Show options');
+    await expect(chevron).toBeInTheDocument();
+    await expect(chevron).not.toBeVisible();
+    await expect(canvas.getByLabelText('Clear selection')).not.toBeVisible();
+  },
+};
+
+/** A reader who cannot edit: the pick still shows, nothing accepts input. */
+export const Disabled: Story = {
+  args: { initial: OPTIONS[1], disabled: true },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByRole('combobox')).toBeDisabled();
+  },
+};
 
 /** The trigger opens the full list — this is a picker, not a search box. */
 export const OpensTheWholeList: Story = {
@@ -89,9 +139,15 @@ export const Clears: Story = {
 export const Loading: Story = {
   args: { loading: true },
   play: async ({ canvasElement }) => {
-    await userEvent.click(within(canvasElement).getByRole('button', { name: 'Show options' }));
+    const trigger = within(canvasElement).getByRole('button', { name: 'Show options' });
+    await userEvent.click(trigger);
     await expect(await screen.findByText('Searching…')).toBeInTheDocument();
     await expect(screen.queryByText('No matches')).not.toBeInTheDocument();
+
+    await expect(trigger).toHaveAttribute('aria-busy', 'true');
+    // The wait is reported in the popup and by aria-busy, never as a spinner at the field's right
+    // edge — that spot means the field is being saved, and `SavingOverlay` owns it.
+    await expect(trigger.querySelector('.animate-spin')).toBeNull();
   },
 };
 

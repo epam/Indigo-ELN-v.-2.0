@@ -1,9 +1,9 @@
-import {Combobox as ComboboxPrimitive} from '@base-ui/react/combobox';
-import {ChevronDown, Loader2, X} from 'lucide-react';
+import { Combobox as ComboboxPrimitive } from '@base-ui/react/combobox';
+import { ChevronDown, Loader2, X } from 'lucide-react';
 import type * as React from 'react';
-import {useRef, useState} from 'react';
+import { useRef, useState } from 'react';
 
-import {cn} from '@/lib/utils';
+import { cn } from '@/lib/utils';
 
 /**
  * How far PageUp/PageDown jump through the suggestion list. Base UI declares
@@ -108,6 +108,8 @@ interface ComboboxProps<T> {
   loading?: boolean;
   /** Whether fetching the item list failed, so the popup is empty for a reason worth saying. */
   error?: boolean;
+  /** Renders the current selection but accepts no interaction — a reader who cannot edit. */
+  disabled?: boolean;
 }
 
 /**
@@ -128,6 +130,7 @@ function Combobox<T>({
   emptyMessage = 'No matches',
   loading = false,
   error = false,
+  disabled = false,
 }: ComboboxProps<T>) {
   const statusContent = loading ? 'Searching…' : error ? 'Could not load options' : null;
   // "No matches" is a claim about a finished search, so it survives neither a list still
@@ -136,6 +139,7 @@ function Combobox<T>({
 
   return (
     <ComboboxPrimitive.Root<T, false>
+      disabled={disabled}
       items={items}
       value={value}
       onValueChange={onValueChange}
@@ -148,6 +152,8 @@ function Combobox<T>({
         className={cn(
           'flex h-10 w-full items-center gap-1 rounded-md border border-neutral-300 bg-background pr-1 pl-3',
           'focus-within:border-blue-400 focus-within:ring-3 focus-within:ring-ring/20',
+          // Matches Input's disabled treatment, so a form of mixed controls reads as one thing.
+          disabled && 'cursor-not-allowed opacity-50',
         )}
       >
         <ComboboxPrimitive.Input
@@ -158,17 +164,27 @@ function Combobox<T>({
         {/* Base UI mounts this only while there is something to clear. */}
         <ComboboxPrimitive.Clear
           aria-label="Clear selection"
-          className="cursor-pointer rounded-2 p-1 text-neutral-700 outline-none hover:text-neutral-1000 focus-visible:ring-3 focus-visible:ring-ring/50"
+          className="cursor-pointer rounded-2 p-1 text-neutral-700 outline-none group-data-[saving]/saving:invisible hover:text-neutral-1000 focus-visible:ring-3 focus-visible:ring-ring/50"
         >
           <X className="size-4" />
         </ComboboxPrimitive.Clear>
+        {/*
+          The chevron stays put while suggestions load. A spinner at the right edge of a field
+          means **this field is being saved** — that is what `SavingOverlay` puts there — so
+          borrowing the same spot for a lookup would say the wrong thing, and on a form that saves
+          on blur the two would overlap outright. The wait is reported where it belongs: `Searching…`
+          inside the popup, plus `aria-busy` here for anyone not looking at it.
+
+          When a save *is* in flight the chevron gets out of the way instead: `SavingOverlay`
+          publishes `data-saving` on the group around this. `invisible` rather than `hidden`, so
+          the row keeps its width and the spinner lands exactly where the chevron was.
+        */}
         <ComboboxPrimitive.Trigger
           aria-label="Show options"
           aria-busy={loading || undefined}
-          className="cursor-pointer rounded-2 p-1 text-neutral-700 outline-none hover:text-neutral-1000 focus-visible:ring-3 focus-visible:ring-ring/50"
+          className="cursor-pointer rounded-2 p-1 text-neutral-700 outline-none group-data-[saving]/saving:invisible hover:text-neutral-1000 focus-visible:ring-3 focus-visible:ring-ring/50"
         >
-          {/* Swapped in place of the chevron so the row keeps its width while loading. */}
-          {loading ? <Loader2 className="size-5 animate-spin" /> : <ChevronDown className="size-5" />}
+          <ChevronDown className="size-5" />
         </ComboboxPrimitive.Trigger>
       </div>
 
@@ -216,6 +232,8 @@ interface MultiComboboxProps<T> {
   loading?: boolean;
   /** Whether fetching suggestions failed, so the list is empty for a reason worth saying. */
   error?: boolean;
+  /** Renders the chips but accepts no interaction — a reader who cannot edit. */
+  disabled?: boolean;
 }
 
 /**
@@ -243,6 +261,7 @@ function MultiCombobox<T = string>({
   allowCustomValues = false,
   loading = false,
   error = false,
+  disabled = false,
 }: MultiComboboxProps<T>) {
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
@@ -331,7 +350,8 @@ function MultiCombobox<T = string>({
   return (
     <ComboboxPrimitive.Root<T, true>
       multiple
-      open={open && hasContent}
+      disabled={disabled}
+      open={open && hasContent && !disabled}
       onOpenChange={setOpen}
       items={items}
       // The caller filters server-side; filtering again locally would hide fresh results.
@@ -351,6 +371,7 @@ function MultiCombobox<T = string>({
       <ComboboxPrimitive.Chips
         className={cn(
           'flex min-h-10 w-full flex-wrap items-center gap-2 rounded-md border border-neutral-300 bg-background px-2 py-1.5',
+          disabled && 'cursor-not-allowed opacity-50',
           'focus-within:border-blue-400 focus-within:ring-3 focus-within:ring-ring/20',
         )}
       >
@@ -360,9 +381,20 @@ function MultiCombobox<T = string>({
             className="flex items-center gap-1 rounded-md bg-blue-10 py-0.5 pr-1 pl-2 text-[12px]/5 text-neutral-1000 outline-none data-[highlighted]:ring-3 data-[highlighted]:ring-ring/50"
           >
             {itemToLabel(item)}
+            {/*
+              Base UI already blocks this when the root is disabled (`ComboboxChipRemove` reads
+              `comboboxDisabled || disabledProp`), and marks it `aria-disabled` + `data-disabled`
+              rather than using the native attribute. Passing `disabled` explicitly says so at
+              this level too; the styling is the part that was actually missing, since the button
+              otherwise kept its pointer cursor and hover background and looked live.
+            */}
             <ComboboxPrimitive.ChipRemove
               aria-label={`Remove ${itemToLabel(item)}`}
-              className="cursor-pointer rounded-full p-0.5 text-neutral-700 hover:bg-blue-100 hover:text-neutral-1000"
+              disabled={disabled}
+              className={cn(
+                'rounded-full p-0.5 text-neutral-700',
+                disabled ? 'pointer-events-none' : 'cursor-pointer hover:bg-blue-100 hover:text-neutral-1000',
+              )}
             >
               <X className="size-3.5" />
             </ComboboxPrimitive.ChipRemove>
@@ -376,13 +408,16 @@ function MultiCombobox<T = string>({
           onKeyDown={handleKeyDown}
           className="min-w-24 flex-1 bg-transparent text-[14px]/6 text-neutral-1000 outline-none placeholder:text-neutral-700"
         />
+        {/*
+          The chevron stays put while suggestions load, and stands aside while the field is being
+          saved — see `Combobox` above for both.
+        */}
         <ComboboxPrimitive.Trigger
           aria-label="Show suggestions"
           aria-busy={loading || undefined}
-          className="cursor-pointer rounded-2 p-0.5 text-neutral-700 outline-none hover:text-neutral-1000 focus-visible:ring-3 focus-visible:ring-ring/50"
+          className="cursor-pointer rounded-2 p-0.5 text-neutral-700 outline-none group-data-[saving]/saving:invisible hover:text-neutral-1000 focus-visible:ring-3 focus-visible:ring-ring/50"
         >
-          {/* Swapped in place of the chevron so the row keeps its width while loading. */}
-          {loading ? <Loader2 className="size-5 animate-spin" /> : <ChevronDown className="size-5" />}
+          <ChevronDown className="size-5" />
         </ComboboxPrimitive.Trigger>
       </ComboboxPrimitive.Chips>
 
