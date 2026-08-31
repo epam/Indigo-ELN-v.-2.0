@@ -1,6 +1,6 @@
-import { fetchAuthSession } from 'aws-amplify/auth';
+import {fetchAuthSession} from 'aws-amplify/auth';
 
-import { notifyError } from '@/lib/toast';
+import {notifyError} from '@/lib/toast';
 
 /** Thrown for any non-2xx response so TanStack Query can surface it. */
 export class ApiError extends Error {
@@ -60,10 +60,12 @@ async function parseErrorBody(response: Response): Promise<unknown> {
   }
 }
 
-export function apiFetch<T>(path: string, init?: ApiRequestInit & { responseType?: 'json' }): Promise<T>;
-export function apiFetch(path: string, init: ApiRequestInit & { responseType: 'text' }): Promise<string>;
-export function apiFetch(path: string, init: ApiRequestInit & { responseType: 'blob' }): Promise<Blob>;
-export async function apiFetch(path: string, init: ApiRequestInit = {}): Promise<unknown> {
+/**
+ * The request itself: headers, the call, and the non-2xx contract. Split out of `apiFetch` so
+ * `apiDownload` can reach the `Response` — it names the saved file from a *header*, which a
+ * parsed body cannot carry — without either of them duplicating auth or error handling.
+ */
+async function apiRequest(path: string, init: ApiRequestInit = {}): Promise<Response> {
   const { responseType = 'json', ...requestInit } = init;
   const response = await fetch(path, {
     ...requestInit,
@@ -71,7 +73,9 @@ export async function apiFetch(path: string, init: ApiRequestInit = {}): Promise
       // The image endpoints declare a concrete `@Produces` (`image/svg+xml`, `image/png`),
       // so anything but JSON has to accept a wildcard or the backend answers 406.
       Accept: responseType === 'json' ? 'application/json' : '*/*',
-      ...(requestInit.body ? { 'Content-Type': 'application/json' } : {}),
+      // FormData must set its own Content-Type: only the browser knows the multipart
+      // boundary it generated, and naming the type without one makes the body unparseable.
+      ...(requestInit.body && !(requestInit.body instanceof FormData) ? { 'Content-Type': 'application/json' } : {}),
       ...(await authHeader()),
       ...requestInit.headers,
     },
@@ -84,5 +88,79 @@ export async function apiFetch(path: string, init: ApiRequestInit = {}): Promise
     notifyError(error, path);
     throw error;
   }
-  return parseSuccessBody(response, responseType);
+  return response;
+}
+
+export function apiFetch<T>(path: string, init?: ApiRequestInit & { responseType?: 'json' }): Promise<T>;
+export function apiFetch(path: string, init: ApiRequestInit & { responseType: 'text' }): Promise<string>;
+export function apiFetch(path: string, init: ApiRequestInit & { responseType: 'blob' }): Promise<Blob>;
+export async function apiFetch(path: string, init: ApiRequestInit = {}): Promise<unknown> {
+  const response = await apiRequest(path, init);
+  return parseSuccessBody(response, init.responseType ?? 'json');
+}
+
+/**
+ * The filename a download endpoint asked for, or `undefined` when it did not say.
+ *
+ * Exported only so the header shapes can be table-tested directly rather than through a stubbed
+ * `fetch` per case. The backend sends *both* parameters — see `ContentDispositionUtil.java`:
+ *
+ *     attachment; filename="report.pdf"; filename*=UTF-8''report.pdf
+ *
+ * `filename*` is preferred, as RFC 6266 requires and because it is the only form that survives a
+ * non-ASCII name: the plain parameter carries raw UTF-8 bytes, which `Headers.get()` hands back
+ * mis-decoded. No `content-disposition` package for this (indigo-frontend took the dependency) —
+ * three regexes against a header this same server generates is not worth one.
+ *
+ * Each pattern is anchored on `(?:^|;)\s*filename`, or the plain-`filename` one would also match
+ * inside `filename*=`.
+ */
+const FILENAME_EXTENDED = /(?:^|;)\s*filename\*\s*=\s*[^']*'[^']*'([^;]+)/i;
+const FILENAME_QUOTED = /(?:^|;)\s*filename\s*=\s*"((?:[^"\\]|\\.)*)"/i;
+const FILENAME_BARE = /(?:^|;)\s*filename\s*=\s*([^;]+)/i;
+
+export function filenameFromContentDisposition(header: string | null): string | undefined {
+  if (!header) return undefined;
+
+  const extended = FILENAME_EXTENDED.exec(header);
+  if (extended) {
+    try {
+      return decodeURIComponent(extended[1].trim());
+    } catch {
+      // A malformed percent-encoding falls through to the plain parameter rather than throwing.
+    }
+  }
+
+  const quoted = FILENAME_QUOTED.exec(header);
+  if (quoted) return quoted[1].replace(/\\(.)/g, '$1');
+
+  return FILENAME_BARE.exec(header)?.[1].trim() || undefined;
+}
+
+/**
+ * Saves a download to disk, named by the server when it says so and by `fallbackFilename` when it
+ * does not.
+ *
+ * These endpoints require the Cognito bearer token, so a plain `<a href download>` would 401 — the
+ * bytes have to be fetched first and handed to a synthetic anchor. The object URL is revoked
+ * immediately: the click is synchronous, so the browser has already taken its reference.
+ *
+ * `Content-Disposition` is not CORS-safelisted, so it is readable only because `/api` is
+ * same-origin (both the dev proxy and CloudFront). Were that to change it would silently read
+ * `null`, and the fallback would carry the download — the other reason the fallback exists.
+ *
+ * Rethrows, like `apiFetch` and for the same reason: the failure is already toasted, but a
+ * transport function that quietly resolved on error would be the odd one out here. Swallowing
+ * belongs to the caller — `useDownload` does it.
+ */
+export async function apiDownload(path: string, fallbackFilename: string): Promise<void> {
+  const response = await apiRequest(path, { responseType: 'blob' });
+  const filename = filenameFromContentDisposition(response.headers.get('Content-Disposition'));
+
+  const url = URL.createObjectURL(await response.blob());
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = filename ?? fallbackFilename;
+  anchor.click();
+  URL.revokeObjectURL(url);
 }

@@ -1,12 +1,12 @@
-import { InfiniteLoader, type InfiniteLoaderLayout } from '@/components/common/infinite-loader';
-import { ProjectCard } from '@/components/projects/project-card';
-import { ProjectCardSkeleton } from '@/components/projects/project-card-skeleton';
-import { ProjectRow } from '@/components/projects/project-row';
-import { ProjectRowSkeleton } from '@/components/projects/project-row-skeleton';
-import { PROJECTS_PAGE_SIZE, useProjects } from '@/lib/api/projects';
+import {InfiniteLoader, type InfiniteLoaderLayout} from '@/components/common/infinite-loader';
+import {ProjectCard} from '@/components/projects/project-card';
+import {ProjectCardSkeleton} from '@/components/projects/project-card-skeleton';
+import {ProjectRow} from '@/components/projects/project-row';
+import {ProjectRowSkeleton} from '@/components/projects/project-row-skeleton';
+import {PROJECTS_PAGE_SIZE, useProjects} from '@/lib/api/projects';
 
-import type { CollectionView } from '@/lib/types/common.ts';
-import type { Project, ProjectFilters } from '@/lib/types/projects';
+import type {CollectionFilters, CollectionView} from '@/lib/types/common.ts';
+import type {Project} from '@/lib/types/projects';
 
 /**
  * Three columns at most, dropping to two then one when the grid is too narrow for
@@ -23,7 +23,7 @@ const LAYOUTS = {
   list: { className: 'flex flex-col gap-3', Item: ProjectRow, ItemSkeleton: ProjectRowSkeleton },
 } satisfies Record<CollectionView, InfiniteLoaderLayout<Project>>;
 
-export function ProjectCollection({ filters, view }: { filters: ProjectFilters; view: CollectionView }) {
+export function ProjectCollection({ filters, view }: { filters: CollectionFilters; view: CollectionView }) {
   return (
     <InfiniteLoader
       entityLabel="projects"

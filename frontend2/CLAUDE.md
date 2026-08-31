@@ -155,7 +155,33 @@ Two orderings matter, both pinned by `query-persistence.test.tsx`:
 signed-in user still looks restored, and signed out it is trivially false — a stored
 boolean left true would hold every query in the app pending forever.
 
-Data hooks live in `src/lib/api/` (one file per domain: `user.ts`, `projects.ts`, `experiments.ts`). Each file exports query-key factories, raw fetch functions, and `useXxx` hooks. The raw fetch functions are exported so they can be called outside React (e.g. tests).
+Data hooks live in `src/lib/api/` (one file per domain: `user.ts`, `projects.ts`, `experiments.ts`).
+
+**A module exports its `useXxx` hooks and nothing else, unless something outside it genuinely
+needs more.** Raw fetch functions, query-key factories and debounce constants stay
+module-private — an exported `fetchProjects` is an invitation for a component to bypass the
+cache. Three narrow exceptions, each worth stating because they look like oversights:
+
+- Non-hook calls a component really makes: `experimentPicturePath`, `checkProjectNameExists`
+  (a form validator, not a query), `downloadProjectAttachment` (a click handler), and the two
+  `*_PAGE_SIZE` constants that feed `InfiniteLoader`'s `firstLoadSkeletons`.
+- `experimentKeys` and `userKeys`, which `src/lib/query-client.ts` hashes to decide what gets
+  persisted to localStorage.
+- What `collections.ts` shares between sibling api modules.
+
+**Do not export something only so a test can reach it.** URL construction is asserted at the
+route level instead, where a mocked `apiFetch` already records every path — see the exact-URL
+expectations in `src/routes/_auth/projects.test.tsx` and `projects_.$id.test.tsx`. Those are
+the regression guard on path templates and page sizes; `collections.test.ts` covers param
+assembly on its own.
+
+`src/lib/api/collections.ts` holds what every paged list shares: `collectionQueryString`,
+a generic `getNextPageParam`, and `SEARCH_DEBOUNCE_MS`. `/projects` and
+`/projects/{id}/notebooks` declare identical query params, so one `collectionQueryString(filters,
+pageNo, pageSize)` builds both from one `CollectionFilters` (`search`, `sort`, `createdByMe` — the
+three `ActionBar` sets). `pageSize` is required rather than defaulted: the two lists agree on 10
+today, and a shared default would tie them together for no reason. The debounce constant lives
+here rather than on either list, so neither has to import it from the other.
 
 **Debouncing a search query — debounce `enabled`, not the term.** `useKeywordSuggestions` (`src/lib/api/projects.ts`) keys on the term *as typed* and holds `enabled` off via `useSettled` (`src/lib/hooks/use-settled.ts`) until it stops changing. Because the key moves on the first keystroke, **`isPending`** is then a single honest "we don't know yet" covering both the wait and the request — which is what the combobox's `loading` prop wants. Two traps:
 
@@ -184,9 +210,10 @@ Data hooks live in `src/lib/api/` (one file per domain: `user.ts`, `projects.ts`
 
 | File | Contents |
 |---|---|
-| `common.ts` | `BaseDTO`, `UserRef`, `ACLEntry`, `AccessLevel`, `Page<T>` |
+| `common.ts` | `BaseDTO`, `UserRef`, `ACLEntry`, `AccessLevel`, `Attachment`, `Page<T>`, `SortOrder`, `CollectionView`, `CollectionFilters` |
 | `experiments.ts` | `ExperimentStatus`, `ExperimentStatusCounts`, `EXPERIMENT_STATUSES`, `EXPERIMENT_STATUS_DISPLAY`, `EXPERIMENT_STATUS_COLOR`, `BaseExperiment`, `Experiment` |
-| `projects.ts` | `Project`, `ProjectDetails`, `ProjectRequest`, `ProjectFilters`, `SortOrder`, `TotalCounts` |
+| `projects.ts` | `Project`, `ProjectDetails`, `ProjectRequest`, `ProjectEditRequest`, `TotalCounts` |
+| `notebooks.ts` | `BaseNotebook`, `Notebook` |
 | `user.ts` | `CurrentUser`, `ApplicationPermission` |
 
 `verbatimModuleSyntax` is enabled — all cross-module type imports must use `import type`. When importing from the same `types/` folder, include the `.ts` extension (e.g. `from '@/lib/types/experiments.ts'`).

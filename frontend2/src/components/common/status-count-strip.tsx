@@ -1,14 +1,14 @@
-import type { ReactNode } from 'react';
+import type {ReactNode} from 'react';
 
-import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/lib/utils';
+import {Skeleton} from '@/components/ui/skeleton';
+import {cn} from '@/lib/utils';
 import {
   EXPERIMENT_STATUS_COLOR,
   EXPERIMENT_STATUS_DISPLAY,
   EXPERIMENT_STATUSES,
   type ExperimentStatus,
+  type ExperimentStatusCounts,
 } from '@/lib/types/experiments.ts';
-import type { TotalCounts } from '@/lib/types/projects.ts';
 
 /** Shown on its own while counts load and when every status is zero. */
 const FALLBACK_STATUS: ExperimentStatus = 'OPEN';
@@ -22,9 +22,9 @@ function Cell({ status, children }: { status: ExperimentStatus; children: ReactN
   );
 }
 
-export function StatusCountStrip({ counts }: { counts: TotalCounts | undefined }) {
+export function StatusCountStrip({ counts }: { counts: ExperimentStatusCounts | undefined }) {
   // Zero-count statuses are dropped, so the strip is as wide as the data needs.
-  const visible = counts ? EXPERIMENT_STATUSES.filter((status) => (counts.experimentsByStatus[status] ?? 0) > 0) : [];
+  const visible = counts ? EXPERIMENT_STATUSES.filter((status) => (counts[status] ?? 0) > 0) : [];
 
   return (
     // min-w-0 lets the strip shrink past its cells (overflow-clip alone does not
@@ -45,9 +45,7 @@ export function StatusCountStrip({ counts }: { counts: TotalCounts | undefined }
       {counts &&
         visible.map((status) => (
           <Cell key={status} status={status}>
-            <span className={cn('text-[18px]/7 font-semibold', EXPERIMENT_STATUS_COLOR[status])}>
-              {counts.experimentsByStatus[status]}
-            </span>
+            <span className={cn('text-[18px]/7 font-semibold', EXPERIMENT_STATUS_COLOR[status])}>{counts[status]}</span>
           </Cell>
         ))}
     </div>

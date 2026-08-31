@@ -1,10 +1,10 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { createMemoryHistory, createRouter, RouterProvider } from '@tanstack/react-router';
-import { render, screen, waitFor } from '@testing-library/react';
+import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
+import {createMemoryHistory, createRouter, RouterProvider} from '@tanstack/react-router';
+import {render, screen, waitFor} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import {beforeEach, describe, expect, it, vi} from 'vitest';
 
-import { makeCurrentUser, makeTotalCounts, PROJECTS } from '@/mocks/fixtures';
+import {makeCurrentUser, makeTotalCounts, PROJECTS} from '@/mocks/fixtures';
 
 const fetchAuthSession = vi.fn().mockResolvedValue({ tokens: { accessToken: { toString: () => 'token' } } });
 vi.mock('aws-amplify/auth', () => ({ fetchAuthSession, signOut: vi.fn() }));
@@ -70,9 +70,15 @@ describe('projects search box', () => {
     await userEvent.type(screen.getByLabelText('Search projects'), 'kinase');
     expect(listCalls().length).toBe(before);
 
-    await waitFor(() => expect(listCalls().some(([path]) => String(path).includes('search=kinase'))).toBe(true), {
-      timeout: 2000,
-    });
+    // The exact URL, not just the term: this is the only assertion left on how the projects
+    // query string is assembled, now that fetchProjects is module-private.
+    await waitFor(
+      () =>
+        expect(listCalls().map(([path]) => path)).toContain(
+          '/api/eln/projects?sort=LATEST&pageNo=0&pageSize=10&search=kinase',
+        ),
+      { timeout: 2000 },
+    );
     expect(listCalls().length).toBe(before + 1);
   });
 });

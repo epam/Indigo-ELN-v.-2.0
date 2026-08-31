@@ -1,9 +1,9 @@
-import { Combobox as ComboboxPrimitive } from '@base-ui/react/combobox';
-import { ChevronDown, Loader2, X } from 'lucide-react';
+import {Combobox as ComboboxPrimitive} from '@base-ui/react/combobox';
+import {ChevronDown, Loader2, X} from 'lucide-react';
 import type * as React from 'react';
-import { useRef, useState } from 'react';
+import {useRef, useState} from 'react';
 
-import { cn } from '@/lib/utils';
+import {cn} from '@/lib/utils';
 
 /**
  * How far PageUp/PageDown jump through the suggestion list. Base UI declares
@@ -199,6 +199,8 @@ interface MultiComboboxProps<T> {
   onInputValueChange: (inputValue: string) => void;
   placeholder?: string;
   id?: string;
+  /** For call sites with no visible label — most pair this with `Field` instead. */
+  'aria-label'?: string;
   /** Shown in the popup when there is nothing to offer. */
   emptyMessage?: string;
   /**
@@ -236,6 +238,7 @@ function MultiCombobox<T = string>({
   onInputValueChange,
   placeholder,
   id,
+  'aria-label': ariaLabel,
   emptyMessage = 'No matches',
   allowCustomValues = false,
   loading = false,
@@ -368,6 +371,7 @@ function MultiCombobox<T = string>({
         <ComboboxPrimitive.Input
           id={id}
           ref={inputRef}
+          aria-label={ariaLabel}
           placeholder={value.length === 0 ? placeholder : undefined}
           onKeyDown={handleKeyDown}
           className="min-w-24 flex-1 bg-transparent text-[14px]/6 text-neutral-1000 outline-none placeholder:text-neutral-700"

@@ -1,14 +1,18 @@
-import { useQuery } from '@tanstack/react-query';
+import {useQuery} from '@tanstack/react-query';
 
-import { apiFetch } from '@/lib/api';
-import type { Experiment } from '@/lib/types/experiments.ts';
+import {apiFetch} from '@/lib/api';
+import type {Experiment} from '@/lib/types/experiments.ts';
 
+/**
+ * Exported although no component reads it: `src/lib/query-client.ts` needs the hash to decide
+ * what gets persisted to localStorage. Not a candidate for going private.
+ */
 export const experimentKeys = {
   marked: () => ['experiments', 'marked'] as const,
 };
 
 /** Unpaged: ExperimentAPI.getMarkedExperiments returns the full list. */
-export function fetchMarkedExperiments(): Promise<Experiment[]> {
+function fetchMarkedExperiments(): Promise<Experiment[]> {
   return apiFetch<Experiment[]>('/api/eln/experiments/marked');
 }
 

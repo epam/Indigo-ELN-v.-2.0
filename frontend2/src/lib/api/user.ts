@@ -1,16 +1,20 @@
-import { useQuery } from '@tanstack/react-query';
+import {useQuery} from '@tanstack/react-query';
 
-import { apiFetch } from '@/lib/api';
-import { useSettled } from '@/lib/hooks/use-settled';
-import type { UserRef } from '@/lib/types/common.ts';
-import type { ApplicationPermission, CurrentUser } from '@/lib/types/user';
+import {apiFetch} from '@/lib/api';
+import {useSettled} from '@/lib/hooks/use-settled';
+import type {UserRef} from '@/lib/types/common.ts';
+import type {ApplicationPermission, CurrentUser} from '@/lib/types/user';
 
+/**
+ * `currentUser` is exported although no component reads it: `src/lib/query-client.ts` needs the
+ * hash to decide what gets persisted to localStorage. Not a candidate for going private.
+ */
 export const userKeys = {
   currentUser: () => ['currentUser'] as const,
   suggestions: (search: string) => ['userSuggestions', search] as const,
 };
 
-export function fetchCurrentUser(): Promise<CurrentUser> {
+function fetchCurrentUser(): Promise<CurrentUser> {
   return apiFetch<CurrentUser>('/api/eln/currentUser');
 }
 
@@ -38,11 +42,11 @@ export function useHasPermission(permission: ApplicationPermission): boolean | u
  * display name and capped at 10 by the backend. Encoded because the term is interpolated
  * into a SQL LIKE, as with project keywords.
  */
-export function suggestUsers(search: string, signal?: AbortSignal): Promise<UserRef[]> {
+function suggestUsers(search: string, signal?: AbortSignal): Promise<UserRef[]> {
   return apiFetch<UserRef[]>(`/api/eln/users/suggest?search=${encodeURIComponent(search)}`, { signal });
 }
 
-export const SUGGEST_DEBOUNCE_MS = 300;
+const SUGGEST_DEBOUNCE_MS = 300;
 
 /**
  * Same shape as useKeywordSuggestions: the key tracks the term as typed and the debounce

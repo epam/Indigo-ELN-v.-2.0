@@ -1,23 +1,17 @@
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { expect, waitFor, within } from 'storybook/test';
+import {expect, waitFor, within} from 'storybook/test';
 
-import { SearchResults } from '@/components/search/search-results';
-import { getNextPageParam, search } from '@/lib/api/search';
-import { emptySearchHandlers, loadingSearchHandlers, searchErrorHandlers } from '@/mocks/handlers';
+import {SearchResults} from '@/components/search/search-results';
+import {useGlobalSearch} from '@/lib/api/search';
+import {emptySearchHandlers, loadingSearchHandlers, searchErrorHandlers} from '@/mocks/handlers';
 
-import type { GlobalSearchRequest } from '@/lib/types/search.ts';
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type {GlobalSearchRequest} from '@/lib/types/search.ts';
+import type {Meta, StoryObj} from '@storybook/react-vite';
 
 const REQUEST: GlobalSearchRequest = { query: 'coupling' };
 
-/** Runs the real query against the MSW handlers, so paging is genuinely exercised. */
+/** Runs the app's own query against the MSW handlers, so paging is genuinely exercised. */
 function SearchResultsHarness() {
-  const query = useInfiniteQuery({
-    queryKey: ['globalSearch', REQUEST],
-    queryFn: ({ pageParam, signal }) => search(REQUEST, pageParam, signal),
-    initialPageParam: 0,
-    getNextPageParam,
-  });
+  const query = useGlobalSearch(REQUEST);
 
   return (
     <div className="w-[672px] p-4">

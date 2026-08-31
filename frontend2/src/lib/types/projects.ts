@@ -1,6 +1,6 @@
-import type { ACLEntry, Attachment, BaseDTO, SortOrder } from '@/lib/types/common.ts';
-import type { ExperimentStatusCounts } from '@/lib/types/experiments.ts';
-import type { ApplicationPermission } from '@/lib/types/user.ts';
+import type {ACLEntry, Attachment, BaseDTO} from '@/lib/types/common.ts';
+import type {ExperimentStatusCounts} from '@/lib/types/experiments.ts';
+import type {ApplicationPermission} from '@/lib/types/user.ts';
 
 export interface BaseProject extends BaseDTO {
   name: string;
@@ -34,10 +34,16 @@ export interface ProjectDetails extends BaseProject {
   currentPermissions: ApplicationPermission[];
 }
 
-export interface ProjectFilters {
-  search: string;
-  sort: SortOrder;
-  createdByMe: boolean;
+/**
+ * The PATCH body. `ProjectEditRequest` on the backend wraps every field in `JsonNullable` with
+ * `@JsonInclude(NON_ABSENT)`, so the three states are distinct over the wire: **absent** leaves
+ * the field alone, **null** clears it, a value sets it.
+ */
+export interface ProjectEditRequest {
+  name?: string;
+  keywords?: string[];
+  literature?: string | null;
+  description?: string | null;
 }
 
 export interface TotalCounts {

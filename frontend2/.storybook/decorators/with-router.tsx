@@ -1,14 +1,8 @@
-import {
-  createMemoryHistory,
-  createRootRoute,
-  createRoute,
-  createRouter,
-  RouterProvider,
-} from '@tanstack/react-router';
-import type { ComponentType } from 'react';
-import { useState } from 'react';
+import {createMemoryHistory, createRootRoute, createRoute, createRouter, RouterProvider,} from '@tanstack/react-router';
+import type {ComponentType} from 'react';
+import {useState} from 'react';
 
-import type { Decorator } from '@storybook/react-vite';
+import type {Decorator} from '@storybook/react-vite';
 
 /**
  * Every `to` the components link to. TanStack Router resolves a Link against the
@@ -18,6 +12,7 @@ const LINK_PATHS = [
   '/',
   '/projects',
   '/projects/$id',
+  '/projects/$id/notebooks',
   '/notebooks/$id',
   '/experiments/$id',
   '/templates',

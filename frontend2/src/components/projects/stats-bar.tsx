@@ -1,13 +1,13 @@
-import { Plus } from 'lucide-react';
-import { useState } from 'react';
+import {Plus} from 'lucide-react';
+import {useState} from 'react';
 
-import { Breadcrumbs } from '@/components/layout/breadcrumbs';
-import { ProjectFormDialog } from '@/components/projects/project-form-dialog';
-import { StatTileGroup } from '@/components/common/stat-tile-group';
-import { StatusCountStrip } from '@/components/common/status-count-strip';
-import { Button } from '@/components/ui/button';
-import { useTotalCounts } from '@/lib/api/projects';
-import { useHasPermission } from '@/lib/api/user';
+import {Breadcrumbs} from '@/components/layout/breadcrumbs';
+import {ProjectFormDialog} from '@/components/projects/project-form-dialog';
+import {StatTileGroup} from '@/components/common/stat-tile-group';
+import {StatusCountStrip} from '@/components/common/status-count-strip';
+import {Button} from '@/components/ui/button';
+import {useTotalCounts} from '@/lib/api/projects';
+import {useHasPermission} from '@/lib/api/user';
 
 export function StatsBar() {
   const { data } = useTotalCounts();
@@ -27,8 +27,14 @@ export function StatsBar() {
         <ProjectFormDialog open={addOpen} onOpenChange={setAddOpen} />
       </div>
       <div className="flex items-center justify-between gap-4">
-        <StatTileGroup counts={data} />
-        <StatusCountStrip counts={data} />
+        <StatTileGroup
+          tiles={[
+            { key: 'projects', count: data?.projects },
+            { key: 'notebooks', count: data?.notebooks },
+            { key: 'experiments', count: data?.experiments },
+          ]}
+        />
+        <StatusCountStrip counts={data?.experimentsByStatus} />
       </div>
     </section>
   );

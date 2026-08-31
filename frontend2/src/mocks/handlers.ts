@@ -1,28 +1,32 @@
-import { delay, http, HttpResponse } from 'msw';
+import {delay, http, HttpResponse} from 'msw';
 
 import {
+  ATTACHMENTS,
   DICTIONARIES,
   KEYWORDS,
+  makeAttachment,
   makeCurrentUser,
   makeProjectDetails,
   makeTotalCounts,
   MARKED_EXPERIMENTS,
+  NOTEBOOKS,
+  PROJECT_ACL,
   PROJECTS,
   REACTION_SCHEME_SVG,
   SEARCH_RESULTS,
   USERS,
 } from '@/mocks/fixtures';
 
-import type { Page, UserRef } from '@/lib/types/common.ts';
-import type { GlobalSearchResult } from '@/lib/types/search.ts';
-import type { BuiltInDictionary } from '@/lib/types/dictionaries.ts';
-import type { Project } from '@/lib/types/projects.ts';
+import type {AccessForm, Page, UserRef} from '@/lib/types/common.ts';
+import type {GlobalSearchResult} from '@/lib/types/search.ts';
+import type {BuiltInDictionary} from '@/lib/types/dictionaries.ts';
+import type {ProjectEditRequest} from '@/lib/types/projects.ts';
 
 // apiFetch sends the path verbatim, so handlers match the same full paths the
 // callers in src/lib/api/ pass.
 const ELN = '/api/eln';
 
-function page(items: Project[]): Page<Project> {
+function page<T>(items: T[]): Page<T> {
   return { pageNo: 0, pageSize: 20, totalItems: items.length, totalPages: 1, items };
 }
 
@@ -72,6 +76,53 @@ export const handlers = [
       .slice(0, 20);
     return HttpResponse.json(matches);
   }),
+  // After /projects/existence, which `:id` would otherwise swallow — MSW takes the first match.
+  http.get(`${ELN}/projects/:id`, ({ params }) => HttpResponse.json(makeProjectDetails({ id: String(params.id) }))),
+  http.patch(`${ELN}/projects/:id`, async ({ params, request }) => {
+    const { literature, description, ...body } = (await request.json()) as ProjectEditRequest;
+    // Absent stays absent, matching JsonNullable; an explicit null clears the field, which on
+    // the response DTO is the same as it simply not being there.
+    return HttpResponse.json(
+      makeProjectDetails({
+        id: String(params.id),
+        ...body,
+        ...(literature === undefined ? {} : { literature: literature ?? undefined }),
+        ...(description === undefined ? {} : { description: description ?? undefined }),
+      }),
+    );
+  }),
+  http.get(`${ELN}/projects/:id/notebooks`, () => HttpResponse.json(page(NOTEBOOKS))),
+  http.post(`${ELN}/projects/:id/attachments`, async ({ request }) => {
+    const form = await request.formData();
+    const file = form.get('file');
+    const name = file instanceof File ? file.name : 'upload.bin';
+    // The endpoint answers with the project's whole attachment list, not just the new file.
+    return HttpResponse.json([...ATTACHMENTS, makeAttachment(name, { id: `a77a-${name}`, size: 1_024 })]);
+  }),
+  http.get(`${ELN}/projects/:id/attachments/:attachmentId`, () =>
+    HttpResponse.arrayBuffer(new TextEncoder().encode('mock attachment').buffer as ArrayBuffer, {
+      headers: { 'Content-Type': 'application/octet-stream' },
+    }),
+  ),
+  http.delete(`${ELN}/projects/:id/attachments/:attachmentId`, () => new HttpResponse(null, { status: 204 })),
+  http.post(`${ELN}/projects/:id/access`, async ({ request }) => {
+    const updates = (await request.json()) as AccessForm[];
+    // The response is the recomputed ACL: existing entries re-levelled, new ones appended.
+    const changed = new Map(updates.map((update) => [update.username, update.level]));
+    const existing = PROJECT_ACL.map((entry) =>
+      changed.has(entry.username) ? { ...entry, level: changed.get(entry.username)! } : entry,
+    );
+    const known = new Set(PROJECT_ACL.map((entry) => entry.username));
+    const added = updates
+      .filter((update) => !known.has(update.username))
+      .map((update) => ({
+        username: update.username,
+        displayName: USERS.find((user) => user.username === update.username)?.displayName ?? update.username,
+        level: update.level,
+        inherited: false,
+      }));
+    return HttpResponse.json([...existing, ...added]);
+  }),
   http.get(`${ELN}/total-counts`, () => HttpResponse.json(makeTotalCounts())),
   http.get(`${ELN}/experiments/marked`, () => HttpResponse.json(MARKED_EXPERIMENTS)),
   http.get(`${ELN}/currentUser`, () => HttpResponse.json(makeCurrentUser())),
@@ -101,6 +152,7 @@ export const restrictedUserHandlers = [
 /** Every list endpoint answers with nothing. */
 export const emptyHandlers = [
   http.get(`${ELN}/projects`, () => HttpResponse.json(page([]))),
+  http.get(`${ELN}/projects/:id/notebooks`, () => HttpResponse.json(page([]))),
   http.get(`${ELN}/experiments/marked`, () => HttpResponse.json([])),
 ];
 

@@ -1,9 +1,10 @@
-import type { ACLEntry, UserRef } from '@/lib/types/common.ts';
-import type { BuiltInDictionary, DictionaryItemRef } from '@/lib/types/dictionaries.ts';
-import type { GlobalSearchResult } from '@/lib/types/search.ts';
-import type { Experiment } from '@/lib/types/experiments.ts';
-import type { Project, ProjectDetails, TotalCounts } from '@/lib/types/projects.ts';
-import type { CurrentUser } from '@/lib/types/user.ts';
+import type {ACLEntry, Attachment, UserRef} from '@/lib/types/common.ts';
+import type {BuiltInDictionary, DictionaryItemRef} from '@/lib/types/dictionaries.ts';
+import type {GlobalSearchResult} from '@/lib/types/search.ts';
+import type {Experiment} from '@/lib/types/experiments.ts';
+import type {Notebook} from '@/lib/types/notebooks.ts';
+import type {Project, ProjectDetails, TotalCounts} from '@/lib/types/projects.ts';
+import type {CurrentUser} from '@/lib/types/user.ts';
 
 export function makeUserRef(displayName: string): UserRef {
   return { username: displayName.toLowerCase().replace(/\s+/g, '.'), displayName };
@@ -61,6 +62,36 @@ export function makeExperiment(overrides: Partial<Experiment> = {}): Experiment 
   };
 }
 
+export function makeAttachment(name: string, overrides: Partial<Attachment> = {}): Attachment {
+  return {
+    id: `a77a0000-0000-4000-8000-${name.length.toString().padStart(12, '0')}`,
+    name,
+    size: 16_384,
+    createdBy: MARK,
+    createdAt: '2026-01-22T17:51:00Z',
+    modifiedBy: MARK,
+    modifiedAt: '2026-01-22T17:51:00Z',
+    ...overrides,
+  };
+}
+
+/** One of each icon group, so the extension mapping in AttachmentList is visible at a glance. */
+export const ATTACHMENTS: Attachment[] = [
+  makeAttachment('protocol.docx'),
+  makeAttachment('yields.xlsx', { size: 248_000 }),
+  makeAttachment('spectra.png', { size: 3_400_000 }),
+  makeAttachment('raw-trace.dat', { size: 512 }),
+];
+
+/** Mixed levels and one inherited entry, so every branch of a Team row is reachable. */
+export const PROJECT_ACL: ACLEntry[] = [
+  makeAclEntry('Administrator', { level: 'AUTHOR' }),
+  makeAclEntry('Mark Liu', { level: 'ADMIN' }),
+  makeAclEntry('Sofia Rossi', { level: 'EDIT', inherited: true }),
+  makeAclEntry('Tom Becker', { level: 'VIEW' }),
+  makeAclEntry('Anna Petrova', { level: 'IMPLICIT_VIEW', inherited: true }),
+];
+
 export function makeProjectDetails(overrides: Partial<ProjectDetails> = {}): ProjectDetails {
   // ProjectDetailsDTO carries acl but no aclCount, unlike the list's ProjectDTO — which
   // is structurally harmless here, so the extra key is simply left in place.
@@ -71,8 +102,25 @@ export function makeProjectDetails(overrides: Partial<ProjectDetails> = {}): Pro
     keywords: ['kinase', 'screening'],
     literature: '<p>Smith et al., <em>J. Med. Chem.</em> 2024</p>',
     description: '<p>Screening cascade for the kinase series.</p>',
-    attachments: [],
-    currentPermissions: ['VIEW_PROJECTS', 'EDIT_PROJECTS'],
+    attachments: ATTACHMENTS,
+    acl: PROJECT_ACL,
+    currentPermissions: ['VIEW_PROJECTS', 'EDIT_PROJECTS', 'MANAGE_PROJECT_ACCESS'],
+    ...overrides,
+  };
+}
+
+export function makeNotebook(overrides: Partial<Notebook> = {}): Notebook {
+  return {
+    id: '77777777-7777-7777-7777-777777777777',
+    name: '00000001',
+    createdBy: ADMINISTRATOR,
+    createdAt: '2026-02-08T10:05:00Z',
+    modifiedBy: MARK,
+    modifiedAt: '2026-05-14T13:30:00Z',
+    experimentCount: 14,
+    experimentCountByStatus: { OPEN: 2, COMPLETED: 8, SIGNED: 4 },
+    acl: [makeAclEntry('Administrator', { level: 'AUTHOR' }), makeAclEntry('Mark Liu')],
+    aclCount: 12,
     ...overrides,
   };
 }
@@ -109,13 +157,18 @@ export const DICTIONARIES: Partial<Record<BuiltInDictionary, DictionaryItemRef[]
   PROJECT_CODE: makeDictionary(['Code 1', 'Code 2', 'Code 3', 'Code 4']),
 };
 
-/** The pool `users/suggest` matches against. */
+/**
+ * The pool `users/suggest` matches against. Nils and Priya are deliberately absent from
+ * `PROJECT_ACL`, so the Team card has someone left to actually add.
+ */
 export const USERS: UserRef[] = [
   makeUserRef('Administrator'),
   makeUserRef('Mark Liu'),
   makeUserRef('Anna Petrova'),
   makeUserRef('Sofia Rossi'),
   makeUserRef('Tom Becker'),
+  makeUserRef('Nils Berg'),
+  makeUserRef('Priya Raman'),
 ];
 
 export function makeTotalCounts(overrides: Partial<TotalCounts> = {}): TotalCounts {
@@ -162,6 +215,27 @@ export const PROJECTS: Project[] = [
     experimentCountByStatus: {},
     acl: [makeAclEntry('Sofia Rossi', { level: 'AUTHOR' })],
     aclCount: 1,
+  }),
+];
+
+/** A varied page of notebooks, enough to fill a grid without repeating one card. */
+export const NOTEBOOKS: Notebook[] = [
+  makeNotebook(),
+  makeNotebook({
+    id: '88888888-8888-8888-8888-888888888888',
+    name: '00000002',
+    experimentCount: 3,
+    experimentCountByStatus: { OPEN: 1, SIGNING: 2 },
+    acl: [makeAclEntry('Sofia Rossi', { level: 'AUTHOR' })],
+    aclCount: 1,
+  }),
+  makeNotebook({
+    id: '99999999-8888-7777-6666-555555555555',
+    name: '00000003',
+    experimentCount: 0,
+    experimentCountByStatus: {},
+    acl: [makeAclEntry('Mark Liu', { level: 'AUTHOR' }), makeAclEntry('Tom Becker', { level: 'VIEW' })],
+    aclCount: 4,
   }),
 ];
 

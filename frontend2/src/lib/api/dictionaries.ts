@@ -1,10 +1,10 @@
-import { useQuery } from '@tanstack/react-query';
+import {useQuery} from '@tanstack/react-query';
 
-import { apiFetch } from '@/lib/api';
+import {apiFetch} from '@/lib/api';
 
-import type { BuiltInDictionary, DictionaryItemRef } from '@/lib/types/dictionaries.ts';
+import type {BuiltInDictionary, DictionaryItemRef} from '@/lib/types/dictionaries.ts';
 
-export const dictionaryKeys = {
+const dictionaryKeys = {
   items: (dictionary: BuiltInDictionary) => ['dictionary', dictionary] as const,
 };
 
@@ -12,7 +12,7 @@ export const dictionaryKeys = {
  * The whole dictionary, active items only, ordered by `ordinal`. The path segment takes
  * the BuiltInDictionary name as well as a UUID (DictionaryService.refToID).
  */
-export function fetchDictionary(dictionary: BuiltInDictionary, signal?: AbortSignal): Promise<DictionaryItemRef[]> {
+function fetchDictionary(dictionary: BuiltInDictionary, signal?: AbortSignal): Promise<DictionaryItemRef[]> {
   return apiFetch<DictionaryItemRef[]>(`/api/eln/dictionaries/${dictionary}`, { signal });
 }
 

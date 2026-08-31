@@ -1,33 +1,24 @@
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {useInfiniteQuery, useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
 
-import { apiFetch } from '@/lib/api';
-import { useSettled } from '@/lib/hooks/use-settled';
-import type { Page } from '@/lib/types/common.ts';
-import type { Project, ProjectDetails, ProjectFilters, ProjectRequest, TotalCounts } from '@/lib/types/projects.ts';
+import {apiDownload, apiFetch} from '@/lib/api';
+import {collectionQueryString, getNextPageParam, SEARCH_DEBOUNCE_MS} from '@/lib/api/collections';
+import {useSettled} from '@/lib/hooks/use-settled';
+import type {AccessForm, ACLEntry, Attachment, CollectionFilters, Page} from '@/lib/types/common.ts';
+import type {Project, ProjectDetails, ProjectEditRequest, ProjectRequest, TotalCounts} from '@/lib/types/projects.ts';
 
 export const PROJECTS_PAGE_SIZE = 10;
 
-/** Optional params are omitted when unset, matching indigo-frontend's client. */
-export function projectsQueryString(filters: ProjectFilters, pageNo: number, pageSize = PROJECTS_PAGE_SIZE): string {
-  const params = new URLSearchParams({
-    sort: filters.sort,
-    pageNo: String(pageNo),
-    pageSize: String(pageSize),
+function fetchProjects(filters: CollectionFilters, pageNo: number, signal?: AbortSignal): Promise<Page<Project>> {
+  return apiFetch<Page<Project>>(`/api/eln/projects?${collectionQueryString(filters, pageNo, PROJECTS_PAGE_SIZE)}`, {
+    signal,
   });
-  if (filters.search) params.set('search', filters.search);
-  if (filters.createdByMe) params.set('createdByMe', 'true');
-  return params.toString();
 }
 
-export function fetchProjects(filters: ProjectFilters, pageNo: number, signal?: AbortSignal): Promise<Page<Project>> {
-  return apiFetch<Page<Project>>(`/api/eln/projects?${projectsQueryString(filters, pageNo)}`, { signal });
-}
-
-export function fetchTotalCounts(): Promise<TotalCounts> {
+function fetchTotalCounts(): Promise<TotalCounts> {
   return apiFetch<TotalCounts>('/api/eln/total-counts');
 }
 
-export function createProject(request: ProjectRequest): Promise<ProjectDetails> {
+function createProject(request: ProjectRequest): Promise<ProjectDetails> {
   return apiFetch<ProjectDetails>('/api/eln/projects', { method: 'POST', body: JSON.stringify(request) });
 }
 
@@ -36,7 +27,7 @@ export function createProject(request: ProjectRequest): Promise<ProjectDetails> 
  * encoded because it is interpolated straight into a SQL LIKE, so a bare `%` or `_`
  * typed by the user would otherwise act as a wildcard.
  */
-export function suggestKeywords(search: string, signal?: AbortSignal): Promise<string[]> {
+function suggestKeywords(search: string, signal?: AbortSignal): Promise<string[]> {
   return apiFetch<string[]>(`/api/eln/projects/keywords/suggest?search=${encodeURIComponent(search)}`, { signal });
 }
 
@@ -47,19 +38,24 @@ export function checkProjectNameExists(name: string): Promise<boolean> {
   );
 }
 
-/** Filters belong in the key; the page number comes from pageParam. */
-export const projectKeys = {
+/**
+ * Every query key this module issues, written out literally rather than composed from a shared
+ * prefix — four short arrays are easier to read, and to check against `invalidateQueries`, than
+ * spreads that have to be assembled in your head.
+ *
+ * Details sit under their own `projectDetails` root, not under `projects`. Creating or editing a
+ * project invalidates every list, and a detail nested beneath that prefix would be caught by the
+ * same call and refetched immediately after the mutation response had been written into it.
+ *
+ * Filters belong in the list key; the page number comes from pageParam.
+ */
+const projectKeys = {
   all: () => ['projects'] as const,
-  list: (filters: ProjectFilters) => ['projects', filters] as const,
+  list: (filters: CollectionFilters) => ['projects', filters] as const,
+  detail: (id: string) => ['projectDetails', id] as const,
   totalCounts: () => ['totalCounts'] as const,
   keywordSuggestions: (search: string) => ['projectKeywords', search] as const,
 };
-
-export function getNextPageParam(lastPage: Page<Project>): number | undefined {
-  return lastPage.pageNo + 1 < lastPage.totalPages ? lastPage.pageNo + 1 : undefined;
-}
-
-export const SEARCH_DEBOUNCE_MS = 300;
 
 /**
  * Debounced by gating `enabled` while the key tracks the search term as typed, so
@@ -68,7 +64,7 @@ export const SEARCH_DEBOUNCE_MS = 300;
  * Only the search term is debounced; sort and createdByMe are discrete toggles that
  * should take effect at once, and leave `settled` alone.
  */
-export function useProjects(filters: ProjectFilters) {
+export function useProjects(filters: CollectionFilters) {
   const settled = useSettled(filters.search, SEARCH_DEBOUNCE_MS);
 
   return useInfiniteQuery({
@@ -88,7 +84,7 @@ export function useTotalCounts() {
   });
 }
 
-export const SUGGEST_DEBOUNCE_MS = 300;
+const SUGGEST_DEBOUNCE_MS = 300;
 
 /**
  * Keyword suggestions for the term as typed, debounced by holding `enabled` off until the
@@ -122,5 +118,119 @@ export function useCreateProject() {
       void queryClient.invalidateQueries({ queryKey: projectKeys.all() });
       void queryClient.invalidateQueries({ queryKey: projectKeys.totalCounts() });
     },
+  });
+}
+
+function fetchProject(id: string, signal?: AbortSignal): Promise<ProjectDetails> {
+  return apiFetch<ProjectDetails>(`/api/eln/projects/${id}`, { signal });
+}
+
+export function useProject(id: string) {
+  return useQuery({
+    queryKey: projectKeys.detail(id),
+    queryFn: ({ signal }) => fetchProject(id, signal),
+  });
+}
+
+function editProject(id: string, request: ProjectEditRequest): Promise<ProjectDetails> {
+  return apiFetch<ProjectDetails>(`/api/eln/projects/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(request),
+  });
+}
+
+export function useEditProject(id: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (request: ProjectEditRequest) => editProject(id, request),
+    onSuccess: (project) => {
+      // The response is the whole project, so the detail needs no refetch — but the name and
+      // keywords are on every list card, and those do.
+      queryClient.setQueryData(projectKeys.detail(id), project);
+      void queryClient.invalidateQueries({ queryKey: projectKeys.all() });
+    },
+  });
+}
+
+/** Returns the project's full attachment list, not just the new entries. */
+function uploadProjectAttachment(id: string, file: File): Promise<Attachment[]> {
+  const body = new FormData();
+  body.append('file', file, file.name);
+  return apiFetch<Attachment[]>(`/api/eln/projects/${id}/attachments`, { method: 'POST', body });
+}
+
+function deleteProjectAttachment(id: string, attachmentId: string): Promise<void> {
+  return apiFetch<void>(`/api/eln/projects/${id}/attachments/${attachmentId}`, { method: 'DELETE' });
+}
+
+/**
+ * Saves the attachment to disk. The endpoint sets `Content-Disposition` from the same name the
+ * DTO carries, so the fallback matters only if that header is ever stripped in transit.
+ */
+export function downloadProjectAttachment(id: string, attachmentId: string, fallbackFilename: string): Promise<void> {
+  return apiDownload(`/api/eln/projects/${id}/attachments/${attachmentId}`, fallbackFilename);
+}
+
+/** Patches one field of the cached detail, leaving the rest of the project untouched. */
+function patchProjectDetails(
+  queryClient: ReturnType<typeof useQueryClient>,
+  id: string,
+  patch: (project: ProjectDetails) => ProjectDetails,
+) {
+  queryClient.setQueryData<ProjectDetails>(projectKeys.detail(id), (project) => (project ? patch(project) : project));
+}
+
+/**
+ * Files are uploaded one at a time: the endpoint takes a single `file` part, and each response
+ * carries the full list, so a parallel upload would race and the last response home would drop
+ * the others. `attachments` is read from the final response rather than accumulated.
+ */
+export function useUploadAttachments(id: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (files: File[]) => {
+      let attachments: Attachment[] = [];
+      for (const file of files) {
+        attachments = await uploadProjectAttachment(id, file);
+      }
+      return attachments;
+    },
+    onSuccess: (attachments) => patchProjectDetails(queryClient, id, (project) => ({ ...project, attachments })),
+  });
+}
+
+export function useDeleteAttachment(id: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (attachmentId: string) => deleteProjectAttachment(id, attachmentId),
+    onSuccess: (_result, attachmentId) =>
+      patchProjectDetails(queryClient, id, (project) => ({
+        ...project,
+        attachments: project.attachments.filter((attachment) => attachment.id !== attachmentId),
+      })),
+  });
+}
+
+function updateProjectAccess(id: string, updates: AccessForm[]): Promise<ACLEntry[]> {
+  return apiFetch<ACLEntry[]>(`/api/eln/projects/${id}/access`, {
+    method: 'POST',
+    body: JSON.stringify(updates),
+  });
+}
+
+/**
+ * `ACLService.updateProjectACL` upserts entry by entry, so only what changed needs sending.
+ * The response is the recomputed ACL for the whole project — inherited entries included — so
+ * it replaces `acl` wholesale rather than being merged in.
+ */
+export function useUpdateProjectAccess(id: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (updates: AccessForm[]) => updateProjectAccess(id, updates),
+    onSuccess: (acl) => patchProjectDetails(queryClient, id, (project) => ({ ...project, acl })),
   });
 }
