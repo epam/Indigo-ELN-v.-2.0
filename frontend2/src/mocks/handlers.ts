@@ -3,6 +3,7 @@ import { delay, http, HttpResponse } from 'msw';
 import {
   ATTACHMENTS,
   DICTIONARIES,
+  EXPERIMENT_ACL,
   EXPERIMENT_REFS,
   EXPERIMENTS,
   KEYWORDS,
@@ -241,6 +242,9 @@ export const handlers = [
     }),
   ),
   http.delete(`${ELN}/experiments/:id/attachments/:attachmentId`, () => new HttpResponse(null, { status: 204 })),
+  http.post(`${ELN}/experiments/:id/access`, async ({ request }) =>
+    HttpResponse.json(recomputedAcl(EXPERIMENT_ACL, (await request.json()) as AccessForm[])),
+  ),
   http.get(`${ELN}/currentUser`, () => HttpResponse.json(makeCurrentUser())),
   http.get(`${ELN}/dictionaries/:dictionary`, ({ params }) =>
     HttpResponse.json(DICTIONARIES[params.dictionary as BuiltInDictionary] ?? []),

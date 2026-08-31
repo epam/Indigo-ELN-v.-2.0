@@ -3,7 +3,7 @@ import { useInfiniteQuery, useIsMutating, useMutation, useQuery, useQueryClient 
 import { apiDownload, apiFetch } from '@/lib/api';
 import { collectionQueryString, getNextPageParam, SEARCH_DEBOUNCE_MS } from '@/lib/api/collections';
 import { useSettled } from '@/lib/hooks/use-settled';
-import type { Attachment, Page } from '@/lib/types/common.ts';
+import type { AccessForm, ACLEntry, Attachment, Page } from '@/lib/types/common.ts';
 import type {
   Experiment,
   ExperimentDetails,
@@ -166,6 +166,38 @@ function useDeleteExperimentAttachment(id: string) {
         ...experiment,
         attachments: experiment.attachments.filter((attachment) => attachment.id !== attachmentId),
       })),
+  });
+}
+
+function updateExperimentAccess(id: string, updates: AccessForm[]): Promise<ACLEntry[]> {
+  return apiFetch<ACLEntry[]>(`/api/eln/experiments/${id}/access`, {
+    method: 'POST',
+    body: JSON.stringify(updates),
+  });
+}
+
+/**
+ * The experiment half of `useUpdateNotebookAccess`: only what changed needs sending, and the
+ * response is the recomputed ACL for the whole experiment — inherited entries included — so it
+ * replaces `acl` wholesale rather than being merged in.
+ *
+ * The Team surfaces read `ExperimentDetails.acl` and nothing else — `ExperimentDTO.acl` is
+ * `shortACL`, capped at three, and an experiment opened by direct link has no list loaded at all.
+ * So the detail is the one copy that has to be written, and the response is written into it
+ * verbatim.
+ *
+ * Unlike the project and notebook versions this carries `experimentWrite`'s key and scope.
+ * `ExperimentService.updateExperimentAccess` runs the change through `applyMutation`, so it bumps
+ * `revision` exactly like a field edit does and must queue behind the on-blur writes rather than
+ * race them.
+ */
+export function useUpdateExperimentAccess(id: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...experimentWrite(id),
+    mutationFn: (updates: AccessForm[]) => updateExperimentAccess(id, updates),
+    onSuccess: (acl) => patchExperimentDetails(queryClient, id, (experiment) => ({ ...experiment, acl })),
   });
 }
 

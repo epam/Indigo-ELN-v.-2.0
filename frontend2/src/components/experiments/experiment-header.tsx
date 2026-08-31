@@ -7,15 +7,14 @@ import { TeamSheet } from '@/components/common/team-sheet';
 import { ExperimentActions, UndoRedoButtons } from '@/components/experiments/experiment-actions';
 import { tabSlugs } from '@/components/experiments/experiment-template';
 import { StarButton } from '@/components/experiments/star-button';
-import { useExperimentSaving } from '@/lib/api/experiments';
+import { useExperimentSaving, useUpdateExperimentAccess } from '@/lib/api/experiments';
 import { Breadcrumbs } from '@/components/layout/breadcrumbs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import type { ExperimentDetails } from '@/lib/types/experiments.ts';
 import { EXPERIMENT_STATUS_DISPLAY } from '@/lib/types/experiments.ts';
 import { cn } from '@/lib/utils';
-
-import type { ExperimentDetails } from '@/lib/types/experiments.ts';
 import type { TemplateTab } from '@/lib/types/templates.ts';
 
 // Split across three constants rather than merged, matching ProjectHeader — see the comment
@@ -56,7 +55,11 @@ export function ExperimentHeader({
 }) {
   const [teamOpen, setTeamOpen] = useState(false);
   const saving = useExperimentSaving(experimentId);
+  // Two instances of one mutation — see TeamCard for why they are not shared.
+  const addMembers = useUpdateExperimentAccess(experimentId);
+  const changeLevel = useUpdateExperimentAccess(experimentId);
   const slugs = tabs ? tabSlugs(tabs) : [];
+  const canManage = experiment?.currentPermissions.includes('MANAGE_EXPERIMENT_ACCESS') ?? false;
 
   return (
     <section className="flex flex-col gap-4 rounded-6 bg-card p-4 shadow-card">
@@ -99,10 +102,14 @@ export function ExperimentHeader({
             >
               <AvatarStack acl={experiment.acl.slice(0, AVATARS_SHOWN)} aclCount={experiment.acl.length} />
             </button>
-            {/* The same sheet, opened at the part of it that adds someone. */}
-            <Button variant="outline" size="icon-lg" aria-label="Add team member" onClick={() => setTeamOpen(true)}>
-              <UserPlus />
-            </Button>
+            {/* The same sheet, opened at the part of it that adds someone — so it is only here
+                when that part exists. Without the permission the sheet is a plain list, and a
+                button promising otherwise would be a dead end. */}
+            {canManage && (
+              <Button variant="outline" size="icon-lg" aria-label="Add team member" onClick={() => setTeamOpen(true)}>
+                <UserPlus />
+              </Button>
+            )}
           </>
         )}
 
@@ -142,9 +149,9 @@ export function ExperimentHeader({
           open={teamOpen}
           onOpenChange={setTeamOpen}
           acl={experiment.acl}
-          // TODO(experiment-access): flip to
-          // currentPermissions.includes('MANAGE_EXPERIMENT_ACCESS') once POST /access is wired.
-          canManage={false}
+          canManage={canManage}
+          addMembers={addMembers}
+          changeLevel={changeLevel}
         />
       )}
     </section>

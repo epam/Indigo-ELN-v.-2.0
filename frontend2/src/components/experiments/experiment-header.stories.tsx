@@ -57,5 +57,24 @@ export const OpensTeamSheet: Story = {
     // Portalled, so `screen` rather than `within(canvasElement)`.
     await expect(await screen.findByRole('heading', { name: 'Team' })).toBeInTheDocument();
     await expect(screen.getByText('Sofia Rossi')).toBeInTheDocument();
+
+    // MANAGE_EXPERIMENT_ACCESS is on the fixture, so the sheet is the editable one.
+    await expect(screen.getByRole('button', { name: 'Add Member' })).toBeInTheDocument();
+  },
+};
+
+/**
+ * Without MANAGE_EXPERIMENT_ACCESS the sheet is a plain list, and the header's Add button is not
+ * rendered at all rather than opening a sheet that cannot add anyone.
+ */
+export const ReadOnlyTeam: Story = {
+  args: { experiment: makeExperimentDetails({ currentPermissions: ['VIEW_EXPERIMENTS'] }) },
+  play: async () => {
+    await expect(screen.queryByRole('button', { name: 'Add team member' })).not.toBeInTheDocument();
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Team' }));
+
+    await expect(await screen.findByRole('heading', { name: 'Team' })).toBeInTheDocument();
+    await expect(screen.queryByRole('button', { name: 'Add Member' })).not.toBeInTheDocument();
   },
 };

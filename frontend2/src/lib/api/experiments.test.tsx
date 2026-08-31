@@ -3,7 +3,7 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { makeExperimentDetails } from '@/mocks/fixtures';
+import { makeAclEntry, makeExperimentDetails } from '@/mocks/fixtures';
 
 const fetchAuthSession = vi.fn().mockResolvedValue({ tokens: { accessToken: { toString: () => 'token' } } });
 vi.mock('aws-amplify/auth', () => ({ fetchAuthSession, signOut: vi.fn() }));
@@ -14,12 +14,14 @@ vi.mock('@/lib/api', async () => {
   return { ...actual, apiFetch: (path: string) => apiFetch(path) };
 });
 
-const { useEditExperiment, useExperimentAttachments, useToggleMark } = await import('@/lib/api/experiments');
+const { experimentKeys, useEditExperiment, useExperimentAttachments, useToggleMark, useUpdateExperimentAccess } =
+  await import('@/lib/api/experiments');
 
 const ID = '22222222-2222-2222-2222-222222222222';
 const PATCH_PATH = `/api/eln/experiments/${ID}`;
 const DELETE_PATH = `/api/eln/experiments/${ID}/attachments/a1`;
 const MARK_PATH = `/api/eln/experiments/${ID}/mark`;
+const ACCESS_PATH = `/api/eln/experiments/${ID}/access`;
 
 /** A promise the test settles by hand, so a request can be observed while still in flight. */
 function deferred<T>() {
@@ -127,5 +129,42 @@ describe('experiment write queue', () => {
     await waitFor(() => expect(started).toEqual([PATCH_PATH, MARK_PATH]));
     // …and the write it overtook is still in flight.
     expect(view.result.current.edit.isPending).toBe(true);
+  });
+});
+
+describe('experiment access', () => {
+  beforeEach(() => apiFetch.mockReset());
+
+  /**
+   * The Team sheet reads `ExperimentDetails.acl`, which is the full ACL — `ExperimentDTO.acl` is
+   * `shortACL`, capped at three, and a direct link loads no list at all. So the detail is the copy
+   * the response has to be written into, and it has to be the whole response.
+   */
+  it('writes the returned ACL into the cached detail', async () => {
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    });
+    const experiment = makeExperimentDetails({ id: ID });
+    client.setQueryData(experimentKeys.detail(ID), experiment);
+
+    const acl = [...experiment.acl, makeAclEntry('New Bie', { username: 'newbie@epam.com', level: 'VIEW' })];
+    apiFetch.mockImplementation((path: string) =>
+      path === ACCESS_PATH ? Promise.resolve(acl) : Promise.resolve(undefined),
+    );
+
+    const view = renderHook(() => useUpdateExperimentAccess(ID), {
+      wrapper: ({ children }) => <QueryClientProvider client={client}>{children}</QueryClientProvider>,
+    });
+
+    act(() => {
+      view.result.current.mutate([{ username: 'newbie@epam.com', level: 'VIEW' }]);
+    });
+
+    await waitFor(() => expect(view.result.current.isSuccess).toBe(true));
+
+    // The detail carries the new member, and nothing else about the experiment was dropped.
+    const patched = client.getQueryData<typeof experiment>(experimentKeys.detail(ID));
+    expect(patched?.acl).toEqual(acl);
+    expect(patched?.name).toBe(experiment.name);
   });
 });
