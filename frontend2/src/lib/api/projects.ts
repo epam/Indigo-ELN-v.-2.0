@@ -168,7 +168,7 @@ function deleteProjectAttachment(id: string, attachmentId: string): Promise<void
  * Saves the attachment to disk. The endpoint sets `Content-Disposition` from the same name the
  * DTO carries, so the fallback matters only if that header is ever stripped in transit.
  */
-export function downloadProjectAttachment(id: string, attachmentId: string, fallbackFilename: string): Promise<void> {
+function downloadProjectAttachment(id: string, attachmentId: string, fallbackFilename: string): Promise<void> {
   return apiDownload(`/api/eln/projects/${id}/attachments/${attachmentId}`, fallbackFilename);
 }
 
@@ -186,7 +186,7 @@ function patchProjectDetails(
  * carries the full list, so a parallel upload would race and the last response home would drop
  * the others. `attachments` is read from the final response rather than accumulated.
  */
-export function useUploadAttachments(id: string) {
+function useUploadAttachments(id: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -201,7 +201,7 @@ export function useUploadAttachments(id: string) {
   });
 }
 
-export function useDeleteAttachment(id: string) {
+function useDeleteAttachment(id: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -212,6 +212,22 @@ export function useDeleteAttachment(id: string) {
         attachments: project.attachments.filter((attachment) => attachment.id !== attachmentId),
       })),
   });
+}
+
+/**
+ * The three calls `AttachmentList` needs, bound to one project. Returned as a plain object so
+ * the component stays ignorant of which entity it is attached to; the shape is checked
+ * structurally against `AttachmentActions` where it is passed in.
+ */
+export function useProjectAttachments(id: string) {
+  const upload = useUploadAttachments(id);
+  const remove = useDeleteAttachment(id);
+
+  return {
+    upload,
+    remove,
+    download: (attachment: Attachment) => downloadProjectAttachment(id, attachment.id, attachment.name),
+  };
 }
 
 function updateProjectAccess(id: string, updates: AccessForm[]): Promise<ACLEntry[]> {

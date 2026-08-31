@@ -1,19 +1,29 @@
 import {expect, userEvent, waitFor, within} from 'storybook/test';
 
-import {AttachmentList} from '@/components/projects/attachment-list';
+import {AttachmentList} from '@/components/common/attachment-list';
+import {useProjectAttachments} from '@/lib/api/projects';
 import {ATTACHMENTS} from '@/mocks/fixtures';
 
 import type {Meta, StoryObj} from '@storybook/react-vite';
+import type {Attachment} from '@/lib/types/common.ts';
+
+const PROJECT_ID = '11111111-1111-1111-1111-111111111111';
+
+/** The actions come from hooks, so the stories render through a wrapper that makes them. */
+function ProjectAttachmentList({ attachments, canEdit }: { attachments: Attachment[]; canEdit: boolean }) {
+  const actions = useProjectAttachments(PROJECT_ID);
+
+  return <AttachmentList attachments={attachments} canEdit={canEdit} actions={actions} />;
+}
 
 const meta = {
-  title: 'Projects/AttachmentList',
-  component: AttachmentList,
+  title: 'Common/AttachmentList',
+  component: ProjectAttachmentList,
   args: {
-    projectId: '11111111-1111-1111-1111-111111111111',
     attachments: ATTACHMENTS,
     canEdit: true,
   },
-} satisfies Meta<typeof AttachmentList>;
+} satisfies Meta<typeof ProjectAttachmentList>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

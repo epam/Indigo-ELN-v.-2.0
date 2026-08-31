@@ -1,29 +1,41 @@
 import {expect, screen, userEvent, waitFor, within} from 'storybook/test';
 
-import {TeamCard} from '@/components/projects/team-card';
-import {useProject} from '@/lib/api/projects';
-import {makeAclEntry, makeProjectDetails} from '@/mocks/fixtures';
+import {TeamCard} from '@/components/common/team-card';
+import {useProject, useUpdateProjectAccess} from '@/lib/api/projects';
+import {makeAclEntry, PROJECT_ACL} from '@/mocks/fixtures';
 
 import type {Meta, StoryObj} from '@storybook/react-vite';
+import type {ACLEntry} from '@/lib/types/common.ts';
 
 const PROJECT_ID = '11111111-1111-1111-1111-111111111111';
 
 /**
- * The route feeds `TeamCard` from `useProject`, and the access mutation updates that cache
- * entry rather than any local state — so a story that passes `project` as a fixed prop can
- * never show the result of a change. The interactive stories below render through the cache
- * instead, which is also what makes them a real test of the round trip.
+ * `TeamCard` takes its two mutations as props, so every story needs a wrapper that makes
+ * them. This one binds them to a project, which is what the project route does.
+ */
+function ProjectTeamCard({ acl, canManage }: { acl: ACLEntry[]; canManage: boolean }) {
+  const addMembers = useUpdateProjectAccess(PROJECT_ID);
+  const changeLevel = useUpdateProjectAccess(PROJECT_ID);
+
+  return <TeamCard acl={acl} canManage={canManage} addMembers={addMembers} changeLevel={changeLevel} />;
+}
+
+/**
+ * The access mutation updates the cached project rather than any local state — so a story
+ * that passes `acl` as a fixed prop can never show the result of a change. The interactive
+ * stories below read the ACL back out of the cache instead, which is also what makes them a
+ * real test of the round trip.
  */
 function TeamCardFromCache() {
   const { data } = useProject(PROJECT_ID);
-  return data ? <TeamCard project={data} /> : null;
+  return data ? <ProjectTeamCard acl={data.acl} canManage /> : null;
 }
 
 const meta = {
-  title: 'Projects/TeamCard',
-  component: TeamCard,
-  args: { project: makeProjectDetails() },
-} satisfies Meta<typeof TeamCard>;
+  title: 'Common/TeamCard',
+  component: ProjectTeamCard,
+  args: { acl: PROJECT_ACL, canManage: true },
+} satisfies Meta<typeof ProjectTeamCard>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -33,7 +45,7 @@ export const Default: Story = {};
 
 /** Without MANAGE_PROJECT_ACCESS the add field and every level menu are gone. */
 export const ReadOnly: Story = {
-  args: { project: makeProjectDetails({ currentPermissions: ['VIEW_PROJECTS'] }) },
+  args: { canManage: false },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.queryByLabelText('Add team members')).not.toBeInTheDocument();
@@ -107,19 +119,17 @@ export const AddMember: Story = {
  */
 export const LongValues: Story = {
   args: {
-    project: makeProjectDetails({
-      acl: [
-        makeAclEntry('Administrator', { level: 'AUTHOR' }),
-        makeAclEntry('Bartholomew Fitzgerald-Wetherington III', {
-          level: 'EDIT',
-          inherited: true,
-          username: 'bartholomew.fitzgerald.wetherington@research.example.com',
-        }),
-        // The widest level label, against the shortest name.
-        makeAclEntry('Ana Li', { level: 'IMPLICIT_VIEW' }),
-        makeAclEntry('Mark Liu', { level: 'ADMIN' }),
-      ],
-    }),
+    acl: [
+      makeAclEntry('Administrator', { level: 'AUTHOR' }),
+      makeAclEntry('Bartholomew Fitzgerald-Wetherington III', {
+        level: 'EDIT',
+        inherited: true,
+        username: 'bartholomew.fitzgerald.wetherington@research.example.com',
+      }),
+      // The widest level label, against the shortest name.
+      makeAclEntry('Ana Li', { level: 'IMPLICIT_VIEW' }),
+      makeAclEntry('Mark Liu', { level: 'ADMIN' }),
+    ],
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

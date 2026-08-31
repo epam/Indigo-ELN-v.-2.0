@@ -5,15 +5,20 @@ import {MultiCombobox} from '@/components/ui/combobox';
 import {Avatar} from '@/components/ui/avatar';
 import {Button} from '@/components/ui/button';
 import {Menu, MenuContent, MenuItem, MenuTrigger} from '@/components/ui/menu';
-import {useUpdateProjectAccess} from '@/lib/api/projects';
 import {useUserSuggestions} from '@/lib/api/user';
 import {cn} from '@/lib/utils';
-import type {AccessLevel, ACLEntry, UserRef} from '@/lib/types/common.ts';
+import type {UseMutationResult} from '@tanstack/react-query';
+import type {AccessForm, AccessLevel, ACLEntry, UserRef} from '@/lib/types/common.ts';
 import {ACL_LEVEL_LABELS, ELIGIBLE_ACL_LEVELS, isImmutableLevel} from '@/lib/types/common.ts';
-import type {ProjectDetails} from '@/lib/types/projects.ts';
 
 /** What a newly added member gets. Anything more is a deliberate step up in the level menu. */
 const DEFAULT_LEVEL: AccessLevel = 'VIEW';
+
+/**
+ * Every entity's `POST /access` has the same shape, so one mutation type covers projects,
+ * notebooks and experiments alike.
+ */
+export type AccessMutation = UseMutationResult<ACLEntry[], Error, AccessForm[]>;
 
 /**
  * Avatar, name, username, copy, level. The `minmax(0,…)` floors are what let the two text cells
@@ -107,19 +112,32 @@ function MemberRow({
   );
 }
 
-export function TeamCard({ project }: { project: ProjectDetails }) {
-  const canManage = project.currentPermissions.includes('MANAGE_PROJECT_ACCESS');
-  // Two instances of the same mutation rather than one: both post to /access, but each owns a
-  // spinner in a different place, and a shared `isPending` could not say which asked for it.
-  const addMembers = useUpdateProjectAccess(project.id);
-  const changeLevel = useUpdateProjectAccess(project.id);
-
+/**
+ * The members of a project, notebook or experiment, with the controls to add one and to
+ * re-level an existing one.
+ *
+ * The two mutations arrive as props rather than being made here: they post to different
+ * endpoints per entity, and each caller's `onSuccess` patches its own cached detail. They stay
+ * two instances of the same mutation, not one — both post to /access, but each owns a spinner
+ * in a different place, and a shared `isPending` could not say which asked for it.
+ */
+export function TeamCard({
+  acl,
+  canManage,
+  addMembers,
+  changeLevel,
+}: {
+  acl: ACLEntry[];
+  canManage: boolean;
+  addMembers: AccessMutation;
+  changeLevel: AccessMutation;
+}) {
   const [inputValue, setInputValue] = useState('');
   const [selected, setSelected] = useState<UserRef[]>([]);
   const suggestions = useUserSuggestions(inputValue);
 
   // Already-members are dropped from the list rather than shown and rejected on submit.
-  const members = new Set(project.acl.map((entry) => entry.username));
+  const members = new Set(acl.map((entry) => entry.username));
   const items = (suggestions.data ?? []).filter((user) => !members.has(user.username));
 
   // A level change is always one entry, so its `variables` name the row to spin.
@@ -130,7 +148,7 @@ export function TeamCard({ project }: { project: ProjectDetails }) {
       <div className="flex items-center gap-2 border-b border-neutral-300 pb-3">
         <h2 className="text-[16px]/6 font-semibold">Team</h2>
         <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-neutral-200 px-2 text-[12px]/5 font-semibold text-neutral-800">
-          {project.acl.length}
+          {acl.length}
         </span>
       </div>
 
@@ -171,7 +189,7 @@ export function TeamCard({ project }: { project: ProjectDetails }) {
       )}
 
       <ul className="flex flex-col divide-y divide-neutral-300">
-        {project.acl.map((member) => (
+        {acl.map((member) => (
           <MemberRow
             key={member.username}
             member={member}

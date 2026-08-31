@@ -2,8 +2,8 @@ import {createFileRoute} from '@tanstack/react-router';
 
 import {AboutProjectCard} from '@/components/projects/about-project-card';
 import {ProjectInfoSkeleton} from '@/components/projects/project-info-skeleton';
-import {TeamCard} from '@/components/projects/team-card';
-import {useProject} from '@/lib/api/projects';
+import {TeamCard} from '@/components/common/team-card';
+import {useProject, useUpdateProjectAccess} from '@/lib/api/projects';
 
 export const Route = createFileRoute('/_auth/projects_/$id/')({
   component: ProjectInfoTab,
@@ -19,6 +19,10 @@ const COLUMNS_CLASS = 'grid items-start gap-4 grid-cols-1 xl:grid-cols-[minmax(0
 function ProjectInfoTab() {
   const { id } = Route.useParams();
   const { data: project, isPending, isError } = useProject(id);
+  // Two instances of one mutation — see TeamCard for why they are not shared. Called before
+  // the early returns below, so the hook order never changes with the query's state.
+  const addMembers = useUpdateProjectAccess(id);
+  const changeLevel = useUpdateProjectAccess(id);
 
   if (isPending) return <ProjectInfoSkeleton />;
   // apiFetch has already toasted the failure; this is the page saying what it cannot show.
@@ -29,7 +33,12 @@ function ProjectInfoTab() {
   return (
     <div className={COLUMNS_CLASS}>
       <AboutProjectCard project={project} />
-      <TeamCard project={project} />
+      <TeamCard
+        acl={project.acl}
+        canManage={project.currentPermissions.includes('MANAGE_PROJECT_ACCESS')}
+        addMembers={addMembers}
+        changeLevel={changeLevel}
+      />
     </div>
   );
 }

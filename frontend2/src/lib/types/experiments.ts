@@ -1,7 +1,23 @@
-import type { ACLEntry, BaseDTO } from '@/lib/types/common.ts';
+import type {ACLEntry, BaseDTO, CollectionFilters} from '@/lib/types/common.ts';
 
-export type ExperimentStatus =
-  'OPEN' | 'REOPEN' | 'COMPLETED' | 'SIGNING' | 'SUBMITTED' | 'SIGNED' | 'REJECTED' | 'CANCELLED' | 'ARCHIVED';
+/**
+ * Display order for every surface that lists the statuses, and the source of truth for the
+ * union below — one list rather than a `const` array and a hand-kept union that can drift.
+ * A `readonly` tuple is also what `z.enum` needs for the experiments tab's status param.
+ */
+export const EXPERIMENT_STATUSES = [
+  'OPEN',
+  'REOPEN',
+  'COMPLETED',
+  'SIGNING',
+  'SUBMITTED',
+  'SIGNED',
+  'REJECTED',
+  'CANCELLED',
+  'ARCHIVED',
+] as const;
+
+export type ExperimentStatus = (typeof EXPERIMENT_STATUSES)[number];
 
 export type ExperimentStatusCounts = Partial<Record<ExperimentStatus, number>>;
 
@@ -16,19 +32,6 @@ export const EXPERIMENT_STATUS_DISPLAY: Record<ExperimentStatus, string> = {
   CANCELLED: 'Cancelled',
   ARCHIVED: 'Archived',
 };
-
-/** Display order for every surface that lists the statuses. */
-export const EXPERIMENT_STATUSES: readonly ExperimentStatus[] = [
-  'OPEN',
-  'REOPEN',
-  'COMPLETED',
-  'SIGNING',
-  'SUBMITTED',
-  'SIGNED',
-  'REJECTED',
-  'CANCELLED',
-  'ARCHIVED',
-];
 
 /**
  * Tailwind text colour per status. Statuses that read as near-equivalent share a
@@ -57,4 +60,14 @@ export interface BaseExperiment extends BaseDTO {
 export interface Experiment extends BaseExperiment {
   acl: ACLEntry[];
   aclCount: number;
+}
+
+/**
+ * What a notebook's experiment list is filtered by: the three `ActionBar` sets, plus the
+ * status multi-select that only this list has. `/notebooks/{id}/experiments` is the one
+ * collection endpoint declaring a repeatable `status` param, which is why this extends
+ * `CollectionFilters` rather than widening it for every list.
+ */
+export interface ExperimentFilters extends CollectionFilters {
+  statuses: ExperimentStatus[];
 }

@@ -3,12 +3,15 @@ import {delay, http, HttpResponse} from 'msw';
 import {
   ATTACHMENTS,
   DICTIONARIES,
+  EXPERIMENTS,
   KEYWORDS,
   makeAttachment,
   makeCurrentUser,
+  makeNotebookDetails,
   makeProjectDetails,
   makeTotalCounts,
   MARKED_EXPERIMENTS,
+  NOTEBOOK_ACL,
   NOTEBOOKS,
   PROJECT_ACL,
   PROJECTS,
@@ -17,9 +20,11 @@ import {
   USERS,
 } from '@/mocks/fixtures';
 
-import type {AccessForm, Page, UserRef} from '@/lib/types/common.ts';
+import type {AccessForm, ACLEntry, Page, UserRef} from '@/lib/types/common.ts';
 import type {GlobalSearchResult} from '@/lib/types/search.ts';
 import type {BuiltInDictionary} from '@/lib/types/dictionaries.ts';
+import type {ExperimentStatus} from '@/lib/types/experiments.ts';
+import type {NotebookEditRequest} from '@/lib/types/notebooks.ts';
 import type {ProjectEditRequest} from '@/lib/types/projects.ts';
 
 // apiFetch sends the path verbatim, so handlers match the same full paths the
@@ -55,8 +60,32 @@ function suggestedUsers(search: string): UserRef[] {
   ).slice(0, 10);
 }
 
+/**
+ * What `POST /access` answers with: the recomputed ACL for the whole entity — existing
+ * entries re-levelled, new ones appended.
+ */
+function recomputedAcl(existing: ACLEntry[], updates: AccessForm[]): ACLEntry[] {
+  const changed = new Map(updates.map((update) => [update.username, update.level]));
+  const relevelled = existing.map((entry) =>
+    changed.has(entry.username) ? { ...entry, level: changed.get(entry.username)! } : entry,
+  );
+  const known = new Set(existing.map((entry) => entry.username));
+  const added = updates
+    .filter((update) => !known.has(update.username))
+    .map((update) => ({
+      username: update.username,
+      displayName: USERS.find((user) => user.username === update.username)?.displayName ?? update.username,
+      level: update.level,
+      inherited: false,
+    }));
+  return [...relevelled, ...added];
+}
+
 /** The one name the mock backend claims is taken, so the duplicate path is reachable. */
 export const TAKEN_PROJECT_NAME = 'Kinase Inhibitor Screening';
+
+/** Likewise for notebooks, which are numbered rather than named. */
+export const TAKEN_NOTEBOOK_NAME = '00000002';
 
 export const handlers = [
   http.get(`${ELN}/projects`, () => HttpResponse.json(page(PROJECTS))),
@@ -105,26 +134,61 @@ export const handlers = [
     }),
   ),
   http.delete(`${ELN}/projects/:id/attachments/:attachmentId`, () => new HttpResponse(null, { status: 204 })),
-  http.post(`${ELN}/projects/:id/access`, async ({ request }) => {
-    const updates = (await request.json()) as AccessForm[];
-    // The response is the recomputed ACL: existing entries re-levelled, new ones appended.
-    const changed = new Map(updates.map((update) => [update.username, update.level]));
-    const existing = PROJECT_ACL.map((entry) =>
-      changed.has(entry.username) ? { ...entry, level: changed.get(entry.username)! } : entry,
-    );
-    const known = new Set(PROJECT_ACL.map((entry) => entry.username));
-    const added = updates
-      .filter((update) => !known.has(update.username))
-      .map((update) => ({
-        username: update.username,
-        displayName: USERS.find((user) => user.username === update.username)?.displayName ?? update.username,
-        level: update.level,
-        inherited: false,
-      }));
-    return HttpResponse.json([...existing, ...added]);
+  http.post(`${ELN}/projects/:id/access`, async ({ request }) =>
+    HttpResponse.json(recomputedAcl(PROJECT_ACL, (await request.json()) as AccessForm[])),
+  ),
+
+  // After /notebooks/existence, which `:id` would otherwise swallow — MSW takes the first match.
+  http.get(`${ELN}/notebooks/existence`, ({ request }) => {
+    const name = new URL(request.url).searchParams.get('name') ?? '';
+    return HttpResponse.json({ exists: name === TAKEN_NOTEBOOK_NAME });
   }),
+  http.get(`${ELN}/notebooks/:id`, ({ params }) => HttpResponse.json(makeNotebookDetails({ id: String(params.id) }))),
+  http.patch(`${ELN}/notebooks/:id`, async ({ params, request }) => {
+    const { description, ...body } = (await request.json()) as NotebookEditRequest;
+    // Absent stays absent, matching JsonNullable; an explicit null clears the field, which on
+    // the response DTO is the same as it simply not being there.
+    return HttpResponse.json(
+      makeNotebookDetails({
+        id: String(params.id),
+        ...body,
+        ...(description === undefined ? {} : { description: description ?? undefined }),
+      }),
+    );
+  }),
+  http.get(`${ELN}/notebooks/:id/experiments`, ({ request }) => {
+    const query = new URL(request.url).searchParams;
+    const search = (query.get('search') ?? '').toLowerCase();
+    const statuses = query.getAll('status') as ExperimentStatus[];
+    return HttpResponse.json(
+      page(
+        EXPERIMENTS.filter(
+          (experiment) =>
+            experiment.name.toLowerCase().includes(search) &&
+            (statuses.length === 0 || statuses.includes(experiment.status)),
+        ),
+      ),
+    );
+  }),
+  http.post(`${ELN}/notebooks/:id/attachments`, async ({ request }) => {
+    const form = await request.formData();
+    const file = form.get('file');
+    const name = file instanceof File ? file.name : 'upload.bin';
+    return HttpResponse.json([...ATTACHMENTS, makeAttachment(name, { id: `b88b-${name}`, size: 2_048 })]);
+  }),
+  http.get(`${ELN}/notebooks/:id/attachments/:attachmentId`, () =>
+    HttpResponse.arrayBuffer(new TextEncoder().encode('mock attachment').buffer as ArrayBuffer, {
+      headers: { 'Content-Type': 'application/octet-stream' },
+    }),
+  ),
+  http.delete(`${ELN}/notebooks/:id/attachments/:attachmentId`, () => new HttpResponse(null, { status: 204 })),
+  http.post(`${ELN}/notebooks/:id/access`, async ({ request }) =>
+    HttpResponse.json(recomputedAcl(NOTEBOOK_ACL, (await request.json()) as AccessForm[])),
+  ),
   http.get(`${ELN}/total-counts`, () => HttpResponse.json(makeTotalCounts())),
   http.get(`${ELN}/experiments/marked`, () => HttpResponse.json(MARKED_EXPERIMENTS)),
+  http.post(`${ELN}/experiments/:id/mark`, () => HttpResponse.json(true)),
+  http.post(`${ELN}/experiments/:id/unmark`, () => HttpResponse.json(false)),
   http.get(`${ELN}/currentUser`, () => HttpResponse.json(makeCurrentUser())),
   http.get(`${ELN}/dictionaries/:dictionary`, ({ params }) =>
     HttpResponse.json(DICTIONARIES[params.dictionary as BuiltInDictionary] ?? []),
@@ -153,6 +217,7 @@ export const restrictedUserHandlers = [
 export const emptyHandlers = [
   http.get(`${ELN}/projects`, () => HttpResponse.json(page([]))),
   http.get(`${ELN}/projects/:id/notebooks`, () => HttpResponse.json(page([]))),
+  http.get(`${ELN}/notebooks/:id/experiments`, () => HttpResponse.json(page([]))),
   http.get(`${ELN}/experiments/marked`, () => HttpResponse.json([])),
 ];
 

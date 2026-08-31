@@ -2,11 +2,23 @@ import {File as FileIcon, FileImage, FileSpreadsheet, FileText, Paperclip, Trash
 import {useRef} from 'react';
 
 import {Button} from '@/components/ui/button';
-import {downloadProjectAttachment, useDeleteAttachment, useUploadAttachments} from '@/lib/api/projects';
 import {useDownload} from '@/lib/hooks/use-download';
 import {formatBytes, formatDate} from '@/lib/utils';
 
+import type {UseMutationResult} from '@tanstack/react-query';
 import type {Attachment} from '@/lib/types/common.ts';
+
+/**
+ * The three calls an attachment list makes, passed in rather than imported: projects and
+ * notebooks declare identical endpoints under different prefixes, and this way the component
+ * never learns which entity it is attached to. Each caller owns its own cache patching.
+ */
+export interface AttachmentActions {
+  upload: UseMutationResult<Attachment[], Error, File[]>;
+  remove: UseMutationResult<void, Error, string>;
+  /** Resolved by `useDownload`, which swallows the error apiFetch has already toasted. */
+  download: (attachment: Attachment) => Promise<void>;
+}
 
 /** Same extension groups indigo-frontend's attachment component used. */
 function AttachmentIcon({ name }: { name: string }) {
@@ -30,13 +42,13 @@ function AttachmentIcon({ name }: { name: string }) {
 
 function AttachmentRow({
   attachment,
-  projectId,
+  onDownload,
   canEdit,
   onDelete,
   deleting,
 }: {
   attachment: Attachment;
-  projectId: string;
+  onDownload: () => Promise<void>;
   canEdit: boolean;
   onDelete: () => void;
   deleting: boolean;
@@ -48,7 +60,7 @@ function AttachmentRow({
     <li className="grid grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_5rem_minmax(0,1fr)_auto] items-center gap-4 rounded-md border border-neutral-300 px-3 py-2 text-[14px]/6">
       <button
         type="button"
-        onClick={() => void download(() => downloadProjectAttachment(projectId, attachment.id, attachment.name))}
+        onClick={() => void download(onDownload)}
         disabled={downloading}
         className="flex min-w-0 items-center gap-2 text-left text-blue-400 hover:underline disabled:opacity-60"
       >
@@ -78,17 +90,15 @@ function AttachmentRow({
 }
 
 export function AttachmentList({
-  projectId,
   attachments,
   canEdit,
+  actions: { upload, remove, download },
 }: {
-  projectId: string;
   attachments: Attachment[];
   canEdit: boolean;
+  actions: AttachmentActions;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const upload = useUploadAttachments(projectId);
-  const remove = useDeleteAttachment(projectId);
 
   return (
     <div className="flex flex-col gap-2">
@@ -100,7 +110,7 @@ export function AttachmentList({
             <AttachmentRow
               key={attachment.id}
               attachment={attachment}
-              projectId={projectId}
+              onDownload={() => download(attachment)}
               canEdit={canEdit}
               deleting={remove.isPending && remove.variables === attachment.id}
               onDelete={() => remove.mutate(attachment.id)}

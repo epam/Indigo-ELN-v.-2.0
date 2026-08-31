@@ -1,6 +1,7 @@
-import { Menu as MenuPrimitive } from '@base-ui/react/menu';
+import {Menu as MenuPrimitive} from '@base-ui/react/menu';
+import {Check} from 'lucide-react';
 
-import { cn } from '@/lib/utils';
+import {cn} from '@/lib/utils';
 
 const MenuRoot = MenuPrimitive.Root;
 const MenuTrigger = MenuPrimitive.Trigger;
@@ -47,4 +48,32 @@ function MenuItem({ className, ...props }: MenuPrimitive.Item.Props) {
   );
 }
 
-export { MenuRoot as Menu, MenuTrigger, MenuContent, MenuItem };
+/**
+ * A menu item that toggles. Base UI leaves `closeOnClick` false here, which is what a
+ * multi-select filter wants: the popup stays open while several are ticked.
+ *
+ * The indicator keeps its box when unticked (`invisible`, not unmounted), so labels line up
+ * down the column whatever is selected.
+ */
+function MenuCheckboxItem({ className, children, ...props }: MenuPrimitive.CheckboxItem.Props) {
+  return (
+    <MenuPrimitive.CheckboxItem
+      data-slot="menu-checkbox-item"
+      className={cn(
+        'flex cursor-default items-center gap-2 rounded-2 px-3 py-2 text-[14px]/6 text-neutral-1000 outline-none data-[highlighted]:bg-blue-10',
+        className,
+      )}
+      {...props}
+    >
+      <MenuPrimitive.CheckboxItemIndicator
+        keepMounted
+        className="flex size-4 shrink-0 items-center justify-center data-[unchecked]:invisible"
+      >
+        <Check className="size-4 text-blue-400" />
+      </MenuPrimitive.CheckboxItemIndicator>
+      {children}
+    </MenuPrimitive.CheckboxItem>
+  );
+}
+
+export { MenuRoot as Menu, MenuTrigger, MenuContent, MenuItem, MenuCheckboxItem };

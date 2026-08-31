@@ -1,0 +1,62 @@
+import {describe, expect, it} from 'vitest';
+
+import {
+  NOTEBOOK_NAME_LENGTH,
+  notebookNameSchema,
+  toNotebookEditRequest,
+  toNotebookFormValues,
+} from '@/components/notebooks/notebook-form';
+import {makeNotebookDetails} from '@/mocks/fixtures';
+
+describe('notebookNameSchema', () => {
+  it('accepts exactly eight digits', () => {
+    expect(notebookNameSchema.safeParse('0'.repeat(NOTEBOOK_NAME_LENGTH)).success).toBe(true);
+  });
+
+  it('rejects anything shorter or longer', () => {
+    expect(notebookNameSchema.safeParse('0'.repeat(NOTEBOOK_NAME_LENGTH - 1)).success).toBe(false);
+    expect(notebookNameSchema.safeParse('0'.repeat(NOTEBOOK_NAME_LENGTH + 1)).success).toBe(false);
+  });
+
+  /** A notebook is numbered, not named — the Angular form has always enforced digits only. */
+  it('rejects a name of the right length that is not all digits', () => {
+    expect(notebookNameSchema.safeParse('0000000a').success).toBe(false);
+  });
+
+  it('rejects a blank name', () => {
+    expect(notebookNameSchema.safeParse('   ').success).toBe(false);
+  });
+});
+
+describe('toNotebookFormValues', () => {
+  it('turns a missing description into the empty string the editor wants', () => {
+    expect(toNotebookFormValues(makeNotebookDetails({ description: undefined })).description).toBe('');
+  });
+});
+
+describe('toNotebookEditRequest', () => {
+  const initial = toNotebookFormValues(makeNotebookDetails({ name: '00000001' }));
+
+  it('sends nothing at all when nothing changed', () => {
+    expect(toNotebookEditRequest(initial, initial)).toEqual({});
+  });
+
+  /** Absent means "leave it alone", so an untouched field must never appear in the body. */
+  it('omits the fields that were not touched', () => {
+    expect(toNotebookEditRequest({ ...initial, name: '00000002' }, initial)).toEqual({ name: '00000002' });
+  });
+
+  /** Dropping the field is how you say "don't touch it", so clearing has to say null. */
+  it('sends null for a description that was emptied', () => {
+    expect(toNotebookEditRequest({ ...initial, description: '<p></p>' }, initial).description).toBeNull();
+  });
+
+  it('sends the html for a description that was filled in', () => {
+    const request = toNotebookEditRequest({ ...initial, description: '<p>Route <em>B</em></p>' }, initial);
+    expect(request.description).toBe('<p>Route <em>B</em></p>');
+  });
+
+  it('treats a whitespace-only rename as no change', () => {
+    expect(toNotebookEditRequest({ ...initial, name: '  00000001  ' }, initial)).toEqual({});
+  });
+});

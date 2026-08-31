@@ -2,9 +2,10 @@ import {Pencil} from 'lucide-react';
 import type {ReactNode} from 'react';
 import {useState} from 'react';
 
-import {AttachmentList} from '@/components/projects/attachment-list';
+import {AttachmentList} from '@/components/common/attachment-list';
 import {ProjectFormDialog} from '@/components/projects/project-form-dialog';
 import {Button} from '@/components/ui/button';
+import {useProjectAttachments} from '@/lib/api/projects';
 
 import type {ProjectDetails} from '@/lib/types/projects.ts';
 
@@ -30,6 +31,7 @@ function RichText({ html }: { html: string | undefined }) {
 export function AboutProjectCard({ project }: { project: ProjectDetails }) {
   const [editOpen, setEditOpen] = useState(false);
   const canEdit = project.currentPermissions.includes('EDIT_PROJECTS');
+  const attachments = useProjectAttachments(project.id);
 
   return (
     <section className="flex flex-col gap-4 rounded-6 bg-card p-4 shadow-card">
@@ -72,7 +74,7 @@ export function AboutProjectCard({ project }: { project: ProjectDetails }) {
           <RichText html={project.description} />
         </Section>
 
-        <AttachmentList projectId={project.id} attachments={project.attachments} canEdit={canEdit} />
+        <AttachmentList attachments={project.attachments} canEdit={canEdit} actions={attachments} />
       </div>
     </section>
   );

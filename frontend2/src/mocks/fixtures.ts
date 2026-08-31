@@ -2,7 +2,8 @@ import type {ACLEntry, Attachment, UserRef} from '@/lib/types/common.ts';
 import type {BuiltInDictionary, DictionaryItemRef} from '@/lib/types/dictionaries.ts';
 import type {GlobalSearchResult} from '@/lib/types/search.ts';
 import type {Experiment} from '@/lib/types/experiments.ts';
-import type {Notebook} from '@/lib/types/notebooks.ts';
+import {EXPERIMENT_STATUSES} from '@/lib/types/experiments.ts';
+import type {Notebook, NotebookDetails} from '@/lib/types/notebooks.ts';
 import type {Project, ProjectDetails, TotalCounts} from '@/lib/types/projects.ts';
 import type {CurrentUser} from '@/lib/types/user.ts';
 
@@ -125,6 +126,30 @@ export function makeNotebook(overrides: Partial<Notebook> = {}): Notebook {
   };
 }
 
+/** Mixed levels and one inherited entry, so every branch of a Team row is reachable. */
+export const NOTEBOOK_ACL: ACLEntry[] = [
+  makeAclEntry('Mark Liu', { level: 'AUTHOR' }),
+  makeAclEntry('Administrator', { level: 'ADMIN' }),
+  // Inherited from the parent project, which is where a notebook's inherited entries come from.
+  makeAclEntry('Sofia Rossi', { level: 'EDIT', inherited: true }),
+  makeAclEntry('Tom Becker', { level: 'VIEW' }),
+];
+
+export function makeNotebookDetails(overrides: Partial<NotebookDetails> = {}): NotebookDetails {
+  const base = makeNotebook();
+  return {
+    ...base,
+    revision: 1,
+    description: '<p>Aspirin synthesis strategies, route A.</p>',
+    attachments: ATTACHMENTS,
+    acl: NOTEBOOK_ACL,
+    currentPermissions: ['VIEW_NOTEBOOKS', 'EDIT_NOTEBOOKS', 'MANAGE_NOTEBOOK_ACCESS'],
+    projectId: '11111111-1111-1111-1111-111111111111',
+    projectName: 'Kinase Inhibitor Screening',
+    ...overrides,
+  };
+}
+
 /**
  * Enough keywords to overflow one page of the suggestion list, so the PageUp/PageDown
  * behaviour in MultiCombobox is actually exercisable.
@@ -238,6 +263,22 @@ export const NOTEBOOKS: Notebook[] = [
     aclCount: 4,
   }),
 ];
+
+/**
+ * A varied page of experiments: every status has a card, and both marked states are present,
+ * so the badge variants and the star's two forms are all reachable from one story.
+ */
+export const EXPERIMENTS: Experiment[] = EXPERIMENT_STATUSES.map((status, index) =>
+  makeExperiment({
+    id: `e0000000-0000-4000-8000-${String(index).padStart(12, '0')}`,
+    name: `00000001-${String(index + 1).padStart(4, '0')}`,
+    status,
+    marked: index % 3 === 0,
+    revision: index + 1,
+    acl: [makeAclEntry('Administrator', { level: 'AUTHOR' }), makeAclEntry('Mark Liu')],
+    aclCount: 6,
+  }),
+);
 
 export const MARKED_EXPERIMENTS: Experiment[] = [
   makeExperiment(),
