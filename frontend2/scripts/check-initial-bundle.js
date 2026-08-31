@@ -15,8 +15,8 @@
  * Budgets are generous on purpose; they catch a category error, not gradual growth.
  * At the time of writing: 527 KB total, 178 KB for the largest single chunk (react-dom).
  */
-import { readFileSync, statSync } from 'node:fs';
-import { join } from 'node:path';
+import {readFileSync, statSync} from 'node:fs';
+import {join} from 'node:path';
 
 const DIST = 'dist';
 const MAX_CHUNK_BYTES = 1_000_000;
@@ -26,7 +26,7 @@ const html = (() => {
   try {
     return readFileSync(join(DIST, 'index.html'), 'utf8');
   } catch {
-    console.error(`No ${DIST}/index.html — run \`npm run build\` first.`);
+    console.error(`No ${DIST}/index.html — run \`pnpm run build\` first.`);
     process.exit(1);
   }
 })();

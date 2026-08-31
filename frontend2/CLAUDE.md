@@ -7,30 +7,31 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Run from `frontend2/`:
 
 ```bash
-npm run dev          # dev server at http://localhost:5173 — /api proxies to the remote dev backend
-npm run build        # vite build → dist/ (also emits src/routeTree.gen.ts)
-npm run typecheck    # tsc -b — run it AFTER a build; see below
-npm run check:bundle # asserts the 21 MB Ketcher chunk stayed out of the entry graph
-npm run lint         # eslint
-npm run format       # prettier --write src/**
-npm run format:check # prettier --check src/**
-npm test             # vitest run — both projects (unit + storybook)
-npm run test:watch   # vitest in watch mode
-npm run test:unit    # jsdom unit tests only (no browser needed)
-npm run test:stories # every story as a browser test in headless Chromium
+pnpm run dev                 # dev server at http://localhost:5173 — /api proxies to the remote dev backend
+pnpm run build               # vite build → dist/ (also emits src/routeTree.gen.ts)
+pnpm run typecheck           # tsc -b — run it AFTER a build; see below
+pnpm run check:bundle        # asserts the 21 MB Ketcher chunk stayed out of the entry graph
+pnpm run lint                # eslint
+pnpm run format              # prettier --write src/**
+pnpm run format:check        # prettier --check src/**
+pnpm run test                # vitest run — both projects (unit + storybook)
+pnpm run test:watch          # vitest in watch mode
+pnpm run test:unit           # jsdom unit tests only (no browser needed)
+pnpm run test:stories        # every story as a browser test in headless Chromium
+pnpm run test:stories:native # same, against a natively installed Chromium instead of Playwright's
 
-npm run storybook       # Storybook dev server at http://localhost:6006
-npm run build-storybook # static build → storybook-static/
+pnpm run storybook       # Storybook dev server at http://localhost:6006
+pnpm run build-storybook # static build → storybook-static/
 
 # Single test file
-npx vitest run src/lib/types/experiments.test.ts
+pnpm exec vitest run src/lib/types/experiments.test.ts
 ```
 
 Tests are colocated: `foo.test.ts` sits next to `foo.ts`. Test files inside `src/routes/` are excluded from route generation by `routeFileIgnorePattern` in `vite.config.ts`.
 
 Stories are colocated the same way: `foo.stories.tsx` next to `foo.tsx`.
 
-`npm run typecheck` (`tsc -b`) is the authoritative type-check — `vite build` does not type-check.
+`pnpm run typecheck` (`tsc -b`) is the authoritative type-check — `vite build` does not type-check.
 
 **It has to run after a build, not before.** `src/routeTree.gen.ts` is gitignored and only
 `@tanstack/router-plugin` emits it, which means a bundler-driven command — `vite build`,
@@ -42,16 +43,34 @@ explicit rather than a trap for a fresh clone.
 Full validation sequence, in order:
 
 ```bash
-npm ci                                        # never `npm install`; devDependencies are required to build
-npm run build                                 # emits dist/ and src/routeTree.gen.ts
-npm run check:bundle                          # nothing oversized in the initial module graph
-npm run typecheck
-npm run lint
-npm run format:check
-npm run test:unit
-npx playwright install --with-deps chromium   # cacheable
-npm run test:stories
+pnpm install --frozen-lockfile                    # fails on a lockfile that drifted from package.json
+pnpm run build                                    # emits dist/ and src/routeTree.gen.ts
+pnpm run check:bundle                             # nothing oversized in the initial module graph
+pnpm run typecheck
+pnpm run lint
+pnpm run format:check
+pnpm run test:unit
+pnpm exec playwright install --with-deps chromium # cacheable
+pnpm run test:stories
 ```
+
+`--with-deps` needs root: Playwright's bundled Chromium links against system libraries that are
+not installed by default, and without them the binary dies at load time with
+`libatk-1.0.so.0: cannot open shared object file`. Where root is not available but Chromium is
+already installed natively, `pnpm run test:stories:native` skips the bundled browser entirely — it
+passes the binary on `PATH` to Playwright as `CHROMIUM_BIN`. Set `CHROMIUM_BIN` yourself if the
+browser is named something other than `chromium`:
+
+```bash
+CHROMIUM_BIN=/usr/bin/google-chrome pnpm run test:stories:native
+```
+
+The package manager is pnpm (pinned by `packageManager` in `package.json`; pnpm installs that
+version itself, no corepack needed). pnpm refuses to run a dependency's install scripts unless it
+is listed in `pnpm-workspace.yaml` — `esbuild` needs its postinstall to place the platform binary
+and `msw` needs its to regenerate `public/mockServiceWorker.js`. The key is `allowBuilds`, not the
+`onlyBuiltDependencies` most documentation still shows: pnpm 11 reads the older name into its
+config without acting on it, so the builds stay silently blocked.
 
 ## Environment
 
@@ -178,7 +197,7 @@ No `tailwind.config.*` file. All theme customisation is in `src/styles.css` via 
 
 ### UI components — `src/components/ui/`
 
-Styled with CVA + `cn()`, following the shadcn `base-nova` pattern. Primitives from `@base-ui/react` (not Radix). Current components: `button`, `avatar`, `badge`, `switch`, `segmented-control`, `dialog`, `input`, `field`, `combobox`, `radio-group`, `toast`, `rich-text-editor`. Add new ones with `npx shadcn add <name>` — the CLI respects `components.json`. Icons: `lucide-react` only; never hand-write SVG paths.
+Styled with CVA + `cn()`, following the shadcn `base-nova` pattern. Primitives from `@base-ui/react` (not Radix). Current components: `button`, `avatar`, `badge`, `switch`, `segmented-control`, `dialog`, `input`, `field`, `combobox`, `radio-group`, `toast`, `rich-text-editor`. Add new ones with `pnpm dlx shadcn@latest add <name>` — the CLI respects `components.json`. Icons: `lucide-react` only; never hand-write SVG paths.
 
 `Button` takes `loading`, which disables it, sets `aria-busy` and overlays a spinner. The label is faded with `opacity-0` rather than `visibility: hidden` on purpose — hiding it would strip the label from the button's accessible name, leaving it announced as nothing but a spinner.
 
@@ -216,7 +235,7 @@ Leaving it there is deliberate — routing `prewarmKetcher` through a dynamic im
 would make the preload list literally clean, at the cost of a round trip for that shim
 before the prewarm can even start fetching the thing it exists to fetch early.
 
-`npm run check:bundle` guards the invariant that actually matters, by size rather than by
+`pnpm run check:bundle` guards the invariant that actually matters, by size rather than by
 name: it reads the entry and modulepreload chunks out of `dist/index.html` and fails if any
 one exceeds 1 MB or they total more than 1.5 MB (today: 24 chunks, 515 kB, largest 174 kB).
 A static import that stranded the 21 MB chunk in the entry graph would otherwise pass build,
@@ -306,7 +325,7 @@ Anything rendered through a portal — dialogs, combobox popups, toasts — is o
 
 Mock data lives in `src/mocks/` (under `src/`, not `.storybook/`, so unit tests can import it too): `fixtures.ts` has `makeProject`/`makeExperiment`/`makeTotalCounts` override factories, `handlers.ts` has an MSW handler per endpoint the app calls — check the file rather than trusting a count here. Paths there are the same full `/api/eln` paths the callers pass. Override per story with `parameters: { msw: { handlers: errorHandlers } }` — `handlers.ts` exports `emptyHandlers`, `errorHandlers`, and `loadingHandlers` for the non-happy paths.
 
-`vite.config.ts` defines two Vitest projects: `unit` (jsdom, `src/**/*.test.{ts,tsx}`) and `storybook` (real Chromium via Playwright, every story as a smoke test with `a11y: { test: 'error' }` failing on violations). CI without a browser should run `npm run test:unit`; Chromium comes from `npx playwright install chromium`. The `storybook` project keeps `.storybook/vitest.setup.ts` even though Storybook 10.3+ can provision annotations itself — only a project setup file gets scanned for dep pre-bundling, and without one the CJS deps behind `@testing-library/dom` fail to import in the browser.
+`vite.config.ts` defines two Vitest projects: `unit` (jsdom, `src/**/*.test.{ts,tsx}`) and `storybook` (real Chromium via Playwright, every story as a smoke test with `a11y: { test: 'error' }` failing on violations). CI without a browser should run `pnpm run test:unit`; Chromium comes from `pnpm exec playwright install chromium`. The `storybook` project keeps `.storybook/vitest.setup.ts` even though Storybook 10.3+ can provision annotations itself — only a project setup file gets scanned for dep pre-bundling, and without one the CJS deps behind `@testing-library/dom` fail to import in the browser.
 
 ### TypeScript strictness notes
 

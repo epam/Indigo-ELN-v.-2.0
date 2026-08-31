@@ -2,6 +2,7 @@
   "name": "indigo-frontend2",
   "version": "0.0.1",
   "private": true,
+  "packageManager": "pnpm@11.3.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -17,7 +18,8 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "test:unit": "vitest run --project unit",
-    "test:stories": "vitest run --project storybook"
+    "test:stories": "vitest run --project storybook",
+    "test:stories:native": "CHROMIUM_BIN=${CHROMIUM_BIN:-$(command -v chromium)} vitest run --project storybook"
   },
   "dependencies": {
     "@aws-amplify/ui-react": "^6.15.5",
