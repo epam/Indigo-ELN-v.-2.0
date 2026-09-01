@@ -1,3 +1,10 @@
+/*
+ * Declared before Tailwind's so it sits at the bottom of the cascade: `amplify` holds the sign-in
+ * screen's stylesheet, which is otherwise unlayered and would beat every utility in the app.
+ * Layers rank in declaration order, and anything unlayered outranks all of them.
+ */
+@layer amplify;
+
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
@@ -208,5 +215,32 @@
   }
   .tiptap-content ol {
     @apply list-decimal pl-5;
+  }
+}
+
+/*
+ * Stoichiometry cell flashes, ported from indigo-frontend's `_animations.scss`. Applied by
+ * `determineCellClasses` when a mutation's patch lands: green for a value the backend
+ * recalculated, red for one it overwrote.
+ *
+ * The asymmetry is deliberate and matches the original — green pulses and clears, red lands
+ * and *holds*, so an overwritten value stays flagged until the next patch replaces the node.
+ */
+@keyframes flash-green {
+  0%,
+  100% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: var(--color-green-10);
+  }
+}
+
+@keyframes flash-red {
+  0% {
+    background-color: transparent;
+  }
+  100% {
+    background-color: var(--color-red-10);
   }
 }

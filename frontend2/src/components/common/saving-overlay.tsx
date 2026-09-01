@@ -1,5 +1,6 @@
 import { Loader2 } from 'lucide-react';
-import type { ReactNode } from 'react';
+import type { FocusEvent, ReactNode } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { useDelayedFlag } from '@/lib/hooks/use-delayed-flag';
 import { cn } from '@/lib/utils';
@@ -43,6 +44,47 @@ export function SavingOverlay({
   children: ReactNode;
 }) {
   const showing = useDelayedFlag(pending);
+  const container = useRef<HTMLDivElement>(null);
+  /**
+   * The descendant that had focus, kept across the blur `inert` itself causes.
+   *
+   * Cleared only when focus moves somewhere real. Losing focus to `inert` reports a `null`
+   * `relatedTarget` — focus went nowhere — which is exactly the case worth remembering, and it is
+   * what tells that apart from the user deliberately moving on.
+   */
+  const focused = useRef<HTMLElement | null>(null);
+
+  /**
+   * Hands focus back when the region unfreezes.
+   *
+   * `inert` blurs whatever it covers, so a save that outlasts the spinner's delay drops the user
+   * out of the control they were in — most visibly in the stoichiometry table, where committing a
+   * number on the way to its unit picker freezes the cell that picker lives in.
+   *
+   * Only when focus is still nowhere. If the user has since clicked or tabbed somewhere else,
+   * `document.activeElement` is that element rather than `body`, and pulling them back would be
+   * the more annoying of the two behaviours.
+   */
+  useEffect(() => {
+    if (showing) return;
+
+    const target = focused.current;
+    focused.current = null;
+    if (!target?.isConnected || !container.current?.contains(target)) return;
+    if (document.activeElement !== document.body && document.activeElement != null) return;
+
+    target.focus();
+  }, [showing]);
+
+  function handleFocus(event: FocusEvent<HTMLDivElement>) {
+    focused.current = event.target;
+  }
+
+  function handleBlur(event: FocusEvent<HTMLDivElement>) {
+    // A null `relatedTarget` is focus going nowhere, which is what `inert` does. Anything else is
+    // the user leaving of their own accord, and there is then nothing to restore.
+    if (event.relatedTarget != null) focused.current = null;
+  }
 
   return (
     /*
@@ -57,6 +99,9 @@ export function SavingOverlay({
       since twMerge takes the last word.
     */
     <div
+      ref={container}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
       data-saving={showing ? '' : undefined}
       className={cn('group/saving relative', spinner === 'center' && 'w-fit', className)}
       aria-busy={showing || undefined}

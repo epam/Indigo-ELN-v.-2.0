@@ -53,6 +53,24 @@ export const EXPERIMENT_STATUS_COLOR: Record<ExperimentStatus, string> = {
   ARCHIVED: 'text-green-200',
 };
 
+/**
+ * The two statuses in which an experiment's content can still be changed. Every other status
+ * is a stage of the signing workflow or an end state, and the backend rejects edits there.
+ */
+const EDITABLE_STATUSES: readonly ExperimentStatus[] = ['OPEN', 'REOPEN'];
+
+/**
+ * Whether the current user may edit this experiment's content — **permission and status**,
+ * which are two separate gates and are easy to conflate. Holding `EDIT_EXPERIMENTS` on a
+ * signed experiment does not make it writable, and a completed one is read-only to its own
+ * author.
+ *
+ * Every editable surface should ask this rather than testing `currentPermissions` alone.
+ */
+export function canEditExperiment(experiment: Pick<ExperimentDetails, 'currentPermissions' | 'status'>): boolean {
+  return experiment.currentPermissions.includes('EDIT_EXPERIMENTS') && EDITABLE_STATUSES.includes(experiment.status);
+}
+
 export interface BaseExperiment extends BaseDTO {
   name: string;
   status: ExperimentStatus;

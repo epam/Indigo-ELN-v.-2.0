@@ -397,6 +397,46 @@ export const slowMutateHandlers = [
 ];
 
 /**
+ * The model-mutation endpoint answering with a **recalculation**: whatever was asked for, the
+ * reply also rewrites a value the user did not touch. That is the normal case on the real
+ * backend — changing one weight moves every mol, EQ and yield derived from it — and it is what
+ * the stoichiometry table's green flash exists to point out.
+ *
+ * The path spells out how the diff dialect addresses a nested row. `/model/reactions` and the
+ * `inputs`/`samples` arrays under it are **list** paths in `JSON_PATCHER`, whose keys are
+ * indices (`"0"`, or `"2>5"` for something that moved), while a leaf carrying `$old`/`$new`
+ * replaces the node outright. Replacing the `mol` node is what puts it in `updatedNodes`,
+ * which is what `determineCellClasses` compares against.
+ */
+export const recalculatingMutateHandlers = [
+  http.post(`${ELN}/experiments/:id/mutate`, () =>
+    HttpResponse.json({
+      patch: {
+        model: {
+          reactions: {
+            '0': {
+              inputs: {
+                '1': {
+                  samples: {
+                    '0': {
+                      mol: {
+                        $old: { value: '0.0049', unit: 'MMOL', source: 'calculated' },
+                        $new: { value: '0.0075', unit: 'MMOL', source: 'calculated' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    } satisfies MutationResponse),
+  ),
+  ...handlers,
+];
+
+/**
  * The model-mutation endpoint fails. Separate from `errorHandlers`, which only intercepts GETs
  * — a POST would fall straight through it and hit the happy path.
  */

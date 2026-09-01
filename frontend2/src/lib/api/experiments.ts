@@ -146,8 +146,21 @@ function mutateExperimentModel(id: string, revision: number, mutation: Mutation)
 /**
  * Takes the experiment rather than its id because it needs the revision, and the caller
  * always has one in hand — a panel is rendering it. Nothing here refetches.
+ *
+ * `onPatched` receives `JSON_PATCHER.apply`'s second return value: a `newNode -> oldNode` map
+ * covering every object the diff rebuilt. That is how the stoichiometry table tells a cell the
+ * backend recalculated from one it left alone — a patch says which *nodes* changed, never
+ * which cells, so the comparison has to happen against the node that was replaced.
+ *
+ * The map's **keys** are the objects written into the query cache, so a later render reading
+ * `sample.weight` back out gets an identity hit. Its **values** are clones of the previous
+ * state (`apply` starts from a `structuredClone`), so they are good for comparing fields and
+ * useless for comparing identity.
  */
-export function useMutateExperimentModel(experiment: ExperimentDetails) {
+export function useMutateExperimentModel(
+  experiment: ExperimentDetails,
+  onPatched?: (updatedNodes: ReadonlyMap<unknown, unknown>) => void,
+) {
   const queryClient = useQueryClient();
   const id = experiment.id;
 
@@ -166,11 +179,16 @@ export function useMutateExperimentModel(experiment: ExperimentDetails) {
       // ExperimentDetailsDTOs. They overlap on names, which is why applying it to the detail
       // works — but it never touches currentPermissions, marked, the ancestor ids and names,
       // or the BaseDTO audit fields, so those survive untouched by construction.
-      patchExperimentDetails(
-        queryClient,
-        id,
-        (experiment) => JSON_PATCHER.apply(experiment, response.patch)[0] as ExperimentDetails,
-      );
+      let updatedNodes: ReadonlyMap<unknown, unknown> = new Map();
+      patchExperimentDetails(queryClient, id, (experiment) => {
+        const [patched, nodes] = JSON_PATCHER.apply(experiment, response.patch);
+        updatedNodes = nodes;
+        return patched as ExperimentDetails;
+      });
+      // After the cache write, so a subscriber re-rendering on the new data already has it.
+      // Skipped entirely when the detail was not cached — `patchExperimentDetails` no-ops
+      // there, and reporting an empty map would read as "nothing changed".
+      if (updatedNodes.size > 0) onPatched?.(updatedNodes);
       // TODO(analyze-rxn): response.unresolvedInputs names reactants the backend could not
       // match to a compound. Resolving them needs indigo-frontend's AnalyzeRxn slide-in panel
       // and the ResolveInputs mutation, neither of which is ported yet.

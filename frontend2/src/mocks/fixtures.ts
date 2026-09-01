@@ -5,7 +5,7 @@ import type { Experiment, ExperimentDetails, ExperimentRef } from '@/lib/types/e
 import { EXPERIMENT_STATUSES } from '@/lib/types/experiments.ts';
 import type { Notebook, NotebookDetails } from '@/lib/types/notebooks.ts';
 import type { Project, ProjectDetails, TotalCounts } from '@/lib/types/projects.ts';
-import type { Reaction } from '@/lib/types/reactions.ts';
+import type { CompoundRef, EnteredValue, Reaction, ReactionInput, ReactionInputSample } from '@/lib/types/reactions.ts';
 import type { CurrentUser } from '@/lib/types/user.ts';
 import type { TemplateDetails } from '@/lib/types/templates.ts';
 
@@ -149,16 +149,188 @@ export const REACTION_RXNFILE = [
   'M  END',
 ].join('\n');
 
+function makeDictionary(names: string[]): DictionaryItemRef[] {
+  return names.map((name, index) => ({ id: `d1c70000-0000-4000-8000-${String(index).padStart(12, '0')}`, name }));
+}
+
+/** Keyed by the same names the API takes as its `{dictionary}` path segment. */
+export const DICTIONARIES: Partial<Record<BuiltInDictionary, DictionaryItemRef[]>> = {
+  THERAPEUTIC_AREA: makeDictionary(['Obesity', 'Oncology', 'Cardiology', 'Immunology', 'Neurology']),
+  PROJECT_CODE: makeDictionary(['Code 1', 'Code 2', 'Code 3', 'Code 4']),
+  // Read by the stoichiometry table's Salt Code and Hazard Comments cells.
+  SALT_CODE: makeDictionary(['HCl', 'Na', 'K', 'Free base']),
+  HEALTH_HAZARD: makeDictionary(['Corrosive', 'Flammable', 'Irritant', 'Toxic', 'Oxidiser']),
+};
+
+/** A short helper for the `EnteredValue`s below — every numeric cell in the model is one. */
+function entered<U extends string>(value: string, unit: U, source: EnteredValue<U>['source']): EnteredValue<U> {
+  return { value, unit, source };
+}
+
 /**
- * One reaction step. The row lists are empty because nothing renders them yet — the
- * stoichiometry table is still a placeholder — so filling them in would be inventing a shape
- * no assertion checks.
+ * A registry compound: molecular weight, formula and CAS all come from the compound service,
+ * which is why so much of a `STORED` row is read-only.
  */
+function storedCompound(overrides: Partial<Extract<CompoundRef, { type: 'STORED' }>> = {}): CompoundRef {
+  return {
+    type: 'STORED',
+    compoundID: 'c0000000-0000-4000-8000-000000000001',
+    formula: 'C<sub>4</sub>H<sub>6</sub>O<sub>3</sub>',
+    molWeight: entered('102.09', 'G_PER_MOL', 'fixed'),
+    exactMass: entered('102.0317', 'NO_UNIT', 'fixed'),
+    calculatedBatchMF: 'C4H6O3',
+    compoundKey: 'STR-00000000-89',
+    casNumber: '108-24-7',
+    ...overrides,
+  };
+}
+
+export function makeReactionInputSample(
+  anchor: string,
+  overrides: Partial<ReactionInputSample> = {},
+): ReactionInputSample {
+  return {
+    anchor,
+    nbkBatchNumber: '20260101-0001-001',
+    purity: entered('100', 'NO_UNIT', 'default'),
+    healthHazards: [],
+    ...overrides,
+  };
+}
+
+export function makeReactionInput(anchor: string, overrides: Partial<ReactionInput> = {}): ReactionInput {
+  return {
+    anchor,
+    role: 'REACTANT',
+    compound: storedCompound(),
+    eq: entered('1', 'NO_UNIT', 'default'),
+    samples: [makeReactionInputSample(`${anchor.slice(0, -1)}a`)],
+    ...overrides,
+  };
+}
+
+const SALT_CODE = DICTIONARIES.SALT_CODE?.[0];
+const HAZARDS = DICTIONARIES.HEALTH_HAZARD ?? [];
+
+/**
+ * The four `EnteredValueSource` cases plus the two flash triggers, one row each, so every branch
+ * of `determineCellClasses` is reachable from a story — and a `VIRTUAL`, a `STORED` and an
+ * `UNKNOWN` compound, which is what decides whether Mol. Weight, Salt Code and Salt EQ are
+ * editable at all.
+ *
+ * Two of the rows carry several batches, with **differently-sized content**: that is what makes
+ * the nested tables' fixed column widths visible. Sized from their own content they would come
+ * out different, which is the bug the `<colgroup>` in `SampleTable` exists to prevent.
+ */
+export const REACTION_INPUTS: ReactionInput[] = [
+  // Limiting reactant. A hand-entered weight, and a mol the backend calculated from it.
+  makeReactionInput('d0000000-0000-4000-8000-000000000001', {
+    limiting: true,
+    chemicalName: 'Salicylic acid',
+    mol: entered('4.9', 'MMOL', 'calculated'),
+    samples: [
+      makeReactionInputSample('e0000000-0000-4000-8000-00000000000a', {
+        weight: entered('676.5', 'MG', 12),
+        mol: entered('4.9', 'MMOL', 'calculated'),
+        purity: entered('98.5', 'NO_UNIT', 12),
+        healthHazards: HAZARDS.slice(0, 2),
+      }),
+    ],
+  }),
+  // A solvent, and the row with the most batches — four, with contents of very different
+  // widths, so two of these tables side by side would visibly disagree without fixed columns.
+  makeReactionInput('d0000000-0000-4000-8000-000000000002', {
+    role: 'SOLVENT',
+    chemicalName: 'Acetic anhydride',
+    compound: storedCompound({
+      compoundID: 'c0000000-0000-4000-8000-000000000002',
+      compoundKey: 'STR-00000000-90',
+      casNumber: '108-24-7',
+      formula: 'C<sub>4</sub>H<sub>6</sub>O<sub>3</sub>',
+    }),
+    samples: [
+      makeReactionInputSample('e0000000-0000-4000-8000-00000000000b', {
+        nbkBatchNumber: '20260101-0001-002',
+        volume: entered('4.5', 'ML', 8),
+        density: entered('1.08', 'G_ML', 'fixed'),
+        mol: entered('0.0049', 'MMOL', 'calculated'),
+        comment: 'Dried over molecular sieves before use',
+      }),
+      makeReactionInputSample('e0000000-0000-4000-8000-00000000000c', {
+        nbkBatchNumber: '20260101-0001-003',
+        volume: entered('12', 'ML', 8),
+        mol: entered('0.013', 'MMOL', 'calculated'),
+      }),
+      makeReactionInputSample('e0000000-0000-4000-8000-00000000000d', {
+        nbkBatchNumber: '20260101-0001-004',
+        // Overwritten by the backend — the row that flashes red once a patch lands.
+        volume: { value: '0.75', unit: 'ML', source: 'calculated', overwritten: true },
+        molarity: entered('0.5', 'M', 3),
+      }),
+      makeReactionInputSample('e0000000-0000-4000-8000-00000000000e', {
+        nbkBatchNumber: '20260101-0001-006',
+        healthHazards: HAZARDS.slice(1, 4),
+      }),
+    ],
+  }),
+  // Virtual compound: Salt Code is editable here, and so is Salt EQ because a code is set.
+  makeReactionInput('d0000000-0000-4000-8000-000000000003', {
+    role: 'REAGENT',
+    chemicalName: 'Pyridine',
+    compound: {
+      type: 'VIRTUAL',
+      compoundID: 'c0000000-0000-4000-8000-000000000003',
+      formula: 'C<sub>5</sub>H<sub>5</sub>N',
+      molWeight: entered('79.1', 'G_PER_MOL', 'fixed'),
+      exactMass: entered('79.0422', 'NO_UNIT', 'fixed'),
+      calculatedBatchMF: 'C5H5N',
+      compoundKey: 'VIRT-000012',
+      saltCode: SALT_CODE,
+      saltEQ: 1,
+    },
+    eq: entered('2', 'NO_UNIT', 5),
+    samples: [
+      makeReactionInputSample('e0000000-0000-4000-8000-00000000000f', {
+        nbkBatchNumber: '20260101-0001-007',
+        weight: entered('790', 'MG', 5),
+      }),
+    ],
+  }),
+  // Stored compound *with* a salt code: both Salt Code and Salt EQ stay locked, because the
+  // registry owns them. indigo-frontend let this row's Salt EQ be edited.
+  makeReactionInput('d0000000-0000-4000-8000-000000000004', {
+    role: 'CATALYST',
+    chemicalName: 'DMAP hydrochloride',
+    compound: storedCompound({
+      compoundID: 'c0000000-0000-4000-8000-000000000004',
+      compoundKey: 'STR-00000000-91',
+      formula: 'C<sub>7</sub>H<sub>10</sub>N<sub>2</sub>',
+      saltCode: SALT_CODE,
+      saltEQ: 1,
+    }),
+    samples: [makeReactionInputSample('e0000000-0000-4000-8000-000000000010', { nbkBatchNumber: '20260101-0001-008' })],
+  }),
+  // An unidentified compound — the only case where Mol. Weight is the user's to enter, and a
+  // row with nothing filled in at all.
+  makeReactionInput('d0000000-0000-4000-8000-000000000005', {
+    role: 'REAGENT',
+    compound: { type: 'UNKNOWN', molWeight: {} },
+    samples: [
+      makeReactionInputSample('e0000000-0000-4000-8000-000000000011', {
+        nbkBatchNumber: undefined,
+        purity: {},
+      }),
+    ],
+  }),
+];
+
+/** One reaction step, carrying the input rows above. */
 export function makeReaction(overrides: Partial<Reaction> = {}): Reaction {
   return {
     anchor: 'b0000000-0000-4000-8000-000000000001',
     rxnfile: REACTION_RXNFILE,
-    inputs: [],
+    inputs: REACTION_INPUTS,
+    limitingAnchor: 'd0000000-0000-4000-8000-000000000001',
     outputs: [],
     precursorReactantIds: [],
     ...overrides,
@@ -313,16 +485,6 @@ export const KEYWORDS: string[] = [
   'chromatography',
   'catalysis',
 ];
-
-function makeDictionary(names: string[]): DictionaryItemRef[] {
-  return names.map((name, index) => ({ id: `d1c70000-0000-4000-8000-${String(index).padStart(12, '0')}`, name }));
-}
-
-/** Keyed by the same names the API takes as its `{dictionary}` path segment. */
-export const DICTIONARIES: Partial<Record<BuiltInDictionary, DictionaryItemRef[]>> = {
-  THERAPEUTIC_AREA: makeDictionary(['Obesity', 'Oncology', 'Cardiology', 'Immunology', 'Neurology']),
-  PROJECT_CODE: makeDictionary(['Code 1', 'Code 2', 'Code 3', 'Code 4']),
-};
 
 /**
  * The pool `users/suggest` matches against. Nils and Priya are deliberately absent from

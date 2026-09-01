@@ -70,7 +70,11 @@ export const SavesOnBlur: Story = {
     // Focus has to land somewhere outside the whole widget, toolbar included.
     await userEvent.click(document.body);
 
-    await waitFor(() => expect(canvas.getByText('Rewritten by the story.')).toBeInTheDocument());
+    // A generous timeout, not the 1 s default: this waits on a Tiptap edit, a blur, a PATCH
+    // round trip through MSW and a cache write, and every story in this project shares one
+    // browser. Under load that comfortably exceeds a second — which says nothing about the
+    // behaviour being asserted, so the deadline should not be what fails.
+    await waitFor(() => expect(canvas.getByText('Rewritten by the story.')).toBeInTheDocument(), { timeout: 5_000 });
   },
 };
 

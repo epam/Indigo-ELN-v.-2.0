@@ -1,9 +1,8 @@
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { PENDING_MIN_VISIBLE_MS, PENDING_SHOW_DELAY_MS, useDelayedFlag } from './use-delayed-flag';
+import { PENDING_SHOW_DELAY_MS, useDelayedFlag } from './use-delayed-flag';
 
-// Date.now() drives the hold, so the fake clock has to move the wall clock too.
 beforeEach(() => vi.useFakeTimers({ shouldAdvanceTime: false }));
 afterEach(() => vi.useRealTimers());
 
@@ -23,72 +22,67 @@ describe('useDelayedFlag', () => {
     expect(setup(true).result.current).toBe(false);
   });
 
-  /** The common case: most saves beat the delay, and should cost no visible chrome at all. */
   it('never shows for something that finishes before the delay', () => {
-    const view = setup();
-    view.rerender({ active: true });
+    const { result, rerender } = setup(true);
 
-    advance(PENDING_SHOW_DELAY_MS - 50);
-    view.rerender({ active: false });
+    advance(PENDING_SHOW_DELAY_MS - 1);
+    rerender({ active: false });
+    advance(1_000);
 
-    advance(PENDING_SHOW_DELAY_MS + PENDING_MIN_VISIBLE_MS);
-    expect(view.result.current).toBe(false);
+    expect(result.current).toBe(false);
   });
 
   it('shows once the delay elapses', () => {
-    const view = setup();
-    view.rerender({ active: true });
+    const { result } = setup(true);
 
     advance(PENDING_SHOW_DELAY_MS - 1);
-    expect(view.result.current).toBe(false);
+    expect(result.current).toBe(false);
 
     advance(1);
-    expect(view.result.current).toBe(true);
-  });
-
-  /** Without the hold this would blink: shown at 300 ms, hidden at 310 ms. */
-  it('holds for the minimum when the wait ends just after it appeared', () => {
-    const view = setup();
-    view.rerender({ active: true });
-    advance(PENDING_SHOW_DELAY_MS);
-    expect(view.result.current).toBe(true);
-
-    advance(10);
-    view.rerender({ active: false });
-    expect(view.result.current).toBe(true);
-
-    advance(PENDING_MIN_VISIBLE_MS - 10 - 1);
-    expect(view.result.current).toBe(true);
-
-    advance(1);
-    expect(view.result.current).toBe(false);
+    expect(result.current).toBe(true);
   });
 
   /**
-   * The hold is measured from when the spinner appeared, not from when the wait ended — a
-   * long save must not leave it up for another `minVisibleMs` after finishing.
+   * **The behaviour this hook used to get wrong.** It held the flag for a minimum once shown, so
+   * a spinner that appeared at 300 ms stayed until 700 ms whatever the server did. `SavingOverlay`
+   * drives `inert` from this flag, so that hold also froze the control: a 350 ms save left the
+   * field unusable for ~750 ms. Down is now immediate.
    */
-  it('hides at once when it has already been shown longer than the minimum', () => {
-    const view = setup();
-    view.rerender({ active: true });
-    advance(PENDING_SHOW_DELAY_MS + PENDING_MIN_VISIBLE_MS + 1_000);
-    expect(view.result.current).toBe(true);
+  it('hides as soon as the wait ends, however briefly it was shown', () => {
+    const { result, rerender } = setup(true);
 
-    view.rerender({ active: false });
+    advance(PENDING_SHOW_DELAY_MS);
+    expect(result.current).toBe(true);
+
+    // 10 ms after appearing — the case the old minimum existed to smooth over.
+    advance(10);
+    rerender({ active: false });
     advance(0);
-    expect(view.result.current).toBe(false);
+    expect(result.current).toBe(false);
   });
 
-  /** A second save starting while the first is still shown keeps it up rather than restarting. */
-  it('stays shown across a back-to-back second wait', () => {
-    const view = setup();
-    view.rerender({ active: true });
-    advance(PENDING_SHOW_DELAY_MS);
-    expect(view.result.current).toBe(true);
+  it('hides at once after a long wait too', () => {
+    const { result, rerender } = setup(true);
 
-    view.rerender({ active: false });
-    view.rerender({ active: true });
-    advance(PENDING_MIN_VISIBLE_MS + 100);
-    expect(view.result.current).toBe(true);
+    advance(PENDING_SHOW_DELAY_MS + 5_000);
+    rerender({ active: false });
+    advance(0);
+
+    expect(result.current).toBe(false);
+  });
+
+  it('starts the delay again for a second wait rather than showing at once', () => {
+    const { result, rerender } = setup(true);
+
+    advance(PENDING_SHOW_DELAY_MS);
+    rerender({ active: false });
+    advance(0);
+    expect(result.current).toBe(false);
+
+    rerender({ active: true });
+    expect(result.current).toBe(false);
+
+    advance(PENDING_SHOW_DELAY_MS);
+    expect(result.current).toBe(true);
   });
 });

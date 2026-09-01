@@ -13,6 +13,17 @@ import { cn } from '@/lib/utils';
 const PAGE_STEP = 10;
 
 /** Identity, for the common case where the items already are their own labels. */
+/**
+ * Text size of the control and of its popup. `md` is the form default; `sm` matches the 13px a
+ * dense table sets, so a combobox in a cell does not read a size larger than the text beside it.
+ */
+export type ComboboxSize = 'sm' | 'md';
+
+const SIZE_TEXT: Record<ComboboxSize, string> = {
+  sm: 'text-[13px]/5',
+  md: 'text-[14px]/6',
+};
+
 function identity(item: unknown): string {
   return String(item);
 }
@@ -26,6 +37,7 @@ interface PopupContentProps<T> {
   emptyContent: string | null;
   error: boolean;
   loading: boolean;
+  size: ComboboxSize;
   listRef?: React.RefObject<HTMLDivElement | null>;
 }
 
@@ -41,6 +53,7 @@ function PopupContent<T>({
   emptyContent,
   error,
   loading,
+  size,
   listRef,
 }: PopupContentProps<T>) {
   return (
@@ -55,7 +68,8 @@ function PopupContent<T>({
             {statusContent && (
               <div
                 className={cn(
-                  'flex items-center gap-2 px-3 py-2 text-[14px]/6',
+                  'flex items-center gap-2 px-3 py-2',
+                  SIZE_TEXT[size],
                   error ? 'text-red-200' : 'text-neutral-700',
                 )}
               >
@@ -71,14 +85,17 @@ function PopupContent<T>({
             on the element itself it would leave a blank strip above a populated list.
           */}
           <ComboboxPrimitive.Empty>
-            {emptyContent && <div className="px-3 py-2 text-[14px]/6 text-neutral-700">{emptyContent}</div>}
+            {emptyContent && <div className={cn('px-3 py-2 text-neutral-700', SIZE_TEXT[size])}>{emptyContent}</div>}
           </ComboboxPrimitive.Empty>
           <ComboboxPrimitive.List ref={listRef}>
             {items.map((item) => (
               <ComboboxPrimitive.Item
                 key={itemToKey(item)}
                 value={item}
-                className="cursor-default rounded-2 px-3 py-2 text-[14px]/6 outline-none data-[highlighted]:bg-blue-10"
+                className={cn(
+                  'cursor-default rounded-2 px-3 py-2 outline-none data-[highlighted]:bg-blue-10',
+                  SIZE_TEXT[size],
+                )}
               >
                 {itemToLabel(item)}
               </ComboboxPrimitive.Item>
@@ -102,6 +119,12 @@ interface ComboboxProps<T> {
   itemToLabel?: (item: T) => string;
   placeholder?: string;
   id?: string;
+  /**
+   * Names the control where no visible `<label>` does — a combobox sitting in a table cell,
+   * whose column header is not associated with it. `MultiCombobox` has always taken one;
+   * prefer `id` plus a `Field` wherever there is a label to point at.
+   */
+  'aria-label'?: string;
   /** Shown in the popup when nothing matches what was typed. */
   emptyMessage?: string;
   /** Whether the item list is still on its way. */
@@ -110,6 +133,8 @@ interface ComboboxProps<T> {
   error?: boolean;
   /** Renders the current selection but accepts no interaction — a reader who cannot edit. */
   disabled?: boolean;
+  /** Text size of the control and its popup. `sm` matches a dense table's 13px. */
+  size?: ComboboxSize;
 }
 
 /**
@@ -127,10 +152,12 @@ function Combobox<T>({
   itemToLabel = identity,
   placeholder,
   id,
+  'aria-label': ariaLabel,
   emptyMessage = 'No matches',
   loading = false,
   error = false,
   disabled = false,
+  size = 'md',
 }: ComboboxProps<T>) {
   const statusContent = loading ? 'Searching…' : error ? 'Could not load options' : null;
   // "No matches" is a claim about a finished search, so it survives neither a list still
@@ -158,8 +185,12 @@ function Combobox<T>({
       >
         <ComboboxPrimitive.Input
           id={id}
+          aria-label={ariaLabel}
           placeholder={placeholder}
-          className="min-w-0 flex-1 bg-transparent text-[14px]/6 text-neutral-1000 outline-none placeholder:text-neutral-700"
+          className={cn(
+            'min-w-0 flex-1 bg-transparent text-neutral-1000 outline-none placeholder:text-neutral-700',
+            SIZE_TEXT[size],
+          )}
         />
         {/* Base UI mounts this only while there is something to clear. */}
         <ComboboxPrimitive.Clear
@@ -196,6 +227,7 @@ function Combobox<T>({
         emptyContent={emptyContent}
         error={error}
         loading={loading}
+        size={size}
       />
     </ComboboxPrimitive.Root>
   );
@@ -234,6 +266,8 @@ interface MultiComboboxProps<T> {
   error?: boolean;
   /** Renders the chips but accepts no interaction — a reader who cannot edit. */
   disabled?: boolean;
+  /** Text size of the control, its chips and its popup. `sm` matches a dense table's 13px. */
+  size?: ComboboxSize;
 }
 
 /**
@@ -262,6 +296,7 @@ function MultiCombobox<T = string>({
   loading = false,
   error = false,
   disabled = false,
+  size = 'md',
 }: MultiComboboxProps<T>) {
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
@@ -406,7 +441,10 @@ function MultiCombobox<T = string>({
           aria-label={ariaLabel}
           placeholder={value.length === 0 ? placeholder : undefined}
           onKeyDown={handleKeyDown}
-          className="min-w-24 flex-1 bg-transparent text-[14px]/6 text-neutral-1000 outline-none placeholder:text-neutral-700"
+          className={cn(
+            'min-w-24 flex-1 bg-transparent text-neutral-1000 outline-none placeholder:text-neutral-700',
+            SIZE_TEXT[size],
+          )}
         />
         {/*
           The chevron stays put while suggestions load, and stands aside while the field is being
@@ -429,6 +467,7 @@ function MultiCombobox<T = string>({
         emptyContent={emptyContent}
         error={error}
         loading={loading}
+        size={size}
         listRef={listRef}
       />
     </ComboboxPrimitive.Root>

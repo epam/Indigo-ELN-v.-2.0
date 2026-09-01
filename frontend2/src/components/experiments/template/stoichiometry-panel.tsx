@@ -1,6 +1,7 @@
 import { Download, MoreHorizontal, Plus, Upload } from 'lucide-react';
 
 import { CollapsibleCard } from '@/components/common/collapsible-card';
+import { StoichiometryTable } from '@/components/experiments/stoichiometry/stoichiometry-table';
 import { ReactionSchemePanel } from '@/components/experiments/template/reaction-scheme-panel';
 import { TemplatePlaceholder } from '@/components/experiments/template/template-placeholder';
 import { Button } from '@/components/ui/button';
@@ -95,8 +96,7 @@ export function StoichiometryPanel({
           {component.reactantsReagentsSolvents && (
             <section className="flex flex-col gap-2">
               <h3 className="text-[14px]/6 text-neutral-800">Reactants, Reagents, Solvents</h3>
-              {/* TODO(stoichiometry-table): the editable inputs table, driven by the mutation API. */}
-              <TemplatePlaceholder>The reactants, reagents and solvents table goes here.</TemplatePlaceholder>
+              <StoichiometryTable experiment={experiment} reaction={reaction} />
             </section>
           )}
 
