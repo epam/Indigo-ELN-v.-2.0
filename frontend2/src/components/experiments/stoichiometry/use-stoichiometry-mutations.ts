@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react';
 import { useMutateExperimentModel } from '@/lib/api/experiments';
 
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
-import type { Mutation } from '@/lib/types/mutations.ts';
+import type { ModelMutation } from '@/lib/types/mutations.ts';
 
 /** Addresses one cell for the purposes of its spinner: the row's anchor plus the column id. */
 export function cellId(anchor: string, column: string): string {
@@ -12,7 +12,7 @@ export function cellId(anchor: string, column: string): string {
 
 export interface StoichiometryMutations {
   /** Fires one mutation and marks `cell` busy until it settles. */
-  save: (cell: string, mutation: Mutation) => void;
+  save: (cell: string, mutation: ModelMutation) => void;
   /** Which cells are mid-save — what each cell's `SavingOverlay` reads. */
   savingCells: ReadonlySet<string>;
   /** `newNode -> oldNode` from the last patch; drives the recalculation flash. */
@@ -45,7 +45,7 @@ export function useStoichiometryMutations(experiment: ExperimentDetails): Stoich
   const { mutate: run } = mutate;
 
   const save = useCallback(
-    (cell: string, mutation: Mutation) => {
+    (cell: string, mutation: ModelMutation) => {
       setSavingCells((cells) => new Set(cells).add(cell));
       run(mutation, {
         onSettled: () =>

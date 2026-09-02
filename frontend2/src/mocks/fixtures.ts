@@ -5,7 +5,14 @@ import type { Experiment, ExperimentDetails, ExperimentRef } from '@/lib/types/e
 import { EXPERIMENT_STATUSES } from '@/lib/types/experiments.ts';
 import type { Notebook, NotebookDetails } from '@/lib/types/notebooks.ts';
 import type { Project, ProjectDetails, TotalCounts } from '@/lib/types/projects.ts';
-import type { CompoundRef, EnteredValue, Reaction, ReactionInput, ReactionInputSample } from '@/lib/types/reactions.ts';
+import type {
+  CompoundRef,
+  EnteredValue,
+  Reaction,
+  ReactionInput,
+  ReactionInputSample,
+  ReactionOutput,
+} from '@/lib/types/reactions.ts';
 import type { CurrentUser } from '@/lib/types/user.ts';
 import type { TemplateDetails } from '@/lib/types/templates.ts';
 
@@ -324,6 +331,86 @@ export const REACTION_INPUTS: ReactionInput[] = [
   }),
 ];
 
+/**
+ * The products of a step. Every row here is `intended` except the last, which is what proves the
+ * table filters them out.
+ *
+ * Between them they reach every branch the columns declare: the three `ReactionOutputType`s, a
+ * `VIRTUAL` compound with a salt code (the only editable Salt Code and Salt EQ), a `STORED` one
+ * with a salt code (both locked by the registry), and a row with no theoretical values at all —
+ * what a reaction with no limiting reagent looks like.
+ */
+export function makeReactionOutput(anchor: string, overrides: Partial<ReactionOutput> = {}): ReactionOutput {
+  return {
+    anchor,
+    outputName: 'P0',
+    type: 'FINAL',
+    intended: true,
+    compound: storedCompound(),
+    eq: entered('1', 'NO_UNIT', 'default'),
+    theoMol: entered('4.9', 'MMOL', 'calculated'),
+    theoWeight: entered('500.4', 'MG', 'calculated'),
+    samples: [],
+    ...overrides,
+  };
+}
+
+export const REACTION_OUTPUTS: ReactionOutput[] = [
+  // The wanted product.
+  makeReactionOutput('f0000000-0000-4000-8000-000000000001', {
+    outputName: 'P0',
+    chemicalName: 'Acetylsalicylic acid',
+    compound: storedCompound({
+      compoundID: 'c0000000-0000-4000-8000-000000000010',
+      compoundKey: 'STR-00000000-95',
+      formula: 'C<sub>9</sub>H<sub>8</sub>O<sub>4</sub>',
+      molWeight: entered('180.16', 'G_PER_MOL', 'fixed'),
+      exactMass: entered('180.0423', 'NO_UNIT', 'fixed'),
+    }),
+    eq: entered('1', 'NO_UNIT', 7),
+  }),
+  // A by-product, on a virtual compound: Salt Code is editable here, and Salt EQ with it.
+  makeReactionOutput('f0000000-0000-4000-8000-000000000002', {
+    outputName: 'P1',
+    chemicalName: 'Acetic acid',
+    type: 'BY_PRODUCT',
+    compound: {
+      type: 'VIRTUAL',
+      compoundID: 'c0000000-0000-4000-8000-000000000011',
+      formula: 'C<sub>2</sub>H<sub>4</sub>O<sub>2</sub>',
+      molWeight: entered('60.052', 'G_PER_MOL', 'fixed'),
+      exactMass: entered('60.0211', 'NO_UNIT', 'fixed'),
+      calculatedBatchMF: 'C2H4O2',
+      compoundKey: 'VIRT-000031',
+      saltCode: SALT_CODE,
+      saltEQ: 1,
+    },
+    theoWeight: entered('294.3', 'MG', 'calculated'),
+  }),
+  // An intermediate the next step consumes, and the row with nothing calculated on it — the
+  // reaction has no limiting reagent, so `theoMol` and `theoWeight` never resolve.
+  makeReactionOutput('f0000000-0000-4000-8000-000000000003', {
+    outputName: 'P2',
+    type: 'INTERMEDIATE',
+    compound: storedCompound({
+      compoundID: 'c0000000-0000-4000-8000-000000000012',
+      compoundKey: 'STR-00000000-96',
+      formula: 'C<sub>7</sub>H<sub>6</sub>O<sub>3</sub>',
+      saltCode: SALT_CODE,
+      saltEQ: 1,
+    }),
+    theoMol: {},
+    theoWeight: {},
+  }),
+  // Not drawn in the scheme, so the table must not show it.
+  makeReactionOutput('f0000000-0000-4000-8000-000000000004', {
+    outputName: 'P3',
+    chemicalName: 'Unplanned by-product',
+    type: 'BY_PRODUCT',
+    intended: false,
+  }),
+];
+
 /** One reaction step, carrying the input rows above. */
 export function makeReaction(overrides: Partial<Reaction> = {}): Reaction {
   return {
@@ -331,7 +418,7 @@ export function makeReaction(overrides: Partial<Reaction> = {}): Reaction {
     rxnfile: REACTION_RXNFILE,
     inputs: REACTION_INPUTS,
     limitingAnchor: 'd0000000-0000-4000-8000-000000000001',
-    outputs: [],
+    outputs: REACTION_OUTPUTS,
     precursorReactantIds: [],
     ...overrides,
   };

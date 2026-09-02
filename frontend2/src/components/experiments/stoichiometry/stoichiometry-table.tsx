@@ -14,7 +14,9 @@ import {
 } from '@/components/experiments/stoichiometry/cells';
 import type { InputColumn, SampleColumn } from '@/components/experiments/stoichiometry/columns';
 import {
+  CELL_CLASS,
   COMPOUND_COLUMNS,
+  HEADER_CELL_CLASS,
   INPUT_ROLES,
   SAMPLE_COLUMNS,
   SAMPLE_INDENT_SPAN,
@@ -33,10 +35,6 @@ import type { Reaction, ReactionInput, ReactionInputSample } from '@/lib/types/r
 
 /** The values the backend accepts — `@Min(1) @Max(5)` on `SetExperimentSignificantFigures`. */
 const SIGNIFICANT_FIGURES = [1, 2, 3, 4, 5];
-
-const CELL_CLASS = 'border-b border-neutral-300 px-2 py-1 align-middle';
-const HEADER_CELL_CLASS =
-  'border-y border-neutral-300 px-2 py-2 text-center text-[12px]/5 font-semibold whitespace-nowrap text-neutral-800';
 
 /** Every field the search box looks at. */
 function inputHaystack(input: ReactionInput): string {

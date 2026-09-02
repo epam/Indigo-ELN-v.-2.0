@@ -75,6 +75,13 @@ export const ELIGIBLE_ACL_LEVELS = (Object.keys(ACL_LEVEL_LABELS) as AccessLevel
   (level) => !isImmutableLevel(level),
 );
 
+/**
+ * Mirrors `DocumentStatus` (common/model) — the **signing workflow's** states, carried by the
+ * `SignatureUpdated` mutation. Five of the nine `ExperimentStatus` values are named the same and
+ * are set from these; the two enums are not interchangeable.
+ */
+export type DocumentStatus = 'SUBMITTED' | 'SIGNING' | 'SIGNED' | 'REJECTED' | 'CANCELLED';
+
 /** One entry of the `POST /access` body. The backend upserts per entry, so send only what changed. */
 export interface AccessForm {
   username: string;

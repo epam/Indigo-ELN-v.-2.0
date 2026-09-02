@@ -10,7 +10,7 @@ import {
 
 import type { NumericCellValue } from '@/components/experiments/stoichiometry/numeric-cell';
 import type { DictionaryItemRef } from '@/lib/types/dictionaries.ts';
-import type { Mutation } from '@/lib/types/mutations.ts';
+import type { ModelMutation } from '@/lib/types/mutations.ts';
 import type {
   DensityUnit,
   EnteredValue,
@@ -34,6 +34,15 @@ import type {
  * `kind` is a discriminated union so the renderer's `switch` is exhaustive — a new kind is a
  * compile error rather than a blank cell, the same guarantee `TemplateComponentView` gets.
  */
+
+/**
+ * The padding, borders and typography of a cell and of a header cell. Shared by both tables on
+ * this screen — they are one grid to the reader, so a difference here would show up as the
+ * products table sitting a pixel off the stoichiometry table above it.
+ */
+export const CELL_CLASS = 'border-b border-neutral-300 px-2 py-1 align-middle';
+export const HEADER_CELL_CLASS =
+  'border-y border-neutral-300 px-2 py-2 text-center text-[12px]/5 font-semibold whitespace-nowrap text-neutral-800';
 
 /** What every column carries, whichever level it belongs to. */
 interface ColumnBase {
@@ -63,7 +72,7 @@ type Cell<Row> =
   | {
       kind: 'text';
       value: (row: Row) => string | undefined;
-      mutation: (row: Row, next: string | null) => Mutation;
+      mutation: (row: Row, next: string | null) => ModelMutation;
     }
   /**
    * A number with a unit, or a unitless one when `units` has a single member.
@@ -78,7 +87,7 @@ type Cell<Row> =
       kind: 'numeric';
       value: (row: Row) => EnteredValue<string> | undefined;
       units: readonly string[];
-      mutation: (row: Row, next: NumericCellValue) => Mutation;
+      mutation: (row: Row, next: NumericCellValue) => ModelMutation;
       editable?: (row: Row) => boolean;
     }
   /** One item from a built-in dictionary. */
@@ -86,7 +95,7 @@ type Cell<Row> =
       kind: 'dictionary';
       dictionary: 'SALT_CODE';
       value: (row: Row) => DictionaryItemRef | undefined;
-      mutation: (row: Row, next: DictionaryItemRef | null) => Mutation;
+      mutation: (row: Row, next: DictionaryItemRef | null) => ModelMutation;
       editable?: (row: Row) => boolean;
     }
   /** Several items from a built-in dictionary. */
@@ -94,14 +103,14 @@ type Cell<Row> =
       kind: 'multiDictionary';
       dictionary: 'HEALTH_HAZARD';
       value: (row: Row) => DictionaryItemRef[];
-      mutation: (row: Row, next: DictionaryItemRef[]) => Mutation;
+      mutation: (row: Row, next: DictionaryItemRef[]) => ModelMutation;
     }
   /** The reaction role picker — a fixed enum, not a dictionary. */
-  | { kind: 'role'; value: (row: Row) => ReactionRole; mutation: (row: Row, next: ReactionRole) => Mutation }
+  | { kind: 'role'; value: (row: Row) => ReactionRole; mutation: (row: Row, next: ReactionRole) => ModelMutation }
   /** The limiting-reagent radio. */
-  | { kind: 'limiting'; value: (row: Row) => boolean; mutation: (row: Row) => Mutation }
+  | { kind: 'limiting'; value: (row: Row) => boolean; mutation: (row: Row) => ModelMutation }
   /** A destructive icon button. */
-  | { kind: 'delete'; label: string; mutation: (row: Row) => Mutation }
+  | { kind: 'delete'; label: string; mutation: (row: Row) => ModelMutation }
   /**
    * A host column the compound row leaves empty, so that a wider sample column has somewhere to
    * grow that costs nothing. See `COMPOUND_COLUMNS` for which two, and why.
@@ -150,7 +159,7 @@ export const ROLE_LABELS: Record<ReactionRole, string> = {
  * field, so it is lifted into one to reach the same cell component. Deliberately **without a
  * `source`**: it has no provenance, and claiming one would colour it as fixed or calculated.
  */
-function asEnteredValue(value: number | undefined): EnteredValue<string> | undefined {
+export function asEnteredValue(value: number | undefined): EnteredValue<string> | undefined {
   return value == null ? undefined : { value: String(value), unit: 'NO_UNIT' };
 }
 

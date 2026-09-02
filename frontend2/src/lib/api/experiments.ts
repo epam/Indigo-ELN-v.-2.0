@@ -13,7 +13,7 @@ import type {
   ExperimentFilters,
   ExperimentRef,
 } from '@/lib/types/experiments.ts';
-import type { Mutation, MutationResponse } from '@/lib/types/mutations.ts';
+import type { ModelMutation, MutationResponse } from '@/lib/types/mutations.ts';
 
 export const EXPERIMENTS_PAGE_SIZE = 10;
 
@@ -136,7 +136,7 @@ export function useEditExperiment(id: string) {
  * no amount of care on this side would keep it fresh. It is sent to match the contract, not
  * to guard anything — do not build conflict handling on it.
  */
-function mutateExperimentModel(id: string, revision: number, mutation: Mutation): Promise<MutationResponse> {
+function mutateExperimentModel(id: string, revision: number, mutation: ModelMutation): Promise<MutationResponse> {
   return apiFetch<MutationResponse>(`/api/eln/experiments/${id}/mutate?revision=${revision}`, {
     method: 'POST',
     body: JSON.stringify(mutation),
@@ -166,7 +166,7 @@ export function useMutateExperimentModel(
 
   return useMutation({
     ...experimentWrite(id),
-    mutationFn: (mutation: Mutation) => {
+    mutationFn: (mutation: ModelMutation) => {
       // Prefer the cached copy, which may be newer than the one this component rendered with:
       // `useEditExperiment` replaces the whole detail, revision included, and this mutation
       // may have been sitting in `experimentWrite`'s queue while that landed. The prop is the

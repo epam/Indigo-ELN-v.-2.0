@@ -216,7 +216,7 @@ here rather than on either list, so neither has to import it from the other.
 | `notebooks.ts` | `BaseNotebook`, `Notebook` |
 | `user.ts` | `CurrentUser`, `ApplicationPermission` |
 | `reactions.ts` | the `reaction/model` tree: `ExperimentModel`, `Reaction`, `ReactionInput`/`Output` and their samples, `CompoundRef`, `EnteredValue`, the unit unions |
-| `mutations.ts` | `Mutation` (only the members a screen sends), `MutationResponse` |
+| `mutations.ts` | `Mutation` (all 94 members of the backend's `@JsonSubTypes` list), `ModelMutation` (the subset `/mutate` accepts), `MutationResponse` |
 
 `reactions.ts` is ported from the **Java**, not from indigo-frontend's `experiment.i.ts`. Those
 copies were generated from an older spec and have drifted: a `Reaction.rxnVersion` that does not
@@ -236,6 +236,16 @@ mutation and applies the response with `JSON_PATCHER` (`src/lib/json-patcher.ts`
 port of the backend's `JSONPatcher.java`, pinned by `json-patcher.test.ts` against that class's
 own cases). It joins `experimentWrite`'s scope, so it queues behind the on-blur field saves
 rather than racing them.
+
+`mutations.ts` mirrors the backend's `@JsonSubTypes` list **in full** — all 94 members, in its
+order, grouped into unions that follow the Java interface hierarchy. Most of them never travel
+over `/mutate`: the backend gates that with `isMutateMethodAllowed()`, and the rest answer
+through their own endpoints (a project is created by `POST /projects`, an experiment completed
+by `POST /experiments/{id}/complete`, an SDF imported by a multipart upload). **`ModelMutation`
+is the subset that endpoint accepts, and it is what the mutate hook and both column files take**
+— nothing outside `mutations.ts` should be typed on the full `Mutation`.
+`mutations.test.ts` pins the mirror against the backend list and fails by name on either side of
+the diff; it carries the two `grep`s that regenerate its list.
 
 Three properties of the diff, all easier to know than to rediscover:
 

@@ -29,7 +29,7 @@ import type { AccessForm, ACLEntry, Page, UserRef } from '@/lib/types/common.ts'
 import type { GlobalSearchResult } from '@/lib/types/search.ts';
 import type { BuiltInDictionary } from '@/lib/types/dictionaries.ts';
 import type { ExperimentEditRequest, ExperimentStatus } from '@/lib/types/experiments.ts';
-import type { Mutation, MutationResponse } from '@/lib/types/mutations.ts';
+import type { ModelMutation, MutationResponse } from '@/lib/types/mutations.ts';
 import type { NotebookEditRequest } from '@/lib/types/notebooks.ts';
 import type { ProjectEditRequest } from '@/lib/types/projects.ts';
 
@@ -100,7 +100,7 @@ export const TAKEN_NOTEBOOK_NAME = '00000002';
  *
  * The reaction is addressed as list key `"0"` — same index in, same index out.
  */
-function setSchemeResponse(mutation: Mutation): MutationResponse {
+function setSchemeResponse(mutation: ModelMutation): MutationResponse {
   if (mutation.type !== 'SetScheme') return { patch: {} };
   return {
     patch: { model: { reactions: { '0': { rxnfile: { $old: REACTION_RXNFILE, $new: mutation.rxnFile } } } } },
@@ -259,7 +259,7 @@ export const handlers = [
   ),
   http.delete(`${ELN}/experiments/:id/attachments/:attachmentId`, () => new HttpResponse(null, { status: 204 })),
   http.post(`${ELN}/experiments/:id/mutate`, async ({ request }) =>
-    HttpResponse.json(setSchemeResponse((await request.json()) as Mutation)),
+    HttpResponse.json(setSchemeResponse((await request.json()) as ModelMutation)),
   ),
   http.post(`${ELN}/experiments/:id/access`, async ({ request }) =>
     HttpResponse.json(recomputedAcl(EXPERIMENT_ACL, (await request.json()) as AccessForm[])),
@@ -389,7 +389,7 @@ export const slowExperimentWriteHandlers = [
  */
 export const slowMutateHandlers = [
   http.post(`${ELN}/experiments/:id/mutate`, async ({ request }) => {
-    const mutation = (await request.json()) as Mutation;
+    const mutation = (await request.json()) as ModelMutation;
     await delay(300);
     return HttpResponse.json(setSchemeResponse(mutation));
   }),

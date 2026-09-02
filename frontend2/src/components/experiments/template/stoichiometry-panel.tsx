@@ -1,9 +1,9 @@
 import { Download, MoreHorizontal, Plus, Upload } from 'lucide-react';
 
 import { CollapsibleCard } from '@/components/common/collapsible-card';
+import { ReactionProductsTable } from '@/components/experiments/stoichiometry/products-table';
 import { StoichiometryTable } from '@/components/experiments/stoichiometry/stoichiometry-table';
 import { ReactionSchemePanel } from '@/components/experiments/template/reaction-scheme-panel';
-import { TemplatePlaceholder } from '@/components/experiments/template/template-placeholder';
 import { Button } from '@/components/ui/button';
 import { useReactionStep } from '@/lib/hooks/use-reaction-step';
 import { cn } from '@/lib/utils';
@@ -100,11 +100,15 @@ export function StoichiometryPanel({
             </section>
           )}
 
+          {/*
+            The template flag is `intendedProducts` and the heading is "Reaction Products" — the
+            same pair indigo-frontend has. `intended` is what filters the rows; the block is the
+            products table.
+          */}
           {component.intendedProducts && (
             <section className="flex flex-col gap-2">
-              <h3 className="text-[14px]/6 text-neutral-800">Intended Products</h3>
-              {/* TODO(intended-products): the outputs table. */}
-              <TemplatePlaceholder>The intended products table goes here.</TemplatePlaceholder>
+              <h3 className="text-[14px]/6 text-neutral-800">Reaction Products</h3>
+              <ReactionProductsTable experiment={experiment} step={step} />
             </section>
           )}
         </div>
