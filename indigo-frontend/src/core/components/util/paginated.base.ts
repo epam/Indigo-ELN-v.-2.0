@@ -3,7 +3,7 @@ import { FilterOption, PagedRequest, SortOption } from '@/core/types/request/pag
 import { PaginatedResponse } from '@/core/types/response/paginated-response.i';
 import { inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, defer, finalize, Observable, of, switchMap, take, tap } from 'rxjs';
+import { BehaviorSubject, defer, finalize, Observable, of, switchMap, tap } from 'rxjs';
 import { PaginatedConfig } from './paginated.i';
 
 export abstract class PaginatedBase<T> {
@@ -25,7 +25,6 @@ export abstract class PaginatedBase<T> {
   };
 
   protected currentSort: {
-    sortBy: string;
     sort: 'EARLIEST' | 'LATEST';
   } | null = null;
   protected sortOptions: SortOption[] = [];
@@ -33,6 +32,7 @@ export abstract class PaginatedBase<T> {
 
   protected dataList$: Observable<PaginatedResponse<T>>;
   protected dataSubject$ = new BehaviorSubject<PaginatedResponse<T>>(null);
+  private previousParams: any = null;
 
   constructor() {
     this.activatedRoute = inject(ActivatedRoute);
@@ -53,7 +53,6 @@ export abstract class PaginatedBase<T> {
 
     if (config.defaultSort) {
       this.currentSort = config.defaultSort;
-      this.pager.sortBy = config.defaultSort.sortBy;
       this.pager.sort = config.defaultSort.sort;
     }
 
@@ -61,6 +60,8 @@ export abstract class PaginatedBase<T> {
   }
 
   protected reinitialize() {
+    this.previousParams = null;
+
     // Initiate rxjs logic
     const dataLogic$ = this.dataSubject$.pipe(
       switchMap((res) => {
@@ -76,7 +77,6 @@ export abstract class PaginatedBase<T> {
                       pageNo: 0,
                       // + 1 since pageNo 0 = Page 1
                       pageSize: (this.pager.pageNo + 1) * this.pager.pageSize,
-                      sortBy: this.pager.sortBy,
                       sort: this.pager.sort,
                     }
                   : // For subsequent loads or restoration disabled, use standard pager
@@ -108,47 +108,55 @@ export abstract class PaginatedBase<T> {
 
     this.dataList$ = this.config.enableQueryParams
       ? this.activatedRoute.queryParams.pipe(
-          take(1),
           switchMap((params) => {
-            const queryFilters = Object.keys(params as Record<string, unknown>).reduce(
-              (acc: Record<string, unknown>, curr) => {
-                acc[curr] = params[curr];
-                return acc;
-              },
-              {},
-            );
+            const isExternalParamsChange =
+              this.previousParams !== null && JSON.stringify(params) !== JSON.stringify(this.previousParams);
+            const previousParams = this.previousParams;
+            this.previousParams = { ...params };
 
-            Object.keys(queryFilters).forEach((key) => {
-              if (key in this.pager) {
-                // Handle special cases for pager properties
-                if (key === 'sortBy') {
-                  this.pager[key] = queryFilters[key] as string;
-                } else if (key === 'sort') {
-                  this.pager[key] = queryFilters[key] as 'EARLIEST' | 'LATEST';
-                } else {
-                  this.pager[key] = Number(queryFilters[key]);
-                }
-                delete queryFilters[key];
-              }
-            });
-
-            // Handle sorting from query params
-            if (params['sortBy']) {
-              this.currentSort = {
-                sortBy: params['sortBy'] as string,
-                sort: (params['sort'] as 'EARLIEST' | 'LATEST') || 'EARLIEST',
-              };
+            this.pager = {
+              pageNo: Number(params['pageNo'] ?? 0),
+              pageSize: Number(params['pageSize'] ?? 10),
+            };
+            if (params['sort'] === 'EARLIEST' || params['sort'] === 'LATEST') {
+              this.pager.sort = params['sort'];
+              this.currentSort = { sort: params['sort'] };
+            } else {
+              this.pager.sort = this.config.defaultSort?.sort;
+              this.currentSort = this.config.defaultSort ? { ...this.config.defaultSort } : null;
             }
 
-            Object.assign(this.filters, queryFilters);
+            this.filters = Object.keys(params).reduce((acc: Record<string, unknown>, key) => {
+              if (!['pageNo', 'pageSize', 'sort'].includes(key)) {
+                acc[key] = params[key];
+              }
+              return acc;
+            }, {});
 
-            this.fetchDataAndUpdateQueryParams(false);
+            const isPageOnlyChange =
+              isExternalParamsChange &&
+              previousParams &&
+              Object.keys(params).every(
+                (key) => ['pageNo', 'pageSize'].includes(key) || params[key] === previousParams[key],
+              ) &&
+              Object.keys(previousParams).every(
+                (key) => ['pageNo', 'pageSize'].includes(key) || params[key] === previousParams[key],
+              );
+
+            if (isExternalParamsChange) {
+              if (!isPageOnlyChange) {
+                this.onQueryParamsChange();
+              }
+              this.dataSubject$.next(null);
+            }
 
             return dataLogic$;
           }),
         )
       : dataLogic$;
   }
+
+  protected onQueryParamsChange(): void {}
 
   protected fetchDataAndUpdateQueryParams(fetch = true) {
     if (!fetch && !this.config.enableQueryParams) {
@@ -200,21 +208,8 @@ export abstract class PaginatedBase<T> {
     }
   }
 
-  public sort(sortBy: string, sort?: 'EARLIEST' | 'LATEST') {
-    // If no sort provided, determine it based on current sort
-    if (!sort) {
-      if (this.currentSort?.sortBy === sortBy) {
-        // Toggle sort order if same field
-        sort = this.currentSort.sort === 'EARLIEST' ? 'LATEST' : 'EARLIEST';
-      } else {
-        // Use default order for new field or 'EARLIEST' as fallback
-        const option = this.sortOptions.find((opt) => opt.value === sortBy);
-        sort = option?.defaultOrder || 'EARLIEST';
-      }
-    }
-
-    this.currentSort = { sortBy, sort: sort };
-    this.pager.sortBy = sortBy;
+  public sort(sort: 'EARLIEST' | 'LATEST') {
+    this.currentSort = { sort };
     this.pager.sort = sort;
     this.pager.pageNo = 0; // Reset to first page when sorting
 
@@ -223,7 +218,6 @@ export abstract class PaginatedBase<T> {
 
   public clearSort() {
     this.currentSort = null;
-    delete this.pager.sortBy;
     delete this.pager.sort;
     this.pager.pageNo = 0;
 
@@ -238,15 +232,24 @@ export abstract class PaginatedBase<T> {
     return this.sortOptions;
   }
 
-  public isSortedBy(sortBy: string): boolean {
-    return this.currentSort?.sortBy === sortBy;
-  }
-
-  public getSortOrder(sortBy: string): 'EARLIEST' | 'LATEST' | null {
-    return this.isSortedBy(sortBy) ? this.currentSort!.sort : null;
-  }
-
   public getFilterOptions() {
-    return this.filterOptions;
+    const selectedValues = Array.isArray(this.filters['status'])
+      ? (this.filters['status'] as unknown[])
+      : this.filters['status']
+        ? [this.filters['status']]
+        : [];
+
+    return this.filterOptions.map((option) => ({
+      ...option,
+      checked: selectedValues.includes(option.value),
+    }));
+  }
+
+  public getSearchValue(): string {
+    return (this.filters['search'] as string) || '';
+  }
+
+  public getBooleanFilterValue(key: string): boolean {
+    return this.filters[key] === true || this.filters[key] === 'true';
   }
 }

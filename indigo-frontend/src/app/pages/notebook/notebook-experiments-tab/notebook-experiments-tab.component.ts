@@ -50,7 +50,7 @@ export class NotebookExperimentsTabComponent extends InfiniteScrollBase<Experime
   ngOnInit() {
     this.headerSortOptions = this.getSortOptions().map((option) => ({
       label: `${option.label}`,
-      value: `${option.value}:${option.defaultOrder}`,
+      value: option.value,
       icon: 'indicon-sort',
     }));
 
@@ -64,18 +64,15 @@ export class NotebookExperimentsTabComponent extends InfiniteScrollBase<Experime
         sortOptions: [
           {
             label: 'Sorting by: Earliest',
-            value: 'createdAt',
-            defaultOrder: 'EARLIEST',
+            value: 'EARLIEST',
           },
           {
             label: 'Sorting by: Latest',
-            value: 'createdAt',
-            defaultOrder: 'LATEST',
+            value: 'LATEST',
           },
         ],
         filterOptions: [...this.getStatusOptions()],
         defaultSort: {
-          sortBy: 'createdAt',
           sort: 'EARLIEST',
         },
       });
@@ -87,7 +84,7 @@ export class NotebookExperimentsTabComponent extends InfiniteScrollBase<Experime
   }
 
   onSortChange(event: SortChangeEvent) {
-    this.sort(event.sortBy, event.sort);
+    this.sort(event.sort);
   }
 
   onViewChange(view: string) {
