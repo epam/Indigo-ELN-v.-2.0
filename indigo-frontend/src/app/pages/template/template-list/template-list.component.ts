@@ -55,17 +55,14 @@ export class TemplateListComponent extends InfiniteScrollBase<ItemTemplate> impl
       sortOptions: [
         {
           label: 'Sorting by: Earliest',
-          value: 'createdAt',
-          defaultOrder: 'EARLIEST',
+          value: 'EARLIEST',
         },
         {
           label: 'Sorting by: Latest',
-          value: 'createdAt',
-          defaultOrder: 'LATEST',
+          value: 'LATEST',
         },
       ],
       defaultSort: {
-        sortBy: 'createdAt',
         sort: 'EARLIEST',
       },
     });
@@ -73,7 +70,7 @@ export class TemplateListComponent extends InfiniteScrollBase<ItemTemplate> impl
     // Convert sort options to dropdown menu items
     this.headerSortOptions = this.getSortOptions().map((option) => ({
       label: `${option.label}`,
-      value: `${option.value}:${option.defaultOrder}`,
+      value: option.value,
       icon: 'indicon-sort',
     }));
   }
@@ -103,7 +100,7 @@ export class TemplateListComponent extends InfiniteScrollBase<ItemTemplate> impl
   }
 
   onSortChange(event: SortChangeEvent) {
-    this.sort(event.sortBy, event.sort);
+    this.sort(event.sort);
   }
   onMyEntitiesOnlyChange(value: boolean) {
     this.setBooleanFilter('createdByMe', value);

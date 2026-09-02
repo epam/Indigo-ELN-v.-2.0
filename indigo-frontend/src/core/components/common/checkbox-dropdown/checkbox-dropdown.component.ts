@@ -1,5 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, AfterViewInit, forwardRef, Output, EventEmitter } from '@angular/core';
+import {
+  Component,
+  Input,
+  AfterViewInit,
+  forwardRef,
+  Output,
+  EventEmitter,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { DropdownBaseComponent } from '../dropdown/dropdown-base.component';
 import { dropdownAnimation } from '@/core/animations/control-animations';
@@ -18,7 +27,10 @@ import { CheckboxDropdownItem } from './checkbox-dropdown.i';
     },
   ],
 })
-export class CheckboxDropdownComponent extends DropdownBaseComponent implements AfterViewInit, ControlValueAccessor {
+export class CheckboxDropdownComponent
+  extends DropdownBaseComponent
+  implements AfterViewInit, OnChanges, ControlValueAccessor
+{
   @Input() items: CheckboxDropdownItem[] = [];
   @Input() disabled = false;
   @Input() placeholder = '';
@@ -38,6 +50,12 @@ export class CheckboxDropdownComponent extends DropdownBaseComponent implements 
 
   ngAfterViewInit() {
     this.checkDropdownPosition();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['items']) {
+      this._value = this.items.filter((item) => item.checked).map((item) => item.value);
+    }
   }
 
   writeValue(value: string[] | null): void {

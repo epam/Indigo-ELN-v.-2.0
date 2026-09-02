@@ -70,9 +70,9 @@ export abstract class InfiniteScrollBase<T> extends PaginatedBase<T> {
     super.search(value);
   }
 
-  override sort(sortBy: string, sort?: 'EARLIEST' | 'LATEST') {
+  override sort(sort: 'EARLIEST' | 'LATEST') {
     this.resetListState();
-    super.sort(sortBy, sort);
+    super.sort(sort);
   }
 
   override clearSort() {

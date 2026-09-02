@@ -1,7 +1,6 @@
 export interface PagedRequest {
   pageNo: number;
   pageSize: number;
-  sortBy?: string;
   sort?: 'EARLIEST' | 'LATEST';
 }
 

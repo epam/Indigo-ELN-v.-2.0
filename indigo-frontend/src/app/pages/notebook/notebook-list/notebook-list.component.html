@@ -1,6 +1,8 @@
 <eln-list-header
   [sortOptions]="headerSortOptions"
   [currentSort]="getCurrentSort()"
+  [searchValue]="getSearchValue()"
+  [myEntitiesValue]="getBooleanFilterValue('createdByMe')"
   (viewChange)="onViewChange($event)"
   (searchChange)="onSearch($event)"
   (sortChange)="onSortChange($event)"
