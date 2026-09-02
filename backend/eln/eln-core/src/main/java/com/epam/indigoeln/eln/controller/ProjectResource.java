@@ -17,9 +17,11 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Response;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Path(BaseAPI.BASE_PATH)
@@ -57,13 +59,13 @@ public class ProjectResource implements ProjectAPI {
     }
 
     @Override
-    public String createProjectAttachment(UUID projectId, UploadForm form) {
-        return attachmentService.createProjectAttachment(projectId, form.getFile(), true);
+    public Map<String, String> prepareProjectAttachment(UUID projectId, String name, Long size) {
+        return attachmentService.prepareProjectAttachment(projectId, name, size, true);
     }
 
     @Override
-    public List<AttachmentDTO> completeProjectAttachment(UUID projectId) {
-        return attachmentService.completeProjectAttachment(projectId);
+    public List<AttachmentDTO> completeProjectAttachment(UUID projectId, UUID attachmentId) {
+        return attachmentService.completeProjectAttachment(projectId, attachmentId);
     }
 
     @Override

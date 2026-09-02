@@ -31,8 +31,20 @@ public class AttachmentRepository extends BaseRepository<AttachmentEntity> {
 
     public String persistAndCreatePresignedUrl(AttachmentEntity attachment) {
         super.persist(attachment);
-        //fileStorage.put(attachment.getKey(), attachment.getContent());
         return fileStorage.createPresignedUrl(attachment.getKey());
+    }
+
+    public String createPresignedUrl(String keyName) {
+        return fileStorage.createPresignedUrl(keyName);
+    }
+
+    public boolean complete(UUID attachmentId) {
+        AttachmentEntity attachment = get(attachmentId);
+        if (!attachment.getCompleted()) {
+            attachment.setCompleted(true);
+            return true;
+        }
+        return false;
     }
 
     public void store(String stringPath, byte[] content) {
@@ -44,11 +56,6 @@ public class AttachmentRepository extends BaseRepository<AttachmentEntity> {
         super.persist(attachment);
         fileStorage.put(attachment.getKey(), attachment.getContent());
     }
-
-    /*@Override
-    public AttachmentEntity getReference(UUID id) {
-        return loadFileContent(super.getReference(id));
-    }*/
 
     public AttachmentEntity load(UUID id) {
         AttachmentEntity attachment = doLoadDetails(

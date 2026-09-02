@@ -107,6 +107,7 @@ public class ModelUtil {
     @SneakyThrows
     public static <T> T useTempFile(String filename, byte[] bytes, Function<File, T> block) {
         Path directory = Files.createTempDirectory("eln");
+        System.err.println(directory.toString());
         try {
             Path file = directory.resolve(filename);
             try {

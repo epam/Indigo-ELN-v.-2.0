@@ -16,21 +16,6 @@ import java.util.UUID;
 
 public interface ExperimentClient extends ExperimentAPI {
 
-    @SneakyThrows
-    default String createExperimentAttachment(UUID experimentId, String filename, byte[] content) {
-        ClientUploadForm clientUploadForm = ClientUtil.createFileUpload(filename, content);
-        return createExperimentAttachment(experimentId, clientUploadForm);
-    }
-
-    @POST
-    @Path("/experiments/{experimentId}/attachments")
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    String createExperimentAttachment(@PathParam("experimentId") UUID experimentId, ClientUploadForm form);
-
-    @POST
-    @Path("/experiments/{experimentId}/attachments/complete")
-    List<AttachmentDTO> completeExperimentAttachment(@PathParam("experimentId") UUID experimentId);;
-
     @POST
     @Path("/experiments/{experimentId}/mutate")
     JsonNode mutateExperimentModel4Raw(@PathParam("experimentId") UUID experimentId, @QueryParam("revision") Integer revision, String mutation);

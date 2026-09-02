@@ -7,11 +7,13 @@ import com.epam.indigoeln.common.model.UploadForm;
 import com.epam.indigoeln.eln.model.*;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Path(BaseAPI.BASE_PATH)
@@ -41,13 +43,12 @@ public interface ProjectAPI extends BaseAPI {
     ProjectDetailsDTO editProject(@PathParam("projectId") UUID projectId, ProjectEditRequest request);
 
     @POST
-    @Path("/projects/{projectId}/attachments")
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    String createProjectAttachment(@PathParam("projectId") UUID projectId, UploadForm form);
+    @Path("/projects/{projectId}/attachments/prepare")
+    Map<String, String> prepareProjectAttachment(@PathParam("projectId") UUID projectId, @QueryParam("name") @NotEmpty String name, @QueryParam("size") @NotNull Long size);
 
     @POST
-    @Path("/projects/{projectId}/attachments/complete")
-    List<AttachmentDTO> completeProjectAttachment(@PathParam("projectId") UUID projectId);
+    @Path("/projects/{projectId}/attachments/{attachmentId}/complete")
+    List<AttachmentDTO> completeProjectAttachment(@PathParam("projectId") UUID projectId, @PathParam("attachmentId") UUID attachmentId);
 
     @GET
     @Path("/projects/{projectId}/attachments/{attachmentId}")

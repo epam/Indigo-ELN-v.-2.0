@@ -26,8 +26,10 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.net.URI;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
@@ -50,6 +52,7 @@ class InsertTestDataTest {
     DictionaryClient dictionaryClient;
     CompoundClient compoundClient;
     SignatureClient signatureClient;
+    UploadClient uploadClient;
 
     @BeforeEach
     void setup() {
@@ -129,7 +132,13 @@ class InsertTestDataTest {
         ExperimentObject experiment = createExperiment("ProjectWithData", "88888888", templateClient.getByName("Default"), "Experiment with data");
 
         // add attachment
-        experimentClient.createExperimentAttachment(experiment.id(), "attachment.txt", "This is attachment".getBytes());
+        Map<String, String> prepareData = experimentClient.prepareExperimentAttachment(experiment.id(), "attachment.txt", (long) "This is attachment".getBytes().length);
+        String path = prepareData.get("url");
+        String id = prepareData.get("id");
+        String fileName = Arrays.stream(path.split("/")).toList().getLast();
+        uploadClient.uploadFileContent(fileName, "attachment.txt", "This is attachment".getBytes());
+        experimentClient.completeExperimentAttachment(experiment.id(), UUID.fromString(id));
+        //experimentClient.createExperimentAttachment(experiment.id(), "attachment.txt", "This is attachment".getBytes());
 
         // load reaction
         experiment.mutateSetSchemeFromResource("/reaction.rxn");

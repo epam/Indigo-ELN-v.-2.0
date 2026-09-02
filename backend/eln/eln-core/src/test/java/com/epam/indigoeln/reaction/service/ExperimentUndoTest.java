@@ -19,9 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.openapitools.jackson.nullable.JsonNullable;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
@@ -129,8 +127,12 @@ public class ExperimentUndoTest extends MutationsTestBase {
 
     @Test
     void testAttachments() {
-        experimentClient.createExperimentAttachment(experiment.id(), ClientUtil.createFileUpload("attachment.txt", "content".getBytes()));
-        List<AttachmentDTO> attachments = experimentClient.completeExperimentAttachment(experiment.id());
+        Map<String, String> prepareData = experimentClient.prepareExperimentAttachment(experiment.id(), "attachment.txt", (long) "content".getBytes().length);
+        String path = prepareData.get("url");
+        String id = prepareData.get("id");
+        String fileName = Arrays.stream(path.split("/")).toList().getLast();
+        uploadClient.uploadFileContent(fileName, "attachment.txt", "content".getBytes());
+        List<AttachmentDTO> attachments = experimentClient.completeExperimentAttachment(experiment.id(), UUID.fromString(id));
 
         experiment.mutate(new ExperimentMutation.Undo());
         assertThat(experiment.experiment().getAttachments()).isEmpty();

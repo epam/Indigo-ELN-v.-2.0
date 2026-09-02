@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -38,6 +39,9 @@ public class AttachmentEntity extends BaseEntity {
 
     @NotNull
     private Boolean deleted;
+
+    @NotNull
+    private Boolean completed = false;
 
     @Transient
     private byte @NotNull[] content;

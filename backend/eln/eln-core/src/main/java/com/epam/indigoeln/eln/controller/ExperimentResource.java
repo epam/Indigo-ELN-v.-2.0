@@ -76,13 +76,13 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
-    public String createExperimentAttachment(UUID experimentId, UploadForm form) {
-        return attachmentService.createExperimentAttachment(experimentId, form.getFile(), true);
+    public Map<String, String> prepareExperimentAttachment(UUID experimentId, String name, Long size) {
+        return attachmentService.prepareExperimentAttachment(experimentId, name, size, true);
     }
 
     @Override
-    public List<AttachmentDTO> completeExperimentAttachment(UUID experimentId) {
-        return attachmentService.completeExperimentAttachment(experimentId);
+    public List<AttachmentDTO> completeExperimentAttachment(UUID experimentId, UUID attachmentId) {
+        return attachmentService.completeExperimentAttachment(experimentId, attachmentId);
     }
 
     @Override

@@ -15,10 +15,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static com.epam.indigoeln.common.util.ContentDispositionUtil.extractFilename;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
@@ -300,10 +297,12 @@ class NotebookServiceTest extends ELNBaseTest {
     @Test
     void testCreateAttachment(@TempDir Path tempDir) {
         NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
-        String path = notebookClient.createNotebookAttachment(notebook.getId(), "attachment.txt", "content".getBytes());
+        Map<String, String> prepareData = notebookClient.prepareNotebookAttachment(notebook.getId(), "attachment.txt", (long) "content".getBytes().length);
+        String path = prepareData.get("url");
+        String id = prepareData.get("id");
         String fileName = Arrays.stream(path.split("/")).toList().getLast();
         uploadClient.uploadFileContent(fileName, "attachment.txt", "content".getBytes());
-        List<AttachmentDTO> attachments = notebookClient.completeNotebookAttachment(notebook.getId());
+        List<AttachmentDTO> attachments = notebookClient.completeNotebookAttachment(notebook.getId(), UUID.fromString(id));
         assertThat(attachments).singleElement().satisfies(a -> {
             assertThat(a.getId()).isNotNull();
             assertThat(a.getName()).isEqualTo("attachment.txt");
@@ -321,10 +320,12 @@ class NotebookServiceTest extends ELNBaseTest {
     @Test
     void testDownloadAttachment(@TempDir Path tempDir) throws Exception {
         NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
-        String path = notebookClient.createNotebookAttachment(notebook.getId(), "attachment.txt", "content".getBytes());
+        Map<String, String> prepareData = notebookClient.prepareNotebookAttachment(notebook.getId(), "attachment.txt", (long) "content".getBytes().length);
+        String path = prepareData.get("url");
+        String id = prepareData.get("id");
         String fileName = Arrays.stream(path.split("/")).toList().getLast();
         uploadClient.uploadFileContent(fileName, "attachment.txt", "content".getBytes());
-        List<AttachmentDTO> attachments = notebookClient.completeNotebookAttachment(notebook.getId());
+        List<AttachmentDTO> attachments = notebookClient.completeNotebookAttachment(notebook.getId(), UUID.fromString(id));
         try (Response response = notebookClient.downloadNotebookAttachment(notebook.getId(), attachments.getFirst().getId())) {
             assertThat(extractFilename(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION))).isEqualTo("attachment.txt");
             assertThat((byte[]) response.getEntity()).asString().isEqualTo("content");
@@ -334,10 +335,12 @@ class NotebookServiceTest extends ELNBaseTest {
     @Test
     void testDeleteAttachment(@TempDir Path tempDir) {
         NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
-        String path = notebookClient.createNotebookAttachment(notebook.getId(), "attachment.txt", "content".getBytes());
+        Map<String, String> prepareData = notebookClient.prepareNotebookAttachment(notebook.getId(), "attachment.txt", (long) "content".getBytes().length);
+        String path = prepareData.get("url");
+        String id = prepareData.get("id");
         String fileName = Arrays.stream(path.split("/")).toList().getLast();
         uploadClient.uploadFileContent(fileName, "attachment.txt", "content".getBytes());
-        List<AttachmentDTO> attachments = notebookClient.completeNotebookAttachment(notebook.getId());
+        List<AttachmentDTO> attachments = notebookClient.completeNotebookAttachment(notebook.getId(), UUID.fromString(id));
         notebookClient.deleteNotebookAttachment(notebook.getId(), attachments.getFirst().getId());
         notebook = notebookClient.getNotebook(notebook.getId());
         assertThat(notebook.getAttachments()).isEmpty();

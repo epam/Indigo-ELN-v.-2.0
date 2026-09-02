@@ -3,15 +3,16 @@ package com.epam.indigoeln.eln.api;
 import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
-import com.epam.indigoeln.common.model.UploadForm;
 import com.epam.indigoeln.eln.model.*;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Path(BaseAPI.BASE_PATH)
@@ -42,13 +43,12 @@ public interface NotebookAPI extends BaseAPI {
     NotebookDetailsDTO editNotebook(@PathParam("notebookId") UUID notebookId, NotebookEditRequest request);
 
     @POST
-    @Path("/notebooks/{notebookId}/attachments")
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    String createNotebookAttachment(@PathParam("notebookId") UUID notebookId, UploadForm form);
+    @Path("/notebooks/{notebookId}/attachments/prepare")
+    Map<String, String> prepareNotebookAttachment(@PathParam("notebookId") UUID notebookId, @QueryParam("name") @NotEmpty String name, @QueryParam("size") @NotNull Long size);
 
     @POST
-    @Path("/notebooks/{notebookId}/attachments/complete")
-    List<AttachmentDTO> completeNotebookAttachment(@PathParam("notebookId") UUID notebookId);
+    @Path("/notebooks/{notebookId}/attachments/{attachmentId}/complete")
+    List<AttachmentDTO> completeNotebookAttachment(@PathParam("notebookId") UUID notebookId, @PathParam("attachmentId") UUID attachmentID);
 
     @GET
     @Path("/notebooks/{notebookId}/attachments/{attachmentId}")

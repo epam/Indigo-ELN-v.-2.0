@@ -12,6 +12,8 @@ import com.epam.indigoeln.reaction.model.ReactionAnchor;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -55,13 +57,12 @@ public interface ExperimentAPI extends BaseAPI {
     ExperimentDetailsDTO editExperiment(@PathParam("experimentId") UUID experimentId, ExperimentEditRequest request);
 
     @POST
-    @Path("/experiments/{experimentId}/attachments")
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    String createExperimentAttachment(@PathParam("experimentId") UUID experimentId, UploadForm form);
+    @Path("/experiments/{experimentId}/attachments/prepare")
+    Map<String, String> prepareExperimentAttachment(@PathParam("experimentId") UUID experimentId, @QueryParam("name") @NotEmpty String name, @QueryParam("size") @NotNull Long size);
 
     @POST
-    @Path("/experiments/{experimentId}/attachments/complete")
-    List<AttachmentDTO> completeExperimentAttachment(@PathParam("experimentId") UUID experimentId);
+    @Path("/experiments/{experimentId}/attachments/{attachmentId}/complete")
+    List<AttachmentDTO> completeExperimentAttachment(@PathParam("experimentId") UUID experimentId, @PathParam("attachmentId") UUID attachmentId);
 
     @GET
     @Path("/experiments/{experimentId}/attachments/{attachmentId}")

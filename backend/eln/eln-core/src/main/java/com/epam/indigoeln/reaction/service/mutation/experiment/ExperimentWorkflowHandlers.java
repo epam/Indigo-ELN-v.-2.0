@@ -9,10 +9,7 @@ import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
 import com.epam.indigoeln.eln.repository.AttachmentRepository;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
-import com.epam.indigoeln.eln.service.ACLService;
-import com.epam.indigoeln.eln.service.AttachmentService;
-import com.epam.indigoeln.eln.service.ExperimentService;
-import com.epam.indigoeln.eln.service.UserService;
+import com.epam.indigoeln.eln.service.*;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
@@ -23,13 +20,16 @@ import com.google.common.base.MoreObjects;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
 import one.util.streamex.StreamEx;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ModelUtil.useTempFile;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.SUBMIT_EXPERIMENTS;
@@ -91,14 +91,30 @@ class SubmitExperimentHandler extends ExperimentMutationHandlerBase<ExperimentMu
     @Inject
     @RestClient
     SignatureClient signatureClient;
+    //@Inject
+    //UploadClient uploadClient;
+    @Inject
+    UploadService uploadService;
+    @Inject
+    AttachmentRepository attachmentRepository;
 
     @Override
     @SneakyThrows
     public String doHandle(ExperimentEntity experiment, ExperimentMutation.SubmitExperiment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         helper.transition(experiment, SUBMITTED, SUBMIT_EXPERIMENTS, COMPLETED, REJECTED);
         ExperimentService.ExperimentReportContent report = experimentService.printReport(experiment);
-        AttachmentEntity attachment = Objects.requireNonNull(attachmentService.createExperimentAttachment(experiment, report.filename(), report.content(), false).a());
+        //AttachmentEntity attachment = Objects.requireNonNull(attachmentService.createExperimentAttachment(experiment,
+               // report.filename(), report.content().length, false).a());
+        Map<String, String> prepareData = attachmentService.prepareExperimentAttachment(experiment.getId(), report.filename(), report.content().length, false);
+        String path = prepareData.get("url");
+        String id = prepareData.get("id");
+        String fileName = Arrays.stream(path.split("/")).toList().getLast();
         String documentName = experiment.getName() + (experiment.getVersion() != null ? ", version " + experiment.getVersion() : "");
+        //uploadClient.uploadFileContent(fileName, report.filename(), report.content());
+        uploadService.uploadAttachment("attachment/" + fileName, report.content());
+        attachmentService.completeExperimentAttachment(experiment.getId(), UUID.fromString(id));
+        //Response response = attachmentService.downloadExperimentAttachment(experiment.getId(), UUID.fromString(id));
+        AttachmentEntity attachment = attachmentRepository.get(UUID.fromString(id));
         DocumentDTO document = useTempFile(attachment.getName(), attachment.getContent(), file -> {
             return signatureClient.uploadDocumentClient(documentName, mutation.signatureTemplateID(), file);
         });

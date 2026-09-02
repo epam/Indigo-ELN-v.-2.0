@@ -12,6 +12,8 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
+import java.time.Duration;
+
 @ApplicationScoped
 public class S3FileStorage implements FileStorage {
 
@@ -47,7 +49,7 @@ public class S3FileStorage implements FileStorage {
                 .build();
 
         PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
-                //.signatureDuration(Duration.ofMinutes(10))  // The URL expires in 10 minutes.
+                .signatureDuration(Duration.ofMinutes(10))  // The URL expires in 10 minutes.
                 .putObjectRequest(objectRequest)
                 .build();
 

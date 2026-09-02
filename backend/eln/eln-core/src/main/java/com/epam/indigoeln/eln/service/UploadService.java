@@ -23,6 +23,10 @@ public class UploadService {
         attachmentRepository.store(stringPath, readFile(file));
     }
 
+    public void uploadAttachment(String stringPath, byte[] content) {
+        attachmentRepository.store(stringPath, content);
+    }
+
     private byte[] readFile(FileUpload file) {
         try {
             return Files.readAllBytes(file.filePath());

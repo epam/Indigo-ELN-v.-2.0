@@ -419,10 +419,12 @@ class ProjectServiceTest extends ELNBaseTest {
     @Test
     void testCreateAttachment(@TempDir Path tempDir) {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testCreateAttachment"));
-        String path = projectClient.createProjectAttachment(project.getId(), "attachment.txt", "content".getBytes());
+        Map<String, String> prepareData = projectClient.prepareProjectAttachment(project.getId(), "attachment.txt", (long) "content".getBytes().length);
+        String path = prepareData.get("url");
+        String id = prepareData.get("id");
         String fileName = Arrays.stream(path.split("/")).toList().getLast();
         uploadClient.uploadFileContent(fileName, "attachment.txt", "content".getBytes());
-        List<AttachmentDTO> attachments = projectClient.completeProjectAttachment(project.getId());
+        List<AttachmentDTO> attachments =  projectClient.completeProjectAttachment(project.getId(), UUID.fromString(id));
         assertThat(attachments).singleElement().satisfies(a -> {
             assertThat(a.getId()).isNotNull();
             assertThat(a.getName()).isEqualTo("attachment.txt");
@@ -440,10 +442,12 @@ class ProjectServiceTest extends ELNBaseTest {
     @Test
     void testDownloadAttachment(@TempDir Path tempDir) throws Exception {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testDownloadAttachment"));
-        String path = projectClient.createProjectAttachment(project.getId(), "attachment.txt", "content".getBytes());
+        Map<String, String> prepareData = projectClient.prepareProjectAttachment(project.getId(), "attachment.txt", (long) "content".getBytes().length);
+        String path = prepareData.get("url");
+        String id = prepareData.get("id");
         String fileName = Arrays.stream(path.split("/")).toList().getLast();
         uploadClient.uploadFileContent(fileName, "attachment.txt", "content".getBytes());
-        List<AttachmentDTO> attachments = projectClient.completeProjectAttachment(project.getId());
+        List<AttachmentDTO> attachments =  projectClient.completeProjectAttachment(project.getId(), UUID.fromString(id));
         try (Response response = projectClient.downloadProjectAttachment(project.getId(), attachments.getFirst().getId())) {
             assertThat(extractFilename(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION))).isEqualTo("attachment.txt");
             assertThat((byte[]) response.getEntity()).asString().isEqualTo("content");
@@ -453,10 +457,12 @@ class ProjectServiceTest extends ELNBaseTest {
     @Test
     void testDeleteAttachment(@TempDir Path tempDir) {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testDeleteAttachment"));
-        String path = projectClient.createProjectAttachment(project.getId(), "attachment.txt", "content".getBytes());
+        Map<String, String> prepareData = projectClient.prepareProjectAttachment(project.getId(), "attachment.txt", (long) "content".getBytes().length);
+        String path = prepareData.get("url");
+        String id = prepareData.get("id");
         String fileName = Arrays.stream(path.split("/")).toList().getLast();
         uploadClient.uploadFileContent(fileName, "attachment.txt", "content".getBytes());
-        List<AttachmentDTO> attachments = projectClient.completeProjectAttachment(project.getId());
+        List<AttachmentDTO> attachments =  projectClient.completeProjectAttachment(project.getId(), UUID.fromString(id));
         projectClient.deleteProjectAttachment(project.getId(), attachments.getFirst().getId());
         project = projectClient.getProject(project.getId());
         assertThat(project.getAttachments()).isEmpty();
@@ -481,15 +487,18 @@ class ProjectServiceTest extends ELNBaseTest {
 
         long startTime = System.currentTimeMillis();
 
-        String path = projectClient.createProjectAttachment(
+        Map<String, String> prepareData = projectClient.prepareProjectAttachment(
                 project.getId(),
                 fileName,
-                largeContent
+                (long) largeContent.length
         );
+
+        String path = prepareData.get("url");
+        String id = prepareData.get("id");
 
         String uploadName = Arrays.stream(path.split("/")).toList().getLast();
         uploadClient.uploadFileContent(uploadName, fileName, largeContent);
-        List<AttachmentDTO> attachments = projectClient.completeProjectAttachment(project.getId());
+        List<AttachmentDTO> attachments = projectClient.completeProjectAttachment(project.getId(), UUID.fromString(id));
 
         long elapsedTime = System.currentTimeMillis() - startTime;
         assertThat(attachments).isNotEmpty();
@@ -500,7 +509,7 @@ class ProjectServiceTest extends ELNBaseTest {
         UUID missingProjectId = UUID.randomUUID();
 
         assertThatClientCall(() ->
-                projectClient.createProjectAttachment(missingProjectId, "file.txt", "content".getBytes())
+                projectClient.prepareProjectAttachment(missingProjectId, "file.txt", (long) "content".getBytes().length)
         ).isNotFound("PROJECT " + missingProjectId + " not found");
     }
 
