@@ -1,4 +1,5 @@
 import { Plus, Trash2 } from 'lucide-react';
+import type { ComponentType } from 'react';
 import { useState } from 'react';
 
 import { SavingOverlay } from '@/components/common/saving-overlay';
@@ -24,11 +25,18 @@ export function EmptyCell() {
   return <span className="block cursor-default text-center text-neutral-700">—</span>;
 }
 
-/** Read-only text. Truncates rather than wrapping — a row is one line tall. */
-export function ReadonlyCell({ value }: { value: string | undefined }) {
+/**
+ * Read-only text. Truncates rather than wrapping — a row is one line tall, and the `title` is
+ * what makes a truncated value readable.
+ *
+ * A column may override that `title` where it has something better to say than the value itself:
+ * the batch summary's Reg. Status cell hangs `registrationStatusMessage` there, which is the only
+ * place the reason a registration failed is shown at all.
+ */
+export function ReadonlyCell({ value, title }: { value: string | undefined; title?: string }) {
   if (value == null || value === '') return <EmptyCell />;
   return (
-    <span className="block cursor-default truncate text-[13px]/5 text-neutral-1000" title={value}>
+    <span className="block cursor-default truncate text-[13px]/5 text-neutral-1000" title={title ?? value}>
       {value}
     </span>
   );
@@ -358,6 +366,73 @@ export function AddBatchCell({
         )}
       >
         <Plus className="size-4" />
+      </button>
+    </SavingOverlay>
+  );
+}
+
+/**
+ * The product type as a static pill: which of the three things this output is.
+ *
+ * Not `OutputTypeCell` with `editable={false}`, which renders a disabled `<select>` — the batch
+ * summary does not edit the type (the products table owns `SetOutputRowType`), and offering a
+ * control where there is no choice to make is worse than showing none. The colours are the
+ * trigger's, so a batch row and a product row read the same type the same way.
+ */
+export function OutputTypeBadge({ value }: { value: ReactionOutputType }) {
+  return (
+    <span
+      className={cn(
+        'inline-flex cursor-default items-center rounded-md border px-2 py-0.5 text-[13px]/5 text-neutral-1000',
+        OUTPUT_TYPE_TRIGGER_CLASS[value],
+      )}
+    >
+      {OUTPUT_TYPE_LABELS[value]}
+    </span>
+  );
+}
+
+/**
+ * A row action as an icon button — what `AddBatchCell` and `DeleteCell` each hard-code, taken as
+ * parameters so the batch summary's three actions do not become three more near-copies.
+ *
+ * `title` as well as `aria-label` because a **disabled** action still has to explain itself:
+ * "Already synced with Products", "Sample already registered". The button stays mounted and
+ * faded rather than being hidden, matching indigo-frontend — an action that vanishes leaves the
+ * user wondering whether it was ever there.
+ */
+export function IconActionCell({
+  icon: Icon,
+  tone,
+  label,
+  editable,
+  pending,
+  onCommit,
+}: {
+  icon: ComponentType<{ className?: string }>;
+  tone: 'blue' | 'green' | 'red';
+  label: string;
+  editable: boolean;
+  pending: boolean;
+  onCommit: () => void;
+}) {
+  return (
+    <SavingOverlay pending={pending} spinner="center" className="mx-auto w-fit">
+      <button
+        type="button"
+        aria-label={label}
+        title={label}
+        disabled={!editable}
+        onClick={onCommit}
+        className={cn(
+          'rounded-2 p-1 outline-none focus-visible:ring-3 focus-visible:ring-ring/50',
+          'disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent',
+          tone === 'blue' && 'text-blue-400 hover:bg-blue-10',
+          tone === 'green' && 'text-green-200 hover:bg-green-10',
+          tone === 'red' && 'text-red-200 hover:bg-red-10',
+        )}
+      >
+        <Icon className="size-4" />
       </button>
     </SavingOverlay>
   );

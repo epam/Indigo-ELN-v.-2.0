@@ -1,12 +1,12 @@
-import {Link} from '@tanstack/react-router';
-import {Plus} from 'lucide-react';
+import { Link } from '@tanstack/react-router';
+import { Plus } from 'lucide-react';
 
-import {Breadcrumbs} from '@/components/layout/breadcrumbs';
-import {StatTileGroup} from '@/components/common/stat-tile-group';
-import {StatusCountStrip} from '@/components/common/status-count-strip';
-import {Button} from '@/components/ui/button';
+import { Breadcrumbs } from '@/components/layout/breadcrumbs';
+import { StatTileGroup } from '@/components/common/stat-tile-group';
+import { StatusCountStrip } from '@/components/common/status-count-strip';
+import { Button } from '@/components/ui/button';
 
-import type {NotebookDetails} from '@/lib/types/notebooks.ts';
+import type { NotebookDetails } from '@/lib/types/notebooks.ts';
 
 // Split across the three props rather than merged with `cn()` — see ProjectHeader for why.
 const TAB_CLASS = 'border-b-2 px-2 pb-2 text-[14px]/6';

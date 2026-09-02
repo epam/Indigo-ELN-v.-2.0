@@ -1,7 +1,9 @@
 import { useInfiniteQuery, useIsMutating, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { QueryClient } from '@tanstack/react-query';
 
 import { apiDownload, apiFetch } from '@/lib/api';
 import { collectionQueryString, getNextPageParam, SEARCH_DEBOUNCE_MS } from '@/lib/api/collections';
+import { useDownload } from '@/lib/hooks/use-download';
 import { useSettled } from '@/lib/hooks/use-settled';
 import { JSON_PATCHER } from '@/lib/json-patcher';
 import { notifyInfo } from '@/lib/toast';
@@ -174,29 +176,94 @@ export function useMutateExperimentModel(
       const current = queryClient.getQueryData<ExperimentDetails>(experimentKeys.detail(id)) ?? experiment;
       return mutateExperimentModel(id, current.revision, mutation);
     },
-    onSuccess: (response) => {
-      // The diff is computed between two ExperimentSnapshots rather than two
-      // ExperimentDetailsDTOs. They overlap on names, which is why applying it to the detail
-      // works — but it never touches currentPermissions, marked, the ancestor ids and names,
-      // or the BaseDTO audit fields, so those survive untouched by construction.
-      let updatedNodes: ReadonlyMap<unknown, unknown> = new Map();
-      patchExperimentDetails(queryClient, id, (experiment) => {
-        const [patched, nodes] = JSON_PATCHER.apply(experiment, response.patch);
-        updatedNodes = nodes;
-        return patched as ExperimentDetails;
-      });
-      // After the cache write, so a subscriber re-rendering on the new data already has it.
-      // Skipped entirely when the detail was not cached — `patchExperimentDetails` no-ops
-      // there, and reporting an empty map would read as "nothing changed".
-      if (updatedNodes.size > 0) onPatched?.(updatedNodes);
-      // TODO(analyze-rxn): response.unresolvedInputs names reactants the backend could not
-      // match to a compound. Resolving them needs indigo-frontend's AnalyzeRxn slide-in panel
-      // and the ResolveInputs mutation, neither of which is ported yet.
-      for (const message of response.messages ?? []) notifyInfo(message);
-      // The write bumps modifiedAt, which every list card shows.
-      void queryClient.invalidateQueries({ queryKey: experimentKeys.all() });
-    },
+    onSuccess: (response) => applyMutationResponse(queryClient, id, response, onPatched),
   });
+}
+
+/**
+ * What every endpoint answering with a `MutationResponse` has to do with it: apply the diff to the
+ * cached detail, report the nodes it rebuilt, toast whatever the backend said, and refresh the
+ * lists. Shared by `/mutate` and by the SDF import, which is a `MutationResponse` reached through
+ * its own multipart endpoint.
+ */
+function applyMutationResponse(
+  queryClient: QueryClient,
+  id: string,
+  response: MutationResponse,
+  onPatched?: (updatedNodes: ReadonlyMap<unknown, unknown>) => void,
+): void {
+  // The diff is computed between two ExperimentSnapshots rather than two
+  // ExperimentDetailsDTOs. They overlap on names, which is why applying it to the detail
+  // works — but it never touches currentPermissions, marked, the ancestor ids and names,
+  // or the BaseDTO audit fields, so those survive untouched by construction.
+  let updatedNodes: ReadonlyMap<unknown, unknown> = new Map();
+  patchExperimentDetails(queryClient, id, (experiment) => {
+    const [patched, nodes] = JSON_PATCHER.apply(experiment, response.patch);
+    updatedNodes = nodes;
+    return patched as ExperimentDetails;
+  });
+  // After the cache write, so a subscriber re-rendering on the new data already has it.
+  // Skipped entirely when the detail was not cached — `patchExperimentDetails` no-ops
+  // there, and reporting an empty map would read as "nothing changed".
+  if (updatedNodes.size > 0) onPatched?.(updatedNodes);
+  // TODO(analyze-rxn): response.unresolvedInputs names reactants the backend could not
+  // match to a compound. Resolving them needs indigo-frontend's AnalyzeRxn slide-in panel
+  // and the ResolveInputs mutation, neither of which is ported yet.
+  for (const message of response.messages ?? []) notifyInfo(message);
+  // The write bumps modifiedAt, which every list card shows.
+  void queryClient.invalidateQueries({ queryKey: experimentKeys.all() });
+}
+
+function importSdf(id: string, reactionAnchor: string, file: File): Promise<MutationResponse> {
+  const body = new FormData();
+  // `UploadForm.file` — the part name is `@FormParam("file")` on the Java record.
+  body.append('file', file, file.name);
+  return apiFetch<MutationResponse>(`/api/eln/experiments/${id}/datamodel/reactions/${reactionAnchor}/importSDF`, {
+    method: 'POST',
+    body,
+  });
+}
+
+/**
+ * Creates a product row per compound in an uploaded SDF.
+ *
+ * `ImportSDF` is a mutation type like any other on the backend, but `isMutateMethodAllowed()` is
+ * false for it — the file has to arrive as multipart — so it has its own endpoint and is
+ * deliberately absent from `ModelMutation`. What comes back is the same `MutationResponse` as
+ * `/mutate`, and it is applied the same way.
+ *
+ * Joins `experimentWrite`'s scope so an import queues behind the on-blur cell saves instead of
+ * racing them.
+ */
+export function useImportSdf(
+  experiment: ExperimentDetails,
+  reactionAnchor: string,
+  onPatched?: (updatedNodes: ReadonlyMap<unknown, unknown>) => void,
+) {
+  const queryClient = useQueryClient();
+  const id = experiment.id;
+
+  return useMutation({
+    ...experimentWrite(id),
+    mutationFn: (file: File) => importSdf(id, reactionAnchor, file),
+    onSuccess: (response) => applyMutationResponse(queryClient, id, response, onPatched),
+  });
+}
+
+/**
+ * Downloads the experiment's reactions as an SDF.
+ *
+ * A plain GET, so it needs no revision and no cache handling — but it still has to go through
+ * `apiDownload` rather than an `<a href download>`, since the endpoint wants the Cognito bearer
+ * token. `useDownload` swallows the rejection `apiFetch` has already toasted.
+ */
+export function useExportSdf(id: string) {
+  const { download, downloading } = useDownload();
+
+  return {
+    exportSdf: () => void download(() => apiDownload(`/api/eln/experiments/${id}/exportSdf`, 'export.sdf')),
+    exporting: downloading,
+  };
 }
 
 /** Returns the experiment's full attachment list, not just the new entries. */

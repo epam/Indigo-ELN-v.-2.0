@@ -1,9 +1,9 @@
-import {useQuery} from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 
-import {apiFetch} from '@/lib/api';
-import {useSettled} from '@/lib/hooks/use-settled';
-import type {UserRef} from '@/lib/types/common.ts';
-import type {ApplicationPermission, CurrentUser} from '@/lib/types/user';
+import { apiFetch } from '@/lib/api';
+import { useSettled } from '@/lib/hooks/use-settled';
+import type { UserRef } from '@/lib/types/common.ts';
+import type { ApplicationPermission, CurrentUser } from '@/lib/types/user';
 
 /**
  * `currentUser` is exported although no component reads it: `src/lib/query-client.ts` needs the

@@ -1,5 +1,5 @@
-import {Skeleton} from '@/components/ui/skeleton';
-import {cn} from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 
 /** Widths only — the column count and heights mirror NotebookRow so nothing shifts when data lands. */
 const COLUMNS = [

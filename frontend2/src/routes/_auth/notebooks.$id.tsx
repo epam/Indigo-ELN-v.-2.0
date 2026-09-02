@@ -1,7 +1,7 @@
-import {createFileRoute, Outlet} from '@tanstack/react-router';
+import { createFileRoute, Outlet } from '@tanstack/react-router';
 
-import {NotebookHeader} from '@/components/notebooks/notebook-header';
-import {useNotebook} from '@/lib/api/notebooks';
+import { NotebookHeader } from '@/components/notebooks/notebook-header';
+import { useNotebook } from '@/lib/api/notebooks';
 
 export const Route = createFileRoute('/_auth/notebooks/$id')({
   component: NotebookPage,

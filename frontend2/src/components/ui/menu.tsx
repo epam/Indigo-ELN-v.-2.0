@@ -1,7 +1,7 @@
-import {Menu as MenuPrimitive} from '@base-ui/react/menu';
-import {Check} from 'lucide-react';
+import { Menu as MenuPrimitive } from '@base-ui/react/menu';
+import { Check } from 'lucide-react';
 
-import {cn} from '@/lib/utils';
+import { cn } from '@/lib/utils';
 
 const MenuRoot = MenuPrimitive.Root;
 const MenuTrigger = MenuPrimitive.Trigger;

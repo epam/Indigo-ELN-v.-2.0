@@ -1,9 +1,9 @@
-import {createFileRoute} from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 
-import {TeamCard} from '@/components/common/team-card';
-import {AboutNotebookCard} from '@/components/notebooks/about-notebook-card';
-import {NotebookInfoSkeleton} from '@/components/notebooks/notebook-info-skeleton';
-import {useNotebook, useUpdateNotebookAccess} from '@/lib/api/notebooks';
+import { TeamCard } from '@/components/common/team-card';
+import { AboutNotebookCard } from '@/components/notebooks/about-notebook-card';
+import { NotebookInfoSkeleton } from '@/components/notebooks/notebook-info-skeleton';
+import { useNotebook, useUpdateNotebookAccess } from '@/lib/api/notebooks';
 
 export const Route = createFileRoute('/_auth/notebooks/$id/')({
   component: NotebookInfoTab,

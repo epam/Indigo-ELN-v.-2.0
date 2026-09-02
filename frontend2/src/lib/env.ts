@@ -1,4 +1,4 @@
-import {z} from '@/lib/zod';
+import { z } from '@/lib/zod';
 
 const envSchema = z.object({
   VITE_COGNITO_USER_POOL_ID: z.string().min(1, 'VITE_COGNITO_USER_POOL_ID is required'),

@@ -1,6 +1,6 @@
-import {ProjectInfoSkeleton} from '@/components/projects/project-info-skeleton';
+import { ProjectInfoSkeleton } from '@/components/projects/project-info-skeleton';
 
-import type {Meta, StoryObj} from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta = {
   title: 'Projects/ProjectInfoSkeleton',

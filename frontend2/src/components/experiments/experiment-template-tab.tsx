@@ -41,7 +41,7 @@ function TemplateComponentView({
     case 'stoichiometryTable':
       return <StoichiometryPanel component={component} experiment={experiment} />;
     case 'batches':
-      return <BatchesPanel />;
+      return <BatchesPanel experiment={experiment} />;
     case 'versionHistory':
       return <VersionHistoryPanel />;
   }

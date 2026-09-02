@@ -1,10 +1,10 @@
-import {useInfiniteQuery, useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import {apiDownload, apiFetch} from '@/lib/api';
-import {collectionQueryString, getNextPageParam, SEARCH_DEBOUNCE_MS} from '@/lib/api/collections';
-import {useSettled} from '@/lib/hooks/use-settled';
-import type {AccessForm, ACLEntry, Attachment, CollectionFilters, Page} from '@/lib/types/common.ts';
-import type {Notebook, NotebookDetails, NotebookEditRequest} from '@/lib/types/notebooks.ts';
+import { apiDownload, apiFetch } from '@/lib/api';
+import { collectionQueryString, getNextPageParam, SEARCH_DEBOUNCE_MS } from '@/lib/api/collections';
+import { useSettled } from '@/lib/hooks/use-settled';
+import type { AccessForm, ACLEntry, Attachment, CollectionFilters, Page } from '@/lib/types/common.ts';
+import type { Notebook, NotebookDetails, NotebookEditRequest } from '@/lib/types/notebooks.ts';
 
 export const NOTEBOOKS_PAGE_SIZE = 10;
 

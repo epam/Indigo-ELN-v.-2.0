@@ -1,9 +1,9 @@
-import {expect, screen, userEvent, within} from 'storybook/test';
+import { expect, screen, userEvent, within } from 'storybook/test';
 
-import {AboutProjectCard} from '@/components/projects/about-project-card';
-import {makeProjectDetails} from '@/mocks/fixtures';
+import { AboutProjectCard } from '@/components/projects/about-project-card';
+import { makeProjectDetails } from '@/mocks/fixtures';
 
-import type {Meta, StoryObj} from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta = {
   title: 'Projects/AboutProjectCard',

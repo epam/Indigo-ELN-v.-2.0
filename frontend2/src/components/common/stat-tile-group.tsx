@@ -1,6 +1,6 @@
-import {Briefcase, FileText, NotebookText} from 'lucide-react';
+import { Briefcase, FileText, NotebookText } from 'lucide-react';
 
-import {Skeleton} from '@/components/ui/skeleton';
+import { Skeleton } from '@/components/ui/skeleton';
 
 /**
  * Label and icon are fixed per entity; only which tiles appear and what they count varies —

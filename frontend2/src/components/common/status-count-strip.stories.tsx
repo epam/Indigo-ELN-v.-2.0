@@ -1,7 +1,7 @@
-import {StatusCountStrip} from '@/components/common/status-count-strip';
-import {makeTotalCounts} from '@/mocks/fixtures';
+import { StatusCountStrip } from '@/components/common/status-count-strip';
+import { makeTotalCounts } from '@/mocks/fixtures';
 
-import type {Meta, StoryObj} from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta = {
   title: 'Common/StatusCountStrip',

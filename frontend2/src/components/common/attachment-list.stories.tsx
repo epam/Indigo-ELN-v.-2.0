@@ -1,11 +1,11 @@
-import {expect, userEvent, waitFor, within} from 'storybook/test';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 
-import {AttachmentList} from '@/components/common/attachment-list';
-import {useProjectAttachments} from '@/lib/api/projects';
-import {ATTACHMENTS} from '@/mocks/fixtures';
+import { AttachmentList } from '@/components/common/attachment-list';
+import { useProjectAttachments } from '@/lib/api/projects';
+import { ATTACHMENTS } from '@/mocks/fixtures';
 
-import type {Meta, StoryObj} from '@storybook/react-vite';
-import type {Attachment} from '@/lib/types/common.ts';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Attachment } from '@/lib/types/common.ts';
 
 const PROJECT_ID = '11111111-1111-1111-1111-111111111111';
 

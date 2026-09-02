@@ -1,11 +1,11 @@
-import {expect, screen, userEvent, waitFor, within} from 'storybook/test';
+import { expect, screen, userEvent, waitFor, within } from 'storybook/test';
 
-import {TeamCard} from '@/components/common/team-card';
-import {useProject, useUpdateProjectAccess} from '@/lib/api/projects';
-import {makeAclEntry, PROJECT_ACL} from '@/mocks/fixtures';
+import { TeamCard } from '@/components/common/team-card';
+import { useProject, useUpdateProjectAccess } from '@/lib/api/projects';
+import { makeAclEntry, PROJECT_ACL } from '@/mocks/fixtures';
 
-import type {Meta, StoryObj} from '@storybook/react-vite';
-import type {ACLEntry} from '@/lib/types/common.ts';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { ACLEntry } from '@/lib/types/common.ts';
 
 const PROJECT_ID = '11111111-1111-1111-1111-111111111111';
 

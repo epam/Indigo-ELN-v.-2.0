@@ -1,11 +1,11 @@
-import {Link} from '@tanstack/react-router';
-import {NotebookText} from 'lucide-react';
-import type {ReactNode} from 'react';
+import { Link } from '@tanstack/react-router';
+import { NotebookText } from 'lucide-react';
+import type { ReactNode } from 'react';
 
-import {AvatarStack} from '@/components/common/avatar-stack';
+import { AvatarStack } from '@/components/common/avatar-stack';
 
-import type {Notebook} from '@/lib/types/notebooks.ts';
-import {formatDate} from '@/lib/utils.ts';
+import type { Notebook } from '@/lib/types/notebooks.ts';
+import { formatDate } from '@/lib/utils.ts';
 
 function Row({ label, children }: { label: string; children: ReactNode }) {
   return (

@@ -1,6 +1,6 @@
-import {useQuery} from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 
-import {apiFetch} from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 
 const imageKeys = {
   image: (path: string) => ['apiImage', path] as const,

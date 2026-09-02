@@ -1,7 +1,7 @@
-import type {ReactNode} from 'react';
+import type { ReactNode } from 'react';
 
-import {Skeleton} from '@/components/ui/skeleton';
-import {cn} from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 import {
   EXPERIMENT_STATUS_COLOR,
   EXPERIMENT_STATUS_DISPLAY,

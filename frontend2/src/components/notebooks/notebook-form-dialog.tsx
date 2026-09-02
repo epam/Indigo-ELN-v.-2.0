@@ -1,18 +1,18 @@
-import {useForm} from '@tanstack/react-form';
+import { useForm } from '@tanstack/react-form';
 
-import {FormDialog} from '@/components/common/form-dialog';
+import { FormDialog } from '@/components/common/form-dialog';
 import {
   NOTEBOOK_NAME_LENGTH,
   notebookNameSchema,
   toNotebookEditRequest,
   toNotebookFormValues,
 } from '@/components/notebooks/notebook-form';
-import {Field} from '@/components/ui/field';
-import {Input} from '@/components/ui/input';
-import {RichTextEditor} from '@/components/ui/rich-text-editor';
-import {checkNotebookNameExists, useEditNotebook} from '@/lib/api/notebooks';
+import { Field } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
+import { RichTextEditor } from '@/components/ui/rich-text-editor';
+import { checkNotebookNameExists, useEditNotebook } from '@/lib/api/notebooks';
 
-import type {NotebookDetails} from '@/lib/types/notebooks.ts';
+import type { NotebookDetails } from '@/lib/types/notebooks.ts';
 
 const NAME_CHECK_DEBOUNCE_MS = 300;
 

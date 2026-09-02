@@ -1,7 +1,7 @@
-import {NotebookCardSkeleton} from '@/components/notebooks/notebook-card-skeleton';
-import {NotebookRowSkeleton} from '@/components/notebooks/notebook-row-skeleton';
+import { NotebookCardSkeleton } from '@/components/notebooks/notebook-card-skeleton';
+import { NotebookRowSkeleton } from '@/components/notebooks/notebook-row-skeleton';
 
-import type {Meta, StoryObj} from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta = {
   title: 'Notebooks/NotebookSkeletons',

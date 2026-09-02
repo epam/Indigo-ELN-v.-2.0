@@ -1,5 +1,5 @@
-import {Skeleton} from '@/components/ui/skeleton';
-import {cn} from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 
 /** Widths only — one entry per labelled section of AboutNotebookCard. */
 const SECTIONS = ['w-40', 'w-full', 'w-64'];

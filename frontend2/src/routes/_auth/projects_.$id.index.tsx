@@ -1,9 +1,9 @@
-import {createFileRoute} from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 
-import {AboutProjectCard} from '@/components/projects/about-project-card';
-import {ProjectInfoSkeleton} from '@/components/projects/project-info-skeleton';
-import {TeamCard} from '@/components/common/team-card';
-import {useProject, useUpdateProjectAccess} from '@/lib/api/projects';
+import { AboutProjectCard } from '@/components/projects/about-project-card';
+import { ProjectInfoSkeleton } from '@/components/projects/project-info-skeleton';
+import { TeamCard } from '@/components/common/team-card';
+import { useProject, useUpdateProjectAccess } from '@/lib/api/projects';
 
 export const Route = createFileRoute('/_auth/projects_/$id/')({
   component: ProjectInfoTab,

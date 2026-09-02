@@ -1,7 +1,7 @@
-import {ExperimentCardSkeleton} from '@/components/experiments/experiment-card-skeleton';
-import {ExperimentRowSkeleton} from '@/components/experiments/experiment-row-skeleton';
+import { ExperimentCardSkeleton } from '@/components/experiments/experiment-card-skeleton';
+import { ExperimentRowSkeleton } from '@/components/experiments/experiment-row-skeleton';
 
-import type {Meta, StoryObj} from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta = {
   title: 'Experiments/ExperimentSkeletons',

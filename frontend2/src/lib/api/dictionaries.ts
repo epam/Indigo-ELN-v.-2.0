@@ -1,8 +1,8 @@
-import {useQuery} from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 
-import {apiFetch} from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 
-import type {BuiltInDictionary, DictionaryItemRef} from '@/lib/types/dictionaries.ts';
+import type { BuiltInDictionary, DictionaryItemRef } from '@/lib/types/dictionaries.ts';
 
 const dictionaryKeys = {
   items: (dictionary: BuiltInDictionary) => ['dictionary', dictionary] as const,

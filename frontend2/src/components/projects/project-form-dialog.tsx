@@ -1,8 +1,8 @@
-import {useForm} from '@tanstack/react-form';
-import {useNavigate} from '@tanstack/react-router';
+import { useForm } from '@tanstack/react-form';
+import { useNavigate } from '@tanstack/react-router';
 
-import {FormDialog} from '@/components/common/form-dialog';
-import {KeywordCombobox} from '@/components/projects/keyword-combobox';
+import { FormDialog } from '@/components/common/form-dialog';
+import { KeywordCombobox } from '@/components/projects/keyword-combobox';
 import {
   EMPTY_PROJECT_FORM,
   PROJECT_NAME_MAX_LENGTH,
@@ -11,12 +11,12 @@ import {
   toProjectFormValues,
   toProjectRequest,
 } from '@/components/projects/project-form';
-import {Field} from '@/components/ui/field';
-import {Input} from '@/components/ui/input';
-import {RichTextEditor} from '@/components/ui/rich-text-editor';
-import {checkProjectNameExists, useCreateProject, useEditProject} from '@/lib/api/projects';
+import { Field } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
+import { RichTextEditor } from '@/components/ui/rich-text-editor';
+import { checkProjectNameExists, useCreateProject, useEditProject } from '@/lib/api/projects';
 
-import type {ProjectDetails} from '@/lib/types/projects.ts';
+import type { ProjectDetails } from '@/lib/types/projects.ts';
 
 const NAME_CHECK_DEBOUNCE_MS = 300;
 

@@ -1,9 +1,9 @@
-import {expect, within} from 'storybook/test';
+import { expect, within } from 'storybook/test';
 
-import {AboutNotebookCard} from '@/components/notebooks/about-notebook-card';
-import {makeNotebookDetails} from '@/mocks/fixtures';
+import { AboutNotebookCard } from '@/components/notebooks/about-notebook-card';
+import { makeNotebookDetails } from '@/mocks/fixtures';
 
-import type {Meta, StoryObj} from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta = {
   title: 'Notebooks/AboutNotebookCard',

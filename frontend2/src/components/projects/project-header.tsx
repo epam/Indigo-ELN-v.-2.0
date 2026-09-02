@@ -1,12 +1,12 @@
-import {Link} from '@tanstack/react-router';
-import {Plus} from 'lucide-react';
+import { Link } from '@tanstack/react-router';
+import { Plus } from 'lucide-react';
 
-import {Breadcrumbs} from '@/components/layout/breadcrumbs';
-import {StatTileGroup} from '@/components/common/stat-tile-group';
-import {StatusCountStrip} from '@/components/common/status-count-strip';
-import {Button} from '@/components/ui/button';
+import { Breadcrumbs } from '@/components/layout/breadcrumbs';
+import { StatTileGroup } from '@/components/common/stat-tile-group';
+import { StatusCountStrip } from '@/components/common/status-count-strip';
+import { Button } from '@/components/ui/button';
 
-import type {ProjectDetails} from '@/lib/types/projects.ts';
+import type { ProjectDetails } from '@/lib/types/projects.ts';
 
 // Split across the three props rather than merged with `cn()`: TanStack Router concatenates
 // `className` with the active/inactive one, and twMerge does not run over the join — so the two

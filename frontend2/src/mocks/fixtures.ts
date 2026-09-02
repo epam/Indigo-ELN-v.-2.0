@@ -12,6 +12,7 @@ import type {
   ReactionInput,
   ReactionInputSample,
   ReactionOutput,
+  ReactionOutputSample,
 } from '@/lib/types/reactions.ts';
 import type { CurrentUser } from '@/lib/types/user.ts';
 import type { TemplateDetails } from '@/lib/types/templates.ts';
@@ -332,6 +333,26 @@ export const REACTION_INPUTS: ReactionInput[] = [
 ];
 
 /**
+ * One batch of a product. `shortNbkBatchNumber` is derived server-side from `nbkBatchNumber`, so
+ * the two are kept in step here rather than being overridden independently.
+ */
+export function makeReactionOutputSample(
+  anchor: string,
+  overrides: Partial<ReactionOutputSample> = {},
+): ReactionOutputSample {
+  const nbkBatchNumber = overrides.nbkBatchNumber ?? '20260101-0001-001';
+  return {
+    anchor,
+    nbkBatchNumber,
+    shortNbkBatchNumber: nbkBatchNumber.slice(nbkBatchNumber.lastIndexOf('-') + 1),
+    // A new batch starts at 100 % purity — `AddProductSampleHandler`.
+    purity: entered('100', 'NO_UNIT', 'default'),
+    healthHazards: [],
+    ...overrides,
+  };
+}
+
+/**
  * The products of a step. Every row here is `intended` except the last, which is what proves the
  * table filters them out.
  *
@@ -339,6 +360,11 @@ export const REACTION_INPUTS: ReactionInput[] = [
  * `VIRTUAL` compound with a salt code (the only editable Salt Code and Salt EQ), a `STORED` one
  * with a salt code (both locked by the registry), and a row with no theoretical values at all —
  * what a reaction with no limiting reagent looks like.
+ *
+ * Their **batches** are what the Product Batch Summary renders, and they carry the four states
+ * that table branches on: an unregistered batch with numbers, an empty one, a `REGISTERED` one
+ * (Register and Delete frozen), and a `FAILED` one with a message (both actions live again). The
+ * unintended row's batch is the only one whose Sync with Products is enabled.
  */
 export function makeReactionOutput(anchor: string, overrides: Partial<ReactionOutput> = {}): ReactionOutput {
   return {
@@ -368,6 +394,19 @@ export const REACTION_OUTPUTS: ReactionOutput[] = [
       exactMass: entered('180.0423', 'NO_UNIT', 'fixed'),
     }),
     eq: entered('1', 'NO_UNIT', 7),
+    samples: [
+      makeReactionOutputSample('f1000000-0000-4000-8000-000000000001', {
+        actualWeight: entered('246', 'MG', 12),
+        actualMol: entered('1.35', 'MMOL', 'calculated'),
+        molarity: entered('0.04', 'M', 'calculated'),
+        yield: entered('27.5', 'NO_UNIT', 'calculated'),
+        purity: entered('98.5', 'NO_UNIT', 12),
+      }),
+      // Nothing entered yet — the em-dash state of every numeric column.
+      makeReactionOutputSample('f1000000-0000-4000-8000-000000000002', {
+        nbkBatchNumber: '20260101-0001-002',
+      }),
+    ],
   }),
   // A by-product, on a virtual compound: Salt Code is editable here, and Salt EQ with it.
   makeReactionOutput('f0000000-0000-4000-8000-000000000002', {
@@ -386,6 +425,14 @@ export const REACTION_OUTPUTS: ReactionOutput[] = [
       saltEQ: 1,
     },
     theoWeight: entered('294.3', 'MG', 'calculated'),
+    samples: [
+      makeReactionOutputSample('f1000000-0000-4000-8000-000000000003', {
+        nbkBatchNumber: '20260101-0001-003',
+        registrationStatus: 'REGISTERED',
+        strCode: 'STR-00000031-01',
+        actualWeight: entered('88', 'MG', 9),
+      }),
+    ],
   }),
   // An intermediate the next step consumes, and the row with nothing calculated on it — the
   // reaction has no limiting reagent, so `theoMol` and `theoWeight` never resolve.
@@ -401,6 +448,13 @@ export const REACTION_OUTPUTS: ReactionOutput[] = [
     }),
     theoMol: {},
     theoWeight: {},
+    samples: [
+      makeReactionOutputSample('f1000000-0000-4000-8000-000000000004', {
+        nbkBatchNumber: '20260101-0001-004',
+        registrationStatus: 'FAILED',
+        registrationStatusMessage: 'Compound registry rejected the structure',
+      }),
+    ],
   }),
   // Not drawn in the scheme, so the table must not show it.
   makeReactionOutput('f0000000-0000-4000-8000-000000000004', {
@@ -408,6 +462,11 @@ export const REACTION_OUTPUTS: ReactionOutput[] = [
     chemicalName: 'Unplanned by-product',
     type: 'BY_PRODUCT',
     intended: false,
+    samples: [
+      makeReactionOutputSample('f1000000-0000-4000-8000-000000000005', {
+        nbkBatchNumber: '20260101-0001-005',
+      }),
+    ],
   }),
 ];
 

@@ -1,10 +1,10 @@
-import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
-import {createMemoryHistory, createRouter, RouterProvider} from '@tanstack/react-router';
-import {render, screen, waitFor} from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createMemoryHistory, createRouter, RouterProvider } from '@tanstack/react-router';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import {beforeEach, describe, expect, it, vi} from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import {makeCurrentUser, makeProjectDetails, NOTEBOOKS} from '@/mocks/fixtures';
+import { makeCurrentUser, makeProjectDetails, NOTEBOOKS } from '@/mocks/fixtures';
 
 const fetchAuthSession = vi.fn().mockResolvedValue({ tokens: { accessToken: { toString: () => 'token' } } });
 vi.mock('aws-amplify/auth', () => ({ fetchAuthSession, signOut: vi.fn() }));

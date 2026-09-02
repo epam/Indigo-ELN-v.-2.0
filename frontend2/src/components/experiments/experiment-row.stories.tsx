@@ -1,7 +1,7 @@
-import {ExperimentRow} from '@/components/experiments/experiment-row';
-import {makeAclEntry, makeExperiment} from '@/mocks/fixtures';
+import { ExperimentRow } from '@/components/experiments/experiment-row';
+import { makeAclEntry, makeExperiment } from '@/mocks/fixtures';
 
-import type {Meta, StoryObj} from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta = {
   title: 'Experiments/ExperimentRow',

@@ -1,6 +1,6 @@
-import type {ACLEntry, Attachment, BaseDTO} from '@/lib/types/common.ts';
-import type {ExperimentStatusCounts} from '@/lib/types/experiments.ts';
-import type {ApplicationPermission} from '@/lib/types/user.ts';
+import type { ACLEntry, Attachment, BaseDTO } from '@/lib/types/common.ts';
+import type { ExperimentStatusCounts } from '@/lib/types/experiments.ts';
+import type { ApplicationPermission } from '@/lib/types/user.ts';
 
 export interface BaseProject extends BaseDTO {
   name: string;

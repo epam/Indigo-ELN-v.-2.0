@@ -1,8 +1,8 @@
-import {describe, expect, it} from 'vitest';
+import { describe, expect, it } from 'vitest';
 
-import {collectionQueryString, getNextPageParam} from '@/lib/api/collections';
+import { collectionQueryString, getNextPageParam } from '@/lib/api/collections';
 
-import type {Page} from '@/lib/types/common.ts';
+import type { Page } from '@/lib/types/common.ts';
 
 describe('collectionQueryString', () => {
   it('omits search and createdByMe when unset', () => {

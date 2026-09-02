@@ -1,7 +1,7 @@
-import {NotebookCard} from '@/components/notebooks/notebook-card';
-import {makeNotebook, NOTEBOOKS} from '@/mocks/fixtures';
+import { NotebookCard } from '@/components/notebooks/notebook-card';
+import { makeNotebook, NOTEBOOKS } from '@/mocks/fixtures';
 
-import type {Meta, StoryObj} from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta = {
   title: 'Notebooks/NotebookCard',

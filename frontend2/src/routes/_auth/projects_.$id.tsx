@@ -1,7 +1,7 @@
-import {createFileRoute, Outlet} from '@tanstack/react-router';
+import { createFileRoute, Outlet } from '@tanstack/react-router';
 
-import {ProjectHeader} from '@/components/projects/project-header';
-import {useProject} from '@/lib/api/projects';
+import { ProjectHeader } from '@/components/projects/project-header';
+import { useProject } from '@/lib/api/projects';
 
 // `projects_` keeps this off `/_auth/projects` as a child route — the projects page is a
 // leaf with no <Outlet />, so the detail page has to stay its sibling.

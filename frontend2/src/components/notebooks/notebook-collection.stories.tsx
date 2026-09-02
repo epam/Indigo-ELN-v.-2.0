@@ -1,9 +1,9 @@
-import {expect, within} from 'storybook/test';
+import { expect, within } from 'storybook/test';
 
-import {NotebookCollection} from '@/components/notebooks/notebook-collection';
-import {emptyHandlers, errorHandlers, loadingHandlers} from '@/mocks/handlers';
+import { NotebookCollection } from '@/components/notebooks/notebook-collection';
+import { emptyHandlers, errorHandlers, loadingHandlers } from '@/mocks/handlers';
 
-import type {Meta, StoryObj} from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta = {
   title: 'Notebooks/NotebookCollection',

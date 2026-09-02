@@ -1,4 +1,4 @@
-import {describe, expect, it, vi} from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('aws-amplify/auth', () => ({
   fetchAuthSession: vi.fn().mockResolvedValue({ tokens: { accessToken: { toString: () => 'test-token' } } }),

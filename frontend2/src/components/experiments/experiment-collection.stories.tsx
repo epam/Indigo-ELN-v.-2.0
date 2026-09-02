@@ -1,9 +1,9 @@
-import {expect, within} from 'storybook/test';
+import { expect, within } from 'storybook/test';
 
-import {ExperimentCollection} from '@/components/experiments/experiment-collection';
-import {emptyHandlers, errorHandlers, loadingHandlers} from '@/mocks/handlers';
+import { ExperimentCollection } from '@/components/experiments/experiment-collection';
+import { emptyHandlers, errorHandlers, loadingHandlers } from '@/mocks/handlers';
 
-import type {Meta, StoryObj} from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta = {
   title: 'Experiments/ExperimentCollection',

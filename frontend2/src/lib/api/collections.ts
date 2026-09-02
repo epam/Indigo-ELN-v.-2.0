@@ -1,4 +1,4 @@
-import type {CollectionFilters, Page} from '@/lib/types/common.ts';
+import type { CollectionFilters, Page } from '@/lib/types/common.ts';
 
 /**
  * The query string shared by every paged entity list. `/projects` and

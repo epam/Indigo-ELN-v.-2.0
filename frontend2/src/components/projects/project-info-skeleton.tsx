@@ -1,5 +1,5 @@
-import {Skeleton} from '@/components/ui/skeleton';
-import {cn} from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 
 /** Widths only — one entry per labelled section of AboutProjectCard. */
 const SECTIONS = ['w-40', 'w-64', 'w-32', 'w-full'];

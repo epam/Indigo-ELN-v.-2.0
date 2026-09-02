@@ -261,6 +261,20 @@ export const handlers = [
   http.post(`${ELN}/experiments/:id/mutate`, async ({ request }) =>
     HttpResponse.json(setSchemeResponse((await request.json()) as ModelMutation)),
   ),
+  // Multipart, and not a `/mutate` call: `ImportSDF` is the one model mutation the endpoint does
+  // not accept. The response is the same `MutationResponse` shape.
+  http.post(`${ELN}/experiments/:id/datamodel/reactions/:anchor/importSDF`, () =>
+    HttpResponse.json({ patch: {}, messages: ['Imported 1 compound'] } satisfies MutationResponse),
+  ),
+  // `@Produces("chemical/x-mdl-sdfile")`, with the filename the download names the file after.
+  http.get(`${ELN}/experiments/:id/exportSdf`, () =>
+    HttpResponse.text('$$$$\n', {
+      headers: {
+        'Content-Type': 'chemical/x-mdl-sdfile',
+        'Content-Disposition': 'attachment; filename="experiment.sdf"',
+      },
+    }),
+  ),
   http.post(`${ELN}/experiments/:id/access`, async ({ request }) =>
     HttpResponse.json(recomputedAcl(EXPERIMENT_ACL, (await request.json()) as AccessForm[])),
   ),

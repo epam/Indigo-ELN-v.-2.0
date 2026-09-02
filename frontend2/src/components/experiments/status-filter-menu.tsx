@@ -1,8 +1,8 @@
-import {ChevronDown} from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 
-import {Button} from '@/components/ui/button';
-import {Menu, MenuCheckboxItem, MenuContent, MenuTrigger} from '@/components/ui/menu';
-import {EXPERIMENT_STATUS_DISPLAY, EXPERIMENT_STATUSES, type ExperimentStatus} from '@/lib/types/experiments.ts';
+import { Button } from '@/components/ui/button';
+import { Menu, MenuCheckboxItem, MenuContent, MenuTrigger } from '@/components/ui/menu';
+import { EXPERIMENT_STATUS_DISPLAY, EXPERIMENT_STATUSES, type ExperimentStatus } from '@/lib/types/experiments.ts';
 
 /**
  * The `Status` filter of a notebook's experiment list, sitting in `ActionBar`'s children slot.
@@ -39,9 +39,7 @@ export function StatusFilterMenu({
               inside the span is stripped when the accessible name is computed, leaving
               "Status(2)". Same shape as ActionBar's sort trigger.
             */}
-            <span>
-              Status {selected.size > 0 && <span className="text-blue-400">({selected.size})</span>}
-            </span>
+            <span>Status {selected.size > 0 && <span className="text-blue-400">({selected.size})</span>}</span>
             <ChevronDown />
           </Button>
         }

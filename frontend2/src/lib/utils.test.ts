@@ -1,6 +1,6 @@
-import {describe, expect, it} from 'vitest';
+import { describe, expect, it } from 'vitest';
 
-import {formatBytes} from '@/lib/utils';
+import { formatBytes } from '@/lib/utils';
 
 describe('formatBytes', () => {
   it('uses the largest unit the value reaches', () => {

@@ -1,4 +1,4 @@
-import {config, z} from 'zod';
+import { config, z } from 'zod';
 
 /**
  * The app's single entry point to zod. Import `z` from here, never from 'zod' directly.

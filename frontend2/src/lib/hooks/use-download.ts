@@ -1,4 +1,4 @@
-import {useCallback, useState} from 'react';
+import { useCallback, useState } from 'react';
 
 /**
  * Runs a download and tracks whether one is in flight, so a call site is a click handler and a

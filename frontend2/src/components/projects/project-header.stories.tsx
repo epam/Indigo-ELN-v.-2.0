@@ -1,7 +1,7 @@
-import {ProjectHeader} from '@/components/projects/project-header';
-import {makeProjectDetails} from '@/mocks/fixtures';
+import { ProjectHeader } from '@/components/projects/project-header';
+import { makeProjectDetails } from '@/mocks/fixtures';
 
-import type {Meta, StoryObj} from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta = {
   title: 'Projects/ProjectHeader',

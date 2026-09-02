@@ -1,5 +1,5 @@
-import {Skeleton} from '@/components/ui/skeleton';
-import {cn} from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 
 /** Widths only — the row count and heights mirror ExperimentCard so nothing shifts when data lands. */
 const ROWS = [

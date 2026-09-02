@@ -1,10 +1,10 @@
-import {useInfiniteQuery} from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 
-import {apiFetch} from '@/lib/api';
-import {getNextPageParam} from '@/lib/api/collections';
+import { apiFetch } from '@/lib/api';
+import { getNextPageParam } from '@/lib/api/collections';
 
-import type {Page} from '@/lib/types/common.ts';
-import type {GlobalSearchRequest, GlobalSearchResult} from '@/lib/types/search.ts';
+import type { Page } from '@/lib/types/common.ts';
+import type { GlobalSearchRequest, GlobalSearchResult } from '@/lib/types/search.ts';
 
 /** As in indigo-frontend's GlobalSearchLoader, which also asks for 20 at a time. */
 const SEARCH_PAGE_SIZE = 20;

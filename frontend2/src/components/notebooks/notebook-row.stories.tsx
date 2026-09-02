@@ -1,7 +1,7 @@
-import {NotebookRow} from '@/components/notebooks/notebook-row';
-import {makeNotebook} from '@/mocks/fixtures';
+import { NotebookRow } from '@/components/notebooks/notebook-row';
+import { makeNotebook } from '@/mocks/fixtures';
 
-import type {Meta, StoryObj} from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta = {
   title: 'Notebooks/NotebookRow',

@@ -1,10 +1,10 @@
-import {useState} from 'react';
-import {expect, screen, userEvent, within} from 'storybook/test';
+import { useState } from 'react';
+import { expect, screen, userEvent, within } from 'storybook/test';
 
-import {StatusFilterMenu} from '@/components/experiments/status-filter-menu';
+import { StatusFilterMenu } from '@/components/experiments/status-filter-menu';
 
-import type {Meta, StoryObj} from '@storybook/react-vite';
-import type {ExperimentStatus} from '@/lib/types/experiments.ts';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { ExperimentStatus } from '@/lib/types/experiments.ts';
 
 /** Controlled by the URL in the app; by local state here, so the ticks actually move. */
 function StatusFilterMenuHarness({ initial }: { initial: ExperimentStatus[] }) {

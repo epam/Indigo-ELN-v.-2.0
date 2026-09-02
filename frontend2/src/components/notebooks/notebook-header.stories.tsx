@@ -1,7 +1,7 @@
-import {NotebookHeader} from '@/components/notebooks/notebook-header';
-import {makeNotebookDetails} from '@/mocks/fixtures';
+import { NotebookHeader } from '@/components/notebooks/notebook-header';
+import { makeNotebookDetails } from '@/mocks/fixtures';
 
-import type {Meta, StoryObj} from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta = {
   title: 'Notebooks/NotebookHeader',

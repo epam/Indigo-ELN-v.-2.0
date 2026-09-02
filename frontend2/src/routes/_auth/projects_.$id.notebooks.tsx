@@ -1,9 +1,9 @@
-import {createFileRoute} from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 
-import {ActionBar} from '@/components/common/action-bar';
-import {NotebookCollection} from '@/components/notebooks/notebook-collection';
-import {z} from '@/lib/zod';
-import {COLLECTION_VIEWS, type CollectionView, SORT_ORDERS, type SortOrder} from '@/lib/types/common.ts';
+import { ActionBar } from '@/components/common/action-bar';
+import { NotebookCollection } from '@/components/notebooks/notebook-collection';
+import { z } from '@/lib/zod';
+import { COLLECTION_VIEWS, type CollectionView, SORT_ORDERS, type SortOrder } from '@/lib/types/common.ts';
 
 const searchSchema = z.object({
   q: z.string().optional(),

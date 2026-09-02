@@ -1,6 +1,6 @@
-import {fetchAuthSession} from 'aws-amplify/auth';
+import { fetchAuthSession } from 'aws-amplify/auth';
 
-import {notifyError} from '@/lib/toast';
+import { notifyError } from '@/lib/toast';
 
 /** Thrown for any non-2xx response so TanStack Query can surface it. */
 export class ApiError extends Error {

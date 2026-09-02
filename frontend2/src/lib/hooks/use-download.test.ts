@@ -1,7 +1,7 @@
-import {act, renderHook, waitFor} from '@testing-library/react';
-import {describe, expect, it} from 'vitest';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
 
-import {useDownload} from './use-download';
+import { useDownload } from './use-download';
 
 /** A promise plus the handles to settle it, so the in-flight state is observable. */
 function deferred() {

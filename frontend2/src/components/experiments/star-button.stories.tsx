@@ -1,8 +1,8 @@
-import {expect, userEvent, waitFor, within} from 'storybook/test';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 
-import {StarButton} from '@/components/experiments/star-button';
+import { StarButton } from '@/components/experiments/star-button';
 
-import type {Meta, StoryObj} from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta = {
   title: 'Experiments/StarButton',
