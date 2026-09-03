@@ -14,6 +14,7 @@ import type {
   ReactionOutput,
   ReactionOutputSample,
 } from '@/lib/types/reactions.ts';
+import type { SampleDTO } from '@/lib/types/samples.ts';
 import type { CurrentUser } from '@/lib/types/user.ts';
 import type { TemplateDetails } from '@/lib/types/templates.ts';
 
@@ -855,4 +856,68 @@ export const SEARCH_RESULTS: GlobalSearchResult[] = [
       createdBy: index % 2 === 0 ? MARK : ADMINISTRATOR,
     }),
   ),
+];
+
+export function makeSample(overrides: Partial<SampleDTO> = {}): SampleDTO {
+  return {
+    source: 'ELN',
+    id: '55555555-5555-4555-8555-000000000001',
+    nbkBatchNumber: '20260101-0001-001',
+    compoundKey: 'STR-00000000-89',
+    strCode: 'STR-00000000-89-123',
+    molFormula: 'C<sub>9</sub>H<sub>8</sub>O<sub>4</sub>',
+    molWeight: 180.16,
+    name: 'Acetylsalicylic acid',
+    compoundID: 'c0000000-0000-4000-8000-000000000001',
+    ...overrides,
+  };
+}
+
+/**
+ * What a catalog search answers with. The mix is the point: an ELN hit with everything filled
+ * in, a marked one, one with no chemical name, and two PubChem hits — which have no `id`, so
+ * they cannot be marked and have to be imported before they can be added.
+ */
+export const SAMPLE_RESULTS: SampleDTO[] = [
+  makeSample(),
+  makeSample({
+    id: '55555555-5555-4555-8555-000000000002',
+    nbkBatchNumber: '20260101-0001-002',
+    compoundKey: 'STR-00000000-90',
+    name: 'Salicylic acid',
+    molFormula: 'C<sub>7</sub>H<sub>6</sub>O<sub>3</sub>',
+    molWeight: 138.12,
+    saltCode: SALT_CODE,
+    saltEQ: 1,
+    marked: true,
+  }),
+  makeSample({
+    id: '55555555-5555-4555-8555-000000000003',
+    compoundKey: 'STR-00000000-91',
+    name: undefined,
+    molFormula: 'C<sub>4</sub>H<sub>6</sub>O<sub>3</sub>',
+    molWeight: 102.09,
+  }),
+  makeSample({
+    source: 'PUBCHEM',
+    id: undefined,
+    nbkBatchNumber: undefined,
+    strCode: undefined,
+    compoundID: undefined,
+    compoundKey: '2244',
+    name: '2-acetyloxybenzoic acid',
+    inchi: 'InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)',
+  }),
+  makeSample({
+    source: 'PUBCHEM',
+    id: undefined,
+    nbkBatchNumber: undefined,
+    strCode: undefined,
+    compoundID: undefined,
+    compoundKey: '1140',
+    name: undefined,
+    molFormula: 'C<sub>7</sub>H<sub>8</sub>',
+    molWeight: 92.14,
+    inchi: 'InChI=1S/C7H8/c1-7-5-3-2-4-6-7/h2-6H,1H3',
+  }),
 ];

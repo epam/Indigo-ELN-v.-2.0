@@ -206,9 +206,9 @@ function applyMutationResponse(
   // Skipped entirely when the detail was not cached — `patchExperimentDetails` no-ops
   // there, and reporting an empty map would read as "nothing changed".
   if (updatedNodes.size > 0) onPatched?.(updatedNodes);
-  // TODO(analyze-rxn): response.unresolvedInputs names reactants the backend could not
-  // match to a compound. Resolving them needs indigo-frontend's AnalyzeRxn slide-in panel
-  // and the ResolveInputs mutation, neither of which is ported yet.
+  // `response.unresolvedInputs` is deliberately not read here: it belongs to whoever sent the
+  // mutation, not to every caller. `ReactionSchemePanel` reads it off `mutateAsync`'s result and
+  // opens Analyze RXN on it — see the note there.
   for (const message of response.messages ?? []) notifyInfo(message);
   // The write bumps modifiedAt, which every list card shows.
   void queryClient.invalidateQueries({ queryKey: experimentKeys.all() });

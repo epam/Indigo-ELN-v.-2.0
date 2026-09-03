@@ -1,7 +1,11 @@
+import { useState } from 'react';
+
 import { SchemeEditor } from '@/components/chemistry/scheme-editor';
 import { SavingOverlay } from '@/components/common/saving-overlay';
+import { AnalyzeRxnDialog } from '@/components/experiments/analyze-rxn/analyze-rxn-dialog';
 import { useMutateExperimentModel } from '@/lib/api/experiments';
 
+import type { UUID } from '@/lib/types/common.ts';
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
 import type { Reaction } from '@/lib/types/reactions.ts';
 
@@ -19,13 +23,32 @@ import type { Reaction } from '@/lib/types/reactions.ts';
  * returns rendered SVGs in `reactionImages`, which indigo-frontend displays; they are ignored
  * here, along with the `/datamodel/reactions/{anchor}/picture` endpoint behind them.
  *
+ * What the response's `unresolvedInputs` names, though, is acted on: the molecules that got an
+ * input row but no compound behind it. `AnalyzeRxnDialog` opens on them.
+ *
  * On failure the sketcher stays open with the drawing in it (`StructureEditorDialog` awaits
  * this mutation), nothing is written to the cache, and the frame keeps showing the structure
  * the server last confirmed.
  */
-export function ReactionSchemePanel({ experiment, reaction }: { experiment: ExperimentDetails; reaction: Reaction }) {
+export function ReactionSchemePanel({
+  experiment,
+  reaction,
+  step,
+}: {
+  experiment: ExperimentDetails;
+  reaction: Reaction;
+  /** Zero-based index of this step, for the Analyze RXN title. */
+  step: number;
+}) {
   const mutate = useMutateExperimentModel(experiment);
   const canEdit = experiment.currentPermissions.includes('EDIT_EXPERIMENTS');
+
+  /**
+   * Read here rather than in `applyMutationResponse` so the api module stays free of UI. By the
+   * time this is set the patch has already been applied, so the `reaction` prop the dialog is
+   * handed is the one that actually contains the new input rows.
+   */
+  const [unresolvedInputs, setUnresolvedInputs] = useState<Record<UUID, string> | null>(null);
 
   return (
     // The dialog covers the frame during a save, but a mutation queued behind another write
@@ -38,9 +61,32 @@ export function ReactionSchemePanel({ experiment, reaction }: { experiment: Expe
         // is the only caller here and always awaits — so the rejection is caught there
         // rather than leaking as an unhandled one.
         onChange={async (next) => {
-          if (next) await mutate.mutateAsync({ type: 'SetScheme', anchor: reaction.anchor, rxnFile: next.structure });
+          if (!next) return;
+          const response = await mutate.mutateAsync({
+            type: 'SetScheme',
+            anchor: reaction.anchor,
+            rxnFile: next.structure,
+          });
+          // `SetScheme` reports the map on essentially every edit, empty when everything matched.
+          if (response.unresolvedInputs && Object.keys(response.unresolvedInputs).length > 0) {
+            setUnresolvedInputs(response.unresolvedInputs);
+          }
         }}
       />
+
+      {/* Mounted only while there is something to resolve, so each run starts on a clean tab. */}
+      {unresolvedInputs != null && (
+        <AnalyzeRxnDialog
+          open
+          onOpenChange={(open) => {
+            if (!open) setUnresolvedInputs(null);
+          }}
+          experiment={experiment}
+          reaction={reaction}
+          step={step}
+          unresolvedInputs={unresolvedInputs}
+        />
+      )}
     </SavingOverlay>
   );
 }

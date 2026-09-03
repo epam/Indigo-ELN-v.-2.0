@@ -260,9 +260,49 @@ Three properties of the diff, all easier to know than to rediscover:
   indigo-frontend's `determineCellClasses` uses to flash a recalculated cell, and the
   stoichiometry table will want it.
 
-`response.messages` become toasts via `notifyInfo`. `response.reactionImages` and
-`unresolvedInputs` are both ignored: schemes are drawn client-side, and resolving unmatched
-reactants needs indigo-frontend's Analyze RXN panel, which is not ported.
+`response.messages` become toasts via `notifyInfo`. `response.reactionImages` is ignored —
+schemes are drawn client-side. `unresolvedInputs` is **not** read by `applyMutationResponse`
+either, but it is not ignored: it belongs to whoever sent the mutation rather than to every
+caller, so `ReactionSchemePanel` reads it off `mutateAsync`'s resolved value and opens Analyze
+RXN on it. See below.
+
+### Analyze RXN
+
+`SetScheme` reports the molecules it could not match to a registered compound as
+`MutationResponse.unresolvedInputs` — **input row anchor → molfile**. Those rows are in the
+stoichiometry table already, carrying a `VIRTUAL` compound with no sample behind them, so
+nothing about their batch can be filled in. `AnalyzeRxnDialog`
+(`src/components/experiments/analyze-rxn/`) is the answer: one tab per unresolved row, a
+substructure search of the catalogs per tab, and a `ResolveInputs` mutation per row added. It is a
+`side="right"` sheet, like Global Search — the stoichiometry table it fills in stays visible
+behind it.
+
+Four things there are worth knowing before changing it:
+
+- **`/samples/search` is the only endpoint in the app that is not paged by `Page<T>`.** It walks
+  several catalogs in priority order (ELN 0, MY\_MATERIALS 1, PUBCHEM 1000) and returns an opaque
+  cursor as `next`, which the caller hands back as the *request's* own `state` field. `totalItems`
+  is null once a catalog that cannot count has contributed — PubChem reports neither a count nor a
+  cursor — so **`next === null` is the only end-of-results signal**. A tab with no count from the
+  server falls back to what it can see: `resultCountLabel` says `12+` while the cursor still
+  points somewhere, and a plain `12` once it does not, since what has loaded is the total by then.
+  `src/lib/api/samples.ts` owns the paging; nothing else should.
+- **The catalog radio needs no refetch.** `catalogs` is part of the request and the request is the
+  query key, so choosing a different catalog is a different query. indigo-frontend's own panel
+  searches only in `ngOnInit`, which is why its radio does nothing.
+- **Only the visible tab searches.** `TabsPanel` unmounts an inactive panel, so a step with five
+  unmatched reactants does not fire five substructure searches at once. The visible cost is that a
+  tab's `(count)` appears only once it has been opened.
+- **Adding is two steps for a PubChem hit.** `ResolveInputs` names a sample by id and a catalog hit
+  that is not in the ELN has none, so `POST /samples/importFromSearch` registers it first — with
+  the whole `SampleDTO`, since the backend dispatches on `source` and reads `inchi`. The mutation
+  then goes through `useMutateExperimentModel`, so it queues in `experimentWrite`'s scope and its
+  patch fills in the row behind the dialog.
+
+The Add button on a row is disabled when the step already holds that sample
+(`boundSampleIds(reaction)`), which is read off the model rather than remembered — so it is still
+right after a reopen. The tab's resolved check is the narrower claim and is local state: *this
+dialog* bound something to that input.
 
 ### Styling — Tailwind v4 CSS-first
 
@@ -270,15 +310,28 @@ No `tailwind.config.*` file. All theme customisation is in `src/styles.css` via 
 
 ### UI components — `src/components/ui/`
 
-Styled with CVA + `cn()`, following the shadcn `base-nova` pattern. Primitives from `@base-ui/react` (not Radix). Current components: `button`, `avatar`, `badge`, `switch`, `segmented-control`, `dialog`, `input`, `field`, `combobox`, `radio-group`, `toast`, `rich-text-editor`. Add new ones with `pnpm dlx shadcn@latest add <name>` — the CLI respects `components.json`. Icons: `lucide-react` only; never hand-write SVG paths.
+Styled with CVA + `cn()`, following the shadcn `base-nova` pattern. Primitives from `@base-ui/react` (not Radix). Current components: `button`, `avatar`, `badge`, `switch`, `segmented-control`, `dialog`, `input`, `field`, `combobox`, `radio-group`, `tabs`, `toast`, `rich-text-editor`. Add new ones with `pnpm dlx shadcn@latest add <name>` — the CLI respects `components.json`. Icons: `lucide-react` only; never hand-write SVG paths.
 
 `Button` takes `loading`, which disables it, sets `aria-busy` and overlays a spinner. The label is faded with `opacity-0` rather than `visibility: hidden` on purpose — hiding it would strip the label from the button's accessible name, leaving it announced as nothing but a spinner.
 
 `DialogContent` takes `side`: the default `center` is the 560px modal, `right` turns the
-same frame — title row, scrolling body, pinned footer — into a full-height sheet anchored
-below the 72px `AppHeader`, with a transparent backdrop so the page behind stays legible.
-Base UI's own `Drawer` is deliberately unused: it brings a swipe-to-dismiss interaction
-model this desktop sheet does not want.
+same frame — title row, scrolling body, pinned footer — into a sheet running the **full**
+height of the window, over the `AppHeader` rather than below it, with a transparent backdrop
+so the page behind stays legible. It used to start at the header's 72px, which left a strip of
+page above it and read as the panel having slipped down. Base UI's own `Drawer` is
+deliberately unused: it brings a swipe-to-dismiss interaction model this desktop sheet does
+not want.
+
+**The shadow is per-variant, not shared.** An undimmed backdrop means a sheet's shadow is the
+only thing marking where the panel ends, and `--shadow-card` — tuned for a card on a tinted
+page — disappeared against white content. `right` therefore uses `--shadow-sheet`, a heavier
+two-layer shadow cast leftward, away from the window edge it is anchored to; `center` keeps the
+card shadow, since a dimmed page already separates it.
+
+`Tabs` is the underlined strip from the page headers, made into a real tablist for tabs *inside*
+a surface, where the selection is component state rather than a search param. Its panels are not
+`keepMounted` — Base UI's default, and relied on by Analyze RXN: a panel that has never been shown
+has never mounted, so the query inside it has never run.
 
 `Field` is deliberately **not** built on Base UI's `Field`: that only auto-associates labels with its own `Field.Control`, which the combobox and the rich-text editor are not. It renders a plain `<label>` carrying both `htmlFor={id}` and `id={`${id}-label`}`, so native controls associate normally and the editor's `contenteditable` points back with `aria-labelledby`.
 

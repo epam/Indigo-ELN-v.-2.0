@@ -16,7 +16,7 @@ const EXPERIMENT = makeExperimentDetails();
 const meta = {
   title: 'Experiments/Template/ReactionSchemePanel',
   component: ReactionSchemePanel,
-  args: { experiment: EXPERIMENT, reaction: EXPERIMENT.model.reactions[0] },
+  args: { experiment: EXPERIMENT, reaction: EXPERIMENT.model.reactions[0], step: 0 },
   decorators: [
     (Story) => (
       <div className="w-[640px]">

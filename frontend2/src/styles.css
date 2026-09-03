@@ -96,6 +96,14 @@
   --radius-6: 12px;
 
   --shadow-card: 0 4px 8px #00000014;
+  /*
+    The side sheet's edge. It has to do the whole job of separating the panel from the page on
+    its own: unlike the centred modal, a sheet leaves the backdrop transparent, so there is no
+    dimming behind it and `--shadow-card` — tuned for a card sitting on a tinted page — left the
+    boundary hard to find against white content. Cast leftward, away from the window edge the
+    sheet is anchored to, with a tight pass for the edge itself and a wide one for depth.
+  */
+  --shadow-sheet: -2px 0 6px #0000001f, -12px 0 32px #00000029;
 }
 
 :root {

@@ -89,7 +89,7 @@ export function StoichiometryPanel({
           {component.reactionScheme && (
             <section className="flex flex-col gap-2">
               <h3 className="text-[14px]/6 text-neutral-800">Reaction Scheme</h3>
-              <ReactionSchemePanel experiment={experiment} reaction={reaction} />
+              <ReactionSchemePanel experiment={experiment} reaction={reaction} step={step} />
             </section>
           )}
 
