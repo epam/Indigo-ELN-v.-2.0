@@ -168,6 +168,14 @@ export const DICTIONARIES: Partial<Record<BuiltInDictionary, DictionaryItemRef[]
   // Read by the stoichiometry table's Salt Code and Hazard Comments cells.
   SALT_CODE: makeDictionary(['HCl', 'Na', 'K', 'Free base']),
   HEALTH_HAZARD: makeDictionary(['Corrosive', 'Flammable', 'Irritant', 'Toxic', 'Oxidiser']),
+  // The seven the batch detail panel picks from.
+  STEREOISOMER_CODE: makeDictionary(['NOSTC', 'RACEMIC', 'ENANTIOPURE']),
+  COMPOUND_PROTECTION: makeDictionary(['Light sensitive', 'Air sensitive', 'Hygroscopic']),
+  STORAGE_INSTRUCTIONS: makeDictionary(['Freezer', 'Fridge', 'Room temperature', 'Under argon']),
+  HANDLING_PRECAUTIONS: makeDictionary(['Electrostatic', 'Gloves required', 'Fume hood']),
+  SAMPLE_SOURCE: makeDictionary(['Source 1', 'Source 2', 'External']),
+  SAMPLE_SOURCE_DETAILS: makeDictionary(['Source Detail 1', 'Source Detail 2']),
+  COMPONENT_STATE: makeDictionary(['Solid', 'Oil', 'Solution', 'Gum']),
 };
 
 /** A short helper for the `EnteredValue`s below — every numeric cell in the model is one. */
@@ -186,7 +194,7 @@ function storedCompound(overrides: Partial<Extract<CompoundRef, { type: 'STORED'
     formula: 'C<sub>4</sub>H<sub>6</sub>O<sub>3</sub>',
     molWeight: entered('102.09', 'G_PER_MOL', 'fixed'),
     exactMass: entered('102.0317', 'NO_UNIT', 'fixed'),
-    calculatedBatchMF: 'C4H6O3',
+    calculatedBatchMF: 'C<sub>4</sub>H<sub>6</sub>O<sub>3</sub>',
     compoundKey: 'STR-00000000-89',
     casNumber: '108-24-7',
     ...overrides,
@@ -219,6 +227,22 @@ export function makeReactionInput(anchor: string, overrides: Partial<ReactionInp
 
 const SALT_CODE = DICTIONARIES.SALT_CODE?.[0];
 const HAZARDS = DICTIONARIES.HEALTH_HAZARD ?? [];
+/** One item from each dictionary the batch detail panel reads, for the populated batch below. */
+const SOURCE = DICTIONARIES.SAMPLE_SOURCE?.[0];
+const SOURCE_DETAILS = DICTIONARIES.SAMPLE_SOURCE_DETAILS?.[0];
+const COMPONENT_STATE = DICTIONARIES.COMPONENT_STATE?.[0];
+/** The three multi-selects, one chip each. */
+const COMPOUND_PROTECTION = DICTIONARIES.COMPOUND_PROTECTION?.slice(0, 1);
+const STORAGE_INSTRUCTIONS = DICTIONARIES.STORAGE_INSTRUCTIONS?.slice(0, 1);
+const HANDLING_PRECAUTIONS = DICTIONARIES.HANDLING_PRECAUTIONS?.slice(0, 2);
+
+/**
+ * A solvent, a supplier — dictionaries with no `DICTIONARIES` entry of their own, because the
+ * fields that read them are the ones the panel shows read-only and never opens a picker for.
+ */
+function dictItem(name: string): DictionaryItemRef {
+  return { id: `a0000000-0000-4000-8000-${name.length.toString().padStart(12, '0')}`, name };
+}
 
 /**
  * The four `EnteredValueSource` cases plus the two flash triggers, one row each, so every branch
@@ -291,7 +315,7 @@ export const REACTION_INPUTS: ReactionInput[] = [
       formula: 'C<sub>5</sub>H<sub>5</sub>N',
       molWeight: entered('79.1', 'G_PER_MOL', 'fixed'),
       exactMass: entered('79.0422', 'NO_UNIT', 'fixed'),
-      calculatedBatchMF: 'C5H5N',
+      calculatedBatchMF: 'C<sub>5</sub>H<sub>5</sub>N',
       compoundKey: 'VIRT-000012',
       saltCode: SALT_CODE,
       saltEQ: 1,
@@ -390,17 +414,38 @@ export const REACTION_OUTPUTS: ReactionOutput[] = [
       compoundID: 'c0000000-0000-4000-8000-000000000010',
       compoundKey: 'STR-00000000-95',
       formula: 'C<sub>9</sub>H<sub>8</sub>O<sub>4</sub>',
+      calculatedBatchMF: 'C<sub>9</sub>H<sub>8</sub>O<sub>4</sub>',
       molWeight: entered('180.16', 'G_PER_MOL', 'fixed'),
       exactMass: entered('180.0423', 'NO_UNIT', 'fixed'),
     }),
     eq: entered('1', 'NO_UNIT', 7),
     samples: [
+      // The batch every detail-panel story reads: one value in each field the panel shows,
+      // including all five of the composites it can render but not yet edit.
       makeReactionOutputSample('f1000000-0000-4000-8000-000000000001', {
         actualWeight: entered('246', 'MG', 12),
         actualMol: entered('1.35', 'MMOL', 'calculated'),
         molarity: entered('0.04', 'M', 'calculated'),
         yield: entered('27.5', 'NO_UNIT', 'calculated'),
         purity: entered('98.5', 'NO_UNIT', 12),
+        strCode: 'STR-00000016-00-003',
+        source: SOURCE,
+        sourceDetails: SOURCE_DETAILS,
+        componentState: COMPONENT_STATE,
+        structureComment: 'Recrystallised from ethanol',
+        batchComment: 'Second attempt',
+        healthHazards: HAZARDS.slice(0, 1),
+        compoundProtection: COMPOUND_PROTECTION,
+        storageInstructions: STORAGE_INSTRUCTIONS,
+        handlingPrecautions: HANDLING_PRECAUTIONS,
+        meltingPoint: { lower: 67, upper: 69 },
+        residualSolvents: [{ solvent: dictItem('Toluene'), eq: 1.2 }],
+        solubilityInSolvents: [
+          { type: 'QUANTITATIVE', solvent: dictItem('Water'), operator: 'LESS_THAN', value: 5, unit: 'G_ML' },
+          { type: 'QUALITATIVE', solvent: dictItem('Ethanol'), qualitativeType: 'SOLUBLE' },
+        ],
+        externalSupplier: { supplier: dictItem('Sigma-Aldrich'), registryNumber: 'A1234' },
+        purityCalculations: [{ type: 'HPLC', operator: 'GREATER_THAN', purity: 98 }],
       }),
       // Nothing entered yet — the em-dash state of every numeric column.
       makeReactionOutputSample('f1000000-0000-4000-8000-000000000002', {
@@ -419,7 +464,7 @@ export const REACTION_OUTPUTS: ReactionOutput[] = [
       formula: 'C<sub>2</sub>H<sub>4</sub>O<sub>2</sub>',
       molWeight: entered('60.052', 'G_PER_MOL', 'fixed'),
       exactMass: entered('60.0211', 'NO_UNIT', 'fixed'),
-      calculatedBatchMF: 'C2H4O2',
+      calculatedBatchMF: 'C<sub>2</sub>H<sub>4</sub>O<sub>2</sub>',
       compoundKey: 'VIRT-000031',
       saltCode: SALT_CODE,
       saltEQ: 1,
@@ -749,6 +794,13 @@ export const REACTION_SCHEME_SVG =
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 88">' +
   '<rect width="140" height="88" fill="#fff"/>' +
   '<text x="70" y="48" text-anchor="middle" font-size="12" fill="#242424">A + B &#8594; C</text>' +
+  '</svg>';
+
+/** The same idea for a compound: what the batch detail panel's structure pane renders. */
+export const COMPOUND_STRUCTURE_SVG =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
+  '<rect width="120" height="120" fill="#fff"/>' +
+  '<text x="60" y="64" text-anchor="middle" font-size="12" fill="#242424">C9H8O4</text>' +
   '</svg>';
 
 export function makeSearchResult(overrides: Partial<GlobalSearchResult> = {}): GlobalSearchResult {

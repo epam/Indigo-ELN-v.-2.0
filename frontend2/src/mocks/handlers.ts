@@ -2,6 +2,7 @@ import { delay, http, HttpResponse } from 'msw';
 
 import {
   ATTACHMENTS,
+  COMPOUND_STRUCTURE_SVG,
   DICTIONARIES,
   EXPERIMENT_ACL,
   EXPERIMENT_REFS,
@@ -289,6 +290,10 @@ export const handlers = [
   // image/svg+xml, which fetchApiImage reads as text (`responseType: 'text'`).
   http.get(`${ELN}/experiments/:id/picture`, () =>
     HttpResponse.text(REACTION_SCHEME_SVG, { headers: { 'Content-Type': 'image/svg+xml' } }),
+  ),
+  // `CompoundAPI.getCompoundPicture` — the batch detail panel's structure pane.
+  http.get(`${ELN}/compounds/:id/picture`, () =>
+    HttpResponse.text(COMPOUND_STRUCTURE_SVG, { headers: { 'Content-Type': 'image/svg+xml' } }),
   ),
 ];
 

@@ -13,6 +13,7 @@ import { useMemo, useRef, useState } from 'react';
 
 import type { BatchColumn, BatchRow } from '@/components/experiments/stoichiometry/batch-columns';
 import { BATCH_COLUMNS, batchHaystack, isSampleProtected } from '@/components/experiments/stoichiometry/batch-columns';
+import { BatchDetailPanel } from '@/components/experiments/stoichiometry/batch-detail-panel';
 import {
   DeleteCell,
   IconActionCell,
@@ -23,7 +24,6 @@ import { CELL_CLASS, HEADER_CELL_CLASS } from '@/components/experiments/stoichio
 import { NumericCell } from '@/components/experiments/stoichiometry/numeric-cell';
 import type { StoichiometryMutations } from '@/components/experiments/stoichiometry/use-stoichiometry-mutations';
 import { cellId, useStoichiometryMutations } from '@/components/experiments/stoichiometry/use-stoichiometry-mutations';
-import { TemplatePlaceholder } from '@/components/experiments/template/template-placeholder';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useExportSdf, useImportSdf } from '@/lib/api/experiments';
@@ -120,6 +120,7 @@ export function ProductBatchSummaryTable({
             <BatchRowGroup
               key={row.sample.anchor}
               row={row}
+              reaction={reaction}
               expanded={expanded.has(row.sample.anchor)}
               onToggle={() => toggle(row.sample.anchor)}
               canEdit={canEdit}
@@ -248,12 +249,15 @@ function Toolbar({
  */
 function BatchRowGroup({
   row,
+  reaction,
   expanded,
   onToggle,
   canEdit,
   mutations,
 }: {
   row: BatchRow;
+  /** Only the detail panel needs it, for the reaction-level `precursorReactantIds`. */
+  reaction: Reaction;
   expanded: boolean;
   onToggle: () => void;
   canEdit: boolean;
@@ -285,11 +289,8 @@ function BatchRowGroup({
       {expanded && (
         <tr>
           {/* +1 for the chevron column, which is not in `BATCH_COLUMNS`. */}
-          <td colSpan={BATCH_COLUMNS.length + 1} className="border-b border-neutral-300 p-3">
-            {/* TODO(batch-detail-panel): the structure preview, the field grid and the
-                Additional Information accordion — indigo-frontend's `BatchDetailPanelComponent`,
-                which is read-only there too. */}
-            <TemplatePlaceholder>Batch {batch} details go here.</TemplatePlaceholder>
+          <td colSpan={BATCH_COLUMNS.length + 1} className="border-b border-neutral-300 bg-neutral-100 p-4">
+            <BatchDetailPanel row={row} reaction={reaction} canEdit={canEdit} mutations={mutations} />
           </td>
         </tr>
       )}

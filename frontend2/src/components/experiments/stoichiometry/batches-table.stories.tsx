@@ -222,16 +222,19 @@ export const AddsEmptyBatch: Story = {
   },
 };
 
-/** The chevron is wired; what it opens is the next change. */
+/**
+ * The chevron opens `BatchDetailPanel`, which has its own stories — this only pins that the row
+ * expands the right batch and that the panel is closed until asked for.
+ */
 export const ExpandsDetail: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     // Closed by default — a detail panel is supporting material, not the point of the table.
-    await expect(canvas.queryByText('Batch 001 details go here.')).not.toBeInTheDocument();
+    await expect(canvas.queryByText(/^Notebook Batch #:/)).not.toBeInTheDocument();
 
     await userEvent.click(canvas.getByRole('button', { name: 'Show details of batch 001' }));
 
-    await expect(await canvas.findByText('Batch 001 details go here.')).toBeInTheDocument();
+    await expect(await canvas.findByText('20260101-0001-001')).toBeInTheDocument();
     await expect(canvas.getByRole('button', { name: 'Hide details of batch 001' })).toBeInTheDocument();
   },
 };
