@@ -33,7 +33,12 @@ export function AboutNotebookCard({ notebook }: { notebook: NotebookDetails }) {
             <Button variant="outline" size="icon" aria-label="Edit notebook" onClick={() => setEditOpen(true)}>
               <Pencil className="text-blue-400" />
             </Button>
-            <NotebookFormDialog open={editOpen} onOpenChange={setEditOpen} notebook={notebook} />
+            <NotebookFormDialog
+              open={editOpen}
+              onOpenChange={setEditOpen}
+              projectId={notebook.projectId}
+              notebook={notebook}
+            />
           </>
         )}
       </div>

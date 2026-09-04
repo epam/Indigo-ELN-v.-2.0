@@ -1,7 +1,7 @@
-import { richTextEdit } from '@/lib/rich-text';
+import { isBlankHtml, richTextEdit } from '@/lib/rich-text';
 import { z } from '@/lib/zod';
 
-import type { NotebookDetails, NotebookEditRequest } from '@/lib/types/notebooks.ts';
+import type { NotebookDetails, NotebookEditRequest, NotebookRequest } from '@/lib/types/notebooks.ts';
 
 /** `NOTEBOOK_NAME_LENGTH` in indigo-frontend: a notebook is numbered, never named. */
 export const NOTEBOOK_NAME_LENGTH = 8;
@@ -15,6 +15,24 @@ export const notebookNameSchema = z
 export interface NotebookFormValues {
   name: string;
   description: string;
+}
+
+/**
+ * What the create form starts from. The name is filled in from `/notebooks/next-number` once it
+ * arrives — see `NotebookFormDialog` — so this is only what is on screen while that is in flight,
+ * and what the dialog resets to when it closes.
+ */
+export const EMPTY_NOTEBOOK_FORM: NotebookFormValues = {
+  name: '',
+  description: '',
+};
+
+/** The POST body. A blank description is dropped so the backend stores null, not "<p></p>". */
+export function toNotebookRequest(values: NotebookFormValues): NotebookRequest {
+  return {
+    name: values.name.trim(),
+    ...(isBlankHtml(values.description) ? {} : { description: values.description }),
+  };
 }
 
 /** Seeds the edit form from a loaded notebook. A null description becomes the empty string the editor wants. */

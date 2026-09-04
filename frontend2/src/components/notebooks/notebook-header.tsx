@@ -1,10 +1,13 @@
 import { Link } from '@tanstack/react-router';
 import { Plus } from 'lucide-react';
+import { useState } from 'react';
 
+import { AddExperimentDialog } from '@/components/experiments/add-experiment-dialog';
 import { Breadcrumbs } from '@/components/layout/breadcrumbs';
 import { StatTileGroup } from '@/components/common/stat-tile-group';
 import { StatusCountStrip } from '@/components/common/status-count-strip';
 import { Button } from '@/components/ui/button';
+import { useHasPermission } from '@/lib/api/user';
 
 import type { NotebookDetails } from '@/lib/types/notebooks.ts';
 
@@ -29,6 +32,16 @@ export function NotebookHeader({
   notebookId: string;
   notebook: NotebookDetails | undefined;
 }) {
+  /*
+    The global permission, not a per-notebook one. The backend does check `CREATE_EXPERIMENTS`
+    against the notebook's own ACL, but `NotebookService` retains only
+    VIEW/EDIT/MANAGE_NOTEBOOK_ACCESS/DELETE in `currentPermissions`, so the payload never carries
+    it. `=== true` because it is `undefined` while `currentUser` resolves, and the button should
+    not flicker from enabled to disabled.
+  */
+  const canCreate = useHasPermission('CREATE_EXPERIMENTS') === true;
+  const [addOpen, setAddOpen] = useState(false);
+
   return (
     <section className="flex flex-col gap-4 rounded-6 bg-card p-4 shadow-card">
       <div className="flex items-center gap-4">
@@ -43,16 +56,11 @@ export function NotebookHeader({
           ]}
           className="min-w-0 flex-1"
         />
-        {/*
-          TODO(add-experiment-dialog): creating an experiment needs a template picked from
-          /templates, which is a separate task. The button is part of the header in the design,
-          so it is rendered but stays disabled — and there is no CREATE_EXPERIMENTS check yet,
-          because there is nothing behind it to gate.
-        */}
-        <Button size="lg" className="rounded-md" disabled>
+        <Button size="lg" className="rounded-md" disabled={!canCreate} onClick={() => setAddOpen(true)}>
           <Plus />
           Add Experiment
         </Button>
+        <AddExperimentDialog open={addOpen} onOpenChange={setAddOpen} notebookId={notebookId} />
       </div>
 
       <div className="flex items-center justify-between gap-4">

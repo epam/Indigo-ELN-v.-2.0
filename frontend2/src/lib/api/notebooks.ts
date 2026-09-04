@@ -2,9 +2,10 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tansta
 
 import { apiDownload, apiFetch } from '@/lib/api';
 import { collectionQueryString, getNextPageParam, SEARCH_DEBOUNCE_MS } from '@/lib/api/collections';
+import { projectKeys } from '@/lib/api/projects';
 import { useSettled } from '@/lib/hooks/use-settled';
 import type { AccessForm, ACLEntry, Attachment, CollectionFilters, Page } from '@/lib/types/common.ts';
-import type { Notebook, NotebookDetails, NotebookEditRequest } from '@/lib/types/notebooks.ts';
+import type { Notebook, NotebookDetails, NotebookEditRequest, NotebookRequest } from '@/lib/types/notebooks.ts';
 
 export const NOTEBOOKS_PAGE_SIZE = 10;
 
@@ -27,11 +28,18 @@ function fetchProjectNotebooks(
  * same reason spelled out in `projects.ts`: editing a notebook invalidates every list, and a
  * detail nested under that prefix would be caught by the same call and refetched immediately
  * after the mutation response had been written into it.
+ *
+ * Exported for the same reason `projectKeys` is: creating an experiment moves a notebook's
+ * `experimentCount` and `experimentCountByStatus`, so `experiments.ts` invalidates `all` and
+ * `detail` from there rather than writing those key arrays out a second time.
  */
-const notebookKeys = {
+export const notebookKeys = {
   all: () => ['notebooks'] as const,
   list: (projectId: string, filters: CollectionFilters) => ['notebooks', projectId, filters] as const,
   detail: (id: string) => ['notebookDetails', id] as const,
+  // Its own root for the same reason the detail has one: creating a notebook consumes this
+  // number, so it must not be swept up by — and refetched from — the list invalidation.
+  nextNumber: () => ['notebookNextNumber'] as const,
 };
 
 /** See `useProjects` — the debounce gates `enabled` so `isPending` covers the wait too. */
@@ -82,6 +90,66 @@ export function useEditNotebook(id: string) {
       // on every card of the parent project's list, and those do.
       queryClient.setQueryData(notebookKeys.detail(id), notebook);
       void queryClient.invalidateQueries({ queryKey: notebookKeys.all() });
+    },
+  });
+}
+
+/**
+ * The name a new notebook is seeded with: `max(name) + 1`, zero-padded to eight digits.
+ *
+ * Read as **text**. The endpoint returns a bare Java `String` through RESTEasy's string writer
+ * rather than Jackson, so the body is `00000009` unquoted — which `JSON.parse` rejects outright,
+ * a leading zero not being legal JSON. (`FeignUtil` decodes the same endpoint with a
+ * `StringDecoder` ahead of its `JacksonDecoder`, for the same reason.)
+ */
+function fetchNextNotebookNumber(signal?: AbortSignal): Promise<string> {
+  return apiFetch('/api/eln/notebooks/next-number', { responseType: 'text', signal });
+}
+
+/**
+ * Enabled by the caller only while the Add Notebook dialog is open, and never cached: the number
+ * is `max(name) + 1` across **all** projects, so one held from an earlier open has very likely
+ * been taken since. `staleTime: 0` is what makes reopening the dialog ask again.
+ *
+ * The backend does not reserve it either — `NotebookService.getNextNotebookNumber` is explicitly
+ * not race-safe — so this is a suggestion the user can overwrite, not an allocation.
+ *
+ * `retry: false`, against the client default of two retries on a 5xx, for that same reason. The
+ * dialog is held inert while this is in flight, so a backoff chain would freeze the form for
+ * seconds and toast each attempt, to spare the user typing eight digits they can see on the
+ * project's notebook list. Failing once and opening on an empty editable field is the better
+ * trade — and the field was always theirs to overwrite.
+ */
+export function useNextNotebookNumber(enabled: boolean) {
+  return useQuery({
+    queryKey: notebookKeys.nextNumber(),
+    queryFn: ({ signal }) => fetchNextNotebookNumber(signal),
+    enabled,
+    staleTime: 0,
+    retry: false,
+  });
+}
+
+function createNotebook(projectId: string, request: NotebookRequest): Promise<NotebookDetails> {
+  return apiFetch<NotebookDetails>(`/api/eln/projects/${projectId}/notebooks`, {
+    method: 'POST',
+    body: JSON.stringify(request),
+  });
+}
+
+export function useCreateNotebook(projectId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (request: NotebookRequest) => createNotebook(projectId, request),
+    onSuccess: () => {
+      // A new notebook lands in every filtered list of this project, consumes the next number,
+      // and moves two counts that live on the project rather than here: the header's
+      // `notebookCount` and the notebook stat tile on /projects.
+      void queryClient.invalidateQueries({ queryKey: notebookKeys.all() });
+      void queryClient.invalidateQueries({ queryKey: notebookKeys.nextNumber() });
+      void queryClient.invalidateQueries({ queryKey: projectKeys.detail(projectId) });
+      void queryClient.invalidateQueries({ queryKey: projectKeys.totalCounts() });
     },
   });
 }

@@ -25,15 +25,16 @@ import {
   REACTION_SCHEME_SVG,
   SAMPLE_RESULTS,
   SEARCH_RESULTS,
+  TEMPLATES,
   USERS,
 } from '@/mocks/fixtures';
 
 import type { AccessForm, ACLEntry, Page, UserRef } from '@/lib/types/common.ts';
 import type { GlobalSearchResult } from '@/lib/types/search.ts';
 import type { BuiltInDictionary } from '@/lib/types/dictionaries.ts';
-import type { ExperimentEditRequest, ExperimentStatus } from '@/lib/types/experiments.ts';
+import type { ExperimentEditRequest, ExperimentRequest, ExperimentStatus } from '@/lib/types/experiments.ts';
 import type { ModelMutation, MutationResponse } from '@/lib/types/mutations.ts';
-import type { NotebookEditRequest } from '@/lib/types/notebooks.ts';
+import type { NotebookEditRequest, NotebookRequest } from '@/lib/types/notebooks.ts';
 import type { ProjectEditRequest } from '@/lib/types/projects.ts';
 import type { FindSamplesRequest, SampleDTO, SampleSearchResult, SearchCatalog } from '@/lib/types/samples.ts';
 
@@ -96,6 +97,9 @@ export const TAKEN_PROJECT_NAME = 'Kinase Inhibitor Screening';
 
 /** Likewise for notebooks, which are numbered rather than named. */
 export const TAKEN_NOTEBOOK_NAME = '00000002';
+
+/** What `/notebooks/next-number` offers — one past the last of `NOTEBOOKS`, as the backend does. */
+export const NEXT_NOTEBOOK_NAME = '00000004';
 
 /**
  * What `/mutate` answers for a `SetScheme`: a diff, not a document. The real backend re-reads
@@ -207,6 +211,10 @@ export const handlers = [
     );
   }),
   http.get(`${ELN}/projects/:id/notebooks`, () => HttpResponse.json(page(NOTEBOOKS))),
+  http.post(`${ELN}/projects/:id/notebooks`, async ({ params, request }) => {
+    const body = (await request.json()) as NotebookRequest;
+    return HttpResponse.json(makeNotebookDetails({ ...body, projectId: String(params.id) }));
+  }),
   http.post(`${ELN}/projects/:id/attachments`, async ({ request }) => {
     const form = await request.formData();
     const file = form.get('file');
@@ -224,11 +232,13 @@ export const handlers = [
     HttpResponse.json(recomputedAcl(PROJECT_ACL, (await request.json()) as AccessForm[])),
   ),
 
-  // After /notebooks/existence, which `:id` would otherwise swallow — MSW takes the first match.
+  // Both before /notebooks/:id, which would otherwise swallow them — MSW takes the first match.
   http.get(`${ELN}/notebooks/existence`, ({ request }) => {
     const name = new URL(request.url).searchParams.get('name') ?? '';
     return HttpResponse.json({ exists: name === TAKEN_NOTEBOOK_NAME });
   }),
+  // Text, not JSON: the endpoint returns a bare String, and `00000004` is not legal JSON.
+  http.get(`${ELN}/notebooks/next-number`, () => HttpResponse.text(NEXT_NOTEBOOK_NAME)),
   http.get(`${ELN}/notebooks/:id`, ({ params }) => HttpResponse.json(makeNotebookDetails({ id: String(params.id) }))),
   http.patch(`${ELN}/notebooks/:id`, async ({ params, request }) => {
     const { description, ...body } = (await request.json()) as NotebookEditRequest;
@@ -241,6 +251,10 @@ export const handlers = [
         ...(description === undefined ? {} : { description: description ?? undefined }),
       }),
     );
+  }),
+  http.post(`${ELN}/notebooks/:id/experiments`, async ({ params, request }) => {
+    const body = (await request.json()) as ExperimentRequest;
+    return HttpResponse.json(makeExperimentDetails({ notebookId: String(params.id), templateId: body.templateID }));
   }),
   http.get(`${ELN}/notebooks/:id/experiments`, ({ request }) => {
     const query = new URL(request.url).searchParams;
@@ -291,6 +305,8 @@ export const handlers = [
   http.get(`${ELN}/experiments/:id`, ({ params }) =>
     HttpResponse.json(makeExperimentDetails({ id: String(params.id) })),
   ),
+  // Before /templates/:id, which would otherwise swallow it — MSW takes the first match.
+  http.get(`${ELN}/templates`, () => HttpResponse.json(page(TEMPLATES))),
   http.get(`${ELN}/templates/:id`, ({ params }) => HttpResponse.json(makeTemplateDetails({ id: String(params.id) }))),
   http.patch(`${ELN}/experiments/:id`, async ({ params, request }) => {
     const { title, therapeuticArea, projectCode, description, literature, ...lists } =
@@ -411,6 +427,52 @@ export const submittingProjectHandlers = [
     await delay('infinite');
     return HttpResponse.json(null);
   }),
+  ...handlers,
+];
+
+/** Creating fails while everything else works, so the dialog's error path has a story. */
+export const createExperimentErrorHandlers = [
+  http.post(`${ELN}/notebooks/:id/experiments`, () =>
+    HttpResponse.json([{ path: 'templateID', message: 'Experiment could not be created' }], { status: 500 }),
+  ),
+  ...handlers,
+];
+
+/** The template list never arrives, pinning the dialog on its initializing state. */
+export const initializingTemplateHandlers = [
+  http.get(`${ELN}/templates`, async () => {
+    await delay('infinite');
+    return HttpResponse.json(null);
+  }),
+  ...handlers,
+];
+
+/** The template list fails, so the picker opens empty and says why. */
+export const templatesErrorHandlers = [
+  http.get(`${ELN}/templates`, () => new HttpResponse(null, { status: 500 })),
+  ...handlers,
+];
+
+/** Creating fails while everything else works, so the dialog's error path has a story. */
+export const createNotebookErrorHandlers = [
+  http.post(`${ELN}/projects/:id/notebooks`, () =>
+    HttpResponse.json([{ path: 'name', message: 'Notebook could not be created' }], { status: 500 }),
+  ),
+  ...handlers,
+];
+
+/** The next number never arrives, pinning the dialog on its initializing state. */
+export const initializingNotebookHandlers = [
+  http.get(`${ELN}/notebooks/next-number`, async () => {
+    await delay('infinite');
+    return HttpResponse.text('');
+  }),
+  ...handlers,
+];
+
+/** The next number fails, so the dialog opens on an empty name the user has to type. */
+export const nextNumberErrorHandlers = [
+  http.get(`${ELN}/notebooks/next-number`, () => new HttpResponse(null, { status: 500 })),
   ...handlers,
 ];
 

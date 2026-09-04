@@ -1,10 +1,13 @@
 import { Link } from '@tanstack/react-router';
 import { Plus } from 'lucide-react';
+import { useState } from 'react';
 
 import { Breadcrumbs } from '@/components/layout/breadcrumbs';
+import { NotebookFormDialog } from '@/components/notebooks/notebook-form-dialog';
 import { StatTileGroup } from '@/components/common/stat-tile-group';
 import { StatusCountStrip } from '@/components/common/status-count-strip';
 import { Button } from '@/components/ui/button';
+import { useHasPermission } from '@/lib/api/user';
 
 import type { ProjectDetails } from '@/lib/types/projects.ts';
 
@@ -21,6 +24,15 @@ const TAB_INACTIVE_CLASS = 'border-transparent text-neutral-800';
  * trail its bare `Project:` label, so the header never changes height as data lands.
  */
 export function ProjectHeader({ projectId, project }: { projectId: string; project: ProjectDetails | undefined }) {
+  /*
+    The global permission, not a per-project one: `ProjectDetails.currentPermissions` is scoped by
+    the backend to VIEW/EDIT/MANAGE_PROJECT_ACCESS/DELETE_PROJECTS and never carries this. As on
+    the Add Project button, `undefined` while `currentUser` resolves counts as "not yet", so the
+    button never flickers from enabled to disabled.
+  */
+  const canCreate = useHasPermission('CREATE_NOTEBOOKS') === true;
+  const [addOpen, setAddOpen] = useState(false);
+
   return (
     <section className="flex flex-col gap-4 rounded-6 bg-card p-4 shadow-card">
       <div className="flex items-center gap-4">
@@ -31,15 +43,11 @@ export function ProjectHeader({ projectId, project }: { projectId: string; proje
           ]}
           className="min-w-0 flex-1"
         />
-        {/*
-          TODO(add-notebook-dialog): the create-notebook form is a separate task. The button is
-          part of the header in the design, so it is rendered but stays disabled — and there is
-          no CREATE_NOTEBOOKS check yet, because there is nothing behind it to gate.
-        */}
-        <Button size="lg" className="rounded-md" disabled>
+        <Button size="lg" className="rounded-md" disabled={!canCreate} onClick={() => setAddOpen(true)}>
           <Plus />
           Add Notebook
         </Button>
+        <NotebookFormDialog open={addOpen} onOpenChange={setAddOpen} projectId={projectId} />
       </div>
 
       <div className="flex items-center justify-between gap-4">

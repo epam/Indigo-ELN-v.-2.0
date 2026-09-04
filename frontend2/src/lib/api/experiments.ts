@@ -3,6 +3,8 @@ import type { QueryClient } from '@tanstack/react-query';
 
 import { apiDownload, apiFetch } from '@/lib/api';
 import { collectionQueryString, getNextPageParam, SEARCH_DEBOUNCE_MS } from '@/lib/api/collections';
+import { notebookKeys } from '@/lib/api/notebooks';
+import { projectKeys } from '@/lib/api/projects';
 import { useDownload } from '@/lib/hooks/use-download';
 import { useSettled } from '@/lib/hooks/use-settled';
 import { JSON_PATCHER } from '@/lib/json-patcher';
@@ -14,6 +16,7 @@ import type {
   ExperimentEditRequest,
   ExperimentFilters,
   ExperimentRef,
+  ExperimentRequest,
 } from '@/lib/types/experiments.ts';
 import type { ModelMutation, MutationResponse } from '@/lib/types/mutations.ts';
 
@@ -98,6 +101,38 @@ function patchExperimentDetails(
   queryClient.setQueryData<ExperimentDetails>(experimentKeys.detail(id), (experiment) =>
     experiment ? patch(experiment) : experiment,
   );
+}
+
+function createExperiment(notebookId: string, request: ExperimentRequest): Promise<ExperimentDetails> {
+  return apiFetch<ExperimentDetails>(`/api/eln/notebooks/${notebookId}/experiments`, {
+    method: 'POST',
+    body: JSON.stringify(request),
+  });
+}
+
+/**
+ * Creating one, from the Add Experiment dialog. Deliberately **not** in `experimentWrite`'s
+ * mutation scope: that serialises writes against an experiment id, and this one has no id yet.
+ *
+ * A new experiment moves counts on three screens, and the response names the two ancestors
+ * itself, so nothing has to be threaded in from the caller.
+ */
+export function useCreateExperiment(notebookId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (request: ExperimentRequest) => createExperiment(notebookId, request),
+    onSuccess: (experiment) => {
+      // Covers every notebook's list and the starred list, both under the `experiments` root.
+      void queryClient.invalidateQueries({ queryKey: experimentKeys.all() });
+      // `experimentCount` on the notebook card, and the count strip in the notebook header.
+      void queryClient.invalidateQueries({ queryKey: notebookKeys.all() });
+      void queryClient.invalidateQueries({ queryKey: notebookKeys.detail(experiment.notebookId) });
+      // The same two numbers again on the project header, and the stat tile on /projects.
+      void queryClient.invalidateQueries({ queryKey: projectKeys.detail(experiment.projectId) });
+      void queryClient.invalidateQueries({ queryKey: projectKeys.totalCounts() });
+    },
+  });
 }
 
 function editExperiment(id: string, request: ExperimentEditRequest): Promise<ExperimentDetails> {

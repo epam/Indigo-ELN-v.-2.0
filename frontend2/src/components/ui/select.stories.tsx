@@ -97,3 +97,41 @@ export const Disabled: Story = {
     await expect(trigger).toHaveTextContent('Reactant');
   },
 };
+
+/**
+ * A required field starts empty. It leaves `emptyLabel` off — there must be no row that puts the
+ * value back to null — so `placeholder` is the only thing naming the control until a choice is
+ * made, and it goes once one is.
+ */
+export const Placeholder: Story = {
+  render: () => {
+    function EmptySelect() {
+      const [value, setValue] = useState<Role | null>(null);
+      return (
+        <div className="w-64">
+          <Select<Role>
+            aria-label="Rxn Role"
+            value={value}
+            onValueChange={setValue}
+            items={[...ROLES]}
+            itemToKey={(role) => role}
+            itemToLabel={(role) => LABELS[role]}
+            placeholder="Select Rxn Role"
+          />
+        </div>
+      );
+    }
+    return <EmptySelect />;
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const trigger = canvas.getByLabelText('Rxn Role');
+    await expect(trigger).toHaveTextContent('Select Rxn Role');
+    await userEvent.click(trigger);
+    // No clear-row: the four values are the whole list.
+    await expect(await screen.findByRole('option', { name: 'Reagent' })).toBeInTheDocument();
+    await expect(screen.getAllByRole('option')).toHaveLength(ROLES.length);
+    await userEvent.click(screen.getByRole('option', { name: 'Reagent' }));
+    await waitFor(() => expect(trigger).toHaveTextContent('Reagent'));
+  },
+};

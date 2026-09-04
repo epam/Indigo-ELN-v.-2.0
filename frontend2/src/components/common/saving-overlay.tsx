@@ -2,7 +2,7 @@ import { Loader2 } from 'lucide-react';
 import type { FocusEvent, ReactNode } from 'react';
 import { useEffect, useRef } from 'react';
 
-import { useDelayedFlag } from '@/lib/hooks/use-delayed-flag';
+import { PENDING_SHOW_DELAY_MS, useDelayedFlag } from '@/lib/hooks/use-delayed-flag';
 import { cn } from '@/lib/utils';
 
 /**
@@ -25,10 +25,17 @@ import { cn } from '@/lib/utils';
  *
  * `pending` goes through `useDelayedFlag` here rather than at the call sites, so a save that beats
  * the delay shows nothing and no caller has to remember that.
+ *
+ * `showDelayMs` and `label` are what let this cover a *loading* region as well as a saving one —
+ * `FormDialog`'s initializing phase passes `0` and `'Loading…'`. A dialog that has only just
+ * opened has no request in flight yet, so suppressing the first 300 ms shows a blank disabled form
+ * instead of a spinner; the delay earns its keep for blur-to-save, not for that.
  */
 export function SavingOverlay({
   pending,
   spinner = 'trailing',
+  showDelayMs = PENDING_SHOW_DELAY_MS,
+  label = 'Saving…',
   className,
   children,
 }: {
@@ -40,10 +47,14 @@ export function SavingOverlay({
    * small control group.
    */
   spinner?: 'trailing' | 'top' | 'center';
+  /** How long `pending` must hold before anything is shown. `0` still means the next tick. */
+  showDelayMs?: number;
+  /** The sr-only wording behind the spinner — the region is not always being *saved*. */
+  label?: string;
   className?: string;
   children: ReactNode;
 }) {
-  const showing = useDelayedFlag(pending);
+  const showing = useDelayedFlag(pending, { showDelayMs });
   const container = useRef<HTMLDivElement>(null);
   /**
    * The descendant that had focus, kept across the blur `inert` itself causes.
@@ -132,7 +143,7 @@ export function SavingOverlay({
           />
           {/* The words a sighted user gets from the spinner. The visible state is icon-only. */}
           <span role="status" className="sr-only">
-            Saving…
+            {label}
           </span>
         </>
       )}

@@ -4,19 +4,32 @@ import { expect, screen, userEvent, waitFor } from 'storybook/test';
 
 import { NotebookFormDialog } from '@/components/notebooks/notebook-form-dialog';
 import { makeNotebookDetails } from '@/mocks/fixtures';
-import { handlers, TAKEN_NOTEBOOK_NAME } from '@/mocks/handlers';
+import {
+  createNotebookErrorHandlers,
+  handlers,
+  initializingNotebookHandlers,
+  NEXT_NOTEBOOK_NAME,
+  nextNumberErrorHandlers,
+  TAKEN_NOTEBOOK_NAME,
+} from '@/mocks/handlers';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { NotebookDetails } from '@/lib/types/notebooks.ts';
 
 const NOTEBOOK = makeNotebookDetails();
 
-function NotebookFormDialogHarness({ notebook = NOTEBOOK }: { notebook?: NotebookDetails }) {
+/** `null` is how a story asks for create mode — plain `undefined` would take the default. */
+function NotebookFormDialogHarness({ notebook = NOTEBOOK }: { notebook?: NotebookDetails | null }) {
   const [open, setOpen] = useState(true);
   return (
     <>
       {!open && <p className="text-[14px]/6">Dialog closed.</p>}
-      <NotebookFormDialog open={open} onOpenChange={setOpen} notebook={notebook} />
+      <NotebookFormDialog
+        open={open}
+        onOpenChange={setOpen}
+        projectId={NOTEBOOK.projectId}
+        notebook={notebook ?? undefined}
+      />
     </>
   );
 }
@@ -110,5 +123,79 @@ export const UntouchedSaveSendsNothing: Story = {
     patchBodies.length = 0;
     await userEvent.click(await screen.findByRole('button', { name: 'Save' }));
     await waitFor(() => expect(patchBodies).toEqual([{}]));
+  },
+};
+
+/**
+ * Create mode. The name is not typed but fetched: the dialog opens on
+ * `/notebooks/next-number` and seeds the field with what it answers.
+ */
+export const Create: Story = {
+  render: () => <NotebookFormDialogHarness notebook={null} />,
+  play: async () => {
+    await expect(await screen.findByRole('heading', { name: 'Add Notebook' })).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByLabelText(/Notebook Name/)).toHaveValue(NEXT_NOTEBOOK_NAME));
+  },
+};
+
+/**
+ * The initializing phase, pinned on a next-number request that never answers: the body is inert
+ * under a spinner and Save is disabled, but the dialog is not — Cancel still closes it, since
+ * nothing has been typed that abandoning would lose.
+ */
+export const CreateInitializing: Story = {
+  parameters: { msw: { handlers: initializingNotebookHandlers } },
+  render: () => <NotebookFormDialogHarness notebook={null} />,
+  play: async () => {
+    await expect(await screen.findByRole('status')).toHaveTextContent('Loading…');
+    await expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    await expect(screen.getByLabelText(/Notebook Name/)).toHaveValue('');
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    await expect(await screen.findByText('Dialog closed.')).toBeInTheDocument();
+  },
+};
+
+/**
+ * A failed next-number leaves the field blank and editable rather than blocking the dialog —
+ * `apiFetch` has already reported the failure, and the name was always the user's to type.
+ */
+export const CreateNextNumberFails: Story = {
+  parameters: { msw: { handlers: nextNumberErrorHandlers } },
+  render: () => <NotebookFormDialogHarness notebook={null} />,
+  play: async () => {
+    const input = await screen.findByLabelText(/Notebook Name/);
+    // The initializing phase freezes the body with `inert`, which leaves no `disabled` attribute
+    // to wait on — the spinner's status region going away is the observable end of it.
+    await waitFor(() => expect(screen.queryByText('Loading…')).not.toBeInTheDocument());
+    await expect(input).toHaveValue('');
+    await userEvent.type(input, '00000042');
+    await expect(input).toHaveValue('00000042');
+  },
+};
+
+/** Creating closes the dialog and routes to the new notebook. */
+export const CreateSave: Story = {
+  render: () => <NotebookFormDialogHarness notebook={null} />,
+  play: async () => {
+    await waitFor(() => expect(screen.getByLabelText(/Notebook Name/)).toHaveValue(NEXT_NOTEBOOK_NAME));
+    const save = screen.getByRole('button', { name: 'Save' });
+    await waitFor(() => expect(save).toBeEnabled(), { timeout: 3000 });
+    await userEvent.click(save);
+    await expect(await screen.findByText('Dialog closed.')).toBeInTheDocument();
+  },
+};
+
+/** A failed POST leaves the dialog open with what was typed still in it. */
+export const CreateFails: Story = {
+  parameters: { msw: { handlers: createNotebookErrorHandlers } },
+  render: () => <NotebookFormDialogHarness notebook={null} />,
+  play: async () => {
+    const input = await screen.findByLabelText(/Notebook Name/);
+    await waitFor(() => expect(input).toHaveValue(NEXT_NOTEBOOK_NAME));
+    const save = screen.getByRole('button', { name: 'Save' });
+    await waitFor(() => expect(save).toBeEnabled(), { timeout: 3000 });
+    await userEvent.click(save);
+    await waitFor(() => expect(screen.getByRole('heading', { name: 'Add Notebook' })).toBeInTheDocument());
+    await expect(input).toHaveValue(NEXT_NOTEBOOK_NAME);
   },
 };

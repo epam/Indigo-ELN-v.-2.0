@@ -7,7 +7,13 @@ import { Input } from '@/components/ui/input';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-function FormDialogHarness({ outcome }: { outcome: 'success' | 'failure' | 'pending' }) {
+function FormDialogHarness({
+  outcome,
+  initializing,
+}: {
+  outcome: 'success' | 'failure' | 'pending';
+  initializing?: boolean;
+}) {
   const [open, setOpen] = useState(true);
 
   return (
@@ -17,6 +23,7 @@ function FormDialogHarness({ outcome }: { outcome: 'success' | 'failure' | 'pend
         open={open}
         onOpenChange={setOpen}
         title="Add Project"
+        initializing={initializing}
         onSubmit={async () => {
           await new Promise((resolve) => setTimeout(resolve, outcome === 'pending' ? 100_000 : 50));
           if (outcome === 'failure') throw new Error('Server error. Please try again later');
@@ -103,5 +110,28 @@ export const CtrlEnterIgnoredWhileSubmitting: Story = {
     // A second press must not start a competing submit.
     await userEvent.keyboard('{Control>}{Enter}{/Control}');
     await expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute('aria-busy', 'true');
+  },
+};
+
+/**
+ * The initializing phase: the body inert under a spinner, Save disabled. The spinner is asserted
+ * without waiting anything out, which is what pins the `showDelayMs={0}` override — `SavingOverlay`
+ * otherwise suppresses it for 300 ms, which is right for a blur-to-save and wrong for a form that
+ * has nothing in it yet.
+ */
+export const Initializing: Story = {
+  args: { initializing: true },
+  play: async () => {
+    await expect(await screen.findByRole('status')).toHaveTextContent('Loading…');
+    await expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+  },
+};
+
+/** Nothing has been typed yet, so unlike the submitting phase this one does not trap the user. */
+export const InitializingStillCloses: Story = {
+  args: { initializing: true },
+  play: async () => {
+    await userEvent.click(await screen.findByRole('button', { name: 'Cancel' }));
+    await expect(await screen.findByText('Dialog closed.')).toBeInTheDocument();
   },
 };

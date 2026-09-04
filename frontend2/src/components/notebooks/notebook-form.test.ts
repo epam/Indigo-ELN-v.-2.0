@@ -5,6 +5,7 @@ import {
   notebookNameSchema,
   toNotebookEditRequest,
   toNotebookFormValues,
+  toNotebookRequest,
 } from '@/components/notebooks/notebook-form';
 import { makeNotebookDetails } from '@/mocks/fixtures';
 
@@ -66,5 +67,20 @@ describe('toNotebookEditRequest', () => {
 
   it('treats a whitespace-only rename as no change', () => {
     expect(toNotebookEditRequest({ ...initial, name: '  00000001  ' }, initial)).toEqual({});
+  });
+});
+
+describe('toNotebookRequest', () => {
+  it('trims the name', () => {
+    expect(toNotebookRequest({ name: '  00000004  ', description: '' }).name).toBe('00000004');
+  });
+
+  it('omits a description the editor left empty, rather than storing "<p></p>"', () => {
+    expect(toNotebookRequest({ name: '00000004', description: '<p></p>' })).toEqual({ name: '00000004' });
+  });
+
+  it('sends a description that was written', () => {
+    const request = toNotebookRequest({ name: '00000004', description: '<p>Route <em>B</em></p>' });
+    expect(request.description).toBe('<p>Route <em>B</em></p>');
   });
 });

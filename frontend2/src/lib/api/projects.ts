@@ -48,8 +48,13 @@ export function checkProjectNameExists(name: string): Promise<boolean> {
  * same call and refetched immediately after the mutation response had been written into it.
  *
  * Filters belong in the list key; the page number comes from pageParam.
+ *
+ * Exported although nothing outside this module *queries* on it: creating a notebook moves a
+ * project's `notebookCount` and the notebook stat tile, so `notebooks.ts` invalidates `detail`
+ * and `totalCounts` from there. The alternative — writing those two key arrays out a second
+ * time — is how the two copies drift.
  */
-const projectKeys = {
+export const projectKeys = {
   all: () => ['projects'] as const,
   list: (filters: CollectionFilters) => ['projects', filters] as const,
   detail: (id: string) => ['projectDetails', id] as const,

@@ -16,7 +16,7 @@ import type {
 } from '@/lib/types/reactions.ts';
 import type { SampleDTO } from '@/lib/types/samples.ts';
 import type { CurrentUser } from '@/lib/types/user.ts';
-import type { TemplateDetails } from '@/lib/types/templates.ts';
+import type { Template, TemplateDetails } from '@/lib/types/templates.ts';
 
 export function makeUserRef(displayName: string): UserRef {
   return { username: displayName.toLowerCase().replace(/\s+/g, '.'), displayName };
@@ -75,6 +75,29 @@ export function makeExperiment(overrides: Partial<Experiment> = {}): Experiment 
 }
 
 export const TEMPLATE_ID = '33333333-3333-3333-3333-333333333333';
+
+/** A list item — `TemplateDTO` carries no tabs, only the name the picker shows. */
+export function makeTemplate(overrides: Partial<Template> = {}): Template {
+  return {
+    id: TEMPLATE_ID,
+    name: 'Default',
+    createdBy: ADMINISTRATOR,
+    createdAt: '2026-01-05T09:00:00Z',
+    modifiedBy: ADMINISTRATOR,
+    modifiedAt: '2026-01-05T09:00:00Z',
+    ...overrides,
+  };
+}
+
+/**
+ * What the Add Experiment picker offers. The first keeps `TEMPLATE_ID`, so an experiment created
+ * against it still matches `makeExperimentDetails`'s `templateId`.
+ */
+export const TEMPLATES: Template[] = [
+  makeTemplate(),
+  makeTemplate({ id: '33333333-3333-3333-3333-333333333334', name: 'Chemistry — Full' }),
+  makeTemplate({ id: '33333333-3333-3333-3333-333333333335', name: 'Analytical' }),
+];
 
 /**
  * The four tabs of the design, exercising all six component types and every stoichiometry flag —

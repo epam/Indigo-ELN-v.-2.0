@@ -46,6 +46,15 @@ interface SelectProps<T> {
    * or out of a value.
    */
   emptyLabel?: string;
+  /**
+   * What the trigger reads before anything is chosen, greyed like an input's placeholder.
+   *
+   * A required field leaves `emptyLabel` off — see above — and would otherwise render a blank
+   * trigger, since there is no selection to name and no clear-row to borrow a label from.
+   * `emptyLabel` wins where both are set: that label is a real choice in the list, and the
+   * trigger has to say which one is current.
+   */
+  placeholder?: string;
   /** Renders the current choice but accepts no interaction — a reader who cannot edit. */
   disabled?: boolean;
   /** Whether the item list is still on its way. */
@@ -81,6 +90,7 @@ function Select<T>({
   id,
   'aria-label': ariaLabel,
   emptyLabel,
+  placeholder,
   disabled = false,
   loading = false,
   error = false,
@@ -120,8 +130,10 @@ function Select<T>({
           `Root` is given no `items` map, so `Value` receives the value itself rather than a
           resolved label — which is what we want, since `itemToLabel` is the caller's business.
         */}
-        <SelectPrimitive.Value className="truncate">
-          {(item: T | Empty | null) => (item == null || isEmpty(item) ? (emptyLabel ?? '') : itemToLabel(item))}
+        <SelectPrimitive.Value className={cn('truncate', value == null && 'text-neutral-700')}>
+          {(item: T | Empty | null) =>
+            item == null || isEmpty(item) ? (emptyLabel ?? placeholder ?? '') : itemToLabel(item)
+          }
         </SelectPrimitive.Value>
         {/*
           Stands aside for the saving spinner exactly as the combobox's chevron does —

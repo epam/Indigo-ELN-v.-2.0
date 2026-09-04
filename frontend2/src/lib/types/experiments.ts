@@ -94,6 +94,23 @@ export interface ExperimentFilters extends CollectionFilters {
 }
 
 /**
+ * Body of POST /notebooks/{id}/experiments.
+ *
+ * `templateID` is the only required field, and the only one Add Experiment sends — everything
+ * else about a new experiment is either edited afterwards on its own page or assigned by the
+ * server (the name is `<notebook name>-0001`, from `CreateExperimentHandler`).
+ *
+ * The capital `ID` is not a typo: Lombok's getter for `templateID` lowercases only the first
+ * character, so `templateID` is what Jackson names on the wire.
+ */
+export interface ExperimentRequest {
+  templateID: UUID;
+  description?: string;
+  therapeuticArea?: DictionaryItemRef;
+  projectCode?: DictionaryItemRef;
+}
+
+/**
  * The PATCH body. As with `NotebookEditRequest`, the backend wraps every field in
  * `JsonNullable` with `@JsonInclude(NON_ABSENT)`, so the three states are distinct over the
  * wire: **absent** leaves the field alone, **null** clears it, a value sets it.
