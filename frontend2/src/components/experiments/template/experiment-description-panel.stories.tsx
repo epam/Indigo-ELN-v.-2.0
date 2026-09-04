@@ -15,8 +15,11 @@ const writtenDescriptions: unknown[] = [];
 
 const writeSpyHandlers = [
   http.patch('/api/eln/experiments/:id', async ({ request, params }) => {
-    writtenDescriptions.push(await request.json());
-    return HttpResponse.json(makeExperimentDetails({ id: String(params.id) }));
+    const body = (await request.json()) as { description?: string };
+    writtenDescriptions.push(body);
+    // Echoed back rather than answered with the untouched fixture, so a story reading the
+    // experiment out of the cache afterwards sees what it just saved.
+    return HttpResponse.json(makeExperimentDetails({ id: String(params.id), ...body }));
   }),
   ...handlers,
 ];
@@ -58,10 +61,24 @@ function DescriptionFromCache() {
   return data ? <ExperimentDescriptionPanel experiment={data} /> : null;
 }
 
-/** Leaving the editor saves what was typed. */
+/**
+ * Leaving the editor saves what was typed.
+ *
+ * **Asserted on the wire, not on the rendered text.** Both are true, but they sit at different
+ * ends of the same chain: Tiptap edit → blur → PATCH through MSW → response → cache write →
+ * re-render. Waiting on the last link made the deadline, rather than the behaviour, the thing
+ * that could fail — this project runs its stories many at a time in one browser, and the tail of
+ * that chain under contention is not a property of the panel. The request carrying the typed
+ * value *is* the claim the story's name makes, so that is what it waits for.
+ *
+ * The cache round trip still happens — `DescriptionFromCache` is what makes it a real one — it
+ * is simply not what the assertion hangs on.
+ */
 export const SavesOnBlur: Story = {
+  parameters: { msw: { handlers: writeSpyHandlers } },
   render: () => <DescriptionFromCache />,
   play: async ({ canvasElement }) => {
+    writtenDescriptions.length = 0;
     const canvas = within(canvasElement);
     const editor = await canvas.findByRole('textbox');
 
@@ -70,11 +87,8 @@ export const SavesOnBlur: Story = {
     // Focus has to land somewhere outside the whole widget, toolbar included.
     await userEvent.click(document.body);
 
-    // A generous timeout, not the 1 s default: this waits on a Tiptap edit, a blur, a PATCH
-    // round trip through MSW and a cache write, and every story in this project shares one
-    // browser. Under load that comfortably exceeds a second — which says nothing about the
-    // behaviour being asserted, so the deadline should not be what fails.
-    await waitFor(() => expect(canvas.getByText('Rewritten by the story.')).toBeInTheDocument(), { timeout: 5_000 });
+    // Tiptap's own serialisation: the typed line comes back wrapped in the paragraph it edits.
+    await waitFor(() => expect(writtenDescriptions).toEqual([{ description: '<p>Rewritten by the story.</p>' }]));
   },
 };
 

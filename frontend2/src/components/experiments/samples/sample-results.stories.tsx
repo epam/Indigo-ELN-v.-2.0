@@ -1,6 +1,6 @@
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 
-import { SampleResults } from '@/components/experiments/analyze-rxn/sample-results';
+import { SampleResults } from '@/components/experiments/samples/sample-results';
 import {
   emptySampleSearchHandlers,
   failingSampleSearchHandlers,
@@ -8,31 +8,27 @@ import {
   pagedSampleHandlers,
 } from '@/mocks/handlers';
 
-import type { ResolveInputMutations } from '@/components/experiments/analyze-rxn/use-resolve-input';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { FindSamplesRequest } from '@/lib/types/samples.ts';
 
-const INPUT_ANCHOR = 'd0000000-0000-4000-8000-000000000001';
-
-/**
- * The table on its own, with the writes stubbed out — `AnalyzeRxnDialog` owns those, and these
- * stories are about how a page of catalog hits renders.
- */
-const RESOLVE: ResolveInputMutations = {
-  add: () => {},
-  addingRows: new Set(),
-  addedInputs: new Set(),
+/** What Analyze RXN asks: everything the catalogs hold containing the drawn structure. */
+const REQUEST: FindSamplesRequest = {
+  catalogs: ['ELN', 'PUBCHEM'],
+  structure: { type: 'SUBSTRUCTURE', query: 'unresolved-molfile' },
 };
 
 const meta = {
-  title: 'Experiments/AnalyzeRxn/SampleResults',
+  title: 'Experiments/Samples/SampleResults',
   component: SampleResults,
   args: {
-    molfile: 'unresolved-molfile',
-    catalog: 'ALL',
-    inputAnchor: INPUT_ANCHOR,
-    resolve: RESOLVE,
+    request: REQUEST,
+    // The writes are stubbed out — the dialogs own those, and these stories are about how a
+    // page of catalog hits renders.
+    onAdd: () => {},
+    addingRows: new Set<string>(),
     boundSamples: new Set<string>(),
     onCountChange: () => {},
+    emptyMessage: 'No materials match this structure.',
   },
   decorators: [
     (Story) => (

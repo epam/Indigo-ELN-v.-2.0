@@ -1,8 +1,8 @@
 import { Check } from 'lucide-react';
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
-import { SampleResults } from '@/components/experiments/analyze-rxn/sample-results';
 import { boundSampleIds, useResolveInput } from '@/components/experiments/analyze-rxn/use-resolve-input';
+import { SampleResults } from '@/components/experiments/samples/sample-results';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent } from '@/components/ui/dialog';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -12,7 +12,7 @@ import type { UUID } from '@/lib/types/common.ts';
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
 import type { Reaction } from '@/lib/types/reactions.ts';
 import type { SampleCatalogFilter } from '@/lib/types/samples.ts';
-import { SAMPLE_CATALOG_FILTER_LABELS, SAMPLE_CATALOG_FILTERS } from '@/lib/types/samples.ts';
+import { CATALOGS_BY_FILTER, SAMPLE_CATALOG_FILTER_LABELS, SAMPLE_CATALOG_FILTERS } from '@/lib/types/samples.ts';
 
 /**
  * What a `SetScheme` could not match: the reactants the user drew that no registered compound
@@ -79,16 +79,37 @@ export function AnalyzeRxnDialog({
   );
 
   /**
+   * One search request per tab, and one count setter per tab, both memoized on the same inputs
+   * `tabs` is. `SampleResults` keys its query on the request and reports its count through the
+   * callback, so a new identity for either on every render would restart the search and loop
+   * the effect that reports the count.
+   *
+   * The request is built here rather than in the panel because the panel is shared with Add
+   * Material, which asks a different question entirely.
+   */
+  const panels = useMemo(
+    () =>
+      tabs.map((tab) => ({
+        ...tab,
+        request: {
+          catalogs: CATALOGS_BY_FILTER[catalog],
+          // The backend matches with Bingo's `bingo_substructure_match`; an exact search would
+          // miss every registered salt and solvate of the thing that was drawn.
+          structure: { type: 'SUBSTRUCTURE' as const, query: tab.molfile },
+        },
+        onCountChange: (count: string | null) =>
+          setCounts((previous) => (previous[tab.anchor] === count ? previous : { ...previous, [tab.anchor]: count })),
+      })),
+    [tabs, catalog],
+  );
+
+  /**
    * The selection is stored but the *active* tab is derived, so there is no state to seed and
    * none to keep in step. A dialog that has just opened has chosen nothing yet and falls through
    * to the first tab; so does one whose selected row stopped being unresolved.
    */
   const [selected, setSelected] = useState<UUID | null>(null);
   const active = tabs.some((tab) => tab.anchor === selected) ? selected : (tabs[0]?.anchor ?? null);
-
-  const handleCountChange = useCallback((anchor: UUID, count: string | null) => {
-    setCounts((previous) => (previous[anchor] === count ? previous : { ...previous, [anchor]: count }));
-  }, []);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -144,15 +165,15 @@ export function AnalyzeRxnDialog({
             })}
           </TabsList>
 
-          {tabs.map((tab) => (
-            <TabsPanel key={tab.anchor} value={tab.anchor}>
+          {panels.map((panel) => (
+            <TabsPanel key={panel.anchor} value={panel.anchor}>
               <SampleResults
-                molfile={tab.molfile}
-                catalog={catalog}
-                inputAnchor={tab.anchor}
-                resolve={resolve}
+                request={panel.request}
+                onAdd={(sample) => resolve.add(panel.anchor, sample)}
+                addingRows={resolve.addingRows}
                 boundSamples={boundSamples}
-                onCountChange={handleCountChange}
+                onCountChange={panel.onCountChange}
+                emptyMessage="No materials match this structure."
               />
             </TabsPanel>
           ))}

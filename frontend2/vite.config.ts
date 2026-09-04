@@ -160,6 +160,18 @@ export default defineConfig({
         plugins: [storybookTest({ configDir: '.storybook' })],
         test: {
           name: 'storybook',
+          // One page per worker, all in a single Chromium. Left to itself Vitest opens one
+          // per core — 14 on a 16-core machine — and those pages then contend for the one
+          // browser process they share. Measured on this suite (78 files, 417 tests), the
+          // default buys nothing for that: wall clock 58-74s at 14 workers against 54-67s
+          // at 4, while cumulative test time goes 190-234s against 75-95s and setup
+          // 326-470s against 94-115s. So ~3x the CPU burned for no wall-clock gain, and
+          // the tail of that contention landed on whichever story was waiting out a
+          // service-worker round trip. Four is still ~2x faster than serial (112s).
+          //
+          // Machine-dependent, obviously — but the ceiling is the shared browser process,
+          // not the core count, so raise this only alongside a measurement.
+          maxWorkers: 4,
           // Storybook 10.3+ can provision preview annotations itself, but only
           // a project setup file gets scanned for dep pre-bundling — without one
           // the CJS deps behind @testing-library/dom fail to import in the browser.

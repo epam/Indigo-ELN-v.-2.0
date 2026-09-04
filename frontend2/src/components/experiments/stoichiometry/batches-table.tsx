@@ -1,16 +1,7 @@
-import {
-  ChevronDown,
-  ChevronRight,
-  CircleCheck,
-  Download,
-  Plus,
-  RefreshCw,
-  Search,
-  Settings,
-  Upload,
-} from 'lucide-react';
+import { ChevronDown, ChevronRight, CircleCheck, Download, Plus, RefreshCw, Search, Upload } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
 
+import { SavingOverlay } from '@/components/common/saving-overlay';
 import type { BatchColumn, BatchRow } from '@/components/experiments/stoichiometry/batch-columns';
 import { BATCH_COLUMNS, batchHaystack, isSampleProtected } from '@/components/experiments/stoichiometry/batch-columns';
 import { BatchDetailPanel } from '@/components/experiments/stoichiometry/batch-detail-panel';
@@ -155,6 +146,7 @@ function Toolbar({
   mutations: StoichiometryMutations;
 }) {
   const fileInput = useRef<HTMLInputElement>(null);
+  const addBatchCell = cellId(reaction.anchor, 'addBatch');
   const importSdf = useImportSdf(experiment, reaction.anchor);
   const { exportSdf, exporting } = useExportSdf(experiment.id);
 
@@ -181,22 +173,25 @@ function Toolbar({
           indigo-frontend puts this behind a menu whose second entry adds a batch to an existing
           product. That entry is the per-row Add Batch button on the products table, so the menu
           would be one indirection over a single action.
+
+          Wrapped in `SavingOverlay` rather than given `Button`'s own `loading`, as the
+          stoichiometry table's Add empty row is: the flag goes through the 300 ms delay, so a
+          fast write shows nothing instead of a spinner that blinks, and the button is inert
+          meanwhile so the batch cannot be added twice. The two SDF buttons below keep `loading`
+          — a file upload or download is never fast enough for the delay to matter.
         */}
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label="Add empty batch"
-          title="Add empty batch"
-          disabled={!canEdit}
-          onClick={() =>
-            mutations.save(cellId(reaction.anchor, 'addBatch'), {
-              type: 'AddNoProductSample',
-              anchor: reaction.anchor,
-            })
-          }
-        >
-          <Plus />
-        </Button>
+        <SavingOverlay pending={mutations.savingCells.has(addBatchCell)} spinner="center">
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Add empty batch"
+            title="Add empty batch"
+            disabled={!canEdit}
+            onClick={() => mutations.save(addBatchCell, { type: 'AddNoProductSample', anchor: reaction.anchor })}
+          >
+            <Plus />
+          </Button>
+        </SavingOverlay>
 
         <input
           ref={fileInput}
@@ -232,11 +227,6 @@ function Toolbar({
           onClick={exportSdf}
         >
           <Download />
-        </Button>
-
-        {/* TODO(column-settings): show/hide columns. Nothing server-side carries the choice. */}
-        <Button variant="ghost" size="icon" aria-label="Table settings" disabled>
-          <Settings />
         </Button>
       </div>
     </div>

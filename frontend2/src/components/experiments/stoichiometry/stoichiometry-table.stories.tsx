@@ -187,6 +187,7 @@ export const ReadOnlyNoPermission: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByRole('button', { name: 'Delete compound 1' })).toBeDisabled();
     await expect(canvas.getByRole('button', { name: 'Add empty row' })).toBeDisabled();
+    await expect(canvas.getByRole('button', { name: 'Add sample' })).toBeDisabled();
     // The data is all still there — read-only, not hidden.
     await expect(canvas.getByText('Salicylic acid')).toBeInTheDocument();
   },
@@ -717,6 +718,32 @@ export const Saving: Story = {
     await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Saving…'));
     // Only that cell: the batch's volume cell is untouched.
     await expect(canvas.getByLabelText('Volume, batch 1')).toBeEnabled();
+  },
+};
+
+/**
+ * Adding a row is a write like any other, so the toolbar button reports it the way a cell does —
+ * a spinner over the button, and the button inert meanwhile so the row cannot be added twice.
+ *
+ * Only past `SavingOverlay`'s 300 ms delay: the usual `AddEmptyInput` beats that and shows
+ * nothing, which is the point of the delay.
+ */
+export const AddingARow: Story = {
+  parameters: { msw: { handlers: slowMutateHandlers } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Add empty row' }));
+
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Saving…'));
+
+    // The busy region is the button itself, not the toolbar: `SavingOverlay` publishes
+    // `data-saving` on the box it froze, and that box holds only this one button.
+    const busy = canvasElement.querySelector('[data-saving]');
+    await expect(busy).toContainElement(canvas.getByRole('button', { name: 'Add empty row' }));
+    await expect(busy).not.toContainElement(canvas.getByRole('button', { name: 'Add sample' }));
+    // So the rest of the toolbar stays live while the row is on its way.
+    await expect(canvas.getByRole('button', { name: 'Add sample' })).toBeEnabled();
   },
 };
 

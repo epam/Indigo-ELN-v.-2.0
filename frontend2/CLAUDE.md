@@ -266,6 +266,47 @@ either, but it is not ignored: it belongs to whoever sent the mutation rather th
 caller, so `ReactionSchemePanel` reads it off `mutateAsync`'s resolved value and opens Analyze
 RXN on it. See below.
 
+### Catalog search — the shared half
+
+Two sheets search `/samples/search` and put what they find into the reaction model, so what they
+have in common lives in `src/components/experiments/samples/`:
+
+| Module | Role |
+|---|---|
+| `sample-results.tsx` | the result table: seven columns, a chevron detail, a My Materials bookmark and a green Add per row, cursor-paged by an `IntersectionObserver` sentinel |
+| `use-add-sample.ts` | the two-step write — register the hit if it has no id, then run the mutation the caller builds from that id — plus `addingRows` |
+| `result-count.ts`, `sample-row-key.ts` | how a count is worded, and what identifies a row |
+
+`SampleResults` knows neither the question nor the answer: the caller passes a whole
+`FindSamplesRequest` (which is the query key, so changing it *is* the refetch) and an `onAdd`.
+`useAddSample` likewise takes the mutation as a function of the sample id, because the two callers
+send different ones. Each dialog is then a thin wrapper — `useResolveInput` adds `addedInputs` and
+sends `ResolveInputs`, `useAddMaterial` sends `AddInput`.
+
+Three properties hold for both:
+
+- **`/samples/search` is the only endpoint in the app that is not paged by `Page<T>`.** It walks
+  several catalogs in priority order (ELN 0, MY\_MATERIALS 1, PUBCHEM 1000) and returns an opaque
+  cursor as `next`, which the caller hands back as the *request's* own `state` field. `totalItems`
+  is null once a catalog that cannot count has contributed — PubChem reports neither a count nor a
+  cursor — so **`next === null` is the only end-of-results signal**. A search with no count from
+  the server falls back to what it can see: `resultCountLabel` says `12+` while the cursor still
+  points somewhere, and a plain `12` once it does not, since what has loaded is the total by then.
+  `src/lib/api/samples.ts` owns the paging; nothing else should.
+- **The catalog radio needs no refetch.** `catalogs` is part of the request and the request is the
+  query key, so choosing a different catalog is a different query. indigo-frontend's own panel
+  searches only in `ngOnInit`, which is why its radio does nothing.
+- **Adding is two steps for a PubChem hit.** Every mutation that takes a sample names it by id and
+  a catalog hit that is not in the ELN has none, so `POST /samples/importFromSearch` registers it
+  first — with the whole `SampleDTO`, since the backend dispatches on `source` and reads `inchi`.
+  The mutation then goes through `useMutateExperimentModel`, so it queues in `experimentWrite`'s
+  scope and its patch fills in the row behind the dialog. Nothing is optimistic, which is why
+  `useAddSample.run` resolves to whether it worked rather than letting the caller assume.
+
+The Add button on a row is disabled when the step already holds that sample
+(`boundSampleIds(reaction)`), which is read off the model rather than remembered — so it is still
+right after a reopen.
+
 ### Analyze RXN
 
 `SetScheme` reports the molecules it could not match to a registered compound as
@@ -277,32 +318,58 @@ substructure search of the catalogs per tab, and a `ResolveInputs` mutation per 
 `side="right"` sheet, like Global Search — the stoichiometry table it fills in stays visible
 behind it.
 
-Four things there are worth knowing before changing it:
+Two things beyond the shared half are worth knowing before changing it:
 
-- **`/samples/search` is the only endpoint in the app that is not paged by `Page<T>`.** It walks
-  several catalogs in priority order (ELN 0, MY\_MATERIALS 1, PUBCHEM 1000) and returns an opaque
-  cursor as `next`, which the caller hands back as the *request's* own `state` field. `totalItems`
-  is null once a catalog that cannot count has contributed — PubChem reports neither a count nor a
-  cursor — so **`next === null` is the only end-of-results signal**. A tab with no count from the
-  server falls back to what it can see: `resultCountLabel` says `12+` while the cursor still
-  points somewhere, and a plain `12` once it does not, since what has loaded is the total by then.
-  `src/lib/api/samples.ts` owns the paging; nothing else should.
-- **The catalog radio needs no refetch.** `catalogs` is part of the request and the request is the
-  query key, so choosing a different catalog is a different query. indigo-frontend's own panel
-  searches only in `ngOnInit`, which is why its radio does nothing.
 - **Only the visible tab searches.** `TabsPanel` unmounts an inactive panel, so a step with five
   unmatched reactants does not fire five substructure searches at once. The visible cost is that a
-  tab's `(count)` appears only once it has been opened.
-- **Adding is two steps for a PubChem hit.** `ResolveInputs` names a sample by id and a catalog hit
-  that is not in the ELN has none, so `POST /samples/importFromSearch` registers it first — with
-  the whole `SampleDTO`, since the backend dispatches on `source` and reads `inchi`. The mutation
-  then goes through `useMutateExperimentModel`, so it queues in `experimentWrite`'s scope and its
-  patch fills in the row behind the dialog.
+  tab's `(count)` appears only once it has been opened. Each tab's request and its count callback
+  are memoized together in the dialog — a fresh identity for either on every render would restart
+  the search and loop the effect that reports the count.
+- **The tab's resolved check is the narrower claim** than `boundSampleIds`, and is local state:
+  *this dialog* bound something to that input.
 
-The Add button on a row is disabled when the step already holds that sample
-(`boundSampleIds(reaction)`), which is read off the model rather than remembered — so it is still
-right after a reopen. The tab's resolved check is the narrower claim and is local state: *this
-dialog* bound something to that input.
+### Add Material
+
+The toolbar's `SquarePlus` on the Reactants, Reagents, Solvents table — the counterpart of the
+plain `+`, which appends an empty row on an `UNKNOWN` compound. `AddMaterialDialog`
+(`src/components/experiments/samples/`) searches the catalogs and appends a row carrying a
+registered one, via `AddInput`.
+
+It is Global Search's form over the shared result table, and the assembly is nearly all it does:
+the quick-search pill, the catalog radio, `SchemeEditor`, and a `Collapsible` grid of ten filters
+with a summary line while collapsed. `add-material-form.ts` holds everything that is not JSX —
+the values, the request, the summary. Four things are particular to it:
+
+- **Nothing is searched until Search is pressed, and Search needs a criterion.** `submitted` is
+  the request as pressed, so editing the form afterwards leaves the results alone. `isEmpty` is
+  read off the **request**, not the form, so it cannot disagree with what would be sent — a
+  filter the catalog has disabled is dropped by `toFindSamplesRequest` and so does not enable
+  Search either, which is what stops a form that looks filled in (nine boxes with values, PubChem
+  selected) from running a whole-catalog browse. The gate is ours, not the server's:
+  `FindSamplesRequest` has no `isEmpty` assertion — unlike `GlobalSearchRequest`, which 400s —
+  and indigo-frontend does send the empty request.
+- **The catalog gates the form.** A catalog reaching PubChem (`ALL` as well as `PUBCHEM`) disables
+  every filter but Molecular Formula, which PubChem's API does accept, and `toFindSamplesRequest`
+  **drops** the disabled ones rather than sending them to be ignored — a request has to say what
+  was actually searched for. Values survive while disabled, so going back to Indigo ELN restores
+  the search rather than making it be retyped.
+- **External ID is `externalNumber`.** indigo-frontend's template binds that box to `chemicalName`
+  by mistake; the backend filter it names is a separate one.
+- **A drawn reaction has nowhere to go.** `FindSamplesRequest` has one structure field and a
+  catalog holds compounds, so `SchemeEditor`'s `isReaction` flag is dropped rather than routed the
+  way Global Search routes it.
+
+`StoichiometryTable` renders the sheet whether or not it is open — see the `DialogContent`
+notes below for why a sheet behind a `{open && …}` flag cannot slide out. The form therefore
+keeps what was typed into it between visits, which is the better behaviour anyway: a step
+usually gains several materials, and the search that found the last one is where the next is
+likely to be.
+
+`TextSearchField` (`src/components/search/`) is the new control the grid needed — the sibling of
+`NumericSearchField`, emitting `null` until a box holds something, with `between` as the one
+member that has two. Both keep the chosen operator in local state while there is no value to
+attach it to, which is why Clear All remounts the panel by `key` rather than only resetting the
+values.
 
 ### Styling — Tailwind v4 CSS-first
 
@@ -317,7 +384,17 @@ Styled with CVA + `cn()`, following the shadcn `base-nova` pattern. Primitives f
 `DialogContent` takes `side`: the default `center` is the 560px modal, `right` turns the
 same frame — title row, scrolling body, pinned footer — into a sheet running the **full**
 height of the window, over the `AppHeader` rather than below it, with a transparent backdrop
-so the page behind stays legible. It used to start at the header's 72px, which left a strip of
+so the page behind stays legible.
+
+**A sheet has to be mounted to slide, in both directions.** The enter and exit are CSS
+transitions on `data-[starting-style]` / `data-[ending-style]`, so a `Dialog` rendered behind a
+`{open && …}` flag cannot animate out — React removes the element before Base UI can transition
+it, and the panel vanishes instead. Render it unconditionally and let `open` drive it, as
+`AppHeader` does with Global Search and `StoichiometryTable` does with Add Material; Base UI
+unmounts the popup itself once the exit finishes, so nothing inside stays mounted and no query
+inside keeps running while the sheet is shut. `AnalyzeRxnDialog` is the exception and pays for
+it: its `unresolvedInputs` *are* the reason it exists, so it is mounted with the data and closes
+by dropping it. It used to start at the header's 72px, which left a strip of
 page above it and read as the panel having slipped down. Base UI's own `Drawer` is
 deliberately unused: it brings a swipe-to-dismiss interaction model this desktop sheet does
 not want.
@@ -363,7 +440,7 @@ before the prewarm can even start fetching the thing it exists to fetch early.
 
 `pnpm run check:bundle` guards the invariant that actually matters, by size rather than by
 name: it reads the entry and modulepreload chunks out of `dist/index.html` and fails if any
-one exceeds 1 MB or they total more than 1.5 MB (today: 24 chunks, 515 kB, largest 174 kB).
+one exceeds 1 MB or they total more than 1.5 MB (today: 35 chunks, 549 kB, largest 174 kB).
 A static import that stranded the 21 MB chunk in the entry graph would otherwise pass build,
 lint and every test, and only show up as an unusable cold load.
 
@@ -480,7 +557,9 @@ Anything rendered through a portal — dialogs, combobox popups, toasts — is o
 
 Mock data lives in `src/mocks/` (under `src/`, not `.storybook/`, so unit tests can import it too): `fixtures.ts` has `makeProject`/`makeExperiment`/`makeTotalCounts` override factories, `handlers.ts` has an MSW handler per endpoint the app calls — check the file rather than trusting a count here. Paths there are the same full `/api/eln` paths the callers pass. Override per story with `parameters: { msw: { handlers: errorHandlers } }` — `handlers.ts` exports `emptyHandlers`, `errorHandlers`, and `loadingHandlers` for the non-happy paths.
 
-`vite.config.ts` defines two Vitest projects: `unit` (jsdom, `src/**/*.test.{ts,tsx}`) and `storybook` (real Chromium via Playwright, every story as a smoke test with `a11y: { test: 'error' }` failing on violations). CI without a browser should run `pnpm run test:unit`; Chromium comes from `pnpm exec playwright install chromium`. The `storybook` project keeps `.storybook/vitest.setup.ts` even though Storybook 10.3+ can provision annotations itself — only a project setup file gets scanned for dep pre-bundling, and without one the CJS deps behind `@testing-library/dom` fail to import in the browser.
+`vite.config.ts` defines two Vitest projects: `unit` (jsdom, `src/**/*.test.{ts,tsx}`) and `storybook` (real Chromium via Playwright, every story as a smoke test with `a11y: { test: 'error' }` failing on violations). CI without a browser should run `pnpm run test:unit`; Chromium comes from `pnpm exec playwright install chromium`.
+
+**The story project is capped at `maxWorkers: 4`, and the cap is a speed-up, not a sacrifice.** One `instances` entry means one *browser*, not one page: Vitest opens a page per worker inside it, and left to itself that is one per core. Measured here at 14 workers against 4 — same 78 files — wall clock was 58–74s against 54–67s while cumulative test time was 190–234s against 75–95s. Three times the CPU for no wall-clock gain, because the ceiling is the single browser process every page talks through, not the core count. The contention also had a tail, and it landed on stories waiting out an MSW round trip; `SavesOnBlur` in `experiment-description-panel.stories.tsx` failed that way roughly one run in two before the cap. **A story should not assert on the far end of a chain it does not own** — that one now waits on the PATCH reaching the spy rather than on the saved text re-rendering out of the query cache. The `storybook` project keeps `.storybook/vitest.setup.ts` even though Storybook 10.3+ can provision annotations itself — only a project setup file gets scanned for dep pre-bundling, and without one the CJS deps behind `@testing-library/dom` fail to import in the browser.
 
 ### TypeScript strictness notes
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { resultCountLabel } from '@/components/experiments/analyze-rxn/result-count';
+import { resultCountLabel } from '@/components/experiments/samples/result-count';
 
 describe('resultCountLabel', () => {
   it('reports the count the server gave, however many rows have loaded', () => {

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Menu, MenuContent, MenuItem, MenuTrigger } from '@/components/ui/menu';
 import type { NumericSearch, NumericSearchOperator } from '@/lib/types/search.ts';
 import { NUMERIC_SEARCH_OPERATOR_LABELS, NUMERIC_SEARCH_OPERATORS } from '@/lib/types/search.ts';
+import { cn } from '@/lib/utils';
 
 /**
  * An operator picker and a number, as one control: "≥ 90".
@@ -21,12 +22,15 @@ function NumericSearchField({
   onValueChange,
   id,
   label,
+  disabled,
 }: {
   value: NumericSearch | null;
   onValueChange: (value: NumericSearch | null) => void;
   id: string;
   /** Names the operator button for screen readers, e.g. "Batch Yield, % operator". */
   label: string;
+  /** Renders what is set but accepts no interaction — what a PubChem catalog forces. */
+  disabled?: boolean;
 }) {
   const [pendingOperator, setPendingOperator] = useState<NumericSearchOperator>('eq');
   // The committed value wins whenever there is one; otherwise the button shows the choice
@@ -46,13 +50,20 @@ function NumericSearchField({
   }
 
   return (
-    <div className="flex h-10 w-full items-stretch rounded-md border border-neutral-300 bg-background focus-within:border-blue-400 focus-within:ring-3 focus-within:ring-ring/20">
+    <div
+      className={cn(
+        'flex h-10 w-full items-stretch rounded-md border border-neutral-300 bg-background',
+        'focus-within:border-blue-400 focus-within:ring-3 focus-within:ring-ring/20',
+        disabled && 'opacity-50',
+      )}
+    >
       <Menu>
         <MenuTrigger
           render={
             <Button
               type="button"
               variant="ghost"
+              disabled={disabled}
               aria-label={`${label} operator`}
               className="h-auto w-16 shrink-0 justify-between rounded-none rounded-l-md border-r border-neutral-300 px-2 text-[14px]/6 text-neutral-1000"
             >
@@ -73,8 +84,9 @@ function NumericSearchField({
         id={id}
         type="number"
         value={value?.value ?? ''}
+        disabled={disabled}
         onChange={handleNumberChange}
-        className="min-w-0 flex-1 bg-transparent px-3 text-[14px]/6 text-neutral-1000 outline-none placeholder:text-neutral-700"
+        className="min-w-0 flex-1 bg-transparent px-3 text-[14px]/6 text-neutral-1000 outline-none placeholder:text-neutral-700 disabled:cursor-not-allowed"
       />
     </div>
   );

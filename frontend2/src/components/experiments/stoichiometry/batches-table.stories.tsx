@@ -306,6 +306,32 @@ export const Saving: Story = {
 };
 
 /**
+ * Adding a batch is a write like any other, so the toolbar button reports it the way a cell does
+ * — a spinner over the button, and the button inert meanwhile so the batch cannot be added twice.
+ *
+ * Only past `SavingOverlay`'s 300 ms delay: the usual `AddNoProductSample` beats that and shows
+ * nothing, which is the point of the delay.
+ */
+export const AddingABatch: Story = {
+  parameters: { msw: { handlers: slowMutateHandlers } },
+  render: () => <TableFromCache />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await userEvent.click(await canvas.findByRole('button', { name: 'Add empty batch' }));
+
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Saving…'));
+
+    // The busy region is the button itself, not the toolbar: `SavingOverlay` publishes
+    // `data-saving` on the box it froze, and that box holds only this one button.
+    const busy = canvasElement.querySelector('[data-saving]');
+    await expect(busy).toContainElement(canvas.getByRole('button', { name: 'Add empty batch' }));
+    // So the rest of the toolbar stays live while the batch is on its way.
+    await expect(canvas.getByRole('button', { name: 'Export SDF' })).toBeEnabled();
+  },
+};
+
+/**
  * Nothing is optimistic. A rejected save leaves the cell showing what the server last confirmed;
  * `apiFetch` has already raised the toast, so there is nothing to handle here beyond clearing
  * the spinner.
@@ -324,12 +350,5 @@ export const Failure: Story = {
     await waitFor(async () => expect(await canvas.findByLabelText('Purity, batch 002')).toBeEnabled());
     const cell = canvas.getByLabelText('Purity, batch 002').closest('[data-slot="numeric-cell"]')!;
     await expect(cell.querySelector('[data-slot="numeric-cell-value"]')).toHaveTextContent('100');
-  },
-};
-
-/** Column show/hide has nowhere to live server-side, so the gear is inert. */
-export const TableSettingsAreInert: Story = {
-  play: async ({ canvasElement }) => {
-    await expect(within(canvasElement).getByRole('button', { name: 'Table settings' })).toBeDisabled();
   },
 };

@@ -1,10 +1,9 @@
 import { Bookmark, ChevronDown, ChevronRight, Plus } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { ApiImage } from '@/components/common/api-image';
-import type { ResolveInputMutations } from '@/components/experiments/analyze-rxn/use-resolve-input';
-import { sampleRowKey } from '@/components/experiments/analyze-rxn/use-resolve-input';
-import { resultCountLabel } from '@/components/experiments/analyze-rxn/result-count';
+import { resultCountLabel } from '@/components/experiments/samples/result-count';
+import { sampleRowKey } from '@/components/experiments/samples/sample-row-key';
 import { EmptyCell, FormulaCell, IconActionCell, ReadonlyCell } from '@/components/experiments/stoichiometry/cells';
 import { CELL_CLASS, HEADER_CELL_CLASS } from '@/components/experiments/stoichiometry/columns';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -13,8 +12,7 @@ import { describeError } from '@/lib/toast';
 import { cn } from '@/lib/utils';
 
 import type { UUID } from '@/lib/types/common.ts';
-import type { SampleCatalogFilter, SampleDTO } from '@/lib/types/samples.ts';
-import { CATALOGS_BY_FILTER } from '@/lib/types/samples.ts';
+import type { FindSamplesRequest, SampleDTO } from '@/lib/types/samples.ts';
 
 /** Chevron + the four data columns + the two action columns. */
 const COLUMN_COUNT = 7;
@@ -22,47 +20,42 @@ const COLUMN_COUNT = 7;
 const DATA_COLUMNS = ['Compound ID', 'Chemical Name', 'Mol. Weight', 'Mol. Formula'];
 
 /**
- * One tab's results: everything the catalogs offer for one unresolved reactant.
+ * The catalog hits for one search, with a mark and an add on every row.
  *
- * The search runs on mount and needs no gesture — the molfile of the row that could not be
- * matched is the whole query, so there is nothing for the user to type. Because Base UI unmounts
- * an inactive tab panel, "on mount" also means *when the tab is first opened*: a step with five
- * unresolved reactants does not fire five substructure searches (and five PubChem round trips)
- * at once, the way indigo-frontend's `ngOnInit` does. What has been searched stays in cache, so
- * coming back to a tab is instant.
+ * Shared by the two surfaces that search `/samples/search`: Analyze RXN, which asks for one
+ * substructure per unresolved reactant, and Add Material, which asks whatever its form was
+ * filled in with. Neither the question nor what happens on Add lives here — the caller passes
+ * the `request` and an `onAdd`, so this file only knows how to page a search and draw it.
  *
- * Switching the catalog does not go through here at all: `catalog` is part of the request, the
- * request is the query key, and a new key is a new query.
+ * The request is the query key, so a caller that changes it (a different catalog, a new form
+ * submission) starts a new query and leaves the old results in cache to come back instantly.
+ * There is no gesture to wait for and nothing to debounce: whoever renders this has already
+ * decided there is a search to run. In Analyze RXN "already decided" also means *when the tab is
+ * first opened*, because Base UI unmounts an inactive tab panel — so a step with five unresolved
+ * reactants does not fire five substructure searches (and five PubChem round trips) at once, the
+ * way indigo-frontend's `ngOnInit` does.
  */
 export function SampleResults({
-  molfile,
-  catalog,
-  inputAnchor,
-  resolve,
+  request,
+  onAdd,
+  addingRows,
   boundSamples,
   onCountChange,
+  emptyMessage = 'No materials match this search.',
 }: {
-  /** The unmatched structure, as `unresolvedInputs` gave it. */
-  molfile: string;
-  catalog: SampleCatalogFilter;
-  inputAnchor: UUID;
-  resolve: ResolveInputMutations;
+  /** What to search for. Must be stable across renders — it is the query key. */
+  request: FindSamplesRequest;
+  onAdd: (sample: SampleDTO) => void;
+  /** Which rows are mid-add, keyed by `sampleRowKey`. */
+  addingRows: ReadonlySet<string>;
   /** Sample ids the step already holds — those rows cannot be added again. */
   boundSamples: ReadonlySet<UUID>;
-  /** Reports this tab's result count up to its label, already worded. Null while unknown. */
-  onCountChange: (inputAnchor: UUID, count: string | null) => void;
+  /** Reports the result count, already worded. Null while unknown. Must be stable. */
+  onCountChange?: (count: string | null) => void;
+  /** What an empty result set says; the default suits a form, Analyze RXN names the structure. */
+  emptyMessage?: string;
 }) {
   const [expanded, setExpanded] = useState<ReadonlySet<string>>(() => new Set());
-
-  const request = useMemo(
-    () => ({
-      catalogs: CATALOGS_BY_FILTER[catalog],
-      // The backend matches with Bingo's `bingo_substructure_match`; an exact search would miss
-      // every registered salt and solvate of the thing that was drawn.
-      structure: { type: 'SUBSTRUCTURE' as const, query: molfile },
-    }),
-    [catalog, molfile],
-  );
 
   const query = useSampleSearch(request);
   const { data, error, isPending, hasNextPage, isFetchingNextPage, fetchNextPage } = query;
@@ -83,8 +76,8 @@ export function SampleResults({
   const samples = data?.pages.flatMap((page) => page.items) ?? [];
 
   /**
-   * The count is a property of the search, but it is shown on the tab, which outlives this
-   * panel — so it is worded here and reported upward rather than rendered here.
+   * The count is a property of the search, but it is shown outside this box — on a tab, or above
+   * the table — so it is worded here and reported upward rather than rendered here.
    *
    * `totalItems` is read off the **last** page, not the first: it is a running total, and the
    * page that has seen the most catalogs is the one with the most to say. It is null from the
@@ -94,8 +87,8 @@ export function SampleResults({
   const totalItems = data?.pages[data.pages.length - 1]?.totalItems ?? null;
   const countLabel = resultCountLabel({ totalItems, loaded: samples.length, hasMore: hasNextPage, loading: isPending });
   useEffect(() => {
-    onCountChange(inputAnchor, countLabel);
-  }, [onCountChange, inputAnchor, countLabel]);
+    onCountChange?.(countLabel);
+  }, [onCountChange, countLabel]);
 
   function toggle(row: string) {
     setExpanded((open) => {
@@ -171,9 +164,9 @@ export function SampleResults({
                 sample={sample}
                 expanded={expanded.has(row)}
                 onToggle={() => toggle(row)}
-                adding={resolve.addingRows.has(row)}
+                adding={addingRows.has(row)}
                 alreadyBound={sample.id != null && boundSamples.has(sample.id)}
-                onAdd={() => resolve.add(inputAnchor, sample)}
+                onAdd={() => onAdd(sample)}
               />
             );
           })
@@ -195,7 +188,7 @@ export function SampleResults({
         </p>
       )}
       {!isPending && error == null && samples.length === 0 && (
-        <p className="p-6 text-center text-[14px]/6 text-neutral-700">No materials match this structure.</p>
+        <p className="p-6 text-center text-[14px]/6 text-neutral-700">{emptyMessage}</p>
       )}
 
       {isFetchingNextPage && (

@@ -1,13 +1,13 @@
 import type { UUID } from '@/lib/types/common.ts';
 import type { DictionaryItemRef } from '@/lib/types/dictionaries.ts';
-import type { StructuralSearch } from '@/lib/types/search.ts';
+import type { NumericSearch, StructuralSearch, TextSearch } from '@/lib/types/search.ts';
 
 /**
  * `src/lib/types/samples.ts` mirrors the backend `compound/model` package — the registered
  * samples the catalogs answer with, and the request that searches them.
  *
- * `StructuralSearch` is not redeclared here: it is the same Java record `GlobalSearchRequest`
- * uses, already ported in `search.ts`.
+ * `StructuralSearch`, `TextSearch` and `NumericSearch` are not redeclared here: they are the
+ * same Java records the global search uses, already ported in `search.ts`.
  */
 
 /** Mirrors SearchCatalog (eln-api, compound/model/search). The numbers are its priorities. */
@@ -27,19 +27,38 @@ export interface FindSamplesState {
 
 /**
  * The body of POST /api/eln/samples/search, mirroring FindSamplesRequest (eln-api,
- * compound/model/search) — **partially**.
+ * compound/model/search) in full.
  *
- * The Java class declares nine more filters: `quickSearch`, and `compoundKey`,
- * `nbkBatchNumber`, `casNumber`, `externalNumber`, `molecularFormula`, `chemicalName` and
- * `batchComment` as `TextSearch`, `molWeight` as `NumericSearch`, plus `compoundState` and
- * `healthHazards` dictionary refs. They belong to indigo-frontend's Add Material search form,
- * which is not ported; Analyze RXN searches by structure alone. Add them here — with
- * `TextSearch`, which `search.ts` also lacks — when that form arrives.
+ * Every field but `catalogs` is optional and every combination is legal: unlike
+ * `GlobalSearchRequest` there is no `isEmpty` assertion server-side, so a request carrying
+ * nothing but a catalog is a browse rather than a 400. That is why Add Material's Search
+ * button is never disabled.
+ *
+ * The filters are `@JsonInclude(NON_NULL)` on the far side, so an absent one and an explicit
+ * `null` mean the same thing; the form omits what it is not filtering on.
  */
 export interface FindSamplesRequest {
   /** `@NotNull @Size(min = 1)` — a search with no catalog is a 400. */
   catalogs: SearchCatalog[];
+  /**
+   * The free-text box. `@Size(min = 1)` server-side, so a blank string is a 400 rather than
+   * "no filter" — the form sends `undefined` for an empty box.
+   */
+  quickSearch?: string;
   structure?: StructuralSearch;
+  compoundKey?: TextSearch;
+  nbkBatchNumber?: TextSearch;
+  casNumber?: TextSearch;
+  /** The External ID box. Angular's template binds that box to `chemicalName` by mistake. */
+  externalNumber?: TextSearch;
+  molecularFormula?: TextSearch;
+  chemicalName?: TextSearch;
+  batchComment?: TextSearch;
+  molWeight?: NumericSearch;
+  /** `ComponentStateRef` server-side, which serialises as a plain dictionary ref. */
+  compoundState?: DictionaryItemRef;
+  /** `HealthHazardRef`, likewise. Singular on the wire despite the plural name. */
+  healthHazards?: DictionaryItemRef;
   /** The `next` of the previous page; absent starts at the first. */
   state?: FindSamplesState;
 }

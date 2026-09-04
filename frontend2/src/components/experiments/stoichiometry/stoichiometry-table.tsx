@@ -1,6 +1,8 @@
-import { ChevronDown, ChevronRight, Plus, Search, Settings, SquarePlus } from 'lucide-react';
+import { ChevronDown, ChevronRight, Plus, Search, SquarePlus } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
+import { SavingOverlay } from '@/components/common/saving-overlay';
+import { AddMaterialDialog } from '@/components/experiments/samples/add-material-dialog';
 import {
   DeleteCell,
   DictionaryCell,
@@ -97,6 +99,7 @@ export function StoichiometryTable({ experiment, reaction }: { experiment: Exper
    * Seeding an `expanded` set from the current rows would have left every later one shut.
    */
   const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(() => new Set());
+  const [addMaterialOpen, setAddMaterialOpen] = useState(false);
 
   const mutations = useStoichiometryMutations(experiment);
   const canEdit = canEditExperiment(experiment);
@@ -126,6 +129,7 @@ export function StoichiometryTable({ experiment, reaction }: { experiment: Exper
         search={search}
         onSearchChange={setSearch}
         mutations={mutations}
+        onAddMaterial={() => setAddMaterialOpen(true)}
       />
 
       {/*
@@ -176,6 +180,25 @@ export function StoichiometryTable({ experiment, reaction }: { experiment: Exper
           </p>
         )}
       </div>
+
+      {/*
+        Mounted whether or not it is open, as Global Search is, rather than behind the flag the
+        way Analyze RXN is. The sheet slides in and out on `data-[starting-style]` /
+        `data-[ending-style]`, and Base UI can only run the ending one if the element is still
+        there to transition — unmounting on close takes the panel off the screen instantly.
+        Base UI unmounts the popup itself once that transition finishes, so nothing inside is
+        mounted, and no search is running, while the sheet is shut.
+
+        The cost is that the form keeps what was typed into it between visits, which is the
+        better behaviour anyway: a step usually gains several materials, and the search that
+        found the last one is where the next one is likely to be.
+      */}
+      <AddMaterialDialog
+        open={addMaterialOpen}
+        onOpenChange={setAddMaterialOpen}
+        experiment={experiment}
+        reaction={reaction}
+      />
     </div>
   );
 }
@@ -187,6 +210,7 @@ function Toolbar({
   search,
   onSearchChange,
   mutations,
+  onAddMaterial,
 }: {
   experiment: ExperimentDetails;
   reaction: Reaction;
@@ -194,8 +218,11 @@ function Toolbar({
   search: string;
   onSearchChange: (search: string) => void;
   mutations: StoichiometryMutations;
+  /** Opens the catalog search that appends a row for a registered compound. */
+  onAddMaterial: () => void;
 }) {
   const significantFigures = experiment.model.significantFigures;
+  const addInputCell = cellId(reaction.anchor, 'addInput');
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
@@ -250,29 +277,34 @@ function Toolbar({
           </MenuContent>
         </Menu>
 
+        {/*
+          Wrapped rather than given `Button`'s own `loading`, matching `AddBatchCell` — the same
+          add-a-row action one level down. `SavingOverlay` runs the flag through the 300 ms delay,
+          so the usual fast `AddEmptyInput` shows nothing at all instead of a spinner that blinks,
+          and it inerts the button meanwhile, so the row cannot be added twice.
+        */}
+        <SavingOverlay pending={mutations.savingCells.has(addInputCell)} spinner="center">
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Add empty row"
+            title="Add empty row"
+            disabled={!canEdit}
+            onClick={() => mutations.save(addInputCell, { type: 'AddEmptyInput', anchor: reaction.anchor })}
+          >
+            <Plus />
+          </Button>
+        </SavingOverlay>
+
         <Button
           variant="ghost"
           size="icon"
-          aria-label="Add empty row"
+          aria-label="Add sample"
+          title="Add sample"
           disabled={!canEdit}
-          onClick={() =>
-            mutations.save(cellId(reaction.anchor, 'addInput'), { type: 'AddEmptyInput', anchor: reaction.anchor })
-          }
+          onClick={onAddMaterial}
         >
-          <Plus />
-        </Button>
-
-        {/*
-          TODO(add-registered-sample): the `AddInput` mutation takes a registered sample id,
-          which means porting indigo-frontend's sample-search slide-in first.
-        */}
-        <Button variant="ghost" size="icon" aria-label="Add registered material" disabled>
           <SquarePlus />
-        </Button>
-
-        {/* TODO(column-settings): show/hide columns. Nothing server-side carries the choice. */}
-        <Button variant="ghost" size="icon" aria-label="Table settings" disabled>
-          <Settings />
         </Button>
       </div>
     </div>

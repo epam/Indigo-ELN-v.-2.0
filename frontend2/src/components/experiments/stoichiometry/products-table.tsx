@@ -1,4 +1,4 @@
-import { Search, Settings } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import {
@@ -15,7 +15,6 @@ import type { ProductColumn, ProductRow } from '@/components/experiments/stoichi
 import { OUTPUT_TYPES, PRODUCT_COLUMNS, productHaystack } from '@/components/experiments/stoichiometry/product-columns';
 import type { StoichiometryMutations } from '@/components/experiments/stoichiometry/use-stoichiometry-mutations';
 import { cellId, useStoichiometryMutations } from '@/components/experiments/stoichiometry/use-stoichiometry-mutations';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
@@ -93,11 +92,6 @@ export function ReactionProductsTable({ experiment, step }: { experiment: Experi
             <Switch checked={showAllSteps} onCheckedChange={setShowAllSteps} />
             Show All Steps
           </label>
-
-          {/* TODO(column-settings): show/hide columns. Nothing server-side carries the choice. */}
-          <Button variant="ghost" size="icon" aria-label="Table settings" disabled>
-            <Settings />
-          </Button>
         </div>
       </div>
 

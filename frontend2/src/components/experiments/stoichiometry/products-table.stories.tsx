@@ -293,10 +293,3 @@ export const Failure: Story = {
     await expect(canvas.getByLabelText('Products Type, P0')).toHaveTextContent('Final');
   },
 };
-
-/** Column show/hide has nowhere to live server-side, so the gear is inert. */
-export const TableSettingsAreInert: Story = {
-  play: async ({ canvasElement }) => {
-    await expect(within(canvasElement).getByRole('button', { name: 'Table settings' })).toBeDisabled();
-  },
-};

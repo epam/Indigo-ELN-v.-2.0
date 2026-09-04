@@ -33,6 +33,34 @@ export const NUMERIC_SEARCH_OPERATOR_LABELS: Record<NumericSearchOperator, strin
   ge: '≥',
 };
 
+/**
+ * Mirrors TextSearch (eln-api, compound/model/search): a Jackson-polymorphic sealed interface
+ * discriminated on `type`, four of whose five members carry a `value` while `between` carries a
+ * range instead. Modelled as a union rather than one optional-everything object so a `between`
+ * with a stray `value`, or an `exact` with a `from`, cannot be constructed.
+ */
+export type TextSearchOperator = 'exact' | 'startsWith' | 'contains' | 'endsWith' | 'between';
+
+export type TextSearch =
+  { type: Exclude<TextSearchOperator, 'between'>; value: string } | { type: 'between'; from: string; to: string };
+
+/** Display order for the operator picker, as in indigo-frontend's TextSearchTypeNames. */
+export const TEXT_SEARCH_OPERATORS: readonly TextSearchOperator[] = [
+  'exact',
+  'startsWith',
+  'contains',
+  'endsWith',
+  'between',
+];
+
+export const TEXT_SEARCH_OPERATOR_LABELS: Record<TextSearchOperator, string> = {
+  exact: 'exact',
+  startsWith: 'starts with',
+  contains: 'contains',
+  endsWith: 'ends with',
+  between: 'between',
+};
+
 /** Mirrors ReactionRole (eln-api, reaction/model). */
 export type ReactionRole = 'REACTANT' | 'REAGENT' | 'CATALYST' | 'SOLVENT' | 'OUTPUT';
 
