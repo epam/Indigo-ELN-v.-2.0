@@ -10,7 +10,6 @@ import '@/styles.css';
 // unloaded, so every screen renders with it in the cascade. Without it Storybook runs under a
 // cascade the app never has — which is exactly how an Amplify rule that reset `font-size` on
 // every input in the app went unnoticed while the font-size assertions passed here.
-import '@/amplify-styles.css';
 
 import type { Preview } from '@storybook/react-vite';
 

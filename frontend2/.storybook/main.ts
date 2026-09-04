@@ -24,8 +24,11 @@ const config: StorybookConfig = {
         find: '@/components/chemistry/ketcher-editor',
         replacement: fileURLToPath(new URL('./mocks/ketcher-editor.tsx', import.meta.url)),
       },
-      // Stories must never reach Cognito: apiFetch calls fetchAuthSession() before
-      // every request and AppSidebar calls signOut(). MSW owns the network instead.
+      // Stories must never reach Cognito: apiFetch calls fetchAuthSession() before every
+      // request, AppSidebar calls signOut(), and LoginCard calls signIn(). MSW owns the
+      // network instead. auth-storage comes first because a string alias matches by prefix —
+      // the entry below would otherwise rewrite its 'aws-amplify/auth/cognito' import too.
+      { find: '@/lib/auth-storage', replacement: fileURLToPath(new URL('./mocks/auth-storage.ts', import.meta.url)) },
       { find: 'aws-amplify/auth', replacement: fileURLToPath(new URL('./mocks/amplify-auth.ts', import.meta.url)) },
       { find: '@', replacement: fileURLToPath(new URL('../src', import.meta.url)) },
     ];

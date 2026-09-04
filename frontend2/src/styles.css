@@ -1,10 +1,3 @@
-/*
- * Declared before Tailwind's so it sits at the bottom of the cascade: `amplify` holds the sign-in
- * screen's stylesheet, which is otherwise unlayered and would beat every utility in the app.
- * Layers rank in declaration order, and anything unlayered outranks all of them.
- */
-@layer amplify;
-
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
@@ -50,8 +43,12 @@
   /*
    * Indigo palette, hex verbatim from the Figma COLORS collection (the 8-digit
    * steps carry their alpha, so no color-mix is needed).
+   *
+   * `blue-500` is the exception: it is the sign-in screen's page background, sampled from that
+   * design rather than taken from the COLORS collection, and it is used nowhere else.
    */
   --color-blue-600: #232c64;
+  --color-blue-500: #313e8c;
   --color-blue-400: #3f50b5;
   --color-blue-100: #dee1f3;
   --color-blue-10: #3f50b51a;
