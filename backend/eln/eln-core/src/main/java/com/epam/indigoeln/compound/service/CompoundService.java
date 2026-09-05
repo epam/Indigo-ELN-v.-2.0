@@ -103,7 +103,9 @@ public class CompoundService {
         for (IndigoMolecule molecule : indigo.iterateSDFile(file.toAbsolutePath().toString())) {
             CompoundEntity compound = findOrCreate(molecule, null, null, null, null);
             fillCompoundFromIndigo(molecule, compound);
-            SampleEntity sample = createSamples ? findOrCreateDefaultSample(compound) : null;
+            if (createSamples) {
+                findOrCreateDefaultSample(compound);
+            }
             list.add(compound.getId());
         }
         log.info("Loaded {} compounds from file", list.size());

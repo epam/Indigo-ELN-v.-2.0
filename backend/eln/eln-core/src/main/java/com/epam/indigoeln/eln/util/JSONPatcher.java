@@ -226,9 +226,17 @@ public class JSONPatcher {
 
         switch (patch) {
             case ObjectNode patchObject when (patchObject.size() <= 2 && (patchObject.has(FIELD_OLD) || patchObject.has(FIELD_NEW)))-> { // created or deleted value
-                return reverse
-                        ? patchObject.has(FIELD_OLD) ? patchObject.get(FIELD_OLD) : nodeFactory.nullNode()
-                        : patchObject.has(FIELD_NEW) ? patchObject.get(FIELD_NEW) : nodeFactory.nullNode();
+                if (reverse) {
+                    if (patchObject.has(FIELD_OLD)) {
+                        return patchObject.get(FIELD_OLD);
+                    }
+                    return nodeFactory.nullNode();
+                } else {
+                    if (patchObject.has(FIELD_NEW)) {
+                        return patchObject.get(FIELD_NEW);
+                    }
+                    return nodeFactory.nullNode();
+                }
             }
             case ObjectNode patchObject when setPaths.containsKey(path) -> { // set diff
                 return doRestoreSet(base, patchObject, path, reverse);

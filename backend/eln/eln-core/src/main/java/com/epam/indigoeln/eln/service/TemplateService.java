@@ -39,7 +39,7 @@ public class TemplateService {
     public TemplateDetailsDTO createTemplate(TemplateRequest request) {
         aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_TEMPLATES);
 
-        TemplateValidationUtil.validateTemplateRequest(request, templateRepository);
+        TemplateValidationUtil.validateTemplateRequest(request);
 
         TemplateEntity template = templateMapper.requestToTemplate(request);
         updateDates(template, userService.getCurrentUserEntity());

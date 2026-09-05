@@ -481,7 +481,7 @@ public class ReactionCalculator {
         final Property<ReactionOutputSample, MolarityUnit> molarity;
         final Property<ReactionOutputSample, VolumeUnit> volume;
         final Property<ReactionOutputSample, DensityUnit> density;
-        final Property<ReactionOutputSample, NoUnit> yield;
+        final Property<ReactionOutputSample, NoUnit> yieldValue;
 
         EnteredValueOpt<NoUnit> purityAsFraction() {
             return purity.multiply(ONE_HUNDREDTH);
@@ -496,7 +496,7 @@ public class ReactionCalculator {
             molarity = prop(sample, ReactionOutputSampleMetamodel.MOLARITY);
             volume = prop(sample, ReactionOutputSampleMetamodel.VOLUME);
             density = prop(sample, ReactionOutputSampleMetamodel.DENSITY);
-            yield = prop(sample, ReactionOutputSampleMetamodel.YIELD);
+            yieldValue = prop(sample, ReactionOutputSampleMetamodel.YIELD);
         }
 
         private void init() {
@@ -519,8 +519,8 @@ public class ReactionCalculator {
             formula(
                     "F8.2: outputSample.actualMol = outputSample.yield * output.theoMol",
                     actualMol,
-                    () -> yield.divide(DEFAULT_ONE_HUNDRED).multiply(output.theoMol),
-                    yield, output.theoMol
+                    () -> yieldValue.divide(DEFAULT_ONE_HUNDRED).multiply(output.theoMol),
+                    yieldValue, output.theoMol
             );
 
             formula(
@@ -540,8 +540,8 @@ public class ReactionCalculator {
             formula(
                     "F9.2: outputSample.actualWeight = outputSample.yield / outputSample.purity * output.theoWeight",
                     actualWeight,
-                    () -> yield.multiply(ONE_HUNDREDTH).divide(purityAsFraction()).multiply(output.theoWeight),
-                    yield, purity, output.theoWeight
+                    () -> yieldValue.multiply(ONE_HUNDREDTH).divide(purityAsFraction()).multiply(output.theoWeight),
+                    yieldValue, purity, output.theoWeight
             );
 
             formula(
@@ -574,14 +574,14 @@ public class ReactionCalculator {
 
             formula(
                     "F8.1: outputSample.yield = outputSample.actualMol / output.theoMol",
-                    yield,
+                    yieldValue,
                     () -> actualMol.divide(output.theoMol).multiply(DEFAULT_ONE_HUNDRED),
                     actualMol, output.theoMol
             );
 
             formula(
                     "F9.1: outputSample.yield = outputSample.actualWeight * outputSample.purity / output.theoWeight",
-                    yield,
+                    yieldValue,
                     () -> actualWeight.multiply(purityAsFraction()).divide(output.theoWeight).multiply(DEFAULT_ONE_HUNDRED),
                     actualWeight, purity, output.theoWeight
             );
@@ -610,8 +610,8 @@ public class ReactionCalculator {
 
         // purity is more priority than other (default purity is more important than other defaults and even other user-entered)
         // (since in case of conflict we can likely recalculate user-entered, but we are not allowed to calculate purity)
-        boolean purityA = a.getProperty().name().equals("purity");
-        boolean purityB = b.getProperty().name().equals("purity");
+        boolean purityA = a.getModelProperty().name().equals("purity");
+        boolean purityB = b.getModelProperty().name().equals("purity");
         result = Boolean.compare(purityA, purityB);
         if (result != 0) {
             return result;

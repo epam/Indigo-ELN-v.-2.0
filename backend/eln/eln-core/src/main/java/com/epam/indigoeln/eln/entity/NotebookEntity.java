@@ -97,7 +97,7 @@ public class NotebookEntity extends BaseEntity implements WithAttachments<Notebo
     @NotNull
     @OneToMany(mappedBy = "notebook", cascade = CascadeType.ALL, orphanRemoval = true)
     @MapKeyJoinColumn(name = "user_id")
-    private Map<UserEntity, NotebookACLEntity> aclEntities = new HashMap<>(0);
+    private Map<UserEntity, NotebookACLEntity> aclEntities = HashMap.newHashMap(0);
 
     @NotNull
     @OneToMany(mappedBy = "parent")
