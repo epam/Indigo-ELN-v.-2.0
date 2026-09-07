@@ -126,10 +126,28 @@ user one click on Reload.
 
 `src/lib/query-client.ts` — `staleTime: 30_000`; no retry on `ApiError.status < 500`.
 
-**Cache persistence is per signed-in user, and follows the session.** Only the sidebar
-chrome is persisted (`currentUser`, `experiments/marked` — `PERSIST_OPTIONS`), under a
-localStorage key scoped to the Cognito sub, so a second user on the same browser cannot
-restore the first one's name, permissions and starred list.
+**Cache persistence is per signed-in user, and follows the session.** What is persisted
+(`PERSIST_OPTIONS`) is the sidebar chrome — `currentUser`, `experiments/marked` — plus the
+reference data the experiment screens are built out of: the 13 `dictionary` entries, the
+`templates` list behind the Add Experiment picker, and `templateDetails`. All of it is small,
+on the critical path of a screen, and changed only by an admin. It lives under a localStorage
+key scoped to the Cognito sub, so a second user on the same browser cannot restore the first
+one's name, permissions and starred list.
+
+Two rules govern adding to that set, both easy to get wrong:
+
+- **`templateDetails` is matched by its root, not by a hash.** Everything else is one fixed key,
+  so `persistedHashes` holds `hashKey` of each; a template detail is keyed by id, so
+  `shouldDehydrateQuery` compares `queryKey[0]` against `templateKeys.detail('')[0]` instead.
+  The comparison has to be that exact first segment — `projectDetails`, `notebookDetails` and
+  `experimentDetails` are sibling roots that must stay in memory.
+- **Anything persisted needs `gcTime: Infinity` on its hook.** A collected query is absent from
+  the next dehydration, and the save that follows takes it off disk too — so an entry only
+  observed on one screen would evaporate five minutes after the user left it. The client also
+  sets `defaultOptions.hydrate.queries.gcTime = Infinity`, which covers the other half: a
+  restored entry nobody has observed yet is otherwise built with the 5-minute default and
+  collected before it is ever read. gcTime only ever grows (`Removable#updateGcTime` takes the
+  max), so a hook mounting later with a shorter one cannot undo it.
 
 `src/lib/query-persistence.tsx` owns this rather than `PersistQueryClientProvider`, which
 **cannot** be used here: it reads `persistOptions` from a ref, keys its effect on the

@@ -4,7 +4,12 @@ import { apiFetch } from '@/lib/api';
 import type { Page } from '@/lib/types/common.ts';
 import type { Template, TemplateDetails } from '@/lib/types/templates.ts';
 
-const templateKeys = {
+/**
+ * Exported although no component reads it: `src/lib/query-client.ts` hashes `list()` and matches
+ * `detail()`'s root to decide what gets persisted to localStorage. Not a candidate for going
+ * private.
+ */
+export const templateKeys = {
   list: () => ['templates'] as const,
   detail: (id: string) => ['templateDetails', id] as const,
 };
@@ -42,6 +47,9 @@ export function useTemplates(enabled: boolean) {
     queryKey: templateKeys.list(),
     queryFn: ({ signal }) => fetchTemplates(signal),
     enabled,
+    // Persisted to localStorage, and only observed while the dialog above is open — see the
+    // note on `useTemplate` for why the default gcTime would take it off disk again.
+    gcTime: Infinity,
   });
 }
 
@@ -59,5 +67,10 @@ export function useTemplate(id: string | undefined) {
     queryKey: templateKeys.detail(id ?? ''),
     queryFn: ({ signal }) => fetchTemplate(id!, signal), // enabled below guarantees it is set
     enabled: id !== undefined,
+    // Persisted to localStorage, and observed only while its experiment is open. Under the
+    // default gcTime the entry would be collected five minutes after the user navigates away,
+    // and the save that follows would dehydrate a cache no longer holding it — taking it off
+    // disk too. Every persisted query needs this.
+    gcTime: Infinity,
   });
 }
