@@ -39,7 +39,7 @@ function ToastList() {
       // older toasts down) where the demo's bottom-anchored one negates it.
       className={cn(
         'absolute top-0 right-0 left-auto w-full rounded-6 border bg-card p-4 shadow-card',
-        'translate-x-[var(--toast-swipe-movement-x)] translate-y-[calc(var(--toast-swipe-movement-y)+var(--toast-offset-y))]',
+        'translate-x-(--toast-swipe-movement-x) translate-y-[calc(var(--toast-swipe-movement-y)+var(--toast-offset-y))]',
         'transition-all duration-200 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0',
         'data-[ending-style]:translate-x-full data-[starting-style]:translate-x-full',
         toast.type === 'error' ? 'border-red-200 bg-red-10' : 'border-neutral-300',

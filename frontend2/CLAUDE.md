@@ -189,14 +189,16 @@ the regression guard on path templates and page sizes; `collections.test.ts` cov
 assembly on its own.
 
 `src/lib/api/collections.ts` holds what every paged list shares: `collectionQueryString`,
-a generic `getNextPageParam`, and `SEARCH_DEBOUNCE_MS`. `/projects` and
+a generic `getNextPageParam`, and `useSettledSearch`. `/projects` and
 `/projects/{id}/notebooks` declare identical query params, so one `collectionQueryString(filters,
 pageNo, pageSize)` builds both from one `CollectionFilters` (`search`, `sort`, `createdByMe` — the
 three `ActionBar` sets). `pageSize` is required rather than defaulted: the two lists agree on 10
-today, and a shared default would tie them together for no reason. The debounce constant lives
-here rather than on either list, so neither has to import it from the other, as does
-`SUGGEST_DEBOUNCE_MS` — the same 300 ms for the three typeahead lookups (keywords, users,
-experiment references), which used to be declared once in each of their files.
+today, and a shared default would tie them together for no reason. The list debounce lives here
+rather than on either list, so neither has to import it from the other — as one hook,
+`useSettledSearch`, rather than the bare `SEARCH_DEBOUNCE_MS` the three used to gate on
+themselves. `SUGGEST_DEBOUNCE_MS` is still a plain constant: the same 300 ms for the three
+typeahead lookups (keywords, users, experiment references), which used to be declared once in
+each of their files.
 
 `src/lib/api/entity-writes.ts` is its counterpart for detail entities. A project, notebook and
 experiment each expose `{base}/{id}/attachments` and `{base}/{id}/access`, identically, so
@@ -217,7 +219,9 @@ to queue behind the on-blur saves rather than race them.
 
 `useProjects` does the same for the projects list, gating on `filters.search` only — sort and `createdByMe` are discrete toggles that should take effect at once. `ActionBar`'s search box therefore writes **straight** to the URL search params on every keystroke (`replace: true`, so no history spam) and is controlled by them; the debounce is entirely in the query. `InfiniteLoader` then shows its skeletons for the whole wait, instead of leaving the previous term's results up unannounced.
 
-`useSettled` treats the value a component *starts* with as already settled, so gating a query on it never delays a first load.
+`useSettled` treats the value a component *starts* with as already settled, so gating a query on it never delays a first load — nor does a sort or `createdByMe` toggle, which never touch the value it watches.
+
+**An empty term is not waited on either.** That is the one thing `useSettledSearch` adds over a bare `useSettled`: the box is `type="search"`, so it carries a native clear button, and select-all-delete does the same — a discrete gesture with nothing left to type. Debouncing it would put the unfiltered list behind skeletons for 300 ms for no reason. Backspacing to empty settles at once for the same reason, which is right: it is the last keystroke either way.
 
 ### Forms — TanStack Form + Zod
 

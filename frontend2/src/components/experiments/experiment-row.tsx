@@ -2,11 +2,12 @@ import { Link } from '@tanstack/react-router';
 import { FileText } from 'lucide-react';
 import type { ReactNode } from 'react';
 
+import { ApiImage } from '@/components/common/api-image';
 import { AvatarStack } from '@/components/common/avatar-stack';
-import { ExperimentImage } from '@/components/common/experiment-image';
 import { StarButton } from '@/components/experiments/star-button';
 import { Badge } from '@/components/ui/badge';
 
+import { experimentPicturePath } from '@/lib/api/experiments';
 import type { Experiment } from '@/lib/types/experiments.ts';
 import { EXPERIMENT_STATUS_DISPLAY } from '@/lib/types/experiments.ts';
 import { formatDate } from '@/lib/utils.ts';
@@ -43,7 +44,11 @@ export function ExperimentRow({ item: experiment }: { item: Experiment }) {
       </header>
 
       <div className="flex items-start gap-4">
-        <ExperimentImage experimentId={experiment.id} revision={experiment.revision} className="h-[88px] w-[140px]" />
+        <ApiImage
+          path={experimentPicturePath(experiment.id, experiment.revision)}
+          alt="Reaction scheme"
+          className="h-[88px] w-[140px]"
+        />
 
         <dl className={COLUMNS_CLASS}>
           <Column label="Members">

@@ -40,7 +40,7 @@ export function AppSidebar() {
   }
 
   return (
-    <aside className="flex w-[301px] flex-col justify-between gap-4 rounded-6 border border-neutral-200 bg-card px-3 pt-3 pb-5 shadow-card">
+    <aside className="flex w-75.25 flex-col justify-between gap-4 rounded-6 border border-neutral-200 bg-card px-3 pt-3 pb-5 shadow-card">
       <div className="flex flex-col gap-3">
         <Button
           variant="secondary"

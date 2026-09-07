@@ -1,5 +1,5 @@
 import { Search } from 'lucide-react';
-import type { FormEvent } from 'react';
+import type { SubmitEvent } from 'react';
 import { useCallback, useMemo, useState } from 'react';
 
 import { SchemeEditor } from '@/components/chemistry/scheme-editor';
@@ -97,7 +97,7 @@ export function AddMaterialDialog({
     patch({ structure: next?.structure ?? null });
   }
 
-  function handleSubmit(event: FormEvent) {
+  function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     setSubmitted(toFindSamplesRequest(values));
     // Collapsing hands the space back to the results and leaves the summary as the record of

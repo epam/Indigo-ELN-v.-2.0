@@ -45,7 +45,7 @@ function Input({ className, ...props }: InputPrimitive.Props) {
         INPUT_BOX_FOCUS,
         'h-10 px-3 text-[14px]/6 text-neutral-1000 outline-none',
         'placeholder:text-neutral-700',
-        'disabled:cursor-not-allowed disabled:opacity-50 data-[invalid]:border-red-200 data-[invalid]:ring-red-200/20',
+        'disabled:cursor-not-allowed disabled:opacity-50 data-invalid:border-red-200 data-invalid:ring-red-200/20',
         className,
       )}
       {...props}

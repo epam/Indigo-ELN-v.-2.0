@@ -1,4 +1,4 @@
-import type { FormEvent, KeyboardEvent, ReactNode } from 'react';
+import type { KeyboardEvent, ReactNode, SubmitEvent } from 'react';
 import { useState } from 'react';
 
 import { SavingOverlay } from '@/components/common/saving-overlay';
@@ -57,7 +57,7 @@ function FormDialog({
     }
   }
 
-  function handleSubmit(event: FormEvent) {
+  function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     void submit();
   }

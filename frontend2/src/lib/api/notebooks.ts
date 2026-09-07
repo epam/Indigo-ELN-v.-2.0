@@ -1,10 +1,9 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { apiFetch } from '@/lib/api';
-import { collectionQueryString, getNextPageParam, SEARCH_DEBOUNCE_MS } from '@/lib/api/collections';
+import { collectionQueryString, getNextPageParam, useSettledSearch } from '@/lib/api/collections';
 import { useEntityAttachments, useUpdateEntityAccess } from '@/lib/api/entity-writes';
 import { projectKeys } from '@/lib/api/projects';
-import { useSettled } from '@/lib/hooks/use-settled';
 import type { CollectionFilters, Page } from '@/lib/types/common.ts';
 import type { Notebook, NotebookDetails, NotebookEditRequest, NotebookRequest } from '@/lib/types/notebooks.ts';
 
@@ -48,7 +47,7 @@ const NOTEBOOK_WRITES = { basePath: '/api/eln/notebooks', detailKey: notebookKey
 
 /** See `useProjects` — the debounce gates `enabled` so `isPending` covers the wait too. */
 export function useProjectNotebooks(projectId: string, filters: CollectionFilters) {
-  const settled = useSettled(filters.search, SEARCH_DEBOUNCE_MS);
+  const settled = useSettledSearch(filters.search);
 
   return useInfiniteQuery({
     queryKey: notebookKeys.list(projectId, filters),

@@ -13,8 +13,8 @@ export function AppHeader() {
   const [query, setQuery] = useState('');
 
   return (
-    <header className="flex h-[72px] shrink-0 items-center justify-between gap-6 bg-blue-600 px-6">
-      <img src={logoUrl} alt="Indigo ELN" width={128} height={38} className="h-[38px] w-[128px]" />
+    <header className="flex h-18 shrink-0 items-center justify-between gap-6 bg-blue-600 px-6">
+      <img src={logoUrl} alt="Indigo ELN" width={128} height={38} className="h-9.5 w-32" />
 
       <label className="flex h-10 w-full max-w-xl items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4">
         <Search aria-hidden className="size-5 shrink-0 text-white/70" />

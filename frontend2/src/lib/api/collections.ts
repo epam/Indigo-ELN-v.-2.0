@@ -1,3 +1,4 @@
+import { useSettled } from '@/lib/hooks/use-settled';
 import type { CollectionFilters, Page } from '@/lib/types/common.ts';
 
 /**
@@ -30,7 +31,17 @@ export function getNextPageParam<T>(lastPage: Page<T>): number | undefined {
  *
  * The debounce gates `enabled` while the key tracks the term as typed — see `useProjects`.
  */
-export const SEARCH_DEBOUNCE_MS = 300;
+const SEARCH_DEBOUNCE_MS = 300;
+
+/**
+ * Whether the list's search term is ready to query on. An empty term is a discrete gesture —
+ * the box's native clear button, or select-all-delete — so there is nothing left to wait for,
+ * and the unfiltered list should come straight back instead of sitting behind skeletons for
+ * the debounce. Anything typed settles the usual way.
+ */
+export function useSettledSearch(search: string): boolean {
+  return useSettled(search, SEARCH_DEBOUNCE_MS) || search === '';
+}
 
 /**
  * How long a typeahead has to settle before its lookup runs — the suggestion endpoints'

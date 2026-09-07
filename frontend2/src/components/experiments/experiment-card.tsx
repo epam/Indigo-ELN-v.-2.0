@@ -2,11 +2,12 @@ import { Link } from '@tanstack/react-router';
 import { FileText } from 'lucide-react';
 import type { ReactNode } from 'react';
 
+import { ApiImage } from '@/components/common/api-image';
 import { AvatarStack } from '@/components/common/avatar-stack';
-import { ExperimentImage } from '@/components/common/experiment-image';
 import { StarButton } from '@/components/experiments/star-button';
 import { Badge } from '@/components/ui/badge';
 
+import { experimentPicturePath } from '@/lib/api/experiments';
 import type { Experiment } from '@/lib/types/experiments.ts';
 import { EXPERIMENT_STATUS_DISPLAY } from '@/lib/types/experiments.ts';
 import { formatDate } from '@/lib/utils.ts';
@@ -47,7 +48,11 @@ export function ExperimentCard({ item: experiment }: { item: Experiment }) {
         <StarButton experimentId={experiment.id} marked={experiment.marked} />
       </header>
 
-      <ExperimentImage experimentId={experiment.id} revision={experiment.revision} className="h-[160px] w-full" />
+      <ApiImage
+        path={experimentPicturePath(experiment.id, experiment.revision)}
+        alt="Reaction scheme"
+        className="h-[160px] w-full"
+      />
 
       <dl className="flex flex-col gap-1">
         <Row label="Last Edited">

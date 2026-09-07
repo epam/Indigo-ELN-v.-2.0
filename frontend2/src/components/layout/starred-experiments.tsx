@@ -22,10 +22,10 @@ export function StarredExperiments() {
           <span className="sr-only">Loading starred experiments…</span>
           {Array.from({ length: SKELETON_ROWS }, (_, index) => (
             // h-[26px] is the badge's own height, which sets the height of a real row.
-            <div key={index} className="flex h-[26px] items-center gap-2">
+            <div key={index} className="flex h-6.5 items-center gap-2">
               <Skeleton className="size-4 shrink-0" />
               <Skeleton className="h-4 flex-1" />
-              <Skeleton className="h-[26px] w-[59px] shrink-0 rounded-md" />
+              <Skeleton className="h-6.5 w-14.75 shrink-0 rounded-md" />
             </div>
           ))}
         </div>

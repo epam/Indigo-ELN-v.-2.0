@@ -143,14 +143,14 @@ function Select<T>({
           `SavingOverlay` publishes `data-saving` on the group around this. `invisible` rather
           than `hidden`, so the control keeps its width and the spinner lands where the chevron was.
         */}
-        <SelectPrimitive.Icon className="shrink-0 p-1 text-neutral-700 group-data-[saving]/saving:invisible">
+        <SelectPrimitive.Icon className="shrink-0 p-1 text-neutral-700 group-data-saving/saving:invisible">
           <ChevronDown className="size-5" />
         </SelectPrimitive.Icon>
       </SelectPrimitive.Trigger>
 
       <SelectPrimitive.Portal>
         <SelectPrimitive.Positioner sideOffset={4} className="z-50" alignItemWithTrigger={false}>
-          <SelectPrimitive.Popup className="max-h-[240px] min-w-[var(--anchor-width)] overflow-y-auto rounded-md border border-neutral-300 bg-popover p-1 shadow-card outline-none">
+          <SelectPrimitive.Popup className="max-h-60 min-w-(--anchor-width) overflow-y-auto rounded-md border border-neutral-300 bg-popover p-1 shadow-card outline-none">
             <SelectPrimitive.List>
               {status && (
                 <div className={cn('px-3 py-2', SIZE_TEXT[size], error ? 'text-red-200' : 'text-neutral-700')}>
@@ -161,7 +161,7 @@ function Select<T>({
                 <SelectPrimitive.Item
                   value={EMPTY_ITEM}
                   className={cn(
-                    'cursor-default rounded-2 px-3 py-2 text-neutral-700 outline-none data-[highlighted]:bg-blue-10',
+                    'cursor-default rounded-2 px-3 py-2 text-neutral-700 outline-none data-highlighted:bg-blue-10',
                     SIZE_TEXT[size],
                   )}
                 >
@@ -173,7 +173,7 @@ function Select<T>({
                   key={itemToKey(item)}
                   value={item}
                   className={cn(
-                    'cursor-default rounded-2 px-3 py-2 outline-none data-[highlighted]:bg-blue-10',
+                    'cursor-default rounded-2 px-3 py-2 outline-none data-highlighted:bg-blue-10',
                     SIZE_TEXT[size],
                   )}
                 >

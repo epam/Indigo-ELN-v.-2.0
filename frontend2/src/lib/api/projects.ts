@@ -1,12 +1,7 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { apiFetch } from '@/lib/api';
-import {
-  collectionQueryString,
-  getNextPageParam,
-  SEARCH_DEBOUNCE_MS,
-  SUGGEST_DEBOUNCE_MS,
-} from '@/lib/api/collections';
+import { collectionQueryString, getNextPageParam, SUGGEST_DEBOUNCE_MS, useSettledSearch } from '@/lib/api/collections';
 import { useEntityAttachments, useUpdateEntityAccess } from '@/lib/api/entity-writes';
 import { useSettled } from '@/lib/hooks/use-settled';
 import type { CollectionFilters, Page } from '@/lib/types/common.ts';
@@ -76,10 +71,11 @@ const PROJECT_WRITES = { basePath: '/api/eln/projects', detailKey: projectKeys.d
  * `isPending` spans both the wait and the request — InfiniteLoader then shows its skeletons
  * for the whole time rather than leaving the previous term's results up unannounced.
  * Only the search term is debounced; sort and createdByMe are discrete toggles that
- * should take effect at once, and leave `settled` alone.
+ * should take effect at once, and leave `settled` alone. Clearing the box is a discrete
+ * gesture too, which is why `useSettledSearch` lets an empty term through unwaited.
  */
 export function useProjects(filters: CollectionFilters) {
-  const settled = useSettled(filters.search, SEARCH_DEBOUNCE_MS);
+  const settled = useSettledSearch(filters.search);
 
   return useInfiniteQuery({
     queryKey: projectKeys.list(filters),

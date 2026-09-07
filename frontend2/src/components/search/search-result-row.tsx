@@ -3,8 +3,9 @@ import { Briefcase, FlaskConical, NotebookText } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { createContext, use } from 'react';
 
-import { ExperimentImage } from '@/components/common/experiment-image';
+import { ApiImage } from '@/components/common/api-image';
 import { Badge } from '@/components/ui/badge';
+import { experimentPicturePath } from '@/lib/api/experiments';
 import { EXPERIMENT_STATUS_DISPLAY } from '@/lib/types/experiments.ts';
 import type { GlobalSearchResult, SearchEntityType } from '@/lib/types/search.ts';
 import { REACTION_ROLE_DISPLAY } from '@/lib/types/search.ts';
@@ -107,7 +108,11 @@ function Body({ item }: { item: GlobalSearchResult }) {
 
       <div className="flex items-start gap-4">
         {item.type === 'EXPERIMENT' && (
-          <ExperimentImage experimentId={item.id} revision={item.revision} className="h-[88px] w-[140px]" />
+          <ApiImage
+            path={experimentPicturePath(item.id, item.revision)}
+            alt="Reaction scheme"
+            className="h-[88px] w-[140px]"
+          />
         )}
         <Columns item={item} />
       </div>

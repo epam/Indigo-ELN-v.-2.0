@@ -2,12 +2,7 @@ import { useInfiniteQuery, useIsMutating, useMutation, useQuery, useQueryClient 
 import type { QueryClient } from '@tanstack/react-query';
 
 import { apiDownload, apiFetch } from '@/lib/api';
-import {
-  collectionQueryString,
-  getNextPageParam,
-  SEARCH_DEBOUNCE_MS,
-  SUGGEST_DEBOUNCE_MS,
-} from '@/lib/api/collections';
+import { collectionQueryString, getNextPageParam, SUGGEST_DEBOUNCE_MS, useSettledSearch } from '@/lib/api/collections';
 import { useEntityAttachments, useUpdateEntityAccess } from '@/lib/api/entity-writes';
 import { notebookKeys } from '@/lib/api/notebooks';
 import { projectKeys } from '@/lib/api/projects';
@@ -400,7 +395,7 @@ function fetchNotebookExperiments(
 
 /** See `useProjects` — the debounce gates `enabled` so `isPending` covers the wait too. */
 export function useNotebookExperiments(notebookId: string, filters: ExperimentFilters) {
-  const settled = useSettled(filters.search, SEARCH_DEBOUNCE_MS);
+  const settled = useSettledSearch(filters.search);
 
   return useInfiniteQuery({
     queryKey: experimentKeys.notebookList(notebookId, filters),

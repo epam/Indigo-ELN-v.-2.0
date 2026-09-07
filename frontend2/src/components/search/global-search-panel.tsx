@@ -1,5 +1,5 @@
 import { Search } from 'lucide-react';
-import type { FormEvent } from 'react';
+import type { SubmitEvent } from 'react';
 import { useEffect, useState } from 'react';
 
 import { SchemeEditor } from '@/components/chemistry/scheme-editor';
@@ -58,7 +58,7 @@ function GlobalSearchPanel({ open, onOpenChange, query, onQueryChange, onSearch 
     setOwn((previous) => ({ ...previous, ...next }));
   }
 
-  function handleSubmit(event: FormEvent) {
+  function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     setSubmitted(toGlobalSearchRequest(values));
     // Collapsing hands the space back to the results and leaves the summary as the record

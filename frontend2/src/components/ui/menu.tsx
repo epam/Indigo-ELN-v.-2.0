@@ -23,7 +23,7 @@ function MenuContent({
         <MenuPrimitive.Popup
           data-slot="menu-content"
           className={cn(
-            'min-w-[160px] rounded-md border border-neutral-300 bg-popover p-1 shadow-card outline-none',
+            'min-w-40 rounded-md border border-neutral-300 bg-popover p-1 shadow-card outline-none',
             className,
           )}
           {...props}
@@ -40,7 +40,7 @@ function MenuItem({ className, ...props }: MenuPrimitive.Item.Props) {
     <MenuPrimitive.Item
       data-slot="menu-item"
       className={cn(
-        'flex cursor-default items-center gap-2 rounded-2 px-3 py-2 text-[14px]/6 text-neutral-1000 outline-none data-[highlighted]:bg-blue-10',
+        'flex cursor-default items-center gap-2 rounded-2 px-3 py-2 text-[14px]/6 text-neutral-1000 outline-none data-highlighted:bg-blue-10',
         className,
       )}
       {...props}
@@ -60,14 +60,14 @@ function MenuCheckboxItem({ className, children, ...props }: MenuPrimitive.Check
     <MenuPrimitive.CheckboxItem
       data-slot="menu-checkbox-item"
       className={cn(
-        'flex cursor-default items-center gap-2 rounded-2 px-3 py-2 text-[14px]/6 text-neutral-1000 outline-none data-[highlighted]:bg-blue-10',
+        'flex cursor-default items-center gap-2 rounded-2 px-3 py-2 text-[14px]/6 text-neutral-1000 outline-none data-highlighted:bg-blue-10',
         className,
       )}
       {...props}
     >
       <MenuPrimitive.CheckboxItemIndicator
         keepMounted
-        className="flex size-4 shrink-0 items-center justify-center data-[unchecked]:invisible"
+        className="flex size-4 shrink-0 items-center justify-center data-unchecked:invisible"
       >
         <Check className="size-4 text-blue-400" />
       </MenuPrimitive.CheckboxItemIndicator>

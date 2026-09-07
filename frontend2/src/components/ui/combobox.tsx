@@ -60,7 +60,7 @@ function PopupContent<T>({
   return (
     <ComboboxPrimitive.Portal>
       <ComboboxPrimitive.Positioner sideOffset={4} className="z-50">
-        <ComboboxPrimitive.Popup className="max-h-[240px] w-[var(--anchor-width)] overflow-y-auto rounded-md border border-neutral-300 bg-popover p-1 shadow-card outline-none">
+        <ComboboxPrimitive.Popup className="max-h-60 w-(--anchor-width) overflow-y-auto rounded-md border border-neutral-300 bg-popover p-1 shadow-card outline-none">
           {/*
             Status is Base UI's live region for the state of an asynchronously loaded
             list. Same rule as Empty below: keep it mounted, vary its children.
@@ -94,7 +94,7 @@ function PopupContent<T>({
                 key={itemToKey(item)}
                 value={item}
                 className={cn(
-                  'cursor-default rounded-2 px-3 py-2 outline-none data-[highlighted]:bg-blue-10',
+                  'cursor-default rounded-2 px-3 py-2 outline-none data-highlighted:bg-blue-10',
                   SIZE_TEXT[size],
                 )}
               >
@@ -410,7 +410,7 @@ function MultiCombobox<T = string>({
         {value.map((item) => (
           <ComboboxPrimitive.Chip
             key={itemToKey(item)}
-            className="flex items-center gap-1 rounded-md bg-blue-10 py-0.5 pr-1 pl-2 text-[12px]/5 text-neutral-1000 outline-none data-[highlighted]:ring-3 data-[highlighted]:ring-ring/50"
+            className="flex items-center gap-1 rounded-md bg-blue-10 py-0.5 pr-1 pl-2 text-[12px]/5 text-neutral-1000 outline-none data-highlighted:ring-3 data-highlighted:ring-ring/50"
           >
             {itemToLabel(item)}
             {/*

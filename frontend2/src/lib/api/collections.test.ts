@@ -1,6 +1,7 @@
-import { describe, expect, it } from 'vitest';
+import { act, renderHook } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { collectionQueryString, getNextPageParam } from '@/lib/api/collections';
+import { collectionQueryString, getNextPageParam, useSettledSearch } from '@/lib/api/collections';
 
 import type { Page } from '@/lib/types/common.ts';
 
@@ -37,5 +38,33 @@ describe('getNextPageParam', () => {
 
   it('returns undefined when there are no results at all', () => {
     expect(getNextPageParam(page(0, 0))).toBeUndefined();
+  });
+});
+
+describe('useSettledSearch', () => {
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => vi.useRealTimers());
+
+  function setup(initial: string) {
+    return renderHook(({ search }: { search: string }) => useSettledSearch(search), {
+      initialProps: { search: initial },
+    });
+  }
+
+  it('holds a typed term back until it stops changing', () => {
+    const view = setup('');
+
+    view.rerender({ search: 'k' });
+    expect(view.result.current).toBe(false);
+
+    act(() => void vi.advanceTimersByTime(300));
+    expect(view.result.current).toBe(true);
+  });
+
+  it('lets a cleared term through at once, since clearing is a gesture rather than typing', () => {
+    const view = setup('kin');
+
+    view.rerender({ search: '' });
+    expect(view.result.current).toBe(true);
   });
 });
