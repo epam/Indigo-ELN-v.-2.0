@@ -2,12 +2,11 @@ import { Bookmark, ChevronDown, ChevronRight, Plus } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 import { ApiImage } from '@/components/common/api-image';
-import { resultCountLabel } from '@/components/experiments/samples/result-count';
-import { sampleRowKey } from '@/components/experiments/samples/sample-row-key';
 import { EmptyCell, FormulaCell, IconActionCell, ReadonlyCell } from '@/components/experiments/stoichiometry/cells';
 import { CELL_CLASS, HEADER_CELL_CLASS } from '@/components/experiments/stoichiometry/columns';
 import { Skeleton } from '@/components/ui/skeleton';
 import { samplePicturePath, useMarkSample, useSampleSearch } from '@/lib/api/samples';
+import { resultCountLabel, sampleRowKey } from '@/lib/search';
 import { describeError } from '@/lib/toast';
 import { cn } from '@/lib/utils';
 
@@ -122,7 +121,7 @@ export function SampleResults({
         <colgroup>
           {/* Chevron, and the two icon buttons: an icon, its padding, and the cell's own. */}
           <col className="w-11" />
-          <col className="w-[150px]" />
+          <col className="w-37.5" />
           <col />
           <col className="w-24" />
           <col className="w-32" />

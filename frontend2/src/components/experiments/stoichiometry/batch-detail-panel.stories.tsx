@@ -2,14 +2,14 @@ import { http, HttpResponse } from 'msw';
 import { expect, screen, userEvent, waitFor, within } from 'storybook/test';
 
 import { BatchDetailPanel } from '@/components/experiments/stoichiometry/batch-detail-panel';
-import { useStoichiometryMutations } from '@/components/experiments/stoichiometry/use-stoichiometry-mutations';
+import { useStoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import { useExperiment } from '@/lib/api/experiments';
 import { canEditExperiment } from '@/lib/types/experiments.ts';
 import { DICTIONARIES, makeExperimentDetails, makeReactionOutput, makeReactionOutputSample } from '@/mocks/fixtures';
 import { handlers, slowMutateHandlers } from '@/mocks/handlers';
 
 import type { BatchRow } from '@/components/experiments/stoichiometry/batch-columns';
-import type { StoichiometryMutations } from '@/components/experiments/stoichiometry/use-stoichiometry-mutations';
+import type { StoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const EXPERIMENT = makeExperimentDetails();

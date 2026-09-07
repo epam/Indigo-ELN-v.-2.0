@@ -155,7 +155,20 @@ Two orderings matter, both pinned by `query-persistence.test.tsx`:
 signed-in user still looks restored, and signed out it is trivially false — a stored
 boolean left true would hold every query in the app pending forever.
 
-Data hooks live in `src/lib/api/` (one file per domain: `user.ts`, `projects.ts`, `experiments.ts`).
+**Every custom hook lives under `src/lib/`, none under `src/components/`.** Three tiers, and
+which one a hook belongs in is decided by what it knows, not by who calls it:
+
+| Tier | Holds | Examples |
+|---|---|---|
+| `src/lib/api/<domain>.ts` | anything that talks to the server — one file per domain, hooks beside their fetchers and query keys | `useProjects`, `useMutateExperimentModel` |
+| `src/lib/hooks/` | domain-agnostic React/DOM utilities; nothing here knows what an experiment is | `useSettled`, `useDelayedFlag`, `useInViewport`, `useDownload` |
+| `src/lib/hooks/<domain>/` | hooks that know the domain but hold **UI state** rather than transport — a busy-cell set, an `addingRows` set — and compose the api hooks | `useAddSample`, `useStoichiometryMutations`, `useReactionStep` |
+
+The third tier is the one that keeps drifting back into the components tree, because each of its
+hooks has one feature folder it serves. It stays out for two reasons: a hook is then always at a
+predictable address, and `src/lib/` never imports from `src/components/` — the dependency runs one
+way only, and putting a hook that composes `useMutateExperimentModel` next to the dialog that uses
+it would be the first edge pointing back.
 
 **A module exports its `useXxx` hooks and nothing else, unless something outside it genuinely
 needs more.** Raw fetch functions, query-key factories and debounce constants stay
@@ -163,8 +176,8 @@ module-private — an exported `fetchProjects` is an invitation for a component 
 cache. Three narrow exceptions, each worth stating because they look like oversights:
 
 - Non-hook calls a component really makes: `experimentPicturePath`, `checkProjectNameExists`
-  (a form validator, not a query), `downloadProjectAttachment` (a click handler), and the two
-  `*_PAGE_SIZE` constants that feed `InfiniteLoader`'s `firstLoadSkeletons`.
+  (a form validator, not a query), and the two `*_PAGE_SIZE` constants that feed
+  `InfiniteLoader`'s `firstLoadSkeletons`.
 - `experimentKeys` and `userKeys`, which `src/lib/query-client.ts` hashes to decide what gets
   persisted to localStorage.
 - What `collections.ts` shares between sibling api modules.
@@ -181,7 +194,19 @@ a generic `getNextPageParam`, and `SEARCH_DEBOUNCE_MS`. `/projects` and
 pageNo, pageSize)` builds both from one `CollectionFilters` (`search`, `sort`, `createdByMe` — the
 three `ActionBar` sets). `pageSize` is required rather than defaulted: the two lists agree on 10
 today, and a shared default would tie them together for no reason. The debounce constant lives
-here rather than on either list, so neither has to import it from the other.
+here rather than on either list, so neither has to import it from the other, as does
+`SUGGEST_DEBOUNCE_MS` — the same 300 ms for the three typeahead lookups (keywords, users,
+experiment references), which used to be declared once in each of their files.
+
+`src/lib/api/entity-writes.ts` is its counterpart for detail entities. A project, notebook and
+experiment each expose `{base}/{id}/attachments` and `{base}/{id}/access`, identically, so
+`useEntityAttachments` and `useUpdateEntityAccess` hold the upload loop, the delete filter, the
+ACL mutation and the cache patch once; each domain module supplies an `EntityWriteTarget`
+(`basePath`, `detailKey`, and optional `writeOptions`) and keeps its public `use*Attachments` /
+`useUpdate*Access` name as a one-line delegate, so no call site knows the difference. Only the
+experiment target sets `writeOptions`: both of its sub-resources go through `applyMutation` on
+the backend, so they bump `revision` like a field edit and must carry `experimentWrite`'s scope
+to queue behind the on-blur saves rather than race them.
 
 **Debouncing a search query — debounce `enabled`, not the term.** `useKeywordSuggestions` (`src/lib/api/projects.ts`) keys on the term *as typed* and holds `enabled` off via `useSettled` (`src/lib/hooks/use-settled.ts`) until it stops changing. Because the key moves on the first keystroke, **`isPending`** is then a single honest "we don't know yet" covering both the wait and the request — which is what the combobox's `loading` prop wants. Two traps:
 
@@ -269,13 +294,14 @@ RXN on it. See below.
 ### Catalog search — the shared half
 
 Two sheets search `/samples/search` and put what they find into the reaction model, so what they
-have in common lives in `src/components/experiments/samples/`:
+have in common is split by the tiers above — the table in `src/components/experiments/samples/`,
+the write in `src/lib/hooks/experiments/`, the two pure helpers in `src/lib/`:
 
 | Module | Role |
 |---|---|
 | `sample-results.tsx` | the result table: seven columns, a chevron detail, a My Materials bookmark and a green Add per row, cursor-paged by an `IntersectionObserver` sentinel |
-| `use-add-sample.ts` | the two-step write — register the hit if it has no id, then run the mutation the caller builds from that id — plus `addingRows` |
-| `result-count.ts`, `sample-row-key.ts` | how a count is worded, and what identifies a row |
+| `@/lib/hooks/experiments/use-add-sample.ts` | the two-step write — register the hit if it has no id, then run the mutation the caller builds from that id — plus `addingRows` |
+| `@/lib/search.ts` | how a count is worded, and what identifies a row |
 
 `SampleResults` knows neither the question nor the answer: the caller passes a whole
 `FindSamplesRequest` (which is the query key, so changing it *is* the refetch) and an `onAdd`.

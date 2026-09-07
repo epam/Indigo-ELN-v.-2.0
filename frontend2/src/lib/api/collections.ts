@@ -31,3 +31,10 @@ export function getNextPageParam<T>(lastPage: Page<T>): number | undefined {
  * The debounce gates `enabled` while the key tracks the term as typed — see `useProjects`.
  */
 export const SEARCH_DEBOUNCE_MS = 300;
+
+/**
+ * How long a typeahead has to settle before its lookup runs — the suggestion endpoints'
+ * counterpart to `SEARCH_DEBOUNCE_MS`, shared by keywords, users and experiment references so the
+ * three do not drift.
+ */
+export const SUGGEST_DEBOUNCE_MS = 300;

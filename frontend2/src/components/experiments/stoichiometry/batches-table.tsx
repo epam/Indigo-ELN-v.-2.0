@@ -13,8 +13,8 @@ import {
 } from '@/components/experiments/stoichiometry/cells';
 import { CELL_CLASS, HEADER_CELL_CLASS } from '@/components/experiments/stoichiometry/columns';
 import { NumericCell } from '@/components/experiments/stoichiometry/numeric-cell';
-import type { StoichiometryMutations } from '@/components/experiments/stoichiometry/use-stoichiometry-mutations';
-import { cellId, useStoichiometryMutations } from '@/components/experiments/stoichiometry/use-stoichiometry-mutations';
+import type { StoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
+import { cellId, useStoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import { Button } from '@/components/ui/button';
 import { SearchInput } from '@/components/ui/search-input';
 import { useExportSdf, useImportSdf } from '@/lib/api/experiments';

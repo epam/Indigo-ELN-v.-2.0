@@ -1,10 +1,11 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { apiDownload, apiFetch } from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 import { collectionQueryString, getNextPageParam, SEARCH_DEBOUNCE_MS } from '@/lib/api/collections';
+import { useEntityAttachments, useUpdateEntityAccess } from '@/lib/api/entity-writes';
 import { projectKeys } from '@/lib/api/projects';
 import { useSettled } from '@/lib/hooks/use-settled';
-import type { AccessForm, ACLEntry, Attachment, CollectionFilters, Page } from '@/lib/types/common.ts';
+import type { CollectionFilters, Page } from '@/lib/types/common.ts';
 import type { Notebook, NotebookDetails, NotebookEditRequest, NotebookRequest } from '@/lib/types/notebooks.ts';
 
 export const NOTEBOOKS_PAGE_SIZE = 10;
@@ -41,6 +42,9 @@ export const notebookKeys = {
   // number, so it must not be swept up by — and refetched from — the list invalidation.
   nextNumber: () => ['notebookNextNumber'] as const,
 };
+
+/** Attachments and ACL, which every detail entity handles the same way. */
+const NOTEBOOK_WRITES = { basePath: '/api/eln/notebooks', detailKey: notebookKeys.detail };
 
 /** See `useProjects` — the debounce gates `enabled` so `isPending` covers the wait too. */
 export function useProjectNotebooks(projectId: string, filters: CollectionFilters) {
@@ -154,101 +158,15 @@ export function useCreateNotebook(projectId: string) {
   });
 }
 
-/** Returns the notebook's full attachment list, not just the new entries. */
-function uploadNotebookAttachment(id: string, file: File): Promise<Attachment[]> {
-  const body = new FormData();
-  body.append('file', file, file.name);
-  return apiFetch<Attachment[]>(`/api/eln/notebooks/${id}/attachments`, { method: 'POST', body });
-}
-
-function deleteNotebookAttachment(id: string, attachmentId: string): Promise<void> {
-  return apiFetch<void>(`/api/eln/notebooks/${id}/attachments/${attachmentId}`, { method: 'DELETE' });
-}
-
 /**
- * Saves the attachment to disk. The endpoint sets `Content-Disposition` from the same name the
- * DTO carries, so the fallback matters only if that header is ever stripped in transit.
- */
-function downloadNotebookAttachment(id: string, attachmentId: string, fallbackFilename: string): Promise<void> {
-  return apiDownload(`/api/eln/notebooks/${id}/attachments/${attachmentId}`, fallbackFilename);
-}
-
-/** Patches one field of the cached detail, leaving the rest of the notebook untouched. */
-function patchNotebookDetails(
-  queryClient: ReturnType<typeof useQueryClient>,
-  id: string,
-  patch: (notebook: NotebookDetails) => NotebookDetails,
-) {
-  queryClient.setQueryData<NotebookDetails>(notebookKeys.detail(id), (notebook) =>
-    notebook ? patch(notebook) : notebook,
-  );
-}
-
-/**
- * Files are uploaded one at a time: the endpoint takes a single `file` part, and each response
- * carries the full list, so a parallel upload would race and the last response home would drop
- * the others. `attachments` is read from the final response rather than accumulated.
- */
-function useUploadNotebookAttachments(id: string) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (files: File[]) => {
-      let attachments: Attachment[] = [];
-      for (const file of files) {
-        attachments = await uploadNotebookAttachment(id, file);
-      }
-      return attachments;
-    },
-    onSuccess: (attachments) => patchNotebookDetails(queryClient, id, (notebook) => ({ ...notebook, attachments })),
-  });
-}
-
-function useDeleteNotebookAttachment(id: string) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (attachmentId: string) => deleteNotebookAttachment(id, attachmentId),
-    onSuccess: (_result, attachmentId) =>
-      patchNotebookDetails(queryClient, id, (notebook) => ({
-        ...notebook,
-        attachments: notebook.attachments.filter((attachment) => attachment.id !== attachmentId),
-      })),
-  });
-}
-
-/**
- * The three calls `AttachmentList` needs, bound to one notebook — the notebook half of
- * `useProjectAttachments`. The endpoints are identical bar the prefix.
+ * The notebook's half of `useEntityAttachments` and `useUpdateEntityAccess`. Both sub-resources
+ * are identical to the project's bar the prefix, so everything but the target lives in
+ * `entity-writes.ts`.
  */
 export function useNotebookAttachments(id: string) {
-  const upload = useUploadNotebookAttachments(id);
-  const remove = useDeleteNotebookAttachment(id);
-
-  return {
-    upload,
-    remove,
-    download: (attachment: Attachment) => downloadNotebookAttachment(id, attachment.id, attachment.name),
-  };
+  return useEntityAttachments<NotebookDetails>(NOTEBOOK_WRITES, id);
 }
 
-function updateNotebookAccess(id: string, updates: AccessForm[]): Promise<ACLEntry[]> {
-  return apiFetch<ACLEntry[]>(`/api/eln/notebooks/${id}/access`, {
-    method: 'POST',
-    body: JSON.stringify(updates),
-  });
-}
-
-/**
- * `ACLService.updateNotebookACL` upserts entry by entry, so only what changed needs sending.
- * The response is the recomputed ACL for the whole notebook — inherited entries included — so
- * it replaces `acl` wholesale rather than being merged in.
- */
 export function useUpdateNotebookAccess(id: string) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (updates: AccessForm[]) => updateNotebookAccess(id, updates),
-    onSuccess: (acl) => patchNotebookDetails(queryClient, id, (notebook) => ({ ...notebook, acl })),
-  });
+  return useUpdateEntityAccess<NotebookDetails>(NOTEBOOK_WRITES, id);
 }

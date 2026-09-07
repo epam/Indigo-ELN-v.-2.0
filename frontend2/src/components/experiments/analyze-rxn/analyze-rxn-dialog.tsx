@@ -1,12 +1,12 @@
 import { Check } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
-import { useResolveInput } from '@/components/experiments/analyze-rxn/use-resolve-input';
 import { SampleResults } from '@/components/experiments/samples/sample-results';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent } from '@/components/ui/dialog';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Tabs, TabsList, TabsPanel, TabsTab } from '@/components/ui/tabs';
+import { useResolveInput } from '@/lib/hooks/experiments/use-resolve-input';
 import { getAllInputSampleIds } from '@/lib/reactions';
 
 import type { UUID } from '@/lib/types/common.ts';

@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { apiFetch } from '@/lib/api';
+import { SUGGEST_DEBOUNCE_MS } from '@/lib/api/collections';
 import { useSettled } from '@/lib/hooks/use-settled';
 import type { UserRef } from '@/lib/types/common.ts';
 import type { ApplicationPermission, CurrentUser } from '@/lib/types/user';
@@ -45,8 +46,6 @@ export function useHasPermission(permission: ApplicationPermission): boolean | u
 function suggestUsers(search: string, signal?: AbortSignal): Promise<UserRef[]> {
   return apiFetch<UserRef[]>(`/api/eln/users/suggest?search=${encodeURIComponent(search)}`, { signal });
 }
-
-const SUGGEST_DEBOUNCE_MS = 300;
 
 /**
  * Same shape as useKeywordSuggestions: the key tracks the term as typed and the debounce

@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { useAddSample } from '@/components/experiments/samples/use-add-sample';
+import { useAddSample } from '@/lib/hooks/experiments/use-add-sample';
 import { notifyInfo } from '@/lib/toast';
 
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';

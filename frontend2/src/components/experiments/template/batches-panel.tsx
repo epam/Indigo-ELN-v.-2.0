@@ -1,6 +1,6 @@
 import { ProductBatchSummaryTable } from '@/components/experiments/stoichiometry/batches-table';
 import { CollapsibleCard } from '@/components/common/collapsible-card';
-import { useReactionStep } from '@/lib/hooks/use-reaction-step';
+import { useReactionStep } from '@/lib/hooks/experiments/use-reaction-step';
 
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
 

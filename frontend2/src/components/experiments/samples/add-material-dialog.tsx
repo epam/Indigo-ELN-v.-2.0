@@ -13,11 +13,11 @@ import {
 } from '@/components/experiments/samples/add-material-form';
 import { MaterialAdvancedSearch } from '@/components/experiments/samples/material-advanced-search';
 import { SampleResults } from '@/components/experiments/samples/sample-results';
-import { useAddMaterial } from '@/components/experiments/samples/use-add-material';
 import { STRUCTURE_TYPE_LABELS } from '@/components/search/global-search-form';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent } from '@/components/ui/dialog';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { useAddMaterial } from '@/lib/hooks/experiments/use-add-material';
 import { getAllInputSampleIds } from '@/lib/reactions';
 import { notifyError } from '@/lib/toast';
 

@@ -12,8 +12,8 @@ import { CELL_CLASS, HEADER_CELL_CLASS } from '@/components/experiments/stoichio
 import { NumericCell } from '@/components/experiments/stoichiometry/numeric-cell';
 import type { ProductColumn, ProductRow } from '@/components/experiments/stoichiometry/product-columns';
 import { OUTPUT_TYPES, PRODUCT_COLUMNS, productHaystack } from '@/components/experiments/stoichiometry/product-columns';
-import type { StoichiometryMutations } from '@/components/experiments/stoichiometry/use-stoichiometry-mutations';
-import { cellId, useStoichiometryMutations } from '@/components/experiments/stoichiometry/use-stoichiometry-mutations';
+import type { StoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
+import { cellId, useStoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import { SearchInput } from '@/components/ui/search-input';
 import { Switch } from '@/components/ui/switch';
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';

@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react';
 
-import { sampleRowKey } from '@/components/experiments/samples/sample-row-key';
 import { useMutateExperimentModel } from '@/lib/api/experiments';
 import { useImportSample } from '@/lib/api/samples';
+import { sampleRowKey } from '@/lib/search';
 
 import type { UUID } from '@/lib/types/common.ts';
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';

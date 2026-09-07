@@ -2,14 +2,20 @@ import { useInfiniteQuery, useIsMutating, useMutation, useQuery, useQueryClient 
 import type { QueryClient } from '@tanstack/react-query';
 
 import { apiDownload, apiFetch } from '@/lib/api';
-import { collectionQueryString, getNextPageParam, SEARCH_DEBOUNCE_MS } from '@/lib/api/collections';
+import {
+  collectionQueryString,
+  getNextPageParam,
+  SEARCH_DEBOUNCE_MS,
+  SUGGEST_DEBOUNCE_MS,
+} from '@/lib/api/collections';
+import { useEntityAttachments, useUpdateEntityAccess } from '@/lib/api/entity-writes';
 import { notebookKeys } from '@/lib/api/notebooks';
 import { projectKeys } from '@/lib/api/projects';
 import { useDownload } from '@/lib/hooks/use-download';
 import { useSettled } from '@/lib/hooks/use-settled';
 import { JSON_PATCHER } from '@/lib/json-patcher';
 import { notifyInfo } from '@/lib/toast';
-import type { AccessForm, ACLEntry, Attachment, Page } from '@/lib/types/common.ts';
+import type { Page } from '@/lib/types/common.ts';
 import type {
   Experiment,
   ExperimentDetails,
@@ -43,6 +49,16 @@ export const experimentKeys = {
     ['experiments', 'notebook', notebookId, filters] as const,
   detail: (id: string) => ['experimentDetails', id] as const,
   suggestions: (search: string) => ['experimentSuggestions', search] as const,
+};
+
+/**
+ * Attachments and ACL, which every detail entity handles the same way — except that both of the
+ * experiment's go through `applyMutation` on the backend, so they carry the write scope.
+ */
+const EXPERIMENT_WRITES = {
+  basePath: '/api/eln/experiments',
+  detailKey: experimentKeys.detail,
+  writeOptions: experimentWrite,
 };
 
 /**
@@ -301,103 +317,27 @@ export function useExportSdf(id: string) {
   };
 }
 
-/** Returns the experiment's full attachment list, not just the new entries. */
-function uploadExperimentAttachment(id: string, file: File): Promise<Attachment[]> {
-  const body = new FormData();
-  body.append('file', file, file.name);
-  return apiFetch<Attachment[]>(`/api/eln/experiments/${id}/attachments`, { method: 'POST', body });
-}
-
-function deleteExperimentAttachment(id: string, attachmentId: string): Promise<void> {
-  return apiFetch<void>(`/api/eln/experiments/${id}/attachments/${attachmentId}`, { method: 'DELETE' });
-}
-
-/** See `useNotebookAttachments` — the endpoints are identical bar the prefix. */
-function useUploadExperimentAttachments(id: string) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    ...experimentWrite(id),
-    // One at a time within this mutation too: the endpoint takes a single `file` part and each
-    // response carries the full list, so parallel uploads would race and the last one home would
-    // drop the others. The scope above serialises it against *other* writes; this loop serialises
-    // the files of one upload against each other.
-    mutationFn: async (files: File[]) => {
-      let attachments: Attachment[] = [];
-      for (const file of files) {
-        attachments = await uploadExperimentAttachment(id, file);
-      }
-      return attachments;
-    },
-    onSuccess: (attachments) =>
-      patchExperimentDetails(queryClient, id, (experiment) => ({ ...experiment, attachments })),
-  });
-}
-
-function useDeleteExperimentAttachment(id: string) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    ...experimentWrite(id),
-    mutationFn: (attachmentId: string) => deleteExperimentAttachment(id, attachmentId),
-    onSuccess: (_result, attachmentId) =>
-      patchExperimentDetails(queryClient, id, (experiment) => ({
-        ...experiment,
-        attachments: experiment.attachments.filter((attachment) => attachment.id !== attachmentId),
-      })),
-  });
-}
-
-function updateExperimentAccess(id: string, updates: AccessForm[]): Promise<ACLEntry[]> {
-  return apiFetch<ACLEntry[]>(`/api/eln/experiments/${id}/access`, {
-    method: 'POST',
-    body: JSON.stringify(updates),
-  });
+/**
+ * The experiment's half of `useEntityAttachments`. The endpoints are identical to the project's
+ * and notebook's bar the prefix, so everything but the target lives in `entity-writes.ts`.
+ */
+export function useExperimentAttachments(id: string) {
+  return useEntityAttachments<ExperimentDetails>(EXPERIMENT_WRITES, id);
 }
 
 /**
- * The experiment half of `useUpdateNotebookAccess`: only what changed needs sending, and the
- * response is the recomputed ACL for the whole experiment — inherited entries included — so it
- * replaces `acl` wholesale rather than being merged in.
- *
- * The Team surfaces read `ExperimentDetails.acl` and nothing else — `ExperimentDTO.acl` is
- * `shortACL`, capped at three, and an experiment opened by direct link has no list loaded at all.
- * So the detail is the one copy that has to be written, and the response is written into it
- * verbatim.
- *
- * Unlike the project and notebook versions this carries `experimentWrite`'s key and scope.
- * `ExperimentService.updateExperimentAccess` runs the change through `applyMutation`, so it bumps
- * `revision` exactly like a field edit does and must queue behind the on-blur writes rather than
- * race them.
+ * Unlike the project and notebook versions this carries `experimentWrite`'s key and scope, via
+ * `EXPERIMENT_WRITES.writeOptions`. `ExperimentService.updateExperimentAccess` runs the change
+ * through `applyMutation`, so it bumps `revision` exactly like a field edit does and must queue
+ * behind the on-blur writes rather than race them.
  */
 export function useUpdateExperimentAccess(id: string) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    ...experimentWrite(id),
-    mutationFn: (updates: AccessForm[]) => updateExperimentAccess(id, updates),
-    onSuccess: (acl) => patchExperimentDetails(queryClient, id, (experiment) => ({ ...experiment, acl })),
-  });
-}
-
-/** The three calls `AttachmentList` needs, bound to one experiment. */
-export function useExperimentAttachments(id: string) {
-  const upload = useUploadExperimentAttachments(id);
-  const remove = useDeleteExperimentAttachment(id);
-
-  return {
-    upload,
-    remove,
-    download: (attachment: Attachment) =>
-      apiDownload(`/api/eln/experiments/${id}/attachments/${attachment.id}`, attachment.name),
-  };
+  return useUpdateEntityAccess<ExperimentDetails>(EXPERIMENT_WRITES, id);
 }
 
 function suggestExperiments(search: string, signal?: AbortSignal): Promise<ExperimentRef[]> {
   return apiFetch<ExperimentRef[]>(`/api/eln/experiments/suggest?search=${encodeURIComponent(search)}`, { signal });
 }
-
-const SUGGEST_DEBOUNCE_MS = 300;
 
 /**
  * Experiments to reference from another one. Same shape as `useUserSuggestions`: the key tracks

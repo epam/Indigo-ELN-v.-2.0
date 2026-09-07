@@ -1,9 +1,15 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { apiDownload, apiFetch } from '@/lib/api';
-import { collectionQueryString, getNextPageParam, SEARCH_DEBOUNCE_MS } from '@/lib/api/collections';
+import { apiFetch } from '@/lib/api';
+import {
+  collectionQueryString,
+  getNextPageParam,
+  SEARCH_DEBOUNCE_MS,
+  SUGGEST_DEBOUNCE_MS,
+} from '@/lib/api/collections';
+import { useEntityAttachments, useUpdateEntityAccess } from '@/lib/api/entity-writes';
 import { useSettled } from '@/lib/hooks/use-settled';
-import type { AccessForm, ACLEntry, Attachment, CollectionFilters, Page } from '@/lib/types/common.ts';
+import type { CollectionFilters, Page } from '@/lib/types/common.ts';
 import type { Project, ProjectDetails, ProjectEditRequest, ProjectRequest, TotalCounts } from '@/lib/types/projects.ts';
 
 export const PROJECTS_PAGE_SIZE = 10;
@@ -62,6 +68,9 @@ export const projectKeys = {
   keywordSuggestions: (search: string) => ['projectKeywords', search] as const,
 };
 
+/** Attachments and ACL, which every detail entity handles the same way. */
+const PROJECT_WRITES = { basePath: '/api/eln/projects', detailKey: projectKeys.detail };
+
 /**
  * Debounced by gating `enabled` while the key tracks the search term as typed, so
  * `isPending` spans both the wait and the request — InfiniteLoader then shows its skeletons
@@ -88,8 +97,6 @@ export function useTotalCounts() {
     queryFn: fetchTotalCounts,
   });
 }
-
-const SUGGEST_DEBOUNCE_MS = 300;
 
 /**
  * Keyword suggestions for the term as typed, debounced by holding `enabled` off until the
@@ -158,100 +165,15 @@ export function useEditProject(id: string) {
   });
 }
 
-/** Returns the project's full attachment list, not just the new entries. */
-function uploadProjectAttachment(id: string, file: File): Promise<Attachment[]> {
-  const body = new FormData();
-  body.append('file', file, file.name);
-  return apiFetch<Attachment[]>(`/api/eln/projects/${id}/attachments`, { method: 'POST', body });
-}
-
-function deleteProjectAttachment(id: string, attachmentId: string): Promise<void> {
-  return apiFetch<void>(`/api/eln/projects/${id}/attachments/${attachmentId}`, { method: 'DELETE' });
-}
-
 /**
- * Saves the attachment to disk. The endpoint sets `Content-Disposition` from the same name the
- * DTO carries, so the fallback matters only if that header is ever stripped in transit.
- */
-function downloadProjectAttachment(id: string, attachmentId: string, fallbackFilename: string): Promise<void> {
-  return apiDownload(`/api/eln/projects/${id}/attachments/${attachmentId}`, fallbackFilename);
-}
-
-/** Patches one field of the cached detail, leaving the rest of the project untouched. */
-function patchProjectDetails(
-  queryClient: ReturnType<typeof useQueryClient>,
-  id: string,
-  patch: (project: ProjectDetails) => ProjectDetails,
-) {
-  queryClient.setQueryData<ProjectDetails>(projectKeys.detail(id), (project) => (project ? patch(project) : project));
-}
-
-/**
- * Files are uploaded one at a time: the endpoint takes a single `file` part, and each response
- * carries the full list, so a parallel upload would race and the last response home would drop
- * the others. `attachments` is read from the final response rather than accumulated.
- */
-function useUploadAttachments(id: string) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (files: File[]) => {
-      let attachments: Attachment[] = [];
-      for (const file of files) {
-        attachments = await uploadProjectAttachment(id, file);
-      }
-      return attachments;
-    },
-    onSuccess: (attachments) => patchProjectDetails(queryClient, id, (project) => ({ ...project, attachments })),
-  });
-}
-
-function useDeleteAttachment(id: string) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (attachmentId: string) => deleteProjectAttachment(id, attachmentId),
-    onSuccess: (_result, attachmentId) =>
-      patchProjectDetails(queryClient, id, (project) => ({
-        ...project,
-        attachments: project.attachments.filter((attachment) => attachment.id !== attachmentId),
-      })),
-  });
-}
-
-/**
- * The three calls `AttachmentList` needs, bound to one project. Returned as a plain object so
- * the component stays ignorant of which entity it is attached to; the shape is checked
- * structurally against `AttachmentActions` where it is passed in.
+ * The project's half of `useEntityAttachments`. The endpoints are identical bar the prefix, so
+ * everything but the target lives in `entity-writes.ts`.
  */
 export function useProjectAttachments(id: string) {
-  const upload = useUploadAttachments(id);
-  const remove = useDeleteAttachment(id);
-
-  return {
-    upload,
-    remove,
-    download: (attachment: Attachment) => downloadProjectAttachment(id, attachment.id, attachment.name),
-  };
+  return useEntityAttachments<ProjectDetails>(PROJECT_WRITES, id);
 }
 
-function updateProjectAccess(id: string, updates: AccessForm[]): Promise<ACLEntry[]> {
-  return apiFetch<ACLEntry[]>(`/api/eln/projects/${id}/access`, {
-    method: 'POST',
-    body: JSON.stringify(updates),
-  });
-}
-
-/**
- * `ACLService.updateProjectACL` upserts entry by entry, so only what changed needs sending.
- * The response is the recomputed ACL for the whole project — inherited entries included — so
- * it replaces `acl` wholesale rather than being merged in.
- */
+/** See `useUpdateEntityAccess` — only what changed is sent, and the response replaces `acl`. */
 export function useUpdateProjectAccess(id: string) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (updates: AccessForm[]) => updateProjectAccess(id, updates),
-    onSuccess: (acl) => patchProjectDetails(queryClient, id, (project) => ({ ...project, acl })),
-  });
+  return useUpdateEntityAccess<ProjectDetails>(PROJECT_WRITES, id);
 }

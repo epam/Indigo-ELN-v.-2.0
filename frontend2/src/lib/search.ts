@@ -1,4 +1,12 @@
 /**
+ * What the sample-search result table needs to know that is not a query: how a count is worded,
+ * and what identifies a row. Both are about `/samples/search`, the one endpoint in the app that
+ * is not paged by `Page<T>` — see `src/lib/api/samples.ts` for the paging itself.
+ */
+
+import type { SampleDTO } from '@/lib/types/samples.ts';
+
+/**
  * What a tab's `(…)` says about how many hits its search found.
  *
  * `/samples/search` cannot always answer that. It walks several catalogs and sums their counts,
@@ -33,4 +41,15 @@ export function resultCountLabel({
   if (loading) return null;
   if (totalItems != null) return String(totalItems);
   return hasMore ? `${loaded}+` : String(loaded);
+}
+
+/**
+ * What identifies a result row for the purpose of showing a spinner on it.
+ *
+ * A PubChem hit has no `id` — that is the whole reason `importFromSearch` exists — so it is
+ * identified by the catalog that produced it plus that catalog's own key (the CID). Not by array
+ * index: a second page arriving renumbers nothing, but a row moving between tabs would.
+ */
+export function sampleRowKey(sample: SampleDTO): string {
+  return sample.id ?? `${sample.source}:${sample.compoundKey ?? sample.molFormula}`;
 }

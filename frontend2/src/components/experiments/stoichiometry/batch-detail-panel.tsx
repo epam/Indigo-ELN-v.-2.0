@@ -14,7 +14,7 @@ import {
 } from '@/components/experiments/stoichiometry/batch-detail';
 import { isSampleProtected } from '@/components/experiments/stoichiometry/batch-columns';
 import { unitLabel } from '@/components/experiments/stoichiometry/units';
-import { cellId } from '@/components/experiments/stoichiometry/use-stoichiometry-mutations';
+import { cellId } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import { Collapsible, CollapsiblePanel, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { MultiCombobox } from '@/components/ui/combobox';
 import { Field } from '@/components/ui/field';
@@ -23,7 +23,7 @@ import { useDictionary } from '@/lib/api/dictionaries';
 import { cn } from '@/lib/utils';
 
 import type { BatchRow } from '@/components/experiments/stoichiometry/batch-columns';
-import type { StoichiometryMutations } from '@/components/experiments/stoichiometry/use-stoichiometry-mutations';
+import type { StoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import type { BuiltInDictionary, DictionaryItemRef } from '@/lib/types/dictionaries.ts';
 import type { ModelMutation } from '@/lib/types/mutations.ts';
 import type { CompoundRef, EnteredValue, Reaction } from '@/lib/types/reactions.ts';
