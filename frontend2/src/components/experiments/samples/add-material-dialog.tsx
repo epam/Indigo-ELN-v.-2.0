@@ -3,11 +3,12 @@ import type { FormEvent } from 'react';
 import { useCallback, useMemo, useState } from 'react';
 
 import { SchemeEditor } from '@/components/chemistry/scheme-editor';
-import { boundSampleIds } from '@/components/experiments/analyze-rxn/use-resolve-input';
+import type { StructureEditorResult } from '@/components/chemistry/structure-editor-dialog';
 import type { AddMaterialFormValues } from '@/components/experiments/samples/add-material-form';
 import {
   EMPTY_ADD_MATERIAL_FORM,
   isEmpty,
+  REACTION_NOT_SEARCHABLE,
   toFindSamplesRequest,
 } from '@/components/experiments/samples/add-material-form';
 import { MaterialAdvancedSearch } from '@/components/experiments/samples/material-advanced-search';
@@ -17,6 +18,8 @@ import { STRUCTURE_TYPE_LABELS } from '@/components/search/global-search-form';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent } from '@/components/ui/dialog';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { getAllInputSampleIds } from '@/lib/reactions';
+import { notifyError } from '@/lib/toast';
 
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
 import type { Reaction } from '@/lib/types/reactions.ts';
@@ -71,13 +74,27 @@ export function AddMaterialDialog({
   const [count, setCount] = useState<string | null>(null);
 
   const addMaterial = useAddMaterial(experiment, reaction);
-  const boundSamples = useMemo(() => boundSampleIds(reaction), [reaction]);
+  const boundSamples = useMemo(() => getAllInputSampleIds(reaction), [reaction]);
   // `SampleResults` reports through this on every count change, so it has to keep its identity
   // or the effect behind it would loop.
   const handleCountChange = useCallback((next: string | null) => setCount(next), []);
 
   function patch(next: Partial<AddMaterialFormValues>) {
     setValues((previous) => ({ ...previous, ...next }));
+  }
+
+  /**
+   * Takes the drawing, or refuses it. Throwing is what holds the sketcher open with the drawing
+   * intact — `StructureEditorDialog` swallows a rejection from `onSave` on the grounds that
+   * whoever rejected has already reported it, which is what the toast above is for.
+   */
+  function handleStructure(next: StructureEditorResult | null) {
+    if (next?.isReaction) {
+      const error = new Error(REACTION_NOT_SEARCHABLE);
+      notifyError(error);
+      throw error;
+    }
+    patch({ structure: next?.structure ?? null });
   }
 
   function handleSubmit(event: FormEvent) {
@@ -96,7 +113,18 @@ export function AddMaterialDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={onOpenChange}
+      /* Reset after the exit transition rather than during it, so the form is never seen
+         emptying as the sheet slides out. The sheet is mounted permanently — that is what lets
+         it slide out at all — so without this it would keep the last visit's search forever. */
+      onOpenChangeComplete={(nextOpen) => {
+        if (nextOpen) return;
+        clearAll();
+        setAdvancedOpen(false);
+      }}
+    >
       <DialogContent
         title="Add Material"
         side="right"
@@ -158,9 +186,9 @@ export function AddMaterialDialog({
             )}
           </div>
 
-          {/* A catalog holds compounds, so a drawn reaction has nothing to match; `isReaction`
-              is dropped rather than routed anywhere, as `toFindSamplesRequest` explains. */}
-          <SchemeEditor value={values.structure} onChange={(next) => patch({ structure: next?.structure ?? null })} />
+          {/* A catalog holds compounds, so a drawn reaction is refused rather than searched
+              for — see `handleStructure`. */}
+          <SchemeEditor value={values.structure} onChange={handleStructure} />
 
           <MaterialAdvancedSearch
             key={generation}

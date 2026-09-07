@@ -194,6 +194,26 @@ describe('AddMaterialDialog', () => {
     );
   });
 
+  /**
+   * The sheet is mounted for the life of the page — that is what lets it slide out — so a reset
+   * on close is the only thing between a visit and the last one's search. It runs on
+   * `onOpenChangeComplete`, after the exit transition, which jsdom finishes immediately.
+   */
+  it('resets when the sheet is closed and opened again', async () => {
+    const { rerender } = renderDialog();
+    await search();
+    await screen.findByText('Acetylsalicylic acid');
+
+    rerender(<AddMaterialDialog open={false} onOpenChange={() => {}} experiment={EXPERIMENT} reaction={REACTION} />);
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+
+    rerender(<AddMaterialDialog open onOpenChange={() => {}} experiment={EXPERIMENT} reaction={REACTION} />);
+
+    expect(await screen.findByRole('searchbox', { name: 'Quick search' })).toHaveValue('');
+    expect(screen.queryByText('Acetylsalicylic acid')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Search' })).toBeDisabled();
+  });
+
   it('clears the form and the results', async () => {
     renderDialog();
     await search();

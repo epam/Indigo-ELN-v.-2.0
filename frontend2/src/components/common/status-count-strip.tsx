@@ -15,7 +15,7 @@ const FALLBACK_STATUS: ExperimentStatus = 'OPEN';
 
 function Cell({ status, children }: { status: ExperimentStatus; children: ReactNode }) {
   return (
-    <div className="-mr-px flex w-[100px] shrink-0 flex-col gap-1 border-r border-neutral-300 bg-card px-3 py-2 last:border-r-0">
+    <div className="-mr-px flex w-25 shrink-0 flex-col gap-1 border-neutral-300 bg-card px-3 py-2 not-last:border-r">
       {children}
       <span className="truncate text-[14px]/6 text-neutral-1000">{EXPERIMENT_STATUS_DISPLAY[status]}</span>
     </div>

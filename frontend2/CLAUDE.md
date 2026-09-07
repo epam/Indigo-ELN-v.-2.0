@@ -304,8 +304,8 @@ Three properties hold for both:
   `useAddSample.run` resolves to whether it worked rather than letting the caller assume.
 
 The Add button on a row is disabled when the step already holds that sample
-(`boundSampleIds(reaction)`), which is read off the model rather than remembered — so it is still
-right after a reopen.
+(`getAllInputSampleIds(reaction)`, in `src/lib/reactions.ts`), which is read off the model rather
+than remembered — so it is still right after a reopen.
 
 ### Analyze RXN
 
@@ -325,7 +325,7 @@ Two things beyond the shared half are worth knowing before changing it:
   tab's `(count)` appears only once it has been opened. Each tab's request and its count callback
   are memoized together in the dialog — a fresh identity for either on every render would restart
   the search and loop the effect that reports the count.
-- **The tab's resolved check is the narrower claim** than `boundSampleIds`, and is local state:
+- **The tab's resolved check is the narrower claim** than `getAllInputSampleIds`, and is local state:
   *this dialog* bound something to that input.
 
 ### Add Material
@@ -355,15 +355,18 @@ the values, the request, the summary. Four things are particular to it:
   the search rather than making it be retyped.
 - **External ID is `externalNumber`.** indigo-frontend's template binds that box to `chemicalName`
   by mistake; the backend filter it names is a separate one.
-- **A drawn reaction has nowhere to go.** `FindSamplesRequest` has one structure field and a
-  catalog holds compounds, so `SchemeEditor`'s `isReaction` flag is dropped rather than routed the
-  way Global Search routes it.
+- **A drawn reaction is refused, not dropped.** `FindSamplesRequest` has one structure field and
+  a catalog holds compounds, so there is nothing for a rxnfile to match — Global Search routes one
+  into `reactionStructure`, and there is no such field here. `handleStructure` therefore toasts
+  `REACTION_NOT_SEARCHABLE` and **throws**, which is the documented way to hold the sketcher open
+  with the drawing intact: `StructureEditorDialog` swallows a rejection from `onSave` on the
+  grounds that whoever rejected has already reported it. So `values.structure` is always a molfile.
 
 `StoichiometryTable` renders the sheet whether or not it is open — see the `DialogContent`
-notes below for why a sheet behind a `{open && …}` flag cannot slide out. The form therefore
-keeps what was typed into it between visits, which is the better behaviour anyway: a step
-usually gains several materials, and the search that found the last one is where the next is
-likely to be.
+notes below for why a sheet behind a `{open && …}` flag cannot slide out. The form is therefore
+reset explicitly, on Base UI's **`onOpenChangeComplete`** rather than on `onOpenChange`: after the
+exit transition, so nothing is seen emptying as the sheet slides out. Without it the sheet would
+keep the last visit's search forever, as a side effect of never unmounting.
 
 `TextSearchField` (`src/components/search/`) is the new control the grid needed — the sibling of
 `NumericSearchField`, emitting `null` until a box holds something, with `between` as the one
@@ -539,7 +542,14 @@ mutation lands, and leave the drawing in place if it fails. `StructureEditorDial
 therefore has two `try` blocks rather than one: a Ketcher failure gets `notifyError`, since
 nobody else reports it, while an `onSave` rejection is deliberately silent because `apiFetch`
 has already toasted it. Global Search returns nothing from `onChange`, so `await` resolves in a
-microtask and its sketcher closes immediately, exactly as before.
+microtask and its sketcher closes immediately, exactly as before. A caller that refuses a drawing
+for its own reasons uses the same channel — it toasts and throws, since the silent branch assumes
+the rejector spoke; Add Material does that for a reaction.
+
+**A canvas with no atoms never reaches `onSave`.** `handleSave` refuses it before it starts —
+`ketcher.editor.struct().atoms.size === 0`, which covers an empty save as well as a lone plus or
+arrow, none of which any caller could search for or store. `Struct.isBlank()` is deliberately not
+the check: it counts pluses and arrows as content, so a bare `+` is not blank by its reckoning.
 
 ### Storybook
 

@@ -32,9 +32,8 @@ export interface AddMaterialFormValues extends AddMaterialFilters {
   quickSearch: string;
   catalog: SampleCatalogFilter;
   /**
-   * A molfile. Ketcher can draw a reaction, but `FindSamplesRequest` has one structure field and
-   * a catalog holds compounds, so a rxnfile has nowhere to go — the sketcher's `isReaction` flag
-   * is not kept here and the field is offered as a molecule search.
+   * A molfile, always: the sketcher can draw a reaction, but one is refused on Save rather than
+   * stored here — see `REACTION_NOT_SEARCHABLE`.
    */
   structure: string | null;
   structureType: StructuralSearchType;
@@ -101,6 +100,13 @@ export const PUBCHEM_DISABLED_FILTERS: readonly MaterialFilter[] = [
 ];
 
 export const PUBCHEM_NOTICE = 'PubChem does not support fine-grained search. Use quick search instead';
+
+/**
+ * Why a drawn reaction is refused rather than searched for: `FindSamplesRequest` has one
+ * structure field and a catalog holds compounds, so there is nothing for a rxnfile to match.
+ * Global Search does route one, into `reactionStructure`; there is no such field here.
+ */
+export const REACTION_NOT_SEARCHABLE = 'Draw a single molecule, not a reaction';
 
 /** Whether one field is unavailable under the chosen catalog. */
 export function isFilterDisabled(catalog: SampleCatalogFilter, filter: MaterialFilter): boolean {

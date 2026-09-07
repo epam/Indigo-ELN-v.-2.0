@@ -1,12 +1,13 @@
 import { Check } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
-import { boundSampleIds, useResolveInput } from '@/components/experiments/analyze-rxn/use-resolve-input';
+import { useResolveInput } from '@/components/experiments/analyze-rxn/use-resolve-input';
 import { SampleResults } from '@/components/experiments/samples/sample-results';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent } from '@/components/ui/dialog';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Tabs, TabsList, TabsPanel, TabsTab } from '@/components/ui/tabs';
+import { getAllInputSampleIds } from '@/lib/reactions';
 
 import type { UUID } from '@/lib/types/common.ts';
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
@@ -15,13 +16,11 @@ import type { SampleCatalogFilter } from '@/lib/types/samples.ts';
 import { CATALOGS_BY_FILTER, SAMPLE_CATALOG_FILTER_LABELS, SAMPLE_CATALOG_FILTERS } from '@/lib/types/samples.ts';
 
 /**
- * What a `SetScheme` could not match: the reactants the user drew that no registered compound
- * corresponds to, and the offer to bind each one to a sample from a catalog.
- *
  * The backend answers a scheme edit with `unresolvedInputs` — input row anchor → the molfile of
  * the molecule it created that row for. Each of those rows exists in the stoichiometry table
- * already but carries a `VIRTUAL` compound with no sample behind it, so its batch number, weight
- * and purity cannot be filled in. `ResolveInputs` is the answer, and this is where it is sent.
+ * already but carries a `VIRTUAL` compound with no sample behind it. Frontend shows an "Analyze RXN"
+ * dialog to let user select samples for each of unresolved inputs, and fires `ResolveInputs`
+ * mutation to apply selection.
  *
  * One tab per unresolved row, and the tab's own substructure search runs as soon as it is shown —
  * the structure is the query, so there is nothing to type. The catalog radio is shared by every
@@ -46,7 +45,7 @@ export function AnalyzeRxnDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
   experiment: ExperimentDetails;
-  /** The step being analysed, post-patch: its `inputs` are what the tabs are named after. */
+  /** The step being analyzed, post-patch: its `inputs` are what the tabs are named after. */
   reaction: Reaction;
   /** Zero-based; the title counts from one, as the step strip does. */
   step: number;
@@ -58,7 +57,7 @@ export function AnalyzeRxnDialog({
   const [counts, setCounts] = useState<Record<UUID, string | null>>({});
 
   const resolve = useResolveInput(experiment, reaction);
-  const boundSamples = useMemo(() => boundSampleIds(reaction), [reaction]);
+  const boundSamples = useMemo(() => getAllInputSampleIds(reaction), [reaction]);
 
   /**
    * In `reaction.inputs` order rather than the map's, so the tabs read left to right the way the
@@ -93,8 +92,6 @@ export function AnalyzeRxnDialog({
         ...tab,
         request: {
           catalogs: CATALOGS_BY_FILTER[catalog],
-          // The backend matches with Bingo's `bingo_substructure_match`; an exact search would
-          // miss every registered salt and solvate of the thing that was drawn.
           structure: { type: 'SUBSTRUCTURE' as const, query: tab.molfile },
         },
         onCountChange: (count: string | null) =>

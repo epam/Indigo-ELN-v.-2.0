@@ -29,7 +29,7 @@ export function StatTileGroup({ tiles }: { tiles: StatTile[] }) {
         return (
           <div
             key={key}
-            className={`flex w-[120px] flex-col gap-1 bg-blue-10 px-3 py-2 ${
+            className={`flex w-30 flex-col gap-1 bg-blue-10 px-3 py-2 ${
               index === 0 ? 'rounded-l-lg' : ''
             } ${index === tiles.length - 1 ? 'rounded-r-lg' : ''}`}
           >

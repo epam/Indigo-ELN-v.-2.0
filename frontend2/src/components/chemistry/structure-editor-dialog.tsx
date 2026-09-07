@@ -54,6 +54,15 @@ function StructureEditorDialog({ open, onOpenChange, value, onSave }: StructureE
   // else reports a Ketcher error, while whatever `onSave` did have already reported itself.
   async function handleSave() {
     if (!ketcher) return;
+
+    // A canvas with no atoms is not a structure — an empty save, or a lone plus or arrow. There
+    // is nothing any caller could do with one, so it is refused here rather than by each of
+    // them. `Struct.isBlank()` is not the check: it counts pluses and arrows as content.
+    if (ketcher.editor.struct().atoms.size === 0) {
+      notifyError(new Error('Draw a structure before saving'));
+      return;
+    }
+
     setIsSaving(true);
 
     let result: StructureEditorResult;

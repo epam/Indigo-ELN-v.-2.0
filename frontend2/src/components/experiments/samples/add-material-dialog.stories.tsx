@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { expect, screen, userEvent, waitFor } from 'storybook/test';
 
+import { __setKetcherBehavior } from '../../../../.storybook/mocks/ketcher-editor';
 import { AddMaterialDialog } from '@/components/experiments/samples/add-material-dialog';
 import { Button } from '@/components/ui/button';
 import { makeExperimentDetails } from '@/mocks/fixtures';
@@ -19,6 +20,9 @@ const meta = {
     onOpenChange: () => {},
     experiment: EXPERIMENT,
     reaction: REACTION,
+  },
+  beforeEach: () => {
+    __setKetcherBehavior();
   },
 } satisfies Meta<typeof AddMaterialDialog>;
 
@@ -143,6 +147,61 @@ export const ClearAll: Story = {
 
     await expect(screen.getByRole('searchbox', { name: 'Quick search' })).toHaveValue('');
     await waitFor(() => expect(screen.queryByText('Acetylsalicylic acid')).not.toBeInTheDocument());
+    await expect(screen.getByRole('button', { name: 'Search' })).toBeDisabled();
+  },
+};
+
+/**
+ * A catalog holds compounds, so a drawn reaction is refused rather than searched for. The
+ * sketcher stays open with the drawing in it — the toast is the only thing that says why, since
+ * the form behind is covered.
+ */
+export const RefusesAReaction: Story = {
+  beforeEach: () => {
+    __setKetcherBehavior({ isReaction: true });
+  },
+  play: async () => {
+    await userEvent.click(await screen.findByRole('button', { name: 'Draw Structure' }));
+
+    const save = await screen.findByRole('button', { name: 'Save' });
+    await waitFor(() => expect(save).toBeEnabled());
+    await userEvent.click(save);
+
+    await waitFor(() => expect(screen.getByText(/A catalog holds compounds/)).toBeInTheDocument());
+    await expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+    // Nothing was stored, so the frame is still offering to draw one.
+    await expect(screen.queryByRole('img', { name: 'Chemical structure' })).not.toBeInTheDocument();
+  },
+};
+
+/**
+ * Closing the sheet resets it. The panel is mounted for the life of the page — that is what lets
+ * it slide out — so without an explicit reset it would reopen holding the last visit's search.
+ */
+export const ResetsWhenClosed: Story = {
+  render: (args) => {
+    const [open, setOpen] = useState(false);
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>Add sample</Button>
+        <AddMaterialDialog {...args} open={open} onOpenChange={setOpen} />
+      </>
+    );
+  },
+  play: async () => {
+    await userEvent.click(await screen.findByRole('button', { name: 'Add sample' }));
+    await search();
+    await screen.findByText('Acetylsalicylic acid');
+
+    const [dismiss] = screen.getAllByRole('button', { name: 'Close' });
+    await userEvent.click(dismiss);
+    // The reset waits for the slide-out, so nothing is seen emptying on the way.
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+
+    await userEvent.click(screen.getByRole('button', { name: 'Add sample' }));
+
+    await expect(await screen.findByRole('searchbox', { name: 'Quick search' })).toHaveValue('');
+    await expect(screen.queryByText('Acetylsalicylic acid')).not.toBeInTheDocument();
     await expect(screen.getByRole('button', { name: 'Search' })).toBeDisabled();
   },
 };

@@ -36,7 +36,7 @@ function SegmentedControl<Value extends string>({
           key={option.value}
           value={option.value}
           aria-label={option.label}
-          className="-mr-px flex size-10 items-center justify-center border-r border-neutral-300 bg-neutral-200 text-neutral-800 outline-none last:border-r-0 focus-visible:ring-3 focus-visible:ring-ring/50 data-[pressed]:bg-blue-100 data-[pressed]:text-blue-600"
+          className="-mr-px flex size-10 items-center justify-center border-neutral-300 bg-neutral-200 text-neutral-800 outline-none not-last:border-r focus-visible:ring-3 focus-visible:ring-ring/50 data-[pressed]:bg-blue-100 data-[pressed]:text-blue-600"
         >
           {option.icon}
         </Toggle>

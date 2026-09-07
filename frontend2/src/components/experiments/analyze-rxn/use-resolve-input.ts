@@ -8,25 +8,6 @@ import type { ExperimentDetails } from '@/lib/types/experiments.ts';
 import type { Reaction } from '@/lib/types/reactions.ts';
 import type { SampleDTO } from '@/lib/types/samples.ts';
 
-/**
- * Every sample already bound to an input row of this step.
- *
- * This is what disables a result row's Add button. An input row created by the scheme carries one
- * sample with no `sampleId` until something is resolved into it, so the set holds exactly the
- * samples the step has actually taken — and it is read off the model rather than remembered
- * locally, so it stays right across a reopen, and a row added by someone else's session shows as
- * taken as soon as the detail is refetched.
- */
-export function boundSampleIds(reaction: Reaction): ReadonlySet<UUID> {
-  const ids = new Set<UUID>();
-  for (const input of reaction.inputs) {
-    for (const sample of input.samples) {
-      if (sample.sampleId != null) ids.add(sample.sampleId);
-    }
-  }
-  return ids;
-}
-
 export interface ResolveInputMutations {
   /** Binds one catalog hit to one unresolved input row. */
   add: (inputAnchor: UUID, sample: SampleDTO) => void;
@@ -43,7 +24,7 @@ export interface ResolveInputMutations {
  * The two-step registration every catalog hit may need lives in `useAddSample`, shared with Add
  * Material; what is particular here is the mutation and `addedInputs`, which is the narrower
  * claim the tab's check mark makes — *this dialog* bound something to that input, as against
- * `boundSampleIds`, which is read off the model.
+ * `getAllInputSampleIds`, which is read off the model.
  */
 export function useResolveInput(experiment: ExperimentDetails, reaction: Reaction): ResolveInputMutations {
   const [addedInputs, setAddedInputs] = useState<ReadonlySet<UUID>>(() => new Set());

@@ -3,10 +3,10 @@ import { UserPlus } from 'lucide-react';
 import { useState } from 'react';
 
 import { AvatarStack } from '@/components/common/avatar-stack';
-import { TeamSheet } from '@/components/common/team-sheet';
 import { ExperimentActions, UndoRedoButtons } from '@/components/experiments/experiment-actions';
 import { tabSlugs } from '@/components/experiments/experiment-template';
 import { StarButton } from '@/components/experiments/star-button';
+import { TeamSheet } from '@/components/experiments/team-sheet';
 import { useExperimentSaving, useUpdateExperimentAccess } from '@/lib/api/experiments';
 import { Breadcrumbs } from '@/components/layout/breadcrumbs';
 import { Badge } from '@/components/ui/badge';

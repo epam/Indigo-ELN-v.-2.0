@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { expect, screen, userEvent } from 'storybook/test';
 
-import { TeamSheet } from '@/components/common/team-sheet';
+import { TeamSheet } from '@/components/experiments/team-sheet';
 import { Button } from '@/components/ui/button';
 import { PROJECT_ACL } from '@/mocks/fixtures';
 
@@ -24,7 +24,7 @@ function TeamSheetWithTrigger({ acl, canManage }: { acl: ACLEntry[]; canManage: 
 }
 
 const meta = {
-  title: 'Common/TeamSheet',
+  title: 'Experiments/TeamSheet',
   component: TeamSheetWithTrigger,
   args: { acl: PROJECT_ACL, canManage: false },
 } satisfies Meta<typeof TeamSheetWithTrigger>;
