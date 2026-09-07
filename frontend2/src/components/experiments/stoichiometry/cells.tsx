@@ -297,7 +297,7 @@ export function MultiDictionaryCell({
  * A `Select` for the same reasons `RoleCell` is one: three fixed values, `@NotNull` on the
  * record, nothing to filter. What it adds is colour, because the type is the row's headline and
  * a column of identical grey triggers does not read as one. The colour lives on the trigger
- * rather than in a `Badge`, whose variants are the nine `ExperimentStatus` values and which
+ * rather than in a `StatusBadge`, whose variants are the nine `ExperimentStatus` values and which
  * carries a status dot and a fixed 59px width — none of which belongs on a control.
  */
 export function OutputTypeCell({

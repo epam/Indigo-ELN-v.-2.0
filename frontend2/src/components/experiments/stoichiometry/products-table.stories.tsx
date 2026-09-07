@@ -85,7 +85,7 @@ export const ProductTypes: Story = {
     await expect(canvas.getByLabelText('Products Type, P0')).toHaveTextContent('Final');
     await expect(canvas.getByLabelText('Products Type, P1')).toHaveTextContent('Side');
     await expect(canvas.getByLabelText('Products Type, P2')).toHaveTextContent('Intermediate');
-    // The colour is on the trigger, not in a Badge — see `OutputTypeCell`.
+    // The colour is on the trigger, not in a StatusBadge — see `OutputTypeCell`.
     await expect(canvas.getByLabelText('Products Type, P0').className).toContain('border-green-200');
   },
 };

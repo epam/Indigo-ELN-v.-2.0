@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { expect, screen, userEvent, within } from 'storybook/test';
 
-import { TextSearchField } from '@/components/search/text-search-field';
+import { TextSearchField } from '@/components/ui/search/text-search-field';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { TextSearch } from '@/lib/types/search.ts';

@@ -5,7 +5,7 @@ import type { ReactNode } from 'react';
 import { ApiImage } from '@/components/common/api-image';
 import { AvatarStack } from '@/components/common/avatar-stack';
 import { StarButton } from '@/components/experiments/star-button';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 
 import { experimentPicturePath } from '@/lib/api/experiments';
 import type { Experiment } from '@/lib/types/experiments.ts';
@@ -40,10 +40,10 @@ export function ExperimentCard({ item: experiment }: { item: Experiment }) {
           <span className="text-neutral-800">Experiment </span>
           <span className="font-semibold">{experiment.name}</span>
         </h3>
-        {/* Badge is a fixed w-[59px] and truncates; the longer statuses need the room. */}
-        <Badge variant={experiment.status} className="w-auto shrink-0">
+        {/* StatusBadge is a fixed w-[59px] and truncates; the longer statuses need the room. */}
+        <StatusBadge variant={experiment.status} className="w-auto shrink-0">
           {EXPERIMENT_STATUS_DISPLAY[experiment.status]}
-        </Badge>
+        </StatusBadge>
         <AvatarStack acl={experiment.acl} aclCount={experiment.aclCount} />
         <StarButton experimentId={experiment.id} marked={experiment.marked} />
       </header>

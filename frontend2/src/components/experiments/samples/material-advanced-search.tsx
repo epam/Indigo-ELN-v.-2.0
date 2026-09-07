@@ -9,8 +9,8 @@ import {
   pubchemIncluded,
   summarizeAddMaterialSearch,
 } from '@/components/experiments/samples/add-material-form';
-import { NumericSearchField } from '@/components/search/numeric-search-field';
-import { TextSearchField } from '@/components/search/text-search-field';
+import { NumericSearchField } from '@/components/ui/search/numeric-search-field';
+import { TextSearchField } from '@/components/ui/search/text-search-field';
 import { Collapsible, CollapsiblePanel, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Field } from '@/components/ui/field';
 import { cn } from '@/lib/utils';

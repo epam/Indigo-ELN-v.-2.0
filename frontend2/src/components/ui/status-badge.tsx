@@ -3,7 +3,7 @@ import type * as React from 'react';
 
 import { cn } from '@/lib/utils';
 
-const badgeVariants = cva(
+const statusBadgeVariants = cva(
   'inline-flex w-[59px] cursor-default items-center gap-1 rounded-md border px-2 py-0.5 text-[12px]/5 text-neutral-1000',
   {
     variants: {
@@ -45,15 +45,15 @@ const dotVariants = cva('size-1.5 shrink-0 rounded-full', {
   },
 });
 
-type BadgeProps = React.ComponentProps<'span'> & VariantProps<typeof badgeVariants>;
+type StatusBadgeProps = React.ComponentProps<'span'> & VariantProps<typeof statusBadgeVariants>;
 
-function Badge({ className, variant = 'OPEN', children, ...props }: BadgeProps) {
+function StatusBadge({ className, variant = 'OPEN', children, ...props }: StatusBadgeProps) {
   return (
-    <span data-slot="badge" className={cn(badgeVariants({ variant, className }))} {...props}>
+    <span data-slot="status-badge" className={cn(statusBadgeVariants({ variant, className }))} {...props}>
       <span className={cn(dotVariants({ variant }))} />
       <span className="truncate">{children}</span>
     </span>
   );
 }
 
-export { Badge, badgeVariants };
+export { StatusBadge, statusBadgeVariants };

@@ -9,7 +9,7 @@ import { StarButton } from '@/components/experiments/star-button';
 import { TeamSheet } from '@/components/experiments/team-sheet';
 import { useExperimentSaving, useUpdateExperimentAccess } from '@/lib/api/experiments';
 import { Breadcrumbs } from '@/components/layout/breadcrumbs';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
@@ -82,9 +82,9 @@ export function ExperimentHeader({
 
         {experiment && (
           <>
-            <Badge variant={experiment.status} className="w-auto shrink-0">
+            <StatusBadge variant={experiment.status} className="w-auto shrink-0">
               {EXPERIMENT_STATUS_DISPLAY[experiment.status]}
-            </Badge>
+            </StatusBadge>
             {/* TODO(star): useToggleMark has to patch the experimentDetails cache entry first,
                 or the star reverts as the invalidated lists come home. */}
             <StarButton experimentId={experimentId} marked={experiment.marked} disabled />

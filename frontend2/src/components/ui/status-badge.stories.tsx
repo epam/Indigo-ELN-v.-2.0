@@ -1,16 +1,16 @@
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { EXPERIMENT_STATUS_DISPLAY, EXPERIMENT_STATUSES } from '@/lib/types/experiments.ts';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta = {
-  title: 'UI/Badge',
-  component: Badge,
+  title: 'UI/StatusBadge',
+  component: StatusBadge,
   parameters: { layout: 'centered' },
   argTypes: {
     variant: { control: 'select', options: EXPERIMENT_STATUSES },
   },
-} satisfies Meta<typeof Badge>;
+} satisfies Meta<typeof StatusBadge>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -25,9 +25,9 @@ export const AllStatuses: Story = {
   render: () => (
     <div className="flex flex-col items-start gap-2">
       {EXPERIMENT_STATUSES.map((status) => (
-        <Badge key={status} variant={status}>
+        <StatusBadge key={status} variant={status}>
           {EXPERIMENT_STATUS_DISPLAY[status]}
-        </Badge>
+        </StatusBadge>
       ))}
     </div>
   ),

@@ -19,7 +19,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** One card per status, so every Badge variant is on screen at once. */
+/** One card per status, so every StatusBadge variant is on screen at once. */
 export const Grid: Story = {};
 
 export const List: Story = { args: { view: 'list' } };

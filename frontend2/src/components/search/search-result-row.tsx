@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { createContext, use } from 'react';
 
 import { ApiImage } from '@/components/common/api-image';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { experimentPicturePath } from '@/lib/api/experiments';
 import { EXPERIMENT_STATUS_DISPLAY } from '@/lib/types/experiments.ts';
 import type { GlobalSearchResult, SearchEntityType } from '@/lib/types/search.ts';
@@ -99,10 +99,10 @@ function Body({ item }: { item: GlobalSearchResult }) {
           <span className="font-semibold">{item.name}</span>
         </h3>
         {item.experimentStatus && (
-          // Badge is a fixed w-[59px] and truncates; the longer statuses need the room.
-          <Badge variant={item.experimentStatus} className="w-auto shrink-0">
+          // StatusBadge is a fixed w-[59px] and truncates; the longer statuses need the room.
+          <StatusBadge variant={item.experimentStatus} className="w-auto shrink-0">
             {EXPERIMENT_STATUS_DISPLAY[item.experimentStatus]}
-          </Badge>
+          </StatusBadge>
         )}
       </header>
 

@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { File, Star } from 'lucide-react';
 
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useMarkedExperiments } from '@/lib/api/experiments';
 import { EXPERIMENT_STATUS_DISPLAY } from '@/lib/types/experiments.ts';
@@ -42,9 +42,9 @@ export function StarredExperiments() {
           <File className="size-4 shrink-0" />
           <span className="flex-1 truncate text-[14px]/5 text-neutral-1000">{experiment.name}</span>
           {/* The badge is fixed-width, so title carries the label the truncation hides. */}
-          <Badge variant={experiment.status} title={EXPERIMENT_STATUS_DISPLAY[experiment.status]}>
+          <StatusBadge variant={experiment.status} title={EXPERIMENT_STATUS_DISPLAY[experiment.status]}>
             {EXPERIMENT_STATUS_DISPLAY[experiment.status]}
-          </Badge>
+          </StatusBadge>
         </Link>
       ))}
     </section>

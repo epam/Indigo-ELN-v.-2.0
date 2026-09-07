@@ -1,13 +1,13 @@
 import { ChevronDown } from 'lucide-react';
 
 import { DictionaryCombobox } from '@/components/common/dictionary-combobox';
-import { AuthorCombobox } from '@/components/search/author-combobox';
+import { AuthorCombobox } from '@/components/ui/search/author-combobox';
 import {
   type GlobalSearchFormValues,
   showReactionRole,
   summarizeAdvancedSearch,
 } from '@/components/search/global-search-form';
-import { NumericSearchField } from '@/components/search/numeric-search-field';
+import { NumericSearchField } from '@/components/ui/search/numeric-search-field';
 import { Collapsible, CollapsiblePanel, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Combobox } from '@/components/ui/combobox';
 import { Field } from '@/components/ui/field';

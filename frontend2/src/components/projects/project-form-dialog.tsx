@@ -2,7 +2,7 @@ import { useForm } from '@tanstack/react-form';
 import { useNavigate } from '@tanstack/react-router';
 
 import { FormDialog } from '@/components/common/form-dialog';
-import { KeywordCombobox } from '@/components/projects/keyword-combobox';
+import { KeywordCombobox } from '@/components/ui/keyword-combobox';
 import {
   EMPTY_PROJECT_FORM,
   PROJECT_NAME_MAX_LENGTH,
