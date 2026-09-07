@@ -3,6 +3,7 @@ import { ChevronDown, Loader2, X } from 'lucide-react';
 import type * as React from 'react';
 import { useRef, useState } from 'react';
 
+import { INPUT_ACTION, INPUT_BOX, INPUT_BOX_FOCUS_WITHIN, INPUT_DISABLED } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
 /**
@@ -177,10 +178,11 @@ function Combobox<T>({
     >
       <div
         className={cn(
-          'flex h-10 w-full items-center gap-1 rounded-md border border-neutral-300 bg-background pr-1 pl-3',
-          'focus-within:border-blue-400 focus-within:ring-3 focus-within:ring-ring/20',
+          INPUT_BOX,
+          INPUT_BOX_FOCUS_WITHIN,
+          'flex h-10 items-center gap-1 pr-1 pl-3',
           // Matches Input's disabled treatment, so a form of mixed controls reads as one thing.
-          disabled && 'cursor-not-allowed opacity-50',
+          disabled && INPUT_DISABLED,
         )}
       >
         <ComboboxPrimitive.Input
@@ -193,10 +195,7 @@ function Combobox<T>({
           )}
         />
         {/* Base UI mounts this only while there is something to clear. */}
-        <ComboboxPrimitive.Clear
-          aria-label="Clear selection"
-          className="cursor-pointer rounded-2 p-1 text-neutral-700 outline-none group-data-[saving]/saving:invisible hover:text-neutral-1000 focus-visible:ring-3 focus-visible:ring-ring/50"
-        >
+        <ComboboxPrimitive.Clear aria-label="Clear selection" className={INPUT_ACTION}>
           <X className="size-4" />
         </ComboboxPrimitive.Clear>
         {/*
@@ -210,11 +209,7 @@ function Combobox<T>({
           publishes `data-saving` on the group around this. `invisible` rather than `hidden`, so
           the row keeps its width and the spinner lands exactly where the chevron was.
         */}
-        <ComboboxPrimitive.Trigger
-          aria-label="Show options"
-          aria-busy={loading || undefined}
-          className="cursor-pointer rounded-2 p-1 text-neutral-700 outline-none group-data-[saving]/saving:invisible hover:text-neutral-1000 focus-visible:ring-3 focus-visible:ring-ring/50"
-        >
+        <ComboboxPrimitive.Trigger aria-label="Show options" aria-busy={loading || undefined} className={INPUT_ACTION}>
           <ChevronDown className="size-5" />
         </ComboboxPrimitive.Trigger>
       </div>
@@ -405,9 +400,11 @@ function MultiCombobox<T = string>({
     >
       <ComboboxPrimitive.Chips
         className={cn(
-          'flex min-h-10 w-full flex-wrap items-center gap-2 rounded-md border border-neutral-300 bg-background px-2 py-1.5',
-          disabled && 'cursor-not-allowed opacity-50',
-          'focus-within:border-blue-400 focus-within:ring-3 focus-within:ring-ring/20',
+          INPUT_BOX,
+          INPUT_BOX_FOCUS_WITHIN,
+          // `min-h-10`, not the shell's usual `h-10`: the chips wrap, so the field grows.
+          'flex min-h-10 flex-wrap items-center gap-2 px-2 py-1.5',
+          disabled && INPUT_DISABLED,
         )}
       >
         {value.map((item) => (
@@ -453,7 +450,8 @@ function MultiCombobox<T = string>({
         <ComboboxPrimitive.Trigger
           aria-label="Show suggestions"
           aria-busy={loading || undefined}
-          className="cursor-pointer rounded-2 p-0.5 text-neutral-700 outline-none group-data-[saving]/saving:invisible hover:text-neutral-1000 focus-visible:ring-3 focus-visible:ring-ring/50"
+          // The tighter inset is deliberate: `p-1` next to the chips crowds them.
+          className={cn(INPUT_ACTION, 'p-0.5')}
         >
           <ChevronDown className="size-5" />
         </ComboboxPrimitive.Trigger>

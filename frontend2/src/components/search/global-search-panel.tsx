@@ -101,7 +101,7 @@ function GlobalSearchPanel({ open, onOpenChange, query, onQueryChange, onSearch 
       <DialogContent title="Global Search" side="right" render={<form onSubmit={handleSubmit} noValidate />}>
         <div className="flex flex-col gap-4 rounded-6 bg-neutral-100 p-4">
           <label className="flex h-12 items-center gap-2 rounded-full border border-blue-10 bg-blue-5 px-4">
-            <Search className="size-5 shrink-0 text-neutral-700" />
+            <Search aria-hidden className="size-5 shrink-0 text-neutral-700" />
             <input
               type="search"
               value={query}

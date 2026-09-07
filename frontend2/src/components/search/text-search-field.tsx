@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Menu, MenuContent, MenuItem, MenuTrigger } from '@/components/ui/menu';
 import type { TextSearch, TextSearchOperator } from '@/lib/types/search.ts';
 import { TEXT_SEARCH_OPERATORS, TEXT_SEARCH_OPERATOR_LABELS } from '@/lib/types/search.ts';
+import { INPUT_BOX, INPUT_BOX_FOCUS_WITHIN, INPUT_DISABLED } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
 /**
@@ -67,9 +68,12 @@ function TextSearchField({
   return (
     <div
       className={cn(
-        'flex h-10 w-full items-stretch rounded-md border border-neutral-300 bg-background',
-        'focus-within:border-blue-400 focus-within:ring-3 focus-within:ring-ring/20',
-        disabled && 'opacity-50',
+        INPUT_BOX,
+        INPUT_BOX_FOCUS_WITHIN,
+        // `items-stretch`, so the operator button is a full-height segment; the padding is on
+        // the inner inputs rather than on the shell.
+        'flex h-10 items-stretch',
+        disabled && INPUT_DISABLED,
       )}
     >
       <Menu>

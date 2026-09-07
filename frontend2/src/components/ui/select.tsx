@@ -1,6 +1,7 @@
 import { Select as SelectPrimitive } from '@base-ui/react/select';
 import { ChevronDown } from 'lucide-react';
 
+import { INPUT_BOX, INPUT_BOX_FOCUS } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
 /** Matches `ComboboxSize`: `md` is the form default, `sm` the 13px a dense table sets. */
@@ -116,12 +117,14 @@ function Select<T>({
         id={id}
         aria-label={ariaLabel}
         className={cn(
-          'flex h-10 w-full cursor-pointer items-center justify-between gap-1 rounded-md border border-neutral-300 bg-background pr-1 pl-3',
+          INPUT_BOX,
+          INPUT_BOX_FOCUS,
+          'flex h-10 cursor-pointer items-center justify-between gap-1 pr-1 pl-3',
           'text-left text-neutral-1000 outline-none',
           SIZE_TEXT[size],
-          'focus-visible:border-blue-400 focus-visible:ring-3 focus-visible:ring-ring/20',
-          // Matches Input's and Combobox's disabled treatment, so a row of mixed controls
-          // reads as one thing.
+          // The trigger is a disabled element in its own right, so this stays a pseudo-variant
+          // rather than `INPUT_DISABLED`. Same treatment as Input's and Combobox's, so a row of
+          // mixed controls reads as one thing.
           'disabled:cursor-not-allowed disabled:opacity-50',
           className,
         )}

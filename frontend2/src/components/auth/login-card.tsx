@@ -1,6 +1,6 @@
 import { useForm } from '@tanstack/react-form';
 import { confirmSignIn, signIn } from 'aws-amplify/auth';
-import { CircleAlert, Eye, EyeOff, X } from 'lucide-react';
+import { CircleAlert, X } from 'lucide-react';
 import { useState } from 'react';
 
 import logoUrl from '@/assets/indigo-logo.svg';
@@ -14,11 +14,11 @@ import {
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Field } from '@/components/ui/field';
-import { Input } from '@/components/ui/input';
+import { GroupInput, InputAction, InputGroup } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { isRemembered, setSessionPersistence } from '@/lib/auth-storage';
 
 import type { SignInOutput } from 'aws-amplify/auth';
-import type { ReactNode } from 'react';
 
 /**
  * The sign-in screen, replacing Amplify's `<Authenticator>`.
@@ -105,23 +105,22 @@ function LoginCard({ onSignedIn }: { onSignedIn: () => void }) {
               <form.Field name="username">
                 {(field) => (
                   <Field id={field.name} label="Username">
-                    <div className="relative">
-                      <Input
+                    <InputGroup className="h-11">
+                      <GroupInput
                         id={field.name}
                         name={field.name}
                         autoComplete="username"
                         placeholder="Enter your Username"
-                        className="h-11 pr-10"
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(event) => field.handleChange(event.target.value)}
                       />
                       {field.state.value && (
-                        <Adornments>
-                          <ClearButton label="Clear Username" onClick={() => field.handleChange('')} />
-                        </Adornments>
+                        <InputAction label="Clear Username" onClick={() => field.handleChange('')}>
+                          <X className="size-4" />
+                        </InputAction>
                       )}
-                    </div>
+                    </InputGroup>
                   </Field>
                 )}
               </form.Field>
@@ -129,7 +128,8 @@ function LoginCard({ onSignedIn }: { onSignedIn: () => void }) {
               <form.Field name="password">
                 {(field) => (
                   <Field id={field.name} label="Password">
-                    <PasswordControl
+                    <PasswordInput
+                      className="h-11"
                       id={field.name}
                       label="Password"
                       autoComplete="current-password"
@@ -156,7 +156,8 @@ function LoginCard({ onSignedIn }: { onSignedIn: () => void }) {
               <form.Field name="newPassword">
                 {(field) => (
                   <Field id={field.name} label="New Password">
-                    <PasswordControl
+                    <PasswordInput
+                      className="h-11"
                       id={field.name}
                       label="New Password"
                       autoComplete="new-password"
@@ -172,7 +173,8 @@ function LoginCard({ onSignedIn }: { onSignedIn: () => void }) {
               <form.Field name="confirmPassword">
                 {(field) => (
                   <Field id={field.name} label="Confirm Password">
-                    <PasswordControl
+                    <PasswordInput
+                      className="h-11"
                       id={field.name}
                       label="Confirm Password"
                       autoComplete="new-password"
@@ -208,78 +210,6 @@ function LoginCard({ onSignedIn }: { onSignedIn: () => void }) {
           </form.Subscribe>
         </div>
       </form>
-    </div>
-  );
-}
-
-/** The buttons the design puts inside an input, pinned to its right edge. */
-function Adornments({ children }: { children: ReactNode }) {
-  return <div className="absolute top-1/2 right-2 flex -translate-y-1/2 items-center">{children}</div>;
-}
-
-function ClearButton({ label, onClick }: { label: string; onClick: () => void }) {
-  return (
-    <Button
-      type="button"
-      variant="ghost"
-      size="icon-sm"
-      aria-label={label}
-      onClick={onClick}
-      className="text-neutral-800"
-    >
-      <X />
-    </Button>
-  );
-}
-
-/** An `Input` with the design's clear and reveal buttons over it; the reveal state is its own. */
-function PasswordControl({
-  id,
-  label,
-  value,
-  placeholder,
-  autoComplete,
-  onBlur,
-  onChange,
-}: {
-  id: string;
-  label: string;
-  value: string;
-  placeholder: string;
-  autoComplete: string;
-  onBlur: () => void;
-  onChange: (value: string) => void;
-}) {
-  const [visible, setVisible] = useState(false);
-
-  return (
-    <div className="relative">
-      <Input
-        id={id}
-        name={id}
-        type={visible ? 'text' : 'password'}
-        autoComplete={autoComplete}
-        placeholder={placeholder}
-        // Padded for both buttons whether or not the clear one is showing, so the text does not
-        // shift sideways on the first keystroke.
-        className="h-11 pr-16"
-        value={value}
-        onBlur={onBlur}
-        onChange={(event) => onChange(event.target.value)}
-      />
-      <Adornments>
-        {value && <ClearButton label={`Clear ${label}`} onClick={() => onChange('')} />}
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          aria-label={visible ? `Hide ${label}` : `Show ${label}`}
-          onClick={() => setVisible((shown) => !shown)}
-          className="text-neutral-800"
-        >
-          {visible ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
-        </Button>
-      </Adornments>
     </div>
   );
 }

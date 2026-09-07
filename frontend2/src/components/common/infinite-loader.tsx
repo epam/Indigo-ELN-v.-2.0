@@ -83,7 +83,7 @@ export function InfiniteLoader<T extends { id: string }>({
 
   const items = data.pages.flatMap((page) => page.items);
   if (items.length === 0) {
-    return <p className="text-[14px]/6 text-neutral-700">No {entityLabel} match these filters.</p>;
+    return <p className="text-[14px]/6 text-neutral-700">No {entityLabel} found.</p>;
   }
 
   return (

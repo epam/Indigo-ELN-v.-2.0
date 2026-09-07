@@ -1,4 +1,3 @@
-import { Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import {
@@ -15,7 +14,7 @@ import type { ProductColumn, ProductRow } from '@/components/experiments/stoichi
 import { OUTPUT_TYPES, PRODUCT_COLUMNS, productHaystack } from '@/components/experiments/stoichiometry/product-columns';
 import type { StoichiometryMutations } from '@/components/experiments/stoichiometry/use-stoichiometry-mutations';
 import { cellId, useStoichiometryMutations } from '@/components/experiments/stoichiometry/use-stoichiometry-mutations';
-import { Input } from '@/components/ui/input';
+import { SearchInput } from '@/components/ui/search-input';
 import { Switch } from '@/components/ui/switch';
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
 import { canEditExperiment } from '@/lib/types/experiments.ts';
@@ -68,17 +67,12 @@ export function ReactionProductsTable({ experiment, step }: { experiment: Experi
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="relative min-w-0 flex-1 sm:max-w-xs">
-          <Search aria-hidden className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-neutral-700" />
-          <Input
-            type="search"
-            aria-label="Search products"
-            placeholder="Search"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            className="pl-9"
-          />
-        </div>
+        <SearchInput
+          aria-label="Search products"
+          value={search}
+          onChange={setSearch}
+          className="min-w-0 flex-1 sm:max-w-xs"
+        />
 
         <div className="flex items-center gap-3">
           {/*

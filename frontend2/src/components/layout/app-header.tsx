@@ -17,7 +17,7 @@ export function AppHeader() {
       <img src={logoUrl} alt="Indigo ELN" width={128} height={38} className="h-[38px] w-[128px]" />
 
       <label className="flex h-10 w-full max-w-xl items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4">
-        <Search className="size-5 shrink-0 text-white/70" />
+        <Search aria-hidden className="size-5 shrink-0 text-white/70" />
         <input
           type="search"
           value={query}

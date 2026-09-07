@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronRight, CircleCheck, Download, Plus, RefreshCw, Search, Upload } from 'lucide-react';
+import { ChevronDown, ChevronRight, CircleCheck, Download, Plus, RefreshCw, Upload } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
 
 import { SavingOverlay } from '@/components/common/saving-overlay';
@@ -16,7 +16,7 @@ import { NumericCell } from '@/components/experiments/stoichiometry/numeric-cell
 import type { StoichiometryMutations } from '@/components/experiments/stoichiometry/use-stoichiometry-mutations';
 import { cellId, useStoichiometryMutations } from '@/components/experiments/stoichiometry/use-stoichiometry-mutations';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { SearchInput } from '@/components/ui/search-input';
 import { useExportSdf, useImportSdf } from '@/lib/api/experiments';
 import { canEditExperiment } from '@/lib/types/experiments.ts';
 
@@ -152,17 +152,12 @@ function Toolbar({
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <div className="relative min-w-0 flex-1 sm:max-w-xs">
-        <Search aria-hidden className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-neutral-700" />
-        <Input
-          type="search"
-          aria-label="Search batches"
-          placeholder="Search"
-          value={search}
-          onChange={(event) => onSearchChange(event.target.value)}
-          className="pl-9"
-        />
-      </div>
+      <SearchInput
+        aria-label="Search batches"
+        value={search}
+        onChange={onSearchChange}
+        className="min-w-0 flex-1 sm:max-w-xs"
+      />
 
       <div className="flex items-center gap-2">
         {/*
