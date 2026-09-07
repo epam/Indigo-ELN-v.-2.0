@@ -42,7 +42,7 @@ export function ActionBar({
 }: ActionBarProps) {
   return (
     <div className="flex h-10 items-center justify-between gap-4">
-      <label className="flex h-10 w-[280px] items-center gap-2 rounded-full border border-blue-10 bg-blue-5 px-4">
+      <label className="flex h-10 w-70 items-center gap-2 rounded-full border border-blue-10 bg-blue-5 px-4">
         <Search className="size-5 shrink-0 text-neutral-700" />
         <input
           type="search"
@@ -76,12 +76,12 @@ export function ActionBar({
           />
           <Menu.Portal>
             <Menu.Positioner sideOffset={4} align="end">
-              <Menu.Popup className="min-w-[160px] rounded-md border border-neutral-300 bg-popover p-1 shadow-card outline-none">
+              <Menu.Popup className="min-w-40 rounded-md border border-neutral-300 bg-popover p-1 shadow-card outline-none">
                 {(Object.keys(SORT_LABELS) as SortOrder[]).map((option) => (
                   <Menu.Item
                     key={option}
                     onClick={() => onSortChange(option)}
-                    className="cursor-default rounded-2 px-3 py-2 text-[14px]/6 outline-none data-[highlighted]:bg-blue-10"
+                    className="cursor-default rounded-2 px-3 py-2 text-[14px]/6 outline-none data-highlighted:bg-blue-10"
                   >
                     {SORT_LABELS[option]}
                   </Menu.Item>

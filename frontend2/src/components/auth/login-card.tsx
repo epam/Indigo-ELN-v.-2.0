@@ -92,7 +92,7 @@ function LoginCard({ onSignedIn }: { onSignedIn: () => void }) {
         }}
         // The dividers are inset to the content width, so they belong to the rows rather than to
         // the card: the horizontal padding lives here and the rows carry only their own border.
-        className="w-full max-w-[500px] rounded-lg bg-card px-6 shadow-card"
+        className="w-full max-w-125 rounded-lg bg-card px-6 shadow-card"
       >
         <h1 className="border-b border-neutral-300 py-6 text-[20px]/6 font-semibold text-neutral-1000">
           {step === 'credentials' ? 'Log in' : 'Set a new password'}

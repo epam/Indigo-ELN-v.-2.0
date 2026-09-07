@@ -82,7 +82,7 @@ function AttachmentRow({
           <Trash2 />
         </Button>
       ) : (
-        // Keeps the column, so rows line up whether or not the reader can delete.
+        // Keeps the column, so rows line up regardless of canEdit.
         <span className="size-8" />
       )}
     </li>

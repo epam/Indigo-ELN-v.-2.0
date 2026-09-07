@@ -51,7 +51,7 @@ function StructureEditorDialog({ open, onOpenChange, value, onSave }: StructureE
   }
 
   // Two try blocks rather than one, because the two failures have different owners: nobody
-  // else reports a Ketcher error, while whatever `onSave` did has already reported itself.
+  // else reports a Ketcher error, while whatever `onSave` did have already reported itself.
   async function handleSave() {
     if (!ketcher) return;
     setIsSaving(true);
@@ -95,7 +95,7 @@ function StructureEditorDialog({ open, onOpenChange, value, onSave }: StructureE
     >
       <DialogContent
         title="Structure Editor"
-        className="h-[80vh] w-[1200px] max-w-[calc(100vw-2rem)]"
+        className="h-[80vh] w-300 max-w-[calc(100vw-2rem)]"
         footer={
           <>
             <DialogClose render={<Button type="button" variant="secondary" size="lg" />}>Cancel</DialogClose>

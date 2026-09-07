@@ -6,9 +6,7 @@ import type { BuiltInDictionary, DictionaryItemRef } from '@/lib/types/dictionar
 /**
  * A single-select over one built-in dictionary.
  *
- * The whole dictionary arrives in one request and the combobox filters it locally — these
- * lists are small, server-cached, and the `/suggest` endpoint caps at ten matches, which
- * would quietly hide options from a picker.
+ * The whole dictionary arrives in one request and the combobox filters it locally, suitable for small lists.
  */
 function DictionaryCombobox({
   dictionary,

@@ -62,7 +62,7 @@ function SchemeEditor({ value, onChange, className, disabled }: SchemeEditorProp
     <>
       <div
         className={cn(
-          'relative flex h-[120px] items-center justify-center rounded-md border border-dashed border-neutral-300',
+          'relative flex h-30 items-center justify-center rounded-md border border-dashed border-neutral-300',
           className,
         )}
       >
@@ -77,7 +77,6 @@ function SchemeEditor({ value, onChange, className, disabled }: SchemeEditorProp
             >
               <img src={imageUrl} alt="Chemical structure" className="max-h-full max-w-full object-contain" />
             </button>
-            {/* The affordance from the design; the image behind it is clickable too. */}
             <Button
               variant="secondary"
               size="icon-lg"
