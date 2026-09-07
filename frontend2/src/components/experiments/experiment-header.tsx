@@ -139,8 +139,10 @@ export function ExperimentHeader({
               ))}
         </nav>
 
+        {/* A skeleton at the icon-lg height while the experiment loads, so the strip does not
+            grow when it lands — the same reason the tabs above have placeholder pills. */}
         <div className="pb-2">
-          <UndoRedoButtons saving={saving} />
+          {experiment ? <UndoRedoButtons experiment={experiment} saving={saving} /> : <Skeleton className="h-9 w-20" />}
         </div>
       </div>
 

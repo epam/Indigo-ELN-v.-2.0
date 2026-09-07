@@ -608,6 +608,18 @@ export const failingMutateHandlers = [
   ...handlers,
 ];
 
+/**
+ * What an undo with an empty stack answers: 400 carrying the backend's `ErrorDTO[]` body. That
+ * is the only way to learn there is nothing to undo — no `canUndo` is exposed anywhere — and
+ * `describeError` renders the array's own wording, so the toast says what the server said.
+ */
+export const nothingToUndoHandlers = [
+  http.post(`${ELN}/experiments/:id/mutate`, () =>
+    HttpResponse.json([{ message: 'Nothing to undo' }], { status: 400 }),
+  ),
+  ...handlers,
+];
+
 /** Every endpoint fails, so the error branch renders. */
 export const errorHandlers = [http.get(`${ELN}/*`, () => new HttpResponse(null, { status: 500 }))];
 

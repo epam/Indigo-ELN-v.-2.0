@@ -38,6 +38,31 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 
+/**
+ * Where the stack actually lands. The viewport is a zero-height box at `top-4`, so the anchor
+ * edge on `Toast.Root` decides which way toasts grow out of it — pinned by the bottom edge they
+ * grow upward and the window clips them, which is what this pins against. `--toast-offset-y`
+ * then pushes the older toast down below the newer one rather than up off the top.
+ */
+export const StacksDownwardFromTheTop: Story = {
+  play: async () => {
+    await userEvent.click(screen.getByRole('button', { name: 'Plain' }));
+    const first = await screen.findByText('Project created');
+    const firstBox = first.closest('[role="dialog"]')!.getBoundingClientRect();
+    await expect(firstBox.top).toBeGreaterThanOrEqual(0);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Server error' }));
+    const second = await screen.findByText('Server error. Please try again later');
+    const secondBox = second.closest('[role="dialog"]')!.getBoundingClientRect();
+    await expect(secondBox.top).toBeGreaterThanOrEqual(0);
+
+    // The newer toast is on top and the older one has been pushed below it, both on screen.
+    await waitFor(() =>
+      expect(first.closest('[role="dialog"]')!.getBoundingClientRect().top).toBeGreaterThan(secondBox.top),
+    );
+  },
+};
+
 /** A 403 is reported as a permission problem rather than a raw status. */
 export const ForbiddenMessage: Story = {
   play: async () => {
