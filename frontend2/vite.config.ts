@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
+import {availableParallelism} from 'node:os';
 import {fileURLToPath} from 'node:url';
 import {storybookTest} from '@storybook/addon-vitest/vitest-plugin';
 import tailwindcss from '@tailwindcss/vite';
@@ -24,6 +25,12 @@ const API_TARGET = 'https://indigo-eln-dev.test.lifescience.opensource.epam.com'
 // has Chromium installed natively, CHROMIUM_BIN points the browser tests at that binary
 // instead and no root is needed — see the `test:stories:native` script.
 const CHROMIUM_BIN = process.env.CHROMIUM_BIN;
+
+// Both projects must declare the same `maxWorkers`: Vitest 4 refuses to run two projects that
+// share a `sequence.groupOrder` (both default to 0) with different worker counts. The number is
+// the browser project's — see the measurement note on its `maxWorkers` below — and the unit
+// project simply follows it, since 4 jsdom workers are not the bottleneck there.
+const MAX_WORKERS = Math.min(4, availableParallelism());
 
 // The deployed app is served behind a Content-Security-Policy. `vite preview` serves the
 // real production bundle, so pointing the same policy at it is the only way to find a
@@ -147,6 +154,7 @@ export default defineConfig({
         extends: true,
         test: {
           name: 'unit',
+          maxWorkers: MAX_WORKERS,
           environment: 'jsdom',
           globals: true,
           setupFiles: ['./src/test-setup.ts'],
@@ -171,7 +179,7 @@ export default defineConfig({
           //
           // Machine-dependent, obviously — but the ceiling is the shared browser process,
           // not the core count, so raise this only alongside a measurement.
-          maxWorkers: 4,
+          maxWorkers: MAX_WORKERS,
           // Storybook 10.3+ can provision preview annotations itself, but only
           // a project setup file gets scanned for dep pre-bundling — without one
           // the CJS deps behind @testing-library/dom fail to import in the browser.

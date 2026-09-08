@@ -1,8 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
 
 import { ActionBar } from '@/components/common/action-bar';
-import { ExperimentCollection } from '@/components/experiments/experiment-collection';
-import { StatusFilterMenu } from '@/components/experiments/status-filter-menu';
+import { ExperimentCollection } from '@/components/experiments/list/experiment-collection';
+import { StatusFilterMenu } from '@/components/experiments/list/status-filter-menu';
 import { z } from '@/lib/zod';
 import { COLLECTION_VIEWS, type CollectionView, SORT_ORDERS, type SortOrder } from '@/lib/types/common.ts';
 import { EXPERIMENT_STATUSES } from '@/lib/types/experiments.ts';

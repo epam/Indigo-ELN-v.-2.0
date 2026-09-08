@@ -1,9 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router';
 
-import { ExperimentHeader } from '@/components/experiments/experiment-header';
-import { activeTabIndex, tabSlugs } from '@/components/experiments/experiment-template';
-import { ExperimentTemplateTab } from '@/components/experiments/experiment-template-tab';
-import { ExperimentPageSkeleton } from '@/components/experiments/experiment-page-skeleton';
+import { ExperimentHeader } from '@/components/experiments/details/experiment-header';
+import { activeTabIndex, tabSlugs } from '@/components/experiments/details/experiment-template';
+import { ExperimentTemplateTab } from '@/components/experiments/details/experiment-template-tab';
+import { ExperimentPageSkeleton } from '@/components/experiments/details/experiment-page-skeleton';
 import { useExperiment } from '@/lib/api/experiments';
 import { useTemplate } from '@/lib/api/templates';
 import { prewarmKetcher } from '@/lib/ketcher';

@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router';
 
-import { ProjectHeader } from '@/components/projects/project-header';
+import { ProjectHeader } from '@/components/projects/details/project-header';
 import { useProject } from '@/lib/api/projects';
 
 // `projects_` keeps this off `/_auth/projects` as a child route — the projects page is a
