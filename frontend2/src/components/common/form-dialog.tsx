@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 import { SavingOverlay } from '@/components/common/saving-overlay';
 import { Dialog, DialogClose, DialogContent } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import { Button, type ButtonVariant } from '@/components/ui/button';
 
 interface FormDialogProps {
   open: boolean;
@@ -11,6 +11,11 @@ interface FormDialogProps {
   title: string;
   submitLabel?: string;
   cancelLabel?: string;
+  /**
+   * The submit button's look. `destructive` is what a confirmation of something irreversible
+   * wants — Cancel Experiment, say — where the default blue would read as the safe choice.
+   */
+  submitVariant?: ButtonVariant;
   submitDisabled?: boolean;
   /**
    * The mirror of the submitting phase, for a dialog that has to load something before its form
@@ -38,6 +43,7 @@ function FormDialog({
   title,
   submitLabel = 'Save',
   cancelLabel = 'Cancel',
+  submitVariant,
   submitDisabled,
   initializing,
   onSubmit,
@@ -97,7 +103,13 @@ function FormDialog({
                 </Button>
               }
             />
-            <Button type="submit" size="lg" loading={isSubmitting} disabled={submitDisabled || initializing}>
+            <Button
+              type="submit"
+              variant={submitVariant}
+              size="lg"
+              loading={isSubmitting}
+              disabled={submitDisabled || initializing}
+            >
               {submitLabel}
             </Button>
           </>

@@ -1,7 +1,7 @@
 import type { ACLEntry, Attachment, UserRef } from '@/lib/types/common.ts';
 import type { BuiltInDictionary, DictionaryItemRef } from '@/lib/types/dictionaries.ts';
 import type { GlobalSearchResult } from '@/lib/types/search.ts';
-import type { Experiment, ExperimentDetails, ExperimentRef } from '@/lib/types/experiments.ts';
+import type { Experiment, ExperimentDetails, ExperimentRef, SignatureTemplateRef } from '@/lib/types/experiments.ts';
 import { EXPERIMENT_STATUSES } from '@/lib/types/experiments.ts';
 import type { Notebook, NotebookDetails } from '@/lib/types/notebooks.ts';
 import type { Project, ProjectDetails, TotalCounts } from '@/lib/types/projects.ts';
@@ -551,6 +551,16 @@ export function makeReaction(overrides: Partial<Reaction> = {}): Reaction {
     ...overrides,
   };
 }
+
+/**
+ * What `GET /signatureTemplates` answers with — the signature service's own templates, proxied and
+ * narrowed to `SignatureTemplateRef`. Two, so the submit dialog's list has something to choose
+ * between.
+ */
+export const SIGNATURE_TEMPLATES: SignatureTemplateRef[] = [
+  { id: '77777777-7777-7777-7777-777777777771', name: 'Author and Witness' },
+  { id: '77777777-7777-7777-7777-777777777772', name: 'Author only' },
+];
 
 export function makeExperimentDetails(overrides: Partial<ExperimentDetails> = {}): ExperimentDetails {
   const base = makeExperiment();

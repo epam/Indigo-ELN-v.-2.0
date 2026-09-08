@@ -36,9 +36,10 @@ export const queryClient = new QueryClient({
 /**
  * What is worth restoring from disk: the sidebar chrome, which is on every screen, plus the
  * reference data that shapes the experiment screens — dictionaries, the template picker's list,
- * and the templates themselves. All of it changes only when an admin edits it, and all of it
- * otherwise flashes skeletons on each load. Everything else — project pages, keyword suggestions
- * — stays in memory.
+ * the templates themselves, and the signature templates the submit dialog picks from. All of it
+ * changes only when an admin edits it, and all of it otherwise flashes skeletons on each load —
+ * the signature templates behind a dialog the user has already opened, which is the worst place
+ * to wait. Everything else — project pages, keyword suggestions — stays in memory.
  *
  * Nothing in the app mutates the dictionaries or the templates today: both admin screens are
  * placeholders (`src/routes/_auth/{dictionaries,templates}.tsx`). When they land, the
@@ -52,6 +53,7 @@ const persistedHashes = new Set(
   [
     userKeys.currentUser(),
     experimentKeys.marked(),
+    experimentKeys.signatureTemplates(),
     templateKeys.list(),
     ...BUILT_IN_DICTIONARIES.map(dictionaryKeys.items),
   ].map(hashKey),

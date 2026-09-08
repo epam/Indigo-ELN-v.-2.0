@@ -110,10 +110,12 @@ export function ExperimentHeader({
                 <UserPlus />
               </Button>
             )}
+
+            {/* Inside the guard: which actions exist is a question about this experiment's status
+                and this user's permissions, so there is nothing to render until it has loaded. */}
+            <ExperimentActions experiment={experiment} />
           </>
         )}
-
-        <ExperimentActions />
       </div>
 
       <div className="-mb-4 flex items-end justify-between gap-4 border-b border-neutral-300">

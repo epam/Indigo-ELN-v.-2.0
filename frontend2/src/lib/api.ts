@@ -163,9 +163,13 @@ export function filenameFromContentDisposition(header: string | null): string | 
  * Rethrows, like `apiFetch` and for the same reason: the failure is already toasted, but a
  * transport function that quietly resolved on error would be the odd one out here. Swallowing
  * belongs to the caller — `useDownload` does it.
+ *
+ * `init` is for the downloads that are not plain GETs — the experiment report is a `POST`. It is
+ * spread *before* `responseType`, so a caller cannot ask for a parsed body from a function whose
+ * whole job is to hand the bytes to an anchor.
  */
-export async function apiDownload(path: string, fallbackFilename: string): Promise<void> {
-  const response = await apiRequest(path, { responseType: 'blob' });
+export async function apiDownload(path: string, fallbackFilename: string, init: ApiRequestInit = {}): Promise<void> {
+  const response = await apiRequest(path, { ...init, responseType: 'blob' });
   const filename = filenameFromContentDisposition(response.headers.get('Content-Disposition'));
 
   const url = URL.createObjectURL(await response.blob());

@@ -25,6 +25,7 @@ import {
   REACTION_SCHEME_SVG,
   SAMPLE_RESULTS,
   SEARCH_RESULTS,
+  SIGNATURE_TEMPLATES,
   TEMPLATES,
   USERS,
 } from '@/mocks/fixtures';
@@ -346,6 +347,37 @@ export const handlers = [
   // not accept. The response is the same `MutationResponse` shape.
   http.post(`${ELN}/experiments/:id/datamodel/reactions/:anchor/importSDF`, () =>
     HttpResponse.json({ patch: {}, messages: ['Imported 1 compound'] } satisfies MutationResponse),
+  ),
+  /*
+   * The workflow transitions. Each answers the whole `ExperimentDetailsDTO` with the status the
+   * matching handler would have set, which is what lets a story press Complete and see the header
+   * swap to the COMPLETED row. `submit` and `completeAndSubmit` also take a `signatureTemplateId`
+   * query param, which the real backend uses to upload the printed report for signature.
+   */
+  http.post(`${ELN}/experiments/:id/workflow/complete`, () =>
+    HttpResponse.json(makeExperimentDetails({ status: 'COMPLETED' })),
+  ),
+  http.post(`${ELN}/experiments/:id/workflow/reopen`, () =>
+    HttpResponse.json(makeExperimentDetails({ status: 'REOPEN' })),
+  ),
+  http.post(`${ELN}/experiments/:id/workflow/cancel`, () =>
+    HttpResponse.json(makeExperimentDetails({ status: 'CANCELLED' })),
+  ),
+  http.post(`${ELN}/experiments/:id/workflow/submit`, () =>
+    HttpResponse.json(makeExperimentDetails({ status: 'SUBMITTED' })),
+  ),
+  http.post(`${ELN}/experiments/:id/workflow/completeAndSubmit`, () =>
+    HttpResponse.json(makeExperimentDetails({ status: 'SUBMITTED' })),
+  ),
+  http.get(`${ELN}/signatureTemplates`, () => HttpResponse.json(SIGNATURE_TEMPLATES)),
+  // A POST, unlike every other download here: the reports service generates the PDF on demand.
+  http.post(`${ELN}/experiments/:id/print`, () =>
+    HttpResponse.text('%PDF-1.4\n', {
+      headers: {
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': 'attachment; filename="report.pdf"',
+      },
+    }),
   ),
   // `@Produces("chemical/x-mdl-sdfile")`, with the filename the download names the file after.
   http.get(`${ELN}/experiments/:id/exportSdf`, () =>

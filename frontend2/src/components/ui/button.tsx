@@ -39,6 +39,9 @@ const buttonVariants = cva(
   },
 );
 
+/** The `variant` names, for a component that takes one and passes it through. */
+type ButtonVariant = NonNullable<VariantProps<typeof buttonVariants>['variant']>;
+
 type ButtonProps = ButtonPrimitive.Props &
   VariantProps<typeof buttonVariants> & {
     /** Disables the button and covers its contents with a centred spinner. */
@@ -73,3 +76,4 @@ function Button({ className, variant = 'default', size = 'default', loading, chi
 }
 
 export { Button, buttonVariants };
+export type { ButtonVariant };

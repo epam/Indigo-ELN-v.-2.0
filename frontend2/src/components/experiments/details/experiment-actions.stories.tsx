@@ -1,136 +1,185 @@
 import { http, HttpResponse } from 'msw';
 import { expect, screen, userEvent, waitFor, within } from 'storybook/test';
 
-import { UndoRedoButtons } from '@/components/experiments/details/experiment-actions';
-import { Input } from '@/components/ui/input';
+import { ExperimentActions } from '@/components/experiments/details/experiment-actions';
+import type { ApplicationPermission } from '@/lib/types/user.ts';
 import { makeExperimentDetails } from '@/mocks/fixtures';
-import { handlers, nothingToUndoHandlers } from '@/mocks/handlers';
+import { handlers } from '@/mocks/handlers';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-const EXPERIMENT = makeExperimentDetails();
+/** Everything the workflow needs; the header's other permissions are irrelevant here. */
+const ALLOWED: ApplicationPermission[] = ['VIEW_EXPERIMENTS', 'EDIT_EXPERIMENTS', 'SUBMIT_EXPERIMENTS'];
 
-/** Records the mutations that actually reached the wire, so a story can assert the payload. */
-const sent: unknown[] = [];
+/**
+ * A collaborator at `AccessLevel.EDIT`: can change the experiment's content, cannot move it
+ * through the workflow. The pair the two gates exist to tell apart.
+ */
+const EDITOR_ONLY: ApplicationPermission[] = ['VIEW_EXPERIMENTS', 'EDIT_EXPERIMENTS'];
+
+/** Records the transitions that actually reached the wire, so a story can assert path and query. */
+const sent: string[] = [];
 
 const spyHandlers = [
-  http.post('/api/eln/experiments/:id/mutate', async ({ request }) => {
-    sent.push(await request.json());
-    return HttpResponse.json({ patch: {} });
+  http.post('/api/eln/experiments/:id/workflow/:action', ({ request, params }) => {
+    const { search } = new URL(request.url);
+    sent.push(`${params.action as string}${search}`);
+    return HttpResponse.json(makeExperimentDetails());
   }),
   ...handlers,
 ];
 
 const meta = {
-  title: 'Experiments/Details/UndoRedoButtons',
-  component: UndoRedoButtons,
-  args: { experiment: EXPERIMENT, saving: false },
+  title: 'Experiments/Details/ExperimentActions',
+  component: ExperimentActions,
+  args: { experiment: makeExperimentDetails({ currentPermissions: ALLOWED }) },
   parameters: { msw: { handlers: spyHandlers } },
-} satisfies Meta<typeof UndoRedoButtons>;
+  decorators: [
+    (Story) => (
+      <div className="flex items-center gap-2">
+        <Story />
+      </div>
+    ),
+  ],
+} satisfies Meta<typeof ExperimentActions>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** Asserts the row against the status matrix — both what is there and what is not. */
+async function expectRow(canvasElement: HTMLElement, present: string[]) {
+  const canvas = within(canvasElement);
+  const absent = ['Complete', 'Complete and Sign', 'Cancel', 'Submit', 'Reopen'].filter(
+    (label) => !present.includes(label),
+  );
+
+  for (const label of present) {
+    await expect(canvas.getByRole('button', { name: label })).toBeInTheDocument();
+  }
+  for (const label of absent) {
+    await expect(canvas.queryByRole('button', { name: label })).not.toBeInTheDocument();
+  }
+  // Print is on every row: `printReport` needs no permission beyond seeing the page.
+  await expect(canvas.getByRole('button', { name: 'Print Report' })).toBeEnabled();
+}
+
+/** The three transitions an editable experiment offers. `REOPEN` renders identically. */
+export const Open: Story = {
+  play: ({ canvasElement }) => expectRow(canvasElement, ['Complete', 'Complete and Sign', 'Cancel']),
+};
+
+export const Completed: Story = {
+  args: { experiment: makeExperimentDetails({ status: 'COMPLETED', currentPermissions: ALLOWED }) },
+  play: ({ canvasElement }) => expectRow(canvasElement, ['Submit', 'Reopen']),
+};
+
 /**
- * Both enabled. There is no `canUndo` to read, so an enabled button says only that the
- * experiment is writable — pressing with an empty stack is what asks the server.
+ * A rejected experiment is resubmitted by the **same** button — `SubmitExperimentHandler` allows
+ * `COMPLETED` and `REJECTED` alike, so there is no separate Resubmit action.
  */
-export const Default: Story = {
+export const Rejected: Story = {
+  args: { experiment: makeExperimentDetails({ status: 'REJECTED', currentPermissions: ALLOWED }) },
+  play: ({ canvasElement }) => expectRow(canvasElement, ['Submit', 'Reopen']),
+};
+
+/**
+ * Out for signature: nothing to offer anybody. `ReopenExperimentHandler` excludes `SIGNING` and
+ * `SIGNED`, so the Reopen indigo-frontend shows here would only earn a 400.
+ */
+export const Signing: Story = {
+  args: { experiment: makeExperimentDetails({ status: 'SIGNING', currentPermissions: ALLOWED }) },
+  play: ({ canvasElement }) => expectRow(canvasElement, []),
+};
+
+/**
+ * The permission gate, which is the *other* gate: the buttons the status allows are still rendered,
+ * disabled and saying why, rather than vanishing. Print stays live — it needs no permission.
+ */
+export const WithoutPermission: Story = {
+  args: { experiment: makeExperimentDetails({ currentPermissions: EDITOR_ONLY }) },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByRole('button', { name: 'Undo' })).toBeEnabled();
-    await expect(canvas.getByRole('button', { name: 'Redo' })).toBeEnabled();
+
+    for (const label of ['Complete', 'Complete and Sign', 'Cancel']) {
+      const button = canvas.getByRole('button', { name: label });
+      await expect(button).toBeDisabled();
+      await expect(button).toHaveAccessibleDescription(/permission/i);
+    }
+    await expect(canvas.getByRole('button', { name: 'Print Report' })).toBeEnabled();
   },
 };
 
-/** The two payloads, in the order they were pressed. */
-export const SendsUndoAndRedo: Story = {
+/** Complete has no dialog in front of it — Reopen is its undo, so nothing is lost by firing. */
+export const CompletesImmediately: Story = {
+  play: async ({ canvasElement }) => {
+    sent.length = 0;
+    await userEvent.click(within(canvasElement).getByRole('button', { name: 'Complete' }));
+
+    await waitFor(() => expect(sent).toEqual(['complete']));
+    await expect(await screen.findByText('Experiment marked as completed')).toBeInTheDocument();
+  },
+};
+
+/**
+ * Cancel is the one transition that asks first: it throws work away, and its own label makes the
+ * dialog's buttons say what they do rather than the default Save/Cancel pair.
+ */
+export const CancelAsksFirst: Story = {
   play: async ({ canvasElement }) => {
     sent.length = 0;
     const canvas = within(canvasElement);
 
-    await userEvent.click(canvas.getByRole('button', { name: 'Undo' }));
-    await waitFor(() => expect(sent).toEqual([{ type: 'Undo' }]));
+    // Portalled, so `screen` rather than the canvas.
+    await userEvent.click(canvas.getByRole('button', { name: 'Cancel' }));
+    await expect(await screen.findByRole('button', { name: 'Cancel Experiment' })).toBeInTheDocument();
 
-    await userEvent.click(canvas.getByRole('button', { name: 'Redo' }));
-    await waitFor(() => expect(sent).toEqual([{ type: 'Undo' }, { type: 'Redo' }]));
-  },
-};
-
-/**
- * Ctrl+Z, Ctrl+Y and Ctrl+Shift+Z, dispatched at the page rather than at either button —
- * the listener is on `document`, since the shortcut belongs to the page. Cmd+Y is not redo
- * on macOS, which is why the third chord exists.
- */
-export const KeyboardShortcuts: Story = {
-  play: async () => {
-    sent.length = 0;
-
-    await userEvent.keyboard('{Control>}z{/Control}');
-    await waitFor(() => expect(sent).toEqual([{ type: 'Undo' }]));
-
-    await userEvent.keyboard('{Control>}y{/Control}');
-    await waitFor(() => expect(sent).toEqual([{ type: 'Undo' }, { type: 'Redo' }]));
-
-    await userEvent.keyboard('{Control>}{Shift>}z{/Shift}{/Control}');
-    await waitFor(() => expect(sent).toEqual([{ type: 'Undo' }, { type: 'Redo' }, { type: 'Redo' }]));
-  },
-};
-
-/**
- * A caret in a text field owns Ctrl+Z itself — as do the rich-text editor and the sketcher,
- * which the handler skips the same way. Undoing the typing must not undo the experiment.
- */
-export const IgnoresShortcutsInFields: Story = {
-  render: (args) => (
-    <div className="flex items-center gap-4">
-      <Input aria-label="Chemical Name" defaultValue="Acetic anhydride" />
-      <UndoRedoButtons {...args} />
-    </div>
-  ),
-  play: async ({ canvasElement }) => {
-    sent.length = 0;
-    const canvas = within(canvasElement);
-
-    await userEvent.click(canvas.getByLabelText('Chemical Name'));
-    await userEvent.keyboard('{Control>}z{/Control}');
-
-    // Nothing to wait for, so give the request the chance to be made and assert it was not.
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    // Backing out sends nothing.
+    await userEvent.click(screen.getByRole('button', { name: 'Keep Experiment' }));
+    await waitFor(() => expect(screen.queryByRole('button', { name: 'Cancel Experiment' })).not.toBeInTheDocument());
     await expect(sent).toEqual([]);
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Cancel' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Cancel Experiment' }));
+    await waitFor(() => expect(sent).toEqual(['cancel']));
   },
 };
 
 /**
- * A signed experiment is read-only to its own author, so both buttons are disabled and the
- * shortcuts are inert — `canEditExperiment` is permission *and* status, and the backend
- * rejects a mutation on either count.
+ * Submit stops at the template picker, and the id it chooses rides along as a query param —
+ * the one thing `POST /workflow/submit` needs beyond the experiment.
  */
-export const ReadOnly: Story = {
-  args: { experiment: makeExperimentDetails({ status: 'SIGNED' }) },
+export const SubmitPicksTemplate: Story = {
+  args: { experiment: makeExperimentDetails({ status: 'COMPLETED', currentPermissions: ALLOWED }) },
   play: async ({ canvasElement }) => {
     sent.length = 0;
-    const canvas = within(canvasElement);
 
-    await expect(canvas.getByRole('button', { name: 'Undo' })).toBeDisabled();
-    await expect(canvas.getByRole('button', { name: 'Redo' })).toBeDisabled();
+    await userEvent.click(within(canvasElement).getByRole('button', { name: 'Submit' }));
 
-    await userEvent.keyboard('{Control>}z{/Control}');
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    await expect(sent).toEqual([]);
+    // Required field: Sign cannot be pressed until a template has actually been chosen.
+    const sign = await screen.findByRole('button', { name: 'Sign' });
+    await expect(sign).toBeDisabled();
+
+    await userEvent.click(screen.getByLabelText(/^Signature Template/));
+    await userEvent.click(await screen.findByRole('option', { name: 'Author and Witness' }));
+    await waitFor(() => expect(sign).toBeEnabled());
+
+    await userEvent.click(sign);
+    await waitFor(() => expect(sent).toEqual(['submit?signatureTemplateId=77777777-7777-7777-7777-777777777771']));
   },
 };
 
-/**
- * The empty-stack answer: 400 with the backend's own wording, toasted centrally by `apiFetch`.
- * That is the whole error path — nothing here tracks a local stack to grey the button out.
- */
-export const NothingToUndo: Story = {
-  parameters: { msw: { handlers: nothingToUndoHandlers } },
+/** Complete and Sign goes through the same picker, to the endpoint that does both. */
+export const CompleteAndSign: Story = {
   play: async ({ canvasElement }) => {
-    await userEvent.click(within(canvasElement).getByRole('button', { name: 'Undo' }));
+    sent.length = 0;
 
-    // Portalled, and Base UI marks an unfocused toast aria-hidden — so query the text, not a role.
-    await expect(await screen.findByText('Nothing to undo')).toBeInTheDocument();
+    await userEvent.click(within(canvasElement).getByRole('button', { name: 'Complete and Sign' }));
+    await userEvent.click(await screen.findByLabelText(/^Signature Template/));
+    await userEvent.click(await screen.findByRole('option', { name: 'Author only' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Sign' }));
+
+    await waitFor(() =>
+      expect(sent).toEqual(['completeAndSubmit?signatureTemplateId=77777777-7777-7777-7777-777777777772']),
+    );
   },
 };

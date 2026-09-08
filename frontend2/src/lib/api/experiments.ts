@@ -18,6 +18,8 @@ import type {
   ExperimentFilters,
   ExperimentRef,
   ExperimentRequest,
+  SignatureTemplateRef,
+  WorkflowAction,
 } from '@/lib/types/experiments.ts';
 import type { ModelMutation, MutationResponse } from '@/lib/types/mutations.ts';
 
@@ -49,6 +51,7 @@ export const experimentKeys = {
   list: (notebookId: string, filters: ExperimentFilters) => ['experiments', 'list', notebookId, filters] as const,
   detail: (id: string) => ['experimentDetails', id] as const,
   suggestions: (search: string) => ['experimentSuggestions', search] as const,
+  signatureTemplates: () => ['signatureTemplates'] as const,
 };
 
 /**
@@ -294,6 +297,96 @@ export function useImportSdf(
     mutationFn: (file: File) => importSdf(id, reactionAnchor, file),
     onSuccess: (response) => applyMutationResponse(queryClient, id, response, onPatched),
   });
+}
+
+/**
+ * Runs one workflow transition: `POST /experiments/{id}/workflow/{action}`, optionally carrying the
+ * signature template the submit endpoints take as a query param.
+ *
+ * In `experimentWrite`'s scope like every other write to this experiment. These are not incidental
+ * status flips — `ExperimentWorkflowService` drives each one through `applyMutation`, so they write
+ * a revision and bump `revision` exactly as a field edit does, and must queue behind the on-blur
+ * saves rather than race them.
+ *
+ * The response is a whole `ExperimentDetailsDTO`, so the detail is replaced outright and never
+ * refetched. What does need invalidating is everything showing the status:
+ *
+ * - `lists()` — every experiment card carries the status badge.
+ * - `marked()`, but **only when this experiment is starred**. A status transition is the one thing
+ *   besides mark/unmark that moves the starred panel, which reads `status` — and that panel is
+ *   mounted on every page, so invalidating it refetches immediately rather than on next mount.
+ *   Completing an unstarred experiment has nothing to tell it, so `all()` would be a wasted round
+ *   trip on the common path.
+ * - both ancestors' details and the projects tile — `experimentCountByStatus` on each. The ids ride
+ *   along on the response, the same way `useCreateExperiment` reads them.
+ */
+export function useExperimentWorkflow(id: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...experimentWrite(id),
+    mutationFn: ({ action, signatureTemplateId }: { action: WorkflowAction; signatureTemplateId?: string }) =>
+      runWorkflow(id, action, signatureTemplateId),
+    onSuccess: (experiment) => {
+      queryClient.setQueryData(experimentKeys.detail(id), experiment);
+      void queryClient.invalidateQueries({ queryKey: experimentKeys.lists() });
+      // The starred panel is mounted on every page, so invalidating it refetches at once — and it
+      // only holds this experiment if it is starred. A transition cannot change `marked`, so the
+      // response's flag is as good as the one from before the write.
+      if (experiment.marked) void queryClient.invalidateQueries({ queryKey: experimentKeys.marked() });
+      void queryClient.invalidateQueries({ queryKey: notebookKeys.detail(experiment.notebookId) });
+      void queryClient.invalidateQueries({ queryKey: projectKeys.detail(experiment.projectId) });
+      void queryClient.invalidateQueries({ queryKey: projectKeys.totalCounts() });
+    },
+  });
+}
+
+function runWorkflow(id: string, action: WorkflowAction, signatureTemplateId?: string): Promise<ExperimentDetails> {
+  const query = signatureTemplateId === undefined ? '' : `?signatureTemplateId=${signatureTemplateId}`;
+  return apiFetch<ExperimentDetails>(`/api/eln/experiments/${id}/workflow/${action}${query}`, { method: 'POST' });
+}
+
+function fetchSignatureTemplates(signal?: AbortSignal): Promise<SignatureTemplateRef[]> {
+  return apiFetch<SignatureTemplateRef[]>('/api/eln/signatureTemplates', { signal });
+}
+
+/**
+ * The templates the submit dialog picks from. `enabled` because nothing outside that dialog wants
+ * them — the first open is what fetches them.
+ *
+ * Persisted to localStorage (`src/lib/query-client.ts`), so every open after the first paints the
+ * list from disk instead of the dialog sitting on a spinner while a round trip to the signature
+ * service resolves. That is also why the two timings below are what they are, and they are a pair
+ * rather than two independent choices:
+ *
+ * - `gcTime: Infinity` — a collected query is absent from the next dehydration, which would quietly
+ *   take it off disk again. Every persisted query needs this.
+ * - a long `staleTime`, as `useCurrentUser` has: templates are administered in the signature
+ *   service and change rarely, so a restored list is shown as-is rather than revalidated behind a
+ *   dialog the user is already reading.
+ */
+export function useSignatureTemplates(enabled: boolean) {
+  return useQuery({
+    queryKey: experimentKeys.signatureTemplates(),
+    queryFn: ({ signal }) => fetchSignatureTemplates(signal),
+    enabled,
+    staleTime: 15 * 60_000,
+    gcTime: Infinity,
+  });
+}
+
+/**
+ * Downloads the experiment report as a PDF. Same shape as `useExportSdf` below, except that print
+ * is a **POST** — the reports service generates the file rather than serving one — which is why
+ * `apiDownload` takes an `init`.
+ */
+export function usePrintReport(id: string) {
+  const { download, downloading } = useDownload();
+
+  return {
+    print: () => void download(() => apiDownload(`/api/eln/experiments/${id}/print`, 'report.pdf', { method: 'POST' })),
+    printing: downloading,
+  };
 }
 
 /**
