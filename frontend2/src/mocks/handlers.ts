@@ -4,6 +4,8 @@ import {
   ATTACHMENTS,
   COMPOUND_STRUCTURE_SVG,
   DICTIONARIES,
+  DICTIONARY_ITEMS,
+  DICTIONARY_LIST,
   EXPERIMENT_ACL,
   EXPERIMENT_REFS,
   EXPERIMENTS,
@@ -34,7 +36,12 @@ import {
 
 import type { AccessForm, ACLEntry, Page, UserRef } from '@/lib/types/common.ts';
 import type { GlobalSearchResult } from '@/lib/types/search.ts';
-import type { BuiltInDictionary } from '@/lib/types/dictionaries.ts';
+import type {
+  BuiltInDictionary,
+  DictionaryItem,
+  DictionaryItemEditRequest,
+  DictionaryItemRequest,
+} from '@/lib/types/dictionaries.ts';
 import type { ExperimentEditRequest, ExperimentRequest, ExperimentStatus } from '@/lib/types/experiments.ts';
 import type { ModelMutation, MutationResponse } from '@/lib/types/mutations.ts';
 import type { NotebookEditRequest, NotebookRequest } from '@/lib/types/notebooks.ts';
@@ -44,6 +51,15 @@ import type { FindSamplesRequest, SampleDTO, SampleSearchResult, SearchCatalog }
 // apiFetch sends the path verbatim, so handlers match the same full paths the
 // callers in src/lib/api/ pass.
 const ELN = '/api/eln';
+
+/**
+ * What every dictionary item write answers with: the whole list, renumbered from 1. Stateless on
+ * purpose — each request is computed from `DICTIONARY_ITEMS` rather than from a running copy, so
+ * one story's Add Word cannot leak into the next story's table.
+ */
+function renumbered(items: DictionaryItem[]): DictionaryItem[] {
+  return items.map((item, index) => ({ ...item, ordinal: index + 1 }));
+}
 
 function page<T>(items: T[]): Page<T> {
   return { pageNo: 0, pageSize: 20, totalItems: items.length, totalPages: 1, items };
@@ -400,8 +416,39 @@ export const handlers = [
     HttpResponse.json(recomputedAcl(EXPERIMENT_ACL, (await request.json()) as AccessForm[])),
   ),
   http.get(`${ELN}/currentUser`, () => HttpResponse.json(makeCurrentUser())),
+  http.get(`${ELN}/dictionaries`, () => HttpResponse.json(DICTIONARY_LIST)),
+  // Ahead of `/:dictionary` — MSW takes the first match, and that one would swallow this path.
+  http.get(`${ELN}/dictionaries/:dictionary/full`, () => HttpResponse.json(DICTIONARY_ITEMS)),
   http.get(`${ELN}/dictionaries/:dictionary`, ({ params }) =>
     HttpResponse.json(DICTIONARIES[params.dictionary as BuiltInDictionary] ?? []),
+  ),
+  http.post(`${ELN}/dictionaries/:dictionary`, async ({ request }) => {
+    const { name } = (await request.json()) as DictionaryItemRequest;
+    const added: DictionaryItem = {
+      id: 'd1c71111-0000-4000-8000-00000000000a',
+      createdAt: new Date().toISOString(),
+      name,
+      description: null,
+      ordinal: DICTIONARY_ITEMS.length + 1,
+      active: true,
+    };
+    return HttpResponse.json(renumbered([...DICTIONARY_ITEMS, added]));
+  }),
+  http.patch(`${ELN}/dictionaries/:dictionary/:itemID`, async ({ params, request }) => {
+    const edit = (await request.json()) as DictionaryItemEditRequest;
+    const edited = DICTIONARY_ITEMS.map((item) =>
+      item.id === params.itemID ? { ...item, ...edit, ordinal: item.ordinal } : item,
+    );
+    if (edit.ordinal === undefined) return HttpResponse.json(edited);
+    // `PATCH {ordinal}` is "move to this 1-based position"; the server renumbers the rest.
+    const moving = edited.find((item) => item.id === params.itemID);
+    if (moving === undefined) return new HttpResponse(null, { status: 404 });
+    const rest = edited.filter((item) => item !== moving);
+    rest.splice(edit.ordinal - 1, 0, moving);
+    return HttpResponse.json(renumbered(rest));
+  }),
+  http.delete(`${ELN}/dictionaries/:dictionary/:itemID`, ({ params }) =>
+    HttpResponse.json(renumbered(DICTIONARY_ITEMS.filter((item) => item.id !== params.itemID))),
   ),
   http.get(`${ELN}/users/suggest`, ({ request }) =>
     HttpResponse.json(suggestedUsers(new URL(request.url).searchParams.get('search') ?? '')),
@@ -451,6 +498,8 @@ export const emptyHandlers = [
   http.get(`${ELN}/projects/:id/notebooks`, () => HttpResponse.json(page([]))),
   http.get(`${ELN}/notebooks/:id/experiments`, () => HttpResponse.json(page([]))),
   http.get(`${ELN}/experiments/marked`, () => HttpResponse.json([])),
+  http.get(`${ELN}/dictionaries`, () => HttpResponse.json([])),
+  http.get(`${ELN}/dictionaries/:dictionary/full`, () => HttpResponse.json([])),
 ];
 
 /** Creating fails while everything else works, so the dialog's error path has a story. */

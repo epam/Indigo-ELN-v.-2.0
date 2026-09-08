@@ -1,3 +1,5 @@
+import { cn } from '@/lib/utils';
+
 import type { EnteredValue } from '@/lib/types/reactions.ts';
 
 /**
@@ -17,3 +19,17 @@ export const HEADER_CELL_CLASS =
 export function asEnteredValue(value: number | undefined): EnteredValue<string> | undefined {
   return value == null ? undefined : { value: String(value), unit: 'NO_UNIT' };
 }
+
+/**
+ * The box an editable text cell draws: transparent until hovered, blue while focused, and no
+ * taller than a read-only cell so a column of them does not step.
+ *
+ * Here rather than in `cells.tsx` because it is shared by something that is not a cell: the
+ * dictionary admin table's draft row wears the same box around a different behaviour — it has no
+ * saved value to fall back to, it autofocuses, and Escape discards the whole row.
+ */
+export const EDITABLE_CELL_CLASS = cn(
+  'w-full rounded-2 border border-transparent px-2 py-1 text-[13px]/5 text-neutral-1000 outline-none',
+  'placeholder:text-center placeholder:text-neutral-700 hover:border-neutral-300',
+  'focus:border-blue-400 focus:placeholder:text-transparent',
+);

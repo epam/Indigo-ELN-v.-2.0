@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { SavingOverlay } from '@/components/common/saving-overlay';
 import { MultiCombobox } from '@/components/ui/combobox';
 import { Select } from '@/components/ui/select';
+import { EDITABLE_CELL_CLASS } from '@/components/experiments/stoichiometry/columns';
 import { useDictionary } from '@/lib/api/dictionaries';
 import { cn } from '@/lib/utils';
 
@@ -74,21 +75,30 @@ export function FormulaCell({ value }: { value: string | undefined }) {
  *
  * The draft is local so the cell shows what was typed while the request is in flight, and a
  * failed save leaves it there rather than snapping back to the server's value.
+ *
+ * `validate` is optional and off by default, because nothing on the stoichiometry screen has a
+ * rule the server does not already accept. Where a column does — a dictionary word's name is
+ * `@NotEmpty` and has to be unique — it returns the message to show, and the cell then keeps the
+ * draft and issues no request at all, rather than spending a round trip to be told the same
+ * thing. It is the *committed* value that is checked, so a rule never fires mid-typing.
  */
 export function TextCell({
   value,
   editable,
   pending,
   label,
+  validate,
   onCommit,
 }: {
   value: string | undefined;
   editable: boolean;
   pending: boolean;
   label: string;
+  validate?: (next: string | null) => string | undefined;
   onCommit: (next: string | null) => void;
 }) {
   const [draft, setDraft] = useState(value ?? '');
+  const [invalid, setInvalid] = useState<string | undefined>(undefined);
 
   if (!editable) return <ReadonlyCell value={value} />;
 
@@ -97,19 +107,24 @@ export function TextCell({
       <input
         type="text"
         aria-label={label}
+        aria-invalid={invalid !== undefined}
+        title={invalid}
         value={draft}
         placeholder="—"
-        onChange={(event) => setDraft(event.target.value)}
+        onChange={(event) => {
+          setDraft(event.target.value);
+          // Clears as soon as the value moves, so the red border is about what is in the box now.
+          setInvalid(undefined);
+        }}
         onBlur={() => {
           const next = draft.trim() === '' ? null : draft.trim();
+          const message = validate?.(next);
+          setInvalid(message);
+          if (message !== undefined) return;
           // Both sides normalised to null, so "" and undefined are not seen as a change.
           if (next !== (value ?? null)) onCommit(next);
         }}
-        className={cn(
-          'w-full rounded-2 border border-transparent px-2 py-1 text-[13px]/5 text-neutral-1000 outline-none',
-          'placeholder:text-center placeholder:text-neutral-700 hover:border-neutral-300',
-          'focus:border-blue-400 focus:placeholder:text-transparent',
-        )}
+        className={cn(EDITABLE_CELL_CLASS, invalid !== undefined && 'border-destructive focus:border-destructive')}
       />
     </SavingOverlay>
   );

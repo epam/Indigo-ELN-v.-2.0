@@ -1,5 +1,5 @@
 import type { ACLEntry, Attachment, UserRef } from '@/lib/types/common.ts';
-import type { BuiltInDictionary, DictionaryItemRef } from '@/lib/types/dictionaries.ts';
+import type { BuiltInDictionary, Dictionary, DictionaryItem, DictionaryItemRef } from '@/lib/types/dictionaries.ts';
 import type { GlobalSearchResult } from '@/lib/types/search.ts';
 import type { Experiment, ExperimentDetails, ExperimentRef, SignatureTemplateRef } from '@/lib/types/experiments.ts';
 import { EXPERIMENT_STATUSES } from '@/lib/types/experiments.ts';
@@ -202,6 +202,82 @@ export const DICTIONARIES: Partial<Record<BuiltInDictionary, DictionaryItemRef[]
   SAMPLE_SOURCE_DETAILS: makeDictionary(['Source Detail 1', 'Source Detail 2']),
   COMPONENT_STATE: makeDictionary(['Solid', 'Oil', 'Solution', 'Gum']),
 };
+
+/**
+ * The rows `GET /dictionaries` answers with, for the admin list. The ids are the real
+ * `BuiltInDictionary` UUIDs and the codes the real ones, so a story exercises the same
+ * `isBuiltInDictionary` branch production does — except the last, which is a dictionary an admin
+ * created and therefore has no persisted combobox entry to invalidate.
+ */
+export const DICTIONARY_LIST: Dictionary[] = [
+  {
+    id: '7f07ee6f-f89d-4d3b-9e5b-14fe4302ae62',
+    code: 'HANDLING_PRECAUTIONS',
+    name: 'Handling Precautions',
+    userEditable: true,
+    description: '',
+    createdBy: makeUserRef('Administrator'),
+    createdAt: '2024-10-08T09:00:00Z',
+    modifiedBy: makeUserRef('Emmy Cooper'),
+    modifiedAt: '2024-10-14T11:30:00Z',
+  },
+  {
+    id: 'fdd3c5ad-7a70-4591-ae4c-206340547984',
+    code: 'COMPOUND_PROTECTION',
+    name: 'Compound Protection',
+    userEditable: true,
+    description: 'Compound protection description',
+    createdBy: makeUserRef('Administrator'),
+    createdAt: '2024-10-08T09:00:00Z',
+    modifiedBy: makeUserRef('Emmy Cooper'),
+    modifiedAt: '2024-10-14T11:30:00Z',
+  },
+  {
+    id: '978ac7bf-4474-4197-a28a-072cd65a70cb',
+    code: 'SALT_CODE',
+    name: 'Salt Code',
+    userEditable: false,
+    description: 'Salt Code',
+    createdBy: makeUserRef('Administrator'),
+    createdAt: '2024-10-08T09:00:00Z',
+    modifiedBy: makeUserRef('Mark Liu'),
+    modifiedAt: '2024-10-14T11:30:00Z',
+  },
+  {
+    id: 'c0570000-0000-4000-8000-000000000001',
+    code: 'SITE_LOCATION',
+    name: 'Site Location',
+    userEditable: true,
+    description: 'Added by an administrator, so not a BuiltInDictionary',
+    createdBy: makeUserRef('Mark Liu'),
+    createdAt: '2025-01-20T09:00:00Z',
+    modifiedBy: makeUserRef('Mark Liu'),
+    modifiedAt: '2025-02-02T11:30:00Z',
+  },
+];
+
+/**
+ * One dictionary's words as `/full` returns them — `ordinal` dense from 1, and one inactive row,
+ * which is the difference between this endpoint and `GET /dictionaries/{ref}`.
+ */
+export function makeDictionaryItems(names: string[]): DictionaryItem[] {
+  return names.map((name, index) => ({
+    id: `d1c71111-0000-4000-8000-${String(index).padStart(12, '0')}`,
+    createdAt: '2024-10-08T09:00:00Z',
+    name,
+    description: index % 2 === 0 ? 'Use with accuracy' : null,
+    ordinal: index + 1,
+    active: index !== 1,
+  }));
+}
+
+export const DICTIONARY_ITEMS = makeDictionaryItems([
+  'Very toxic',
+  'Corrosive',
+  'Electrostatic',
+  'Gloves required',
+  'Fume hood',
+]);
 
 /** A short helper for the `EnteredValue`s below — every numeric cell in the model is one. */
 function entered<U extends string>(value: string, unit: U, source: EnteredValue<U>['source']): EnteredValue<U> {

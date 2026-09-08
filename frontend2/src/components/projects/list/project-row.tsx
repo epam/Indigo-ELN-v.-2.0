@@ -1,20 +1,11 @@
 import { Link } from '@tanstack/react-router';
 import { Briefcase } from 'lucide-react';
-import type { ReactNode } from 'react';
 
 import { AvatarStack } from '@/components/common/avatar-stack';
+import { LabelledColumn as Column } from '@/components/common/labelled-column';
 
 import type { Project } from '@/lib/types/projects.ts';
 import { formatDate } from '@/lib/utils.ts';
-
-function Column({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div className="flex min-w-0 flex-col">
-      <dt className="truncate text-[14px]/6 text-neutral-800">{label}</dt>
-      <dd className="flex items-center gap-2 overflow-hidden text-[14px]/6">{children}</dd>
-    </div>
-  );
-}
 
 /**
  * The card's data as one full-width row. `auto-fit` gives five equal columns when there

@@ -41,10 +41,9 @@ export const queryClient = new QueryClient({
  * the signature templates behind a dialog the user has already opened, which is the worst place
  * to wait. Everything else — project pages, keyword suggestions — stays in memory.
  *
- * Nothing in the app mutates the dictionaries or the templates today: both admin screens are
- * placeholders (`src/routes/_auth/{dictionaries,templates}.tsx`). When they land, the
- * `invalidateQueries` they issue refetches and re-persists through the existing subscription,
- * with no change needed here.
+ * The Dictionaries screen mutates the dictionary entries, and nothing here had to change for
+ * it: the `invalidateQueries` its writes issue refetch and re-persist through the existing
+ * subscription. The same holds for the templates admin screen, which is still unwritten.
  *
  * Every query listed here needs `gcTime: Infinity` on its hook. A collected query is gone from
  * the next dehydration, which takes it off disk as well.
