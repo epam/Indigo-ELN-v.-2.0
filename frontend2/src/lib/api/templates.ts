@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { apiFetch } from '@/lib/api';
-import type { Page } from '@/lib/types/common.ts';
+import type { Page, UUID } from '@/lib/types/common.ts';
 import type { Template, TemplateDetails } from '@/lib/types/templates.ts';
 
 /**

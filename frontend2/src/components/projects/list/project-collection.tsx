@@ -28,8 +28,7 @@ export function ProjectCollection({ filters, view }: { filters: CollectionFilter
   return (
     <InfiniteLoader
       entityLabel="projects"
-      view={view}
-      layouts={LAYOUTS}
+      layout={LAYOUTS[view]}
       query={useProjects(filters)}
       firstLoadSkeletons={COLLECTION_PAGE_SIZE}
     />

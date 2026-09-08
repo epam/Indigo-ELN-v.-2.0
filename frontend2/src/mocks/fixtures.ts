@@ -16,6 +16,7 @@ import type {
 } from '@/lib/types/reactions.ts';
 import type { RevisionSummary } from '@/lib/types/revisions.ts';
 import type { SampleDTO } from '@/lib/types/samples.ts';
+import type { DocumentSignature, SignatureDocument } from '@/lib/types/signatures.ts';
 import type { CurrentUser } from '@/lib/types/user.ts';
 import type { Template, TemplateDetails } from '@/lib/types/templates.ts';
 
@@ -1101,5 +1102,75 @@ export const SAMPLE_RESULTS: SampleDTO[] = [
     molFormula: 'C<sub>7</sub>H<sub>8</sub>',
     molWeight: 92.14,
     inchi: 'InChI=1S/C7H8/c1-7-5-3-2-4-6-7/h2-6H,1H3',
+  }),
+];
+
+/**
+ * The signature service's blocks. `canSignOrReject` is the backend's own computation — it is true
+ * only for the signed-in user's still-WAITING block on a SUBMITTED or SIGNING document — so a
+ * fixture sets it explicitly rather than deriving it from `status`.
+ */
+let signatureCounter = 0;
+
+function makeSignature(user: UserRef, overrides: Partial<DocumentSignature> = {}): DocumentSignature {
+  return {
+    // Only ever a React key, so a running counter is enough — and it keeps every block distinct
+    // when the same user signs two documents.
+    id: `88888888-8888-4888-8888-${String(++signatureCounter).padStart(12, '0')}`,
+    user,
+    reason: 'WITNESS',
+    status: 'WAITING',
+    canSignOrReject: false,
+    ...overrides,
+  };
+}
+
+export function makeSignatureDocument(overrides: Partial<SignatureDocument> = {}): SignatureDocument {
+  return {
+    id: '66666666-6666-4666-8666-000000000001',
+    name: '09876543-0002, version 6',
+    status: 'SIGNING',
+    createdDate: '2026-08-24T09:15:00Z',
+    lastModifiedDate: '2026-08-24T14:02:00Z',
+    author: ADMINISTRATOR,
+    filename: 'experiment-09876543-0002-v6.pdf',
+    signatures: [
+      makeSignature(ADMINISTRATOR, { reason: 'AUTHOR', status: 'REJECTED', actionDate: '2026-08-24T14:02:00Z' }),
+      makeSignature(MARK),
+    ],
+    ...overrides,
+  };
+}
+
+/**
+ * The three shapes the row has to render: a rejected author beside a pending witness, an
+ * all-approved document, and one where the signed-in user's block is still open — the only case
+ * that shows Approve/Reject.
+ */
+export const SIGNATURE_DOCUMENTS: SignatureDocument[] = [
+  makeSignatureDocument(),
+  makeSignatureDocument({
+    id: '66666666-6666-4666-8666-000000000002',
+    name: '09876543-0001, version 1',
+    status: 'SIGNED',
+    createdDate: '2026-08-21T08:00:00Z',
+    lastModifiedDate: '2026-08-22T11:30:00Z',
+    filename: 'experiment-09876543-0001-v1.pdf',
+    signatures: [
+      makeSignature(ADMINISTRATOR, { reason: 'AUTHOR', status: 'APPROVED', actionDate: '2026-08-21T09:00:00Z' }),
+      makeSignature(MARK, { status: 'APPROVED', actionDate: '2026-08-22T11:30:00Z' }),
+    ],
+  }),
+  makeSignatureDocument({
+    id: '66666666-6666-4666-8666-000000000003',
+    name: '00000002-0004, version 2',
+    status: 'SUBMITTED',
+    createdDate: '2026-08-19T13:45:00Z',
+    lastModifiedDate: '2026-08-19T13:45:00Z',
+    filename: 'experiment-00000002-0004-v2.pdf',
+    signatures: [
+      makeSignature(MARK, { reason: 'AUTHOR', status: 'APPROVED', actionDate: '2026-08-19T14:10:00Z' }),
+      makeSignature(ADMINISTRATOR, { canSignOrReject: true }),
+    ],
   }),
 ];

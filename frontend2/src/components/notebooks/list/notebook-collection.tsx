@@ -29,8 +29,7 @@ export function NotebookCollection({
   return (
     <InfiniteLoader
       entityLabel="notebooks"
-      view={view}
-      layouts={LAYOUTS}
+      layout={LAYOUTS[view]}
       query={useProjectNotebooks(projectId, filters)}
       firstLoadSkeletons={COLLECTION_PAGE_SIZE}
     />

@@ -15,11 +15,16 @@ interface ActionBarProps {
   search: string;
   sort: SortOrder;
   createdByMe: boolean;
-  view: CollectionView;
+  /**
+   * The layout toggle, omitted together when a list has only one layout — as the signatures
+   * list does. Passing neither drops the segmented control from the bar rather than showing a
+   * choice that changes nothing.
+   */
+  view?: CollectionView;
   onSearchChange: (search: string) => void;
   onSortChange: (sort: SortOrder) => void;
   onCreatedByMeChange: (createdByMe: boolean) => void;
-  onViewChange: (view: CollectionView) => void;
+  onViewChange?: (view: CollectionView) => void;
   /** Extra filters or other controls. */
   children?: ReactNode;
 }
@@ -87,14 +92,16 @@ export function ActionBar({
           </Menu.Portal>
         </Menu.Root>
 
-        <SegmentedControl<CollectionView>
-          value={view}
-          onValueChange={onViewChange}
-          options={[
-            { value: 'grid', label: 'Grid view', icon: <LayoutGrid className="size-5" /> },
-            { value: 'list', label: 'List view', icon: <LayoutList className="size-5" /> },
-          ]}
-        />
+        {view !== undefined && onViewChange !== undefined && (
+          <SegmentedControl<CollectionView>
+            value={view}
+            onValueChange={onViewChange}
+            options={[
+              { value: 'grid', label: 'Grid view', icon: <LayoutGrid className="size-5" /> },
+              { value: 'list', label: 'List view', icon: <LayoutList className="size-5" /> },
+            ]}
+          />
+        )}
       </div>
     </div>
   );

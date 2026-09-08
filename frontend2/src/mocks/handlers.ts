@@ -29,6 +29,7 @@ import {
   REVISIONS,
   SAMPLE_RESULTS,
   SEARCH_RESULTS,
+  SIGNATURE_DOCUMENTS,
   SIGNATURE_TEMPLATES,
   TEMPLATES,
   USERS,
@@ -47,10 +48,13 @@ import type { ModelMutation, MutationResponse } from '@/lib/types/mutations.ts';
 import type { NotebookEditRequest, NotebookRequest } from '@/lib/types/notebooks.ts';
 import type { ProjectEditRequest } from '@/lib/types/projects.ts';
 import type { FindSamplesRequest, SampleDTO, SampleSearchResult, SearchCatalog } from '@/lib/types/samples.ts';
+import type { SignatureDocument } from '@/lib/types/signatures.ts';
 
 // apiFetch sends the path verbatim, so handlers match the same full paths the
 // callers in src/lib/api/ pass.
 const ELN = '/api/eln';
+/** The signature service is its own resource, mounted beside the ELN one behind the same gateway. */
+const SIGNATURE = '/api/signature';
 
 /**
  * What every dictionary item write answers with: the whole list, renumbered from 1. Stateless on
@@ -63,6 +67,36 @@ function renumbered(items: DictionaryItem[]): DictionaryItem[] {
 
 function page<T>(items: T[]): Page<T> {
   return { pageNo: 0, pageSize: 20, totalItems: items.length, totalPages: 1, items };
+}
+
+/**
+ * Who the signature handlers treat as the caller. Matched on `displayName`, not `username`:
+ * `makeCurrentUser` is `anna.petrova` / "Administrator" while `makeUserRef('Administrator')` is
+ * `administrator`, so the two fixtures only agree on the display name.
+ */
+const CURRENT_SIGNER = makeCurrentUser().displayName;
+
+/**
+ * What `POST /documents/{id}/sign` and `/reject` answer with: the whole document, with the
+ * caller's block resolved. Stateless — recomputed from `SIGNATURE_DOCUMENTS` each call, so one
+ * story's Approve cannot leak into the next story's list.
+ */
+function decided(id: string, decision: 'sign' | 'reject'): SignatureDocument {
+  const document = SIGNATURE_DOCUMENTS.find((candidate) => candidate.id === id) ?? SIGNATURE_DOCUMENTS[0];
+  return {
+    ...document,
+    lastModifiedDate: new Date().toISOString(),
+    signatures: document.signatures.map((signature) =>
+      signature.canSignOrReject
+        ? {
+            ...signature,
+            status: decision === 'sign' ? ('APPROVED' as const) : ('REJECTED' as const),
+            actionDate: new Date().toISOString(),
+            canSignOrReject: false,
+          }
+        : signature,
+    ),
+  };
 }
 
 /**
@@ -394,6 +428,31 @@ export const handlers = [
     HttpResponse.json(makeExperimentDetails({ status: 'SUBMITTED' })),
   ),
   http.get(`${ELN}/signatureTemplates`, () => HttpResponse.json(SIGNATURE_TEMPLATES)),
+  http.get(`${SIGNATURE}/documents`, ({ request }) => {
+    const params = new URL(request.url).searchParams;
+    const search = (params.get('search') ?? '').toLowerCase();
+    // The two filters the backend actually applies: an `ilike` on the name, and — when the
+    // toggle is on — only documents the current user has a block on.
+    const matches = SIGNATURE_DOCUMENTS.filter(
+      (document) =>
+        document.name.toLowerCase().includes(search) &&
+        (params.get('waitingMySignature') !== 'true' ||
+          document.signatures.some((signature) => signature.user.displayName === CURRENT_SIGNER)),
+    );
+    return HttpResponse.json(page(matches));
+  }),
+  http.post(`${SIGNATURE}/documents/:id/sign`, ({ params }) => HttpResponse.json(decided(String(params.id), 'sign'))),
+  http.post(`${SIGNATURE}/documents/:id/reject`, ({ params }) =>
+    HttpResponse.json(decided(String(params.id), 'reject')),
+  ),
+  http.get(`${SIGNATURE}/documents/:id/download`, () =>
+    HttpResponse.text('%PDF-1.4\n', {
+      headers: {
+        'Content-Type': 'application/octet-stream',
+        'Content-Disposition': 'attachment; filename="experiment.pdf"',
+      },
+    }),
+  ),
   // A POST, unlike every other download here: the reports service generates the PDF on demand.
   http.post(`${ELN}/experiments/:id/print`, () =>
     HttpResponse.text('%PDF-1.4\n', {
@@ -500,6 +559,7 @@ export const emptyHandlers = [
   http.get(`${ELN}/experiments/marked`, () => HttpResponse.json([])),
   http.get(`${ELN}/dictionaries`, () => HttpResponse.json([])),
   http.get(`${ELN}/dictionaries/:dictionary/full`, () => HttpResponse.json([])),
+  http.get(`${SIGNATURE}/documents`, () => HttpResponse.json(page([]))),
 ];
 
 /** Creating fails while everything else works, so the dialog's error path has a story. */
@@ -710,11 +770,18 @@ export const nothingToUndoHandlers = [
 ];
 
 /** Every endpoint fails, so the error branch renders. */
-export const errorHandlers = [http.get(`${ELN}/*`, () => new HttpResponse(null, { status: 500 }))];
+export const errorHandlers = [
+  http.get(`${ELN}/*`, () => new HttpResponse(null, { status: 500 })),
+  http.get(`${SIGNATURE}/*`, () => new HttpResponse(null, { status: 500 })),
+];
 
 /** Nothing ever resolves, pinning the story on its pending state. */
 export const loadingHandlers = [
   http.get(`${ELN}/*`, async () => {
+    await delay('infinite');
+    return HttpResponse.json(null);
+  }),
+  http.get(`${SIGNATURE}/*`, async () => {
     await delay('infinite');
     return HttpResponse.json(null);
   }),

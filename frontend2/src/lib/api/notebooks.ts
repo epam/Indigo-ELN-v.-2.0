@@ -4,7 +4,7 @@ import { apiFetch } from '@/lib/api';
 import { collectionQueryParams, getNextPageParam, useSettledSearch } from '@/lib/api/collections';
 import { useEntityAttachments, useUpdateEntityAccess } from '@/lib/api/entity-writes';
 import { projectKeys } from '@/lib/api/projects';
-import type { CollectionFilters, Page } from '@/lib/types/common.ts';
+import type { CollectionFilters, Page, UUID } from '@/lib/types/common.ts';
 import type { Notebook, NotebookDetails, NotebookEditRequest, NotebookRequest } from '@/lib/types/notebooks.ts';
 
 function fetchProjectNotebooks(

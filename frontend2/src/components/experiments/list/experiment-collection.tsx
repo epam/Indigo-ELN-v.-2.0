@@ -29,8 +29,7 @@ export function ExperimentCollection({
   return (
     <InfiniteLoader
       entityLabel="experiments"
-      view={view}
-      layouts={LAYOUTS}
+      layout={LAYOUTS[view]}
       query={useNotebookExperiments(notebookId, filters)}
       firstLoadSkeletons={COLLECTION_PAGE_SIZE}
     />

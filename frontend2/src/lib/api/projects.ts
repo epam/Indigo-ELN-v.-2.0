@@ -4,7 +4,7 @@ import { apiFetch } from '@/lib/api';
 import { collectionQueryParams, getNextPageParam, SUGGEST_DEBOUNCE_MS, useSettledSearch } from '@/lib/api/collections';
 import { useEntityAttachments, useUpdateEntityAccess } from '@/lib/api/entity-writes';
 import { useSettled } from '@/lib/hooks/use-settled';
-import type { CollectionFilters, Page } from '@/lib/types/common.ts';
+import type { CollectionFilters, Page, UUID } from '@/lib/types/common.ts';
 import type { Project, ProjectDetails, ProjectEditRequest, ProjectRequest, TotalCounts } from '@/lib/types/projects.ts';
 
 function fetchProjects(filters: CollectionFilters, pageNo: number, signal?: AbortSignal): Promise<Page<Project>> {

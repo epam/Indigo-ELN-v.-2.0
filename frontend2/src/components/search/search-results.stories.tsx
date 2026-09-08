@@ -132,7 +132,7 @@ export const Empty: Story = {
   parameters: { msw: { handlers: emptySearchHandlers } },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(await canvas.findByText('No results match these filters.')).toBeInTheDocument();
+    await expect(await canvas.findByText('No results found.')).toBeInTheDocument();
     // The count heading would only repeat what the empty message already said.
     await expect(canvas.queryByText(/Search Results/)).not.toBeInTheDocument();
   },

@@ -3,6 +3,7 @@ import type { InfiniteData } from '@tanstack/react-query';
 
 import { apiFetch } from '@/lib/api';
 
+import type { UUID } from '@/lib/types/common.ts';
 import type { FindSamplesRequest, FindSamplesState, SampleDTO, SampleSearchResult } from '@/lib/types/samples.ts';
 
 /**

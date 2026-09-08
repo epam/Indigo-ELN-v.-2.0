@@ -3,6 +3,7 @@ import { expect, screen, userEvent, waitFor } from 'storybook/test';
 
 import { __setKetcherBehavior } from '../../../../.storybook/mocks/ketcher-editor';
 import { AddMaterialDialog } from '@/components/experiments/samples/add-material-dialog';
+import { REACTION_NOT_SEARCHABLE } from '@/components/experiments/samples/add-material-form';
 import { Button } from '@/components/ui/button';
 import { makeExperimentDetails } from '@/mocks/fixtures';
 import { emptySampleSearchHandlers } from '@/mocks/handlers';
@@ -155,6 +156,9 @@ export const ClearAll: Story = {
  * A catalog holds compounds, so a drawn reaction is refused rather than searched for. The
  * sketcher stays open with the drawing in it — the toast is the only thing that says why, since
  * the form behind is covered.
+ *
+ * Asserted against `REACTION_NOT_SEARCHABLE` itself rather than a copy of its wording: this used
+ * to look for the sentence above, which is this comment's, not the toast's.
  */
 export const RefusesAReaction: Story = {
   beforeEach: () => {
@@ -167,7 +171,7 @@ export const RefusesAReaction: Story = {
     await waitFor(() => expect(save).toBeEnabled());
     await userEvent.click(save);
 
-    await waitFor(() => expect(screen.getByText(/A catalog holds compounds/)).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(REACTION_NOT_SEARCHABLE)).toBeInTheDocument());
     await expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
     // Nothing was stored, so the frame is still offering to draw one.
     await expect(screen.queryByRole('img', { name: 'Chemical structure' })).not.toBeInTheDocument();

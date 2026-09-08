@@ -5,7 +5,7 @@ import type { InfiniteData, UseInfiniteQueryResult } from '@tanstack/react-query
 
 import { describeError } from '@/lib/toast';
 
-import type { CollectionView, Page } from '@/lib/types/common.ts';
+import type { Page } from '@/lib/types/common.ts';
 
 const NEXT_PAGE_SKELETONS = 3;
 
@@ -19,8 +19,12 @@ export interface InfiniteLoaderLayout<T> {
 interface InfiniteLoaderProps<T extends { id: string }> {
   /** Plural lower-case entity name, e.g. "projects" — fills the loading/error/empty copy. */
   entityLabel: string;
-  view: CollectionView;
-  layouts: Record<CollectionView, InfiniteLoaderLayout<T>>;
+  /**
+   * The one layout to draw. Resolved by the caller — each collection keeps its own `LAYOUTS`
+   * table and indexes it by the view, so a list that has only one layout (signatures) does not
+   * have to claim two, and nothing here knows what a `CollectionView` is.
+   */
+  layout: InfiniteLoaderLayout<T>;
   /** Passed in rather than fetched here, so this never learns which endpoint it renders. */
   query: UseInfiniteQueryResult<InfiniteData<Page<T>>, Error>;
   /** A full page, so a full first page lands without resizing the document. */
@@ -28,18 +32,17 @@ interface InfiniteLoaderProps<T extends { id: string }> {
 }
 
 /**
- * An infinitely scrolling list of entities in either layout. Everything entity-specific
- * arrives through `layouts` and `query`; the scroll sentinel, the skeleton runs and the
- * pending/error/empty branches are the same for projects, notebooks and experiments.
+ * An infinitely scrolling list of entities. Everything entity-specific arrives through `layout`
+ * and `query`; the scroll sentinel, the skeleton runs and the pending/error/empty branches are
+ * the same for projects, notebooks, experiments and signatures.
  */
 export function InfiniteLoader<T extends { id: string }>({
   entityLabel,
-  view,
-  layouts,
+  layout,
   query,
   firstLoadSkeletons,
 }: InfiniteLoaderProps<T>) {
-  const { className, Item, ItemSkeleton } = layouts[view];
+  const { className, Item, ItemSkeleton } = layout;
   const { data, error, isPending, hasNextPage, isFetchingNextPage, fetchNextPage } = query;
 
   const sentinelRef = useRef<HTMLDivElement>(null);
