@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw';
 import { expect, screen, userEvent, waitFor, within } from 'storybook/test';
 
-import { StoichiometryTable } from '@/components/experiments/stoichiometry/stoichiometry-table';
+import { StoichiometryTable } from '@/components/experiments/stoichiometry/inputs/stoichiometry-table';
 import { useExperiment } from '@/lib/api/experiments';
 import { makeExperimentDetails, makeReaction } from '@/mocks/fixtures';
 import { failingMutateHandlers, handlers, recalculatingMutateHandlers, slowMutateHandlers } from '@/mocks/handlers';
@@ -32,7 +32,7 @@ const spyHandlers = [
 ];
 
 const meta = {
-  title: 'Experiments/Stoichiometry/StoichiometryTable',
+  title: 'Experiments/Stoichiometry/Inputs/StoichiometryTable',
   component: StoichiometryTable,
   args: { experiment: EXPERIMENT, reaction: REACTION },
   parameters: { layout: 'padded' },

@@ -1,7 +1,7 @@
 import { Fragment } from 'react';
 
 import { CollapsibleCard } from '@/components/common/collapsible-card';
-import { COMPONENT_TITLES } from '@/components/experiments/experiment-template';
+import { COMPONENT_TITLES } from '@/lib/types/templates.ts';
 import { AttachmentsPanel } from '@/components/experiments/template/attachments-panel';
 import { BatchesPanel } from '@/components/experiments/template/batches-panel';
 import { ExperimentDescriptionPanel } from '@/components/experiments/template/experiment-description-panel';

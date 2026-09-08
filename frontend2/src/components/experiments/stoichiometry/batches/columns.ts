@@ -1,11 +1,3 @@
-import {
-  MOL_UNITS,
-  MOLARITY_UNITS,
-  NO_UNITS,
-  VOLUME_UNITS,
-  WEIGHT_UNITS,
-} from '@/components/experiments/stoichiometry/units';
-
 import type { NumericCellValue } from '@/components/experiments/stoichiometry/numeric-cell';
 import type { ModelMutation } from '@/lib/types/mutations.ts';
 import type {
@@ -14,9 +6,16 @@ import type {
   ReactionOutput,
   ReactionOutputSample,
   ReactionOutputType,
-  SampleRegistrationStatus,
   VolumeUnit,
   WeightUnit,
+} from '@/lib/types/reactions.ts';
+import {
+  MOL_UNITS,
+  MOLARITY_UNITS,
+  NO_UNITS,
+  REGISTRATION_STATUS_LABELS,
+  VOLUME_UNITS,
+  WEIGHT_UNITS,
 } from '@/lib/types/reactions.ts';
 
 /**
@@ -79,16 +78,6 @@ type Cell =
   | { kind: 'delete'; mutation: (row: BatchRow) => ModelMutation };
 
 export type BatchColumn = ColumnBase & Cell;
-
-/**
- * How each registration state reads. A batch that has never been sent reads "None" rather than
- * being blank: an empty cell in this column would be indistinguishable from a missing value.
- */
-export const REGISTRATION_STATUS_LABELS: Record<SampleRegistrationStatus, string> = {
-  IN_PROGRESS: 'In Progress',
-  FAILED: 'Failed',
-  REGISTERED: 'Registered',
-};
 
 /**
  * A batch that is in flight or already registered — port of indigo-frontend's

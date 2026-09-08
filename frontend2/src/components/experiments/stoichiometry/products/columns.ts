@@ -1,10 +1,10 @@
 import { asEnteredValue } from '@/components/experiments/stoichiometry/columns';
-import { MOL_UNITS, MOL_WEIGHT_UNITS, NO_UNITS, WEIGHT_UNITS } from '@/components/experiments/stoichiometry/units';
 
 import type { NumericCellValue } from '@/components/experiments/stoichiometry/numeric-cell';
 import type { DictionaryItemRef } from '@/lib/types/dictionaries.ts';
 import type { ModelMutation } from '@/lib/types/mutations.ts';
 import type { EnteredValue, ReactionOutput, ReactionOutputType } from '@/lib/types/reactions.ts';
+import { MOL_UNITS, MOL_WEIGHT_UNITS, NO_UNITS, WEIGHT_UNITS } from '@/lib/types/reactions.ts';
 
 /**
  * The Reaction Products table's columns, as data — the same shape `columns.ts` uses for the
@@ -79,33 +79,6 @@ type Cell =
   | { kind: 'addBatch'; mutation: (row: ProductRow) => ModelMutation };
 
 export type ProductColumn = ColumnBase & Cell;
-
-/** The three `ReactionOutputType` members, in the order the picker offers them. */
-export const OUTPUT_TYPES: readonly ReactionOutputType[] = ['FINAL', 'BY_PRODUCT', 'INTERMEDIATE'];
-
-/**
- * How each product type reads: the product the chemist was after, something the reaction threw
- * off along the way, or an intermediate the next step consumes.
- *
- * **`FINAL` reads "Final", deliberately not "Intended"** — even though the design says the
- * latter. `ReactionOutput.intended` is a separate boolean saying the product was drawn in the
- * reaction scheme, and it is what decides membership of this table at all; every row here is
- * `intended` and any of the three types is reachable on it. Two adjacent concepts sharing one
- * word made the column unreadable. "Final" is also what indigo-frontend's batch summary writes
- * for this enum member.
- */
-export const OUTPUT_TYPE_LABELS: Record<ReactionOutputType, string> = {
-  FINAL: 'Final',
-  BY_PRODUCT: 'Side',
-  INTERMEDIATE: 'Intermediate',
-};
-
-/** The colour each type carries on its select trigger. Read by `OutputTypeCell`. */
-export const OUTPUT_TYPE_TRIGGER_CLASS: Record<ReactionOutputType, string> = {
-  FINAL: 'border-green-200 bg-green-10',
-  BY_PRODUCT: 'border-orange-200 bg-orange-10',
-  INTERMEDIATE: 'border-violet-200 bg-violet-10',
-};
 
 export const PRODUCT_COLUMNS: ProductColumn[] = [
   { id: 'index', header: '#', minWidth: 48, kind: 'index' },

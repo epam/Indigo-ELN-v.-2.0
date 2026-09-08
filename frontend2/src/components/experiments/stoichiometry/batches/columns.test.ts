@@ -4,12 +4,12 @@ import {
   BATCH_COLUMNS,
   batchHaystack,
   isSampleProtected,
-  REGISTRATION_STATUS_LABELS,
-} from '@/components/experiments/stoichiometry/batch-columns';
+} from '@/components/experiments/stoichiometry/batches/columns';
 import { makeReactionOutput, makeReactionOutputSample } from '@/mocks/fixtures';
 
-import type { BatchRow } from '@/components/experiments/stoichiometry/batch-columns';
+import type { BatchRow } from '@/components/experiments/stoichiometry/batches/columns';
 import type { ReactionOutput, ReactionOutputSample, SampleRegistrationStatus } from '@/lib/types/reactions.ts';
+import { REGISTRATION_STATUS_LABELS } from '@/lib/types/reactions.ts';
 
 const STATUSES: SampleRegistrationStatus[] = ['IN_PROGRESS', 'FAILED', 'REGISTERED'];
 

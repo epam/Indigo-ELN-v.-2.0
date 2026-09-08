@@ -2,15 +2,15 @@ import { ChevronDown, ChevronRight, CircleCheck, Download, Plus, RefreshCw, Uplo
 import { useMemo, useRef, useState } from 'react';
 
 import { SavingOverlay } from '@/components/common/saving-overlay';
-import type { BatchColumn, BatchRow } from '@/components/experiments/stoichiometry/batch-columns';
-import { BATCH_COLUMNS, batchHaystack, isSampleProtected } from '@/components/experiments/stoichiometry/batch-columns';
-import { BatchDetailPanel } from '@/components/experiments/stoichiometry/batch-detail-panel';
+import { OutputTypeBadge } from '@/components/experiments/stoichiometry/batches/cells';
+import type { BatchColumn, BatchRow } from '@/components/experiments/stoichiometry/batches/columns';
 import {
-  DeleteCell,
-  IconActionCell,
-  OutputTypeBadge,
-  ReadonlyCell,
-} from '@/components/experiments/stoichiometry/cells';
+  BATCH_COLUMNS,
+  batchHaystack,
+  isSampleProtected,
+} from '@/components/experiments/stoichiometry/batches/columns';
+import { BatchDetailPanel } from '@/components/experiments/stoichiometry/batches/detail-panel';
+import { DeleteCell, IconActionCell, ReadonlyCell } from '@/components/experiments/stoichiometry/cells';
 import { CELL_CLASS, HEADER_CELL_CLASS } from '@/components/experiments/stoichiometry/columns';
 import { NumericCell } from '@/components/experiments/stoichiometry/numeric-cell';
 import type { StoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';

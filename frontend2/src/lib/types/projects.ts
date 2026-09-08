@@ -2,6 +2,9 @@ import type { ACLEntry, Attachment, BaseDTO } from '@/lib/types/common.ts';
 import type { ExperimentStatusCounts } from '@/lib/types/experiments.ts';
 import type { ApplicationPermission } from '@/lib/types/user.ts';
 
+/** ProjectEntity.name is @Size(max = 256); the column is VARCHAR(256). */
+export const PROJECT_NAME_MAX_LENGTH = 256;
+
 export interface BaseProject extends BaseDTO {
   name: string;
   notebookCount: number;

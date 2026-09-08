@@ -26,6 +26,62 @@ export type MolarityUnit = 'MM' | 'M';
 export type MolWeightUnit = 'G_PER_MOL';
 export type NoUnit = 'NO_UNIT';
 
+/** Every measurement unit, matching the backend's `MeasurementUnit.ALL_UNITS`. */
+export type MeasurementUnit = MolUnit | WeightUnit | VolumeUnit | DensityUnit | MolarityUnit | MolWeightUnit | NoUnit;
+
+/**
+ * How each unit is written. Mirrors the `displayName` on the backend's `MeasurementUnit`
+ * enums — the wire carries the enum name (`MMOL`) and never the label (`mmol`), so this is
+ * the only place the two are tied together.
+ *
+ * One flat map over every unit type, matching `MeasurementUnit.ALL_UNITS`: the names are
+ * unique across all seven enums, and a per-type map would make `unitLabel` generic for no
+ * gain. `NO_UNIT` is the empty string, so a unitless value renders as a bare number.
+ */
+const UNIT_LABELS: Record<MeasurementUnit, string> = {
+  UMOL: 'μmol',
+  MMOL: 'mmol',
+  MOL: 'mol',
+  MG: 'mg',
+  G: 'g',
+  KG: 'kg',
+  ML: 'mL',
+  L: 'L',
+  MM: 'mM',
+  M: 'M',
+  G_ML: 'g/mL',
+  G_PER_MOL: 'g/mol',
+  NO_UNIT: '',
+};
+
+/**
+ * Takes a bare `string` rather than `MeasurementUnit` because that is what `EnteredValue.unit`
+ * is once it has been off the wire, and falls back to the raw enum name so an unmapped member
+ * shows as itself rather than as a blank.
+ */
+export function unitLabel(unit: string | undefined): string {
+  return unit === undefined ? '' : (UNIT_LABELS[unit as MeasurementUnit] ?? unit);
+}
+
+/**
+ * The options a unit picker offers, in the order the backend enum declares them (ascending
+ * magnitude). `as const` on each so a column can state which list it takes and have the
+ * element type flow through to the mutation it builds.
+ */
+export const MOL_UNITS = ['UMOL', 'MMOL', 'MOL'] as const satisfies readonly MolUnit[];
+export const WEIGHT_UNITS = ['MG', 'G', 'KG'] as const satisfies readonly WeightUnit[];
+export const VOLUME_UNITS = ['ML', 'L'] as const satisfies readonly VolumeUnit[];
+export const MOLARITY_UNITS = ['MM', 'M'] as const satisfies readonly MolarityUnit[];
+export const DENSITY_UNITS = ['G_ML'] as const satisfies readonly DensityUnit[];
+export const MOL_WEIGHT_UNITS = ['G_PER_MOL'] as const satisfies readonly MolWeightUnit[];
+
+/**
+ * A unitless quantity — EQ, purity, salt EQ. The model still types these `EnteredValue<NoUnit>`
+ * and the backend still expects `NO_UNIT` back, so they are a one-option list rather than a
+ * separate cell kind: the picker hides itself when there is nothing to choose between.
+ */
+export const NO_UNITS = ['NO_UNIT'] as const satisfies readonly NoUnit[];
+
 /**
  * Who set a value, and how strongly it holds. `fixed` > a user edit > `calculated` >
  * `default`, and a user edit carries the revision it was made in — which is why the
@@ -99,6 +155,77 @@ export type SampleRegistrationStatus = 'IN_PROGRESS' | 'FAILED' | 'REGISTERED';
 export type ComparisonOperator = 'GREATER_THAN' | 'LESS_THAN' | 'EQUALS' | 'APPROXIMATELY';
 export type PurityCalculationType = 'NMR' | 'HPLC' | 'LCMS' | 'CHN' | 'MS';
 export type SolubidityQualitativeType = 'SOLUBLE' | 'UNSOLUBLE' | 'PRECIPITATE';
+
+/* ── Enum companion tables ─────────────────────────────────────────────────────────────── */
+
+export const REACTION_ROLES: readonly ReactionRole[] = ['REACTANT', 'REAGENT', 'CATALYST', 'SOLVENT', 'OUTPUT'];
+
+export const REACTION_ROLE_LABELS: Record<ReactionRole, string> = {
+  REACTANT: 'Reactant',
+  REAGENT: 'Reagent',
+  CATALYST: 'Catalyst',
+  SOLVENT: 'Solvent',
+  OUTPUT: 'Output',
+};
+
+/** The reaction roles an *input* row may take. `OUTPUT` is in the enum but never a choice here. */
+export const INPUT_ROLES: readonly ReactionRole[] = ['REACTANT', 'REAGENT', 'CATALYST', 'SOLVENT'];
+
+/** The three `ReactionOutputType` members, in the order the picker offers them. */
+export const OUTPUT_TYPES: readonly ReactionOutputType[] = ['FINAL', 'BY_PRODUCT', 'INTERMEDIATE'];
+
+/**
+ * How each product type reads: the product the chemist was after, something the reaction threw
+ * off along the way, or an intermediate the next step consumes. Shared, because the products
+ * table offers the three in a picker and the batches table shows the owning product's type as a
+ * read-only badge.
+ *
+ * **`FINAL` reads "Final", deliberately not "Intended"** — even though the design says the
+ * latter. `ReactionOutput.intended` is a separate boolean saying the product was drawn in the
+ * reaction scheme, and it is what decides membership of this table at all; every row here is
+ * `intended` and any of the three types is reachable on it. Two adjacent concepts sharing one
+ * word made the column unreadable. "Final" is also what indigo-frontend's batch summary writes
+ * for this enum member.
+ */
+export const OUTPUT_TYPE_LABELS: Record<ReactionOutputType, string> = {
+  FINAL: 'Final',
+  BY_PRODUCT: 'Side',
+  INTERMEDIATE: 'Intermediate',
+};
+
+/**
+ * The colour each type carries. Read by `OutputTypeCell`'s select trigger in the products table
+ * and by `OutputTypeBadge` in the batches one.
+ */
+export const OUTPUT_TYPE_TRIGGER_CLASS: Record<ReactionOutputType, string> = {
+  FINAL: 'border-green-200 bg-green-10',
+  BY_PRODUCT: 'border-orange-200 bg-orange-10',
+  INTERMEDIATE: 'border-violet-200 bg-violet-10',
+};
+
+/**
+ * How each registration state reads. A batch that has never been sent reads "None" rather than
+ * being blank: an empty cell in this column would be indistinguishable from a missing value.
+ */
+export const REGISTRATION_STATUS_LABELS: Record<SampleRegistrationStatus, string> = {
+  IN_PROGRESS: 'In Progress',
+  FAILED: 'Failed',
+  REGISTERED: 'Registered',
+};
+
+/** `>`, `<`, `=`, `≈` — how each comparison reads in front of a number. */
+export const OPERATOR_SYMBOLS: Record<ComparisonOperator, string> = {
+  GREATER_THAN: '>',
+  LESS_THAN: '<',
+  EQUALS: '=',
+  APPROXIMATELY: '≈',
+};
+
+export const QUALITATIVE_LABELS: Record<SolubidityQualitativeType, string> = {
+  SOLUBLE: 'Soluble',
+  UNSOLUBLE: 'Insoluble',
+  PRECIPITATE: 'Precipitate',
+};
 
 /* ── Output-sample value objects ───────────────────────────────────────────────────────── */
 

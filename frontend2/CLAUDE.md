@@ -259,12 +259,12 @@ to queue behind the on-blur saves rather than race them.
 
 | File | Contents |
 |---|---|
-| `common.ts` | `BaseDTO`, `UserRef`, `ACLEntry`, `AccessLevel`, `Attachment`, `Page<T>`, `SortOrder`, `CollectionView`, `CollectionFilters` |
-| `experiments.ts` | `ExperimentStatus`, `ExperimentStatusCounts`, `EXPERIMENT_STATUSES`, `EXPERIMENT_STATUS_DISPLAY`, `EXPERIMENT_STATUS_COLOR`, `BaseExperiment`, `Experiment` |
-| `projects.ts` | `Project`, `ProjectDetails`, `ProjectRequest`, `ProjectEditRequest`, `TotalCounts` |
-| `notebooks.ts` | `BaseNotebook`, `Notebook` |
+| `common.ts` | `BaseDTO`, `UserRef`, `ACLEntry`, `AccessLevel`, `Attachment`, `Page<T>`, `SortOrder`, `SORT_LABELS`, `CollectionView`, `CollectionFilters` |
+| `experiments.ts` | `ExperimentStatus`, `ExperimentStatusCounts`, `EXPERIMENT_STATUSES`, `EXPERIMENT_STATUS_LABELS`, `EXPERIMENT_STATUS_COLOR`, `BaseExperiment`, `Experiment` |
+| `projects.ts` | `Project`, `ProjectDetails`, `ProjectRequest`, `ProjectEditRequest`, `TotalCounts`, `PROJECT_NAME_MAX_LENGTH` |
+| `notebooks.ts` | `BaseNotebook`, `Notebook`, `NOTEBOOK_NAME_LENGTH` |
 | `user.ts` | `CurrentUser`, `ApplicationPermission` |
-| `reactions.ts` | the `reaction/model` tree: `ExperimentModel`, `Reaction`, `ReactionInput`/`Output` and their samples, `CompoundRef`, `EnteredValue`, the unit unions |
+| `reactions.ts` | the `reaction/model` tree: `ExperimentModel`, `Reaction`, `ReactionInput`/`Output` and their samples, `CompoundRef`, `EnteredValue`, the unit unions, and the companion table of every enum in it — `REACTION_ROLE_LABELS`, `OUTPUT_TYPE_LABELS`, `unitLabel()`, the unit option arrays |
 | `mutations.ts` | `Mutation` (all 94 members of the backend's `@JsonSubTypes` list), `ModelMutation` (the subset `/mutate` accepts), `MutationResponse` |
 
 `reactions.ts` is ported from the **Java**, not from indigo-frontend's `experiment.i.ts`. Those
@@ -273,6 +273,17 @@ exist, `STRCode*`/`NbkBatchNumber` modelled as objects when `@JsonValue` makes t
 `SolubidityInSolvent` flattened when it is a `type`-discriminated union, and an
 `EnteredValueSource` enum whose members are not what is sent. Each divergence is commented at the
 type it affects.
+
+**A UI declaration bound to an enum lives in the file that declares the enum**, not next to the
+component that renders it — the label map, the colour map, the display-order array, the subset a
+picker offers. `Record<TheUnion, …>` is what makes a new member a compile error rather than a
+blank cell, and one home is what stops a second copy appearing next to the second component that
+needs it (`ReactionRole` had three). The exception is a map whose *values* are React components or
+route literals — `ENTITY_ICON`, the `LAYOUTS` records, `NAV_ITEMS`: those stay in the component
+tree, because `src/lib/` importing `lucide-react` or the router would point the dependency the
+wrong way.
+
+Companion tables are named `<ENUM>_LABELS`; `_COLOR`/`_TRIGGER_CLASS` when they carry classes.
 
 `verbatimModuleSyntax` is enabled — all cross-module type imports must use `import type`. When importing from the same `types/` folder, include the `.ts` extension (e.g. `from '@/lib/types/experiments.ts'`).
 

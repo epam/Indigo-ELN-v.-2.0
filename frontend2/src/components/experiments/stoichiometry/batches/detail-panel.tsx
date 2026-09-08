@@ -5,15 +5,14 @@ import { useState } from 'react';
 import { ApiImage } from '@/components/common/api-image';
 import { SavingOverlay } from '@/components/common/saving-overlay';
 import { DictionaryCombobox } from '@/components/common/dictionary-combobox';
+import { isSampleProtected } from '@/components/experiments/stoichiometry/batches/columns';
 import {
   externalSupplierLabel,
   meltingPointLabel,
   purityCalculationLabels,
   residualSolventLabels,
   solubilityLabels,
-} from '@/components/experiments/stoichiometry/batch-detail';
-import { isSampleProtected } from '@/components/experiments/stoichiometry/batch-columns';
-import { unitLabel } from '@/components/experiments/stoichiometry/units';
+} from '@/components/experiments/stoichiometry/batches/detail';
 import { cellId } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import { Collapsible, CollapsiblePanel, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { MultiCombobox } from '@/components/ui/combobox';
@@ -22,11 +21,12 @@ import { Input } from '@/components/ui/input';
 import { useDictionary } from '@/lib/api/dictionaries';
 import { cn } from '@/lib/utils';
 
-import type { BatchRow } from '@/components/experiments/stoichiometry/batch-columns';
+import type { BatchRow } from '@/components/experiments/stoichiometry/batches/columns';
 import type { StoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import type { BuiltInDictionary, DictionaryItemRef } from '@/lib/types/dictionaries.ts';
 import type { ModelMutation } from '@/lib/types/mutations.ts';
 import type { CompoundRef, EnteredValue, Reaction } from '@/lib/types/reactions.ts';
+import { unitLabel } from '@/lib/types/reactions.ts';
 
 /**
  * What one batch of the Product Batch Summary holds, behind its chevron: the compound's structure

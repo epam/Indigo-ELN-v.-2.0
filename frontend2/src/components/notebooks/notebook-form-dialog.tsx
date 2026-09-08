@@ -5,12 +5,12 @@ import { useEffect } from 'react';
 import { FormDialog } from '@/components/common/form-dialog';
 import {
   EMPTY_NOTEBOOK_FORM,
-  NOTEBOOK_NAME_LENGTH,
   notebookNameSchema,
   toNotebookEditRequest,
   toNotebookFormValues,
   toNotebookRequest,
 } from '@/components/notebooks/notebook-form';
+import { NOTEBOOK_NAME_LENGTH } from '@/lib/types/notebooks.ts';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';

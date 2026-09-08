@@ -1,14 +1,11 @@
-import { unitLabel } from '@/components/experiments/stoichiometry/units';
-
 import type {
-  ComparisonOperator,
   ExternalSupplier,
   MeltingPoint,
   PurityCalculation,
   ResidualSolvent,
   SolubidityInSolvent,
-  SolubidityQualitativeType,
 } from '@/lib/types/reactions.ts';
+import { OPERATOR_SYMBOLS, QUALITATIVE_LABELS, unitLabel } from '@/lib/types/reactions.ts';
 
 /**
  * How the batch detail panel writes the five composite value-objects it shows but cannot yet
@@ -26,20 +23,6 @@ import type {
  * drops the equivalents, the operators and the qualitative type — the numbers are the point of
  * the record, and this is the only place they are shown at all.
  */
-
-/** `>`, `<`, `=`, `≈` — how each comparison reads in front of a number. */
-const OPERATOR_SYMBOLS: Record<ComparisonOperator, string> = {
-  GREATER_THAN: '>',
-  LESS_THAN: '<',
-  EQUALS: '=',
-  APPROXIMATELY: '≈',
-};
-
-const QUALITATIVE_LABELS: Record<SolubidityQualitativeType, string> = {
-  SOLUBLE: 'Soluble',
-  UNSOLUBLE: 'Insoluble',
-  PRECIPITATE: 'Precipitate',
-};
 
 /**
  * `67 ~ 69 °C`, or a single bound on its own when only one was recorded.

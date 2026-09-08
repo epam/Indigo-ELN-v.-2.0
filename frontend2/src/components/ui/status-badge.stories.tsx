@@ -1,5 +1,5 @@
 import { StatusBadge } from '@/components/ui/status-badge';
-import { EXPERIMENT_STATUS_DISPLAY, EXPERIMENT_STATUSES } from '@/lib/types/experiments.ts';
+import { EXPERIMENT_STATUS_LABELS, EXPERIMENT_STATUSES } from '@/lib/types/experiments.ts';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -26,7 +26,7 @@ export const AllStatuses: Story = {
     <div className="flex flex-col items-start gap-2">
       {EXPERIMENT_STATUSES.map((status) => (
         <StatusBadge key={status} variant={status}>
-          {EXPERIMENT_STATUS_DISPLAY[status]}
+          {EXPERIMENT_STATUS_LABELS[status]}
         </StatusBadge>
       ))}
     </div>

@@ -2,16 +2,16 @@ import { describe, expect, it } from 'vitest';
 
 import {
   EXPERIMENT_STATUS_COLOR,
-  EXPERIMENT_STATUS_DISPLAY,
+  EXPERIMENT_STATUS_LABELS,
   EXPERIMENT_STATUSES,
   type ExperimentStatus,
 } from '@/lib/types/experiments.ts';
 
-const ALL_STATUSES = Object.keys(EXPERIMENT_STATUS_DISPLAY) as ExperimentStatus[];
+const ALL_STATUSES = Object.keys(EXPERIMENT_STATUS_LABELS) as ExperimentStatus[];
 
-describe('EXPERIMENT_STATUS_DISPLAY', () => {
+describe('EXPERIMENT_STATUS_LABELS', () => {
   it('labels CANCELLED with two Ls', () => {
-    expect(EXPERIMENT_STATUS_DISPLAY.CANCELLED).toBe('Cancelled');
+    expect(EXPERIMENT_STATUS_LABELS.CANCELLED).toBe('Cancelled');
   });
 });
 

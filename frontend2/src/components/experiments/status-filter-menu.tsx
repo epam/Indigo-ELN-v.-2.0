@@ -2,7 +2,7 @@ import { ChevronDown } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Menu, MenuCheckboxItem, MenuContent, MenuTrigger } from '@/components/ui/menu';
-import { EXPERIMENT_STATUS_DISPLAY, EXPERIMENT_STATUSES, type ExperimentStatus } from '@/lib/types/experiments.ts';
+import { EXPERIMENT_STATUS_LABELS, EXPERIMENT_STATUSES, type ExperimentStatus } from '@/lib/types/experiments.ts';
 
 /**
  * The `Status` filter of a notebook's experiment list, sitting in `ActionBar`'s children slot.
@@ -51,7 +51,7 @@ export function StatusFilterMenu({
             checked={selected.has(status)}
             onCheckedChange={(checked) => toggle(status, checked)}
           >
-            {EXPERIMENT_STATUS_DISPLAY[status]}
+            {EXPERIMENT_STATUS_LABELS[status]}
           </MenuCheckboxItem>
         ))}
       </MenuContent>

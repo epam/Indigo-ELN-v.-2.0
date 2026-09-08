@@ -9,7 +9,7 @@ import { StatusBadge } from '@/components/ui/status-badge';
 
 import { experimentPicturePath } from '@/lib/api/experiments';
 import type { Experiment } from '@/lib/types/experiments.ts';
-import { EXPERIMENT_STATUS_DISPLAY } from '@/lib/types/experiments.ts';
+import { EXPERIMENT_STATUS_LABELS } from '@/lib/types/experiments.ts';
 import { formatDate } from '@/lib/utils.ts';
 
 function Row({ label, children }: { label: string; children: ReactNode }) {
@@ -42,7 +42,7 @@ export function ExperimentCard({ item: experiment }: { item: Experiment }) {
         </h3>
         {/* StatusBadge is a fixed w-[59px] and truncates; the longer statuses need the room. */}
         <StatusBadge variant={experiment.status} className="w-auto shrink-0">
-          {EXPERIMENT_STATUS_DISPLAY[experiment.status]}
+          {EXPERIMENT_STATUS_LABELS[experiment.status]}
         </StatusBadge>
         <AvatarStack acl={experiment.acl} aclCount={experiment.aclCount} />
         <StarButton experimentId={experiment.id} marked={experiment.marked} />

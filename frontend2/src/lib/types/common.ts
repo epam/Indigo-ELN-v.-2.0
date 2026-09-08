@@ -39,6 +39,11 @@ export interface Page<T> {
 export const SORT_ORDERS = ['EARLIEST', 'LATEST'] as const;
 export type SortOrder = (typeof SORT_ORDERS)[number];
 
+export const SORT_LABELS: Record<SortOrder, string> = {
+  EARLIEST: 'Earliest',
+  LATEST: 'Latest',
+};
+
 export const COLLECTION_VIEWS = ['grid', 'list'] as const;
 export type CollectionView = (typeof COLLECTION_VIEWS)[number];
 

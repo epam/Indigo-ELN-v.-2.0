@@ -9,7 +9,7 @@ import { StatusBadge } from '@/components/ui/status-badge';
 
 import { experimentPicturePath } from '@/lib/api/experiments';
 import type { Experiment } from '@/lib/types/experiments.ts';
-import { EXPERIMENT_STATUS_DISPLAY } from '@/lib/types/experiments.ts';
+import { EXPERIMENT_STATUS_LABELS } from '@/lib/types/experiments.ts';
 import { formatDate } from '@/lib/utils.ts';
 
 function Column({ label, children }: { label: string; children: ReactNode }) {
@@ -38,7 +38,7 @@ export function ExperimentRow({ item: experiment }: { item: Experiment }) {
           <span className="font-semibold">{experiment.name}</span>
         </h3>
         <StatusBadge variant={experiment.status} className="w-auto shrink-0">
-          {EXPERIMENT_STATUS_DISPLAY[experiment.status]}
+          {EXPERIMENT_STATUS_LABELS[experiment.status]}
         </StatusBadge>
         <StarButton experimentId={experiment.id} marked={experiment.marked} />
       </header>

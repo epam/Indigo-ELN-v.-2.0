@@ -2,9 +2,7 @@ import { isBlankHtml, richTextEdit } from '@/lib/rich-text';
 import { z } from '@/lib/zod';
 
 import type { NotebookDetails, NotebookEditRequest, NotebookRequest } from '@/lib/types/notebooks.ts';
-
-/** `NOTEBOOK_NAME_LENGTH` in indigo-frontend: a notebook is numbered, never named. */
-export const NOTEBOOK_NAME_LENGTH = 8;
+import { NOTEBOOK_NAME_LENGTH } from '@/lib/types/notebooks.ts';
 
 export const notebookNameSchema = z
   .string()

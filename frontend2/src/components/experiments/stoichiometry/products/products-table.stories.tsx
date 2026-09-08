@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw';
 import { expect, screen, userEvent, waitFor, within } from 'storybook/test';
 
-import { ReactionProductsTable } from '@/components/experiments/stoichiometry/products-table';
+import { ReactionProductsTable } from '@/components/experiments/stoichiometry/products/products-table';
 import { useExperiment } from '@/lib/api/experiments';
 import { makeExperimentDetails, makeReaction, makeReactionOutput } from '@/mocks/fixtures';
 import { failingMutateHandlers, handlers, slowMutateHandlers } from '@/mocks/handlers';
@@ -50,7 +50,7 @@ function TableFromCache() {
 }
 
 const meta = {
-  title: 'Experiments/Stoichiometry/ReactionProductsTable',
+  title: 'Experiments/Stoichiometry/Products/ReactionProductsTable',
   component: ReactionProductsTable,
   args: { experiment: EXPERIMENT, step: 0 },
   parameters: { layout: 'padded' },

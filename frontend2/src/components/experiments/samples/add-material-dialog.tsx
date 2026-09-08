@@ -13,7 +13,7 @@ import {
 } from '@/components/experiments/samples/add-material-form';
 import { MaterialAdvancedSearch } from '@/components/experiments/samples/material-advanced-search';
 import { SampleResults } from '@/components/experiments/samples/sample-results';
-import { STRUCTURE_TYPE_LABELS } from '@/components/search/global-search-form';
+import { STRUCTURE_TYPE_LABELS } from '@/lib/types/search.ts';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent } from '@/components/ui/dialog';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';

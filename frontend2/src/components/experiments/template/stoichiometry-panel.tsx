@@ -1,8 +1,8 @@
 import { Download, MoreHorizontal, Plus, Upload } from 'lucide-react';
 
 import { CollapsibleCard } from '@/components/common/collapsible-card';
-import { ReactionProductsTable } from '@/components/experiments/stoichiometry/products-table';
-import { StoichiometryTable } from '@/components/experiments/stoichiometry/stoichiometry-table';
+import { ReactionProductsTable } from '@/components/experiments/stoichiometry/products/products-table';
+import { StoichiometryTable } from '@/components/experiments/stoichiometry/inputs/stoichiometry-table';
 import { ReactionSchemePanel } from '@/components/experiments/template/reaction-scheme-panel';
 import { Button } from '@/components/ui/button';
 import { useReactionStep } from '@/lib/hooks/experiments/use-reaction-step';

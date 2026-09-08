@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  NOTEBOOK_NAME_LENGTH,
   notebookNameSchema,
   toNotebookEditRequest,
   toNotebookFormValues,
   toNotebookRequest,
 } from '@/components/notebooks/notebook-form';
+import { NOTEBOOK_NAME_LENGTH } from '@/lib/types/notebooks.ts';
 import { makeNotebookDetails } from '@/mocks/fixtures';
 
 describe('notebookNameSchema', () => {

@@ -24,7 +24,7 @@ export type ExperimentStatus = (typeof EXPERIMENT_STATUSES)[number];
 
 export type ExperimentStatusCounts = Partial<Record<ExperimentStatus, number>>;
 
-export const EXPERIMENT_STATUS_DISPLAY: Record<ExperimentStatus, string> = {
+export const EXPERIMENT_STATUS_LABELS: Record<ExperimentStatus, string> = {
   OPEN: 'Open',
   REOPEN: 'Reopen',
   COMPLETED: 'Completed',

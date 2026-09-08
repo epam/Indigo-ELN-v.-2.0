@@ -5,7 +5,7 @@ import {
   SAMPLE_COLUMNS,
   SAMPLE_INDENT_SPAN,
   shortBatchNumber,
-} from '@/components/experiments/stoichiometry/columns';
+} from '@/components/experiments/stoichiometry/inputs/columns';
 
 describe('the host grid', () => {
   /**

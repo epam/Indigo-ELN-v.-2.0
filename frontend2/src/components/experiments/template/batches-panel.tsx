@@ -1,4 +1,4 @@
-import { ProductBatchSummaryTable } from '@/components/experiments/stoichiometry/batches-table';
+import { ProductBatchSummaryTable } from '@/components/experiments/stoichiometry/batches/batches-table';
 import { CollapsibleCard } from '@/components/common/collapsible-card';
 import { useReactionStep } from '@/lib/hooks/experiments/use-reaction-step';
 

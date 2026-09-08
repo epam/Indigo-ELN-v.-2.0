@@ -1,17 +1,14 @@
-import { Plus, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import type { ComponentType } from 'react';
 import { useState } from 'react';
 
 import { SavingOverlay } from '@/components/common/saving-overlay';
-import { ROLE_LABELS } from '@/components/experiments/stoichiometry/columns';
-import { OUTPUT_TYPE_LABELS, OUTPUT_TYPE_TRIGGER_CLASS } from '@/components/experiments/stoichiometry/product-columns';
 import { MultiCombobox } from '@/components/ui/combobox';
 import { Select } from '@/components/ui/select';
 import { useDictionary } from '@/lib/api/dictionaries';
 import { cn } from '@/lib/utils';
 
 import type { BuiltInDictionary, DictionaryItemRef } from '@/lib/types/dictionaries.ts';
-import type { ReactionOutputType, ReactionRole } from '@/lib/types/reactions.ts';
 
 /**
  * The absence marker every read-only cell shares. Centred, so a column of them reads as a column.
@@ -119,80 +116,6 @@ export function TextCell({
 }
 
 /**
- * The reaction-role picker: four values from a fixed enum, and `@NotNull` on the record.
- *
- * A `Select`, not a `Combobox`. The combobox's three affordances are all wrong here — its text
- * input invites typing into a field that only accepts four exact values, its ✕ offers to clear
- * one the backend will reject as absent, and its "no matches" state answers a question that
- * cannot be asked. Four options need no filtering.
- */
-export function RoleCell({
-  value,
-  roles,
-  editable,
-  pending,
-  onCommit,
-}: {
-  value: ReactionRole;
-  roles: readonly ReactionRole[];
-  editable: boolean;
-  pending: boolean;
-  onCommit: (next: ReactionRole) => void;
-}) {
-  return (
-    <SavingOverlay pending={pending} spinner="center" className="w-full">
-      <Select<ReactionRole>
-        aria-label="Reaction role"
-        size="sm"
-        value={value}
-        items={[...roles]}
-        itemToKey={(role) => role}
-        itemToLabel={(role) => ROLE_LABELS[role]}
-        disabled={!editable}
-        // No `emptyLabel`, so the list offers no way to reach null — but the prop allows one.
-        onValueChange={(next) => next != null && next !== value && onCommit(next)}
-      />
-    </SavingOverlay>
-  );
-}
-
-/**
- * The limiting-reagent radio. Every radio in the column shares one `name`, so the browser
- * enforces single selection across the table for free.
- *
- * There is no way to *unset* it, which matches the mutation: `SetInputRowLimiting` names the
- * row that becomes limiting and carries no boolean. A reaction either has a limiting reagent
- * or has not yet been given one.
- */
-export function LimitingCell({
-  checked,
-  editable,
-  pending,
-  label,
-  onCommit,
-}: {
-  checked: boolean;
-  editable: boolean;
-  pending: boolean;
-  label: string;
-  onCommit: () => void;
-}) {
-  return (
-    <SavingOverlay pending={pending} spinner="center" className="mx-auto w-fit">
-      <input
-        type="radio"
-        name="stoichiometry-limiting"
-        aria-label={label}
-        checked={checked}
-        disabled={!editable}
-        onChange={() => onCommit()}
-        className="size-4 accent-blue-400"
-      />
-    </SavingOverlay>
-  );
-}
-
-/**
  * One item from a built-in dictionary, or none.
  *
  * A `Select` rather than a `Combobox`, for the same reason Rxn Role is one: these lists are short
@@ -287,108 +210,6 @@ export function MultiDictionaryCell({
         onValueChange={onCommit}
       />
     </SavingOverlay>
-  );
-}
-
-/**
- * The product-type picker: which of the three things this output is — the wanted product, a
- * by-product, or an intermediate the next step consumes.
- *
- * A `Select` for the same reasons `RoleCell` is one: three fixed values, `@NotNull` on the
- * record, nothing to filter. What it adds is colour, because the type is the row's headline and
- * a column of identical grey triggers does not read as one. The colour lives on the trigger
- * rather than in a `StatusBadge`, whose variants are the nine `ExperimentStatus` values and which
- * carries a status dot and a fixed 59px width — none of which belongs on a control.
- */
-export function OutputTypeCell({
-  value,
-  types,
-  editable,
-  pending,
-  label,
-  onCommit,
-}: {
-  value: ReactionOutputType;
-  types: readonly ReactionOutputType[];
-  editable: boolean;
-  pending: boolean;
-  label: string;
-  onCommit: (next: ReactionOutputType) => void;
-}) {
-  return (
-    <SavingOverlay pending={pending} spinner="center" className="w-full">
-      <Select<ReactionOutputType>
-        aria-label={label}
-        size="sm"
-        value={value}
-        items={[...types]}
-        itemToKey={(type) => type}
-        itemToLabel={(type) => OUTPUT_TYPE_LABELS[type]}
-        disabled={!editable}
-        // `h-7` rather than the default `h-10`: this sits in a table row beside 20px-tall text.
-        className={cn('h-7 w-auto min-w-[112px] rounded-md pl-2', OUTPUT_TYPE_TRIGGER_CLASS[value])}
-        // No `emptyLabel` — `@NotNull`, so the list offers no way to reach null.
-        onValueChange={(next) => next != null && next !== value && onCommit(next)}
-      />
-    </SavingOverlay>
-  );
-}
-
-/**
- * Adds a batch to this product.
- *
- * The mirror image of `DeleteCell`, and the only row-level action a product has: there is no
- * `RemoveOutputRow` mutation, because a product row is created and destroyed by editing the
- * reaction scheme rather than from this table.
- */
-export function AddBatchCell({
-  label,
-  editable,
-  pending,
-  onCommit,
-}: {
-  label: string;
-  editable: boolean;
-  pending: boolean;
-  onCommit: () => void;
-}) {
-  return (
-    <SavingOverlay pending={pending} spinner="center" className="mx-auto w-fit">
-      <button
-        type="button"
-        aria-label={label}
-        disabled={!editable}
-        onClick={onCommit}
-        className={cn(
-          'rounded-2 p-1 text-blue-400 outline-none',
-          'hover:bg-blue-10 focus-visible:ring-3 focus-visible:ring-ring/50',
-          'disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent',
-        )}
-      >
-        <Plus className="size-4" />
-      </button>
-    </SavingOverlay>
-  );
-}
-
-/**
- * The product type as a static pill: which of the three things this output is.
- *
- * Not `OutputTypeCell` with `editable={false}`, which renders a disabled `<select>` — the batch
- * summary does not edit the type (the products table owns `SetOutputRowType`), and offering a
- * control where there is no choice to make is worse than showing none. The colours are the
- * trigger's, so a batch row and a product row read the same type the same way.
- */
-export function OutputTypeBadge({ value }: { value: ReactionOutputType }) {
-  return (
-    <span
-      className={cn(
-        'inline-flex cursor-default items-center rounded-md border px-2 py-0.5 text-[13px]/5 text-neutral-1000',
-        OUTPUT_TYPE_TRIGGER_CLASS[value],
-      )}
-    >
-      {OUTPUT_TYPE_LABELS[value]}
-    </span>
   );
 }
 

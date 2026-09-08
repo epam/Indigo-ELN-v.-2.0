@@ -3,7 +3,7 @@ import { useRef, useState } from 'react';
 
 import { SavingOverlay } from '@/components/common/saving-overlay';
 import { determineCellClasses } from '@/components/experiments/stoichiometry/cell-classes';
-import { unitLabel } from '@/components/experiments/stoichiometry/units';
+import { unitLabel } from '@/lib/types/reactions.ts';
 import { cn } from '@/lib/utils';
 import type { EnteredValue } from '@/lib/types/reactions.ts';
 

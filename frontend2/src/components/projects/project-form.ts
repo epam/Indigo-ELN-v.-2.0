@@ -2,9 +2,7 @@ import { isBlankHtml, richTextEdit } from '@/lib/rich-text';
 import { z } from '@/lib/zod';
 
 import type { ProjectDetails, ProjectEditRequest, ProjectRequest } from '@/lib/types/projects.ts';
-
-/** ProjectEntity.name is @Size(max = 256); the column is VARCHAR(256). */
-export const PROJECT_NAME_MAX_LENGTH = 256;
+import { PROJECT_NAME_MAX_LENGTH } from '@/lib/types/projects.ts';
 
 export const projectNameSchema = z
   .string()

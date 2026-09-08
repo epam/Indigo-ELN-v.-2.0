@@ -8,22 +8,19 @@ import {
   DictionaryCell,
   EmptyCell,
   FormulaCell,
-  LimitingCell,
   MultiDictionaryCell,
   ReadonlyCell,
-  RoleCell,
   TextCell,
 } from '@/components/experiments/stoichiometry/cells';
-import type { InputColumn, SampleColumn } from '@/components/experiments/stoichiometry/columns';
+import { CELL_CLASS, HEADER_CELL_CLASS } from '@/components/experiments/stoichiometry/columns';
+import { LimitingCell, RoleCell } from '@/components/experiments/stoichiometry/inputs/cells';
+import type { InputColumn, SampleColumn } from '@/components/experiments/stoichiometry/inputs/columns';
 import {
-  CELL_CLASS,
   COMPOUND_COLUMNS,
-  HEADER_CELL_CLASS,
-  INPUT_ROLES,
   SAMPLE_COLUMNS,
   SAMPLE_INDENT_SPAN,
   shortBatchNumber,
-} from '@/components/experiments/stoichiometry/columns';
+} from '@/components/experiments/stoichiometry/inputs/columns';
 import { NumericCell } from '@/components/experiments/stoichiometry/numeric-cell';
 import type { StoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import { cellId, useStoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
@@ -34,6 +31,7 @@ import type { ExperimentDetails } from '@/lib/types/experiments.ts';
 import { canEditExperiment } from '@/lib/types/experiments.ts';
 import { cn } from '@/lib/utils';
 import type { Reaction, ReactionInput, ReactionInputSample } from '@/lib/types/reactions.ts';
+import { INPUT_ROLES } from '@/lib/types/reactions.ts';
 
 /** The values the backend accepts — `@Min(1) @Max(5)` on `SetExperimentSignificantFigures`. */
 const SIGNIFICANT_FIGURES = [1, 2, 3, 4, 5];

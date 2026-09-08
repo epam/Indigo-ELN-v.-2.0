@@ -2,12 +2,12 @@ import { describe, expect, it } from 'vitest';
 
 import {
   EMPTY_PROJECT_FORM,
-  PROJECT_NAME_MAX_LENGTH,
   projectNameSchema,
   toProjectEditRequest,
   toProjectFormValues,
   toProjectRequest,
 } from '@/components/projects/project-form';
+import { PROJECT_NAME_MAX_LENGTH } from '@/lib/types/projects.ts';
 import { makeProjectDetails } from '@/mocks/fixtures';
 
 describe('toProjectRequest', () => {

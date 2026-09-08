@@ -4,7 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import {
   EXPERIMENT_STATUS_COLOR,
-  EXPERIMENT_STATUS_DISPLAY,
+  EXPERIMENT_STATUS_LABELS,
   EXPERIMENT_STATUSES,
   type ExperimentStatus,
   type ExperimentStatusCounts,
@@ -17,7 +17,7 @@ function Cell({ status, children }: { status: ExperimentStatus; children: ReactN
   return (
     <div className="-mr-px flex w-25 shrink-0 flex-col gap-1 border-neutral-300 bg-card px-3 py-2 not-last:border-r">
       {children}
-      <span className="truncate text-[14px]/6 text-neutral-1000">{EXPERIMENT_STATUS_DISPLAY[status]}</span>
+      <span className="truncate text-[14px]/6 text-neutral-1000">{EXPERIMENT_STATUS_LABELS[status]}</span>
     </div>
   );
 }

@@ -1,14 +1,15 @@
 import { ChevronDown, Info } from 'lucide-react';
 
 import { DictionaryCombobox } from '@/components/common/dictionary-combobox';
-import type { AddMaterialFormValues, MaterialFilter } from '@/components/experiments/samples/add-material-form';
+import type { AddMaterialFormValues } from '@/components/experiments/samples/add-material-form';
 import {
   isFilterDisabled,
-  MATERIAL_FILTER_LABELS,
   PUBCHEM_NOTICE,
   pubchemIncluded,
   summarizeAddMaterialSearch,
 } from '@/components/experiments/samples/add-material-form';
+import type { MaterialFilter } from '@/lib/types/samples.ts';
+import { MATERIAL_FILTER_LABELS } from '@/lib/types/samples.ts';
 import { NumericSearchField } from '@/components/ui/search/numeric-search-field';
 import { TextSearchField } from '@/components/ui/search/text-search-field';
 import { Collapsible, CollapsiblePanel, CollapsibleTrigger } from '@/components/ui/collapsible';

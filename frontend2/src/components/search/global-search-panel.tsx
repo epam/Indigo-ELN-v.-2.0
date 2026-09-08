@@ -8,7 +8,6 @@ import {
   EMPTY_GLOBAL_SEARCH_FORM,
   type GlobalSearchFormValues,
   isEmpty,
-  STRUCTURE_TYPE_LABELS,
   toGlobalSearchRequest,
 } from '@/components/search/global-search-form';
 import { SearchResults } from '@/components/search/search-results';
@@ -18,6 +17,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useGlobalSearch } from '@/lib/api/search';
 
 import type { GlobalSearchRequest, StructuralSearchType } from '@/lib/types/search.ts';
+import { STRUCTURE_TYPE_LABELS } from '@/lib/types/search.ts';
 
 interface GlobalSearchPanelProps {
   open: boolean;

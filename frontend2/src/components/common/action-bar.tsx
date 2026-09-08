@@ -7,11 +7,7 @@ import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Switch } from '@/components/ui/switch';
 
 import type { CollectionView, SortOrder } from '@/lib/types/common.ts';
-
-const SORT_LABELS: Record<SortOrder, string> = {
-  EARLIEST: 'Earliest',
-  LATEST: 'Latest',
-};
+import { SORT_LABELS } from '@/lib/types/common.ts';
 
 interface ActionBarProps {
   /** Plural entity name, e.g. "projects" — only reaches the screen reader label. */

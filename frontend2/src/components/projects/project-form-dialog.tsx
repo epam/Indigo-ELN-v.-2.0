@@ -5,12 +5,12 @@ import { FormDialog } from '@/components/common/form-dialog';
 import { KeywordCombobox } from '@/components/ui/keyword-combobox';
 import {
   EMPTY_PROJECT_FORM,
-  PROJECT_NAME_MAX_LENGTH,
   projectNameSchema,
   toProjectEditRequest,
   toProjectFormValues,
   toProjectRequest,
 } from '@/components/projects/project-form';
+import { PROJECT_NAME_MAX_LENGTH } from '@/lib/types/projects.ts';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';

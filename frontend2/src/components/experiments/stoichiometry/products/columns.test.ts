@@ -1,15 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  OUTPUT_TYPE_LABELS,
-  OUTPUT_TYPE_TRIGGER_CLASS,
-  OUTPUT_TYPES,
-  PRODUCT_COLUMNS,
-  productHaystack,
-} from '@/components/experiments/stoichiometry/product-columns';
+import { PRODUCT_COLUMNS, productHaystack } from '@/components/experiments/stoichiometry/products/columns';
 import { makeReactionOutput } from '@/mocks/fixtures';
 
 import type { ReactionOutput } from '@/lib/types/reactions.ts';
+import { OUTPUT_TYPE_LABELS, OUTPUT_TYPE_TRIGGER_CLASS, OUTPUT_TYPES } from '@/lib/types/reactions.ts';
 
 function row(overrides: Partial<ReactionOutput> = {}) {
   return { output: makeReactionOutput('f0000000-0000-4000-8000-0000000000ff', overrides), step: 0 };

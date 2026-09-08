@@ -12,9 +12,9 @@ import { Collapsible, CollapsiblePanel, CollapsibleTrigger } from '@/components/
 import { Combobox } from '@/components/ui/combobox';
 import { Field } from '@/components/ui/field';
 import type { ExperimentStatus } from '@/lib/types/experiments.ts';
-import { EXPERIMENT_STATUS_DISPLAY, EXPERIMENT_STATUSES } from '@/lib/types/experiments.ts';
+import { EXPERIMENT_STATUS_LABELS, EXPERIMENT_STATUSES } from '@/lib/types/experiments.ts';
 import type { ReactionRole } from '@/lib/types/search.ts';
-import { REACTION_ROLE_DISPLAY, REACTION_ROLES } from '@/lib/types/search.ts';
+import { REACTION_ROLE_LABELS, REACTION_ROLES } from '@/lib/types/search.ts';
 import { cn } from '@/lib/utils';
 
 interface AdvancedSearchProps {
@@ -114,7 +114,7 @@ function AdvancedSearch({ values, onChange, open, onOpenChange }: AdvancedSearch
               value={values.experimentStatus}
               onValueChange={(experimentStatus) => onChange({ experimentStatus })}
               items={[...EXPERIMENT_STATUSES]}
-              itemToLabel={(status) => EXPERIMENT_STATUS_DISPLAY[status]}
+              itemToLabel={(status) => EXPERIMENT_STATUS_LABELS[status]}
             />
           </Field>
           {showReactionRole(values) && (
@@ -124,7 +124,7 @@ function AdvancedSearch({ values, onChange, open, onOpenChange }: AdvancedSearch
                 value={values.reactionRole}
                 onValueChange={(reactionRole) => onChange({ reactionRole })}
                 items={[...REACTION_ROLES]}
-                itemToLabel={(role) => REACTION_ROLE_DISPLAY[role]}
+                itemToLabel={(role) => REACTION_ROLE_LABELS[role]}
               />
             </Field>
           )}

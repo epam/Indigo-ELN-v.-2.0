@@ -1,23 +1,18 @@
 import { useMemo, useState } from 'react';
 
-import {
-  AddBatchCell,
-  DictionaryCell,
-  FormulaCell,
-  OutputTypeCell,
-  ReadonlyCell,
-  TextCell,
-} from '@/components/experiments/stoichiometry/cells';
+import { DictionaryCell, FormulaCell, ReadonlyCell, TextCell } from '@/components/experiments/stoichiometry/cells';
 import { CELL_CLASS, HEADER_CELL_CLASS } from '@/components/experiments/stoichiometry/columns';
 import { NumericCell } from '@/components/experiments/stoichiometry/numeric-cell';
-import type { ProductColumn, ProductRow } from '@/components/experiments/stoichiometry/product-columns';
-import { OUTPUT_TYPES, PRODUCT_COLUMNS, productHaystack } from '@/components/experiments/stoichiometry/product-columns';
+import { AddBatchCell, OutputTypeCell } from '@/components/experiments/stoichiometry/products/cells';
+import type { ProductColumn, ProductRow } from '@/components/experiments/stoichiometry/products/columns';
+import { PRODUCT_COLUMNS, productHaystack } from '@/components/experiments/stoichiometry/products/columns';
 import type { StoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import { cellId, useStoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import { SearchInput } from '@/components/ui/search-input';
 import { Switch } from '@/components/ui/switch';
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
 import { canEditExperiment } from '@/lib/types/experiments.ts';
+import { OUTPUT_TYPES } from '@/lib/types/reactions.ts';
 
 /**
  * The Reaction Products table.

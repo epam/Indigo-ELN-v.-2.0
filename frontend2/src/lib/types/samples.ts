@@ -131,3 +131,57 @@ export const CATALOGS_BY_FILTER: Record<SampleCatalogFilter, SearchCatalog[]> = 
   PUBCHEM: ['PUBCHEM'],
   MY_MATERIALS: ['MY_MATERIALS'],
 };
+
+/**
+ * The ten filters behind Advanced search, as the form holds them. Split out from the rest of the
+ * values because everything that gates on the catalog — the disabled set, the request trimming,
+ * the collapsed summary — names these and only these.
+ *
+ * Each is `null` until it has something to search for; the two field components emit null for a
+ * blank box rather than an empty `value`, which is not a filter the backend would understand.
+ */
+export interface AddMaterialFilters {
+  compoundKey: TextSearch | null;
+  nbkBatchNumber: TextSearch | null;
+  molecularFormula: TextSearch | null;
+  molWeight: NumericSearch | null;
+  chemicalName: TextSearch | null;
+  externalNumber: TextSearch | null;
+  compoundState: DictionaryItemRef | null;
+  batchComment: TextSearch | null;
+  healthHazards: DictionaryItemRef | null;
+  casNumber: TextSearch | null;
+}
+
+export type MaterialFilter = keyof AddMaterialFilters;
+
+/** The label each filter shows, in the order the grid lays them out. */
+export const MATERIAL_FILTER_LABELS: Record<MaterialFilter, string> = {
+  compoundKey: 'Compound ID',
+  nbkBatchNumber: 'Nbk Batch #',
+  molecularFormula: 'Molecular Formula',
+  molWeight: 'Molecular Weight',
+  chemicalName: 'Chemical Name',
+  externalNumber: 'External ID',
+  compoundState: 'Component State',
+  batchComment: 'Batch Comment',
+  healthHazards: 'Health Hazards',
+  casNumber: 'CAS Number',
+};
+
+/**
+ * The filters PubChem cannot honour — every one in the grid except Molecular Formula, which its
+ * API does accept. The port of indigo-frontend's `PUBCHEM_DISABLED_CONTROLS`, plus
+ * `externalNumber`: that list omits it only because the Angular template never wired the box up.
+ */
+export const PUBCHEM_DISABLED_FILTERS: readonly MaterialFilter[] = [
+  'compoundKey',
+  'nbkBatchNumber',
+  'molWeight',
+  'chemicalName',
+  'externalNumber',
+  'compoundState',
+  'batchComment',
+  'healthHazards',
+  'casNumber',
+];

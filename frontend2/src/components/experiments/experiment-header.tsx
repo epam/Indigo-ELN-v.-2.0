@@ -13,7 +13,7 @@ import { StatusBadge } from '@/components/ui/status-badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
-import { EXPERIMENT_STATUS_DISPLAY } from '@/lib/types/experiments.ts';
+import { EXPERIMENT_STATUS_LABELS } from '@/lib/types/experiments.ts';
 import { cn } from '@/lib/utils';
 import type { TemplateTab } from '@/lib/types/templates.ts';
 
@@ -83,7 +83,7 @@ export function ExperimentHeader({
         {experiment && (
           <>
             <StatusBadge variant={experiment.status} className="w-auto shrink-0">
-              {EXPERIMENT_STATUS_DISPLAY[experiment.status]}
+              {EXPERIMENT_STATUS_LABELS[experiment.status]}
             </StatusBadge>
             {/* TODO(star): useToggleMark has to patch the experimentDetails cache entry first,
                 or the star reverts as the invalidated lists come home. */}

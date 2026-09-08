@@ -6,7 +6,7 @@ import {
   purityCalculationLabels,
   residualSolventLabels,
   solubilityLabels,
-} from '@/components/experiments/stoichiometry/batch-detail';
+} from '@/components/experiments/stoichiometry/batches/detail';
 
 import type { DictionaryItemRef } from '@/lib/types/dictionaries.ts';
 

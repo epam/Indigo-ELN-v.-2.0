@@ -1,14 +1,14 @@
 import { http, HttpResponse } from 'msw';
 import { expect, screen, userEvent, waitFor, within } from 'storybook/test';
 
-import { BatchDetailPanel } from '@/components/experiments/stoichiometry/batch-detail-panel';
+import { BatchDetailPanel } from '@/components/experiments/stoichiometry/batches/detail-panel';
 import { useStoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import { useExperiment } from '@/lib/api/experiments';
 import { canEditExperiment } from '@/lib/types/experiments.ts';
 import { DICTIONARIES, makeExperimentDetails, makeReactionOutput, makeReactionOutputSample } from '@/mocks/fixtures';
 import { handlers, slowMutateHandlers } from '@/mocks/handlers';
 
-import type { BatchRow } from '@/components/experiments/stoichiometry/batch-columns';
+import type { BatchRow } from '@/components/experiments/stoichiometry/batches/columns';
 import type { StoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -67,7 +67,7 @@ function PanelFromCache({ outputIndex = 0, sampleIndex = 0 }: { outputIndex?: nu
 }
 
 const meta = {
-  title: 'Experiments/Stoichiometry/BatchDetailPanel',
+  title: 'Experiments/Stoichiometry/Batches/BatchDetailPanel',
   component: BatchDetailPanel,
   args: { row: POPULATED, reaction: REACTION, canEdit: true, mutations: IDLE },
   parameters: { layout: 'padded' },

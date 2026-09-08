@@ -1,9 +1,16 @@
 import type { BaseDTO, UserRef } from '@/lib/types/common.ts';
 import type { DictionaryItemRef } from '@/lib/types/dictionaries.ts';
 import type { ExperimentStatus } from '@/lib/types/experiments.ts';
+import type { ReactionRole } from '@/lib/types/reactions.ts';
 
 /** Mirrors the backend's StructuralSearch.Type (eln-api, compound/model/search). */
 export type StructuralSearchType = 'EXACT' | 'SUBSTRUCTURE' | 'SIMILARITY';
+
+export const STRUCTURE_TYPE_LABELS: Record<StructuralSearchType, string> = {
+  EXACT: 'Exact',
+  SUBSTRUCTURE: 'Substructure',
+  SIMILARITY: 'Similarity',
+};
 
 export interface StructuralSearch {
   type: StructuralSearchType;
@@ -61,18 +68,12 @@ export const TEXT_SEARCH_OPERATOR_LABELS: Record<TextSearchOperator, string> = {
   between: 'between',
 };
 
-/** Mirrors ReactionRole (eln-api, reaction/model). */
-export type ReactionRole = 'REACTANT' | 'REAGENT' | 'CATALYST' | 'SOLVENT' | 'OUTPUT';
-
-export const REACTION_ROLES: readonly ReactionRole[] = ['REACTANT', 'REAGENT', 'CATALYST', 'SOLVENT', 'OUTPUT'];
-
-export const REACTION_ROLE_DISPLAY: Record<ReactionRole, string> = {
-  REACTANT: 'Reactant',
-  REAGENT: 'Reagent',
-  CATALYST: 'Catalyst',
-  SOLVENT: 'Solvent',
-  OUTPUT: 'Output',
-};
+/**
+ * Re-exported so a search caller has one import for the whole request shape. The union and its
+ * companion tables are declared in `reactions.ts` — it is the reaction model this mirrors.
+ */
+export type { ReactionRole } from '@/lib/types/reactions.ts';
+export { REACTION_ROLES, REACTION_ROLE_LABELS } from '@/lib/types/reactions.ts';
 
 /**
  * The body of POST /api/eln/search, mirroring GlobalSearchRequest (eln-api, eln/model).
@@ -97,6 +98,12 @@ export interface GlobalSearchRequest {
 
 /** The three ELNEntityType values global search can emit. */
 export type SearchEntityType = 'PROJECT' | 'NOTEBOOK' | 'EXPERIMENT';
+
+export const SEARCH_ENTITY_LABELS: Record<SearchEntityType, string> = {
+  PROJECT: 'Project',
+  NOTEBOOK: 'Notebook',
+  EXPERIMENT: 'Experiment',
+};
 
 /**
  * One hit, mirroring GlobalSearchResultDTO (eln-api, eln/model). Most fields apply to only
