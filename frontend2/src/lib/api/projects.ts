@@ -1,16 +1,14 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { apiFetch } from '@/lib/api';
-import { collectionQueryString, getNextPageParam, SUGGEST_DEBOUNCE_MS, useSettledSearch } from '@/lib/api/collections';
+import { collectionQueryParams, getNextPageParam, SUGGEST_DEBOUNCE_MS, useSettledSearch } from '@/lib/api/collections';
 import { useEntityAttachments, useUpdateEntityAccess } from '@/lib/api/entity-writes';
 import { useSettled } from '@/lib/hooks/use-settled';
 import type { CollectionFilters, Page } from '@/lib/types/common.ts';
 import type { Project, ProjectDetails, ProjectEditRequest, ProjectRequest, TotalCounts } from '@/lib/types/projects.ts';
 
-export const PROJECTS_PAGE_SIZE = 10;
-
 function fetchProjects(filters: CollectionFilters, pageNo: number, signal?: AbortSignal): Promise<Page<Project>> {
-  return apiFetch<Page<Project>>(`/api/eln/projects?${collectionQueryString(filters, pageNo, PROJECTS_PAGE_SIZE)}`, {
+  return apiFetch<Page<Project>>(`/api/eln/projects?${collectionQueryParams(filters, pageNo)}`, {
     signal,
   });
 }

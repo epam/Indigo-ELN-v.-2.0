@@ -1,13 +1,11 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { apiFetch } from '@/lib/api';
-import { collectionQueryString, getNextPageParam, useSettledSearch } from '@/lib/api/collections';
+import { collectionQueryParams, getNextPageParam, useSettledSearch } from '@/lib/api/collections';
 import { useEntityAttachments, useUpdateEntityAccess } from '@/lib/api/entity-writes';
 import { projectKeys } from '@/lib/api/projects';
 import type { CollectionFilters, Page } from '@/lib/types/common.ts';
 import type { Notebook, NotebookDetails, NotebookEditRequest, NotebookRequest } from '@/lib/types/notebooks.ts';
-
-export const NOTEBOOKS_PAGE_SIZE = 10;
 
 function fetchProjectNotebooks(
   projectId: string,
@@ -16,7 +14,7 @@ function fetchProjectNotebooks(
   signal?: AbortSignal,
 ): Promise<Page<Notebook>> {
   return apiFetch<Page<Notebook>>(
-    `/api/eln/projects/${projectId}/notebooks?${collectionQueryString(filters, pageNo, NOTEBOOKS_PAGE_SIZE)}`,
+    `/api/eln/projects/${projectId}/notebooks?${collectionQueryParams(filters, pageNo)}`,
     { signal },
   );
 }

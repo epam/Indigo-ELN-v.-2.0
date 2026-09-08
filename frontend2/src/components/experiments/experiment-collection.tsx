@@ -3,7 +3,8 @@ import { ExperimentCard } from '@/components/experiments/experiment-card';
 import { ExperimentCardSkeleton } from '@/components/experiments/experiment-card-skeleton';
 import { ExperimentRow } from '@/components/experiments/experiment-row';
 import { ExperimentRowSkeleton } from '@/components/experiments/experiment-row-skeleton';
-import { EXPERIMENTS_PAGE_SIZE, useNotebookExperiments } from '@/lib/api/experiments';
+import { COLLECTION_PAGE_SIZE } from '@/lib/api/collections';
+import { useNotebookExperiments } from '@/lib/api/experiments';
 
 import type { CollectionView } from '@/lib/types/common.ts';
 import type { Experiment, ExperimentFilters } from '@/lib/types/experiments.ts';
@@ -31,7 +32,7 @@ export function ExperimentCollection({
       view={view}
       layouts={LAYOUTS}
       query={useNotebookExperiments(notebookId, filters)}
-      firstLoadSkeletons={EXPERIMENTS_PAGE_SIZE}
+      firstLoadSkeletons={COLLECTION_PAGE_SIZE}
     />
   );
 }

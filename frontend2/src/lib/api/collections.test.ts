@@ -1,25 +1,21 @@
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { collectionQueryString, getNextPageParam, useSettledSearch } from '@/lib/api/collections';
+import { collectionQueryParams, getNextPageParam, useSettledSearch } from '@/lib/api/collections';
 
 import type { Page } from '@/lib/types/common.ts';
 
-describe('collectionQueryString', () => {
+describe('collectionQueryParams', () => {
   it('omits search and createdByMe when unset', () => {
-    expect(collectionQueryString({ search: '', sort: 'EARLIEST', createdByMe: false }, 0, 10)).toBe(
+    expect(collectionQueryParams({ search: '', sort: 'EARLIEST', createdByMe: false }, 0).toString()).toBe(
       'sort=EARLIEST&pageNo=0&pageSize=10',
     );
   });
 
   it('includes both once set', () => {
-    expect(collectionQueryString({ search: 'acid test', sort: 'LATEST', createdByMe: true }, 2, 10)).toBe(
+    expect(collectionQueryParams({ search: 'acid test', sort: 'LATEST', createdByMe: true }, 2).toString()).toBe(
       'sort=LATEST&pageNo=2&pageSize=10&search=acid+test&createdByMe=true',
     );
-  });
-
-  it('carries the page size it is given, so the two lists stay independent', () => {
-    expect(collectionQueryString({ search: '', sort: 'LATEST', createdByMe: false }, 0, 25)).toContain('pageSize=25');
   });
 });
 

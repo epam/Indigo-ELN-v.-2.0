@@ -2,7 +2,7 @@ import { useInfiniteQuery, useIsMutating, useMutation, useQuery, useQueryClient 
 import type { QueryClient } from '@tanstack/react-query';
 
 import { apiDownload, apiFetch } from '@/lib/api';
-import { collectionQueryString, getNextPageParam, SUGGEST_DEBOUNCE_MS, useSettledSearch } from '@/lib/api/collections';
+import { collectionQueryParams, getNextPageParam, SUGGEST_DEBOUNCE_MS, useSettledSearch } from '@/lib/api/collections';
 import { useEntityAttachments, useUpdateEntityAccess } from '@/lib/api/entity-writes';
 import { notebookKeys } from '@/lib/api/notebooks';
 import { projectKeys } from '@/lib/api/projects';
@@ -21,8 +21,6 @@ import type {
 } from '@/lib/types/experiments.ts';
 import type { ModelMutation, MutationResponse } from '@/lib/types/mutations.ts';
 
-export const EXPERIMENTS_PAGE_SIZE = 10;
-
 /**
  * Every query key this module issues, written out literally rather than composed from a shared
  * prefix — the same shape, and for the same reasons, as `projectKeys` in `projects.ts`.
@@ -34,14 +32,21 @@ export const EXPERIMENTS_PAGE_SIZE = 10;
  *
  * Filters belong in the list key; the page number comes from pageParam.
  *
+ * `all()` covers `marked()` as well as every `list()`, and that width is almost never wanted:
+ * the starred panel is mounted on every page, so invalidating it refetches at once. It reads
+ * only `name` and `status` — a name is server-assigned and never edited, a status moves only
+ * through the workflow endpoints — so `marked()` should be invalidated by mark/unmark and by a
+ * status transition (complete / reopen / cancel / submit / sign / reject, none of them wired up
+ * yet) and by nothing else. Everything writing an experiment invalidates `lists()` instead.
+ *
  * Exported although no component reads it: `src/lib/query-client.ts` hashes `marked()` to decide
  * what gets persisted to localStorage. Not a candidate for going private.
  */
 export const experimentKeys = {
   all: () => ['experiments'] as const,
   marked: () => ['experiments', 'marked'] as const,
-  notebookList: (notebookId: string, filters: ExperimentFilters) =>
-    ['experiments', 'notebook', notebookId, filters] as const,
+  lists: () => ['experiments', 'list'] as const,
+  list: (notebookId: string, filters: ExperimentFilters) => ['experiments', 'list', notebookId, filters] as const,
   detail: (id: string) => ['experimentDetails', id] as const,
   suggestions: (search: string) => ['experimentSuggestions', search] as const,
 };
@@ -59,12 +64,6 @@ const EXPERIMENT_WRITES = {
 /**
  * What every write to one experiment shares: a key to count them by, and a `scope` that makes
  * TanStack Query run them **one at a time**.
- *
- * The serialisation is not cosmetic. Each of these endpoints goes through
- * `ExperimentModelService.applyMutation` on the backend, which bumps the experiment's `revision`
- * — the token the model-mutation endpoint uses for optimistic concurrency. Two writes in flight
- * race on it. Since fields save on blur, a quick user starts the second before the first lands,
- * so this is the normal case rather than an edge one.
  *
  * `scope` does the whole job: `MutationCache.canRun` lets only the first pending mutation of a
  * scope proceed and pauses the rest, and `runNext` fires from a `finally`, so a failed write
@@ -134,8 +133,8 @@ export function useCreateExperiment(notebookId: string) {
   return useMutation({
     mutationFn: (request: ExperimentRequest) => createExperiment(notebookId, request),
     onSuccess: (experiment) => {
-      // Covers every notebook's list and the starred list, both under the `experiments` root.
-      void queryClient.invalidateQueries({ queryKey: experimentKeys.all() });
+      // Every notebook's list. Not the starred one — a new experiment is never marked.
+      void queryClient.invalidateQueries({ queryKey: experimentKeys.lists() });
       // `experimentCount` on the notebook card, and the count strip in the notebook header.
       void queryClient.invalidateQueries({ queryKey: notebookKeys.all() });
       void queryClient.invalidateQueries({ queryKey: notebookKeys.detail(experiment.notebookId) });
@@ -168,7 +167,7 @@ export function useEditExperiment(id: string) {
     mutationFn: (request: ExperimentEditRequest) => editExperiment(id, request),
     onSuccess: (experiment) => {
       queryClient.setQueryData(experimentKeys.detail(id), experiment);
-      void queryClient.invalidateQueries({ queryKey: experimentKeys.all() });
+      void queryClient.invalidateQueries({ queryKey: experimentKeys.lists() });
     },
   });
 }
@@ -256,8 +255,9 @@ function applyMutationResponse(
   // mutation, not to every caller. `ReactionSchemePanel` reads it off `mutateAsync`'s result and
   // opens Analyze RXN on it — see the note there.
   for (const message of response.messages ?? []) notifyInfo(message);
-  // The write bumps modifiedAt, which every list card shows.
-  void queryClient.invalidateQueries({ queryKey: experimentKeys.all() });
+  // The write bumps modifiedAt, which every list card shows. `lists()` rather than `all()`:
+  // the patch cannot move a name or a status, so the starred panel has nothing to refetch for.
+  void queryClient.invalidateQueries({ queryKey: experimentKeys.lists() });
 }
 
 function importSdf(id: string, reactionAnchor: string, file: File): Promise<MutationResponse> {
@@ -372,13 +372,13 @@ export function useMarkedExperiments() {
 /**
  * The four params every collection takes, plus one repeatable `status` per selected status —
  * which `/notebooks/{id}/experiments` is the only endpoint to declare. Built on top of
- * `collectionQueryString` rather than inside it, so `collections.ts` stays the two-list
+ * `collectionQueryParams` rather than inside it, so `collections.ts` stays the two-list
  * contract it documents itself as.
  */
-function experimentsQueryString(filters: ExperimentFilters, pageNo: number, pageSize: number): string {
-  const params = new URLSearchParams(collectionQueryString(filters, pageNo, pageSize));
+function experimentsQueryParams(filters: ExperimentFilters, pageNo: number): URLSearchParams {
+  const params = collectionQueryParams(filters, pageNo);
   for (const status of filters.statuses) params.append('status', status);
-  return params.toString();
+  return params;
 }
 
 function fetchNotebookExperiments(
@@ -388,7 +388,7 @@ function fetchNotebookExperiments(
   signal?: AbortSignal,
 ): Promise<Page<Experiment>> {
   return apiFetch<Page<Experiment>>(
-    `/api/eln/notebooks/${notebookId}/experiments?${experimentsQueryString(filters, pageNo, EXPERIMENTS_PAGE_SIZE)}`,
+    `/api/eln/notebooks/${notebookId}/experiments?${experimentsQueryParams(filters, pageNo)}`,
     { signal },
   );
 }
@@ -398,7 +398,7 @@ export function useNotebookExperiments(notebookId: string, filters: ExperimentFi
   const settled = useSettledSearch(filters.search);
 
   return useInfiniteQuery({
-    queryKey: experimentKeys.notebookList(notebookId, filters),
+    queryKey: experimentKeys.list(notebookId, filters),
     queryFn: ({ pageParam, signal }) => fetchNotebookExperiments(notebookId, filters, pageParam, signal),
     initialPageParam: 0,
     getNextPageParam,

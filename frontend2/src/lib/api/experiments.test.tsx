@@ -14,14 +14,21 @@ vi.mock('@/lib/api', async () => {
   return { ...actual, apiFetch: (path: string) => apiFetch(path) };
 });
 
-const { experimentKeys, useEditExperiment, useExperimentAttachments, useToggleMark, useUpdateExperimentAccess } =
-  await import('@/lib/api/experiments');
+const {
+  experimentKeys,
+  useEditExperiment,
+  useExperimentAttachments,
+  useMarkedExperiments,
+  useToggleMark,
+  useUpdateExperimentAccess,
+} = await import('@/lib/api/experiments');
 
 const ID = '22222222-2222-2222-2222-222222222222';
 const PATCH_PATH = `/api/eln/experiments/${ID}`;
 const DELETE_PATH = `/api/eln/experiments/${ID}/attachments/a1`;
 const MARK_PATH = `/api/eln/experiments/${ID}/mark`;
 const ACCESS_PATH = `/api/eln/experiments/${ID}/access`;
+const MARKED_PATH = '/api/eln/experiments/marked';
 
 /** A promise the test settles by hand, so a request can be observed while still in flight. */
 function deferred<T>() {
@@ -129,6 +136,46 @@ describe('experiment write queue', () => {
     await waitFor(() => expect(started).toEqual([PATCH_PATH, MARK_PATH]));
     // …and the write it overtook is still in flight.
     expect(view.result.current.edit.isPending).toBe(true);
+  });
+});
+
+describe('what a write invalidates', () => {
+  beforeEach(() => apiFetch.mockReset());
+
+  /**
+   * The starred panel is mounted on every page and shows only `name` and `status`, neither of
+   * which a write can move — a name is server-assigned and `ExperimentEditRequest` carries
+   * `title`. So writes invalidate `lists()`, not `all()`; the wider key would refetch the
+   * starred list on every on-blur save.
+   */
+  it('invalidates the notebook lists but not the starred list', async () => {
+    const client = new QueryClient({
+      // `staleTime: Infinity` so mounting the seeded queries fetches nothing on its own —
+      // an invalidation still refetches an active query whatever its staleTime, so the
+      // starred assertion below keeps its teeth.
+      defaultOptions: { queries: { retry: false, staleTime: Infinity }, mutations: { retry: false } },
+    });
+    const listKey = experimentKeys.list('n1', { search: '', sort: 'LATEST', createdByMe: false, statuses: [] });
+    client.setQueryData(listKey, { pages: [], pageParams: [] });
+    client.setQueryData(experimentKeys.marked(), []);
+
+    const started = stubApi(Promise.resolve(makeExperimentDetails({ id: ID })));
+
+    // The starred query is mounted, so an invalidation of it would be an immediate refetch.
+    const view = renderHook(() => ({ edit: useEditExperiment(ID), marked: useMarkedExperiments() }), {
+      wrapper: ({ children }) => <QueryClientProvider client={client}>{children}</QueryClientProvider>,
+    });
+
+    act(() => {
+      view.result.current.edit.mutate({ title: 'Renamed' });
+    });
+    await waitFor(() => expect(view.result.current.edit.isSuccess).toBe(true));
+
+    expect(client.getQueryState(listKey)?.isInvalidated).toBe(true);
+    expect(client.getQueryState(experimentKeys.marked())?.isInvalidated).toBe(false);
+    // …and nothing went out for it.
+    expect(started).toEqual([PATCH_PATH]);
+    expect(started).not.toContain(MARKED_PATH);
   });
 });
 

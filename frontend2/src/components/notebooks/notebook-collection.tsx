@@ -3,7 +3,8 @@ import { NotebookCard } from '@/components/notebooks/notebook-card';
 import { NotebookCardSkeleton } from '@/components/notebooks/notebook-card-skeleton';
 import { NotebookRow } from '@/components/notebooks/notebook-row';
 import { NotebookRowSkeleton } from '@/components/notebooks/notebook-row-skeleton';
-import { NOTEBOOKS_PAGE_SIZE, useProjectNotebooks } from '@/lib/api/notebooks';
+import { COLLECTION_PAGE_SIZE } from '@/lib/api/collections';
+import { useProjectNotebooks } from '@/lib/api/notebooks';
 
 import type { CollectionFilters, CollectionView } from '@/lib/types/common.ts';
 import type { Notebook } from '@/lib/types/notebooks.ts';
@@ -31,7 +32,7 @@ export function NotebookCollection({
       view={view}
       layouts={LAYOUTS}
       query={useProjectNotebooks(projectId, filters)}
-      firstLoadSkeletons={NOTEBOOKS_PAGE_SIZE}
+      firstLoadSkeletons={COLLECTION_PAGE_SIZE}
     />
   );
 }

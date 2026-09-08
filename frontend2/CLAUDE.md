@@ -194,8 +194,8 @@ module-private — an exported `fetchProjects` is an invitation for a component 
 cache. Three narrow exceptions, each worth stating because they look like oversights:
 
 - Non-hook calls a component really makes: `experimentPicturePath`, `checkProjectNameExists`
-  (a form validator, not a query), and the two `*_PAGE_SIZE` constants that feed
-  `InfiniteLoader`'s `firstLoadSkeletons`.
+  (a form validator, not a query), and `COLLECTION_PAGE_SIZE`, which feeds `InfiniteLoader`'s
+  `firstLoadSkeletons`.
 - `experimentKeys` and `userKeys`, which `src/lib/query-client.ts` hashes to decide what gets
   persisted to localStorage.
 - What `collections.ts` shares between sibling api modules.
@@ -206,13 +206,14 @@ expectations in `src/routes/_auth/projects.test.tsx` and `projects_.$id.test.tsx
 the regression guard on path templates and page sizes; `collections.test.ts` covers param
 assembly on its own.
 
-`src/lib/api/collections.ts` holds what every paged list shares: `collectionQueryString`,
-a generic `getNextPageParam`, and `useSettledSearch`. `/projects` and
-`/projects/{id}/notebooks` declare identical query params, so one `collectionQueryString(filters,
-pageNo, pageSize)` builds both from one `CollectionFilters` (`search`, `sort`, `createdByMe` — the
-three `ActionBar` sets). `pageSize` is required rather than defaulted: the two lists agree on 10
-today, and a shared default would tie them together for no reason. The list debounce lives here
-rather than on either list, so neither has to import it from the other — as one hook,
+`src/lib/api/collections.ts` holds what every paged list shares: `collectionQueryParams`,
+`COLLECTION_PAGE_SIZE`, a generic `getNextPageParam`, and `useSettledSearch`. `/projects` and
+`/projects/{id}/notebooks` declare identical query params, so one `collectionQueryParams(filters,
+pageNo)` builds both from one `CollectionFilters` (`search`, `sort`, `createdByMe` — the three
+`ActionBar` sets). It returns the `URLSearchParams` rather than a string, so the experiments list
+appends its repeatable `status` to it instead of parsing a string back apart. The page size is one
+constant for all three lists — it is also what each draws first-load skeletons for. The list
+debounce lives here rather than on either list, so neither has to import it from the other — as one hook,
 `useSettledSearch`, rather than the bare `SEARCH_DEBOUNCE_MS` the three used to gate on
 themselves. `SUGGEST_DEBOUNCE_MS` is still a plain constant: the same 300 ms for the three
 typeahead lookups (keywords, users, experiment references), which used to be declared once in

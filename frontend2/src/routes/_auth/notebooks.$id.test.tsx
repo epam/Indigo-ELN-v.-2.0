@@ -113,7 +113,7 @@ describe('notebook details page', () => {
 
   /**
    * `status` is repeatable rather than comma-joined, which is the whole reason the experiments
-   * list does not share `collectionQueryString` outright.
+   * list does not share `collectionQueryParams` outright.
    */
   it('sends one status param per selected status, in display order', async () => {
     await renderNotebook(`/notebooks/${NOTEBOOK_ID}/experiments?status=SIGNING&status=OPEN`);

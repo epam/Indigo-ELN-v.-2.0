@@ -3,7 +3,8 @@ import { ProjectCard } from '@/components/projects/project-card';
 import { ProjectCardSkeleton } from '@/components/projects/project-card-skeleton';
 import { ProjectRow } from '@/components/projects/project-row';
 import { ProjectRowSkeleton } from '@/components/projects/project-row-skeleton';
-import { PROJECTS_PAGE_SIZE, useProjects } from '@/lib/api/projects';
+import { COLLECTION_PAGE_SIZE } from '@/lib/api/collections';
+import { useProjects } from '@/lib/api/projects';
 
 import type { CollectionFilters, CollectionView } from '@/lib/types/common.ts';
 import type { Project } from '@/lib/types/projects';
@@ -30,7 +31,7 @@ export function ProjectCollection({ filters, view }: { filters: CollectionFilter
       view={view}
       layouts={LAYOUTS}
       query={useProjects(filters)}
-      firstLoadSkeletons={PROJECTS_PAGE_SIZE}
+      firstLoadSkeletons={COLLECTION_PAGE_SIZE}
     />
   );
 }

@@ -2,22 +2,27 @@ import { useSettled } from '@/lib/hooks/use-settled';
 import type { CollectionFilters, Page } from '@/lib/types/common.ts';
 
 /**
- * The query string shared by every paged entity list. `/projects` and
- * `/projects/{id}/notebooks` take the same four params, so they build them the same way.
- *
- * Optional params are omitted when unset, matching indigo-frontend's client. `pageSize` is
- * required rather than defaulted: the two lists happen to agree on 10 today, and a shared
- * default would quietly tie them together.
+ * How many rows a paged entity list asks for. One number for all three lists, which is also
+ * what each of them draws first-load skeletons for.
  */
-export function collectionQueryString(filters: CollectionFilters, pageNo: number, pageSize: number): string {
+export const COLLECTION_PAGE_SIZE = 10;
+
+/**
+ * The query params shared by every paged entity list. `/projects` and
+ * `/projects/{id}/notebooks` take the same four, so they build them the same way; the
+ * experiments list appends its own to what this returns.
+ *
+ * Optional params are omitted when unset, matching indigo-frontend's client.
+ */
+export function collectionQueryParams(filters: CollectionFilters, pageNo: number): URLSearchParams {
   const params = new URLSearchParams({
     sort: filters.sort,
     pageNo: String(pageNo),
-    pageSize: String(pageSize),
+    pageSize: String(COLLECTION_PAGE_SIZE),
   });
   if (filters.search) params.set('search', filters.search);
   if (filters.createdByMe) params.set('createdByMe', 'true');
-  return params.toString();
+  return params;
 }
 
 /** Pages are zero-based, so the last one is `totalPages - 1` and has no successor. */
