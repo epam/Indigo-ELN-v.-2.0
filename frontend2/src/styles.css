@@ -185,21 +185,6 @@
        (skeletons, an empty result set) grows tall enough to need scrolling. */
     scrollbar-gutter: stable;
   }
-  /*
-   * A pointer on anything clickable. Neither the browser nor Tailwind's Preflight gives a
-   * `<button>` one — the UA default is the arrow, and v4 does not override it — so without this
-   * every `Button` in the app reads as unclickable while every `<a>` beside it does not.
-   *
-   * Base-layer, so a component that deliberately wants the arrow keeps it: `MenuItem` and the
-   * combobox rows carry `cursor-default`, and a utility class always beats this.
-   *
-   * `:not(:disabled)` is belt-and-braces — `Button` already sets `disabled:pointer-events-none`,
-   * but the plain `<button>`s that do not would otherwise invite a click they ignore.
-   */
-  button:not(:disabled),
-  [role='button']:not(:disabled) {
-    cursor: pointer;
-  }
 }
 
 /*
