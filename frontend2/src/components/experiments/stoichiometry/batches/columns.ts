@@ -117,8 +117,8 @@ export const BATCH_COLUMNS: BatchColumn[] = [
     header: 'Reaction Step',
     minWidth: 110,
     kind: 'readonly',
-    // Derived from the position in `model.reactions`; indigo-frontend returns a literal '1' with
-    // a TODO. There is only ever one step today, so the two agree.
+    // Derived from the position in `model.reactions`; indigo-frontend returns a literal '1'. There is only ever one
+    // step today, so the two agree.
     value: (row) => String(row.step + 1),
   },
   {

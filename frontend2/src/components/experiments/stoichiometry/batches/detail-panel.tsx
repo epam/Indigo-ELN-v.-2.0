@@ -33,7 +33,7 @@ import { unitLabel } from '@/lib/types/reactions.ts';
  * on the left, the batch's own fields on the right, and the rest under Additional Information.
  *
  * **It saves, which indigo-frontend's `BatchDetailPanelComponent` does not** — that one builds a
- * `FormGroup` and leaves handling its `valueChanges` as a TODO, so every edit in it is discarded.
+ * `FormGroup` and leaves handling its `valueChanges` as a TO DO, so every edit in it is discarded.
  * Each field here commits on its own gesture with no Save button, exactly as the table's cells and
  * `ExperimentDetailsPanel` do, and through the **table's** `useStoichiometryMutations` rather than
  * a hook of its own: one subscription covers every row, and a panel save then queues behind the

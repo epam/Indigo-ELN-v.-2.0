@@ -98,9 +98,8 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
     header: 'Reaction Step',
     minWidth: 110,
     kind: 'readonly',
-    // Derived from the position in `model.reactions`, not hardcoded — indigo-frontend's batch
-    // summary returns a literal '1' with a TODO. There is only ever one step today, so the two
-    // agree; this one keeps agreeing once `AddReaction` exists.
+    // Derived from the position in `model.reactions`, not hardcoded — indigo-frontend's batch summary returns a literal
+    // '1'. There is only ever one step today, so the two agree; this one keeps agreeing once `AddReaction` exists.
     value: (row) => String(row.step + 1),
   },
   {

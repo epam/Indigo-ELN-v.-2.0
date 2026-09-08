@@ -1,4 +1,4 @@
-import { Download, MoreHorizontal, Plus, Upload } from 'lucide-react';
+import { MoreHorizontal, Plus } from 'lucide-react';
 
 import { CollapsibleCard } from '@/components/common/collapsible-card';
 import { ReactionProductsTable } from '@/components/experiments/stoichiometry/products/products-table';
@@ -34,6 +34,13 @@ const SHOW_STEP_SELECTOR = false;
  *
  * It takes the whole experiment rather than just `model.reactions` because the scheme block
  * writes: the mutation is keyed by experiment id, and edit rights come off `currentPermissions`.
+ *
+ * **Import and export SDF are deliberately not offered here**, although the card header is where
+ * two disabled placeholders used to sit. Both act on products and batches: `ImportSDFHandler`
+ * creates outputs with `intended: false`, and the Reaction Products block below shows only
+ * intended ones — so an import started here would look like it did nothing. Both live on the
+ * Product Batch Summary toolbar (`batches-table.tsx`), wired to `useImportSdf` / `useExportSdf`,
+ * which is also the only place indigo-frontend puts them.
  */
 export function StoichiometryPanel({
   component,
@@ -69,21 +76,7 @@ export function StoichiometryPanel({
         </div>
       )}
 
-      <CollapsibleCard
-        title="Stoichiometric Calculation"
-        actions={
-          <>
-            {/* TODO(export-sdf): GET /experiments/{id}/exportSdf. */}
-            <Button variant="ghost" size="icon" aria-label="Export SDF" disabled>
-              <Download />
-            </Button>
-            {/* TODO(import-sdf): POST /experiments/{id}/datamodel/reactions/{anchor}/importSDF. */}
-            <Button variant="ghost" size="icon" aria-label="Import SDF" disabled>
-              <Upload />
-            </Button>
-          </>
-        }
-      >
+      <CollapsibleCard title="Stoichiometric Calculation">
         <div className="flex flex-col gap-4">
           {/* Each block is declared by the template, so a template that asks for none renders none. */}
           {component.reactionScheme && (

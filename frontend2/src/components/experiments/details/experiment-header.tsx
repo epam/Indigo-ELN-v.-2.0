@@ -85,9 +85,7 @@ export function ExperimentHeader({
             <StatusBadge variant={experiment.status} className="w-auto shrink-0">
               {EXPERIMENT_STATUS_LABELS[experiment.status]}
             </StatusBadge>
-            {/* TODO(star): useToggleMark has to patch the experimentDetails cache entry first,
-                or the star reverts as the invalidated lists come home. */}
-            <StarButton experimentId={experimentId} marked={experiment.marked} disabled />
+            <StarButton experimentId={experimentId} marked={experiment.marked} />
 
             {/*
               A button here rather than inside AvatarStack: the stack also renders inside the

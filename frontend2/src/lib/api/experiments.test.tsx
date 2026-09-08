@@ -215,3 +215,57 @@ describe('experiment access', () => {
     expect(patched?.name).toBe(experiment.name);
   });
 });
+
+describe('starring', () => {
+  beforeEach(() => apiFetch.mockReset());
+
+  /**
+   * The experiment header's star reads `marked` off the cached detail, which sits on its own
+   * root and so is missed by the `all()` invalidation the lists get. Patched rather than
+   * invalidated: the flag is all this write moves, and a refetch would also discard the
+   * mutation patches already applied to that entry.
+   */
+  it('patches `marked` on the cached detail without invalidating it', async () => {
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    });
+    const experiment = makeExperimentDetails({ id: ID, marked: false });
+    client.setQueryData(experimentKeys.detail(ID), experiment);
+
+    apiFetch.mockResolvedValue(true);
+
+    const view = renderHook(() => useToggleMark(), {
+      wrapper: ({ children }) => <QueryClientProvider client={client}>{children}</QueryClientProvider>,
+    });
+
+    act(() => {
+      view.result.current.mutate({ id: ID, marked: true });
+    });
+    await waitFor(() => expect(view.result.current.isSuccess).toBe(true));
+
+    const patched = client.getQueryData<typeof experiment>(experimentKeys.detail(ID));
+    expect(patched?.marked).toBe(true);
+    // …and nothing else about the experiment was dropped, nor is a refetch pending.
+    expect(patched?.name).toBe(experiment.name);
+    expect(client.getQueryState(experimentKeys.detail(ID))?.isInvalidated).toBe(false);
+  });
+
+  /** Nothing to patch is not an error: the header may never have been opened. */
+  it('leaves an absent detail absent', async () => {
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    });
+    apiFetch.mockResolvedValue(true);
+
+    const view = renderHook(() => useToggleMark(), {
+      wrapper: ({ children }) => <QueryClientProvider client={client}>{children}</QueryClientProvider>,
+    });
+
+    act(() => {
+      view.result.current.mutate({ id: ID, marked: true });
+    });
+    await waitFor(() => expect(view.result.current.isSuccess).toBe(true));
+
+    expect(client.getQueryData(experimentKeys.detail(ID))).toBeUndefined();
+  });
+});

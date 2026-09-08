@@ -520,10 +520,15 @@ export function useToggleMark() {
     // — so it cannot conflict with anything. Queueing it would only make the star lag behind an
     // unrelated save.
     mutationFn: ({ id, marked }: { id: string; marked: boolean }) => setMarked(id, marked),
-    // One prefix: `experimentKeys.marked()` and `notebookList()` both start with 'experiments'.
-    // The detail is on its own root and so is left alone — a surface reading `marked` off it
-    // (the experiment header) has to patch it here when the star there is wired up.
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: experimentKeys.all() }),
+    onSuccess: (_data, { id, marked }) => {
+      // One prefix: `experimentKeys.marked()` and `notebookList()` both start with 'experiments'.
+      void queryClient.invalidateQueries({ queryKey: experimentKeys.all() });
+      // The detail is on its own root, so that invalidation misses it — and the header's star
+      // reads `marked` from there. Patched rather than invalidated: the flag is the only thing
+      // this write moves, and refetching the whole experiment to learn it would also throw away
+      // the mutation patches applied to that entry.
+      patchExperimentDetails(queryClient, id, (experiment) => ({ ...experiment, marked }));
+    },
   });
 }
 
