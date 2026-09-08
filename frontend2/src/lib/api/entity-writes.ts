@@ -3,7 +3,7 @@ import type { MutationKey, QueryClient, QueryKey } from '@tanstack/react-query';
 
 import { apiDownload, apiFetch } from '@/lib/api';
 
-import type { AccessForm, ACLEntry, Attachment } from '@/lib/types/common.ts';
+import type { AccessForm, ACLEntry, Attachment, UUID } from '@/lib/types/common.ts';
 
 /**
  * What every detail-entity write shares, the way `collections.ts` holds what every paged list
@@ -16,28 +16,28 @@ export interface EntityWriteTarget {
   /** The collection path, without a trailing slash — e.g. `/api/eln/projects`. */
   basePath: string;
   /** Where the entity's detail sits in the cache, so a response can be patched into it. */
-  detailKey: (id: string) => QueryKey;
+  detailKey: (id: UUID) => QueryKey;
   /**
    * Extra mutation options, if this entity serialises its writes. Only experiments do:
    * `experimentWrite(id)` supplies a `mutationKey` to count pending writes by and a `scope`
    * that makes TanStack Query run them one at a time.
    */
-  writeOptions?: (id: string) => { mutationKey?: MutationKey; scope?: { id: string } };
+  writeOptions?: (id: UUID) => { mutationKey?: MutationKey; scope?: { id: string } };
 }
 
 /** Patches one field of the cached detail, leaving the rest of the entity untouched. */
-function patchDetail<T>(queryClient: QueryClient, target: EntityWriteTarget, id: string, patch: (entity: T) => T) {
+function patchDetail<T>(queryClient: QueryClient, target: EntityWriteTarget, id: UUID, patch: (entity: T) => T) {
   queryClient.setQueryData<T>(target.detailKey(id), (entity) => (entity ? patch(entity) : entity));
 }
 
 /** Returns the entity's full attachment list, not just the new entries. */
-function uploadAttachment(target: EntityWriteTarget, id: string, file: File): Promise<Attachment[]> {
+function uploadAttachment(target: EntityWriteTarget, id: UUID, file: File): Promise<Attachment[]> {
   const formData = new FormData();
   formData.append('file', file, file.name);
   return apiFetch<Attachment[]>(`${target.basePath}/${id}/attachments`, { method: 'POST', formData });
 }
 
-function deleteAttachment(target: EntityWriteTarget, id: string, attachmentId: string): Promise<void> {
+function deleteAttachment(target: EntityWriteTarget, id: UUID, attachmentId: UUID): Promise<void> {
   return apiFetch<void>(`${target.basePath}/${id}/attachments/${attachmentId}`, { method: 'DELETE' });
 }
 
@@ -49,7 +49,7 @@ function deleteAttachment(target: EntityWriteTarget, id: string, attachmentId: s
  * Where the target serialises its writes, that scope covers this mutation against *other* writes;
  * the loop below serialises the files of one upload against each other.
  */
-function useUploadAttachments<T extends { attachments: Attachment[] }>(target: EntityWriteTarget, id: string) {
+function useUploadAttachments<T extends { attachments: Attachment[] }>(target: EntityWriteTarget, id: UUID) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -65,12 +65,12 @@ function useUploadAttachments<T extends { attachments: Attachment[] }>(target: E
   });
 }
 
-function useDeleteAttachment<T extends { attachments: Attachment[] }>(target: EntityWriteTarget, id: string) {
+function useDeleteAttachment<T extends { attachments: Attachment[] }>(target: EntityWriteTarget, id: UUID) {
   const queryClient = useQueryClient();
 
   return useMutation({
     ...target.writeOptions?.(id),
-    mutationFn: (attachmentId: string) => deleteAttachment(target, id, attachmentId),
+    mutationFn: (attachmentId: UUID) => deleteAttachment(target, id, attachmentId),
     onSuccess: (_result, attachmentId) =>
       patchDetail<T>(queryClient, target, id, (entity) => ({
         ...entity,
@@ -87,7 +87,7 @@ function useDeleteAttachment<T extends { attachments: Attachment[] }>(target: En
  * The download endpoint sets `Content-Disposition` from the same name the DTO carries, so the
  * fallback filename matters only if that header is ever stripped in transit.
  */
-export function useEntityAttachments<T extends { attachments: Attachment[] }>(target: EntityWriteTarget, id: string) {
+export function useEntityAttachments<T extends { attachments: Attachment[] }>(target: EntityWriteTarget, id: UUID) {
   const upload = useUploadAttachments<T>(target, id);
   const remove = useDeleteAttachment<T>(target, id);
 
@@ -99,7 +99,7 @@ export function useEntityAttachments<T extends { attachments: Attachment[] }>(ta
   };
 }
 
-function updateAccess(target: EntityWriteTarget, id: string, updates: AccessForm[]): Promise<ACLEntry[]> {
+function updateAccess(target: EntityWriteTarget, id: UUID, updates: AccessForm[]): Promise<ACLEntry[]> {
   return apiFetch<ACLEntry[]>(`${target.basePath}/${id}/access`, {
     method: 'POST',
     json: updates,
@@ -115,7 +115,7 @@ function updateAccess(target: EntityWriteTarget, id: string, updates: AccessForm
  * nothing else: the list DTO carries `shortACL`, capped at three, and an entity opened by direct
  * link has no list loaded at all.
  */
-export function useUpdateEntityAccess<T extends { acl: ACLEntry[] }>(target: EntityWriteTarget, id: string) {
+export function useUpdateEntityAccess<T extends { acl: ACLEntry[] }>(target: EntityWriteTarget, id: UUID) {
   const queryClient = useQueryClient();
 
   return useMutation({

@@ -57,7 +57,7 @@ export function useSampleSearch(request: FindSamplesRequest) {
   });
 }
 
-function markSample(id: string, marked: boolean): Promise<SampleDTO> {
+function markSample(id: UUID, marked: boolean): Promise<SampleDTO> {
   return apiFetch<SampleDTO>(`/api/eln/samples/${id}/${marked ? 'mark' : 'unmark'}`, { method: 'POST' });
 }
 
@@ -76,7 +76,7 @@ export function useMarkSample() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, marked }: { id: string; marked: boolean }) => markSample(id, marked),
+    mutationFn: ({ id, marked }: { id: UUID; marked: boolean }) => markSample(id, marked),
     onSuccess: (updated) => {
       queryClient.setQueriesData<InfiniteData<SampleSearchResult>>({ queryKey: ['sampleSearch'] }, (data) => {
         if (data == null) return data;

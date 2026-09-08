@@ -1,4 +1,4 @@
-import type { ACLEntry, Attachment, BaseDTO } from '@/lib/types/common.ts';
+import type { ACLEntry, Attachment, BaseDTO, UUID } from '@/lib/types/common.ts';
 import type { ExperimentStatusCounts } from '@/lib/types/experiments.ts';
 import type { ApplicationPermission } from '@/lib/types/user.ts';
 
@@ -32,7 +32,7 @@ export interface NotebookDetails extends BaseNotebook {
   acl: ACLEntry[];
   /** Scoped to VIEW/EDIT/MANAGE_NOTEBOOK_ACCESS/DELETE_NOTEBOOKS by the backend. */
   currentPermissions: ApplicationPermission[];
-  projectId: string;
+  projectId: UUID;
   projectName: string;
 }
 

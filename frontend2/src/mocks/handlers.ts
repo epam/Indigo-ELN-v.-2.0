@@ -23,6 +23,8 @@ import {
   REACTION_INPUTS,
   REACTION_RXNFILE,
   REACTION_SCHEME_SVG,
+  REVISION_DIFF_HTML,
+  REVISIONS,
   SAMPLE_RESULTS,
   SEARCH_RESULTS,
   SIGNATURE_TEMPLATES,
@@ -301,6 +303,12 @@ export const handlers = [
       .slice(0, 10);
     return HttpResponse.json(matches);
   }),
+  http.get(`${ELN}/experiments/:id/revisions`, () => HttpResponse.json(REVISIONS)),
+  // text/html, not JSON — the endpoint declares `@Produces(TEXT_HTML)` and `apiFetch` reads it
+  // with `responseType: 'text'`.
+  http.get(`${ELN}/experiments/:id/revisions/:revisionNo/diff`, () =>
+    HttpResponse.text(REVISION_DIFF_HTML, { headers: { 'Content-Type': 'text/html' } }),
+  ),
   // After /experiments/marked, which `:id` would otherwise swallow — MSW takes the first match,
   // and the sidebar's starred list would start answering with a single experiment.
   http.get(`${ELN}/experiments/:id`, ({ params }) =>

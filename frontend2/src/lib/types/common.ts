@@ -14,12 +14,15 @@ export interface ACLEntry {
 
 export type UUID = string;
 
+/** An ISO-8601 instant — how Jackson serialises the backend's `Instant` fields. */
+export type DateString = string;
+
 export interface BaseDTO {
   id: UUID;
   createdBy: UserRef;
-  createdAt: string;
+  createdAt: DateString;
   modifiedBy: UserRef;
-  modifiedAt: string;
+  modifiedAt: DateString;
 }
 
 export interface Attachment extends BaseDTO {

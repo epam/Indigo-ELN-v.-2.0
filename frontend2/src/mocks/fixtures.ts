@@ -14,6 +14,7 @@ import type {
   ReactionOutput,
   ReactionOutputSample,
 } from '@/lib/types/reactions.ts';
+import type { RevisionSummary } from '@/lib/types/revisions.ts';
 import type { SampleDTO } from '@/lib/types/samples.ts';
 import type { CurrentUser } from '@/lib/types/user.ts';
 import type { Template, TemplateDetails } from '@/lib/types/templates.ts';
@@ -836,6 +837,78 @@ export const COMPOUND_STRUCTURE_SVG =
   '<rect width="120" height="120" fill="#fff"/>' +
   '<text x="60" y="64" text-anchor="middle" font-size="12" fill="#242424">C9H8O4</text>' +
   '</svg>';
+
+/**
+ * The revision log, **oldest first** — the order `/experiments/{id}/revisions` answers in, so the
+ * newest-first reversal in `useExperimentRevisions` is actually exercised rather than mocked away.
+ *
+ * One of each shape the panel branches on: the creation revision (no diff to show), a grouped
+ * edit session, a plain leaf, a workflow transition, and the `Version N` summary
+ * `MakeVersionHandler` writes when an experiment is completed.
+ */
+export const REVISIONS: RevisionSummary[] = [
+  {
+    user: makeUserRef('Anna Petrova'),
+    summary: 'Experiment created',
+    date: '2026-09-02T09:10:00Z',
+    revision: 1,
+  },
+  {
+    user: makeUserRef('Mark Liu'),
+    summary: 'Edited experiment',
+    date: '2026-09-03T14:02:00Z',
+    dateTo: '2026-09-03T14:31:00Z',
+    revision: 2,
+    revisionTo: 4,
+    details: [
+      { user: makeUserRef('Mark Liu'), summary: 'Add empty input', date: '2026-09-03T14:02:00Z', revision: 2 },
+      { user: makeUserRef('Mark Liu'), summary: 'Set input amount', date: '2026-09-03T14:20:00Z', revision: 3 },
+      { user: makeUserRef('Mark Liu'), summary: 'Set reaction scheme', date: '2026-09-03T14:31:00Z', revision: 4 },
+    ],
+  },
+  {
+    user: makeUserRef('Sofia Rossi'),
+    summary: 'Add empty output',
+    date: '2026-09-04T08:45:00Z',
+    revision: 5,
+  },
+  {
+    user: makeUserRef('Sofia Rossi'),
+    summary: 'Experiment completed',
+    date: '2026-09-04T11:00:00Z',
+    revision: 6,
+  },
+  {
+    user: makeUserRef('Sofia Rossi'),
+    summary: 'Version 1',
+    date: '2026-09-04T11:00:00Z',
+    revision: 7,
+  },
+];
+
+/**
+ * What `/revisions/{n}/diff` answers with: the bare `<table class='patch-grid'>` `PatchFormatter`
+ * builds, with no stylesheet — `.patch-diff` in `styles.css` is what makes it legible. Uses every
+ * class the panel is expected to style, including an inline SVG, which the real endpoint emits
+ * for a `rxnfile` or a `compoundID`.
+ */
+export const REVISION_DIFF_HTML =
+  "<table class='patch-grid'>\n" +
+  "<tr><td colspan='1' rowspan='1'><span class='key'>reactions:</span></td>" +
+  "<td colspan='1' rowspan='1'><span class='key'>input 1:</span></td>" +
+  "<td colspan='1' rowspan='1'><span class='key'>theoWeight:</span></td>" +
+  "<td colspan='1' rowspan='1'>" +
+  "<span class='old ev-default'>1.20 g</span>&ensp;<span class='comment'>[default]</span> \u2192 " +
+  "<span class='new ev-user-entered'>1.35 g&ensp;(exact value 1.3492)</span>&ensp;" +
+  "<span class='comment'>[user-entered]</span> <span class='warning'>[overwritten]</span>" +
+  '</td></tr>\n' +
+  "<tr><td colspan='2' rowspan='1'><span class='key'>rxnfile:</span></td>" +
+  "<td colspan='2' rowspan='1'><span class='old'>null</span> \u2192 <span class='new'>" +
+  COMPOUND_STRUCTURE_SVG +
+  '</span></td></tr>\n' +
+  "<tr><td colspan='2' rowspan='1'><span class='key new'>output 2:<br/><span class='comment'>inserted</span></span></td>" +
+  "<td colspan='2' rowspan='1'><span class='new'>C9H8O4</span></td></tr>\n" +
+  '</table>\n';
 
 export function makeSearchResult(overrides: Partial<GlobalSearchResult> = {}): GlobalSearchResult {
   return {

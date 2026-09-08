@@ -22,6 +22,7 @@ import type {
   WorkflowAction,
 } from '@/lib/types/experiments.ts';
 import type { ModelMutation, MutationResponse } from '@/lib/types/mutations.ts';
+import type { RevisionSummary } from '@/lib/types/revisions.ts';
 
 /**
  * Every query key this module issues, written out literally rather than composed from a shared
@@ -52,6 +53,8 @@ export const experimentKeys = {
   detail: (id: string) => ['experimentDetails', id] as const,
   suggestions: (search: string) => ['experimentSuggestions', search] as const,
   signatureTemplates: () => ['signatureTemplates'] as const,
+  revisions: (id: string, revision: number) => ['experimentRevisions', id, revision] as const,
+  revisionDiff: (id: string, revisionNo: number) => ['experimentRevisionDiff', id, revisionNo] as const,
 };
 
 /**
@@ -532,4 +535,64 @@ export function useToggleMark() {
 export function experimentPicturePath(id: string, revision: number | null): string {
   const query = revision === null ? '' : `?revision=${revision}`;
   return `/api/eln/experiments/${id}/picture${query}`;
+}
+
+/**
+ * The log newest first, groups included. Copies before reversing rather than calling
+ * `Array.prototype.reverse` on the arrays themselves: what this runs on is the parsed response,
+ * and it goes straight into the Query cache. indigo-frontend reverses both levels **in place**,
+ * which is safe only because it has no cache to corrupt. (`toReversed` would say this in one
+ * word, but the project's `lib` is below es2023.)
+ */
+function newestFirst(revisions: RevisionSummary[]): RevisionSummary[] {
+  const reversed = revisions.map((revision) =>
+    revision.details ? { ...revision, details: [...revision.details].reverse() } : revision,
+  );
+  return reversed.reverse();
+}
+
+function fetchRevisions(id: string, signal?: AbortSignal): Promise<RevisionSummary[]> {
+  return apiFetch<RevisionSummary[]>(`/api/eln/experiments/${id}/revisions`, { signal }).then(newestFirst);
+}
+
+/**
+ * The experiment's revision log, newest first.
+ *
+ * **Keyed on the experiment's current `revision`**, which is what makes the log refresh itself:
+ * every write bumps that number, so an edit made on another tab moves the key and the log is
+ * refetched the next time the panel is looked at — no `invalidateQueries` anywhere, and no way
+ * for a write added later to forget one. indigo-frontend fetched once in `ngOnInit` and kept the
+ * tab alive with `[hidden]`, so its log went stale the moment anything was edited.
+ *
+ * `?flatten=true` is deliberately not sent: the grouped answer — consecutive revisions by one
+ * user collapsed into an expandable row — is what the panel draws.
+ */
+export function useExperimentRevisions(id: string, revision: number) {
+  return useQuery({
+    queryKey: experimentKeys.revisions(id, revision),
+    queryFn: ({ signal }) => fetchRevisions(id, signal),
+  });
+}
+
+function fetchRevisionDiff(id: string, revisionNo: number, signal?: AbortSignal): Promise<string> {
+  return apiFetch(`/api/eln/experiments/${id}/revisions/${revisionNo}/diff`, { responseType: 'text', signal });
+}
+
+/**
+ * One revision's diff against the one before it, as the HTML table `PatchFormatter` builds —
+ * hence `responseType: 'text'`; the endpoint declares `@Produces(TEXT_HTML)`.
+ *
+ * `staleTime: Infinity` because a past revision's diff cannot change. There is no `enabled` flag
+ * either: the component holding this hook is mounted only once the user opens that diff, which
+ * matters more than usual here — the backend rewinds the whole experiment snapshot to build one,
+ * and renders an SVG through Indigo for every structure in it.
+ *
+ * Only revisions from 2 up have one (`@Min(2)`); revision 1 is the experiment being created.
+ */
+export function useRevisionDiff(id: string, revisionNo: number) {
+  return useQuery({
+    queryKey: experimentKeys.revisionDiff(id, revisionNo),
+    queryFn: ({ signal }) => fetchRevisionDiff(id, revisionNo, signal),
+    staleTime: Infinity,
+  });
 }

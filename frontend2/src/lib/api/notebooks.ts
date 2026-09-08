@@ -8,7 +8,7 @@ import type { CollectionFilters, Page } from '@/lib/types/common.ts';
 import type { Notebook, NotebookDetails, NotebookEditRequest, NotebookRequest } from '@/lib/types/notebooks.ts';
 
 function fetchProjectNotebooks(
-  projectId: string,
+  projectId: UUID,
   filters: CollectionFilters,
   pageNo: number,
   signal?: AbortSignal,
@@ -33,8 +33,8 @@ function fetchProjectNotebooks(
  */
 export const notebookKeys = {
   all: () => ['notebooks'] as const,
-  list: (projectId: string, filters: CollectionFilters) => ['notebooks', projectId, filters] as const,
-  detail: (id: string) => ['notebookDetails', id] as const,
+  list: (projectId: UUID, filters: CollectionFilters) => ['notebooks', projectId, filters] as const,
+  detail: (id: UUID) => ['notebookDetails', id] as const,
   // Its own root for the same reason the detail has one: creating a notebook consumes this
   // number, so it must not be swept up by — and refetched from — the list invalidation.
   nextNumber: () => ['notebookNextNumber'] as const,
@@ -44,7 +44,7 @@ export const notebookKeys = {
 const NOTEBOOK_WRITES = { basePath: '/api/eln/notebooks', detailKey: notebookKeys.detail };
 
 /** See `useProjects` — the debounce gates `enabled` so `isPending` covers the wait too. */
-export function useProjectNotebooks(projectId: string, filters: CollectionFilters) {
+export function useProjectNotebooks(projectId: UUID, filters: CollectionFilters) {
   const settled = useSettledSearch(filters.search);
 
   return useInfiniteQuery({
@@ -56,11 +56,11 @@ export function useProjectNotebooks(projectId: string, filters: CollectionFilter
   });
 }
 
-function fetchNotebook(id: string, signal?: AbortSignal): Promise<NotebookDetails> {
+function fetchNotebook(id: UUID, signal?: AbortSignal): Promise<NotebookDetails> {
   return apiFetch<NotebookDetails>(`/api/eln/notebooks/${id}`, { signal });
 }
 
-export function useNotebook(id: string) {
+export function useNotebook(id: UUID) {
   return useQuery({
     queryKey: notebookKeys.detail(id),
     queryFn: ({ signal }) => fetchNotebook(id, signal),
@@ -73,14 +73,14 @@ export async function checkNotebookNameExists(name: string): Promise<boolean> {
   return result.exists;
 }
 
-function editNotebook(id: string, request: NotebookEditRequest): Promise<NotebookDetails> {
+function editNotebook(id: UUID, request: NotebookEditRequest): Promise<NotebookDetails> {
   return apiFetch<NotebookDetails>(`/api/eln/notebooks/${id}`, {
     method: 'PATCH',
     json: request,
   });
 }
 
-export function useEditNotebook(id: string) {
+export function useEditNotebook(id: UUID) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -130,14 +130,14 @@ export function useNextNotebookNumber(enabled: boolean) {
   });
 }
 
-function createNotebook(projectId: string, request: NotebookRequest): Promise<NotebookDetails> {
+function createNotebook(projectId: UUID, request: NotebookRequest): Promise<NotebookDetails> {
   return apiFetch<NotebookDetails>(`/api/eln/projects/${projectId}/notebooks`, {
     method: 'POST',
     json: request,
   });
 }
 
-export function useCreateNotebook(projectId: string) {
+export function useCreateNotebook(projectId: UUID) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -159,10 +159,10 @@ export function useCreateNotebook(projectId: string) {
  * are identical to the project's bar the prefix, so everything but the target lives in
  * `entity-writes.ts`.
  */
-export function useNotebookAttachments(id: string) {
+export function useNotebookAttachments(id: UUID) {
   return useEntityAttachments<NotebookDetails>(NOTEBOOK_WRITES, id);
 }
 
-export function useUpdateNotebookAccess(id: string) {
+export function useUpdateNotebookAccess(id: UUID) {
   return useUpdateEntityAccess<NotebookDetails>(NOTEBOOK_WRITES, id);
 }

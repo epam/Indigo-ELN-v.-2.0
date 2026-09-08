@@ -11,7 +11,7 @@ import type { Template, TemplateDetails } from '@/lib/types/templates.ts';
  */
 export const templateKeys = {
   list: () => ['templates'] as const,
-  detail: (id: string) => ['templateDetails', id] as const,
+  detail: (id: UUID) => ['templateDetails', id] as const,
 };
 
 /**
@@ -53,7 +53,7 @@ export function useTemplates(enabled: boolean) {
   });
 }
 
-function fetchTemplate(id: string, signal?: AbortSignal): Promise<TemplateDetails> {
+function fetchTemplate(id: UUID, signal?: AbortSignal): Promise<TemplateDetails> {
   return apiFetch<TemplateDetails>(`/api/eln/templates/${id}`, { signal });
 }
 
@@ -62,7 +62,7 @@ function fetchTemplate(id: string, signal?: AbortSignal): Promise<TemplateDetail
  * loaded, so this is the second of two chained queries and stays disabled until then — passing
  * `undefined` is the normal first render, not an error.
  */
-export function useTemplate(id: string | undefined) {
+export function useTemplate(id: UUID | undefined) {
   return useQuery({
     queryKey: templateKeys.detail(id ?? ''),
     queryFn: ({ signal }) => fetchTemplate(id!, signal), // enabled below guarantees it is set

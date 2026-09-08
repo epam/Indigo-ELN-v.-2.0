@@ -43,7 +43,7 @@ function TemplateComponentView({
     case 'batches':
       return <BatchesPanel experiment={experiment} />;
     case 'versionHistory':
-      return <VersionHistoryPanel />;
+      return <VersionHistoryPanel experiment={experiment} />;
   }
 }
 

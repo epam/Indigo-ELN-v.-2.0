@@ -221,6 +221,66 @@
   .tiptap-content ol {
     @apply list-decimal pl-5;
   }
+
+  /*
+   * The revision diff, ported from indigo-frontend's `audit-log.component.ts` styles. The
+   * backend answers `/revisions/{n}/diff` with a bare `<table class='patch-grid'>` carrying
+   * these class names and no stylesheet of its own, so — as with `.tiptap-content` above — the
+   * classes only mean anything because of this block.
+   *
+   * The two tints are the tokens rather than the original's hard-coded #f8d7da / #d4edda: they
+   * are the same pair `flash-red` / `flash-green` already use on a stoichiometry cell, so an
+   * overwritten value is the same red in the diff as it was in the table it came from.
+   */
+  .patch-diff .patch-grid {
+    @apply text-[12px]/5;
+    border-collapse: separate;
+    border-spacing: 4px;
+  }
+  .patch-diff .patch-grid td {
+    @apply align-top;
+  }
+  .patch-diff .old,
+  .patch-diff .old svg {
+    background-color: var(--color-red-10);
+  }
+  .patch-diff .new,
+  .patch-diff .new svg {
+    background-color: var(--color-green-10);
+  }
+  .patch-diff .key {
+    @apply font-semibold;
+  }
+  .patch-diff .comment {
+    @apply bg-card font-normal italic;
+  }
+  .patch-diff .warning {
+    @apply bg-red-200 font-semibold text-white italic;
+  }
+  /*
+   * `EnteredValue.source`. indigo-frontend colours these three differently here than it does in
+   * the stoichiometry table itself; this uses `determineCellClasses`' colours instead, so a
+   * value's provenance reads the same in the diff as in the cell it came from. (`calculated` is
+   * left unstyled in both.) The backend renames a numeric source — the revision it was typed
+   * in — to `user-entered` before emitting the class.
+   */
+  .patch-diff .ev-fixed {
+    @apply text-violet-400;
+  }
+  .patch-diff .ev-default {
+    @apply text-neutral-700 italic;
+  }
+  .patch-diff .ev-user-entered {
+    @apply font-semibold text-blue-400;
+  }
+  /*
+   * Indigo renders a reaction at 500x200 and a compound at its own size; both are inline in the
+   * cell they belong to, and the tint above has to reach behind them — an opaque SVG on a
+   * tinted cell otherwise punches a white hole in it.
+   */
+  .patch-diff svg {
+    @apply inline h-25 w-auto;
+  }
 }
 
 /*

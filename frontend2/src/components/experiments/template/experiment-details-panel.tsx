@@ -12,7 +12,7 @@ import { useEditExperiment } from '@/lib/api/experiments';
 import { richTextEdit } from '@/lib/rich-text';
 import { formatDate } from '@/lib/utils';
 
-import type { UserRef } from '@/lib/types/common.ts';
+import type { DateString, UserRef } from '@/lib/types/common.ts';
 import type { DictionaryItemRef } from '@/lib/types/dictionaries.ts';
 import type { ExperimentDetails, ExperimentRef } from '@/lib/types/experiments.ts';
 
@@ -30,7 +30,7 @@ function Fact({ label, children }: { label: string; children: ReactNode }) {
 }
 
 /** `08 Oct 2024 by John Doe` — the format the design uses for both timestamps. */
-function stamp(iso: string, user: UserRef): string {
+function stamp(iso: DateString, user: UserRef): string {
   return `${formatDate(iso)} by ${user.displayName}`;
 }
 

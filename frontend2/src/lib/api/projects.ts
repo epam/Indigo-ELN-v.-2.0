@@ -55,7 +55,7 @@ export async function checkProjectNameExists(name: string): Promise<boolean> {
 export const projectKeys = {
   all: () => ['projects'] as const,
   list: (filters: CollectionFilters) => ['projects', filters] as const,
-  detail: (id: string) => ['projectDetails', id] as const,
+  detail: (id: UUID) => ['projectDetails', id] as const,
   totalCounts: () => ['totalCounts'] as const,
   keywordSuggestions: (search: string) => ['projectKeywords', search] as const,
 };
@@ -126,25 +126,25 @@ export function useCreateProject() {
   });
 }
 
-function fetchProject(id: string, signal?: AbortSignal): Promise<ProjectDetails> {
+function fetchProject(id: UUID, signal?: AbortSignal): Promise<ProjectDetails> {
   return apiFetch<ProjectDetails>(`/api/eln/projects/${id}`, { signal });
 }
 
-export function useProject(id: string) {
+export function useProject(id: UUID) {
   return useQuery({
     queryKey: projectKeys.detail(id),
     queryFn: ({ signal }) => fetchProject(id, signal),
   });
 }
 
-function editProject(id: string, request: ProjectEditRequest): Promise<ProjectDetails> {
+function editProject(id: UUID, request: ProjectEditRequest): Promise<ProjectDetails> {
   return apiFetch<ProjectDetails>(`/api/eln/projects/${id}`, {
     method: 'PATCH',
     json: request,
   });
 }
 
-export function useEditProject(id: string) {
+export function useEditProject(id: UUID) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -162,11 +162,11 @@ export function useEditProject(id: string) {
  * The project's half of `useEntityAttachments`. The endpoints are identical bar the prefix, so
  * everything but the target lives in `entity-writes.ts`.
  */
-export function useProjectAttachments(id: string) {
+export function useProjectAttachments(id: UUID) {
   return useEntityAttachments<ProjectDetails>(PROJECT_WRITES, id);
 }
 
 /** See `useUpdateEntityAccess` — only what changed is sent, and the response replaces `acl`. */
-export function useUpdateProjectAccess(id: string) {
+export function useUpdateProjectAccess(id: UUID) {
   return useUpdateEntityAccess<ProjectDetails>(PROJECT_WRITES, id);
 }
