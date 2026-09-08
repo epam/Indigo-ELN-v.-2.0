@@ -22,7 +22,17 @@ export class ApiError extends Error {
  */
 type ResponseType = 'json' | 'text' | 'blob';
 
-type ApiRequestInit = RequestInit & { responseType?: ResponseType };
+type ApiRequestInit = Omit<RequestInit, 'body'> & {
+  responseType?: ResponseType;
+  /** Serialised here, and what puts `Content-Type: application/json` on the request. */
+  json?: unknown;
+  /**
+   * A multipart upload — the attachment endpoints and `importSDF`. Handed to `fetch` as-is so
+   * the browser serialises it and sets its own `Content-Type`: only the browser knows the
+   * boundary it generated, and naming the type without one makes the body unparseable.
+   */
+  formData?: FormData;
+};
 
 /**
  * The backend resolves the principal from the `username` claim, which only exists
@@ -66,16 +76,17 @@ async function parseErrorBody(response: Response): Promise<unknown> {
  * parsed body cannot carry — without either of them duplicating auth or error handling.
  */
 async function apiRequest(path: string, init: ApiRequestInit = {}): Promise<Response> {
-  const { responseType = 'json', ...requestInit } = init;
+  const { responseType = 'json', json, formData, ...requestInit } = init;
   const response = await fetch(path, {
     ...requestInit,
+    body: json === undefined ? formData : JSON.stringify(json),
     headers: {
       // The image endpoints declare a concrete `@Produces` (`image/svg+xml`, `image/png`),
       // so anything but JSON has to accept a wildcard or the backend answers 406.
       Accept: responseType === 'json' ? 'application/json' : '*/*',
-      // FormData must set its own Content-Type: only the browser knows the multipart
-      // boundary it generated, and naming the type without one makes the body unparseable.
-      ...(requestInit.body && !(requestInit.body instanceof FormData) ? { 'Content-Type': 'application/json' } : {}),
+      // Named by `json` alone, so a multipart upload keeps the boundary-carrying type the
+      // browser generates for it.
+      ...(json !== undefined ? { 'Content-Type': 'application/json' } : {}),
       ...(await authHeader()),
       ...requestInit.headers,
     },

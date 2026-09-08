@@ -18,7 +18,7 @@ function fetchTotalCounts(): Promise<TotalCounts> {
 }
 
 function createProject(request: ProjectRequest): Promise<ProjectDetails> {
-  return apiFetch<ProjectDetails>('/api/eln/projects', { method: 'POST', body: JSON.stringify(request) });
+  return apiFetch<ProjectDetails>('/api/eln/projects', { method: 'POST', json: request });
 }
 
 /**
@@ -31,10 +31,9 @@ function suggestKeywords(search: string, signal?: AbortSignal): Promise<string[]
 }
 
 /** Pre-flight for the project_name_uq constraint, which has no friendly server message. */
-export function checkProjectNameExists(name: string): Promise<boolean> {
-  return apiFetch<{ exists: boolean }>(`/api/eln/projects/existence?name=${encodeURIComponent(name)}`).then(
-    (result) => result.exists,
-  );
+export async function checkProjectNameExists(name: string): Promise<boolean> {
+  const result = await apiFetch<{ exists: boolean }>(`/api/eln/projects/existence?name=${encodeURIComponent(name)}`);
+  return result.exists;
 }
 
 /**
@@ -141,7 +140,7 @@ export function useProject(id: string) {
 function editProject(id: string, request: ProjectEditRequest): Promise<ProjectDetails> {
   return apiFetch<ProjectDetails>(`/api/eln/projects/${id}`, {
     method: 'PATCH',
-    body: JSON.stringify(request),
+    json: request,
   });
 }
 

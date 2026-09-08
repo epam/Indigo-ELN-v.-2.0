@@ -17,7 +17,7 @@ const searchKeys = {
 function search(request: GlobalSearchRequest, pageNo: number, signal?: AbortSignal): Promise<Page<GlobalSearchResult>> {
   return apiFetch<Page<GlobalSearchResult>>(`/api/eln/search?pageNo=${pageNo}&pageSize=${SEARCH_PAGE_SIZE}`, {
     method: 'POST',
-    body: JSON.stringify(request),
+    json: request,
     signal,
   });
 }

@@ -32,9 +32,9 @@ function patchDetail<T>(queryClient: QueryClient, target: EntityWriteTarget, id:
 
 /** Returns the entity's full attachment list, not just the new entries. */
 function uploadAttachment(target: EntityWriteTarget, id: string, file: File): Promise<Attachment[]> {
-  const body = new FormData();
-  body.append('file', file, file.name);
-  return apiFetch<Attachment[]>(`${target.basePath}/${id}/attachments`, { method: 'POST', body });
+  const formData = new FormData();
+  formData.append('file', file, file.name);
+  return apiFetch<Attachment[]>(`${target.basePath}/${id}/attachments`, { method: 'POST', formData });
 }
 
 function deleteAttachment(target: EntityWriteTarget, id: string, attachmentId: string): Promise<void> {
@@ -102,7 +102,7 @@ export function useEntityAttachments<T extends { attachments: Attachment[] }>(ta
 function updateAccess(target: EntityWriteTarget, id: string, updates: AccessForm[]): Promise<ACLEntry[]> {
   return apiFetch<ACLEntry[]>(`${target.basePath}/${id}/access`, {
     method: 'POST',
-    body: JSON.stringify(updates),
+    json: updates,
   });
 }
 

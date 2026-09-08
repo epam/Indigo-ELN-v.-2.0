@@ -19,7 +19,7 @@ vi.mock('aws-amplify/auth', () => ({ fetchAuthSession, signOut: vi.fn() }));
 const apiFetch = vi.fn();
 vi.mock('@/lib/api', async () => {
   const actual = await vi.importActual<typeof import('@/lib/api')>('@/lib/api');
-  return { ...actual, apiFetch: (path: string, init?: RequestInit) => apiFetch(path, init) };
+  return { ...actual, apiFetch: (path: string, init?: { json?: unknown }) => apiFetch(path, init) };
 });
 
 const { AnalyzeRxnDialog } = await import('@/components/experiments/analyze-rxn/analyze-rxn-dialog');
@@ -33,10 +33,10 @@ function searchResult(items = SAMPLE_RESULTS): SampleSearchResult {
   return { items, totalItems: items.length, next: null };
 }
 
-/** The last body sent to a path, parsed. */
+/** The last JSON payload sent to a path — `apiFetch` serialises it, so this is the object. */
 function bodyOf(path: string): unknown {
   const call = [...apiFetch.mock.calls].reverse().find(([requested]) => requested === path);
-  return call == null ? undefined : JSON.parse(call[1].body as string);
+  return call == null ? undefined : call[1].json;
 }
 
 function wrapper({ children }: { children: ReactNode }) {

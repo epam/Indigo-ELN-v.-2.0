@@ -23,26 +23,29 @@ describe('apiFetch', () => {
     expect((init.headers as Record<string, string>).Authorization).toBe('Bearer test-token');
   });
 
-  it('leaves Content-Type to the browser for a FormData body', async () => {
+  it('passes a formData payload through untouched, Content-Type left to the browser', async () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response('[]', { status: 200 }));
     vi.stubGlobal('fetch', fetchMock);
 
-    const body = new FormData();
-    body.append('file', new File(['x'], 'notes.txt'));
-    await apiFetch('/api/eln/projects/1/attachments', { method: 'POST', body });
+    const formData = new FormData();
+    formData.append('file', new File(['x'], 'notes.txt'));
+    await apiFetch('/api/eln/projects/1/attachments', { method: 'POST', formData });
 
-    // Naming the type without the boundary the browser generated makes the body unparseable.
     const [, init] = fetchMock.mock.calls[0];
+    // Only the browser can serialise this: naming the type without the boundary it generated
+    // makes the body unparseable, so neither the FormData nor the missing header may drift.
+    expect(init.body).toBe(formData);
     expect((init.headers as Record<string, string>)['Content-Type']).toBeUndefined();
   });
 
-  it('still declares JSON for an ordinary body', async () => {
+  it('serialises a json payload and declares it', async () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response('{}', { status: 200 }));
     vi.stubGlobal('fetch', fetchMock);
 
-    await apiFetch('/api/eln/projects', { method: 'POST', body: JSON.stringify({ name: 'x' }) });
+    await apiFetch('/api/eln/projects', { method: 'POST', json: { name: 'x' } });
 
     const [, init] = fetchMock.mock.calls[0];
+    expect(init.body).toBe('{"name":"x"}');
     expect((init.headers as Record<string, string>)['Content-Type']).toBe('application/json');
   });
 

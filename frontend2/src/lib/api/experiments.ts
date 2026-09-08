@@ -116,7 +116,7 @@ function patchExperimentDetails(
 function createExperiment(notebookId: string, request: ExperimentRequest): Promise<ExperimentDetails> {
   return apiFetch<ExperimentDetails>(`/api/eln/notebooks/${notebookId}/experiments`, {
     method: 'POST',
-    body: JSON.stringify(request),
+    json: request,
   });
 }
 
@@ -148,7 +148,7 @@ export function useCreateExperiment(notebookId: string) {
 function editExperiment(id: string, request: ExperimentEditRequest): Promise<ExperimentDetails> {
   return apiFetch<ExperimentDetails>(`/api/eln/experiments/${id}`, {
     method: 'PATCH',
-    body: JSON.stringify(request),
+    json: request,
   });
 }
 
@@ -186,7 +186,7 @@ export function useEditExperiment(id: string) {
 function mutateExperimentModel(id: string, revision: number, mutation: ModelMutation): Promise<MutationResponse> {
   return apiFetch<MutationResponse>(`/api/eln/experiments/${id}/mutate?revision=${revision}`, {
     method: 'POST',
-    body: JSON.stringify(mutation),
+    json: mutation,
   });
 }
 
@@ -261,12 +261,12 @@ function applyMutationResponse(
 }
 
 function importSdf(id: string, reactionAnchor: string, file: File): Promise<MutationResponse> {
-  const body = new FormData();
+  const formData = new FormData();
   // `UploadForm.file` — the part name is `@FormParam("file")` on the Java record.
-  body.append('file', file, file.name);
+  formData.append('file', file, file.name);
   return apiFetch<MutationResponse>(`/api/eln/experiments/${id}/datamodel/reactions/${reactionAnchor}/importSDF`, {
     method: 'POST',
-    body,
+    formData,
   });
 }
 

@@ -68,16 +68,15 @@ export function useNotebook(id: string) {
 }
 
 /** Pre-flight for the notebook_name_uq constraint, which has no friendly server message. */
-export function checkNotebookNameExists(name: string): Promise<boolean> {
-  return apiFetch<{ exists: boolean }>(`/api/eln/notebooks/existence?name=${encodeURIComponent(name)}`).then(
-    (result) => result.exists,
-  );
+export async function checkNotebookNameExists(name: string): Promise<boolean> {
+  const result = await apiFetch<{ exists: boolean }>(`/api/eln/notebooks/existence?name=${encodeURIComponent(name)}`);
+  return result.exists;
 }
 
 function editNotebook(id: string, request: NotebookEditRequest): Promise<NotebookDetails> {
   return apiFetch<NotebookDetails>(`/api/eln/notebooks/${id}`, {
     method: 'PATCH',
-    body: JSON.stringify(request),
+    json: request,
   });
 }
 
@@ -134,7 +133,7 @@ export function useNextNotebookNumber(enabled: boolean) {
 function createNotebook(projectId: string, request: NotebookRequest): Promise<NotebookDetails> {
   return apiFetch<NotebookDetails>(`/api/eln/projects/${projectId}/notebooks`, {
     method: 'POST',
-    body: JSON.stringify(request),
+    json: request,
   });
 }
 

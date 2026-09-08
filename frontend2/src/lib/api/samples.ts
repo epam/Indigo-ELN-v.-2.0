@@ -33,7 +33,7 @@ function searchSamples(
   return apiFetch<SampleSearchResult>(`/api/eln/samples/search?pageSize=${SEARCH_PAGE_SIZE}`, {
     method: 'POST',
     // The cursor rides in the body, not the query string — `FindSamplesRequest.state`.
-    body: JSON.stringify({ ...request, state: state ?? undefined }),
+    json: { ...request, state: state ?? undefined },
     signal,
   });
 }
@@ -107,7 +107,7 @@ export function useMarkSample() {
 export function useImportSample() {
   return useMutation({
     mutationFn: (sample: SampleDTO) =>
-      apiFetch<SampleDTO>('/api/eln/samples/importFromSearch', { method: 'POST', body: JSON.stringify(sample) }),
+      apiFetch<SampleDTO>('/api/eln/samples/importFromSearch', { method: 'POST', json: sample }),
   });
 }
 
