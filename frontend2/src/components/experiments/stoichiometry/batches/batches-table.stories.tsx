@@ -57,6 +57,47 @@ export const Default: Story = {
   },
 };
 
+/**
+ * Alignment is a property of the **column**, so a header and the cells under it cannot disagree —
+ * which is the whole reason a value used to look like it belonged to the column next door.
+ *
+ * The em-dash matters as much as the number: an empty numeric cell used to centre itself, so a
+ * column of values and blanks had no single edge to read down.
+ */
+export const ColumnsAlignAsOne: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    const number = canvas.getByRole('columnheader', { name: 'Total Weight' });
+    const text = canvas.getByRole('columnheader', { name: 'Product Name' });
+    const pill = canvas.getByRole('columnheader', { name: 'Products Type' });
+
+    await expect(number).toHaveClass('text-right');
+    await expect(text).toHaveClass('text-left');
+    await expect(pill).toHaveClass('text-center');
+
+    // The cells under them, including the one showing nothing.
+    const molarity = canvas.getByLabelText('Molarity, batch 003').closest('td');
+    await expect(molarity).toHaveClass('text-right');
+    await expect(molarity).toHaveTextContent('—');
+  },
+};
+
+/**
+ * The three row actions are one cell, not three columns. They used to be three 48px columns with
+ * a centred button each, which read as three unrelated columns and spread ~192px across a table
+ * that already scrolls.
+ */
+export const ActionsArePackedIntoOneCell: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const remove = canvas.getByRole('button', { name: 'Delete batch 001' });
+    const register = canvas.getByRole('button', { name: 'Register batch 001' });
+
+    await expect(remove.closest('td')).toBe(register.closest('td'));
+  },
+};
+
 /** The product type is a static pill here — the products table is where it is edited. */
 export const ProductTypeIsReadOnly: Story = {
   play: async ({ canvasElement }) => {

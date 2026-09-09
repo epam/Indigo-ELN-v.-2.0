@@ -33,7 +33,7 @@ export function OutputTypeCell({
   onCommit: (next: ReactionOutputType) => void;
 }) {
   return (
-    <SavingOverlay pending={pending} spinner="center" className="w-full">
+    <SavingOverlay pending={pending} spinner="center" className="mx-auto w-fit">
       <Select<ReactionOutputType>
         aria-label={label}
         size="sm"
@@ -70,14 +70,14 @@ export function AddBatchCell({
   onCommit: () => void;
 }) {
   return (
-    <SavingOverlay pending={pending} spinner="center" className="mx-auto w-fit">
+    <SavingOverlay pending={pending} spinner="center">
       <button
         type="button"
         aria-label={label}
         disabled={!editable}
         onClick={onCommit}
         className={cn(
-          'rounded-2 p-1 text-blue-400 outline-none',
+          'rounded-2 p-1.5 text-blue-400 outline-none',
           'hover:bg-blue-10 focus-visible:ring-3 focus-visible:ring-ring/50',
           'disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent',
         )}

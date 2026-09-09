@@ -1,5 +1,7 @@
 import { asEnteredValue } from '@/components/experiments/stoichiometry/columns';
 
+import type { Align } from '@/components/experiments/stoichiometry/columns';
+
 import type { NumericCellValue } from '@/components/experiments/stoichiometry/numeric-cell';
 import type { DictionaryItemRef } from '@/lib/types/dictionaries.ts';
 import type { ModelMutation } from '@/lib/types/mutations.ts';
@@ -40,6 +42,16 @@ import {
 interface ColumnBase {
   id: string;
   header: string;
+  /**
+   * Overrides the alignment `alignOf` would derive from the cell's kind.
+   *
+   * For a column that stands in for one whose kind it does not yet have: Weight and Volume have
+   * no compound-level field, so their cells are `readonly` em-dashes — but the column *is* a
+   * numeric one, and the samples below it right-align. Left to the default they would read left
+   * under a left header while the batch rows beneath read right, which is two grids rather than
+   * one column.
+   */
+  align?: Align;
   /**
    * A **floor** in pixels, not a fixed size: the table is auto-layout, so a column sizes itself
    * to its content and to the space available, and this only stops it collapsing.
@@ -140,7 +152,7 @@ export function shortBatchNumber(nbkBatchNumber: string | undefined): string | u
  * own several. They are shown as an em-dash for now; the backend is to expose them as a sum
  * over the row's samples, at which point these become ordinary numeric columns.
  */
-const COMPOUND_TOTAL_PLACEHOLDER = { kind: 'readonly', value: () => undefined } as const;
+const COMPOUND_TOTAL_PLACEHOLDER = { kind: 'readonly', value: () => undefined, align: 'right' } as const;
 
 export const COMPOUND_COLUMNS: InputColumn[] = [
   { id: 'index', header: '#', minWidth: 48, kind: 'index' },
@@ -278,7 +290,6 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
   {
     id: 'delete',
     header: '',
-    minWidth: 48,
     kind: 'delete',
     label: 'Delete compound',
     mutation: (input) => ({ type: 'RemoveInputRow', anchor: input.anchor }),
@@ -413,7 +424,6 @@ export const SAMPLE_COLUMNS: SampleColumn[] = [
     id: 'delete',
     span: 1,
     header: '',
-    minWidth: 48,
     kind: 'delete',
     label: 'Delete batch',
     mutation: (sample) => ({ type: 'RemoveInput', anchor: sample.anchor }),

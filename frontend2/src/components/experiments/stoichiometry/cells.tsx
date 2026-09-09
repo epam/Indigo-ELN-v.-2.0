@@ -1,18 +1,19 @@
 import { Trash2 } from 'lucide-react';
-import type { ComponentType } from 'react';
+import type { ComponentType, ReactNode } from 'react';
 import { useState } from 'react';
 
 import { SavingOverlay } from '@/components/common/saving-overlay';
 import { MultiCombobox } from '@/components/ui/combobox';
 import { Select } from '@/components/ui/select';
-import { EDITABLE_CELL_CLASS } from '@/components/experiments/stoichiometry/columns';
+import { CONTENT_BOX, EDITABLE_CELL_CLASS } from '@/components/experiments/stoichiometry/columns';
 import { useDictionary } from '@/lib/api/dictionaries';
 import { cn } from '@/lib/utils';
 
 import type { BuiltInDictionary, DictionaryItemRef } from '@/lib/types/dictionaries.ts';
 
 /**
- * The absence marker every read-only cell shares. Centred, so a column of them reads as a column.
+ * The absence marker every read-only cell shares. It takes the column's own alignment — inherited
+ * from the `<td>` — so that a column of numbers and em-dashes keeps one edge.
  *
  * `cursor-default` here and on every other read-only cell below. The initial `cursor: auto`
  * resolves to a text I-beam over text content, and an I-beam is the cursor that says "you can
@@ -20,7 +21,7 @@ import type { BuiltInDictionary, DictionaryItemRef } from '@/lib/types/dictionar
  * nothing happens. The editable cells opt back in to `cursor-text` themselves.
  */
 export function EmptyCell() {
-  return <span className="block cursor-default text-center text-neutral-700">—</span>;
+  return <span className={cn(CONTENT_BOX, 'block cursor-default text-neutral-700')}>—</span>;
 }
 
 /**
@@ -34,7 +35,10 @@ export function EmptyCell() {
 export function ReadonlyCell({ value, title }: { value: string | undefined; title?: string }) {
   if (value == null || value === '') return <EmptyCell />;
   return (
-    <span className="block cursor-default truncate text-[13px]/5 text-neutral-1000" title={title ?? value}>
+    <span
+      className={cn(CONTENT_BOX, 'block cursor-default truncate text-[13px]/5 text-neutral-1000')}
+      title={title ?? value}
+    >
       {value}
     </span>
   );
@@ -63,7 +67,11 @@ export function FormulaCell({ value }: { value: string | undefined }) {
         same reason. The line-height stays at the table's own 20px so the formula sits on the same
         baseline as every other cell, and the row is taller than this anyway, so it costs nothing.
       */
-      className="block cursor-default truncate py-1 text-[13px]/5 text-neutral-1000 [&_sub]:align-sub [&_sub]:text-[0.75em] [&_sub]:leading-none"
+      className={cn(
+        CONTENT_BOX,
+        'block cursor-default truncate py-1 text-[13px]/5 text-neutral-1000',
+        '[&_sub]:align-sub [&_sub]:text-[0.75em] [&_sub]:leading-none',
+      )}
       dangerouslySetInnerHTML={{ __html: value }}
     />
   );
@@ -159,7 +167,7 @@ export function DictionaryCell({
   if (!editable) return <ReadonlyCell value={value?.name} />;
 
   return (
-    <SavingOverlay pending={pending} spinner="center" className="w-full">
+    <SavingOverlay pending={pending} spinner="center" className="mx-auto w-fit">
       <Select<DictionaryItemRef>
         aria-label={label}
         size="sm"
@@ -167,6 +175,8 @@ export function DictionaryCell({
         items={data ?? []}
         itemToKey={(item) => item.id}
         itemToLabel={(item) => item.name}
+        // Hugs its label so the column can centre it — see `RoleCell`.
+        className="w-auto min-w-[112px]"
         emptyLabel="—"
         loading={isPending}
         // apiFetch has already toasted the failure; this says why the list is empty.
@@ -229,6 +239,24 @@ export function MultiDictionaryCell({
 }
 
 /**
+ * The row's action group: the trailing cell's buttons, packed.
+ *
+ * Every table's actions go through this, including the two that have only one button, because the
+ * packing is a property of the column rather than of how many actions happen to be in it. Two
+ * things it settles that the `<td>` cannot:
+ *
+ * - **It positions the buttons.** Each button sits in a `SavingOverlay`, which is a block, and
+ *   `text-align` does not move a block — so a bare `text-right` cell would leave them on the
+ *   left. `justify-end` is what actually pushes them to the pinned edge.
+ * - **It packs them.** `gap-0.5` reads as one group of related actions; the three used to be
+ *   three separate 48px columns with a centred button each, which read as three unrelated
+ *   columns and cost ~192px of a table that already scrolls.
+ */
+export function RowActions({ children }: { children: ReactNode }) {
+  return <div className="flex items-center justify-end gap-0.5">{children}</div>;
+}
+
+/**
  * A row action as an icon button — what `AddBatchCell` and `DeleteCell` each hard-code, taken as
  * parameters so the batch summary's three actions do not become three more near-copies.
  *
@@ -253,7 +281,7 @@ export function IconActionCell({
   onCommit: () => void;
 }) {
   return (
-    <SavingOverlay pending={pending} spinner="center" className="mx-auto w-fit">
+    <SavingOverlay pending={pending} spinner="center">
       <button
         type="button"
         aria-label={label}
@@ -261,7 +289,7 @@ export function IconActionCell({
         disabled={!editable}
         onClick={onCommit}
         className={cn(
-          'rounded-2 p-1 outline-none focus-visible:ring-3 focus-visible:ring-ring/50',
+          'rounded-2 p-1.5 outline-none focus-visible:ring-3 focus-visible:ring-ring/50',
           'disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent',
           tone === 'blue' && 'text-blue-400 hover:bg-blue-10',
           tone === 'green' && 'text-green-200 hover:bg-green-10',
@@ -287,14 +315,14 @@ export function DeleteCell({
   onCommit: () => void;
 }) {
   return (
-    <SavingOverlay pending={pending} spinner="center" className="mx-auto w-fit">
+    <SavingOverlay pending={pending} spinner="center">
       <button
         type="button"
         aria-label={label}
         disabled={!editable}
         onClick={onCommit}
         className={cn(
-          'rounded-2 p-1 text-red-200 outline-none',
+          'rounded-2 p-1.5 text-red-200 outline-none',
           'hover:bg-red-10 focus-visible:ring-3 focus-visible:ring-ring/50',
           'disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent',
         )}

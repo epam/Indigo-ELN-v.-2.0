@@ -27,26 +27,35 @@ describe('the batch columns', () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  /** The three row actions, in the order the mockup puts them, and nothing after them. */
-  it('ends on the three action columns', () => {
-    expect(BATCH_COLUMNS.slice(-3).map((column) => column.kind)).toEqual(['sync', 'register', 'delete']);
+  /**
+   * The three row actions are **one** column, in the order the mockup puts them, and nothing
+   * comes after it — that is what lets them be packed into a single pinned cell rather than
+   * spread across three of their own.
+   */
+  it('ends on one column carrying the three row actions', () => {
+    const last = BATCH_COLUMNS.at(-1);
+
+    expect(last?.kind).toBe('actions');
+    expect(last?.kind === 'actions' && last.actions.map((action) => action.id)).toEqual(['sync', 'register', 'delete']);
   });
 
   /**
-   * Sync is the one column keyed by the **output** anchor — `SetOutputRowIntended` names the
+   * Sync is the one action keyed by the **output** anchor — `SetOutputRowIntended` names the
    * product row, and a sample anchor there resolves to nothing and the call 400s.
    */
   it('keys Sync with Products on the output anchor and everything else on the batch', () => {
     const batch = row();
-    const sync = BATCH_COLUMNS.find((column) => column.kind === 'sync');
-    const remove = BATCH_COLUMNS.find((column) => column.kind === 'delete');
+    const column = BATCH_COLUMNS.at(-1);
+    const actions = column?.kind === 'actions' ? column.actions : [];
+    const sync = actions.find((action) => action.id === 'sync');
+    const remove = actions.find((action) => action.id === 'delete');
 
-    expect(sync?.kind === 'sync' && sync.mutation(batch)).toEqual({
+    expect(sync?.mutation(batch)).toEqual({
       type: 'SetOutputRowIntended',
       anchor: batch.output.anchor,
       intended: true,
     });
-    expect(remove?.kind === 'delete' && remove.mutation(batch)).toEqual({
+    expect(remove?.mutation(batch)).toEqual({
       type: 'RemoveProductSample',
       anchor: batch.sample.anchor,
     });

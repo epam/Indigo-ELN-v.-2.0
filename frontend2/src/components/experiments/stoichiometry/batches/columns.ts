@@ -65,17 +65,31 @@ type Cell =
       units: readonly string[];
       mutation: (row: BatchRow, next: NumericCellValue) => ModelMutation;
     }
+  /** The row's icon buttons, as one column — see `BatchAction`. */
+  | { kind: 'actions'; actions: BatchAction[] };
+
+/**
+ * One icon button in the row's trailing action group.
+ *
+ * The three used to be three columns of their own, which is how they came to be spread across
+ * ~192px of a table that already scrolls. They are one column now, so their difference has to
+ * live somewhere narrower than `kind` — hence this second union, read by `BatchActionButton`.
+ *
+ * `id` is what `cellId` addresses, so it is also what keys a spinner: two actions on one row are
+ * saving independently, and the ids are unchanged from when each was a column of its own.
+ */
+export type BatchAction =
   /**
    * Promotes an output that was not drawn in the scheme into the Reaction Products table.
    *
-   * The one column keyed by the **output** anchor rather than the sample's — `SetOutputRowIntended`
+   * The one action keyed by the **output** anchor rather than the sample's — `SetOutputRowIntended`
    * names the product row, and the wrong level resolves to nothing and 400s.
    */
-  | { kind: 'sync'; mutation: (row: BatchRow) => ModelMutation }
+  | { id: 'sync'; mutation: (row: BatchRow) => ModelMutation }
   /** Sends the batch to the compound registry. */
-  | { kind: 'register'; mutation: (row: BatchRow) => ModelMutation }
+  | { id: 'register'; mutation: (row: BatchRow) => ModelMutation }
   /** Deletes one batch. The product row survives. */
-  | { kind: 'delete'; mutation: (row: BatchRow) => ModelMutation };
+  | { id: 'delete'; mutation: (row: BatchRow) => ModelMutation };
 
 export type BatchColumn = ColumnBase & Cell;
 
@@ -214,26 +228,19 @@ export const BATCH_COLUMNS: BatchColumn[] = [
     units: NO_UNITS,
     mutation: (row, next) => ({ type: 'SetOutputPurity', anchor: row.sample.anchor, purity: next.value }),
   },
+  /**
+   * No `minWidth`: the column takes exactly the width of its buttons. See `ACTIONS_CELL_CLASS`
+   * for the rest of its geometry, and why it is pinned to the right edge.
+   */
   {
-    id: 'sync',
+    id: 'actions',
     header: '',
-    minWidth: 48,
-    kind: 'sync',
-    mutation: (row) => ({ type: 'SetOutputRowIntended', anchor: row.output.anchor, intended: true }),
-  },
-  {
-    id: 'register',
-    header: '',
-    minWidth: 48,
-    kind: 'register',
-    mutation: (row) => ({ type: 'RegisterSample', anchor: row.sample.anchor }),
-  },
-  {
-    id: 'delete',
-    header: '',
-    minWidth: 48,
-    kind: 'delete',
-    mutation: (row) => ({ type: 'RemoveProductSample', anchor: row.sample.anchor }),
+    kind: 'actions',
+    actions: [
+      { id: 'sync', mutation: (row) => ({ type: 'SetOutputRowIntended', anchor: row.output.anchor, intended: true }) },
+      { id: 'register', mutation: (row) => ({ type: 'RegisterSample', anchor: row.sample.anchor }) },
+      { id: 'delete', mutation: (row) => ({ type: 'RemoveProductSample', anchor: row.sample.anchor }) },
+    ],
   },
 ];
 

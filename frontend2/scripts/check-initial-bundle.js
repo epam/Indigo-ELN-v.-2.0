@@ -33,7 +33,9 @@ const html = (() => {
 
 // The entry script plus everything the browser is told to preload alongside it: together,
 // the JavaScript a cold page load pays for before it can render.
-const paths = [...html.matchAll(/(?:src|href)="\/(assets\/[^"]+\.js)"/g)].map((match) => match[1]);
+// The leading [^"]* absorbs Vite's `base` (/frontend2/), leaving the captured path relative
+// to dist/ either way.
+const paths = [...html.matchAll(/(?:src|href)="[^"]*\/(assets\/[^"]+\.js)"/g)].map((match) => match[1]);
 
 if (paths.length === 0) {
   console.error(`Found no entry or preloaded scripts in ${DIST}/index.html — has the build layout changed?`);

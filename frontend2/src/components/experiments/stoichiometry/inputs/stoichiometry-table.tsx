@@ -10,9 +10,17 @@ import {
   FormulaCell,
   MultiDictionaryCell,
   ReadonlyCell,
+  RowActions,
   TextCell,
 } from '@/components/experiments/stoichiometry/cells';
-import { CELL_CLASS, HEADER_CELL_CLASS } from '@/components/experiments/stoichiometry/columns';
+import {
+  ACTIONS_CELL_CLASS,
+  ALIGN_CLASS,
+  CELL_CLASS,
+  CONTENT_BOX,
+  HEADER_CELL_CLASS,
+  alignOf,
+} from '@/components/experiments/stoichiometry/columns';
 import { LimitingCell, RoleCell } from '@/components/experiments/stoichiometry/inputs/cells';
 import type { InputColumn, SampleColumn } from '@/components/experiments/stoichiometry/inputs/columns';
 import {
@@ -140,19 +148,32 @@ export function StoichiometryTable({ experiment, reaction }: { experiment: Exper
           `w-full` is a *preferred* width, not a cap: auto layout still expands the table past it
           when the minimum content widths demand more, and the wrapper above scrolls. That is
           "fill the page, scroll when it cannot" from one declaration.
+
+          `border-separate` rather than `border-collapse`: a collapsed table owns its cells'
+          borders, and the pinned Delete column would leave them behind as it moves. Nothing
+          doubles up, because the cell classes carry horizontal borders only.
         */}
-        <table className="w-full border-collapse">
+        <table className="w-full border-separate border-spacing-0">
           <caption className="sr-only">Reactants, reagents and solvents</caption>
           <thead>
             <tr>
               {/* The chevron column has no header text; the chevrons speak for themselves. */}
-              <th className={HEADER_CELL_CLASS} />
+              <th className={cn(HEADER_CELL_CLASS, ALIGN_CLASS.center)} />
               {COMPOUND_COLUMNS.map((column) =>
                 // A spacer names nothing, so it is a plain cell rather than an empty `<th>`.
                 column.kind === 'spacer' ? (
                   <td key={column.id} className={HEADER_CELL_CLASS} />
                 ) : (
-                  <th key={column.id} scope="col" className={HEADER_CELL_CLASS} style={{ minWidth: column.minWidth }}>
+                  <th
+                    key={column.id}
+                    scope="col"
+                    className={cn(
+                      HEADER_CELL_CLASS,
+                      ALIGN_CLASS[column.align ?? alignOf(column.kind)],
+                      column.kind === 'delete' && ACTIONS_CELL_CLASS,
+                    )}
+                    style={{ minWidth: column.minWidth }}
+                  >
                     {column.header}
                   </th>
                 ),
@@ -327,8 +348,10 @@ function CompoundRow({
     <tbody>
       {/* No tint for an expanded row: with every row open by default that would colour the
           whole table, and the hover is what the pointer needs to follow a row across it. */}
-      <tr className="hover:bg-neutral-100">
-        <td className={CELL_CLASS}>
+      {/* `group/row` — the pinned Delete cell paints its own background, so it cannot inherit
+          this hover and follows it explicitly. */}
+      <tr className="group/row hover:bg-neutral-100">
+        <td className={cn(CELL_CLASS, ALIGN_CLASS.center)}>
           <button
             type="button"
             onClick={onToggle}
@@ -340,7 +363,14 @@ function CompoundRow({
           </button>
         </td>
         {COMPOUND_COLUMNS.map((column) => (
-          <td key={column.id} className={CELL_CLASS}>
+          <td
+            key={column.id}
+            className={cn(
+              CELL_CLASS,
+              ALIGN_CLASS[column.align ?? alignOf(column.kind)],
+              column.kind === 'delete' && ACTIONS_CELL_CLASS,
+            )}
+          >
             <CompoundCell column={column} input={input} index={index} canEdit={canEdit} mutations={mutations} />
           </td>
         ))}
@@ -361,7 +391,12 @@ function CompoundRow({
                 key={column.id}
                 scope="col"
                 colSpan={column.span}
-                className={cn(HEADER_CELL_CLASS, 'border-t-0')}
+                className={cn(
+                  HEADER_CELL_CLASS,
+                  'border-t-0',
+                  ALIGN_CLASS[column.align ?? alignOf(column.kind)],
+                  column.kind === 'delete' && ACTIONS_CELL_CLASS,
+                )}
                 style={{ minWidth: column.minWidth }}
               >
                 {column.header}
@@ -370,10 +405,20 @@ function CompoundRow({
           </tr>
 
           {input.samples.map((sample) => (
-            <tr key={sample.anchor} className="hover:bg-neutral-100">
+            <tr key={sample.anchor} className="group/row hover:bg-neutral-100">
               <td colSpan={SAMPLE_INDENT_SPAN} />
               {SAMPLE_COLUMNS.map((column) => (
-                <td key={column.id} colSpan={column.span} className={CELL_CLASS}>
+                <td
+                  key={column.id}
+                  colSpan={column.span}
+                  className={cn(
+                    CELL_CLASS,
+                    ALIGN_CLASS[column.align ?? alignOf(column.kind)],
+                    // Both Delete columns take it: they occupy the same grid slot, so the pinned
+                    // column has to look continuous across compound and sample rows.
+                    column.kind === 'delete' && ACTIONS_CELL_CLASS,
+                  )}
+                >
                   <SampleCell column={column} sample={sample} canEdit={canEdit} mutations={mutations} />
                 </td>
               ))}
@@ -406,7 +451,9 @@ function CompoundCell({
       return null;
     case 'index':
       // `cursor-default` for the same reason as every other read-only cell — see `EmptyCell`.
-      return <span className="cursor-default text-[13px]/5 text-neutral-800">{index + 1}</span>;
+      return (
+        <span className={cn(CONTENT_BOX, 'block cursor-default text-[13px]/5 text-neutral-800')}>{index + 1}</span>
+      );
     case 'readonly':
       return <ReadonlyCell value={column.value(input)} />;
     case 'html':
@@ -479,13 +526,17 @@ function CompoundCell({
         />
       );
     case 'delete':
+      // A single action still goes through `RowActions` — the packing belongs to the column, not
+      // to how many buttons happen to be in it.
       return (
-        <DeleteCell
-          label={`${column.label} ${index + 1}`}
-          editable={canEdit}
-          pending={pending}
-          onCommit={() => mutations.save(cell, column.mutation(input))}
-        />
+        <RowActions>
+          <DeleteCell
+            label={`${column.label} ${index + 1}`}
+            editable={canEdit}
+            pending={pending}
+            onCommit={() => mutations.save(cell, column.mutation(input))}
+          />
+        </RowActions>
       );
   }
 }
@@ -564,12 +615,14 @@ function SampleCell({
       );
     case 'delete':
       return (
-        <DeleteCell
-          label={`${column.label} ${batch}`}
-          editable={canEdit}
-          pending={pending}
-          onCommit={() => mutations.save(cell, column.mutation(sample))}
-        />
+        <RowActions>
+          <DeleteCell
+            label={`${column.label} ${batch}`}
+            editable={canEdit}
+            pending={pending}
+            onCommit={() => mutations.save(cell, column.mutation(sample))}
+          />
+        </RowActions>
       );
   }
 }

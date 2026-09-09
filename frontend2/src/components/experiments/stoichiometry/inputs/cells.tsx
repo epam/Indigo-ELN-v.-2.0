@@ -26,7 +26,7 @@ export function RoleCell({
   onCommit: (next: ReactionRole) => void;
 }) {
   return (
-    <SavingOverlay pending={pending} spinner="center" className="w-full">
+    <SavingOverlay pending={pending} spinner="center" className="mx-auto w-fit">
       <Select<ReactionRole>
         aria-label="Reaction role"
         size="sm"
@@ -35,6 +35,11 @@ export function RoleCell({
         itemToKey={(role) => role}
         itemToLabel={(role) => REACTION_ROLE_LABELS[role]}
         disabled={!editable}
+        // Hugs its label instead of filling the cell, so the column can centre it — a `w-full`
+        // trigger pins its label to the left however the column is aligned. The shared minimum is
+        // what keeps a column of them one width rather than a ragged stack; `OutputTypeCell`
+        // picked the same number for the same reason.
+        className="w-auto min-w-[112px]"
         // No `emptyLabel`, so the list offers no way to reach null — but the prop allows one.
         onValueChange={(next) => next != null && next !== value && onCommit(next)}
       />

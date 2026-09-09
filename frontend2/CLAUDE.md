@@ -573,17 +573,16 @@ back into view is simply rendered again. `handleSave` is one Indigo call lighter
 result. Don't reintroduce a cache here without a measurement showing the render is slow;
 the thing worth optimising is the cold start, and `prewarmKetcher` already does that.
 
-**CSP:** the deployed policy
-(`deployment-aws/resources/cloudfront-index-viewer-request-function.js`) already allows
-what the worker needs — `worker-src 'self' blob:` for the Indigo worker, which
+**CSP:** this app has its own policy, separate from the Angular app's — see *Deploying*
+below. It allows `worker-src 'self' blob:` for the Indigo worker, which
 `ketcher-standalone` builds with `new Blob` + `createObjectURL`, and `img-src 'self'
-blob: data:` for both preview URL kinds. It is still missing two things: `script-src`
-needs `'wasm-unsafe-eval'` (a nonce does not cover WASM compilation) or Indigo aborts,
-and `style-src` needs `'unsafe-inline'` or the editor renders unstyled, since
-ketcher-react is MUI/emotion and injects styles with no nonce. Headless rendering needs
-only the first of the two. A CSP-blocked worker makes the struct service answer nothing at
-all; that is what the render timeout above turns into a reported error rather than a
-permanent skeleton.
+blob: data:` for both preview URL kinds. Two more entries are load-bearing here and are
+the reason the Angular policy could not simply be reused: `script-src` needs
+`'wasm-unsafe-eval'` or Indigo aborts (a nonce does not cover WASM compilation), and
+`style-src` needs the empty-string hash for emotion's `<style>` carrier or the editor
+renders unstyled. Headless rendering needs only the first of the two. A CSP-blocked worker
+makes the struct service answer nothing at all; that is what the render timeout above
+turns into a reported error rather than a permanent skeleton.
 
 Storybook aliases both modules to stubs in `.storybook/mocks/`. Those two aliases have to
 precede the inherited `'@' -> src` one, and Vite merges the inherited alias *ahead* of

@@ -192,7 +192,6 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
   {
     id: 'addBatch',
     header: '',
-    minWidth: 48,
     kind: 'addBatch',
     mutation: (row) => ({ type: 'AddProductSample', anchor: row.output.anchor }),
   },

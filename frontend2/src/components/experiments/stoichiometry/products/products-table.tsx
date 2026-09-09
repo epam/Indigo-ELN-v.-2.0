@@ -1,13 +1,27 @@
 import { useMemo, useState } from 'react';
 
-import { DictionaryCell, FormulaCell, ReadonlyCell, TextCell } from '@/components/experiments/stoichiometry/cells';
-import { CELL_CLASS, HEADER_CELL_CLASS } from '@/components/experiments/stoichiometry/columns';
+import {
+  DictionaryCell,
+  FormulaCell,
+  ReadonlyCell,
+  RowActions,
+  TextCell,
+} from '@/components/experiments/stoichiometry/cells';
+import {
+  ACTIONS_CELL_CLASS,
+  ALIGN_CLASS,
+  CELL_CLASS,
+  CONTENT_BOX,
+  HEADER_CELL_CLASS,
+  alignOf,
+} from '@/components/experiments/stoichiometry/columns';
 import { NumericCell } from '@/components/experiments/stoichiometry/numeric-cell';
 import { AddBatchCell, OutputTypeCell } from '@/components/experiments/stoichiometry/products/cells';
 import type { ProductColumn, ProductRow } from '@/components/experiments/stoichiometry/products/columns';
 import { PRODUCT_COLUMNS, productHaystack } from '@/components/experiments/stoichiometry/products/columns';
 import type { StoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import { cellId, useStoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
+import { cn } from '@/lib/utils';
 import { SearchInput } from '@/components/ui/search-input';
 import { Switch } from '@/components/ui/switch';
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
@@ -85,23 +99,44 @@ export function ReactionProductsTable({ experiment, step }: { experiment: Experi
       </div>
 
       <div className="overflow-x-auto rounded-6 border border-neutral-300 bg-card">
-        {/* `w-full` is a preferred width, not a cap — see the note in `StoichiometryTable`. */}
-        <table className="w-full border-collapse">
+        {/*
+          `w-full` is a preferred width, not a cap — see the note in `StoichiometryTable`, and
+          `border-separate` for why the pinned actions column needs it.
+        */}
+        <table className="w-full border-separate border-spacing-0">
           <caption className="sr-only">Reaction products</caption>
           <thead>
             <tr>
               {PRODUCT_COLUMNS.map((column) => (
-                <th key={column.id} scope="col" className={HEADER_CELL_CLASS} style={{ minWidth: column.minWidth }}>
+                <th
+                  key={column.id}
+                  scope="col"
+                  className={cn(
+                    HEADER_CELL_CLASS,
+                    ALIGN_CLASS[alignOf(column.kind)],
+                    column.kind === 'addBatch' && ACTIONS_CELL_CLASS,
+                  )}
+                  style={{ minWidth: column.minWidth }}
+                >
                   {column.header}
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
+            {/* `group/row` — the pinned actions cell paints its own background, so it cannot
+                inherit the row's hover and follows it explicitly. */}
             {rows.map((row, index) => (
-              <tr key={row.output.anchor} className="hover:bg-neutral-100">
+              <tr key={row.output.anchor} className="group/row hover:bg-neutral-100">
                 {PRODUCT_COLUMNS.map((column) => (
-                  <td key={column.id} className={CELL_CLASS}>
+                  <td
+                    key={column.id}
+                    className={cn(
+                      CELL_CLASS,
+                      ALIGN_CLASS[alignOf(column.kind)],
+                      column.kind === 'addBatch' && ACTIONS_CELL_CLASS,
+                    )}
+                  >
                     <ProductCell column={column} row={row} index={index} canEdit={canEdit} mutations={mutations} />
                   </td>
                 ))}
@@ -142,7 +177,9 @@ function ProductCell({
   switch (column.kind) {
     case 'index':
       // `cursor-default` for the same reason as every other read-only cell — see `EmptyCell`.
-      return <span className="cursor-default text-[13px]/5 text-neutral-800">{index + 1}</span>;
+      return (
+        <span className={cn(CONTENT_BOX, 'block cursor-default text-[13px]/5 text-neutral-800')}>{index + 1}</span>
+      );
     case 'readonly':
       return <ReadonlyCell value={column.value(row)} />;
     case 'html':
@@ -207,13 +244,17 @@ function ProductCell({
         />
       );
     case 'addBatch':
+      // A single action still goes through `RowActions` — the packing belongs to the column, not
+      // to how many buttons happen to be in it.
       return (
-        <AddBatchCell
-          label={`Add batch to ${row.output.outputName}`}
-          editable={canEdit}
-          pending={pending}
-          onCommit={() => mutations.save(cell, column.mutation(row))}
-        />
+        <RowActions>
+          <AddBatchCell
+            label={`Add batch to ${row.output.outputName}`}
+            editable={canEdit}
+            pending={pending}
+            onCommit={() => mutations.save(cell, column.mutation(row))}
+          />
+        </RowActions>
       );
   }
 }

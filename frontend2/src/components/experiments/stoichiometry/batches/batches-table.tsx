@@ -3,18 +3,25 @@ import { useMemo, useRef, useState } from 'react';
 
 import { SavingOverlay } from '@/components/common/saving-overlay';
 import { OutputTypeBadge } from '@/components/experiments/stoichiometry/batches/cells';
-import type { BatchColumn, BatchRow } from '@/components/experiments/stoichiometry/batches/columns';
+import type { BatchAction, BatchColumn, BatchRow } from '@/components/experiments/stoichiometry/batches/columns';
 import {
   BATCH_COLUMNS,
   batchHaystack,
   isSampleProtected,
 } from '@/components/experiments/stoichiometry/batches/columns';
 import { BatchDetailPanel } from '@/components/experiments/stoichiometry/batches/detail-panel';
-import { DeleteCell, IconActionCell, ReadonlyCell } from '@/components/experiments/stoichiometry/cells';
-import { CELL_CLASS, HEADER_CELL_CLASS } from '@/components/experiments/stoichiometry/columns';
+import { DeleteCell, IconActionCell, ReadonlyCell, RowActions } from '@/components/experiments/stoichiometry/cells';
+import {
+  ACTIONS_CELL_CLASS,
+  ALIGN_CLASS,
+  CELL_CLASS,
+  HEADER_CELL_CLASS,
+  alignOf,
+} from '@/components/experiments/stoichiometry/columns';
 import { NumericCell } from '@/components/experiments/stoichiometry/numeric-cell';
 import type { StoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import { cellId, useStoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { SearchInput } from '@/components/ui/search-input';
 import { useExportSdf, useImportSdf } from '@/lib/api/experiments';
@@ -93,15 +100,29 @@ export function ProductBatchSummaryTable({
       />
 
       <div className="overflow-x-auto rounded-6 border border-neutral-300 bg-card">
-        {/* `w-full` is a preferred width, not a cap — see the note in `StoichiometryTable`. */}
-        <table className="w-full border-collapse">
+        {/*
+          `w-full` is a preferred width, not a cap — see the note in `StoichiometryTable`.
+          `border-separate` rather than `border-collapse`: a collapsed table owns its cells'
+          borders, and a sticky cell then leaves them behind as it moves. Nothing doubles up,
+          because the cell classes carry horizontal borders only.
+        */}
+        <table className="w-full border-separate border-spacing-0">
           <caption className="sr-only">Product batch summary</caption>
           <thead>
             <tr>
               {/* The chevron column has no header text; the chevrons speak for themselves. */}
-              <th className={HEADER_CELL_CLASS} />
+              <th className={cn(HEADER_CELL_CLASS, ALIGN_CLASS.center)} />
               {BATCH_COLUMNS.map((column) => (
-                <th key={column.id} scope="col" className={HEADER_CELL_CLASS} style={{ minWidth: column.minWidth }}>
+                <th
+                  key={column.id}
+                  scope="col"
+                  className={cn(
+                    HEADER_CELL_CLASS,
+                    ALIGN_CLASS[alignOf(column.kind)],
+                    column.kind === 'actions' && ACTIONS_CELL_CLASS,
+                  )}
+                  style={{ minWidth: column.minWidth }}
+                >
                   {column.header}
                 </th>
               ))}
@@ -252,8 +273,10 @@ function BatchRowGroup({
 
   return (
     <tbody>
-      <tr className="hover:bg-neutral-100">
-        <td className={CELL_CLASS}>
+      {/* `group/row` is what lets the pinned actions cell follow the row's hover — it paints its
+          own background, so it cannot inherit this one. */}
+      <tr className="group/row hover:bg-neutral-100">
+        <td className={cn(CELL_CLASS, ALIGN_CLASS.center)}>
           <button
             type="button"
             onClick={onToggle}
@@ -265,7 +288,14 @@ function BatchRowGroup({
           </button>
         </td>
         {BATCH_COLUMNS.map((column) => (
-          <td key={column.id} className={CELL_CLASS}>
+          <td
+            key={column.id}
+            className={cn(
+              CELL_CLASS,
+              ALIGN_CLASS[alignOf(column.kind)],
+              column.kind === 'actions' && ACTIONS_CELL_CLASS,
+            )}
+          >
             <BatchCell column={column} row={row} canEdit={canEdit} mutations={mutations} />
           </td>
         ))}
@@ -294,16 +324,12 @@ function BatchCell({
   canEdit: boolean;
   mutations: StoichiometryMutations;
 }) {
-  // Sync names the product row; everything else names the batch. Keeping the spinner's id on the
-  // same anchor as the mutation is what stops two rows of one product sharing a Sync spinner.
-  const anchor = column.kind === 'sync' ? row.output.anchor : row.sample.anchor;
-  const cell = cellId(anchor, column.id);
+  const cell = cellId(row.sample.anchor, column.id);
   const pending = mutations.savingCells.has(cell);
   const batch = row.sample.shortNbkBatchNumber;
   // Names the cell for assistive tech by what the user sees. The batch number is unique across
   // the notebook, so it identifies the row better than an ordinal does.
   const label = `${column.header}, batch ${batch}`;
-  const protectedSample = isSampleProtected(row.sample);
 
   switch (column.kind) {
     case 'readonly':
@@ -337,6 +363,43 @@ function BatchCell({
           onCommit={(next) => mutations.save(cell, column.mutation(row, next))}
         />
       );
+    case 'actions':
+      return (
+        <RowActions>
+          {column.actions.map((action) => (
+            <BatchActionButton key={action.id} action={action} row={row} canEdit={canEdit} mutations={mutations} />
+          ))}
+        </RowActions>
+      );
+  }
+}
+
+/**
+ * One button of the row's action group.
+ *
+ * Each keeps its **own** cell id, so two actions on one row spin independently — and Sync keeps
+ * its own anchor with it: it names the product row, because `SetOutputRowIntended` does, and a
+ * product with several batches would otherwise share one spinner across all of them.
+ */
+function BatchActionButton({
+  action,
+  row,
+  canEdit,
+  mutations,
+}: {
+  action: BatchAction;
+  row: BatchRow;
+  canEdit: boolean;
+  mutations: StoichiometryMutations;
+}) {
+  const anchor = action.id === 'sync' ? row.output.anchor : row.sample.anchor;
+  const cell = cellId(anchor, action.id);
+  const pending = mutations.savingCells.has(cell);
+  const batch = row.sample.shortNbkBatchNumber;
+  const protectedSample = isSampleProtected(row.sample);
+  const save = () => mutations.save(cell, action.mutation(row));
+
+  switch (action.id) {
     case 'sync':
       return (
         <IconActionCell
@@ -351,7 +414,7 @@ function BatchCell({
           }
           editable={canEdit && !row.output.intended}
           pending={pending}
-          onCommit={() => mutations.save(cell, column.mutation(row))}
+          onCommit={save}
         />
       );
     case 'register':
@@ -363,7 +426,7 @@ function BatchCell({
           // `RegisterSampleHandler` throws on both of these, so neither is offered.
           editable={canEdit && !protectedSample && row.output.compound.type !== 'UNKNOWN'}
           pending={pending}
-          onCommit={() => mutations.save(cell, column.mutation(row))}
+          onCommit={save}
         />
       );
     case 'delete':
@@ -373,7 +436,7 @@ function BatchCell({
           // A registered batch is a registry record; indigo-frontend locks it the same way.
           editable={canEdit && !protectedSample}
           pending={pending}
-          onCommit={() => mutations.save(cell, column.mutation(row))}
+          onCommit={save}
         />
       );
   }

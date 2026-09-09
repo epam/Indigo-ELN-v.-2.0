@@ -3,6 +3,7 @@ import { useRef, useState } from 'react';
 
 import { SavingOverlay } from '@/components/common/saving-overlay';
 import { determineCellClasses } from '@/components/experiments/stoichiometry/cell-classes';
+import { CONTENT_BOX } from '@/components/experiments/stoichiometry/columns';
 import { unitLabel } from '@/lib/types/reactions.ts';
 import { cn } from '@/lib/utils';
 import type { EnteredValue } from '@/lib/types/reactions.ts';
@@ -17,8 +18,12 @@ export interface NumericCellValue {
  * The typography and box the display text and the number input share. They sit on top of one
  * another and swap by opacity, so any disagreement here shows up as the text shifting under the
  * cursor — neither gets to spell it out for itself.
+ *
+ * No `text-align`: the cell inherits the column's, which the `<td>` carries (`alignOf`). Spelling
+ * one out here would be a second opinion on where a number sits, and the header would be the one
+ * that disagreed.
  */
-const DISPLAY_BOX = 'w-full rounded-2 border border-transparent px-2 py-1 text-right text-[13px]/5 tabular-nums';
+const DISPLAY_BOX = cn(CONTENT_BOX, 'w-full rounded-2 py-1 text-[13px]/5 tabular-nums');
 
 /** True when focus has genuinely left this cell, rather than moving between its own controls. */
 function isExternal(event: FocusEvent<HTMLElement>): boolean {
@@ -83,7 +88,9 @@ export function NumericCell({
 
   const classes = determineCellClasses(value, updatedNodes);
   const text = value?.value == null ? '—' : `${value.value}${unitless ? '' : ` ${unitLabel(value.unit)}`}`;
-  const emptyClass = value?.value == null ? 'text-center text-neutral-700' : undefined;
+  // Only a colour. An em-dash keeps the column's alignment, so an empty cell has the same edge as
+  // the numbers above and below it — a column that half-centres itself has no edge to read at all.
+  const emptyClass = value?.value == null ? 'text-neutral-700' : undefined;
 
   /**
    * Set for exactly one blur, by Escape. Reverting has to blur to get back to the display, but

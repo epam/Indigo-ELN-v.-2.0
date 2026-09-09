@@ -41,42 +41,21 @@ const MAX_WORKERS = Math.min(4, availableParallelism());
 // <style> at all, so `'self'` already covers everything and the hash lists below come out
 // empty. They exist so that adding an inline snippet later keeps working instead of
 // silently needing a nonce (and, with it, a Lambda@Edge to mint one per request).
+//
+// The build writes the assembled policy into the `policy` field of the file below, and the
+// CDK stack reads that string verbatim to bake it into the CloudFront viewer-response
+// function (CloudFrontStack.java, frontend2ResponseFunctionCode). So the policy `vite
+// preview` enforces is the same string CloudFront sends — there is nowhere for the two to
+// drift apart.
 const CSP_HASHES_FILE = 'dist/csp-hashes.json';
+
+type CspHashes = { script: string[]; style: string[] };
 
 function sha256(source: string): string {
   return `'sha256-${crypto.createHash('sha256').update(source, 'utf8').digest('base64')}'`;
 }
 
-/** Hashes every inline <script> and <style> the build put in index.html. */
-function cspHashes(): PluginOption {
-  return {
-    name: 'csp-hashes',
-    apply: 'build',
-    closeBundle() {
-      const html = fs.readFileSync('dist/index.html', 'utf8');
-      const hashesOf = (pattern: RegExp) => [...html.matchAll(pattern)].map((match) => sha256(match[1]));
-      fs.writeFileSync(
-        CSP_HASHES_FILE,
-        JSON.stringify(
-          {
-            script: hashesOf(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g),
-            style: hashesOf(/<style[^>]*>([\s\S]*?)<\/style>/g),
-          },
-          null,
-          2,
-        ),
-      );
-    },
-  };
-}
-
-// Read once at startup: `vite preview` runs after the build, so the file is already there.
-// A rebuild while preview is running will not refresh this — restart preview.
-function contentSecurityPolicy(): string {
-  const hashes: { script: string[]; style: string[] } = fs.existsSync(CSP_HASHES_FILE)
-    ? JSON.parse(fs.readFileSync(CSP_HASHES_FILE, 'utf8'))
-    : { script: [], style: [] };
-
+function buildPolicy(hashes: CspHashes): string {
   return [
     "default-src 'self'",
     "object-src 'none'",
@@ -104,7 +83,38 @@ function contentSecurityPolicy(): string {
   ].join('; ');
 }
 
+/** Hashes every inline <script> and <style> the build put in index.html. */
+function cspHashes(): PluginOption {
+  return {
+    name: 'csp-hashes',
+    apply: 'build',
+    closeBundle() {
+      const html = fs.readFileSync('dist/index.html', 'utf8');
+      const hashesOf = (pattern: RegExp) => [...html.matchAll(pattern)].map((match) => sha256(match[1]));
+      const hashes: CspHashes = {
+        script: hashesOf(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g),
+        style: hashesOf(/<style[^>]*>([\s\S]*?)<\/style>/g),
+      };
+      fs.writeFileSync(CSP_HASHES_FILE, JSON.stringify({ ...hashes, policy: buildPolicy(hashes) }, null, 2));
+    },
+  };
+}
+
+// Read once at startup: `vite preview` runs after the build, so the file is already there.
+// A rebuild while preview is running will not refresh this — restart preview.
+function contentSecurityPolicy(): string {
+  return fs.existsSync(CSP_HASHES_FILE)
+    ? JSON.parse(fs.readFileSync(CSP_HASHES_FILE, 'utf8')).policy
+    : buildPolicy({ script: [], style: [] });
+}
+
 export default defineConfig({
+  // The app is deployed under /frontend2 on the CloudFront distribution it shares with the
+  // Angular app (CloudFrontStack.java). This rewrites every asset URL in index.html, sets
+  // `import.meta.env.BASE_URL` — which the router takes as its basepath, see src/main.tsx —
+  // and makes the dev and preview servers serve at the same prefix, so local and deployed
+  // URLs match. /api is unaffected: it is root-absolute everywhere in src/lib/api.
+  base: '/frontend2/',
   plugins: [
     tanstackRouter({
       target: 'react',

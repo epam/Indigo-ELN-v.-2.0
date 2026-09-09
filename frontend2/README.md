@@ -58,6 +58,20 @@ expects. Sign in with a Cognito user from the pool in `.env.example`.
 
 ## Deploying
 
-Not wired up yet. Static hosting returns 403/404 for deep links like `/projects`, so the CloudFront
-distribution needs `errorResponses` mapping 403 and 404 to `/index.html` with status 200 before this
-app can be served. See `deployment-aws/.../CloudFrontStack.java`.
+Served at `https://<domain>/frontend2/`, from the same CloudFront distribution as the Angular app.
+The CDK stack uploads a **locally built** `dist/` — exactly as it does for the Angular app — so
+`pnpm run build` has to run before `deployment-aws/deploy.sh indigoeln-dev`.
+
+Three pieces make that work, all in `deployment-aws`:
+
+- **`base: '/frontend2/'`** (here, in `vite.config.ts`) puts every asset URL under the prefix and
+  gives the router its basepath. `/api` is untouched — it stays root-absolute and same-origin.
+- **`CloudFrontStack.java`** adds two behaviours, `/frontend2/assets/*` and `/frontend2*`, ordered
+  *before* the Angular app's `*.*` and its catch-all default. A viewer-request function rewrites
+  anything without a file extension to `/frontend2/index.html`, which is the deep-link fallback the
+  Angular app gets from its Lambda@Edge instead.
+- **The CSP is hash-based**, not nonce-based: this build emits no inline script or style, so no
+  per-request nonce — and therefore no Lambda@Edge — is needed. `vite build` writes the assembled
+  policy to `dist/csp-hashes.json` as `policy`, `vite preview` serves that same string, and the CDK
+  bakes it into the viewer-response function at synth time. Changing the policy means editing
+  `buildPolicy()` in `vite.config.ts` and redeploying; there is no second copy to keep in sync.
