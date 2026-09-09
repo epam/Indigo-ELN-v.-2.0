@@ -408,6 +408,33 @@ function ChipsField({ label, values }: { label: string; values: string[] }) {
   );
 }
 
+/**
+ * A local draft of a saved value, reseeded whenever the server's copy moves.
+ *
+ * **The reseed is the point.** Without it a value the backend normalises — `1.50` stored as the
+ * `Double` 1.5, `01` stored as 1 — leaves the draft permanently disagreeing with what was saved,
+ * so the "did this change?" test on the next blur is true again and fires an identical mutation,
+ * once per focus/blur cycle for as long as the panel is open. The stoichiometry table avoids the
+ * same trap by keying `TextCell` on the saved value; these fields are local to this file, so they
+ * carry it themselves rather than making every call site remember a `key`.
+ *
+ * A *failed* save moves nothing, so the draft survives it — which is what the fields promise.
+ *
+ * Adjusted during render, the pattern React documents for reacting to a changed prop: an effect
+ * would leave a frame showing the stale draft.
+ */
+function useDraft(saved: string): [string, (next: string) => void] {
+  const [draft, setDraft] = useState(saved);
+  const [seeded, setSeeded] = useState(saved);
+
+  if (saved !== seeded) {
+    setSeeded(saved);
+    setDraft(saved);
+  }
+
+  return [draft, setDraft];
+}
+
 /** Free text, committed when the field is left — the contract every text field on this screen has. */
 function TextField({
   id,
@@ -424,7 +451,7 @@ function TextField({
   pending: boolean;
   onCommit: (next: string | null) => void;
 }) {
-  const [draft, setDraft] = useState(value ?? '');
+  const [draft, setDraft] = useDraft(value ?? '');
 
   if (!editable) return <ReadonlyField id={id} label={label} value={value} />;
 
@@ -468,7 +495,7 @@ function NumberField({
   onCommit: (next: string | null) => void;
 }) {
   const saved = value == null ? '' : String(value);
-  const [draft, setDraft] = useState(saved);
+  const [draft, setDraft] = useDraft(saved);
 
   if (!editable) return <ReadonlyField id={id} label={label} value={saved || undefined} />;
 

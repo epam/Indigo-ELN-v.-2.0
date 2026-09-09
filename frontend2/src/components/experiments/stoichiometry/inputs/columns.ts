@@ -297,13 +297,21 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
 ];
 
 /**
- * The sample columns, with **explicit widths that the renderer must apply**.
+ * The sample columns — the batches nested under one compound.
  *
- * Each expanded compound draws its own nested table. Left to size themselves, two of them side
- * by side would pick different column widths from their own content and read as two unrelated
- * grids rather than one continued list. `StoichiometryTable` therefore renders every nested
- * table `table-fixed` with a `<colgroup>` built from these numbers, which makes the widths a
- * property of the column set instead of of the data that happens to be in it.
+ * **`span` is how a sample cell reaches its place in the grid.** There is one `<table>` for both
+ * levels, so a sample row does not draw a table of its own: it spans the compound columns above
+ * it, and `SAMPLE_INDENT_SPAN` skips the three it starts after. That is what makes the two levels
+ * line up without any arithmetic — a cell either starts on a grid boundary or it does not, and
+ * the browser cannot render it half a pixel out. The spans below plus the indent total the
+ * nineteen host columns; see the diagram on `StoichiometryTable`.
+ *
+ * A nested table per expanded compound was the alternative, and it is the reason the spans are
+ * worth the trouble: two of them side by side would size their columns from their own content
+ * and read as two unrelated grids rather than one continued list.
+ *
+ * `minWidth` is a floor like every other column's, applied by the renderer to the header cell —
+ * not a fixed width, and there is no `<colgroup>` anywhere in this table.
  */
 export const SAMPLE_COLUMNS: SampleColumn[] = [
   {

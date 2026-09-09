@@ -39,17 +39,22 @@ import type { ExperimentDetails } from '@/lib/types/experiments.ts';
 import { canEditExperiment } from '@/lib/types/experiments.ts';
 import { cn } from '@/lib/utils';
 import type { Reaction, ReactionInput, ReactionInputSample } from '@/lib/types/reactions.ts';
-import { INPUT_ROLES } from '@/lib/types/reactions.ts';
+import { INPUT_ROLES, plainFormula } from '@/lib/types/reactions.ts';
 
 /** The values the backend accepts — `@Min(1) @Max(5)` on `SetExperimentSignificantFigures`. */
 const SIGNIFICANT_FIGURES = [1, 2, 3, 4, 5];
 
-/** Every field the search box looks at. */
+/**
+ * Every field the search box looks at.
+ *
+ * The formula goes in as **text**, not as the HTML it arrives as — see `plainFormula`. Searching
+ * the raw string means `C6H6` matches nothing while `sub` matches every row that has a formula.
+ */
 function inputHaystack(input: ReactionInput): string {
   const compound = input.compound;
   return [
     input.chemicalName,
-    compound.formula,
+    compound.formula == null ? undefined : plainFormula(compound.formula),
     compound.type === 'UNKNOWN' ? undefined : compound.compoundKey,
     compound.type === 'UNKNOWN' ? undefined : compound.casNumber,
     ...input.samples.map((sample) => shortBatchNumber(sample.nbkBatchNumber)),

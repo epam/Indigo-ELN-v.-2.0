@@ -11,14 +11,8 @@ import { describeError } from '@/lib/toast';
 import { cn } from '@/lib/utils';
 
 import type { UUID } from '@/lib/types/common.ts';
+import { plainFormula } from '@/lib/types/reactions.ts';
 import type { FindSamplesRequest, SampleDTO } from '@/lib/types/samples.ts';
-
-/**
- * `molFormula` is HTML (`C<sub>9</sub>H<sub>8</sub>O<sub>4</sub>`), which is what `FormulaCell`
- * renders. An `aria-label` or an `alt` is plain text, though, so the tags would be read out
- * character by character — strip them wherever the formula stands in as the display name.
- */
-const plainFormula = (molFormula: string) => molFormula.replace(/<[^>]+>/g, '');
 
 /** Chevron + the four data columns + the two action columns. */
 const COLUMN_COUNT = 7;

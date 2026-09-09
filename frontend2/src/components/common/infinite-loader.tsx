@@ -70,34 +70,51 @@ export function InfiniteLoader<T extends { id: string }>({
       </div>
     );
   }
-  if (error) {
-    // Through describeError, not `error.message`: that is ApiError's constructor string
-    // ("Request failed with status 500"), which is a fact about the transport rather than
-    // anything a user can act on. The same call is what worded the toast apiFetch already
-    // raised — this repeats it because a toast is gone in five seconds and the empty list
-    // is not, and because it names which list is empty.
-    const [message] = describeError(error);
+  // Through describeError, not `error.message`: that is ApiError's constructor string
+  // ("Request failed with status 500"), which is a fact about the transport rather than
+  // anything a user can act on. The same call is what worded the toast apiFetch already
+  // raised — this repeats it because a toast is gone in five seconds and a failed list is not.
+  const [failure] = error ? describeError(error) : [];
+
+  /**
+   * **A failure does not discard what has already loaded.** query-core sets `status: 'error'`
+   * on *any* fetch failure while leaving `data` in place, so a failed next page — or a failed
+   * background refetch, which `refetchOnWindowFocus` makes the common case — used to replace a
+   * screenful of rows with one line of error text. `data` is the test, not `error`: with nothing
+   * loaded the message is the whole answer, and with pages on screen it is a banner above them.
+   */
+  if (!data) {
     return (
       <p className="text-[14px]/6 text-destructive">
-        Could not load {entityLabel}: {message}
+        Could not load {entityLabel}: {failure}
       </p>
     );
   }
 
   const items = data.pages.flatMap((page) => page.items);
-  if (items.length === 0) {
-    return <p className="text-[14px]/6 text-neutral-700">No {entityLabel} found.</p>;
-  }
 
   return (
     <>
-      <div aria-busy={isFetchingNextPage} className={className}>
-        {items.map((item) => (
-          <Item key={item.id} item={item} />
-        ))}
-        {isFetchingNextPage &&
-          Array.from({ length: NEXT_PAGE_SKELETONS }, (_, index) => <ItemSkeleton key={`skeleton-${index}`} />)}
-      </div>
+      {/* `role="alert"`, unlike the branch above: this one appears over content the reader is
+          already looking at, so nothing else would announce it. */}
+      {failure && (
+        <p role="alert" className="text-[14px]/6 text-destructive">
+          Could not load more {entityLabel}: {failure}
+        </p>
+      )}
+
+      {items.length === 0 ? (
+        // Only when the list is genuinely empty. A failure that left it empty has said so above.
+        !failure && <p className="text-[14px]/6 text-neutral-700">No {entityLabel} found.</p>
+      ) : (
+        <div aria-busy={isFetchingNextPage} className={className}>
+          {items.map((item) => (
+            <Item key={item.id} item={item} />
+          ))}
+          {isFetchingNextPage &&
+            Array.from({ length: NEXT_PAGE_SKELETONS }, (_, index) => <ItemSkeleton key={`skeleton-${index}`} />)}
+        </div>
+      )}
       <div ref={sentinelRef} aria-hidden className="h-px" />
     </>
   );

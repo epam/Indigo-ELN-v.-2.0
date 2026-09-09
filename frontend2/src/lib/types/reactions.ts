@@ -112,6 +112,20 @@ export interface EnteredValue<U> {
  */
 export type MolFormula = string;
 
+/**
+ * The formula as text: `C<sub>6</sub>H<sub>6</sub>` → `C6H6`.
+ *
+ * Needed wherever a formula is used as something other than markup, and both of those are easy
+ * to get wrong in the same silent way. **Searching** the raw string means the value can never be
+ * found as it is displayed — typing `C6H6` matches nothing, while `sub` matches every row that
+ * has a formula at all. **Announcing** it means a screen reader spells the tags out character by
+ * character, which is why an `aria-label` or an `alt` naming a compound by its formula needs this
+ * too. Only `FormulaCell` and the two `[&_sub]` spans want the markup itself.
+ */
+export function plainFormula(formula: MolFormula): string {
+  return formula.replace(/<[^>]+>/g, '');
+}
+
 /** `STRCodeCompound`/`STRCodeSample` are `@JsonValue` strings: `STR-00000001-01[-003]`. */
 export type STRCode = string;
 

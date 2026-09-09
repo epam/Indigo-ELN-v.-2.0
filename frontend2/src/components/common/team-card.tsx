@@ -163,7 +163,14 @@ export function TeamMembers({
               itemToLabel={(user) => user.displayName}
               inputValue={inputValue}
               onInputValueChange={setInputValue}
-              placeholder="Emails, comma separated"
+              /*
+                What the control actually accepts, which is not what the design's placeholder
+                said. `allowCustomValues` is off — a member has to be an existing user — so typed
+                text is never committed, comma is deliberately not a commit key (see
+                `MultiCombobox`), and `users/suggest` matches a name or username prefix rather
+                than an address. "Emails, comma separated" promised all three.
+              */
+              placeholder="Search by name or username"
               emptyMessage="No matching users"
               loading={inputValue !== '' && suggestions.isPending}
               error={suggestions.isError}

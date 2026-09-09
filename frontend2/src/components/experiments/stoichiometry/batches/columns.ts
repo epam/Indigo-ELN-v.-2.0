@@ -13,17 +13,18 @@ import {
   MOL_UNITS,
   MOLARITY_UNITS,
   NO_UNITS,
+  plainFormula,
   REGISTRATION_STATUS_LABELS,
   VOLUME_UNITS,
   WEIGHT_UNITS,
 } from '@/lib/types/reactions.ts';
 
 /**
- * The Product Batch Summary's columns, as data — the same shape `columns.ts` and
- * `product-columns.ts` use, read by the same kind of exhaustive `switch`.
+ * The Product Batch Summary's columns, as data — the same shape `inputs/columns.ts` and
+ * `products/columns.ts` use, read by the same kind of exhaustive `switch`.
  *
  * A **third** union rather than a widening of either of theirs, for the reason stated at the top
- * of `product-columns.ts`: the kinds only this table needs (`outputTypeBadge`, `sync`,
+ * of `products/columns.ts`: the kinds only this table needs (`outputTypeBadge`, `sync`,
  * `register`) would otherwise turn up as unhandled cases in switches that can never be given
  * them.
  *
@@ -244,7 +245,12 @@ export const BATCH_COLUMNS: BatchColumn[] = [
   },
 ];
 
-/** Every field the search box looks at. */
+/**
+ * Every field the search box looks at.
+ *
+ * The formula goes in as **text**, not as the HTML it arrives as — see `plainFormula`. Searching
+ * the raw string means `C6H6` matches nothing while `sub` matches every row that has a formula.
+ */
 export function batchHaystack(row: BatchRow): string {
   const compound = row.output.compound;
   return [
@@ -252,7 +258,7 @@ export function batchHaystack(row: BatchRow): string {
     row.sample.nbkBatchNumber,
     row.output.outputName,
     row.output.chemicalName,
-    compound.formula,
+    compound.formula == null ? undefined : plainFormula(compound.formula),
     compound.type === 'UNKNOWN' ? undefined : compound.compoundKey,
     row.sample.registrationStatus == null ? 'None' : REGISTRATION_STATUS_LABELS[row.sample.registrationStatus],
   ]

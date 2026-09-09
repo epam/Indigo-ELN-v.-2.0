@@ -302,7 +302,12 @@ export function IconActionCell({
   );
 }
 
-/** The row's delete button. */
+/**
+ * The row's delete button — `IconActionCell` with the icon and tone every table's delete shares,
+ * rather than the near-copy of it this used to be. Going through it also gives a disabled delete
+ * the `title` it was missing: a registered batch's is faded with no way to ask why, while the
+ * Register button beside it explains itself.
+ */
 export function DeleteCell({
   label,
   editable,
@@ -315,20 +320,6 @@ export function DeleteCell({
   onCommit: () => void;
 }) {
   return (
-    <SavingOverlay pending={pending} spinner="center">
-      <button
-        type="button"
-        aria-label={label}
-        disabled={!editable}
-        onClick={onCommit}
-        className={cn(
-          'rounded-2 p-1.5 text-red-200 outline-none',
-          'hover:bg-red-10 focus-visible:ring-3 focus-visible:ring-ring/50',
-          'disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent',
-        )}
-      >
-        <Trash2 className="size-4" />
-      </button>
-    </SavingOverlay>
+    <IconActionCell icon={Trash2} tone="red" label={label} editable={editable} pending={pending} onCommit={onCommit} />
   );
 }

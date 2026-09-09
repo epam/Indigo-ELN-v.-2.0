@@ -31,8 +31,9 @@ export interface FindSamplesState {
  *
  * Every field but `catalogs` is optional and every combination is legal: unlike
  * `GlobalSearchRequest` there is no `isEmpty` assertion server-side, so a request carrying
- * nothing but a catalog is a browse rather than a 400. That is why Add Material's Search
- * button is never disabled.
+ * nothing but a catalog is a browse rather than a 400. Add Material refuses to send one all the
+ * same — see `isEmpty` in `add-material-form.ts` for why that gate is ours rather than the
+ * server's.
  *
  * The filters are `@JsonInclude(NON_NULL)` on the far side, so an absent one and an explicit
  * `null` mean the same thing; the form omits what it is not filtering on.
