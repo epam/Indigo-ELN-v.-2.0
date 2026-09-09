@@ -47,9 +47,9 @@ function isExternal(event: FocusEvent<HTMLElement>): boolean {
  *
  * The unit picker is a **native `<select>`** rather than a popup: its list is drawn by the OS
  * instead of being mounted in the document, so focus never leaves the cell and the blur handler
- * can trust what it is told. The cost is that a native list cannot be opened from script — so
- * where this used to force the picker open when a number was typed without a unit, Tab now simply
- * lands on it, which asks the same question earlier and without any code.
+ * can trust what it is told. Tab out of the number lands on it, and where the unit is the open
+ * question the input's `onKeyDown` opens the list too — see there for the one API that can do
+ * that, and what it cannot do.
  *
  * Commit rules, from indigo-frontend's `editable-data-table.component.ts`: value and unit go
  * together or not at all, clearing a set value sends `null` for both, and nothing is sent when
@@ -93,6 +93,9 @@ export function NumericCell({
    * component used to carry were.
    */
   const reverting = useRef(false);
+
+  /** Null on a unitless quantity, which renders no picker — so it is also that check. */
+  const unitPicker = useRef<HTMLSelectElement>(null);
 
   function reseed() {
     setDraft(value?.value ?? '');
@@ -183,6 +186,34 @@ export function NumericCell({
                 reverting.current = true;
                 reseed();
                 event.currentTarget.blur();
+              } else if (event.key === 'Tab' && !event.shiftKey && unitPicker.current) {
+                /*
+                  Opens the unit list, but **only where the unit is the open question**: the cell
+                  was empty, a number has just been typed, and nothing has said what it is. This
+                  is what indigo-frontend did, and the reason for the narrowness is what the
+                  browser will not let us undo — once the OS list is open it owns the keyboard, so
+                  the page sees no keydown, and the Tab that closes it is spent doing only that.
+                  Opening it on the way through a row that is already filled in would therefore
+                  cost a second Tab per cell to answer a question nobody asked.
+
+                  `showPicker` is the only way to open a native list from script, and it needs
+                  transient user activation — which this keydown is. Chrome 121+ and Firefox 122+;
+                  Safari has it behind a preference, and there the branch is a no-op and Tab does
+                  what it always did.
+                */
+                const asking = value?.value == null && draft.trim() !== '' && draftUnit == null;
+                if (asking && 'showPicker' in unitPicker.current) {
+                  // Take the focus move ourselves, so the list opens on an already-focused
+                  // picker. The blur still runs `commit`, which sends nothing while the unit is
+                  // missing — exactly as a plain Tab out of here would.
+                  event.preventDefault();
+                  unitPicker.current.focus();
+                  try {
+                    unitPicker.current.showPicker();
+                  } catch {
+                    // Refused for want of activation. Focus is on the picker either way.
+                  }
+                }
               }
             }}
             className={cn(
@@ -199,6 +230,7 @@ export function NumericCell({
               aria-label={`${label} unit`}
               disabled={!editable}
               value={draftUnit ?? ''}
+              ref={unitPicker}
               onChange={(event) => {
                 const next = event.target.value || null;
                 setDraftUnit(next);
