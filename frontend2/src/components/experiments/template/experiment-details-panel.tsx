@@ -4,11 +4,17 @@ import { useRef, useState } from 'react';
 import { DictionaryCombobox } from '@/components/common/dictionary-combobox';
 import { SavingOverlay } from '@/components/common/saving-overlay';
 import { ExperimentRefsCombobox } from '@/components/experiments/template/experiment-refs-combobox';
-import { dictionaryEdit, experimentRefsEdit, titleEdit } from '@/components/experiments/template/experiment-details';
+import {
+  dictionaryEdit,
+  experimentRefsEdit,
+  refKey,
+  titleEdit,
+} from '@/components/experiments/template/experiment-details';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { useEditExperiment } from '@/lib/api/experiments';
+import { useDraft } from '@/lib/hooks/use-draft';
 import { richTextEdit } from '@/lib/rich-text';
 import { canEditExperiment } from '@/lib/types/experiments.ts';
 import { formatDate } from '@/lib/utils';
@@ -51,7 +57,13 @@ function stamp(iso: DateString, user: UserRef): string {
  *
  * Each field also keeps a local draft seeded from `experiment`: the control has to show the new
  * value while the PATCH is in flight, and a save that fails should leave the user's input alone
- * rather than snapping back to the server's.
+ * rather than snapping back to the server's. It is `useDraft`, so the seed is taken again whenever
+ * the server's copy actually moves — otherwise a field only ever showed what the experiment held
+ * when the panel mounted, and an edit made in another session would never reach it. A failed save
+ * moves nothing, so that still leaves the user's input where it is.
+ *
+ * The two rich-text fields are the exception and snapshot a baseline on focus instead; see
+ * `LiteratureField`.
  */
 export function ExperimentDetailsPanel({ experiment }: { experiment: ExperimentDetails }) {
   const canEdit = canEditExperiment(experiment);
@@ -127,7 +139,7 @@ export function ExperimentDetailsPanel({ experiment }: { experiment: ExperimentD
 
 function TitleField({ experiment, canEdit }: { experiment: ExperimentDetails; canEdit: boolean }) {
   const edit = useEditExperiment(experiment.id);
-  const [draft, setDraft] = useState(experiment.title ?? '');
+  const [draft, setDraft] = useDraft(experiment.title ?? '');
 
   function handleBlur() {
     const title = titleEdit(draft, experiment.title);
@@ -168,7 +180,9 @@ function DictionaryField({
   toRequest: (value: DictionaryItemRef | null) => Parameters<ReturnType<typeof useEditExperiment>['mutate']>[0];
 }) {
   const edit = useEditExperiment(experiment.id);
-  const [value, setValue] = useState<DictionaryItemRef | null>(saved ?? null);
+  // By `id`: the picker's items come from a separate request, so the ref naming the current value
+  // is never the object the experiment payload carried and `Object.is` would reseed every render.
+  const [value, setValue] = useDraft<DictionaryItemRef | null>(saved ?? null, (item) => item?.id ?? null);
 
   function handleChange(next: DictionaryItemRef | null) {
     setValue(next);
@@ -208,7 +222,9 @@ function RefsField({
   toRequest: (value: ExperimentRef[]) => Parameters<ReturnType<typeof useEditExperiment>['mutate']>[0];
 }) {
   const edit = useEditExperiment(experiment.id);
-  const [value, setValue] = useState<ExperimentRef[]>(saved);
+  // By its sorted ids, for the reason `DictionaryField` gives — and because the backend field is a
+  // `Set`, so a reorder is not a different list.
+  const [value, setValue] = useDraft(saved, refKey);
 
   function handleChange(next: ExperimentRef[]) {
     setValue(next);

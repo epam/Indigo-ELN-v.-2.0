@@ -7,6 +7,7 @@ import { MultiCombobox } from '@/components/ui/combobox';
 import { Select } from '@/components/ui/select';
 import { CONTENT_BOX, EDITABLE_CELL_CLASS } from '@/components/experiments/stoichiometry/columns';
 import { useDictionary } from '@/lib/api/dictionaries';
+import { useDraft } from '@/lib/hooks/use-draft';
 import { cn } from '@/lib/utils';
 
 import type { BuiltInDictionary, DictionaryItemRef } from '@/lib/types/dictionaries.ts';
@@ -89,6 +90,12 @@ export function FormulaCell({ value }: { value: string | undefined }) {
  * `@NotEmpty` and has to be unique — it returns the message to show, and the cell then keeps the
  * draft and issues no request at all, rather than spending a round trip to be told the same
  * thing. It is the *committed* value that is checked, so a rule never fires mid-typing.
+ *
+ * **The reseed is `useDraft`'s, not a `key` at the call site.** Every caller used to have to pass
+ * `key={value}` to remount the cell when the server's copy moved, and two of the six — the
+ * dictionary table's Name and Description — did not. `invalid` is dropped alongside the draft it
+ * described, which is the other half of what that remount was doing: a message about a value that
+ * has just been replaced is a red border on something valid.
  */
 export function TextCell({
   value,
@@ -105,8 +112,11 @@ export function TextCell({
   validate?: (next: string | null) => string | undefined;
   onCommit: (next: string | null) => void;
 }) {
-  const [draft, setDraft] = useState(value ?? '');
+  const [draft, setDraft, reseeded] = useDraft(value ?? '');
   const [invalid, setInvalid] = useState<string | undefined>(undefined);
+
+  // The message belongs to the draft that failed; that draft is gone.
+  if (reseeded && invalid !== undefined) setInvalid(undefined);
 
   if (!editable) return <ReadonlyCell value={value} />;
 

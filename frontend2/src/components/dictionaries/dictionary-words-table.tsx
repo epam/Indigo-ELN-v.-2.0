@@ -240,9 +240,8 @@ function WordRow({
     <tr>
       <td className={CELL_CLASS}>
         <TextCell
-          // Remounted on a renumber: one `PATCH {ordinal}` reorders the whole list, so every other
-          // row's rank changes underneath a cell that holds its draft in state.
-          key={item.ordinal}
+          // One `PATCH {ordinal}` reorders the whole list, so every other row's rank moves
+          // underneath a cell holding its own draft. `TextCell` reseeds itself on that.
           value={String(item.ordinal)}
           editable
           pending={pending}

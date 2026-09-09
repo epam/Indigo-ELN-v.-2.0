@@ -187,8 +187,6 @@ function ProductCell({
     case 'text':
       return (
         <TextCell
-          // Keyed on the saved value so a patch that rewrites it reseeds the local draft.
-          key={column.value(row) ?? ''}
           value={column.value(row)}
           editable={canEdit}
           pending={pending}

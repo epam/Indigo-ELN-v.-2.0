@@ -38,8 +38,14 @@ export function dictionaryEdit(
   return { value: next };
 }
 
-/** Ids in a stable order, so two lists holding the same refs compare equal however they are ordered. */
-function refKey(refs: ExperimentRef[]): string {
+/**
+ * Ids in a stable order, so two lists holding the same refs compare equal however they are ordered.
+ *
+ * Exported for `RefsField`'s `useDraft`, which needs the same notion of "is this the same list" the
+ * change test below uses — the refs arrive as fresh objects on every response, so identity is the
+ * only thing that can decide it.
+ */
+export function refKey(refs: ExperimentRef[]): string {
   return refs
     .map((ref) => ref.id)
     .sort()

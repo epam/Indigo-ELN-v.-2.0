@@ -466,9 +466,6 @@ function CompoundCell({
     case 'text':
       return (
         <TextCell
-          // Keyed on the saved value so a patch that rewrites it reseeds the local draft;
-          // without this the cell would keep showing a stale draft after a server change.
-          key={column.value(input) ?? ''}
           value={column.value(input)}
           editable={canEdit}
           pending={pending}
@@ -576,7 +573,6 @@ function SampleCell({
     case 'text':
       return (
         <TextCell
-          key={column.value(sample) ?? ''}
           value={column.value(sample)}
           editable={canEdit}
           pending={pending}
