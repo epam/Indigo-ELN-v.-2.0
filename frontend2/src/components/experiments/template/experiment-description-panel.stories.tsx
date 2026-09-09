@@ -51,6 +51,16 @@ export const ReadOnly: Story = {
   },
 };
 
+/** The other half of the gate: EDIT_EXPERIMENTS holds, but a completed experiment is not writable. */
+export const Completed: Story = {
+  args: { experiment: makeExperimentDetails({ status: 'COMPLETED' }) },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.queryByRole('textbox')).not.toBeInTheDocument();
+    await expect(canvas.getByText(/Acetylation of salicylic acid/)).toBeInTheDocument();
+  },
+};
+
 /**
  * The saved value comes back through the query cache, so a story with a fixed prop could never
  * show a save landing. This one reads the experiment back out of the cache, which also makes it

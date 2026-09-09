@@ -42,6 +42,17 @@ export const ReadOnly: Story = {
   },
 };
 
+/** The other half of the gate: EDIT_EXPERIMENTS holds, but a completed experiment is not writable. */
+export const Completed: Story = {
+  args: { experiment: makeExperimentDetails({ status: 'COMPLETED' }) },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText('protocol.docx')).toBeInTheDocument();
+    await expect(canvas.queryByRole('button', { name: 'Attach File' })).not.toBeInTheDocument();
+    await expect(canvas.queryByRole('button', { name: /^Delete/ })).not.toBeInTheDocument();
+  },
+};
+
 /**
  * Deleting drops the row — but only through the query cache, which the panel reads via its
  * `experiment` prop. A story passing a fixed fixture could never show that, so this one reads

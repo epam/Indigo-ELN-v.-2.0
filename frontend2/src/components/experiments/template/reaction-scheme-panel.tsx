@@ -4,6 +4,7 @@ import { SchemeEditor } from '@/components/chemistry/scheme-editor';
 import { SavingOverlay } from '@/components/common/saving-overlay';
 import { AnalyzeRxnDialog } from '@/components/experiments/analyze-rxn/analyze-rxn-dialog';
 import { useMutateExperimentModel } from '@/lib/api/experiments';
+import { canEditExperiment } from '@/lib/types/experiments.ts';
 
 import type { UUID } from '@/lib/types/common.ts';
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
@@ -41,7 +42,7 @@ export function ReactionSchemePanel({
   step: number;
 }) {
   const mutate = useMutateExperimentModel(experiment);
-  const canEdit = experiment.currentPermissions.includes('EDIT_EXPERIMENTS');
+  const canEdit = canEditExperiment(experiment);
 
   /**
    * Read here rather than in `applyMutationResponse` so the api module stays free of UI. By the

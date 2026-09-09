@@ -1,5 +1,6 @@
 import { AttachmentList } from '@/components/common/attachment-list';
 import { useExperimentAttachments } from '@/lib/api/experiments';
+import { canEditExperiment } from '@/lib/types/experiments.ts';
 
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
 
@@ -16,7 +17,7 @@ export function AttachmentsPanel({ experiment }: { experiment: ExperimentDetails
   return (
     <AttachmentList
       attachments={experiment.attachments}
-      canEdit={experiment.currentPermissions.includes('EDIT_EXPERIMENTS')}
+      canEdit={canEditExperiment(experiment)}
       heading={null}
       actions={actions}
     />

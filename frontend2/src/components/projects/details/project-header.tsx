@@ -25,11 +25,16 @@ const TAB_INACTIVE_CLASS = 'border-transparent text-neutral-800';
  */
 export function ProjectHeader({ projectId, project }: { projectId: string; project: ProjectDetails | undefined }) {
   /*
-    The global permission, not a per-project one: `ProjectDetails.currentPermissions` is scoped by
-    the backend to VIEW/EDIT/MANAGE_PROJECT_ACCESS/DELETE_PROJECTS and never carries this. As on
-    the Add Project button, `undefined` while `currentUser` resolves counts as "not yet", so the
-    button never flickers from enabled to disabled.
+    TODO: gate on the project's own permission once the backend ships it. The right question is
+    per-project — `NotebookHandlers` does `ensureAccess(notebook.getProject(), CREATE_NOTEBOOKS)` —
+    but `ProjectService.getProjectDetails` retains `currentPermissions` down to
+    VIEW/EDIT/MANAGE_PROJECT_ACCESS/DELETE_PROJECTS, so the payload cannot answer it yet. Adding
+    CREATE_NOTEBOOKS to that `retainAll` is all it takes; `ACLService.getCurrentPermissions`
+    already computes it (AccessLevel.EDIT and above grant it). Until that is deployed the global
+    permission is the closest available answer — `undefined` while `currentUser` resolves counts
+    as "not yet", so the button never flickers from enabled to disabled.
   */
+  // const canCreate = project?.currentPermissions.includes('CREATE_NOTEBOOKS') ?? false;
   const canCreate = useHasPermission('CREATE_NOTEBOOKS') === true;
   const [addOpen, setAddOpen] = useState(false);
 

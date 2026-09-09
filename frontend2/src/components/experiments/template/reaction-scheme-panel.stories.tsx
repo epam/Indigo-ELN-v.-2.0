@@ -53,6 +53,15 @@ export const ReadOnly: Story = {
   },
 };
 
+/** The other half of the gate: EDIT_EXPERIMENTS holds, but a completed experiment is not writable. */
+export const Completed: Story = {
+  args: { experiment: makeExperimentDetails({ status: 'COMPLETED' }) },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(await canvas.findByRole('button', { name: 'Edit structure' })).toBeDisabled();
+  },
+};
+
 /**
  * The whole point of the awaitable save: the sketcher stays open and its Save button spins
  * until the mutation lands, instead of closing on a write that has not happened yet.

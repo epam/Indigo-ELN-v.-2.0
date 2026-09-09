@@ -33,12 +33,15 @@ export function NotebookHeader({
   notebook: NotebookDetails | undefined;
 }) {
   /*
-    The global permission, not a per-notebook one. The backend does check `CREATE_EXPERIMENTS`
-    against the notebook's own ACL, but `NotebookService` retains only
-    VIEW/EDIT/MANAGE_NOTEBOOK_ACCESS/DELETE in `currentPermissions`, so the payload never carries
-    it. `=== true` because it is `undefined` while `currentUser` resolves, and the button should
-    not flicker from enabled to disabled.
+    TODO: gate on the notebook's own permission once the backend ships it — same staged swap as in
+    ProjectHeader. `ExperimentHandlers` does `ensureAccess(experiment.getNotebook(),
+    CREATE_EXPERIMENTS)`, but `NotebookService.getNotebookDetails` retains `currentPermissions`
+    down to VIEW/EDIT/MANAGE_NOTEBOOK_ACCESS/DELETE, so the payload cannot answer it yet. Until
+    CREATE_EXPERIMENTS is added to that `retainAll`, the global permission is the closest
+    available answer. `=== true` because it is `undefined` while `currentUser` resolves, and the
+    button should not flicker from enabled to disabled.
   */
+  // const canCreate = notebook?.currentPermissions.includes('CREATE_EXPERIMENTS') ?? false;
   const canCreate = useHasPermission('CREATE_EXPERIMENTS') === true;
   const [addOpen, setAddOpen] = useState(false);
 

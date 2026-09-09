@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { useEditExperiment } from '@/lib/api/experiments';
 import { richTextEdit } from '@/lib/rich-text';
+import { canEditExperiment } from '@/lib/types/experiments.ts';
 import { formatDate } from '@/lib/utils';
 
 import type { DateString, UserRef } from '@/lib/types/common.ts';
@@ -53,7 +54,7 @@ function stamp(iso: DateString, user: UserRef): string {
  * rather than snapping back to the server's.
  */
 export function ExperimentDetailsPanel({ experiment }: { experiment: ExperimentDetails }) {
-  const canEdit = experiment.currentPermissions.includes('EDIT_EXPERIMENTS');
+  const canEdit = canEditExperiment(experiment);
 
   return (
     <div className="grid gap-x-8 gap-y-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,18rem)]">

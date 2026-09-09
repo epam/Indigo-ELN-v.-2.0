@@ -6,6 +6,7 @@ import { SavingOverlay } from '@/components/common/saving-overlay';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { useEditExperiment } from '@/lib/api/experiments';
 import { richTextEdit } from '@/lib/rich-text';
+import { canEditExperiment } from '@/lib/types/experiments.ts';
 
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
 
@@ -42,7 +43,7 @@ export function ExperimentDescriptionPanel({
    */
   const baseline = useRef(draft);
 
-  const canEdit = experiment.currentPermissions.includes('EDIT_EXPERIMENTS');
+  const canEdit = canEditExperiment(experiment);
   if (!canEdit) return <RichText html={experiment.description} />;
 
   /** Whether focus crossed the widget's boundary, rather than moving within it. */
