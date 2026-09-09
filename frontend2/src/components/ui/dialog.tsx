@@ -21,16 +21,25 @@ const backdropVariants = cva(
   },
 );
 
-const popupVariants = cva('fixed z-50 flex flex-col bg-card shadow-card outline-none transition-all duration-150', {
+// The shadow belongs to the variant rather than to the base: the two panels sit on very
+// different grounds. A centred modal is read against a dimmed page and needs no more than the
+// card shadow, while a sheet leaves the page undimmed and its shadow is the only thing marking
+// where the panel ends — see `--shadow-sheet` in `styles.css`.
+const popupVariants = cva('fixed z-50 flex flex-col bg-card outline-none transition-all duration-150', {
   variants: {
     side: {
       center: [
         'top-1/2 left-1/2 max-h-[90vh] w-[560px] max-w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-6',
+        'shadow-card',
         'data-[ending-style]:scale-95 data-[ending-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:opacity-0',
       ],
-      // Sits below the 72px AppHeader, which stays visible and usable behind it.
+      // Full height, over the AppHeader rather than below it. It used to start at the header's
+      // 72px, which left a strip of page above the panel and read as the sheet having slipped
+      // down; the panel is `fixed z-50` and the header is an ordinary flow child, so nothing is
+      // needed beyond the offset to paint over it.
       right: [
-        'top-[72px] right-0 bottom-0 w-[720px] max-w-full rounded-l-6',
+        'inset-y-0 right-0 w-[720px] max-w-full rounded-l-6',
+        'shadow-sheet',
         'data-[ending-style]:translate-x-full data-[starting-style]:translate-x-full',
       ],
     },

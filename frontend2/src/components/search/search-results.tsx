@@ -2,7 +2,7 @@ import { InfiniteLoader, type InfiniteLoaderLayout } from '@/components/common/i
 import { SearchResultRow, SelectResultContext } from '@/components/search/search-result-row';
 import { SearchResultSkeleton } from '@/components/search/search-result-skeleton';
 
-import type { CollectionView, Page } from '@/lib/types/common.ts';
+import type { Page } from '@/lib/types/common.ts';
 import type { GlobalSearchResult } from '@/lib/types/search.ts';
 import type { InfiniteData, UseInfiniteQueryResult } from '@tanstack/react-query';
 
@@ -18,9 +18,6 @@ const LAYOUT: InfiniteLoaderLayout<GlobalSearchResult> = {
   Item: SearchResultRow,
   ItemSkeleton: SearchResultSkeleton,
 };
-
-// Results have one layout; InfiniteLoader is keyed by CollectionView, so both keys point at it.
-const LAYOUTS: Record<CollectionView, InfiniteLoaderLayout<GlobalSearchResult>> = { list: LAYOUT, grid: LAYOUT };
 
 /**
  * The results half of the search sheet: a count, then the hits.
@@ -52,8 +49,7 @@ function SearchResults({
       <SelectResultContext value={onSelect}>
         <InfiniteLoader<GlobalSearchResult>
           entityLabel="results"
-          view="list"
-          layouts={LAYOUTS}
+          layout={LAYOUT}
           query={query}
           firstLoadSkeletons={FIRST_LOAD_SKELETONS}
         />

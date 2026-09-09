@@ -15,8 +15,8 @@
  * Budgets are generous on purpose; they catch a category error, not gradual growth.
  * At the time of writing: 527 KB total, 178 KB for the largest single chunk (react-dom).
  */
-import { readFileSync, statSync } from 'node:fs';
-import { join } from 'node:path';
+import {readFileSync, statSync} from 'node:fs';
+import {join} from 'node:path';
 
 const DIST = 'dist';
 const MAX_CHUNK_BYTES = 1_000_000;
@@ -26,14 +26,16 @@ const html = (() => {
   try {
     return readFileSync(join(DIST, 'index.html'), 'utf8');
   } catch {
-    console.error(`No ${DIST}/index.html — run \`npm run build\` first.`);
+    console.error(`No ${DIST}/index.html — run \`pnpm run build\` first.`);
     process.exit(1);
   }
 })();
 
 // The entry script plus everything the browser is told to preload alongside it: together,
 // the JavaScript a cold page load pays for before it can render.
-const paths = [...html.matchAll(/(?:src|href)="\/(assets\/[^"]+\.js)"/g)].map((match) => match[1]);
+// The leading [^"]* absorbs Vite's `base` (/frontend2/), leaving the captured path relative
+// to dist/ either way.
+const paths = [...html.matchAll(/(?:src|href)="[^"]*\/(assets\/[^"]+\.js)"/g)].map((match) => match[1]);
 
 if (paths.length === 0) {
   console.error(`Found no entry or preloaded scripts in ${DIST}/index.html — has the build layout changed?`);

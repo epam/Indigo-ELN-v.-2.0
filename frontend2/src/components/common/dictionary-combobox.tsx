@@ -6,20 +6,21 @@ import type { BuiltInDictionary, DictionaryItemRef } from '@/lib/types/dictionar
 /**
  * A single-select over one built-in dictionary.
  *
- * The whole dictionary arrives in one request and the combobox filters it locally — these
- * lists are small, server-cached, and the `/suggest` endpoint caps at ten matches, which
- * would quietly hide options from a picker.
+ * The whole dictionary arrives in one request and the combobox filters it locally, suitable for small lists.
  */
 function DictionaryCombobox({
   dictionary,
   value,
   onValueChange,
   id,
+  disabled,
 }: {
   dictionary: BuiltInDictionary;
   value: DictionaryItemRef | null;
   onValueChange: (value: DictionaryItemRef | null) => void;
   id: string;
+  /** Renders the current pick but accepts no interaction — a reader who cannot edit. */
+  disabled?: boolean;
 }) {
   const { data, isPending, isError } = useDictionary(dictionary);
 
@@ -34,6 +35,7 @@ function DictionaryCombobox({
       loading={isPending}
       // apiFetch has already toasted the failure; this says why the list is empty.
       error={isError}
+      disabled={disabled}
     />
   );
 }

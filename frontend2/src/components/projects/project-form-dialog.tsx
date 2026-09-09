@@ -2,35 +2,58 @@ import { useForm } from '@tanstack/react-form';
 import { useNavigate } from '@tanstack/react-router';
 
 import { FormDialog } from '@/components/common/form-dialog';
-import { KeywordCombobox } from '@/components/projects/keyword-combobox';
+import { KeywordCombobox } from '@/components/ui/keyword-combobox';
 import {
   EMPTY_PROJECT_FORM,
-  PROJECT_NAME_MAX_LENGTH,
   projectNameSchema,
+  toProjectEditRequest,
+  toProjectFormValues,
   toProjectRequest,
 } from '@/components/projects/project-form';
+import { PROJECT_NAME_MAX_LENGTH } from '@/lib/types/projects.ts';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
-import { checkProjectNameExists, useCreateProject } from '@/lib/api/projects';
+import { checkProjectNameExists, useCreateProject, useEditProject } from '@/lib/api/projects';
+
+import type { ProjectDetails } from '@/lib/types/projects.ts';
 
 const NAME_CHECK_DEBOUNCE_MS = 300;
 
 /**
- * The Add Project modal. Named for the shape rather than the action so the edit flow can
- * reuse it later; only the create path exists today.
+ * The project modal, in both of its modes: `project` absent creates one, `project` present
+ * edits it. The two share every field and validator; they differ only in the seed values, the
+ * title, which mutation runs, and whether saving navigates.
  */
-function ProjectFormDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+function ProjectFormDialog({
+  open,
+  onOpenChange,
+  project,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  project?: ProjectDetails;
+}) {
   const navigate = useNavigate();
-  const { mutateAsync } = useCreateProject();
+  const createProject = useCreateProject();
+  // Both hooks are called unconditionally — `project` may not be known on the first render,
+  // and a conditional hook would break the order when it arrives.
+  const editProject = useEditProject(project?.id ?? '');
+
+  const initialValues = project ? toProjectFormValues(project) : EMPTY_PROJECT_FORM;
 
   const form = useForm({
-    defaultValues: EMPTY_PROJECT_FORM,
+    defaultValues: initialValues,
     onSubmit: async ({ value }) => {
-      const project = await mutateAsync(toProjectRequest(value));
+      if (project) {
+        await editProject.mutateAsync(toProjectEditRequest(value, initialValues));
+        onOpenChange(false);
+        return;
+      }
+      const created = await createProject.mutateAsync(toProjectRequest(value));
       onOpenChange(false);
       form.reset();
-      await navigate({ to: '/projects/$id', params: { id: project.id } });
+      await navigate({ to: '/projects/$id', params: { id: created.id } });
     },
   });
 
@@ -42,11 +65,12 @@ function ProjectFormDialog({ open, onOpenChange }: { open: boolean; onOpenChange
         <FormDialog
           open={open}
           onOpenChange={(nextOpen) => {
-            // Reopening should be a blank slate, not the abandoned draft.
-            if (!nextOpen) form.reset();
+            // Reopening starts from the seed values again, not the abandoned draft — a blank
+            // slate when creating, the project as stored when editing.
+            if (!nextOpen) form.reset(initialValues);
             onOpenChange(nextOpen);
           }}
-          title="Add Project"
+          title={project ? 'Edit Project' : 'Add Project'}
           submitDisabled={submitDisabled}
           onSubmit={() => form.handleSubmit()}
         >
@@ -60,6 +84,8 @@ function ProjectFormDialog({ open, onOpenChange }: { open: boolean; onOpenChange
               onChangeAsync: async ({ value }) => {
                 const name = value.trim();
                 if (!projectNameSchema.safeParse(value).success) return undefined;
+                // The project's own name is not a duplicate of itself.
+                if (name === project?.name) return undefined;
                 return (await checkProjectNameExists(name)) ? `Project with name '${name}' already exists` : undefined;
               },
             }}

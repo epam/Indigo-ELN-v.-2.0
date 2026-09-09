@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { apiFetch } from '@/lib/api';
 
-export const imageKeys = {
+const imageKeys = {
   image: (path: string) => ['apiImage', path] as const,
 };
 
@@ -13,7 +13,7 @@ export const imageKeys = {
  * image and never revoked it. A binary endpoint such as the PNG avatar would need its own
  * fetcher (`responseType: 'blob'`), since the consumer inlines the text as an SVG data URL.
  */
-export function fetchApiImage(path: string, signal?: AbortSignal): Promise<string> {
+function fetchApiImage(path: string, signal?: AbortSignal): Promise<string> {
   return apiFetch(path, { signal, responseType: 'text' });
 }
 

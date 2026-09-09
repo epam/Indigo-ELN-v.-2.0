@@ -1,7 +1,7 @@
 import type { ExperimentStatus } from '@/lib/types/experiments.ts';
-import { EXPERIMENT_STATUS_DISPLAY } from '@/lib/types/experiments.ts';
+import { EXPERIMENT_STATUS_LABELS } from '@/lib/types/experiments.ts';
 import type { GlobalSearchRequest, NumericSearch, ReactionRole, StructuralSearchType } from '@/lib/types/search.ts';
-import { NUMERIC_SEARCH_OPERATOR_LABELS, REACTION_ROLE_DISPLAY } from '@/lib/types/search.ts';
+import { NUMERIC_SEARCH_OPERATOR_LABELS, REACTION_ROLE_LABELS } from '@/lib/types/search.ts';
 
 import type { UserRef } from '@/lib/types/common.ts';
 import type { DictionaryItemRef } from '@/lib/types/dictionaries.ts';
@@ -35,12 +35,6 @@ export const EMPTY_GLOBAL_SEARCH_FORM: GlobalSearchFormValues = {
   author: [],
   experimentStatus: null,
   reactionRole: null,
-};
-
-export const STRUCTURE_TYPE_LABELS: Record<StructuralSearchType, string> = {
-  EXACT: 'Exact',
-  SUBSTRUCTURE: 'Substructure',
-  SIMILARITY: 'Similarity',
 };
 
 /**
@@ -125,11 +119,11 @@ export function summarizeAdvancedSearch(values: GlobalSearchFormValues): Advance
   addNumeric('Batch Purity, %', values.batchPurity);
   // Several authors read as alternatives, matching how the backend treats the set.
   addIs('Author', values.author.length > 0 ? values.author.map((user) => user.displayName).join(' or ') : null);
-  addIs('Experiment Status', values.experimentStatus ? EXPERIMENT_STATUS_DISPLAY[values.experimentStatus] : null);
+  addIs('Experiment Status', values.experimentStatus ? EXPERIMENT_STATUS_LABELS[values.experimentStatus] : null);
   // Omitted when it does not apply, so the summary never claims a filter that is not sent.
   addIs(
     'Reaction Role',
-    showReactionRole(values) && values.reactionRole ? REACTION_ROLE_DISPLAY[values.reactionRole] : null,
+    showReactionRole(values) && values.reactionRole ? REACTION_ROLE_LABELS[values.reactionRole] : null,
   );
 
   return items;

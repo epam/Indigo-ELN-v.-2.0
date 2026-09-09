@@ -70,9 +70,15 @@ describe('projects search box', () => {
     await userEvent.type(screen.getByLabelText('Search projects'), 'kinase');
     expect(listCalls().length).toBe(before);
 
-    await waitFor(() => expect(listCalls().some(([path]) => String(path).includes('search=kinase'))).toBe(true), {
-      timeout: 2000,
-    });
+    // The exact URL, not just the term: this is the only assertion left on how the projects
+    // query string is assembled, now that fetchProjects is module-private.
+    await waitFor(
+      () =>
+        expect(listCalls().map(([path]) => path)).toContain(
+          '/api/eln/projects?sort=LATEST&pageNo=0&pageSize=10&search=kinase',
+        ),
+      { timeout: 2000 },
+    );
     expect(listCalls().length).toBe(before + 1);
   });
 });

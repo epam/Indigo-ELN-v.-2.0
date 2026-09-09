@@ -31,9 +31,15 @@ function ToastList() {
       toast={toast}
       // Base UI stacks toasts absolutely and drives the offsets through these two
       // variables; without them every toast would sit on top of the last.
+      //
+      // Anchored `top-0`, not `bottom-0` as Base UI's own bottom-right demo has it: the
+      // viewport is a zero-height box at `top-4`, so a toast pinned by its bottom edge grows
+      // *upward* out of the window and gets clipped by it. `--toast-offset-y` accumulates the
+      // heights of the toasts already up, positive, so a top-anchored stack adds it (pushing
+      // older toasts down) where the demo's bottom-anchored one negates it.
       className={cn(
-        'absolute right-0 bottom-0 left-auto w-full rounded-6 border bg-card p-4 shadow-card',
-        'translate-x-[var(--toast-swipe-movement-x)] translate-y-[calc(var(--toast-swipe-movement-y)+var(--toast-offset-y))]',
+        'absolute top-0 right-0 left-auto w-full rounded-6 border bg-card p-4 shadow-card',
+        'translate-x-(--toast-swipe-movement-x) translate-y-[calc(var(--toast-swipe-movement-y)+var(--toast-offset-y))]',
         'transition-all duration-200 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0',
         'data-[ending-style]:translate-x-full data-[starting-style]:translate-x-full',
         toast.type === 'error' ? 'border-red-200 bg-red-10' : 'border-neutral-300',

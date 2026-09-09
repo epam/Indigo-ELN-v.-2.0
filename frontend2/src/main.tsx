@@ -13,7 +13,14 @@ configureAmplify();
 
 // defaultErrorComponent, not the root route's errorComponent: without one, TanStack mounts
 // no boundary at all and a render throw blanks the whole app. See route-error.tsx.
-const router = createRouter({ routeTree, defaultErrorComponent: RouteError });
+//
+// basepath follows Vite's `base`, so the routes stay written as '/projects' while the app is
+// served from /frontend2 (see vite.config.ts).
+const router = createRouter({
+  routeTree,
+  basepath: import.meta.env.BASE_URL,
+  defaultErrorComponent: RouteError,
+});
 
 declare module '@tanstack/react-router' {
   interface Register {

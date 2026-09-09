@@ -5,7 +5,7 @@ import type { InfiniteData, UseInfiniteQueryResult } from '@tanstack/react-query
 
 import { describeError } from '@/lib/toast';
 
-import type { CollectionView, Page } from '@/lib/types/common.ts';
+import type { Page } from '@/lib/types/common.ts';
 
 const NEXT_PAGE_SKELETONS = 3;
 
@@ -19,8 +19,12 @@ export interface InfiniteLoaderLayout<T> {
 interface InfiniteLoaderProps<T extends { id: string }> {
   /** Plural lower-case entity name, e.g. "projects" — fills the loading/error/empty copy. */
   entityLabel: string;
-  view: CollectionView;
-  layouts: Record<CollectionView, InfiniteLoaderLayout<T>>;
+  /**
+   * The one layout to draw. Resolved by the caller — each collection keeps its own `LAYOUTS`
+   * table and indexes it by the view, so a list that has only one layout (signatures) does not
+   * have to claim two, and nothing here knows what a `CollectionView` is.
+   */
+  layout: InfiniteLoaderLayout<T>;
   /** Passed in rather than fetched here, so this never learns which endpoint it renders. */
   query: UseInfiniteQueryResult<InfiniteData<Page<T>>, Error>;
   /** A full page, so a full first page lands without resizing the document. */
@@ -28,18 +32,17 @@ interface InfiniteLoaderProps<T extends { id: string }> {
 }
 
 /**
- * An infinitely scrolling list of entities in either layout. Everything entity-specific
- * arrives through `layouts` and `query`; the scroll sentinel, the skeleton runs and the
- * pending/error/empty branches are the same for projects, notebooks and experiments.
+ * An infinitely scrolling list of entities. Everything entity-specific arrives through `layout`
+ * and `query`; the scroll sentinel, the skeleton runs and the pending/error/empty branches are
+ * the same for projects, notebooks, experiments and signatures.
  */
 export function InfiniteLoader<T extends { id: string }>({
   entityLabel,
-  view,
-  layouts,
+  layout,
   query,
   firstLoadSkeletons,
 }: InfiniteLoaderProps<T>) {
-  const { className, Item, ItemSkeleton } = layouts[view];
+  const { className, Item, ItemSkeleton } = layout;
   const { data, error, isPending, hasNextPage, isFetchingNextPage, fetchNextPage } = query;
 
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -67,34 +70,51 @@ export function InfiniteLoader<T extends { id: string }>({
       </div>
     );
   }
-  if (error) {
-    // Through describeError, not `error.message`: that is ApiError's constructor string
-    // ("Request failed with status 500"), which is a fact about the transport rather than
-    // anything a user can act on. The same call is what worded the toast apiFetch already
-    // raised — this repeats it because a toast is gone in five seconds and the empty list
-    // is not, and because it names which list is empty.
-    const [message] = describeError(error);
+  // Through describeError, not `error.message`: that is ApiError's constructor string
+  // ("Request failed with status 500"), which is a fact about the transport rather than
+  // anything a user can act on. The same call is what worded the toast apiFetch already
+  // raised — this repeats it because a toast is gone in five seconds and a failed list is not.
+  const [failure] = error ? describeError(error) : [];
+
+  /**
+   * **A failure does not discard what has already loaded.** query-core sets `status: 'error'`
+   * on *any* fetch failure while leaving `data` in place, so a failed next page — or a failed
+   * background refetch, which `refetchOnWindowFocus` makes the common case — used to replace a
+   * screenful of rows with one line of error text. `data` is the test, not `error`: with nothing
+   * loaded the message is the whole answer, and with pages on screen it is a banner above them.
+   */
+  if (!data) {
     return (
       <p className="text-[14px]/6 text-destructive">
-        Could not load {entityLabel}: {message}
+        Could not load {entityLabel}: {failure}
       </p>
     );
   }
 
   const items = data.pages.flatMap((page) => page.items);
-  if (items.length === 0) {
-    return <p className="text-[14px]/6 text-neutral-700">No {entityLabel} match these filters.</p>;
-  }
 
   return (
     <>
-      <div aria-busy={isFetchingNextPage} className={className}>
-        {items.map((item) => (
-          <Item key={item.id} item={item} />
-        ))}
-        {isFetchingNextPage &&
-          Array.from({ length: NEXT_PAGE_SKELETONS }, (_, index) => <ItemSkeleton key={`skeleton-${index}`} />)}
-      </div>
+      {/* `role="alert"`, unlike the branch above: this one appears over content the reader is
+          already looking at, so nothing else would announce it. */}
+      {failure && (
+        <p role="alert" className="text-[14px]/6 text-destructive">
+          Could not load more {entityLabel}: {failure}
+        </p>
+      )}
+
+      {items.length === 0 ? (
+        // Only when the list is genuinely empty. A failure that left it empty has said so above.
+        !failure && <p className="text-[14px]/6 text-neutral-700">No {entityLabel} found.</p>
+      ) : (
+        <div aria-busy={isFetchingNextPage} className={className}>
+          {items.map((item) => (
+            <Item key={item.id} item={item} />
+          ))}
+          {isFetchingNextPage &&
+            Array.from({ length: NEXT_PAGE_SKELETONS }, (_, index) => <ItemSkeleton key={`skeleton-${index}`} />)}
+        </div>
+      )}
       <div ref={sentinelRef} aria-hidden className="h-px" />
     </>
   );

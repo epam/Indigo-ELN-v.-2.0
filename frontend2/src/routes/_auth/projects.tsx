@@ -1,9 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { z } from 'zod';
 
 import { ActionBar } from '@/components/common/action-bar';
-import { ProjectCollection } from '@/components/projects/project-collection';
-import { StatsBar } from '@/components/projects/stats-bar';
+import { ProjectCollection } from '@/components/projects/list/project-collection';
+import { StatsBar } from '@/components/projects/list/stats-bar';
+import { z } from '@/lib/zod';
 import { COLLECTION_VIEWS, type CollectionView, SORT_ORDERS, type SortOrder } from '@/lib/types/common.ts';
 
 const searchSchema = z.object({

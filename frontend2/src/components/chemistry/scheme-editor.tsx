@@ -11,7 +11,11 @@ import { cn } from '@/lib/utils';
 interface SchemeEditorProps {
   /** molfile or rxnfile; null or empty renders the empty state. */
   value: string | null;
-  onChange: (next: StructureEditorResult | null) => void;
+  /**
+   * Passed straight to the sketcher's Save. Returning a promise holds the dialog open until
+   * it settles — see `StructureEditorDialog`'s `onSave`.
+   */
+  onChange: (next: StructureEditorResult | null) => void | Promise<void>;
   /** Sizes the frame; the height is the only thing call sites usually change. */
   className?: string;
   disabled?: boolean;
@@ -58,7 +62,7 @@ function SchemeEditor({ value, onChange, className, disabled }: SchemeEditorProp
     <>
       <div
         className={cn(
-          'relative flex h-[120px] items-center justify-center rounded-md border border-dashed border-neutral-300',
+          'relative flex h-30 items-center justify-center rounded-md border border-dashed border-neutral-300',
           className,
         )}
       >
@@ -73,7 +77,6 @@ function SchemeEditor({ value, onChange, className, disabled }: SchemeEditorProp
             >
               <img src={imageUrl} alt="Chemical structure" className="max-h-full max-w-full object-contain" />
             </button>
-            {/* The affordance from the design; the image behind it is clickable too. */}
             <Button
               variant="secondary"
               size="icon-lg"

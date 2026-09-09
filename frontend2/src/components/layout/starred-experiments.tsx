@@ -1,10 +1,10 @@
 import { Link } from '@tanstack/react-router';
 import { File, Star } from 'lucide-react';
 
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useMarkedExperiments } from '@/lib/api/experiments';
-import { EXPERIMENT_STATUS_DISPLAY } from '@/lib/types/experiments.ts';
+import { EXPERIMENT_STATUS_LABELS } from '@/lib/types/experiments.ts';
 
 const SKELETON_ROWS = 3;
 
@@ -22,10 +22,10 @@ export function StarredExperiments() {
           <span className="sr-only">Loading starred experiments…</span>
           {Array.from({ length: SKELETON_ROWS }, (_, index) => (
             // h-[26px] is the badge's own height, which sets the height of a real row.
-            <div key={index} className="flex h-[26px] items-center gap-2">
+            <div key={index} className="flex h-6.5 items-center gap-2">
               <Skeleton className="size-4 shrink-0" />
               <Skeleton className="h-4 flex-1" />
-              <Skeleton className="h-[26px] w-[59px] shrink-0 rounded-md" />
+              <Skeleton className="h-6.5 w-14.75 shrink-0 rounded-md" />
             </div>
           ))}
         </div>
@@ -42,9 +42,9 @@ export function StarredExperiments() {
           <File className="size-4 shrink-0" />
           <span className="flex-1 truncate text-[14px]/5 text-neutral-1000">{experiment.name}</span>
           {/* The badge is fixed-width, so title carries the label the truncation hides. */}
-          <Badge variant={experiment.status} title={EXPERIMENT_STATUS_DISPLAY[experiment.status]}>
-            {EXPERIMENT_STATUS_DISPLAY[experiment.status]}
-          </Badge>
+          <StatusBadge variant={experiment.status} title={EXPERIMENT_STATUS_LABELS[experiment.status]}>
+            {EXPERIMENT_STATUS_LABELS[experiment.status]}
+          </StatusBadge>
         </Link>
       ))}
     </section>

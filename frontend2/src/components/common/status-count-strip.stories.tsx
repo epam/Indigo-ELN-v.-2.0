@@ -11,22 +11,22 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const AllStatuses: Story = { args: { counts: makeTotalCounts() } };
+export const AllStatuses: Story = { args: { counts: makeTotalCounts().experimentsByStatus } };
 
 /** Zero-count statuses are dropped, so the strip shrinks to what has data. */
 export const FewStatuses: Story = {
-  args: { counts: makeTotalCounts({ experimentsByStatus: { OPEN: 12, SIGNED: 4 } }) },
+  args: { counts: { OPEN: 12, SIGNED: 4 } },
 };
 
 export const Loading: Story = { args: { counts: undefined } };
 
 export const NoExperiments: Story = {
-  args: { counts: makeTotalCounts({ experimentsByStatus: {} }) },
+  args: { counts: {} },
 };
 
 /** The strip clips rather than squeezing its cells when the row is too narrow. */
 export const Clipped: Story = {
-  args: { counts: makeTotalCounts() },
+  args: { counts: makeTotalCounts().experimentsByStatus },
   decorators: [
     (Story) => (
       <div className="w-[420px]">

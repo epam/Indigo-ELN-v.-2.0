@@ -1,4 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Outlet } from '@tanstack/react-router';
+
+import { NotebookHeader } from '@/components/notebooks/details/notebook-header';
+import { useNotebook } from '@/lib/api/notebooks';
 
 export const Route = createFileRoute('/_auth/notebooks/$id')({
   component: NotebookPage,
@@ -6,5 +9,13 @@ export const Route = createFileRoute('/_auth/notebooks/$id')({
 
 function NotebookPage() {
   const { id } = Route.useParams();
-  return <h1 className="text-[16px]/6 font-semibold">Notebook {id} — coming soon</h1>;
+  // The tabs below call this too and are served from cache; one query, two readers.
+  const { data: notebook } = useNotebook(id);
+
+  return (
+    <>
+      <NotebookHeader notebookId={id} notebook={notebook} />
+      <Outlet />
+    </>
+  );
 }

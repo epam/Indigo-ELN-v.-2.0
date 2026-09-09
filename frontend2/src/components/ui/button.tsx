@@ -4,8 +4,17 @@ import { Loader2 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
+/*
+ * `cursor-pointer` is in the base string rather than a global `button { … }` rule: nothing gives a
+ * `<button>` a pointer by itself — not the UA stylesheet, and Tailwind's Preflight has no cursor
+ * rule at all — while the `<a>` surfaces beside these get one free. Scoping it here leaves the
+ * components that deliberately want the arrow alone, `MenuItem`'s `cursor-default` above all.
+ *
+ * No `disabled:` counterpart is needed: `disabled:pointer-events-none` below means a disabled
+ * button never resolves a hover cursor in the first place.
+ */
 const buttonVariants = cva(
-  "group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none cursor-pointer focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
@@ -38,6 +47,9 @@ const buttonVariants = cva(
     },
   },
 );
+
+/** The `variant` names, for a component that takes one and passes it through. */
+type ButtonVariant = NonNullable<VariantProps<typeof buttonVariants>['variant']>;
 
 type ButtonProps = ButtonPrimitive.Props &
   VariantProps<typeof buttonVariants> & {
@@ -73,3 +85,4 @@ function Button({ className, variant = 'default', size = 'default', loading, chi
 }
 
 export { Button, buttonVariants };
+export type { ButtonVariant };

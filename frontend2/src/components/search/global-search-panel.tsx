@@ -1,5 +1,5 @@
 import { Search } from 'lucide-react';
-import type { FormEvent } from 'react';
+import type { SubmitEvent } from 'react';
 import { useEffect, useState } from 'react';
 
 import { SchemeEditor } from '@/components/chemistry/scheme-editor';
@@ -8,7 +8,6 @@ import {
   EMPTY_GLOBAL_SEARCH_FORM,
   type GlobalSearchFormValues,
   isEmpty,
-  STRUCTURE_TYPE_LABELS,
   toGlobalSearchRequest,
 } from '@/components/search/global-search-form';
 import { SearchResults } from '@/components/search/search-results';
@@ -18,6 +17,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useGlobalSearch } from '@/lib/api/search';
 
 import type { GlobalSearchRequest, StructuralSearchType } from '@/lib/types/search.ts';
+import { STRUCTURE_TYPE_LABELS } from '@/lib/types/search.ts';
 
 interface GlobalSearchPanelProps {
   open: boolean;
@@ -58,7 +58,7 @@ function GlobalSearchPanel({ open, onOpenChange, query, onQueryChange, onSearch 
     setOwn((previous) => ({ ...previous, ...next }));
   }
 
-  function handleSubmit(event: FormEvent) {
+  function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     setSubmitted(toGlobalSearchRequest(values));
     // Collapsing hands the space back to the results and leaves the summary as the record
@@ -101,7 +101,7 @@ function GlobalSearchPanel({ open, onOpenChange, query, onQueryChange, onSearch 
       <DialogContent title="Global Search" side="right" render={<form onSubmit={handleSubmit} noValidate />}>
         <div className="flex flex-col gap-4 rounded-6 bg-neutral-100 p-4">
           <label className="flex h-12 items-center gap-2 rounded-full border border-blue-10 bg-blue-5 px-4">
-            <Search className="size-5 shrink-0 text-neutral-700" />
+            <Search aria-hidden className="size-5 shrink-0 text-neutral-700" />
             <input
               type="search"
               value={query}

@@ -14,12 +14,15 @@ export interface ACLEntry {
 
 export type UUID = string;
 
+/** An ISO-8601 instant — how Jackson serialises the backend's `Instant` fields. */
+export type DateString = string;
+
 export interface BaseDTO {
   id: UUID;
   createdBy: UserRef;
-  createdAt: string;
+  createdAt: DateString;
   modifiedBy: UserRef;
-  modifiedAt: string;
+  modifiedAt: DateString;
 }
 
 export interface Attachment extends BaseDTO {
@@ -39,5 +42,57 @@ export interface Page<T> {
 export const SORT_ORDERS = ['EARLIEST', 'LATEST'] as const;
 export type SortOrder = (typeof SORT_ORDERS)[number];
 
+export const SORT_LABELS: Record<SortOrder, string> = {
+  EARLIEST: 'Earliest',
+  LATEST: 'Latest',
+};
+
 export const COLLECTION_VIEWS = ['grid', 'list'] as const;
 export type CollectionView = (typeof COLLECTION_VIEWS)[number];
+
+/**
+ * What every paged entity list is filtered by. One type rather than one per entity: the
+ * projects and notebooks resources declare the identical query params, and `ActionBar` — the
+ * single control that sets all three — is entity-agnostic too.
+ */
+export interface CollectionFilters {
+  search: string;
+  sort: SortOrder;
+  createdByMe: boolean;
+}
+
+/**
+ * Access levels as the UI speaks about them, ported from indigo-frontend's
+ * `acl-levels.enum.ts`. `AUTHOR` is the creator's own entry: the backend never lets it change,
+ * so it is shown but never offered.
+ */
+export const ACL_LEVEL_LABELS: Record<AccessLevel, string> = {
+  ADMIN: 'Admin',
+  EDIT: 'Can Edit',
+  VIEW: 'Can View',
+  IMPLICIT_VIEW: 'Limited View',
+  NONE: 'None',
+  AUTHOR: 'Author',
+};
+
+export function isImmutableLevel(level: AccessLevel): boolean {
+  return level === 'AUTHOR';
+}
+
+export const ELIGIBLE_ACL_LEVELS = (Object.keys(ACL_LEVEL_LABELS) as AccessLevel[]).filter(
+  (level) => !isImmutableLevel(level),
+);
+
+/**
+ * Mirrors `DocumentStatus` (common/model) — the **signing workflow's** states, carried by the
+ * `SignatureUpdated` mutation. Five of the nine `ExperimentStatus` values are named the same and
+ * are set from these; the two enums are not interchangeable.
+ */
+export type DocumentStatus = 'SUBMITTED' | 'SIGNING' | 'SIGNED' | 'REJECTED' | 'CANCELLED';
+
+/** One entry of the `POST /access` body. The backend upserts per entry, so send only what changed. */
+export interface AccessForm {
+  username: string;
+  level: AccessLevel;
+  deleteNested?: boolean;
+}

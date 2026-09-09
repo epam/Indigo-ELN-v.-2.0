@@ -1,9 +1,12 @@
+import { http, HttpResponse } from 'msw';
 import { useState } from 'react';
 import { expect, screen, userEvent, waitFor, within } from 'storybook/test';
 
 import { ProjectFormDialog } from '@/components/projects/project-form-dialog';
+import { makeProjectDetails } from '@/mocks/fixtures';
 import {
   createProjectErrorHandlers,
+  handlers,
   keywordErrorHandlers,
   slowKeywordHandlers,
   submittingProjectHandlers,
@@ -11,16 +14,28 @@ import {
 } from '@/mocks/handlers';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { ProjectDetails } from '@/lib/types/projects.ts';
 
-function ProjectFormDialogHarness() {
+function ProjectFormDialogHarness({ project }: { project?: ProjectDetails }) {
   const [open, setOpen] = useState(true);
   return (
     <>
       {!open && <p className="text-[14px]/6">Dialog closed.</p>}
-      <ProjectFormDialog open={open} onOpenChange={setOpen} />
+      <ProjectFormDialog open={open} onOpenChange={setOpen} project={project} />
     </>
   );
 }
+
+/** Records what actually reached the wire, so a story can assert an untouched Save sends {}. */
+const patchBodies: unknown[] = [];
+
+const patchSpyHandlers = [
+  http.patch('/api/eln/projects/:id', async ({ request, params }) => {
+    patchBodies.push(await request.json());
+    return HttpResponse.json(makeProjectDetails({ id: String(params.id) }));
+  }),
+  ...handlers,
+];
 
 const meta = {
   title: 'Projects/ProjectFormDialog',
@@ -162,5 +177,24 @@ export const KeywordsFailToLoad: Story = {
     await expect(screen.queryByText('No matching keywords')).not.toBeInTheDocument();
     // The keyword can still be added by hand.
     await expect(screen.getByText('Press Enter to add “sul”')).toBeInTheDocument();
+  },
+};
+
+/**
+ * **Regression guard**, the mirror of the notebook dialog's. Both rich-text fields are seeded
+ * with values the editor has to normalise, and Save without an edit must send an empty body —
+ * it used to send normalised copies of both, which can clobber someone else's concurrent edit.
+ */
+export const UntouchedSaveSendsNothing: Story = {
+  parameters: { msw: { handlers: patchSpyHandlers } },
+  render: () => (
+    <ProjectFormDialogHarness
+      project={makeProjectDetails({ literature: 'Smith 2025.', description: '<div>Wrapped.</div>' })}
+    />
+  ),
+  play: async () => {
+    patchBodies.length = 0;
+    await userEvent.click(await screen.findByRole('button', { name: 'Save' }));
+    await waitFor(() => expect(patchBodies).toEqual([{}]));
   },
 };

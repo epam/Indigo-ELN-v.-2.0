@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { expect, screen, userEvent, waitFor, within } from 'storybook/test';
 
+import { SavingOverlay } from '@/components/common/saving-overlay';
 import { MultiCombobox } from '@/components/ui/combobox';
 import { KEYWORDS } from '@/mocks/fixtures';
 
@@ -13,6 +14,8 @@ function ComboboxHarness({
   suggestions = KEYWORDS,
   loading = false,
   error = false,
+  disabled = false,
+  saving = false,
 }: {
   initial?: string[];
   allowCustomValues?: boolean;
@@ -20,6 +23,9 @@ function ComboboxHarness({
   suggestions?: string[];
   loading?: boolean;
   error?: boolean;
+  disabled?: boolean;
+  /** Wraps the control the way a blur-saved form field does — see the `Saving` story. */
+  saving?: boolean;
 }) {
   const [value, setValue] = useState<string[]>(initial);
   const [inputValue, setInputValue] = useState('');
@@ -27,24 +33,30 @@ function ComboboxHarness({
     .filter((keyword) => keyword.toLowerCase().startsWith(inputValue.trim().toLowerCase()) && !value.includes(keyword))
     .sort();
 
+  const control = (
+    <MultiCombobox
+      id="keywords"
+      value={value}
+      onValueChange={setValue}
+      items={items}
+      inputValue={inputValue}
+      onInputValueChange={setInputValue}
+      placeholder="Add Keyword"
+      emptyMessage="No matching keywords"
+      allowCustomValues={allowCustomValues}
+      loading={loading}
+      error={error}
+      disabled={disabled}
+    />
+  );
+
   return (
     <div className="w-[420px]">
       <label id="keywords-label" htmlFor="keywords" className="text-[14px]/6">
         Project Keywords
       </label>
-      <MultiCombobox
-        id="keywords"
-        value={value}
-        onValueChange={setValue}
-        items={items}
-        inputValue={inputValue}
-        onInputValueChange={setInputValue}
-        placeholder="Add Keyword"
-        emptyMessage="No matching keywords"
-        allowCustomValues={allowCustomValues}
-        loading={loading}
-        error={error}
-      />
+      {/* Only wrapped when the story asks for it, so every other story keeps the plain markup. */}
+      {saving ? <SavingOverlay pending>{control}</SavingOverlay> : control}
     </div>
   );
 }
@@ -59,6 +71,42 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+
+/**
+ * Mid-save, as the experiment pickers look when a chip is added or removed: `SavingOverlay`
+ * freezes the control and puts a spinner at its right edge, and the chevron stands aside rather
+ * than crowding it — it reads `data-saving` off the group the overlay publishes.
+ *
+ * The chips keep their own remove buttons in place; the overlay makes the whole region inert, so
+ * they are visible but not clickable.
+ */
+export const Saving: Story = {
+  args: { initial: ['kinase', 'inhibitor'], saving: true },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Saving…'));
+
+    // Still in the DOM, so the row keeps its width and the spinner lands where the chevron was.
+    const chevron = canvas.getByLabelText('Show suggestions');
+    await expect(chevron).toBeInTheDocument();
+    await expect(chevron).not.toBeVisible();
+    // The chips themselves stay legible — the point is to show what is being saved.
+    await expect(canvas.getByText('kinase')).toBeVisible();
+  },
+};
+
+/** A reader who cannot edit: the chips still show, nothing accepts input. */
+export const Disabled: Story = {
+  args: { initial: ['kinase', 'inhibitor'], disabled: true },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole('combobox')).toBeDisabled();
+    // Base UI marks a disabled button `aria-disabled` rather than using the native attribute, so
+    // `toBeDisabled()` would not see it. The chip's remove button has to be inert too — a reader
+    // who could drop a chip would fire a PATCH the backend answers 403 to.
+    await expect(canvas.getByRole('button', { name: 'Remove kinase' })).toHaveAttribute('aria-disabled', 'true');
+  },
+};
 
 export const WithSelection: Story = {
   args: { initial: ['kinase', 'screening'] },
@@ -297,10 +345,13 @@ export const Loading: Story = {
     await expect(screen.queryByText('No matching keywords')).not.toBeInTheDocument();
     await expect(screen.queryByText(/Press Enter to add/)).not.toBeInTheDocument();
     await expect(canvas.getByLabelText('Show suggestions')).toHaveAttribute('aria-busy', 'true');
+    // …and says so *only* there and in the popup. A spinner at the field's right edge means the
+    // field is being saved, which `SavingOverlay` puts in that exact spot.
+    await expect(canvas.getByLabelText('Show suggestions').querySelector('.animate-spin')).toBeNull();
   },
 };
 
-/** Loading with nothing typed still opens nothing — the chevron just spins. */
+/** Loading with nothing typed opens the status, not an empty list of matches. */
 export const LoadingBeforeTyping: Story = {
   args: { allowCustomValues: true, suggestions: [], loading: true },
   play: async ({ canvasElement }) => {

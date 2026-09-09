@@ -3,11 +3,12 @@ import { Briefcase, FlaskConical, NotebookText } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { createContext, use } from 'react';
 
-import { ExperimentImage } from '@/components/common/experiment-image';
-import { Badge } from '@/components/ui/badge';
-import { EXPERIMENT_STATUS_DISPLAY } from '@/lib/types/experiments.ts';
+import { ApiImage } from '@/components/common/api-image';
+import { StatusBadge } from '@/components/ui/status-badge';
+import { experimentPicturePath } from '@/lib/api/experiments';
+import { EXPERIMENT_STATUS_LABELS } from '@/lib/types/experiments.ts';
 import type { GlobalSearchResult, SearchEntityType } from '@/lib/types/search.ts';
-import { REACTION_ROLE_DISPLAY } from '@/lib/types/search.ts';
+import { REACTION_ROLE_LABELS, SEARCH_ENTITY_LABELS } from '@/lib/types/search.ts';
 
 /** Every type has a detail page, so every result is a link. */
 const ENTITY_ROUTE: Record<SearchEntityType, '/projects/$id' | '/notebooks/$id' | '/experiments/$id'> = {
@@ -23,12 +24,6 @@ const ENTITY_ROUTE: Record<SearchEntityType, '/projects/$id' | '/notebooks/$id' 
  * list whenever the callback changed.
  */
 const SelectResultContext = createContext<() => void>(() => {});
-
-const ENTITY_LABEL: Record<SearchEntityType, string> = {
-  PROJECT: 'Project',
-  NOTEBOOK: 'Notebook',
-  EXPERIMENT: 'Experiment',
-};
 
 const ENTITY_ICON: Record<SearchEntityType, typeof Briefcase> = {
   PROJECT: Briefcase,
@@ -66,7 +61,7 @@ function Columns({ item }: { item: GlobalSearchResult }) {
       )}
       {item.reactionRoles && item.reactionRoles.length > 0 && (
         <Column label="Role">
-          <span className="truncate">{item.reactionRoles.map((role) => REACTION_ROLE_DISPLAY[role]).join(', ')}</span>
+          <span className="truncate">{item.reactionRoles.map((role) => REACTION_ROLE_LABELS[role]).join(', ')}</span>
         </Column>
       )}
       {item.type === 'PROJECT' && (
@@ -94,20 +89,24 @@ function Body({ item }: { item: GlobalSearchResult }) {
       <header className="flex min-h-7 items-center gap-4">
         <Icon className="size-5 shrink-0 text-neutral-800" />
         <h3 className="flex-1 truncate text-[14px]/5">
-          <span className="text-neutral-800">{ENTITY_LABEL[item.type]} </span>
+          <span className="text-neutral-800">{SEARCH_ENTITY_LABELS[item.type]} </span>
           <span className="font-semibold">{item.name}</span>
         </h3>
         {item.experimentStatus && (
-          // Badge is a fixed w-[59px] and truncates; the longer statuses need the room.
-          <Badge variant={item.experimentStatus} className="w-auto shrink-0">
-            {EXPERIMENT_STATUS_DISPLAY[item.experimentStatus]}
-          </Badge>
+          // StatusBadge is a fixed w-[59px] and truncates; the longer statuses need the room.
+          <StatusBadge variant={item.experimentStatus} className="w-auto shrink-0">
+            {EXPERIMENT_STATUS_LABELS[item.experimentStatus]}
+          </StatusBadge>
         )}
       </header>
 
       <div className="flex items-start gap-4">
         {item.type === 'EXPERIMENT' && (
-          <ExperimentImage experimentId={item.id} revision={item.revision} className="h-[88px] w-[140px]" />
+          <ApiImage
+            path={experimentPicturePath(item.id, item.revision)}
+            alt="Reaction scheme"
+            className="h-[88px] w-[140px]"
+          />
         )}
         <Columns item={item} />
       </div>

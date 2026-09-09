@@ -3,6 +3,7 @@ import { ChevronDown, Loader2, X } from 'lucide-react';
 import type * as React from 'react';
 import { useRef, useState } from 'react';
 
+import { INPUT_ACTION, INPUT_BOX, INPUT_BOX_FOCUS_WITHIN, INPUT_DISABLED } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
 /**
@@ -13,6 +14,17 @@ import { cn } from '@/lib/utils';
 const PAGE_STEP = 10;
 
 /** Identity, for the common case where the items already are their own labels. */
+/**
+ * Text size of the control and of its popup. `md` is the form default; `sm` matches the 13px a
+ * dense table sets, so a combobox in a cell does not read a size larger than the text beside it.
+ */
+export type ComboboxSize = 'sm' | 'md';
+
+const SIZE_TEXT: Record<ComboboxSize, string> = {
+  sm: 'text-[13px]/5',
+  md: 'text-[14px]/6',
+};
+
 function identity(item: unknown): string {
   return String(item);
 }
@@ -26,6 +38,7 @@ interface PopupContentProps<T> {
   emptyContent: string | null;
   error: boolean;
   loading: boolean;
+  size: ComboboxSize;
   listRef?: React.RefObject<HTMLDivElement | null>;
 }
 
@@ -41,12 +54,13 @@ function PopupContent<T>({
   emptyContent,
   error,
   loading,
+  size,
   listRef,
 }: PopupContentProps<T>) {
   return (
     <ComboboxPrimitive.Portal>
       <ComboboxPrimitive.Positioner sideOffset={4} className="z-50">
-        <ComboboxPrimitive.Popup className="max-h-[240px] w-[var(--anchor-width)] overflow-y-auto rounded-md border border-neutral-300 bg-popover p-1 shadow-card outline-none">
+        <ComboboxPrimitive.Popup className="max-h-60 w-(--anchor-width) overflow-y-auto rounded-md border border-neutral-300 bg-popover p-1 shadow-card outline-none">
           {/*
             Status is Base UI's live region for the state of an asynchronously loaded
             list. Same rule as Empty below: keep it mounted, vary its children.
@@ -55,7 +69,8 @@ function PopupContent<T>({
             {statusContent && (
               <div
                 className={cn(
-                  'flex items-center gap-2 px-3 py-2 text-[14px]/6',
+                  'flex items-center gap-2 px-3 py-2',
+                  SIZE_TEXT[size],
                   error ? 'text-red-200' : 'text-neutral-700',
                 )}
               >
@@ -71,14 +86,17 @@ function PopupContent<T>({
             on the element itself it would leave a blank strip above a populated list.
           */}
           <ComboboxPrimitive.Empty>
-            {emptyContent && <div className="px-3 py-2 text-[14px]/6 text-neutral-700">{emptyContent}</div>}
+            {emptyContent && <div className={cn('px-3 py-2 text-neutral-700', SIZE_TEXT[size])}>{emptyContent}</div>}
           </ComboboxPrimitive.Empty>
           <ComboboxPrimitive.List ref={listRef}>
             {items.map((item) => (
               <ComboboxPrimitive.Item
                 key={itemToKey(item)}
                 value={item}
-                className="cursor-default rounded-2 px-3 py-2 text-[14px]/6 outline-none data-[highlighted]:bg-blue-10"
+                className={cn(
+                  'cursor-default rounded-2 px-3 py-2 outline-none data-highlighted:bg-blue-10',
+                  SIZE_TEXT[size],
+                )}
               >
                 {itemToLabel(item)}
               </ComboboxPrimitive.Item>
@@ -102,12 +120,22 @@ interface ComboboxProps<T> {
   itemToLabel?: (item: T) => string;
   placeholder?: string;
   id?: string;
+  /**
+   * Names the control where no visible `<label>` does — a combobox sitting in a table cell,
+   * whose column header is not associated with it. `MultiCombobox` has always taken one;
+   * prefer `id` plus a `Field` wherever there is a label to point at.
+   */
+  'aria-label'?: string;
   /** Shown in the popup when nothing matches what was typed. */
   emptyMessage?: string;
   /** Whether the item list is still on its way. */
   loading?: boolean;
   /** Whether fetching the item list failed, so the popup is empty for a reason worth saying. */
   error?: boolean;
+  /** Renders the current selection but accepts no interaction — a reader who cannot edit. */
+  disabled?: boolean;
+  /** Text size of the control and its popup. `sm` matches a dense table's 13px. */
+  size?: ComboboxSize;
 }
 
 /**
@@ -125,9 +153,12 @@ function Combobox<T>({
   itemToLabel = identity,
   placeholder,
   id,
+  'aria-label': ariaLabel,
   emptyMessage = 'No matches',
   loading = false,
   error = false,
+  disabled = false,
+  size = 'md',
 }: ComboboxProps<T>) {
   const statusContent = loading ? 'Searching…' : error ? 'Could not load options' : null;
   // "No matches" is a claim about a finished search, so it survives neither a list still
@@ -136,6 +167,7 @@ function Combobox<T>({
 
   return (
     <ComboboxPrimitive.Root<T, false>
+      disabled={disabled}
       items={items}
       value={value}
       onValueChange={onValueChange}
@@ -146,29 +178,39 @@ function Combobox<T>({
     >
       <div
         className={cn(
-          'flex h-10 w-full items-center gap-1 rounded-md border border-neutral-300 bg-background pr-1 pl-3',
-          'focus-within:border-blue-400 focus-within:ring-3 focus-within:ring-ring/20',
+          INPUT_BOX,
+          INPUT_BOX_FOCUS_WITHIN,
+          'flex h-10 items-center gap-1 pr-1 pl-3',
+          // Matches Input's disabled treatment, so a form of mixed controls reads as one thing.
+          disabled && INPUT_DISABLED,
         )}
       >
         <ComboboxPrimitive.Input
           id={id}
+          aria-label={ariaLabel}
           placeholder={placeholder}
-          className="min-w-0 flex-1 bg-transparent text-[14px]/6 text-neutral-1000 outline-none placeholder:text-neutral-700"
+          className={cn(
+            'min-w-0 flex-1 bg-transparent text-neutral-1000 outline-none placeholder:text-neutral-700',
+            SIZE_TEXT[size],
+          )}
         />
         {/* Base UI mounts this only while there is something to clear. */}
-        <ComboboxPrimitive.Clear
-          aria-label="Clear selection"
-          className="cursor-pointer rounded-2 p-1 text-neutral-700 outline-none hover:text-neutral-1000 focus-visible:ring-3 focus-visible:ring-ring/50"
-        >
+        <ComboboxPrimitive.Clear aria-label="Clear selection" className={INPUT_ACTION}>
           <X className="size-4" />
         </ComboboxPrimitive.Clear>
-        <ComboboxPrimitive.Trigger
-          aria-label="Show options"
-          aria-busy={loading || undefined}
-          className="cursor-pointer rounded-2 p-1 text-neutral-700 outline-none hover:text-neutral-1000 focus-visible:ring-3 focus-visible:ring-ring/50"
-        >
-          {/* Swapped in place of the chevron so the row keeps its width while loading. */}
-          {loading ? <Loader2 className="size-5 animate-spin" /> : <ChevronDown className="size-5" />}
+        {/*
+          The chevron stays put while suggestions load. A spinner at the right edge of a field
+          means **this field is being saved** — that is what `SavingOverlay` puts there — so
+          borrowing the same spot for a lookup would say the wrong thing, and on a form that saves
+          on blur the two would overlap outright. The wait is reported where it belongs: `Searching…`
+          inside the popup, plus `aria-busy` here for anyone not looking at it.
+
+          When a save *is* in flight the chevron gets out of the way instead: `SavingOverlay`
+          publishes `data-saving` on the group around this. `invisible` rather than `hidden`, so
+          the row keeps its width and the spinner lands exactly where the chevron was.
+        */}
+        <ComboboxPrimitive.Trigger aria-label="Show options" aria-busy={loading || undefined} className={INPUT_ACTION}>
+          <ChevronDown className="size-5" />
         </ComboboxPrimitive.Trigger>
       </div>
 
@@ -180,6 +222,7 @@ function Combobox<T>({
         emptyContent={emptyContent}
         error={error}
         loading={loading}
+        size={size}
       />
     </ComboboxPrimitive.Root>
   );
@@ -199,6 +242,8 @@ interface MultiComboboxProps<T> {
   onInputValueChange: (inputValue: string) => void;
   placeholder?: string;
   id?: string;
+  /** For call sites with no visible label — most pair this with `Field` instead. */
+  'aria-label'?: string;
   /** Shown in the popup when there is nothing to offer. */
   emptyMessage?: string;
   /**
@@ -214,6 +259,10 @@ interface MultiComboboxProps<T> {
   loading?: boolean;
   /** Whether fetching suggestions failed, so the list is empty for a reason worth saying. */
   error?: boolean;
+  /** Renders the chips but accepts no interaction — a reader who cannot edit. */
+  disabled?: boolean;
+  /** Text size of the control, its chips and its popup. `sm` matches a dense table's 13px. */
+  size?: ComboboxSize;
 }
 
 /**
@@ -236,10 +285,13 @@ function MultiCombobox<T = string>({
   onInputValueChange,
   placeholder,
   id,
+  'aria-label': ariaLabel,
   emptyMessage = 'No matches',
   allowCustomValues = false,
   loading = false,
   error = false,
+  disabled = false,
+  size = 'md',
 }: MultiComboboxProps<T>) {
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
@@ -328,7 +380,8 @@ function MultiCombobox<T = string>({
   return (
     <ComboboxPrimitive.Root<T, true>
       multiple
-      open={open && hasContent}
+      disabled={disabled}
+      open={open && hasContent && !disabled}
       onOpenChange={setOpen}
       items={items}
       // The caller filters server-side; filtering again locally would hide fresh results.
@@ -347,19 +400,33 @@ function MultiCombobox<T = string>({
     >
       <ComboboxPrimitive.Chips
         className={cn(
-          'flex min-h-10 w-full flex-wrap items-center gap-2 rounded-md border border-neutral-300 bg-background px-2 py-1.5',
-          'focus-within:border-blue-400 focus-within:ring-3 focus-within:ring-ring/20',
+          INPUT_BOX,
+          INPUT_BOX_FOCUS_WITHIN,
+          // `min-h-10`, not the shell's usual `h-10`: the chips wrap, so the field grows.
+          'flex min-h-10 flex-wrap items-center gap-2 px-2 py-1.5',
+          disabled && INPUT_DISABLED,
         )}
       >
         {value.map((item) => (
           <ComboboxPrimitive.Chip
             key={itemToKey(item)}
-            className="flex items-center gap-1 rounded-md bg-blue-10 py-0.5 pr-1 pl-2 text-[12px]/5 text-neutral-1000 outline-none data-[highlighted]:ring-3 data-[highlighted]:ring-ring/50"
+            className="flex items-center gap-1 rounded-md bg-blue-10 py-0.5 pr-1 pl-2 text-[12px]/5 text-neutral-1000 outline-none data-highlighted:ring-3 data-highlighted:ring-ring/50"
           >
             {itemToLabel(item)}
+            {/*
+              Base UI already blocks this when the root is disabled (`ComboboxChipRemove` reads
+              `comboboxDisabled || disabledProp`), and marks it `aria-disabled` + `data-disabled`
+              rather than using the native attribute. Passing `disabled` explicitly says so at
+              this level too; the styling is the part that was actually missing, since the button
+              otherwise kept its pointer cursor and hover background and looked live.
+            */}
             <ComboboxPrimitive.ChipRemove
               aria-label={`Remove ${itemToLabel(item)}`}
-              className="cursor-pointer rounded-full p-0.5 text-neutral-700 hover:bg-blue-100 hover:text-neutral-1000"
+              disabled={disabled}
+              className={cn(
+                'rounded-full p-0.5 text-neutral-700',
+                disabled ? 'pointer-events-none' : 'cursor-pointer hover:bg-blue-100 hover:text-neutral-1000',
+              )}
             >
               <X className="size-3.5" />
             </ComboboxPrimitive.ChipRemove>
@@ -368,17 +435,25 @@ function MultiCombobox<T = string>({
         <ComboboxPrimitive.Input
           id={id}
           ref={inputRef}
+          aria-label={ariaLabel}
           placeholder={value.length === 0 ? placeholder : undefined}
           onKeyDown={handleKeyDown}
-          className="min-w-24 flex-1 bg-transparent text-[14px]/6 text-neutral-1000 outline-none placeholder:text-neutral-700"
+          className={cn(
+            'min-w-24 flex-1 bg-transparent text-neutral-1000 outline-none placeholder:text-neutral-700',
+            SIZE_TEXT[size],
+          )}
         />
+        {/*
+          The chevron stays put while suggestions load, and stands aside while the field is being
+          saved — see `Combobox` above for both.
+        */}
         <ComboboxPrimitive.Trigger
           aria-label="Show suggestions"
           aria-busy={loading || undefined}
-          className="cursor-pointer rounded-2 p-0.5 text-neutral-700 outline-none hover:text-neutral-1000 focus-visible:ring-3 focus-visible:ring-ring/50"
+          // The tighter inset is deliberate: `p-1` next to the chips crowds them.
+          className={cn(INPUT_ACTION, 'p-0.5')}
         >
-          {/* Swapped in place of the chevron so the row keeps its width while loading. */}
-          {loading ? <Loader2 className="size-5 animate-spin" /> : <ChevronDown className="size-5" />}
+          <ChevronDown className="size-5" />
         </ComboboxPrimitive.Trigger>
       </ComboboxPrimitive.Chips>
 
@@ -390,6 +465,7 @@ function MultiCombobox<T = string>({
         emptyContent={emptyContent}
         error={error}
         loading={loading}
+        size={size}
         listRef={listRef}
       />
     </ComboboxPrimitive.Root>

@@ -1,8 +1,9 @@
-import type { FormEvent, KeyboardEvent, ReactNode } from 'react';
+import type { KeyboardEvent, ReactNode, SubmitEvent } from 'react';
 import { useState } from 'react';
 
+import { SavingOverlay } from '@/components/common/saving-overlay';
 import { Dialog, DialogClose, DialogContent } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import { Button, type ButtonVariant } from '@/components/ui/button';
 
 interface FormDialogProps {
   open: boolean;
@@ -10,7 +11,19 @@ interface FormDialogProps {
   title: string;
   submitLabel?: string;
   cancelLabel?: string;
+  /**
+   * The submit button's look. `destructive` is what a confirmation of something irreversible
+   * wants — Cancel Experiment, say — where the default blue would read as the safe choice.
+   */
+  submitVariant?: ButtonVariant;
   submitDisabled?: boolean;
+  /**
+   * The mirror of the submitting phase, for a dialog that has to load something before its form
+   * is usable — Add Notebook waits on `/notebooks/next-number` for the name it seeds. The body
+   * goes inert under a spinner and Save is disabled, but Cancel, Escape and the backdrop stay
+   * live: nothing has been typed yet, so there is nothing to protect.
+   */
+  initializing?: boolean;
   /**
    * Resolves once the work is done — the dialog is then the caller's to close (so it can
    * navigate first). A rejection leaves the dialog open with its fields intact; the error
@@ -30,14 +43,16 @@ function FormDialog({
   title,
   submitLabel = 'Save',
   cancelLabel = 'Cancel',
+  submitVariant,
   submitDisabled,
+  initializing,
   onSubmit,
   children,
 }: FormDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function submit() {
-    if (isSubmitting || submitDisabled) return;
+    if (isSubmitting || submitDisabled || initializing) return;
     setIsSubmitting(true);
     try {
       await onSubmit();
@@ -48,7 +63,7 @@ function FormDialog({
     }
   }
 
-  function handleSubmit(event: FormEvent) {
+  function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     void submit();
   }
@@ -88,13 +103,32 @@ function FormDialog({
                 </Button>
               }
             />
-            <Button type="submit" size="lg" loading={isSubmitting} disabled={submitDisabled}>
+            <Button
+              type="submit"
+              variant={submitVariant}
+              size="lg"
+              loading={isSubmitting}
+              disabled={submitDisabled || initializing}
+            >
               {submitLabel}
             </Button>
           </>
         }
       >
-        {children}
+        {/*
+          `w-full` overrides the `w-fit` that `spinner="center"` hugs its content with — twMerge
+          takes the last word. The inner `gap-4` is the one `DialogContent`'s scroll area would
+          apply itself if the fields were still its direct children.
+        */}
+        <SavingOverlay
+          pending={initializing ?? false}
+          spinner="center"
+          showDelayMs={0}
+          label="Loading…"
+          className="w-full"
+        >
+          <div className="flex flex-col gap-4">{children}</div>
+        </SavingOverlay>
       </DialogContent>
     </Dialog>
   );

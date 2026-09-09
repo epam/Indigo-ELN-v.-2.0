@@ -3,8 +3,11 @@ import { hashKey, QueryClient } from '@tanstack/react-query';
 import type { PersistQueryClientOptions } from '@tanstack/react-query-persist-client';
 
 import { ApiError } from '@/lib/api';
+import { dictionaryKeys } from '@/lib/api/dictionaries';
 import { experimentKeys } from '@/lib/api/experiments';
+import { templateKeys } from '@/lib/api/templates';
 import { userKeys } from '@/lib/api/user';
+import { BUILT_IN_DICTIONARIES } from '@/lib/types/dictionaries.ts';
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -16,15 +19,52 @@ export const queryClient = new QueryClient({
         return failureCount < 2;
       },
     },
+    hydrate: {
+      queries: {
+        // A restored entry nobody observes is built with the 5-minute default gcTime and
+        // collected before it is ever read — and the save that follows then drops it from disk,
+        // so the next load starts cold again. Only what `shouldDehydrateQuery` chose is ever
+        // hydrated here, and all of it is meant to be kept. gcTime only ever grows
+        // (Removable#updateGcTime takes the max), so a hook mounting later with a shorter one
+        // cannot undo this.
+        gcTime: Infinity,
+      },
+    },
   },
 });
 
 /**
- * Only the sidebar chrome is worth restoring from disk: it is on every screen, changes
- * rarely, and otherwise flashes skeletons on each load. Everything else — project pages,
- * keyword suggestions — stays in memory.
+ * What is worth restoring from disk: the sidebar chrome, which is on every screen, plus the
+ * reference data that shapes the experiment screens — dictionaries, the template picker's list,
+ * the templates themselves, and the signature templates the submit dialog picks from. All of it
+ * changes only when an admin edits it, and all of it otherwise flashes skeletons on each load —
+ * the signature templates behind a dialog the user has already opened, which is the worst place
+ * to wait. Everything else — project pages, keyword suggestions — stays in memory.
+ *
+ * The Dictionaries screen mutates the dictionary entries, and nothing here had to change for
+ * it: the `invalidateQueries` its writes issue refetch and re-persist through the existing
+ * subscription. The same holds for the templates admin screen, which is still unwritten.
+ *
+ * Every query listed here needs `gcTime: Infinity` on its hook. A collected query is gone from
+ * the next dehydration, which takes it off disk as well.
  */
-const persistedHashes = new Set([userKeys.currentUser(), experimentKeys.marked()].map(hashKey));
+const persistedHashes = new Set(
+  [
+    userKeys.currentUser(),
+    experimentKeys.marked(),
+    experimentKeys.signatureTemplates(),
+    templateKeys.list(),
+    ...BUILT_IN_DICTIONARIES.map(dictionaryKeys.items),
+  ].map(hashKey),
+);
+
+/**
+ * Template details are keyed by id, so there is no fixed hash to list — every one is persisted,
+ * and the set is bounded by how many templates exist. Read off the factory rather than written
+ * out again: `projectDetails`, `notebookDetails` and `experimentDetails` are sibling roots that
+ * must *not* match, so the literal has to be the one `templateKeys.detail` actually produces.
+ */
+const [TEMPLATE_DETAILS_ROOT] = templateKeys.detail('');
 
 /**
  * A persister for one signed-in user. Scoped to the Cognito sub so a second user on the
@@ -50,6 +90,8 @@ export const PERSIST_OPTIONS = {
   // Never expires on disk; each query's staleTime decides when to revalidate.
   maxAge: Infinity,
   dehydrateOptions: {
-    shouldDehydrateQuery: (query) => query.state.status === 'success' && persistedHashes.has(query.queryHash),
+    shouldDehydrateQuery: (query) =>
+      query.state.status === 'success' &&
+      (persistedHashes.has(query.queryHash) || query.queryKey[0] === TEMPLATE_DETAILS_ROOT),
   },
 } satisfies Omit<PersistQueryClientOptions, 'queryClient' | 'persister'>;

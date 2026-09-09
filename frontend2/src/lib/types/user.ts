@@ -1,3 +1,5 @@
+import type { UUID } from '@/lib/types/common.ts';
+
 export type ApplicationPermission =
   | 'MANAGE_USERS'
   | 'MANAGE_ROLES'
@@ -22,7 +24,7 @@ export type ApplicationPermission =
   | 'SIGN_EXPERIMENTS';
 
 export interface CurrentUser {
-  id: string;
+  id: UUID;
   username: string;
   displayName: string;
   permissions: ApplicationPermission[];

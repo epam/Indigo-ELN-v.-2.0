@@ -7,30 +7,31 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Run from `frontend2/`:
 
 ```bash
-npm run dev          # dev server at http://localhost:5173 — /api proxies to the remote dev backend
-npm run build        # vite build → dist/ (also emits src/routeTree.gen.ts)
-npm run typecheck    # tsc -b — run it AFTER a build; see below
-npm run check:bundle # asserts the 21 MB Ketcher chunk stayed out of the entry graph
-npm run lint         # eslint
-npm run format       # prettier --write src/**
-npm run format:check # prettier --check src/**
-npm test             # vitest run — both projects (unit + storybook)
-npm run test:watch   # vitest in watch mode
-npm run test:unit    # jsdom unit tests only (no browser needed)
-npm run test:stories # every story as a browser test in headless Chromium
+pnpm run dev                 # dev server at http://localhost:5173 — /api proxies to the remote dev backend
+pnpm run build               # vite build → dist/ (also emits src/routeTree.gen.ts)
+pnpm run typecheck           # tsc -b — run it AFTER a build; see below
+pnpm run check:bundle        # asserts the 21 MB Ketcher chunk stayed out of the entry graph
+pnpm run lint                # eslint
+pnpm run format              # prettier --write src/**
+pnpm run format:check        # prettier --check src/**
+pnpm run test                # vitest run — both projects (unit + storybook)
+pnpm run test:watch          # vitest in watch mode
+pnpm run test:unit           # jsdom unit tests only (no browser needed)
+pnpm run test:stories        # every story as a browser test in headless Chromium
+pnpm run test:stories:native # same, against a natively installed Chromium instead of Playwright's
 
-npm run storybook       # Storybook dev server at http://localhost:6006
-npm run build-storybook # static build → storybook-static/
+pnpm run storybook       # Storybook dev server at http://localhost:6006
+pnpm run build-storybook # static build → storybook-static/
 
 # Single test file
-npx vitest run src/lib/types/experiments.test.ts
+pnpm exec vitest run src/lib/types/experiments.test.ts
 ```
 
 Tests are colocated: `foo.test.ts` sits next to `foo.ts`. Test files inside `src/routes/` are excluded from route generation by `routeFileIgnorePattern` in `vite.config.ts`.
 
 Stories are colocated the same way: `foo.stories.tsx` next to `foo.tsx`.
 
-`npm run typecheck` (`tsc -b`) is the authoritative type-check — `vite build` does not type-check.
+`pnpm run typecheck` (`tsc -b`) is the authoritative type-check — `vite build` does not type-check.
 
 **It has to run after a build, not before.** `src/routeTree.gen.ts` is gitignored and only
 `@tanstack/router-plugin` emits it, which means a bundler-driven command — `vite build`,
@@ -42,16 +43,34 @@ explicit rather than a trap for a fresh clone.
 Full validation sequence, in order:
 
 ```bash
-npm ci                                        # never `npm install`; devDependencies are required to build
-npm run build                                 # emits dist/ and src/routeTree.gen.ts
-npm run check:bundle                          # nothing oversized in the initial module graph
-npm run typecheck
-npm run lint
-npm run format:check
-npm run test:unit
-npx playwright install --with-deps chromium   # cacheable
-npm run test:stories
+pnpm install --frozen-lockfile                    # fails on a lockfile that drifted from package.json
+pnpm run build                                    # emits dist/ and src/routeTree.gen.ts
+pnpm run check:bundle                             # nothing oversized in the initial module graph
+pnpm run typecheck
+pnpm run lint
+pnpm run format:check
+pnpm run test:unit
+pnpm exec playwright install --with-deps chromium # cacheable
+pnpm run test:stories
 ```
+
+`--with-deps` needs root: Playwright's bundled Chromium links against system libraries that are
+not installed by default, and without them the binary dies at load time with
+`libatk-1.0.so.0: cannot open shared object file`. Where root is not available but Chromium is
+already installed natively, `pnpm run test:stories:native` skips the bundled browser entirely — it
+passes the binary on `PATH` to Playwright as `CHROMIUM_BIN`. Set `CHROMIUM_BIN` yourself if the
+browser is named something other than `chromium`:
+
+```bash
+CHROMIUM_BIN=/usr/bin/google-chrome pnpm run test:stories:native
+```
+
+The package manager is pnpm (pinned by `packageManager` in `package.json`; pnpm installs that
+version itself, no corepack needed). pnpm refuses to run a dependency's install scripts unless it
+is listed in `pnpm-workspace.yaml` — `esbuild` needs its postinstall to place the platform binary
+and `msw` needs its to regenerate `public/mockServiceWorker.js`. The key is `allowBuilds`, not the
+`onlyBuiltDependencies` most documentation still shows: pnpm 11 reads the older name into its
+config without acting on it, so the builds stay silently blocked.
 
 ## Environment
 
@@ -79,6 +98,7 @@ Search params are the source of truth for filter state. Route files validate par
 `src/lib/api.ts` — `apiFetch<T>(path, init?)`:
 - The path is sent verbatim — callers pass the full path including the `/api` prefix (e.g. `'/api/eln/projects'`). Nothing is rewritten, so a path is greppable end to end from the call site through the MSW handlers to the backend resource.
 - Attaches a Cognito **access token** (not ID token) as `Authorization: Bearer`. The backend reads the `username` claim which only exists on the access token.
+- **There is no `init.body`.** A request names the *kind* of payload it carries, and `RequestInit` is spread with `body` omitted so a leftover one is a type error rather than a third, unhandled path. `init.json` is an arbitrary value, serialised here, and is the sole source of `Content-Type: application/json`. `init.formData` is a `FormData` — the two attachment uploads and `importSDF` — handed to `fetch` untouched so the browser serialises it and sets its own type: only the browser knows the multipart boundary it generated, and naming the type without one makes the body unparseable. Since the header follows from *which field* was set, nothing inspects the value; a third payload kind becomes a third field rather than a `typeof` ladder. Eleven call sites used to write `body: JSON.stringify(x)` and rely on an `instanceof FormData` check to tell them apart.
 - `init.responseType` — `'json'` (default), `'text'`, or `'blob'` — decides how a successful body is read; there is no guessing and no fallback, so a malformed body in `json` mode throws. Overloads type the result, so `apiFetch(path, { responseType: 'text' })` is a `Promise<string>` without a generic. The default `Accept` follows from it: `application/json` for `json`, `*/*` otherwise — the image endpoints declare a concrete `@Produces` and answer 406 to a JSON-only `Accept`. Error bodies are always parsed as JSON-or-text whatever the mode, so `describeError` still gets the bean-validation shape.
 - Throws `ApiError(status, body)` on non-2xx, and first raises an error toast via `notifyError` in `src/lib/toast.ts`. That mirrors indigo-frontend's `error.interceptor.ts`: every failed request is reported once, centrally, and still thrown so callers can react. `describeError` there ports the interceptor's `detectMessage` (403 → permission copy, bean-validation array → one line per field, anything else → a generic message), plus a 401 branch the Angular original never had.
 
@@ -107,10 +127,28 @@ user one click on Reload.
 
 `src/lib/query-client.ts` — `staleTime: 30_000`; no retry on `ApiError.status < 500`.
 
-**Cache persistence is per signed-in user, and follows the session.** Only the sidebar
-chrome is persisted (`currentUser`, `experiments/marked` — `PERSIST_OPTIONS`), under a
-localStorage key scoped to the Cognito sub, so a second user on the same browser cannot
-restore the first one's name, permissions and starred list.
+**Cache persistence is per signed-in user, and follows the session.** What is persisted
+(`PERSIST_OPTIONS`) is the sidebar chrome — `currentUser`, `experiments/marked` — plus the
+reference data the experiment screens are built out of: the 13 `dictionary` entries, the
+`templates` list behind the Add Experiment picker, and `templateDetails`. All of it is small,
+on the critical path of a screen, and changed only by an admin. It lives under a localStorage
+key scoped to the Cognito sub, so a second user on the same browser cannot restore the first
+one's name, permissions and starred list.
+
+Two rules govern adding to that set, both easy to get wrong:
+
+- **`templateDetails` is matched by its root, not by a hash.** Everything else is one fixed key,
+  so `persistedHashes` holds `hashKey` of each; a template detail is keyed by id, so
+  `shouldDehydrateQuery` compares `queryKey[0]` against `templateKeys.detail('')[0]` instead.
+  The comparison has to be that exact first segment — `projectDetails`, `notebookDetails` and
+  `experimentDetails` are sibling roots that must stay in memory.
+- **Anything persisted needs `gcTime: Infinity` on its hook.** A collected query is absent from
+  the next dehydration, and the save that follows takes it off disk too — so an entry only
+  observed on one screen would evaporate five minutes after the user left it. The client also
+  sets `defaultOptions.hydrate.queries.gcTime = Infinity`, which covers the other half: a
+  restored entry nobody has observed yet is otherwise built with the 5-minute default and
+  collected before it is ever read. gcTime only ever grows (`Removable#updateGcTime` takes the
+  max), so a hook mounting later with a shorter one cannot undo it.
 
 `src/lib/query-persistence.tsx` owns this rather than `PersistQueryClientProvider`, which
 **cannot** be used here: it reads `persistOptions` from a ref, keys its effect on the
@@ -136,7 +174,61 @@ Two orderings matter, both pinned by `query-persistence.test.tsx`:
 signed-in user still looks restored, and signed out it is trivially false — a stored
 boolean left true would hold every query in the app pending forever.
 
-Data hooks live in `src/lib/api/` (one file per domain: `user.ts`, `projects.ts`, `experiments.ts`). Each file exports query-key factories, raw fetch functions, and `useXxx` hooks. The raw fetch functions are exported so they can be called outside React (e.g. tests).
+**Every custom hook lives under `src/lib/`, none under `src/components/`.** Three tiers, and
+which one a hook belongs in is decided by what it knows, not by who calls it:
+
+| Tier | Holds | Examples |
+|---|---|---|
+| `src/lib/api/<domain>.ts` | anything that talks to the server — one file per domain, hooks beside their fetchers and query keys | `useProjects`, `useMutateExperimentModel` |
+| `src/lib/hooks/` | domain-agnostic React/DOM utilities; nothing here knows what an experiment is | `useSettled`, `useDelayedFlag`, `useInViewport`, `useDownload` |
+| `src/lib/hooks/<domain>/` | hooks that know the domain but hold **UI state** rather than transport — a busy-cell set, an `addingRows` set — and compose the api hooks | `useAddSample`, `useStoichiometryMutations`, `useReactionStep` |
+
+The third tier is the one that keeps drifting back into the components tree, because each of its
+hooks has one feature folder it serves. It stays out for two reasons: a hook is then always at a
+predictable address, and `src/lib/` never imports from `src/components/` — the dependency runs one
+way only, and putting a hook that composes `useMutateExperimentModel` next to the dialog that uses
+it would be the first edge pointing back.
+
+**A module exports its `useXxx` hooks and nothing else, unless something outside it genuinely
+needs more.** Raw fetch functions, query-key factories and debounce constants stay
+module-private — an exported `fetchProjects` is an invitation for a component to bypass the
+cache. Three narrow exceptions, each worth stating because they look like oversights:
+
+- Non-hook calls a component really makes: `experimentPicturePath`, `checkProjectNameExists`
+  (a form validator, not a query), and `COLLECTION_PAGE_SIZE`, which feeds `InfiniteLoader`'s
+  `firstLoadSkeletons`.
+- `experimentKeys` and `userKeys`, which `src/lib/query-client.ts` hashes to decide what gets
+  persisted to localStorage.
+- What `collections.ts` shares between sibling api modules.
+
+**Do not export something only so a test can reach it.** URL construction is asserted at the
+route level instead, where a mocked `apiFetch` already records every path — see the exact-URL
+expectations in `src/routes/_auth/projects.test.tsx` and `projects_.$id.test.tsx`. Those are
+the regression guard on path templates and page sizes; `collections.test.ts` covers param
+assembly on its own.
+
+`src/lib/api/collections.ts` holds what every paged list shares: `collectionQueryParams`,
+`COLLECTION_PAGE_SIZE`, a generic `getNextPageParam`, and `useSettledSearch`. `/projects` and
+`/projects/{id}/notebooks` declare identical query params, so one `collectionQueryParams(filters,
+pageNo)` builds both from one `CollectionFilters` (`search`, `sort`, `createdByMe` — the three
+`ActionBar` sets). It returns the `URLSearchParams` rather than a string, so the experiments list
+appends its repeatable `status` to it instead of parsing a string back apart. The page size is one
+constant for all three lists — it is also what each draws first-load skeletons for. The list
+debounce lives here rather than on either list, so neither has to import it from the other — as one hook,
+`useSettledSearch`, rather than the bare `SEARCH_DEBOUNCE_MS` the three used to gate on
+themselves. `SUGGEST_DEBOUNCE_MS` is still a plain constant: the same 300 ms for the three
+typeahead lookups (keywords, users, experiment references), which used to be declared once in
+each of their files.
+
+`src/lib/api/entity-writes.ts` is its counterpart for detail entities. A project, notebook and
+experiment each expose `{base}/{id}/attachments` and `{base}/{id}/access`, identically, so
+`useEntityAttachments` and `useUpdateEntityAccess` hold the upload loop, the delete filter, the
+ACL mutation and the cache patch once; each domain module supplies an `EntityWriteTarget`
+(`basePath`, `detailKey`, and optional `writeOptions`) and keeps its public `use*Attachments` /
+`useUpdate*Access` name as a one-line delegate, so no call site knows the difference. Only the
+experiment target sets `writeOptions`: both of its sub-resources go through `applyMutation` on
+the backend, so they bump `revision` like a field edit and must carry `experimentWrite`'s scope
+to queue behind the on-blur saves rather than race them.
 
 **Debouncing a search query — debounce `enabled`, not the term.** `useKeywordSuggestions` (`src/lib/api/projects.ts`) keys on the term *as typed* and holds `enabled` off via `useSettled` (`src/lib/hooks/use-settled.ts`) until it stops changing. Because the key moves on the first keystroke, **`isPending`** is then a single honest "we don't know yet" covering both the wait and the request — which is what the combobox's `loading` prop wants. Two traps:
 
@@ -147,7 +239,9 @@ Data hooks live in `src/lib/api/` (one file per domain: `user.ts`, `projects.ts`
 
 `useProjects` does the same for the projects list, gating on `filters.search` only — sort and `createdByMe` are discrete toggles that should take effect at once. `ActionBar`'s search box therefore writes **straight** to the URL search params on every keystroke (`replace: true`, so no history spam) and is controlled by them; the debounce is entirely in the query. `InfiniteLoader` then shows its skeletons for the whole wait, instead of leaving the previous term's results up unannounced.
 
-`useSettled` treats the value a component *starts* with as already settled, so gating a query on it never delays a first load.
+`useSettled` treats the value a component *starts* with as already settled, so gating a query on it never delays a first load — nor does a sort or `createdByMe` toggle, which never touch the value it watches.
+
+**An empty term is not waited on either.** That is the one thing `useSettledSearch` adds over a bare `useSettled`: the box is `type="search"`, so it carries a native clear button, and select-all-delete does the same — a discrete gesture with nothing left to type. Debouncing it would put the unfiltered list behind skeletons for 300 ms for no reason. Backspacing to empty settles at once for the same reason, which is right: it is the last keystroke either way.
 
 ### Forms — TanStack Form + Zod
 
@@ -165,12 +259,181 @@ Data hooks live in `src/lib/api/` (one file per domain: `user.ts`, `projects.ts`
 
 | File | Contents |
 |---|---|
-| `common.ts` | `BaseDTO`, `UserRef`, `ACLEntry`, `AccessLevel`, `Page<T>` |
-| `experiments.ts` | `ExperimentStatus`, `ExperimentStatusCounts`, `EXPERIMENT_STATUSES`, `EXPERIMENT_STATUS_DISPLAY`, `EXPERIMENT_STATUS_COLOR`, `BaseExperiment`, `Experiment` |
-| `projects.ts` | `Project`, `ProjectDetails`, `ProjectRequest`, `ProjectFilters`, `SortOrder`, `TotalCounts` |
+| `common.ts` | `BaseDTO`, `UserRef`, `ACLEntry`, `AccessLevel`, `Attachment`, `Page<T>`, `SortOrder`, `SORT_LABELS`, `CollectionView`, `CollectionFilters` |
+| `experiments.ts` | `ExperimentStatus`, `ExperimentStatusCounts`, `EXPERIMENT_STATUSES`, `EXPERIMENT_STATUS_LABELS`, `EXPERIMENT_STATUS_COLOR`, `BaseExperiment`, `Experiment` |
+| `projects.ts` | `Project`, `ProjectDetails`, `ProjectRequest`, `ProjectEditRequest`, `TotalCounts`, `PROJECT_NAME_MAX_LENGTH` |
+| `notebooks.ts` | `BaseNotebook`, `Notebook`, `NOTEBOOK_NAME_LENGTH` |
 | `user.ts` | `CurrentUser`, `ApplicationPermission` |
+| `reactions.ts` | the `reaction/model` tree: `ExperimentModel`, `Reaction`, `ReactionInput`/`Output` and their samples, `CompoundRef`, `EnteredValue`, the unit unions, and the companion table of every enum in it — `REACTION_ROLE_LABELS`, `OUTPUT_TYPE_LABELS`, `unitLabel()`, the unit option arrays |
+| `mutations.ts` | `Mutation` (all 94 members of the backend's `@JsonSubTypes` list), `ModelMutation` (the subset `/mutate` accepts), `MutationResponse` |
+
+`reactions.ts` is ported from the **Java**, not from indigo-frontend's `experiment.i.ts`. Those
+copies were generated from an older spec and have drifted: a `Reaction.rxnVersion` that does not
+exist, `STRCode*`/`NbkBatchNumber` modelled as objects when `@JsonValue` makes them strings,
+`SolubidityInSolvent` flattened when it is a `type`-discriminated union, and an
+`EnteredValueSource` enum whose members are not what is sent. Each divergence is commented at the
+type it affects.
+
+**A UI declaration bound to an enum lives in the file that declares the enum**, not next to the
+component that renders it — the label map, the colour map, the display-order array, the subset a
+picker offers. `Record<TheUnion, …>` is what makes a new member a compile error rather than a
+blank cell, and one home is what stops a second copy appearing next to the second component that
+needs it (`ReactionRole` had three). The exception is a map whose *values* are React components or
+route literals — `ENTITY_ICON`, the `LAYOUTS` records, `NAV_ITEMS`: those stay in the component
+tree, because `src/lib/` importing `lucide-react` or the router would point the dependency the
+wrong way.
+
+Companion tables are named `<ENUM>_LABELS`; `_COLOR`/`_TRIGGER_CLASS` when they carry classes.
 
 `verbatimModuleSyntax` is enabled — all cross-module type imports must use `import type`. When importing from the same `types/` folder, include the `.ts` extension (e.g. `from '@/lib/types/experiments.ts'`).
+
+### Model mutations — `/mutate` and the JSON patcher
+
+Every edit to an experiment's reaction tree goes through `POST /experiments/{id}/mutate`, which
+answers with a **JSON diff** rather than a document — a one-cell edit does not drag the whole
+stoichiometry table back. `useMutateExperimentModel` (`src/lib/api/experiments.ts`) sends the
+mutation and applies the response with `JSON_PATCHER` (`src/lib/json-patcher.ts`, an apply-only
+port of the backend's `JSONPatcher.java`, pinned by `json-patcher.test.ts` against that class's
+own cases). It joins `experimentWrite`'s scope, so it queues behind the on-blur field saves
+rather than racing them.
+
+`mutations.ts` mirrors the backend's `@JsonSubTypes` list **in full** — all 94 members, in its
+order, grouped into unions that follow the Java interface hierarchy. Most of them never travel
+over `/mutate`: the backend gates that with `isMutateMethodAllowed()`, and the rest answer
+through their own endpoints (a project is created by `POST /projects`, an experiment completed
+by `POST /experiments/{id}/complete`, an SDF imported by a multipart upload). **`ModelMutation`
+is the subset that endpoint accepts, and it is what the mutate hook and both column files take**
+— nothing outside `mutations.ts` should be typed on the full `Mutation`.
+`mutations.test.ts` pins the mirror against the backend list and fails by name on either side of
+the diff; it carries the two `grep`s that regenerate its list.
+
+Three properties of the diff, all easier to know than to rediscover:
+
+- **It never carries `revision`** (`JSONPatcher.EXPERIMENT_IGNORED_PATHS`), so a patched copy
+  keeps the revision it had. That is survivable only because `ExperimentService.mutateModel`
+  accepts the `revision` query param and **never reads it** — there is no optimistic-concurrency
+  check today. It is sent to match the contract; do not build conflict handling on it.
+- **It is computed between two `ExperimentSnapshot`s**, not two `ExperimentDetailsDTO`s. They
+  overlap on names, which is why applying it to the cached detail works, but it never touches
+  `currentPermissions`, `marked`, the ancestor ids and names, or the `BaseDTO` audit fields.
+- **`apply` also returns a `newNode → oldNode` map.** Nothing reads it yet; it is what
+  indigo-frontend's `determineCellClasses` uses to flash a recalculated cell, and the
+  stoichiometry table will want it.
+
+`response.messages` become toasts via `notifyInfo`. `response.reactionImages` is ignored —
+schemes are drawn client-side. `unresolvedInputs` is **not** read by `applyMutationResponse`
+either, but it is not ignored: it belongs to whoever sent the mutation rather than to every
+caller, so `ReactionSchemePanel` reads it off `mutateAsync`'s resolved value and opens Analyze
+RXN on it. See below.
+
+### Catalog search — the shared half
+
+Two sheets search `/samples/search` and put what they find into the reaction model, so what they
+have in common is split by the tiers above — the table in `src/components/experiments/samples/`,
+the write in `src/lib/hooks/experiments/`, the two pure helpers in `src/lib/`:
+
+| Module | Role |
+|---|---|
+| `sample-results.tsx` | the result table: seven columns, a chevron detail, a My Materials bookmark and a green Add per row, cursor-paged by an `IntersectionObserver` sentinel |
+| `@/lib/hooks/experiments/use-add-sample.ts` | the two-step write — register the hit if it has no id, then run the mutation the caller builds from that id — plus `addingRows` |
+| `@/lib/search.ts` | how a count is worded, and what identifies a row |
+
+`SampleResults` knows neither the question nor the answer: the caller passes a whole
+`FindSamplesRequest` (which is the query key, so changing it *is* the refetch) and an `onAdd`.
+`useAddSample` likewise takes the mutation as a function of the sample id, because the two callers
+send different ones. Each dialog is then a thin wrapper — `useResolveInput` adds `addedInputs` and
+sends `ResolveInputs`, `useAddMaterial` sends `AddInput`.
+
+Three properties hold for both:
+
+- **`/samples/search` is the only endpoint in the app that is not paged by `Page<T>`.** It walks
+  several catalogs in priority order (ELN 0, MY\_MATERIALS 1, PUBCHEM 1000) and returns an opaque
+  cursor as `next`, which the caller hands back as the *request's* own `state` field. `totalItems`
+  is null once a catalog that cannot count has contributed — PubChem reports neither a count nor a
+  cursor — so **`next === null` is the only end-of-results signal**. A search with no count from
+  the server falls back to what it can see: `resultCountLabel` says `12+` while the cursor still
+  points somewhere, and a plain `12` once it does not, since what has loaded is the total by then.
+  `src/lib/api/samples.ts` owns the paging; nothing else should.
+- **The catalog radio needs no refetch.** `catalogs` is part of the request and the request is the
+  query key, so choosing a different catalog is a different query. indigo-frontend's own panel
+  searches only in `ngOnInit`, which is why its radio does nothing.
+- **Adding is two steps for a PubChem hit.** Every mutation that takes a sample names it by id and
+  a catalog hit that is not in the ELN has none, so `POST /samples/importFromSearch` registers it
+  first — with the whole `SampleDTO`, since the backend dispatches on `source` and reads `inchi`.
+  The mutation then goes through `useMutateExperimentModel`, so it queues in `experimentWrite`'s
+  scope and its patch fills in the row behind the dialog. Nothing is optimistic, which is why
+  `useAddSample.run` resolves to whether it worked rather than letting the caller assume.
+
+The Add button on a row is disabled when the step already holds that sample
+(`getAllInputSampleIds(reaction)`, in `src/lib/reactions.ts`), which is read off the model rather
+than remembered — so it is still right after a reopen.
+
+### Analyze RXN
+
+`SetScheme` reports the molecules it could not match to a registered compound as
+`MutationResponse.unresolvedInputs` — **input row anchor → molfile**. Those rows are in the
+stoichiometry table already, carrying a `VIRTUAL` compound with no sample behind them, so
+nothing about their batch can be filled in. `AnalyzeRxnDialog`
+(`src/components/experiments/analyze-rxn/`) is the answer: one tab per unresolved row, a
+substructure search of the catalogs per tab, and a `ResolveInputs` mutation per row added. It is a
+`side="right"` sheet, like Global Search — the stoichiometry table it fills in stays visible
+behind it.
+
+Two things beyond the shared half are worth knowing before changing it:
+
+- **Only the visible tab searches.** `TabsPanel` unmounts an inactive panel, so a step with five
+  unmatched reactants does not fire five substructure searches at once. The visible cost is that a
+  tab's `(count)` appears only once it has been opened. Each tab's request and its count callback
+  are memoized together in the dialog — a fresh identity for either on every render would restart
+  the search and loop the effect that reports the count.
+- **The tab's resolved check is the narrower claim** than `getAllInputSampleIds`, and is local state:
+  *this dialog* bound something to that input.
+
+### Add Material
+
+The toolbar's `SquarePlus` on the Reactants, Reagents, Solvents table — the counterpart of the
+plain `+`, which appends an empty row on an `UNKNOWN` compound. `AddMaterialDialog`
+(`src/components/experiments/samples/`) searches the catalogs and appends a row carrying a
+registered one, via `AddInput`.
+
+It is Global Search's form over the shared result table, and the assembly is nearly all it does:
+the quick-search pill, the catalog radio, `SchemeEditor`, and a `Collapsible` grid of ten filters
+with a summary line while collapsed. `add-material-form.ts` holds everything that is not JSX —
+the values, the request, the summary. Four things are particular to it:
+
+- **Nothing is searched until Search is pressed, and Search needs a criterion.** `submitted` is
+  the request as pressed, so editing the form afterwards leaves the results alone. `isEmpty` is
+  read off the **request**, not the form, so it cannot disagree with what would be sent — a
+  filter the catalog has disabled is dropped by `toFindSamplesRequest` and so does not enable
+  Search either, which is what stops a form that looks filled in (nine boxes with values, PubChem
+  selected) from running a whole-catalog browse. The gate is ours, not the server's:
+  `FindSamplesRequest` has no `isEmpty` assertion — unlike `GlobalSearchRequest`, which 400s —
+  and indigo-frontend does send the empty request.
+- **The catalog gates the form.** A catalog reaching PubChem (`ALL` as well as `PUBCHEM`) disables
+  every filter but Molecular Formula, which PubChem's API does accept, and `toFindSamplesRequest`
+  **drops** the disabled ones rather than sending them to be ignored — a request has to say what
+  was actually searched for. Values survive while disabled, so going back to Indigo ELN restores
+  the search rather than making it be retyped.
+- **External ID is `externalNumber`.** indigo-frontend's template binds that box to `chemicalName`
+  by mistake; the backend filter it names is a separate one.
+- **A drawn reaction is refused, not dropped.** `FindSamplesRequest` has one structure field and
+  a catalog holds compounds, so there is nothing for a rxnfile to match — Global Search routes one
+  into `reactionStructure`, and there is no such field here. `handleStructure` therefore toasts
+  `REACTION_NOT_SEARCHABLE` and **throws**, which is the documented way to hold the sketcher open
+  with the drawing intact: `StructureEditorDialog` swallows a rejection from `onSave` on the
+  grounds that whoever rejected has already reported it. So `values.structure` is always a molfile.
+
+`StoichiometryTable` renders the sheet whether or not it is open — see the `DialogContent`
+notes below for why a sheet behind a `{open && …}` flag cannot slide out. The form is therefore
+reset explicitly, on Base UI's **`onOpenChangeComplete`** rather than on `onOpenChange`: after the
+exit transition, so nothing is seen emptying as the sheet slides out. Without it the sheet would
+keep the last visit's search forever, as a side effect of never unmounting.
+
+`TextSearchField` (`src/components/search/`) is the new control the grid needed — the sibling of
+`NumericSearchField`, emitting `null` until a box holds something, with `between` as the one
+member that has two. Both keep the chosen operator in local state while there is no value to
+attach it to, which is why Clear All remounts the panel by `key` rather than only resetting the
+values.
 
 ### Styling — Tailwind v4 CSS-first
 
@@ -178,15 +441,38 @@ No `tailwind.config.*` file. All theme customisation is in `src/styles.css` via 
 
 ### UI components — `src/components/ui/`
 
-Styled with CVA + `cn()`, following the shadcn `base-nova` pattern. Primitives from `@base-ui/react` (not Radix). Current components: `button`, `avatar`, `badge`, `switch`, `segmented-control`, `dialog`, `input`, `field`, `combobox`, `radio-group`, `toast`, `rich-text-editor`. Add new ones with `npx shadcn add <name>` — the CLI respects `components.json`. Icons: `lucide-react` only; never hand-write SVG paths.
+Styled with CVA + `cn()`, following the shadcn `base-nova` pattern. Primitives from `@base-ui/react` (not Radix). Current components: `button`, `avatar`, `badge`, `switch`, `segmented-control`, `dialog`, `input`, `field`, `combobox`, `radio-group`, `tabs`, `toast`, `rich-text-editor`. Add new ones with `pnpm dlx shadcn@latest add <name>` — the CLI respects `components.json`. Icons: `lucide-react` only; never hand-write SVG paths.
 
 `Button` takes `loading`, which disables it, sets `aria-busy` and overlays a spinner. The label is faded with `opacity-0` rather than `visibility: hidden` on purpose — hiding it would strip the label from the button's accessible name, leaving it announced as nothing but a spinner.
 
 `DialogContent` takes `side`: the default `center` is the 560px modal, `right` turns the
-same frame — title row, scrolling body, pinned footer — into a full-height sheet anchored
-below the 72px `AppHeader`, with a transparent backdrop so the page behind stays legible.
-Base UI's own `Drawer` is deliberately unused: it brings a swipe-to-dismiss interaction
-model this desktop sheet does not want.
+same frame — title row, scrolling body, pinned footer — into a sheet running the **full**
+height of the window, over the `AppHeader` rather than below it, with a transparent backdrop
+so the page behind stays legible.
+
+**A sheet has to be mounted to slide, in both directions.** The enter and exit are CSS
+transitions on `data-[starting-style]` / `data-[ending-style]`, so a `Dialog` rendered behind a
+`{open && …}` flag cannot animate out — React removes the element before Base UI can transition
+it, and the panel vanishes instead. Render it unconditionally and let `open` drive it, as
+`AppHeader` does with Global Search and `StoichiometryTable` does with Add Material; Base UI
+unmounts the popup itself once the exit finishes, so nothing inside stays mounted and no query
+inside keeps running while the sheet is shut. `AnalyzeRxnDialog` is the exception and pays for
+it: its `unresolvedInputs` *are* the reason it exists, so it is mounted with the data and closes
+by dropping it. It used to start at the header's 72px, which left a strip of
+page above it and read as the panel having slipped down. Base UI's own `Drawer` is
+deliberately unused: it brings a swipe-to-dismiss interaction model this desktop sheet does
+not want.
+
+**The shadow is per-variant, not shared.** An undimmed backdrop means a sheet's shadow is the
+only thing marking where the panel ends, and `--shadow-card` — tuned for a card on a tinted
+page — disappeared against white content. `right` therefore uses `--shadow-sheet`, a heavier
+two-layer shadow cast leftward, away from the window edge it is anchored to; `center` keeps the
+card shadow, since a dimmed page already separates it.
+
+`Tabs` is the underlined strip from the page headers, made into a real tablist for tabs *inside*
+a surface, where the selection is component state rather than a search param. Its panels are not
+`keepMounted` — Base UI's default, and relied on by Analyze RXN: a panel that has never been shown
+has never mounted, so the query inside it has never run.
 
 `Field` is deliberately **not** built on Base UI's `Field`: that only auto-associates labels with its own `Field.Control`, which the combobox and the rich-text editor are not. It renders a plain `<label>` carrying both `htmlFor={id}` and `id={`${id}-label`}`, so native controls associate normally and the editor's `contenteditable` points back with `aria-labelledby`.
 
@@ -216,9 +502,9 @@ Leaving it there is deliberate — routing `prewarmKetcher` through a dynamic im
 would make the preload list literally clean, at the cost of a round trip for that shim
 before the prewarm can even start fetching the thing it exists to fetch early.
 
-`npm run check:bundle` guards the invariant that actually matters, by size rather than by
+`pnpm run check:bundle` guards the invariant that actually matters, by size rather than by
 name: it reads the entry and modulepreload chunks out of `dist/index.html` and fails if any
-one exceeds 1 MB or they total more than 1.5 MB (today: 24 chunks, 515 kB, largest 174 kB).
+one exceeds 1 MB or they total more than 1.5 MB (today: 35 chunks, 549 kB, largest 174 kB).
 A static import that stranded the 21 MB chunk in the entry graph would otherwise pass build,
 lint and every test, and only show up as an unusable cold load.
 
@@ -251,11 +537,31 @@ measured, the import alone still leaves ~540 ms, the throwaway render brings the
 real call down to ~20 ms. Since it runs in a loader, switching on `defaultPreload` in
 `main.tsx` would start pulling 21 MB on link hover.
 
-**Rendered previews are not cached, deliberately.** `ketcher-standalone` holds its Indigo
-worker as a module singleton (`var indigoWorker = new WorkerFactory()` in its bundle), and
-every struct service shares it — `src/lib/ketcher.ts`'s and the editor's alike. So the
-~1.3 s above is paid once per page by whichever of them renders first, and everything after
-that is on the 4–8 ms path regardless of which one asks. Since the sketcher must have been
+**That one shared worker is also the source of two bugs `src/lib/ketcher.ts` has to work
+around.** `ketcher-standalone` holds its Indigo worker as a module singleton (`var
+indigoWorker = new WorkerFactory()` in its bundle) and every `IndigoService` shares it —
+this module's and the editor's alike. That makes the ~1.3 s above a once-per-page cost
+whoever pays it, but it also means:
+
+- **A response resolves at most one pending call and consumes them all.**
+  `generateImageAsBase64` registers `EE.once(…)` with a handler that resolves only when
+  `msg.inputData` matches, so of two overlapping renders one resolves and the other is
+  dropped with its listener already gone — its promise never settles. Revisiting an
+  experiment used to hit this every time: the route loader re-runs `prewarmKetcher()` while
+  the cached query lets `SchemeEditor` mount in the same tick, and the throwaway render ate
+  the real one's reply. `renderStructure` and `prewarmKetcher` therefore share one queue.
+- **The newest service steals the channel.** `IndigoService`'s constructor does
+  `this.worker.onmessage = …`, an assignment rather than `addEventListener`, and unmounting
+  the editor restores nothing — so opening the sketcher once would leave this module deaf
+  for the rest of the page. Each call reinstalls our handler and hands the channel back.
+
+A 30 s timeout backs both up, so a reply that is never coming rejects (and drops the
+service, whose abandoned listener would otherwise eat the next response) instead of leaving
+`SchemeEditor` on its skeleton. `ketcher.test.ts` pins all of it against a fake that
+reproduces both quirks; five of its six cases hang against the pre-fix module.
+
+**Rendered previews are not cached, deliberately.** Everything after the first render is on
+the 4–8 ms path regardless of which service asks. Since the sketcher must have been
 open for the user to draw anything, the preview that follows a Save is always warm.
 
 `StructureEditorDialog` used to seed a preview cache with the SVG the sketcher produced, to
@@ -267,16 +573,16 @@ back into view is simply rendered again. `handleSave` is one Indigo call lighter
 result. Don't reintroduce a cache here without a measurement showing the render is slow;
 the thing worth optimising is the cold start, and `prewarmKetcher` already does that.
 
-**CSP:** the deployed policy
-(`deployment-aws/resources/cloudfront-index-viewer-request-function.js`) already allows
-what the worker needs — `worker-src 'self' blob:` for the Indigo worker, which
+**CSP:** this app has its own policy, separate from the Angular app's — see *Deploying*
+below. It allows `worker-src 'self' blob:` for the Indigo worker, which
 `ketcher-standalone` builds with `new Blob` + `createObjectURL`, and `img-src 'self'
-blob: data:` for both preview URL kinds. It is still missing two things: `script-src`
-needs `'wasm-unsafe-eval'` (a nonce does not cover WASM compilation) or Indigo aborts,
-and `style-src` needs `'unsafe-inline'` or the editor renders unstyled, since
-ketcher-react is MUI/emotion and injects styles with no nonce. Headless rendering needs
-only the first of the two. **A CSP-blocked worker makes `renderStructure` hang rather
-than reject** — the promise never settles and `SchemeEditor` shows its skeleton forever.
+blob: data:` for both preview URL kinds. Two more entries are load-bearing here and are
+the reason the Angular policy could not simply be reused: `script-src` needs
+`'wasm-unsafe-eval'` or Indigo aborts (a nonce does not cover WASM compilation), and
+`style-src` needs the empty-string hash for emotion's `<style>` carrier or the editor
+renders unstyled. Headless rendering needs only the first of the two. A CSP-blocked worker
+makes the struct service answer nothing at all; that is what the render timeout above
+turns into a reported error rather than a permanent skeleton.
 
 Storybook aliases both modules to stubs in `.storybook/mocks/`. Those two aliases have to
 precede the inherited `'@' -> src` one, and Vite merges the inherited alias *ahead* of
@@ -289,6 +595,21 @@ button when not. It is controlled (`value` / `onChange`) and takes a molfile *or
 rxnfile — Ketcher's own `containsReaction()` decides which, and that flag rides along in
 `onChange` because the backend has separate `moleculeStructure` and `reactionStructure`
 fields.
+
+**`onSave` may return a promise, and the dialog awaits it before closing.** That is what lets
+`ReactionSchemePanel` hold the sketcher open — Save still spinning — until its `SetScheme`
+mutation lands, and leave the drawing in place if it fails. `StructureEditorDialog.handleSave`
+therefore has two `try` blocks rather than one: a Ketcher failure gets `notifyError`, since
+nobody else reports it, while an `onSave` rejection is deliberately silent because `apiFetch`
+has already toasted it. Global Search returns nothing from `onChange`, so `await` resolves in a
+microtask and its sketcher closes immediately, exactly as before. A caller that refuses a drawing
+for its own reasons uses the same channel — it toasts and throws, since the silent branch assumes
+the rejector spoke; Add Material does that for a reaction.
+
+**A canvas with no atoms never reaches `onSave`.** `handleSave` refuses it before it starts —
+`ketcher.editor.struct().atoms.size === 0`, which covers an empty save as well as a lone plus or
+arrow, none of which any caller could search for or store. `Struct.isBlank()` is deliberately not
+the check: it counts pluses and arrows as content, so a bare `+` is not blank by its reckoning.
 
 ### Storybook
 
@@ -306,7 +627,9 @@ Anything rendered through a portal — dialogs, combobox popups, toasts — is o
 
 Mock data lives in `src/mocks/` (under `src/`, not `.storybook/`, so unit tests can import it too): `fixtures.ts` has `makeProject`/`makeExperiment`/`makeTotalCounts` override factories, `handlers.ts` has an MSW handler per endpoint the app calls — check the file rather than trusting a count here. Paths there are the same full `/api/eln` paths the callers pass. Override per story with `parameters: { msw: { handlers: errorHandlers } }` — `handlers.ts` exports `emptyHandlers`, `errorHandlers`, and `loadingHandlers` for the non-happy paths.
 
-`vite.config.ts` defines two Vitest projects: `unit` (jsdom, `src/**/*.test.{ts,tsx}`) and `storybook` (real Chromium via Playwright, every story as a smoke test with `a11y: { test: 'error' }` failing on violations). CI without a browser should run `npm run test:unit`; Chromium comes from `npx playwright install chromium`. The `storybook` project keeps `.storybook/vitest.setup.ts` even though Storybook 10.3+ can provision annotations itself — only a project setup file gets scanned for dep pre-bundling, and without one the CJS deps behind `@testing-library/dom` fail to import in the browser.
+`vite.config.ts` defines two Vitest projects: `unit` (jsdom, `src/**/*.test.{ts,tsx}`) and `storybook` (real Chromium via Playwright, every story as a smoke test with `a11y: { test: 'error' }` failing on violations). CI without a browser should run `pnpm run test:unit`; Chromium comes from `pnpm exec playwright install chromium`.
+
+**The story project is capped at `maxWorkers: 4`, and the cap is a speed-up, not a sacrifice.** One `instances` entry means one *browser*, not one page: Vitest opens a page per worker inside it, and left to itself that is one per core. Measured here at 14 workers against 4 — same 78 files — wall clock was 58–74s against 54–67s while cumulative test time was 190–234s against 75–95s. Three times the CPU for no wall-clock gain, because the ceiling is the single browser process every page talks through, not the core count. The contention also had a tail, and it landed on stories waiting out an MSW round trip; `SavesOnBlur` in `experiment-description-panel.stories.tsx` failed that way roughly one run in two before the cap. **A story should not assert on the far end of a chain it does not own** — that one now waits on the PATCH reaching the spy rather than on the saved text re-rendering out of the query cache. The `storybook` project keeps `.storybook/vitest.setup.ts` even though Storybook 10.3+ can provision annotations itself — only a project setup file gets scanned for dep pre-bundling, and without one the CJS deps behind `@testing-library/dom` fail to import in the browser.
 
 ### TypeScript strictness notes
 

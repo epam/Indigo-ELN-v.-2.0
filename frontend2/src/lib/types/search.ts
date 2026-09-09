@@ -1,9 +1,16 @@
 import type { BaseDTO, UserRef } from '@/lib/types/common.ts';
 import type { DictionaryItemRef } from '@/lib/types/dictionaries.ts';
 import type { ExperimentStatus } from '@/lib/types/experiments.ts';
+import type { ReactionRole } from '@/lib/types/reactions.ts';
 
 /** Mirrors the backend's StructuralSearch.Type (eln-api, compound/model/search). */
 export type StructuralSearchType = 'EXACT' | 'SUBSTRUCTURE' | 'SIMILARITY';
+
+export const STRUCTURE_TYPE_LABELS: Record<StructuralSearchType, string> = {
+  EXACT: 'Exact',
+  SUBSTRUCTURE: 'Substructure',
+  SIMILARITY: 'Similarity',
+};
 
 export interface StructuralSearch {
   type: StructuralSearchType;
@@ -33,18 +40,40 @@ export const NUMERIC_SEARCH_OPERATOR_LABELS: Record<NumericSearchOperator, strin
   ge: '≥',
 };
 
-/** Mirrors ReactionRole (eln-api, reaction/model). */
-export type ReactionRole = 'REACTANT' | 'REAGENT' | 'CATALYST' | 'SOLVENT' | 'OUTPUT';
+/**
+ * Mirrors TextSearch (eln-api, compound/model/search): a Jackson-polymorphic sealed interface
+ * discriminated on `type`, four of whose five members carry a `value` while `between` carries a
+ * range instead. Modelled as a union rather than one optional-everything object so a `between`
+ * with a stray `value`, or an `exact` with a `from`, cannot be constructed.
+ */
+export type TextSearchOperator = 'exact' | 'startsWith' | 'contains' | 'endsWith' | 'between';
 
-export const REACTION_ROLES: readonly ReactionRole[] = ['REACTANT', 'REAGENT', 'CATALYST', 'SOLVENT', 'OUTPUT'];
+export type TextSearch =
+  { type: Exclude<TextSearchOperator, 'between'>; value: string } | { type: 'between'; from: string; to: string };
 
-export const REACTION_ROLE_DISPLAY: Record<ReactionRole, string> = {
-  REACTANT: 'Reactant',
-  REAGENT: 'Reagent',
-  CATALYST: 'Catalyst',
-  SOLVENT: 'Solvent',
-  OUTPUT: 'Output',
+/** Display order for the operator picker, as in indigo-frontend's TextSearchTypeNames. */
+export const TEXT_SEARCH_OPERATORS: readonly TextSearchOperator[] = [
+  'exact',
+  'startsWith',
+  'contains',
+  'endsWith',
+  'between',
+];
+
+export const TEXT_SEARCH_OPERATOR_LABELS: Record<TextSearchOperator, string> = {
+  exact: 'exact',
+  startsWith: 'starts with',
+  contains: 'contains',
+  endsWith: 'ends with',
+  between: 'between',
 };
+
+/**
+ * Re-exported so a search caller has one import for the whole request shape. The union and its
+ * companion tables are declared in `reactions.ts` — it is the reaction model this mirrors.
+ */
+export type { ReactionRole } from '@/lib/types/reactions.ts';
+export { REACTION_ROLES, REACTION_ROLE_LABELS } from '@/lib/types/reactions.ts';
 
 /**
  * The body of POST /api/eln/search, mirroring GlobalSearchRequest (eln-api, eln/model).
@@ -69,6 +98,12 @@ export interface GlobalSearchRequest {
 
 /** The three ELNEntityType values global search can emit. */
 export type SearchEntityType = 'PROJECT' | 'NOTEBOOK' | 'EXPERIMENT';
+
+export const SEARCH_ENTITY_LABELS: Record<SearchEntityType, string> = {
+  PROJECT: 'Project',
+  NOTEBOOK: 'Notebook',
+  EXPERIMENT: 'Experiment',
+};
 
 /**
  * One hit, mirroring GlobalSearchResultDTO (eln-api, eln/model). Most fields apply to only

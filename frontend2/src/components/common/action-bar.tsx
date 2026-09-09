@@ -7,11 +7,7 @@ import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Switch } from '@/components/ui/switch';
 
 import type { CollectionView, SortOrder } from '@/lib/types/common.ts';
-
-const SORT_LABELS: Record<SortOrder, string> = {
-  EARLIEST: 'Earliest',
-  LATEST: 'Latest',
-};
+import { SORT_LABELS } from '@/lib/types/common.ts';
 
 interface ActionBarProps {
   /** Plural entity name, e.g. "projects" — only reaches the screen reader label. */
@@ -19,11 +15,16 @@ interface ActionBarProps {
   search: string;
   sort: SortOrder;
   createdByMe: boolean;
-  view: CollectionView;
+  /**
+   * The layout toggle, omitted together when a list has only one layout — as the signatures
+   * list does. Passing neither drops the segmented control from the bar rather than showing a
+   * choice that changes nothing.
+   */
+  view?: CollectionView;
   onSearchChange: (search: string) => void;
   onSortChange: (sort: SortOrder) => void;
   onCreatedByMeChange: (createdByMe: boolean) => void;
-  onViewChange: (view: CollectionView) => void;
+  onViewChange?: (view: CollectionView) => void;
   /** Extra filters or other controls. */
   children?: ReactNode;
 }
@@ -42,8 +43,8 @@ export function ActionBar({
 }: ActionBarProps) {
   return (
     <div className="flex h-10 items-center justify-between gap-4">
-      <label className="flex h-10 w-[280px] items-center gap-2 rounded-full border border-blue-10 bg-blue-5 px-4">
-        <Search className="size-5 shrink-0 text-neutral-700" />
+      <label className="flex h-10 w-70 items-center gap-2 rounded-full border border-blue-10 bg-blue-5 px-4">
+        <Search aria-hidden className="size-5 shrink-0 text-neutral-700" />
         <input
           type="search"
           value={search}
@@ -76,12 +77,12 @@ export function ActionBar({
           />
           <Menu.Portal>
             <Menu.Positioner sideOffset={4} align="end">
-              <Menu.Popup className="min-w-[160px] rounded-md border border-neutral-300 bg-popover p-1 shadow-card outline-none">
+              <Menu.Popup className="min-w-40 rounded-md border border-neutral-300 bg-popover p-1 shadow-card outline-none">
                 {(Object.keys(SORT_LABELS) as SortOrder[]).map((option) => (
                   <Menu.Item
                     key={option}
                     onClick={() => onSortChange(option)}
-                    className="cursor-default rounded-2 px-3 py-2 text-[14px]/6 outline-none data-[highlighted]:bg-blue-10"
+                    className="cursor-default rounded-2 px-3 py-2 text-[14px]/6 outline-none data-highlighted:bg-blue-10"
                   >
                     {SORT_LABELS[option]}
                   </Menu.Item>
@@ -91,14 +92,16 @@ export function ActionBar({
           </Menu.Portal>
         </Menu.Root>
 
-        <SegmentedControl<CollectionView>
-          value={view}
-          onValueChange={onViewChange}
-          options={[
-            { value: 'grid', label: 'Grid view', icon: <LayoutGrid className="size-5" /> },
-            { value: 'list', label: 'List view', icon: <LayoutList className="size-5" /> },
-          ]}
-        />
+        {view !== undefined && onViewChange !== undefined && (
+          <SegmentedControl<CollectionView>
+            value={view}
+            onValueChange={onViewChange}
+            options={[
+              { value: 'grid', label: 'Grid view', icon: <LayoutGrid className="size-5" /> },
+              { value: 'list', label: 'List view', icon: <LayoutList className="size-5" /> },
+            ]}
+          />
+        )}
       </div>
     </div>
   );
