@@ -14,10 +14,7 @@ import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.output.MigrateResult;
 import org.jspecify.annotations.Nullable;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.IntStream;
 
 import static com.epam.indigoeln.eln.model.ApplicationPermission.VIEW_EXPERIMENTS;
@@ -47,6 +44,8 @@ public class SupportService {
     AttachmentService attachmentService;
     @Inject
     ExperimentDetailsReportBuilder experimentDetailsReportBuilder;
+    @Inject
+    UploadService uploadService;
 
     private final Random random = new Random();
 
@@ -72,7 +71,12 @@ public class SupportService {
             projectCount++;
             for (int attachmentNo = 1; attachmentNo <= random.nextInt(0, 2); attachmentNo++) {
                 System.out.println("\tattachment " + attachmentNo);
-                attachmentService.createProjectAttachment(project.getId(), "attachment" + attachmentNo + ".txt", "content".getBytes().length, true);
+                Map<String, String> prepareData = attachmentService.prepareProjectAttachment(project.getId(), "attachment" + attachmentNo + ".txt", (long) "content".getBytes().length, true);
+                String path = prepareData.get("url");
+                String id = prepareData.get("id");
+                String fileName = Arrays.stream(path.split("/")).toList().getLast();
+                uploadService.uploadAttachment("attachment/" + fileName, "content".getBytes());
+                attachmentService.completeProjectAttachment(project.getId(), UUID.fromString(id));
                 attachmentCount++;
             }
             for (int notebookNo = 1; notebookNo <= random.nextInt(1, 4); notebookNo++) {
@@ -81,7 +85,12 @@ public class SupportService {
                 notebookCount++;
                 for (int attachmentNo = 1; attachmentNo <= random.nextInt(0, 4); attachmentNo++) {
                     System.out.println("\tattachment " + attachmentNo);
-                    attachmentService.createNotebookAttachment(notebook.getId(), "attachment" + attachmentNo + ".txt", "content".getBytes().length, true);
+                    Map<String, String> prepareData = attachmentService.prepareNotebookAttachment(notebook.getId(), "attachment" + attachmentNo + ".txt", (long) "content".getBytes().length, true);
+                    String path = prepareData.get("url");
+                    String id = prepareData.get("id");
+                    String fileName = Arrays.stream(path.split("/")).toList().getLast();
+                    uploadService.uploadAttachment("attachment/" + fileName, "content".getBytes());
+                    attachmentService.completeNotebookAttachment(notebook.getId(), UUID.fromString(id));
                     attachmentCount++;
                 }
                 for (int experimentNo = 1; experimentNo <= random.nextInt(1, 12); experimentNo++) {
@@ -94,7 +103,12 @@ public class SupportService {
                     experimentCount++;
                     for (int attachmentNo = 1; attachmentNo <= random.nextInt(0, 4); attachmentNo++) {
                         System.out.println("\tattachment " + attachmentNo);
-                        attachmentService.createExperimentAttachment(experiment.getId(), "attachment" + attachmentNo + ".txt", "content".getBytes().length, true);
+                        Map<String, String> prepareData = attachmentService.prepareExperimentAttachment(experiment.getId(), "attachment" + attachmentNo + ".txt", (long) "content".getBytes().length, true);
+                        String path = prepareData.get("url");
+                        String id = prepareData.get("id");
+                        String fileName = Arrays.stream(path.split("/")).toList().getLast();
+                        uploadService.uploadAttachment("attachment/" + fileName, "content".getBytes());
+                        attachmentService.completeExperimentAttachment(experiment.getId(), UUID.fromString(id));
                         attachmentCount++;
                     }
                 }

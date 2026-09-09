@@ -39,8 +39,6 @@ public class LocalFileStorage implements FileStorage {
 
     @Override
     public String createPresignedUrl(String keyName) {
-        System.err.println(keyName);
-        System.err.println(Path.of(root).resolve(keyName).toUri());
         return Path.of(root).resolve(keyName).toUri().toString();
     }
 }

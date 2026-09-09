@@ -58,10 +58,6 @@ public class AttachmentService {
     @Inject
     NotebookService notebookService;
 
-    public String createProjectAttachment(UUID projectId, FileUpload file, boolean useMutation) {
-        return Objects.requireNonNull(createProjectAttachment(projectId, file.fileName(), readFile(file).length, useMutation).b());
-    }
-
     public Map<String, String> prepareProjectAttachment(UUID projectId, String filename, long size, boolean useMutation) {
         ProjectEntity project = projectRepository.get(projectId);
         aclService.ensureAccess(project, ApplicationPermission.EDIT_PROJECTS);
@@ -78,25 +74,6 @@ public class AttachmentService {
                 "url", presignedUrl,
                 "id", attachment.getId().toString()
         );
-    }
-
-    public Pair<AttachmentEntity, String> createProjectAttachment(UUID projectId, String filename, long size, boolean useMutation) {
-        ProjectEntity project = projectRepository.get(projectId);
-        aclService.ensureAccess(project, ApplicationPermission.EDIT_PROJECTS);
-        Pair<AttachmentEntity, String> pair = doCreateAttachment(filename, size);
-        AttachmentEntity attachment = Objects.requireNonNull(pair.a());
-        String presignedUrl = Objects.requireNonNull(pair.b());
-        if (useMutation) {
-            projectService.applyMutation(project, new ProjectMutation.CreateProjectAttachment(attachment.getId()));
-        } else {
-            doAddProjectAttachment(project, attachment);
-        }
-        //return attachmentMapper.attachmentToDTOList(project.getAttachments());
-        return pair;
-    }
-
-    public String createNotebookAttachment(UUID notebookId, FileUpload file, boolean useMutation) {
-        return Objects.requireNonNull(createNotebookAttachment(notebookId, file.fileName(), readFile(file).length, useMutation).b());
     }
 
     public Map<String, String> prepareNotebookAttachment(UUID notebookId, String filename, long size, boolean useMutation) {
@@ -117,31 +94,6 @@ public class AttachmentService {
         );
     }
 
-    public Pair<AttachmentEntity, String> createNotebookAttachment(UUID notebookId, String filename, long size, boolean useMutation) {
-        NotebookEntity notebook = notebookRepository.get(notebookId);
-        aclService.ensureAccess(notebook, ApplicationPermission.EDIT_NOTEBOOKS);
-        Pair<AttachmentEntity, String> pair = doCreateAttachment(filename, size);
-        AttachmentEntity attachment = Objects.requireNonNull(pair.a());
-        String presignedUrl = Objects.requireNonNull(pair.b());
-        if (useMutation) {
-            notebookService.applyMutation(notebook, new NotebookMutation.CreateNotebookAttachment(attachment.getId()));
-        } else {
-            doAddNotebookAttachment(notebook, attachment);
-        }
-        //return attachmentMapper.attachmentToDTOList(notebook.getAttachments());
-        return pair;
-    }
-
-    public String createExperimentAttachment(UUID experimentId, FileUpload file, @Nullable Boolean useMutation) {
-        return createExperimentAttachment(experimentId, file.fileName(), readFile(file).length, useMutation);
-    }
-
-    public String createExperimentAttachment(UUID experimentId, String filename, long size, @Nullable Boolean useMutation) {
-        ExperimentEntity experiment = experimentRepository.getAndLock(experimentId);
-        return Objects.requireNonNull(createExperimentAttachment(experiment, filename, size, useMutation).b());
-        //return attachmentMapper.attachmentToDTOList(experiment.getAttachments());
-    }
-
     public Map<String, String> prepareExperimentAttachment(UUID experimentId, String filename, long size, @Nullable Boolean useMutation) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, ApplicationPermission.EDIT_EXPERIMENTS);
@@ -158,19 +110,6 @@ public class AttachmentService {
                 "url", presignedUrl,
                 "id", attachment.getId().toString()
         );
-    }
-
-    public Pair<AttachmentEntity, String> createExperimentAttachment(ExperimentEntity experiment, String filename, long size, @Nullable Boolean useMutation) {
-        aclService.ensureAccess(experiment, ApplicationPermission.EDIT_EXPERIMENTS);
-        Pair<AttachmentEntity, String> pair = doCreateAttachment(filename, size);
-        AttachmentEntity attachment = Objects.requireNonNull(pair.a());
-        String presignedUrl = Objects.requireNonNull(pair.b());
-        if (useMutation == Boolean.TRUE) {
-            experimentModelService.applyMutation(experiment, new ExperimentMutation.CreateExperimentAttachment(attachment.getId()));
-        } else if (useMutation == Boolean.FALSE) {
-            doAddExperimentAttachment(experiment, attachment);
-        }
-        return pair;
     }
 
     public List<AttachmentDTO> completeExperimentAttachment(UUID experimentId, UUID attachmentId) {
@@ -219,11 +158,9 @@ public class AttachmentService {
         attachment.setName(filename);
         attachment.setSize(size);
         attachment.setDeleted(false);
-        //attachment.setContent(content);
 
         updateDates(attachment, userService.getCurrentUserEntity());
         String presignedUrl = attachmentRepository.persistAndCreatePresignedUrl(attachment);
-        System.err.println(presignedUrl);
         return new Pair<>(attachment, presignedUrl);
     }
 
