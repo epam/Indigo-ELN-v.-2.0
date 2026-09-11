@@ -166,8 +166,10 @@ export function StoichiometryTable({ experiment, reaction }: { experiment: Exper
               <th className={cn(HEADER_CELL_CLASS, ALIGN_CLASS.center)} />
               {COMPOUND_COLUMNS.map((column) =>
                 // A spacer names nothing, so it is a plain cell rather than an empty `<th>`.
+                // `px-0` because the shared padding would be a 34px floor under a column whose
+                // whole purpose is to have no minimum of its own.
                 column.kind === 'spacer' ? (
-                  <td key={column.id} className={HEADER_CELL_CLASS} />
+                  <td key={column.id} className={cn(HEADER_CELL_CLASS, 'px-0')} />
                 ) : (
                   <th
                     key={column.id}
@@ -373,6 +375,9 @@ function CompoundRow({
             className={cn(
               CELL_CLASS,
               ALIGN_CLASS[column.align ?? alignOf(column.kind)],
+              // Matching the header: an empty cell that still reserved `px-2` would floor the
+              // spacer at 16px instead of collapsing to nothing.
+              column.kind === 'spacer' && 'px-0',
               column.kind === 'delete' && ACTIONS_CELL_CLASS,
             )}
           >

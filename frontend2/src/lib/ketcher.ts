@@ -88,7 +88,7 @@ async function generateSvg(structure: string): Promise<string> {
   let timer: ReturnType<typeof setTimeout> | undefined;
   try {
     const base64 = await Promise.race([
-      service.generateImageAsBase64(structure, { outputFormat: 'svg' }),
+      service.generateImageAsBase64(structure, { outputFormat: 'svg', 'render-coloring': true }),
       new Promise<never>((_resolve, reject) => {
         timer = setTimeout(() => {
           // The abandoned `once` listener is still on this service's emitter and would eat
