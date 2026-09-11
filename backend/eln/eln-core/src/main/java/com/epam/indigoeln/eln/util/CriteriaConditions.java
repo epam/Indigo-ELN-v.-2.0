@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.util;
 
+import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.compound.model.search.NumericSearch;
 import com.epam.indigoeln.compound.model.search.StructuralSearch;
 import com.epam.indigoeln.compound.model.search.TextSearch;
@@ -10,9 +11,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Predicate;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.jspecify.annotations.Nullable;
 
@@ -24,19 +26,17 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 @Dependent
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
 public class CriteriaConditions {
 
-    private final HibernateCriteriaBuilder cb;
+    private static final String SIMILARITY_METRIC_TANIMOTO = "Tanimoto";
 
+    @Inject
+    HibernateCriteriaBuilder cb;
     @Inject
     DictionaryService dictionaryService;
 
     private final List<Predicate> predicates = new ArrayList<>();
-
-    @Inject
-    CriteriaConditions(EntityManager em) {
-        cb = (HibernateCriteriaBuilder) em.getCriteriaBuilder();
-    }
 
     public void add(@Nullable Predicate predicate) {
         if (predicate != null) {
@@ -112,12 +112,29 @@ public class CriteriaConditions {
         }
     }
 
-    public void structureSearch(Expression<String> attribute, @Nullable StructuralSearch search) {
+    public void moleculeSearch(Expression<String> attribute, @Nullable StructuralSearch search) {
         if (search != null) {
             Expression<Boolean> expression = switch (search.type()) {
                 case EXACT -> cb.function("bingo_exact_match", Boolean.class, attribute, cb.literal(search.query()), cb.literal(""));
                 case SUBSTRUCTURE -> cb.function("bingo_substructure_match", Boolean.class, attribute, cb.literal(search.query()), cb.literal(""));
                 case SIMILARITY -> cb.function("bingo_similarity_match", Boolean.class, attribute, cb.literal(0.8), cb.nullLiteral(Double.class), cb.literal(search.query()), cb.literal("Tanimoto"));
+            };
+            predicates.add(cb.isTrue(expression));
+        }
+    }
+
+    public Expression<Double> moleculeSimilarity(Expression<String> attribute, String query) {
+        return cb.function("bingo_getsimilarity", Double.class, attribute, cb.literal(query), cb.literal(SIMILARITY_METRIC_TANIMOTO));
+    }
+
+    public void reactionSearch(Expression<String> attribute, @Nullable StructuralSearch search) {
+        if (search != null) {
+            Expression<Boolean> expression = switch (search.type()) {
+                case EXACT -> cb.function("bingo_rexact_match", Boolean.class, attribute, cb.literal(search.query()), cb.literal(""));
+                case SUBSTRUCTURE -> cb.function("bingo_rsubstructure_match", Boolean.class, attribute, cb.literal(search.query()), cb.literal(""));
+                case SIMILARITY -> {
+                    throw new InvalidRequestException("Reaction similarity search is not supported");
+                }
             };
             predicates.add(cb.isTrue(expression));
         }

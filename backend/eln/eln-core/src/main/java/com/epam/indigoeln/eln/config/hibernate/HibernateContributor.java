@@ -10,11 +10,14 @@ public class HibernateContributor implements FunctionContributor {
     public void contributeFunctions(FunctionContributions functionContributions) {
         TypeConfiguration types = functionContributions.getTypeConfiguration();
 
+        // full text search
         functionContributions.getFunctionRegistry().registerPattern(
                 "full_text_search",
                 "(?1 @@ websearch_to_tsquery(?2, ?3))",
                 types.standardBasicTypeForJavaType(Boolean.class)
         );
+
+        // molecule search
         functionContributions.getFunctionRegistry().registerPattern(
                 "bingo_exact_match",
                 "(?1 @ (?2, ?3)::bingo.exact)",
@@ -28,6 +31,23 @@ public class HibernateContributor implements FunctionContributor {
         functionContributions.getFunctionRegistry().registerPattern(
                 "bingo_similarity_match",
                 "(?1 @ (?2, ?3, ?4, ?5)::bingo.sim)",
+                types.standardBasicTypeForJavaType(Boolean.class)
+        );
+        functionContributions.getFunctionRegistry().registerPattern(
+                "bingo_getsimilarity",
+                "(bingo.getsimilarity(?1, ?2, ?3))",
+                types.standardBasicTypeForJavaType(Double.class)
+        );
+
+        // reaction search
+        functionContributions.getFunctionRegistry().registerPattern(
+                "bingo_rexact_match",
+                "(?1 @ (?2, ?3)::bingo.exact)",
+                types.standardBasicTypeForJavaType(Boolean.class)
+        );
+        functionContributions.getFunctionRegistry().registerPattern(
+                "bingo_rsubstructure_match",
+                "(?1 @ (?2, ?3)::bingo.sub)",
                 types.standardBasicTypeForJavaType(Boolean.class)
         );
     }
