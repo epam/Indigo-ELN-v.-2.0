@@ -41,18 +41,20 @@ import static com.google.common.base.Preconditions.checkState;
  * <p>&emsp; molWeight is never calculated</p>
  *
  * <p>F4.1. sample.mol = sample.molarity * sample.volume</p>
- * <p>&emsp; F4.2. sample.molarity = sample.mol / sample.volume</p>
+ * <p>&emsp; <s>F4.2. sample.molarity = sample.mol / sample.volume</s></p>
  * <p>&emsp; F4.3. sample.volume = sample.mol / sample.molarity</p>
  * <p>&emsp; F4.4. sample.actualMol = sample.molarity * sample.volume</p>
- * <p>&emsp; F4.5. sample.molarity = sample.actualMol / sample.volume</p>
+ * <p>&emsp; <s>F4.5. sample.molarity = sample.actualMol / sample.volume</s></p>
  * <p>&emsp; F4.6. sample.volume = sample.actualMol / sample.molarity</p>
+ * <p>&emsp; molarity is never calculated</p>
  *
  * <p>F5.1. sample.weight = sample.volume * sample.density</p>
  * <p>&emsp; F5.2. sample.volume = sample.weight / sample.density</p>
- * <p>&emsp; F5.3. sample.density = sample.weight / sample.volume</p>
+ * <p>&emsp; <s>F5.3. sample.density = sample.weight / sample.volume</s></p>
  * <p>&emsp; F5.4. sample.actualWeight = sample.volume * sample.density</p>
  * <p>&emsp; F5.5. sample.volume = sample.actualWeight / sample.density</p>
- * <p>&emsp; F5.6. sample.density = sample.actualWeight / sample.volume</p>
+ * <p>&emsp; <s>F5.6. sample.density = sample.actualWeight / sample.volume</s></p>
+ * <p>&emsp; density is never calculated</p>
  *
  * <p>F6.1. output.theoMol = limiting.mol / limiting.eq * output.eq</p>
  * <p>&emsp; it's the only way to determine theoMol, so cannot calculate others based on theoMol</p>
@@ -303,7 +305,6 @@ public class ReactionCalculator {
             ).addSources(sampleMols);
 
             if (this != limiting) {
-
                 formula(
                         "F2.1: nonLimiting.mol = limiting.mol / limiting.eq * input.eq",
                         mol,
@@ -317,18 +318,6 @@ public class ReactionCalculator {
                         () -> mol.divide(limiting.mol).multiply(limiting.eq),
                         mol, limiting.mol, limiting.eq
                 );
-            } else {
-//
-//                for (InputProps nonLimiting : reaction.inputs) {
-//                    if (this != nonLimiting) {
-//                        formula(
-//                                "F2.3: limiting.eq = limiting.mol * nonLimiting.eq / nonLimiting.mol",
-//                                eq,
-//                                () -> mol.multiply(nonLimiting.eq).divide(nonLimiting.mol),
-//                                mol, nonLimiting.mol, nonLimiting.eq
-//                        );
-//                    }
-//                }
             }
         }
     }
@@ -402,13 +391,6 @@ public class ReactionCalculator {
             );
 
             formula(
-                    "F4.2: sample.molarity = sample.mol / sample.volume",
-                    molarity,
-                    () -> mol.divide(volume),
-                    mol, volume
-            );
-
-            formula(
                     "F4.3: sample.volume = sample.mol / sample.molarity",
                     volume,
                     () -> mol.divide(molarity),
@@ -420,13 +402,6 @@ public class ReactionCalculator {
                     volume,
                     () -> weight.divide(density),
                     weight, density
-            );
-
-            formula(
-                    "F5.3: sample.density = sample.weight / sample.volume",
-                    density,
-                    () -> weight.divide(volume),
-                    weight, volume
             );
         }
     }
@@ -545,13 +520,6 @@ public class ReactionCalculator {
             );
 
             formula(
-                    "F4.5: sample.molarity = sample.actualMol / sample.volume",
-                    molarity,
-                    () -> actualMol.divide(volume),
-                    actualMol, volume
-            );
-
-            formula(
                     "F4.6: sample.volume = sample.actualMol / sample.molarity",
                     volume,
                     () -> actualMol.divide(molarity),
@@ -563,13 +531,6 @@ public class ReactionCalculator {
                     volume,
                     () -> actualWeight.divide(density),
                     actualWeight, density
-            );
-
-            formula(
-                    "F5.6: sample.density = sample.actualWeight / sample.volume",
-                    density,
-                    () -> actualWeight.divide(volume),
-                    actualWeight, volume
             );
 
             formula(
@@ -596,6 +557,13 @@ public class ReactionCalculator {
         };
     }
 
+    private static boolean isNonCalculable(Property<?, ?> value) {
+        return switch (value.getProperty().name()) {
+            case "purity", "molarity", "density" -> true;
+            default -> false;
+        };
+    }
+
     private static int compareProperties(Pair<Property<?, ?>, EnteredValue<?>> pa, Pair<Property<?, ?>, EnteredValue<?>> pb) {
         Property<?, ?> a = pa.a(), b = pb.a();
         EnteredValue<?> valueA = pa.b(), valueB = pb.b();
@@ -608,11 +576,11 @@ public class ReactionCalculator {
 
         int result;
 
-        // purity is more priority than other (default purity is more important than other defaults and even other user-entered)
-        // (since in case of conflict we can likely recalculate user-entered, but we are not allowed to calculate purity)
-        boolean purityA = a.getProperty().name().equals("purity");
-        boolean purityB = b.getProperty().name().equals("purity");
-        result = Boolean.compare(purityA, purityB);
+        // purity/molarity/density are more priority than other (default purity is more important than other defaults and even other user-entered)
+        // (since in case of conflict we can likely recalculate user-entered, but we are not allowed to calculate purity/molarity/density)
+        boolean nonCalculableA = isNonCalculable(a);
+        boolean nonCalculableB = isNonCalculable(b);
+        result = Boolean.compare(nonCalculableA, nonCalculableB);
         if (result != 0) {
             return result;
         }

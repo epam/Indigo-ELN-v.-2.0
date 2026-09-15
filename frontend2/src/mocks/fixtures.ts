@@ -527,7 +527,7 @@ export const REACTION_OUTPUTS: ReactionOutput[] = [
       makeReactionOutputSample('f1000000-0000-4000-8000-000000000001', {
         actualWeight: entered('246', 'MG', 12),
         actualMol: entered('1.35', 'MMOL', 'calculated'),
-        molarity: entered('0.04', 'M', 'calculated'),
+        molarity: entered('0.04', 'M', 12),
         yield: entered('27.5', 'NO_UNIT', 'calculated'),
         purity: entered('98.5', 'NO_UNIT', 12),
         strCode: 'STR-00000016-00-003',

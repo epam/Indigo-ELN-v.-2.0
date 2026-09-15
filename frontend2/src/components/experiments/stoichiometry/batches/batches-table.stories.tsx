@@ -108,7 +108,7 @@ export const ProductTypeIsReadOnly: Story = {
   },
 };
 
-/** One of the three editable numbers. Value and unit are sent together or not at all. */
+/** One of the four editable numbers. Value and unit are sent together or not at all. */
 export const EditsTotalWeight: Story = {
   parameters: { msw: { handlers: spyHandlers } },
   render: () => <TableFromCache />,
@@ -154,11 +154,35 @@ export const EditsPurity: Story = {
   },
 };
 
-/** Molarity and Yield are computed by the backend, so neither offers an input. */
+/**
+ * Molarity is never calculated — it is entered, like purity — so it offers an input. The backend
+ * used to derive it from `actualMol / volume`.
+ */
+export const EditsMolarity: Story = {
+  parameters: { msw: { handlers: spyHandlers } },
+  render: () => <TableFromCache />,
+  play: async ({ canvasElement }) => {
+    sent.length = 0;
+    const canvas = within(canvasElement);
+
+    const input = await canvas.findByLabelText('Molarity, batch 001');
+    await userEvent.click(input);
+    await userEvent.clear(input);
+    await userEvent.type(input, '0.5{Enter}');
+
+    await waitFor(() =>
+      expect(sent).toEqual([
+        { type: 'SetOutputMolarity', anchor: 'f1000000-0000-4000-8000-000000000001', molarity: '0.5', unit: 'M' },
+      ]),
+    );
+  },
+};
+
+/** Yield is computed by the backend, so it offers no input. */
 export const CalculatedColumnsAreReadOnly: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByLabelText('Molarity, batch 001')).toBeDisabled();
+    await expect(canvas.getByLabelText('Molarity, batch 001')).toBeEnabled();
     await expect(canvas.getByLabelText('Yield, batch 001')).toBeDisabled();
     await expect(canvas.getByLabelText('Total Weight, batch 001')).toBeEnabled();
   },

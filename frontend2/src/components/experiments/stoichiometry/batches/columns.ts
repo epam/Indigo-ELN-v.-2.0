@@ -2,6 +2,7 @@ import type { NumericCellValue } from '@/components/experiments/stoichiometry/nu
 import type { ModelMutation } from '@/lib/types/mutations.ts';
 import type {
   EnteredValue,
+  MolarityUnit,
   MolUnit,
   ReactionOutput,
   ReactionOutputSample,
@@ -202,11 +203,17 @@ export const BATCH_COLUMNS: BatchColumn[] = [
     id: 'molarity',
     header: 'Molarity',
     minWidth: 110,
-    // Calculated: `molarity = actualMol / volume` (F4.5). `SetOutputMolarity` exists, but the
-    // batch summary has never offered it — molarity is derived from the two columns beside it.
-    kind: 'readonlyNumeric',
+    kind: 'numeric',
+    // Never calculated, like purity — it is an input to `actualMol = molarity * volume` (F4.4),
+    // not an output. The backend used to derive it from the two columns beside it.
     value: (row) => row.sample.molarity,
     units: MOLARITY_UNITS,
+    mutation: (row, next) => ({
+      type: 'SetOutputMolarity',
+      anchor: row.sample.anchor,
+      molarity: next.value,
+      unit: next.unit as MolarityUnit | null,
+    }),
   },
   {
     id: 'yield',

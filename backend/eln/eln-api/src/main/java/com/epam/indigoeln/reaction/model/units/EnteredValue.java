@@ -209,6 +209,9 @@ public final class EnteredValue<U extends MeasurementUnit> {
         if (!(o instanceof EnteredValue<?> that)) {
             return false;
         }
+        if (overwritten != that.overwritten) {
+            return false;
+        }
         if (present != that.present) { // one of them is empty
             return false;
         }
@@ -230,12 +233,12 @@ public final class EnteredValue<U extends MeasurementUnit> {
     @Override
     public int hashCode() {
         if (!present) {
-            return 0;
+            return Boolean.hashCode(overwritten);
         }
         if (exact) {
-            return Objects.hash(unit, source, value);
+            return Objects.hash(unit, source, value, overwritten);
         }
-        return Objects.hash(unit, source, getStringValue());
+        return Objects.hash(unit, source, getStringValue(), overwritten);
     }
 
     public BigDecimal toBigDecimal() {
