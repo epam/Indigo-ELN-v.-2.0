@@ -10,8 +10,7 @@ import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.mapper.ProjectMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
-import com.epam.indigoeln.eln.util.SearchVectorField;
-import com.epam.indigoeln.eln.util.SearchVectorUpdater;
+import com.epam.indigoeln.eln.util.SearchVector;
 import com.epam.indigoeln.reaction.model.ProjectSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.ProjectMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerRegistry;
@@ -44,8 +43,6 @@ public class ProjectService {
     ACLService aclService;
     @Inject
     MutationHandlerRegistry mutationHandlerRegistry;
-    @Inject
-    SearchVectorUpdater searchVectorUpdater;
 
     public ProjectDetailsDTO createProject(ProjectRequest request) {
         ProjectEntity project = new ProjectEntity();
@@ -106,20 +103,15 @@ public class ProjectService {
         return projectMapper.revisionToDTOList(projectRepository.getRevisions(project));
     }
 
-    public List<@Nullable SearchVectorField> collectSearchFields(ProjectEntity entity) {
-        List<@Nullable SearchVectorField> fields = new ArrayList<>();
-        fields.add(SearchVectorField.a(entity.getName()));
-        for (String keyword : entity.getKeywords()) {
-            fields.add(SearchVectorField.b(keyword));
+    public SearchVector collectSearchVector(ProjectSnapshot snapshot) {
+        SearchVector.Builder sv = new SearchVector.Builder()
+                .a(snapshot.getName())
+                .d(snapshot.getDescription())
+                .d(snapshot.getLiterature());
+                // TODO createdBy
+        for (String keyword : snapshot.getKeywords()) {
+            sv.b(keyword);
         }
-        fields.add(SearchVectorField.d(entity.getDescription()));
-        fields.add(SearchVectorField.d(entity.getLiterature()));
-        //noinspection ConstantValue
-        fields.add(SearchVectorField.c(entity.getCreatedBy() != null ? entity.getCreatedBy().getDisplayName() : null));
-        return fields;
-    }
-
-    public void updateSearchVector(ProjectEntity project, List<@Nullable SearchVectorField> fields) {
-        searchVectorUpdater.update("Project", project.getId(), fields);
+        return sv.build();
     }
 }

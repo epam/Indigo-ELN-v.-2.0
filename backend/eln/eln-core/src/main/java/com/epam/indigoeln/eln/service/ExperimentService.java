@@ -17,8 +17,7 @@ import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.eln.repository.TemplateRepository;
-import com.epam.indigoeln.eln.util.SearchVectorField;
-import com.epam.indigoeln.eln.util.SearchVectorUpdater;
+import com.epam.indigoeln.eln.util.SearchVector;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
@@ -100,8 +99,6 @@ public class ExperimentService {
     IndigoRendererAPI indigoRenderer;
     @Inject
     ObjectMapper objectMapper;
-    @Inject
-    SearchVectorUpdater searchVectorUpdater;
 
     public ExperimentDetailsDTO createExperiment(UUID notebookId, ExperimentRequest request) {
         NotebookEntity notebook = notebookRepository.loadWithACL(notebookId);
@@ -442,27 +439,22 @@ public class ExperimentService {
         }
     }
 
-    public List<@Nullable SearchVectorField> collectSearchFields(ExperimentEntity entity) {
-        List<@Nullable SearchVectorField> fields = new ArrayList<>();
-        fields.add(SearchVectorField.a(entity.getName()));
-        fields.add(SearchVectorField.a(entity.getTitle()));
-        fields.add(SearchVectorField.d(entity.getDescription()));
-        fields.add(SearchVectorField.d(entity.getLiterature()));
-        //noinspection ConstantValue
-        fields.add(SearchVectorField.c(entity.getCreatedBy() != null ? entity.getCreatedBy().getDisplayName() : null));
-        for (Reaction reaction : entity.getModel().getReactions()) {
+    public SearchVector collectSearchVector(ExperimentSnapshot snapshot) {
+        SearchVector.Builder sv = new SearchVector.Builder()
+                .a(snapshot.getName()) // TODO complex index of Experiment.name
+                .a(snapshot.getTitle())
+                .d(snapshot.getDescription())
+                .d(snapshot.getLiterature());
+        // TODO createdBy
+        for (Reaction reaction : snapshot.getModel().getReactions()) {
             for (ReactionInput input : reaction.getInputs()) {
-                fields.add(SearchVectorField.b(input.getCompound().getCompoundKey()));
+                sv.b(input.getCompound().getCompoundKey());
                 for (ReactionInputSample sample : input.getSamples()) {
-                    fields.add(SearchVectorField.c(sample.getStrCode() != null ? sample.getStrCode().toString() : null));
-                    fields.add(SearchVectorField.c(sample.getNbkBatchNumber() != null ? sample.getNbkBatchNumber().toString() : null));
+                    sv.c(sample.getStrCode() != null ? sample.getStrCode().toString() : null);
+                    sv.c(sample.getNbkBatchNumber() != null ? sample.getNbkBatchNumber().toString() : null);
                 }
             }
         }
-        return fields;
-    }
-
-    public void updateSearchVector(ExperimentEntity entity, List<@Nullable SearchVectorField> fields) {
-        searchVectorUpdater.update("Experiment", entity.getId(), fields);
+        return sv.build();
     }
 }

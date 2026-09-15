@@ -21,7 +21,6 @@ import jakarta.persistence.Tuple;
 import org.hibernate.query.NativeQuery;
 import org.hibernate.query.SynchronizeableQuery;
 import org.hibernate.query.criteria.CriteriaDefinition;
-import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.hibernate.query.criteria.JpaJoin;
 import org.hibernate.query.criteria.JpaRoot;
 import org.jspecify.annotations.Nullable;
@@ -37,8 +36,6 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
     SampleMapper sampleMapper;
     @Inject
     CriteriaConditions.Factory criteriaConditionsFactory;
-    @Inject
-    HibernateCriteriaBuilder cb;
 
     public SampleRepository() {
         super(ELNEntityType.SAMPLE, SampleEntity.class);
@@ -62,7 +59,7 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
             select(tuple(root.id(), count(literal(1), createWindow())));
             criteriaConditionsFactory.withConditions(this::where, conditions -> {
                 orderBy(asc(root.get(SampleEntity_.id))); // default sort, can be overridden
-                conditions.fullTextSearch(root.get(SampleEntity_.searchVector), request.getQuickSearch(), s -> null);
+                conditions.fullTextSearch(root.get(SampleEntity_.searchVector), request.getQuickSearch(), null);
 
                 conditions.moleculeSearch(compound.get(CompoundEntity_.molFile), request.getStructure());
                 if (request.getStructure() != null && request.getStructure().type() != StructuralSearch.Type.EXACT) {

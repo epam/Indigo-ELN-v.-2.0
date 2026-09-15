@@ -517,9 +517,8 @@ class ProjectServiceTest extends ELNBaseTest {
         Page<ProjectDTO> result3 = projectClient.getProjects("quickSearchCommon", null, null, Paging.DEFAULT);
         assertThat(result3.getItems()).map(ProjectDTO::getName).containsExactlyInAnyOrder(p2, p3);
 
-        // TODO keywords doesn't get reflected in the index because keywords are in a separate table and update is not triggered
-//        Page<ProjectDTO> result4 = projectsClient.getProjects("QSKeyword", Paging.DEFAULT);
-//        assertThat(result4.getItems()).map(ProjectDTO::getName).containsOnly(p3);
+        Page<ProjectDTO> result4 = projectClient.getProjects("QSKeyword", null, null, Paging.DEFAULT);
+        assertThat(result4.getItems()).map(ProjectDTO::getName).containsOnly(p3);
 
         Page<ProjectDTO> result5 = projectClient.getProjects("QSLiterature", null, null, Paging.DEFAULT);
         assertThat(result5.getItems()).map(ProjectDTO::getName).containsOnly(p3);

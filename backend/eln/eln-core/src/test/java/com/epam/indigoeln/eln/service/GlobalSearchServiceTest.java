@@ -118,7 +118,7 @@ class GlobalSearchServiceTest extends ELNBaseTest {
                 , tuple(ELNEntityType.EXPERIMENT, experiment1.name(), experiment1.id())
                 , tuple(ELNEntityType.EXPERIMENT, experiment2.name(), experiment2.id())
         );
-        assertThat(results.getItems()).map(GlobalSearchResultDTO::getFragment, GlobalSearchResultDTO::getCreatedBy).containsExactly(
+        assertThat(results.getItems()).map(GlobalSearchResultDTO::getFragment, GlobalSearchResultDTO::getCreatedBy).containsExactlyInAnyOrder(
                 tuple(project1.getDescription(), MAGGIE_USER_REF),
                 tuple(project2.getDescription(), MAGGIE_USER_REF),
                 tuple("nd1 <mark>xx</mark>", MAGGIE_USER_REF),
@@ -312,7 +312,7 @@ class GlobalSearchServiceTest extends ELNBaseTest {
         }
 
         List<UUID> all = globalSearchClient.search(request, Paging.DEFAULT).getItems().stream().map(GlobalSearchResultDTO::getId).toList();
-        assertThat(paged).doesNotHaveDuplicates().containsExactlyElementsOf(all);
+        assertThat(paged).doesNotHaveDuplicates().containsExactlyInAnyOrderElementsOf(all);
     }
 
     private void assertResults(Page<GlobalSearchResultDTO> results, Tuple... expected) {

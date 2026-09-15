@@ -178,6 +178,11 @@ public final class EnteredValue<U extends MeasurementUnit> {
         return value;
     }
 
+    @Nullable
+    public Double getValueOrNull() {
+        return present ? value : null;
+    }
+
     public U getUnit() {
         checkState(present);
         return unit;

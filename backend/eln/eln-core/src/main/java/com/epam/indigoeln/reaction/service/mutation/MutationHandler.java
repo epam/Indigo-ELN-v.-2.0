@@ -9,7 +9,7 @@ import jakarta.persistence.PersistenceContext;
 
 import java.util.List;
 
-public abstract class MutationHandler<T extends Mutation, E extends WithRevision, S, R extends BaseRevisionEntity, C, L extends MutationListener<E, C>> {
+public abstract class MutationHandler<T extends Mutation, E extends WithRevision, S, R extends BaseRevisionEntity, C, L extends MutationListener<E, S, C>> {
 
     @PersistenceContext
     EntityManager em;
@@ -45,7 +45,7 @@ public abstract class MutationHandler<T extends Mutation, E extends WithRevision
         // write changes back to the entity
         JsonNode patch = doUpdateEntity(entity, snapshotBefore, snapshotAfter, context);
         for (L listener : getListeners()) {
-            listener.afterUpdateEntity(entity);
+            listener.afterUpdateEntity(entity, snapshotBefore, snapshotAfter);
         }
         // create revision
         R revision = doCreateRevision(entity, mutation, summary, revisionNo, patch, context, snapshotAfter);

@@ -1,17 +1,13 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.util.Pair;
-import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
-import com.epam.indigoeln.eln.entity.NotebookEntity;
-import com.epam.indigoeln.eln.entity.ProjectEntity;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.util.ExperimentDetailsReportBuilder;
-import com.epam.indigoeln.eln.util.SearchVectorUpdater;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -69,8 +65,6 @@ public class SupportService {
     AttachmentService attachmentService;
     @Inject
     ExperimentDetailsReportBuilder experimentDetailsReportBuilder;
-    @Inject
-    SearchVectorUpdater searchVectorUpdater;
 
     private final Random random = new Random();
 
@@ -87,9 +81,10 @@ public class SupportService {
     public Map<String, String> reindexSearchVectors() {
         aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_USERS);
 
+/*
         long projects = doReindex(
                 em.createQuery("FROM Project p JOIN FETCH p.createdBy ORDER BY p.id", ProjectEntity.class),
-                p -> projectService.updateSearchVector(p, projectService.collectSearchFields(p)));
+                p -> projectService.updateSearchVector(p, projectService.collectSearchVector(p)));
 
         long notebooks = doReindex(
                 em.createQuery("FROM Notebook n JOIN FETCH n.createdBy ORDER BY n.id", NotebookEntity.class),
@@ -97,7 +92,7 @@ public class SupportService {
 
         long experiments = doReindex(
                 em.createQuery("FROM Experiment e JOIN FETCH e.createdBy ORDER BY e.id", ExperimentEntity.class),
-                e -> experimentService.updateSearchVector(e, experimentService.collectSearchFields(e)));
+                e -> experimentService.updateSearchVector(e, experimentService.collectSearchVector(e)));
 
         long samples = doReindex(
                 em.createQuery("FROM Sample s JOIN FETCH s.compound ORDER BY s.id", SampleEntity.class),
@@ -108,6 +103,8 @@ public class SupportService {
                 "notebooks", String.valueOf(notebooks),
                 "experiments", String.valueOf(experiments),
                 "samples", String.valueOf(samples));
+*/
+        throw new UnsupportedOperationException();
     }
 
     private <T> long doReindex(TypedQuery<T> query, Consumer<T> processor) {

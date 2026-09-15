@@ -1,10 +1,13 @@
 package com.epam.indigoeln.eln.util;
 
 import com.epam.indigoeln.common.exception.InvalidRequestException;
+import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.compound.model.search.NumericSearch;
 import com.epam.indigoeln.compound.model.search.StructuralSearch;
 import com.epam.indigoeln.compound.model.search.TextSearch;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
+import com.epam.indigoeln.eln.entity.UserEntity;
+import com.epam.indigoeln.eln.entity.UserEntity_;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -12,6 +15,7 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -23,7 +27,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 @Dependent
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
@@ -101,15 +104,22 @@ public class CriteriaConditions {
         }
     }
 
-    public void fullTextSearch(Expression<String> attribute, @Nullable String search, Function<String, @Nullable List<Predicate>> alternativesFn) {
+    public void fullTextSearch(Expression<SearchVector> attribute, @Nullable String search, @Nullable Expression<String> name) {
         if (search != null) {
             Predicate predicate = cb.isTrue(cb.function("full_text_search", Boolean.class, attribute, cb.literal("english"), cb.literal(search)));
-            List<Predicate> alternatives = alternativesFn.apply(search);
-            if (alternatives != null) {
-                predicate = cb.or(Stream.concat(Stream.of(predicate), alternatives.stream()).toList());
+            if (name != null) {
+                predicate = cb.or(predicate, cb.ilike(name, cb.literal("%" + search + "%")));
             }
             predicates.add(predicate);
         }
+    }
+
+    public Expression<Double> fullTextRank(Expression<SearchVector> attribute, String search) {
+        return cb.function("ts_rank", Double.class, attribute, cb.literal(search));
+    }
+
+    public Expression<String> fullTextHeadline(Expression<String> attribute, String search, String options) {
+        return cb.function("ts_headline", String.class, cb.literal("english"), attribute, cb.literal("english"), cb.literal(search), cb.literal(options));
     }
 
     public void moleculeSearch(Expression<String> attribute, @Nullable StructuralSearch search) {
@@ -143,6 +153,12 @@ public class CriteriaConditions {
     public void bool(Expression<Boolean> attribute, @Nullable Boolean search) {
         if (search != null) {
             predicates.add(search ? cb.isTrue(attribute) : cb.isFalse(attribute));
+        }
+    }
+
+    public void user(Path<UserEntity> attribute, @Nullable Collection<UserRef> search) {
+        if (search != null) {
+            predicates.add(cb.in(attribute.get(UserEntity_.username), search.stream().map(UserRef::getUsername).toList()));
         }
     }
 

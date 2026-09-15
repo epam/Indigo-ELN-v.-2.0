@@ -16,6 +16,16 @@ public class HibernateContributor implements FunctionContributor {
                 "(?1 @@ websearch_to_tsquery(?2, ?3))",
                 types.standardBasicTypeForJavaType(Boolean.class)
         );
+        functionContributions.getFunctionRegistry().registerPattern(
+                "ts_rank",
+                "(ts_rank(?1, ?2))",
+                types.standardBasicTypeForJavaType(Double.class)
+        );
+        functionContributions.getFunctionRegistry().registerPattern(
+                "ts_headline",
+                "(ts_headline(?1, ?2, websearch_to_tsquery(?3, ?4), ?5))",
+                types.standardBasicTypeForJavaType(String.class)
+        );
 
         // molecule search
         functionContributions.getFunctionRegistry().registerPattern(
@@ -42,12 +52,12 @@ public class HibernateContributor implements FunctionContributor {
         // reaction search
         functionContributions.getFunctionRegistry().registerPattern(
                 "bingo_rexact_match",
-                "(?1 @ (?2, ?3)::bingo.exact)",
+                "(?1 @ (?2, ?3)::bingo.rexact)",
                 types.standardBasicTypeForJavaType(Boolean.class)
         );
         functionContributions.getFunctionRegistry().registerPattern(
                 "bingo_rsubstructure_match",
-                "(?1 @ (?2, ?3)::bingo.sub)",
+                "(?1 @ (?2, ?3)::bingo.rsub)",
                 types.standardBasicTypeForJavaType(Boolean.class)
         );
     }

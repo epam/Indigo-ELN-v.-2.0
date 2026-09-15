@@ -2,7 +2,7 @@ package com.epam.indigoeln.reaction.service.mutation;
 
 import com.epam.indigoeln.eln.entity.WithRevision;
 
-public interface MutationListener<E extends WithRevision, C> {
+public interface MutationListener<E extends WithRevision, S, C> {
 
     int DEFAULT_PRIORITY = 1000;
     int VALIDATION_PRIORITY = 100;
@@ -10,6 +10,9 @@ public interface MutationListener<E extends WithRevision, C> {
     default void beforeHandle(E entity, C context) {
     }
 
-    default void afterUpdateEntity(E entity) {
+    default void beforePersist(E entity, S snapshotBefore, S snapshotAfter) {
+    }
+
+    default void afterUpdateEntity(E entity, S snapshotBefore, S snapshotAfter) {
     }
 }

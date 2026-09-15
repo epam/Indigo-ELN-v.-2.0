@@ -3,233 +3,300 @@ package com.epam.indigoeln.eln.service;
 import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
-import com.epam.indigoeln.eln.common.util.NamedConditions;
+import com.epam.indigoeln.common.model.UserRef;
+import com.epam.indigoeln.common.util.ModelUtil;
+import com.epam.indigoeln.compound.entity.CompoundEntity;
+import com.epam.indigoeln.compound.entity.CompoundEntity_;
 import com.epam.indigoeln.eln.config.DataAccess;
+import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.model.ELNEntityType;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
 import com.epam.indigoeln.eln.model.GlobalSearchRequest;
 import com.epam.indigoeln.eln.model.GlobalSearchResultDTO;
+import com.epam.indigoeln.eln.util.CriteriaConditions;
 import com.epam.indigoeln.reaction.model.ReactionRole;
+import com.google.common.collect.Lists;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Selection;
 import jakarta.transaction.Transactional;
-import one.util.streamex.StreamEx;
-import org.jspecify.annotations.Nullable;
+import one.util.streamex.EntryStream;
+import org.hibernate.query.criteria.*;
 
 import java.time.Instant;
-import java.util.*;
-import java.util.stream.Stream;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 @DataAccess
 @Transactional
 @ApplicationScoped
 public class GlobalSearchService {
 
-    private static final String AUTHOR = "author";
-    private static final String MOLFILE = "molfile";
-    private static final String QUERY = "query";
+    private static final int MAX_COUNT = 1000;
 
-    private final UserService userService;
-    @PersistenceContext
-    EntityManager em;
+    private static final int TYPE_PROJECT = 1;
+    private static final int TYPE_NOTEBOOK = 2;
+    private static final int TYPE_EXPERIMENT = 3;
 
     @Inject
-    public GlobalSearchService(UserService userService) {
-        this.userService = userService;
-    }
+    UserService userService;
+    @Inject
+    CriteriaConditions.Factory criteriaConditionsFactory;
+    @Inject
+    HibernateCriteriaBuilder cb;
+    @PersistenceContext
+    EntityManager em;
 
     public Page<GlobalSearchResultDTO> search(GlobalSearchRequest request, Paging paging) {
         if (request.isEmpty()) {
             throw new InvalidRequestException("Request is empty");
         }
-        NamedConditions projectConditions = new NamedConditions();
-        NamedConditions notebookConditions = new NamedConditions();
-        NamedConditions experimentConditions = new NamedConditions();
-        boolean hasProjects = true, hasNotebooks = true, hasExperiments = true;
-        List<String> experimentJoins = new ArrayList<>();
-        String rolesSelector = "null AS reaction_roles ";
-        String groupBySQL = null;
-        if (request.getTherapeuticArea() != null) {
-            hasProjects = hasNotebooks = false;
-            experimentConditions.add("therapeutic_area_id = :therapeuticArea", "therapeuticArea", request.getTherapeuticArea().getId());
-        }
-        if (request.getProjectCode() != null) {
-            hasProjects = hasNotebooks = false;
-            experimentConditions.add("project_code_id = :projectCode", "projectCode", request.getProjectCode().getId());
-        }
-        if (request.getExperimentStatus() != null) {
-            hasProjects = hasNotebooks = false;
-            experimentConditions.add("status = any(cast(:experimentStatus as Experiment_Status[]))", "experimentStatus", request.getExperimentStatus().stream().map(Enum::name).toArray(String[]::new));
-        }
-        if (request.getAuthor() != null) {
-            String condition = "created_by_id in :author";
-            List<UUID> ids = request.getAuthor().stream()
-                    .map(u -> userService.getUserInfo(u).getId())
-                    .toList();
-            projectConditions.add(condition, AUTHOR, ids);
-            notebookConditions.add(condition, AUTHOR, ids);
-            experimentConditions.add(condition, AUTHOR, ids);
-        }
-        if (request.getMoleculeStructure() != null) {
-            hasProjects = hasNotebooks = false;
-            experimentJoins.add("join Experiment_Referenced_Compound erc on erc.experiment_id = e.id");
-            experimentJoins.add("join Compound c on c.id = erc.compound_id");
-            switch (request.getMoleculeStructure().type()) {
-                case EXACT -> {
-                    experimentConditions.add("c.mol_file @ (:molfile, '')::bingo.exact", MOLFILE, request.getMoleculeStructure().query());
+        boolean onlyExperiments = request.getTherapeuticArea() != null || request.getProjectCode() != null || request.getExperimentStatus() != null
+                || request.getMoleculeStructure() != null || request.getReactionStructure() != null
+                || request.getBatchPurity() != null || request.getBatchYield() != null;
+        boolean hasFullTextSearch = request.getQuery() != null;
+        boolean hasRoles = request.getMoleculeStructure() != null;
+
+        int filteredLimit = Math.max(MAX_COUNT, paging.getFirstResult() + paging.getPageSizeOrDefault());
+
+        CriteriaQuery<Tuple> experimentsQuery = cb.createTupleQuery();
+        new CriteriaDefinition<>(em, experimentsQuery) {{
+            JpaRoot<ExperimentEntity> root = from(ExperimentEntity.class);
+            criteriaConditionsFactory.withConditions(this::where, conditions -> {
+                Expression<?> rank = root.get(ExperimentEntity_.createdAt);
+                Expression<ReactionRole[]> roles = null;
+                conditions.user(root.get(ExperimentEntity_.createdBy), request.getAuthor());
+                conditions.fullTextSearch(root.get(ExperimentEntity_.searchVector), request.getQuery(), root.get(ExperimentEntity_.name));
+                if (request.getQuery() != null) {
+                    rank = conditions.fullTextRank(root.get(ExperimentEntity_.searchVector), request.getQuery());
                 }
-                case SUBSTRUCTURE -> {
-                    experimentConditions.add("c.mol_file @ (:molfile, '')::bingo.sub", MOLFILE, request.getMoleculeStructure().query());
+                conditions.dictionary(root.get(ExperimentEntity_.therapeuticArea), request.getTherapeuticArea());
+                conditions.dictionary(root.get(ExperimentEntity_.projectCode), request.getProjectCode());
+                if (request.getExperimentStatus() != null) {
+                    conditions.add(root.get(ExperimentEntity_.status).in(request.getExperimentStatus()));
                 }
-                case SIMILARITY -> {
-                    experimentConditions.add("c.mol_file @ (0.8, null, :molfile, 'Tanimoto')::bingo.sim", MOLFILE, request.getMoleculeStructure().query());
+                // molecule search - use GROUP BY instead of EXISTS to: 1. extract similarity rank; 2. extract roles
+                if (request.getMoleculeStructure() != null) {
+                    JpaJoin<ExperimentEntity, ExperimentSearchCompound> experimentCompound = root.join(ExperimentEntity_.searchCompounds);
+                    JpaJoin<ExperimentSearchCompound, CompoundEntity> compound = experimentCompound.join(ExperimentSearchCompound_.compound);
+                    conditions.moleculeSearch(compound.get(CompoundEntity_.molFile), request.getMoleculeStructure());
+                    if (request.getReactionRole() != null) {
+                        conditions.add(equal(experimentCompound.get(ExperimentSearchCompound_.reactionRole), request.getReactionRole()));
+                    }
+                    roles = arrayAgg(null, experimentCompound.get(ExperimentSearchCompound_.REACTION_ROLE));
+                    // best-matching compound ranks the experiment; the per-compound value is not grouped
+                    rank = max(conditions.moleculeSimilarity(compound.get(CompoundEntity_.molFile), request.getMoleculeStructure().query()));
+                    groupBy(root.get(ExperimentEntity_.id));
                 }
-            }
-            if (request.getReactionRole() != null) {
-                experimentConditions.add("erc.reaction_role = cast(:role as Reaction_Role)", "role", request.getReactionRole().name());
-            }
-            rolesSelector = "ARRAY_AGG(DISTINCT erc.reaction_role::varchar) AS reaction_roles";
-            groupBySQL = "e.name, e.title, e.id, e.description, e.created_by_id, e.created_at, e.modified_by_id, e.modified_at";
-        }
-        if (request.getReactionStructure() != null) {
-            hasProjects = hasNotebooks = false;
-            experimentJoins.add("join Experiment_Rxnfile rxn on rxn.experiment_id = e.id");
-            switch (request.getReactionStructure().type()) {
-                case EXACT -> {
-                    experimentConditions.add("rxn.rxnfile @ (:rxnfile, '')::bingo.rexact", "rxnfile", request.getReactionStructure().query());
+                // reaction search
+                if (request.getReactionStructure() != null) {
+                    JpaSubQuery<Integer> subquery = subquery(Integer.class);
+                    subquery.select(literal(1));
+                    JpaRoot<ExperimentEntity> subRoot = subquery.correlate(root);
+                    JpaJoin<ExperimentEntity, String> rxnfile = subRoot.join(ExperimentEntity_.searchRxnfiles);
+                    criteriaConditionsFactory.withConditions(subquery::where, rxnfilesConditions -> {
+                        rxnfilesConditions.reactionSearch(rxnfile, request.getReactionStructure());
+                    });
+                    conditions.add(exists(subquery));
                 }
-                case SUBSTRUCTURE -> {
-                    experimentConditions.add("rxn.rxnfile @ (:rxnfile, '')::bingo.rsub", "rxnfile", request.getReactionStructure().query());
+                // batches search
+                if (request.getBatchPurity() != null || request.getBatchYield() != null) {
+                    JpaSubQuery<Integer> subquery = subquery(Integer.class);
+                    subquery.select(literal(1));
+                    JpaRoot<ExperimentEntity> subRoot = subquery.correlate(root);
+                    JpaSetJoin<ExperimentEntity, ExperimentSearchBatch> batch = subRoot.join(ExperimentEntity_.searchBatches);
+                    criteriaConditionsFactory.withConditions(subquery::where, samplesConditions -> {
+                        if (request.getBatchPurity() != null) {
+                            samplesConditions.numericSearch(batch.get(ExperimentSearchBatch_.batchPurity), request.getBatchPurity());
+                        }
+                        if (request.getBatchYield() != null) {
+                            samplesConditions.numericSearch(batch.get(ExperimentSearchBatch_.batchYield), request.getBatchYield());
+                        }
+                    });
+                    conditions.add(exists(subquery));
                 }
-                case SIMILARITY -> {
-                    throw new InvalidRequestException("Reaction similarity search is not supported");
+                List<Selection<?>> columns = Lists.newArrayList(literal(TYPE_EXPERIMENT).alias("type"), root.get(ExperimentEntity_.id).alias("id"), rank.alias("rank"));
+                if (roles != null) {
+                    columns.add(roles.alias("roles"));
                 }
-            }
-        }
-        if (request.getBatchPurity() != null) {
-            hasProjects = hasNotebooks = false;
-            experimentConditions.add("""
-                EXISTS (
-                    SELECT 1
-                    FROM jsonb_path_query(e.model, '$.reactions[*].outputs[*].samples[*].purity') p
-                    WHERE (p.p->>'value')::numeric %OP% :purity
-                )
-            """.replace("%OP%", request.getBatchPurity().operator()), "purity", request.getBatchPurity().value());
-        }
-        if (request.getBatchYield() != null) {
-            hasProjects = hasNotebooks = false;
-            experimentConditions.add("""
-                EXISTS (
-                    SELECT 1
-                    FROM jsonb_path_query(e.model, '$.reactions[*].outputs[*].samples[*].yield') p
-                    WHERE (p.p->>'value')::numeric %OP% :yield
-                )
-            """.replace("%OP%", request.getBatchYield().operator()), "yield", request.getBatchYield().value());
+                select(tuple(columns));
+                orderBy(desc(rank));
+                fetch(filteredLimit + 1);
+            });
+        }};
+        CriteriaQuery<Tuple> filteredQuery;
+        if (onlyExperiments) {
+            filteredQuery = experimentsQuery;
+        } else {
+            CriteriaQuery<Tuple> projectsQuery = cb.createTupleQuery();
+            new CriteriaDefinition<>(em, projectsQuery) {{
+                JpaRoot<ProjectEntity> root = from(ProjectEntity.class);
+                criteriaConditionsFactory.withConditions(this::where, conditions -> {
+                    Expression<?> rank = root.get(ExperimentEntity_.createdAt);
+                    conditions.user(root.get(ProjectEntity_.createdBy), request.getAuthor());
+                    conditions.fullTextSearch(root.get(ProjectEntity_.searchVector), request.getQuery(), root.get(ProjectEntity_.name));
+                    if (request.getQuery() != null) {
+                        rank = conditions.fullTextRank(root.get(ProjectEntity_.searchVector), request.getQuery());
+                    }
+                    select(tuple(literal(TYPE_PROJECT), root.get(ProjectEntity_.id), rank));
+                    orderBy(desc(rank));
+                    fetch(filteredLimit + 1);
+                });
+            }};
+
+            CriteriaQuery<Tuple> notebooksQuery = cb.createTupleQuery();
+            new CriteriaDefinition<>(em, notebooksQuery) {{
+                JpaRoot<NotebookEntity> root = from(NotebookEntity.class);
+                criteriaConditionsFactory.withConditions(this::where, conditions -> {
+                    Expression<?> rank = root.get(ExperimentEntity_.createdAt);
+                    conditions.user(root.get(NotebookEntity_.createdBy), request.getAuthor());
+                    conditions.fullTextSearch(root.get(NotebookEntity_.searchVector), request.getQuery(), root.get(NotebookEntity_.name));
+                    if (request.getQuery() != null) {
+                        rank = conditions.fullTextRank(root.get(NotebookEntity_.searchVector), request.getQuery());
+                    }
+                    select(tuple(literal(TYPE_NOTEBOOK), root.get(NotebookEntity_.id), rank));
+                    orderBy(desc(rank));
+                    fetch(filteredLimit + 1);
+                });
+            }};
+
+            filteredQuery = cb.unionAll(experimentsQuery, projectsQuery, notebooksQuery);
         }
 
-        String fragmentSelector = "left(t.description, 120)";
-        if (request.getQuery() != null) {
-            String condition = "search_vector @@ websearch_to_tsquery('english', :query)";
-            projectConditions.add(condition, QUERY, request.getQuery());
-            notebookConditions.add(condition, QUERY, request.getQuery());
-            experimentConditions.add(condition, QUERY, request.getQuery());
-            fragmentSelector = "ts_headline('english', t.description, websearch_to_tsquery('english', :query), 'StartSel=<mark>,StopSel=</mark>')";
-        }
-        StringBuilder sql = new StringBuilder();
-        sql.append("WITH t AS (\n");
-        Map<String, @Nullable Object> params = new HashMap<>();
-        boolean hasUnionBlocks = false;
-        if (hasProjects) {
-            String projectsSQL = "SELECT 'PROJECT' AS type, p.name, NULL::varchar AS title, p.id, p.description, p.created_by_id, p.created_at, p.modified_by_id, p.modified_at, NULL AS reaction_roles, NULL AS experiment_status, NULL::integer AS revision"
-                    + "\n, p.notebook_count"
-                    // Experiment_Count[] is an array of (status, count); summed here rather than read
-                    // as an array, since the Hibernate array type is not wired into native query rows.
-                    + "\n, (SELECT coalesce(sum((c).\"count\"), 0)::integer FROM unnest(p.experiment_count) c) AS experiment_count"
-                    + "\nFROM Project p"
-                    + "\nJOIN Project_Access_View pv ON pv.project_id = p.id"
-                    + "\nWHERE " + projectConditions.getQuery();
-            sql.append(projectsSQL);
-            params.putAll(projectConditions.getValues());
-            hasUnionBlocks = true;
-        }
-        if (hasNotebooks) {
-            if (hasUnionBlocks) {
-                sql.append("\nUNION ALL\n");
+        CriteriaDefinition<Tuple> criteria = new CriteriaDefinition<>(em, Tuple.class) {{
+            JpaCteCriteria<Tuple> filtered = with("filtered", filteredQuery);
+
+            JpaSubQuery<Tuple> totalsQuery = subquery(Tuple.class);
+            totalsQuery.from(filtered);
+            totalsQuery.multiselect(count().alias("total"));
+
+            JpaSubQuery<Tuple> pageQuery = subquery(Tuple.class);
+            JpaRoot<Tuple> pageQueryRoot = pageQuery.from(filtered);
+            pageQuery.orderBy(desc(pageQueryRoot.get("rank")), desc(pageQueryRoot.get("id")));
+            List<Selection<?>> pageColumns = Lists.newArrayList(pageQueryRoot.get("type").alias("type"), pageQueryRoot.get("id").alias("id"));
+            if (hasRoles) {
+                pageColumns.add(pageQueryRoot.get("roles").alias("roles"));
             }
-            hasUnionBlocks = true;
-            String notebooksSQL = "SELECT 'NOTEBOOK' AS type, n.name, NULL::varchar AS title, n.id, n.description, n.created_by_id, n.created_at, n.modified_by_id, n.modified_at, NULL AS reaction_roles, NULL AS experiment_status, NULL::integer AS revision"
-                    + "\n, NULL::integer AS notebook_count"
-                    + "\n, (SELECT coalesce(sum((c).\"count\"), 0)::integer FROM unnest(n.experiment_count) c) AS experiment_count"
-                    + "\nFROM Notebook n"
-                    + "\nJOIN Notebook_Access_View nv ON nv.notebook_id = n.id"
-                    + "\nWHERE " + notebookConditions.getQuery();
-            params.putAll(notebookConditions.getValues());
-            sql.append(notebooksSQL);
-        }
-        if (hasExperiments) {
-            if (hasUnionBlocks) {
-                sql.append("\nUNION ALL\n");
+            pageQuery.multiselect(pageColumns);
+            pageQuery.offset(paging.getFirstResult());
+            pageQuery.fetch(paging.getPageSizeOrDefault());
+
+            JpaDerivedRoot<Tuple> page = from(pageQuery);
+            JpaDerivedRoot<Tuple> totals = from(totalsQuery);
+
+            JpaEntityJoin<Tuple, ExperimentEntity> experiment = page.join(ExperimentEntity.class, JoinType.LEFT);
+            experiment.on(equal(experiment.get(ExperimentEntity_.id), page.get("id")));
+            JpaEntityJoin<Tuple, ProjectEntity> project = page.join(ProjectEntity.class, JoinType.LEFT);
+            project.on(equal(project.get(ProjectEntity_.id), page.get("id")));
+            JpaEntityJoin<Tuple, NotebookEntity> notebook = page.join(NotebookEntity.class, JoinType.LEFT);
+            notebook.on(equal(notebook.get(NotebookEntity_.id), page.get("id")));
+
+            Expression<UUID> createdById = experiment.get(ExperimentEntity_.createdBy).get(UserEntity_.id);
+            Expression<UUID> modifiedById = experiment.get(ExperimentEntity_.modifiedBy).get(UserEntity_.id);
+            Expression<Instant> createdAt = experiment.get(ExperimentEntity_.createdAt);
+            Expression<Instant> modifiedAt = experiment.get(ExperimentEntity_.modifiedAt);
+            Expression<String> name = experiment.get(ExperimentEntity_.name);
+            Expression<String> description = experiment.get(ExperimentEntity_.description);
+
+            if (!onlyExperiments) {
+                createdById = coalesce(createdById, project.get(ProjectEntity_.createdBy).get(UserEntity_.id)).value(notebook.get(NotebookEntity_.createdBy).get(UserEntity_.id));
+                modifiedById = coalesce(modifiedById, project.get(ProjectEntity_.modifiedBy).get(UserEntity_.id)).value(notebook.get(NotebookEntity_.modifiedBy).get(UserEntity_.id));
+
+                createdAt = coalesce(createdAt, project.get(ProjectEntity_.createdAt)).value(notebook.get(NotebookEntity_.createdAt));
+                modifiedAt = coalesce(modifiedAt, project.get(ProjectEntity_.modifiedAt)).value(notebook.get(NotebookEntity_.modifiedAt));
+                name = coalesce(name, project.get(ProjectEntity_.name)).value(notebook.get(NotebookEntity_.name));
+                description = coalesce(description, project.get(ProjectEntity_.description)).value(notebook.get(NotebookEntity_.description));
             }
-            hasUnionBlocks = true;
-            String experimentsSQL = "SELECT 'EXPERIMENT' AS type, e.name, e.title, e.id, e.description, e.created_by_id, e.created_at, e.modified_by_id, e.modified_at, " + rolesSelector + ", e.status::varchar AS experiment_status, e.revision"
-                    + "\n, NULL::integer AS notebook_count, NULL::integer AS experiment_count"
-                    + "\nFROM Experiment e"
-                    + "\nJOIN Experiment_Access_View ev ON ev.experiment_id = e.id"
-                    + "\n" + String.join("\n", experimentJoins)
-                    + "\nWHERE " + experimentConditions.getQuery()
-                    + (groupBySQL != null ? "\nGROUP BY " + groupBySQL : "");
-            params.putAll(experimentConditions.getValues());
-            sql.append(experimentsSQL);
-        }
-        sql.append(")\n");
-        sql.append("SELECT t.type, t.name, t.title, t.id, ").append(fragmentSelector).append(" fragment");
-        sql.append("\n, t.created_by_id, t.created_at" +
-                "\n, t.modified_by_id, t.modified_at" +
-                "\n, t.reaction_roles, t.experiment_status, t.revision" +
-                "\n, t.notebook_count, t.experiment_count" +
-                "\n, count(*) over (partition by 1)" +
-                "\nFROM t" +
-                // t.id breaks ties: created_at alone leaves rows sharing a timestamp in an
-                // undefined order, which a paging client sees as a row repeated or skipped.
-                "\nORDER by t.created_at, t.id");
-        long[] totalCount = new long[] {0};
-        Query query = em.createNativeQuery(sql.toString())
-                .setFirstResult(paging.getPageNoOrDefault() * paging.getPageSizeOrDefault())
-                .setMaxResults(paging.getPageSizeOrDefault());
-        params.forEach(query::setParameter);
-        //noinspection unchecked
-        Stream<Object[]> stream = query.getResultStream();
-        List<GlobalSearchResultDTO> list = stream
-                .map(row -> {
-                    int fieldNo = -1;
+
+            JpaEntityJoin<Tuple, UserEntity> createdBy = page.join(UserEntity.class, JoinType.INNER);
+            createdBy.on(equal(createdBy.get(UserEntity_.id), createdById));
+            JpaEntityJoin<Tuple, UserEntity> modifiedBy = page.join(UserEntity.class, JoinType.INNER);
+            modifiedBy.on(equal(modifiedBy.get(UserEntity_.id), modifiedById));
+
+            List<Selection<?>> columns = Lists.newArrayList(
+                    totals.get("total"),
+                    page.get("type"),
+                    page.get("id"),
+                    createdBy.get(UserEntity_.username),
+                    createdBy.get(UserEntity_.displayName),
+                    createdAt,
+                    modifiedBy.get(UserEntity_.username),
+                    modifiedBy.get(UserEntity_.displayName),
+                    modifiedAt,
+                    experiment.get(ExperimentEntity_.revision),
+                    name,
+                    experiment.get(ExperimentEntity_.title),
+                    experiment.get(ExperimentEntity_.status)
+            );
+            if (hasFullTextSearch) {
+                columns.add(cb.function("ts_headline", String.class, literal("english"), description, literal("english"), literal(request.getQuery()), literal("StartSel=<mark>,StopSel=</mark>")));
+            }
+            if (hasRoles) {
+                columns.add(page.get("roles"));
+            }
+            if (!onlyExperiments) {
+                columns.addAll(List.of(
+                        project.get(ProjectEntity_.notebookCount),
+                        project.get(ProjectEntity_.experimentCount),
+                        notebook.get(NotebookEntity_.experimentCount)
+                ));
+            }
+
+            select(tuple(columns));
+        }};
+
+        // TODO only rows with access
+
+        TypedQuery<Tuple> query = criteria.createQuery(em);
+        List<Tuple> list = query.getResultList();
+        List<GlobalSearchResultDTO> page = list.stream()
+                .map(tuple -> {
+                    int fieldNo = 0; // skip total
                     GlobalSearchResultDTO item = new GlobalSearchResultDTO();
-                    item.setType(ELNEntityType.valueOf(row[++fieldNo].toString()));
-                    item.setName((String) row[++fieldNo]);
-                    item.setTitle((String) row[++fieldNo]);
-                    item.setId((UUID) row[++fieldNo]);
-                    item.setFragment((String) row[++fieldNo]);
-                    item.setCreatedBy(userService.getUserInfo((UUID) row[++fieldNo]));
-                    item.setCreatedAt((Instant) row[++fieldNo]);
-                    item.setModifiedBy(userService.getUserInfo((UUID) row[++fieldNo]));
-                    item.setModifiedAt((Instant) row[++fieldNo]);
-                    String[] reactionRoles = (String[]) row[++fieldNo];
-                    if (reactionRoles != null) {
-                        item.setReactionRoles(StreamEx.of(reactionRoles).map(ReactionRole::valueOf).toCollection(() -> EnumSet.noneOf(ReactionRole.class)));
+                    item.setType(switch (tuple.get(++fieldNo, Integer.class)) {
+                        case TYPE_PROJECT -> ELNEntityType.PROJECT;
+                        case TYPE_NOTEBOOK -> ELNEntityType.NOTEBOOK;
+                        case TYPE_EXPERIMENT -> ELNEntityType.EXPERIMENT;
+                        default -> throw new IllegalStateException();
+                    });
+                    item.setId(tuple.get(++fieldNo, UUID.class));
+                    item.setCreatedBy(new UserRef(tuple.get(++fieldNo, String.class), tuple.get(++fieldNo, String.class)));
+                    item.setCreatedAt(tuple.get(++fieldNo, Instant.class));
+                    item.setModifiedBy(new UserRef(tuple.get(++fieldNo, String.class), tuple.get(++fieldNo, String.class)));
+                    item.setModifiedAt(tuple.get(++fieldNo, Instant.class));
+                    item.setRevision(tuple.get(++fieldNo, Integer.class));
+                    item.setName(tuple.get(++fieldNo, String.class));
+                    item.setTitle(tuple.get(++fieldNo, String.class));
+                    item.setExperimentStatus(tuple.get(++fieldNo, ExperimentStatus.class));
+                    if (hasFullTextSearch) {
+                        item.setFragment(tuple.get(++fieldNo, String.class));
                     }
-                    String experimentStatus = (String) row[++fieldNo];
-                    if (experimentStatus != null) {
-                        item.setExperimentStatus(ExperimentStatus.valueOf(experimentStatus));
+                    if (hasRoles) {
+                        ReactionRole[] roles = tuple.get(++fieldNo, ReactionRole[].class);
+                        item.setReactionRoles(roles != null ? Set.of(roles) : null);
                     }
-                    item.setRevision((Integer) row[++fieldNo]);
-                    item.setNotebookCount((Integer) row[++fieldNo]);
-                    item.setExperimentCount((Integer) row[++fieldNo]);
-                    totalCount[0] = (Long) row[++fieldNo];
+                    if (!onlyExperiments) {
+                        item.setNotebookCount(tuple.get(++fieldNo, Integer.class));
+                        //noinspection unchecked
+                        Map<ExperimentStatus, Integer> experimentCount = (Map<ExperimentStatus, Integer>) ModelUtil.firstNotNull(tuple.get(++fieldNo), tuple.get(++fieldNo));
+                        //noinspection ConstantValue
+                        if (experimentCount != null) {
+                            item.setExperimentCount(EntryStream.of(experimentCount).values().mapToInt(x -> x).sum());
+                        }
+                    }
                     return item;
                 })
                 .toList();
-        return Page.of(paging, totalCount[0], list);
+        long total = list.isEmpty() ? 0 : list.getFirst().get(0, Long.class);
+        return Page.of(paging, total, page);
     }
 }
