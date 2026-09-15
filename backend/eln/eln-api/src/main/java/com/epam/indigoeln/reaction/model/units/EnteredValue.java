@@ -106,6 +106,10 @@ public final class EnteredValue<U extends MeasurementUnit> {
         return stringValue != null && unit != null ? new EnteredValue<U>(true, Double.parseDouble(stringValue), false, -1, stringValue, unit, EnteredValueSource.userEntered(revision), false) : empty();
     }
 
+    public static <U extends MeasurementUnit> EnteredValue<U> cleared(int revision) {
+        return new EnteredValue<>(false, 0.0, false, 0, null, (U) NoUnit.NO_UNIT, EnteredValueSource.userEntered(revision), false);
+    }
+
     public static <U extends MeasurementUnit> EnteredValue<U> calculated(@Nullable Double value, U unit) {
         return value != null ? new EnteredValue<>(true, value, false, getSignificantFigures(), null, unit, EnteredValueSource.CALCULATED, false) : empty();
     }

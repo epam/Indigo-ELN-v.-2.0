@@ -90,14 +90,18 @@ public class ReactionCalculator {
 
         // collect seeds
         // TODO use sample density/molarity/purity as defaults, for samples from DB
+        Property<?, ?> clearedProperty = null;
         for (Property<?, ?> property : properties) {
             EnteredValue<?> value = property.getValue();
-            if (!value.isEmpty()) {
-                if (value.getSource().isUserEntered()) {
-                    seeds.add(Pair.of(property, value));
-                } else if (value.getSource().isCalculated()) {
+            if (value.getSource().isUserEntered()) {
+                if (value.isEmpty()) {
+                    clearedProperty = property;
                     property.setValue(EnteredValue.empty(), null);
+                } else {
+                    seeds.add(Pair.of(property, value));
                 }
+            } else if (value.getSource().isCalculated()) {
+                property.setValue(EnteredValue.empty(), null);
             }
         }
 
@@ -139,8 +143,11 @@ public class ReactionCalculator {
                         queue.addAll(formula.target.getDownstream());
                     }
                 }
+                if (clearedProperty != null && !clearedProperty.getValue().isEmpty()) {
+                    throw new RecalculationConflictException("to satisfy cleared property " + clearedProperty);
+                }
             } catch (RecalculationConflictException e) {
-                log.debug("conflict! overwritten: {}", pair.a());
+                log.debug("overwritten: {}: {}", pair.a(), e.reason);
                 overwritten.add(pair.a());
                 revert();
                 // proceed with the next seed
@@ -219,10 +226,13 @@ public class ReactionCalculator {
     private RecalculationConflictException reportConflict(String message) {
         log.debug(message);
         debugMessages.add(message);
-        return new RecalculationConflictException();
+        return new RecalculationConflictException("calculation conflict");
     }
 
+    @RequiredArgsConstructor
     private static class RecalculationConflictException extends RuntimeException {
+
+        private final String reason;
     }
 
     @RequiredArgsConstructor

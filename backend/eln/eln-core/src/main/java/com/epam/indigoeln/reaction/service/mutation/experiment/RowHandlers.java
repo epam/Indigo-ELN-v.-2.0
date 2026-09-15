@@ -18,7 +18,7 @@ class SetInputRowEQHandler extends AbstractReactionInputMutationHandler<Reaction
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowEQ mutation, ExperimentMutationContext context) {
-        setEnteredValue(row::setEq, mutation.eq(), NoUnit.NO_UNIT, experiment.getRevision(), EnteredValue.DEFAULT_ONE);
+        setEnteredValue(row.getEq(), row::setEq, mutation.eq(), NoUnit.NO_UNIT, experiment.getRevision(), EnteredValue.DEFAULT_ONE);
         return formatSetterSummary("input EQ", mutation.eq(), NoUnit.NO_UNIT);
     }
 }
@@ -29,7 +29,7 @@ class SetOutputRowEQHandler extends AbstractReactionOutputMutationHandler<Reacti
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputRowEQ mutation, ExperimentMutationContext context) {
-        setEnteredValue(row::setEq, mutation.eq(), NoUnit.NO_UNIT, experiment.getRevision(), EnteredValue.DEFAULT_ONE);
+        setEnteredValue(row.getEq(), row::setEq, mutation.eq(), NoUnit.NO_UNIT, experiment.getRevision(), EnteredValue.DEFAULT_ONE);
         return formatSetterSummary("output EQ", mutation.eq());
     }
 }
