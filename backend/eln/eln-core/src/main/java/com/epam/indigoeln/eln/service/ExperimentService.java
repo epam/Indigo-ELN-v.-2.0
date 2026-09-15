@@ -17,7 +17,6 @@ import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.eln.repository.TemplateRepository;
-import com.epam.indigoeln.eln.util.SearchVector;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
@@ -437,24 +436,5 @@ public class ExperimentService {
         } finally {
             Files.deleteIfExists(tempFilePath);
         }
-    }
-
-    public SearchVector collectSearchVector(ExperimentSnapshot snapshot) {
-        SearchVector.Builder sv = new SearchVector.Builder()
-                .a(snapshot.getName()) // TODO complex index of Experiment.name
-                .a(snapshot.getTitle())
-                .d(snapshot.getDescription())
-                .d(snapshot.getLiterature());
-        // TODO createdBy
-        for (Reaction reaction : snapshot.getModel().getReactions()) {
-            for (ReactionInput input : reaction.getInputs()) {
-                sv.b(input.getCompound().getCompoundKey());
-                for (ReactionInputSample sample : input.getSamples()) {
-                    sv.c(sample.getStrCode() != null ? sample.getStrCode().toString() : null);
-                    sv.c(sample.getNbkBatchNumber() != null ? sample.getNbkBatchNumber().toString() : null);
-                }
-            }
-        }
-        return sv.build();
     }
 }

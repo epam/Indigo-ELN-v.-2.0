@@ -33,8 +33,11 @@ export interface Attachment extends BaseDTO {
 export interface Page<T> {
   pageNo: number;
   pageSize: number;
-  totalItems: number;
-  totalPages: number;
+  /** Null when the backend did not count, e.g. global search pages after the first. */
+  totalItems: number | null;
+  totalPages: number | null;
+  /** Whether a page after this one exists; set on every page, unlike the totals. */
+  hasMore: boolean;
   items: T[];
 }
 

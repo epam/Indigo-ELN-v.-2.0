@@ -108,14 +108,27 @@ public class CriteriaConditions {
         if (search != null) {
             Predicate predicate = cb.isTrue(cb.function("full_text_search", Boolean.class, attribute, cb.literal("english"), cb.literal(search)));
             if (name != null) {
-                predicate = cb.or(predicate, cb.ilike(name, cb.literal("%" + search + "%")));
+                predicate = cb.or(predicate, nameMatches(name, search));
             }
             predicates.add(predicate);
         }
     }
 
-    public Expression<Double> fullTextRank(Expression<SearchVector> attribute, String search) {
-        return cb.function("ts_rank", Double.class, attribute, cb.literal(search));
+    public Expression<Double> fullTextRank(Expression<SearchVector> attribute, String search, @Nullable Expression<String> name) {
+        Expression<Double> rank = cb.function("ts_rank", Double.class, attribute, cb.literal("english"), cb.literal(search));
+        if (name == null) {
+            return rank;
+        }
+        // ts_rank stays below 1, so a name match ranks above any text-only match; name matches are still ordered by ts_rank.
+        // Without the boost a name-only match (found by the fullTextSearch fallback) would rank 0, below every text match.
+        Expression<Double> nameBoost = cb.<Double>selectCase()
+                .when(nameMatches(name, search), cb.literal(1.0))
+                .otherwise(cb.literal(0.0));
+        return cb.sum(rank, nameBoost);
+    }
+
+    private Predicate nameMatches(Expression<String> name, String search) {
+        return cb.ilike(name, cb.literal("%" + search + "%"));
     }
 
     public Expression<String> fullTextHeadline(Expression<String> attribute, String search, String options) {

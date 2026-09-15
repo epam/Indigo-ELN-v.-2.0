@@ -13,6 +13,12 @@ import type { InfiniteData, UseInfiniteQueryResult } from '@tanstack/react-query
  */
 const FIRST_LOAD_SKELETONS = 4;
 
+/**
+ * `GlobalSearchService.MAX_COUNT`: the backend stops counting past it and reports
+ * `MAX_COUNT + 1` as `totalItems`, which means "more than this" rather than an exact count.
+ */
+const MAX_COUNT = 1000;
+
 const LAYOUT: InfiniteLoaderLayout<GlobalSearchResult> = {
   className: 'flex flex-col gap-3',
   Item: SearchResultRow,
@@ -27,8 +33,8 @@ const LAYOUT: InfiniteLoaderLayout<GlobalSearchResult> = {
  * needs no adjusting in here, since the dialog body it scrolls in clips it just as the
  * page does.
  *
- * The count comes straight off the first page: the backend computes it with a window
- * function over the whole match set, so it is exact rather than a running total.
+ * The count comes straight off the first page. It is exact up to `MAX_COUNT`; above that the
+ * backend sends `MAX_COUNT + 1`, shown as `1000+`.
  */
 function SearchResults({
   query,
@@ -43,8 +49,10 @@ function SearchResults({
   return (
     <section className="flex flex-col gap-3">
       {/* Suppressed at zero: InfiniteLoader's own empty branch already says there was nothing. */}
-      {totalItems !== undefined && totalItems > 0 && (
-        <h2 className="text-[16px]/6 font-semibold">Search Results ({totalItems})</h2>
+      {totalItems != null && totalItems > 0 && (
+        <h2 className="text-[16px]/6 font-semibold">
+          Search Results ({totalItems === MAX_COUNT + 1 ? `${MAX_COUNT}+` : totalItems})
+        </h2>
       )}
       <SelectResultContext value={onSelect}>
         <InfiniteLoader<GlobalSearchResult>

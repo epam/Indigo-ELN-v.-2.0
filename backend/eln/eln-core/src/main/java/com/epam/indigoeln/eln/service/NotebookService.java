@@ -12,7 +12,6 @@ import com.epam.indigoeln.eln.mapper.NotebookMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
-import com.epam.indigoeln.eln.util.SearchVector;
 import com.epam.indigoeln.reaction.model.NotebookSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.NotebookMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerRegistry;
@@ -114,13 +113,5 @@ public class NotebookService {
         NotebookEntity notebook = notebookRepository.get(notebookId);
         aclService.ensureAccess(notebook, ApplicationPermission.VIEW_NOTEBOOKS);
         return notebookMapper.revisionToDTOList(notebookRepository.getRevisions(notebook));
-    }
-
-    public SearchVector collectSearchVector(NotebookSnapshot snapshot) {
-        SearchVector.Builder sv = new  SearchVector.Builder()
-                .a(snapshot.getName())
-                .d(snapshot.getDescription());
-                // TODO createdBy
-        return sv.build();
     }
 }

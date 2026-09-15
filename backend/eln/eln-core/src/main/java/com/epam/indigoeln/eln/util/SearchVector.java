@@ -1,33 +1,45 @@
 package com.epam.indigoeln.eln.util;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
-@RequiredArgsConstructor
+// Immutable, with value equality: the search listeners compare vectors to skip rewriting an unchanged one.
+// Sets make that comparison ignore order (reordered keywords are not a change); they serialize as JSON arrays
+// in insertion order, which is what calculate_tsvector reads.
+@Getter
+@EqualsAndHashCode
 public class SearchVector {
 
-    public static final SearchVector EMPTY = new SearchVector(new String[0], new String[0], new String[0], new  String[0]);
+    public static final SearchVector EMPTY = new SearchVector(Set.of(), Set.of(), Set.of(), Set.of());
 
-    @Getter
-    private final String[] a;
-    @Getter
-    private final String[] b;
-    @Getter
-    private final String[] c;
-    @Getter
-    private final String[] d;
+    private final Set<String> a;
+    private final Set<String> b;
+    private final Set<String> c;
+    private final Set<String> d;
+
+    public SearchVector(Set<String> a, Set<String> b, Set<String> c, Set<String> d) {
+        this.a = copyOf(a);
+        this.b = copyOf(b);
+        this.c = copyOf(c);
+        this.d = copyOf(d);
+    }
+
+    private static Set<String> copyOf(Set<String> set) {
+        return Collections.unmodifiableSet(new LinkedHashSet<>(set));
+    }
 
     public static class Builder {
 
-        private final List<String> a = new ArrayList<>();
-        private final List<String> b = new ArrayList<>();
-        private final List<String> c = new ArrayList<>();
-        private final List<String> d = new ArrayList<>();
+        private final Set<String> a = new LinkedHashSet<>();
+        private final Set<String> b = new LinkedHashSet<>();
+        private final Set<String> c = new LinkedHashSet<>();
+        private final Set<String> d = new LinkedHashSet<>();
 
         public SearchVector.Builder a(@Nullable String t) {
             if (StringUtils.isNotEmpty(t)) {
@@ -58,7 +70,7 @@ public class SearchVector {
         }
 
         public SearchVector build() {
-            return new SearchVector(a.toArray(new String[0]), b.toArray(new String[0]), c.toArray(new String[0]), d.toArray(new String[0]));
+            return new SearchVector(a, b, c, d);
         }
     }
 }

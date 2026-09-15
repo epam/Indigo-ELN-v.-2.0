@@ -66,7 +66,7 @@ function renumbered(items: DictionaryItem[]): DictionaryItem[] {
 }
 
 function page<T>(items: T[]): Page<T> {
-  return { pageNo: 0, pageSize: 20, totalItems: items.length, totalPages: 1, items };
+  return { pageNo: 0, pageSize: 20, totalItems: items.length, totalPages: 1, hasMore: false, items };
 }
 
 /**
@@ -101,7 +101,7 @@ function decided(id: string, decision: 'sign' | 'reject'): SignatureDocument {
 
 /**
  * A real slice of a real total, unlike `page()` above — infinite scroll only has something
- * to fetch when totalPages is honest.
+ * to fetch when hasMore is honest. Like the backend, only the first page carries the totals.
  */
 function searchPage(request: Request, items: GlobalSearchResult[]): Page<GlobalSearchResult> {
   const params = new URL(request.url).searchParams;
@@ -110,8 +110,9 @@ function searchPage(request: Request, items: GlobalSearchResult[]): Page<GlobalS
   return {
     pageNo,
     pageSize,
-    totalItems: items.length,
-    totalPages: Math.ceil(items.length / pageSize),
+    totalItems: pageNo === 0 ? items.length : null,
+    totalPages: pageNo === 0 ? Math.ceil(items.length / pageSize) : null,
+    hasMore: (pageNo + 1) * pageSize < items.length,
     items: items.slice(pageNo * pageSize, (pageNo + 1) * pageSize),
   };
 }

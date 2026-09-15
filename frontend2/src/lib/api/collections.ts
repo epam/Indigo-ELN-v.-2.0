@@ -25,9 +25,9 @@ export function collectionQueryParams(filters: CollectionFilters, pageNo: number
   return params;
 }
 
-/** Pages are zero-based, so the last one is `totalPages - 1` and has no successor. */
+/** `hasMore` rather than `totalPages`: global search only counts on its first page. */
 export function getNextPageParam<T>(lastPage: Page<T>): number | undefined {
-  return lastPage.pageNo + 1 < lastPage.totalPages ? lastPage.pageNo + 1 : undefined;
+  return lastPage.hasMore ? lastPage.pageNo + 1 : undefined;
 }
 
 /**

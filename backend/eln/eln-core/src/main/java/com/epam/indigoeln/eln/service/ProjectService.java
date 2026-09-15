@@ -10,7 +10,6 @@ import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.mapper.ProjectMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
-import com.epam.indigoeln.eln.util.SearchVector;
 import com.epam.indigoeln.reaction.model.ProjectSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.ProjectMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerRegistry;
@@ -23,7 +22,10 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 
-import java.util.*;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
 
@@ -101,17 +103,5 @@ public class ProjectService {
         ProjectEntity project = projectRepository.get(projectId);
         aclService.ensureAccess(project, ApplicationPermission.VIEW_PROJECTS);
         return projectMapper.revisionToDTOList(projectRepository.getRevisions(project));
-    }
-
-    public SearchVector collectSearchVector(ProjectSnapshot snapshot) {
-        SearchVector.Builder sv = new SearchVector.Builder()
-                .a(snapshot.getName())
-                .d(snapshot.getDescription())
-                .d(snapshot.getLiterature());
-                // TODO createdBy
-        for (String keyword : snapshot.getKeywords()) {
-            sv.b(keyword);
-        }
-        return sv.build();
     }
 }

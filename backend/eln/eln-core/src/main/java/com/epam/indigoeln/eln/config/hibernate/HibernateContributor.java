@@ -18,7 +18,7 @@ public class HibernateContributor implements FunctionContributor {
         );
         functionContributions.getFunctionRegistry().registerPattern(
                 "ts_rank",
-                "(ts_rank(?1, ?2))",
+                "(ts_rank(?1, websearch_to_tsquery(?2, ?3)))",
                 types.standardBasicTypeForJavaType(Double.class)
         );
         functionContributions.getFunctionRegistry().registerPattern(

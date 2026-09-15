@@ -1,4 +1,4 @@
-CREATE AGGREGATE tsvector_agg(tsvector) (
+CREATE OR REPLACE AGGREGATE tsvector_agg(tsvector) (
     STYPE = pg_catalog.tsvector,
     SFUNC = pg_catalog.tsvector_concat,
     INITCOND = ''

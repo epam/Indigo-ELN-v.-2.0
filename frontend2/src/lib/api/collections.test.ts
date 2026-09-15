@@ -21,7 +21,14 @@ describe('collectionQueryParams', () => {
 
 describe('getNextPageParam', () => {
   function page(pageNo: number, totalPages: number): Page<unknown> {
-    return { pageNo, pageSize: 10, totalItems: totalPages * 10, totalPages, items: [] };
+    return {
+      pageNo,
+      pageSize: 10,
+      totalItems: totalPages * 10,
+      totalPages,
+      hasMore: pageNo + 1 < totalPages,
+      items: [],
+    };
   }
 
   it('returns the next page number while pages remain', () => {

@@ -93,6 +93,7 @@ const shortPageHandlers = [
       pageSize: SHORT_PAGE_SIZE,
       totalItems: SEARCH_RESULTS.length,
       totalPages: Math.ceil(SEARCH_RESULTS.length / SHORT_PAGE_SIZE),
+      hasMore: (pageNo + 1) * SHORT_PAGE_SIZE < SEARCH_RESULTS.length,
       items: page,
     });
   }),
@@ -118,6 +119,32 @@ export const LoadsTheNextPage: Story = {
     await waitFor(() => expect(canvas.getByText(secondPageFirstRow)).toBeInTheDocument());
     // Appended, not swapped in.
     await expect(canvas.getByText(firstPageLastRow)).toBeInTheDocument();
+  },
+};
+
+/**
+ * Past `GlobalSearchService.MAX_COUNT` the backend stops counting and reports one more than it,
+ * so the heading says "at least" instead of a number the backend never computed.
+ */
+export const CappedCount: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        http.post(`/api/eln/search`, () =>
+          HttpResponse.json({
+            pageNo: 0,
+            pageSize: 20,
+            totalItems: 1001,
+            totalPages: 51,
+            hasMore: true,
+            items: SEARCH_RESULTS.slice(0, 20),
+          }),
+        ),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await expect(await within(canvasElement).findByText('Search Results (1000+)')).toBeInTheDocument();
   },
 };
 

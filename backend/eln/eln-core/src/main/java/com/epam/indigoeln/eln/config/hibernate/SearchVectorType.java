@@ -15,14 +15,14 @@ public class SearchVectorType extends AbstractJsonUserType<SearchVector> {
 
     @Override
     public boolean isMutable() {
-        return true;
+        return false;
     }
 
     @Override
     @Nullable
     public SearchVector deepCopy(@Nullable SearchVector value) {
-        // TODO deep copy
-        return value != null ? new SearchVector(value.getA(), value.getB(), value.getC(), value.getD()) : null;
+        // SearchVector is immutable, so the instance itself is a safe copy
+        return value;
     }
 
     @Override
