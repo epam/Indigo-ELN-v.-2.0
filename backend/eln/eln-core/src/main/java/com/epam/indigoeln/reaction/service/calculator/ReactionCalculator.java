@@ -567,13 +567,6 @@ public class ReactionCalculator {
         };
     }
 
-    private static boolean isNonCalculable(Property<?, ?> value) {
-        return switch (value.getProperty().name()) {
-            case "purity", "molarity", "density" -> true;
-            default -> false;
-        };
-    }
-
     private static int compareProperties(Pair<Property<?, ?>, EnteredValue<?>> pa, Pair<Property<?, ?>, EnteredValue<?>> pb) {
         Property<?, ?> a = pa.a(), b = pb.a();
         EnteredValue<?> valueA = pa.b(), valueB = pb.b();
@@ -586,11 +579,11 @@ public class ReactionCalculator {
 
         int result;
 
-        // purity/molarity/density are more priority than other (default purity is more important than other defaults and even other user-entered)
-        // (since in case of conflict we can likely recalculate user-entered, but we are not allowed to calculate purity/molarity/density)
-        boolean nonCalculableA = isNonCalculable(a);
-        boolean nonCalculableB = isNonCalculable(b);
-        result = Boolean.compare(nonCalculableA, nonCalculableB);
+        // purity is more priority than other (default purity is more important than other defaults and even other user-entered)
+        // (since in case of conflict we can likely recalculate user-entered, but we are not allowed to calculate purity)
+        boolean purityA = a.getProperty().name().equals("purity");
+        boolean purityB = b.getProperty().name().equals("purity");
+        result = Boolean.compare(purityA, purityB);
         if (result != 0) {
             return result;
         }
