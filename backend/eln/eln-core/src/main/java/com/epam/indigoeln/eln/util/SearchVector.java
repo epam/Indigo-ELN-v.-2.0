@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.util;
 
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
@@ -14,6 +15,7 @@ import java.util.Set;
 // in insertion order, which is what calculate_tsvector reads.
 @Getter
 @EqualsAndHashCode
+@RegisterForReflection
 public class SearchVector {
 
     public static final SearchVector EMPTY = new SearchVector(Set.of(), Set.of(), Set.of(), Set.of());
