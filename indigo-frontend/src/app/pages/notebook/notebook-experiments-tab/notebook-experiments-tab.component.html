@@ -1,9 +1,11 @@
 <eln-list-header
   [checkboxDropdownPlaceholder]="'Status'"
   [enableFilter]="true"
-  [filterOptions]="headerFilterOptions"
+  [filterOptions]="getFilterOptions()"
   [sortOptions]="headerSortOptions"
   [currentSort]="getCurrentSort()"
+  [searchValue]="getSearchValue()"
+  [myEntitiesValue]="getBooleanFilterValue('createdByMe')"
   (viewChange)="onViewChange($event)"
   (searchChange)="onSearch($event)"
   (sortChange)="onSortChange($event)"

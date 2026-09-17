@@ -7,7 +7,6 @@ export interface PaginatedConfig {
   sortOptions?: SortOption[];
   filterOptions?: FilterOption[];
   defaultSort?: {
-    sortBy: string;
     sort: 'EARLIEST' | 'LATEST';
   };
 }

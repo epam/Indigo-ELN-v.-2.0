@@ -68,24 +68,21 @@ export class ProjectListComponent extends InfiniteScrollBase<Project> implements
       sortOptions: [
         {
           label: 'Sorting by: Earliest',
-          value: 'createdAt',
-          defaultOrder: 'EARLIEST',
+          value: 'EARLIEST',
         },
         {
           label: 'Sorting by: Latest',
-          value: 'createdAt',
-          defaultOrder: 'LATEST',
+          value: 'LATEST',
         },
       ],
       defaultSort: {
-        sortBy: 'createdAt',
         sort: 'EARLIEST',
       },
     });
 
     this.headerSortOptions = this.getSortOptions().map((option) => ({
       label: `${option.label}`,
-      value: `${option.value}:${option.defaultOrder}`,
+      value: option.value,
       icon: 'indicon-sort',
     }));
   }
@@ -130,7 +127,7 @@ export class ProjectListComponent extends InfiniteScrollBase<Project> implements
   }
 
   onSortChange(event: SortChangeEvent) {
-    this.sort(event.sortBy, event.sort);
+    this.sort(event.sort);
   }
 
   onViewChange(view: string) {
