@@ -68,13 +68,13 @@ public abstract class EnteredValueOpt<U extends MeasurementUnit> {
     }
 
     @RequiredArgsConstructor
-    @EqualsAndHashCode(of = {"container", "property"}, callSuper = false)
+    @EqualsAndHashCode(of = {"container", "modelProperty"}, callSuper = false)
     public static class Property<C extends ExperimentNode, U extends MeasurementUnit> extends EnteredValueOpt<U> {
 
         @Getter
         private final C container;
         @Getter
-        private final ModelProperty<C, EnteredValue<U>> property;
+        private final ModelProperty<C, EnteredValue<U>> modelProperty;
         @Getter
         private final int ordinal;
         @Getter
@@ -90,17 +90,17 @@ public abstract class EnteredValueOpt<U extends MeasurementUnit> {
 
         @Override
         public EnteredValue<U> getValue() {
-            return checkNotNull(property.get(container));
+            return checkNotNull(modelProperty.get(container));
         }
 
         public void setValue(EnteredValue<U> value, @Nullable Formula<U> from) {
-            property.set(container, value);
+            modelProperty.set(container, value);
             this.calculatedFrom = from;
         }
 
         public void setValueUnchecked(EnteredValue<?> value) {
             //noinspection unchecked
-            property.set(container, (EnteredValue<U>) value);
+            modelProperty.set(container, (EnteredValue<U>) value);
         }
 
         public void snapshot() {
@@ -125,7 +125,7 @@ public abstract class EnteredValueOpt<U extends MeasurementUnit> {
         }
 
         public String getName() {
-            return containerDisplayName(container) + '.' + property.name();
+            return containerDisplayName(container) + '.' + modelProperty.name();
         }
 
         @Override
@@ -135,12 +135,16 @@ public abstract class EnteredValueOpt<U extends MeasurementUnit> {
     }
 
     @RequiredArgsConstructor
-    @EqualsAndHashCode(of = "value", callSuper = false)
+    @EqualsAndHashCode(of = "enteredValue", callSuper = false)
     public static class Value<U extends MeasurementUnit> extends EnteredValueOpt<U> {
 
         static final EnteredValueOpt<MeasurementUnit> EMPTY = new Value<>(EnteredValue.empty());
 
-        @Getter
-        private final EnteredValue<U> value;
+        private final EnteredValue<U> enteredValue;
+
+        @Override
+        public EnteredValue<U> getValue() {
+            return enteredValue;
+        }
     }
 }

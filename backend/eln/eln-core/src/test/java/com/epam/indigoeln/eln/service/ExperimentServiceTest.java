@@ -378,7 +378,6 @@ class ExperimentServiceTest extends ELNBaseTest {
     @Test
     void testQuickSearch() {
         ExperimentDetailsDTO e1 = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID, "description1 common", null, null));
-        ExperimentDetailsDTO e2 = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID, "description2 common", null, null));
 
         Page<ExperimentDTO> result1 = experimentClient.getNotebookExperiments(notebook.getId(), e1.getName(), null, null, null, Paging.DEFAULT);
         assertThat(result1.getItems()).map(ExperimentDTO::getName).containsOnly(e1.getName());
@@ -386,7 +385,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         Page<ExperimentDTO> result2 = experimentClient.getNotebookExperiments(notebook.getId(), "description1", null, null, null, Paging.DEFAULT);
         assertThat(result2.getItems()).map(ExperimentDTO::getName).containsOnly(e1.getName());
 
-        Page<ExperimentDTO> result3 = experimentClient.getNotebookExperiments(notebook.getId(), e1.getName().substring(4), null, null, null, Paging.DEFAULT);
+        experimentClient.getNotebookExperiments(notebook.getId(), e1.getName().substring(4), null, null, null, Paging.DEFAULT);
         assertThat(result2.getItems()).map(ExperimentDTO::getName).containsOnly(e1.getName());
     }
 
