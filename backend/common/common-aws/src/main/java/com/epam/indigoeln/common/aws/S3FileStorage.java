@@ -1,4 +1,4 @@
-package com.epam.indigoeln.common.lambda;
+package com.epam.indigoeln.common.aws;
 
 import com.epam.indigoeln.common.storage.FileStorage;
 import jakarta.enterprise.context.ApplicationScoped;
