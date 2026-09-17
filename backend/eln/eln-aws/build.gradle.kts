@@ -5,9 +5,11 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":common:common-lambda"))
+    implementation(project(":common:common-aws-service"))
     implementation(project(":eln:eln-core"))
     implementation(project(":eln:eln-core-aws"))
+    testImplementation(project(":common:common-test"))
+    testImplementation(project(path = ":eln:eln-core", configuration = "testArtifacts"))
 }
 
 group = "com.epam.indigoeln"
@@ -24,9 +26,13 @@ tasks.named("processResources") {
     dependsOn(copyNativeLibs)
 }
 
+tasks.withType<Test> {
+    environment("NATIVE_LIB_PATH", "${projectDir}/build/nativelibs")
+}
+
 val buildDocker = tasks.register<Exec>("buildDocker") {
     outputs.upToDateWhen { false }
-    commandLine("docker", "build", "-f", "src/main/docker/Dockerfile.native", "-t", "indigoeln/eln-lambda:built", ".")
+    commandLine("docker", "build", "-f", "src/main/docker/Dockerfile.jvm", "-t", "indigoeln/eln-aws:built", ".")
 }
 
 tasks.named("assemble") {
