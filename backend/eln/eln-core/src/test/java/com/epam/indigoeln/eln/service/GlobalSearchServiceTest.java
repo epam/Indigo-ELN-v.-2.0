@@ -47,6 +47,7 @@ class GlobalSearchServiceTest extends ELNBaseTest {
     NotebookDetailsDTO notebook2;
     NotebookDetailsDTO notebook3;
     ExperimentObject experiment1;
+    ExperimentObject experiment12;
     ExperimentObject experiment2;
     ExperimentObject experiment3;
 
@@ -66,6 +67,7 @@ class GlobalSearchServiceTest extends ELNBaseTest {
             experiment1 = createExperiment(notebook1, new ExperimentRequest(emptyTemplateID, "ed1 xx", therapeuticArea1, projectCode1));
             experimentClient.editExperiment(experiment1.id(), new ExperimentEditRequest().withTitle(JsonNullable.of(EXPERIMENT1_TITLE)));
             experiment1.invalidate();
+            experiment12 = createExperiment(notebook1, new ExperimentRequest(emptyTemplateID, null, null, null));
             experiment2 = createExperiment(notebook2, new ExperimentRequest(emptyTemplateID, "ed2 xx", therapeuticArea2, projectCode2));
             experiment2.mutateSetSchemeFromResource("/reaction.rxn");
             experiment2.mutateAddProductSample(1);
@@ -148,6 +150,17 @@ class GlobalSearchServiceTest extends ELNBaseTest {
         Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withQuery("ed1"), Paging.DEFAULT);
         assertResults(results, tuple(ELNEntityType.EXPERIMENT, experiment1.name(), experiment1.id()));
         assertThat(results.getItems().getFirst().getExperimentStatus()).isEqualTo(experiment1.status());
+    }
+
+    @Test
+    void testFindExperimentsByNamePart() {
+        Page<GlobalSearchResultDTO> results1 = globalSearchClient.search(new GlobalSearchRequest().withQuery("00000002"), Paging.DEFAULT);
+        assertResults(results1,
+                tuple(ELNEntityType.NOTEBOOK, notebook2.getName(), notebook2.getId()),
+                tuple(ELNEntityType.EXPERIMENT, experiment2.name(), experiment2.id())
+        );
+        Page<GlobalSearchResultDTO> results2 = globalSearchClient.search(new GlobalSearchRequest().withQuery("0002"), Paging.DEFAULT);
+        assertThat(results2.getItems()).map(GlobalSearchResultDTO::getId).contains(experiment12.id());
     }
 
     @Test
