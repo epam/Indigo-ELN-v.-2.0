@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { SavingOverlay } from '@/components/common/saving-overlay';
 import { determineCellClasses } from '@/components/experiments/stoichiometry/cell-classes';
 import { CONTENT_BOX } from '@/components/experiments/stoichiometry/columns';
-import { unitLabel } from '@/lib/types/reactions.ts';
+import { convertUnitValue, unitLabel } from '@/lib/types/reactions.ts';
 import { cn } from '@/lib/utils';
 import type { EnteredValue } from '@/lib/types/reactions.ts';
 
@@ -69,6 +69,9 @@ function isExternal(event: FocusEvent<HTMLElement>): boolean {
  * - **The column cannot resize**, because the display stays in flow as the sizer and the editor
  *   is absolutely positioned over it, contributing no width. Pinned by
  *   `EditingDoesNotResizeTheColumn`.
+ *
+ * **Changing the unit carries the number with it**, where the cell holds a saved value — see
+ * `chooseUnit`.
  *
  * **The unit is chosen without leaving the number.** Where there is more than one, a list opens
  * under the cell's right edge — where the unit is read — for as long as the input has focus, and
@@ -170,11 +173,31 @@ export function NumericCell({
     }
   }
 
+  /**
+   * Takes a unit, and with it the number already in the box: `676.5` mg becomes `0.6765` g, so
+   * that stepping through the units says the same quantity a different way rather than changing
+   * it a thousandfold.
+   *
+   * **Only where there is a saved value to preserve.** In a cell that has never been saved the
+   * number is being typed *against* the unit the user is still picking, so converting it would
+   * turn the 5 they just typed into 0.005 as they looked for `g`.
+   *
+   * Nothing is sent: this is the draft, and it is committed on Tab, Enter or blur like any other
+   * edit — so several steps in a row cost one request, and Escape still restores both halves.
+   */
+  function chooseUnit(next: string) {
+    const saved = value?.value != null && value.unit != null;
+    if (saved && draftUnit != null && draft.trim() !== '') {
+      setDraft(convertUnitValue(draft.trim(), draftUnit, next));
+    }
+    setDraftUnit(next);
+  }
+
   /** Steps the draft unit along `units`, stopping at either end. */
   function stepUnit(delta: 1 | -1) {
     const index = draftUnit == null ? -1 : units.indexOf(draftUnit);
     const next = index === -1 ? (delta === 1 ? 0 : units.length - 1) : index + delta;
-    if (next >= 0 && next < units.length) setDraftUnit(units[next]);
+    if (next >= 0 && next < units.length) chooseUnit(units[next]);
   }
 
   return (
@@ -296,7 +319,7 @@ export function NumericCell({
             units={units}
             selected={draftUnit}
             label={`${label} unit`}
-            onSelect={setDraftUnit}
+            onSelect={chooseUnit}
           />
         )}
       </div>

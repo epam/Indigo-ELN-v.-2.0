@@ -579,15 +579,86 @@ export const ArrowKeysPickTheUnit: Story = {
 
     const list = await screen.findByRole('listbox', { name: 'Weight, batch 1 unit' });
     await expect(within(list).getByRole('option', { name: 'g' })).toHaveAttribute('aria-selected', 'true');
-    // The arrow did not step the number, as it would on a bare number input.
-    await expect(input).toHaveValue(2.5);
+    // The arrow moved the unit, not the number the way a bare number input would — and the number
+    // went with it into the new unit: 2.5 mg is 0.0025 g.
+    await expect(input).toHaveValue(0.0025);
     await expect(sent).toEqual([]);
 
     await userEvent.tab();
     await expect(canvas.getByLabelText('Volume, batch 1')).toHaveFocus();
     await waitFor(() =>
       expect(sent).toEqual([
-        { type: 'SetInputWeight', anchor: 'e0000000-0000-4000-8000-00000000000a', weight: '2.5', unit: 'G' },
+        { type: 'SetInputWeight', anchor: 'e0000000-0000-4000-8000-00000000000a', weight: '0.0025', unit: 'G' },
+      ]),
+    );
+  },
+};
+
+/**
+ * **Changing the unit says the same quantity a different way.** The number goes with it — 676.5 mg
+ * is 0.6765 g — and stepping back through the units gives the digits it started with, because the
+ * conversion moves the decimal point rather than multiplying.
+ *
+ * Nothing is sent by any of it: the unit is part of the draft, so a user who steps through three
+ * units before settling costs one request rather than three.
+ */
+export const ChangingUnitConvertsTheValue: Story = {
+  parameters: { msw: { handlers: spyHandlers } },
+  render: () => <TableFromCache />,
+  play: async ({ canvasElement }) => {
+    sent.length = 0;
+    const canvas = within(canvasElement);
+
+    const input = await canvas.findByLabelText('Weight, batch 1');
+    await userEvent.click(input);
+    await expect(input).toHaveValue(676.5);
+
+    await userEvent.keyboard('{ArrowDown}');
+    await expect(input).toHaveValue(0.6765);
+    await userEvent.keyboard('{ArrowDown}');
+    await expect(input).toHaveValue(0.0006765);
+
+    // ...and back, digit for digit.
+    await userEvent.keyboard('{ArrowUp}{ArrowUp}');
+    await expect(input).toHaveValue(676.5);
+    await expect(sent).toEqual([]);
+
+    // One request for the lot, carrying the pair as it was left.
+    await userEvent.keyboard('{ArrowDown}{Enter}');
+    await waitFor(() =>
+      expect(sent).toEqual([
+        { type: 'SetInputWeight', anchor: 'e0000000-0000-4000-8000-00000000000a', weight: '0.6765', unit: 'G' },
+      ]),
+    );
+  },
+};
+
+/**
+ * **A cell that has never been saved keeps the number as typed.** There is no quantity to
+ * preserve yet: the number is being typed *against* the unit still being chosen, so converting it
+ * would turn the 0.25 just entered into 0.00025 while the user was still looking for the unit.
+ */
+export const UnsavedValueKeepsItsNumber: Story = {
+  parameters: { msw: { handlers: spyHandlers } },
+  render: () => <TableFromCache />,
+  play: async ({ canvasElement }) => {
+    sent.length = 0;
+    const canvas = within(canvasElement);
+
+    // This batch has no molarity, so nothing has ever been saved for this cell.
+    const input = await canvas.findByLabelText('Molarity, batch 2');
+    await userEvent.click(input);
+    await userEvent.type(input, '0.25');
+
+    await userEvent.keyboard('{ArrowDown}');
+    await expect(input).toHaveValue(0.25);
+    await userEvent.keyboard('{ArrowDown}');
+    await expect(input).toHaveValue(0.25);
+
+    await userEvent.keyboard('{Enter}');
+    await waitFor(() =>
+      expect(sent).toEqual([
+        { type: 'SetInputMolarity', anchor: 'e0000000-0000-4000-8000-00000000000b', molarity: '0.25', unit: 'M' },
       ]),
     );
   },
@@ -608,12 +679,14 @@ export const ClickingAUnitKeepsFocus: Story = {
 
     await expect(input).toHaveFocus();
     await expect(within(list).getByRole('option', { name: 'L' })).toHaveAttribute('aria-selected', 'true');
+    // Clicking converts exactly as the arrows do: 4.5 mL is 0.0045 L.
+    await expect(input).toHaveValue(0.0045);
     await expect(sent).toEqual([]);
 
     await userEvent.keyboard('{Enter}');
     await waitFor(() =>
       expect(sent).toEqual([
-        { type: 'SetInputVolume', anchor: 'e0000000-0000-4000-8000-00000000000b', volume: '4.5', unit: 'L' },
+        { type: 'SetInputVolume', anchor: 'e0000000-0000-4000-8000-00000000000b', volume: '0.0045', unit: 'L' },
       ]),
     );
   },
@@ -712,11 +785,13 @@ export const EscapeRevertsAndLeaves: Story = {
     await userEvent.click(input);
     await userEvent.clear(input);
     await userEvent.type(input, '999');
+    await userEvent.keyboard('{ArrowDown}');
     await userEvent.keyboard('{Escape}');
 
     // Focus is gone, so `:focus-within` no longer holds the editor up.
     await expect(input).not.toHaveFocus();
-    // The draft is back to what the server confirmed...
+    // The draft is back to what the server confirmed — the unit as well as the number, which is
+    // why this reads 676.5 rather than the 0.999 g the arrow had made of it.
     await waitFor(() => expect(input).toHaveValue(676.5));
     await expect(canvas.getByText('676.5 mg')).toBeInTheDocument();
 
