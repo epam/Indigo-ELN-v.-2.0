@@ -91,6 +91,8 @@ type Cell<Row> =
       kind: 'numeric';
       value: (row: Row) => EnteredValue<string> | undefined;
       units: readonly string[];
+      /** The fixed unit's text on a single-unit column, when `unitLabel` is not what to show. */
+      suffix?: string;
       mutation: (row: Row, next: NumericCellValue) => ModelMutation;
       editable?: (row: Row) => boolean;
     }
@@ -197,6 +199,8 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
     kind: 'numeric',
     value: (input) => input.compound.molWeight,
     units: MOL_WEIGHT_UNITS,
+    // Implied by the column — every molecular weight is g/mol.
+    suffix: '',
     // A stored or virtual compound's molecular weight comes from the registry; only an
     // unidentified one is the user's to state.
     editable: (input) => input.compound.type === 'UNKNOWN',
@@ -407,6 +411,8 @@ export const SAMPLE_COLUMNS: SampleColumn[] = [
     kind: 'numeric',
     value: (sample) => sample.purity,
     units: NO_UNITS,
+    // A percentage, though the wire still carries `NO_UNIT`.
+    suffix: '%',
     mutation: (sample, next) => ({ type: 'SetInputPurity', anchor: sample.anchor, purity: next.value }),
   },
   {

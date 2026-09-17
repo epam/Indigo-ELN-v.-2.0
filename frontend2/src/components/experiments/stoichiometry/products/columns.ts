@@ -52,12 +52,20 @@ type Cell =
    * `numeric` with `editable: () => false`, because a read-only cell has no mutation to name and
    * inventing one that can never fire is worse than not having the field.
    */
-  | { kind: 'readonlyNumeric'; value: (row: ProductRow) => EnteredValue<string> | undefined; units: readonly string[] }
+  | {
+      kind: 'readonlyNumeric';
+      value: (row: ProductRow) => EnteredValue<string> | undefined;
+      units: readonly string[];
+      /** The fixed unit's text on a single-unit column, when `unitLabel` is not what to show. */
+      suffix?: string;
+    }
   /** An editable number with a unit, or a unitless one when `units` has a single member. */
   | {
       kind: 'numeric';
       value: (row: ProductRow) => EnteredValue<string> | undefined;
       units: readonly string[];
+      /** The fixed unit's text on a single-unit column, when `unitLabel` is not what to show. */
+      suffix?: string;
       mutation: (row: ProductRow, next: NumericCellValue) => ModelMutation;
       editable?: (row: ProductRow) => boolean;
     }
@@ -128,6 +136,8 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
     kind: 'readonlyNumeric',
     value: (row) => row.output.compound.molWeight,
     units: MOL_WEIGHT_UNITS,
+    // Implied by the column — every molecular weight is g/mol.
+    suffix: '',
   },
   {
     id: 'exactMass',

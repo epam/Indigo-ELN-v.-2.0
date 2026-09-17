@@ -59,12 +59,20 @@ type Cell =
    * A calculated number, shown but not editable. Its own kind rather than a `numeric` with
    * `editable: () => false`, because a read-only cell has no mutation to name.
    */
-  | { kind: 'readonlyNumeric'; value: (row: BatchRow) => EnteredValue<string> | undefined; units: readonly string[] }
+  | {
+      kind: 'readonlyNumeric';
+      value: (row: BatchRow) => EnteredValue<string> | undefined;
+      units: readonly string[];
+      /** The fixed unit's text on a single-unit column, when `unitLabel` is not what to show. */
+      suffix?: string;
+    }
   /** An editable number with a unit, or a unitless one when `units` has a single member. */
   | {
       kind: 'numeric';
       value: (row: BatchRow) => EnteredValue<string> | undefined;
       units: readonly string[];
+      /** The fixed unit's text on a single-unit column, when `unitLabel` is not what to show. */
+      suffix?: string;
       mutation: (row: BatchRow, next: NumericCellValue) => ModelMutation;
     }
   /** The row's icon buttons, as one column — see `BatchAction`. */
@@ -224,6 +232,7 @@ export const BATCH_COLUMNS: BatchColumn[] = [
     kind: 'readonlyNumeric',
     value: (row) => row.sample.yield,
     units: NO_UNITS,
+    suffix: '%',
   },
   {
     id: 'purity',
@@ -234,6 +243,7 @@ export const BATCH_COLUMNS: BatchColumn[] = [
     // on the row rather than an output of one.
     value: (row) => row.sample.purity,
     units: NO_UNITS,
+    suffix: '%',
     mutation: (row, next) => ({ type: 'SetOutputPurity', anchor: row.sample.anchor, purity: next.value }),
   },
   /**

@@ -483,6 +483,7 @@ function CompoundCell({
         <NumericCell
           value={column.value(input)}
           units={column.units}
+          suffix={column.suffix}
           updatedNodes={mutations.updatedNodes}
           editable={canEdit && (column.editable?.(input) ?? true)}
           pending={pending}
@@ -590,6 +591,7 @@ function SampleCell({
         <NumericCell
           value={column.value(sample)}
           units={column.units}
+          suffix={column.suffix}
           updatedNodes={mutations.updatedNodes}
           editable={canEdit && (column.editable?.(sample) ?? true)}
           pending={pending}

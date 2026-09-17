@@ -83,6 +83,21 @@ export const ColumnsAlignAsOne: Story = {
   },
 };
 
+/** Yield and purity are percentages, though the wire carries them as `NO_UNIT`. */
+export const PercentagesShowTheirUnit: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const display = (name: string) =>
+      canvas
+        .getByLabelText(name)
+        .closest('[data-slot="numeric-cell"]')!
+        .querySelector('[data-slot="numeric-cell-value"]');
+
+    await expect(display('Yield, batch 001')).toHaveTextContent(/^27\.5 %$/);
+    await expect(display('Purity, batch 001')).toHaveTextContent(/^98\.5 %$/);
+  },
+};
+
 /**
  * The three row actions are one cell, not three columns. They used to be three 48px columns with
  * a centred button each, which read as three unrelated columns and spread ~192px across a table

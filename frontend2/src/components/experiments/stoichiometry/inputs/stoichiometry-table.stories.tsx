@@ -295,7 +295,6 @@ export const ControlsMatchTheTableTextSize: Story = {
 
     for (const el of [
       canvas.getByLabelText('Weight, batch 1'), // number input
-      canvas.getByLabelText('Weight, batch 1 unit'), // native unit select
       canvas.getByLabelText('Comments, batch 2'), // free-text cell
       canvas.getAllByLabelText('Reaction role')[0], // Select
       canvas.getByLabelText('Salt Code, row 3'), // Combobox
@@ -331,8 +330,7 @@ export const PicksAndClearsSaltCode: Story = {
     await expect(saltCode.querySelector('input')).toBeNull();
 
     await userEvent.click(saltCode);
-    // Scoped to the open list: the unit `<select>`s in the numeric cells contribute options of
-    // their own, including an `—` for a unit not yet chosen.
+    // Scoped to the open list, so nothing else on the page that happens to be an option can match.
     await userEvent.click(await within(await screen.findByRole('listbox')).findByRole('option', { name: 'Na' }));
     await waitFor(() => expect(sent).toHaveLength(1));
     await expect(sent[0]).toMatchObject({ type: 'SetInputRowSaltCode', saltCode: { name: 'Na' } });
@@ -516,7 +514,7 @@ export const ClearsCell: Story = {
 
 /**
  * Value and unit go together or not at all, so a number typed into a cell that has no unit yet
- * sends nothing. Tab is what asks for the missing half — the picker is simply the next control.
+ * sends nothing. The list with nothing picked in it is what asks for the missing half.
  */
 export const NoRequestUntilAUnitIsChosen: Story = {
   parameters: { msw: { handlers: spyHandlers } },
@@ -529,6 +527,11 @@ export const NoRequestUntilAUnitIsChosen: Story = {
     const input = await canvas.findByLabelText('Molarity, batch 2');
     await userEvent.click(input);
     await userEvent.type(input, '0.25');
+    // Nothing in the list is picked, which is what is missing.
+    const list = await screen.findByRole('listbox', { name: 'Molarity, batch 2 unit' });
+    for (const option of within(list).getAllByRole('option')) {
+      await expect(option).toHaveAttribute('aria-selected', 'false');
+    }
     await userEvent.click(document.body);
 
     await new Promise((resolve) => setTimeout(resolve, 400));
@@ -537,18 +540,31 @@ export const NoRequestUntilAUnitIsChosen: Story = {
 };
 
 /**
- * Tab out of the number input and the unit picker is simply the next control — no `focus()` call,
- * no popup to open.
- *
- * **Two mutations, not one.** Leaving the input saves the number against the unit already there,
- * because that is a finished edit on its own; choosing a different unit then saves again. The
- * alternative — holding the number until focus left the whole cell — made tabbing to the unit
- * look like it had done nothing at all.
- *
- * A native `<select>` renders its list through the OS rather than into the document, so there is
- * nothing to assert as "open"; what matters is that focus reaches it and that choosing saves.
+ * The unit list hangs under the number, at the cell's right edge where the unit is read, for as
+ * long as the number has focus and only then. It is not a separate control, so nothing about it
+ * is reachable by Tab.
  */
-export const TabbingReachesTheUnitPicker: Story = {
+export const UnitListOnlyWhileFocused: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+
+    await userEvent.click(canvas.getByLabelText('Weight, batch 1'));
+    const list = await screen.findByRole('listbox', { name: 'Weight, batch 1 unit' });
+    await expect(within(list).getByRole('option', { name: 'mg' })).toHaveAttribute('aria-selected', 'true');
+
+    await userEvent.tab();
+    await waitFor(() =>
+      expect(screen.queryByRole('listbox', { name: 'Weight, batch 1 unit' })).not.toBeInTheDocument(),
+    );
+  },
+};
+
+/**
+ * ArrowUp/ArrowDown pick the unit without leaving the number. Picking only moves the draft; the
+ * edit is sent once, value and unit together, when Tab leaves the cell.
+ */
+export const ArrowKeysPickTheUnit: Story = {
   parameters: { msw: { handlers: spyHandlers } },
   render: () => <TableFromCache />,
   play: async ({ canvasElement }) => {
@@ -559,31 +575,52 @@ export const TabbingReachesTheUnitPicker: Story = {
     await userEvent.click(input);
     await userEvent.clear(input);
     await userEvent.type(input, '2.5');
+    await userEvent.keyboard('{ArrowDown}');
+
+    const list = await screen.findByRole('listbox', { name: 'Weight, batch 1 unit' });
+    await expect(within(list).getByRole('option', { name: 'g' })).toHaveAttribute('aria-selected', 'true');
+    // The arrow did not step the number, as it would on a bare number input.
+    await expect(input).toHaveValue(2.5);
+    await expect(sent).toEqual([]);
 
     await userEvent.tab();
-    const unit = canvas.getByLabelText('Weight, batch 1 unit');
-    await expect(unit).toHaveFocus();
-
-    // Saved on the way out of the input, keeping the unit it already had.
-    const anchor = 'e0000000-0000-4000-8000-00000000000a';
-    await waitFor(() => expect(sent).toEqual([{ type: 'SetInputWeight', anchor, weight: '2.5', unit: 'MG' }]));
-
-    await userEvent.selectOptions(unit, 'G');
+    await expect(canvas.getByLabelText('Volume, batch 1')).toHaveFocus();
     await waitFor(() =>
       expect(sent).toEqual([
-        { type: 'SetInputWeight', anchor, weight: '2.5', unit: 'MG' },
-        { type: 'SetInputWeight', anchor, weight: '2.5', unit: 'G' },
+        { type: 'SetInputWeight', anchor: 'e0000000-0000-4000-8000-00000000000a', weight: '2.5', unit: 'G' },
       ]),
     );
   },
 };
 
-/**
- * The case that prompted the change: a cell that already holds **both** halves saves the moment
- * the number is changed and focus moves on — even when it moves only as far as the unit picker
- * beside it, which is still inside the same cell.
- */
-export const TabbingToTheUnitSavesTheValue: Story = {
+/** Clicking an option picks it without taking focus, so the number can still be typed into. */
+export const ClickingAUnitKeepsFocus: Story = {
+  parameters: { msw: { handlers: spyHandlers } },
+  render: () => <TableFromCache />,
+  play: async ({ canvasElement }) => {
+    sent.length = 0;
+    const canvas = within(canvasElement);
+
+    const input = await canvas.findByLabelText('Volume, batch 2');
+    await userEvent.click(input);
+    const list = await screen.findByRole('listbox', { name: 'Volume, batch 2 unit' });
+    await userEvent.click(within(list).getByRole('option', { name: 'L' }));
+
+    await expect(input).toHaveFocus();
+    await expect(within(list).getByRole('option', { name: 'L' })).toHaveAttribute('aria-selected', 'true');
+    await expect(sent).toEqual([]);
+
+    await userEvent.keyboard('{Enter}');
+    await waitFor(() =>
+      expect(sent).toEqual([
+        { type: 'SetInputVolume', anchor: 'e0000000-0000-4000-8000-00000000000b', volume: '4.5', unit: 'L' },
+      ]),
+    );
+  },
+};
+
+/** Tab commits a changed value and moves straight on to the next cell's number. */
+export const TabCommitsAndMovesOn: Story = {
   parameters: { msw: { handlers: spyHandlers } },
   render: () => <TableFromCache />,
   play: async ({ canvasElement }) => {
@@ -596,6 +633,7 @@ export const TabbingToTheUnitSavesTheValue: Story = {
     await userEvent.type(input, '812');
     await userEvent.tab();
 
+    await expect(canvas.getByLabelText('Volume, batch 1')).toHaveFocus();
     await waitFor(() =>
       expect(sent).toEqual([
         { type: 'SetInputWeight', anchor: 'e0000000-0000-4000-8000-00000000000a', weight: '812', unit: 'MG' },
@@ -605,10 +643,9 @@ export const TabbingToTheUnitSavesTheValue: Story = {
 };
 
 /**
- * **The property the whole structure exists for.** Both forms are always in the DOM, so tab order
- * is the document's own — a row walks value, unit, value, unit with nothing managing focus. The
- * previous version mounted the editor on demand and had to move focus by hand, which is where the
- * stuck picker and the dead blur came from.
+ * **The property the whole structure exists for.** Both forms are always in the DOM and the
+ * number is the cell's only focusable element, so tab order is the document's own — a row walks
+ * value, value, value with nothing managing focus.
  */
 export const TabOrderWalksTheRow: Story = {
   play: async ({ canvasElement }) => {
@@ -618,14 +655,40 @@ export const TabOrderWalksTheRow: Story = {
     weight.focus();
 
     await userEvent.tab();
-    await expect(canvas.getByLabelText('Weight, batch 1 unit')).toHaveFocus();
-
-    await userEvent.tab();
     await expect(canvas.getByLabelText('Volume, batch 1')).toHaveFocus();
 
     // ...and back out again, so nothing traps focus inside a cell.
     await userEvent.tab({ shift: true });
-    await expect(canvas.getByLabelText('Weight, batch 1 unit')).toHaveFocus();
+    await expect(weight).toHaveFocus();
+  },
+};
+
+/**
+ * A quantity with one possible unit shows it as text, in the display and beside the number
+ * alike: `g/mL` for density, `%` for purity. Molecular weight is always g/mol, so it shows none.
+ */
+export const FixedUnitsAreShown: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const display = (name: string) =>
+      canvas
+        .getByLabelText(name)
+        .closest('[data-slot="numeric-cell"]')!
+        .querySelector('[data-slot="numeric-cell-value"]');
+
+    await expect(display('Density, batch 2')).toHaveTextContent(/^1\.08 g\/mL$/);
+    await expect(display('Purity, batch 1')).toHaveTextContent(/^98\.5 %$/);
+    await expect(display('Mol. Weight, row 1')).toHaveTextContent(/^102\.09$/);
+
+    await userEvent.click(canvas.getByLabelText('Density, batch 2'));
+    await expect(canvas.getByLabelText('Density, batch 2').closest('label')).toHaveTextContent('g/mL');
+    // A fixed unit has nothing to pick from, so it opens no list.
+    await expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+
+    // ...and a cell that has a list shows the unit only there, never beside the number.
+    await userEvent.click(canvas.getByLabelText('Weight, batch 1'));
+    await expect(canvas.getByLabelText('Weight, batch 1').closest('label')).toHaveTextContent('');
+    await expect(await screen.findByRole('listbox', { name: 'Weight, batch 1 unit' })).toBeInTheDocument();
   },
 };
 
@@ -749,9 +812,11 @@ export const AddingARow: Story = {
 
 /**
  * **A slow save must not cost the user their place.** `SavingOverlay` freezes the region it
- * covers with `inert`, and `inert` blurs whatever is inside it — so committing a number on the
- * way to its unit picker would freeze the cell that picker lives in and drop focus to nowhere.
- * The overlay hands focus back when it unfreezes.
+ * covers with `inert`, and `inert` blurs whatever is inside it — so a cell saving in the
+ * background drops focus to nowhere. The overlay hands it back when it unfreezes.
+ *
+ * What comes back is the **cell**, which is where Enter left focus — not the editor, which would
+ * be reopening an edit that is already saved.
  *
  * Only when focus is still nowhere: a user who has moved on in the meantime keeps their place.
  */
@@ -764,19 +829,78 @@ export const SlowSaveRestoresFocus: Story = {
     const input = await canvas.findByLabelText('Weight, batch 1');
     await userEvent.click(input);
     await userEvent.clear(input);
-    await userEvent.type(input, '451');
-    await userEvent.tab();
-
-    const unit = canvas.getByLabelText('Weight, batch 1 unit');
-    await expect(unit).toHaveFocus();
+    await userEvent.type(input, '451{Enter}');
+    // Focus is on the cell's unit box — after the input, so the next Tab leaves the cell.
+    const resting = input.parentElement!.querySelector('[tabindex="-1"]')!;
+    await expect(resting).toHaveFocus();
 
     // The save outlasts the delay, so the cell freezes and `inert` takes focus away.
     await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Saving…'));
-    await expect(unit).not.toHaveFocus();
+    await expect(resting).not.toHaveFocus();
 
     // ...and it comes back once the save lands.
     await waitFor(() => expect(screen.queryByRole('status')).not.toBeInTheDocument(), { timeout: 5_000 });
-    await waitFor(() => expect(unit).toHaveFocus());
+    await waitFor(() => expect(resting).toHaveFocus());
+  },
+};
+
+/**
+ * **Clicking away finishes the edit too**, and it is the case that used to come back: focus went
+ * nowhere, so `SavingOverlay` remembered the input it then froze and handed focus back to it when
+ * the save landed — reopening the editor over a value that was already saved. The cell now parks
+ * focus where Enter parks it, so what comes back is the display.
+ */
+export const ClickingAwayLeavesEditMode: Story = {
+  parameters: { msw: { handlers: freezingHandlers } },
+  render: () => <TableFromCache />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    const input = await canvas.findByLabelText('Volume, batch 2');
+    await userEvent.click(input);
+    await userEvent.clear(input);
+    await userEvent.type(input, '7');
+    await userEvent.click(document.body);
+
+    // The save outlasts the spinner's delay, so the cell freezes and then comes back.
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Saving…'));
+    await waitFor(() => expect(screen.queryByRole('status')).not.toBeInTheDocument(), { timeout: 5_000 });
+
+    await expect(input).not.toHaveFocus();
+    await expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    // ...and Tab carries on from the cell rather than from the top of the page.
+    await userEvent.tab();
+    await expect(canvas.getByLabelText('Mol, batch 2')).toHaveFocus();
+  },
+};
+
+/**
+ * **Enter finishes the edit.** The value is sent and the cell goes straight back to showing it —
+ * an editor left open over a saved value invites the same edit being made twice — while focus
+ * stays on the cell, so Tab carries on to the next control from there.
+ */
+export const EnterLeavesEditMode: Story = {
+  parameters: { msw: { handlers: spyHandlers } },
+  render: () => <TableFromCache />,
+  play: async ({ canvasElement }) => {
+    sent.length = 0;
+    const canvas = within(canvasElement);
+
+    const input = await canvas.findByLabelText('Weight, batch 1');
+    await userEvent.click(input);
+    await userEvent.clear(input);
+    await userEvent.type(input, '333{Enter}');
+
+    await expect(input).not.toHaveFocus();
+    await expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    await waitFor(() => expect(sent).toHaveLength(1));
+    await expect(sent[0]).toMatchObject({ type: 'SetInputWeight', weight: '333', unit: 'MG' });
+
+    // The display is back — the spy answers with an empty patch, so it still reads what the
+    // server last confirmed — and Tab goes on to the next cell rather than back into this one.
+    await expect(canvas.getByText('676.5 mg')).toBeVisible();
+    await userEvent.tab();
+    await expect(canvas.getByLabelText('Volume, batch 1')).toHaveFocus();
   },
 };
 

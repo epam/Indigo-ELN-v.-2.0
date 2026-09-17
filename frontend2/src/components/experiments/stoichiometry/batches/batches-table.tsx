@@ -341,6 +341,7 @@ function BatchCell({
         <NumericCell
           value={column.value(row)}
           units={column.units}
+          suffix={column.suffix}
           updatedNodes={mutations.updatedNodes}
           editable={false}
           pending={false}
@@ -354,6 +355,7 @@ function BatchCell({
         <NumericCell
           value={column.value(row)}
           units={column.units}
+          suffix={column.suffix}
           updatedNodes={mutations.updatedNodes}
           // Registration does not freeze these: the backend rejects a registered sample's
           // *compound* mutations only — see `isSampleProtected`.
