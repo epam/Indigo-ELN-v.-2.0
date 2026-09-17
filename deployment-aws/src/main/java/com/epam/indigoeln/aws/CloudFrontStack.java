@@ -57,6 +57,9 @@ public class CloudFrontStack {
         Bucket frontendCodeS3 = Bucket.Builder.create(scope, "signature-frontend-s3")
                 .build();
 
+        Bucket frontend2CodeS3 = Bucket.Builder.create(scope, "frontend2-s3")
+                .build();
+
         CachePolicy defaultCachePolicy = CachePolicy.Builder.create(scope, "default-cache-policy")
                 .cachePolicyName("default-cache-policy")
                 .defaultTtl(Duration.minutes(10))
@@ -103,6 +106,49 @@ public class CloudFrontStack {
                 ))
                 .build();
 
+        // The React app, served under /frontend2. Unlike the Angular app it needs no
+        // Lambda@Edge: its CSP is hash-based, so the app shell is a plain S3 object and a
+        // CloudFront Function is enough to add the headers and do the SPA rewrite.
+        File frontend2Code = new File("../frontend2/dist");
+
+        Function frontend2RequestFunction = Function.Builder.create(scope, "frontend2-request-function")
+                .code(FunctionCode.fromInline(readFile("resources/cloudfront-frontend2-viewer-request-function.js")))
+                .runtime(FunctionRuntime.JS_2_0)
+                .build();
+
+        Function frontend2ResponseFunction = Function.Builder.create(scope, "frontend2-response-function")
+                .code(FunctionCode.fromInline(frontend2ResponseFunctionCode(frontend2Code)))
+                .runtime(FunctionRuntime.JS_2_0)
+                .build();
+
+        BehaviorOptions frontend2AssetsBehavior = BehaviorOptions.builder()
+                .origin(S3BucketOrigin.withOriginAccessControl(frontend2CodeS3))
+                .viewerProtocolPolicy(ViewerProtocolPolicy.HTTPS_ONLY)
+                .cachePolicy(defaultCachePolicy)
+                .functionAssociations(List.of(
+                        FunctionAssociation.builder()
+                                .eventType(FunctionEventType.VIEWER_RESPONSE)
+                                .function(frontend2ResponseFunction)
+                                .build()
+                ))
+                .build();
+
+        BehaviorOptions frontend2Behavior = BehaviorOptions.builder()
+                .origin(S3BucketOrigin.withOriginAccessControl(frontend2CodeS3))
+                .viewerProtocolPolicy(ViewerProtocolPolicy.HTTPS_ONLY)
+                .cachePolicy(CachePolicy.CACHING_DISABLED) // the app shell must never be held at the edge
+                .functionAssociations(List.of(
+                        FunctionAssociation.builder()
+                                .eventType(FunctionEventType.VIEWER_REQUEST)
+                                .function(frontend2RequestFunction)
+                                .build(),
+                        FunctionAssociation.builder()
+                                .eventType(FunctionEventType.VIEWER_RESPONSE)
+                                .function(frontend2ResponseFunction)
+                                .build()
+                ))
+                .build();
+
         distribution = Distribution.Builder.create(scope, "cloudfront")
                 .defaultBehavior(BehaviorOptions.builder()
                         .origin(S3BucketOrigin.withOriginAccessControl(frontendCodeS3))
@@ -116,10 +162,17 @@ public class CloudFrontStack {
                         ))
                         .build()
                 )
+                // Order matters: CloudFront takes the first pattern that matches, in list order
+                // (which is why mapOf is a LinkedHashMap). The /frontend2 entries must precede
+                // "*.*" so its assets are not looked up in the Angular bucket, and both must
+                // precede the default behaviour so /frontend2 routes are not answered with the
+                // Angular shell by the edge lambda.
                 .additionalBehaviors(mapOf(
                         entry("/api/*", apiBehavior),
                         entry("/openapi/*", apiBehavior),
                         entry("/swagger/*", apiBehavior),
+                        entry("/frontend2/assets/*", frontend2AssetsBehavior),
+                        entry("/frontend2*", frontend2Behavior), // not /frontend2/*, so bare /frontend2 matches too
                         entry("*.*", staticAssetsBehavior)
                 ))
                 .domainNames(List.of(props.domainName()))
@@ -185,6 +238,28 @@ public class CloudFrontStack {
                 .ephemeralStorageSize(Size.mebibytes(2048))
                 .build();
 
+        BucketDeployment frontend2Deployment = BucketDeployment.Builder.create(scope, "frontend2-s3-deployment")
+                .sources(List.of(Source.asset(frontend2Code.getPath(), AssetOptions.builder().assetHash(Utils.calculateHashCode(frontend2Code)).build())))
+                .destinationBucket(frontend2CodeS3)
+                .destinationKeyPrefix("frontend2") // keys mirror the request URI, so the origin needs no originPath
+                .distribution(distribution) // invalidate distribution
+                .distributionPaths(List.of("/frontend2*"))
+                .cacheControl(List.of( // index.html is exempted by the response function, which sends no-store
+                        CacheControl.immutable(),
+                        CacheControl.maxAge(Duration.days(365))
+                ))
+                .role(Role.Builder.create(scope, "frontend2-deployment-role")
+                        .assumedBy(ServicePrincipal.fromStaticServicePrincipleName("lambda.amazonaws.com"))
+                        .managedPolicies(List.of(
+                                ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaBasicExecutionRole"),
+                                ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaVPCAccessExecutionRole")
+                        ))
+                        .build()
+                )
+                .memoryLimit(1024)
+                .ephemeralStorageSize(Size.mebibytes(2048))
+                .build();
+
         ARecord.Builder.create(scope, "domain-record")
                 .zone(props.hostedZone())
                 .recordName("indigo-eln-dev.test.lifescience.opensource.epam.com.")
@@ -204,6 +279,21 @@ public class CloudFrontStack {
                 StandardCharsets.UTF_8
         );
         return Code.fromInline(template.replace("{{INDEX_HTML}}", jsonHtml));
+    }
+
+    /**
+     * Bakes the app's own Content-Security-Policy into its viewer-response function. The
+     * policy is assembled by the frontend2 build (see the csp-hashes plugin in
+     * vite.config.ts), so the one {@code vite preview} enforces locally is the one
+     * CloudFront sends.
+     */
+    @SneakyThrows
+    private String frontend2ResponseFunctionCode(File frontend2Code) {
+        String csp = new ObjectMapper()
+                .readTree(frontend2Code.toPath().resolve("csp-hashes.json").toFile())
+                .required("policy")
+                .asText();
+        return readFile("resources/cloudfront-frontend2-response-function.js").replace("{{CSP}}", csp);
     }
 
     @SneakyThrows

@@ -63,9 +63,7 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
                 if (statuses != null && !statuses.isEmpty()) {
                     conditions.add(root.get(ExperimentEntity_.status).in(statuses));
                 }
-                conditions.fullTextSearch(root.get(ExperimentEntity_.searchVector), search, s -> List.of(
-                        ilike(root.get(ExperimentEntity_.name), '%' + s + '%')
-                ));
+                conditions.fullTextSearch(root.get(ExperimentEntity_.searchVector), search, root.get(ExperimentEntity_.name));
             });
             orderBy(switch (MoreObjects.firstNonNull(sort, SortOrder.LATEST)) {
                 case EARLIEST -> asc(root.get(ExperimentEntity_.modifiedAt));

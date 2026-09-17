@@ -86,12 +86,15 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
             try {
                 calculator.recalculate(experiment.getModel());
                 context.getResponse().getDebugMessages().addAll(calculator.getDebugMessages());
+                updateDates(experiment, userService.getCurrentUserEntity());
                 doNotifyAfterRecalculate(experiment, context);
                 doValidateModel(experiment.getModel());
-                updateDates(experiment, userService.getCurrentUserEntity());
                 patch = experimentModelService.createPatch(snapshotBefore, snapshotAfter);
             } finally {
                 reactionCalculatorFactory.destroy(calculator);
+            }
+            for (ExperimentMutationListener listener : listeners) {
+                listener.beforePersist(experiment, snapshotBefore, snapshotAfter);
             }
             //noinspection ConstantValue
             if (experiment.getId() == null) {

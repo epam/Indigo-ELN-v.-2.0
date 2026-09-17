@@ -56,9 +56,7 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
                 if (createdByUser != null) {
                     conditions.add(root.get(NotebookEntity_.createdBy).equalTo(createdByUser));
                 }
-                conditions.fullTextSearch(root.get(NotebookEntity_.searchVector), search, s -> List.of(
-                        ilike(root.get(NotebookEntity_.name), '%' + s + '%')
-                ));
+                conditions.fullTextSearch(root.get(NotebookEntity_.searchVector), search, root.get(NotebookEntity_.name));
             });
             orderBy(switch (MoreObjects.firstNonNull(sort, SortOrder.LATEST)) {
                 case EARLIEST -> asc(root.get(NotebookEntity_.modifiedAt));

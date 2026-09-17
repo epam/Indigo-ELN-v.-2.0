@@ -59,9 +59,7 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
                 if (createdByUser != null) {
                     conditions.add(root.get(ProjectEntity_.createdBy).equalTo(createdByUser));
                 }
-                conditions.fullTextSearch(root.get(ProjectEntity_.searchVector), search, s -> List.of(
-                        ilike(root.get(ProjectEntity_.name), '%' + s + '%')
-                ));
+                conditions.fullTextSearch(root.get(ProjectEntity_.searchVector), search, root.get(ProjectEntity_.name));
             });
             orderBy(switch (MoreObjects.firstNonNull(sort, SortOrder.LATEST)) {
                 case EARLIEST -> asc(root.get(ProjectEntity_.modifiedAt));

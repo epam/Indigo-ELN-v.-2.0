@@ -200,6 +200,14 @@ public class ModelUtil {
     }
 
     public static <S, T> Page<T> map(Page<S> page, Function<S, T> mapper) {
-        return Page.of(page.getPaging(), page.getTotalItems(), map(page.getItems(), mapper));
+        // copied field by field: the total may be null, and hasMore must survive the mapping
+        return Page.<T>builder()
+                .pageNo(page.getPageNo())
+                .pageSize(page.getPageSize())
+                .totalItems(page.getTotalItems())
+                .totalPages(page.getTotalPages())
+                .hasMore(page.isHasMore())
+                .items(map(page.getItems(), mapper))
+                .build();
     }
 }

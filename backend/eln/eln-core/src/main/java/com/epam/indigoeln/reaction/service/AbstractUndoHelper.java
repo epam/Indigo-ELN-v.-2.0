@@ -34,7 +34,7 @@ import static com.google.common.base.Preconditions.checkState;
 
 @Slf4j
 @RequiredArgsConstructor
-public abstract class AbstractUndoHelper<E extends BaseEntity & WithRevision, S, R extends BaseRevisionEntity, C extends AbstractMutationContext<E, S, R, C, L>, L extends MutationListener<E, C>> {
+public abstract class AbstractUndoHelper<E extends BaseEntity & WithRevision, S, R extends BaseRevisionEntity, C extends AbstractMutationContext<E, S, R, C, L>, L extends MutationListener<E, S, C>> {
 
     private final Class<S> snapshotClass;
     @Inject

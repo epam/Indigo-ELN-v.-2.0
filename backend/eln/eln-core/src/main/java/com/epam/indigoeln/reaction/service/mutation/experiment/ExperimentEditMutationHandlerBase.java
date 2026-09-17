@@ -51,18 +51,22 @@ public abstract class ExperimentEditMutationHandlerBase<T extends ExperimentMuta
         ensureStatus(entity, ExperimentStatus.OPEN, ExperimentStatus.REOPEN);
     }
 
-    public <U extends MeasurementUnit> void setEnteredValue(Consumer<EnteredValue<U>> setter, @Nullable String stringValue, @Nullable U unit, int revisionNo) {
-        doSetEnteredValue(setter, stringValue, unit, revisionNo, EnteredValue.empty());
+    public <U extends MeasurementUnit> void setEnteredValue(EnteredValue<U> current, Consumer<EnteredValue<U>> setter, @Nullable String stringValue, @Nullable U unit, int revisionNo) {
+        doSetEnteredValue(current, setter, stringValue, unit, revisionNo, EnteredValue.empty());
     }
 
-    public <U extends MeasurementUnit> void setEnteredValue(Consumer<EnteredValue<U>> setter, @Nullable String stringValue, @Nullable U unit, int revisionNo, EnteredValue<U> defaultValue) {
-        doSetEnteredValue(setter, stringValue, unit, revisionNo, defaultValue);
+    public <U extends MeasurementUnit> void setEnteredValue(EnteredValue<U> current, Consumer<EnteredValue<U>> setter, @Nullable String stringValue, @Nullable U unit, int revisionNo, EnteredValue<U> defaultValue) {
+        doSetEnteredValue(current, setter, stringValue, unit, revisionNo, defaultValue);
     }
 
-    private <U extends MeasurementUnit> void doSetEnteredValue(Consumer<EnteredValue<U>> setter, @Nullable String stringValue, @Nullable U unit, int revisionNo, EnteredValue<U> defaultValue) {
+    private <U extends MeasurementUnit> void doSetEnteredValue(EnteredValue<U> current, Consumer<EnteredValue<U>> setter, @Nullable String stringValue, @Nullable U unit, int revisionNo, EnteredValue<U> defaultValue) {
         EnteredValue<U> ev;
-        if (stringValue == null) { // remove old value
-            ev = defaultValue;
+        if (stringValue == null) {
+            if (!current.isEmpty() && (current.getSource().isDefault() || (current.getSource().isCalculated() && defaultValue.isEmpty()))) {
+                ev = EnteredValue.cleared(revisionNo);
+            } else {
+                ev = defaultValue;
+            }
         } else { // create or update value
             Preconditions.checkArgument(unit != null);
             ev = EnteredValue.userEntered(stringValue, unit, revisionNo);

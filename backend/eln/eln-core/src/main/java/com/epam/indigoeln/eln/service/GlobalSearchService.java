@@ -1,223 +1,123 @@
 package com.epam.indigoeln.eln.service;
 
-import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
-import com.epam.indigoeln.eln.common.util.NamedConditions;
+import com.epam.indigoeln.compound.entity.CompoundEntity;
+import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.eln.config.DataAccess;
-import com.epam.indigoeln.eln.model.ELNEntityType;
-import com.epam.indigoeln.eln.model.ExperimentStatus;
+import com.epam.indigoeln.eln.entity.ExperimentSearchBatch;
+import com.epam.indigoeln.eln.entity.ExperimentSearchCompound;
 import com.epam.indigoeln.eln.model.GlobalSearchRequest;
 import com.epam.indigoeln.eln.model.GlobalSearchResultDTO;
-import com.epam.indigoeln.reaction.model.ReactionRole;
+import com.epam.indigoeln.eln.repository.GlobalSearchRepository;
+import com.epam.indigoeln.eln.util.SearchVector;
+import com.epam.indigoeln.reaction.model.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
 import one.util.streamex.StreamEx;
-import org.jspecify.annotations.Nullable;
 
-import java.time.Instant;
-import java.util.*;
-import java.util.stream.Stream;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @DataAccess
 @Transactional
 @ApplicationScoped
 public class GlobalSearchService {
 
-    private static final String AUTHOR = "author";
-    private static final String MOLFILE = "molfile";
-    private static final String QUERY = "query";
-
-    private final UserService userService;
+    @Inject
+    GlobalSearchRepository globalSearchRepository;
     @PersistenceContext
     EntityManager em;
 
-    @Inject
-    public GlobalSearchService(UserService userService) {
-        this.userService = userService;
+    public Page<GlobalSearchResultDTO> search(GlobalSearchRequest request, Paging paging) {
+        return globalSearchRepository.search(request, paging);
     }
 
-    public Page<GlobalSearchResultDTO> search(GlobalSearchRequest request, Paging paging) {
-        if (request.isEmpty()) {
-            throw new InvalidRequestException("Request is empty");
-        }
-        NamedConditions projectConditions = new NamedConditions();
-        NamedConditions notebookConditions = new NamedConditions();
-        NamedConditions experimentConditions = new NamedConditions();
-        boolean hasProjects = true, hasNotebooks = true, hasExperiments = true;
-        List<String> experimentJoins = new ArrayList<>();
-        String rolesSelector = "null AS reaction_roles ";
-        String groupBySQL = null;
-        if (request.getTherapeuticArea() != null) {
-            hasProjects = hasNotebooks = false;
-            experimentConditions.add("therapeutic_area_id = :therapeuticArea", "therapeuticArea", request.getTherapeuticArea().getId());
-        }
-        if (request.getProjectCode() != null) {
-            hasProjects = hasNotebooks = false;
-            experimentConditions.add("project_code_id = :projectCode", "projectCode", request.getProjectCode().getId());
-        }
-        if (request.getExperimentStatus() != null) {
-            hasProjects = hasNotebooks = false;
-            experimentConditions.add("status = any(cast(:experimentStatus as Experiment_Status[]))", "experimentStatus", request.getExperimentStatus().stream().map(Enum::name).toArray(String[]::new));
-        }
-        if (request.getAuthor() != null) {
-            String condition = "created_by_id in :author";
-            List<UUID> ids = request.getAuthor().stream()
-                    .map(u -> userService.getUserInfo(u).getId())
-                    .toList();
-            projectConditions.add(condition, AUTHOR, ids);
-            notebookConditions.add(condition, AUTHOR, ids);
-            experimentConditions.add(condition, AUTHOR, ids);
-        }
-        if (request.getMoleculeStructure() != null) {
-            hasProjects = hasNotebooks = false;
-            experimentJoins.add("join Experiment_Referenced_Compound erc on erc.experiment_id = e.id");
-            experimentJoins.add("join Compound c on c.id = erc.compound_id");
-            switch (request.getMoleculeStructure().type()) {
-                case EXACT -> {
-                    experimentConditions.add("c.mol_file @ (:molfile, '')::bingo.exact", MOLFILE, request.getMoleculeStructure().query());
-                }
-                case SUBSTRUCTURE -> {
-                    experimentConditions.add("c.mol_file @ (:molfile, '')::bingo.sub", MOLFILE, request.getMoleculeStructure().query());
-                }
-                case SIMILARITY -> {
-                    experimentConditions.add("c.mol_file @ (0.8, null, :molfile, 'Tanimoto')::bingo.sim", MOLFILE, request.getMoleculeStructure().query());
-                }
-            }
-            if (request.getReactionRole() != null) {
-                experimentConditions.add("erc.reaction_role = cast(:role as Reaction_Role)", "role", request.getReactionRole().name());
-            }
-            rolesSelector = "ARRAY_AGG(DISTINCT erc.reaction_role::varchar) AS reaction_roles";
-            groupBySQL = "e.name, e.id, e.description, e.created_by_id, e.created_at, e.modified_by_id, e.modified_at";
-        }
-        if (request.getReactionStructure() != null) {
-            hasProjects = hasNotebooks = false;
-            experimentJoins.add("join Experiment_Rxnfile rxn on rxn.experiment_id = e.id");
-            switch (request.getReactionStructure().type()) {
-                case EXACT -> {
-                    experimentConditions.add("rxn.rxnfile @ (:rxnfile, '')::bingo.rexact", "rxnfile", request.getReactionStructure().query());
-                }
-                case SUBSTRUCTURE -> {
-                    experimentConditions.add("rxn.rxnfile @ (:rxnfile, '')::bingo.rsub", "rxnfile", request.getReactionStructure().query());
-                }
-                case SIMILARITY -> {
-                    throw new InvalidRequestException("Reaction similarity search is not supported");
+    public SearchVector collectExperimentSearchVector(ExperimentSnapshot snapshot) {
+        SearchVector.Builder sv = new SearchVector.Builder()
+                .a(snapshot.getName()) // TODO complex index of Experiment.name
+                .a(snapshot.getTitle())
+                .d(snapshot.getDescription())
+                .d(snapshot.getLiterature());
+        for (Reaction reaction : snapshot.getModel().getReactions()) {
+            for (ReactionInput input : reaction.getInputs()) {
+                sv.b(input.getCompound().getCompoundKey());
+                for (ReactionInputSample sample : input.getSamples()) {
+                    sv.c(sample.getStrCode() != null ? sample.getStrCode().toString() : null);
+                    sv.c(sample.getNbkBatchNumber() != null ? sample.getNbkBatchNumber().toString() : null);
                 }
             }
         }
-        if (request.getBatchPurity() != null) {
-            hasProjects = hasNotebooks = false;
-            experimentConditions.add("""
-                EXISTS (
-                    SELECT 1
-                    FROM jsonb_path_query(e.model, '$.reactions[*].outputs[*].samples[*].purity') p
-                    WHERE (p.p->>'value')::numeric %OP% :purity
-                )
-            """.replace("%OP%", request.getBatchPurity().operator()), "purity", request.getBatchPurity().value());
-        }
-        if (request.getBatchYield() != null) {
-            hasProjects = hasNotebooks = false;
-            experimentConditions.add("""
-                EXISTS (
-                    SELECT 1
-                    FROM jsonb_path_query(e.model, '$.reactions[*].outputs[*].samples[*].yield') p
-                    WHERE (p.p->>'value')::numeric %OP% :yield
-                )
-            """.replace("%OP%", request.getBatchYield().operator()), "yield", request.getBatchYield().value());
-        }
+        return sv.build();
+    }
 
-        String fragmentSelector = "left(t.description, 120)";
-        if (request.getQuery() != null) {
-            String condition = "search_vector @@ websearch_to_tsquery('english', :query)";
-            projectConditions.add(condition, QUERY, request.getQuery());
-            notebookConditions.add(condition, QUERY, request.getQuery());
-            experimentConditions.add(condition, QUERY, request.getQuery());
-            fragmentSelector = "ts_headline('english', t.description, websearch_to_tsquery('english', :query), 'StartSel=<mark>,StopSel=</mark>')";
+    public SearchVector collectProjectSearchVector(ProjectSnapshot snapshot) {
+        SearchVector.Builder sv = new SearchVector.Builder()
+                .a(snapshot.getName())
+                .d(snapshot.getDescription())
+                .d(snapshot.getLiterature());
+        for (String keyword : snapshot.getKeywords()) {
+            sv.b(keyword);
         }
-        StringBuilder sql = new StringBuilder();
-        sql.append("WITH t AS (\n");
-        Map<String, @Nullable Object> params = new HashMap<>();
-        boolean hasUnionBlocks = false;
-        if (hasProjects) {
-            String projectsSQL = "SELECT 'PROJECT' AS type, p.name, p.id, p.description, p.created_by_id, p.created_at, p.modified_by_id, p.modified_at, NULL AS reaction_roles, NULL AS experiment_status, NULL::integer AS revision"
-                    + "\nFROM Project p"
-                    + "\nJOIN Project_Access_View pv ON pv.project_id = p.id"
-                    + "\nWHERE " + projectConditions.getQuery();
-            sql.append(projectsSQL);
-            params.putAll(projectConditions.getValues());
-            hasUnionBlocks = true;
-        }
-        if (hasNotebooks) {
-            if (hasUnionBlocks) {
-                sql.append("\nUNION ALL\n");
+        return sv.build();
+    }
+
+    public SearchVector collectSampleSearchVector(SampleEntity sample) {
+        CompoundEntity c = sample.getCompound();
+        SearchVector.Builder sv = new SearchVector.Builder()
+                .a(sample.getStrCode() != null ? sample.getStrCode().toString() : null)
+                .a(sample.getNbkBatchNumber() != null ? sample.getNbkBatchNumber().toString() : null)
+                .a(c.getCasNumber())
+                .b(c.getChemicalName());
+        return sv.build();
+    }
+
+    public SearchVector collectNotebookSearchVector(NotebookSnapshot snapshot) {
+        SearchVector.Builder sv = new  SearchVector.Builder()
+                .a(snapshot.getName())
+                .d(snapshot.getDescription());
+        return sv.build();
+    }
+
+    public Set<ExperimentSearchCompound> collectExperimentCompoundRefs(ExperimentSnapshot snapshot) {
+        Set<ExperimentSearchCompound> refs = new HashSet<>();
+        for (Reaction reaction : snapshot.getModel().getReactions()) {
+            for (ReactionInput input : reaction.getInputs()) {
+                if (input.getCompound() instanceof CompoundRef.StoredOrVirtual c) {
+                    refs.add(new ExperimentSearchCompound(input.getRole(), em.getReference(CompoundEntity.class, c.getCompoundID())));
+                }
             }
-            hasUnionBlocks = true;
-            String notebooksSQL = "SELECT 'NOTEBOOK' AS type, n.name, n.id, n.description, n.created_by_id, n.created_at, n.modified_by_id, n.modified_at, NULL AS reaction_roles, NULL AS experiment_status, NULL::integer AS revision"
-                    + "\nFROM Notebook n"
-                    + "\nJOIN Notebook_Access_View nv ON nv.notebook_id = n.id"
-                    + "\nWHERE " + notebookConditions.getQuery();
-            params.putAll(notebookConditions.getValues());
-            sql.append(notebooksSQL);
-        }
-        if (hasExperiments) {
-            if (hasUnionBlocks) {
-                sql.append("\nUNION ALL\n");
+            for (ReactionOutput output : reaction.getOutputs()) {
+                if (output.getCompound() instanceof CompoundRef.StoredOrVirtual c) {
+                    refs.add(new ExperimentSearchCompound(ReactionRole.OUTPUT, em.getReference(CompoundEntity.class, c.getCompoundID())));
+                }
             }
-            String experimentsSQL = "SELECT 'EXPERIMENT' AS type, e.name, e.id, e.description, e.created_by_id, e.created_at, e.modified_by_id, e.modified_at, " + rolesSelector + ", e.status::varchar AS experiment_status, e.revision"
-                    + "\nFROM Experiment e"
-                    + "\nJOIN Experiment_Access_View ev ON ev.experiment_id = e.id"
-                    + "\n" + String.join("\n", experimentJoins)
-                    + "\nWHERE " + experimentConditions.getQuery()
-                    + (groupBySQL != null ? "\nGROUP BY " + groupBySQL : "");
-            params.putAll(experimentConditions.getValues());
-            sql.append(experimentsSQL);
         }
-        sql.append(")\n");
-        sql.append("SELECT t.type, t.name, t.id, ").append(fragmentSelector).append(" fragment");
-        sql.append("""
-                
-                , t.created_by_id, t.created_at
-                , t.modified_by_id, t.modified_at
-                , t.reaction_roles, t.experiment_status, t.revision
-                , count(*) over (partition by 1)
-                FROM t
-                ORDER by t.created_at""");
-        long[] totalCount = new long[] {0};
-        Query query = em.createNativeQuery(sql.toString())
-                .setFirstResult(paging.getPageNoOrDefault() * paging.getPageSizeOrDefault())
-                .setMaxResults(paging.getPageSizeOrDefault());
-        params.forEach(query::setParameter);
-        //noinspection unchecked
-        Stream<Object[]> stream = query.getResultStream();
-        List<GlobalSearchResultDTO> list = stream
-                .map(row -> {
-                    int fieldNo = -1;
-                    GlobalSearchResultDTO item = new GlobalSearchResultDTO();
-                    item.setType(ELNEntityType.valueOf(row[++fieldNo].toString()));
-                    item.setName((String) row[++fieldNo]);
-                    item.setId((UUID) row[++fieldNo]);
-                    item.setFragment((String) row[++fieldNo]);
-                    item.setCreatedBy(userService.getUserInfo((UUID) row[++fieldNo]));
-                    item.setCreatedAt((Instant) row[++fieldNo]);
-                    item.setModifiedBy(userService.getUserInfo((UUID) row[++fieldNo]));
-                    item.setModifiedAt((Instant) row[++fieldNo]);
-                    String[] reactionRoles = (String[]) row[++fieldNo];
-                    if (reactionRoles != null) {
-                        item.setReactionRoles(StreamEx.of(reactionRoles).map(ReactionRole::valueOf).toCollection(() -> EnumSet.noneOf(ReactionRole.class)));
-                    }
-                    String experimentStatus = (String) row[++fieldNo];
-                    if (experimentStatus != null) {
-                        item.setExperimentStatus(ExperimentStatus.valueOf(experimentStatus));
-                    }
-                    item.setRevision((Integer) row[++fieldNo]);
-                    totalCount[0] = (Long) row[++fieldNo];
-                    return item;
-                })
+        return refs;
+    }
+
+    public List<String> collectExperimentRxnfiles(ExperimentSnapshot snapshot) {
+        return StreamEx.of(snapshot.getModel().getReactions())
+                .map(Reaction::getRxnfile)
+                .nonNull()
                 .toList();
-        return Page.of(paging, totalCount[0], list);
+    }
+
+    public Set<ExperimentSearchBatch> collectExperimentBatches(ExperimentSnapshot snapshot) {
+        Set<ExperimentSearchBatch> set = new HashSet<>();
+        for (Reaction reaction : snapshot.getModel().getReactions()) {
+            for (ReactionOutput output : reaction.getOutputs()) {
+                for (ReactionOutputSample sample : output.getSamples()) {
+                    if (!sample.getPurity().isEmpty() || !sample.getYieldValue().isEmpty()) {
+                        set.add(new ExperimentSearchBatch(sample.getPurity().getValueOrNull(), sample.getYieldValue().getValueOrNull()));
+                    }
+                }
+            }
+        }
+        return set;
     }
 }

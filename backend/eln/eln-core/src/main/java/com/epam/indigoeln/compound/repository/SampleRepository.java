@@ -9,6 +9,7 @@ import com.epam.indigoeln.compound.entity.SampleEntity_;
 import com.epam.indigoeln.compound.mapper.SampleMapper;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
+import com.epam.indigoeln.compound.model.search.StructuralSearch;
 import com.epam.indigoeln.eln.common.repository.BaseRepository;
 import com.epam.indigoeln.eln.model.ELNEntityType;
 import com.epam.indigoeln.eln.model.STRCodeSample;
@@ -57,9 +58,13 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
             JpaJoin<SampleEntity, CompoundEntity> compound = root.join(SampleEntity_.compound); // will be optimized away if not used
             select(tuple(root.id(), count(literal(1), createWindow())));
             criteriaConditionsFactory.withConditions(this::where, conditions -> {
-                conditions.fullTextSearch(root.get(SampleEntity_.searchVector), request.getQuickSearch(), s -> null);
+                orderBy(asc(root.get(SampleEntity_.id))); // default sort, can be overridden
+                conditions.fullTextSearch(root.get(SampleEntity_.searchVector), request.getQuickSearch(), null);
 
-                conditions.structureSearch(compound.get(CompoundEntity_.molFile), request.getStructure());
+                conditions.moleculeSearch(compound.get(CompoundEntity_.molFile), request.getStructure());
+                if (request.getStructure() != null && request.getStructure().type() != StructuralSearch.Type.EXACT) {
+                    orderBy(desc(conditions.moleculeSimilarity(compound.get(CompoundEntity_.molFile), request.getStructure().query())));
+                }
 
                 conditions.textSearch(compound.get(CompoundEntity_.compoundKey), request.getCompoundKey());
                 conditions.textSearch(root.get(SampleEntity_.nbkBatchNumber).cast(String.class), request.getNbkBatchNumber());
@@ -75,7 +80,6 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
 
                 conditions.bool(root.get(SampleEntity_.marked), marked);
             });
-            orderBy(asc(root.get(SampleEntity_.id)));
         }};
 
         Paging paging = new Paging(pageNo, pageSize);

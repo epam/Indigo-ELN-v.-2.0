@@ -39,7 +39,7 @@ public interface UserAPI extends BaseAPI {
     @Path("/users/{username}/picture")
     @Cached(interval = 1, unit = ChronoUnit.DAYS)
     @Produces("image/png")
-    byte[] getUserPicture(@PathParam("username") String username, @QueryParam("small") @Nullable Boolean large);
+    byte[] getUserPicture(@PathParam("username") String username, @QueryParam("large") @Nullable Boolean large);
 
     @GET
     @Path("/users/suggest")

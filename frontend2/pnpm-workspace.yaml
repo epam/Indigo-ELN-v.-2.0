@@ -1,0 +1,6 @@
+# pnpm blocks dependency lifecycle scripts unless they are allowed here.
+# esbuild's postinstall places the platform binary; msw's regenerates
+# public/mockServiceWorker.js.
+allowBuilds:
+  esbuild: true
+  msw: true

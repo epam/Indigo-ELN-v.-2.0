@@ -2,13 +2,14 @@ package com.epam.indigoeln.compound.entity;
 
 import com.epam.indigoeln.eln.config.hibernate.NbkBatchNumberConverter;
 import com.epam.indigoeln.eln.config.hibernate.STRCodeSampleConverter;
+import com.epam.indigoeln.eln.config.hibernate.SearchVectorType;
 import com.epam.indigoeln.eln.entity.BaseEntity;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
 import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.model.NbkBatchNumber;
 import com.epam.indigoeln.eln.model.STRCodeSample;
+import com.epam.indigoeln.eln.util.SearchVector;
 import com.epam.indigoeln.reaction.model.units.MolarityUnit;
-import io.hypersistence.utils.hibernate.type.search.PostgreSQLTSVectorType;
 import jakarta.persistence.*;
 import jakarta.persistence.NamedEntityGraph;
 import jakarta.validation.constraints.NotNull;
@@ -77,11 +78,13 @@ public class SampleEntity extends BaseEntity {
     @Nullable
     private String batchComment;
 
-    @Nullable
+    @NotNull
     @Basic(fetch = FetchType.LAZY)
-    @Type(PostgreSQLTSVectorType.class)
-    @Column(insertable = false, updatable = false)
-    private String searchVector;
+    @LazyGroup("searchVector")
+    @Type(SearchVectorType.class)
+    @Column(name = "search_vector", columnDefinition = "tsvector")
+    @ColumnTransformer(write = "calculate_tsvector(?)")
+    private SearchVector searchVector;
 
     @ManyToMany
     @JoinTable(name = "Sample_Health_Hazard", joinColumns = @JoinColumn(name = "sample_id"), inverseJoinColumns = @JoinColumn(name = "health_hazard_id"))

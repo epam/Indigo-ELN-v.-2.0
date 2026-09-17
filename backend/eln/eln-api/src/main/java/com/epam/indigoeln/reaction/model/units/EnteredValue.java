@@ -106,6 +106,10 @@ public final class EnteredValue<U extends MeasurementUnit> {
         return stringValue != null && unit != null ? new EnteredValue<U>(true, Double.parseDouble(stringValue), false, -1, stringValue, unit, EnteredValueSource.userEntered(revision), false) : empty();
     }
 
+    public static <U extends MeasurementUnit> EnteredValue<U> cleared(int revision) {
+        return new EnteredValue<>(false, 0.0, false, 0, null, (U) NoUnit.NO_UNIT, EnteredValueSource.userEntered(revision), false);
+    }
+
     public static <U extends MeasurementUnit> EnteredValue<U> calculated(@Nullable Double value, U unit) {
         return value != null ? new EnteredValue<>(true, value, false, getSignificantFigures(), null, unit, EnteredValueSource.CALCULATED, false) : empty();
     }
@@ -178,6 +182,11 @@ public final class EnteredValue<U extends MeasurementUnit> {
         return value;
     }
 
+    @Nullable
+    public Double getValueOrNull() {
+        return present ? value : null;
+    }
+
     public U getUnit() {
         checkState(present);
         return unit;
@@ -204,6 +213,9 @@ public final class EnteredValue<U extends MeasurementUnit> {
         if (!(o instanceof EnteredValue<?> that)) {
             return false;
         }
+        if (overwritten != that.overwritten) {
+            return false;
+        }
         if (present != that.present) { // one of them is empty
             return false;
         }
@@ -225,12 +237,12 @@ public final class EnteredValue<U extends MeasurementUnit> {
     @Override
     public int hashCode() {
         if (!present) {
-            return 0;
+            return Boolean.hashCode(overwritten);
         }
         if (exact) {
-            return Objects.hash(unit, source, value);
+            return Objects.hash(unit, source, value, overwritten);
         }
-        return Objects.hash(unit, source, getStringValue());
+        return Objects.hash(unit, source, getStringValue(), overwritten);
     }
 
     public BigDecimal toBigDecimal() {

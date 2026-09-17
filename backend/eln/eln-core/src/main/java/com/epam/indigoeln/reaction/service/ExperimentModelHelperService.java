@@ -30,11 +30,9 @@ public class ExperimentModelHelperService {
     @Inject
     IndigoRendererAPI indigoRenderer;
 
-    public String rebuildReactionPicture(ExperimentEntity experiment, Reaction reaction, IndigoReaction indigoReaction) {
+    public byte[] rebuildReactionPicture(ExperimentEntity experiment, IndigoReaction indigoReaction) {
         indigoRenderer.setRenderOptions("svg", 500, 200);
-        byte[] buf = indigoRenderer.renderToBuffer(indigoReaction);
-        experiment.setPicture(buf);
-        return new String(buf);
+        return indigoRenderer.renderToBuffer(indigoReaction);
     }
 
     public List<Object> makeReactionKey(Reaction reaction) {

@@ -86,6 +86,9 @@ public abstract class AbstractNotebookMutationHandler<T extends Mutation> extend
     @SneakyThrows
     protected final JsonNode doUpdateEntity(NotebookEntity notebook, NotebookSnapshot snapshotBefore, NotebookSnapshot snapshotAfter, NotebookMutationContext context) {
         updateDates(notebook, userService.getCurrentUserEntity());
+        for (NotebookMutationListener listener : listeners) {
+            listener.beforePersist(notebook, snapshotBefore, snapshotAfter);
+        }
         //noinspection ConstantValue
         if (notebook.getId() == null) {
             notebookRepository.persist(notebook);

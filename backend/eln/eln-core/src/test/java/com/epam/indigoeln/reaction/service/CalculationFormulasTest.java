@@ -158,13 +158,13 @@ public class CalculationFormulasTest extends MutationsTestBase {
     }
 
     @Test
-    // F4.2. sample.molarity = sample.mol / sample.volume
+    // F4.2 disabled: molarity is never calculated
     void testF4_2() {
         experiment.mutateAddEmptyInput();
         experiment.mutateSetInputMol(1, 1, "10", MOL);
         experiment.mutateSetInputVolume(1, 1, "20", L);
 
-        assertThat(experiment.inputSample(1, 1).getMolarity()).hasValue(0.5, M);
+        assertThat(experiment.inputSample(1, 1).getMolarity()).isEmpty();
     }
 
     @Test
@@ -189,14 +189,14 @@ public class CalculationFormulasTest extends MutationsTestBase {
     }
 
     @Test
-    // F4.5. sample.molarity = sample.actualMol / sample.volume
+    // F4.5 disabled: molarity is never calculated
     void testF4_5() {
         experiment.mutateAddNoProductSample();
         OutputSampleAnchor os = experiment.outputSample(1, 1).getAnchor();
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputActualMol(os, "10", MOL));
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputVolume(os, "20", L));
 
-        assertThat(experiment.outputSample(1, 1).getMolarity()).hasValue(0.5, M);
+        assertThat(experiment.outputSample(1, 1).getMolarity()).isEmpty();
     }
 
     @Test
@@ -231,13 +231,13 @@ public class CalculationFormulasTest extends MutationsTestBase {
     }
 
     @Test
-    // F5.3. sample.density = sample.weight / sample.volume
+    // F5.3 disabled: density is never calculated
     void testF5_3() {
         experiment.mutateAddEmptyInput();
         experiment.mutateSetInputWeight(1, 1, "10", G);
         experiment.mutateSetInputVolume(1, 1, "20", ML);
 
-        assertThat(experiment.inputSample(1, 1).getDensity()).hasValue(0.5, G_ML);
+        assertThat(experiment.inputSample(1, 1).getDensity()).isEmpty();
     }
 
     @Test
@@ -263,14 +263,14 @@ public class CalculationFormulasTest extends MutationsTestBase {
     }
 
     @Test
-    // F5.6. sample.density = sample.actualWeight / sample.volume
+    // F5.6 disabled: density is never calculated
     void testF5_6() {
         experiment.mutateAddNoProductSample();
         OutputSampleAnchor os = experiment.outputSample(1, 1).getAnchor();
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputActualWeight(os, "10", G));
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputVolume(os, "20", ML));
 
-        assertThat(experiment.outputSample(1, 1).getDensity()).hasValue(0.5, G_ML);
+        assertThat(experiment.outputSample(1, 1).getDensity()).isEmpty();
     }
 
     @Test

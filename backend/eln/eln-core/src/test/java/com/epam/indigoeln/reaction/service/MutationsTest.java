@@ -739,4 +739,13 @@ public class MutationsTest extends MutationsTestBase {
         experiment.invalidate();
         assertThat(experiment.reaction().getOutputs().size()).isGreaterThan(outputCount);
     }
+
+    @Test
+    void testClearCalculated() {
+        experiment.mutateSetSchemeFromResource(REACTION_RXN);
+        experiment.mutateSetInputMol(1, 1, "10", MMOL);
+        experiment.mutateSetInputDensity(1, 1, "4", G_ML);
+        experiment.mutateSetInputVolume(1, 1, null, null);
+        assertThat(experiment.inputSample(1, 1).getVolume()).isEmpty();
+    }
 }

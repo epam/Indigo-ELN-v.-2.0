@@ -2,10 +2,11 @@ package com.epam.indigoeln.eln.entity;
 
 import com.epam.indigoeln.eln.config.hibernate.ACLEntryArrayType;
 import com.epam.indigoeln.eln.config.hibernate.ExperimentModelType;
+import com.epam.indigoeln.eln.config.hibernate.SearchVectorType;
 import com.epam.indigoeln.eln.model.AccessLevel;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
+import com.epam.indigoeln.eln.util.SearchVector;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
-import io.hypersistence.utils.hibernate.type.search.PostgreSQLTSVectorType;
 import jakarta.persistence.*;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.NamedEntityGraph;
@@ -142,11 +143,13 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments<Expe
     @JdbcTypeCode(SqlTypes.ARRAY)
     private UUID[] continuedTo = new UUID[0];
 
-    @Nullable
+    @NotNull
     @Basic(fetch = FetchType.LAZY)
-    @Type(PostgreSQLTSVectorType.class)
-    @Column(insertable = false, updatable = false)
-    private String searchVector;
+    @LazyGroup("searchVector")
+    @Type(SearchVectorType.class)
+    @Column(name = "search_vector", columnDefinition = "tsvector")
+    @ColumnTransformer(write = "calculate_tsvector(?)")
+    private SearchVector searchVector;
 
     @NotNull
     @Basic(fetch = FetchType.LAZY)
@@ -197,14 +200,19 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments<Expe
     @NotNull
     @ElementCollection
     @CollectionTable(name = "Experiment_Referenced_Compound", joinColumns = @JoinColumn(name = "experiment_id"))
-    private Set<ExperimentReferencedCompound> referencedCompounds = HashSet.newHashSet(0);
+    private Set<ExperimentSearchCompound> searchCompounds = HashSet.newHashSet(0);
 
     @NotNull
     @ElementCollection
     @CollectionTable(name = "Experiment_Rxnfile", joinColumns = @JoinColumn(name = "experiment_id"))
     @Column(name = "rxnfile")
     @OrderColumn(name = "ordinal")
-    private List<String> rxnfiles = new ArrayList<>(0);
+    private List<String> searchRxnfiles = new ArrayList<>(0);
+
+    @NotNull
+    @ElementCollection
+    @CollectionTable(name = "Experiment_Search_Batch", joinColumns = @JoinColumn(name = "experiment_id"))
+    private Set<ExperimentSearchBatch> searchBatches = HashSet.newHashSet(0);
 
     @Nullable
     @Basic(fetch = FetchType.LAZY)

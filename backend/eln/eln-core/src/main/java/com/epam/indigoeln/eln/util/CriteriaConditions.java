@@ -1,18 +1,24 @@
 package com.epam.indigoeln.eln.util;
 
+import com.epam.indigoeln.common.exception.InvalidRequestException;
+import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.compound.model.search.NumericSearch;
 import com.epam.indigoeln.compound.model.search.StructuralSearch;
 import com.epam.indigoeln.compound.model.search.TextSearch;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
+import com.epam.indigoeln.eln.entity.UserEntity;
+import com.epam.indigoeln.eln.entity.UserEntity_;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.jspecify.annotations.Nullable;
 
@@ -21,22 +27,19 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 @Dependent
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
 public class CriteriaConditions {
 
-    private final HibernateCriteriaBuilder cb;
+    private static final String SIMILARITY_METRIC_TANIMOTO = "Tanimoto";
 
+    @Inject
+    HibernateCriteriaBuilder cb;
     @Inject
     DictionaryService dictionaryService;
 
     private final List<Predicate> predicates = new ArrayList<>();
-
-    @Inject
-    CriteriaConditions(EntityManager em) {
-        cb = (HibernateCriteriaBuilder) em.getCriteriaBuilder();
-    }
 
     public void add(@Nullable Predicate predicate) {
         if (predicate != null) {
@@ -101,18 +104,38 @@ public class CriteriaConditions {
         }
     }
 
-    public void fullTextSearch(Expression<String> attribute, @Nullable String search, Function<String, @Nullable List<Predicate>> alternativesFn) {
+    public void fullTextSearch(Expression<SearchVector> attribute, @Nullable String search, @Nullable Expression<String> name) {
         if (search != null) {
             Predicate predicate = cb.isTrue(cb.function("full_text_search", Boolean.class, attribute, cb.literal("english"), cb.literal(search)));
-            List<Predicate> alternatives = alternativesFn.apply(search);
-            if (alternatives != null) {
-                predicate = cb.or(Stream.concat(Stream.of(predicate), alternatives.stream()).toList());
+            if (name != null) {
+                predicate = cb.or(predicate, nameMatches(name, search));
             }
             predicates.add(predicate);
         }
     }
 
-    public void structureSearch(Expression<String> attribute, @Nullable StructuralSearch search) {
+    public Expression<Double> fullTextRank(Expression<SearchVector> attribute, String search, @Nullable Expression<String> name) {
+        Expression<Double> rank = cb.function("ts_rank", Double.class, attribute, cb.literal("english"), cb.literal(search));
+        if (name == null) {
+            return rank;
+        }
+        // ts_rank stays below 1, so a name match ranks above any text-only match; name matches are still ordered by ts_rank.
+        // Without the boost a name-only match (found by the fullTextSearch fallback) would rank 0, below every text match.
+        Expression<Double> nameBoost = cb.<Double>selectCase()
+                .when(nameMatches(name, search), cb.literal(1.0))
+                .otherwise(cb.literal(0.0));
+        return cb.sum(rank, nameBoost);
+    }
+
+    private Predicate nameMatches(Expression<String> name, String search) {
+        return cb.ilike(name, cb.literal("%" + search + "%"));
+    }
+
+    public Expression<String> fullTextHeadline(Expression<String> attribute, String search, String options) {
+        return cb.function("ts_headline", String.class, cb.literal("english"), attribute, cb.literal("english"), cb.literal(search), cb.literal(options));
+    }
+
+    public void moleculeSearch(Expression<String> attribute, @Nullable StructuralSearch search) {
         if (search != null) {
             Expression<Boolean> expression = switch (search.type()) {
                 case EXACT -> cb.function("bingo_exact_match", Boolean.class, attribute, cb.literal(search.query()), cb.literal(""));
@@ -123,9 +146,32 @@ public class CriteriaConditions {
         }
     }
 
+    public Expression<Double> moleculeSimilarity(Expression<String> attribute, String query) {
+        return cb.function("bingo_getsimilarity", Double.class, attribute, cb.literal(query), cb.literal(SIMILARITY_METRIC_TANIMOTO));
+    }
+
+    public void reactionSearch(Expression<String> attribute, @Nullable StructuralSearch search) {
+        if (search != null) {
+            Expression<Boolean> expression = switch (search.type()) {
+                case EXACT -> cb.function("bingo_rexact_match", Boolean.class, attribute, cb.literal(search.query()), cb.literal(""));
+                case SUBSTRUCTURE -> cb.function("bingo_rsubstructure_match", Boolean.class, attribute, cb.literal(search.query()), cb.literal(""));
+                case SIMILARITY -> {
+                    throw new InvalidRequestException("Reaction similarity search is not supported");
+                }
+            };
+            predicates.add(cb.isTrue(expression));
+        }
+    }
+
     public void bool(Expression<Boolean> attribute, @Nullable Boolean search) {
         if (search != null) {
             predicates.add(search ? cb.isTrue(attribute) : cb.isFalse(attribute));
+        }
+    }
+
+    public void user(Path<UserEntity> attribute, @Nullable Collection<UserRef> search) {
+        if (search != null) {
+            predicates.add(cb.in(attribute.get(UserEntity_.username), search.stream().map(UserRef::getUsername).toList()));
         }
     }
 

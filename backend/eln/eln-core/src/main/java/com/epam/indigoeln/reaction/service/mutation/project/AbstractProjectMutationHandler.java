@@ -11,10 +11,7 @@ import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.eln.util.JSONPatcher;
 import com.epam.indigoeln.reaction.model.ProjectSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.service.mutation.EntityMutationHelper;
-import com.epam.indigoeln.reaction.service.mutation.MutationHandler;
-import com.epam.indigoeln.reaction.service.mutation.MutationResult;
-import com.epam.indigoeln.reaction.service.mutation.ProjectMutationListener;
+import com.epam.indigoeln.reaction.service.mutation.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.arc.All;
@@ -88,6 +85,9 @@ public abstract class AbstractProjectMutationHandler<T extends Mutation> extends
     @SneakyThrows
     protected final JsonNode doUpdateEntity(ProjectEntity project, ProjectSnapshot snapshotBefore, ProjectSnapshot snapshotAfter, ProjectMutationContext context) {
         updateDates(project, userService.getCurrentUserEntity());
+        for (ProjectMutationListener listener : listeners) {
+            listener.beforePersist(project, snapshotBefore, snapshotAfter);
+        }
         //noinspection ConstantValue
         if (project.getId() == null) {
             projectRepository.persist(project);

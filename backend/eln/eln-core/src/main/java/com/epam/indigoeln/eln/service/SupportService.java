@@ -8,10 +8,13 @@ import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
 import com.epam.indigoeln.eln.entity.NotebookEntity;
 import com.epam.indigoeln.eln.entity.ProjectEntity;
+import com.epam.indigoeln.eln.mapper.SnapshotMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.util.ExperimentDetailsReportBuilder;
-import com.epam.indigoeln.eln.util.SearchVectorUpdater;
+import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
+import com.epam.indigoeln.reaction.model.NotebookSnapshot;
+import com.epam.indigoeln.reaction.model.ProjectSnapshot;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -28,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -64,9 +68,11 @@ public class SupportService {
     @Inject
     AttachmentService attachmentService;
     @Inject
-    ExperimentDetailsReportBuilder experimentDetailsReportBuilder;
+    GlobalSearchService globalSearchService;
     @Inject
-    SearchVectorUpdater searchVectorUpdater;
+    SnapshotMapper snapshotMapper;
+    @Inject
+    ExperimentDetailsReportBuilder experimentDetailsReportBuilder;
 
     private final Random random = new Random();
 
@@ -83,21 +89,35 @@ public class SupportService {
     public Map<String, String> reindexSearchVectors() {
         aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_USERS);
 
+        long experiments = doReindex(
+                em.createQuery("FROM Experiment e ORDER BY e.id", ExperimentEntity.class),
+                e -> {
+                    ExperimentSnapshot snapshot = snapshotMapper.createSnapshot(e, false);
+                    e.setSearchVector(globalSearchService.collectExperimentSearchVector(snapshot));
+                    e.setSearchCompounds(globalSearchService.collectExperimentCompoundRefs(snapshot));
+                    e.setSearchRxnfiles(globalSearchService.collectExperimentRxnfiles(snapshot));
+                    e.setSearchBatches(globalSearchService.collectExperimentBatches(snapshot));
+                });
+
         long projects = doReindex(
-                em.createQuery("FROM Project p JOIN FETCH p.createdBy ORDER BY p.id", ProjectEntity.class),
-                p -> projectService.updateSearchVector(p, projectService.collectSearchFields(p)));
+                em.createQuery("FROM Project p ORDER BY p.id", ProjectEntity.class),
+                p -> {
+                    ProjectSnapshot snapshot = snapshotMapper.createSnapshot(p);
+                    p.setSearchVector(globalSearchService.collectProjectSearchVector(snapshot));
+                });
 
         long notebooks = doReindex(
-                em.createQuery("FROM Notebook n JOIN FETCH n.createdBy ORDER BY n.id", NotebookEntity.class),
-                n -> notebookService.updateSearchVector(n, notebookService.collectSearchFields(n)));
-
-        long experiments = doReindex(
-                em.createQuery("FROM Experiment e JOIN FETCH e.createdBy ORDER BY e.id", ExperimentEntity.class),
-                e -> experimentService.updateSearchVector(e, experimentService.collectSearchFields(e)));
+                em.createQuery("FROM Notebook n ORDER BY n.id", NotebookEntity.class),
+                n -> {
+                    NotebookSnapshot snapshot = snapshotMapper.createSnapshot(n);
+                    n.setSearchVector(globalSearchService.collectNotebookSearchVector(snapshot));
+                });
 
         long samples = doReindex(
                 em.createQuery("FROM Sample s JOIN FETCH s.compound ORDER BY s.id", SampleEntity.class),
-                compoundService::updateSearchVector);
+                s -> {
+                    s.setSearchVector(globalSearchService.collectSampleSearchVector(s));
+                });
 
         return Map.of(
                 "projects", String.valueOf(projects),
@@ -110,7 +130,14 @@ public class SupportService {
         try (Stream<T> stream = query
                 .setHint(AvailableHints.HINT_FETCH_SIZE, 1000)
                 .getResultStream()) {
-            return stream.peek(processor).peek(em::detach).count();
+            AtomicLong count = new AtomicLong(0);
+            stream.forEach(item -> {
+                processor.accept(item);
+                em.flush();
+                em.detach(item);
+                count.incrementAndGet();
+            });
+            return count.get();
         }
     }
 

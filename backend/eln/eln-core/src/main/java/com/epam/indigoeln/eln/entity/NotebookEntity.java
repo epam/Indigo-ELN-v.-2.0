@@ -2,9 +2,10 @@ package com.epam.indigoeln.eln.entity;
 
 import com.epam.indigoeln.eln.config.hibernate.ACLEntryArrayType;
 import com.epam.indigoeln.eln.config.hibernate.ExperimentCountArrayType;
+import com.epam.indigoeln.eln.config.hibernate.SearchVectorType;
 import com.epam.indigoeln.eln.model.AccessLevel;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
-import io.hypersistence.utils.hibernate.type.search.PostgreSQLTSVectorType;
+import com.epam.indigoeln.eln.util.SearchVector;
 import jakarta.persistence.*;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.NamedEntityGraph;
@@ -74,11 +75,13 @@ public class NotebookEntity extends BaseEntity implements WithAttachments<Notebo
     @Basic(fetch = FetchType.LAZY)
     private String description;
 
-    @Nullable
+    @NotNull
     @Basic(fetch = FetchType.LAZY)
-    @Type(PostgreSQLTSVectorType.class)
-    @Column(insertable = false, updatable = false)
-    private String searchVector;
+    @LazyGroup("searchVector")
+    @Type(SearchVectorType.class)
+    @Column(name = "search_vector", columnDefinition = "tsvector")
+    @ColumnTransformer(write = "calculate_tsvector(?)")
+    private SearchVector searchVector;
 
     @NotNull
     @OneToMany(mappedBy = "notebook")

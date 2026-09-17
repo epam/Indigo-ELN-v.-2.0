@@ -11,9 +11,8 @@ import com.epam.indigoeln.compound.repository.SampleRepository;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.DictionaryService;
+import com.epam.indigoeln.eln.service.GlobalSearchService;
 import com.epam.indigoeln.eln.service.UserService;
-import com.epam.indigoeln.eln.util.SearchVectorField;
-import com.epam.indigoeln.eln.util.SearchVectorUpdater;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
@@ -69,7 +68,7 @@ public class CompoundService {
     @Inject
     UserService userService;
     @Inject
-    SearchVectorUpdater searchVectorUpdater;
+    GlobalSearchService globalSearchService;
 
     public CompoundEntity findOrCreate(IndigoMolecule molecule, @Nullable StereoisomerCodeRef stereoisomerCode, @Nullable SaltCodeRef saltCode, @Nullable Double saltEQ, @Nullable Consumer<CompoundEntity> compoundConfigurer) {
         String canSmiles = molecule.canonicalSmiles();
@@ -119,20 +118,10 @@ public class CompoundService {
             compound.getSamples().add(sample);
             sample.setCompound(compound);
             updateDates(sample, userService.getCurrentUserEntity());
+            sample.setSearchVector(globalSearchService.collectSampleSearchVector(sample));
             sampleRepository.persist(sample);
-            updateSearchVector(sample);
         }
         return sample;
-    }
-
-    public void updateSearchVector(SampleEntity sample) {
-        CompoundEntity c = sample.getCompound();
-        List<@Nullable SearchVectorField> fields = new ArrayList<>();
-        fields.add(SearchVectorField.a(sample.getStrCode() != null ? sample.getStrCode().toString() : null));
-        fields.add(SearchVectorField.a(sample.getNbkBatchNumber() != null ? sample.getNbkBatchNumber().toString() : null));
-        fields.add(SearchVectorField.a(c.getCasNumber()));
-        fields.add(SearchVectorField.b(c.getChemicalName()));
-        searchVectorUpdater.update("Sample", sample.getId(), fields);
     }
 
     public CompoundRef.Stored realCompoundRef(CompoundEntity compound) {
@@ -234,8 +223,8 @@ public class CompoundService {
         sample.setBatchComment(request.getBatchComment());
         compound.getSamples().add(sample);
         updateDates(sample, userService.getCurrentUserEntity());
+        sample.setSearchVector(globalSearchService.collectSampleSearchVector(sample));
         sampleRepository.persist(sample);
-        updateSearchVector(sample);
         return sample;
     }
 
