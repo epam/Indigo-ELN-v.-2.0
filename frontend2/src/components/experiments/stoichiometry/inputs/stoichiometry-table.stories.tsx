@@ -979,6 +979,37 @@ export const EnterLeavesEditMode: Story = {
   },
 };
 
+/**
+ * **A cell in flight shows what it sent.** The editor closes on commit, so without this the cell
+ * would go back to the server's value and sit there for a whole round trip showing the number the
+ * user has just replaced — which reads as the edit having been dropped.
+ *
+ * It is written as a user-entered value, because that is what it is about to be.
+ *
+ * When the save settles the model is back in charge. This handler answers with an empty patch, so
+ * what comes back is the old value; a real patch would carry the new one.
+ */
+export const ShowsWhatWasSentWhileSaving: Story = {
+  parameters: { msw: { handlers: freezingHandlers } },
+  render: () => <TableFromCache />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    const input = await canvas.findByLabelText('Weight, batch 1');
+    await userEvent.click(input);
+    await userEvent.clear(input);
+    await userEvent.type(input, '700{Enter}');
+
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Saving…'));
+    const display = input.closest('[data-slot="numeric-cell"]')!.querySelector('[data-slot="numeric-cell-value"]')!;
+    await expect(display).toHaveTextContent('700 mg');
+    await expect(display).toHaveClass('text-blue-400');
+
+    await waitFor(() => expect(screen.queryByRole('status')).not.toBeInTheDocument(), { timeout: 5_000 });
+    await expect(display).toHaveTextContent('676.5 mg');
+  },
+};
+
 /** A failed save leaves the cell showing what the server last confirmed. */
 export const FailedSaveKeepsServerValue: Story = {
   parameters: { msw: { handlers: failingMutateHandlers } },

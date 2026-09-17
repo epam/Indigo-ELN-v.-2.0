@@ -1,6 +1,13 @@
 import type { EnteredValue } from '@/lib/types/reactions.ts';
 
 /**
+ * How a value a person typed is written: the cell's own claim that this number came from the
+ * user rather than from the registry or a formula. Exported because a value still on its way to
+ * the server looks the same — see `NumericCell`, which shows what it sent while it saves.
+ */
+export const USER_ENTERED_CLASSES = ['text-blue-400', 'font-semibold'];
+
+/**
  * What a numeric cell looks like, given where its value came from and what the last patch did
  * to it. Port of indigo-frontend's `ExperimentDetailService.determineCellClasses`.
  *
@@ -26,7 +33,7 @@ export function determineCellClasses(
   // A user-entered value never animates: the user knows what they just typed, and the whole
   // point of the flash is to point out a change they did *not* make. Returns early, exactly
   // as the original does.
-  if (typeof value.source === 'number') return ['text-blue-400', 'font-semibold'];
+  if (typeof value.source === 'number') return USER_ENTERED_CLASSES;
 
   const previous = updatedNodes.get(value) as EnteredValue<unknown> | undefined;
   const hasAnyUpdates = updatedNodes.size !== 0;

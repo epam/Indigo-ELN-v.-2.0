@@ -3,7 +3,7 @@ import { useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { SavingOverlay } from '@/components/common/saving-overlay';
-import { determineCellClasses } from '@/components/experiments/stoichiometry/cell-classes';
+import { determineCellClasses, USER_ENTERED_CLASSES } from '@/components/experiments/stoichiometry/cell-classes';
 import { CONTENT_BOX } from '@/components/experiments/stoichiometry/columns';
 import { convertUnitValue, unitLabel } from '@/lib/types/reactions.ts';
 import { cn } from '@/lib/utils';
@@ -125,12 +125,29 @@ export function NumericCell({
   const [draftUnit, setDraftUnit] = useState<string | null>(storedUnit);
   const [focused, setFocused] = useState(false);
 
-  const classes = determineCellClasses(value, updatedNodes);
-  const shownUnit = unitless ? fixedUnit : unitLabel(value?.unit);
-  const text = value?.value == null ? '—' : `${value.value}${shownUnit && ` ${shownUnit}`}`;
+  /**
+   * What the last commit sent, and what the cell shows for as long as that save is in flight.
+   *
+   * The editor closes on commit, so without this the cell would go back to the value the server
+   * last confirmed and sit there for a whole round trip showing the *old* number — which reads as
+   * the edit having been thrown away.
+   *
+   * It is read only while `pending`, so nothing has to clear it: that flag belongs to this same
+   * save (`savingCells` is keyed by cell), and the next commit overwrites it. When the save
+   * settles the model is back in charge — on success its patch has already landed, and on failure
+   * the server's value is exactly what should come back.
+   */
+  const [sent, setSent] = useState<NumericCellValue | null>(null);
+  const inFlight = pending ? sent : null;
+
+  const shownValue = inFlight ? inFlight.value : (value?.value ?? null);
+  const shownUnit = unitless ? fixedUnit : unitLabel((inFlight ? inFlight.unit : value?.unit) ?? undefined);
+  const text = shownValue == null ? '—' : `${shownValue}${shownUnit && ` ${shownUnit}`}`;
+  // A value on its way to the server is written as what it is: one the user entered.
+  const classes = inFlight ? USER_ENTERED_CLASSES : determineCellClasses(value, updatedNodes);
   // Only a colour. An em-dash keeps the column's alignment, so an empty cell has the same edge as
   // the numbers above and below it — a column that half-centres itself has no edge to read at all.
-  const emptyClass = value?.value == null ? 'text-neutral-700' : undefined;
+  const emptyClass = shownValue == null ? 'text-neutral-700' : undefined;
 
   /**
    * Set for exactly one blur, by whichever key is leaving the input — Escape and Enter both have
@@ -167,10 +184,16 @@ export function NumericCell({
     const prevSet = value?.value != null && value.unit != null;
 
     if (nextSet && (trimmed !== value?.value || draftUnit !== value?.unit)) {
-      onCommit({ value: trimmed, unit: draftUnit });
+      send({ value: trimmed, unit: draftUnit });
     } else if (!nextSet && prevSet) {
-      onCommit({ value: null, unit: null });
+      send({ value: null, unit: null });
     }
+  }
+
+  /** Sends an edit, and holds on to it for as long as it is on its way — see `sent`. */
+  function send(next: NumericCellValue) {
+    setSent(next);
+    onCommit(next);
   }
 
   /**
