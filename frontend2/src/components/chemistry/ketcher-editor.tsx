@@ -1,4 +1,4 @@
-import { Editor } from 'ketcher-react';
+import {type ButtonsConfig, Editor} from 'ketcher-react';
 import { StandaloneStructServiceProvider } from 'ketcher-standalone';
 
 import 'ketcher-react/dist/index.css';
@@ -22,12 +22,14 @@ interface KetcherEditorProps {
 }
 
 function KetcherEditor({ onReady }: KetcherEditorProps) {
+  const buttons: ButtonsConfig = {sgroup: {hidden: true}, rgroup: {hidden: true}, "create-monomer": {hidden: true}}
   return (
     <Editor
       staticResourcesUrl=""
       structServiceProvider={structServiceProvider}
       errorHandler={(message: string) => notifyError(new Error(String(message)))}
       onInit={onReady}
+      buttons={buttons}
     />
   );
 }

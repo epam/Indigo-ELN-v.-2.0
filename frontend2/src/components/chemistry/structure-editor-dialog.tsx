@@ -41,6 +41,7 @@ function StructureEditorDialog({ open, onOpenChange, value, onSave }: StructureE
   async function handleReady(instance: Ketcher) {
     if (value) {
       try {
+        instance.setSettings({atomColoring: true})
         await instance.setMolecule(value);
       } catch (error) {
         notifyError(error);
