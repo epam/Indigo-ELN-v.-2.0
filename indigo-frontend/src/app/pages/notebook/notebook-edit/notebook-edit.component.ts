@@ -3,7 +3,7 @@ import { ApiService } from '@core/services/api.service';
 import { Notebook } from '@core/types/entities/notebook.i';
 import { NotebookDialogData } from '@/core/types/entities/notebook-dialog-data.i';
 import { CommonModule } from '@angular/common';
-import { Component, Inject, inject, signal } from '@angular/core';
+import { Component, computed, Inject, inject, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
@@ -14,6 +14,9 @@ import { of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { NotificationType } from '@/core/types/notification.i';
 import { NotificationService } from '@/core/services/notification/notification.service';
+import { PermissionService } from '@core/services/permission/permission.service';
+import { ApplicationPermission } from '@core/types/entities/user.i';
+import { NotebookDetail } from '@core/types/entities/notebook-detail.i';
 
 @Component({
   standalone: true,
@@ -26,7 +29,12 @@ export class NotebookEditComponent {
   dialogRef = inject(MatDialogRef);
   notebook: Partial<Notebook> = {};
   notificationService = inject(NotificationService);
+  permissionService = inject(PermissionService);
   uniqueNameToastMessage = signal('');
+  notebookEntity: NotebookDetail | null = null;
+  canEditNotebook = computed(() =>
+    this.permissionService.hasEntityPermission(ApplicationPermission.EDIT_NOTEBOOKS, this.notebookEntity),
+  );
 
   fields: FormlyFieldConfig[] = [
     {
@@ -102,6 +110,7 @@ export class NotebookEditComponent {
     @Inject(MAT_DIALOG_DATA) private data: NotebookDialogData,
   ) {
     if (data?.notebook) {
+      this.notebookEntity = data.notebook;
       this.notebook = {
         name: data.notebook.name,
         description: data.notebook.description,
@@ -111,6 +120,8 @@ export class NotebookEditComponent {
   }
 
   editNotebook(data: Notebook) {
+    if (!this.canEditNotebook()) return;
+
     this.service
       .update(`notebooks/${this.notebookId}`, {
         ...data,

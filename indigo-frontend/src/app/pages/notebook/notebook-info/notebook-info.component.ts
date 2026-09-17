@@ -9,6 +9,9 @@ import { NotebookEditComponent } from '@pages/notebook/notebook-edit/notebook-ed
 import { MatDialog } from '@angular/material/dialog';
 import { AttachmentsComponent } from '@core/components/common/attachments/attachments.component';
 import { Attachment } from '@core/types/entities/attachment.i';
+import { PermissionService } from '@core/services/permission/permission.service';
+import { ApplicationPermission } from '@core/types/entities/user.i';
+import { computed } from '@angular/core';
 
 @Component({
   selector: 'eln-notebook-info',
@@ -19,13 +22,18 @@ import { Attachment } from '@core/types/entities/attachment.i';
 export class NotebookInfoComponent {
   private store = inject(NotebookService);
   private dialog = inject(MatDialog);
+  private permissionService = inject(PermissionService);
 
   notebook = this.store.notebook;
   isLoading = this.store.isLoading;
   hasError = this.store.hasError;
+  applicationPermission = ApplicationPermission;
+  canEditNotebook = computed(() => {
+    return this.permissionService.hasEntityPermission(ApplicationPermission.EDIT_NOTEBOOKS, this.notebook());
+  });
 
   openEditDialog() {
-    if (!this.notebook()) return;
+    if (!this.notebook() || !this.canEditNotebook()) return;
 
     const dialogRef = this.dialog.open(NotebookEditComponent, {
       data: { notebook: this.notebook() },

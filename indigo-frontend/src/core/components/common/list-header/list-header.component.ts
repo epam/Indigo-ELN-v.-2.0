@@ -13,7 +13,6 @@ import { CheckboxDropdownComponent } from '../checkbox-dropdown/checkbox-dropdow
 import { CheckboxDropdownItem } from '../checkbox-dropdown/checkbox-dropdown.i';
 
 export interface SortChangeEvent {
-  sortBy: string;
   sort: 'EARLIEST' | 'LATEST';
 }
 
@@ -41,9 +40,10 @@ export interface SortChangeEvent {
 export class ListHeaderComponent implements OnInit, OnChanges, OnDestroy {
   @Input() sortOptions: DropdownMenuItem[] = [];
   @Input() currentSort: {
-    sortBy: string;
     sort: 'EARLIEST' | 'LATEST';
   } | null = null;
+  @Input() searchValue = '';
+  @Input() myEntitiesValue = false;
   @Input() enableViewToggle = true;
   @Input() enableSearch = true;
   @Input() enableSort = true;
@@ -81,11 +81,15 @@ export class ListHeaderComponent implements OnInit, OnChanges, OnDestroy {
     });
 
     this.updateSortControl();
+    this.updateQueryControls();
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['currentSort'] || changes['sortOptions']) {
       this.updateSortControl();
+    }
+    if (changes['searchValue'] || changes['myEntitiesValue']) {
+      this.updateQueryControls();
     }
   }
 
@@ -95,17 +99,19 @@ export class ListHeaderComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private updateSortControl() {
-    if (this.currentSort && this.sortOptions.length > 0) {
+    if (this.sortOptions.length > 0) {
       const matchingOption = this.sortOptions.find((option) => {
-        const [sortBy, sort] = option.value.split(':');
-        return sortBy === this.currentSort!.sortBy && sort === this.currentSort!.sort;
+        return option.value === this.currentSort?.sort;
       });
 
-      if (matchingOption) {
-        // do not emit valueChanges to prevent recursive calls
-        this.sortControl.setValue(matchingOption.value, { emitEvent: false });
-      }
+      // do not emit valueChanges to prevent recursive calls
+      this.sortControl.setValue(matchingOption?.value || '', { emitEvent: false });
     }
+  }
+
+  private updateQueryControls() {
+    this.searchModel = this.searchValue;
+    this.myEntitiesOnly = this.myEntitiesValue;
   }
 
   onSearch(value: string) {
@@ -115,11 +121,9 @@ export class ListHeaderComponent implements OnInit, OnChanges, OnDestroy {
   onSortChange(value: string) {
     if (!value) return;
 
-    const [sortBy, sort] = value.split(':');
-    if (sortBy && sort) {
+    if (value === 'EARLIEST' || value === 'LATEST') {
       this.sortChange.emit({
-        sortBy,
-        sort: sort as 'EARLIEST' | 'LATEST',
+        sort: value,
       });
     }
   }

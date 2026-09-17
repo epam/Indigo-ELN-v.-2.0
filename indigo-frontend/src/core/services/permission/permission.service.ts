@@ -18,8 +18,11 @@ export class PermissionService {
     this.currentUserPermissions = toSignal(this.identityService.user$.pipe(map((user) => user.permissions)));
   }
 
-  hasPermission(permission: ApplicationPermission, entity?: PermissionedEntity | null): boolean {
-    const permissions = entity ? entity.currentPermissions : this.currentUserPermissions();
-    return !!permissions?.includes(permission);
+  hasGlobalPermission(permission: ApplicationPermission): boolean {
+    return !!this.currentUserPermissions()?.includes(permission);
+  }
+
+  hasEntityPermission(permission: ApplicationPermission, entity: PermissionedEntity | null | undefined): boolean {
+    return !!entity?.currentPermissions?.includes(permission);
   }
 }

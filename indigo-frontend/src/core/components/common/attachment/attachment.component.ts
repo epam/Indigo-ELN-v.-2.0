@@ -18,6 +18,7 @@ export class AttachmentComponent {
   attachment = input.required<Attachment>();
   baseURL = input.required<string>();
   canDelete = input<boolean>(true);
+  canDownload = input<boolean>(true);
 
   attachmentDeleted = output<string>();
 
