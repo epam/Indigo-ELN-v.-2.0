@@ -15,7 +15,6 @@ import java.util.Map;
 public class ServiceIntegrationEnvironmentResource implements BeforeAllCallback {
 
     private static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(ServiceIntegrationEnvironmentResource.class);
-    private static final String INITIALIZED = "initialized";
     private static final String RESOURCE = "resource";
 
     @Override

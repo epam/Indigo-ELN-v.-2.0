@@ -232,12 +232,6 @@ public class R__200_init_data extends BaseJavaMigration {
         }
     }
 
-    private long count(Connection conn, String table) throws SQLException {
-        try (Statement st = conn.createStatement(); ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM " + table)) {
-            rs.next();
-            return rs.getLong(1);
-        }
-    }
 
     @RegisterForReflection
     public record RoleSpec (

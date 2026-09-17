@@ -41,10 +41,6 @@ import static com.epam.indigoeln.eln.model.ApplicationPermission.VIEW_EXPERIMENT
 @SuppressWarnings("SqlWithoutWhere")
 public class SupportService {
 
-    private static final String ATTACHMENT_LOG = "\tattachment ";
-    private static final String CONTENT = "content";
-    private static final String ATTACHMENT = "attachment";
-
     @PersistenceContext
     EntityManager em;
     @Inject

@@ -363,7 +363,7 @@ public class JSONPatcherTest {
 
     @Test
     void testReactionAdded() throws Exception {
-        Reaction reaction2 = Reaction.create(model, REACTION_2);
+        Reaction.create(model, REACTION_2);
         verifyModel("""
                 {"model":{"reactions":{">1":{"$new":{"anchor":"00000000-0000-0000-0000-000000000002","inputs":[],"outputs":[],"precursorReactantIds":[]}}}}}
         """);
@@ -379,7 +379,7 @@ public class JSONPatcherTest {
 
     @Test
     void testReactionDeleted() throws Exception {
-        Reaction reaction2 = Reaction.create(baseModel, REACTION_2);
+        Reaction.create(baseModel, REACTION_2);
         model.setReactions(List.of(reaction));
         verifyModel("""
                 {"model":{"reactions":{"1>":{"$old":{"anchor":"00000000-0000-0000-0000-000000000002","inputs":[],"outputs":[],"precursorReactantIds":[]}}}}}
@@ -388,8 +388,8 @@ public class JSONPatcherTest {
 
     @Test
     void testReactionMovedAndChanged() throws Exception {
-        Reaction baseReaction2 = Reaction.create(baseModel, REACTION_2);
-        Reaction baseReaction3 = Reaction.create(baseModel, REACTION_3);
+        Reaction.create(baseModel, REACTION_2);
+        Reaction.create(baseModel, REACTION_3);
         Reaction reaction2 = Reaction.create(model, REACTION_2);
         Reaction reaction3 = Reaction.create(model, REACTION_3);
         reaction.setRxnfile("new");

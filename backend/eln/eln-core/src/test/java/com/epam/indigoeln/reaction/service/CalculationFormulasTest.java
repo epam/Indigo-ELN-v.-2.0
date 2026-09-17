@@ -280,7 +280,6 @@ public class CalculationFormulasTest extends MutationsTestBase {
         experiment.mutateSetInputRowMol(1, "10", MOL);
         experiment.mutateSetInputRowEQ(1, "2");
         experiment.mutateAddNoProductSample();
-        OutputSampleAnchor os = experiment.outputSample(1, 1).getAnchor();
         experiment.mutate(new ReactionOutputMutation.SetOutputRowEQ(experiment.output(1).getAnchor(), "4"));
 
         assertThat(experiment.output(1).getTheoMol()).hasValue(20, MOL);

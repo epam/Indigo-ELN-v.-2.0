@@ -187,7 +187,7 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments<Expe
     @NotNull
     @OneToMany(mappedBy = "experiment", cascade = CascadeType.ALL, orphanRemoval = true)
     @MapKeyJoinColumn(name = "user_id")
-    private Map<UserEntity, ExperimentACLEntity> aclEntities = new HashMap<>(0);
+    private Map<UserEntity, ExperimentACLEntity> aclEntities = HashMap.newHashMap(0);
 
     @NotNull
     @OneToMany(mappedBy = "parent")
