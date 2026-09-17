@@ -4,7 +4,7 @@ plugins {
 
 sonar {
     properties {
-        property("sonar.projectKey", "ELNLocal")
-        property("sonar.host.url", "http://localhost:9000/")
+        property("sonar.projectKey", "Indigo-ELN-Backend")
+        property("sonar.projectName", "Indigo ELN Backend")
     }
 }

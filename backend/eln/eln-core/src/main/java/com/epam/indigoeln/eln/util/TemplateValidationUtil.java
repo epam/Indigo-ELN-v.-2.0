@@ -4,6 +4,9 @@ import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.eln.model.TemplateComponent;
 import com.epam.indigoeln.eln.model.TemplateRequest;
 import com.epam.indigoeln.eln.model.TemplateTab;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -11,11 +14,8 @@ import java.util.Set;
 /**
  * Utility class for validating template requests.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TemplateValidationUtil {
-
-    private TemplateValidationUtil() {
-        throw new IllegalStateException("Utility class");
-    }
 
     /**
      * Validates a template request based on the provided specification.
