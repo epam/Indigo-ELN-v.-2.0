@@ -159,9 +159,12 @@ public class MutationsTest extends MutationsTestBase {
         assertThat(experiment.output(1).getAnchor()).isEqualTo(outputAnchor);
     }
 
+    // TODO add test for 2 samples per input
     @Test
     void testResolveInputs() {
         experiment.mutateSetSchemeFromResource(REACTION_RXN);
+        assertThat(experiment.input(1).getCompound()).isInstanceOf(CompoundRef.Virtual.class);
+        assertThat(experiment.inputSample(1, 1).getSampleId()).isNull();
         experiment.mutateResolveInputs();
         assertThat(experiment.input(1).getCompound()).isInstanceOf(CompoundRef.Stored.class);
         assertThat(experiment.inputSample(1, 1).getSampleId()).isNotNull();

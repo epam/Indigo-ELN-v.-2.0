@@ -123,7 +123,6 @@ public abstract class ExperimentEditMutationHandlerBase<T extends ExperimentMuta
     }
 
     public void setInputLineSample(ReactionInput row, SampleEntity sample, InputSampleAnchor anchor, ExperimentMutationContext context) {
-        row.setSamples(List.of()); // TODO don't remove existing samples when multi-sample support is implemented on a frontend
         row.updateCompound(compoundService.realCompoundRef(sample.getCompound()));
 
         ReactionInputSample reactionInputSample = ReactionInputSample.create(row, anchor);

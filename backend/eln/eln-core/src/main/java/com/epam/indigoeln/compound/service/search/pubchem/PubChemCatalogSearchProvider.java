@@ -12,7 +12,6 @@ import com.epam.indigoeln.compound.service.search.CatalogSearchResult;
 import com.epam.indigoeln.eln.model.CompoundExternalSource;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
-import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
 import com.epam.indigoeln.reaction.model.MolFormula;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -47,9 +46,6 @@ class PubChemCatalogSearchProvider implements CatalogSearchProvider {
 
     @Inject
     IndigoAPI indigo;
-
-    @Inject
-    IndigoRendererAPI indigoRenderer;
 
     @Inject
     CompoundService compoundService;
@@ -112,7 +108,7 @@ class PubChemCatalogSearchProvider implements CatalogSearchProvider {
         URI url = URI.create(baseUrl + conditions.iterator().next());
         log.debug("Search: url={}, formParams={}, queryParams={}", url, formParams, queryParams);
         List<PubChemResponse.Item> items = pubChemClient.search(url, queryParams, new MultivaluedHashMap<>(formParams)).propertyTable().items();
-        indigoRenderer.setRenderOptions("svg", 300, 200);
+        items.sort(Comparator.comparing(PubChemResponse.Item::molWeight));
         return pubChemMapper.mapSamples(items);
     }
 

@@ -251,6 +251,9 @@ class ResolveInputsHandler extends AbstractReactionMutationHandler<ReactionMutat
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.ResolveInputs mutation, ExperimentMutationContext context) {
         mutation.inputSamples().forEach((inputAnchor, sampleId) -> {
             ReactionInput row = model.locate(inputAnchor);
+            if (row.getCompound() instanceof CompoundRef.Virtual) { // if it was a virtual sample, replace with real sample
+                row.setSamples(List.of());
+            }
             SampleEntity sample = compoundService.getSample(sampleId);
             setInputLineSample(row, sample, checkNotNull(mutation.createdSampleAnchors()).get(inputAnchor), context);
         });
