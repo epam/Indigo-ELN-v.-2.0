@@ -45,6 +45,25 @@ export const WithStructure: Story = {
   },
 };
 
+/**
+ * **The structure is shown, not pressed.** The whole frame used to be a button, so a click meant
+ * to read a scheme — or one that missed the pencil — opened the sketcher over it. The pencil is
+ * the one way in.
+ */
+export const ClickingTheStructureDoesNotEdit: Story = {
+  args: { initial: 'a-molfile' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await userEvent.click(await canvas.findByRole('img', { name: 'Chemical structure' }));
+    await expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+    // The pencil still opens it, and is the tab stop the frame gave up.
+    await userEvent.click(canvas.getByRole('button', { name: 'Edit structure' }));
+    await expect(await screen.findByRole('dialog')).toBeInTheDocument();
+  },
+};
+
 /** Drawing something fills the frame; the sketcher is portalled, so reach it via `screen`. */
 export const DrawsAStructure: Story = {
   play: async ({ canvasElement }) => {

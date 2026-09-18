@@ -25,6 +25,18 @@ const SIZE_TEXT: Record<ComboboxSize, string> = {
   md: 'text-[14px]/6',
 };
 
+/**
+ * How much room `MultiCombobox` keeps for typing beside its chips. A floor on the input is also a
+ * floor on *wrapping*, so it decides how soon a chip pushes the input onto a line of its own: at
+ * the form width there is room to be generous, while in a table cell 96px was enough to make a
+ * single chip turn a one-line field into a three-line one. `sm` keeps just enough to see a couple
+ * of characters, and the popup is what is really being read while typing anyway.
+ */
+const SIZE_INPUT_MIN: Record<ComboboxSize, string> = {
+  sm: 'min-w-10',
+  md: 'min-w-24',
+};
+
 function identity(item: unknown): string {
   return String(item);
 }
@@ -403,46 +415,56 @@ function MultiCombobox<T = string>({
           INPUT_BOX,
           INPUT_BOX_FOCUS_WITHIN,
           // `min-h-10`, not the shell's usual `h-10`: the chips wrap, so the field grows.
-          'flex min-h-10 flex-wrap items-center gap-2 px-2 py-1.5',
+          'flex min-h-10 items-center gap-2 px-2 py-1.5',
           disabled && INPUT_DISABLED,
         )}
       >
-        {value.map((item) => (
-          <ComboboxPrimitive.Chip
-            key={itemToKey(item)}
-            className="flex items-center gap-1 rounded-md bg-blue-10 py-0.5 pr-1 pl-2 text-[12px]/5 text-neutral-1000 outline-none data-highlighted:ring-3 data-highlighted:ring-ring/50"
-          >
-            {itemToLabel(item)}
-            {/*
+        {/*
+          **The wrapping happens here, not on the field.** Everything used to wrap in one row, so
+          the input's `min-w-24` — which is a floor for wrapping as much as for shrinking — pushed
+          the chevron onto a second line as soon as a chip and that floor outgrew the field. In a
+          table cell one chip was enough. The chevron now sits outside what wraps, as the trailing
+          item of a row that does not, and the chips and input take the space that is left.
+        */}
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+          {value.map((item) => (
+            <ComboboxPrimitive.Chip
+              key={itemToKey(item)}
+              className="flex items-center gap-1 rounded-md bg-blue-10 py-0.5 pr-1 pl-2 text-[12px]/5 text-neutral-1000 outline-none data-highlighted:ring-3 data-highlighted:ring-ring/50"
+            >
+              {itemToLabel(item)}
+              {/*
               Base UI already blocks this when the root is disabled (`ComboboxChipRemove` reads
               `comboboxDisabled || disabledProp`), and marks it `aria-disabled` + `data-disabled`
               rather than using the native attribute. Passing `disabled` explicitly says so at
               this level too; the styling is the part that was actually missing, since the button
               otherwise kept its pointer cursor and hover background and looked live.
             */}
-            <ComboboxPrimitive.ChipRemove
-              aria-label={`Remove ${itemToLabel(item)}`}
-              disabled={disabled}
-              className={cn(
-                'rounded-full p-0.5 text-neutral-700',
-                disabled ? 'pointer-events-none' : 'cursor-pointer hover:bg-blue-100 hover:text-neutral-1000',
-              )}
-            >
-              <X className="size-3.5" />
-            </ComboboxPrimitive.ChipRemove>
-          </ComboboxPrimitive.Chip>
-        ))}
-        <ComboboxPrimitive.Input
-          id={id}
-          ref={inputRef}
-          aria-label={ariaLabel}
-          placeholder={value.length === 0 ? placeholder : undefined}
-          onKeyDown={handleKeyDown}
-          className={cn(
-            'min-w-24 flex-1 bg-transparent text-neutral-1000 outline-none placeholder:text-neutral-700',
-            SIZE_TEXT[size],
-          )}
-        />
+              <ComboboxPrimitive.ChipRemove
+                aria-label={`Remove ${itemToLabel(item)}`}
+                disabled={disabled}
+                className={cn(
+                  'rounded-full p-0.5 text-neutral-700',
+                  disabled ? 'pointer-events-none' : 'cursor-pointer hover:bg-blue-100 hover:text-neutral-1000',
+                )}
+              >
+                <X className="size-3.5" />
+              </ComboboxPrimitive.ChipRemove>
+            </ComboboxPrimitive.Chip>
+          ))}
+          <ComboboxPrimitive.Input
+            id={id}
+            ref={inputRef}
+            aria-label={ariaLabel}
+            placeholder={value.length === 0 ? placeholder : undefined}
+            onKeyDown={handleKeyDown}
+            className={cn(
+              'flex-1 bg-transparent text-neutral-1000 outline-none placeholder:text-neutral-700',
+              SIZE_INPUT_MIN[size],
+              SIZE_TEXT[size],
+            )}
+          />
+        </div>
         {/*
           The chevron stays put while suggestions load, and stands aside while the field is being
           saved — see `Combobox` above for both.
@@ -451,7 +473,7 @@ function MultiCombobox<T = string>({
           aria-label="Show suggestions"
           aria-busy={loading || undefined}
           // The tighter inset is deliberate: `p-1` next to the chips crowds them.
-          className={cn(INPUT_ACTION, 'p-0.5')}
+          className={cn(INPUT_ACTION, 'shrink-0 p-0.5')}
         >
           <ChevronDown className="size-5" />
         </ComboboxPrimitive.Trigger>

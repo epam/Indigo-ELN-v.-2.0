@@ -82,8 +82,8 @@ export function alignOf(kind: string): Align {
  *
  * - **It shrinks to its buttons.** `w-px` in an auto-layout table is a floor of nothing, so the
  *   column takes exactly the width of its content instead of the 48px-per-icon it used to claim.
- * - **`pl-4` is the offset** that separates the group from the last data column, and the left
- *   border marks where the pinned edge begins.
+ * - **`px-2` on both sides**, so the gap before the first button matches the one after the
+ *   last. The left border marks where the pinned edge begins.
  * - **It is pinned to the right.** These tables scroll horizontally and a delete button that has
  *   scrolled off is a delete button that is not there. A sticky cell paints over the row beneath
  *   it, so it needs its own background — and therefore its own hover, off the row's `group/row`,
@@ -93,7 +93,7 @@ export function alignOf(kind: string): Align {
  * sticky cell are owned by the table and are left behind when it moves.
  */
 export const ACTIONS_CELL_CLASS =
-  'sticky right-0 z-10 w-px border-l border-neutral-300 bg-card pr-2 pl-4 whitespace-nowrap group-hover/row:bg-neutral-100';
+  'sticky right-0 z-10 w-px border-l border-neutral-300 bg-card px-2 whitespace-nowrap group-hover/row:bg-neutral-100';
 
 /**
  * `saltEQ` is a bare `number` on the compound, not an `EnteredValue` like every other numeric

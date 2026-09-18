@@ -42,10 +42,15 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 /**
- * The unit's share of a numeric cell — a fifth, but never less than the widest unit label, which
- * is what the narrow columns fall back to. The number takes what is left.
+ * The unit's box, sized by what it has to hold and nothing else, so the number keeps everything
+ * that is left. Its width comes from the labels themselves — see where it is rendered — and its
+ * horizontal padding and transparent border are **exactly the list's**, so a list given the
+ * box's width fits its widest option to the pixel and is no wider than it has to be.
  */
-const UNIT_SLOT = 'w-1/5 min-w-12 shrink-0 text-[13px]/5';
+const UNIT_SLOT = 'grid items-center justify-items-end border border-transparent px-1.5 text-[13px]/5';
+
+/** An option's inset. The same as `UNIT_SLOT`'s, which is what lets the two share one width. */
+const UNIT_OPTION_INSET = 'px-1.5';
 
 /** True when focus has genuinely left this cell, rather than moving within it. */
 function isExternal(event: FocusEvent<HTMLElement>): boolean {
@@ -118,6 +123,8 @@ export function NumericCell({
 }) {
   const unitless = units.length === 1;
   const fixedUnit = suffix ?? unitLabel(units[0]);
+  // Room is kept for a unit only where there is one to show: a list to open, or a label to write.
+  const hasUnitBox = !unitless || fixedUnit !== '';
 
   // A unitless quantity has exactly one legal unit, so seeding it is not a guess.
   const storedUnit = () => value?.unit ?? (unitless ? units[0] : null);
@@ -321,18 +328,49 @@ export function NumericCell({
             )}
           />
           {/*
-            The unit's place, kept whether or not anything is in it: a fixed unit is written here,
-            and where there is a list the list opens from here. A fifth of the cell, floored at the
-            widest label there is, so the number keeps the rest. It sits **outside** the input's
-            border and flush against it, which is where the list then attaches.
+            The unit's place: a fixed unit is written here, and where there is a list the list
+            opens from here. Exactly as wide as its widest label, so the number keeps the rest. It
+            sits **outside** the input's border and flush against it, which is where the list then
+            attaches.
+
+            **A quantity with nothing to put here keeps the box but gives it no width** — EQ, salt
+            EQ and molecular weight have neither a list nor a label to show, and holding room open
+            for them only made the number's box shorter than the column it sits in. The box stays because it is where focus rests once an edit is finished; see
+            `leave`.
           */}
           <span
             ref={unitSlot}
             // `-1`, so it is never in the tab order itself: it is only ever focused by `leave`.
             tabIndex={-1}
-            className={cn(UNIT_SLOT, 'flex items-center justify-end pr-2 pl-1 text-neutral-800 outline-none')}
+            className={cn(
+              'shrink-0 outline-none',
+              hasUnitBox &&
+                cn(
+                  UNIT_SLOT,
+                  'text-neutral-800',
+                  /*
+                    A written-out unit sits a space's width from the number, as `1.08 g/mL` does in
+                    read mode. It has no box of its own, so the inset a list's option has would show
+                    as a plain gap — measured the same 7px either way, but beside the list's border
+                    it reads as padding and beside nothing it reads as distance.
+                  */
+                  unitless && 'pl-0.5',
+                ),
+            )}
           >
-            {unitless && fixedUnit}
+            {/*
+              A fixed unit is written out, and is its own width. Where there is a list, every label
+              it could show is stacked invisibly in the one grid cell instead: the box is then as
+              wide as the widest of *this* quantity's units — `mmol` for moles, `L` barely at all
+              for volume — measured by the browser in the real font, with nothing to keep in sync.
+            */}
+            {unitless
+              ? fixedUnit
+              : units.map((unit) => (
+                  <span key={unit} aria-hidden className="invisible [grid-area:1/1]">
+                    {unitLabel(unit)}
+                  </span>
+                ))}
           </span>
         </label>
 
@@ -423,7 +461,8 @@ function UnitList({
           onClick={() => onSelect(unit)}
           className={cn(
             // `py-1` and the 20px line make an option exactly as tall as the input beside it.
-            'cursor-default px-2 py-1 text-[13px]/5 hover:bg-neutral-100',
+            'cursor-default py-1 text-[13px]/5 hover:bg-neutral-100',
+            UNIT_OPTION_INSET,
             unit === selected && 'bg-blue-10 hover:bg-blue-10',
           )}
         >

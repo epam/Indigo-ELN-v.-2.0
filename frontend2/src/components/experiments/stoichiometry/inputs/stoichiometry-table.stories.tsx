@@ -737,6 +737,39 @@ export const TabOrderWalksTheRow: Story = {
 };
 
 /**
+ * **The unit box is as wide as its units need, and no wider** — every pixel it does not take is
+ * the number's. Its width comes from its own labels rather than a share of the column, so it
+ * differs by quantity (`mmol` needs more than `mg`), and the list takes exactly that width with
+ * every option still whole.
+ */
+export const UnitBoxIsAsWideAsItsLabels: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await document.fonts.ready;
+
+    const measure = async (name: string) => {
+      const input = canvas.getByLabelText(name);
+      await userEvent.click(input);
+      const list = await screen.findByRole('listbox', { name: `${name} unit` });
+      const cell = input.closest('[data-slot="numeric-cell"]')!.getBoundingClientRect();
+      const unitBox = cell.width - input.getBoundingClientRect().width;
+
+      // The list is the box's width, and nothing in it is cut short.
+      await expect(Math.abs(list.getBoundingClientRect().width - unitBox)).toBeLessThanOrEqual(1);
+      for (const option of within(list).getAllByRole('option')) {
+        await expect(option.scrollWidth).toBeLessThanOrEqual(option.clientWidth);
+      }
+      return unitBox;
+    };
+
+    const weight = await measure('Weight, batch 1');
+    const mol = await measure('Mol, batch 1');
+    // Sized by each quantity's own labels, not by a fixed share of the column.
+    await expect(mol).toBeGreaterThan(weight);
+  },
+};
+
+/**
  * A quantity with one possible unit shows it as text, in the display and beside the number
  * alike: `g/mL` for density, `%` for purity. Molecular weight is always g/mol, so it shows none.
  */
@@ -758,9 +791,13 @@ export const FixedUnitsAreShown: Story = {
     // A fixed unit has nothing to pick from, so it opens no list.
     await expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
 
-    // ...and a cell that has a list shows the unit only there, never beside the number.
+    // ...and a cell that has a list shows the unit only there, never beside the number. The
+    // labels are in the box — stacked, to give it the widest one's width — but none is visible.
     await userEvent.click(canvas.getByLabelText('Weight, batch 1'));
-    await expect(canvas.getByLabelText('Weight, batch 1').closest('label')).toHaveTextContent('');
+    const box = within(canvas.getByLabelText('Weight, batch 1').closest('label')!);
+    for (const unit of ['mg', 'g', 'kg']) {
+      await expect(box.getByText(unit)).not.toBeVisible();
+    }
     await expect(await screen.findByRole('listbox', { name: 'Weight, batch 1 unit' })).toBeInTheDocument();
   },
 };

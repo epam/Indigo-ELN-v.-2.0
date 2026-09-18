@@ -57,6 +57,16 @@ export const Default: Story = {
   },
 };
 
+/** Rows follow the batch number, not the order of the products the batches belong to. */
+export const SortedByBatchNumber: Story = {
+  args: { reaction: { ...REACTION, outputs: [...REACTION.outputs].reverse() } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const numbers = canvas.getAllByText(/^\d{3}$/).map((cell) => cell.textContent);
+    await expect(numbers).toEqual(['001', '002', '003', '004', '005']);
+  },
+};
+
 /**
  * Alignment is a property of the **column**, so a header and the cells under it cannot disagree —
  * which is the whole reason a value used to look like it belonged to the column next door.

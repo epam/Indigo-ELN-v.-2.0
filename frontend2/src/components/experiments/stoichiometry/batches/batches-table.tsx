@@ -70,7 +70,11 @@ export function ProductBatchSummaryTable({
   const canEdit = canEditExperiment(experiment);
 
   const batches = useMemo<BatchRow[]>(
-    () => reaction.outputs.flatMap((output) => output.samples.map((sample) => ({ output, sample, step }))),
+    () =>
+      reaction.outputs
+        .flatMap((output) => output.samples.map((sample) => ({ output, sample, step })))
+        // Collected product by product, so without this the rows follow product order, not batch order.
+        .sort((a, b) => Number(a.sample.shortNbkBatchNumber) - Number(b.sample.shortNbkBatchNumber)),
     [reaction.outputs, step],
   );
 
