@@ -1,6 +1,6 @@
-import type { AccessForm, DocumentStatus, UserRef, UUID } from '@/lib/types/common.ts';
-import type { DictionaryItemRef } from '@/lib/types/dictionaries.ts';
-import type { ExperimentRef } from '@/lib/types/experiments.ts';
+import type {AccessForm, DocumentStatus, UserRef, UUID} from '@/lib/types/common.ts';
+import type {DictionaryItemRef} from '@/lib/types/dictionaries.ts';
+import type {ExperimentRef} from '@/lib/types/experiments.ts';
 import type {
   DensityUnit,
   ExternalSupplier,
@@ -935,6 +935,4 @@ export interface MutationResponse {
   /** Things the user should be told about what the mutation did. `NON_EMPTY`. */
   messages?: string[];
   debugMessages?: string[];
-  /** Reaction anchor → a server-rendered SVG. Unused here: schemes are drawn client-side. */
-  reactionImages?: Record<UUID, string>;
 }

@@ -59,7 +59,6 @@ public class UpdateExperimentRxnfilesListener implements ExperimentMutationListe
             if (reaction == experiment.getModel().getReactions().getFirst()) {
                 experiment.setPicture(picture);
             }
-            context.getResponse().getReactionImages().put(reaction.getAnchor(), new String(picture));
         }
     }
 }

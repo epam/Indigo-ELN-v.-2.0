@@ -320,11 +320,10 @@ Three properties of the diff, all easier to know than to rediscover:
   indigo-frontend's `determineCellClasses` uses to flash a recalculated cell, and the
   stoichiometry table will want it.
 
-`response.messages` become toasts via `notifyInfo`. `response.reactionImages` is ignored —
-schemes are drawn client-side. `unresolvedInputs` is **not** read by `applyMutationResponse`
-either, but it is not ignored: it belongs to whoever sent the mutation rather than to every
-caller, so `ReactionSchemePanel` reads it off `mutateAsync`'s resolved value and opens Analyze
-RXN on it. See below.
+`response.messages` become toasts via `notifyInfo`. `unresolvedInputs` is **not** read by 
+`applyMutationResponse` either, but it is not ignored: it belongs to whoever sent the mutation 
+rather than to every caller, so `ReactionSchemePanel` reads it off `mutateAsync`'s resolved 
+value and opens Analyze RXN on it. See below.
 
 ### Catalog search — the shared half
 
