@@ -10,3 +10,4 @@ CREATE TABLE Template (
     CONSTRAINT template_modified_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
     CONSTRAINT template_name_uq UNIQUE (name)
 );
+CREATE INDEX ix_template_created_by_id ON Template (created_by_id);

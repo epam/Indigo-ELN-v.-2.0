@@ -34,3 +34,4 @@ CREATE TABLE Dictionary_Item (
 );
 CREATE UNIQUE INDEX ix_dictionary_item_ordinal ON Dictionary_Item (dictionary_id, ordinal) WHERE active AND NOT deleted;
 CREATE UNIQUE INDEX ix_dictionary_item_name ON Dictionary_Item (dictionary_id, name) WHERE active AND NOT deleted;
+CREATE INDEX ix_dictionary_item_dictionary_id ON Dictionary_Item (dictionary_id);

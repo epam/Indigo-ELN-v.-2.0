@@ -45,7 +45,8 @@ CREATE TYPE Application_Permission AS ENUM (
     'CREATE_EXPERIMENTS',
     'EDIT_EXPERIMENTS',
     'DELETE_EXPERIMENTS',
-    'SUBMIT_EXPERIMENTS'
+    'SUBMIT_EXPERIMENTS',
+    'SIGN_EXPERIMENTS'
 );
 
 CREATE TYPE Signature_Reason AS ENUM (
@@ -86,6 +87,13 @@ CREATE TYPE Density_Unit AS ENUM (
 CREATE TYPE Reaction_Role AS ENUM (
     'REACTANT',
     'CATALYST',
+    'REAGENT',
     'SOLVENT',
     'OUTPUT'
 );
+
+CREATE FUNCTION acl_user_ids(ACL_Entry[])
+RETURNS UUID[]
+AS $$
+    SELECT array_agg((a).user_id) FROM unnest($1) a;
+$$ LANGUAGE SQL IMMUTABLE PARALLEL SAFE;

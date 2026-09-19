@@ -1,17 +1,3 @@
-CREATE TABLE Attachment (
-    id UUID PRIMARY KEY,
-    created_by_id UUID NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL,
-    modified_by_id UUID NOT NULL,
-    modified_at TIMESTAMPTZ NOT NULL,
-    name VARCHAR(256) NOT NULL,
-    size BIGINT NOT NULL,
-    deleted BOOL NOT NULL,
-    content BYTEA NOT NULL,
-    CONSTRAINT attachment_created_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
-    CONSTRAINT attachment_modified_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id)
-);
-
 CREATE TABLE Project (
     id UUID PRIMARY KEY,
     revision INT NOT NULL,
@@ -22,7 +8,7 @@ CREATE TABLE Project (
     name VARCHAR(256) NOT NULL,
     literature TEXT,
     description TEXT,
-    search_vector TSVECTOR,
+    search_vector TSVECTOR NOT NULL,
     full_acl ACL_Entry[] NOT NULL,
     short_acl ACL_Entry[] NOT NULL,
     notebook_count INT NOT NULL DEFAULT 0,
@@ -33,24 +19,18 @@ CREATE TABLE Project (
 );
 CREATE INDEX ix_project_search_vector ON Project USING GIN(search_vector);
 CREATE INDEX ix_project_name ON Project USING GIN (name gin_trgm_ops);
+CREATE INDEX ix_project_acl_gin ON Project USING GIN (acl_user_ids(full_acl));
+CREATE INDEX ix_project_created_by_id ON Project (created_by_id);
 
 CREATE TABLE Project_Keyword (
     project_id UUID NOT NULL,
-    keyword_id UUID NOT NULL,
+    keyword VARCHAR(1000) NOT NULL,
     ordinal INT NOT NULL,
-    CONSTRAINT project_keyword_pk PRIMARY KEY (project_id, keyword_id),
+--     CONSTRAINT project_keyword_pk PRIMARY KEY (project_id, ordinal),
     CONSTRAINT project_keyword_project_id_fk FOREIGN KEY (project_id) REFERENCES Project (id) ON DELETE CASCADE,
-    CONSTRAINT project_keyword_keyword_id_fk FOREIGN KEY (keyword_id) REFERENCES Dictionary_Item (id),
     CONSTRAINT project_keyword_ordinal_uq UNIQUE (project_id, ordinal) DEFERRABLE INITIALLY DEFERRED
 );
-
-CREATE TABLE Project_Attachment (
-    project_id UUID NOT NULL,
-    attachment_id UUID NOT NULL,
-    CONSTRAINT project_attachment_pk PRIMARY KEY (project_id, attachment_id),
-    CONSTRAINT project_attachment_project_id_fk FOREIGN KEY (project_id) REFERENCES Project (id) ON DELETE CASCADE,
-    CONSTRAINT project_attachment_attachment_id_fk FOREIGN KEY (attachment_id) REFERENCES Attachment (id) ON DELETE CASCADE
-);
+CREATE INDEX ix_project_keyword_suggest ON Project_Keyword (LOWER(keyword) varchar_pattern_ops);
 
 CREATE TABLE Project_ACL (
     project_id UUID NOT NULL,
@@ -76,3 +56,21 @@ CREATE TABLE Project_Revision (
 );
 
 ALTER TABLE Project ADD CONSTRAINT project_id_revision_fk FOREIGN KEY (id, revision) REFERENCES Project_Revision (project_id, revision) DEFERRABLE INITIALLY DEFERRED;
+
+CREATE TABLE Project_Attachment (
+    id UUID PRIMARY KEY,
+    created_by_id UUID NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL,
+    modified_by_id UUID NOT NULL,
+    modified_at TIMESTAMPTZ NOT NULL,
+    name VARCHAR(256) NOT NULL,
+    size BIGINT NOT NULL,
+    deleted BOOL NOT NULL,
+    content BYTEA NOT NULL,
+    -- nullable: deleting an attachment detaches it from its parent so that undo can restore it
+    project_id UUID,
+    CONSTRAINT project_attachment_created_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
+    CONSTRAINT project_attachment_modified_by_id_fk FOREIGN KEY (modified_by_id) REFERENCES User_Account (id),
+    CONSTRAINT project_attachment_project_id_fk FOREIGN KEY (project_id) REFERENCES Project (id) ON DELETE CASCADE
+);
+CREATE INDEX ix_project_attachment_project_id ON Project_Attachment (project_id);

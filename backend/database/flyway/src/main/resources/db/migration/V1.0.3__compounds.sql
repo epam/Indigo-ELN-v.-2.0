@@ -13,8 +13,8 @@ CREATE TABLE Compound (
     str_code VARCHAR(1000),
     formula VARCHAR(1000) NOT NULL,
     mol_file TEXT NOT NULL,
-    mol_weight NUMERIC NOT NULL,
-    exact_mass NUMERIC NOT NULL,
+    mol_weight DOUBLE PRECISION NOT NULL,
+    exact_mass DOUBLE PRECISION NOT NULL,
     cas_number VARCHAR(1000),
     picture BYTEA NOT NULL,
     CONSTRAINT compound_stereoisomer_code_fk FOREIGN KEY (stereoisomer_code_id) REFERENCES Dictionary_Item (id),
@@ -41,13 +41,15 @@ CREATE TABLE Sample (
     purity NUMERIC,
     compound_state_id UUID,
     batch_comment TEXT,
-    search_vector TSVECTOR,
+    search_vector TSVECTOR NOT NULL,
     CONSTRAINT sample_created_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
     CONSTRAINT sample_modified_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
     CONSTRAINT sample_compound_id_fk FOREIGN KEY (compound_id) REFERENCES Compound(id),
     CONSTRAINT sample_compound_state_id_fk FOREIGN KEY (compound_state_id) REFERENCES dictionary_item(id),
     CONSTRAINT sample_str_code_uq UNIQUE (str_code)
 );
+CREATE INDEX ix_sample_compound_id ON Sample (compound_id);
+CREATE INDEX ix_sample_search_vector ON Sample USING GIN (search_vector);
 
 CREATE TABLE Sample_Health_Hazard (
     sample_id UUID NOT NULL,
@@ -76,3 +78,4 @@ CREATE TABLE Sample_Mark (
     CONSTRAINT sample_mark_sample_id_fk FOREIGN KEY (sample_id) REFERENCES Sample (id) ON DELETE CASCADE,
     CONSTRAINT sample_mark_user_id_fk FOREIGN KEY (user_id) REFERENCES User_Account (id) ON DELETE CASCADE
 );
+CREATE INDEX ix_sample_mark_user_id ON Sample_Mark (user_id);
