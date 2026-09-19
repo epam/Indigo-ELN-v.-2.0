@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.testcontainers.Testcontainers;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
-import org.testcontainers.images.builder.Transferable;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -55,7 +54,7 @@ class ResourceImpl implements AutoCloseable {
         log.info("Starting integration environment");
 
         log.info("Starting PostgreSQL...");
-        postgresContainer = new PostgreSQLContainer(DockerImageName.parse("public.ecr.aws/m5k0g6n7/indigoeln/indigo-eln-postgres:latest").asCompatibleSubstituteFor("postgres"))
+        postgresContainer = new PostgreSQLContainer(DockerImageName.parse("indigoeln/postgres:built").asCompatibleSubstituteFor("postgres"))
                 .withAccessToHost(true)
                 .withLogConsumer(new Slf4jLogConsumer(LoggerFactory.getLogger("POSTGRES")))
                 .withStartupTimeout(Duration.ofSeconds(30))
@@ -63,9 +62,6 @@ class ResourceImpl implements AutoCloseable {
                 .withPassword("eln")
                 .withDatabaseName("eln")
                 .withExposedPorts(5432)
-                .withCopyToContainer(
-                        Transferable.of("CREATE DATABASE signature OWNER eln"),
-                        "/docker-entrypoint-initdb.d/99_create_db.sql")
                 .withCreateContainerCmdModifier(cmd -> {
                     cmd.getHostConfig().withPortBindings(
                             new PortBinding(Ports.Binding.bindPort(25432), new ExposedPort(5432))

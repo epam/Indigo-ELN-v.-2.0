@@ -1,18 +1,18 @@
 services:
 
   postgres:
-    image: public.ecr.aws/m5k0g6n7/indigoeln/indigo-eln-postgres:latest
+    image: "indigoeln/postgres:built"
+    platform: linux/amd64
+    build:
+      context: ../../../postgres
+      dockerfile: Dockerfile
     environment:
-      POSTGRES_USER: eln
-      POSTGRES_PASSWORD: eln
-      POSTGRES_DB: eln
-    configs:
-      - source: create-signature-db
-        target: /docker-entrypoint-initdb.d/99_create_db.sql
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     ports:
       - "35432:5432"
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "eln"]
+      test: ["CMD", "pg_isready", "-U", "postgres"]
       start_period: 60s
       interval: 10s
       retries: 3
@@ -25,20 +25,21 @@ services:
 
   eln-aws:
     image: "indigoeln/eln-aws:built"
+    platform: linux/amd64
     build:
       context: ../../eln/eln-aws
       dockerfile: src/main/docker/Dockerfile.jvm
     environment:
       QUARKUS_PROFILE: "integration-test"
       QUARKUS_DATASOURCE_JDBC_URL: "jdbc:postgresql://postgres:5432/eln"
-      QUARKUS_DATASOURCE_USERNAME: "eln"
-      QUARKUS_DATASOURCE_PASSWORD: "eln"
+      QUARKUS_DATASOURCE_USERNAME: eln
+      QUARKUS_DATASOURCE_PASSWORD: eln
+      ELN_API_SECRET: secret
       QUARKUS_OIDC_AUTH_SERVER_URL: "http://moto:5000/us-east-1_integrationtests"
       QUARKUS_OIDC_DISCOVERY_ENABLED: "false"
       QUARKUS_OIDC_JWKS_PATH: ".well-known/jwks.json"
       QUARKUS_OIDC_TOKEN_ISSUER: "any"
       ELN_COGNITO_USER_POOL_ID: "xxx"
-      ELN_API_SECRET: "secret"
       ELN_STORAGE_S3_BUCKET: "indigoeln-data"
       QUARKUS_S3_ENDPOINT_OVERRIDE: "http://moto:5000"
       QUARKUS_S3_PATH_STYLE_ACCESS: "true"
@@ -53,6 +54,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+        restart: true
       moto:
         condition: service_started
     healthcheck:
@@ -61,6 +63,8 @@ services:
       timeout: 5s
       retries: 3
       start_period: 30s
+    ports:
+      - "10020:8080"
 
   reports-aws:
     image: "indigoeln/reports-aws:built"
@@ -69,7 +73,7 @@ services:
       dockerfile: src/main/docker/Dockerfile.jvm
     environment:
       QUARKUS_PROFILE: "integration-test"
-      ELN_API_SECRET: "secret"
+      ELN_API_SECRET: secret
       QUARKUS_LOG_CONSOLE_JSON_ENABLED: "false"
       QUARKUS_LOG_CONSOLE_FORMAT: "[REPORTS] %d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
       QUARKUS_LOG_LEVEL: INFO # DEBUG
@@ -79,6 +83,8 @@ services:
       timeout: 5s
       retries: 3
       start_period: 30s
+    ports:
+      - "10040:8080"
 
   signature-aws:
     image: "indigoeln/signature-aws:built"
@@ -88,13 +94,13 @@ services:
     environment:
       QUARKUS_PROFILE: "integration-test"
       QUARKUS_DATASOURCE_JDBC_URL: "jdbc:postgresql://postgres:5432/signature"
-      QUARKUS_DATASOURCE_USERNAME: "eln"
-      QUARKUS_DATASOURCE_PASSWORD: "eln"
+      QUARKUS_DATASOURCE_USERNAME: signature
+      QUARKUS_DATASOURCE_PASSWORD: signature
+      ELN_API_SECRET: secret
       QUARKUS_OIDC_AUTH_SERVER_URL: "http://moto:5000/us-east-1_integrationtests"
       QUARKUS_OIDC_DISCOVERY_ENABLED: "false"
       QUARKUS_OIDC_JWKS_PATH: ".well-known/jwks.json"
       QUARKUS_OIDC_TOKEN_ISSUER: "any"
-      ELN_API_SECRET: "secret"
       ELN_SIGNATURE_KEYSTORE_PASSWORD: "1234"
       QUARKUS_REST_CLIENT_ELN_INTERNAL_API_URL: "http://nginx:80/"
       QUARKUS_LOG_CONSOLE_JSON_ENABLED: "false"
@@ -103,6 +109,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+        restart: true
       moto:
         condition: service_started
     healthcheck:
@@ -111,6 +118,8 @@ services:
       timeout: 5s
       retries: 3
       start_period: 30s
+    ports:
+      - "10030:8080"
 
   nginx:
     image: nginx:alpine
@@ -122,7 +131,3 @@ services:
       - eln-aws
       - reports-aws
       - signature-aws
-
-configs:
-  create-signature-db:
-    content: "CREATE DATABASE signature OWNER eln"

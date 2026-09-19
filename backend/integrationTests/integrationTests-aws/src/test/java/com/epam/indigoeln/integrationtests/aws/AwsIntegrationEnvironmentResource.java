@@ -52,6 +52,7 @@ class ResourceImpl implements AutoCloseable {
 
         composeContainer = new ComposeContainer(new File("docker-compose.integrationtests.yaml"))
                 .withBuild(true)
+                .withPull(false)
                 .withRemoveVolumes(true)
                 .waitingFor("eln-aws", Wait.forHealthcheck().withStartupTimeout(Duration.ofMinutes(5)))
                 .waitingFor("reports-aws", Wait.forHealthcheck().withStartupTimeout(Duration.ofMinutes(5)))

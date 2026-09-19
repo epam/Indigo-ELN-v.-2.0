@@ -27,12 +27,6 @@ include("common:eln-quarkus-extension-deployment")
 
 include("database:flyway")
 
-include("signature:signature-api")
-include("signature:signature-core")
-include("signature:signature-service")
-include("signature:signature-lambda")
-include("signature:signature-aws")
-
 include("database:flyway")
 
 include("eln:eln-api")
@@ -47,6 +41,18 @@ include("reports:reports-core")
 include("reports:reports-lambda")
 include("reports:reports-service")
 include("reports:reports-aws")
+
+include("signature:signature-api")
+include("signature:signature-core")
+include("signature:signature-service")
+include("signature:signature-lambda")
+include("signature:signature-aws")
+
+include("sampleregistration:sampleregistration-api")
+include("sampleregistration:sampleregistration-core")
+include("sampleregistration:sampleregistration-service")
+include("sampleregistration:sampleregistration-lambda")
+include("sampleregistration:sampleregistration-aws")
 
 include("integrationTests:integrationTests-lambda")
 include("integrationTests:integrationTests-service")

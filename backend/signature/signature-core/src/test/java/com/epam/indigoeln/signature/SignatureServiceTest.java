@@ -61,10 +61,8 @@ class SignatureServiceTest extends BaseTest {
         willowUserRef = signatureAdminClient.getOrCreateUser("willow", "Willow", "Johnson");
         bartUserRef = signatureAdminClient.getOrCreateUser("bart", "Bart", "Simpson");
 
-        if (!integrationTest) {
-            wireMock.register(WireMock.post(WireMock.urlPathEqualTo("/internalapi/eln/signatureUpdated")).willReturn(WireMock.aResponse()
-                    .withStatus(Response.Status.NO_CONTENT.getStatusCode())));
-        }
+        wireMock.register(WireMock.post(WireMock.urlPathEqualTo("/internalapi/eln/signatureUpdated")).willReturn(WireMock.aResponse()
+                .withStatus(Response.Status.NO_CONTENT.getStatusCode())));
     }
 
     @Test
@@ -197,8 +195,8 @@ class SignatureServiceTest extends BaseTest {
     void testDownloadDocument() throws Exception {
         try (Response content = signatureClient.downloadDocument(documentID)) {
             String filename = extractFilename(FeignUtil.getLastResponse().headers().get(HttpHeaders.CONTENT_DISPOSITION));
-            assertThat(filename).isEqualTo("document.pdf");
-            try (FileOutputStream fos = new FileOutputStream(filename)) {
+            assertThat(filename).isNotNull().isEqualTo("document.pdf");
+            try (FileOutputStream fos = new FileOutputStream("build/" + filename)) {
                 fos.write(content.readEntity(byte[].class));
             }
         }

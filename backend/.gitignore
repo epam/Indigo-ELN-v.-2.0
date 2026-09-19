@@ -2,11 +2,8 @@
 .idea
 .quarkus
 build
-*.http
-.env
 # eclipse
 .project
 .classpath
 .settings
 bin
-

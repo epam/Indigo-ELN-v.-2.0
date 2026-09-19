@@ -6,5 +6,5 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 @QuarkusIntegrationTest
 @ExtendWith(ServiceIntegrationEnvironmentResource.class)
-public class SignatureServiceIT extends SignatureServiceTest {
+public class SignatureServiceIT extends SignatureServiceIntegrationTest {
 }

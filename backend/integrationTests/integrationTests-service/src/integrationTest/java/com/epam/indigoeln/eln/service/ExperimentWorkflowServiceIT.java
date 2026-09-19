@@ -6,5 +6,5 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 @QuarkusIntegrationTest
 @ExtendWith(ServiceIntegrationEnvironmentResource.class)
-class ExperimentWorkflowServiceIT extends ExperimentWorkflowServiceTest {
+class ExperimentWorkflowServiceIT extends ExperimentWorkflowServiceIntegrationTest {
 }

@@ -15,7 +15,7 @@ public class MainStack extends Stack {
         IRepository elnLambdaRepo = Repository.fromRepositoryName(this, "ecr-indigo-eln",  "indigoeln/indigo-eln-lambda");
         IRepository reportsLambdaRepo = Repository.fromRepositoryName(this, "ecr-indigo-eln-reports", "indigoeln/indigo-eln-reports-lambda");
         IRepository signatureLambdaRepo = Repository.fromRepositoryName(this, "ecr-indigo-eln-signature", "indigoeln/indigo-eln-signature-lambda");
-        IRepository postgresRepo = Repository.fromRepositoryName(this, "ecr-indigo-eln-postgres", "indigoeln/indigo-eln-postgres");
+        IRepository postgresRepo = Repository.fromRepositoryName(this, "ecr-indigo-eln-postgres", "indigoeln/postgres");
 
         InfraStack infraStack = new InfraStack(this, new InfraStack.Props(
                 props.getVpc(),

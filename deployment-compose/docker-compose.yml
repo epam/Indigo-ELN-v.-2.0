@@ -1,9 +1,27 @@
 services:
 
+  postgres:
+    image: "indigoeln/postgres:built"
+    platform: linux/amd64
+    build:
+      context: ./../postgres
+      dockerfile: Dockerfile
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      start_period: 60s
+      interval: 10s
+      retries: 3
+      start_interval: 1s
+
   frontend:
     image: "indigoeln/frontend:built"
     build:
-      context: ./../indigo-frontend
+      context: ./../frontend2
       dockerfile: Dockerfile
     environment:
       - KEYCLOAK_URL=http://localhost:8088
@@ -27,10 +45,10 @@ services:
       QUARKUS_OIDC_DISCOVERY_ENABLED: "false"
       QUARKUS_OIDC_JWKS_PATH: "protocol/openid-connect/certs"
       QUARKUS_OIDC_TOKEN_ISSUER: "any"
-      QUARKUS_TLS_TRUST_ALL: true
+      QUARKUS_TLS_TRUST_ALL: "true"
       QUARKUS_REST_CLIENT_SIGNATURE_API_URL: "http://nginx:80/"
       QUARKUS_REST_CLIENT_REPORTS_API_URL: "http://nginx:80/"
-      QUARKUS_LOG_CONSOLE_JSON_ENABLED: false
+      QUARKUS_LOG_CONSOLE_JSON_ENABLED: "false"
       QUARKUS_LOG_CONSOLE_FORMAT: "[ELN] %d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
       QUARKUS_LOG_LEVEL: INFO # DEBUG
 #      QUARKUS_REST_CLIENT_LOGGING_SCOPE: "request-response"
@@ -44,7 +62,7 @@ services:
       keycloak-config-cli:
         condition: service_completed_successfully
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/q/health/ready" ]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/q/health/ready"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -61,13 +79,11 @@ services:
     environment:
       QUARKUS_PROFILE: ${QUARKUS_PROFILE}
       ELN_API_SECRET: secret
-      QUARKUS_LOG_CONSOLE_JSON_ENABLED: false
+      QUARKUS_LOG_CONSOLE_JSON_ENABLED: "false"
       QUARKUS_LOG_CONSOLE_FORMAT: "[REPORTS] %d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
       QUARKUS_LOG_LEVEL: INFO # DEBUG
-    #      QUARKUS_LOG_CATEGORY__NET_SF_JASPERREPORTS__LEVEL: INFO
-    #      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5007 -Dquarkus.profile=devtest"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/q/health/ready" ]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/q/health/ready"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -94,9 +110,9 @@ services:
       QUARKUS_OIDC_TOKEN_ISSUER: "any"
       QUARKUS_TLS_TRUST_ALL: true
       ELN_SIGNATURE_KEYSTORE_PASSWORD: "1234"
-      QUARKUS_LOG_CONSOLE_JSON_ENABLED: false
-      QUARKUS_LOG_CONSOLE_FORMAT: "[SIGNATURE] %d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
       QUARKUS_REST_CLIENT_ELN_INTERNAL_API_URL: "http://nginx:80/"
+      QUARKUS_LOG_CONSOLE_JSON_ENABLED: "false"
+      QUARKUS_LOG_CONSOLE_FORMAT: "[SIGNATURE] %d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
       QUARKUS_LOG_LEVEL: INFO # DEBUG
 #      QUARKUS_REST_CLIENT_LOGGING_SCOPE: "request-response"
 #      QUARKUS_REST_CLIENT_LOGGING_BODY_LIMIT: "9999"
@@ -109,7 +125,7 @@ services:
       keycloak-config-cli:
         condition: service_completed_successfully
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/q/health/ready" ]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/q/health/ready"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -117,26 +133,6 @@ services:
     ports:
       - "10030:8080"
 #      - "10031:5006"
-
-  postgres:
-    image: indigo-eln-postgres:built
-    platform: linux/amd64
-    build:
-      context: ./../backend/postgres
-      dockerfile: Dockerfile
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    volumes:
-      - "./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql"
-    ports:
-      - "5432:5432"
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "postgres"]
-      start_period: 60s
-      interval: 10s
-      retries: 3
-      start_interval: 1s
 
   keycloak:
     build:
@@ -176,12 +172,10 @@ services:
       tail -f /dev/null      
       "
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O- http://keycloak:9005/health/ready || (echo 'Health check failed' >> /var/log/healthcheck.log && exit 1)"]
+      test: ["CMD-SHELL", "wget -q -O- http://keycloak:9005/health/ready"]
       interval: 30s
       timeout: 10s
       retries: 5
-    volumes:
-      - ./healthcheck.log:/var/log/healthcheck.log
 
   keycloak-config-cli:
     image: quay.io/adorsys/keycloak-config-cli:6.4.0-26.1.0

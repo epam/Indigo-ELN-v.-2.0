@@ -33,7 +33,7 @@ public class BuildStack extends Stack {
         Repository elnLambdaRepo = createECRRepo("ecr-indigo-eln", "indigoeln/indigo-eln-lambda");
         Repository reportsLambdaRepo = createECRRepo("ecr-indigo-eln-reports", "indigoeln/indigo-eln-reports-lambda");
         Repository signatureLambdaRepo = createECRRepo("ecr-indigo-eln-signature", "indigoeln/indigo-eln-signature-lambda");
-        Repository postgresRepo = createECRRepo("ecr-indigo-eln-postgres", "indigoeln/indigo-eln-postgres");
+        Repository postgresRepo = createECRRepo("ecr-indigo-eln-postgres", "indigoeln/postgres");
 
         Bucket buildLogsBucket = Bucket.Builder.create(this, "build-logs-bucket")
                 .build();
@@ -74,7 +74,7 @@ public class BuildStack extends Stack {
                 , mapOf(
                         entry("REGISTRY_URI", postgresRepo.getRegistryUri()),
                         entry("REPO_URI", postgresRepo.getRepositoryUri()),
-                        entry("REPO_URI_PUBLIC", "public.ecr.aws/m5k0g6n7/indigoeln/indigo-eln-postgres")
+                        entry("REPO_URI_PUBLIC", "public.ecr.aws/m5k0g6n7/indigoeln/postgres")
                 )
                 , mapOf()
         );

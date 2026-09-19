@@ -47,6 +47,7 @@ class ResourceImpl implements AutoCloseable {
 
         composeContainer = new ComposeContainer(new File("../../../deployment-compose/docker-compose.yml"))
                 .withBuild(true)
+                .withPull(false)
                 .withEnv(Map.of(
                         "QUARKUS_PROFILE", "integration-test"
                 ))

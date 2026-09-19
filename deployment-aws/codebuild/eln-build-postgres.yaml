@@ -9,7 +9,7 @@ phases:
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
   build:
     commands:
-      - cd backend/postgres
+      - cd postgres
       - docker build -t $REPO_URI:latest .
       - docker tag $REPO_URI:latest $REPO_URI:$IMAGE_TAG
       - docker tag $REPO_URI:latest $REPO_URI_PUBLIC:latest

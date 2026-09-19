@@ -62,10 +62,8 @@ Served at `https://<domain>/frontend2/`, from the same CloudFront distribution a
 The CDK stack uploads a **locally built** `dist/` — exactly as it does for the Angular app — so
 `pnpm run build` has to run before `deployment-aws/deploy.sh indigoeln-dev`.
 
-Three pieces make that work, all in `deployment-aws`:
+Two pieces make that work, all in `deployment-aws`:
 
-- **`base: '/frontend2/'`** (here, in `vite.config.ts`) puts every asset URL under the prefix and
-  gives the router its basepath. `/api` is untouched — it stays root-absolute and same-origin.
 - **`CloudFrontStack.java`** adds two behaviours, `/frontend2/assets/*` and `/frontend2*`, ordered
   *before* the Angular app's `*.*` and its catch-all default. A viewer-request function rewrites
   anything without a file extension to `/frontend2/index.html`, which is the deep-link fallback the

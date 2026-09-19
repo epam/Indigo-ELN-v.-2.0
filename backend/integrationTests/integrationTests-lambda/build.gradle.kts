@@ -33,6 +33,7 @@ tasks.named("test", Test::class) {
 }
 
 tasks.named("quarkusIntTest", Test::class) {
+    systemProperty("quarkus.devservices.enabled", "false")
     systemProperty("quarkus.http.test-host", "localhost")
     systemProperty("quarkus.http.test-port", "28080")
     systemProperty("eln.storage.s3.bucket", "indigoeln-data")

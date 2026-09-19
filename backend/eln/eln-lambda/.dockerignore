@@ -1,6 +1,3 @@
-.idea
-.git
-.gradle
 build
 !build/nativelibs
 !build/*runner*

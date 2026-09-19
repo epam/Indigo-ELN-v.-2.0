@@ -2,10 +2,15 @@ package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.model.DocumentStatus;
 import com.epam.indigoeln.eln.ELNBaseTest;
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
+import com.epam.indigoeln.eln.model.ExperimentRequest;
+import com.epam.indigoeln.eln.model.NotebookDetailsDTO;
+import com.epam.indigoeln.eln.model.ProjectDetailsDTO;
+import com.epam.indigoeln.eln.model.ProjectRequest;
+import com.epam.indigoeln.eln.model.RevisionSummaryDTO;
+import com.epam.indigoeln.eln.model.SignatureTemplateRef;
 import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
-import com.epam.indigoeln.signature.model.*;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import io.quarkiverse.wiremock.devservice.ConnectWireMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -13,7 +18,6 @@ import io.quarkus.test.security.TestSecurity;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import lombok.SneakyThrows;
-import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,11 +29,15 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ContentDispositionUtil.generateContentDisposition;
-import static com.epam.indigoeln.eln.model.ExperimentStatus.*;
+import static com.epam.indigoeln.eln.model.ExperimentStatus.ARCHIVED;
+import static com.epam.indigoeln.eln.model.ExperimentStatus.CANCELLED;
+import static com.epam.indigoeln.eln.model.ExperimentStatus.COMPLETED;
+import static com.epam.indigoeln.eln.model.ExperimentStatus.REJECTED;
+import static com.epam.indigoeln.eln.model.ExperimentStatus.REOPEN;
+import static com.epam.indigoeln.eln.model.ExperimentStatus.SIGNING;
+import static com.epam.indigoeln.eln.model.ExperimentStatus.SUBMITTED;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 
 
 @QuarkusTest
@@ -54,41 +62,26 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
     @BeforeAll
     @SneakyThrows
     void setUpAll() {
-        if (!integrationTest) {
-            wireMock.register(WireMock.post(WireMock.urlPathEqualTo("/internalapi/reports/experiment")).willReturn(WireMock.aResponse()
-                    .withHeader(HttpHeaders.CONTENT_DISPOSITION,  generateContentDisposition(true, "report.pdf"))
-                    .withBody("\"content content content\"")
-            ));
-            noSignersTemplateID = UUID.randomUUID();
-            oneSignerTemplateID = UUID.randomUUID();
-            twoSignersTemplateID = UUID.randomUUID();
-            wireMock.register(WireMock.get(WireMock.urlPathEqualTo("/api/signature/templates")).willReturn(WireMock.aResponse()
-                    .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                    .withBody("""
-                            [
-                                {"id": "%s", "name": "ExperimentWorkflowServiceTest-noSigners"},
-                                {"id": "%s", "name": "ExperimentWorkflowServiceTest-oneSigner"},
-                                {"id": "%s", "name": "ExperimentWorkflowServiceTest-twoSigners"}
-                            ]
-                            """.formatted(noSignersTemplateID, oneSignerTemplateID, twoSignersTemplateID)
-                    )
-            ));
-            mockFile = new File(tempDir, "updated.txt");
-            Files.write(mockFile.toPath(), "updatedcontent".getBytes());
-        } else {
-            noSignersTemplateID = signatureClient.createTemplate(new SignatureTemplateRequest("ExperimentWorkflowServiceTest-noSigners", List.of(
-                    )))
-                    .getId();
-            oneSignerTemplateID = signatureClient.createTemplate(new SignatureTemplateRequest("ExperimentWorkflowServiceTest-oneSigner", List.of(
-                        new SignatureTemplateBlock(BART_USER_REF, SignatureReason.WITNESS)
-                    )))
-                    .getId();
-            twoSignersTemplateID = signatureClient.createTemplate(new SignatureTemplateRequest("ExperimentWorkflowServiceTest-twoSigners", List.of(
-                        new SignatureTemplateBlock(BART_USER_REF, SignatureReason.WITNESS),
-                        new SignatureTemplateBlock(null, SignatureReason.AUTHOR)
-                    )))
-                    .getId();
-        }
+        wireMock.register(WireMock.post(WireMock.urlPathEqualTo("/internalapi/reports/experiment")).willReturn(WireMock.aResponse()
+                .withHeader(HttpHeaders.CONTENT_DISPOSITION,  generateContentDisposition(true, "report.pdf"))
+                .withBody("\"content content content\"")
+        ));
+        noSignersTemplateID = UUID.randomUUID();
+        oneSignerTemplateID = UUID.randomUUID();
+        twoSignersTemplateID = UUID.randomUUID();
+        wireMock.register(WireMock.get(WireMock.urlPathEqualTo("/api/signature/templates")).willReturn(WireMock.aResponse()
+                .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                .withBody("""
+                        [
+                            {"id": "%s", "name": "ExperimentWorkflowServiceTest-noSigners"},
+                            {"id": "%s", "name": "ExperimentWorkflowServiceTest-oneSigner"},
+                            {"id": "%s", "name": "ExperimentWorkflowServiceTest-twoSigners"}
+                        ]
+                        """.formatted(noSignersTemplateID, oneSignerTemplateID, twoSignersTemplateID)
+                )
+        ));
+        mockFile = new File(tempDir, "updated.txt");
+        Files.write(mockFile.toPath(), "updatedcontent".getBytes());
 
         project = projectClient.createProject(new ProjectRequest("ExperimentWorkflowServiceTest" + UUID.randomUUID()));
         notebook = createNotebook(project.getId());
@@ -97,15 +90,13 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
     @BeforeEach
     void setUp() {
         experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
-        if (!integrationTest) {
-            documentID = UUID.randomUUID();
-            wireMock.register(WireMock.post(WireMock.urlPathEqualTo("/api/signature/documents/upload")).willReturn(WireMock.aResponse()
-                    .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                    .withBody("""
-                      {"id": "%s", "status": "SUBMITTED", "author": {"username": "john", "displayName": "John Doe"}}
-                    """.formatted(documentID))
-            ));
-        }
+        documentID = UUID.randomUUID();
+        wireMock.register(WireMock.post(WireMock.urlPathEqualTo("/api/signature/documents/upload")).willReturn(WireMock.aResponse()
+                .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                .withBody("""
+                  {"id": "%s", "status": "SUBMITTED", "author": {"username": "john", "displayName": "John Doe"}}
+                """.formatted(documentID))
+        ));
     }
 
     @Test
@@ -206,18 +197,12 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
     void testSubmitOneSigner() {
         experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), oneSignerTemplateID);
         assertThat(experiment.getStatus()).isEqualTo(SUBMITTED);
-        verifySignature(
-                tuple(BART_USERNAME, SignatureReason.WITNESS, SignatureStatus.WAITING)
-        );
     }
 
     @Test
     void testApproveOneSigner() {
         experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), oneSignerTemplateID);
         approveDocument(BART_USERNAME, DocumentStatus.SIGNED);
-        verifySignature(
-                tuple(BART_USERNAME, SignatureReason.WITNESS, SignatureStatus.APPROVED)
-        );
         assertThat(experiment.getStatus()).isEqualTo(ARCHIVED);
     }
 
@@ -225,9 +210,6 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
     void testRejectOneSigner() {
         experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), oneSignerTemplateID);
         rejectDocument(BART_USERNAME);
-        verifySignature(
-                tuple(BART_USERNAME, SignatureReason.WITNESS, SignatureStatus.REJECTED)
-        );
         assertThat(experiment.getStatus()).isEqualTo(REJECTED);
     }
 
@@ -235,17 +217,9 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
     void testApproveTwoSigners() {
         experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), twoSignersTemplateID);
         approveDocument(BART_USERNAME, DocumentStatus.SIGNING);
-        verifySignature(
-            tuple(BART_USERNAME, SignatureReason.WITNESS, SignatureStatus.APPROVED),
-            tuple(JOHN_USERNAME, SignatureReason.AUTHOR, SignatureStatus.WAITING)
-        );
         assertThat(experiment.getStatus()).isEqualTo(SIGNING);
 
         approveDocument(JOHN_USERNAME, DocumentStatus.SIGNED);
-        verifySignature(
-                tuple(BART_USERNAME, SignatureReason.WITNESS, SignatureStatus.APPROVED),
-                tuple(JOHN_USERNAME, SignatureReason.AUTHOR, SignatureStatus.APPROVED)
-        );
         assertThat(experiment.getStatus()).isEqualTo(ARCHIVED);
     }
 
@@ -254,10 +228,6 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
         experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), twoSignersTemplateID);
         approveDocument(BART_USERNAME, DocumentStatus.SIGNING);
         rejectDocument(JOHN_USERNAME);
-        verifySignature(
-                tuple(BART_USERNAME, SignatureReason.WITNESS, SignatureStatus.APPROVED),
-                tuple(JOHN_USERNAME, SignatureReason.AUTHOR, SignatureStatus.REJECTED)
-        );
         assertThat(experiment.getStatus()).isEqualTo(REJECTED);
     }
 
@@ -302,41 +272,18 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
     }
 
     private void approveDocument(String username, DocumentStatus simulatedStatus) {
-        if (integrationTest) {
-            UUID documentId = UUID.fromString(checkNotNull(experiment.getSignatureNumber()));
-            withUser(username, () -> signatureClient.signDocument(documentId));
-            this.experiment = experimentClient.getExperiment(experiment.getId());
-        } else {
-            simulateSignatureUpdate(
-                    "signed by " + username,
-                    simulatedStatus
-            );
-        }
+        simulateSignatureUpdate(
+                "signed by " + username,
+                simulatedStatus
+        );
     }
 
     private void rejectDocument(String username) {
-        if (integrationTest) {
-            UUID documentId = UUID.fromString(checkNotNull(experiment.getSignatureNumber()));
-            withUser(username, () -> signatureClient.rejectDocument(documentId));
-            this.experiment = experimentClient.getExperiment(experiment.getId());
-        } else {
-            simulateSignatureUpdate("rejected by " + username, DocumentStatus.REJECTED);
-        }
-    }
-
-    private void verifySignature(Tuple... tuples) {
-        if (integrationTest) {
-            DocumentDTO document = signatureClient.getDocument(UUID.fromString(checkNotNull(experiment.getSignatureNumber())));
-            assertThat(document.getSignatures())
-                    .map(x -> x.getUser().getUsername(), DocumentSignatureDTO::getReason, DocumentSignatureDTO::getStatus)
-                    .containsExactly(tuples);
-        }
+        simulateSignatureUpdate("rejected by " + username, DocumentStatus.REJECTED);
     }
 
     private void simulateSignatureUpdate(String message, DocumentStatus updatedStatus) {
-        if (!integrationTest) {
-            elnInternalClient.internalSignatureUpdatedClient(documentID, "SIMULATED " + message, updatedStatus, mockFile);
-            experiment = experimentClient.getExperiment(experiment.getId());
-        }
+        elnInternalClient.internalSignatureUpdatedClient(documentID, "SIMULATED " + message, updatedStatus, mockFile);
+        experiment = experimentClient.getExperiment(experiment.getId());
     }
 }

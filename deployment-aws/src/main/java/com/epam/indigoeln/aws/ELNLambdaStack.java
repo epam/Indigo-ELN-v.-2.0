@@ -52,7 +52,7 @@ public class ELNLambdaStack {
                 .build();
 
         Map<String, String> elnFunctionEnvironment = mapOf(
-                entry("QUARKUS_DATASOURCE_JDBC_URL", String.format("jdbc:postgresql://pgbouncer.indigoeln.local:6432/%s", props.dbCredentials().getUsername())),
+                entry("QUARKUS_DATASOURCE_JDBC_URL", "jdbc:postgresql://pgbouncer.indigoeln.local:6432/eln"),
                 entry("QUARKUS_DATASOURCE_USERNAME", props.dbCredentials().getUsername()),
                 entry("QUARKUS_DATASOURCE_PASSWORD", props.dbCredentials().getPassword().unsafeUnwrap()), // TODO retrieve credentials in lambda code
                 entry("ELN_COGNITO_USER_POOL_ID", props.userPool().getUserPoolId()),

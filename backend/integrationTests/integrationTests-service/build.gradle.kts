@@ -32,6 +32,7 @@ tasks.named("test", Test::class) {
 }
 
 tasks.named("quarkusIntTest", Test::class) {
+    systemProperty("quarkus.devservices.enabled", "false")
     systemProperty("quarkus.http.test-host", "localhost")
     systemProperty("quarkus.http.test-port", "80")
     systemProperty("eln.test.datasource.jdbc-url", "jdbc:postgresql://localhost:5432/eln")
