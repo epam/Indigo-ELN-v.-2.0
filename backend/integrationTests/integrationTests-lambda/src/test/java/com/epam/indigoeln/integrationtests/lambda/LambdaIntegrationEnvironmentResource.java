@@ -54,7 +54,7 @@ class ResourceImpl implements AutoCloseable {
         log.info("Starting integration environment");
 
         log.info("Starting PostgreSQL...");
-        postgresContainer = new PostgreSQLContainer(DockerImageName.parse("indigoeln/postgres:built").asCompatibleSubstituteFor("postgres"))
+        postgresContainer = new PostgreSQLContainer(DockerImageName.parse("public.ecr.aws/m5k0g6n7/indigoeln/postgres-combined:latest").asCompatibleSubstituteFor("postgres"))
                 .withAccessToHost(true)
                 .withLogConsumer(new Slf4jLogConsumer(LoggerFactory.getLogger("POSTGRES")))
                 .withStartupTimeout(Duration.ofSeconds(30))

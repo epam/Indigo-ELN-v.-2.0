@@ -40,7 +40,7 @@ artifacts {
 }
 
 val copyNativeLibs = tasks.register<Copy>("copyNativeLibs") {
-    from(configurations.runtimeClasspath.get().filter { it.name.contains("indigo") }.map { zipTree(it)})
+    from(configurations.runtimeClasspath.get().filter { it.name.startsWith("indigo-") }.map { zipTree(it)})
     include("**/linux-x86_64/*.so")
     include("**/darwin-x86_64/*.dylib")
     include("**/darwin-aarch64/*.dylib")

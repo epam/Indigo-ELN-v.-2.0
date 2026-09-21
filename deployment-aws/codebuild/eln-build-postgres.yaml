@@ -10,13 +10,24 @@ phases:
   build:
     commands:
       - cd postgres
-      - docker build -t $REPO_URI:latest .
+      # Two targets of one Dockerfile. `combined` is FROM base, so the shared layers are built once
+      # and the second build is a cache hit. --target is required on both: `combined` is the last
+      # stage, so an untargeted build would push it under the base repository name.
+      - docker build --target base -t $REPO_URI:latest .
       - docker tag $REPO_URI:latest $REPO_URI:$IMAGE_TAG
       - docker tag $REPO_URI:latest $REPO_URI_PUBLIC:latest
       - docker tag $REPO_URI:latest $REPO_URI_PUBLIC:$IMAGE_TAG
+      - docker build --target combined -t $COMBINED_REPO_URI:latest .
+      - docker tag $COMBINED_REPO_URI:latest $COMBINED_REPO_URI:$IMAGE_TAG
+      - docker tag $COMBINED_REPO_URI:latest $COMBINED_REPO_URI_PUBLIC:latest
+      - docker tag $COMBINED_REPO_URI:latest $COMBINED_REPO_URI_PUBLIC:$IMAGE_TAG
   post_build:
     commands:
       - docker push $REPO_URI:latest
       - docker push $REPO_URI:$IMAGE_TAG
       - docker push $REPO_URI_PUBLIC:latest
       - docker push $REPO_URI_PUBLIC:$IMAGE_TAG
+      - docker push $COMBINED_REPO_URI:latest
+      - docker push $COMBINED_REPO_URI:$IMAGE_TAG
+      - docker push $COMBINED_REPO_URI_PUBLIC:latest
+      - docker push $COMBINED_REPO_URI_PUBLIC:$IMAGE_TAG
