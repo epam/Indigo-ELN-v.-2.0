@@ -1,18 +1,13 @@
-CREATE TABLE User_Account
-(
-    id UUID NOT NULL PRIMARY KEY,
-    username VARCHAR(1024) NOT NULL,
-    first_name VARCHAR(1024),
-    last_name VARCHAR(1024),
-    display_name VARCHAR(1024) NOT NULL,
-    CONSTRAINT user_account_uq1 UNIQUE (username)
+CREATE TYPE Molarity_Unit AS ENUM (
+    'MM',
+    'M'
 );
 
 CREATE TABLE SRS_Compound (
     id UUID PRIMARY KEY,
     can_smiles VARCHAR(1000) NOT NULL,
-    stereoisomer_code_id UUID,
-    salt_code_id UUID,
+    stereoisomer_code UUID,
+    salt_code UUID,
     salt_eq_100 INT,
     external_number VARCHAR(1000),
     chemical_name VARCHAR(1000),
@@ -24,19 +19,14 @@ CREATE TABLE SRS_Compound (
     exact_mass DOUBLE PRECISION NOT NULL,
     cas_number VARCHAR(1000),
     picture BYTEA NOT NULL,
-    CONSTRAINT compound_stereoisomer_code_fk FOREIGN KEY (stereoisomer_code_id) REFERENCES Dictionary_Item (id),
-    CONSTRAINT compound_salt_code_fk FOREIGN KEY (salt_code_id) REFERENCES Dictionary_Item (id),
-    CONSTRAINT compound_uq UNIQUE (can_smiles, stereoisomer_code_id, salt_code_id, salt_eq_100),
+    CONSTRAINT compound_uq UNIQUE (can_smiles, stereoisomer_code, salt_code, salt_eq_100),
     CONSTRAINT compound_str_code_salt_eq_uq UNIQUE (str_code, salt_eq_100) -- str_code is shared across saltEQ
 );
 CREATE INDEX ix_srs_compound_mol_file ON SRS_Compound USING bingo_idx (mol_file bingo.molecule);
 
 CREATE TABLE SRS_Sample (
     id UUID PRIMARY KEY,
-    created_by_id UUID NOT NULL,
     created_at TIMESTAMPTZ NOT NULL,
-    modified_by_id UUID NOT NULL,
-    modified_at TIMESTAMPTZ NOT NULL,
     compound_id UUID NOT NULL,
     str_code VARCHAR(64),
     external_number VARCHAR(1000),
@@ -45,33 +35,14 @@ CREATE TABLE SRS_Sample (
     molarity NUMERIC,
     molarity_unit Molarity_Unit,
     purity NUMERIC,
-    compound_state_id UUID,
+    compound_state UUID,
+    health_hazards UUID[],
     batch_comment TEXT,
     search_vector TSVECTOR NOT NULL,
-    CONSTRAINT sample_created_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
-    CONSTRAINT sample_modified_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
     CONSTRAINT sample_compound_id_fk FOREIGN KEY (compound_id) REFERENCES SRS_Compound(id),
-    CONSTRAINT sample_compound_state_id_fk FOREIGN KEY (compound_state_id) REFERENCES dictionary_item(id),
     CONSTRAINT sample_str_code_uq UNIQUE (str_code)
 );
 CREATE INDEX ix_srs_sample_compound_id ON SRS_Sample (compound_id);
 CREATE INDEX ix_srs_sample_search_vector ON SRS_Sample USING GIN (search_vector);
 
-CREATE TABLE Sample_Health_Hazard (
-    sample_id UUID NOT NULL,
-    health_hazard_id UUID NOT NULL,
-    CONSTRAINT sample_health_hazard_pk PRIMARY KEY (sample_id, health_hazard_id),
-    CONSTRAINT sample_health_hazard_sample_id_fk FOREIGN KEY (sample_id) REFERENCES SRS_Sample(id) ON DELETE CASCADE,
-    CONSTRAINT sample_health_hazard_health_hazard_id_fk FOREIGN KEY (health_hazard_id) REFERENCES dictionary_item(id)
-);
-
 CREATE SEQUENCE srs_compound_str_code_compound_seq START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
-
-CREATE TABLE SRS_Sample_Mark (
-    sample_id UUID NOT NULL,
-    user_id UUID NOT NULL,
-    CONSTRAINT sample_mark_pk PRIMARY KEY (sample_id, user_id),
-    CONSTRAINT sample_mark_sample_id_fk FOREIGN KEY (sample_id) REFERENCES SRS_Sample (id) ON DELETE CASCADE,
-    CONSTRAINT sample_mark_user_id_fk FOREIGN KEY (user_id) REFERENCES User_Account (id) ON DELETE CASCADE
-);
-CREATE INDEX ix_srs_sample_mark_user_id ON SRS_Sample_Mark (user_id);

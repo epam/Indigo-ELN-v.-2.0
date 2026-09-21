@@ -12,6 +12,7 @@ dependencies {
     testImplementation(project(path = ":eln:eln-core", configuration = "testArtifacts"))
     testImplementation(project(path = ":reports:reports-core", configuration = "testArtifacts"))
     testImplementation(project(path = ":signature:signature-core", configuration = "testArtifacts"))
+    testImplementation(project(path = ":sampleregistration:sampleregistration-core", configuration = "testArtifacts"))
 
     testImplementation("io.quarkus:quarkus-apache-httpclient")
 
@@ -25,6 +26,7 @@ tasks.named("compileIntegrationTestJava") {
     dependsOn(":eln:eln-core:testJar")
     dependsOn(":reports:reports-core:testJar")
     dependsOn(":signature:signature-core:testJar")
+    dependsOn(":sampleregistration:sampleregistration-core:testJar")
 }
 
 tasks.named("test", Test::class) {
@@ -42,4 +44,5 @@ tasks.named("quarkusIntTest", Test::class) {
     dependsOn(":eln:eln-service:assemble")
     dependsOn(":reports:reports-service:assemble")
     dependsOn(":signature:signature-service:assemble")
+    dependsOn(":sampleregistration:sampleregistration-service:assemble")
 }

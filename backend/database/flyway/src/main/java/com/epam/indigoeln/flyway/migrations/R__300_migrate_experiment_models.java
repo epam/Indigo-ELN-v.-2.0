@@ -1,7 +1,7 @@
 package com.epam.indigoeln.flyway.migrations;
 
 import com.epam.indigoeln.flyway.util.JsonLocator;
-import com.epam.indigoeln.reaction.model.units.NoUnit;
+import com.epam.indigoeln.common.model.units.NoUnit;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;

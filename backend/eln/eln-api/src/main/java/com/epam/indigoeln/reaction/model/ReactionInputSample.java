@@ -1,9 +1,8 @@
 package com.epam.indigoeln.reaction.model;
 
 import com.epam.indigoeln.eln.model.NbkBatchNumber;
-import com.epam.indigoeln.reaction.model.units.EnteredValue;
-import com.epam.indigoeln.reaction.model.units.MolUnit;
-import com.epam.indigoeln.reaction.model.units.WeightUnit;
+import com.epam.indigoeln.common.model.units.MolUnit;
+import com.epam.indigoeln.common.model.units.WeightUnit;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.base.Preconditions;
 import jakarta.validation.constraints.NotNull;

@@ -6,7 +6,7 @@ import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
-import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
+import com.epam.indigoeln.common.model.units.MolWeightUnit;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import jakarta.enterprise.context.Dependent;
 

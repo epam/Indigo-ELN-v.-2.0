@@ -45,8 +45,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
 class ExperimentWorkflowServiceTest extends ELNBaseTest {
 
-    WireMock wireMock;
-
     ProjectDetailsDTO project;
     NotebookDetailsDTO notebook;
     ExperimentDetailsDTO experiment;
@@ -54,6 +52,8 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
     UUID oneSignerTemplateID;
     UUID twoSignersTemplateID;
     UUID documentID;
+
+    WireMock wireMock;
 
     @TempDir
     File tempDir;

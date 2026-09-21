@@ -4,7 +4,7 @@ import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.search.SampleSearchResult;
 import com.epam.indigoeln.compound.model.search.SearchCatalog;
-import com.epam.indigoeln.compound.model.search.TextSearch;
+import com.epam.indigoeln.common.model.search.TextSearch;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.*;
@@ -13,7 +13,7 @@ import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
-import com.epam.indigoeln.reaction.model.units.MolUnit;
+import com.epam.indigoeln.common.model.units.MolUnit;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import org.assertj.core.api.Assertions;
@@ -31,8 +31,8 @@ import static com.epam.indigoeln.eln.model.BuiltInDictionary.THERAPEUTIC_AREA;
 import static com.epam.indigoeln.eln.test.ReactionInputAssert.assertThat;
 import static com.epam.indigoeln.eln.test.ReactionInputSampleAssert.assertThat;
 import static com.epam.indigoeln.eln.test.ReactionOutputSampleAssert.assertThat;
-import static com.epam.indigoeln.reaction.model.units.WeightUnit.G;
-import static com.epam.indigoeln.reaction.model.units.WeightUnit.KG;
+import static com.epam.indigoeln.common.model.units.WeightUnit.G;
+import static com.epam.indigoeln.common.model.units.WeightUnit.KG;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -193,8 +193,7 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     void testRegisterSample() {
         experiment.mutate(new ReactionOutputSampleMutation.RegisterSample(experiment.outputSample(2, 1).getAnchor()), false);
         assertThat(experiment.outputSample(2, 1).getRegistrationStatus()).isEqualTo(SampleRegistrationStatus.REGISTERED);
-        assertThat(experiment.outputSample(2, 1).getSampleId()).isNotNull();
-        assertThat(experiment.outputSample(2, 1).getStrCode()).isNotNull();
+        assertThat(experiment.outputSample(2, 1).getSampleKey()).isNotNull();
     }
 
     @Test
@@ -209,7 +208,6 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     void testRegisterAnotherSample() {
         experiment.mutate(new ReactionOutputSampleMutation.RegisterSample(experiment.outputSample(2, 2).getAnchor()), false);
         assertThat(experiment.outputSample(2, 2).getRegistrationStatus()).isEqualTo(SampleRegistrationStatus.REGISTERED);
-        assertThat(experiment.outputSample(2, 2).getSampleId()).isNotNull();
     }
 
 

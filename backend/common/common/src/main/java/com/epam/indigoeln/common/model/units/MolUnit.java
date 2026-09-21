@@ -1,0 +1,16 @@
+package com.epam.indigoeln.common.model.units;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
+public enum MolUnit implements MeasurementUnit {
+
+    UMOL(0.000001, "μmol"),
+    MMOL(0.001, "mmol"),
+    MOL(1.0, "mol");
+
+    private final double multiplier;
+    private final String displayName;
+}

@@ -4,7 +4,7 @@ import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentSearchBatch;
 import com.epam.indigoeln.eln.entity.ExperimentSearchCompound;
 import com.epam.indigoeln.eln.service.GlobalSearchService;
-import com.epam.indigoeln.eln.util.SearchVector;
+import com.epam.indigoeln.eln.common.util.SearchVector;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.service.mutation.ExperimentMutationListener;
 import jakarta.annotation.Priority;

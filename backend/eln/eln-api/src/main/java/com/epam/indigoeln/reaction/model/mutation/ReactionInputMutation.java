@@ -4,7 +4,7 @@ import com.epam.indigoeln.eln.model.SaltCodeRef;
 import com.epam.indigoeln.eln.model.StereoisomerCodeRef;
 import com.epam.indigoeln.reaction.model.InputAnchor;
 import com.epam.indigoeln.reaction.model.ReactionRole;
-import com.epam.indigoeln.reaction.model.units.MolUnit;
+import com.epam.indigoeln.common.model.units.MolUnit;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 

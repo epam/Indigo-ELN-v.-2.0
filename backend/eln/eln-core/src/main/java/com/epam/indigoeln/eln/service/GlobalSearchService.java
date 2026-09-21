@@ -4,14 +4,23 @@ import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.entity.SampleEntity;
+import com.epam.indigoeln.eln.common.util.SearchVector;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.ExperimentSearchBatch;
 import com.epam.indigoeln.eln.entity.ExperimentSearchCompound;
 import com.epam.indigoeln.eln.model.GlobalSearchRequest;
 import com.epam.indigoeln.eln.model.GlobalSearchResultDTO;
 import com.epam.indigoeln.eln.repository.GlobalSearchRepository;
-import com.epam.indigoeln.eln.util.SearchVector;
-import com.epam.indigoeln.reaction.model.*;
+import com.epam.indigoeln.reaction.model.CompoundRef;
+import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
+import com.epam.indigoeln.reaction.model.NotebookSnapshot;
+import com.epam.indigoeln.reaction.model.ProjectSnapshot;
+import com.epam.indigoeln.reaction.model.Reaction;
+import com.epam.indigoeln.reaction.model.ReactionInput;
+import com.epam.indigoeln.reaction.model.ReactionInputSample;
+import com.epam.indigoeln.reaction.model.ReactionOutput;
+import com.epam.indigoeln.reaction.model.ReactionOutputSample;
+import com.epam.indigoeln.reaction.model.ReactionRole;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -39,7 +48,7 @@ public class GlobalSearchService {
 
     public SearchVector collectExperimentSearchVector(ExperimentSnapshot snapshot) {
         SearchVector.Builder sv = new SearchVector.Builder()
-                .a(snapshot.getName()) // TODO complex index of Experiment.name
+                .a(snapshot.getName())
                 .a(snapshot.getTitle())
                 .d(snapshot.getDescription())
                 .d(snapshot.getLiterature());
@@ -47,7 +56,7 @@ public class GlobalSearchService {
             for (ReactionInput input : reaction.getInputs()) {
                 sv.b(input.getCompound().getCompoundKey());
                 for (ReactionInputSample sample : input.getSamples()) {
-                    sv.c(sample.getStrCode() != null ? sample.getStrCode().toString() : null);
+                    sv.c(sample.getSampleKey());
                     sv.c(sample.getNbkBatchNumber() != null ? sample.getNbkBatchNumber().toString() : null);
                 }
             }
@@ -69,7 +78,7 @@ public class GlobalSearchService {
     public SearchVector collectSampleSearchVector(SampleEntity sample) {
         CompoundEntity c = sample.getCompound();
         SearchVector.Builder sv = new SearchVector.Builder()
-                .a(sample.getStrCode() != null ? sample.getStrCode().toString() : null)
+                .a(sample.getSampleKey())
                 .a(sample.getNbkBatchNumber() != null ? sample.getNbkBatchNumber().toString() : null)
                 .a(c.getCasNumber())
                 .b(c.getChemicalName());

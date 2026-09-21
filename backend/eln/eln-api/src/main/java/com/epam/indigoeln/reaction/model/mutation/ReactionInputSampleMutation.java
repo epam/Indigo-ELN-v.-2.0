@@ -1,8 +1,12 @@
 package com.epam.indigoeln.reaction.model.mutation;
 
+import com.epam.indigoeln.common.model.units.DensityUnit;
+import com.epam.indigoeln.common.model.units.MolUnit;
+import com.epam.indigoeln.common.model.units.MolarityUnit;
+import com.epam.indigoeln.common.model.units.VolumeUnit;
+import com.epam.indigoeln.common.model.units.WeightUnit;
 import com.epam.indigoeln.eln.model.HealthHazardRef;
 import com.epam.indigoeln.reaction.model.InputSampleAnchor;
-import com.epam.indigoeln.reaction.model.units.*;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 

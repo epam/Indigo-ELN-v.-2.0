@@ -131,6 +131,11 @@ public class DictionaryService {
     }
 
     @Transactional(Transactional.TxType.REQUIRED)
+    public DictionaryItemEntity lookup(UUID id) {
+        return dictionaryItemRepository.getReference(id);
+    }
+
+    @Transactional(Transactional.TxType.REQUIRED)
     public List<DictionaryItemEntity> lookup(Collection<? extends DictionaryItemRef> refs) {
         return lookup(refs, true);
     }

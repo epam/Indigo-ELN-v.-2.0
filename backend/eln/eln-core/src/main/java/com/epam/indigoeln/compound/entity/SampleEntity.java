@@ -1,22 +1,39 @@
 package com.epam.indigoeln.compound.entity;
 
+import com.epam.indigoeln.common.model.units.MolarityUnit;
+import com.epam.indigoeln.eln.common.config.SearchVectorType;
+import com.epam.indigoeln.eln.common.util.SearchVector;
 import com.epam.indigoeln.eln.config.hibernate.NbkBatchNumberConverter;
-import com.epam.indigoeln.eln.config.hibernate.STRCodeSampleConverter;
-import com.epam.indigoeln.eln.config.hibernate.SearchVectorType;
 import com.epam.indigoeln.eln.entity.BaseEntity;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
 import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.model.NbkBatchNumber;
-import com.epam.indigoeln.eln.model.STRCodeSample;
-import com.epam.indigoeln.eln.util.SearchVector;
-import com.epam.indigoeln.reaction.model.units.MolarityUnit;
-import jakarta.persistence.*;
+import com.epam.indigoeln.eln.model.SampleSource;
+import jakarta.persistence.Basic;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedAttributeNode;
 import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.PrimaryKeyJoinColumn;
+import jakarta.persistence.SecondaryTable;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.*;
+import org.hibernate.annotations.ColumnTransformer;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.annotations.LazyGroup;
+import org.hibernate.annotations.Type;
 import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
 import org.jspecify.annotations.Nullable;
 
@@ -50,12 +67,13 @@ public class SampleEntity extends BaseEntity {
     @Convert(converter = NbkBatchNumberConverter.class)
     private NbkBatchNumber nbkBatchNumber;
 
-    @Nullable
-    @Convert(converter = STRCodeSampleConverter.class)
-    private STRCodeSample strCode;
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @JdbcType(PostgreSQLEnumJdbcType.class)
+    private SampleSource source;
 
     @Nullable
-    private String externalNumber;
+    private String sampleKey;
 
     @Nullable
     private BigDecimal density;
@@ -94,6 +112,7 @@ public class SampleEntity extends BaseEntity {
     @JoinTable(name = "Sample_Mark", joinColumns = @JoinColumn(name = "sample_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
     private Set<UserEntity> markedBy = HashSet.newHashSet(0);
 
+    @Nullable
     @Basic(fetch = FetchType.LAZY)
     @Column(table = "Sample_Is_Marked", updatable = false)
     @Fetch(FetchMode.SELECT)

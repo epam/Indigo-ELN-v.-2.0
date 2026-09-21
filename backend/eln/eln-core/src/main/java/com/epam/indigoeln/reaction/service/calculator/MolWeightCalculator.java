@@ -2,9 +2,9 @@ package com.epam.indigoeln.reaction.service.calculator;
 
 import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.eln.model.SaltCodeRef;
-import com.epam.indigoeln.indigowrapper.IndigoAPI;
-import com.epam.indigoeln.indigowrapper.IndigoAtom;
-import com.epam.indigoeln.indigowrapper.IndigoMolecule;
+import com.epam.indigoeln.eln.indigowrapper.IndigoAPI;
+import com.epam.indigoeln.eln.indigowrapper.IndigoAtom;
+import com.epam.indigoeln.eln.indigowrapper.IndigoMolecule;
 import com.google.common.math.DoubleMath;
 import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;

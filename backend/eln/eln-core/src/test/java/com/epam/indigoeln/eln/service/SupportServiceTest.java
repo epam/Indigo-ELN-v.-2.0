@@ -30,6 +30,5 @@ class SupportServiceTest extends ELNBaseTest {
         assertThat(Integer.parseInt(result.get("projects"))).isPositive();
         assertThat(Integer.parseInt(result.get("notebooks"))).isPositive();
         assertThat(Integer.parseInt(result.get("experiments"))).isPositive();
-        assertThat(Integer.parseInt(result.get("samples"))).isNotNegative();
     }
 }

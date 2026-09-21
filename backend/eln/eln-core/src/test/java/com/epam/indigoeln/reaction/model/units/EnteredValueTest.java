@@ -1,5 +1,14 @@
 package com.epam.indigoeln.reaction.model.units;
 
+import com.epam.indigoeln.common.model.units.DensityUnit;
+import com.epam.indigoeln.reaction.model.EnteredValue;
+import com.epam.indigoeln.common.model.units.MeasurementUnit;
+import com.epam.indigoeln.common.model.units.MolUnit;
+import com.epam.indigoeln.common.model.units.MolWeightUnit;
+import com.epam.indigoeln.common.model.units.MolarityUnit;
+import com.epam.indigoeln.common.model.units.NoUnit;
+import com.epam.indigoeln.common.model.units.VolumeUnit;
+import com.epam.indigoeln.common.model.units.WeightUnit;
 import one.util.streamex.StreamEx;
 import org.assertj.core.api.AbstractThrowableAssert;
 import org.assertj.core.api.Assertions;
@@ -19,8 +28,8 @@ import java.util.Map;
 import java.util.function.Function;
 
 import static com.epam.indigoeln.eln.test.EnteredValueAssert.assertThat;
-import static com.epam.indigoeln.reaction.model.units.EnteredValue.userEntered;
-import static com.epam.indigoeln.reaction.model.units.WeightUnit.G;
+import static com.epam.indigoeln.reaction.model.EnteredValue.userEntered;
+import static com.epam.indigoeln.common.model.units.WeightUnit.G;
 import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.callWithSignificantFigures;
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;

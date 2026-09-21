@@ -1,7 +1,6 @@
 package com.epam.indigoeln.reaction.model;
 
-import com.epam.indigoeln.reaction.model.units.EnteredValue;
-import com.epam.indigoeln.reaction.model.units.NoUnit;
+import com.epam.indigoeln.common.model.units.NoUnit;
 import com.epam.indigoeln.reaction.util.ExperimentModelUtil;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;

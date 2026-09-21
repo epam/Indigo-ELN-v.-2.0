@@ -29,7 +29,6 @@ public abstract class BaseRepository<E extends IdentifiableEntity> implements Pa
     protected static final Sort DEFAULT_SORT = Sort.descending("modifiedAt");
     public static final String JAKARTA_PERSISTENCE_LOADGRAPH = "jakarta.persistence.loadgraph";
 
-    protected final EntityType entityType;
     protected final Class<E> entityClass;
 
     @PersistenceContext
@@ -89,7 +88,7 @@ public abstract class BaseRepository<E extends IdentifiableEntity> implements Pa
         return query
                 .withHint(JAKARTA_PERSISTENCE_LOADGRAPH, entityGraph)
                 .singleResultOptional()
-                .orElseThrow(() -> new AccessDeniedException(entityType, id));
+                .orElseThrow(() -> new AccessDeniedException(entityClass.getName(), id));
     }
 
     protected List<E> doLoadByIDs(List<UUID> ids, @Nullable EntityGraph<?> entityGraph) {
@@ -119,7 +118,7 @@ public abstract class BaseRepository<E extends IdentifiableEntity> implements Pa
         E entity = findById(id);
         //noinspection ConstantValue
         if (entity == null) {
-            throw new EntityNotFoundException(entityType, id);
+            throw new EntityNotFoundException(entityClass.getName(), id);
         }
         return entity;
     }

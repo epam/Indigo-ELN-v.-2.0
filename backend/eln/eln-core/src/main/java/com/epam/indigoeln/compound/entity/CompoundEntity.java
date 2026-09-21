@@ -1,48 +1,48 @@
 package com.epam.indigoeln.compound.entity;
 
+import com.epam.indigoeln.common.model.MolFormula;
+import com.epam.indigoeln.eln.common.config.MolFormulaConverter;
 import com.epam.indigoeln.eln.common.entity.IdentifiableEntity;
-import com.epam.indigoeln.eln.config.hibernate.MolFormulaConverter;
-import com.epam.indigoeln.eln.config.hibernate.STRCodeCompoundConverter;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
-import com.epam.indigoeln.eln.model.CompoundExternalSource;
-import com.epam.indigoeln.eln.model.STRCodeCompound;
-import com.epam.indigoeln.reaction.model.MolFormula;
-import jakarta.persistence.*;
+import com.epam.indigoeln.eln.model.SampleSource;
+import jakarta.persistence.Basic;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
 import org.jspecify.annotations.Nullable;
-
-import java.util.HashSet;
-import java.util.Set;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "Compound")
-@ToString(of = {"id", "chemicalName", "formula", "canSmiles", "strCode"})
+@ToString(of = {"id", "chemicalName", "formula", "canSmiles", "source", "compoundKey"})
 public class CompoundEntity extends IdentifiableEntity {
 
-    @Nullable
+    @NotNull
     @Enumerated(EnumType.STRING)
     @JdbcType(PostgreSQLEnumJdbcType.class)
-    private CompoundExternalSource externalSource;
+    private SampleSource source;
 
     @Nullable
     private String compoundKey;
 
     @Nullable
-    @Convert(converter = STRCodeCompoundConverter.class)
-    private STRCodeCompound strCode; // STR code for compounds registered from Indigo ELN
-
-    @Nullable
     private String casNumber;
-
-    @Nullable
-    private String externalNumber;
 
     @NotEmpty
     private String canSmiles;
@@ -80,16 +80,9 @@ public class CompoundEntity extends IdentifiableEntity {
     @Basic(fetch = FetchType.LAZY)
     private byte[] picture;
 
-    @OneToMany(mappedBy = "compound") // TODO make many-to-many and store percentage in link entity
-    private Set<SampleEntity> samples = HashSet.newHashSet(0);
-
     @Nullable
     @Transient
     public Double getSaltEQ() {
         return saltEQ100 != null ? saltEQ100 / 100.0 : null;
-    }
-
-    public void setSaltEQ(@Nullable Double saltEQ) {
-        this.saltEQ100 = saltEQ != null ? (int) (saltEQ * 100.0) : null;
     }
 }

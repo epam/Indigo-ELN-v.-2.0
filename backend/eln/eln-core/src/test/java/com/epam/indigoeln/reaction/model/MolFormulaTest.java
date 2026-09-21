@@ -1,8 +1,9 @@
 package com.epam.indigoeln.reaction.model;
 
+import com.epam.indigoeln.common.model.MolFormula;
 import com.epam.indigoeln.eln.ELNBaseTest;
-import com.epam.indigoeln.indigowrapper.IndigoAPI;
-import com.epam.indigoeln.indigowrapper.IndigoMolecule;
+import com.epam.indigoeln.eln.indigowrapper.IndigoAPI;
+import com.epam.indigoeln.eln.indigowrapper.IndigoMolecule;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;

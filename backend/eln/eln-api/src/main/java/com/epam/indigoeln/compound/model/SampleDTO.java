@@ -2,7 +2,6 @@ package com.epam.indigoeln.compound.model;
 
 import com.epam.indigoeln.compound.model.search.SearchCatalog;
 import com.epam.indigoeln.eln.model.NbkBatchNumber;
-import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.eln.model.SaltCodeRef;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotNull;
@@ -24,7 +23,7 @@ public class SampleDTO {
     @Nullable
     private String compoundKey;
     @Nullable
-    private STRCodeSample strCode;
+    private String sampleKey;
     @NotNull
     private String molFormula;
     @NotNull

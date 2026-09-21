@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.config.hibernate;
 
+import com.epam.indigoeln.eln.common.config.AbstractJsonUserType;
 import com.epam.indigoeln.eln.mapper.SnapshotMapper;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import io.quarkus.arc.Arc;

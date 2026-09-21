@@ -2,14 +2,14 @@ package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
-import com.epam.indigoeln.compound.model.search.NumericSearch;
-import com.epam.indigoeln.compound.model.search.StructuralSearch;
+import com.epam.indigoeln.common.model.search.NumericSearch;
+import com.epam.indigoeln.common.model.search.StructuralSearch;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.ReactionRole;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
-import com.epam.indigoeln.reaction.model.units.WeightUnit;
+import com.epam.indigoeln.common.model.units.WeightUnit;
 import com.epam.indigoeln.reaction.util.ExperimentObject;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;

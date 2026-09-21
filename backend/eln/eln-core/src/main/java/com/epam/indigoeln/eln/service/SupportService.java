@@ -1,7 +1,6 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.util.Pair;
-import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
@@ -9,7 +8,17 @@ import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
 import com.epam.indigoeln.eln.entity.NotebookEntity;
 import com.epam.indigoeln.eln.entity.ProjectEntity;
 import com.epam.indigoeln.eln.mapper.SnapshotMapper;
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.model.ApplicationPermission;
+import com.epam.indigoeln.eln.model.BuiltInDictionary;
+import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
+import com.epam.indigoeln.eln.model.ExperimentRequest;
+import com.epam.indigoeln.eln.model.NotebookDetailsDTO;
+import com.epam.indigoeln.eln.model.NotebookRequest;
+import com.epam.indigoeln.eln.model.ProjectCodeRef;
+import com.epam.indigoeln.eln.model.ProjectDetailsDTO;
+import com.epam.indigoeln.eln.model.ProjectRequest;
+import com.epam.indigoeln.eln.model.TemplateDTO;
+import com.epam.indigoeln.eln.model.TherapeuticAreaRef;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.util.ExperimentDetailsReportBuilder;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
@@ -113,17 +122,11 @@ public class SupportService {
                     n.setSearchVector(globalSearchService.collectNotebookSearchVector(snapshot));
                 });
 
-        long samples = doReindex(
-                em.createQuery("FROM Sample s JOIN FETCH s.compound ORDER BY s.id", SampleEntity.class),
-                s -> {
-                    s.setSearchVector(globalSearchService.collectSampleSearchVector(s));
-                });
-
         return Map.of(
                 "projects", String.valueOf(projects),
                 "notebooks", String.valueOf(notebooks),
-                "experiments", String.valueOf(experiments),
-                "samples", String.valueOf(samples));
+                "experiments", String.valueOf(experiments)
+        );
     }
 
     private <T> long doReindex(TypedQuery<T> query, Consumer<T> processor) {

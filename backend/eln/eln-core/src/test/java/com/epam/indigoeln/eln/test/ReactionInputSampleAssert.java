@@ -2,8 +2,8 @@ package com.epam.indigoeln.eln.test;
 
 import com.epam.indigoeln.reaction.model.ReactionInput;
 import com.epam.indigoeln.reaction.model.ReactionInputSample;
-import com.epam.indigoeln.reaction.model.units.MolUnit;
-import com.epam.indigoeln.reaction.model.units.WeightUnit;
+import com.epam.indigoeln.common.model.units.MolUnit;
+import com.epam.indigoeln.common.model.units.WeightUnit;
 
 public class ReactionInputSampleAssert extends AbstractReactionSampleAssert<ReactionInput, ReactionInputSample, ReactionInputSampleAssert> {
 

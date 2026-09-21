@@ -29,7 +29,7 @@ public class DocumentRepository extends BaseRepository<DocumentEntity> {
     SignatureMapper signatureMapper;
 
     public DocumentRepository() {
-        super(SignatureEntityType.DOCUMENT, DocumentEntity.class);
+        super(DocumentEntity.class);
     }
 
     public Page<DocumentDTO> findAll(@Nullable String search, @Nullable SortOrder sort, @Nullable UserEntity waitingForUserSignature, Paging paging) {

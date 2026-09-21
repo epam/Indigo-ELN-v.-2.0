@@ -8,7 +8,7 @@ import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
-import com.epam.indigoeln.reaction.model.units.WeightUnit;
+import com.epam.indigoeln.common.model.units.WeightUnit;
 import com.epam.indigoeln.reaction.util.ExperimentObject;
 import com.epam.indigoeln.test.FeignUtil;
 import io.quarkus.test.junit.QuarkusTest;

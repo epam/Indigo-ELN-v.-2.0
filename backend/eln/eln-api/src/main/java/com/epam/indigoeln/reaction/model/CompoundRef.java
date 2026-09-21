@@ -1,10 +1,10 @@
 package com.epam.indigoeln.reaction.model;
 
+import com.epam.indigoeln.common.model.MolFormula;
 import com.epam.indigoeln.eln.model.SaltCodeRef;
 import com.epam.indigoeln.eln.model.StereoisomerCodeRef;
-import com.epam.indigoeln.reaction.model.units.EnteredValue;
-import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
-import com.epam.indigoeln.reaction.model.units.NoUnit;
+import com.epam.indigoeln.common.model.units.MolWeightUnit;
+import com.epam.indigoeln.common.model.units.NoUnit;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSubTypes;

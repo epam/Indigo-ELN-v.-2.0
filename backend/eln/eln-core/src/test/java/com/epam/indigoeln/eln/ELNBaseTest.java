@@ -5,11 +5,32 @@ import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.eln.api.ELNInternalClient;
-import com.epam.indigoeln.eln.client.*;
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.client.CompoundClient;
+import com.epam.indigoeln.eln.client.DictionaryClient;
+import com.epam.indigoeln.eln.client.ExperimentClient;
+import com.epam.indigoeln.eln.client.GlobalSearchClient;
+import com.epam.indigoeln.eln.client.MiscClient;
+import com.epam.indigoeln.eln.client.NotebookClient;
+import com.epam.indigoeln.eln.client.ProjectClient;
+import com.epam.indigoeln.eln.client.RoleClient;
+import com.epam.indigoeln.eln.client.TemplateClient;
+import com.epam.indigoeln.eln.client.TestSupportClient;
+import com.epam.indigoeln.eln.client.UserClient;
+import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
+import com.epam.indigoeln.eln.model.ExperimentRequest;
+import com.epam.indigoeln.eln.model.NotebookDetailsDTO;
+import com.epam.indigoeln.eln.model.NotebookRequest;
+import com.epam.indigoeln.eln.model.ProjectDTO;
+import com.epam.indigoeln.eln.model.ProjectDetailsDTO;
+import com.epam.indigoeln.eln.model.ProjectRequest;
+import com.epam.indigoeln.eln.model.RoleRef;
+import com.epam.indigoeln.eln.model.UserDTO;
+import com.epam.indigoeln.eln.model.UserRequest;
 import com.epam.indigoeln.eln.test.HibernateLazyLoadStatisticsExtension;
 import com.epam.indigoeln.reaction.util.ExperimentObject;
 import com.epam.indigoeln.reports.api.ReportsClient;
+import com.epam.indigoeln.sampleregistration.api.SampleRegistrationAdminClient;
+import com.epam.indigoeln.sampleregistration.api.SampleRegistrationClient;
 import com.epam.indigoeln.signature.api.SignatureAdminClient;
 import com.epam.indigoeln.signature.api.SignatureClient;
 import com.epam.indigoeln.test.APICallException;
@@ -87,6 +108,7 @@ public abstract class ELNBaseTest extends BaseTest {
 
     protected ReportsClient reportsClient;
     protected SignatureClient signatureClient;
+    protected SampleRegistrationClient sampleRegistrationClient;
 
     protected UUID johnUserID;
     protected UUID willowUserID;
@@ -111,10 +133,12 @@ public abstract class ELNBaseTest extends BaseTest {
         testSupportClient = buildClient(TestSupportClient.class);
         reportsClient = buildClient(ReportsClient.class);
         signatureClient = buildClient(SignatureClient.class);
+        sampleRegistrationClient = buildClient(SampleRegistrationClient.class);
         if (integrationTest) {
-            SignatureAdminClient signatureAdminClient;
-            signatureAdminClient = buildClient(SignatureAdminClient.class);
+            SignatureAdminClient signatureAdminClient = buildClient(SignatureAdminClient.class);
             signatureAdminClient.migrate();
+            SampleRegistrationAdminClient sampleRegistrationAdminClient = buildClient(SampleRegistrationAdminClient.class);
+            sampleRegistrationAdminClient.migrate();
         }
         miscClient.migrate();
         createBasicTestData();
@@ -161,7 +185,6 @@ public abstract class ELNBaseTest extends BaseTest {
                 // samples, compounds
                 statement.executeUpdate("delete from Sample");
                 statement.executeUpdate("delete from Compound");
-                statement.executeUpdate("alter sequence compound_str_code_compound_seq restart");
             }
             connection.commit();
         } catch (SQLException e) {

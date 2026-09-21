@@ -1,10 +1,10 @@
 package com.epam.indigoeln.eln.util;
 
 import com.epam.indigoeln.compound.service.CompoundService;
-import com.epam.indigoeln.indigowrapper.IndigoAPI;
-import com.epam.indigoeln.indigowrapper.IndigoReaction;
-import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
-import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
+import com.epam.indigoeln.eln.indigowrapper.IndigoAPI;
+import com.epam.indigoeln.eln.indigowrapper.IndigoReaction;
+import com.epam.indigoeln.eln.indigowrapper.IndigoRendererAPI;
+import com.epam.indigoeln.common.model.units.MeasurementUnit;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;

@@ -26,7 +26,9 @@ tasks.named("processResources") {
 
 val buildDocker = tasks.register<Exec>("buildDocker") {
     outputs.upToDateWhen { false }
-    commandLine("docker", "build", "-f", "src/main/docker/Dockerfile.native", "-t", "indigoeln/eln-lambda:built", ".")
+    commandLine("docker", "build", "-f", "src/main/docker/Dockerfile.native", "-t", "indigoeln/sampleregistration-lambda:built", ".")
+    standardOutput = System.out
+    errorOutput = System.err
 }
 
 tasks.named("assemble") {

@@ -1,10 +1,15 @@
 package com.epam.indigoeln.reaction.util;
 
 import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.units.DensityUnit;
+import com.epam.indigoeln.common.model.units.MolUnit;
+import com.epam.indigoeln.common.model.units.MolarityUnit;
+import com.epam.indigoeln.common.model.units.VolumeUnit;
+import com.epam.indigoeln.common.model.units.WeightUnit;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.search.SampleSearchResult;
-import com.epam.indigoeln.compound.model.search.StructuralSearch;
+import com.epam.indigoeln.common.model.search.StructuralSearch;
 import com.epam.indigoeln.eln.client.CompoundClient;
 import com.epam.indigoeln.eln.client.ExperimentClient;
 import com.epam.indigoeln.eln.client.MiscClient;
@@ -13,7 +18,6 @@ import com.epam.indigoeln.eln.model.ExperimentStatus;
 import com.epam.indigoeln.eln.model.MutationResponse;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.*;
-import com.epam.indigoeln.reaction.model.units.*;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import jakarta.ws.rs.core.Response;

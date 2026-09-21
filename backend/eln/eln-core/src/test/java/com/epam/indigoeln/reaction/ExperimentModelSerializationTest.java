@@ -1,10 +1,11 @@
 package com.epam.indigoeln.reaction;
 
+import com.epam.indigoeln.common.model.MolFormula;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
-import com.epam.indigoeln.reaction.model.units.EnteredValue;
-import com.epam.indigoeln.reaction.model.units.MolUnit;
+import com.epam.indigoeln.reaction.model.EnteredValue;
+import com.epam.indigoeln.common.model.units.MolUnit;
 import com.epam.indigoeln.test.FeignUtil;
 import com.fasterxml.jackson.core.JacksonException;
 import org.junit.jupiter.api.Test;
@@ -12,9 +13,9 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.UUID;
 
-import static com.epam.indigoeln.reaction.model.units.EnteredValue.fixed;
-import static com.epam.indigoeln.reaction.model.units.MolWeightUnit.G_PER_MOL;
-import static com.epam.indigoeln.reaction.model.units.NoUnit.NO_UNIT;
+import static com.epam.indigoeln.reaction.model.EnteredValue.fixed;
+import static com.epam.indigoeln.common.model.units.MolWeightUnit.G_PER_MOL;
+import static com.epam.indigoeln.common.model.units.NoUnit.NO_UNIT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 

@@ -5,14 +5,14 @@ import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.search.SearchCatalog;
-import com.epam.indigoeln.compound.model.search.TextSearch;
+import com.epam.indigoeln.common.model.search.TextSearch;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.compound.service.search.CatalogSearchProvider;
 import com.epam.indigoeln.compound.service.search.CatalogSearchResult;
-import com.epam.indigoeln.eln.model.CompoundExternalSource;
-import com.epam.indigoeln.indigowrapper.IndigoAPI;
-import com.epam.indigoeln.indigowrapper.IndigoMolecule;
-import com.epam.indigoeln.reaction.model.MolFormula;
+import com.epam.indigoeln.eln.model.SampleSource;
+import com.epam.indigoeln.eln.indigowrapper.IndigoAPI;
+import com.epam.indigoeln.eln.indigowrapper.IndigoMolecule;
+import com.epam.indigoeln.common.model.MolFormula;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MultivaluedHashMap;
@@ -115,10 +115,7 @@ class PubChemCatalogSearchProvider implements CatalogSearchProvider {
     @Override
     public SampleEntity importSample(SampleDTO searchItem) {
         IndigoMolecule molecule = indigo.loadMolecule(checkNotNull(searchItem.getInchi()));
-        CompoundEntity compound = compoundService.findOrCreate(molecule, null, null, null, c -> {
-            c.setExternalSource(CompoundExternalSource.PUBCHEM);
-            c.setExternalNumber(searchItem.getCompoundKey());
-        });
+        CompoundEntity compound = compoundService.findOrCreate(molecule, null, null, null, SampleSource.PUBCHEM, searchItem.getCompoundKey());
         return compoundService.findOrCreateDefaultSample(compound);
     }
 }

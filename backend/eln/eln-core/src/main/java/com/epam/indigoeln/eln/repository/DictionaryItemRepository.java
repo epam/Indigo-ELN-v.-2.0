@@ -28,7 +28,7 @@ public class DictionaryItemRepository extends BaseRepository<DictionaryItemEntit
     DictionaryMapper dictionaryMapper;
 
     public DictionaryItemRepository() {
-        super(ELNEntityType.DICTIONARY_ITEM, DictionaryItemEntity.class);
+        super(DictionaryItemEntity.class);
     }
 
     public List<DictionaryItemEntity> listAll() {

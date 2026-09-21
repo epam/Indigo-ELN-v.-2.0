@@ -15,7 +15,7 @@ interface PubChemMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "nbkBatchNumber", ignore = true)
     @Mapping(target = "compoundKey", source = "cid")
-    @Mapping(target = "strCode", ignore = true)
+    @Mapping(target = "sampleKey", ignore = true)
     @Mapping(target = "saltCode", ignore = true)
     @Mapping(target = "saltEQ", ignore = true)
     @Mapping(target = "compoundID", ignore = true)

@@ -1,5 +1,8 @@
 package com.epam.indigoeln.compound.model.search;
 
+import com.epam.indigoeln.common.model.search.NumericSearch;
+import com.epam.indigoeln.common.model.search.StructuralSearch;
+import com.epam.indigoeln.common.model.search.TextSearch;
 import com.epam.indigoeln.eln.model.ComponentStateRef;
 import com.epam.indigoeln.eln.model.HealthHazardRef;
 import com.fasterxml.jackson.annotation.JsonInclude;

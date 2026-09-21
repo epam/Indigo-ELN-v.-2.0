@@ -9,7 +9,8 @@ public enum SearchCatalog {
 
     ELN(0),
     PUBCHEM(1000),
-    MY_MATERIALS(1);
+    MY_MATERIALS(1),
+    SAMPLE_REGISTRATION_SERVICE(2);
 
     @Getter
     private final int priority;

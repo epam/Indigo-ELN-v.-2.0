@@ -3,7 +3,6 @@ package com.epam.indigoeln.eln.repository;
 import com.epam.indigoeln.eln.common.repository.BaseRepository;
 import com.epam.indigoeln.eln.entity.RoleEntity;
 import com.epam.indigoeln.eln.mapper.RoleMapper;
-import com.epam.indigoeln.eln.model.ELNEntityType;
 import com.epam.indigoeln.eln.model.RoleDTO;
 import com.epam.indigoeln.eln.model.RoleRef;
 import io.quarkus.panache.common.Sort;
@@ -21,7 +20,7 @@ public class RoleRepository extends BaseRepository<RoleEntity> {
     RoleMapper roleMapper;
 
     public RoleRepository() {
-        super(ELNEntityType.ROLE, RoleEntity.class);
+        super(RoleEntity.class);
     }
 
     public List<RoleDTO> list() {

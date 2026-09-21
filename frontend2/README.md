@@ -58,18 +58,23 @@ expects. Sign in with a Cognito user from the pool in `.env.example`.
 
 ## Deploying
 
-Served at `https://<domain>/frontend2/`, from the same CloudFront distribution as the Angular app.
-The CDK stack uploads a **locally built** `dist/` — exactly as it does for the Angular app — so
-`pnpm run build` has to run before `deployment-aws/deploy.sh indigoeln-dev`.
+Served at `https://<domain>/`. The CDK stack uploads a **locally built** `dist/`, so `pnpm run build`
+has to run before `deployment-aws/deploy.sh indigoeln-dev`.
 
-Two pieces make that work, all in `deployment-aws`:
+Three pieces make that work, all in `deployment-aws`:
 
-- **`CloudFrontStack.java`** adds two behaviours, `/frontend2/assets/*` and `/frontend2*`, ordered
-  *before* the Angular app's `*.*` and its catch-all default. A viewer-request function rewrites
-  anything without a file extension to `/frontend2/index.html`, which is the deep-link fallback the
-  Angular app gets from its Lambda@Edge instead.
+- **Routing.** `CloudFrontStack.java` gives the bucket the distribution's *default* behaviour, with
+  `/assets/*` listed ahead of it for the content-hashed files. Deep links like `/projects/<uuid>` are
+  not S3 keys, so a viewer-request function rewrites anything without a file extension to
+  `/index.html`. It is a rewrite rather than a redirect, so the browser keeps the URL the router
+  reads.
+- **Response headers are declarative**, in two `ResponseHeadersPolicy` objects rather than a
+  viewer-response function: HSTS/`X-Content-Type-Options`/`X-Frame-Options` on both, the CSP and
+  `cache-control: no-store` on the shell, `immutable, max-age=31536000` on the assets. A CloudFront
+  Function would be easier to read but is documented not to run for a range of error responses —
+  exactly the responses on which those headers matter most.
 - **The CSP is hash-based**, not nonce-based: this build emits no inline script or style, so no
   per-request nonce — and therefore no Lambda@Edge — is needed. `vite build` writes the assembled
   policy to `dist/csp-hashes.json` as `policy`, `vite preview` serves that same string, and the CDK
-  bakes it into the viewer-response function at synth time. Changing the policy means editing
+  reads it into the shell's headers policy at synth time. Changing the policy means editing
   `buildPolicy()` in `vite.config.ts` and redeploying; there is no second copy to keep in sync.

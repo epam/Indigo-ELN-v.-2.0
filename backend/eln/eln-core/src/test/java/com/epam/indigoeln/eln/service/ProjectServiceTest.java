@@ -486,7 +486,7 @@ class ProjectServiceTest extends ELNBaseTest {
 
         assertThatClientCall(() ->
                 projectClient.createProjectAttachment(missingProjectId, "file.txt", CONTENT.getBytes())
-        ).isNotFound("PROJECT " + missingProjectId + " not found");
+        ).isNotFound("Project " + missingProjectId + " not found");
     }
 
     @Test

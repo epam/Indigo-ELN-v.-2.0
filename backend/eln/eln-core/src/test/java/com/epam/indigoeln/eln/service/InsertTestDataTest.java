@@ -13,9 +13,9 @@ import com.epam.indigoeln.reaction.model.SampleRegistrationStatus;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
 import com.epam.indigoeln.reaction.model.outputsample.*;
-import com.epam.indigoeln.reaction.model.units.DensityUnit;
-import com.epam.indigoeln.reaction.model.units.MolUnit;
-import com.epam.indigoeln.reaction.model.units.WeightUnit;
+import com.epam.indigoeln.common.model.units.DensityUnit;
+import com.epam.indigoeln.common.model.units.MolUnit;
+import com.epam.indigoeln.common.model.units.WeightUnit;
 import com.epam.indigoeln.reaction.util.ExperimentObject;
 import com.epam.indigoeln.signature.api.SignatureClient;
 import com.epam.indigoeln.signature.model.SignatureReason;
@@ -42,8 +42,8 @@ import static com.epam.indigoeln.eln.model.ExperimentStatus.SUBMITTED;
 import static com.epam.indigoeln.eln.test.EnteredValueAssert.assertThat;
 import static com.epam.indigoeln.eln.test.ReactionInputSampleAssert.assertThat;
 import static com.epam.indigoeln.eln.test.ReactionOutputSampleAssert.assertThat;
-import static com.epam.indigoeln.reaction.model.units.MolUnit.MMOL;
-import static com.epam.indigoeln.reaction.model.units.WeightUnit.G;
+import static com.epam.indigoeln.common.model.units.MolUnit.MMOL;
+import static com.epam.indigoeln.common.model.units.WeightUnit.G;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -274,13 +274,11 @@ class InsertTestDataTest {
         assertThat(experiment.reaction().getOutputs()).hasSizeGreaterThanOrEqualTo(2);
         assertThat(experiment.inputSample(1, 1)).hasWeight(100, G);
         assertThat(experiment.outputSample(2, 1).getRegistrationStatus()).isEqualTo(SampleRegistrationStatus.REGISTERED);
-        assertThat(experiment.outputSample(2, 1).getSampleId()).isNotNull();
         assertThat(experiment.outputSample(2, 1)).hasActualMol(200, MMOL);
         assertThat(experiment.outputSample(2, 1)).hasActualWeight(10, G);
         assertThat(experiment.outputSample(2, 1).getPurity()).hasValue(0.5);
         assertThat(experiment.outputSample(2, 1).getBatchComment()).isEqualTo(BATCH_COMMENT);
         assertThat(experiment.outputSample(2, 2).getRegistrationStatus()).isEqualTo(SampleRegistrationStatus.REGISTERED);
-        assertThat(experiment.outputSample(2, 2).getSampleId()).isNotNull();
     }
 
     @Test

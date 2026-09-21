@@ -1,12 +1,19 @@
 package com.epam.indigoeln.reaction.model;
 
+import com.epam.indigoeln.common.model.units.DensityUnit;
+import com.epam.indigoeln.common.model.units.MolarityUnit;
+import com.epam.indigoeln.common.model.units.NoUnit;
+import com.epam.indigoeln.common.model.units.VolumeUnit;
 import com.epam.indigoeln.eln.model.HealthHazardRef;
-import com.epam.indigoeln.eln.model.STRCodeSample;
-import com.epam.indigoeln.reaction.model.units.*;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -34,7 +41,7 @@ public sealed abstract class ReactionSample<P extends ReactionRow> implements Ex
     protected EnteredValue<NoUnit> purity;
 
     @Nullable
-    protected STRCodeSample strCode;
+    protected String sampleKey;
 
     @NotNull
     protected List<HealthHazardRef> healthHazards = List.of();

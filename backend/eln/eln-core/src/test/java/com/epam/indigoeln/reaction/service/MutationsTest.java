@@ -1,14 +1,48 @@
 package com.epam.indigoeln.reaction.service;
 
+import com.epam.indigoeln.common.model.units.DensityUnit;
+import com.epam.indigoeln.common.model.units.MolUnit;
+import com.epam.indigoeln.common.model.units.MolarityUnit;
+import com.epam.indigoeln.common.model.units.VolumeUnit;
+import com.epam.indigoeln.common.model.units.WeightUnit;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.search.SampleSearchResult;
 import com.epam.indigoeln.eln.ELNBaseTest;
-import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.reaction.model.*;
-import com.epam.indigoeln.reaction.model.mutation.*;
-import com.epam.indigoeln.reaction.model.outputsample.*;
-import com.epam.indigoeln.reaction.model.units.*;
+import com.epam.indigoeln.eln.model.BuiltInDictionary;
+import com.epam.indigoeln.eln.model.ComponentStateRef;
+import com.epam.indigoeln.eln.model.CompoundProtectionRef;
+import com.epam.indigoeln.eln.model.ExternalSupplierRef;
+import com.epam.indigoeln.eln.model.HandlingPrecautionsRef;
+import com.epam.indigoeln.eln.model.HealthHazardRef;
+import com.epam.indigoeln.eln.model.SaltCodeRef;
+import com.epam.indigoeln.eln.model.SampleSourceDetailsRef;
+import com.epam.indigoeln.eln.model.SampleSourceRef;
+import com.epam.indigoeln.eln.model.SolventRef;
+import com.epam.indigoeln.eln.model.StereoisomerCodeRef;
+import com.epam.indigoeln.eln.model.StorageInstructionsRef;
+import com.epam.indigoeln.reaction.model.ComparisonOperator;
+import com.epam.indigoeln.reaction.model.CompoundRef;
+import com.epam.indigoeln.reaction.model.InputAnchor;
+import com.epam.indigoeln.reaction.model.InputSampleAnchor;
+import com.epam.indigoeln.reaction.model.OutputAnchor;
+import com.epam.indigoeln.reaction.model.OutputSampleAnchor;
+import com.epam.indigoeln.reaction.model.ReactionAnchor;
+import com.epam.indigoeln.reaction.model.ReactionOutputType;
+import com.epam.indigoeln.reaction.model.ReactionRole;
+import com.epam.indigoeln.reaction.model.SampleRegistrationStatus;
+import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionInputSampleMutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
+import com.epam.indigoeln.reaction.model.outputsample.ExternalSupplier;
+import com.epam.indigoeln.reaction.model.outputsample.MeltingPoint;
+import com.epam.indigoeln.reaction.model.outputsample.PurityCalculation;
+import com.epam.indigoeln.reaction.model.outputsample.PurityCalculationType;
+import com.epam.indigoeln.reaction.model.outputsample.ResidualSolvent;
+import com.epam.indigoeln.reaction.model.outputsample.SolubidityInSolvent;
 import com.epam.indigoeln.test.ClientUtil;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
@@ -16,24 +50,28 @@ import jakarta.validation.constraints.NotNull;
 import one.util.streamex.IntStreamEx;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.data.Offset;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import java.io.File;
 import java.util.List;
 import java.util.Set;
 
 import static com.epam.indigoeln.common.model.Paging.DEFAULT_PAGE_SIZE;
+import static com.epam.indigoeln.common.model.units.DensityUnit.G_ML;
+import static com.epam.indigoeln.common.model.units.MolUnit.MMOL;
+import static com.epam.indigoeln.common.model.units.MolarityUnit.MM;
+import static com.epam.indigoeln.common.model.units.VolumeUnit.ML;
+import static com.epam.indigoeln.common.model.units.WeightUnit.G;
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
 import static com.epam.indigoeln.compound.model.search.SearchCatalog.ELN;
 import static com.epam.indigoeln.eln.test.EnteredValueAssert.assertThat;
 import static com.epam.indigoeln.eln.test.ReactionInputAssert.assertThat;
 import static com.epam.indigoeln.eln.test.ReactionInputSampleAssert.assertThat;
 import static com.epam.indigoeln.eln.test.ReactionOutputSampleAssert.assertThat;
-import static com.epam.indigoeln.reaction.model.units.DensityUnit.G_ML;
-import static com.epam.indigoeln.reaction.model.units.MolUnit.MMOL;
-import static com.epam.indigoeln.reaction.model.units.MolarityUnit.MM;
-import static com.epam.indigoeln.reaction.model.units.VolumeUnit.ML;
-import static com.epam.indigoeln.reaction.model.units.WeightUnit.G;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
@@ -449,8 +487,7 @@ public class MutationsTest extends MutationsTestBase {
         experiment.mutateAddProductSample(1);
         experiment.mutate(new ReactionOutputSampleMutation.RegisterSample(experiment.outputSample(1, 1).getAnchor()), false); // register sample is not undoable
         assertThat(experiment.outputSample(1, 1).getRegistrationStatus()).isEqualTo(SampleRegistrationStatus.REGISTERED);
-        assertThat(experiment.outputSample(1, 1).getSampleId()).isNotNull();
-        assertThat(experiment.outputSample(1, 1).getStrCode()).isNotNull();
+        assertThat(experiment.outputSample(1, 1).getSampleKey()).isNotNull();
     }
 
     @Test

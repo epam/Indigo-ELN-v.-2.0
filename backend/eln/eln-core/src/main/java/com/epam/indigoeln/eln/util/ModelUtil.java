@@ -6,7 +6,9 @@ import com.epam.indigoeln.eln.entity.AbstractAttachment;
 import com.epam.indigoeln.eln.entity.BaseEntity;
 import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.entity.WithAttachments;
+import com.epam.indigoeln.eln.model.SaltCodeRef;
 import com.epam.indigoeln.reaction.util.ThrowingRunnable;
+import com.epam.indigoeln.sampleregistration.model.SampleRegistrationRequest;
 import lombok.SneakyThrows;
 import one.util.streamex.StreamEx;
 import org.hibernate.exception.ConstraintViolationException;
@@ -71,17 +73,6 @@ public class ModelUtil {
         wrapConstraintViolation(function.asCallable(), errorMapper);
     }
 
-    @Nullable
-    public static String calculateCompoundKey(CompoundEntity compound) {
-        if (compound.getStrCode() != null) {
-            return compound.getStrCode().toString();
-        }
-        if (compound.getExternalNumber() != null) {
-            return compound.getExternalNumber();
-        }
-        return null;
-    }
-
     public static <P extends BaseEntity & WithAttachments<A>, A extends AbstractAttachment<P>> void restoreAttachments(P target, List<A> from) {
         Set<A> targetSet = new HashSet<>(from);
         for (A current : List.copyOf(target.getAttachments())) {
@@ -96,5 +87,17 @@ public class ModelUtil {
                 target.getAttachments().add(attachment);
             }
         }
+    }
+
+    public static SampleRegistrationRequest.SampleRegistrationRequestBuilder buildSampleRegistrationRequest(CompoundEntity compound, @Nullable SaltCodeRef saltCode) {
+        return SampleRegistrationRequest.builder()
+                .molfile(compound.getMolFile())
+                .stereoisomerCode(compound.getStereoisomerCode() != null ? compound.getStereoisomerCode().getId() : null)
+                .saltCode(saltCode != null ? saltCode.getId() : null)
+                .saltCodeNumeric(saltCode != null ? Integer.parseInt(saltCode.getCode()) : null)
+                .saltEQ100(compound.getSaltEQ100())
+                .molWeight(compound.getMolWeight())
+                .exactMass(compound.getExactMass())
+                .chemicalName(compound.getChemicalName());
     }
 }

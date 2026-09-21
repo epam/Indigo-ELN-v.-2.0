@@ -1,8 +1,8 @@
 package com.epam.indigoeln.reaction.service.mutation.experiment.listener;
 
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
-import com.epam.indigoeln.indigowrapper.IndigoAPI;
-import com.epam.indigoeln.indigowrapper.IndigoReaction;
+import com.epam.indigoeln.eln.indigowrapper.IndigoAPI;
+import com.epam.indigoeln.eln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.ReactionAnchor;
 import com.epam.indigoeln.reaction.service.ExperimentModelHelperService;

@@ -1,7 +1,7 @@
 package com.epam.indigoeln.reaction.metamodel.property;
 
-import com.epam.indigoeln.reaction.model.units.EnteredValue;
-import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
+import com.epam.indigoeln.reaction.model.EnteredValue;
+import com.epam.indigoeln.common.model.units.MeasurementUnit;
 import com.google.common.base.Preconditions;
 import org.jspecify.annotations.Nullable;
 
@@ -18,7 +18,7 @@ public record ModelProperty<C, I extends @Nullable Object>(
         boolean isEnteredValue
 ) {
 
-    public static <C, T> ModelProperty<C, T> property(String name
+    public static <C, T extends @Nullable Object> ModelProperty<C, T> property(String name
             , Function<C, T> getter, @Nullable BiConsumer<C, T> setter
     ) {
         return new ModelProperty<>(name, getter, setter, null, null, false);

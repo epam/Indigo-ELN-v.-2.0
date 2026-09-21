@@ -1,1 +1,1 @@
-com.epam.indigoeln.eln.config.hibernate.HibernateContributor
+com.epam.indigoeln.eln.common.config.HibernateContributor

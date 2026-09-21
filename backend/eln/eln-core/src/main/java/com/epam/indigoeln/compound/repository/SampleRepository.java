@@ -1,7 +1,9 @@
 package com.epam.indigoeln.compound.repository;
 
+import com.epam.indigoeln.common.model.MolFormula;
 import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.search.StructuralSearch;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.entity.CompoundEntity_;
 import com.epam.indigoeln.compound.entity.SampleEntity;
@@ -9,17 +11,11 @@ import com.epam.indigoeln.compound.entity.SampleEntity_;
 import com.epam.indigoeln.compound.mapper.SampleMapper;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
-import com.epam.indigoeln.compound.model.search.StructuralSearch;
 import com.epam.indigoeln.eln.common.repository.BaseRepository;
-import com.epam.indigoeln.eln.model.ELNEntityType;
-import com.epam.indigoeln.eln.model.STRCodeSample;
-import com.epam.indigoeln.eln.util.CriteriaConditions;
-import com.epam.indigoeln.reaction.model.MolFormula;
+import com.epam.indigoeln.eln.util.ELNCriteriaConditions;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.Tuple;
-import org.hibernate.query.NativeQuery;
-import org.hibernate.query.SynchronizeableQuery;
 import org.hibernate.query.criteria.CriteriaDefinition;
 import org.hibernate.query.criteria.JpaJoin;
 import org.hibernate.query.criteria.JpaRoot;
@@ -35,10 +31,10 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
     @Inject
     SampleMapper sampleMapper;
     @Inject
-    CriteriaConditions.Factory criteriaConditionsFactory;
+    ELNCriteriaConditions.Factory criteriaConditionsFactory;
 
     public SampleRepository() {
-        super(ELNEntityType.SAMPLE, SampleEntity.class);
+        super(SampleEntity.class);
     }
 
     @Nullable
@@ -69,7 +65,7 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
                 conditions.textSearch(compound.get(CompoundEntity_.compoundKey), request.getCompoundKey());
                 conditions.textSearch(root.get(SampleEntity_.nbkBatchNumber).cast(String.class), request.getNbkBatchNumber());
                 conditions.textSearch(compound.get(CompoundEntity_.casNumber), request.getCasNumber());
-                conditions.textSearch(root.get(SampleEntity_.externalNumber), request.getExternalNumber());
+                conditions.textSearch(root.get(SampleEntity_.sampleKey), request.getExternalNumber());
                 conditions.textSearch(compound.get(CompoundEntity_.formula).cast(String.class), request.getMolecularFormula(), MolFormula::normalize);
                 conditions.numericSearch(compound.get(CompoundEntity_.molWeight), request.getMolWeight());
                 conditions.textSearch(compound.get(CompoundEntity_.chemicalName), request.getChemicalName());
@@ -85,19 +81,5 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
         Paging paging = new Paging(pageNo, pageSize);
         Page<SampleEntity> page = doFindWithTotals(criteria, paging, em.getEntityGraph("Sample.find"));
         return map(page, sampleMapper::sampleToDTO);
-    }
-
-    @Nullable
-    public STRCodeSample getLastSampleStrCode(String compoundStrCode) {
-        //noinspection unchecked
-        NativeQuery<String> query = (NativeQuery<String>) em.createNativeQuery("select str_code from Sample where str_code like ?1 order by str_code desc", String.class);
-        query.unwrap(SynchronizeableQuery.class).addSynchronizedEntityClass(SampleEntity.class);
-        return query
-                .setParameter(1, compoundStrCode + '%')
-                .setMaxResults(1)
-                .getResultStream()
-                .findFirst()
-                .map(STRCodeSample::parse)
-                .orElse(null);
     }
 }

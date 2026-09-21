@@ -3,9 +3,9 @@ package com.epam.indigoeln.reaction.metamodel;
 import com.epam.indigoeln.reaction.metamodel.property.Metamodel;
 import com.epam.indigoeln.reaction.metamodel.property.ModelProperty;
 import com.epam.indigoeln.reaction.model.*;
-import com.epam.indigoeln.reaction.model.units.EnteredValue;
-import com.epam.indigoeln.reaction.model.units.MolUnit;
-import com.epam.indigoeln.reaction.model.units.NoUnit;
+import com.epam.indigoeln.reaction.model.EnteredValue;
+import com.epam.indigoeln.common.model.units.MolUnit;
+import com.epam.indigoeln.common.model.units.NoUnit;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;

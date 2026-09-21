@@ -1,7 +1,7 @@
 package com.epam.indigoeln.reaction.service.calculator;
 
-import com.epam.indigoeln.reaction.model.units.EnteredValue;
-import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
+import com.epam.indigoeln.reaction.model.EnteredValue;
+import com.epam.indigoeln.common.model.units.MeasurementUnit;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;

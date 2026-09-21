@@ -7,7 +7,7 @@ import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import jakarta.enterprise.context.Dependent;
 
-import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE_HUNDRED;
+import static com.epam.indigoeln.reaction.model.EnteredValue.DEFAULT_ONE_HUNDRED;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Dependent

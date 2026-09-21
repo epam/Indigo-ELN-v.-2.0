@@ -1,5 +1,15 @@
 package com.epam.indigoeln.reaction.service.calculator;
 
+import com.epam.indigoeln.common.model.units.DensityUnit;
+import com.epam.indigoeln.reaction.model.EnteredValue;
+import com.epam.indigoeln.common.model.units.EnteredValueSource;
+import com.epam.indigoeln.common.model.units.MeasurementUnit;
+import com.epam.indigoeln.common.model.units.MolUnit;
+import com.epam.indigoeln.common.model.units.MolWeightUnit;
+import com.epam.indigoeln.common.model.units.MolarityUnit;
+import com.epam.indigoeln.common.model.units.NoUnit;
+import com.epam.indigoeln.common.model.units.VolumeUnit;
+import com.epam.indigoeln.common.model.units.WeightUnit;
 import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.reaction.metamodel.ReactionInputMetamodel;
 import com.epam.indigoeln.reaction.metamodel.ReactionInputSampleMetamodel;
@@ -7,7 +17,6 @@ import com.epam.indigoeln.reaction.metamodel.ReactionOutputMetamodel;
 import com.epam.indigoeln.reaction.metamodel.ReactionOutputSampleMetamodel;
 import com.epam.indigoeln.reaction.metamodel.property.ModelProperty;
 import com.epam.indigoeln.reaction.model.*;
-import com.epam.indigoeln.reaction.model.units.*;
 import jakarta.enterprise.context.Dependent;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +27,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.*;
 import java.util.function.Supplier;
 
-import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE;
+import static com.epam.indigoeln.reaction.model.EnteredValue.DEFAULT_ONE;
 import static com.epam.indigoeln.reaction.service.calculator.EnteredValueOpt.*;
 import static com.google.common.base.Preconditions.checkState;
 

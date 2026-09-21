@@ -2,10 +2,10 @@ package com.epam.indigoeln.eln.entity;
 
 import com.epam.indigoeln.eln.config.hibernate.ACLEntryArrayType;
 import com.epam.indigoeln.eln.config.hibernate.ExperimentCountArrayType;
-import com.epam.indigoeln.eln.config.hibernate.SearchVectorType;
+import com.epam.indigoeln.eln.common.config.SearchVectorType;
 import com.epam.indigoeln.eln.model.AccessLevel;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
-import com.epam.indigoeln.eln.util.SearchVector;
+import com.epam.indigoeln.eln.common.util.SearchVector;
 import jakarta.persistence.*;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.NamedEntityGraph;

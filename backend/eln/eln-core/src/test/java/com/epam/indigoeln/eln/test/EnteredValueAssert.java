@@ -1,6 +1,10 @@
 package com.epam.indigoeln.eln.test;
 
-import com.epam.indigoeln.reaction.model.units.*;
+import com.epam.indigoeln.common.model.units.DensityUnit;
+import com.epam.indigoeln.reaction.model.EnteredValue;
+import com.epam.indigoeln.common.model.units.MeasurementUnit;
+import com.epam.indigoeln.common.model.units.MolWeightUnit;
+import com.epam.indigoeln.common.model.units.NoUnit;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import org.apache.commons.math3.util.Precision;

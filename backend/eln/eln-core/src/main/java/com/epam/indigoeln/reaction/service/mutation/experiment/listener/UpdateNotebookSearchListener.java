@@ -2,7 +2,7 @@ package com.epam.indigoeln.reaction.service.mutation.experiment.listener;
 
 import com.epam.indigoeln.eln.entity.NotebookEntity;
 import com.epam.indigoeln.eln.service.GlobalSearchService;
-import com.epam.indigoeln.eln.util.SearchVector;
+import com.epam.indigoeln.eln.common.util.SearchVector;
 import com.epam.indigoeln.reaction.model.NotebookSnapshot;
 import com.epam.indigoeln.reaction.service.mutation.ExperimentMutationListener;
 import com.epam.indigoeln.reaction.service.mutation.NotebookMutationListener;

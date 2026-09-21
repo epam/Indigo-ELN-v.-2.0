@@ -5,13 +5,16 @@ import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.common.repository.BaseRepository;
-import com.epam.indigoeln.eln.entity.*;
+import com.epam.indigoeln.eln.entity.ProjectEntity;
+import com.epam.indigoeln.eln.entity.ProjectEntity_;
+import com.epam.indigoeln.eln.entity.ProjectRevisionEntity;
+import com.epam.indigoeln.eln.entity.TotalCountsEntity;
+import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.mapper.ProjectMapper;
-import com.epam.indigoeln.eln.model.ELNEntityType;
 import com.epam.indigoeln.eln.model.ProjectDTO;
 import com.epam.indigoeln.eln.model.TotalCounts;
 import com.epam.indigoeln.eln.service.ACLService;
-import com.epam.indigoeln.eln.util.CriteriaConditions;
+import com.epam.indigoeln.eln.util.ELNCriteriaConditions;
 import com.google.common.base.MoreObjects;
 import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -42,10 +45,10 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
     ACLService aclService;
 
     @Inject
-    CriteriaConditions.Factory criteriaConditionsFactory;
+    ELNCriteriaConditions.Factory criteriaConditionsFactory;
 
     public ProjectRepository() {
-        super(ELNEntityType.PROJECT, ProjectEntity.class);
+        super(ProjectEntity.class);
     }
 
     public Page<ProjectDTO> findAll(@Nullable String search, @Nullable SortOrder sort, @Nullable UserEntity createdByUser, Paging paging, boolean showAll) {
@@ -88,7 +91,7 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
                 .setParameter(1, id)
                 .getResultList();
         if (locked.isEmpty()) {
-            throw new EntityNotFoundException(entityType, id);
+            throw new EntityNotFoundException("Project", id);
         }
     }
 

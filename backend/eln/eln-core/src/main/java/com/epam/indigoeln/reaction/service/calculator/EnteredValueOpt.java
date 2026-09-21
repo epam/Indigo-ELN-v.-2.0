@@ -2,10 +2,10 @@ package com.epam.indigoeln.reaction.service.calculator;
 
 import com.epam.indigoeln.reaction.metamodel.property.ModelProperty;
 import com.epam.indigoeln.reaction.model.*;
-import com.epam.indigoeln.reaction.model.units.EnteredValue;
-import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
-import com.epam.indigoeln.reaction.model.units.MolUnit;
-import com.epam.indigoeln.reaction.model.units.NoUnit;
+import com.epam.indigoeln.reaction.model.EnteredValue;
+import com.epam.indigoeln.common.model.units.MeasurementUnit;
+import com.epam.indigoeln.common.model.units.MolUnit;
+import com.epam.indigoeln.common.model.units.NoUnit;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -15,8 +15,8 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.epam.indigoeln.reaction.model.units.EnteredValue.defaultValue;
-import static com.epam.indigoeln.reaction.model.units.EnteredValue.fixed;
+import static com.epam.indigoeln.reaction.model.EnteredValue.defaultValue;
+import static com.epam.indigoeln.reaction.model.EnteredValue.fixed;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Getter

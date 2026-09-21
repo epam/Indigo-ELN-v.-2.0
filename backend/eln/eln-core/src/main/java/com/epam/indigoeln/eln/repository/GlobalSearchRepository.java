@@ -7,10 +7,25 @@ import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.entity.CompoundEntity_;
-import com.epam.indigoeln.eln.entity.*;
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.entity.ExperimentEntity;
+import com.epam.indigoeln.eln.entity.ExperimentEntity_;
+import com.epam.indigoeln.eln.entity.ExperimentSearchBatch;
+import com.epam.indigoeln.eln.entity.ExperimentSearchBatch_;
+import com.epam.indigoeln.eln.entity.ExperimentSearchCompound;
+import com.epam.indigoeln.eln.entity.ExperimentSearchCompound_;
+import com.epam.indigoeln.eln.entity.NotebookEntity;
+import com.epam.indigoeln.eln.entity.NotebookEntity_;
+import com.epam.indigoeln.eln.entity.ProjectEntity;
+import com.epam.indigoeln.eln.entity.ProjectEntity_;
+import com.epam.indigoeln.eln.entity.UserEntity;
+import com.epam.indigoeln.eln.entity.UserEntity_;
+import com.epam.indigoeln.eln.model.ApplicationPermission;
+import com.epam.indigoeln.eln.model.ELNEntityType;
+import com.epam.indigoeln.eln.model.ExperimentStatus;
+import com.epam.indigoeln.eln.model.GlobalSearchRequest;
+import com.epam.indigoeln.eln.model.GlobalSearchResultDTO;
 import com.epam.indigoeln.eln.service.UserService;
-import com.epam.indigoeln.eln.util.CriteriaConditions;
+import com.epam.indigoeln.eln.util.ELNCriteriaConditions;
 import com.epam.indigoeln.reaction.model.ReactionRole;
 import com.google.common.collect.Lists;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -24,7 +39,15 @@ import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Selection;
 import one.util.streamex.EntryStream;
-import org.hibernate.query.criteria.*;
+import org.hibernate.query.criteria.CriteriaDefinition;
+import org.hibernate.query.criteria.HibernateCriteriaBuilder;
+import org.hibernate.query.criteria.JpaCteCriteria;
+import org.hibernate.query.criteria.JpaDerivedRoot;
+import org.hibernate.query.criteria.JpaEntityJoin;
+import org.hibernate.query.criteria.JpaJoin;
+import org.hibernate.query.criteria.JpaRoot;
+import org.hibernate.query.criteria.JpaSetJoin;
+import org.hibernate.query.criteria.JpaSubQuery;
 
 import java.time.Instant;
 import java.util.List;
@@ -44,7 +67,7 @@ public class GlobalSearchRepository {
     @Inject
     UserService userService;
     @Inject
-    CriteriaConditions.Factory criteriaConditionsFactory;
+    ELNCriteriaConditions.Factory criteriaConditionsFactory;
     @Inject
     HibernateCriteriaBuilder cb;
     @PersistenceContext

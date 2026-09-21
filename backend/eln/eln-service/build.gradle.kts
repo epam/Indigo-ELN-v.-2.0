@@ -7,8 +7,6 @@ plugins {
 dependencies {
     implementation(project(":common:common-service"))
     implementation(project(":eln:eln-core"))
-    testImplementation(project(":common:common-test"))
-    testImplementation(project(path = ":eln:eln-core", configuration = "testArtifacts"))
 }
 
 group = "com.epam.indigoeln"
@@ -32,6 +30,8 @@ tasks.withType<Test> {
 val buildDocker = tasks.register<Exec>("buildDocker") {
     outputs.upToDateWhen { false }
     commandLine("docker", "build", "-f", "src/main/docker/Dockerfile.jvm", "-t", "indigoeln/eln-service:built", ".")
+    standardOutput = System.out
+    errorOutput = System.err
 }
 
 tasks.named("assemble") {

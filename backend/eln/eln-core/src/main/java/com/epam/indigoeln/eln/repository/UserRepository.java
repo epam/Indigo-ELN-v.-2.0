@@ -31,7 +31,7 @@ public class UserRepository extends BaseRepository<UserEntity> {
     UserMapper userMapper;
 
     public UserRepository() {
-        super(ELNEntityType.USER, UserEntity.class);
+        super(UserEntity.class);
     }
 
     @Nullable

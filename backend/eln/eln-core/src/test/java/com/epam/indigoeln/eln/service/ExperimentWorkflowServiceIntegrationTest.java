@@ -16,11 +16,13 @@ import com.epam.indigoeln.signature.model.SignatureReason;
 import com.epam.indigoeln.signature.model.SignatureStatus;
 import com.epam.indigoeln.signature.model.SignatureTemplateBlock;
 import com.epam.indigoeln.signature.model.SignatureTemplateRequest;
+import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import lombok.SneakyThrows;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -39,7 +41,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 
-// no @QuarkusTest - subclassed in integrationTests
+@Disabled // overridden in integrationTests modules
+@QuarkusTest
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
 class ExperimentWorkflowServiceIntegrationTest extends ELNBaseTest {
 

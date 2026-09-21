@@ -5,12 +5,21 @@ import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.common.repository.BaseRepository;
-import com.epam.indigoeln.eln.entity.*;
+import com.epam.indigoeln.eln.entity.ExperimentEntity;
+import com.epam.indigoeln.eln.entity.ExperimentEntity_;
+import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
+import com.epam.indigoeln.eln.entity.NotebookEntity;
+import com.epam.indigoeln.eln.entity.NotebookEntity_;
+import com.epam.indigoeln.eln.entity.ProjectEntity;
+import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.mapper.ExperimentMapper;
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.model.ApplicationPermission;
+import com.epam.indigoeln.eln.model.ExperimentDTO;
+import com.epam.indigoeln.eln.model.ExperimentRef;
+import com.epam.indigoeln.eln.model.ExperimentStatus;
 import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.UserService;
-import com.epam.indigoeln.eln.util.CriteriaConditions;
+import com.epam.indigoeln.eln.util.ELNCriteriaConditions;
 import com.google.common.base.MoreObjects;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -24,7 +33,11 @@ import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ModelUtil.map;
 
@@ -35,10 +48,10 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
     private static final String EXPERIMENT_PARAM = "experiment";
 
     @Inject
-    CriteriaConditions.Factory criteriaConditionsFactory;
+    ELNCriteriaConditions.Factory criteriaConditionsFactory;
 
     public ExperimentRepository() {
-        super(ELNEntityType.EXPERIMENT, ExperimentEntity.class);
+        super(ExperimentEntity.class);
     }
 
     @Inject
@@ -86,7 +99,7 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
                 .setParameter(1, id)
                 .getResultList();
         if (locked.isEmpty()) {
-            throw new EntityNotFoundException(entityType, id);
+            throw new EntityNotFoundException("Experiment", id);
         }
     }
 

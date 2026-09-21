@@ -8,22 +8,22 @@
 	<parameter name="dateFormat" forPrompting="false" class="java.time.format.DateTimeFormatter"/>
 	<dataset name="Inputs" uuid="701269d9-ac0a-4cc3-b899-85b26bd171c2">
 		<field name="row" class="com.epam.indigoeln.reaction.model.ReactionInput"/>
-		<field name="molarity" class="com.epam.indigoeln.reaction.model.units.EnteredValue"/>
-		<field name="volume" class="com.epam.indigoeln.reaction.model.units.EnteredValue"/>
-		<field name="purity" class="com.epam.indigoeln.reaction.model.units.EnteredValue"/>
+		<field name="molarity" class="com.epam.indigoeln.reaction.model.EnteredValue"/>
+		<field name="volume" class="com.epam.indigoeln.reaction.model.EnteredValue"/>
+		<field name="purity" class="com.epam.indigoeln.reaction.model.EnteredValue"/>
 		<field name="healthHazards" class="java.util.List"/>
-		<field name="mol" class="com.epam.indigoeln.reaction.model.units.EnteredValue"/>
-		<field name="weight" class="com.epam.indigoeln.reaction.model.units.EnteredValue"/>
+		<field name="mol" class="com.epam.indigoeln.reaction.model.EnteredValue"/>
+		<field name="weight" class="com.epam.indigoeln.reaction.model.EnteredValue"/>
 		<field name="comment" class="java.lang.String"/>
 	</dataset>
 	<dataset name="Outputs" uuid="73ff5ca0-0845-4b70-83eb-75683c38719a">
 		<field name="row" class="com.epam.indigoeln.reaction.model.ReactionOutput"/>
-		<field name="molarity" class="com.epam.indigoeln.reaction.model.units.EnteredValue"/>
-		<field name="volume" class="com.epam.indigoeln.reaction.model.units.EnteredValue"/>
-		<field name="purity" class="com.epam.indigoeln.reaction.model.units.EnteredValue"/>
+		<field name="molarity" class="com.epam.indigoeln.reaction.model.EnteredValue"/>
+		<field name="volume" class="com.epam.indigoeln.reaction.model.EnteredValue"/>
+		<field name="purity" class="com.epam.indigoeln.reaction.model.EnteredValue"/>
 		<field name="healthHazards" class="java.util.List"/>
-		<field name="actualMol" class="com.epam.indigoeln.reaction.model.units.EnteredValue"/>
-		<field name="actualWeight" class="com.epam.indigoeln.reaction.model.units.EnteredValue"/>
+		<field name="actualMol" class="com.epam.indigoeln.reaction.model.EnteredValue"/>
+		<field name="actualWeight" class="com.epam.indigoeln.reaction.model.EnteredValue"/>
 	</dataset>
 	<query language="JSON"><![CDATA[]]></query>
 	<field name="project" class="com.epam.indigoeln.eln.model.ProjectDTO"/>

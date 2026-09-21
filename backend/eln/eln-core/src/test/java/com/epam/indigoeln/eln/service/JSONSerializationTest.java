@@ -8,8 +8,8 @@ import com.epam.indigoeln.eln.model.TemplateComponent;
 import com.epam.indigoeln.eln.model.TemplateTab;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.units.EnteredValue;
-import com.epam.indigoeln.reaction.model.units.WeightUnit;
+import com.epam.indigoeln.reaction.model.EnteredValue;
+import com.epam.indigoeln.common.model.units.WeightUnit;
 import com.epam.indigoeln.test.FeignUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,7 +32,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.epam.indigoeln.eln.test.EnteredValueAssert.assertThat;
-import static com.epam.indigoeln.reaction.model.units.WeightUnit.G;
+import static com.epam.indigoeln.common.model.units.WeightUnit.G;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest

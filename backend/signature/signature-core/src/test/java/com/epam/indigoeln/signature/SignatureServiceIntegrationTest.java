@@ -18,10 +18,12 @@ import com.epam.indigoeln.signature.model.SignatureTemplateRequest;
 import com.epam.indigoeln.test.APICallException;
 import com.epam.indigoeln.test.BaseTest;
 import com.epam.indigoeln.test.FeignUtil;
+import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -41,7 +43,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assumptions.assumeThat;
 
 
-// no @QuarkusTest - subclassed in integrationTests
+@Disabled // overridden in integrationTests modules
+@QuarkusTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestSecurity(user = "john")

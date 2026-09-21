@@ -8,13 +8,13 @@ import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.mapper.DictionaryMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.DictionaryService;
-import com.epam.indigoeln.indigowrapper.IndigoMolecule;
+import com.epam.indigoeln.eln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
-import com.epam.indigoeln.reaction.model.units.DensityUnit;
-import com.epam.indigoeln.reaction.model.units.EnteredValue;
-import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
-import com.epam.indigoeln.reaction.model.units.NoUnit;
+import com.epam.indigoeln.common.model.units.DensityUnit;
+import com.epam.indigoeln.reaction.model.EnteredValue;
+import com.epam.indigoeln.common.model.units.MeasurementUnit;
+import com.epam.indigoeln.common.model.units.NoUnit;
 import com.google.common.base.Preconditions;
 import jakarta.inject.Inject;
 import one.util.streamex.StreamEx;
@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import static com.epam.indigoeln.common.exception.InvalidRequestException.fail;
-import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE;
-import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE_HUNDRED;
+import static com.epam.indigoeln.reaction.model.EnteredValue.DEFAULT_ONE;
+import static com.epam.indigoeln.reaction.model.EnteredValue.DEFAULT_ONE_HUNDRED;
 import static com.google.common.base.MoreObjects.firstNonNull;
 
 public abstract class ExperimentEditMutationHandlerBase<T extends ExperimentMutation> extends AbstractExperimentMutationHandler<T> {
@@ -116,8 +116,11 @@ public abstract class ExperimentEditMutationHandlerBase<T extends ExperimentMuta
     }
 
     public Object getSampleIdentifier(SampleEntity sample) {
-        if (sample.getStrCode() != null) {
-            return sample.getStrCode();
+        if (sample.getSampleKey() != null) {
+            return sample.getSampleKey();
+        }
+        if (sample.getNbkBatchNumber() != null) {
+            return sample.getNbkBatchNumber();
         }
         return "unknown sample";
     }
@@ -127,7 +130,7 @@ public abstract class ExperimentEditMutationHandlerBase<T extends ExperimentMuta
 
         ReactionInputSample reactionInputSample = ReactionInputSample.create(row, anchor);
         reactionInputSample.setSampleId(sample.getId());
-        reactionInputSample.setStrCode(sample.getStrCode());
+        reactionInputSample.setSampleKey(sample.getSampleKey());
         reactionInputSample.setDensity(EnteredValue.defaultValue(sample.getDensity(), DensityUnit.G_ML));
         reactionInputSample.setMolarity(EnteredValue.defaultValue(sample.getMolarity(), sample.getMolarityUnit()));
         reactionInputSample.setPurity(sample.getPurity() != null ? EnteredValue.defaultValue(sample.getPurity(), NoUnit.NO_UNIT) : DEFAULT_ONE_HUNDRED);

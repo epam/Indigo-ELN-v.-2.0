@@ -17,12 +17,12 @@ import java.io.File;
 import static com.epam.indigoeln.eln.test.EnteredValueAssert.assertThat;
 import static com.epam.indigoeln.eln.test.ReactionInputAssert.assertThat;
 import static com.epam.indigoeln.eln.test.ReactionInputSampleAssert.assertThat;
-import static com.epam.indigoeln.reaction.model.units.DensityUnit.G_ML;
-import static com.epam.indigoeln.reaction.model.units.MolUnit.MOL;
-import static com.epam.indigoeln.reaction.model.units.MolarityUnit.M;
-import static com.epam.indigoeln.reaction.model.units.VolumeUnit.L;
-import static com.epam.indigoeln.reaction.model.units.VolumeUnit.ML;
-import static com.epam.indigoeln.reaction.model.units.WeightUnit.G;
+import static com.epam.indigoeln.common.model.units.DensityUnit.G_ML;
+import static com.epam.indigoeln.common.model.units.MolUnit.MOL;
+import static com.epam.indigoeln.common.model.units.MolarityUnit.M;
+import static com.epam.indigoeln.common.model.units.VolumeUnit.L;
+import static com.epam.indigoeln.common.model.units.VolumeUnit.ML;
+import static com.epam.indigoeln.common.model.units.WeightUnit.G;
 
 @QuarkusTest
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)

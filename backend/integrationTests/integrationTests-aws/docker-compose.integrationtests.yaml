@@ -1,11 +1,12 @@
 services:
 
   postgres:
-    image: "indigoeln/postgres:built"
+    image: "indigoeln/postgres-combined:built"
     platform: linux/amd64
     build:
       context: ../../../postgres
       dockerfile: Dockerfile
+      target: combined
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres

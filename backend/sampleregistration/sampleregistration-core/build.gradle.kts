@@ -12,18 +12,11 @@ dependencies {
     //implementation(project(":database:flyway"))
     api(project(":common:common"))
     api(project(":common:common-hibernate"))
-    api(project(":signature:signature-api"))
+    api(project(":common:common-indigo"))
+    api(project(":sampleregistration:sampleregistration-api"))
     api(project(":eln:eln-api"))
 
     api("io.quarkus:quarkus-flyway")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv")
-
-    implementation("io.quarkus:quarkus-cache")
-
-    implementation("org.bouncycastle:bcprov-jdk18on")
-    implementation("org.bouncycastle:bcpkix-jdk18on")
-
-    implementation("io.quarkiverse.openpdf:quarkus-openpdf:3.3.3")
 
     testImplementation(project(":common:common-test"))
 }
