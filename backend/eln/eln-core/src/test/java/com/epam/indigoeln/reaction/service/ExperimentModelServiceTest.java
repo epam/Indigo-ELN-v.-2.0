@@ -1,40 +1,59 @@
 package com.epam.indigoeln.reaction.service;
 
 import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.search.TextSearch;
+import com.epam.indigoeln.common.model.units.MolUnit;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.search.SampleSearchResult;
 import com.epam.indigoeln.compound.model.search.SearchCatalog;
-import com.epam.indigoeln.common.model.search.TextSearch;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
-import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.reaction.model.*;
+import com.epam.indigoeln.eln.model.ACLEntryDTO;
+import com.epam.indigoeln.eln.model.AccessLevel;
+import com.epam.indigoeln.eln.model.BuiltInDictionary;
+import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
+import com.epam.indigoeln.eln.model.ExperimentEditRequest;
+import com.epam.indigoeln.eln.model.ExperimentRequest;
+import com.epam.indigoeln.eln.model.SaltCodeRef;
+import com.epam.indigoeln.eln.model.TherapeuticAreaRef;
+import com.epam.indigoeln.reaction.model.CompoundRef;
+import com.epam.indigoeln.reaction.model.InputAnchor;
+import com.epam.indigoeln.reaction.model.ReactionInput;
+import com.epam.indigoeln.reaction.model.ReactionRole;
+import com.epam.indigoeln.reaction.model.SampleRegistrationStatus;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
-import com.epam.indigoeln.common.model.units.MolUnit;
+import com.epam.indigoeln.sampleregistration.model.STRCodeSample;
+import com.epam.indigoeln.sampleregistration.model.SampleRegistrationResponse;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.data.Offset;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.epam.indigoeln.common.model.units.WeightUnit.G;
+import static com.epam.indigoeln.common.model.units.WeightUnit.KG;
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
 import static com.epam.indigoeln.eln.model.BuiltInDictionary.SALT_CODE;
 import static com.epam.indigoeln.eln.model.BuiltInDictionary.THERAPEUTIC_AREA;
 import static com.epam.indigoeln.eln.test.ReactionInputAssert.assertThat;
 import static com.epam.indigoeln.eln.test.ReactionInputSampleAssert.assertThat;
 import static com.epam.indigoeln.eln.test.ReactionOutputSampleAssert.assertThat;
-import static com.epam.indigoeln.common.model.units.WeightUnit.G;
-import static com.epam.indigoeln.common.model.units.WeightUnit.KG;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @QuarkusTest
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
@@ -191,6 +210,9 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     @Test
     @Order(1100)
     void testRegisterSample() {
+        if (!integrationTest) {
+            when(sampleRegistrationClient.registerSample(any())).thenReturn(new SampleRegistrationResponse(new STRCodeSample(1, 1, 1), UUID.randomUUID()));
+        }
         experiment.mutate(new ReactionOutputSampleMutation.RegisterSample(experiment.outputSample(2, 1).getAnchor()), false);
         assertThat(experiment.outputSample(2, 1).getRegistrationStatus()).isEqualTo(SampleRegistrationStatus.REGISTERED);
         assertThat(experiment.outputSample(2, 1).getSampleKey()).isNotNull();
@@ -206,6 +228,9 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     @Test
     @Order(1102)
     void testRegisterAnotherSample() {
+        if (!integrationTest) {
+            when(sampleRegistrationClient.registerSample(any())).thenReturn(new SampleRegistrationResponse(new STRCodeSample(1, 1, 2), UUID.randomUUID()));
+        }
         experiment.mutate(new ReactionOutputSampleMutation.RegisterSample(experiment.outputSample(2, 2).getAnchor()), false);
         assertThat(experiment.outputSample(2, 2).getRegistrationStatus()).isEqualTo(SampleRegistrationStatus.REGISTERED);
     }

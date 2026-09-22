@@ -35,8 +35,10 @@ import com.epam.indigoeln.signature.api.SignatureAdminClient;
 import com.epam.indigoeln.signature.api.SignatureClient;
 import com.epam.indigoeln.test.APICallException;
 import com.epam.indigoeln.test.BaseTest;
+import io.quarkus.test.junit.QuarkusMock;
 import org.apache.http.HttpStatus;
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -45,6 +47,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.UUID;
+
+import static org.mockito.Mockito.mock;
 
 @ExtendWith(HibernateLazyLoadStatisticsExtension.class)
 public abstract class ELNBaseTest extends BaseTest {
@@ -131,9 +135,18 @@ public abstract class ELNBaseTest extends BaseTest {
         globalSearchClient = buildClient(GlobalSearchClient.class);
         elnInternalClient = buildClient(ELNInternalClient.class);
         testSupportClient = buildClient(TestSupportClient.class);
-        reportsClient = buildClient(ReportsClient.class);
-        signatureClient = buildClient(SignatureClient.class);
-        sampleRegistrationClient = buildClient(SampleRegistrationClient.class);
+        if (integrationTest) {
+            reportsClient = buildClient(ReportsClient.class);
+            signatureClient = buildClient(SignatureClient.class);
+            sampleRegistrationClient = buildClient(SampleRegistrationClient.class);
+        } else {
+            reportsClient = mock(ReportsClient.class);
+            QuarkusMock.installMockForType(reportsClient, ReportsClient.class, RestClient.LITERAL);
+            signatureClient = mock(SignatureClient.class);
+            QuarkusMock.installMockForType(signatureClient, SignatureClient.class, RestClient.LITERAL);
+            sampleRegistrationClient = mock(SampleRegistrationClient.class);
+            QuarkusMock.installMockForType(sampleRegistrationClient, SampleRegistrationClient.class, RestClient.LITERAL);
+        }
         if (integrationTest) {
             SignatureAdminClient signatureAdminClient = buildClient(SignatureAdminClient.class);
             signatureAdminClient.migrate();

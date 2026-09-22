@@ -1,6 +1,7 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.model.DocumentStatus;
+import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
 import com.epam.indigoeln.eln.model.ExperimentRequest;
@@ -11,12 +12,12 @@ import com.epam.indigoeln.eln.model.RevisionSummaryDTO;
 import com.epam.indigoeln.eln.model.SignatureTemplateRef;
 import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
-import com.github.tomakehurst.wiremock.client.WireMock;
-import io.quarkiverse.wiremock.devservice.ConnectWireMock;
+import com.epam.indigoeln.signature.model.DocumentDTO;
+import com.epam.indigoeln.signature.model.SignatureTemplateDTO;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.UUID;
@@ -38,10 +40,11 @@ import static com.epam.indigoeln.eln.model.ExperimentStatus.SIGNING;
 import static com.epam.indigoeln.eln.model.ExperimentStatus.SUBMITTED;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 
 @QuarkusTest
-@ConnectWireMock
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
 class ExperimentWorkflowServiceTest extends ELNBaseTest {
 
@@ -53,8 +56,6 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
     UUID twoSignersTemplateID;
     UUID documentID;
 
-    WireMock wireMock;
-
     @TempDir
     File tempDir;
     File mockFile;
@@ -62,23 +63,18 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
     @BeforeAll
     @SneakyThrows
     void setUpAll() {
-        wireMock.register(WireMock.post(WireMock.urlPathEqualTo("/internalapi/reports/experiment")).willReturn(WireMock.aResponse()
-                .withHeader(HttpHeaders.CONTENT_DISPOSITION,  generateContentDisposition(true, "report.pdf"))
-                .withBody("\"content content content\"")
-        ));
+        when(reportsClient.generateExperimentReport(any())).thenAnswer(_ -> {
+            return Response.ok("\"content content content\"".getBytes(StandardCharsets.UTF_8))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, generateContentDisposition(true, "report.pdf"))
+                    .build();
+        });
         noSignersTemplateID = UUID.randomUUID();
         oneSignerTemplateID = UUID.randomUUID();
         twoSignersTemplateID = UUID.randomUUID();
-        wireMock.register(WireMock.get(WireMock.urlPathEqualTo("/api/signature/templates")).willReturn(WireMock.aResponse()
-                .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                .withBody("""
-                        [
-                            {"id": "%s", "name": "ExperimentWorkflowServiceTest-noSigners"},
-                            {"id": "%s", "name": "ExperimentWorkflowServiceTest-oneSigner"},
-                            {"id": "%s", "name": "ExperimentWorkflowServiceTest-twoSigners"}
-                        ]
-                        """.formatted(noSignersTemplateID, oneSignerTemplateID, twoSignersTemplateID)
-                )
+        when(signatureClient.getTemplates()).thenReturn(List.of(
+                new SignatureTemplateDTO(noSignersTemplateID,  "ExperimentWorkflowServiceTest-noSigners"),
+                new SignatureTemplateDTO(oneSignerTemplateID,  "ExperimentWorkflowServiceTest-oneSigner"),
+                new SignatureTemplateDTO(twoSignersTemplateID,  "ExperimentWorkflowServiceTest-twoSigners")
         ));
         mockFile = new File(tempDir, "updated.txt");
         Files.write(mockFile.toPath(), "updatedcontent".getBytes());
@@ -91,12 +87,13 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
     void setUp() {
         experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         documentID = UUID.randomUUID();
-        wireMock.register(WireMock.post(WireMock.urlPathEqualTo("/api/signature/documents/upload")).willReturn(WireMock.aResponse()
-                .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                .withBody("""
-                  {"id": "%s", "status": "SUBMITTED", "author": {"username": "john", "displayName": "John Doe"}}
-                """.formatted(documentID))
-        ));
+        when(signatureClient.uploadDocumentClient(any(), any(), any())).thenAnswer(_ -> {
+            DocumentDTO document = new DocumentDTO();
+            document.setId(documentID);
+            document.setStatus(DocumentStatus.SUBMITTED);
+            document.setAuthor(new UserRef(JOHN_USERNAME, JOHN_DISPLAY_NAME));
+            return document;
+        });
     }
 
     @Test

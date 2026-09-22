@@ -80,8 +80,6 @@ class RegisterSampleHandler extends AbstractReactionOutputSampleMutationHandler<
         if (sampleRow.getRow().getCompound() instanceof CompoundRef.Unknown) {
             throw new InvalidRequestException("Cannot register sample for unknown compound");
         }
-
-
         CompoundEntity compound = compoundService.getCompound(sampleRow.getRow().getCompound().getCompoundID());
         SaltCodeRef saltCode = dictionaryService.get(compound.getSaltCode());
         SampleRegistrationRequest.SampleRegistrationRequestBuilder request = ModelUtil.buildSampleRegistrationRequest(compound, saltCode)

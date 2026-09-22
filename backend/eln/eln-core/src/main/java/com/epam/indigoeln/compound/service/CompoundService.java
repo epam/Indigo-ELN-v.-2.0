@@ -212,6 +212,8 @@ public class CompoundService {
         );
         SampleEntity sample = new SampleEntity();
         sample.setCompound(compound);
+        sample.setSource(SampleSource.ELN);
+        sample.setSampleKey(request.getNbkBatchNumber());
         sample.setNbkBatchNumber(NbkBatchNumber.parse(request.getNbkBatchNumber()));
         sample.setDensity(request.getDensity());
         sample.setMolarity(request.getMolarity());

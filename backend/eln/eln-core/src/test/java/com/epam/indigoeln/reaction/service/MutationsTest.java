@@ -43,6 +43,8 @@ import com.epam.indigoeln.reaction.model.outputsample.PurityCalculation;
 import com.epam.indigoeln.reaction.model.outputsample.PurityCalculationType;
 import com.epam.indigoeln.reaction.model.outputsample.ResidualSolvent;
 import com.epam.indigoeln.reaction.model.outputsample.SolubidityInSolvent;
+import com.epam.indigoeln.sampleregistration.model.STRCodeSample;
+import com.epam.indigoeln.sampleregistration.model.SampleRegistrationResponse;
 import com.epam.indigoeln.test.ClientUtil;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
@@ -59,6 +61,7 @@ import org.junit.jupiter.api.TestInfo;
 import java.io.File;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import static com.epam.indigoeln.common.model.Paging.DEFAULT_PAGE_SIZE;
 import static com.epam.indigoeln.common.model.units.DensityUnit.G_ML;
@@ -75,6 +78,8 @@ import static com.epam.indigoeln.eln.test.ReactionOutputSampleAssert.assertThat;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @QuarkusTest
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
@@ -483,6 +488,9 @@ public class MutationsTest extends MutationsTestBase {
 
     @Test
     void testRegisterSample() {
+        if (!integrationTest) {
+            when(sampleRegistrationClient.registerSample(any())).thenReturn(new SampleRegistrationResponse(new STRCodeSample(1, 1, 1), UUID.randomUUID()));
+        }
         experiment.mutateSetSchemeFromResource(REACTION_RXN);
         experiment.mutateAddProductSample(1);
         experiment.mutate(new ReactionOutputSampleMutation.RegisterSample(experiment.outputSample(1, 1).getAnchor()), false); // register sample is not undoable
