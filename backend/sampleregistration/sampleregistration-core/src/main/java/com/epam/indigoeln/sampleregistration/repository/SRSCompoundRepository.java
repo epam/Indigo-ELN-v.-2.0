@@ -21,7 +21,7 @@ public class SRSCompoundRepository extends BaseRepository<SRSCompoundEntity> {
     @Nullable
     public SRSCompoundEntity findByCompoundKey(CompoundKey compoundKey) {
         TypedQuery<SRSCompoundEntity> query = em.createQuery("""
-                    from Compound where canSmiles=?1
+                    from SRSCompound where canSmiles=?1
                         and stereoisomerCode is not distinct from ?2
                         and saltEQ100 is not distinct from ?3
                         and saltCode is not distinct from ?4
@@ -37,7 +37,7 @@ public class SRSCompoundRepository extends BaseRepository<SRSCompoundEntity> {
     @Nullable
     public STRCodeCompound findSameSTRCodeByCompoundKeyWithoutSaltCode(CompoundKey compoundKey) {
         TypedQuery<STRCodeCompound> query = em.createQuery("""
-                    select strCode from Compound
+                    select strCode from SRSCompound
                     where canSmiles = ?1
                         and stereoisomerCode is not distinct from ?2
                         and strCode is not null

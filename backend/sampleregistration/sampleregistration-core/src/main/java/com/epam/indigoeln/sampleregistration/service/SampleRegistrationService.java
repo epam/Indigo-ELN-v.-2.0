@@ -102,8 +102,8 @@ public class SampleRegistrationService {
     private SearchVector collectSampleSearchVector(SRSSampleEntity sample) {
         SRSCompoundEntity c = sample.getCompound();
         SearchVector.Builder sv = new SearchVector.Builder()
-                .a(sample.getStrCode().toString())
-                .a(sample.getNbkBatchNumber())
+                .aIdentifier(sample.getStrCode().toString())
+                .aIdentifier(sample.getNbkBatchNumber())
                 .b(c.getChemicalName());
         return sv.build();
     }

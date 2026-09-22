@@ -81,7 +81,7 @@ public class CriteriaConditions {
 
     public void fullTextSearch(Expression<SearchVector> attribute, @Nullable String search, @Nullable Expression<String> name) {
         if (search != null) {
-            Predicate predicate = cb.isTrue(cb.function("full_text_search", Boolean.class, attribute, cb.literal("english"), cb.literal(search)));
+            Predicate predicate = cb.isTrue(cb.function("full_text_search", Boolean.class, attribute, cb.literal("english"), cb.literal(search.replace('-', SearchVector.IDENTIFIER_SEPARATOR))));
             if (name != null) {
                 predicate = cb.or(predicate, nameMatches(name, search));
             }

@@ -20,6 +20,9 @@ public class SearchVector {
 
     public static final SearchVector EMPTY = new SearchVector(Set.of(), Set.of(), Set.of(), Set.of());
 
+    // character (Latin Letter Dental Click) that Postgres full text search considers a letter that likely won't clash with any word used in our DB
+    public static final char IDENTIFIER_SEPARATOR = 'ǀ';
+
     private final Set<String> a;
     private final Set<String> b;
     private final Set<String> c;
@@ -44,29 +47,45 @@ public class SearchVector {
         private final Set<String> d = new LinkedHashSet<>();
 
         public SearchVector.Builder a(@Nullable String t) {
-            if (StringUtils.isNotEmpty(t)) {
-                a.add(t);
-            }
-            return this;
+            return add(t, false, a);
+        }
+
+        public SearchVector.Builder aIdentifier(@Nullable String t) {
+            return add(t, true, a);
         }
 
         public SearchVector.Builder b(@Nullable String t) {
-            if (StringUtils.isNotEmpty(t)) {
-                b.add(t);
-            }
-            return this;
+            return add(t, false, b);
+        }
+
+        public SearchVector.Builder bIdentifier(@Nullable String t) {
+            return add(t, true, b);
         }
 
         public SearchVector.Builder c(@Nullable String t) {
-            if (StringUtils.isNotEmpty(t)) {
-                c.add(t);
-            }
-            return this;
+            return add(t, false, c);
+        }
+
+        public SearchVector.Builder cIdentifier(@Nullable String t) {
+            return add(t, true, c);
         }
 
         public SearchVector.Builder d(@Nullable String t) {
+            return add(t, false, d);
+        }
+
+        private SearchVector.Builder add(@Nullable String t, boolean identifier, Set<String> destination) {
             if (StringUtils.isNotEmpty(t)) {
-                d.add(t);
+                if (identifier) {
+                    destination.add(t.replace('-', IDENTIFIER_SEPARATOR));
+                    for (String s : t.split("[ -]")) {
+                        if (StringUtils.isNotEmpty(s)) {
+                            destination.add(s);
+                        }
+                    }
+                } else {
+                    destination.add(t);
+                }
             }
             return this;
         }

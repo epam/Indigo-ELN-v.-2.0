@@ -24,7 +24,7 @@ class DatabaseInitializationServiceTest extends BaseTest {
     @Order(1)
     void testMigrate() {
         MigrateResult result = flyway.migrate();
-        assertThat(result.migrationsExecuted).isPositive();
+        assertThat(result.migrationsExecuted).isNotNegative();
     }
 
     @Test

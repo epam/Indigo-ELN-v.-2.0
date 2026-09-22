@@ -91,5 +91,4 @@ public class FeignUtil {
         }
         return new APICallException(response.status(), response.reason(), errors);
     }
-
 }

@@ -1,4 +1,4 @@
-package com.epam.indigoeln.eln.config;
+package com.epam.indigoeln.common.config;
 
 import com.epam.indigoeln.common.model.Page;
 import jakarta.validation.valueextraction.ExtractedValue;

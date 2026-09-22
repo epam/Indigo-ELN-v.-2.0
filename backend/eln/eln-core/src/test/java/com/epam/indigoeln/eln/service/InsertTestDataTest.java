@@ -122,7 +122,7 @@ class InsertTestDataTest {
                 userClient.createUser(new UserRequest(username + "@eln.com", username, username, password, roles)));
 
         assertThat(userClient.getUser("alice@eln.com").getDisplayName()).isEqualTo("Alice Smith");
-        assertThat(userClient.getUser("bob@eln.com").getRoles()).extracting(RoleRef::getName).contains("Administrator");
+        assertThat(userClient.getUser("bob@eln.com").getRoles()).extracting(RoleRef::getName).contains("Administrators");
         assertThat(userClient.suggestUsers("user_ctp")).extracting(UserRef::getUsername).contains("user_ctp@eln.com");
     }
 

@@ -29,16 +29,17 @@ class SampleRegistrationServiceSearchProvider extends AbstractPagedCatalogSearch
 
     @Override
     protected Page<SampleDTO> doSearch(FindSamplesRequest request, int pageNo, int pageSize) {
-        SRSFindSamplesRequest srsRequest = new SRSFindSamplesRequest();
-        srsRequest.setQuickSearch(request.getQuickSearch());
-        srsRequest.setStructure(request.getStructure());
-        srsRequest.setStrCodeSample(request.getExternalNumber());
-        srsRequest.setMolecularFormula(request.getMolecularFormula());
-        srsRequest.setMolWeight(request.getMolWeight());
-        srsRequest.setChemicalName(request.getChemicalName());
-        srsRequest.setCompoundState(request.getCompoundState() != null ? request.getCompoundState().getId() : null);
-        srsRequest.setBatchComment(request.getBatchComment());
-        srsRequest.setHealthHazards(request.getHealthHazards() != null ? request.getHealthHazards().getId() : null);
+        SRSFindSamplesRequest srsRequest = SRSFindSamplesRequest.builder()
+                .quickSearch(request.getQuickSearch())
+                .structure(request.getStructure())
+                .strCodeSample(request.getExternalNumber())
+                .molecularFormula(request.getMolecularFormula())
+                .molWeight(request.getMolWeight())
+                .chemicalName(request.getChemicalName())
+                .compoundState(request.getCompoundState() != null ? request.getCompoundState().getId() : null)
+                .batchComment(request.getBatchComment())
+                .healthHazards(request.getHealthHazards() != null ? request.getHealthHazards().getId() : null)
+                .build();
         return map(sampleRegistrationClient.find(srsRequest, pageNo, pageSize), mapper::sampleFromSRS);
     }
 }

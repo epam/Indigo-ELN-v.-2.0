@@ -48,16 +48,16 @@ public class GlobalSearchService {
 
     public SearchVector collectExperimentSearchVector(ExperimentSnapshot snapshot) {
         SearchVector.Builder sv = new SearchVector.Builder()
-                .a(snapshot.getName())
+                .aIdentifier(snapshot.getName())
                 .a(snapshot.getTitle())
                 .d(snapshot.getDescription())
                 .d(snapshot.getLiterature());
         for (Reaction reaction : snapshot.getModel().getReactions()) {
             for (ReactionInput input : reaction.getInputs()) {
-                sv.b(input.getCompound().getCompoundKey());
+                sv.bIdentifier(input.getCompound().getCompoundKey());
                 for (ReactionInputSample sample : input.getSamples()) {
-                    sv.c(sample.getSampleKey());
-                    sv.c(sample.getNbkBatchNumber() != null ? sample.getNbkBatchNumber().toString() : null);
+                    sv.cIdentifier(sample.getSampleKey());
+                    sv.cIdentifier(sample.getNbkBatchNumber() != null ? sample.getNbkBatchNumber().toString() : null);
                 }
             }
         }
@@ -70,7 +70,7 @@ public class GlobalSearchService {
                 .d(snapshot.getDescription())
                 .d(snapshot.getLiterature());
         for (String keyword : snapshot.getKeywords()) {
-            sv.b(keyword);
+            sv.bIdentifier(keyword);
         }
         return sv.build();
     }
@@ -78,16 +78,16 @@ public class GlobalSearchService {
     public SearchVector collectSampleSearchVector(SampleEntity sample) {
         CompoundEntity c = sample.getCompound();
         SearchVector.Builder sv = new SearchVector.Builder()
-                .a(sample.getSampleKey())
-                .a(sample.getNbkBatchNumber() != null ? sample.getNbkBatchNumber().toString() : null)
-                .a(c.getCasNumber())
+                .aIdentifier(sample.getSampleKey())
+                .aIdentifier(sample.getNbkBatchNumber() != null ? sample.getNbkBatchNumber().toString() : null)
+                .aIdentifier(c.getCasNumber())
                 .b(c.getChemicalName());
         return sv.build();
     }
 
     public SearchVector collectNotebookSearchVector(NotebookSnapshot snapshot) {
         SearchVector.Builder sv = new  SearchVector.Builder()
-                .a(snapshot.getName())
+                .aIdentifier(snapshot.getName())
                 .d(snapshot.getDescription());
         return sv.build();
     }

@@ -85,7 +85,7 @@ public class SRSSampleRepository extends BaseRepository<SRSSampleEntity> {
         }};
 
         Paging paging = new Paging(pageNo, pageSize);
-        Page<SRSSampleEntity> page = doFindWithTotals(criteria, paging, em.getEntityGraph("Sample.find"));
+        Page<SRSSampleEntity> page = doFindWithTotals(criteria, paging, null);
         return ModelUtil.map(page, sampleMapper::sampleToDTO);
     }
 }
