@@ -1,7 +1,14 @@
 version: 0.2
+env:
+  # bash rather than CodeBuild's default sh (dash), consistently across every buildspec.
+  shell: bash
 phases:
   pre_build:
     commands:
+      # Fail loudly if env.shell did not take effect: under dash `set -eo pipefail` errors but
+      # execution carries on *without* `set -e`, silently disabling error propagation.
+      - '[ -n "$BASH_VERSION" ] || { echo "this buildspec needs bash - check env.shell" >&2; exit 1; }'
+      - set -eo pipefail
       - env
 #      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REGISTRY_URI
@@ -9,6 +16,7 @@ phases:
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
   build:
     commands:
+      - set -eo pipefail
       - cd postgres
       # Two targets of one Dockerfile. `combined` is FROM base, so the shared layers are built once
       # and the second build is a cache hit. --target is required on both: `combined` is the last
@@ -23,6 +31,7 @@ phases:
       - docker tag $COMBINED_REPO_URI:latest $COMBINED_REPO_URI_PUBLIC:$IMAGE_TAG
   post_build:
     commands:
+      - set -eo pipefail
       - docker push $REPO_URI:latest
       - docker push $REPO_URI:$IMAGE_TAG
       - docker push $REPO_URI_PUBLIC:latest

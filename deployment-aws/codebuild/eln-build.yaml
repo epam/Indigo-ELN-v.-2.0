@@ -1,13 +1,21 @@
 version: 0.2
+env:
+  # CodeBuild's default shell is sh (dash on the standard images), which has no `pipefail`.
+  shell: bash
 phases:
   install:
     runtime-versions:
       java: corretto25
   pre_build:
     commands:
+      # Fail loudly if env.shell did not take effect: under dash `set -eo pipefail` errors but
+      # execution carries on *without* `set -e`, silently disabling error propagation.
+      - '[ -n "$BASH_VERSION" ] || { echo "this buildspec needs bash - check env.shell" >&2; exit 1; }'
+      - set -eo pipefail
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
   build:
     commands:
+      - set -eo pipefail
       - cd backend
       - |
         TARGETS=":common:common:build"
@@ -29,6 +37,8 @@ phases:
         set -eo pipefail
 
         # Every private repo lives in the account's single registry, so one login covers all eight.
+        # pipefail is what makes a failing get-login-password fail the build rather than being
+        # masked by docker login's own exit status.
         aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin "$REGISTRY_URI"
 
         # Publish a locally built image to its repository under both :latest and the commit tag.
