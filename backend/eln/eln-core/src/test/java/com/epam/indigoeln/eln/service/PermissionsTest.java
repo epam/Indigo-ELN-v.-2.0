@@ -91,19 +91,41 @@ class PermissionsTest extends ELNBaseTest {
             therapeuticArea = dictionaryClient.getFirst(BuiltInDictionary.THERAPEUTIC_AREA);
             iterateRowsParallel(row -> {
                 row.projectId = projectClient.createProject(new ProjectRequest("project" + row.testId)).getId();
-                projectClient.createProjectAttachment(row.projectId, "attachment.txt", new byte[0]);
+                Map<String, String> prepareData = projectClient.prepareProjectAttachment(row.projectId, "attachment.txt", 0L);
+                String uploadPath = prepareData.get("url");
+                String id = prepareData.get("id");
+                String fileName = Arrays.stream(uploadPath.split("/")).toList().getLast();
+                uploadClient.uploadFileContent(fileName, "attachment.txt", new byte[0]);
+                projectClient.completeProjectAttachment(row.projectId, UUID.fromString(id));
                 if (row.project != NONE) {
                     projectClient.updateProjectAccess(row.projectId, AccessForm.of(WILLOW_USERNAME, row.project));
                 }
                 row.projectDetails = projectClient.getProject(row.projectId);
+
+                System.err.println("Create notebook");
                 row.notebookId = createNotebook(row.projectId).getId();
-                notebookClient.createNotebookAttachment(row.notebookId, "attachment.txt", new byte[0]);
+                System.err.println("Prepare notebook attachment");
+                prepareData = notebookClient.prepareNotebookAttachment(row.notebookId, "attachment.txt", 0L);
+                System.err.println("Unpack data");
+                uploadPath = prepareData.get("url");
+                id = prepareData.get("id");
+                fileName = Arrays.stream(uploadPath.split("/")).toList().getLast();
+                System.err.println("Upload the attachment");
+                uploadClient.uploadFileContent(fileName, "attachment.txt", new byte[0]);
+                System.err.println("Complete the attachment");
+                notebookClient.completeNotebookAttachment(row.notebookId, UUID.fromString(id));
+                System.err.println("Attachment completed");
                 if (row.notebook != NONE) {
                     notebookClient.updateNotebookAccess(row.notebookId, AccessForm.of(WILLOW_USERNAME, row.notebook));
                 }
                 row.notebookDetails = notebookClient.getNotebook(row.notebookId);
                 row.experimentId = experimentClient.createExperiment(row.notebookId, new ExperimentRequest(emptyTemplateID)).getId();
-                experimentClient.createExperimentAttachment(row.experimentId, "attachment.txt", new byte[0]);
+                prepareData = experimentClient.prepareExperimentAttachment(row.experimentId, "attachment.txt", 0L);
+                uploadPath = prepareData.get("url");
+                id = prepareData.get("id");
+                fileName = Arrays.stream(uploadPath.split("/")).toList().getLast();
+                uploadClient.uploadFileContent(fileName, "attachment.txt", new byte[0]);
+                experimentClient.completeExperimentAttachment(row.experimentId, UUID.fromString(id));
                 if (row.experiment != NONE) {
                     experimentClient.updateExperimentAccess(row.experimentId, AccessForm.of(WILLOW_USERNAME, row.experiment));
                 }
@@ -208,7 +230,14 @@ class PermissionsTest extends ELNBaseTest {
         assertAll(
                 () -> assertThat(rows).hasSize(PERMISSIONS_MATRIX_SIZE),
                 () -> iterateRowsParallel(row -> {
-                    assertThatClientCall(() -> projectClient.createProjectAttachment(row.projectId, "a", new byte[0]))
+                    assertThatClientCall(() -> {
+                        Map<String, String> prepareData = projectClient.prepareProjectAttachment(row.projectId, "a", 0L);
+                        String path = prepareData.get("url");
+                        String id = prepareData.get("id");
+                        String fileName = Arrays.stream(path.split("/")).toList().getLast();
+                        uploadClient.uploadFileContent(fileName, "a", new byte[0]);
+                        return projectClient.completeProjectAttachment(row.projectId, UUID.fromString(id));
+                    })
                             .as(row.toString())
                             .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "Operation not permitted");
                     assertThatClientCall(() -> projectClient.downloadProjectAttachment(row.projectId, row.projectDetails.getAttachments().getFirst().getId()))
@@ -291,7 +320,14 @@ class PermissionsTest extends ELNBaseTest {
         assertAll(
                 () -> assertThat(rows).hasSize(PERMISSIONS_MATRIX_SIZE),
                 () -> iterateRowsParallel(row -> {
-                    assertThatClientCall(() -> notebookClient.createNotebookAttachment(row.notebookId, "a", new byte[0]))
+                    assertThatClientCall(() -> {
+                        Map<String, String> prepareData = notebookClient.prepareNotebookAttachment(row.notebookId, "a", 0L);
+                        String path = prepareData.get("url");
+                        String id = prepareData.get("id");
+                        String fileName = Arrays.stream(path.split("/")).toList().getLast();
+                        uploadClient.uploadFileContent(fileName, "a", new byte[0]);
+                        return notebookClient.completeNotebookAttachment(row.notebookId, UUID.fromString(id));
+                    })
                             .as(row.toString())
                             .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "Operation not permitted");
                     assertThatClientCall(() -> notebookClient.downloadNotebookAttachment(row.notebookId, row.notebookDetails.getAttachments().getFirst().getId()))
@@ -375,7 +411,14 @@ class PermissionsTest extends ELNBaseTest {
         assertAll(
                 () -> assertThat(rows).hasSize(PERMISSIONS_MATRIX_SIZE),
                 () -> iterateRowsParallel(row -> {
-                    assertThatClientCall(() -> experimentClient.createExperimentAttachment(row.experimentId, "a", "content".getBytes(StandardCharsets.UTF_8)))
+                    assertThatClientCall(() -> {
+                        Map<String, String> prepareData = experimentClient.prepareExperimentAttachment(row.experimentId, "a", (long) "content".getBytes(StandardCharsets.UTF_8).length);
+                        String path = prepareData.get("url");
+                        String id = prepareData.get("id");
+                        String fileName = Arrays.stream(path.split("/")).toList().getLast();
+                        uploadClient.uploadFileContent(fileName, "a", "content".getBytes(StandardCharsets.UTF_8));
+                        return experimentClient.completeExperimentAttachment(row.experimentId, UUID.fromString(id));
+                    })
                             .as(row.toString())
                             .isAllowedIf(row.effectiveExperiment.isSufficientFor(EDIT), "Operation not permitted");
                     assertThatClientCall(() -> experimentClient.downloadExperimentAttachment(row.experimentId, row.experimentDetails.getAttachments().getFirst().getId()))

@@ -1,11 +1,9 @@
-package com.epam.indigoeln.common.aws;
+package com.epam.indigoeln.common.lambda;
 
 import com.epam.indigoeln.common.storage.FileStorage;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
@@ -13,13 +11,10 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-@Slf4j
 @ApplicationScoped
 public class S3FileStorage implements FileStorage {
 
@@ -62,11 +57,9 @@ public class S3FileStorage implements FileStorage {
 
     @Override
     public byte[] get(String key) {
-        try (ResponseInputStream<GetObjectResponse> response = s3.getObject(GetObjectRequest.builder().bucket(bucket).key(key).build())) {
-            return response.readAllBytes();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        return s3.getObjectAsBytes(
+                GetObjectRequest.builder().bucket(bucket).key(key).build()
+        ).asByteArray();
     }
 
     @Override

@@ -48,6 +48,11 @@ public class LocalFileStorage implements FileStorage {
     }
 
     @Override
+    public String createPresignedUrl(String keyName) {
+        return root.resolve(keyName).toUri().toString();
+    }
+
+    @Override
     public byte[] get(String key) {
         try {
             return Files.readAllBytes(root.resolve(key));

@@ -21,6 +21,7 @@ import jakarta.ws.rs.core.Response;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Path(BaseAPI.BASE_PATH)
@@ -64,8 +65,13 @@ public class NotebookResource implements NotebookAPI {
     }
 
     @Override
-    public List<AttachmentDTO> createNotebookAttachment(UUID notebookId, UploadForm form) {
-        return attachmentService.createNotebookAttachment(notebookId, form.getFile(), true);
+    public Map<String, String> prepareNotebookAttachment(UUID notebookId, String name, Long size) {
+        return attachmentService.prepareNotebookAttachment(notebookId, name, size, true);
+    }
+
+    @Override
+    public List<AttachmentDTO> completeNotebookAttachment(UUID notebookId, UUID attachmentId) {
+        return attachmentService.completeNotebookAttachment(notebookId, attachmentId);
     }
 
     @Override

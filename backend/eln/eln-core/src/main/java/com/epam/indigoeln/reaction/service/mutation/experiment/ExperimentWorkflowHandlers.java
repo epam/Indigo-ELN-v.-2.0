@@ -1,13 +1,19 @@
 package com.epam.indigoeln.reaction.service.mutation.experiment;
 
 import com.epam.indigoeln.common.model.DocumentStatus;
+import com.epam.indigoeln.eln.entity.AttachmentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentAttachment;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
 import com.epam.indigoeln.eln.repository.ExperimentAttachmentRepository;
+import com.epam.indigoeln.eln.model.ApplicationPermission;
+import com.epam.indigoeln.eln.model.AttachmentDTO;
+import com.epam.indigoeln.eln.model.ExperimentStatus;
+import com.epam.indigoeln.eln.repository.AttachmentRepository;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.ExperimentService;
+import com.epam.indigoeln.eln.service.UploadService;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
@@ -17,8 +23,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.MoreObjects;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.jspecify.annotations.Nullable;
+
+import java.util.*;
 
 import static com.epam.indigoeln.common.util.ModelUtil.useTempFile;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.SUBMIT_EXPERIMENTS;
@@ -121,6 +131,12 @@ class SubmitExperimentHandler extends ExperimentWorkflowMutationHandlerBase<Expe
     @Inject
     @RestClient
     SignatureClient signatureClient;
+    //@Inject
+    //UploadClient uploadClient;
+    @Inject
+    UploadService uploadService;
+    @Inject
+    AttachmentRepository attachmentRepository;
 
     @Override
     protected void doValidateAccess(ExperimentEntity entity) {
@@ -137,13 +153,24 @@ class SubmitExperimentHandler extends ExperimentWorkflowMutationHandlerBase<Expe
     public String doHandle(ExperimentEntity experiment, ExperimentMutation.SubmitExperiment mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         experiment.setStatus(SUBMITTED);
         ExperimentService.ExperimentReportContent report = experimentService.printReport(experiment);
-        ExperimentAttachment attachment = attachmentService.createExperimentAttachment(experiment, report.filename(), report.content(), false);
+        //ExperimentAttachment attachment = attachmentService.prepareExperimentAttachment(experiment.getId(), report.filename(), report.content().length, false);
+        //AttachmentEntity attachment = Objects.requireNonNull(attachmentService.createExperimentAttachment(experiment,
+               // report.filename(), report.content().length, false).a());
+        Map<String, String> prepareData = attachmentService.prepareExperimentAttachment(experiment.getId(), report.filename(), report.content().length, false);
+        String path = prepareData.get("url");
+        String id = prepareData.get("id");
+        String fileName = Arrays.stream(path.split("/")).toList().getLast();
         String documentName = experiment.getName() + (experiment.getVersion() != null ? ", version " + experiment.getVersion() : "");
+        //uploadClient.uploadFileContent(fileName, report.filename(), report.content());
+        uploadService.uploadAttachment("attachment/" + fileName, report.content());
+        attachmentService.completeExperimentAttachment(experiment.getId(), UUID.fromString(id));
+        //Response response = attachmentService.downloadExperimentAttachment(experiment.getId(), UUID.fromString(id));
+        AttachmentEntity attachment = attachmentRepository.get(UUID.fromString(id));
         DocumentDTO document = useTempFile(attachment.getName(), attachment.getContent(), file -> {
             return signatureClient.uploadDocumentClient(documentName, mutation.signatureTemplateID(), file);
         });
         experiment.setSignatureNumber(document.getId().toString());
-        experiment.setSignatureAttachment(attachment);
+        //experiment.setSignatureAttachment(attachment);
         updateStatusFromSignature(experiment, document.getStatus());
         return "Experiment submitted for signature";
     }
@@ -172,7 +199,8 @@ class SignatureUpdatedHandler extends ExperimentWorkflowMutationHandlerBase<Expe
     public String doHandle(ExperimentEntity experiment, ExperimentMutation.SignatureUpdated mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         updateStatusFromSignature(experiment, mutation.documentStatus());
         ExperimentAttachment attachment = attachmentRepository.getReference(mutation.attachmentID());
-        attachmentService.doAddAttachment(experiment, attachment);
+        //attachmentService.doAddAttachment(experiment, attachment);
+        //attachmentService.doAddExperimentAttachment(experiment, attachment);
         return "Signatures update: " + mutation.message();
     }
 }

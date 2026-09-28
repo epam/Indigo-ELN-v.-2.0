@@ -30,4 +30,8 @@ public abstract class AbstractAttachment<P extends BaseEntity> extends BaseEntit
     public abstract P getParent();
 
     public abstract void setParent(@Nullable P parent);
+
+    public String getKey() {
+        return "attachment/" + id + "~" + name;
+    }
 }

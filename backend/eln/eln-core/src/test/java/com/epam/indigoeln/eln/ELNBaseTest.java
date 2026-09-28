@@ -87,6 +87,7 @@ public abstract class ELNBaseTest extends BaseTest {
 
     protected ReportsClient reportsClient;
     protected SignatureClient signatureClient;
+    protected UploadClient uploadClient;
 
     protected UUID johnUserID;
     protected UUID willowUserID;
@@ -110,6 +111,7 @@ public abstract class ELNBaseTest extends BaseTest {
         elnInternalClient = buildClient(ELNInternalClient.class);
         testSupportClient = buildClient(TestSupportClient.class);
         reportsClient = buildClient(ReportsClient.class);
+        uploadClient = buildClient(UploadClient.class);
         signatureClient = buildClient(SignatureClient.class);
         if (integrationTest) {
             SignatureAdminClient signatureAdminClient;

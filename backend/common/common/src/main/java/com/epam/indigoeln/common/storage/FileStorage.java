@@ -7,4 +7,5 @@ public interface FileStorage {
     List<String> list(String key);
     void put(String key, byte[] bytes);
     byte[] get(String key);
+    String createPresignedUrl(String keyName);
 }

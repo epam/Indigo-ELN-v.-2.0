@@ -24,10 +24,7 @@ import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static com.epam.indigoeln.common.util.ContentDispositionUtil.extractFilename;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
@@ -289,8 +286,13 @@ class ExperimentServiceTest extends ELNBaseTest {
     @Test
     void testCreateAttachment() {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
-        List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", "content".getBytes());
-        assertThat(attachments).singleElement().satisfies(a -> {
+        Map<String, String> prepareData = experimentClient.prepareExperimentAttachment(experiment.getId(), "attachment.txt", (long) "content".getBytes().length);
+        String path = prepareData.get("url");
+        String id = prepareData.get("id");
+        String fileName = Arrays.stream(path.split("/")).toList().getLast();
+        uploadClient.uploadFileContent(fileName, "attachment.txt", "content".getBytes());
+        List<AttachmentDTO> attachments = experimentClient.completeExperimentAttachment(experiment.getId(), UUID.fromString(id));
+                assertThat(attachments).singleElement().satisfies(a -> {
             assertThat(a.getId()).isNotNull();
             assertThat(a.getName()).isEqualTo("attachment.txt");
             assertThat(a.getCreatedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME);
@@ -307,7 +309,12 @@ class ExperimentServiceTest extends ELNBaseTest {
     @Test
     void testDownloadAttachment() {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
-        List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", "content".getBytes());
+        Map<String, String> prepareData = experimentClient.prepareExperimentAttachment(experiment.getId(), "attachment.txt", (long) "content".getBytes().length);
+        String path = prepareData.get("url");
+        String id = prepareData.get("id");
+        String fileName = Arrays.stream(path.split("/")).toList().getLast();
+        uploadClient.uploadFileContent(fileName, "attachment.txt", "content".getBytes());
+        List<AttachmentDTO> attachments = experimentClient.completeExperimentAttachment(experiment.getId(), UUID.fromString(id));
         try (Response response = experimentClient.downloadExperimentAttachment(experiment.getId(), attachments.getFirst().getId())) {
             assertThat(extractFilename(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION))).isEqualTo("attachment.txt");
             assertThat((byte[]) response.getEntity()).asString().isEqualTo("content");
@@ -317,7 +324,12 @@ class ExperimentServiceTest extends ELNBaseTest {
     @Test
     void testDeleteAttachment() {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
-        List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", "content".getBytes());
+        Map<String, String> prepareData = experimentClient.prepareExperimentAttachment(experiment.getId(), "attachment.txt", (long) "content".getBytes().length);
+        String path = prepareData.get("url");
+        String id = prepareData.get("id");
+        String fileName = Arrays.stream(path.split("/")).toList().getLast();
+        uploadClient.uploadFileContent(fileName, "attachment.txt", "content".getBytes());
+        List<AttachmentDTO> attachments = experimentClient.completeExperimentAttachment(experiment.getId(), UUID.fromString(id));
         experimentClient.deleteExperimentAttachment(experiment.getId(), attachments.getFirst().getId());
         experiment = experimentClient.getExperiment(experiment.getId());
         assertThat(experiment.getAttachments()).isEmpty();

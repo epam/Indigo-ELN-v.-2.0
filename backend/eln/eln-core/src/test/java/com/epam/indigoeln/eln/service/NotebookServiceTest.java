@@ -13,8 +13,10 @@ import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.*;
 import org.openapitools.jackson.nullable.JsonNullable;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ContentDispositionUtil.extractFilename;
@@ -295,7 +297,12 @@ class NotebookServiceTest extends ELNBaseTest {
     @Test
     void testCreateAttachment() {
         NotebookDetailsDTO notebook = createNotebook(project.getId());
-        List<AttachmentDTO> attachments = notebookClient.createNotebookAttachment(notebook.getId(), "attachment.txt", "content".getBytes());
+        Map<String, String> prepareData = notebookClient.prepareNotebookAttachment(notebook.getId(), "attachment.txt", (long) "content".getBytes().length);
+        String path = prepareData.get("url");
+        String id = prepareData.get("id");
+        String fileName = Arrays.stream(path.split("/")).toList().getLast();
+        uploadClient.uploadFileContent(fileName, "attachment.txt", "content".getBytes());
+        List<AttachmentDTO> attachments = notebookClient.completeNotebookAttachment(notebook.getId(), UUID.fromString(id));
         assertThat(attachments).singleElement().satisfies(a -> {
             assertThat(a.getId()).isNotNull();
             assertThat(a.getName()).isEqualTo("attachment.txt");
@@ -313,7 +320,12 @@ class NotebookServiceTest extends ELNBaseTest {
     @Test
     void testDownloadAttachment() throws Exception {
         NotebookDetailsDTO notebook = createNotebook(project.getId());
-        List<AttachmentDTO> attachments = notebookClient.createNotebookAttachment(notebook.getId(), "attachment.txt", "content".getBytes());
+        Map<String, String> prepareData = notebookClient.prepareNotebookAttachment(notebook.getId(), "attachment.txt", (long) "content".getBytes().length);
+        String path = prepareData.get("url");
+        String id = prepareData.get("id");
+        String fileName = Arrays.stream(path.split("/")).toList().getLast();
+        uploadClient.uploadFileContent(fileName, "attachment.txt", "content".getBytes());
+        List<AttachmentDTO> attachments = notebookClient.completeNotebookAttachment(notebook.getId(), UUID.fromString(id));
         try (Response response = notebookClient.downloadNotebookAttachment(notebook.getId(), attachments.getFirst().getId())) {
             assertThat(extractFilename(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION))).isEqualTo("attachment.txt");
             assertThat((byte[]) response.getEntity()).asString().isEqualTo("content");
@@ -323,7 +335,12 @@ class NotebookServiceTest extends ELNBaseTest {
     @Test
     void testDeleteAttachment() {
         NotebookDetailsDTO notebook = createNotebook(project.getId());
-        List<AttachmentDTO> attachments = notebookClient.createNotebookAttachment(notebook.getId(), "attachment.txt", "content".getBytes());
+        Map<String, String> prepareData = notebookClient.prepareNotebookAttachment(notebook.getId(), "attachment.txt", (long) "content".getBytes().length);
+        String path = prepareData.get("url");
+        String id = prepareData.get("id");
+        String fileName = Arrays.stream(path.split("/")).toList().getLast();
+        uploadClient.uploadFileContent(fileName, "attachment.txt", "content".getBytes());
+        List<AttachmentDTO> attachments = notebookClient.completeNotebookAttachment(notebook.getId(), UUID.fromString(id));
         notebookClient.deleteNotebookAttachment(notebook.getId(), attachments.getFirst().getId());
         notebook = notebookClient.getNotebook(notebook.getId());
         assertThat(notebook.getAttachments()).isEmpty();
