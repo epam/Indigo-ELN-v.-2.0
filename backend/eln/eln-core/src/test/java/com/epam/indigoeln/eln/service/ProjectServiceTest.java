@@ -25,6 +25,7 @@ import static com.epam.indigoeln.common.util.ContentDispositionUtil.extractFilen
 import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
 import static com.epam.indigoeln.eln.test.ACLListAssert.assertThatACL;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
+import static com.epam.indigoeln.test.ClientUtil.uploadForm;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
@@ -424,7 +425,7 @@ class ProjectServiceTest extends ELNBaseTest {
     @Test
     void testCreateAttachment() {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testCreateAttachment"));
-        List<AttachmentDTO> attachments = projectClient.createProjectAttachment(project.getId(), ATTACHMENT_TXT, CONTENT.getBytes());
+        List<AttachmentDTO> attachments = projectClient.createProjectAttachment(project.getId(), uploadForm(ATTACHMENT_TXT, CONTENT.getBytes()));
         assertThat(attachments).singleElement().satisfies(a -> {
             assertThat(a.getId()).isNotNull();
             assertThat(a.getName()).isEqualTo(ATTACHMENT_TXT);
@@ -440,7 +441,7 @@ class ProjectServiceTest extends ELNBaseTest {
     @Test
     void testDownloadAttachment() throws Exception {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testDownloadAttachment"));
-        List<AttachmentDTO> attachments = projectClient.createProjectAttachment(project.getId(), ATTACHMENT_TXT, CONTENT.getBytes());
+        List<AttachmentDTO> attachments = projectClient.createProjectAttachment(project.getId(), uploadForm(ATTACHMENT_TXT, CONTENT.getBytes()));
         try (Response response = projectClient.downloadProjectAttachment(project.getId(), attachments.getFirst().getId())) {
             assertThat(extractFilename(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION))).isEqualTo(ATTACHMENT_TXT);
             assertThat((byte[]) response.getEntity()).asString().isEqualTo(CONTENT);
@@ -450,7 +451,7 @@ class ProjectServiceTest extends ELNBaseTest {
     @Test
     void testDeleteAttachment() {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testDeleteAttachment"));
-        List<AttachmentDTO> attachments = projectClient.createProjectAttachment(project.getId(), ATTACHMENT_TXT, CONTENT.getBytes());
+        List<AttachmentDTO> attachments = projectClient.createProjectAttachment(project.getId(), uploadForm(ATTACHMENT_TXT, CONTENT.getBytes()));
         projectClient.deleteProjectAttachment(project.getId(), attachments.getFirst().getId());
         project = projectClient.getProject(project.getId());
         assertThat(project.getAttachments()).isEmpty();
@@ -471,11 +472,7 @@ class ProjectServiceTest extends ELNBaseTest {
         Path filePath = tempDir.resolve(fileName);
         Files.write(filePath, largeContent);
 
-        List<AttachmentDTO> attachments = projectClient.createProjectAttachment(
-                project.getId(),
-                fileName,
-                largeContent
-        );
+        List<AttachmentDTO> attachments = projectClient.createProjectAttachment(project.getId(), uploadForm(fileName, largeContent));
 
         assertThat(attachments).isNotEmpty();
     }
@@ -485,7 +482,7 @@ class ProjectServiceTest extends ELNBaseTest {
         UUID missingProjectId = UUID.randomUUID();
 
         assertThatClientCall(() ->
-                projectClient.createProjectAttachment(missingProjectId, "file.txt", CONTENT.getBytes())
+                projectClient.createProjectAttachment(missingProjectId, uploadForm("file.txt", CONTENT.getBytes()))
         ).isNotFound("Project " + missingProjectId + " not found");
     }
 

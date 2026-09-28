@@ -2,7 +2,6 @@ package com.epam.indigoeln.reaction.service.mutation.experiment;
 
 import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
-import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.model.HealthHazardRef;
@@ -83,10 +82,10 @@ class RegisterSampleHandler extends AbstractReactionOutputSampleMutationHandler<
         CompoundEntity compound = compoundService.getCompound(sampleRow.getRow().getCompound().getCompoundID());
         SaltCodeRef saltCode = dictionaryService.get(compound.getSaltCode());
         SampleRegistrationRequest.SampleRegistrationRequestBuilder request = ModelUtil.buildSampleRegistrationRequest(compound, saltCode)
-                .nbkBatchNumber(sampleRow.getNbkBatchNumber().toString())
+                .nbkBatchNumber(sampleRow.getNbkBatchNumber())
                 .purity(sampleRow.getPurity().isEmpty() ? null : sampleRow.getPurity().toBigDecimal())
                 .compoundState(sampleRow.getComponentState() != null ? sampleRow.getComponentState().getId() : null)
-                .healthHazards(map(sampleRow.getHealthHazards(), HealthHazardRef::getId))
+                .healthHazards(sampleRow.getHealthHazards() != null ? map(sampleRow.getHealthHazards(), HealthHazardRef::getId) : null)
                 .batchComment(sampleRow.getBatchComment());
         if (!sampleRow.getDensity().isEmpty()) {
             request.density(sampleRow.getDensity().toBigDecimal());
@@ -95,21 +94,15 @@ class RegisterSampleHandler extends AbstractReactionOutputSampleMutationHandler<
             request.molarity(sampleRow.getMolarity().toBigDecimal());
             request.molarityUnit(sampleRow.getMolarity().getUnit());
         }
-        SampleEntity sample = compoundService.registerSample(request.build());
-
         SampleRegistrationResponse response = sampleRegistrationClient.registerSample(request.build());
         if (sampleRow.getRow().getCompound() instanceof CompoundRef.Virtual) {
             sampleRow.getRow().updateCompound(compoundService.realCompoundRef(compound));
         }
 
-        compoundService.updateSample(sample, s -> {
-            sample.setSource(SampleSource.SRS);
-            sample.setSampleKey(response.strCode().toString());
-        });
-
         sampleRow.setRegistrationStatus(SampleRegistrationStatus.IN_PROGRESS); // for now, registration is immediate; when switched to async registration, REGISTERED will be set later
         sampleRow.setRegistrationStatus(SampleRegistrationStatus.REGISTERED);
-        sampleRow.setSampleKey(sample.getSampleKey());
+        sampleRow.setSampleSource(SampleSource.SRS);
+        sampleRow.setSampleKey(response.strCode().toString());
         return "Register sample";
     }
 }

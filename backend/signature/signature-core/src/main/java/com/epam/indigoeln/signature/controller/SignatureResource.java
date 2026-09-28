@@ -55,7 +55,7 @@ public class SignatureResource implements SignatureAPI {
     @Override
     @SneakyThrows
     public DocumentDTO uploadDocument(String name, UUID templateId, UploadForm form) {
-        return service.createDocument(templateId, name, form.getFile());
+        return service.createDocument(templateId, name, form.getUpload());
     }
 
     @Override

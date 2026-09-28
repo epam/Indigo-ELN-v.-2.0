@@ -20,6 +20,6 @@ public class ELNInternalResource implements ELNInternalAPI {
 
     @Override
     public void internalSignatureUpdated(UUID documentId, String message, DocumentStatus documentStatus, UploadForm form) {
-        experimentWorkflowService.signatureUpdated(documentId, message, documentStatus, form.getFile().uploadedFile());
+        experimentWorkflowService.signatureUpdated(documentId, message, documentStatus, form.getUpload());
     }
 }

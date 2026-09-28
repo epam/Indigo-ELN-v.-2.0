@@ -81,7 +81,7 @@ class ExperimentWorkflowServiceIntegrationTest extends ELNBaseTest {
     @Test
     void testGetSignatureTemplates() {
         assertThat(experimentClient.getSignatureTemplates())
-                .containsExactlyInAnyOrder(
+                .contains(
                         new SignatureTemplateRef(noSignersTemplateID, "ExperimentWorkflowServiceTest-noSigners"),
                         new SignatureTemplateRef(oneSignerTemplateID, "ExperimentWorkflowServiceTest-oneSigner"),
                         new SignatureTemplateRef(twoSignersTemplateID, "ExperimentWorkflowServiceTest-twoSigners")

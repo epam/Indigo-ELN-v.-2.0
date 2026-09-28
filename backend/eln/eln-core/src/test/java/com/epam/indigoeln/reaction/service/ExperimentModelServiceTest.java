@@ -1,10 +1,12 @@
 package com.epam.indigoeln.reaction.service;
 
+import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.search.TextSearch;
 import com.epam.indigoeln.common.model.units.MolUnit;
+import com.epam.indigoeln.common.util.ModelUtil;
+import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
-import com.epam.indigoeln.compound.model.search.SampleSearchResult;
 import com.epam.indigoeln.compound.model.search.SearchCatalog;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
@@ -25,6 +27,9 @@ import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
+import com.epam.indigoeln.sampleregistration.model.SRSCompoundDTO;
+import com.epam.indigoeln.sampleregistration.model.SRSSampleDTO;
+import com.epam.indigoeln.sampleregistration.model.STRCodeCompound;
 import com.epam.indigoeln.sampleregistration.model.STRCodeSample;
 import com.epam.indigoeln.sampleregistration.model.SampleRegistrationResponse;
 import io.quarkus.test.junit.QuarkusTest;
@@ -38,6 +43,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.openapitools.jackson.nullable.JsonNullable;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -50,10 +56,11 @@ import static com.epam.indigoeln.eln.model.BuiltInDictionary.THERAPEUTIC_AREA;
 import static com.epam.indigoeln.eln.test.ReactionInputAssert.assertThat;
 import static com.epam.indigoeln.eln.test.ReactionInputSampleAssert.assertThat;
 import static com.epam.indigoeln.eln.test.ReactionOutputSampleAssert.assertThat;
+import static com.epam.indigoeln.test.ClientUtil.uploadForm;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doReturn;
 
 @QuarkusTest
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
@@ -62,7 +69,9 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
 
     @BeforeAll
     void setUpClass() {
-        miscClient.loadCompoundsFromFileClient("compounds.sdf", loadResource("/Compound_000000001_000500000.1.sdf"));
+        if (integrationTest) {
+            sampleRegistrationClient.loadCompoundsFromFile(uploadForm("compounds.sdf", loadResource("/Compound_000000001_000500000.1.sdf")));
+        }
         withUser(JOHN_USERNAME, () -> initExperiment("ExperimentModelServiceTest"));
     }
 
@@ -81,9 +90,18 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     @Test
     @Order(200)
     void testResolveInputs() {
+        if (!integrationTest) {
+            SRSSampleDTO sample = new SRSSampleDTO(new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 1), "C9H17NO4", BigDecimal.ONE);
+            doReturn(
+                    Page.of(Paging.DEFAULT, 1, List.of(sample)),
+                    Page.of(Paging.DEFAULT, 0, List.of())
+            ).when(sampleRegistrationClient).find(any(), any());
+            SRSCompoundDTO compound = new SRSCompoundDTO("C", ModelUtil.loadResourceAsString("/ring-substructure.mol"));
+            doReturn(compound).when(sampleRegistrationClient).getCompound(any());
+        }
         experiment.mutateResolveInputs();
         assertThat(experiment.input(1).getCompound()).isInstanceOf(CompoundRef.Stored.class);
-        assertThat(experiment.inputSample(1, 1).getSampleId()).isNotNull();
+        assertThat(experiment.inputSample(1, 1).getSampleKey()).isNotNull();
     }
 
     @Test
@@ -211,7 +229,7 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     @Order(1100)
     void testRegisterSample() {
         if (!integrationTest) {
-            when(sampleRegistrationClient.registerSample(any())).thenReturn(new SampleRegistrationResponse(new STRCodeSample(1, 1, 1), UUID.randomUUID()));
+            doReturn(new SampleRegistrationResponse(new STRCodeSample(1, 1, 1), UUID.randomUUID())).when(sampleRegistrationClient).registerSample(any());
         }
         experiment.mutate(new ReactionOutputSampleMutation.RegisterSample(experiment.outputSample(2, 1).getAnchor()), false);
         assertThat(experiment.outputSample(2, 1).getRegistrationStatus()).isEqualTo(SampleRegistrationStatus.REGISTERED);
@@ -229,28 +247,33 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     @Order(1102)
     void testRegisterAnotherSample() {
         if (!integrationTest) {
-            when(sampleRegistrationClient.registerSample(any())).thenReturn(new SampleRegistrationResponse(new STRCodeSample(1, 1, 2), UUID.randomUUID()));
+            doReturn(new SampleRegistrationResponse(new STRCodeSample(1, 1, 2), UUID.randomUUID())).when(sampleRegistrationClient).registerSample(any());
         }
         experiment.mutate(new ReactionOutputSampleMutation.RegisterSample(experiment.outputSample(2, 2).getAnchor()), false);
         assertThat(experiment.outputSample(2, 2).getRegistrationStatus()).isEqualTo(SampleRegistrationStatus.REGISTERED);
     }
 
-
     @Test
     @Order(1300)
     void testAddInput() {
-        SampleSearchResult foundSamples = compoundClient.search(new FindSamplesRequest()
-                .withCatalogs(Set.of(SearchCatalog.ELN))
-                .withMolecularFormula(new TextSearch.ExactSearch("C12H22N2O2"))
-                , Paging.DEFAULT_PAGE_SIZE
+        if (!integrationTest) {
+            SRSSampleDTO sample = new SRSSampleDTO(new STRCodeCompound(1, 2), new STRCodeSample(1, 2, 1), "C9H17NO4", BigDecimal.ONE);
+            doReturn(Page.of(Paging.DEFAULT, 1, List.of(sample))).when(sampleRegistrationClient).find(any(), any());
+            SRSCompoundDTO compound = new SRSCompoundDTO("C", ModelUtil.loadResourceAsString("/updated-molfile.mol"));
+            doReturn(compound).when(sampleRegistrationClient).getCompound(any());
+        }
+        Page<SampleDTO> foundSamples = compoundClient.search(new FindSamplesRequest()
+                .withCatalog(SearchCatalog.SRS)
+                .withMolecularFormula(new TextSearch.ExactSearch("C9H17NO4"))
+                , Paging.DEFAULT
         );
-        assertThat(foundSamples.items()).isNotEmpty();
+        assertThat(foundSamples.getItems()).isNotEmpty();
         int inputCount = experiment.reaction().getInputs().size();
-        UUID sampleId = checkNotNull(foundSamples.items().getFirst().getId());
-        experiment.mutate(new ReactionMutation.AddInput(experiment.reaction().getAnchor(), sampleId));
+        SampleDTO sample = checkNotNull(foundSamples.getItems().getFirst());
+        experiment.mutate(new ReactionMutation.AddInput(experiment.reaction().getAnchor(), sample));
         assertThat(experiment.reaction().getInputs()).hasSize(inputCount + 1);
         assertThat(experiment.input(inputCount + 1).getCompound()).isInstanceOf(CompoundRef.Stored.class);
-        assertThat(experiment.inputSample(inputCount + 1, 1).getSampleId()).isEqualTo(sampleId);
+        assertThat(experiment.inputSample(inputCount + 1, 1).getSampleKey()).isEqualTo(sample.getSampleKey());
     }
 
     @Test

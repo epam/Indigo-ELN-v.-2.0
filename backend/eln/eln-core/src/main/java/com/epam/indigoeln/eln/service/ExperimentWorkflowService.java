@@ -16,9 +16,9 @@ import jakarta.transaction.Transactional;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.jboss.resteasy.reactive.multipart.FileUpload;
 
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 
@@ -86,10 +86,10 @@ public class ExperimentWorkflowService {
     }
 
     @SneakyThrows
-    public void signatureUpdated(UUID documentId, String message, DocumentStatus updatedStatus, Path path) {
+    public void signatureUpdated(UUID documentId, String message, DocumentStatus updatedStatus, FileUpload file) {
         ExperimentEntity experiment = experimentRepository.findBySignatureNumber(documentId.toString());
         ExperimentAttachment submittedAttachment = checkNotNull(experiment.getSignatureAttachment());
-        byte[] bytes = Files.readAllBytes(path);
+        byte[] bytes = Files.readAllBytes(file.filePath());
         ExperimentAttachment attachment = attachmentService.createExperimentAttachment(experiment, submittedAttachment.getName(), bytes, null);
         ExperimentMutation mutation = new ExperimentMutation.SignatureUpdated(message, updatedStatus, attachment.getId());
         experimentModelService.applyMutation(experiment, mutation);

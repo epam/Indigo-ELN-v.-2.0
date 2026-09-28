@@ -1,19 +1,24 @@
 package com.epam.indigoeln.sampleregistration.model;
 
+import com.epam.indigoeln.common.model.NbkBatchNumber;
+import com.epam.indigoeln.common.model.units.MolarityUnit;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @Data
+@NoArgsConstructor
 public class SRSSampleDTO {
 
     @Nullable
     private UUID id;
     @Nullable
-    private String nbkBatchNumber;
+    private NbkBatchNumber nbkBatchNumber;
     @NotNull
     private STRCodeCompound strCodeCompound;
     @NotNull
@@ -23,13 +28,32 @@ public class SRSSampleDTO {
     @NotNull
     private BigDecimal molWeight;
     @Nullable
+    private String chemicalName;
+    @Nullable
     private String name;
     @Nullable
     private UUID saltCode;
     @Nullable
     private Double saltEQ;
     @Nullable
-    private UUID compoundID;
+    private BigDecimal density;
     @Nullable
-    private String inchi;
+    private BigDecimal molarity;
+    @Nullable
+    private MolarityUnit molarityUnit;
+    @Nullable
+    private BigDecimal purity;
+    @Nullable
+    private List<UUID> healthHazards;
+    @Nullable
+    private UUID compoundState;
+    @Nullable
+    private String batchComment;
+
+    public SRSSampleDTO(STRCodeCompound strCodeCompound, STRCodeSample strCodeSample, String molFormula, BigDecimal molWeight) {
+        this.strCodeCompound = strCodeCompound;
+        this.strCodeSample = strCodeSample;
+        this.molFormula = molFormula;
+        this.molWeight = molWeight;
+    }
 }

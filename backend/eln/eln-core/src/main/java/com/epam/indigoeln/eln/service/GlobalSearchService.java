@@ -3,7 +3,7 @@ package com.epam.indigoeln.eln.service;
 import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
-import com.epam.indigoeln.compound.entity.SampleEntity;
+import com.epam.indigoeln.compound.entity.MarkedSampleEntity;
 import com.epam.indigoeln.eln.common.util.SearchVector;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.ExperimentSearchBatch;
@@ -57,7 +57,7 @@ public class GlobalSearchService {
                 sv.bIdentifier(input.getCompound().getCompoundKey());
                 for (ReactionInputSample sample : input.getSamples()) {
                     sv.cIdentifier(sample.getSampleKey());
-                    sv.cIdentifier(sample.getNbkBatchNumber() != null ? sample.getNbkBatchNumber().toString() : null);
+                    sv.cIdentifier(sample.getNbkBatchNumber());
                 }
             }
         }
@@ -75,11 +75,11 @@ public class GlobalSearchService {
         return sv.build();
     }
 
-    public SearchVector collectSampleSearchVector(SampleEntity sample) {
+    public SearchVector collectSampleSearchVector(MarkedSampleEntity sample) {
         CompoundEntity c = sample.getCompound();
         SearchVector.Builder sv = new SearchVector.Builder()
                 .aIdentifier(sample.getSampleKey())
-                .aIdentifier(sample.getNbkBatchNumber() != null ? sample.getNbkBatchNumber().toString() : null)
+                .aIdentifier(sample.getNbkBatchNumber())
                 .aIdentifier(c.getCasNumber())
                 .b(c.getChemicalName());
         return sv.build();

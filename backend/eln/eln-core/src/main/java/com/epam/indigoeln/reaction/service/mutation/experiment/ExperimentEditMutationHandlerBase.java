@@ -1,20 +1,35 @@
 package com.epam.indigoeln.reaction.service.mutation.experiment;
 
 import com.epam.indigoeln.common.exception.InvalidRequestException;
-import com.epam.indigoeln.compound.entity.CompoundEntity;
-import com.epam.indigoeln.compound.entity.SampleEntity;
-import com.epam.indigoeln.compound.service.CompoundService;
-import com.epam.indigoeln.eln.entity.ExperimentEntity;
-import com.epam.indigoeln.eln.mapper.DictionaryMapper;
-import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.eln.service.DictionaryService;
-import com.epam.indigoeln.eln.indigowrapper.IndigoMolecule;
-import com.epam.indigoeln.reaction.model.*;
-import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.common.model.units.DensityUnit;
-import com.epam.indigoeln.reaction.model.EnteredValue;
 import com.epam.indigoeln.common.model.units.MeasurementUnit;
 import com.epam.indigoeln.common.model.units.NoUnit;
+import com.epam.indigoeln.compound.entity.CompoundEntity;
+import com.epam.indigoeln.compound.model.SampleDTO;
+import com.epam.indigoeln.compound.service.CompoundService;
+import com.epam.indigoeln.compound.service.search.SampleSearchService;
+import com.epam.indigoeln.eln.entity.ExperimentEntity;
+import com.epam.indigoeln.eln.indigowrapper.IndigoMolecule;
+import com.epam.indigoeln.eln.mapper.DictionaryMapper;
+import com.epam.indigoeln.eln.model.ApplicationPermission;
+import com.epam.indigoeln.eln.model.DictionaryItemRef;
+import com.epam.indigoeln.eln.model.ExperimentStatus;
+import com.epam.indigoeln.eln.model.SaltCodeRef;
+import com.epam.indigoeln.eln.model.StereoisomerCodeRef;
+import com.epam.indigoeln.eln.service.DictionaryService;
+import com.epam.indigoeln.reaction.model.CompoundRef;
+import com.epam.indigoeln.reaction.model.EnteredValue;
+import com.epam.indigoeln.reaction.model.InputAnchor;
+import com.epam.indigoeln.reaction.model.InputSampleAnchor;
+import com.epam.indigoeln.reaction.model.OutputAnchor;
+import com.epam.indigoeln.reaction.model.Reaction;
+import com.epam.indigoeln.reaction.model.ReactionInput;
+import com.epam.indigoeln.reaction.model.ReactionInputSample;
+import com.epam.indigoeln.reaction.model.ReactionOutput;
+import com.epam.indigoeln.reaction.model.ReactionOutputType;
+import com.epam.indigoeln.reaction.model.ReactionRole;
+import com.epam.indigoeln.reaction.model.ReactionRow;
+import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.google.common.base.Preconditions;
 import jakarta.inject.Inject;
 import one.util.streamex.StreamEx;
@@ -36,6 +51,8 @@ public abstract class ExperimentEditMutationHandlerBase<T extends ExperimentMuta
 
     @Inject
     CompoundService compoundService;
+    @Inject
+    SampleSearchService sampleSearchService;
     @Inject
     DictionaryService dictionaryService;
     @Inject
@@ -115,30 +132,22 @@ public abstract class ExperimentEditMutationHandlerBase<T extends ExperimentMuta
         return "Updated %s".formatted(what);
     }
 
-    public Object getSampleIdentifier(SampleEntity sample) {
-        if (sample.getSampleKey() != null) {
-            return sample.getSampleKey();
-        }
-        if (sample.getNbkBatchNumber() != null) {
-            return sample.getNbkBatchNumber();
-        }
-        return "unknown sample";
-    }
+    public void setInputLineSample(ReactionInput row, SampleDTO sample, InputSampleAnchor anchor, ExperimentMutationContext context) {
+        CompoundEntity compound = sampleSearchService.importCompound(sample);
 
-    public void setInputLineSample(ReactionInput row, SampleEntity sample, InputSampleAnchor anchor, ExperimentMutationContext context) {
-        row.updateCompound(compoundService.realCompoundRef(sample.getCompound()));
+        row.updateCompound(compoundService.realCompoundRef(compound));
 
         ReactionInputSample reactionInputSample = ReactionInputSample.create(row, anchor);
-        reactionInputSample.setSampleId(sample.getId());
+        reactionInputSample.setSampleSource(sample.getSource());
         reactionInputSample.setSampleKey(sample.getSampleKey());
         reactionInputSample.setDensity(EnteredValue.defaultValue(sample.getDensity(), DensityUnit.G_ML));
         reactionInputSample.setMolarity(EnteredValue.defaultValue(sample.getMolarity(), sample.getMolarityUnit()));
         reactionInputSample.setPurity(sample.getPurity() != null ? EnteredValue.defaultValue(sample.getPurity(), NoUnit.NO_UNIT) : DEFAULT_ONE_HUNDRED);
-        reactionInputSample.setHealthHazards(dictionaryService.get(sample.getHealthHazards()));
+        reactionInputSample.setHealthHazards(sample.getHealthHazards());
         reactionInputSample.setComment(sample.getBatchComment());
         reactionInputSample.setNbkBatchNumber(sample.getNbkBatchNumber());
         row.setSamples(List.of(reactionInputSample));
-        row.setChemicalName(sample.getCompound().getChemicalName());
+        row.setChemicalName(compound.getChemicalName());
     }
 
     public ReactionInput createInputLine(Reaction reaction, @Nullable IndigoMolecule molecule, ReactionRole role, InputAnchor createdInputAnchor, InputSampleAnchor createdSampleAnchor) {

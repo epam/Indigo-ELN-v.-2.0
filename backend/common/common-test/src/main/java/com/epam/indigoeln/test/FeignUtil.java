@@ -89,6 +89,7 @@ public class FeignUtil {
                 }
             }
         }
-        return new APICallException(response.status(), response.reason(), errors);
+
+        return new APICallException(response.request().httpMethod().name(), response.request().url(), response.status(), response.reason(), errors);
     }
 }

@@ -15,8 +15,6 @@ import lombok.NoArgsConstructor;
 import lombok.With;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Set;
-
 @Data
 @With
 @NoArgsConstructor
@@ -25,8 +23,7 @@ import java.util.Set;
 public class FindSamplesRequest {
 
     @NotNull
-    @Size(min = 1)
-    Set<SearchCatalog> catalogs;
+    SearchCatalog catalog;
 
     @Nullable
     @Size(min = 1)
@@ -75,7 +72,4 @@ public class FindSamplesRequest {
     @Valid
     @Nullable
     HealthHazardRef healthHazards;
-
-    @Nullable
-    FindSamplesState state;
 }

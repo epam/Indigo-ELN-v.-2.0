@@ -8,7 +8,17 @@ import com.epam.indigoeln.common.model.UploadForm;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.api.BaseAPI;
 import com.epam.indigoeln.eln.api.ExperimentAPI;
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.model.ACLEntryDTO;
+import com.epam.indigoeln.eln.model.AttachmentDTO;
+import com.epam.indigoeln.eln.model.ExperimentDTO;
+import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
+import com.epam.indigoeln.eln.model.ExperimentEditRequest;
+import com.epam.indigoeln.eln.model.ExperimentRef;
+import com.epam.indigoeln.eln.model.ExperimentRequest;
+import com.epam.indigoeln.eln.model.ExperimentStatus;
+import com.epam.indigoeln.eln.model.MutationResponse;
+import com.epam.indigoeln.eln.model.RevisionSummaryDTO;
+import com.epam.indigoeln.eln.model.SignatureTemplateRef;
 import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.ExperimentService;
 import com.epam.indigoeln.eln.service.ExperimentWorkflowService;
@@ -72,7 +82,7 @@ public class ExperimentResource implements ExperimentAPI {
 
     @Override
     public List<AttachmentDTO> createExperimentAttachment(UUID experimentId, UploadForm form) {
-        return attachmentService.createExperimentAttachment(experimentId, form.getFile(), true);
+        return attachmentService.createExperimentAttachment(experimentId, form.getUpload(), true);
     }
 
     @Override
@@ -179,7 +189,7 @@ public class ExperimentResource implements ExperimentAPI {
 
     @Override
     public MutationResponse importSDF(UUID experimentId, ReactionAnchor reactionAnchor, UploadForm form) {
-        return experimentService.importSDF(experimentId, reactionAnchor, form.getFile());
+        return experimentService.importSDF(experimentId, reactionAnchor, form.getUpload());
     }
 
     @Override

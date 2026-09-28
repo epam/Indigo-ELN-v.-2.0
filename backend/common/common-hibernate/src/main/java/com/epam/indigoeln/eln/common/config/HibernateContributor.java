@@ -60,5 +60,12 @@ public class HibernateContributor implements FunctionContributor {
                 "(?1 @ (?2, ?3)::bingo.rsub)",
                 types.standardBasicTypeForJavaType(Boolean.class)
         );
+
+        // other
+        functionContributions.getFunctionRegistry().registerPattern(
+                "array_contains",
+                "(?1 = any(?2))",
+                types.standardBasicTypeForJavaType(Boolean.class)
+        );
     }
 }

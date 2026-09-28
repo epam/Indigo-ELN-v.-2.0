@@ -1,15 +1,17 @@
 package com.epam.indigoeln.reaction.model;
 
-import com.epam.indigoeln.eln.model.NbkBatchNumber;
 import com.epam.indigoeln.common.model.units.MolUnit;
 import com.epam.indigoeln.common.model.units.WeightUnit;
+import com.epam.indigoeln.common.model.NbkBatchNumber;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.base.Preconditions;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import org.jspecify.annotations.Nullable;
-
-import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ModelUtil.appendToList;
 import static com.epam.indigoeln.common.util.ModelUtil.removeFromList;
@@ -23,9 +25,6 @@ public final class ReactionInputSample extends ReactionSample<ReactionInput> {
 
     @NotNull
     private final InputSampleAnchor anchor;
-
-    @Nullable
-    private UUID sampleId;
 
     @Nullable
     private NbkBatchNumber nbkBatchNumber;

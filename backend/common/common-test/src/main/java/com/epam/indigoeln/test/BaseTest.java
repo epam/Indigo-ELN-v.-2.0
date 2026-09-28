@@ -11,10 +11,17 @@ import lombok.Setter;
 import lombok.SneakyThrows;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.jspecify.annotations.Nullable;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.Timeout;
 import org.junit.platform.commons.support.AnnotationSupport;
+import org.mockito.Mockito;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -77,6 +84,12 @@ public abstract class BaseTest {
         } finally {
             this.username.set(oldUsername);
         }
+    }
+
+    protected <T> T mock(Class<T> klass) {
+        return Mockito.mock(klass, inv -> {
+            throw new RuntimeException("Not stubbed:\n\t   method: " + inv.getMethod() + "\n\targuments: " + Arrays.toString(inv.getArguments()));
+        });
     }
 
     @SneakyThrows

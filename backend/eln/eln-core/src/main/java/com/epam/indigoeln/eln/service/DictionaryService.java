@@ -83,13 +83,23 @@ public class DictionaryService {
         return dictionaryMapper.itemToDTOList(dictionaryItemRepository.list(refToID(dictionaryRef), true));
     }
 
-    public <T extends DictionaryItemRef> T get(UUID id) {
+    public <T extends DictionaryItemRef> T byId(UUID id) {
         DictionaryItemRef ref = cached().all.get(id);
         if (ref == null) {
             throw new EntityNotFoundException(ELNEntityType.DICTIONARY_ITEM, id);
         }
         //noinspection unchecked
         return (T) ref;
+    }
+
+    @Nullable
+    public <T extends DictionaryItemRef> List<T> byId(@Nullable List<UUID> ids) {
+        if (ids == null) {
+            return null;
+        }
+        return ids.stream()
+                .map(this::<T>byId)
+                .toList();
     }
 
     @Nullable

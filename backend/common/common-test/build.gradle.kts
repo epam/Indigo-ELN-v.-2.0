@@ -19,6 +19,8 @@ dependencies {
     api("org.mockito:mockito-core:5.23.0")
     api("org.mockito:mockito-junit-jupiter:5.23.0")
     api("io.quarkiverse.wiremock:quarkus-wiremock-test:1.6.3")
+    api("org.testcontainers:testcontainers")
+    api("org.testcontainers:testcontainers-postgresql")
     implementation("io.quarkiverse.amazonservices:quarkus-amazon-s3")
 
     api("io.github.openfeign:feign-core:13.13")

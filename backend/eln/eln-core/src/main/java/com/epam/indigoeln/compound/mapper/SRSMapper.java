@@ -4,7 +4,7 @@ package com.epam.indigoeln.compound.mapper;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
-import com.epam.indigoeln.eln.model.NbkBatchNumber;
+import com.epam.indigoeln.common.model.NbkBatchNumber;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.sampleregistration.model.SRSFindSamplesRequest;
 import com.epam.indigoeln.sampleregistration.model.SRSSampleDTO;
@@ -25,10 +25,13 @@ public abstract class SRSMapper {
     @Mapping(target = "strCodeSample", source = "externalNumber")
     public abstract SRSFindSamplesRequest requestToSRS(FindSamplesRequest request);
 
-    @Mapping(target = "source", constant = "SAMPLE_REGISTRATION_SERVICE")
+    @Mapping(target = "catalog", constant = "SRS")
+    @Mapping(target = "source", constant = "SRS")
     @Mapping(target = "compoundKey", expression = "java(sample.getStrCodeCompound().toString())")
     @Mapping(target = "sampleKey", expression = "java(sample.getStrCodeSample().toString())")
-    @Mapping(target = "saltCode", expression = "java(sample.getSaltCode() != null ? dictionaryService.get(sample.getSaltCode()) : null)")
+    @Mapping(target = "saltCode", expression = "java(sample.getSaltCode() != null ? dictionaryService.byId(sample.getSaltCode()) : null)")
+    @Mapping(target = "healthHazards", expression = "java(dictionaryService.byId(sample.getHealthHazards()))")
+    @Mapping(target = "compoundState", expression = "java(sample.getCompoundState() != null ? dictionaryService.byId(sample.getCompoundState()) : null)")
     @Mapping(target = "marked", constant = "false")
     public abstract SampleDTO sampleFromSRS(SRSSampleDTO sample);
 

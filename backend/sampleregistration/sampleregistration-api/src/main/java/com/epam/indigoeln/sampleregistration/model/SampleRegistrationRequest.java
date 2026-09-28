@@ -1,5 +1,6 @@
 package com.epam.indigoeln.sampleregistration.model;
 
+import com.epam.indigoeln.common.model.NbkBatchNumber;
 import com.epam.indigoeln.common.model.units.MolarityUnit;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotNull;
@@ -33,7 +34,7 @@ public class SampleRegistrationRequest {
     private Integer saltEQ100;
 
     @NotNull
-    private String nbkBatchNumber;
+    private NbkBatchNumber nbkBatchNumber;
 
     @NotNull
     private Double molWeight;

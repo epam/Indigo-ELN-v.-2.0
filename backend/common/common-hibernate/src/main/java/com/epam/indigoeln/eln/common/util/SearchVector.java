@@ -46,45 +46,48 @@ public class SearchVector {
         private final Set<String> c = new LinkedHashSet<>();
         private final Set<String> d = new LinkedHashSet<>();
 
-        public SearchVector.Builder a(@Nullable String t) {
+        public SearchVector.Builder a(@Nullable Object t) {
             return add(t, false, a);
         }
 
-        public SearchVector.Builder aIdentifier(@Nullable String t) {
+        public SearchVector.Builder aIdentifier(@Nullable Object t) {
             return add(t, true, a);
         }
 
-        public SearchVector.Builder b(@Nullable String t) {
+        public SearchVector.Builder b(@Nullable Object t) {
             return add(t, false, b);
         }
 
-        public SearchVector.Builder bIdentifier(@Nullable String t) {
+        public SearchVector.Builder bIdentifier(@Nullable Object t) {
             return add(t, true, b);
         }
 
-        public SearchVector.Builder c(@Nullable String t) {
+        public SearchVector.Builder c(@Nullable Object t) {
             return add(t, false, c);
         }
 
-        public SearchVector.Builder cIdentifier(@Nullable String t) {
+        public SearchVector.Builder cIdentifier(@Nullable Object t) {
             return add(t, true, c);
         }
 
-        public SearchVector.Builder d(@Nullable String t) {
+        public SearchVector.Builder d(@Nullable Object t) {
             return add(t, false, d);
         }
 
-        private SearchVector.Builder add(@Nullable String t, boolean identifier, Set<String> destination) {
-            if (StringUtils.isNotEmpty(t)) {
-                if (identifier) {
-                    destination.add(t.replace('-', IDENTIFIER_SEPARATOR));
-                    for (String s : t.split("[ -]")) {
-                        if (StringUtils.isNotEmpty(s)) {
-                            destination.add(s);
+        private SearchVector.Builder add(@Nullable Object t, boolean identifier, Set<String> destination) {
+            if (t != null) {
+                String str = t.toString();
+                if (StringUtils.isNotEmpty(str)) {
+                    if (identifier) {
+                        destination.add(str.replace('-', IDENTIFIER_SEPARATOR));
+                        for (String s : str.split("[ -]")) {
+                            if (StringUtils.isNotEmpty(s)) {
+                                destination.add(s);
+                            }
                         }
+                    } else {
+                        destination.add(str);
                     }
-                } else {
-                    destination.add(t);
                 }
             }
             return this;

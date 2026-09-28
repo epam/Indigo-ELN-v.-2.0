@@ -54,7 +54,7 @@ public class SRSSampleRepository extends BaseRepository<SRSSampleEntity> {
                 .orElse(null);
     }
 
-    public Page<SRSSampleDTO> find(SRSFindSamplesRequest request, int pageNo, int pageSize) {
+    public Page<SRSSampleDTO> find(SRSFindSamplesRequest request, Paging paging) {
         CriteriaDefinition<Tuple> criteria = new CriteriaDefinition<>(em, Tuple.class) {{
             JpaRoot<SRSSampleEntity> root = from(SRSSampleEntity.class);
             JpaJoin<SRSSampleEntity, SRSCompoundEntity> compound = root.join(SRSSampleEntity_.compound); // will be optimized away if not used
@@ -77,15 +77,13 @@ public class SRSSampleRepository extends BaseRepository<SRSSampleEntity> {
                 if (request.getCompoundState() != null) {
                     conditions.add(equal(root.get(SRSSampleEntity_.compoundState), request.getCompoundState()));
                 }
-                // !!!
-//                if (request.getHealthHazards() != null) {
-//                    conditions.add(cb.isMember(request.getHealthHazards(), root.get(SRSSampleEntity_.healthHazards)));
-//                }
+                if (request.getHealthHazards() != null) {
+                    conditions.arrayContains(request.getHealthHazards(), root.get(SRSSampleEntity_.healthHazards));
+                }
             });
         }};
 
-        Paging paging = new Paging(pageNo, pageSize);
-        Page<SRSSampleEntity> page = doFindWithTotals(criteria, paging, null);
+        Page<SRSSampleEntity> page = doFindWithTotals(criteria, paging, em.getEntityGraph("SRSSample"));
         return ModelUtil.map(page, sampleMapper::sampleToDTO);
     }
 }

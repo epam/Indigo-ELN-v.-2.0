@@ -5,6 +5,7 @@ import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
+import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.config.DataAccess;
@@ -30,6 +31,7 @@ import com.epam.indigoeln.eln.model.ExperimentRequest;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
 import com.epam.indigoeln.eln.model.MutationResponse;
 import com.epam.indigoeln.eln.model.RevisionSummaryDTO;
+import com.epam.indigoeln.eln.model.SampleSource;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
@@ -58,7 +60,6 @@ import com.google.common.base.Preconditions;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
@@ -72,6 +73,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
@@ -98,6 +100,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class ExperimentService {
 
     static final byte[] EMPTY_PICTURE = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1\" height=\"1\"/>".getBytes(StandardCharsets.UTF_8);
+
+    static final String[] NAME_PROPERTIES = {"PUBCHEM_IUPAC_TRADITIONAL_NAME", "PUBCHEM_IUPAC_SYSTEMATIC_NAME", "PUBCHEM_IUPAC_OPENEYE_NAME"};
+
 
     @Inject
     ProjectRepository projectRepository;
@@ -330,11 +335,25 @@ public class ExperimentService {
     }
 
     @SneakyThrows
-    public MutationResponse importSDF(UUID experimentId, ReactionAnchor reactionAnchor, @NotNull FileUpload file) {
+    public MutationResponse importSDF(UUID experimentId, ReactionAnchor reactionAnchor, FileUpload file) {
         ExperimentEntity experiment = experimentRepository.loadAndLock(experimentId);
         aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
-        List<UUID> compoundIDs = compoundService.loadCompoundsFromFile(file.filePath(), false);
-        MutationResult<ExperimentSnapshot, ExperimentMutationContext> result = experimentModelService.applyMutation(experiment, new ReactionMutation.ImportSDF(reactionAnchor, compoundIDs));
+        List<UUID> compoundIDs = new ArrayList<>();
+        List<SampleDTO> samples = new ArrayList<>();
+        for (IndigoMolecule molecule : indigo.iterateSDFile(file.filePath().toAbsolutePath().toString())) {
+            String chemicalName = ModelUtil.getAny(molecule.getProperties(), NAME_PROPERTIES);
+            CompoundEntity compound = compoundService.findOrCreate(molecule, null, null, null, SampleSource.ELN, null, chemicalName);
+            if (compound.getSource() == SampleSource.ELN && compound.getCompoundKey() == null) {
+                compound.setCompoundKey(compound.getId().toString());
+            }
+            SampleDTO sample = new SampleDTO();
+            sample.setSource(SampleSource.ELN);
+            sample.setSampleKey(compound.getId().toString());
+            // TODO fill sample properties from SDF
+            compoundIDs.add(compound.getId());
+            samples.add(sample);
+        }
+        MutationResult<ExperimentSnapshot, ExperimentMutationContext> result = experimentModelService.applyMutation(experiment, new ReactionMutation.ImportSDF(reactionAnchor, compoundIDs, samples));
         MutationResponse response = result.context().getResponse();
         response.setPatch(result.patch());
         return response;

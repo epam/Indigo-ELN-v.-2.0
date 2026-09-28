@@ -1,6 +1,8 @@
 package com.epam.indigoeln.sampleregistration.entity;
 
+import com.epam.indigoeln.common.model.NbkBatchNumber;
 import com.epam.indigoeln.common.model.units.MolarityUnit;
+import com.epam.indigoeln.eln.common.config.NbkBatchNumberConverter;
 import com.epam.indigoeln.eln.common.config.SearchVectorType;
 import com.epam.indigoeln.eln.common.entity.IdentifiableEntity;
 import com.epam.indigoeln.eln.common.util.SearchVector;
@@ -14,6 +16,8 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -37,6 +41,12 @@ import java.util.UUID;
 @Entity(name = "SRSSample")
 @Table(name = "SRS_Sample")
 @ToString(of = {"id", "compound"})
+@NamedEntityGraph(
+        name = "SRSSample",
+        attributeNodes = {
+                @NamedAttributeNode("compound"),
+        }
+)
 public class SRSSampleEntity extends IdentifiableEntity {
 
     @NotNull
@@ -47,15 +57,13 @@ public class SRSSampleEntity extends IdentifiableEntity {
     @ManyToOne(optional = false)
     private SRSCompoundEntity compound;
 
-    @NotNull
-    private String nbkBatchNumber;
+    @Nullable
+    @Convert(converter = NbkBatchNumberConverter.class)
+    private NbkBatchNumber nbkBatchNumber;
 
     @NotNull
     @Convert(converter = STRCodeSampleConverter.class)
     private STRCodeSample strCode;
-
-    @Nullable
-    private String externalNumber;
 
     @Nullable
     private BigDecimal density;

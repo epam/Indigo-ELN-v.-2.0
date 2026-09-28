@@ -48,8 +48,6 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.UUID;
 
-import static org.mockito.Mockito.mock;
-
 @ExtendWith(HibernateLazyLoadStatisticsExtension.class)
 public abstract class ELNBaseTest extends BaseTest {
 
@@ -196,7 +194,7 @@ public abstract class ELNBaseTest extends BaseTest {
                 statement.executeUpdate("delete from Project");
                 statement.executeUpdate("delete from Template where name != 'Default'");
                 // samples, compounds
-                statement.executeUpdate("delete from Sample");
+                statement.executeUpdate("delete from Marked_Sample");
                 statement.executeUpdate("delete from Compound");
             }
             connection.commit();

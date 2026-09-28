@@ -65,7 +65,7 @@ public final class ReactionInput extends ReactionRow {
 
     public void updateCompound(CompoundRef newCompound) {
         for (ReactionInputSample sample : samples) {
-            validate(sample.getSampleId() == null, "Cannot update compound with real samples attached");
+            validate(sample.getSampleSource() == null, "Cannot update compound with real samples attached");
         }
         this.compound = newCompound;
         validateDuplicateInputs(reaction, this);

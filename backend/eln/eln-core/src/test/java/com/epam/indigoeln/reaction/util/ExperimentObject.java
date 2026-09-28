@@ -1,36 +1,54 @@
 package com.epam.indigoeln.reaction.util;
 
+import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.search.StructuralSearch;
 import com.epam.indigoeln.common.model.units.DensityUnit;
 import com.epam.indigoeln.common.model.units.MolUnit;
 import com.epam.indigoeln.common.model.units.MolarityUnit;
 import com.epam.indigoeln.common.model.units.VolumeUnit;
 import com.epam.indigoeln.common.model.units.WeightUnit;
 import com.epam.indigoeln.common.util.ModelUtil;
+import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
-import com.epam.indigoeln.compound.model.search.SampleSearchResult;
-import com.epam.indigoeln.common.model.search.StructuralSearch;
+import com.epam.indigoeln.compound.model.search.SearchCatalog;
 import com.epam.indigoeln.eln.client.CompoundClient;
 import com.epam.indigoeln.eln.client.ExperimentClient;
 import com.epam.indigoeln.eln.client.MiscClient;
 import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
 import com.epam.indigoeln.eln.model.MutationResponse;
-import com.epam.indigoeln.reaction.model.*;
-import com.epam.indigoeln.reaction.model.mutation.*;
+import com.epam.indigoeln.reaction.model.ExperimentModel;
+import com.epam.indigoeln.reaction.model.InputAnchor;
+import com.epam.indigoeln.reaction.model.Reaction;
+import com.epam.indigoeln.reaction.model.ReactionInput;
+import com.epam.indigoeln.reaction.model.ReactionInputSample;
+import com.epam.indigoeln.reaction.model.ReactionOutput;
+import com.epam.indigoeln.reaction.model.ReactionOutputSample;
+import com.epam.indigoeln.reaction.model.ReactionRole;
+import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
+import com.epam.indigoeln.reaction.model.mutation.Mutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionInputSampleMutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import jakarta.ws.rs.core.Response;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
+import one.util.streamex.EntryStream;
 import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
-import static com.epam.indigoeln.compound.model.search.SearchCatalog.ELN;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Accessors(fluent = true)
@@ -131,14 +149,17 @@ public class ExperimentObject {
     public void mutateResolveInputs() {
         Map<InputAnchor, UUID> sampleIDs = new HashMap<>();
         Map<InputAnchor, String> requests = experimentClient.analyzeRXN(id, reaction().getAnchor());
-        requests.forEach((anchor, structure) -> {
-            FindSamplesRequest findSamplesRequest = new FindSamplesRequest().withCatalogs(Set.of(ELN)).withStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, structure));
-            SampleSearchResult samples = compoundClient.search(findSamplesRequest, Paging.DEFAULT_PAGE_SIZE);
-            if (!samples.items().isEmpty()) {
-                sampleIDs.put(anchor, checkNotNull(samples.items().getFirst().getId()));
-            }
-        });
-        mutate(new ReactionMutation.ResolveInputs(reaction().getAnchor(), sampleIDs));
+        Map<InputAnchor, SampleDTO> resolved = EntryStream.of(requests)
+                .mapToValuePartial((anchor, molfile) -> {
+                    FindSamplesRequest request = new FindSamplesRequest().withCatalog(SearchCatalog.SRS).withStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, molfile));
+                    Page<SampleDTO> samples = compoundClient.search(request, Paging.DEFAULT);
+                    if (!samples.getItems().isEmpty()) {
+                        return Optional.of(samples.getItems().getFirst());
+                    }
+                    return Optional.empty();
+                })
+                .toMap();
+        mutate(new ReactionMutation.ResolveInputs(reaction().getAnchor(), resolved));
     }
 
     public void mutateSetInputMol(int inputNo, int sampleNo, @Nullable String mol, @Nullable MolUnit unit) {

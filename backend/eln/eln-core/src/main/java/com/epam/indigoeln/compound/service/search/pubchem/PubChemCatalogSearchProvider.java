@@ -1,18 +1,18 @@
 package com.epam.indigoeln.compound.service.search.pubchem;
 
+import com.epam.indigoeln.common.model.MolFormula;
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.search.TextSearch;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
-import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.search.SearchCatalog;
-import com.epam.indigoeln.common.model.search.TextSearch;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.compound.service.search.CatalogSearchProvider;
-import com.epam.indigoeln.compound.service.search.CatalogSearchResult;
-import com.epam.indigoeln.eln.model.SampleSource;
 import com.epam.indigoeln.eln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.eln.indigowrapper.IndigoMolecule;
-import com.epam.indigoeln.common.model.MolFormula;
+import com.epam.indigoeln.eln.model.SampleSource;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MultivaluedHashMap;
@@ -23,13 +23,19 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.epam.indigoeln.common.exception.InvalidRequestException.fail;
 import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 // TODO PubChem suggests using throttling at 5 requests/second from an application; need Redis for this
+// !!! implement on JVM level for now
 @Slf4j
 @ApplicationScoped
 class PubChemCatalogSearchProvider implements CatalogSearchProvider {
@@ -56,12 +62,15 @@ class PubChemCatalogSearchProvider implements CatalogSearchProvider {
     }
 
     @Override
-    public CatalogSearchResult search(FindSamplesRequest request, int pageNo, int pageSize) {
+    public Page<SampleDTO> search(FindSamplesRequest request, Paging paging) {
+        if (paging.getPageNoOrDefault() > 0) { // PubChem doesn't support paging
+            return Page.of(paging, null, List.of(), false);
+        }
         try {
-            List<SampleDTO> list = executeQuery(request, pageSize);
-            return new CatalogSearchResult(list, null, false);
+            List<SampleDTO> list = executeQuery(request, paging.getPageSizeOrDefault());
+            return Page.of(paging, null, list, false);
         } catch (PubChemException.NotFound e) {
-            return new CatalogSearchResult(List.of(), null, false);
+            return Page.of(paging, null, List.of(), false);
         } catch (PubChemException e) {
             throw e;
         } catch (Exception e) {
@@ -113,9 +122,12 @@ class PubChemCatalogSearchProvider implements CatalogSearchProvider {
     }
 
     @Override
-    public SampleEntity importSample(SampleDTO searchItem) {
-        IndigoMolecule molecule = indigo.loadMolecule(checkNotNull(searchItem.getInchi()));
-        CompoundEntity compound = compoundService.findOrCreate(molecule, null, null, null, SampleSource.PUBCHEM, searchItem.getCompoundKey());
-        return compoundService.findOrCreateDefaultSample(compound);
+    public CompoundEntity importCompound(SampleDTO sample) {
+        PubChemResponse response = pubChemClient.findInChi(sample.getCompoundKey());
+        checkState(!response.propertyTable().items().isEmpty(), "Compound not found in PubChem by cid: %s", sample.getCompoundKey());
+        checkState(response.propertyTable().items().size() == 1, "Multiple compounds found in PubChem by cid: %s", sample.getCompoundKey());
+        String inchi = response.propertyTable().items().getFirst().inchi();
+        IndigoMolecule molecule = indigo.loadMolecule(inchi);
+        return compoundService.findOrCreate(molecule, null, null, null, SampleSource.PUBCHEM, sample.getCompoundKey(), sample.getChemicalName());
     }
 }

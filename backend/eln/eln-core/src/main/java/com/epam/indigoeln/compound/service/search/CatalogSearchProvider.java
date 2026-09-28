@@ -1,6 +1,8 @@
 package com.epam.indigoeln.compound.service.search;
 
-import com.epam.indigoeln.compound.entity.SampleEntity;
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.search.SearchCatalog;
@@ -9,11 +11,7 @@ public interface CatalogSearchProvider {
 
     SearchCatalog catalog();
 
-    default boolean isEnabled(FindSamplesRequest request) {
-        return true;
-    }
+    Page<SampleDTO> search(FindSamplesRequest request, Paging paging);
 
-    CatalogSearchResult search(FindSamplesRequest request, int pageNo, int pageSize);
-
-    SampleEntity importSample(SampleDTO searchItem);
+    CompoundEntity importCompound(SampleDTO sample);
 }

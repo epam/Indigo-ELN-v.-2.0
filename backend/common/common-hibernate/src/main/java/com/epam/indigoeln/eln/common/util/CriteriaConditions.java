@@ -144,6 +144,12 @@ public class CriteriaConditions {
         }
     }
 
+    public <T> void arrayContains(@Nullable T element, Expression<T[]> attribute) {
+        if (element != null) {
+            predicates.add(cb.isTrue(cb.function("array_contains", Boolean.class, cb.literal(element), attribute)));
+        }
+    }
+
     protected static <T extends CriteriaConditions> void doWithConditions(Instance<T> instance, Consumer<List<Predicate>> applier, Consumer<T> block) {
         T conditions = instance.get();
         try {

@@ -2,10 +2,13 @@ package com.epam.indigoeln.sampleregistration.controller;
 
 
 import com.epam.indigoeln.common.model.Page;
-import com.epam.indigoeln.compound.model.SampleDTO;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.UploadForm;
 import com.epam.indigoeln.sampleregistration.api.SampleRegistrationAPI;
+import com.epam.indigoeln.sampleregistration.model.SRSCompoundDTO;
 import com.epam.indigoeln.sampleregistration.model.SRSFindSamplesRequest;
 import com.epam.indigoeln.sampleregistration.model.SRSSampleDTO;
+import com.epam.indigoeln.sampleregistration.model.STRCodeCompound;
 import com.epam.indigoeln.sampleregistration.model.SampleRegistrationRequest;
 import com.epam.indigoeln.sampleregistration.model.SampleRegistrationResponse;
 import com.epam.indigoeln.sampleregistration.service.SampleRegistrationService;
@@ -29,7 +32,17 @@ public class SampleRegistrationResource implements SampleRegistrationAPI {
     }
 
     @Override
-    public Page<SRSSampleDTO> find(SRSFindSamplesRequest request, int pageNo, int pageSize) {
-        return sampleSearchService.find(request, pageNo, pageSize);
+    public Page<SRSSampleDTO> find(SRSFindSamplesRequest request, Paging paging) {
+        return sampleSearchService.find(request, paging);
+    }
+
+    @Override
+    public SRSCompoundDTO getCompound(STRCodeCompound strCode) {
+        return sampleSearchService.getCompound(strCode);
+    }
+
+    @Override
+    public int loadCompoundsFromFile(UploadForm form) {
+        return sampleRegistrationService.loadCompoundsFromFile(form.getUpload().filePath());
     }
 }

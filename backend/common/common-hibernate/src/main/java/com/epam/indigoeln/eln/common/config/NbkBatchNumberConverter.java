@@ -1,6 +1,6 @@
-package com.epam.indigoeln.eln.config.hibernate;
+package com.epam.indigoeln.eln.common.config;
 
-import com.epam.indigoeln.eln.model.NbkBatchNumber;
+import com.epam.indigoeln.common.model.NbkBatchNumber;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 import org.jspecify.annotations.Nullable;

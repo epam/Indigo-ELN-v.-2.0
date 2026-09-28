@@ -1,13 +1,16 @@
 package com.epam.indigoeln.reaction.service;
 
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.units.DensityUnit;
 import com.epam.indigoeln.common.model.units.MolUnit;
 import com.epam.indigoeln.common.model.units.MolarityUnit;
 import com.epam.indigoeln.common.model.units.VolumeUnit;
 import com.epam.indigoeln.common.model.units.WeightUnit;
 import com.epam.indigoeln.common.util.ModelUtil;
+import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
-import com.epam.indigoeln.compound.model.search.SampleSearchResult;
+import com.epam.indigoeln.compound.model.search.SearchCatalog;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.BuiltInDictionary;
 import com.epam.indigoeln.eln.model.ComponentStateRef;
@@ -43,9 +46,11 @@ import com.epam.indigoeln.reaction.model.outputsample.PurityCalculation;
 import com.epam.indigoeln.reaction.model.outputsample.PurityCalculationType;
 import com.epam.indigoeln.reaction.model.outputsample.ResidualSolvent;
 import com.epam.indigoeln.reaction.model.outputsample.SolubidityInSolvent;
+import com.epam.indigoeln.sampleregistration.model.SRSCompoundDTO;
+import com.epam.indigoeln.sampleregistration.model.SRSSampleDTO;
+import com.epam.indigoeln.sampleregistration.model.STRCodeCompound;
 import com.epam.indigoeln.sampleregistration.model.STRCodeSample;
 import com.epam.indigoeln.sampleregistration.model.SampleRegistrationResponse;
-import com.epam.indigoeln.test.ClientUtil;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import jakarta.validation.constraints.NotNull;
@@ -59,27 +64,26 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
-import static com.epam.indigoeln.common.model.Paging.DEFAULT_PAGE_SIZE;
 import static com.epam.indigoeln.common.model.units.DensityUnit.G_ML;
 import static com.epam.indigoeln.common.model.units.MolUnit.MMOL;
 import static com.epam.indigoeln.common.model.units.MolarityUnit.MM;
 import static com.epam.indigoeln.common.model.units.VolumeUnit.ML;
 import static com.epam.indigoeln.common.model.units.WeightUnit.G;
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
-import static com.epam.indigoeln.compound.model.search.SearchCatalog.ELN;
 import static com.epam.indigoeln.eln.test.EnteredValueAssert.assertThat;
 import static com.epam.indigoeln.eln.test.ReactionInputAssert.assertThat;
 import static com.epam.indigoeln.eln.test.ReactionInputSampleAssert.assertThat;
 import static com.epam.indigoeln.eln.test.ReactionOutputSampleAssert.assertThat;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
+import static com.epam.indigoeln.test.ClientUtil.uploadForm;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doReturn;
 
 @QuarkusTest
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
@@ -114,7 +118,9 @@ public class MutationsTest extends MutationsTestBase {
 
     @BeforeAll
     void beforeAll() {
-        miscClient.loadCompoundsFromFileClient("compounds.sdf", loadResource(COMPOUND_SDF));
+        if (integrationTest) {
+            sampleRegistrationClient.loadCompoundsFromFile(uploadForm("compounds.sdf", loadResource(COMPOUND_SDF)));
+        }
         saltCode = dictionaryClient.getNth(BuiltInDictionary.SALT_CODE, 1);
         stereoisomerCode = dictionaryClient.<StereoisomerCodeRef>getDictionary(BuiltInDictionary.STEREOISOMER_CODE).get(1);
     }
@@ -139,12 +145,17 @@ public class MutationsTest extends MutationsTestBase {
 
     @Test
     void testAddInputToEmptyReaction() {
-        SampleSearchResult samples = compoundClient.search(new FindSamplesRequest().withCatalogs(Set.of(ELN)), DEFAULT_PAGE_SIZE);
-        experiment.mutate(new ReactionMutation.AddInput(experiment.reaction().getAnchor(), samples.items().getFirst().getId()));
+        SRSSampleDTO sample = new SRSSampleDTO(new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 1), "C9H17NO4", BigDecimal.ONE);
+        doReturn(Page.of(Paging.DEFAULT, 1, List.of(sample))).when(sampleRegistrationClient).find(any(), any());
+        SRSCompoundDTO compound = new SRSCompoundDTO("C", ModelUtil.loadResourceAsString("/ring-substructure.mol"));
+        doReturn(compound).when(sampleRegistrationClient).getCompound(any());
+
+        Page<SampleDTO> samples = compoundClient.search(new FindSamplesRequest().withCatalog(SearchCatalog.SRS), Paging.DEFAULT);
+        experiment.mutate(new ReactionMutation.AddInput(experiment.reaction().getAnchor(), samples.getItems().getFirst()));
         Assertions.assertThat(experiment.input(1)).isNotNull();
         assertThat(experiment.input(1).getCompound()).isInstanceOf(CompoundRef.Stored.class);
         Assertions.assertThat(experiment.inputSample(1, 1)).isNotNull();
-        assertThat(experiment.inputSample(1, 1).getSampleId()).isEqualTo(samples.items().getFirst().getId());
+        assertThat(experiment.inputSample(1, 1).getSampleKey()).isEqualTo(samples.getItems().getFirst().getSampleKey());
     }
 
     @Test
@@ -202,16 +213,25 @@ public class MutationsTest extends MutationsTestBase {
         assertThat(experiment.output(1).getAnchor()).isEqualTo(outputAnchor);
     }
 
-    // TODO add test for 2 samples per input
     @Test
     void testResolveInputs() {
+        SRSSampleDTO sample = new SRSSampleDTO(new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 1), "C9H17NO4", BigDecimal.ONE);
+        doReturn(
+                Page.of(Paging.DEFAULT, 1, List.of(sample)),
+                Page.of(Paging.DEFAULT, 0, List.of())
+        ).when(sampleRegistrationClient).find(any(), any());
+        SRSCompoundDTO compound = new SRSCompoundDTO("C", ModelUtil.loadResourceAsString("/ring-substructure.mol"));
+        doReturn(compound).when(sampleRegistrationClient).getCompound(any());
+
         experiment.mutateSetSchemeFromResource(REACTION_RXN);
         assertThat(experiment.input(1).getCompound()).isInstanceOf(CompoundRef.Virtual.class);
-        assertThat(experiment.inputSample(1, 1).getSampleId()).isNull();
+        assertThat(experiment.inputSample(1, 1).getSampleKey()).isNull();
         experiment.mutateResolveInputs();
         assertThat(experiment.input(1).getCompound()).isInstanceOf(CompoundRef.Stored.class);
-        assertThat(experiment.inputSample(1, 1).getSampleId()).isNotNull();
+        assertThat(experiment.inputSample(1, 1).getSampleKey()).isNotNull();
     }
+
+    // TODO add test for 2 samples per input
 
     @Test
     void testRemoveInputRow() {
@@ -395,7 +415,6 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testSetInputComment() {
         experiment.mutateSetSchemeFromResource(REACTION_RXN);
-        experiment.mutateResolveInputs();
         experiment.mutate(new ReactionInputSampleMutation.SetInputComment(experiment.inputSample(1, 1).getAnchor(), NEW_COMMENT));
         assertThat(experiment.inputSample(1, 1).getComment()).isEqualTo(NEW_COMMENT);
     }
@@ -489,7 +508,7 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testRegisterSample() {
         if (!integrationTest) {
-            when(sampleRegistrationClient.registerSample(any())).thenReturn(new SampleRegistrationResponse(new STRCodeSample(1, 1, 1), UUID.randomUUID()));
+            doReturn(new SampleRegistrationResponse(new STRCodeSample(1, 1, 1), UUID.randomUUID())).when(sampleRegistrationClient).registerSample(any());
         }
         experiment.mutateSetSchemeFromResource(REACTION_RXN);
         experiment.mutateAddProductSample(1);
@@ -750,7 +769,7 @@ public class MutationsTest extends MutationsTestBase {
 
     @Test
     void testImportSDF() {
-        experimentClient.importSDF(experiment.id(), experiment.reaction().getAnchor(), ClientUtil.createFileUpload("file.sdf", loadResource(COMPOUND_SDF)));
+        experimentClient.importSDF(experiment.id(), experiment.reaction().getAnchor(), uploadForm("file.sdf", loadResource(COMPOUND_SDF)));
         experiment.invalidate();
         assertThat(experiment.reaction().getOutputs()).isNotEmpty();
         assertThat(experiment.output(1).getCompound()).isInstanceOf(CompoundRef.Virtual.class);

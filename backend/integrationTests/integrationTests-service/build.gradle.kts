@@ -15,8 +15,6 @@ dependencies {
     testImplementation(project(path = ":sampleregistration:sampleregistration-core", configuration = "testArtifacts"))
 
     testImplementation("io.quarkus:quarkus-apache-httpclient")
-
-    testImplementation("org.testcontainers:testcontainers")
 }
 
 group = "com.epam.indigoeln"
@@ -45,4 +43,8 @@ tasks.named("quarkusIntTest", Test::class) {
     dependsOn(":reports:reports-service:assemble")
     dependsOn(":signature:signature-service:assemble")
     dependsOn(":sampleregistration:sampleregistration-service:assemble")
+    testLogging {
+        showStandardStreams = true
+        events("passed", "skipped", "failed")
+    }
 }

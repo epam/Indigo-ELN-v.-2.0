@@ -1,15 +1,23 @@
 package com.epam.indigoeln.reaction.service;
 
+import com.epam.indigoeln.common.model.units.VolumeUnit;
+import com.epam.indigoeln.common.model.units.WeightUnit;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.model.AccessLevel;
+import com.epam.indigoeln.eln.model.AttachmentDTO;
+import com.epam.indigoeln.eln.model.BuiltInDictionary;
+import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
+import com.epam.indigoeln.eln.model.ExperimentEditRequest;
+import com.epam.indigoeln.eln.model.ExperimentRequest;
+import com.epam.indigoeln.eln.model.ProjectCodeRef;
+import com.epam.indigoeln.eln.model.ProjectDetailsDTO;
+import com.epam.indigoeln.eln.model.RevisionSummaryDTO;
+import com.epam.indigoeln.eln.model.TherapeuticAreaRef;
 import com.epam.indigoeln.reaction.model.InputAnchor;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputSampleMutation;
-import com.epam.indigoeln.common.model.units.VolumeUnit;
-import com.epam.indigoeln.common.model.units.WeightUnit;
-import com.epam.indigoeln.test.ClientUtil;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import org.jspecify.annotations.Nullable;
@@ -23,6 +31,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
+import static com.epam.indigoeln.test.ClientUtil.uploadForm;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
@@ -121,7 +130,7 @@ public class ExperimentUndoTest extends MutationsTestBase {
 
     @Test
     void testAttachments() {
-        List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.id(), ClientUtil.createFileUpload("attachment.txt", "content".getBytes()));
+        List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.id(), uploadForm("attachment.txt", "content".getBytes()));
 
         experiment.mutate(new ExperimentMutation.Undo());
         assertThat(experiment.experiment().getAttachments()).isEmpty();

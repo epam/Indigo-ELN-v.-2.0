@@ -1,0 +1,141 @@
+x-service-defaults: &service-defaults
+  restart: unless-stopped
+  healthcheck:
+    test: ["CMD", "curl", "-f", "http://localhost:8080/q/health/ready"]
+    interval: 10s
+    timeout: 5s
+    retries: 3
+    start_period: 60s
+  logging:
+    driver: awslogs
+    options:
+      awslogs-region: "${AWS_REGION}"
+      awslogs-group: "${AWS_LOG_GROUP}"
+      awslogs-create-group: "true"
+
+x-oidc: &oidc
+  QUARKUS_OIDC_AUTH_SERVER_URL: "https://cognito-idp.${AWS_REGION}.amazonaws.com/${ELN_COGNITO_USER_POOL_ID}"
+
+services:
+
+  postgres:
+    image: "${POSTGRES_IMAGE}"
+    platform: linux/amd64
+    restart: unless-stopped
+    mem_limit: 2g
+    environment:
+      # Must stay `postgres`: POSTGRES_DB defaults to POSTGRES_USER, bingo is installed into it, and
+      # the init script's `CREATE DATABASE ... TEMPLATE postgres` depends on finding bingo there.
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "${DB_PASSWORD}"
+      PGDATA: /var/lib/postgresql/data/pgdata
+      ELN_DB_PASSWORD: "${DB_PASSWORD}"
+      SIGNATURE_DB_PASSWORD: "${DB_PASSWORD}"
+      SAMPLEREGISTRATION_DB_PASSWORD: "${DB_PASSWORD}"
+    volumes:
+      - /data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      start_period: 60s
+      interval: 10s
+      retries: 3
+      start_interval: 1s
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: "${AWS_REGION}"
+        awslogs-group: "${AWS_LOG_GROUP}"
+        awslogs-create-group: "true"
+
+  eln-aws:
+    <<: *service-defaults
+    image: "${ELN_AWS_IMAGE}"
+    platform: linux/amd64
+    mem_limit: 2g
+    environment:
+      <<: *oidc
+      QUARKUS_DATASOURCE_JDBC_URL: "jdbc:postgresql://postgres:5432/eln"
+      QUARKUS_DATASOURCE_USERNAME: eln
+      QUARKUS_DATASOURCE_PASSWORD: "${DB_PASSWORD}"
+      QUARKUS_DATASOURCE_JDBC_MAX_SIZE: "8"
+      ELN_API_SECRET: "${ELN_API_SECRET}"
+      ELN_COGNITO_USER_POOL_ID: "${ELN_COGNITO_USER_POOL_ID}"
+      ELN_STORAGE_S3_BUCKET: "${ELN_STORAGE_S3_BUCKET}"
+      AWS_REGION: "${AWS_REGION}"
+      QUARKUS_REST_CLIENT_REPORTS_API_URL: "http://nginx:80/"
+      QUARKUS_REST_CLIENT_SIGNATURE_API_URL: "http://nginx:80/"
+      QUARKUS_REST_CLIENT_SAMPLEREGISTRATION_API_URL: "http://nginx:80/"
+      QUARKUS_LOG_LEVEL: INFO
+    depends_on:
+      postgres:
+        condition: service_healthy
+        restart: true
+
+  reports-aws:
+    <<: *service-defaults
+    image: "${REPORTS_AWS_IMAGE}"
+    mem_limit: 1g
+    environment:
+      ELN_API_SECRET: "${ELN_API_SECRET}"
+      AWS_REGION: "${AWS_REGION}"
+      QUARKUS_LOG_LEVEL: INFO
+
+  signature-aws:
+    <<: *service-defaults
+    image: "${SIGNATURE_AWS_IMAGE}"
+    mem_limit: 1g
+    environment:
+      <<: *oidc
+      QUARKUS_DATASOURCE_JDBC_URL: "jdbc:postgresql://postgres:5432/signature"
+      QUARKUS_DATASOURCE_USERNAME: signature
+      QUARKUS_DATASOURCE_PASSWORD: "${DB_PASSWORD}"
+      QUARKUS_DATASOURCE_JDBC_MAX_SIZE: "8"
+      ELN_API_SECRET: "${ELN_API_SECRET}"
+      ELN_COGNITO_USER_POOL_ID: "${ELN_COGNITO_USER_POOL_ID}"
+      ELN_SIGNATURE_KEYSTORE_PASSWORD: "${ELN_SIGNATURE_KEYSTORE_PASSWORD}"
+      AWS_REGION: "${AWS_REGION}"
+      QUARKUS_REST_CLIENT_ELN_INTERNAL_API_URL: "http://nginx:80/"
+      QUARKUS_LOG_LEVEL: INFO
+    depends_on:
+      postgres:
+        condition: service_healthy
+        restart: true
+
+  sampleregistration-aws:
+    <<: *service-defaults
+    image: "${SAMPLEREGISTRATION_AWS_IMAGE}"
+    platform: linux/amd64
+    mem_limit: 1g
+    environment:
+      <<: *oidc
+      QUARKUS_DATASOURCE_JDBC_URL: "jdbc:postgresql://postgres:5432/sampleregistration"
+      QUARKUS_DATASOURCE_USERNAME: sampleregistration
+      QUARKUS_DATASOURCE_PASSWORD: "${DB_PASSWORD}"
+      QUARKUS_DATASOURCE_JDBC_MAX_SIZE: "8"
+      ELN_API_SECRET: "${ELN_API_SECRET}"
+      AWS_REGION: "${AWS_REGION}"
+      QUARKUS_LOG_LEVEL: INFO
+    depends_on:
+      postgres:
+        condition: service_healthy
+        restart: true
+
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    mem_limit: 128m
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - eln-aws
+      - reports-aws
+      - signature-aws
+      - sampleregistration-aws
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: "${AWS_REGION}"
+        awslogs-group: "${AWS_LOG_GROUP}"
+        awslogs-create-group: "true"

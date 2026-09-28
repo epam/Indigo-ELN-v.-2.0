@@ -1,6 +1,7 @@
 package com.epam.indigoeln.sampleregistration.service;
 
 import com.epam.indigoeln.common.model.MolFormula;
+import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.common.util.SearchVector;
 import com.epam.indigoeln.eln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.eln.indigowrapper.IndigoMolecule;
@@ -21,6 +22,7 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -28,6 +30,8 @@ import java.util.UUID;
 @Transactional
 @ApplicationScoped
 public class SampleRegistrationService {
+
+    private static final String[] NAME_PROPERTIES = {"PUBCHEM_IUPAC_TRADITIONAL_NAME", "PUBCHEM_IUPAC_SYSTEMATIC_NAME", "PUBCHEM_IUPAC_OPENEYE_NAME"};
 
     @Inject
     EntityManager em;
@@ -42,27 +46,7 @@ public class SampleRegistrationService {
 
     public SampleRegistrationResponse registerSample(SampleRegistrationRequest request) {
         IndigoMolecule molecule = indigo.loadMolecule(request.getMolfile());
-        CompoundKey compoundKey = new CompoundKey(molecule.canonicalSmiles(), request.getStereoisomerCode(), request.getSaltCode(), request.getSaltEQ100());
-        SRSCompoundEntity compound = compoundRepository.findByCompoundKey(compoundKey);
-        if (compound == null) {
-            compound = new SRSCompoundEntity();
-            compound.setCanSmiles(compoundKey.getCanSmiles());
-            compound.setStereoisomerCode(compoundKey.getStereoisomerCode());
-            compound.setSaltCode(compoundKey.getSaltCode());
-            compound.setSaltEQ100(compoundKey.getSaltEQ100());
-            compound.setStrCode(generateStrCodeCompound(compoundKey, request.getSaltCodeNumeric()));
-
-            compound.setMolFile(molecule.molfile());
-            compound.setMolWeight(request.getMolWeight());
-            compound.setExactMass(request.getExactMass());
-            compound.setFormula(new MolFormula(molecule.molecularFormula()));
-            compound.setChemicalName(request.getChemicalName());
-            indigoRenderer.setRenderOptions("svg", 300, 200);
-            byte[] buf = indigoRenderer.renderToBuffer(molecule);
-            compound.setPicture(buf);
-
-            compoundRepository.persist(compound);
-        }
+        SRSCompoundEntity compound = findOrCreate(molecule, request.getStereoisomerCode(), request.getSaltCode(), request.getSaltCodeNumeric(), request.getSaltEQ100(), request.getMolWeight(), request.getExactMass(), request.getChemicalName());
         SRSSampleEntity sample = new SRSSampleEntity();
         sample.setCreatedAt(Instant.now());
         sample.setCompound(compound);
@@ -80,6 +64,48 @@ public class SampleRegistrationService {
         sample.setSearchVector(collectSampleSearchVector(sample));
         sampleRepository.persist(sample);
         return new SampleRegistrationResponse(sample.getStrCode(), sample.getId());
+    }
+
+    public int loadCompoundsFromFile(Path file) {
+        int inserted = 0;
+        for (IndigoMolecule molecule : indigo.iterateSDFile(file.toAbsolutePath().toString())) {
+            String chemicalName = ModelUtil.getAny(molecule.getProperties(), NAME_PROPERTIES);
+            SRSCompoundEntity compound = findOrCreate(molecule, null, null, null, null, null, null, chemicalName);
+            SRSSampleEntity sample = new SRSSampleEntity();
+            sample.setCompound(compound);
+            sample.setCreatedAt(Instant.now());
+            sample.setStrCode(generateStrCode(compound));
+            sample.setSearchVector(collectSampleSearchVector(sample));
+            sampleRepository.persist(sample);
+            inserted++;
+        }
+        log.info("Loaded {} compounds from file", inserted);
+        return inserted;
+    }
+
+    private SRSCompoundEntity findOrCreate(IndigoMolecule molecule, @Nullable UUID stereoisomerCode, @Nullable UUID saltCode, @Nullable Integer saltCodeNumeric, @Nullable Integer saltCodeEQ100, @Nullable Double molWeight, @Nullable Double exactMass, @Nullable String chemicalName) {
+        CompoundKey compoundKey = new CompoundKey(molecule.canonicalSmiles(), stereoisomerCode, saltCode, saltCodeEQ100);
+        SRSCompoundEntity compound = compoundRepository.findByCompoundKey(compoundKey);
+        if (compound == null) {
+            compound = new SRSCompoundEntity();
+            compound.setCanSmiles(compoundKey.getCanSmiles());
+            compound.setStereoisomerCode(compoundKey.getStereoisomerCode());
+            compound.setSaltCode(compoundKey.getSaltCode());
+            compound.setSaltEQ100(compoundKey.getSaltEQ100());
+            compound.setStrCode(generateStrCodeCompound(compoundKey, saltCodeNumeric));
+
+            compound.setMolFile(molecule.molfile());
+            compound.setMolWeight(molWeight != null ? molWeight : molecule.molecularWeight());
+            compound.setExactMass(exactMass != null ? exactMass : molecule.monoisotopicMass());
+            compound.setFormula(new MolFormula(molecule.molecularFormula()));
+            compound.setChemicalName(chemicalName);
+            indigoRenderer.setRenderOptions("svg", 300, 200);
+            byte[] buf = indigoRenderer.renderToBuffer(molecule);
+            compound.setPicture(buf);
+
+            compoundRepository.persist(compound);
+        }
+        return compound;
     }
 
     private STRCodeCompound generateStrCodeCompound(CompoundKey compoundKey, @Nullable Integer saltCodeNumeric) {
@@ -102,7 +128,7 @@ public class SampleRegistrationService {
     private SearchVector collectSampleSearchVector(SRSSampleEntity sample) {
         SRSCompoundEntity c = sample.getCompound();
         SearchVector.Builder sv = new SearchVector.Builder()
-                .aIdentifier(sample.getStrCode().toString())
+                .aIdentifier(sample.getStrCode())
                 .aIdentifier(sample.getNbkBatchNumber())
                 .b(c.getChemicalName());
         return sv.build();

@@ -8,7 +8,33 @@ import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.NotebookEntity;
 import com.epam.indigoeln.eln.entity.ProjectEntity;
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.model.ACLEntryDTO;
+import com.epam.indigoeln.eln.model.AccessLevel;
+import com.epam.indigoeln.eln.model.ApplicationPermission;
+import com.epam.indigoeln.eln.model.BuiltInDictionary;
+import com.epam.indigoeln.eln.model.DictionaryDTO;
+import com.epam.indigoeln.eln.model.DictionaryEditRequest;
+import com.epam.indigoeln.eln.model.DictionaryItemDTO;
+import com.epam.indigoeln.eln.model.DictionaryItemEditRequest;
+import com.epam.indigoeln.eln.model.DictionaryItemRequest;
+import com.epam.indigoeln.eln.model.DictionaryRequest;
+import com.epam.indigoeln.eln.model.ExperimentDTO;
+import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
+import com.epam.indigoeln.eln.model.ExperimentEditRequest;
+import com.epam.indigoeln.eln.model.ExperimentRequest;
+import com.epam.indigoeln.eln.model.NotebookDTO;
+import com.epam.indigoeln.eln.model.NotebookDetailsDTO;
+import com.epam.indigoeln.eln.model.NotebookEditRequest;
+import com.epam.indigoeln.eln.model.ProjectDTO;
+import com.epam.indigoeln.eln.model.ProjectDetailsDTO;
+import com.epam.indigoeln.eln.model.ProjectEditRequest;
+import com.epam.indigoeln.eln.model.ProjectRequest;
+import com.epam.indigoeln.eln.model.TemplateComponent;
+import com.epam.indigoeln.eln.model.TemplateDetailsDTO;
+import com.epam.indigoeln.eln.model.TemplateEditRequest;
+import com.epam.indigoeln.eln.model.TemplateRequest;
+import com.epam.indigoeln.eln.model.TemplateTab;
+import com.epam.indigoeln.eln.model.TherapeuticAreaRef;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
@@ -22,20 +48,42 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 import org.assertj.core.util.Throwables;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResourceAsStream;
-import static com.epam.indigoeln.eln.model.AccessLevel.*;
+import static com.epam.indigoeln.eln.model.AccessLevel.ADMIN;
+import static com.epam.indigoeln.eln.model.AccessLevel.AUTHOR;
+import static com.epam.indigoeln.eln.model.AccessLevel.EDIT;
+import static com.epam.indigoeln.eln.model.AccessLevel.IMPLICIT_VIEW;
+import static com.epam.indigoeln.eln.model.AccessLevel.NONE;
+import static com.epam.indigoeln.eln.model.AccessLevel.VIEW;
+import static com.epam.indigoeln.eln.model.AccessLevel.valueOf;
 import static com.epam.indigoeln.eln.test.ACLListAssert.assertThatACL;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
-import static org.assertj.core.api.Assertions.*;
+import static com.epam.indigoeln.test.ClientUtil.uploadForm;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 
@@ -91,19 +139,19 @@ class PermissionsTest extends ELNBaseTest {
             therapeuticArea = dictionaryClient.getFirst(BuiltInDictionary.THERAPEUTIC_AREA);
             iterateRowsParallel(row -> {
                 row.projectId = projectClient.createProject(new ProjectRequest("project" + row.testId)).getId();
-                projectClient.createProjectAttachment(row.projectId, "attachment.txt", new byte[0]);
+                projectClient.createProjectAttachment(row.projectId, uploadForm("attachment.txt", new byte[0]));
                 if (row.project != NONE) {
                     projectClient.updateProjectAccess(row.projectId, AccessForm.of(WILLOW_USERNAME, row.project));
                 }
                 row.projectDetails = projectClient.getProject(row.projectId);
                 row.notebookId = createNotebook(row.projectId).getId();
-                notebookClient.createNotebookAttachment(row.notebookId, "attachment.txt", new byte[0]);
+                notebookClient.createNotebookAttachment(row.notebookId, uploadForm("attachment.txt", new byte[0]));
                 if (row.notebook != NONE) {
                     notebookClient.updateNotebookAccess(row.notebookId, AccessForm.of(WILLOW_USERNAME, row.notebook));
                 }
                 row.notebookDetails = notebookClient.getNotebook(row.notebookId);
                 row.experimentId = experimentClient.createExperiment(row.notebookId, new ExperimentRequest(emptyTemplateID)).getId();
-                experimentClient.createExperimentAttachment(row.experimentId, "attachment.txt", new byte[0]);
+                experimentClient.createExperimentAttachment(row.experimentId, uploadForm("attachment.txt", new byte[0]));
                 if (row.experiment != NONE) {
                     experimentClient.updateExperimentAccess(row.experimentId, AccessForm.of(WILLOW_USERNAME, row.experiment));
                 }
@@ -208,7 +256,7 @@ class PermissionsTest extends ELNBaseTest {
         assertAll(
                 () -> assertThat(rows).hasSize(PERMISSIONS_MATRIX_SIZE),
                 () -> iterateRowsParallel(row -> {
-                    assertThatClientCall(() -> projectClient.createProjectAttachment(row.projectId, "a", new byte[0]))
+                    assertThatClientCall(() -> projectClient.createProjectAttachment(row.projectId, uploadForm("a", new byte[0])))
                             .as(row.toString())
                             .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "Operation not permitted");
                     assertThatClientCall(() -> projectClient.downloadProjectAttachment(row.projectId, row.projectDetails.getAttachments().getFirst().getId()))
@@ -291,7 +339,7 @@ class PermissionsTest extends ELNBaseTest {
         assertAll(
                 () -> assertThat(rows).hasSize(PERMISSIONS_MATRIX_SIZE),
                 () -> iterateRowsParallel(row -> {
-                    assertThatClientCall(() -> notebookClient.createNotebookAttachment(row.notebookId, "a", new byte[0]))
+                    assertThatClientCall(() -> notebookClient.createNotebookAttachment(row.notebookId, uploadForm("a", new byte[0])))
                             .as(row.toString())
                             .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "Operation not permitted");
                     assertThatClientCall(() -> notebookClient.downloadNotebookAttachment(row.notebookId, row.notebookDetails.getAttachments().getFirst().getId()))
@@ -375,7 +423,7 @@ class PermissionsTest extends ELNBaseTest {
         assertAll(
                 () -> assertThat(rows).hasSize(PERMISSIONS_MATRIX_SIZE),
                 () -> iterateRowsParallel(row -> {
-                    assertThatClientCall(() -> experimentClient.createExperimentAttachment(row.experimentId, "a", "content".getBytes(StandardCharsets.UTF_8)))
+                    assertThatClientCall(() -> experimentClient.createExperimentAttachment(row.experimentId, uploadForm("a", "content".getBytes(StandardCharsets.UTF_8))))
                             .as(row.toString())
                             .isAllowedIf(row.effectiveExperiment.isSufficientFor(EDIT), "Operation not permitted");
                     assertThatClientCall(() -> experimentClient.downloadExperimentAttachment(row.experimentId, row.experimentDetails.getAttachments().getFirst().getId()))

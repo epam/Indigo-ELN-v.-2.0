@@ -41,7 +41,8 @@ import static com.epam.indigoeln.eln.model.ExperimentStatus.SUBMITTED;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 
 
 @QuarkusTest
@@ -63,19 +64,18 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
     @BeforeAll
     @SneakyThrows
     void setUpAll() {
-        when(reportsClient.generateExperimentReport(any())).thenAnswer(_ -> {
-            return Response.ok("\"content content content\"".getBytes(StandardCharsets.UTF_8))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, generateContentDisposition(true, "report.pdf"))
-                    .build();
-        });
+        doAnswer(_ -> Response.ok("\"content content content\"".getBytes(StandardCharsets.UTF_8))
+                .header(HttpHeaders.CONTENT_DISPOSITION, generateContentDisposition(true, "report.pdf"))
+                .build()
+        ).when(reportsClient).generateExperimentReport(any());
         noSignersTemplateID = UUID.randomUUID();
         oneSignerTemplateID = UUID.randomUUID();
         twoSignersTemplateID = UUID.randomUUID();
-        when(signatureClient.getTemplates()).thenReturn(List.of(
+        doReturn(List.of(
                 new SignatureTemplateDTO(noSignersTemplateID,  "ExperimentWorkflowServiceTest-noSigners"),
                 new SignatureTemplateDTO(oneSignerTemplateID,  "ExperimentWorkflowServiceTest-oneSigner"),
                 new SignatureTemplateDTO(twoSignersTemplateID,  "ExperimentWorkflowServiceTest-twoSigners")
-        ));
+        )).when(signatureClient).getTemplates();
         mockFile = new File(tempDir, "updated.txt");
         Files.write(mockFile.toPath(), "updatedcontent".getBytes());
 
@@ -87,13 +87,11 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
     void setUp() {
         experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         documentID = UUID.randomUUID();
-        when(signatureClient.uploadDocumentClient(any(), any(), any())).thenAnswer(_ -> {
-            DocumentDTO document = new DocumentDTO();
-            document.setId(documentID);
-            document.setStatus(DocumentStatus.SUBMITTED);
-            document.setAuthor(new UserRef(JOHN_USERNAME, JOHN_DISPLAY_NAME));
-            return document;
-        });
+        DocumentDTO document = new DocumentDTO();
+        document.setId(documentID);
+        document.setStatus(DocumentStatus.SUBMITTED);
+        document.setAuthor(new UserRef(JOHN_USERNAME, JOHN_DISPLAY_NAME));
+        doReturn(document).when(signatureClient).uploadDocumentClient(any(), any(), any());
     }
 
     @Test

@@ -210,4 +210,14 @@ public class ModelUtil {
                 .items(map(page.getItems(), mapper))
                 .build();
     }
+
+    @Nullable
+    public static <K, V> V getAny(Map<K, V> map, K[] keys) {
+        for (K key : keys) {
+            if (map.containsKey(key)) {
+                return map.get(key);
+            }
+        }
+        return null;
+    }
 }

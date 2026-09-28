@@ -32,6 +32,7 @@ import java.util.UUID;
 import static com.epam.indigoeln.common.util.ContentDispositionUtil.extractFilename;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
+import static com.epam.indigoeln.test.ClientUtil.uploadForm;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -289,7 +290,7 @@ class ExperimentServiceTest extends ELNBaseTest {
     @Test
     void testCreateAttachment() {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
-        List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", "content".getBytes());
+        List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.getId(), uploadForm("attachment.txt", "content".getBytes()));
         assertThat(attachments).singleElement().satisfies(a -> {
             assertThat(a.getId()).isNotNull();
             assertThat(a.getName()).isEqualTo("attachment.txt");
@@ -307,7 +308,7 @@ class ExperimentServiceTest extends ELNBaseTest {
     @Test
     void testDownloadAttachment() {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
-        List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", "content".getBytes());
+        List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.getId(), uploadForm("attachment.txt", "content".getBytes()));
         try (Response response = experimentClient.downloadExperimentAttachment(experiment.getId(), attachments.getFirst().getId())) {
             assertThat(extractFilename(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION))).isEqualTo("attachment.txt");
             assertThat((byte[]) response.getEntity()).asString().isEqualTo("content");
@@ -317,7 +318,7 @@ class ExperimentServiceTest extends ELNBaseTest {
     @Test
     void testDeleteAttachment() {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
-        List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", "content".getBytes());
+        List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.getId(), uploadForm("attachment.txt", "content".getBytes()));
         experimentClient.deleteExperimentAttachment(experiment.getId(), attachments.getFirst().getId());
         experiment = experimentClient.getExperiment(experiment.getId());
         assertThat(experiment.getAttachments()).isEmpty();

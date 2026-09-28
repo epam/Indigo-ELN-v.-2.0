@@ -87,7 +87,7 @@ public abstract class SnapshotMapper extends AbstractMapper {
     @Mapping(target = "samples", ignore = true)
     protected abstract void copyReactionInput(ReactionInput row, @MappingTarget ReactionInput copy);
 
-    @Mapping(target = "healthHazards", expression = "java(List.copyOf(sample.getHealthHazards()))")
+    @Mapping(target = "healthHazards", expression = "java(sample.getHealthHazards() != null ? List.copyOf(sample.getHealthHazards()) : null)")
     protected abstract void copyReactionInputSample(ReactionInputSample sample, @MappingTarget ReactionInputSample copy);
 
     @Mapping(target = "type", ignore = true)
@@ -98,7 +98,7 @@ public abstract class SnapshotMapper extends AbstractMapper {
     protected abstract void copyReactionOutput(ReactionOutput row, @MappingTarget ReactionOutput copy);
 
     @Mapping(target = "purity", ignore = true)
-    @Mapping(target = "healthHazards", expression = "java(List.copyOf(sample.getHealthHazards()))")
+    @Mapping(target = "healthHazards", expression = "java(sample.getHealthHazards() != null ? List.copyOf(sample.getHealthHazards()) : null)")
     @Mapping(target = "handlingPrecautions", expression = "java(List.copyOf(sample.getHandlingPrecautions()))")
     @Mapping(target = "storageInstructions", expression = "java(List.copyOf(sample.getStorageInstructions()))")
     @Mapping(target = "compoundProtection", expression = "java(List.copyOf(sample.getCompoundProtection()))")

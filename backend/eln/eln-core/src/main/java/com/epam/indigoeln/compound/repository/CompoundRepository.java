@@ -3,6 +3,7 @@ package com.epam.indigoeln.compound.repository;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.mapper.CompoundMapper;
 import com.epam.indigoeln.eln.common.repository.BaseRepository;
+import com.epam.indigoeln.eln.model.SampleSource;
 import com.epam.indigoeln.reaction.model.CompoundKey;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -32,6 +33,14 @@ public class CompoundRepository extends BaseRepository<CompoundEntity> {
                 .setParameter(2, compoundKey.getStereoisomerCode())
                 .setParameter(3, compoundKey.getSaltEQ100())
                 .setParameter(4, compoundKey.getSaltCode())
+                .getSingleResultOrNull();
+    }
+
+    @Nullable
+    public CompoundEntity findByCompoundKey(SampleSource source, String key) {
+        return em.createQuery("from Compound where source=?1 and compoundKey=?2", CompoundEntity.class)
+                .setParameter(1, source)
+                .setParameter(2, key)
                 .getSingleResultOrNull();
     }
 }

@@ -1,0 +1,21 @@
+# Brings the stack up after a reboot. `restart: unless-stopped` on the containers handles a Docker
+# restart, but not a fresh boot where .env and the images still need refreshing.
+#
+# RequiresMountsFor is the important line: without it a boot where the EBS volume failed to mount
+# would let Postgres initialize an empty PGDATA on the root volume, and the stack would come up
+# looking healthy with no data.
+[Unit]
+Description=Indigo ELN compose stack
+Requires=docker.service
+After=docker.service network-online.target
+RequiresMountsFor=/data/postgres
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+EnvironmentFile=/opt/indigoeln/deploy.conf
+ExecStart=/opt/indigoeln/deploy.sh
+TimeoutStartSec=600
+
+[Install]
+WantedBy=multi-user.target
