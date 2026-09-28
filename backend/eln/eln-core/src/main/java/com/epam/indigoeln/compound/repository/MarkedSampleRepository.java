@@ -18,7 +18,6 @@ import com.epam.indigoeln.eln.util.ELNCriteriaConditions;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.Tuple;
-import jakarta.validation.constraints.NotNull;
 import org.hibernate.query.criteria.CriteriaDefinition;
 import org.hibernate.query.criteria.JpaJoin;
 import org.hibernate.query.criteria.JpaRoot;
@@ -27,14 +26,14 @@ import org.jspecify.annotations.Nullable;
 import static com.epam.indigoeln.common.util.ModelUtil.map;
 
 @ApplicationScoped
-public class SampleRepository extends BaseRepository<MarkedSampleEntity> {
+public class MarkedSampleRepository extends BaseRepository<MarkedSampleEntity> {
 
     @Inject
     SampleMapper sampleMapper;
     @Inject
     ELNCriteriaConditions.Factory criteriaConditionsFactory;
 
-    public SampleRepository() {
+    public MarkedSampleRepository() {
         super(MarkedSampleEntity.class);
     }
 
@@ -56,7 +55,7 @@ public class SampleRepository extends BaseRepository<MarkedSampleEntity> {
                 conditions.textSearch(compound.get(CompoundEntity_.compoundKey), request.getCompoundKey());
                 conditions.textSearch(root.get(MarkedSampleEntity_.nbkBatchNumber).cast(String.class), request.getNbkBatchNumber());
                 conditions.textSearch(compound.get(CompoundEntity_.casNumber), request.getCasNumber());
-                conditions.textSearch(root.get(MarkedSampleEntity_.sampleKey), request.getExternalNumber());
+                conditions.textSearch(root.get(MarkedSampleEntity_.sampleKey), request.getSampleKey());
                 conditions.textSearch(compound.get(CompoundEntity_.formula).cast(String.class), request.getMolecularFormula(), MolFormula::normalize);
                 conditions.numericSearch(compound.get(CompoundEntity_.molWeight), request.getMolWeight());
                 conditions.textSearch(compound.get(CompoundEntity_.chemicalName), request.getChemicalName());

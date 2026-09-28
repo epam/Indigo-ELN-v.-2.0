@@ -17,8 +17,8 @@ CREATE TABLE SRS_Compound (
     exact_mass DOUBLE PRECISION NOT NULL,
     cas_number VARCHAR(1000),
     picture BYTEA NOT NULL,
-    CONSTRAINT compound_uq UNIQUE (can_smiles, stereoisomer_code, salt_code, salt_eq_100),
-    CONSTRAINT compound_str_code_salt_eq_uq UNIQUE (str_code, salt_eq_100) -- str_code is shared across saltEQ
+    CONSTRAINT srs_compound_uq UNIQUE (can_smiles, stereoisomer_code, salt_code, salt_eq_100),
+    CONSTRAINT srs_compound_str_code_salt_eq_uq UNIQUE (str_code, salt_eq_100) -- str_code is shared across saltEQ
 );
 CREATE INDEX ix_srs_compound_mol_file ON SRS_Compound USING bingo_idx (mol_file bingo.molecule);
 

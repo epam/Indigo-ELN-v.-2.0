@@ -46,6 +46,9 @@ public class SampleRegistrationRequest {
     private String chemicalName;
 
     @Nullable
+    private String casNumber;
+
+    @Nullable
     private BigDecimal density;
 
     @Nullable

@@ -22,7 +22,8 @@ public abstract class SRSMapper {
     @Inject
     DictionaryService dictionaryService;
 
-    @Mapping(target = "strCodeSample", source = "externalNumber")
+    @Mapping(target = "strCodeCompound", source = "compoundKey")
+    @Mapping(target = "strCodeSample", source = "sampleKey")
     public abstract SRSFindSamplesRequest requestToSRS(FindSamplesRequest request);
 
     @Mapping(target = "catalog", constant = "SRS")

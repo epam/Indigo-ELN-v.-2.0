@@ -145,7 +145,7 @@ public class MutationsTest extends MutationsTestBase {
 
     @Test
     void testAddInputToEmptyReaction() {
-        SRSSampleDTO sample = new SRSSampleDTO(new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 1), "C9H17NO4", BigDecimal.ONE);
+        SRSSampleDTO sample = new SRSSampleDTO(UUID.randomUUID(), UUID.randomUUID(), new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 1), "C9H17NO4", BigDecimal.ONE);
         doReturn(Page.of(Paging.DEFAULT, 1, List.of(sample))).when(sampleRegistrationClient).find(any(), any());
         SRSCompoundDTO compound = new SRSCompoundDTO("C", ModelUtil.loadResourceAsString("/ring-substructure.mol"));
         doReturn(compound).when(sampleRegistrationClient).getCompound(any());
@@ -215,7 +215,7 @@ public class MutationsTest extends MutationsTestBase {
 
     @Test
     void testResolveInputs() {
-        SRSSampleDTO sample = new SRSSampleDTO(new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 1), "C9H17NO4", BigDecimal.ONE);
+        SRSSampleDTO sample = new SRSSampleDTO(UUID.randomUUID(), UUID.randomUUID(), new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 1), "C9H17NO4", BigDecimal.ONE);
         doReturn(
                 Page.of(Paging.DEFAULT, 1, List.of(sample)),
                 Page.of(Paging.DEFAULT, 0, List.of())

@@ -8,7 +8,7 @@ import com.epam.indigoeln.compound.mapper.SampleMapper;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.search.SearchCatalog;
-import com.epam.indigoeln.compound.repository.SampleRepository;
+import com.epam.indigoeln.compound.repository.MarkedSampleRepository;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.eln.service.GlobalSearchService;
@@ -33,12 +33,10 @@ import static com.google.common.base.Preconditions.checkState;
 @ApplicationScoped
 public class SampleSearchService {
 
-    private static final int DEFAULT_PAGE_SIZE = 1000;
-
     private final Map<SearchCatalog, CatalogSearchProvider> providers;
 
     @Inject
-    SampleRepository sampleRepository;
+    MarkedSampleRepository markedSampleRepository;
     @Inject
     SampleMapper sampleMapper;
     @Inject
@@ -76,19 +74,19 @@ public class SampleSearchService {
 
     public SampleDTO markSample(SampleDTO sample) {
         CompoundEntity compound = importCompound(sample);
-        MarkedSampleEntity markedSample = sampleRepository.findByKey(userService.getCurrentUserEntity(), sample.getSource(), sample.getSampleKey());
+        MarkedSampleEntity markedSample = markedSampleRepository.findByKey(userService.getCurrentUserEntity(), sample.getSource(), sample.getSampleKey());
         if (markedSample == null) {
             markedSample = sampleMapper.markedSampleFromDTO(sample, userService.getCurrentUserEntity(), Instant.now(), compound, dictionaryService.lookup(sample.getCompoundState()));
             markedSample.setSearchVector(globalSearchService.collectSampleSearchVector(markedSample));
-            sampleRepository.persist(markedSample);
+            markedSampleRepository.persist(markedSample);
         }
         return sampleMapper.markedSampleToDTO(markedSample);
     }
 
     public SampleDTO unmarkSample(SampleDTO sample) {
-        MarkedSampleEntity markedSample = sampleRepository.findByKey(userService.getCurrentUserEntity(), sample.getSource(), sample.getSampleKey());
+        MarkedSampleEntity markedSample = markedSampleRepository.findByKey(userService.getCurrentUserEntity(), sample.getSource(), sample.getSampleKey());
         if (markedSample != null) {
-            sampleRepository.delete(markedSample);
+            markedSampleRepository.delete(markedSample);
         }
         sample.setMarked(false);
         return sample;

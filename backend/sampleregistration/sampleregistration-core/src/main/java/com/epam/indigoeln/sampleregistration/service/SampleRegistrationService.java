@@ -46,7 +46,7 @@ public class SampleRegistrationService {
 
     public SampleRegistrationResponse registerSample(SampleRegistrationRequest request) {
         IndigoMolecule molecule = indigo.loadMolecule(request.getMolfile());
-        SRSCompoundEntity compound = findOrCreate(molecule, request.getStereoisomerCode(), request.getSaltCode(), request.getSaltCodeNumeric(), request.getSaltEQ100(), request.getMolWeight(), request.getExactMass(), request.getChemicalName());
+        SRSCompoundEntity compound = findOrCreate(molecule, request.getStereoisomerCode(), request.getSaltCode(), request.getSaltCodeNumeric(), request.getSaltEQ100(), request.getMolWeight(), request.getExactMass(), request.getChemicalName(), request.getCasNumber());
         SRSSampleEntity sample = new SRSSampleEntity();
         sample.setCreatedAt(Instant.now());
         sample.setCompound(compound);
@@ -70,7 +70,7 @@ public class SampleRegistrationService {
         int inserted = 0;
         for (IndigoMolecule molecule : indigo.iterateSDFile(file.toAbsolutePath().toString())) {
             String chemicalName = ModelUtil.getAny(molecule.getProperties(), NAME_PROPERTIES);
-            SRSCompoundEntity compound = findOrCreate(molecule, null, null, null, null, null, null, chemicalName);
+            SRSCompoundEntity compound = findOrCreate(molecule, null, null, null, null, null, null, chemicalName, null);
             SRSSampleEntity sample = new SRSSampleEntity();
             sample.setCompound(compound);
             sample.setCreatedAt(Instant.now());
@@ -83,10 +83,11 @@ public class SampleRegistrationService {
         return inserted;
     }
 
-    private SRSCompoundEntity findOrCreate(IndigoMolecule molecule, @Nullable UUID stereoisomerCode, @Nullable UUID saltCode, @Nullable Integer saltCodeNumeric, @Nullable Integer saltCodeEQ100, @Nullable Double molWeight, @Nullable Double exactMass, @Nullable String chemicalName) {
+    private SRSCompoundEntity findOrCreate(IndigoMolecule molecule, @Nullable UUID stereoisomerCode, @Nullable UUID saltCode, @Nullable Integer saltCodeNumeric, @Nullable Integer saltCodeEQ100, @Nullable Double molWeight, @Nullable Double exactMass, @Nullable String chemicalName, @Nullable String casNumber) {
         CompoundKey compoundKey = new CompoundKey(molecule.canonicalSmiles(), stereoisomerCode, saltCode, saltCodeEQ100);
         SRSCompoundEntity compound = compoundRepository.findByCompoundKey(compoundKey);
-        if (compound == null) {
+        boolean isNew = compound == null;
+        if (isNew) {
             compound = new SRSCompoundEntity();
             compound.setCanSmiles(compoundKey.getCanSmiles());
             compound.setStereoisomerCode(compoundKey.getStereoisomerCode());
@@ -98,11 +99,18 @@ public class SampleRegistrationService {
             compound.setMolWeight(molWeight != null ? molWeight : molecule.molecularWeight());
             compound.setExactMass(exactMass != null ? exactMass : molecule.monoisotopicMass());
             compound.setFormula(new MolFormula(molecule.molecularFormula()));
-            compound.setChemicalName(chemicalName);
+
             indigoRenderer.setRenderOptions("svg", 300, 200);
             byte[] buf = indigoRenderer.renderToBuffer(molecule);
             compound.setPicture(buf);
-
+        }
+        if (compound.getChemicalName() == null) {
+            compound.setChemicalName(chemicalName);
+        }
+        if (compound.getCasNumber() == null) {
+            compound.setCasNumber(casNumber);
+        }
+        if (isNew) {
             compoundRepository.persist(compound);
         }
         return compound;

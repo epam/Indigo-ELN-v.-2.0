@@ -32,7 +32,7 @@ public interface CompoundAPI extends BaseAPI {
 
     @POST
     @Path("/samples/search")
-    Page<SampleDTO> search(@Valid FindSamplesRequest request, @BeanParam Paging paging);
+    Page<@Valid SampleDTO> search(@Valid FindSamplesRequest request, @BeanParam Paging paging);
 
     @GET
     @Path("/samples/external/picture")
@@ -41,10 +41,12 @@ public interface CompoundAPI extends BaseAPI {
     byte[] getExternalPicture(@QueryParam("inchi") String inchi);
 
     @POST
+    @Valid
     @Path("/samples/mark")
-    SampleDTO markSample(SampleDTO sample);
+    SampleDTO markSample(@Valid SampleDTO sample);
 
     @POST
+    @Valid
     @Path("/samples/unmark")
-    SampleDTO unmarkSample(SampleDTO sample);
+    SampleDTO unmarkSample(@Valid SampleDTO sample);
 }

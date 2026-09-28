@@ -90,7 +90,7 @@ public class CriteriaConditions {
     }
 
     public Expression<Double> fullTextRank(Expression<SearchVector> attribute, String search, @Nullable Expression<String> name) {
-        Expression<Double> rank = cb.function("ts_rank", Double.class, attribute, cb.literal("english"), cb.literal(search));
+        Expression<Double> rank = cb.function("ts_rank", Double.class, attribute, cb.literal("english"), cb.literal(search.replace('-', SearchVector.IDENTIFIER_SEPARATOR)));
         if (name == null) {
             return rank;
         }

@@ -115,12 +115,16 @@ public abstract class BaseRepository<E extends IdentifiableEntity> implements Pa
     }
 
     public E get(UUID id) {
-        E entity = findById(id);
-        //noinspection ConstantValue
+        E entity = getOrNull(id);
         if (entity == null) {
             throw new EntityNotFoundException(entityClass.getName(), id);
         }
         return entity;
+    }
+
+    @Nullable
+    public E getOrNull(UUID id) {
+        return findById(id);
     }
 
     public E getReference(UUID id) {

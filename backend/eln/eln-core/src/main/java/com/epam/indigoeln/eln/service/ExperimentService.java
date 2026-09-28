@@ -343,12 +343,8 @@ public class ExperimentService {
         for (IndigoMolecule molecule : indigo.iterateSDFile(file.filePath().toAbsolutePath().toString())) {
             String chemicalName = ModelUtil.getAny(molecule.getProperties(), NAME_PROPERTIES);
             CompoundEntity compound = compoundService.findOrCreate(molecule, null, null, null, SampleSource.ELN, null, chemicalName);
-            if (compound.getSource() == SampleSource.ELN && compound.getCompoundKey() == null) {
-                compound.setCompoundKey(compound.getId().toString());
-            }
             SampleDTO sample = new SampleDTO();
             sample.setSource(SampleSource.ELN);
-            sample.setSampleKey(compound.getId().toString());
             // TODO fill sample properties from SDF
             compoundIDs.add(compound.getId());
             samples.add(sample);

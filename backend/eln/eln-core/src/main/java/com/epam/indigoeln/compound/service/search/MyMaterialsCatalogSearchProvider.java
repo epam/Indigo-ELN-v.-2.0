@@ -7,17 +7,18 @@ import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.search.SearchCatalog;
 import com.epam.indigoeln.compound.repository.CompoundRepository;
-import com.epam.indigoeln.compound.repository.SampleRepository;
+import com.epam.indigoeln.compound.repository.MarkedSampleRepository;
 import com.epam.indigoeln.eln.service.UserService;
-import com.google.common.base.Preconditions;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @ApplicationScoped
 public class MyMaterialsCatalogSearchProvider implements CatalogSearchProvider {
 
     @Inject
-    SampleRepository sampleRepository;
+    MarkedSampleRepository markedSampleRepository;
     @Inject
     CompoundRepository compoundRepository;
     @Inject
@@ -30,13 +31,11 @@ public class MyMaterialsCatalogSearchProvider implements CatalogSearchProvider {
 
     @Override
     public Page<SampleDTO> search(FindSamplesRequest request, Paging paging) {
-        return sampleRepository.find(userService.getCurrentUserEntity(), request, true, paging.getPageNoOrDefault(), paging.getPageSizeOrDefault());
+        return markedSampleRepository.find(userService.getCurrentUserEntity(), request, true, paging.getPageNoOrDefault(), paging.getPageSizeOrDefault());
     }
 
     @Override
     public CompoundEntity importCompound(SampleDTO sample) {
-        CompoundEntity compound = compoundRepository.findByCompoundKey(sample.getSource(), sample.getCompoundKey());
-        Preconditions.checkState(compound != null, "Compound not found for My Materials sample: %s, %s", sample.getSource(), sample.getSampleKey());
-        return compound;
+        return compoundRepository.get(checkNotNull(sample.getCompoundID()));
     }
 }

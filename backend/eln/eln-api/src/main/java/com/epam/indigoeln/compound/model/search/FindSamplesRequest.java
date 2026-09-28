@@ -27,49 +27,49 @@ public class FindSamplesRequest {
 
     @Nullable
     @Size(min = 1)
-    String quickSearch;
+    String quickSearch; // My Materials, SRS: full text search; PubChem: name
 
     @Valid
     @Nullable
-    StructuralSearch structure;
+    StructuralSearch structure; // My Materials, SRS, PubChem
 
     @Valid
     @Nullable
-    TextSearch compoundKey;
+    TextSearch compoundKey; // My Materials: original compoundKey; SRS: strCodeCompound
 
     @Valid
     @Nullable
-    TextSearch nbkBatchNumber;
+    TextSearch casNumber; // My Materials, SRS
 
     @Valid
     @Nullable
-    TextSearch casNumber;
+    TextSearch nbkBatchNumber; // My Materials, SRS
 
     @Valid
     @Nullable
-    TextSearch externalNumber;
+    TextSearch sampleKey; // My Materials: original sampleKey; SRS: strCodeSample
 
     @Valid
     @Nullable
-    TextSearch molecularFormula;
+    TextSearch molecularFormula; // My Materials, SRS, PubChem
 
     @Valid
     @Nullable
-    NumericSearch molWeight;
+    NumericSearch molWeight; // My Materials, SRS
 
     @Valid
     @Nullable
-    TextSearch chemicalName;
+    TextSearch chemicalName; // My Materials, SRS
 
     @Valid
     @Nullable
-    ComponentStateRef compoundState;
+    ComponentStateRef compoundState; // My Materials, SRS
 
     @Valid
     @Nullable
-    TextSearch batchComment;
+    TextSearch batchComment; // My Materials, SRS
 
     @Valid
     @Nullable
-    HealthHazardRef healthHazards;
+    HealthHazardRef healthHazards; // My Materials, SRS
 }

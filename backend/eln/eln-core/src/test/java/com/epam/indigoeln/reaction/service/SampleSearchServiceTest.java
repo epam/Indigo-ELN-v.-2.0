@@ -33,6 +33,7 @@ import org.junit.jupiter.api.TestInfo;
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 import static com.epam.indigoeln.eln.test.ReactionInputSampleAssert.assertThat;
 import static com.epam.indigoeln.test.ClientUtil.uploadForm;
@@ -74,11 +75,7 @@ public class SampleSearchServiceTest extends MutationsTestBase {
             compound.setSaltCode(saltCode.getId());
             compound.setStereoisomerCode(stereoisomerCode.getId());
             compound.setSaltEQ100(200);
-            SRSSampleDTO sample = new SRSSampleDTO();
-            sample.setStrCodeSample(new STRCodeSample(1, 1, 1));
-            sample.setStrCodeCompound(new STRCodeCompound(1, 1));
-            sample.setMolFormula("C");
-            sample.setMolWeight(BigDecimal.ONE);
+            SRSSampleDTO sample = new SRSSampleDTO(UUID.randomUUID(), UUID.randomUUID(), new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 1), "C", BigDecimal.ONE);
             sample.setNbkBatchNumber(new NbkBatchNumber("00000001-0005", 4));
             sample.setChemicalName("chemicalName");
             sample.setDensity(new BigDecimal(10));
@@ -92,12 +89,12 @@ public class SampleSearchServiceTest extends MutationsTestBase {
                     Page.of(Paging.DEFAULT, 1, List.of(sample)),
                     Page.of(Paging.DEFAULT, 0, List.of())
             ).when(sampleRegistrationClient).find(any(), any());
-            doReturn(compound).when(sampleRegistrationClient).getCompound(sample.getStrCodeCompound());
+            doReturn(compound).when(sampleRegistrationClient).getCompound(sample.getCompoundID());
         }
     }
 
     @AfterEach
-    void tearDown(TestInfo testInfo) throws Exception {
+    void tearDown(TestInfo testInfo) {
         experiment.generateDetailsReport(new File("build/experiment-" + testInfo.getTestMethod().get().getName() + ".html"));
     }
 
@@ -133,17 +130,17 @@ public class SampleSearchServiceTest extends MutationsTestBase {
 
         Page<SampleDTO> found2 = compoundClient.search(new FindSamplesRequest().withCatalog(SearchCatalog.MY_MATERIALS), Paging.DEFAULT);
         assertThat(found2.getItems()).singleElement().satisfies(sample2 -> {
-            assertThat(sample.getSource()).isEqualTo(SampleSource.SRS);
-            assertThat(sample.getSampleKey()).isEqualTo(new STRCodeSample(1, 1, 1).toString());
-            assertThat(sample.getNbkBatchNumber()).isEqualTo(new NbkBatchNumber("00000001-0005", 4));
-            assertThat(sample.getDensity()).isEqualByComparingTo("10");
-            assertThat(sample.getMolarity()).isEqualByComparingTo("20");
-            assertThat(sample.getMolarityUnit()).isEqualTo(MolarityUnit.MM);
-//                    assertThat(sample).hasPurity(60.0); // TODO purity gets overwritten
-            assertThat(sample.getHealthHazards()).containsExactly(healthHazardRef);
-            assertThat(sample.getCompoundState()).isEqualTo(componentStateRef);
-            assertThat(sample.getBatchComment()).isEqualTo("batchComment");
-            assertThat(sample.isMarked()).isTrue();
+            assertThat(sample2.getSource()).isEqualTo(SampleSource.SRS);
+            assertThat(sample2.getSampleKey()).isEqualTo(new STRCodeSample(1, 1, 1).toString());
+            assertThat(sample2.getNbkBatchNumber()).isEqualTo(new NbkBatchNumber("00000001-0005", 4));
+            assertThat(sample2.getDensity()).isEqualByComparingTo("10");
+            assertThat(sample2.getMolarity()).isEqualByComparingTo("20");
+            assertThat(sample2.getMolarityUnit()).isEqualTo(MolarityUnit.MM);
+//                    assertThat(sample2).hasPurity(60.0); // TODO purity gets overwritten
+            assertThat(sample2.getHealthHazards()).containsExactly(healthHazardRef);
+            assertThat(sample2.getCompoundState()).isEqualTo(componentStateRef);
+            assertThat(sample2.getBatchComment()).isEqualTo("batchComment");
+            assertThat(sample2.isMarked()).isTrue();
         });
 
         SampleDTO sample2 = compoundClient.unmarkSample(found.getItems().getFirst());

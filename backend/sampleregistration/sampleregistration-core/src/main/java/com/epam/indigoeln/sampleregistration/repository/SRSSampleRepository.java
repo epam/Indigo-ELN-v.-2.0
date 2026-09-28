@@ -68,10 +68,13 @@ public class SRSSampleRepository extends BaseRepository<SRSSampleEntity> {
                     orderBy(desc(conditions.moleculeSimilarity(compound.get(SRSCompoundEntity_.molFile), request.getStructure().query())));
                 }
 
+                conditions.textSearch(root.get(SRSSampleEntity_.nbkBatchNumber).cast(String.class), request.getNbkBatchNumber());
+                conditions.textSearch(compound.get(SRSCompoundEntity_.strCode).cast(String.class), request.getStrCodeCompound());
                 conditions.textSearch(root.get(SRSSampleEntity_.strCode).cast(String.class), request.getStrCodeSample());
                 conditions.textSearch(compound.get(SRSCompoundEntity_.formula).cast(String.class), request.getMolecularFormula(), MolFormula::normalize);
                 conditions.numericSearch(compound.get(SRSCompoundEntity_.molWeight), request.getMolWeight());
                 conditions.textSearch(compound.get(SRSCompoundEntity_.chemicalName), request.getChemicalName());
+                conditions.textSearch(compound.get(SRSCompoundEntity_.casNumber), request.getCasNumber());
                 conditions.textSearch(root.get(SRSSampleEntity_.batchComment), request.getBatchComment());
 
                 if (request.getCompoundState() != null) {

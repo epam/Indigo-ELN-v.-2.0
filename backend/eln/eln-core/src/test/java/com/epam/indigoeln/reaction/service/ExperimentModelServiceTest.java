@@ -91,7 +91,7 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     @Order(200)
     void testResolveInputs() {
         if (!integrationTest) {
-            SRSSampleDTO sample = new SRSSampleDTO(new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 1), "C9H17NO4", BigDecimal.ONE);
+            SRSSampleDTO sample = new SRSSampleDTO(UUID.randomUUID(), UUID.randomUUID(), new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 1), "C9H17NO4", BigDecimal.ONE);
             doReturn(
                     Page.of(Paging.DEFAULT, 1, List.of(sample)),
                     Page.of(Paging.DEFAULT, 0, List.of())
@@ -257,7 +257,7 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     @Order(1300)
     void testAddInput() {
         if (!integrationTest) {
-            SRSSampleDTO sample = new SRSSampleDTO(new STRCodeCompound(1, 2), new STRCodeSample(1, 2, 1), "C9H17NO4", BigDecimal.ONE);
+            SRSSampleDTO sample = new SRSSampleDTO(UUID.randomUUID(), UUID.randomUUID(), new STRCodeCompound(1, 2), new STRCodeSample(1, 2, 1), "C9H17NO4", BigDecimal.ONE);
             doReturn(Page.of(Paging.DEFAULT, 1, List.of(sample))).when(sampleRegistrationClient).find(any(), any());
             SRSCompoundDTO compound = new SRSCompoundDTO("C", ModelUtil.loadResourceAsString("/updated-molfile.mol"));
             doReturn(compound).when(sampleRegistrationClient).getCompound(any());

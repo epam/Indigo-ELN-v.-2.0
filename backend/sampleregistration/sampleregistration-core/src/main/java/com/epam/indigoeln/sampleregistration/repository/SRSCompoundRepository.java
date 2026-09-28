@@ -54,11 +54,4 @@ public class SRSCompoundRepository extends BaseRepository<SRSCompoundEntity> {
                 .setHint(AvailableHints.HINT_NATIVE_SPACES, List.of("nothing")) // Hibernate assumes empty list as missing, so provide non-existent query space
                 .getSingleResult();
     }
-
-    @Nullable
-    public SRSCompoundEntity findByStrCode(STRCodeCompound strCode) {
-        return em.createQuery("from SRSCompound where strCode = ?1", SRSCompoundEntity.class)
-                .setParameter(1, strCode)
-                .getSingleResultOrNull();
-    }
 }

@@ -15,8 +15,10 @@ import java.util.UUID;
 @NoArgsConstructor
 public class SRSSampleDTO {
 
-    @Nullable
+    @NotNull
     private UUID id;
+    @NotNull
+    private UUID compoundID;
     @Nullable
     private NbkBatchNumber nbkBatchNumber;
     @NotNull
@@ -50,7 +52,9 @@ public class SRSSampleDTO {
     @Nullable
     private String batchComment;
 
-    public SRSSampleDTO(STRCodeCompound strCodeCompound, STRCodeSample strCodeSample, String molFormula, BigDecimal molWeight) {
+    public SRSSampleDTO(UUID id, UUID compoundID, STRCodeCompound strCodeCompound, STRCodeSample strCodeSample, String molFormula, BigDecimal molWeight) {
+        this.id = id;
+        this.compoundID = compoundID;
         this.strCodeCompound = strCodeCompound;
         this.strCodeSample = strCodeSample;
         this.molFormula = molFormula;

@@ -32,6 +32,7 @@ public abstract class SampleMapper {
 
     @Mapping(target = "catalog", constant = "MY_MATERIALS")
     @Mapping(target = "compoundKey", source = "compound.compoundKey")
+    @Mapping(target = "compoundID", source = "compound.id")
     @Mapping(target = "molWeight", source = "compound.molWeight", qualifiedByName = "convertMolWeightLike")
     @Mapping(target = "molFormula", expression = "java(entity.getCompound().getFormula().toHTMLString())")
     @Mapping(target = "saltCode", expression = "java(dictionaryService.get(entity.getCompound().getSaltCode()))")

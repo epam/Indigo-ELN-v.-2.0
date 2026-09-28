@@ -6,7 +6,7 @@ import com.epam.indigoeln.common.model.units.NoUnit;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.mapper.SampleMapper;
 import com.epam.indigoeln.compound.repository.CompoundRepository;
-import com.epam.indigoeln.compound.repository.SampleRepository;
+import com.epam.indigoeln.compound.repository.MarkedSampleRepository;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.eln.indigowrapper.IndigoMolecule;
@@ -41,7 +41,7 @@ public class CompoundService {
     @Inject
     CompoundRepository compoundRepository;
     @Inject
-    SampleRepository sampleRepository;
+    MarkedSampleRepository markedSampleRepository;
     @Inject
     SampleMapper sampleMapper;
     @Inject
@@ -64,18 +64,18 @@ public class CompoundService {
         boolean isNew = compound == null;
         if (isNew) {
             compound = new CompoundEntity();
+            compound.setCanSmiles(canSmiles);
+            compound.setStereoisomerCode(dictionaryService.lookup(stereoisomerCode, true));
+            compound.setSaltCode(dictionaryService.lookup(saltCode));
+            compound.setSaltEQ100(saltEQ100);
+            compound.setMolFile(molecule.molfile());
+            compound.setMolWeight(molWeightCalculator.calculateMolWeight(molecule.molfile(), saltCode, compound.getSaltEQ()));
+            compound.setExactMass(molWeightCalculator.calculateExactMass(molecule.molfile()));
+            compound.setFormula(new MolFormula(molecule.molecularFormula()));
+            indigoRenderer.setRenderOptions("svg", 300, 200);
+            byte[] buf = indigoRenderer.renderToBuffer(molecule);
+            compound.setPicture(buf);
         }
-        compound.setCanSmiles(canSmiles);
-        compound.setStereoisomerCode(dictionaryService.lookup(stereoisomerCode, true));
-        compound.setSaltCode(dictionaryService.lookup(saltCode));
-        compound.setSaltEQ100(saltEQ100);
-        compound.setMolFile(molecule.molfile());
-        compound.setMolWeight(molWeightCalculator.calculateMolWeight(molecule.molfile(), saltCode, compound.getSaltEQ()));
-        compound.setExactMass(molWeightCalculator.calculateExactMass(molecule.molfile()));
-        compound.setFormula(new MolFormula(molecule.molecularFormula()));
-        indigoRenderer.setRenderOptions("svg", 300, 200);
-        byte[] buf = indigoRenderer.renderToBuffer(molecule);
-        compound.setPicture(buf);
         //noinspection ConstantValue
         if (compound.getSource() == null || compound.getSource() == SampleSource.ELN) {
             compound.setSource(source);

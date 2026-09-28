@@ -137,6 +137,9 @@ public abstract class ExperimentEditMutationHandlerBase<T extends ExperimentMuta
 
         row.updateCompound(compoundService.realCompoundRef(compound));
 
+        if (row.getSamples().size() == 1 && row.getSamples().getFirst().getSampleKey() == null) {
+            row.getSamples().getFirst().delete();
+        }
         ReactionInputSample reactionInputSample = ReactionInputSample.create(row, anchor);
         reactionInputSample.setSampleSource(sample.getSource());
         reactionInputSample.setSampleKey(sample.getSampleKey());
@@ -146,7 +149,6 @@ public abstract class ExperimentEditMutationHandlerBase<T extends ExperimentMuta
         reactionInputSample.setHealthHazards(sample.getHealthHazards());
         reactionInputSample.setComment(sample.getBatchComment());
         reactionInputSample.setNbkBatchNumber(sample.getNbkBatchNumber());
-        row.setSamples(List.of(reactionInputSample));
         row.setChemicalName(compound.getChemicalName());
     }
 

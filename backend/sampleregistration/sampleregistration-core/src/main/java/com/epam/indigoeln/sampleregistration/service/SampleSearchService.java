@@ -8,12 +8,13 @@ import com.epam.indigoeln.sampleregistration.mapper.SRSSampleMapper;
 import com.epam.indigoeln.sampleregistration.model.SRSCompoundDTO;
 import com.epam.indigoeln.sampleregistration.model.SRSFindSamplesRequest;
 import com.epam.indigoeln.sampleregistration.model.SRSSampleDTO;
-import com.epam.indigoeln.sampleregistration.model.STRCodeCompound;
 import com.epam.indigoeln.sampleregistration.repository.SRSCompoundRepository;
 import com.epam.indigoeln.sampleregistration.repository.SRSSampleRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+
+import java.util.UUID;
 
 @Transactional
 @ApplicationScoped
@@ -30,10 +31,10 @@ public class SampleSearchService {
         return sampleRepository.find(request, paging);
     }
 
-    public SRSCompoundDTO getCompound(STRCodeCompound strCode) {
-        SRSCompoundEntity compound = compoundRepository.findByStrCode(strCode);
+    public SRSCompoundDTO getCompound(UUID id) {
+        SRSCompoundEntity compound = compoundRepository.getOrNull(id);
         if (compound == null) {
-            throw new EntityNotFoundException(SRSCompoundEntity.class, strCode);
+            throw new EntityNotFoundException(SRSCompoundEntity.class, id);
         }
         return sampleMapper.compoundToDTO(compound);
     }

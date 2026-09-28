@@ -14,6 +14,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 public class SampleDTO {
@@ -26,6 +27,8 @@ public class SampleDTO {
     SampleSource source;
     @NotNull
     private String compoundKey;
+    @Nullable
+    private UUID compoundID; // when ID in source system is known (ELN and SRS)
     @Nullable
     private SaltCodeRef saltCode;
     @Nullable

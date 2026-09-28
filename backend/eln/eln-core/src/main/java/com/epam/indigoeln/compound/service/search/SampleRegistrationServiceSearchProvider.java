@@ -15,12 +15,12 @@ import com.epam.indigoeln.sampleregistration.api.SampleRegistrationClient;
 import com.epam.indigoeln.sampleregistration.model.SRSCompoundDTO;
 import com.epam.indigoeln.sampleregistration.model.SRSFindSamplesRequest;
 import com.epam.indigoeln.sampleregistration.model.SRSSampleDTO;
-import com.epam.indigoeln.sampleregistration.model.STRCodeCompound;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import static com.epam.indigoeln.common.util.ModelUtil.map;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @ApplicationScoped
 class SampleRegistrationServiceSearchProvider implements CatalogSearchProvider {
@@ -51,15 +51,13 @@ class SampleRegistrationServiceSearchProvider implements CatalogSearchProvider {
 
     @Override
     public CompoundEntity importCompound(SampleDTO sample) {
-        STRCodeCompound strCode = STRCodeCompound.parse(sample.getCompoundKey());
-        SRSCompoundDTO srsCompound = sampleRegistrationClient.getCompound(strCode);
-        CompoundEntity compound = compoundService.findOrCreate(srsCompound.getMolFile()
+        SRSCompoundDTO srsCompound = sampleRegistrationClient.getCompound(checkNotNull(sample.getCompoundID()));
+        return compoundService.findOrCreate(srsCompound.getMolFile()
                 , srsCompound.getStereoisomerCode() != null ? dictionaryService.byId(srsCompound.getStereoisomerCode()) : null
                 , srsCompound.getSaltCode() != null ? dictionaryService.byId(srsCompound.getSaltCode()) : null
                 , srsCompound.getSaltEQ100()
                 , SampleSource.SRS, sample.getCompoundKey()
                 , sample.getChemicalName()
         );
-        return compound;
     }
 }

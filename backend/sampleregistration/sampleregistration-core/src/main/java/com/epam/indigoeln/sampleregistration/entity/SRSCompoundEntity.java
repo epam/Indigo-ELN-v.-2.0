@@ -51,6 +51,9 @@ public class SRSCompoundEntity extends IdentifiableEntity {
     @Nullable
     private String chemicalName;
 
+    @Nullable
+    private String casNumber;
+
     @NotNull
     @Convert(converter = MolFormulaConverter.class)
     private MolFormula formula;

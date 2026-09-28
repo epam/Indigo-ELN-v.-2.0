@@ -6,7 +6,6 @@ import com.epam.indigoeln.common.model.UploadForm;
 import com.epam.indigoeln.sampleregistration.model.SRSCompoundDTO;
 import com.epam.indigoeln.sampleregistration.model.SRSFindSamplesRequest;
 import com.epam.indigoeln.sampleregistration.model.SRSSampleDTO;
-import com.epam.indigoeln.sampleregistration.model.STRCodeCompound;
 import com.epam.indigoeln.sampleregistration.model.SampleRegistrationRequest;
 import com.epam.indigoeln.sampleregistration.model.SampleRegistrationResponse;
 import jakarta.validation.Valid;
@@ -18,6 +17,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+
+import java.util.UUID;
 
 @Path(SampleRegistrationAPI.BASE_PATH)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -35,8 +36,8 @@ public interface SampleRegistrationAPI {
     Page<@Valid SRSSampleDTO> find(@Valid SRSFindSamplesRequest request, @BeanParam Paging paging);
 
     @GET
-    @Path("/compounds/{strCode}")
-    SRSCompoundDTO getCompound(@PathParam("strCode") STRCodeCompound strCode);
+    @Path("/compounds/{id}")
+    SRSCompoundDTO getCompound(@PathParam("id") UUID id);
 
     @POST
     @Path("/compounds/loadFromFile")

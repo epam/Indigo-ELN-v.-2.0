@@ -27,6 +27,14 @@ public class SRSFindSamplesRequest {
 
     @Valid
     @Nullable
+    TextSearch nbkBatchNumber;
+
+    @Valid
+    @Nullable
+    TextSearch strCodeCompound;
+
+    @Valid
+    @Nullable
     TextSearch strCodeSample;
 
     @Valid
@@ -40,6 +48,10 @@ public class SRSFindSamplesRequest {
     @Valid
     @Nullable
     TextSearch chemicalName;
+
+    @Valid
+    @Nullable
+    TextSearch casNumber;
 
     @Valid
     @Nullable

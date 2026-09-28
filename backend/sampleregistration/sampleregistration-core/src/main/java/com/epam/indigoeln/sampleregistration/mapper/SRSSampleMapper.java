@@ -20,6 +20,7 @@ public abstract class SRSSampleMapper {
 
     @Mapping(target = "name", source = "compound.chemicalName")
     @Mapping(target = "strCodeCompound", source = "compound.strCode")
+    @Mapping(target = "compoundID", source = "compound.id")
     @Mapping(target = "molWeight", source = "compound.molWeight", qualifiedByName = "convertMolWeightLike")
     @Mapping(target = "molFormula", expression = "java(entity.getCompound().getFormula().toHTMLString())")
     @Mapping(target = "saltCode", source = "compound.saltCode")
