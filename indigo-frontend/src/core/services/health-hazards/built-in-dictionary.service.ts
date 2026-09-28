@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { ApiService } from '@/core/services/api.service';
 import { BuiltInDictionary, DictionaryItemRef } from '@/core/types/entities/dictionary.i';
-import { Observable } from 'rxjs';
+import { Observable, ReplaySubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -10,46 +10,26 @@ export class BuiltInDictionaryService {
   private service = inject(ApiService);
 
   // Private cache to track loaded dictionaries
-  private cache = new Map<BuiltInDictionary, DictionaryItemRef[]>();
-  private loading = new Set<BuiltInDictionary>();
-
-  /**
-   * Load one or more dictionaries into cache.
-   * Prevents duplicate requests and respects existing cache.
-   */
-  load(dictionaries: BuiltInDictionary[], forceReload = false) {
-    dictionaries.forEach((dict) => this.loadSingle(dict, forceReload));
-  }
+  private cache = new Map<BuiltInDictionary, ReplaySubject<DictionaryItemRef[]>>();
 
   /**
    * Get dictionary items from cache.
    * Returns empty array if not loaded.
    */
-  getDictionaryItem(dictionary: BuiltInDictionary): DictionaryItemRef[] {
-    return this.cache.get(dictionary) ?? [];
+  getDictionaryItems(dictionary: BuiltInDictionary): Observable<DictionaryItemRef[]> {
+    if (!this.cache.has(dictionary)) {
+      const subject = new ReplaySubject<DictionaryItemRef[]>();
+      this.cache.set(dictionary, subject);
+      this.load(dictionary);
+      return subject;
+    }
+    return this.cache.get(dictionary);
   }
 
-  private loadSingle(dictionary: BuiltInDictionary, forceReload = false) {
-    // Return early if already cached and not forcing reload
-    if (!forceReload && this.cache.has(dictionary)) {
-      return;
-    }
-
-    // Prevent duplicate requests
-    if (this.loading.has(dictionary)) {
-      return;
-    }
-
-    this.loading.add(dictionary);
-
+  private load(dictionary: BuiltInDictionary) {
     this.service.request<DictionaryItemRef[]>('get', `dictionaries/${dictionary}`).subscribe({
       next: (items) => {
-        this.cache.set(dictionary, items);
-        this.loading.delete(dictionary);
-      },
-      error: () => {
-        this.cache.set(dictionary, []);
-        this.loading.delete(dictionary);
+        this.cache.get(dictionary).next(items);
       },
     });
   }

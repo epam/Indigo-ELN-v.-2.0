@@ -14,7 +14,8 @@ import static com.epam.indigoeln.reaction.metamodel.property.ModelProperty.prope
 
 public class ExperimentMetamodel {
 
-    public static final ModelProperty<ExperimentSnapshot, String> TITLE = property("title",ExperimentSnapshot::getTitle, ExperimentSnapshot::setTitle);
+    public static final ModelProperty<ExperimentSnapshot, String> NAME = property("name", ExperimentSnapshot::getName, ExperimentSnapshot::setName);
+    public static final ModelProperty<ExperimentSnapshot, String> TITLE = property("title", ExperimentSnapshot::getTitle, ExperimentSnapshot::setTitle);
     public static final ModelProperty<ExperimentSnapshot, ExperimentStatus> STATUS = property("status", ExperimentSnapshot::getStatus, ExperimentSnapshot::setStatus);
     public static final ModelProperty<ExperimentSnapshot, TherapeuticAreaRef> THERAPEUTIC_AREA = property("therapeuticArea", ExperimentSnapshot::getTherapeuticArea, ExperimentSnapshot::setTherapeuticArea);
     public static final ModelProperty<ExperimentSnapshot, ProjectCodeRef> PROJECT_CODE = property("projectCode", ExperimentSnapshot::getProjectCode, ExperimentSnapshot::setProjectCode);
@@ -30,6 +31,7 @@ public class ExperimentMetamodel {
     public static final ModelProperty<ExperimentSnapshot, ExperimentModel> MODEL = property("model", ExperimentSnapshot::getModel, ExperimentSnapshot::setModel, ExperimentModelMetamodel.INSTANCE);
 
     public static final Metamodel<ExperimentSnapshot> INSTANCE = new Metamodel<>("Experiment", List.of(
+            NAME,
             TITLE,
             STATUS,
             THERAPEUTIC_AREA,

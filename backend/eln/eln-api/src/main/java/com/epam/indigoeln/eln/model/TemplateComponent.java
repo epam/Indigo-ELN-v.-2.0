@@ -2,6 +2,7 @@ package com.epam.indigoeln.eln.model;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
 @RegisterForReflection
@@ -23,12 +24,15 @@ public sealed interface TemplateComponent permits
         TemplateComponent.Batches,
         TemplateComponent.VersionHistory {
 
+    @JsonSerialize // Jackson's reflection-free serializer complains about empty beans otherwise
     record ExperimentDetails () implements TemplateComponent {
     }
 
+    @JsonSerialize
     record ExperimentDescription () implements TemplateComponent {
     }
 
+    @JsonSerialize
     record Attachments () implements TemplateComponent {
     }
 
@@ -39,9 +43,11 @@ public sealed interface TemplateComponent permits
     ) implements TemplateComponent {
     }
 
+    @JsonSerialize
     record Batches () implements TemplateComponent {
     }
 
+    @JsonSerialize
     record VersionHistory () implements TemplateComponent {
     }
 }

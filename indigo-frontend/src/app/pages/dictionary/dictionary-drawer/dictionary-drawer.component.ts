@@ -44,7 +44,7 @@ export interface UiDictionaryItem extends DictionaryFullItem {
 })
 export class DictionaryDrawerComponent implements OnChanges {
   @Input() dictionary: DictionaryListItem | null = null;
-  @Output() close = new EventEmitter<void>();
+  @Output() closed = new EventEmitter<void>();
 
   private dictionaryService = inject(DictionaryService);
   private snackBar = inject(MatSnackBar);

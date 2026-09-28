@@ -1,19 +1,19 @@
 package com.epam.indigoeln.eln.entity;
 
-import com.epam.indigoeln.eln.common.entity.IdentifiableEntity;
 import com.epam.indigoeln.eln.config.hibernate.ACLEntryArrayType;
 import com.epam.indigoeln.eln.config.hibernate.ExperimentCountArrayType;
+import com.epam.indigoeln.eln.config.hibernate.SearchVectorType;
 import com.epam.indigoeln.eln.model.AccessLevel;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
-import io.hypersistence.utils.hibernate.type.search.PostgreSQLTSVectorType;
+import com.epam.indigoeln.eln.util.SearchVector;
 import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.NamedEntityGraph;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
-import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.JdbcType;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.*;
 import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
 import org.jspecify.annotations.Nullable;
 
@@ -25,6 +25,9 @@ import java.util.*;
 @AllArgsConstructor
 @ToString(of = {"id", "name"}, includeFieldNames = false)
 @Entity(name = "Notebook")
+@SecondaryTable(name = "Notebook_Access_View",
+        pkJoinColumns = @PrimaryKeyJoinColumn(name = "notebook_id", referencedColumnName = "id")
+)
 @NamedEntityGraph(
         name = "Notebook.list",
         attributeNodes = {
@@ -32,14 +35,8 @@ import java.util.*;
                 @NamedAttributeNode("modifiedBy"),
                 @NamedAttributeNode("shortACL"),
                 @NamedAttributeNode("experimentCount"),
-                @NamedAttributeNode(value = "calculatedInfo", subgraph = "Notebook.calculatedInfo.list")
-        },
-        subgraphs = @NamedSubgraph(
-                name = "Notebook.calculatedInfo.list",
-                attributeNodes = {
-                        @NamedAttributeNode("aclCount")
-                }
-        )
+                @NamedAttributeNode("aclCount")
+        }
 )
 @NamedEntityGraph(
         name = "Notebook.details",
@@ -48,23 +45,19 @@ import java.util.*;
                 @NamedAttributeNode("modifiedBy"),
                 @NamedAttributeNode("fullACL"),
                 @NamedAttributeNode("experimentCount"),
-                @NamedAttributeNode(value = "calculatedInfo", subgraph = "Notebook.calculatedInfo.details")
-        },
-        subgraphs = @NamedSubgraph(
-                name = "Notebook.calculatedInfo.details",
-                attributeNodes = {
-                        @NamedAttributeNode("currentAccess")
-                }
-        )
+                @NamedAttributeNode("currentAccessOrNull"),
+                @NamedAttributeNode("attachments")
+        }
 )
 @NamedEntityGraph(
         name = "Notebook.withACL",
         attributeNodes = {
-                @NamedAttributeNode("aclEntities")
+                @NamedAttributeNode("aclEntities"),
+                @NamedAttributeNode("experiments")
         }
 )
 @DynamicUpdate
-public class NotebookEntity extends BaseEntity implements WithAttachments, WithACL<NotebookACLEntity>, WithRevision {
+public class NotebookEntity extends BaseEntity implements WithAttachments<NotebookAttachment>, WithACL<NotebookACLEntity, ProjectEntity>, WithRevision {
 
     @NotNull
     @ManyToOne
@@ -82,15 +75,17 @@ public class NotebookEntity extends BaseEntity implements WithAttachments, WithA
     @Basic(fetch = FetchType.LAZY)
     private String description;
 
-    @Nullable
+    @NotNull
     @Basic(fetch = FetchType.LAZY)
-    @Type(PostgreSQLTSVectorType.class)
-    @Column(insertable = false, updatable = false)
-    private String searchVector;
+    @LazyGroup("searchVector")
+    @Type(SearchVectorType.class)
+    @Column(name = "search_vector", columnDefinition = "tsvector")
+    @ColumnTransformer(write = "calculate_tsvector(?)")
+    private SearchVector searchVector;
 
     @NotNull
     @OneToMany(mappedBy = "notebook")
-    private Set<ExperimentEntity> experiments = new HashSet<>(0);
+    private Set<ExperimentEntity> experiments = HashSet.newHashSet(0);
 
     @NotNull
     @Basic(fetch = FetchType.LAZY)
@@ -105,23 +100,32 @@ public class NotebookEntity extends BaseEntity implements WithAttachments, WithA
     @NotNull
     @OneToMany(mappedBy = "notebook", cascade = CascadeType.ALL, orphanRemoval = true)
     @MapKeyJoinColumn(name = "user_id")
-    private Map<UserEntity, NotebookACLEntity> aclEntities = new HashMap<>(0);
+    private Map<UserEntity, NotebookACLEntity> aclEntities = HashMap.newHashMap(0);
 
     @NotNull
-    @ManyToMany()
-    @JoinTable(name = "notebook_attachment", joinColumns = @JoinColumn(name = "notebook_id"), inverseJoinColumns = @JoinColumn(name = "attachment_id"))
+    @OneToMany(mappedBy = "parent")
     @OrderBy("createdAt")
-    private List<AttachmentEntity> attachments = new ArrayList<>(0);
-
-    @Nullable
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id", referencedColumnName = "id")
-    private CalculatedInfo calculatedInfo;
+    private List<NotebookAttachment> attachments = new ArrayList<>(0);
 
     @Basic(fetch = FetchType.LAZY)
     @Column(insertable = false, updatable = false)
     @Type(ExperimentCountArrayType.class)
     private Map<ExperimentStatus, Integer> experimentCount;
+
+    @Nullable
+    @Basic(fetch = FetchType.LAZY)
+    @Column(table = "Notebook_Access_View", insertable = false, updatable = false)
+    @JdbcType(PostgreSQLEnumJdbcType.class)
+    @Fetch(FetchMode.SELECT)
+    @LazyGroup("access_view")
+    private AccessLevel currentAccessOrNull;
+
+    @Nullable
+    @Basic(fetch = FetchType.LAZY)
+    @Column(table = "Notebook_Access_View", insertable = false, updatable = false)
+    @Fetch(FetchMode.SELECT)
+    @LazyGroup("access_view")
+    private Integer aclCount;
 
     @Override
     public void insertACL(UserEntity user, AccessLevel access) {
@@ -130,27 +134,12 @@ public class NotebookEntity extends BaseEntity implements WithAttachments, WithA
 
     @Override
     @Transient
-    public WithACL<?> getACLParent() {
+    public ProjectEntity getACLParent() {
         return project;
     }
 
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Entity(name = "NotebookCalculatedInfo")
-    @Table(name = "Notebook_View_2")
-    public static class CalculatedInfo extends IdentifiableEntity {
-
-        @Basic
-        @Nullable
-        @Column(insertable = false, updatable = false)
-        @JdbcType(PostgreSQLEnumJdbcType.class)
-        private AccessLevel currentAccess;
-
-        @NotNull
-        @Basic(fetch = FetchType.LAZY)
-        @Column(insertable = false, updatable = false)
-        private Integer aclCount;
+    @Transient
+    public AccessLevel getCurrentAccess() {
+        return currentAccessOrNull != null ? currentAccessOrNull : AccessLevel.NONE;
     }
 }

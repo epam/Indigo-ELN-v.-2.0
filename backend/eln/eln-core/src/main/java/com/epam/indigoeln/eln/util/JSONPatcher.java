@@ -19,17 +19,20 @@ public class JSONPatcher {
     private static final String FIELD_NEW = "$new";
     private static final String FIELD_OLD = "$old";
     private static final String UNCHANGED = "$unchanged";
+    private static final String MODEL = "model";
+    private static final String REACTIONS = "reactions";
+    private static final String ANCHOR = "anchor";
 
     private static final Map<List<String>, String> EXPERIMENT_SET_PATHS = Map.of(
             List.of("attachments"), "id",
             List.of("acl"), "username"
     );
     public static final Map<List<String>, String> EXPERIMENT_LIST_PATHS = Map.of(
-            List.of("model", "reactions"), "anchor",
-            List.of("model", "reactions", "#", "inputs"), "anchor",
-            List.of("model", "reactions", "#", "inputs", "#", "samples"), "anchor",
-            List.of("model", "reactions", "#", "outputs"), "anchor",
-            List.of("model", "reactions", "#", "outputs", "#", "samples"), "anchor"
+            List.of(MODEL, REACTIONS), ANCHOR,
+            List.of(MODEL, REACTIONS, "#", "inputs"), ANCHOR,
+            List.of(MODEL, REACTIONS, "#", "inputs", "#", "samples"), ANCHOR,
+            List.of(MODEL, REACTIONS, "#", "outputs"), ANCHOR,
+            List.of(MODEL, REACTIONS, "#", "outputs", "#", "samples"), ANCHOR
     );
     private static final Set<List<String>> EXPERIMENT_IGNORED_PATHS = Set.of(
             List.of("revision")
@@ -192,7 +195,7 @@ public class JSONPatcher {
         ObjectNode diff = nodeFactory.objectNode();
         for (ListComparison c : modified) {
             String key = listKeyToString(c);
-            diff.set(key, c.diff != null ? c.diff : nodeFactory.textNode("$unchanged"));
+            diff.set(key, c.diff != null ? c.diff : nodeFactory.textNode(UNCHANGED));
         }
         return diff;
     }

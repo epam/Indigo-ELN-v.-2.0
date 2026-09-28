@@ -11,7 +11,7 @@ dependencies {
     api("io.quarkus:quarkus-flyway")
     api("io.quarkus:quarkus-jdbc-postgresql")
     api("org.flywaydb:flyway-database-postgresql")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.20.0")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv")
 
     testImplementation(project(":common:common-test"))
 }

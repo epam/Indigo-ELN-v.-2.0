@@ -38,7 +38,7 @@ public class ProjectResource implements ProjectAPI {
     }
 
     @Override
-    public @NotNull @Valid Page<ProjectDTO> getProjects(@Nullable String search, @Nullable SortOrder sort, @Nullable Boolean createdByMe, @Valid Paging paging) {
+    public @NotNull Page<@Valid ProjectDTO> getProjects(@Nullable String search, @Nullable SortOrder sort, @Nullable Boolean createdByMe, @Valid Paging paging) {
         return projectService.getProjects(search, sort, createdByMe, paging);
     }
 
@@ -46,6 +46,11 @@ public class ProjectResource implements ProjectAPI {
     public @NotNull @Valid ProjectExistenceCheckDTO checkProjectNameExistence(
             @NotEmpty String name){
         return projectService.checkExistenceByName(name);
+    }
+
+    @Override
+    public List<String> suggestKeywords(@Nullable String search) {
+        return projectService.suggestKeywords(search);
     }
 
     @Override
@@ -79,13 +84,8 @@ public class ProjectResource implements ProjectAPI {
     }
 
     @Override
-    public List<ACLEntryDTO> updateProjectAccess(@NotNull UUID projectId, @NotNull @Valid List<AccessForm> form) {
+    public List<ACLEntryDTO> updateProjectAccess(@NotNull UUID projectId, @NotNull List<@Valid AccessForm> form) {
         return projectService.updateProjectAccess(projectId, form);
-    }
-
-    @Override
-    public List<NestedACLEntryDTO> getNestedProjectAccess(UUID projectId) {
-        return projectService.getNestedProjectAccess(projectId);
     }
 
     @Override

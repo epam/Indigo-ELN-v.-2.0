@@ -1,6 +1,4 @@
 <div class="p-4">
-  <h2 class="font-semibold text-lg mb-4">{{ title }}</h2>
-
   <form [formGroup]="form" class="border border-[#cecaca] rounded-[10px] bg-[#f9f9f9] p-2.5 m-2.5">
     <div class="flex flex-col gap-4">
       <div
@@ -176,7 +174,7 @@
           </mat-panel-title>
         </mat-expansion-panel-header>
 
-        <div class="grid grid-cols-2 gap-x-8 gap-y-3 text-xs" style="margin-top: 10px">
+        <div class="grid grid-cols-2 gap-x-8 gap-y-3 text-xs mt-[10px]">
           <div>Compound ID</div>
           <div>Nbk Batch #</div>
 
@@ -315,22 +313,30 @@
           </div>
         </section>
 
-        <button
+        <eln-button
           type="button"
-          class="ml-2 px-4 py-2 bg-[#3F50B5] text-white rounded-[5px] cursor-pointer"
+          variant="blue"
+          classList="ml-2"
+          [disabled]="loader.loading"
+          [loading]="loader.loading"
           (click)="performSearch()"
         >
           Search
-        </button>
+        </eln-button>
       </div>
     </div>
   </form>
 
   <div class="flex justify-between mt-4">
     @if (loader.totalItemsStr != null) {
-      <div class="flex-1 self-start">Search Results ({{ loader.totalItemsStr }})</div>
+      <div class="flex-1 self-start">{{ loader.totalItemsStr }}</div>
     }
   </div>
 
-  <eln-sample-search-results [loader]="loader" (addToExperiment)="addToExperiment($event)" />
+  <eln-sample-search-results
+    [loader]="loader"
+    [isAddingToExperiment]="isAddingToExperiment"
+    [loadingSampleKey]="loadingSampleKey"
+    (addToExperiment)="addToExperiment($event)"
+  />
 </div>

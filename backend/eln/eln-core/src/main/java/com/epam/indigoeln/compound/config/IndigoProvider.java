@@ -15,7 +15,7 @@ public class IndigoProvider {
     private final Supplier<Indigo> indigoSupplier = Suppliers.memoize(() -> {
         String path = System.getenv("NATIVE_LIB_PATH");
         if (path == null) {
-            throw new RuntimeException("NATIVE_LIB_PATH not defined");
+            throw new IllegalStateException("NATIVE_LIB_PATH not defined");
         }
         Indigo indigo = new Indigo(path);
         indigo.setOption("ignore-stereochemistry-errors", "true");

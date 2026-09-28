@@ -10,8 +10,8 @@ import { ApiService } from '@core/services/api.service';
   imports: [CommonModule, IsInViewportDirective],
 })
 export class ApiImageComponent implements OnChanges {
-  @Input() url: string;
-  @Input() blob: string;
+  @Input() url: string | undefined;
+  @Input() blob: string | undefined;
   @Input() altText = '';
   api = inject(ApiService);
 

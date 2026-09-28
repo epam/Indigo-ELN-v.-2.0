@@ -41,7 +41,8 @@ public final class ReactionOutputSample extends ReactionSample<ReactionOutput> {
     private EnteredValue<WeightUnit> actualWeight = EnteredValue.empty();
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private EnteredValue<NoUnit> yield = EnteredValue.empty();
+    @JsonProperty("yield")
+    private EnteredValue<NoUnit> yieldValue = EnteredValue.empty();
 
     @Nullable
     private SampleRegistrationStatus registrationStatus;

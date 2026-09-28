@@ -28,6 +28,9 @@ export enum ApplicationPermission {
   MANAGE_EXPERIMENT_ACCESS = 'MANAGE_EXPERIMENT_ACCESS',
   DELETE_EXPERIMENTS = 'DELETE_EXPERIMENTS',
   SUBMIT_EXPERIMENTS = 'SUBMIT_EXPERIMENTS',
+
+  // signatures
+  SIGN_EXPERIMENTS = 'SIGN_EXPERIMENTS',
 }
 
 export interface UsersResponse {

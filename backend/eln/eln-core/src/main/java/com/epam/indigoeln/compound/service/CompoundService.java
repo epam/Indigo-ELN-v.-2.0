@@ -11,21 +11,22 @@ import com.epam.indigoeln.compound.repository.SampleRepository;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.DictionaryService;
+import com.epam.indigoeln.eln.service.GlobalSearchService;
 import com.epam.indigoeln.eln.service.UserService;
-import com.epam.indigoeln.eln.util.MolFormulaFormatter;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
 import com.epam.indigoeln.reaction.model.CompoundRef;
+import com.epam.indigoeln.reaction.model.MolFormula;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.epam.indigoeln.reaction.service.calculator.MolWeightCalculator;
-import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -66,6 +67,8 @@ public class CompoundService {
     MolWeightCalculator molWeightCalculator;
     @Inject
     UserService userService;
+    @Inject
+    GlobalSearchService globalSearchService;
 
     public CompoundEntity findOrCreate(IndigoMolecule molecule, @Nullable StereoisomerCodeRef stereoisomerCode, @Nullable SaltCodeRef saltCode, @Nullable Double saltEQ, @Nullable Consumer<CompoundEntity> compoundConfigurer) {
         String canSmiles = molecule.canonicalSmiles();
@@ -83,7 +86,7 @@ public class CompoundService {
             compound.setMolFile(molecule.molfile());
             compound.setMolWeight(molWeightCalculator.calculateMolWeight(molecule.molfile(), saltCode, saltEQ));
             compound.setExactMass(molWeightCalculator.calculateExactMass(molecule.molfile()));
-            compound.setFormula(molecule.molecularFormula());
+            compound.setFormula(new MolFormula(molecule.molecularFormula()));
             compound.setCompoundKey(calculateCompoundKey(compound));
             indigoRenderer.setRenderOptions("svg", 300, 200);
             byte[] buf = indigoRenderer.renderToBuffer(molecule);
@@ -99,7 +102,9 @@ public class CompoundService {
         for (IndigoMolecule molecule : indigo.iterateSDFile(file.toAbsolutePath().toString())) {
             CompoundEntity compound = findOrCreate(molecule, null, null, null, null);
             fillCompoundFromIndigo(molecule, compound);
-            SampleEntity sample = createSamples ? findOrCreateDefaultSample(compound) : null;
+            if (createSamples) {
+                findOrCreateDefaultSample(compound);
+            }
             list.add(compound.getId());
         }
         log.info("Loaded {} compounds from file", list.size());
@@ -113,6 +118,7 @@ public class CompoundService {
             compound.getSamples().add(sample);
             sample.setCompound(compound);
             updateDates(sample, userService.getCurrentUserEntity());
+            sample.setSearchVector(globalSearchService.collectSampleSearchVector(sample));
             sampleRepository.persist(sample);
         }
         return sample;
@@ -126,7 +132,7 @@ public class CompoundService {
                 compound.getSaltEQ(),
                 EnteredValue.fixedExact(compound.getMolWeight(), MOL_WEIGHT_DECIMAL_PLACES, MolWeightUnit.G_PER_MOL),
                 EnteredValue.fixedExact(compound.getExactMass(), MOL_WEIGHT_DECIMAL_PLACES, NoUnit.NO_UNIT),
-                MolFormulaFormatter.format(compound.getFormula()),
+                compound.getFormula(),
                 compound.getCompoundKey(),
                 compound.getCasNumber(),
                 calculateBatchMF(compound)
@@ -141,7 +147,7 @@ public class CompoundService {
     public CompoundRef.Virtual virtualCompoundRef(CompoundEntity compound) {
         return new CompoundRef.Virtual(
                 compound.getId(),
-                MolFormulaFormatter.format(compound.getFormula()),
+                compound.getFormula(),
                 compound.getCompoundKey(),
                 dictionaryService.get(compound.getStereoisomerCode()),
                 dictionaryService.get(compound.getSaltCode()),
@@ -159,7 +165,7 @@ public class CompoundService {
 
     private void fillCompoundFromIndigo(IndigoMolecule molecule, CompoundEntity compound) {
         Map<String, String> properties = molecule.getProperties();
-        compound.setFormula(molecule.molecularFormula());
+        compound.setFormula(new MolFormula(molecule.molecularFormula()));
         compound.setMolFile(molecule.molfile());
         compound.setMolWeight(molecule.molecularWeight());
         for (String property : NAME_PROPERTIES) {
@@ -217,6 +223,7 @@ public class CompoundService {
         sample.setBatchComment(request.getBatchComment());
         compound.getSamples().add(sample);
         updateDates(sample, userService.getCurrentUserEntity());
+        sample.setSearchVector(globalSearchService.collectSampleSearchVector(sample));
         sampleRepository.persist(sample);
         return sample;
     }
@@ -258,7 +265,7 @@ public class CompoundService {
 
     private String calculateBatchMF(CompoundEntity compound) {
         StringBuilder sb = new StringBuilder();
-        String parentFormula = MolFormulaFormatter.format(compound.getFormula());
+        String parentFormula = compound.getFormula().toHTMLString();
         sb.append(parentFormula);
         if (compound.getSaltCode() != null) {
             SaltCodeRef salt = dictionaryService.get(compound.getSaltCode().getId());

@@ -5,6 +5,7 @@ import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.service.AbstractUndoHelper;
+import com.epam.indigoeln.reaction.service.mutation.ExperimentMutationListener;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -13,7 +14,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @ApplicationScoped
-public class ExperimentUndoHelper extends AbstractUndoHelper<ExperimentEntity, ExperimentSnapshot, ExperimentRevisionEntity, ExperimentMutationContext> {
+public class ExperimentUndoHelper extends AbstractUndoHelper<ExperimentEntity, ExperimentSnapshot, ExperimentRevisionEntity, ExperimentMutationContext, ExperimentMutationListener> {
 
     @Inject
     ExperimentRepository experimentRepository;
@@ -35,7 +36,7 @@ public class ExperimentUndoHelper extends AbstractUndoHelper<ExperimentEntity, E
     }
 
     @Override
-    protected void afterHandle(AbstractUndoHelper<ExperimentEntity, ExperimentSnapshot, ExperimentRevisionEntity, ExperimentMutationContext>.UndoInfo info, ExperimentMutationContext context, boolean redo) {
+    protected void afterHandle(AbstractUndoHelper<ExperimentEntity, ExperimentSnapshot, ExperimentRevisionEntity, ExperimentMutationContext, ExperimentMutationListener>.UndoInfo info, ExperimentMutationContext context, boolean redo) {
         context.getResponse().getMessages().add((redo ? "Redone: " : "Undone: ") + info.getRevision().getRevisionSummary());
     }
 }

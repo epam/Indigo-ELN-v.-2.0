@@ -1,0 +1,57 @@
+import { computed, Injectable, signal } from '@angular/core';
+import { ApiService } from '@/core/services/api.service';
+import { catchError, finalize, tap, throwError } from 'rxjs';
+import { PermissionService } from '@core/services/permission/permission.service';
+import { Project } from '@core/types/entities/project.i';
+import { ApplicationPermission } from '@core/types/entities/user.i';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class ProjectService {
+  constructor(
+    private api: ApiService<unknown>,
+    private permissionService: PermissionService,
+  ) {}
+
+  // Signals to hold the current project state
+  readonly project = signal<Project | null>(null);
+  readonly isLoading = signal<boolean>(false);
+  readonly hasError = signal<boolean>(false);
+  private readonly currentId = signal<string | null>(null);
+  readonly canCreateNotebook = computed(() =>
+    this.permissionService.hasEntityPermission(ApplicationPermission.CREATE_NOTEBOOKS, this.project()),
+  );
+
+  load(id: string) {
+    this.currentId.set(id);
+    this.project.set(null);
+    this.isLoading.set(true);
+    this.hasError.set(false);
+
+    return this.api.request<Project>('get', `projects/${id}`).pipe(
+      tap((project) => {
+        this.project.set(project);
+      }),
+      catchError((error) => {
+        this.hasError.set(true);
+        return throwError(() => error);
+      }),
+      finalize(() => {
+        this.isLoading.set(false);
+      }),
+    );
+  }
+
+  refresh() {
+    const id = this.currentId();
+    if (id) this.load(id).subscribe();
+  }
+
+  reset() {
+    this.currentId.set(null);
+    this.project.set(null);
+    this.isLoading.set(false);
+    this.hasError.set(false);
+  }
+}

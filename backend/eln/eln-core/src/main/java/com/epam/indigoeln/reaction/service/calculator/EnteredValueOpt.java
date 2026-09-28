@@ -10,12 +10,14 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.defaultValue;
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.fixed;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -66,40 +68,48 @@ public abstract class EnteredValueOpt<U extends MeasurementUnit> {
     }
 
     @RequiredArgsConstructor
-    @EqualsAndHashCode(of = {"container", "property"}, callSuper = false)
+    @EqualsAndHashCode(of = {"container", "modelProperty"}, callSuper = false)
     public static class Property<C extends ExperimentNode, U extends MeasurementUnit> extends EnteredValueOpt<U> {
 
         @Getter
         private final C container;
         @Getter
-        private final ModelProperty<C, EnteredValue<U>> property;
+        private final ModelProperty<C, EnteredValue<U>> modelProperty;
         @Getter
         private final int ordinal;
+        @Getter
+        @Nullable
+        private Formula<U> calculatedFrom;
+
         private EnteredValue<U> snapshot = EnteredValue.empty();
+        @Nullable
+        private Formula<U> snapshotCalculatedFrom;
+
         @Getter
         private final List<Formula<?>> downstream = new ArrayList<>();
 
         @Override
         public EnteredValue<U> getValue() {
-            EnteredValue<U> v = property.get(container);
-            return v != null ? v : EnteredValue.empty();
+            return checkNotNull(modelProperty.get(container));
         }
 
-        public void setValue(EnteredValue<U> value) {
-            property.set(container, value);
+        public void setValue(EnteredValue<U> value, @Nullable Formula<U> from) {
+            modelProperty.set(container, value);
+            this.calculatedFrom = from;
         }
 
         public void setValueUnchecked(EnteredValue<?> value) {
             //noinspection unchecked
-            property.set(container, (EnteredValue<U>) value);
+            modelProperty.set(container, (EnteredValue<U>) value);
         }
 
         public void snapshot() {
             snapshot = getValue();
+            snapshotCalculatedFrom = calculatedFrom;
         }
 
         public void revert() {
-            setValue(snapshot);
+            setValue(snapshot, snapshotCalculatedFrom);
         }
 
         private String containerDisplayName(ExperimentNode container) {
@@ -115,7 +125,7 @@ public abstract class EnteredValueOpt<U extends MeasurementUnit> {
         }
 
         public String getName() {
-            return containerDisplayName(container) + '.' + property.name();
+            return containerDisplayName(container) + '.' + modelProperty.name();
         }
 
         @Override
@@ -125,12 +135,16 @@ public abstract class EnteredValueOpt<U extends MeasurementUnit> {
     }
 
     @RequiredArgsConstructor
-    @EqualsAndHashCode(of = "value", callSuper = false)
+    @EqualsAndHashCode(of = "enteredValue", callSuper = false)
     public static class Value<U extends MeasurementUnit> extends EnteredValueOpt<U> {
 
         static final EnteredValueOpt<MeasurementUnit> EMPTY = new Value<>(EnteredValue.empty());
 
-        @Getter
-        private final EnteredValue<U> value;
+        private final EnteredValue<U> enteredValue;
+
+        @Override
+        public EnteredValue<U> getValue() {
+            return enteredValue;
+        }
     }
 }

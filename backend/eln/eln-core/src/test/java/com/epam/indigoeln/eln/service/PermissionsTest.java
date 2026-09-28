@@ -12,6 +12,7 @@ import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
+import com.google.common.base.MoreObjects;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import jakarta.inject.Inject;
@@ -22,13 +23,11 @@ import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 import org.assertj.core.util.Throwables;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.io.TempDir;
 import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -37,6 +36,7 @@ import static com.epam.indigoeln.eln.model.AccessLevel.*;
 import static com.epam.indigoeln.eln.test.ACLListAssert.assertThatACL;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 
 @Slf4j
@@ -45,6 +45,8 @@ import static org.assertj.core.api.Assertions.*;
 class PermissionsTest extends ELNBaseTest {
 
     static final Paging PAGING = new Paging(0, 100);
+
+    static final int PERMISSIONS_MATRIX_SIZE = 64;
 
     static final List<TestRow> rows;
 
@@ -65,7 +67,7 @@ class PermissionsTest extends ELNBaseTest {
     );
 
     static {
-        rows = new BufferedReader(new InputStreamReader(loadResourceAsStream(PermissionsTest.class, "/com/epam/indigoeln/eln/service/permissions.csv")))
+        rows = new BufferedReader(new InputStreamReader(loadResourceAsStream("/com/epam/indigoeln/eln/service/permissions.csv")))
                 .lines()
                 .skip(1)
                 .map(line -> line.split(","))
@@ -82,13 +84,12 @@ class PermissionsTest extends ELNBaseTest {
     }
 
     @BeforeAll
-    void setupAll(@TempDir Path tempDir) {
+    void setupAll() {
         cleanupDatabase();
         withUser(JOHN_USERNAME, () -> {
             template = templateClient.createTemplate(new TemplateRequest("PermissionsTest", templateTabs));
             therapeuticArea = dictionaryClient.getFirst(BuiltInDictionary.THERAPEUTIC_AREA);
             iterateRowsParallel(row -> {
-                System.err.println("Create project");
                 row.projectId = projectClient.createProject(new ProjectRequest("project" + row.testId)).getId();
                 Map<String, String> prepareData = projectClient.prepareProjectAttachment(row.projectId, "attachment.txt", 0L);
                 String uploadPath = prepareData.get("url");
@@ -102,7 +103,7 @@ class PermissionsTest extends ELNBaseTest {
                 row.projectDetails = projectClient.getProject(row.projectId);
 
                 System.err.println("Create notebook");
-                row.notebookId = notebookClient.createNotebook(row.projectId, new NotebookRequest(nextNotebookName())).getId();
+                row.notebookId = createNotebook(row.projectId).getId();
                 System.err.println("Prepare notebook attachment");
                 prepareData = notebookClient.prepareNotebookAttachment(row.notebookId, "attachment.txt", 0L);
                 System.err.println("Unpack data");
@@ -118,8 +119,6 @@ class PermissionsTest extends ELNBaseTest {
                     notebookClient.updateNotebookAccess(row.notebookId, AccessForm.of(WILLOW_USERNAME, row.notebook));
                 }
                 row.notebookDetails = notebookClient.getNotebook(row.notebookId);
-
-                System.err.println("Create experiment");
                 row.experimentId = experimentClient.createExperiment(row.notebookId, new ExperimentRequest(emptyTemplateID)).getId();
                 prepareData = experimentClient.prepareExperimentAttachment(row.experimentId, "attachment.txt", 0L);
                 uploadPath = prepareData.get("url");
@@ -151,17 +150,20 @@ class PermissionsTest extends ELNBaseTest {
     @Transactional
     @TestSecurity(user = WILLOW_USERNAME)
     void testCalculateAccessLevel() {
-        iterateRows(row -> {
-            ProjectEntity project = projectRepository.get(row.projectId);
-            AccessLevel projectLevel = project.getCalculatedInfo() != null ? project.getCalculatedInfo().getCurrentAccess() : NONE;
-            NotebookEntity notebook = notebookRepository.get(row.notebookId);
-            AccessLevel notebookLevel = notebook.getCalculatedInfo() != null ? notebook.getCalculatedInfo().getCurrentAccess() : NONE;
-            ExperimentEntity experiment = experimentRepository.get(row.experimentId);
-            AccessLevel experimentLevel = experiment.getCalculatedInfo() != null ? experiment.getCalculatedInfo().getCurrentAccess() : NONE;
-            assertThat(tuple(projectLevel, notebookLevel, experimentLevel))
-                    .as(row.toString())
-                    .isEqualTo(tuple(row.effectiveProject, row.effectiveNotebook, row.effectiveExperiment));
-        });
+        assertAll(
+                () -> assertThat(rows).hasSize(PERMISSIONS_MATRIX_SIZE),
+                () -> iterateRows(row -> {
+                    ProjectEntity project = projectRepository.get(row.projectId);
+            AccessLevel projectLevel = MoreObjects.firstNonNull(project.getCurrentAccess(), NONE);
+                    NotebookEntity notebook = notebookRepository.get(row.notebookId);
+            AccessLevel notebookLevel = MoreObjects.firstNonNull(notebook.getCurrentAccess(), NONE);
+                    ExperimentEntity experiment = experimentRepository.get(row.experimentId);
+            AccessLevel experimentLevel = MoreObjects.firstNonNull(experiment.getCurrentAccess(), NONE);
+                    assertThat(tuple(projectLevel, notebookLevel, experimentLevel))
+                            .as(row.toString())
+                            .isEqualTo(tuple(row.effectiveProject, row.effectiveNotebook, row.effectiveExperiment));
+                })
+        );
     }
 
     @Test
@@ -201,223 +203,274 @@ class PermissionsTest extends ELNBaseTest {
 
     @Test
     void testGetProject() {
-        iterateRowsParallel(row -> {
-            assertThatClientCall(() -> projectClient.getProject(row.projectId))
-                    .as(row.toString())
-                    .isAllowedIf(row.effectiveProject.isSufficientFor(IMPLICIT_VIEW), "Operation not permitted");
-        });
+        assertAll(
+                () -> assertThat(rows).hasSize(PERMISSIONS_MATRIX_SIZE),
+                () -> iterateRowsParallel(row -> {
+                    assertThatClientCall(() -> projectClient.getProject(row.projectId))
+                            .as(row.toString())
+                            .isAllowedIf(row.effectiveProject.isSufficientFor(IMPLICIT_VIEW), "Operation not permitted");
+                })
+        );
     }
 
     @Test
     void testEditProject() {
-        iterateRowsParallel(row -> {
-            assertThatClientCall(() -> projectClient.editProject(row.projectId, new ProjectEditRequest().withDescription(JsonNullable.of("updated"))))
-                    .as(row.toString())
-                    .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "Operation not permitted");
-        });
+        assertAll(
+                () -> assertThat(rows).hasSize(PERMISSIONS_MATRIX_SIZE),
+                () -> iterateRowsParallel(row -> {
+                    assertThatClientCall(() -> projectClient.editProject(row.projectId, new ProjectEditRequest().withDescription(JsonNullable.of("updated"))))
+                            .as(row.toString())
+                            .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "Operation not permitted");
+                })
+        );
     }
 
     @Test
-    void testProjectAttachments(@TempDir Path tempDir) {
-        iterateRowsParallel(row -> {
-            assertThatClientCall(() -> {
-                Map<String, String> prepareData = projectClient.prepareProjectAttachment(row.projectId, "a", 0L);
-                String path = prepareData.get("url");
-                String id = prepareData.get("id");
-                String fileName = Arrays.stream(path.split("/")).toList().getLast();
-                uploadClient.uploadFileContent(fileName, "a", new byte[0]);
-                return projectClient.completeProjectAttachment(row.projectId, UUID.fromString(id));
-            })
-                    .as(row.toString())
-                    .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "Operation not permitted");
-            assertThatClientCall(() -> projectClient.downloadProjectAttachment(row.projectId, row.projectDetails.getAttachments().getFirst().getId()))
-                    .as(row.toString())
-                    .isAllowedIf(row.effectiveProject.isSufficientFor(IMPLICIT_VIEW), "Operation not permitted");
-            assertThatClientCall(() -> projectClient.deleteProjectAttachment(row.projectId, row.projectDetails.getAttachments().getFirst().getId()))
-                    .as(row.toString())
-                    .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "Operation not permitted");
-        });
+    void testProjectAttachments() {
+        assertAll(
+                () -> assertThat(rows).hasSize(PERMISSIONS_MATRIX_SIZE),
+                () -> iterateRowsParallel(row -> {
+                    assertThatClientCall(() -> {
+                        Map<String, String> prepareData = projectClient.prepareProjectAttachment(row.projectId, "a", 0L);
+                        String path = prepareData.get("url");
+                        String id = prepareData.get("id");
+                        String fileName = Arrays.stream(path.split("/")).toList().getLast();
+                        uploadClient.uploadFileContent(fileName, "a", new byte[0]);
+                        return projectClient.completeProjectAttachment(row.projectId, UUID.fromString(id));
+                    })
+                            .as(row.toString())
+                            .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "Operation not permitted");
+                    assertThatClientCall(() -> projectClient.downloadProjectAttachment(row.projectId, row.projectDetails.getAttachments().getFirst().getId()))
+                            .as(row.toString())
+                            .isAllowedIf(row.effectiveProject.isSufficientFor(IMPLICIT_VIEW), "Operation not permitted");
+                    assertThatClientCall(() -> projectClient.deleteProjectAttachment(row.projectId, row.projectDetails.getAttachments().getFirst().getId()))
+                            .as(row.toString())
+                            .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "Operation not permitted");
+                })
+        );
     }
 
     @Test
     void testUpdateProjectAccess() {
-        iterateRowsParallel(row -> {
-            if (row.project != NONE) {
-                assertThatClientCall(() -> projectClient.updateProjectAccess(row.projectId, AccessForm.of(WILLOW_USERNAME, row.project)))
-                        .isAllowedIf(row.effectiveProject.isSufficientFor(ADMIN), "Operation not permitted");
-            }
-        });
+        assertAll(
+                () -> assertThat(rows).hasSize(PERMISSIONS_MATRIX_SIZE),
+                () -> iterateRowsParallel(row -> {
+                    if (row.project != NONE) {
+                        assertThatClientCall(() -> projectClient.updateProjectAccess(row.projectId, AccessForm.of(WILLOW_USERNAME, row.project)))
+                                .isAllowedIf(row.effectiveProject.isSufficientFor(ADMIN), "Operation not permitted");
+                    }
+                })
+        );
     }
 
     @Test
     void testListNotebooks() {
-        iterateRowsParallel(row -> {
-            Page<NotebookDTO> notebooks = notebookClient.getProjectNotebooks(row.projectId, null, null, null, PAGING);
-            if (row.effectiveNotebook != NONE) {
-                assertThat(notebooks.getItems()).extracting(NotebookDTO::getName).containsExactly(row.notebookDetails.getName());
-            } else {
-                assertThat(notebooks.getItems()).isEmpty();
-            }
-        });
+        assertAll(
+                () -> assertThat(rows).hasSize(PERMISSIONS_MATRIX_SIZE),
+                () -> iterateRowsParallel(row -> {
+                    Page<NotebookDTO> notebooks = notebookClient.getProjectNotebooks(row.projectId, null, null, null, PAGING);
+                    if (row.effectiveNotebook != NONE) {
+                        assertThat(notebooks.getItems()).extracting(NotebookDTO::getName).containsExactly(row.notebookDetails.getName());
+                    } else {
+                        assertThat(notebooks.getItems()).isEmpty();
+                    }
+                })
+        );
     }
 
     // TODO assuming EDIT is required to create children
     @Test
     void testCreateNotebook() {
-        iterateRowsParallel(row -> {
-            assertThatClientCall(() -> notebookClient.createNotebook(row.projectId, new NotebookRequest(nextNotebookName())))
-                    .as(row.toString())
-                    .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "Operation not permitted");
-        });
+        assertAll(
+                () -> assertThat(rows).hasSize(PERMISSIONS_MATRIX_SIZE),
+                () -> iterateRowsParallel(row -> {
+                    assertThatClientCall(() -> createNotebook(row.projectId))
+                            .as(row.toString())
+                            .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "Operation not permitted");
+                })
+        );
     }
 
     @Test
     void testGetNotebook() {
-        iterateRowsParallel(row -> {
-            assertThatClientCall(() -> notebookClient.getNotebook(row.notebookId))
-                    .as(row.toString())
-                    .isAllowedIf(row.effectiveNotebook.isSufficientFor(IMPLICIT_VIEW), "Operation not permitted");
-        });
+        assertAll(
+                () -> assertThat(rows).hasSize(PERMISSIONS_MATRIX_SIZE),
+                () -> iterateRowsParallel(row -> {
+                    assertThatClientCall(() -> notebookClient.getNotebook(row.notebookId))
+                            .as(row.toString())
+                            .isAllowedIf(row.effectiveNotebook.isSufficientFor(IMPLICIT_VIEW), "Operation not permitted");
+                })
+        );
     }
 
     @Test
     void testEditNotebook() {
-        iterateRowsParallel(row -> {
-            assertThatClientCall(() -> notebookClient.editNotebook(row.notebookId, new NotebookEditRequest().withDescription(JsonNullable.of("updated"))))
-                    .as(row.toString())
-                    .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "Operation not permitted");
-        });
+        assertAll(
+                () -> assertThat(rows).hasSize(PERMISSIONS_MATRIX_SIZE),
+                () -> iterateRowsParallel(row -> {
+                    assertThatClientCall(() -> notebookClient.editNotebook(row.notebookId, new NotebookEditRequest().withDescription(JsonNullable.of("updated"))))
+                            .as(row.toString())
+                            .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "Operation not permitted");
+                })
+        );
     }
 
     @Test
-    void testNotebookAttachments(@TempDir Path tempDir) {
-        iterateRowsParallel(row -> {
-            assertThatClientCall(() -> {
-                Map<String, String> prepareData = notebookClient.prepareNotebookAttachment(row.notebookId, "a", 0L);
-                String path = prepareData.get("url");
-                String id = prepareData.get("id");
-                String fileName = Arrays.stream(path.split("/")).toList().getLast();
-                uploadClient.uploadFileContent(fileName, "a", new byte[0]);
-                return notebookClient.completeNotebookAttachment(row.notebookId, UUID.fromString(id));
-            })
-                    .as(row.toString())
-                    .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "Operation not permitted");
-            assertThatClientCall(() -> notebookClient.downloadNotebookAttachment(row.notebookId, row.notebookDetails.getAttachments().getFirst().getId()))
-                    .as(row.toString())
-                    .isAllowedIf(row.effectiveNotebook.isSufficientFor(IMPLICIT_VIEW), "Operation not permitted");
-            assertThatClientCall(() -> notebookClient.deleteNotebookAttachment(row.notebookId, row.notebookDetails.getAttachments().getFirst().getId()))
-                    .as(row.toString())
-                    .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "Operation not permitted");
-        });
+    void testNotebookAttachments() {
+        assertAll(
+                () -> assertThat(rows).hasSize(PERMISSIONS_MATRIX_SIZE),
+                () -> iterateRowsParallel(row -> {
+                    assertThatClientCall(() -> {
+                        Map<String, String> prepareData = notebookClient.prepareNotebookAttachment(row.notebookId, "a", 0L);
+                        String path = prepareData.get("url");
+                        String id = prepareData.get("id");
+                        String fileName = Arrays.stream(path.split("/")).toList().getLast();
+                        uploadClient.uploadFileContent(fileName, "a", new byte[0]);
+                        return notebookClient.completeNotebookAttachment(row.notebookId, UUID.fromString(id));
+                    })
+                            .as(row.toString())
+                            .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "Operation not permitted");
+                    assertThatClientCall(() -> notebookClient.downloadNotebookAttachment(row.notebookId, row.notebookDetails.getAttachments().getFirst().getId()))
+                            .as(row.toString())
+                            .isAllowedIf(row.effectiveNotebook.isSufficientFor(IMPLICIT_VIEW), "Operation not permitted");
+                    assertThatClientCall(() -> notebookClient.deleteNotebookAttachment(row.notebookId, row.notebookDetails.getAttachments().getFirst().getId()))
+                            .as(row.toString())
+                            .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "Operation not permitted");
+                })
+        );
     }
 
     @Test
     void testUpdateNotebookAccess() {
-        iterateRowsParallel(row -> {
-            if (row.notebook != NONE) {
-                assertThatClientCall(() -> notebookClient.updateNotebookAccess(row.notebookId, AccessForm.of(WILLOW_USERNAME, row.notebook)))
-                        .isAllowedIf(row.effectiveNotebook.isSufficientFor(ADMIN), "Operation not permitted");
-            }
-        });
+        assertAll(
+                () -> assertThat(rows).hasSize(PERMISSIONS_MATRIX_SIZE),
+                () -> iterateRowsParallel(row -> {
+                    if (row.notebook != NONE) {
+                        assertThatClientCall(() -> notebookClient.updateNotebookAccess(row.notebookId, AccessForm.of(WILLOW_USERNAME, row.notebook)))
+                                .isAllowedIf(row.effectiveNotebook.isSufficientFor(ADMIN), "Operation not permitted");
+                    }
+                })
+        );
     }
 
     @Test
     void testCreateExperiment() {
-        iterateRowsParallel(row -> {
-            assertThatClientCall(() -> experimentClient.createExperiment(row.notebookId, new ExperimentRequest(emptyTemplateID)))
-                    .as(row.toString())
-                    .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "Operation not permitted");
-        });
+        assertAll(
+                () -> assertThat(rows).hasSize(PERMISSIONS_MATRIX_SIZE),
+                () -> iterateRowsParallel(row -> {
+                    assertThatClientCall(() -> experimentClient.createExperiment(row.notebookId, new ExperimentRequest(emptyTemplateID)))
+                            .as(row.toString())
+                            .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "Operation not permitted");
+                })
+        );
     }
 
     @Test
     void testListExperiments() {
-        iterateRowsParallel(row -> {
-            Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(row.notebookId, null, null, null, PAGING);
-            if (row.effectiveExperiment != NONE) {
-                assertThat(experiments.getItems()).extracting(ExperimentDTO::getName).containsExactly(row.experimentDetails.getName());
-            } else {
-                assertThat(experiments.getItems()).isEmpty();
-            }
-        });
+        assertAll(
+                () -> assertThat(rows).hasSize(PERMISSIONS_MATRIX_SIZE),
+                () -> iterateRowsParallel(row -> {
+                    Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(row.notebookId, null, null, null, null, PAGING);
+                    if (row.effectiveExperiment != NONE) {
+                        assertThat(experiments.getItems()).extracting(ExperimentDTO::getName).containsExactly(row.experimentDetails.getName());
+                    } else {
+                        assertThat(experiments.getItems()).isEmpty();
+                    }
+                })
+        );
     }
 
     @Test
     void testGetExperiment() {
-        iterateRowsParallel(row -> {
-            assertThatClientCall(() -> experimentClient.getExperiment(row.experimentId))
-                    .as(row.toString())
-                    .isAllowedIf(row.effectiveExperiment.isSufficientFor(IMPLICIT_VIEW), "Operation not permitted");
-        });
+        assertAll(
+                () -> assertThat(rows).hasSize(PERMISSIONS_MATRIX_SIZE),
+                () -> iterateRowsParallel(row -> {
+                    assertThatClientCall(() -> experimentClient.getExperiment(row.experimentId))
+                            .as(row.toString())
+                            .isAllowedIf(row.effectiveExperiment.isSufficientFor(IMPLICIT_VIEW), "Operation not permitted");
+                })
+        );
     }
 
     @Test
     void testEditExperiment() {
-        iterateRowsParallel(row -> {
-            assertThatClientCall(() -> {
-                experimentClient.editExperiment(row.experimentId, new ExperimentEditRequest().withTherapeuticArea(JsonNullable.of(therapeuticArea)));
-            })
-                    .as(row.toString())
-                    .isAllowedIf(row.effectiveExperiment.isSufficientFor(EDIT), "Operation not permitted");
-        });
+        assertAll(
+                () -> assertThat(rows).hasSize(PERMISSIONS_MATRIX_SIZE),
+                () -> iterateRowsParallel(row -> {
+                    assertThatClientCall(() -> {
+                        experimentClient.editExperiment(row.experimentId, new ExperimentEditRequest().withTherapeuticArea(JsonNullable.of(therapeuticArea)));
+                    })
+                            .as(row.toString())
+                            .isAllowedIf(row.effectiveExperiment.isSufficientFor(EDIT), "Operation not permitted");
+                })
+        );
     }
 
     @Test
-    void testExperimentAttachments(@TempDir Path tempDir) {
-        iterateRowsParallel(row -> {
-            assertThatClientCall(() -> {
-                Map<String, String> prepareData = experimentClient.prepareExperimentAttachment(row.experimentId, "a", (long) "content".getBytes(StandardCharsets.UTF_8).length);
-                String path = prepareData.get("url");
-                String id = prepareData.get("id");
-                String fileName = Arrays.stream(path.split("/")).toList().getLast();
-                uploadClient.uploadFileContent(fileName, "a", "content".getBytes(StandardCharsets.UTF_8));
-                return experimentClient.completeExperimentAttachment(row.experimentId, UUID.fromString(id));
-            })
-                    .as(row.toString())
-                    .isAllowedIf(row.effectiveExperiment.isSufficientFor(EDIT), "Operation not permitted");
-            assertThatClientCall(() -> experimentClient.downloadExperimentAttachment(row.experimentId, row.experimentDetails.getAttachments().getFirst().getId()))
-                    .as(row.toString())
-                    .isAllowedIf(row.effectiveExperiment.isSufficientFor(IMPLICIT_VIEW), "Operation not permitted");
-            assertThatClientCall(() -> experimentClient.deleteExperimentAttachment(row.experimentId, row.experimentDetails.getAttachments().getFirst().getId()))
-                    .as(row.toString())
-                    .isAllowedIf(row.effectiveExperiment.isSufficientFor(EDIT), "Operation not permitted");
-        });
+    void testExperimentAttachments() {
+        assertAll(
+                () -> assertThat(rows).hasSize(PERMISSIONS_MATRIX_SIZE),
+                () -> iterateRowsParallel(row -> {
+                    assertThatClientCall(() -> {
+                        Map<String, String> prepareData = experimentClient.prepareExperimentAttachment(row.experimentId, "a", (long) "content".getBytes(StandardCharsets.UTF_8).length);
+                        String path = prepareData.get("url");
+                        String id = prepareData.get("id");
+                        String fileName = Arrays.stream(path.split("/")).toList().getLast();
+                        uploadClient.uploadFileContent(fileName, "a", "content".getBytes(StandardCharsets.UTF_8));
+                        return experimentClient.completeExperimentAttachment(row.experimentId, UUID.fromString(id));
+                    })
+                            .as(row.toString())
+                            .isAllowedIf(row.effectiveExperiment.isSufficientFor(EDIT), "Operation not permitted");
+                    assertThatClientCall(() -> experimentClient.downloadExperimentAttachment(row.experimentId, row.experimentDetails.getAttachments().getFirst().getId()))
+                            .as(row.toString())
+                            .isAllowedIf(row.effectiveExperiment.isSufficientFor(IMPLICIT_VIEW), "Operation not permitted");
+                    assertThatClientCall(() -> experimentClient.deleteExperimentAttachment(row.experimentId, row.experimentDetails.getAttachments().getFirst().getId()))
+                            .as(row.toString())
+                            .isAllowedIf(row.effectiveExperiment.isSufficientFor(EDIT), "Operation not permitted");
+                })
+        );
     }
 
     @Test
     void testMarkExperiment() {
-        iterateRowsParallel(row -> {
-            assertThatClientCall(() -> experimentClient.markExperiment(row.experimentId))
-                    .isAllowedIf(row.effectiveExperiment.isSufficientFor(VIEW), "Operation not permitted");
-        });
+        assertAll(
+                () -> assertThat(rows).hasSize(PERMISSIONS_MATRIX_SIZE),
+                () -> iterateRowsParallel(row -> {
+                    assertThatClientCall(() -> experimentClient.markExperiment(row.experimentId))
+                            .isAllowedIf(row.effectiveExperiment.isSufficientFor(VIEW), "Operation not permitted");
+                })
+        );
     }
 
     @Test
     void testUpdateExperimentAccess() {
-        iterateRowsParallel(row -> {
-            if (row.experiment != NONE) {
-                assertThatClientCall(() -> experimentClient.updateExperimentAccess(row.experimentId, AccessForm.of(WILLOW_USERNAME, row.experiment)))
-                        .isAllowedIf(row.effectiveExperiment.isSufficientFor(ADMIN), "Operation not permitted");
-            }
-        });
+        assertAll(
+                () -> assertThat(rows).hasSize(PERMISSIONS_MATRIX_SIZE),
+                () -> iterateRowsParallel(row -> {
+                    if (row.experiment != NONE) {
+                        assertThatClientCall(() -> experimentClient.updateExperimentAccess(row.experimentId, AccessForm.of(WILLOW_USERNAME, row.experiment)))
+                                .isAllowedIf(row.effectiveExperiment.isSufficientFor(ADMIN), "Operation not permitted");
+                    }
+                })
+        );
     }
 
     @Test
     @TestSecurity(user = BART_USERNAME)
     void testContentEditorCanSeeEverything() {
         assertThat(projectClient.getProjects(null, null, null, PAGING).getTotalItems()).isEqualTo(rows.size());
-        iterateRowsParallel(row -> {
+        assertAll(() -> iterateRowsParallel(row -> {
             assertThatClientCall(() -> projectClient.getProject(row.projectId))
                     .isSuccessful();
             assertThatClientCall(() -> notebookClient.getProjectNotebooks(row.projectId, null, null, null, PAGING))
                     .isSuccessfulWithResult(p -> assertThat(p.getItems()).hasSize(1));
             assertThatClientCall(() -> notebookClient.getNotebook(row.notebookId))
                     .isSuccessful();
-            assertThatClientCall(() -> experimentClient.getNotebookExperiments(row.notebookId, null, null, null, PAGING))
+            assertThatClientCall(() -> experimentClient.getNotebookExperiments(row.notebookId, null, null, null, null, PAGING))
                     .isSuccessfulWithResult(p -> assertThat(p.getItems()).hasSize(1));
             assertThatClientCall(() -> experimentClient.getExperiment(row.experimentId))
                     .isSuccessful();
-        });
+        }));
     }
 
     @Test
@@ -425,20 +478,23 @@ class PermissionsTest extends ELNBaseTest {
     @Transactional
     @TestSecurity(user = BART_USERNAME)
     void testContentEditorHasEditPermissions() {
-        iterateRows(row -> {
-            ProjectEntity project = projectRepository.get(row.projectId);
-            for (ApplicationPermission operation : EnumSet.of(ApplicationPermission.VIEW_PROJECTS, ApplicationPermission.EDIT_PROJECTS, ApplicationPermission.CREATE_NOTEBOOKS)) {
-                aclService.ensureAccess(project, operation);
-            }
-            NotebookEntity notebook = notebookRepository.get(row.notebookId);
-            for (ApplicationPermission operation : EnumSet.of(ApplicationPermission.VIEW_NOTEBOOKS, ApplicationPermission.EDIT_NOTEBOOKS, ApplicationPermission.CREATE_EXPERIMENTS)) {
-                aclService.ensureAccess(notebook, operation);
-            }
-            ExperimentEntity experiment = experimentRepository.get(row.experimentId);
-            for (ApplicationPermission operation : EnumSet.of(ApplicationPermission.VIEW_EXPERIMENTS, ApplicationPermission.EDIT_EXPERIMENTS)) {
-                aclService.ensureAccess(experiment, operation);
-            }
-        });
+        assertAll(
+                () -> assertThat(rows).hasSize(PERMISSIONS_MATRIX_SIZE),
+                () -> assertThatCode(() -> iterateRows(row -> {
+                    ProjectEntity project = projectRepository.get(row.projectId);
+                    for (ApplicationPermission operation : EnumSet.of(ApplicationPermission.VIEW_PROJECTS, ApplicationPermission.EDIT_PROJECTS, ApplicationPermission.CREATE_NOTEBOOKS)) {
+                        aclService.ensureAccess(project, operation);
+                    }
+                    NotebookEntity notebook = notebookRepository.get(row.notebookId);
+                    for (ApplicationPermission operation : EnumSet.of(ApplicationPermission.VIEW_NOTEBOOKS, ApplicationPermission.EDIT_NOTEBOOKS, ApplicationPermission.CREATE_EXPERIMENTS)) {
+                        aclService.ensureAccess(notebook, operation);
+                    }
+                    ExperimentEntity experiment = experimentRepository.get(row.experimentId);
+                    for (ApplicationPermission operation : EnumSet.of(ApplicationPermission.VIEW_EXPERIMENTS, ApplicationPermission.EDIT_EXPERIMENTS)) {
+                        aclService.ensureAccess(experiment, operation);
+                    }
+                })).doesNotThrowAnyException()
+        );
     }
 
     @Test
@@ -447,15 +503,20 @@ class PermissionsTest extends ELNBaseTest {
     @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
     void testAdminCanManageDictionaries() {
         DictionaryDTO dictionary = dictionaryClient.createDictionary(new DictionaryRequest("TEST", "Test", false, null));
+        assertThat(dictionary.getCode()).isEqualTo("TEST");
         try {
             List<DictionaryItemDTO> items = dictionaryClient.addDictionaryItem(dictionary.getId().toString(), new DictionaryItemRequest("A", "Adescription"));
-            dictionaryClient.updateDictionaryItem(dictionary.getId().toString(), items.getFirst().getId(), new DictionaryItemEditRequest(
+            assertThat(items).extracting(DictionaryItemDTO::getName, DictionaryItemDTO::getDescription).containsExactly(tuple("A", "Adescription"));
+            items = dictionaryClient.updateDictionaryItem(dictionary.getId().toString(), items.getFirst().getId(), new DictionaryItemEditRequest(
                     JsonNullable.of("Anew"),
                     JsonNullable.of("AdescriptionNew"),
                     JsonNullable.of(1),
                     JsonNullable.of(false)
             ));
-            dictionaryClient.removeDictionaryItem(dictionary.getId().toString(), items.getFirst().getId());
+            assertThat(items.getFirst()).extracting(DictionaryItemDTO::getName, DictionaryItemDTO::getDescription, DictionaryItemDTO::getActive)
+                    .containsExactly("Anew", "AdescriptionNew", false);
+            items = dictionaryClient.removeDictionaryItem(dictionary.getId().toString(), items.getFirst().getId());
+            assertThat(items).isEmpty();
         } finally {
             dictionaryClient.removeDictionary(dictionary.getId().toString());
         }
@@ -466,19 +527,20 @@ class PermissionsTest extends ELNBaseTest {
     @Transactional
     @TestSecurity(user = BART_USERNAME)
     void testNotAdminCannotManageDictionaries() {
-        assertThatClientCall(() -> dictionaryClient.createDictionary(new DictionaryRequest("TEST", "Test", false, null)))
-                .isForbidden("Operation not permitted");
-        assertThatClientCall(() -> dictionaryClient.updateDictionary(BuiltInDictionary.SAMPLE_SOURCE.name(), new DictionaryEditRequest(JsonNullable.of("TEST1"), JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.undefined())))
-                .isForbidden("Operation not permitted");
-        assertThatClientCall(() -> dictionaryClient.removeDictionary(BuiltInDictionary.SAMPLE_SOURCE.name()))
-                .isForbidden("Operation not permitted");
-
-        assertThatClientCall(() -> dictionaryClient.addDictionaryItem(BuiltInDictionary.THERAPEUTIC_AREA, new DictionaryItemRequest("A", "Adescription")))
-                .isForbidden("Operation not permitted");
-        assertThatClientCall(() -> dictionaryClient.updateDictionaryItem(BuiltInDictionary.THERAPEUTIC_AREA, UUID.randomUUID(), new DictionaryItemEditRequest(JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.undefined())))
-                .isForbidden("Operation not permitted");
-        assertThatClientCall(() -> dictionaryClient.removeDictionaryItem(BuiltInDictionary.THERAPEUTIC_AREA, UUID.randomUUID()))
-                .isForbidden("Operation not permitted"); // TODO
+        assertAll(
+                () -> assertThatClientCall(() -> dictionaryClient.createDictionary(new DictionaryRequest("TEST", "Test", false, null)))
+                        .isForbidden("Operation not permitted"),
+                () -> assertThatClientCall(() -> dictionaryClient.updateDictionary(BuiltInDictionary.SAMPLE_SOURCE.name(), new DictionaryEditRequest(JsonNullable.of("TEST1"), JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.undefined())))
+                        .isForbidden("Operation not permitted"),
+                () -> assertThatClientCall(() -> dictionaryClient.removeDictionary(BuiltInDictionary.SAMPLE_SOURCE.name()))
+                        .isForbidden("Operation not permitted"),
+                () -> assertThatClientCall(() -> dictionaryClient.addDictionaryItem(BuiltInDictionary.THERAPEUTIC_AREA, new DictionaryItemRequest("A", "Adescription")))
+                        .isForbidden("Operation not permitted"),
+                () -> assertThatClientCall(() -> dictionaryClient.updateDictionaryItem(BuiltInDictionary.THERAPEUTIC_AREA, UUID.randomUUID(), new DictionaryItemEditRequest(JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.undefined())))
+                        .isForbidden("Operation not permitted"),
+                () -> assertThatClientCall(() -> dictionaryClient.removeDictionaryItem(BuiltInDictionary.THERAPEUTIC_AREA, UUID.randomUUID()))
+                        .isForbidden("Operation not permitted") // TODO
+        );
     }
 
     private void iterateRows(Consumer<TestRow> block) {
@@ -504,6 +566,23 @@ class PermissionsTest extends ELNBaseTest {
         }
     }
 
+    @Test
+    @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
+    void testFindMarkedExcludesExperimentsAfterAccessRevoked() {
+        ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testFindMarkedExcludesExperimentsAfterAccessRevoked"));
+        NotebookDetailsDTO notebook = createNotebook(project.getId());
+        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
+        experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(LISA_USERNAME, VIEW));
+        withUser(LISA_USERNAME, () -> {
+            experimentClient.markExperiment(experiment.getId());
+            assertThat(experimentClient.getMarkedExperiments()).extracting(ExperimentDTO::getId).contains(experiment.getId());
+        });
+        experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(LISA_USERNAME, NONE));
+        withUser(LISA_USERNAME, () -> {
+            assertThat(experimentClient.getMarkedExperiments()).extracting(ExperimentDTO::getId).doesNotContain(experiment.getId());
+        });
+    }
+
     @Nested
     @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -516,22 +595,25 @@ class PermissionsTest extends ELNBaseTest {
         NotebookDetailsDTO notebook2;
         ExperimentDetailsDTO experiment2;
 
-        String secondNotebookName;
-
         @Test
         @Order(0)
         void testCreate() {
             project = projectClient.createProject(new ProjectRequest("testExperimentAccess"));
-            notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+            notebook = createNotebook(project.getId());
             experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
+            assertThat(project.getId()).isNotNull();
+            assertThat(notebook.getProjectId()).isEqualTo(project.getId());
+            assertThat(experiment.getNotebookId()).isEqualTo(notebook.getId());
         }
 
         @Test
         @Order(100)
         void testAuthorHasAccessByDefault() {
-            assertThatACL(project.getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false);
-            assertThatACL(notebook.getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false);
-            assertThatACL(experiment.getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false);
+            assertAll(
+                    () -> assertThatACL(project.getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false),
+                    () -> assertThatACL(notebook.getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false),
+                    () -> assertThatACL(experiment.getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false)
+            );
         }
 
         @Test
@@ -551,41 +633,63 @@ class PermissionsTest extends ELNBaseTest {
         @Test
         @Order(200)
         void testAddUser() {
-            List<ACLEntryDTO> acl = projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, VIEW));
-            assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, VIEW, false);
-            acl = notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(WILLOW_USERNAME, VIEW));
-            assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, VIEW, false);
-            acl = experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(WILLOW_USERNAME, VIEW));
-            assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, VIEW, false);
+            assertAll(
+                    () -> {
+                        List<ACLEntryDTO> acl = projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, VIEW));
+                        assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, VIEW, false);
+                    },
+                    () -> {
+                        List<ACLEntryDTO> acl = notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(WILLOW_USERNAME, VIEW));
+                        assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, VIEW, false);
+                    },
+                    () -> {
+                        List<ACLEntryDTO> acl = experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(WILLOW_USERNAME, VIEW));
+                        assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, VIEW, false);
+                    }
+            );
         }
 
         @Test
         @Order(201)
         void testRemoveUser() {
-            List<ACLEntryDTO> acl = projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, NONE));
-            assertThatACL(acl).containsOnly(
-                    JOHN_DISPLAY_NAME, AUTHOR, false,
-                    WILLOW_DISPLAY_NAME, IMPLICIT_VIEW, false
+            assertAll(
+                    () -> {
+                        List<ACLEntryDTO> acl = projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, NONE));
+                        assertThatACL(acl).containsOnly(
+                                JOHN_DISPLAY_NAME, AUTHOR, false,
+                                WILLOW_DISPLAY_NAME, IMPLICIT_VIEW, false
+                        );
+                    },
+                    () -> {
+                        List<ACLEntryDTO> acl = notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(WILLOW_USERNAME, NONE));
+                        assertThatACL(acl).containsOnly(
+                                JOHN_DISPLAY_NAME, AUTHOR, false,
+                                WILLOW_DISPLAY_NAME, IMPLICIT_VIEW, false
+                        );
+                    },
+                    () -> {
+                        List<ACLEntryDTO> acl = experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(WILLOW_USERNAME, NONE));
+                        assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false);
+                    }
             );
-            acl = notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(WILLOW_USERNAME, NONE));
-            assertThatACL(acl).containsOnly(
-                    JOHN_DISPLAY_NAME, AUTHOR, false,
-                    WILLOW_DISPLAY_NAME, IMPLICIT_VIEW, false
-            );
-            acl = experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(WILLOW_USERNAME, NONE));
-            assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false);
         }
 
         @Test
         @Order(300)
         void testInheritedPermissionsAreListedInACL() {
-            projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, EDIT));
-            assertThatACL(projectClient.getProject(project.getId()).getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, EDIT, false);
-            assertThatACL(notebookClient.getNotebook(notebook.getId()).getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, EDIT, true);
-            assertThatACL(experimentClient.getExperiment(experiment.getId()).getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, EDIT, true);
-            notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(WILLOW_USERNAME, ADMIN));
-            assertThatACL(notebookClient.getNotebook(notebook.getId()).getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, ADMIN, false);
-            assertThatACL(experimentClient.getExperiment(experiment.getId()).getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, ADMIN, true);
+            assertAll(
+                    () -> {
+                        projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, EDIT));
+                        assertThatACL(projectClient.getProject(project.getId()).getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, EDIT, false);
+                        assertThatACL(notebookClient.getNotebook(notebook.getId()).getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, EDIT, true);
+                        assertThatACL(experimentClient.getExperiment(experiment.getId()).getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, EDIT, true);
+                    },
+                    () -> {
+                        notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(WILLOW_USERNAME, ADMIN));
+                        assertThatACL(notebookClient.getNotebook(notebook.getId()).getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, ADMIN, false);
+                        assertThatACL(experimentClient.getExperiment(experiment.getId()).getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, ADMIN, true);
+                    }
+            );
         }
 
         @Test
@@ -593,10 +697,12 @@ class PermissionsTest extends ELNBaseTest {
         void testCreateSecondExperiment() {
             projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, NONE));
             notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(WILLOW_USERNAME, NONE));
-            secondNotebookName = nextNotebookName();
-            notebook2 = notebookClient.createNotebook(project.getId(), new NotebookRequest(secondNotebookName));
+            notebook2 = createNotebook(project.getId());
             experiment2 = experimentClient.createExperiment(notebook2.getId(), new ExperimentRequest(emptyTemplateID));
-            experimentClient.updateExperimentAccess(experiment2.getId(), AccessForm.of(WILLOW_USERNAME, EDIT));
+            List<ACLEntryDTO> acl = experimentClient.updateExperimentAccess(experiment2.getId(), AccessForm.of(WILLOW_USERNAME, EDIT));
+            assertThat(notebook2.getProjectId()).isEqualTo(project.getId());
+            assertThat(experiment2.getNotebookId()).isEqualTo(notebook2.getId());
+            assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, EDIT, false);
         }
 
         @Test
@@ -604,8 +710,8 @@ class PermissionsTest extends ELNBaseTest {
         @TestSecurity(user = WILLOW_USERNAME)
         void testImplicitViewDoesntListSiblingEntities() {
             Page<NotebookDTO> notebooks = notebookClient.getProjectNotebooks(project.getId(), null, null, null, PAGING);
-            assertThat(notebooks.getItems()).extracting(NotebookDTO::getName).containsOnly(secondNotebookName);
-            Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(notebook2.getId(), null, null, null, PAGING);
+            assertThat(notebooks.getItems()).extracting(NotebookDTO::getName).containsOnly(notebook2.getName());
+            Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(notebook2.getId(), null, null, null, null, PAGING);
             assertThat(experiments.getItems()).extracting(ExperimentDTO::getName).containsOnly(experiment2.getName());
         }
 
@@ -635,7 +741,7 @@ class PermissionsTest extends ELNBaseTest {
             experimentClient.updateExperimentAccess(experiment2.getId(), AccessForm.of(BART_USERNAME, EDIT));
             acl = experimentClient.updateExperimentAccess(experiment2.getId(), AccessForm.of(LISA_USERNAME, EDIT));
             assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, BART_DISPLAY_NAME, EDIT, false, LISA_DISPLAY_NAME, EDIT, false, WILLOW_DISPLAY_NAME, EDIT, false);
-            ExperimentDTO experimentDTO = experimentClient.getNotebookExperiments(notebook2.getId(), null, null, null, PAGING).getItems().getFirst();
+            ExperimentDTO experimentDTO = experimentClient.getNotebookExperiments(notebook2.getId(), null, null, null, null, PAGING).getItems().getFirst();
             assertThat(experimentDTO.getId()).isEqualTo(experiment2.getId());
             assertThatACL(experimentDTO.getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, BART_DISPLAY_NAME, EDIT, false, LISA_DISPLAY_NAME, EDIT, false);
             assertThat(experimentDTO.getAclCount()).isEqualTo(4);

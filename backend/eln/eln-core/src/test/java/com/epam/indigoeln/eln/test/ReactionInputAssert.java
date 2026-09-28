@@ -19,7 +19,7 @@ public class ReactionInputAssert extends AbstractReactionRowAssert<ReactionInput
     }
 
     public ReactionInputAssert hasNoMol() {
-        EnteredValueAssert.assertThat(actual.getMol()).isNull();
+        EnteredValueAssert.assertThat(actual.getMol()).isEmpty();
         return this;
     }
 }

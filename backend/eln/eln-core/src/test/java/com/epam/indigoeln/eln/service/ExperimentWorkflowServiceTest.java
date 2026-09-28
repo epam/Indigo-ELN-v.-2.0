@@ -91,7 +91,7 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
         }
 
         project = projectClient.createProject(new ProjectRequest("ExperimentWorkflowServiceTest" + UUID.randomUUID()));
-        notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        notebook = createNotebook(project.getId());
     }
 
     @BeforeEach

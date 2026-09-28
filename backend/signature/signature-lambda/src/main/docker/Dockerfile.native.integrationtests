@@ -1,0 +1,9 @@
+FROM indigoeln/signature-lambda:built
+
+# Restore root so SAM CLI's injected layer (ADD rie + RUN mv+chmod) runs as
+# root and succeeds. Without this, USER 1001 inherited from the base image
+# causes chmod on the root-owned RIE file to fail with "Operation not permitted".
+USER root
+
+# SAM CLI expects writeable directory /var/rapid to inject RIE emulator
+RUN mkdir -p /var/rapid

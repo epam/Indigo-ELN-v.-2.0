@@ -1,20 +1,17 @@
 package com.epam.indigoeln.reaction.service.mutation.notebook;
 
-import com.epam.indigoeln.eln.entity.AttachmentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
+import com.epam.indigoeln.eln.entity.NotebookAttachment;
 import com.epam.indigoeln.eln.entity.NotebookEntity;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
-import com.epam.indigoeln.eln.repository.AttachmentRepository;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
+import com.epam.indigoeln.eln.repository.NotebookAttachmentRepository;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
-import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.AttachmentService;
-import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.reaction.model.NotebookSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.NotebookMutation;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
-import com.epam.indigoeln.reaction.service.mutation.EntityMutationHelper;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
@@ -29,11 +26,8 @@ import static com.epam.indigoeln.common.util.ModelUtil.editProperty;
 @MutationHandlerFor(NotebookMutation.CreateNotebook.class)
 class CreateNotebookHandler extends AbstractNotebookMutationHandler<NotebookMutation.CreateNotebook> {
 
-    @Inject
-    UserService userService;
-
     @Override
-    protected void doValidateAccess(NotebookEntity notebook, NotebookMutation.CreateNotebook mutation, NotebookMutationContext context) {
+    protected void doValidateAccess(NotebookEntity notebook) {
         aclService.ensureAccess(notebook.getProject(), ApplicationPermission.CREATE_NOTEBOOKS);
     }
 
@@ -92,14 +86,10 @@ class EditNotebookAttributesHandler extends AbstractNotebookMutationHandler<Note
 class EditNotebookAccessHandler extends AbstractNotebookMutationHandler<NotebookMutation.EditNotebookAccess> {
 
     @Inject
-    ACLService aclService;
-    @Inject
     ProjectRepository projectRepository;
-    @Inject
-    EntityMutationHelper entityMutationHelper;
 
     @Override
-    protected void doValidateAccess(NotebookEntity notebook, NotebookMutation.EditNotebookAccess mutation, NotebookMutationContext context) {
+    protected void doValidateAccess(NotebookEntity notebook) {
         aclService.ensureAccess(notebook, ApplicationPermission.MANAGE_NOTEBOOK_ACCESS);
     }
 
@@ -118,14 +108,14 @@ class EditNotebookAccessHandler extends AbstractNotebookMutationHandler<Notebook
 class CreateNotebookAttachmentHandler extends AbstractNotebookMutationHandler<NotebookMutation.CreateNotebookAttachment> {
 
     @Inject
-    AttachmentRepository attachmentRepository;
+    NotebookAttachmentRepository attachmentRepository;
     @Inject
     AttachmentService attachmentService;
 
     @Override
     public String doHandle(NotebookEntity notebook, NotebookMutation.CreateNotebookAttachment mutation, NotebookMutationContext context, NotebookSnapshot snapshotBefore) {
-        AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
-        attachmentService.doAddNotebookAttachment(notebook, attachment);
+        NotebookAttachment attachment = attachmentRepository.getReference(mutation.attachmentID());
+        attachmentService.doAddAttachment(notebook, attachment);
         return entityMutationHelper.formatCreateAttachmentSummary(attachment);
     }
 }
@@ -135,13 +125,13 @@ class CreateNotebookAttachmentHandler extends AbstractNotebookMutationHandler<No
 class DeleteNotebookAttachmentHandler extends AbstractNotebookMutationHandler<NotebookMutation.DeleteNotebookAttachment> {
 
     @Inject
-    AttachmentRepository attachmentRepository;
+    NotebookAttachmentRepository attachmentRepository;
 
     @Override
     public String doHandle(NotebookEntity notebook, NotebookMutation.DeleteNotebookAttachment mutation, NotebookMutationContext context, NotebookSnapshot snapshotBefore) {
-        AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
+        NotebookAttachment attachment = attachmentRepository.getReference(mutation.attachmentID());
         notebook.getAttachments().remove(attachment);
-        attachment.getNotebooks().remove(notebook);
+        attachment.setParent(null);
         attachment.setDeleted(true);
         return "Deleted attachment: " + attachment.getName();
     }

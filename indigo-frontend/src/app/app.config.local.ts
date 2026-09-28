@@ -1,121 +1,30 @@
-import { ChipGridFieldComponent } from '@/core/components/formly/fields/chip-grid-field.component';
-import { InputFieldComponent } from '@/core/components/formly/fields/input-field.component';
-import { TextareaFieldComponent } from '@/core/components/formly/fields/textarea-field.component';
-import { ElnWrapperFormField } from '@/core/components/formly/wrappers/field-wrapper.component';
-import { DropdownFieldComponent } from '@/core/components/formly/fields/dropdown-field.component';
-import { ExperimentSelectFieldComponent } from '@/core/components/formly/fields/experiment-select-field.component';
-import { ErrorInterceptor } from '@core/interceptors/error.interceptor';
-
+import { environment } from '@/environments/environment';
+import { provideHttpClient, withInterceptors, withInterceptorsFromDi } from '@angular/common/http';
+import { ApplicationConfig } from '@angular/core';
 import {
-  HTTP_INTERCEPTORS,
-  HttpInterceptorFn,
-  provideHttpClient,
-  withInterceptors,
-  withInterceptorsFromDi,
-} from '@angular/common/http';
-import { ApplicationConfig, importProvidersFrom, inject, provideZoneChangeDetection } from '@angular/core';
+  INCLUDE_BEARER_TOKEN_INTERCEPTOR_CONFIG,
+  includeBearerTokenInterceptor,
+  provideKeycloak,
+} from 'keycloak-angular';
+import { commonProviders, sharedHttpFeatures } from './app.config.shared';
+import { API_BEARER_TOKEN_CONDITION, buildKeycloakOptions } from './keycloak.config';
 
-import { EditorFormlyFieldComponent } from '@/core/components/formly/fields/editor/editor-field.component';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { provideRouter } from '@angular/router';
-import { FormlyModule } from '@ngx-formly/core';
-import { FormlyPresetModule } from '@ngx-formly/core/preset';
-import { FormlyMaterialModule } from '@ngx-formly/material';
-import { FormlyMatDatepickerModule } from '@ngx-formly/material/datepicker';
-import { routes } from './app.routes';
-import { AutoRefreshTokenService, provideKeycloak, UserActivityService, withAutoRefreshToken } from 'keycloak-angular';
-import Keycloak from 'keycloak-js';
-
-const keycloakBearerInterceptor: HttpInterceptorFn = (req, next) => {
-  const keycloak = inject(Keycloak);
-  const token = keycloak.token;
-
-  if (token) {
-    return next(req.clone({ setHeaders: { Authorization: `Bearer ${token}` } }));
-  }
-
-  return next(req);
-};
-
+/**
+ * Keycloak bootstrap configuration, used by the `local` build configuration in angular.json
+ * (`npm run start-local`, and the frontend container in deployment-compose).
+ * Only auth-specific providers belong here — everything else goes in app.config.shared.ts.
+ */
 export const appConfig: ApplicationConfig = {
   providers: [
-    FormlyPresetModule,
-    provideKeycloak({
-      config: {
-        url: 'http://localhost:8088',
-        realm: 'indigo-eln',
-        clientId: 'frontend-client',
-      },
-      initOptions: {
-        onLoad: 'login-required',
-        silentCheckSsoRedirectUri: window.location.origin + '/assets/silent-check-sso.html',
-        redirectUri: window.location.origin + '/',
-      },
-      features: [
-        withAutoRefreshToken({
-          onInactivityTimeout: 'logout',
-          sessionTimeout: 1800000,
-        }),
-      ],
-      providers: [AutoRefreshTokenService, UserActivityService],
-    }),
-    importProvidersFrom(
-      FormlyModule.forRoot({
-        types: [
-          {
-            name: 'input',
-            component: InputFieldComponent,
-            wrappers: ['raw'],
-          },
-          {
-            name: 'textarea',
-            component: TextareaFieldComponent,
-            wrappers: ['raw'],
-          },
-          {
-            name: 'chip-grid',
-            component: ChipGridFieldComponent,
-            wrappers: ['raw'],
-          },
-          {
-            name: 'editor',
-            component: EditorFormlyFieldComponent,
-            wrappers: ['raw'],
-          },
-          {
-            name: 'dropdown',
-            component: DropdownFieldComponent,
-            wrappers: ['raw'],
-          },
-          {
-            name: 'experiment-select',
-            component: ExperimentSelectFieldComponent,
-            wrappers: ['raw'],
-          },
-        ],
-        validationMessages: [
-          {
-            name: 'required',
-            message: (_, field) => {
-              return `${field.props.label} is required.`;
-            },
-          },
-        ],
-        wrappers: [
-          {
-            name: 'raw',
-            component: ElnWrapperFormField,
-          },
-        ],
-        presets: [],
-      }),
-      FormlyMaterialModule,
-      FormlyMatDatepickerModule,
+    ...commonProviders,
+    provideKeycloak(buildKeycloakOptions(environment.keycloak, window.location.origin)),
+    provideHttpClient(
+      ...sharedHttpFeatures(),
+      withInterceptors([includeBearerTokenInterceptor]),
+      withInterceptorsFromDi(),
     ),
-    provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes),
-    provideAnimationsAsync(),
-    provideHttpClient(withInterceptors([keycloakBearerInterceptor]), withInterceptorsFromDi()),
-    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+    // Required: includeBearerTokenInterceptor injects this token and it has no fallback factory,
+    // so omitting it makes every HTTP request fail with NullInjectorError.
+    { provide: INCLUDE_BEARER_TOKEN_INTERCEPTOR_CONFIG, useValue: [API_BEARER_TOKEN_CONDITION] },
   ],
 };

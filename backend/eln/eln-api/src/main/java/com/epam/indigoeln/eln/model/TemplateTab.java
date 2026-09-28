@@ -1,6 +1,7 @@
 package com.epam.indigoeln.eln.model;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
@@ -14,7 +15,7 @@ public class TemplateTab {
     private String name;
 
     @NotEmpty
-    private List<TemplateComponent> components;
+    private List<@Valid TemplateComponent> components;
 
     public TemplateTab(String name, List<TemplateComponent> components) {
         this.name = name;

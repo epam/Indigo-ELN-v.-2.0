@@ -37,4 +37,9 @@ public class Paging {
     public int getPageSizeOrDefault() {
         return pageSize == null ? DEFAULT_PAGE_SIZE : pageSize;
     }
+
+    @JsonIgnore
+    public int getFirstResult() {
+        return getPageNoOrDefault() * getPageSizeOrDefault();
+    }
 }

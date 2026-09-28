@@ -3,13 +3,11 @@ package com.epam.indigoeln.reaction.service.mutation.experiment;
 import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.model.SampleRegistrationRequest;
-import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import jakarta.enterprise.context.Dependent;
-import jakarta.inject.Inject;
 
 @Dependent
 @MutationHandlerFor(ReactionOutputSampleMutation.SetOutputHealthHazards.class)
@@ -28,7 +26,7 @@ class SetOutputActualMolHandler extends AbstractReactionOutputSampleMutationHand
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputActualMol mutation, ExperimentMutationContext context) {
-        setEnteredValue(sample::setActualMol, mutation.actualMol(), mutation.unit(), experiment.getRevision());
+        setEnteredValue(sample.getActualMol(), sample::setActualMol, mutation.actualMol(), mutation.unit(), experiment.getRevision());
         return formatSetterSummary("batch actual mol", mutation.actualMol(), mutation.unit());
     }
 }
@@ -39,7 +37,7 @@ class SetOutputActualWeightHandler extends AbstractReactionOutputSampleMutationH
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputActualWeight mutation, ExperimentMutationContext context) {
-        setEnteredValue(sample::setActualWeight, mutation.actualWeight(), mutation.unit(), experiment.getRevision());
+        setEnteredValue(sample.getActualWeight(), sample::setActualWeight, mutation.actualWeight(), mutation.unit(), experiment.getRevision());
         return formatSetterSummary("batch actual weight", mutation.actualWeight(), mutation.unit());
     }
 }
@@ -47,9 +45,6 @@ class SetOutputActualWeightHandler extends AbstractReactionOutputSampleMutationH
 @Dependent
 @MutationHandlerFor(ReactionOutputSampleMutation.RegisterSample.class)
 class RegisterSampleHandler extends AbstractReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.RegisterSample> {
-
-    @Inject
-    CompoundService compoundService;
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sampleRow, ReactionOutputSampleMutation.RegisterSample mutation, ExperimentMutationContext context) {

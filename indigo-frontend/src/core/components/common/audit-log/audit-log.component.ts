@@ -21,6 +21,14 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
   selector: 'eln-audit-log',
   templateUrl: './audit-log.component.html',
   styles: `
+    .audit-log .patch-grid {
+      border-collapse: separate;
+      border-spacing: 4px;
+      font-size: small;
+    }
+    .audit-log .patch-grid td {
+      vertical-align: top;
+    }
     .audit-log .old {
       background-color: #f8d7da;
     }
@@ -110,7 +118,9 @@ export class AuditLogComponent implements OnInit {
           injector: this.injector,
           loader: () =>
             this.diffLoader(revision).pipe(
-              map((html) => this.domSanitizer.bypassSecurityTrustHtml(html)),
+              // The diff HTML is generated and returned by our own backend (revision comparison),
+              // never from end-user input, so bypassing Angular's sanitizer here is safe.
+              map((html) => this.domSanitizer.bypassSecurityTrustHtml(html)), // NOSONAR
               tap({
                 error: () => this.diffs.delete(revision),
               }),

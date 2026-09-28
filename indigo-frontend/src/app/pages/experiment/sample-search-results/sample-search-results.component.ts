@@ -16,6 +16,7 @@ import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { ApiService } from '@core/services/api.service';
+import { ButtonComponent } from '@core/components/common/button/button.component';
 
 @Component({
   standalone: true,
@@ -34,11 +35,14 @@ import { ApiService } from '@core/services/api.service';
     MatFormFieldModule,
     MatButtonModule,
     MatIconModule,
+    ButtonComponent,
   ],
   templateUrl: './sample-search-results.component.html',
 })
 export class SampleSearchResultsComponent {
   @Input({ required: true }) loader: SamplesSearchLoader;
+  @Input() isAddingToExperiment = false;
+  @Input() loadingSampleKey: string | null = null;
   @Output() addToExperiment = new EventEmitter<Sample>();
 
   destroyRef = inject(DestroyRef);
@@ -51,6 +55,14 @@ export class SampleSearchResultsComponent {
       .subscribe((response) => {
         this.loader.replace((s) => s.id === sample.id, response);
       });
+  }
+
+  getRowKey(sample: Sample): string {
+    return sample.id ?? sample.compoundKey ?? sample.name ?? 'new-sample';
+  }
+
+  isRowLoading(sample: Sample): boolean {
+    return this.loadingSampleKey != null && this.loadingSampleKey === this.getRowKey(sample);
   }
 
   protected readonly encodeURIComponent = encodeURIComponent;

@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, computed, effect, inject, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
-import { ActivatedRoute } from '@angular/router';
 
 import { BreadcrumbsComponent } from '@/core/components/breadcrumbs/breadcrumbs.component';
 import { CardComponent } from '@/core/components/common/card/card.component';
@@ -47,10 +47,11 @@ interface Tab {
     ReactionViewComponent,
   ],
 })
-export class ExperimentLayoutComponent implements OnInit, OnDestroy {
-  activatedRoute = inject(ActivatedRoute);
+export class ExperimentLayoutComponent implements OnChanges, OnDestroy {
+  @Input() experimentId!: string;
   experimentDetailService = inject(ExperimentDetailService);
   breadcrumbsState = inject(BreadcrumbsStateService);
+  titleService = inject(Title);
 
   experiment = computed<ExperimentDetail | null>(() => this.experimentDetailService.experimentDetail());
   template = computed(() => this.experimentDetailService.experimentTemplate());
@@ -86,6 +87,15 @@ export class ExperimentLayoutComponent implements OnInit, OnDestroy {
     ]);
   });
 
+  private readonly titleEffect = effect(() => {
+    const experiment = this.experiment();
+    if (!experiment) {
+      return;
+    }
+
+    this.titleService.setTitle(`IndigoELN - ${experiment.name ?? 'Experiment'}`);
+  });
+
   private readonly tabsEffect = effect(() => {
     const template = this.template();
     if (!template) {
@@ -97,9 +107,10 @@ export class ExperimentLayoutComponent implements OnInit, OnDestroy {
     }
   });
 
-  ngOnInit(): void {
-    const experimentId = this.activatedRoute.snapshot.params['experimentId'];
-    this.experimentDetailService.load(experimentId);
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['experimentId']) {
+      this.experimentDetailService.load(this.experimentId);
+    }
   }
 
   ngOnDestroy(): void {

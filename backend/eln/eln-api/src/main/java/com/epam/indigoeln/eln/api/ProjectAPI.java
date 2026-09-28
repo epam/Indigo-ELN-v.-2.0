@@ -35,6 +35,10 @@ public interface ProjectAPI extends BaseAPI {
             @QueryParam("name") @NotEmpty String name);
 
     @GET
+    @Path("/projects/keywords/suggest")
+    List<String> suggestKeywords(@QueryParam("search") @Nullable String search);
+
+    @GET
     @Path("/projects/{projectId}")
     ProjectDetailsDTO getProject(@PathParam("projectId") UUID projectId);
 
@@ -63,10 +67,6 @@ public interface ProjectAPI extends BaseAPI {
     @POST
     @Path("/projects/{projectId}/access")
     List<ACLEntryDTO> updateProjectAccess(@PathParam("projectId") UUID projectId, List<AccessForm> form);
-
-    @GET
-    @Path("/projects/{projectId}/nestedAccess")
-    List<NestedACLEntryDTO> getNestedProjectAccess(@PathParam("projectId") UUID projectId);
 
     @GET
     @Path("/projects/{projectId}/revisions")

@@ -11,6 +11,13 @@
   </div>
   <div class="flex gap-3 items-center">
     <eln-toggle label="My Entities" [(ngModel)]="myEntitiesOnly" (ngModelChange)="onMyEntitiesOnlyChanged($event)" />
+    <eln-checkbox-dropdown
+      *ngIf="enableFilter && filterOptions.length > 0"
+      class="[&_.dd-trigger]:text-primary-400 [&_.dd-container]:min-w-22 [&_.dd-container]:border [&_.dd-container]:border-neutral-300 [&_.dd-container]:rounded-lg [&_.dd-container]:bg-neutral-200 [&_em]:text-lg"
+      [items]="filterOptions"
+      placeholder="{{ checkboxDropdownPlaceholder }}"
+      (selectionChanged)="onFilterChange($event)"
+    />
     <eln-dropdown-menu
       *ngIf="enableSort && sortOptions.length > 0"
       class="[&_.dd-trigger]:text-primary-400 [&_.dd-container]:min-w-34 [&_.dd-container]:border [&_.dd-container]:border-neutral-300 [&_.dd-container]:rounded-lg [&_.dd-container]:bg-neutral-200 [&_em]:text-lg"

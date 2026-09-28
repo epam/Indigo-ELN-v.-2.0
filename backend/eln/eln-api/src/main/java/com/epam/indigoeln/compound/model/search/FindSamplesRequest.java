@@ -72,4 +72,7 @@ public class FindSamplesRequest {
     @Valid
     @Nullable
     HealthHazardRef healthHazards;
+
+    @Nullable
+    FindSamplesState state;
 }

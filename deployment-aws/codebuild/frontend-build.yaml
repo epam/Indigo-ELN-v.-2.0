@@ -1,0 +1,16 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      nodejs: 22
+  build:
+    commands:
+      - cd indigo-frontend
+      - npm ci
+      - npm run build
+      - npm run test:ci
+      - npm run sonar
+artifacts:
+  files:
+    - '**/*'
+  base-directory: indigo-frontend/dist/indigo-frontend/browser

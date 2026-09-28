@@ -39,11 +39,10 @@ export class SignatureListComponent extends InfiniteScrollBase<Document> impleme
     this.setup({
       loadUrl: '/api/signature/documents',
       sortOptions: [
-        { label: 'Sort by: Earliest', value: 'createdAt', defaultOrder: 'EARLIEST' },
-        { label: 'Sort by: Latest', value: 'createdAt', defaultOrder: 'LATEST' },
+        { label: 'Sort by: Earliest', value: 'EARLIEST' },
+        { label: 'Sort by: Latest', value: 'LATEST' },
       ],
       defaultSort: {
-        sortBy: 'createdAt',
         sort: 'LATEST',
       },
     });
@@ -51,7 +50,7 @@ export class SignatureListComponent extends InfiniteScrollBase<Document> impleme
     // Convert sort options to dropdown menu items
     this.headerSortOptions = this.getSortOptions().map((option) => ({
       label: `${option.label}`,
-      value: `${option.value}:${option.defaultOrder}`,
+      value: option.value,
       icon: 'indicon-sort',
     }));
   }
@@ -67,7 +66,7 @@ export class SignatureListComponent extends InfiniteScrollBase<Document> impleme
   }
 
   onSortChange(event: SortChangeEvent) {
-    this.sort(event.sortBy, event.sort);
+    this.sort(event.sort);
   }
 
   onMyEntitiesOnlyChange(value: boolean) {

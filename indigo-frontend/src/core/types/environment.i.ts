@@ -1,8 +1,7 @@
 export interface IEnvironment {
   production: boolean;
   authConfig: IAuthConfig;
-  authProvider: string;
-  keycloak?: IKeycloakConfig;
+  keycloak: IKeycloakConfig;
 }
 
 export interface IAuthConfig {

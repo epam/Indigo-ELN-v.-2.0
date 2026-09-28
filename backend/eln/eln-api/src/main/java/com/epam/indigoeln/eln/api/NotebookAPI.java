@@ -38,6 +38,10 @@ public interface NotebookAPI extends BaseAPI {
     NotebookExistenceCheckDTO checkNotebookNameExistence(
             @QueryParam("name") @NotEmpty String name);
 
+    @GET
+    @Path("/notebooks/next-number")
+    String getNextNotebookNumber();
+
     @PATCH
     @Path("/notebooks/{notebookId}")
     NotebookDetailsDTO editNotebook(@PathParam("notebookId") UUID notebookId, NotebookEditRequest request);
@@ -63,10 +67,6 @@ public interface NotebookAPI extends BaseAPI {
     @POST
     @Path("/notebooks/{notebookId}/access")
     List<ACLEntryDTO> updateNotebookAccess(@PathParam("notebookId") UUID notebookId, List<AccessForm> form);
-
-    @GET
-    @Path("/notebooks/{notebookId}/nestedAccess")
-    List<NestedACLEntryDTO> getNestedNotebookAccess(@PathParam("notebookId") UUID notebookId);
 
     @GET
     @Path("/notebooks/{notebookId}/revisions")

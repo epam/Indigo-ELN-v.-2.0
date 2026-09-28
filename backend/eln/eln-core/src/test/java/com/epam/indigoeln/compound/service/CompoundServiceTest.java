@@ -59,12 +59,18 @@ public class CompoundServiceTest extends ELNBaseTest {
         saltCode = dictionaryService.<SaltCodeRef>getDictionary(BuiltInDictionary.SALT_CODE.name(), false).getFirst();
         healthHazard = dictionaryService.<HealthHazardRef>getDictionary(BuiltInDictionary.HEALTH_HAZARD.name(), false).getFirst();
         compoundState = dictionaryService.<ComponentStateRef>getDictionary(BuiltInDictionary.COMPONENT_STATE.name(), false).getFirst();
-        IndigoReaction reaction = indigo.loadReaction(loadResource(getClass(), "/reaction.rxn"));
+        IndigoReaction reaction = indigo.loadReaction(loadResource("/reaction.rxn"));
         Iterator<IndigoMolecule> it = reaction.products().iterator();
         IndigoMolecule molecule = it.next();
         compound1 = compoundService.virtualCompoundRef(molecule, null, null, null);
         molecule = it.next();
         compound2 = compoundService.virtualCompoundRef(molecule, null, null, null);
+
+        assertThat(saltCode.getId()).isNotNull();
+        assertThat(healthHazard.getId()).isNotNull();
+        assertThat(compoundState.getId()).isNotNull();
+        assertThat(compound1.getCompoundID()).isNotNull();
+        assertThat(compound2.getCompoundID()).isNotEqualTo(compound1.getCompoundID());
     }
 
     @Test

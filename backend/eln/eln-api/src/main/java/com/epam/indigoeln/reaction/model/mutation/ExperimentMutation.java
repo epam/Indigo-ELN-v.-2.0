@@ -6,6 +6,7 @@ import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.ExperimentRef;
 import com.epam.indigoeln.eln.model.ProjectCodeRef;
 import com.epam.indigoeln.eln.model.TherapeuticAreaRef;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -20,12 +21,22 @@ import java.util.UUID;
 
 public interface ExperimentMutation extends Mutation {
 
+    @JsonIgnore
+    default boolean isMutateMethodAllowed() {
+        return true;
+    }
+
     record CreateExperiment(
             UUID templateID,
             @Nullable String description,
             @Nullable TherapeuticAreaRef therapeuticArea,
             @Nullable ProjectCodeRef projectCode
     ) implements ExperimentMutation {
+
+        @Override
+        public boolean isMutateMethodAllowed() {
+            return false;
+        }
     }
 
 //    record DeleteExperiment(
@@ -53,11 +64,21 @@ public interface ExperimentMutation extends Mutation {
             JsonNullable<Set<ExperimentRef>> continuedFrom,
             JsonNullable<Set<ExperimentRef>> continuedTo
     ) implements ExperimentMutation {
+
+        @Override
+        public boolean isMutateMethodAllowed() {
+            return false;
+        }
     }
 
     record EditExperimentAccess(
             @NotEmpty List<AccessForm> edits
     ) implements ExperimentMutation {
+
+        @Override
+        public boolean isMutateMethodAllowed() {
+            return false;
+        }
     }
 
     record SetBatchCreator(
@@ -68,28 +89,58 @@ public interface ExperimentMutation extends Mutation {
     record CreateExperimentAttachment(
             @NotNull UUID attachmentID
     ) implements ExperimentMutation {
+
+        @Override
+        public boolean isMutateMethodAllowed() {
+            return false;
+        }
     }
 
     record DeleteExperimentAttachment(
             @NotNull UUID attachmentID
     ) implements ExperimentMutation {
+
+        @Override
+        public boolean isMutateMethodAllowed() {
+            return false;
+        }
     }
 
     record CancelExperiment(
     ) implements ExperimentMutation {
+
+        @Override
+        public boolean isMutateMethodAllowed() {
+            return false;
+        }
     }
 
     record ReopenExperiment(
     ) implements ExperimentMutation {
+
+        @Override
+        public boolean isMutateMethodAllowed() {
+            return false;
+        }
     }
 
     record CompleteExperiment(
     ) implements ExperimentMutation {
+
+        @Override
+        public boolean isMutateMethodAllowed() {
+            return false;
+        }
     }
 
     record SubmitExperiment(
             @NotNull UUID signatureTemplateID
     ) implements ExperimentMutation {
+
+        @Override
+        public boolean isMutateMethodAllowed() {
+            return false;
+        }
     }
 
     record SignatureUpdated(
@@ -97,21 +148,41 @@ public interface ExperimentMutation extends Mutation {
             @NotNull DocumentStatus documentStatus,
             @NotNull UUID attachmentID
     ) implements ExperimentMutation {
+
+        @Override
+        public boolean isMutateMethodAllowed() {
+            return false;
+        }
     }
 
     record MakeVersion(
     ) implements ExperimentMutation {
+
+        @Override
+        public boolean isMutateMethodAllowed() {
+            return false;
+        }
     }
 
     record ExperimentAccessUpdated(
             @Nullable String projectName,
             @Nullable String notebookName
     ) implements ExperimentMutation {
+
+        @Override
+        public boolean isMutateMethodAllowed() {
+            return false;
+        }
     }
 
     record ExperimentNameUpdated(
             @NotNull String notebookName
     ) implements ExperimentMutation {
+
+        @Override
+        public boolean isMutateMethodAllowed() {
+            return false;
+        }
     }
 
     record Undo(

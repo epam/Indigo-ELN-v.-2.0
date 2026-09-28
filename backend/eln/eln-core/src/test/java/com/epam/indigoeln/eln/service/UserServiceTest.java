@@ -1,19 +1,22 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.model.CurrentUserDTO;
+import com.epam.indigoeln.eln.model.UserDTO;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import jakarta.inject.Inject;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -44,11 +47,24 @@ class UserServiceTest extends ELNBaseTest {
     }
 
     @Test
-    @SneakyThrows
     @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
-    void testGetUserPicture() {
+    void testGetUsersSearch() {
+        Page<UserDTO> byFirstName = userClient.getUsers("jo", Paging.DEFAULT);
+        assertThat(byFirstName.getItems()).map(UserDTO::getDisplayName).contains(JOHN_DISPLAY_NAME, WILLOW_DISPLAY_NAME);
+
+        Page<UserDTO> byLastName = userClient.getUsers("gree", Paging.DEFAULT);
+        assertThat(byLastName.getItems()).map(UserDTO::getDisplayName).contains(LISA_DISPLAY_NAME, MAGGIE_DISPLAY_NAME);
+
+        Page<UserDTO> noMatch = userClient.getUsers("zzzznomatch", Paging.DEFAULT);
+        assertThat(noMatch.getItems()).isEmpty();
+    }
+
+    @Test
+    @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
+    void testGetUserPicture() throws Exception {
         List<UserRef> all = userClient.suggestUsers(null);
         byte[] response = userClient.getUserPicture(all.getFirst().getUsername(), null);
-        Files.write(Paths.get("user.png"), response);
+        Files.write(Paths.get("build/user.png"), response);
+        assertThat(response).isEqualTo(loadResource("/user-default-picture-small.png"));
     }
 }

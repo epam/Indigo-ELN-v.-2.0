@@ -7,19 +7,25 @@ import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
-public abstract class MutationHandler<T extends Mutation, E extends WithRevision, S, R extends BaseRevisionEntity, C> {
+import java.util.List;
+
+public abstract class MutationHandler<T extends Mutation, E extends WithRevision, S, R extends BaseRevisionEntity, C, L extends MutationListener<E, S, C>> {
 
     @PersistenceContext
     EntityManager em;
 
     protected abstract C createContext();
 
+    protected abstract List<L> getListeners();
+
     public MutationResult<S, C> applyMutation(E entity, T mutation) {
         C context = createContext();
         // do the very early preparation; currently only used by undo/redo handlers
         doPrepare(entity, mutation, context);
         // validate user is allowed to perform this mutation;
-        doValidateAccess(entity, mutation, context);
+        doValidateAccess(entity);
+        // validate entity is in appropriate status
+        doValidateStatus(entity);
         // make snapshot of "before" state
         S snapshotBefore = doSnapshotBefore(entity, context);
         // calculate next revision number
@@ -28,7 +34,9 @@ public abstract class MutationHandler<T extends Mutation, E extends WithRevision
         mutation = doPrepareMutation(entity, mutation, context);
         // perform the actual mutation;
         // undo/redo handlers must delegate to undo service
-        doNotifyBeforeHandle(entity, mutation, context);
+        for (L listener : getListeners()) {
+            listener.beforeHandle(entity, context);
+        }
         String summary = doHandle(entity, mutation, context, snapshotBefore);
         // flush database to make sure all constraints hold
         em.flush();
@@ -36,6 +44,9 @@ public abstract class MutationHandler<T extends Mutation, E extends WithRevision
         S snapshotAfter = doSnapshotAfter(entity, context);
         // write changes back to the entity
         JsonNode patch = doUpdateEntity(entity, snapshotBefore, snapshotAfter, context);
+        for (L listener : getListeners()) {
+            listener.afterUpdateEntity(entity, snapshotBefore, snapshotAfter);
+        }
         // create revision
         R revision = doCreateRevision(entity, mutation, summary, revisionNo, patch, context, snapshotAfter);
         em.persist(revision);
@@ -43,7 +54,9 @@ public abstract class MutationHandler<T extends Mutation, E extends WithRevision
         return new MutationResult<>(snapshotBefore, snapshotAfter, patch, context);
     }
 
-    protected abstract void doValidateAccess(E entity, T mutation, C context);
+    protected abstract void doValidateAccess(E entity);
+
+    protected abstract void doValidateStatus(E entity);
 
     public void doPrepare(E entity, T mutation, C context) {
     }
@@ -52,9 +65,6 @@ public abstract class MutationHandler<T extends Mutation, E extends WithRevision
 
     protected T doPrepareMutation(E entity, T mutation, C context) {
         return mutation;
-    }
-
-    protected void doNotifyBeforeHandle(E entity, T mutation, C context) {
     }
 
     public abstract String doHandle(E entity, T mutation, C context, S snapshotBefore);

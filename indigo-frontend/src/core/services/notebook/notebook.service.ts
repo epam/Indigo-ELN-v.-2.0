@@ -3,7 +3,9 @@ import { NotebookDetail } from '@/core/types/entities/notebook-detail.i';
 import { ApiService } from '@/core/services/api.service';
 import { catchError, finalize, tap, throwError } from 'rxjs';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class NotebookService {
   constructor(private api: ApiService<unknown>) {}
 
@@ -15,6 +17,7 @@ export class NotebookService {
 
   load(id: string) {
     this.currentId.set(id);
+    this.notebook.set(null);
     this.isLoading.set(true);
     this.hasError.set(false);
 
@@ -34,7 +37,7 @@ export class NotebookService {
 
   refresh() {
     const id = this.currentId();
-    if (id) this.load(id);
+    if (id) this.load(id).subscribe();
   }
 
   reset() {

@@ -3,10 +3,8 @@ package com.epam.indigoeln.reaction.service.mutation.experiment;
 import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.entity.SampleEntity;
-import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.service.ExperimentService;
-import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.reaction.model.*;
@@ -35,8 +33,6 @@ class SetSchemeHandler extends AbstractReactionMutationHandler<ReactionMutation.
     private static final Comparator<ReactionInput> INPUT_COMPARATOR = Comparator.comparing(ReactionInput::getRole)
             .thenComparing(RXN_POSITION_COMPARATOR);
 
-    @Inject
-    IndigoAPI indigoAPI;
     @Inject
     ExperimentService experimentService;
 
@@ -193,9 +189,6 @@ class AddEmptyInputHandler extends AbstractReactionMutationHandler<ReactionMutat
 @MutationHandlerFor(ReactionMutation.AddInput.class)
 class AddInputHandler extends AbstractReactionMutationHandler<ReactionMutation.AddInput> {
 
-    @Inject
-    CompoundService compoundService;
-
     @Override
     protected ReactionMutation.AddInput doPrepareMutation(ExperimentEntity entity, ReactionMutation.AddInput mutation, ExperimentMutationContext context) {
         return new ReactionMutation.AddInput(
@@ -220,9 +213,6 @@ class AddInputHandler extends AbstractReactionMutationHandler<ReactionMutation.A
 @MutationHandlerFor(ReactionMutation.AddNoProductSample.class)
 class AddNoProductSampleHandler extends AbstractReactionMutationHandler<ReactionMutation.AddNoProductSample> {
 
-    @Inject
-    CompoundService compoundService;
-
     @Override
     protected ReactionMutation.AddNoProductSample doPrepareMutation(ExperimentEntity entity, ReactionMutation.AddNoProductSample mutation, ExperimentMutationContext context) {
         return new ReactionMutation.AddNoProductSample(
@@ -245,9 +235,6 @@ class AddNoProductSampleHandler extends AbstractReactionMutationHandler<Reaction
 @Dependent
 @MutationHandlerFor(ReactionMutation.ResolveInputs.class)
 class ResolveInputsHandler extends AbstractReactionMutationHandler<ReactionMutation.ResolveInputs> {
-
-    @Inject
-    CompoundService compoundService;
 
     @Override
     protected ReactionMutation.ResolveInputs doPrepareMutation(ExperimentEntity entity, ReactionMutation.ResolveInputs mutation, ExperimentMutationContext context) {
@@ -274,9 +261,6 @@ class ResolveInputsHandler extends AbstractReactionMutationHandler<ReactionMutat
 @Dependent
 @MutationHandlerFor(ReactionMutation.ImportSDF.class)
 class ImportSDFHandler extends AbstractReactionMutationHandler<ReactionMutation.ImportSDF> {
-
-    @Inject
-    CompoundService compoundService;
 
     @Override
     protected ReactionMutation.ImportSDF doPrepareMutation(ExperimentEntity entity, ReactionMutation.ImportSDF mutation, ExperimentMutationContext context) {

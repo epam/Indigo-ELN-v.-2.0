@@ -43,7 +43,7 @@ public class NotebookResource implements NotebookAPI {
     }
 
     @Override
-    public @NotNull @Valid Page<NotebookDTO> getProjectNotebooks(@NotNull UUID projectId, @Nullable String search, @QueryParam("sort") @Nullable SortOrder sort,
+    public @NotNull Page<@Valid NotebookDTO> getProjectNotebooks(@NotNull UUID projectId, @Nullable String search, @QueryParam("sort") @Nullable SortOrder sort,
                                                                  @QueryParam("createdByMe") @Nullable Boolean createdByMe, @Valid Paging paging) {
         return notebookService.getNotebooks(projectId, search, sort, createdByMe, paging);
     }
@@ -52,6 +52,11 @@ public class NotebookResource implements NotebookAPI {
     public @NotNull @Valid NotebookExistenceCheckDTO checkNotebookNameExistence(
             @NotEmpty String name) {
         return notebookService.checkExistenceByName(name);
+    }
+
+    @Override
+    public @NotNull String getNextNotebookNumber() {
+        return notebookService.getNextNotebookNumber();
     }
 
     @Override
@@ -80,13 +85,8 @@ public class NotebookResource implements NotebookAPI {
     }
 
     @Override
-    public List<ACLEntryDTO> updateNotebookAccess(@NotNull UUID notebookId, @NotNull @Valid List<AccessForm> form) {
+    public List<ACLEntryDTO> updateNotebookAccess(@NotNull UUID notebookId, @NotNull List<@Valid AccessForm> form) {
         return notebookService.updateNotebookAccess(notebookId, form);
-    }
-
-    @Override
-    public List<NestedACLEntryDTO> getNestedNotebookAccess(UUID notebookId) {
-        return notebookService.getNestedNotebookAccess(notebookId);
     }
 
     @Override

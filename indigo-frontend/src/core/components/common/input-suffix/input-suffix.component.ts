@@ -1,4 +1,4 @@
-import { Component, forwardRef, input, output, signal } from '@angular/core';
+import { Component, forwardRef, input, OnInit, output, signal } from '@angular/core';
 import { ControlValueAccessor, FormControl, FormGroup, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { ClassPickerPipe } from '../../../pipes/classPicker.pipe';
 import { InputSuffixValue } from '../../../types/input-suffix.i';
@@ -19,7 +19,7 @@ import { SelectComponent } from '../select/select.component';
   ],
   imports: [SelectComponent, InputComponent, ClassPickerPipe, ReactiveFormsModule],
 })
-export class InputSuffixComponent implements ControlValueAccessor {
+export class InputSuffixComponent implements ControlValueAccessor, OnInit {
   label = input.required<string>();
   placeholder = input<InputSuffixValue>();
   required = input<boolean>(false);

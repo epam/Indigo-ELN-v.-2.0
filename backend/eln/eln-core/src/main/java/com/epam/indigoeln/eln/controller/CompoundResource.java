@@ -5,15 +5,12 @@ import com.epam.indigoeln.common.model.UploadForm;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.search.SampleSearchResult;
-import com.epam.indigoeln.compound.model.search.SearchCatalog;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.compound.service.search.SampleSearchService;
 import com.epam.indigoeln.eln.api.BaseAPI;
 import com.epam.indigoeln.eln.api.CompoundAPI;
 import jakarta.inject.Inject;
-import jakarta.validation.Valid;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.QueryParam;
 import lombok.SneakyThrows;
 import org.jspecify.annotations.Nullable;
 
@@ -44,8 +41,8 @@ public class CompoundResource implements CompoundAPI {
     }
 
     @Override
-    public SampleSearchResult search(@Valid FindSamplesRequest request, @Nullable @QueryParam("nextCatalog") SearchCatalog nextCatalog, @Nullable @QueryParam("nextAfter") String nextAfter, @Nullable @QueryParam("limit") Integer limit) {
-        return sampleSearchService.search(request, nextCatalog, nextAfter, limit);
+    public SampleSearchResult search(FindSamplesRequest request, @Nullable Integer pageSize) {
+        return sampleSearchService.search(request, pageSize);
     }
 
     @Override

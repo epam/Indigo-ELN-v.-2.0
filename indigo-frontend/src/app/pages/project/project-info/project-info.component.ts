@@ -4,18 +4,17 @@ import { CardComponent } from '@/core/components/common/card/card.component';
 import { ChipComponent } from '@/core/components/common/chip/chip.component';
 import { TeamComponent } from '@/core/components/common/team/team.component';
 import { TeamComponentConfig } from '@/core/components/common/team/team.config';
-import { ApiService } from '@/core/services/api.service';
-import { BreadcrumbsStateService } from '@/core/services/breadcrumbs/breadcrumbs.state.service';
 import { Attachment } from '@/core/types/entities/attachment.i';
-import { Project } from '@/core/types/entities/project.i';
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, computed, inject, Input } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
+import { PermissionService } from '@core/services/permission/permission.service';
+import { ProjectService } from '@core/services/project/project.service';
+import { ApplicationPermission } from '@core/types/entities/user.i';
 import { NotebookAddComponent } from '@pages/notebook/notebook-add/notebook-add.component';
 import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
-import { finalize, Subject, take } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { take } from 'rxjs';
 import { ProjectAddComponent } from '../project-add/project-add.component';
 
 enum projectInfoModalEnum {
@@ -37,71 +36,34 @@ enum projectInfoModalEnum {
   ],
   templateUrl: './project-info.component.html',
 })
-export class ProjectInfoComponent implements OnInit, OnDestroy {
+export class ProjectInfoComponent {
   projectInfoModalEnum = projectInfoModalEnum;
+  applicationPermission = ApplicationPermission;
 
-  activatedRoute = inject(ActivatedRoute);
+  @Input() projectId!: string;
   dialog = inject(MatDialog);
-  service = inject(ApiService);
-  breadcrumbsState = inject(BreadcrumbsStateService);
+  projectService = inject(ProjectService);
+  permissionService = inject(PermissionService);
+  router = inject(Router);
 
-  project: Project | null = null;
-
-  isLoading = false;
-  hasError = false;
-
-  private destroy$ = new Subject<void>();
+  project = this.projectService.project;
+  isLoading = this.projectService.isLoading;
+  hasError = this.projectService.hasError;
+  canEditProject = computed(() => {
+    const project = this.project();
+    return this.permissionService.hasEntityPermission(ApplicationPermission.EDIT_PROJECTS, project);
+  });
 
   projectTeamConfig: TeamComponentConfig = {
     buildAccessEndpoint: (id: string) => `projects/${id}/access`,
   };
 
-  ngOnInit() {
-    this.breadcrumbsState.setItems([
-      { label: 'All Projects', url: '/projects', active: false },
-      { label: 'Project: ', active: true },
-    ]);
-
-    this.activatedRoute.params.pipe(takeUntil(this.destroy$)).subscribe(({ id }) => {
-      if (id) {
-        this.loadProject(id);
-      }
-    });
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   onAttachmentsChanged(attachments: Attachment[]) {
-    if (!this.project) {
+    if (!this.project()) {
       return;
     }
 
-    this.project.attachments = attachments;
-  }
-
-  private loadProject(id: string): void {
-    this.isLoading = true;
-    this.hasError = false;
-
-    this.service
-      .request<Project>('get', `projects/${id}`)
-      .pipe(finalize(() => (this.isLoading = false)))
-      .subscribe({
-        next: (project) => {
-          this.project = project;
-
-          this.breadcrumbsState.setItems([
-            { label: 'All Projects', url: '/projects', active: false },
-            { label: `Project: ${project.name}`, active: true },
-          ]);
-        },
-        error: () => {
-          this.hasError = true;
-        },
-      });
+    this.project.update((p) => ({ ...p, attachments }));
   }
 
   async openModal(mode: projectInfoModalEnum) {
@@ -110,22 +72,24 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
     if (mode === projectInfoModalEnum.EDIT) {
       ref = this.dialog.open(ProjectAddComponent, {
         data: {
-          project: this.project,
+          project: this.project(),
         },
       });
     }
 
-    if (mode === projectInfoModalEnum.NOTEBOOK && this.project) {
+    if (mode === projectInfoModalEnum.NOTEBOOK) {
+      if (!this.projectService.canCreateNotebook()) return;
+
       ref = this.dialog.open(NotebookAddComponent);
-      (ref.componentInstance as NotebookAddComponent).projectId = this.project.id;
+      (ref.componentInstance as NotebookAddComponent).projectId = this.projectId;
     }
 
     ref
       ?.afterClosed()
       .pipe(take(1))
       .subscribe((result) => {
-        if (result === 'refresh' && this.project) {
-          this.loadProject(this.project.id);
+        if (result === 'refresh' && mode === projectInfoModalEnum.EDIT) {
+          this.projectService.refresh();
         }
       });
   }

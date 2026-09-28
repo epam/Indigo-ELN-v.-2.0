@@ -35,8 +35,8 @@ public class UserResource implements UserAPI {
     }
 
     @Override
-    public @NotNull @Valid Page<UserDTO> getUsers(@Nullable String search, @Nullable String username, Paging paging) {
-        return userService.getUsers(search, username, paging);
+    public @NotNull Page<@Valid UserDTO> getUsers(@Nullable String search, Paging paging) {
+        return userService.getUsers(search, paging);
     }
 
     @Override

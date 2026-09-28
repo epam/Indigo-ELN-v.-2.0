@@ -16,13 +16,13 @@ dependencies {
     api("io.quarkus:quarkus-smallrye-openapi")
     api("io.quarkus:quarkus-rest-client-jackson")
 
-    api("org.jspecify:jspecify:1.0.0")
+    api("org.jspecify:jspecify:1.0.1")
     api("org.jetbrains:annotations:26.0.2-1")
     api("com.google.guava:guava:33.6.0-jre")
     api("org.apache.commons:commons-math3:3.6.1")
     api("org.apache.commons:commons-lang3:3.20.0")
-    api("one.util:streamex:0.8.4")
-    api("org.openapitools:jackson-databind-nullable:0.2.10")
+    api("one.util:streamex:0.9.0")
+    api("org.openapitools:jackson-databind-nullable:0.2.11")
 
     api(project(":common:eln-quarkus-extension"))
 

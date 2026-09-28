@@ -43,7 +43,7 @@ public class ExperimentDetailsReportBuilder {
     JSONPatcher jsonPatcher;
 
     static {
-        REPORT_HTML = ModelUtil.loadResourceAsString(ExperimentDetailsReportBuilder.class, "/experiment-details-report.html").split("%JSON_DATA%", 2);
+        REPORT_HTML = ModelUtil.loadResourceAsString("/experiment-details-report.html").split("%JSON_DATA%", 2);
     }
 
     @SneakyThrows
@@ -54,18 +54,30 @@ public class ExperimentDetailsReportBuilder {
         for (ExperimentRevisionEntity r : revisions.reversed()) {
             JsonNode snapshotBefore = jsonPatcher.reverse(snapshotAfter, r.getDiff());
             String formattedDiff = experimentModelService.formatDiff(snapshotBefore, r);
+            List<String> messages = new ArrayList<>();
+            if (r.getMessages() != null) {
+                messages.addAll(Arrays.asList(r.getMessages()));
+            }
+            if (r.getDebugMessages() != null) {
+                messages.addAll(Arrays.asList(r.getDebugMessages()));
+            }
+            Category category = null;
+            if (r.getMutation() instanceof ExperimentMutation.Undo) {
+                category = Category.UNDO;
+            } else if (r.getMutation() instanceof ExperimentMutation.Redo) {
+                category = Category.REDO;
+            }
+
             Revision data = new Revision(
                     r.getRevision(),
                     r.getSummary(),
                     r.getUser().getUsername(),
                     r.getDatetime(),
-                    r.getMutation() instanceof ExperimentMutation.Undo ? Category.UNDO
-                            : r.getMutation() instanceof ExperimentMutation.Redo ? Category.REDO
-                              : null,
+                    category,
                     r.getMutation(),
                     r.getDiff(),
                     formattedDiff,
-                    r.getMessages() != null ? Arrays.asList(r.getMessages()) : null,
+                    messages,
                     snapshotAfter
             );
             revisionsData.add(data);
@@ -100,7 +112,7 @@ public class ExperimentDetailsReportBuilder {
             Mutation mutation,
             JsonNode jsonDiff,
             String diff,
-            @Nullable List<String> messages,
+            List<String> messages,
             JsonNode entityState
     ) {}
 

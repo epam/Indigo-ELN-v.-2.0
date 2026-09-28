@@ -31,10 +31,11 @@ interface PubChemClient {
         try {
             PubChemFault fault = response.readEntity(PubChemFault.class);
             StringBuilder message = new StringBuilder("PubChem error: HTTP status ").append(status);
-            if (fault.fault() != null) {
-                message.append(", ").append(fault.fault().code()).append(": ").append(fault.fault().message());
+            PubChemFault.Fault innerFault = fault != null ? fault.fault() : null;
+            if (innerFault != null) {
+                message.append(", ").append(innerFault.code()).append(": ").append(innerFault.message());
             }
-            ex = fault.fault() != null && ERROR_NOT_FOUND.equals(fault.fault().code())
+            ex = innerFault != null && ERROR_NOT_FOUND.equals(innerFault.code())
                     ? new PubChemException.NotFound(message.toString())
                     : new PubChemException(message.toString());
         } catch (Exception e) {

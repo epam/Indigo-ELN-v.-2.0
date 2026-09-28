@@ -1,6 +1,7 @@
 package com.epam.indigoeln.aws;
 
 import one.util.streamex.EntryStream;
+import org.jspecify.annotations.Nullable;
 import software.amazon.awscdk.Duration;
 import software.amazon.awscdk.RemovalPolicy;
 import software.amazon.awscdk.Stack;
@@ -13,6 +14,7 @@ import software.amazon.awscdk.services.iam.Effect;
 import software.amazon.awscdk.services.iam.PolicyStatement;
 import software.amazon.awscdk.services.iam.ServicePrincipal;
 import software.amazon.awscdk.services.s3.Bucket;
+import software.amazon.awscdk.services.secretsmanager.Secret;
 import software.constructs.Construct;
 
 import java.util.Arrays;
@@ -25,7 +27,7 @@ import static com.epam.indigoeln.aws.util.Utils.mapOf;
 
 public class BuildStack extends Stack {
 
-    public BuildStack(final Construct scope, final String id, StackProps stackProps) {
+    public BuildStack(final Construct scope, final String id, StackProps stackProps, GlobalParameters globalParameters) {
         super(scope, id, stackProps);
 
         Repository elnLambdaRepo = createECRRepo("ecr-indigo-eln", "indigoeln/indigo-eln-lambda");
@@ -53,6 +55,17 @@ public class BuildStack extends Stack {
                 .resources(List.of("*")) // ECR Public GetAuthorizationToken requires resource "*"
                 .build();
 
+        Secret sonarTokenSecret = Secret.Builder.create(this, "sonar-token-secret")
+                .description("SonarQube analysis token used by CodeBuild projects")
+                .build();
+        String sonarHostUrl = "https://" + globalParameters.getSonarDomainName();
+        Map<String, BuildEnvironmentVariable> sonarSecretEnvironment = mapOf(
+                entry("SONAR_TOKEN", BuildEnvironmentVariable.builder()
+                        .type(BuildEnvironmentVariableType.SECRETS_MANAGER)
+                        .value(sonarTokenSecret.getSecretArn())
+                        .build())
+        );
+
         Project postgresBuild = createBuild("eln-postgres-build"
                 , "indigo-eln-postgres-build"
                 , "deployment-aws/codebuild/eln-build-postgres.yaml"
@@ -63,6 +76,7 @@ public class BuildStack extends Stack {
                         entry("REPO_URI", postgresRepo.getRepositoryUri()),
                         entry("REPO_URI_PUBLIC", "public.ecr.aws/m5k0g6n7/indigoeln/indigo-eln-postgres")
                 )
+                , mapOf()
         );
         postgresRepo.grantPullPush(postgresBuild);
 
@@ -81,15 +95,35 @@ public class BuildStack extends Stack {
                         entry("REPORTS_REPO_URI", reportsLambdaRepo.getRepositoryUri()),
                         entry("SIGNATURE_REGISTRY_URI", signatureLambdaRepo.getRegistryUri()),
                         entry("SIGNATURE_REPO_URI", signatureLambdaRepo.getRepositoryUri()),
-                        entry("S3_LOGS", buildLogsBucket.getBucketName())
+                        entry("S3_LOGS", buildLogsBucket.getBucketName()),
+                        entry("SONAR_HOST_URL", sonarHostUrl)
                 )
+                , sonarSecretEnvironment
         );
         elnLambdaRepo.grantPullPush(elnBuild);
         reportsLambdaRepo.grantPullPush(elnBuild);
         signatureLambdaRepo.grantPullPush(elnBuild);
+        sonarTokenSecret.grantRead(elnBuild);
+
+        Project frontendBuild = createBuild("frontend-build"
+                , "indigo-eln-frontend-build"
+                , "deployment-aws/codebuild/frontend-build.yaml"
+                , buildLogsBucket
+                , null
+                , mapOf(
+                        entry("SONAR_HOST_URL", sonarHostUrl)
+                )
+                , sonarSecretEnvironment
+        );
+        sonarTokenSecret.grantRead(frontendBuild);
     }
 
-    private Project createBuild(String id, String projectName, String buildSpecFile, Bucket buildLogsBucket, PolicyStatement policy, Map<String, String> environment) {
+    private Project createBuild(String id, String projectName, String buildSpecFile, Bucket buildLogsBucket, @Nullable PolicyStatement policy, Map<String, String> environment, Map<String, BuildEnvironmentVariable> secretEnvironment) {
+        Map<String, BuildEnvironmentVariable> environmentVariables = EntryStream.of(environment)
+                .mapValues(v -> BuildEnvironmentVariable.builder().value(v).build())
+                .toCustomMap(LinkedHashMap::new);
+        environmentVariables.putAll(secretEnvironment);
+
         Project project = Project.Builder.create(this, id)
                 .projectName(projectName)
                 .source(Source.gitHub(GitHubSourceProps.builder()
@@ -103,10 +137,7 @@ public class BuildStack extends Stack {
                         .computeType(ComputeType.LARGE)
                         .privileged(true) // The 'privileged' flag is required for the CodeBuild project to build Docker images.
                         .build())
-                .environmentVariables(EntryStream.of(environment)
-                                .mapValues(v -> BuildEnvironmentVariable.builder().value(v).build())
-                                .toCustomMap(LinkedHashMap::new)
-                )
+                .environmentVariables(environmentVariables)
                 // The BuildSpec defines the commands to run during the build.
                 .buildSpec(BuildSpec.fromSourceFilename(buildSpecFile))
                 .timeout(Duration.minutes(30))
@@ -115,7 +146,9 @@ public class BuildStack extends Stack {
                         .s3(S3LoggingOptions.builder().enabled(true).bucket(buildLogsBucket).prefix("backend").build())
                         .build())
                 .build();
-        project.addToRolePolicy(policy);
+        if (policy != null) {
+            project.addToRolePolicy(policy);
+        }
         return project;
     }
 

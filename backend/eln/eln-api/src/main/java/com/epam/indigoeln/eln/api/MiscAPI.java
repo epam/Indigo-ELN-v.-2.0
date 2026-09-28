@@ -32,6 +32,10 @@ public interface MiscAPI extends BaseAPI {
     Map<String, String> insertTestData();
 
     @POST
+    @Path("/support/reindex-search-vectors")
+    Map<String, String> reindexSearchVectors();
+
+    @POST
     @Path("/support/experiment-details-report/{experimentID}")
     @Produces(MediaType.TEXT_HTML)
     Response generateExperimentDetailsReport(@PathParam("experimentID") UUID experimentID);

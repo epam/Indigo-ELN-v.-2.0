@@ -1,11 +1,11 @@
 package com.epam.indigoeln.eln.entity;
 
+import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.EnumSet;
@@ -53,7 +53,7 @@ public class UserEntity extends BaseEntity {
     @NotNull
     @ManyToMany()
     @JoinTable(name = "User_Account_Application_Role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<RoleEntity> roles = new HashSet<>(0);
+    private Set<RoleEntity> roles = HashSet.newHashSet(0);
 
     public Set<ApplicationPermission> collectPermissions() {
         Set<ApplicationPermission> set = EnumSet.noneOf(ApplicationPermission.class);
@@ -66,6 +66,10 @@ public class UserEntity extends BaseEntity {
     @Override
     public String toString() {
         return username;
+    }
+
+    public UserRef toRef() {
+        return new UserRef(username, displayName);
     }
 
     public UserInfo toInfo() {

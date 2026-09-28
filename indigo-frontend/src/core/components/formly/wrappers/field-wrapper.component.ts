@@ -39,7 +39,7 @@ export interface FormlyFieldProps extends CoreFormlyFieldProps {
         <ng-container [ngTemplateOutlet]="labelTemplate"></ng-container>
       </ng-container>
 
-      <div *ngIf="showError" class="invalid-feedback" [style.display]="'block'">
+      <div *ngIf="showError" class="invalid-feedback block">
         <formly-validation-message
           id="{{ id }}-formly-validation-error"
           class="text-red-500 text-xs ml-1"

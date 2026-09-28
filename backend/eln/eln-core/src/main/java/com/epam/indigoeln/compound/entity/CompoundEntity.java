@@ -1,10 +1,12 @@
 package com.epam.indigoeln.compound.entity;
 
 import com.epam.indigoeln.eln.common.entity.IdentifiableEntity;
+import com.epam.indigoeln.eln.config.hibernate.MolFormulaConverter;
 import com.epam.indigoeln.eln.config.hibernate.STRCodeCompoundConverter;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
 import com.epam.indigoeln.eln.model.CompoundExternalSource;
 import com.epam.indigoeln.eln.model.STRCodeCompound;
+import com.epam.indigoeln.reaction.model.MolFormula;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -21,7 +23,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "Compound")
-@ToString(of = {"id", "name", "formula", "canSmiles", "strCode"})
+@ToString(of = {"id", "chemicalName", "formula", "canSmiles", "strCode"})
 public class CompoundEntity extends IdentifiableEntity {
 
     @Nullable
@@ -60,8 +62,9 @@ public class CompoundEntity extends IdentifiableEntity {
     @Nullable
     private String chemicalName;
 
-    @NotEmpty
-    private String formula;
+    @NotNull
+    @Convert(converter = MolFormulaConverter.class)
+    private MolFormula formula;
 
     @NotNull
     private Double molWeight;
@@ -78,7 +81,7 @@ public class CompoundEntity extends IdentifiableEntity {
     private byte[] picture;
 
     @OneToMany(mappedBy = "compound") // TODO make many-to-many and store percentage in link entity
-    private Set<SampleEntity> samples = new HashSet<>(0);
+    private Set<SampleEntity> samples = HashSet.newHashSet(0);
 
     @Nullable
     @Transient

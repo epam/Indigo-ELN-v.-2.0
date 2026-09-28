@@ -89,5 +89,10 @@ public interface ReactionMutation extends ExperimentMutation {
         public ImportSDF(ReactionAnchor anchor, List<UUID> compoundIDs) {
             this(anchor, compoundIDs, null, null);
         }
+
+        @Override
+        public boolean isMutateMethodAllowed() {
+            return false;
+        }
     }
 }

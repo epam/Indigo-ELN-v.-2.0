@@ -7,8 +7,6 @@ import java.util.List;
 
 public record SampleSearchResult (
         List<SampleDTO> items,
-        boolean hasNext,
-        @Nullable SearchCatalog nextCatalog,
-        @Nullable String nextAfter,
-        @Nullable Long totalItems
+        @Nullable Long totalItems,
+        @Nullable FindSamplesState next
 ) {}

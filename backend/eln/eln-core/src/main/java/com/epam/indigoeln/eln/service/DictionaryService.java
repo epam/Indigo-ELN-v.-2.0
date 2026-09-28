@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import io.quarkus.cache.Cache;
 import io.quarkus.cache.CacheName;
-import io.quarkus.panache.common.Sort;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -66,7 +65,7 @@ public class DictionaryService {
         for (DictionaryEntity dictionary : dictionaryRepository.listAll()) {
             result.byDictionary.put(dictionary.getId(), new CachedItems<>());
         }
-        for (DictionaryItemEntity item : dictionaryItemRepository.listAll(Sort.by("name"))) {
+        for (DictionaryItemEntity item : dictionaryItemRepository.listAll()) {
             CachedItems<DictionaryItemRef> cachedItems = result.byDictionary.get(item.getDictionary().getId());
             DictionaryItemRef ref = convertToRef(item);
             result.add(ref);
@@ -173,7 +172,6 @@ public class DictionaryService {
             case null -> DictionaryItemRef::new;
             case THERAPEUTIC_AREA -> TherapeuticAreaRef::new;
             case PROJECT_CODE -> ProjectCodeRef::new;
-            case PROJECT_KEYWORD -> ProjectKeywordRef::new;
             case STEREOISOMER_CODE -> StereoisomerCodeRef::new;
             case HEALTH_HAZARD -> HealthHazardRef::new;
             case HANDLING_PRECAUTIONS -> HandlingPrecautionsRef::new;

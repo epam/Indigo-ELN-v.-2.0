@@ -64,6 +64,11 @@ public class MiscResource implements MiscAPI {
     }
 
     @Override
+    public Map<String, String> reindexSearchVectors() {
+        return supportService.reindexSearchVectors();
+    }
+
+    @Override
     public Response generateExperimentDetailsReport(UUID experimentID) {
         Pair<String, byte[]> result = supportService.generateExperimentDetailsReport(experimentID);
         return Response.ok(result.b())

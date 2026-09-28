@@ -21,7 +21,7 @@ public class ReactionOutputSampleAssert extends AbstractReactionSampleAssert<Rea
     }
 
     public ReactionOutputSampleAssert hasNoActualMol() {
-        EnteredValueAssert.assertThat(actual.getActualMol()).isNull();
+        EnteredValueAssert.assertThat(actual.getActualMol()).isEmpty();
         return this;
     }
 
@@ -31,17 +31,17 @@ public class ReactionOutputSampleAssert extends AbstractReactionSampleAssert<Rea
     }
 
     public ReactionOutputSampleAssert hasNoActualWeight() {
-        EnteredValueAssert.assertThat(actual.getActualWeight()).isNull();
+        EnteredValueAssert.assertThat(actual.getActualWeight()).isEmpty();
         return this;
     }
 
-    public ReactionOutputSampleAssert hasYield(double yield) {
-        EnteredValueAssert.assertThat(actual.getYield()).hasValue(yield);
+    public ReactionOutputSampleAssert hasYield(double yieldValue) {
+        EnteredValueAssert.assertThat(actual.getYieldValue()).hasValue(yieldValue);
         return this;
     }
 
     public ReactionOutputSampleAssert hasNoYield() {
-        EnteredValueAssert.assertThat(actual.getYield()).isNull();
+        EnteredValueAssert.assertThat(actual.getYieldValue()).isEmpty();
         return this;
     }
 }

@@ -1,9 +1,15 @@
 package com.epam.indigoeln.test;
 
+import com.google.common.base.Suppliers;
+import io.agroal.api.AgroalDataSource;
+import io.agroal.api.configuration.supplier.AgroalDataSourceConfigurationSupplier;
+import io.agroal.api.security.NamePrincipal;
+import io.agroal.api.security.SimplePassword;
 import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.security.TestSecurity;
 import lombok.Setter;
 import lombok.SneakyThrows;
+import org.eclipse.microprofile.config.ConfigProvider;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.*;
 import org.junit.platform.commons.support.AnnotationSupport;
@@ -12,6 +18,7 @@ import java.net.URI;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
 @Timeout(value = 30, unit = TimeUnit.SECONDS)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -20,6 +27,8 @@ public abstract class BaseTest {
 
     public static final String ADMIN_USERNAME = "admin";
     public static final String ADMIN_DISPLAY_NAME = "Administrator";
+
+    protected final static Supplier<AgroalDataSource> databasePool = Suppliers.memoize(BaseTest::createDatabasePool);
 
     @Setter
     protected static boolean integrationTest = false;
@@ -68,5 +77,20 @@ public abstract class BaseTest {
         } finally {
             this.username.set(oldUsername);
         }
+    }
+
+    @SneakyThrows
+    private static AgroalDataSource createDatabasePool() {
+        String jdbcUrl = integrationTest ? System.getProperty("eln.test.datasource.jdbc-url") : ConfigProvider.getConfig().getValue("quarkus.datasource.jdbc.url", String.class);
+        String username = integrationTest ? System.getProperty("eln.test.datasource.username") : ConfigProvider.getConfig().getValue("quarkus.datasource.username", String.class);
+        String password = integrationTest ? System.getProperty("eln.test.datasource.password") : ConfigProvider.getConfig().getValue("quarkus.datasource.password", String.class);
+        return AgroalDataSource.from(new AgroalDataSourceConfigurationSupplier()
+                .connectionPoolConfiguration(cp -> cp
+                        .minSize(0)
+                        .maxSize(2)
+                        .connectionFactoryConfiguration(cf -> cf
+                                .jdbcUrl(jdbcUrl)
+                                .principal(new NamePrincipal(username))
+                                .credential(new SimplePassword(password)))));
     }
 }

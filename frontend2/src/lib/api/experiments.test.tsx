@@ -1,0 +1,271 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import type { ReactNode } from 'react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { makeAclEntry, makeExperimentDetails } from '@/mocks/fixtures';
+
+const fetchAuthSession = vi.fn().mockResolvedValue({ tokens: { accessToken: { toString: () => 'token' } } });
+vi.mock('aws-amplify/auth', () => ({ fetchAuthSession, signOut: vi.fn() }));
+
+const apiFetch = vi.fn();
+vi.mock('@/lib/api', async () => {
+  const actual = await vi.importActual<typeof import('@/lib/api')>('@/lib/api');
+  return { ...actual, apiFetch: (path: string) => apiFetch(path) };
+});
+
+const {
+  experimentKeys,
+  useEditExperiment,
+  useExperimentAttachments,
+  useMarkedExperiments,
+  useToggleMark,
+  useUpdateExperimentAccess,
+} = await import('@/lib/api/experiments');
+
+const ID = '22222222-2222-2222-2222-222222222222';
+const PATCH_PATH = `/api/eln/experiments/${ID}`;
+const DELETE_PATH = `/api/eln/experiments/${ID}/attachments/a1`;
+const MARK_PATH = `/api/eln/experiments/${ID}/mark`;
+const ACCESS_PATH = `/api/eln/experiments/${ID}/access`;
+const MARKED_PATH = '/api/eln/experiments/marked';
+
+/** A promise the test settles by hand, so a request can be observed while still in flight. */
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  let reject!: (error: Error) => void;
+  const promise = new Promise<T>((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+  // Attached so an intentional rejection is never an unhandled one; the queue still sees it.
+  promise.catch(() => {});
+  return { promise, resolve, reject };
+}
+
+function wrapper({ children }: { children: ReactNode }) {
+  // A fresh client per test: the mutation scope lives on the MutationCache, so a shared one
+  // would carry a queue from one test into the next.
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
+  return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
+}
+
+/** Records the order requests actually reach the network, and holds the PATCH open. */
+function stubApi(held: Promise<unknown>) {
+  const started: string[] = [];
+  apiFetch.mockImplementation((path: string) => {
+    started.push(path);
+    return path === PATCH_PATH ? held : Promise.resolve(path === MARK_PATH ? true : undefined);
+  });
+  return started;
+}
+
+describe('experiment write queue', () => {
+  beforeEach(() => apiFetch.mockReset());
+
+  /**
+   * Every write scoped by `experimentWrite` bumps the experiment's `revision` on the backend, so
+   * two in flight race on it. Fields save on blur, which makes starting the second before the
+   * first lands the normal case rather than an edge one.
+   */
+  it('runs a second write only once the first has settled', async () => {
+    const patch = deferred<unknown>();
+    const started = stubApi(patch.promise);
+
+    const view = renderHook(() => ({ edit: useEditExperiment(ID), attachments: useExperimentAttachments(ID) }), {
+      wrapper,
+    });
+
+    act(() => {
+      view.result.current.edit.mutate({ description: '<p>New</p>' });
+      view.result.current.attachments.remove.mutate('a1');
+    });
+
+    // The PATCH went out; the DELETE is queued behind it and has not been requested at all.
+    await waitFor(() => expect(started).toEqual([PATCH_PATH]));
+    // Both report pending, which is what keeps each of their controls frozen.
+    expect(view.result.current.edit.isPending).toBe(true);
+    expect(view.result.current.attachments.remove.isPending).toBe(true);
+
+    await act(async () => {
+      patch.resolve(makeExperimentDetails({ id: ID }));
+      await patch.promise;
+    });
+
+    await waitFor(() => expect(started).toEqual([PATCH_PATH, DELETE_PATH]));
+  });
+
+  /** A failed write must hand off rather than wedge the queue — `runNext` runs from a `finally`. */
+  it('runs the next write after one fails', async () => {
+    const patch = deferred<unknown>();
+    const started = stubApi(patch.promise);
+
+    const view = renderHook(() => ({ edit: useEditExperiment(ID), attachments: useExperimentAttachments(ID) }), {
+      wrapper,
+    });
+
+    act(() => {
+      view.result.current.edit.mutate({ description: '<p>New</p>' });
+      view.result.current.attachments.remove.mutate('a1');
+    });
+    await waitFor(() => expect(started).toEqual([PATCH_PATH]));
+
+    await act(async () => {
+      patch.reject(new Error('boom'));
+      await patch.promise.catch(() => {});
+    });
+
+    await waitFor(() => expect(started).toEqual([PATCH_PATH, DELETE_PATH]));
+  });
+
+  /**
+   * Starring is a per-user flag that never reaches `applyMutation`, so it is deliberately outside
+   * the queue: it must not wait behind an unrelated save.
+   */
+  it('does not queue starring behind a write', async () => {
+    const patch = deferred<unknown>();
+    const started = stubApi(patch.promise);
+
+    const view = renderHook(() => ({ edit: useEditExperiment(ID), mark: useToggleMark() }), { wrapper });
+
+    act(() => {
+      view.result.current.edit.mutate({ description: '<p>New</p>' });
+      view.result.current.mark.mutate({ id: ID, marked: true });
+    });
+
+    await waitFor(() => expect(started).toEqual([PATCH_PATH, MARK_PATH]));
+    // …and the write it overtook is still in flight.
+    expect(view.result.current.edit.isPending).toBe(true);
+  });
+});
+
+describe('what a write invalidates', () => {
+  beforeEach(() => apiFetch.mockReset());
+
+  /**
+   * The starred panel is mounted on every page and shows only `name` and `status`, neither of
+   * which a write can move — a name is server-assigned and `ExperimentEditRequest` carries
+   * `title`. So writes invalidate `lists()`, not `all()`; the wider key would refetch the
+   * starred list on every on-blur save.
+   */
+  it('invalidates the notebook lists but not the starred list', async () => {
+    const client = new QueryClient({
+      // `staleTime: Infinity` so mounting the seeded queries fetches nothing on its own —
+      // an invalidation still refetches an active query whatever its staleTime, so the
+      // starred assertion below keeps its teeth.
+      defaultOptions: { queries: { retry: false, staleTime: Infinity }, mutations: { retry: false } },
+    });
+    const listKey = experimentKeys.list('n1', { search: '', sort: 'LATEST', createdByMe: false, statuses: [] });
+    client.setQueryData(listKey, { pages: [], pageParams: [] });
+    client.setQueryData(experimentKeys.marked(), []);
+
+    const started = stubApi(Promise.resolve(makeExperimentDetails({ id: ID })));
+
+    // The starred query is mounted, so an invalidation of it would be an immediate refetch.
+    const view = renderHook(() => ({ edit: useEditExperiment(ID), marked: useMarkedExperiments() }), {
+      wrapper: ({ children }) => <QueryClientProvider client={client}>{children}</QueryClientProvider>,
+    });
+
+    act(() => {
+      view.result.current.edit.mutate({ title: 'Renamed' });
+    });
+    await waitFor(() => expect(view.result.current.edit.isSuccess).toBe(true));
+
+    expect(client.getQueryState(listKey)?.isInvalidated).toBe(true);
+    expect(client.getQueryState(experimentKeys.marked())?.isInvalidated).toBe(false);
+    // …and nothing went out for it.
+    expect(started).toEqual([PATCH_PATH]);
+    expect(started).not.toContain(MARKED_PATH);
+  });
+});
+
+describe('experiment access', () => {
+  beforeEach(() => apiFetch.mockReset());
+
+  /**
+   * The Team sheet reads `ExperimentDetails.acl`, which is the full ACL — `ExperimentDTO.acl` is
+   * `shortACL`, capped at three, and a direct link loads no list at all. So the detail is the copy
+   * the response has to be written into, and it has to be the whole response.
+   */
+  it('writes the returned ACL into the cached detail', async () => {
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    });
+    const experiment = makeExperimentDetails({ id: ID });
+    client.setQueryData(experimentKeys.detail(ID), experiment);
+
+    const acl = [...experiment.acl, makeAclEntry('New Bie', { username: 'newbie@epam.com', level: 'VIEW' })];
+    apiFetch.mockImplementation((path: string) =>
+      path === ACCESS_PATH ? Promise.resolve(acl) : Promise.resolve(undefined),
+    );
+
+    const view = renderHook(() => useUpdateExperimentAccess(ID), {
+      wrapper: ({ children }) => <QueryClientProvider client={client}>{children}</QueryClientProvider>,
+    });
+
+    act(() => {
+      view.result.current.mutate([{ username: 'newbie@epam.com', level: 'VIEW' }]);
+    });
+
+    await waitFor(() => expect(view.result.current.isSuccess).toBe(true));
+
+    // The detail carries the new member, and nothing else about the experiment was dropped.
+    const patched = client.getQueryData<typeof experiment>(experimentKeys.detail(ID));
+    expect(patched?.acl).toEqual(acl);
+    expect(patched?.name).toBe(experiment.name);
+  });
+});
+
+describe('starring', () => {
+  beforeEach(() => apiFetch.mockReset());
+
+  /**
+   * The experiment header's star reads `marked` off the cached detail, which sits on its own
+   * root and so is missed by the `all()` invalidation the lists get. Patched rather than
+   * invalidated: the flag is all this write moves, and a refetch would also discard the
+   * mutation patches already applied to that entry.
+   */
+  it('patches `marked` on the cached detail without invalidating it', async () => {
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    });
+    const experiment = makeExperimentDetails({ id: ID, marked: false });
+    client.setQueryData(experimentKeys.detail(ID), experiment);
+
+    apiFetch.mockResolvedValue(true);
+
+    const view = renderHook(() => useToggleMark(), {
+      wrapper: ({ children }) => <QueryClientProvider client={client}>{children}</QueryClientProvider>,
+    });
+
+    act(() => {
+      view.result.current.mutate({ id: ID, marked: true });
+    });
+    await waitFor(() => expect(view.result.current.isSuccess).toBe(true));
+
+    const patched = client.getQueryData<typeof experiment>(experimentKeys.detail(ID));
+    expect(patched?.marked).toBe(true);
+    // …and nothing else about the experiment was dropped, nor is a refetch pending.
+    expect(patched?.name).toBe(experiment.name);
+    expect(client.getQueryState(experimentKeys.detail(ID))?.isInvalidated).toBe(false);
+  });
+
+  /** Nothing to patch is not an error: the header may never have been opened. */
+  it('leaves an absent detail absent', async () => {
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    });
+    apiFetch.mockResolvedValue(true);
+
+    const view = renderHook(() => useToggleMark(), {
+      wrapper: ({ children }) => <QueryClientProvider client={client}>{children}</QueryClientProvider>,
+    });
+
+    act(() => {
+      view.result.current.mutate({ id: ID, marked: true });
+    });
+    await waitFor(() => expect(view.result.current.isSuccess).toBe(true));
+
+    expect(client.getQueryData(experimentKeys.detail(ID))).toBeUndefined();
+  });
+});

@@ -1,6 +1,5 @@
 // TODO try to unify with InfiniteScrollBase, but the latter seems to be tightly bound to router navigation
-import { BehaviorSubject, Observable } from 'rxjs';
-import { PaginatedResponse, PaginatedResponseBase } from '@core/types/response/paginated-response.i';
+import { ApiService } from '@core/services/api.service';
 import {
   FindSamplesRequest,
   GlobalSearchRequest,
@@ -8,7 +7,8 @@ import {
   Sample,
   SampleSearchResult,
 } from '@core/types/entities/experiments/search.i';
-import { ApiService } from '@core/services/api.service';
+import { PaginatedResponse, PaginatedResponseBase } from '@core/types/response/paginated-response.i';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 export abstract class InfiniteSearchLoader<R, T, P extends PaginatedResponseBase<T>> {
   private searchParams: R | null = null;
@@ -55,12 +55,13 @@ export abstract class InfiniteSearchLoader<R, T, P extends PaginatedResponseBase
         this.dataSubject$.next(allItems);
         this.loading = false;
         this.totalItems = response.totalItems;
-        this.totalItemsStr =
+        const totalCountStr =
           response.totalItems != null
             ? response.totalItems.toString()
             : this.completed
               ? allItems.length.toString()
               : `${allItems.length}+`;
+        this.totalItemsStr = totalCountStr === '0' ? 'No results found' : `Search Results (${totalCountStr})`;
         if (this.isInfiniteLoaderVisible) {
           this.fetchNext();
         }
@@ -108,18 +109,13 @@ export class SamplesSearchLoader extends InfiniteSearchLoader<FindSamplesRequest
     searchParams: FindSamplesRequest,
     currentPage: SampleSearchResult | null,
   ): Observable<SampleSearchResult> {
-    let url = 'samples/search?limit=100';
-    if (currentPage?.nextCatalog) {
-      url += `&nextCatalog=${currentPage.nextCatalog}`;
-    }
-    if (currentPage?.nextAfter) {
-      url += `&nextAfter=${currentPage.nextAfter}`;
-    }
-    return this.service.request('post', url, searchParams);
+    const url = 'samples/search?pageSize=100';
+    const payload = { ...searchParams, state: currentPage?.next };
+    return this.service.request('post', url, payload);
   }
 
   protected hasNext(currentPage: SampleSearchResult): boolean {
-    return currentPage.hasNext;
+    return currentPage.next != null;
   }
 }
 
@@ -144,6 +140,6 @@ export class GlobalSearchLoader extends InfiniteSearchLoader<
   }
 
   protected hasNext(currentPage: PaginatedResponse<GlobalSearchResult>): boolean {
-    return currentPage.items.length !== 0 && currentPage.pageNo + 1 >= currentPage.totalPages;
+    return currentPage.items.length !== 0 && currentPage.pageNo + 1 < currentPage.totalPages;
   }
 }

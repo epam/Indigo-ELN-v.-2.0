@@ -33,7 +33,10 @@ tasks.named("test", Test::class) {
 
 tasks.named("quarkusIntTest", Test::class) {
     systemProperty("quarkus.http.test-host", "localhost")
-    systemProperty("quarkus.http.test-port", "38080")
+    systemProperty("quarkus.http.test-port", "80")
+    systemProperty("eln.test.datasource.jdbc-url", "jdbc:postgresql://localhost:5432/eln")
+    systemProperty("eln.test.datasource.username", "postgres")
+    systemProperty("eln.test.datasource.password", "postgres")
     outputs.upToDateWhen { false }
     dependsOn(":eln:eln-service:assemble")
     dependsOn(":reports:reports-service:assemble")

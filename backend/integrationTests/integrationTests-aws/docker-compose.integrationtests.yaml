@@ -1,0 +1,128 @@
+services:
+
+  postgres:
+    image: public.ecr.aws/m5k0g6n7/indigoeln/indigo-eln-postgres:latest
+    environment:
+      POSTGRES_USER: eln
+      POSTGRES_PASSWORD: eln
+      POSTGRES_DB: eln
+    configs:
+      - source: create-signature-db
+        target: /docker-entrypoint-initdb.d/99_create_db.sql
+    ports:
+      - "35432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "eln"]
+      start_period: 60s
+      interval: 10s
+      retries: 3
+      start_interval: 1s
+
+  moto:
+    image: motoserver/moto
+    ports:
+      - "34566:5000"
+
+  eln-aws:
+    image: "indigoeln/eln-aws:built"
+    build:
+      context: ../../eln/eln-aws
+      dockerfile: src/main/docker/Dockerfile.jvm
+    environment:
+      QUARKUS_PROFILE: "integration-test"
+      QUARKUS_DATASOURCE_JDBC_URL: "jdbc:postgresql://postgres:5432/eln"
+      QUARKUS_DATASOURCE_USERNAME: "eln"
+      QUARKUS_DATASOURCE_PASSWORD: "eln"
+      QUARKUS_OIDC_AUTH_SERVER_URL: "http://moto:5000/us-east-1_integrationtests"
+      QUARKUS_OIDC_DISCOVERY_ENABLED: "false"
+      QUARKUS_OIDC_JWKS_PATH: ".well-known/jwks.json"
+      QUARKUS_OIDC_TOKEN_ISSUER: "any"
+      ELN_COGNITO_USER_POOL_ID: "xxx"
+      ELN_API_SECRET: "secret"
+      ELN_STORAGE_S3_BUCKET: "indigoeln-data"
+      QUARKUS_S3_ENDPOINT_OVERRIDE: "http://moto:5000"
+      QUARKUS_S3_PATH_STYLE_ACCESS: "true"
+      AWS_ACCESS_KEY_ID: "test"
+      AWS_SECRET_ACCESS_KEY: "test"
+      AWS_REGION: "us-east-1"
+      QUARKUS_REST_CLIENT_REPORTS_API_URL: "http://nginx:80/"
+      QUARKUS_REST_CLIENT_SIGNATURE_API_URL: "http://nginx:80/"
+      QUARKUS_LOG_CONSOLE_JSON_ENABLED: "false"
+      QUARKUS_LOG_CONSOLE_FORMAT: "[ELN] %d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
+      QUARKUS_LOG_LEVEL: INFO # DEBUG
+    depends_on:
+      postgres:
+        condition: service_healthy
+      moto:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/q/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  reports-aws:
+    image: "indigoeln/reports-aws:built"
+    build:
+      context: ../../reports/reports-aws
+      dockerfile: src/main/docker/Dockerfile.jvm
+    environment:
+      QUARKUS_PROFILE: "integration-test"
+      ELN_API_SECRET: "secret"
+      QUARKUS_LOG_CONSOLE_JSON_ENABLED: "false"
+      QUARKUS_LOG_CONSOLE_FORMAT: "[REPORTS] %d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
+      QUARKUS_LOG_LEVEL: INFO # DEBUG
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/q/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  signature-aws:
+    image: "indigoeln/signature-aws:built"
+    build:
+      context: ../../signature/signature-aws
+      dockerfile: src/main/docker/Dockerfile.jvm
+    environment:
+      QUARKUS_PROFILE: "integration-test"
+      QUARKUS_DATASOURCE_JDBC_URL: "jdbc:postgresql://postgres:5432/signature"
+      QUARKUS_DATASOURCE_USERNAME: "eln"
+      QUARKUS_DATASOURCE_PASSWORD: "eln"
+      QUARKUS_OIDC_AUTH_SERVER_URL: "http://moto:5000/us-east-1_integrationtests"
+      QUARKUS_OIDC_DISCOVERY_ENABLED: "false"
+      QUARKUS_OIDC_JWKS_PATH: ".well-known/jwks.json"
+      QUARKUS_OIDC_TOKEN_ISSUER: "any"
+      ELN_API_SECRET: "secret"
+      ELN_SIGNATURE_KEYSTORE_PASSWORD: "1234"
+      QUARKUS_REST_CLIENT_ELN_INTERNAL_API_URL: "http://nginx:80/"
+      QUARKUS_LOG_CONSOLE_JSON_ENABLED: "false"
+      QUARKUS_LOG_CONSOLE_FORMAT: "[SIGNATURE] %d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
+      QUARKUS_LOG_LEVEL: INFO # DEBUG
+    depends_on:
+      postgres:
+        condition: service_healthy
+      moto:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/q/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./nginx.integrationtests.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "38080:80"
+    depends_on:
+      - eln-aws
+      - reports-aws
+      - signature-aws
+
+configs:
+  create-signature-db:
+    content: "CREATE DATABASE signature OWNER eln"

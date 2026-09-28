@@ -5,15 +5,17 @@ import { InfiniteLoaderComponent } from '@/core/components/util/infinite-loader/
 import { InfiniteScrollBase } from '@/core/components/util/infinite-scroll.base';
 import { ClassPickerPipe } from '@/core/pipes/classPicker.pipe';
 import { BreadcrumbsStateService } from '@/core/services/breadcrumbs/breadcrumbs.state.service';
+import { PermissionService } from '@/core/services/permission/permission.service';
 import { Project } from '@/core/types/entities/project.i';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Subscription, take } from 'rxjs';
 
+import { ApplicationPermission } from '@core/types/entities/user.i';
 import { ProjectItemComponent } from '@pages/project/project-item/project-item.component';
 import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
 import { ProjectAddComponent } from '../project-add/project-add.component';
@@ -45,6 +47,9 @@ import { ProjectAddComponent } from '../project-add/project-add.component';
 export class ProjectListComponent extends InfiniteScrollBase<Project> implements OnInit, OnDestroy {
   dialog = inject(MatDialog);
   breadcrumbsState = inject(BreadcrumbsStateService);
+  permissionService = inject(PermissionService);
+  applicationPermission = ApplicationPermission;
+  canCreateProject = computed(() => this.permissionService.hasGlobalPermission(ApplicationPermission.CREATE_PROJECTS));
 
   selectedView: 'grid' | 'list' = 'grid';
   private refreshSub!: Subscription;
@@ -56,37 +61,28 @@ export class ProjectListComponent extends InfiniteScrollBase<Project> implements
 
     // breadcrumbs are shown in ProjectsOverviewWidgetComponent, but initialized here, because
     // ProjectsOverviewWidgetComponent is not reinitialized when navigating inside /projects paths
-    this.breadcrumbsState.setItems([
-      {
-        label: 'All Projects',
-        url: '/projects',
-        active: true,
-      },
-    ]);
+    this.breadcrumbsState.setItems([{ label: 'All Projects', url: '/projects', active: true }]);
 
     this.setup({
       loadUrl: 'projects',
       sortOptions: [
         {
           label: 'Sorting by: Earliest',
-          value: 'createdAt',
-          defaultOrder: 'EARLIEST',
+          value: 'EARLIEST',
         },
         {
           label: 'Sorting by: Latest',
-          value: 'createdAt',
-          defaultOrder: 'LATEST',
+          value: 'LATEST',
         },
       ],
       defaultSort: {
-        sortBy: 'createdAt',
         sort: 'EARLIEST',
       },
     });
 
     this.headerSortOptions = this.getSortOptions().map((option) => ({
       label: `${option.label}`,
-      value: `${option.value}:${option.defaultOrder}`,
+      value: option.value,
       icon: 'indicon-sort',
     }));
   }
@@ -110,6 +106,10 @@ export class ProjectListComponent extends InfiniteScrollBase<Project> implements
   }
 
   async openModal() {
+    if (!this.canCreateProject()) {
+      return;
+    }
+
     const ref = this.dialog.open(ProjectAddComponent);
 
     ref
@@ -127,7 +127,7 @@ export class ProjectListComponent extends InfiniteScrollBase<Project> implements
   }
 
   onSortChange(event: SortChangeEvent) {
-    this.sort(event.sortBy, event.sort);
+    this.sort(event.sort);
   }
 
   onViewChange(view: string) {
@@ -135,7 +135,7 @@ export class ProjectListComponent extends InfiniteScrollBase<Project> implements
   }
 
   onMyEntitiesOnlyChange(value: boolean) {
-    this.filters['createdByMe'] = value;
+    this.setBooleanFilter('createdByMe', value);
     this.reload();
   }
 }

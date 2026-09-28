@@ -1,7 +1,9 @@
 import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.gradle.testing.jacoco.tasks.JacocoReport
 
 plugins {
     java
+    jacoco
     id("com.github.ben-manes.versions")
 }
 
@@ -10,10 +12,10 @@ repositories {
     mavenLocal()
 }
 
-val quarkusPlatformGroupId: String by project
-val quarkusPlatformArtifactId: String by project
-val quarkusPlatformVersion: String by project
-val quarkusAmazonServicesVersion: String by project
+val quarkusPlatformGroupId = project.property("quarkusPlatformGroupId")
+val quarkusPlatformArtifactId = project.property("quarkusPlatformArtifactId")
+val quarkusPlatformVersion = project.property("quarkusPlatformVersion")
+val quarkusAmazonServicesVersion = project.property("quarkusAmazonServicesVersion")
 
 dependencies {
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
@@ -25,6 +27,7 @@ dependencies {
     testAnnotationProcessor("org.projectlombok:lombok:1.18.46")
     implementation("org.mapstruct:mapstruct:1.6.3")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.6.3")
+    annotationProcessor("org.hibernate.orm:hibernate-jpamodelgen:7.4.5.Final")
 }
 
 java {
@@ -35,6 +38,8 @@ java {
 tasks.withType<org.gradle.api.tasks.compile.JavaCompile> {
     options.encoding = "UTF-8"
     options.compilerArgs.add("-parameters")
+    options.isDeprecation = true
+    options.compilerArgs.add("-Xlint:deprecation")
 }
 
 tasks.withType<Test> {
@@ -43,6 +48,28 @@ tasks.withType<Test> {
     testLogging {
         showStandardStreams = false
         events = setOf(/*TestLogEvent.PASSED, */TestLogEvent.FAILED, TestLogEvent.SKIPPED)
+    }
+    finalizedBy(tasks.named("jacocoTestReport"))
+}
+
+tasks.named<JacocoReport>("jacocoTestReport") {
+    reports {
+        xml.required.set(true)
+    }
+}
+
+// Quarkus loads app classes through its own classloader, which the standard jacoco javaagent
+// doesn't see through, leaving @QuarkusTest-exercised code at 0% coverage. quarkus-jacoco
+// instruments at build time instead; point its output at the same exec file jacocoTestReport
+// already reads so no extra merging is needed.
+plugins.withId("io.quarkus") {
+    dependencies {
+        "testImplementation"("io.quarkus:quarkus-jacoco")
+    }
+
+    tasks.withType<Test> {
+        systemProperty("quarkus.jacoco.data-file", layout.buildDirectory.file("jacoco/$name.exec").get().asFile.absolutePath)
+        systemProperty("quarkus.jacoco.reuse-data-file", "true")
     }
 }
 

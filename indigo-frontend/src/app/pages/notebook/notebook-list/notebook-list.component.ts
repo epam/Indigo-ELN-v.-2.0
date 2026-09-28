@@ -1,10 +1,9 @@
 import { animate, style, transition, trigger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnDestroy } from '@angular/core';
+import { Component, inject, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { ActivatedRoute } from '@angular/router';
 import { ButtonComponent } from '@core/components/common/button/button.component';
 import { DropdownMenuItem } from '@core/components/common/dropdown-menu/dropdown-menu.i';
 import { ListHeaderComponent, SortChangeEvent } from '@core/components/common/list-header/list-header.component';
@@ -12,10 +11,11 @@ import { InfiniteLoaderComponent } from '@core/components/util/infinite-loader/i
 import { InfiniteScrollBase } from '@core/components/util/infinite-scroll.base';
 import { ClassPickerPipe } from '@core/pipes/classPicker.pipe';
 import { Notebook } from '@core/types/entities/notebook.i';
+import { ProjectService } from '@core/services/project/project.service';
 import { NotebookAddComponent } from '@pages/notebook/notebook-add/notebook-add.component';
 import { NotebookItemComponent } from '@pages/notebook/notebook-item/notebook-item.component';
 import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
-import { Subscription, take } from 'rxjs';
+import { take } from 'rxjs';
 
 @Component({
   selector: 'eln-notebook-list',
@@ -41,55 +41,48 @@ import { Subscription, take } from 'rxjs';
     ListHeaderComponent,
   ],
 })
-export class NotebookListComponent extends InfiniteScrollBase<Notebook> implements OnDestroy {
+export class NotebookListComponent extends InfiniteScrollBase<Notebook> implements OnInit, OnChanges {
   dialog = inject(MatDialog);
+  projectService = inject(ProjectService);
   selectedView: 'grid' | 'list' = 'grid';
-  private refreshSub!: Subscription;
-  projectId: string;
+  @Input() projectId!: string;
   headerSortOptions: DropdownMenuItem[] = [];
 
-  constructor(activatedRoute: ActivatedRoute) {
-    super();
-    activatedRoute.parent.params.pipe(take(1)).subscribe((params) => {
-      this.projectId = params['id'];
-      this.config.loadUrl = `projects/${this.projectId}/notebooks`;
+  ngOnInit() {
+    this.headerSortOptions = this.getSortOptions().map((option) => ({
+      label: `${option.label}`,
+      value: option.value,
+      icon: 'indicon-sort',
+    }));
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['projectId']) {
       this.setup({
         loadUrl: `projects/${this.projectId}/notebooks`,
         sortOptions: [
           {
             label: 'Sorting by: Earliest',
-            value: 'createdAt',
-            defaultOrder: 'EARLIEST',
+            value: 'EARLIEST',
           },
           {
             label: 'Sorting by: Latest',
-            value: 'createdAt',
-            defaultOrder: 'LATEST',
+            value: 'LATEST',
           },
         ],
         defaultSort: {
-          sortBy: 'createdAt',
           sort: 'EARLIEST',
         },
       });
-
-      this.headerSortOptions = this.getSortOptions().map((option) => ({
-        label: `${option.label}`,
-        value: `${option.value}:${option.defaultOrder}`,
-        icon: 'indicon-sort',
-      }));
-    });
+    }
   }
-
   refreshList(): void {
     this.reload();
   }
 
-  ngOnDestroy(): void {
-    this.refreshSub?.unsubscribe();
-  }
-
   async openModal() {
+    if (!this.projectService.canCreateNotebook()) return;
+
     const ref = this.dialog.open(NotebookAddComponent);
     ref.componentInstance.projectId = this.projectId;
     ref
@@ -107,7 +100,7 @@ export class NotebookListComponent extends InfiniteScrollBase<Notebook> implemen
   }
 
   onSortChange(event: SortChangeEvent) {
-    this.sort(event.sortBy, event.sort);
+    this.sort(event.sort);
   }
 
   onViewChange(view: string) {
@@ -115,7 +108,7 @@ export class NotebookListComponent extends InfiniteScrollBase<Notebook> implemen
   }
 
   onMyEntitiesOnlyChange(value: boolean) {
-    this.filters['createdByMe'] = value;
+    this.setBooleanFilter('createdByMe', value);
     this.reload();
   }
 }

@@ -1,6 +1,5 @@
 import { ButtonComponent } from '@/core/components/common/button/button.component';
 import { CardComponent } from '@/core/components/common/card/card.component';
-import { NotebookDetail } from '@/core/types/entities/notebook-detail.i';
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { NotebookService } from '@core/services/notebook/notebook.service';
@@ -10,6 +9,9 @@ import { NotebookEditComponent } from '@pages/notebook/notebook-edit/notebook-ed
 import { MatDialog } from '@angular/material/dialog';
 import { AttachmentsComponent } from '@core/components/common/attachments/attachments.component';
 import { Attachment } from '@core/types/entities/attachment.i';
+import { PermissionService } from '@core/services/permission/permission.service';
+import { ApplicationPermission } from '@core/types/entities/user.i';
+import { computed } from '@angular/core';
 
 @Component({
   selector: 'eln-notebook-info',
@@ -20,12 +22,21 @@ import { Attachment } from '@core/types/entities/attachment.i';
 export class NotebookInfoComponent {
   private store = inject(NotebookService);
   private dialog = inject(MatDialog);
+  private permissionService = inject(PermissionService);
+
+  notebook = this.store.notebook;
+  isLoading = this.store.isLoading;
+  hasError = this.store.hasError;
+  applicationPermission = ApplicationPermission;
+  canEditNotebook = computed(() => {
+    return this.permissionService.hasEntityPermission(ApplicationPermission.EDIT_NOTEBOOKS, this.notebook());
+  });
 
   openEditDialog() {
-    if (!this.notebook) return;
+    if (!this.notebook() || !this.canEditNotebook()) return;
 
     const dialogRef = this.dialog.open(NotebookEditComponent, {
-      data: { notebook: this.notebook },
+      data: { notebook: this.notebook() },
       disableClose: true,
     });
 
@@ -38,19 +49,7 @@ export class NotebookInfoComponent {
     buildAccessEndpoint: (id: string) => `notebooks/${id}/access`,
   };
 
-  get notebook(): NotebookDetail | null {
-    return this.store.notebook();
-  }
-
-  get isLoading(): boolean {
-    return this.store.isLoading();
-  }
-
-  get hasError(): boolean {
-    return this.store.hasError();
-  }
-
   onAttachmentsChanged(attachments: Attachment[]) {
-    this.notebook.attachments = attachments;
+    this.notebook.update((n) => ({ ...n, attachments }));
   }
 }

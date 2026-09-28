@@ -6,6 +6,7 @@ import lombok.SneakyThrows;
 import org.jspecify.annotations.Nullable;
 
 import java.io.File;
+import java.util.List;
 
 @Data
 public class GlobalParameters {
@@ -14,6 +15,14 @@ public class GlobalParameters {
     private String region;
     @Nullable
     private String permissionBoundary;
+    private String vpc;
+    private List<String> securityGroups;
+    private String ec2KeyPair;
+    private String hostedZone;
+    private String hostedZoneName;
+    private String sonarDomainName;
+    private String sonarPostgresMasterUsername;
+    private String sonarImage;
 
     @SneakyThrows
     public static GlobalParameters load() {

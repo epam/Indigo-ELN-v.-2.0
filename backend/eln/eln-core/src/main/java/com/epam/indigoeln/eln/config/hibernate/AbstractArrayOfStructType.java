@@ -40,10 +40,11 @@ public abstract class AbstractArrayOfStructType<T, E> implements UserType<T> {
     @Override
     @Nullable
     public T nullSafeGet(ResultSet rs, int position, WrapperOptions options) throws SQLException {
-        Object[] array = (Object[]) rs.getArray(position).getArray();
-        if (array == null) {
+        Array value = rs.getArray(position);
+        if (value == null) {
             return null;
         }
+        Object[] array = (Object[]) value.getArray();
         StreamEx<E> stream = StreamEx.of(array)
                 .map(PGobject.class::cast)
                 .map(o -> ModelUtil.splitPostgresStruct(Objects.requireNonNull(o.getValue())))

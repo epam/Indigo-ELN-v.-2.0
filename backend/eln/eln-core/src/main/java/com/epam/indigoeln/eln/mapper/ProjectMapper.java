@@ -1,6 +1,5 @@
 package com.epam.indigoeln.eln.mapper;
 
-import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
 import com.epam.indigoeln.eln.entity.ProjectEntity;
 import com.epam.indigoeln.eln.entity.ProjectRevisionEntity;
 import com.epam.indigoeln.eln.entity.TotalCountsEntity;
@@ -8,7 +7,6 @@ import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.RevisionService;
 import com.epam.indigoeln.reaction.model.mutation.ProjectMutation;
 import jakarta.inject.Inject;
-import org.jspecify.annotations.Nullable;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValueCheckStrategy;
@@ -28,7 +26,6 @@ public abstract class ProjectMapper extends AbstractMapper {
     public abstract ProjectMutation.EditProjectAttributes requestToMutation(ProjectEditRequest request);
 
     @Mapping(target = "acl", source = "shortACL")
-    @Mapping(target = "aclCount", source = "calculatedInfo.aclCount")
     @Mapping(target = "experimentCountByStatus", source = "entity.experimentCount")
     public abstract ProjectDTO entityToDTO(ProjectEntity entity);
 
@@ -38,11 +35,6 @@ public abstract class ProjectMapper extends AbstractMapper {
 
     @Mapping(target = "experiments", expression = "java(convertMapToTotalCount(struct.getExperimentsByStatus()))")
     public abstract TotalCounts convertTotalCounts(TotalCountsEntity struct);
-
-    @Nullable
-    protected String dictionaryToString(@Nullable DictionaryItemEntity entity) {
-        return entity != null ? entity.getName() : null;
-    }
 
     @Mapping(target = "date", source = "datetime")
     @Mapping(target = "dateTo", ignore = true)

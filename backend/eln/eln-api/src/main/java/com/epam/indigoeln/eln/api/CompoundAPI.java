@@ -4,7 +4,6 @@ import com.epam.indigoeln.common.model.UploadForm;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.search.SampleSearchResult;
-import com.epam.indigoeln.compound.model.search.SearchCatalog;
 import com.epam.indigoeln.eln.quarkus.cachecontrol.Cached;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
@@ -32,7 +31,10 @@ public interface CompoundAPI extends BaseAPI {
 
     @POST
     @Path("/samples/search")
-    SampleSearchResult search(@Valid FindSamplesRequest request, @Nullable @QueryParam("nextCatalog") SearchCatalog nextCatalog, @Nullable @QueryParam("nextAfter") String nextAfter, @Nullable @QueryParam("limit") Integer limit);
+    SampleSearchResult search(
+            @Valid FindSamplesRequest request,
+            @Nullable @QueryParam("pageSize") Integer pageSize
+    );
 
     @POST
     @Path("/samples/importFromSearch")

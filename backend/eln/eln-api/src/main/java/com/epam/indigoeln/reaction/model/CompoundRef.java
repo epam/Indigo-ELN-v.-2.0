@@ -30,7 +30,7 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
 
     @Nullable
     @SuppressWarnings("unused") // used on frontend
-    String getFormula();
+    MolFormula getFormula();
 
     @Nullable
     StereoisomerCodeRef getStereoisomerCode();
@@ -73,7 +73,7 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
 
         EnteredValue<NoUnit> getExactMass();
 
-        String getFormula();
+        MolFormula getFormula();
 
         String getCalculatedBatchMF();
     }
@@ -106,7 +106,7 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
         private final EnteredValue<NoUnit> exactMass;
 
         @NotNull
-        private final String formula;
+        private final MolFormula formula;
 
         @Nullable
         private final String compoundKey;
@@ -130,7 +130,7 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
         private final UUID compoundID;
 
         @NotNull
-        private final String formula;
+        private final MolFormula formula;
 
         @Nullable
         private final String compoundKey;
@@ -166,7 +166,7 @@ public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, Compoun
         public static final String TYPE = "UNKNOWN";
 
         @Nullable
-        private String formula;
+        private MolFormula formula;
 
         @Setter
         @JsonInclude(JsonInclude.Include.NON_EMPTY)

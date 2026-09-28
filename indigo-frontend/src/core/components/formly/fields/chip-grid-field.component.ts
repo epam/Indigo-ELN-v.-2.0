@@ -1,14 +1,24 @@
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, ViewChild } from '@angular/core';
 import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
+import {
+  MatAutocompleteModule,
+  MatAutocompleteSelectedEvent,
+  MatAutocompleteTrigger,
+} from '@angular/material/autocomplete';
 import { FieldType, FieldTypeConfig, FormlyModule } from '@ngx-formly/core';
+import { Observable, of } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs/operators';
 import { ChipComponent } from '../../common/chip/chip.component';
+
+/** Optional suggestion source: given the current input, returns matching keyword strings. */
+type SuggestFn = (query: string) => Observable<string[]>;
 
 @Component({
   selector: 'eln-formly-chip-grid',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormlyModule, ChipComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormlyModule, ChipComponent, MatAutocompleteModule],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -41,9 +51,15 @@ import { ChipComponent } from '../../common/chip/chip.component';
           [formControl]="inputControl"
           [placeholder]="props.placeholder"
           [formlyAttributes]="field"
+          [matAutocomplete]="auto"
           class="border-none w-full h-auto px-2"
           (keydown)="addChipFromInput($event, chipInput)"
         />
+        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onSuggestionSelected($event, chipInput)">
+          <mat-option *ngFor="let suggestion of suggestions$ | async" [value]="suggestion">
+            {{ suggestion }}
+          </mat-option>
+        </mat-autocomplete>
       </div>
 
       <!-- Error message -->
@@ -73,15 +89,42 @@ export class ChipGridFieldComponent extends FieldType<FieldTypeConfig> implement
   // Store chip items
   items = signal<string[]>([]);
 
+  // Prefix-match suggestions (only populated when a `suggest` source is configured via props)
+  suggestions$?: Observable<string[]>;
+
+  @ViewChild(MatAutocompleteTrigger) autoTrigger?: MatAutocompleteTrigger;
+
   onChange = (value: string[]) => {};
   onTouched = () => {};
 
   ngOnInit(): void {
     this.items.set(this.field.defaultValue || []);
+
+    const suggest = this.props['suggest'] as SuggestFn | undefined;
+    if (suggest) {
+      this.suggestions$ = this.inputControl.valueChanges.pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap((value) => {
+          const query = (value || '').trim();
+          if (!query) {
+            return of([]);
+          }
+          return suggest(query).pipe(catchError(() => of([])));
+        }),
+        // Don't suggest keywords that are already selected
+        map((suggestions) => suggestions.filter((s) => this.items().indexOf(s) === -1)),
+      );
+    }
   }
 
   // Add new chip from input
   addChipFromInput(event: KeyboardEvent, input: HTMLInputElement): void {
+    // When a suggestion is highlighted, let (optionSelected) handle Enter instead of adding free text.
+    if (event.key === 'Enter' && this.autoTrigger?.activeOption) {
+      return;
+    }
+
     const value = (input.value || '').trim();
 
     // Add chip when pressing Enter or comma, if there's a value
@@ -89,6 +132,12 @@ export class ChipGridFieldComponent extends FieldType<FieldTypeConfig> implement
       this.addChip(value);
       event.preventDefault();
     }
+  }
+
+  // Add a chip from a selected suggestion
+  onSuggestionSelected(event: MatAutocompleteSelectedEvent, input: HTMLInputElement): void {
+    this.addChip(event.option.value);
+    input.value = '';
   }
 
   // Add a new chip

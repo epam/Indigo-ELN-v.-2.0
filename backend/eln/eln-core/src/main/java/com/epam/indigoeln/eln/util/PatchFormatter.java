@@ -6,7 +6,10 @@ import com.epam.indigoeln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
 import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.*;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.NullNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ValueNode;
 import com.google.common.base.Preconditions;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
@@ -21,12 +24,17 @@ import java.util.UUID;
 @Dependent
 public class PatchFormatter {
 
+    private static final String SOURCE = "source";
+    private static final String VALUE = "value";
+
     @Inject
     IndigoAPI indigo;
     @Inject
     IndigoRendererAPI indigoRenderer;
     @Inject
     CompoundService compoundService;
+    @Inject
+    JSONPatcher jsonPatcher;
 
     private final GridBuilder grid = new GridBuilder(16);
     private final List<String> path = new ArrayList<>();
@@ -51,7 +59,7 @@ public class PatchFormatter {
         return value;
     }
 
-    private void doFormat(@Nullable JsonNode before, @Nullable JsonNode patch, @Nullable Boolean newOrOld) {
+    private void doFormat(@Nullable JsonNode before, JsonNode patch, @Nullable Boolean newOrOld) {
         String nestedClass = newOrOld == null ? "" : newOrOld ? " new" : " old";
         switch (patch) {
             case ObjectNode objectPatch when (objectPatch.get("$old") instanceof ValueNode || objectPatch.get("$new") instanceof ValueNode) -> {
@@ -70,28 +78,29 @@ public class PatchFormatter {
                     doFormat(before, objectPatch.get("$new"), true);
                 }
             }
-            case ObjectNode objectPatch when (objectPatch.get("value") instanceof ValueNode value && objectPatch.get("unit") instanceof ValueNode unit && objectPatch.get("source") instanceof ValueNode source) -> {
+            case ObjectNode objectPatch when (objectPatch.get(VALUE) instanceof ValueNode value && objectPatch.get("unit") instanceof ValueNode unit && objectPatch.get(SOURCE) instanceof ValueNode source) -> {
                 // EnteredValue created or deleted
                 String s = formatEnteredValue(before == null, value.asText(), objectPatch.get("exactValue"), unit.asText(), source.asText());
                 grid.right(s).left().newRow();
             }
-            case ObjectNode objectPatch when (before instanceof ObjectNode objectBefore && objectBefore.has("value") && objectBefore.has("unit") && objectBefore.has("source")) -> {
+            case ObjectNode _ when (before instanceof ObjectNode objectBefore && objectBefore.has("value") && objectBefore.has("unit") && objectBefore.has("source")) -> {
                 // EnteredValue changed
-                String oldSource = objectBefore.get("source").asText();
-                String oldValue = objectBefore.get("value").asText();
+                String oldSource = objectBefore.get(SOURCE).asText();
+                String oldValue = objectBefore.get(VALUE).asText();
                 String oldUnit = objectBefore.get("unit").asText();
-                String newSource = objectPatch.get("source") instanceof ObjectNode s && s.get("$new") instanceof ValueNode n ? n.asText() : oldSource;
-                String newValue = objectPatch.get("value") instanceof ObjectNode v && v.get("$new") instanceof ValueNode n ? n.asText() : oldValue;
-                String newUnit = objectPatch.get("unit") instanceof ObjectNode u && u.get("$new") instanceof ValueNode n ? n.asText() : oldUnit;
-                boolean newOverwritten = objectPatch.get("overwritten") instanceof ObjectNode o && o.get("$new") instanceof BooleanNode b && b.booleanValue();
+                ObjectNode objectAfter = (ObjectNode) jsonPatcher.apply(before, patch);
+                String newSource = objectAfter.has("source") ? objectAfter.get("source").asText() : null;
+                String newValue = objectAfter.has("value") ? objectAfter.get("value").asText() : null;
+                String newUnit = objectAfter.has("unit") ? objectAfter.get("unit").asText() : null;
+                boolean newOverwritten = objectAfter.has("overwritten") && objectAfter.get("overwritten").asBoolean();
                 String s = "%s → %s%s".formatted(
                         formatEnteredValue(false, oldValue, objectBefore.get("exactValue"), oldUnit, oldSource),
-                        formatEnteredValue(true, newValue, objectPatch.get("exactValue"), newUnit, newSource),
+                        formatEnteredValue(true, newValue, objectAfter.get("exactValue"), newUnit, newSource),
                         newOverwritten ? " <span class='warning'>[overwritten]</span>" : ""
                 );
                 grid.right(s).left().newRow();
             }
-            case ObjectNode objectPatch when (objectPatch.size() == 2 && objectPatch.get("id") instanceof ValueNode id && objectPatch.get("name") instanceof ValueNode name) -> {
+            case ObjectNode objectPatch when (objectPatch.size() == 2 && objectPatch.get("id") instanceof ValueNode _ && objectPatch.get("name") instanceof ValueNode name) -> {
                 // DictionaryRef or ExperimentRef
                 String s = "<span class='%s'>%s</span>".formatted(nestedClass, name);
                 grid.right(s).left().newRow();
@@ -163,7 +172,10 @@ public class PatchFormatter {
         }
     }
 
-    private static String formatEnteredValue(boolean newOrOld, String value, @Nullable JsonNode exactValue, String unit, String source) {
+    private static String formatEnteredValue(boolean newOrOld, @Nullable String value, @Nullable JsonNode exactValue, @Nullable String unit, @Nullable String source) {
+        if (value == null || unit == null || source == null) {
+            return "<span class='%s'>null</span>".formatted(newOrOld ? "new" : "old");
+        }
         unit = MeasurementUnit.ALL_UNITS.get(unit).getDisplayName();
         source = Character.isDigit(source.charAt(0)) ? "user-entered" : source;
         String exactValueStr = exactValue != null ? "&ensp;(exact value %s)".formatted(exactValue.doubleValue()) : "";
@@ -171,6 +183,8 @@ public class PatchFormatter {
     }
 
     private static class GridBuilder {
+
+        private static final String TAKEN = "__taken__";
 
         private final int columns;
         private final List<@Nullable String[]> rows = new ArrayList<>();
@@ -205,31 +219,37 @@ public class PatchFormatter {
 
         String build() {
             StringBuilder sb = new StringBuilder();
-            String columnsCss = "repeat(%d, fit-content(200px)) 1fr".formatted(columns - 1);
-            sb.append("<div style='display: grid; grid-template-columns: %s; gap: 4px; font-size: small'>\n".formatted(columnsCss));
+            sb.append("<table class='patch-grid'>\n");
             rows.removeIf(row -> StreamEx.of(row).nonNull().findAny().isEmpty());
-            for (int rowNo = 0; rowNo < rows.size(); rowNo++) {
-                String[] row = rows.get(rowNo);
-                int last = columns - 1;
-                while (last >= 0 && row[last] == null) {
-                    last--;
-                }
-                if (last == 0) {
-                    continue;
-                }
-                for (int i = 0; i <= last; i++) {
-                    if (row[i] != null) {
-                        int xSpan = i == last ? columns - i : 1;
-                        int ySpan = 1;
-                        while (rowNo + ySpan < rows.size() && rows.get(rowNo + ySpan)[i] == null) {
-                            ySpan++;
+            int height = rows.size();
+            int width = columns;
+            @Nullable String[][] grid = rows.toArray(new String[height][width]);
+            for (int y = 0; y < height; y++) {
+                sb.append("<tr>\n");
+                for (int x = 0; x < width; x++) {
+                    String value = grid[y][x];
+                    if (!TAKEN.equals(value)) {
+                        if (value == null) {
+                            // orphaned empty cell: not covered by any span, has nothing to display
+                            sb.append("<td></td>\n");
+                            continue;
                         }
-                        String css = "grid-row: %d / span %d; grid-column: %d / span %d".formatted(rowNo + 1, ySpan, i + 1, xSpan);
-                        sb.append("<div style='%s'>%s</div>\n".formatted(css, row[i]));
+                        int yLast = y, xLast = x;
+                        while (xLast + 1 < width && grid[y][xLast + 1] == null) {
+                            grid[y][++xLast] = TAKEN;
+                        }
+                        if (xLast == x) {
+                            while (yLast + 1 < height && grid[yLast + 1][x] == null) {
+                                grid[++yLast][x] = TAKEN;
+                            }
+                        }
+                        int ySpan = yLast - y + 1, xSpan = xLast - x + 1;
+                        sb.append("<td colspan='%d' rowspan='%d'>%s</td>\n".formatted(xSpan, ySpan, value));
                     }
                 }
+                sb.append("</tr>\n");
             }
-            sb.append("</div>\n");
+            sb.append("</table>\n");
             return sb.toString();
         }
     }

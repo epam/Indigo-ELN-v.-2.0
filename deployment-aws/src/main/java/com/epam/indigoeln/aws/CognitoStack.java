@@ -35,7 +35,8 @@ public class CognitoStack {
                 .oAuth(OAuthSettings.builder()
                         .callbackUrls(List.of(
                                 "https://" + props.domainName() + "/",
-                                "http://localhost:5173/",
+                                "https://" + props.domainName() + "/frontend2/",
+                                "http://localhost:5173/frontend2/",
                                 "http://localhost:4200"
                         ))
                         .build()

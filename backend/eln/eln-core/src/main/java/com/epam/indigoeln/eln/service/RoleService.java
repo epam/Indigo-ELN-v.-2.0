@@ -1,6 +1,5 @@
 package com.epam.indigoeln.eln.service;
 
-import com.epam.indigoeln.common.exception.EntityNotFoundException;
 import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.eln.entity.RoleEntity;
 import com.epam.indigoeln.eln.mapper.RoleMapper;
@@ -54,10 +53,7 @@ public class RoleService {
 
     public RoleDTO updateRole(UUID roleID, RoleEditRequest request) {
         aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_ROLES);
-        RoleEntity role = roleRepository.findById(roleID);
-        if (role == null) {
-            throw new EntityNotFoundException(ELNEntityType.ROLE, roleID);
-        }
+        RoleEntity role = roleRepository.get(roleID);
         editProperty(request.getName(), role::setName);
         editProperty(request.getPermissions(), p -> role.setPermissions(p.toArray(ApplicationPermission[]::new)));
         return roleMapper.entityToDTO(role);
@@ -65,10 +61,7 @@ public class RoleService {
 
     public void deleteRole(@NotNull UUID roleID) {
         aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_ROLES);
-        RoleEntity role = roleRepository.findById(roleID);
-        if (role == null) {
-            throw new EntityNotFoundException(ELNEntityType.ROLE, roleID);
-        }
+        RoleEntity role = roleRepository.get(roleID);
         roleRepository.delete(role);
     }
 }

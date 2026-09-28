@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, OnInit } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { ReactionOutput } from '@core/types/entities/experiments/experiment.i';
 import {
   ColumnConfig,
@@ -19,7 +19,7 @@ import { ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
   templateUrl: './reaction-products-table.component.html',
   imports: [EditableDataTableComponent],
 })
-export class ReactionProductsTableComponent implements OnInit {
+export class ReactionProductsTableComponent {
   private experimentDetailService = inject(ExperimentDetailService);
   private builtInDictionaryService = inject(BuiltInDictionaryService);
 
@@ -31,11 +31,7 @@ export class ReactionProductsTableComponent implements OnInit {
     return this.reaction().outputs.filter((p) => p.intended);
   });
 
-  saltCodes = computed(() => this.builtInDictionaryService.getDictionaryItem(BuiltInDictionary.SALT_CODE));
-
-  ngOnInit() {
-    this.builtInDictionaryService.load([BuiltInDictionary.SALT_CODE]);
-  }
+  saltCodes = this.builtInDictionaryService.getDictionaryItems(BuiltInDictionary.SALT_CODE);
 
   columns: ColumnConfig<ReactionOutput>[] = [
     {
@@ -100,30 +96,31 @@ export class ReactionProductsTableComponent implements OnInit {
       id: 'saltCode',
       header: 'Salt Code',
       type: ColumnInputType.SELECT,
-      field: (row) => row.compound.saltCode?.name ?? null,
+      field: (row) => row.compound.saltCode ?? null,
       editable: (row) => row.compound.type === CompoundType.VIRTUAL,
       onSave: (row, selectedSaltCode: DictionaryItemRef | null) => {
         this.experimentDetailService
           .updateDataModel({
-            type: 'SetOutputSaltCode',
+            type: 'SetOutputRowSaltCode',
             anchor: row.anchor,
             saltCode: selectedSaltCode,
           })
           .subscribe({});
       },
-      options: this.saltCodes(),
+      options: this.saltCodes,
     },
     {
       id: 'saltEQ',
       header: 'Salt EQ',
       type: ColumnInputType.NUMBER,
       field: (row) => row.compound.saltEQ?.toString(),
+      editable: (row) => row.compound.saltCode != null,
       onSave: (row, value: string | null) => {
         this.experimentDetailService
           .updateDataModel({
-            type: 'SetOutputSaltEQ',
+            type: 'SetOutputRowSaltEQ',
             anchor: row.anchor,
-            saltEQ: parseInt(value),
+            saltEQ: value,
           })
           .subscribe({});
       },

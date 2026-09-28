@@ -34,10 +34,6 @@ public class LoggingFilter implements ContainerRequestFilter {
     }
 
     private void logBody(ContainerRequestContext requestContext) throws IOException {
-        String mediaType = requestContext.getMediaType() != null
-                ? requestContext.getMediaType().toString()
-                : "";
-
         InputStream entityStream = requestContext.getEntityStream();
         if (entityStream == null) {
             return;

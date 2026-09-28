@@ -192,6 +192,14 @@
     margin: 0;
     padding: 12px;
   }
+  .audit-log .patch-grid {
+    border-collapse: separate;
+    border-spacing: 4px;
+    font-size: small;
+  }
+  .audit-log .patch-grid td {
+    vertical-align: top;
+  }
   .audit-log .old {
     background-color: #f8d7da;
   }
@@ -299,7 +307,7 @@ function makeEntry(rev) {
     <div class="entry-body"></div>`;
 
   const body = d.querySelector('.entry-body');
-  if (rev.messages != null && rev.messages.length > 0) {
+  if (rev.messages.length > 0) {
     body.appendChild(makeSection('Messages', '<pre class="code-block">' + rev.messages.join('\n') + '</pre>', true));
   }
   body.appendChild(makeSection('Mutation',     '<pre class="code-block">' + renderJson(rev.mutation) + '</pre>', false));

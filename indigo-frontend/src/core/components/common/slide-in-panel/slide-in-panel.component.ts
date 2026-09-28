@@ -3,28 +3,33 @@ import {
   ComponentRef,
   computed,
   effect,
+  HostListener,
   input,
   output,
   signal,
+  TemplateRef,
   Type,
   ViewChild,
   ViewContainerRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
 
 export interface SlideInPanelConfig {
   inputs?: Record<string, unknown>;
+  header?: TemplateRef<any>;
 }
 
 @Component({
   selector: 'eln-slide-in-panel',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatIcon],
   templateUrl: './slide-in-panel.component.html',
 })
 export class SlideInPanelComponent {
   topOffset = input<string>('4.5rem');
   width = input<string>('50%');
+  header = input<TemplateRef<any> | null>(null);
 
   afterClose = output<void>();
 
@@ -59,6 +64,13 @@ export class SlideInPanelComponent {
   close(): void {
     this._isOpen.set(false);
     this.afterClose.emit();
+  }
+
+  @HostListener('document:keydown.escape')
+  protected onEscapeKey(): void {
+    if (this._isOpen()) {
+      this.close();
+    }
   }
 
   protected onBackdropClick(): void {

@@ -2,17 +2,18 @@ import { FormDialogComponent } from '@core/components/common/form-dialog/form-di
 import { ApiService } from '@core/services/api.service';
 import { Notebook } from '@core/types/entities/notebook.i';
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { toHTML } from 'ngx-editor';
 import { NOTEBOOK_NAME_LENGTH } from '../notebook.constants';
-import { catchError, map, of, switchMap } from 'rxjs';
+import { catchError, map, of, switchMap, tap } from 'rxjs';
 import { NotificationType } from '@/core/types/notification.i';
 import { NotificationService } from '@/core/services/notification/notification.service';
 import { Router } from '@angular/router';
+import { ProjectService } from '@core/services/project/project.service';
 
 @Component({
   standalone: true,
@@ -20,11 +21,15 @@ import { Router } from '@angular/router';
   imports: [MatInputModule, FormsModule, ReactiveFormsModule, CommonModule, FormDialogComponent],
   templateUrl: './notebook-add.component.html',
 })
-export class NotebookAddComponent {
+export class NotebookAddComponent implements OnInit {
   projectId: string;
+  loading = true;
+  loadError: string | null = null;
+  model: { name?: string } = {};
   dialogRef = inject(MatDialogRef);
   notificationService = inject(NotificationService);
   router = inject(Router);
+  projectService = inject(ProjectService);
 
   fields: FormlyFieldConfig[] = [
     {
@@ -80,24 +85,43 @@ export class NotebookAddComponent {
   ];
 
   constructor(protected service: ApiService<Notebook>) {}
+
+  ngOnInit() {
+    this.service.request<string>('get', 'notebooks/next-number').subscribe({
+      next: (name) => {
+        this.model = { name };
+        this.loading = false;
+      },
+      error: () => {
+        this.loadError = 'Failed to load next notebook number';
+        this.loading = false;
+      },
+    });
+  }
+
   get uniqueNameToastMessage(): string {
     const name = this.fields[0]?.formControl?.value ?? '';
     return `Notebook with name '${name}' already exists`;
   }
-  createNotebook(data: Notebook) {
-    this.service
+
+  createNotebookFn = (data: Notebook) => {
+    if (!this.projectService.canCreateNotebook()) return of(null);
+
+    return this.service
       .create(`projects/${this.projectId}/notebooks`, {
         ...data,
         description: typeof data.description === 'object' ? toHTML(data.description) : data.description,
       })
-      .subscribe((newNotebook: Notebook) => {
-        this.notificationService.notify({
-          message: 'Notebook successfully created.',
-          type: NotificationType.Success,
-          isInline: false,
-        });
-        this.dialogRef.close('refresh');
-        this.router.navigate(['/projects', this.projectId, 'notebooks', newNotebook.id]);
-      });
-  }
+      .pipe(
+        tap((newNotebook: Notebook) => {
+          this.notificationService.notify({
+            message: 'Notebook successfully created.',
+            type: NotificationType.Success,
+            isInline: false,
+          });
+          this.dialogRef.close('refresh');
+          this.router.navigate(['/notebooks', newNotebook.id]);
+        }),
+      );
+  };
 }

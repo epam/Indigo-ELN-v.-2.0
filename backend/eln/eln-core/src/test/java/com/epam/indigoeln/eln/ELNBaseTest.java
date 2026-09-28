@@ -7,18 +7,25 @@ import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.eln.api.ELNInternalClient;
 import com.epam.indigoeln.eln.client.*;
 import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.test.HibernateLazyLoadStatisticsExtension;
 import com.epam.indigoeln.reaction.util.ExperimentObject;
 import com.epam.indigoeln.reports.api.ReportsClient;
 import com.epam.indigoeln.signature.api.SignatureAdminClient;
 import com.epam.indigoeln.signature.api.SignatureClient;
+import com.epam.indigoeln.test.APICallException;
 import com.epam.indigoeln.test.BaseTest;
+import org.apache.http.HttpStatus;
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
+@ExtendWith(HibernateLazyLoadStatisticsExtension.class)
 public abstract class ELNBaseTest extends BaseTest {
 
     public static final RecursiveComparisonConfiguration COMPARE_WITHOUT_MODIFIED_AT = RecursiveComparisonConfiguration.builder()
@@ -71,18 +78,16 @@ public abstract class ELNBaseTest extends BaseTest {
     protected TemplateClient templateClient;
     protected CompoundClient compoundClient;
     protected MiscClient miscClient;
-    protected TestSupportClient testSupportClient;
     protected UserClient userClient;
     protected DictionaryClient dictionaryClient;
     protected RoleClient roleClient;
     protected GlobalSearchClient globalSearchClient;
     protected ELNInternalClient elnInternalClient;
+    protected TestSupportClient testSupportClient;
 
     protected ReportsClient reportsClient;
     protected SignatureClient signatureClient;
     protected UploadClient uploadClient;
-
-    private final AtomicInteger lastUsedNotebookNumber = new AtomicInteger();
 
     protected UUID johnUserID;
     protected UUID willowUserID;
@@ -102,9 +107,9 @@ public abstract class ELNBaseTest extends BaseTest {
         userClient = buildClient(UserClient.class);
         dictionaryClient = buildClient(DictionaryClient.class);
         roleClient = buildClient(RoleClient.class);
-        testSupportClient = buildClient(TestSupportClient.class);
         globalSearchClient = buildClient(GlobalSearchClient.class);
         elnInternalClient = buildClient(ELNInternalClient.class);
+        testSupportClient = buildClient(TestSupportClient.class);
         reportsClient = buildClient(ReportsClient.class);
         uploadClient = buildClient(UploadClient.class);
         signatureClient = buildClient(SignatureClient.class);
@@ -130,12 +135,40 @@ public abstract class ELNBaseTest extends BaseTest {
         return new ExperimentObject(experiment, experimentClient, compoundClient, miscClient);
     }
 
-    protected String nextNotebookName() {
-        return "%08d".formatted(lastUsedNotebookNumber.incrementAndGet());
+    // getNextNotebookNumber() isn't race-safe (no DB-level reservation), so creation is synchronized.
+    protected synchronized NotebookDetailsDTO createNotebook(UUID projectId) {
+        return notebookClient.createNotebook(projectId, new NotebookRequest(notebookClient.getNextNotebookNumber()));
     }
 
+    protected synchronized NotebookDetailsDTO createNotebook(UUID projectId, String description) {
+        return notebookClient.createNotebook(projectId, new NotebookRequest(notebookClient.getNextNotebookNumber(), description));
+    }
+
+    @SuppressWarnings("SqlWithoutWhere")
     protected void cleanupDatabase() {
-        testSupportClient.cleanupDatabase();
+        try (Connection connection = databasePool.get().getConnection()) {
+            connection.setAutoCommit(false);
+            try (Statement statement = connection.createStatement()) {
+                // experiments, notebooks, projects
+                statement.executeUpdate("delete from Experiment_Attachment");
+                statement.executeUpdate("delete from Notebook_Attachment");
+                statement.executeUpdate("delete from Project_Attachment");
+                statement.executeUpdate("delete from Experiment_Revision");
+                statement.executeUpdate("delete from Experiment");
+                statement.executeUpdate("delete from Notebook_Revision");
+                statement.executeUpdate("delete from Notebook");
+                statement.executeUpdate("delete from Project_Revision");
+                statement.executeUpdate("delete from Project");
+                statement.executeUpdate("delete from Template where name != 'Default'");
+                // samples, compounds
+                statement.executeUpdate("delete from Sample");
+                statement.executeUpdate("delete from Compound");
+                statement.executeUpdate("alter sequence compound_str_code_compound_seq restart");
+            }
+            connection.commit();
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to clean up test database", e);
+        }
     }
 
     private void createBasicTestData() {
@@ -151,11 +184,14 @@ public abstract class ELNBaseTest extends BaseTest {
         String oldUsername = username.get();
         try {
             username.set(ADMIN_USERNAME);
-            Page<UserDTO> found = userClient.getUsers(null, request.getUsername(), Paging.DEFAULT);
-            if (!found.getItems().isEmpty()) {
-                return found.getItems().getFirst();
+            try {
+                return userClient.getUser(request.getUsername());
+            } catch (APICallException e) {
+                if (e.getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+                    return userClient.createUser(request);
+                }
+                throw e;
             }
-            return userClient.createUser(request);
         } finally {
             username.set(oldUsername);
         }

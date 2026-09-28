@@ -29,7 +29,7 @@ public interface UserAPI extends BaseAPI {
 
     @GET
     @Path("/users")
-    Page<UserDTO> getUsers(@QueryParam("search") @Nullable String search, @QueryParam("username") @Nullable String username, @BeanParam Paging paging);
+    Page<UserDTO> getUsers(@QueryParam("search") @Nullable String search, @BeanParam Paging paging);
 
     @GET
     @Path("/users/{username}")
@@ -39,7 +39,7 @@ public interface UserAPI extends BaseAPI {
     @Path("/users/{username}/picture")
     @Cached(interval = 1, unit = ChronoUnit.DAYS)
     @Produces("image/png")
-    byte[] getUserPicture(@PathParam("username") String username, @QueryParam("small") @Nullable Boolean large);
+    byte[] getUserPicture(@PathParam("username") String username, @QueryParam("large") @Nullable Boolean large);
 
     @GET
     @Path("/users/suggest")

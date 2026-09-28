@@ -1,11 +1,11 @@
 package com.epam.indigoeln.common.storage;
 
-import jakarta.validation.constraints.NotEmpty;
+import java.util.List;
 
 public interface FileStorage {
+
+    List<String> list(String key);
     void put(String key, byte[] bytes);
-
-    byte[] get(@NotEmpty String name);
-
+    byte[] get(String key);
     String createPresignedUrl(String keyName);
 }

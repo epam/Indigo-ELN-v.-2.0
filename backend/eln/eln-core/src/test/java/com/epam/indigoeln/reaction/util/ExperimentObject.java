@@ -120,7 +120,7 @@ public class ExperimentObject {
     }
 
     public void mutateSetSchemeFromResource(String resourceName) {
-        String rxnfile = ModelUtil.loadResourceAsString(getClass(), resourceName);
+        String rxnfile = ModelUtil.loadResourceAsString(resourceName);
         mutate(new ReactionMutation.SetScheme(reaction().getAnchor(), rxnfile));
     }
 
@@ -129,7 +129,7 @@ public class ExperimentObject {
         Map<InputAnchor, String> requests = experimentClient.analyzeRXN(id, reaction().getAnchor());
         requests.forEach((anchor, structure) -> {
             FindSamplesRequest findSamplesRequest = new FindSamplesRequest().withCatalogs(Set.of(ELN)).withStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, structure));
-            SampleSearchResult samples = compoundClient.search(findSamplesRequest, null, null, Paging.DEFAULT_PAGE_SIZE);
+            SampleSearchResult samples = compoundClient.search(findSamplesRequest, Paging.DEFAULT_PAGE_SIZE);
             if (!samples.items().isEmpty()) {
                 sampleIDs.put(anchor, checkNotNull(samples.items().getFirst().getId()));
             }
@@ -181,7 +181,7 @@ public class ExperimentObject {
     @SneakyThrows
     public void generateDetailsReport(File destinationFile) {
         try (Response response = miscClient.generateExperimentDetailsReport(id)) {
-            System.err.println("Experiment details report is available at file://///wsl.localhost/Ubuntu" + destinationFile.getAbsolutePath());
+            System.err.println("Experiment details report is available at file://" + destinationFile.getAbsolutePath());
             byte[] bytes = (byte[]) response.getEntity();
             Files.write(destinationFile.toPath(), bytes);
         }

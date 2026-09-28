@@ -19,15 +19,15 @@ public class MutationHandlerRegistry {
 
     @Any
     @Inject
-    Instance<MutationHandler<?, ?, ?, ?, ?>> handlers;
+    Instance<MutationHandler<?, ?, ?, ?, ?, ?>> handlers;
     
     @SuppressWarnings("unchecked")
     public <H, R> R withHandler(Mutation mutation, Function<H, R> block) {
-        Instance<MutationHandler<?, ?, ?, ?, ?>> selected = handlers.select(new MutationHandlerForLiteral(mutation.getClass()));
+        Instance<MutationHandler<?, ?, ?, ?, ?, ?>> selected = handlers.select(new MutationHandlerForLiteral(mutation.getClass()));
         if (selected.isUnsatisfied()) {
             throw new IllegalArgumentException("No handler found for: " + mutation.getClass().getName());
         }
-        MutationHandler<?, ?, ?, ?, ?> handler = selected.get();
+        MutationHandler<?, ?, ?, ?, ?, ?> handler = selected.get();
         try {
             return block.apply((H) handler);
         } finally {

@@ -1,29 +1,16 @@
 import { IdentityService } from '@/core/services/identity.service';
-import { CurrentUser } from '@/core/types/entities/user.i';
-import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, Router } from '@angular/router';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { ApplicationPermission } from '@/core/types/entities/user.i';
+import { inject } from '@angular/core';
+import { CanActivateFn, Router, UrlTree } from '@angular/router';
+import { map, Observable, take } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root',
-})
-export class RoleGuard implements CanActivate {
-  constructor(
-    private identityService: IdentityService,
-    private router: Router,
-  ) {}
+export const roleGuard: CanActivateFn = (route): Observable<boolean | UrlTree> => {
+  const identityService = inject(IdentityService);
+  const router = inject(Router);
+  const requiredPermission = route.data['requiredPermission'] as ApplicationPermission;
 
-  canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
-    const requiredPermission = route.data['requiredPermission'];
-    return this.identityService.user$.pipe(
-      map((user: CurrentUser) => {
-        const hasPermission = user.permissions.some((permission) => permission === requiredPermission);
-        if (!hasPermission) {
-          this.router.navigate(['/']);
-        }
-        return hasPermission;
-      }),
-    );
-  }
-}
+  return identityService.user$.pipe(
+    take(1),
+    map((user) => user.permissions.includes(requiredPermission) || router.parseUrl('/')),
+  );
+};

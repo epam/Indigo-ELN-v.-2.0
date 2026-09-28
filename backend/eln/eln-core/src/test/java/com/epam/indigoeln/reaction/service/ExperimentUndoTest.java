@@ -19,8 +19,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.openapitools.jackson.nullable.JsonNullable;
 
-import java.util.*;
-import java.util.stream.Stream;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,7 +41,7 @@ public class ExperimentUndoTest extends MutationsTestBase {
         therapeuticArea = dictionaryClient.getFirst(BuiltInDictionary.THERAPEUTIC_AREA);
         projectCode = dictionaryClient.getFirst(BuiltInDictionary.PROJECT_CODE);
         ProjectDetailsDTO project = getOrCreateProject("ExperimentUndoTest");
-        notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        notebook = createNotebook(project.getId());
         experiment1 = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         experiment2 = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
     }
@@ -72,13 +75,6 @@ public class ExperimentUndoTest extends MutationsTestBase {
     }
 
     @Test
-    void testSimpleNotUndoable() {
-        experiment.mutate(new ExperimentMutation.CompleteExperiment(), false);
-        assertThatClientCall(() -> experiment.mutate(new ExperimentMutation.Undo()))
-                .isBadRequest("Not undoable: Experiment completed");
-    }
-
-    @Test
     void testSimpleNotRedoable() {
         assertThatClientCall(() -> {
             experiment.mutate(new ExperimentMutation.Redo());
@@ -89,11 +85,12 @@ public class ExperimentUndoTest extends MutationsTestBase {
     void testAttributesUndoRedo() {
         String oldTitle = experiment.experiment().getTitle();
 
-        experiment.mutate(new ExperimentMutation.EditExperimentAttributes(
+        experimentClient.editExperiment(experiment.id(), new ExperimentEditRequest(
                 JsonNullable.of("newTitle"), JsonNullable.of(therapeuticArea), JsonNullable.of(projectCode)
                 , JsonNullable.of("newDescription"), JsonNullable.of("newLiterature")
                 , JsonNullable.of(Set.of(experiment1.toRef())), JsonNullable.of(Set.of(experiment2.toRef())), JsonNullable.of(Set.of(experiment1.toRef(), experiment2.toRef()))
-        ), false);
+        ));
+        experiment.invalidate();
         assertUpdatedAttributes();
 
         experiment.mutate(new ExperimentMutation.Undo());
@@ -143,10 +140,10 @@ public class ExperimentUndoTest extends MutationsTestBase {
 
     @Test
     void testNotUndoable() {
-        experiment.mutate(new ExperimentMutation.CompleteExperiment(), false);
+        experimentClient.completeExperiment(experiment.id());
         assertThatClientCall(() -> {
             experiment.mutate(new ExperimentMutation.Undo(), false);
-        }).isBadRequest("Not undoable: Experiment completed");
+        }).isBadRequest("Not undoable: Version 1");
     }
 
     @Test
@@ -158,10 +155,10 @@ public class ExperimentUndoTest extends MutationsTestBase {
 
     @Test
     void testParallelEditsUndoRedo() {
-        experiment.mutate(new ExperimentMutation.EditExperimentAccess(Stream.of(
-                AccessForm.of(LISA_USERNAME, AccessLevel.ADMIN),
-                AccessForm.of(BART_USERNAME, AccessLevel.ADMIN)
-        ).flatMap(Collection::stream).toList()), false);
+        experimentClient.updateExperimentAccess(experiment.id(), List.of(
+                new AccessForm(LISA_USERNAME, AccessLevel.ADMIN, false),
+                new AccessForm(BART_USERNAME, AccessLevel.ADMIN, false)
+        ));
         experiment.mutateAddEmptyInput();
         experiment.mutateAddEmptyInput();
 

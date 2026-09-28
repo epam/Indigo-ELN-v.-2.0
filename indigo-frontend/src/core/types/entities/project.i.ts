@@ -1,7 +1,8 @@
 import { ExperimentStatus } from '@/core/enums/experiment-status.enum';
-import { BaseEntity } from './base-entity.i';
-import { Attachment } from './attachment.i';
 import { ACLEntry } from './acl.i';
+import { Attachment } from './attachment.i';
+import { BaseEntity } from './base-entity.i';
+import { PermissionedEntity } from './permission.i';
 
 export interface TeamMember {
   name: string;
@@ -11,7 +12,7 @@ export interface TeamMember {
   inherited?: boolean;
 }
 
-export interface Project extends BaseEntity {
+export interface Project extends BaseEntity, PermissionedEntity {
   name: string;
   notebookCount: number;
   experimentCount: number;

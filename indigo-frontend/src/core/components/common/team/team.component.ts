@@ -1,8 +1,16 @@
+import { TextOverflowTooltipDirective } from '@/core/directives/text-overflow-tooltip.directive';
+import { AclLevel, ELIGIBLE_ACL_LEVELS, isInmutableLevel } from '@/core/enums/acl-levels.enum';
+import { NormalizeLabelPipe } from '@/core/pipes/normalizeLabe.pipe';
+import { ApiService } from '@/core/services/api.service';
+import { ACLEntry, ACLUpdate } from '@/core/types/entities/acl.i';
+import { ApplicationPermission, UserRef } from '@/core/types/entities/user.i';
+import { CommonModule } from '@angular/common';
 import {
   Component,
   computed,
   EventEmitter,
   inject,
+  input,
   Input,
   OnInit,
   Output,
@@ -10,24 +18,19 @@ import {
   ViewChild,
   WritableSignal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { SvgIconComponent } from '@core/components/common/svg-icon/svg-icon.component';
+import { PermissionService } from '@core/services/permission/permission.service';
+import { PermissionedEntity } from '@core/types/entities/permission.i';
+import { NgSelectComponent, NgSelectModule } from '@ng-select/ng-select';
+import { finalize } from 'rxjs';
+import { InitialsPipe } from '../../../pipes/avatars.pipe';
+import { ButtonComponent } from '../button/button.component';
 import { CardComponent } from '../card/card.component';
 import { CopyComponent } from '../copy/copy.component';
 import { CounterComponent } from '../counter/counter.component';
 import { DropdownMenuComponent } from '../dropdown-menu/dropdown-menu.component';
-import { ACLEntry, ACLUpdate } from '@/core/types/entities/acl.i';
-import { AclLevel, ELIGIBLE_ACL_LEVELS, isInmutableLevel } from '@/core/enums/acl-levels.enum';
-import { ApiService } from '@/core/services/api.service';
-import { finalize } from 'rxjs';
-import { NormalizeLabelPipe } from '@/core/pipes/normalizeLabe.pipe';
-import { ButtonComponent } from '../button/button.component';
-import { NgSelectComponent, NgSelectModule } from '@ng-select/ng-select';
-import { FormsModule } from '@angular/forms';
 import { TeamComponentConfig } from './team.config';
-import { InitialsPipe } from '../../../pipes/avatars.pipe';
-import { TextOverflowTooltipDirective } from '@/core/directives/text-overflow-tooltip.directive';
-import { UserRef } from '@/core/types/entities/user.i';
-import { SvgIconComponent } from '@core/components/common/svg-icon/svg-icon.component';
 
 type UserRefWithState = UserRef & { added?: boolean };
 
@@ -57,7 +60,7 @@ interface TeamLoadingState {
   ],
 })
 export class TeamComponent implements OnInit {
-  @Input() entityId?: string;
+  @Input({ required: true }) entityId: string;
   @Input() set team(value: ACLEntry[]) {
     this._team.set(value);
     this.rebuildSuggestionsState();
@@ -65,7 +68,16 @@ export class TeamComponent implements OnInit {
   private _team: WritableSignal<ACLEntry[]> = signal<ACLEntry[]>([]);
   @Input({ required: true }) config: TeamComponentConfig;
   @Input() showHeader = true;
+  requiredPermission = input<ApplicationPermission | null>(null);
+  entity = input<PermissionedEntity | null>(null);
   @Output() teamChanged = new EventEmitter<ACLEntry[]>();
+
+  private permissionService = inject(PermissionService);
+
+  canManage = computed(() => {
+    const permission = this.requiredPermission();
+    return permission == null || this.permissionService.hasEntityPermission(permission, this.entity());
+  });
 
   userSuggestions: UserRefWithState[] = [];
   selectedUsers: string[] = [];
@@ -92,7 +104,6 @@ export class TeamComponent implements OnInit {
   @ViewChild(NgSelectComponent) ngSelectComponent!: NgSelectComponent;
 
   ngOnInit(): void {
-    if (!this.entityId) console.warn('TeamComponent initialized without entityId');
     this.loading.update((l) => ({ ...l, suggestions: true }));
     this.api
       .request<UserRef[]>('get', 'users/suggest')
@@ -110,6 +121,8 @@ export class TeamComponent implements OnInit {
   }
 
   addSelectedUsers(): void {
+    if (!this.canManage()) return;
+
     const endpoint = this.endpoint();
     if (!endpoint) {
       console.error('Cannot add users: missing entity id');
@@ -137,6 +150,8 @@ export class TeamComponent implements OnInit {
   }
 
   updateAclLevel(member: ACLEntry, rawLevel: string): void {
+    if (!this.canManage()) return;
+
     const newLevel = AclLevel[rawLevel as keyof typeof AclLevel];
     if (!newLevel) {
       console.error('Invalid ACL level:', rawLevel);
@@ -171,7 +186,6 @@ export class TeamComponent implements OnInit {
 
   private endpoint(): string {
     const id = this.entityId;
-    if (!id) return '';
     return this.config.buildAccessEndpoint(id);
   }
 

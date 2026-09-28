@@ -16,14 +16,13 @@ import io.quarkus.test.security.TestSecurity;
 import jakarta.ws.rs.core.CacheControl;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.RuntimeDelegate;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
@@ -47,7 +46,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         therapeuticAreas = dictionaryClient.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA);
         projectCodes = dictionaryClient.getDictionary(BuiltInDictionary.PROJECT_CODE);
         project = projectClient.createProject(new ProjectRequest("ExperimentServiceTest" + UUID.randomUUID()));
-        notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        notebook = createNotebook(project.getId());
     }
 
     @Test
@@ -104,7 +103,7 @@ class ExperimentServiceTest extends ELNBaseTest {
     @Test
     void testGetExperiments() {
         ExperimentDetailsDTO createdExperiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
-        Page<ExperimentDTO> experiments = experimentClient.getProjectExperiments(project.getId(), null, null, null, Paging.DEFAULT);
+        Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(notebook.getId(), null, null, null, null, Paging.DEFAULT);
         assertThat(experiments.getItems()).hasSize(1).first().satisfies(experiment -> {
             assertThat(experiment.getId()).isNotNull();
             assertThat(experiment.getName()).isEqualTo(createdExperiment.getName());
@@ -121,7 +120,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
 
-        Page<ExperimentDTO> experiments = experimentClient.getProjectExperiments(project.getId(), null, SortOrder.EARLIEST, null, Paging.DEFAULT);
+        Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(notebook.getId(), null, SortOrder.EARLIEST, null, null, Paging.DEFAULT);
 
         assertThat(experiments.getItems())
                 .isSortedAccordingTo(Comparator.comparing(ExperimentDTO::getModifiedAt));
@@ -133,10 +132,44 @@ class ExperimentServiceTest extends ELNBaseTest {
         experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
 
-        Page<ExperimentDTO> experiments = experimentClient.getProjectExperiments(project.getId(), null, SortOrder.LATEST, null, Paging.DEFAULT);
+        Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(notebook.getId(), null, SortOrder.LATEST, null, null, Paging.DEFAULT);
 
         assertThat(experiments.getItems())
                 .isSortedAccordingTo(Comparator.comparing(ExperimentDTO::getModifiedAt).reversed());
+    }
+
+    @Test
+    void testGetExperimentsSearch() {
+        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
+        experimentClient.editExperiment(experiment.getId(), new ExperimentEditRequest(JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.of("uniquedescxyz"), JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.undefined()));
+
+        Page<ExperimentDTO> byName = experimentClient.getNotebookExperiments(notebook.getId(), experiment.getName().substring(0, 5), null, null, null, Paging.DEFAULT);
+        assertThat(byName.getItems()).extracting(ExperimentDTO::getId).contains(experiment.getId());
+
+        Page<ExperimentDTO> byFullText = experimentClient.getNotebookExperiments(notebook.getId(), "uniquedescxyz", null, null, null, Paging.DEFAULT);
+        assertThat(byFullText.getItems()).extracting(ExperimentDTO::getId).contains(experiment.getId());
+
+        Page<ExperimentDTO> noMatch = experimentClient.getNotebookExperiments(notebook.getId(), "totallyunrelatedqueryterm", null, null, null, Paging.DEFAULT);
+        assertThat(noMatch.getItems()).extracting(ExperimentDTO::getId).doesNotContain(experiment.getId());
+    }
+
+    @Test
+    void testGetExperimentsFilteredByStatus() {
+        ExperimentDetailsDTO open = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
+        ExperimentDetailsDTO cancelled = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
+        experimentClient.cancelExperiment(cancelled.getId());
+
+        Page<ExperimentDTO> openOnly = experimentClient.getNotebookExperiments(notebook.getId(), null, null, null, List.of(ExperimentStatus.OPEN), Paging.DEFAULT);
+        assertThat(openOnly.getItems()).extracting(ExperimentDTO::getId).containsExactly(open.getId());
+
+        Page<ExperimentDTO> cancelledOnly = experimentClient.getNotebookExperiments(notebook.getId(), null, null, null, List.of(ExperimentStatus.CANCELLED), Paging.DEFAULT);
+        assertThat(cancelledOnly.getItems()).extracting(ExperimentDTO::getId).containsExactly(cancelled.getId());
+
+        Page<ExperimentDTO> both = experimentClient.getNotebookExperiments(notebook.getId(), null, null, null, List.of(ExperimentStatus.OPEN, ExperimentStatus.CANCELLED), Paging.DEFAULT);
+        assertThat(both.getItems()).extracting(ExperimentDTO::getId).containsExactlyInAnyOrder(open.getId(), cancelled.getId());
+
+        Page<ExperimentDTO> unfiltered = experimentClient.getNotebookExperiments(notebook.getId(), null, null, null, null, Paging.DEFAULT);
+        assertThat(unfiltered.getItems()).extracting(ExperimentDTO::getId).containsExactlyInAnyOrder(open.getId(), cancelled.getId());
     }
 
     @Test
@@ -151,7 +184,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         });
 
         withUser(ELNBaseTest.JOHN_USERNAME, () -> {
-            Page<ExperimentDTO> experiments = experimentClient.getProjectExperiments(project.getId(), null, null, true, Paging.DEFAULT);
+            Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(notebook.getId(), null, null, true, null, Paging.DEFAULT);
 
             assertThat(experiments.getItems())
                     .allSatisfy(experiment -> assertThat(experiment.getCreatedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME));
@@ -221,11 +254,11 @@ class ExperimentServiceTest extends ELNBaseTest {
         assertThat(experimentClient.getMarkedExperiments()).isEmpty();
 
         assertThat(experimentClient.markExperiment(experiment.getId())).isTrue();
-        Page<ExperimentDTO> experiments = experimentClient.getProjectExperiments(project.getId(), null, null, null, Paging.DEFAULT);
+        Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(notebook.getId(), null, null, null, null, Paging.DEFAULT);
         assertThat(experiments.getItems()).singleElement().satisfies(e -> {
             assertThat(e.getMarked()).isTrue();
         });
-        experiments = experimentClient.getNotebookExperiments(notebook.getId(), null, null, null, Paging.DEFAULT);
+        experiments = experimentClient.getNotebookExperiments(notebook.getId(), null, null, null, null, Paging.DEFAULT);
         assertThat(experiments.getItems()).singleElement().satisfies(e -> {
             assertThat(e.getMarked()).isTrue();
         });
@@ -237,11 +270,11 @@ class ExperimentServiceTest extends ELNBaseTest {
         });
 
         assertThat(experimentClient.unmarkExperiment(experiment.getId())).isFalse();
-        experiments = experimentClient.getProjectExperiments(project.getId(), null, null, null, Paging.DEFAULT);
+        experiments = experimentClient.getNotebookExperiments(notebook.getId(), null, null, null, null, Paging.DEFAULT);
         assertThat(experiments.getItems()).singleElement().satisfies(e -> {
             assertThat(e.getMarked()).isFalse();
         });
-        experiments = experimentClient.getNotebookExperiments(notebook.getId(), null, null, null, Paging.DEFAULT);
+        experiments = experimentClient.getNotebookExperiments(notebook.getId(), null, null, null, null, Paging.DEFAULT);
         assertThat(experiments.getItems()).singleElement().satisfies(e -> {
             assertThat(e.getMarked()).isFalse();
         });
@@ -251,7 +284,7 @@ class ExperimentServiceTest extends ELNBaseTest {
     }
 
     @Test
-    void testCreateAttachment(@TempDir Path tempDir) {
+    void testCreateAttachment() {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         Map<String, String> prepareData = experimentClient.prepareExperimentAttachment(experiment.getId(), "attachment.txt", (long) "content".getBytes().length);
         String path = prepareData.get("url");
@@ -274,7 +307,7 @@ class ExperimentServiceTest extends ELNBaseTest {
     }
 
     @Test
-    void testDownloadAttachment(@TempDir Path tempDir) throws Exception {
+    void testDownloadAttachment() {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         Map<String, String> prepareData = experimentClient.prepareExperimentAttachment(experiment.getId(), "attachment.txt", (long) "content".getBytes().length);
         String path = prepareData.get("url");
@@ -289,7 +322,7 @@ class ExperimentServiceTest extends ELNBaseTest {
     }
 
     @Test
-    void testDeleteAttachment(@TempDir Path tempDir) {
+    void testDeleteAttachment() {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         Map<String, String> prepareData = experimentClient.prepareExperimentAttachment(experiment.getId(), "attachment.txt", (long) "content".getBytes().length);
         String path = prepareData.get("url");
@@ -323,8 +356,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         response = experimentClient.getReactionPicture(experiment.id(), experiment.reaction().getAnchor(), experiment.revision());
         assertThat(response).isNotEqualTo(ExperimentService.EMPTY_PICTURE);
         assertThat(FeignUtil.getLastResponse().headers().get(HttpHeaders.CONTENT_TYPE).iterator().next()).isEqualTo("image/svg+xml");
-        //noinspection deprecation
-        CacheControl cacheControl = CacheControl.valueOf(FeignUtil.getLastResponse().headers().get("Cache-Control").iterator().next());
+        CacheControl cacheControl = RuntimeDelegate.getInstance().createHeaderDelegate(CacheControl.class).fromString(FeignUtil.getLastResponse().headers().get("Cache-Control").iterator().next());
         assertThat(cacheControl.getMaxAge()).isPositive();
     }
 
@@ -349,7 +381,7 @@ class ExperimentServiceTest extends ELNBaseTest {
 
     @Test
     void testSuggestExperiments() {
-        NotebookDetailsDTO notebook2 = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        NotebookDetailsDTO notebook2 = createNotebook(project.getId());
         ExperimentDetailsDTO e1 = experimentClient.createExperiment(notebook2.getId(), new ExperimentRequest(emptyTemplateID));
         ExperimentDetailsDTO e2 = experimentClient.createExperiment(notebook2.getId(), new ExperimentRequest(emptyTemplateID));
         assertThat(experimentClient.suggestExperiments(notebook2.getName())).containsExactly(e1.toRef(), e2.toRef());
@@ -358,15 +390,14 @@ class ExperimentServiceTest extends ELNBaseTest {
     @Test
     void testQuickSearch() {
         ExperimentDetailsDTO e1 = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID, "description1 common", null, null));
-        ExperimentDetailsDTO e2 = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID, "description2 common", null, null));
 
-        Page<ExperimentDTO> result1 = experimentClient.getNotebookExperiments(notebook.getId(), e1.getName(), null, null, Paging.DEFAULT);
+        Page<ExperimentDTO> result1 = experimentClient.getNotebookExperiments(notebook.getId(), e1.getName(), null, null, null, Paging.DEFAULT);
         assertThat(result1.getItems()).map(ExperimentDTO::getName).containsOnly(e1.getName());
 
-        Page<ExperimentDTO> result2 = experimentClient.getNotebookExperiments(notebook.getId(), "description1", null, null, Paging.DEFAULT);
+        Page<ExperimentDTO> result2 = experimentClient.getNotebookExperiments(notebook.getId(), "description1", null, null, null, Paging.DEFAULT);
         assertThat(result2.getItems()).map(ExperimentDTO::getName).containsOnly(e1.getName());
 
-        Page<ExperimentDTO> result3 = experimentClient.getNotebookExperiments(notebook.getId(), e1.getName().substring(4), null, null, Paging.DEFAULT);
+        experimentClient.getNotebookExperiments(notebook.getId(), e1.getName().substring(4), null, null, null, Paging.DEFAULT);
         assertThat(result2.getItems()).map(ExperimentDTO::getName).containsOnly(e1.getName());
     }
 

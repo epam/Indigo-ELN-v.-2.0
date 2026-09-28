@@ -28,5 +28,9 @@ public class MutationResponse {
 
     @NotNull
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    List<String> debugMessages = new ArrayList<>();
+
+    @NotNull
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     Map<ReactionAnchor, String> reactionImages = new HashMap<>();
 }

@@ -7,7 +7,7 @@ import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.ReactionInput;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 
-public abstract class AbstractReactionInputMutationHandler<T extends ReactionInputMutation> extends ExperimentMutationHandlerBase<T> {
+public abstract class AbstractReactionInputMutationHandler<T extends ReactionInputMutation> extends ExperimentEditMutationHandlerBase<T> {
 
     @Override
     public String doHandle(ExperimentEntity experiment, T mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {

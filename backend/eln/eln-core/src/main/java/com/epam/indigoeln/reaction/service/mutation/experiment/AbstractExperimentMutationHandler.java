@@ -1,11 +1,13 @@
 package com.epam.indigoeln.reaction.service.mutation.experiment;
 
+import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
 import com.epam.indigoeln.eln.mapper.SnapshotMapper;
-import com.epam.indigoeln.eln.model.ApplicationPermission;
+import com.epam.indigoeln.eln.model.ExperimentStatus;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.service.ACLService;
+import com.epam.indigoeln.eln.service.ExperimentService;
 import com.epam.indigoeln.eln.service.RevisionService;
 import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
@@ -15,7 +17,7 @@ import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.service.ExperimentModelHelperService;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import com.epam.indigoeln.reaction.service.calculator.ReactionCalculator;
-import com.epam.indigoeln.reaction.service.mutation.ExperimentModelMutationListener;
+import com.epam.indigoeln.reaction.service.mutation.ExperimentMutationListener;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandler;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.quarkus.arc.All;
@@ -23,9 +25,12 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -33,7 +38,7 @@ import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.runWithSignificantFigures;
 
 @Slf4j
-public abstract class AbstractExperimentMutationHandler<T extends ExperimentMutation> extends MutationHandler<T, ExperimentEntity, ExperimentSnapshot, ExperimentRevisionEntity, ExperimentMutationContext> {
+public abstract class AbstractExperimentMutationHandler<T extends ExperimentMutation> extends MutationHandler<T, ExperimentEntity, ExperimentSnapshot, ExperimentRevisionEntity, ExperimentMutationContext, ExperimentMutationListener> {
 
     @Inject
     SnapshotMapper snapshotMapper;
@@ -55,19 +60,17 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
     ExperimentRepository experimentRepository;
     @Inject
     protected ACLService aclService;
+    @Inject
+    ExperimentService experimentService;
 
     @All
     @Inject
-    List<ExperimentModelMutationListener> listeners;
+    @Getter(AccessLevel.PROTECTED)
+    List<ExperimentMutationListener> listeners;
 
     @Override
     protected ExperimentMutationContext createContext() {
         return new ExperimentMutationContext();
-    }
-
-    @Override
-    protected void doValidateAccess(ExperimentEntity experiment, T mutation, ExperimentMutationContext context) {
-        aclService.ensureAccess(experiment, ApplicationPermission.EDIT_EXPERIMENTS);
     }
 
     protected final ExperimentSnapshot doSnapshotBefore(ExperimentEntity experiment, ExperimentMutationContext context) {
@@ -82,12 +85,16 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
             ReactionCalculator calculator = reactionCalculatorFactory.get();
             try {
                 calculator.recalculate(experiment.getModel());
+                context.getResponse().getDebugMessages().addAll(calculator.getDebugMessages());
+                updateDates(experiment, userService.getCurrentUserEntity());
                 doNotifyAfterRecalculate(experiment, context);
                 doValidateModel(experiment.getModel());
-                updateDates(experiment, userService.getCurrentUserEntity());
                 patch = experimentModelService.createPatch(snapshotBefore, snapshotAfter);
             } finally {
                 reactionCalculatorFactory.destroy(calculator);
+            }
+            for (ExperimentMutationListener listener : listeners) {
+                listener.beforePersist(experiment, snapshotBefore, snapshotAfter);
             }
             //noinspection ConstantValue
             if (experiment.getId() == null) {
@@ -109,6 +116,9 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
         if (!context.getResponse().getMessages().isEmpty()) {
             revision.setMessages(context.getResponse().getMessages().toArray(new String[0]));
         }
+        if (!context.getResponse().getDebugMessages().isEmpty()) {
+            revision.setDebugMessages(context.getResponse().getDebugMessages().toArray(new String[0]));
+        }
         return revision;
     }
 
@@ -120,22 +130,21 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
         }
     }
 
-    @Override
-    protected void doNotifyBeforeHandle(ExperimentEntity entity, T mutation, ExperimentMutationContext context) {
-        for (ExperimentModelMutationListener listener : listeners) {
-            listener.beforeHandle(entity, context);
-        }
-    }
-
     private void doNotifyBeforeRecalculate(ExperimentEntity entity, ExperimentMutationContext context) {
-        for (ExperimentModelMutationListener listener : listeners) {
+        for (ExperimentMutationListener listener : listeners) {
             listener.beforeRecalculate(entity, context);
         }
     }
 
     private void doNotifyAfterRecalculate(ExperimentEntity entity, ExperimentMutationContext context) {
-        for (ExperimentModelMutationListener listener : listeners) {
+        for (ExperimentMutationListener listener : listeners) {
             listener.afterRecalculate(entity, context);
+        }
+    }
+
+    protected void ensureStatus(ExperimentEntity experiment, ExperimentStatus... allowedStatuses) {
+        if (!Arrays.asList(allowedStatuses).contains(experiment.getStatus())) {
+            InvalidRequestException.fail("Experiment is " + experiment.getStatus() + ", must be " + StreamEx.of(allowedStatuses).joining(" or "));
         }
     }
 }

@@ -13,6 +13,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -24,15 +25,50 @@ import static com.google.common.base.Preconditions.checkState;
 /**
  * Calculates reaction based on system of equations:
  *
- * <p>F1. input.mol = ∑ sample.mol</p>
- * <p>F2. nonLimiting.mol = limiting.mol / limiting.eq * nonLimiting.eq</p>
- * <p>F3. sample.mol = sample.weight * sample.purity / molWeight</p>
- * <p>F4. sample.mol = sample.molarity * sample.volume</p>
- * <p>F5. sample.weight = sample.volume * sample.density</p>
- * <p>F6. output.theoMol = limiting.mol / limiting.eq * output.eq</p>
- * <p>F7. output.theoWeight = output.theoMol * molWeight</p>
- * <p>F8. outputSample.yield = outputSample.actualMol / output.theoMol</p>
- * <p>F9. outputSample.yield = outputSample.actualWeight * outputSample.purity / output.theoWeight</p>
+ * <p>F1.1. input.mol = ∑ sample.mol</p>
+ * <p>&emsp; F1.2. sample.mol = input.mol - ∑ otherSample.mol</p>
+ *
+ * <p>F2.1. nonLimiting.mol = limiting.mol / limiting.eq * nonLimiting.eq</p>
+ * <p>&emsp; F2.2. nonLimiting.eq = nonLimiting.mol / limiting.mol * limiting.eq</p>
+ * <p>&emsp; <s>F2.3. limiting.eq = limiting.mol * nonLimiting.eq / nonLimiting.mol</s> <i>don't calculate limiting from non-limiting</i></p>
+ * <p>&emsp; limiting.mol is never calculated from nonLimiting.mol</p>
+ *
+ * <p>F3.1. sample.mol = sample.weight * sample.purity / molWeight</p>
+ * <p>&emsp; F3.2. sample.weight = sample.mol * molWeight / sample.purity</p>
+ * <p>&emsp; F3.3. sample.actualMol = sample.actualWeight * sample.purity / molWeight</p>
+ * <p>&emsp; F3.4. sample.actualWeight = sample.actualMol * molWeight / sample.purity</p>
+ * <p>&emsp; purity is never calculated</p>
+ * <p>&emsp; molWeight is never calculated</p>
+ *
+ * <p>F4.1. sample.mol = sample.molarity * sample.volume</p>
+ * <p>&emsp; <s>F4.2. sample.molarity = sample.mol / sample.volume</s></p>
+ * <p>&emsp; F4.3. sample.volume = sample.mol / sample.molarity</p>
+ * <p>&emsp; F4.4. sample.actualMol = sample.molarity * sample.volume</p>
+ * <p>&emsp; <s>F4.5. sample.molarity = sample.actualMol / sample.volume</s></p>
+ * <p>&emsp; F4.6. sample.volume = sample.actualMol / sample.molarity</p>
+ * <p>&emsp; molarity is never calculated</p>
+ *
+ * <p>F5.1. sample.weight = sample.volume * sample.density</p>
+ * <p>&emsp; F5.2. sample.volume = sample.weight / sample.density</p>
+ * <p>&emsp; <s>F5.3. sample.density = sample.weight / sample.volume</s></p>
+ * <p>&emsp; F5.4. sample.actualWeight = sample.volume * sample.density</p>
+ * <p>&emsp; F5.5. sample.volume = sample.actualWeight / sample.density</p>
+ * <p>&emsp; <s>F5.6. sample.density = sample.actualWeight / sample.volume</s></p>
+ * <p>&emsp; density is never calculated</p>
+ *
+ * <p>F6.1. output.theoMol = limiting.mol / limiting.eq * output.eq</p>
+ * <p>&emsp; it's the only way to determine theoMol, so cannot calculate others based on theoMol</p>
+ *
+ * <p>F7.1. output.theoWeight = output.theoMol * molWeight</p>
+ * <p>&emsp; it's the only way to determine theoWeight, so cannot calculate others based on theoWeight</p>
+ *
+ * <p>F8.1. outputSample.yield = outputSample.actualMol / output.theoMol</p>
+ * <p>&emsp; F8.2. outputSample.actualMol = outputSample.yield * output.theoMol</p>
+ * <p>&emsp; theoMol is only determined from limiting.mol</p>
+ *
+ * <p>F9.1. outputSample.yield = outputSample.actualWeight * outputSample.purity / output.theoWeight</p>
+ * <p>&emsp; F9.2. outputSample.actualWeight = outputSample.yield / outputSample.purity * output.theoWeight</p>
+ * <p>&emsp; purity is never calculated</p>
  */
 @Slf4j
 @Dependent
@@ -44,33 +80,39 @@ public class ReactionCalculator {
     private final List<Property<?, ?>> properties = new ArrayList<>();
     private final List<Formula<?>> formulas = new ArrayList<>();
     private final List<Pair<Property<?, ?>, EnteredValue<?>>> seeds = new ArrayList<>();
-    @Getter
     private final List<Property<?, ?>> overwritten = new ArrayList<>();
+    @Getter
+    private final List<String> debugMessages = new ArrayList<>();
 
     public void recalculate(ExperimentModel experimentModel) {
         log.debug("recalculation started");
         new ModelProps(experimentModel);
 
         // collect seeds
+        // TODO use sample density/molarity/purity as defaults, for samples from DB
+        Property<?, ?> clearedProperty = null;
         for (Property<?, ?> property : properties) {
             EnteredValue<?> value = property.getValue();
-            if (!value.isEmpty()) {
-                if (value.getSource().isUserEntered() || value.getSource().isDefault()) {
+            if (value.getSource().isUserEntered()) {
+                if (value.isEmpty()) {
+                    clearedProperty = property;
+                    property.setValue(EnteredValue.empty(), null);
+                } else {
                     seeds.add(Pair.of(property, value));
-                } else if (value.getSource().isCalculated()) {
-                    property.setValue(EnteredValue.empty());
                 }
+            } else if (value.getSource().isCalculated()) {
+                property.setValue(EnteredValue.empty(), null);
             }
         }
 
         seeds.sort(SEED_COMPARATOR);
         if (log.isDebugEnabled()) {
-            log.debug("seeds:\n\t{}", StreamEx.of(seeds).joining("\t\n"));
+            log.debug("seeds:\n\t{}", StreamEx.of(seeds).joining("\n\t"));
         }
 
         for (Pair<Property<?, ?>, EnteredValue<?>> seed : seeds) {
             if (!seed.a().getValue().getSource().isFixed()) {
-                seed.a().setValue(EnteredValue.empty());
+                seed.a().setValue(EnteredValue.empty(), null);
             }
         }
 
@@ -88,7 +130,8 @@ public class ReactionCalculator {
                         continue;
                     }
                     if (!existingValue.valueEquals(seedValue)) {
-                        throw new RecalculationConflictException();
+                        String message = "%s: seed value conflict:\n\tcurrent : %s (exact value %s)\n\tprevious: %s (exact value %s) from %s".formatted(seed.getName(), seedValue, seedValue.toExactBigDecimal(), existingValue, existingValue.toExactBigDecimal(), seed.getCalculatedFrom());
+                        throw reportConflict(message);
                     }
                 }
                 seed.setValueUnchecked(seedValue);
@@ -100,8 +143,11 @@ public class ReactionCalculator {
                         queue.addAll(formula.target.getDownstream());
                     }
                 }
+                if (clearedProperty != null && !clearedProperty.getValue().isEmpty()) {
+                    throw new RecalculationConflictException("to satisfy cleared property " + clearedProperty);
+                }
             } catch (RecalculationConflictException e) {
-                log.debug("conflict! overwritten: {}", pair.a());
+                log.debug("overwritten: {}: {}", pair.a(), e.reason);
                 overwritten.add(pair.a());
                 revert();
                 // proceed with the next seed
@@ -165,19 +211,28 @@ public class ReactionCalculator {
         Property<?, U> target = formula.target;
         EnteredValue<U> stored = target.getValue();
         if (stored.isEmpty()) {
-            log.debug("calculated {} to {} from formula {}", target.getName(), calculated, formula);
+            log.debug("calculated {} as {} (exact value {}) from formula {}", target.getName(), calculated, calculated.toExactBigDecimal(), formula);
             formula.value = calculated;
-            target.setValue(calculated);
+            target.setValue(calculated, formula);
             return true;
         }
         if (stored.valueEquals(calculated)) {
             return false;
         }
-        log.debug("calculated value {} from formula {} conflicts with existing value {} for {}", calculated, formula, stored, target.getName());
-        throw new RecalculationConflictException();
+        String message = "%s: calculated value conflict:\n\tcurrent : %s (exact value %s) from %s\n\tprevious: %s (exact value %s) from %s".formatted(target.getName(), calculated, calculated.toExactBigDecimal(), formula, stored, stored.toExactBigDecimal(), target.getCalculatedFrom());
+        throw reportConflict(message);
     }
 
+    private RecalculationConflictException reportConflict(String message) {
+        log.debug(message);
+        debugMessages.add(message);
+        return new RecalculationConflictException("calculation conflict");
+    }
+
+    @RequiredArgsConstructor
     private static class RecalculationConflictException extends RuntimeException {
+
+        private final String reason;
     }
 
     @RequiredArgsConstructor
@@ -188,16 +243,10 @@ public class ReactionCalculator {
 
     class ModelProps extends AbstractProps<ExperimentModel> {
 
-        final List<ReactionProps> reactions;
-
         ModelProps(ExperimentModel model) {
             super(model);
-            reactions = StreamEx.of(model.getReactions())
-                    .filter(x -> !x.getInputs().isEmpty())
-                    .map(ReactionProps::new)
-                    .toList();
-
-            for (ReactionProps reaction : reactions) {
+            for (Reaction modelReaction : model.getReactions()) {
+                ReactionProps reaction = new  ReactionProps(modelReaction);
                 for (InputProps input : reaction.inputs) {
                     input.init();
                     for (InputSampleProps sample : input.samples) {
@@ -217,6 +266,7 @@ public class ReactionCalculator {
     class ReactionProps extends AbstractProps<Reaction> {
 
         final List<InputProps> inputs;
+        @Nullable
         final InputProps limiting;
         final List<OutputProps> outputs;
 
@@ -227,7 +277,7 @@ public class ReactionCalculator {
                     .toList();
             limiting = StreamEx.of(inputs)
                     .filter(x -> x.container.isLimiting())
-                    .findAny().orElseThrow();
+                    .findAny().orElse(null);
             outputs = StreamEx.of(reaction.getOutputs())
                     .map(x -> new OutputProps(this, x))
                     .toList();
@@ -252,50 +302,32 @@ public class ReactionCalculator {
         }
 
         private void init() {
+            checkState(reaction.limiting != null);
             List<Property<ReactionInputSample, MolUnit>> sampleMols = StreamEx.of(samples)
                     .map(s -> s.mol)
                     .toList();
             InputProps limiting = reaction.limiting;
 
-            // F1. mol = ∑ sampleN.mol
             formula(
-                    "F1.1",
+                    "F1.1: mol = sum sampleN.mol",
                     mol,
                     () -> EnteredValueOpt.sum(sampleMols)
             ).addSources(sampleMols);
 
             if (this != limiting) {
-
-                // F2. mol = limiting.mol / limiting.eq * input.eq
                 formula(
-                        "F2.1",
+                        "F2.1: nonLimiting.mol = limiting.mol / limiting.eq * input.eq",
                         mol,
                         () -> limiting.mol.divide(limiting.eq).multiply(eq),
                         limiting.mol, limiting.eq, eq
                 );
 
-                // F2. eq = input.mol / limiting.mol * limiting.eq
                 formula(
-                        "F2.2",
+                        "F2.2: nonLimiting.eq = input.mol / limiting.mol * limiting.eq",
                         eq,
                         () -> mol.divide(limiting.mol).multiply(limiting.eq),
                         mol, limiting.mol, limiting.eq
                 );
-            } else {
-
-                // F2 - never calculate limiting.mol from nonLimiting.mol
-
-                // F2. eq = mol * nonLimiting.eq / nonLimiting.mol
-                for (InputProps nonLimiting : reaction.inputs) {
-                    if (this != nonLimiting) {
-                        formula(
-                                "F2.3",
-                                eq,
-                                () -> mol.multiply(nonLimiting.eq).divide(nonLimiting.mol),
-                                mol, nonLimiting.mol, nonLimiting.eq
-                        );
-                    }
-                }
             }
         }
     }
@@ -333,78 +365,53 @@ public class ReactionCalculator {
                     .map(s -> s.mol)
                     .toList();
 
-            // F1. mol = input.mol - ∑ otherSampleN.mol
             formula(
-                    "F1.2",
+                    "F1.2: mol = input.mol - ∑ otherSampleN.mol",
                     mol,
                     () -> input.mol.subtract(sum(otherSampleMols)),
                     input.mol
             ).addSources(otherSampleMols);
 
-            // F3. sample.mol = sample.weight * sample.purity / molWeight
             formula(
-                    "F3.1",
+                    "F3.1: sample.mol = sample.weight * sample.purity / molWeight",
                     mol,
                     () -> weight.multiply(purityAsFraction()).divide(molWeight),
                     weight, purity
             );
 
-            // F4. sample.mol = sample.molarity * sample.volume
             formula(
-                    "F4.1",
+                    "F4.1: sample.mol = sample.molarity * sample.volume",
                     mol,
                     () -> molarity.multiply(volume),
                     molarity, volume
             );
 
-            // F3. sample.weight = sample.mol * molWeight / sample.purity
             formula(
-                    "F3.2",
+                    "F3.2: sample.weight = sample.mol * molWeight / sample.purity",
                     weight,
                     () -> mol.multiply(molWeight).divide(purityAsFraction()),
                     mol, purity
             );
 
-            // F5. sample.weight = sample.volume * sample.density
             formula(
-                    "F5.1",
+                    "F5.1: sample.weight = sample.volume * sample.density",
                     weight,
                     () -> volume.multiply(density),
                     volume, density
             );
 
-            // purity is not calculated (can be either default or user-entered)
-
-            // F4. sample.molarity = sample.mol / sample.volume
             formula(
-                    "F4.2",
-                    molarity,
-                    () -> mol.divide(volume),
-                    mol, volume
-            );
-
-            // F4. sample.volume = sample.mol / sample.molarity
-            formula(
-                    "F4.3",
+                    "F4.3: sample.volume = sample.mol / sample.molarity",
                     volume,
                     () -> mol.divide(molarity),
                     mol, molarity
             );
 
-            // F5. sample.volume = sample.weight / sample.density
             formula(
-                    "F5.2",
+                    "F5.2: sample.volume = sample.weight / sample.density",
                     volume,
                     () -> weight.divide(density),
                     weight, density
-            );
-
-            // F5. sample.density = sample.weight / sample.volume
-            formula(
-                    "F5.3",
-                    density,
-                    () -> weight.divide(volume),
-                    weight, volume
             );
         }
     }
@@ -432,25 +439,17 @@ public class ReactionCalculator {
             EnteredValueOpt<MolWeightUnit> molWeight = opt(container.getCompound().getMolWeight());
             InputProps limiting = reaction.limiting;
 
-            // F6. output.theoMol = limiting.mol / limiting.eq * output.eq
-            formula(
-                    "F6.1",
-                    theoMol,
-                    () -> limiting.mol.divide(limiting.eq).multiply(eq),
-                    limiting.mol, limiting.eq, eq
-            );
+            if (limiting != null) {
+                formula(
+                        "F6.1: output.theoMol = limiting.mol / limiting.eq * output.eq",
+                        theoMol,
+                        () -> limiting.mol.divide(limiting.eq).multiply(eq),
+                        limiting.mol, limiting.eq, eq
+                );
+            }
 
-            // F6. output.eq = limiting.mol / limiting.eq / output.theoMol
             formula(
-                    "F6.2",
-                    eq,
-                    () -> limiting.mol.divide(limiting.eq).divide(theoMol),
-                    limiting.mol, limiting.eq, theoMol
-            );
-
-            // F7. output.theoWeight = output.theoMol * molWeight
-            formula(
-                    "F7.1",
+                    "F7.1: output.theoWeight = output.theoMol * molWeight",
                     theoWeight,
                     () -> theoMol.multiply(molWeight),
                     theoMol
@@ -467,7 +466,7 @@ public class ReactionCalculator {
         final Property<ReactionOutputSample, MolarityUnit> molarity;
         final Property<ReactionOutputSample, VolumeUnit> volume;
         final Property<ReactionOutputSample, DensityUnit> density;
-        final Property<ReactionOutputSample, NoUnit> yield;
+        final Property<ReactionOutputSample, NoUnit> yieldValue;
 
         EnteredValueOpt<NoUnit> purityAsFraction() {
             return purity.multiply(ONE_HUNDREDTH);
@@ -482,90 +481,78 @@ public class ReactionCalculator {
             molarity = prop(sample, ReactionOutputSampleMetamodel.MOLARITY);
             volume = prop(sample, ReactionOutputSampleMetamodel.VOLUME);
             density = prop(sample, ReactionOutputSampleMetamodel.DENSITY);
-            yield = prop(sample, ReactionOutputSampleMetamodel.YIELD);
+            yieldValue = prop(sample, ReactionOutputSampleMetamodel.YIELD);
         }
 
         private void init() {
             EnteredValueOpt<MolWeightUnit> molWeight = opt(output.container.getCompound().getMolWeight());
 
-            // F3. sample.actualMol = sample.actualWeight * sample.purity / molWeight
             formula(
-                    "F3.3",
+                    "F3.3: sample.actualMol = sample.actualWeight * sample.purity / molWeight",
                     actualMol,
                     () -> actualWeight.multiply(purityAsFraction()).divide(molWeight),
                     actualWeight, purity
             );
 
-            // F4. sample.actualMol = sample.molarity * sample.volume
             formula(
-                    "F4.4",
+                    "F4.4: sample.actualMol = sample.molarity * sample.volume",
                     actualMol,
                     () -> molarity.multiply(volume),
                     molarity, volume
             );
 
-            // F3. sample.actualWeight = sample.actualMol * molWeight / sample.purity
             formula(
-                    "F3.4",
+                    "F8.2: outputSample.actualMol = outputSample.yield * output.theoMol",
+                    actualMol,
+                    () -> yieldValue.divide(DEFAULT_ONE_HUNDRED).multiply(output.theoMol),
+                    yieldValue, output.theoMol
+            );
+
+            formula(
+                    "F3.4: sample.actualWeight = sample.actualMol * molWeight / sample.purity",
                     actualWeight,
                     () -> actualMol.multiply(molWeight).divide(purityAsFraction()),
                     actualMol, purity
             );
 
-            // F5. sample.actualWeight = sample.volume * sample.density
             formula(
-                    "F5.4",
+                    "F5.4: sample.actualWeight = sample.volume * sample.density",
                     actualWeight,
                     () -> volume.multiply(density),
                     volume, density
             );
 
-            // purity is not calculated (can be either default or user-entered)
-
-            // F4. sample.molarity = sample.actualMol / sample.volume
             formula(
-                    "F4.5",
-                    molarity,
-                    () -> actualMol.divide(volume),
-                    actualMol, volume
+                    "F9.2: outputSample.actualWeight = outputSample.yield / outputSample.purity * output.theoWeight",
+                    actualWeight,
+                    () -> yieldValue.multiply(ONE_HUNDREDTH).divide(purityAsFraction()).multiply(output.theoWeight),
+                    yieldValue, purity, output.theoWeight
             );
 
-            // F4. sample.volume = sample.actualMol / sample.molarity
             formula(
-                    "F4.6",
+                    "F4.6: sample.volume = sample.actualMol / sample.molarity",
                     volume,
                     () -> actualMol.divide(molarity),
                     actualMol, molarity
             );
 
-            // F5. sample.volume = sample.actualWeight / sample.density
             formula(
-                    "F5.5",
+                    "F5.5: sample.volume = sample.actualWeight / sample.density",
                     volume,
                     () -> actualWeight.divide(density),
                     actualWeight, density
             );
 
-            // F5. sample.density = sample.actualWeight / sample.volume
             formula(
-                    "F5.6",
-                    density,
-                    () -> actualWeight.divide(volume),
-                    actualWeight, volume
-            );
-
-            // F8. outputSample.yield = outputSample.actualMol / output.theoMol
-            formula(
-                    "F8",
-                    yield,
+                    "F8.1: outputSample.yield = outputSample.actualMol / output.theoMol",
+                    yieldValue,
                     () -> actualMol.divide(output.theoMol).multiply(DEFAULT_ONE_HUNDRED),
                     actualMol, output.theoMol
             );
 
-            // F9. outputSample.yield = outputSample.actualWeight * outputSample.purity / output.theoWeight
             formula(
-                    "F9.1",
-                    yield,
+                    "F9.1: outputSample.yield = outputSample.actualWeight * outputSample.purity / output.theoWeight",
+                    yieldValue,
                     () -> actualWeight.multiply(purityAsFraction()).divide(output.theoWeight).multiply(DEFAULT_ONE_HUNDRED),
                     actualWeight, purity, output.theoWeight
             );
@@ -594,15 +581,9 @@ public class ReactionCalculator {
 
         // purity is more priority than other (default purity is more important than other defaults and even other user-entered)
         // (since in case of conflict we can likely recalculate user-entered, but we are not allowed to calculate purity)
-        boolean purityA = a.getProperty().name().equals("purity");
-        boolean purityB = b.getProperty().name().equals("purity");
+        boolean purityA = a.getModelProperty().name().equals("purity");
+        boolean purityB = b.getModelProperty().name().equals("purity");
         result = Boolean.compare(purityA, purityB);
-        if (result != 0) {
-            return result;
-        }
-
-        // user-entered is more priority
-        result = Boolean.compare(userEnteredA, userEnteredB);
         if (result != 0) {
             return result;
         }
@@ -611,6 +592,12 @@ public class ReactionCalculator {
         boolean limitingA = isUnderLimitingInput(a);
         boolean limitingB = isUnderLimitingInput(b);
         result = Boolean.compare(limitingA, limitingB);
+        if (result != 0) {
+            return result;
+        }
+
+        // user-entered is more priority
+        result = Boolean.compare(userEnteredA, userEnteredB);
         if (result != 0) {
             return result;
         }

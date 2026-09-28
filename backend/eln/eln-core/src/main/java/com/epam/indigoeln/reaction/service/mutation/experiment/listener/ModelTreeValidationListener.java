@@ -3,7 +3,7 @@ package com.epam.indigoeln.reaction.service.mutation.experiment.listener;
 import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.reaction.model.*;
-import com.epam.indigoeln.reaction.service.mutation.ExperimentModelMutationListener;
+import com.epam.indigoeln.reaction.service.mutation.ExperimentMutationListener;
 import com.epam.indigoeln.reaction.service.mutation.experiment.ExperimentMutationContext;
 import jakarta.annotation.Priority;
 import jakarta.enterprise.context.Dependent;
@@ -16,8 +16,8 @@ import java.util.UUID;
 import static com.google.common.base.Preconditions.checkState;
 
 @Dependent
-@Priority(ExperimentModelMutationListener.VALIDATION_PRIORITY)
-public class ModelTreeValidationListener implements ExperimentModelMutationListener {
+@Priority(ExperimentMutationListener.VALIDATION_PRIORITY)
+public class ModelTreeValidationListener implements ExperimentMutationListener {
 
     @Override
     public void afterRecalculate(ExperimentEntity experiment, ExperimentMutationContext context) {

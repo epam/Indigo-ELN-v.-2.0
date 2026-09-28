@@ -16,7 +16,11 @@ import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static com.epam.indigoeln.common.util.ContentDispositionUtil.extractFilename;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
@@ -30,12 +34,16 @@ import static org.assertj.core.api.Assertions.entry;
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
 class ProjectServiceTest extends ELNBaseTest {
 
-    @BeforeAll
-    void tearDownAll() {
-        dictionaryClient.getDictionary(BuiltInDictionary.PROJECT_KEYWORD).forEach(item -> {
-            dictionaryClient.removeDictionaryItem(BuiltInDictionary.PROJECT_KEYWORD, item.getId());
-        });
-    }
+    private static final String KEYWORD_1 = "keyword1";
+    private static final String KEYWORD_2 = "keyword2";
+    private static final String LITERATURE = "literature";
+    private static final String DESCRIPTION = "description";
+    private static final String MUST_NOT_BE_EMPTY = "must not be empty";
+    private static final String PROJECT_1 = "Project1";
+    private static final String PROJECT_2 = "Project2";
+    private static final String PROJECT_3 = "Project3";
+    private static final String ATTACHMENT_TXT = "attachment.txt";
+    private static final String CONTENT = "content";
 
     @Test
     @Order(-100)
@@ -50,7 +58,7 @@ class ProjectServiceTest extends ELNBaseTest {
         expected.setProjects(1);
         assertThat(miscClient.getTotalCounts()).isEqualTo(expected);
 
-        NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        NotebookDetailsDTO notebook = createNotebook(project.getId());
         assertThat(notebook.getExperimentCount()).isZero();
         assertThat(notebook.getExperimentCountByStatus()).isEmpty();
         project = projectClient.getProject(project.getId());
@@ -60,7 +68,7 @@ class ProjectServiceTest extends ELNBaseTest {
         expected.setNotebooks(1);
         assertThat(miscClient.getTotalCounts()).isEqualTo(expected);
 
-        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
+        experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         notebook = notebookClient.getNotebook(notebook.getId());
         assertThat(notebook.getExperimentCount()).isOne();
         assertThat(notebook.getExperimentCountByStatus()).containsExactly(entry(ExperimentStatus.OPEN, 1));
@@ -81,16 +89,16 @@ class ProjectServiceTest extends ELNBaseTest {
 
     @Test
     void testCreateProject() {
-        ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testCreateProject", List.of("keyword1", "keyword2"), "literature", "description"));
+        ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testCreateProject", List.of(KEYWORD_1, KEYWORD_2), LITERATURE, DESCRIPTION));
         assertThat(project.getId()).isNotNull();
         assertThat(project.getName()).isEqualTo("testCreateProject");
         assertThat(project.getCreatedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME);
         assertThat(project.getCreatedAt()).isNotNull();
         assertThat(project.getModifiedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME);
         assertThat(project.getModifiedAt()).isNotNull();
-        assertThat(project.getKeywords()).containsExactly("keyword1", "keyword2");
-        assertThat(project.getLiterature()).isEqualTo("literature");
-        assertThat(project.getDescription()).isEqualTo("description");
+        assertThat(project.getKeywords()).containsExactly(KEYWORD_1, KEYWORD_2);
+        assertThat(project.getLiterature()).isEqualTo(LITERATURE);
+        assertThat(project.getDescription()).isEqualTo(DESCRIPTION);
         assertThat(project.getNotebookCount()).isEqualTo(0);
         assertThat(project.getExperimentCount()).isZero();
         assertThat(project.getExperimentCountByStatus()).isEmpty();
@@ -186,7 +194,7 @@ class ProjectServiceTest extends ELNBaseTest {
     @Test
     void testCheckProjectNameExistenceEndpointValidationEmptyName() {
         assertThatClientCall(() -> projectClient.checkProjectNameExistence(""))
-                .isBadRequest("must not be empty");
+                .isBadRequest(MUST_NOT_BE_EMPTY);
     }
 
     @Test
@@ -233,25 +241,25 @@ class ProjectServiceTest extends ELNBaseTest {
     @Test
     void testCheckProjectNameExistenceWithEmptyName() {
         assertThatClientCall(() -> projectClient.checkProjectNameExistence(""))
-                .isBadRequest("must not be empty");
+                .isBadRequest(MUST_NOT_BE_EMPTY);
     }
 
     @Test
     void testCheckProjectNameExistenceWithNullName() {
         assertThatClientCall(() -> projectClient.checkProjectNameExistence(null))
-                .isBadRequest("must not be empty");
+                .isBadRequest(MUST_NOT_BE_EMPTY);
     }
 
     @Test
     void testGetProject() {
-        ProjectDetailsDTO createdProject = projectClient.createProject(new ProjectRequest("testGetProject", List.of("keyword1", "keyword2"), "literature", "description"));
+        ProjectDetailsDTO createdProject = projectClient.createProject(new ProjectRequest("testGetProject", List.of(KEYWORD_1, KEYWORD_2), LITERATURE, DESCRIPTION));
         ProjectDetailsDTO loadedProject = projectClient.getProject(createdProject.getId());
         assertThat(loadedProject).usingRecursiveComparison().isEqualTo(createdProject);
     }
 
     @Test
     void testGetProjects() {
-        projectClient.createProject(new ProjectRequest("testGetProjects", List.of("keyword1", "keyword2"), "literature", "description"));
+        projectClient.createProject(new ProjectRequest("testGetProjects", List.of(KEYWORD_1, KEYWORD_2), LITERATURE, DESCRIPTION));
         Page<ProjectDTO> projects = projectClient.getProjects(null, null, null, Paging.DEFAULT);
         assertThat(projects.getItems()).first().satisfies(project -> {
             assertThat(project.getId()).isNotNull();
@@ -293,30 +301,30 @@ class ProjectServiceTest extends ELNBaseTest {
     void testGetProjectsSortByEarliest() {
         cleanupDatabase();
 
-        projectClient.createProject(new ProjectRequest("Project1"));
-        projectClient.createProject(new ProjectRequest("Project2"));
-        projectClient.createProject(new ProjectRequest("Project3"));
+        projectClient.createProject(new ProjectRequest(PROJECT_1));
+        projectClient.createProject(new ProjectRequest(PROJECT_2));
+        projectClient.createProject(new ProjectRequest(PROJECT_3));
 
         Page<ProjectDTO> projects = projectClient.getProjects(null, SortOrder.EARLIEST, null, Paging.DEFAULT);
 
         assertThat(projects.getItems())
                 .extracting(ProjectDTO::getName)
-                .containsExactly("Project1", "Project2", "Project3");
+                .containsExactly(PROJECT_1, PROJECT_2, PROJECT_3);
     }
 
     @Test
     void testGetProjectsSortByLatest() {
         cleanupDatabase();
 
-        projectClient.createProject(new ProjectRequest("Project1"));
-        projectClient.createProject(new ProjectRequest("Project2"));
-        projectClient.createProject(new ProjectRequest("Project3"));
+        projectClient.createProject(new ProjectRequest(PROJECT_1));
+        projectClient.createProject(new ProjectRequest(PROJECT_2));
+        projectClient.createProject(new ProjectRequest(PROJECT_3));
 
         Page<ProjectDTO> projects = projectClient.getProjects(null, SortOrder.LATEST, null, Paging.DEFAULT);
 
         assertThat(projects.getItems())
                 .extracting(ProjectDTO::getName)
-                .containsExactly("Project3", "Project2", "Project1");
+                .containsExactly(PROJECT_3, PROJECT_2, PROJECT_1);
     }
 
     @Test
@@ -328,9 +336,7 @@ class ProjectServiceTest extends ELNBaseTest {
             projectClient.createProject(new ProjectRequest("MyProject2"));
         });
 
-        withUser(BART_USERNAME, () -> {
-            projectClient.createProject(new ProjectRequest("OtherUserProject"));
-        });
+        withUser(BART_USERNAME, () -> projectClient.createProject(new ProjectRequest("OtherUserProject")));
 
         withUser(ELNBaseTest.JOHN_USERNAME, () -> {
             Page<ProjectDTO> projects = projectClient.getProjects(null, null, true, Paging.DEFAULT);
@@ -375,8 +381,8 @@ class ProjectServiceTest extends ELNBaseTest {
     @Test
     void testCounts() {
         UUID projectId = projectClient.createProject(new ProjectRequest("testCounts")).getId();
-        UUID notebook1Id = notebookClient.createNotebook(projectId, new NotebookRequest(nextNotebookName())).getId();
-        UUID notebook2Id = notebookClient.createNotebook(projectId, new NotebookRequest(nextNotebookName())).getId();
+        UUID notebook1Id = createNotebook(projectId).getId();
+        UUID notebook2Id = createNotebook(projectId).getId();
         experimentClient.createExperiment(notebook1Id, new ExperimentRequest(emptyTemplateID));
         experimentClient.createExperiment(notebook1Id, new ExperimentRequest(emptyTemplateID));
         experimentClient.createExperiment(notebook2Id, new ExperimentRequest(emptyTemplateID));
@@ -417,59 +423,55 @@ class ProjectServiceTest extends ELNBaseTest {
     }
 
     @Test
-    void testCreateAttachment(@TempDir Path tempDir) {
+    void testCreateAttachment() {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testCreateAttachment"));
-        Map<String, String> prepareData = projectClient.prepareProjectAttachment(project.getId(), "attachment.txt", (long) "content".getBytes().length);
+        Map<String, String> prepareData = projectClient.prepareProjectAttachment(project.getId(), ATTACHMENT_TXT, (long) CONTENT.getBytes().length);
         String path = prepareData.get("url");
         String id = prepareData.get("id");
         String fileName = Arrays.stream(path.split("/")).toList().getLast();
-        uploadClient.uploadFileContent(fileName, "attachment.txt", "content".getBytes());
+        uploadClient.uploadFileContent(fileName, ATTACHMENT_TXT, CONTENT.getBytes());
         List<AttachmentDTO> attachments =  projectClient.completeProjectAttachment(project.getId(), UUID.fromString(id));
         assertThat(attachments).singleElement().satisfies(a -> {
             assertThat(a.getId()).isNotNull();
-            assertThat(a.getName()).isEqualTo("attachment.txt");
+            assertThat(a.getName()).isEqualTo(ATTACHMENT_TXT);
             assertThat(a.getCreatedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME);
             assertThat(a.getCreatedAt()).isNotNull();
             assertThat(a.getModifiedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME);
             assertThat(a.getModifiedAt()).isNotNull();
         });
         assertThat(projectClient.getProjectRevisions(project.getId()))
-                .last().satisfies(revision -> {
-                    assertThat(revision.getSummary()).isEqualTo("Created attachment: attachment.txt, 7 bytes");
-                });
+                .last().satisfies(revision -> assertThat(revision.getSummary()).isEqualTo("Created attachment: " + ATTACHMENT_TXT + ", 7 bytes"));
     }
 
     @Test
-    void testDownloadAttachment(@TempDir Path tempDir) throws Exception {
+    void testDownloadAttachment() throws Exception {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testDownloadAttachment"));
-        Map<String, String> prepareData = projectClient.prepareProjectAttachment(project.getId(), "attachment.txt", (long) "content".getBytes().length);
+        Map<String, String> prepareData = projectClient.prepareProjectAttachment(project.getId(), ATTACHMENT_TXT, (long) CONTENT.getBytes().length);
         String path = prepareData.get("url");
         String id = prepareData.get("id");
         String fileName = Arrays.stream(path.split("/")).toList().getLast();
-        uploadClient.uploadFileContent(fileName, "attachment.txt", "content".getBytes());
+        uploadClient.uploadFileContent(fileName, ATTACHMENT_TXT, CONTENT.getBytes());
         List<AttachmentDTO> attachments =  projectClient.completeProjectAttachment(project.getId(), UUID.fromString(id));
         try (Response response = projectClient.downloadProjectAttachment(project.getId(), attachments.getFirst().getId())) {
-            assertThat(extractFilename(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION))).isEqualTo("attachment.txt");
-            assertThat((byte[]) response.getEntity()).asString().isEqualTo("content");
+            assertThat(extractFilename(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION))).isEqualTo(ATTACHMENT_TXT);
+            assertThat((byte[]) response.getEntity()).asString().isEqualTo(CONTENT);
         }
     }
 
     @Test
-    void testDeleteAttachment(@TempDir Path tempDir) {
+    void testDeleteAttachment() {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testDeleteAttachment"));
-        Map<String, String> prepareData = projectClient.prepareProjectAttachment(project.getId(), "attachment.txt", (long) "content".getBytes().length);
+        Map<String, String> prepareData = projectClient.prepareProjectAttachment(project.getId(), ATTACHMENT_TXT, (long) CONTENT.getBytes().length);
         String path = prepareData.get("url");
         String id = prepareData.get("id");
         String fileName = Arrays.stream(path.split("/")).toList().getLast();
-        uploadClient.uploadFileContent(fileName, "attachment.txt", "content".getBytes());
+        uploadClient.uploadFileContent(fileName, ATTACHMENT_TXT, CONTENT.getBytes());
         List<AttachmentDTO> attachments =  projectClient.completeProjectAttachment(project.getId(), UUID.fromString(id));
         projectClient.deleteProjectAttachment(project.getId(), attachments.getFirst().getId());
         project = projectClient.getProject(project.getId());
         assertThat(project.getAttachments()).isEmpty();
         assertThat(projectClient.getProjectRevisions(project.getId()))
-                .last().satisfies(revision -> {
-                    assertThat(revision.getSummary()).isEqualTo("Deleted attachment: attachment.txt");
-                });
+                .last().satisfies(revision -> assertThat(revision.getSummary()).isEqualTo("Deleted attachment: " + ATTACHMENT_TXT));
     }
 
     @Test
@@ -479,13 +481,11 @@ class ProjectServiceTest extends ELNBaseTest {
         // Use 3 MB file to stay safely below AWS API Gateway limit (it should be 7Mb, but SAM doesn't handle above 3Mb in lambda integration tests)
         int fileSizeInBytes = 3 * 1024 * 1024; // 3 MB
         byte[] largeContent = new byte[fileSizeInBytes];
-        new Random().nextBytes(largeContent);
+        ThreadLocalRandom.current().nextBytes(largeContent);
 
         String fileName = "large_test_file_7MB.pptx";
         Path filePath = tempDir.resolve(fileName);
         Files.write(filePath, largeContent);
-
-        long startTime = System.currentTimeMillis();
 
         Map<String, String> prepareData = projectClient.prepareProjectAttachment(
                 project.getId(),
@@ -500,7 +500,6 @@ class ProjectServiceTest extends ELNBaseTest {
         uploadClient.uploadFileContent(uploadName, fileName, largeContent);
         List<AttachmentDTO> attachments = projectClient.completeProjectAttachment(project.getId(), UUID.fromString(id));
 
-        long elapsedTime = System.currentTimeMillis() - startTime;
         assertThat(attachments).isNotEmpty();
     }
 
@@ -509,17 +508,20 @@ class ProjectServiceTest extends ELNBaseTest {
         UUID missingProjectId = UUID.randomUUID();
 
         assertThatClientCall(() ->
-                projectClient.prepareProjectAttachment(missingProjectId, "file.txt", (long) "content".getBytes().length)
+                projectClient.prepareProjectAttachment(missingProjectId, "file.txt", (long) CONTENT.getBytes().length)
         ).isNotFound("PROJECT " + missingProjectId + " not found");
     }
 
     @Test
     void testSuggestKeywords() {
-        projectClient.createProject(new ProjectRequest("testSuggestKeywords", List.of("k1", "K2", "k3", "keyword1", "Keyword2"), null, null));
-        List<DictionaryItemRef> all = dictionaryClient.suggestDictionaryItems(BuiltInDictionary.PROJECT_KEYWORD, "");
-        assertThat(all).map(DictionaryItemRef::getName).contains("k1", "k2", "k3");
-        List<DictionaryItemRef> filtered = dictionaryClient.suggestDictionaryItems(BuiltInDictionary.PROJECT_KEYWORD, "ke");
-        assertThat(filtered).map(DictionaryItemRef::getName).containsExactly("keyword1", "keyword2", "Keyword2");
+        projectClient.createProject(new ProjectRequest("testSuggestKeywords", List.of("suggKwRed", "SuggKwRose", "suggKwBlue"), null, null));
+        // Empty prefix returns the keywords used across projects
+        assertThat(projectClient.suggestKeywords("")).contains("suggKwRed", "SuggKwRose", "suggKwBlue");
+        // Prefix match is case-insensitive and excludes non-matching keywords
+        assertThat(projectClient.suggestKeywords("suggkwr")).containsExactlyInAnyOrder("suggKwRed", "SuggKwRose");
+        // Keywords are suggested globally and deduplicated across projects
+        projectClient.createProject(new ProjectRequest("testSuggestKeywords2", List.of("suggKwRed"), null, null));
+        assertThat(projectClient.suggestKeywords("suggkwred")).containsExactly("suggKwRed");
     }
 
     @Test
@@ -538,9 +540,8 @@ class ProjectServiceTest extends ELNBaseTest {
         Page<ProjectDTO> result3 = projectClient.getProjects("quickSearchCommon", null, null, Paging.DEFAULT);
         assertThat(result3.getItems()).map(ProjectDTO::getName).containsExactlyInAnyOrder(p2, p3);
 
-        // TODO keywords doesn't get reflected in the index because keywords are in a separate table and update is not triggered
-//        Page<ProjectDTO> result4 = projectsClient.getProjects("QSKeyword", Paging.DEFAULT);
-//        assertThat(result4.getItems()).map(ProjectDTO::getName).containsOnly(p3);
+        Page<ProjectDTO> result4 = projectClient.getProjects("QSKeyword", null, null, Paging.DEFAULT);
+        assertThat(result4.getItems()).map(ProjectDTO::getName).containsOnly(p3);
 
         Page<ProjectDTO> result5 = projectClient.getProjects("QSLiterature", null, null, Paging.DEFAULT);
         assertThat(result5.getItems()).map(ProjectDTO::getName).containsOnly(p3);
@@ -560,14 +561,18 @@ class ProjectServiceTest extends ELNBaseTest {
     void testAdminCanUpdateAccessForUserCreatedProject() {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testAdminCanUpdateAccessForUserCreatedProject"));
         withUser(ADMIN_USERNAME, () -> {
-            projectClient.updateProjectAccess(project.getId(), AccessForm.of(BART_USERNAME, AccessLevel.EDIT));
+            List<ACLEntryDTO> projectAccess = projectClient.updateProjectAccess(project.getId(), AccessForm.of(BART_USERNAME, AccessLevel.EDIT));
+            assertThatACL(projectAccess).containsOnly(
+                    JOHN_DISPLAY_NAME, AccessLevel.AUTHOR, false,
+                    BART_DISPLAY_NAME, AccessLevel.EDIT, false
+            );
         });
     }
 
     @Test
     void testUpdateAccess() {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testUpdateAccess"));
-        NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        NotebookDetailsDTO notebook = createNotebook(project.getId());
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         projectClient.updateProjectAccess(project.getId(), AccessForm.of(MAGGIE_USERNAME, AccessLevel.EDIT));
         assertThat(projectClient.getProjectRevisions(project.getId()))
@@ -578,20 +583,14 @@ class ProjectServiceTest extends ELNBaseTest {
                     assertThat(revision.getSummary()).isEqualTo("Edited Team: granted maggie EDIT access");
                 });
         assertThat(notebookClient.getNotebookRevisions(notebook.getId()))
-                .last().satisfies(revision -> {
-                    assertThat(revision.getSummary()).isEqualTo("Access updated because of the changes in project testUpdateAccess");
-                });
+                .last().satisfies(revision -> assertThat(revision.getSummary()).isEqualTo("Access updated because of the changes in project testUpdateAccess"));
         assertThat(experimentClient.getExperimentRevisions(experiment.getId(), true))
-                .last().satisfies(revision -> {
-                    assertThat(revision.getSummary()).isEqualTo("Access updated because of the changes in project testUpdateAccess");
-                });
+                .last().satisfies(revision -> assertThat(revision.getSummary()).isEqualTo("Access updated because of the changes in project testUpdateAccess"));
 
         projectClient.updateProjectAccess(project.getId(), AccessForm.of(MAGGIE_USERNAME, AccessLevel.NONE));
         assertThat(projectClient.getProjectRevisions(project.getId()))
                 .hasSize(3)
-                .last().satisfies(revision -> {
-                    assertThat(revision.getSummary()).isEqualTo("Edited Team: removed maggie");
-                });
+                .last().satisfies(revision -> assertThat(revision.getSummary()).isEqualTo("Edited Team: removed maggie"));
     }
 
     @Nested
@@ -609,20 +608,11 @@ class ProjectServiceTest extends ELNBaseTest {
             withUser(JOHN_USERNAME, () -> {
                 project = projectClient.createProject(new ProjectRequest(testInfo.getTestMethod().get().getName()));
                 projectClient.updateProjectAccess(project.getId(), AccessForm.of(BART_USERNAME, AccessLevel.EDIT));
-                notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+                notebook = createNotebook(project.getId());
                 notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(BART_USERNAME, AccessLevel.ADMIN));
                 experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
                 experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(LISA_USERNAME, AccessLevel.VIEW));
             });
-        }
-
-        @Test
-        void testGetNestedAccess() {
-            assertThat(projectClient.getNestedProjectAccess(project.getId()))
-                    .containsExactly(
-                            new NestedACLEntryDTO(ELNEntityType.NOTEBOOK, notebook.getId(), notebook.getName(), BART_DISPLAY_NAME, AccessLevel.ADMIN),
-                            new NestedACLEntryDTO(ELNEntityType.EXPERIMENT, experiment.getId(), experiment.getName(), LISA_DISPLAY_NAME, AccessLevel.VIEW)
-                    );
         }
 
         @Test

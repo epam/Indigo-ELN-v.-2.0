@@ -1,20 +1,25 @@
-@if (isLoading) {
+@if (isLoading()) {
   <div class="flex items-center justify-center py-8">
     <span>Loading notebook...</span>
   </div>
-} @else if (hasError) {
+} @else if (hasError()) {
   <div class="flex items-center justify-center py-8">
     <div class="text-center">
       <span>There was an error loading the notebook, please try again later</span>
     </div>
   </div>
-} @else if (notebook) {
+} @else if (notebook()) {
   <div class="grid grid-cols-[1fr_auto] gap-4 pt-4">
     <eln-card>
       <div class="px-3">
         <div class="flex items-center justify-between pb-3 border-b border-b-neutral-200">
           <h2 class="font-semibold text-base">About Notebook</h2>
-          <eln-button variant="blue-outline" classList="text-primary-400" (click)="openEditDialog()">
+          <eln-button
+            variant="blue-outline"
+            classList="text-primary-400"
+            (click)="openEditDialog()"
+            [disabled]="!canEditNotebook()"
+          >
             <em class="indicon-edit"></em>
             Edit
           </eln-button>
@@ -23,22 +28,31 @@
         <div class="space-y-6 mt-3 text-sm">
           <div>
             <h3 class="font-semibold text-neutral-800 mb-2">Notebook Name</h3>
-            <p class="text-sm text-neutral-800">{{ notebook?.name ?? '' }}</p>
+            <p class="text-sm text-neutral-800">{{ notebook()?.name ?? '' }}</p>
           </div>
 
           <div>
             <h3 class="text-neutral-800 mb-2 font-semibold">Notebook Description</h3>
-            <div class="text-sm text-neutral-800 whitespace-pre-line" [innerHTML]="notebook?.description"></div>
+            <div class="text-sm text-neutral-800 whitespace-pre-line" [innerHTML]="notebook()?.description"></div>
           </div>
 
           <eln-attachments
-            [attachments]="notebook.attachments"
-            [baseURL]="`/api/eln/notebooks/${this.notebook.id}`"
+            [attachments]="notebook().attachments"
+            [baseURL]="`/api/eln/notebooks/${this.notebook().id}`"
+            [requiredPermission]="applicationPermission.EDIT_NOTEBOOKS"
+            [downloadPermission]="applicationPermission.VIEW_NOTEBOOKS"
+            [entity]="notebook()"
             (attachmentsChanged)="onAttachmentsChanged($event)"
           />
         </div>
       </div>
     </eln-card>
-    <eln-team [team]="notebook.acl" [entityId]="notebook.id" [config]="notebookTeamConfig" />
+    <eln-team
+      [team]="notebook().acl"
+      [entityId]="notebook().id"
+      [config]="notebookTeamConfig"
+      [requiredPermission]="applicationPermission.MANAGE_NOTEBOOK_ACCESS"
+      [entity]="notebook()"
+    />
   </div>
 }

@@ -6,13 +6,14 @@ import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 @ApplicationScoped
 public class S3FileStorage implements FileStorage {
@@ -25,6 +26,26 @@ public class S3FileStorage implements FileStorage {
 
     @Inject
     S3Presigner presigner;
+
+    @Override
+    public List<String> list(String key) {
+        if (!key.endsWith("/")) {
+            key += "/";
+        }
+        ListObjectsV2Response response;
+        List<String> result = new ArrayList<>();
+        String continuationToken = null;
+        do {
+            ListObjectsV2Request.Builder req = ListObjectsV2Request.builder().bucket(bucket).prefix(key);
+            if (continuationToken != null) req.continuationToken(continuationToken);
+            response = s3.listObjectsV2(req.build());
+            for (S3Object object : response.contents()) {
+                result.add(object.key());
+            }
+            continuationToken = response.nextContinuationToken();
+        } while (response.isTruncated());
+        return result;
+    }
 
     @Override
     public void put(String key, byte[] bytes) {

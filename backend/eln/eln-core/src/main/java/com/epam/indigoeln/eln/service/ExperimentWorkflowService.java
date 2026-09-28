@@ -2,7 +2,7 @@ package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.model.DocumentStatus;
 import com.epam.indigoeln.eln.config.DataAccess;
-import com.epam.indigoeln.eln.entity.AttachmentEntity;
+import com.epam.indigoeln.eln.entity.ExperimentAttachment;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
 import com.epam.indigoeln.eln.model.SignatureTemplateRef;
@@ -21,7 +21,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -49,13 +48,13 @@ public class ExperimentWorkflowService {
     SignatureClient signatureClient;
 
     public ExperimentDetailsDTO cancelExperiment(UUID experimentId) {
-        ExperimentEntity experiment = experimentRepository.getAndLock(experimentId);
+        ExperimentEntity experiment = experimentRepository.loadAndLock(experimentId);
         experimentModelService.applyMutation(experiment, new ExperimentMutation.CancelExperiment());
         return experimentService.getExperimentDetails(experiment);
     }
 
     public ExperimentDetailsDTO reopenExperiment(UUID experimentId) {
-        ExperimentEntity experiment = experimentRepository.getAndLock(experimentId);
+        ExperimentEntity experiment = experimentRepository.loadAndLock(experimentId);
         experimentModelService.applyMutation(experiment, new ExperimentMutation.ReopenExperiment());
         return experimentService.getExperimentDetails(experiment);
     }
@@ -67,20 +66,20 @@ public class ExperimentWorkflowService {
     }
 
     public ExperimentDetailsDTO completeExperiment(UUID experimentId) {
-        ExperimentEntity experiment = experimentRepository.getAndLock(experimentId);
+        ExperimentEntity experiment = experimentRepository.loadAndLock(experimentId);
         experimentModelService.applyMutation(experiment, new ExperimentMutation.CompleteExperiment());
         experimentModelService.applyMutation(experiment, new ExperimentMutation.MakeVersion());
         return experimentService.getExperimentDetails(experiment);
     }
 
     public ExperimentDetailsDTO submitExperiment(UUID experimentId, UUID signatureTemplateId) {
-        ExperimentEntity experiment = experimentRepository.getAndLock(experimentId);
+        ExperimentEntity experiment = experimentRepository.loadAndLock(experimentId);
         experimentModelService.applyMutation(experiment, new ExperimentMutation.SubmitExperiment(signatureTemplateId));
         return experimentService.getExperimentDetails(experiment);
     }
 
     public ExperimentDetailsDTO completeAndSubmitExperiment(UUID experimentId, UUID signatureTemplateId) {
-        ExperimentEntity experiment = experimentRepository.getAndLock(experimentId);
+        ExperimentEntity experiment = experimentRepository.loadAndLock(experimentId);
         experimentModelService.applyMutation(experiment, new ExperimentMutation.CompleteExperiment());
         experimentModelService.applyMutation(experiment, new ExperimentMutation.MakeVersion());
         experimentModelService.applyMutation(experiment, new ExperimentMutation.SubmitExperiment(signatureTemplateId));
@@ -90,7 +89,7 @@ public class ExperimentWorkflowService {
     @SneakyThrows
     public void signatureUpdated(UUID documentId, String message, DocumentStatus updatedStatus, Path path) {
         ExperimentEntity experiment = experimentRepository.findBySignatureNumber(documentId.toString());
-        AttachmentEntity submittedAttachment = checkNotNull(experiment.getSignatureAttachment());
+        ExperimentAttachment submittedAttachment = checkNotNull(experiment.getSignatureAttachment());
         byte[] bytes = Files.readAllBytes(path);
         Map<String, String> prepareData = attachmentService.prepareExperimentAttachment(experiment.getId(), submittedAttachment.getName(), bytes.length, false);
         ExperimentMutation mutation = new ExperimentMutation.SignatureUpdated(message, updatedStatus, UUID.fromString(prepareData.get("id")));

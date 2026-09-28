@@ -1,16 +1,15 @@
 import { IdentityService } from '@/core/services/identity.service';
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
-import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { SlideInPanelService } from '@core/components/common/slide-in-panel/slide-in-panel.service';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
-import { AuthenticatorService } from '@aws-amplify/ui-angular';
+import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { ReportErrorDialogService } from '@core/services/report-error-dialog.service';
 import { GlobalSearchComponent } from '@pages/search/global-search/global-search.component';
 import { Observable, Subject, takeUntil } from 'rxjs';
@@ -23,6 +22,7 @@ import { SidebarComponent } from './partials/sidebar/sidebar.component';
   imports: [
     CommonModule,
     RouterOutlet,
+    RouterLink,
     ReactiveFormsModule,
     MatSidenavModule,
     MatIconModule,
@@ -37,22 +37,22 @@ import { SidebarComponent } from './partials/sidebar/sidebar.component';
 })
 export class MasterComponent implements OnInit, OnDestroy {
   destroy$ = new Subject<void>();
-  authenticatorService = inject(AuthenticatorService);
   identityService = inject(IdentityService);
-  dialog = inject(MatDialog);
+  slideInPanelService = inject(SlideInPanelService);
   reportErrorDialogService = inject(ReportErrorDialogService);
   public isCollapsed = false;
   public searchControl = new FormControl('');
   router = inject(Router);
 
-  userName = 'John D.';
+  userName = '';
   userAvatar = 'assets/avatar-placeholder.png';
 
   @ViewChild('content', { static: true }) content!: ElementRef<HTMLElement>;
+  @ViewChild('searchHeader') searchHeader: TemplateRef<any>;
 
-  logout() {
-    this.authenticatorService.signOut();
-    this.router.navigateByUrl('/');
+  async logout() {
+    await this.identityService.logout();
+    await this.router.navigateByUrl('/');
   }
 
   ngOnInit(): void {
@@ -76,7 +76,10 @@ export class MasterComponent implements OnInit, OnDestroy {
   }
 
   showSearch(): void {
-    this.dialog.open(GlobalSearchComponent, { data: { initialQuery: this.searchControl.value } });
+    this.slideInPanelService.open(GlobalSearchComponent, {
+      header: this.searchHeader,
+      inputs: { initialQuery: this.searchControl.value },
+    });
     this.searchControl.reset();
   }
 

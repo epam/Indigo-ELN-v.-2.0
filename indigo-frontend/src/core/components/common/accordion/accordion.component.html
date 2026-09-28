@@ -20,13 +20,7 @@
       </span>
     </button>
     @if (accordionItem.expanded) {
-      <div
-        class="p-4"
-        role="region"
-        [style.display]="accordionItem.expanded ? '' : 'none'"
-        [attr.id]="'accordion-body-'"
-        [attr.aria-labelledby]="'accordion-header-'"
-      >
+      <div class="p-4 block" role="region" [attr.id]="'accordion-body-'" [attr.aria-labelledby]="'accordion-header-'">
         <ng-content select="body"></ng-content>
       </div>
     }

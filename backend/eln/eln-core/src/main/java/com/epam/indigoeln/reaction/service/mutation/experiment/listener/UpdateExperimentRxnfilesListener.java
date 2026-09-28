@@ -6,13 +6,11 @@ import com.epam.indigoeln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.ReactionAnchor;
 import com.epam.indigoeln.reaction.service.ExperimentModelHelperService;
-import com.epam.indigoeln.reaction.service.mutation.ExperimentModelMutationListener;
+import com.epam.indigoeln.reaction.service.mutation.ExperimentMutationListener;
 import com.epam.indigoeln.reaction.service.mutation.experiment.ExperimentMutationContext;
-import com.epam.indigoeln.reaction.util.StreamUtil;
 import jakarta.annotation.Priority;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
-import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
@@ -20,11 +18,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.epam.indigoeln.common.util.ModelUtil.updateCollection;
-
 @Dependent
-@Priority(ExperimentModelMutationListener.DEFAULT_PRIORITY)
-public class UpdateExperimentRxnfilesListener implements ExperimentModelMutationListener {
+@Priority(ExperimentMutationListener.DEFAULT_PRIORITY)
+public class UpdateExperimentRxnfilesListener implements ExperimentMutationListener {
 
     @Inject
     ExperimentModelHelperService experimentModelHelperService;
@@ -45,7 +41,6 @@ public class UpdateExperimentRxnfilesListener implements ExperimentModelMutation
 
     @Override
     public void afterRecalculate(ExperimentEntity experiment, ExperimentMutationContext context) {
-        boolean anyRxnfileChanged = false;
         for (Reaction reaction : experiment.getModel().getReactions()) {
             IndigoReaction indigoReaction;
             String oldRxnfile = oldRxnfiles.get(reaction.getAnchor());
@@ -60,15 +55,11 @@ public class UpdateExperimentRxnfilesListener implements ExperimentModelMutation
             } else {
                 continue; // nothing changed
             }
-            anyRxnfileChanged = true;
-            String image = experimentModelHelperService.rebuildReactionPicture(experiment, reaction, indigoReaction);
-            context.getResponse().getReactionImages().put(reaction.getAnchor(), image);
-        }
-        if (anyRxnfileChanged || oldRxnfiles.size() != experiment.getModel().getReactions().size()) {
-            List<String> rxnFiles = StreamEx.of(experiment.getModel().getReactions())
-                    .map(Reaction::getRxnfile)
-                    .collect(StreamUtil.toListNotNull());
-            updateCollection(experiment.getRxnfiles(), rxnFiles);
+            byte[] picture = experimentModelHelperService.rebuildReactionPicture(experiment, indigoReaction);
+            if (reaction == experiment.getModel().getReactions().getFirst()) {
+                experiment.setPicture(picture);
+            }
+            context.getResponse().getReactionImages().put(reaction.getAnchor(), new String(picture));
         }
     }
 }
