@@ -10,6 +10,16 @@ services:
       - KEYCLOAK_REALM=indigo-eln
       - KEYCLOAK_CLIENT_ID=frontend-client
 
+  frontend2:
+    image: "indigoeln/frontend2:built"
+    build:
+      context: ./../frontend2
+      dockerfile: Dockerfile
+      # Vite inlines these at build time; they cannot be set at runtime.
+      args:
+        VITE_COGNITO_USER_POOL_ID: us-east-1_bgZNcyeDz
+        VITE_COGNITO_CLIENT_ID: 3bqu2iod15b0otft0ap8umlfgh
+
   eln-service:
     image: "indigoeln/eln-service:built"
     platform: linux/amd64
@@ -206,6 +216,7 @@ services:
       - "80:80"
     depends_on:
       - frontend
+      - frontend2
       - eln-service
       - signature-service
       - reports-service
