@@ -4,7 +4,6 @@ import software.amazon.awscdk.Stack;
 import software.amazon.awscdk.StackProps;
 import software.amazon.awscdk.services.ecr.IRepository;
 import software.amazon.awscdk.services.ecr.Repository;
-import software.amazon.awscdk.services.rds.Credentials;
 import software.constructs.Construct;
 
 public class MainStack extends Stack {
@@ -12,29 +11,28 @@ public class MainStack extends Stack {
     public MainStack(Construct scope, String id, StackProps stackProps, String envName, StageParameters props) {
         super(scope, id, stackProps);
 
-        IRepository elnLambdaRepo = Repository.fromRepositoryName(this, "ecr-indigo-eln",  "indigoeln/indigo-eln-lambda");
-        IRepository reportsLambdaRepo = Repository.fromRepositoryName(this, "ecr-indigo-eln-reports", "indigoeln/indigo-eln-reports-lambda");
-        IRepository signatureLambdaRepo = Repository.fromRepositoryName(this, "ecr-indigo-eln-signature", "indigoeln/indigo-eln-signature-lambda");
-        IRepository postgresRepo = Repository.fromRepositoryName(this, "ecr-indigo-eln-postgres", "indigoeln/postgres");
+        // The `combined` target: the base image only installs bingo and the extensions, so the
+        // CREATE DATABASE statements for eln/keycloak/signature/sampleregistration live here.
+        IRepository postgresRepo = Repository.fromRepositoryName(this, "ecr-postgres-combined", "indigoeln/postgres-combined");
+        // The `*-aws` images: long-running HTTP servers, run by docker-compose on the EC2 instance.
+        // The `*-lambda` images are still built by CI but nothing deploys them any more.
+        IRepository elnAwsRepo = Repository.fromRepositoryName(this, "ecr-eln-aws", "indigoeln/eln-aws");
+        IRepository reportsAwsRepo = Repository.fromRepositoryName(this, "ecr-reports-aws", "indigoeln/reports-aws");
+        IRepository signatureAwsRepo = Repository.fromRepositoryName(this, "ecr-signature-aws", "indigoeln/signature-aws");
+        IRepository sampleRegistrationAwsRepo = Repository.fromRepositoryName(this, "ecr-sampleregistration-aws", "indigoeln/sampleregistration-aws");
 
         InfraStack infraStack = new InfraStack(this, new InfraStack.Props(
+                envName,
+                props.getRegion(),
                 props.getVpc(),
+                props.getDataVolumeAz(),
                 props.getEc2KeyPair(),
                 props.getHostedZone(),
                 props.getHostedZoneName(),
                 props.getSecurityGroups(),
                 props.getStorageBucketName(),
+                props.getApiGatewaySecret(),
                 props.getLambdaSubnets()
-        ));
-
-        PostgresStack postgresStack = new PostgresStack(this, new PostgresStack.Props(
-                infraStack.getPrivateDnsNamespace(),
-                props.getPostgresMasterUsername(),
-                infraStack.getEcsCluster(),
-                infraStack.getEc2SecurityGroup(),
-                infraStack.getAdditionalSecurityGroups(),
-                postgresRepo,
-                props.getPostgresImageTag()
         ));
 
         CognitoStack cognitoStack = new CognitoStack(this, new CognitoStack.Props(
@@ -42,29 +40,33 @@ public class MainStack extends Stack {
                 envName
         ));
 
-        ELNLambdaStack elnLambdaStack = new ELNLambdaStack(this, new ELNLambdaStack.Props(
-                infraStack.getVpc(),
-                infraStack.getEc2SecurityGroup(),
-                Credentials.fromSecret(postgresStack.getDbSecret()),
-                infraStack.getLambdaSecurityGroup(),
+        new ComposeStack(this, new ComposeStack.Props(
+                envName,
+                props.getRegion(),
+                "/indigoeln/" + envName + "/compose",
+                infraStack.getInstance(),
+                infraStack.getEc2Role(),
+                infraStack.getStorageBucket(),
                 cognitoStack.getUserPool(),
-                cognitoStack.getUserPoolClient(),
-                elnLambdaRepo,
-                reportsLambdaRepo,
-                signatureLambdaRepo,
-                props.getLambdaSubnets(),
-                props.getElnLambdaImageTag(),
-                props.getReportsLambdaImageTag(),
-                props.getSignatureLambdaImageTag(),
-                props.getApiGatewaySecret(),
-                infraStack.getStorageBucket()
+                infraStack.getApiSecret(),
+                props.getSignatureKeystorePassword(),
+                postgresRepo,
+                props.getPostgresImageTag(),
+                elnAwsRepo,
+                props.getElnAwsImageTag(),
+                reportsAwsRepo,
+                props.getReportsAwsImageTag(),
+                signatureAwsRepo,
+                props.getSignatureAwsImageTag(),
+                sampleRegistrationAwsRepo,
+                props.getSampleRegistrationAwsImageTag()
         ));
 
-        CloudFrontStack cloudFrontStack = new CloudFrontStack(this, new CloudFrontStack.Props(
+        new CloudFrontStack(this, new CloudFrontStack.Props(
                 infraStack.getHostedZone(),
-                elnLambdaStack.getHttpApi(),
+                infraStack.getInstance(),
                 props.getDomainName(),
-                elnLambdaStack.getApiGatewaySecret()
+                infraStack.getApiSecret()
         ));
     }
 }

@@ -30,10 +30,20 @@ public class BuildStack extends Stack {
     public BuildStack(final Construct scope, final String id, StackProps stackProps, GlobalParameters globalParameters) {
         super(scope, id, stackProps);
 
-        Repository elnLambdaRepo = createECRRepo("ecr-indigo-eln", "indigoeln/indigo-eln-lambda");
-        Repository reportsLambdaRepo = createECRRepo("ecr-indigo-eln-reports", "indigoeln/indigo-eln-reports-lambda");
-        Repository signatureLambdaRepo = createECRRepo("ecr-indigo-eln-signature", "indigoeln/indigo-eln-signature-lambda");
-        Repository postgresRepo = createECRRepo("ecr-indigo-eln-postgres", "indigoeln/postgres");
+        Repository elnLambdaRepo = createECRRepo("ecr-eln-lambda", "indigoeln/eln-lambda");
+        Repository reportsLambdaRepo = createECRRepo("ecr-reports-lambda", "indigoeln/reports-lambda");
+        Repository signatureLambdaRepo = createECRRepo("ecr-signature-lambda", "indigoeln/signature-lambda");
+        Repository sampleRegistrationLambdaRepo = createECRRepo("ecr-sampleregistration-lambda", "indigoeln/sampleregistration-lambda");
+        Repository postgresRepo = createECRRepo("ecr-postgres-base", "indigoeln/postgres-base");
+        // The `combined` target of the same Dockerfile: bingo plus every application database in
+        // one instance, for the compose stack and the integration tests.
+        Repository postgresCombinedRepo = createECRRepo("ecr-postgres-combined", "indigoeln/postgres-combined");
+        // The `*-aws` modules: the same services as the lambdas, packaged as long-running HTTP
+        // servers for the compose stack on EC2. The lambda images keep being built alongside them.
+        Repository elnAwsRepo = createECRRepo("ecr-eln-aws", "indigoeln/eln-aws");
+        Repository reportsAwsRepo = createECRRepo("ecr-reports-aws", "indigoeln/reports-aws");
+        Repository signatureAwsRepo = createECRRepo("ecr-signature-aws", "indigoeln/signature-aws");
+        Repository sampleRegistrationAwsRepo = createECRRepo("ecr-sampleregistration-aws", "indigoeln/sampleregistration-aws");
 
         Bucket buildLogsBucket = Bucket.Builder.create(this, "build-logs-bucket")
                 .build();
@@ -72,13 +82,16 @@ public class BuildStack extends Stack {
                 , buildLogsBucket
                 , ecrPublicPermissions
                 , mapOf(
-                        entry("REGISTRY_URI", postgresRepo.getRegistryUri()),
+                        entry("REGISTRY_URI", postgresRepo.getRegistryUri()), // same registry for both repos
                         entry("REPO_URI", postgresRepo.getRepositoryUri()),
-                        entry("REPO_URI_PUBLIC", "public.ecr.aws/m5k0g6n7/indigoeln/postgres")
+                        entry("REPO_URI_PUBLIC", "public.ecr.aws/m5k0g6n7/indigoeln/postgres-base"),
+                        entry("COMBINED_REPO_URI", postgresCombinedRepo.getRepositoryUri()),
+                        entry("COMBINED_REPO_URI_PUBLIC", "public.ecr.aws/m5k0g6n7/indigoeln/postgres-combined")
                 )
                 , mapOf()
         );
         postgresRepo.grantPullPush(postgresBuild);
+        postgresCombinedRepo.grantPullPush(postgresBuild);
 
         Project elnBuild = createBuild("eln-build"
                 , "indigo-eln-build"
@@ -86,15 +99,25 @@ public class BuildStack extends Stack {
                 , buildLogsBucket
                 , ecrPublicPermissions
                 , mapOf(
-                        entry("BUILD_ELN_LAMBDA", "true"),
+                        entry("BUILD_ELN_LAMBDA", "false"),
                         entry("BUILD_REPORTS_LAMBDA", "false"),
                         entry("BUILD_SIGNATURE_LAMBDA", "false"),
-                        entry("ELN_REGISTRY_URI", elnLambdaRepo.getRegistryUri()),
+                        // All private repos share the account registry, so one login in the buildspec covers every push.
+                        entry("REGISTRY_URI", elnLambdaRepo.getRegistryUri()),
                         entry("ELN_REPO_URI", elnLambdaRepo.getRepositoryUri()),
-                        entry("REPORTS_REGISTRY_URI", reportsLambdaRepo.getRegistryUri()),
                         entry("REPORTS_REPO_URI", reportsLambdaRepo.getRepositoryUri()),
-                        entry("SIGNATURE_REGISTRY_URI", signatureLambdaRepo.getRegistryUri()),
                         entry("SIGNATURE_REPO_URI", signatureLambdaRepo.getRepositoryUri()),
+                        entry("BUILD_SAMPLEREGISTRATION_LAMBDA", "false"),
+                        entry("SAMPLEREGISTRATION_REPO_URI", sampleRegistrationLambdaRepo.getRepositoryUri()),
+                        entry("BUILD_ELN_AWS", "true"),
+                        entry("BUILD_REPORTS_AWS", "false"),
+                        entry("BUILD_SIGNATURE_AWS", "false"),
+                        entry("BUILD_SAMPLEREGISTRATION_AWS", "false"),
+                        // One registry for every private repo in the account, so the lambda logins above cover these too.
+                        entry("ELN_AWS_REPO_URI", elnAwsRepo.getRepositoryUri()),
+                        entry("REPORTS_AWS_REPO_URI", reportsAwsRepo.getRepositoryUri()),
+                        entry("SIGNATURE_AWS_REPO_URI", signatureAwsRepo.getRepositoryUri()),
+                        entry("SAMPLEREGISTRATION_AWS_REPO_URI", sampleRegistrationAwsRepo.getRepositoryUri()),
                         entry("S3_LOGS", buildLogsBucket.getBucketName()),
                         entry("SONAR_HOST_URL", sonarHostUrl)
                 )
@@ -103,6 +126,11 @@ public class BuildStack extends Stack {
         elnLambdaRepo.grantPullPush(elnBuild);
         reportsLambdaRepo.grantPullPush(elnBuild);
         signatureLambdaRepo.grantPullPush(elnBuild);
+        sampleRegistrationLambdaRepo.grantPullPush(elnBuild);
+        elnAwsRepo.grantPullPush(elnBuild);
+        reportsAwsRepo.grantPullPush(elnBuild);
+        signatureAwsRepo.grantPullPush(elnBuild);
+        sampleRegistrationAwsRepo.grantPullPush(elnBuild);
         sonarTokenSecret.grantRead(elnBuild);
 
         Project frontendBuild = createBuild("frontend-build"
@@ -140,7 +168,9 @@ public class BuildStack extends Stack {
                 .environmentVariables(environmentVariables)
                 // The BuildSpec defines the commands to run during the build.
                 .buildSpec(BuildSpec.fromSourceFilename(buildSpecFile))
-                .timeout(Duration.minutes(30))
+                // The eln project runs the whole repo's unit tests, then up to eight Quarkus builds
+                // (four lambda, four aws) with a docker build and two pushes each.
+                .timeout(Duration.minutes(60))
                 .logging(LoggingOptions.builder()
                         .cloudWatch(CloudWatchLoggingOptions.builder().enabled(false).build())
                         .s3(S3LoggingOptions.builder().enabled(true).bucket(buildLogsBucket).prefix("backend").build())

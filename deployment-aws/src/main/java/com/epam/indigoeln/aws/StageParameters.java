@@ -15,19 +15,23 @@ public class StageParameters {
     private String region;
     @Nullable
     private String permissionBoundary;
-    private String postgresMasterUsername;
     private String domainName;
     private String vpc;
     private List<String> securityGroups;
     private String ec2KeyPair;
     private String hostedZone;
     private String hostedZoneName;
-    private String elnLambdaImageTag;
-    private String reportsLambdaImageTag;
-    private String signatureLambdaImageTag;
+    /** Must be the AZ the Postgres data volume lives in; a standalone EBS only attaches within one AZ. */
+    private String dataVolumeAz;
     private List<String> lambdaSubnets;
     private String postgresImageTag;
+    private String elnAwsImageTag;
+    private String reportsAwsImageTag;
+    private String signatureAwsImageTag;
+    private String sampleRegistrationAwsImageTag;
+    /** Shared between CloudFront's origin custom header and every service's APISecretFilter. */
     private String apiGatewaySecret;
+    private String signatureKeystorePassword;
     private String storageBucketName;
 
     @SneakyThrows
