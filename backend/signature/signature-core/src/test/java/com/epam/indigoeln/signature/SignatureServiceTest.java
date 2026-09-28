@@ -66,13 +66,16 @@ class SignatureServiceTest extends BaseTest {
         signatureClient = buildClient(SignatureClient.class);
         signatureAdminClient = buildClient(SignatureAdminClient.class);
         signatureAdminClient.cleanupDatabase();
-        elnInternalClient = mock(ELNInternalClient.class);
+        if (integrationTest) {
+            elnInternalClient = buildClient(ELNInternalClient.class);
+        } else {
+            elnInternalClient = mock(ELNInternalClient.class);
+            doNothing().when(elnInternalClient).internalSignatureUpdatedClient(any(), any(), any(), any());
+        }
 
         johnUserRef = signatureAdminClient.getOrCreateUser("john", "John", "Doe");
         willowUserRef = signatureAdminClient.getOrCreateUser("willow", "Willow", "Johnson");
         bartUserRef = signatureAdminClient.getOrCreateUser("bart", "Bart", "Simpson");
-
-        doNothing().when(elnInternalClient).internalSignatureUpdatedClient(any(), any(), any(), any());
     }
 
     @Test
@@ -205,7 +208,7 @@ class SignatureServiceTest extends BaseTest {
     void testDownloadDocument() throws Exception {
         try (Response content = signatureClient.downloadDocument(documentID)) {
             String filename = extractFilename(FeignUtil.getLastResponse().headers().get(HttpHeaders.CONTENT_DISPOSITION));
-            assertThat(filename).isNotNull().isEqualTo("document.pdf");
+            assertThat(filename).isEqualTo("document.pdf");
             try (FileOutputStream fos = new FileOutputStream("build/" + filename)) {
                 fos.write(content.readEntity(byte[].class));
             }
