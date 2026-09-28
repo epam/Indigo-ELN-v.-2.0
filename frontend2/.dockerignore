@@ -1,0 +1,12 @@
+node_modules
+dist
+.git
+coverage
+storybook-static
+.tanstack
+
+# Environment overrides must not leak into an image build — the Cognito values
+# come from build args (see Dockerfile).
+.env
+.env.*
+!.env.example
