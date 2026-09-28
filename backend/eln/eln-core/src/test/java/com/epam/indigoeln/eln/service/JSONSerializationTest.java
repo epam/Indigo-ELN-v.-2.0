@@ -1,16 +1,32 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.model.MolFormula;
 import com.epam.indigoeln.common.model.UserRef;
+import com.epam.indigoeln.common.model.units.WeightUnit;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.ExperimentRef;
 import com.epam.indigoeln.eln.model.ProjectEditRequest;
 import com.epam.indigoeln.eln.model.TemplateComponent;
 import com.epam.indigoeln.eln.model.TemplateTab;
+import com.epam.indigoeln.reaction.model.CompoundRef;
+import com.epam.indigoeln.reaction.model.EnteredValue;
+import com.epam.indigoeln.reaction.model.ExperimentModel;
+import com.epam.indigoeln.reaction.model.InputAnchor;
+import com.epam.indigoeln.reaction.model.InputSampleAnchor;
+import com.epam.indigoeln.reaction.model.OutputAnchor;
+import com.epam.indigoeln.reaction.model.OutputSampleAnchor;
+import com.epam.indigoeln.reaction.model.Reaction;
+import com.epam.indigoeln.reaction.model.ReactionAnchor;
+import com.epam.indigoeln.reaction.model.ReactionInput;
+import com.epam.indigoeln.reaction.model.ReactionInputSample;
+import com.epam.indigoeln.reaction.model.ReactionOutput;
+import com.epam.indigoeln.reaction.model.ReactionOutputSample;
+import com.epam.indigoeln.reaction.model.ReactionOutputType;
+import com.epam.indigoeln.reaction.model.ReactionRole;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.EnteredValue;
-import com.epam.indigoeln.common.model.units.WeightUnit;
 import com.epam.indigoeln.test.FeignUtil;
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.test.junit.QuarkusTest;
@@ -31,13 +47,23 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import static com.epam.indigoeln.eln.test.EnteredValueAssert.assertThat;
+import static com.epam.indigoeln.common.model.units.MolWeightUnit.G_PER_MOL;
+import static com.epam.indigoeln.common.model.units.NoUnit.NO_UNIT;
 import static com.epam.indigoeln.common.model.units.WeightUnit.G;
+import static com.epam.indigoeln.eln.test.EnteredValueAssert.assertThat;
+import static com.epam.indigoeln.reaction.model.EnteredValue.fixed;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @QuarkusTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class JSONSerializationTest {
+
+    ReactionAnchor REACTION = new ReactionAnchor(UUID.fromString("00000000-0000-0000-0000-000000000001"));
+    InputAnchor INPUT = new InputAnchor(UUID.fromString("00000000-0000-0000-0000-000000000010"));
+    InputSampleAnchor INPUT_SAMPLE = new InputSampleAnchor(UUID.fromString("00000000-0000-0000-0000-000000000011"));
+    OutputAnchor OUTPUT = new OutputAnchor(UUID.fromString("00000000-0000-0000-0000-000000000012"));
+    OutputSampleAnchor OUTPUT_SAMPLE = new OutputSampleAnchor(UUID.fromString("00000000-0000-0000-0000-000000000013"));
 
     @Inject
     ObjectMapper quarkusObjectMapper;
@@ -166,6 +192,42 @@ public class JSONSerializationTest {
         assertThat(json).isEqualToIgnoringWhitespace("{\"type\": \"EditExperimentAttributes\", \"title\": \"new title\", \"therapeuticArea\": null, \"linkedExperiments\": [{\"id\": \"63c03dfa-803c-4d89-bf8d-16c536c28a40\", \"name\": \"00000001-0001\"}]}");
         Mutation mutation2 = deserialize(deserializer, json, Mutation.class);
         assertThat(mutation2).isEqualTo(mutation);
+    }
+
+    @ParameterizedTest
+    @MethodSource("mappers")
+    void testSerialize(MapperType serializer, MapperType deserializer) {
+        ExperimentModel model = new ExperimentModel();
+        Reaction reaction = Reaction.create(model, REACTION);
+        reaction.setRxnfile("molFile");
+
+        ReactionInput input1 = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Stored(UUID.randomUUID(), null, null, null, fixed(1.0, 1, G_PER_MOL), fixed(1.1, 2, NO_UNIT), new MolFormula("C"), "compoundKey", null, "batchMF"));
+        input1.setEq(EnteredValue.userEntered("10.0", NO_UNIT, 1));
+        ReactionInput input2 = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Virtual(UUID.randomUUID(), new MolFormula("C"), null, null, null, null, fixed(1.0, 1, G_PER_MOL), fixed(1.1, 2, NO_UNIT), null, "batchMF"));
+        ReactionInput input3 = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Unknown());
+        ReactionInputSample inputSample1 = ReactionInputSample.create(input1, INPUT_SAMPLE);
+        input1.setSamples(List.of(inputSample1));
+        reaction.setInputs(List.of(input1, input2, input3));
+
+        CompoundRef.Virtual compoundRef = new CompoundRef.Virtual(UUID.randomUUID(), new MolFormula("C"), null, null, null, null, fixed(2.0, 1, G_PER_MOL), fixed(2.2, 2, NO_UNIT), null, "batchMF");
+        ReactionOutput output = ReactionOutput.create(reaction, ReactionOutputType.FINAL, true, "P1", OUTPUT, compoundRef, EnteredValue.DEFAULT_ONE);
+        ReactionOutputSample outputSample = ReactionOutputSample.create(output, "00000000-0000", OUTPUT_SAMPLE, EnteredValue.DEFAULT_ONE_HUNDRED);
+        output.setSamples(List.of(outputSample));
+        reaction.setOutputs(List.of(output));
+
+        String json = serialize(serializer, model);
+        ExperimentModel model2 = deserialize(deserializer, json, ExperimentModel.class);
+
+        String json2 = serialize(serializer, model2);
+        assertThat(json2).isEqualTo(json);
+    }
+
+    @ParameterizedTest
+    @MethodSource("mappers")
+    void testDeserializeUnknownField(MapperType serializer, MapperType deserializer) {
+        assertThatThrownBy(() -> {
+            deserialize(serializer, "{\"type\": \"AddEmptyInput\", \"anchor\": \"R1\", \"unknownField\": 123}", Mutation.class);
+        }).isInstanceOf(JacksonException.class);
     }
 
     ObjectMapper getMapper(MapperType mapperType) {
