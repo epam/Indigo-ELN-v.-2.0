@@ -261,11 +261,14 @@ public class ExperimentService {
     public Map<InputAnchor, String> analyzeRXN(Reaction reaction) {
         return StreamEx.of(reaction.getInputs())
                 .mapToEntry(ReactionInput::getAnchor, input -> {
-                    if (input.getCompound() instanceof CompoundRef.Virtual) {
-                        CompoundEntity compound = compoundService.getCompound(input.getCompound().getCompoundID());
-                        return compound.getMolFile();
+                    if (input.getCompound().getCompoundID() == null) {
+                        return null;
                     }
-                    return null;
+                    if (!input.getSamples().isEmpty() && StreamEx.of(input.getSamples()).anyMatch(s -> s.getSampleSource() != SampleSource.VIRTUAL)) {
+                        return null;
+                    }
+                    CompoundEntity compound = compoundService.getCompound(input.getCompound().getCompoundID());
+                    return compound.getMolFile();
                 })
                 .nonNullValues()
                 .toCustomMap(LinkedHashMap::new);
@@ -342,9 +345,8 @@ public class ExperimentService {
         List<SampleDTO> samples = new ArrayList<>();
         for (IndigoMolecule molecule : indigo.iterateSDFile(file.filePath().toAbsolutePath().toString())) {
             String chemicalName = ModelUtil.getAny(molecule.getProperties(), NAME_PROPERTIES);
-            CompoundEntity compound = compoundService.findOrCreate(molecule, null, null, null, SampleSource.ELN, null, chemicalName);
+            CompoundEntity compound = compoundService.findOrCreate(molecule, null, null, null, SampleSource.VIRTUAL, null, chemicalName);
             SampleDTO sample = new SampleDTO();
-            sample.setSource(SampleSource.ELN);
             // TODO fill sample properties from SDF
             compoundIDs.add(compound.getId());
             samples.add(sample);

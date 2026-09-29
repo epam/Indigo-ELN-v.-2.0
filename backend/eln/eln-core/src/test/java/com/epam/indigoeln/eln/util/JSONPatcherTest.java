@@ -401,9 +401,9 @@ public class JSONPatcherTest {
 
     @Test
     void testEnteredValueCreated() throws Exception {
-        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Unknown());
+        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef());
         baseReaction.setInputs(List.of(baseInput));
-        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Unknown());
+        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef());
         reaction.setInputs(List.of(input));
         input.setMol(EnteredValue.userEntered("10.0", MolUnit.MMOL, 1));
         verifyModel("""
@@ -413,9 +413,9 @@ public class JSONPatcherTest {
 
     @Test
     void testEnteredValueChanged() throws Exception {
-        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Unknown());
+        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef());
         baseReaction.setInputs(List.of(baseInput));
-        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Unknown());
+        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef());
         reaction.setInputs(List.of(input));
         baseInput.setMol(EnteredValue.userEntered("15.0", MolUnit.MMOL, 1));
         input.setMol(EnteredValue.userEntered("10.0", MolUnit.MMOL, 1));
@@ -426,9 +426,9 @@ public class JSONPatcherTest {
 
     @Test
     void testEnteredValueDeleted() throws Exception {
-        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Unknown());
+        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef());
         baseReaction.setInputs(List.of(baseInput));
-        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Unknown());
+        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef());
         reaction.setInputs(List.of(input));
         baseInput.setMol(EnteredValue.userEntered("15.0", MolUnit.MMOL, 1));
         verifyModel("""
@@ -438,9 +438,9 @@ public class JSONPatcherTest {
 
     @Test
     void testEnteredValueOverwritten() throws Exception {
-        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Unknown());
+        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef());
         baseReaction.setInputs(List.of(baseInput));
-        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Unknown());
+        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef());
         reaction.setInputs(List.of(input));
         baseInput.setMol(EnteredValue.userEntered("15.0", MolUnit.MMOL, 1));
         input.setMol(EnteredValue.userEntered("10.0", MolUnit.MMOL, 1).withOverwritten(true));
@@ -451,9 +451,9 @@ public class JSONPatcherTest {
 
     @Test
     void testEnteredValueOverwrittenWithEmpty() throws Exception {
-        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Unknown());
+        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef());
         baseReaction.setInputs(List.of(baseInput));
-        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Unknown());
+        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef());
         reaction.setInputs(List.of(input));
         baseInput.setMol(EnteredValue.userEntered("15.0", MolUnit.MMOL, 1));
         input.setMol(EnteredValue.<MolUnit>empty().withOverwritten(true));

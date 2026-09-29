@@ -11,7 +11,6 @@ import com.epam.indigoeln.eln.entity.ExperimentSearchCompound;
 import com.epam.indigoeln.eln.model.GlobalSearchRequest;
 import com.epam.indigoeln.eln.model.GlobalSearchResultDTO;
 import com.epam.indigoeln.eln.repository.GlobalSearchRepository;
-import com.epam.indigoeln.reaction.model.CompoundRef;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.NotebookSnapshot;
 import com.epam.indigoeln.reaction.model.ProjectSnapshot;
@@ -96,13 +95,13 @@ public class GlobalSearchService {
         Set<ExperimentSearchCompound> refs = new HashSet<>();
         for (Reaction reaction : snapshot.getModel().getReactions()) {
             for (ReactionInput input : reaction.getInputs()) {
-                if (input.getCompound() instanceof CompoundRef.StoredOrVirtual c) {
-                    refs.add(new ExperimentSearchCompound(input.getRole(), em.getReference(CompoundEntity.class, c.getCompoundID())));
+                if (input.getCompound().getCompoundID() != null) {
+                    refs.add(new ExperimentSearchCompound(input.getRole(), em.getReference(CompoundEntity.class, input.getCompound().getCompoundID())));
                 }
             }
             for (ReactionOutput output : reaction.getOutputs()) {
-                if (output.getCompound() instanceof CompoundRef.StoredOrVirtual c) {
-                    refs.add(new ExperimentSearchCompound(ReactionRole.OUTPUT, em.getReference(CompoundEntity.class, c.getCompoundID())));
+                if (output.getCompound().getCompoundID() != null) {
+                    refs.add(new ExperimentSearchCompound(ReactionRole.OUTPUT, em.getReference(CompoundEntity.class, output.getCompound().getCompoundID())));
                 }
             }
         }

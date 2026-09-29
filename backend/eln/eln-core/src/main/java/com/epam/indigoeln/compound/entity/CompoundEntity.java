@@ -16,7 +16,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,7 +27,6 @@ import org.jspecify.annotations.Nullable;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity(name = "Compound")
 @ToString(of = {"id", "chemicalName", "formula", "canSmiles", "source", "compoundKey"})
 public class CompoundEntity extends IdentifiableEntity {
@@ -79,6 +77,15 @@ public class CompoundEntity extends IdentifiableEntity {
     @NotNull
     @Basic(fetch = FetchType.LAZY)
     private byte[] picture;
+
+    public CompoundEntity(SampleSource source, @Nullable String compoundKey, String canSmiles, @Nullable DictionaryItemEntity stereoisomerCode, @Nullable DictionaryItemEntity saltCode, @Nullable Integer saltEQ100) {
+        this.source = source;
+        this.compoundKey = compoundKey;
+        this.canSmiles = canSmiles;
+        this.stereoisomerCode = stereoisomerCode;
+        this.saltCode = saltCode;
+        this.saltEQ100 = saltEQ100;
+    }
 
     @Nullable
     @Transient

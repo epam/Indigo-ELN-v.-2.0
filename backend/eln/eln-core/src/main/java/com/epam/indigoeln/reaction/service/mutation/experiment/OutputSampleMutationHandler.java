@@ -9,7 +9,6 @@ import com.epam.indigoeln.eln.model.SaltCodeRef;
 import com.epam.indigoeln.eln.model.SampleSource;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.eln.util.ModelUtil;
-import com.epam.indigoeln.reaction.model.CompoundRef;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.ReactionOutput;
@@ -76,7 +75,7 @@ class RegisterSampleHandler extends AbstractReactionOutputSampleMutationHandler<
         if (sampleRow.getRegistrationStatus() != null) {
             throw new InvalidRequestException("Sample already sent for registration");
         }
-        if (sampleRow.getRow().getCompound() instanceof CompoundRef.Unknown) {
+        if (!sampleRow.getRow().getCompound().isKnown()) {
             throw new InvalidRequestException("Cannot register sample for unknown compound");
         }
         CompoundEntity compound = compoundService.getCompound(sampleRow.getRow().getCompound().getCompoundID());
@@ -95,9 +94,6 @@ class RegisterSampleHandler extends AbstractReactionOutputSampleMutationHandler<
             request.molarityUnit(sampleRow.getMolarity().getUnit());
         }
         SampleRegistrationResponse response = sampleRegistrationClient.registerSample(request.build());
-        if (sampleRow.getRow().getCompound() instanceof CompoundRef.Virtual) {
-            sampleRow.getRow().updateCompound(compoundService.realCompoundRef(compound));
-        }
 
         sampleRow.setRegistrationStatus(SampleRegistrationStatus.IN_PROGRESS); // for now, registration is immediate; when switched to async registration, REGISTERED will be set later
         sampleRow.setRegistrationStatus(SampleRegistrationStatus.REGISTERED);

@@ -1,8 +1,10 @@
 package com.epam.indigoeln.reaction.model;
 
-import com.epam.indigoeln.common.model.units.MolUnit;
-import com.epam.indigoeln.common.model.units.WeightUnit;
 import com.epam.indigoeln.common.model.NbkBatchNumber;
+import com.epam.indigoeln.common.model.units.MolUnit;
+import com.epam.indigoeln.common.model.units.NoUnit;
+import com.epam.indigoeln.common.model.units.WeightUnit;
+import com.epam.indigoeln.eln.model.SampleSource;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.base.Preconditions;
 import jakarta.validation.constraints.NotNull;
@@ -38,8 +40,11 @@ public final class ReactionInputSample extends ReactionSample<ReactionInput> {
     @Nullable
     private String comment;
 
-    public static ReactionInputSample create(ReactionInput row, InputSampleAnchor anchor) {
+    public static ReactionInputSample create(ReactionInput row, InputSampleAnchor anchor, SampleSource sampleSource, @Nullable String sampleKey, EnteredValue<NoUnit> purity) {
         ReactionInputSample sample = new ReactionInputSample(anchor);
+        sample.setSampleSource(sampleSource);
+        sample.setSampleKey(sampleKey);
+        sample.setPurity(purity);
         sample.insertInto(row);
         return sample;
     }

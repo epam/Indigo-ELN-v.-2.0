@@ -63,11 +63,7 @@ public class CompoundService {
         CompoundEntity compound = compoundRepository.findByCompoundKey(key);
         boolean isNew = compound == null;
         if (isNew) {
-            compound = new CompoundEntity();
-            compound.setCanSmiles(canSmiles);
-            compound.setStereoisomerCode(dictionaryService.lookup(stereoisomerCode, true));
-            compound.setSaltCode(dictionaryService.lookup(saltCode));
-            compound.setSaltEQ100(saltEQ100);
+            compound = new CompoundEntity(source, compoundKey, canSmiles, dictionaryService.lookup(stereoisomerCode), dictionaryService.lookup(saltCode), saltEQ100);
             compound.setMolFile(molecule.molfile());
             compound.setMolWeight(molWeightCalculator.calculateMolWeight(molecule.molfile(), saltCode, compound.getSaltEQ()));
             compound.setExactMass(molWeightCalculator.calculateExactMass(molecule.molfile()));
@@ -76,8 +72,7 @@ public class CompoundService {
             byte[] buf = indigoRenderer.renderToBuffer(molecule);
             compound.setPicture(buf);
         }
-        //noinspection ConstantValue
-        if (compound.getSource() == null || compound.getSource() == SampleSource.ELN) {
+        if (compound.getSource() == SampleSource.VIRTUAL) {
             compound.setSource(source);
             compound.setCompoundKey(compoundKey);
         }
@@ -101,43 +96,27 @@ public class CompoundService {
         return compoundRepository.findByCompoundKey(source, key);
     }
 
-    public CompoundRef.Stored realCompoundRef(CompoundEntity compound) {
-        return new CompoundRef.Stored(
+    public CompoundRef compoundRef(CompoundEntity compound) {
+        return new CompoundRef(
                 compound.getId(),
                 dictionaryService.get(compound.getStereoisomerCode()),
                 dictionaryService.get(compound.getSaltCode()),
                 compound.getSaltEQ(),
+                compound.getCompoundKey(),
+                compound.getFormula(),
                 EnteredValue.fixedExact(compound.getMolWeight(), MOL_WEIGHT_DECIMAL_PLACES, MolWeightUnit.G_PER_MOL),
                 EnteredValue.fixedExact(compound.getExactMass(), MOL_WEIGHT_DECIMAL_PLACES, NoUnit.NO_UNIT),
-                compound.getFormula(),
-                compound.getCompoundKey(),
-                compound.getCasNumber(),
-                calculateBatchMF(compound)
+                compound.getCasNumber()
         );
     }
 
-    public CompoundRef.Virtual virtualCompoundRef(IndigoMolecule molecule, @Nullable StereoisomerCodeRef stereoisomerCode, @Nullable SaltCodeRef saltCode, @Nullable Double saltEQ) {
-        CompoundEntity compound = findOrCreate(molecule, stereoisomerCode, saltCode, saltEQ != null ? (int) (saltEQ * 100.0) : null, SampleSource.ELN, null, null);
-        return virtualCompoundRef(compound);
+    public CompoundRef compoundRef(IndigoMolecule molecule, @Nullable StereoisomerCodeRef stereoisomerCode, @Nullable SaltCodeRef saltCode, @Nullable Double saltEQ) {
+        CompoundEntity compound = findOrCreate(molecule, stereoisomerCode, saltCode, saltEQ != null ? (int) (saltEQ * 100.0) : null, SampleSource.VIRTUAL, null, null);
+        return compoundRef(compound);
     }
 
-    public CompoundRef.Virtual virtualCompoundRef(CompoundEntity compound) {
-        return new CompoundRef.Virtual(
-                compound.getId(),
-                compound.getFormula(),
-                compound.getCompoundKey(),
-                dictionaryService.get(compound.getStereoisomerCode()),
-                dictionaryService.get(compound.getSaltCode()),
-                compound.getSaltEQ(),
-                EnteredValue.fixedExact(compound.getMolWeight(), MOL_WEIGHT_DECIMAL_PLACES, MolWeightUnit.G_PER_MOL),
-                EnteredValue.fixedExact(compound.getExactMass(), MOL_WEIGHT_DECIMAL_PLACES, NoUnit.NO_UNIT),
-                compound.getCasNumber(),
-                calculateBatchMF(compound)
-        );
-    }
-
-    public CompoundRef.Unknown unknownCompoundRef() {
-        return new CompoundRef.Unknown();
+    public CompoundRef unknownCompoundRef() {
+        return new CompoundRef();
     }
 
     public byte[] getCompoundPicture(UUID compoundID) {
@@ -152,16 +131,5 @@ public class CompoundService {
 
     public CompoundEntity getCompound(UUID id) {
         return compoundRepository.get(id);
-    }
-
-    private String calculateBatchMF(CompoundEntity compound) {
-        StringBuilder sb = new StringBuilder();
-        String parentFormula = compound.getFormula().toHTMLString();
-        sb.append(parentFormula);
-        if (compound.getSaltCode() != null) {
-            SaltCodeRef salt = dictionaryService.byId(compound.getSaltCode().getId());
-            sb.append("&nbsp;*&nbsp;").append((compound.getSaltEQ())).append(" (").append(salt.getFormula()).append(")");
-        }
-        return sb.toString();
     }
 }

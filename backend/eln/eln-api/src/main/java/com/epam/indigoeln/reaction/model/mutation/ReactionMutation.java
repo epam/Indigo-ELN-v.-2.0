@@ -56,8 +56,8 @@ public interface ReactionMutation extends ExperimentMutation {
 
     record AddEmptyInput (
         @NotNull ReactionAnchor anchor,
-        @Nullable InputAnchor createdInputAnchor,
-        @Nullable InputSampleAnchor createdSampleAnchor
+        InputAnchor createdInputAnchor,
+        InputSampleAnchor createdSampleAnchor
     ) implements ReactionMutation {
         public AddEmptyInput(ReactionAnchor anchor) {
             this(anchor, null, null);
@@ -67,8 +67,8 @@ public interface ReactionMutation extends ExperimentMutation {
     record AddInput (
         @NotNull ReactionAnchor anchor,
         @NotNull SampleDTO sample,
-        @Nullable InputAnchor createdInputAnchor,
-        @Nullable InputSampleAnchor createdSampleAnchor
+        InputAnchor createdInputAnchor,
+        InputSampleAnchor createdSampleAnchor
     ) implements ReactionMutation {
         public AddInput(ReactionAnchor anchor, SampleDTO sample) {
             this(anchor, sample, null, null);
@@ -77,8 +77,8 @@ public interface ReactionMutation extends ExperimentMutation {
 
     record AddNoProductSample (
             @NotNull ReactionAnchor anchor,
-            @Nullable OutputAnchor createdOutputAnchor,
-            @Nullable OutputSampleAnchor createdSampleAnchor
+            OutputAnchor createdOutputAnchor,
+            OutputSampleAnchor createdSampleAnchor
     ) implements ReactionMutation {
         public AddNoProductSample(ReactionAnchor anchor) {
             this(anchor, null, null);

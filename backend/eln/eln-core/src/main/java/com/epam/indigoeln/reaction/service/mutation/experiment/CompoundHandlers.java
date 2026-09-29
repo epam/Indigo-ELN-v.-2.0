@@ -1,12 +1,17 @@
 package com.epam.indigoeln.reaction.service.mutation.experiment;
 
-import com.epam.indigoeln.common.exception.InvalidRequestException;
+import com.epam.indigoeln.common.model.units.MolWeightUnit;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
-import com.epam.indigoeln.reaction.model.*;
+import com.epam.indigoeln.reaction.model.CompoundRef;
+import com.epam.indigoeln.reaction.model.ExperimentModel;
+import com.epam.indigoeln.reaction.model.OutputAnchor;
+import com.epam.indigoeln.reaction.model.Reaction;
+import com.epam.indigoeln.reaction.model.ReactionInput;
+import com.epam.indigoeln.reaction.model.ReactionOutput;
+import com.epam.indigoeln.reaction.model.ReactionOutputSample;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
-import com.epam.indigoeln.common.model.units.MolWeightUnit;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import jakarta.enterprise.context.Dependent;
 
@@ -85,12 +90,9 @@ class SetInputCompoundMolWeightHandler extends AbstractReactionInputMutationHand
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputCompoundMolWeight mutation, ExperimentMutationContext context) {
-        if (row.getCompound() instanceof CompoundRef.Unknown c) {
-            setEnteredValue(c.getMolWeight(), c::setMolWeight, mutation.molWeight(), MolWeightUnit.G_PER_MOL, experiment.getRevision());
-            return formatSetterSummary("input compound mol weight", mutation.molWeight(), MolWeightUnit.G_PER_MOL);
-        } else {
-            throw new InvalidRequestException("Cannot set molWeight for stored or virtual compound");
-        }
+        validate(!row.getCompound().isKnown(), "Cannot set molWeight for stored or virtual compound");
+        setEnteredValue(row.getCompound().getMolWeight(), row.getCompound()::setMolWeight, mutation.molWeight(), MolWeightUnit.G_PER_MOL, experiment.getRevision());
+        return formatSetterSummary("input compound mol weight", mutation.molWeight(), MolWeightUnit.G_PER_MOL);
     }
 }
 
@@ -100,12 +102,9 @@ class SetOutputCompoundMolWeightHandler extends AbstractReactionOutputMutationHa
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputCompoundMolWeight mutation, ExperimentMutationContext context) {
-        if (row.getCompound() instanceof CompoundRef.Unknown c) {
-            setEnteredValue(c.getMolWeight(), c::setMolWeight, mutation.molWeight(), MolWeightUnit.G_PER_MOL, experiment.getRevision());
-            return formatSetterSummary("output compound mol weight", mutation.molWeight(), MolWeightUnit.G_PER_MOL);
-        } else {
-            throw new InvalidRequestException("Cannot set molWeight for stored or virtual compound");
-        }
+        validate(!row.getCompound().isKnown(), "Cannot set molWeight for stored or virtual compound");
+        setEnteredValue(row.getCompound().getMolWeight(), row.getCompound()::setMolWeight, mutation.molWeight(), MolWeightUnit.G_PER_MOL, experiment.getRevision());
+        return formatSetterSummary("output compound mol weight", mutation.molWeight(), MolWeightUnit.G_PER_MOL);
     }
 }
 

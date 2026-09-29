@@ -57,18 +57,18 @@ public abstract class SnapshotMapper extends AbstractMapper {
             Reaction reactionCopy = Reaction.create(modelCopy, reaction.getAnchor());
             copyReaction(reaction, reactionCopy);
             for (ReactionInput input : reaction.getInputs()) {
-                ReactionInput inputCopy = ReactionInput.create(reactionCopy, input.getRole(), input.getAnchor(), copyCompoundRef(input.getCompound()));
+                ReactionInput inputCopy = ReactionInput.create(reactionCopy, input.getRole(), input.getAnchor(), input.getCompound().copy());
                 copyReactionInput(input, inputCopy);
                 for (ReactionInputSample sample : input.getSamples()) {
-                    ReactionInputSample sampleCopy = ReactionInputSample.create(inputCopy, sample.getAnchor());
+                    ReactionInputSample sampleCopy = ReactionInputSample.create(inputCopy, sample.getAnchor(), sample.getSampleSource(), sample.getSampleKey(), sample.getPurity());
                     copyReactionInputSample(sample, sampleCopy);
                 }
             }
             for (ReactionOutput output : reaction.getOutputs()) {
-                ReactionOutput outputCopy = ReactionOutput.create(reactionCopy, output.getType(), output.isIntended(), output.getOutputName(), output.getAnchor(), copyCompoundRef(output.getCompound()), output.getEq());
+                ReactionOutput outputCopy = ReactionOutput.create(reactionCopy, output.getType(), output.isIntended(), output.getOutputName(), output.getAnchor(), output.getCompound().copy(), output.getEq());
                 copyReactionOutput(output, outputCopy);
                 for (ReactionOutputSample sample : output.getSamples()) {
-                    ReactionOutputSample sampleCopy = ReactionOutputSample.create(outputCopy, sample.getNbkBatchNumber(), sample.getAnchor(), sample.getPurity());
+                    ReactionOutputSample sampleCopy = ReactionOutputSample.create(outputCopy, sample.getNbkBatchNumber(), sample.getAnchor(), sample.getSampleSource(), sample.getSampleKey(), sample.getPurity());
                     copyReactionOutputSample(sample, sampleCopy);
                 }
             }
@@ -106,13 +106,4 @@ public abstract class SnapshotMapper extends AbstractMapper {
     @Mapping(target = "residualSolvents", expression = "java(List.copyOf(sample.getResidualSolvents()))")
     @Mapping(target = "purityCalculations", expression = "java(List.copyOf(sample.getPurityCalculations()))")
     protected abstract void copyReactionOutputSample(ReactionOutputSample sample, @MappingTarget ReactionOutputSample copy);
-
-    protected CompoundRef copyCompoundRef(CompoundRef ref) {
-        return switch (ref) {
-            case CompoundRef.StoredOrVirtual s -> ref; // immutable
-            case CompoundRef.Unknown u -> copyUnknownCompoundRef(u);
-        };
-    }
-
-    protected abstract CompoundRef.Unknown copyUnknownCompoundRef(CompoundRef.Unknown ref);
 }

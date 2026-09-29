@@ -1,12 +1,13 @@
 package com.epam.indigoeln.reaction.model;
 
+import com.epam.indigoeln.common.model.NbkBatchNumber;
 import com.epam.indigoeln.common.model.units.MolUnit;
 import com.epam.indigoeln.common.model.units.NoUnit;
 import com.epam.indigoeln.common.model.units.WeightUnit;
 import com.epam.indigoeln.eln.model.ComponentStateRef;
 import com.epam.indigoeln.eln.model.CompoundProtectionRef;
 import com.epam.indigoeln.eln.model.HandlingPrecautionsRef;
-import com.epam.indigoeln.common.model.NbkBatchNumber;
+import com.epam.indigoeln.eln.model.SampleSource;
 import com.epam.indigoeln.eln.model.SampleSourceDetailsRef;
 import com.epam.indigoeln.eln.model.SampleSourceRef;
 import com.epam.indigoeln.eln.model.StorageInstructionsRef;
@@ -114,12 +115,14 @@ public final class ReactionOutputSample extends ReactionSample<ReactionOutput> {
         return nbkBatchNumber.getShortForm();
     }
 
-    public static ReactionOutputSample create(ReactionOutput row, String experimentName, OutputSampleAnchor anchor, EnteredValue<NoUnit> purity) {
-        return create(row, new NbkBatchNumber(experimentName, row.getReaction().getModel().generateNextNbkBatchNumber()), anchor, purity);
+    public static ReactionOutputSample create(ReactionOutput row, String experimentName, OutputSampleAnchor anchor, SampleSource sampleSource, @Nullable String sampleKey, EnteredValue<NoUnit> purity) {
+        return create(row, new NbkBatchNumber(experimentName, row.getReaction().getModel().generateNextNbkBatchNumber()), anchor, sampleSource, sampleKey, purity);
     }
 
-    public static ReactionOutputSample create(ReactionOutput row, NbkBatchNumber nbkBatchNumber, OutputSampleAnchor anchor, EnteredValue<NoUnit> purity) {
+    public static ReactionOutputSample create(ReactionOutput row, NbkBatchNumber nbkBatchNumber, OutputSampleAnchor anchor, SampleSource sampleSource, @Nullable String sampleKey, EnteredValue<NoUnit> purity) {
         ReactionOutputSample sample = new ReactionOutputSample(anchor, nbkBatchNumber);
+        sample.setSampleSource(sampleSource);
+        sample.setSampleKey(sampleKey);
         sample.purity = purity;
         sample.insertInto(row);
         return sample;

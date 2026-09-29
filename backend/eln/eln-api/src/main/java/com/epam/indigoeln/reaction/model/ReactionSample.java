@@ -41,7 +41,7 @@ public sealed abstract class ReactionSample<P extends ReactionRow> implements Ex
     @NotNull
     protected EnteredValue<NoUnit> purity;
 
-    @Nullable
+    @NotNull
     protected SampleSource sampleSource;
 
     @Nullable

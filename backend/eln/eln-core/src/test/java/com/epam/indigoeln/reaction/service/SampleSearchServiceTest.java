@@ -15,7 +15,6 @@ import com.epam.indigoeln.eln.model.HealthHazardRef;
 import com.epam.indigoeln.eln.model.SaltCodeRef;
 import com.epam.indigoeln.eln.model.SampleSource;
 import com.epam.indigoeln.eln.model.StereoisomerCodeRef;
-import com.epam.indigoeln.reaction.model.CompoundRef;
 import com.epam.indigoeln.reaction.model.ReactionInput;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.sampleregistration.model.SRSCompoundDTO;
@@ -151,7 +150,7 @@ public class SampleSearchServiceTest extends MutationsTestBase {
 
     private void verifySample(ReactionInput input) {
         assertThat(input).satisfies(row -> {
-            assertThat(row.getCompound()).isInstanceOf(CompoundRef.Stored.class);
+            assertThat(row.getCompound().isKnown()).isTrue();
             assertThat(row.getCompound().getSaltCode()).isEqualTo(saltCode);
             assertThat(row.getCompound().getSaltEQ()).isEqualTo(2.0);
             assertThat(row.getCompound().getStereoisomerCode()).isEqualTo(stereoisomerCode);

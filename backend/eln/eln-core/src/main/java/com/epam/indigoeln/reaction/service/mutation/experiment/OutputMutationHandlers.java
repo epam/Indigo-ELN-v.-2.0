@@ -2,6 +2,7 @@ package com.epam.indigoeln.reaction.service.mutation.experiment;
 
 import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
+import com.epam.indigoeln.eln.model.SampleSource;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
@@ -25,7 +26,7 @@ class AddProductSampleHandler extends AbstractReactionOutputMutationHandler<Reac
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.AddProductSample mutation, ExperimentMutationContext context) {
         OutputSampleAnchor anchor = checkNotNull(mutation.createdSampleAnchor());
-        ReactionOutputSample.create(row, experiment.getName(), anchor, DEFAULT_ONE_HUNDRED);
+        ReactionOutputSample.create(row, experiment.getName(), anchor, SampleSource.VIRTUAL, null, DEFAULT_ONE_HUNDRED);
         return "Add batch";
     }
 }

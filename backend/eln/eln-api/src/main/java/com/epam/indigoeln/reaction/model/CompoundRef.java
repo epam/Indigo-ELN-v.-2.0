@@ -1,231 +1,98 @@
 package com.epam.indigoeln.reaction.model;
 
 import com.epam.indigoeln.common.model.MolFormula;
-import com.epam.indigoeln.eln.model.SaltCodeRef;
-import com.epam.indigoeln.eln.model.StereoisomerCodeRef;
 import com.epam.indigoeln.common.model.units.MolWeightUnit;
 import com.epam.indigoeln.common.model.units.NoUnit;
+import com.epam.indigoeln.eln.model.SaltCodeRef;
+import com.epam.indigoeln.eln.model.StereoisomerCodeRef;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = CompoundRef.Stored.class, name = CompoundRef.Stored.TYPE),
-        @JsonSubTypes.Type(value = CompoundRef.Virtual.class, name = CompoundRef.Virtual.TYPE),
-        @JsonSubTypes.Type(value = CompoundRef.Unknown.class, name = CompoundRef.Unknown.TYPE)
-})
+import static com.google.common.base.Preconditions.checkState;
+
+@Data
+@AllArgsConstructor(onConstructor_ = @JsonCreator)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public sealed interface CompoundRef permits CompoundRef.StoredOrVirtual, CompoundRef.Unknown {
+public class CompoundRef {
 
     @Nullable
-    UUID getCompoundID();
+    private final UUID compoundID;
 
     @Nullable
-    @SuppressWarnings("unused") // used on frontend
-    MolFormula getFormula();
+    private final StereoisomerCodeRef stereoisomerCode;
 
     @Nullable
-    StereoisomerCodeRef getStereoisomerCode();
+    private final SaltCodeRef saltCode;
 
     @Nullable
-    SaltCodeRef getSaltCode();
-
-    @Nullable
-    Double getSaltEQ();
+    private final Double saltEQ;
 
     @Nullable
     @SuppressWarnings("unused") // used on frontend
-    String getCompoundKey();
-
-    EnteredValue<MolWeightUnit> getMolWeight();
+    private final String compoundKey;
 
     @Nullable
     @SuppressWarnings("unused") // used on frontend
-    EnteredValue<NoUnit> getExactMass();
+    private final MolFormula formula;
+
+    @NotNull
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private EnteredValue<MolWeightUnit> molWeight;
+
+    @NotNull
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    @SuppressWarnings("unused") // used on frontend
+    private final EnteredValue<NoUnit> exactMass;
 
     @Nullable
     @SuppressWarnings("unused") // used on frontend
-    String getCasNumber();
+    private final String casNumber;
 
-    @Nullable
-    @SuppressWarnings("unused") // used on frontend
-    String getCalculatedBatchMF();
+    public CompoundRef() {
+        this(null, null, null, null, null, null, EnteredValue.empty(), EnteredValue.empty(), null);
+    }
 
-    default boolean compoundKeyEquals(CompoundRef other) {
+    public CompoundRef copy() {
+        return new CompoundRef(compoundID, stereoisomerCode, saltCode, saltEQ, compoundKey, formula, molWeight, exactMass, casNumber);
+    }
+
+    public boolean compoundKeyEquals(CompoundRef other) {
         // for stored and virtual compound, compound identity already checked when assigning compoundID; thus can only compare compoundID;
         // unknown compound (with compoundID null) only equals to itself
-        return this == other || (getCompoundID() != null && getCompoundID().equals(other.getCompoundID()));
+        return this == other || (compoundID != null && compoundID.equals(other.compoundID));
     }
 
-    sealed interface StoredOrVirtual extends CompoundRef permits CompoundRef.Stored, CompoundRef.Virtual {
-
-        UUID getCompoundID();
-
-        EnteredValue<MolWeightUnit> getMolWeight();
-
-        EnteredValue<NoUnit> getExactMass();
-
-        MolFormula getFormula();
-
-        String getCalculatedBatchMF();
+    @JsonIgnore
+    public boolean isKnown() {
+        return compoundID != null;
     }
 
-    @Getter
-    @ToString
-    @RequiredArgsConstructor
-    @EqualsAndHashCode(of = {"compoundID"})
-    final class Stored implements CompoundRef.StoredOrVirtual {
-
-        public static final String TYPE = "STORED";
-
-        @NotNull
-        private final UUID compoundID;
-
-        @Nullable
-        private final StereoisomerCodeRef stereoisomerCode;
-
-        @Nullable
-        private final SaltCodeRef saltCode;
-
-        @Nullable
-        private final Double saltEQ;
-
-        @NotNull
-        @Positive
-        private final EnteredValue<MolWeightUnit> molWeight;
-
-        @NotNull
-        private final EnteredValue<NoUnit> exactMass;
-
-        @NotNull
-        private final MolFormula formula;
-
-        @Nullable
-        private final String compoundKey;
-
-        @Nullable
-        private final String casNumber;
-
-        @NotNull
-        private final String calculatedBatchMF;
+    @Nullable
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @SuppressWarnings("unused") // used on frontend
+    public String getCalculatedBatchMF() {
+        if (formula == null) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        String parentFormula = formula.toHTMLString();
+        sb.append(parentFormula);
+        if (saltCode != null) {
+            sb.append("&nbsp;*&nbsp;").append((saltEQ)).append(" (").append(saltCode.getFormula()).append(")");
+        }
+        return sb.toString();
     }
 
-    @Getter
-    @ToString
-    @EqualsAndHashCode(of = {"compoundID"})
-    @AllArgsConstructor
-    final class Virtual implements CompoundRef.StoredOrVirtual {
-
-        public static final String TYPE = "VIRTUAL";
-
-        @NotNull
-        private final UUID compoundID;
-
-        @NotNull
-        private final MolFormula formula;
-
-        @Nullable
-        private final String compoundKey;
-
-        @Nullable
-        private final StereoisomerCodeRef stereoisomerCode;
-
-        @Nullable
-        private final SaltCodeRef saltCode;
-
-        @Nullable
-        private final Double saltEQ;
-
-        @NotNull
-        @Positive
-        private final EnteredValue<MolWeightUnit> molWeight;
-
-        @NotNull
-        private final EnteredValue<NoUnit> exactMass;
-
-        @Nullable
-        private final String casNumber;
-
-        @NotNull
-        private final String calculatedBatchMF;
-    }
-
-    @Getter
-    @ToString
-    @EqualsAndHashCode
-    final class Unknown implements CompoundRef {
-
-        public static final String TYPE = "UNKNOWN";
-
-        @Nullable
-        private MolFormula formula;
-
-        @Setter
-        @JsonInclude(JsonInclude.Include.NON_EMPTY)
-        private EnteredValue<MolWeightUnit> molWeight = EnteredValue.empty();
-
-        @Override
-        @Nullable
-        @JsonIgnore
-        public UUID getCompoundID() {
-            return null;
-        }
-
-        @Override
-        @Nullable
-        @JsonIgnore
-        public StereoisomerCodeRef getStereoisomerCode() {
-            return null;
-        }
-
-        @Override
-        @Nullable
-        @JsonIgnore
-        public SaltCodeRef getSaltCode() {
-            return null;
-        }
-
-        @Override
-        @Nullable
-        @JsonIgnore
-        public Double getSaltEQ() {
-            return null;
-        }
-
-        @Override
-        @Nullable
-        @JsonIgnore
-        public String getCompoundKey() {
-            return null;
-        }
-
-        @Override
-        @Nullable
-        @JsonIgnore
-        public EnteredValue<NoUnit> getExactMass() {
-            return null;
-        }
-
-        @Override
-        @Nullable
-        @JsonIgnore
-        public String getCasNumber() {
-            return null;
-        }
-
-        @Override
-        @Nullable
-        @JsonIgnore
-        public String getCalculatedBatchMF() {
-            return null;
-        }
+    public void setMolWeight(@Nullable EnteredValue<MolWeightUnit> molWeight) {
+        checkState(!isKnown());
+        this.molWeight = molWeight;
     }
 }

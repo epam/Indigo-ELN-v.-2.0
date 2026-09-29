@@ -6,6 +6,7 @@ import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.eln.indigowrapper.IndigoReaction;
+import com.epam.indigoeln.eln.model.SampleSource;
 import com.epam.indigoeln.eln.service.ExperimentService;
 import com.epam.indigoeln.reaction.model.CompoundRef;
 import com.epam.indigoeln.reaction.model.EnteredValue;
@@ -16,6 +17,7 @@ import com.epam.indigoeln.reaction.model.OutputAnchor;
 import com.epam.indigoeln.reaction.model.OutputSampleAnchor;
 import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.ReactionInput;
+import com.epam.indigoeln.reaction.model.ReactionInputSample;
 import com.epam.indigoeln.reaction.model.ReactionOutput;
 import com.epam.indigoeln.reaction.model.ReactionOutputSample;
 import com.epam.indigoeln.reaction.model.ReactionOutputType;
@@ -36,7 +38,6 @@ import org.jspecify.annotations.Nullable;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -108,8 +109,16 @@ class SetSchemeHandler extends AbstractReactionMutationHandler<ReactionMutation.
         Iterator<InputAnchor> createdCatalystAnchors = checkNotNull(mutation.createdCatalystAnchors()).iterator();
         Iterator<InputSampleAnchor> createdCatalystSampleAnchors = checkNotNull(mutation.createdCatalystSampleAnchors()).iterator();
         Iterator<OutputAnchor> createdProductAnchors = checkNotNull(mutation.createdProductAnchors()).iterator();
-        createRows(reactantLinks, link -> createInputLine(reaction, link.molecule, ReactionRole.REACTANT, createdReactantAnchors.next(), createdReactantSampleAnchors.next()));
-        createRows(catalystLinks, link -> createInputLine(reaction, link.molecule, ReactionRole.REAGENT, createdCatalystAnchors.next(), createdCatalystSampleAnchors.next()));
+        createRows(reactantLinks, link -> {
+            ReactionInput row = createInputLine(reaction, link.molecule, ReactionRole.REACTANT, createdReactantAnchors.next());
+            ReactionInputSample.create(row, createdReactantSampleAnchors.next(), SampleSource.VIRTUAL, null, EnteredValue.DEFAULT_ONE_HUNDRED);
+            return row;
+        });
+        createRows(catalystLinks, link -> {
+            ReactionInput row = createInputLine(reaction, link.molecule, ReactionRole.REAGENT, createdCatalystAnchors.next());
+            ReactionInputSample.create(row, createdCatalystSampleAnchors.next(), SampleSource.VIRTUAL, null, EnteredValue.DEFAULT_ONE_HUNDRED);
+            return row;
+        });
         createRows(productLinks, link -> createOutputLine(reaction, link.molecule, true, createdProductAnchors.next()));
 
         reaction.setInputs(StreamEx.of(reaction.getInputs()).sorted(INPUT_COMPARATOR).toImmutableList());
@@ -198,7 +207,8 @@ class AddEmptyInputHandler extends AbstractReactionMutationHandler<ReactionMutat
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddEmptyInput mutation, ExperimentMutationContext context) {
-        createInputLine(reaction, null, ReactionRole.REACTANT, checkNotNull(mutation.createdInputAnchor()), checkNotNull(mutation.createdSampleAnchor()));
+        ReactionInput row = createInputLine(reaction, null, ReactionRole.REACTANT, checkNotNull(mutation.createdInputAnchor()));
+        ReactionInputSample.create(row, mutation.createdSampleAnchor(), SampleSource.VIRTUAL, null, EnteredValue.DEFAULT_ONE_HUNDRED);
         return "Add empty input";
     }
 }
@@ -219,7 +229,7 @@ class AddInputHandler extends AbstractReactionMutationHandler<ReactionMutation.A
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddInput mutation, ExperimentMutationContext context) {
-        ReactionInput row = createInputLine(reaction, null, ReactionRole.REACTANT, checkNotNull(mutation.createdInputAnchor()), checkNotNull(mutation.createdSampleAnchor()));
+        ReactionInput row = createInputLine(reaction, null, ReactionRole.REACTANT, mutation.createdInputAnchor());
         setInputLineSample(row, mutation.sample(), mutation.createdSampleAnchor(), context);
 
         return "Add input sample: " + MoreObjects.firstNonNull(mutation.sample().getSampleKey(), mutation.sample().getNbkBatchNumber());
@@ -243,7 +253,7 @@ class AddNoProductSampleHandler extends AbstractReactionMutationHandler<Reaction
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddNoProductSample mutation, ExperimentMutationContext context) {
         CompoundRef compoundRef = compoundService.unknownCompoundRef();
         ReactionOutput row = ReactionOutput.create(reaction, ReactionOutputType.BY_PRODUCT, false, reaction.generateNextProductName(), mutation.createdOutputAnchor(), compoundRef, EnteredValue.DEFAULT_ONE);
-        ReactionOutputSample.create(row, experiment.getName(), mutation.createdSampleAnchor(), EnteredValue.DEFAULT_ONE_HUNDRED);
+        ReactionOutputSample.create(row, experiment.getName(), mutation.createdSampleAnchor(), SampleSource.VIRTUAL, null, EnteredValue.DEFAULT_ONE_HUNDRED);
 
         return "Add empty batch";
     }
@@ -268,9 +278,6 @@ class ResolveInputsHandler extends AbstractReactionMutationHandler<ReactionMutat
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.ResolveInputs mutation, ExperimentMutationContext context) {
         mutation.inputSamples().forEach((inputAnchor, sample) -> {
             ReactionInput row = model.locate(inputAnchor);
-            if (row.getCompound() instanceof CompoundRef.Virtual) { // if it was a virtual sample, replace with real sample
-                row.setSamples(List.of());
-            }
             setInputLineSample(row, sample, checkNotNull(mutation.createdSampleAnchors()).get(inputAnchor), context);
         });
         return "Resolve input samples";
@@ -301,11 +308,11 @@ class ImportSDFHandler extends AbstractReactionMutationHandler<ReactionMutation.
             CompoundEntity compound = compoundService.getCompound(compoundIt.next());
             ReactionOutput output = reaction.findOutput(compound.getId());
             if (output == null) {
-                CompoundRef compound1 = compoundService.virtualCompoundRef(compound);
+                CompoundRef compound1 = compoundService.compoundRef(compound);
                 OutputAnchor anchor = anchorIt.next();
                 output = ReactionOutput.create(reaction, reaction.getFinalOutput() != null ? ReactionOutputType.BY_PRODUCT : ReactionOutputType.FINAL, false, reaction.generateNextProductName(), anchor, compound1, EnteredValue.DEFAULT_ONE);
             }
-            ReactionOutputSample.create(output, experiment.getName(), sampleAnchorIt.next(), EnteredValue.DEFAULT_ONE_HUNDRED);
+            ReactionOutputSample.create(output, experiment.getName(), sampleAnchorIt.next(), SampleSource.VIRTUAL, null, EnteredValue.DEFAULT_ONE_HUNDRED);
             // TODO fill sample properties
         }
         context.getResponse().getMessages().add(mutation.samples().size() + " samples imported from SDF");

@@ -1,4 +1,4 @@
-CREATE TYPE Sample_Source AS ENUM ('ELN', 'SRS', 'PUBCHEM');
+CREATE TYPE Sample_Source AS ENUM ('VIRTUAL', 'SRS', 'PUBCHEM');
 
 CREATE TABLE Compound (
     id UUID PRIMARY KEY,

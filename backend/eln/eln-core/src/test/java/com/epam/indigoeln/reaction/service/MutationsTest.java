@@ -19,13 +19,13 @@ import com.epam.indigoeln.eln.model.ExternalSupplierRef;
 import com.epam.indigoeln.eln.model.HandlingPrecautionsRef;
 import com.epam.indigoeln.eln.model.HealthHazardRef;
 import com.epam.indigoeln.eln.model.SaltCodeRef;
+import com.epam.indigoeln.eln.model.SampleSource;
 import com.epam.indigoeln.eln.model.SampleSourceDetailsRef;
 import com.epam.indigoeln.eln.model.SampleSourceRef;
 import com.epam.indigoeln.eln.model.SolventRef;
 import com.epam.indigoeln.eln.model.StereoisomerCodeRef;
 import com.epam.indigoeln.eln.model.StorageInstructionsRef;
 import com.epam.indigoeln.reaction.model.ComparisonOperator;
-import com.epam.indigoeln.reaction.model.CompoundRef;
 import com.epam.indigoeln.reaction.model.InputAnchor;
 import com.epam.indigoeln.reaction.model.InputSampleAnchor;
 import com.epam.indigoeln.reaction.model.OutputAnchor;
@@ -139,7 +139,7 @@ public class MutationsTest extends MutationsTestBase {
     void testAddEmptyInputToEmptyReaction() {
         experiment.mutateAddEmptyInput();
         Assertions.assertThat(experiment.input(1)).isNotNull();
-        assertThat(experiment.input(1).getCompound()).isInstanceOf(CompoundRef.Unknown.class);
+        assertThat(experiment.input(1).getCompound().isKnown()).isFalse();
         Assertions.assertThat(experiment.inputSample(1, 1)).isNotNull();
     }
 
@@ -153,7 +153,7 @@ public class MutationsTest extends MutationsTestBase {
         Page<SampleDTO> samples = compoundClient.search(new FindSamplesRequest().withCatalog(SearchCatalog.SRS), Paging.DEFAULT);
         experiment.mutate(new ReactionMutation.AddInput(experiment.reaction().getAnchor(), samples.getItems().getFirst()));
         Assertions.assertThat(experiment.input(1)).isNotNull();
-        assertThat(experiment.input(1).getCompound()).isInstanceOf(CompoundRef.Stored.class);
+        assertThat(experiment.input(1).getCompound().isKnown()).isTrue();
         Assertions.assertThat(experiment.inputSample(1, 1)).isNotNull();
         assertThat(experiment.inputSample(1, 1).getSampleKey()).isEqualTo(samples.getItems().getFirst().getSampleKey());
     }
@@ -172,13 +172,13 @@ public class MutationsTest extends MutationsTestBase {
     void testLoadReaction() {
         experiment.mutateSetSchemeFromResource(REACTION_RXN);
         Assertions.assertThat(experiment.input(1)).isNotNull();
-        assertThat(experiment.input(1).getCompound()).isInstanceOf(CompoundRef.Virtual.class);
+        assertThat(experiment.input(1).getCompound().isKnown()).isTrue();
         Assertions.assertThat(experiment.inputSample(1, 1)).isNotNull();
         Assertions.assertThat(experiment.input(2)).isNotNull();
-        assertThat(experiment.input(2).getCompound()).isInstanceOf(CompoundRef.Virtual.class);
+        assertThat(experiment.input(2).getCompound().isKnown()).isTrue();
         Assertions.assertThat(experiment.inputSample(2, 1)).isNotNull();
         assertThat(experiment.output(1)).isNotNull();
-        assertThat(experiment.output(1).getCompound()).isInstanceOf(CompoundRef.Virtual.class);
+        assertThat(experiment.output(1).getCompound().isKnown()).isTrue();
     }
 
 //    @Test // duplicate compounds are currently restricted
@@ -224,10 +224,11 @@ public class MutationsTest extends MutationsTestBase {
         doReturn(compound).when(sampleRegistrationClient).getCompound(any());
 
         experiment.mutateSetSchemeFromResource(REACTION_RXN);
-        assertThat(experiment.input(1).getCompound()).isInstanceOf(CompoundRef.Virtual.class);
+        assertThat(experiment.input(1).getCompound().isKnown()).isTrue();
+        assertThat(experiment.inputSample(1, 1).getSampleSource()).isEqualTo(SampleSource.VIRTUAL);
         assertThat(experiment.inputSample(1, 1).getSampleKey()).isNull();
         experiment.mutateResolveInputs();
-        assertThat(experiment.input(1).getCompound()).isInstanceOf(CompoundRef.Stored.class);
+        assertThat(experiment.inputSample(1, 1).getSampleSource()).isEqualTo(SampleSource.SRS);
         assertThat(experiment.inputSample(1, 1).getSampleKey()).isNotNull();
     }
 
@@ -292,7 +293,7 @@ public class MutationsTest extends MutationsTestBase {
     void testSetInputRowSaltCodeAndEQ() {
         experiment.mutateSetSchemeFromResource(REACTION_RXN);
         experiment.mutate(new ReactionInputMutation.SetInputRowSaltCode(experiment.input(1).getAnchor(), saltCode));
-        assertThat(experiment.input(1).getCompound()).isInstanceOf(CompoundRef.Virtual.class);
+        assertThat(experiment.input(1).getCompound().isKnown()).isTrue();
         assertThat(experiment.input(1).getCompound().getSaltCode()).isEqualTo(saltCode);
         experiment.mutate(new ReactionInputMutation.SetInputRowSaltEQ(experiment.input(1).getAnchor(), 2.0));
         assertThat(experiment.input(1).getCompound().getSaltCode()).isEqualTo(saltCode);
@@ -303,7 +304,7 @@ public class MutationsTest extends MutationsTestBase {
     void testSetInputRowStereoisomerCode() {
         experiment.mutateSetSchemeFromResource(REACTION_RXN);
         experiment.mutate(new ReactionInputMutation.SetInputCompoundStereoisomerCode(experiment.input(1).getAnchor(), stereoisomerCode));
-        assertThat(experiment.input(1).getCompound()).isInstanceOf(CompoundRef.Virtual.class);
+        assertThat(experiment.input(1).getCompound().isKnown()).isTrue();
         assertThat(experiment.input(1).getCompound().getStereoisomerCode()).isEqualTo(stereoisomerCode);
     }
 
@@ -451,7 +452,7 @@ public class MutationsTest extends MutationsTestBase {
     void testSetOutputRowSaltCodeAndEQ() {
         experiment.mutateSetSchemeFromResource(REACTION_RXN);
         experiment.mutate(new ReactionOutputMutation.SetOutputRowSaltCode(experiment.output(1).getAnchor(), saltCode));
-        assertThat(experiment.output(1).getCompound()).isInstanceOf(CompoundRef.Virtual.class);
+        assertThat(experiment.output(1).getCompound().isKnown()).isTrue();
         assertThat(experiment.output(1).getCompound().getSaltCode()).isEqualTo(saltCode);
         experiment.mutate(new ReactionOutputMutation.SetOutputRowSaltEQ(experiment.output(1).getAnchor(), 2.0));
         assertThat(experiment.output(1).getCompound().getSaltCode()).isEqualTo(saltCode);
@@ -462,7 +463,7 @@ public class MutationsTest extends MutationsTestBase {
     void testSetOutputRowStereoisomerCode() {
         experiment.mutateSetSchemeFromResource(REACTION_RXN);
         experiment.mutate(new ReactionOutputMutation.SetOutputCompoundStereoisomerCode(experiment.output(1).getAnchor(), stereoisomerCode));
-        assertThat(experiment.output(1).getCompound()).isInstanceOf(CompoundRef.Virtual.class);
+        assertThat(experiment.output(1).getCompound().isKnown()).isTrue();
         assertThat(experiment.output(1).getCompound().getStereoisomerCode()).isEqualTo(stereoisomerCode);
     }
 
@@ -772,7 +773,7 @@ public class MutationsTest extends MutationsTestBase {
         experimentClient.importSDF(experiment.id(), experiment.reaction().getAnchor(), uploadForm("file.sdf", loadResource(COMPOUND_SDF)));
         experiment.invalidate();
         assertThat(experiment.reaction().getOutputs()).isNotEmpty();
-        assertThat(experiment.output(1).getCompound()).isInstanceOf(CompoundRef.Virtual.class);
+        assertThat(experiment.output(1).getCompound().isKnown()).isTrue();
     }
 
     @Test

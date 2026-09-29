@@ -1,6 +1,7 @@
 package com.epam.indigoeln.reaction.model;
 
 import com.epam.indigoeln.common.model.units.MolUnit;
+import com.epam.indigoeln.eln.model.SampleSource;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -65,7 +66,7 @@ public final class ReactionInput extends ReactionRow {
 
     public void updateCompound(CompoundRef newCompound) {
         for (ReactionInputSample sample : samples) {
-            validate(sample.getSampleSource() == null, "Cannot update compound with real samples attached");
+            validate(sample.getSampleSource() == SampleSource.VIRTUAL, "Cannot update compound with real samples attached");
         }
         this.compound = newCompound;
         validateDuplicateInputs(reaction, this);
