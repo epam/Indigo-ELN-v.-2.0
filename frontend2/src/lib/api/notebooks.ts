@@ -97,13 +97,11 @@ export function useEditNotebook(id: UUID) {
 /**
  * The name a new notebook is seeded with: `max(name) + 1`, zero-padded to eight digits.
  *
- * Read as **text**. The endpoint returns a bare Java `String` through RESTEasy's string writer
- * rather than Jackson, so the body is `00000009` unquoted — which `JSON.parse` rejects outright,
- * a leading zero not being legal JSON. (`FeignUtil` decodes the same endpoint with a
- * `StringDecoder` ahead of its `JacksonDecoder`, for the same reason.)
+ * The endpoint produces `application/json`, so the body is a JSON string (`"00000009"`, quoted) —
+ * read as JSON, not text, or the quotes end up in the field.
  */
 function fetchNextNotebookNumber(signal?: AbortSignal): Promise<string> {
-  return apiFetch('/api/eln/notebooks/next-number', { responseType: 'text', signal });
+  return apiFetch('/api/eln/notebooks/next-number', { signal });
 }
 
 /**

@@ -293,8 +293,7 @@ export const handlers = [
     const name = new URL(request.url).searchParams.get('name') ?? '';
     return HttpResponse.json({ exists: name === TAKEN_NOTEBOOK_NAME });
   }),
-  // Text, not JSON: the endpoint returns a bare String, and `00000004` is not legal JSON.
-  http.get(`${ELN}/notebooks/next-number`, () => HttpResponse.text(NEXT_NOTEBOOK_NAME)),
+  http.get(`${ELN}/notebooks/next-number`, () => HttpResponse.json(NEXT_NOTEBOOK_NAME)),
   http.get(`${ELN}/notebooks/:id`, ({ params }) => HttpResponse.json(makeNotebookDetails({ id: String(params.id) }))),
   http.patch(`${ELN}/notebooks/:id`, async ({ params, request }) => {
     const { description, ...body } = (await request.json()) as NotebookEditRequest;
@@ -611,7 +610,7 @@ export const createNotebookErrorHandlers = [
 export const initializingNotebookHandlers = [
   http.get(`${ELN}/notebooks/next-number`, async () => {
     await delay('infinite');
-    return HttpResponse.text('');
+    return HttpResponse.json('');
   }),
   ...handlers,
 ];
