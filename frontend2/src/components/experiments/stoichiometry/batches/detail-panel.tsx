@@ -133,7 +133,14 @@ export function BatchDetailPanel({
             value={compound?.saltCode}
             editable={compoundEditable}
             pending={pending('saltCode')}
-            onCommit={(next) => commit('saltCode', { type: 'SetOutputSaltCode', anchor, saltCode: next })}
+            onCommit={(next) =>
+              commit('saltCode', {
+                type: 'SetOutputSaltCode',
+                anchor,
+                saltCode: next,
+                createdOutputAnchor: crypto.randomUUID(),
+              })
+            }
           />
           <DictionaryField
             id={id('stereoisomerCode')}
@@ -143,7 +150,12 @@ export function BatchDetailPanel({
             editable={compoundEditable}
             pending={pending('stereoisomerCode')}
             onCommit={(next) =>
-              commit('stereoisomerCode', { type: 'SetOutputStereoisomerCode', anchor, stereoisomerCode: next })
+              commit('stereoisomerCode', {
+                type: 'SetOutputStereoisomerCode',
+                anchor,
+                stereoisomerCode: next,
+                createdOutputAnchor: crypto.randomUUID(),
+              })
             }
           />
 
@@ -171,7 +183,14 @@ export function BatchDetailPanel({
             value={compound?.saltEQ}
             editable={compoundEditable}
             pending={pending('saltEQ')}
-            onCommit={(next) => commit('saltEQ', { type: 'SetOutputSaltEQ', anchor, saltEQ: next })}
+            onCommit={(next) =>
+              commit('saltEQ', {
+                type: 'SetOutputSaltEQ',
+                anchor,
+                saltEQ: next,
+                createdOutputAnchor: crypto.randomUUID(),
+              })
+            }
           />
           {/*
             The STR code once registered. indigo-frontend models it as an object and interpolates

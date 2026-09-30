@@ -30,7 +30,6 @@ import com.google.common.base.MoreObjects;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
-import one.util.streamex.EntryStream;
 import one.util.streamex.IntStreamEx;
 import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
@@ -41,6 +40,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Slf4j
@@ -197,17 +197,8 @@ class SetSchemeHandler extends AbstractReactionMutationHandler<ReactionMutation.
 class AddEmptyInputHandler extends AbstractReactionMutationHandler<ReactionMutation.AddEmptyInput> {
 
     @Override
-    protected ReactionMutation.AddEmptyInput doPrepareMutation(ExperimentEntity entity, ReactionMutation.AddEmptyInput mutation, ExperimentMutationContext context) {
-        return new ReactionMutation.AddEmptyInput(
-                mutation.anchor(),
-                mutation.createdInputAnchor() != null ? mutation.createdInputAnchor() : InputAnchor.create(),
-                mutation.createdSampleAnchor() != null ? mutation.createdSampleAnchor() : InputSampleAnchor.create()
-        );
-    }
-
-    @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddEmptyInput mutation, ExperimentMutationContext context) {
-        ReactionInput row = createInputLine(reaction, null, ReactionRole.REACTANT, checkNotNull(mutation.createdInputAnchor()));
+        ReactionInput row = createInputLine(reaction, null, ReactionRole.REACTANT, mutation.createdInputAnchor());
         ReactionInputSample.create(row, mutation.createdSampleAnchor(), SampleSource.VIRTUAL, null, EnteredValue.DEFAULT_ONE_HUNDRED);
         return "Add empty input";
     }
@@ -216,16 +207,6 @@ class AddEmptyInputHandler extends AbstractReactionMutationHandler<ReactionMutat
 @Dependent
 @MutationHandlerFor(ReactionMutation.AddInput.class)
 class AddInputHandler extends AbstractReactionMutationHandler<ReactionMutation.AddInput> {
-
-    @Override
-    protected ReactionMutation.AddInput doPrepareMutation(ExperimentEntity entity, ReactionMutation.AddInput mutation, ExperimentMutationContext context) {
-        return new ReactionMutation.AddInput(
-                mutation.anchor(),
-                mutation.sample(),
-                mutation.createdInputAnchor() != null ? mutation.createdInputAnchor() : InputAnchor.create(),
-                mutation.createdSampleAnchor() != null ? mutation.createdSampleAnchor() : InputSampleAnchor.create()
-        );
-    }
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddInput mutation, ExperimentMutationContext context) {
@@ -239,15 +220,6 @@ class AddInputHandler extends AbstractReactionMutationHandler<ReactionMutation.A
 @Dependent
 @MutationHandlerFor(ReactionMutation.AddNoProductSample.class)
 class AddNoProductSampleHandler extends AbstractReactionMutationHandler<ReactionMutation.AddNoProductSample> {
-
-    @Override
-    protected ReactionMutation.AddNoProductSample doPrepareMutation(ExperimentEntity entity, ReactionMutation.AddNoProductSample mutation, ExperimentMutationContext context) {
-        return new ReactionMutation.AddNoProductSample(
-                mutation.anchor(),
-                mutation.createdOutputAnchor() != null ? mutation.createdOutputAnchor() : OutputAnchor.create(),
-                mutation.createdSampleAnchor() != null ? mutation.createdSampleAnchor() : OutputSampleAnchor.create()
-        );
-    }
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddNoProductSample mutation, ExperimentMutationContext context) {
@@ -264,21 +236,11 @@ class AddNoProductSampleHandler extends AbstractReactionMutationHandler<Reaction
 class ResolveInputsHandler extends AbstractReactionMutationHandler<ReactionMutation.ResolveInputs> {
 
     @Override
-    protected ReactionMutation.ResolveInputs doPrepareMutation(ExperimentEntity entity, ReactionMutation.ResolveInputs mutation, ExperimentMutationContext context) {
-        return new ReactionMutation.ResolveInputs(
-                mutation.anchor(),
-                mutation.inputSamples(),
-                mutation.createdSampleAnchors() != null ? mutation.createdSampleAnchors() : EntryStream.of(mutation.inputSamples())
-                        .mapValues(k -> InputSampleAnchor.create())
-                        .toMap()
-        );
-    }
-
-    @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.ResolveInputs mutation, ExperimentMutationContext context) {
+        validate(mutation.createdSampleAnchors().keySet().equals(mutation.inputSamples().keySet()), "createdSampleAnchors must have the same keys as inputSamples");
         mutation.inputSamples().forEach((inputAnchor, sample) -> {
             ReactionInput row = model.locate(inputAnchor);
-            setInputLineSample(row, sample, checkNotNull(mutation.createdSampleAnchors()).get(inputAnchor), context);
+            setInputLineSample(row, sample, mutation.createdSampleAnchors().get(inputAnchor), context);
         });
         return "Resolve input samples";
     }

@@ -109,6 +109,7 @@ describe('AnalyzeRxnDialog', () => {
       type: 'ResolveInputs',
       anchor: REACTION.anchor,
       inputSamples: { [REACTANT.anchor]: SAMPLE_RESULTS[0] },
+      createdSampleAnchors: { [REACTANT.anchor]: expect.any(String) },
     });
   });
 

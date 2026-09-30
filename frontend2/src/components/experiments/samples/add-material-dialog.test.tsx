@@ -163,6 +163,8 @@ describe('AddMaterialDialog', () => {
         type: 'AddInput',
         anchor: REACTION.anchor,
         sample: SAMPLE_RESULTS[0],
+        createdInputAnchor: expect.any(String),
+        createdSampleAnchor: expect.any(String),
       }),
     );
   });

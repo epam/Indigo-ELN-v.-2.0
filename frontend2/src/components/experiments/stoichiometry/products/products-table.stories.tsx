@@ -146,7 +146,13 @@ export const AddsABatch: Story = {
     await userEvent.click(await canvas.findByRole('button', { name: 'Add batch to P1' }));
 
     await waitFor(() =>
-      expect(sent).toEqual([{ type: 'AddProductSample', anchor: 'f0000000-0000-4000-8000-000000000002' }]),
+      expect(sent).toEqual([
+        {
+          type: 'AddProductSample',
+          anchor: 'f0000000-0000-4000-8000-000000000002',
+          createdSampleAnchor: expect.any(String),
+        },
+      ]),
     );
   },
 };

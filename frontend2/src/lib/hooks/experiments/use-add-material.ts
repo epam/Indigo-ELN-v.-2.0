@@ -29,7 +29,13 @@ export function useAddMaterial(experiment: ExperimentDetails, reaction: Reaction
 
   const add = useCallback(
     (sample: SampleDTO) => {
-      void run(sample, { type: 'AddInput', anchor: reactionAnchor, sample }).then((added) => {
+      void run(sample, {
+        type: 'AddInput',
+        anchor: reactionAnchor,
+        sample,
+        createdInputAnchor: crypto.randomUUID(),
+        createdSampleAnchor: crypto.randomUUID(),
+      }).then((added) => {
         if (added) notifyInfo('Model updated with new sample');
       });
     },

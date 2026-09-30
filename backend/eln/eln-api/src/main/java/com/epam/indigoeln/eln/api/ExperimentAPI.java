@@ -21,7 +21,9 @@ import com.epam.indigoeln.reaction.model.InputAnchor;
 import com.epam.indigoeln.reaction.model.ReactionAnchor;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import jakarta.annotation.Nullable;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -104,12 +106,12 @@ public interface ExperimentAPI extends BaseAPI {
 
     @POST
     @Path("/experiments/{experimentId}/mutate")
-    MutationResponse mutateExperimentModel(@PathParam("experimentId") UUID experimentId, @QueryParam("revision") Integer revision, @Nullable @QueryParam("verifyUndoRedo") Boolean verifyUndoRedo, Mutation mutation);
+    MutationResponse mutateExperimentModel(@PathParam("experimentId") UUID experimentId, @QueryParam("revision") Integer revision, @Nullable @QueryParam("verifyUndoRedo") Boolean verifyUndoRedo, @NotNull @Valid Mutation mutation);
 
     // TODO remove after frontend is updated
     @POST
     @Path("/experiments/{experimentId}/mutate4")
-    MutationResponse mutateExperimentModel4(@PathParam("experimentId") UUID experimentId, @QueryParam("revision") Integer revision, Mutation mutation);
+    MutationResponse mutateExperimentModel4(@PathParam("experimentId") UUID experimentId, @QueryParam("revision") Integer revision, @NotNull @Valid Mutation mutation);
 
     @GET
     @Path("/experiments/{experimentId}/datamodel/reactions/{reactionAnchor}/picture")

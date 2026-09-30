@@ -307,7 +307,14 @@ export const AddsEmptyBatch: Story = {
     await userEvent.click(await canvas.findByRole('button', { name: 'Add empty batch' }));
 
     await waitFor(() =>
-      expect(sent).toEqual([{ type: 'AddNoProductSample', anchor: 'b0000000-0000-4000-8000-000000000001' }]),
+      expect(sent).toEqual([
+        {
+          type: 'AddNoProductSample',
+          anchor: 'b0000000-0000-4000-8000-000000000001',
+          createdOutputAnchor: expect.any(String),
+          createdSampleAnchor: expect.any(String),
+        },
+      ]),
     );
   },
 };

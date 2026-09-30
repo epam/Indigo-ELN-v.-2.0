@@ -38,6 +38,7 @@ export function useResolveInput(experiment: ExperimentDetails, reaction: Reactio
         type: 'ResolveInputs',
         anchor: reactionAnchor,
         inputSamples: { [inputAnchor]: sample },
+        createdSampleAnchors: { [inputAnchor]: crypto.randomUUID() },
       }).then((added) => {
         if (!added) return;
         setAddedInputs((inputs) => new Set(inputs).add(inputAnchor));

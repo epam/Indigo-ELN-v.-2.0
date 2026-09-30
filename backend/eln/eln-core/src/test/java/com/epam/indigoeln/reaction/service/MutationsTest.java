@@ -159,6 +159,29 @@ public class MutationsTest extends MutationsTestBase {
     }
 
     @Test
+    void testAddEmptyInputUsesClientAnchors() {
+        InputAnchor inputAnchor = InputAnchor.create();
+        InputSampleAnchor sampleAnchor = InputSampleAnchor.create();
+        experiment.mutate(new ReactionMutation.AddEmptyInput(experiment.reaction().getAnchor(), inputAnchor, sampleAnchor));
+        assertThat(experiment.input(1).getAnchor()).isEqualTo(inputAnchor);
+        assertThat(experiment.inputSample(1, 1).getAnchor()).isEqualTo(sampleAnchor);
+    }
+
+    @Test
+    void testAddEmptyInputDuplicateAnchor() {
+        experiment.mutateAddEmptyInput();
+        InputAnchor existing = experiment.input(1).getAnchor();
+        assertThatClientCall(() -> experiment.mutate(new ReactionMutation.AddEmptyInput(experiment.reaction().getAnchor(), existing, InputSampleAnchor.create())))
+                .isBadRequest("Duplicate anchor " + existing);
+    }
+
+    @Test
+    void testAddEmptyInputMissingAnchor() {
+        assertThatClientCall(() -> experimentClient.mutateExperimentModel4Raw(experiment.id(), 1, "{\"type\": \"AddEmptyInput\", \"anchor\": \"" + experiment.reaction().getAnchor() + "\"}"))
+                .isBadRequest("must not be null");
+    }
+
+    @Test
     void testIncorrectAnchor() {
         assertThatClientCall(() -> experimentClient.mutateExperimentModel4Raw(experiment.id(), 1, "{\"type\": \"AddEmptyInput\", \"anchor\": \"invalid\"}")).isBadRequest("Cannot construct instance of `com.epam.indigoeln.reaction.model.ReactionAnchor");
     }

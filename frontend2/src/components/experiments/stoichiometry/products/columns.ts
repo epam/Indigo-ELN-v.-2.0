@@ -211,7 +211,11 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
     id: 'addBatch',
     header: '',
     kind: 'addBatch',
-    mutation: (row) => ({ type: 'AddProductSample', anchor: row.output.anchor }),
+    mutation: (row) => ({
+      type: 'AddProductSample',
+      anchor: row.output.anchor,
+      createdSampleAnchor: crypto.randomUUID(),
+    }),
   },
 ];
 

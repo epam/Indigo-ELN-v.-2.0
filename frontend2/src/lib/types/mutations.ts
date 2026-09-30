@@ -1,6 +1,6 @@
-import type {AccessForm, DocumentStatus, UserRef, UUID} from '@/lib/types/common.ts';
-import type {DictionaryItemRef} from '@/lib/types/dictionaries.ts';
-import type {ExperimentRef} from '@/lib/types/experiments.ts';
+import type { AccessForm, DocumentStatus, UserRef, UUID } from '@/lib/types/common.ts';
+import type { DictionaryItemRef } from '@/lib/types/dictionaries.ts';
+import type { ExperimentRef } from '@/lib/types/experiments.ts';
 import type {
   DensityUnit,
   ExternalSupplier,
@@ -15,7 +15,7 @@ import type {
   VolumeUnit,
   WeightUnit,
 } from '@/lib/types/reactions.ts';
-import type {SampleDTO} from '@/lib/types/samples.ts';
+import type { SampleDTO } from '@/lib/types/samples.ts';
 
 /**
  * The experiment model-mutation protocol: `POST /experiments/{id}/mutate` takes one
@@ -41,9 +41,11 @@ import type {SampleDTO} from '@/lib/types/samples.ts';
  *   completed by `POST /experiments/{id}/complete`. `ModelMutation` below is the subset that
  *   endpoint accepts, and it is what the mutate hook takes; nothing outside this file should
  *   be typed on the full `Mutation`.
- * - **Several carry `created*Anchor` members that a client must not send.** They are filled in
- *   server-side so an undo/redo replay regenerates the same anchors. They are omitted from the
- *   interfaces here rather than marked optional, so there is no way to send one by accident.
+ * - **Mutations that create rows or samples carry `created*Anchor` members the client picks**
+ *   with `crypto.randomUUID()`. The backend stores them with the revision, so an undo/redo replay
+ *   recreates the same anchors. `SetScheme` and `ImportSDF` are the exception: their counts
+ *   depend on parsing the rxnfile or SDF, so the backend fills those in and the interfaces here
+ *   omit them.
  */
 export type Mutation = ExperimentMutation | ProjectMutation | NotebookMutation;
 
@@ -345,17 +347,21 @@ export interface ResolveInputs {
   anchor: UUID;
   /** Input row anchor → the catalog hit to bind to it, sent back whole. */
   inputSamples: Record<UUID, SampleDTO>;
+  /** Input row anchor → the anchor of the sample created on it; the same keys as `inputSamples`. */
+  createdSampleAnchors: Record<UUID, UUID>;
 }
 
 /**
- * Appends an input row carrying an unknown compound and one `VIRTUAL` sample. The two
- * `created*Anchor` members the record also declares are filled in server-side so an undo/redo
- * replay regenerates the same anchors; a client must not send them.
+ * Appends an input row carrying an unknown compound and one `VIRTUAL` sample. The client picks
+ * the `created*Anchor`s of the new row and sample; they are stored with the revision, so an
+ * undo/redo replay recreates the same anchors. A clash with an existing anchor is a 400.
  */
 export interface AddEmptyInput {
   type: 'AddEmptyInput';
   /** The reaction's own anchor, not a row's. */
   anchor: UUID;
+  createdInputAnchor: UUID;
+  createdSampleAnchor: UUID;
 }
 
 /** The same, for a catalog hit — sent back whole; the backend imports its compound. */
@@ -363,6 +369,8 @@ export interface AddInput {
   type: 'AddInput';
   anchor: UUID;
   sample: SampleDTO;
+  createdInputAnchor: UUID;
+  createdSampleAnchor: UUID;
 }
 
 /**
@@ -373,6 +381,8 @@ export interface AddInput {
 export interface AddNoProductSample {
   type: 'AddNoProductSample';
   anchor: UUID;
+  createdOutputAnchor: UUID;
+  createdSampleAnchor: UUID;
 }
 
 /**
@@ -543,14 +553,14 @@ export interface RemoveInput {
  */
 
 /**
- * Adds one batch to this product. The record also declares `createdSampleAnchor`, filled in
- * server-side so an undo/redo replay regenerates the same anchor; a client must not send it.
+ * Adds one batch to this product, with the client-picked `createdSampleAnchor`.
  *
  * A new batch starts at 100 % purity (`AddProductSampleHandler`).
  */
 export interface AddProductSample {
   type: 'AddProductSample';
   anchor: UUID;
+  createdSampleAnchor: UUID;
 }
 
 /**
@@ -642,9 +652,9 @@ export interface SetOutputCompoundMolWeight {
  * One product batch. Rejected outright when the sample has been sent for registration —
  * `registrationStatus != null` freezes its compound, and most of these its values too.
  *
- * The last four carry a `createdOutputAnchor` the backend fills in: changing a batch's salt,
+ * The last four carry a client-picked `createdOutputAnchor`: changing a batch's salt,
  * stereoisomer or structure can move it onto a different product row, creating one if no row
- * matches. As everywhere else, a client must not send it.
+ * matches. Always required; unused when an existing row matches.
  */
 export interface SetOutputDensity {
   type: 'SetOutputDensity';
@@ -795,6 +805,7 @@ export interface SetOutputSaltCode {
   type: 'SetOutputSaltCode';
   anchor: UUID;
   saltCode: DictionaryItemRef | null;
+  createdOutputAnchor: UUID;
 }
 
 export interface SetOutputSaltEQ {
@@ -802,12 +813,14 @@ export interface SetOutputSaltEQ {
   anchor: UUID;
   /** A string, though the record says `Double` — see the note above the input rows. */
   saltEQ: string | null;
+  createdOutputAnchor: UUID;
 }
 
 export interface SetOutputStereoisomerCode {
   type: 'SetOutputStereoisomerCode';
   anchor: UUID;
   stereoisomerCode: DictionaryItemRef | null;
+  createdOutputAnchor: UUID;
 }
 
 /** Redraws one batch's structure. `@NotNull` — there is no way to clear it. */
@@ -815,6 +828,7 @@ export interface SetOutputMolfile {
   type: 'SetOutputMolfile';
   anchor: UUID;
   molfile: string;
+  createdOutputAnchor: UUID;
 }
 
 /* ── Projects ──────────────────────────────────────────────────────────────────────────── */

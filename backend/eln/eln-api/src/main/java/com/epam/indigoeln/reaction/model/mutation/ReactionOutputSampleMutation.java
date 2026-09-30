@@ -162,40 +162,40 @@ public interface ReactionOutputSampleMutation extends ExperimentMutation {
     record SetOutputSaltCode (
             @NotNull OutputSampleAnchor anchor,
             @Nullable SaltCodeRef saltCode,
-            @Nullable OutputAnchor createdOutputAnchor
+            @NotNull OutputAnchor createdOutputAnchor
     ) implements ReactionOutputSampleMutation {
         public SetOutputSaltCode(@NotNull OutputSampleAnchor anchor, @Nullable SaltCodeRef saltCode) {
-            this(anchor, saltCode, null);
+            this(anchor, saltCode, OutputAnchor.create());
         }
     }
 
     record SetOutputSaltEQ (
             @NotNull OutputSampleAnchor anchor,
             @Nullable Double saltEQ,
-            @Nullable OutputAnchor createdOutputAnchor
+            @NotNull OutputAnchor createdOutputAnchor
     ) implements ReactionOutputSampleMutation {
         public SetOutputSaltEQ(@NotNull OutputSampleAnchor anchor, @Nullable Double saltEQ) {
-            this(anchor, saltEQ, null);
+            this(anchor, saltEQ, OutputAnchor.create());
         }
     }
 
     record SetOutputStereoisomerCode (
             @NotNull OutputSampleAnchor anchor,
             @Nullable StereoisomerCodeRef stereoisomerCode,
-            @Nullable OutputAnchor createdOutputAnchor
+            @NotNull OutputAnchor createdOutputAnchor
     ) implements ReactionOutputSampleMutation {
         public SetOutputStereoisomerCode(@NotNull OutputSampleAnchor anchor, @Nullable StereoisomerCodeRef stereoisomerCode) {
-            this(anchor, stereoisomerCode, null);
+            this(anchor, stereoisomerCode, OutputAnchor.create());
         }
     }
 
     record SetOutputMolfile (
             @NotNull OutputSampleAnchor anchor,
             @NotNull String molfile,
-            @Nullable OutputAnchor createdOutputAnchor
+            @NotNull OutputAnchor createdOutputAnchor
     ) implements ReactionOutputSampleMutation {
         public SetOutputMolfile(@NotNull OutputSampleAnchor anchor, @NotNull String molfile) {
-            this(anchor, molfile, null);
+            this(anchor, molfile, OutputAnchor.create());
         }
 
         @Override

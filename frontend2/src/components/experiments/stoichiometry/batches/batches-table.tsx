@@ -208,7 +208,14 @@ function Toolbar({
             aria-label="Add empty batch"
             title="Add empty batch"
             disabled={!canEdit}
-            onClick={() => mutations.save(addBatchCell, { type: 'AddNoProductSample', anchor: reaction.anchor })}
+            onClick={() =>
+              mutations.save(addBatchCell, {
+                type: 'AddNoProductSample',
+                anchor: reaction.anchor,
+                createdOutputAnchor: crypto.randomUUID(),
+                createdSampleAnchor: crypto.randomUUID(),
+              })
+            }
           >
             <Plus />
           </Button>

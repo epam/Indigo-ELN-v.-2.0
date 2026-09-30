@@ -311,7 +311,14 @@ function Toolbar({
             aria-label="Add empty row"
             title="Add empty row"
             disabled={!canEdit}
-            onClick={() => mutations.save(addInputCell, { type: 'AddEmptyInput', anchor: reaction.anchor })}
+            onClick={() =>
+              mutations.save(addInputCell, {
+                type: 'AddEmptyInput',
+                anchor: reaction.anchor,
+                createdInputAnchor: crypto.randomUUID(),
+                createdSampleAnchor: crypto.randomUUID(),
+              })
+            }
           >
             <Plus />
           </Button>

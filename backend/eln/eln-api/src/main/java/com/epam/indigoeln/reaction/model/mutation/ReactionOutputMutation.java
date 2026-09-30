@@ -19,10 +19,10 @@ public interface ReactionOutputMutation extends ExperimentMutation {
 
     record AddProductSample(
             @NotNull OutputAnchor anchor,
-            @Nullable OutputSampleAnchor createdSampleAnchor
+            @NotNull OutputSampleAnchor createdSampleAnchor
     ) implements ReactionOutputMutation {
         public AddProductSample(@NotNull OutputAnchor anchor) {
-            this(anchor, null);
+            this(anchor, OutputSampleAnchor.create());
         }
     }
 

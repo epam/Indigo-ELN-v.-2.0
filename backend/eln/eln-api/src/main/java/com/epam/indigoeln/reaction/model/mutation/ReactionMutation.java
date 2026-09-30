@@ -13,6 +13,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public interface ReactionMutation extends ExperimentMutation {
 
@@ -47,41 +48,41 @@ public interface ReactionMutation extends ExperimentMutation {
     record ResolveInputs (
             @NotNull ReactionAnchor anchor,
             @NotEmpty Map<InputAnchor, SampleDTO> inputSamples,
-            @Nullable Map<InputAnchor, InputSampleAnchor> createdSampleAnchors
+            @NotNull Map<InputAnchor, InputSampleAnchor> createdSampleAnchors
     ) implements ReactionMutation {
         public ResolveInputs(ReactionAnchor anchor, Map<InputAnchor, SampleDTO> inputSamples) {
-            this(anchor, inputSamples, null);
+            this(anchor, inputSamples, inputSamples.keySet().stream().collect(Collectors.toMap(k -> k, k -> InputSampleAnchor.create())));
         }
     }
 
     record AddEmptyInput (
         @NotNull ReactionAnchor anchor,
-        InputAnchor createdInputAnchor,
-        InputSampleAnchor createdSampleAnchor
+        @NotNull InputAnchor createdInputAnchor,
+        @NotNull InputSampleAnchor createdSampleAnchor
     ) implements ReactionMutation {
         public AddEmptyInput(ReactionAnchor anchor) {
-            this(anchor, null, null);
+            this(anchor, InputAnchor.create(), InputSampleAnchor.create());
         }
     }
 
     record AddInput (
         @NotNull ReactionAnchor anchor,
         @NotNull SampleDTO sample,
-        InputAnchor createdInputAnchor,
-        InputSampleAnchor createdSampleAnchor
+        @NotNull InputAnchor createdInputAnchor,
+        @NotNull InputSampleAnchor createdSampleAnchor
     ) implements ReactionMutation {
         public AddInput(ReactionAnchor anchor, SampleDTO sample) {
-            this(anchor, sample, null, null);
+            this(anchor, sample, InputAnchor.create(), InputSampleAnchor.create());
         }
     }
 
     record AddNoProductSample (
             @NotNull ReactionAnchor anchor,
-            OutputAnchor createdOutputAnchor,
-            OutputSampleAnchor createdSampleAnchor
+            @NotNull OutputAnchor createdOutputAnchor,
+            @NotNull OutputSampleAnchor createdSampleAnchor
     ) implements ReactionMutation {
         public AddNoProductSample(ReactionAnchor anchor) {
-            this(anchor, null, null);
+            this(anchor, OutputAnchor.create(), OutputSampleAnchor.create());
         }
     }
 
