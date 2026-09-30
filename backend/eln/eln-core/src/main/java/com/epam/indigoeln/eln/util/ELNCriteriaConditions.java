@@ -1,6 +1,7 @@
 package com.epam.indigoeln.eln.util;
 
 import com.epam.indigoeln.common.model.UserRef;
+import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.common.util.CriteriaConditions;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
 import com.epam.indigoeln.eln.entity.UserEntity;
@@ -44,7 +45,7 @@ public class ELNCriteriaConditions extends CriteriaConditions {
     }
 
     public void user(Path<UserEntity> attribute, @Nullable Collection<UserRef> search) {
-        if (search != null) {
+        if (ModelUtil.isNotEmpty(search)) {
             predicates.add(cb.in(attribute.get(UserEntity_.username), search.stream().map(UserRef::getUsername).toList()));
         }
     }

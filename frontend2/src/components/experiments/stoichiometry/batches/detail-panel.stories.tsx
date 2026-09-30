@@ -250,12 +250,8 @@ export const NoRequestWhenUnchanged: Story = {
   },
 };
 
-/**
- * The two ways an emptied list is spelled, which are **not** the same and are the easiest thing
- * on this panel to get wrong. `SetOutputHealthHazards` is `@NotNull`, so clearing it sends `[]`;
- * its three neighbours are `@Size(min = 1)` when present, so clearing one sends `null`.
- */
-export const ClearingAListSendsNullOrEmpty: Story = {
+/** Every list mutation is `@NotNull`, so clearing a list sends `[]`, never `null`. */
+export const ClearingAListSendsEmpty: Story = {
   parameters: { msw: { handlers: spyHandlers } },
   render: () => <PanelFromCache />,
   play: async ({ canvasElement }) => {
@@ -285,7 +281,7 @@ export const ClearingAListSendsNullOrEmpty: Story = {
       expect(sent.at(-1)).toEqual({
         type: 'SetOutputCompoundProtection',
         anchor: 'f1000000-0000-4000-8000-000000000001',
-        compoundProtection: null,
+        compoundProtection: [],
       }),
     );
   },

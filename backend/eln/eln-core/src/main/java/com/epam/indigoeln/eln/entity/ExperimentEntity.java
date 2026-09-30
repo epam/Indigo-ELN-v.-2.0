@@ -131,17 +131,17 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments<Expe
     @NotNull
     @Basic(fetch = FetchType.LAZY)
     @JdbcTypeCode(SqlTypes.ARRAY)
-    private UUID[] linkedExperiments = new UUID[0];
+    private Set<UUID> linkedExperiments = new HashSet<>();
 
     @NotNull
     @Basic(fetch = FetchType.LAZY)
     @JdbcTypeCode(SqlTypes.ARRAY)
-    private UUID[] continuedFrom = new UUID[0];
+    private Set<UUID> continuedFrom = new HashSet<>();
 
     @NotNull
     @Basic(fetch = FetchType.LAZY)
     @JdbcTypeCode(SqlTypes.ARRAY)
-    private UUID[] continuedTo = new UUID[0];
+    private Set<UUID> continuedTo = new HashSet<>();
 
     @NotNull
     @Basic(fetch = FetchType.LAZY)
@@ -163,12 +163,12 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments<Expe
     @NotNull
     @Basic(fetch = FetchType.LAZY)
     @Type(ACLEntryArrayType.class)
-    private ACLEntry[] shortACL;
+    private List<ACLEntry> shortACL = List.of();
 
     @NotNull
     @Basic(fetch = FetchType.LAZY)
     @Type(ACLEntryArrayType.class)
-    private ACLEntry[] fullACL;
+    private List<ACLEntry> fullACL = List.of();
 
     @NotNull
     private Boolean deleted;

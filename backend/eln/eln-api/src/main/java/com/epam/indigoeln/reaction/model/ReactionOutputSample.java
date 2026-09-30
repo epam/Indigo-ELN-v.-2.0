@@ -63,23 +63,18 @@ public final class ReactionOutputSample extends ReactionSample<ReactionOutput> {
     private String registrationStatusMessage;
 
     @NotNull
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<HandlingPrecautionsRef> handlingPrecautions = List.of();
 
     @NotNull
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<StorageInstructionsRef> storageInstructions = List.of();
 
     @NotNull
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<CompoundProtectionRef> compoundProtection = List.of();
 
     @NotNull
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<@Valid SolubidityInSolvent> solubilityInSolvents = List.of();
 
     @NotNull
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<@Valid ResidualSolvent> residualSolvents = List.of();
 
     @Valid
@@ -87,7 +82,6 @@ public final class ReactionOutputSample extends ReactionSample<ReactionOutput> {
     private MeltingPoint meltingPoint;
 
     @NotNull
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<@Valid PurityCalculation> purityCalculations = List.of();
 
     @Valid

@@ -77,7 +77,7 @@ public class GlobalSearchRepository {
         if (request.isEmpty()) {
             throw new InvalidRequestException("Request is empty");
         }
-        boolean onlyExperiments = request.getTherapeuticArea() != null || request.getProjectCode() != null || request.getExperimentStatus() != null
+        boolean onlyExperiments = request.getTherapeuticArea() != null || request.getProjectCode() != null || ModelUtil.isNotEmpty(request.getExperimentStatus())
                 || request.getMoleculeStructure() != null || request.getReactionStructure() != null
                 || request.getBatchPurity() != null || request.getBatchYield() != null;
         boolean hasFullTextSearch = request.getQuery() != null;
@@ -127,7 +127,7 @@ public class GlobalSearchRepository {
                     }
                     if (hasRoles) {
                         ReactionRole[] roles = tuple.get(++fieldNo, ReactionRole[].class);
-                        item.setReactionRoles(roles != null ? Set.of(roles) : null);
+                        item.setReactionRoles(roles != null ? Set.of(roles) : Set.of());
                     }
                     if (!onlyExperiments) {
                         item.setNotebookCount(tuple.get(++fieldNo, Integer.class));
@@ -165,7 +165,7 @@ public class GlobalSearchRepository {
                 }
                 conditions.dictionary(root.get(ExperimentEntity_.therapeuticArea), request.getTherapeuticArea());
                 conditions.dictionary(root.get(ExperimentEntity_.projectCode), request.getProjectCode());
-                if (request.getExperimentStatus() != null) {
+                if (ModelUtil.isNotEmpty(request.getExperimentStatus())) {
                     conditions.add(root.get(ExperimentEntity_.status).in(request.getExperimentStatus()));
                 }
                 // molecule search - use GROUP BY instead of EXISTS to: 1. extract similarity rank; 2. extract roles

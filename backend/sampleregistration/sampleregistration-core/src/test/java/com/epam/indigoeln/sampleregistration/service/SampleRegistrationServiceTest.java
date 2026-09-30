@@ -30,6 +30,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static com.epam.indigoeln.test.ClientUtil.uploadForm;
@@ -76,7 +77,7 @@ class SampleRegistrationServiceTest extends BaseTest {
                 .molarity(BigDecimal.valueOf(250))
                 .molarityUnit(MolarityUnit.MM)
                 .purity(BigDecimal.valueOf(50))
-                .healthHazards(List.of(healthHazard1, healthHazard2))
+                .healthHazards(Set.of(healthHazard1, healthHazard2))
                 .compoundState(compoundState)
                 .batchComment("batchComment1")
                 .build()

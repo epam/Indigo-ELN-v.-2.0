@@ -48,8 +48,8 @@ export function meltingPointLabel(meltingPoint: MeltingPoint | undefined): strin
 }
 
 /** One chip per solvent: `Toluene (1.2 eq)`. */
-export function residualSolventLabels(solvents: ResidualSolvent[] | undefined): string[] {
-  return (solvents ?? []).map((solvent) => `${solvent.solvent.name} (${solvent.eq} eq)`);
+export function residualSolventLabels(solvents: ResidualSolvent[]): string[] {
+  return solvents.map((solvent) => `${solvent.solvent.name} (${solvent.eq} eq)`);
 }
 
 /**
@@ -59,8 +59,8 @@ export function residualSolventLabels(solvents: ResidualSolvent[] | undefined): 
  * Both cases carry optional members — a `QUANTITATIVE` entry with no value yet, a `QUALITATIVE`
  * one with no verdict — so either can fall back to the solvent's name alone.
  */
-export function solubilityLabels(solvents: SolubidityInSolvent[] | undefined): string[] {
-  return (solvents ?? []).map((entry) => {
+export function solubilityLabels(solvents: SolubidityInSolvent[]): string[] {
+  return solvents.map((entry) => {
     const name = entry.solvent.name;
 
     if (entry.type === 'QUANTITATIVE') {
@@ -81,8 +81,8 @@ export function externalSupplierLabel(supplier: ExternalSupplier | undefined): s
 }
 
 /** One chip per measurement: `HPLC > 98`. */
-export function purityCalculationLabels(calculations: PurityCalculation[] | undefined): string[] {
-  return (calculations ?? []).map(
+export function purityCalculationLabels(calculations: PurityCalculation[]): string[] {
+  return calculations.map(
     (calculation) => `${calculation.type} ${OPERATOR_SYMBOLS[calculation.operator]} ${calculation.purity}`,
   );
 }

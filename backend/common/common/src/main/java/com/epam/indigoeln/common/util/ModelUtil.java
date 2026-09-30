@@ -91,11 +91,6 @@ public class ModelUtil {
         return is;
     }
 
-    @Nullable
-    public <T> List<T> emptyToNull(@Nullable List<T> list) {
-        return list == null || list.isEmpty() ? null : list;
-    }
-
     public boolean isNotEmpty(@Nullable Collection<?> list) {
         return list != null && !list.isEmpty();
     }

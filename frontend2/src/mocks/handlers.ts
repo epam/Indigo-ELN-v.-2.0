@@ -155,6 +155,9 @@ export const TAKEN_NOTEBOOK_NAME = '00000002';
 /** What `/notebooks/next-number` offers — one past the last of `NOTEBOOKS`, as the backend does. */
 export const NEXT_NOTEBOOK_NAME = '00000004';
 
+/** The members of a `MutationResponse` that are empty unless a handler has something to say. */
+const EMPTY_RESPONSE = { unresolvedInputs: {}, messages: [], debugMessages: [] };
+
 /**
  * What `/mutate` answers for a `SetScheme`: a diff, not a document. The real backend re-reads
  * the drawing and patches the input and output rows too — this only moves `rxnfile`, which is
@@ -164,8 +167,9 @@ export const NEXT_NOTEBOOK_NAME = '00000004';
  */
 function setSchemeResponse(mutation: ModelMutation): MutationResponse {
   if (mutation.type === 'ResolveInputs') return resolveInputsResponse(mutation);
-  if (mutation.type !== 'SetScheme') return { patch: {} };
+  if (mutation.type !== 'SetScheme') return { ...EMPTY_RESPONSE, patch: {} };
   return {
+    ...EMPTY_RESPONSE,
     patch: { model: { reactions: { '0': { rxnfile: { $old: REACTION_RXNFILE, $new: mutation.rxnFile } } } } },
     messages: ['Reaction scheme updated'],
   };
@@ -189,7 +193,7 @@ function resolveInputsResponse(mutation: Extract<ModelMutation, { type: 'Resolve
       samples: { '0': { sampleSource: { $new: sample.source }, sampleKey: { $new: sample.sampleKey } } },
     };
   }
-  return { patch: { model: { reactions: { '0': { inputs: samples } } } } };
+  return { ...EMPTY_RESPONSE, patch: { model: { reactions: { '0': { inputs: samples } } } } };
 }
 
 /**
@@ -403,7 +407,7 @@ export const handlers = [
   // Multipart, and not a `/mutate` call: `ImportSDF` is the one model mutation the endpoint does
   // not accept. The response is the same `MutationResponse` shape.
   http.post(`${ELN}/experiments/:id/datamodel/reactions/:anchor/importSDF`, () =>
-    HttpResponse.json({ patch: {}, messages: ['Imported 1 compound'] } satisfies MutationResponse),
+    HttpResponse.json({ ...EMPTY_RESPONSE, patch: {}, messages: ['Imported 1 compound'] } satisfies MutationResponse),
   ),
   /*
    * The workflow transitions. Each answers the whole `ExperimentDetailsDTO` with the status the
@@ -716,6 +720,7 @@ export const slowMutateHandlers = [
 export const recalculatingMutateHandlers = [
   http.post(`${ELN}/experiments/:id/mutate`, () =>
     HttpResponse.json({
+      ...EMPTY_RESPONSE,
       patch: {
         model: {
           reactions: {

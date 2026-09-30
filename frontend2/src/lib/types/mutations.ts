@@ -710,35 +710,34 @@ export interface RegisterSample {
   anchor: UUID;
 }
 
-/** `@Size(min = 1)` when present: send `null` to clear it, never `[]`. */
 export interface SetOutputHandlingPrecautions {
   type: 'SetOutputHandlingPrecautions';
   anchor: UUID;
-  handlingPrecautions: DictionaryItemRef[] | null;
+  handlingPrecautions: DictionaryItemRef[];
 }
 
 export interface SetOutputStorageInstructions {
   type: 'SetOutputStorageInstructions';
   anchor: UUID;
-  storageInstructions: DictionaryItemRef[] | null;
+  storageInstructions: DictionaryItemRef[];
 }
 
 export interface SetOutputCompoundProtection {
   type: 'SetOutputCompoundProtection';
   anchor: UUID;
-  compoundProtection: DictionaryItemRef[] | null;
+  compoundProtection: DictionaryItemRef[];
 }
 
 export interface SetOutputSolubilityInSolvents {
   type: 'SetOutputSolubilityInSolvents';
   anchor: UUID;
-  solubilityInSolvents: SolubidityInSolvent[] | null;
+  solubilityInSolvents: SolubidityInSolvent[];
 }
 
 export interface SetOutputResidualSolvents {
   type: 'SetOutputResidualSolvents';
   anchor: UUID;
-  residualSolvents: ResidualSolvent[] | null;
+  residualSolvents: ResidualSolvent[];
 }
 
 export interface SetOutputMeltingPoint {
@@ -750,7 +749,7 @@ export interface SetOutputMeltingPoint {
 export interface SetOutputPurityCalculations {
   type: 'SetOutputPurityCalculations';
   anchor: UUID;
-  purityCalculations: PurityCalculation[] | null;
+  purityCalculations: PurityCalculation[];
 }
 
 export interface SetOutputExternalSupplier {
@@ -843,8 +842,7 @@ export interface SetOutputMolfile {
 export interface CreateProject {
   type: 'CreateProject';
   name: string;
-  /** `@Size(min = 1)` when present: send `null` to clear it, never `[]`. */
-  keywords?: string[] | null;
+  keywords: string[];
   literature?: string | null;
   description?: string | null;
 }
@@ -853,7 +851,7 @@ export interface CreateProject {
 export interface EditProjectAttributes {
   type: 'EditProjectAttributes';
   name?: string | null;
-  keywords?: string[] | null;
+  keywords?: string[];
   literature?: string | null;
   description?: string | null;
 }
@@ -948,8 +946,8 @@ export interface MutationResponse {
    * Input anchor → the molfile the backend could not resolve to a compound. `SetScheme`
    * populates this on essentially every scheme edit, and `ResolveInputs` is the answer to it.
    */
-  unresolvedInputs?: Record<UUID, string>;
-  /** Things the user should be told about what the mutation did. `NON_EMPTY`. */
-  messages?: string[];
-  debugMessages?: string[];
+  unresolvedInputs: Record<UUID, string>;
+  /** Things the user should be told about what the mutation did. */
+  messages: string[];
+  debugMessages: string[];
 }

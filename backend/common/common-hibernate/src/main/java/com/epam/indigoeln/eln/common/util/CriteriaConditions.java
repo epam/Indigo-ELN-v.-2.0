@@ -15,6 +15,7 @@ import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -144,7 +145,7 @@ public class CriteriaConditions {
         }
     }
 
-    public <T> void arrayContains(@Nullable T element, Expression<T[]> attribute) {
+    public <T> void arrayContains(@Nullable T element, Expression<? extends Collection<T>> attribute) {
         if (element != null) {
             predicates.add(cb.isTrue(cb.function("array_contains", Boolean.class, cb.literal(element), attribute)));
         }

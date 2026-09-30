@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { useProjectAttachments } from '@/lib/api/projects';
 
 import type { ProjectDetails } from '@/lib/types/projects.ts';
+import { sortKeywords } from '@/lib/types/projects.ts';
 
 function Section({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -46,7 +47,7 @@ export function AboutProjectCard({ project }: { project: ProjectDetails }) {
         <Section label="Project Keywords">
           {project.keywords.length > 0 ? (
             <ul className="flex flex-wrap gap-2">
-              {project.keywords.map((keyword) => (
+              {sortKeywords(project.keywords).map((keyword) => (
                 <li key={keyword} className="rounded-full bg-blue-10 px-3 py-1 text-[12px]/5 text-neutral-1000">
                   {keyword}
                 </li>

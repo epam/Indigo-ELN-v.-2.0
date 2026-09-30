@@ -25,6 +25,6 @@ public class UserRequest {
     @Nullable
     private String password;
 
-    @Nullable
+    @NotNull
     private List<RoleRef> roles;
 }

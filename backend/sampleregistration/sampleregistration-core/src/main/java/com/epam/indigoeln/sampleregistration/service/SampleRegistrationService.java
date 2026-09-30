@@ -24,6 +24,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.UUID;
 
 @Slf4j
@@ -56,9 +57,7 @@ public class SampleRegistrationService {
         sample.setMolarity(request.getMolarity());
         sample.setMolarityUnit(request.getMolarityUnit());
         sample.setPurity(request.getPurity());
-        if (request.getHealthHazards() != null) {
-            sample.setHealthHazards(request.getHealthHazards().toArray(UUID[]::new));
-        }
+        sample.setHealthHazards(new HashSet<>(request.getHealthHazards()));
         sample.setCompoundState(request.getCompoundState());
         sample.setBatchComment(request.getBatchComment());
         sample.setSearchVector(collectSampleSearchVector(sample));

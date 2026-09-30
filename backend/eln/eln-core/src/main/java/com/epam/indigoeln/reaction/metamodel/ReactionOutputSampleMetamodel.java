@@ -28,6 +28,7 @@ import com.epam.indigoeln.reaction.model.outputsample.SolubidityInSolvent;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.Set;
 
 import static com.epam.indigoeln.reaction.metamodel.property.ModelProperty.enteredValueProperty;
 import static com.epam.indigoeln.reaction.metamodel.property.ModelProperty.property;
@@ -43,7 +44,7 @@ public class ReactionOutputSampleMetamodel {
     public static final ModelProperty<ReactionOutputSample, EnteredValue<VolumeUnit>> VOLUME = enteredValueProperty("volume", ReactionOutputSample::getVolume, ReactionOutputSample::setVolume);
     public static final ModelProperty<ReactionOutputSample, EnteredValue<NoUnit>> PURITY = enteredValueProperty("purity", ReactionOutputSample::getPurity, ReactionOutputSample::setPurity, EnteredValue.DEFAULT_ONE_HUNDRED);
     public static final ModelProperty<ReactionOutputSample, @Nullable String> SAMPLE_KEY = property("sampleKey", ReactionOutputSample::getSampleKey, ReactionOutputSample::setSampleKey);
-    public static final ModelProperty<ReactionOutputSample, List<HealthHazardRef>> HEALTH_HAZARDS = property("healthHazards", ReactionOutputSample::getHealthHazards, ReactionOutputSample::setHealthHazards);
+    public static final ModelProperty<ReactionOutputSample, Set<HealthHazardRef>> HEALTH_HAZARDS = property("healthHazards", ReactionOutputSample::getHealthHazards, ReactionOutputSample::setHealthHazards);
     // ReactionInputSample
     public static final ModelProperty<ReactionOutputSample, OutputSampleAnchor> ANCHOR = property("anchor", ReactionOutputSample::getAnchor, null);
     public static final ModelProperty<ReactionOutputSample, NbkBatchNumber> NBK_BATCH_NUMBER = property("nbkBatchNumber", ReactionOutputSample::getNbkBatchNumber, null);

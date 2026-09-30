@@ -1,11 +1,12 @@
 package com.epam.indigoeln.eln.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
-import java.util.List;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor(onConstructor_ = @JsonCreator)
@@ -13,8 +14,8 @@ public class ProjectRequest {
 
     String name;
 
-    @Nullable
-    List<String> keywords;
+    @NotNull
+    Set<String> keywords;
 
     @Nullable
     String literature;
@@ -23,6 +24,6 @@ public class ProjectRequest {
     String description;
 
     public ProjectRequest(String name) {
-        this(name, null, null, null);
+        this(name, Set.of(), null, null);
     }
 }

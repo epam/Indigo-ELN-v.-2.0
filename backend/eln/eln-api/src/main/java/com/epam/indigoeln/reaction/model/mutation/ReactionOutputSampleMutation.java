@@ -10,10 +10,10 @@ import com.epam.indigoeln.reaction.model.OutputAnchor;
 import com.epam.indigoeln.reaction.model.OutputSampleAnchor;
 import com.epam.indigoeln.reaction.model.outputsample.*;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.Set;
 
 public interface ReactionOutputSampleMutation extends ExperimentMutation {
 
@@ -53,7 +53,7 @@ public interface ReactionOutputSampleMutation extends ExperimentMutation {
 
     record SetOutputHealthHazards (
             @NotNull OutputSampleAnchor anchor,
-            @NotNull List<HealthHazardRef> healthHazards
+            @NotNull Set<HealthHazardRef> healthHazards
     ) implements ReactionOutputSampleMutation {
     }
 
@@ -78,31 +78,31 @@ public interface ReactionOutputSampleMutation extends ExperimentMutation {
 
     record SetOutputHandlingPrecautions (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable @Size(min = 1) List<HandlingPrecautionsRef> handlingPrecautions
+            @NotNull List<HandlingPrecautionsRef> handlingPrecautions
     ) implements ReactionOutputSampleMutation {
     }
 
     record SetOutputStorageInstructions (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable List<StorageInstructionsRef> storageInstructions
+            @NotNull List<StorageInstructionsRef> storageInstructions
     ) implements ReactionOutputSampleMutation {
     }
 
     record SetOutputCompoundProtection (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable List<CompoundProtectionRef> compoundProtection
+            @NotNull List<CompoundProtectionRef> compoundProtection
     ) implements ReactionOutputSampleMutation {
     }
 
     record SetOutputSolubilityInSolvents (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable List<SolubidityInSolvent> solubilityInSolvents
+            @NotNull List<SolubidityInSolvent> solubilityInSolvents
     ) implements ReactionOutputSampleMutation {
     }
 
     record SetOutputResidualSolvents (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable List<ResidualSolvent> residualSolvents
+            @NotNull List<ResidualSolvent> residualSolvents
     ) implements ReactionOutputSampleMutation {
     }
 
@@ -114,7 +114,7 @@ public interface ReactionOutputSampleMutation extends ExperimentMutation {
 
     record SetOutputPurityCalculations (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable List<PurityCalculation> purityCalculations
+            @NotNull List<PurityCalculation> purityCalculations
     ) implements ReactionOutputSampleMutation {
     }
 

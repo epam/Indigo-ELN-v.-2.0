@@ -37,6 +37,7 @@ import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -116,14 +117,14 @@ public abstract class ExperimentEditMutationHandlerBase<T extends ExperimentMuta
         return SET_SUMMARY_FORMAT.formatted(what, StringUtils.abbreviate(value, 100));
     }
 
-    public String formatSetterSummary(String what, @Nullable List<? extends DictionaryItemRef> value) {
-        if (value == null || value.isEmpty()) {
+    public String formatSetterSummary(String what, Collection<? extends DictionaryItemRef> value) {
+        if (value.isEmpty()) {
             return CLEAR_SUMMARY_FORMAT.formatted(what);
         }
         if (value.size() == 1) {
-            return "Set %s to [%s]".formatted(what, value.getFirst());
+            return "Set %s to [%s]".formatted(what, value.iterator().next());
         }
-        return "Set %s to [%s, ...]".formatted(what, value.getFirst());
+        return "Set %s to [%s, ...]".formatted(what, value.iterator().next());
     }
 
     public String formatSetterSummaryNoDetails(String what, boolean isPresent) {

@@ -25,6 +25,7 @@ import { cn } from '@/lib/utils';
 import type { BatchRow } from '@/components/experiments/stoichiometry/batches/columns';
 import type { StoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import type { BuiltInDictionary, DictionaryItemRef } from '@/lib/types/dictionaries.ts';
+import { sortByName } from '@/lib/types/dictionaries.ts';
 import type { ModelMutation } from '@/lib/types/mutations.ts';
 import type { CompoundRef, EnteredValue, Reaction } from '@/lib/types/reactions.ts';
 import { isKnownCompound, unitLabel } from '@/lib/types/reactions.ts';
@@ -231,16 +232,11 @@ export function BatchDetailPanel({
             id={id('compoundProtection')}
             label="Compound Protection"
             dictionary="COMPOUND_PROTECTION"
-            value={sample.compoundProtection ?? []}
+            value={sample.compoundProtection}
             editable={canEdit}
             pending={pending('compoundProtection')}
             onCommit={(next) =>
-              commit('compoundProtection', {
-                type: 'SetOutputCompoundProtection',
-                anchor,
-                // `@Size(min = 1)` when present: clearing sends null, never an empty list.
-                compoundProtection: next.length === 0 ? null : next,
-              })
+              commit('compoundProtection', { type: 'SetOutputCompoundProtection', anchor, compoundProtection: next })
             }
           />
           {/* TODO(melting-point-editor): `SetOutputMeltingPoint` takes `{lower, upper, comments}`. */}
@@ -252,15 +248,11 @@ export function BatchDetailPanel({
             id={id('storageInstructions')}
             label="Storage Instructions"
             dictionary="STORAGE_INSTRUCTIONS"
-            value={sample.storageInstructions ?? []}
+            value={sample.storageInstructions}
             editable={canEdit}
             pending={pending('storageInstructions')}
             onCommit={(next) =>
-              commit('storageInstructions', {
-                type: 'SetOutputStorageInstructions',
-                anchor,
-                storageInstructions: next.length === 0 ? null : next,
-              })
+              commit('storageInstructions', { type: 'SetOutputStorageInstructions', anchor, storageInstructions: next })
             }
           />
 
@@ -268,11 +260,10 @@ export function BatchDetailPanel({
             id={id('healthHazards')}
             label="Health Hazards"
             dictionary="HEALTH_HAZARD"
-            value={sample.healthHazards ?? []}
+            value={sortByName(sample.healthHazards)}
             editable={canEdit}
             pending={pending('healthHazards')}
             onCommit={(next) =>
-              // `@NotNull` on this one, unlike its three neighbours: clearing sends an empty list.
               commit('healthHazards', { type: 'SetOutputHealthHazards', anchor, healthHazards: next })
             }
           />
@@ -283,15 +274,11 @@ export function BatchDetailPanel({
             id={id('handlingPrecautions')}
             label="Handling Precautions"
             dictionary="HANDLING_PRECAUTIONS"
-            value={sample.handlingPrecautions ?? []}
+            value={sample.handlingPrecautions}
             editable={canEdit}
             pending={pending('handlingPrecautions')}
             onCommit={(next) =>
-              commit('handlingPrecautions', {
-                type: 'SetOutputHandlingPrecautions',
-                anchor,
-                handlingPrecautions: next.length === 0 ? null : next,
-              })
+              commit('handlingPrecautions', { type: 'SetOutputHandlingPrecautions', anchor, handlingPrecautions: next })
             }
           />
           {/* TODO(external-supplier-editor): `SetOutputExternalSupplier` pairs a supplier with a

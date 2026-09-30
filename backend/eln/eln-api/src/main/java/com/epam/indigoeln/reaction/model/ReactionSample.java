@@ -17,7 +17,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.jspecify.annotations.Nullable;
 
-import java.util.List;
+import java.util.Set;
 
 @Data
 @ToString(exclude = "row", callSuper = false)
@@ -47,8 +47,8 @@ public sealed abstract class ReactionSample<P extends ReactionRow> implements Ex
     @Nullable
     protected String sampleKey;
 
-    @Nullable
-    protected List<HealthHazardRef> healthHazards;
+    @NotNull
+    protected Set<HealthHazardRef> healthHazards = Set.of();
 
     public void moveInto(P newParent) {
         delete();

@@ -73,6 +73,7 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.epam.indigoeln.common.model.units.MolUnit.MMOL;
@@ -264,7 +265,7 @@ class InsertTestDataTest {
         StorageInstructionsRef storageInstructions = dictionaryClient.getFirst(BuiltInDictionary.STORAGE_INSTRUCTIONS);
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputStorageInstructions(experiment.outputSample(2, 1).getAnchor(), List.of(storageInstructions)));
         HealthHazardRef healthHazards = dictionaryClient.getFirst(BuiltInDictionary.HEALTH_HAZARD);
-        experiment.mutate(new ReactionOutputSampleMutation.SetOutputHealthHazards(experiment.outputSample(2, 1).getAnchor(), List.of(healthHazards)));
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputHealthHazards(experiment.outputSample(2, 1).getAnchor(), Set.of(healthHazards)));
         HandlingPrecautionsRef handlingPrecautions = dictionaryClient.getFirst(BuiltInDictionary.HANDLING_PRECAUTIONS);
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputHandlingPrecautions(experiment.outputSample(2, 1).getAnchor(), List.of(handlingPrecautions)));
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputMeltingPoint(experiment.outputSample(2, 1).getAnchor(), new MeltingPoint(-10.0, 20.0, COMMENT)));

@@ -4,13 +4,12 @@ import com.epam.indigoeln.common.model.NbkBatchNumber;
 import com.epam.indigoeln.common.model.units.MolarityUnit;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -60,9 +59,9 @@ public class SampleRegistrationRequest {
     @Nullable
     private BigDecimal purity;
 
-    @Nullable
-    @Size(min = 1)
-    private List<UUID> healthHazards;
+    @NotNull
+    @Builder.Default
+    private Set<UUID> healthHazards = Set.of();
 
     @Nullable
     private UUID compoundState;

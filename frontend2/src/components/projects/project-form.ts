@@ -2,7 +2,7 @@ import { isBlankHtml, richTextEdit } from '@/lib/rich-text';
 import { z } from '@/lib/zod';
 
 import type { ProjectDetails, ProjectEditRequest, ProjectRequest } from '@/lib/types/projects.ts';
-import { PROJECT_NAME_MAX_LENGTH } from '@/lib/types/projects.ts';
+import { PROJECT_NAME_MAX_LENGTH, sortKeywords } from '@/lib/types/projects.ts';
 
 export const projectNameSchema = z
   .string()
@@ -28,7 +28,7 @@ export const EMPTY_PROJECT_FORM: ProjectFormValues = {
 export function toProjectRequest(values: ProjectFormValues): ProjectRequest {
   return {
     name: values.name.trim(),
-    ...(values.keywords.length > 0 ? { keywords: values.keywords } : {}),
+    keywords: values.keywords,
     ...(isBlankHtml(values.literature) ? {} : { literature: values.literature }),
     ...(isBlankHtml(values.description) ? {} : { description: values.description }),
   };
@@ -38,14 +38,15 @@ export function toProjectRequest(values: ProjectFormValues): ProjectRequest {
 export function toProjectFormValues(project: ProjectDetails): ProjectFormValues {
   return {
     name: project.name,
-    keywords: project.keywords,
+    keywords: sortKeywords(project.keywords),
     literature: project.literature ?? '',
     description: project.description ?? '',
   };
 }
 
+/** Keywords are a set server-side, so order does not count as a change. */
 function sameKeywords(a: string[], b: string[]): boolean {
-  return a.length === b.length && a.every((keyword, index) => keyword === b[index]);
+  return a.length === b.length && a.every((keyword) => b.includes(keyword));
 }
 
 /**

@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -83,20 +84,26 @@ class ProjectServiceTest extends ELNBaseTest {
 
     @Test
     void testCreateProjectValidation() {
-        assertThatClientCall(() -> projectClient.createProject(new ProjectRequest(null, List.of(), null, null)))
+        assertThatClientCall(() -> projectClient.createProject(new ProjectRequest(null, Set.of(), null, null)))
                 .isBadRequest("Project Name is required");
     }
 
     @Test
+    void testCreateProjectNullKeywords() {
+        assertThatClientCall(() -> projectClient.createProject(new ProjectRequest("testCreateProjectNullKeywords", null, null, null)))
+                .isBadRequest("must not be null");
+    }
+
+    @Test
     void testCreateProject() {
-        ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testCreateProject", List.of(KEYWORD_1, KEYWORD_2), LITERATURE, DESCRIPTION));
+        ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testCreateProject", Set.of(KEYWORD_1, KEYWORD_2), LITERATURE, DESCRIPTION));
         assertThat(project.getId()).isNotNull();
         assertThat(project.getName()).isEqualTo("testCreateProject");
         assertThat(project.getCreatedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME);
         assertThat(project.getCreatedAt()).isNotNull();
         assertThat(project.getModifiedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME);
         assertThat(project.getModifiedAt()).isNotNull();
-        assertThat(project.getKeywords()).containsExactly(KEYWORD_1, KEYWORD_2);
+        assertThat(project.getKeywords()).containsExactlyInAnyOrder(KEYWORD_1, KEYWORD_2);
         assertThat(project.getLiterature()).isEqualTo(LITERATURE);
         assertThat(project.getDescription()).isEqualTo(DESCRIPTION);
         assertThat(project.getNotebookCount()).isEqualTo(0);
@@ -252,14 +259,14 @@ class ProjectServiceTest extends ELNBaseTest {
 
     @Test
     void testGetProject() {
-        ProjectDetailsDTO createdProject = projectClient.createProject(new ProjectRequest("testGetProject", List.of(KEYWORD_1, KEYWORD_2), LITERATURE, DESCRIPTION));
+        ProjectDetailsDTO createdProject = projectClient.createProject(new ProjectRequest("testGetProject", Set.of(KEYWORD_1, KEYWORD_2), LITERATURE, DESCRIPTION));
         ProjectDetailsDTO loadedProject = projectClient.getProject(createdProject.getId());
         assertThat(loadedProject).usingRecursiveComparison().isEqualTo(createdProject);
     }
 
     @Test
     void testGetProjects() {
-        projectClient.createProject(new ProjectRequest("testGetProjects", List.of(KEYWORD_1, KEYWORD_2), LITERATURE, DESCRIPTION));
+        projectClient.createProject(new ProjectRequest("testGetProjects", Set.of(KEYWORD_1, KEYWORD_2), LITERATURE, DESCRIPTION));
         Page<ProjectDTO> projects = projectClient.getProjects(null, null, null, Paging.DEFAULT);
         assertThat(projects.getItems()).first().satisfies(project -> {
             assertThat(project.getId()).isNotNull();
@@ -353,17 +360,31 @@ class ProjectServiceTest extends ELNBaseTest {
 
     @Test
     void testEditProjectNoChanges() {
-        ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testEditProject", List.of("k1", "k2"), "l", "d"));
+        ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testEditProject", Set.of("k1", "k2"), "l", "d"));
         assertThatClientCall(() -> projectClient.editProject(project.getId(), new ProjectEditRequest(JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.undefined())))
                 .isBadRequest("Nothing to update");
     }
 
     @Test
+    void testEditProjectNullKeywords() {
+        ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testEditProjectNullKeywords", Set.of("k1"), null, null));
+        assertThatClientCall(() -> projectClient.editProject(project.getId(), new ProjectEditRequest().withKeywords(JsonNullable.of(null))))
+                .isBadRequest("must not be null");
+    }
+
+    @Test
+    void testEditProjectClearKeywords() {
+        ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testEditProjectClearKeywords", Set.of("k1"), null, null));
+        ProjectDetailsDTO modified = projectClient.editProject(project.getId(), new ProjectEditRequest().withKeywords(JsonNullable.of(Set.of())));
+        assertThat(modified.getKeywords()).isEmpty();
+    }
+
+    @Test
     void testEditProject() {
-        ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testEditProject", List.of("k1", "k2"), "l", "d"));
-        ProjectDetailsDTO modified = projectClient.editProject(project.getId(), new ProjectEditRequest(JsonNullable.of("testEditProject_new"), JsonNullable.of(List.of("k2", "k3")), JsonNullable.of("l2"), JsonNullable.of("d2")));
+        ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testEditProject", Set.of("k1", "k2"), "l", "d"));
+        ProjectDetailsDTO modified = projectClient.editProject(project.getId(), new ProjectEditRequest(JsonNullable.of("testEditProject_new"), JsonNullable.of(Set.of("k2", "k3")), JsonNullable.of("l2"), JsonNullable.of("d2")));
         assertThat(modified.getName()).isEqualTo("testEditProject_new");
-        assertThat(modified.getKeywords()).containsExactly("k2", "k3");
+        assertThat(modified.getKeywords()).containsExactlyInAnyOrder("k2", "k3");
         assertThat(modified.getLiterature()).isEqualTo("l2");
         assertThat(modified.getDescription()).isEqualTo("d2");
         ProjectDetailsDTO saved = projectClient.getProject(project.getId());
@@ -488,22 +509,22 @@ class ProjectServiceTest extends ELNBaseTest {
 
     @Test
     void testSuggestKeywords() {
-        projectClient.createProject(new ProjectRequest("testSuggestKeywords", List.of("suggKwRed", "SuggKwRose", "suggKwBlue"), null, null));
+        projectClient.createProject(new ProjectRequest("testSuggestKeywords", Set.of("suggKwRed", "SuggKwRose", "suggKwBlue"), null, null));
         // Empty prefix returns the keywords used across projects
         assertThat(projectClient.suggestKeywords("")).contains("suggKwRed", "SuggKwRose", "suggKwBlue");
         // Prefix match is case-insensitive and excludes non-matching keywords
         assertThat(projectClient.suggestKeywords("suggkwr")).containsExactlyInAnyOrder("suggKwRed", "SuggKwRose");
         // Keywords are suggested globally and deduplicated across projects
-        projectClient.createProject(new ProjectRequest("testSuggestKeywords2", List.of("suggKwRed"), null, null));
+        projectClient.createProject(new ProjectRequest("testSuggestKeywords2", Set.of("suggKwRed"), null, null));
         assertThat(projectClient.suggestKeywords("suggkwred")).containsExactly("suggKwRed");
     }
 
     @Test
     void testQuickSearch() {
-        ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("quickSearchA", List.of(), null, "QS1 QS2 QSOld"));
+        ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("quickSearchA", Set.of(), null, "QS1 QS2 QSOld"));
         String p1 = project.getName();
-        String p2 = projectClient.createProject(new ProjectRequest("quickSearchB", List.of(), null, "QS1 QS3 quickSearchCommon")).getName();
-        String p3 = projectClient.createProject(new ProjectRequest("quickSearchC quickSearchCommon", List.of("QSKeyword"), "QSLiterature", "QS2 QS3")).getName();
+        String p2 = projectClient.createProject(new ProjectRequest("quickSearchB", Set.of(), null, "QS1 QS3 quickSearchCommon")).getName();
+        String p3 = projectClient.createProject(new ProjectRequest("quickSearchC quickSearchCommon", Set.of("QSKeyword"), "QSLiterature", "QS2 QS3")).getName();
 
         Page<ProjectDTO> result1 = projectClient.getProjects("quickSearchA", null, null, Paging.DEFAULT);
         assertThat(result1.getItems()).map(ProjectDTO::getName).containsOnly(p1);

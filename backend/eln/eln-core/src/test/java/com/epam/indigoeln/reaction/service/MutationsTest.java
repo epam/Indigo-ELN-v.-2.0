@@ -66,6 +66,7 @@ import org.junit.jupiter.api.TestInfo;
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static com.epam.indigoeln.common.model.units.DensityUnit.G_ML;
@@ -432,8 +433,10 @@ public class MutationsTest extends MutationsTestBase {
     void testSetInputHealthHazards() {
         experiment.mutateAddEmptyInput();
         HealthHazardRef healthHazard = dictionaryClient.getFirst(BuiltInDictionary.HEALTH_HAZARD);
-        experiment.mutate(new ReactionInputSampleMutation.SetInputHealthHazards(experiment.inputSample(1, 1).getAnchor(), List.of(healthHazard)));
+        experiment.mutate(new ReactionInputSampleMutation.SetInputHealthHazards(experiment.inputSample(1, 1).getAnchor(), Set.of(healthHazard)));
         assertThat(experiment.inputSample(1, 1).getHealthHazards()).containsExactly(healthHazard);
+        experiment.mutate(new ReactionInputSampleMutation.SetInputHealthHazards(experiment.inputSample(1, 1).getAnchor(), Set.of()));
+        assertThat(experiment.inputSample(1, 1).getHealthHazards()).isEmpty();
     }
 
     @Test
@@ -509,7 +512,7 @@ public class MutationsTest extends MutationsTestBase {
         experiment.mutateSetSchemeFromResource(REACTION_RXN);
         experiment.mutateAddProductSample(1);
         HealthHazardRef healthHazard = dictionaryClient.getFirst(BuiltInDictionary.HEALTH_HAZARD);
-        experiment.mutate(new ReactionOutputSampleMutation.SetOutputHealthHazards(experiment.outputSample(1, 1).getAnchor(), List.of(healthHazard)));
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputHealthHazards(experiment.outputSample(1, 1).getAnchor(), Set.of(healthHazard)));
         assertThat(experiment.outputSample(1, 1).getHealthHazards()).containsExactly(healthHazard);
     }
 
@@ -560,6 +563,16 @@ public class MutationsTest extends MutationsTestBase {
         HandlingPrecautionsRef handlingPrecautions = dictionaryClient.getFirst(BuiltInDictionary.HANDLING_PRECAUTIONS);
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputHandlingPrecautions(experiment.outputSample(1, 1).getAnchor(), List.of(handlingPrecautions)));
         assertThat(experiment.outputSample(1, 1).getHandlingPrecautions()).containsExactly(handlingPrecautions);
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputHandlingPrecautions(experiment.outputSample(1, 1).getAnchor(), List.of()));
+        assertThat(experiment.outputSample(1, 1).getHandlingPrecautions()).isEmpty();
+    }
+
+    @Test
+    void testSetOutputHandlingPrecautionsNull() {
+        experiment.mutateSetSchemeFromResource(REACTION_RXN);
+        experiment.mutateAddProductSample(1);
+        assertThatClientCall(() -> experimentClient.mutateExperimentModel4Raw(experiment.id(), experiment.revision(), "{\"type\": \"SetOutputHandlingPrecautions\", \"anchor\": \"" + experiment.outputSample(1, 1).getAnchor() + "\", \"handlingPrecautions\": null}"))
+                .isBadRequest("must not be null");
     }
 
     @Test
@@ -569,6 +582,8 @@ public class MutationsTest extends MutationsTestBase {
         CompoundProtectionRef compoundProtection = dictionaryClient.getFirst(BuiltInDictionary.COMPOUND_PROTECTION);
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputCompoundProtection(experiment.outputSample(1, 1).getAnchor(), List.of(compoundProtection)));
         assertThat(experiment.outputSample(1, 1).getCompoundProtection()).containsExactly(compoundProtection);
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputCompoundProtection(experiment.outputSample(1, 1).getAnchor(), List.of()));
+        assertThat(experiment.outputSample(1, 1).getCompoundProtection()).isEmpty();
     }
 
     @Test
@@ -578,6 +593,8 @@ public class MutationsTest extends MutationsTestBase {
         StorageInstructionsRef storageInstructions = dictionaryClient.getFirst(BuiltInDictionary.STORAGE_INSTRUCTIONS);
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputStorageInstructions(experiment.outputSample(1, 1).getAnchor(), List.of(storageInstructions)));
         assertThat(experiment.outputSample(1, 1).getStorageInstructions()).containsExactly(storageInstructions);
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputStorageInstructions(experiment.outputSample(1, 1).getAnchor(), List.of()));
+        assertThat(experiment.outputSample(1, 1).getStorageInstructions()).isEmpty();
     }
 
     @Test
@@ -588,6 +605,8 @@ public class MutationsTest extends MutationsTestBase {
         SolubidityInSolvent solubidityInSolvent = new SolubidityInSolvent.Quantitative(solvent, COMMENT, ComparisonOperator.EQUALS, 10.0, G_ML);
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputSolubilityInSolvents(experiment.outputSample(1, 1).getAnchor(), List.of(solubidityInSolvent)));
         assertThat(experiment.outputSample(1, 1).getSolubilityInSolvents()).containsExactly(solubidityInSolvent);
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputSolubilityInSolvents(experiment.outputSample(1, 1).getAnchor(), List.of()));
+        assertThat(experiment.outputSample(1, 1).getSolubilityInSolvents()).isEmpty();
     }
 
     @Test
@@ -598,6 +617,8 @@ public class MutationsTest extends MutationsTestBase {
         ResidualSolvent residualSolvent = new ResidualSolvent(solvent, 10.0, COMMENT);
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputResidualSolvents(experiment.outputSample(1, 1).getAnchor(), List.of(residualSolvent)));
         assertThat(experiment.outputSample(1, 1).getResidualSolvents()).containsExactly(residualSolvent);
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputResidualSolvents(experiment.outputSample(1, 1).getAnchor(), List.of()));
+        assertThat(experiment.outputSample(1, 1).getResidualSolvents()).isEmpty();
     }
 
     @Test
@@ -616,6 +637,8 @@ public class MutationsTest extends MutationsTestBase {
         PurityCalculation purityCalculation = new PurityCalculation(PurityCalculationType.MS, ComparisonOperator.EQUALS, 0.1, COMMENT);
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputPurityCalculations(experiment.outputSample(1, 1).getAnchor(), List.of(purityCalculation)));
         assertThat(experiment.outputSample(1, 1).getPurityCalculations()).containsExactly(purityCalculation);
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputPurityCalculations(experiment.outputSample(1, 1).getAnchor(), List.of()));
+        assertThat(experiment.outputSample(1, 1).getPurityCalculations()).isEmpty();
     }
 
     @Test

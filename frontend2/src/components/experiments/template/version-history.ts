@@ -4,7 +4,7 @@ import type { RevisionSummary } from '@/lib/types/revisions.ts';
 
 /** Whether this entry is a grouped edit session, i.e. whether it has children to expand. */
 export function isGroup(revision: RevisionSummary): boolean {
-  return (revision.details?.length ?? 0) > 0;
+  return revision.details.length > 0;
 }
 
 /**

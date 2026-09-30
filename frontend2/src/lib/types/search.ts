@@ -122,8 +122,8 @@ export interface GlobalSearchResult extends BaseDTO {
   /** Experiments only. */
   experimentStatus: ExperimentStatus | null;
   /** Experiments only, and only when the request carried a `moleculeStructure`: the roles
-   * the searched molecule occurs under in this experiment. */
-  reactionRoles: ReactionRole[] | null;
+   * the searched molecule occurs under in this experiment. Empty otherwise. */
+  reactionRoles: ReactionRole[];
   /** Experiments only. Busts the picture endpoint's 30-day cache. */
   revision: number | null;
   /** Projects only. */

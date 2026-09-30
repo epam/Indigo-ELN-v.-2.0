@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -45,8 +45,8 @@ public class SRSSampleDTO {
     private MolarityUnit molarityUnit;
     @Nullable
     private BigDecimal purity;
-    @Nullable
-    private List<UUID> healthHazards;
+    @NotNull
+    private Set<UUID> healthHazards = Set.of();
     @Nullable
     private UUID compoundState;
     @Nullable

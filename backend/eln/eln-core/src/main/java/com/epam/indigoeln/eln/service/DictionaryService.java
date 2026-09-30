@@ -17,6 +17,7 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
 import java.util.*;
@@ -93,13 +94,10 @@ public class DictionaryService {
     }
 
     @Nullable
-    public <T extends DictionaryItemRef> List<T> byId(@Nullable List<UUID> ids) {
-        if (ids == null) {
-            return null;
-        }
-        return ids.stream()
+    public <T extends DictionaryItemRef> Set<T> byId(Set<UUID> ids) {
+        return StreamEx.of(ids)
                 .map(this::<T>byId)
-                .toList();
+                .toSet();
     }
 
     @Nullable

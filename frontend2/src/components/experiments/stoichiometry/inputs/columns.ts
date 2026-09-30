@@ -4,6 +4,7 @@ import type { Align } from '@/components/experiments/stoichiometry/columns';
 
 import type { NumericCellValue } from '@/components/experiments/stoichiometry/numeric-cell';
 import type { DictionaryItemRef } from '@/lib/types/dictionaries.ts';
+import { sortByName } from '@/lib/types/dictionaries.ts';
 import type { ModelMutation } from '@/lib/types/mutations.ts';
 import type {
   DensityUnit,
@@ -431,7 +432,7 @@ export const SAMPLE_COLUMNS: SampleColumn[] = [
     minWidth: 200,
     kind: 'multiDictionary',
     dictionary: 'HEALTH_HAZARD',
-    value: (sample) => sample.healthHazards ?? [],
+    value: (sample) => sortByName(sample.healthHazards),
     mutation: (sample, healthHazards) => ({ type: 'SetInputHealthHazards', anchor: sample.anchor, healthHazards }),
   },
   {

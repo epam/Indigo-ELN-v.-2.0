@@ -35,7 +35,7 @@ CREATE TABLE Marked_Sample (
     molarity_unit Molarity_Unit,
     purity NUMERIC,
     compound_state_id UUID,
-    health_hazards UUID[],
+    health_hazards UUID[] NOT NULL DEFAULT '{}',
     batch_comment TEXT,
     search_vector TSVECTOR NOT NULL,
     CONSTRAINT marked_sample_user_id_fk FOREIGN KEY (user_id) REFERENCES User_Account (id),

@@ -490,6 +490,12 @@ export function makeReactionOutputSample(
     purity: entered('100', 'NO_UNIT', 'default'),
     sampleSource: 'VIRTUAL',
     healthHazards: [],
+    handlingPrecautions: [],
+    storageInstructions: [],
+    compoundProtection: [],
+    solubilityInSolvents: [],
+    residualSolvents: [],
+    purityCalculations: [],
     ...overrides,
   };
 }
@@ -944,6 +950,7 @@ export const REVISIONS: RevisionSummary[] = [
     summary: 'Experiment created',
     date: '2026-09-02T09:10:00Z',
     revision: 1,
+    details: [],
   },
   {
     user: makeUserRef('Mark Liu'),
@@ -953,9 +960,27 @@ export const REVISIONS: RevisionSummary[] = [
     revision: 2,
     revisionTo: 4,
     details: [
-      { user: makeUserRef('Mark Liu'), summary: 'Add empty input', date: '2026-09-03T14:02:00Z', revision: 2 },
-      { user: makeUserRef('Mark Liu'), summary: 'Set input amount', date: '2026-09-03T14:20:00Z', revision: 3 },
-      { user: makeUserRef('Mark Liu'), summary: 'Set reaction scheme', date: '2026-09-03T14:31:00Z', revision: 4 },
+      {
+        user: makeUserRef('Mark Liu'),
+        summary: 'Add empty input',
+        date: '2026-09-03T14:02:00Z',
+        revision: 2,
+        details: [],
+      },
+      {
+        user: makeUserRef('Mark Liu'),
+        summary: 'Set input amount',
+        date: '2026-09-03T14:20:00Z',
+        revision: 3,
+        details: [],
+      },
+      {
+        user: makeUserRef('Mark Liu'),
+        summary: 'Set reaction scheme',
+        date: '2026-09-03T14:31:00Z',
+        revision: 4,
+        details: [],
+      },
     ],
   },
   {
@@ -963,18 +988,21 @@ export const REVISIONS: RevisionSummary[] = [
     summary: 'Add empty output',
     date: '2026-09-04T08:45:00Z',
     revision: 5,
+    details: [],
   },
   {
     user: makeUserRef('Sofia Rossi'),
     summary: 'Experiment completed',
     date: '2026-09-04T11:00:00Z',
     revision: 6,
+    details: [],
   },
   {
     user: makeUserRef('Sofia Rossi'),
     summary: 'Version 1',
     date: '2026-09-04T11:00:00Z',
     revision: 7,
+    details: [],
   },
 ];
 
@@ -1013,7 +1041,7 @@ export function makeSearchResult(overrides: Partial<GlobalSearchResult> = {}): G
     name: '00000001-0001',
     title: 'Suzuki coupling of aryl bromide',
     experimentStatus: 'OPEN',
-    reactionRoles: null,
+    reactionRoles: [],
     revision: 3,
     notebookCount: null,
     experimentCount: null,
@@ -1067,6 +1095,7 @@ export function makeSample(overrides: Partial<SampleDTO> = {}): SampleDTO {
     molFormula: 'C<sub>9</sub>H<sub>8</sub>O<sub>4</sub>',
     molWeight: 180.16,
     chemicalName: 'Acetylsalicylic acid',
+    healthHazards: [],
     ...overrides,
   };
 }

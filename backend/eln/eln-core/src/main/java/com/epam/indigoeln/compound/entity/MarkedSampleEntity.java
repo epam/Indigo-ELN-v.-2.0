@@ -33,6 +33,8 @@ import org.jspecify.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
@@ -95,7 +97,8 @@ public class MarkedSampleEntity extends IdentifiableEntity {
     @ColumnTransformer(write = "calculate_tsvector(?)")
     private SearchVector searchVector;
 
+    @NotNull
     @Basic(fetch = FetchType.LAZY)
     @JdbcTypeCode(SqlTypes.ARRAY)
-    private UUID @Nullable [] healthHazards;
+    private Set<UUID> healthHazards = new HashSet<>();
 }

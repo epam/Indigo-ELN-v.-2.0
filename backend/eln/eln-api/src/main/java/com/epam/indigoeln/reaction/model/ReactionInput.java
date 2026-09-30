@@ -40,7 +40,6 @@ public final class ReactionInput extends ReactionRow {
 
     @NotEmpty
     @JsonManagedReference
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<@Valid ReactionInputSample> samples = List.of();
 
     public static ReactionInput create(Reaction reaction, ReactionRole role, InputAnchor anchor, CompoundRef compound) {

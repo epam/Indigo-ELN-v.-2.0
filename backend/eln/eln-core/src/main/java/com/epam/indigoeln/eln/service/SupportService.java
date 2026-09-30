@@ -31,6 +31,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import one.util.streamex.IntStreamEx;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.output.MigrateResult;
 import org.hibernate.jpa.AvailableHints;
@@ -39,10 +40,10 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.epam.indigoeln.eln.model.ApplicationPermission.CREATE_PROJECTS;
@@ -154,7 +155,7 @@ public class SupportService {
         int projectCount = 0, notebookCount = 0, experimentCount = 0, attachmentCount = 0;
         for (int projectNo = 1; projectNo <= random.nextInt(4, 6); projectNo++) {
             log.debug("project {}", projectNo);
-            List<String> keywords = IntStream.range(0, random.nextInt(4)).mapToObj(i -> "keyword" + i).toList();
+            Set<String> keywords = IntStreamEx.range(0, random.nextInt(4)).mapToObj(i -> "keyword" + i).toSet();
             ProjectDetailsDTO project = projectService.createProject(new ProjectRequest("Test Project " + projectNo, keywords, "literature", "description"));
             projectCount++;
             for (int attachmentNo = 1; attachmentNo <= random.nextInt(0, 2); attachmentNo++) {

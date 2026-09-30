@@ -370,7 +370,8 @@ interface ReactionSample {
   sampleSource: SampleSource;
   /** The key in `sampleSource`'s system — an STR code for SRS, a CID for PubChem. None for `VIRTUAL`. */
   sampleKey?: string;
-  healthHazards?: DictionaryItemRef[];
+  /** A set server-side: no duplicates, no meaningful order. */
+  healthHazards: DictionaryItemRef[];
 }
 
 export interface ReactionInputSample extends ReactionSample {
@@ -392,13 +393,13 @@ export interface ReactionOutputSample extends ReactionSample {
   yield?: EnteredValue<NoUnit>;
   registrationStatus?: SampleRegistrationStatus;
   registrationStatusMessage?: string;
-  handlingPrecautions?: DictionaryItemRef[];
-  storageInstructions?: DictionaryItemRef[];
-  compoundProtection?: DictionaryItemRef[];
-  solubilityInSolvents?: SolubidityInSolvent[];
-  residualSolvents?: ResidualSolvent[];
+  handlingPrecautions: DictionaryItemRef[];
+  storageInstructions: DictionaryItemRef[];
+  compoundProtection: DictionaryItemRef[];
+  solubilityInSolvents: SolubidityInSolvent[];
+  residualSolvents: ResidualSolvent[];
   meltingPoint?: MeltingPoint;
-  purityCalculations?: PurityCalculation[];
+  purityCalculations: PurityCalculation[];
   externalSupplier?: ExternalSupplier;
   source?: DictionaryItemRef;
   sourceDetails?: DictionaryItemRef;

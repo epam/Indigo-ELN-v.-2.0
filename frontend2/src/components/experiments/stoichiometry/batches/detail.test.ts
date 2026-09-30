@@ -42,8 +42,8 @@ describe('residualSolventLabels', () => {
     expect(residualSolventLabels([{ solvent: WATER, eq: 1.2 }])).toEqual(['Water (1.2 eq)']);
   });
 
-  it('is empty for an absent list', () => {
-    expect(residualSolventLabels(undefined)).toEqual([]);
+  it('is empty for an empty list', () => {
+    expect(residualSolventLabels([])).toEqual([]);
   });
 });
 
@@ -74,8 +74,8 @@ describe('solubilityLabels', () => {
     expect(solubilityLabels([{ type: 'QUALITATIVE', solvent: WATER }])).toEqual(['Water']);
   });
 
-  it('is empty for an absent list', () => {
-    expect(solubilityLabels(undefined)).toEqual([]);
+  it('is empty for an empty list', () => {
+    expect(solubilityLabels([])).toEqual([]);
   });
 });
 
@@ -98,7 +98,7 @@ describe('purityCalculationLabels', () => {
     expect(purityCalculationLabels([{ type: 'HPLC', operator: 'GREATER_THAN', purity: 98 }])).toEqual(['HPLC > 98']);
   });
 
-  it('is empty for an absent list', () => {
-    expect(purityCalculationLabels(undefined)).toEqual([]);
+  it('is empty for an empty list', () => {
+    expect(purityCalculationLabels([])).toEqual([]);
   });
 });

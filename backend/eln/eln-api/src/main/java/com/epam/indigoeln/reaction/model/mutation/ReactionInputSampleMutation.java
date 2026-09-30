@@ -10,7 +10,7 @@ import com.epam.indigoeln.reaction.model.InputSampleAnchor;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 
-import java.util.List;
+import java.util.Set;
 
 public interface ReactionInputSampleMutation extends ExperimentMutation {
 
@@ -50,7 +50,7 @@ public interface ReactionInputSampleMutation extends ExperimentMutation {
 
     record SetInputHealthHazards (
             @NotNull InputSampleAnchor anchor,
-            @NotNull List<HealthHazardRef> healthHazards
+            @NotNull Set<HealthHazardRef> healthHazards
     ) implements ReactionInputSampleMutation {
     }
 

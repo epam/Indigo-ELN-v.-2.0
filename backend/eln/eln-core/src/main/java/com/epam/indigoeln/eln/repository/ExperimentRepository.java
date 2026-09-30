@@ -215,7 +215,7 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
         );
     }
 
-    private static List<ExperimentRef> toRefs(UUID[] ids, Map<UUID, String> names) {
+    private static List<ExperimentRef> toRefs(Set<UUID> ids, Map<UUID, String> names) {
         return StreamEx.of(ids)
                 .mapToEntry(id -> id, names::get)
                 .nonNullValues()

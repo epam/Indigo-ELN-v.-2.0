@@ -22,9 +22,9 @@ import com.epam.indigoeln.sampleregistration.model.SampleRegistrationRequest;
 import com.epam.indigoeln.sampleregistration.model.SampleRegistrationResponse;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
+import one.util.streamex.StreamEx;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
-import static com.epam.indigoeln.common.util.ModelUtil.map;
 
 @Dependent
 @MutationHandlerFor(ReactionOutputSampleMutation.SetOutputHealthHazards.class)
@@ -85,7 +85,7 @@ class RegisterSampleHandler extends AbstractReactionOutputSampleMutationHandler<
                 .nbkBatchNumber(sampleRow.getNbkBatchNumber())
                 .purity(sampleRow.getPurity().isEmpty() ? null : sampleRow.getPurity().toBigDecimal())
                 .compoundState(sampleRow.getComponentState() != null ? sampleRow.getComponentState().getId() : null)
-                .healthHazards(sampleRow.getHealthHazards() != null ? map(sampleRow.getHealthHazards(), HealthHazardRef::getId) : null)
+                .healthHazards(StreamEx.of(sampleRow.getHealthHazards()).map(HealthHazardRef::getId).toSet())
                 .batchComment(sampleRow.getBatchComment());
         if (!sampleRow.getDensity().isEmpty()) {
             request.density(sampleRow.getDensity().toBigDecimal());

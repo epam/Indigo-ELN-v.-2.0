@@ -397,6 +397,14 @@ public class ExperimentService {
             case null -> null;
             case EnteredValue<?> ev when ev.isEmpty() -> null;
             case EnteredValue<?> ev -> ev.toUserFriendlyString(false, "");
+            case Set<?> set -> {
+                // unordered, so sort for a stable export
+                yield StreamEx.of(set)
+                        .map(this::getPropertySDFRepresentation)
+                        .nonNull()
+                        .sorted()
+                        .joining(System.lineSeparator());
+            }
             case Iterable<?> collection -> {
                 yield StreamEx.of(collection.iterator())
                         .map(this::getPropertySDFRepresentation)

@@ -67,7 +67,7 @@ export function ReactionSchemePanel({
             rxnFile: next.structure,
           });
           // `SetScheme` reports the map on essentially every edit, empty when everything matched.
-          if (response.unresolvedInputs && Object.keys(response.unresolvedInputs).length > 0) {
+          if (Object.keys(response.unresolvedInputs).length > 0) {
             setUnresolvedInputs(response.unresolvedInputs);
           }
         }}

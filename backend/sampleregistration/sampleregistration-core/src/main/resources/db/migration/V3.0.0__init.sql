@@ -33,7 +33,7 @@ CREATE TABLE SRS_Sample (
     molarity_unit Molarity_Unit,
     purity NUMERIC,
     compound_state UUID,
-    health_hazards UUID[],
+    health_hazards UUID[] NOT NULL DEFAULT '{}',
     batch_comment TEXT,
     search_vector TSVECTOR NOT NULL,
     CONSTRAINT sample_compound_id_fk FOREIGN KEY (compound_id) REFERENCES SRS_Compound(id),

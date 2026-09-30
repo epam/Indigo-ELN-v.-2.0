@@ -16,6 +16,7 @@ import com.epam.indigoeln.reaction.model.ReactionSample;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.Set;
 
 import static com.epam.indigoeln.reaction.metamodel.property.ModelProperty.enteredValueProperty;
 import static com.epam.indigoeln.reaction.metamodel.property.ModelProperty.property;
@@ -28,7 +29,7 @@ public class ReactionInputSampleMetamodel {
     public static final ModelProperty<ReactionInputSample, EnteredValue<VolumeUnit>> VOLUME = enteredValueProperty("volume", ReactionSample::getVolume, ReactionSample::setVolume);
     public static final ModelProperty<ReactionInputSample, EnteredValue<NoUnit>> PURITY = enteredValueProperty("purity", ReactionSample::getPurity, ReactionSample::setPurity, EnteredValue.DEFAULT_ONE_HUNDRED);
     public static final ModelProperty<ReactionInputSample, @Nullable String> SAMPLE_KEY = property("sampleKey", ReactionSample::getSampleKey, ReactionSample::setSampleKey);
-    public static final ModelProperty<ReactionInputSample, @Nullable List<HealthHazardRef>> HEALTH_HAZARDS = property("healthHazards", ReactionSample::getHealthHazards, ReactionSample::setHealthHazards);
+    public static final ModelProperty<ReactionInputSample, Set<HealthHazardRef>> HEALTH_HAZARDS = property("healthHazards", ReactionSample::getHealthHazards, ReactionSample::setHealthHazards);
     // ReactionInputSample
     public static final ModelProperty<ReactionInputSample, InputSampleAnchor> ANCHOR = property("anchor", ReactionInputSample::getAnchor, null);
     public static final ModelProperty<ReactionInputSample, EnteredValue<MolUnit>> MOL = enteredValueProperty("mol", ReactionInputSample::getMol, ReactionInputSample::setMol);

@@ -25,10 +25,8 @@ CREATE INDEX ix_project_created_by_id ON Project (created_by_id);
 CREATE TABLE Project_Keyword (
     project_id UUID NOT NULL,
     keyword VARCHAR(1000) NOT NULL,
-    ordinal INT NOT NULL,
---     CONSTRAINT project_keyword_pk PRIMARY KEY (project_id, ordinal),
-    CONSTRAINT project_keyword_project_id_fk FOREIGN KEY (project_id) REFERENCES Project (id) ON DELETE CASCADE,
-    CONSTRAINT project_keyword_ordinal_uq UNIQUE (project_id, ordinal) DEFERRABLE INITIALLY DEFERRED
+    CONSTRAINT project_keyword_pk PRIMARY KEY (project_id, keyword),
+    CONSTRAINT project_keyword_project_id_fk FOREIGN KEY (project_id) REFERENCES Project (id) ON DELETE CASCADE
 );
 CREATE INDEX ix_project_keyword_suggest ON Project_Keyword (LOWER(keyword) varchar_pattern_ops);
 

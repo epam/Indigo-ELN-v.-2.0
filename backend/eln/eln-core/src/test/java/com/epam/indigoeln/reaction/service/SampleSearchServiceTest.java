@@ -33,6 +33,7 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static com.epam.indigoeln.eln.test.ReactionInputSampleAssert.assertThat;
@@ -84,7 +85,7 @@ public class SampleSearchServiceTest extends MutationsTestBase {
             sample.setMolarity(new BigDecimal(20));
             sample.setMolarityUnit(MolarityUnit.MM);
             sample.setPurity(new BigDecimal(60));
-            sample.setHealthHazards(List.of(healthHazardRef.getId()));
+            sample.setHealthHazards(Set.of(healthHazardRef.getId()));
             sample.setCompoundState(componentStateRef.getId());
             sample.setBatchComment("batchComment");
             doReturn(

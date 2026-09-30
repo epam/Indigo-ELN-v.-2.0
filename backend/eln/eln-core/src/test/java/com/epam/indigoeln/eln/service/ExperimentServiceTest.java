@@ -407,7 +407,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputActualWeight(experiment.outputSample(1, 1).getAnchor(), "10.0", WeightUnit.G));
 
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputHealthHazards(experiment.outputSample(1, 1).getAnchor(),
-                List.of(
+                Set.of(
                         (HealthHazardRef) dictionaryClient.getDictionary(BuiltInDictionary.HEALTH_HAZARD).getFirst(),
                         (HealthHazardRef) dictionaryClient.getDictionary(BuiltInDictionary.HEALTH_HAZARD).getLast()
                 )

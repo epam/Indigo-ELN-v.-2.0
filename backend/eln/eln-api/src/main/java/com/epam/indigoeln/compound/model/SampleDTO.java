@@ -13,7 +13,7 @@ import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -55,8 +55,8 @@ public class SampleDTO {
     private MolarityUnit molarityUnit;
     @Nullable
     private BigDecimal purity;
-    @Nullable
-    private List<HealthHazardRef> healthHazards;
+    @NotNull
+    private Set<HealthHazardRef> healthHazards = Set.of();
     @Nullable
     private ComponentStateRef compoundState;
     @Nullable

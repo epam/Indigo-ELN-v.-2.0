@@ -18,7 +18,7 @@ import org.mapstruct.ReportingPolicy;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.MOL_WEIGHT_DECIMAL_PLACES;
@@ -55,12 +55,11 @@ public abstract class SampleMapper {
         return roundToDecimalPlaces(value, MOL_WEIGHT_DECIMAL_PLACES);
     }
 
-    @Nullable
-    protected List<HealthHazardRef> convertHealthHazards(UUID @Nullable [] ids) {
-        return ids != null ? dictionaryService.byId(List.of(ids)) : null;
+    protected Set<HealthHazardRef> convertHealthHazards(Set<UUID> ids) {
+        return dictionaryService.byId(ids);
     }
 
-    protected UUID @Nullable [] convertHealthHazards(@Nullable List<HealthHazardRef> refs) {
-        return refs != null ? StreamEx.of(refs).map(HealthHazardRef::getId).toArray(UUID[]::new) : null;
+    protected Set<UUID> convertHealthHazardIds(Set<HealthHazardRef> refs) {
+        return StreamEx.of(refs).map(HealthHazardRef::getId).toSet();
     }
 }

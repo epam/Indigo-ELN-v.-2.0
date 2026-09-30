@@ -93,3 +93,8 @@ export interface DictionaryItemEditRequest {
   ordinal?: number;
   active?: boolean;
 }
+
+/** For dictionary refs held as a set server-side (health hazards), which arrive in no particular order. */
+export function sortByName<T extends DictionaryItemRef>(items: T[]): T[] {
+  return [...items].sort((a, b) => a.name.localeCompare(b.name));
+}

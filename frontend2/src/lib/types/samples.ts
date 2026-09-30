@@ -88,7 +88,7 @@ export interface SampleDTO {
   molarity?: number;
   molarityUnit?: MolarityUnit;
   purity?: number;
-  healthHazards?: DictionaryItemRef[];
+  healthHazards: DictionaryItemRef[];
   compoundState?: DictionaryItemRef;
   batchComment?: string;
   /** `NON_DEFAULT`, so absent rather than `false` on an unmarked sample. */
