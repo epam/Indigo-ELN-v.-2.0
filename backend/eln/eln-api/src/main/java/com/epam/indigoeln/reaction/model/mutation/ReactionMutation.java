@@ -27,13 +27,14 @@ public interface ReactionMutation extends ExperimentMutation {
     record SetScheme (
         @NotNull ReactionAnchor anchor,
         @Nullable String rxnFile,
-        @Nullable List<InputAnchor> createdReactantAnchors,
-        @Nullable List<InputSampleAnchor> createdReactantSampleAnchors,
-        @Nullable List<InputAnchor> createdCatalystAnchors,
-        @Nullable List<InputSampleAnchor> createdCatalystSampleAnchors,
-        @Nullable List<OutputAnchor> createdProductAnchors
+        List<InputAnchor> createdReactantAnchors,
+        List<InputSampleAnchor> createdReactantSampleAnchors,
+        List<InputAnchor> createdCatalystAnchors,
+        List<InputSampleAnchor> createdCatalystSampleAnchors,
+        List<OutputAnchor> createdProductAnchors
     ) implements ReactionMutation {
         public SetScheme(ReactionAnchor anchor, String rxnFile) {
+            //noinspection DataFlowIssue
             this(anchor, rxnFile, null, null, null, null, null);
         }
 

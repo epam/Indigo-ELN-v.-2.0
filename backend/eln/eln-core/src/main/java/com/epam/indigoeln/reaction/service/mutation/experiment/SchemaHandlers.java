@@ -41,7 +41,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 @Slf4j
 @Dependent
@@ -67,6 +66,7 @@ class SetSchemeHandler extends AbstractReactionMutationHandler<ReactionMutation.
             catalystCount = (int) StreamEx.of(reaction.catalysts().iterator()).count();
             productCount = (int) StreamEx.of(reaction.products().iterator()).count();
         }
+        //noinspection ConstantValue
         return new ReactionMutation.SetScheme(
                 mutation.anchor(),
                 mutation.rxnFile(),
@@ -104,11 +104,11 @@ class SetSchemeHandler extends AbstractReactionMutationHandler<ReactionMutation.
             collectMoleculeLinks(indigoReaction.products(), productLinks, true);
         }
 
-        Iterator<InputAnchor> createdReactantAnchors = checkNotNull(mutation.createdReactantAnchors()).iterator();
-        Iterator<InputSampleAnchor> createdReactantSampleAnchors = checkNotNull(mutation.createdReactantSampleAnchors()).iterator();
-        Iterator<InputAnchor> createdCatalystAnchors = checkNotNull(mutation.createdCatalystAnchors()).iterator();
-        Iterator<InputSampleAnchor> createdCatalystSampleAnchors = checkNotNull(mutation.createdCatalystSampleAnchors()).iterator();
-        Iterator<OutputAnchor> createdProductAnchors = checkNotNull(mutation.createdProductAnchors()).iterator();
+        Iterator<InputAnchor> createdReactantAnchors = mutation.createdReactantAnchors().iterator();
+        Iterator<InputSampleAnchor> createdReactantSampleAnchors = mutation.createdReactantSampleAnchors().iterator();
+        Iterator<InputAnchor> createdCatalystAnchors = mutation.createdCatalystAnchors().iterator();
+        Iterator<InputSampleAnchor> createdCatalystSampleAnchors = mutation.createdCatalystSampleAnchors().iterator();
+        Iterator<OutputAnchor> createdProductAnchors = mutation.createdProductAnchors().iterator();
         createRows(reactantLinks, link -> {
             ReactionInput row = createInputLine(reaction, link.molecule, ReactionRole.REACTANT, createdReactantAnchors.next());
             ReactionInputSample.create(row, createdReactantSampleAnchors.next(), SampleSource.VIRTUAL, null, EnteredValue.DEFAULT_ONE_HUNDRED);
@@ -252,6 +252,7 @@ class ImportSDFHandler extends AbstractReactionMutationHandler<ReactionMutation.
 
     @Override
     protected ReactionMutation.ImportSDF doPrepareMutation(ExperimentEntity entity, ReactionMutation.ImportSDF mutation, ExperimentMutationContext context) {
+        //noinspection ConstantValue
         return new ReactionMutation.ImportSDF(
                 mutation.anchor(),
                 mutation.compoundIDs(),
