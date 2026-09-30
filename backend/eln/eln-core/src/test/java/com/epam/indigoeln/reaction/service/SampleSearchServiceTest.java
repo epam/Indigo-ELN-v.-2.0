@@ -31,11 +31,13 @@ import org.junit.jupiter.api.TestInfo;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 
 import static com.epam.indigoeln.eln.test.ReactionInputSampleAssert.assertThat;
 import static com.epam.indigoeln.test.ClientUtil.uploadForm;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -48,6 +50,7 @@ public class SampleSearchServiceTest extends MutationsTestBase {
     StereoisomerCodeRef stereoisomerCode;
     HealthHazardRef healthHazardRef;
     ComponentStateRef componentStateRef;
+    SRSSampleDTO srsSample;
 
     private static final String REACTION_RXN = "/reaction.rxn";
     private static final String COMPOUND_SDF = "/ring-substructure.mol";
@@ -74,7 +77,7 @@ public class SampleSearchServiceTest extends MutationsTestBase {
             compound.setSaltCode(saltCode.getId());
             compound.setStereoisomerCode(stereoisomerCode.getId());
             compound.setSaltEQ100(200);
-            SRSSampleDTO sample = new SRSSampleDTO(UUID.randomUUID(), UUID.randomUUID(), new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 1), "C", BigDecimal.ONE);
+            SRSSampleDTO sample = srsSample = new SRSSampleDTO(UUID.randomUUID(), UUID.randomUUID(), new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 1), "C", BigDecimal.ONE);
             sample.setNbkBatchNumber(new NbkBatchNumber("00000001-0005", 4));
             sample.setChemicalName("chemicalName");
             sample.setDensity(new BigDecimal(10));
@@ -142,10 +145,32 @@ public class SampleSearchServiceTest extends MutationsTestBase {
             assertThat(sample2.isMarked()).isTrue();
         });
 
+        stubSRSSearch();
+        Page<SampleDTO> foundMarked = compoundClient.search(new FindSamplesRequest().withCatalog(SearchCatalog.SRS), Paging.DEFAULT);
+        assertThat(foundMarked.getItems().getFirst().isMarked()).isTrue(); // SRS doesn't know marks; ELN adds them
+
         SampleDTO sample2 = compoundClient.unmarkSample(found.getItems().getFirst());
         assertThat(sample2.isMarked()).isFalse();
+        Page<SampleDTO> foundUnmarked = compoundClient.search(new FindSamplesRequest().withCatalog(SearchCatalog.SRS), Paging.DEFAULT);
+        assertThat(foundUnmarked.getItems().getFirst().isMarked()).isFalse();
         Page<SampleDTO> found3 = compoundClient.search(new FindSamplesRequest().withCatalog(SearchCatalog.MY_MATERIALS), Paging.DEFAULT);
         assertThat(found3.getItems()).isEmpty();
+    }
+
+    @Test
+    void testCatalogCompoundPicture() {
+        SampleDTO sample = compoundClient.search(new FindSamplesRequest().withCatalog(SearchCatalog.SRS), Paging.DEFAULT).getItems().getFirst();
+        if (!integrationTest) {
+            doReturn("<svg/>".getBytes(StandardCharsets.UTF_8)).when(sampleRegistrationClient).getCompoundPicture(sample.getCompoundID());
+        }
+        byte[] picture = compoundClient.getCatalogCompoundPicture(SearchCatalog.SRS, sample.getSource(), checkNotNull(sample.getCompoundID()));
+        assertThat(new String(picture, StandardCharsets.UTF_8)).contains("<svg");
+    }
+
+    private void stubSRSSearch() {
+        if (!integrationTest) {
+            doReturn(Page.of(Paging.DEFAULT, 1, List.of(srsSample))).when(sampleRegistrationClient).find(any(), any());
+        }
     }
 
     private void verifySample(ReactionInput input) {

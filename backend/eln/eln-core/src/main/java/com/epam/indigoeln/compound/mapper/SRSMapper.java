@@ -33,6 +33,7 @@ public abstract class SRSMapper {
     @Mapping(target = "saltCode", expression = "java(sample.getSaltCode() != null ? dictionaryService.byId(sample.getSaltCode()) : null)")
     @Mapping(target = "healthHazards", expression = "java(dictionaryService.byId(sample.getHealthHazards()))")
     @Mapping(target = "compoundState", expression = "java(sample.getCompoundState() != null ? dictionaryService.byId(sample.getCompoundState()) : null)")
+    @Mapping(target = "inchi", ignore = true)
     @Mapping(target = "marked", constant = "false")
     public abstract SampleDTO sampleFromSRS(SRSSampleDTO sample);
 

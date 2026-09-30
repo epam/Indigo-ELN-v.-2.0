@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { resultCountLabel, sampleRowKey } from '@/lib/search';
+import { resultCountLabel, sampleKeyOf, sampleRowKey } from '@/lib/search';
 import { makeSample } from '@/mocks/fixtures';
 
 describe('resultCountLabel', () => {
@@ -8,15 +8,15 @@ describe('resultCountLabel', () => {
     expect(resultCountLabel({ totalItems: 120, loaded: 20, hasMore: true, loading: false })).toBe('120');
   });
 
-  /** PubChem reports no count, and the sum goes null the moment it contributes. */
+  /** PubChem reports no count. */
   it('reports a lower bound when the count is unknown and more remains', () => {
     expect(resultCountLabel({ totalItems: null, loaded: 12, hasMore: true, loading: false })).toBe('12+');
   });
 
   /**
-   * The `+` is a claim that there is more. Once the cursor is spent there is not, so what has
-   * loaded is the total after all — which is the common case here, since the catalogs that
-   * cannot count also cannot page.
+   * The `+` is a claim that there is more. Once there is no next page there is not, so what has
+   * loaded is the total after all — which is the common case here, since PubChem cannot count
+   * and cannot page either.
    */
   it('drops the plus once the search is exhausted', () => {
     expect(resultCountLabel({ totalItems: null, loaded: 12, hasMore: false, loading: false })).toBe('12');
@@ -34,20 +34,19 @@ describe('resultCountLabel', () => {
 });
 
 describe('sampleRowKey', () => {
-  it('is the sample id when the hit is already an ELN sample', () => {
-    expect(sampleRowKey(makeSample({ id: 'sample-1' }))).toBe('sample-1');
+  it('is the source system and the key there', () => {
+    expect(sampleRowKey(makeSample({ source: 'SRS', sampleKey: 'STR-00000000-89-123' }))).toBe(
+      'SRS:STR-00000000-89-123',
+    );
   });
 
-  /**
-   * A PubChem hit has no id until it is imported, so it is keyed by the catalog and that
-   * catalog's own key — its CID. Two hits from different catalogs never collide.
-   */
-  it('falls back to the catalog and its key for a hit that is not in the ELN', () => {
-    expect(sampleRowKey(makeSample({ source: 'PUBCHEM', id: undefined, compoundKey: '2244' }))).toBe('PUBCHEM:2244');
+  /** My Materials answers with the same sample the source catalog does; marking one shows in both. */
+  it('ignores which catalog answered', () => {
+    const fromSrs = makeSample({ catalog: 'SRS' });
+    expect(sampleRowKey(makeSample({ catalog: 'MY_MATERIALS' }))).toBe(sampleRowKey(fromSrs));
   });
 
-  it('falls back to the formula when even the catalog key is missing', () => {
-    const sample = makeSample({ source: 'PUBCHEM', id: undefined, compoundKey: undefined, molFormula: 'C6H6' });
-    expect(sampleRowKey(sample)).toBe('PUBCHEM:C6H6');
+  it('matches the key of the same sample once it is in the model', () => {
+    expect(sampleRowKey(makeSample({ source: 'PUBCHEM', sampleKey: '2244' }))).toBe(sampleKeyOf('PUBCHEM', '2244'));
   });
 });

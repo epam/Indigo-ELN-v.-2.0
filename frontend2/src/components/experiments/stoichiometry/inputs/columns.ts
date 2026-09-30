@@ -18,6 +18,7 @@ import type {
 } from '@/lib/types/reactions.ts';
 import {
   DENSITY_UNITS,
+  isKnownCompound,
   MOL_UNITS,
   MOL_WEIGHT_UNITS,
   MOLARITY_UNITS,
@@ -25,6 +26,14 @@ import {
   VOLUME_UNITS,
   WEIGHT_UNITS,
 } from '@/lib/types/reactions.ts';
+
+/**
+ * Mirrors `ReactionInput.updateCompound`: a compound can be re-salted while every sample on the
+ * row is `VIRTUAL`, and is fixed once a real one is attached. An unknown compound has no salt.
+ */
+function saltEditable(input: ReactionInput): boolean {
+  return isKnownCompound(input.compound) && input.samples.every((sample) => sample.sampleSource === 'VIRTUAL');
+}
 
 /**
  * The table's columns, as data.
@@ -163,7 +172,7 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
     header: 'Compound ID',
     minWidth: 150,
     kind: 'readonly',
-    value: (input) => (input.compound.type === 'UNKNOWN' ? undefined : input.compound.compoundKey),
+    value: (input) => input.compound.compoundKey,
   },
   {
     id: 'batches',
@@ -182,7 +191,7 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
     header: 'CAS #',
     minWidth: 110,
     kind: 'readonly',
-    value: (input) => (input.compound.type === 'UNKNOWN' ? undefined : input.compound.casNumber),
+    value: (input) => input.compound.casNumber,
   },
   {
     id: 'chemicalName',
@@ -201,9 +210,9 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
     units: MOL_WEIGHT_UNITS,
     // Implied by the column — every molecular weight is g/mol.
     suffix: '',
-    // A stored or virtual compound's molecular weight comes from the registry; only an
-    // unidentified one is the user's to state.
-    editable: (input) => input.compound.type === 'UNKNOWN',
+    // A known compound's molecular weight comes from the registry; only an unidentified one
+    // is the user's to state.
+    editable: (input) => !isKnownCompound(input.compound),
     mutation: (input, next) => ({
       type: 'SetInputCompoundMolWeight',
       anchor: input.anchor,
@@ -265,9 +274,9 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
     minWidth: 150,
     kind: 'dictionary',
     dictionary: 'SALT_CODE',
-    value: (input) => (input.compound.type === 'UNKNOWN' ? undefined : input.compound.saltCode),
-    // A stored compound's salt code is registry data.
-    editable: (input) => input.compound.type === 'VIRTUAL',
+    value: (input) => input.compound.saltCode,
+    // Once a real sample is attached, the compound is that sample's and its salt is registry data.
+    editable: saltEditable,
     mutation: (input, saltCode) => ({ type: 'SetInputRowSaltCode', anchor: input.anchor, saltCode }),
   },
   /**
@@ -281,12 +290,12 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
     header: 'Salt EQ',
     minWidth: 100,
     kind: 'numeric',
-    value: (input) => (input.compound.type === 'UNKNOWN' ? undefined : asEnteredValue(input.compound.saltEQ)),
+    value: (input) => asEnteredValue(input.compound.saltEQ),
     units: NO_UNITS,
-    // Both gates, not just the salt code: a stored compound's salt EQ is fixed by the registry
-    // even when it has a code. (indigo-frontend checked only for the code, which let a stored
+    // Both gates, not just the salt code: a real sample's salt EQ is fixed by the registry even
+    // when it has a code. (indigo-frontend checked only for the code, which let a registered
     // compound's salt EQ be edited.)
-    editable: (input) => input.compound.type === 'VIRTUAL' && input.compound.saltCode != null,
+    editable: (input) => saltEditable(input) && input.compound.saltCode != null,
     mutation: (input, next) => ({ type: 'SetInputRowSaltEQ', anchor: input.anchor, saltEQ: next.value }),
   },
   /** The same trick for Comments, which needs more than Salt EQ alone. */
@@ -422,7 +431,7 @@ export const SAMPLE_COLUMNS: SampleColumn[] = [
     minWidth: 200,
     kind: 'multiDictionary',
     dictionary: 'HEALTH_HAZARD',
-    value: (sample) => sample.healthHazards,
+    value: (sample) => sample.healthHazards ?? [],
     mutation: (sample, healthHazards) => ({ type: 'SetInputHealthHazards', anchor: sample.anchor, healthHazards }),
   },
   {

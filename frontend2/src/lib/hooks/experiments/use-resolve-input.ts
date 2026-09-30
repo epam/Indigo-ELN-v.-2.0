@@ -18,13 +18,13 @@ export interface ResolveInputMutations {
 }
 
 /**
- * The Analyze RXN write: `ResolveInputs`, which fills a registered sample into an input row the
+ * The Analyze RXN write: `ResolveInputs`, which fills a catalog sample into an input row the
  * scheme created but could not match.
  *
- * The two-step registration every catalog hit may need lives in `useAddSample`, shared with Add
- * Material; what is particular here is the mutation and `addedInputs`, which is the narrower
- * claim the tab's check mark makes — *this dialog* bound something to that input, as against
- * `getAllInputSampleIds`, which is read off the model.
+ * The row spinners live in `useAddSample`, shared with Add Material; what is particular here is
+ * the mutation and `addedInputs`, which is the narrower claim the tab's check mark makes —
+ * *this dialog* bound something to that input, as against `getAllInputSampleKeys`, which is read
+ * off the model.
  */
 export function useResolveInput(experiment: ExperimentDetails, reaction: Reaction): ResolveInputMutations {
   const [addedInputs, setAddedInputs] = useState<ReadonlySet<UUID>>(() => new Set());
@@ -34,11 +34,11 @@ export function useResolveInput(experiment: ExperimentDetails, reaction: Reactio
 
   const add = useCallback(
     (inputAnchor: UUID, sample: SampleDTO) => {
-      void run(sample, (sampleId) => ({
+      void run(sample, {
         type: 'ResolveInputs',
         anchor: reactionAnchor,
-        inputSamples: { [inputAnchor]: sampleId },
-      })).then((added) => {
+        inputSamples: { [inputAnchor]: sample },
+      }).then((added) => {
         if (!added) return;
         setAddedInputs((inputs) => new Set(inputs).add(inputAnchor));
         // The patch lands silently — it moves rows in a table the dialog is covering — so this

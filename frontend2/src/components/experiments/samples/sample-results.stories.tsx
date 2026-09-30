@@ -11,9 +11,9 @@ import {
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { FindSamplesRequest } from '@/lib/types/samples.ts';
 
-/** What Analyze RXN asks: everything the catalogs hold containing the drawn structure. */
+/** What Analyze RXN asks: everything Sample Registration holds containing the drawn structure. */
 const REQUEST: FindSamplesRequest = {
-  catalogs: ['ELN', 'PUBCHEM'],
+  catalog: 'SRS',
   structure: { type: 'SUBSTRUCTURE', query: 'unresolved-molfile' },
 };
 
@@ -42,7 +42,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Hits from both catalogs. The PubChem rows have no id, so they offer no bookmark. */
+/** A page of hits, each with a bookmark and an Add. */
 export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -107,7 +107,7 @@ export const Marking: Story = {
 
 /** A sample the step already holds cannot be added again; the button stays, explaining itself. */
 export const AlreadyInStoichiometry: Story = {
-  args: { boundSamples: new Set(['55555555-5555-4555-8555-000000000001']) },
+  args: { boundSamples: new Set(['SRS:STR-00000000-89-123']) },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const add = await canvas.findByRole('button', { name: 'Acetylsalicylic acid is already in the stoichiometry' });
@@ -129,8 +129,8 @@ export const Paging: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await canvas.findByText('Acetylsalicylic acid');
-    // The last fixture, three pages in.
-    await waitFor(() => expect(canvas.getByText('2-acetyloxybenzoic acid')).toBeInTheDocument(), { timeout: 5_000 });
+    // The last Sample Registration fixture, two pages in.
+    await waitFor(() => expect(canvas.getByText('STR-00000000-91')).toBeInTheDocument(), { timeout: 5_000 });
   },
 };
 

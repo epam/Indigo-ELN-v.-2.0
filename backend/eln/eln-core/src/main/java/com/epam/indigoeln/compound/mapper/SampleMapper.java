@@ -39,6 +39,7 @@ public abstract class SampleMapper {
     @Mapping(target = "saltEQ", source = "entity.compound.saltEQ")
     @Mapping(target = "compoundState", expression = "java(dictionaryService.get(entity.getCompoundState()))")
     @Mapping(target = "chemicalName", source = "compound.chemicalName")
+    @Mapping(target = "inchi", ignore = true)
     @Mapping(target = "marked", constant = "true")
     public abstract SampleDTO markedSampleToDTO(MarkedSampleEntity entity);
 

@@ -106,6 +106,13 @@ class SampleRegistrationServiceTest extends BaseTest {
     }
 
     @Test
+    @Order(102)
+    void testGetCompoundPicture() {
+        SRSSampleDTO sample = sampleRegistrationClient.find(SRSFindSamplesRequest.builder().quickSearch("STR-00000001-05-001").build(), Paging.DEFAULT).getItems().getFirst();
+        assertThat(new String(sampleRegistrationClient.getCompoundPicture(sample.getCompoundID()))).contains("<svg");
+    }
+
+    @Test
     @Order(200)
     void testLoadCompoundsFromFile() throws IOException {
         sampleRegistrationClient.loadCompoundsFromFile(uploadForm("compounds.sdf", ModelUtil.loadResource("/compounds.sdf")));

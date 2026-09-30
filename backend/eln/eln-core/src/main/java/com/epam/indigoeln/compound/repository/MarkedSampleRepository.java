@@ -23,6 +23,9 @@ import org.hibernate.query.criteria.JpaJoin;
 import org.hibernate.query.criteria.JpaRoot;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Collection;
+import java.util.Set;
+
 import static com.epam.indigoeln.common.util.ModelUtil.map;
 
 @ApplicationScoped
@@ -80,5 +83,16 @@ public class MarkedSampleRepository extends BaseRepository<MarkedSampleEntity> {
                 .setParameter(2, source)
                 .setParameter(3, sampleKey)
                 .getSingleResultOrNull();
+    }
+
+    public Set<String> findMarkedKeys(UserEntity user, SampleSource source, Collection<String> sampleKeys) {
+        if (sampleKeys.isEmpty()) {
+            return Set.of();
+        }
+        return Set.copyOf(em.createQuery("select sampleKey from MarkedSample where user=?1 and source=?2 and sampleKey in ?3", String.class)
+                .setParameter(1, user)
+                .setParameter(2, source)
+                .setParameter(3, sampleKeys)
+                .getResultList());
     }
 }

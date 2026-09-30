@@ -15,13 +15,9 @@ function form(overrides: Partial<AddMaterialFormValues> = {}): AddMaterialFormVa
 }
 
 describe('pubchemIncluded', () => {
-  it('is true for All Catalogs as well as PubChem, since All is ELN + PubChem', () => {
-    expect(pubchemIncluded('ALL')).toBe(true);
+  it('is true for PubChem only', () => {
     expect(pubchemIncluded('PUBCHEM')).toBe(true);
-  });
-
-  it('is false for the two catalogs that are entirely ELN-side', () => {
-    expect(pubchemIncluded('ELN')).toBe(false);
+    expect(pubchemIncluded('SRS')).toBe(false);
     expect(pubchemIncluded('MY_MATERIALS')).toBe(false);
   });
 });
@@ -29,25 +25,25 @@ describe('pubchemIncluded', () => {
 describe('isFilterDisabled', () => {
   /** PubChem's API does take a formula, which is why it is the one filter left enabled. */
   it('leaves Molecular Formula available even under PubChem', () => {
-    expect(isFilterDisabled('ALL', 'molecularFormula')).toBe(false);
     expect(isFilterDisabled('PUBCHEM', 'molecularFormula')).toBe(false);
   });
 
-  it('disables the fine-grained filters under any catalog that reaches PubChem', () => {
-    expect(isFilterDisabled('ALL', 'compoundKey')).toBe(true);
+  it('disables the fine-grained filters under PubChem', () => {
+    expect(isFilterDisabled('PUBCHEM', 'compoundKey')).toBe(true);
+    expect(isFilterDisabled('PUBCHEM', 'sampleKey')).toBe(true);
     expect(isFilterDisabled('PUBCHEM', 'healthHazards')).toBe(true);
   });
 
-  it('leaves everything available for the ELN catalogs', () => {
-    expect(isFilterDisabled('ELN', 'compoundKey')).toBe(false);
+  it('leaves everything available for the other catalogs', () => {
+    expect(isFilterDisabled('SRS', 'compoundKey')).toBe(false);
     expect(isFilterDisabled('MY_MATERIALS', 'casNumber')).toBe(false);
   });
 });
 
 describe('toFindSamplesRequest', () => {
-  it('maps All Catalogs to ELN + PubChem, and sends nothing else for an untouched form', () => {
+  it('asks Sample Registration, and sends nothing else for an untouched form', () => {
     expect(toFindSamplesRequest(form())).toEqual({
-      catalogs: ['ELN', 'PUBCHEM'],
+      catalog: 'SRS',
       quickSearch: undefined,
       structure: undefined,
       compoundKey: undefined,
@@ -55,7 +51,7 @@ describe('toFindSamplesRequest', () => {
       molecularFormula: undefined,
       molWeight: undefined,
       chemicalName: undefined,
-      externalNumber: undefined,
+      sampleKey: undefined,
       compoundState: undefined,
       batchComment: undefined,
       healthHazards: undefined,
@@ -74,22 +70,22 @@ describe('toFindSamplesRequest', () => {
     expect(request.structure).toEqual({ type: 'EXACT', query: 'molfile' });
   });
 
-  it('carries every filter through for an ELN-only catalog', () => {
+  it('carries every filter through for a catalog that honours them', () => {
     const request = toFindSamplesRequest(
       form({
-        catalog: 'ELN',
+        catalog: 'MY_MATERIALS',
         compoundKey: { type: 'contains', value: 'ASA' },
         molWeight: { type: 'ge', value: 100 },
-        externalNumber: { type: 'exact', value: 'EXT-1' },
+        sampleKey: { type: 'exact', value: 'STR-00000001-01-001' },
         compoundState: { id: 'state-1', name: 'Solid' },
       }),
     );
 
     expect(request).toMatchObject({
-      catalogs: ['ELN'],
+      catalog: 'MY_MATERIALS',
       compoundKey: { type: 'contains', value: 'ASA' },
       molWeight: { type: 'ge', value: 100 },
-      externalNumber: { type: 'exact', value: 'EXT-1' },
+      sampleKey: { type: 'exact', value: 'STR-00000001-01-001' },
       compoundState: { id: 'state-1', name: 'Solid' },
     });
   });
@@ -101,7 +97,7 @@ describe('toFindSamplesRequest', () => {
   it('drops the PubChem-disabled filters, keeping the formula, the term and the structure', () => {
     const request = toFindSamplesRequest(
       form({
-        catalog: 'ALL',
+        catalog: 'PUBCHEM',
         quickSearch: 'aspirin',
         structure: 'molfile',
         compoundKey: { type: 'exact', value: 'ASA' },
@@ -128,7 +124,7 @@ describe('isEmpty', () => {
   it('is false once there is a term, a structure or a filter', () => {
     expect(isEmpty(form({ quickSearch: 'aspirin' }))).toBe(false);
     expect(isEmpty(form({ structure: 'molfile' }))).toBe(false);
-    expect(isEmpty(form({ catalog: 'ELN', compoundKey: { type: 'exact', value: 'ASA' } }))).toBe(false);
+    expect(isEmpty(form({ catalog: 'SRS', compoundKey: { type: 'exact', value: 'ASA' } }))).toBe(false);
   });
 
   it('ignores whitespace in the quick search, as the request does', () => {
@@ -142,8 +138,8 @@ describe('isEmpty', () => {
   it('is true when the only filter set is one the catalog has disabled', () => {
     const values = form({ compoundKey: { type: 'exact', value: 'ASA' } });
 
-    expect(isEmpty({ ...values, catalog: 'ELN' })).toBe(false);
-    expect(isEmpty({ ...values, catalog: 'ALL' })).toBe(true);
+    expect(isEmpty({ ...values, catalog: 'SRS' })).toBe(false);
+    expect(isEmpty({ ...values, catalog: 'PUBCHEM' })).toBe(true);
   });
 
   /** Molecular Formula survives the PubChem gate, so it is a criterion there too. */
@@ -160,7 +156,7 @@ describe('summarizeAddMaterialSearch', () => {
   it('words a text, a numeric and a dictionary filter each by its own rule', () => {
     const summary = summarizeAddMaterialSearch(
       form({
-        catalog: 'ELN',
+        catalog: 'SRS',
         compoundKey: { type: 'contains', value: 'ASA' },
         molWeight: { type: 'ge', value: 100 },
         compoundState: { id: 'state-1', name: 'Solid' },
@@ -176,7 +172,7 @@ describe('summarizeAddMaterialSearch', () => {
 
   it('reads a range as its two bounds', () => {
     const summary = summarizeAddMaterialSearch(
-      form({ catalog: 'ELN', nbkBatchNumber: { type: 'between', from: '1', to: '9' } }),
+      form({ catalog: 'SRS', nbkBatchNumber: { type: 'between', from: '1', to: '9' } }),
     );
 
     expect(summary).toEqual([{ label: 'Nbk Batch #', operator: 'between', value: '1 and 9' }]);
@@ -186,7 +182,7 @@ describe('summarizeAddMaterialSearch', () => {
   it('leaves out a filter the catalog has disabled', () => {
     const values = form({ compoundKey: { type: 'exact', value: 'ASA' } });
 
-    expect(summarizeAddMaterialSearch({ ...values, catalog: 'ELN' })).toHaveLength(1);
-    expect(summarizeAddMaterialSearch({ ...values, catalog: 'ALL' })).toEqual([]);
+    expect(summarizeAddMaterialSearch({ ...values, catalog: 'SRS' })).toHaveLength(1);
+    expect(summarizeAddMaterialSearch({ ...values, catalog: 'PUBCHEM' })).toEqual([]);
   });
 });

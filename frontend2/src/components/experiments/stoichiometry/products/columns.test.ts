@@ -55,6 +55,6 @@ describe('productHaystack', () => {
 
   /** An unknown compound has no registry fields at all — reading them would throw. */
   it('skips the registry fields of an unknown compound', () => {
-    expect(productHaystack(row({ compound: { type: 'UNKNOWN', molWeight: {} } }))).toBe('p0');
+    expect(productHaystack(row({ compound: { molWeight: {} } }))).toBe('p0');
   });
 });

@@ -29,6 +29,7 @@ import { canEditExperiment } from '@/lib/types/experiments.ts';
 
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
 import type { Reaction } from '@/lib/types/reactions.ts';
+import { isKnownCompound } from '@/lib/types/reactions.ts';
 
 /**
  * The Product Batch Summary.
@@ -430,7 +431,7 @@ function BatchActionButton({
           tone="green"
           label={registerLabel(row, protectedSample, batch)}
           // `RegisterSampleHandler` throws on both of these, so neither is offered.
-          editable={canEdit && !protectedSample && row.output.compound.type !== 'UNKNOWN'}
+          editable={canEdit && !protectedSample && isKnownCompound(row.output.compound)}
           pending={pending}
           onCommit={save}
         />
@@ -452,6 +453,6 @@ function BatchActionButton({
 function registerLabel(row: BatchRow, protectedSample: boolean, batch: string): string {
   if (row.sample.registrationStatus === 'REGISTERED') return `Batch ${batch} is already registered`;
   if (protectedSample) return `Batch ${batch} has already been sent for registration`;
-  if (row.output.compound.type === 'UNKNOWN') return `Batch ${batch} has no compound to register`;
+  if (!isKnownCompound(row.output.compound)) return `Batch ${batch} has no compound to register`;
   return `Register batch ${batch}`;
 }

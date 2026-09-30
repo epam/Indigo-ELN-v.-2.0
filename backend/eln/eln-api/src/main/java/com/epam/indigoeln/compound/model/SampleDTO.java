@@ -35,6 +35,8 @@ public class SampleDTO {
     private Double saltEQ;
     @Nullable
     private String chemicalName;
+    @Nullable
+    private String inchi; // PubChem only: the sole way to render its structure
 
     // sample characteristics
     @NotNull

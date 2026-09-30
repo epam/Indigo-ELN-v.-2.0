@@ -43,6 +43,11 @@ public class SampleRegistrationResource implements SampleRegistrationAPI {
     }
 
     @Override
+    public byte[] getCompoundPicture(UUID id) {
+        return sampleSearchService.getCompoundPicture(id);
+    }
+
+    @Override
     public int loadCompoundsFromFile(UploadForm form) {
         return sampleRegistrationService.loadCompoundsFromFile(form.getUpload().filePath());
     }

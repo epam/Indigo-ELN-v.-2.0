@@ -6,9 +6,9 @@ import type { DictionaryItemRef } from '@/lib/types/dictionaries.ts';
  * stored in `experiment.model` and diffed by every model mutation.
  *
  * Ported from the Java, deliberately **not** from indigo-frontend's `experiment.i.ts`: those
- * interfaces were generated from an older spec and have drifted from the wire in five places
- * (a `rxnVersion` field that does not exist, `STRCode*`/`NbkBatchNumber` modelled as objects
- * when `@JsonValue` makes them strings, `SolubidityInSolvent` flattened when it is a
+ * interfaces were generated from an older spec and have drifted from the wire
+ * (`NbkBatchNumber` modelled as an object
+ * when `@JsonValue` makes it a string, `SolubidityInSolvent` flattened when it is a
  * discriminated union, and an `EnteredValueSource` enum whose members are not what is sent).
  * Each one is noted again at the type it affects.
  *
@@ -201,42 +201,41 @@ export function plainFormula(formula: MolFormula): string {
   return formula.replace(/<[^>]+>/g, '');
 }
 
-/** `STRCodeCompound`/`STRCodeSample` are `@JsonValue` strings: `STR-00000001-01[-003]`. */
-export type STRCode = string;
-
 /** `NbkBatchNumber` is a `@JsonValue` string: `20240101-0001-003`. */
 export type NbkBatchNumber = string;
 
-interface CompoundRefBase {
-  formula?: MolFormula;
-  molWeight?: EnteredValue<MolWeightUnit>;
-}
-
-/** What `Stored` and `Virtual` share; `Unknown` `@JsonIgnore`s all of it. */
-interface IdentifiedCompoundRef extends CompoundRefBase {
-  compoundID: UUID;
-  formula: MolFormula;
-  molWeight: EnteredValue<MolWeightUnit>;
-  exactMass: EnteredValue<NoUnit>;
-  calculatedBatchMF: string;
-  compoundKey?: string;
-  casNumber?: string;
+/**
+ * One flat class, `NON_NULL`: a compound is either **known** — it has a `compoundID`, and every
+ * other field comes from the compound registry — or unknown, carrying at most a `formula` and a
+ * user-entered `molWeight`. `molWeight` and `exactMass` are `NON_EMPTY`, so absent when blank.
+ */
+export interface CompoundRef {
+  compoundID?: UUID;
   stereoisomerCode?: DictionaryItemRef;
   saltCode?: DictionaryItemRef;
   saltEQ?: number;
+  /** The key in the compound's source system: an STR code for SRS, a CID for PubChem. */
+  compoundKey?: string;
+  formula?: MolFormula;
+  molWeight?: EnteredValue<MolWeightUnit>;
+  exactMass?: EnteredValue<NoUnit>;
+  casNumber?: string;
+  /** Read-only, derived: HTML, the formula plus the salt. Absent without a `formula`. */
+  calculatedBatchMF?: string;
 }
 
-/**
- * Polymorphic on `type` (`@JsonTypeInfo(Id.NAME)`). An `UNKNOWN` compound carries only
- * `formula` and `molWeight` — every other getter on it is `@JsonIgnore`d — which is why the
- * three cases cannot share one flat interface.
- */
-export type CompoundRef =
-  | ({ type: 'STORED' } & IdentifiedCompoundRef)
-  | ({ type: 'VIRTUAL' } & IdentifiedCompoundRef)
-  | ({ type: 'UNKNOWN' } & CompoundRefBase);
+/** Mirrors `CompoundRef.isKnown()`. Only an unknown compound takes a user-entered mol weight. */
+export function isKnownCompound(compound: CompoundRef): compound is CompoundRef & { compoundID: UUID } {
+  return compound.compoundID != null;
+}
 
 /* ── Enums ─────────────────────────────────────────────────────────────────────────────── */
+
+/**
+ * Where a reaction sample, or a catalog hit, comes from. `VIRTUAL` is an input sample with no
+ * real sample behind it, or an output batch that is not registered yet.
+ */
+export type SampleSource = 'VIRTUAL' | 'SRS' | 'PUBCHEM';
 
 export type ReactionRole = 'REACTANT' | 'REAGENT' | 'CATALYST' | 'SOLVENT' | 'OUTPUT';
 export type ReactionOutputType = 'FINAL' | 'BY_PRODUCT' | 'INTERMEDIATE';
@@ -368,13 +367,14 @@ interface ReactionSample {
   molarity?: EnteredValue<MolarityUnit>;
   volume?: EnteredValue<VolumeUnit>;
   purity: EnteredValue<NoUnit>;
-  strCode?: STRCode;
-  healthHazards: DictionaryItemRef[];
+  sampleSource: SampleSource;
+  /** The key in `sampleSource`'s system — an STR code for SRS, a CID for PubChem. None for `VIRTUAL`. */
+  sampleKey?: string;
+  healthHazards?: DictionaryItemRef[];
 }
 
 export interface ReactionInputSample extends ReactionSample {
   anchor: UUID;
-  sampleId?: UUID;
   nbkBatchNumber?: NbkBatchNumber;
   mol?: EnteredValue<MolUnit>;
   weight?: EnteredValue<WeightUnit>;
@@ -392,7 +392,6 @@ export interface ReactionOutputSample extends ReactionSample {
   yield?: EnteredValue<NoUnit>;
   registrationStatus?: SampleRegistrationStatus;
   registrationStatusMessage?: string;
-  sampleId?: UUID;
   handlingPrecautions?: DictionaryItemRef[];
   storageInstructions?: DictionaryItemRef[];
   compoundProtection?: DictionaryItemRef[];
@@ -444,8 +443,8 @@ export interface Reaction {
   /** Which input row is limiting; `ReactionInput.limiting` is derived from it. */
   limitingAnchor?: UUID;
   outputs: ReactionOutput[];
-  /** Read-only, derived: the STR code of every reactant sample that has one. */
-  precursorReactantIds: STRCode[];
+  /** Read-only, derived: the `sampleKey` of every reactant sample that has one. */
+  precursorReactantIds: string[];
 }
 
 /**

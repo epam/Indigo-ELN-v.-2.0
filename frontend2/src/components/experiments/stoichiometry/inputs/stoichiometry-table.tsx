@@ -55,8 +55,8 @@ function inputHaystack(input: ReactionInput): string {
   return [
     input.chemicalName,
     compound.formula == null ? undefined : plainFormula(compound.formula),
-    compound.type === 'UNKNOWN' ? undefined : compound.compoundKey,
-    compound.type === 'UNKNOWN' ? undefined : compound.casNumber,
+    compound.compoundKey,
+    compound.casNumber,
     ...input.samples.map((sample) => shortBatchNumber(sample.nbkBatchNumber)),
   ]
     .filter((each) => each != null)

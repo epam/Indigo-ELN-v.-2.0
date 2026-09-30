@@ -62,10 +62,7 @@ export const Default: Story = {
   },
 };
 
-/**
- * Changing the catalog re-searches at once — no Search button, and no gesture beyond the radio.
- * PubChem hits have no ELN id, so their rows offer no bookmark.
- */
+/** Changing the catalog re-searches at once — no Search button, and no gesture beyond the radio. */
 export const PubChemOnly: Story = {
   play: async () => {
     await screen.findByText('Acetylsalicylic acid');
@@ -74,7 +71,6 @@ export const PubChemOnly: Story = {
 
     await waitFor(() => expect(screen.queryByText('Acetylsalicylic acid')).not.toBeInTheDocument());
     await expect(await screen.findByText('2-acetyloxybenzoic acid')).toBeInTheDocument();
-    await expect(screen.queryByRole('button', { name: /My Materials/ })).not.toBeInTheDocument();
   },
 };
 
@@ -135,9 +131,9 @@ export const OneUnresolvedInput: Story = {
 };
 
 /**
- * PubChem reports no count, so a search that reached it comes back with `totalItems: null`. The
- * tab then says what it knows — how many have loaded — and marks it a lower bound. The `+` is
- * dropped once the cursor is spent, since what has loaded is the total by then.
+ * A catalog that reports no count comes back with `totalItems: null`. The tab then says what it
+ * knows — how many have loaded — and marks it a lower bound. The `+` is dropped once there is no
+ * next page, since what has loaded is the total by then.
  */
 export const CountIsALowerBoundWhenUncounted: Story = {
   parameters: { msw: { handlers: uncountedSampleHandlers } },

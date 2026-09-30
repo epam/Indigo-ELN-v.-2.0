@@ -1,31 +1,27 @@
 import { useCallback, useState } from 'react';
 
 import { useMutateExperimentModel } from '@/lib/api/experiments';
-import { useImportSample } from '@/lib/api/samples';
 import { sampleRowKey } from '@/lib/search';
 
-import type { UUID } from '@/lib/types/common.ts';
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
 import type { ModelMutation } from '@/lib/types/mutations.ts';
 import type { SampleDTO } from '@/lib/types/samples.ts';
 
 export interface AddSample {
   /**
-   * Registers the hit if it needs registering, then runs the mutation built from the id it ends
-   * up with. Resolves `true` once the model has taken it, `false` if either step failed.
+   * Runs the mutation that puts `sample` into the model, with a spinner on its row meanwhile.
+   * Resolves `true` once the model has taken it, `false` if it failed.
    */
-  run: (sample: SampleDTO, toMutation: (sampleId: UUID) => ModelMutation) => Promise<boolean>;
+  run: (sample: SampleDTO, mutation: ModelMutation) => Promise<boolean>;
   /** Which rows are mid-add, keyed by `sampleRowKey` — what puts a spinner on one. */
   addingRows: ReadonlySet<string>;
 }
 
 /**
- * Putting a catalog hit into the reaction model, which is two steps whichever dialog asks.
+ * Putting a catalog hit into the reaction model, whichever dialog asks.
  *
- * A hit that is not in the ELN yet is registered first (`importFromSearch`), because every
- * mutation that takes a sample names it by id and a PubChem row does not have one; a hit that is
- * already an ELN sample skips straight to the mutation. Sequenced with `await` rather than
- * nested callbacks so the failure of either step lands in one place.
+ * One step: the mutations that take a sample (`AddInput`, `ResolveInputs`) carry the whole
+ * `SampleDTO`, and the backend imports its compound from the catalog itself.
  *
  * Which mutation that is belongs to the caller — `ResolveInputs` binds the hit to a row the
  * scheme already created, `AddInput` appends a new one — so it is passed in rather than decided
@@ -40,19 +36,15 @@ export interface AddSample {
 export function useAddSample(experiment: ExperimentDetails): AddSample {
   const [addingRows, setAddingRows] = useState<ReadonlySet<string>>(() => new Set());
 
-  const { mutateAsync: runImport } = useImportSample();
   const { mutateAsync: runMutation } = useMutateExperimentModel(experiment);
 
   const run = useCallback(
-    async (sample: SampleDTO, toMutation: (sampleId: UUID) => ModelMutation) => {
+    async (sample: SampleDTO, mutation: ModelMutation) => {
       const row = sampleRowKey(sample);
       setAddingRows((rows) => new Set(rows).add(row));
 
       try {
-        // `importFromSearch` answers with the persisted sample, so `id` is set on the way back
-        // out even though the DTO type has to allow its absence on the way in.
-        const sampleId = sample.id ?? (await runImport(sample)).id!;
-        await runMutation(toMutation(sampleId));
+        await runMutation(mutation);
         return true;
       } catch {
         // Deliberately silent: apiFetch toasts every failed request, and repeating it here
@@ -66,7 +58,7 @@ export function useAddSample(experiment: ExperimentDetails): AddSample {
         });
       }
     },
-    [runImport, runMutation],
+    [runMutation],
   );
 
   return { run, addingRows };

@@ -4,6 +4,8 @@ import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
+import com.epam.indigoeln.compound.model.search.SearchCatalog;
+import com.epam.indigoeln.eln.model.SampleSource;
 import com.epam.indigoeln.eln.quarkus.cachecontrol.Cached;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.BeanParam;
@@ -29,6 +31,12 @@ public interface CompoundAPI extends BaseAPI {
     @Produces("image/svg+xml")
     @Cached(interval = 30, unit = ChronoUnit.DAYS)
     byte[] getCompoundPicture(@PathParam("compoundID") UUID compoundID);
+
+    @GET
+    @Path("/compounds/by-catalog/{catalog}/{source}/{compoundID}/picture")
+    @Produces("image/svg+xml")
+    @Cached(interval = 30, unit = ChronoUnit.DAYS)
+    byte[] getCatalogCompoundPicture(@PathParam("catalog") SearchCatalog catalog, @PathParam("source") SampleSource source, @PathParam("compoundID") UUID compoundID);
 
     @POST
     @Path("/samples/search")

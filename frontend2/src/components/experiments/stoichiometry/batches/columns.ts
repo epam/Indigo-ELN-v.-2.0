@@ -276,7 +276,7 @@ export function batchHaystack(row: BatchRow): string {
     row.output.outputName,
     row.output.chemicalName,
     compound.formula == null ? undefined : plainFormula(compound.formula),
-    compound.type === 'UNKNOWN' ? undefined : compound.compoundKey,
+    compound.compoundKey,
     row.sample.registrationStatus == null ? 'None' : REGISTRATION_STATUS_LABELS[row.sample.registrationStatus],
   ]
     .filter((each) => each != null)

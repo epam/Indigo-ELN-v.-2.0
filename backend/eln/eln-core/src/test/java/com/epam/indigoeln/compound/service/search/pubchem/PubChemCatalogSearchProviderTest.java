@@ -41,13 +41,9 @@ class PubChemCatalogSearchProviderTest extends ELNBaseTest {
 
     @BeforeEach
     void setUp() {
-        wireMock.register(WireMock.post(WireMock.urlPathEqualTo("/rest/pug/compound/name/property/MolecularFormula,MolecularWeight,IUPACName/JSON")).willReturn(WireMock.aResponse()
+        wireMock.register(WireMock.post(WireMock.urlPathEqualTo("/rest/pug/compound/name/property/MolecularFormula,MolecularWeight,IUPACName,InChI/JSON")).willReturn(WireMock.aResponse()
                 .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                 .withBody(ModelUtil.loadResource("/com/epam/indigoeln/compound/service/search/pubchem-response.json"))
-        ));
-        wireMock.register(WireMock.get(WireMock.urlPathEqualTo("/rest/pug/compound/cid/996/property/InChI/JSON")).willReturn(WireMock.aResponse()
-                .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                .withBody(ModelUtil.loadResource("/com/epam/indigoeln/compound/service/search/pubchem-inchi.json"))
         ));
     }
 
@@ -57,6 +53,7 @@ class PubChemCatalogSearchProviderTest extends ELNBaseTest {
         assertThat(result.getItems()).hasSize(10)
                 .first().satisfies(s -> {
                     assertThat(s.getChemicalName()).isNotNull();
+                    assertThat(s.getInchi()).startsWith("InChI=");
                 });
     }
 
@@ -70,7 +67,7 @@ class PubChemCatalogSearchProviderTest extends ELNBaseTest {
 
     @Test
     void testSearchReturnsEmptyListOnNotFound() {
-        wireMock.register(WireMock.post(WireMock.urlPathEqualTo("/rest/pug/compound/name/property/MolecularFormula,MolecularWeight,IUPACName/JSON"))
+        wireMock.register(WireMock.post(WireMock.urlPathEqualTo("/rest/pug/compound/name/property/MolecularFormula,MolecularWeight,IUPACName,InChI/JSON"))
                 .withRequestBody(WireMock.containing("name=unknownxyz"))
                 .willReturn(WireMock.aResponse()
                         .withStatus(400)
@@ -87,7 +84,7 @@ class PubChemCatalogSearchProviderTest extends ELNBaseTest {
 
     @Test
     void testSearchThrowsOnServerError() {
-        wireMock.register(WireMock.post(WireMock.urlPathEqualTo("/rest/pug/compound/name/property/MolecularFormula,MolecularWeight,IUPACName/JSON"))
+        wireMock.register(WireMock.post(WireMock.urlPathEqualTo("/rest/pug/compound/name/property/MolecularFormula,MolecularWeight,IUPACName,InChI/JSON"))
                 .withRequestBody(WireMock.containing("name=busy"))
                 .willReturn(WireMock.aResponse()
                         .withStatus(503)

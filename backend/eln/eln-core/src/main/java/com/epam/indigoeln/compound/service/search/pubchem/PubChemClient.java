@@ -3,10 +3,8 @@ package com.epam.indigoeln.compound.service.search.pubchem;
 import io.quarkus.rest.client.reactive.ClientExceptionMapper;
 import io.quarkus.rest.client.reactive.Url;
 import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
@@ -22,14 +20,9 @@ interface PubChemClient {
     String ERROR_NOT_FOUND = "PUGREST.NotFound";
 
     @POST
-    @Path("/property/MolecularFormula,MolecularWeight,IUPACName/JSON")
+    @Path("/property/MolecularFormula,MolecularWeight,IUPACName,InChI/JSON")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     PubChemResponse search(@Url URI url, @RestQuery Map<String, Object> queryParams, MultivaluedMap<String, Object> formParams);
-
-    @GET
-    @Path("/cid/{cid}/property/InChI/JSON")
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    PubChemResponse findInChi(@PathParam("cid") String cid);
 
     @ClientExceptionMapper
     static PubChemException toException(Response response) {

@@ -10,6 +10,8 @@ import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.search.SearchCatalog;
 import com.epam.indigoeln.compound.repository.MarkedSampleRepository;
 import com.epam.indigoeln.eln.config.DataAccess;
+import com.epam.indigoeln.eln.entity.UserEntity;
+import com.epam.indigoeln.eln.model.SampleSource;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.eln.service.GlobalSearchService;
 import com.epam.indigoeln.eln.service.UserService;
@@ -23,8 +25,11 @@ import one.util.streamex.StreamEx;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 
+import static com.epam.indigoeln.common.util.ModelUtil.map;
 import static com.google.common.base.Preconditions.checkState;
 
 @Slf4j
@@ -63,7 +68,21 @@ public class SampleSearchService {
     public Page<SampleDTO> search(FindSamplesRequest request, Paging paging) {
         log.debug("search: {}, paging={}", request, paging);
         CatalogSearchProvider provider = providers.get(request.getCatalog());
-        return provider.search(request, paging);
+        Page<SampleDTO> page = provider.search(request, paging);
+        if (request.getCatalog() != SearchCatalog.MY_MATERIALS) { // external catalogs don't know what the user marked
+            UserEntity user = userService.getCurrentUserEntity();
+            StreamEx.of(page.getItems())
+                    .groupingBy(SampleDTO::getSource)
+                    .forEach((source, samples) -> {
+                        Set<String> markedKeys = markedSampleRepository.findMarkedKeys(user, source, map(samples, SampleDTO::getSampleKey));
+                        samples.forEach(s -> s.setMarked(markedKeys.contains(s.getSampleKey())));
+                    });
+        }
+        return page;
+    }
+
+    public byte[] getCompoundPicture(SearchCatalog catalog, SampleSource source, UUID compoundID) {
+        return providers.get(catalog).getCompoundPicture(source, compoundID);
     }
 
     public CompoundEntity importCompound(SampleDTO sample) {

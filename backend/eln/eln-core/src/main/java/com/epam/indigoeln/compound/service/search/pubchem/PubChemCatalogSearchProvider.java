@@ -33,7 +33,7 @@ import java.util.Set;
 
 import static com.epam.indigoeln.common.exception.InvalidRequestException.fail;
 import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
-import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Slf4j
 @ApplicationScoped
@@ -129,12 +129,7 @@ class PubChemCatalogSearchProvider implements CatalogSearchProvider {
 
     @Override
     public CompoundEntity importCompound(SampleDTO sample) {
-        rateLimiter.acquire();
-        PubChemResponse response = pubChemClient.findInChi(sample.getCompoundKey());
-        checkState(!response.propertyTable().items().isEmpty(), "Compound not found in PubChem by cid: %s", sample.getCompoundKey());
-        checkState(response.propertyTable().items().size() == 1, "Multiple compounds found in PubChem by cid: %s", sample.getCompoundKey());
-        String inchi = response.propertyTable().items().getFirst().inchi();
-        IndigoMolecule molecule = indigo.loadMolecule(inchi);
+        IndigoMolecule molecule = indigo.loadMolecule(checkNotNull(sample.getInchi()));
         return compoundService.findOrCreate(molecule, null, null, null, SampleSource.PUBCHEM, sample.getCompoundKey(), sample.getChemicalName());
     }
 }

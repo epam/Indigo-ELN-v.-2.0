@@ -117,7 +117,7 @@ describe('batchHaystack', () => {
 
   /** An unknown compound has no registry fields at all — reading them would throw. */
   it('skips the registry fields of an unknown compound', () => {
-    const haystack = batchHaystack(row({}, { compound: { type: 'UNKNOWN', molWeight: {} } }));
+    const haystack = batchHaystack(row({}, { compound: { molWeight: {} } }));
     expect(haystack).not.toContain('str-');
   });
 });

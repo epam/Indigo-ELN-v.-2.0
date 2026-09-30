@@ -509,13 +509,16 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testRegisterSample() {
         if (!integrationTest) {
-            doReturn(new SampleRegistrationResponse(new STRCodeSample(1, 1, 1), UUID.randomUUID())).when(sampleRegistrationClient).registerSample(any());
+            // STR code no other test uses: the compound it promotes outlives the test, and (source, compoundKey) is unique
+            doReturn(new SampleRegistrationResponse(new STRCodeSample(90001, 1, 1), UUID.randomUUID())).when(sampleRegistrationClient).registerSample(any());
         }
         experiment.mutateSetSchemeFromResource(REACTION_RXN);
         experiment.mutateAddProductSample(1);
         experiment.mutate(new ReactionOutputSampleMutation.RegisterSample(experiment.outputSample(1, 1).getAnchor()), false); // register sample is not undoable
         assertThat(experiment.outputSample(1, 1).getRegistrationStatus()).isEqualTo(SampleRegistrationStatus.REGISTERED);
         assertThat(experiment.outputSample(1, 1).getSampleKey()).isNotNull();
+        // the virtual product compound is promoted to the registered one
+        assertThat(experiment.output(1).getCompound().getCompoundKey()).matches("STR-\\d{8}-\\d{2}");
     }
 
     @Test

@@ -324,7 +324,7 @@ export const PicksAndClearsSaltCode: Story = {
     sent.length = 0;
     const canvas = within(canvasElement);
 
-    // Row 3 is the virtual compound, the only one whose salt code is editable.
+    // Row 3 holds only a virtual sample, the only row whose salt code is editable.
     const saltCode = await canvas.findByLabelText('Salt Code, row 3');
     await expect(saltCode.tagName).toBe('BUTTON');
     await expect(saltCode.querySelector('input')).toBeNull();
@@ -382,14 +382,14 @@ export const FormulaSubscriptsAreNotClipped: Story = {
 };
 
 /**
- * A stored compound's salt code and salt EQ come from the registry, so both stay locked even
- * though the row has a salt code set. indigo-frontend gated Salt EQ on the code alone and let
- * this row be edited.
+ * Once a registered sample is attached, the compound's salt code and salt EQ come from the
+ * registry, so both stay locked even though the row has a salt code set. indigo-frontend gated
+ * Salt EQ on the code alone and let this row be edited.
  */
 export const StoredCompoundSaltLocked: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    // Row 4 is the stored compound carrying a salt code; row 3 is the virtual one.
+    // Row 4 has a registered sample and a salt code; row 3 holds only a virtual sample.
     await expect(canvas.getByLabelText('Salt EQ, row 4')).toBeDisabled();
     await expect(canvas.getByLabelText('Salt EQ, row 3')).toBeEnabled();
   },

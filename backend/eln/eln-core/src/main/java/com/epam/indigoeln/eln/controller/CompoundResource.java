@@ -5,10 +5,12 @@ import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
+import com.epam.indigoeln.compound.model.search.SearchCatalog;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.compound.service.search.SampleSearchService;
 import com.epam.indigoeln.eln.api.BaseAPI;
 import com.epam.indigoeln.eln.api.CompoundAPI;
+import com.epam.indigoeln.eln.model.SampleSource;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Path;
 
@@ -25,6 +27,11 @@ public class CompoundResource implements CompoundAPI {
     @Override
     public byte[] getCompoundPicture(UUID compoundID) {
         return compoundService.getCompoundPicture(compoundID);
+    }
+
+    @Override
+    public byte[] getCatalogCompoundPicture(SearchCatalog catalog, SampleSource source, UUID compoundID) {
+        return sampleSearchService.getCompoundPicture(catalog, source, compoundID);
     }
 
     @Override

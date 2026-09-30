@@ -19,6 +19,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
+import java.util.UUID;
+
 import static com.epam.indigoeln.common.util.ModelUtil.map;
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -59,5 +61,13 @@ class SampleRegistrationServiceSearchProvider implements CatalogSearchProvider {
                 , SampleSource.SRS, sample.getCompoundKey()
                 , sample.getChemicalName()
         );
+    }
+
+    @Override
+    public byte[] getCompoundPicture(SampleSource source, UUID compoundID) {
+        if (source != SampleSource.SRS) {
+            return CatalogSearchProvider.super.getCompoundPicture(source, compoundID);
+        }
+        return sampleRegistrationClient.getCompoundPicture(compoundID);
     }
 }

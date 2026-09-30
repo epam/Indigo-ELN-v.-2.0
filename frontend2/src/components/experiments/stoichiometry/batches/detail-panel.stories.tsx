@@ -25,7 +25,7 @@ function rowAt(outputIndex: number, sampleIndex: number): BatchRow {
 const POPULATED = rowAt(0, 0);
 /** Batch 002 — nothing entered, the em-dash state of the whole panel. */
 const EMPTY = rowAt(0, 1);
-/** Batch 003 — `REGISTERED`, on a virtual compound that carries a salt code and a salt EQ. */
+/** Batch 003 — `REGISTERED`, on a compound that carries a salt code and a salt EQ. */
 const REGISTERED = rowAt(1, 0);
 
 /** Nothing in flight and nothing to send: what the display-only stories pass. */
@@ -86,8 +86,8 @@ export const Default: Story = {
     await expect(canvas.getByText('180.16')).toBeInTheDocument();
     // Derived on the reaction, not on the batch.
     await expect(canvas.getByLabelText('Precursor/Reactant IDs')).toHaveValue('STR-00000014-00');
-    // `STRCodeSample` is a string on the wire; indigo-frontend prints `[object Object]` here.
-    await expect(canvas.getByLabelText('Conversational Batch number')).toHaveValue('STR-00000016-00-003');
+    // The STR code arrives on registration; this batch has not been registered.
+    await expect(canvas.getByLabelText('Conversational Batch number')).toHaveValue('');
     // A derived quantity carries its unit into the read-only box.
     await expect(canvas.getByLabelText('Theo. Weight')).toHaveValue('500.4 mg');
     await expect(await canvas.findByAltText('Structure of batch 001')).toBeInTheDocument();
@@ -165,12 +165,12 @@ export const ReadOnlyExperiment: Story = {
   },
 };
 
-/** An `UNKNOWN` compound has no `compoundID`, so there is no picture to ask for. */
+/** An unknown compound has no `compoundID`, so there is no picture to ask for. */
 export const NoStructure: Story = {
   args: {
     row: {
       output: makeReactionOutput('f0000000-0000-4000-8000-00000000000e', {
-        compound: { type: 'UNKNOWN', molWeight: {} },
+        compound: { molWeight: {} },
         samples: [],
       }),
       sample: makeReactionOutputSample('f1000000-0000-4000-8000-00000000000e'),

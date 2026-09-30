@@ -17,6 +17,7 @@ import com.epam.indigoeln.reaction.model.SampleRegistrationStatus;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import com.epam.indigoeln.sampleregistration.api.SampleRegistrationClient;
+import com.epam.indigoeln.sampleregistration.model.STRCodeCompound;
 import com.epam.indigoeln.sampleregistration.model.SampleRegistrationRequest;
 import com.epam.indigoeln.sampleregistration.model.SampleRegistrationResponse;
 import jakarta.enterprise.context.Dependent;
@@ -75,7 +76,7 @@ class RegisterSampleHandler extends AbstractReactionOutputSampleMutationHandler<
         if (sampleRow.getRegistrationStatus() != null) {
             throw new InvalidRequestException("Sample already sent for registration");
         }
-        if (!sampleRow.getRow().getCompound().isKnown()) {
+        if (sampleRow.getRow().getCompound().getCompoundID() == null) {
             throw new InvalidRequestException("Cannot register sample for unknown compound");
         }
         CompoundEntity compound = compoundService.getCompound(sampleRow.getRow().getCompound().getCompoundID());
@@ -95,6 +96,11 @@ class RegisterSampleHandler extends AbstractReactionOutputSampleMutationHandler<
         }
         SampleRegistrationResponse response = sampleRegistrationClient.registerSample(request.build());
 
+        if (compound.getSource() == SampleSource.VIRTUAL) {
+            compound.setSource(SampleSource.SRS);
+            compound.setCompoundKey(new STRCodeCompound(response.strCode().getCompoundCode(), response.strCode().getSaltCode()).toString());
+            row.updateCompound(compoundService.compoundRef(compound)); // before registration status is set: updateCompound refuses after that
+        }
         sampleRow.setRegistrationStatus(SampleRegistrationStatus.IN_PROGRESS); // for now, registration is immediate; when switched to async registration, REGISTERED will be set later
         sampleRow.setRegistrationStatus(SampleRegistrationStatus.REGISTERED);
         sampleRow.setSampleSource(SampleSource.SRS);

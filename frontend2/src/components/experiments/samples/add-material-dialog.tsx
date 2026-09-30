@@ -1,6 +1,6 @@
 import { Search } from 'lucide-react';
 import type { SubmitEvent } from 'react';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { SchemeEditor } from '@/components/chemistry/scheme-editor';
 import type { StructureEditorResult } from '@/components/chemistry/structure-editor-dialog';
@@ -18,20 +18,21 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent } from '@/components/ui/dialog';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useAddMaterial } from '@/lib/hooks/experiments/use-add-material';
-import { getAllInputSampleIds } from '@/lib/reactions';
+import { prewarmKetcher } from '@/lib/ketcher';
+import { getAllInputSampleKeys } from '@/lib/reactions';
 import { notifyError } from '@/lib/toast';
 
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
 import type { Reaction } from '@/lib/types/reactions.ts';
-import type { FindSamplesRequest, SampleCatalogFilter } from '@/lib/types/samples.ts';
-import { SAMPLE_CATALOG_FILTER_LABELS, SAMPLE_CATALOG_FILTERS } from '@/lib/types/samples.ts';
+import type { FindSamplesRequest, SearchCatalog } from '@/lib/types/samples.ts';
+import { SAMPLE_CATALOG_LABELS, SAMPLE_CATALOGS } from '@/lib/types/samples.ts';
 import type { StructuralSearchType } from '@/lib/types/search.ts';
 
 /**
- * Add Material: search the catalogs for a registered compound and append it to the Reactants,
- * Reagents, Solvents table as a new input row.
+ * Add Material: search a catalog for a sample and append it to the Reactants, Reagents,
+ * Solvents table as a new input row.
  *
- * The counterpart of the toolbar's plain `+`, which adds an empty row on an `UNKNOWN` compound.
+ * The counterpart of the toolbar's plain `+`, which adds an empty row on an unknown compound.
  * Here the row arrives with a sample behind it, so its batch number, molecular weight and purity
  * are filled in by the server rather than left to be typed.
  *
@@ -44,8 +45,8 @@ import type { StructuralSearchType } from '@/lib/types/search.ts';
  * - **Search needs a criterion.** The backend would take a request carrying only a catalog, but
  *   a whole catalog answers nothing that was asked, so `isEmpty` holds the button until there is
  *   a term, a structure or a filter that will actually be sent.
- * - **The catalog gates the form.** See `add-material-form.ts`: a catalog reaching PubChem
- *   disables all but Molecular Formula, and those filters are dropped from the request.
+ * - **The catalog gates the form.** See `add-material-form.ts`: PubChem disables all but
+ *   Molecular Formula, and those filters are dropped from the request.
  *
  * Adding does not close the sheet — a step usually gains several materials in one visit — and
  * the mutation's patch fills the row into the table behind it, which is why this is a
@@ -74,7 +75,11 @@ export function AddMaterialDialog({
   const [count, setCount] = useState<string | null>(null);
 
   const addMaterial = useAddMaterial(experiment, reaction);
-  const boundSamples = useMemo(() => getAllInputSampleIds(reaction), [reaction]);
+  const boundSamples = useMemo(() => getAllInputSampleKeys(reaction), [reaction]);
+  // PubChem hits are drawn by Ketcher; start its ~1.3 s cold load before the first one is shown.
+  useEffect(() => {
+    if (open) prewarmKetcher();
+  }, [open]);
   // `SampleResults` reports through this on every count change, so it has to keep its identity
   // or the effect behind it would loop.
   const handleCountChange = useCallback((next: string | null) => setCount(next), []);
@@ -149,14 +154,14 @@ export function AddMaterialDialog({
 
           <RadioGroup
             value={values.catalog}
-            onValueChange={(next) => patch({ catalog: next as SampleCatalogFilter })}
+            onValueChange={(next) => patch({ catalog: next as SearchCatalog })}
             aria-label="Catalog to search"
             className="flex w-auto flex-wrap items-center gap-6"
           >
-            {SAMPLE_CATALOG_FILTERS.map((filter) => (
-              <label key={filter} className="flex cursor-pointer items-center gap-2 text-[14px]/6">
-                <RadioGroupItem value={filter} />
-                {SAMPLE_CATALOG_FILTER_LABELS[filter]}
+            {SAMPLE_CATALOGS.map((catalog) => (
+              <label key={catalog} className="flex cursor-pointer items-center gap-2 text-[14px]/6">
+                <RadioGroupItem value={catalog} />
+                {SAMPLE_CATALOG_LABELS[catalog]}
               </label>
             ))}
           </RadioGroup>

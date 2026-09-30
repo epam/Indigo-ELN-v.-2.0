@@ -3,10 +3,11 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { makeExperimentDetails, makeSample, SAMPLE_RESULTS } from '@/mocks/fixtures';
+import { makeExperimentDetails, SAMPLE_RESULTS } from '@/mocks/fixtures';
 
 import type { ReactNode } from 'react';
-import type { SampleSearchResult } from '@/lib/types/samples.ts';
+import type { Page } from '@/lib/types/common.ts';
+import type { SampleDTO } from '@/lib/types/samples.ts';
 
 const fetchAuthSession = vi.fn().mockResolvedValue({ tokens: { accessToken: { toString: () => 'token' } } });
 vi.mock('aws-amplify/auth', () => ({ fetchAuthSession, signOut: vi.fn() }));
@@ -22,6 +23,12 @@ vi.mock('@/lib/api', async () => {
   return { ...actual, apiFetch: (path: string, init?: { json?: unknown }) => apiFetch(path, init) };
 });
 
+/** Ketcher is 21 MB behind a dynamic import; opening the dialog only prewarms it. */
+vi.mock('@/lib/ketcher', () => ({
+  renderStructure: vi.fn().mockResolvedValue('data:image/svg+xml,'),
+  prewarmKetcher: vi.fn(),
+}));
+
 const { AnalyzeRxnDialog } = await import('@/components/experiments/analyze-rxn/analyze-rxn-dialog');
 
 const EXPERIMENT = makeExperimentDetails();
@@ -29,8 +36,10 @@ const REACTION = EXPERIMENT.model.reactions[0];
 const [REACTANT] = REACTION.inputs;
 const UNRESOLVED = { [REACTANT.anchor]: 'unresolved-molfile' };
 
-function searchResult(items = SAMPLE_RESULTS): SampleSearchResult {
-  return { items, totalItems: items.length, next: null };
+const SEARCH_PATH = '/api/eln/samples/search?pageNo=0&pageSize=100';
+
+function searchResult(items = SAMPLE_RESULTS): Page<SampleDTO> {
+  return { pageNo: 0, pageSize: 100, totalItems: items.length, totalPages: 1, hasMore: false, items };
 }
 
 /** The last JSON payload sent to a path — `apiFetch` serialises it, so this is the object. */
@@ -62,7 +71,6 @@ beforeEach(() => {
   apiFetch.mockReset();
   apiFetch.mockImplementation((path: string) => {
     if (path.startsWith('/api/eln/samples/search')) return Promise.resolve(searchResult());
-    if (path === '/api/eln/samples/importFromSearch') return Promise.resolve(makeSample({ id: 'imported-sample' }));
     if (path.includes('/mutate')) return Promise.resolve({ patch: {} });
     // The structure previews; the detail panel is closed, so nothing should ask.
     return Promise.resolve('<svg />');
@@ -73,12 +81,9 @@ describe('AnalyzeRxnDialog', () => {
   it('searches the drawn structure as soon as it opens, with no interaction', async () => {
     renderDialog();
 
-    await waitFor(() =>
-      expect(apiFetch).toHaveBeenCalledWith('/api/eln/samples/search?pageSize=100', expect.anything()),
-    );
-    expect(bodyOf('/api/eln/samples/search?pageSize=100')).toEqual({
-      // "All Catalogs" is ELN + PubChem; My Materials is not additive alongside ELN.
-      catalogs: ['ELN', 'PUBCHEM'],
+    await waitFor(() => expect(apiFetch).toHaveBeenCalledWith(SEARCH_PATH, expect.anything()));
+    expect(bodyOf(SEARCH_PATH)).toEqual({
+      catalog: 'SRS',
       structure: { type: 'SUBSTRUCTURE', query: 'unresolved-molfile' },
     });
   });
@@ -89,12 +94,10 @@ describe('AnalyzeRxnDialog', () => {
 
     await userEvent.click(screen.getByRole('radio', { name: 'PubChem' }));
 
-    await waitFor(() =>
-      expect(bodyOf('/api/eln/samples/search?pageSize=100')).toMatchObject({ catalogs: ['PUBCHEM'] }),
-    );
+    await waitFor(() => expect(bodyOf(SEARCH_PATH)).toMatchObject({ catalog: 'PUBCHEM' }));
   });
 
-  it('binds a chosen ELN sample to the input row it was searched for', async () => {
+  it('binds a chosen sample to the input row it was searched for, sending the hit back whole', async () => {
     renderDialog();
     await screen.findByText('Acetylsalicylic acid');
 
@@ -105,32 +108,8 @@ describe('AnalyzeRxnDialog', () => {
     expect(bodyOf(path)).toEqual({
       type: 'ResolveInputs',
       anchor: REACTION.anchor,
-      inputSamples: { [REACTANT.anchor]: SAMPLE_RESULTS[0].id },
+      inputSamples: { [REACTANT.anchor]: SAMPLE_RESULTS[0] },
     });
-    // An ELN hit is already a sample; there is nothing to register.
-    expect(apiFetch).not.toHaveBeenCalledWith('/api/eln/samples/importFromSearch', expect.anything());
-  });
-
-  it('registers a PubChem hit before binding it, since ResolveInputs names a sample by id', async () => {
-    renderDialog();
-    const pubchem = SAMPLE_RESULTS.find((sample) => sample.source === 'PUBCHEM')!;
-    const label = `Add ${pubchem.name!} to the stoichiometry`;
-    await screen.findByRole('button', { name: label });
-
-    await userEvent.click(screen.getByRole('button', { name: label }));
-
-    await waitFor(() => expect(apiFetch).toHaveBeenCalledWith('/api/eln/samples/importFromSearch', expect.anything()));
-    // The whole DTO goes back: the provider is chosen by `source`, and PubChem needs the InChI.
-    expect(bodyOf('/api/eln/samples/importFromSearch')).toMatchObject({ source: 'PUBCHEM', inchi: pubchem.inchi });
-
-    const path = `/api/eln/experiments/${EXPERIMENT.id}/mutate?revision=${EXPERIMENT.revision}`;
-    await waitFor(() =>
-      expect(bodyOf(path)).toEqual({
-        type: 'ResolveInputs',
-        anchor: REACTION.anchor,
-        inputSamples: { [REACTANT.anchor]: 'imported-sample' },
-      }),
-    );
   });
 
   it('marks a sample through the endpoint that owns the flag', async () => {
@@ -139,17 +118,16 @@ describe('AnalyzeRxnDialog', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Add Acetylsalicylic acid to My Materials' }));
 
-    await waitFor(() =>
-      expect(apiFetch).toHaveBeenCalledWith(`/api/eln/samples/${SAMPLE_RESULTS[0].id}/mark`, expect.anything()),
-    );
+    await waitFor(() => expect(apiFetch).toHaveBeenCalledWith('/api/eln/samples/mark', expect.anything()));
+    expect(bodyOf('/api/eln/samples/mark')).toEqual(SAMPLE_RESULTS[0]);
   });
 
   it('offers no Add for a sample the step already holds', async () => {
-    const bound = SAMPLE_RESULTS[0].id!;
+    const { source, sampleKey } = SAMPLE_RESULTS[0];
     const reaction = {
       ...REACTION,
       inputs: REACTION.inputs.map((input, index) =>
-        index === 0 ? { ...input, samples: [{ ...input.samples[0], sampleId: bound }] } : input,
+        index === 0 ? { ...input, samples: [{ ...input.samples[0], sampleSource: source, sampleKey }] } : input,
       ),
     };
 

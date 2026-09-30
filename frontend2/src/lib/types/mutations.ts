@@ -15,6 +15,7 @@ import type {
   VolumeUnit,
   WeightUnit,
 } from '@/lib/types/reactions.ts';
+import type {SampleDTO} from '@/lib/types/samples.ts';
 
 /**
  * The experiment model-mutation protocol: `POST /experiments/{id}/mutate` takes one
@@ -335,18 +336,19 @@ export interface SetScheme {
 }
 
 /**
- * Attaches registered samples to input rows the scheme could not match to a compound — the
- * ones `MutationResponse.unresolvedInputs` names. `@NotEmpty` on the map.
+ * Attaches catalog samples to input rows the scheme could not match to a compound — the ones
+ * `MutationResponse.unresolvedInputs` names. `@NotEmpty` on the map. The row's `VIRTUAL`
+ * sample is replaced; real samples already on it stay.
  */
 export interface ResolveInputs {
   type: 'ResolveInputs';
   anchor: UUID;
-  /** Input row anchor → the sample id to bind to it. */
-  inputSamples: Record<UUID, UUID>;
+  /** Input row anchor → the catalog hit to bind to it, sent back whole. */
+  inputSamples: Record<UUID, SampleDTO>;
 }
 
 /**
- * Appends an input row carrying an `UNKNOWN` compound and one empty sample. The two
+ * Appends an input row carrying an unknown compound and one `VIRTUAL` sample. The two
  * `created*Anchor` members the record also declares are filled in server-side so an undo/redo
  * replay regenerates the same anchors; a client must not send them.
  */
@@ -356,11 +358,11 @@ export interface AddEmptyInput {
   anchor: UUID;
 }
 
-/** The same, for a compound that is already registered. */
+/** The same, for a catalog hit — sent back whole; the backend imports its compound. */
 export interface AddInput {
   type: 'AddInput';
   anchor: UUID;
-  sampleId: UUID;
+  sample: SampleDTO;
 }
 
 /**
@@ -382,6 +384,7 @@ export interface ImportSDF {
   type: 'ImportSDF';
   anchor: UUID;
   compoundIDs: UUID[];
+  samples: SampleDTO[];
 }
 
 /* ── Input rows ────────────────────────────────────────────────────────────────────────── */
@@ -455,7 +458,7 @@ export interface SetInputCompoundStereoisomerCode {
   stereoisomerCode: DictionaryItemRef | null;
 }
 
-/** Only meaningful for an `UNKNOWN` compound; a stored or virtual one carries a registry value. */
+/** Only meaningful for an unknown compound (no `compoundID`); a known one carries a registry value. */
 export interface SetInputCompoundMolWeight {
   type: 'SetInputCompoundMolWeight';
   anchor: UUID;
@@ -626,7 +629,7 @@ export interface SetOutputCompoundStereoisomerCode {
   stereoisomerCode: DictionaryItemRef | null;
 }
 
-/** Only meaningful for an `UNKNOWN` compound, exactly as on the input side. */
+/** Only meaningful for an unknown compound, exactly as on the input side. */
 export interface SetOutputCompoundMolWeight {
   type: 'SetOutputCompoundMolWeight';
   anchor: UUID;

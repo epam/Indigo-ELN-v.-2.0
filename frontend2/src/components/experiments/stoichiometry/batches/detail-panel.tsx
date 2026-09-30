@@ -27,7 +27,7 @@ import type { StoichiometryMutations } from '@/lib/hooks/experiments/use-stoichi
 import type { BuiltInDictionary, DictionaryItemRef } from '@/lib/types/dictionaries.ts';
 import type { ModelMutation } from '@/lib/types/mutations.ts';
 import type { CompoundRef, EnteredValue, Reaction } from '@/lib/types/reactions.ts';
-import { unitLabel } from '@/lib/types/reactions.ts';
+import { isKnownCompound, unitLabel } from '@/lib/types/reactions.ts';
 
 /**
  * What one batch of the Product Batch Summary holds, behind its chevron: the compound's structure
@@ -71,12 +71,10 @@ export function BatchDetailPanel({
   const anchor = sample.anchor;
 
   /**
-   * An `UNKNOWN` compound `@JsonIgnore`s salt code, stereoisomer, salt EQ, compound key and
-   * calculated MF, so narrowing the union is what makes those fields reachable at all — and their
-   * absence is why the controls are disabled rather than merely empty.
+   * An unknown compound has no salt code, stereoisomer, salt EQ, compound key or calculated MF,
+   * which is why the controls are disabled rather than merely empty.
    */
-  const compound: Extract<CompoundRef, { type: 'STORED' | 'VIRTUAL' }> | undefined =
-    output.compound.type === 'UNKNOWN' ? undefined : output.compound;
+  const compound = isKnownCompound(output.compound) ? output.compound : undefined;
 
   /**
    * Compound-level edits freeze once the batch has gone to the registry: `CompoundHandlers`
@@ -99,7 +97,7 @@ export function BatchDetailPanel({
         </h3>
 
         <div className="grid gap-x-6 gap-y-4 md:grid-cols-2">
-          <Fact label="Calculated Batch MW" value={compound?.molWeight.value} />
+          <Fact label="Calculated Batch MW" value={compound?.molWeight?.value} />
           {/*
             `MolFormula` serialises through `@JsonValue toHTMLString()`, so this arrives as
             `C<sub>9</sub>H<sub>8</sub>O<sub>4</sub>` — the same reason `FormulaCell` exists. The
@@ -176,10 +174,10 @@ export function BatchDetailPanel({
             onCommit={(next) => commit('saltEQ', { type: 'SetOutputSaltEQ', anchor, saltEQ: next })}
           />
           {/*
-            `STRCodeSample` is a `@JsonValue` string. indigo-frontend models it as an object and
-            interpolates it straight into the template, which prints `[object Object]`.
+            The STR code once registered. indigo-frontend models it as an object and interpolates
+            it straight into the template, which prints `[object Object]`.
           */}
-          <ReadonlyField id={id('strCode')} label="Conversational Batch number" value={sample.strCode} />
+          <ReadonlyField id={id('sampleKey')} label="Conversational Batch number" value={sample.sampleKey} />
 
           <ReadonlyField id={id('theoWeight')} label="Theo. Weight" value={quantity(output.theoWeight)} />
           <ReadonlyField id={id('theoMol')} label="Theo. Moles" value={quantity(output.theoMol)} />
@@ -251,7 +249,7 @@ export function BatchDetailPanel({
             id={id('healthHazards')}
             label="Health Hazards"
             dictionary="HEALTH_HAZARD"
-            value={sample.healthHazards}
+            value={sample.healthHazards ?? []}
             editable={canEdit}
             pending={pending('healthHazards')}
             onCommit={(next) =>
@@ -309,7 +307,7 @@ function quantity(value: EnteredValue<string> | undefined): string | undefined {
  * for a molfile to seed it with.
  */
 function Structure({ compound, batch }: { compound: CompoundRef; batch: string }) {
-  const compoundID = compound.type === 'UNKNOWN' ? undefined : compound.compoundID;
+  const compoundID = compound.compoundID;
 
   const frame = 'min-h-[260px] rounded-md border border-dashed border-neutral-300';
 
