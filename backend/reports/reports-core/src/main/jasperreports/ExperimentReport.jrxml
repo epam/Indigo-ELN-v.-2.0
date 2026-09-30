@@ -11,7 +11,7 @@
 		<field name="molarity" class="com.epam.indigoeln.reaction.model.EnteredValue"/>
 		<field name="volume" class="com.epam.indigoeln.reaction.model.EnteredValue"/>
 		<field name="purity" class="com.epam.indigoeln.reaction.model.EnteredValue"/>
-		<field name="healthHazards" class="java.util.List"/>
+		<field name="healthHazards" class="java.util.Set"/>
 		<field name="mol" class="com.epam.indigoeln.reaction.model.EnteredValue"/>
 		<field name="weight" class="com.epam.indigoeln.reaction.model.EnteredValue"/>
 		<field name="comment" class="java.lang.String"/>
@@ -21,7 +21,7 @@
 		<field name="molarity" class="com.epam.indigoeln.reaction.model.EnteredValue"/>
 		<field name="volume" class="com.epam.indigoeln.reaction.model.EnteredValue"/>
 		<field name="purity" class="com.epam.indigoeln.reaction.model.EnteredValue"/>
-		<field name="healthHazards" class="java.util.List"/>
+		<field name="healthHazards" class="java.util.Set"/>
 		<field name="actualMol" class="com.epam.indigoeln.reaction.model.EnteredValue"/>
 		<field name="actualWeight" class="com.epam.indigoeln.reaction.model.EnteredValue"/>
 	</dataset>
