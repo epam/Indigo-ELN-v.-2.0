@@ -5,7 +5,7 @@ import {
   batchHaystack,
   isSampleProtected,
 } from '@/components/experiments/stoichiometry/batches/columns';
-import { makeReactionOutput, makeReactionOutputSample } from '@/mocks/fixtures';
+import { makeReactionOutput, makeReactionOutputSample, unknownCompound } from '@/mocks/fixtures';
 
 import type { BatchRow } from '@/components/experiments/stoichiometry/batches/columns';
 import type { ReactionOutput, ReactionOutputSample, SampleRegistrationStatus } from '@/lib/types/reactions.ts';
@@ -117,7 +117,7 @@ describe('batchHaystack', () => {
 
   /** An unknown compound has no registry fields at all — reading them would throw. */
   it('skips the registry fields of an unknown compound', () => {
-    const haystack = batchHaystack(row({}, { compound: { molWeight: {} } }));
+    const haystack = batchHaystack(row({}, { compound: unknownCompound() }));
     expect(haystack).not.toContain('str-');
   });
 });

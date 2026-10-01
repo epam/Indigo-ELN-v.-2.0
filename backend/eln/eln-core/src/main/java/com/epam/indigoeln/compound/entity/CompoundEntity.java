@@ -45,11 +45,11 @@ public class CompoundEntity extends IdentifiableEntity {
     @NotEmpty
     private String canSmiles;
 
-    @Nullable
+    @NotNull
     @ManyToOne
     private DictionaryItemEntity stereoisomerCode;
 
-    @Nullable
+    @NotNull
     @ManyToOne
     private DictionaryItemEntity saltCode;
 
@@ -78,7 +78,7 @@ public class CompoundEntity extends IdentifiableEntity {
     @Basic(fetch = FetchType.LAZY)
     private byte[] picture;
 
-    public CompoundEntity(SampleSource source, @Nullable String compoundKey, String canSmiles, @Nullable DictionaryItemEntity stereoisomerCode, @Nullable DictionaryItemEntity saltCode, @Nullable Integer saltEQ100) {
+    public CompoundEntity(SampleSource source, @Nullable String compoundKey, String canSmiles, DictionaryItemEntity stereoisomerCode, DictionaryItemEntity saltCode, @Nullable Integer saltEQ100) {
         this.source = source;
         this.compoundKey = compoundKey;
         this.canSmiles = canSmiles;

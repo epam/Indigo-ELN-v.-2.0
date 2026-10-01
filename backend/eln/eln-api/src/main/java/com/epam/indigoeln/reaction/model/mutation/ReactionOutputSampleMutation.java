@@ -161,10 +161,10 @@ public interface ReactionOutputSampleMutation extends ExperimentMutation {
 
     record SetOutputSaltCode (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable SaltCodeRef saltCode,
+            @NotNull SaltCodeRef saltCode,
             @NotNull OutputAnchor createdOutputAnchor
     ) implements ReactionOutputSampleMutation {
-        public SetOutputSaltCode(@NotNull OutputSampleAnchor anchor, @Nullable SaltCodeRef saltCode) {
+        public SetOutputSaltCode(@NotNull OutputSampleAnchor anchor, @NotNull SaltCodeRef saltCode) {
             this(anchor, saltCode, OutputAnchor.create());
         }
     }
@@ -181,10 +181,10 @@ public interface ReactionOutputSampleMutation extends ExperimentMutation {
 
     record SetOutputStereoisomerCode (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable StereoisomerCodeRef stereoisomerCode,
+            @NotNull StereoisomerCodeRef stereoisomerCode,
             @NotNull OutputAnchor createdOutputAnchor
     ) implements ReactionOutputSampleMutation {
-        public SetOutputStereoisomerCode(@NotNull OutputSampleAnchor anchor, @Nullable StereoisomerCodeRef stereoisomerCode) {
+        public SetOutputStereoisomerCode(@NotNull OutputSampleAnchor anchor, @NotNull StereoisomerCodeRef stereoisomerCode) {
             this(anchor, stereoisomerCode, OutputAnchor.create());
         }
     }

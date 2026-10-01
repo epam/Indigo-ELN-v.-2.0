@@ -22,9 +22,9 @@ public class SRSCompoundRepository extends BaseRepository<SRSCompoundEntity> {
     public SRSCompoundEntity findByCompoundKey(CompoundKey compoundKey) {
         TypedQuery<SRSCompoundEntity> query = em.createQuery("""
                     from SRSCompound where canSmiles=?1
-                        and stereoisomerCode is not distinct from ?2
+                        and stereoisomerCode = ?2
                         and saltEQ100 is not distinct from ?3
-                        and saltCode is not distinct from ?4
+                        and saltCode = ?4
                 """, SRSCompoundEntity.class);
         return query
                 .setParameter(1, compoundKey.getCanSmiles())
@@ -39,7 +39,7 @@ public class SRSCompoundRepository extends BaseRepository<SRSCompoundEntity> {
         TypedQuery<STRCodeCompound> query = em.createQuery("""
                     select strCode from SRSCompound
                     where canSmiles = ?1
-                        and stereoisomerCode is not distinct from ?2
+                        and stereoisomerCode = ?2
                         and strCode is not null
                 """, STRCodeCompound.class);
         return query

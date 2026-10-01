@@ -345,7 +345,7 @@ public class ExperimentService {
         List<SampleDTO> samples = new ArrayList<>();
         for (IndigoMolecule molecule : indigo.iterateSDFile(file.filePath().toAbsolutePath().toString())) {
             String chemicalName = ModelUtil.getAny(molecule.getProperties(), NAME_PROPERTIES);
-            CompoundEntity compound = compoundService.findOrCreate(molecule, null, null, null, SampleSource.VIRTUAL, null, chemicalName);
+            CompoundEntity compound = compoundService.findOrCreate(molecule, SampleSource.VIRTUAL, null, chemicalName);
             SampleDTO sample = new SampleDTO();
             // TODO fill sample properties from SDF
             compoundIDs.add(compound.getId());

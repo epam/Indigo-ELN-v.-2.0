@@ -25,10 +25,10 @@ public class CompoundRef {
     @Nullable
     private final UUID compoundID;
 
-    @Nullable
+    @NotNull
     private final StereoisomerCodeRef stereoisomerCode;
 
-    @Nullable
+    @NotNull
     private final SaltCodeRef saltCode;
 
     @Nullable
@@ -55,12 +55,8 @@ public class CompoundRef {
     @SuppressWarnings("unused") // used on frontend
     private final String casNumber;
 
-    public CompoundRef() {
-        this(null, null, null, null, null, null, null, null, null);
-    }
-
     @JsonCreator
-    public CompoundRef(@Nullable UUID compoundID, @Nullable StereoisomerCodeRef stereoisomerCode, @Nullable SaltCodeRef saltCode, @Nullable Double saltEQ, @Nullable String compoundKey, @Nullable MolFormula formula, @Nullable EnteredValue<MolWeightUnit> molWeight, @Nullable EnteredValue<NoUnit> exactMass, @Nullable String casNumber) {
+    public CompoundRef(@Nullable UUID compoundID, StereoisomerCodeRef stereoisomerCode, SaltCodeRef saltCode, @Nullable Double saltEQ, @Nullable String compoundKey, @Nullable MolFormula formula, @Nullable EnteredValue<MolWeightUnit> molWeight, @Nullable EnteredValue<NoUnit> exactMass, @Nullable String casNumber) {
         this.compoundID = compoundID;
         this.stereoisomerCode = stereoisomerCode;
         this.saltCode = saltCode;
@@ -97,7 +93,8 @@ public class CompoundRef {
         StringBuilder sb = new StringBuilder();
         String parentFormula = formula.toHTMLString();
         sb.append(parentFormula);
-        if (saltCode != null) {
+        // saltEQ is null for the default "parent structure" salt code
+        if (saltEQ != null) {
             sb.append("&nbsp;*&nbsp;").append((saltEQ)).append(" (").append(saltCode.getFormula()).append(")");
         }
         return sb.toString();

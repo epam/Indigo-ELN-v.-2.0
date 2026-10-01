@@ -13,17 +13,19 @@ public class SRSCompoundDTO {
 
     @NotNull
     private String canSmiles;
-    @Nullable
+    @NotNull
     private UUID saltCode;
     @Nullable
     private Integer saltEQ100;
-    @Nullable
+    @NotNull
     private UUID stereoisomerCode;
     @NotNull
     private String molFile;
 
-    public SRSCompoundDTO(String canSmiles, String molFile) {
+    public SRSCompoundDTO(String canSmiles, UUID stereoisomerCode, UUID saltCode, String molFile) {
         this.canSmiles = canSmiles;
+        this.stereoisomerCode = stereoisomerCode;
+        this.saltCode = saltCode;
         this.molFile = molFile;
     }
 }

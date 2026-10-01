@@ -89,12 +89,12 @@ public class ModelUtil {
         }
     }
 
-    public static SampleRegistrationRequest.SampleRegistrationRequestBuilder buildSampleRegistrationRequest(CompoundEntity compound, @Nullable SaltCodeRef saltCode) {
+    public static SampleRegistrationRequest.SampleRegistrationRequestBuilder buildSampleRegistrationRequest(CompoundEntity compound, SaltCodeRef saltCode) {
         return SampleRegistrationRequest.builder()
                 .molfile(compound.getMolFile())
-                .stereoisomerCode(compound.getStereoisomerCode() != null ? compound.getStereoisomerCode().getId() : null)
-                .saltCode(saltCode != null ? saltCode.getId() : null)
-                .saltCodeNumeric(saltCode != null ? Integer.parseInt(saltCode.getCode()) : null)
+                .stereoisomerCode(compound.getStereoisomerCode().getId())
+                .saltCode(saltCode.getId())
+                .saltCodeNumeric(Integer.parseInt(saltCode.getCode()))
                 .saltEQ100(compound.getSaltEQ100())
                 .molWeight(compound.getMolWeight())
                 .exactMass(compound.getExactMass())

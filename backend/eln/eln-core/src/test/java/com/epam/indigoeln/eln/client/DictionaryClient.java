@@ -33,6 +33,29 @@ public interface DictionaryClient extends DictionaryAPI {
         return this.<T>getDictionary(dictionary).get(ordinal);
     }
 
+    /** Like {@link #getNth}, but skipping the default item — for tests that change a value away from it. */
+    default <T extends DictionaryItemRef> T getNthNonDefault(BuiltInDictionary dictionary, int ordinal) {
+        UUID defaultID = getDefaultID(dictionary);
+        return this.<T>getDictionary(dictionary).stream()
+                .filter(item -> !item.getId().equals(defaultID))
+                .toList()
+                .get(ordinal);
+    }
+
+    default <T extends DictionaryItemRef> T getDefault(BuiltInDictionary dictionary) {
+        UUID defaultID = getDefaultID(dictionary);
+        return this.<T>getDictionary(dictionary).stream()
+                .filter(item -> item.getId().equals(defaultID))
+                .findFirst().orElseThrow();
+    }
+
+    private UUID getDefaultID(BuiltInDictionary dictionary) {
+        return getDictionaryFull(dictionary).stream()
+                .filter(DictionaryItemDTO::getDefaultItem)
+                .findFirst().orElseThrow()
+                .getId();
+    }
+
     default List<DictionaryItemDTO> getDictionaryFull(BuiltInDictionary dictionary) {
         return getDictionaryFull(dictionary.name());
     }

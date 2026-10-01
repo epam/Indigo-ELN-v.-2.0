@@ -3,8 +3,8 @@ CREATE TYPE Sample_Source AS ENUM ('VIRTUAL', 'SRS', 'PUBCHEM');
 CREATE TABLE Compound (
     id UUID PRIMARY KEY,
     can_smiles VARCHAR(1000) NOT NULL,
-    stereoisomer_code_id UUID,
-    salt_code_id UUID,
+    stereoisomer_code_id UUID NOT NULL,
+    salt_code_id UUID NOT NULL,
     salt_eq_100 INT,
     source Sample_Source NOT NULL,
     compound_key VARCHAR(1000),

@@ -30,7 +30,7 @@ public abstract class SRSMapper {
     @Mapping(target = "source", constant = "SRS")
     @Mapping(target = "compoundKey", expression = "java(sample.getStrCodeCompound().toString())")
     @Mapping(target = "sampleKey", expression = "java(sample.getStrCodeSample().toString())")
-    @Mapping(target = "saltCode", expression = "java(sample.getSaltCode() != null ? dictionaryService.byId(sample.getSaltCode()) : null)")
+    @Mapping(target = "saltCode", expression = "java(dictionaryService.byId(sample.getSaltCode()))")
     @Mapping(target = "healthHazards", expression = "java(dictionaryService.byId(sample.getHealthHazards()))")
     @Mapping(target = "compoundState", expression = "java(sample.getCompoundState() != null ? dictionaryService.byId(sample.getCompoundState()) : null)")
     @Mapping(target = "inchi", ignore = true)

@@ -9,6 +9,7 @@ import com.epam.indigoeln.sampleregistration.model.SRSSampleDTO;
 import com.epam.indigoeln.sampleregistration.model.SampleRegistrationRequest;
 import com.epam.indigoeln.sampleregistration.model.SampleRegistrationResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -16,6 +17,7 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 
 import java.util.UUID;
@@ -47,5 +49,5 @@ public interface SampleRegistrationAPI {
     @POST
     @Path("/compounds/loadFromFile")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    int loadCompoundsFromFile(UploadForm form);
+    int loadCompoundsFromFile(@NotNull @QueryParam("stereoisomerCode") UUID stereoisomerCode, @NotNull @QueryParam("saltCode") UUID saltCode, @NotNull @QueryParam("saltCodeNumeric") Integer saltCodeNumeric, UploadForm form);
 }

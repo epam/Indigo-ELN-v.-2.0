@@ -37,8 +37,8 @@ public class ExperimentEditingTest extends MutationsTestBase {
 
     @BeforeAll
     void beforeAll() {
-        saltCode = dictionaryClient.getNth(BuiltInDictionary.SALT_CODE, 1);
-        stereoisomerCode = dictionaryClient.<StereoisomerCodeRef>getDictionary(BuiltInDictionary.STEREOISOMER_CODE).get(1);
+        saltCode = dictionaryClient.getNthNonDefault(BuiltInDictionary.SALT_CODE, 1);
+        stereoisomerCode = dictionaryClient.getNthNonDefault(BuiltInDictionary.STEREOISOMER_CODE, 1);
     }
 
     @BeforeEach

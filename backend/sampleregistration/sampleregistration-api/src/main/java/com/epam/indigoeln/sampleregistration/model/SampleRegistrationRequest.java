@@ -20,13 +20,13 @@ public class SampleRegistrationRequest {
     @NotNull
     private String molfile;
 
-    @Nullable
+    @NotNull
     private UUID stereoisomerCode;
 
-    @Nullable
+    @NotNull
     private UUID saltCode;
 
-    @Nullable
+    @NotNull
     private Integer saltCodeNumeric;
 
     @Nullable

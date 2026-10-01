@@ -51,6 +51,8 @@ import java.util.UUID;
 import static com.epam.indigoeln.common.model.units.MolWeightUnit.G_PER_MOL;
 import static com.epam.indigoeln.common.model.units.NoUnit.NO_UNIT;
 import static com.epam.indigoeln.common.model.units.WeightUnit.G;
+import static com.epam.indigoeln.eln.model.BuiltInDictionary.SALT_CODE;
+import static com.epam.indigoeln.eln.model.BuiltInDictionary.STEREOISOMER_CODE;
 import static com.epam.indigoeln.eln.test.EnteredValueAssert.assertThat;
 import static com.epam.indigoeln.reaction.model.EnteredValue.fixed;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -71,6 +73,9 @@ public class JSONSerializationTest {
 
     @Inject
     Vertx vertx;
+
+    @Inject
+    DictionaryService dictionaryService;
 
     private List<Arguments> mappers() {
         return List.of(
@@ -202,15 +207,15 @@ public class JSONSerializationTest {
         Reaction reaction = Reaction.create(model, REACTION);
         reaction.setRxnfile("molFile");
 
-        ReactionInput input1 = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef(UUID.randomUUID(), null, null, null, "compoundKey", new MolFormula("C"), fixed(1.0, 1, G_PER_MOL), fixed(1.1, 2, NO_UNIT), null));
+        ReactionInput input1 = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef(UUID.randomUUID(), dictionaryService.getDefault(STEREOISOMER_CODE), dictionaryService.getDefault(SALT_CODE), null, "compoundKey", new MolFormula("C"), fixed(1.0, 1, G_PER_MOL), fixed(1.1, 2, NO_UNIT), null));
         input1.setEq(EnteredValue.userEntered("10.0", NO_UNIT, 1));
-        ReactionInput input2 = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef(UUID.randomUUID(), null, null, null, null, new MolFormula("C"), fixed(1.0, 1, G_PER_MOL), fixed(1.1, 2, NO_UNIT), null));
-        ReactionInput input3 = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef());
+        ReactionInput input2 = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef(UUID.randomUUID(), dictionaryService.getDefault(STEREOISOMER_CODE), dictionaryService.getDefault(SALT_CODE), null, null, new MolFormula("C"), fixed(1.0, 1, G_PER_MOL), fixed(1.1, 2, NO_UNIT), null));
+        ReactionInput input3 = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef(null, dictionaryService.getDefault(STEREOISOMER_CODE), dictionaryService.getDefault(SALT_CODE), null, null, null, null, null, null));
         ReactionInputSample inputSample1 = ReactionInputSample.create(input1, INPUT_SAMPLE, SampleSource.VIRTUAL, null, EnteredValue.DEFAULT_ONE_HUNDRED);
         input1.setSamples(List.of(inputSample1));
         reaction.setInputs(List.of(input1, input2, input3));
 
-        CompoundRef compoundRef = new CompoundRef(UUID.randomUUID(), null, null, null, null, new MolFormula("C"), fixed(2.0, 1, G_PER_MOL), fixed(2.2, 2, NO_UNIT), null);
+        CompoundRef compoundRef = new CompoundRef(UUID.randomUUID(), dictionaryService.getDefault(STEREOISOMER_CODE), dictionaryService.getDefault(SALT_CODE), null, null, new MolFormula("C"), fixed(2.0, 1, G_PER_MOL), fixed(2.2, 2, NO_UNIT), null);
         ReactionOutput output = ReactionOutput.create(reaction, ReactionOutputType.FINAL, true, "P1", OUTPUT, compoundRef, EnteredValue.DEFAULT_ONE);
         ReactionOutputSample outputSample = ReactionOutputSample.create(output, "00000000-0000", OUTPUT_SAMPLE, SampleSource.VIRTUAL, null, EnteredValue.DEFAULT_ONE_HUNDRED);
         output.setSamples(List.of(outputSample));

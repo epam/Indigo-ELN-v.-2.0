@@ -33,7 +33,7 @@ public class SRSSampleDTO {
     private String chemicalName;
     @Nullable
     private String name;
-    @Nullable
+    @NotNull
     private UUID saltCode;
     @Nullable
     private Double saltEQ;
@@ -52,9 +52,10 @@ public class SRSSampleDTO {
     @Nullable
     private String batchComment;
 
-    public SRSSampleDTO(UUID id, UUID compoundID, STRCodeCompound strCodeCompound, STRCodeSample strCodeSample, String molFormula, BigDecimal molWeight) {
+    public SRSSampleDTO(UUID id, UUID compoundID, UUID saltCode, STRCodeCompound strCodeCompound, STRCodeSample strCodeSample, String molFormula, BigDecimal molWeight) {
         this.id = id;
         this.compoundID = compoundID;
+        this.saltCode = saltCode;
         this.strCodeCompound = strCodeCompound;
         this.strCodeSample = strCodeSample;
         this.molFormula = molFormula;

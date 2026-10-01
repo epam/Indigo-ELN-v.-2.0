@@ -333,11 +333,10 @@ export const ControlsMatchTheTableTextSize: Story = {
 };
 
 /**
- * Salt Code is a `Select` too — short closed list, nothing to type. It differs from Rxn Role in
- * being **optional**, so clearing is a row in the list rather than a ✕: `SetInputRowSaltCode`
- * takes a null, and a select has no other way out of a value.
+ * Salt Code is a `Select` too — short closed list, nothing to type. Like Rxn Role it is
+ * **required**: "00 - Parent Structure" stands for no salt, so the list has no clearing row.
  */
-export const PicksAndClearsSaltCode: Story = {
+export const PicksSaltCode: Story = {
   parameters: { msw: { handlers: spyHandlers } },
   render: () => <TableFromCache />,
   play: async ({ canvasElement }) => {
@@ -355,18 +354,11 @@ export const PicksAndClearsSaltCode: Story = {
     await waitFor(() => expect(sent).toHaveLength(1));
     await expect(sent[0]).toMatchObject({ type: 'SetInputRowSaltCode', saltCode: { name: 'Na' } });
 
-    // ...and back out again through the list. Clicking the option inside the resolved listbox
-    // rather than driving the keyboard: `{Home}{Enter}` raced Base UI settling the highlight
-    // after the popup mounts, which made this pass or fail run to run.
-    sent.length = 0;
+    // ...but there is no way back out to nothing: the list offers only real codes.
     await userEvent.click(canvas.getByLabelText('Salt Code, row 3'));
     const list = await screen.findByRole('listbox');
-    await userEvent.click(await within(list).findByRole('option', { name: '—' }));
-    await waitFor(() =>
-      expect(sent).toEqual([
-        { type: 'SetInputRowSaltCode', anchor: 'd0000000-0000-4000-8000-000000000003', saltCode: null },
-      ]),
-    );
+    await expect(within(list).queryByRole('option', { name: '—' })).not.toBeInTheDocument();
+    await expect(within(list).getByRole('option', { name: '00 - Parent Structure' })).toBeInTheDocument();
   },
 };
 

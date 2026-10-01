@@ -24,9 +24,9 @@ public class CompoundRepository extends BaseRepository<CompoundEntity> {
     public CompoundEntity findByCompoundKey(CompoundKey compoundKey) {
         TypedQuery<CompoundEntity> query = em.createQuery("""
                     from Compound where canSmiles=?1
-                        and stereoisomerCode.id is not distinct from ?2
+                        and stereoisomerCode.id = ?2
                         and saltEQ100 is not distinct from ?3
-                        and saltCode.id is not distinct from ?4
+                        and saltCode.id = ?4
                 """, CompoundEntity.class);
         return query
                 .setParameter(1, compoundKey.getCanSmiles())

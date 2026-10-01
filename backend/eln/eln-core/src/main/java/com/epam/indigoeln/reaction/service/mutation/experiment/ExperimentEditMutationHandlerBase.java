@@ -12,6 +12,7 @@ import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.eln.mapper.DictionaryMapper;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
+import com.epam.indigoeln.eln.model.BuiltInDictionary;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
 import com.epam.indigoeln.eln.model.SaltCodeRef;
@@ -209,7 +210,7 @@ public abstract class ExperimentEditMutationHandlerBase<T extends ExperimentMuta
 
     public ReactionInput createInputLine(Reaction reaction, @Nullable IndigoMolecule molecule, ReactionRole role, InputAnchor createdInputAnchor) {
         CompoundRef compound = molecule != null
-                ? compoundService.compoundRef(molecule, null, null, null)
+                ? compoundService.compoundRef(molecule)
                 : compoundService.unknownCompoundRef();
         ReactionInput row = ReactionInput.create(reaction, role, createdInputAnchor, compound);
         row.setEq(DEFAULT_ONE);
@@ -217,7 +218,7 @@ public abstract class ExperimentEditMutationHandlerBase<T extends ExperimentMuta
     }
 
     public ReactionOutput createOutputLine(Reaction reaction, IndigoMolecule molecule, boolean intended, OutputAnchor anchor) {
-        CompoundRef compound = compoundService.compoundRef(molecule, null, null, null);
+        CompoundRef compound = compoundService.compoundRef(molecule);
         return ReactionOutput.create(reaction, reaction.getFinalOutput() != null ? ReactionOutputType.BY_PRODUCT : ReactionOutputType.FINAL, intended, reaction.generateNextProductName(), anchor, compound, DEFAULT_ONE);
     }
 
@@ -225,7 +226,7 @@ public abstract class ExperimentEditMutationHandlerBase<T extends ExperimentMuta
         reaction.setOutputs(StreamEx.of(reaction.getOutputs()).remove(r -> !r.isIntended() && r.getSamples().isEmpty()).toImmutableList());
     }
 
-    protected CompoundRef doUpdateSaltCode(ReactionRow row, @Nullable SaltCodeRef saltCode) {
+    protected CompoundRef doUpdateSaltCode(ReactionRow row, SaltCodeRef saltCode) {
         return doUpdateCompound(row, CompoundField.SALT_CODE, saltCode, null, null, null);
     }
 
@@ -233,7 +234,7 @@ public abstract class ExperimentEditMutationHandlerBase<T extends ExperimentMuta
         return doUpdateCompound(row, CompoundField.SALT_EQ, null, saltEQ, null, null);
     }
 
-    protected CompoundRef doUpdateStereoisomerCode(ReactionRow row, @Nullable StereoisomerCodeRef stereoisomerCode) {
+    protected CompoundRef doUpdateStereoisomerCode(ReactionRow row, StereoisomerCodeRef stereoisomerCode) {
         return doUpdateCompound(row, CompoundField.STEREOISOMER_CODE, null, null, stereoisomerCode, null);
     }
 
@@ -247,11 +248,12 @@ public abstract class ExperimentEditMutationHandlerBase<T extends ExperimentMuta
             SaltCodeRef effectiveSaltCode = updatedValue(field, CompoundField.SALT_CODE, saltCode, ref.getSaltCode());
             Double effectiveSaltEQ = updatedValue(field, CompoundField.SALT_EQ, saltEQ, ref.getSaltEQ());
             StereoisomerCodeRef effectiveStereoisomerCode = updatedValue(field, CompoundField.STEREOISOMER_CODE, stereoisomerCode, ref.getStereoisomerCode());
-            if (effectiveSaltCode == null && field == CompoundField.SALT_EQ && saltEQ != null) {
+            boolean parentStructure = effectiveSaltCode.equals(dictionaryService.getDefault(BuiltInDictionary.SALT_CODE));
+            if (parentStructure && field == CompoundField.SALT_EQ && saltEQ != null) {
                 fail("Cannot set saltEQ because saltCode is not set");
             }
             // normalize saltEQ
-            if (effectiveSaltCode != null) {
+            if (!parentStructure) {
                 effectiveSaltEQ = firstNonNull(effectiveSaltEQ, 1.0);
             } else {
                 effectiveSaltEQ = null;
@@ -263,7 +265,7 @@ public abstract class ExperimentEditMutationHandlerBase<T extends ExperimentMuta
         } else {
             if (molfile != null) {
                 IndigoMolecule molecule = indigoAPI.loadMolecule(molfile);
-                return compoundService.compoundRef(molecule, null, null, null);
+                return compoundService.compoundRef(molecule);
             }
             throw new InvalidRequestException("Cannot set saltCode/saltEQ/stereoisomerCode for unknown compound");
         }

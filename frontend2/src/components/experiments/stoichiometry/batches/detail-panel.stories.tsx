@@ -5,7 +5,13 @@ import { BatchDetailPanel } from '@/components/experiments/stoichiometry/batches
 import { useStoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import { useExperiment } from '@/lib/api/experiments';
 import { canEditExperiment } from '@/lib/types/experiments.ts';
-import { DICTIONARIES, makeExperimentDetails, makeReactionOutput, makeReactionOutputSample } from '@/mocks/fixtures';
+import {
+  DICTIONARIES,
+  makeExperimentDetails,
+  makeReactionOutput,
+  makeReactionOutputSample,
+  unknownCompound,
+} from '@/mocks/fixtures';
 import { handlers, slowMutateHandlers } from '@/mocks/handlers';
 
 import type { BatchRow } from '@/components/experiments/stoichiometry/batches/columns';
@@ -170,7 +176,7 @@ export const NoStructure: Story = {
   args: {
     row: {
       output: makeReactionOutput('f0000000-0000-4000-8000-00000000000e', {
-        compound: { molWeight: {} },
+        compound: unknownCompound(),
         samples: [],
       }),
       sample: makeReactionOutputSample('f1000000-0000-4000-8000-00000000000e'),

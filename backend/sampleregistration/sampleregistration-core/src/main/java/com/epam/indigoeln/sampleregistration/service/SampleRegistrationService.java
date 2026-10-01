@@ -65,11 +65,11 @@ public class SampleRegistrationService {
         return new SampleRegistrationResponse(sample.getStrCode(), sample.getId());
     }
 
-    public int loadCompoundsFromFile(Path file) {
+    public int loadCompoundsFromFile(Path file, UUID stereoisomerCode, UUID saltCode, int saltCodeNumeric) {
         int inserted = 0;
         for (IndigoMolecule molecule : indigo.iterateSDFile(file.toAbsolutePath().toString())) {
             String chemicalName = ModelUtil.getAny(molecule.getProperties(), NAME_PROPERTIES);
-            SRSCompoundEntity compound = findOrCreate(molecule, null, null, null, null, null, null, chemicalName, null);
+            SRSCompoundEntity compound = findOrCreate(molecule, stereoisomerCode, saltCode, saltCodeNumeric, null, null, null, chemicalName, null);
             SRSSampleEntity sample = new SRSSampleEntity();
             sample.setCompound(compound);
             sample.setCreatedAt(Instant.now());
@@ -82,7 +82,7 @@ public class SampleRegistrationService {
         return inserted;
     }
 
-    private SRSCompoundEntity findOrCreate(IndigoMolecule molecule, @Nullable UUID stereoisomerCode, @Nullable UUID saltCode, @Nullable Integer saltCodeNumeric, @Nullable Integer saltCodeEQ100, @Nullable Double molWeight, @Nullable Double exactMass, @Nullable String chemicalName, @Nullable String casNumber) {
+    private SRSCompoundEntity findOrCreate(IndigoMolecule molecule, UUID stereoisomerCode, UUID saltCode, int saltCodeNumeric, @Nullable Integer saltCodeEQ100, @Nullable Double molWeight, @Nullable Double exactMass, @Nullable String chemicalName, @Nullable String casNumber) {
         CompoundKey compoundKey = new CompoundKey(molecule.canonicalSmiles(), stereoisomerCode, saltCode, saltCodeEQ100);
         SRSCompoundEntity compound = compoundRepository.findByCompoundKey(compoundKey);
         boolean isNew = compound == null;
@@ -115,13 +115,13 @@ public class SampleRegistrationService {
         return compound;
     }
 
-    private STRCodeCompound generateStrCodeCompound(CompoundKey compoundKey, @Nullable Integer saltCodeNumeric) {
+    private STRCodeCompound generateStrCodeCompound(CompoundKey compoundKey, int saltCodeNumeric) {
         STRCodeCompound strCodeWithoutSaltCode = compoundRepository.findSameSTRCodeByCompoundKeyWithoutSaltCode(compoundKey);
         log.debug("getNextSTRCodeCompound: strCodeWithoutSaltCode={}", strCodeWithoutSaltCode);
         int compoundCode = strCodeWithoutSaltCode != null
                 ? strCodeWithoutSaltCode.getCompoundCode()
                 : compoundRepository.getNextSTRCodeCompoundCode();
-        return new STRCodeCompound(compoundCode, saltCodeNumeric != null ? saltCodeNumeric : 0);
+        return new STRCodeCompound(compoundCode, saltCodeNumeric);
     }
 
     private STRCodeSample generateStrCode(SRSCompoundEntity compound) {

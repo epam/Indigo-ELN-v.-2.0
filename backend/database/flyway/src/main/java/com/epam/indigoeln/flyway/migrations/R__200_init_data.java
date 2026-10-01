@@ -178,10 +178,10 @@ public class R__200_init_data extends BaseJavaMigration {
 
     private int insertDictionaryItems(Connection conn, List<DictionaryItemSpec> items, Map<String, DictionarySpec> dictionaryMap) throws SQLException {
         try (PreparedStatement st = conn.prepareStatement("""
-                INSERT INTO Dictionary_Item (id, created_by_id, created_at, modified_by_id, modified_at, dictionary_id, ordinal, name, description, details, active, deleted)
-                VALUES (?, ?, now(), ?, now(), ?, ?, ?, ?, cast(? as jsonb), ?, false)
+                INSERT INTO Dictionary_Item (id, created_by_id, created_at, modified_by_id, modified_at, dictionary_id, ordinal, name, description, details, active, default_item, deleted)
+                VALUES (?, ?, now(), ?, now(), ?, ?, ?, ?, cast(? as jsonb), ?, ?, false)
                 ON CONFLICT (id) DO UPDATE
-                SET ordinal=?, name=?, description=?, details=cast(? as jsonb), active=?, modified_by_id=?, modified_at=now()
+                SET ordinal=?, name=?, description=?, details=cast(? as jsonb), active=?, default_item=?, modified_by_id=?, modified_at=now()
                 """)) {
             for (DictionaryItemSpec item : items) {
                 DictionarySpec dictionary = dictionaryMap.get(item.dictionary);
@@ -201,6 +201,7 @@ public class R__200_init_data extends BaseJavaMigration {
                     st.setString(++parameterNo, description);
                     st.setString(++parameterNo, details);
                     st.setBoolean(++parameterNo, item.active());
+                    st.setBoolean(++parameterNo, Boolean.TRUE.equals(item.defaultItem()));
                 }
                 st.setObject(++parameterNo, adminID.get());
                 st.addBatch();
@@ -267,7 +268,8 @@ public class R__200_init_data extends BaseJavaMigration {
             String name,
             String description,
             boolean active,
-            @Nullable String details
+            @Nullable String details,
+            @Nullable Boolean defaultItem
     ) {}
 
     @RegisterForReflection

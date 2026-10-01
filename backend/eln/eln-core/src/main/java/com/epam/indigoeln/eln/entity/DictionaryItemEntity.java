@@ -39,6 +39,9 @@ public class DictionaryItemEntity extends BaseEntity {
     @NotNull
     private Boolean deleted;
 
+    @NotNull
+    private Boolean defaultItem;
+
     @Nullable
     @JdbcTypeCode(SqlTypes.JSON)
     private String details;

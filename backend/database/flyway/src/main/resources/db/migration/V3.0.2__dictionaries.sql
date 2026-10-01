@@ -28,6 +28,7 @@ CREATE TABLE Dictionary_Item (
     details JSONB,
     active BOOL NOT NULL,
     deleted BOOL NOT NULL,
+    default_item BOOL NOT NULL DEFAULT false,
     CONSTRAINT dictionary_item_created_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
     CONSTRAINT dictionary_item_modified_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
     CONSTRAINT dictionary_item_dictionary_id_fk FOREIGN KEY (dictionary_id) REFERENCES Dictionary (id)
@@ -35,3 +36,4 @@ CREATE TABLE Dictionary_Item (
 CREATE UNIQUE INDEX ix_dictionary_item_ordinal ON Dictionary_Item (dictionary_id, ordinal) WHERE active AND NOT deleted;
 CREATE UNIQUE INDEX ix_dictionary_item_name ON Dictionary_Item (dictionary_id, name) WHERE active AND NOT deleted;
 CREATE INDEX ix_dictionary_item_dictionary_id ON Dictionary_Item (dictionary_id);
+CREATE UNIQUE INDEX ix_dictionary_item_default ON Dictionary_Item (dictionary_id) WHERE default_item AND NOT deleted;

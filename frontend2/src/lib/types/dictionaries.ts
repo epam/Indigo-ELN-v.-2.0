@@ -72,6 +72,8 @@ export interface DictionaryItem {
   description: string | null;
   ordinal: number;
   active: boolean;
+  /** The item a non-nullable reference falls back to — one per dictionary at most. */
+  defaultItem: boolean;
 }
 
 /** Mirrors DictionaryItemRequest (eln-api, eln/model) — the body `POST /dictionaries/{ref}` takes. */

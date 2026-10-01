@@ -187,15 +187,25 @@ function makeDictionary(names: string[]): DictionaryItemRef[] {
   return names.map((name, index) => ({ id: `d1c70000-0000-4000-8000-${String(index).padStart(12, '0')}`, name }));
 }
 
+/** The dictionaries' default items, which a compound's codes fall back to — see `CompoundRef`. */
+export const DEFAULT_SALT_CODE: DictionaryItemRef = {
+  id: 'd1c7defa-0000-4000-8000-000000000001',
+  name: '00 - Parent Structure',
+};
+export const DEFAULT_STEREOISOMER_CODE: DictionaryItemRef = {
+  id: 'd1c7defa-0000-4000-8000-000000000002',
+  name: 'Achiral',
+};
+
 /** Keyed by the same names the API takes as its `{dictionary}` path segment. */
 export const DICTIONARIES: Partial<Record<BuiltInDictionary, DictionaryItemRef[]>> = {
   THERAPEUTIC_AREA: makeDictionary(['Obesity', 'Oncology', 'Cardiology', 'Immunology', 'Neurology']),
   PROJECT_CODE: makeDictionary(['Code 1', 'Code 2', 'Code 3', 'Code 4']),
   // Read by the stoichiometry table's Salt Code and Hazard Comments cells.
-  SALT_CODE: makeDictionary(['HCl', 'Na', 'K', 'Free base']),
+  SALT_CODE: [...makeDictionary(['HCl', 'Na', 'K', 'Free base']), DEFAULT_SALT_CODE],
   HEALTH_HAZARD: makeDictionary(['Corrosive', 'Flammable', 'Irritant', 'Toxic', 'Oxidiser']),
   // The seven the batch detail panel picks from.
-  STEREOISOMER_CODE: makeDictionary(['NOSTC', 'RACEMIC', 'ENANTIOPURE']),
+  STEREOISOMER_CODE: [...makeDictionary(['NOSTC', 'RACEMIC', 'ENANTIOPURE']), DEFAULT_STEREOISOMER_CODE],
   COMPOUND_PROTECTION: makeDictionary(['Light sensitive', 'Air sensitive', 'Hygroscopic']),
   STORAGE_INSTRUCTIONS: makeDictionary(['Freezer', 'Fridge', 'Room temperature', 'Under argon']),
   HANDLING_PRECAUTIONS: makeDictionary(['Electrostatic', 'Gloves required', 'Fume hood']),
@@ -269,6 +279,7 @@ export function makeDictionaryItems(names: string[]): DictionaryItem[] {
     description: index % 2 === 0 ? 'Use with accuracy' : null,
     ordinal: index + 1,
     active: index !== 1,
+    defaultItem: false,
   }));
 }
 
@@ -285,6 +296,11 @@ function entered<U extends string>(value: string, unit: U, source: EnteredValue<
   return { value, unit, source };
 }
 
+/** An unidentified compound: only the codes, at their defaults, and a blank Mol. Weight. */
+export function unknownCompound(): CompoundRef {
+  return { stereoisomerCode: DEFAULT_STEREOISOMER_CODE, saltCode: DEFAULT_SALT_CODE, molWeight: {} };
+}
+
 /**
  * A known compound: molecular weight, formula and CAS all come from the compound service, which
  * is why so much of its row is read-only.
@@ -292,6 +308,8 @@ function entered<U extends string>(value: string, unit: U, source: EnteredValue<
 function knownCompound(overrides: Partial<CompoundRef> = {}): CompoundRef {
   return {
     compoundID: 'c0000000-0000-4000-8000-000000000001',
+    stereoisomerCode: DEFAULT_STEREOISOMER_CODE,
+    saltCode: DEFAULT_SALT_CODE,
     formula: 'C<sub>4</sub>H<sub>6</sub>O<sub>3</sub>',
     molWeight: entered('102.09', 'G_PER_MOL', 'fixed'),
     exactMass: entered('102.0317', 'NO_UNIT', 'fixed'),
@@ -332,7 +350,7 @@ export function makeReactionInput(anchor: string, overrides: Partial<ReactionInp
   };
 }
 
-const SALT_CODE = DICTIONARIES.SALT_CODE?.[0];
+const SALT_CODE = DICTIONARIES.SALT_CODE?.[0] ?? DEFAULT_SALT_CODE;
 const HAZARDS = DICTIONARIES.HEALTH_HAZARD ?? [];
 /** One item from each dictionary the batch detail panel reads, for the populated batch below. */
 const SOURCE = DICTIONARIES.SAMPLE_SOURCE?.[0];
@@ -431,6 +449,7 @@ export const REACTION_INPUTS: ReactionInput[] = [
       exactMass: entered('79.0422', 'NO_UNIT', 'fixed'),
       calculatedBatchMF: 'C<sub>5</sub>H<sub>5</sub>N',
       compoundKey: 'VIRT-000012',
+      stereoisomerCode: DEFAULT_STEREOISOMER_CODE,
       saltCode: SALT_CODE,
       saltEQ: 1,
     },
@@ -466,7 +485,7 @@ export const REACTION_INPUTS: ReactionInput[] = [
   // row with nothing filled in at all.
   makeReactionInput('d0000000-0000-4000-8000-000000000005', {
     role: 'REAGENT',
-    compound: { molWeight: {} },
+    compound: unknownCompound(),
     samples: [
       makeReactionInputSample('e0000000-0000-4000-8000-000000000011', {
         nbkBatchNumber: undefined,
@@ -591,6 +610,7 @@ export const REACTION_OUTPUTS: ReactionOutput[] = [
       exactMass: entered('60.0211', 'NO_UNIT', 'fixed'),
       calculatedBatchMF: 'C<sub>2</sub>H<sub>4</sub>O<sub>2</sub>',
       compoundKey: 'VIRT-000031',
+      stereoisomerCode: DEFAULT_STEREOISOMER_CODE,
       saltCode: SALT_CODE,
       saltEQ: 1,
     },

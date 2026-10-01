@@ -48,11 +48,15 @@ public class CalculationFormulasTest extends MutationsTestBase {
 
     SaltCodeRef saltCode;
     StereoisomerCodeRef stereoisomerCode;
+    SaltCodeRef defaultSaltCode;
+    StereoisomerCodeRef defaultStereoisomerCode;
 
     @BeforeAll
     void beforeAll() {
-        saltCode = dictionaryClient.getNth(BuiltInDictionary.SALT_CODE, 1);
-        stereoisomerCode = dictionaryClient.<StereoisomerCodeRef>getDictionary(BuiltInDictionary.STEREOISOMER_CODE).get(1);
+        saltCode = dictionaryClient.getNthNonDefault(BuiltInDictionary.SALT_CODE, 1);
+        stereoisomerCode = dictionaryClient.getNthNonDefault(BuiltInDictionary.STEREOISOMER_CODE, 1);
+        defaultSaltCode = dictionaryClient.getDefault(BuiltInDictionary.SALT_CODE);
+        defaultStereoisomerCode = dictionaryClient.getDefault(BuiltInDictionary.STEREOISOMER_CODE);
     }
 
     @BeforeEach
@@ -423,10 +427,10 @@ public class CalculationFormulasTest extends MutationsTestBase {
 
     private void addInputWithTwoSamples() {
         UUID compoundID = UUID.randomUUID();
-        SRSSampleDTO sample1 = new SRSSampleDTO(UUID.randomUUID(), compoundID, new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 1), "C9H17NO4", BigDecimal.ONE);
-        SRSSampleDTO sample2 = new SRSSampleDTO(UUID.randomUUID(), compoundID, new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 2), "C9H17NO4", BigDecimal.ONE);
+        SRSSampleDTO sample1 = new SRSSampleDTO(UUID.randomUUID(), compoundID, defaultSaltCode.getId(), new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 1), "C9H17NO4", BigDecimal.ONE);
+        SRSSampleDTO sample2 = new SRSSampleDTO(UUID.randomUUID(), compoundID, defaultSaltCode.getId(), new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 2), "C9H17NO4", BigDecimal.ONE);
         doReturn(Page.of(Paging.DEFAULT, 2, List.of(sample1, sample2))).when(sampleRegistrationClient).find(any(), any());
-        SRSCompoundDTO compound = new SRSCompoundDTO("C", ModelUtil.loadResourceAsString("/ring-substructure.mol"));
+        SRSCompoundDTO compound = new SRSCompoundDTO("C", defaultStereoisomerCode.getId(), defaultSaltCode.getId(), ModelUtil.loadResourceAsString("/ring-substructure.mol"));
         doReturn(compound).when(sampleRegistrationClient).getCompound(any());
 
         List<SampleDTO> samples = compoundClient.search(new FindSamplesRequest().withCatalog(SearchCatalog.SRS), Paging.DEFAULT).getItems();

@@ -134,6 +134,7 @@ export function BatchDetailPanel({
             value={compound?.saltCode}
             editable={compoundEditable}
             pending={pending('saltCode')}
+            required
             onCommit={(next) =>
               commit('saltCode', {
                 type: 'SetOutputSaltCode',
@@ -150,6 +151,7 @@ export function BatchDetailPanel({
             value={compound?.stereoisomerCode}
             editable={compoundEditable}
             pending={pending('stereoisomerCode')}
+            required
             onCommit={(next) =>
               commit('stereoisomerCode', {
                 type: 'SetOutputStereoisomerCode',
@@ -498,27 +500,28 @@ function NumberField({
 }
 
 /**
- * One item from a built-in dictionary, or none. A `Combobox` rather than the table's `Select`:
- * these lists are the long ones — solvents, suppliers, salt codes — and a form field has the room
- * for a filter the dense table cells do not.
+ * One item from a built-in dictionary, or none unless `required`. A `Combobox` rather than the
+ * table's `Select`: these lists are the long ones — solvents, suppliers, salt codes — and a form
+ * field has the room for a filter the dense table cells do not.
  */
-function DictionaryField({
-  id,
-  label,
-  dictionary,
-  value,
-  editable,
-  pending,
-  onCommit,
-}: {
-  id: string;
-  label: string;
-  dictionary: BuiltInDictionary;
-  value: DictionaryItemRef | undefined;
-  editable: boolean;
-  pending: boolean;
-  onCommit: (next: DictionaryItemRef | null) => void;
-}) {
+function DictionaryField(
+  props: {
+    id: string;
+    label: string;
+    dictionary: BuiltInDictionary;
+    value: DictionaryItemRef | undefined;
+    editable: boolean;
+    pending: boolean;
+  } & (
+    | {
+        /** Offers no ✕ — the value can be changed but never cleared. */
+        required: true;
+        onCommit: (next: DictionaryItemRef) => void;
+      }
+    | { required?: false; onCommit: (next: DictionaryItemRef | null) => void }
+  ),
+) {
+  const { id, label, dictionary, value, editable, pending } = props;
   if (!editable) return <ReadonlyField id={id} label={label} value={value?.name} />;
 
   return (
@@ -529,9 +532,13 @@ function DictionaryField({
           dictionary={dictionary}
           value={value ?? null}
           disabled={pending}
+          clearable={!props.required}
           // Picking is the commit; there is no separate confirmation step to wait for.
           onValueChange={(next) => {
-            if ((next?.id ?? null) !== (value?.id ?? null)) onCommit(next);
+            if ((next?.id ?? null) === (value?.id ?? null)) return;
+            // A required field's combobox has no ✕, so `next` is never null there.
+            if (!props.required) props.onCommit(next);
+            else if (next) props.onCommit(next);
           }}
         />
       </SavingOverlay>

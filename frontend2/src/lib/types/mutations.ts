@@ -446,7 +446,7 @@ export interface SetInputRowLimiting {
 export interface SetInputRowSaltCode {
   type: 'SetInputRowSaltCode';
   anchor: UUID;
-  saltCode: DictionaryItemRef | null;
+  saltCode: DictionaryItemRef;
 }
 
 export interface SetInputRowSaltEQ {
@@ -465,7 +465,7 @@ export interface SetInputRowEQ {
 export interface SetInputCompoundStereoisomerCode {
   type: 'SetInputCompoundStereoisomerCode';
   anchor: UUID;
-  stereoisomerCode: DictionaryItemRef | null;
+  stereoisomerCode: DictionaryItemRef;
 }
 
 /** Only meaningful for an unknown compound (no `compoundID`); a known one carries a registry value. */
@@ -580,13 +580,13 @@ export interface SetOutputRowType {
 
 /**
  * Setting a salt code on a **stored** compound turns it into a virtual one and defaults its
- * `saltEQ` to 1, because the whole `CompoundRef` is rebuilt — which is what moves `molWeight`,
+ * `saltEQ` to 1 (or clears it, for the default "00 - Parent Structure"), because the whole `CompoundRef` is rebuilt — which is what moves `molWeight`,
  * `formula` and `exactMass` in the same patch.
  */
 export interface SetOutputRowSaltCode {
   type: 'SetOutputRowSaltCode';
   anchor: UUID;
-  saltCode: DictionaryItemRef | null;
+  saltCode: DictionaryItemRef;
 }
 
 export interface SetOutputRowSaltEQ {
@@ -636,7 +636,7 @@ export interface SetOutputRowIntended {
 export interface SetOutputCompoundStereoisomerCode {
   type: 'SetOutputCompoundStereoisomerCode';
   anchor: UUID;
-  stereoisomerCode: DictionaryItemRef | null;
+  stereoisomerCode: DictionaryItemRef;
 }
 
 /** Only meaningful for an unknown compound, exactly as on the input side. */
@@ -803,7 +803,7 @@ export interface RemoveProductSample {
 export interface SetOutputSaltCode {
   type: 'SetOutputSaltCode';
   anchor: UUID;
-  saltCode: DictionaryItemRef | null;
+  saltCode: DictionaryItemRef;
   createdOutputAnchor: UUID;
 }
 
@@ -818,7 +818,7 @@ export interface SetOutputSaltEQ {
 export interface SetOutputStereoisomerCode {
   type: 'SetOutputStereoisomerCode';
   anchor: UUID;
-  stereoisomerCode: DictionaryItemRef | null;
+  stereoisomerCode: DictionaryItemRef;
   createdOutputAnchor: UUID;
 }
 

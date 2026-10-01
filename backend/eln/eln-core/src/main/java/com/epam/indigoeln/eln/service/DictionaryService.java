@@ -22,6 +22,8 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 @Slf4j
 @ApplicationScoped
 @Transactional(Transactional.TxType.SUPPORTS) // cached methods don't require transaction
@@ -67,9 +69,11 @@ public class DictionaryService {
             result.byDictionary.put(dictionary.getId(), new CachedItems<>());
         }
         for (DictionaryItemEntity item : dictionaryItemRepository.listAll()) {
-            CachedItems<DictionaryItemRef> cachedItems = result.byDictionary.get(item.getDictionary().getId());
             DictionaryItemRef ref = convertToRef(item);
             result.add(ref);
+            if (item.getDefaultItem() && !item.getDeleted()) {
+                result.byDictionary.get(item.getDictionary().getId()).defaultItem = ref;
+            }
         }
         return result;
     }
@@ -77,6 +81,11 @@ public class DictionaryService {
     public <T extends DictionaryItemRef> List<T> getDictionary(String dictionaryRef, boolean allowInactive) {
         CachedItems<T> cached = cached(dictionaryRef);
         return cached.list(allowInactive);
+    }
+
+    public <T extends DictionaryItemRef> T getDefault(BuiltInDictionary dictionary) {
+        CachedItems<T> cached = cached(dictionary.name());
+        return checkNotNull(cached.defaultItem, "No default item in dictionary %s", dictionary);
     }
 
     @Transactional
@@ -227,6 +236,8 @@ public class DictionaryService {
 
         private final Map<UUID, T> map = new HashMap<>();
         private final List<T> list = new ArrayList<>();
+        @Nullable
+        private T defaultItem;
 
         @Nullable
         T get(UUID id, boolean allowInactive) {

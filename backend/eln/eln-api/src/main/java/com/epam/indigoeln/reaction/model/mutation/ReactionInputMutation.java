@@ -43,7 +43,7 @@ public interface ReactionInputMutation extends ExperimentMutation {
 
     record SetInputRowSaltCode(
             @NotNull InputAnchor anchor,
-            @Nullable SaltCodeRef saltCode
+            @NotNull SaltCodeRef saltCode
     ) implements ReactionInputMutation {
     }
 
@@ -61,7 +61,7 @@ public interface ReactionInputMutation extends ExperimentMutation {
 
     record SetInputCompoundStereoisomerCode(
             @NotNull InputAnchor anchor,
-            @Nullable StereoisomerCodeRef stereoisomerCode
+            @NotNull StereoisomerCodeRef stereoisomerCode
     ) implements ReactionInputMutation {
     }
 

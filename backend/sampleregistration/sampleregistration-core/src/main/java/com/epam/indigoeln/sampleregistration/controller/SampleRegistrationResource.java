@@ -48,7 +48,7 @@ public class SampleRegistrationResource implements SampleRegistrationAPI {
     }
 
     @Override
-    public int loadCompoundsFromFile(UploadForm form) {
-        return sampleRegistrationService.loadCompoundsFromFile(form.getUpload().filePath());
+    public int loadCompoundsFromFile(UUID stereoisomerCode, UUID saltCode, Integer saltCodeNumeric, UploadForm form) {
+        return sampleRegistrationService.loadCompoundsFromFile(form.getUpload().filePath(), stereoisomerCode, saltCode, saltCodeNumeric);
     }
 }

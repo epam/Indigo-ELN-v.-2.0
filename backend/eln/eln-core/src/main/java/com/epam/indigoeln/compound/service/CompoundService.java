@@ -30,6 +30,8 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
 
+import static com.epam.indigoeln.eln.model.BuiltInDictionary.SALT_CODE;
+import static com.epam.indigoeln.eln.model.BuiltInDictionary.STEREOISOMER_CODE;
 import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.MOL_WEIGHT_DECIMAL_PLACES;
 
 @Slf4j
@@ -57,9 +59,9 @@ public class CompoundService {
     @Inject
     GlobalSearchService globalSearchService;
 
-    public CompoundEntity findOrCreate(IndigoMolecule molecule, @Nullable StereoisomerCodeRef stereoisomerCode, @Nullable SaltCodeRef saltCode, @Nullable Integer saltEQ100, @NotNull SampleSource source, @Nullable String compoundKey, @Nullable String chemicalName) {
+    public CompoundEntity findOrCreate(IndigoMolecule molecule, StereoisomerCodeRef stereoisomerCode, SaltCodeRef saltCode, @Nullable Integer saltEQ100, @NotNull SampleSource source, @Nullable String compoundKey, @Nullable String chemicalName) {
         String canSmiles = molecule.canonicalSmiles();
-        CompoundKey key = new CompoundKey(canSmiles, stereoisomerCode != null ? stereoisomerCode.getId() : null, saltCode != null ? saltCode.getId() : null, saltEQ100);
+        CompoundKey key = new CompoundKey(canSmiles, stereoisomerCode.getId(), saltCode.getId(), saltEQ100);
         CompoundEntity compound = compoundRepository.findByCompoundKey(key);
         boolean isNew = compound == null;
         if (isNew) {
@@ -86,7 +88,11 @@ public class CompoundService {
         return compound;
     }
 
-    public CompoundEntity findOrCreate(String molfile, @Nullable StereoisomerCodeRef stereoisomerCode, @Nullable SaltCodeRef saltCode, @Nullable Integer saltEQ100, @NotNull SampleSource source, @Nullable String compoundKey, @Nullable String chemicalName) {
+    public CompoundEntity findOrCreate(IndigoMolecule molecule, @NotNull SampleSource source, @Nullable String compoundKey, @Nullable String chemicalName) {
+        return findOrCreate(molecule, dictionaryService.getDefault(STEREOISOMER_CODE), dictionaryService.getDefault(SALT_CODE), null, source, compoundKey, chemicalName);
+    }
+
+    public CompoundEntity findOrCreate(String molfile, StereoisomerCodeRef stereoisomerCode, SaltCodeRef saltCode, @Nullable Integer saltEQ100, @NotNull SampleSource source, @Nullable String compoundKey, @Nullable String chemicalName) {
         IndigoMolecule molecule = indigo.loadMolecule(molfile);
         return findOrCreate(molecule, stereoisomerCode, saltCode, saltEQ100, source, compoundKey, chemicalName);
     }
@@ -110,13 +116,17 @@ public class CompoundService {
         );
     }
 
-    public CompoundRef compoundRef(IndigoMolecule molecule, @Nullable StereoisomerCodeRef stereoisomerCode, @Nullable SaltCodeRef saltCode, @Nullable Double saltEQ) {
+    public CompoundRef compoundRef(IndigoMolecule molecule) {
+        return compoundRef(findOrCreate(molecule, SampleSource.VIRTUAL, null, null));
+    }
+
+    public CompoundRef compoundRef(IndigoMolecule molecule, StereoisomerCodeRef stereoisomerCode, SaltCodeRef saltCode, @Nullable Double saltEQ) {
         CompoundEntity compound = findOrCreate(molecule, stereoisomerCode, saltCode, saltEQ != null ? (int) (saltEQ * 100.0) : null, SampleSource.VIRTUAL, null, null);
         return compoundRef(compound);
     }
 
     public CompoundRef unknownCompoundRef() {
-        return new CompoundRef();
+        return new CompoundRef(null, dictionaryService.getDefault(STEREOISOMER_CODE), dictionaryService.getDefault(SALT_CODE), null, null, null, null, null, null);
     }
 
     public byte[] getCompoundPicture(UUID compoundID) {

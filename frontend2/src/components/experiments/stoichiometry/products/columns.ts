@@ -81,8 +81,8 @@ type Cell =
   | {
       kind: 'dictionary';
       dictionary: 'SALT_CODE';
-      value: (row: ProductRow) => DictionaryItemRef | undefined;
-      mutation: (row: ProductRow, next: DictionaryItemRef | null) => ModelMutation;
+      value: (row: ProductRow) => DictionaryItemRef;
+      mutation: (row: ProductRow, next: DictionaryItemRef) => ModelMutation;
       editable?: (row: ProductRow) => boolean;
     }
   /** The product-type picker — a fixed enum, not a dictionary. */
@@ -192,8 +192,9 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
     value: (row) => asEnteredValue(row.output.compound.saltEQ),
     units: NO_UNITS,
     // Both gates, matching the inputs table: a registered compound's salt EQ is fixed even when
-    // it has a code. (indigo-frontend's products table checked only for the code.)
-    editable: (row) => saltEditable(row.output) && row.output.compound.saltCode != null,
+    // it has a code. (indigo-frontend's products table checked only for the code.) No salt EQ
+    // means the default "00 - Parent Structure".
+    editable: (row) => saltEditable(row.output) && row.output.compound.saltEQ != null,
     mutation: (row, next) => ({ type: 'SetOutputRowSaltEQ', anchor: row.output.anchor, saltEQ: next.value }),
   },
   {
@@ -227,7 +228,7 @@ export function productHaystack(row: ProductRow): string {
     row.output.chemicalName,
     compound.formula,
     compound.compoundKey,
-    compound.saltCode?.name,
+    compound.saltCode.name,
   ]
     .filter((each) => each != null)
     .join(' ')

@@ -107,8 +107,8 @@ type Cell<Row> =
   | {
       kind: 'dictionary';
       dictionary: 'SALT_CODE';
-      value: (row: Row) => DictionaryItemRef | undefined;
-      mutation: (row: Row, next: DictionaryItemRef | null) => ModelMutation;
+      value: (row: Row) => DictionaryItemRef;
+      mutation: (row: Row, next: DictionaryItemRef) => ModelMutation;
       editable?: (row: Row) => boolean;
     }
   /** Several items from a built-in dictionary. */
@@ -301,8 +301,9 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
     units: NO_UNITS,
     // Both gates, not just the salt code: a real sample's salt EQ is fixed by the registry even
     // when it has a code. (indigo-frontend checked only for the code, which let a registered
-    // compound's salt EQ be edited.)
-    editable: (input) => saltEditable(input) && input.compound.saltCode != null,
+    // compound's salt EQ be edited.) The salt EQ is absent exactly when the code is the default
+    // "00 - Parent Structure", i.e. no salt.
+    editable: (input) => saltEditable(input) && input.compound.saltEQ != null,
     mutation: (input, next) => ({ type: 'SetInputRowSaltEQ', anchor: input.anchor, saltEQ: next.value }),
   },
   /** The same trick for Comments, which needs more than Salt EQ alone. */

@@ -55,8 +55,8 @@ class SampleRegistrationServiceSearchProvider implements CatalogSearchProvider {
     public CompoundEntity importCompound(SampleDTO sample) {
         SRSCompoundDTO srsCompound = sampleRegistrationClient.getCompound(checkNotNull(sample.getCompoundID()));
         return compoundService.findOrCreate(srsCompound.getMolFile()
-                , srsCompound.getStereoisomerCode() != null ? dictionaryService.byId(srsCompound.getStereoisomerCode()) : null
-                , srsCompound.getSaltCode() != null ? dictionaryService.byId(srsCompound.getSaltCode()) : null
+                , dictionaryService.byId(srsCompound.getStereoisomerCode())
+                , dictionaryService.byId(srsCompound.getSaltCode())
                 , srsCompound.getSaltEQ100()
                 , SampleSource.SRS, sample.getCompoundKey()
                 , sample.getChemicalName()

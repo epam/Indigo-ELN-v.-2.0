@@ -6,8 +6,8 @@ CREATE TYPE Molarity_Unit AS ENUM (
 CREATE TABLE SRS_Compound (
     id UUID PRIMARY KEY,
     can_smiles VARCHAR(1000) NOT NULL,
-    stereoisomer_code UUID,
-    salt_code UUID,
+    stereoisomer_code UUID NOT NULL,
+    salt_code UUID NOT NULL,
     salt_eq_100 INT,
     str_code VARCHAR(1000) NOT NULL,
     chemical_name VARCHAR(1000),

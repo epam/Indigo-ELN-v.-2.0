@@ -208,11 +208,13 @@ export type NbkBatchNumber = string;
  * One flat class, `NON_NULL`: a compound is either **known** — it has a `compoundID`, and every
  * other field comes from the compound registry — or unknown, carrying at most a `formula` and a
  * user-entered `molWeight`. `molWeight` and `exactMass` are `NON_EMPTY`, so absent when blank.
+ * `stereoisomerCode` and `saltCode` are always set, to the dictionaries' default items ("Achiral",
+ * "00 - Parent Structure") unless chosen otherwise; `saltEQ` is absent for the parent structure.
  */
 export interface CompoundRef {
   compoundID?: UUID;
-  stereoisomerCode?: DictionaryItemRef;
-  saltCode?: DictionaryItemRef;
+  stereoisomerCode: DictionaryItemRef;
+  saltCode: DictionaryItemRef;
   saltEQ?: number;
   /** The key in the compound's source system: an STR code for SRS, a CID for PubChem. */
   compoundKey?: string;

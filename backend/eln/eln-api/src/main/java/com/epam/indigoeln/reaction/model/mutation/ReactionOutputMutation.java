@@ -34,7 +34,7 @@ public interface ReactionOutputMutation extends ExperimentMutation {
 
     record SetOutputRowSaltCode(
             @NotNull OutputAnchor anchor,
-            @Nullable SaltCodeRef saltCode
+            @NotNull SaltCodeRef saltCode
     ) implements ReactionOutputMutation {
     }
 
@@ -70,7 +70,7 @@ public interface ReactionOutputMutation extends ExperimentMutation {
 
     record SetOutputCompoundStereoisomerCode(
             @NotNull OutputAnchor anchor,
-            @Nullable StereoisomerCodeRef stereoisomerCode
+            @NotNull StereoisomerCodeRef stereoisomerCode
     ) implements ReactionOutputMutation {
     }
 

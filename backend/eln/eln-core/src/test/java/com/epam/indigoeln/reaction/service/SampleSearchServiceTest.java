@@ -49,6 +49,8 @@ public class SampleSearchServiceTest extends MutationsTestBase {
 
     SaltCodeRef saltCode;
     StereoisomerCodeRef stereoisomerCode;
+    SaltCodeRef defaultSaltCode;
+    StereoisomerCodeRef defaultStereoisomerCode;
     HealthHazardRef healthHazardRef;
     ComponentStateRef componentStateRef;
     SRSSampleDTO srsSample;
@@ -58,11 +60,14 @@ public class SampleSearchServiceTest extends MutationsTestBase {
 
     @BeforeAll
     void beforeAll() {
+        saltCode = dictionaryClient.getNthNonDefault(BuiltInDictionary.SALT_CODE, 1);
+        stereoisomerCode = dictionaryClient.getNthNonDefault(BuiltInDictionary.STEREOISOMER_CODE, 1);
+        defaultSaltCode = dictionaryClient.getDefault(BuiltInDictionary.SALT_CODE);
+        defaultStereoisomerCode = dictionaryClient.getDefault(BuiltInDictionary.STEREOISOMER_CODE);
         if (integrationTest) {
-            sampleRegistrationClient.loadCompoundsFromFile(uploadForm("compounds.sdf", ModelUtil.loadResource("/compounds.sdf")));
+            // 0 = "00", the numeric code of the default "Parent Structure" salt code
+            sampleRegistrationClient.loadCompoundsFromFile(defaultStereoisomerCode.getId(), defaultSaltCode.getId(), 0, uploadForm("compounds.sdf", ModelUtil.loadResource("/compounds.sdf")));
         }
-        saltCode = dictionaryClient.getNth(BuiltInDictionary.SALT_CODE, 1);
-        stereoisomerCode = dictionaryClient.getNth(BuiltInDictionary.STEREOISOMER_CODE, 1);
         healthHazardRef = dictionaryClient.getNth(BuiltInDictionary.HEALTH_HAZARD, 0);
         componentStateRef = dictionaryClient.getNth(BuiltInDictionary.COMPONENT_STATE, 0);
     }
@@ -78,7 +83,7 @@ public class SampleSearchServiceTest extends MutationsTestBase {
             compound.setSaltCode(saltCode.getId());
             compound.setStereoisomerCode(stereoisomerCode.getId());
             compound.setSaltEQ100(200);
-            SRSSampleDTO sample = srsSample = new SRSSampleDTO(UUID.randomUUID(), UUID.randomUUID(), new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 1), "C", BigDecimal.ONE);
+            SRSSampleDTO sample = srsSample = new SRSSampleDTO(UUID.randomUUID(), UUID.randomUUID(), defaultSaltCode.getId(), new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 1), "C", BigDecimal.ONE);
             sample.setNbkBatchNumber(new NbkBatchNumber("00000001-0005", 4));
             sample.setChemicalName("chemicalName");
             sample.setDensity(new BigDecimal(10));

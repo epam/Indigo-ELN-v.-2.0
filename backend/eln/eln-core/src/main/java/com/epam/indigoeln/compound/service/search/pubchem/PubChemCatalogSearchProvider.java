@@ -130,6 +130,6 @@ class PubChemCatalogSearchProvider implements CatalogSearchProvider {
     @Override
     public CompoundEntity importCompound(SampleDTO sample) {
         IndigoMolecule molecule = indigo.loadMolecule(checkNotNull(sample.getInchi()));
-        return compoundService.findOrCreate(molecule, null, null, null, SampleSource.PUBCHEM, sample.getCompoundKey(), sample.getChemicalName());
+        return compoundService.findOrCreate(molecule, SampleSource.PUBCHEM, sample.getCompoundKey(), sample.getChemicalName());
     }
 }

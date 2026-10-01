@@ -121,7 +121,7 @@ function PopupContent<T>({
 }
 
 interface ComboboxProps<T> {
-  /** The chosen item, or null. Every filter this backs is optional. */
+  /** The chosen item, or null. Never null from `onValueChange` when not `clearable`. */
   value: T | null;
   onValueChange: (value: T | null) => void;
   /** The full set to choose from — filtering is Base UI's, against `itemToLabel`. */
@@ -148,6 +148,8 @@ interface ComboboxProps<T> {
   disabled?: boolean;
   /** Text size of the control and its popup. `sm` matches a dense table's 13px. */
   size?: ComboboxSize;
+  /** Whether the ✕ is offered. Off for a required field, which can be changed but not emptied. */
+  clearable?: boolean;
 }
 
 /**
@@ -171,6 +173,7 @@ function Combobox<T>({
   error = false,
   disabled = false,
   size = 'md',
+  clearable = true,
 }: ComboboxProps<T>) {
   const statusContent = loading ? 'Searching…' : error ? 'Could not load options' : null;
   // "No matches" is a claim about a finished search, so it survives neither a list still
@@ -182,7 +185,9 @@ function Combobox<T>({
       disabled={disabled}
       items={items}
       value={value}
-      onValueChange={onValueChange}
+      onValueChange={(next) => {
+        if (clearable || next != null) onValueChange(next);
+      }}
       itemToStringLabel={itemToLabel}
       // Object items are not referentially equal across refetches, so identity has to be
       // spelled out or a selected value stops matching its own row in the list.
@@ -207,9 +212,11 @@ function Combobox<T>({
           )}
         />
         {/* Base UI mounts this only while there is something to clear. */}
-        <ComboboxPrimitive.Clear aria-label="Clear selection" className={INPUT_ACTION}>
-          <X className="size-4" />
-        </ComboboxPrimitive.Clear>
+        {clearable && (
+          <ComboboxPrimitive.Clear aria-label="Clear selection" className={INPUT_ACTION}>
+            <X className="size-4" />
+          </ComboboxPrimitive.Clear>
+        )}
         {/*
           The chevron stays put while suggestions load. A spinner at the right edge of a field
           means **this field is being saved** — that is what `SavingOverlay` puts there — so

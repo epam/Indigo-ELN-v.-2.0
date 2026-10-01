@@ -116,7 +116,7 @@ class SampleRegistrationServiceTest extends BaseTest {
     @Test
     @Order(200)
     void testLoadCompoundsFromFile() throws IOException {
-        sampleRegistrationClient.loadCompoundsFromFile(uploadForm("compounds.sdf", ModelUtil.loadResource("/compounds.sdf")));
+        sampleRegistrationClient.loadCompoundsFromFile(UUID.randomUUID(), UUID.randomUUID(), 0, uploadForm("compounds.sdf", ModelUtil.loadResource("/compounds.sdf")));
     }
 
     @SuppressWarnings("SqlWithoutWhere")

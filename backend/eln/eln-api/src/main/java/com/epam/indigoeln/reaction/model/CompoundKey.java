@@ -9,9 +9,7 @@ import java.util.UUID;
 public class CompoundKey {
 
     String canSmiles;
-    @Nullable
     UUID stereoisomerCode;
-    @Nullable
     UUID saltCode;
     @Nullable
     Integer saltEQ100;

@@ -492,6 +492,7 @@ export const handlers = [
       description: null,
       ordinal: DICTIONARY_ITEMS.length + 1,
       active: true,
+      defaultItem: false,
     };
     return HttpResponse.json(renumbered([...DICTIONARY_ITEMS, added]));
   }),

@@ -38,10 +38,10 @@ public class SRSCompoundEntity extends IdentifiableEntity {
     @NotEmpty
     private String canSmiles;
 
-    @Nullable
+    @NotNull
     private UUID stereoisomerCode;
 
-    @Nullable
+    @NotNull
     private UUID saltCode;
 
     @Nullable

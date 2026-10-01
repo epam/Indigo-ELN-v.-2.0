@@ -189,7 +189,9 @@ class InsertTestDataTest {
     @Test
     @Order(4)
     void loadCompounds() {
-        sampleRegistrationClient.loadCompoundsFromFile(uploadForm("compounds.sdf", loadResource("/Compound_000000001_000500000.1.sdf")));
+        // 0 = "00", the numeric code of the default "Parent Structure" salt code
+        sampleRegistrationClient.loadCompoundsFromFile(dictionaryClient.getDefault(BuiltInDictionary.STEREOISOMER_CODE).getId(), dictionaryClient.getDefault(BuiltInDictionary.SALT_CODE).getId(), 0,
+                uploadForm("compounds.sdf", loadResource("/Compound_000000001_000500000.1.sdf")));
 
         Page<SampleDTO> samples = compoundClient.search(new FindSamplesRequest().withCatalog(SearchCatalog.SRS), Paging.DEFAULT);
         assertThat(samples.getItems()).isNotEmpty();
@@ -222,13 +224,13 @@ class InsertTestDataTest {
         experiment.mutateResolveInputs();
 
         // select salt code
-        experiment.mutate(new ReactionOutputMutation.SetOutputRowSaltCode(experiment.output(1).getAnchor(), dictionaryClient.getNth(BuiltInDictionary.SALT_CODE, 1)));
+        experiment.mutate(new ReactionOutputMutation.SetOutputRowSaltCode(experiment.output(1).getAnchor(), dictionaryClient.getNthNonDefault(BuiltInDictionary.SALT_CODE, 1)));
 
         // select salt eq
         experiment.mutate(new ReactionOutputMutation.SetOutputRowSaltEQ(experiment.output(1).getAnchor(), 0.5));
 
         // select stereoisomer code
-        StereoisomerCodeRef stereoisomerCode = dictionaryClient.getFirst(BuiltInDictionary.STEREOISOMER_CODE);
+        StereoisomerCodeRef stereoisomerCode = dictionaryClient.getNthNonDefault(BuiltInDictionary.STEREOISOMER_CODE, 0);
         experiment.mutate(new ReactionOutputMutation.SetOutputCompoundStereoisomerCode(experiment.output(1).getAnchor(), stereoisomerCode));
 
         // set input weight
