@@ -2,10 +2,10 @@ package com.epam.indigoeln.eln.entity;
 
 import com.epam.indigoeln.eln.config.hibernate.ACLEntryArrayType;
 import com.epam.indigoeln.eln.config.hibernate.ExperimentModelType;
-import com.epam.indigoeln.eln.config.hibernate.SearchVectorType;
+import com.epam.indigoeln.eln.common.config.SearchVectorType;
 import com.epam.indigoeln.eln.model.AccessLevel;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
-import com.epam.indigoeln.eln.util.SearchVector;
+import com.epam.indigoeln.eln.common.util.SearchVector;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import jakarta.persistence.*;
 import jakarta.persistence.CascadeType;
@@ -131,17 +131,17 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments<Expe
     @NotNull
     @Basic(fetch = FetchType.LAZY)
     @JdbcTypeCode(SqlTypes.ARRAY)
-    private UUID[] linkedExperiments = new UUID[0];
+    private Set<UUID> linkedExperiments = new HashSet<>();
 
     @NotNull
     @Basic(fetch = FetchType.LAZY)
     @JdbcTypeCode(SqlTypes.ARRAY)
-    private UUID[] continuedFrom = new UUID[0];
+    private Set<UUID> continuedFrom = new HashSet<>();
 
     @NotNull
     @Basic(fetch = FetchType.LAZY)
     @JdbcTypeCode(SqlTypes.ARRAY)
-    private UUID[] continuedTo = new UUID[0];
+    private Set<UUID> continuedTo = new HashSet<>();
 
     @NotNull
     @Basic(fetch = FetchType.LAZY)
@@ -163,12 +163,12 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments<Expe
     @NotNull
     @Basic(fetch = FetchType.LAZY)
     @Type(ACLEntryArrayType.class)
-    private ACLEntry[] shortACL;
+    private List<ACLEntry> shortACL = List.of();
 
     @NotNull
     @Basic(fetch = FetchType.LAZY)
     @Type(ACLEntryArrayType.class)
-    private ACLEntry[] fullACL;
+    private List<ACLEntry> fullACL = List.of();
 
     @NotNull
     private Boolean deleted;

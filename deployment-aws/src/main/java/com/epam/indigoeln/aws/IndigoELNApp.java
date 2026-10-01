@@ -19,7 +19,7 @@ public class IndigoELNApp {
                 ? PermissionsBoundary.fromArn(globalParameters.getPermissionBoundary())
                 : null;
 
-        BuildStack buildStack = new BuildStack(app, "indigoeln-build-stack", StackProps.builder()
+        BuildStack buildStack = new BuildStack(app, "indigoeln-build", StackProps.builder()
                 .env(Environment.builder()
                         .account(globalParameters.getAccount())
                         .region(globalParameters.getRegion())

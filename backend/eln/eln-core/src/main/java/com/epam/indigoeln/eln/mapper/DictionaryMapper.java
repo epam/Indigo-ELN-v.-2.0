@@ -34,6 +34,7 @@ public abstract class DictionaryMapper extends AbstractMapper {
     @Mapping(target = "dictionary", ignore = true)
     @Mapping(target = "active", constant = "true")
     @Mapping(target = "deleted", constant = "false")
+    @Mapping(target = "defaultItem", constant = "false")
     @Mapping(target = "details", ignore = true)
     public abstract DictionaryItemEntity itemToEntity(DictionaryItemRequest request);
 }

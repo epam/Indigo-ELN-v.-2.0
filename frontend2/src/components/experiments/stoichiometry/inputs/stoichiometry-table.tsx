@@ -55,8 +55,8 @@ function inputHaystack(input: ReactionInput): string {
   return [
     input.chemicalName,
     compound.formula == null ? undefined : plainFormula(compound.formula),
-    compound.type === 'UNKNOWN' ? undefined : compound.compoundKey,
-    compound.type === 'UNKNOWN' ? undefined : compound.casNumber,
+    compound.compoundKey,
+    compound.casNumber,
     ...input.samples.map((sample) => shortBatchNumber(sample.nbkBatchNumber)),
   ]
     .filter((each) => each != null)
@@ -176,7 +176,7 @@ export function StoichiometryTable({ experiment, reaction }: { experiment: Exper
                     scope="col"
                     className={cn(
                       HEADER_CELL_CLASS,
-                      ALIGN_CLASS[column.align ?? alignOf(column.kind)],
+                      ALIGN_CLASS[alignOf(column.kind)],
                       column.kind === 'delete' && ACTIONS_CELL_CLASS,
                     )}
                     style={{ minWidth: column.minWidth }}
@@ -311,7 +311,14 @@ function Toolbar({
             aria-label="Add empty row"
             title="Add empty row"
             disabled={!canEdit}
-            onClick={() => mutations.save(addInputCell, { type: 'AddEmptyInput', anchor: reaction.anchor })}
+            onClick={() =>
+              mutations.save(addInputCell, {
+                type: 'AddEmptyInput',
+                anchor: reaction.anchor,
+                createdInputAnchor: crypto.randomUUID(),
+                createdSampleAnchor: crypto.randomUUID(),
+              })
+            }
           >
             <Plus />
           </Button>
@@ -374,7 +381,7 @@ function CompoundRow({
             key={column.id}
             className={cn(
               CELL_CLASS,
-              ALIGN_CLASS[column.align ?? alignOf(column.kind)],
+              ALIGN_CLASS[alignOf(column.kind)],
               // Matching the header: an empty cell that still reserved `px-2` would floor the
               // spacer at 16px instead of collapsing to nothing.
               column.kind === 'spacer' && 'px-0',
@@ -404,7 +411,7 @@ function CompoundRow({
                 className={cn(
                   HEADER_CELL_CLASS,
                   'border-t-0',
-                  ALIGN_CLASS[column.align ?? alignOf(column.kind)],
+                  ALIGN_CLASS[alignOf(column.kind)],
                   column.kind === 'delete' && ACTIONS_CELL_CLASS,
                 )}
                 style={{ minWidth: column.minWidth }}
@@ -423,7 +430,7 @@ function CompoundRow({
                   colSpan={column.span}
                   className={cn(
                     CELL_CLASS,
-                    ALIGN_CLASS[column.align ?? alignOf(column.kind)],
+                    ALIGN_CLASS[alignOf(column.kind)],
                     // Both Delete columns take it: they occupy the same grid slot, so the pinned
                     // column has to look continuous across compound and sample rows.
                     column.kind === 'delete' && ACTIONS_CELL_CLASS,
@@ -468,6 +475,19 @@ function CompoundCell({
       return <ReadonlyCell value={column.value(input)} />;
     case 'html':
       return <FormulaCell value={column.value(input)} />;
+    case 'readonlyNumeric':
+      return (
+        <NumericCell
+          value={column.value(input)}
+          units={column.units}
+          updatedNodes={mutations.updatedNodes}
+          editable={false}
+          pending={false}
+          label={`${column.header}, row ${index + 1}`}
+          // Unreachable: `editable` is false, so the input never takes a value to commit.
+          onCommit={() => {}}
+        />
+      );
     case 'text':
       return (
         <TextCell
@@ -483,6 +503,7 @@ function CompoundCell({
         <NumericCell
           value={column.value(input)}
           units={column.units}
+          suffix={column.suffix}
           updatedNodes={mutations.updatedNodes}
           editable={canEdit && (column.editable?.(input) ?? true)}
           pending={pending}
@@ -566,10 +587,12 @@ function SampleCell({
 
   switch (column.kind) {
     // Declared on the shared `Cell` union but unused by the sample columns; a batch has no
-    // ordinal of its own to show, no formula, no role, no limiting flag, and no spacer.
+    // ordinal of its own to show, no formula, no role, no limiting flag, no spacer, and no
+    // calculated-only number.
     case 'spacer':
     case 'index':
     case 'html':
+    case 'readonlyNumeric':
     case 'role':
     case 'limiting':
       return <EmptyCell />;
@@ -590,6 +613,7 @@ function SampleCell({
         <NumericCell
           value={column.value(sample)}
           units={column.units}
+          suffix={column.suffix}
           updatedNodes={mutations.updatedNodes}
           editable={canEdit && (column.editable?.(sample) ?? true)}
           pending={pending}

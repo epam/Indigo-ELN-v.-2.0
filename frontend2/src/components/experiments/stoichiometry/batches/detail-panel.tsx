@@ -25,9 +25,10 @@ import { cn } from '@/lib/utils';
 import type { BatchRow } from '@/components/experiments/stoichiometry/batches/columns';
 import type { StoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import type { BuiltInDictionary, DictionaryItemRef } from '@/lib/types/dictionaries.ts';
+import { sortByName } from '@/lib/types/dictionaries.ts';
 import type { ModelMutation } from '@/lib/types/mutations.ts';
 import type { CompoundRef, EnteredValue, Reaction } from '@/lib/types/reactions.ts';
-import { unitLabel } from '@/lib/types/reactions.ts';
+import { isKnownCompound, unitLabel } from '@/lib/types/reactions.ts';
 
 /**
  * What one batch of the Product Batch Summary holds, behind its chevron: the compound's structure
@@ -71,12 +72,10 @@ export function BatchDetailPanel({
   const anchor = sample.anchor;
 
   /**
-   * An `UNKNOWN` compound `@JsonIgnore`s salt code, stereoisomer, salt EQ, compound key and
-   * calculated MF, so narrowing the union is what makes those fields reachable at all — and their
-   * absence is why the controls are disabled rather than merely empty.
+   * An unknown compound has no salt code, stereoisomer, salt EQ, compound key or calculated MF,
+   * which is why the controls are disabled rather than merely empty.
    */
-  const compound: Extract<CompoundRef, { type: 'STORED' | 'VIRTUAL' }> | undefined =
-    output.compound.type === 'UNKNOWN' ? undefined : output.compound;
+  const compound = isKnownCompound(output.compound) ? output.compound : undefined;
 
   /**
    * Compound-level edits freeze once the batch has gone to the registry: `CompoundHandlers`
@@ -99,7 +98,7 @@ export function BatchDetailPanel({
         </h3>
 
         <div className="grid gap-x-6 gap-y-4 md:grid-cols-2">
-          <Fact label="Calculated Batch MW" value={compound?.molWeight.value} />
+          <Fact label="Calculated Batch MW" value={compound?.molWeight?.value} />
           {/*
             `MolFormula` serialises through `@JsonValue toHTMLString()`, so this arrives as
             `C<sub>9</sub>H<sub>8</sub>O<sub>4</sub>` — the same reason `FormulaCell` exists. The
@@ -135,7 +134,15 @@ export function BatchDetailPanel({
             value={compound?.saltCode}
             editable={compoundEditable}
             pending={pending('saltCode')}
-            onCommit={(next) => commit('saltCode', { type: 'SetOutputSaltCode', anchor, saltCode: next })}
+            required
+            onCommit={(next) =>
+              commit('saltCode', {
+                type: 'SetOutputSaltCode',
+                anchor,
+                saltCode: next,
+                createdOutputAnchor: crypto.randomUUID(),
+              })
+            }
           />
           <DictionaryField
             id={id('stereoisomerCode')}
@@ -144,8 +151,14 @@ export function BatchDetailPanel({
             value={compound?.stereoisomerCode}
             editable={compoundEditable}
             pending={pending('stereoisomerCode')}
+            required
             onCommit={(next) =>
-              commit('stereoisomerCode', { type: 'SetOutputStereoisomerCode', anchor, stereoisomerCode: next })
+              commit('stereoisomerCode', {
+                type: 'SetOutputStereoisomerCode',
+                anchor,
+                stereoisomerCode: next,
+                createdOutputAnchor: crypto.randomUUID(),
+              })
             }
           />
 
@@ -173,13 +186,20 @@ export function BatchDetailPanel({
             value={compound?.saltEQ}
             editable={compoundEditable}
             pending={pending('saltEQ')}
-            onCommit={(next) => commit('saltEQ', { type: 'SetOutputSaltEQ', anchor, saltEQ: next })}
+            onCommit={(next) =>
+              commit('saltEQ', {
+                type: 'SetOutputSaltEQ',
+                anchor,
+                saltEQ: next,
+                createdOutputAnchor: crypto.randomUUID(),
+              })
+            }
           />
           {/*
-            `STRCodeSample` is a `@JsonValue` string. indigo-frontend models it as an object and
-            interpolates it straight into the template, which prints `[object Object]`.
+            The STR code once registered. indigo-frontend models it as an object and interpolates
+            it straight into the template, which prints `[object Object]`.
           */}
-          <ReadonlyField id={id('strCode')} label="Conversational Batch number" value={sample.strCode} />
+          <ReadonlyField id={id('sampleKey')} label="Conversational Batch number" value={sample.sampleKey} />
 
           <ReadonlyField id={id('theoWeight')} label="Theo. Weight" value={quantity(output.theoWeight)} />
           <ReadonlyField id={id('theoMol')} label="Theo. Moles" value={quantity(output.theoMol)} />
@@ -214,16 +234,11 @@ export function BatchDetailPanel({
             id={id('compoundProtection')}
             label="Compound Protection"
             dictionary="COMPOUND_PROTECTION"
-            value={sample.compoundProtection ?? []}
+            value={sample.compoundProtection}
             editable={canEdit}
             pending={pending('compoundProtection')}
             onCommit={(next) =>
-              commit('compoundProtection', {
-                type: 'SetOutputCompoundProtection',
-                anchor,
-                // `@Size(min = 1)` when present: clearing sends null, never an empty list.
-                compoundProtection: next.length === 0 ? null : next,
-              })
+              commit('compoundProtection', { type: 'SetOutputCompoundProtection', anchor, compoundProtection: next })
             }
           />
           {/* TODO(melting-point-editor): `SetOutputMeltingPoint` takes `{lower, upper, comments}`. */}
@@ -235,15 +250,11 @@ export function BatchDetailPanel({
             id={id('storageInstructions')}
             label="Storage Instructions"
             dictionary="STORAGE_INSTRUCTIONS"
-            value={sample.storageInstructions ?? []}
+            value={sample.storageInstructions}
             editable={canEdit}
             pending={pending('storageInstructions')}
             onCommit={(next) =>
-              commit('storageInstructions', {
-                type: 'SetOutputStorageInstructions',
-                anchor,
-                storageInstructions: next.length === 0 ? null : next,
-              })
+              commit('storageInstructions', { type: 'SetOutputStorageInstructions', anchor, storageInstructions: next })
             }
           />
 
@@ -251,11 +262,10 @@ export function BatchDetailPanel({
             id={id('healthHazards')}
             label="Health Hazards"
             dictionary="HEALTH_HAZARD"
-            value={sample.healthHazards}
+            value={sortByName(sample.healthHazards)}
             editable={canEdit}
             pending={pending('healthHazards')}
             onCommit={(next) =>
-              // `@NotNull` on this one, unlike its three neighbours: clearing sends an empty list.
               commit('healthHazards', { type: 'SetOutputHealthHazards', anchor, healthHazards: next })
             }
           />
@@ -266,15 +276,11 @@ export function BatchDetailPanel({
             id={id('handlingPrecautions')}
             label="Handling Precautions"
             dictionary="HANDLING_PRECAUTIONS"
-            value={sample.handlingPrecautions ?? []}
+            value={sample.handlingPrecautions}
             editable={canEdit}
             pending={pending('handlingPrecautions')}
             onCommit={(next) =>
-              commit('handlingPrecautions', {
-                type: 'SetOutputHandlingPrecautions',
-                anchor,
-                handlingPrecautions: next.length === 0 ? null : next,
-              })
+              commit('handlingPrecautions', { type: 'SetOutputHandlingPrecautions', anchor, handlingPrecautions: next })
             }
           />
           {/* TODO(external-supplier-editor): `SetOutputExternalSupplier` pairs a supplier with a
@@ -309,7 +315,7 @@ function quantity(value: EnteredValue<string> | undefined): string | undefined {
  * for a molfile to seed it with.
  */
 function Structure({ compound, batch }: { compound: CompoundRef; batch: string }) {
-  const compoundID = compound.type === 'UNKNOWN' ? undefined : compound.compoundID;
+  const compoundID = compound.compoundID;
 
   const frame = 'min-h-[260px] rounded-md border border-dashed border-neutral-300';
 
@@ -494,27 +500,28 @@ function NumberField({
 }
 
 /**
- * One item from a built-in dictionary, or none. A `Combobox` rather than the table's `Select`:
- * these lists are the long ones — solvents, suppliers, salt codes — and a form field has the room
- * for a filter the dense table cells do not.
+ * One item from a built-in dictionary, or none unless `required`. A `Combobox` rather than the
+ * table's `Select`: these lists are the long ones — solvents, suppliers, salt codes — and a form
+ * field has the room for a filter the dense table cells do not.
  */
-function DictionaryField({
-  id,
-  label,
-  dictionary,
-  value,
-  editable,
-  pending,
-  onCommit,
-}: {
-  id: string;
-  label: string;
-  dictionary: BuiltInDictionary;
-  value: DictionaryItemRef | undefined;
-  editable: boolean;
-  pending: boolean;
-  onCommit: (next: DictionaryItemRef | null) => void;
-}) {
+function DictionaryField(
+  props: {
+    id: string;
+    label: string;
+    dictionary: BuiltInDictionary;
+    value: DictionaryItemRef | undefined;
+    editable: boolean;
+    pending: boolean;
+  } & (
+    | {
+        /** Offers no ✕ — the value can be changed but never cleared. */
+        required: true;
+        onCommit: (next: DictionaryItemRef) => void;
+      }
+    | { required?: false; onCommit: (next: DictionaryItemRef | null) => void }
+  ),
+) {
+  const { id, label, dictionary, value, editable, pending } = props;
   if (!editable) return <ReadonlyField id={id} label={label} value={value?.name} />;
 
   return (
@@ -525,9 +532,13 @@ function DictionaryField({
           dictionary={dictionary}
           value={value ?? null}
           disabled={pending}
+          clearable={!props.required}
           // Picking is the commit; there is no separate confirmation step to wait for.
           onValueChange={(next) => {
-            if ((next?.id ?? null) !== (value?.id ?? null)) onCommit(next);
+            if ((next?.id ?? null) === (value?.id ?? null)) return;
+            // A required field's combobox has no ✕, so `next` is never null there.
+            if (!props.required) props.onCommit(next);
+            else if (next) props.onCommit(next);
           }}
         />
       </SavingOverlay>

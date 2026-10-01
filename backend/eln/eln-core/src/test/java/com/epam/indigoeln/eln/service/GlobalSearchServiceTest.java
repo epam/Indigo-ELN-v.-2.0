@@ -2,14 +2,14 @@ package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
-import com.epam.indigoeln.compound.model.search.NumericSearch;
-import com.epam.indigoeln.compound.model.search.StructuralSearch;
+import com.epam.indigoeln.common.model.search.NumericSearch;
+import com.epam.indigoeln.common.model.search.StructuralSearch;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.ReactionRole;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
-import com.epam.indigoeln.reaction.model.units.WeightUnit;
+import com.epam.indigoeln.common.model.units.WeightUnit;
 import com.epam.indigoeln.reaction.util.ExperimentObject;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
@@ -60,8 +60,8 @@ class GlobalSearchServiceTest extends ELNBaseTest {
             List<ProjectCodeRef> projectCodes = dictionaryClient.getDictionary(BuiltInDictionary.PROJECT_CODE);
             projectCode1 = projectCodes.get(0);
             projectCode2 = projectCodes.get(1);
-            project1 = projectClient.createProject(new ProjectRequest("p1", List.of("k1", "k2"), "l1 xx", "pd1"));
-            project2 = projectClient.createProject(new ProjectRequest("p2", List.of("k2", "k3"), "l2 xx", "pd2"));
+            project1 = projectClient.createProject(new ProjectRequest("p1", Set.of("k1", "k2"), "l1 xx", "pd1"));
+            project2 = projectClient.createProject(new ProjectRequest("p2", Set.of("k2", "k3"), "l2 xx", "pd2"));
             notebook1 = notebookClient.createNotebook(project1.getId(), new NotebookRequest("00000001", "nd1 xx"));
             notebook2 = notebookClient.createNotebook(project2.getId(), new NotebookRequest("00000002", "nd2 xx"));
             experiment1 = createExperiment(notebook1, new ExperimentRequest(emptyTemplateID, "ed1 xx", therapeuticArea1, projectCode1));
@@ -116,7 +116,7 @@ class GlobalSearchServiceTest extends ELNBaseTest {
         NotebookDetailsDTO[] notebook = new NotebookDetailsDTO[1];
         ExperimentObject[] experiment = new ExperimentObject[1];
         withUser(JOHN_USERNAME, () -> {
-            project[0] = projectClient.createProject(new ProjectRequest("hiddenqq", List.of(), null, null));
+            project[0] = projectClient.createProject(new ProjectRequest("hiddenqq", Set.of(), null, null));
             notebook[0] = notebookClient.createNotebook(project[0].getId(), new NotebookRequest(notebookClient.getNextNotebookNumber(), "nd hiddenqq"));
             experiment[0] = createExperiment(notebook[0], new ExperimentRequest(emptyTemplateID, "ed hiddenqq", therapeuticArea1, projectCode1));
             // the owner finds them, so an empty result below means filtered, not unindexed
@@ -137,9 +137,9 @@ class GlobalSearchServiceTest extends ELNBaseTest {
     void testNameMatchRanksAboveTextMatch() {
         withUser(JOHN_USERNAME, () -> {
             // "zzn" is only a substring of this name, so websearch does not match it: found by the name fallback alone
-            ProjectDetailsDTO nameMatch = projectClient.createProject(new ProjectRequest("zznx", List.of(), null, null));
+            ProjectDetailsDTO nameMatch = projectClient.createProject(new ProjectRequest("zznx", Set.of(), null, null));
             // and only a word of this description, so found by the text search alone
-            ProjectDetailsDTO textMatch = projectClient.createProject(new ProjectRequest("rankother", List.of(), null, "zzn"));
+            ProjectDetailsDTO textMatch = projectClient.createProject(new ProjectRequest("rankother", Set.of(), null, "zzn"));
             Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withQuery("zzn"), Paging.DEFAULT);
             assertThat(results.getItems()).map(GlobalSearchResultDTO::getId).containsExactly(nameMatch.getId(), textMatch.getId());
         });
@@ -202,6 +202,12 @@ class GlobalSearchServiceTest extends ELNBaseTest {
         assertResults(results
                 , tuple(ELNEntityType.EXPERIMENT, experiment3.name(), experiment3.id())
         );
+    }
+
+    @Test
+    void testEmptyFilterCollectionsAreIgnored() {
+        Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withQuery("xx").withExperimentStatus(Set.of()).withAuthor(Set.of()), Paging.DEFAULT);
+        assertThat(results.getItems()).hasSize(6);
     }
 
     @Test

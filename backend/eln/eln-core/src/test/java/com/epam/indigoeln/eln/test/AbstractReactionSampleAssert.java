@@ -2,8 +2,8 @@ package com.epam.indigoeln.eln.test;
 
 import com.epam.indigoeln.reaction.model.ReactionRow;
 import com.epam.indigoeln.reaction.model.ReactionSample;
-import com.epam.indigoeln.reaction.model.units.MolarityUnit;
-import com.epam.indigoeln.reaction.model.units.VolumeUnit;
+import com.epam.indigoeln.common.model.units.MolarityUnit;
+import com.epam.indigoeln.common.model.units.VolumeUnit;
 import org.assertj.core.api.AbstractAssert;
 
 import static com.epam.indigoeln.eln.test.EnteredValueAssert.assertThat;

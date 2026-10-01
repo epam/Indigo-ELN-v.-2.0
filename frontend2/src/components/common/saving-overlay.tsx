@@ -70,7 +70,7 @@ export function SavingOverlay({
    *
    * `inert` blurs whatever it covers, so a save that outlasts the spinner's delay drops the user
    * out of the control they were in — most visibly in the stoichiometry table, where committing a
-   * number on the way to its unit picker freezes the cell that picker lives in.
+   * number with Enter freezes the very cell the user is still typing into.
    *
    * Only when focus is still nowhere. If the user has since clicked or tabbed somewhere else,
    * `document.activeElement` is that element rather than `body`, and pulling them back would be

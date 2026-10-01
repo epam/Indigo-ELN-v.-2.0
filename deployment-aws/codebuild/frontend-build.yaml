@@ -1,10 +1,17 @@
 version: 0.2
+env:
+  # bash rather than CodeBuild's default sh (dash), consistently across every buildspec.
+  shell: bash
 phases:
   install:
     runtime-versions:
       nodejs: 22
   build:
     commands:
+      # Fail loudly if env.shell did not take effect: under dash `set -eo pipefail` errors but
+      # execution carries on *without* `set -e`, silently disabling error propagation.
+      - '[ -n "$BASH_VERSION" ] || { echo "this buildspec needs bash - check env.shell" >&2; exit 1; }'
+      - set -eo pipefail
       - cd indigo-frontend
       - npm ci
       - npm run build

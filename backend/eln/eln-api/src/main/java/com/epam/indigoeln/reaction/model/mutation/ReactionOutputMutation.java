@@ -19,10 +19,10 @@ public interface ReactionOutputMutation extends ExperimentMutation {
 
     record AddProductSample(
             @NotNull OutputAnchor anchor,
-            @Nullable OutputSampleAnchor createdSampleAnchor
+            @NotNull OutputSampleAnchor createdSampleAnchor
     ) implements ReactionOutputMutation {
         public AddProductSample(@NotNull OutputAnchor anchor) {
-            this(anchor, null);
+            this(anchor, OutputSampleAnchor.create());
         }
     }
 
@@ -34,7 +34,7 @@ public interface ReactionOutputMutation extends ExperimentMutation {
 
     record SetOutputRowSaltCode(
             @NotNull OutputAnchor anchor,
-            @Nullable SaltCodeRef saltCode
+            @NotNull SaltCodeRef saltCode
     ) implements ReactionOutputMutation {
     }
 
@@ -70,7 +70,7 @@ public interface ReactionOutputMutation extends ExperimentMutation {
 
     record SetOutputCompoundStereoisomerCode(
             @NotNull OutputAnchor anchor,
-            @Nullable StereoisomerCodeRef stereoisomerCode
+            @NotNull StereoisomerCodeRef stereoisomerCode
     ) implements ReactionOutputMutation {
     }
 

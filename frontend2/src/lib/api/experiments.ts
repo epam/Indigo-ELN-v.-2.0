@@ -260,7 +260,7 @@ function applyMutationResponse(
   // `response.unresolvedInputs` is deliberately not read here: it belongs to whoever sent the
   // mutation, not to every caller. `ReactionSchemePanel` reads it off `mutateAsync`'s result and
   // opens Analyze RXN on it — see the note there.
-  for (const message of response.messages ?? []) notifyInfo(message);
+  for (const message of response.messages) notifyInfo(message);
   // The write bumps modifiedAt, which every list card shows. `lists()` rather than `all()`:
   // the patch cannot move a name or a status, so the starred panel has nothing to refetch for.
   void queryClient.invalidateQueries({ queryKey: experimentKeys.lists() });
@@ -550,9 +550,7 @@ export function experimentPicturePath(id: string, revision: number | null): stri
  * word, but the project's `lib` is below es2023.)
  */
 function newestFirst(revisions: RevisionSummary[]): RevisionSummary[] {
-  const reversed = revisions.map((revision) =>
-    revision.details ? { ...revision, details: [...revision.details].reverse() } : revision,
-  );
+  const reversed = revisions.map((revision) => ({ ...revision, details: [...revision.details].reverse() }));
   return reversed.reverse();
 }
 

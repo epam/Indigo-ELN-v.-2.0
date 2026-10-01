@@ -17,10 +17,10 @@ export interface Project extends BaseProject {
   aclCount: number;
 }
 
-/** Body of POST /projects. Optional fields are omitted rather than sent empty. */
+/** Body of POST /projects. Optional fields are omitted rather than sent empty; `keywords` is required, `[]` for none. */
 export interface ProjectRequest {
   name: string;
-  keywords?: string[];
+  keywords: string[];
   literature?: string;
   description?: string;
 }
@@ -54,4 +54,9 @@ export interface TotalCounts {
   notebooks: number;
   experiments: number;
   experimentsByStatus: ExperimentStatusCounts;
+}
+
+/** Project keywords are a set server-side and arrive in no particular order; show them alphabetically. */
+export function sortKeywords(keywords: string[]): string[] {
+  return [...keywords].sort((a, b) => a.localeCompare(b));
 }

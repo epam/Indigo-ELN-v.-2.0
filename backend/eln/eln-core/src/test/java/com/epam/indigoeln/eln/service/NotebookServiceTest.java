@@ -5,12 +5,30 @@ import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.model.ACLEntryDTO;
+import com.epam.indigoeln.eln.model.AccessLevel;
+import com.epam.indigoeln.eln.model.AttachmentDTO;
+import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
+import com.epam.indigoeln.eln.model.ExperimentRequest;
+import com.epam.indigoeln.eln.model.NotebookDTO;
+import com.epam.indigoeln.eln.model.NotebookDetailsDTO;
+import com.epam.indigoeln.eln.model.NotebookEditRequest;
+import com.epam.indigoeln.eln.model.NotebookExistenceCheckDTO;
+import com.epam.indigoeln.eln.model.NotebookRequest;
+import com.epam.indigoeln.eln.model.ProjectDetailsDTO;
+import com.epam.indigoeln.eln.model.ProjectRequest;
+import com.epam.indigoeln.eln.model.RevisionSummaryDTO;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.util.Comparator;
@@ -18,9 +36,13 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ContentDispositionUtil.extractFilename;
-import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
+import static com.epam.indigoeln.eln.model.ApplicationPermission.DELETE_NOTEBOOKS;
+import static com.epam.indigoeln.eln.model.ApplicationPermission.EDIT_NOTEBOOKS;
+import static com.epam.indigoeln.eln.model.ApplicationPermission.MANAGE_NOTEBOOK_ACCESS;
+import static com.epam.indigoeln.eln.model.ApplicationPermission.VIEW_NOTEBOOKS;
 import static com.epam.indigoeln.eln.test.ACLListAssert.assertThatACL;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
+import static com.epam.indigoeln.test.ClientUtil.uploadForm;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -295,7 +317,7 @@ class NotebookServiceTest extends ELNBaseTest {
     @Test
     void testCreateAttachment() {
         NotebookDetailsDTO notebook = createNotebook(project.getId());
-        List<AttachmentDTO> attachments = notebookClient.createNotebookAttachment(notebook.getId(), "attachment.txt", "content".getBytes());
+        List<AttachmentDTO> attachments = notebookClient.createNotebookAttachment(notebook.getId(), uploadForm("attachment.txt", "content".getBytes()));
         assertThat(attachments).singleElement().satisfies(a -> {
             assertThat(a.getId()).isNotNull();
             assertThat(a.getName()).isEqualTo("attachment.txt");
@@ -313,7 +335,7 @@ class NotebookServiceTest extends ELNBaseTest {
     @Test
     void testDownloadAttachment() throws Exception {
         NotebookDetailsDTO notebook = createNotebook(project.getId());
-        List<AttachmentDTO> attachments = notebookClient.createNotebookAttachment(notebook.getId(), "attachment.txt", "content".getBytes());
+        List<AttachmentDTO> attachments = notebookClient.createNotebookAttachment(notebook.getId(), uploadForm("attachment.txt", "content".getBytes()));
         try (Response response = notebookClient.downloadNotebookAttachment(notebook.getId(), attachments.getFirst().getId())) {
             assertThat(extractFilename(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION))).isEqualTo("attachment.txt");
             assertThat((byte[]) response.getEntity()).asString().isEqualTo("content");
@@ -323,11 +345,11 @@ class NotebookServiceTest extends ELNBaseTest {
     @Test
     void testDeleteAttachment() {
         NotebookDetailsDTO notebook = createNotebook(project.getId());
-        List<AttachmentDTO> attachments = notebookClient.createNotebookAttachment(notebook.getId(), "attachment.txt", "content".getBytes());
+        List<AttachmentDTO> attachments = notebookClient.createNotebookAttachment(notebook.getId(), uploadForm("attachment.txt", "content".getBytes()));
         notebookClient.deleteNotebookAttachment(notebook.getId(), attachments.getFirst().getId());
-        notebook = notebookClient.getNotebook(notebook.getId());
-        assertThat(notebook.getAttachments()).isEmpty();
-        assertThat(notebookClient.getNotebookRevisions(notebook.getId()))
+        NotebookDetailsDTO notebook2 = notebookClient.getNotebook(notebook.getId());
+        assertThat(notebook2.getAttachments()).isEmpty();
+        assertThat(notebookClient.getNotebookRevisions(notebook2.getId()))
                 .last().satisfies(revision -> {
                     assertThat(revision.getSummary()).isEqualTo("Deleted attachment: attachment.txt");
                 });

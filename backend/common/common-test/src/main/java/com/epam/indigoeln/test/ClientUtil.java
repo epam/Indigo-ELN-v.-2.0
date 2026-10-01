@@ -1,29 +1,26 @@
 package com.epam.indigoeln.test;
 
-import feign.form.FormData;
-import feign.form.FormProperty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.ws.rs.core.MediaType;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.epam.indigoeln.common.model.UploadForm;
 import lombok.SneakyThrows;
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.nio.file.Files;
 
 public class ClientUtil {
 
     @SneakyThrows
-    public static ClientUploadForm createFileUpload(String filename, byte[] content) {
-        FormData file = new FormData(MediaType.APPLICATION_OCTET_STREAM, filename, content);
-        return new ClientUploadForm(file);
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class ClientUploadForm {
-
-        @NotNull
-        @FormProperty("file")
-        private FormData file;
+    public static UploadForm uploadForm(String filename, byte[] content) {
+        File tmpDir = null;
+        try {
+            tmpDir = Files.createTempDirectory("upload-").toFile();
+            FileUtils.forceDeleteOnExit(tmpDir);
+            File tmpFile = new File(tmpDir, filename);
+            Files.write(tmpFile.toPath(), content);
+            return new UploadForm(tmpFile);
+        } catch (Exception e) {
+            FileUtils.deleteQuietly(tmpDir);
+            throw e;
+        }
     }
 }

@@ -40,13 +40,13 @@ async function search(term = 'aspirin') {
 }
 
 /**
- * The form as it opens: a quick-search box, the four catalogs, an empty sketcher, and Advanced
+ * The form as it opens: a quick-search box, the three catalogs, an empty sketcher, and Advanced
  * search collapsed. No search has run — there is no question yet, and Search says so.
  */
 export const Default: Story = {
   play: async () => {
     await expect(await screen.findByRole('searchbox', { name: 'Quick search' })).toBeInTheDocument();
-    await expect(screen.getByRole('radio', { name: 'All Catalogs' })).toBeChecked();
+    await expect(screen.getByRole('radio', { name: 'Sample Registration' })).toBeChecked();
     // The structure-type radios belong to a drawing that does not exist yet.
     await expect(screen.queryByRole('radio', { name: 'Substructure' })).not.toBeInTheDocument();
     await expect(screen.queryByRole('table')).not.toBeInTheDocument();
@@ -100,12 +100,13 @@ export const Results: Story = {
 };
 
 /**
- * Advanced search under a catalog that reaches PubChem: nine filters unavailable, Molecular
- * Formula still offered, and a line saying why rather than nine greyed boxes to puzzle over.
+ * Advanced search under PubChem: nine filters unavailable, Molecular Formula still offered, and a
+ * line saying why rather than nine greyed boxes to puzzle over.
  */
 export const PubchemLimitsTheFilters: Story = {
   play: async () => {
-    await userEvent.click(await screen.findByRole('button', { name: 'Advanced search' }));
+    await userEvent.click(await screen.findByRole('radio', { name: 'PubChem' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Advanced search' }));
 
     await expect(await screen.findByLabelText('Compound ID')).toBeDisabled();
     await expect(screen.getByLabelText('Molecular Formula')).toBeEnabled();
@@ -113,11 +114,10 @@ export const PubchemLimitsTheFilters: Story = {
   },
 };
 
-/** Choosing an ELN-only catalog hands the filters back, values intact. */
-export const AdvancedSearchOnEln: Story = {
+/** Sample Registration honours every filter. */
+export const AdvancedSearch: Story = {
   play: async () => {
-    await userEvent.click(await screen.findByRole('radio', { name: 'Indigo ELN' }));
-    await userEvent.click(screen.getByRole('button', { name: 'Advanced search' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Advanced search' }));
 
     const compoundId = await screen.findByLabelText('Compound ID');
     await expect(compoundId).toBeEnabled();

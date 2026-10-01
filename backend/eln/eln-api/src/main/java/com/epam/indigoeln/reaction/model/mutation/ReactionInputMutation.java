@@ -4,7 +4,7 @@ import com.epam.indigoeln.eln.model.SaltCodeRef;
 import com.epam.indigoeln.eln.model.StereoisomerCodeRef;
 import com.epam.indigoeln.reaction.model.InputAnchor;
 import com.epam.indigoeln.reaction.model.ReactionRole;
-import com.epam.indigoeln.reaction.model.units.MolUnit;
+import com.epam.indigoeln.common.model.units.MolUnit;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 
@@ -43,7 +43,7 @@ public interface ReactionInputMutation extends ExperimentMutation {
 
     record SetInputRowSaltCode(
             @NotNull InputAnchor anchor,
-            @Nullable SaltCodeRef saltCode
+            @NotNull SaltCodeRef saltCode
     ) implements ReactionInputMutation {
     }
 
@@ -61,7 +61,7 @@ public interface ReactionInputMutation extends ExperimentMutation {
 
     record SetInputCompoundStereoisomerCode(
             @NotNull InputAnchor anchor,
-            @Nullable StereoisomerCodeRef stereoisomerCode
+            @NotNull StereoisomerCodeRef stereoisomerCode
     ) implements ReactionInputMutation {
     }
 

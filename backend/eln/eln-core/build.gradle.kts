@@ -6,16 +6,15 @@ plugins {
 
 dependencies {
     api(project(":common:common-hibernate"))
+    api(project(":common:common-indigo"))
     api(project(":eln:eln-api"))
     api(project(":reports:reports-api"))
     api(project(":signature:signature-api"))
+    api(project(":sampleregistration:sampleregistration-api"))
     api("io.quarkus:quarkus-smallrye-health")
     implementation(project(":database:flyway")) // TODO move flyway to a separate lambda and move dependency to testImplementation
 
     implementation("io.quarkus:quarkus-cache")
-
-    implementation("com.epam.indigo:indigo:1.45.0")
-    implementation("com.epam.indigo:indigo-renderer:1.45.0")
 
     testImplementation(project(":common:common-test"))
 
@@ -41,7 +40,7 @@ artifacts {
 }
 
 val copyNativeLibs = tasks.register<Copy>("copyNativeLibs") {
-    from(configurations.runtimeClasspath.get().filter { it.name.contains("indigo") }.map { zipTree(it)})
+    from(configurations.runtimeClasspath.get().filter { it.name.startsWith("indigo-") }.map { zipTree(it)})
     include("**/linux-x86_64/*.so")
     include("**/darwin-x86_64/*.dylib")
     include("**/darwin-aarch64/*.dylib")

@@ -2,6 +2,7 @@ package com.epam.indigoeln.eln.model;
 
 import com.epam.indigoeln.common.model.BaseDTO;
 import com.epam.indigoeln.reaction.model.ReactionRole;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
@@ -18,8 +19,8 @@ public class GlobalSearchResultDTO extends BaseDTO {
     private String title;
     @Nullable
     private String fragment;
-    @Nullable
-    private Set<ReactionRole> reactionRoles;
+    @NotNull
+    private Set<ReactionRole> reactionRoles = Set.of();
     @Nullable
     private ExperimentStatus experimentStatus;
     @Nullable

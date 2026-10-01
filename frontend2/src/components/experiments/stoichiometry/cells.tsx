@@ -149,13 +149,12 @@ export function TextCell({
 }
 
 /**
- * One item from a built-in dictionary, or none.
+ * One item from a built-in dictionary.
  *
  * A `Select` rather than a `Combobox`, for the same reason Rxn Role is one: these lists are short
  * and closed, so a text input to filter them with only invites typing a value that cannot be
- * accepted. Unlike Rxn Role the field is optional — `SetInputRowSaltCode` takes a null — so it
- * carries an `emptyLabel`, which puts clearing in the list rather than behind a ✕ that a select
- * does not have.
+ * accepted. Like Rxn Role the field is required — a salt code is never null, "00 - Parent
+ * Structure" stands for none — so there is no `emptyLabel` to clear it with.
  */
 export function DictionaryCell({
   dictionary,
@@ -166,33 +165,33 @@ export function DictionaryCell({
   onCommit,
 }: {
   dictionary: BuiltInDictionary;
-  value: DictionaryItemRef | undefined;
+  value: DictionaryItemRef;
   editable: boolean;
   pending: boolean;
   label: string;
-  onCommit: (next: DictionaryItemRef | null) => void;
+  onCommit: (next: DictionaryItemRef) => void;
 }) {
   const { data, isPending, isError } = useDictionary(dictionary);
 
-  if (!editable) return <ReadonlyCell value={value?.name} />;
+  if (!editable) return <ReadonlyCell value={value.name} />;
 
   return (
     <SavingOverlay pending={pending} spinner="center" className="mx-auto w-fit">
       <Select<DictionaryItemRef>
         aria-label={label}
         size="sm"
-        value={value ?? null}
+        value={value}
         items={data ?? []}
         itemToKey={(item) => item.id}
         itemToLabel={(item) => item.name}
         // Hugs its label so the column can centre it — see `RoleCell`.
         className="w-auto min-w-[112px]"
-        emptyLabel="—"
         loading={isPending}
         // apiFetch has already toasted the failure; this says why the list is empty.
         error={isError}
         onValueChange={(next) => {
-          if ((next?.id ?? null) !== (value?.id ?? null)) onCommit(next);
+          // Never null without an `emptyLabel` — see `Select`.
+          if (next && next.id !== value.id) onCommit(next);
         }}
       />
     </SavingOverlay>

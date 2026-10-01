@@ -17,9 +17,12 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
 import java.util.*;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Slf4j
 @ApplicationScoped
@@ -66,9 +69,11 @@ public class DictionaryService {
             result.byDictionary.put(dictionary.getId(), new CachedItems<>());
         }
         for (DictionaryItemEntity item : dictionaryItemRepository.listAll()) {
-            CachedItems<DictionaryItemRef> cachedItems = result.byDictionary.get(item.getDictionary().getId());
             DictionaryItemRef ref = convertToRef(item);
             result.add(ref);
+            if (item.getDefaultItem() && !item.getDeleted()) {
+                result.byDictionary.get(item.getDictionary().getId()).defaultItem = ref;
+            }
         }
         return result;
     }
@@ -78,18 +83,30 @@ public class DictionaryService {
         return cached.list(allowInactive);
     }
 
+    public <T extends DictionaryItemRef> T getDefault(BuiltInDictionary dictionary) {
+        CachedItems<T> cached = cached(dictionary.name());
+        return checkNotNull(cached.defaultItem, "No default item in dictionary %s", dictionary);
+    }
+
     @Transactional
     public List<DictionaryItemDTO> getDictionaryFull(String dictionaryRef) {
         return dictionaryMapper.itemToDTOList(dictionaryItemRepository.list(refToID(dictionaryRef), true));
     }
 
-    public <T extends DictionaryItemRef> T get(UUID id) {
+    public <T extends DictionaryItemRef> T byId(UUID id) {
         DictionaryItemRef ref = cached().all.get(id);
         if (ref == null) {
             throw new EntityNotFoundException(ELNEntityType.DICTIONARY_ITEM, id);
         }
         //noinspection unchecked
         return (T) ref;
+    }
+
+    @Nullable
+    public <T extends DictionaryItemRef> Set<T> byId(Set<UUID> ids) {
+        return StreamEx.of(ids)
+                .map(this::<T>byId)
+                .toSet();
     }
 
     @Nullable
@@ -128,6 +145,11 @@ public class DictionaryService {
             throw new EntityNotFoundException(ELNEntityType.DICTIONARY_ITEM, ref.getId() + " is not active or deleted");
         }
         return dictionaryItemRepository.getReference(ref.getId());
+    }
+
+    @Transactional(Transactional.TxType.REQUIRED)
+    public DictionaryItemEntity lookup(UUID id) {
+        return dictionaryItemRepository.getReference(id);
     }
 
     @Transactional(Transactional.TxType.REQUIRED)
@@ -214,6 +236,8 @@ public class DictionaryService {
 
         private final Map<UUID, T> map = new HashMap<>();
         private final List<T> list = new ArrayList<>();
+        @Nullable
+        private T defaultItem;
 
         @Nullable
         T get(UUID id, boolean allowInactive) {

@@ -4,7 +4,7 @@ import type { NumericCellValue } from '@/components/experiments/stoichiometry/nu
 import type { DictionaryItemRef } from '@/lib/types/dictionaries.ts';
 import type { ModelMutation } from '@/lib/types/mutations.ts';
 import type { EnteredValue, ReactionOutput, ReactionOutputType } from '@/lib/types/reactions.ts';
-import { MOL_UNITS, MOL_WEIGHT_UNITS, NO_UNITS, WEIGHT_UNITS } from '@/lib/types/reactions.ts';
+import { isKnownCompound, MOL_UNITS, MOL_WEIGHT_UNITS, NO_UNITS, WEIGHT_UNITS } from '@/lib/types/reactions.ts';
 
 /**
  * The Reaction Products table's columns, as data — the same shape `columns.ts` uses for the
@@ -21,6 +21,14 @@ import { MOL_UNITS, MOL_WEIGHT_UNITS, NO_UNITS, WEIGHT_UNITS } from '@/lib/types
  */
 
 /** One product, plus which step it came from — the Reaction Step column and Show All Steps. */
+/**
+ * Mirrors `ReactionOutput.updateCompound`: a known compound can be re-salted until one of its
+ * batches has gone to registration. An unknown compound has no salt.
+ */
+function saltEditable(output: ReactionOutput): boolean {
+  return isKnownCompound(output.compound) && output.samples.every((sample) => sample.registrationStatus == null);
+}
+
 export interface ProductRow {
   output: ReactionOutput;
   /** Index into `ExperimentModel.reactions`. Shown 1-based. */
@@ -52,12 +60,20 @@ type Cell =
    * `numeric` with `editable: () => false`, because a read-only cell has no mutation to name and
    * inventing one that can never fire is worse than not having the field.
    */
-  | { kind: 'readonlyNumeric'; value: (row: ProductRow) => EnteredValue<string> | undefined; units: readonly string[] }
+  | {
+      kind: 'readonlyNumeric';
+      value: (row: ProductRow) => EnteredValue<string> | undefined;
+      units: readonly string[];
+      /** The fixed unit's text on a single-unit column, when `unitLabel` is not what to show. */
+      suffix?: string;
+    }
   /** An editable number with a unit, or a unitless one when `units` has a single member. */
   | {
       kind: 'numeric';
       value: (row: ProductRow) => EnteredValue<string> | undefined;
       units: readonly string[];
+      /** The fixed unit's text on a single-unit column, when `unitLabel` is not what to show. */
+      suffix?: string;
       mutation: (row: ProductRow, next: NumericCellValue) => ModelMutation;
       editable?: (row: ProductRow) => boolean;
     }
@@ -65,8 +81,8 @@ type Cell =
   | {
       kind: 'dictionary';
       dictionary: 'SALT_CODE';
-      value: (row: ProductRow) => DictionaryItemRef | undefined;
-      mutation: (row: ProductRow, next: DictionaryItemRef | null) => ModelMutation;
+      value: (row: ProductRow) => DictionaryItemRef;
+      mutation: (row: ProductRow, next: DictionaryItemRef) => ModelMutation;
       editable?: (row: ProductRow) => boolean;
     }
   /** The product-type picker — a fixed enum, not a dictionary. */
@@ -123,18 +139,20 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
     header: 'Mol. Weight',
     minWidth: 110,
     // Read-only, unlike the inputs table's column of the same name. `SetOutputCompoundMolWeight`
-    // only accepts an `UNKNOWN` compound, and every row here came from the drawn scheme, so it
-    // is stored or virtual by construction.
+    // only accepts an unknown compound, and every row here came from the drawn scheme, so it is
+    // known by construction.
     kind: 'readonlyNumeric',
     value: (row) => row.output.compound.molWeight,
     units: MOL_WEIGHT_UNITS,
+    // Implied by the column — every molecular weight is g/mol.
+    suffix: '',
   },
   {
     id: 'exactMass',
     header: 'Exact Mass',
     minWidth: 110,
     kind: 'readonlyNumeric',
-    value: (row) => (row.output.compound.type === 'UNKNOWN' ? undefined : row.output.compound.exactMass),
+    value: (row) => row.output.compound.exactMass,
     units: NO_UNITS,
   },
   {
@@ -161,9 +179,9 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
     minWidth: 150,
     kind: 'dictionary',
     dictionary: 'SALT_CODE',
-    value: (row) => (row.output.compound.type === 'UNKNOWN' ? undefined : row.output.compound.saltCode),
-    // A stored compound's salt code is registry data.
-    editable: (row) => row.output.compound.type === 'VIRTUAL',
+    value: (row) => row.output.compound.saltCode,
+    // Fixed once a batch has gone to registration.
+    editable: (row) => saltEditable(row.output),
     mutation: (row, saltCode) => ({ type: 'SetOutputRowSaltCode', anchor: row.output.anchor, saltCode }),
   },
   {
@@ -171,11 +189,12 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
     header: 'Salt EQ',
     minWidth: 100,
     kind: 'numeric',
-    value: (row) => (row.output.compound.type === 'UNKNOWN' ? undefined : asEnteredValue(row.output.compound.saltEQ)),
+    value: (row) => asEnteredValue(row.output.compound.saltEQ),
     units: NO_UNITS,
-    // Both gates, matching the inputs table: a stored compound's salt EQ is fixed by the registry
-    // even when it has a code. (indigo-frontend's products table checked only for the code.)
-    editable: (row) => row.output.compound.type === 'VIRTUAL' && row.output.compound.saltCode != null,
+    // Both gates, matching the inputs table: a registered compound's salt EQ is fixed even when
+    // it has a code. (indigo-frontend's products table checked only for the code.) No salt EQ
+    // means the default "00 - Parent Structure".
+    editable: (row) => saltEditable(row.output) && row.output.compound.saltEQ != null,
     mutation: (row, next) => ({ type: 'SetOutputRowSaltEQ', anchor: row.output.anchor, saltEQ: next.value }),
   },
   {
@@ -193,7 +212,11 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
     id: 'addBatch',
     header: '',
     kind: 'addBatch',
-    mutation: (row) => ({ type: 'AddProductSample', anchor: row.output.anchor }),
+    mutation: (row) => ({
+      type: 'AddProductSample',
+      anchor: row.output.anchor,
+      createdSampleAnchor: crypto.randomUUID(),
+    }),
   },
 ];
 
@@ -204,8 +227,8 @@ export function productHaystack(row: ProductRow): string {
     row.output.outputName,
     row.output.chemicalName,
     compound.formula,
-    compound.type === 'UNKNOWN' ? undefined : compound.compoundKey,
-    compound.type === 'UNKNOWN' ? undefined : compound.saltCode?.name,
+    compound.compoundKey,
+    compound.saltCode.name,
   ]
     .filter((each) => each != null)
     .join(' ')

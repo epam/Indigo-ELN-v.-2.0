@@ -82,9 +82,11 @@ export type SignatureDecision = 'sign' | 'reject';
 /**
  * Approve or reject one document, as the current user's block on it.
  *
- * `signDocument` is declared `@Consumes(MULTIPART_FORM_DATA)` on a body-less POST, so both send an
- * empty `FormData` — that is what makes the browser set the boundary-carrying content type the
- * annotation asks for.
+ * The two endpoints disagree on what they consume, and each answers 415 to the other's type.
+ * `signDocument` is declared `@Consumes(MULTIPART_FORM_DATA)` on a body-less POST, so `sign` sends
+ * an empty `FormData` — that is what makes the browser set the boundary-carrying content type the
+ * annotation asks for. `rejectDocument` inherits the interface's `@Consumes(APPLICATION_JSON)`,
+ * so `reject` sends no body at all, and with it no `Content-Type` to be refused.
  *
  * The response is the whole updated document, and it is **patched into the cached pages** rather
  * than invalidating them. Acting moves `lastModifiedDate`, which is the sort key, so a refetch
@@ -99,7 +101,7 @@ export function useSignatureDecision(documentId: UUID) {
     mutationFn: (decision: SignatureDecision) =>
       apiFetch<SignatureDocument>(`/api/signature/documents/${documentId}/${decision}`, {
         method: 'POST',
-        formData: new FormData(),
+        ...(decision === 'sign' ? { formData: new FormData() } : {}),
       }),
     onSuccess: (updated) => {
       queryClient.setQueriesData<InfiniteData<Page<SignatureDocument>>>(

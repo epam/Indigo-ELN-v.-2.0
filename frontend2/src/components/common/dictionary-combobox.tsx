@@ -14,6 +14,7 @@ function DictionaryCombobox({
   onValueChange,
   id,
   disabled,
+  clearable,
 }: {
   dictionary: BuiltInDictionary;
   value: DictionaryItemRef | null;
@@ -21,6 +22,8 @@ function DictionaryCombobox({
   id: string;
   /** Renders the current pick but accepts no interaction — a reader who cannot edit. */
   disabled?: boolean;
+  /** See `Combobox`. */
+  clearable?: boolean;
 }) {
   const { data, isPending, isError } = useDictionary(dictionary);
 
@@ -36,6 +39,7 @@ function DictionaryCombobox({
       // apiFetch has already toasted the failure; this says why the list is empty.
       error={isError}
       disabled={disabled}
+      clearable={clearable}
     />
   );
 }

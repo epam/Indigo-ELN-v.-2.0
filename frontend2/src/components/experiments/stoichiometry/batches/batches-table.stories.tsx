@@ -57,6 +57,16 @@ export const Default: Story = {
   },
 };
 
+/** Rows follow the batch number, not the order of the products the batches belong to. */
+export const SortedByBatchNumber: Story = {
+  args: { reaction: { ...REACTION, outputs: [...REACTION.outputs].reverse() } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const numbers = canvas.getAllByText(/^\d{3}$/).map((cell) => cell.textContent);
+    await expect(numbers).toEqual(['001', '002', '003', '004', '005']);
+  },
+};
+
 /**
  * Alignment is a property of the **column**, so a header and the cells under it cannot disagree —
  * which is the whole reason a value used to look like it belonged to the column next door.
@@ -80,6 +90,21 @@ export const ColumnsAlignAsOne: Story = {
     const molarity = canvas.getByLabelText('Molarity, batch 003').closest('td');
     await expect(molarity).toHaveClass('text-right');
     await expect(molarity).toHaveTextContent('—');
+  },
+};
+
+/** Yield and purity are percentages, though the wire carries them as `NO_UNIT`. */
+export const PercentagesShowTheirUnit: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const display = (name: string) =>
+      canvas
+        .getByLabelText(name)
+        .closest('[data-slot="numeric-cell"]')!
+        .querySelector('[data-slot="numeric-cell-value"]');
+
+    await expect(display('Yield, batch 001')).toHaveTextContent(/^27\.5 %$/);
+    await expect(display('Purity, batch 001')).toHaveTextContent(/^98\.5 %$/);
   },
 };
 
@@ -282,7 +307,14 @@ export const AddsEmptyBatch: Story = {
     await userEvent.click(await canvas.findByRole('button', { name: 'Add empty batch' }));
 
     await waitFor(() =>
-      expect(sent).toEqual([{ type: 'AddNoProductSample', anchor: 'b0000000-0000-4000-8000-000000000001' }]),
+      expect(sent).toEqual([
+        {
+          type: 'AddNoProductSample',
+          anchor: 'b0000000-0000-4000-8000-000000000001',
+          createdOutputAnchor: expect.any(String),
+          createdSampleAnchor: expect.any(String),
+        },
+      ]),
     );
   },
 };

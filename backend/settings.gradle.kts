@@ -14,8 +14,13 @@ pluginManagement {
     }
 }
 
+plugins {
+    id("io.github.ben-manes.versions.settings") version "0.64.0"
+}
+
 include("common:common")
 include("common:common-hibernate")
+include("common:common-indigo")
 include("common:common-service")
 include("common:common-lambda")
 include("common:common-aws")
@@ -26,12 +31,6 @@ include("common:eln-quarkus-extension")
 include("common:eln-quarkus-extension-deployment")
 
 include("database:flyway")
-
-include("signature:signature-api")
-include("signature:signature-core")
-include("signature:signature-service")
-include("signature:signature-lambda")
-include("signature:signature-aws")
 
 include("database:flyway")
 
@@ -47,6 +46,18 @@ include("reports:reports-core")
 include("reports:reports-lambda")
 include("reports:reports-service")
 include("reports:reports-aws")
+
+include("signature:signature-api")
+include("signature:signature-core")
+include("signature:signature-service")
+include("signature:signature-lambda")
+include("signature:signature-aws")
+
+include("sampleregistration:sampleregistration-api")
+include("sampleregistration:sampleregistration-core")
+include("sampleregistration:sampleregistration-service")
+include("sampleregistration:sampleregistration-lambda")
+include("sampleregistration:sampleregistration-aws")
 
 include("integrationTests:integrationTests-lambda")
 include("integrationTests:integrationTests-service")

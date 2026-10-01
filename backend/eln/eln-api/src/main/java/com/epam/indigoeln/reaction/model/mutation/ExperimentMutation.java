@@ -60,9 +60,9 @@ public interface ExperimentMutation extends Mutation {
             JsonNullable<ProjectCodeRef> projectCode,
             JsonNullable<String> description,
             JsonNullable<String> literature,
-            JsonNullable<Set<ExperimentRef>> linkedExperiments,
-            JsonNullable<Set<ExperimentRef>> continuedFrom,
-            JsonNullable<Set<ExperimentRef>> continuedTo
+            JsonNullable<@NotNull Set<ExperimentRef>> linkedExperiments,
+            JsonNullable<@NotNull Set<ExperimentRef>> continuedFrom,
+            JsonNullable<@NotNull Set<ExperimentRef>> continuedTo
     ) implements ExperimentMutation {
 
         @Override

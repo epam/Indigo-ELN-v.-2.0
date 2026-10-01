@@ -12,6 +12,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
@@ -55,7 +56,7 @@ public class RoleService {
         aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_ROLES);
         RoleEntity role = roleRepository.get(roleID);
         editProperty(request.getName(), role::setName);
-        editProperty(request.getPermissions(), p -> role.setPermissions(p.toArray(ApplicationPermission[]::new)));
+        editProperty(request.getPermissions(), p -> role.setPermissions(new HashSet<>(p)));
         return roleMapper.entityToDTO(role);
     }
 

@@ -1,0 +1,14 @@
+package com.epam.indigoeln.common.model.units;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
+public enum MolWeightUnit implements MeasurementUnit {
+
+    G_PER_MOL(1.0, "g/mol");
+
+    private final double multiplier;
+    private final String displayName;
+}

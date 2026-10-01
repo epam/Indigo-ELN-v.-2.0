@@ -2,10 +2,10 @@ package com.epam.indigoeln.eln.entity;
 
 import com.epam.indigoeln.eln.config.hibernate.ACLEntryArrayType;
 import com.epam.indigoeln.eln.config.hibernate.ExperimentCountArrayType;
-import com.epam.indigoeln.eln.config.hibernate.SearchVectorType;
+import com.epam.indigoeln.eln.common.config.SearchVectorType;
 import com.epam.indigoeln.eln.model.AccessLevel;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
-import com.epam.indigoeln.eln.util.SearchVector;
+import com.epam.indigoeln.eln.common.util.SearchVector;
 import jakarta.persistence.*;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.NamedEntityGraph;
@@ -88,12 +88,12 @@ public class ProjectEntity extends BaseEntity implements WithAttachments<Project
     @NotNull
     @Basic(fetch = FetchType.LAZY)
     @Type(ACLEntryArrayType.class)
-    private ACLEntry[] shortACL;
+    private List<ACLEntry> shortACL = List.of();
 
     @NotNull
     @Basic(fetch = FetchType.LAZY)
     @Type(ACLEntryArrayType.class)
-    private ACLEntry[] fullACL;
+    private List<ACLEntry> fullACL = List.of();
 
     @NotNull
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -103,9 +103,8 @@ public class ProjectEntity extends BaseEntity implements WithAttachments<Project
     @NotNull
     @ElementCollection
     @CollectionTable(name = "project_keyword", joinColumns = @JoinColumn(name = "project_id"))
-    @OrderColumn(name = "ordinal")
     @Column(name = "keyword", nullable = false)
-    private List<String> keywords = new ArrayList<>(0);
+    private Set<String> keywords = HashSet.newHashSet(0);
 
     @NotNull
     @OneToMany(mappedBy = "project")
@@ -124,10 +123,11 @@ public class ProjectEntity extends BaseEntity implements WithAttachments<Project
     @Column(insertable = false, updatable = false)
     private Integer notebookCount;
 
+    @NotNull
     @Basic(fetch = FetchType.LAZY)
     @Column(insertable = false, updatable = false)
     @Type(ExperimentCountArrayType.class)
-    private Map<ExperimentStatus, Integer> experimentCount;
+    private Map<ExperimentStatus, Integer> experimentCount = Map.of();
 
     @Nullable
     @Basic(fetch = FetchType.LAZY)

@@ -14,6 +14,7 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
@@ -33,9 +34,7 @@ class CreateProjectHandler extends AbstractProjectMutationHandler<ProjectMutatio
         project.setName(mutation.name());
         project.setLiterature(mutation.literature());
         project.setDescription(mutation.description());
-        if (mutation.keywords() != null) {
-            project.getKeywords().addAll(mutation.keywords());
-        }
+        project.getKeywords().addAll(mutation.keywords());
         project.setRevision(0);
         project.setCreatedBy(userService.getCurrentUserEntity());
         aclService.initProjectACL(project);
@@ -58,7 +57,7 @@ class EditProjectAttributesHandler extends AbstractProjectMutationHandler<Projec
         );
         updated |= editProperty(
                 mutation.keywords(),
-                v -> project.setKeywords(new ArrayList<>(v)),
+                v -> project.setKeywords(new HashSet<>(v)),
                 summaryList,
                 "keywords"
         );

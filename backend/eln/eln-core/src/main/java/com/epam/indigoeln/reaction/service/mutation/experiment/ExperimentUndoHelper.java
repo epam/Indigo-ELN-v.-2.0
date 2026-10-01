@@ -37,6 +37,6 @@ public class ExperimentUndoHelper extends AbstractUndoHelper<ExperimentEntity, E
 
     @Override
     protected void afterHandle(AbstractUndoHelper<ExperimentEntity, ExperimentSnapshot, ExperimentRevisionEntity, ExperimentMutationContext, ExperimentMutationListener>.UndoInfo info, ExperimentMutationContext context, boolean redo) {
-        context.getResponse().getMessages().add((redo ? "Redone: " : "Undone: ") + info.getRevision().getRevisionSummary());
+        context.getResponse().getMessages().add((redo ? "Redo: " : "Undo: ") + info.getRevision().getRevisionSummary());
     }
 }

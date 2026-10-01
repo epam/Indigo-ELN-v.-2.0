@@ -2,45 +2,38 @@ import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-q
 import type { InfiniteData } from '@tanstack/react-query';
 
 import { apiFetch } from '@/lib/api';
+import { getNextPageParam } from '@/lib/api/collections';
+import { sampleRowKey } from '@/lib/search';
 
-import type { UUID } from '@/lib/types/common.ts';
-import type { FindSamplesRequest, FindSamplesState, SampleDTO, SampleSearchResult } from '@/lib/types/samples.ts';
+import type { Page } from '@/lib/types/common.ts';
+import type { FindSamplesRequest, SampleDTO } from '@/lib/types/samples.ts';
 
 /**
- * The page size indigo-frontend's `SamplesSearchLoader` asks for. Large because a catalog page
- * is the unit the cursor advances in: a small one turns a scroll through PubChem's results into
- * a long chain of round trips, each of which has to be waited for before the next can be built.
+ * Large because PubChem cannot page: it answers page 0 and nothing after, so its one page has to
+ * hold everything worth showing. The other catalogs page normally at the same size.
  */
 const SEARCH_PAGE_SIZE = 100;
 
 const sampleKeys = {
   /**
    * The whole request is the key — TanStack Query hashes it structurally. That is what makes the
-   * catalog radio work with no imperative refetch: `catalogs` is part of the request, so choosing
+   * catalog radio work with no imperative refetch: `catalog` is part of the request, so choosing
    * a different catalog moves the key, starts a new query, and leaves the previous catalog's
    * results in cache to come back instantly if the choice is undone.
-   *
-   * `state` is deliberately **not** in it. The cursor is a page param, not part of the question
-   * being asked; keying on it would give every page its own cache entry.
    */
   search: (request: FindSamplesRequest) => ['sampleSearch', request] as const,
 };
 
-function searchSamples(
-  request: FindSamplesRequest,
-  state: FindSamplesState | null,
-  signal?: AbortSignal,
-): Promise<SampleSearchResult> {
-  return apiFetch<SampleSearchResult>(`/api/eln/samples/search?pageSize=${SEARCH_PAGE_SIZE}`, {
+function searchSamples(request: FindSamplesRequest, pageNo: number, signal?: AbortSignal): Promise<Page<SampleDTO>> {
+  return apiFetch<Page<SampleDTO>>(`/api/eln/samples/search?pageNo=${pageNo}&pageSize=${SEARCH_PAGE_SIZE}`, {
     method: 'POST',
-    // The cursor rides in the body, not the query string — `FindSamplesRequest.state`.
-    json: { ...request, state: state ?? undefined },
+    json: request,
     signal,
   });
 }
 
 /**
- * A catalog search, paged by the cursor the server hands back.
+ * A catalog search, paged like every other list.
  *
  * It has no disabled state: a search is only ever mounted for a structure that needs one, so
  * there is nothing to wait for and nothing to debounce — the structure is the whole query.
@@ -51,41 +44,41 @@ export function useSampleSearch(request: FindSamplesRequest) {
   return useInfiniteQuery({
     queryKey: sampleKeys.search(request),
     queryFn: ({ pageParam, signal }) => searchSamples(request, pageParam, signal),
-    initialPageParam: null as FindSamplesState | null,
-    // `next` is null on the last page of the last catalog, and that is the only end signal:
-    // `totalItems` goes null as soon as a catalog that cannot count has contributed.
-    getNextPageParam: (lastPage: SampleSearchResult) => lastPage.next ?? undefined,
+    initialPageParam: 0,
+    getNextPageParam,
   });
 }
 
-function markSample(id: UUID, marked: boolean): Promise<SampleDTO> {
-  return apiFetch<SampleDTO>(`/api/eln/samples/${id}/${marked ? 'mark' : 'unmark'}`, { method: 'POST' });
-}
-
 /**
- * Adds a sample to, or removes it from, the signed-in user's My Materials list.
+ * Adds a sample to, or removes it from, the signed-in user's My Materials list. The whole
+ * `SampleDTO` is the body: the backend keys the mark on `source` + `sampleKey` and imports the
+ * compound from `catalog`.
  *
- * The response is the updated `SampleDTO`, and it is written over the matching row in **every**
- * cached search rather than invalidating anything — the port of `InfiniteSearchLoader.replace`.
- * Two reasons it has to be a patch: a refetch would re-run a substructure search (and possibly a
- * PubChem call) to learn one boolean, and the My Materials catalog *filters* on the flag, so
- * refetching there would make the row the user just unmarked vanish from under the pointer.
+ * The response is the updated `SampleDTO`, and its `marked` is written over the matching row in
+ * **every** cached search rather than invalidating anything — the port of
+ * `InfiniteSearchLoader.replace`. Two reasons it has to be a patch: a refetch would re-run a
+ * substructure search (and possibly a PubChem call) to learn one boolean, and the My Materials
+ * catalog *filters* on the flag, so refetching there would make the row the user just unmarked
+ * vanish from under the pointer.
  *
- * `setQueriesData` covers the prefix because the same sample can be a hit in more than one tab.
+ * Only the flag is copied, not the row: the same sample shows in its own catalog's tab and in My
+ * Materials, and each tab keeps the record its own catalog answered with.
  */
 export function useMarkSample() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, marked }: { id: UUID; marked: boolean }) => markSample(id, marked),
+    mutationFn: ({ sample, marked }: { sample: SampleDTO; marked: boolean }) =>
+      apiFetch<SampleDTO>(`/api/eln/samples/${marked ? 'mark' : 'unmark'}`, { method: 'POST', json: sample }),
     onSuccess: (updated) => {
-      queryClient.setQueriesData<InfiniteData<SampleSearchResult>>({ queryKey: ['sampleSearch'] }, (data) => {
+      const key = sampleRowKey(updated);
+      queryClient.setQueriesData<InfiniteData<Page<SampleDTO>>>({ queryKey: ['sampleSearch'] }, (data) => {
         if (data == null) return data;
         return {
           ...data,
           pages: data.pages.map((page) => ({
             ...page,
-            items: page.items.map((item) => (item.id != null && item.id === updated.id ? updated : item)),
+            items: page.items.map((item) => (sampleRowKey(item) === key ? { ...item, marked: updated.marked } : item)),
           })),
         };
       });
@@ -93,34 +86,27 @@ export function useMarkSample() {
   });
 }
 
-/**
- * Registers a catalog hit that is not in the ELN yet, so it gains an id.
- *
- * The whole `SampleDTO` goes back as the body: `SampleSearchService.importSample` dispatches on
- * `source` to pick the provider, and the PubChem one reads `inchi` to load the structure and
- * `compoundKey` to record the external number. Sending a trimmed object would 500 on the far side.
- *
- * No cache write. The imported sample differs from the search hit by more than its id (it has a
- * batch number now), but the row it came from is about to be bound to an input row and the
- * mutation response repaints that; rewriting the search results as well would claim the catalog
- * had said something it did not.
- */
-export function useImportSample() {
-  return useMutation({
-    mutationFn: (sample: SampleDTO) =>
-      apiFetch<SampleDTO>('/api/eln/samples/importFromSearch', { method: 'POST', json: sample }),
-  });
-}
+/** How to draw a catalog hit's structure: fetch it from an API path, or render its InChI locally. */
+export type SamplePicture = { path: string } | { inchi: string };
 
 /**
- * Where to fetch a catalog hit's structure. An ELN compound has a picture endpoint of its own;
- * a PubChem hit has only its InChI, which the backend renders on demand.
+ * Where a catalog hit's structure comes from, in order — or null when there is nowhere:
  *
- * Both are `@Cached(30, DAYS)` and neither takes a revision, so the path fully identifies the
- * bytes — which is what lets `ApiImage` cache on it forever.
+ * - A My Materials hit's `compoundID` names an ELN compound, which has a picture endpoint of its own.
+ * - A PubChem hit carries its InChI, which Ketcher renders in the browser.
+ * - Any other hit with a `compoundID` has its id in `source`, which its catalog serves the
+ *   picture by — an SRS hit's `compoundID` is an SRS id, meaningless to the ELN directly.
+ *
+ * Both paths are `@Cached(30, DAYS)` and neither takes a revision, so the path fully identifies
+ * the bytes — which is what lets `ApiImage` cache on it forever.
  */
-export function samplePicturePath(sample: SampleDTO): string | null {
-  if (sample.compoundID != null) return `/api/eln/compounds/${sample.compoundID}/picture`;
-  if (sample.inchi != null) return `/api/eln/samples/external/picture?inchi=${encodeURIComponent(sample.inchi)}`;
+export function samplePicture(sample: SampleDTO): SamplePicture | null {
+  if (sample.catalog === 'MY_MATERIALS' && sample.compoundID != null) {
+    return { path: `/api/eln/compounds/${sample.compoundID}/picture` };
+  }
+  if (sample.inchi != null) return { inchi: sample.inchi };
+  if (sample.compoundID != null) {
+    return { path: `/api/eln/compounds/by-catalog/${sample.catalog}/${sample.source}/${sample.compoundID}/picture` };
+  }
   return null;
 }

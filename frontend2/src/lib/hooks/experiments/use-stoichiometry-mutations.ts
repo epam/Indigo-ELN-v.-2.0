@@ -32,29 +32,36 @@ export interface StoichiometryMutations {
  * serialised by `experimentWrite`'s scope, so a user tabbing quickly leaves the first cell
  * queued while the second is already asked for, and both must stay frozen.
  *
+ * Each cell is cleared by its own `mutateAsync` promise, not by a per-call `onSettled` on
+ * `mutate`: TanStack runs per-call callbacks only for the latest `mutate` on an instance, so
+ * clicking Register down a column would leave every batch but the last spinning forever.
+ *
  * No optimistic update, matching the Angular original and the rest of this screen — a cell
  * shows what the server last confirmed, and a failed save leaves it there. `apiFetch` has
  * already raised the error toast, so a rejection needs no handling beyond clearing the
- * spinner, which `onSettled` does whichever way the mutation went.
+ * spinner, which the `finally` does whichever way the mutation went.
  */
 export function useStoichiometryMutations(experiment: ExperimentDetails): StoichiometryMutations {
   const [savingCells, setSavingCells] = useState<ReadonlySet<string>>(() => new Set());
   const [updatedNodes, setUpdatedNodes] = useState<ReadonlyMap<unknown, unknown>>(() => new Map());
 
   const mutate = useMutateExperimentModel(experiment, setUpdatedNodes);
-  const { mutate: run } = mutate;
+  const { mutateAsync: run } = mutate;
 
   const save = useCallback(
-    (cell: string, mutation: ModelMutation) => {
+    async (cell: string, mutation: ModelMutation) => {
       setSavingCells((cells) => new Set(cells).add(cell));
-      run(mutation, {
-        onSettled: () =>
-          setSavingCells((cells) => {
-            const next = new Set(cells);
-            next.delete(cell);
-            return next;
-          }),
-      });
+      try {
+        await run(mutation);
+      } catch {
+        // Deliberately silent: apiFetch toasts every failed request.
+      } finally {
+        setSavingCells((cells) => {
+          const next = new Set(cells);
+          next.delete(cell);
+          return next;
+        });
+      }
     },
     [run],
   );

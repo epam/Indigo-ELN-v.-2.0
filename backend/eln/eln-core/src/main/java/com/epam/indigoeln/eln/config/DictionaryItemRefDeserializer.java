@@ -24,7 +24,7 @@ public class DictionaryItemRefDeserializer extends StdDeserializer<DictionaryIte
     public DictionaryItemRef deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
         ObjectCodec codec = p.getCodec();
         Representation representation = codec.readValue(p, Representation.class);
-        return dictionaryService.get(representation.id());
+        return dictionaryService.byId(representation.id());
     }
 
     @RegisterForReflection

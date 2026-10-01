@@ -68,20 +68,21 @@ function SchemeEditor({ value, onChange, className, disabled }: SchemeEditorProp
       >
         {imageUrl ? (
           <>
-            <button
-              type="button"
-              disabled={disabled}
-              onClick={() => setEditorOpen(true)}
-              aria-label="Edit structure"
-              className="flex size-full cursor-pointer items-center justify-center p-2 outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-            >
+            {/*
+              **The structure is shown, not pressed.** The whole frame used to be a button, so a
+              click anywhere on a reaction scheme — including one meant to read it — opened the
+              sketcher over it. The pencil is the one way in now, and it is a real control rather
+              than the decorative copy of that button it used to be: it carries the label and the
+              tab stop the frame is giving up, so the keyboard path is unchanged.
+            */}
+            <div className="flex size-full items-center justify-center p-2">
               <img src={imageUrl} alt="Chemical structure" className="max-h-full max-w-full object-contain" />
-            </button>
+            </div>
             <Button
               variant="secondary"
               size="icon-lg"
-              aria-hidden
-              tabIndex={-1}
+              aria-label="Edit structure"
+              title="Edit structure"
               disabled={disabled}
               onClick={() => setEditorOpen(true)}
               className="absolute top-2 right-2 text-blue-400"

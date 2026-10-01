@@ -35,6 +35,9 @@ public class DictionaryItemDTO {
     @NotNull
     private Boolean active;
 
+    @NotNull
+    private Boolean defaultItem;
+
     @Override
     public String toString() {
         return name;

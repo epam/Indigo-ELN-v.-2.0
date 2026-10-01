@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -15,7 +16,7 @@ public class ProjectDetailsDTO extends BaseProjectDTO {
     Integer revision;
 
     @NotNull
-    List<String> keywords;
+    Set<String> keywords;
 
     @Nullable
     String literature;

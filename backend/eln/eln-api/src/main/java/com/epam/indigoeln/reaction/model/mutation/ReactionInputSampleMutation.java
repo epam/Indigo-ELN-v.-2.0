@@ -1,12 +1,16 @@
 package com.epam.indigoeln.reaction.model.mutation;
 
+import com.epam.indigoeln.common.model.units.DensityUnit;
+import com.epam.indigoeln.common.model.units.MolUnit;
+import com.epam.indigoeln.common.model.units.MolarityUnit;
+import com.epam.indigoeln.common.model.units.VolumeUnit;
+import com.epam.indigoeln.common.model.units.WeightUnit;
 import com.epam.indigoeln.eln.model.HealthHazardRef;
 import com.epam.indigoeln.reaction.model.InputSampleAnchor;
-import com.epam.indigoeln.reaction.model.units.*;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 
-import java.util.List;
+import java.util.Set;
 
 public interface ReactionInputSampleMutation extends ExperimentMutation {
 
@@ -46,7 +50,7 @@ public interface ReactionInputSampleMutation extends ExperimentMutation {
 
     record SetInputHealthHazards (
             @NotNull InputSampleAnchor anchor,
-            @NotNull List<HealthHazardRef> healthHazards
+            @NotNull Set<HealthHazardRef> healthHazards
     ) implements ReactionInputSampleMutation {
     }
 

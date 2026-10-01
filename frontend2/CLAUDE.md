@@ -268,8 +268,7 @@ to queue behind the on-blur saves rather than race them.
 | `mutations.ts` | `Mutation` (all 94 members of the backend's `@JsonSubTypes` list), `ModelMutation` (the subset `/mutate` accepts), `MutationResponse` |
 
 `reactions.ts` is ported from the **Java**, not from indigo-frontend's `experiment.i.ts`. Those
-copies were generated from an older spec and have drifted: a `Reaction.rxnVersion` that does not
-exist, `STRCode*`/`NbkBatchNumber` modelled as objects when `@JsonValue` makes them strings,
+copies were generated from an older spec and have drifted: `STRCode*`/`NbkBatchNumber` modelled as objects when `@JsonValue` makes them strings,
 `SolubidityInSolvent` flattened when it is a `type`-discriminated union, and an
 `EnteredValueSource` enum whose members are not what is sent. Each divergence is commented at the
 type it affects.
@@ -320,11 +319,10 @@ Three properties of the diff, all easier to know than to rediscover:
   indigo-frontend's `determineCellClasses` uses to flash a recalculated cell, and the
   stoichiometry table will want it.
 
-`response.messages` become toasts via `notifyInfo`. `response.reactionImages` is ignored —
-schemes are drawn client-side. `unresolvedInputs` is **not** read by `applyMutationResponse`
-either, but it is not ignored: it belongs to whoever sent the mutation rather than to every
-caller, so `ReactionSchemePanel` reads it off `mutateAsync`'s resolved value and opens Analyze
-RXN on it. See below.
+`response.messages` become toasts via `notifyInfo`. `unresolvedInputs` is **not** read by 
+`applyMutationResponse` either, but it is not ignored: it belongs to whoever sent the mutation 
+rather than to every caller, so `ReactionSchemePanel` reads it off `mutateAsync`'s resolved 
+value and opens Analyze RXN on it. See below.
 
 ### Catalog search — the shared half
 
@@ -334,46 +332,51 @@ the write in `src/lib/hooks/experiments/`, the two pure helpers in `src/lib/`:
 
 | Module | Role |
 |---|---|
-| `sample-results.tsx` | the result table: seven columns, a chevron detail, a My Materials bookmark and a green Add per row, cursor-paged by an `IntersectionObserver` sentinel |
-| `@/lib/hooks/experiments/use-add-sample.ts` | the two-step write — register the hit if it has no id, then run the mutation the caller builds from that id — plus `addingRows` |
+| `sample-results.tsx` | the result table: seven columns, a chevron detail, a My Materials bookmark and a green Add per row, paged by an `IntersectionObserver` sentinel |
+| `@/lib/hooks/experiments/use-add-sample.ts` | runs the mutation the caller built for a hit, plus `addingRows` |
 | `@/lib/search.ts` | how a count is worded, and what identifies a row |
 
 `SampleResults` knows neither the question nor the answer: the caller passes a whole
 `FindSamplesRequest` (which is the query key, so changing it *is* the refetch) and an `onAdd`.
-`useAddSample` likewise takes the mutation as a function of the sample id, because the two callers
-send different ones. Each dialog is then a thin wrapper — `useResolveInput` adds `addedInputs` and
-sends `ResolveInputs`, `useAddMaterial` sends `AddInput`.
+`useAddSample` likewise takes the mutation from the caller, because the two send different ones.
+Each dialog is then a thin wrapper — `useResolveInput` adds `addedInputs` and sends
+`ResolveInputs`, `useAddMaterial` sends `AddInput`.
 
-Three properties hold for both:
+Four properties hold for both:
 
-- **`/samples/search` is the only endpoint in the app that is not paged by `Page<T>`.** It walks
-  several catalogs in priority order (ELN 0, MY\_MATERIALS 1, PUBCHEM 1000) and returns an opaque
-  cursor as `next`, which the caller hands back as the *request's* own `state` field. `totalItems`
-  is null once a catalog that cannot count has contributed — PubChem reports neither a count nor a
-  cursor — so **`next === null` is the only end-of-results signal**. A search with no count from
-  the server falls back to what it can see: `resultCountLabel` says `12+` while the cursor still
-  points somewhere, and a plain `12` once it does not, since what has loaded is the total by then.
-  `src/lib/api/samples.ts` owns the paging; nothing else should.
-- **The catalog radio needs no refetch.** `catalogs` is part of the request and the request is the
+- **One catalog per request** — `SRS` (Sample Registration, the default), `PUBCHEM` or
+  `MY_MATERIALS` — answered as a `Page<SampleDTO>`. PubChem cannot count (`totalItems: null`) and
+  answers page 0 only, which is why the page size is 100. A search with no count falls back to what
+  it can see: `resultCountLabel` says `12+` while `hasMore`, and a plain `12` once not. PubChem
+  also honours only the quick search, a structure and the formula, and 400s on the other filters.
+- **The catalog radio needs no refetch.** `catalog` is part of the request and the request is the
   query key, so choosing a different catalog is a different query. indigo-frontend's own panel
   searches only in `ngOnInit`, which is why its radio does nothing.
-- **Adding is two steps for a PubChem hit.** Every mutation that takes a sample names it by id and
-  a catalog hit that is not in the ELN has none, so `POST /samples/importFromSearch` registers it
-  first — with the whole `SampleDTO`, since the backend dispatches on `source` and reads `inchi`.
-  The mutation then goes through `useMutateExperimentModel`, so it queues in `experimentWrite`'s
-  scope and its patch fills in the row behind the dialog. Nothing is optimistic, which is why
-  `useAddSample.run` resolves to whether it worked rather than letting the caller assume.
+- **A hit is `source` + `sampleKey`, never an ELN id.** `sampleRowKey` is exactly that — not the
+  catalog, since My Materials answers with the same SRS or PubChem sample the other tab does — and
+  it is what keys the row spinner, the My Materials patch, and the "already added" check. Mark,
+  unmark, `AddInput` and `ResolveInputs` all take the **whole** `SampleDTO` back; the backend
+  imports the compound from its catalog. The mutation goes through `useMutateExperimentModel`, so
+  it queues in `experimentWrite`'s scope and its patch fills in the row behind the dialog. Nothing
+  is optimistic, which is why `useAddSample.run` resolves to whether it worked.
+- **The structure picture has three sources** (`samplePicture`): a My Materials hit's
+  `compoundID` is an ELN compound with its own picture endpoint; a PubChem hit carries an `inchi`,
+  rendered in the browser by `StructureImage` (Ketcher — both sheets `prewarmKetcher()` on open);
+  any other hit with a `compoundID` asks its catalog,
+  `/compounds/by-catalog/{catalog}/{source}/{compoundID}/picture`. An SRS hit's `compoundID` is an
+  **SRS** id, which is why the first branch is gated on the catalog. By `compoundID`, never
+  `compoundKey`: an STR code names several SRS compounds that differ only in salt EQ.
 
 The Add button on a row is disabled when the step already holds that sample
-(`getAllInputSampleIds(reaction)`, in `src/lib/reactions.ts`), which is read off the model rather
+(`getAllInputSampleKeys(reaction)`, in `src/lib/reactions.ts`), which is read off the model rather
 than remembered — so it is still right after a reopen.
 
 ### Analyze RXN
 
 `SetScheme` reports the molecules it could not match to a registered compound as
 `MutationResponse.unresolvedInputs` — **input row anchor → molfile**. Those rows are in the
-stoichiometry table already, carrying a `VIRTUAL` compound with no sample behind them, so
-nothing about their batch can be filled in. `AnalyzeRxnDialog`
+stoichiometry table already, carrying only a `VIRTUAL` sample, so nothing about their batch can
+be filled in. `AnalyzeRxnDialog`
 (`src/components/experiments/analyze-rxn/`) is the answer: one tab per unresolved row, a
 substructure search of the catalogs per tab, and a `ResolveInputs` mutation per row added. It is a
 `side="right"` sheet, like Global Search — the stoichiometry table it fills in stays visible
@@ -386,20 +389,20 @@ Two things beyond the shared half are worth knowing before changing it:
   tab's `(count)` appears only once it has been opened. Each tab's request and its count callback
   are memoized together in the dialog — a fresh identity for either on every render would restart
   the search and loop the effect that reports the count.
-- **The tab's resolved check is the narrower claim** than `getAllInputSampleIds`, and is local state:
+- **The tab's resolved check is the narrower claim** than `getAllInputSampleKeys`, and is local state:
   *this dialog* bound something to that input.
 
 ### Add Material
 
 The toolbar's `SquarePlus` on the Reactants, Reagents, Solvents table — the counterpart of the
-plain `+`, which appends an empty row on an `UNKNOWN` compound. `AddMaterialDialog`
-(`src/components/experiments/samples/`) searches the catalogs and appends a row carrying a
-registered one, via `AddInput`.
+plain `+`, which appends an empty row on an unknown compound. `AddMaterialDialog`
+(`src/components/experiments/samples/`) searches a catalog and appends a row carrying the hit,
+via `AddInput`.
 
 It is Global Search's form over the shared result table, and the assembly is nearly all it does:
 the quick-search pill, the catalog radio, `SchemeEditor`, and a `Collapsible` grid of ten filters
 with a summary line while collapsed. `add-material-form.ts` holds everything that is not JSX —
-the values, the request, the summary. Four things are particular to it:
+the values, the request, the summary. Three things are particular to it:
 
 - **Nothing is searched until Search is pressed, and Search needs a criterion.** `submitted` is
   the request as pressed, so editing the form afterwards leaves the results alone. `isEmpty` is
@@ -409,13 +412,11 @@ the values, the request, the summary. Four things are particular to it:
   selected) from running a whole-catalog browse. The gate is ours, not the server's:
   `FindSamplesRequest` has no `isEmpty` assertion — unlike `GlobalSearchRequest`, which 400s —
   and indigo-frontend does send the empty request.
-- **The catalog gates the form.** A catalog reaching PubChem (`ALL` as well as `PUBCHEM`) disables
-  every filter but Molecular Formula, which PubChem's API does accept, and `toFindSamplesRequest`
-  **drops** the disabled ones rather than sending them to be ignored — a request has to say what
-  was actually searched for. Values survive while disabled, so going back to Indigo ELN restores
-  the search rather than making it be retyped.
-- **External ID is `externalNumber`.** indigo-frontend's template binds that box to `chemicalName`
-  by mistake; the backend filter it names is a separate one.
+- **The catalog gates the form.** PubChem disables every filter but Molecular Formula, which its
+  API does accept, and `toFindSamplesRequest` **drops** the disabled ones rather than sending them
+  (the backend would 400) — a request has to say what was actually searched for. Values survive
+  while disabled, so going back to another catalog restores the search rather than making it be
+  retyped.
 - **A drawn reaction is refused, not dropped.** `FindSamplesRequest` has one structure field and
   a catalog holds compounds, so there is nothing for a rxnfile to match — Global Search routes one
   into `reactionStructure`, and there is no such field here. `handleStructure` therefore toasts

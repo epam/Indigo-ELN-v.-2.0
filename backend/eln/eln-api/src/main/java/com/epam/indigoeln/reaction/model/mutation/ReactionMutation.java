@@ -1,6 +1,11 @@
 package com.epam.indigoeln.reaction.model.mutation;
 
-import com.epam.indigoeln.reaction.model.*;
+import com.epam.indigoeln.compound.model.SampleDTO;
+import com.epam.indigoeln.reaction.model.InputAnchor;
+import com.epam.indigoeln.reaction.model.InputSampleAnchor;
+import com.epam.indigoeln.reaction.model.OutputAnchor;
+import com.epam.indigoeln.reaction.model.OutputSampleAnchor;
+import com.epam.indigoeln.reaction.model.ReactionAnchor;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
@@ -8,6 +13,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public interface ReactionMutation extends ExperimentMutation {
 
@@ -21,13 +27,14 @@ public interface ReactionMutation extends ExperimentMutation {
     record SetScheme (
         @NotNull ReactionAnchor anchor,
         @Nullable String rxnFile,
-        @Nullable List<InputAnchor> createdReactantAnchors,
-        @Nullable List<InputSampleAnchor> createdReactantSampleAnchors,
-        @Nullable List<InputAnchor> createdCatalystAnchors,
-        @Nullable List<InputSampleAnchor> createdCatalystSampleAnchors,
-        @Nullable List<OutputAnchor> createdProductAnchors
+        List<InputAnchor> createdReactantAnchors,
+        List<InputSampleAnchor> createdReactantSampleAnchors,
+        List<InputAnchor> createdCatalystAnchors,
+        List<InputSampleAnchor> createdCatalystSampleAnchors,
+        List<OutputAnchor> createdProductAnchors
     ) implements ReactionMutation {
         public SetScheme(ReactionAnchor anchor, String rxnFile) {
+            //noinspection DataFlowIssue
             this(anchor, rxnFile, null, null, null, null, null);
         }
 
@@ -41,53 +48,55 @@ public interface ReactionMutation extends ExperimentMutation {
 
     record ResolveInputs (
             @NotNull ReactionAnchor anchor,
-            @NotEmpty Map<InputAnchor, UUID> inputSamples, // anchor -> sampleID
-            @Nullable Map<InputAnchor, InputSampleAnchor> createdSampleAnchors
+            @NotEmpty Map<InputAnchor, SampleDTO> inputSamples,
+            @NotNull Map<InputAnchor, InputSampleAnchor> createdSampleAnchors
     ) implements ReactionMutation {
-        public ResolveInputs(ReactionAnchor anchor, Map<InputAnchor, UUID> inputSamples) {
-            this(anchor, inputSamples, null);
+        public ResolveInputs(ReactionAnchor anchor, Map<InputAnchor, SampleDTO> inputSamples) {
+            this(anchor, inputSamples, inputSamples.keySet().stream().collect(Collectors.toMap(k -> k, k -> InputSampleAnchor.create())));
         }
     }
 
     record AddEmptyInput (
         @NotNull ReactionAnchor anchor,
-        @Nullable InputAnchor createdInputAnchor,
-        @Nullable InputSampleAnchor createdSampleAnchor
+        @NotNull InputAnchor createdInputAnchor,
+        @NotNull InputSampleAnchor createdSampleAnchor
     ) implements ReactionMutation {
         public AddEmptyInput(ReactionAnchor anchor) {
-            this(anchor, null, null);
+            this(anchor, InputAnchor.create(), InputSampleAnchor.create());
         }
     }
 
     record AddInput (
         @NotNull ReactionAnchor anchor,
-        @NotNull UUID sampleId,
-        @Nullable InputAnchor createdInputAnchor,
-        @Nullable InputSampleAnchor createdSampleAnchor
+        @NotNull SampleDTO sample,
+        @NotNull InputAnchor createdInputAnchor,
+        @NotNull InputSampleAnchor createdSampleAnchor
     ) implements ReactionMutation {
-        public AddInput(ReactionAnchor anchor, UUID sampleId) {
-            this(anchor, sampleId, null, null);
+        public AddInput(ReactionAnchor anchor, SampleDTO sample) {
+            this(anchor, sample, InputAnchor.create(), InputSampleAnchor.create());
         }
     }
 
     record AddNoProductSample (
             @NotNull ReactionAnchor anchor,
-            @Nullable OutputAnchor createdOutputAnchor,
-            @Nullable OutputSampleAnchor createdSampleAnchor
+            @NotNull OutputAnchor createdOutputAnchor,
+            @NotNull OutputSampleAnchor createdSampleAnchor
     ) implements ReactionMutation {
         public AddNoProductSample(ReactionAnchor anchor) {
-            this(anchor, null, null);
+            this(anchor, OutputAnchor.create(), OutputSampleAnchor.create());
         }
     }
 
     record ImportSDF (
         @NotNull ReactionAnchor anchor,
-        @NotNull List<@NotNull UUID> compoundIDs,
-        @Nullable List<OutputAnchor> createdOutputAnchors,
-        @Nullable List<OutputSampleAnchor> createdSampleAnchors
+        @NotNull List<UUID> compoundIDs,
+        @NotNull List<SampleDTO> samples,
+        List<OutputAnchor> createdOutputAnchors,
+        List<OutputSampleAnchor> createdSampleAnchors
     ) implements ReactionMutation {
-        public ImportSDF(ReactionAnchor anchor, List<UUID> compoundIDs) {
-            this(anchor, compoundIDs, null, null);
+        public ImportSDF(ReactionAnchor anchor, List<UUID> compoundIDs, List<SampleDTO> samples) {
+            //noinspection DataFlowIssue
+            this(anchor, compoundIDs, samples, null, null);
         }
 
         @Override

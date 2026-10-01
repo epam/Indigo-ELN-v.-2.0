@@ -1,20 +1,20 @@
 package com.epam.indigoeln.reaction.util;
 
-import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
-import com.epam.indigoeln.reaction.model.units.NoUnit;
+import com.epam.indigoeln.common.model.units.MeasurementUnit;
+import com.epam.indigoeln.common.model.units.NoUnit;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.epam.indigoeln.reaction.model.units.DensityUnit.G_ML;
-import static com.epam.indigoeln.reaction.model.units.MolUnit.*;
-import static com.epam.indigoeln.reaction.model.units.MolWeightUnit.G_PER_MOL;
-import static com.epam.indigoeln.reaction.model.units.MolarityUnit.M;
-import static com.epam.indigoeln.reaction.model.units.MolarityUnit.MM;
-import static com.epam.indigoeln.reaction.model.units.NoUnit.NO_UNIT;
-import static com.epam.indigoeln.reaction.model.units.VolumeUnit.L;
-import static com.epam.indigoeln.reaction.model.units.VolumeUnit.ML;
-import static com.epam.indigoeln.reaction.model.units.WeightUnit.*;
+import static com.epam.indigoeln.common.model.units.DensityUnit.G_ML;
+import static com.epam.indigoeln.common.model.units.MolUnit.*;
+import static com.epam.indigoeln.common.model.units.MolWeightUnit.G_PER_MOL;
+import static com.epam.indigoeln.common.model.units.MolarityUnit.M;
+import static com.epam.indigoeln.common.model.units.MolarityUnit.MM;
+import static com.epam.indigoeln.common.model.units.NoUnit.NO_UNIT;
+import static com.epam.indigoeln.common.model.units.VolumeUnit.L;
+import static com.epam.indigoeln.common.model.units.VolumeUnit.ML;
+import static com.epam.indigoeln.common.model.units.WeightUnit.*;
 
 @Slf4j
 public class MeasurementUtil {

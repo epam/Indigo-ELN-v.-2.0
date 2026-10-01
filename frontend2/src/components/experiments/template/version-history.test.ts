@@ -6,7 +6,7 @@ import type { RevisionSummary } from '@/lib/types/revisions.ts';
 const USER = { username: 'achen', displayName: 'A. Chen' };
 
 function leaf(revision: number, overrides: Partial<RevisionSummary> = {}): RevisionSummary {
-  return { user: USER, summary: 'Add empty input', date: '2026-09-03T14:02:00Z', revision, ...overrides };
+  return { user: USER, summary: 'Add empty input', date: '2026-09-03T14:02:00Z', revision, details: [], ...overrides };
 }
 
 /** What `ExperimentMapper.revisionGroupToSummary` builds: a span plus the revisions it covers. */
@@ -28,7 +28,7 @@ describe('isGroup', () => {
     expect(isGroup(leaf(3))).toBe(false);
   });
 
-  /** `details` is absent rather than empty on a single revision, but neither is a group. */
+  /** A single revision carries an empty `details`. */
   it('treats an empty details array as no group', () => {
     expect(isGroup(leaf(3, { details: [] }))).toBe(false);
   });

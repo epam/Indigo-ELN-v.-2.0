@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.util;
 
+import com.epam.indigoeln.eln.common.util.SearchVector;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;

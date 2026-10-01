@@ -3,6 +3,8 @@ import { expect, screen, userEvent, waitFor, within } from 'storybook/test';
 
 import { SavingOverlay } from '@/components/common/saving-overlay';
 import { MultiCombobox } from '@/components/ui/combobox';
+
+import type { ComboboxSize } from '@/components/ui/combobox';
 import { KEYWORDS } from '@/mocks/fixtures';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
@@ -16,6 +18,8 @@ function ComboboxHarness({
   error = false,
   disabled = false,
   saving = false,
+  size = 'md',
+  width = 420,
 }: {
   initial?: string[];
   allowCustomValues?: boolean;
@@ -26,6 +30,10 @@ function ComboboxHarness({
   disabled?: boolean;
   /** Wraps the control the way a blur-saved form field does — see the `Saving` story. */
   saving?: boolean;
+  /** The dense 13px variant a table cell asks for. */
+  size?: ComboboxSize;
+  /** How much room the control gets — a table column is a fraction of a form's width. */
+  width?: number;
 }) {
   const [value, setValue] = useState<string[]>(initial);
   const [inputValue, setInputValue] = useState('');
@@ -47,11 +55,12 @@ function ComboboxHarness({
       loading={loading}
       error={error}
       disabled={disabled}
+      size={size}
     />
   );
 
   return (
-    <div className="w-[420px]">
+    <div style={{ width }}>
       <label id="keywords-label" htmlFor="keywords" className="text-[14px]/6">
         Project Keywords
       </label>
@@ -110,6 +119,36 @@ export const Disabled: Story = {
 
 export const WithSelection: Story = {
   args: { initial: ['kinase', 'screening'] },
+};
+
+/**
+ * **A chip must not cost the field a second line.** The input's minimum width is a floor on
+ * wrapping as much as on shrinking, and at the form's 96px a single chip in a table-width control
+ * pushed first the input and then the chevron onto lines of their own — a one-line cell became
+ * three. The chevron is now outside what wraps, and `sm` keeps a smaller floor.
+ *
+ * Measured rather than asserted on classes: what matters is what the browser laid out.
+ */
+export const ChevronStaysOnTheChipLine: Story = {
+  args: { initial: ['kinase'], size: 'sm', width: 220 },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await document.fonts.ready;
+
+    const field = canvas.getByRole('toolbar');
+    const chip = canvas.getByRole('button', { name: 'Remove kinase' }).parentElement!;
+    const chevron = canvas.getByRole('button', { name: 'Show suggestions' });
+
+    const middle = (el: Element) => {
+      const box = el.getBoundingClientRect();
+      return box.top + box.height / 2;
+    };
+
+    // One line: the field is no taller than its 40px minimum.
+    await expect(field.getBoundingClientRect().height).toBeLessThanOrEqual(40);
+    // ...and the chevron sits on the chip's line rather than under it.
+    await expect(Math.abs(middle(chevron) - middle(chip))).toBeLessThan(4);
+  },
 };
 
 /** Typing filters the list, and Enter commits the highlighted suggestion as a chip. */

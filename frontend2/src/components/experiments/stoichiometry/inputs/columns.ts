@@ -1,9 +1,8 @@
 import { asEnteredValue } from '@/components/experiments/stoichiometry/columns';
 
-import type { Align } from '@/components/experiments/stoichiometry/columns';
-
 import type { NumericCellValue } from '@/components/experiments/stoichiometry/numeric-cell';
 import type { DictionaryItemRef } from '@/lib/types/dictionaries.ts';
+import { sortByName } from '@/lib/types/dictionaries.ts';
 import type { ModelMutation } from '@/lib/types/mutations.ts';
 import type {
   DensityUnit,
@@ -18,6 +17,7 @@ import type {
 } from '@/lib/types/reactions.ts';
 import {
   DENSITY_UNITS,
+  isKnownCompound,
   MOL_UNITS,
   MOL_WEIGHT_UNITS,
   MOLARITY_UNITS,
@@ -25,6 +25,14 @@ import {
   VOLUME_UNITS,
   WEIGHT_UNITS,
 } from '@/lib/types/reactions.ts';
+
+/**
+ * Mirrors `ReactionInput.updateCompound`: a compound can be re-salted while every sample on the
+ * row is `VIRTUAL`, and is fixed once a real one is attached. An unknown compound has no salt.
+ */
+function saltEditable(input: ReactionInput): boolean {
+  return isKnownCompound(input.compound) && input.samples.every((sample) => sample.sampleSource === 'VIRTUAL');
+}
 
 /**
  * The table's columns, as data.
@@ -42,16 +50,6 @@ import {
 interface ColumnBase {
   id: string;
   header: string;
-  /**
-   * Overrides the alignment `alignOf` would derive from the cell's kind.
-   *
-   * For a column that stands in for one whose kind it does not yet have: Weight and Volume have
-   * no compound-level field, so their cells are `readonly` em-dashes — but the column *is* a
-   * numeric one, and the samples below it right-align. Left to the default they would read left
-   * under a left header while the batch rows beneath read right, which is two grids rather than
-   * one column.
-   */
-  align?: Align;
   /**
    * A **floor** in pixels, not a fixed size: the table is auto-layout, so a column sizes itself
    * to its content and to the space available, and this only stops it collapsing.
@@ -72,6 +70,15 @@ type Cell<Row> =
   | { kind: 'readonly'; value: (row: Row) => string | undefined }
   /** Server-rendered HTML — a molecular formula, whose subscripts arrive as `<sub>` tags. */
   | { kind: 'html'; value: (row: Row) => string | undefined }
+  /**
+   * A calculated number, shown but not editable. Its own kind rather than a `numeric` with
+   * `editable: () => false`, because a read-only cell has no mutation to name.
+   */
+  | {
+      kind: 'readonlyNumeric';
+      value: (row: Row) => EnteredValue<string> | undefined;
+      units: readonly string[];
+    }
   /** Free text, saved on blur. */
   | {
       kind: 'text';
@@ -91,6 +98,8 @@ type Cell<Row> =
       kind: 'numeric';
       value: (row: Row) => EnteredValue<string> | undefined;
       units: readonly string[];
+      /** The fixed unit's text on a single-unit column, when `unitLabel` is not what to show. */
+      suffix?: string;
       mutation: (row: Row, next: NumericCellValue) => ModelMutation;
       editable?: (row: Row) => boolean;
     }
@@ -98,8 +107,8 @@ type Cell<Row> =
   | {
       kind: 'dictionary';
       dictionary: 'SALT_CODE';
-      value: (row: Row) => DictionaryItemRef | undefined;
-      mutation: (row: Row, next: DictionaryItemRef | null) => ModelMutation;
+      value: (row: Row) => DictionaryItemRef;
+      mutation: (row: Row, next: DictionaryItemRef) => ModelMutation;
       editable?: (row: Row) => boolean;
     }
   /** Several items from a built-in dictionary. */
@@ -147,13 +156,6 @@ export function shortBatchNumber(nbkBatchNumber: string | undefined): string | u
   return String(Number(ordinal));
 }
 
-/**
- * Weight and Volume have no compound-level field — they belong to a sample, and a compound may
- * own several. They are shown as an em-dash for now; the backend is to expose them as a sum
- * over the row's samples, at which point these become ordinary numeric columns.
- */
-const COMPOUND_TOTAL_PLACEHOLDER = { kind: 'readonly', value: () => undefined, align: 'right' } as const;
-
 export const COMPOUND_COLUMNS: InputColumn[] = [
   { id: 'index', header: '#', minWidth: 48, kind: 'index' },
   {
@@ -161,7 +163,7 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
     header: 'Compound ID',
     minWidth: 150,
     kind: 'readonly',
-    value: (input) => (input.compound.type === 'UNKNOWN' ? undefined : input.compound.compoundKey),
+    value: (input) => input.compound.compoundKey,
   },
   {
     id: 'batches',
@@ -180,7 +182,7 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
     header: 'CAS #',
     minWidth: 110,
     kind: 'readonly',
-    value: (input) => (input.compound.type === 'UNKNOWN' ? undefined : input.compound.casNumber),
+    value: (input) => input.compound.casNumber,
   },
   {
     id: 'chemicalName',
@@ -197,17 +199,35 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
     kind: 'numeric',
     value: (input) => input.compound.molWeight,
     units: MOL_WEIGHT_UNITS,
-    // A stored or virtual compound's molecular weight comes from the registry; only an
-    // unidentified one is the user's to state.
-    editable: (input) => input.compound.type === 'UNKNOWN',
+    // Implied by the column — every molecular weight is g/mol.
+    suffix: '',
+    // A known compound's molecular weight comes from the registry; only an unidentified one
+    // is the user's to state.
+    editable: (input) => !isKnownCompound(input.compound),
     mutation: (input, next) => ({
       type: 'SetInputCompoundMolWeight',
       anchor: input.anchor,
       molWeight: next.value,
     }),
   },
-  { id: 'weight', header: 'Weight', minWidth: 110, ...COMPOUND_TOTAL_PLACEHOLDER },
-  { id: 'volume', header: 'Volume', minWidth: 110, ...COMPOUND_TOTAL_PLACEHOLDER },
+  {
+    id: 'weight',
+    header: 'Weight',
+    minWidth: 110,
+    kind: 'readonlyNumeric',
+    // Calculated: `weight = ∑ sample.weight`. Empty until every batch has a weight.
+    value: (input) => input.weight,
+    units: WEIGHT_UNITS,
+  },
+  {
+    id: 'volume',
+    header: 'Volume',
+    minWidth: 110,
+    kind: 'readonlyNumeric',
+    // Calculated: `volume = ∑ sample.volume`. Empty until every batch has a volume.
+    value: (input) => input.volume,
+    units: VOLUME_UNITS,
+  },
   {
     id: 'mol',
     header: 'Mol',
@@ -261,9 +281,9 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
     minWidth: 150,
     kind: 'dictionary',
     dictionary: 'SALT_CODE',
-    value: (input) => (input.compound.type === 'UNKNOWN' ? undefined : input.compound.saltCode),
-    // A stored compound's salt code is registry data.
-    editable: (input) => input.compound.type === 'VIRTUAL',
+    value: (input) => input.compound.saltCode,
+    // Once a real sample is attached, the compound is that sample's and its salt is registry data.
+    editable: saltEditable,
     mutation: (input, saltCode) => ({ type: 'SetInputRowSaltCode', anchor: input.anchor, saltCode }),
   },
   /**
@@ -277,12 +297,13 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
     header: 'Salt EQ',
     minWidth: 100,
     kind: 'numeric',
-    value: (input) => (input.compound.type === 'UNKNOWN' ? undefined : asEnteredValue(input.compound.saltEQ)),
+    value: (input) => asEnteredValue(input.compound.saltEQ),
     units: NO_UNITS,
-    // Both gates, not just the salt code: a stored compound's salt EQ is fixed by the registry
-    // even when it has a code. (indigo-frontend checked only for the code, which let a stored
-    // compound's salt EQ be edited.)
-    editable: (input) => input.compound.type === 'VIRTUAL' && input.compound.saltCode != null,
+    // Both gates, not just the salt code: a real sample's salt EQ is fixed by the registry even
+    // when it has a code. (indigo-frontend checked only for the code, which let a registered
+    // compound's salt EQ be edited.) The salt EQ is absent exactly when the code is the default
+    // "00 - Parent Structure", i.e. no salt.
+    editable: (input) => saltEditable(input) && input.compound.saltEQ != null,
     mutation: (input, next) => ({ type: 'SetInputRowSaltEQ', anchor: input.anchor, saltEQ: next.value }),
   },
   /** The same trick for Comments, which needs more than Salt EQ alone. */
@@ -407,6 +428,8 @@ export const SAMPLE_COLUMNS: SampleColumn[] = [
     kind: 'numeric',
     value: (sample) => sample.purity,
     units: NO_UNITS,
+    // A percentage, though the wire still carries `NO_UNIT`.
+    suffix: '%',
     mutation: (sample, next) => ({ type: 'SetInputPurity', anchor: sample.anchor, purity: next.value }),
   },
   {
@@ -416,7 +439,7 @@ export const SAMPLE_COLUMNS: SampleColumn[] = [
     minWidth: 200,
     kind: 'multiDictionary',
     dictionary: 'HEALTH_HAZARD',
-    value: (sample) => sample.healthHazards,
+    value: (sample) => sortByName(sample.healthHazards),
     mutation: (sample, healthHazards) => ({ type: 'SetInputHealthHazards', anchor: sample.anchor, healthHazards }),
   },
   {

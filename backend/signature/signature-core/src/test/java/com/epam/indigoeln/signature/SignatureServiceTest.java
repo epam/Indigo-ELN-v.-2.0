@@ -1,21 +1,33 @@
 package com.epam.indigoeln.signature;
 
-import com.epam.indigoeln.common.model.*;
+import com.epam.indigoeln.common.model.DocumentStatus;
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.SortOrder;
+import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.api.ELNInternalClient;
 import com.epam.indigoeln.signature.api.SignatureAdminClient;
 import com.epam.indigoeln.signature.api.SignatureClient;
-import com.epam.indigoeln.signature.model.*;
+import com.epam.indigoeln.signature.model.DocumentDTO;
+import com.epam.indigoeln.signature.model.SignatureReason;
+import com.epam.indigoeln.signature.model.SignatureStatus;
+import com.epam.indigoeln.signature.model.SignatureTemplateBlock;
+import com.epam.indigoeln.signature.model.SignatureTemplateDetailsDTO;
+import com.epam.indigoeln.signature.model.SignatureTemplateRequest;
 import com.epam.indigoeln.test.APICallException;
 import com.epam.indigoeln.test.BaseTest;
 import com.epam.indigoeln.test.FeignUtil;
-import com.github.tomakehurst.wiremock.client.WireMock;
-import io.quarkiverse.wiremock.devservice.ConnectWireMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.FileOutputStream;
@@ -28,16 +40,15 @@ import static com.epam.indigoeln.common.util.ContentDispositionUtil.extractFilen
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assumptions.assumeThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 
 
 @QuarkusTest
-@ConnectWireMock
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestSecurity(user = "john")
 class SignatureServiceTest extends BaseTest {
-
-    WireMock wireMock;
 
     SignatureClient signatureClient;
     SignatureAdminClient signatureAdminClient;
@@ -55,16 +66,16 @@ class SignatureServiceTest extends BaseTest {
         signatureClient = buildClient(SignatureClient.class);
         signatureAdminClient = buildClient(SignatureAdminClient.class);
         signatureAdminClient.cleanupDatabase();
-        elnInternalClient = buildClient(ELNInternalClient.class);
+        if (integrationTest) {
+            elnInternalClient = buildClient(ELNInternalClient.class);
+        } else {
+            elnInternalClient = mock(ELNInternalClient.class);
+            doNothing().when(elnInternalClient).internalSignatureUpdatedClient(any(), any(), any(), any());
+        }
 
         johnUserRef = signatureAdminClient.getOrCreateUser("john", "John", "Doe");
         willowUserRef = signatureAdminClient.getOrCreateUser("willow", "Willow", "Johnson");
         bartUserRef = signatureAdminClient.getOrCreateUser("bart", "Bart", "Simpson");
-
-        if (!integrationTest) {
-            wireMock.register(WireMock.post(WireMock.urlPathEqualTo("/internalapi/eln/signatureUpdated")).willReturn(WireMock.aResponse()
-                    .withStatus(Response.Status.NO_CONTENT.getStatusCode())));
-        }
     }
 
     @Test
@@ -198,7 +209,7 @@ class SignatureServiceTest extends BaseTest {
         try (Response content = signatureClient.downloadDocument(documentID)) {
             String filename = extractFilename(FeignUtil.getLastResponse().headers().get(HttpHeaders.CONTENT_DISPOSITION));
             assertThat(filename).isEqualTo("document.pdf");
-            try (FileOutputStream fos = new FileOutputStream(filename)) {
+            try (FileOutputStream fos = new FileOutputStream("build/" + filename)) {
                 fos.write(content.readEntity(byte[].class));
             }
         }

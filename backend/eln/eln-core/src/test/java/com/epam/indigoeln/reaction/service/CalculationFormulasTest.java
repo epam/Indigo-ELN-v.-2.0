@@ -1,28 +1,46 @@
 package com.epam.indigoeln.reaction.service;
 
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.util.ModelUtil;
+import com.epam.indigoeln.compound.model.SampleDTO;
+import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
+import com.epam.indigoeln.compound.model.search.SearchCatalog;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.BuiltInDictionary;
 import com.epam.indigoeln.eln.model.SaltCodeRef;
 import com.epam.indigoeln.eln.model.StereoisomerCodeRef;
 import com.epam.indigoeln.reaction.model.OutputSampleAnchor;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
+import com.epam.indigoeln.sampleregistration.model.SRSCompoundDTO;
+import com.epam.indigoeln.sampleregistration.model.SRSSampleDTO;
+import com.epam.indigoeln.sampleregistration.model.STRCodeCompound;
+import com.epam.indigoeln.sampleregistration.model.STRCodeSample;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import org.junit.jupiter.api.*;
 
 import java.io.File;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.UUID;
 
 import static com.epam.indigoeln.eln.test.EnteredValueAssert.assertThat;
 import static com.epam.indigoeln.eln.test.ReactionInputAssert.assertThat;
 import static com.epam.indigoeln.eln.test.ReactionInputSampleAssert.assertThat;
-import static com.epam.indigoeln.reaction.model.units.DensityUnit.G_ML;
-import static com.epam.indigoeln.reaction.model.units.MolUnit.MOL;
-import static com.epam.indigoeln.reaction.model.units.MolarityUnit.M;
-import static com.epam.indigoeln.reaction.model.units.VolumeUnit.L;
-import static com.epam.indigoeln.reaction.model.units.VolumeUnit.ML;
-import static com.epam.indigoeln.reaction.model.units.WeightUnit.G;
+import static com.epam.indigoeln.common.model.units.DensityUnit.G_ML;
+import static com.epam.indigoeln.common.model.units.MolUnit.MOL;
+import static com.epam.indigoeln.common.model.units.MolarityUnit.M;
+import static com.epam.indigoeln.common.model.units.VolumeUnit.L;
+import static com.epam.indigoeln.common.model.units.VolumeUnit.ML;
+import static com.epam.indigoeln.common.model.units.WeightUnit.G;
+import static com.epam.indigoeln.common.model.units.WeightUnit.MG;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 
 @QuarkusTest
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
@@ -30,11 +48,15 @@ public class CalculationFormulasTest extends MutationsTestBase {
 
     SaltCodeRef saltCode;
     StereoisomerCodeRef stereoisomerCode;
+    SaltCodeRef defaultSaltCode;
+    StereoisomerCodeRef defaultStereoisomerCode;
 
     @BeforeAll
     void beforeAll() {
-        saltCode = dictionaryClient.getNth(BuiltInDictionary.SALT_CODE, 1);
-        stereoisomerCode = dictionaryClient.<StereoisomerCodeRef>getDictionary(BuiltInDictionary.STEREOISOMER_CODE).get(1);
+        saltCode = dictionaryClient.getNthNonDefault(BuiltInDictionary.SALT_CODE, 1);
+        stereoisomerCode = dictionaryClient.getNthNonDefault(BuiltInDictionary.STEREOISOMER_CODE, 1);
+        defaultSaltCode = dictionaryClient.getDefault(BuiltInDictionary.SALT_CODE);
+        defaultStereoisomerCode = dictionaryClient.getDefault(BuiltInDictionary.STEREOISOMER_CODE);
     }
 
     @BeforeEach
@@ -373,5 +395,47 @@ public class CalculationFormulasTest extends MutationsTestBase {
 
         // actualWeight = yield / purity * theoWeight
         assertThat(experiment.outputSample(1, 1).getActualWeight()).hasValue(100, G);
+    }
+
+    @Test
+    // F10.1. input.weight = ∑ sample.weight
+    void testF10_1() {
+        addInputWithTwoSamples();
+        experiment.mutateSetInputWeight(1, 1, "100", G);
+        assertThat(experiment.input(1)).hasNoWeight();
+
+        experiment.mutateSetInputWeight(1, 2, "500", MG);
+        assertThat(experiment.input(1)).hasWeight(100.5, G);
+
+        experiment.mutateSetInputWeight(1, 1, null, null);
+        assertThat(experiment.input(1)).hasNoWeight();
+    }
+
+    @Test
+    // F11.1. input.volume = ∑ sample.volume
+    void testF11_1() {
+        addInputWithTwoSamples();
+        experiment.mutateSetInputVolume(1, 1, "2", L);
+        assertThat(experiment.input(1)).hasNoVolume();
+
+        experiment.mutateSetInputVolume(1, 2, "500", ML);
+        assertThat(experiment.input(1)).hasVolume(2.5, L);
+
+        experiment.mutateSetInputVolume(1, 1, null, null);
+        assertThat(experiment.input(1)).hasNoVolume();
+    }
+
+    private void addInputWithTwoSamples() {
+        UUID compoundID = UUID.randomUUID();
+        SRSSampleDTO sample1 = new SRSSampleDTO(UUID.randomUUID(), compoundID, defaultSaltCode.getId(), new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 1), "C9H17NO4", BigDecimal.ONE);
+        SRSSampleDTO sample2 = new SRSSampleDTO(UUID.randomUUID(), compoundID, defaultSaltCode.getId(), new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 2), "C9H17NO4", BigDecimal.ONE);
+        doReturn(Page.of(Paging.DEFAULT, 2, List.of(sample1, sample2))).when(sampleRegistrationClient).find(any(), any());
+        SRSCompoundDTO compound = new SRSCompoundDTO("C", defaultStereoisomerCode.getId(), defaultSaltCode.getId(), ModelUtil.loadResourceAsString("/ring-substructure.mol"));
+        doReturn(compound).when(sampleRegistrationClient).getCompound(any());
+
+        List<SampleDTO> samples = compoundClient.search(new FindSamplesRequest().withCatalog(SearchCatalog.SRS), Paging.DEFAULT).getItems();
+        experiment.mutate(new ReactionMutation.AddInput(experiment.reaction().getAnchor(), samples.get(0)));
+        experiment.mutate(new ReactionMutation.AddInput(experiment.reaction().getAnchor(), samples.get(1)));
+        assertThat(experiment.input(1).getSamples()).hasSize(2);
     }
 }

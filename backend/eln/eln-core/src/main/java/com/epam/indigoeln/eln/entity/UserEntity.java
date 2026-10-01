@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
@@ -58,7 +57,7 @@ public class UserEntity extends BaseEntity {
     public Set<ApplicationPermission> collectPermissions() {
         Set<ApplicationPermission> set = EnumSet.noneOf(ApplicationPermission.class);
         for (RoleEntity role : roles) {
-            Collections.addAll(set, role.getPermissions());
+            set.addAll(role.getPermissions());
         }
         return set;
     }

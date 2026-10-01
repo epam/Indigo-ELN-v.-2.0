@@ -11,16 +11,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class APICallException extends RuntimeException {
 
-    private final int statusCode;
+    private final String method;
+    private final String url;
 
+    private final int statusCode;
     private final String reasonPhrase;
 
     private final List<ErrorDTO> errors;
 
     @Override
     public String toString() {
-        return "APICallException: " + statusCode + " " + reasonPhrase + ":\n\t"
-                + StreamEx.of(errors).joining("\n\t")
-                + "\n";
+        return "APICallException: %s %s: %s %s:\n\t%s\n".formatted(
+                method, url, statusCode, reasonPhrase, StreamEx.of(errors).joining("\n\t")
+        );
     }
 }

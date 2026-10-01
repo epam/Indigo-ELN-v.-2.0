@@ -8,7 +8,14 @@ import com.epam.indigoeln.common.model.UploadForm;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.api.BaseAPI;
 import com.epam.indigoeln.eln.api.ProjectAPI;
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.model.ACLEntryDTO;
+import com.epam.indigoeln.eln.model.AttachmentDTO;
+import com.epam.indigoeln.eln.model.ProjectDTO;
+import com.epam.indigoeln.eln.model.ProjectDetailsDTO;
+import com.epam.indigoeln.eln.model.ProjectEditRequest;
+import com.epam.indigoeln.eln.model.ProjectExistenceCheckDTO;
+import com.epam.indigoeln.eln.model.ProjectRequest;
+import com.epam.indigoeln.eln.model.RevisionSummaryDTO;
 import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.ProjectService;
 import jakarta.annotation.Nullable;
@@ -63,7 +70,7 @@ public class ProjectResource implements ProjectAPI {
 
     @Override
     public List<AttachmentDTO> createProjectAttachment(UUID projectId, UploadForm form) {
-        return attachmentService.createProjectAttachment(projectId, form.getFile(), true);
+        return attachmentService.createProjectAttachment(projectId, form.getUpload(), true);
     }
 
     @Override

@@ -1,0 +1,66 @@
+CREATE TABLE Notebook (
+    id UUID PRIMARY KEY,
+    revision INT NOT NULL,
+    created_by_id UUID NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL,
+    modified_by_id UUID NOT NULL,
+    modified_at TIMESTAMPTZ NOT NULL,
+    project_id UUID NOT NULL,
+    name VARCHAR(256) NOT NULL,
+    description TEXT,
+    search_vector TSVECTOR NOT NULL,
+    full_acl ACL_Entry[] NOT NULL,
+    short_acl ACL_Entry[] NOT NULL,
+    experiment_count Experiment_Count[] NOT NULL DEFAULT '{}',
+    CONSTRAINT notebook_created_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
+    CONSTRAINT notebook_modified_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
+    CONSTRAINT notebook_project_id_fk FOREIGN KEY (project_id) REFERENCES Project (id),
+    CONSTRAINT notebook_name_uq UNIQUE (name)
+);
+CREATE INDEX ix_notebook_search_vector ON Notebook USING GIN(search_vector);
+CREATE INDEX ix_notebook_name ON Notebook USING GIN (name gin_trgm_ops);
+CREATE INDEX ix_notebook_acl_gin ON Notebook USING GIN (acl_user_ids(full_acl));
+CREATE INDEX ix_notebook_project_id ON Notebook (project_id);
+CREATE INDEX ix_notebook_created_by_id ON Notebook (created_by_id);
+
+CREATE TABLE Notebook_ACL (
+    notebook_id UUID NOT NULL,
+    user_id UUID NOT NULL,
+    level Access_Level NOT NULL,
+    CONSTRAINT notebook_acl_pk PRIMARY KEY (notebook_id, user_id),
+    CONSTRAINT notebook_acl_notebook_id_fk FOREIGN KEY (notebook_id) REFERENCES Notebook (id) ON DELETE CASCADE,
+    CONSTRAINT notebook_acl_user_id_fk FOREIGN KEY (user_id) REFERENCES User_Account (id) ON DELETE CASCADE
+);
+
+CREATE TABLE Notebook_Revision (
+    notebook_id UUID NOT NULL,
+    revision INT NOT NULL,
+    user_id UUID NOT NULL,
+    datetime TIMESTAMPTZ NOT NULL,
+    summary VARCHAR(1000) NOT NULL,
+    mutation JSONB NOT NULL,
+    diff JSONB NOT NULL,
+    undo_for INT,
+    redo_for INT,
+    CONSTRAINT notebook_revision_pk PRIMARY KEY (notebook_id, revision),
+    CONSTRAINT notebook_revision_experiment_id_fk FOREIGN KEY (notebook_id) REFERENCES Notebook (id)
+);
+
+ALTER TABLE Notebook ADD CONSTRAINT notebook_id_revision_fk FOREIGN KEY (id, revision) REFERENCES Notebook_Revision (notebook_id, revision) DEFERRABLE INITIALLY DEFERRED;
+
+CREATE TABLE Notebook_Attachment (
+    id UUID PRIMARY KEY,
+    created_by_id UUID NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL,
+    modified_by_id UUID NOT NULL,
+    modified_at TIMESTAMPTZ NOT NULL,
+    name VARCHAR(256) NOT NULL,
+    size BIGINT NOT NULL,
+    deleted BOOL NOT NULL,
+    content BYTEA NOT NULL,
+    notebook_id UUID,
+    CONSTRAINT notebook_attachment_created_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
+    CONSTRAINT notebook_attachment_modified_by_id_fk FOREIGN KEY (modified_by_id) REFERENCES User_Account (id),
+    CONSTRAINT notebook_attachment_notebook_id_fk FOREIGN KEY (notebook_id) REFERENCES Notebook (id) ON DELETE CASCADE
+);
+CREATE INDEX ix_notebook_attachment_notebook_id ON Notebook_Attachment (notebook_id);

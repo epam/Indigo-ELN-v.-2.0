@@ -4,13 +4,15 @@ import com.epam.indigoeln.eln.entity.ACLEntry;
 import com.epam.indigoeln.eln.model.AccessLevel;
 import one.util.streamex.StreamEx;
 
+import java.util.List;
 import java.util.UUID;
 
-public class ACLEntryArrayType extends AbstractArrayOfStructType<ACLEntry[], ACLEntry> {
+public class ACLEntryArrayType extends AbstractArrayOfStructType<List<ACLEntry>, ACLEntry> {
 
     @Override
-    public Class<ACLEntry[]> returnedClass() {
-        return ACLEntry[].class;
+    public Class<List<ACLEntry>> returnedClass() {
+        //noinspection unchecked,rawtypes
+        return (Class) List.class;
     }
 
     @Override
@@ -19,12 +21,12 @@ public class ACLEntryArrayType extends AbstractArrayOfStructType<ACLEntry[], ACL
     }
 
     @Override
-    protected ACLEntry[] doAssemble(StreamEx<ACLEntry> stream) {
-        return stream.toArray(ACLEntry[]::new);
+    protected List<ACLEntry> doAssemble(StreamEx<ACLEntry> stream) {
+        return stream.toImmutableList();
     }
 
     @Override
-    protected StreamEx<ACLEntry> doDisassemble(ACLEntry[] value) {
+    protected StreamEx<ACLEntry> doDisassemble(List<ACLEntry> value) {
         return StreamEx.of(value);
     }
 

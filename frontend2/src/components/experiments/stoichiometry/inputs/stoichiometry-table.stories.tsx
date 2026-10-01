@@ -277,6 +277,26 @@ export const ValueSourcesAreColoured: Story = {
 };
 
 /**
+ * A compound's Weight and Volume are the server's sums over its batches: shown, never edited,
+ * and an em-dash when the server has none — row 2 has a batch with no volume.
+ */
+export const CompoundTotalsAreReadOnly: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const display = (label: string) =>
+      canvas
+        .getByLabelText(label)
+        .closest('[data-slot="numeric-cell"]')!
+        .querySelector('[data-slot="numeric-cell-value"]')!;
+
+    await expect(canvas.getByLabelText('Weight, row 1')).toBeDisabled();
+    await expect(display('Weight, row 1')).toHaveTextContent('676.5');
+    await expect(canvas.getByLabelText('Volume, row 2')).toBeDisabled();
+    await expect(display('Volume, row 2')).toHaveTextContent('—');
+  },
+};
+
+/**
  * **Every control in a cell reads at the table's own size.** The shared `Combobox` and `Select`
  * default to the 14px a form wants; in a 13px table that is visibly a size larger than the text
  * beside it, and swapping a cell into edit mode used to change the type size under the cursor.
@@ -295,7 +315,6 @@ export const ControlsMatchTheTableTextSize: Story = {
 
     for (const el of [
       canvas.getByLabelText('Weight, batch 1'), // number input
-      canvas.getByLabelText('Weight, batch 1 unit'), // native unit select
       canvas.getByLabelText('Comments, batch 2'), // free-text cell
       canvas.getAllByLabelText('Reaction role')[0], // Select
       canvas.getByLabelText('Salt Code, row 3'), // Combobox
@@ -314,41 +333,32 @@ export const ControlsMatchTheTableTextSize: Story = {
 };
 
 /**
- * Salt Code is a `Select` too — short closed list, nothing to type. It differs from Rxn Role in
- * being **optional**, so clearing is a row in the list rather than a ✕: `SetInputRowSaltCode`
- * takes a null, and a select has no other way out of a value.
+ * Salt Code is a `Select` too — short closed list, nothing to type. Like Rxn Role it is
+ * **required**: "00 - Parent Structure" stands for no salt, so the list has no clearing row.
  */
-export const PicksAndClearsSaltCode: Story = {
+export const PicksSaltCode: Story = {
   parameters: { msw: { handlers: spyHandlers } },
   render: () => <TableFromCache />,
   play: async ({ canvasElement }) => {
     sent.length = 0;
     const canvas = within(canvasElement);
 
-    // Row 3 is the virtual compound, the only one whose salt code is editable.
+    // Row 3 holds only a virtual sample, the only row whose salt code is editable.
     const saltCode = await canvas.findByLabelText('Salt Code, row 3');
     await expect(saltCode.tagName).toBe('BUTTON');
     await expect(saltCode.querySelector('input')).toBeNull();
 
     await userEvent.click(saltCode);
-    // Scoped to the open list: the unit `<select>`s in the numeric cells contribute options of
-    // their own, including an `—` for a unit not yet chosen.
+    // Scoped to the open list, so nothing else on the page that happens to be an option can match.
     await userEvent.click(await within(await screen.findByRole('listbox')).findByRole('option', { name: 'Na' }));
     await waitFor(() => expect(sent).toHaveLength(1));
     await expect(sent[0]).toMatchObject({ type: 'SetInputRowSaltCode', saltCode: { name: 'Na' } });
 
-    // ...and back out again through the list. Clicking the option inside the resolved listbox
-    // rather than driving the keyboard: `{Home}{Enter}` raced Base UI settling the highlight
-    // after the popup mounts, which made this pass or fail run to run.
-    sent.length = 0;
+    // ...but there is no way back out to nothing: the list offers only real codes.
     await userEvent.click(canvas.getByLabelText('Salt Code, row 3'));
     const list = await screen.findByRole('listbox');
-    await userEvent.click(await within(list).findByRole('option', { name: '—' }));
-    await waitFor(() =>
-      expect(sent).toEqual([
-        { type: 'SetInputRowSaltCode', anchor: 'd0000000-0000-4000-8000-000000000003', saltCode: null },
-      ]),
-    );
+    await expect(within(list).queryByRole('option', { name: '—' })).not.toBeInTheDocument();
+    await expect(within(list).getByRole('option', { name: '00 - Parent Structure' })).toBeInTheDocument();
   },
 };
 
@@ -384,14 +394,14 @@ export const FormulaSubscriptsAreNotClipped: Story = {
 };
 
 /**
- * A stored compound's salt code and salt EQ come from the registry, so both stay locked even
- * though the row has a salt code set. indigo-frontend gated Salt EQ on the code alone and let
- * this row be edited.
+ * Once a registered sample is attached, the compound's salt code and salt EQ come from the
+ * registry, so both stay locked even though the row has a salt code set. indigo-frontend gated
+ * Salt EQ on the code alone and let this row be edited.
  */
 export const StoredCompoundSaltLocked: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    // Row 4 is the stored compound carrying a salt code; row 3 is the virtual one.
+    // Row 4 has a registered sample and a salt code; row 3 holds only a virtual sample.
     await expect(canvas.getByLabelText('Salt EQ, row 4')).toBeDisabled();
     await expect(canvas.getByLabelText('Salt EQ, row 3')).toBeEnabled();
   },
@@ -516,7 +526,7 @@ export const ClearsCell: Story = {
 
 /**
  * Value and unit go together or not at all, so a number typed into a cell that has no unit yet
- * sends nothing. Tab is what asks for the missing half — the picker is simply the next control.
+ * sends nothing. The list with nothing picked in it is what asks for the missing half.
  */
 export const NoRequestUntilAUnitIsChosen: Story = {
   parameters: { msw: { handlers: spyHandlers } },
@@ -529,6 +539,11 @@ export const NoRequestUntilAUnitIsChosen: Story = {
     const input = await canvas.findByLabelText('Molarity, batch 2');
     await userEvent.click(input);
     await userEvent.type(input, '0.25');
+    // Nothing in the list is picked, which is what is missing.
+    const list = await screen.findByRole('listbox', { name: 'Molarity, batch 2 unit' });
+    for (const option of within(list).getAllByRole('option')) {
+      await expect(option).toHaveAttribute('aria-selected', 'false');
+    }
     await userEvent.click(document.body);
 
     await new Promise((resolve) => setTimeout(resolve, 400));
@@ -537,18 +552,31 @@ export const NoRequestUntilAUnitIsChosen: Story = {
 };
 
 /**
- * Tab out of the number input and the unit picker is simply the next control — no `focus()` call,
- * no popup to open.
- *
- * **Two mutations, not one.** Leaving the input saves the number against the unit already there,
- * because that is a finished edit on its own; choosing a different unit then saves again. The
- * alternative — holding the number until focus left the whole cell — made tabbing to the unit
- * look like it had done nothing at all.
- *
- * A native `<select>` renders its list through the OS rather than into the document, so there is
- * nothing to assert as "open"; what matters is that focus reaches it and that choosing saves.
+ * The unit list hangs under the number, at the cell's right edge where the unit is read, for as
+ * long as the number has focus and only then. It is not a separate control, so nothing about it
+ * is reachable by Tab.
  */
-export const TabbingReachesTheUnitPicker: Story = {
+export const UnitListOnlyWhileFocused: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+
+    await userEvent.click(canvas.getByLabelText('Weight, batch 1'));
+    const list = await screen.findByRole('listbox', { name: 'Weight, batch 1 unit' });
+    await expect(within(list).getByRole('option', { name: 'mg' })).toHaveAttribute('aria-selected', 'true');
+
+    await userEvent.tab();
+    await waitFor(() =>
+      expect(screen.queryByRole('listbox', { name: 'Weight, batch 1 unit' })).not.toBeInTheDocument(),
+    );
+  },
+};
+
+/**
+ * ArrowUp/ArrowDown pick the unit without leaving the number. Picking only moves the draft; the
+ * edit is sent once, value and unit together, when Tab leaves the cell.
+ */
+export const ArrowKeysPickTheUnit: Story = {
   parameters: { msw: { handlers: spyHandlers } },
   render: () => <TableFromCache />,
   play: async ({ canvasElement }) => {
@@ -559,31 +587,125 @@ export const TabbingReachesTheUnitPicker: Story = {
     await userEvent.click(input);
     await userEvent.clear(input);
     await userEvent.type(input, '2.5');
+    await userEvent.keyboard('{ArrowDown}');
+
+    const list = await screen.findByRole('listbox', { name: 'Weight, batch 1 unit' });
+    await expect(within(list).getByRole('option', { name: 'g' })).toHaveAttribute('aria-selected', 'true');
+    // The arrow moved the unit, not the number the way a bare number input would — and the number
+    // went with it into the new unit: 2.5 mg is 0.0025 g.
+    await expect(input).toHaveValue(0.0025);
+    await expect(sent).toEqual([]);
 
     await userEvent.tab();
-    const unit = canvas.getByLabelText('Weight, batch 1 unit');
-    await expect(unit).toHaveFocus();
-
-    // Saved on the way out of the input, keeping the unit it already had.
-    const anchor = 'e0000000-0000-4000-8000-00000000000a';
-    await waitFor(() => expect(sent).toEqual([{ type: 'SetInputWeight', anchor, weight: '2.5', unit: 'MG' }]));
-
-    await userEvent.selectOptions(unit, 'G');
+    await expect(canvas.getByLabelText('Volume, batch 1')).toHaveFocus();
     await waitFor(() =>
       expect(sent).toEqual([
-        { type: 'SetInputWeight', anchor, weight: '2.5', unit: 'MG' },
-        { type: 'SetInputWeight', anchor, weight: '2.5', unit: 'G' },
+        { type: 'SetInputWeight', anchor: 'e0000000-0000-4000-8000-00000000000a', weight: '0.0025', unit: 'G' },
       ]),
     );
   },
 };
 
 /**
- * The case that prompted the change: a cell that already holds **both** halves saves the moment
- * the number is changed and focus moves on — even when it moves only as far as the unit picker
- * beside it, which is still inside the same cell.
+ * **Changing the unit says the same quantity a different way.** The number goes with it — 676.5 mg
+ * is 0.6765 g — and stepping back through the units gives the digits it started with, because the
+ * conversion moves the decimal point rather than multiplying.
+ *
+ * Nothing is sent by any of it: the unit is part of the draft, so a user who steps through three
+ * units before settling costs one request rather than three.
  */
-export const TabbingToTheUnitSavesTheValue: Story = {
+export const ChangingUnitConvertsTheValue: Story = {
+  parameters: { msw: { handlers: spyHandlers } },
+  render: () => <TableFromCache />,
+  play: async ({ canvasElement }) => {
+    sent.length = 0;
+    const canvas = within(canvasElement);
+
+    const input = await canvas.findByLabelText('Weight, batch 1');
+    await userEvent.click(input);
+    await expect(input).toHaveValue(676.5);
+
+    await userEvent.keyboard('{ArrowDown}');
+    await expect(input).toHaveValue(0.6765);
+    await userEvent.keyboard('{ArrowDown}');
+    await expect(input).toHaveValue(0.0006765);
+
+    // ...and back, digit for digit.
+    await userEvent.keyboard('{ArrowUp}{ArrowUp}');
+    await expect(input).toHaveValue(676.5);
+    await expect(sent).toEqual([]);
+
+    // One request for the lot, carrying the pair as it was left.
+    await userEvent.keyboard('{ArrowDown}{Enter}');
+    await waitFor(() =>
+      expect(sent).toEqual([
+        { type: 'SetInputWeight', anchor: 'e0000000-0000-4000-8000-00000000000a', weight: '0.6765', unit: 'G' },
+      ]),
+    );
+  },
+};
+
+/**
+ * **A cell that has never been saved keeps the number as typed.** There is no quantity to
+ * preserve yet: the number is being typed *against* the unit still being chosen, so converting it
+ * would turn the 0.25 just entered into 0.00025 while the user was still looking for the unit.
+ */
+export const UnsavedValueKeepsItsNumber: Story = {
+  parameters: { msw: { handlers: spyHandlers } },
+  render: () => <TableFromCache />,
+  play: async ({ canvasElement }) => {
+    sent.length = 0;
+    const canvas = within(canvasElement);
+
+    // This batch has no molarity, so nothing has ever been saved for this cell.
+    const input = await canvas.findByLabelText('Molarity, batch 2');
+    await userEvent.click(input);
+    await userEvent.type(input, '0.25');
+
+    await userEvent.keyboard('{ArrowDown}');
+    await expect(input).toHaveValue(0.25);
+    await userEvent.keyboard('{ArrowDown}');
+    await expect(input).toHaveValue(0.25);
+
+    await userEvent.keyboard('{Enter}');
+    await waitFor(() =>
+      expect(sent).toEqual([
+        { type: 'SetInputMolarity', anchor: 'e0000000-0000-4000-8000-00000000000b', molarity: '0.25', unit: 'M' },
+      ]),
+    );
+  },
+};
+
+/** Clicking an option picks it without taking focus, so the number can still be typed into. */
+export const ClickingAUnitKeepsFocus: Story = {
+  parameters: { msw: { handlers: spyHandlers } },
+  render: () => <TableFromCache />,
+  play: async ({ canvasElement }) => {
+    sent.length = 0;
+    const canvas = within(canvasElement);
+
+    const input = await canvas.findByLabelText('Volume, batch 2');
+    await userEvent.click(input);
+    const list = await screen.findByRole('listbox', { name: 'Volume, batch 2 unit' });
+    await userEvent.click(within(list).getByRole('option', { name: 'L' }));
+
+    await expect(input).toHaveFocus();
+    await expect(within(list).getByRole('option', { name: 'L' })).toHaveAttribute('aria-selected', 'true');
+    // Clicking converts exactly as the arrows do: 4.5 mL is 0.0045 L.
+    await expect(input).toHaveValue(0.0045);
+    await expect(sent).toEqual([]);
+
+    await userEvent.keyboard('{Enter}');
+    await waitFor(() =>
+      expect(sent).toEqual([
+        { type: 'SetInputVolume', anchor: 'e0000000-0000-4000-8000-00000000000b', volume: '0.0045', unit: 'L' },
+      ]),
+    );
+  },
+};
+
+/** Tab commits a changed value and moves straight on to the next cell's number. */
+export const TabCommitsAndMovesOn: Story = {
   parameters: { msw: { handlers: spyHandlers } },
   render: () => <TableFromCache />,
   play: async ({ canvasElement }) => {
@@ -596,6 +718,7 @@ export const TabbingToTheUnitSavesTheValue: Story = {
     await userEvent.type(input, '812');
     await userEvent.tab();
 
+    await expect(canvas.getByLabelText('Volume, batch 1')).toHaveFocus();
     await waitFor(() =>
       expect(sent).toEqual([
         { type: 'SetInputWeight', anchor: 'e0000000-0000-4000-8000-00000000000a', weight: '812', unit: 'MG' },
@@ -605,10 +728,9 @@ export const TabbingToTheUnitSavesTheValue: Story = {
 };
 
 /**
- * **The property the whole structure exists for.** Both forms are always in the DOM, so tab order
- * is the document's own — a row walks value, unit, value, unit with nothing managing focus. The
- * previous version mounted the editor on demand and had to move focus by hand, which is where the
- * stuck picker and the dead blur came from.
+ * **The property the whole structure exists for.** Both forms are always in the DOM and the
+ * number is the cell's only focusable element, so tab order is the document's own — a row walks
+ * value, value, value with nothing managing focus.
  */
 export const TabOrderWalksTheRow: Story = {
   play: async ({ canvasElement }) => {
@@ -618,14 +740,77 @@ export const TabOrderWalksTheRow: Story = {
     weight.focus();
 
     await userEvent.tab();
-    await expect(canvas.getByLabelText('Weight, batch 1 unit')).toHaveFocus();
-
-    await userEvent.tab();
     await expect(canvas.getByLabelText('Volume, batch 1')).toHaveFocus();
 
     // ...and back out again, so nothing traps focus inside a cell.
     await userEvent.tab({ shift: true });
-    await expect(canvas.getByLabelText('Weight, batch 1 unit')).toHaveFocus();
+    await expect(weight).toHaveFocus();
+  },
+};
+
+/**
+ * **The unit box is as wide as its units need, and no wider** — every pixel it does not take is
+ * the number's. Its width comes from its own labels rather than a share of the column, so it
+ * differs by quantity (`mmol` needs more than `mg`), and the list takes exactly that width with
+ * every option still whole.
+ */
+export const UnitBoxIsAsWideAsItsLabels: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await document.fonts.ready;
+
+    const measure = async (name: string) => {
+      const input = canvas.getByLabelText(name);
+      await userEvent.click(input);
+      const list = await screen.findByRole('listbox', { name: `${name} unit` });
+      const cell = input.closest('[data-slot="numeric-cell"]')!.getBoundingClientRect();
+      const unitBox = cell.width - input.getBoundingClientRect().width;
+
+      // The list is the box's width, and nothing in it is cut short.
+      await expect(Math.abs(list.getBoundingClientRect().width - unitBox)).toBeLessThanOrEqual(1);
+      for (const option of within(list).getAllByRole('option')) {
+        await expect(option.scrollWidth).toBeLessThanOrEqual(option.clientWidth);
+      }
+      return unitBox;
+    };
+
+    const weight = await measure('Weight, batch 1');
+    const mol = await measure('Mol, batch 1');
+    // Sized by each quantity's own labels, not by a fixed share of the column.
+    await expect(mol).toBeGreaterThan(weight);
+  },
+};
+
+/**
+ * A quantity with one possible unit shows it as text, in the display and beside the number
+ * alike: `g/mL` for density, `%` for purity. Molecular weight is always g/mol, so it shows none.
+ */
+export const FixedUnitsAreShown: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const display = (name: string) =>
+      canvas
+        .getByLabelText(name)
+        .closest('[data-slot="numeric-cell"]')!
+        .querySelector('[data-slot="numeric-cell-value"]');
+
+    await expect(display('Density, batch 2')).toHaveTextContent(/^1\.08 g\/mL$/);
+    await expect(display('Purity, batch 1')).toHaveTextContent(/^98\.5 %$/);
+    await expect(display('Mol. Weight, row 1')).toHaveTextContent(/^102\.09$/);
+
+    await userEvent.click(canvas.getByLabelText('Density, batch 2'));
+    await expect(canvas.getByLabelText('Density, batch 2').closest('label')).toHaveTextContent('g/mL');
+    // A fixed unit has nothing to pick from, so it opens no list.
+    await expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+
+    // ...and a cell that has a list shows the unit only there, never beside the number. The
+    // labels are in the box — stacked, to give it the widest one's width — but none is visible.
+    await userEvent.click(canvas.getByLabelText('Weight, batch 1'));
+    const box = within(canvas.getByLabelText('Weight, batch 1').closest('label')!);
+    for (const unit of ['mg', 'g', 'kg']) {
+      await expect(box.getByText(unit)).not.toBeVisible();
+    }
+    await expect(await screen.findByRole('listbox', { name: 'Weight, batch 1 unit' })).toBeInTheDocument();
   },
 };
 
@@ -649,13 +834,17 @@ export const EscapeRevertsAndLeaves: Story = {
     await userEvent.click(input);
     await userEvent.clear(input);
     await userEvent.type(input, '999');
+    await userEvent.keyboard('{ArrowDown}');
     await userEvent.keyboard('{Escape}');
 
     // Focus is gone, so `:focus-within` no longer holds the editor up.
     await expect(input).not.toHaveFocus();
-    // The draft is back to what the server confirmed...
+    // The draft is back to what the server confirmed — the unit as well as the number, which is
+    // why this reads 676.5 rather than the 0.999 g the arrow had made of it.
     await waitFor(() => expect(input).toHaveValue(676.5));
-    await expect(canvas.getByText('676.5 mg')).toBeInTheDocument();
+    await expect(
+      input.closest('[data-slot="numeric-cell"]')!.querySelector('[data-slot="numeric-cell-value"]'),
+    ).toHaveTextContent('676.5 mg');
 
     // ...and nothing was sent, which is the part that would silently regress.
     await new Promise((resolve) => setTimeout(resolve, 400));
@@ -749,9 +938,11 @@ export const AddingARow: Story = {
 
 /**
  * **A slow save must not cost the user their place.** `SavingOverlay` freezes the region it
- * covers with `inert`, and `inert` blurs whatever is inside it — so committing a number on the
- * way to its unit picker would freeze the cell that picker lives in and drop focus to nowhere.
- * The overlay hands focus back when it unfreezes.
+ * covers with `inert`, and `inert` blurs whatever is inside it — so a cell saving in the
+ * background drops focus to nowhere. The overlay hands it back when it unfreezes.
+ *
+ * What comes back is the **cell**, which is where Enter left focus — not the editor, which would
+ * be reopening an edit that is already saved.
  *
  * Only when focus is still nowhere: a user who has moved on in the meantime keeps their place.
  */
@@ -764,19 +955,114 @@ export const SlowSaveRestoresFocus: Story = {
     const input = await canvas.findByLabelText('Weight, batch 1');
     await userEvent.click(input);
     await userEvent.clear(input);
-    await userEvent.type(input, '451');
-    await userEvent.tab();
-
-    const unit = canvas.getByLabelText('Weight, batch 1 unit');
-    await expect(unit).toHaveFocus();
+    await userEvent.type(input, '451{Enter}');
+    // Focus is on the cell's unit box — after the input, so the next Tab leaves the cell.
+    const resting = input.parentElement!.querySelector('[tabindex="-1"]')!;
+    await expect(resting).toHaveFocus();
 
     // The save outlasts the delay, so the cell freezes and `inert` takes focus away.
     await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Saving…'));
-    await expect(unit).not.toHaveFocus();
+    await expect(resting).not.toHaveFocus();
 
     // ...and it comes back once the save lands.
     await waitFor(() => expect(screen.queryByRole('status')).not.toBeInTheDocument(), { timeout: 5_000 });
-    await waitFor(() => expect(unit).toHaveFocus());
+    await waitFor(() => expect(resting).toHaveFocus());
+  },
+};
+
+/**
+ * **Clicking away finishes the edit too**, and it is the case that used to come back: focus went
+ * nowhere, so `SavingOverlay` remembered the input it then froze and handed focus back to it when
+ * the save landed — reopening the editor over a value that was already saved. The cell now parks
+ * focus where Enter parks it, so what comes back is the display.
+ */
+export const ClickingAwayLeavesEditMode: Story = {
+  parameters: { msw: { handlers: freezingHandlers } },
+  render: () => <TableFromCache />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    const input = await canvas.findByLabelText('Volume, batch 2');
+    await userEvent.click(input);
+    await userEvent.clear(input);
+    await userEvent.type(input, '7');
+    await userEvent.click(document.body);
+
+    // The save outlasts the spinner's delay, so the cell freezes and then comes back.
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Saving…'));
+    await waitFor(() => expect(screen.queryByRole('status')).not.toBeInTheDocument(), { timeout: 5_000 });
+
+    await expect(input).not.toHaveFocus();
+    await expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    // ...and Tab carries on from the cell rather than from the top of the page.
+    await userEvent.tab();
+    await expect(canvas.getByLabelText('Mol, batch 2')).toHaveFocus();
+  },
+};
+
+/**
+ * **Enter finishes the edit.** The value is sent and the cell goes straight back to showing it —
+ * an editor left open over a saved value invites the same edit being made twice — while focus
+ * stays on the cell, so Tab carries on to the next control from there.
+ */
+export const EnterLeavesEditMode: Story = {
+  parameters: { msw: { handlers: spyHandlers } },
+  render: () => <TableFromCache />,
+  play: async ({ canvasElement }) => {
+    sent.length = 0;
+    const canvas = within(canvasElement);
+
+    const input = await canvas.findByLabelText('Weight, batch 1');
+    await userEvent.click(input);
+    await userEvent.clear(input);
+    await userEvent.type(input, '333{Enter}');
+
+    await expect(input).not.toHaveFocus();
+    await expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    await waitFor(() => expect(sent).toHaveLength(1));
+    await expect(sent[0]).toMatchObject({ type: 'SetInputWeight', weight: '333', unit: 'MG' });
+
+    // The display is back — the spy answers with an empty patch, so it still reads what the
+    // server last confirmed — and Tab goes on to the next cell rather than back into this one.
+    await expect(
+      input.closest('[data-slot="numeric-cell"]')!.querySelector('[data-slot="numeric-cell-value"]'),
+    ).toBeVisible();
+    await expect(
+      input.closest('[data-slot="numeric-cell"]')!.querySelector('[data-slot="numeric-cell-value"]'),
+    ).toHaveTextContent('676.5 mg');
+    await userEvent.tab();
+    await expect(canvas.getByLabelText('Volume, batch 1')).toHaveFocus();
+  },
+};
+
+/**
+ * **A cell in flight shows what it sent.** The editor closes on commit, so without this the cell
+ * would go back to the server's value and sit there for a whole round trip showing the number the
+ * user has just replaced — which reads as the edit having been dropped.
+ *
+ * It is written as a user-entered value, because that is what it is about to be.
+ *
+ * When the save settles the model is back in charge. This handler answers with an empty patch, so
+ * what comes back is the old value; a real patch would carry the new one.
+ */
+export const ShowsWhatWasSentWhileSaving: Story = {
+  parameters: { msw: { handlers: freezingHandlers } },
+  render: () => <TableFromCache />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    const input = await canvas.findByLabelText('Weight, batch 1');
+    await userEvent.click(input);
+    await userEvent.clear(input);
+    await userEvent.type(input, '700{Enter}');
+
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Saving…'));
+    const display = input.closest('[data-slot="numeric-cell"]')!.querySelector('[data-slot="numeric-cell-value"]')!;
+    await expect(display).toHaveTextContent('700 mg');
+    await expect(display).toHaveClass('text-blue-400');
+
+    await waitFor(() => expect(screen.queryByRole('status')).not.toBeInTheDocument(), { timeout: 5_000 });
+    await expect(display).toHaveTextContent('676.5 mg');
   },
 };
 
@@ -787,12 +1073,17 @@ export const FailedSaveKeepsServerValue: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await userEvent.click(await canvas.findByLabelText('Weight, batch 1'));
-    await userEvent.clear(canvas.getByLabelText('Weight, batch 1'));
-    await userEvent.type(canvas.getByLabelText('Weight, batch 1'), '5{Enter}');
+    const input = await canvas.findByLabelText('Weight, batch 1');
+    await userEvent.click(input);
+    await userEvent.clear(input);
+    await userEvent.type(input, '5{Enter}');
 
     // Nothing was written to the cache, so the display still shows what the server confirmed.
-    await waitFor(() => expect(canvas.getByText('676.5 mg')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(
+        input.closest('[data-slot="numeric-cell"]')!.querySelector('[data-slot="numeric-cell-value"]'),
+      ).toHaveTextContent('676.5 mg'),
+    );
   },
 };
 
@@ -820,7 +1111,14 @@ export const AddsEmptyRow: Story = {
     await userEvent.click(await within(canvasElement).findByRole('button', { name: 'Add empty row' }));
 
     await waitFor(() =>
-      expect(sent).toEqual([{ type: 'AddEmptyInput', anchor: 'b0000000-0000-4000-8000-000000000001' }]),
+      expect(sent).toEqual([
+        {
+          type: 'AddEmptyInput',
+          anchor: 'b0000000-0000-4000-8000-000000000001',
+          createdInputAnchor: expect.any(String),
+          createdSampleAnchor: expect.any(String),
+        },
+      ]),
     );
   },
 };

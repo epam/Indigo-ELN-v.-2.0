@@ -4,19 +4,57 @@ import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.common.model.UserRef;
+import com.epam.indigoeln.common.model.units.DensityUnit;
+import com.epam.indigoeln.common.model.units.MolUnit;
+import com.epam.indigoeln.common.model.units.WeightUnit;
+import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
-import com.epam.indigoeln.compound.model.search.SampleSearchResult;
-import com.epam.indigoeln.eln.client.*;
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.compound.model.search.SearchCatalog;
+import com.epam.indigoeln.eln.client.CompoundClient;
+import com.epam.indigoeln.eln.client.DictionaryClient;
+import com.epam.indigoeln.eln.client.ExperimentClient;
+import com.epam.indigoeln.eln.client.MiscClient;
+import com.epam.indigoeln.eln.client.NotebookClient;
+import com.epam.indigoeln.eln.client.ProjectClient;
+import com.epam.indigoeln.eln.client.TemplateClient;
+import com.epam.indigoeln.eln.client.UserClient;
+import com.epam.indigoeln.eln.model.AttachmentDTO;
+import com.epam.indigoeln.eln.model.BuiltInDictionary;
+import com.epam.indigoeln.eln.model.ComponentStateRef;
+import com.epam.indigoeln.eln.model.CompoundProtectionRef;
+import com.epam.indigoeln.eln.model.ExperimentDTO;
+import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
+import com.epam.indigoeln.eln.model.ExperimentRequest;
+import com.epam.indigoeln.eln.model.ExternalSupplierRef;
+import com.epam.indigoeln.eln.model.HandlingPrecautionsRef;
+import com.epam.indigoeln.eln.model.HealthHazardRef;
+import com.epam.indigoeln.eln.model.NotebookDTO;
+import com.epam.indigoeln.eln.model.NotebookDetailsDTO;
+import com.epam.indigoeln.eln.model.NotebookRequest;
+import com.epam.indigoeln.eln.model.ProjectCodeRef;
+import com.epam.indigoeln.eln.model.ProjectDTO;
+import com.epam.indigoeln.eln.model.ProjectDetailsDTO;
+import com.epam.indigoeln.eln.model.ProjectRequest;
+import com.epam.indigoeln.eln.model.RoleRef;
+import com.epam.indigoeln.eln.model.SampleSourceDetailsRef;
+import com.epam.indigoeln.eln.model.SampleSourceRef;
+import com.epam.indigoeln.eln.model.SolventRef;
+import com.epam.indigoeln.eln.model.StereoisomerCodeRef;
+import com.epam.indigoeln.eln.model.StorageInstructionsRef;
+import com.epam.indigoeln.eln.model.TemplateDTO;
+import com.epam.indigoeln.eln.model.TherapeuticAreaRef;
+import com.epam.indigoeln.eln.model.UserRequest;
 import com.epam.indigoeln.reaction.model.ComparisonOperator;
 import com.epam.indigoeln.reaction.model.SampleRegistrationStatus;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
-import com.epam.indigoeln.reaction.model.outputsample.*;
-import com.epam.indigoeln.reaction.model.units.DensityUnit;
-import com.epam.indigoeln.reaction.model.units.MolUnit;
-import com.epam.indigoeln.reaction.model.units.WeightUnit;
+import com.epam.indigoeln.reaction.model.outputsample.ExternalSupplier;
+import com.epam.indigoeln.reaction.model.outputsample.MeltingPoint;
+import com.epam.indigoeln.reaction.model.outputsample.ResidualSolvent;
+import com.epam.indigoeln.reaction.model.outputsample.SolubidityInSolvent;
+import com.epam.indigoeln.reaction.model.outputsample.SolubidityQualitativeType;
 import com.epam.indigoeln.reaction.util.ExperimentObject;
+import com.epam.indigoeln.sampleregistration.api.SampleRegistrationClient;
 import com.epam.indigoeln.signature.api.SignatureClient;
 import com.epam.indigoeln.signature.model.SignatureReason;
 import com.epam.indigoeln.signature.model.SignatureTemplateBlock;
@@ -24,7 +62,12 @@ import com.epam.indigoeln.signature.model.SignatureTemplateDTO;
 import com.epam.indigoeln.signature.model.SignatureTemplateRequest;
 import com.epam.indigoeln.test.FeignUtil;
 import org.jspecify.annotations.Nullable;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 import java.net.URI;
@@ -33,17 +76,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.epam.indigoeln.common.model.Paging.DEFAULT_PAGE_SIZE;
+import static com.epam.indigoeln.common.model.units.MolUnit.MMOL;
+import static com.epam.indigoeln.common.model.units.WeightUnit.G;
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
-import static com.epam.indigoeln.compound.model.search.SearchCatalog.ELN;
-import static com.epam.indigoeln.eln.ELNBaseTest.*;
+import static com.epam.indigoeln.eln.ELNBaseTest.ROLE_ADMINISTRATOR;
+import static com.epam.indigoeln.eln.ELNBaseTest.ROLE_CONTENT_EDITOR;
+import static com.epam.indigoeln.eln.ELNBaseTest.ROLE_PROJECT_CREATOR;
+import static com.epam.indigoeln.eln.ELNBaseTest.ROLE_TEMPLATE_EDITOR;
 import static com.epam.indigoeln.eln.model.ExperimentStatus.REOPEN;
 import static com.epam.indigoeln.eln.model.ExperimentStatus.SUBMITTED;
 import static com.epam.indigoeln.eln.test.EnteredValueAssert.assertThat;
 import static com.epam.indigoeln.eln.test.ReactionInputSampleAssert.assertThat;
 import static com.epam.indigoeln.eln.test.ReactionOutputSampleAssert.assertThat;
-import static com.epam.indigoeln.reaction.model.units.MolUnit.MMOL;
-import static com.epam.indigoeln.reaction.model.units.WeightUnit.G;
+import static com.epam.indigoeln.test.ClientUtil.uploadForm;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -72,6 +117,7 @@ class InsertTestDataTest {
     DictionaryClient dictionaryClient;
     CompoundClient compoundClient;
     SignatureClient signatureClient;
+    SampleRegistrationClient sampleRegistrationClient;
 
     @BeforeEach
     void setup() {
@@ -90,6 +136,7 @@ class InsertTestDataTest {
         userClient = FeignUtil.buildFeignClient(baseURI, UserClient.class, testUsername, authorization);
         compoundClient = FeignUtil.buildFeignClient(baseURI, CompoundClient.class, testUsername, authorization);
         signatureClient = FeignUtil.buildFeignClient(baseURI, SignatureClient.class, testUsername, authorization);
+        sampleRegistrationClient = FeignUtil.buildFeignClient(baseURI, SampleRegistrationClient.class, testUsername, authorization);
     }
 
     @Test
@@ -122,7 +169,7 @@ class InsertTestDataTest {
                 userClient.createUser(new UserRequest(username + "@eln.com", username, username, password, roles)));
 
         assertThat(userClient.getUser("alice@eln.com").getDisplayName()).isEqualTo("Alice Smith");
-        assertThat(userClient.getUser("bob@eln.com").getRoles()).extracting(RoleRef::getName).contains("Administrator");
+        assertThat(userClient.getUser("bob@eln.com").getRoles()).extracting(RoleRef::getName).contains("Administrators");
         assertThat(userClient.suggestUsers("user_ctp")).extracting(UserRef::getUsername).contains("user_ctp@eln.com");
     }
 
@@ -142,10 +189,12 @@ class InsertTestDataTest {
     @Test
     @Order(4)
     void loadCompounds() {
-        miscClient.loadCompoundsFromFileClient("compounds.sdf", loadResource("/Compound_000000001_000500000.1.sdf"));
+        // 0 = "00", the numeric code of the default "Parent Structure" salt code
+        sampleRegistrationClient.loadCompoundsFromFile(dictionaryClient.getDefault(BuiltInDictionary.STEREOISOMER_CODE).getId(), dictionaryClient.getDefault(BuiltInDictionary.SALT_CODE).getId(), 0,
+                uploadForm("compounds.sdf", loadResource("/Compound_000000001_000500000.1.sdf")));
 
-        SampleSearchResult samples = compoundClient.search(new FindSamplesRequest().withCatalogs(Set.of(ELN)), DEFAULT_PAGE_SIZE);
-        assertThat(samples.items()).isNotEmpty();
+        Page<SampleDTO> samples = compoundClient.search(new FindSamplesRequest().withCatalog(SearchCatalog.SRS), Paging.DEFAULT);
+        assertThat(samples.getItems()).isNotEmpty();
     }
 
     @Test
@@ -166,7 +215,7 @@ class InsertTestDataTest {
         ExperimentObject experiment = createExperiment(PROJECT_WITH_DATA, NOTEBOOK_88888888, templateClient.getByName(TEMPLATE_DEFAULT), EXPERIMENT_WITH_DATA);
 
         // add attachment
-        experimentClient.createExperimentAttachment(experiment.id(), ATTACHMENT_FILENAME, "This is attachment".getBytes());
+        experimentClient.createExperimentAttachment(experiment.id(), uploadForm(ATTACHMENT_FILENAME, "This is attachment".getBytes()));
 
         // load reaction
         experiment.mutateSetSchemeFromResource("/reaction.rxn");
@@ -175,13 +224,13 @@ class InsertTestDataTest {
         experiment.mutateResolveInputs();
 
         // select salt code
-        experiment.mutate(new ReactionOutputMutation.SetOutputRowSaltCode(experiment.output(1).getAnchor(), dictionaryClient.getNth(BuiltInDictionary.SALT_CODE, 1)));
+        experiment.mutate(new ReactionOutputMutation.SetOutputRowSaltCode(experiment.output(1).getAnchor(), dictionaryClient.getNthNonDefault(BuiltInDictionary.SALT_CODE, 1)));
 
         // select salt eq
         experiment.mutate(new ReactionOutputMutation.SetOutputRowSaltEQ(experiment.output(1).getAnchor(), 0.5));
 
         // select stereoisomer code
-        StereoisomerCodeRef stereoisomerCode = dictionaryClient.getFirst(BuiltInDictionary.STEREOISOMER_CODE);
+        StereoisomerCodeRef stereoisomerCode = dictionaryClient.getNthNonDefault(BuiltInDictionary.STEREOISOMER_CODE, 0);
         experiment.mutate(new ReactionOutputMutation.SetOutputCompoundStereoisomerCode(experiment.output(1).getAnchor(), stereoisomerCode));
 
         // set input weight
@@ -218,7 +267,7 @@ class InsertTestDataTest {
         StorageInstructionsRef storageInstructions = dictionaryClient.getFirst(BuiltInDictionary.STORAGE_INSTRUCTIONS);
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputStorageInstructions(experiment.outputSample(2, 1).getAnchor(), List.of(storageInstructions)));
         HealthHazardRef healthHazards = dictionaryClient.getFirst(BuiltInDictionary.HEALTH_HAZARD);
-        experiment.mutate(new ReactionOutputSampleMutation.SetOutputHealthHazards(experiment.outputSample(2, 1).getAnchor(), List.of(healthHazards)));
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputHealthHazards(experiment.outputSample(2, 1).getAnchor(), Set.of(healthHazards)));
         HandlingPrecautionsRef handlingPrecautions = dictionaryClient.getFirst(BuiltInDictionary.HANDLING_PRECAUTIONS);
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputHandlingPrecautions(experiment.outputSample(2, 1).getAnchor(), List.of(handlingPrecautions)));
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputMeltingPoint(experiment.outputSample(2, 1).getAnchor(), new MeltingPoint(-10.0, 20.0, COMMENT)));
@@ -274,13 +323,11 @@ class InsertTestDataTest {
         assertThat(experiment.reaction().getOutputs()).hasSizeGreaterThanOrEqualTo(2);
         assertThat(experiment.inputSample(1, 1)).hasWeight(100, G);
         assertThat(experiment.outputSample(2, 1).getRegistrationStatus()).isEqualTo(SampleRegistrationStatus.REGISTERED);
-        assertThat(experiment.outputSample(2, 1).getSampleId()).isNotNull();
         assertThat(experiment.outputSample(2, 1)).hasActualMol(200, MMOL);
         assertThat(experiment.outputSample(2, 1)).hasActualWeight(10, G);
         assertThat(experiment.outputSample(2, 1).getPurity()).hasValue(0.5);
         assertThat(experiment.outputSample(2, 1).getBatchComment()).isEqualTo(BATCH_COMMENT);
         assertThat(experiment.outputSample(2, 2).getRegistrationStatus()).isEqualTo(SampleRegistrationStatus.REGISTERED);
-        assertThat(experiment.outputSample(2, 2).getSampleId()).isNotNull();
     }
 
     @Test

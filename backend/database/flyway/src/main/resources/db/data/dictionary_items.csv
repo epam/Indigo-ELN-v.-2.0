@@ -1,4 +1,4 @@
-id,dictionary,ordinal,name,description,active,details
+id,dictionary,ordinal,name,description,active,details,defaultItem
 956f9dc9-12af-4660-af9d-c912af366024,THERAPEUTIC_AREA,1,Obesity,,true,
 19fba994-cea0-48de-bba9-94cea048de1a,THERAPEUTIC_AREA,2,Diabetes,,true,
 2a408184-9803-4873-8081-849803c87369,THERAPEUTIC_AREA,3,Pulmonology,,true,
@@ -6,6 +6,7 @@ af10d9ba-31c0-457d-90d9-ba31c0357d28,THERAPEUTIC_AREA,4,Cancer,,true,
 6a315dfb-830c-4ce1-b15d-fb830c9ce1cd,PROJECT_CODE,1,Code 1,,true,
 b1ed07fb-cf39-448d-ad07-fbcf39848dec,PROJECT_CODE,2,Code 2,,true,
 eeafb8f1-2d82-4e6d-afb8-f12d826e6d7c,PROJECT_CODE,3,Code 3,,true,
+4ef07b76-142d-4f4b-bba6-302910a80ffa,STEREOISOMER_CODE,0,Achiral,Achiral,true,,true
 39ed9ac6-c1b5-43f7-ad9a-c6c1b503f7e2,STEREOISOMER_CODE,1,NOSTC,Achiral - No Stereo Centers,true,
 a9ac9912-82de-4052-ac99-1282de705246,STEREOISOMER_CODE,2,AMESO,Achiral - Meso Stereomers,true,
 e9f319c4-31cd-4a38-b319-c431cd7a3807,STEREOISOMER_CODE,3,CISTR,Achiral - Cis/Trans Stereomers,true,
@@ -57,6 +58,7 @@ ad5db380-f6b5-4690-9db3-80f6b5169016,COMPONENT_STATE,1,Oil,,true,
 838f90ad-0515-44e3-8f90-ad051554e3ae,COMPONENT_STATE,2,Gas,,true,
 7f6921c7-d1fb-4645-a921-c7d1fbc64524,COMPONENT_STATE,3,Solid,,true,
 309e51e5-cdd1-4f07-9e51-e5cdd15f074a,COMPONENT_STATE,4,Liquid,,true,
+b171e924-3024-49c3-b88e-461a30bf9f93,SALT_CODE,0,00 - Parent Structure,,true,"{""code"": ""00"", ""formula"": """", ""charge"": 0, ""molWeight"": 0}",true
 64a88fe9-30b5-4d62-9aaa-61fe4e436d73,SALT_CODE,1,01 - Hydrochloride,,true,"{""code"": ""01"", ""formula"": ""HCl"", ""charge"": 0, ""molWeight"": 36.46}"
 e91e7912-b7d3-4f94-a913-0195d7b74923,SALT_CODE,2,02 - Hydrobromide,,true,"{""code"": ""02"", ""formula"": ""HBr"", ""charge"": 0, ""molWeight"": 80.91}"
 472bc9eb-a1fe-45ea-8340-4f93a6440ccb,SALT_CODE,3,03 - Hydroiodide,,true,"{""code"": ""03"", ""formula"": ""HI"", ""charge"": 0, ""molWeight"": 127.9124}"

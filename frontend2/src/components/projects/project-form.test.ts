@@ -11,9 +11,10 @@ import { PROJECT_NAME_MAX_LENGTH } from '@/lib/types/projects.ts';
 import { makeProjectDetails } from '@/mocks/fixtures';
 
 describe('toProjectRequest', () => {
-  it('sends only the name when nothing else was filled in', () => {
+  it('sends only the name and an empty keyword list when nothing else was filled in', () => {
     expect(toProjectRequest({ ...EMPTY_PROJECT_FORM, name: 'Kinase Screening' })).toEqual({
       name: 'Kinase Screening',
+      keywords: [],
     });
   });
 
@@ -41,8 +42,8 @@ describe('toProjectRequest', () => {
     expect(request.description).toBe('<p>Add <strong>NaOAc</strong></p>');
   });
 
-  it('keeps keywords only when some were chosen', () => {
-    expect(toProjectRequest({ ...EMPTY_PROJECT_FORM, name: 'P' })).not.toHaveProperty('keywords');
+  it('always sends keywords, empty when none were chosen', () => {
+    expect(toProjectRequest({ ...EMPTY_PROJECT_FORM, name: 'P' }).keywords).toEqual([]);
     expect(toProjectRequest({ ...EMPTY_PROJECT_FORM, name: 'P', keywords: ['kinase'] }).keywords).toEqual(['kinase']);
   });
 });
@@ -108,5 +109,10 @@ describe('toProjectEditRequest', () => {
       'assay',
     ]);
     expect(toProjectEditRequest({ ...initial, keywords: [] }, initial).keywords).toEqual([]);
+  });
+
+  it('treats reordered keywords as no change', () => {
+    const two = { ...initial, keywords: ['assay', 'kinase'] };
+    expect(toProjectEditRequest({ ...two, keywords: ['kinase', 'assay'] }, two)).toEqual({});
   });
 });

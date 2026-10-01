@@ -1,7 +1,9 @@
 package com.epam.indigoeln.reaction.model;
 
-import com.epam.indigoeln.reaction.model.units.EnteredValue;
-import com.epam.indigoeln.reaction.model.units.MolUnit;
+import com.epam.indigoeln.common.model.units.MolUnit;
+import com.epam.indigoeln.common.model.units.VolumeUnit;
+import com.epam.indigoeln.common.model.units.WeightUnit;
+import com.epam.indigoeln.eln.model.SampleSource;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -35,12 +37,17 @@ public final class ReactionInput extends ReactionRow {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private EnteredValue<MolUnit> mol = EnteredValue.empty();
 
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private EnteredValue<WeightUnit> weight = EnteredValue.empty();
+
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private EnteredValue<VolumeUnit> volume = EnteredValue.empty();
+
     @Nullable
     private String chemicalName;
 
     @NotEmpty
     @JsonManagedReference
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<@Valid ReactionInputSample> samples = List.of();
 
     public static ReactionInput create(Reaction reaction, ReactionRole role, InputAnchor anchor, CompoundRef compound) {
@@ -66,7 +73,7 @@ public final class ReactionInput extends ReactionRow {
 
     public void updateCompound(CompoundRef newCompound) {
         for (ReactionInputSample sample : samples) {
-            validate(sample.getSampleId() == null, "Cannot update compound with real samples attached");
+            validate(sample.getSampleSource() == SampleSource.VIRTUAL, "Cannot update compound with real samples attached");
         }
         this.compound = newCompound;
         validateDuplicateInputs(reaction, this);
@@ -80,7 +87,7 @@ public final class ReactionInput extends ReactionRow {
     private static void validateDuplicateInputs(Reaction reaction, ReactionInput newInput) {
         for (ReactionInput input : reaction.getInputs()) {
             if (input != newInput) {
-                validate(!input.getCompound().compoundKeyEquals(newInput.getCompound()), "Reaction contains duplicate input compounds");
+                validate(input.getRole() != newInput.getRole() || !input.getCompound().compoundKeyEquals(newInput.getCompound()), "Reaction contains duplicate input compounds");
             }
         }
     }

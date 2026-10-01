@@ -29,6 +29,7 @@ import { canEditExperiment } from '@/lib/types/experiments.ts';
 
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
 import type { Reaction } from '@/lib/types/reactions.ts';
+import { isKnownCompound } from '@/lib/types/reactions.ts';
 
 /**
  * The Product Batch Summary.
@@ -70,7 +71,11 @@ export function ProductBatchSummaryTable({
   const canEdit = canEditExperiment(experiment);
 
   const batches = useMemo<BatchRow[]>(
-    () => reaction.outputs.flatMap((output) => output.samples.map((sample) => ({ output, sample, step }))),
+    () =>
+      reaction.outputs
+        .flatMap((output) => output.samples.map((sample) => ({ output, sample, step })))
+        // Collected product by product, so without this the rows follow product order, not batch order.
+        .sort((a, b) => Number(a.sample.shortNbkBatchNumber) - Number(b.sample.shortNbkBatchNumber)),
     [reaction.outputs, step],
   );
 
@@ -203,7 +208,14 @@ function Toolbar({
             aria-label="Add empty batch"
             title="Add empty batch"
             disabled={!canEdit}
-            onClick={() => mutations.save(addBatchCell, { type: 'AddNoProductSample', anchor: reaction.anchor })}
+            onClick={() =>
+              mutations.save(addBatchCell, {
+                type: 'AddNoProductSample',
+                anchor: reaction.anchor,
+                createdOutputAnchor: crypto.randomUUID(),
+                createdSampleAnchor: crypto.randomUUID(),
+              })
+            }
           >
             <Plus />
           </Button>
@@ -341,6 +353,7 @@ function BatchCell({
         <NumericCell
           value={column.value(row)}
           units={column.units}
+          suffix={column.suffix}
           updatedNodes={mutations.updatedNodes}
           editable={false}
           pending={false}
@@ -354,6 +367,7 @@ function BatchCell({
         <NumericCell
           value={column.value(row)}
           units={column.units}
+          suffix={column.suffix}
           updatedNodes={mutations.updatedNodes}
           // Registration does not freeze these: the backend rejects a registered sample's
           // *compound* mutations only — see `isSampleProtected`.
@@ -424,7 +438,7 @@ function BatchActionButton({
           tone="green"
           label={registerLabel(row, protectedSample, batch)}
           // `RegisterSampleHandler` throws on both of these, so neither is offered.
-          editable={canEdit && !protectedSample && row.output.compound.type !== 'UNKNOWN'}
+          editable={canEdit && !protectedSample && isKnownCompound(row.output.compound)}
           pending={pending}
           onCommit={save}
         />
@@ -446,6 +460,6 @@ function BatchActionButton({
 function registerLabel(row: BatchRow, protectedSample: boolean, batch: string): string {
   if (row.sample.registrationStatus === 'REGISTERED') return `Batch ${batch} is already registered`;
   if (protectedSample) return `Batch ${batch} has already been sent for registration`;
-  if (row.output.compound.type === 'UNKNOWN') return `Batch ${batch} has no compound to register`;
+  if (!isKnownCompound(row.output.compound)) return `Batch ${batch} has no compound to register`;
   return `Register batch ${batch}`;
 }

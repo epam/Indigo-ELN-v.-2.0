@@ -15,6 +15,7 @@ import type {
   VolumeUnit,
   WeightUnit,
 } from '@/lib/types/reactions.ts';
+import type { SampleDTO } from '@/lib/types/samples.ts';
 
 /**
  * The experiment model-mutation protocol: `POST /experiments/{id}/mutate` takes one
@@ -40,9 +41,11 @@ import type {
  *   completed by `POST /experiments/{id}/complete`. `ModelMutation` below is the subset that
  *   endpoint accepts, and it is what the mutate hook takes; nothing outside this file should
  *   be typed on the full `Mutation`.
- * - **Several carry `created*Anchor` members that a client must not send.** They are filled in
- *   server-side so an undo/redo replay regenerates the same anchors. They are omitted from the
- *   interfaces here rather than marked optional, so there is no way to send one by accident.
+ * - **Mutations that create rows or samples carry `created*Anchor` members the client picks**
+ *   with `crypto.randomUUID()`. The backend stores them with the revision, so an undo/redo replay
+ *   recreates the same anchors. `SetScheme` and `ImportSDF` are the exception: their counts
+ *   depend on parsing the rxnfile or SDF, so the backend fills those in and the interfaces here
+ *   omit them.
  */
 export type Mutation = ExperimentMutation | ProjectMutation | NotebookMutation;
 
@@ -335,32 +338,39 @@ export interface SetScheme {
 }
 
 /**
- * Attaches registered samples to input rows the scheme could not match to a compound — the
- * ones `MutationResponse.unresolvedInputs` names. `@NotEmpty` on the map.
+ * Attaches catalog samples to input rows the scheme could not match to a compound — the ones
+ * `MutationResponse.unresolvedInputs` names. `@NotEmpty` on the map. The row's `VIRTUAL`
+ * sample is replaced; real samples already on it stay.
  */
 export interface ResolveInputs {
   type: 'ResolveInputs';
   anchor: UUID;
-  /** Input row anchor → the sample id to bind to it. */
-  inputSamples: Record<UUID, UUID>;
+  /** Input row anchor → the catalog hit to bind to it, sent back whole. */
+  inputSamples: Record<UUID, SampleDTO>;
+  /** Input row anchor → the anchor of the sample created on it; the same keys as `inputSamples`. */
+  createdSampleAnchors: Record<UUID, UUID>;
 }
 
 /**
- * Appends an input row carrying an `UNKNOWN` compound and one empty sample. The two
- * `created*Anchor` members the record also declares are filled in server-side so an undo/redo
- * replay regenerates the same anchors; a client must not send them.
+ * Appends an input row carrying an unknown compound and one `VIRTUAL` sample. The client picks
+ * the `created*Anchor`s of the new row and sample; they are stored with the revision, so an
+ * undo/redo replay recreates the same anchors. A clash with an existing anchor is a 400.
  */
 export interface AddEmptyInput {
   type: 'AddEmptyInput';
   /** The reaction's own anchor, not a row's. */
   anchor: UUID;
+  createdInputAnchor: UUID;
+  createdSampleAnchor: UUID;
 }
 
-/** The same, for a compound that is already registered. */
+/** The same, for a catalog hit — sent back whole; the backend imports its compound. */
 export interface AddInput {
   type: 'AddInput';
   anchor: UUID;
-  sampleId: UUID;
+  sample: SampleDTO;
+  createdInputAnchor: UUID;
+  createdSampleAnchor: UUID;
 }
 
 /**
@@ -371,6 +381,8 @@ export interface AddInput {
 export interface AddNoProductSample {
   type: 'AddNoProductSample';
   anchor: UUID;
+  createdOutputAnchor: UUID;
+  createdSampleAnchor: UUID;
 }
 
 /**
@@ -382,6 +394,7 @@ export interface ImportSDF {
   type: 'ImportSDF';
   anchor: UUID;
   compoundIDs: UUID[];
+  samples: SampleDTO[];
 }
 
 /* ── Input rows ────────────────────────────────────────────────────────────────────────── */
@@ -433,7 +446,7 @@ export interface SetInputRowLimiting {
 export interface SetInputRowSaltCode {
   type: 'SetInputRowSaltCode';
   anchor: UUID;
-  saltCode: DictionaryItemRef | null;
+  saltCode: DictionaryItemRef;
 }
 
 export interface SetInputRowSaltEQ {
@@ -452,10 +465,10 @@ export interface SetInputRowEQ {
 export interface SetInputCompoundStereoisomerCode {
   type: 'SetInputCompoundStereoisomerCode';
   anchor: UUID;
-  stereoisomerCode: DictionaryItemRef | null;
+  stereoisomerCode: DictionaryItemRef;
 }
 
-/** Only meaningful for an `UNKNOWN` compound; a stored or virtual one carries a registry value. */
+/** Only meaningful for an unknown compound (no `compoundID`); a known one carries a registry value. */
 export interface SetInputCompoundMolWeight {
   type: 'SetInputCompoundMolWeight';
   anchor: UUID;
@@ -540,14 +553,14 @@ export interface RemoveInput {
  */
 
 /**
- * Adds one batch to this product. The record also declares `createdSampleAnchor`, filled in
- * server-side so an undo/redo replay regenerates the same anchor; a client must not send it.
+ * Adds one batch to this product, with the client-picked `createdSampleAnchor`.
  *
  * A new batch starts at 100 % purity (`AddProductSampleHandler`).
  */
 export interface AddProductSample {
   type: 'AddProductSample';
   anchor: UUID;
+  createdSampleAnchor: UUID;
 }
 
 /**
@@ -567,13 +580,13 @@ export interface SetOutputRowType {
 
 /**
  * Setting a salt code on a **stored** compound turns it into a virtual one and defaults its
- * `saltEQ` to 1, because the whole `CompoundRef` is rebuilt — which is what moves `molWeight`,
+ * `saltEQ` to 1 (or clears it, for the default "00 - Parent Structure"), because the whole `CompoundRef` is rebuilt — which is what moves `molWeight`,
  * `formula` and `exactMass` in the same patch.
  */
 export interface SetOutputRowSaltCode {
   type: 'SetOutputRowSaltCode';
   anchor: UUID;
-  saltCode: DictionaryItemRef | null;
+  saltCode: DictionaryItemRef;
 }
 
 export interface SetOutputRowSaltEQ {
@@ -623,10 +636,10 @@ export interface SetOutputRowIntended {
 export interface SetOutputCompoundStereoisomerCode {
   type: 'SetOutputCompoundStereoisomerCode';
   anchor: UUID;
-  stereoisomerCode: DictionaryItemRef | null;
+  stereoisomerCode: DictionaryItemRef;
 }
 
-/** Only meaningful for an `UNKNOWN` compound, exactly as on the input side. */
+/** Only meaningful for an unknown compound, exactly as on the input side. */
 export interface SetOutputCompoundMolWeight {
   type: 'SetOutputCompoundMolWeight';
   anchor: UUID;
@@ -639,9 +652,9 @@ export interface SetOutputCompoundMolWeight {
  * One product batch. Rejected outright when the sample has been sent for registration —
  * `registrationStatus != null` freezes its compound, and most of these its values too.
  *
- * The last four carry a `createdOutputAnchor` the backend fills in: changing a batch's salt,
+ * The last four carry a client-picked `createdOutputAnchor`: changing a batch's salt,
  * stereoisomer or structure can move it onto a different product row, creating one if no row
- * matches. As everywhere else, a client must not send it.
+ * matches. Always required; unused when an existing row matches.
  */
 export interface SetOutputDensity {
   type: 'SetOutputDensity';
@@ -697,35 +710,34 @@ export interface RegisterSample {
   anchor: UUID;
 }
 
-/** `@Size(min = 1)` when present: send `null` to clear it, never `[]`. */
 export interface SetOutputHandlingPrecautions {
   type: 'SetOutputHandlingPrecautions';
   anchor: UUID;
-  handlingPrecautions: DictionaryItemRef[] | null;
+  handlingPrecautions: DictionaryItemRef[];
 }
 
 export interface SetOutputStorageInstructions {
   type: 'SetOutputStorageInstructions';
   anchor: UUID;
-  storageInstructions: DictionaryItemRef[] | null;
+  storageInstructions: DictionaryItemRef[];
 }
 
 export interface SetOutputCompoundProtection {
   type: 'SetOutputCompoundProtection';
   anchor: UUID;
-  compoundProtection: DictionaryItemRef[] | null;
+  compoundProtection: DictionaryItemRef[];
 }
 
 export interface SetOutputSolubilityInSolvents {
   type: 'SetOutputSolubilityInSolvents';
   anchor: UUID;
-  solubilityInSolvents: SolubidityInSolvent[] | null;
+  solubilityInSolvents: SolubidityInSolvent[];
 }
 
 export interface SetOutputResidualSolvents {
   type: 'SetOutputResidualSolvents';
   anchor: UUID;
-  residualSolvents: ResidualSolvent[] | null;
+  residualSolvents: ResidualSolvent[];
 }
 
 export interface SetOutputMeltingPoint {
@@ -737,7 +749,7 @@ export interface SetOutputMeltingPoint {
 export interface SetOutputPurityCalculations {
   type: 'SetOutputPurityCalculations';
   anchor: UUID;
-  purityCalculations: PurityCalculation[] | null;
+  purityCalculations: PurityCalculation[];
 }
 
 export interface SetOutputExternalSupplier {
@@ -791,7 +803,8 @@ export interface RemoveProductSample {
 export interface SetOutputSaltCode {
   type: 'SetOutputSaltCode';
   anchor: UUID;
-  saltCode: DictionaryItemRef | null;
+  saltCode: DictionaryItemRef;
+  createdOutputAnchor: UUID;
 }
 
 export interface SetOutputSaltEQ {
@@ -799,12 +812,14 @@ export interface SetOutputSaltEQ {
   anchor: UUID;
   /** A string, though the record says `Double` — see the note above the input rows. */
   saltEQ: string | null;
+  createdOutputAnchor: UUID;
 }
 
 export interface SetOutputStereoisomerCode {
   type: 'SetOutputStereoisomerCode';
   anchor: UUID;
-  stereoisomerCode: DictionaryItemRef | null;
+  stereoisomerCode: DictionaryItemRef;
+  createdOutputAnchor: UUID;
 }
 
 /** Redraws one batch's structure. `@NotNull` — there is no way to clear it. */
@@ -812,6 +827,7 @@ export interface SetOutputMolfile {
   type: 'SetOutputMolfile';
   anchor: UUID;
   molfile: string;
+  createdOutputAnchor: UUID;
 }
 
 /* ── Projects ──────────────────────────────────────────────────────────────────────────── */
@@ -826,8 +842,7 @@ export interface SetOutputMolfile {
 export interface CreateProject {
   type: 'CreateProject';
   name: string;
-  /** `@Size(min = 1)` when present: send `null` to clear it, never `[]`. */
-  keywords?: string[] | null;
+  keywords: string[];
   literature?: string | null;
   description?: string | null;
 }
@@ -836,7 +851,7 @@ export interface CreateProject {
 export interface EditProjectAttributes {
   type: 'EditProjectAttributes';
   name?: string | null;
-  keywords?: string[] | null;
+  keywords?: string[];
   literature?: string | null;
   description?: string | null;
 }
@@ -931,10 +946,8 @@ export interface MutationResponse {
    * Input anchor → the molfile the backend could not resolve to a compound. `SetScheme`
    * populates this on essentially every scheme edit, and `ResolveInputs` is the answer to it.
    */
-  unresolvedInputs?: Record<UUID, string>;
-  /** Things the user should be told about what the mutation did. `NON_EMPTY`. */
-  messages?: string[];
-  debugMessages?: string[];
-  /** Reaction anchor → a server-rendered SVG. Unused here: schemes are drawn client-side. */
-  reactionImages?: Record<UUID, string>;
+  unresolvedInputs: Record<UUID, string>;
+  /** Things the user should be told about what the mutation did. */
+  messages: string[];
+  debugMessages: string[];
 }

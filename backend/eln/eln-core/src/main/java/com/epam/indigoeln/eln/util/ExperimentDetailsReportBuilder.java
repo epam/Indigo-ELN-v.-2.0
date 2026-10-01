@@ -22,7 +22,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @ApplicationScoped
@@ -54,13 +53,8 @@ public class ExperimentDetailsReportBuilder {
         for (ExperimentRevisionEntity r : revisions.reversed()) {
             JsonNode snapshotBefore = jsonPatcher.reverse(snapshotAfter, r.getDiff());
             String formattedDiff = experimentModelService.formatDiff(snapshotBefore, r);
-            List<String> messages = new ArrayList<>();
-            if (r.getMessages() != null) {
-                messages.addAll(Arrays.asList(r.getMessages()));
-            }
-            if (r.getDebugMessages() != null) {
-                messages.addAll(Arrays.asList(r.getDebugMessages()));
-            }
+            List<String> messages = new ArrayList<>(r.getMessages());
+            messages.addAll(r.getDebugMessages());
             Category category = null;
             if (r.getMutation() instanceof ExperimentMutation.Undo) {
                 category = Category.UNDO;

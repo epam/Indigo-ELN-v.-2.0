@@ -1,5 +1,5 @@
 import { Check } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { SampleResults } from '@/components/experiments/samples/sample-results';
 import { Button } from '@/components/ui/button';
@@ -7,18 +7,19 @@ import { Dialog, DialogClose, DialogContent } from '@/components/ui/dialog';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Tabs, TabsList, TabsPanel, TabsTab } from '@/components/ui/tabs';
 import { useResolveInput } from '@/lib/hooks/experiments/use-resolve-input';
-import { getAllInputSampleIds } from '@/lib/reactions';
+import { prewarmKetcher } from '@/lib/ketcher';
+import { getAllInputSampleKeys } from '@/lib/reactions';
 
 import type { UUID } from '@/lib/types/common.ts';
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
 import type { Reaction } from '@/lib/types/reactions.ts';
-import type { SampleCatalogFilter } from '@/lib/types/samples.ts';
-import { CATALOGS_BY_FILTER, SAMPLE_CATALOG_FILTER_LABELS, SAMPLE_CATALOG_FILTERS } from '@/lib/types/samples.ts';
+import type { SearchCatalog } from '@/lib/types/samples.ts';
+import { SAMPLE_CATALOG_LABELS, SAMPLE_CATALOGS } from '@/lib/types/samples.ts';
 
 /**
  * The backend answers a scheme edit with `unresolvedInputs` — input row anchor → the molfile of
  * the molecule it created that row for. Each of those rows exists in the stoichiometry table
- * already but carries a `VIRTUAL` compound with no sample behind it. Frontend shows an "Analyze RXN"
+ * already, carrying only a `VIRTUAL` sample. Frontend shows an "Analyze RXN"
  * dialog to let user select samples for each of unresolved inputs, and fires `ResolveInputs`
  * mutation to apply selection.
  *
@@ -52,12 +53,16 @@ export function AnalyzeRxnDialog({
   /** Input row anchor → the molfile the backend could not resolve. */
   unresolvedInputs: Record<UUID, string>;
 }) {
-  const [catalog, setCatalog] = useState<SampleCatalogFilter>('ALL');
-  /** Already worded by the panel that searched — `12`, or `12+` when the catalogs cannot count. */
+  const [catalog, setCatalog] = useState<SearchCatalog>('SRS');
+  /** Already worded by the panel that searched — `12`, or `12+` when the catalog cannot count. */
   const [counts, setCounts] = useState<Record<UUID, string | null>>({});
 
   const resolve = useResolveInput(experiment, reaction);
-  const boundSamples = useMemo(() => getAllInputSampleIds(reaction), [reaction]);
+  const boundSamples = useMemo(() => getAllInputSampleKeys(reaction), [reaction]);
+  // PubChem hits are drawn by Ketcher; start its ~1.3 s cold load before the first one is shown.
+  useEffect(() => {
+    if (open) prewarmKetcher();
+  }, [open]);
 
   /**
    * In `reaction.inputs` order rather than the map's, so the tabs read left to right the way the
@@ -91,7 +96,7 @@ export function AnalyzeRxnDialog({
       tabs.map((tab) => ({
         ...tab,
         request: {
-          catalogs: CATALOGS_BY_FILTER[catalog],
+          catalog,
           structure: { type: 'SUBSTRUCTURE' as const, query: tab.molfile },
         },
         onCountChange: (count: string | null) =>
@@ -126,14 +131,14 @@ export function AnalyzeRxnDialog({
       >
         <RadioGroup
           value={catalog}
-          onValueChange={(next) => setCatalog(next as SampleCatalogFilter)}
+          onValueChange={(next) => setCatalog(next as SearchCatalog)}
           aria-label="Catalog to search"
           className="flex w-auto shrink-0 items-center gap-6"
         >
-          {SAMPLE_CATALOG_FILTERS.map((filter) => (
-            <label key={filter} className="flex cursor-pointer items-center gap-2 text-[14px]/6">
-              <RadioGroupItem value={filter} />
-              {SAMPLE_CATALOG_FILTER_LABELS[filter]}
+          {SAMPLE_CATALOGS.map((option) => (
+            <label key={option} className="flex cursor-pointer items-center gap-2 text-[14px]/6">
+              <RadioGroupItem value={option} />
+              {SAMPLE_CATALOG_LABELS[option]}
             </label>
           ))}
         </RadioGroup>

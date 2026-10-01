@@ -146,28 +146,35 @@ export const AddsABatch: Story = {
     await userEvent.click(await canvas.findByRole('button', { name: 'Add batch to P1' }));
 
     await waitFor(() =>
-      expect(sent).toEqual([{ type: 'AddProductSample', anchor: 'f0000000-0000-4000-8000-000000000002' }]),
+      expect(sent).toEqual([
+        {
+          type: 'AddProductSample',
+          anchor: 'f0000000-0000-4000-8000-000000000002',
+          createdSampleAnchor: expect.any(String),
+        },
+      ]),
     );
   },
 };
 
 /**
- * Salt Code is editable only on a virtual compound, and Salt EQ needs a code **and** a virtual
- * compound — a stored one's salt EQ is registry data even when it has a code.
+ * Salt Code is editable until a batch of the product goes to registration, and Salt EQ needs a
+ * code as well — a registered compound's salt EQ is registry data even when it has a code.
  */
 export const SaltIsRegistryOwned: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    // P1 is the virtual compound: both editable.
-    await expect(canvas.getByLabelText('Salt Code, P1').tagName).toBe('BUTTON');
-    await expect(canvas.getByLabelText('Salt EQ, P1')).toBeEnabled();
-    // P2 is stored *and* carries a salt code — the case indigo-frontend let through. The two
-    // cells lock differently: `DictionaryCell` swaps itself for plain text, while `NumericCell`
-    // keeps its input and disables it, so there is no one query that covers both.
-    const p2 = canvas.getByRole('textbox', { name: 'Output Name, P2' }).closest('tr')!;
-    await expect(within(p2).queryByLabelText('Salt Code, P2')).not.toBeInTheDocument();
-    await expect(within(p2).getByText('HCl')).toBeInTheDocument();
-    await expect(within(p2).getByLabelText('Salt EQ, P2')).toBeDisabled();
+    // P0 has no batch sent for registration: its Salt Code is a picker. With no code set, Salt EQ
+    // has nothing to be an equivalent of.
+    await expect(canvas.getByLabelText('Salt Code, P0').tagName).toBe('BUTTON');
+    await expect(canvas.getByLabelText('Salt EQ, P0')).toBeDisabled();
+    // P1's batch is registered *and* it carries a salt code — the case indigo-frontend let
+    // through. The two cells lock differently: `DictionaryCell` swaps itself for plain text,
+    // while `NumericCell` keeps its input and disables it, so there is no one query for both.
+    const p1 = canvas.getByRole('textbox', { name: 'Output Name, P1' }).closest('tr')!;
+    await expect(within(p1).queryByLabelText('Salt Code, P1')).not.toBeInTheDocument();
+    await expect(within(p1).getByText('HCl')).toBeInTheDocument();
+    await expect(within(p1).getByLabelText('Salt EQ, P1')).toBeDisabled();
   },
 };
 

@@ -2,10 +2,10 @@ package com.epam.indigoeln.eln.entity;
 
 import com.epam.indigoeln.eln.config.hibernate.ACLEntryArrayType;
 import com.epam.indigoeln.eln.config.hibernate.ExperimentCountArrayType;
-import com.epam.indigoeln.eln.config.hibernate.SearchVectorType;
+import com.epam.indigoeln.eln.common.config.SearchVectorType;
 import com.epam.indigoeln.eln.model.AccessLevel;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
-import com.epam.indigoeln.eln.util.SearchVector;
+import com.epam.indigoeln.eln.common.util.SearchVector;
 import jakarta.persistence.*;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.NamedEntityGraph;
@@ -90,12 +90,12 @@ public class NotebookEntity extends BaseEntity implements WithAttachments<Notebo
     @NotNull
     @Basic(fetch = FetchType.LAZY)
     @Type(ACLEntryArrayType.class)
-    private ACLEntry[] shortACL;
+    private List<ACLEntry> shortACL = List.of();
 
     @NotNull
     @Basic(fetch = FetchType.LAZY)
     @Type(ACLEntryArrayType.class)
-    private ACLEntry[] fullACL;
+    private List<ACLEntry> fullACL = List.of();
 
     @NotNull
     @OneToMany(mappedBy = "notebook", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -107,10 +107,11 @@ public class NotebookEntity extends BaseEntity implements WithAttachments<Notebo
     @OrderBy("createdAt")
     private List<NotebookAttachment> attachments = new ArrayList<>(0);
 
+    @NotNull
     @Basic(fetch = FetchType.LAZY)
     @Column(insertable = false, updatable = false)
     @Type(ExperimentCountArrayType.class)
-    private Map<ExperimentStatus, Integer> experimentCount;
+    private Map<ExperimentStatus, Integer> experimentCount = Map.of();
 
     @Nullable
     @Basic(fetch = FetchType.LAZY)

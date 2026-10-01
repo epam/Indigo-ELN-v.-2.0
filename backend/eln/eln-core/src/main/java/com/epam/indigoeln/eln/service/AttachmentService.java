@@ -3,12 +3,25 @@ package com.epam.indigoeln.eln.service;
 import com.epam.indigoeln.common.exception.EntityNotFoundException;
 import com.epam.indigoeln.eln.common.repository.BaseRepository;
 import com.epam.indigoeln.eln.config.DataAccess;
-import com.epam.indigoeln.eln.entity.*;
+import com.epam.indigoeln.eln.entity.AbstractAttachment;
+import com.epam.indigoeln.eln.entity.BaseEntity;
+import com.epam.indigoeln.eln.entity.ExperimentAttachment;
+import com.epam.indigoeln.eln.entity.ExperimentEntity;
+import com.epam.indigoeln.eln.entity.NotebookAttachment;
+import com.epam.indigoeln.eln.entity.NotebookEntity;
+import com.epam.indigoeln.eln.entity.ProjectAttachment;
+import com.epam.indigoeln.eln.entity.ProjectEntity;
+import com.epam.indigoeln.eln.entity.WithAttachments;
 import com.epam.indigoeln.eln.mapper.AttachmentMapper;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.model.AttachmentDTO;
 import com.epam.indigoeln.eln.model.ELNEntityType;
-import com.epam.indigoeln.eln.repository.*;
+import com.epam.indigoeln.eln.repository.ExperimentAttachmentRepository;
+import com.epam.indigoeln.eln.repository.ExperimentRepository;
+import com.epam.indigoeln.eln.repository.NotebookAttachmentRepository;
+import com.epam.indigoeln.eln.repository.NotebookRepository;
+import com.epam.indigoeln.eln.repository.ProjectAttachmentRepository;
+import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.NotebookMutation;
 import com.epam.indigoeln.reaction.model.mutation.ProjectMutation;
@@ -16,6 +29,7 @@ import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
@@ -61,7 +75,7 @@ public class AttachmentService {
     @Inject
     NotebookService notebookService;
 
-    public List<AttachmentDTO> createProjectAttachment(UUID projectId, FileUpload file, boolean useMutation) {
+    public List<AttachmentDTO> createProjectAttachment(UUID projectId, @NotNull FileUpload file, boolean useMutation) {
         return createProjectAttachment(projectId, file.fileName(), readFile(file), useMutation);
     }
 

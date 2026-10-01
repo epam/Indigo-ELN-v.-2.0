@@ -35,10 +35,10 @@ function fieldId(filter: MaterialFilter): string {
  * next to its title, and expanding to a two-column grid of ten filters.
  *
  * Everything is laid out the same way `search/advanced-search.tsx` lays out Global Search's, so
- * the two sheets read as one family. What differs is the catalog gate: choosing a catalog that
- * reaches PubChem disables all but Molecular Formula, and says why below them rather than
- * leaving nine greyed boxes to be puzzled over. Disabled fields **keep their values** — coming
- * back to Indigo ELN restores the search rather than making it be retyped.
+ * the two sheets read as one family. What differs is the catalog gate: choosing PubChem disables
+ * all but Molecular Formula, and says why below them rather than leaving nine greyed boxes to be
+ * puzzled over. Disabled fields **keep their values** — coming back to another catalog restores
+ * the search rather than making it be retyped.
  */
 function MaterialAdvancedSearch({ values, onChange, open, onOpenChange }: MaterialAdvancedSearchProps) {
   const summary = summarizeAddMaterialSearch(values);
@@ -104,12 +104,7 @@ function MaterialAdvancedSearch({ values, onChange, open, onOpenChange }: Materi
           </Field>
 
           <TextFilter filter="chemicalName" values={values} onChange={onChange} disabled={disabled('chemicalName')} />
-          <TextFilter
-            filter="externalNumber"
-            values={values}
-            onChange={onChange}
-            disabled={disabled('externalNumber')}
-          />
+          <TextFilter filter="sampleKey" values={values} onChange={onChange} disabled={disabled('sampleKey')} />
 
           <Field id={fieldId('compoundState')} label={MATERIAL_FILTER_LABELS.compoundState}>
             <DictionaryCombobox
@@ -154,13 +149,7 @@ function TextFilter({
 }: {
   filter: Extract<
     MaterialFilter,
-    | 'compoundKey'
-    | 'nbkBatchNumber'
-    | 'molecularFormula'
-    | 'chemicalName'
-    | 'externalNumber'
-    | 'batchComment'
-    | 'casNumber'
+    'compoundKey' | 'nbkBatchNumber' | 'molecularFormula' | 'chemicalName' | 'sampleKey' | 'batchComment' | 'casNumber'
   >;
   values: AddMaterialFormValues;
   onChange: (patch: Partial<AddMaterialFormValues>) => void;

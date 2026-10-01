@@ -187,15 +187,25 @@ function makeDictionary(names: string[]): DictionaryItemRef[] {
   return names.map((name, index) => ({ id: `d1c70000-0000-4000-8000-${String(index).padStart(12, '0')}`, name }));
 }
 
+/** The dictionaries' default items, which a compound's codes fall back to — see `CompoundRef`. */
+export const DEFAULT_SALT_CODE: DictionaryItemRef = {
+  id: 'd1c7defa-0000-4000-8000-000000000001',
+  name: '00 - Parent Structure',
+};
+export const DEFAULT_STEREOISOMER_CODE: DictionaryItemRef = {
+  id: 'd1c7defa-0000-4000-8000-000000000002',
+  name: 'Achiral',
+};
+
 /** Keyed by the same names the API takes as its `{dictionary}` path segment. */
 export const DICTIONARIES: Partial<Record<BuiltInDictionary, DictionaryItemRef[]>> = {
   THERAPEUTIC_AREA: makeDictionary(['Obesity', 'Oncology', 'Cardiology', 'Immunology', 'Neurology']),
   PROJECT_CODE: makeDictionary(['Code 1', 'Code 2', 'Code 3', 'Code 4']),
   // Read by the stoichiometry table's Salt Code and Hazard Comments cells.
-  SALT_CODE: makeDictionary(['HCl', 'Na', 'K', 'Free base']),
+  SALT_CODE: [...makeDictionary(['HCl', 'Na', 'K', 'Free base']), DEFAULT_SALT_CODE],
   HEALTH_HAZARD: makeDictionary(['Corrosive', 'Flammable', 'Irritant', 'Toxic', 'Oxidiser']),
   // The seven the batch detail panel picks from.
-  STEREOISOMER_CODE: makeDictionary(['NOSTC', 'RACEMIC', 'ENANTIOPURE']),
+  STEREOISOMER_CODE: [...makeDictionary(['NOSTC', 'RACEMIC', 'ENANTIOPURE']), DEFAULT_STEREOISOMER_CODE],
   COMPOUND_PROTECTION: makeDictionary(['Light sensitive', 'Air sensitive', 'Hygroscopic']),
   STORAGE_INSTRUCTIONS: makeDictionary(['Freezer', 'Fridge', 'Room temperature', 'Under argon']),
   HANDLING_PRECAUTIONS: makeDictionary(['Electrostatic', 'Gloves required', 'Fume hood']),
@@ -269,6 +279,7 @@ export function makeDictionaryItems(names: string[]): DictionaryItem[] {
     description: index % 2 === 0 ? 'Use with accuracy' : null,
     ordinal: index + 1,
     active: index !== 1,
+    defaultItem: false,
   }));
 }
 
@@ -285,14 +296,20 @@ function entered<U extends string>(value: string, unit: U, source: EnteredValue<
   return { value, unit, source };
 }
 
+/** An unidentified compound: only the codes, at their defaults, and a blank Mol. Weight. */
+export function unknownCompound(): CompoundRef {
+  return { stereoisomerCode: DEFAULT_STEREOISOMER_CODE, saltCode: DEFAULT_SALT_CODE, molWeight: {} };
+}
+
 /**
- * A registry compound: molecular weight, formula and CAS all come from the compound service,
- * which is why so much of a `STORED` row is read-only.
+ * A known compound: molecular weight, formula and CAS all come from the compound service, which
+ * is why so much of its row is read-only.
  */
-function storedCompound(overrides: Partial<Extract<CompoundRef, { type: 'STORED' }>> = {}): CompoundRef {
+function knownCompound(overrides: Partial<CompoundRef> = {}): CompoundRef {
   return {
-    type: 'STORED',
     compoundID: 'c0000000-0000-4000-8000-000000000001',
+    stereoisomerCode: DEFAULT_STEREOISOMER_CODE,
+    saltCode: DEFAULT_SALT_CODE,
     formula: 'C<sub>4</sub>H<sub>6</sub>O<sub>3</sub>',
     molWeight: entered('102.09', 'G_PER_MOL', 'fixed'),
     exactMass: entered('102.0317', 'NO_UNIT', 'fixed'),
@@ -311,23 +328,29 @@ export function makeReactionInputSample(
     anchor,
     nbkBatchNumber: '20260101-0001-001',
     purity: entered('100', 'NO_UNIT', 'default'),
+    sampleSource: 'VIRTUAL',
     healthHazards: [],
     ...overrides,
   };
+}
+
+/** An input sample taken from Sample Registration — what locks its row's compound. */
+function srsSample(sampleKey: string): Pick<ReactionInputSample, 'sampleSource' | 'sampleKey'> {
+  return { sampleSource: 'SRS', sampleKey };
 }
 
 export function makeReactionInput(anchor: string, overrides: Partial<ReactionInput> = {}): ReactionInput {
   return {
     anchor,
     role: 'REACTANT',
-    compound: storedCompound(),
+    compound: knownCompound(),
     eq: entered('1', 'NO_UNIT', 'default'),
     samples: [makeReactionInputSample(`${anchor.slice(0, -1)}a`)],
     ...overrides,
   };
 }
 
-const SALT_CODE = DICTIONARIES.SALT_CODE?.[0];
+const SALT_CODE = DICTIONARIES.SALT_CODE?.[0] ?? DEFAULT_SALT_CODE;
 const HAZARDS = DICTIONARIES.HEALTH_HAZARD ?? [];
 /** One item from each dictionary the batch detail panel reads, for the populated batch below. */
 const SOURCE = DICTIONARIES.SAMPLE_SOURCE?.[0];
@@ -348,9 +371,9 @@ function dictItem(name: string): DictionaryItemRef {
 
 /**
  * The four `EnteredValueSource` cases plus the two flash triggers, one row each, so every branch
- * of `determineCellClasses` is reachable from a story — and a `VIRTUAL`, a `STORED` and an
- * `UNKNOWN` compound, which is what decides whether Mol. Weight, Salt Code and Salt EQ are
- * editable at all.
+ * of `determineCellClasses` is reachable from a story — and a known compound with only
+ * `VIRTUAL` samples, one with a Sample Registration sample and an unknown one, which is what
+ * decides whether Mol. Weight, Salt Code and Salt EQ are editable at all.
  *
  * Two of the rows carry several batches, with **differently-sized content**: that is what makes
  * the nested tables' fixed column widths visible. Sized from their own content they would come
@@ -362,8 +385,11 @@ export const REACTION_INPUTS: ReactionInput[] = [
     limiting: true,
     chemicalName: 'Salicylic acid',
     mol: entered('4.9', 'MMOL', 'calculated'),
+    // The sum of its one batch's weight. No batch has a volume, so the row has none either.
+    weight: entered('676.5', 'MG', 'calculated'),
     samples: [
       makeReactionInputSample('e0000000-0000-4000-8000-00000000000a', {
+        ...srsSample('STR-00000000-89-001'),
         weight: entered('676.5', 'MG', 12),
         mol: entered('4.9', 'MMOL', 'calculated'),
         purity: entered('98.5', 'NO_UNIT', 12),
@@ -376,7 +402,7 @@ export const REACTION_INPUTS: ReactionInput[] = [
   makeReactionInput('d0000000-0000-4000-8000-000000000002', {
     role: 'SOLVENT',
     chemicalName: 'Acetic anhydride',
-    compound: storedCompound({
+    compound: knownCompound({
       compoundID: 'c0000000-0000-4000-8000-000000000002',
       compoundKey: 'STR-00000000-90',
       casNumber: '108-24-7',
@@ -384,6 +410,7 @@ export const REACTION_INPUTS: ReactionInput[] = [
     }),
     samples: [
       makeReactionInputSample('e0000000-0000-4000-8000-00000000000b', {
+        ...srsSample('STR-00000000-90-002'),
         nbkBatchNumber: '20260101-0001-002',
         volume: entered('4.5', 'ML', 8),
         density: entered('1.08', 'G_ML', 'fixed'),
@@ -391,38 +418,43 @@ export const REACTION_INPUTS: ReactionInput[] = [
         comment: 'Dried over molecular sieves before use',
       }),
       makeReactionInputSample('e0000000-0000-4000-8000-00000000000c', {
+        ...srsSample('STR-00000000-90-003'),
         nbkBatchNumber: '20260101-0001-003',
         volume: entered('12', 'ML', 8),
         mol: entered('0.013', 'MMOL', 'calculated'),
       }),
       makeReactionInputSample('e0000000-0000-4000-8000-00000000000d', {
+        ...srsSample('STR-00000000-90-004'),
         nbkBatchNumber: '20260101-0001-004',
         // Overwritten by the backend — the row that flashes red once a patch lands.
         volume: { value: '0.75', unit: 'ML', source: 'calculated', overwritten: true },
         molarity: entered('0.5', 'M', 3),
       }),
       makeReactionInputSample('e0000000-0000-4000-8000-00000000000e', {
+        ...srsSample('STR-00000000-90-006'),
         nbkBatchNumber: '20260101-0001-006',
         healthHazards: HAZARDS.slice(1, 4),
       }),
     ],
   }),
-  // Virtual compound: Salt Code is editable here, and so is Salt EQ because a code is set.
+  // A known compound with only a virtual sample: Salt Code is editable here, and so is Salt EQ
+  // because a code is set.
   makeReactionInput('d0000000-0000-4000-8000-000000000003', {
     role: 'REAGENT',
     chemicalName: 'Pyridine',
     compound: {
-      type: 'VIRTUAL',
       compoundID: 'c0000000-0000-4000-8000-000000000003',
       formula: 'C<sub>5</sub>H<sub>5</sub>N',
       molWeight: entered('79.1', 'G_PER_MOL', 'fixed'),
       exactMass: entered('79.0422', 'NO_UNIT', 'fixed'),
       calculatedBatchMF: 'C<sub>5</sub>H<sub>5</sub>N',
       compoundKey: 'VIRT-000012',
+      stereoisomerCode: DEFAULT_STEREOISOMER_CODE,
       saltCode: SALT_CODE,
       saltEQ: 1,
     },
     eq: entered('2', 'NO_UNIT', 5),
+    weight: entered('790', 'MG', 'calculated'),
     samples: [
       makeReactionInputSample('e0000000-0000-4000-8000-00000000000f', {
         nbkBatchNumber: '20260101-0001-007',
@@ -430,25 +462,30 @@ export const REACTION_INPUTS: ReactionInput[] = [
       }),
     ],
   }),
-  // Stored compound *with* a salt code: both Salt Code and Salt EQ stay locked, because the
-  // registry owns them. indigo-frontend let this row's Salt EQ be edited.
+  // A registered sample on a compound *with* a salt code: both Salt Code and Salt EQ stay locked,
+  // because the registry owns them. indigo-frontend let this row's Salt EQ be edited.
   makeReactionInput('d0000000-0000-4000-8000-000000000004', {
     role: 'CATALYST',
     chemicalName: 'DMAP hydrochloride',
-    compound: storedCompound({
+    compound: knownCompound({
       compoundID: 'c0000000-0000-4000-8000-000000000004',
       compoundKey: 'STR-00000000-91',
       formula: 'C<sub>7</sub>H<sub>10</sub>N<sub>2</sub>',
       saltCode: SALT_CODE,
       saltEQ: 1,
     }),
-    samples: [makeReactionInputSample('e0000000-0000-4000-8000-000000000010', { nbkBatchNumber: '20260101-0001-008' })],
+    samples: [
+      makeReactionInputSample('e0000000-0000-4000-8000-000000000010', {
+        ...srsSample('STR-00000000-91-008'),
+        nbkBatchNumber: '20260101-0001-008',
+      }),
+    ],
   }),
   // An unidentified compound — the only case where Mol. Weight is the user's to enter, and a
   // row with nothing filled in at all.
   makeReactionInput('d0000000-0000-4000-8000-000000000005', {
     role: 'REAGENT',
-    compound: { type: 'UNKNOWN', molWeight: {} },
+    compound: unknownCompound(),
     samples: [
       makeReactionInputSample('e0000000-0000-4000-8000-000000000011', {
         nbkBatchNumber: undefined,
@@ -471,9 +508,16 @@ export function makeReactionOutputSample(
     anchor,
     nbkBatchNumber,
     shortNbkBatchNumber: nbkBatchNumber.slice(nbkBatchNumber.lastIndexOf('-') + 1),
-    // A new batch starts at 100 % purity — `AddProductSampleHandler`.
+    // A new batch starts at 100 % purity, and virtual until registered — `AddProductSampleHandler`.
     purity: entered('100', 'NO_UNIT', 'default'),
+    sampleSource: 'VIRTUAL',
     healthHazards: [],
+    handlingPrecautions: [],
+    storageInstructions: [],
+    compoundProtection: [],
+    solubilityInSolvents: [],
+    residualSolvents: [],
+    purityCalculations: [],
     ...overrides,
   };
 }
@@ -483,9 +527,9 @@ export function makeReactionOutputSample(
  * table filters them out.
  *
  * Between them they reach every branch the columns declare: the three `ReactionOutputType`s, a
- * `VIRTUAL` compound with a salt code (the only editable Salt Code and Salt EQ), a `STORED` one
- * with a salt code (both locked by the registry), and a row with no theoretical values at all —
- * what a reaction with no limiting reagent looks like.
+ * compound none of whose batches has gone to registration (Salt Code editable), two with a salt
+ * code and a batch sent — registered or failed alike — (both salt fields locked), and a row with
+ * no theoretical values at all — what a reaction with no limiting reagent looks like.
  *
  * Their **batches** are what the Product Batch Summary renders, and they carry the four states
  * that table branches on: an unregistered batch with numbers, an empty one, a `REGISTERED` one
@@ -498,7 +542,7 @@ export function makeReactionOutput(anchor: string, overrides: Partial<ReactionOu
     outputName: 'P0',
     type: 'FINAL',
     intended: true,
-    compound: storedCompound(),
+    compound: knownCompound(),
     eq: entered('1', 'NO_UNIT', 'default'),
     theoMol: entered('4.9', 'MMOL', 'calculated'),
     theoWeight: entered('500.4', 'MG', 'calculated'),
@@ -512,7 +556,7 @@ export const REACTION_OUTPUTS: ReactionOutput[] = [
   makeReactionOutput('f0000000-0000-4000-8000-000000000001', {
     outputName: 'P0',
     chemicalName: 'Acetylsalicylic acid',
-    compound: storedCompound({
+    compound: knownCompound({
       compoundID: 'c0000000-0000-4000-8000-000000000010',
       compoundKey: 'STR-00000000-95',
       formula: 'C<sub>9</sub>H<sub>8</sub>O<sub>4</sub>',
@@ -530,7 +574,6 @@ export const REACTION_OUTPUTS: ReactionOutput[] = [
         molarity: entered('0.04', 'M', 12),
         yield: entered('27.5', 'NO_UNIT', 'calculated'),
         purity: entered('98.5', 'NO_UNIT', 12),
-        strCode: 'STR-00000016-00-003',
         source: SOURCE,
         sourceDetails: SOURCE_DETAILS,
         componentState: COMPONENT_STATE,
@@ -555,19 +598,19 @@ export const REACTION_OUTPUTS: ReactionOutput[] = [
       }),
     ],
   }),
-  // A by-product, on a virtual compound: Salt Code is editable here, and Salt EQ with it.
+  // A by-product whose batch is registered: its Salt Code and Salt EQ are frozen.
   makeReactionOutput('f0000000-0000-4000-8000-000000000002', {
     outputName: 'P1',
     chemicalName: 'Acetic acid',
     type: 'BY_PRODUCT',
     compound: {
-      type: 'VIRTUAL',
       compoundID: 'c0000000-0000-4000-8000-000000000011',
       formula: 'C<sub>2</sub>H<sub>4</sub>O<sub>2</sub>',
       molWeight: entered('60.052', 'G_PER_MOL', 'fixed'),
       exactMass: entered('60.0211', 'NO_UNIT', 'fixed'),
       calculatedBatchMF: 'C<sub>2</sub>H<sub>4</sub>O<sub>2</sub>',
       compoundKey: 'VIRT-000031',
+      stereoisomerCode: DEFAULT_STEREOISOMER_CODE,
       saltCode: SALT_CODE,
       saltEQ: 1,
     },
@@ -576,7 +619,8 @@ export const REACTION_OUTPUTS: ReactionOutput[] = [
       makeReactionOutputSample('f1000000-0000-4000-8000-000000000003', {
         nbkBatchNumber: '20260101-0001-003',
         registrationStatus: 'REGISTERED',
-        strCode: 'STR-00000031-01',
+        sampleSource: 'SRS',
+        sampleKey: 'STR-00000031-01-001',
         actualWeight: entered('88', 'MG', 9),
       }),
     ],
@@ -586,7 +630,7 @@ export const REACTION_OUTPUTS: ReactionOutput[] = [
   makeReactionOutput('f0000000-0000-4000-8000-000000000003', {
     outputName: 'P2',
     type: 'INTERMEDIATE',
-    compound: storedCompound({
+    compound: knownCompound({
       compoundID: 'c0000000-0000-4000-8000-000000000012',
       compoundKey: 'STR-00000000-96',
       formula: 'C<sub>7</sub>H<sub>6</sub>O<sub>3</sub>',
@@ -929,6 +973,7 @@ export const REVISIONS: RevisionSummary[] = [
     summary: 'Experiment created',
     date: '2026-09-02T09:10:00Z',
     revision: 1,
+    details: [],
   },
   {
     user: makeUserRef('Mark Liu'),
@@ -938,9 +983,27 @@ export const REVISIONS: RevisionSummary[] = [
     revision: 2,
     revisionTo: 4,
     details: [
-      { user: makeUserRef('Mark Liu'), summary: 'Add empty input', date: '2026-09-03T14:02:00Z', revision: 2 },
-      { user: makeUserRef('Mark Liu'), summary: 'Set input amount', date: '2026-09-03T14:20:00Z', revision: 3 },
-      { user: makeUserRef('Mark Liu'), summary: 'Set reaction scheme', date: '2026-09-03T14:31:00Z', revision: 4 },
+      {
+        user: makeUserRef('Mark Liu'),
+        summary: 'Add empty input',
+        date: '2026-09-03T14:02:00Z',
+        revision: 2,
+        details: [],
+      },
+      {
+        user: makeUserRef('Mark Liu'),
+        summary: 'Set input amount',
+        date: '2026-09-03T14:20:00Z',
+        revision: 3,
+        details: [],
+      },
+      {
+        user: makeUserRef('Mark Liu'),
+        summary: 'Set reaction scheme',
+        date: '2026-09-03T14:31:00Z',
+        revision: 4,
+        details: [],
+      },
     ],
   },
   {
@@ -948,18 +1011,21 @@ export const REVISIONS: RevisionSummary[] = [
     summary: 'Add empty output',
     date: '2026-09-04T08:45:00Z',
     revision: 5,
+    details: [],
   },
   {
     user: makeUserRef('Sofia Rossi'),
     summary: 'Experiment completed',
     date: '2026-09-04T11:00:00Z',
     revision: 6,
+    details: [],
   },
   {
     user: makeUserRef('Sofia Rossi'),
     summary: 'Version 1',
     date: '2026-09-04T11:00:00Z',
     revision: 7,
+    details: [],
   },
 ];
 
@@ -998,7 +1064,7 @@ export function makeSearchResult(overrides: Partial<GlobalSearchResult> = {}): G
     name: '00000001-0001',
     title: 'Suzuki coupling of aryl bromide',
     experimentStatus: 'OPEN',
-    reactionRoles: null,
+    reactionRoles: [],
     revision: 3,
     notebookCount: null,
     experimentCount: null,
@@ -1043,31 +1109,33 @@ export const SEARCH_RESULTS: GlobalSearchResult[] = [
 
 export function makeSample(overrides: Partial<SampleDTO> = {}): SampleDTO {
   return {
-    source: 'ELN',
-    id: '55555555-5555-4555-8555-000000000001',
-    nbkBatchNumber: '20260101-0001-001',
+    catalog: 'SRS',
+    source: 'SRS',
     compoundKey: 'STR-00000000-89',
-    strCode: 'STR-00000000-89-123',
+    compoundID: '55555555-5555-4555-8555-000000000001',
+    sampleKey: 'STR-00000000-89-123',
+    nbkBatchNumber: '20260101-0001-001',
     molFormula: 'C<sub>9</sub>H<sub>8</sub>O<sub>4</sub>',
     molWeight: 180.16,
-    name: 'Acetylsalicylic acid',
-    compoundID: 'c0000000-0000-4000-8000-000000000001',
+    chemicalName: 'Acetylsalicylic acid',
+    healthHazards: [],
     ...overrides,
   };
 }
 
 /**
- * What a catalog search answers with. The mix is the point: an ELN hit with everything filled
- * in, a marked one, one with no chemical name, and two PubChem hits — which have no `id`, so
- * they cannot be marked and have to be imported before they can be added.
+ * What a catalog search answers with. The mix is the point: a Sample Registration hit with
+ * everything filled in, a marked one, one with no chemical name, and two PubChem hits — which
+ * carry an InChI instead of a picture the backend could serve.
  */
 export const SAMPLE_RESULTS: SampleDTO[] = [
   makeSample(),
   makeSample({
-    id: '55555555-5555-4555-8555-000000000002',
-    nbkBatchNumber: '20260101-0001-002',
     compoundKey: 'STR-00000000-90',
-    name: 'Salicylic acid',
+    compoundID: '55555555-5555-4555-8555-000000000002',
+    sampleKey: 'STR-00000000-90-010',
+    nbkBatchNumber: '20260101-0001-002',
+    chemicalName: 'Salicylic acid',
     molFormula: 'C<sub>7</sub>H<sub>6</sub>O<sub>3</sub>',
     molWeight: 138.12,
     saltCode: SALT_CODE,
@@ -1075,30 +1143,31 @@ export const SAMPLE_RESULTS: SampleDTO[] = [
     marked: true,
   }),
   makeSample({
-    id: '55555555-5555-4555-8555-000000000003',
     compoundKey: 'STR-00000000-91',
-    name: undefined,
+    compoundID: '55555555-5555-4555-8555-000000000003',
+    sampleKey: 'STR-00000000-91-001',
+    chemicalName: undefined,
     molFormula: 'C<sub>4</sub>H<sub>6</sub>O<sub>3</sub>',
     molWeight: 102.09,
   }),
   makeSample({
+    catalog: 'PUBCHEM',
     source: 'PUBCHEM',
-    id: undefined,
-    nbkBatchNumber: undefined,
-    strCode: undefined,
-    compoundID: undefined,
     compoundKey: '2244',
-    name: '2-acetyloxybenzoic acid',
+    compoundID: undefined,
+    sampleKey: '2244',
+    nbkBatchNumber: undefined,
+    chemicalName: '2-acetyloxybenzoic acid',
     inchi: 'InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)',
   }),
   makeSample({
+    catalog: 'PUBCHEM',
     source: 'PUBCHEM',
-    id: undefined,
-    nbkBatchNumber: undefined,
-    strCode: undefined,
-    compoundID: undefined,
     compoundKey: '1140',
-    name: undefined,
+    compoundID: undefined,
+    sampleKey: '1140',
+    nbkBatchNumber: undefined,
+    chemicalName: undefined,
     molFormula: 'C<sub>7</sub>H<sub>8</sub>',
     molWeight: 92.14,
     inchi: 'InChI=1S/C7H8/c1-7-5-3-2-4-6-7/h2-6H,1H3',

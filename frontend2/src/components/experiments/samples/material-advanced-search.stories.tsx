@@ -6,10 +6,10 @@ import { EMPTY_ADD_MATERIAL_FORM } from '@/components/experiments/samples/add-ma
 import { MaterialAdvancedSearch } from '@/components/experiments/samples/material-advanced-search';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import type { SampleCatalogFilter } from '@/lib/types/samples.ts';
+import type { SearchCatalog } from '@/lib/types/samples.ts';
 
 /** The panel is fully controlled; the dialog owns these values, and here the story does. */
-function Harness({ catalog, open: initialOpen }: { catalog: SampleCatalogFilter; open: boolean }) {
+function Harness({ catalog, open: initialOpen }: { catalog: SearchCatalog; open: boolean }) {
   const [values, setValues] = useState<AddMaterialFormValues>({ ...EMPTY_ADD_MATERIAL_FORM, catalog });
   const [open, setOpen] = useState(initialOpen);
 
@@ -28,25 +28,25 @@ function Harness({ catalog, open: initialOpen }: { catalog: SampleCatalogFilter;
 const meta = {
   title: 'Experiments/Samples/MaterialAdvancedSearch',
   component: Harness,
-  args: { catalog: 'ELN', open: true },
+  args: { catalog: 'SRS', open: true },
 } satisfies Meta<typeof Harness>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Ten filters in two columns, every one of them available on an ELN catalog. */
+/** Ten filters in two columns, every one of them available on Sample Registration. */
 export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByLabelText('Compound ID')).toBeEnabled();
-    await expect(canvas.getByLabelText('External ID')).toBeEnabled();
+    await expect(canvas.getByLabelText('Sample ID')).toBeEnabled();
     await expect(canvas.getByText('Health Hazards')).toBeInTheDocument();
   },
 };
 
-/** All Catalogs reaches PubChem, which can only honour the formula. */
+/** PubChem can only honour the formula. */
 export const PubchemLimited: Story = {
-  args: { catalog: 'ALL' },
+  args: { catalog: 'PUBCHEM' },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByLabelText('Compound ID')).toBeDisabled();

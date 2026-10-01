@@ -199,6 +199,7 @@ function ProductCell({
         <NumericCell
           value={column.value(row)}
           units={column.units}
+          suffix={column.suffix}
           updatedNodes={mutations.updatedNodes}
           editable={false}
           pending={false}
@@ -212,6 +213,7 @@ function ProductCell({
         <NumericCell
           value={column.value(row)}
           units={column.units}
+          suffix={column.suffix}
           updatedNodes={mutations.updatedNodes}
           editable={canEdit && (column.editable?.(row) ?? true)}
           pending={pending}
