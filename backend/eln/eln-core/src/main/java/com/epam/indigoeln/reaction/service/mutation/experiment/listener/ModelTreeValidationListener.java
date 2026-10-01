@@ -88,10 +88,10 @@ public class ModelTreeValidationListener implements ExperimentMutationListener {
         }
         // validate input and output compounds are unique
         for (Reaction reaction : model.getReactions()) {
-            Set<UUID> inputCompoundIDs = new HashSet<>();
+            Set<Pair<ReactionRole, UUID>> inputCompoundIDs = new HashSet<>();
             for (ReactionInput input : reaction.getInputs()) {
                 if (input.getCompound().getCompoundID() != null) {
-                    checkState(inputCompoundIDs.add(input.getCompound().getCompoundID()));
+                    checkState(inputCompoundIDs.add(Pair.of(input.getRole(), input.getCompound().getCompoundID())));
                 }
             }
             Set<UUID> outputCompoundIDs = new HashSet<>();

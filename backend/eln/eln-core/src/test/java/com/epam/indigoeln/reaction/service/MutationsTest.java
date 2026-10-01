@@ -31,6 +31,8 @@ import com.epam.indigoeln.reaction.model.InputSampleAnchor;
 import com.epam.indigoeln.reaction.model.OutputAnchor;
 import com.epam.indigoeln.reaction.model.OutputSampleAnchor;
 import com.epam.indigoeln.reaction.model.ReactionAnchor;
+import com.epam.indigoeln.reaction.model.ReactionInputSample;
+import com.epam.indigoeln.reaction.model.ReactionOutputSample;
 import com.epam.indigoeln.reaction.model.ReactionOutputType;
 import com.epam.indigoeln.reaction.model.ReactionRole;
 import com.epam.indigoeln.reaction.model.SampleRegistrationStatus;
@@ -66,6 +68,7 @@ import org.junit.jupiter.api.TestInfo;
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -98,6 +101,7 @@ public class MutationsTest extends MutationsTestBase {
     private static final String REACTION_WITH_DUPLICATES_RXN = "/reaction-with-duplicates.rxn";
     private static final String REACTION_WITH_DUPLICATES_UPDATED_RXN = "/reaction-with-duplicates-updated.rxn";
     private static final String DUPLICATE_INPUT_RXN = "/duplicate-input.rxn";
+    private static final String SINGLE_INPUT_RXN = "/single-input.rxn";
     private static final String COMPOUND_SDF = "/Compound_000000001_000500000.1.sdf";
     private static final String UPDATED_MOLFILE = "/updated-molfile.mol";
     private static final String RING_SUBSTRUCTURE_MOL = "/ring-substructure.mol";
@@ -256,7 +260,95 @@ public class MutationsTest extends MutationsTestBase {
         assertThat(experiment.inputSample(1, 1).getSampleKey()).isNotNull();
     }
 
-    // TODO add test for 2 samples per input
+    @Test
+    void testAddTwoInputSamplesOfSameCompound() {
+        UUID compoundID = UUID.randomUUID();
+        SRSSampleDTO sample1 = new SRSSampleDTO(UUID.randomUUID(), compoundID, new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 1), "C9H17NO4", BigDecimal.ONE);
+        SRSSampleDTO sample2 = new SRSSampleDTO(UUID.randomUUID(), compoundID, new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 2), "C9H17NO4", BigDecimal.ONE);
+        doReturn(Page.of(Paging.DEFAULT, 2, List.of(sample1, sample2))).when(sampleRegistrationClient).find(any(), any());
+        SRSCompoundDTO compound = new SRSCompoundDTO("C", ModelUtil.loadResourceAsString(RING_SUBSTRUCTURE_MOL));
+        doReturn(compound).when(sampleRegistrationClient).getCompound(any());
+
+        Page<SampleDTO> samples = compoundClient.search(new FindSamplesRequest().withCatalog(SearchCatalog.SRS), Paging.DEFAULT);
+        assertThat(samples.getItems()).hasSize(2);
+        experiment.mutate(new ReactionMutation.AddInput(experiment.reaction().getAnchor(), samples.getItems().get(0)));
+        experiment.mutate(new ReactionMutation.AddInput(experiment.reaction().getAnchor(), samples.getItems().get(1)));
+        assertThat(experiment.reaction().getInputs()).hasSize(1);
+        assertThat(experiment.input(1).getSamples()).hasSize(2);
+        assertThat(experiment.inputSample(1, 1).getSampleKey()).isEqualTo(samples.getItems().get(0).getSampleKey());
+        assertThat(experiment.inputSample(1, 2).getSampleKey()).isEqualTo(samples.getItems().get(1).getSampleKey());
+    }
+
+    @Test
+    void testSameCompoundWithDifferentRoles() {
+        UUID compoundID = UUID.randomUUID();
+        SRSSampleDTO sample1 = new SRSSampleDTO(UUID.randomUUID(), compoundID, new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 1), "C9H17NO4", BigDecimal.ONE);
+        SRSSampleDTO sample2 = new SRSSampleDTO(UUID.randomUUID(), compoundID, new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 2), "C9H17NO4", BigDecimal.ONE);
+        doReturn(Page.of(Paging.DEFAULT, 2, List.of(sample1, sample2))).when(sampleRegistrationClient).find(any(), any());
+        SRSCompoundDTO compound = new SRSCompoundDTO("C", ModelUtil.loadResourceAsString(RING_SUBSTRUCTURE_MOL));
+        doReturn(compound).when(sampleRegistrationClient).getCompound(any());
+        Page<SampleDTO> samples = compoundClient.search(new FindSamplesRequest().withCatalog(SearchCatalog.SRS), Paging.DEFAULT);
+
+        experiment.mutate(new ReactionMutation.AddInput(experiment.reaction().getAnchor(), samples.getItems().get(0)));
+        experiment.mutateSetInputRowRole(1, ReactionRole.SOLVENT);
+        experiment.mutate(new ReactionMutation.AddInput(experiment.reaction().getAnchor(), samples.getItems().get(1)));
+        assertThat(experiment.reaction().getInputs()).hasSize(2);
+        assertThat(experiment.input(1).getRole()).isEqualTo(ReactionRole.SOLVENT);
+        assertThat(experiment.input(2).getRole()).isEqualTo(ReactionRole.REACTANT);
+        assertThat(experiment.input(2).getCompound().compoundKeyEquals(experiment.input(1).getCompound())).isTrue();
+
+        assertThatClientCall(() -> experiment.mutateSetInputRowRole(2, ReactionRole.SOLVENT))
+                .isBadRequest("Input with the same role and compound already exists");
+    }
+
+    @Test
+    void testResolveInputsTwiceForSameCompound() {
+        UUID compoundID = UUID.randomUUID();
+        SRSSampleDTO sample1 = new SRSSampleDTO(UUID.randomUUID(), compoundID, new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 1), "C9H17NO4", BigDecimal.ONE);
+        SRSSampleDTO sample2 = new SRSSampleDTO(UUID.randomUUID(), compoundID, new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 2), "C9H17NO4", BigDecimal.ONE);
+        doReturn(Page.of(Paging.DEFAULT, 2, List.of(sample1, sample2))).when(sampleRegistrationClient).find(any(), any());
+        SRSCompoundDTO compound = new SRSCompoundDTO("C", ModelUtil.loadResourceAsString(RING_SUBSTRUCTURE_MOL));
+        doReturn(compound).when(sampleRegistrationClient).getCompound(any());
+        Page<SampleDTO> samples = compoundClient.search(new FindSamplesRequest().withCatalog(SearchCatalog.SRS), Paging.DEFAULT);
+
+        experiment.mutateSetSchemeFromResource(REACTION_RXN);
+        experiment.mutateSetInputWeight(1, 1, ONE_HUNDRED, G);
+        experiment.mutate(new ReactionInputSampleMutation.SetInputComment(experiment.inputSample(1, 1).getAnchor(), COMMENT));
+        InputAnchor inputAnchor = experiment.input(1).getAnchor();
+
+        experiment.mutate(new ReactionMutation.ResolveInputs(experiment.reaction().getAnchor(), Map.of(inputAnchor, samples.getItems().get(0))));
+        assertThat(experiment.input(1).getSamples()).hasSize(1);
+        assertThat(experiment.inputSample(1, 1).getSampleKey()).isEqualTo(samples.getItems().get(0).getSampleKey());
+        assertThat(experiment.inputSample(1, 1)).hasWeight(100, G);
+        assertThat(experiment.inputSample(1, 1).getComment()).isEqualTo(COMMENT);
+
+        experiment.mutate(new ReactionMutation.ResolveInputs(experiment.reaction().getAnchor(), Map.of(inputAnchor, samples.getItems().get(1))));
+        assertThat(experiment.input(1).getAnchor()).isEqualTo(inputAnchor);
+        assertThat(experiment.input(1).getSamples()).hasSize(2);
+        assertThat(experiment.inputSample(1, 1).getSampleKey()).isEqualTo(samples.getItems().get(0).getSampleKey());
+        assertThat(experiment.inputSample(1, 2).getSampleKey()).isEqualTo(samples.getItems().get(1).getSampleKey());
+    }
+
+    @Test
+    void testSetInputRowSaltCodeMergesRows() {
+        experiment.mutateSetSchemeFromResource(SINGLE_INPUT_RXN);
+        experiment.mutate(new ReactionInputMutation.SetInputRowSaltCode(experiment.input(1).getAnchor(), saltCode));
+        experiment.mutateSetSchemeFromResource(DUPLICATE_INPUT_RXN);
+        assertThat(experiment.reaction().getInputs()).hasSize(2);
+        InputAnchor saltedAnchor = experiment.input(1).getAnchor();
+        InputAnchor editedAnchor = experiment.input(2).getAnchor();
+        InputSampleAnchor saltedSampleAnchor = experiment.inputSample(1, 1).getAnchor();
+        InputSampleAnchor editedSampleAnchor = experiment.inputSample(2, 1).getAnchor();
+        experiment.mutateSetInputRowLimiting(1);
+
+        experiment.mutate(new ReactionInputMutation.SetInputRowSaltCode(editedAnchor, saltCode));
+        assertThat(experiment.reaction().getInputs()).singleElement().satisfies(input -> {
+            assertThat(input.getAnchor()).isEqualTo(editedAnchor).isNotEqualTo(saltedAnchor);
+            assertThat(input.getCompound().getSaltCode()).isEqualTo(saltCode);
+            assertThat(input.isLimiting()).isTrue();
+            assertThat(input.getSamples()).extracting(ReactionInputSample::getAnchor).containsExactly(editedSampleAnchor, saltedSampleAnchor);
+        });
+    }
 
     @Test
     void testRemoveInputRow() {
@@ -750,6 +842,38 @@ public class MutationsTest extends MutationsTestBase {
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputSaltCode(anchor, saltCode), false);
         assertThat(experiment.output(3).isIntended()).isFalse();
         assertThat(experiment.output(3).getSamples()).singleElement().satisfies(s -> assertThat(s.getAnchor()).isEqualTo(anchor));
+    }
+
+    @Test
+    void testSetOutputRowSaltCodeMergesRows() {
+        experiment.mutateSetSchemeFromResource(REACTION_RXN);
+        experiment.mutateAddProductSample(1);
+        experiment.mutateAddProductSample(1);
+        OutputAnchor editedAnchor = experiment.output(1).getAnchor();
+        OutputSampleAnchor movedSampleAnchor = experiment.outputSample(1, 1).getAnchor();
+        OutputSampleAnchor keptSampleAnchor = experiment.outputSample(1, 2).getAnchor();
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputSaltCode(movedSampleAnchor, saltCode), false);
+        assertThat(experiment.reaction().getOutputs()).hasSize(3);
+
+        experiment.mutate(new ReactionOutputMutation.SetOutputRowSaltCode(editedAnchor, saltCode));
+        assertThat(experiment.reaction().getOutputs()).hasSize(2);
+        assertThat(experiment.output(1).getAnchor()).isEqualTo(editedAnchor);
+        assertThat(experiment.output(1).isIntended()).isTrue();
+        assertThat(experiment.output(1).getCompound().getSaltCode()).isEqualTo(saltCode);
+        assertThat(experiment.output(1).getSamples()).extracting(ReactionOutputSample::getAnchor).containsExactly(keptSampleAnchor, movedSampleAnchor);
+    }
+
+    @Test
+    void testRemoveProductSampleRemovesEmptyUnintendedRow() {
+        experiment.mutateSetSchemeFromResource(REACTION_RXN);
+        experiment.mutateAddProductSample(1);
+        OutputSampleAnchor anchor = experiment.outputSample(1, 1).getAnchor();
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputSaltCode(anchor, saltCode), false);
+        assertThat(experiment.reaction().getOutputs()).hasSize(3);
+
+        experiment.mutate(new ReactionOutputSampleMutation.RemoveProductSample(anchor));
+        assertThat(experiment.reaction().getOutputs()).hasSize(2);
+        assertThat(experiment.reaction().getOutputs()).allSatisfy(output -> assertThat(output.isIntended()).isTrue());
     }
 
     @Test

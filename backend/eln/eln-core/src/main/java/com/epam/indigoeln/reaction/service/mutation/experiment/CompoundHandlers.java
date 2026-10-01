@@ -22,7 +22,7 @@ class SetInputRowSaltCodeHandler extends AbstractReactionInputMutationHandler<Re
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowSaltCode mutation, ExperimentMutationContext context) {
-        row.updateCompound(doUpdateSaltCode(row, mutation.saltCode()));
+        updateInputRowCompound(reaction, row, doUpdateSaltCode(row, mutation.saltCode()));
         return formatSetterSummary("input compound salt code", mutation.saltCode());
     }
 }
@@ -33,7 +33,7 @@ class SetOutputRowSaltCodeHandler extends AbstractReactionOutputMutationHandler<
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputRowSaltCode mutation, ExperimentMutationContext context) {
-        row.updateCompound(doUpdateSaltCode(row, mutation.saltCode()));
+        updateOutputRowCompound(reaction, row, doUpdateSaltCode(row, mutation.saltCode()));
         return formatSetterSummary("output compound salt code", mutation.saltCode());
     }
 }
@@ -44,7 +44,7 @@ class SetInputRowSaltEQHandler extends AbstractReactionInputMutationHandler<Reac
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowSaltEQ mutation, ExperimentMutationContext context) {
-        row.updateCompound(doUpdateSaltEQ(row, mutation.saltEQ()));
+        updateInputRowCompound(reaction, row, doUpdateSaltEQ(row, mutation.saltEQ()));
         return formatSetterSummary("input compound salt EQ", mutation.saltEQ());
     }
 }
@@ -55,7 +55,7 @@ class SetOutputRowSaltEQHandler extends AbstractReactionOutputMutationHandler<Re
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputRowSaltEQ mutation, ExperimentMutationContext context) {
-        row.updateCompound(doUpdateSaltEQ(row, mutation.saltEQ()));
+        updateOutputRowCompound(reaction, row, doUpdateSaltEQ(row, mutation.saltEQ()));
         return formatSetterSummary("output compound salt EQ", mutation.saltEQ());
     }
 }
@@ -66,7 +66,7 @@ class SetInputCompoundStereoisomerCodeHandler extends AbstractReactionInputMutat
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputCompoundStereoisomerCode mutation, ExperimentMutationContext context) {
-        row.updateCompound(doUpdateStereoisomerCode(row, mutation.stereoisomerCode()));
+        updateInputRowCompound(reaction, row, doUpdateStereoisomerCode(row, mutation.stereoisomerCode()));
         return formatSetterSummary("input compound stereoisomer code", mutation.stereoisomerCode());
     }
 }
@@ -77,7 +77,7 @@ class SetOutputCompoundStereoisomerCodeHandler extends AbstractReactionOutputMut
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputCompoundStereoisomerCode mutation, ExperimentMutationContext context) {
-        row.updateCompound(doUpdateStereoisomerCode(row, mutation.stereoisomerCode()));
+        updateOutputRowCompound(reaction, row, doUpdateStereoisomerCode(row, mutation.stereoisomerCode()));
         return formatSetterSummary("output compound stereoisomer code", mutation.stereoisomerCode());
     }
 }

@@ -134,12 +134,7 @@ public abstract class ExperimentEditMutationHandlerBase<T extends ExperimentMuta
         return "Updated %s".formatted(what);
     }
 
-    public void setInputLineSample(ReactionInput row, SampleDTO sample, InputSampleAnchor anchor, ExperimentMutationContext context) {
-        CompoundEntity compound = sampleSearchService.importCompound(sample);
-        row.setSamples(row.getSamples().stream().filter(s -> s.getSampleSource() != SampleSource.VIRTUAL).toList());
-
-        row.updateCompound(compoundService.compoundRef(compound));
-
+    public ReactionInputSample addInputSample(ReactionInput row, CompoundEntity compound, SampleDTO sample, InputSampleAnchor anchor) {
         EnteredValue<NoUnit> purity = sample.getPurity() != null ? EnteredValue.defaultValue(sample.getPurity(), NoUnit.NO_UNIT) : DEFAULT_ONE_HUNDRED;
         ReactionInputSample reactionInputSample = ReactionInputSample.create(row, anchor, sample.getSource(), sample.getSampleKey(), purity);
         reactionInputSample.setDensity(EnteredValue.defaultValue(sample.getDensity(), DensityUnit.G_ML));
@@ -148,6 +143,68 @@ public abstract class ExperimentEditMutationHandlerBase<T extends ExperimentMuta
         reactionInputSample.setComment(sample.getBatchComment());
         reactionInputSample.setNbkBatchNumber(sample.getNbkBatchNumber());
         row.setChemicalName(compound.getChemicalName());
+        return reactionInputSample;
+    }
+
+    public void resolveInputSample(ReactionInput row, SampleDTO sample, InputSampleAnchor anchor) {
+        CompoundEntity compound = sampleSearchService.importCompound(sample);
+        ReactionInputSample virtualSample = StreamEx.of(row.getSamples()).findFirst(s -> s.getSampleSource() == SampleSource.VIRTUAL).orElse(null);
+        row.setSamples(row.getSamples().stream().filter(s -> s.getSampleSource() != SampleSource.VIRTUAL).toList());
+
+        CompoundRef compoundRef = compoundService.compoundRef(compound);
+        if (!row.getCompound().compoundKeyEquals(compoundRef)) {
+            row.updateCompound(compoundRef);
+        }
+
+        ReactionInputSample resolvedSample = addInputSample(row, compound, sample, anchor);
+        if (virtualSample != null) {
+            transferUserEnteredValues(virtualSample, resolvedSample);
+        }
+    }
+
+    private static void transferUserEnteredValues(ReactionInputSample from, ReactionInputSample to) {
+        transferUserEnteredValue(from.getMol(), to::setMol);
+        transferUserEnteredValue(from.getWeight(), to::setWeight);
+        transferUserEnteredValue(from.getVolume(), to::setVolume);
+        transferUserEnteredValue(from.getDensity(), to::setDensity);
+        transferUserEnteredValue(from.getMolarity(), to::setMolarity);
+        transferUserEnteredValue(from.getPurity(), to::setPurity);
+        if (!from.getHealthHazards().isEmpty()) {
+            to.setHealthHazards(from.getHealthHazards());
+        }
+        if (from.getComment() != null) {
+            to.setComment(from.getComment());
+        }
+    }
+
+    private static <U extends MeasurementUnit> void transferUserEnteredValue(EnteredValue<U> value, Consumer<EnteredValue<U>> setter) {
+        if (value.getSource().isUserEntered()) {
+            setter.accept(value);
+        }
+    }
+
+    protected void updateInputRowCompound(Reaction reaction, ReactionInput row, CompoundRef compound) {
+        StreamEx.of(reaction.getInputs())
+                .findFirst(x -> x != row && x.getRole() == row.getRole() && x.getCompound().compoundKeyEquals(compound))
+                .ifPresent(other -> {
+                    other.getSamples().forEach(s -> s.moveInto(row));
+                    if (other.isLimiting()) {
+                        reaction.setLimitingAnchor(row.getAnchor());
+                    }
+                    other.delete();
+                });
+        row.updateCompound(compound);
+    }
+
+    protected void updateOutputRowCompound(Reaction reaction, ReactionOutput row, CompoundRef compound) {
+        StreamEx.of(reaction.getOutputs())
+                .findFirst(x -> x != row && x.getCompound().compoundKeyEquals(compound))
+                .ifPresent(other -> {
+                    other.getSamples().forEach(s -> s.moveInto(row));
+                    row.setIntended(row.isIntended() || other.isIntended());
+                    other.delete();
+                });
+        row.updateCompound(compound);
     }
 
     public ReactionInput createInputLine(Reaction reaction, @Nullable IndigoMolecule molecule, ReactionRole role, InputAnchor createdInputAnchor) {

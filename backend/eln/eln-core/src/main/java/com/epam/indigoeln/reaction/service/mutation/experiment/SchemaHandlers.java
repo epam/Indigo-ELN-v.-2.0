@@ -210,8 +210,16 @@ class AddInputHandler extends AbstractReactionMutationHandler<ReactionMutation.A
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddInput mutation, ExperimentMutationContext context) {
-        ReactionInput row = createInputLine(reaction, null, ReactionRole.REACTANT, mutation.createdInputAnchor());
-        setInputLineSample(row, mutation.sample(), mutation.createdSampleAnchor(), context);
+        CompoundEntity compound = sampleSearchService.importCompound(mutation.sample());
+        CompoundRef compoundRef = compoundService.compoundRef(compound);
+        ReactionInput row = StreamEx.of(reaction.getInputs())
+                .findFirst(x -> x.getRole() == ReactionRole.REACTANT && x.getCompound().compoundKeyEquals(compoundRef))
+                .orElseGet(() -> {
+                    ReactionInput newRow = ReactionInput.create(reaction, ReactionRole.REACTANT, mutation.createdInputAnchor(), compoundRef);
+                    newRow.setEq(EnteredValue.DEFAULT_ONE);
+                    return newRow;
+                });
+        addInputSample(row, compound, mutation.sample(), mutation.createdSampleAnchor());
 
         return "Add input sample: " + MoreObjects.firstNonNull(mutation.sample().getSampleKey(), mutation.sample().getNbkBatchNumber());
     }
@@ -240,7 +248,7 @@ class ResolveInputsHandler extends AbstractReactionMutationHandler<ReactionMutat
         validate(mutation.createdSampleAnchors().keySet().equals(mutation.inputSamples().keySet()), "createdSampleAnchors must have the same keys as inputSamples");
         mutation.inputSamples().forEach((inputAnchor, sample) -> {
             ReactionInput row = model.locate(inputAnchor);
-            setInputLineSample(row, sample, mutation.createdSampleAnchors().get(inputAnchor), context);
+            resolveInputSample(row, sample, mutation.createdSampleAnchors().get(inputAnchor));
         });
         return "Resolve input samples";
     }

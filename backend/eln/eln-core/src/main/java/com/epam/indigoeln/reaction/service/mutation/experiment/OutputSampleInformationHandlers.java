@@ -159,6 +159,7 @@ class RemoveProductSampleHandler extends AbstractReactionOutputSampleMutationHan
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.RemoveProductSample mutation, ExperimentMutationContext context) {
         sample.delete();
+        cleanupUnintendedProducts(reaction);
         return "Remove batch";
     }
 }

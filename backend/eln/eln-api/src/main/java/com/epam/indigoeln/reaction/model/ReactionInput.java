@@ -79,7 +79,7 @@ public final class ReactionInput extends ReactionRow {
     private static void validateDuplicateInputs(Reaction reaction, ReactionInput newInput) {
         for (ReactionInput input : reaction.getInputs()) {
             if (input != newInput) {
-                validate(!input.getCompound().compoundKeyEquals(newInput.getCompound()), "Reaction contains duplicate input compounds");
+                validate(input.getRole() != newInput.getRole() || !input.getCompound().compoundKeyEquals(newInput.getCompound()), "Reaction contains duplicate input compounds");
             }
         }
     }
