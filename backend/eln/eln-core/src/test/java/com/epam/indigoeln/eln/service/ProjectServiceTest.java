@@ -69,7 +69,7 @@ class ProjectServiceTest extends ELNBaseTest {
         expected.setNotebooks(1);
         assertThat(miscClient.getTotalCounts()).isEqualTo(expected);
 
-        experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
+        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         notebook = notebookClient.getNotebook(notebook.getId());
         assertThat(notebook.getExperimentCount()).isOne();
         assertThat(notebook.getExperimentCountByStatus()).containsExactly(entry(ExperimentStatus.OPEN, 1));
@@ -79,6 +79,14 @@ class ProjectServiceTest extends ELNBaseTest {
         assertThat(project.getExperimentCountByStatus()).containsExactly(entry(ExperimentStatus.OPEN, 1));
         expected.setExperiments(1);
         expected.setExperimentsByStatus(Map.of(ExperimentStatus.OPEN, 1));
+        assertThat(miscClient.getTotalCounts()).isEqualTo(expected);
+
+        experimentClient.completeExperiment(experiment.getId());
+        notebook = notebookClient.getNotebook(notebook.getId());
+        assertThat(notebook.getExperimentCountByStatus()).containsExactly(entry(ExperimentStatus.COMPLETED, 1));
+        project = projectClient.getProject(project.getId());
+        assertThat(project.getExperimentCountByStatus()).containsExactly(entry(ExperimentStatus.COMPLETED, 1));
+        expected.setExperimentsByStatus(Map.of(ExperimentStatus.COMPLETED, 1));
         assertThat(miscClient.getTotalCounts()).isEqualTo(expected);
     }
 

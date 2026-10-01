@@ -46,3 +46,9 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE TRIGGER trigger_update_Notebook_counter
 AFTER INSERT OR DELETE ON Experiment
 FOR EACH ROW EXECUTE FUNCTION update_Notebook_counters_trigger();
+
+-- Separate trigger: WHEN may not reference OLD on INSERT
+CREATE OR REPLACE TRIGGER trigger_update_Notebook_counter_on_status
+AFTER UPDATE OF status ON Experiment
+FOR EACH ROW WHEN (OLD.status IS DISTINCT FROM NEW.status)
+EXECUTE FUNCTION update_Notebook_counters_trigger();

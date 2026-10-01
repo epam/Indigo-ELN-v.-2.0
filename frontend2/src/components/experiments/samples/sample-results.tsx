@@ -4,19 +4,25 @@ import { useEffect, useRef, useState } from 'react';
 import { StructureImage } from '@/components/chemistry/structure-image';
 import { ApiImage } from '@/components/common/api-image';
 import { FormulaCell, IconActionCell, ReadonlyCell } from '@/components/experiments/stoichiometry/cells';
-import { CELL_CLASS, HEADER_CELL_CLASS } from '@/components/experiments/stoichiometry/columns';
+import { ALIGN_CLASS, CELL_CLASS, HEADER_CELL_CLASS } from '@/components/experiments/stoichiometry/columns';
 import { Skeleton } from '@/components/ui/skeleton';
 import { samplePicture, useMarkSample, useSampleSearch } from '@/lib/api/samples';
 import { resultCountLabel, sampleRowKey } from '@/lib/search';
 import { describeError } from '@/lib/toast';
 import { cn } from '@/lib/utils';
 
+import type { Align } from '@/components/experiments/stoichiometry/columns';
 import type { FindSamplesRequest, SampleDTO } from '@/lib/types/samples.ts';
 
 /** Chevron + the four data columns + the two action columns. */
 const COLUMN_COUNT = 7;
 
-const DATA_COLUMNS = ['Compound ID', 'Chemical Name', 'Mol. Weight', 'Mol. Formula'];
+const DATA_COLUMNS: { header: string; align: Align }[] = [
+  { header: 'Compound ID', align: 'left' },
+  { header: 'Chemical Name', align: 'left' },
+  { header: 'Mol. Weight', align: 'right' },
+  { header: 'Mol. Formula', align: 'left' },
+];
 
 /**
  * The catalog hits for one search, with a mark and an add on every row.
@@ -131,10 +137,10 @@ export function SampleResults({
           <tr>
             {/* The chevron and the two action columns speak for themselves. */}
             <th className={HEADER_CELL_CLASS} />
-            {DATA_COLUMNS.map((header) => (
+            {DATA_COLUMNS.map(({ header, align }) => (
               // `truncate`: a fixed column is a hard edge, and a header wider than its own column
               // would otherwise spill across the next one instead of being clipped.
-              <th key={header} scope="col" className={cn(HEADER_CELL_CLASS, 'truncate text-left')}>
+              <th key={header} scope="col" className={cn(HEADER_CELL_CLASS, 'truncate', ALIGN_CLASS[align])}>
                 {header}
               </th>
             ))}
@@ -238,8 +244,8 @@ function SampleRow({
         <td className={CELL_CLASS}>
           <ReadonlyCell value={sample.chemicalName} />
         </td>
-        <td className={CELL_CLASS}>
-          <ReadonlyCell value={String(sample.molWeight)} />
+        <td className={cn(CELL_CLASS, 'text-right tabular-nums')}>
+          <ReadonlyCell value={sample.molWeight.toFixed(2)} />
         </td>
         <td className={CELL_CLASS}>
           {/* HTML, not text — `MolFormula` serialises through `@JsonValue toHTMLString()`. */}

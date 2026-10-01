@@ -34,6 +34,8 @@ services:
       SAMPLEREGISTRATION_DB_PASSWORD: "${DB_PASSWORD}"
     volumes:
       - /data/postgres:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
       start_period: 60s
