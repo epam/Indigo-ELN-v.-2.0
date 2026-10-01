@@ -9,8 +9,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.MoreObjects;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
@@ -19,7 +19,6 @@ import java.util.UUID;
 import static com.google.common.base.Preconditions.checkState;
 
 @Data
-@AllArgsConstructor(onConstructor_ = @JsonCreator)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CompoundRef {
 
@@ -50,14 +49,27 @@ public class CompoundRef {
     @NotNull
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     @SuppressWarnings("unused") // used on frontend
-    private final EnteredValue<NoUnit> exactMass;
+    private EnteredValue<NoUnit> exactMass;
 
     @Nullable
     @SuppressWarnings("unused") // used on frontend
     private final String casNumber;
 
     public CompoundRef() {
-        this(null, null, null, null, null, null, EnteredValue.empty(), EnteredValue.empty(), null);
+        this(null, null, null, null, null, null, null, null, null);
+    }
+
+    @JsonCreator
+    public CompoundRef(@Nullable UUID compoundID, @Nullable StereoisomerCodeRef stereoisomerCode, @Nullable SaltCodeRef saltCode, @Nullable Double saltEQ, @Nullable String compoundKey, @Nullable MolFormula formula, @Nullable EnteredValue<MolWeightUnit> molWeight, @Nullable EnteredValue<NoUnit> exactMass, @Nullable String casNumber) {
+        this.compoundID = compoundID;
+        this.stereoisomerCode = stereoisomerCode;
+        this.saltCode = saltCode;
+        this.saltEQ = saltEQ;
+        this.compoundKey = compoundKey;
+        this.formula = formula;
+        this.molWeight = MoreObjects.firstNonNull(molWeight, EnteredValue.empty());
+        this.exactMass = MoreObjects.firstNonNull(exactMass, EnteredValue.empty());
+        this.casNumber = casNumber;
     }
 
     public CompoundRef copy() {
@@ -91,7 +103,7 @@ public class CompoundRef {
         return sb.toString();
     }
 
-    public void setMolWeight(@Nullable EnteredValue<MolWeightUnit> molWeight) {
+    public void setMolWeight(EnteredValue<MolWeightUnit> molWeight) {
         checkState(!isKnown());
         this.molWeight = molWeight;
     }

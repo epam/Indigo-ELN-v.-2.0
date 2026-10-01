@@ -4,7 +4,6 @@ import org.gradle.testing.jacoco.tasks.JacocoReport
 plugins {
     java
     jacoco
-    id("com.github.ben-manes.versions")
 }
 
 repositories {
