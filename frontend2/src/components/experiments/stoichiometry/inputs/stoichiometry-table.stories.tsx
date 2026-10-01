@@ -277,6 +277,26 @@ export const ValueSourcesAreColoured: Story = {
 };
 
 /**
+ * A compound's Weight and Volume are the server's sums over its batches: shown, never edited,
+ * and an em-dash when the server has none — row 2 has a batch with no volume.
+ */
+export const CompoundTotalsAreReadOnly: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const display = (label: string) =>
+      canvas
+        .getByLabelText(label)
+        .closest('[data-slot="numeric-cell"]')!
+        .querySelector('[data-slot="numeric-cell-value"]')!;
+
+    await expect(canvas.getByLabelText('Weight, row 1')).toBeDisabled();
+    await expect(display('Weight, row 1')).toHaveTextContent('676.5');
+    await expect(canvas.getByLabelText('Volume, row 2')).toBeDisabled();
+    await expect(display('Volume, row 2')).toHaveTextContent('—');
+  },
+};
+
+/**
  * **Every control in a cell reads at the table's own size.** The shared `Combobox` and `Select`
  * default to the 14px a form wants; in a 13px table that is visibly a size larger than the text
  * beside it, and swapping a cell into edit mode used to change the type size under the cursor.
@@ -830,7 +850,9 @@ export const EscapeRevertsAndLeaves: Story = {
     // The draft is back to what the server confirmed — the unit as well as the number, which is
     // why this reads 676.5 rather than the 0.999 g the arrow had made of it.
     await waitFor(() => expect(input).toHaveValue(676.5));
-    await expect(canvas.getByText('676.5 mg')).toBeInTheDocument();
+    await expect(
+      input.closest('[data-slot="numeric-cell"]')!.querySelector('[data-slot="numeric-cell-value"]'),
+    ).toHaveTextContent('676.5 mg');
 
     // ...and nothing was sent, which is the part that would silently regress.
     await new Promise((resolve) => setTimeout(resolve, 400));
@@ -1010,7 +1032,12 @@ export const EnterLeavesEditMode: Story = {
 
     // The display is back — the spy answers with an empty patch, so it still reads what the
     // server last confirmed — and Tab goes on to the next cell rather than back into this one.
-    await expect(canvas.getByText('676.5 mg')).toBeVisible();
+    await expect(
+      input.closest('[data-slot="numeric-cell"]')!.querySelector('[data-slot="numeric-cell-value"]'),
+    ).toBeVisible();
+    await expect(
+      input.closest('[data-slot="numeric-cell"]')!.querySelector('[data-slot="numeric-cell-value"]'),
+    ).toHaveTextContent('676.5 mg');
     await userEvent.tab();
     await expect(canvas.getByLabelText('Volume, batch 1')).toHaveFocus();
   },
@@ -1054,12 +1081,17 @@ export const FailedSaveKeepsServerValue: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await userEvent.click(await canvas.findByLabelText('Weight, batch 1'));
-    await userEvent.clear(canvas.getByLabelText('Weight, batch 1'));
-    await userEvent.type(canvas.getByLabelText('Weight, batch 1'), '5{Enter}');
+    const input = await canvas.findByLabelText('Weight, batch 1');
+    await userEvent.click(input);
+    await userEvent.clear(input);
+    await userEvent.type(input, '5{Enter}');
 
     // Nothing was written to the cache, so the display still shows what the server confirmed.
-    await waitFor(() => expect(canvas.getByText('676.5 mg')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(
+        input.closest('[data-slot="numeric-cell"]')!.querySelector('[data-slot="numeric-cell-value"]'),
+      ).toHaveTextContent('676.5 mg'),
+    );
   },
 };
 

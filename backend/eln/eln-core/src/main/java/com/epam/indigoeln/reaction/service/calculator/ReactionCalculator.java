@@ -78,6 +78,12 @@ import static com.google.common.base.Preconditions.checkState;
  * <p>F9.1. outputSample.yield = outputSample.actualWeight * outputSample.purity / output.theoWeight</p>
  * <p>&emsp; F9.2. outputSample.actualWeight = outputSample.yield / outputSample.purity * output.theoWeight</p>
  * <p>&emsp; purity is never calculated</p>
+ *
+ * <p>F10.1. input.weight = ∑ sample.weight</p>
+ * <p>&emsp; it's the only way to determine input.weight, so cannot calculate others based on input.weight</p>
+ *
+ * <p>F11.1. input.volume = ∑ sample.volume</p>
+ * <p>&emsp; it's the only way to determine input.volume, so cannot calculate others based on input.volume</p>
  */
 @Slf4j
 @Dependent
@@ -298,6 +304,8 @@ public class ReactionCalculator {
         final ReactionProps reaction;
         final Property<ReactionInput, MolUnit> mol;
         final Property<ReactionInput, NoUnit> eq;
+        final Property<ReactionInput, WeightUnit> weight;
+        final Property<ReactionInput, VolumeUnit> volume;
         final List<InputSampleProps> samples;
 
         private InputProps(ReactionProps reaction, ReactionInput input) {
@@ -305,6 +313,8 @@ public class ReactionCalculator {
             this.reaction = reaction;
             mol = prop(input, ReactionInputMetamodel.MOL);
             eq = prop(input, ReactionInputMetamodel.EQ, DEFAULT_ONE);
+            weight = prop(input, ReactionInputMetamodel.WEIGHT);
+            volume = prop(input, ReactionInputMetamodel.VOLUME);
             samples = StreamEx.of(input.getSamples())
                     .map(x -> new InputSampleProps(this, x))
                     .toList();
@@ -315,13 +325,31 @@ public class ReactionCalculator {
             List<Property<ReactionInputSample, MolUnit>> sampleMols = StreamEx.of(samples)
                     .map(s -> s.mol)
                     .toList();
+            List<Property<ReactionInputSample, WeightUnit>> sampleWeights = StreamEx.of(samples)
+                    .map(s -> s.weight)
+                    .toList();
+            List<Property<ReactionInputSample, VolumeUnit>> sampleVolumes = StreamEx.of(samples)
+                    .map(s -> s.volume)
+                    .toList();
             InputProps limiting = reaction.limiting;
 
             formula(
                     "F1.1: mol = sum sampleN.mol",
                     mol,
-                    () -> EnteredValueOpt.sum(sampleMols)
+                    () -> sum(ZERO_MOL, sampleMols)
             ).addSources(sampleMols);
+
+            formula(
+                    "F10.1: input.weight = ∑ sampleN.weight",
+                    weight,
+                    () -> sum(ZERO_WEIGHT, sampleWeights)
+            ).addSources(sampleWeights);
+
+            formula(
+                    "F11.1: input.volume = ∑ sampleN.volume",
+                    volume,
+                    () -> sum(ZERO_VOLUME, sampleVolumes)
+            ).addSources(sampleVolumes);
 
             if (this != limiting) {
                 formula(
@@ -377,7 +405,7 @@ public class ReactionCalculator {
             formula(
                     "F1.2: mol = input.mol - ∑ otherSampleN.mol",
                     mol,
-                    () -> input.mol.subtract(sum(otherSampleMols)),
+                    () -> input.mol.subtract(sum(ZERO_MOL, otherSampleMols)),
                     input.mol
             ).addSources(otherSampleMols);
 

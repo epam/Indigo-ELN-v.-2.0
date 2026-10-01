@@ -412,6 +412,10 @@ export interface ReactionInput extends ReactionRow {
   anchor: UUID;
   role: ReactionRole;
   mol?: EnteredValue<MolUnit>;
+  /** Calculated, read-only: the sum of the samples' weights. */
+  weight?: EnteredValue<WeightUnit>;
+  /** Calculated, read-only: the sum of the samples' volumes. */
+  volume?: EnteredValue<VolumeUnit>;
   chemicalName?: string;
   samples: ReactionInputSample[];
   /**

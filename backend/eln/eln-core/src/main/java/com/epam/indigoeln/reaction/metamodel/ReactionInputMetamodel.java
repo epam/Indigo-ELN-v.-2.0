@@ -6,6 +6,8 @@ import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.EnteredValue;
 import com.epam.indigoeln.common.model.units.MolUnit;
 import com.epam.indigoeln.common.model.units.NoUnit;
+import com.epam.indigoeln.common.model.units.VolumeUnit;
+import com.epam.indigoeln.common.model.units.WeightUnit;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -22,6 +24,8 @@ public class ReactionInputMetamodel {
     public static final ModelProperty<ReactionInput, InputAnchor> ANCHOR = property("anchor", ReactionInput::getAnchor, null);
     public static final ModelProperty<ReactionInput, ReactionRole> ROLE = property("role", ReactionInput::getRole, ReactionInput::setRole);
     public static final ModelProperty<ReactionInput, EnteredValue<MolUnit>> MOL = enteredValueProperty("mol", ReactionInput::getMol, ReactionInput::setMol);
+    public static final ModelProperty<ReactionInput, EnteredValue<WeightUnit>> WEIGHT = enteredValueProperty("weight", ReactionInput::getWeight, ReactionInput::setWeight);
+    public static final ModelProperty<ReactionInput, EnteredValue<VolumeUnit>> VOLUME = enteredValueProperty("volume", ReactionInput::getVolume, ReactionInput::setVolume);
     public static final ModelProperty<ReactionInput, @Nullable String> CHEMICAL_NAME = property("chemicalName", ReactionInput::getChemicalName, ReactionInput::setChemicalName);
     public static final ModelProperty<ReactionInput, Boolean> LIMITING = property("limiting", ReactionInput::isLimiting, null);
     public static final ModelProperty<ReactionInput, List<ReactionInputSample>> SAMPLES = listProperty("samples", ReactionInput::getSamples, ReactionInput::setSamples, ReactionInputSampleMetamodel.INSTANCE);
@@ -32,6 +36,8 @@ public class ReactionInputMetamodel {
             ANCHOR,
             ROLE,
             MOL,
+            WEIGHT,
+            VOLUME,
             CHEMICAL_NAME,
             LIMITING,
             SAMPLES

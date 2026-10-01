@@ -1,7 +1,5 @@
 import { asEnteredValue } from '@/components/experiments/stoichiometry/columns';
 
-import type { Align } from '@/components/experiments/stoichiometry/columns';
-
 import type { NumericCellValue } from '@/components/experiments/stoichiometry/numeric-cell';
 import type { DictionaryItemRef } from '@/lib/types/dictionaries.ts';
 import { sortByName } from '@/lib/types/dictionaries.ts';
@@ -53,16 +51,6 @@ interface ColumnBase {
   id: string;
   header: string;
   /**
-   * Overrides the alignment `alignOf` would derive from the cell's kind.
-   *
-   * For a column that stands in for one whose kind it does not yet have: Weight and Volume have
-   * no compound-level field, so their cells are `readonly` em-dashes — but the column *is* a
-   * numeric one, and the samples below it right-align. Left to the default they would read left
-   * under a left header while the batch rows beneath read right, which is two grids rather than
-   * one column.
-   */
-  align?: Align;
-  /**
    * A **floor** in pixels, not a fixed size: the table is auto-layout, so a column sizes itself
    * to its content and to the space available, and this only stops it collapsing.
    *
@@ -82,6 +70,15 @@ type Cell<Row> =
   | { kind: 'readonly'; value: (row: Row) => string | undefined }
   /** Server-rendered HTML — a molecular formula, whose subscripts arrive as `<sub>` tags. */
   | { kind: 'html'; value: (row: Row) => string | undefined }
+  /**
+   * A calculated number, shown but not editable. Its own kind rather than a `numeric` with
+   * `editable: () => false`, because a read-only cell has no mutation to name.
+   */
+  | {
+      kind: 'readonlyNumeric';
+      value: (row: Row) => EnteredValue<string> | undefined;
+      units: readonly string[];
+    }
   /** Free text, saved on blur. */
   | {
       kind: 'text';
@@ -159,13 +156,6 @@ export function shortBatchNumber(nbkBatchNumber: string | undefined): string | u
   return String(Number(ordinal));
 }
 
-/**
- * Weight and Volume have no compound-level field — they belong to a sample, and a compound may
- * own several. They are shown as an em-dash for now; the backend is to expose them as a sum
- * over the row's samples, at which point these become ordinary numeric columns.
- */
-const COMPOUND_TOTAL_PLACEHOLDER = { kind: 'readonly', value: () => undefined, align: 'right' } as const;
-
 export const COMPOUND_COLUMNS: InputColumn[] = [
   { id: 'index', header: '#', minWidth: 48, kind: 'index' },
   {
@@ -220,8 +210,24 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
       molWeight: next.value,
     }),
   },
-  { id: 'weight', header: 'Weight', minWidth: 110, ...COMPOUND_TOTAL_PLACEHOLDER },
-  { id: 'volume', header: 'Volume', minWidth: 110, ...COMPOUND_TOTAL_PLACEHOLDER },
+  {
+    id: 'weight',
+    header: 'Weight',
+    minWidth: 110,
+    kind: 'readonlyNumeric',
+    // Calculated: `weight = ∑ sample.weight`. Empty until every batch has a weight.
+    value: (input) => input.weight,
+    units: WEIGHT_UNITS,
+  },
+  {
+    id: 'volume',
+    header: 'Volume',
+    minWidth: 110,
+    kind: 'readonlyNumeric',
+    // Calculated: `volume = ∑ sample.volume`. Empty until every batch has a volume.
+    value: (input) => input.volume,
+    units: VOLUME_UNITS,
+  },
   {
     id: 'mol',
     header: 'Mol',

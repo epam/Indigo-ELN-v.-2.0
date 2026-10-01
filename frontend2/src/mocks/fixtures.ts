@@ -367,6 +367,8 @@ export const REACTION_INPUTS: ReactionInput[] = [
     limiting: true,
     chemicalName: 'Salicylic acid',
     mol: entered('4.9', 'MMOL', 'calculated'),
+    // The sum of its one batch's weight. No batch has a volume, so the row has none either.
+    weight: entered('676.5', 'MG', 'calculated'),
     samples: [
       makeReactionInputSample('e0000000-0000-4000-8000-00000000000a', {
         ...srsSample('STR-00000000-89-001'),
@@ -433,6 +435,7 @@ export const REACTION_INPUTS: ReactionInput[] = [
       saltEQ: 1,
     },
     eq: entered('2', 'NO_UNIT', 5),
+    weight: entered('790', 'MG', 'calculated'),
     samples: [
       makeReactionInputSample('e0000000-0000-4000-8000-00000000000f', {
         nbkBatchNumber: '20260101-0001-007',

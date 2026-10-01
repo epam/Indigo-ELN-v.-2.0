@@ -1,6 +1,8 @@
 package com.epam.indigoeln.reaction.model;
 
 import com.epam.indigoeln.common.model.units.MolUnit;
+import com.epam.indigoeln.common.model.units.VolumeUnit;
+import com.epam.indigoeln.common.model.units.WeightUnit;
 import com.epam.indigoeln.eln.model.SampleSource;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -34,6 +36,12 @@ public final class ReactionInput extends ReactionRow {
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private EnteredValue<MolUnit> mol = EnteredValue.empty();
+
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private EnteredValue<WeightUnit> weight = EnteredValue.empty();
+
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private EnteredValue<VolumeUnit> volume = EnteredValue.empty();
 
     @Nullable
     private String chemicalName;
