@@ -33,7 +33,8 @@ public class IndigoProvider {
     IndigoRendererAPI getIndigoRendererAPI() {
         Indigo indigo = indigoSupplier.get();
         IndigoRenderer indigoRenderer = new IndigoRenderer(indigo);
-        indigo.setOption("render-label-mode", "hetero");
+        indigo.setOption("render-label-mode", "terminal-hetero");
+        indigo.setOption("render-implicit-hydrogens-visible", false);
         indigo.setOption("render-output-format", "svg");
         indigo.setOption("render-coloring", true);
         indigo.setOption("render-margins", 0, 0);
