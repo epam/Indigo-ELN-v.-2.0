@@ -1,5 +1,6 @@
 import { Select as SelectPrimitive } from '@base-ui/react/select';
 import { ChevronDown } from 'lucide-react';
+import { useRef, useState } from 'react';
 
 import { INPUT_BOX, INPUT_BOX_FOCUS } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -20,6 +21,45 @@ const SIZE_BOX: Record<SelectSize, string> = {
   sm: 'h-7.5 pl-2',
   md: 'h-10 pl-3',
 };
+
+/**
+ * `cell` is the select a dense table wants: at rest it is only its value, as plain as the text
+ * and number cells beside it, and it becomes the box — border, background, chevron — when
+ * hovered, focused or open. The trigger already *is* the value's text, so unlike `NumericCell`
+ * there is no second form to swap in; the box is simply not drawn.
+ */
+type SelectVariant = 'box' | 'cell';
+
+const CELL_TRIGGER = cn(
+  'border-transparent bg-transparent enabled:hover:border-neutral-300',
+  'focus-visible:border-blue-400 focus-visible:bg-background',
+  'data-popup-open:border-blue-400 data-popup-open:bg-background',
+  // A fixed value is plain text, not the box's 50% dimming — there is no box left to dim. What
+  // marks an editable one is `CELL_VALUE_EDITABLE`'s underline.
+  'disabled:cursor-default disabled:opacity-100',
+);
+
+/**
+ * The dashed underline an editable number wears in the same tables — see `NumericCell`. In the
+ * text's own colour, and gone once the box is drawn, which says the same thing.
+ */
+const CELL_VALUE_EDITABLE = cn(
+  'underline decoration-dashed decoration-[0.5px] underline-offset-4',
+  'group-focus-visible/select:no-underline group-data-popup-open/select:no-underline',
+);
+
+/**
+ * Puts a `cell` back in its view state while it still holds focus — after Escape. The box is
+ * drawn by `:focus-visible`, which only letting go of focus would clear, and letting go would
+ * lose the user's place in the row. So the box's own classes are overruled instead, which takes
+ * `!important`: a variant outranks a plain utility.
+ */
+const CELL_TRIGGER_DISMISSED = 'border-transparent! bg-transparent! ring-0!';
+const CELL_VALUE_DISMISSED = 'underline!';
+const CELL_ICON_DISMISSED = 'invisible!';
+
+/** `invisible`, not `hidden`: the chevron keeps its width, so the value does not shift. */
+const CELL_ICON = 'invisible group-focus-visible/select:visible group-data-popup-open/select:visible';
 
 /**
  * Stands in for "no selection" inside the list, and never leaves this file — callers see `null`.
@@ -73,6 +113,8 @@ interface SelectProps<T> {
   error?: boolean;
   /** Text size of the trigger and its popup. `sm` matches a dense table's 13px. */
   size?: SelectSize;
+  /** `cell` hides the box until the select is hovered, focused or open — see `SelectVariant`. */
+  variant?: SelectVariant;
   className?: string;
 }
 
@@ -105,8 +147,15 @@ function Select<T>({
   loading = false,
   error = false,
   size = 'md',
+  variant = 'box',
   className,
 }: SelectProps<T>) {
+  const cell = variant === 'cell';
+  // Controlled only for `cell`, which opens on keyboard focus; `box` leaves it to Base UI.
+  const [open, setOpen] = useState(false);
+  /** Escape was pressed: show the value, not the box, until the cell is left or reopened. */
+  const [dismissed, setDismissed] = useState(false);
+  const popup = useRef<HTMLDivElement>(null);
   const status = loading ? 'Loading…' : error ? 'Could not load options' : null;
   const clearable = emptyLabel != null;
   const isEmpty = (item: T | Empty | null): item is Empty => item === EMPTY_ITEM;
@@ -115,6 +164,12 @@ function Select<T>({
       value={clearable ? (value ?? EMPTY_ITEM) : value}
       onValueChange={(next) => onValueChange(next == null || isEmpty(next) ? null : next)}
       disabled={disabled}
+      open={cell ? open : undefined}
+      onOpenChange={(next, details) => {
+        setOpen(next);
+        // Opening again is editing again; Escape is the one way of closing that abandons it.
+        setDismissed(cell && !next && details.reason === 'escape-key');
+      }}
       // Object items are not referentially equal across refetches, so identity has to be
       // spelled out or a selected value stops matching its own row in the list. Null is only
       // ever equal to itself — `itemToKey` is the caller's and has no reason to expect one.
@@ -125,10 +180,29 @@ function Select<T>({
       <SelectPrimitive.Trigger
         id={id}
         aria-label={ariaLabel}
+        /*
+          Tabbing into a `cell` opens its list, as entering a numeric cell opens its units. Two
+          things it must not answer to. A mouse click, which Base UI opens itself — hence
+          `:focus-visible`. And focus coming *back* from the list after a pick or Escape, which
+          would reopen it at once: that arrives from the popup, or from nowhere once the popup
+          has unmounted, so only focus handed over by another control counts.
+        */
+        onFocus={
+          cell
+            ? (event) => {
+                const from = event.relatedTarget;
+                if (from == null || popup.current?.contains(from)) return;
+                if (event.currentTarget.matches(':focus-visible')) setOpen(true);
+              }
+            : undefined
+        }
+        onBlur={cell ? () => setDismissed(false) : undefined}
+        // Escape with the list already shut — after a pick, say — leaves the edit as well.
+        onKeyDown={cell ? (event) => event.key === 'Escape' && !open && setDismissed(true) : undefined}
         className={cn(
           INPUT_BOX,
           INPUT_BOX_FOCUS,
-          'flex cursor-pointer items-center justify-between gap-1 pr-1',
+          'group/select flex cursor-pointer items-center justify-between gap-1 pr-1',
           'text-left text-neutral-1000 outline-none',
           SIZE_BOX[size],
           SIZE_TEXT[size],
@@ -136,6 +210,8 @@ function Select<T>({
           // rather than `INPUT_DISABLED`. Same treatment as Input's and Combobox's, so a row of
           // mixed controls reads as one thing.
           'disabled:cursor-not-allowed disabled:opacity-50',
+          cell && CELL_TRIGGER,
+          dismissed && CELL_TRIGGER_DISMISSED,
           className,
         )}
       >
@@ -143,7 +219,18 @@ function Select<T>({
           `Root` is given no `items` map, so `Value` receives the value itself rather than a
           resolved label — which is what we want, since `itemToLabel` is the caller's business.
         */}
-        <SelectPrimitive.Value className={cn('truncate', value == null && 'text-neutral-700')}>
+        {/*
+          A `cell` never truncates: its label is the column's minimum width, so a longer value
+          widens the column instead of being clipped.
+        */}
+        <SelectPrimitive.Value
+          className={cn(
+            cell ? 'whitespace-nowrap' : 'truncate',
+            cell && !disabled && CELL_VALUE_EDITABLE,
+            dismissed && CELL_VALUE_DISMISSED,
+            value == null && 'text-neutral-700',
+          )}
+        >
           {(item: T | Empty | null) =>
             item == null || isEmpty(item) ? (emptyLabel ?? placeholder ?? '') : itemToLabel(item)
           }
@@ -153,14 +240,19 @@ function Select<T>({
           `SavingOverlay` publishes `data-saving` on the group around this. `invisible` rather
           than `hidden`, so the control keeps its width and the spinner lands where the chevron was.
         */}
-        <SelectPrimitive.Icon className="shrink-0 p-1 text-neutral-700 group-data-saving/saving:invisible">
+        <SelectPrimitive.Icon
+          className={cn('shrink-0 p-1 text-neutral-700 group-data-saving/saving:invisible', cell && CELL_ICON, dismissed && CELL_ICON_DISMISSED)}
+        >
           <ChevronDown className={size === 'sm' ? 'size-4' : 'size-5'} />
         </SelectPrimitive.Icon>
       </SelectPrimitive.Trigger>
 
       <SelectPrimitive.Portal>
         <SelectPrimitive.Positioner sideOffset={4} className="z-50" alignItemWithTrigger={false}>
-          <SelectPrimitive.Popup className="max-h-60 min-w-(--anchor-width) overflow-y-auto rounded-md border border-neutral-300 bg-popover p-1 shadow-card outline-none">
+          <SelectPrimitive.Popup
+            ref={popup}
+            className="max-h-60 min-w-(--anchor-width) overflow-y-auto rounded-md border border-neutral-300 bg-popover p-1 shadow-card outline-none"
+          >
             <SelectPrimitive.List>
               {status && (
                 <div className={cn('px-3 py-2', SIZE_TEXT[size], error ? 'text-red-200' : 'text-neutral-700')}>

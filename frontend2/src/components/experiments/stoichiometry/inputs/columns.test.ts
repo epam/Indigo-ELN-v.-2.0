@@ -46,7 +46,6 @@ describe('the host grid', () => {
     expect(spacers.map((column) => column.id)).toEqual(['hazardSpacer', 'commentSpacer']);
     for (const spacer of spacers) {
       expect(spacer.header).toBe('');
-      expect(spacer.minWidth).toBeUndefined();
     }
   });
 });

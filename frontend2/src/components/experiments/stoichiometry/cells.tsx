@@ -33,11 +33,24 @@ export function EmptyCell() {
  * the batch summary's Reg. Status cell hangs `registrationStatusMessage` there, which is the only
  * place the reason a registration failed is shown at all.
  */
-export function ReadonlyCell({ value, title }: { value: string | undefined; title?: string }) {
+export function ReadonlyCell({
+  value,
+  title,
+  fitContent = false,
+}: {
+  value: string | undefined;
+  title?: string;
+  /** Keeps the whole value on show, so it — not the column's floor — sets the column's width. */
+  fitContent?: boolean;
+}) {
   if (value == null || value === '') return <EmptyCell />;
   return (
     <span
-      className={cn(CONTENT_BOX, 'block cursor-default truncate text-[13px]/5 text-neutral-1000')}
+      className={cn(
+        CONTENT_BOX,
+        'block cursor-default text-[13px]/5 text-neutral-1000',
+        fitContent ? 'whitespace-nowrap' : 'truncate',
+      )}
       title={title ?? value}
     >
       {value}
@@ -53,7 +66,14 @@ export function ReadonlyCell({ value, title }: { value: string | undefined; titl
  * The only markup the backend emits here is `<sub>`, and the string is composed from an
  * element/count table rather than from user input, so there is nothing to sanitise.
  */
-export function FormulaCell({ value }: { value: string | undefined }) {
+export function FormulaCell({
+  value,
+  fitContent = false,
+}: {
+  value: string | undefined;
+  /** Keeps the whole formula on show, so it sets the column's width — see `ReadonlyCell`. */
+  fitContent?: boolean;
+}) {
   if (value == null || value === '') return <EmptyCell />;
   return (
     <span
@@ -70,7 +90,8 @@ export function FormulaCell({ value }: { value: string | undefined }) {
       */
       className={cn(
         CONTENT_BOX,
-        'block cursor-default truncate py-1 text-[13px]/5 text-neutral-1000',
+        'block cursor-default py-1 text-[13px]/5 text-neutral-1000',
+        fitContent ? 'whitespace-nowrap' : 'truncate',
         '[&_sub]:align-sub [&_sub]:text-[0.75em] [&_sub]:leading-none',
       )}
       dangerouslySetInnerHTML={{ __html: value }}
@@ -103,6 +124,7 @@ export function TextCell({
   pending,
   label,
   validate,
+  fitContent = false,
   onCommit,
 }: {
   value: string | undefined;
@@ -110,6 +132,13 @@ export function TextCell({
   pending: boolean;
   label: string;
   validate?: (next: string | null) => string | undefined;
+  /**
+   * Sizes the column to the text. An `<input>` has no width of its own to give — it is as wide
+   * as it is told to be — so the text is written a second time into an invisible span that is
+   * in flow and does have one, and the input is laid over it. The span follows the *draft*, so
+   * the cell widens as it is typed into rather than scrolling.
+   */
+  fitContent?: boolean;
   onCommit: (next: string | null) => void;
 }) {
   const [draft, setDraft, reseeded] = useDraft(value ?? '');
@@ -118,10 +147,17 @@ export function TextCell({
   // The message belongs to the draft that failed; that draft is gone.
   if (reseeded && invalid !== undefined) setInvalid(undefined);
 
-  if (!editable) return <ReadonlyCell value={value} />;
+  if (!editable) return <ReadonlyCell value={value} fitContent={fitContent} />;
 
   return (
     <SavingOverlay pending={pending} spinner="center" className="w-full">
+      {fitContent && (
+        // The input's own box and type, so the two measure alike. `whitespace-pre` because an
+        // input does not collapse spaces either.
+        <span aria-hidden className={cn(CONTENT_BOX, 'invisible block py-1 text-[13px]/5 whitespace-pre')}>
+          {draft || '—'}
+        </span>
+      )}
       <input
         type="text"
         aria-label={label}
@@ -142,7 +178,12 @@ export function TextCell({
           // Both sides normalised to null, so "" and undefined are not seen as a change.
           if (next !== (value ?? null)) onCommit(next);
         }}
-        className={cn(EDITABLE_CELL_CLASS, invalid !== undefined && 'border-destructive focus:border-destructive')}
+        className={cn(
+          EDITABLE_CELL_CLASS,
+          // Against `SavingOverlay`, which is `relative` and exactly the sizer's size.
+          fitContent && 'absolute inset-0',
+          invalid !== undefined && 'border-destructive focus:border-destructive',
+        )}
       />
     </SavingOverlay>
   );
@@ -173,15 +214,17 @@ export function DictionaryCell({
 }) {
   const { data, isPending, isError } = useDictionary(dictionary);
 
-  if (!editable) return <ReadonlyCell value={value.name} />;
-
   return (
     <SavingOverlay pending={pending} spinner="center" className="w-full">
       <Select<DictionaryItemRef>
         aria-label={label}
         size="sm"
+        variant="cell"
         value={value}
         items={data ?? []}
+        // Disabled rather than swapped for a `ReadonlyCell`, as `RoleCell` does: a disabled
+        // `cell` select is grey text that keeps its full width, where a read-only cell truncates.
+        disabled={!editable}
         itemToKey={(item) => item.id}
         itemToLabel={(item) => item.name}
         loading={isPending}
@@ -230,6 +273,9 @@ export function MultiDictionaryCell({
       <MultiCombobox<DictionaryItemRef>
         aria-label={label}
         size="sm"
+        variant="cell"
+        // The same absence marker every other empty cell shows.
+        placeholder="—"
         value={value}
         items={items}
         itemToKey={(item) => item.id}

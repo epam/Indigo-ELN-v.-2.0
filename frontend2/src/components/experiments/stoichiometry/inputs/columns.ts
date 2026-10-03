@@ -52,16 +52,31 @@ interface ColumnBase {
   id: string;
   header: string;
   /**
-   * A **floor** in pixels, not a fixed size: the table is auto-layout, so a column sizes itself
-   * to its content and to the space available, and this only stops it collapsing.
+   * A **floor** in pixels, and only the number-with-unit columns state one. Every other column
+   * is as wide as its widest value or its header, whichever is more — headers are
+   * `whitespace-nowrap` and no cell truncates, so both are real minimums.
    *
-   * It has to stay a real floor rather than being dropped. A numeric cell showing an em-dash is
-   * a few pixels wide, and swapping in the editor's number input plus its unit menu would jump
-   * the layout on every click. Headers are `whitespace-nowrap`, which supplies a second floor.
-   *
-   * Spacer columns declare none — having no minimum of their own is exactly their purpose.
+   * These need more than that because what they show is not what they edit: an empty one is an
+   * em-dash under a short header, and the number input that replaces it has to fit in the same
+   * box, with the unit beside it.
    */
   minWidth?: number;
+  /**
+   * Sizes the column to its content and no wider — for a column that must not be widened by a
+   * sample cell spanning it. A table has no grow factor to set to zero; this is the nearest thing.
+   *
+   * A spanning cell wider than the columns under it hands its excess to the ones with no width
+   * of their own first — and only then to the rest, in proportion to their content. So a spacer
+   * beside two unsized columns absorbs nothing: it is empty, and its share of "in proportion to
+   * content" is zero. This states a width of 1px, which a cell cannot actually be squeezed to —
+   * it stays as wide as its content and its header — but which makes the spacer the only
+   * unsized column in the span, and so the one that grows. `ACTIONS_CELL_CLASS` uses the same
+   * `w-px` for the same effect.
+   *
+   * It only holds for content that does not shrink: a cell that truncates has no minimum, and
+   * would be clipped to its header's width.
+   */
+  fitContent?: boolean;
 }
 
 type Cell<Row> =
@@ -159,25 +174,22 @@ export function shortBatchNumber(nbkBatchNumber: string | undefined): string | u
 }
 
 export const COMPOUND_COLUMNS: InputColumn[] = [
-  { id: 'index', header: '#', minWidth: 48, kind: 'index' },
+  { id: 'index', header: '#', kind: 'index' },
   {
     id: 'compoundId',
     header: 'Compound ID',
-    minWidth: 150,
     kind: 'readonly',
     value: (input) => input.compound.compoundKey,
   },
   {
     id: 'casNumber',
     header: 'CAS #',
-    minWidth: 110,
     kind: 'readonly',
     value: (input) => input.compound.casNumber,
   },
   {
     id: 'chemicalName',
     header: 'Chem. Name',
-    minWidth: 160,
     kind: 'text',
     value: (input) => input.chemicalName,
     mutation: (input, chemicalName) => ({ type: 'SetInputRowChemicalName', anchor: input.anchor, chemicalName }),
@@ -185,7 +197,6 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
   {
     id: 'molWeight',
     header: 'Mol. Weight',
-    minWidth: 110,
     kind: 'numeric',
     value: (input) => input.compound.molWeight,
     units: MOL_WEIGHT_UNITS,
@@ -203,7 +214,6 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
   {
     id: 'batches',
     header: 'Batch #',
-    minWidth: 110,
     kind: 'readonly',
     // Every batch under this compound at a glance, so a collapsed row still says what it holds.
     value: (input) =>
@@ -248,7 +258,6 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
   {
     id: 'eq',
     header: 'EQ',
-    minWidth: 90,
     kind: 'numeric',
     value: (input) => input.eq,
     units: NO_UNITS,
@@ -257,7 +266,6 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
   {
     id: 'role',
     header: 'Rxn Role',
-    minWidth: 140,
     kind: 'role',
     value: (input) => input.role,
     mutation: (input, role) => ({ type: 'SetInputRowRole', anchor: input.anchor, role }),
@@ -265,14 +273,14 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
   {
     id: 'formula',
     header: 'Mol Form.',
-    minWidth: 130,
     kind: 'html',
     value: (input) => input.compound.formula,
   },
   {
     id: 'limiting',
     header: 'Limiting',
-    minWidth: 90,
+    // So Hazard Comments below widens `hazardSpacer` rather than this.
+    fitContent: true,
     kind: 'limiting',
     value: (input) => input.limiting === true,
     mutation: (input) => ({ type: 'SetInputRowLimiting', anchor: input.anchor }),
@@ -280,7 +288,9 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
   {
     id: 'saltCode',
     header: 'Salt Code',
-    minWidth: 150,
+    // For the same reason as Limiting's. The select does not truncate, so a longer salt code
+    // still widens the column.
+    fitContent: true,
     kind: 'dictionary',
     dictionary: 'SALT_CODE',
     value: (input) => input.compound.saltCode,
@@ -291,13 +301,14 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
   /**
    * Absorbs the width Hazard Comments needs beyond Limiting + Salt Code. Empty in the compound
    * row, so it contributes no minimum of its own and collapses to nothing until a sample
-   * actually carries hazards.
+   * actually carries hazards. It only absorbs because those two are `fitContent`.
    */
   { id: 'hazardSpacer', header: '', kind: 'spacer' },
   {
     id: 'saltEQ',
     header: 'Salt EQ',
-    minWidth: 100,
+    // So a long Comments below widens `commentSpacer` rather than this.
+    fitContent: true,
     kind: 'numeric',
     value: (input) => asEnteredValue(input.compound.saltEQ),
     units: NO_UNITS,
@@ -311,7 +322,8 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
   {
     id: 'stereoisomerCode',
     header: 'Stereoisomer Code',
-    minWidth: 150,
+    // For the same reason as Salt EQ's.
+    fitContent: true,
     kind: 'dictionary',
     dictionary: 'STEREOISOMER_CODE',
     value: (input) => input.compound.stereoisomerCode,
@@ -348,17 +360,13 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
  * worth the trouble: two of them side by side would size their columns from their own content
  * and read as two unrelated grids rather than one continued list.
  *
- * `minWidth` is a floor like every other column's, applied by the renderer to the header cell —
- * not a fixed width, and there is no `<colgroup>` anywhere in this table.
+ * There is no `<colgroup>` anywhere in this table, and no stated widths: see `ColumnBase`.
  */
 export const SAMPLE_COLUMNS: SampleColumn[] = [
   {
     id: 'batch',
     span: 1,
     header: 'Batch #',
-    // Same width as the compound-level Batch # column above, so the two line up across their
-    // whole width rather than only at their left edge.
-    minWidth: 110,
     kind: 'readonly',
     value: (sample) => shortBatchNumber(sample.nbkBatchNumber),
   },
@@ -441,7 +449,6 @@ export const SAMPLE_COLUMNS: SampleColumn[] = [
     id: 'purity',
     span: 1,
     header: 'Purity',
-    minWidth: 100,
     kind: 'numeric',
     value: (sample) => sample.purity,
     units: NO_UNITS,
@@ -453,7 +460,6 @@ export const SAMPLE_COLUMNS: SampleColumn[] = [
     id: 'hazards',
     span: 3,
     header: 'Hazard Comments',
-    minWidth: 200,
     kind: 'multiDictionary',
     dictionary: 'HEALTH_HAZARD',
     value: (sample) => sortByName(sample.healthHazards),
@@ -463,7 +469,6 @@ export const SAMPLE_COLUMNS: SampleColumn[] = [
     id: 'comment',
     span: 3,
     header: 'Comments',
-    minWidth: 200,
     kind: 'text',
     value: (sample) => sample.comment,
     mutation: (sample, comment) => ({ type: 'SetInputComment', anchor: sample.anchor, comment }),

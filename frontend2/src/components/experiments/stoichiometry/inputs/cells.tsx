@@ -30,6 +30,7 @@ export function RoleCell({
       <Select<ReactionRole>
         aria-label="Reaction role"
         size="sm"
+        variant="cell"
         value={value}
         items={[...roles]}
         itemToKey={(role) => role}

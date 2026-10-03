@@ -185,7 +185,7 @@ export function StoichiometryTable({ experiment, reaction }: { experiment: Exper
                       ALIGN_CLASS[alignOf(column.kind)],
                       column.kind === 'delete' && ACTIONS_CELL_CLASS,
                     )}
-                    style={{ minWidth: column.minWidth }}
+                    style={{ minWidth: column.minWidth, width: column.fitContent ? 1 : undefined }}
                   >
                     {column.header}
                   </th>
@@ -488,9 +488,9 @@ function CompoundCell({
         <span className={cn(CONTENT_BOX, 'block cursor-default text-[13px]/5 text-neutral-800')}>{index + 1}</span>
       );
     case 'readonly':
-      return <ReadonlyCell value={column.value(input)} />;
+      return <ReadonlyCell value={column.value(input)} fitContent />;
     case 'html':
-      return <FormulaCell value={column.value(input)} />;
+      return <FormulaCell value={column.value(input)} fitContent />;
     case 'readonlyNumeric':
       return (
         <NumericCell
@@ -511,6 +511,7 @@ function CompoundCell({
           editable={canEdit}
           pending={pending}
           label={`${column.header}, row ${index + 1}`}
+          fitContent
           onCommit={(next) => mutations.save(cell, column.mutation(input, next))}
         />
       );
@@ -613,7 +614,7 @@ function SampleCell({
     case 'limiting':
       return <EmptyCell />;
     case 'readonly':
-      return <ReadonlyCell value={column.value(sample)} />;
+      return <ReadonlyCell value={column.value(sample)} fitContent />;
     case 'text':
       return (
         <TextCell
@@ -621,6 +622,7 @@ function SampleCell({
           editable={canEdit}
           pending={pending}
           label={label}
+          fitContent
           onCommit={(next) => mutations.save(cell, column.mutation(sample, next))}
         />
       );

@@ -251,7 +251,17 @@ export function NumericCell({
         <span
           aria-hidden
           data-slot="numeric-cell-value"
-          className={cn(DISPLAY_BOX, 'block group-has-[input:focus]/cell:invisible', emptyClass, classes)}
+          className={cn(
+            DISPLAY_BOX,
+            // `whitespace-nowrap`: the number and its unit are one value, and with no floor on
+            // the column the space between them is otherwise where a narrow one breaks it.
+            'block whitespace-nowrap group-has-[input:focus]/cell:invisible',
+            emptyClass,
+            classes,
+            // Marks a number that can be changed. No `decoration-*` colour, so it follows the
+            // text's own. Not under an em-dash, which would read as a longer dash.
+            editable && shownValue != null && 'underline decoration-dashed decoration-[0.5px] underline-offset-4',
+          )}
         >
           {text}
         </span>
