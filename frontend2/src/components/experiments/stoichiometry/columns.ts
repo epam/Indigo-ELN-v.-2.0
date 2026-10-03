@@ -48,14 +48,17 @@ const RIGHT: ReadonlySet<string> = new Set(['numeric', 'readonlyNumeric', 'actio
 
 /**
  * Content that reads as one object of roughly fixed width rather than as a line of text: the
- * pill-shaped selects, the static type badge, and the Limiting radio.
+ * static type badge and the Limiting radio.
  *
  * `multiDictionary` is deliberately absent. It is the one member of the select family that is a
  * text-entry field — it filters against what is typed and holds a variable number of chips — so
  * it keeps the cell's full width, and a centred header over a full-width input would reproduce
  * exactly the mismatch this rule exists to remove.
+ *
+ * The selects — `dictionary`, `role`, `outputType` — are absent for the same reason: each fills
+ * its column, so its label reads from the left edge like any other text.
  */
-const CENTER: ReadonlySet<string> = new Set(['limiting', 'role', 'dictionary', 'outputType', 'outputTypeBadge']);
+const CENTER: ReadonlySet<string> = new Set(['limiting', 'outputTypeBadge']);
 
 /**
  * Which way a column reads, from its cell kind.

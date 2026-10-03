@@ -147,7 +147,7 @@ export const BATCH_COLUMNS: BatchColumn[] = [
   },
   {
     id: 'productType',
-    header: 'Products Type',
+    header: 'Product Type',
     minWidth: 130,
     kind: 'outputTypeBadge',
     value: (row) => row.output.type,

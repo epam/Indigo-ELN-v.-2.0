@@ -107,7 +107,7 @@ type Cell<Row> =
   /** One item from a built-in dictionary. */
   | {
       kind: 'dictionary';
-      dictionary: 'SALT_CODE';
+      dictionary: 'SALT_CODE' | 'STEREOISOMER_CODE';
       value: (row: Row) => DictionaryItemRef;
       mutation: (row: Row, next: DictionaryItemRef) => ModelMutation;
       editable?: (row: Row) => boolean;

@@ -176,7 +176,7 @@ export function DictionaryCell({
   if (!editable) return <ReadonlyCell value={value.name} />;
 
   return (
-    <SavingOverlay pending={pending} spinner="center" className="mx-auto w-fit">
+    <SavingOverlay pending={pending} spinner="center" className="w-full">
       <Select<DictionaryItemRef>
         aria-label={label}
         size="sm"
@@ -184,8 +184,6 @@ export function DictionaryCell({
         items={data ?? []}
         itemToKey={(item) => item.id}
         itemToLabel={(item) => item.name}
-        // Hugs its label so the column can centre it — see `RoleCell`.
-        className="w-auto min-w-[112px]"
         loading={isPending}
         // apiFetch has already toasted the failure; this says why the list is empty.
         error={isError}

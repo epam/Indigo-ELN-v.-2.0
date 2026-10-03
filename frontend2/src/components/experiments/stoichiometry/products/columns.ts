@@ -80,7 +80,7 @@ type Cell =
   /** One item from a built-in dictionary. */
   | {
       kind: 'dictionary';
-      dictionary: 'SALT_CODE';
+      dictionary: 'SALT_CODE' | 'STEREOISOMER_CODE';
       value: (row: ProductRow) => DictionaryItemRef;
       mutation: (row: ProductRow, next: DictionaryItemRef) => ModelMutation;
       editable?: (row: ProductRow) => boolean;
@@ -120,8 +120,9 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
   },
   {
     id: 'type',
-    header: 'Products Type',
-    minWidth: 150,
+    header: 'Product Type',
+    // Just enough for the longest label, "Intermediate", beside the chevron.
+    minWidth: 130,
     kind: 'outputType',
     value: (row) => row.output.type,
     // Note `outputType`, not `type` — that name is the mutation union's own discriminator.
@@ -196,6 +197,21 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
     // means the default "00 - Parent Structure".
     editable: (row) => saltEditable(row.output) && row.output.compound.saltEQ != null,
     mutation: (row, next) => ({ type: 'SetOutputRowSaltEQ', anchor: row.output.anchor, saltEQ: next.value }),
+  },
+  {
+    id: 'stereoisomerCode',
+    header: 'Stereoisomer Code',
+    minWidth: 150,
+    kind: 'dictionary',
+    dictionary: 'STEREOISOMER_CODE',
+    value: (row) => row.output.compound.stereoisomerCode,
+    // The same gate as the salt code: the handler goes through the same `updateCompound`.
+    editable: (row) => saltEditable(row.output),
+    mutation: (row, stereoisomerCode) => ({
+      type: 'SetOutputCompoundStereoisomerCode',
+      anchor: row.output.anchor,
+      stereoisomerCode,
+    }),
   },
   {
     id: 'eq',

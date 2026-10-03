@@ -38,7 +38,7 @@ import { OUTPUT_TYPES } from '@/lib/types/reactions.ts';
  * **Only `intended` products are listed**, which is what indigo-frontend does too. The flag says
  * the product was drawn in the reaction scheme; an unintended output is something the reaction
  * threw off that a chemist recorded afterwards, and it belongs to the batch summary. It is not
- * the same thing as the Products Type column, which is `FINAL` / `BY_PRODUCT` / `INTERMEDIATE`
+ * the same thing as the Product Type column, which is `FINAL` / `BY_PRODUCT` / `INTERMEDIATE`
  * and is editable on every row here.
  *
  * Products are **created and deleted by editing the reaction scheme**, not from this table:

@@ -80,7 +80,7 @@ export const ColumnsAlignAsOne: Story = {
 
     const number = canvas.getByRole('columnheader', { name: 'Total Weight' });
     const text = canvas.getByRole('columnheader', { name: 'Product Name' });
-    const pill = canvas.getByRole('columnheader', { name: 'Products Type' });
+    const pill = canvas.getByRole('columnheader', { name: 'Product Type' });
 
     await expect(number).toHaveClass('text-right');
     await expect(text).toHaveClass('text-left');
@@ -129,7 +129,7 @@ export const ProductTypeIsReadOnly: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getAllByText('Final').length).toBeGreaterThan(0);
     await expect(canvas.getByText('Intermediate')).toBeInTheDocument();
-    await expect(canvas.queryByLabelText('Products Type, batch 001')).not.toBeInTheDocument();
+    await expect(canvas.queryByLabelText('Product Type, batch 001')).not.toBeInTheDocument();
   },
 };
 
