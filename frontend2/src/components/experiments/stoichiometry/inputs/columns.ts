@@ -140,10 +140,11 @@ export type InputColumn = ColumnBase & Cell<ReactionInput>;
 export type SampleColumn = ColumnBase & Cell<ReactionInputSample> & { span: number };
 
 /**
- * The host columns a sample row skips before its first cell: the chevron, `#` and Compound ID.
- * This is what puts the sample Batch # column under the compound Batch # column.
+ * The host columns a sample row skips before its first cell: the chevron and every compound-only
+ * column — `#`, Compound ID, CAS #, Chem. Name and Mol. Weight. This is what puts the sample
+ * Batch # column under the compound Batch # column.
  */
-export const SAMPLE_INDENT_SPAN = 3;
+export const SAMPLE_INDENT_SPAN = 6;
 
 /**
  * The trailing ordinal of an NBK batch number, without its padding: `20240101-0001-003` reads
@@ -164,18 +165,6 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
     minWidth: 150,
     kind: 'readonly',
     value: (input) => input.compound.compoundKey,
-  },
-  {
-    id: 'batches',
-    header: 'Batch #',
-    minWidth: 110,
-    kind: 'readonly',
-    // Every batch under this compound at a glance, so a collapsed row still says what it holds.
-    value: (input) =>
-      input.samples
-        .map((sample) => shortBatchNumber(sample.nbkBatchNumber))
-        .filter((each) => each != null)
-        .join(', ') || undefined,
   },
   {
     id: 'casNumber',
@@ -209,6 +198,18 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
       anchor: input.anchor,
       molWeight: next.value,
     }),
+  },
+  {
+    id: 'batches',
+    header: 'Batch #',
+    minWidth: 110,
+    kind: 'readonly',
+    // Every batch under this compound at a glance, so a collapsed row still says what it holds.
+    value: (input) =>
+      input.samples
+        .map((sample) => shortBatchNumber(sample.nbkBatchNumber))
+        .filter((each) => each != null)
+        .join(', ') || undefined,
   },
   {
     id: 'weight',
@@ -322,7 +323,7 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
  *
  * **`span` is how a sample cell reaches its place in the grid.** There is one `<table>` for both
  * levels, so a sample row does not draw a table of its own: it spans the compound columns above
- * it, and `SAMPLE_INDENT_SPAN` skips the three it starts after. That is what makes the two levels
+ * it, and `SAMPLE_INDENT_SPAN` skips the six it starts after. That is what makes the two levels
  * line up without any arithmetic — a cell either starts on a grid boundary or it does not, and
  * the browser cannot render it half a pixel out. The spans below plus the indent total the
  * nineteen host columns; see the diagram on `StoichiometryTable`.
@@ -337,7 +338,7 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
 export const SAMPLE_COLUMNS: SampleColumn[] = [
   {
     id: 'batch',
-    span: 4,
+    span: 1,
     header: 'Batch #',
     // Same width as the compound-level Batch # column above, so the two line up across their
     // whole width rather than only at their left edge.

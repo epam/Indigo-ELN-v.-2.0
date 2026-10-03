@@ -45,6 +45,12 @@ import { INPUT_ROLES, plainFormula } from '@/lib/types/reactions.ts';
 const SIGNIFICANT_FIGURES = [1, 2, 3, 4, 5];
 
 /**
+ * Sample columns that sit directly under the compound column of the same name. Their sub-header
+ * would only repeat `<thead>`, so it is kept for a screen reader and not drawn.
+ */
+const REPEATED_SAMPLE_HEADERS: ReadonlySet<string> = new Set(['batch', 'weight', 'volume', 'mol']);
+
+/**
  * Every field the search box looks at.
  *
  * The formula goes in as **text**, not as the HTML it arrives as — see `plainFormula`. Searching
@@ -78,10 +84,10 @@ function inputHaystack(input: ReactionInput): string {
  * on a grid boundary or it does not, and the browser cannot render it half a pixel out:
  *
  * ```
- * HOST   | 1 | 2 |   3    |   4    |  5  |    6     |   7   |   8    |   9    | 10  | 11 |   12    |   13    |    14    |    15    | 16 |   17   | 18 | 19  |
- * OUTER  |[v]| # | CompID | Batch# | CAS | ChemName | MolWt | Weight | Volume | Mol | EQ | RxnRole | MolForm | Limiting | SaltCode | ~  | SaltEQ | ~  | del |
- * INNER  |    (indent)    |             Batch #                      | Weight | Volume | Mol | Density | Molarity | Purity |   Hazard Comments   |  Comments | del |
- *                         ^ Batch # aligns                                                                                                             aligns ^
+ * HOST   | 1 | 2 |   3    |  4  |    5     |   6   |   7    |   8    |   9    | 10  | 11 |   12    |   13    |    14    |    15    | 16 |   17   | 18 | 19  |
+ * OUTER  |[v]| # | CompID | CAS | ChemName | MolWt | Batch# | Weight | Volume | Mol | EQ | RxnRole | MolForm | Limiting | SaltCode | ~  | SaltEQ | ~  | del |
+ * INNER  |                (indent)                 | Batch# | Weight | Volume | Mol | Density | Molarity | Purity |   Hazard Comments   |  Comments | del |
+ *                                                  ^ Batch # aligns                                                                              aligns ^
  * ```
  *
  * The two `~` columns are **spacers**: host columns the compound row leaves empty, so the width
@@ -360,11 +366,9 @@ function CompoundRow({
 }) {
   return (
     <tbody>
-      {/* No tint for an expanded row: with every row open by default that would colour the
-          whole table, and the hover is what the pointer needs to follow a row across it. */}
-      {/* `group/row` — the pinned Delete cell paints its own background, so it cannot inherit
-          this hover and follows it explicitly. */}
-      <tr className="group/row hover:bg-neutral-100">
+      {/* Always grey, expanded or not: the tint is what tells a compound from the batches under
+          it. No hover — that is the sample rows' alone, and lighter than this. */}
+      <tr className="bg-neutral-200">
         <td className={cn(CELL_CLASS, ALIGN_CLASS.center)}>
           <button
             type="button"
@@ -385,7 +389,8 @@ function CompoundRow({
               // Matching the header: an empty cell that still reserved `px-2` would floor the
               // spacer at 16px instead of collapsing to nothing.
               column.kind === 'spacer' && 'px-0',
-              column.kind === 'delete' && ACTIONS_CELL_CLASS,
+              // The pinned cell paints its own background, so it cannot inherit the row's tint.
+              column.kind === 'delete' && cn(ACTIONS_CELL_CLASS, 'bg-neutral-200'),
             )}
           >
             <CompoundCell column={column} input={input} index={index} canEdit={canEdit} mutations={mutations} />
@@ -410,18 +415,26 @@ function CompoundRow({
                 colSpan={column.span}
                 className={cn(
                   HEADER_CELL_CLASS,
-                  'border-t-0',
+                  // Smaller and greyer than `<thead>`'s: it is a sub-header, and it repeats once
+                  // per open compound.
+                  'border-t-0 py-1 text-[11px]/4 font-medium text-neutral-700',
                   ALIGN_CLASS[alignOf(column.kind)],
                   column.kind === 'delete' && ACTIONS_CELL_CLASS,
                 )}
                 style={{ minWidth: column.minWidth }}
               >
-                {column.header}
+                {REPEATED_SAMPLE_HEADERS.has(column.id) ? (
+                  <span className="sr-only">{column.header}</span>
+                ) : (
+                  column.header
+                )}
               </th>
             ))}
           </tr>
 
-          {input.samples.map((sample) => (
+          {input.samples.map((sample, sampleIndex) => (
+            // `group/row` — the pinned Delete cell paints its own background, so it cannot
+            // inherit this hover and follows it explicitly.
             <tr key={sample.anchor} className="group/row hover:bg-neutral-100">
               <td colSpan={SAMPLE_INDENT_SPAN} />
               {SAMPLE_COLUMNS.map((column) => (
@@ -430,6 +443,9 @@ function CompoundRow({
                   colSpan={column.span}
                   className={cn(
                     CELL_CLASS,
+                    // No rule between one batch and the next — only under the last, where the
+                    // compound ends.
+                    sampleIndex < input.samples.length - 1 && 'border-b-0',
                     ALIGN_CLASS[alignOf(column.kind)],
                     // Both Delete columns take it: they occupy the same grid slot, so the pinned
                     // column has to look continuous across compound and sample rows.

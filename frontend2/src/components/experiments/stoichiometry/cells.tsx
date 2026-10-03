@@ -22,7 +22,7 @@ import type { BuiltInDictionary, DictionaryItemRef } from '@/lib/types/dictionar
  * nothing happens. The editable cells opt back in to `cursor-text` themselves.
  */
 export function EmptyCell() {
-  return <span className={cn(CONTENT_BOX, 'block cursor-default text-neutral-700')}>—</span>;
+  return <span className={cn(CONTENT_BOX, 'block cursor-default text-[13px]/5 text-neutral-700')}>—</span>;
 }
 
 /**

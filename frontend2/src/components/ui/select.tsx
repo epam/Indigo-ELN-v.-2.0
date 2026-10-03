@@ -13,6 +13,15 @@ const SIZE_TEXT: Record<SelectSize, string> = {
 };
 
 /**
+ * `sm` is 30px because that is what a text cell beside it comes to — a 20px line, `py-1` and the
+ * 1px border of `EDITABLE_CELL_CLASS` — so a row of mixed cells is one height.
+ */
+const SIZE_BOX: Record<SelectSize, string> = {
+  sm: 'h-7.5 pl-2',
+  md: 'h-10 pl-3',
+};
+
+/**
  * Stands in for "no selection" inside the list, and never leaves this file — callers see `null`.
  *
  * The obvious approach, an item whose value is literally `null`, does not work: Base UI already
@@ -119,8 +128,9 @@ function Select<T>({
         className={cn(
           INPUT_BOX,
           INPUT_BOX_FOCUS,
-          'flex h-10 cursor-pointer items-center justify-between gap-1 pr-1 pl-3',
+          'flex cursor-pointer items-center justify-between gap-1 pr-1',
           'text-left text-neutral-1000 outline-none',
+          SIZE_BOX[size],
           SIZE_TEXT[size],
           // The trigger is a disabled element in its own right, so this stays a pseudo-variant
           // rather than `INPUT_DISABLED`. Same treatment as Input's and Combobox's, so a row of
@@ -144,7 +154,7 @@ function Select<T>({
           than `hidden`, so the control keeps its width and the spinner lands where the chevron was.
         */}
         <SelectPrimitive.Icon className="shrink-0 p-1 text-neutral-700 group-data-saving/saving:invisible">
-          <ChevronDown className="size-5" />
+          <ChevronDown className={size === 'sm' ? 'size-4' : 'size-5'} />
         </SelectPrimitive.Icon>
       </SelectPrimitive.Trigger>
 

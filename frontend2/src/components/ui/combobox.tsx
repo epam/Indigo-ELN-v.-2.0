@@ -37,6 +37,15 @@ const SIZE_INPUT_MIN: Record<ComboboxSize, string> = {
   md: 'min-w-24',
 };
 
+/**
+ * The chip field's own box. `sm` bottoms out at 30px — a 24px chip, `py-0.5` and the border —
+ * which is the height of a text cell beside it; see `SIZE_BOX` in `Select`.
+ */
+const SIZE_CHIPS_BOX: Record<ComboboxSize, string> = {
+  sm: 'min-h-7.5 py-0.5',
+  md: 'min-h-10 py-1.5',
+};
+
 function identity(item: unknown): string {
   return String(item);
 }
@@ -421,8 +430,9 @@ function MultiCombobox<T = string>({
         className={cn(
           INPUT_BOX,
           INPUT_BOX_FOCUS_WITHIN,
-          // `min-h-10`, not the shell's usual `h-10`: the chips wrap, so the field grows.
-          'flex min-h-10 items-center gap-2 px-2 py-1.5',
+          // A `min-h`, not the shell's usual `h-10`: the chips wrap, so the field grows.
+          'flex items-center gap-2 px-2',
+          SIZE_CHIPS_BOX[size],
           disabled && INPUT_DISABLED,
         )}
       >
