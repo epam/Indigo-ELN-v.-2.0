@@ -71,6 +71,7 @@ function AuthorCombobox({
         className="h-10 shrink-0 px-0 underline"
         // Nothing to add until currentUser resolves, and nothing to add twice.
         disabled={!currentUser || chosen.has(currentUser.username)}
+        title={currentUser && chosen.has(currentUser.username) ? 'You are already added' : undefined}
         onClick={addMe}
       >
         Add Me

@@ -75,6 +75,7 @@ export function AddBatchCell({
       <button
         type="button"
         aria-label={label}
+        title="Add Batch"
         disabled={!editable}
         onClick={onCommit}
         className={cn(

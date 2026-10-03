@@ -36,6 +36,7 @@ export function AppHeader() {
           variant="ghost"
           size="icon"
           aria-label="Search"
+          title="Search"
           onClick={() => setSearchOpen(true)}
           className="text-white hover:bg-white/10 hover:text-white"
         >

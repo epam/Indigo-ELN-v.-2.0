@@ -446,7 +446,8 @@ function BatchActionButton({
     case 'delete':
       return (
         <DeleteCell
-          label={`Delete batch ${batch}`}
+          // Says why when that is the reason, as Sync and Register do — the label is the tooltip.
+          label={protectedSample ? 'Registered batch cannot be deleted' : `Delete batch ${batch}`}
           // A registered batch is a registry record; indigo-frontend locks it the same way.
           editable={canEdit && !protectedSample}
           pending={pending}

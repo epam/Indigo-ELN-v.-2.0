@@ -63,14 +63,27 @@ export function StoichiometryPanel({
               <span>{index + 1} step</span>
               {/* Rename and delete live behind here; both are mutations. */}
               {index === step && (
-                <Button variant="ghost" size="icon-xs" aria-label={`Step ${index + 1} actions`} disabled>
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  aria-label={`Step ${index + 1} actions`}
+                  title="Not available yet"
+                  disabled
+                >
                   <MoreHorizontal />
                 </Button>
               )}
             </div>
           ))}
           {/* TODO(add-reaction-step): needs a mutation to create the reaction. */}
-          <Button variant="ghost" size="icon" aria-label="Add step" className="m-1 rounded-2" disabled>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Add step"
+            title="Not available yet"
+            className="m-1 rounded-2"
+            disabled
+          >
             <Plus />
           </Button>
         </div>

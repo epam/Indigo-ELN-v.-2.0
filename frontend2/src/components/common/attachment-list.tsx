@@ -75,6 +75,7 @@ function AttachmentRow({
           variant="ghost"
           size="icon-sm"
           aria-label={`Delete ${attachment.name}`}
+          title="Delete Attachment"
           loading={deleting}
           onClick={onDelete}
           className="text-red-200 hover:bg-red-10 hover:text-red-200"

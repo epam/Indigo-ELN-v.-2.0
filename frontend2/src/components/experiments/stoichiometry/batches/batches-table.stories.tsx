@@ -262,7 +262,8 @@ export const RegisteredBatchIsProtected: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByRole('button', { name: 'Batch 003 is already registered' })).toBeDisabled();
-    await expect(canvas.getByRole('button', { name: 'Delete batch 003' })).toBeDisabled();
+    // Says why, as Register does: a disabled icon explains nothing by itself.
+    await expect(canvas.getByRole('button', { name: 'Registered batch cannot be deleted' })).toBeDisabled();
     await expect(canvas.getByLabelText('Total Weight, batch 003')).toBeEnabled();
   },
 };

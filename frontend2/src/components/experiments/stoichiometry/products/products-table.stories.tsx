@@ -169,11 +169,11 @@ export const SaltIsRegistryOwned: Story = {
     await expect(canvas.getByLabelText('Salt Code, P0').tagName).toBe('BUTTON');
     await expect(canvas.getByLabelText('Salt EQ, P0')).toBeDisabled();
     // P1's batch is registered *and* it carries a salt code — the case indigo-frontend let
-    // through. The two cells lock differently: `DictionaryCell` swaps itself for plain text,
-    // while `NumericCell` keeps its input and disables it, so there is no one query for both.
+    // through. Both cells lock the same way: they keep their control and disable it, which for
+    // the select means its value as plain text.
     const p1 = canvas.getByRole('textbox', { name: 'Output Name, P1' }).closest('tr')!;
-    await expect(within(p1).queryByLabelText('Salt Code, P1')).not.toBeInTheDocument();
-    await expect(within(p1).getByText('HCl')).toBeInTheDocument();
+    await expect(within(p1).getByLabelText('Salt Code, P1')).toBeDisabled();
+    await expect(within(p1).getByLabelText('Salt Code, P1')).toHaveTextContent('HCl');
     await expect(within(p1).getByLabelText('Salt EQ, P1')).toBeDisabled();
   },
 };

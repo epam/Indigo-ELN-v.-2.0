@@ -431,7 +431,11 @@ export const ReadOnlyCellsUseArrowCursor: Story = {
 
     // Columns with no editor at all — the compound-level Weight and Volume, Compound ID, the
     // batch summary — are plain text, whether they hold a value or an em-dash.
-    const plain = canvas.getAllByText('—').filter((cell) => cell.closest('[data-slot="numeric-cell"]') === null);
+    // `aria-hidden` is an editable text cell's invisible sizer, which holds an em-dash while the
+    // cell is empty and lies under its input — not a read-only cell, and never what is hovered.
+    const plain = canvas
+      .getAllByText('—')
+      .filter((cell) => cell.closest('[data-slot="numeric-cell"]') === null && !cell.hasAttribute('aria-hidden'));
     await expect(plain.length).toBeGreaterThan(0);
     for (const cell of plain) {
       await expect(getComputedStyle(cell).cursor).toBe('default');

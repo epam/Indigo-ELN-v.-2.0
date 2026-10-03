@@ -58,7 +58,8 @@ const SIZE_CHIPS_BOX: Record<ComboboxSize, string> = {
  */
 export type ComboboxVariant = 'box' | 'cell';
 
-const CELL_CHIPS_BOX = 'group/chips border-transparent bg-transparent hover:border-neutral-300 focus-within:bg-background';
+const CELL_CHIPS_BOX =
+  'group/chips border-transparent bg-transparent hover:border-neutral-300 focus-within:bg-background';
 
 /** For what only belongs to the box: the chevron and the chips' remove buttons. */
 const CELL_BOX_ONLY = 'invisible group-focus-within/chips:visible';

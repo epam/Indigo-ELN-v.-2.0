@@ -104,7 +104,13 @@ export function ExperimentHeader({
                 when that part exists. Without the permission the sheet is a plain list, and a
                 button promising otherwise would be a dead end. */}
             {canManage && (
-              <Button variant="outline" size="icon-lg" aria-label="Add team member" onClick={() => setTeamOpen(true)}>
+              <Button
+                variant="outline"
+                size="icon-lg"
+                aria-label="Add team member"
+                title="Edit Team"
+                onClick={() => setTeamOpen(true)}
+              >
                 <UserPlus />
               </Button>
             )}

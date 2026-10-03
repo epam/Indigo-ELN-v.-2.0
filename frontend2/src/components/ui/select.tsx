@@ -247,7 +247,11 @@ function Select<T>({
           than `hidden`, so the control keeps its width and the spinner lands where the chevron was.
         */}
         <SelectPrimitive.Icon
-          className={cn('shrink-0 p-1 text-neutral-700 group-data-saving/saving:invisible', cell && CELL_ICON, dismissed && CELL_ICON_DISMISSED)}
+          className={cn(
+            'shrink-0 p-1 text-neutral-700 group-data-saving/saving:invisible',
+            cell && CELL_ICON,
+            dismissed && CELL_ICON_DISMISSED,
+          )}
         >
           <ChevronDown className={size === 'sm' ? 'size-4' : 'size-5'} />
         </SelectPrimitive.Icon>

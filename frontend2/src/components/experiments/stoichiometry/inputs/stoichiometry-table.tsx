@@ -686,6 +686,7 @@ function SampleCell({
         <RowActions>
           <DeleteCell
             label={`${column.label} ${batch}`}
+            title="Delete Sample"
             editable={canEdit}
             pending={pending}
             onCommit={() => mutations.save(cell, column.mutation(sample))}

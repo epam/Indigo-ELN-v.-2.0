@@ -322,6 +322,7 @@ export function IconActionCell({
   icon: Icon,
   tone,
   label,
+  title = label,
   editable,
   pending,
   onCommit,
@@ -329,6 +330,8 @@ export function IconActionCell({
   icon: ComponentType<{ className?: string }>;
   tone: 'blue' | 'green' | 'red';
   label: string;
+  /** The tooltip, where it should not be the label — which names the row, and a tooltip need not. */
+  title?: string;
   editable: boolean;
   pending: boolean;
   onCommit: () => void;
@@ -338,7 +341,7 @@ export function IconActionCell({
       <button
         type="button"
         aria-label={label}
-        title={label}
+        title={title}
         disabled={!editable}
         onClick={onCommit}
         className={cn(
@@ -363,16 +366,26 @@ export function IconActionCell({
  */
 export function DeleteCell({
   label,
+  title,
   editable,
   pending,
   onCommit,
 }: {
   label: string;
+  title?: string;
   editable: boolean;
   pending: boolean;
   onCommit: () => void;
 }) {
   return (
-    <IconActionCell icon={Trash2} tone="red" label={label} editable={editable} pending={pending} onCommit={onCommit} />
+    <IconActionCell
+      icon={Trash2}
+      tone="red"
+      label={label}
+      title={title}
+      editable={editable}
+      pending={pending}
+      onCommit={onCommit}
+    />
   );
 }

@@ -209,7 +209,12 @@ export function AddMaterialDialog({
             </Button>
             {/* A catalog on its own asks nothing; see `isEmpty` for why a filter the catalog
                 has disabled does not count as a criterion either. */}
-            <Button type="submit" size="lg" disabled={isEmpty(values)}>
+            <Button
+              type="submit"
+              size="lg"
+              disabled={isEmpty(values)}
+              title={isEmpty(values) ? 'Enter at least one search criterion' : undefined}
+            >
               Search
             </Button>
           </div>

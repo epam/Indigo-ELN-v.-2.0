@@ -284,6 +284,7 @@ export function UndoRedoButtons({ experiment, saving = false }: { experiment: Ex
           variant="outline"
           size="icon-lg"
           aria-label="Undo"
+          title="Undo"
           disabled={!canEdit}
           onClick={() => send({ type: 'Undo' })}
         >
@@ -293,6 +294,7 @@ export function UndoRedoButtons({ experiment, saving = false }: { experiment: Ex
           variant="outline"
           size="icon-lg"
           aria-label="Redo"
+          title="Redo"
           disabled={!canEdit}
           onClick={() => send({ type: 'Redo' })}
         >
