@@ -34,6 +34,7 @@ function fetchProjectNotebooks(
 export const notebookKeys = {
   all: () => ['notebooks'] as const,
   list: (projectId: UUID, filters: CollectionFilters) => ['notebooks', projectId, filters] as const,
+  details: () => ['notebookDetails'] as const,
   detail: (id: UUID) => ['notebookDetails', id] as const,
   // Its own root for the same reason the detail has one: creating a notebook consumes this
   // number, so it must not be swept up by — and refetched from — the list invalidation.

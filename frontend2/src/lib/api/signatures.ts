@@ -3,6 +3,9 @@ import type { InfiniteData } from '@tanstack/react-query';
 
 import { apiDownload, apiFetch } from '@/lib/api';
 import { COLLECTION_PAGE_SIZE, getNextPageParam, useSettledSearch } from '@/lib/api/collections';
+import { experimentKeys } from '@/lib/api/experiments';
+import { notebookKeys } from '@/lib/api/notebooks';
+import { projectKeys } from '@/lib/api/projects';
 import { useDownload } from '@/lib/hooks/use-download';
 
 import type { Page, UUID } from '@/lib/types/common.ts';
@@ -125,6 +128,16 @@ export function useSignatureDecision(documentId: UUID) {
             })),
           },
       );
+      // The service has already told the ELN, which moved the experiment's status, revision and
+      // attachments — and with the status, the counts on both ancestors. The document names no
+      // experiment, so everything is invalidated by root; only what is mounted refetches now.
+      void queryClient.invalidateQueries({ queryKey: experimentKeys.all() });
+      void queryClient.invalidateQueries({ queryKey: experimentKeys.details() });
+      void queryClient.invalidateQueries({ queryKey: notebookKeys.all() });
+      void queryClient.invalidateQueries({ queryKey: notebookKeys.details() });
+      void queryClient.invalidateQueries({ queryKey: projectKeys.all() });
+      void queryClient.invalidateQueries({ queryKey: projectKeys.details() });
+      void queryClient.invalidateQueries({ queryKey: projectKeys.totalCounts() });
     },
   });
 }
