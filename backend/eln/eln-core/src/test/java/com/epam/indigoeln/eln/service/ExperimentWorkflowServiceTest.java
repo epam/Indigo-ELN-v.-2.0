@@ -2,6 +2,7 @@ package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.model.DocumentStatus;
 import com.epam.indigoeln.common.model.UserRef;
+import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
 import com.epam.indigoeln.eln.model.ExperimentRequest;
@@ -14,6 +15,7 @@ import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.signature.model.DocumentDTO;
 import com.epam.indigoeln.signature.model.DocumentSignatureDTO;
+import com.epam.indigoeln.signature.model.SignForm;
 import com.epam.indigoeln.signature.model.SignatureReason;
 import com.epam.indigoeln.signature.model.SignatureStatus;
 import com.epam.indigoeln.signature.model.SignatureTemplateBlock;
@@ -36,6 +38,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ContentDispositionUtil.generateContentDisposition;
+import static com.epam.indigoeln.common.util.ModelUtil.useTempFile;
 import static com.epam.indigoeln.eln.model.ExperimentStatus.ARCHIVED;
 import static com.epam.indigoeln.eln.model.ExperimentStatus.CANCELLED;
 import static com.epam.indigoeln.eln.model.ExperimentStatus.COMPLETED;
@@ -314,7 +317,9 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
     private void approveDocument(String username, DocumentStatus simulatedStatus) {
         if (integrationTest) {
             UUID documentId = UUID.fromString(checkNotNull(experiment.getSignatureNumber()));
-            withUser(username, () -> signatureClient.signDocument(documentId));
+            // keystore.p12 comes from signature-core's test jar, which only integration tests have on the classpath
+            useTempFile("keystore.p12", ModelUtil.loadResource("/keystore.p12"), keystore ->
+                    withUser(username, () -> signatureClient.signDocument(documentId, new SignForm(keystore, "1234"))));
             this.experiment = experimentClient.getExperiment(experiment.getId());
         } else {
             simulateSignatureUpdate(

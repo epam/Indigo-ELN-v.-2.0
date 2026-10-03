@@ -1,6 +1,8 @@
 import { Briefcase } from 'lucide-react';
+import { useState } from 'react';
 
 import { LabelledColumn as Column } from '@/components/common/labelled-column';
+import { ApproveDialog } from '@/components/signatures/approve-dialog';
 import { Button } from '@/components/ui/button';
 
 import { useDownloadDocument, useSignatureDecision } from '@/lib/api/signatures';
@@ -70,6 +72,7 @@ export function SignatureRow({ item: document }: { item: SignatureDocument }) {
  */
 function SignatureLine({ documentId, signature }: { documentId: string; signature: DocumentSignature }) {
   const decide = useSignatureDecision(documentId);
+  const [approving, setApproving] = useState(false);
 
   return (
     <div className="flex items-center gap-2">
@@ -82,8 +85,8 @@ function SignatureLine({ documentId, signature }: { documentId: string; signatur
             variant="link"
             size="sm"
             disabled={decide.isPending}
-            loading={decide.isPending && decide.variables === 'sign'}
-            onClick={() => decide.mutate('sign')}
+            loading={decide.isPending && decide.variables.decision === 'sign'}
+            onClick={() => setApproving(true)}
           >
             Approve
           </Button>
@@ -91,11 +94,19 @@ function SignatureLine({ documentId, signature }: { documentId: string; signatur
             variant="link"
             size="sm"
             disabled={decide.isPending}
-            loading={decide.isPending && decide.variables === 'reject'}
-            onClick={() => decide.mutate('reject')}
+            loading={decide.isPending && decide.variables.decision === 'reject'}
+            onClick={() => decide.mutate({ decision: 'reject' })}
           >
             Reject
           </Button>
+          <ApproveDialog
+            open={approving}
+            onOpenChange={setApproving}
+            onSubmit={async (keystore, password) => {
+              await decide.mutateAsync({ decision: 'sign', keystore, password });
+              setApproving(false);
+            }}
+          />
         </span>
       ) : (
         <span className={cn('shrink-0', SIGNATURE_STATUS_COLOR[signature.status])}>

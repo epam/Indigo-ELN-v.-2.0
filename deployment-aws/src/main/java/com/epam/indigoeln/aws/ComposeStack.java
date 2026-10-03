@@ -72,7 +72,6 @@ public class ComposeStack {
                 "ELN_COGNITO_USER_POOL_ID=" + props.userPool().getUserPoolId(),
                 "ELN_STORAGE_S3_BUCKET=" + props.storageBucket().getBucketName(),
                 "ELN_API_SECRET=" + props.apiSecret().getStringValue(),
-                "ELN_SIGNATURE_KEYSTORE_PASSWORD=" + props.signatureKeystorePassword(),
                 ""); // deploy.sh appends DB_PASSWORD
 
         StringParameter envParameter = StringParameter.Builder.create(scope, "compose-env")
@@ -127,7 +126,6 @@ public class ComposeStack {
             IBucket storageBucket,
             IUserPool userPool,
             IStringParameter apiSecret,
-            String signatureKeystorePassword,
             IRepository postgresRepo,
             String postgresImageTag,
             IRepository elnAwsRepo,

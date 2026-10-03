@@ -38,5 +38,5 @@ aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS 
 cd "$APP_DIR"
 # Fail loudly on a mangled .env rather than starting Postgres with an empty password.
 docker compose config >/dev/null
-docker compose up -d --pull always --remove-orphans
+docker compose up -d --pull always --remove-orphans --wait --wait-timeout 120
 docker compose ps

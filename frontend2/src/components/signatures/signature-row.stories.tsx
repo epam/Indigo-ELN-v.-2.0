@@ -1,4 +1,4 @@
-import { expect, userEvent, waitFor, within } from 'storybook/test';
+import { expect, screen, userEvent, waitFor, within } from 'storybook/test';
 import { http, HttpResponse } from 'msw';
 
 import { SignatureRow } from '@/components/signatures/signature-row';
@@ -8,7 +8,7 @@ import { handlers } from '@/mocks/handlers';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 /** What the Approves handler recorded, so its play function can assert on the request itself. */
-const signed: string[] = [];
+const signed: { id: string; keystore: string; password: string }[] = [];
 
 const meta = {
   title: 'Signatures/SignatureRow',
@@ -73,8 +73,12 @@ export const Approves: Story = {
     msw: {
       handlers: [
         http.post('/api/signature/documents/:id/sign', async ({ params, request }) => {
-          signed.push(String(params.id));
-          await request.formData();
+          const form = await request.formData();
+          signed.push({
+            id: String(params.id),
+            keystore: (form.get('keystore') as File).name,
+            password: String(form.get('password')),
+          });
           return HttpResponse.json(SIGNATURE_DOCUMENTS[2]);
         }),
         ...handlers,
@@ -84,6 +88,14 @@ export const Approves: Story = {
   play: async ({ canvasElement }) => {
     signed.length = 0;
     await userEvent.click(within(canvasElement).getByRole('button', { name: 'Approve' }));
-    await waitFor(() => expect(signed).toEqual([SIGNATURE_DOCUMENTS[2].id]));
+    // The dialog is portalled out of the canvas.
+    const dialog = within(await screen.findByRole('dialog'));
+    await expect(dialog.getByRole('button', { name: 'Approve' })).toBeDisabled();
+    await userEvent.upload(dialog.getByLabelText(/Keystore File/), new File(['key'], 'john.p12'));
+    await userEvent.type(dialog.getByLabelText('Keystore Password'), 'secret');
+    await userEvent.click(dialog.getByRole('button', { name: 'Approve' }));
+    await waitFor(() =>
+      expect(signed).toEqual([{ id: SIGNATURE_DOCUMENTS[2].id, keystore: 'john.p12', password: 'secret' }]),
+    );
   },
 };

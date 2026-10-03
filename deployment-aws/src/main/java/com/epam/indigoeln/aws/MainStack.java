@@ -49,7 +49,6 @@ public class MainStack extends Stack {
                 infraStack.getStorageBucket(),
                 cognitoStack.getUserPool(),
                 infraStack.getApiSecret(),
-                props.getSignatureKeystorePassword(),
                 postgresRepo,
                 props.getPostgresImageTag(),
                 elnAwsRepo,

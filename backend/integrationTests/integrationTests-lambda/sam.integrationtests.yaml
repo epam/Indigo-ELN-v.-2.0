@@ -91,8 +91,6 @@ Resources:
           QUARKUS_DATASOURCE_USERNAME: "eln"
           QUARKUS_DATASOURCE_PASSWORD: "eln"
           ELN_API_SECRET: "secret"
-#          ELN_SIGNATURE_KEYSTORE_PATH: "/keystore.p12"
-          ELN_SIGNATURE_KEYSTORE_PASSWORD: "1234"
           QUARKUS_LOG_CONSOLE_FORMAT: "[SIGNATURE] %d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
           QUARKUS_REST_CLIENT_ELN_INTERNAL_API_URL: "http://172.17.0.1:28080"
           QUARKUS_REST_CLIENT_LOGGING_SCOPE: "request-response"

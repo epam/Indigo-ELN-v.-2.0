@@ -1,8 +1,8 @@
 package com.epam.indigoeln.signature.service.signatureapplier;
 
+import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.signature.entity.DocumentSignatureEntity;
-import com.epam.indigoeln.signature.exception.InvalidInputException;
 import com.google.common.base.Strings;
 import com.lowagie.text.Image;
 import com.lowagie.text.Rectangle;
@@ -46,11 +46,17 @@ public class SignatureApplier {
         try {
             ks.load(new ByteArrayInputStream(keyStorage), keyStoragePassword.toCharArray());
         } catch (Exception e) {
-            throw new InvalidInputException("Probably password for certificate is wrong: " + e.getMessage(), e);
+            throw new InvalidRequestException("Probably password for certificate is wrong: " + e.getMessage());
         }
 
+        if (!ks.aliases().hasMoreElements()) {
+            throw new InvalidRequestException("Keystore contains no entries");
+        }
         String alias = ks.aliases().nextElement();
         PrivateKey pk = (PrivateKey) ks.getKey(alias, keyStoragePassword.toCharArray());
+        if (pk == null) {
+            throw new InvalidRequestException("Keystore contains no private key");
+        }
         Certificate[] chain = ks.getCertificateChain(alias);
 
         return stampDocument(documentContent, signatureBlockEntity, signatureIndex, getSignatureApprovedText(signatureBlockEntity), signatureApprovedImage, pk, chain);

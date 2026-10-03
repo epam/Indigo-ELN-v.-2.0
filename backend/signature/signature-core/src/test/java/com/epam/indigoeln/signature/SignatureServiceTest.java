@@ -10,6 +10,7 @@ import com.epam.indigoeln.eln.api.ELNInternalClient;
 import com.epam.indigoeln.signature.api.SignatureAdminClient;
 import com.epam.indigoeln.signature.api.SignatureClient;
 import com.epam.indigoeln.signature.model.DocumentDTO;
+import com.epam.indigoeln.signature.model.SignForm;
 import com.epam.indigoeln.signature.model.SignatureReason;
 import com.epam.indigoeln.signature.model.SignatureStatus;
 import com.epam.indigoeln.signature.model.SignatureTemplateBlock;
@@ -168,8 +169,34 @@ class SignatureServiceTest extends BaseTest {
 
     @Test
     @Order(300)
-    void testSign() {
-        DocumentDTO document = signatureClient.signDocument(documentID);
+    void testSignWrongPassword(@TempDir Path tempDir) throws Exception {
+        assumeThat(documentID).isNotNull();
+        Path keystore = tempDir.resolve("keystore.p12");
+        Files.write(keystore, ModelUtil.loadResource("/keystore.p12"));
+        assertThatThrownBy(() -> signatureClient.signDocument(documentID, new SignForm(keystore.toFile(), "wrong")))
+                .isInstanceOfSatisfying(APICallException.class, e -> {
+                    assertThat(e.getStatusCode()).isEqualTo(400);
+                });
+    }
+
+    @Test
+    @Order(300)
+    void testSignNotAKeystore(@TempDir Path tempDir) throws Exception {
+        assumeThat(documentID).isNotNull();
+        Path keystore = tempDir.resolve("keystore.p12");
+        Files.write(keystore, ModelUtil.loadResource("/document.pdf"));
+        assertThatThrownBy(() -> signatureClient.signDocument(documentID, new SignForm(keystore.toFile(), "1234")))
+                .isInstanceOfSatisfying(APICallException.class, e -> {
+                    assertThat(e.getStatusCode()).isEqualTo(400);
+                });
+    }
+
+    @Test
+    @Order(310)
+    void testSign(@TempDir Path tempDir) throws Exception {
+        Path keystore = tempDir.resolve("keystore.p12");
+        Files.write(keystore, ModelUtil.loadResource("/keystore.p12"));
+        DocumentDTO document = signatureClient.signDocument(documentID, new SignForm(keystore.toFile(), "1234"));
         assertThat(document.getStatus()).isEqualTo(DocumentStatus.SIGNING);
         assertThat(document.getLastModifiedDate()).isNotEqualTo(document.getCreatedDate());
         assertThat(document.getSignatures()).first().satisfies(block -> {

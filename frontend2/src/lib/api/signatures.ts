@@ -77,16 +77,26 @@ export function useDownloadDocument(document: SignatureDocument) {
   };
 }
 
-export type SignatureDecision = 'sign' | 'reject';
+/** Signing takes the signer's own PKCS12 keystore and its password; rejecting takes nothing. */
+export type SignatureDecision = { decision: 'sign'; keystore: File; password: string } | { decision: 'reject' };
+
+function decisionBody(decision: SignatureDecision): { formData?: FormData } {
+  if (decision.decision === 'reject') return {};
+  const formData = new FormData();
+  formData.append('keystore', decision.keystore, decision.keystore.name);
+  formData.append('password', decision.password);
+  return { formData };
+}
 
 /**
  * Approve or reject one document, as the current user's block on it.
  *
  * The two endpoints disagree on what they consume, and each answers 415 to the other's type.
- * `signDocument` is declared `@Consumes(MULTIPART_FORM_DATA)` on a body-less POST, so `sign` sends
- * an empty `FormData` — that is what makes the browser set the boundary-carrying content type the
- * annotation asks for. `rejectDocument` inherits the interface's `@Consumes(APPLICATION_JSON)`,
- * so `reject` sends no body at all, and with it no `Content-Type` to be refused.
+ * `signDocument` is `@Consumes(MULTIPART_FORM_DATA)` and reads a `SignForm` — the `keystore` file
+ * and its `password` — so `sign` sends both as `FormData`. The service keeps no key of its own; a
+ * wrong password or a file that is no keystore comes back as a 400. `rejectDocument` inherits the
+ * interface's `@Consumes(APPLICATION_JSON)`, so `reject` sends no body at all, and with it no
+ * `Content-Type` to be refused.
  *
  * The response is the whole updated document, and it is **patched into the cached pages** rather
  * than invalidating them. Acting moves `lastModifiedDate`, which is the sort key, so a refetch
@@ -99,9 +109,9 @@ export function useSignatureDecision(documentId: UUID) {
 
   return useMutation({
     mutationFn: (decision: SignatureDecision) =>
-      apiFetch<SignatureDocument>(`/api/signature/documents/${documentId}/${decision}`, {
+      apiFetch<SignatureDocument>(`/api/signature/documents/${documentId}/${decision.decision}`, {
         method: 'POST',
-        ...(decision === 'sign' ? { formData: new FormData() } : {}),
+        ...decisionBody(decision),
       }),
     onSuccess: (updated) => {
       queryClient.setQueriesData<InfiniteData<Page<SignatureDocument>>>(
