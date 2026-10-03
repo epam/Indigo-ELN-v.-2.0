@@ -46,7 +46,10 @@ export interface BatchRow {
 interface ColumnBase {
   id: string;
   header: string;
-  /** A floor in pixels, not a fixed size — see the note on `columns.ts`'s own `minWidth`. */
+  /**
+   * A floor in pixels, stated only where the cell edits a number with a unit — see the note on
+   * the inputs table's own `minWidth`. Every other column is as wide as its content or header.
+   */
   minWidth?: number;
 }
 
@@ -121,7 +124,6 @@ export const BATCH_COLUMNS: BatchColumn[] = [
   {
     id: 'batchNo',
     header: 'Batch #',
-    minWidth: 90,
     kind: 'readonly',
     // The server's own derived field — `NbkBatchNumber.getShortForm()`, zero-padded to three.
     // indigo-frontend re-split the full number by hand for the same result.
@@ -130,7 +132,6 @@ export const BATCH_COLUMNS: BatchColumn[] = [
   {
     id: 'productName',
     header: 'Product Name',
-    minWidth: 130,
     kind: 'readonly',
     // The product's name (`P0`, `P1`, …), not its chemical name — editing it belongs to the
     // products table, which owns `SetOutputRowName`.
@@ -139,7 +140,6 @@ export const BATCH_COLUMNS: BatchColumn[] = [
   {
     id: 'reactionStep',
     header: 'Reaction Step',
-    minWidth: 110,
     kind: 'readonly',
     // Derived from the position in `model.reactions`; indigo-frontend returns a literal '1'. There is only ever one
     // step today, so the two agree.
@@ -148,14 +148,12 @@ export const BATCH_COLUMNS: BatchColumn[] = [
   {
     id: 'productType',
     header: 'Product Type',
-    minWidth: 130,
     kind: 'outputTypeBadge',
     value: (row) => row.output.type,
   },
   {
     id: 'regStatus',
     header: 'Reg. Status',
-    minWidth: 110,
     kind: 'readonly',
     value: (row) =>
       row.sample.registrationStatus == null ? 'None' : REGISTRATION_STATUS_LABELS[row.sample.registrationStatus],
@@ -226,7 +224,6 @@ export const BATCH_COLUMNS: BatchColumn[] = [
   {
     id: 'yield',
     header: 'Yield',
-    minWidth: 100,
     // Calculated, and a percentage: `yield = actualMol / output.theoMol * 100` (F8.1), or from
     // the weights when those are what is known (F9.1). There is no mutation that sets it.
     kind: 'readonlyNumeric',
@@ -237,7 +234,6 @@ export const BATCH_COLUMNS: BatchColumn[] = [
   {
     id: 'purity',
     header: 'Purity',
-    minWidth: 100,
     kind: 'numeric',
     // A percentage, defaulting to 100. Never calculated — it is an input to every other formula
     // on the row rather than an output of one.

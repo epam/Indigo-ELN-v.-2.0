@@ -153,7 +153,21 @@ export type InputColumn = ColumnBase & Cell<ReactionInput>;
  * sample cell reaches its place in the grid by spanning compound columns — see the picture in
  * `StoichiometryTable`.
  */
-export type SampleColumn = ColumnBase & Cell<ReactionInputSample> & { span: number };
+export type SampleColumn = (SamplePart & { span: number }) | SampleGroup;
+
+/** One sample field: what a sample column is, less its place in the grid. */
+export type SamplePart = ColumnBase & Cell<ReactionInputSample>;
+
+/**
+ * Several sample fields sharing **one** cell, the first at its left edge and the last at its
+ * right — Hazard Comments and Comments.
+ *
+ * As two cells they each had to end on a grid line, so the boundary between them was a boundary
+ * of the compound row too, and Salt EQ moved right every time a batch gained a hazard. As one
+ * cell they have no line between them to hold anything to: the compound columns above stay
+ * packed, and the group's own slack is the gap in its middle.
+ */
+type SampleGroup = ColumnBase & { kind: 'group'; span: number; parts: SamplePart[] };
 
 /**
  * The host columns a sample row skips before its first cell: the chevron and every compound-only
@@ -279,7 +293,7 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
   {
     id: 'limiting',
     header: 'Limiting',
-    // So Hazard Comments below widens `hazardSpacer` rather than this.
+    // So the sample notes below widen `sampleSpacer` rather than this.
     fitContent: true,
     kind: 'limiting',
     value: (input) => input.limiting === true,
@@ -298,16 +312,10 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
     editable: saltEditable,
     mutation: (input, saltCode) => ({ type: 'SetInputRowSaltCode', anchor: input.anchor, saltCode }),
   },
-  /**
-   * Absorbs the width Hazard Comments needs beyond Limiting + Salt Code. Empty in the compound
-   * row, so it contributes no minimum of its own and collapses to nothing until a sample
-   * actually carries hazards. It only absorbs because those two are `fitContent`.
-   */
-  { id: 'hazardSpacer', header: '', kind: 'spacer' },
   {
     id: 'saltEQ',
     header: 'Salt EQ',
-    // So a long Comments below widens `commentSpacer` rather than this.
+    // For the same reason as Limiting's.
     fitContent: true,
     kind: 'numeric',
     value: (input) => asEnteredValue(input.compound.saltEQ),
@@ -335,8 +343,12 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
       stereoisomerCode,
     }),
   },
-  /** The same trick for Comments, which may need more than Salt EQ and Stereoisomer Code. */
-  { id: 'commentSpacer', header: '', kind: 'spacer' },
+  /**
+   * Absorbs the width a sample's hazards and comment need beyond the four columns before it.
+   * Empty in the compound row, so it contributes no minimum of its own and collapses to nothing
+   * until a sample actually needs the room. It only absorbs because those four are `fitContent`.
+   */
+  { id: 'sampleSpacer', header: '', kind: 'spacer' },
   {
     id: 'delete',
     header: '',
@@ -354,7 +366,7 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
  * it, and `SAMPLE_INDENT_SPAN` skips the six it starts after. That is what makes the two levels
  * line up without any arithmetic — a cell either starts on a grid boundary or it does not, and
  * the browser cannot render it half a pixel out. The spans below plus the indent total the
- * twenty host columns; see the diagram on `StoichiometryTable`.
+ * nineteen host columns; see the diagram on `StoichiometryTable`.
  *
  * A nested table per expanded compound was the alternative, and it is the reason the spans are
  * worth the trouble: two of them side by side would size their columns from their own content
@@ -457,21 +469,32 @@ export const SAMPLE_COLUMNS: SampleColumn[] = [
     mutation: (sample, next) => ({ type: 'SetInputPurity', anchor: sample.anchor, purity: next.value }),
   },
   {
-    id: 'hazards',
-    span: 3,
-    header: 'Hazard Comments',
-    kind: 'multiDictionary',
-    dictionary: 'HEALTH_HAZARD',
-    value: (sample) => sortByName(sample.healthHazards),
-    mutation: (sample, healthHazards) => ({ type: 'SetInputHealthHazards', anchor: sample.anchor, healthHazards }),
-  },
-  {
-    id: 'comment',
-    span: 3,
-    header: 'Comments',
-    kind: 'text',
-    value: (sample) => sample.comment,
-    mutation: (sample, comment) => ({ type: 'SetInputComment', anchor: sample.anchor, comment }),
+    id: 'notes',
+    // Limiting, Salt Code, Salt EQ, Stereoisomer Code and the spacer.
+    span: 5,
+    header: '',
+    kind: 'group',
+    parts: [
+      {
+        id: 'hazards',
+        header: 'Hazard Comments',
+        kind: 'multiDictionary',
+        dictionary: 'HEALTH_HAZARD',
+        value: (sample) => sortByName(sample.healthHazards),
+        mutation: (sample, healthHazards) => ({
+          type: 'SetInputHealthHazards',
+          anchor: sample.anchor,
+          healthHazards,
+        }),
+      },
+      {
+        id: 'comment',
+        header: 'Comments',
+        kind: 'text',
+        value: (sample) => sample.comment,
+        mutation: (sample, comment) => ({ type: 'SetInputComment', anchor: sample.anchor, comment }),
+      },
+    ],
   },
   {
     id: 'delete',

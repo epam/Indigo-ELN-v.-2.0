@@ -22,7 +22,7 @@ import {
   alignOf,
 } from '@/components/experiments/stoichiometry/columns';
 import { LimitingCell, RoleCell } from '@/components/experiments/stoichiometry/inputs/cells';
-import type { InputColumn, SampleColumn } from '@/components/experiments/stoichiometry/inputs/columns';
+import type { InputColumn, SamplePart } from '@/components/experiments/stoichiometry/inputs/columns';
 import {
   COMPOUND_COLUMNS,
   SAMPLE_COLUMNS,
@@ -84,15 +84,17 @@ function inputHaystack(input: ReactionInput): string {
  * on a grid boundary or it does not, and the browser cannot render it half a pixel out:
  *
  * ```
- * HOST   | 1 | 2 |   3    |  4  |    5     |   6   |   7    |   8    |   9    | 10  | 11 |   12    |   13    |    14    |    15    | 16 |   17   |   18   | 19 | 20  |
- * OUTER  |[v]| # | CompID | CAS | ChemName | MolWt | Batch# | Weight | Volume | Mol | EQ | RxnRole | MolForm | Limiting | SaltCode | ~  | SaltEQ | Stereo | ~  | del |
- * INNER  |                (indent)                 | Batch# | Weight | Volume | Mol | Density | Molarity | Purity |   Hazard Comments   |      Comments       | del |
- *                                                  ^ Batch # aligns                                                                                       aligns ^
+ * HOST   | 1 | 2 |   3    |  4  |    5     |   6   |   7    |   8    |   9    | 10  | 11 |   12    |   13    |    14    |    15    |   16   |   17   | 18 | 19  |
+ * OUTER  |[v]| # | CompID | CAS | ChemName | MolWt | Batch# | Weight | Volume | Mol | EQ | RxnRole | MolForm | Limiting | SaltCode | SaltEQ | Stereo | ~  | del |
+ * INNER  |                (indent)                 | Batch# | Weight | Volume | Mol | Density | Molarity | Purity | Hazard Comments <-                  -> Comments | del |
+ *                                                  ^ Batch # aligns                                                                            aligns ^
  * ```
  *
- * The two `~` columns are **spacers**: host columns the compound row leaves empty, so the width
- * Hazard Comments and Comments need beyond the columns above them has somewhere to grow that
- * costs nothing. Without them a long comment would inflate Limiting — a radio button — instead.
+ * The `~` column is a **spacer**: a host column the compound row leaves empty, so the width a
+ * sample's hazards and comment need beyond the columns above them has somewhere to grow that
+ * costs nothing. Without it a long comment would inflate Limiting — a radio button — instead.
+ * Those two share **one** cell, hazards at its left edge and the comment at its right, so there
+ * is no grid line between them for Salt EQ to be pushed along by — see `SampleGroup`.
  *
  * Layout is `auto` and the table is `w-full`, so columns size to their content and the table
  * fills the panel; when the content genuinely needs more room it overflows and the wrapper
@@ -423,7 +425,13 @@ function CompoundRow({
                 )}
                 style={{ minWidth: column.minWidth }}
               >
-                {REPEATED_SAMPLE_HEADERS.has(column.id) ? (
+                {column.kind === 'group' ? (
+                  <div className="flex justify-between gap-4">
+                    {column.parts.map((part) => (
+                      <span key={part.id}>{part.header}</span>
+                    ))}
+                  </div>
+                ) : REPEATED_SAMPLE_HEADERS.has(column.id) ? (
                   <span className="sr-only">{column.header}</span>
                 ) : (
                   column.header
@@ -444,15 +452,27 @@ function CompoundRow({
                   className={cn(
                     CELL_CLASS,
                     // No rule between one batch and the next — only under the last, where the
-                    // compound ends.
-                    sampleIndex < input.samples.length - 1 && 'border-b-0',
+                    // compound ends, with a little air before the next compound's row.
+                    sampleIndex < input.samples.length - 1 ? 'border-b-0' : 'pb-3',
                     ALIGN_CLASS[alignOf(column.kind)],
                     // Both Delete columns take it: they occupy the same grid slot, so the pinned
                     // column has to look continuous across compound and sample rows.
                     column.kind === 'delete' && ACTIONS_CELL_CLASS,
                   )}
                 >
-                  <SampleCell column={column} sample={sample} canEdit={canEdit} mutations={mutations} />
+                  {column.kind === 'group' ? (
+                    // Each part is as wide as its own content and no wider, which is what leaves
+                    // the slack in the middle: the first sits left, the last right.
+                    <div className="flex items-center justify-between gap-4">
+                      {column.parts.map((part) => (
+                        <div key={part.id} className="shrink-0">
+                          <SampleCell column={part} sample={sample} canEdit={canEdit} mutations={mutations} />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <SampleCell column={column} sample={sample} canEdit={canEdit} mutations={mutations} />
+                  )}
                 </td>
               ))}
             </tr>
@@ -592,7 +612,7 @@ function SampleCell({
   canEdit,
   mutations,
 }: {
-  column: SampleColumn;
+  column: SamplePart;
   sample: ReactionInputSample;
   canEdit: boolean;
   mutations: StoichiometryMutations;

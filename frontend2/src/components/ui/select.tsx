@@ -115,6 +115,11 @@ interface SelectProps<T> {
   size?: SelectSize;
   /** `cell` hides the box until the select is hovered, focused or open — see `SelectVariant`. */
   variant?: SelectVariant;
+  /**
+   * Keeps the whole label on show rather than truncating it, so the label is the select's minimum
+   * width — what a table column sized by its content needs. A `cell` always does.
+   */
+  fitContent?: boolean;
   className?: string;
 }
 
@@ -148,6 +153,7 @@ function Select<T>({
   error = false,
   size = 'md',
   variant = 'box',
+  fitContent = variant === 'cell',
   className,
 }: SelectProps<T>) {
   const cell = variant === 'cell';
@@ -220,12 +226,12 @@ function Select<T>({
           resolved label — which is what we want, since `itemToLabel` is the caller's business.
         */}
         {/*
-          A `cell` never truncates: its label is the column's minimum width, so a longer value
-          widens the column instead of being clipped.
+          Under `fitContent` the label is the column's minimum width, so a longer value widens
+          the column instead of being clipped.
         */}
         <SelectPrimitive.Value
           className={cn(
-            cell ? 'whitespace-nowrap' : 'truncate',
+            fitContent ? 'whitespace-nowrap' : 'truncate',
             cell && !disabled && CELL_VALUE_EDITABLE,
             dismissed && CELL_VALUE_DISMISSED,
             value == null && 'text-neutral-700',

@@ -372,6 +372,10 @@ function MultiCombobox<T = string>({
   /** Escape was pressed in a `cell`: show the chips, not the box, until it is edited again. */
   const [dismissed, setDismissed] = useState(false);
 
+  // A chosen item is already on show as a chip, and picking it again would only remove it — which
+  // the chip's own ✕ does, where it is looked for. So the list offers what is left to choose.
+  const offered = items.filter((item) => !value.some((chosen) => itemToKey(chosen) === itemToKey(item)));
+
   const query = inputValue.trim();
   // Hint at Enter only once there is something to accept, and only when accepting it
   // would actually do something — addChip de-duplicates, so a value already held as a
@@ -388,7 +392,7 @@ function MultiCombobox<T = string>({
     query === '' || loading ? null : canAddQuery ? `Press Enter to add “${query}”` : error ? null : emptyMessage;
 
   // Base UI would otherwise open an empty bordered box on focus or a trigger click.
-  const hasContent = items.length > 0 || emptyContent !== null || statusContent !== null;
+  const hasContent = offered.length > 0 || emptyContent !== null || statusContent !== null;
 
   function addChip(keyword: string) {
     const trimmed = keyword.trim();
@@ -471,7 +475,7 @@ function MultiCombobox<T = string>({
         setOpen(next);
         if (next) setDismissed(false);
       }}
-      items={items}
+      items={offered}
       // The caller filters server-side; filtering again locally would hide fresh results.
       filter={null}
       value={value}
@@ -577,7 +581,7 @@ function MultiCombobox<T = string>({
       </ComboboxPrimitive.Chips>
 
       <PopupContent
-        items={items}
+        items={offered}
         itemToKey={itemToKey}
         itemToLabel={itemToLabel}
         statusContent={statusContent}

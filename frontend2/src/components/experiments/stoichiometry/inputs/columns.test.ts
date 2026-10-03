@@ -43,7 +43,7 @@ describe('the host grid', () => {
    */
   it('leaves the spacer columns with nothing in them', () => {
     const spacers = COMPOUND_COLUMNS.filter((column) => column.kind === 'spacer');
-    expect(spacers.map((column) => column.id)).toEqual(['hazardSpacer', 'commentSpacer']);
+    expect(spacers.map((column) => column.id)).toEqual(['sampleSpacer']);
     for (const spacer of spacers) {
       expect(spacer.header).toBe('');
     }

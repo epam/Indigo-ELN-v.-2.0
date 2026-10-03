@@ -181,12 +181,13 @@ function ProductCell({
         <span className={cn(CONTENT_BOX, 'block cursor-default text-[13px]/5 text-neutral-800')}>{index + 1}</span>
       );
     case 'readonly':
-      return <ReadonlyCell value={column.value(row)} />;
+      return <ReadonlyCell value={column.value(row)} fitContent />;
     case 'html':
-      return <FormulaCell value={column.value(row)} />;
+      return <FormulaCell value={column.value(row)} fitContent />;
     case 'text':
       return (
         <TextCell
+          fitContent
           value={column.value(row)}
           editable={canEdit}
           pending={pending}

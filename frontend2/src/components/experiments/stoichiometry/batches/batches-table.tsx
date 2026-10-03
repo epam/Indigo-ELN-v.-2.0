@@ -345,7 +345,7 @@ function BatchCell({
 
   switch (column.kind) {
     case 'readonly':
-      return <ReadonlyCell value={column.value(row)} title={column.title?.(row)} />;
+      return <ReadonlyCell value={column.value(row)} title={column.title?.(row)} fitContent />;
     case 'outputTypeBadge':
       return <OutputTypeBadge value={column.value(row)} />;
     case 'readonlyNumeric':

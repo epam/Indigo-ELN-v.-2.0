@@ -37,6 +37,7 @@ export function OutputTypeCell({
       <Select<ReactionOutputType>
         aria-label={label}
         size="sm"
+        fitContent
         value={value}
         items={[...types]}
         itemToKey={(type) => type}

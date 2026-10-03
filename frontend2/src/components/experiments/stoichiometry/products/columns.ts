@@ -38,7 +38,10 @@ export interface ProductRow {
 interface ColumnBase {
   id: string;
   header: string;
-  /** A floor in pixels, not a fixed size — see the note on `columns.ts`'s own `minWidth`. */
+  /**
+   * A floor in pixels, stated only where the cell edits a number with a unit — see the note on
+   * the inputs table's own `minWidth`. Every other column is as wide as its content or header.
+   */
   minWidth?: number;
 }
 
@@ -97,11 +100,10 @@ type Cell =
 export type ProductColumn = ColumnBase & Cell;
 
 export const PRODUCT_COLUMNS: ProductColumn[] = [
-  { id: 'index', header: '#', minWidth: 48, kind: 'index' },
+  { id: 'index', header: '#', kind: 'index' },
   {
     id: 'outputName',
     header: 'Output Name',
-    minWidth: 140,
     kind: 'text',
     value: (row) => row.output.outputName,
     // `@NotNull` on the record, so a cleared cell sends `''` rather than null. The backend then
@@ -112,7 +114,6 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
   {
     id: 'reactionStep',
     header: 'Reaction Step',
-    minWidth: 110,
     kind: 'readonly',
     // Derived from the position in `model.reactions`, not hardcoded — indigo-frontend's batch summary returns a literal
     // '1'. There is only ever one step today, so the two agree; this one keeps agreeing once `AddReaction` exists.
@@ -121,8 +122,6 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
   {
     id: 'type',
     header: 'Product Type',
-    // Just enough for the longest label, "Intermediate", beside the chevron.
-    minWidth: 130,
     kind: 'outputType',
     value: (row) => row.output.type,
     // Note `outputType`, not `type` — that name is the mutation union's own discriminator.
@@ -131,14 +130,12 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
   {
     id: 'formula',
     header: 'Formula',
-    minWidth: 130,
     kind: 'html',
     value: (row) => row.output.compound.formula,
   },
   {
     id: 'molWeight',
     header: 'Mol. Weight',
-    minWidth: 110,
     // Read-only, unlike the inputs table's column of the same name. `SetOutputCompoundMolWeight`
     // only accepts an unknown compound, and every row here came from the drawn scheme, so it is
     // known by construction.
@@ -151,7 +148,6 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
   {
     id: 'exactMass',
     header: 'Exact Mass',
-    minWidth: 110,
     kind: 'readonlyNumeric',
     value: (row) => row.output.compound.exactMass,
     units: NO_UNITS,
@@ -177,7 +173,6 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
   {
     id: 'saltCode',
     header: 'Salt Code',
-    minWidth: 150,
     kind: 'dictionary',
     dictionary: 'SALT_CODE',
     value: (row) => row.output.compound.saltCode,
@@ -188,7 +183,6 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
   {
     id: 'saltEQ',
     header: 'Salt EQ',
-    minWidth: 100,
     kind: 'numeric',
     value: (row) => asEnteredValue(row.output.compound.saltEQ),
     units: NO_UNITS,
@@ -201,7 +195,6 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
   {
     id: 'stereoisomerCode',
     header: 'Stereoisomer Code',
-    minWidth: 150,
     kind: 'dictionary',
     dictionary: 'STEREOISOMER_CODE',
     value: (row) => row.output.compound.stereoisomerCode,
@@ -216,7 +209,6 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
   {
     id: 'eq',
     header: 'EQ',
-    minWidth: 90,
     kind: 'numeric',
     // The one editable number on the row, and what the two theoretical columns are computed
     // from: `theoMol = limiting.mol / limiting.eq * eq`.
