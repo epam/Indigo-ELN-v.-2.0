@@ -84,10 +84,10 @@ function inputHaystack(input: ReactionInput): string {
  * on a grid boundary or it does not, and the browser cannot render it half a pixel out:
  *
  * ```
- * HOST   | 1 | 2 |   3    |  4  |    5     |   6   |   7    |   8    |   9    | 10  | 11 |   12    |   13    |    14    |    15    | 16 |   17   | 18 | 19  |
- * OUTER  |[v]| # | CompID | CAS | ChemName | MolWt | Batch# | Weight | Volume | Mol | EQ | RxnRole | MolForm | Limiting | SaltCode | ~  | SaltEQ | ~  | del |
- * INNER  |                (indent)                 | Batch# | Weight | Volume | Mol | Density | Molarity | Purity |   Hazard Comments   |  Comments | del |
- *                                                  ^ Batch # aligns                                                                              aligns ^
+ * HOST   | 1 | 2 |   3    |  4  |    5     |   6   |   7    |   8    |   9    | 10  | 11 |   12    |   13    |    14    |    15    | 16 |   17   |   18   | 19 | 20  |
+ * OUTER  |[v]| # | CompID | CAS | ChemName | MolWt | Batch# | Weight | Volume | Mol | EQ | RxnRole | MolForm | Limiting | SaltCode | ~  | SaltEQ | Stereo | ~  | del |
+ * INNER  |                (indent)                 | Batch# | Weight | Volume | Mol | Density | Molarity | Purity |   Hazard Comments   |      Comments       | del |
+ *                                                  ^ Batch # aligns                                                                                       aligns ^
  * ```
  *
  * The two `~` columns are **spacers**: host columns the compound row leaves empty, so the width

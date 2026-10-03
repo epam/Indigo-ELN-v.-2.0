@@ -29,6 +29,7 @@ import {
 /**
  * Mirrors `ReactionInput.updateCompound`: a compound can be re-salted while every sample on the
  * row is `VIRTUAL`, and is fixed once a real one is attached. An unknown compound has no salt.
+ * The stereoisomer code is set through the same call, so it is gated by this too.
  */
 function saltEditable(input: ReactionInput): boolean {
   return isKnownCompound(input.compound) && input.samples.every((sample) => sample.sampleSource === 'VIRTUAL');
@@ -307,7 +308,22 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
     editable: (input) => saltEditable(input) && input.compound.saltEQ != null,
     mutation: (input, next) => ({ type: 'SetInputRowSaltEQ', anchor: input.anchor, saltEQ: next.value }),
   },
-  /** The same trick for Comments, which needs more than Salt EQ alone. */
+  {
+    id: 'stereoisomerCode',
+    header: 'Stereoisomer Code',
+    minWidth: 150,
+    kind: 'dictionary',
+    dictionary: 'STEREOISOMER_CODE',
+    value: (input) => input.compound.stereoisomerCode,
+    // The same gate as the salt code: the handler goes through the same `updateCompound`.
+    editable: saltEditable,
+    mutation: (input, stereoisomerCode) => ({
+      type: 'SetInputCompoundStereoisomerCode',
+      anchor: input.anchor,
+      stereoisomerCode,
+    }),
+  },
+  /** The same trick for Comments, which may need more than Salt EQ and Stereoisomer Code. */
   { id: 'commentSpacer', header: '', kind: 'spacer' },
   {
     id: 'delete',
@@ -326,7 +342,7 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
  * it, and `SAMPLE_INDENT_SPAN` skips the six it starts after. That is what makes the two levels
  * line up without any arithmetic — a cell either starts on a grid boundary or it does not, and
  * the browser cannot render it half a pixel out. The spans below plus the indent total the
- * nineteen host columns; see the diagram on `StoichiometryTable`.
+ * twenty host columns; see the diagram on `StoichiometryTable`.
  *
  * A nested table per expanded compound was the alternative, and it is the reason the spans are
  * worth the trouble: two of them side by side would size their columns from their own content
@@ -445,7 +461,7 @@ export const SAMPLE_COLUMNS: SampleColumn[] = [
   },
   {
     id: 'comment',
-    span: 2,
+    span: 3,
     header: 'Comments',
     minWidth: 200,
     kind: 'text',
