@@ -20,12 +20,15 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.jpa.AvailableHints;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Stream;
 
 @Slf4j
 @Transactional
@@ -80,6 +83,22 @@ public class SampleRegistrationService {
         }
         log.info("Loaded {} compounds from file", inserted);
         return inserted;
+    }
+
+    public long reindexSearchVectors() {
+        try (Stream<SRSSampleEntity> stream = em.createQuery("FROM SRSSample s ORDER BY s.id", SRSSampleEntity.class)
+                .setHint(AvailableHints.HINT_FETCH_SIZE, 1000)
+                .getResultStream()) {
+            AtomicLong count = new AtomicLong(0);
+            stream.forEach(sample -> {
+                sample.setSearchVector(collectSampleSearchVector(sample));
+                em.flush();
+                em.detach(sample);
+                count.incrementAndGet();
+            });
+            log.info("Reindexed search vectors of {} samples", count.get());
+            return count.get();
+        }
     }
 
     private SRSCompoundEntity findOrCreate(IndigoMolecule molecule, UUID stereoisomerCode, UUID saltCode, int saltCodeNumeric, @Nullable Integer saltCodeEQ100, @Nullable Double molWeight, @Nullable Double exactMass, @Nullable String chemicalName, @Nullable String casNumber) {
@@ -137,7 +156,8 @@ public class SampleRegistrationService {
         SearchVector.Builder sv = new SearchVector.Builder()
                 .aIdentifier(sample.getStrCode())
                 .aIdentifier(sample.getNbkBatchNumber())
-                .bIdentifier(c.getChemicalName());
+                .bIdentifier(c.getChemicalName())
+                .b(c.getFormula());
         return sv.build();
     }
 }

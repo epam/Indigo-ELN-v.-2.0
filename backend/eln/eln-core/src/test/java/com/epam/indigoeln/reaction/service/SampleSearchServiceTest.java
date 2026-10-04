@@ -33,6 +33,7 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -161,6 +162,17 @@ public class SampleSearchServiceTest extends MutationsTestBase {
         assertThat(foundUnmarked.getItems().getFirst().isMarked()).isFalse();
         Page<SampleDTO> found3 = compoundClient.search(new FindSamplesRequest().withCatalog(SearchCatalog.MY_MATERIALS), Paging.DEFAULT);
         assertThat(found3.getItems()).isEmpty();
+    }
+
+    @Test
+    void testReindexMarkedSamples() {
+        Page<SampleDTO> found = compoundClient.search(new FindSamplesRequest().withCatalog(SearchCatalog.SRS), Paging.DEFAULT);
+        compoundClient.markSample(found.getItems().getFirst());
+
+        Map<String, String> result = miscClient.reindexSearchVectors();
+        assertThat(result.get("markedSamples")).isEqualTo("1");
+        Page<SampleDTO> found2 = compoundClient.search(new FindSamplesRequest().withCatalog(SearchCatalog.MY_MATERIALS).withQuickSearch("chemicalName"), Paging.DEFAULT);
+        assertThat(found2.getItems()).hasSize(1);
     }
 
     @Test

@@ -32,6 +32,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -128,6 +129,28 @@ class SampleRegistrationServiceTest extends BaseTest {
         // compounds.sdf (loaded by testLoadCompoundsFromFile) contains a compound named "benzene-1,2,3,5-tetrol"
         Page<SRSSampleDTO> page = sampleRegistrationClient.find(SRSFindSamplesRequest.builder().quickSearch(quickSearch).build(), Paging.DEFAULT);
         assertThat(page.getItems()).extracting(SRSSampleDTO::getName).contains("benzene-1,2,3,5-tetrol");
+    }
+
+    @Test
+    @Order(202)
+    void testFindSampleByMolFormula() {
+        Page<SRSSampleDTO> page = sampleRegistrationClient.find(SRSFindSamplesRequest.builder().quickSearch("C6H6O4").build(), Paging.DEFAULT);
+        assertThat(page.getItems()).isNotEmpty().allSatisfy(s ->
+                assertThat(s.getMolFormula()).isEqualTo("C<sub>6</sub>H<sub>6</sub>O<sub>4</sub>"));
+    }
+
+    @Test
+    @Order(300)
+    void testReindexSearchVectors() throws SQLException {
+        try (Connection connection = databasePool.get().getConnection(); Statement statement = connection.createStatement()) {
+            statement.executeUpdate("update SRS_Sample set search_vector = ''");
+        }
+        SRSFindSamplesRequest request = SRSFindSamplesRequest.builder().quickSearch("benzene-1,2,3,5-tetrol").build();
+        assertThat(sampleRegistrationClient.find(request, Paging.DEFAULT).getItems()).isEmpty();
+
+        Map<String, String> result = sampleRegistrationAdminClient.reindexSearchVectors();
+        assertThat(Integer.parseInt(result.get("samples"))).isEqualTo(101); // 1 registered + 100 loaded from compounds.sdf
+        assertThat(sampleRegistrationClient.find(request, Paging.DEFAULT).getItems()).isNotEmpty();
     }
 
     @SuppressWarnings("SqlWithoutWhere")

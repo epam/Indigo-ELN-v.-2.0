@@ -6,6 +6,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
+import java.util.Map;
+
 @Path(SampleRegistrationAdminAPI.BASE_PATH)
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -16,4 +18,8 @@ public interface SampleRegistrationAdminAPI {
     @POST
     @Path("/migrate")
     void migrate();
+
+    @POST
+    @Path("/reindex-search-vectors")
+    Map<String, String> reindexSearchVectors();
 }

@@ -1,6 +1,7 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.util.Pair;
+import com.epam.indigoeln.compound.entity.MarkedSampleEntity;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
@@ -123,10 +124,15 @@ public class SupportService {
                     n.setSearchVector(globalSearchService.collectNotebookSearchVector(snapshot));
                 });
 
+        long markedSamples = doReindex(
+                em.createQuery("FROM MarkedSample s ORDER BY s.id", MarkedSampleEntity.class),
+                s -> s.setSearchVector(globalSearchService.collectSampleSearchVector(s)));
+
         return Map.of(
                 "projects", String.valueOf(projects),
                 "notebooks", String.valueOf(notebooks),
-                "experiments", String.valueOf(experiments)
+                "experiments", String.valueOf(experiments),
+                "markedSamples", String.valueOf(markedSamples)
         );
     }
 
