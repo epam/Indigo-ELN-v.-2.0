@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { ActionBar } from '@/components/common/action-bar';
 import { ProjectCollection } from '@/components/projects/list/project-collection';
 import { StatsBar } from '@/components/projects/list/stats-bar';
+import { usePageTitle } from '@/lib/hooks/use-page-title';
 import { z } from '@/lib/zod';
 import { COLLECTION_VIEWS, type CollectionView, SORT_ORDERS, type SortOrder } from '@/lib/types/common.ts';
 
@@ -15,11 +16,11 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute('/_auth/projects')({
   validateSearch: searchSchema,
-  head: () => ({ meta: [{ title: 'Indigo ELN - Projects' }] }),
   component: ProjectsPage,
 });
 
 function ProjectsPage() {
+  usePageTitle('Projects');
   const { q, sort, createdByMe, view } = Route.useSearch();
   const navigate = Route.useNavigate();
 

@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { RequirePermission } from '@/components/auth/require-permission';
 import { ActionBar } from '@/components/common/action-bar';
 import { SignatureCollection } from '@/components/signatures/signature-collection';
+import { usePageTitle } from '@/lib/hooks/use-page-title';
 import { z } from '@/lib/zod';
 import { SORT_ORDERS, type SortOrder } from '@/lib/types/common.ts';
 
@@ -18,7 +19,6 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute('/_auth/signatures')({
   validateSearch: searchSchema,
-  head: () => ({ meta: [{ title: 'Indigo ELN - Signatures' }] }),
   component: () => (
     <RequirePermission permission="SIGN_EXPERIMENTS">
       <SignaturesPage />
@@ -27,6 +27,7 @@ export const Route = createFileRoute('/_auth/signatures')({
 });
 
 function SignaturesPage() {
+  usePageTitle('Signatures');
   const { q, sort, waitingMySignature } = Route.useSearch();
   const navigate = Route.useNavigate();
 

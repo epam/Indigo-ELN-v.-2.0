@@ -4,6 +4,7 @@ import { RequirePermission } from '@/components/auth/require-permission';
 import { DictionaryList } from '@/components/dictionaries/dictionary-list';
 import { DictionarySheet } from '@/components/dictionaries/dictionary-sheet';
 import { useDictionaries } from '@/lib/api/dictionaries';
+import { usePageTitle } from '@/lib/hooks/use-page-title';
 import { z } from '@/lib/zod';
 
 /** The open dictionary's id, so the sheet is linkable and Back closes it. */
@@ -13,7 +14,6 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute('/_auth/dictionaries')({
   validateSearch: searchSchema,
-  head: () => ({ meta: [{ title: 'Indigo ELN - Dictionaries' }] }),
   component: () => (
     <RequirePermission permission="MANAGE_DICTIONARIES">
       <DictionariesPage />
@@ -22,6 +22,7 @@ export const Route = createFileRoute('/_auth/dictionaries')({
 });
 
 function DictionariesPage() {
+  usePageTitle('Dictionaries');
   const { dictionary: selectedId } = Route.useSearch();
   const navigate = Route.useNavigate();
 

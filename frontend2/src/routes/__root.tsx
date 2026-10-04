@@ -1,8 +1,9 @@
-import { createRootRoute, HeadContent, Link, Outlet } from '@tanstack/react-router';
+import { createRootRoute, Link, Outlet } from '@tanstack/react-router';
 import { lazy, Suspense } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { ToastProvider } from '@/components/ui/toast';
+import { usePageTitle } from '@/lib/hooks/use-page-title';
 
 const Devtools = import.meta.env.DEV
   ? lazy(async () => {
@@ -29,7 +30,6 @@ export const Route = createRootRoute({
 function RootComponent() {
   return (
     <ToastProvider>
-      <HeadContent />
       <Outlet />
       {Devtools && (
         <Suspense>
@@ -41,6 +41,7 @@ function RootComponent() {
 }
 
 function NotFound() {
+  usePageTitle('Page not found');
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-4">
       <h1 className="text-2xl font-semibold">Page not found</h1>
