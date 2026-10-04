@@ -23,6 +23,8 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -117,6 +119,15 @@ class SampleRegistrationServiceTest extends BaseTest {
     @Order(200)
     void testLoadCompoundsFromFile() throws IOException {
         sampleRegistrationClient.loadCompoundsFromFile(UUID.randomUUID(), UUID.randomUUID(), 0, uploadForm("compounds.sdf", ModelUtil.loadResource("/compounds.sdf")));
+    }
+
+    @ParameterizedTest
+    @Order(201)
+    @ValueSource(strings = {"benzene-1,2,3,5-tetrol", "benzene", "tetrol"})
+    void testFindSampleByChemicalName(String quickSearch) {
+        // compounds.sdf (loaded by testLoadCompoundsFromFile) contains a compound named "benzene-1,2,3,5-tetrol"
+        Page<SRSSampleDTO> page = sampleRegistrationClient.find(SRSFindSamplesRequest.builder().quickSearch(quickSearch).build(), Paging.DEFAULT);
+        assertThat(page.getItems()).extracting(SRSSampleDTO::getName).contains("benzene-1,2,3,5-tetrol");
     }
 
     @SuppressWarnings("SqlWithoutWhere")

@@ -80,7 +80,7 @@ public class GlobalSearchService {
                 .aIdentifier(sample.getSampleKey())
                 .aIdentifier(sample.getNbkBatchNumber())
                 .aIdentifier(c.getCasNumber())
-                .b(c.getChemicalName());
+                .bIdentifier(c.getChemicalName());
         return sv.build();
     }
 

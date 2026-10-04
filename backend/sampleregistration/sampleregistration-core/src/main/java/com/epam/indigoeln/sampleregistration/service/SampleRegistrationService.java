@@ -137,7 +137,7 @@ public class SampleRegistrationService {
         SearchVector.Builder sv = new SearchVector.Builder()
                 .aIdentifier(sample.getStrCode())
                 .aIdentifier(sample.getNbkBatchNumber())
-                .b(c.getChemicalName());
+                .bIdentifier(c.getChemicalName());
         return sv.build();
     }
 }
