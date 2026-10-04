@@ -127,7 +127,7 @@ public class GlobalSearchRepository {
                     }
                     if (hasRoles) {
                         ReactionRole[] roles = tuple.get(++fieldNo, ReactionRole[].class);
-                        item.setReactionRoles(roles != null ? Set.of(roles) : Set.of());
+                        item.setReactionRoles(roles != null ? Set.copyOf(List.of(roles)) : Set.of());
                     }
                     if (!onlyExperiments) {
                         item.setNotebookCount(tuple.get(++fieldNo, Integer.class));
