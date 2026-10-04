@@ -2,11 +2,9 @@ import { Trash2 } from 'lucide-react';
 import type { ComponentType, ReactNode } from 'react';
 import { useState } from 'react';
 
+import { DictionaryCombobox, MultiDictionaryCombobox } from '@/components/common/dictionary-combobox';
 import { SavingOverlay } from '@/components/common/saving-overlay';
-import { MultiCombobox } from '@/components/ui/combobox';
-import { Select } from '@/components/ui/select';
 import { CONTENT_BOX, EDITABLE_CELL_CLASS } from '@/components/experiments/stoichiometry/columns';
-import { useDictionary } from '@/lib/api/dictionaries';
 import { useDraft } from '@/lib/hooks/use-draft';
 import { cn } from '@/lib/utils';
 
@@ -192,10 +190,8 @@ export function TextCell({
 /**
  * One item from a built-in dictionary.
  *
- * A `Select` rather than a `Combobox`, for the same reason Rxn Role is one: these lists are short
- * and closed, so a text input to filter them with only invites typing a value that cannot be
- * accepted. Like Rxn Role the field is required — a salt code is never null, "00 - Parent
- * Structure" stands for none — so there is no `emptyLabel` to clear it with.
+ * Like Rxn Role the field is required — a salt code is never null, "00 - Parent Structure" stands
+ * for none — so it is not `clearable`.
  */
 export function DictionaryCell({
   dictionary,
@@ -212,26 +208,20 @@ export function DictionaryCell({
   label: string;
   onCommit: (next: DictionaryItemRef) => void;
 }) {
-  const { data, isPending, isError } = useDictionary(dictionary);
-
   return (
     <SavingOverlay pending={pending} spinner="center" className="w-full">
-      <Select<DictionaryItemRef>
+      <DictionaryCombobox
         aria-label={label}
+        dictionary={dictionary}
         size="sm"
         variant="cell"
         value={value}
-        items={data ?? []}
+        clearable={false}
         // Disabled rather than swapped for a `ReadonlyCell`, as `RoleCell` does: a disabled
         // `cell` select is grey text that keeps its full width, where a read-only cell truncates.
         disabled={!editable}
-        itemToKey={(item) => item.id}
-        itemToLabel={(item) => item.name}
-        loading={isPending}
-        // apiFetch has already toasted the failure; this says why the list is empty.
-        error={isError}
         onValueChange={(next) => {
-          // Never null without an `emptyLabel` — see `Select`.
+          // Never null when not `clearable`.
           if (next && next.id !== value.id) onCommit(next);
         }}
       />
@@ -241,9 +231,6 @@ export function DictionaryCell({
 
 /**
  * Several items from a built-in dictionary — health hazards.
- *
- * `MultiCombobox` filters nothing itself, so the list is narrowed here against the typed
- * input. `allowCustomValues` stays off: a hazard has to be a dictionary entry.
  */
 export function MultiDictionaryCell({
   dictionary,
@@ -260,30 +247,18 @@ export function MultiDictionaryCell({
   label: string;
   onCommit: (next: DictionaryItemRef[]) => void;
 }) {
-  const [inputValue, setInputValue] = useState('');
-  const { data, isPending, isError } = useDictionary(dictionary);
-
   if (!editable) return <ReadonlyCell value={value.map((item) => item.name).join(', ') || undefined} />;
-
-  const term = inputValue.trim().toLowerCase();
-  const items = (data ?? []).filter((item) => item.name.toLowerCase().includes(term));
 
   return (
     <SavingOverlay pending={pending} spinner="center" className="w-full">
-      <MultiCombobox<DictionaryItemRef>
+      <MultiDictionaryCombobox
         aria-label={label}
+        dictionary={dictionary}
         size="sm"
         variant="cell"
         // The same absence marker every other empty cell shows.
         placeholder="—"
         value={value}
-        items={items}
-        itemToKey={(item) => item.id}
-        itemToLabel={(item) => item.name}
-        inputValue={inputValue}
-        onInputValueChange={setInputValue}
-        loading={isPending}
-        error={isError}
         // `@NotNull List` on the record: emptying the list sends `[]`, never null.
         onValueChange={onCommit}
       />

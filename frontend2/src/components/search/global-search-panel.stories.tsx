@@ -94,7 +94,7 @@ export const SearchesOnAnAdvancedFilterAlone: Story = {
     await expect(screen.getByRole('button', { name: 'Search' })).toBeDisabled();
 
     await userEvent.click(screen.getByRole('button', { name: /Advanced Search/ }));
-    await userEvent.type(screen.getByLabelText('Therapeutic Area'), 'obe');
+    await userEvent.click(screen.getByLabelText('Therapeutic Area'));
     await userEvent.click(await screen.findByRole('option', { name: 'Obesity' }));
 
     const search = screen.getByRole('button', { name: 'Search' });
@@ -115,9 +115,9 @@ export const SearchesOnAnAdvancedFilterAlone: Story = {
 export const ClearAllResetsAdvancedFields: Story = {
   play: async () => {
     await userEvent.click(screen.getByRole('button', { name: /Advanced Search/ }));
-    await userEvent.type(screen.getByLabelText('Therapeutic Area'), 'obe');
+    await userEvent.click(screen.getByLabelText('Therapeutic Area'));
     await userEvent.click(await screen.findByRole('option', { name: 'Obesity' }));
-    await expect(screen.getByLabelText('Therapeutic Area')).toHaveValue('Obesity');
+    await expect(screen.getByLabelText('Therapeutic Area')).toHaveTextContent('Obesity');
 
     await userEvent.click(screen.getByRole('button', { name: 'Clear All' }));
     await waitFor(() => expect(screen.getByRole('button', { name: 'Search' })).toBeDisabled());

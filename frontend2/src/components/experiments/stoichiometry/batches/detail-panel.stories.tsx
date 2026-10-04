@@ -256,6 +256,30 @@ export const NoRequestWhenUnchanged: Story = {
   },
 };
 
+/** Nothing to type into: the list ticks what is chosen and stays open, so several picks are one visit. */
+export const PicksSeveralHazards: Story = {
+  parameters: { msw: { handlers: spyHandlers } },
+  render: () => <PanelFromCache />,
+  play: async ({ canvasElement }) => {
+    sent.length = 0;
+    const canvas = within(canvasElement);
+
+    await userEvent.click(await canvas.findByRole('button', { name: 'Additional Information' }));
+    const hazards = await canvas.findByLabelText('Health Hazards');
+    await expect(hazards.tagName).toBe('BUTTON');
+
+    const [held, added] = DICTIONARIES.HEALTH_HAZARD!;
+    await userEvent.click(hazards);
+    await expect(await screen.findByRole('option', { name: held.name })).toHaveAttribute('aria-selected', 'true');
+    await userEvent.click(screen.getByRole('option', { name: added.name }));
+
+    await waitFor(() =>
+      expect(sent.at(-1)).toMatchObject({ type: 'SetOutputHealthHazards', healthHazards: [held, added] }),
+    );
+    await expect(screen.getByRole('listbox')).toBeInTheDocument();
+  },
+};
+
 /** Every list mutation is `@NotNull`, so clearing a list sends `[]`, never `null`. */
 export const ClearingAListSendsEmpty: Story = {
   parameters: { msw: { handlers: spyHandlers } },
@@ -267,7 +291,11 @@ export const ClearingAListSendsEmpty: Story = {
     await userEvent.click(await canvas.findByRole('button', { name: 'Additional Information' }));
 
     const hazard = DICTIONARIES.HEALTH_HAZARD![0];
-    await userEvent.click(await canvas.findByRole('button', { name: `Remove ${hazard.name}` }));
+    // A chosen row is ticked in the list, and picking it again is what removes it.
+    await userEvent.click(await canvas.findByLabelText('Health Hazards'));
+    await userEvent.click(await screen.findByRole('option', { name: hazard.name }));
+    // The list stays open for the next pick, so it has to be shut by hand.
+    await userEvent.keyboard('{Escape}');
     await waitFor(() =>
       expect(sent).toEqual([
         {
@@ -281,7 +309,8 @@ export const ClearingAListSendsEmpty: Story = {
     // The field freezes while its own save is in flight, so the next chip has to wait for it.
     const protection = DICTIONARIES.COMPOUND_PROTECTION![0];
     await waitFor(async () => expect(await canvas.findByLabelText('Compound Protection')).toBeEnabled());
-    await userEvent.click(await canvas.findByRole('button', { name: `Remove ${protection.name}` }));
+    await userEvent.click(canvas.getByLabelText('Compound Protection'));
+    await userEvent.click(await screen.findByRole('option', { name: protection.name }));
 
     await waitFor(() =>
       expect(sent.at(-1)).toEqual({

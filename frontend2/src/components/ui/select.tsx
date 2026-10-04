@@ -1,5 +1,5 @@
 import { Select as SelectPrimitive } from '@base-ui/react/select';
-import { ChevronDown } from 'lucide-react';
+import { Check, ChevronDown } from 'lucide-react';
 import { useRef, useState } from 'react';
 
 import { INPUT_BOX, INPUT_BOX_FOCUS } from '@/components/ui/input';
@@ -20,6 +20,15 @@ const SIZE_TEXT: Record<SelectSize, string> = {
 const SIZE_BOX: Record<SelectSize, string> = {
   sm: 'h-7.5 pl-2',
   md: 'h-10 pl-3',
+};
+
+/**
+ * The box of a `multiple` select, whose chips wrap: a `min-h` where `SIZE_BOX` has an `h`, so the
+ * field grows with them. `sm` bottoms out at the same 30px — a 24px chip, `py-0.5` and the border.
+ */
+const SIZE_CHIPS_BOX: Record<SelectSize, string> = {
+  sm: 'min-h-7.5 py-0.5 pl-2',
+  md: 'min-h-10 py-1.5 pl-2',
 };
 
 /**
@@ -72,21 +81,14 @@ const CELL_ICON = 'invisible group-focus-visible/select:visible group-data-popup
 const EMPTY_ITEM = Symbol('select-empty');
 type Empty = typeof EMPTY_ITEM;
 
-interface SelectProps<T> {
+interface SingleSelectProps<T> {
+  multiple?: false;
   /**
    * The chosen item, or `null`. A `null` is only reachable when `emptyLabel` is set — without it
    * the list offers no way to arrive at one, so a required field can treat it as impossible.
    */
   value: T | null;
   onValueChange: (value: T | null) => void;
-  items: T[];
-  /** Identity of an item, for React keys and for matching a value to its row. */
-  itemToKey: (item: T) => string;
-  /** What the item reads as, in the trigger and in the list. */
-  itemToLabel: (item: T) => string;
-  id?: string;
-  /** Names the control where no visible `<label>` does — a select in a table cell. */
-  'aria-label'?: string;
   /**
    * Adds a row that clears the selection, labelled with this. Set it for an optional field and
    * leave it off for a required one — the same distinction indigo-frontend drew with the
@@ -96,6 +98,28 @@ interface SelectProps<T> {
    * or out of a value.
    */
   emptyLabel?: string;
+}
+
+/**
+ * Several items at once. The trigger shows them as chips and the list stays open, ticking each
+ * chosen row; picking a ticked row again is what removes it, so the chips carry no ✕.
+ */
+interface MultiSelectProps<T> {
+  multiple: true;
+  value: T[];
+  onValueChange: (value: T[]) => void;
+  emptyLabel?: never;
+}
+
+interface SelectBaseProps<T> {
+  items: T[];
+  /** Identity of an item, for React keys and for matching a value to its row. */
+  itemToKey: (item: T) => string;
+  /** What the item reads as, in the trigger and in the list. */
+  itemToLabel: (item: T) => string;
+  id?: string;
+  /** Names the control where no visible `<label>` does — a select in a table cell. */
+  'aria-label'?: string;
   /**
    * What the trigger reads before anything is chosen, greyed like an input's placeholder.
    *
@@ -123,6 +147,8 @@ interface SelectProps<T> {
   className?: string;
 }
 
+type SelectProps<T> = SelectBaseProps<T> & (SingleSelectProps<T> | MultiSelectProps<T>);
+
 /**
  * A closed list of choices: click to open, pick one, done.
  *
@@ -138,24 +164,25 @@ interface SelectProps<T> {
  *
  * Reach for `Combobox` instead when the list is long enough to want filtering.
  */
-function Select<T>({
-  value,
-  onValueChange,
-  items,
-  itemToKey,
-  itemToLabel,
-  id,
-  'aria-label': ariaLabel,
-  emptyLabel,
-  placeholder,
-  disabled = false,
-  loading = false,
-  error = false,
-  size = 'md',
-  variant = 'box',
-  fitContent = variant === 'cell',
-  className,
-}: SelectProps<T>) {
+function Select<T>(props: SelectProps<T>) {
+  const {
+    items,
+    itemToKey,
+    itemToLabel,
+    id,
+    'aria-label': ariaLabel,
+    emptyLabel,
+    placeholder,
+    disabled = false,
+    loading = false,
+    error = false,
+    size = 'md',
+    variant = 'box',
+    fitContent = variant === 'cell',
+    className,
+  } = props;
+  const multiple = props.multiple === true;
+  const empty = props.multiple ? props.value.length === 0 : props.value == null;
   const cell = variant === 'cell';
   // Controlled only for `cell`, which opens on keyboard focus; `box` leaves it to Base UI.
   const [open, setOpen] = useState(false);
@@ -166,9 +193,16 @@ function Select<T>({
   const clearable = emptyLabel != null;
   const isEmpty = (item: T | Empty | null): item is Empty => item === EMPTY_ITEM;
   return (
-    <SelectPrimitive.Root<T | Empty>
-      value={clearable ? (value ?? EMPTY_ITEM) : value}
-      onValueChange={(next) => onValueChange(next == null || isEmpty(next) ? null : next)}
+    <SelectPrimitive.Root<T | Empty, boolean>
+      multiple={multiple}
+      value={props.multiple ? props.value : clearable ? (props.value ?? EMPTY_ITEM) : props.value}
+      onValueChange={(next) => {
+        if (props.multiple) props.onValueChange(next as T[]);
+        else {
+          const one = next as T | Empty | null;
+          props.onValueChange(one == null || isEmpty(one) ? null : one);
+        }
+      }}
       disabled={disabled}
       open={cell ? open : undefined}
       onOpenChange={(next, details) => {
@@ -210,7 +244,7 @@ function Select<T>({
           INPUT_BOX_FOCUS,
           'group/select flex cursor-pointer items-center justify-between gap-1 pr-1',
           'text-left text-neutral-1000 outline-none',
-          SIZE_BOX[size],
+          multiple ? SIZE_CHIPS_BOX[size] : SIZE_BOX[size],
           SIZE_TEXT[size],
           // The trigger is a disabled element in its own right, so this stays a pseudo-variant
           // rather than `INPUT_DISABLED`. Same treatment as Input's and Combobox's, so a row of
@@ -231,14 +265,33 @@ function Select<T>({
         */}
         <SelectPrimitive.Value
           className={cn(
-            fitContent ? 'whitespace-nowrap' : 'truncate',
-            cell && !disabled && CELL_VALUE_EDITABLE,
-            dismissed && CELL_VALUE_DISMISSED,
-            value == null && 'text-neutral-700',
+            // Chips wrap in a form field and widen the column in a table, as the labels do.
+            multiple && !empty && cn('flex min-w-0 flex-1 items-center gap-2', !fitContent && 'flex-wrap'),
+            (!multiple || empty) && (fitContent ? 'whitespace-nowrap' : 'truncate'),
+            // Chips are marked as chips; the underline is for a bare value.
+            cell && !disabled && !multiple && CELL_VALUE_EDITABLE,
+            dismissed && !multiple && CELL_VALUE_DISMISSED,
+            empty && 'text-neutral-700',
           )}
         >
-          {(item: T | Empty | null) =>
-            item == null || isEmpty(item) ? (emptyLabel ?? placeholder ?? '') : itemToLabel(item)
+          {(current: unknown) =>
+            props.multiple
+              ? empty
+                ? (placeholder ?? '')
+                : props.value.map((item) => (
+                    <span
+                      key={itemToKey(item)}
+                      className={cn(
+                        'rounded-md bg-blue-10 px-2 py-0.5 text-[12px]/5 text-neutral-1000',
+                        fitContent && 'shrink-0 whitespace-nowrap',
+                      )}
+                    >
+                      {itemToLabel(item)}
+                    </span>
+                  ))
+              : current == null || isEmpty(current as T | Empty)
+                ? (emptyLabel ?? placeholder ?? '')
+                : itemToLabel(current as T)
           }
         </SelectPrimitive.Value>
         {/*
@@ -286,10 +339,16 @@ function Select<T>({
                   value={item}
                   className={cn(
                     'cursor-default rounded-2 px-3 py-2 outline-none data-highlighted:bg-blue-10',
+                    multiple && 'flex items-center justify-between gap-2',
                     SIZE_TEXT[size],
                   )}
                 >
                   <SelectPrimitive.ItemText>{itemToLabel(item)}</SelectPrimitive.ItemText>
+                  {multiple && (
+                    <SelectPrimitive.ItemIndicator>
+                      <Check className="size-4 text-blue-600" />
+                    </SelectPrimitive.ItemIndicator>
+                  )}
                 </SelectPrimitive.Item>
               ))}
             </SelectPrimitive.List>

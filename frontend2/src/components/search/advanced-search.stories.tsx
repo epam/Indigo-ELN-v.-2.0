@@ -79,11 +79,11 @@ export const CollapsedSummary: Story = {
     await expect(canvas.getByText('Obesity')).toBeInTheDocument();
     await expect(canvas.getByText('Mark Liu')).toBeInTheDocument();
 
-    // Expanding hands the job back to the controls, so the summary steps aside. Probed
-    // with a value rather than an operator: '≥' comes back as the numeric operator button,
-    // whereas 'Obesity' becomes an input value, which getByText does not match.
-    await userEvent.click(canvas.getByRole('button', { name: /Advanced Search/ }));
-    await expect(canvas.queryByText('Obesity')).not.toBeInTheDocument();
+    // Expanding hands the job back to the controls, so the summary steps aside. Read off the
+    // header it sits in: the picker below now shows 'Obesity' as text too.
+    const header = canvas.getByRole('button', { name: /Advanced Search/ });
+    await userEvent.click(header);
+    await expect(header).not.toHaveTextContent('Obesity');
   },
 };
 
@@ -92,11 +92,12 @@ export const PicksATherapeuticArea: Story = {
   args: { defaultOpen: true },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.type(canvas.getByLabelText('Therapeutic Area'), 'obe');
+    await userEvent.click(canvas.getByLabelText('Therapeutic Area'));
     await userEvent.click(await screen.findByRole('option', { name: 'Obesity' }));
 
-    await userEvent.click(canvas.getByRole('button', { name: /Advanced Search/ }));
-    await expect(canvas.getByText('Obesity')).toBeInTheDocument();
+    const header = canvas.getByRole('button', { name: /Advanced Search/ });
+    await userEvent.click(header);
+    await expect(header).toHaveTextContent('Obesity');
   },
 };
 
@@ -134,7 +135,7 @@ export const LookupsFailed: Story = {
   args: { defaultOpen: true },
   parameters: { msw: { handlers: lookupErrorHandlers } },
   play: async ({ canvasElement }) => {
-    await userEvent.click(within(canvasElement).getAllByRole('button', { name: 'Show options' })[0]);
+    await userEvent.click(within(canvasElement).getByLabelText('Therapeutic Area'));
     await expect(await screen.findByText('Could not load options')).toBeInTheDocument();
   },
 };

@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 import { ApiImage } from '@/components/common/api-image';
 import { SavingOverlay } from '@/components/common/saving-overlay';
-import { DictionaryCombobox } from '@/components/common/dictionary-combobox';
+import { DictionaryCombobox, MultiDictionaryCombobox } from '@/components/common/dictionary-combobox';
 import { isSampleProtected } from '@/components/experiments/stoichiometry/batches/columns';
 import {
   externalSupplierLabel,
@@ -16,10 +16,8 @@ import {
 import { cellId } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import { useDraft } from '@/lib/hooks/use-draft';
 import { Collapsible, CollapsiblePanel, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { MultiCombobox } from '@/components/ui/combobox';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { useDictionary } from '@/lib/api/dictionaries';
 import { cn } from '@/lib/utils';
 
 import type { BatchRow } from '@/components/experiments/stoichiometry/batches/columns';
@@ -500,9 +498,7 @@ function NumberField({
 }
 
 /**
- * One item from a built-in dictionary, or none unless `required`. A `Combobox` rather than the
- * table's `Select`: these lists are the long ones — solvents, suppliers, salt codes — and a form
- * field has the room for a filter the dense table cells do not.
+ * One item from a built-in dictionary, or none unless `required`.
  */
 function DictionaryField(
   props: {
@@ -514,7 +510,7 @@ function DictionaryField(
     pending: boolean;
   } & (
     | {
-        /** Offers no ✕ — the value can be changed but never cleared. */
+        /** Offers no blank row — the value can be changed but never cleared. */
         required: true;
         onCommit: (next: DictionaryItemRef) => void;
       }
@@ -536,7 +532,7 @@ function DictionaryField(
           // Picking is the commit; there is no separate confirmation step to wait for.
           onValueChange={(next) => {
             if ((next?.id ?? null) === (value?.id ?? null)) return;
-            // A required field's combobox has no ✕, so `next` is never null there.
+            // A required field's list has no blank row, so `next` is never null there.
             if (!props.required) props.onCommit(next);
             else if (next) props.onCommit(next);
           }}
@@ -548,10 +544,6 @@ function DictionaryField(
 
 /**
  * Several items from a built-in dictionary, as chips.
- *
- * `MultiCombobox` filters nothing itself, so the list is narrowed here against the typed input —
- * the same arrangement `MultiDictionaryCell` makes. `allowCustomValues` stays off: every value has
- * to be a dictionary entry.
  */
 function MultiDictionaryField({
   id,
@@ -570,30 +562,17 @@ function MultiDictionaryField({
   pending: boolean;
   onCommit: (next: DictionaryItemRef[]) => void;
 }) {
-  const [inputValue, setInputValue] = useState('');
-  const { data, isPending, isError } = useDictionary(dictionary);
-
   if (!editable) {
     return <ChipsField label={label} values={value.map((item) => item.name)} />;
   }
 
-  const term = inputValue.trim().toLowerCase();
-  const items = (data ?? []).filter((item) => item.name.toLowerCase().includes(term));
-
   return (
     <Field id={id} label={label}>
       <SavingOverlay pending={pending}>
-        <MultiCombobox<DictionaryItemRef>
+        <MultiDictionaryCombobox
           id={id}
+          dictionary={dictionary}
           value={value}
-          items={items}
-          itemToKey={(item) => item.id}
-          itemToLabel={(item) => item.name}
-          inputValue={inputValue}
-          onInputValueChange={setInputValue}
-          loading={isPending}
-          // apiFetch has already toasted the failure; this says why the list is empty.
-          error={isError}
           disabled={pending}
           onValueChange={onCommit}
         />

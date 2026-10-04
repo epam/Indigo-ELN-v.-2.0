@@ -220,8 +220,7 @@ export const PicksRxnRole: Story = {
     const role = (await canvas.findAllByLabelText('Reaction role'))[0];
     await expect(role).toHaveTextContent('Reactant');
     // A button holding a label, not an input holding a value — so there is nothing to type into
-    // and no ✕ to clear. Scoped to this control: Salt Code next to it is a Combobox and keeps
-    // both, because a salt code is optional and its list is worth filtering.
+    // and no ✕ to clear.
     await expect(role.tagName).toBe('BUTTON');
     await expect(role.querySelector('input')).toBeNull();
 
@@ -317,8 +316,8 @@ export const ControlsMatchTheTableTextSize: Story = {
       canvas.getByLabelText('Weight, batch 1'), // number input
       canvas.getByLabelText('Comments, batch 2'), // free-text cell
       canvas.getAllByLabelText('Reaction role')[0], // Select
-      canvas.getByLabelText('Salt Code, row 3'), // Combobox
-      canvas.getByLabelText('Hazard Comments, batch 1'), // MultiCombobox
+      canvas.getByLabelText('Salt Code, row 3'), // DictionaryCombobox
+      canvas.getByLabelText('Hazard Comments, batch 1'), // MultiDictionaryCombobox
     ]) {
       await expect(fontOf(el)).toBe(reference);
     }
@@ -333,7 +332,7 @@ export const ControlsMatchTheTableTextSize: Story = {
 };
 
 /**
- * Salt Code is a `Select` too — short closed list, nothing to type. Like Rxn Role it is
+ * Salt Code is a button too — closed list, nothing to type. Like Rxn Role it is
  * **required**: "00 - Parent Structure" stands for no salt, so the list has no clearing row.
  */
 export const PicksSaltCode: Story = {
@@ -433,9 +432,15 @@ export const ReadOnlyCellsUseArrowCursor: Story = {
     // batch summary — are plain text, whether they hold a value or an em-dash.
     // `aria-hidden` is an editable text cell's invisible sizer, which holds an em-dash while the
     // cell is empty and lies under its input — not a read-only cell, and never what is hovered.
+    // Nor is one inside a button: that is an editable picker with nothing chosen yet.
     const plain = canvas
       .getAllByText('—')
-      .filter((cell) => cell.closest('[data-slot="numeric-cell"]') === null && !cell.hasAttribute('aria-hidden'));
+      .filter(
+        (cell) =>
+          cell.closest('[data-slot="numeric-cell"]') === null &&
+          cell.closest('button') === null &&
+          !cell.hasAttribute('aria-hidden'),
+      );
     await expect(plain.length).toBeGreaterThan(0);
     for (const cell of plain) {
       await expect(getComputedStyle(cell).cursor).toBe('default');
