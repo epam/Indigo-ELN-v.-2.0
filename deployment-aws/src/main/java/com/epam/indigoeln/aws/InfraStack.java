@@ -65,7 +65,7 @@ public class InfraStack {
         // Shared between CloudFront (which sends it as an origin custom header) and every service's
         // APISecretFilter. It is what proves a request arrived through the CDN rather than directly.
         apiSecret = StringParameter.Builder.create(scope, "api-gateway-secret")
-                .parameterName("api-gateway-secret")
+                .parameterName("api-gateway-secret-" + props.envName)
                 .stringValue(props.apiSecret())
                 .build();
 
@@ -99,13 +99,15 @@ public class InfraStack {
         // lambda only ever had grantPut, which would have made incident-report reads 403.
         storageBucket.grantReadWrite(ec2Role);
 
-        GatewayVpcEndpoint.Builder.create(scope, "s3-gateway-endpoint")
-                .vpc(vpc)
-                .service(GatewayVpcEndpointAwsService.S3)
-                .subnets(List.of(SubnetSelection.builder()
-                        .subnetFilters(List.of(SubnetFilter.byIds(props.lambdaSubnets())))
-                        .build()))
-                .build();
+        if (props.createS3Gateway) {
+            GatewayVpcEndpoint.Builder.create(scope, "s3-gateway-endpoint")
+                    .vpc(vpc)
+                    .service(GatewayVpcEndpointAwsService.S3)
+                    .subnets(List.of(SubnetSelection.builder()
+                            .subnetFilters(List.of(SubnetFilter.byIds(props.lambdaSubnets())))
+                            .build()))
+                    .build();
+        }
 
         // Hardcoded rather than vpc.getAvailabilityZones().get(0): cdk.context.json caches an empty
         // availabilityZones list for this VPC, so a context refresh could silently move the volume,
@@ -119,7 +121,10 @@ public class InfraStack {
 
         instance = Instance.Builder.create(scope, "ec2-instance")
                 .vpc(vpc)
-                .instanceType(InstanceType.of(InstanceClass.T3A, InstanceSize.LARGE))
+                // MEDIUM (4 GiB) fits the container limits in compose/docker-compose.yml, which sum to
+                // ~3.4 GiB and leave ~600 MiB for the OS and docker, plus the swapfile user-data adds.
+                // Raising the limits there means raising this too.
+                .instanceType(InstanceType.of(InstanceClass.T3A, InstanceSize.MEDIUM))
                 // Plain Amazon Linux 2023, x86_64: the Indigo native libraries in the eln image are
                 // x86_64-only, and nothing here needs the ECS-optimized variant now that ECS is gone.
                 //
@@ -183,6 +188,24 @@ public class InfraStack {
                 "systemctl enable --now docker",
                 "docker compose version",
 
+                // A 2 GiB swapfile as a cushion: the container limits in compose/docker-compose.yml
+                // sum to ~3.4 GiB of this instance's 4 GiB, so a spike (report generation, structure
+                // rendering) has little headroom and would otherwise be resolved by the kernel OOM
+                // killer picking whichever process is largest - usually Postgres. Swapping degrades
+                // instead. The fstab entry is what brings it back after a reboot; user-data itself
+                // runs only on first boot.
+                //
+                // dd rather than fallocate: swapon rejects a file with holes on ext4.
+                "dd if=/dev/zero of=/swapfile bs=1M count=2048 status=none",
+                "chmod 600 /swapfile",
+                "mkswap /swapfile",
+                "swapon /swapfile",
+                "echo '/swapfile none swap sw 0 0' >> /etc/fstab",
+                // Favour reclaiming page cache over swapping out live JVM heap; swap is the cushion,
+                // not the plan.
+                "echo 'vm.swappiness=10' > /etc/sysctl.d/99-indigoeln.conf",
+                "sysctl -q -w vm.swappiness=10",
+
                 // Format only on very first use; the volume survives instance replacement.
                 "DEVICE=" + DATA_DEVICE,
                 "MOUNT_POINT=" + DATA_MOUNT,
@@ -235,6 +258,7 @@ public class InfraStack {
             List<String> securityGroups,
             String storageBucketName,
             String apiSecret,
-            List<String> lambdaSubnets
+            List<String> lambdaSubnets,
+            boolean createS3Gateway
     ) {}
 }

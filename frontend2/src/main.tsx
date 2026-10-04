@@ -9,7 +9,7 @@ import { QueryPersistenceProvider } from '@/lib/query-persistence';
 import { routeTree } from '@/routeTree.gen';
 import '@/styles.css';
 
-configureAmplify();
+await configureAmplify();
 
 // defaultErrorComponent, not the root route's errorComponent: without one, TanStack mounts
 // no boundary at all and a render throw blanks the whole app. See route-error.tsx.

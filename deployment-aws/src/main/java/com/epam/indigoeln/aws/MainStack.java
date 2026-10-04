@@ -32,7 +32,8 @@ public class MainStack extends Stack {
                 props.getSecurityGroups(),
                 props.getStorageBucketName(),
                 props.getApiGatewaySecret(),
-                props.getLambdaSubnets()
+                props.getLambdaSubnets(),
+                props.isCreateS3Gateway()
         ));
 
         CognitoStack cognitoStack = new CognitoStack(this, new CognitoStack.Props(
@@ -62,10 +63,13 @@ public class MainStack extends Stack {
         ));
 
         new CloudFrontStack(this, new CloudFrontStack.Props(
+                envName,
                 infraStack.getHostedZone(),
                 infraStack.getInstance(),
                 props.getDomainName(),
-                infraStack.getApiSecret()
+                infraStack.getApiSecret(),
+                cognitoStack.getUserPool(),
+                cognitoStack.getUserPoolClient()
         ));
     }
 }

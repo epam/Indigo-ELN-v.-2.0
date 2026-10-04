@@ -74,12 +74,13 @@ config without acting on it, so the builds stay silently blocked.
 
 ## Environment
 
-Copy `.env.example` → `.env.local`. The two `VITE_COGNITO_*` vars are required for auth to work:
+Nothing environment-specific is compiled in: one build serves every environment. The Cognito pool
+and client IDs come from `/config.json`, fetched at startup (`src/lib/env.ts`). CDK writes that file
+per environment (`CloudFrontStack.java`), and the dev server proxies it from the same host as `/api`.
 
-```
-VITE_COGNITO_USER_POOL_ID=...
-VITE_COGNITO_CLIENT_ID=...
-```
+us-east-1 only, for now: `vite.config.ts` names `cognito-idp.us-east-1.amazonaws.com` in the CSP's
+`connect-src`. A pool in another region would have its sign-in blocked by CSP — with no toast, since
+the request never reaches `apiFetch`.
 
 The dev server proxies `/api` to `https://indigo-eln-dev.test.lifescience.opensource.epam.com` (CloudFront, not API Gateway directly — CloudFront injects `X-API-Secret`).
 

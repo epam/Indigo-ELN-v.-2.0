@@ -8,10 +8,9 @@ src/routeTree.gen.ts
 # Staging copies it writes the route tree through before moving it into place.
 .tanstack/
 
-# Environment overrides — .env.example is committed
+# Environment overrides
 .env
 .env.*
-!.env.example
 
 .DS_Store
 .idea/

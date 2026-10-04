@@ -52,7 +52,7 @@ public class IndigoELNApp {
                 .build()
                 , sonarQubeProps);
 
-        for (String envName : List.of("dev")) {
+        for (String envName : List.of("dev", "test", "demo")) {
             StageParameters stageParameters = StageParameters.load(envName);
 
             MainStack mainStack = new MainStack(app, "indigoeln-" + envName, StackProps.builder()

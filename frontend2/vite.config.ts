@@ -137,6 +137,13 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      // The deployed environment's Cognito pool (CloudFrontStack.java writes it), so the dev
+      // server always signs in against the same environment it sends /api to.
+      '/config.json': {
+        target: API_TARGET,
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
   preview: {
@@ -146,6 +153,13 @@ export default defineConfig({
     },
     proxy: {
       '/api': {
+        target: API_TARGET,
+        changeOrigin: true,
+        secure: false,
+      },
+      // The deployed environment's Cognito pool (CloudFrontStack.java writes it), so the dev
+      // server always signs in against the same environment it sends /api to.
+      '/config.json': {
         target: API_TARGET,
         changeOrigin: true,
         secure: false,

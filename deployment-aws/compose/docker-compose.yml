@@ -16,13 +16,21 @@ x-service-defaults: &service-defaults
 x-oidc: &oidc
   QUARKUS_OIDC_AUTH_SERVER_URL: "https://cognito-idp.${AWS_REGION}.amazonaws.com/${ELN_COGNITO_USER_POOL_ID}"
 
+# The base image's launcher (java-default-options) defaults to -XX:MaxRAMPercentage=80, which leaves
+# too little of each mem_limit for metaspace, code cache, thread stacks and direct buffers - a
+# GC-heavy moment then pushes RSS past the cgroup limit and the container is killed (exit 137).
+# 60% keeps the heap bounded with room for the rest. JAVA_MAX_MEM_RATIO is the launcher's own knob;
+# setting JAVA_OPTS_APPEND here instead would discard the flags the Dockerfile puts in it.
+x-jvm-memory: &jvm-memory
+  JAVA_MAX_MEM_RATIO: "60"
+
 services:
 
   postgres:
     image: "${POSTGRES_IMAGE}"
     platform: linux/amd64
     restart: unless-stopped
-    mem_limit: 2g
+    mem_limit: 768m
     environment:
       # Must stay `postgres`: POSTGRES_DB defaults to POSTGRES_USER, bingo is installed into it, and
       # the init script's `CREATE DATABASE ... TEMPLATE postgres` depends on finding bingo there.
@@ -53,9 +61,10 @@ services:
     <<: *service-defaults
     image: "${ELN_AWS_IMAGE}"
     platform: linux/amd64
-    mem_limit: 2g
+    # Largest share: holds the Indigo native renderer and the global search paths.
+    mem_limit: 1152m
     environment:
-      <<: *oidc
+      <<: [*oidc, *jvm-memory]
       QUARKUS_DATASOURCE_JDBC_URL: "jdbc:postgresql://postgres:5432/eln"
       QUARKUS_DATASOURCE_USERNAME: eln
       QUARKUS_DATASOURCE_PASSWORD: "${DB_PASSWORD}"
@@ -76,8 +85,10 @@ services:
   reports-aws:
     <<: *service-defaults
     image: "${REPORTS_AWS_IMAGE}"
-    mem_limit: 1g
+    # JasperReports PDF generation is the spikiest path here, so it keeps more than the other two.
+    mem_limit: 576m
     environment:
+      <<: *jvm-memory
       ELN_API_SECRET: "${ELN_API_SECRET}"
       AWS_REGION: "${AWS_REGION}"
       QUARKUS_LOG_LEVEL: INFO
@@ -85,9 +96,9 @@ services:
   signature-aws:
     <<: *service-defaults
     image: "${SIGNATURE_AWS_IMAGE}"
-    mem_limit: 1g
+    mem_limit: 448m
     environment:
-      <<: *oidc
+      <<: [*oidc, *jvm-memory]
       QUARKUS_DATASOURCE_JDBC_URL: "jdbc:postgresql://postgres:5432/signature"
       QUARKUS_DATASOURCE_USERNAME: signature
       QUARKUS_DATASOURCE_PASSWORD: "${DB_PASSWORD}"
@@ -106,9 +117,9 @@ services:
     <<: *service-defaults
     image: "${SAMPLEREGISTRATION_AWS_IMAGE}"
     platform: linux/amd64
-    mem_limit: 1g
+    mem_limit: 448m
     environment:
-      <<: *oidc
+      <<: [*oidc, *jvm-memory]
       QUARKUS_DATASOURCE_JDBC_URL: "jdbc:postgresql://postgres:5432/sampleregistration"
       QUARKUS_DATASOURCE_USERNAME: sampleregistration
       QUARKUS_DATASOURCE_PASSWORD: "${DB_PASSWORD}"
@@ -124,7 +135,7 @@ services:
   nginx:
     image: nginx:alpine
     restart: unless-stopped
-    mem_limit: 128m
+    mem_limit: 64m
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     ports:

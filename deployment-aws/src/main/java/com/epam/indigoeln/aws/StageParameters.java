@@ -32,6 +32,7 @@ public class StageParameters {
     /** Shared between CloudFront's origin custom header and every service's APISecretFilter. */
     private String apiGatewaySecret;
     private String storageBucketName;
+    private boolean createS3Gateway;
 
     @SneakyThrows
     public static StageParameters load(String env) {

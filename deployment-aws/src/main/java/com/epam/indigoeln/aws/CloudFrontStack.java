@@ -35,6 +35,8 @@ import software.amazon.awscdk.services.cloudfront.ResponseSecurityHeadersBehavio
 import software.amazon.awscdk.services.cloudfront.ViewerProtocolPolicy;
 import software.amazon.awscdk.services.cloudfront.origins.HttpOrigin;
 import software.amazon.awscdk.services.cloudfront.origins.S3BucketOrigin;
+import software.amazon.awscdk.services.cognito.IUserPool;
+import software.amazon.awscdk.services.cognito.IUserPoolClient;
 import software.amazon.awscdk.services.iam.ManagedPolicy;
 import software.amazon.awscdk.services.iam.Role;
 import software.amazon.awscdk.services.iam.ServicePrincipal;
@@ -58,6 +60,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 
 import static com.epam.indigoeln.aws.util.Utils.entry;
 import static com.epam.indigoeln.aws.util.Utils.mapOf;
@@ -69,7 +72,7 @@ public class CloudFrontStack {
 
     public CloudFrontStack(Construct scope, Props props) {
         Certificate certificate = Certificate.Builder.create(scope, "certificate")
-                .domainName("indigo-eln-dev.test.lifescience.opensource.epam.com")
+                .domainName(props.domainName)
                 .validation(CertificateValidation.fromDns(props.hostedZone()))
                 .build();
 
@@ -81,7 +84,7 @@ public class CloudFrontStack {
         IOrigin frontendOrigin = S3BucketOrigin.withOriginAccessControl(frontendCodeS3);
 
         CachePolicy defaultCachePolicy = CachePolicy.Builder.create(scope, "default-cache-policy")
-                .cachePolicyName("default-cache-policy")
+                .cachePolicyName("default-cache-policy-" + props.envName)
                 .defaultTtl(Duration.minutes(10))
                 .minTtl(Duration.seconds(0))
                 .maxTtl(Duration.days(365))
@@ -123,7 +126,7 @@ public class CloudFrontStack {
         // Content-hashed filenames, so they can never go stale. No CSP: it is a document header and
         // is ignored on a subresource.
         ResponseHeadersPolicy frontendAssetsHeaders = ResponseHeadersPolicy.Builder.create(scope, "frontend-assets-headers")
-                .responseHeadersPolicyName("frontend-assets-headers")
+                .responseHeadersPolicyName("frontend-assets-headers-" + props.envName)
                 .securityHeadersBehavior(securityHeaders(null))
                 .customHeadersBehavior(cacheControl("immutable, max-age=31536000"))
                 .build();
@@ -132,9 +135,27 @@ public class CloudFrontStack {
         // cache-control is load-bearing: the bucket deployment stamps every object, index.html
         // included, with `immutable, max-age=31536000`, and without it that reaches the browser.
         ResponseHeadersPolicy frontendShellHeaders = ResponseHeadersPolicy.Builder.create(scope, "frontend-shell-headers")
-                .responseHeadersPolicyName("frontend-shell-headers")
+                .responseHeadersPolicyName("frontend-shell-headers-" + props.envName)
                 .securityHeadersBehavior(securityHeaders(cspPolicy(frontendCode)))
                 .customHeadersBehavior(cacheControl("no-store"))
+                .build();
+
+        // config.json names this environment's Cognito pool, which is what lets one frontend build
+        // serve every environment. Cached by the browser so it costs no round trip on most page
+        // loads; the price is that a recreated pool can take that long to reach an open browser.
+        ResponseHeadersPolicy frontendConfigHeaders = ResponseHeadersPolicy.Builder.create(scope, "frontend-config-headers")
+                .responseHeadersPolicyName("frontend-config-headers-" + props.envName)
+                .securityHeadersBehavior(securityHeaders(null))
+                .customHeadersBehavior(cacheControl("max-age=3600, stale-while-revalidate=86400"))
+                .build();
+
+        BehaviorOptions frontendConfigBehavior = BehaviorOptions.builder()
+                .origin(frontendOrigin)
+                .viewerProtocolPolicy(ViewerProtocolPolicy.HTTPS_ONLY)
+                // Not held at the edge: a cached copy is served with an Age header, which the browser
+                // subtracts from max-age, so an edge copy older than that would never be cached there.
+                .cachePolicy(CachePolicy.CACHING_DISABLED)
+                .responseHeadersPolicy(frontendConfigHeaders)
                 .build();
 
         BehaviorOptions frontendAssetsBehavior = BehaviorOptions.builder()
@@ -169,7 +190,8 @@ public class CloudFrontStack {
                         entry("/api/*", apiBehavior),
                         entry("/openapi/*", apiBehavior),
                         entry("/swagger/*", apiBehavior),
-                        entry("/assets/*", frontendAssetsBehavior)
+                        entry("/assets/*", frontendAssetsBehavior),
+                        entry("/config.json", frontendConfigBehavior)
                 ))
                 .domainNames(List.of(props.domainName()))
                 .certificate(certificate)
@@ -222,7 +244,12 @@ public class CloudFrontStack {
                 .sources(List.of(Source.asset(frontendCode.getPath(), AssetOptions.builder()
                         .assetHash(Utils.calculateHashCode(frontendCode))
                         .exclude(List.of("mockServiceWorker.js", "csp-hashes.json"))
-                        .build())))
+                        .build()),
+                        // Fetched by the app before it configures Amplify, see frontend2/src/lib/env.ts.
+                        Source.jsonData("config.json", Map.of(
+                                "cognitoUserPoolId", props.userPool().getUserPoolId(),
+                                "cognitoClientId", props.userPoolClient().getUserPoolClientId()
+                        ))))
                 .destinationBucket(frontendCodeS3)
                 .distribution(distribution) // invalidate distribution
                 .distributionPaths(List.of("/*"))
@@ -244,7 +271,7 @@ public class CloudFrontStack {
 
         ARecord.Builder.create(scope, "domain-record")
                 .zone(props.hostedZone())
-                .recordName("indigo-eln-dev.test.lifescience.opensource.epam.com.")
+                .recordName(props.domainName + '.')
                 .target(RecordTarget.fromAlias(new CloudFrontTarget(distribution)))
                 .build();
     }
@@ -370,10 +397,13 @@ public class CloudFrontStack {
     }
 
     public record Props(
+            String envName,
             IHostedZone hostedZone,
             Instance instance,
             String domainName,
-            IStringParameter apiSecret
+            IStringParameter apiSecret,
+            IUserPool userPool,
+            IUserPoolClient userPoolClient
     ) {
     }
 }

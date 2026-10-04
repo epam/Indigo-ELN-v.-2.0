@@ -24,14 +24,14 @@ Independent of `indigo-frontend/` (Angular); no shared code.
 ```bash
 nvm use            # Node 24.20.0 (.nvmrc)
 pnpm install
-cp .env.example .env.local
 pnpm run dev       # http://localhost:5173
 ```
 
 `pnpm run dev` proxies `/api` to the shared dev backend at
 `indigo-eln-dev.test.lifescience.opensource.epam.com`. That must stay the CloudFront domain rather
 than the API Gateway URL, because CloudFront injects the `X-API-Secret` header the API origin
-expects. Sign in with a Cognito user from the pool in `.env.example`.
+expects. `/config.json`, which names the Cognito pool, is proxied from the same host, so sign in
+with a user from the dev environment's pool.
 
 ## Scripts
 
