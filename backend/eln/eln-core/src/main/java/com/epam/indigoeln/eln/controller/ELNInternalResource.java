@@ -2,7 +2,6 @@ package com.epam.indigoeln.eln.controller;
 
 
 import com.epam.indigoeln.common.model.DocumentStatus;
-import com.epam.indigoeln.common.model.UploadForm;
 import com.epam.indigoeln.eln.api.ELNInternalAPI;
 import com.epam.indigoeln.eln.service.ExperimentWorkflowService;
 import jakarta.inject.Inject;
@@ -19,7 +18,7 @@ public class ELNInternalResource implements ELNInternalAPI {
     ExperimentWorkflowService experimentWorkflowService;
 
     @Override
-    public void internalSignatureUpdated(UUID documentId, String message, DocumentStatus documentStatus, UploadForm form) {
-        experimentWorkflowService.signatureUpdated(documentId, message, documentStatus, form.getUpload());
+    public void internalSignatureUpdated(UUID sourceId, String message, DocumentStatus documentStatus) {
+        experimentWorkflowService.signatureUpdated(sourceId, message, documentStatus);
     }
 }

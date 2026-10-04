@@ -179,14 +179,6 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments<Expe
     @Nullable
     private Integer version;
 
-    @Nullable
-    private String signatureNumber;
-
-    @Nullable
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "signature_attachment_id")
-    private ExperimentAttachment signatureAttachment;
-
     @NotNull
     @OneToMany(mappedBy = "experiment", cascade = CascadeType.ALL, orphanRemoval = true)
     @MapKeyJoinColumn(name = "user_id")

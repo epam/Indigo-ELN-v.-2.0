@@ -17,6 +17,7 @@ import java.sql.Types;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -27,6 +28,9 @@ public class DocumentEntity extends IdentifiableEntity {
 
     @NotEmpty
     private String name;
+
+    @NotNull
+    private UUID sourceId;
 
     @NotNull
     @ManyToOne

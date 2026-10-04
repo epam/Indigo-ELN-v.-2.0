@@ -122,12 +122,6 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
                 .getSingleResult();
     }
 
-    public ExperimentEntity findBySignatureNumber(String signatureNumber) {
-        return (ExperimentEntity) em.createQuery("from Experiment where signatureNumber = :signatureNumber")
-                .setParameter("signatureNumber", signatureNumber)
-                .getSingleResult();
-    }
-
     public List<ExperimentDTO> findMarked(boolean showAll) {
         TypedQuery<ExperimentEntity> query = !showAll
                 ? em.createQuery("from Experiment e where e.markedOrNull and currentAccessOrNull is not null order by name", ExperimentEntity.class)

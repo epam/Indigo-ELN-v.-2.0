@@ -284,7 +284,6 @@ export interface SignatureUpdated {
   message: string;
   /** Mirrors `DocumentStatus` — the signing workflow's own states, not `ExperimentStatus`. */
   documentStatus: DocumentStatus;
-  attachmentID: UUID;
 }
 
 /** Snapshots the experiment into its version history. */

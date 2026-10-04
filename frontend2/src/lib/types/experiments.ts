@@ -239,5 +239,4 @@ export interface ExperimentDetails extends BaseExperiment {
   projectName: string;
   notebookId: UUID;
   notebookName: string;
-  signatureNumber?: string;
 }

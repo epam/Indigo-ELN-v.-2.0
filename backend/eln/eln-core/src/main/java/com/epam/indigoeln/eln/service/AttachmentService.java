@@ -40,7 +40,6 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.UUID;
 
-import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
 import static com.epam.indigoeln.common.util.ContentDispositionUtil.generateContentDisposition;
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 
@@ -203,9 +202,6 @@ public class AttachmentService {
         aclService.ensureAccess(experiment, ApplicationPermission.EDIT_EXPERIMENTS);
         ExperimentAttachment attachment = experimentAttachmentRepository.get(attachmentId);
         ensureCorrectParent(attachment, experiment);
-        ExperimentAttachment signatureAttachment = experiment.getSignatureAttachment();
-        validate(signatureAttachment == null || !signatureAttachment.getId().equals(attachment.getId()),
-                "Cannot delete the attachment submitted for signature");
         experimentModelService.applyMutation(experiment, new ExperimentMutation.DeleteExperimentAttachment(attachment.getId()));
     }
 

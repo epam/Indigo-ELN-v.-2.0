@@ -1,6 +1,8 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.model.DocumentStatus;
+import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.ELNBaseTest;
@@ -31,9 +33,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.List;
 import java.util.UUID;
 
@@ -47,7 +47,6 @@ import static com.epam.indigoeln.eln.model.ExperimentStatus.REOPEN;
 import static com.epam.indigoeln.eln.model.ExperimentStatus.SIGNING;
 import static com.epam.indigoeln.eln.model.ExperimentStatus.SUBMITTED;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
@@ -65,9 +64,6 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
     UUID noSignersTemplateID;
     UUID oneSignerTemplateID;
     UUID twoSignersTemplateID;
-    UUID documentID;
-
-    File mockFile;
 
     @BeforeAll
     @SneakyThrows
@@ -100,8 +96,6 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
                     new SignatureTemplateDTO(oneSignerTemplateID, "ExperimentWorkflowServiceTest-oneSigner"),
                     new SignatureTemplateDTO(twoSignersTemplateID, "ExperimentWorkflowServiceTest-twoSigners")
             )).when(signatureClient).getTemplates();
-            mockFile = new File(new File("build"), "updated.txt");
-            Files.write(mockFile.toPath(), "updatedcontent".getBytes());
         }
 
         project = projectClient.createProject(new ProjectRequest("ExperimentWorkflowServiceTest" + UUID.randomUUID()));
@@ -112,12 +106,12 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
     void setUp() {
         experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         if (!integrationTest) {
-            documentID = UUID.randomUUID();
             DocumentDTO document = new DocumentDTO();
-            document.setId(documentID);
+            document.setId(UUID.randomUUID());
+            document.setSourceId(experiment.getId());
             document.setStatus(DocumentStatus.SUBMITTED);
             document.setAuthor(new UserRef(JOHN_USERNAME, JOHN_DISPLAY_NAME));
-            doReturn(document).when(signatureClient).uploadDocumentClient(any(), any(), any());
+            doReturn(document).when(signatureClient).uploadDocumentClient(any(), any(), any(), any());
         }
     }
 
@@ -204,7 +198,6 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
         experiment = experimentClient.submitExperiment(experiment.getId(), noSignersTemplateID);
         simulateSignatureUpdate("no signing required", DocumentStatus.SIGNED);
         assertThat(experiment.getStatus()).isEqualTo(ARCHIVED);
-        assertThat(experiment.getSignatureNumber()).isNotNull();
     }
 
     @Test
@@ -212,7 +205,6 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
         experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), noSignersTemplateID);
         simulateSignatureUpdate("no signing required", DocumentStatus.SIGNED);
         assertThat(experiment.getStatus()).isEqualTo(ARCHIVED);
-        assertThat(experiment.getSignatureNumber()).isNotNull();
     }
 
     @Test
@@ -232,6 +224,7 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
                 tuple(BART_USERNAME, SignatureReason.WITNESS, SignatureStatus.APPROVED)
         );
         assertThat(experiment.getStatus()).isEqualTo(ARCHIVED);
+        assertThat(experiment.getAttachments()).isEmpty();
     }
 
     @Test
@@ -316,7 +309,7 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
 
     private void approveDocument(String username, DocumentStatus simulatedStatus) {
         if (integrationTest) {
-            UUID documentId = UUID.fromString(checkNotNull(experiment.getSignatureNumber()));
+            UUID documentId = findDocument().getId();
             // keystore.p12 comes from signature-core's test jar, which only integration tests have on the classpath
             useTempFile("keystore.p12", ModelUtil.loadResource("/keystore.p12"), keystore ->
                     withUser(username, () -> signatureClient.signDocument(documentId, new SignForm(keystore, "1234"))));
@@ -331,7 +324,7 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
 
     private void rejectDocument(String username) {
         if (integrationTest) {
-            UUID documentId = UUID.fromString(checkNotNull(experiment.getSignatureNumber()));
+            UUID documentId = findDocument().getId();
             withUser(username, () -> signatureClient.rejectDocument(documentId));
             this.experiment = experimentClient.getExperiment(experiment.getId());
         } else {
@@ -341,15 +334,21 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
 
     private void simulateSignatureUpdate(String message, DocumentStatus updatedStatus) {
         if (!integrationTest) {
-            elnInternalClient.internalSignatureUpdatedClient(documentID, "SIMULATED " + message, updatedStatus, mockFile);
+            elnInternalClient.internalSignatureUpdated(experiment.getId(), "SIMULATED " + message, updatedStatus);
         }
         experiment = experimentClient.getExperiment(experiment.getId());
     }
 
+    private DocumentDTO findDocument() {
+        return signatureClient.getDocuments(null, SortOrder.LATEST, null, Paging.DEFAULT).getItems().stream()
+                .filter(document -> document.getSourceId().equals(experiment.getId()))
+                .findFirst()
+                .orElseThrow();
+    }
+
     private void verifySignature(Tuple... tuples) {
         if (integrationTest) {
-            DocumentDTO document = signatureClient.getDocument(UUID.fromString(checkNotNull(experiment.getSignatureNumber())));
-            assertThat(document.getSignatures())
+            assertThat(findDocument().getSignatures())
                     .map(x -> x.getUser().getUsername(), DocumentSignatureDTO::getReason, DocumentSignatureDTO::getStatus)
                     .containsExactly(tuples);
         }

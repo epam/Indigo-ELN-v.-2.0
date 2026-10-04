@@ -57,6 +57,7 @@ class SignatureServiceTest extends BaseTest {
 
     UUID templateID;
     UUID documentID;
+    UUID sourceID = UUID.randomUUID();
 
     UserRef johnUserRef;
     UserRef willowUserRef;
@@ -71,7 +72,7 @@ class SignatureServiceTest extends BaseTest {
             elnInternalClient = buildClient(ELNInternalClient.class);
         } else {
             elnInternalClient = mock(ELNInternalClient.class);
-            doNothing().when(elnInternalClient).internalSignatureUpdatedClient(any(), any(), any(), any());
+            doNothing().when(elnInternalClient).internalSignatureUpdated(any(), any(), any());
         }
 
         johnUserRef = signatureAdminClient.getOrCreateUser("john", "John", "Doe");
@@ -128,9 +129,10 @@ class SignatureServiceTest extends BaseTest {
         assumeThat(templateID).isNotNull();
         Path file = tempDir.resolve("document.pdf");
         Files.write(file, ModelUtil.loadResource("/document.pdf"));
-        DocumentDTO document = signatureClient.uploadDocumentClient("document.pdf", templateID, file.toFile());
+        DocumentDTO document = signatureClient.uploadDocumentClient("document.pdf", templateID, sourceID, file.toFile());
         documentID = document.getId();
         assertThat(document.getId()).isNotNull();
+        assertThat(document.getSourceId()).isEqualTo(sourceID);
         assertThat(document.getName()).isEqualTo("document.pdf");
         assertThat(document.getStatus()).isEqualTo(DocumentStatus.SUBMITTED);
         assertThat(document.getCreatedDate()).isNotNull();
@@ -221,6 +223,17 @@ class SignatureServiceTest extends BaseTest {
     }
 
     @Test
+    @Order(410)
+    void testSignRejectedDocument(@TempDir Path tempDir) throws Exception {
+        Path keystore = tempDir.resolve("keystore.p12");
+        Files.write(keystore, ModelUtil.loadResource("/keystore.p12"));
+        assertThatThrownBy(() -> signatureClient.signDocument(documentID, new SignForm(keystore.toFile(), "1234")))
+                .isInstanceOfSatisfying(APICallException.class, e -> {
+                    assertThat(e.getStatusCode()).isEqualTo(400);
+                });
+    }
+
+    @Test
     @Order(500)
     void testGetDocuments() {
         Page<DocumentDTO> documents = signatureClient.getDocuments(null, SortOrder.EARLIEST, null, Paging.DEFAULT);
@@ -240,5 +253,23 @@ class SignatureServiceTest extends BaseTest {
                 fos.write(content.readEntity(byte[].class));
             }
         }
+    }
+
+    @Test
+    @Order(700)
+    void testUploadCancelsActiveDocumentOfSameSource(@TempDir Path tempDir) throws Exception {
+        assumeThat(templateID).isNotNull();
+        Path file = tempDir.resolve("document.pdf");
+        Files.write(file, ModelUtil.loadResource("/document.pdf"));
+        UUID resubmittedSourceID = UUID.randomUUID();
+        DocumentDTO first = signatureClient.uploadDocumentClient("first.pdf", templateID, resubmittedSourceID, file.toFile());
+        DocumentDTO second = signatureClient.uploadDocumentClient("second.pdf", templateID, resubmittedSourceID, file.toFile());
+
+        assertThat(signatureClient.getDocument(first.getId()).getStatus()).isEqualTo(DocumentStatus.CANCELLED);
+        assertThat(signatureClient.getDocument(second.getId()).getStatus()).isEqualTo(DocumentStatus.SUBMITTED);
+        assertThatThrownBy(() -> signatureClient.rejectDocument(first.getId()))
+                .isInstanceOfSatisfying(APICallException.class, e -> {
+                    assertThat(e.getStatusCode()).isEqualTo(400);
+                });
     }
 }

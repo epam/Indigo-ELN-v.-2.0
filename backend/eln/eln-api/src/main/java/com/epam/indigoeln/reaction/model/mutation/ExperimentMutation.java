@@ -145,8 +145,7 @@ public interface ExperimentMutation extends Mutation {
 
     record SignatureUpdated(
             @NotNull String message,
-            @NotNull DocumentStatus documentStatus,
-            @NotNull UUID attachmentID
+            @NotNull DocumentStatus documentStatus
     ) implements ExperimentMutation {
 
         @Override

@@ -44,7 +44,7 @@ public interface SignatureAPI {
     @POST
     @Path("/documents/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    DocumentDTO uploadDocument(@QueryParam("name") String name, @QueryParam("templateId") UUID templateId, UploadForm form);
+    DocumentDTO uploadDocument(@QueryParam("name") String name, @QueryParam("templateId") UUID templateId, @NotNull @QueryParam("sourceId") UUID sourceId, UploadForm form);
 
     @GET
     @Path("/documents")

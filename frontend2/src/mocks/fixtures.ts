@@ -1198,6 +1198,7 @@ export function makeSignatureDocument(overrides: Partial<SignatureDocument> = {}
   return {
     id: '66666666-6666-4666-8666-000000000001',
     name: '09876543-0002, version 6',
+    sourceId: '66666666-6666-4666-8666-0000000000e1',
     status: 'SIGNING',
     createdDate: '2026-08-24T09:15:00Z',
     lastModifiedDate: '2026-08-24T14:02:00Z',

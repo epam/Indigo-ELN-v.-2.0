@@ -38,11 +38,11 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.epam.indigoeln.common.model.DocumentStatus.CANCELLED;
 import static com.epam.indigoeln.common.model.DocumentStatus.REJECTED;
 import static com.epam.indigoeln.common.model.DocumentStatus.SIGNED;
 import static com.epam.indigoeln.common.model.DocumentStatus.SIGNING;
 import static com.epam.indigoeln.common.model.DocumentStatus.SUBMITTED;
-import static com.epam.indigoeln.common.util.ModelUtil.useTempFile;
 import static com.epam.indigoeln.signature.model.SignatureStatus.WAITING;
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -78,10 +78,12 @@ public class SignatureService {
     }
 
     @SneakyThrows
-    public DocumentDTO createDocument(UUID templateID, String name, FileUpload file) {
+    public DocumentDTO createDocument(UUID templateID, String name, UUID sourceId, FileUpload file) {
         SignatureTemplateEntity template = em.find(SignatureTemplateEntity.class, templateID);
+        cancelActiveDocuments(sourceId);
         DocumentEntity document = new DocumentEntity();
         document.setName(name);
+        document.setSourceId(sourceId);
         document.setTemplate(template);
         document.setAuthor(userService.getCurrentUser());
         document.setStatus(SUBMITTED);
@@ -114,6 +116,17 @@ public class SignatureService {
         return mapper.entityToDocument(document);
     }
 
+    private void cancelActiveDocuments(UUID sourceId) {
+        em.createQuery("from Document where sourceId = :sourceId and status in (:statuses)", DocumentEntity.class)
+                .setParameter("sourceId", sourceId)
+                .setParameter("statuses", List.of(SUBMITTED, SIGNING))
+                .getResultList()
+                .forEach(document -> {
+                    document.setStatus(CANCELLED);
+                    document.setLastModifiedDate(Instant.now());
+                });
+    }
+
     public Page<DocumentDTO> getDocuments(@Nullable String search, @Nullable SortOrder sort, @Nullable Boolean waitingMySignature, Paging paging) {
         return documentRepository.findAll(search, sort, waitingMySignature == Boolean.TRUE ? userService.getCurrentUser() : null, paging);
     }
@@ -138,6 +151,9 @@ public class SignatureService {
     private DocumentDTO signOrRejectDocument(UUID documentId, byte @Nullable [] keyStore, @Nullable String keyStorePassword) {
         boolean reject = keyStore == null;
         DocumentEntity document = em.find(DocumentEntity.class, documentId);
+        if (document.getStatus() != SUBMITTED && document.getStatus() != SIGNING) {
+            throw new InvalidRequestException("Document is not available for signing");
+        }
         boolean found = false;
         String message = null;
         for (DocumentSignatureEntity block : document.getSignatures()) {
@@ -161,16 +177,13 @@ public class SignatureService {
             throw new InvalidRequestException("Document doesn't require signature by current user");
         }
         updateDocumentStatus(document);
-        String message1 = message;
-        return useTempFile(document.getFilename(), document.getContent(), file -> {
-            try {
-                elnInternalClient.internalSignatureUpdatedClient(document.getId(), message1, document.getStatus(), file);
-            } catch (Exception e) {
-                log.warn("Error notifying ELN on document status change", e);
-            }
-            document.setLastModifiedDate(Instant.now());
-            return mapper.entityToDocument(document);
-        });
+        try {
+            elnInternalClient.internalSignatureUpdated(document.getSourceId(), message, document.getStatus());
+        } catch (Exception e) {
+            log.warn("Error notifying ELN on document status change", e);
+        }
+        document.setLastModifiedDate(Instant.now());
+        return mapper.entityToDocument(document);
     }
 
     private void updateDocumentStatus(DocumentEntity document) {

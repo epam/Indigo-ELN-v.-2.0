@@ -1,0 +1,5 @@
+ALTER TABLE Document ADD COLUMN source_id UUID NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000';
+ALTER TABLE Document ALTER COLUMN source_id DROP DEFAULT;
+CREATE INDEX ix_document_source_id ON Document (source_id);
+
+UPDATE Document SET status = 'CANCELLED';
