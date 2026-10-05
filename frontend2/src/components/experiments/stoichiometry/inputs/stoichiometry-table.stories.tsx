@@ -207,7 +207,7 @@ export const ReadOnlyCompleted: Story = {
 };
 
 /**
- * Rxn Role is a `Select`, not a `Combobox`: four fixed values and `@NotNull` on the record, so
+ * Rxn Role is a `Select`, not a combobox: four fixed values and `@NotNull` on the record, so
  * there is nothing to type into and nothing to clear. Picking one sends `SetInputRowRole`.
  */
 export const PicksRxnRole: Story = {
@@ -296,7 +296,7 @@ export const CompoundTotalsAreReadOnly: Story = {
 };
 
 /**
- * **Every control in a cell reads at the table's own size.** The shared `Combobox` and `Select`
+ * **Every control in a cell reads at the table's own size.** The shared `MultiCombobox` and `Select`
  * default to the 14px a form wants; in a 13px table that is visibly a size larger than the text
  * beside it, and swapping a cell into edit mode used to change the type size under the cursor.
  * The stoichiometry cells opt into `size="sm"`.

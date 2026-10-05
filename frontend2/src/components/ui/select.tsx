@@ -152,17 +152,15 @@ type SelectProps<T> = SelectBaseProps<T> & (SingleSelectProps<T> | MultiSelectPr
 /**
  * A closed list of choices: click to open, pick one, done.
  *
- * **Deliberately not `Combobox`**, which it deliberately resembles. A combobox offers three
- * things a fixed enum does not want — a text input to filter with, a ✕ to clear the selection,
- * and an empty state for "nothing matched what you typed". Offering them where the option list
- * is four items long and the field is `@NotNull` invites a user to type into something that
- * cannot take free text, and to clear a value the backend will not accept as absent.
+ * **Deliberately not a combobox**, which it deliberately resembles. A combobox offers three
+ * things a closed list does not want — a text input to filter with, a ✕ to clear the selection,
+ * and an empty state for "nothing matched what you typed". Offering them where the field is
+ * `@NotNull` invites a user to type into something that cannot take free text, and to clear a
+ * value the backend will not accept as absent.
  *
  * So the trigger is a button rather than an input. An optional field sets `emptyLabel`, which
  * puts "clear this" in the list where every other choice already is; a required one leaves it off
  * and can then treat `null` as unreachable.
- *
- * Reach for `Combobox` instead when the list is long enough to want filtering.
  */
 function Select<T>(props: SelectProps<T>) {
   const {
@@ -247,7 +245,7 @@ function Select<T>(props: SelectProps<T>) {
           multiple ? SIZE_CHIPS_BOX[size] : SIZE_BOX[size],
           SIZE_TEXT[size],
           // The trigger is a disabled element in its own right, so this stays a pseudo-variant
-          // rather than `INPUT_DISABLED`. Same treatment as Input's and Combobox's, so a row of
+          // rather than `INPUT_DISABLED`. Same treatment as Input's and MultiCombobox's, so a row of
           // mixed controls reads as one thing.
           'disabled:cursor-not-allowed disabled:opacity-50',
           cell && CELL_TRIGGER,

@@ -7,7 +7,7 @@ import { REACTION_ROLE_LABELS } from '@/lib/types/reactions.ts';
 /**
  * The reaction-role picker: four values from a fixed enum, and `@NotNull` on the record.
  *
- * A `Select`, not a `Combobox`. The combobox's three affordances are all wrong here — its text
+ * A `Select`, not a combobox. A combobox's three affordances are all wrong here — its text
  * input invites typing into a field that only accepts four exact values, its ✕ offers to clear
  * one the backend will reject as absent, and its "no matches" state answers a question that
  * cannot be asked. Four options need no filtering.

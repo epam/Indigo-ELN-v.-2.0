@@ -9,8 +9,8 @@ import {
 } from '@/components/search/global-search-form';
 import { NumericSearchField } from '@/components/ui/search/numeric-search-field';
 import { Collapsible, CollapsiblePanel, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Combobox } from '@/components/ui/combobox';
 import { Field } from '@/components/ui/field';
+import { Select } from '@/components/ui/select';
 import type { ExperimentStatus } from '@/lib/types/experiments.ts';
 import { EXPERIMENT_STATUS_LABELS, EXPERIMENT_STATUSES } from '@/lib/types/experiments.ts';
 import type { ReactionRole } from '@/lib/types/search.ts';
@@ -109,22 +109,27 @@ function AdvancedSearch({ values, onChange, open, onOpenChange }: AdvancedSearch
           </Field>
 
           <Field id="search-experiment-status" label="Experiment Status">
-            <Combobox<ExperimentStatus>
+            <Select<ExperimentStatus>
               id="search-experiment-status"
               value={values.experimentStatus}
               onValueChange={(experimentStatus) => onChange({ experimentStatus })}
               items={[...EXPERIMENT_STATUSES]}
+              itemToKey={(status) => status}
               itemToLabel={(status) => EXPERIMENT_STATUS_LABELS[status]}
+              // A filter is optional: a blank row, a no-break space tall, puts it back to none.
+              emptyLabel={'\u00A0'}
             />
           </Field>
           {showReactionRole(values) && (
             <Field id="search-reaction-role" label="Reaction Role">
-              <Combobox<ReactionRole>
+              <Select<ReactionRole>
                 id="search-reaction-role"
                 value={values.reactionRole}
                 onValueChange={(reactionRole) => onChange({ reactionRole })}
                 items={[...REACTION_ROLES]}
+                itemToKey={(role) => role}
                 itemToLabel={(role) => REACTION_ROLE_LABELS[role]}
+                emptyLabel={'\u00A0'}
               />
             </Field>
           )}

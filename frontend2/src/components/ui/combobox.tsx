@@ -96,8 +96,7 @@ interface PopupContentProps<T> {
 }
 
 /**
- * The shared popup: status region, empty region, list. Both comboboxes render exactly
- * this, so the live-region rules below only have to be got right once.
+ * The popup: status region, empty region, list.
  */
 function PopupContent<T>({
   items,
@@ -165,133 +164,6 @@ function PopupContent<T>({
         </ComboboxPrimitive.Popup>
       </ComboboxPrimitive.Positioner>
     </ComboboxPrimitive.Portal>
-  );
-}
-
-interface ComboboxProps<T> {
-  /** The chosen item, or null. Never null from `onValueChange` when not `clearable`. */
-  value: T | null;
-  onValueChange: (value: T | null) => void;
-  /** The full set to choose from — filtering is Base UI's, against `itemToLabel`. */
-  items: T[];
-  /** Identity of an item, for React keys. Defaults to the item stringified. */
-  itemToKey?: (item: T) => string;
-  /** What the item reads as, in the list and in the input. Defaults to the item stringified. */
-  itemToLabel?: (item: T) => string;
-  placeholder?: string;
-  id?: string;
-  /**
-   * Names the control where no visible `<label>` does — a combobox sitting in a table cell,
-   * whose column header is not associated with it. `MultiCombobox` has always taken one;
-   * prefer `id` plus a `Field` wherever there is a label to point at.
-   */
-  'aria-label'?: string;
-  /** Shown in the popup when nothing matches what was typed. */
-  emptyMessage?: string;
-  /** Whether the item list is still on its way. */
-  loading?: boolean;
-  /** Whether fetching the item list failed, so the popup is empty for a reason worth saying. */
-  error?: boolean;
-  /** Renders the current selection but accepts no interaction — a reader who cannot edit. */
-  disabled?: boolean;
-  /** Text size of the control and its popup. `sm` matches a dense table's 13px. */
-  size?: ComboboxSize;
-  /** Whether the ✕ is offered. Off for a required field, which can be changed but not emptied. */
-  clearable?: boolean;
-}
-
-/**
- * A single-select combobox: click to open the whole list, type to narrow it, ✕ to clear.
- *
- * Filtering is Base UI's own, i.e. client-side over `items` — the call sites here hold a
- * whole dictionary or a fixed enum in memory, so there is nothing to ask the server.
- * `MultiCombobox` below is the opposite case and turns that filter off.
- */
-function Combobox<T>({
-  value,
-  onValueChange,
-  items,
-  itemToKey = identity,
-  itemToLabel = identity,
-  placeholder,
-  id,
-  'aria-label': ariaLabel,
-  emptyMessage = 'No matches',
-  loading = false,
-  error = false,
-  disabled = false,
-  size = 'md',
-  clearable = true,
-}: ComboboxProps<T>) {
-  const statusContent = loading ? 'Searching…' : error ? 'Could not load options' : null;
-  // "No matches" is a claim about a finished search, so it survives neither a list still
-  // loading nor one that failed to load at all.
-  const emptyContent = loading || error ? null : emptyMessage;
-
-  return (
-    <ComboboxPrimitive.Root<T, false>
-      disabled={disabled}
-      items={items}
-      value={value}
-      onValueChange={(next) => {
-        if (clearable || next != null) onValueChange(next);
-      }}
-      itemToStringLabel={itemToLabel}
-      // Object items are not referentially equal across refetches, so identity has to be
-      // spelled out or a selected value stops matching its own row in the list.
-      isItemEqualToValue={(a, b) => itemToKey(a) === itemToKey(b)}
-    >
-      <div
-        className={cn(
-          INPUT_BOX,
-          INPUT_BOX_FOCUS_WITHIN,
-          'flex h-10 items-center gap-1 pr-1 pl-3',
-          // Matches Input's disabled treatment, so a form of mixed controls reads as one thing.
-          disabled && INPUT_DISABLED,
-        )}
-      >
-        <ComboboxPrimitive.Input
-          id={id}
-          aria-label={ariaLabel}
-          placeholder={placeholder}
-          className={cn(
-            'min-w-0 flex-1 bg-transparent text-neutral-1000 outline-none placeholder:text-neutral-700',
-            SIZE_TEXT[size],
-          )}
-        />
-        {/* Base UI mounts this only while there is something to clear. */}
-        {clearable && (
-          <ComboboxPrimitive.Clear aria-label="Clear selection" className={INPUT_ACTION}>
-            <X className="size-4" />
-          </ComboboxPrimitive.Clear>
-        )}
-        {/*
-          The chevron stays put while suggestions load. A spinner at the right edge of a field
-          means **this field is being saved** — that is what `SavingOverlay` puts there — so
-          borrowing the same spot for a lookup would say the wrong thing, and on a form that saves
-          on blur the two would overlap outright. The wait is reported where it belongs: `Searching…`
-          inside the popup, plus `aria-busy` here for anyone not looking at it.
-
-          When a save *is* in flight the chevron gets out of the way instead: `SavingOverlay`
-          publishes `data-saving` on the group around this. `invisible` rather than `hidden`, so
-          the row keeps its width and the spinner lands exactly where the chevron was.
-        */}
-        <ComboboxPrimitive.Trigger aria-label="Show options" aria-busy={loading || undefined} className={INPUT_ACTION}>
-          <ChevronDown className="size-5" />
-        </ComboboxPrimitive.Trigger>
-      </div>
-
-      <PopupContent
-        items={items}
-        itemToKey={itemToKey}
-        itemToLabel={itemToLabel}
-        statusContent={statusContent}
-        emptyContent={emptyContent}
-        error={error}
-        loading={loading}
-        size={size}
-      />
-    </ComboboxPrimitive.Root>
   );
 }
 
@@ -568,8 +440,14 @@ function MultiCombobox<T = string>({
           />
         </div>
         {/*
-          The chevron stays put while suggestions load, and stands aside while the field is being
-          saved — see `Combobox` above for both.
+          The chevron stays put while suggestions load. A spinner at the right edge of a field
+          means **this field is being saved** — that is what `SavingOverlay` puts there — so
+          borrowing the same spot for a lookup would say the wrong thing. The wait is reported
+          inside the popup instead, plus `aria-busy` here.
+
+          When a save *is* in flight the chevron gets out of the way: `SavingOverlay` publishes
+          `data-saving` on the group around this. `invisible` rather than `hidden`, so the row
+          keeps its width and the spinner lands exactly where the chevron was.
         */}
         <ComboboxPrimitive.Trigger
           aria-label="Show suggestions"
@@ -597,4 +475,4 @@ function MultiCombobox<T = string>({
   );
 }
 
-export { Combobox, MultiCombobox };
+export { MultiCombobox };

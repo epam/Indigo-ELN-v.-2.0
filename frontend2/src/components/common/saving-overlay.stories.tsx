@@ -3,8 +3,8 @@ import { expect, screen, waitFor, within } from 'storybook/test';
 
 import { SavingOverlay } from '@/components/common/saving-overlay';
 import { Button } from '@/components/ui/button';
-import { Combobox } from '@/components/ui/combobox';
 import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -63,20 +63,22 @@ export const SavingGroup: Story = {
 };
 
 /**
- * A control whose own trailing edge would collide with the spinner stands aside: the combobox
- * hides its chevron and clear button off `data-saving` on the group this publishes. `invisible`,
+ * A control whose own trailing edge would collide with the spinner stands aside: the select
+ * hides its chevron off `data-saving` on the group this publishes. `invisible`,
  * not `hidden`, so the row keeps its width and the spinner lands where the chevron was.
  */
-export const SavingACombobox: Story = {
+export const SavingASelect: Story = {
   args: {
     pending: true,
     children: (
-      <Combobox<string>
+      <Select<string>
         id="area"
         aria-label="Therapeutic Area"
         value="Oncology"
         onValueChange={() => {}}
         items={['Oncology', 'Cardiology']}
+        itemToKey={(item) => item}
+        itemToLabel={(item) => item}
       />
     ),
   },
@@ -85,7 +87,7 @@ export const SavingACombobox: Story = {
     await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Saving…'));
 
     // Present for layout, but not competing with the spinner for the same corner.
-    const chevron = canvas.getByLabelText('Show options');
+    const chevron = canvas.getByLabelText('Therapeutic Area').querySelector('svg')!;
     await expect(chevron).toBeInTheDocument();
     await expect(chevron).not.toBeVisible();
   },
