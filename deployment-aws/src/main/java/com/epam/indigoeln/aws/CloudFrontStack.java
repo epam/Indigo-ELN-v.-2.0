@@ -7,7 +7,6 @@ import lombok.SneakyThrows;
 import org.jspecify.annotations.Nullable;
 import software.amazon.awscdk.Duration;
 import software.amazon.awscdk.Size;
-import software.amazon.awscdk.services.ec2.Instance;
 import software.amazon.awscdk.services.certificatemanager.Certificate;
 import software.amazon.awscdk.services.certificatemanager.CertificateValidation;
 import software.amazon.awscdk.services.cloudfront.AllowedMethods;
@@ -98,8 +97,17 @@ public class CloudFrontStack {
         // not accept a self-signed origin certificate, so avoiding this hop being unencrypted would
         // mean putting an ALB in front. X-API-Secret is what proves to the services that a request
         // arrived through the CDN; nginx passes it through rather than injecting its own.
+        //
+        // A CloudFront origin has to be a domain name, so the instance's Elastic IP gets one.
+        String originDomainName = "origin." + props.domainName;
+        ARecord.Builder.create(scope, "origin-domain-record")
+                .zone(props.hostedZone())
+                .recordName(originDomainName + '.')
+                .target(RecordTarget.fromIpAddresses(props.instanceIp()))
+                .build();
+
         BehaviorOptions apiBehavior = BehaviorOptions.builder()
-                .origin(HttpOrigin.Builder.create(props.instance().getInstancePublicDnsName())
+                .origin(HttpOrigin.Builder.create(originDomainName)
                         .protocolPolicy(OriginProtocolPolicy.HTTP_ONLY)
                         .httpPort(80)
                         .customHeaders(mapOf("X-API-Secret", props.apiSecret().getStringValue()))
@@ -399,7 +407,7 @@ public class CloudFrontStack {
     public record Props(
             String envName,
             IHostedZone hostedZone,
-            Instance instance,
+            String instanceIp,
             String domainName,
             IStringParameter apiSecret,
             IUserPool userPool,

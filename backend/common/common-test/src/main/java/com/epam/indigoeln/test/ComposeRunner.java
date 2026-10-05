@@ -68,7 +68,6 @@ public class ComposeRunner {
 
     public void stop() {
         if (stopped.compareAndSet(false, true)) {
-            stopped.set(true);
             log.info("Stopping Docker Compose");
             container.stop();
             log.info("Docker Compose Stopped");

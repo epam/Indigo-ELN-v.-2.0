@@ -18,6 +18,7 @@ import com.epam.indigoeln.sampleregistration.repository.SRSSampleRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.jpa.AvailableHints;
@@ -144,6 +145,7 @@ public class SampleRegistrationService {
     }
 
     private STRCodeSample generateStrCode(SRSCompoundEntity compound) {
+        em.lock(compound, LockModeType.PESSIMISTIC_WRITE); // serializes sample code generation per compound
         STRCodeSample lastSampleStrCode = sampleRepository.getLastSampleStrCode(compound.getStrCode().toString());
         int sampleStrCode = lastSampleStrCode != null
                 ? lastSampleStrCode.getSampleCode() + 1

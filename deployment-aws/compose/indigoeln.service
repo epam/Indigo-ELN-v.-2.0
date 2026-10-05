@@ -14,7 +14,7 @@ RequiresMountsFor=/data/postgres
 Type=oneshot
 RemainAfterExit=yes
 EnvironmentFile=/opt/indigoeln/deploy.conf
-ExecStart=/opt/indigoeln/deploy.sh
+ExecStart=/bin/bash /opt/indigoeln/deploy.sh
 TimeoutStartSec=600
 
 [Install]

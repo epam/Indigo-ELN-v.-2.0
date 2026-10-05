@@ -153,6 +153,27 @@ class SampleRegistrationServiceTest extends BaseTest {
         assertThat(sampleRegistrationClient.find(request, Paging.DEFAULT).getItems()).isNotEmpty();
     }
 
+    @Test
+    @Order(400)
+    void testRegisterSampleBeyond999() throws SQLException {
+        try (Connection connection = databasePool.get().getConnection(); Statement statement = connection.createStatement()) {
+            statement.executeUpdate("update SRS_Sample set str_code = 'STR-00000001-05-999' where str_code = 'STR-00000001-05-001'");
+        }
+        SampleRegistrationRequest request = SampleRegistrationRequest.builder()
+                .molfile(molfile)
+                .stereoisomerCode(stereoisomerCode)
+                .saltCode(saltCode)
+                .saltCodeNumeric(5)
+                .saltEQ100(200)
+                .nbkBatchNumber(NbkBatchNumber.parse("12345678-1234-006"))
+                .molWeight(100.0)
+                .exactMass(150.0)
+                .build();
+        assertThat(sampleRegistrationClient.registerSample(request).strCode()).hasToString("STR-00000001-05-1000");
+        // 999 sorts after 1000 as a string, so this one fails unless the last code is found numerically
+        assertThat(sampleRegistrationClient.registerSample(request).strCode()).hasToString("STR-00000001-05-1001");
+    }
+
     @SuppressWarnings("SqlWithoutWhere")
     private void cleanupDatabase() {
         try (Connection connection = databasePool.get().getConnection()) {

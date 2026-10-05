@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 @Value
 public class STRCodeSample {
 
-    private static final Pattern PATTERN = Pattern.compile("STR-(\\d{8})-(\\d{2})-(\\d{3})");
+    private static final Pattern PATTERN = Pattern.compile("STR-(\\d{8})-(\\d{2})-(\\d{3,})");
 
     int compoundCode;
     int saltCode;

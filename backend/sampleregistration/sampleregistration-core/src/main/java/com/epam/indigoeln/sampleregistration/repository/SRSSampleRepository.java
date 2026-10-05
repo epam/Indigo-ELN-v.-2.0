@@ -43,10 +43,10 @@ public class SRSSampleRepository extends BaseRepository<SRSSampleEntity> {
     @Nullable
     public STRCodeSample getLastSampleStrCode(String compoundStrCode) {
         //noinspection unchecked
-        NativeQuery<String> query = (NativeQuery<String>) em.createNativeQuery("select str_code from SRS_Sample where str_code like ?1 order by str_code desc", String.class);
+        NativeQuery<String> query = (NativeQuery<String>) em.createNativeQuery("select str_code from SRS_Sample where str_code like ?1 order by length(str_code) desc, str_code desc", String.class);
         query.unwrap(SynchronizeableQuery.class).addSynchronizedEntityClass(SRSSampleEntity.class);
         return query
-                .setParameter(1, compoundStrCode + '%')
+                .setParameter(1, compoundStrCode + "-%")
                 .setMaxResults(1)
                 .getResultStream()
                 .findFirst()

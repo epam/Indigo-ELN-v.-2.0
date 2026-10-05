@@ -97,11 +97,6 @@ public class CompoundService {
         return findOrCreate(molecule, stereoisomerCode, saltCode, saltEQ100, source, compoundKey, chemicalName);
     }
 
-    @Nullable
-    public CompoundEntity findByCompoundKey(SampleSource source, String key) {
-        return compoundRepository.findByCompoundKey(source, key);
-    }
-
     public CompoundRef compoundRef(CompoundEntity compound) {
         return new CompoundRef(
                 compound.getId(),

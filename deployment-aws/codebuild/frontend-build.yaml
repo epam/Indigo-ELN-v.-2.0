@@ -12,12 +12,13 @@ phases:
       # execution carries on *without* `set -e`, silently disabling error propagation.
       - '[ -n "$BASH_VERSION" ] || { echo "this buildspec needs bash - check env.shell" >&2; exit 1; }'
       - set -eo pipefail
-      - cd indigo-frontend
-      - npm ci
-      - npm run build
-      - npm run test:ci
-      - npm run sonar
+      - cd frontend2
+      # pnpm at the version package.json's `packageManager` pins.
+      - corepack enable
+      - pnpm install --frozen-lockfile
+      - pnpm run build
+      - pnpm run test:unit
 artifacts:
   files:
     - '**/*'
-  base-directory: indigo-frontend/dist/indigo-frontend/browser
+  base-directory: frontend2/dist

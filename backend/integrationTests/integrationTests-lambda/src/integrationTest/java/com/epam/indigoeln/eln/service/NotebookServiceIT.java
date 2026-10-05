@@ -6,5 +6,5 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 @QuarkusIntegrationTest
 @ExtendWith(LambdaIntegrationEnvironmentResource.class)
-public class NotebookServiceIIT extends NotebookServiceTest {
+public class NotebookServiceIT extends NotebookServiceTest {
 }

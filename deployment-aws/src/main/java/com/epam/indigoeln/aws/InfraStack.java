@@ -42,6 +42,8 @@ public class InfraStack {
     @Getter
     private final Instance instance;
     @Getter
+    private final String instanceIp;
+    @Getter
     private final Role ec2Role;
     @Getter
     private final IStringParameter apiSecret;
@@ -168,6 +170,17 @@ public class InfraStack {
                 .instanceId(instance.getInstanceId())
                 .device(DATA_DEVICE)
                 .build();
+
+        // The auto-assigned public address changes on every stop/start, which CloudFormation never
+        // sees - CloudFront would keep sending /api to the old one. An Elastic IP stays put.
+        CfnEIP elasticIp = CfnEIP.Builder.create(scope, "ec2-elastic-ip")
+                .domain("vpc")
+                .build();
+        CfnEIPAssociation.Builder.create(scope, "ec2-elastic-ip-association")
+                .allocationId(elasticIp.getAttrAllocationId())
+                .instanceId(instance.getInstanceId())
+                .build();
+        instanceIp = elasticIp.getAttrPublicIp();
     }
 
     /**

@@ -211,6 +211,17 @@ class ExperimentServiceTest extends ELNBaseTest {
     }
 
     @Test
+    void testEditExperimentNullLinkedExperiments() {
+        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID
+                , "d"
+                , therapeuticAreas.getFirst()
+                , projectCodes.getFirst()
+        ));
+        assertThatClientCall(() -> experimentClient.editExperiment(experiment.getId(), new ExperimentEditRequest().withLinkedExperiments(JsonNullable.of(null))))
+                .isBadRequest("must not be null");
+    }
+
+    @Test
     void testEditExperiment() {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID
                 , "d"

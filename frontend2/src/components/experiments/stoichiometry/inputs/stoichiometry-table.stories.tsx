@@ -236,6 +236,29 @@ export const PicksRxnRole: Story = {
 };
 
 /**
+ * Tabbing into a `cell` select opens its list, and **one more Tab moves on** — a select must not
+ * cost the row two key presses where a number costs one (see `TabOrderWalksTheRow`).
+ */
+export const TabWalksThroughASelectCell: Story = {
+  render: () => <TableFromCache />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const role = (await canvas.findAllByLabelText('Reaction role'))[0];
+
+    // Out and back in, so focus arrives by keyboard from another control — the only entry that opens the list.
+    role.focus();
+    await userEvent.tab({ shift: true });
+    await userEvent.tab();
+    await screen.findByRole('listbox');
+
+    await userEvent.tab();
+    await waitFor(() => expect(screen.queryByRole('listbox')).not.toBeInTheDocument());
+    await expect(role).not.toHaveFocus();
+    await expect(canvasElement).toContainElement(document.activeElement as HTMLElement);
+  },
+};
+
+/**
  * **Provenance colouring**, the thing the table exists to show: where a number came from decides
  * how it looks. `EnteredValue.source` is `'fixed' | 'default' | 'calculated'` **or a number** —
  * the revision a user entered it in — so "typed by a person" is `typeof source === 'number'`,

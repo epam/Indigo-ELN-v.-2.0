@@ -65,7 +65,7 @@ public class MainStack extends Stack {
         new CloudFrontStack(this, new CloudFrontStack.Props(
                 envName,
                 infraStack.getHostedZone(),
-                infraStack.getInstance(),
+                infraStack.getInstanceIp(),
                 props.getDomainName(),
                 infraStack.getApiSecret(),
                 cognitoStack.getUserPool(),

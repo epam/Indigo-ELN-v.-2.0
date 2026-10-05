@@ -42,9 +42,9 @@ public class LambdaIntegrationEnvironmentResource implements BeforeAllCallback {
                     .withAccessToHost(true)
                     .withLogConsumer(new Slf4jLogConsumer(LoggerFactory.getLogger("POSTGRES")))
                     .withStartupTimeout(Duration.ofSeconds(30))
-                    .withUsername("eln")
-                    .withPassword("eln")
-                    .withDatabaseName("eln")
+                    .withUsername("postgres")
+                    .withPassword("postgres")
+                    .withDatabaseName("postgres")
                     .withExposedPorts(5432)
                     .withCreateContainerCmdModifier(cmd -> {
                         cmd.getHostConfig().withPortBindings(

@@ -23,6 +23,8 @@ mkdir -p "$APP_DIR"
 # sync deletes its own configuration on the first run.
 aws s3 sync --delete --exclude deploy.conf --exclude .env \
   "s3://${CONFIG_BUCKET}/${CONFIG_PREFIX}/" "$APP_DIR/"
+# s3 sync does not carry file modes, so a re-downloaded copy of this script arrives non-executable.
+chmod +x "$APP_DIR/deploy.sh"
 
 # .env is assembled from two sources so that no secret is ever embedded in another resource's value:
 # the non-secret settings live in a plain SSM parameter, the password in Secrets Manager.

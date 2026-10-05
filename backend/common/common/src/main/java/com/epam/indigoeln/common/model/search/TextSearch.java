@@ -25,23 +25,23 @@ public sealed interface TextSearch permits TextSearch.WithValue, TextSearch.Betw
     }
 
     record StartsWithSearch(
-            String value
+            @NotNull String value
     ) implements WithValue {
     }
 
     record ContainsSearch(
-            String value
+            @NotNull String value
     ) implements WithValue {
     }
 
     record EndsWithSearch(
-            String value
+            @NotNull String value
     ) implements WithValue {
     }
 
     record BetweenSearch(
-            String from,
-            String to
+            @NotNull String from,
+            @NotNull String to
     ) implements TextSearch {
     }
 }

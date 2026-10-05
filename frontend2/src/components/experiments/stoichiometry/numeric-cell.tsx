@@ -277,8 +277,9 @@ export function NumericCell({
         <label
           className={cn(
             'absolute inset-0 flex items-stretch opacity-0 group-has-[input:focus]/cell:opacity-100',
-            // Editability decides the cursor, not whether the cell has a value.
-            editable ? 'cursor-text' : 'cursor-default',
+            // A read-only cell has nothing to click into, so the overlay steps aside and leaves the
+            // value underneath selectable — it is the only way to copy a number out of the table.
+            editable ? 'cursor-text' : 'pointer-events-none',
           )}
         >
           <input

@@ -335,6 +335,28 @@ public class MutationsTest extends MutationsTestBase {
     }
 
     @Test
+    void testResolveInputsToCompoundOfAnotherRow() {
+        UUID compoundID = UUID.randomUUID();
+        SRSSampleDTO sample1 = new SRSSampleDTO(UUID.randomUUID(), compoundID, defaultSaltCode.getId(), new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 1), "C9H17NO4", BigDecimal.ONE);
+        SRSSampleDTO sample2 = new SRSSampleDTO(UUID.randomUUID(), compoundID, defaultSaltCode.getId(), new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 2), "C9H17NO4", BigDecimal.ONE);
+        doReturn(Page.of(Paging.DEFAULT, 2, List.of(sample1, sample2))).when(sampleRegistrationClient).find(any(), any());
+        SRSCompoundDTO compound = new SRSCompoundDTO("C", defaultStereoisomerCode.getId(), defaultSaltCode.getId(), ModelUtil.loadResourceAsString(RING_SUBSTRUCTURE_MOL));
+        doReturn(compound).when(sampleRegistrationClient).getCompound(any());
+        Page<SampleDTO> samples = compoundClient.search(new FindSamplesRequest().withCatalog(SearchCatalog.SRS), Paging.DEFAULT);
+
+        experiment.mutateSetSchemeFromResource(REACTION_RXN);
+        assertThat(experiment.reaction().getInputs()).hasSize(2);
+        InputAnchor firstAnchor = experiment.input(1).getAnchor();
+        InputAnchor secondAnchor = experiment.input(2).getAnchor();
+
+        experiment.mutate(new ReactionMutation.ResolveInputs(experiment.reaction().getAnchor(), Map.of(firstAnchor, samples.getItems().get(0))));
+        // TODO merge the rows instead, as AddInput does for a compound the reaction already has
+        assertThatClientCall(() -> experiment.mutate(new ReactionMutation.ResolveInputs(experiment.reaction().getAnchor(), Map.of(secondAnchor, samples.getItems().get(1)))))
+                .isBadRequest("Reaction contains duplicate input compounds");
+        assertThat(experiment.reaction().getInputs()).hasSize(2);
+    }
+
+    @Test
     void testSetInputRowSaltCodeMergesRows() {
         experiment.mutateSetSchemeFromResource(SINGLE_INPUT_RXN);
         experiment.mutate(new ReactionInputMutation.SetInputRowSaltCode(experiment.input(1).getAnchor(), saltCode));

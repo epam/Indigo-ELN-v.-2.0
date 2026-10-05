@@ -14,6 +14,9 @@ import { cn } from '@/lib/utils';
  *
  * A failed render marks its own frame and toasts, since unlike `apiFetch` nothing else reports it.
  */
+/** The toast id every failed render shares, which is what collapses a burst of them into one. */
+const RENDER_FAILED = 'structure-render-failed';
+
 export function StructureImage({
   structure,
   alt,
@@ -39,7 +42,8 @@ export function StructureImage({
       .catch((error: unknown) => {
         if (!current) return;
         setRendered({ structure, url: null });
-        notifyError(error);
+        // One toast for the lot: a list of structures that all fail to render is one problem.
+        notifyError(error, undefined, RENDER_FAILED);
       });
     return () => {
       current = false;
