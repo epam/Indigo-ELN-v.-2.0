@@ -10,10 +10,10 @@ import type { EnteredValue } from '@/lib/types/reactions.ts';
  * Neither carries a `text-align`: alignment is a property of the **column**, so that a header
  * and the cells under it cannot disagree. See `alignOf`.
  */
-export const CELL_CLASS = 'border-b border-neutral-300 px-2 py-1 align-middle';
+export const CELL_CLASS = 'border-b border-neutral-300 px-1 py-1 align-middle';
 
 /**
- * `px-[17px]`, not `px-2`, and the number is not arbitrary: it is the `<td>`'s own `px-2` plus
+ * `px-[13px]`, not `px-1`, and the number is not arbitrary: it is the `<td>`'s own `px-1` plus
  * the 9px a cell's content box insets its text by (`CONTENT_BOX` — a 1px transparent border and
  * `px-2`). A header has no such box, so it has to carry that inset as padding instead.
  *
@@ -22,7 +22,7 @@ export const CELL_CLASS = 'border-b border-neutral-300 px-2 py-1 align-middle';
  * belonged to the column next door.
  */
 export const HEADER_CELL_CLASS =
-  'border-y border-neutral-300 px-[17px] py-2 text-[12px]/5 font-semibold whitespace-nowrap text-neutral-800';
+  'border-y border-neutral-300 px-[13px] py-2 text-[12px]/5 font-semibold whitespace-nowrap text-neutral-800';
 
 /**
  * The box a cell's content sits in, worn by **every** cell so that all of them inset their text

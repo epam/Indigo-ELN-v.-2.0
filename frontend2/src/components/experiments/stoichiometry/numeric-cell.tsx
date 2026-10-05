@@ -31,8 +31,11 @@ const DISPLAY_BOX = cn(CONTENT_BOX, 'w-full rounded-2 py-1 text-[13px]/5 tabular
  * move as the cell is entered — but the border is on **the input**: what is being typed into is
  * what should look like a field, and a border drawn round the unit as well made the two read as
  * one box with a list inexplicably inside it.
+ *
+ * `pl-1`, half the display's inset: the number is right-aligned, so the left padding is only
+ * ever empty, and in a column this narrow those pixels are another digit on show.
  */
-const INPUT_BOX = cn(CONTENT_BOX, 'rounded-2 py-1 text-[13px]/5 tabular-nums');
+const INPUT_BOX = cn(CONTENT_BOX, 'rounded-2 py-1 pl-1 text-[13px]/5 tabular-nums');
 
 /** How close to the window's edge the unit list may come. */
 const EDGE = 8;
@@ -333,6 +336,10 @@ export function NumericCell({
               // `text-align: inherit` rather than a `text-right` of its own: an input does not
               // inherit it on its own, so the number sat left of where the display text was.
               'min-w-0 flex-1 border-blue-400 bg-background outline-none [text-align:inherit]',
+              // Beside a unit box the number is not where the display had it anyway — the unit has
+              // moved out from behind it — so the right inset can give way too. Without one, it
+              // stays: that is what keeps the number still as the cell is entered.
+              hasUnitBox && 'pr-1',
               // The spinners would eat most of the width of a cell this narrow.
               '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
             )}
