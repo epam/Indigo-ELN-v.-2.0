@@ -26,6 +26,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.time.Instant;
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
@@ -51,7 +52,7 @@ public class SampleRegistrationService {
 
     public SampleRegistrationResponse registerSample(SampleRegistrationRequest request) {
         IndigoMolecule molecule = indigo.loadMolecule(request.getMolfile());
-        SRSCompoundEntity compound = findOrCreate(molecule, request.getStereoisomerCode(), request.getSaltCode(), request.getSaltCodeNumeric(), request.getSaltEQ100(), request.getMolWeight(), request.getExactMass(), request.getChemicalName(), request.getCasNumber());
+        SRSCompoundEntity compound = findOrCreate(molecule, request.getStereoisomerCode(), request.getSaltCode(), request.getSaltCodeNumeric(), request.getSaltEQ(), request.getMolWeight(), request.getExactMass(), request.getChemicalName(), request.getCasNumber());
         SRSSampleEntity sample = new SRSSampleEntity();
         sample.setCreatedAt(Instant.now());
         sample.setCompound(compound);
@@ -102,8 +103,8 @@ public class SampleRegistrationService {
         }
     }
 
-    private SRSCompoundEntity findOrCreate(IndigoMolecule molecule, UUID stereoisomerCode, UUID saltCode, int saltCodeNumeric, @Nullable Integer saltCodeEQ100, @Nullable Double molWeight, @Nullable Double exactMass, @Nullable String chemicalName, @Nullable String casNumber) {
-        CompoundKey compoundKey = new CompoundKey(molecule.canonicalSmiles(), stereoisomerCode, saltCode, saltCodeEQ100);
+    private SRSCompoundEntity findOrCreate(IndigoMolecule molecule, UUID stereoisomerCode, UUID saltCode, int saltCodeNumeric, @Nullable BigDecimal saltEQ, @Nullable Double molWeight, @Nullable Double exactMass, @Nullable String chemicalName, @Nullable String casNumber) {
+        CompoundKey compoundKey = new CompoundKey(molecule.canonicalSmiles(), stereoisomerCode, saltCode, saltEQ);
         SRSCompoundEntity compound = compoundRepository.findByCompoundKey(compoundKey);
         boolean isNew = compound == null;
         if (isNew) {
@@ -111,7 +112,7 @@ public class SampleRegistrationService {
             compound.setCanSmiles(compoundKey.getCanSmiles());
             compound.setStereoisomerCode(compoundKey.getStereoisomerCode());
             compound.setSaltCode(compoundKey.getSaltCode());
-            compound.setSaltEQ100(compoundKey.getSaltEQ100());
+            compound.setSaltEQ(compoundKey.getSaltEQ());
             compound.setStrCode(generateStrCodeCompound(compoundKey, saltCodeNumeric));
 
             compound.setMolFile(molecule.molfile());

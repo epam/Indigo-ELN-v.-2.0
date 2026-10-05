@@ -95,7 +95,7 @@ public class ModelUtil {
                 .stereoisomerCode(compound.getStereoisomerCode().getId())
                 .saltCode(saltCode.getId())
                 .saltCodeNumeric(Integer.parseInt(saltCode.getCode()))
-                .saltEQ100(compound.getSaltEQ100())
+                .saltEQ(compound.getSaltEQ())
                 .molWeight(compound.getMolWeight())
                 .exactMass(compound.getExactMass())
                 .chemicalName(compound.getChemicalName());

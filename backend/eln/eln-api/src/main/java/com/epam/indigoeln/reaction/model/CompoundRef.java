@@ -14,6 +14,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -32,7 +33,7 @@ public class CompoundRef {
     private final SaltCodeRef saltCode;
 
     @Nullable
-    private final Double saltEQ;
+    private final BigDecimal saltEQ;
 
     @Nullable
     @SuppressWarnings("unused") // used on frontend
@@ -56,7 +57,7 @@ public class CompoundRef {
     private final String casNumber;
 
     @JsonCreator
-    public CompoundRef(@Nullable UUID compoundID, StereoisomerCodeRef stereoisomerCode, SaltCodeRef saltCode, @Nullable Double saltEQ, @Nullable String compoundKey, @Nullable MolFormula formula, @Nullable EnteredValue<MolWeightUnit> molWeight, @Nullable EnteredValue<NoUnit> exactMass, @Nullable String casNumber) {
+    public CompoundRef(@Nullable UUID compoundID, StereoisomerCodeRef stereoisomerCode, SaltCodeRef saltCode, @Nullable BigDecimal saltEQ, @Nullable String compoundKey, @Nullable MolFormula formula, @Nullable EnteredValue<MolWeightUnit> molWeight, @Nullable EnteredValue<NoUnit> exactMass, @Nullable String casNumber) {
         this.compoundID = compoundID;
         this.stereoisomerCode = stereoisomerCode;
         this.saltCode = saltCode;

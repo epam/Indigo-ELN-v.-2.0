@@ -36,7 +36,7 @@ public class SRSSampleDTO {
     @NotNull
     private UUID saltCode;
     @Nullable
-    private Double saltEQ;
+    private BigDecimal saltEQ;
     @Nullable
     private BigDecimal density;
     @Nullable

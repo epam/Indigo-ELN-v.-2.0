@@ -30,7 +30,7 @@ public class SampleRegistrationRequest {
     private Integer saltCodeNumeric;
 
     @Nullable
-    private Integer saltEQ100;
+    private BigDecimal saltEQ;
 
     @NotNull
     private NbkBatchNumber nbkBatchNumber;

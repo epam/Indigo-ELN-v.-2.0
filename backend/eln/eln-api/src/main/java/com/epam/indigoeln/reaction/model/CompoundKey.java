@@ -3,6 +3,7 @@ package com.epam.indigoeln.reaction.model;
 import lombok.Value;
 import org.jspecify.annotations.Nullable;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Value
@@ -12,5 +13,5 @@ public class CompoundKey {
     UUID stereoisomerCode;
     UUID saltCode;
     @Nullable
-    Integer saltEQ100;
+    BigDecimal saltEQ;
 }

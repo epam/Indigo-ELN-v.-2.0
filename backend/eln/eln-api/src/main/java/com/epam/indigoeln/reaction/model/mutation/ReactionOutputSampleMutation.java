@@ -12,6 +12,7 @@ import com.epam.indigoeln.reaction.model.outputsample.*;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
@@ -171,10 +172,10 @@ public interface ReactionOutputSampleMutation extends ExperimentMutation {
 
     record SetOutputSaltEQ (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable Double saltEQ,
+            @Nullable BigDecimal saltEQ,
             @NotNull OutputAnchor createdOutputAnchor
     ) implements ReactionOutputSampleMutation {
-        public SetOutputSaltEQ(@NotNull OutputSampleAnchor anchor, @Nullable Double saltEQ) {
+        public SetOutputSaltEQ(@NotNull OutputSampleAnchor anchor, @Nullable BigDecimal saltEQ) {
             this(anchor, saltEQ, OutputAnchor.create());
         }
     }

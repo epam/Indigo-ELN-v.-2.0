@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data
@@ -16,7 +17,7 @@ public class SRSCompoundDTO {
     @NotNull
     private UUID saltCode;
     @Nullable
-    private Integer saltEQ100;
+    private BigDecimal saltEQ;
     @NotNull
     private UUID stereoisomerCode;
     @NotNull

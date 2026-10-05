@@ -38,6 +38,7 @@ import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
@@ -230,7 +231,7 @@ public abstract class ExperimentEditMutationHandlerBase<T extends ExperimentMuta
         return doUpdateCompound(row, CompoundField.SALT_CODE, saltCode, null, null, null);
     }
 
-    protected CompoundRef doUpdateSaltEQ(ReactionRow row, @Nullable Double saltEQ) {
+    protected CompoundRef doUpdateSaltEQ(ReactionRow row, @Nullable BigDecimal saltEQ) {
         return doUpdateCompound(row, CompoundField.SALT_EQ, null, saltEQ, null, null);
     }
 
@@ -242,11 +243,11 @@ public abstract class ExperimentEditMutationHandlerBase<T extends ExperimentMuta
         return doUpdateCompound(row, CompoundField.MOLFILE, null, null, null, molfile);
     }
 
-    private CompoundRef doUpdateCompound(ReactionRow row, CompoundField field, @Nullable SaltCodeRef saltCode, @Nullable Double saltEQ, @Nullable StereoisomerCodeRef stereoisomerCode, @Nullable String molfile) {
+    private CompoundRef doUpdateCompound(ReactionRow row, CompoundField field, @Nullable SaltCodeRef saltCode, @Nullable BigDecimal saltEQ, @Nullable StereoisomerCodeRef stereoisomerCode, @Nullable String molfile) {
         CompoundRef ref = row.getCompound();
         if (row.getCompound().getCompoundID() != null) {
             SaltCodeRef effectiveSaltCode = updatedValue(field, CompoundField.SALT_CODE, saltCode, ref.getSaltCode());
-            Double effectiveSaltEQ = updatedValue(field, CompoundField.SALT_EQ, saltEQ, ref.getSaltEQ());
+            BigDecimal effectiveSaltEQ = updatedValue(field, CompoundField.SALT_EQ, saltEQ, ref.getSaltEQ());
             StereoisomerCodeRef effectiveStereoisomerCode = updatedValue(field, CompoundField.STEREOISOMER_CODE, stereoisomerCode, ref.getStereoisomerCode());
             boolean parentStructure = effectiveSaltCode.equals(dictionaryService.getDefault(BuiltInDictionary.SALT_CODE));
             if (parentStructure && field == CompoundField.SALT_EQ && saltEQ != null) {
@@ -254,7 +255,7 @@ public abstract class ExperimentEditMutationHandlerBase<T extends ExperimentMuta
             }
             // normalize saltEQ
             if (!parentStructure) {
-                effectiveSaltEQ = firstNonNull(effectiveSaltEQ, 1.0);
+                effectiveSaltEQ = firstNonNull(effectiveSaltEQ, BigDecimal.ONE);
             } else {
                 effectiveSaltEQ = null;
             }

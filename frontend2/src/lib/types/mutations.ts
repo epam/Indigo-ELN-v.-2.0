@@ -405,7 +405,7 @@ export interface ImportSDF {
  * Sending a sample anchor to a row mutation resolves to nothing and the call 400s.
  *
  * **Numbers are sent as strings** — `EnteredValue.value` is a string on the wire, and these
- * mirror it. `saltEQ` is the one member the Java records declare as a `Double`; Jackson
+ * mirror it. `saltEQ` is the one member the Java records declare as a `BigDecimal`; Jackson
  * coerces a JSON string into it, and the records are due to be changed to match. Do not
  * "correct" it to a number.
  *

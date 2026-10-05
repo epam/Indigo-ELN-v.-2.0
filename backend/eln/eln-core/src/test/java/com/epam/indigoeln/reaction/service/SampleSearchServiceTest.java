@@ -83,7 +83,7 @@ public class SampleSearchServiceTest extends MutationsTestBase {
             compound.setMolFile(ModelUtil.loadResourceAsString("/ring-substructure.mol"));
             compound.setSaltCode(saltCode.getId());
             compound.setStereoisomerCode(stereoisomerCode.getId());
-            compound.setSaltEQ100(200);
+            compound.setSaltEQ(new BigDecimal("2"));
             SRSSampleDTO sample = srsSample = new SRSSampleDTO(UUID.randomUUID(), UUID.randomUUID(), defaultSaltCode.getId(), new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 1), "C", BigDecimal.ONE);
             sample.setNbkBatchNumber(new NbkBatchNumber("00000001-0005", 4));
             sample.setChemicalName("chemicalName");
@@ -195,7 +195,7 @@ public class SampleSearchServiceTest extends MutationsTestBase {
         assertThat(input).satisfies(row -> {
             assertThat(row.getCompound().isKnown()).isTrue();
             assertThat(row.getCompound().getSaltCode()).isEqualTo(saltCode);
-            assertThat(row.getCompound().getSaltEQ()).isEqualTo(2.0);
+            assertThat(row.getCompound().getSaltEQ()).isEqualByComparingTo("2");
             assertThat(row.getCompound().getStereoisomerCode()).isEqualTo(stereoisomerCode);
             assertThat(row.getCompound().getCompoundKey()).isEqualTo(new STRCodeCompound(1, 1).toString());
             assertThat(row.getChemicalName()).isEqualTo("chemicalName"); // TODO

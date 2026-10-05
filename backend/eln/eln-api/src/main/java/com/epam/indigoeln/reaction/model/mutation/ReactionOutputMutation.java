@@ -8,6 +8,8 @@ import com.epam.indigoeln.reaction.model.ReactionOutputType;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 
+import java.math.BigDecimal;
+
 public interface ReactionOutputMutation extends ExperimentMutation {
 
     OutputAnchor anchor();
@@ -40,7 +42,7 @@ public interface ReactionOutputMutation extends ExperimentMutation {
 
     record SetOutputRowSaltEQ(
             @NotNull OutputAnchor anchor,
-            @Nullable Double saltEQ
+            @Nullable BigDecimal saltEQ
     ) implements ReactionOutputMutation {
     }
 

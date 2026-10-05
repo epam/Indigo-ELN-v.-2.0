@@ -8,6 +8,8 @@ import com.epam.indigoeln.common.model.units.MolUnit;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 
+import java.math.BigDecimal;
+
 public interface ReactionInputMutation extends ExperimentMutation {
 
     InputAnchor anchor();
@@ -49,7 +51,7 @@ public interface ReactionInputMutation extends ExperimentMutation {
 
     record SetInputRowSaltEQ(
             @NotNull InputAnchor anchor,
-            @Nullable Double saltEQ
+            @Nullable BigDecimal saltEQ
     ) implements ReactionInputMutation {
     }
 

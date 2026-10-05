@@ -32,7 +32,7 @@ public class SampleDTO {
     @Nullable
     private SaltCodeRef saltCode;
     @Nullable
-    private Double saltEQ;
+    private BigDecimal saltEQ;
     @Nullable
     private String chemicalName;
     @Nullable

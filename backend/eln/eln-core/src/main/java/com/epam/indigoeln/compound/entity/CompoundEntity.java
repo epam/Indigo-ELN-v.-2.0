@@ -13,7 +13,6 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -23,6 +22,8 @@ import lombok.ToString;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
 import org.jspecify.annotations.Nullable;
+
+import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -54,8 +55,8 @@ public class CompoundEntity extends IdentifiableEntity {
     private DictionaryItemEntity saltCode;
 
     @Nullable
-    @Column(name = "salt_eq_100")
-    private Integer saltEQ100;
+    @Column(name = "salt_eq")
+    private BigDecimal saltEQ;
 
     @Nullable
     private String chemicalName;
@@ -78,18 +79,12 @@ public class CompoundEntity extends IdentifiableEntity {
     @Basic(fetch = FetchType.LAZY)
     private byte[] picture;
 
-    public CompoundEntity(SampleSource source, @Nullable String compoundKey, String canSmiles, DictionaryItemEntity stereoisomerCode, DictionaryItemEntity saltCode, @Nullable Integer saltEQ100) {
+    public CompoundEntity(SampleSource source, @Nullable String compoundKey, String canSmiles, DictionaryItemEntity stereoisomerCode, DictionaryItemEntity saltCode, @Nullable BigDecimal saltEQ) {
         this.source = source;
         this.compoundKey = compoundKey;
         this.canSmiles = canSmiles;
         this.stereoisomerCode = stereoisomerCode;
         this.saltCode = saltCode;
-        this.saltEQ100 = saltEQ100;
-    }
-
-    @Nullable
-    @Transient
-    public Double getSaltEQ() {
-        return saltEQ100 != null ? saltEQ100 / 100.0 : null;
+        this.saltEQ = saltEQ;
     }
 }

@@ -5,11 +5,12 @@ import com.epam.indigoeln.eln.model.SaltCodeRef;
 import com.epam.indigoeln.eln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.eln.indigowrapper.IndigoAtom;
 import com.epam.indigoeln.eln.indigowrapper.IndigoMolecule;
-import com.google.common.math.DoubleMath;
 import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
+
+import java.math.BigDecimal;
 
 import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
 
@@ -18,11 +19,12 @@ import static com.epam.indigoeln.common.exception.InvalidRequestException.valida
 public class MolWeightCalculator {
 
     private static final double HYDROGEN_MASS = 1.00784;
+    private static final BigDecimal HALF = new BigDecimal("0.5");
 
     @Inject
     IndigoAPI indigo;
 
-    public double calculateMolWeight(String molFile, @Nullable SaltCodeRef salt, @Nullable Double saltEQ) {
+    public double calculateMolWeight(String molFile, @Nullable SaltCodeRef salt, @Nullable BigDecimal saltEQ) {
         return salt != null && saltEQ != null
                 ? calculateMolWeightWithSalt(molFile, salt, saltEQ)
                 : calculateMolWeightWithoutSalt(molFile);
@@ -38,7 +40,7 @@ public class MolWeightCalculator {
         return molecule.molecularWeight();
     }
 
-    private double calculateMolWeightWithSalt(String molFile, SaltCodeRef salt, double saltEQ) {
+    private double calculateMolWeightWithSalt(String molFile, SaltCodeRef salt, BigDecimal saltEQ) {
         // Input data:
         // molWeight - mol weight of user drawn (or selected by "Analyze RXN") main compound
         // moleculeCharge - electric charge of main compound
@@ -74,12 +76,12 @@ public class MolWeightCalculator {
             moleculeCharge += atom.charge();
         }
         int mainEQ, addEQ;
-        if (DoubleMath.fuzzyEquals(saltEQ, 0.5, 0.0001)) {
+        if (saltEQ.compareTo(HALF) == 0) {
             mainEQ = 2;
             addEQ = 1;
-        } else if (DoubleMath.fuzzyEquals(saltEQ, Math.round(saltEQ), 0.0001)) {
+        } else if (saltEQ.stripTrailingZeros().scale() <= 0) {
             mainEQ = 1;
-            addEQ = (int) Math.round(saltEQ);
+            addEQ = saltEQ.intValueExact();
             validate(addEQ > 0, "saltEQ must be positive");
         } else {
             throw new InvalidRequestException("saltEQ must be 0.5 or integer");

@@ -20,6 +20,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.jspecify.annotations.Nullable;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Getter
@@ -45,8 +46,8 @@ public class SRSCompoundEntity extends IdentifiableEntity {
     private UUID saltCode;
 
     @Nullable
-    @Column(name = "salt_eq_100")
-    private Integer saltEQ100;
+    @Column(name = "salt_eq")
+    private BigDecimal saltEQ;
 
     @Nullable
     private String chemicalName;

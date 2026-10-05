@@ -57,7 +57,7 @@ class SampleRegistrationServiceSearchProvider implements CatalogSearchProvider {
         return compoundService.findOrCreate(srsCompound.getMolFile()
                 , dictionaryService.byId(srsCompound.getStereoisomerCode())
                 , dictionaryService.byId(srsCompound.getSaltCode())
-                , srsCompound.getSaltEQ100()
+                , srsCompound.getSaltEQ()
                 , SampleSource.SRS, sample.getCompoundKey()
                 , sample.getChemicalName()
         );

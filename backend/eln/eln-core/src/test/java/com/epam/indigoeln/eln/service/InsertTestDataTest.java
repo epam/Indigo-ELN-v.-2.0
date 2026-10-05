@@ -71,6 +71,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 import java.net.URI;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -227,7 +228,7 @@ class InsertTestDataTest {
         experiment.mutate(new ReactionOutputMutation.SetOutputRowSaltCode(experiment.output(1).getAnchor(), dictionaryClient.getNthNonDefault(BuiltInDictionary.SALT_CODE, 1)));
 
         // select salt eq
-        experiment.mutate(new ReactionOutputMutation.SetOutputRowSaltEQ(experiment.output(1).getAnchor(), 0.5));
+        experiment.mutate(new ReactionOutputMutation.SetOutputRowSaltEQ(experiment.output(1).getAnchor(), new BigDecimal("0.5")));
 
         // select stereoisomer code
         StereoisomerCodeRef stereoisomerCode = dictionaryClient.getNthNonDefault(BuiltInDictionary.STEREOISOMER_CODE, 0);

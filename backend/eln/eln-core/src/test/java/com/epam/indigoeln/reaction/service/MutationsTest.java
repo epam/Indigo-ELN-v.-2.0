@@ -438,9 +438,9 @@ public class MutationsTest extends MutationsTestBase {
         experiment.mutate(new ReactionInputMutation.SetInputRowSaltCode(experiment.input(1).getAnchor(), saltCode));
         assertThat(experiment.input(1).getCompound().isKnown()).isTrue();
         assertThat(experiment.input(1).getCompound().getSaltCode()).isEqualTo(saltCode);
-        experiment.mutate(new ReactionInputMutation.SetInputRowSaltEQ(experiment.input(1).getAnchor(), 2.0));
+        experiment.mutate(new ReactionInputMutation.SetInputRowSaltEQ(experiment.input(1).getAnchor(), new BigDecimal("2")));
         assertThat(experiment.input(1).getCompound().getSaltCode()).isEqualTo(saltCode);
-        assertThat(experiment.input(1).getCompound().getSaltEQ()).isCloseTo(2.0, Offset.offset(1e-6));
+        assertThat(experiment.input(1).getCompound().getSaltEQ()).isEqualByComparingTo("2");
     }
 
     @Test
@@ -463,10 +463,10 @@ public class MutationsTest extends MutationsTestBase {
     void testSetInputRowSaltCodeBackToParentStructure() {
         experiment.mutateSetSchemeFromResource(REACTION_RXN);
         InputAnchor anchor = experiment.input(1).getAnchor();
-        assertThatClientCall(() -> experiment.mutate(new ReactionInputMutation.SetInputRowSaltEQ(anchor, 2.0)))
+        assertThatClientCall(() -> experiment.mutate(new ReactionInputMutation.SetInputRowSaltEQ(anchor, new BigDecimal("2"))))
                 .isBadRequest("Cannot set saltEQ because saltCode is not set");
         experiment.mutate(new ReactionInputMutation.SetInputRowSaltCode(anchor, saltCode));
-        assertThat(experiment.input(1).getCompound().getSaltEQ()).isEqualTo(1.0);
+        assertThat(experiment.input(1).getCompound().getSaltEQ()).isEqualByComparingTo("1");
         experiment.mutate(new ReactionInputMutation.SetInputRowSaltCode(anchor, defaultSaltCode));
         assertThat(experiment.input(1).getCompound().getSaltCode()).isEqualTo(defaultSaltCode);
         assertThat(experiment.input(1).getCompound().getSaltEQ()).isNull();
@@ -628,9 +628,9 @@ public class MutationsTest extends MutationsTestBase {
         experiment.mutate(new ReactionOutputMutation.SetOutputRowSaltCode(experiment.output(1).getAnchor(), saltCode));
         assertThat(experiment.output(1).getCompound().isKnown()).isTrue();
         assertThat(experiment.output(1).getCompound().getSaltCode()).isEqualTo(saltCode);
-        experiment.mutate(new ReactionOutputMutation.SetOutputRowSaltEQ(experiment.output(1).getAnchor(), 2.0));
+        experiment.mutate(new ReactionOutputMutation.SetOutputRowSaltEQ(experiment.output(1).getAnchor(), new BigDecimal("2")));
         assertThat(experiment.output(1).getCompound().getSaltCode()).isEqualTo(saltCode);
-        assertThat(experiment.output(1).getCompound().getSaltEQ()).isCloseTo(2.0, Offset.offset(1e-6));
+        assertThat(experiment.output(1).getCompound().getSaltEQ()).isEqualByComparingTo("2");
     }
 
     @Test
@@ -940,7 +940,7 @@ public class MutationsTest extends MutationsTestBase {
         assertThat(experiment.output(2).isIntended()).isTrue();
         OutputSampleAnchor anchor = experiment.outputSample(1, 1).getAnchor();
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputSaltCode(anchor, saltCode), false);
-        experiment.mutate(new ReactionOutputSampleMutation.SetOutputSaltEQ(anchor, 2.0), false);
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputSaltEQ(anchor, new BigDecimal("2")), false);
         assertThat(experiment.output(3).isIntended()).isFalse();
         assertThat(experiment.output(3).getSamples()).singleElement().satisfies(s -> assertThat(s.getAnchor()).isEqualTo(anchor));
     }

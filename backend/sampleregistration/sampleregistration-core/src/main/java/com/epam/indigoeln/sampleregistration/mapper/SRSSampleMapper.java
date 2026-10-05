@@ -24,7 +24,7 @@ public abstract class SRSSampleMapper {
     @Mapping(target = "molWeight", source = "compound.molWeight", qualifiedByName = "convertMolWeightLike")
     @Mapping(target = "molFormula", expression = "java(entity.getCompound().getFormula().toHTMLString())")
     @Mapping(target = "saltCode", source = "compound.saltCode")
-    @Mapping(target = "saltEQ", expression = "java(entity.getCompound().getSaltEQ100() != null ? entity.getCompound().getSaltEQ100() / 100.0 : null)")
+    @Mapping(target = "saltEQ", source = "compound.saltEQ")
     @Mapping(target = "chemicalName", source = "compound.chemicalName")
     @Mapping(target = "strCodeSample", source = "strCode")
     public abstract SRSSampleDTO sampleToDTO(SRSSampleEntity entity);
