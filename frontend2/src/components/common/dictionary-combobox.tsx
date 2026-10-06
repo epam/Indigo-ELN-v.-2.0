@@ -15,6 +15,7 @@ function DictionaryCombobox({
   onValueChange,
   id,
   'aria-label': ariaLabel,
+  placeholder,
   disabled,
   clearable = true,
   size,
@@ -26,6 +27,8 @@ function DictionaryCombobox({
   id?: string;
   /** See `Select`. */
   'aria-label'?: string;
+  /** See `Select` — shown only where `clearable` is off, since the blank row's label wins. */
+  placeholder?: string;
   /** Renders the current pick but accepts no interaction — a reader who cannot edit. */
   disabled?: boolean;
   /**
@@ -44,6 +47,7 @@ function DictionaryCombobox({
     <Select<DictionaryItemRef>
       id={id}
       aria-label={ariaLabel}
+      placeholder={placeholder}
       value={value}
       onValueChange={onValueChange}
       items={data ?? []}

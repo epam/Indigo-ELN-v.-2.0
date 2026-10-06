@@ -35,7 +35,7 @@ const EMPTY = rowAt(0, 1);
 const REGISTERED = rowAt(1, 0);
 
 /** Nothing in flight and nothing to send: what the display-only stories pass. */
-const IDLE: StoichiometryMutations = { save: () => {}, savingCells: new Set(), updatedNodes: new Map() };
+const IDLE: StoichiometryMutations = { save: async () => true, savingCells: new Set(), updatedNodes: new Map() };
 
 /** Records the mutations that actually reached the wire, so a story can assert the payload. */
 const sent: unknown[] = [];
@@ -43,7 +43,9 @@ const sent: unknown[] = [];
 const spyHandlers = [
   http.post('/api/eln/experiments/:id/mutate', async ({ request }) => {
     sent.push(await request.json());
-    return HttpResponse.json({ patch: {} });
+    // A whole `MutationResponse`: one without `messages` rejects in `applyMutationResponse`,
+    // which a dialog waiting on its save reads as a failure and stays open for.
+    return HttpResponse.json({ patch: {}, unresolvedInputs: {}, messages: [], debugMessages: [] });
   }),
   ...handlers,
 ];
@@ -122,7 +124,7 @@ export const AdditionalInformationIsCollapsed: Story = {
     await userEvent.click(canvas.getByRole('button', { name: 'Additional Information' }));
 
     await expect(await canvas.findByLabelText('Compound State')).toBeInTheDocument();
-    // The five composites the panel renders but cannot yet edit.
+    // The five composites, as their read-only summaries.
     await expect(canvas.getByLabelText('Melting Point')).toHaveValue('67 ~ 69 °C');
     await expect(canvas.getByLabelText('External Supplier')).toHaveValue('Sigma-Aldrich (A1234)');
     await expect(canvas.getByText('Toluene (1.2 eq)')).toBeInTheDocument();
@@ -318,6 +320,103 @@ export const ClearingAListSendsEmpty: Story = {
         anchor: 'f1000000-0000-4000-8000-000000000001',
         compoundProtection: [],
       }),
+    );
+  },
+};
+
+/** A reader gets the composites' summaries and no pencil to open an editor with. */
+export const ReadOnlyHasNoEditors: Story = {
+  args: { canEdit: false },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole('button', { name: 'Additional Information' }));
+
+    await expect(await canvas.findByLabelText('Melting Point')).toHaveValue('67 ~ 69 °C');
+    await expect(canvas.queryByRole('button', { name: /^Edit / })).not.toBeInTheDocument();
+  },
+};
+
+/** A composite is edited in a dialog, and its Save is the commit. */
+export const EditsMeltingPoint: Story = {
+  parameters: { msw: { handlers: spyHandlers } },
+  render: () => <PanelFromCache />,
+  play: async ({ canvasElement }) => {
+    sent.length = 0;
+    const canvas = within(canvasElement);
+
+    await userEvent.click(await canvas.findByRole('button', { name: 'Additional Information' }));
+    await userEvent.click(await canvas.findByRole('button', { name: 'Edit Melting Point' }));
+
+    const upper = await screen.findByLabelText('Upper, °C');
+    await userEvent.clear(upper);
+    await userEvent.type(upper, '70');
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() =>
+      expect(sent).toEqual([
+        {
+          type: 'SetOutputMeltingPoint',
+          anchor: 'f1000000-0000-4000-8000-000000000001',
+          meltingPoint: { lower: 67, upper: 70 },
+        },
+      ]),
+    );
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+  },
+};
+
+export const EditsResidualSolvents: Story = {
+  parameters: { msw: { handlers: spyHandlers } },
+  render: () => <PanelFromCache sampleIndex={1} />,
+  play: async ({ canvasElement }) => {
+    sent.length = 0;
+    const canvas = within(canvasElement);
+
+    await userEvent.click(await canvas.findByRole('button', { name: 'Additional Information' }));
+    await userEvent.click(await canvas.findByRole('button', { name: 'Edit Residual Solvents' }));
+
+    const solvent = DICTIONARIES.SOLVENT![3];
+    await userEvent.click(await screen.findByLabelText('Solvent Name, row 1'));
+    await userEvent.click(await screen.findByRole('option', { name: solvent.name }));
+    await userEvent.type(screen.getByLabelText('# EQ. of Solvent, row 1'), '2');
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() =>
+      expect(sent).toEqual([
+        {
+          type: 'SetOutputResidualSolvents',
+          anchor: 'f1000000-0000-4000-8000-000000000002',
+          residualSolvents: [{ solvent, eq: 2 }],
+        },
+      ]),
+    );
+  },
+};
+
+export const EditsSolubility: Story = {
+  parameters: { msw: { handlers: spyHandlers } },
+  render: () => <PanelFromCache />,
+  play: async ({ canvasElement }) => {
+    sent.length = 0;
+    const canvas = within(canvasElement);
+
+    await userEvent.click(await canvas.findByRole('button', { name: 'Additional Information' }));
+    await userEvent.click(await canvas.findByRole('button', { name: 'Edit Solubility in Solvents' }));
+
+    // Batch 001 holds a quantitative row and a qualitative one; the first goes.
+    await userEvent.click(await screen.findByRole('button', { name: 'Delete row 1' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() =>
+      expect(sent).toEqual([
+        {
+          type: 'SetOutputSolubilityInSolvents',
+          anchor: 'f1000000-0000-4000-8000-000000000001',
+          solubilityInSolvents: [
+            { type: 'QUALITATIVE', solvent: DICTIONARIES.SOLVENT![2], qualitativeType: 'SOLUBLE' },
+          ],
+        },
+      ]),
     );
   },
 };

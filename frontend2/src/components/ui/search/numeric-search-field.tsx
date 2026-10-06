@@ -1,13 +1,9 @@
-import { ChevronDown } from 'lucide-react';
 import type { ChangeEvent } from 'react';
 import { useState } from 'react';
 
-import { Button } from '@/components/ui/button';
-import { Menu, MenuContent, MenuItem, MenuTrigger } from '@/components/ui/menu';
+import { OperatorNumberInput } from '@/components/ui/operator-number-input';
 import type { NumericSearch, NumericSearchOperator } from '@/lib/types/search.ts';
 import { NUMERIC_SEARCH_OPERATOR_LABELS, NUMERIC_SEARCH_OPERATORS } from '@/lib/types/search.ts';
-import { INPUT_BOX, INPUT_BOX_FOCUS_WITHIN, INPUT_DISABLED } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
 
 /**
  * An operator picker and a number, as one control: "≥ 90".
@@ -51,48 +47,17 @@ function NumericSearchField({
   }
 
   return (
-    <div
-      className={cn(
-        INPUT_BOX,
-        INPUT_BOX_FOCUS_WITHIN,
-        // `items-stretch`, so the operator button is a full-height segment; the padding is on
-        // the inner inputs rather than on the shell.
-        'flex h-10 items-stretch',
-        disabled && INPUT_DISABLED,
-      )}
-    >
-      <Menu>
-        <MenuTrigger
-          render={
-            <Button
-              type="button"
-              variant="ghost"
-              disabled={disabled}
-              aria-label={`${label} operator`}
-              className="h-auto w-16 shrink-0 justify-between rounded-none rounded-l-md border-r border-neutral-300 px-2 text-[14px]/6 text-neutral-1000"
-            >
-              {NUMERIC_SEARCH_OPERATOR_LABELS[operator]}
-              <ChevronDown className="text-neutral-700" />
-            </Button>
-          }
-        />
-        <MenuContent align="start" className="min-w-16">
-          {NUMERIC_SEARCH_OPERATORS.map((option) => (
-            <MenuItem key={option} onClick={() => handleOperatorChange(option)}>
-              {NUMERIC_SEARCH_OPERATOR_LABELS[option]}
-            </MenuItem>
-          ))}
-        </MenuContent>
-      </Menu>
-      <input
-        id={id}
-        type="number"
-        value={value?.value ?? ''}
-        disabled={disabled}
-        onChange={handleNumberChange}
-        className="min-w-0 flex-1 bg-transparent px-3 text-[14px]/6 text-neutral-1000 outline-none placeholder:text-neutral-700 disabled:cursor-not-allowed"
-      />
-    </div>
+    <OperatorNumberInput
+      id={id}
+      label={label}
+      operators={NUMERIC_SEARCH_OPERATORS}
+      operatorLabels={NUMERIC_SEARCH_OPERATOR_LABELS}
+      operator={operator}
+      onOperatorChange={handleOperatorChange}
+      value={value?.value ?? ''}
+      disabled={disabled}
+      onChange={handleNumberChange}
+    />
   );
 }
 

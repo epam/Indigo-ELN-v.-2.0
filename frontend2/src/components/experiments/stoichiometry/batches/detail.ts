@@ -8,9 +8,8 @@ import type {
 import { OPERATOR_SYMBOLS, QUALITATIVE_LABELS, unitLabel } from '@/lib/types/reactions.ts';
 
 /**
- * How the batch detail panel writes the five composite value-objects it shows but cannot yet
- * edit — melting point, residual solvents, solubility, external supplier and purity
- * calculations.
+ * How the batch detail panel summarises its five composite value-objects — melting point,
+ * residual solvents, solubility, external supplier and purity calculations.
  *
  * They live here rather than in the panel so the component file exports only components and Fast
  * Refresh keeps working, the same split `project-form.ts` makes.

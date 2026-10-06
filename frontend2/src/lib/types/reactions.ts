@@ -244,6 +244,7 @@ export type ReactionOutputType = 'FINAL' | 'BY_PRODUCT' | 'INTERMEDIATE';
 export type SampleRegistrationStatus = 'IN_PROGRESS' | 'FAILED' | 'REGISTERED';
 export type ComparisonOperator = 'GREATER_THAN' | 'LESS_THAN' | 'EQUALS' | 'APPROXIMATELY';
 export type PurityCalculationType = 'NMR' | 'HPLC' | 'LCMS' | 'CHN' | 'MS';
+export type SolubidityType = 'QUANTITATIVE' | 'QUALITATIVE';
 export type SolubidityQualitativeType = 'SOLUBLE' | 'UNSOLUBLE' | 'PRECIPITATE';
 
 /* ── Enum companion tables ─────────────────────────────────────────────────────────────── */
@@ -303,6 +304,13 @@ export const REGISTRATION_STATUS_LABELS: Record<SampleRegistrationStatus, string
   REGISTERED: 'Registered',
 };
 
+export const COMPARISON_OPERATORS: readonly ComparisonOperator[] = [
+  'GREATER_THAN',
+  'LESS_THAN',
+  'EQUALS',
+  'APPROXIMATELY',
+];
+
 /** `>`, `<`, `=`, `≈` — how each comparison reads in front of a number. */
 export const OPERATOR_SYMBOLS: Record<ComparisonOperator, string> = {
   GREATER_THAN: '>',
@@ -310,6 +318,19 @@ export const OPERATOR_SYMBOLS: Record<ComparisonOperator, string> = {
   EQUALS: '=',
   APPROXIMATELY: '≈',
 };
+
+export const SOLUBIDITY_TYPES: readonly SolubidityType[] = ['QUANTITATIVE', 'QUALITATIVE'];
+
+export const SOLUBIDITY_TYPE_LABELS: Record<SolubidityType, string> = {
+  QUANTITATIVE: 'Quantitative',
+  QUALITATIVE: 'Qualitative',
+};
+
+export const SOLUBIDITY_QUALITATIVE_TYPES: readonly SolubidityQualitativeType[] = [
+  'SOLUBLE',
+  'UNSOLUBLE',
+  'PRECIPITATE',
+];
 
 export const QUALITATIVE_LABELS: Record<SolubidityQualitativeType, string> = {
   SOLUBLE: 'Soluble',

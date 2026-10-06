@@ -1,4 +1,4 @@
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Pencil } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useState } from 'react';
 
@@ -13,8 +13,12 @@ import {
   residualSolventLabels,
   solubilityLabels,
 } from '@/components/experiments/stoichiometry/batches/detail';
+import { MeltingPointDialog } from '@/components/experiments/stoichiometry/batches/melting-point-dialog';
+import { ResidualSolventsDialog } from '@/components/experiments/stoichiometry/batches/residual-solvents-dialog';
+import { SolubilityDialog } from '@/components/experiments/stoichiometry/batches/solubility-dialog';
 import { cellId } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import { useDraft } from '@/lib/hooks/use-draft';
+import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsiblePanel, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
@@ -25,7 +29,14 @@ import type { StoichiometryMutations } from '@/lib/hooks/experiments/use-stoichi
 import type { BuiltInDictionary, DictionaryItemRef } from '@/lib/types/dictionaries.ts';
 import { sortByName } from '@/lib/types/dictionaries.ts';
 import type { ModelMutation } from '@/lib/types/mutations.ts';
-import type { CompoundRef, EnteredValue, Reaction } from '@/lib/types/reactions.ts';
+import type {
+  CompoundRef,
+  EnteredValue,
+  MeltingPoint,
+  Reaction,
+  ResidualSolvent,
+  SolubidityInSolvent,
+} from '@/lib/types/reactions.ts';
 import { isKnownCompound, unitLabel } from '@/lib/types/reactions.ts';
 
 /**
@@ -44,10 +55,11 @@ import { isKnownCompound, unitLabel } from '@/lib/types/reactions.ts';
  * - **Editable**, one `SetOutput*` mutation each.
  * - **Derived**, shown read-only because the backend computes them — the batch MW and MF, the
  *   theoretical weight and moles, the precursor ids, the conversational batch number.
- * - **Composite**, read-only for now: melting point, residual solvents, solubility, external
- *   supplier and purity calculations are nested records and discriminated unions, and each needs
- *   an editor dialog that does not exist yet. Their mutations are typed and waiting; see the TODO
- *   on each.
+ * - **Composite** — nested records and discriminated unions, which a single control cannot hold.
+ *   Melting point, residual solvents and solubility show their summary beside a pencil that opens
+ *   an editor dialog, the one place on this screen with a Save button. External supplier and
+ *   purity calculations are read-only for now: their mutations are typed and waiting for a dialog
+ *   of their own; see the TODO on each.
  *
  * Every mutation here is keyed by the **sample** anchor. Salt Code, Salt EQ and Stereoisomer have
  * `SetOutputRow*` siblings keyed by the *output* — sending one of those from here names a product
@@ -239,11 +251,22 @@ export function BatchDetailPanel({
               commit('compoundProtection', { type: 'SetOutputCompoundProtection', anchor, compoundProtection: next })
             }
           />
-          {/* TODO(melting-point-editor): `SetOutputMeltingPoint` takes `{lower, upper, comments}`. */}
-          <ReadonlyField id={id('meltingPoint')} label="Melting Point" value={meltingPointLabel(sample.meltingPoint)} />
+          <MeltingPointField
+            id={id('meltingPoint')}
+            value={sample.meltingPoint}
+            editable={canEdit}
+            pending={pending('meltingPoint')}
+            onSave={(next) => commit('meltingPoint', { type: 'SetOutputMeltingPoint', anchor, meltingPoint: next })}
+          />
 
-          {/* TODO(residual-solvents-editor): `SetOutputResidualSolvents` takes a row per solvent. */}
-          <ChipsField label="Residual Solvents" values={residualSolventLabels(sample.residualSolvents)} />
+          <ResidualSolventsField
+            value={sample.residualSolvents}
+            editable={canEdit}
+            pending={pending('residualSolvents')}
+            onSave={(next) =>
+              commit('residualSolvents', { type: 'SetOutputResidualSolvents', anchor, residualSolvents: next })
+            }
+          />
           <MultiDictionaryField
             id={id('storageInstructions')}
             label="Storage Instructions"
@@ -267,8 +290,18 @@ export function BatchDetailPanel({
               commit('healthHazards', { type: 'SetOutputHealthHazards', anchor, healthHazards: next })
             }
           />
-          {/* TODO(solubility-editor): `SolubidityInSolvent` is a QUANTITATIVE/QUALITATIVE union. */}
-          <ChipsField label="Solubility in Solvents" values={solubilityLabels(sample.solubilityInSolvents)} />
+          <SolubilityField
+            value={sample.solubilityInSolvents}
+            editable={canEdit}
+            pending={pending('solubilityInSolvents')}
+            onSave={(next) =>
+              commit('solubilityInSolvents', {
+                type: 'SetOutputSolubilityInSolvents',
+                anchor,
+                solubilityInSolvents: next,
+              })
+            }
+          />
 
           <MultiDictionaryField
             id={id('handlingPrecautions')}
@@ -410,6 +443,112 @@ function ChipsField({ label, values }: { label: string; values: string[] }) {
         </ul>
       )}
     </div>
+  );
+}
+
+/**
+ * A composite value: its read-only summary, and for an editor a pencil that opens the dialog the
+ * value is changed in. The pencil carries the spinner while that dialog's save is in flight.
+ */
+function CompositeField({
+  label,
+  editable,
+  pending,
+  onEdit,
+  children,
+}: {
+  label: string;
+  editable: boolean;
+  pending: boolean;
+  onEdit: () => void;
+  children: ReactNode;
+}) {
+  if (!editable) return children;
+
+  return (
+    <div className="flex items-end gap-2">
+      <div className="min-w-0 flex-1">{children}</div>
+      <Button
+        variant="outline"
+        aria-label={`Edit ${label}`}
+        loading={pending}
+        onClick={onEdit}
+        className="size-10 shrink-0"
+      >
+        <Pencil className="text-blue-400" />
+      </Button>
+    </div>
+  );
+}
+
+function MeltingPointField({
+  id,
+  value,
+  editable,
+  pending,
+  onSave,
+}: {
+  id: string;
+  value: MeltingPoint | undefined;
+  editable: boolean;
+  pending: boolean;
+  onSave: (next: MeltingPoint | null) => Promise<boolean>;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <CompositeField label="Melting Point" editable={editable} pending={pending} onEdit={() => setOpen(true)}>
+        <ReadonlyField id={id} label="Melting Point" value={meltingPointLabel(value)} />
+      </CompositeField>
+      {editable && <MeltingPointDialog open={open} onOpenChange={setOpen} value={value} onSave={onSave} />}
+    </>
+  );
+}
+
+function ResidualSolventsField({
+  value,
+  editable,
+  pending,
+  onSave,
+}: {
+  value: ResidualSolvent[];
+  editable: boolean;
+  pending: boolean;
+  onSave: (next: ResidualSolvent[]) => Promise<boolean>;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <CompositeField label="Residual Solvents" editable={editable} pending={pending} onEdit={() => setOpen(true)}>
+        <ChipsField label="Residual Solvents" values={residualSolventLabels(value)} />
+      </CompositeField>
+      {editable && <ResidualSolventsDialog open={open} onOpenChange={setOpen} value={value} onSave={onSave} />}
+    </>
+  );
+}
+
+function SolubilityField({
+  value,
+  editable,
+  pending,
+  onSave,
+}: {
+  value: SolubidityInSolvent[];
+  editable: boolean;
+  pending: boolean;
+  onSave: (next: SolubidityInSolvent[]) => Promise<boolean>;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <CompositeField label="Solubility in Solvents" editable={editable} pending={pending} onEdit={() => setOpen(true)}>
+        <ChipsField label="Solubility in Solvents" values={solubilityLabels(value)} />
+      </CompositeField>
+      {editable && <SolubilityDialog open={open} onOpenChange={setOpen} value={value} onSave={onSave} />}
+    </>
   );
 }
 

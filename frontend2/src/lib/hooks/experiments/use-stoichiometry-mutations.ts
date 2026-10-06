@@ -11,8 +11,11 @@ export function cellId(anchor: string, column: string): string {
 }
 
 export interface StoichiometryMutations {
-  /** Fires one mutation and marks `cell` busy until it settles. */
-  save: (cell: string, mutation: ModelMutation) => void;
+  /**
+   * Fires one mutation and marks `cell` busy until it settles. Resolves to whether it landed, for
+   * the one kind of caller that has to wait — a dialog that closes only on success.
+   */
+  save: (cell: string, mutation: ModelMutation) => Promise<boolean>;
   /** Which cells are mid-save — what each cell's `SavingOverlay` reads. */
   savingCells: ReadonlySet<string>;
   /** `newNode -> oldNode` from the last patch; drives the recalculation flash. */
@@ -53,8 +56,10 @@ export function useStoichiometryMutations(experiment: ExperimentDetails): Stoich
       setSavingCells((cells) => new Set(cells).add(cell));
       try {
         await run(mutation);
+        return true;
       } catch {
         // Deliberately silent: apiFetch toasts every failed request.
+        return false;
       } finally {
         setSavingCells((cells) => {
           const next = new Set(cells);

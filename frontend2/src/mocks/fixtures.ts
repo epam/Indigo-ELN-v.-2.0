@@ -212,6 +212,8 @@ export const DICTIONARIES: Partial<Record<BuiltInDictionary, DictionaryItemRef[]
   SAMPLE_SOURCE: makeDictionary(['Source 1', 'Source 2', 'External']),
   SAMPLE_SOURCE_DETAILS: makeDictionary(['Source Detail 1', 'Source Detail 2']),
   COMPONENT_STATE: makeDictionary(['Solid', 'Oil', 'Solution', 'Gum']),
+  // Picked from by the Residual Solvents and Solubility in Solvents dialogs.
+  SOLVENT: makeDictionary(['Toluene', 'Water', 'Ethanol', 'Acetone']),
 };
 
 /**
@@ -361,9 +363,11 @@ const COMPOUND_PROTECTION = DICTIONARIES.COMPOUND_PROTECTION?.slice(0, 1);
 const STORAGE_INSTRUCTIONS = DICTIONARIES.STORAGE_INSTRUCTIONS?.slice(0, 1);
 const HANDLING_PRECAUTIONS = DICTIONARIES.HANDLING_PRECAUTIONS?.slice(0, 2);
 
+const [TOLUENE, WATER, ETHANOL] = DICTIONARIES.SOLVENT ?? [];
+
 /**
- * A solvent, a supplier — dictionaries with no `DICTIONARIES` entry of their own, because the
- * fields that read them are the ones the panel shows read-only and never opens a picker for.
+ * A supplier — a dictionary with no `DICTIONARIES` entry of its own, because the field that reads
+ * it is one the panel shows read-only and never opens a picker for.
  */
 function dictItem(name: string): DictionaryItemRef {
   return { id: `a0000000-0000-4000-8000-${name.length.toString().padStart(12, '0')}`, name };
@@ -584,10 +588,10 @@ export const REACTION_OUTPUTS: ReactionOutput[] = [
         storageInstructions: STORAGE_INSTRUCTIONS,
         handlingPrecautions: HANDLING_PRECAUTIONS,
         meltingPoint: { lower: 67, upper: 69 },
-        residualSolvents: [{ solvent: dictItem('Toluene'), eq: 1.2 }],
+        residualSolvents: [{ solvent: TOLUENE, eq: 1.2 }],
         solubilityInSolvents: [
-          { type: 'QUANTITATIVE', solvent: dictItem('Water'), operator: 'LESS_THAN', value: 5, unit: 'G_ML' },
-          { type: 'QUALITATIVE', solvent: dictItem('Ethanol'), qualitativeType: 'SOLUBLE' },
+          { type: 'QUANTITATIVE', solvent: WATER, operator: 'LESS_THAN', value: 5, unit: 'G_ML' },
+          { type: 'QUALITATIVE', solvent: ETHANOL, qualitativeType: 'SOLUBLE' },
         ],
         externalSupplier: { supplier: dictItem('Sigma-Aldrich'), registryNumber: 'A1234' },
         purityCalculations: [{ type: 'HPLC', operator: 'GREATER_THAN', purity: 98 }],
