@@ -1,5 +1,5 @@
 import { ChevronDown, ChevronRight, Plus, SquarePlus } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 
 import { SavingOverlay } from '@/components/common/saving-overlay';
 import { AddMaterialDialog } from '@/components/experiments/samples/add-material-dialog';
@@ -31,6 +31,7 @@ import {
 } from '@/components/experiments/stoichiometry/inputs/columns';
 import { NumericCell } from '@/components/experiments/stoichiometry/numeric-cell';
 import type { StoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
+import { equalWidth, useEqualWidths } from '@/lib/hooks/use-equal-widths';
 import { cellId, useStoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import { Button } from '@/components/ui/button';
 import { SearchInput } from '@/components/ui/search-input';
@@ -44,11 +45,10 @@ import { INPUT_ROLES, plainFormula } from '@/lib/types/reactions.ts';
 /** The values the backend accepts — `@Min(1) @Max(5)` on `SetExperimentSignificantFigures`. */
 const SIGNIFICANT_FIGURES = [1, 2, 3, 4, 5];
 
-/**
- * Sample columns that sit directly under the compound column of the same name. Their sub-header
- * would only repeat `<thead>`, so it is kept for a screen reader and not drawn.
- */
-const REPEATED_SAMPLE_HEADERS: ReadonlySet<string> = new Set(['batch', 'weight', 'volume', 'mol']);
+/** The sample fields that share a cell and are held to one width by measuring — see `SampleGroup`. */
+const EQUAL_WIDTH_PARTS = SAMPLE_COLUMNS.flatMap((column) => (column.kind === 'group' ? column.parts : []))
+  .filter((part) => part.equalWidth)
+  .map((part) => part.id);
 
 /**
  * Every field the search box looks at.
@@ -84,17 +84,21 @@ function inputHaystack(input: ReactionInput): string {
  * on a grid boundary or it does not, and the browser cannot render it half a pixel out:
  *
  * ```
- * HOST   | 1 | 2 |   3    |  4  |    5     |   6   |   7    |   8    |   9    | 10  | 11 |   12    |   13    |    14    |    15    |   16   |   17   | 18 | 19  |
- * OUTER  |[v]| # | CompID | CAS | ChemName | MolWt | Batch# | Weight | Volume | Mol | EQ | RxnRole | MolForm | Limiting | SaltCode | SaltEQ | Stereo | ~  | del |
- * INNER  |                (indent)                 | Batch# | Weight | Volume | Mol | Density | Molarity | Purity | Hazard Comments <-                  -> Comments | del |
- *                                                  ^ Batch # aligns                                                                            aligns ^
+ * HOST   | 1 | 2 |   3    |   4    |   5    |   6    |  7  | 8  |    9    |   10    |  11   | 12  |    13    |    14    |    15    |   16   |   17   | 18 | 19  |
+ * OUTER  |[v]| # | CompID | Batch# | Weight | Volume | Mol | EQ | RxnRole | MolForm | MolWt | CAS | ChemName | Limiting | SaltCode | SaltEQ | Stereo | ~  | del |
+ * INNER  |    (indent)    | Batch# | Weight | Volume | Mol | [Density][Molarity][Purity] Hazard Comments <-                           -> Comments | del |
+ *                         ^ Batch # aligns                                                                                              aligns ^
  * ```
  *
- * The `~` column is a **spacer**: a host column the compound row leaves empty, so the width a
- * sample's hazards and comment need beyond the columns above them has somewhere to grow that
- * costs nothing. Without it a long comment would inflate Limiting — a radio button — instead.
- * Those two share **one** cell, hazards at its left edge and the comment at its right, so there
- * is no grid line between them for Salt EQ to be pushed along by — see `SampleGroup`.
+ * Up to Mol a sample's columns are the compound's own, so they share its grid lines. Past it the
+ * two levels have nothing in common, so the rest of a batch is **one** cell spanning every
+ * compound column from EQ on — see `SampleGroup`. Density, Molarity and Purity keep a common
+ * width across batches all the same, but by measurement (`useEqualWidths`) rather than by grid
+ * line, which is what stops them and the compound columns above from widening each other.
+ *
+ * The `~` column is a **spacer**: a host column the compound row leaves empty, so the width
+ * that cell needs beyond the columns above it has somewhere to grow that costs nothing. Without
+ * it a long comment would inflate those columns — Limiting, a radio button, among them — instead.
  *
  * Layout is `auto` and the table is `w-full`, so columns size to their content and the table
  * fills the panel; when the content genuinely needs more room it overflows and the wrapper
@@ -122,6 +126,9 @@ export function StoichiometryTable({ experiment, reaction }: { experiment: Exper
 
   const mutations = useStoichiometryMutations(experiment);
   const canEdit = canEditExperiment(experiment);
+
+  const table = useRef<HTMLTableElement>(null);
+  useEqualWidths(table, EQUAL_WIDTH_PARTS);
 
   const inputs = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -166,7 +173,7 @@ export function StoichiometryTable({ experiment, reaction }: { experiment: Exper
           borders, and the pinned Delete column would leave them behind as it moves. Nothing
           doubles up, because the cell classes carry horizontal borders only.
         */}
-        <table className="w-full border-separate border-spacing-0">
+        <table ref={table} className="w-full border-separate border-spacing-0">
           <caption className="sr-only">Reactants, reagents and solvents</caption>
           <thead>
             <tr>
@@ -422,17 +429,20 @@ function CompoundRow({
                   'border-t-0 py-1 text-[11px]/4 font-medium text-neutral-700',
                   ALIGN_CLASS[alignOf(column.kind)],
                   column.kind === 'delete' && ACTIONS_CELL_CLASS,
+                  // A group's labels carry the header's inset themselves, one each.
+                  column.kind === 'group' && 'px-1',
                 )}
                 style={{ minWidth: column.minWidth }}
               >
                 {column.kind === 'group' ? (
-                  <div className="flex justify-between gap-4">
-                    {column.parts.map((part) => (
-                      <span key={part.id}>{part.header}</span>
+                  <div className="flex gap-2">
+                    {column.parts.map((part, partIndex) => (
+                      // `px-[9px]` is `CONTENT_BOX`'s inset, so a label starts where its values do.
+                      <span key={part.id} {...partSlot(part, partIndex === column.parts.length - 1, 'px-[9px]')}>
+                        {part.header}
+                      </span>
                     ))}
                   </div>
-                ) : REPEATED_SAMPLE_HEADERS.has(column.id) ? (
-                  <span className="sr-only">{column.header}</span>
                 ) : (
                   column.header
                 )}
@@ -461,11 +471,10 @@ function CompoundRow({
                   )}
                 >
                   {column.kind === 'group' ? (
-                    // Each part is as wide as its own content and no wider, which is what leaves
-                    // the slack in the middle: the first sits left, the last right.
-                    <div className="flex items-center justify-between gap-4">
-                      {column.parts.map((part) => (
-                        <div key={part.id} className="shrink-0">
+                    // `gap-2` is the two `px-1`s that separate neighbouring cells of their own.
+                    <div className="flex items-center gap-2">
+                      {column.parts.map((part, partIndex) => (
+                        <div key={part.id} {...partSlot(part, partIndex === column.parts.length - 1)}>
                           <SampleCell column={part} sample={sample} canEdit={canEdit} mutations={mutations} />
                         </div>
                       ))}
@@ -481,6 +490,20 @@ function CompoundRow({
       )}
     </tbody>
   );
+}
+
+/**
+ * The box one part of a sample group sits in, the same for its label and for its values so the
+ * two line up. An `equalWidth` part is marked for `useEqualWidths` and takes the width that
+ * finds; any other is as wide as its own content. The last sits at the cell's right edge, which
+ * leaves the group's slack as a gap before it.
+ */
+function partSlot(part: SamplePart, last: boolean, className?: string) {
+  return {
+    className: cn('shrink-0', ALIGN_CLASS[alignOf(part.kind)], last && 'ml-auto', className),
+    'data-equal-width': part.equalWidth && part.id,
+    style: { minWidth: part.equalWidth ? equalWidth(part.id, part.minWidth) : part.minWidth },
+  };
 }
 
 function CompoundCell({

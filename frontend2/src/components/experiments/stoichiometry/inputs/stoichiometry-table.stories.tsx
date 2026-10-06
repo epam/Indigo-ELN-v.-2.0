@@ -51,7 +51,7 @@ export const Default: Story = {
     // The compound row still summarises its batches, above the nested table listing them.
     await expect(canvas.getByText('2, 3, 4, 6')).toBeInTheDocument();
     // Expanded by default: every compound shows the sample columns' header, no clicking required.
-    await expect(canvas.getAllByRole('columnheader', { name: 'Density' })).toHaveLength(5);
+    await expect(canvas.getAllByText('Density')).toHaveLength(5);
     await expect(canvas.getByRole('button', { name: 'Hide batches of row 1' })).toBeInTheDocument();
   },
 };
@@ -60,7 +60,7 @@ export const Default: Story = {
 export const NestedRows: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getAllByRole('columnheader', { name: 'Density' })).not.toHaveLength(0);
+    await expect(canvas.getAllByText('Density')).not.toHaveLength(0);
     await expect(canvas.getByRole('textbox', { name: 'Comments, batch 2' })).toHaveValue(
       'Dried over molecular sieves before use',
     );
@@ -74,7 +74,7 @@ export const Collapsed: Story = {
     await userEvent.click(canvas.getByRole('button', { name: 'Hide batches of row 2' }));
 
     await expect(canvas.queryByRole('textbox', { name: 'Comments, batch 2' })).not.toBeInTheDocument();
-    await expect(canvas.getAllByRole('columnheader', { name: 'Density' })).toHaveLength(4);
+    await expect(canvas.getAllByText('Density')).toHaveLength(4);
     // Its summary of those batches is still on the compound row.
     await expect(canvas.getByText('2, 3, 4, 6')).toBeInTheDocument();
   },
@@ -111,6 +111,31 @@ export const ColumnsLineUp: Story = {
 };
 
 /**
+ * **A batch's fields past Mol line up without a grid line to hold them.** Density, Molarity and
+ * Purity share one cell with the hazards and the comment, so nothing in the table makes one
+ * batch's Density as wide as the next's — `useEqualWidths` measures them. Checked across every
+ * compound, label and value alike.
+ */
+export const SampleDetailsLineUp: Story = {
+  play: async ({ canvasElement }) => {
+    await document.fonts.ready;
+
+    for (const name of ['density', 'molarity', 'purity']) {
+      const slots = [...canvasElement.querySelectorAll(`[data-equal-width="${name}"]`)];
+      // A label per open compound and a value per batch.
+      await expect(slots.length).toBeGreaterThan(5);
+      await waitFor(() => {
+        const boxes = slots.map((slot) => {
+          const { left, width } = slot.getBoundingClientRect();
+          return `${Math.round(left)}+${Math.round(width)}`;
+        });
+        expect(new Set(boxes).size).toBe(1);
+      });
+    }
+  },
+};
+
+/**
  * **Entering edit mode must not resize anything.** Columns are content-sized, so an editor that
  * sat in the flow would move the column twice over: out, because a bordered input plus a unit
  * menu asks for more than a short label, and back in when the edited cell happened to be the
@@ -130,7 +155,8 @@ export const EditingDoesNotResizeTheColumn: Story = {
     await document.fonts.ready;
 
     for (const name of ['Weight', 'Volume', 'Mol', 'Density', 'Molarity', 'Purity']) {
-      const header = canvas.getAllByRole('columnheader', { name })[0];
+      // Past Mol a batch's fields share one cell, so their labels are text rather than headers.
+      const header = canvas.queryAllByRole('columnheader', { name })[0] ?? canvas.getAllByText(name)[0];
       // The widest *display* in the column — the label that holds the column open.
       const inputs = canvas.getAllByLabelText(new RegExp(`^${name}, batch`));
       const widest = inputs.reduce((a, b) => (width(a) >= width(b) ? a : b));

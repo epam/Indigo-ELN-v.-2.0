@@ -156,25 +156,34 @@ export type InputColumn = ColumnBase & Cell<ReactionInput>;
 export type SampleColumn = (SamplePart & { span: number }) | SampleGroup;
 
 /** One sample field: what a sample column is, less its place in the grid. */
-export type SamplePart = ColumnBase & Cell<ReactionInputSample>;
+export type SamplePart = ColumnBase &
+  Cell<ReactionInputSample> & {
+    /**
+     * As wide as the widest cell of this part in any sample row, measured — see
+     * `useEqualWidths`. A part without it is as wide as its own content.
+     */
+    equalWidth?: true;
+  };
 
 /**
- * Several sample fields sharing **one** cell, the first at its left edge and the last at its
- * right — Hazard Comments and Comments.
+ * Several sample fields sharing **one** cell — everything a batch has to the right of Mol.
  *
- * As two cells they each had to end on a grid line, so the boundary between them was a boundary
- * of the compound row too, and Salt EQ moved right every time a batch gained a hazard. As one
- * cell they have no line between them to hold anything to: the compound columns above stay
- * packed, and the group's own slack is the gap in its middle.
+ * As cells of their own they each had to end on a grid line, so every boundary between them was
+ * a boundary of the compound row too: Density sat under EQ and each widened the other, though
+ * the two have nothing to do with one another. As one cell they have no line between them to
+ * hold anything to, and the compound columns above stay packed.
+ *
+ * What a grid line gave for free is then done by hand for the parts that need it: an
+ * `equalWidth` part is measured, so Density is as wide in one batch as in the next. The last
+ * part sits at the cell's right edge, and the group's own slack is the gap before it.
  */
 type SampleGroup = ColumnBase & { kind: 'group'; span: number; parts: SamplePart[] };
 
 /**
- * The host columns a sample row skips before its first cell: the chevron and every compound-only
- * column — `#`, Compound ID, CAS #, Chem. Name and Mol. Weight. This is what puts the sample
- * Batch # column under the compound Batch # column.
+ * The host columns a sample row skips before its first cell: the chevron, `#` and Compound ID.
+ * This is what puts the sample Batch # column under the compound Batch # column.
  */
-export const SAMPLE_INDENT_SPAN = 6;
+export const SAMPLE_INDENT_SPAN = 3;
 
 /**
  * The trailing ordinal of an NBK batch number, without its padding: `20240101-0001-003` reads
@@ -194,36 +203,6 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
     header: 'Compound ID',
     kind: 'readonly',
     value: (input) => input.compound.compoundKey,
-  },
-  {
-    id: 'casNumber',
-    header: 'CAS #',
-    kind: 'readonly',
-    value: (input) => input.compound.casNumber,
-  },
-  {
-    id: 'chemicalName',
-    header: 'Chem. Name',
-    kind: 'text',
-    value: (input) => input.chemicalName,
-    mutation: (input, chemicalName) => ({ type: 'SetInputRowChemicalName', anchor: input.anchor, chemicalName }),
-  },
-  {
-    id: 'molWeight',
-    header: 'Mol. Weight',
-    kind: 'numeric',
-    value: (input) => input.compound.molWeight,
-    units: MOL_WEIGHT_UNITS,
-    // Implied by the column — every molecular weight is g/mol.
-    suffix: '',
-    // A known compound's molecular weight comes from the registry; only an unidentified one
-    // is the user's to state.
-    editable: (input) => !isKnownCompound(input.compound),
-    mutation: (input, next) => ({
-      type: 'SetInputCompoundMolWeight',
-      anchor: input.anchor,
-      molWeight: next.value,
-    }),
   },
   {
     id: 'batches',
@@ -272,6 +251,10 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
   {
     id: 'eq',
     header: 'EQ',
+    // Room to type a digit or two and a decimal point into a cell that mostly shows `1`.
+    minWidth: 56,
+    // So the sample details below widen `sampleSpacer` rather than this.
+    fitContent: true,
     kind: 'numeric',
     value: (input) => input.eq,
     units: NO_UNITS,
@@ -280,6 +263,8 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
   {
     id: 'role',
     header: 'Rxn Role',
+    // For the same reason as EQ's.
+    fitContent: true,
     kind: 'role',
     value: (input) => input.role,
     mutation: (input, role) => ({ type: 'SetInputRowRole', anchor: input.anchor, role }),
@@ -287,13 +272,51 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
   {
     id: 'formula',
     header: 'Mol Form.',
+    // For the same reason as EQ's.
+    fitContent: true,
     kind: 'html',
     value: (input) => input.compound.formula,
   },
   {
+    id: 'molWeight',
+    header: 'Mol. Weight',
+    // For the same reason as EQ's.
+    fitContent: true,
+    kind: 'numeric',
+    value: (input) => input.compound.molWeight,
+    units: MOL_WEIGHT_UNITS,
+    // Implied by the column — every molecular weight is g/mol.
+    suffix: '',
+    // A known compound's molecular weight comes from the registry; only an unidentified one
+    // is the user's to state.
+    editable: (input) => !isKnownCompound(input.compound),
+    mutation: (input, next) => ({
+      type: 'SetInputCompoundMolWeight',
+      anchor: input.anchor,
+      molWeight: next.value,
+    }),
+  },
+  {
+    id: 'casNumber',
+    header: 'CAS #',
+    // For the same reason as EQ's.
+    fitContent: true,
+    kind: 'readonly',
+    value: (input) => input.compound.casNumber,
+  },
+  {
+    id: 'chemicalName',
+    header: 'Chem. Name',
+    // For the same reason as EQ's.
+    fitContent: true,
+    kind: 'text',
+    value: (input) => input.chemicalName,
+    mutation: (input, chemicalName) => ({ type: 'SetInputRowChemicalName', anchor: input.anchor, chemicalName }),
+  },
+  {
     id: 'limiting',
     header: 'Limiting',
-    // So the sample notes below widen `sampleSpacer` rather than this.
+    // For the same reason as EQ's.
     fitContent: true,
     kind: 'limiting',
     value: (input) => input.limiting === true,
@@ -344,9 +367,9 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
     }),
   },
   /**
-   * Absorbs the width a sample's hazards and comment need beyond the four columns before it.
+   * Absorbs the width a sample's details need beyond the ten columns before it.
    * Empty in the compound row, so it contributes no minimum of its own and collapses to nothing
-   * until a sample actually needs the room. It only absorbs because those four are `fitContent`.
+   * until a sample actually needs the room. It only absorbs because those ten are `fitContent`.
    */
   { id: 'sampleSpacer', header: '', kind: 'spacer' },
   {
@@ -363,7 +386,7 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
  *
  * **`span` is how a sample cell reaches its place in the grid.** There is one `<table>` for both
  * levels, so a sample row does not draw a table of its own: it spans the compound columns above
- * it, and `SAMPLE_INDENT_SPAN` skips the six it starts after. That is what makes the two levels
+ * it, and `SAMPLE_INDENT_SPAN` skips the three it starts after. That is what makes the two levels
  * line up without any arithmetic — a cell either starts on a grid boundary or it does not, and
  * the browser cannot render it half a pixel out. The spans below plus the indent total the
  * nineteen host columns; see the diagram on `StoichiometryTable`.
@@ -428,53 +451,56 @@ export const SAMPLE_COLUMNS: SampleColumn[] = [
     }),
   },
   {
-    id: 'density',
-    span: 1,
-    header: 'Density',
-    minWidth: 115,
-    kind: 'numeric',
-    value: (sample) => sample.density,
-    units: DENSITY_UNITS,
-    mutation: (sample, next) => ({
-      type: 'SetInputDensity',
-      anchor: sample.anchor,
-      density: next.value,
-      unit: next.unit as DensityUnit | null,
-    }),
-  },
-  {
-    id: 'molarity',
-    span: 1,
-    header: 'Molarity',
-    minWidth: 115,
-    kind: 'numeric',
-    value: (sample) => sample.molarity,
-    units: MOLARITY_UNITS,
-    mutation: (sample, next) => ({
-      type: 'SetInputMolarity',
-      anchor: sample.anchor,
-      molarity: next.value,
-      unit: next.unit as MolarityUnit | null,
-    }),
-  },
-  {
-    id: 'purity',
-    span: 1,
-    header: 'Purity',
-    kind: 'numeric',
-    value: (sample) => sample.purity,
-    units: NO_UNITS,
-    // A percentage, though the wire still carries `NO_UNIT`.
-    suffix: '%',
-    mutation: (sample, next) => ({ type: 'SetInputPurity', anchor: sample.anchor, purity: next.value }),
-  },
-  {
-    id: 'notes',
-    // Limiting, Salt Code, Salt EQ, Stereoisomer Code and the spacer.
-    span: 5,
+    id: 'details',
+    // Every compound column from EQ to the spacer.
+    span: 11,
     header: '',
     kind: 'group',
     parts: [
+      {
+        id: 'density',
+        header: 'Density',
+        minWidth: 115,
+        equalWidth: true,
+        kind: 'numeric',
+        value: (sample) => sample.density,
+        units: DENSITY_UNITS,
+        mutation: (sample, next) => ({
+          type: 'SetInputDensity',
+          anchor: sample.anchor,
+          density: next.value,
+          unit: next.unit as DensityUnit | null,
+        }),
+      },
+      {
+        id: 'molarity',
+        header: 'Molarity',
+        minWidth: 115,
+        equalWidth: true,
+        kind: 'numeric',
+        value: (sample) => sample.molarity,
+        units: MOLARITY_UNITS,
+        mutation: (sample, next) => ({
+          type: 'SetInputMolarity',
+          anchor: sample.anchor,
+          molarity: next.value,
+          unit: next.unit as MolarityUnit | null,
+        }),
+      },
+      {
+        id: 'purity',
+        header: 'Purity',
+        // Narrower than its neighbours' 115 by what `%` saves over their units, so the number
+        // input is as wide here as it is there.
+        minWidth: 95,
+        equalWidth: true,
+        kind: 'numeric',
+        value: (sample) => sample.purity,
+        units: NO_UNITS,
+        // A percentage, though the wire still carries `NO_UNIT`.
+        suffix: '%',
+        mutation: (sample, next) => ({ type: 'SetInputPurity', anchor: sample.anchor, purity: next.value }),
+      },
       {
         id: 'hazards',
         header: 'Hazard Comments',
