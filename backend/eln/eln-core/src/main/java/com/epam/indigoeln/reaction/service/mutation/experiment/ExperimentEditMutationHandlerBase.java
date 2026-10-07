@@ -16,7 +16,6 @@ import com.epam.indigoeln.eln.model.BuiltInDictionary;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
 import com.epam.indigoeln.eln.model.SaltCodeRef;
-import com.epam.indigoeln.eln.model.SampleSource;
 import com.epam.indigoeln.eln.model.StereoisomerCodeRef;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.reaction.model.CompoundRef;
@@ -146,43 +145,6 @@ public abstract class ExperimentEditMutationHandlerBase<T extends ExperimentMuta
         reactionInputSample.setNbkBatchNumber(sample.getNbkBatchNumber());
         row.setChemicalName(compound.getChemicalName());
         return reactionInputSample;
-    }
-
-    public void resolveInputSample(ReactionInput row, SampleDTO sample, InputSampleAnchor anchor) {
-        CompoundEntity compound = sampleSearchService.importCompound(sample);
-        ReactionInputSample virtualSample = StreamEx.of(row.getSamples()).findFirst(s -> s.getSampleSource() == SampleSource.VIRTUAL).orElse(null);
-        row.setSamples(row.getSamples().stream().filter(s -> s.getSampleSource() != SampleSource.VIRTUAL).toList());
-
-        CompoundRef compoundRef = compoundService.compoundRef(compound);
-        if (!row.getCompound().compoundKeyEquals(compoundRef)) {
-            row.updateCompound(compoundRef);
-        }
-
-        ReactionInputSample resolvedSample = addInputSample(row, compound, sample, anchor);
-        if (virtualSample != null) {
-            transferUserEnteredValues(virtualSample, resolvedSample);
-        }
-    }
-
-    private static void transferUserEnteredValues(ReactionInputSample from, ReactionInputSample to) {
-        transferUserEnteredValue(from.getMol(), to::setMol);
-        transferUserEnteredValue(from.getWeight(), to::setWeight);
-        transferUserEnteredValue(from.getVolume(), to::setVolume);
-        transferUserEnteredValue(from.getDensity(), to::setDensity);
-        transferUserEnteredValue(from.getMolarity(), to::setMolarity);
-        transferUserEnteredValue(from.getPurity(), to::setPurity);
-        if (!from.getHealthHazards().isEmpty()) {
-            to.setHealthHazards(from.getHealthHazards());
-        }
-        if (from.getComment() != null) {
-            to.setComment(from.getComment());
-        }
-    }
-
-    private static <U extends MeasurementUnit> void transferUserEnteredValue(EnteredValue<U> value, Consumer<EnteredValue<U>> setter) {
-        if (value.getSource().isUserEntered()) {
-            setter.accept(value);
-        }
     }
 
     protected void updateInputRowCompound(Reaction reaction, ReactionInput row, CompoundRef compound) {

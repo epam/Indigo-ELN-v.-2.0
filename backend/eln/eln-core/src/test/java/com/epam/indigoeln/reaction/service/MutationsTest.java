@@ -26,6 +26,7 @@ import com.epam.indigoeln.eln.model.SolventRef;
 import com.epam.indigoeln.eln.model.StereoisomerCodeRef;
 import com.epam.indigoeln.eln.model.StorageInstructionsRef;
 import com.epam.indigoeln.reaction.model.ComparisonOperator;
+import com.epam.indigoeln.reaction.model.CompoundRef;
 import com.epam.indigoeln.reaction.model.InputAnchor;
 import com.epam.indigoeln.reaction.model.InputSampleAnchor;
 import com.epam.indigoeln.reaction.model.OutputAnchor;
@@ -350,10 +351,22 @@ public class MutationsTest extends MutationsTestBase {
         InputAnchor secondAnchor = experiment.input(2).getAnchor();
 
         experiment.mutate(new ReactionMutation.ResolveInputs(experiment.reaction().getAnchor(), Map.of(firstAnchor, samples.getItems().get(0))));
-        // TODO merge the rows instead, as AddInput does for a compound the reaction already has
-        assertThatClientCall(() -> experiment.mutate(new ReactionMutation.ResolveInputs(experiment.reaction().getAnchor(), Map.of(secondAnchor, samples.getItems().get(1)))))
-                .isBadRequest("Reaction contains duplicate input compounds");
+        experiment.mutateSetInputWeight(2, 1, ONE_HUNDRED, G);
+        CompoundRef secondCompound = experiment.input(2).getCompound();
+
+        experiment.mutate(new ReactionMutation.ResolveInputs(experiment.reaction().getAnchor(), Map.of(secondAnchor, samples.getItems().get(1))));
+        // the sample joins the row that already has its compound
+        assertThat(experiment.input(1).getAnchor()).isEqualTo(firstAnchor);
+        assertThat(experiment.input(1).getSamples()).hasSize(2);
+        assertThat(experiment.inputSample(1, 1).getSampleKey()).isEqualTo(samples.getItems().get(0).getSampleKey());
+        assertThat(experiment.inputSample(1, 2).getSampleKey()).isEqualTo(samples.getItems().get(1).getSampleKey());
+        // and the row it was picked for stays as it was
         assertThat(experiment.reaction().getInputs()).hasSize(2);
+        assertThat(experiment.input(2).getAnchor()).isEqualTo(secondAnchor);
+        assertThat(experiment.input(2).getCompound().compoundKeyEquals(secondCompound)).isTrue();
+        assertThat(experiment.input(2).getSamples()).hasSize(1);
+        assertThat(experiment.inputSample(2, 1).getSampleSource()).isEqualTo(SampleSource.VIRTUAL);
+        assertThat(experiment.inputSample(2, 1)).hasWeight(100, G);
     }
 
     @Test

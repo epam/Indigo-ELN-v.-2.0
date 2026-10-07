@@ -1,5 +1,6 @@
 package com.epam.indigoeln.reaction.service.mutation.experiment;
 
+import com.epam.indigoeln.common.model.units.MeasurementUnit;
 import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.model.SampleDTO;
@@ -39,6 +40,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
 
@@ -248,9 +250,58 @@ class ResolveInputsHandler extends AbstractReactionMutationHandler<ReactionMutat
         validate(mutation.createdSampleAnchors().keySet().equals(mutation.inputSamples().keySet()), "createdSampleAnchors must have the same keys as inputSamples");
         mutation.inputSamples().forEach((inputAnchor, sample) -> {
             ReactionInput row = model.locate(inputAnchor);
-            resolveInputSample(row, sample, mutation.createdSampleAnchors().get(inputAnchor));
+            resolveInputSample(reaction, row, sample, mutation.createdSampleAnchors().get(inputAnchor));
         });
         return "Resolve input samples";
+    }
+
+    private void resolveInputSample(Reaction reaction, ReactionInput row, SampleDTO sample, InputSampleAnchor anchor) {
+        CompoundEntity compound = sampleSearchService.importCompound(sample);
+        CompoundRef compoundRef = compoundService.compoundRef(compound);
+        if (!row.getCompound().compoundKeyEquals(compoundRef)) {
+            ReactionInput existing = StreamEx.of(reaction.getInputs())
+                    .findFirst(x -> x != row && x.getRole() == row.getRole() && x.getCompound().compoundKeyEquals(compoundRef))
+                    .orElse(null);
+            if (existing != null) {
+                // the reaction already has a row for this compound: the sample joins it, as AddInput does,
+                // and this row stays as drawn - it is still a compound of the scheme, just not this one
+                addInputSample(existing, compound, sample, anchor);
+                return;
+            }
+        }
+
+        ReactionInputSample virtualSample = StreamEx.of(row.getSamples()).findFirst(s -> s.getSampleSource() == SampleSource.VIRTUAL).orElse(null);
+        row.setSamples(row.getSamples().stream().filter(s -> s.getSampleSource() != SampleSource.VIRTUAL).toList());
+
+        if (!row.getCompound().compoundKeyEquals(compoundRef)) {
+            row.updateCompound(compoundRef);
+        }
+
+        ReactionInputSample resolvedSample = addInputSample(row, compound, sample, anchor);
+        if (virtualSample != null) {
+            transferUserEnteredValues(virtualSample, resolvedSample);
+        }
+    }
+
+    private static void transferUserEnteredValues(ReactionInputSample from, ReactionInputSample to) {
+        transferUserEnteredValue(from.getMol(), to::setMol);
+        transferUserEnteredValue(from.getWeight(), to::setWeight);
+        transferUserEnteredValue(from.getVolume(), to::setVolume);
+        transferUserEnteredValue(from.getDensity(), to::setDensity);
+        transferUserEnteredValue(from.getMolarity(), to::setMolarity);
+        transferUserEnteredValue(from.getPurity(), to::setPurity);
+        if (!from.getHealthHazards().isEmpty()) {
+            to.setHealthHazards(from.getHealthHazards());
+        }
+        if (from.getComment() != null) {
+            to.setComment(from.getComment());
+        }
+    }
+
+    private static <U extends MeasurementUnit> void transferUserEnteredValue(EnteredValue<U> value, Consumer<EnteredValue<U>> setter) {
+        if (value.getSource().isUserEntered()) {
+            setter.accept(value);
+        }
     }
 }
 
