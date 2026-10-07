@@ -180,15 +180,15 @@ export type SamplePart = ColumnBase &
 type SampleGroup = ColumnBase & { kind: 'group'; span: number; parts: SamplePart[] };
 
 /**
- * The host columns a sample row skips before its first cell: the chevron, `#` and Compound ID.
- * This is what puts the sample Batch # column under the compound Batch # column.
+ * The host columns a sample row skips before its first cell: the chevron and `#`. This is what
+ * puts the sample Batch # column under the compound's Compound ID, which it continues.
  */
-export const SAMPLE_INDENT_SPAN = 3;
+export const SAMPLE_INDENT_SPAN = 2;
 
 /**
  * The trailing ordinal of an NBK batch number, without its padding: `20240101-0001-003` reads
- * as `3`. The full number is unique across the notebook and far too long for a table cell;
- * within one compound the ordinal alone is what distinguishes the batches.
+ * as `3`. What a sample cell's accessible label names its batch by — the full number is unique
+ * across the notebook and far too long to be read out before every field.
  */
 export function shortBatchNumber(nbkBatchNumber: string | undefined): string | undefined {
   if (nbkBatchNumber == null) return undefined;
@@ -203,17 +203,6 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
     header: 'Compound ID',
     kind: 'readonly',
     value: (input) => input.compound.compoundKey,
-  },
-  {
-    id: 'batches',
-    header: 'Batch #',
-    kind: 'readonly',
-    // Every batch under this compound at a glance, so a collapsed row still says what it holds.
-    value: (input) =>
-      input.samples
-        .map((sample) => shortBatchNumber(sample.nbkBatchNumber))
-        .filter((each) => each != null)
-        .join(', ') || undefined,
   },
   {
     id: 'weight',
@@ -386,10 +375,10 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
  *
  * **`span` is how a sample cell reaches its place in the grid.** There is one `<table>` for both
  * levels, so a sample row does not draw a table of its own: it spans the compound columns above
- * it, and `SAMPLE_INDENT_SPAN` skips the three it starts after. That is what makes the two levels
+ * it, and `SAMPLE_INDENT_SPAN` skips the two it starts after. That is what makes the two levels
  * line up without any arithmetic — a cell either starts on a grid boundary or it does not, and
  * the browser cannot render it half a pixel out. The spans below plus the indent total the
- * nineteen host columns; see the diagram on `StoichiometryTable`.
+ * eighteen host columns; see the diagram on `StoichiometryTable`.
  *
  * A nested table per expanded compound was the alternative, and it is the reason the spans are
  * worth the trouble: two of them side by side would size their columns from their own content
@@ -403,7 +392,7 @@ export const SAMPLE_COLUMNS: SampleColumn[] = [
     span: 1,
     header: 'Batch #',
     kind: 'readonly',
-    value: (sample) => shortBatchNumber(sample.nbkBatchNumber),
+    value: (sample) => sample.sampleKey,
   },
   {
     id: 'weight',

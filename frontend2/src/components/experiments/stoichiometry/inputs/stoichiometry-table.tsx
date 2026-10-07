@@ -63,7 +63,7 @@ function inputHaystack(input: ReactionInput): string {
     compound.formula == null ? undefined : plainFormula(compound.formula),
     compound.compoundKey,
     compound.casNumber,
-    ...input.samples.map((sample) => shortBatchNumber(sample.nbkBatchNumber)),
+    ...input.samples.map((sample) => sample.sampleKey),
   ]
     .filter((each) => each != null)
     .join(' ')
@@ -84,10 +84,10 @@ function inputHaystack(input: ReactionInput): string {
  * on a grid boundary or it does not, and the browser cannot render it half a pixel out:
  *
  * ```
- * HOST   | 1 | 2 |   3    |   4    |   5    |   6    |  7  | 8  |    9    |   10    |  11   | 12  |    13    |    14    |    15    |   16   |   17   | 18 | 19  |
- * OUTER  |[v]| # | CompID | Batch# | Weight | Volume | Mol | EQ | RxnRole | MolForm | MolWt | CAS | ChemName | Limiting | SaltCode | SaltEQ | Stereo | ~  | del |
- * INNER  |    (indent)    | Batch# | Weight | Volume | Mol | [Density][Molarity][Purity] Hazard Comments <-                           -> Comments | del |
- *                         ^ Batch # aligns                                                                                              aligns ^
+ * HOST   | 1 | 2 |   3    |   4    |   5    |  6  | 7  |    8    |    9    |  10   | 11  |    12    |    13    |    14    |   15   |   16   | 17 | 18  |
+ * OUTER  |[v]| # | CompID | Weight | Volume | Mol | EQ | RxnRole | MolForm | MolWt | CAS | ChemName | Limiting | SaltCode | SaltEQ | Stereo | ~  | del |
+ * INNER  |(indent)| Batch# | Weight | Volume | Mol | [Density][Molarity][Purity] Hazard Comments <-                           -> Comments | del |
+ *                 ^ Batch # under Compound ID                                                                                  aligns ^
  * ```
  *
  * Up to Mol a sample's columns are the compound's own, so they share its grid lines. Past it the
@@ -413,7 +413,7 @@ function CompoundRow({
             The sample columns' own header, repeated inside every open compound — they are a
             different column set from the one in `<thead>`, and a batch's numbers are unreadable
             without it. Each cell spans the host columns it covers; the leading cell is the
-            indent that puts Batch # under Batch #.
+            indent that puts Batch # under Compound ID.
           */}
           <tr>
             <td colSpan={SAMPLE_INDENT_SPAN} />

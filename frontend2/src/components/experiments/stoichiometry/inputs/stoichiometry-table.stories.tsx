@@ -48,8 +48,8 @@ export const Default: Story = {
     await expect(canvas.getByRole('columnheader', { name: 'Chem. Name' })).toBeInTheDocument();
     // Chem. Name is editable, so it is an input carrying a value rather than text in the DOM.
     await expect(canvas.getByRole('textbox', { name: 'Chem. Name, row 1' })).toHaveValue('Salicylic acid');
-    // The compound row still summarises its batches, above the nested table listing them.
-    await expect(canvas.getByText('2, 3, 4, 6')).toBeInTheDocument();
+    // A batch is named by its sample key, under the compound ID it continues.
+    await expect(canvas.getByText('STR-00000000-90-004')).toBeInTheDocument();
     // Expanded by default: every compound shows the sample columns' header, no clicking required.
     await expect(canvas.getAllByText('Density')).toHaveLength(5);
     await expect(canvas.getByRole('button', { name: 'Hide batches of row 1' })).toBeInTheDocument();
@@ -75,8 +75,7 @@ export const Collapsed: Story = {
 
     await expect(canvas.queryByRole('textbox', { name: 'Comments, batch 2' })).not.toBeInTheDocument();
     await expect(canvas.getAllByText('Density')).toHaveLength(4);
-    // Its summary of those batches is still on the compound row.
-    await expect(canvas.getByText('2, 3, 4, 6')).toBeInTheDocument();
+    await expect(canvas.queryByText('STR-00000000-90-004')).not.toBeInTheDocument();
   },
 };
 
@@ -84,7 +83,7 @@ export const Collapsed: Story = {
  * **The two alignment constraints**, measured rather than eyeballed.
  *
  * Both levels are rows of one table now, so this is really asserting that the spans in
- * `columns.ts` put the sample cells where they are meant to go: Batch # under Batch #, and the
+ * `columns.ts` put the sample cells where they are meant to go: Batch # under Compound ID, and the
  * two delete columns ending together. Checked for *every* compound, since a per-compound drift
  * is exactly the failure the old two-table layout had.
  */
@@ -92,11 +91,12 @@ export const ColumnsLineUp: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    const [outerBatch, ...innerBatches] = canvas.getAllByRole('columnheader', { name: 'Batch #' });
-    await expect(innerBatches).toHaveLength(5);
-    for (const innerBatch of innerBatches) {
-      await expect(Math.round(innerBatch.getBoundingClientRect().left)).toBe(
-        Math.round(outerBatch.getBoundingClientRect().left),
+    const compoundId = canvas.getByRole('columnheader', { name: 'Compound ID' });
+    const batches = canvas.getAllByRole('columnheader', { name: 'Batch #' });
+    await expect(batches).toHaveLength(5);
+    for (const batch of batches) {
+      await expect(Math.round(batch.getBoundingClientRect().left)).toBe(
+        Math.round(compoundId.getBoundingClientRect().left),
       );
     }
 
