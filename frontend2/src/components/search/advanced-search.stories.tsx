@@ -101,6 +101,20 @@ export const PicksATherapeuticArea: Story = {
   },
 };
 
+/** A filter is optional, so its list has a row that puts it back to none — blank to look at, but named. */
+export const ClearsAStatus: Story = {
+  args: { defaultOpen: true, initial: { experimentStatus: 'OPEN' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const status = canvas.getByLabelText('Experiment Status');
+    await expect(status).toHaveTextContent('Open');
+
+    await userEvent.click(status);
+    await userEvent.click(await screen.findByRole('option', { name: 'Clear selection' }));
+    await expect(status).not.toHaveTextContent('Open');
+  },
+};
+
 /** Author suggestions come from the server, so they are the one debounced lookup here. */
 export const SuggestsAuthors: Story = {
   args: { defaultOpen: true },

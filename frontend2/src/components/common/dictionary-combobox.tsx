@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import { Select } from '@/components/ui/select';
 import { useDictionary } from '@/lib/api/dictionaries';
 
@@ -68,11 +70,17 @@ function DictionaryCombobox({
 /**
  * Several items from one built-in dictionary, shown as chips. Like `DictionaryCombobox` there is
  * nothing to type: the list ticks what is chosen, and picking a ticked row again removes it.
+ *
+ * **The picks are a draft until the list is left, and then one `onValueChange`.** Every use of
+ * this saves as it changes, the list stays open across ticks and nothing is optimistic — so
+ * reporting each tick computed the second from a value the first had not yet changed, and the
+ * server ended with only the second. Escape abandons the draft.
  */
 function MultiDictionaryCombobox({
   dictionary,
   value,
   onValueChange,
+  pending = false,
   id,
   'aria-label': ariaLabel,
   placeholder,
@@ -82,7 +90,10 @@ function MultiDictionaryCombobox({
 }: {
   dictionary: BuiltInDictionary;
   value: DictionaryItemRef[];
+  /** Called once per visit to the list, as it closes, and only if the picks changed. */
   onValueChange: (value: DictionaryItemRef[]) => void;
+  /** Whether what `onValueChange` last reported is still being saved; it stays on show meanwhile. */
+  pending?: boolean;
   id?: string;
   /** See `Select`. */
   'aria-label'?: string;
@@ -96,6 +107,11 @@ function MultiDictionaryCombobox({
   variant?: 'box' | 'cell';
 }) {
   const { data, isPending, isError } = useDictionary(dictionary);
+  /** What has been ticked on this visit to the list; null until something is. */
+  const [draft, setDraft] = useState<DictionaryItemRef[] | null>(null);
+  /** What the last visit reported, read only while that save is in flight — see `NumericCell`'s. */
+  const [sent, setSent] = useState(value);
+  const saved = pending ? sent : value;
 
   return (
     <Select<DictionaryItemRef>
@@ -103,8 +119,18 @@ function MultiDictionaryCombobox({
       id={id}
       aria-label={ariaLabel}
       placeholder={placeholder}
-      value={value}
-      onValueChange={onValueChange}
+      value={draft ?? saved}
+      onValueChange={setDraft}
+      onOpenChange={(open, dismissed) => {
+        if (open) return;
+        setDraft(null);
+        if (draft == null || dismissed) return;
+        // Order is the order of ticking, which is not a change.
+        const ids = (items: DictionaryItemRef[]) => String(items.map((item) => item.id).sort());
+        if (ids(draft) === ids(saved)) return;
+        setSent(draft);
+        onValueChange(draft);
+      }}
       items={data ?? []}
       itemToKey={(item) => item.id}
       itemToLabel={(item) => item.name}

@@ -314,6 +314,16 @@ export function NumericCell({
               */
               if (event.relatedTarget == null) unitSlot.current?.focus();
             }}
+            /*
+              Chrome steps a focused number input on the wheel and keeps the scroll for itself —
+              and the blur would then send a number nobody typed. A read-only input does neither,
+              so it is read-only for exactly as long as the browser takes to act on the event.
+            */
+            onWheel={(event) => {
+              const input = event.currentTarget;
+              input.readOnly = true;
+              setTimeout(() => (input.readOnly = false));
+            }}
             onKeyDown={(event) => {
               if (event.key === 'Enter') {
                 event.preventDefault();

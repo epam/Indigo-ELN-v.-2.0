@@ -1,7 +1,9 @@
 package com.epam.indigoeln.reaction.service;
 
+import com.epam.indigoeln.common.model.NbkBatchNumber;
 import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.search.TextSearch;
 import com.epam.indigoeln.common.model.units.DensityUnit;
 import com.epam.indigoeln.common.model.units.MolUnit;
 import com.epam.indigoeln.common.model.units.MolarityUnit;
@@ -53,13 +55,13 @@ import com.epam.indigoeln.sampleregistration.model.SRSCompoundDTO;
 import com.epam.indigoeln.sampleregistration.model.SRSSampleDTO;
 import com.epam.indigoeln.sampleregistration.model.STRCodeCompound;
 import com.epam.indigoeln.sampleregistration.model.STRCodeSample;
+import com.epam.indigoeln.sampleregistration.model.SampleRegistrationRequest;
 import com.epam.indigoeln.sampleregistration.model.SampleRegistrationResponse;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import jakarta.validation.constraints.NotNull;
 import one.util.streamex.IntStreamEx;
 import org.assertj.core.api.Assertions;
-import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -156,10 +158,12 @@ public class MutationsTest extends MutationsTestBase {
 
     @Test
     void testAddInputToEmptyReaction() {
-        SRSSampleDTO sample = new SRSSampleDTO(UUID.randomUUID(), UUID.randomUUID(), defaultSaltCode.getId(), new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 1), "C9H17NO4", BigDecimal.ONE);
-        doReturn(Page.of(Paging.DEFAULT, 1, List.of(sample))).when(sampleRegistrationClient).find(any(), any());
-        SRSCompoundDTO compound = new SRSCompoundDTO("C", defaultStereoisomerCode.getId(), defaultSaltCode.getId(), ModelUtil.loadResourceAsString("/ring-substructure.mol"));
-        doReturn(compound).when(sampleRegistrationClient).getCompound(any());
+        if (!integrationTest) {
+            SRSSampleDTO sample = new SRSSampleDTO(UUID.randomUUID(), UUID.randomUUID(), defaultSaltCode.getId(), new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 1), "C9H17NO4", BigDecimal.ONE);
+            doReturn(Page.of(Paging.DEFAULT, 1, List.of(sample))).when(sampleRegistrationClient).find(any(), any());
+            SRSCompoundDTO compound = new SRSCompoundDTO("C", defaultStereoisomerCode.getId(), defaultSaltCode.getId(), ModelUtil.loadResourceAsString("/ring-substructure.mol"));
+            doReturn(compound).when(sampleRegistrationClient).getCompound(any());
+        }
 
         Page<SampleDTO> samples = compoundClient.search(new FindSamplesRequest().withCatalog(SearchCatalog.SRS), Paging.DEFAULT);
         experiment.mutate(new ReactionMutation.AddInput(experiment.reaction().getAnchor(), samples.getItems().getFirst()));
@@ -249,13 +253,15 @@ public class MutationsTest extends MutationsTestBase {
 
     @Test
     void testResolveInputs() {
-        SRSSampleDTO sample = new SRSSampleDTO(UUID.randomUUID(), UUID.randomUUID(), defaultSaltCode.getId(), new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 1), "C9H17NO4", BigDecimal.ONE);
-        doReturn(
-                Page.of(Paging.DEFAULT, 1, List.of(sample)),
-                Page.of(Paging.DEFAULT, 0, List.of())
-        ).when(sampleRegistrationClient).find(any(), any());
-        SRSCompoundDTO compound = new SRSCompoundDTO("C", defaultStereoisomerCode.getId(), defaultSaltCode.getId(), ModelUtil.loadResourceAsString("/ring-substructure.mol"));
-        doReturn(compound).when(sampleRegistrationClient).getCompound(any());
+        if (!integrationTest) {
+            SRSSampleDTO sample = new SRSSampleDTO(UUID.randomUUID(), UUID.randomUUID(), defaultSaltCode.getId(), new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 1), "C9H17NO4", BigDecimal.ONE);
+            doReturn(
+                    Page.of(Paging.DEFAULT, 1, List.of(sample)),
+                    Page.of(Paging.DEFAULT, 0, List.of())
+            ).when(sampleRegistrationClient).find(any(), any());
+            SRSCompoundDTO compound = new SRSCompoundDTO("C", defaultStereoisomerCode.getId(), defaultSaltCode.getId(), ModelUtil.loadResourceAsString("/ring-substructure.mol"));
+            doReturn(compound).when(sampleRegistrationClient).getCompound(any());
+        }
 
         experiment.mutateSetSchemeFromResource(REACTION_RXN);
         assertThat(experiment.input(1).getCompound().isKnown()).isTrue();
@@ -266,16 +272,36 @@ public class MutationsTest extends MutationsTestBase {
         assertThat(experiment.inputSample(1, 1).getSampleKey()).isNotNull();
     }
 
-    @Test
-    void testAddTwoInputSamplesOfSameCompound() {
+    /** Two samples of one SRS compound, as an SRS catalog search returns them: stubbed in a unit test, registered for real in an integration test. */
+    private Page<SampleDTO> twoSamplesOfSameCompound() {
+        if (integrationTest) {
+            List<SampleDTO> samples = IntStreamEx.rangeClosed(1, 2)
+                    .mapToObj(ordinal -> sampleRegistrationClient.registerSample(SampleRegistrationRequest.builder()
+                            .molfile(ModelUtil.loadResourceAsString(RING_SUBSTRUCTURE_MOL))
+                            .stereoisomerCode(defaultStereoisomerCode.getId())
+                            .saltCode(defaultSaltCode.getId())
+                            .saltCodeNumeric(0)
+                            .nbkBatchNumber(new NbkBatchNumber("12345678-1234", ordinal))
+                            .molWeight(100.0)
+                            .exactMass(100.0)
+                            .build()).strCode())
+                    // by its own code, as the service keeps the samples earlier tests and runs registered
+                    .map(strCode -> compoundClient.search(new FindSamplesRequest().withCatalog(SearchCatalog.SRS).withSampleKey(new TextSearch.ExactSearch(strCode.toString())), Paging.DEFAULT).getItems().getFirst())
+                    .toList();
+            return Page.of(Paging.DEFAULT, 2, samples);
+        }
         UUID compoundID = UUID.randomUUID();
         SRSSampleDTO sample1 = new SRSSampleDTO(UUID.randomUUID(), compoundID, defaultSaltCode.getId(), new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 1), "C9H17NO4", BigDecimal.ONE);
         SRSSampleDTO sample2 = new SRSSampleDTO(UUID.randomUUID(), compoundID, defaultSaltCode.getId(), new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 2), "C9H17NO4", BigDecimal.ONE);
         doReturn(Page.of(Paging.DEFAULT, 2, List.of(sample1, sample2))).when(sampleRegistrationClient).find(any(), any());
         SRSCompoundDTO compound = new SRSCompoundDTO("C", defaultStereoisomerCode.getId(), defaultSaltCode.getId(), ModelUtil.loadResourceAsString(RING_SUBSTRUCTURE_MOL));
         doReturn(compound).when(sampleRegistrationClient).getCompound(any());
+        return compoundClient.search(new FindSamplesRequest().withCatalog(SearchCatalog.SRS), Paging.DEFAULT);
+    }
 
-        Page<SampleDTO> samples = compoundClient.search(new FindSamplesRequest().withCatalog(SearchCatalog.SRS), Paging.DEFAULT);
+    @Test
+    void testAddTwoInputSamplesOfSameCompound() {
+        Page<SampleDTO> samples = twoSamplesOfSameCompound();
         assertThat(samples.getItems()).hasSize(2);
         experiment.mutate(new ReactionMutation.AddInput(experiment.reaction().getAnchor(), samples.getItems().get(0)));
         experiment.mutate(new ReactionMutation.AddInput(experiment.reaction().getAnchor(), samples.getItems().get(1)));
@@ -287,13 +313,7 @@ public class MutationsTest extends MutationsTestBase {
 
     @Test
     void testSameCompoundWithDifferentRoles() {
-        UUID compoundID = UUID.randomUUID();
-        SRSSampleDTO sample1 = new SRSSampleDTO(UUID.randomUUID(), compoundID, defaultSaltCode.getId(), new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 1), "C9H17NO4", BigDecimal.ONE);
-        SRSSampleDTO sample2 = new SRSSampleDTO(UUID.randomUUID(), compoundID, defaultSaltCode.getId(), new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 2), "C9H17NO4", BigDecimal.ONE);
-        doReturn(Page.of(Paging.DEFAULT, 2, List.of(sample1, sample2))).when(sampleRegistrationClient).find(any(), any());
-        SRSCompoundDTO compound = new SRSCompoundDTO("C", defaultStereoisomerCode.getId(), defaultSaltCode.getId(), ModelUtil.loadResourceAsString(RING_SUBSTRUCTURE_MOL));
-        doReturn(compound).when(sampleRegistrationClient).getCompound(any());
-        Page<SampleDTO> samples = compoundClient.search(new FindSamplesRequest().withCatalog(SearchCatalog.SRS), Paging.DEFAULT);
+        Page<SampleDTO> samples = twoSamplesOfSameCompound();
 
         experiment.mutate(new ReactionMutation.AddInput(experiment.reaction().getAnchor(), samples.getItems().get(0)));
         experiment.mutateSetInputRowRole(1, ReactionRole.SOLVENT);
@@ -309,13 +329,7 @@ public class MutationsTest extends MutationsTestBase {
 
     @Test
     void testResolveInputsTwiceForSameCompound() {
-        UUID compoundID = UUID.randomUUID();
-        SRSSampleDTO sample1 = new SRSSampleDTO(UUID.randomUUID(), compoundID, defaultSaltCode.getId(), new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 1), "C9H17NO4", BigDecimal.ONE);
-        SRSSampleDTO sample2 = new SRSSampleDTO(UUID.randomUUID(), compoundID, defaultSaltCode.getId(), new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 2), "C9H17NO4", BigDecimal.ONE);
-        doReturn(Page.of(Paging.DEFAULT, 2, List.of(sample1, sample2))).when(sampleRegistrationClient).find(any(), any());
-        SRSCompoundDTO compound = new SRSCompoundDTO("C", defaultStereoisomerCode.getId(), defaultSaltCode.getId(), ModelUtil.loadResourceAsString(RING_SUBSTRUCTURE_MOL));
-        doReturn(compound).when(sampleRegistrationClient).getCompound(any());
-        Page<SampleDTO> samples = compoundClient.search(new FindSamplesRequest().withCatalog(SearchCatalog.SRS), Paging.DEFAULT);
+        Page<SampleDTO> samples = twoSamplesOfSameCompound();
 
         experiment.mutateSetSchemeFromResource(REACTION_RXN);
         experiment.mutateSetInputWeight(1, 1, ONE_HUNDRED, G);
@@ -337,13 +351,7 @@ public class MutationsTest extends MutationsTestBase {
 
     @Test
     void testResolveInputsToCompoundOfAnotherRow() {
-        UUID compoundID = UUID.randomUUID();
-        SRSSampleDTO sample1 = new SRSSampleDTO(UUID.randomUUID(), compoundID, defaultSaltCode.getId(), new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 1), "C9H17NO4", BigDecimal.ONE);
-        SRSSampleDTO sample2 = new SRSSampleDTO(UUID.randomUUID(), compoundID, defaultSaltCode.getId(), new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 2), "C9H17NO4", BigDecimal.ONE);
-        doReturn(Page.of(Paging.DEFAULT, 2, List.of(sample1, sample2))).when(sampleRegistrationClient).find(any(), any());
-        SRSCompoundDTO compound = new SRSCompoundDTO("C", defaultStereoisomerCode.getId(), defaultSaltCode.getId(), ModelUtil.loadResourceAsString(RING_SUBSTRUCTURE_MOL));
-        doReturn(compound).when(sampleRegistrationClient).getCompound(any());
-        Page<SampleDTO> samples = compoundClient.search(new FindSamplesRequest().withCatalog(SearchCatalog.SRS), Paging.DEFAULT);
+        Page<SampleDTO> samples = twoSamplesOfSameCompound();
 
         experiment.mutateSetSchemeFromResource(REACTION_RXN);
         assertThat(experiment.reaction().getInputs()).hasSize(2);

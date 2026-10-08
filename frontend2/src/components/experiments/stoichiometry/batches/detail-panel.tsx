@@ -579,7 +579,6 @@ function TextField({
           id={id}
           value={draft}
           placeholder="Text"
-          disabled={pending}
           onChange={(event) => setDraft(event.target.value)}
           onBlur={() => {
             const next = draft.trim() === '' ? null : draft.trim();
@@ -624,7 +623,6 @@ function NumberField({
           type="number"
           value={draft}
           placeholder="—"
-          disabled={pending}
           onChange={(event) => setDraft(event.target.value)}
           onBlur={() => {
             const trimmed = draft.trim();
@@ -666,7 +664,6 @@ function DictionaryField(
           id={id}
           dictionary={dictionary}
           value={value ?? null}
-          disabled={pending}
           clearable={!props.required}
           // Picking is the commit; there is no separate confirmation step to wait for.
           onValueChange={(next) => {
@@ -712,7 +709,7 @@ function MultiDictionaryField({
           id={id}
           dictionary={dictionary}
           value={value}
-          disabled={pending}
+          pending={pending}
           onValueChange={onCommit}
         />
       </SavingOverlay>

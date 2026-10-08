@@ -14,7 +14,7 @@ const REACTION = EXPERIMENT.model.reactions[0];
 /** Records the mutations that actually reached the wire, so a story can assert the payload. */
 const sent: unknown[] = [];
 
-/** Slow enough to outlast `SavingOverlay`'s 300 ms delay, so the region really does go inert. */
+/** Slow enough to outlast `SavingOverlay`'s 300 ms delay, so the spinner really does show. */
 const freezingHandlers = [
   http.post('/api/eln/experiments/:id/mutate', async () => {
     await new Promise((resolve) => setTimeout(resolve, 900));
@@ -407,6 +407,66 @@ export const PicksSaltCode: Story = {
     const list = await screen.findByRole('listbox');
     await expect(within(list).queryByRole('option', { name: '—' })).not.toBeInTheDocument();
     await expect(within(list).getByRole('option', { name: '00 - Parent Structure' })).toBeInTheDocument();
+  },
+};
+
+/**
+ * **Several hazards are one request, sent when the list is left.** The list stays open across
+ * ticks, and a request per tick built the second from a value the first had not changed yet —
+ * the server was left with only the last one ticked.
+ */
+export const HazardsAreSentOnceWhenTheListCloses: Story = {
+  parameters: { msw: { handlers: spyHandlers } },
+  render: () => <TableFromCache />,
+  play: async ({ canvasElement }) => {
+    sent.length = 0;
+    const canvas = within(canvasElement);
+
+    // Batch 1 already holds Corrosive and Flammable.
+    await userEvent.click(await canvas.findByLabelText('Hazard Comments, batch 1'));
+    const list = await screen.findByRole('listbox');
+    await userEvent.click(await within(list).findByRole('option', { name: 'Irritant' }));
+    await userEvent.click(within(list).getByRole('option', { name: 'Toxic' }));
+    // Ticked, and shown as ticked, but not sent.
+    await expect(within(list).getByRole('option', { name: 'Irritant' })).toHaveAttribute('aria-selected', 'true');
+    await expect(sent).toEqual([]);
+
+    await userEvent.click(document.body);
+    await waitFor(() => expect(sent).toHaveLength(1));
+    await expect(sent[0]).toMatchObject({
+      type: 'SetInputHealthHazards',
+      anchor: 'e0000000-0000-4000-8000-00000000000a',
+      healthHazards: [{ name: 'Corrosive' }, { name: 'Flammable' }, { name: 'Irritant' }, { name: 'Toxic' }],
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    await expect(sent).toHaveLength(1);
+  },
+};
+
+/** Escape abandons the ticks, as it abandons a number — and so does ticking back to where it started. */
+export const HazardsAreNotSentWhenAbandoned: Story = {
+  parameters: { msw: { handlers: spyHandlers } },
+  render: () => <TableFromCache />,
+  play: async ({ canvasElement }) => {
+    sent.length = 0;
+    const canvas = within(canvasElement);
+    const hazards = await canvas.findByLabelText('Hazard Comments, batch 1');
+
+    await userEvent.click(hazards);
+    await userEvent.click(await screen.findByRole('option', { name: 'Irritant' }));
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByRole('listbox')).not.toBeInTheDocument());
+    await expect(hazards).not.toHaveTextContent('Irritant');
+
+    await userEvent.click(hazards);
+    await userEvent.click(await screen.findByRole('option', { name: 'Irritant' }));
+    await userEvent.click(screen.getByRole('option', { name: 'Irritant' }));
+    await userEvent.click(document.body);
+    await waitFor(() => expect(screen.queryByRole('listbox')).not.toBeInTheDocument());
+
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    await expect(sent).toEqual([]);
   },
 };
 
@@ -933,6 +993,44 @@ export const NoRequestWhenUnchanged: Story = {
 };
 
 /**
+ * **Scrolling past a number must not change it.** Chrome steps a focused number input on the
+ * wheel and keeps the scroll for itself, and the blur then saves a number nobody typed.
+ *
+ * The wheel has to be a real one — a synthetic `WheelEvent` has no default action, so it would
+ * pass with or without the fix — and only the Vitest runner can make one. Opened in Storybook
+ * itself the story renders and asserts nothing.
+ */
+export const WheelDoesNotChangeANumber: Story = {
+  parameters: { msw: { handlers: spyHandlers } },
+  // Taller than the window, so there is somewhere to scroll to.
+  render: () => (
+    <div className="pb-[100vh]">
+      <TableFromCache />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    if (import.meta.env.MODE !== 'test') return;
+    const { userEvent: browser } = await import('vitest/browser');
+    sent.length = 0;
+    const canvas = within(canvasElement);
+
+    const input = await canvas.findByLabelText('Weight, batch 1');
+    await userEvent.click(input);
+    await browser.wheel(input, { delta: { y: 100 } });
+
+    await waitFor(() => expect(window.scrollY).toBeGreaterThan(0));
+    await expect(input).toHaveValue(676.5);
+    await expect(input).toHaveFocus();
+    // The editor is still an editor once the wheel has passed.
+    await waitFor(() => expect(input).not.toHaveAttribute('readonly'));
+
+    await userEvent.click(document.body);
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    await expect(sent).toEqual([]);
+  },
+};
+
+/**
  * The flash. The server answers a one-cell edit by recalculating a value the user did not
  * touch, and that cell is marked so the change is not silent.
  */
@@ -972,8 +1070,8 @@ export const Saving: Story = {
  * Adding a row is a write like any other, so the toolbar button reports it the way a cell does —
  * a spinner over the button, and the button inert meanwhile so the row cannot be added twice.
  *
- * Only past `SavingOverlay`'s 300 ms delay: the usual `AddEmptyInput` beats that and shows
- * nothing, which is the point of the delay.
+ * The spinner only past `SavingOverlay`'s 300 ms delay: the usual `AddEmptyInput` beats that and
+ * shows nothing, which is the point of the delay. The button is inert from the first moment.
  */
 export const AddingARow: Story = {
   parameters: { msw: { handlers: slowMutateHandlers } },
@@ -1014,13 +1112,12 @@ export const SlowSaveRestoresFocus: Story = {
     await userEvent.click(input);
     await userEvent.clear(input);
     await userEvent.type(input, '451{Enter}');
-    // Focus is on the cell's unit box — after the input, so the next Tab leaves the cell.
+    // Enter leaves focus on the cell's unit box — after the input, so the next Tab leaves the cell.
     const resting = input.parentElement!.querySelector('[tabindex="-1"]')!;
-    await expect(resting).toHaveFocus();
 
-    // The save outlasts the delay, so the cell freezes and `inert` takes focus away.
+    // The cell freezes for the save at once, and `inert` takes focus away.
+    await waitFor(() => expect(resting).not.toHaveFocus());
     await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Saving…'));
-    await expect(resting).not.toHaveFocus();
 
     // ...and it comes back once the save lands.
     await waitFor(() => expect(screen.queryByRole('status')).not.toBeInTheDocument(), { timeout: 5_000 });
@@ -1046,7 +1143,7 @@ export const ClickingAwayLeavesEditMode: Story = {
     await userEvent.type(input, '7');
     await userEvent.click(document.body);
 
-    // The save outlasts the spinner's delay, so the cell freezes and then comes back.
+    // The cell freezes for the save and then comes back.
     await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Saving…'));
     await waitFor(() => expect(screen.queryByRole('status')).not.toBeInTheDocument(), { timeout: 5_000 });
 

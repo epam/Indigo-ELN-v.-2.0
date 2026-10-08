@@ -203,6 +203,8 @@ export const PicksSource: Story = {
 
     await userEvent.click(await canvas.findByLabelText('Source'));
     // The popup is portalled, so it is reached with `screen`, not the canvas.
+    // The row that clears the pick is blank to the eye, and still has a name.
+    await expect(await screen.findByRole('option', { name: 'Clear selection' })).toHaveTextContent(/^\s*$/);
     const option = DICTIONARIES.SAMPLE_SOURCE![1];
     await userEvent.click(await screen.findByRole('option', { name: option.name }));
 
@@ -258,7 +260,10 @@ export const NoRequestWhenUnchanged: Story = {
   },
 };
 
-/** Nothing to type into: the list ticks what is chosen and stays open, so several picks are one visit. */
+/**
+ * Nothing to type into: the list ticks what is chosen and stays open, so several picks are one
+ * visit — and one request, sent as the list is left.
+ */
 export const PicksSeveralHazards: Story = {
   parameters: { msw: { handlers: spyHandlers } },
   render: () => <PanelFromCache />,
@@ -274,11 +279,13 @@ export const PicksSeveralHazards: Story = {
     await userEvent.click(hazards);
     await expect(await screen.findByRole('option', { name: held.name })).toHaveAttribute('aria-selected', 'true');
     await userEvent.click(screen.getByRole('option', { name: added.name }));
-
-    await waitFor(() =>
-      expect(sent.at(-1)).toMatchObject({ type: 'SetOutputHealthHazards', healthHazards: [held, added] }),
-    );
+    // Ticked, with the list still open, but not sent.
     await expect(screen.getByRole('listbox')).toBeInTheDocument();
+    await expect(sent).toEqual([]);
+
+    await userEvent.click(document.body);
+    await waitFor(() => expect(sent).toHaveLength(1));
+    await expect(sent[0]).toMatchObject({ type: 'SetOutputHealthHazards', healthHazards: [held, added] });
   },
 };
 
@@ -296,8 +303,8 @@ export const ClearingAListSendsEmpty: Story = {
     // A chosen row is ticked in the list, and picking it again is what removes it.
     await userEvent.click(await canvas.findByLabelText('Health Hazards'));
     await userEvent.click(await screen.findByRole('option', { name: hazard.name }));
-    // The list stays open for the next pick, so it has to be shut by hand.
-    await userEvent.keyboard('{Escape}');
+    // The list stays open for the next pick, and leaving it is what sends. Not Escape, which abandons.
+    await userEvent.click(document.body);
     await waitFor(() =>
       expect(sent).toEqual([
         {
@@ -313,6 +320,7 @@ export const ClearingAListSendsEmpty: Story = {
     await waitFor(async () => expect(await canvas.findByLabelText('Compound Protection')).toBeEnabled());
     await userEvent.click(canvas.getByLabelText('Compound Protection'));
     await userEvent.click(await screen.findByRole('option', { name: protection.name }));
+    await userEvent.click(document.body);
 
     await waitFor(() =>
       expect(sent.at(-1)).toEqual({
@@ -433,7 +441,8 @@ export const Saving: Story = {
     await userEvent.click(document.body);
 
     await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Saving…'));
-    await expect(comment).toBeDisabled();
-    await expect(canvas.getByLabelText('Structure Comments')).not.toBeDisabled();
+    // Frozen by the overlay's `inert`, which leaves no `disabled` attribute to look for.
+    await expect(comment.closest('[inert]')).not.toBeNull();
+    await expect(canvas.getByLabelText('Structure Comments').closest('[inert]')).toBeNull();
   },
 };

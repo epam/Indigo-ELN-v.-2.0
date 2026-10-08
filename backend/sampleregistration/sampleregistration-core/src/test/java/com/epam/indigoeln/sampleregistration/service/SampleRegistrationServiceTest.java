@@ -3,6 +3,8 @@ package com.epam.indigoeln.sampleregistration.service;
 import com.epam.indigoeln.common.model.NbkBatchNumber;
 import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.search.NumericSearch;
+import com.epam.indigoeln.common.model.search.TextSearch;
 import com.epam.indigoeln.common.model.units.MolarityUnit;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.sampleregistration.api.SampleRegistrationAdminClient;
@@ -114,6 +116,25 @@ class SampleRegistrationServiceTest extends BaseTest {
     void testGetCompoundPicture() {
         SRSSampleDTO sample = sampleRegistrationClient.find(SRSFindSamplesRequest.builder().quickSearch("STR-00000001-05-001").build(), Paging.DEFAULT).getItems().getFirst();
         assertThat(new String(sampleRegistrationClient.getCompoundPicture(sample.getCompoundID()))).contains("<svg");
+    }
+
+    @Test
+    @Order(103)
+    void testFindSampleTreatsLikeWildcardsLiterally() {
+        assertThat(sampleRegistrationClient.find(SRSFindSamplesRequest.builder().chemicalName(new TextSearch.ContainsSearch("lName")).build(), Paging.DEFAULT).getItems()).hasSize(1);
+        // neither is in "chemicalName"; as wildcards both would match it
+        assertThat(sampleRegistrationClient.find(SRSFindSamplesRequest.builder().chemicalName(new TextSearch.ContainsSearch("_")).build(), Paging.DEFAULT).getItems()).isEmpty();
+        assertThat(sampleRegistrationClient.find(SRSFindSamplesRequest.builder().chemicalName(new TextSearch.StartsWithSearch("%Name")).build(), Paging.DEFAULT).getItems()).isEmpty();
+    }
+
+    @Test
+    @Order(104)
+    void testFindSampleByMolWeight() {
+        // the sample's molWeight is 100.0; "equals" matches to the precision of the search value
+        assertThat(sampleRegistrationClient.find(SRSFindSamplesRequest.builder().molWeight(new NumericSearch.Equals(100.0)).build(), Paging.DEFAULT).getItems()).hasSize(1);
+        assertThat(sampleRegistrationClient.find(SRSFindSamplesRequest.builder().molWeight(new NumericSearch.Equals(100.04)).build(), Paging.DEFAULT).getItems()).isEmpty();
+        assertThat(sampleRegistrationClient.find(SRSFindSamplesRequest.builder().molWeight(new NumericSearch.Equals(100.4)).build(), Paging.DEFAULT).getItems()).isEmpty();
+        assertThat(sampleRegistrationClient.find(SRSFindSamplesRequest.builder().molWeight(new NumericSearch.Equals(101.0)).build(), Paging.DEFAULT).getItems()).isEmpty();
     }
 
     @Test

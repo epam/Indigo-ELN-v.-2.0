@@ -146,6 +146,13 @@ class GlobalSearchServiceTest extends ELNBaseTest {
     }
 
     @Test
+    void testNameMatchTreatsLikeWildcardsLiterally() {
+        // no name holds either character; as wildcards both would match every name
+        assertResults(globalSearchClient.search(new GlobalSearchRequest().withQuery("_"), Paging.DEFAULT));
+        assertResults(globalSearchClient.search(new GlobalSearchRequest().withQuery("%"), Paging.DEFAULT));
+    }
+
+    @Test
     void testFindExperiments() {
         Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withQuery("ed1"), Paging.DEFAULT);
         assertResults(results, tuple(ELNEntityType.EXPERIMENT, experiment1.name(), experiment1.id()));

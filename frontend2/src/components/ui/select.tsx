@@ -98,6 +98,11 @@ interface SingleSelectProps<T> {
    * or out of a value.
    */
   emptyLabel?: string;
+  /**
+   * Names the clearing row for assistive tech where `emptyLabel` is a blank, and so names nothing.
+   * Defaults to "Clear selection"; a visible label is the row's name and is left to be it.
+   */
+  emptyAriaLabel?: string;
 }
 
 /**
@@ -109,6 +114,7 @@ interface MultiSelectProps<T> {
   value: T[];
   onValueChange: (value: T[]) => void;
   emptyLabel?: never;
+  emptyAriaLabel?: never;
 }
 
 interface SelectBaseProps<T> {
@@ -144,6 +150,11 @@ interface SelectBaseProps<T> {
    * width — what a table column sized by its content needs. A `cell` always does.
    */
   fitContent?: boolean;
+  /**
+   * Told as the list opens and closes. `dismissed` is a close by Escape — the one way of closing
+   * that abandons the visit — for a caller that holds its picks until the list is left.
+   */
+  onOpenChange?: (open: boolean, dismissed: boolean) => void;
   className?: string;
 }
 
@@ -170,6 +181,7 @@ function Select<T>(props: SelectProps<T>) {
     id,
     'aria-label': ariaLabel,
     emptyLabel,
+    emptyAriaLabel = 'Clear selection',
     placeholder,
     disabled = false,
     loading = false,
@@ -177,6 +189,7 @@ function Select<T>(props: SelectProps<T>) {
     size = 'md',
     variant = 'box',
     fitContent = variant === 'cell',
+    onOpenChange,
     className,
   } = props;
   const multiple = props.multiple === true;
@@ -204,9 +217,11 @@ function Select<T>(props: SelectProps<T>) {
       disabled={disabled}
       open={cell ? open : undefined}
       onOpenChange={(next, details) => {
+        const escaped = !next && details.reason === 'escape-key';
         setOpen(next);
         // Opening again is editing again; Escape is the one way of closing that abandons it.
-        setDismissed(cell && !next && details.reason === 'escape-key');
+        setDismissed(cell && escaped);
+        onOpenChange?.(next, escaped);
       }}
       // Object items are not referentially equal across refetches, so identity has to be
       // spelled out or a selected value stops matching its own row in the list. Null is only
@@ -230,7 +245,10 @@ function Select<T>(props: SelectProps<T>) {
             ? (event) => {
                 const from = event.relatedTarget;
                 if (from == null || popup.current?.contains(from)) return;
-                if (event.currentTarget.matches(':focus-visible')) setOpen(true);
+                if (event.currentTarget.matches(':focus-visible')) {
+                  setOpen(true);
+                  onOpenChange?.(true, false);
+                }
               }
             : undefined
         }
@@ -323,6 +341,7 @@ function Select<T>(props: SelectProps<T>) {
               {clearable && (
                 <SelectPrimitive.Item
                   value={EMPTY_ITEM}
+                  aria-label={emptyLabel?.trim() === '' ? emptyAriaLabel : undefined}
                   className={cn(
                     'cursor-default rounded-2 px-3 py-2 text-neutral-700 outline-none data-highlighted:bg-blue-10',
                     SIZE_TEXT[size],

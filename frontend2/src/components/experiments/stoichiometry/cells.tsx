@@ -230,7 +230,8 @@ export function DictionaryCell({
 }
 
 /**
- * Several items from a built-in dictionary — health hazards.
+ * Several items from a built-in dictionary — health hazards. Sent once, as the list is left — see
+ * `MultiDictionaryCombobox`.
  */
 export function MultiDictionaryCell({
   dictionary,
@@ -259,6 +260,7 @@ export function MultiDictionaryCell({
         // The same absence marker every other empty cell shows.
         placeholder="—"
         value={value}
+        pending={pending}
         // `@NotNull List` on the record: emptying the list sends `[]`, never null.
         onValueChange={onCommit}
       />

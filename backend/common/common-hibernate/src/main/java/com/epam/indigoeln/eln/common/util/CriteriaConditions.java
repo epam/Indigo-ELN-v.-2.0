@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.jspecify.annotations.Nullable;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -25,6 +26,7 @@ import java.util.function.Function;
 public class CriteriaConditions {
 
     private static final String SIMILARITY_METRIC_TANIMOTO = "Tanimoto";
+    private static final char LIKE_ESCAPE = '\\';
 
     @Inject
     protected HibernateCriteriaBuilder cb;
@@ -54,9 +56,9 @@ public class CriteriaConditions {
                 String value = valueConverter.apply(w.value().toLowerCase());
                 yield switch (w) {
                     case TextSearch.ExactSearch e -> cb.lower(attribute).equalTo(value);
-                    case TextSearch.StartsWithSearch s -> cb.ilike(attribute, value + '%');
-                    case TextSearch.EndsWithSearch e -> cb.ilike(attribute, '%' + value);
-                    case TextSearch.ContainsSearch c -> cb.ilike(attribute, '%' + value + '%');
+                    case TextSearch.StartsWithSearch s -> cb.ilike(attribute, escapeLike(value) + '%', LIKE_ESCAPE);
+                    case TextSearch.EndsWithSearch e -> cb.ilike(attribute, '%' + escapeLike(value), LIKE_ESCAPE);
+                    case TextSearch.ContainsSearch c -> cb.ilike(attribute, '%' + escapeLike(value) + '%', LIKE_ESCAPE);
                 };
             }
             case TextSearch.BetweenSearch b -> {
@@ -71,7 +73,15 @@ public class CriteriaConditions {
     public void numericSearch(Expression<Double> attribute, @Nullable NumericSearch search) {
         Predicate predicate = switch (search) {
             case null -> null;
-            case NumericSearch.Equals e -> cb.floor(attribute).equalTo(Math.floor(e.value()));
+            case NumericSearch.Equals e -> {
+                // Equal to the precision of the search value: 78 matches [77.5, 78.5), 78.11 matches [78.105, 78.115).
+                BigDecimal value = BigDecimal.valueOf(e.value());
+                BigDecimal half = new BigDecimal("0.5").movePointLeft(Math.max(0, value.stripTrailingZeros().scale()));
+                yield cb.and(
+                        cb.greaterThanOrEqualTo(attribute, value.subtract(half).doubleValue()),
+                        cb.lessThan(attribute, value.add(half).doubleValue())
+                );
+            }
             case NumericSearch.GreaterThanOrEqual ge -> cb.greaterThanOrEqualTo(attribute, ge.value());
             case NumericSearch.LessThanOrEqual le -> cb.lessThanOrEqualTo(attribute, le.value());
         };
@@ -104,7 +114,11 @@ public class CriteriaConditions {
     }
 
     private Predicate nameMatches(Expression<String> name, String search) {
-        return cb.ilike(name, cb.literal("%" + search + "%"));
+        return cb.ilike(name, cb.literal("%" + escapeLike(search) + "%"), LIKE_ESCAPE);
+    }
+
+    private static String escapeLike(String value) {
+        return value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
     }
 
     public Expression<String> fullTextHeadline(Expression<String> attribute, String search, String options) {
