@@ -31,7 +31,6 @@ public class MainStack extends Stack {
                 props.getHostedZoneName(),
                 props.getSecurityGroups(),
                 props.getStorageBucketName(),
-                props.getApiGatewaySecret(),
                 props.getLambdaSubnets(),
                 props.isCreateS3Gateway()
         ));
@@ -49,7 +48,6 @@ public class MainStack extends Stack {
                 infraStack.getEc2Role(),
                 infraStack.getStorageBucket(),
                 cognitoStack.getUserPool(),
-                infraStack.getApiSecret(),
                 postgresRepo,
                 props.getPostgresImageTag(),
                 elnAwsRepo,
@@ -65,7 +63,9 @@ public class MainStack extends Stack {
         new CloudFrontStack(this, new CloudFrontStack.Props(
                 envName,
                 infraStack.getHostedZone(),
-                infraStack.getInstanceIp(),
+                infraStack.getVpc(),
+                infraStack.getInstance(),
+                infraStack.getEc2SecurityGroup(),
                 props.getDomainName(),
                 infraStack.getApiSecret(),
                 cognitoStack.getUserPool(),

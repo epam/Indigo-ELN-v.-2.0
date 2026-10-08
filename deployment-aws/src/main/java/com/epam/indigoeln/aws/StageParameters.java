@@ -29,8 +29,6 @@ public class StageParameters {
     private String reportsAwsImageTag;
     private String signatureAwsImageTag;
     private String sampleRegistrationAwsImageTag;
-    /** Shared between CloudFront's origin custom header and every service's APISecretFilter. */
-    private String apiGatewaySecret;
     private String storageBucketName;
     private boolean createS3Gateway;
 

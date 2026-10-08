@@ -32,7 +32,19 @@ import software.amazon.awscdk.services.cloudfront.ResponseHeadersPolicy;
 import software.amazon.awscdk.services.cloudfront.ResponseHeadersStrictTransportSecurity;
 import software.amazon.awscdk.services.cloudfront.ResponseSecurityHeadersBehavior;
 import software.amazon.awscdk.services.cloudfront.ViewerProtocolPolicy;
-import software.amazon.awscdk.services.cloudfront.origins.HttpOrigin;
+import software.amazon.awscdk.services.cloudfront.VpcOriginEndpoint;
+import software.amazon.awscdk.services.cloudfront.origins.VpcOrigin;
+import software.amazon.awscdk.services.cloudfront.origins.VpcOriginProps;
+import software.amazon.awscdk.customresources.AwsCustomResource;
+import software.amazon.awscdk.customresources.AwsCustomResourcePolicy;
+import software.amazon.awscdk.customresources.AwsSdkCall;
+import software.amazon.awscdk.customresources.PhysicalResourceId;
+import software.amazon.awscdk.customresources.SdkCallsPolicyOptions;
+import software.amazon.awscdk.services.ec2.CfnSecurityGroupIngress;
+import software.amazon.awscdk.services.ec2.IVpc;
+import software.amazon.awscdk.services.ec2.Instance;
+import software.amazon.awscdk.services.ec2.SecurityGroup;
+import software.amazon.awscdk.services.secretsmanager.ISecret;
 import software.amazon.awscdk.services.cloudfront.origins.S3BucketOrigin;
 import software.amazon.awscdk.services.cognito.IUserPool;
 import software.amazon.awscdk.services.cognito.IUserPoolClient;
@@ -48,7 +60,6 @@ import software.amazon.awscdk.services.s3.assets.AssetOptions;
 import software.amazon.awscdk.services.s3.deployment.BucketDeployment;
 import software.amazon.awscdk.services.s3.deployment.CacheControl;
 import software.amazon.awscdk.services.s3.deployment.Source;
-import software.amazon.awscdk.services.ssm.IStringParameter;
 import software.amazon.awscdk.services.wafv2.CfnWebACL;
 import software.amazon.awsconstructs.services.wafwebaclcloudfront.WafwebaclToCloudFront;
 import software.amazon.awsconstructs.services.wafwebaclcloudfront.WafwebaclToCloudFrontProps;
@@ -93,25 +104,55 @@ public class CloudFrontStack {
                 .enableAcceptEncodingBrotli(true)
                 .build();
 
-        // The compose stack on the EC2 instance, reached over plain HTTP on port 80. CloudFront will
-        // not accept a self-signed origin certificate, so avoiding this hop being unencrypted would
-        // mean putting an ALB in front. X-API-Secret is what proves to the services that a request
-        // arrived through the CDN; nginx passes it through rather than injecting its own.
-        //
-        // A CloudFront origin has to be a domain name, so the instance's Elastic IP gets one.
-        String originDomainName = "origin." + props.domainName;
-        ARecord.Builder.create(scope, "origin-domain-record")
-                .zone(props.hostedZone())
-                .recordName(originDomainName + '.')
-                .target(RecordTarget.fromIpAddresses(props.instanceIp()))
+        // The compose stack on the EC2 instance, reached through a VPC origin: CloudFront connects
+        // from its own network interfaces inside the VPC to the instance's private address, so port
+        // 80 is open to nothing else - not the internet, and not other people's distributions. The
+        // hop is still plain HTTP, but it no longer leaves the VPC; CloudFront will not accept a
+        // self-signed origin certificate, so encrypting it would mean putting an ALB in front.
+        // X-API-Secret is what proves to the services that a request arrived through the CDN; nginx
+        // passes it through rather than injecting its own.
+        software.amazon.awscdk.services.cloudfront.VpcOrigin vpcOrigin =
+                software.amazon.awscdk.services.cloudfront.VpcOrigin.Builder.create(scope, "api-vpc-origin")
+                        .vpcOriginName("indigoeln-" + props.envName)
+                        .endpoint(VpcOriginEndpoint.ec2Instance(props.instance()))
+                        .protocolPolicy(OriginProtocolPolicy.HTTP_ONLY)
+                        .httpPort(80)
+                        .build();
+
+        // CloudFront's interfaces carry a security group it creates itself, once per VPC, when the
+        // first VPC origin appears there - so it can only be looked up, and only after the origin.
+        AwsCustomResource vpcOriginsSecurityGroup = AwsCustomResource.Builder.create(scope, "vpc-origins-security-group")
+                .onUpdate(AwsSdkCall.builder()
+                        .service("ec2")
+                        .action("describeSecurityGroups")
+                        .parameters(Map.of("Filters", List.of(
+                                Map.of("Name", "vpc-id", "Values", List.of(props.vpc().getVpcId())),
+                                Map.of("Name", "group-name", "Values", List.of("CloudFront-VPCOrigins-Service-SG"))
+                        )))
+                        .physicalResourceId(PhysicalResourceId.of("CloudFront-VPCOrigins-Service-SG"))
+                        .build())
+                .policy(AwsCustomResourcePolicy.fromSdkCalls(SdkCallsPolicyOptions.builder()
+                        .resources(AwsCustomResourcePolicy.ANY_RESOURCE)
+                        .build()))
+                .build();
+        vpcOriginsSecurityGroup.getNode().addDependency(vpcOrigin);
+        // A resource of its own rather than addIngressRule, which would write the rule into the
+        // security group itself - and the group cannot wait for a lookup that waits for the
+        // instance that carries the group.
+        CfnSecurityGroupIngress.Builder.create(scope, "http-from-cloudfront-vpc-origin")
+                .groupId(props.instanceSecurityGroup().getSecurityGroupId())
+                .sourceSecurityGroupId(vpcOriginsSecurityGroup.getResponseField("SecurityGroups.0.GroupId"))
+                .ipProtocol("tcp")
+                .fromPort(80)
+                .toPort(80)
+                .description("http-from-cloudfront-vpc-origin")
                 .build();
 
         BehaviorOptions apiBehavior = BehaviorOptions.builder()
-                .origin(HttpOrigin.Builder.create(originDomainName)
-                        .protocolPolicy(OriginProtocolPolicy.HTTP_ONLY)
-                        .httpPort(80)
-                        .customHeaders(mapOf("X-API-Secret", props.apiSecret().getStringValue()))
-                        .build()
+                .origin(VpcOrigin.withVpcOrigin(vpcOrigin, VpcOriginProps.builder()
+                        // A dynamic reference, resolved by CloudFormation at deploy time.
+                        .customHeaders(mapOf("X-API-Secret", props.apiSecret().getSecretValue().unsafeUnwrap()))
+                        .build())
                 )
                 .allowedMethods(AllowedMethods.ALLOW_ALL)
                 .cachePolicy(CachePolicy.CACHING_DISABLED)
@@ -222,18 +263,31 @@ public class CloudFrontStack {
                         .actionToUse(CfnWebACL.RuleActionProperty.builder().count(CfnWebACL.CountActionProperty.builder().build()).build())
                         .build()
         ));
-        CfnWebACL.RuleProperty knownBadInputRuleSet = createWAFRuleSet("AWS", "AWSManagedRulesKnownBadInputsRuleSet", 2, List.of());
+        CfnWebACL.RuleProperty knownBadInputRuleSet = createWAFRuleSet("AWS", "AWSManagedRulesKnownBadInputsRuleSet", 2, List.of(
+                // Blocks any request body too large to inspect, which is every uploaded file; re-blocked below outside /api/
+                CfnWebACL.RuleActionOverrideProperty.builder()
+                        .name("Log4JRCE_BODY")
+                        .actionToUse(CfnWebACL.RuleActionProperty.builder().count(CfnWebACL.CountActionProperty.builder().build()).build())
+                        .build()
+        ));
 
         // Re-block EC2MetaDataSSRF_BODY for all paths except /api/eln/incidents, which legitimately receives URLs in the body
         CfnWebACL.RuleProperty ssrfReblockRule = createLabelReblockExceptPath(
                 "reblock-ssrf-except-incidents", 10,
-                "awswaf:managed:aws:core-rule-set:EC2MetaDataSSRF_BODY",
+                "awswaf:managed:aws:core-rule-set:EC2MetaDataSSRF_Body",
                 "/api/eln/incidents"
+        );
+
+        // Re-block Log4JRCE_BODY everywhere except the API, where file uploads go
+        CfnWebACL.RuleProperty log4jReblockRule = createLabelReblockExceptPath(
+                "reblock-log4j-body-except-api", 11,
+                "awswaf:managed:aws:known-bad-inputs:Log4JRCE_Body",
+                "/api/"
         );
 
         CfnWebACL wafWebACL = CfnWebACL.Builder.create(scope, "wafwebacl")
                 .scope("CLOUDFRONT")
-                .rules(List.of(ipReputationsRuleSet, commonRuleSet, knownBadInputRuleSet, ssrfReblockRule))
+                .rules(List.of(ipReputationsRuleSet, commonRuleSet, knownBadInputRuleSet, ssrfReblockRule, log4jReblockRule))
                 .defaultAction(CfnWebACL.DefaultActionProperty.builder().allow(CfnWebACL.AllowActionProperty.builder().build()).build())
                 .visibilityConfig(CfnWebACL.VisibilityConfigProperty.builder().cloudWatchMetricsEnabled(true).metricName("WebACLMetric").sampledRequestsEnabled(true).build())
                 .build();
@@ -407,9 +461,11 @@ public class CloudFrontStack {
     public record Props(
             String envName,
             IHostedZone hostedZone,
-            String instanceIp,
+            IVpc vpc,
+            Instance instance,
+            SecurityGroup instanceSecurityGroup,
             String domainName,
-            IStringParameter apiSecret,
+            ISecret apiSecret,
             IUserPool userPool,
             IUserPoolClient userPoolClient
     ) {

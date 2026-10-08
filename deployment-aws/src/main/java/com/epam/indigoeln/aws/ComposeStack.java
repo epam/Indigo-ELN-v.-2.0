@@ -14,7 +14,6 @@ import software.amazon.awscdk.services.secretsmanager.Secret;
 import software.amazon.awscdk.services.secretsmanager.SecretStringGenerator;
 import software.amazon.awscdk.services.ssm.StringParameter;
 import software.amazon.awscdk.services.cognito.IUserPool;
-import software.amazon.awscdk.services.ssm.IStringParameter;
 import software.constructs.Construct;
 
 import java.util.List;
@@ -71,8 +70,9 @@ public class ComposeStack {
                 "SAMPLEREGISTRATION_AWS_IMAGE=" + image(props.sampleRegistrationAwsRepo(), props.sampleRegistrationAwsImageTag()),
                 "ELN_COGNITO_USER_POOL_ID=" + props.userPool().getUserPoolId(),
                 "ELN_STORAGE_S3_BUCKET=" + props.storageBucket().getBucketName(),
-                "ELN_API_SECRET=" + props.apiSecret().getStringValue(),
-                ""); // deploy.sh appends DB_PASSWORD
+                // The name, not the value: deploy.sh resolves it, as it does the database password.
+                "ELN_API_SECRET_ID=" + InfraStack.apiSecretName(props.envName()),
+                ""); // deploy.sh appends DB_PASSWORD and ELN_API_SECRET
 
         StringParameter envParameter = StringParameter.Builder.create(scope, "compose-env")
                 .parameterName(InfraStack.composeEnvParameterName(props.envName()))
@@ -125,7 +125,6 @@ public class ComposeStack {
             Role ec2Role,
             IBucket storageBucket,
             IUserPool userPool,
-            IStringParameter apiSecret,
             IRepository postgresRepo,
             String postgresImageTag,
             IRepository elnAwsRepo,

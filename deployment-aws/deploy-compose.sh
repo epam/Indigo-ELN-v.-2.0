@@ -7,8 +7,6 @@
 set -o errexit
 set -o pipefail
 
-source ./_aws-prepare-env.sh
-
 #set -o xtrace
 PS4='+ ${BASH_SOURCE##*/}:${LINENO}:${FUNCNAME[0]:-main}: '
 

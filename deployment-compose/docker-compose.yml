@@ -38,7 +38,7 @@ services:
       POSTGRES_PASSWORD: postgres
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - ./pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     healthcheck:
@@ -224,3 +224,6 @@ services:
       timeout: 5s
       retries: 3
       start_period: 30s
+
+volumes:
+  pgdata:

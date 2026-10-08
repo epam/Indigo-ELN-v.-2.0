@@ -12,8 +12,9 @@ import software.amazon.awscdk.services.route53.HostedZoneAttributes;
 import software.amazon.awscdk.services.route53.IHostedZone;
 import software.amazon.awscdk.services.s3.Bucket;
 import software.amazon.awscdk.services.s3.IBucket;
-import software.amazon.awscdk.services.ssm.IStringParameter;
-import software.amazon.awscdk.services.ssm.StringParameter;
+import software.amazon.awscdk.services.secretsmanager.ISecret;
+import software.amazon.awscdk.services.secretsmanager.Secret;
+import software.amazon.awscdk.services.secretsmanager.SecretStringGenerator;
 import software.constructs.Construct;
 
 import java.util.ArrayList;
@@ -42,11 +43,9 @@ public class InfraStack {
     @Getter
     private final Instance instance;
     @Getter
-    private final String instanceIp;
-    @Getter
     private final Role ec2Role;
     @Getter
-    private final IStringParameter apiSecret;
+    private final ISecret apiSecret;
 
     public InfraStack(final Construct scope, final Props props) {
         vpc = Vpc.fromLookup(scope, "vpc", VpcLookupOptions.builder().vpcId(props.vpcId()).build());
@@ -66,21 +65,23 @@ public class InfraStack {
 
         // Shared between CloudFront (which sends it as an origin custom header) and every service's
         // APISecretFilter. It is what proves a request arrived through the CDN rather than directly.
-        apiSecret = StringParameter.Builder.create(scope, "api-gateway-secret")
-                .parameterName("api-gateway-secret-" + props.envName)
-                .stringValue(props.apiSecret())
+        // Generated, so the value is in no parameter file and no template: CloudFront takes it as a
+        // dynamic reference and deploy.sh reads it on the instance.
+        apiSecret = Secret.Builder.create(scope, "api-secret")
+                .secretName(apiSecretName(props.envName()))
+                .generateSecretString(SecretStringGenerator.builder()
+                        // Keeps the value safe to write into a .env file without quoting.
+                        .excludePunctuation(true)
+                        .passwordLength(40)
+                        .build())
+                .removalPolicy(RemovalPolicy.DESTROY)
                 .build();
 
+        // No ingress here: the only way in is CloudFront's VPC origin, whose rule CloudFrontStack adds.
         ec2SecurityGroup = SecurityGroup.Builder.create(scope, "ec2-security-group")
                 .vpc(vpc)
                 .allowAllOutbound(true)
                 .build();
-        // Port 80 only, and only from CloudFront's own ranges, so the instance cannot be reached
-        // directly from the internet even though it sits in a public subnet with a public IP.
-        IPrefixList cloudFrontPrefixList = PrefixList.fromLookup(scope, "cloudfront-prefix-list", PrefixListLookupOptions.builder()
-                .prefixListName("com.amazonaws.global.cloudfront.origin-facing")
-                .build());
-        ec2SecurityGroup.addIngressRule(Peer.prefixList(cloudFrontPrefixList.getPrefixListId()), Port.tcp(80), "http-from-cloudfront");
 
         ec2Role = Role.Builder.create(scope, "ec2-role")
                 .assumedBy(new ServicePrincipal("ec2.amazonaws.com"))
@@ -100,6 +101,7 @@ public class InfraStack {
         // The containers pick up this role from IMDS. S3FileStorage lists, puts *and* gets - the
         // lambda only ever had grantPut, which would have made incident-report reads 403.
         storageBucket.grantReadWrite(ec2Role);
+        apiSecret.grantRead(ec2Role);
 
         if (props.createS3Gateway) {
             GatewayVpcEndpoint.Builder.create(scope, "s3-gateway-endpoint")
@@ -170,17 +172,8 @@ public class InfraStack {
                 .instanceId(instance.getInstanceId())
                 .device(DATA_DEVICE)
                 .build();
-
-        // The auto-assigned public address changes on every stop/start, which CloudFormation never
-        // sees - CloudFront would keep sending /api to the old one. An Elastic IP stays put.
-        CfnEIP elasticIp = CfnEIP.Builder.create(scope, "ec2-elastic-ip")
-                .domain("vpc")
-                .build();
-        CfnEIPAssociation.Builder.create(scope, "ec2-elastic-ip-association")
-                .allocationId(elasticIp.getAttrAllocationId())
-                .instanceId(instance.getInstanceId())
-                .build();
-        instanceIp = elasticIp.getAttrPublicIp();
+        // deploy.sh reads it on first boot, like the resources ComposeStack orders the instance after.
+        instance.getNode().addDependency(apiSecret);
     }
 
     /**
@@ -260,6 +253,11 @@ public class InfraStack {
         return "indigoeln/" + envName + "/db";
     }
 
+    /** Deterministic so that the compose env can name it without depending on the construct. */
+    public static String apiSecretName(String envName) {
+        return "indigoeln/" + envName + "/api";
+    }
+
     public record Props(
             String envName,
             String region,
@@ -270,7 +268,6 @@ public class InfraStack {
             String hostedZoneName,
             List<String> securityGroups,
             String storageBucketName,
-            String apiSecret,
             List<String> lambdaSubnets,
             boolean createS3Gateway
     ) {}

@@ -27,12 +27,16 @@ aws s3 sync --delete --exclude deploy.conf --exclude .env \
 chmod +x "$APP_DIR/deploy.sh"
 
 # .env is assembled from two sources so that no secret is ever embedded in another resource's value:
-# the non-secret settings live in a plain SSM parameter, the password in Secrets Manager.
+# the non-secret settings live in a plain SSM parameter, the secrets in Secrets Manager.
 umask 077
 aws ssm get-parameter --name "$ENV_PARAM" --query Parameter.Value --output text > "$APP_DIR/.env"
 DB_PASSWORD=$(aws secretsmanager get-secret-value --secret-id "$DB_SECRET" \
   --query SecretString --output text | jq -r .password)
 printf 'DB_PASSWORD=%s\n' "$DB_PASSWORD" >> "$APP_DIR/.env"
+API_SECRET_ID=$(awk -F= '/^ELN_API_SECRET_ID=/{print $2}' "$APP_DIR/.env")
+ELN_API_SECRET=$(aws secretsmanager get-secret-value --secret-id "$API_SECRET_ID" \
+  --query SecretString --output text)
+printf 'ELN_API_SECRET=%s\n' "$ELN_API_SECRET" >> "$APP_DIR/.env"
 
 REGISTRY=$(awk -F= '/^ELN_AWS_IMAGE=/{split($2,a,"/"); print a[1]}' "$APP_DIR/.env")
 aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin "$REGISTRY"
