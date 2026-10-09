@@ -26,6 +26,13 @@ aws s3 sync --delete --exclude deploy.conf --exclude .env \
 # s3 sync does not carry file modes, so a re-downloaded copy of this script arrives non-executable.
 chmod +x "$APP_DIR/deploy.sh"
 
+# The sync may have just replaced this very script, and bash goes on running the copy it started
+# with — so a deploy that changes both the script and what it must put in .env would write the new
+# settings with the old logic. Start over once, as whatever the sync delivered.
+if [[ -z "${DEPLOY_SYNCED:-}" ]]; then
+  DEPLOY_SYNCED=1 exec /bin/bash "$APP_DIR/deploy.sh"
+fi
+
 # .env is assembled from two sources so that no secret is ever embedded in another resource's value:
 # the non-secret settings live in a plain SSM parameter, the secrets in Secrets Manager.
 umask 077
