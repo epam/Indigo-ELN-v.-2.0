@@ -167,6 +167,15 @@ export default defineConfig({
     },
   },
   test: {
+    // Off unless `--coverage` is passed, as the CodeBuild job does to feed SonarQube
+    // (sonar-project.properties reads coverage/lcov.info). `include` makes files no test
+    // imports count as uncovered instead of being left out of the report.
+    coverage: {
+      provider: 'v8',
+      reporter: ['text-summary', 'lcov'],
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: ['src/routeTree.gen.ts', 'src/**/*.test.{ts,tsx}', 'src/**/*.stories.tsx', 'src/mocks/**', 'src/test-setup.ts'],
+    },
     projects: [
       {
         extends: true,
