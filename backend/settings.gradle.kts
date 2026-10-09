@@ -1,4 +1,4 @@
-rootProject.name = "IndigoServerless"
+rootProject.name = "IndigoELN"
 
 pluginManagement {
     val quarkusPluginVersion: String by settings
