@@ -30,10 +30,10 @@ import static org.assertj.core.api.Assertions.fail;
 
 public class JSONPatcherTest {
 
-    ReactionAnchor REACTION = new ReactionAnchor(UUID.fromString("00000000-0000-0000-0000-000000000001"));
-    ReactionAnchor REACTION_2 = new ReactionAnchor(UUID.fromString("00000000-0000-0000-0000-000000000002"));
-    ReactionAnchor REACTION_3 = new ReactionAnchor(UUID.fromString("00000000-0000-0000-0000-000000000003"));
-    InputAnchor INPUT = new InputAnchor(UUID.fromString("00000000-0000-0000-0000-000000000010"));
+    ReactionAnchor REACTION = new ReactionAnchor("rxn00001");
+    ReactionAnchor REACTION_2 = new ReactionAnchor("rxn00002");
+    ReactionAnchor REACTION_3 = new ReactionAnchor("rxn00003");
+    InputAnchor INPUT = new InputAnchor("inp00010");
 
     ExperimentSnapshot baseExperiment = new ExperimentSnapshot();
     ExperimentModel baseModel = new ExperimentModel();
@@ -375,7 +375,7 @@ public class JSONPatcherTest {
     void testReactionAdded() throws Exception {
         Reaction.create(model, REACTION_2);
         verifyModel("""
-                {"model":{"reactions":{">1":{"$new":{"anchor":"00000000-0000-0000-0000-000000000002","inputs":[],"outputs":[],"precursorReactantIds":[]}}}}}
+                {"model":{"reactions":{">1":{"$new":{"anchor":"rxn00002","inputs":[],"outputs":[],"precursorReactantIds":[]}}}}}
         """);
     }
 
@@ -392,7 +392,7 @@ public class JSONPatcherTest {
         Reaction.create(baseModel, REACTION_2);
         model.setReactions(List.of(reaction));
         verifyModel("""
-                {"model":{"reactions":{"1>":{"$old":{"anchor":"00000000-0000-0000-0000-000000000002","inputs":[],"outputs":[],"precursorReactantIds":[]}}}}}
+                {"model":{"reactions":{"1>":{"$old":{"anchor":"rxn00002","inputs":[],"outputs":[],"precursorReactantIds":[]}}}}}
         """);
     }
 

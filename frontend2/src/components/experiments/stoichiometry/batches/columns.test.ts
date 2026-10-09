@@ -15,8 +15,8 @@ const STATUSES: SampleRegistrationStatus[] = ['IN_PROGRESS', 'FAILED', 'REGISTER
 
 function row(sample: Partial<ReactionOutputSample> = {}, output: Partial<ReactionOutput> = {}): BatchRow {
   return {
-    output: makeReactionOutput('f0000000-0000-4000-8000-0000000000ff', output),
-    sample: makeReactionOutputSample('f1000000-0000-4000-8000-0000000000ff', sample),
+    output: makeReactionOutput('out000ff', output),
+    sample: makeReactionOutputSample('ous000ff', sample),
     step: 0,
   };
 }

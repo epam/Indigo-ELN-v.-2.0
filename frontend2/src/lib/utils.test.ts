@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { formatBytes } from '@/lib/utils';
+import { formatBytes, newAnchor } from '@/lib/utils';
 
 describe('formatBytes', () => {
   it('uses the largest unit the value reaches', () => {
@@ -20,5 +20,13 @@ describe('formatBytes', () => {
 
   it('renders an empty file rather than dividing by a unit', () => {
     expect(formatBytes(0)).toBe('0B');
+  });
+});
+
+describe('newAnchor', () => {
+  it('is eight base64url characters, different on every call', () => {
+    const anchors = Array.from({ length: 200 }, newAnchor);
+    for (const anchor of anchors) expect(anchor).toMatch(/^[A-Za-z0-9_-]{8}$/);
+    expect(new Set(anchors).size).toBe(anchors.length);
   });
 });

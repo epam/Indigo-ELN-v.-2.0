@@ -21,7 +21,7 @@ import {
 import { NumericCell } from '@/components/experiments/stoichiometry/numeric-cell';
 import type { StoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import { cellId, useStoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
-import { cn } from '@/lib/utils';
+import { cn, newAnchor } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { SearchInput } from '@/components/ui/search-input';
 import { useExportSdf, useImportSdf } from '@/lib/api/experiments';
@@ -212,8 +212,8 @@ function Toolbar({
               mutations.save(addBatchCell, {
                 type: 'AddNoProductSample',
                 anchor: reaction.anchor,
-                createdOutputAnchor: crypto.randomUUID(),
-                createdSampleAnchor: crypto.randomUUID(),
+                createdOutputAnchor: newAnchor(),
+                createdSampleAnchor: newAnchor(),
               })
             }
           >

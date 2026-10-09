@@ -22,7 +22,7 @@ import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsiblePanel, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
+import { cn, newAnchor } from '@/lib/utils';
 
 import type { BatchRow } from '@/components/experiments/stoichiometry/batches/columns';
 import type { StoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
@@ -150,7 +150,7 @@ export function BatchDetailPanel({
                 type: 'SetOutputSaltCode',
                 anchor,
                 saltCode: next,
-                createdOutputAnchor: crypto.randomUUID(),
+                createdOutputAnchor: newAnchor(),
               })
             }
           />
@@ -167,7 +167,7 @@ export function BatchDetailPanel({
                 type: 'SetOutputStereoisomerCode',
                 anchor,
                 stereoisomerCode: next,
-                createdOutputAnchor: crypto.randomUUID(),
+                createdOutputAnchor: newAnchor(),
               })
             }
           />
@@ -201,7 +201,7 @@ export function BatchDetailPanel({
                 type: 'SetOutputSaltEQ',
                 anchor,
                 saltEQ: next,
-                createdOutputAnchor: crypto.randomUUID(),
+                createdOutputAnchor: newAnchor(),
               })
             }
           />

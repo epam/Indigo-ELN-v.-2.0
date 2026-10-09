@@ -7,21 +7,21 @@ describe('getAllInputSampleKeys', () => {
   it('collects the sample keys from every input row of the step', () => {
     const reaction = makeReaction({
       inputs: [
-        makeReactionInput('d0000000-0000-4000-8000-000000000001', {
+        makeReactionInput('inp00001', {
           samples: [
-            makeReactionInputSample('e0000000-0000-4000-8000-00000000000a', {
+            makeReactionInputSample('ins0000a', {
               sampleSource: 'SRS',
               sampleKey: 'STR-1',
             }),
           ],
         }),
-        makeReactionInput('d0000000-0000-4000-8000-000000000002', {
+        makeReactionInput('inp00002', {
           samples: [
-            makeReactionInputSample('e0000000-0000-4000-8000-00000000000b', {
+            makeReactionInputSample('ins0000b', {
               sampleSource: 'SRS',
               sampleKey: 'STR-2',
             }),
-            makeReactionInputSample('e0000000-0000-4000-8000-00000000000c', {
+            makeReactionInputSample('ins0000c', {
               sampleSource: 'PUBCHEM',
               sampleKey: '2244',
             }),
@@ -37,8 +37,8 @@ describe('getAllInputSampleKeys', () => {
   it('skips a sample with nothing bound to it', () => {
     const reaction = makeReaction({
       inputs: [
-        makeReactionInput('d0000000-0000-4000-8000-000000000001', {
-          samples: [makeReactionInputSample('e0000000-0000-4000-8000-00000000000a')],
+        makeReactionInput('inp00001', {
+          samples: [makeReactionInputSample('ins0000a')],
         }),
       ],
     });

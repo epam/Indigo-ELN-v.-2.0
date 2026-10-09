@@ -177,11 +177,11 @@ export const ReadOnlyExperiment: Story = {
 export const NoStructure: Story = {
   args: {
     row: {
-      output: makeReactionOutput('f0000000-0000-4000-8000-00000000000e', {
+      output: makeReactionOutput('out0000e', {
         compound: unknownCompound(),
         samples: [],
       }),
-      sample: makeReactionOutputSample('f1000000-0000-4000-8000-00000000000e'),
+      sample: makeReactionOutputSample('ous0000e'),
       step: 0,
     },
   },
@@ -210,7 +210,7 @@ export const PicksSource: Story = {
 
     await waitFor(() =>
       expect(sent).toEqual([
-        { type: 'SetOutputSource', anchor: 'f1000000-0000-4000-8000-000000000002', source: option },
+        { type: 'SetOutputSource', anchor: 'ous00002', source: option },
       ]),
     );
   },
@@ -232,7 +232,7 @@ export const SavesBatchCommentOnBlur: Story = {
       expect(sent).toEqual([
         {
           type: 'SetOutputBatchComment',
-          anchor: 'f1000000-0000-4000-8000-000000000002',
+          anchor: 'ous00002',
           batchComment: 'Repeat of 001',
         },
       ]),
@@ -309,7 +309,7 @@ export const ClearingAListSendsEmpty: Story = {
       expect(sent).toEqual([
         {
           type: 'SetOutputHealthHazards',
-          anchor: 'f1000000-0000-4000-8000-000000000001',
+          anchor: 'ous00001',
           healthHazards: [],
         },
       ]),
@@ -325,7 +325,7 @@ export const ClearingAListSendsEmpty: Story = {
     await waitFor(() =>
       expect(sent.at(-1)).toEqual({
         type: 'SetOutputCompoundProtection',
-        anchor: 'f1000000-0000-4000-8000-000000000001',
+        anchor: 'ous00001',
         compoundProtection: [],
       }),
     );
@@ -364,7 +364,7 @@ export const EditsMeltingPoint: Story = {
       expect(sent).toEqual([
         {
           type: 'SetOutputMeltingPoint',
-          anchor: 'f1000000-0000-4000-8000-000000000001',
+          anchor: 'ous00001',
           meltingPoint: { lower: 67, upper: 70 },
         },
       ]),
@@ -393,7 +393,7 @@ export const EditsResidualSolvents: Story = {
       expect(sent).toEqual([
         {
           type: 'SetOutputResidualSolvents',
-          anchor: 'f1000000-0000-4000-8000-000000000002',
+          anchor: 'ous00002',
           residualSolvents: [{ solvent, eq: 2 }],
         },
       ]),
@@ -419,7 +419,7 @@ export const EditsSolubility: Story = {
       expect(sent).toEqual([
         {
           type: 'SetOutputSolubilityInSolvents',
-          anchor: 'f1000000-0000-4000-8000-000000000001',
+          anchor: 'ous00001',
           solubilityInSolvents: [
             { type: 'QUALITATIVE', solvent: DICTIONARIES.SOLVENT![2], qualitativeType: 'SOLUBLE' },
           ],

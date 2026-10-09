@@ -64,7 +64,7 @@
     "model": {
       "reactions": [
         {
-          "anchor": "d60b4b63-bb9f-4a31-b6c1-805fbdec24af",
+          "anchor": "rxn00001",
           "inputs": [],
           "outputs": [],
           "precursorReactantIds": []

@@ -203,7 +203,7 @@ public class MutationsTest extends MutationsTestBase {
 
     @Test
     void testUnknownField() {
-        assertThatClientCall(() -> experimentClient.mutateExperimentModel4Raw(experiment.id(), 1, "{\"type\": \"AddEmptyInput\", \"anchor\": \"00000000-0000-0000-0000-000000000001\", \"unknownField\": 123}")).isBadRequest("Unrecognized field \"unknownField\"");
+        assertThatClientCall(() -> experimentClient.mutateExperimentModel4Raw(experiment.id(), 1, "{\"type\": \"AddEmptyInput\", \"anchor\": \"rxn00001\", \"unknownField\": 123}")).isBadRequest("Unrecognized field \"unknownField\"");
     }
 
     @Test

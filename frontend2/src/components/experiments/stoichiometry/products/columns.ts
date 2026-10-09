@@ -2,6 +2,7 @@ import { asEnteredValue } from '@/components/experiments/stoichiometry/columns';
 
 import type { NumericCellValue } from '@/components/experiments/stoichiometry/numeric-cell';
 import type { DictionaryItemRef } from '@/lib/types/dictionaries.ts';
+import { newAnchor } from '@/lib/utils';
 import type { ModelMutation } from '@/lib/types/mutations.ts';
 import type { EnteredValue, ReactionOutput, ReactionOutputType } from '@/lib/types/reactions.ts';
 import { isKnownCompound, MOL_UNITS, MOL_WEIGHT_UNITS, NO_UNITS, WEIGHT_UNITS } from '@/lib/types/reactions.ts';
@@ -223,7 +224,7 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
     mutation: (row) => ({
       type: 'AddProductSample',
       anchor: row.output.anchor,
-      createdSampleAnchor: crypto.randomUUID(),
+      createdSampleAnchor: newAnchor(),
     }),
   },
 ];

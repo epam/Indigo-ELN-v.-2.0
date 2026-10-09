@@ -150,7 +150,7 @@ export const EditsTotalWeight: Story = {
       expect(sent).toEqual([
         {
           type: 'SetOutputActualWeight',
-          anchor: 'f1000000-0000-4000-8000-000000000001',
+          anchor: 'ous00001',
           actualWeight: '500',
           unit: 'MG',
         },
@@ -174,7 +174,7 @@ export const EditsPurity: Story = {
     await userEvent.type(input, '95{Enter}');
 
     await waitFor(() =>
-      expect(sent).toEqual([{ type: 'SetOutputPurity', anchor: 'f1000000-0000-4000-8000-000000000002', purity: '95' }]),
+      expect(sent).toEqual([{ type: 'SetOutputPurity', anchor: 'ous00002', purity: '95' }]),
     );
   },
 };
@@ -197,7 +197,7 @@ export const EditsMolarity: Story = {
 
     await waitFor(() =>
       expect(sent).toEqual([
-        { type: 'SetOutputMolarity', anchor: 'f1000000-0000-4000-8000-000000000001', molarity: '0.5', unit: 'M' },
+        { type: 'SetOutputMolarity', anchor: 'ous00001', molarity: '0.5', unit: 'M' },
       ]),
     );
   },
@@ -231,7 +231,7 @@ export const SyncsWithProducts: Story = {
 
     await waitFor(() =>
       expect(sent).toEqual([
-        { type: 'SetOutputRowIntended', anchor: 'f0000000-0000-4000-8000-000000000004', intended: true },
+        { type: 'SetOutputRowIntended', anchor: 'out00004', intended: true },
       ]),
     );
   },
@@ -248,7 +248,7 @@ export const RegistersBatch: Story = {
     await userEvent.click(await canvas.findByRole('button', { name: 'Register batch 001' }));
 
     await waitFor(() =>
-      expect(sent).toEqual([{ type: 'RegisterSample', anchor: 'f1000000-0000-4000-8000-000000000001' }]),
+      expect(sent).toEqual([{ type: 'RegisterSample', anchor: 'ous00001' }]),
     );
   },
 };
@@ -292,7 +292,7 @@ export const DeletesBatch: Story = {
     await userEvent.click(await canvas.findByRole('button', { name: 'Delete batch 002' }));
 
     await waitFor(() =>
-      expect(sent).toEqual([{ type: 'RemoveProductSample', anchor: 'f1000000-0000-4000-8000-000000000002' }]),
+      expect(sent).toEqual([{ type: 'RemoveProductSample', anchor: 'ous00002' }]),
     );
   },
 };
@@ -311,7 +311,7 @@ export const AddsEmptyBatch: Story = {
       expect(sent).toEqual([
         {
           type: 'AddNoProductSample',
-          anchor: 'b0000000-0000-4000-8000-000000000001',
+          anchor: 'rxn00001',
           createdOutputAnchor: expect.any(String),
           createdSampleAnchor: expect.any(String),
         },

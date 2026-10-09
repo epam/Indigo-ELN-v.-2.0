@@ -385,14 +385,14 @@ function dictItem(name: string): DictionaryItemRef {
  */
 export const REACTION_INPUTS: ReactionInput[] = [
   // Limiting reactant. A hand-entered weight, and a mol the backend calculated from it.
-  makeReactionInput('d0000000-0000-4000-8000-000000000001', {
+  makeReactionInput('inp00001', {
     limiting: true,
     chemicalName: 'Salicylic acid',
     mol: entered('4.9', 'MMOL', 'calculated'),
     // The sum of its one batch's weight. No batch has a volume, so the row has none either.
     weight: entered('676.5', 'MG', 'calculated'),
     samples: [
-      makeReactionInputSample('e0000000-0000-4000-8000-00000000000a', {
+      makeReactionInputSample('ins0000a', {
         ...srsSample('STR-00000000-89-001'),
         weight: entered('676.5', 'MG', 12),
         mol: entered('4.9', 'MMOL', 'calculated'),
@@ -403,7 +403,7 @@ export const REACTION_INPUTS: ReactionInput[] = [
   }),
   // A solvent, and the row with the most batches — four, with contents of very different
   // widths, so two of these tables side by side would visibly disagree without fixed columns.
-  makeReactionInput('d0000000-0000-4000-8000-000000000002', {
+  makeReactionInput('inp00002', {
     role: 'SOLVENT',
     chemicalName: 'Acetic anhydride',
     compound: knownCompound({
@@ -413,7 +413,7 @@ export const REACTION_INPUTS: ReactionInput[] = [
       formula: 'C<sub>4</sub>H<sub>6</sub>O<sub>3</sub>',
     }),
     samples: [
-      makeReactionInputSample('e0000000-0000-4000-8000-00000000000b', {
+      makeReactionInputSample('ins0000b', {
         ...srsSample('STR-00000000-90-002'),
         nbkBatchNumber: '20260101-0001-002',
         volume: entered('4.5', 'ML', 8),
@@ -421,20 +421,20 @@ export const REACTION_INPUTS: ReactionInput[] = [
         mol: entered('0.0049', 'MMOL', 'calculated'),
         comment: 'Dried over molecular sieves before use',
       }),
-      makeReactionInputSample('e0000000-0000-4000-8000-00000000000c', {
+      makeReactionInputSample('ins0000c', {
         ...srsSample('STR-00000000-90-003'),
         nbkBatchNumber: '20260101-0001-003',
         volume: entered('12', 'ML', 8),
         mol: entered('0.013', 'MMOL', 'calculated'),
       }),
-      makeReactionInputSample('e0000000-0000-4000-8000-00000000000d', {
+      makeReactionInputSample('ins0000d', {
         ...srsSample('STR-00000000-90-004'),
         nbkBatchNumber: '20260101-0001-004',
         // Overwritten by the backend — the row that flashes red once a patch lands.
         volume: { value: '0.75', unit: 'ML', source: 'calculated', overwritten: true },
         molarity: entered('0.5', 'M', 3),
       }),
-      makeReactionInputSample('e0000000-0000-4000-8000-00000000000e', {
+      makeReactionInputSample('ins0000e', {
         ...srsSample('STR-00000000-90-006'),
         nbkBatchNumber: '20260101-0001-006',
         healthHazards: HAZARDS.slice(1, 4),
@@ -443,7 +443,7 @@ export const REACTION_INPUTS: ReactionInput[] = [
   }),
   // A known compound with only a virtual sample: Salt Code is editable here, and so is Salt EQ
   // because a code is set.
-  makeReactionInput('d0000000-0000-4000-8000-000000000003', {
+  makeReactionInput('inp00003', {
     role: 'REAGENT',
     chemicalName: 'Pyridine',
     compound: {
@@ -460,7 +460,7 @@ export const REACTION_INPUTS: ReactionInput[] = [
     eq: entered('2', 'NO_UNIT', 5),
     weight: entered('790', 'MG', 'calculated'),
     samples: [
-      makeReactionInputSample('e0000000-0000-4000-8000-00000000000f', {
+      makeReactionInputSample('ins0000f', {
         nbkBatchNumber: '20260101-0001-007',
         weight: entered('790', 'MG', 5),
       }),
@@ -468,7 +468,7 @@ export const REACTION_INPUTS: ReactionInput[] = [
   }),
   // A registered sample on a compound *with* a salt code: both Salt Code and Salt EQ stay locked,
   // because the registry owns them. indigo-frontend let this row's Salt EQ be edited.
-  makeReactionInput('d0000000-0000-4000-8000-000000000004', {
+  makeReactionInput('inp00004', {
     role: 'CATALYST',
     chemicalName: 'DMAP hydrochloride',
     compound: knownCompound({
@@ -479,7 +479,7 @@ export const REACTION_INPUTS: ReactionInput[] = [
       saltEQ: 1,
     }),
     samples: [
-      makeReactionInputSample('e0000000-0000-4000-8000-000000000010', {
+      makeReactionInputSample('ins00010', {
         ...srsSample('STR-00000000-91-008'),
         nbkBatchNumber: '20260101-0001-008',
       }),
@@ -487,11 +487,11 @@ export const REACTION_INPUTS: ReactionInput[] = [
   }),
   // An unidentified compound — the only case where Mol. Weight is the user's to enter, and a
   // row with nothing filled in at all.
-  makeReactionInput('d0000000-0000-4000-8000-000000000005', {
+  makeReactionInput('inp00005', {
     role: 'REAGENT',
     compound: unknownCompound(),
     samples: [
-      makeReactionInputSample('e0000000-0000-4000-8000-000000000011', {
+      makeReactionInputSample('ins00011', {
         nbkBatchNumber: undefined,
         purity: {},
       }),
@@ -557,7 +557,7 @@ export function makeReactionOutput(anchor: string, overrides: Partial<ReactionOu
 
 export const REACTION_OUTPUTS: ReactionOutput[] = [
   // The wanted product.
-  makeReactionOutput('f0000000-0000-4000-8000-000000000001', {
+  makeReactionOutput('out00001', {
     outputName: 'P0',
     chemicalName: 'Acetylsalicylic acid',
     compound: knownCompound({
@@ -572,7 +572,7 @@ export const REACTION_OUTPUTS: ReactionOutput[] = [
     samples: [
       // The batch every detail-panel story reads: one value in each field the panel shows,
       // including all five of the composites it can render but not yet edit.
-      makeReactionOutputSample('f1000000-0000-4000-8000-000000000001', {
+      makeReactionOutputSample('ous00001', {
         actualWeight: entered('246', 'MG', 12),
         actualMol: entered('1.35', 'MMOL', 'calculated'),
         molarity: entered('0.04', 'M', 12),
@@ -597,13 +597,13 @@ export const REACTION_OUTPUTS: ReactionOutput[] = [
         purityCalculations: [{ type: 'HPLC', operator: 'GREATER_THAN', purity: 98 }],
       }),
       // Nothing entered yet — the em-dash state of every numeric column.
-      makeReactionOutputSample('f1000000-0000-4000-8000-000000000002', {
+      makeReactionOutputSample('ous00002', {
         nbkBatchNumber: '20260101-0001-002',
       }),
     ],
   }),
   // A by-product whose batch is registered: its Salt Code and Salt EQ are frozen.
-  makeReactionOutput('f0000000-0000-4000-8000-000000000002', {
+  makeReactionOutput('out00002', {
     outputName: 'P1',
     chemicalName: 'Acetic acid',
     type: 'BY_PRODUCT',
@@ -620,7 +620,7 @@ export const REACTION_OUTPUTS: ReactionOutput[] = [
     },
     theoWeight: entered('294.3', 'MG', 'calculated'),
     samples: [
-      makeReactionOutputSample('f1000000-0000-4000-8000-000000000003', {
+      makeReactionOutputSample('ous00003', {
         nbkBatchNumber: '20260101-0001-003',
         registrationStatus: 'REGISTERED',
         sampleSource: 'SRS',
@@ -631,7 +631,7 @@ export const REACTION_OUTPUTS: ReactionOutput[] = [
   }),
   // An intermediate the next step consumes, and the row with nothing calculated on it — the
   // reaction has no limiting reagent, so `theoMol` and `theoWeight` never resolve.
-  makeReactionOutput('f0000000-0000-4000-8000-000000000003', {
+  makeReactionOutput('out00003', {
     outputName: 'P2',
     type: 'INTERMEDIATE',
     compound: knownCompound({
@@ -644,7 +644,7 @@ export const REACTION_OUTPUTS: ReactionOutput[] = [
     theoMol: {},
     theoWeight: {},
     samples: [
-      makeReactionOutputSample('f1000000-0000-4000-8000-000000000004', {
+      makeReactionOutputSample('ous00004', {
         nbkBatchNumber: '20260101-0001-004',
         registrationStatus: 'FAILED',
         registrationStatusMessage: 'Compound registry rejected the structure',
@@ -652,13 +652,13 @@ export const REACTION_OUTPUTS: ReactionOutput[] = [
     ],
   }),
   // Not drawn in the scheme, so the table must not show it.
-  makeReactionOutput('f0000000-0000-4000-8000-000000000004', {
+  makeReactionOutput('out00004', {
     outputName: 'P3',
     chemicalName: 'Unplanned by-product',
     type: 'BY_PRODUCT',
     intended: false,
     samples: [
-      makeReactionOutputSample('f1000000-0000-4000-8000-000000000005', {
+      makeReactionOutputSample('ous00005', {
         nbkBatchNumber: '20260101-0001-005',
       }),
     ],
@@ -668,10 +668,10 @@ export const REACTION_OUTPUTS: ReactionOutput[] = [
 /** One reaction step, carrying the input rows above. */
 export function makeReaction(overrides: Partial<Reaction> = {}): Reaction {
   return {
-    anchor: 'b0000000-0000-4000-8000-000000000001',
+    anchor: 'rxn00001',
     rxnfile: REACTION_RXNFILE,
     inputs: REACTION_INPUTS,
-    limitingAnchor: 'd0000000-0000-4000-8000-000000000001',
+    limitingAnchor: 'inp00001',
     outputs: REACTION_OUTPUTS,
     precursorReactantIds: [],
     ...overrides,

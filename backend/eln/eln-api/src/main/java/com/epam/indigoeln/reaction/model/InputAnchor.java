@@ -3,16 +3,10 @@ package com.epam.indigoeln.reaction.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-import java.util.UUID;
-
 public class InputAnchor extends Anchor {
 
-    public InputAnchor(UUID value) {
-        super(value);
-    }
-
     public static InputAnchor create() {
-        return new InputAnchor(UUID.randomUUID());
+        return new InputAnchor(generate());
     }
 
     @JsonCreator
@@ -22,7 +16,7 @@ public class InputAnchor extends Anchor {
 
     @Override
     @JsonValue
-    public UUID getValue() {
+    public String getValue() {
         return super.getValue();
     }
 }

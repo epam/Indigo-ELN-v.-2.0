@@ -44,8 +44,8 @@ export const MultipleSteps: Story = {
         significantFigures: 5,
         reactions: [
           makeReaction(),
-          makeReaction({ anchor: 'b0000000-0000-4000-8000-000000000002' }),
-          makeReaction({ anchor: 'b0000000-0000-4000-8000-000000000003' }),
+          makeReaction({ anchor: 'rxn00002' }),
+          makeReaction({ anchor: 'rxn00003' }),
         ],
       },
     }),

@@ -31,9 +31,9 @@ const TWO_STEPS = makeExperimentDetails({
     reactions: [
       makeReaction(),
       makeReaction({
-        anchor: 'b0000000-0000-4000-8000-000000000002',
+        anchor: 'rxn00002',
         outputs: [
-          makeReactionOutput('f0000000-0000-4000-8000-000000000021', { outputName: 'P4', chemicalName: 'Anhydride' }),
+          makeReactionOutput('out00021', { outputName: 'P4', chemicalName: 'Anhydride' }),
         ],
       }),
     ],
@@ -105,7 +105,7 @@ export const PicksProductType: Story = {
       expect(sent).toEqual([
         {
           type: 'SetOutputRowType',
-          anchor: 'f0000000-0000-4000-8000-000000000001',
+          anchor: 'out00001',
           outputType: 'BY_PRODUCT',
         },
       ]),
@@ -127,7 +127,7 @@ export const EditsEQ: Story = {
     await userEvent.type(input, '2{Enter}');
 
     await waitFor(() =>
-      expect(sent).toEqual([{ type: 'SetOutputRowEQ', anchor: 'f0000000-0000-4000-8000-000000000001', eq: '2' }]),
+      expect(sent).toEqual([{ type: 'SetOutputRowEQ', anchor: 'out00001', eq: '2' }]),
     );
   },
 };
@@ -149,7 +149,7 @@ export const AddsABatch: Story = {
       expect(sent).toEqual([
         {
           type: 'AddProductSample',
-          anchor: 'f0000000-0000-4000-8000-000000000002',
+          anchor: 'out00002',
           createdSampleAnchor: expect.any(String),
         },
       ]),
