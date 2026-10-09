@@ -1,0 +1,16 @@
+package com.epam.indigoeln.common.model.search;
+
+import jakarta.validation.constraints.NotNull;
+
+public record StructuralSearch(
+        @NotNull Type type,
+        @NotNull String query
+) {
+
+    public enum Type {
+
+        EXACT,
+        SUBSTRUCTURE,
+        SIMILARITY
+    }
+}

@@ -8,7 +8,7 @@ public class ExperimentModelUtil {
     @Nullable
     public static ReactionRole getRoleInSchema(ReactionRow row) {
         return switch (row) {
-            case ReactionInput i -> i.getRole() != ReactionRole.SOLVENT && i.getCompound() instanceof CompoundRef.StoredOrVirtual ? i.getRole() : null;
+            case ReactionInput i -> i.getRole() != ReactionRole.SOLVENT && i.getCompound().isKnown() ? i.getRole() : null;
             case ReactionOutput o -> o.isIntended() ? ReactionRole.OUTPUT : null;
         };
     }

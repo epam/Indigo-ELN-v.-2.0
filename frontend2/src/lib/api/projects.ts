@@ -55,6 +55,7 @@ export async function checkProjectNameExists(name: string): Promise<boolean> {
 export const projectKeys = {
   all: () => ['projects'] as const,
   list: (filters: CollectionFilters) => ['projects', filters] as const,
+  details: () => ['projectDetails'] as const,
   detail: (id: UUID) => ['projectDetails', id] as const,
   totalCounts: () => ['totalCounts'] as const,
   keywordSuggestions: (search: string) => ['projectKeywords', search] as const,

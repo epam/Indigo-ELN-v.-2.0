@@ -62,7 +62,7 @@ function AttachmentRow({
         type="button"
         onClick={() => void download(onDownload)}
         disabled={downloading}
-        className="flex min-w-0 items-center gap-2 text-left text-blue-400 hover:underline disabled:opacity-60"
+        className="flex min-w-0 items-center gap-2 text-left text-blue-400 hover:underline cursor-pointer disabled:cursor-default disabled:opacity-60"
       >
         <AttachmentIcon name={attachment.name} />
         <span className="truncate">{attachment.name}</span>
@@ -75,6 +75,7 @@ function AttachmentRow({
           variant="ghost"
           size="icon-sm"
           aria-label={`Delete ${attachment.name}`}
+          title="Delete Attachment"
           loading={deleting}
           onClick={onDelete}
           className="text-red-200 hover:bg-red-10 hover:text-red-200"

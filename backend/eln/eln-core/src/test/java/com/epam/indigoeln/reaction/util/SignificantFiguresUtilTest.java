@@ -16,6 +16,9 @@ class SignificantFiguresUtilTest {
             "0.001234, 2, 0.0012",
             "0.001235, 2, 0.0012",
             "9.9995,   4, 10.00",
+            // trailing zeros padded
+            "100,      5, 100.00",
+            "1.5,      4, 1.500",
             // negative numbers
             "-123.456, 3, -123",
             "-0.001234,2, -0.0012",

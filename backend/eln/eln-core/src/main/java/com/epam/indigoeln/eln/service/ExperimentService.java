@@ -5,26 +5,49 @@ import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
+import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.config.DataAccess;
-import com.epam.indigoeln.eln.entity.*;
+import com.epam.indigoeln.eln.entity.ExperimentEntity;
+import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
+import com.epam.indigoeln.eln.entity.NotebookEntity;
+import com.epam.indigoeln.eln.entity.TemplateEntity;
+import com.epam.indigoeln.eln.entity.UserEntity;
+import com.epam.indigoeln.eln.indigowrapper.IndigoAPI;
+import com.epam.indigoeln.eln.indigowrapper.IndigoMolecule;
+import com.epam.indigoeln.eln.indigowrapper.IndigoRendererAPI;
+import com.epam.indigoeln.eln.indigowrapper.IndigoSDFSaver;
 import com.epam.indigoeln.eln.mapper.ExperimentMapper;
 import com.epam.indigoeln.eln.mapper.ProjectMapper;
 import com.epam.indigoeln.eln.mapper.SnapshotMapper;
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.model.ACLEntryDTO;
+import com.epam.indigoeln.eln.model.ApplicationPermission;
+import com.epam.indigoeln.eln.model.ExperimentDTO;
+import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
+import com.epam.indigoeln.eln.model.ExperimentEditRequest;
+import com.epam.indigoeln.eln.model.ExperimentRef;
+import com.epam.indigoeln.eln.model.ExperimentRequest;
+import com.epam.indigoeln.eln.model.ExperimentStatus;
+import com.epam.indigoeln.eln.model.MutationResponse;
+import com.epam.indigoeln.eln.model.RevisionSummaryDTO;
+import com.epam.indigoeln.eln.model.SampleSource;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.eln.repository.TemplateRepository;
-import com.epam.indigoeln.indigowrapper.IndigoAPI;
-import com.epam.indigoeln.indigowrapper.IndigoMolecule;
-import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
-import com.epam.indigoeln.indigowrapper.IndigoSDFSaver;
-import com.epam.indigoeln.reaction.model.*;
+import com.epam.indigoeln.reaction.model.CompoundRef;
+import com.epam.indigoeln.reaction.model.EnteredValue;
+import com.epam.indigoeln.reaction.model.ExperimentModel;
+import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
+import com.epam.indigoeln.reaction.model.InputAnchor;
+import com.epam.indigoeln.reaction.model.Reaction;
+import com.epam.indigoeln.reaction.model.ReactionAnchor;
+import com.epam.indigoeln.reaction.model.ReactionInput;
+import com.epam.indigoeln.reaction.model.ReactionOutput;
+import com.epam.indigoeln.reaction.model.ReactionOutputSample;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
-import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import com.epam.indigoeln.reaction.service.mutation.experiment.ExperimentMutationContext;
@@ -37,7 +60,6 @@ import com.google.common.base.Preconditions;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
@@ -51,12 +73,24 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
 import static com.epam.indigoeln.common.util.ContentDispositionUtil.extractFilename;
 import static com.epam.indigoeln.common.util.ContentDispositionUtil.generateContentDisposition;
-import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
+import static com.epam.indigoeln.eln.model.ApplicationPermission.DELETE_EXPERIMENTS;
+import static com.epam.indigoeln.eln.model.ApplicationPermission.EDIT_EXPERIMENTS;
+import static com.epam.indigoeln.eln.model.ApplicationPermission.MANAGE_EXPERIMENT_ACCESS;
+import static com.epam.indigoeln.eln.model.ApplicationPermission.SUBMIT_EXPERIMENTS;
+import static com.epam.indigoeln.eln.model.ApplicationPermission.VIEW_EXPERIMENTS;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Slf4j
@@ -66,6 +100,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class ExperimentService {
 
     static final byte[] EMPTY_PICTURE = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1\" height=\"1\"/>".getBytes(StandardCharsets.UTF_8);
+
+    static final String[] NAME_PROPERTIES = {"PUBCHEM_IUPAC_TRADITIONAL_NAME", "PUBCHEM_IUPAC_SYSTEMATIC_NAME", "PUBCHEM_IUPAC_OPENEYE_NAME"};
+
 
     @Inject
     ProjectRepository projectRepository;
@@ -224,11 +261,14 @@ public class ExperimentService {
     public Map<InputAnchor, String> analyzeRXN(Reaction reaction) {
         return StreamEx.of(reaction.getInputs())
                 .mapToEntry(ReactionInput::getAnchor, input -> {
-                    if (input.getCompound() instanceof CompoundRef.Virtual) {
-                        CompoundEntity compound = compoundService.getCompound(input.getCompound().getCompoundID());
-                        return compound.getMolFile();
+                    if (input.getCompound().getCompoundID() == null) {
+                        return null;
                     }
-                    return null;
+                    if (!input.getSamples().isEmpty() && StreamEx.of(input.getSamples()).anyMatch(s -> s.getSampleSource() != SampleSource.VIRTUAL)) {
+                        return null;
+                    }
+                    CompoundEntity compound = compoundService.getCompound(input.getCompound().getCompoundID());
+                    return compound.getMolFile();
                 })
                 .nonNullValues()
                 .toCustomMap(LinkedHashMap::new);
@@ -298,11 +338,20 @@ public class ExperimentService {
     }
 
     @SneakyThrows
-    public MutationResponse importSDF(UUID experimentId, ReactionAnchor reactionAnchor, @NotNull FileUpload file) {
+    public MutationResponse importSDF(UUID experimentId, ReactionAnchor reactionAnchor, FileUpload file) {
         ExperimentEntity experiment = experimentRepository.loadAndLock(experimentId);
         aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
-        List<UUID> compoundIDs = compoundService.loadCompoundsFromFile(file.filePath(), false);
-        MutationResult<ExperimentSnapshot, ExperimentMutationContext> result = experimentModelService.applyMutation(experiment, new ReactionMutation.ImportSDF(reactionAnchor, compoundIDs));
+        List<UUID> compoundIDs = new ArrayList<>();
+        List<SampleDTO> samples = new ArrayList<>();
+        for (IndigoMolecule molecule : indigo.iterateSDFile(file.filePath().toAbsolutePath().toString())) {
+            String chemicalName = ModelUtil.getAny(molecule.getProperties(), NAME_PROPERTIES);
+            CompoundEntity compound = compoundService.findOrCreate(molecule, SampleSource.VIRTUAL, null, chemicalName);
+            SampleDTO sample = new SampleDTO();
+            // TODO fill sample properties from SDF
+            compoundIDs.add(compound.getId());
+            samples.add(sample);
+        }
+        MutationResult<ExperimentSnapshot, ExperimentMutationContext> result = experimentModelService.applyMutation(experiment, new ReactionMutation.ImportSDF(reactionAnchor, compoundIDs, samples));
         MutationResponse response = result.context().getResponse();
         response.setPatch(result.patch());
         return response;
@@ -348,6 +397,14 @@ public class ExperimentService {
             case null -> null;
             case EnteredValue<?> ev when ev.isEmpty() -> null;
             case EnteredValue<?> ev -> ev.toUserFriendlyString(false, "");
+            case Set<?> set -> {
+                // unordered, so sort for a stable export
+                yield StreamEx.of(set)
+                        .map(this::getPropertySDFRepresentation)
+                        .nonNull()
+                        .sorted()
+                        .joining(System.lineSeparator());
+            }
             case Iterable<?> collection -> {
                 yield StreamEx.of(collection.iterator())
                         .map(this::getPropertySDFRepresentation)
@@ -409,7 +466,7 @@ public class ExperimentService {
                             setMoleculePropertyIfExists(molecule, sample.getStructureComment(), "structureComment");
                             setMoleculePropertyIfExists(molecule, sample.getSourceDetails(), "sourceDetails");
                             setMoleculePropertyIfExists(molecule, reaction.getPrecursorReactantIds(), "precursorReactantId");
-                            setMoleculePropertyIfExists(molecule, sample.getStrCode(), "strCode");
+                            setMoleculePropertyIfExists(molecule, sample.getSampleKey(), "sampleKey");
                             setMoleculePropertyIfExists(molecule, output.getTheoMol(), "theoMol");
                             setMoleculePropertyIfExists(molecule, sample.getBatchComment(), "batchComment");
 

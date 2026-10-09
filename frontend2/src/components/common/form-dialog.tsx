@@ -30,6 +30,8 @@ interface FormDialogProps {
    * itself has already been reported by `apiFetch`.
    */
   onSubmit: () => Promise<void>;
+  /** For the popup — a form with a row of several controls wants more than the modal's 560px. */
+  className?: string;
   children: ReactNode;
 }
 
@@ -47,6 +49,7 @@ function FormDialog({
   submitDisabled,
   initializing,
   onSubmit,
+  className,
   children,
 }: FormDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -91,6 +94,7 @@ function FormDialog({
     >
       <DialogContent
         title={title}
+        className={className}
         // The form wraps the footer too, so Enter in a field submits and the Save button
         // can stay a plain submit button.
         render={<form onSubmit={handleSubmit} onKeyDown={handleKeyDown} noValidate />}

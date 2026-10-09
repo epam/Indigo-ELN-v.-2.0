@@ -12,10 +12,9 @@ dependencies {
     testImplementation(project(path = ":eln:eln-core", configuration = "testArtifacts"))
     testImplementation(project(path = ":reports:reports-core", configuration = "testArtifacts"))
     testImplementation(project(path = ":signature:signature-core", configuration = "testArtifacts"))
+    testImplementation(project(path = ":sampleregistration:sampleregistration-core", configuration = "testArtifacts"))
 
     testImplementation("io.quarkus:quarkus-apache-httpclient")
-
-    testImplementation("org.testcontainers:testcontainers")
 }
 
 group = "com.epam.indigoeln"
@@ -25,6 +24,7 @@ tasks.named("compileIntegrationTestJava") {
     dependsOn(":eln:eln-core:testJar")
     dependsOn(":reports:reports-core:testJar")
     dependsOn(":signature:signature-core:testJar")
+    dependsOn(":sampleregistration:sampleregistration-core:testJar")
 }
 
 tasks.named("test", Test::class) {
@@ -32,6 +32,7 @@ tasks.named("test", Test::class) {
 }
 
 tasks.named("quarkusIntTest", Test::class) {
+    systemProperty("quarkus.devservices.enabled", "false")
     systemProperty("quarkus.http.test-host", "localhost")
     systemProperty("quarkus.http.test-port", "80")
     systemProperty("eln.test.datasource.jdbc-url", "jdbc:postgresql://localhost:5432/eln")
@@ -41,4 +42,9 @@ tasks.named("quarkusIntTest", Test::class) {
     dependsOn(":eln:eln-service:assemble")
     dependsOn(":reports:reports-service:assemble")
     dependsOn(":signature:signature-service:assemble")
+    dependsOn(":sampleregistration:sampleregistration-service:assemble")
+    testLogging {
+        showStandardStreams = true
+        events("passed", "skipped", "failed")
+    }
 }

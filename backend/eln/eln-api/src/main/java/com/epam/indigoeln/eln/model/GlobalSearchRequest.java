@@ -1,8 +1,9 @@
 package com.epam.indigoeln.eln.model;
 
 import com.epam.indigoeln.common.model.UserRef;
-import com.epam.indigoeln.compound.model.search.NumericSearch;
-import com.epam.indigoeln.compound.model.search.StructuralSearch;
+import com.epam.indigoeln.common.util.ModelUtil;
+import com.epam.indigoeln.common.model.search.NumericSearch;
+import com.epam.indigoeln.common.model.search.StructuralSearch;
 import com.epam.indigoeln.reaction.model.ReactionRole;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -56,8 +57,8 @@ public class GlobalSearchRequest {
         return query == null
                 && therapeuticArea == null
                 && projectCode == null
-                && experimentStatus == null
-                && author == null
+                && !ModelUtil.isNotEmpty(experimentStatus)
+                && !ModelUtil.isNotEmpty(author)
                 && batchYield == null
                 && batchPurity == null
                 && moleculeStructure == null

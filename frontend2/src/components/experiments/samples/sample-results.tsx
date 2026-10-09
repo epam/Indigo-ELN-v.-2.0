@@ -1,23 +1,28 @@
 import { Bookmark, ChevronDown, ChevronRight, Plus } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
+import { StructureImage } from '@/components/chemistry/structure-image';
 import { ApiImage } from '@/components/common/api-image';
-import { EmptyCell, FormulaCell, IconActionCell, ReadonlyCell } from '@/components/experiments/stoichiometry/cells';
-import { CELL_CLASS, HEADER_CELL_CLASS } from '@/components/experiments/stoichiometry/columns';
+import { FormulaCell, IconActionCell, ReadonlyCell } from '@/components/experiments/stoichiometry/cells';
+import { ALIGN_CLASS, CELL_CLASS, HEADER_CELL_CLASS } from '@/components/experiments/stoichiometry/columns';
 import { Skeleton } from '@/components/ui/skeleton';
-import { samplePicturePath, useMarkSample, useSampleSearch } from '@/lib/api/samples';
+import { samplePicture, useMarkSample, useSampleSearch } from '@/lib/api/samples';
 import { resultCountLabel, sampleRowKey } from '@/lib/search';
 import { describeError } from '@/lib/toast';
 import { cn } from '@/lib/utils';
 
-import type { UUID } from '@/lib/types/common.ts';
-import { plainFormula } from '@/lib/types/reactions.ts';
+import type { Align } from '@/components/experiments/stoichiometry/columns';
 import type { FindSamplesRequest, SampleDTO } from '@/lib/types/samples.ts';
 
 /** Chevron + the four data columns + the two action columns. */
 const COLUMN_COUNT = 7;
 
-const DATA_COLUMNS = ['Compound ID', 'Chemical Name', 'Mol. Weight', 'Mol. Formula'];
+const DATA_COLUMNS: { header: string; align: Align }[] = [
+  { header: 'Compound ID', align: 'left' },
+  { header: 'Chemical Name', align: 'left' },
+  { header: 'Mol. Weight', align: 'right' },
+  { header: 'Mol. Formula', align: 'left' },
+];
 
 /**
  * The catalog hits for one search, with a mark and an add on every row.
@@ -48,8 +53,8 @@ export function SampleResults({
   onAdd: (sample: SampleDTO) => void;
   /** Which rows are mid-add, keyed by `sampleRowKey`. */
   addingRows: ReadonlySet<string>;
-  /** Sample ids the step already holds — those rows cannot be added again. */
-  boundSamples: ReadonlySet<UUID>;
+  /** `sampleRowKey`s the step already holds — those rows cannot be added again. */
+  boundSamples: ReadonlySet<string>;
   /** Reports the result count, already worded. Null while unknown. Must be stable. */
   onCountChange?: (count: string | null) => void;
   /** What an empty result set says; the default suits a form, Analyze RXN names the structure. */
@@ -79,12 +84,11 @@ export function SampleResults({
    * The count is a property of the search, but it is shown outside this box — on a tab, or above
    * the table — so it is worded here and reported upward rather than rendered here.
    *
-   * `totalItems` is read off the **last** page, not the first: it is a running total, and the
-   * page that has seen the most catalogs is the one with the most to say. It is null from the
-   * moment a catalog that cannot count has contributed, and `resultCountLabel` is what turns
-   * that into `12+` — or into a plain `12` once the cursor is spent.
+   * `totalItems` is read off the **first** page, which always carries the count when the catalog
+   * can give one. It is null for PubChem, and `resultCountLabel` is what turns that into `12+` —
+   * or into a plain `12` once there is no next page.
    */
-  const totalItems = data?.pages[data.pages.length - 1]?.totalItems ?? null;
+  const totalItems = data?.pages[0]?.totalItems ?? null;
   const countLabel = resultCountLabel({ totalItems, loaded: samples.length, hasMore: hasNextPage, loading: isPending });
   useEffect(() => {
     onCountChange?.(countLabel);
@@ -133,10 +137,10 @@ export function SampleResults({
           <tr>
             {/* The chevron and the two action columns speak for themselves. */}
             <th className={HEADER_CELL_CLASS} />
-            {DATA_COLUMNS.map((header) => (
+            {DATA_COLUMNS.map(({ header, align }) => (
               // `truncate`: a fixed column is a hard edge, and a header wider than its own column
               // would otherwise spill across the next one instead of being clipped.
-              <th key={header} scope="col" className={cn(HEADER_CELL_CLASS, 'truncate text-left')}>
+              <th key={header} scope="col" className={cn(HEADER_CELL_CLASS, 'truncate', ALIGN_CLASS[align])}>
                 {header}
               </th>
             ))}
@@ -165,7 +169,7 @@ export function SampleResults({
                 expanded={expanded.has(row)}
                 onToggle={() => toggle(row)}
                 adding={addingRows.has(row)}
-                alreadyBound={sample.id != null && boundSamples.has(sample.id)}
+                alreadyBound={boundSamples.has(row)}
                 onAdd={() => onAdd(sample)}
               />
             );
@@ -218,7 +222,7 @@ function SampleRow({
   onAdd: () => void;
 }) {
   const markSample = useMarkSample();
-  const name = sample.name ?? sample.compoundKey ?? plainFormula(sample.molFormula);
+  const name = sample.chemicalName ?? sample.compoundKey;
 
   return (
     <tbody>
@@ -238,31 +242,24 @@ function SampleRow({
           <ReadonlyCell value={sample.compoundKey} />
         </td>
         <td className={CELL_CLASS}>
-          <ReadonlyCell value={sample.name} />
+          <ReadonlyCell value={sample.chemicalName} />
         </td>
-        <td className={CELL_CLASS}>
-          <ReadonlyCell value={String(sample.molWeight)} />
+        <td className={cn(CELL_CLASS, 'text-right tabular-nums')}>
+          <ReadonlyCell value={sample.molWeight.toFixed(2)} />
         </td>
         <td className={CELL_CLASS}>
           {/* HTML, not text — `MolFormula` serialises through `@JsonValue toHTMLString()`. */}
           <FormulaCell value={sample.molFormula} />
         </td>
         <td className={CELL_CLASS}>
-          {sample.id == null ? (
-            // A catalog hit that is not an ELN sample yet cannot be marked: the list is a
-            // per-user join on `Sample_Mark`, and there is no row to join to.
-            <EmptyCell />
-          ) : (
-            <IconActionCell
-              icon={sample.marked ? MarkedBookmark : Bookmark}
-              tone="blue"
-              label={sample.marked ? `Remove ${name} from My Materials` : `Add ${name} to My Materials`}
-              editable={!markSample.isPending}
-              pending={markSample.isPending}
-              // `id` is checked above; narrowing does not survive into the closure.
-              onCommit={() => markSample.mutate({ id: sample.id!, marked: !sample.marked })}
-            />
-          )}
+          <IconActionCell
+            icon={sample.marked ? MarkedBookmark : Bookmark}
+            tone="blue"
+            label={sample.marked ? `Remove ${name} from My Materials` : `Add ${name} to My Materials`}
+            editable={!markSample.isPending}
+            pending={markSample.isPending}
+            onCommit={() => markSample.mutate({ sample, marked: !sample.marked })}
+          />
         </td>
         <td className={CELL_CLASS}>
           <IconActionCell
@@ -298,8 +295,9 @@ function MarkedBookmark({ className }: { className?: string }) {
  * only thing this dialog does to it is bind it to a row.
  */
 function SampleDetail({ sample }: { sample: SampleDTO }) {
-  const picture = samplePicturePath(sample);
+  const picture = samplePicture(sample);
   const frame = 'min-h-[220px] rounded-md border border-dashed border-neutral-300';
+  const alt = `Structure of ${sample.chemicalName ?? sample.compoundKey}`;
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,320px)]">
@@ -308,22 +306,21 @@ function SampleDetail({ sample }: { sample: SampleDTO }) {
         <Fact label="Nbk Batch Number" value={sample.nbkBatchNumber} />
         <Fact label="Molecular Formula" html={sample.molFormula} />
         <Fact label="Molecular Weight" value={String(sample.molWeight)} />
-        <Fact label="Chemical Name" value={sample.name} />
+        <Fact label="Sample ID" value={sample.sampleKey} />
+        <Fact label="Chemical Name" value={sample.chemicalName} />
         <Fact label="Salt Code" value={sample.saltCode?.name} />
         <Fact label="Salt EQ" value={sample.saltEQ == null ? undefined : String(sample.saltEQ)} />
       </div>
 
+      {/* `border-dashed` overrides the image's own solid frame; the rest of its box is what we want. */}
       {picture == null ? (
         <div className={cn(frame, 'flex items-center justify-center p-4 text-center text-[14px]/6 text-neutral-700')}>
           No structure available
         </div>
+      ) : 'inchi' in picture ? (
+        <StructureImage structure={picture.inchi} alt={alt} className={frame} />
       ) : (
-        // `border-dashed` overrides ApiImage's own solid frame; the rest of its box is what we want.
-        <ApiImage
-          path={picture}
-          alt={`Structure of ${sample.name ?? sample.compoundKey ?? plainFormula(sample.molFormula)}`}
-          className={frame}
-        />
+        <ApiImage path={picture.path} alt={alt} className={frame} />
       )}
     </div>
   );

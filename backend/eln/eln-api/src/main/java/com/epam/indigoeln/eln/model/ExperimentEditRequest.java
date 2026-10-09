@@ -2,6 +2,7 @@ package com.epam.indigoeln.eln.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,9 +28,9 @@ public class ExperimentEditRequest {
 
     JsonNullable<String> literature = JsonNullable.undefined();
 
-    JsonNullable<Set<ExperimentRef>> linkedExperiments = JsonNullable.undefined();
+    JsonNullable<@NotNull Set<ExperimentRef>> linkedExperiments = JsonNullable.undefined();
 
-    JsonNullable<Set<ExperimentRef>> continuedFrom = JsonNullable.undefined();
+    JsonNullable<@NotNull Set<ExperimentRef>> continuedFrom = JsonNullable.undefined();
 
-    JsonNullable<Set<ExperimentRef>> continuedTo = JsonNullable.undefined();
+    JsonNullable<@NotNull Set<ExperimentRef>> continuedTo = JsonNullable.undefined();
 }

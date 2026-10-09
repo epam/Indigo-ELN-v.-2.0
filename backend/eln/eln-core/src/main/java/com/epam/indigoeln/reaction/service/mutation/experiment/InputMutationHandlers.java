@@ -7,7 +7,8 @@ import com.epam.indigoeln.reaction.model.ReactionInput;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import jakarta.enterprise.context.Dependent;
-import one.util.streamex.StreamEx;
+
+import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
 
 @Dependent
 @MutationHandlerFor(ReactionInputMutation.SetInputRowLimiting.class)
@@ -48,12 +49,11 @@ class SetInputRowRoleHandler extends AbstractReactionInputMutationHandler<Reacti
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowRole mutation, ExperimentMutationContext context) {
-        StreamEx.of(row.getReaction().getInputs())
-                .filter(x -> x != row && x.getRole() == row.getRole() && x.getCompound().equals(row.getCompound()))
-                .findAny()
-                .ifPresent(x -> {
-                    throw new IllegalStateException("Input with the same role and compound already exists");
-                });
+        for (ReactionInput other : reaction.getInputs()) {
+            if (other != row) {
+                validate(other.getRole() != mutation.role() || !other.getCompound().compoundKeyEquals(row.getCompound()), "Input with the same role and compound already exists");
+            }
+        }
 
         row.setRole(mutation.role());
         return formatSetterSummary("input role", mutation.role());

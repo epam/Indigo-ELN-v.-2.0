@@ -6,6 +6,7 @@ import { ExperimentTemplateTab } from '@/components/experiments/details/experime
 import { ExperimentPageSkeleton } from '@/components/experiments/details/experiment-page-skeleton';
 import { useExperiment } from '@/lib/api/experiments';
 import { useTemplate } from '@/lib/api/templates';
+import { usePageTitle } from '@/lib/hooks/use-page-title';
 import { prewarmKetcher } from '@/lib/ketcher';
 import { z } from '@/lib/zod';
 
@@ -39,14 +40,15 @@ function ExperimentPage() {
   // loaded, and it is what says which tabs this experiment has and what is in them.
   const { data: template } = useTemplate(experiment?.templateId);
 
+  const tabs = template?.templateTabs;
+  const index = tabs ? activeTabIndex(tabs, tab) : 0;
+  usePageTitle(experiment && `Experiment ${experiment.name}`, index > 0 && tabs?.[index].name);
+
   if (isPending) return <ExperimentPageSkeleton />;
   // apiFetch has already toasted the failure; this is the page saying what it cannot show.
   if (isError || !experiment) {
     return <p className="text-[14px]/6 text-destructive">This experiment could not be loaded.</p>;
   }
-
-  const tabs = template?.templateTabs;
-  const index = tabs ? activeTabIndex(tabs, tab) : 0;
 
   return (
     <>

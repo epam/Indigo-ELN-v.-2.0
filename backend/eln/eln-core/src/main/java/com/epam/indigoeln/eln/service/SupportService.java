@@ -1,7 +1,7 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.util.Pair;
-import com.epam.indigoeln.compound.entity.SampleEntity;
+import com.epam.indigoeln.compound.entity.MarkedSampleEntity;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
@@ -9,7 +9,17 @@ import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
 import com.epam.indigoeln.eln.entity.NotebookEntity;
 import com.epam.indigoeln.eln.entity.ProjectEntity;
 import com.epam.indigoeln.eln.mapper.SnapshotMapper;
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.model.ApplicationPermission;
+import com.epam.indigoeln.eln.model.BuiltInDictionary;
+import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
+import com.epam.indigoeln.eln.model.ExperimentRequest;
+import com.epam.indigoeln.eln.model.NotebookDetailsDTO;
+import com.epam.indigoeln.eln.model.NotebookRequest;
+import com.epam.indigoeln.eln.model.ProjectCodeRef;
+import com.epam.indigoeln.eln.model.ProjectDetailsDTO;
+import com.epam.indigoeln.eln.model.ProjectRequest;
+import com.epam.indigoeln.eln.model.TemplateDTO;
+import com.epam.indigoeln.eln.model.TherapeuticAreaRef;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.util.ExperimentDetailsReportBuilder;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
@@ -22,6 +32,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import one.util.streamex.IntStreamEx;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.output.MigrateResult;
 import org.hibernate.jpa.AvailableHints;
@@ -30,10 +41,10 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.epam.indigoeln.eln.model.ApplicationPermission.CREATE_PROJECTS;
@@ -113,17 +124,16 @@ public class SupportService {
                     n.setSearchVector(globalSearchService.collectNotebookSearchVector(snapshot));
                 });
 
-        long samples = doReindex(
-                em.createQuery("FROM Sample s JOIN FETCH s.compound ORDER BY s.id", SampleEntity.class),
-                s -> {
-                    s.setSearchVector(globalSearchService.collectSampleSearchVector(s));
-                });
+        long markedSamples = doReindex(
+                em.createQuery("FROM MarkedSample s ORDER BY s.id", MarkedSampleEntity.class),
+                s -> s.setSearchVector(globalSearchService.collectSampleSearchVector(s)));
 
         return Map.of(
                 "projects", String.valueOf(projects),
                 "notebooks", String.valueOf(notebooks),
                 "experiments", String.valueOf(experiments),
-                "samples", String.valueOf(samples));
+                "markedSamples", String.valueOf(markedSamples)
+        );
     }
 
     private <T> long doReindex(TypedQuery<T> query, Consumer<T> processor) {
@@ -151,7 +161,7 @@ public class SupportService {
         int projectCount = 0, notebookCount = 0, experimentCount = 0, attachmentCount = 0;
         for (int projectNo = 1; projectNo <= random.nextInt(4, 6); projectNo++) {
             log.debug("project {}", projectNo);
-            List<String> keywords = IntStream.range(0, random.nextInt(4)).mapToObj(i -> "keyword" + i).toList();
+            Set<String> keywords = IntStreamEx.range(0, random.nextInt(4)).mapToObj(i -> "keyword" + i).toSet();
             ProjectDetailsDTO project = projectService.createProject(new ProjectRequest("Test Project " + projectNo, keywords, "literature", "description"));
             projectCount++;
             for (int attachmentNo = 1; attachmentNo <= random.nextInt(0, 2); attachmentNo++) {

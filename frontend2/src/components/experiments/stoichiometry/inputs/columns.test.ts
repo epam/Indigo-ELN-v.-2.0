@@ -23,10 +23,10 @@ describe('the host grid', () => {
     expect(spanned).toBe(COMPOUND_COLUMNS.length + 1);
   });
 
-  /** Constraint 1: the indent ends where Batch # begins, so the two Batch # columns line up. */
-  it('indents a sample row past exactly the columns before Batch #', () => {
+  /** Constraint 1: the indent ends where Compound ID begins, so Batch # sits under it. */
+  it('indents a sample row past exactly the columns before Compound ID', () => {
     // +1 for the chevron column, which precedes every entry in the list.
-    expect(COMPOUND_COLUMNS.findIndex((column) => column.id === 'batches') + 1).toBe(SAMPLE_INDENT_SPAN);
+    expect(COMPOUND_COLUMNS.findIndex((column) => column.id === 'compoundId') + 1).toBe(SAMPLE_INDENT_SPAN);
   });
 
   /** Constraint 2: both levels end on the same host column, so the right borders align. */
@@ -43,10 +43,9 @@ describe('the host grid', () => {
    */
   it('leaves the spacer columns with nothing in them', () => {
     const spacers = COMPOUND_COLUMNS.filter((column) => column.kind === 'spacer');
-    expect(spacers.map((column) => column.id)).toEqual(['hazardSpacer', 'commentSpacer']);
+    expect(spacers.map((column) => column.id)).toEqual(['sampleSpacer']);
     for (const spacer of spacers) {
       expect(spacer.header).toBe('');
-      expect(spacer.minWidth).toBeUndefined();
     }
   });
 });

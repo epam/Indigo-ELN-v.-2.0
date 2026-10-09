@@ -5,11 +5,21 @@ import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.common.model.UploadForm;
 import com.epam.indigoeln.signature.model.DocumentDTO;
+import com.epam.indigoeln.signature.model.SignForm;
 import com.epam.indigoeln.signature.model.SignatureTemplateDTO;
 import com.epam.indigoeln.signature.model.SignatureTemplateDetailsDTO;
 import com.epam.indigoeln.signature.model.SignatureTemplateRequest;
 import jakarta.annotation.Nullable;
-import jakarta.ws.rs.*;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.ws.rs.BeanParam;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -34,7 +44,7 @@ public interface SignatureAPI {
     @POST
     @Path("/documents/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    DocumentDTO uploadDocument(@QueryParam("name") String name, @QueryParam("templateId") UUID templateId, UploadForm form);
+    DocumentDTO uploadDocument(@QueryParam("name") String name, @QueryParam("templateId") UUID templateId, @NotNull @QueryParam("sourceId") UUID sourceId, UploadForm form);
 
     @GET
     @Path("/documents")
@@ -47,7 +57,7 @@ public interface SignatureAPI {
     @POST
     @Path("/documents/{documentId}/sign")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    DocumentDTO signDocument(@PathParam("documentId") UUID documentId);
+    DocumentDTO signDocument(@PathParam("documentId") UUID documentId, @Valid @NotNull SignForm form);
 
     @POST
     @Path("/documents/{documentId}/reject")

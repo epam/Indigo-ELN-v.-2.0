@@ -13,6 +13,8 @@ import org.hibernate.type.SqlTypes;
 import org.jspecify.annotations.Nullable;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -51,11 +53,15 @@ public class ExperimentRevisionEntity extends BaseRevisionEntity {
     @Basic(fetch = FetchType.LAZY)
     private ExperimentSnapshot snapshot;
 
+    @NotNull
     @Basic(fetch = FetchType.LAZY)
-    private String @Nullable [] messages;
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    private List<String> messages = new ArrayList<>();
 
+    @NotNull
     @Basic(fetch = FetchType.LAZY)
-    private String @Nullable [] debugMessages;
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    private List<String> debugMessages = new ArrayList<>();
 
     public record CompositeID(
             ExperimentEntity experiment,

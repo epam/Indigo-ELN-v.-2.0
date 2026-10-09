@@ -2,6 +2,7 @@ package com.epam.indigoeln.signature.api;
 
 import com.epam.indigoeln.common.config.APISecretHeaderFactory;
 import com.epam.indigoeln.signature.model.DocumentDTO;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
@@ -18,5 +19,5 @@ public interface SignatureClient extends SignatureAPI {
     @POST
     @Path("/documents/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    DocumentDTO uploadDocumentClient(@QueryParam("name") String name, @QueryParam("templateId") UUID templateId, @FormParam("file") File form);
+    DocumentDTO uploadDocumentClient(@QueryParam("name") String name, @QueryParam("templateId") UUID templateId, @NotNull @QueryParam("sourceId") UUID sourceId, @FormParam("file") File form);
 }

@@ -1,9 +1,12 @@
 package com.epam.indigoeln.reaction.model;
 
 import com.epam.indigoeln.common.util.ModelUtil;
-import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.reaction.util.StreamUtil;
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.primitives.Ints;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -96,11 +99,11 @@ public final class Reaction implements ExperimentNode {
 
     @NotNull
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    public List<STRCodeSample> getPrecursorReactantIds() {
+    public List<String> getPrecursorReactantIds() {
         return StreamEx.of(inputs)
                 .filter(r -> r.getRole() == ReactionRole.REACTANT)
                 .flatMap(r -> r.getSamples().stream())
-                .map(ReactionSample::getStrCode)
+                .map(ReactionSample::getSampleKey)
                 .collect(StreamUtil.toListNotNull());
     }
 }

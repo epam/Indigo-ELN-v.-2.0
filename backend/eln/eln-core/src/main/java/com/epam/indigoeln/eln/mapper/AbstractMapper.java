@@ -24,7 +24,7 @@ public abstract class AbstractMapper {
     UserService userService;
 
     protected abstract ACLEntryDTO convertACL(ACLEntry entry);
-    public abstract List<ACLEntryDTO> convertACLList(ACLEntry[] entries);
+    public abstract List<ACLEntryDTO> convertACLList(List<ACLEntry> entries);
 
     protected Integer convertMapToTotalCount(Map<ExperimentStatus, Integer> map) {
         return map.values().stream().mapToInt(Integer::intValue).sum();

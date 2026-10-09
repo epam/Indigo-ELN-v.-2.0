@@ -23,7 +23,7 @@ public class DictionaryRepository extends BaseRepository<DictionaryEntity> {
     DictionaryMapper dictionaryMapper;
 
     public DictionaryRepository() {
-        super(ELNEntityType.DICTIONARY, DictionaryEntity.class);
+        super(DictionaryEntity.class);
     }
 
     public List<DictionaryDTO> list() {

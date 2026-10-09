@@ -4,7 +4,7 @@ import type { NumericCellValue } from '@/components/experiments/stoichiometry/nu
 import type { DictionaryItemRef } from '@/lib/types/dictionaries.ts';
 import type { ModelMutation } from '@/lib/types/mutations.ts';
 import type { EnteredValue, ReactionOutput, ReactionOutputType } from '@/lib/types/reactions.ts';
-import { MOL_UNITS, MOL_WEIGHT_UNITS, NO_UNITS, WEIGHT_UNITS } from '@/lib/types/reactions.ts';
+import { isKnownCompound, MOL_UNITS, MOL_WEIGHT_UNITS, NO_UNITS, WEIGHT_UNITS } from '@/lib/types/reactions.ts';
 
 /**
  * The Reaction Products table's columns, as data — the same shape `columns.ts` uses for the
@@ -21,6 +21,14 @@ import { MOL_UNITS, MOL_WEIGHT_UNITS, NO_UNITS, WEIGHT_UNITS } from '@/lib/types
  */
 
 /** One product, plus which step it came from — the Reaction Step column and Show All Steps. */
+/**
+ * Mirrors `ReactionOutput.updateCompound`: a known compound can be re-salted until one of its
+ * batches has gone to registration. An unknown compound has no salt.
+ */
+function saltEditable(output: ReactionOutput): boolean {
+  return isKnownCompound(output.compound) && output.samples.every((sample) => sample.registrationStatus == null);
+}
+
 export interface ProductRow {
   output: ReactionOutput;
   /** Index into `ExperimentModel.reactions`. Shown 1-based. */
@@ -30,7 +38,10 @@ export interface ProductRow {
 interface ColumnBase {
   id: string;
   header: string;
-  /** A floor in pixels, not a fixed size — see the note on `columns.ts`'s own `minWidth`. */
+  /**
+   * A floor in pixels, stated only where the cell edits a number with a unit — see the note on
+   * the inputs table's own `minWidth`. Every other column is as wide as its content or header.
+   */
   minWidth?: number;
 }
 
@@ -52,21 +63,29 @@ type Cell =
    * `numeric` with `editable: () => false`, because a read-only cell has no mutation to name and
    * inventing one that can never fire is worse than not having the field.
    */
-  | { kind: 'readonlyNumeric'; value: (row: ProductRow) => EnteredValue<string> | undefined; units: readonly string[] }
+  | {
+      kind: 'readonlyNumeric';
+      value: (row: ProductRow) => EnteredValue<string> | undefined;
+      units: readonly string[];
+      /** The fixed unit's text on a single-unit column, when `unitLabel` is not what to show. */
+      suffix?: string;
+    }
   /** An editable number with a unit, or a unitless one when `units` has a single member. */
   | {
       kind: 'numeric';
       value: (row: ProductRow) => EnteredValue<string> | undefined;
       units: readonly string[];
+      /** The fixed unit's text on a single-unit column, when `unitLabel` is not what to show. */
+      suffix?: string;
       mutation: (row: ProductRow, next: NumericCellValue) => ModelMutation;
       editable?: (row: ProductRow) => boolean;
     }
   /** One item from a built-in dictionary. */
   | {
       kind: 'dictionary';
-      dictionary: 'SALT_CODE';
-      value: (row: ProductRow) => DictionaryItemRef | undefined;
-      mutation: (row: ProductRow, next: DictionaryItemRef | null) => ModelMutation;
+      dictionary: 'SALT_CODE' | 'STEREOISOMER_CODE';
+      value: (row: ProductRow) => DictionaryItemRef;
+      mutation: (row: ProductRow, next: DictionaryItemRef) => ModelMutation;
       editable?: (row: ProductRow) => boolean;
     }
   /** The product-type picker — a fixed enum, not a dictionary. */
@@ -81,11 +100,10 @@ type Cell =
 export type ProductColumn = ColumnBase & Cell;
 
 export const PRODUCT_COLUMNS: ProductColumn[] = [
-  { id: 'index', header: '#', minWidth: 48, kind: 'index' },
+  { id: 'index', header: '#', kind: 'index' },
   {
     id: 'outputName',
     header: 'Output Name',
-    minWidth: 140,
     kind: 'text',
     value: (row) => row.output.outputName,
     // `@NotNull` on the record, so a cleared cell sends `''` rather than null. The backend then
@@ -96,7 +114,6 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
   {
     id: 'reactionStep',
     header: 'Reaction Step',
-    minWidth: 110,
     kind: 'readonly',
     // Derived from the position in `model.reactions`, not hardcoded — indigo-frontend's batch summary returns a literal
     // '1'. There is only ever one step today, so the two agree; this one keeps agreeing once `AddReaction` exists.
@@ -104,8 +121,7 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
   },
   {
     id: 'type',
-    header: 'Products Type',
-    minWidth: 150,
+    header: 'Product Type',
     kind: 'outputType',
     value: (row) => row.output.type,
     // Note `outputType`, not `type` — that name is the mutation union's own discriminator.
@@ -114,27 +130,26 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
   {
     id: 'formula',
     header: 'Formula',
-    minWidth: 130,
     kind: 'html',
     value: (row) => row.output.compound.formula,
   },
   {
     id: 'molWeight',
     header: 'Mol. Weight',
-    minWidth: 110,
     // Read-only, unlike the inputs table's column of the same name. `SetOutputCompoundMolWeight`
-    // only accepts an `UNKNOWN` compound, and every row here came from the drawn scheme, so it
-    // is stored or virtual by construction.
+    // only accepts an unknown compound, and every row here came from the drawn scheme, so it is
+    // known by construction.
     kind: 'readonlyNumeric',
     value: (row) => row.output.compound.molWeight,
     units: MOL_WEIGHT_UNITS,
+    // Implied by the column — every molecular weight is g/mol.
+    suffix: '',
   },
   {
     id: 'exactMass',
     header: 'Exact Mass',
-    minWidth: 110,
     kind: 'readonlyNumeric',
-    value: (row) => (row.output.compound.type === 'UNKNOWN' ? undefined : row.output.compound.exactMass),
+    value: (row) => row.output.compound.exactMass,
     units: NO_UNITS,
   },
   {
@@ -158,30 +173,42 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
   {
     id: 'saltCode',
     header: 'Salt Code',
-    minWidth: 150,
     kind: 'dictionary',
     dictionary: 'SALT_CODE',
-    value: (row) => (row.output.compound.type === 'UNKNOWN' ? undefined : row.output.compound.saltCode),
-    // A stored compound's salt code is registry data.
-    editable: (row) => row.output.compound.type === 'VIRTUAL',
+    value: (row) => row.output.compound.saltCode,
+    // Fixed once a batch has gone to registration.
+    editable: (row) => saltEditable(row.output),
     mutation: (row, saltCode) => ({ type: 'SetOutputRowSaltCode', anchor: row.output.anchor, saltCode }),
   },
   {
     id: 'saltEQ',
     header: 'Salt EQ',
-    minWidth: 100,
     kind: 'numeric',
-    value: (row) => (row.output.compound.type === 'UNKNOWN' ? undefined : asEnteredValue(row.output.compound.saltEQ)),
+    value: (row) => asEnteredValue(row.output.compound.saltEQ),
     units: NO_UNITS,
-    // Both gates, matching the inputs table: a stored compound's salt EQ is fixed by the registry
-    // even when it has a code. (indigo-frontend's products table checked only for the code.)
-    editable: (row) => row.output.compound.type === 'VIRTUAL' && row.output.compound.saltCode != null,
+    // Both gates, matching the inputs table: a registered compound's salt EQ is fixed even when
+    // it has a code. (indigo-frontend's products table checked only for the code.) No salt EQ
+    // means the default "00 - Parent Structure".
+    editable: (row) => saltEditable(row.output) && row.output.compound.saltEQ != null,
     mutation: (row, next) => ({ type: 'SetOutputRowSaltEQ', anchor: row.output.anchor, saltEQ: next.value }),
+  },
+  {
+    id: 'stereoisomerCode',
+    header: 'Stereoisomer Code',
+    kind: 'dictionary',
+    dictionary: 'STEREOISOMER_CODE',
+    value: (row) => row.output.compound.stereoisomerCode,
+    // The same gate as the salt code: the handler goes through the same `updateCompound`.
+    editable: (row) => saltEditable(row.output),
+    mutation: (row, stereoisomerCode) => ({
+      type: 'SetOutputCompoundStereoisomerCode',
+      anchor: row.output.anchor,
+      stereoisomerCode,
+    }),
   },
   {
     id: 'eq',
     header: 'EQ',
-    minWidth: 90,
     kind: 'numeric',
     // The one editable number on the row, and what the two theoretical columns are computed
     // from: `theoMol = limiting.mol / limiting.eq * eq`.
@@ -193,7 +220,11 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
     id: 'addBatch',
     header: '',
     kind: 'addBatch',
-    mutation: (row) => ({ type: 'AddProductSample', anchor: row.output.anchor }),
+    mutation: (row) => ({
+      type: 'AddProductSample',
+      anchor: row.output.anchor,
+      createdSampleAnchor: crypto.randomUUID(),
+    }),
   },
 ];
 
@@ -204,8 +235,8 @@ export function productHaystack(row: ProductRow): string {
     row.output.outputName,
     row.output.chemicalName,
     compound.formula,
-    compound.type === 'UNKNOWN' ? undefined : compound.compoundKey,
-    compound.type === 'UNKNOWN' ? undefined : compound.saltCode?.name,
+    compound.compoundKey,
+    compound.saltCode.name,
   ]
     .filter((each) => each != null)
     .join(' ')

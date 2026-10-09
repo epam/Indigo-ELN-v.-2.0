@@ -9,7 +9,7 @@ import com.epam.indigoeln.reaction.model.OutputSampleAnchor;
 import com.epam.indigoeln.reaction.model.ReactionRole;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
-import com.epam.indigoeln.reaction.model.units.MolUnit;
+import com.epam.indigoeln.common.model.units.MolUnit;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import org.junit.jupiter.api.*;
@@ -19,13 +19,13 @@ import java.io.File;
 import static com.epam.indigoeln.eln.test.ReactionInputAssert.assertThat;
 import static com.epam.indigoeln.eln.test.ReactionInputSampleAssert.assertThat;
 import static com.epam.indigoeln.eln.test.ReactionOutputAssert.assertThat;
-import static com.epam.indigoeln.reaction.model.units.DensityUnit.G_ML;
-import static com.epam.indigoeln.reaction.model.units.MolUnit.MMOL;
-import static com.epam.indigoeln.reaction.model.units.MolUnit.MOL;
-import static com.epam.indigoeln.reaction.model.units.MolarityUnit.M;
-import static com.epam.indigoeln.reaction.model.units.VolumeUnit.ML;
-import static com.epam.indigoeln.reaction.model.units.WeightUnit.G;
-import static com.epam.indigoeln.reaction.model.units.WeightUnit.MG;
+import static com.epam.indigoeln.common.model.units.DensityUnit.G_ML;
+import static com.epam.indigoeln.common.model.units.MolUnit.MMOL;
+import static com.epam.indigoeln.common.model.units.MolUnit.MOL;
+import static com.epam.indigoeln.common.model.units.MolarityUnit.M;
+import static com.epam.indigoeln.common.model.units.VolumeUnit.ML;
+import static com.epam.indigoeln.common.model.units.WeightUnit.G;
+import static com.epam.indigoeln.common.model.units.WeightUnit.MG;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
@@ -37,8 +37,8 @@ public class ExperimentEditingTest extends MutationsTestBase {
 
     @BeforeAll
     void beforeAll() {
-        saltCode = dictionaryClient.getNth(BuiltInDictionary.SALT_CODE, 1);
-        stereoisomerCode = dictionaryClient.<StereoisomerCodeRef>getDictionary(BuiltInDictionary.STEREOISOMER_CODE).get(1);
+        saltCode = dictionaryClient.getNthNonDefault(BuiltInDictionary.SALT_CODE, 1);
+        stereoisomerCode = dictionaryClient.getNthNonDefault(BuiltInDictionary.STEREOISOMER_CODE, 1);
     }
 
     @BeforeEach

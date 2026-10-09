@@ -1,18 +1,18 @@
 package com.epam.indigoeln.eln.controller;
 
 
-import com.epam.indigoeln.common.model.UploadForm;
+import com.epam.indigoeln.common.model.Page;
+import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
-import com.epam.indigoeln.compound.model.search.SampleSearchResult;
+import com.epam.indigoeln.compound.model.search.SearchCatalog;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.compound.service.search.SampleSearchService;
 import com.epam.indigoeln.eln.api.BaseAPI;
 import com.epam.indigoeln.eln.api.CompoundAPI;
+import com.epam.indigoeln.eln.model.SampleSource;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Path;
-import lombok.SneakyThrows;
-import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -25,14 +25,13 @@ public class CompoundResource implements CompoundAPI {
     SampleSearchService sampleSearchService;
 
     @Override
-    @SneakyThrows
-    public void loadCompoundsFromFile(UploadForm form) {
-        compoundService.loadCompoundsFromFile(form.getFile().filePath(), true);
+    public byte[] getCompoundPicture(UUID compoundID) {
+        return compoundService.getCompoundPicture(compoundID);
     }
 
     @Override
-    public byte[] getCompoundPicture(UUID compoundID) {
-        return compoundService.getCompoundPicture(compoundID);
+    public byte[] getCatalogCompoundPicture(SearchCatalog catalog, SampleSource source, UUID compoundID) {
+        return sampleSearchService.getCompoundPicture(catalog, source, compoundID);
     }
 
     @Override
@@ -41,22 +40,17 @@ public class CompoundResource implements CompoundAPI {
     }
 
     @Override
-    public SampleSearchResult search(FindSamplesRequest request, @Nullable Integer pageSize) {
-        return sampleSearchService.search(request, pageSize);
+    public Page<SampleDTO> search(FindSamplesRequest request, Paging paging) {
+        return sampleSearchService.search(request, paging);
     }
 
     @Override
-    public SampleDTO importFromSearch(SampleDTO searchItem) {
-        return sampleSearchService.importSample(searchItem);
+    public SampleDTO markSample(SampleDTO sample) {
+        return sampleSearchService.markSample(sample);
     }
 
     @Override
-    public SampleDTO markSample(UUID sampleID) {
-        return compoundService.markSample(sampleID, true);
-    }
-
-    @Override
-    public SampleDTO unmarkSample(UUID sampleID) {
-        return compoundService.markSample(sampleID, false);
+    public SampleDTO unmarkSample(SampleDTO sample) {
+        return sampleSearchService.unmarkSample(sample);
     }
 }

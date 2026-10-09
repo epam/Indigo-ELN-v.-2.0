@@ -44,7 +44,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {};
 
 /**
- * **The reason this is not a `Combobox`.** The trigger is a button, so there is nothing to type
+ * **The reason this is not a combobox.** The trigger is a button, so there is nothing to type
  * into and nothing to clear — the two affordances a combobox would have offered for a field that
  * accepts four exact values and will not accept none of them.
  */

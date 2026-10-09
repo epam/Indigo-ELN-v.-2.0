@@ -75,18 +75,18 @@ export const Default: Story = {
 };
 
 /**
- * Products Type is the row's headline, so it carries colour: a column of identical grey triggers
+ * Product Type is the row's headline, so it carries colour: a column of identical grey triggers
  * would not read. All three values are reachable on an intended row — the type and the
  * `intended` flag are different things.
  */
 export const ProductTypes: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByLabelText('Products Type, P0')).toHaveTextContent('Final');
-    await expect(canvas.getByLabelText('Products Type, P1')).toHaveTextContent('Side');
-    await expect(canvas.getByLabelText('Products Type, P2')).toHaveTextContent('Intermediate');
+    await expect(canvas.getByLabelText('Product Type, P0')).toHaveTextContent('Final');
+    await expect(canvas.getByLabelText('Product Type, P1')).toHaveTextContent('Side');
+    await expect(canvas.getByLabelText('Product Type, P2')).toHaveTextContent('Intermediate');
     // The colour is on the trigger, not in a StatusBadge — see `OutputTypeCell`.
-    await expect(canvas.getByLabelText('Products Type, P0').className).toContain('border-green-200');
+    await expect(canvas.getByLabelText('Product Type, P0').className).toContain('border-green-200');
   },
 };
 
@@ -98,7 +98,7 @@ export const PicksProductType: Story = {
     sent.length = 0;
     const canvas = within(canvasElement);
 
-    await userEvent.click(await canvas.findByLabelText('Products Type, P0'));
+    await userEvent.click(await canvas.findByLabelText('Product Type, P0'));
     await userEvent.click(await within(await screen.findByRole('listbox')).findByRole('option', { name: 'Side' }));
 
     await waitFor(() =>
@@ -146,28 +146,35 @@ export const AddsABatch: Story = {
     await userEvent.click(await canvas.findByRole('button', { name: 'Add batch to P1' }));
 
     await waitFor(() =>
-      expect(sent).toEqual([{ type: 'AddProductSample', anchor: 'f0000000-0000-4000-8000-000000000002' }]),
+      expect(sent).toEqual([
+        {
+          type: 'AddProductSample',
+          anchor: 'f0000000-0000-4000-8000-000000000002',
+          createdSampleAnchor: expect.any(String),
+        },
+      ]),
     );
   },
 };
 
 /**
- * Salt Code is editable only on a virtual compound, and Salt EQ needs a code **and** a virtual
- * compound — a stored one's salt EQ is registry data even when it has a code.
+ * Salt Code is editable until a batch of the product goes to registration, and Salt EQ needs a
+ * code as well — a registered compound's salt EQ is registry data even when it has a code.
  */
 export const SaltIsRegistryOwned: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    // P1 is the virtual compound: both editable.
-    await expect(canvas.getByLabelText('Salt Code, P1').tagName).toBe('BUTTON');
-    await expect(canvas.getByLabelText('Salt EQ, P1')).toBeEnabled();
-    // P2 is stored *and* carries a salt code — the case indigo-frontend let through. The two
-    // cells lock differently: `DictionaryCell` swaps itself for plain text, while `NumericCell`
-    // keeps its input and disables it, so there is no one query that covers both.
-    const p2 = canvas.getByRole('textbox', { name: 'Output Name, P2' }).closest('tr')!;
-    await expect(within(p2).queryByLabelText('Salt Code, P2')).not.toBeInTheDocument();
-    await expect(within(p2).getByText('HCl')).toBeInTheDocument();
-    await expect(within(p2).getByLabelText('Salt EQ, P2')).toBeDisabled();
+    // P0 has no batch sent for registration: its Salt Code is a picker. With no code set, Salt EQ
+    // has nothing to be an equivalent of.
+    await expect(canvas.getByLabelText('Salt Code, P0').tagName).toBe('BUTTON');
+    await expect(canvas.getByLabelText('Salt EQ, P0')).toBeDisabled();
+    // P1's batch is registered *and* it carries a salt code — the case indigo-frontend let
+    // through. Both cells lock the same way: they keep their control and disable it, which for
+    // the select means its value as plain text.
+    const p1 = canvas.getByRole('textbox', { name: 'Output Name, P1' }).closest('tr')!;
+    await expect(within(p1).getByLabelText('Salt Code, P1')).toBeDisabled();
+    await expect(within(p1).getByLabelText('Salt Code, P1')).toHaveTextContent('HCl');
+    await expect(within(p1).getByLabelText('Salt EQ, P1')).toBeDisabled();
   },
 };
 
@@ -242,7 +249,7 @@ export const ReadOnlyNoPermission: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByRole('button', { name: 'Add batch to P0' })).toBeDisabled();
-    await expect(canvas.getByLabelText('Products Type, P0')).toBeDisabled();
+    await expect(canvas.getByLabelText('Product Type, P0')).toBeDisabled();
     // The data is all still there — read-only, not hidden. `TextCell` swaps its input for plain
     // text when it cannot be edited, so the name is no longer a textbox.
     await expect(canvas.queryByRole('textbox', { name: 'Output Name, P0' })).not.toBeInTheDocument();
@@ -256,7 +263,7 @@ export const ReadOnlySigned: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByRole('button', { name: 'Add batch to P0' })).toBeDisabled();
-    await expect(canvas.getByLabelText('Products Type, P0')).toBeDisabled();
+    await expect(canvas.getByLabelText('Product Type, P0')).toBeDisabled();
   },
 };
 
@@ -284,12 +291,12 @@ export const Failure: Story = {
   render: () => <TableFromCache />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const type = await canvas.findByLabelText('Products Type, P0');
+    const type = await canvas.findByLabelText('Product Type, P0');
 
     await userEvent.click(type);
     await userEvent.click(await within(await screen.findByRole('listbox')).findByRole('option', { name: 'Side' }));
 
-    await waitFor(async () => expect(await canvas.findByLabelText('Products Type, P0')).toBeEnabled());
-    await expect(canvas.getByLabelText('Products Type, P0')).toHaveTextContent('Final');
+    await waitFor(async () => expect(await canvas.findByLabelText('Product Type, P0')).toBeEnabled());
+    await expect(canvas.getByLabelText('Product Type, P0')).toHaveTextContent('Final');
   },
 };

@@ -121,7 +121,7 @@ public class UserService {
     public UserDTO createUser(UserRequest request) {
         aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_USERS);
         UserEntity entity = userMapper.requestToUser(request);
-        Set<RoleEntity> roles = StreamEx.of(firstNotNull(request.getRoles(), List.of()))
+        Set<RoleEntity> roles = StreamEx.of(request.getRoles())
                 .map(ref -> roleRepository.get(ref.getId()))
                 .toSet();
         entity.getRoles().addAll(roles);

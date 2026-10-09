@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.model;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,6 +10,7 @@ import java.util.List;
 @Setter
 public class TemplateDetailsDTO extends TemplateDTO {
 
+    @NotNull
     private List<TemplateTab> templateTabs;
 
     @Override

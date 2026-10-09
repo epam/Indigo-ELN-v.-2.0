@@ -1,6 +1,7 @@
 package com.epam.indigoeln.common.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
@@ -22,6 +23,7 @@ public class Page<T> {
     Integer totalPages;
     /** Whether a page after this one exists; the only end-of-results signal when the total is null. */
     boolean hasMore;
+    @NotNull
     List<T> items;
 
     @JsonIgnore

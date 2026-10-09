@@ -11,14 +11,22 @@ import java.util.List;
 @Mapper(componentModel = "cdi", unmappedTargetPolicy = ReportingPolicy.ERROR, nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
 interface PubChemMapper {
 
+    @Mapping(target = "catalog", constant = "PUBCHEM")
     @Mapping(target = "source", constant = "PUBCHEM")
-    @Mapping(target = "id", ignore = true)
     @Mapping(target = "nbkBatchNumber", ignore = true)
     @Mapping(target = "compoundKey", source = "cid")
-    @Mapping(target = "strCode", ignore = true)
+    @Mapping(target = "compoundID", ignore = true)
+    @Mapping(target = "chemicalName", source = "name")
+    @Mapping(target = "sampleKey", source = "cid")
     @Mapping(target = "saltCode", ignore = true)
     @Mapping(target = "saltEQ", ignore = true)
-    @Mapping(target = "compoundID", ignore = true)
+    @Mapping(target = "density", ignore = true)
+    @Mapping(target = "molarity", ignore = true)
+    @Mapping(target = "molarityUnit", ignore = true)
+    @Mapping(target = "purity", ignore = true)
+    @Mapping(target = "healthHazards", ignore = true)
+    @Mapping(target = "compoundState", ignore = true)
+    @Mapping(target = "batchComment", ignore = true)
     @Mapping(target = "marked", constant = "false")
     SampleDTO mapSample(PubChemResponse.Item item);
 

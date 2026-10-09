@@ -42,7 +42,9 @@ function ToastList() {
         'translate-x-(--toast-swipe-movement-x) translate-y-[calc(var(--toast-swipe-movement-y)+var(--toast-offset-y))]',
         'transition-all duration-200 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0',
         'data-[ending-style]:translate-x-full data-[starting-style]:translate-x-full',
-        toast.type === 'error' ? 'border-red-200 bg-red-10' : 'border-neutral-300',
+        // `red-10` is a translucent tint, so it is layered as an image over the opaque
+        // `bg-card` rather than replacing it — on its own the page shows through.
+        toast.type === 'error' ? 'border-red-200 bg-linear-to-r from-red-10 to-red-10' : 'border-neutral-300',
       )}
     >
       {/* whitespace-pre-line: a bean-validation body arrives as newline-joined lines. */}

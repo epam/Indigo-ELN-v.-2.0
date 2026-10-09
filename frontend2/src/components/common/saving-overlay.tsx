@@ -23,8 +23,11 @@ import { cn } from '@/lib/utils';
  * A control with its own honest disabled state should still use it — `RichTextEditor` does, since
  * `setEditable(false)` is Tiptap's contract and it greys the toolbar buttons individually.
  *
- * `pending` goes through `useDelayedFlag` here rather than at the call sites, so a save that beats
- * the delay shows nothing and no caller has to remember that.
+ * **The freeze is immediate; only what is seen waits.** The spinner and the dimming go through
+ * `useDelayedFlag`, so a save that beats the delay shows nothing — but `inert` follows `pending`
+ * itself, in the same render. It used to wait with them, and for those 300 ms the control just
+ * saved could be changed again, queuing a second write built on a value the first had not yet
+ * confirmed.
  *
  * `showDelayMs` and `label` are what let this cover a *loading* region as well as a saving one —
  * `FormDialog`'s initializing phase passes `0` and `'Loading…'`. A dialog that has only just
@@ -68,16 +71,16 @@ export function SavingOverlay({
   /**
    * Hands focus back when the region unfreezes.
    *
-   * `inert` blurs whatever it covers, so a save that outlasts the spinner's delay drops the user
-   * out of the control they were in — most visibly in the stoichiometry table, where committing a
-   * number on the way to its unit picker freezes the cell that picker lives in.
+   * `inert` blurs whatever it covers, so a save drops the user out of the control they were in —
+   * most visibly in the stoichiometry table, where committing a number with Enter freezes the
+   * very cell the user is still typing into.
    *
    * Only when focus is still nowhere. If the user has since clicked or tabbed somewhere else,
    * `document.activeElement` is that element rather than `body`, and pulling them back would be
    * the more annoying of the two behaviours.
    */
   useEffect(() => {
-    if (showing) return;
+    if (pending) return;
 
     const target = focused.current;
     focused.current = null;
@@ -85,7 +88,7 @@ export function SavingOverlay({
     if (document.activeElement !== document.body && document.activeElement != null) return;
 
     target.focus();
-  }, [showing]);
+  }, [pending]);
 
   function handleFocus(event: FocusEvent<HTMLDivElement>) {
     focused.current = event.target;
@@ -115,13 +118,14 @@ export function SavingOverlay({
       onBlur={handleBlur}
       data-saving={showing ? '' : undefined}
       className={cn('group/saving relative', spinner === 'center' && 'w-fit', className)}
-      aria-busy={showing || undefined}
+      aria-busy={pending || undefined}
     >
       {/*
-        `inert` while saving. React 19 takes it as a boolean prop; Base UI already inerts the page
-        behind an open dialog, so the mechanism is not new here.
+        `inert` for as long as the save is pending, not only once the spinner shows. React 19
+        takes it as a boolean prop; Base UI already inerts the page behind an open dialog, so the
+        mechanism is not new here.
       */}
-      <div inert={showing} className={cn('transition-opacity', showing && 'opacity-60')}>
+      <div inert={pending} className={cn('transition-opacity', showing && 'opacity-60')}>
         {children}
       </div>
 

@@ -69,7 +69,7 @@ export function describeError(error: unknown, url?: string): [message: string, l
  * the same way, mirroring the Angular interceptor — which also re-throws, leaving
  * callers free to handle the error as well.
  */
-export function notifyError(error: unknown, url?: string): void {
+export function notifyError(error: unknown, url?: string, id?: string): void {
   const [message, log] = describeError(error, url);
   console.error(log, error);
 
@@ -96,7 +96,8 @@ export function notifyError(error: unknown, url?: string): void {
     return;
   }
 
-  toastManager.add({ title: message, type: 'error' });
+  // With an `id`, repeats update the one toast in place — see the 401 note above.
+  toastManager.add({ id, title: message, type: 'error' });
 }
 
 /**

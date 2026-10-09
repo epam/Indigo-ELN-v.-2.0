@@ -8,6 +8,7 @@ import com.epam.indigoeln.common.model.UploadForm;
 import com.epam.indigoeln.signature.api.SignatureAPI;
 import com.epam.indigoeln.signature.entity.DocumentEntity;
 import com.epam.indigoeln.signature.model.DocumentDTO;
+import com.epam.indigoeln.signature.model.SignForm;
 import com.epam.indigoeln.signature.model.SignatureTemplateDTO;
 import com.epam.indigoeln.signature.model.SignatureTemplateDetailsDTO;
 import com.epam.indigoeln.signature.model.SignatureTemplateRequest;
@@ -25,6 +26,7 @@ import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
+import java.nio.file.Files;
 import java.util.List;
 import java.util.UUID;
 
@@ -54,8 +56,8 @@ public class SignatureResource implements SignatureAPI {
     @Valid
     @Override
     @SneakyThrows
-    public DocumentDTO uploadDocument(String name, UUID templateId, UploadForm form) {
-        return service.createDocument(templateId, name, form.getFile());
+    public DocumentDTO uploadDocument(String name, UUID templateId, UUID sourceId, UploadForm form) {
+        return service.createDocument(templateId, name, sourceId, form.getUpload());
     }
 
     @Override
@@ -70,14 +72,15 @@ public class SignatureResource implements SignatureAPI {
 
     @Valid
     @Override
-    public DocumentDTO signDocument(UUID documentId) {
-        return service.signOrRejectDocument(documentId, false);
+    @SneakyThrows
+    public DocumentDTO signDocument(UUID documentId, SignForm form) {
+        return service.signDocument(documentId, Files.readAllBytes(form.getUpload().filePath()), form.getPassword());
     }
 
     @Valid
     @Override
     public DocumentDTO rejectDocument(UUID documentId) {
-        return service.signOrRejectDocument(documentId, true);
+        return service.rejectDocument(documentId);
     }
 
     @Override

@@ -59,7 +59,7 @@ function Input({ className, ...props }: InputPrimitive.Props) {
  * The border and the focus ring live here and the input inside is bare, so the buttons are its
  * flex *siblings* rather than an overlay: the space they take is reserved by layout, text can
  * never run underneath them, and there is no `pr-*` to keep in step with how many are showing.
- * `Combobox` and `Select` draw the same box around their own parts.
+ * `MultiCombobox` and `Select` draw the same box around their own parts.
  */
 function InputGroup({
   startIcon,

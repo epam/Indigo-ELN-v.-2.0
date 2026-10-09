@@ -1,18 +1,13 @@
 import type { AdvancedSummaryItem } from '@/components/search/global-search-form';
 import type { DictionaryItemRef } from '@/lib/types/dictionaries.ts';
-import type {
-  AddMaterialFilters,
-  FindSamplesRequest,
-  MaterialFilter,
-  SampleCatalogFilter,
-} from '@/lib/types/samples.ts';
-import { CATALOGS_BY_FILTER, MATERIAL_FILTER_LABELS, PUBCHEM_DISABLED_FILTERS } from '@/lib/types/samples.ts';
+import type { AddMaterialFilters, FindSamplesRequest, MaterialFilter, SearchCatalog } from '@/lib/types/samples.ts';
+import { MATERIAL_FILTER_LABELS, PUBCHEM_DISABLED_FILTERS } from '@/lib/types/samples.ts';
 import type { NumericSearch, StructuralSearchType, TextSearch } from '@/lib/types/search.ts';
 import { NUMERIC_SEARCH_OPERATOR_LABELS, TEXT_SEARCH_OPERATOR_LABELS } from '@/lib/types/search.ts';
 
 export interface AddMaterialFormValues extends AddMaterialFilters {
   quickSearch: string;
-  catalog: SampleCatalogFilter;
+  catalog: SearchCatalog;
   /**
    * A molfile, always: the sketcher can draw a reaction, but one is refused on Save rather than
    * stored here — see `REACTION_NOT_SEARCHABLE`.
@@ -23,7 +18,7 @@ export interface AddMaterialFormValues extends AddMaterialFilters {
 
 export const EMPTY_ADD_MATERIAL_FORM: AddMaterialFormValues = {
   quickSearch: '',
-  catalog: 'ALL',
+  catalog: 'SRS',
   structure: null,
   structureType: 'SUBSTRUCTURE',
   compoundKey: null,
@@ -31,7 +26,7 @@ export const EMPTY_ADD_MATERIAL_FORM: AddMaterialFormValues = {
   molecularFormula: null,
   molWeight: null,
   chemicalName: null,
-  externalNumber: null,
+  sampleKey: null,
   compoundState: null,
   batchComment: null,
   healthHazards: null,
@@ -39,15 +34,14 @@ export const EMPTY_ADD_MATERIAL_FORM: AddMaterialFormValues = {
 };
 
 /**
- * Whether the chosen catalog reaches PubChem — true for `ALL` as well as `PUBCHEM`, since `ALL`
- * is `[ELN, PUBCHEM]`.
+ * Whether the chosen catalog is PubChem.
  *
  * PubChem's API takes a name, a formula or a structure and nothing else, so the catalog decides
  * what the form may ask: the rest would be dropped on the way out, and a filter that is silently
  * ignored is worse than one that is visibly unavailable.
  */
-export function pubchemIncluded(catalog: SampleCatalogFilter): boolean {
-  return CATALOGS_BY_FILTER[catalog].includes('PUBCHEM');
+export function pubchemIncluded(catalog: SearchCatalog): boolean {
+  return catalog === 'PUBCHEM';
 }
 
 export const PUBCHEM_NOTICE = 'PubChem does not support fine-grained search. Use quick search instead';
@@ -60,7 +54,7 @@ export const PUBCHEM_NOTICE = 'PubChem does not support fine-grained search. Use
 export const REACTION_NOT_SEARCHABLE = 'Draw a single molecule, not a reaction';
 
 /** Whether one field is unavailable under the chosen catalog. */
-export function isFilterDisabled(catalog: SampleCatalogFilter, filter: MaterialFilter): boolean {
+export function isFilterDisabled(catalog: SearchCatalog, filter: MaterialFilter): boolean {
   return pubchemIncluded(catalog) && PUBCHEM_DISABLED_FILTERS.includes(filter);
 }
 
@@ -70,7 +64,7 @@ export function isFilterDisabled(catalog: SampleCatalogFilter, filter: MaterialF
  * A disabled filter is **dropped** rather than sent and ignored, as `performSearch` does with its
  * `delete` loop — a request has to say what was actually searched for, or the results answer a
  * different question from the one the form appears to be asking. The value survives in the form
- * while disabled, so choosing ELN again restores the search without retyping it.
+ * while disabled, so choosing another catalog again restores the search without retyping it.
  *
  * `quickSearch` is `@Size(min = 1)` server-side, so an empty box is omitted rather than sent as
  * `''`, which would be a 400. Everything else is simply absent when null.
@@ -81,7 +75,7 @@ export function toFindSamplesRequest(values: AddMaterialFormValues): FindSamples
     value == null || isFilterDisabled(values.catalog, filter) ? undefined : value;
 
   return {
-    catalogs: CATALOGS_BY_FILTER[values.catalog],
+    catalog: values.catalog,
     quickSearch: quickSearch === '' ? undefined : quickSearch,
     structure: values.structure ? { type: values.structureType, query: values.structure } : undefined,
     compoundKey: keep('compoundKey', values.compoundKey),
@@ -89,7 +83,7 @@ export function toFindSamplesRequest(values: AddMaterialFormValues): FindSamples
     molecularFormula: keep('molecularFormula', values.molecularFormula),
     molWeight: keep('molWeight', values.molWeight),
     chemicalName: keep('chemicalName', values.chemicalName),
-    externalNumber: keep('externalNumber', values.externalNumber),
+    sampleKey: keep('sampleKey', values.sampleKey),
     compoundState: keep('compoundState', values.compoundState),
     batchComment: keep('batchComment', values.batchComment),
     healthHazards: keep('healthHazards', values.healthHazards),
@@ -169,7 +163,7 @@ export function summarizeAddMaterialSearch(values: AddMaterialFormValues): Advan
   text('molecularFormula', values.molecularFormula);
   add('molWeight', numericItem(MATERIAL_FILTER_LABELS.molWeight, values.molWeight));
   text('chemicalName', values.chemicalName);
-  text('externalNumber', values.externalNumber);
+  text('sampleKey', values.sampleKey);
   ref('compoundState', values.compoundState);
   text('batchComment', values.batchComment);
   ref('healthHazards', values.healthHazards);

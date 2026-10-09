@@ -8,16 +8,16 @@ dependencies {
     implementation(project(":common:common-aws-service"))
     implementation(project(":eln:eln-core"))
     implementation(project(":eln:eln-core-aws"))
-    testImplementation(project(":common:common-test"))
-    testImplementation(project(path = ":eln:eln-core", configuration = "testArtifacts"))
 }
 
 group = "com.epam.indigoeln"
 version = "3.0.0-SNAPSHOT"
 
 val copyNativeLibs = tasks.register<Copy>("copyNativeLibs") {
-    from(configurations.runtimeClasspath.get().filter { it.name.contains("indigo") }.map { zipTree(it)})
+    from(configurations.runtimeClasspath.get().filter { it.name.startsWith("indigo-") }.map { zipTree(it)})
     include("**/linux-x86_64/*.so")
+    include("**/darwin-x86_64/*.dylib")
+    include("**/darwin-aarch64/*.dylib")
     includeEmptyDirs = false
     destinationDir = File("${projectDir}/build/nativelibs")
 }
@@ -33,6 +33,8 @@ tasks.withType<Test> {
 val buildDocker = tasks.register<Exec>("buildDocker") {
     outputs.upToDateWhen { false }
     commandLine("docker", "build", "-f", "src/main/docker/Dockerfile.jvm", "-t", "indigoeln/eln-aws:built", ".")
+    standardOutput = System.out
+    errorOutput = System.err
 }
 
 tasks.named("assemble") {

@@ -56,12 +56,12 @@ export interface DocumentSignature {
  * Named `SignatureDocument` rather than `Document`, which would shadow the DOM global.
  *
  * `name` is `"<experiment name>, version <n>"`, composed by `SubmitExperimentHandler` when the
- * PDF is uploaded. It is the only experiment identity the row carries: nothing here resolves back
- * to an experiment id, and no endpoint offers that lookup.
+ * PDF is uploaded. `sourceId` is the id of the experiment the document was submitted from.
  */
 export interface SignatureDocument {
   id: UUID;
   name: string;
+  sourceId: UUID;
   status: DocumentStatus;
   createdDate: DateString;
   lastModifiedDate: DateString;

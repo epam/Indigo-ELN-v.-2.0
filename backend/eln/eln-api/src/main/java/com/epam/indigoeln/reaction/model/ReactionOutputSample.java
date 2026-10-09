@@ -1,22 +1,34 @@
 package com.epam.indigoeln.reaction.model;
 
-import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.reaction.model.outputsample.*;
-import com.epam.indigoeln.reaction.model.units.EnteredValue;
-import com.epam.indigoeln.reaction.model.units.MolUnit;
-import com.epam.indigoeln.reaction.model.units.NoUnit;
-import com.epam.indigoeln.reaction.model.units.WeightUnit;
+import com.epam.indigoeln.common.model.NbkBatchNumber;
+import com.epam.indigoeln.common.model.units.MolUnit;
+import com.epam.indigoeln.common.model.units.NoUnit;
+import com.epam.indigoeln.common.model.units.WeightUnit;
+import com.epam.indigoeln.eln.model.ComponentStateRef;
+import com.epam.indigoeln.eln.model.CompoundProtectionRef;
+import com.epam.indigoeln.eln.model.HandlingPrecautionsRef;
+import com.epam.indigoeln.eln.model.SampleSource;
+import com.epam.indigoeln.eln.model.SampleSourceDetailsRef;
+import com.epam.indigoeln.eln.model.SampleSourceRef;
+import com.epam.indigoeln.eln.model.StorageInstructionsRef;
+import com.epam.indigoeln.reaction.model.outputsample.ExternalSupplier;
+import com.epam.indigoeln.reaction.model.outputsample.MeltingPoint;
+import com.epam.indigoeln.reaction.model.outputsample.PurityCalculation;
+import com.epam.indigoeln.reaction.model.outputsample.ResidualSolvent;
+import com.epam.indigoeln.reaction.model.outputsample.SolubidityInSolvent;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Preconditions;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
 import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
-import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ModelUtil.appendToList;
 import static com.epam.indigoeln.common.util.ModelUtil.removeFromList;
@@ -50,27 +62,19 @@ public final class ReactionOutputSample extends ReactionSample<ReactionOutput> {
     @Nullable
     private String registrationStatusMessage;
 
-    @Nullable
-    private UUID sampleId;
-
     @NotNull
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<HandlingPrecautionsRef> handlingPrecautions = List.of();
 
     @NotNull
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<StorageInstructionsRef> storageInstructions = List.of();
 
     @NotNull
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<CompoundProtectionRef> compoundProtection = List.of();
 
     @NotNull
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<@Valid SolubidityInSolvent> solubilityInSolvents = List.of();
 
     @NotNull
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<@Valid ResidualSolvent> residualSolvents = List.of();
 
     @Valid
@@ -78,7 +82,6 @@ public final class ReactionOutputSample extends ReactionSample<ReactionOutput> {
     private MeltingPoint meltingPoint;
 
     @NotNull
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<@Valid PurityCalculation> purityCalculations = List.of();
 
     @Valid
@@ -106,12 +109,14 @@ public final class ReactionOutputSample extends ReactionSample<ReactionOutput> {
         return nbkBatchNumber.getShortForm();
     }
 
-    public static ReactionOutputSample create(ReactionOutput row, String experimentName, OutputSampleAnchor anchor, EnteredValue<NoUnit> purity) {
-        return create(row, new NbkBatchNumber(experimentName, row.getReaction().getModel().generateNextNbkBatchNumber()), anchor, purity);
+    public static ReactionOutputSample create(ReactionOutput row, String experimentName, OutputSampleAnchor anchor, SampleSource sampleSource, @Nullable String sampleKey, EnteredValue<NoUnit> purity) {
+        return create(row, new NbkBatchNumber(experimentName, row.getReaction().getModel().generateNextNbkBatchNumber()), anchor, sampleSource, sampleKey, purity);
     }
 
-    public static ReactionOutputSample create(ReactionOutput row, NbkBatchNumber nbkBatchNumber, OutputSampleAnchor anchor, EnteredValue<NoUnit> purity) {
+    public static ReactionOutputSample create(ReactionOutput row, NbkBatchNumber nbkBatchNumber, OutputSampleAnchor anchor, SampleSource sampleSource, @Nullable String sampleKey, EnteredValue<NoUnit> purity) {
         ReactionOutputSample sample = new ReactionOutputSample(anchor, nbkBatchNumber);
+        sample.setSampleSource(sampleSource);
+        sample.setSampleKey(sampleKey);
         sample.purity = purity;
         sample.insertInto(row);
         return sample;

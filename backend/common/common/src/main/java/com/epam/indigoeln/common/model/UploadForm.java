@@ -2,17 +2,26 @@ package com.epam.indigoeln.common.model;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.FormParam;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
 
-@Data
+import java.io.File;
+
 @NoArgsConstructor
-@AllArgsConstructor
+@SuppressWarnings("NotNullFieldNotInitialized")
 public class UploadForm {
 
     @NotNull
     @FormParam("file")
-    private FileUpload file;
+    private File file;
+
+    @Getter
+    @NotNull
+    @FormParam("file")
+    FileUpload upload;
+
+    public UploadForm(File file) {
+        this.file = file;
+    }
 }

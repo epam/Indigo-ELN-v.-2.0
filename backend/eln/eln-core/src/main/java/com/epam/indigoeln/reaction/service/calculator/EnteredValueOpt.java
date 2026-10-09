@@ -2,10 +2,12 @@ package com.epam.indigoeln.reaction.service.calculator;
 
 import com.epam.indigoeln.reaction.metamodel.property.ModelProperty;
 import com.epam.indigoeln.reaction.model.*;
-import com.epam.indigoeln.reaction.model.units.EnteredValue;
-import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
-import com.epam.indigoeln.reaction.model.units.MolUnit;
-import com.epam.indigoeln.reaction.model.units.NoUnit;
+import com.epam.indigoeln.reaction.model.EnteredValue;
+import com.epam.indigoeln.common.model.units.MeasurementUnit;
+import com.epam.indigoeln.common.model.units.MolUnit;
+import com.epam.indigoeln.common.model.units.NoUnit;
+import com.epam.indigoeln.common.model.units.VolumeUnit;
+import com.epam.indigoeln.common.model.units.WeightUnit;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -15,8 +17,8 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.epam.indigoeln.reaction.model.units.EnteredValue.defaultValue;
-import static com.epam.indigoeln.reaction.model.units.EnteredValue.fixed;
+import static com.epam.indigoeln.reaction.model.EnteredValue.defaultValue;
+import static com.epam.indigoeln.reaction.model.EnteredValue.fixed;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Getter
@@ -24,6 +26,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public abstract class EnteredValueOpt<U extends MeasurementUnit> {
 
     public static final EnteredValueOpt<MolUnit> ZERO_MOL = opt(defaultValue(0.0, 0, MolUnit.MOL));
+    public static final EnteredValueOpt<WeightUnit> ZERO_WEIGHT = opt(defaultValue(0.0, 0, WeightUnit.G));
+    public static final EnteredValueOpt<VolumeUnit> ZERO_VOLUME = opt(defaultValue(0.0, 0, VolumeUnit.L));
     public static final EnteredValueOpt<NoUnit> DEFAULT_ONE_HUNDRED = opt(defaultValue(100.0, 1, NoUnit.NO_UNIT));
     public static final EnteredValueOpt<NoUnit> ONE_HUNDREDTH = opt(fixed(0.01, 1, NoUnit.NO_UNIT));
 
@@ -59,9 +63,9 @@ public abstract class EnteredValueOpt<U extends MeasurementUnit> {
         return getValue().isEmpty() ? "EMPTY" : getValue().toString();
     }
 
-    public static EnteredValueOpt<MolUnit> sum(List<? extends EnteredValueOpt<MolUnit>> list) {
-        EnteredValueOpt<MolUnit> sum = ZERO_MOL;
-        for (EnteredValueOpt<MolUnit> item : list) {
+    public static <U extends MeasurementUnit> EnteredValueOpt<U> sum(EnteredValueOpt<U> zero, List<? extends EnteredValueOpt<U>> list) {
+        EnteredValueOpt<U> sum = zero;
+        for (EnteredValueOpt<U> item : list) {
             sum = sum.add(item);
         }
         return sum;

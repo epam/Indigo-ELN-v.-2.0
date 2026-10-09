@@ -3,10 +3,11 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { makeExperimentDetails, makeSample, SAMPLE_RESULTS } from '@/mocks/fixtures';
+import { makeExperimentDetails, SAMPLE_RESULTS } from '@/mocks/fixtures';
 
 import type { ReactNode } from 'react';
-import type { SampleSearchResult } from '@/lib/types/samples.ts';
+import type { Page } from '@/lib/types/common.ts';
+import type { SampleDTO } from '@/lib/types/samples.ts';
 
 const fetchAuthSession = vi.fn().mockResolvedValue({ tokens: { accessToken: { toString: () => 'token' } } });
 vi.mock('aws-amplify/auth', () => ({ fetchAuthSession, signOut: vi.fn() }));
@@ -31,11 +32,11 @@ const { AddMaterialDialog } = await import('@/components/experiments/samples/add
 
 const EXPERIMENT = makeExperimentDetails();
 const REACTION = EXPERIMENT.model.reactions[0];
-const SEARCH_PATH = '/api/eln/samples/search?pageSize=100';
+const SEARCH_PATH = '/api/eln/samples/search?pageNo=0&pageSize=100';
 const MUTATE_PATH = `/api/eln/experiments/${EXPERIMENT.id}/mutate?revision=${EXPERIMENT.revision}`;
 
-function searchResult(items = SAMPLE_RESULTS): SampleSearchResult {
-  return { items, totalItems: items.length, next: null };
+function searchResult(items = SAMPLE_RESULTS): Page<SampleDTO> {
+  return { pageNo: 0, pageSize: 100, totalItems: items.length, totalPages: 1, hasMore: false, items };
 }
 
 /** The last JSON payload sent to a path — `apiFetch` serialises it, so this is the object. */
@@ -65,7 +66,6 @@ beforeEach(() => {
   apiFetch.mockReset();
   apiFetch.mockImplementation((path: string) => {
     if (path.startsWith('/api/eln/samples/search')) return Promise.resolve(searchResult());
-    if (path === '/api/eln/samples/importFromSearch') return Promise.resolve(makeSample({ id: 'imported-sample' }));
     if (path.includes('/mutate')) return Promise.resolve({ patch: {} });
     if (path.startsWith('/api/eln/dictionaries/')) return Promise.resolve([]);
     // The structure previews; no row is expanded, so nothing should ask.
@@ -86,14 +86,11 @@ describe('AddMaterialDialog', () => {
     await waitFor(() => expect(apiFetch).toHaveBeenCalledWith(SEARCH_PATH, expect.anything()));
   });
 
-  it('sends the term under the catalogs "All Catalogs" stands for', async () => {
+  it('sends the term to Sample Registration until another catalog is chosen', async () => {
     renderDialog();
     await search();
 
-    await waitFor(() =>
-      // My Materials is not additive alongside ELN, so All is the two catalogs it can add.
-      expect(bodyOf(SEARCH_PATH)).toMatchObject({ catalogs: ['ELN', 'PUBCHEM'], quickSearch: 'aspirin' }),
-    );
+    await waitFor(() => expect(bodyOf(SEARCH_PATH)).toMatchObject({ catalog: 'SRS', quickSearch: 'aspirin' }));
   });
 
   /**
@@ -116,7 +113,6 @@ describe('AddMaterialDialog', () => {
   it('does not count a filter the chosen catalog would drop', async () => {
     renderDialog();
     await userEvent.click(screen.getByRole('button', { name: 'Advanced search' }));
-    await userEvent.click(screen.getByRole('radio', { name: 'Indigo ELN' }));
     await userEvent.type(screen.getByLabelText('Compound ID'), 'ASA');
     expect(screen.getByRole('button', { name: 'Search' })).toBeEnabled();
 
@@ -127,34 +123,35 @@ describe('AddMaterialDialog', () => {
 
   it('carries an advanced filter once a catalog that supports it is chosen', async () => {
     renderDialog();
-    await userEvent.click(screen.getByRole('radio', { name: 'Indigo ELN' }));
+    await userEvent.click(screen.getByRole('radio', { name: 'My Materials' }));
     await userEvent.click(screen.getByRole('button', { name: 'Advanced search' }));
     await userEvent.type(screen.getByLabelText('Compound ID'), 'ASA');
     await userEvent.click(screen.getByRole('button', { name: 'Search' }));
 
     await waitFor(() =>
       expect(bodyOf(SEARCH_PATH)).toMatchObject({
-        catalogs: ['ELN'],
+        catalog: 'MY_MATERIALS',
         compoundKey: { type: 'exact', value: 'ASA' },
       }),
     );
   });
 
   /** PubChem takes a name, a formula or a structure; the rest would be dropped server-side. */
-  it('offers no fine-grained filters while a PubChem catalog is chosen', async () => {
+  it('offers no fine-grained filters while PubChem is chosen', async () => {
     renderDialog();
+    await userEvent.click(screen.getByRole('radio', { name: 'PubChem' }));
     await userEvent.click(screen.getByRole('button', { name: 'Advanced search' }));
 
     expect(screen.getByLabelText('Compound ID')).toBeDisabled();
     expect(screen.getByLabelText('Molecular Formula')).toBeEnabled();
     expect(screen.getByText('PubChem does not support fine-grained search. Use quick search instead')).toBeVisible();
 
-    await userEvent.click(screen.getByRole('radio', { name: 'Indigo ELN' }));
+    await userEvent.click(screen.getByRole('radio', { name: 'Sample Registration' }));
 
     expect(screen.getByLabelText('Compound ID')).toBeEnabled();
   });
 
-  it('appends an input row for a chosen ELN sample', async () => {
+  it('appends an input row for a chosen sample, sending the hit back whole', async () => {
     renderDialog();
     await search();
     await screen.findByText('Acetylsalicylic acid');
@@ -165,31 +162,9 @@ describe('AddMaterialDialog', () => {
       expect(bodyOf(MUTATE_PATH)).toEqual({
         type: 'AddInput',
         anchor: REACTION.anchor,
-        sampleId: SAMPLE_RESULTS[0].id,
-      }),
-    );
-    // An ELN hit is already a sample; there is nothing to register.
-    expect(apiFetch).not.toHaveBeenCalledWith('/api/eln/samples/importFromSearch', expect.anything());
-  });
-
-  it('registers a PubChem hit before adding it, since AddInput names a sample by id', async () => {
-    renderDialog();
-    await search();
-    const pubchem = SAMPLE_RESULTS.find((sample) => sample.source === 'PUBCHEM')!;
-    const label = `Add ${pubchem.name!} to the stoichiometry`;
-    await screen.findByRole('button', { name: label });
-
-    await userEvent.click(screen.getByRole('button', { name: label }));
-
-    await waitFor(() => expect(apiFetch).toHaveBeenCalledWith('/api/eln/samples/importFromSearch', expect.anything()));
-    // The whole DTO goes back: the provider is chosen by `source`, and PubChem needs the InChI.
-    expect(bodyOf('/api/eln/samples/importFromSearch')).toMatchObject({ source: 'PUBCHEM', inchi: pubchem.inchi });
-
-    await waitFor(() =>
-      expect(bodyOf(MUTATE_PATH)).toEqual({
-        type: 'AddInput',
-        anchor: REACTION.anchor,
-        sampleId: 'imported-sample',
+        sample: SAMPLE_RESULTS[0],
+        createdInputAnchor: expect.any(String),
+        createdSampleAnchor: expect.any(String),
       }),
     );
   });

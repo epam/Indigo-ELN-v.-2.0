@@ -20,9 +20,7 @@ import type { Reaction } from '@/lib/types/reactions.ts';
  * it at once.
  *
  * The scheme then redraws itself — the patch rewrites `reaction.rxnfile`, that flows back in
- * as `value`, and `SchemeEditor` renders it off the warm Indigo worker. The server also
- * returns rendered SVGs in `reactionImages`, which indigo-frontend displays; they are ignored
- * here, along with the `/datamodel/reactions/{anchor}/picture` endpoint behind them.
+ * as `value`, and `SchemeEditor` renders it off the warm Indigo worker.
  *
  * What the response's `unresolvedInputs` names, though, is acted on: the molecules that got an
  * input row but no compound behind it. `AnalyzeRxnDialog` opens on them.
@@ -69,7 +67,7 @@ export function ReactionSchemePanel({
             rxnFile: next.structure,
           });
           // `SetScheme` reports the map on essentially every edit, empty when everything matched.
-          if (response.unresolvedInputs && Object.keys(response.unresolvedInputs).length > 0) {
+          if (Object.keys(response.unresolvedInputs).length > 0) {
             setUnresolvedInputs(response.unresolvedInputs);
           }
         }}

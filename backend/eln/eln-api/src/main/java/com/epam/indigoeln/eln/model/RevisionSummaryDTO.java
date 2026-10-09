@@ -35,6 +35,6 @@ public class RevisionSummaryDTO {
     @Nullable
     private Integer revisionTo;
 
-    @Nullable
-    private List<RevisionSummaryDTO> details;
+    @NotNull
+    private List<RevisionSummaryDTO> details = List.of();
 }

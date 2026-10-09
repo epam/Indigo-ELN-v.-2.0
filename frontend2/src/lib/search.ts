@@ -1,18 +1,17 @@
 /**
  * What the sample-search result table needs to know that is not a query: how a count is worded,
- * and what identifies a row. Both are about `/samples/search`, the one endpoint in the app that
- * is not paged by `Page<T>` — see `src/lib/api/samples.ts` for the paging itself.
+ * and what identifies a row. See `src/lib/api/samples.ts` for the paging itself.
  */
 
+import type { SampleSource } from '@/lib/types/reactions.ts';
 import type { SampleDTO } from '@/lib/types/samples.ts';
 
 /**
  * What a tab's `(…)` says about how many hits its search found.
  *
- * `/samples/search` cannot always answer that. It walks several catalogs and sums their counts,
- * but PubChem reports none — `SampleSearchService.plus` returns null as soon as one of them
- * does — so a search that reached PubChem comes back with `totalItems: null` however many rows
- * it carried. The count is then only knowable from below: at least as many as have loaded.
+ * `/samples/search` cannot always answer that: PubChem reports no count, so its page comes back
+ * with `totalItems: null` however many rows it carried. The count is then only knowable from
+ * below: at least as many as have loaded.
  *
  * Three cases, and the middle one is the one worth stating:
  *
@@ -29,7 +28,7 @@ export function resultCountLabel({
   hasMore,
   loading,
 }: {
-  /** `SampleSearchResult.totalItems`; null when a catalog that cannot count contributed. */
+  /** The first page's `totalItems`; null when the catalog cannot count. */
   totalItems: number | null;
   /** How many rows are on screen, across every page fetched so far. */
   loaded: number;
@@ -43,13 +42,19 @@ export function resultCountLabel({
   return hasMore ? `${loaded}+` : String(loaded);
 }
 
+/** The one identity a sample has across catalogs and the reaction model: its system and its key there. */
+export function sampleKeyOf(source: SampleSource, sampleKey: string): string {
+  return `${source}:${sampleKey}`;
+}
+
 /**
- * What identifies a result row for the purpose of showing a spinner on it.
+ * What identifies a result row — for its spinner, for the My Materials patch, and for whether
+ * the step already holds it (`getAllInputSampleKeys`).
  *
- * A PubChem hit has no `id` — that is the whole reason `importFromSearch` exists — so it is
- * identified by the catalog that produced it plus that catalog's own key (the CID). Not by array
- * index: a second page arriving renumbers nothing, but a row moving between tabs would.
+ * Not the catalog: My Materials answers with the same SRS or PubChem sample the other tabs do,
+ * and marking it in one has to show in both. Not array index either: a second page arriving
+ * renumbers nothing, but a row moving between tabs would.
  */
 export function sampleRowKey(sample: SampleDTO): string {
-  return sample.id ?? `${sample.source}:${sample.compoundKey ?? sample.molFormula}`;
+  return sampleKeyOf(sample.source, sample.sampleKey);
 }

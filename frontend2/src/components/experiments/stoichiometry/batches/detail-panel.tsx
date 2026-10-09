@@ -1,10 +1,10 @@
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Pencil } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useState } from 'react';
 
 import { ApiImage } from '@/components/common/api-image';
 import { SavingOverlay } from '@/components/common/saving-overlay';
-import { DictionaryCombobox } from '@/components/common/dictionary-combobox';
+import { DictionaryCombobox, MultiDictionaryCombobox } from '@/components/common/dictionary-combobox';
 import { isSampleProtected } from '@/components/experiments/stoichiometry/batches/columns';
 import {
   externalSupplierLabel,
@@ -13,21 +13,31 @@ import {
   residualSolventLabels,
   solubilityLabels,
 } from '@/components/experiments/stoichiometry/batches/detail';
+import { MeltingPointDialog } from '@/components/experiments/stoichiometry/batches/melting-point-dialog';
+import { ResidualSolventsDialog } from '@/components/experiments/stoichiometry/batches/residual-solvents-dialog';
+import { SolubilityDialog } from '@/components/experiments/stoichiometry/batches/solubility-dialog';
 import { cellId } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import { useDraft } from '@/lib/hooks/use-draft';
+import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsiblePanel, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { MultiCombobox } from '@/components/ui/combobox';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { useDictionary } from '@/lib/api/dictionaries';
 import { cn } from '@/lib/utils';
 
 import type { BatchRow } from '@/components/experiments/stoichiometry/batches/columns';
 import type { StoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import type { BuiltInDictionary, DictionaryItemRef } from '@/lib/types/dictionaries.ts';
+import { sortByName } from '@/lib/types/dictionaries.ts';
 import type { ModelMutation } from '@/lib/types/mutations.ts';
-import type { CompoundRef, EnteredValue, Reaction } from '@/lib/types/reactions.ts';
-import { unitLabel } from '@/lib/types/reactions.ts';
+import type {
+  CompoundRef,
+  EnteredValue,
+  MeltingPoint,
+  Reaction,
+  ResidualSolvent,
+  SolubidityInSolvent,
+} from '@/lib/types/reactions.ts';
+import { isKnownCompound, unitLabel } from '@/lib/types/reactions.ts';
 
 /**
  * What one batch of the Product Batch Summary holds, behind its chevron: the compound's structure
@@ -45,10 +55,11 @@ import { unitLabel } from '@/lib/types/reactions.ts';
  * - **Editable**, one `SetOutput*` mutation each.
  * - **Derived**, shown read-only because the backend computes them — the batch MW and MF, the
  *   theoretical weight and moles, the precursor ids, the conversational batch number.
- * - **Composite**, read-only for now: melting point, residual solvents, solubility, external
- *   supplier and purity calculations are nested records and discriminated unions, and each needs
- *   an editor dialog that does not exist yet. Their mutations are typed and waiting; see the TODO
- *   on each.
+ * - **Composite** — nested records and discriminated unions, which a single control cannot hold.
+ *   Melting point, residual solvents and solubility show their summary beside a pencil that opens
+ *   an editor dialog, the one place on this screen with a Save button. External supplier and
+ *   purity calculations are read-only for now: their mutations are typed and waiting for a dialog
+ *   of their own; see the TODO on each.
  *
  * Every mutation here is keyed by the **sample** anchor. Salt Code, Salt EQ and Stereoisomer have
  * `SetOutputRow*` siblings keyed by the *output* — sending one of those from here names a product
@@ -71,12 +82,10 @@ export function BatchDetailPanel({
   const anchor = sample.anchor;
 
   /**
-   * An `UNKNOWN` compound `@JsonIgnore`s salt code, stereoisomer, salt EQ, compound key and
-   * calculated MF, so narrowing the union is what makes those fields reachable at all — and their
-   * absence is why the controls are disabled rather than merely empty.
+   * An unknown compound has no salt code, stereoisomer, salt EQ, compound key or calculated MF,
+   * which is why the controls are disabled rather than merely empty.
    */
-  const compound: Extract<CompoundRef, { type: 'STORED' | 'VIRTUAL' }> | undefined =
-    output.compound.type === 'UNKNOWN' ? undefined : output.compound;
+  const compound = isKnownCompound(output.compound) ? output.compound : undefined;
 
   /**
    * Compound-level edits freeze once the batch has gone to the registry: `CompoundHandlers`
@@ -99,7 +108,7 @@ export function BatchDetailPanel({
         </h3>
 
         <div className="grid gap-x-6 gap-y-4 md:grid-cols-2">
-          <Fact label="Calculated Batch MW" value={compound?.molWeight.value} />
+          <Fact label="Calculated Batch MW" value={compound?.molWeight?.value} />
           {/*
             `MolFormula` serialises through `@JsonValue toHTMLString()`, so this arrives as
             `C<sub>9</sub>H<sub>8</sub>O<sub>4</sub>` — the same reason `FormulaCell` exists. The
@@ -135,7 +144,15 @@ export function BatchDetailPanel({
             value={compound?.saltCode}
             editable={compoundEditable}
             pending={pending('saltCode')}
-            onCommit={(next) => commit('saltCode', { type: 'SetOutputSaltCode', anchor, saltCode: next })}
+            required
+            onCommit={(next) =>
+              commit('saltCode', {
+                type: 'SetOutputSaltCode',
+                anchor,
+                saltCode: next,
+                createdOutputAnchor: crypto.randomUUID(),
+              })
+            }
           />
           <DictionaryField
             id={id('stereoisomerCode')}
@@ -144,8 +161,14 @@ export function BatchDetailPanel({
             value={compound?.stereoisomerCode}
             editable={compoundEditable}
             pending={pending('stereoisomerCode')}
+            required
             onCommit={(next) =>
-              commit('stereoisomerCode', { type: 'SetOutputStereoisomerCode', anchor, stereoisomerCode: next })
+              commit('stereoisomerCode', {
+                type: 'SetOutputStereoisomerCode',
+                anchor,
+                stereoisomerCode: next,
+                createdOutputAnchor: crypto.randomUUID(),
+              })
             }
           />
 
@@ -173,13 +196,20 @@ export function BatchDetailPanel({
             value={compound?.saltEQ}
             editable={compoundEditable}
             pending={pending('saltEQ')}
-            onCommit={(next) => commit('saltEQ', { type: 'SetOutputSaltEQ', anchor, saltEQ: next })}
+            onCommit={(next) =>
+              commit('saltEQ', {
+                type: 'SetOutputSaltEQ',
+                anchor,
+                saltEQ: next,
+                createdOutputAnchor: crypto.randomUUID(),
+              })
+            }
           />
           {/*
-            `STRCodeSample` is a `@JsonValue` string. indigo-frontend models it as an object and
-            interpolates it straight into the template, which prints `[object Object]`.
+            The STR code once registered. indigo-frontend models it as an object and interpolates
+            it straight into the template, which prints `[object Object]`.
           */}
-          <ReadonlyField id={id('strCode')} label="Conversational Batch number" value={sample.strCode} />
+          <ReadonlyField id={id('sampleKey')} label="Conversational Batch number" value={sample.sampleKey} />
 
           <ReadonlyField id={id('theoWeight')} label="Theo. Weight" value={quantity(output.theoWeight)} />
           <ReadonlyField id={id('theoMol')} label="Theo. Moles" value={quantity(output.theoMol)} />
@@ -214,36 +244,38 @@ export function BatchDetailPanel({
             id={id('compoundProtection')}
             label="Compound Protection"
             dictionary="COMPOUND_PROTECTION"
-            value={sample.compoundProtection ?? []}
+            value={sample.compoundProtection}
             editable={canEdit}
             pending={pending('compoundProtection')}
             onCommit={(next) =>
-              commit('compoundProtection', {
-                type: 'SetOutputCompoundProtection',
-                anchor,
-                // `@Size(min = 1)` when present: clearing sends null, never an empty list.
-                compoundProtection: next.length === 0 ? null : next,
-              })
+              commit('compoundProtection', { type: 'SetOutputCompoundProtection', anchor, compoundProtection: next })
             }
           />
-          {/* TODO(melting-point-editor): `SetOutputMeltingPoint` takes `{lower, upper, comments}`. */}
-          <ReadonlyField id={id('meltingPoint')} label="Melting Point" value={meltingPointLabel(sample.meltingPoint)} />
+          <MeltingPointField
+            id={id('meltingPoint')}
+            value={sample.meltingPoint}
+            editable={canEdit}
+            pending={pending('meltingPoint')}
+            onSave={(next) => commit('meltingPoint', { type: 'SetOutputMeltingPoint', anchor, meltingPoint: next })}
+          />
 
-          {/* TODO(residual-solvents-editor): `SetOutputResidualSolvents` takes a row per solvent. */}
-          <ChipsField label="Residual Solvents" values={residualSolventLabels(sample.residualSolvents)} />
+          <ResidualSolventsField
+            value={sample.residualSolvents}
+            editable={canEdit}
+            pending={pending('residualSolvents')}
+            onSave={(next) =>
+              commit('residualSolvents', { type: 'SetOutputResidualSolvents', anchor, residualSolvents: next })
+            }
+          />
           <MultiDictionaryField
             id={id('storageInstructions')}
             label="Storage Instructions"
             dictionary="STORAGE_INSTRUCTIONS"
-            value={sample.storageInstructions ?? []}
+            value={sample.storageInstructions}
             editable={canEdit}
             pending={pending('storageInstructions')}
             onCommit={(next) =>
-              commit('storageInstructions', {
-                type: 'SetOutputStorageInstructions',
-                anchor,
-                storageInstructions: next.length === 0 ? null : next,
-              })
+              commit('storageInstructions', { type: 'SetOutputStorageInstructions', anchor, storageInstructions: next })
             }
           />
 
@@ -251,30 +283,35 @@ export function BatchDetailPanel({
             id={id('healthHazards')}
             label="Health Hazards"
             dictionary="HEALTH_HAZARD"
-            value={sample.healthHazards}
+            value={sortByName(sample.healthHazards)}
             editable={canEdit}
             pending={pending('healthHazards')}
             onCommit={(next) =>
-              // `@NotNull` on this one, unlike its three neighbours: clearing sends an empty list.
               commit('healthHazards', { type: 'SetOutputHealthHazards', anchor, healthHazards: next })
             }
           />
-          {/* TODO(solubility-editor): `SolubidityInSolvent` is a QUANTITATIVE/QUALITATIVE union. */}
-          <ChipsField label="Solubility in Solvents" values={solubilityLabels(sample.solubilityInSolvents)} />
+          <SolubilityField
+            value={sample.solubilityInSolvents}
+            editable={canEdit}
+            pending={pending('solubilityInSolvents')}
+            onSave={(next) =>
+              commit('solubilityInSolvents', {
+                type: 'SetOutputSolubilityInSolvents',
+                anchor,
+                solubilityInSolvents: next,
+              })
+            }
+          />
 
           <MultiDictionaryField
             id={id('handlingPrecautions')}
             label="Handling Precautions"
             dictionary="HANDLING_PRECAUTIONS"
-            value={sample.handlingPrecautions ?? []}
+            value={sample.handlingPrecautions}
             editable={canEdit}
             pending={pending('handlingPrecautions')}
             onCommit={(next) =>
-              commit('handlingPrecautions', {
-                type: 'SetOutputHandlingPrecautions',
-                anchor,
-                handlingPrecautions: next.length === 0 ? null : next,
-              })
+              commit('handlingPrecautions', { type: 'SetOutputHandlingPrecautions', anchor, handlingPrecautions: next })
             }
           />
           {/* TODO(external-supplier-editor): `SetOutputExternalSupplier` pairs a supplier with a
@@ -309,7 +346,7 @@ function quantity(value: EnteredValue<string> | undefined): string | undefined {
  * for a molfile to seed it with.
  */
 function Structure({ compound, batch }: { compound: CompoundRef; batch: string }) {
-  const compoundID = compound.type === 'UNKNOWN' ? undefined : compound.compoundID;
+  const compoundID = compound.compoundID;
 
   const frame = 'min-h-[260px] rounded-md border border-dashed border-neutral-300';
 
@@ -409,6 +446,112 @@ function ChipsField({ label, values }: { label: string; values: string[] }) {
   );
 }
 
+/**
+ * A composite value: its read-only summary, and for an editor a pencil that opens the dialog the
+ * value is changed in. The pencil carries the spinner while that dialog's save is in flight.
+ */
+function CompositeField({
+  label,
+  editable,
+  pending,
+  onEdit,
+  children,
+}: {
+  label: string;
+  editable: boolean;
+  pending: boolean;
+  onEdit: () => void;
+  children: ReactNode;
+}) {
+  if (!editable) return children;
+
+  return (
+    <div className="flex items-end gap-2">
+      <div className="min-w-0 flex-1">{children}</div>
+      <Button
+        variant="outline"
+        aria-label={`Edit ${label}`}
+        loading={pending}
+        onClick={onEdit}
+        className="size-10 shrink-0"
+      >
+        <Pencil className="text-blue-400" />
+      </Button>
+    </div>
+  );
+}
+
+function MeltingPointField({
+  id,
+  value,
+  editable,
+  pending,
+  onSave,
+}: {
+  id: string;
+  value: MeltingPoint | undefined;
+  editable: boolean;
+  pending: boolean;
+  onSave: (next: MeltingPoint | null) => Promise<boolean>;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <CompositeField label="Melting Point" editable={editable} pending={pending} onEdit={() => setOpen(true)}>
+        <ReadonlyField id={id} label="Melting Point" value={meltingPointLabel(value)} />
+      </CompositeField>
+      {editable && <MeltingPointDialog open={open} onOpenChange={setOpen} value={value} onSave={onSave} />}
+    </>
+  );
+}
+
+function ResidualSolventsField({
+  value,
+  editable,
+  pending,
+  onSave,
+}: {
+  value: ResidualSolvent[];
+  editable: boolean;
+  pending: boolean;
+  onSave: (next: ResidualSolvent[]) => Promise<boolean>;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <CompositeField label="Residual Solvents" editable={editable} pending={pending} onEdit={() => setOpen(true)}>
+        <ChipsField label="Residual Solvents" values={residualSolventLabels(value)} />
+      </CompositeField>
+      {editable && <ResidualSolventsDialog open={open} onOpenChange={setOpen} value={value} onSave={onSave} />}
+    </>
+  );
+}
+
+function SolubilityField({
+  value,
+  editable,
+  pending,
+  onSave,
+}: {
+  value: SolubidityInSolvent[];
+  editable: boolean;
+  pending: boolean;
+  onSave: (next: SolubidityInSolvent[]) => Promise<boolean>;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <CompositeField label="Solubility in Solvents" editable={editable} pending={pending} onEdit={() => setOpen(true)}>
+        <ChipsField label="Solubility in Solvents" values={solubilityLabels(value)} />
+      </CompositeField>
+      {editable && <SolubilityDialog open={open} onOpenChange={setOpen} value={value} onSave={onSave} />}
+    </>
+  );
+}
+
 /** Free text, committed when the field is left — the contract every text field on this screen has. */
 function TextField({
   id,
@@ -436,7 +579,6 @@ function TextField({
           id={id}
           value={draft}
           placeholder="Text"
-          disabled={pending}
           onChange={(event) => setDraft(event.target.value)}
           onBlur={() => {
             const next = draft.trim() === '' ? null : draft.trim();
@@ -481,7 +623,6 @@ function NumberField({
           type="number"
           value={draft}
           placeholder="—"
-          disabled={pending}
           onChange={(event) => setDraft(event.target.value)}
           onBlur={() => {
             const trimmed = draft.trim();
@@ -494,27 +635,26 @@ function NumberField({
 }
 
 /**
- * One item from a built-in dictionary, or none. A `Combobox` rather than the table's `Select`:
- * these lists are the long ones — solvents, suppliers, salt codes — and a form field has the room
- * for a filter the dense table cells do not.
+ * One item from a built-in dictionary, or none unless `required`.
  */
-function DictionaryField({
-  id,
-  label,
-  dictionary,
-  value,
-  editable,
-  pending,
-  onCommit,
-}: {
-  id: string;
-  label: string;
-  dictionary: BuiltInDictionary;
-  value: DictionaryItemRef | undefined;
-  editable: boolean;
-  pending: boolean;
-  onCommit: (next: DictionaryItemRef | null) => void;
-}) {
+function DictionaryField(
+  props: {
+    id: string;
+    label: string;
+    dictionary: BuiltInDictionary;
+    value: DictionaryItemRef | undefined;
+    editable: boolean;
+    pending: boolean;
+  } & (
+    | {
+        /** Offers no blank row — the value can be changed but never cleared. */
+        required: true;
+        onCommit: (next: DictionaryItemRef) => void;
+      }
+    | { required?: false; onCommit: (next: DictionaryItemRef | null) => void }
+  ),
+) {
+  const { id, label, dictionary, value, editable, pending } = props;
   if (!editable) return <ReadonlyField id={id} label={label} value={value?.name} />;
 
   return (
@@ -524,10 +664,13 @@ function DictionaryField({
           id={id}
           dictionary={dictionary}
           value={value ?? null}
-          disabled={pending}
+          clearable={!props.required}
           // Picking is the commit; there is no separate confirmation step to wait for.
           onValueChange={(next) => {
-            if ((next?.id ?? null) !== (value?.id ?? null)) onCommit(next);
+            if ((next?.id ?? null) === (value?.id ?? null)) return;
+            // A required field's list has no blank row, so `next` is never null there.
+            if (!props.required) props.onCommit(next);
+            else if (next) props.onCommit(next);
           }}
         />
       </SavingOverlay>
@@ -537,10 +680,6 @@ function DictionaryField({
 
 /**
  * Several items from a built-in dictionary, as chips.
- *
- * `MultiCombobox` filters nothing itself, so the list is narrowed here against the typed input —
- * the same arrangement `MultiDictionaryCell` makes. `allowCustomValues` stays off: every value has
- * to be a dictionary entry.
  */
 function MultiDictionaryField({
   id,
@@ -559,31 +698,18 @@ function MultiDictionaryField({
   pending: boolean;
   onCommit: (next: DictionaryItemRef[]) => void;
 }) {
-  const [inputValue, setInputValue] = useState('');
-  const { data, isPending, isError } = useDictionary(dictionary);
-
   if (!editable) {
     return <ChipsField label={label} values={value.map((item) => item.name)} />;
   }
 
-  const term = inputValue.trim().toLowerCase();
-  const items = (data ?? []).filter((item) => item.name.toLowerCase().includes(term));
-
   return (
     <Field id={id} label={label}>
       <SavingOverlay pending={pending}>
-        <MultiCombobox<DictionaryItemRef>
+        <MultiDictionaryCombobox
           id={id}
+          dictionary={dictionary}
           value={value}
-          items={items}
-          itemToKey={(item) => item.id}
-          itemToLabel={(item) => item.name}
-          inputValue={inputValue}
-          onInputValueChange={setInputValue}
-          loading={isPending}
-          // apiFetch has already toasted the failure; this says why the list is empty.
-          error={isError}
-          disabled={pending}
+          pending={pending}
           onValueChange={onCommit}
         />
       </SavingOverlay>

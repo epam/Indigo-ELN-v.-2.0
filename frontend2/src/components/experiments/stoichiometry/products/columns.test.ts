@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { PRODUCT_COLUMNS, productHaystack } from '@/components/experiments/stoichiometry/products/columns';
-import { makeReactionOutput } from '@/mocks/fixtures';
+import { makeReactionOutput, unknownCompound } from '@/mocks/fixtures';
 
 import type { ReactionOutput } from '@/lib/types/reactions.ts';
 import { OUTPUT_TYPE_LABELS, OUTPUT_TYPE_TRIGGER_CLASS, OUTPUT_TYPES } from '@/lib/types/reactions.ts';
@@ -53,8 +53,8 @@ describe('productHaystack', () => {
     expect(haystack).toContain('str-00000000-89');
   });
 
-  /** An unknown compound has no registry fields at all — reading them would throw. */
+  /** An unknown compound has no registry fields beyond the default codes — reading them would throw. */
   it('skips the registry fields of an unknown compound', () => {
-    expect(productHaystack(row({ compound: { type: 'UNKNOWN', molWeight: {} } }))).toBe('p0');
+    expect(productHaystack(row({ compound: unknownCompound() }))).toBe('p0 00 - parent structure');
   });
 });

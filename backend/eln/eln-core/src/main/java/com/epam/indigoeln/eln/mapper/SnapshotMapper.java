@@ -35,7 +35,7 @@ public abstract class SnapshotMapper extends AbstractMapper {
 
     protected abstract Set<AttachmentDTO> convertAttachments(List<? extends AbstractAttachment<?>> attachments);
 
-    protected abstract Set<ACLEntryDTO> convertACLs(ACLEntry[] aclEntries);
+    protected abstract Set<ACLEntryDTO> convertACLs(List<ACLEntry> aclEntries);
 
     public ExperimentSnapshot createSnapshot(ExperimentEntity experiment, boolean snapshotModel) {
         ExperimentSnapshot snapshot = copyBasicFields(experiment);
@@ -57,18 +57,18 @@ public abstract class SnapshotMapper extends AbstractMapper {
             Reaction reactionCopy = Reaction.create(modelCopy, reaction.getAnchor());
             copyReaction(reaction, reactionCopy);
             for (ReactionInput input : reaction.getInputs()) {
-                ReactionInput inputCopy = ReactionInput.create(reactionCopy, input.getRole(), input.getAnchor(), copyCompoundRef(input.getCompound()));
+                ReactionInput inputCopy = ReactionInput.create(reactionCopy, input.getRole(), input.getAnchor(), input.getCompound().copy());
                 copyReactionInput(input, inputCopy);
                 for (ReactionInputSample sample : input.getSamples()) {
-                    ReactionInputSample sampleCopy = ReactionInputSample.create(inputCopy, sample.getAnchor());
+                    ReactionInputSample sampleCopy = ReactionInputSample.create(inputCopy, sample.getAnchor(), sample.getSampleSource(), sample.getSampleKey(), sample.getPurity());
                     copyReactionInputSample(sample, sampleCopy);
                 }
             }
             for (ReactionOutput output : reaction.getOutputs()) {
-                ReactionOutput outputCopy = ReactionOutput.create(reactionCopy, output.getType(), output.isIntended(), output.getOutputName(), output.getAnchor(), copyCompoundRef(output.getCompound()), output.getEq());
+                ReactionOutput outputCopy = ReactionOutput.create(reactionCopy, output.getType(), output.isIntended(), output.getOutputName(), output.getAnchor(), output.getCompound().copy(), output.getEq());
                 copyReactionOutput(output, outputCopy);
                 for (ReactionOutputSample sample : output.getSamples()) {
-                    ReactionOutputSample sampleCopy = ReactionOutputSample.create(outputCopy, sample.getNbkBatchNumber(), sample.getAnchor(), sample.getPurity());
+                    ReactionOutputSample sampleCopy = ReactionOutputSample.create(outputCopy, sample.getNbkBatchNumber(), sample.getAnchor(), sample.getSampleSource(), sample.getSampleKey(), sample.getPurity());
                     copyReactionOutputSample(sample, sampleCopy);
                 }
             }
@@ -87,7 +87,7 @@ public abstract class SnapshotMapper extends AbstractMapper {
     @Mapping(target = "samples", ignore = true)
     protected abstract void copyReactionInput(ReactionInput row, @MappingTarget ReactionInput copy);
 
-    @Mapping(target = "healthHazards", expression = "java(List.copyOf(sample.getHealthHazards()))")
+    @Mapping(target = "healthHazards", expression = "java(Set.copyOf(sample.getHealthHazards()))")
     protected abstract void copyReactionInputSample(ReactionInputSample sample, @MappingTarget ReactionInputSample copy);
 
     @Mapping(target = "type", ignore = true)
@@ -98,7 +98,7 @@ public abstract class SnapshotMapper extends AbstractMapper {
     protected abstract void copyReactionOutput(ReactionOutput row, @MappingTarget ReactionOutput copy);
 
     @Mapping(target = "purity", ignore = true)
-    @Mapping(target = "healthHazards", expression = "java(List.copyOf(sample.getHealthHazards()))")
+    @Mapping(target = "healthHazards", expression = "java(Set.copyOf(sample.getHealthHazards()))")
     @Mapping(target = "handlingPrecautions", expression = "java(List.copyOf(sample.getHandlingPrecautions()))")
     @Mapping(target = "storageInstructions", expression = "java(List.copyOf(sample.getStorageInstructions()))")
     @Mapping(target = "compoundProtection", expression = "java(List.copyOf(sample.getCompoundProtection()))")
@@ -106,13 +106,4 @@ public abstract class SnapshotMapper extends AbstractMapper {
     @Mapping(target = "residualSolvents", expression = "java(List.copyOf(sample.getResidualSolvents()))")
     @Mapping(target = "purityCalculations", expression = "java(List.copyOf(sample.getPurityCalculations()))")
     protected abstract void copyReactionOutputSample(ReactionOutputSample sample, @MappingTarget ReactionOutputSample copy);
-
-    protected CompoundRef copyCompoundRef(CompoundRef ref) {
-        return switch (ref) {
-            case CompoundRef.StoredOrVirtual s -> ref; // immutable
-            case CompoundRef.Unknown u -> copyUnknownCompoundRef(u);
-        };
-    }
-
-    protected abstract CompoundRef.Unknown copyUnknownCompoundRef(CompoundRef.Unknown ref);
 }

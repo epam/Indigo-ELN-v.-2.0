@@ -3,7 +3,7 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { makeAclEntry, makeExperimentDetails } from '@/mocks/fixtures';
+import { makeAclEntry, makeExperimentDetails, makeSignatureDocument } from '@/mocks/fixtures';
 
 const fetchAuthSession = vi.fn().mockResolvedValue({ tokens: { accessToken: { toString: () => 'token' } } });
 vi.mock('aws-amplify/auth', () => ({ fetchAuthSession, signOut: vi.fn() }));
@@ -16,12 +16,17 @@ vi.mock('@/lib/api', async () => {
 
 const {
   experimentKeys,
+  useCreateExperiment,
   useEditExperiment,
   useExperimentAttachments,
+  useExperimentWorkflow,
   useMarkedExperiments,
   useToggleMark,
   useUpdateExperimentAccess,
 } = await import('@/lib/api/experiments');
+const { notebookKeys } = await import('@/lib/api/notebooks');
+const { projectKeys } = await import('@/lib/api/projects');
+const { useSignatureDecision } = await import('@/lib/api/signatures');
 
 const ID = '22222222-2222-2222-2222-222222222222';
 const PATCH_PATH = `/api/eln/experiments/${ID}`;
@@ -176,6 +181,83 @@ describe('what a write invalidates', () => {
     // …and nothing went out for it.
     expect(started).toEqual([PATCH_PATH]);
     expect(started).not.toContain(MARKED_PATH);
+  });
+
+  const FILTERS = { search: '', sort: 'LATEST', createdByMe: false } as const;
+
+  /** Every cache holding an experiment count, seeded so `isInvalidated` has something to flip. */
+  function seedCounts(notebookId: string, projectId: string) {
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false, staleTime: Infinity }, mutations: { retry: false } },
+    });
+    const keys = {
+      notebookList: notebookKeys.list(projectId, FILTERS),
+      notebookDetail: notebookKeys.detail(notebookId),
+      projectList: projectKeys.list(FILTERS),
+      projectDetail: projectKeys.detail(projectId),
+      totalCounts: projectKeys.totalCounts(),
+    };
+    for (const key of Object.values(keys)) client.setQueryData(key, {});
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={client}>{children}</QueryClientProvider>
+    );
+    return { client, keys, wrapper };
+  }
+
+  /** The counts sit on the cards of both ancestor lists as well as on their headers. */
+  it('invalidates every count when an experiment is created', async () => {
+    const experiment = makeExperimentDetails({ id: ID });
+    const { client, keys, wrapper } = seedCounts(experiment.notebookId, experiment.projectId);
+    apiFetch.mockResolvedValue(experiment);
+
+    const view = renderHook(() => useCreateExperiment(experiment.notebookId), { wrapper });
+    act(() => {
+      view.result.current.mutate({ templateID: experiment.templateId });
+    });
+    await waitFor(() => expect(view.result.current.isSuccess).toBe(true));
+
+    for (const key of Object.values(keys)) expect(client.getQueryState(key)?.isInvalidated, key[0]).toBe(true);
+  });
+
+  it('invalidates every count when the status changes', async () => {
+    const experiment = makeExperimentDetails({ id: ID, status: 'COMPLETED' });
+    const { client, keys, wrapper } = seedCounts(experiment.notebookId, experiment.projectId);
+    apiFetch.mockResolvedValue(experiment);
+
+    const view = renderHook(() => useExperimentWorkflow(ID), { wrapper });
+    act(() => {
+      view.result.current.mutate({ action: 'complete' });
+    });
+    await waitFor(() => expect(view.result.current.isSuccess).toBe(true));
+
+    for (const key of Object.values(keys)) expect(client.getQueryState(key)?.isInvalidated, key[0]).toBe(true);
+  });
+
+  /**
+   * Signing moves the experiment's status on the backend, but the document names no experiment —
+   * so the decision invalidates by root, the experiment's own detail and lists included.
+   */
+  it('invalidates every count, and the experiment, when a document is signed or rejected', async () => {
+    const experiment = makeExperimentDetails({ id: ID });
+    const { client, keys, wrapper } = seedCounts(experiment.notebookId, experiment.projectId);
+    const experimentCaches = {
+      detail: experimentKeys.detail(ID),
+      list: experimentKeys.list(experiment.notebookId, { ...FILTERS, statuses: [] }),
+      marked: experimentKeys.marked(),
+    };
+    for (const key of Object.values(experimentCaches)) client.setQueryData(key, {});
+    const document = makeSignatureDocument();
+    apiFetch.mockResolvedValue(document);
+
+    const view = renderHook(() => useSignatureDecision(document.id), { wrapper });
+    act(() => {
+      view.result.current.mutate({ decision: 'reject' });
+    });
+    await waitFor(() => expect(view.result.current.isSuccess).toBe(true));
+
+    for (const key of [...Object.values(keys), ...Object.values(experimentCaches)]) {
+      expect(client.getQueryState(key)?.isInvalidated, key[0]).toBe(true);
+    }
   });
 });
 

@@ -25,6 +25,54 @@ const SIZE_TEXT: Record<ComboboxSize, string> = {
   md: 'text-[14px]/6',
 };
 
+/**
+ * How much room `MultiCombobox` keeps for typing beside its chips. A floor on the input is also a
+ * floor on *wrapping*, so it decides how soon a chip pushes the input onto a line of its own: at
+ * the form width there is room to be generous, while in a table cell 96px was enough to make a
+ * single chip turn a one-line field into a three-line one. `sm` keeps just enough to see a couple
+ * of characters, and the popup is what is really being read while typing anyway.
+ */
+const SIZE_INPUT_MIN: Record<ComboboxSize, string> = {
+  sm: 'min-w-10',
+  md: 'min-w-24',
+};
+
+/**
+ * The chip field's own box. `sm` bottoms out at 30px — a 24px chip, `py-0.5` and the border —
+ * which is the height of a text cell beside it; see `SIZE_BOX` in `Select`.
+ */
+const SIZE_CHIPS_BOX: Record<ComboboxSize, string> = {
+  sm: 'min-h-7.5 py-0.5',
+  md: 'min-h-10 py-1.5',
+};
+
+/**
+ * `cell` is the chip field a dense table wants — `Select`'s variant of the same name, for the
+ * same reason. At rest it is only its chips; the border, the chevron and each chip's ✕ appear
+ * when the field is hovered or holds focus.
+ *
+ * Everything it hides is hidden with `invisible` or a transparent colour, never `hidden`, so
+ * each part keeps its box and the field measures the same in both states — nothing moves when
+ * the cell is entered. It also never wraps: a table row is one line, so more chips widen the
+ * column instead of deepening the row.
+ */
+export type ComboboxVariant = 'box' | 'cell';
+
+const CELL_CHIPS_BOX =
+  'group/chips border-transparent bg-transparent hover:border-neutral-300 focus-within:bg-background';
+
+/** For what only belongs to the box: the chevron and the chips' remove buttons. */
+const CELL_BOX_ONLY = 'invisible group-focus-within/chips:visible';
+
+/**
+ * Puts a `cell` back in its view state while its input still holds focus — after Escape. The
+ * box is drawn by `:focus-within`, and letting go of focus to clear that would lose the user's
+ * place in the row: the next Tab would start from the top of the page. So the box's classes are
+ * overruled instead, which takes `!important`, since a variant outranks a plain utility.
+ */
+const CELL_CHIPS_BOX_DISMISSED = 'border-transparent! bg-transparent! ring-0!';
+const CELL_BOX_ONLY_DISMISSED = 'invisible!';
+
 function identity(item: unknown): string {
   return String(item);
 }
@@ -39,12 +87,16 @@ interface PopupContentProps<T> {
   error: boolean;
   loading: boolean;
   size: ComboboxSize;
+  /**
+   * Sizes the popup to its own options instead of to its anchor. For a `cell`, whose anchor is
+   * an input kept only a few characters wide — a list that narrow would be unreadable.
+   */
+  fitContent?: boolean;
   listRef?: React.RefObject<HTMLDivElement | null>;
 }
 
 /**
- * The shared popup: status region, empty region, list. Both comboboxes render exactly
- * this, so the live-region rules below only have to be got right once.
+ * The popup: status region, empty region, list.
  */
 function PopupContent<T>({
   items,
@@ -55,12 +107,19 @@ function PopupContent<T>({
   error,
   loading,
   size,
+  fitContent = false,
   listRef,
 }: PopupContentProps<T>) {
   return (
     <ComboboxPrimitive.Portal>
-      <ComboboxPrimitive.Positioner sideOffset={4} className="z-50">
-        <ComboboxPrimitive.Popup className="max-h-60 w-(--anchor-width) overflow-y-auto rounded-md border border-neutral-300 bg-popover p-1 shadow-card outline-none">
+      {/* `start`, so a list wider than its anchor opens from the caret rather than straddling it. */}
+      <ComboboxPrimitive.Positioner sideOffset={4} align={fitContent ? 'start' : undefined} className="z-50">
+        <ComboboxPrimitive.Popup
+          className={cn(
+            'max-h-60 overflow-y-auto rounded-md border border-neutral-300 bg-popover p-1 shadow-card outline-none',
+            fitContent ? 'w-max min-w-(--anchor-width) whitespace-nowrap' : 'w-(--anchor-width)',
+          )}
+        >
           {/*
             Status is Base UI's live region for the state of an asynchronously loaded
             list. Same rule as Empty below: keep it mounted, vary its children.
@@ -108,126 +167,6 @@ function PopupContent<T>({
   );
 }
 
-interface ComboboxProps<T> {
-  /** The chosen item, or null. Every filter this backs is optional. */
-  value: T | null;
-  onValueChange: (value: T | null) => void;
-  /** The full set to choose from — filtering is Base UI's, against `itemToLabel`. */
-  items: T[];
-  /** Identity of an item, for React keys. Defaults to the item stringified. */
-  itemToKey?: (item: T) => string;
-  /** What the item reads as, in the list and in the input. Defaults to the item stringified. */
-  itemToLabel?: (item: T) => string;
-  placeholder?: string;
-  id?: string;
-  /**
-   * Names the control where no visible `<label>` does — a combobox sitting in a table cell,
-   * whose column header is not associated with it. `MultiCombobox` has always taken one;
-   * prefer `id` plus a `Field` wherever there is a label to point at.
-   */
-  'aria-label'?: string;
-  /** Shown in the popup when nothing matches what was typed. */
-  emptyMessage?: string;
-  /** Whether the item list is still on its way. */
-  loading?: boolean;
-  /** Whether fetching the item list failed, so the popup is empty for a reason worth saying. */
-  error?: boolean;
-  /** Renders the current selection but accepts no interaction — a reader who cannot edit. */
-  disabled?: boolean;
-  /** Text size of the control and its popup. `sm` matches a dense table's 13px. */
-  size?: ComboboxSize;
-}
-
-/**
- * A single-select combobox: click to open the whole list, type to narrow it, ✕ to clear.
- *
- * Filtering is Base UI's own, i.e. client-side over `items` — the call sites here hold a
- * whole dictionary or a fixed enum in memory, so there is nothing to ask the server.
- * `MultiCombobox` below is the opposite case and turns that filter off.
- */
-function Combobox<T>({
-  value,
-  onValueChange,
-  items,
-  itemToKey = identity,
-  itemToLabel = identity,
-  placeholder,
-  id,
-  'aria-label': ariaLabel,
-  emptyMessage = 'No matches',
-  loading = false,
-  error = false,
-  disabled = false,
-  size = 'md',
-}: ComboboxProps<T>) {
-  const statusContent = loading ? 'Searching…' : error ? 'Could not load options' : null;
-  // "No matches" is a claim about a finished search, so it survives neither a list still
-  // loading nor one that failed to load at all.
-  const emptyContent = loading || error ? null : emptyMessage;
-
-  return (
-    <ComboboxPrimitive.Root<T, false>
-      disabled={disabled}
-      items={items}
-      value={value}
-      onValueChange={onValueChange}
-      itemToStringLabel={itemToLabel}
-      // Object items are not referentially equal across refetches, so identity has to be
-      // spelled out or a selected value stops matching its own row in the list.
-      isItemEqualToValue={(a, b) => itemToKey(a) === itemToKey(b)}
-    >
-      <div
-        className={cn(
-          INPUT_BOX,
-          INPUT_BOX_FOCUS_WITHIN,
-          'flex h-10 items-center gap-1 pr-1 pl-3',
-          // Matches Input's disabled treatment, so a form of mixed controls reads as one thing.
-          disabled && INPUT_DISABLED,
-        )}
-      >
-        <ComboboxPrimitive.Input
-          id={id}
-          aria-label={ariaLabel}
-          placeholder={placeholder}
-          className={cn(
-            'min-w-0 flex-1 bg-transparent text-neutral-1000 outline-none placeholder:text-neutral-700',
-            SIZE_TEXT[size],
-          )}
-        />
-        {/* Base UI mounts this only while there is something to clear. */}
-        <ComboboxPrimitive.Clear aria-label="Clear selection" className={INPUT_ACTION}>
-          <X className="size-4" />
-        </ComboboxPrimitive.Clear>
-        {/*
-          The chevron stays put while suggestions load. A spinner at the right edge of a field
-          means **this field is being saved** — that is what `SavingOverlay` puts there — so
-          borrowing the same spot for a lookup would say the wrong thing, and on a form that saves
-          on blur the two would overlap outright. The wait is reported where it belongs: `Searching…`
-          inside the popup, plus `aria-busy` here for anyone not looking at it.
-
-          When a save *is* in flight the chevron gets out of the way instead: `SavingOverlay`
-          publishes `data-saving` on the group around this. `invisible` rather than `hidden`, so
-          the row keeps its width and the spinner lands exactly where the chevron was.
-        */}
-        <ComboboxPrimitive.Trigger aria-label="Show options" aria-busy={loading || undefined} className={INPUT_ACTION}>
-          <ChevronDown className="size-5" />
-        </ComboboxPrimitive.Trigger>
-      </div>
-
-      <PopupContent
-        items={items}
-        itemToKey={itemToKey}
-        itemToLabel={itemToLabel}
-        statusContent={statusContent}
-        emptyContent={emptyContent}
-        error={error}
-        loading={loading}
-        size={size}
-      />
-    </ComboboxPrimitive.Root>
-  );
-}
-
 interface MultiComboboxProps<T> {
   /** The chosen chips. */
   value: T[];
@@ -263,6 +202,8 @@ interface MultiComboboxProps<T> {
   disabled?: boolean;
   /** Text size of the control, its chips and its popup. `sm` matches a dense table's 13px. */
   size?: ComboboxSize;
+  /** `cell` hides the box until the field is hovered or focused — see `ComboboxVariant`. */
+  variant?: ComboboxVariant;
 }
 
 /**
@@ -292,13 +233,21 @@ function MultiCombobox<T = string>({
   error = false,
   disabled = false,
   size = 'md',
+  variant = 'box',
 }: MultiComboboxProps<T>) {
+  const cell = variant === 'cell';
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   // Enter is only ours to handle when Base UI has nothing highlighted to commit.
   const highlightedRef = useRef<T | undefined>(undefined);
 
   const [open, setOpen] = useState(false);
+  /** Escape was pressed in a `cell`: show the chips, not the box, until it is edited again. */
+  const [dismissed, setDismissed] = useState(false);
+
+  // A chosen item is already on show as a chip, and picking it again would only remove it — which
+  // the chip's own ✕ does, where it is looked for. So the list offers what is left to choose.
+  const offered = items.filter((item) => !value.some((chosen) => itemToKey(chosen) === itemToKey(item)));
 
   const query = inputValue.trim();
   // Hint at Enter only once there is something to accept, and only when accepting it
@@ -316,7 +265,7 @@ function MultiCombobox<T = string>({
     query === '' || loading ? null : canAddQuery ? `Press Enter to add “${query}”` : error ? null : emptyMessage;
 
   // Base UI would otherwise open an empty bordered box on focus or a trigger click.
-  const hasContent = items.length > 0 || emptyContent !== null || statusContent !== null;
+  const hasContent = offered.length > 0 || emptyContent !== null || statusContent !== null;
 
   function addChip(keyword: string) {
     const trimmed = keyword.trim();
@@ -358,6 +307,19 @@ function MultiCombobox<T = string>({
   }
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key === 'Escape') {
+      // With the list open Base UI closes it, which is all Escape should do. With the list shut
+      // Base UI's Escape **clears the selection** — right for a search box, and here a way to
+      // wipe every chip with the key that means "never mind". That one is stopped, in a form as
+      // much as in a cell.
+      if (!(open && hasContent)) {
+        (event as typeof event & { preventBaseUIHandler: () => void }).preventBaseUIHandler();
+      }
+      if (cell) setDismissed(true);
+      return;
+    }
+    // Any other key is the user editing again. Tab is leaving, which the blur handles.
+    if (cell && event.key !== 'Tab') setDismissed(false);
     if (event.key === 'PageUp' || event.key === 'PageDown') {
       // Otherwise the dialog body scrolls out from under the open list.
       event.preventDefault();
@@ -382,8 +344,11 @@ function MultiCombobox<T = string>({
       multiple
       disabled={disabled}
       open={open && hasContent && !disabled}
-      onOpenChange={setOpen}
-      items={items}
+      onOpenChange={(next) => {
+        setOpen(next);
+        if (next) setDismissed(false);
+      }}
+      items={offered}
       // The caller filters server-side; filtering again locally would hide fresh results.
       filter={null}
       value={value}
@@ -402,63 +367,100 @@ function MultiCombobox<T = string>({
         className={cn(
           INPUT_BOX,
           INPUT_BOX_FOCUS_WITHIN,
-          // `min-h-10`, not the shell's usual `h-10`: the chips wrap, so the field grows.
-          'flex min-h-10 flex-wrap items-center gap-2 px-2 py-1.5',
+          // A `min-h`, not the shell's usual `h-10`: in a `box` the chips wrap, so the field grows.
+          'flex items-center gap-2 px-2',
+          SIZE_CHIPS_BOX[size],
+          cell && !disabled && CELL_CHIPS_BOX,
+          dismissed && CELL_CHIPS_BOX_DISMISSED,
           disabled && INPUT_DISABLED,
         )}
+        // A click in a dismissed cell that already holds focus moves no focus, so nothing else
+        // would bring the box back.
+        onMouseDown={cell ? () => setDismissed(false) : undefined}
       >
-        {value.map((item) => (
-          <ComboboxPrimitive.Chip
-            key={itemToKey(item)}
-            className="flex items-center gap-1 rounded-md bg-blue-10 py-0.5 pr-1 pl-2 text-[12px]/5 text-neutral-1000 outline-none data-highlighted:ring-3 data-highlighted:ring-ring/50"
-          >
-            {itemToLabel(item)}
-            {/*
+        {/*
+          **The wrapping — a `box`'s; a `cell` never wraps — happens here, not on the field.** Everything used to wrap in one row, so
+          the input's `min-w-24` — which is a floor for wrapping as much as for shrinking — pushed
+          the chevron onto a second line as soon as a chip and that floor outgrew the field. In a
+          table cell one chip was enough. The chevron now sits outside what wraps, as the trailing
+          item of a row that does not, and the chips and input take the space that is left.
+        */}
+        {/* No `min-w-0` on a `cell`: its chips are its minimum width, which is what widens the column. */}
+        <div className={cn('flex flex-1 items-center gap-2', cell ? 'flex-nowrap' : 'min-w-0 flex-wrap')}>
+          {value.map((item) => (
+            <ComboboxPrimitive.Chip
+              key={itemToKey(item)}
+              className={cn(
+                'flex items-center gap-1 rounded-md bg-blue-10 py-0.5 pr-1 pl-2 text-[12px]/5 text-neutral-1000 outline-none data-highlighted:ring-3 data-highlighted:ring-ring/50',
+                cell && 'shrink-0 whitespace-nowrap',
+              )}
+            >
+              {itemToLabel(item)}
+              {/*
               Base UI already blocks this when the root is disabled (`ComboboxChipRemove` reads
               `comboboxDisabled || disabledProp`), and marks it `aria-disabled` + `data-disabled`
               rather than using the native attribute. Passing `disabled` explicitly says so at
               this level too; the styling is the part that was actually missing, since the button
               otherwise kept its pointer cursor and hover background and looked live.
             */}
-            <ComboboxPrimitive.ChipRemove
-              aria-label={`Remove ${itemToLabel(item)}`}
-              disabled={disabled}
-              className={cn(
-                'rounded-full p-0.5 text-neutral-700',
-                disabled ? 'pointer-events-none' : 'cursor-pointer hover:bg-blue-100 hover:text-neutral-1000',
-              )}
-            >
-              <X className="size-3.5" />
-            </ComboboxPrimitive.ChipRemove>
-          </ComboboxPrimitive.Chip>
-        ))}
-        <ComboboxPrimitive.Input
-          id={id}
-          ref={inputRef}
-          aria-label={ariaLabel}
-          placeholder={value.length === 0 ? placeholder : undefined}
-          onKeyDown={handleKeyDown}
-          className={cn(
-            'min-w-24 flex-1 bg-transparent text-neutral-1000 outline-none placeholder:text-neutral-700',
-            SIZE_TEXT[size],
-          )}
-        />
+              <ComboboxPrimitive.ChipRemove
+                aria-label={`Remove ${itemToLabel(item)}`}
+                disabled={disabled}
+                className={cn(
+                  'rounded-full p-0.5 text-neutral-700',
+                  cell && CELL_BOX_ONLY,
+                  dismissed && CELL_BOX_ONLY_DISMISSED,
+                  disabled ? 'pointer-events-none' : 'cursor-pointer hover:bg-blue-100 hover:text-neutral-1000',
+                )}
+              >
+                <X className="size-3.5" />
+              </ComboboxPrimitive.ChipRemove>
+            </ComboboxPrimitive.Chip>
+          ))}
+          <ComboboxPrimitive.Input
+            id={id}
+            ref={inputRef}
+            aria-label={ariaLabel}
+            placeholder={value.length === 0 ? placeholder : undefined}
+            onKeyDown={handleKeyDown}
+            onBlur={cell ? () => setDismissed(false) : undefined}
+            className={cn(
+              'flex-1 bg-transparent text-neutral-1000 outline-none placeholder:text-neutral-700',
+              SIZE_INPUT_MIN[size],
+              SIZE_TEXT[size],
+              // `w-4`: an `<input>` is some twenty characters wide by default, and with nothing
+              // letting the row shrink that became empty space the column had to make room for.
+              // A stated width is all it reserves now; `flex-1` still hands it whatever is spare.
+              // `min-w-4` overrides `SIZE_INPUT_MIN`, which would otherwise hold it at 40px.
+              cell && 'w-4 min-w-4 focus:placeholder:text-transparent',
+              // No caret blinking beside chips that are being shown rather than edited.
+              // …and the em-dash of an empty one back, which focus had hidden.
+              dismissed && 'caret-transparent focus:placeholder:text-neutral-700!',
+            )}
+          />
+        </div>
         {/*
-          The chevron stays put while suggestions load, and stands aside while the field is being
-          saved — see `Combobox` above for both.
+          The chevron stays put while suggestions load. A spinner at the right edge of a field
+          means **this field is being saved** — that is what `SavingOverlay` puts there — so
+          borrowing the same spot for a lookup would say the wrong thing. The wait is reported
+          inside the popup instead, plus `aria-busy` here.
+
+          When a save *is* in flight the chevron gets out of the way: `SavingOverlay` publishes
+          `data-saving` on the group around this. `invisible` rather than `hidden`, so the row
+          keeps its width and the spinner lands exactly where the chevron was.
         */}
         <ComboboxPrimitive.Trigger
           aria-label="Show suggestions"
           aria-busy={loading || undefined}
           // The tighter inset is deliberate: `p-1` next to the chips crowds them.
-          className={cn(INPUT_ACTION, 'p-0.5')}
+          className={cn(INPUT_ACTION, 'shrink-0 p-0.5', cell && CELL_BOX_ONLY, dismissed && CELL_BOX_ONLY_DISMISSED)}
         >
           <ChevronDown className="size-5" />
         </ComboboxPrimitive.Trigger>
       </ComboboxPrimitive.Chips>
 
       <PopupContent
-        items={items}
+        items={offered}
         itemToKey={itemToKey}
         itemToLabel={itemToLabel}
         statusContent={statusContent}
@@ -466,10 +468,11 @@ function MultiCombobox<T = string>({
         error={error}
         loading={loading}
         size={size}
+        fitContent={cell}
         listRef={listRef}
       />
     </ComboboxPrimitive.Root>
   );
 }
 
-export { Combobox, MultiCombobox };
+export { MultiCombobox };

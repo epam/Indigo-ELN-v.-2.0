@@ -59,7 +59,7 @@ function Columns({ item }: { item: GlobalSearchResult }) {
           <span className="truncate">{item.title ?? '—'}</span>
         </Column>
       )}
-      {item.reactionRoles && item.reactionRoles.length > 0 && (
+      {item.reactionRoles.length > 0 && (
         <Column label="Role">
           <span className="truncate">{item.reactionRoles.map((role) => REACTION_ROLE_LABELS[role]).join(', ')}</span>
         </Column>

@@ -15,8 +15,8 @@ export interface AddMaterialMutations {
 }
 
 /**
- * The Add Material write: `AddInput`, which appends an input row carrying a registered compound,
- * as against `AddEmptyInput`'s `UNKNOWN` one.
+ * The Add Material write: `AddInput`, which appends an input row carrying the hit's compound,
+ * as against `AddEmptyInput`'s unknown one.
  *
  * The step's own rows are not touched — this is an append, so unlike Analyze RXN there is no
  * anchor to resolve into and nothing to mark as done. The patch that comes back adds the row to
@@ -29,7 +29,13 @@ export function useAddMaterial(experiment: ExperimentDetails, reaction: Reaction
 
   const add = useCallback(
     (sample: SampleDTO) => {
-      void run(sample, (sampleId) => ({ type: 'AddInput', anchor: reactionAnchor, sampleId })).then((added) => {
+      void run(sample, {
+        type: 'AddInput',
+        anchor: reactionAnchor,
+        sample,
+        createdInputAnchor: crypto.randomUUID(),
+        createdSampleAnchor: crypto.randomUUID(),
+      }).then((added) => {
         if (added) notifyInfo('Model updated with new sample');
       });
     },

@@ -35,9 +35,7 @@ public class CognitoStack {
                 .oAuth(OAuthSettings.builder()
                         .callbackUrls(List.of(
                                 "https://" + props.domainName() + "/",
-                                "https://" + props.domainName() + "/frontend2/",
-                                "http://localhost:5173/frontend2/",
-                                "http://localhost:4200"
+                                "http://localhost:5173/" // the Vite dev server
                         ))
                         .build()
                 )

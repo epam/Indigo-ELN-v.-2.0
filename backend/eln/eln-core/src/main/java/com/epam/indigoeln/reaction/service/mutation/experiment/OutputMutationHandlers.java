@@ -2,30 +2,22 @@ package com.epam.indigoeln.reaction.service.mutation.experiment;
 
 import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
+import com.epam.indigoeln.eln.model.SampleSource;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import jakarta.enterprise.context.Dependent;
 
-import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE_HUNDRED;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.epam.indigoeln.reaction.model.EnteredValue.DEFAULT_ONE_HUNDRED;
 
 @Dependent
 @MutationHandlerFor(ReactionOutputMutation.AddProductSample.class)
 class AddProductSampleHandler extends AbstractReactionOutputMutationHandler<ReactionOutputMutation.AddProductSample> {
 
     @Override
-    protected ReactionOutputMutation.AddProductSample doPrepareMutation(ExperimentEntity entity, ReactionOutputMutation.AddProductSample mutation, ExperimentMutationContext context) {
-        return new ReactionOutputMutation.AddProductSample(
-                mutation.anchor(),
-                mutation.createdSampleAnchor() != null ? mutation.createdSampleAnchor() : OutputSampleAnchor.create()
-        );
-    }
-
-    @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.AddProductSample mutation, ExperimentMutationContext context) {
-        OutputSampleAnchor anchor = checkNotNull(mutation.createdSampleAnchor());
-        ReactionOutputSample.create(row, experiment.getName(), anchor, DEFAULT_ONE_HUNDRED);
+        OutputSampleAnchor anchor = mutation.createdSampleAnchor();
+        ReactionOutputSample.create(row, experiment.getName(), anchor, SampleSource.VIRTUAL, null, DEFAULT_ONE_HUNDRED);
         return "Add batch";
     }
 }

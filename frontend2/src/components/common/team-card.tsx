@@ -43,6 +43,7 @@ function CopyUsernameButton({ username }: { username: string }) {
       variant="ghost"
       size="icon-xs"
       aria-label={`Copy ${username}`}
+      title="Copy username"
       onClick={() => {
         void navigator.clipboard.writeText(username);
         setCopied(true);
@@ -178,7 +179,9 @@ export function TeamMembers({
           </div>
           <Button
             variant="outline"
+            className="h-10"
             disabled={selected.length === 0}
+            title={selected.length === 0 ? 'Select a user to add' : undefined}
             loading={addMembers?.isPending}
             onClick={() =>
               addMembers?.mutate(

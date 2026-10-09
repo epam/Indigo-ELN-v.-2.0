@@ -1,17 +1,18 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router';
 
 import { LoginCard } from '@/components/auth/login-card';
+import { usePageTitle } from '@/lib/hooks/use-page-title';
 import { z } from '@/lib/zod';
 
 export const Route = createFileRoute('/login')({
   validateSearch: z.object({
     redirect: z.string().optional(),
   }),
-  head: () => ({ meta: [{ title: 'Indigo ELN - Log in' }] }),
   component: LoginPage,
 });
 
 function LoginPage() {
+  usePageTitle('Log in');
   const { redirect } = Route.useSearch();
   const router = useRouter();
 

@@ -10,10 +10,10 @@ import type { EnteredValue } from '@/lib/types/reactions.ts';
  * Neither carries a `text-align`: alignment is a property of the **column**, so that a header
  * and the cells under it cannot disagree. See `alignOf`.
  */
-export const CELL_CLASS = 'border-b border-neutral-300 px-2 py-1 align-middle';
+export const CELL_CLASS = 'border-b border-neutral-300 px-1 py-1 align-middle';
 
 /**
- * `px-[17px]`, not `px-2`, and the number is not arbitrary: it is the `<td>`'s own `px-2` plus
+ * `px-[13px]`, not `px-1`, and the number is not arbitrary: it is the `<td>`'s own `px-1` plus
  * the 9px a cell's content box insets its text by (`CONTENT_BOX` — a 1px transparent border and
  * `px-2`). A header has no such box, so it has to carry that inset as padding instead.
  *
@@ -22,7 +22,7 @@ export const CELL_CLASS = 'border-b border-neutral-300 px-2 py-1 align-middle';
  * belonged to the column next door.
  */
 export const HEADER_CELL_CLASS =
-  'border-y border-neutral-300 px-[17px] py-2 text-[12px]/5 font-semibold whitespace-nowrap text-neutral-800';
+  'border-y border-neutral-300 px-[13px] py-2 text-[12px]/5 font-semibold whitespace-nowrap text-neutral-800';
 
 /**
  * The box a cell's content sits in, worn by **every** cell so that all of them inset their text
@@ -48,14 +48,17 @@ const RIGHT: ReadonlySet<string> = new Set(['numeric', 'readonlyNumeric', 'actio
 
 /**
  * Content that reads as one object of roughly fixed width rather than as a line of text: the
- * pill-shaped selects, the static type badge, and the Limiting radio.
+ * static type badge and the Limiting radio.
  *
  * `multiDictionary` is deliberately absent. It is the one member of the select family that is a
  * text-entry field — it filters against what is typed and holds a variable number of chips — so
  * it keeps the cell's full width, and a centred header over a full-width input would reproduce
  * exactly the mismatch this rule exists to remove.
+ *
+ * The selects — `dictionary`, `role`, `outputType` — are absent for the same reason: each fills
+ * its column, so its label reads from the left edge like any other text.
  */
-const CENTER: ReadonlySet<string> = new Set(['limiting', 'role', 'dictionary', 'outputType', 'outputTypeBadge']);
+const CENTER: ReadonlySet<string> = new Set(['limiting', 'outputTypeBadge']);
 
 /**
  * Which way a column reads, from its cell kind.
@@ -82,8 +85,8 @@ export function alignOf(kind: string): Align {
  *
  * - **It shrinks to its buttons.** `w-px` in an auto-layout table is a floor of nothing, so the
  *   column takes exactly the width of its content instead of the 48px-per-icon it used to claim.
- * - **`pl-4` is the offset** that separates the group from the last data column, and the left
- *   border marks where the pinned edge begins.
+ * - **`px-2` on both sides**, so the gap before the first button matches the one after the
+ *   last. The left border marks where the pinned edge begins.
  * - **It is pinned to the right.** These tables scroll horizontally and a delete button that has
  *   scrolled off is a delete button that is not there. A sticky cell paints over the row beneath
  *   it, so it needs its own background — and therefore its own hover, off the row's `group/row`,
@@ -93,7 +96,7 @@ export function alignOf(kind: string): Align {
  * sticky cell are owned by the table and are left behind when it moves.
  */
 export const ACTIONS_CELL_CLASS =
-  'sticky right-0 z-10 w-px border-l border-neutral-300 bg-card pr-2 pl-4 whitespace-nowrap group-hover/row:bg-neutral-100';
+  'sticky right-0 z-10 w-px border-l border-neutral-300 bg-card px-2 whitespace-nowrap group-hover/row:bg-neutral-100';
 
 /**
  * `saltEQ` is a bare `number` on the compound, not an `EnteredValue` like every other numeric

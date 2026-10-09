@@ -251,12 +251,12 @@ public class ACLService {
                                 .thenComparing(e -> e.getValue().a(), Comparator.reverseOrder()))
                         .toCustomMap(LinkedHashMap::new);
         child.setFullACL(EntryStream.of(sortedUsers)
-                .map(e -> new ACLEntry(e.getKey().getId(), e.getKey().getDisplayName(), e.getKey().getUsername(),  e.getValue().a(), e.getValue().b())).sortedBy(e -> - e.getLevel().ordinal()).toArray(ACLEntry[]::new)
+                .map(e -> new ACLEntry(e.getKey().getId(), e.getKey().getDisplayName(), e.getKey().getUsername(),  e.getValue().a(), e.getValue().b())).sortedBy(e -> - e.getLevel().ordinal()).toImmutableList()
         );
         child.setShortACL(StreamEx.of(child.getFullACL())
                 .filter(e -> e.getLevel() != IMPLICIT_VIEW)
                 .limit(3)
-                .toArray(ACLEntry[]::new));
+                .toImmutableList());
     }
 
     private boolean applyAccess(WithACL<?, ?> container, UserEntity user, AccessLevel level, boolean deleteNested) {

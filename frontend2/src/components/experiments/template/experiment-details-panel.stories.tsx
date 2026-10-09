@@ -105,6 +105,40 @@ export const PicksTherapeuticArea: Story = {
   },
 };
 
+/** Nothing to type into: a letter key picks the item it starts, as a native select does. */
+export const LetterKeyJumpsToItem: Story = {
+  parameters: { msw: { handlers: patchSpyHandlers } },
+  render: () => <DetailsFromCache />,
+  play: async ({ canvasElement }) => {
+    patches.length = 0;
+    const area = await within(canvasElement).findByLabelText('Therapeutic Area');
+    await expect(area.tagName).toBe('BUTTON');
+
+    const option = DICTIONARIES.THERAPEUTIC_AREA!.find((item) => item.name === 'Neurology')!;
+    // The dictionary has to be there for a key to have anything to match.
+    await userEvent.click(area);
+    await screen.findByRole('option', { name: option.name });
+    await userEvent.keyboard('{Escape}');
+
+    await userEvent.keyboard('n');
+    await waitFor(() => expect(patches).toEqual([{ therapeuticArea: option }]));
+  },
+};
+
+/** The field is optional, and the blank row at the top of the list is the way back to nothing. */
+export const BlankRowClears: Story = {
+  parameters: { msw: { handlers: patchSpyHandlers } },
+  render: () => <DetailsFromCache />,
+  play: async ({ canvasElement }) => {
+    patches.length = 0;
+    await userEvent.click(await within(canvasElement).findByLabelText('Therapeutic Area'));
+    await screen.findByRole('option', { name: DICTIONARIES.THERAPEUTIC_AREA![0].name });
+    await userEvent.click(within(screen.getByRole('listbox')).getAllByRole('option')[0]);
+
+    await waitFor(() => expect(patches).toEqual([{ therapeuticArea: null }]));
+  },
+};
+
 /**
  * **Regression guard**, the same class the description panel carries: opening a field and leaving
  * it without changing anything must send nothing.

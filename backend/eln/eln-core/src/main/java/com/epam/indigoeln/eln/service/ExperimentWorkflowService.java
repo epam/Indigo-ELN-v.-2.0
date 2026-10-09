@@ -2,7 +2,6 @@ package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.model.DocumentStatus;
 import com.epam.indigoeln.eln.config.DataAccess;
-import com.epam.indigoeln.eln.entity.ExperimentAttachment;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
 import com.epam.indigoeln.eln.model.SignatureTemplateRef;
@@ -13,16 +12,11 @@ import com.epam.indigoeln.signature.api.SignatureClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 @Slf4j
 @DataAccess
@@ -38,8 +32,6 @@ public class ExperimentWorkflowService {
     UserService userService;
     @Inject
     ExperimentService experimentService;
-    @Inject
-    AttachmentService attachmentService;
     @Inject
     ExperimentModelService experimentModelService;
     @Inject
@@ -85,13 +77,8 @@ public class ExperimentWorkflowService {
         return experimentService.getExperimentDetails(experiment);
     }
 
-    @SneakyThrows
-    public void signatureUpdated(UUID documentId, String message, DocumentStatus updatedStatus, Path path) {
-        ExperimentEntity experiment = experimentRepository.findBySignatureNumber(documentId.toString());
-        ExperimentAttachment submittedAttachment = checkNotNull(experiment.getSignatureAttachment());
-        byte[] bytes = Files.readAllBytes(path);
-        ExperimentAttachment attachment = attachmentService.createExperimentAttachment(experiment, submittedAttachment.getName(), bytes, null);
-        ExperimentMutation mutation = new ExperimentMutation.SignatureUpdated(message, updatedStatus, attachment.getId());
-        experimentModelService.applyMutation(experiment, mutation);
+    public void signatureUpdated(UUID experimentId, String message, DocumentStatus updatedStatus) {
+        ExperimentEntity experiment = experimentRepository.loadAndLock(experimentId);
+        experimentModelService.applyMutation(experiment, new ExperimentMutation.SignatureUpdated(message, updatedStatus));
     }
 }

@@ -1,17 +1,20 @@
 package com.epam.indigoeln.reaction.service.mutation.experiment;
 
-import com.epam.indigoeln.common.exception.InvalidRequestException;
+import com.epam.indigoeln.common.model.units.MolWeightUnit;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
-import com.epam.indigoeln.reaction.model.*;
+import com.epam.indigoeln.reaction.model.CompoundRef;
+import com.epam.indigoeln.reaction.model.ExperimentModel;
+import com.epam.indigoeln.reaction.model.Reaction;
+import com.epam.indigoeln.reaction.model.ReactionInput;
+import com.epam.indigoeln.reaction.model.ReactionOutput;
+import com.epam.indigoeln.reaction.model.ReactionOutputSample;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
-import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import jakarta.enterprise.context.Dependent;
 
 import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 @Dependent
 @MutationHandlerFor(ReactionInputMutation.SetInputRowSaltCode.class)
@@ -19,7 +22,7 @@ class SetInputRowSaltCodeHandler extends AbstractReactionInputMutationHandler<Re
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowSaltCode mutation, ExperimentMutationContext context) {
-        row.updateCompound(doUpdateSaltCode(row, mutation.saltCode()));
+        updateInputRowCompound(reaction, row, doUpdateSaltCode(row, mutation.saltCode()));
         return formatSetterSummary("input compound salt code", mutation.saltCode());
     }
 }
@@ -30,7 +33,7 @@ class SetOutputRowSaltCodeHandler extends AbstractReactionOutputMutationHandler<
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputRowSaltCode mutation, ExperimentMutationContext context) {
-        row.updateCompound(doUpdateSaltCode(row, mutation.saltCode()));
+        updateOutputRowCompound(reaction, row, doUpdateSaltCode(row, mutation.saltCode()));
         return formatSetterSummary("output compound salt code", mutation.saltCode());
     }
 }
@@ -41,7 +44,7 @@ class SetInputRowSaltEQHandler extends AbstractReactionInputMutationHandler<Reac
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowSaltEQ mutation, ExperimentMutationContext context) {
-        row.updateCompound(doUpdateSaltEQ(row, mutation.saltEQ()));
+        updateInputRowCompound(reaction, row, doUpdateSaltEQ(row, mutation.saltEQ()));
         return formatSetterSummary("input compound salt EQ", mutation.saltEQ());
     }
 }
@@ -52,7 +55,7 @@ class SetOutputRowSaltEQHandler extends AbstractReactionOutputMutationHandler<Re
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputRowSaltEQ mutation, ExperimentMutationContext context) {
-        row.updateCompound(doUpdateSaltEQ(row, mutation.saltEQ()));
+        updateOutputRowCompound(reaction, row, doUpdateSaltEQ(row, mutation.saltEQ()));
         return formatSetterSummary("output compound salt EQ", mutation.saltEQ());
     }
 }
@@ -63,7 +66,7 @@ class SetInputCompoundStereoisomerCodeHandler extends AbstractReactionInputMutat
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputCompoundStereoisomerCode mutation, ExperimentMutationContext context) {
-        row.updateCompound(doUpdateStereoisomerCode(row, mutation.stereoisomerCode()));
+        updateInputRowCompound(reaction, row, doUpdateStereoisomerCode(row, mutation.stereoisomerCode()));
         return formatSetterSummary("input compound stereoisomer code", mutation.stereoisomerCode());
     }
 }
@@ -74,7 +77,7 @@ class SetOutputCompoundStereoisomerCodeHandler extends AbstractReactionOutputMut
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputCompoundStereoisomerCode mutation, ExperimentMutationContext context) {
-        row.updateCompound(doUpdateStereoisomerCode(row, mutation.stereoisomerCode()));
+        updateOutputRowCompound(reaction, row, doUpdateStereoisomerCode(row, mutation.stereoisomerCode()));
         return formatSetterSummary("output compound stereoisomer code", mutation.stereoisomerCode());
     }
 }
@@ -85,12 +88,9 @@ class SetInputCompoundMolWeightHandler extends AbstractReactionInputMutationHand
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputCompoundMolWeight mutation, ExperimentMutationContext context) {
-        if (row.getCompound() instanceof CompoundRef.Unknown c) {
-            setEnteredValue(c.getMolWeight(), c::setMolWeight, mutation.molWeight(), MolWeightUnit.G_PER_MOL, experiment.getRevision());
-            return formatSetterSummary("input compound mol weight", mutation.molWeight(), MolWeightUnit.G_PER_MOL);
-        } else {
-            throw new InvalidRequestException("Cannot set molWeight for stored or virtual compound");
-        }
+        validate(!row.getCompound().isKnown(), "Cannot set molWeight for stored or virtual compound");
+        setEnteredValue(row.getCompound().getMolWeight(), row.getCompound()::setMolWeight, mutation.molWeight(), MolWeightUnit.G_PER_MOL, experiment.getRevision());
+        return formatSetterSummary("input compound mol weight", mutation.molWeight(), MolWeightUnit.G_PER_MOL);
     }
 }
 
@@ -100,12 +100,9 @@ class SetOutputCompoundMolWeightHandler extends AbstractReactionOutputMutationHa
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputCompoundMolWeight mutation, ExperimentMutationContext context) {
-        if (row.getCompound() instanceof CompoundRef.Unknown c) {
-            setEnteredValue(c.getMolWeight(), c::setMolWeight, mutation.molWeight(), MolWeightUnit.G_PER_MOL, experiment.getRevision());
-            return formatSetterSummary("output compound mol weight", mutation.molWeight(), MolWeightUnit.G_PER_MOL);
-        } else {
-            throw new InvalidRequestException("Cannot set molWeight for stored or virtual compound");
-        }
+        validate(!row.getCompound().isKnown(), "Cannot set molWeight for stored or virtual compound");
+        setEnteredValue(row.getCompound().getMolWeight(), row.getCompound()::setMolWeight, mutation.molWeight(), MolWeightUnit.G_PER_MOL, experiment.getRevision());
+        return formatSetterSummary("output compound mol weight", mutation.molWeight(), MolWeightUnit.G_PER_MOL);
     }
 }
 
@@ -114,18 +111,10 @@ class SetOutputCompoundMolWeightHandler extends AbstractReactionOutputMutationHa
 class SetOutputSaltCodeHandler extends AbstractReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputSaltCode> {
 
     @Override
-    protected ReactionOutputSampleMutation.SetOutputSaltCode doPrepareMutation(ExperimentEntity entity, ReactionOutputSampleMutation.SetOutputSaltCode mutation, ExperimentMutationContext context) {
-        return new ReactionOutputSampleMutation.SetOutputSaltCode(mutation.anchor()
-                , mutation.saltCode()
-                , mutation.createdOutputAnchor() != null ? mutation.createdOutputAnchor() : OutputAnchor.create()
-        );
-    }
-
-    @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputSaltCode mutation, ExperimentMutationContext context) {
         validate(sample.getRegistrationStatus() == null, CANNOT_MODIFY_REGISTERED_SAMPLE_COMPOUND);
         CompoundRef compound = doUpdateSaltCode(row, mutation.saltCode());
-        ReactionOutput newRow = findOrCreateOutputRow(reaction, compound, checkNotNull(mutation.createdOutputAnchor()));
+        ReactionOutput newRow = findOrCreateOutputRow(reaction, compound, mutation.createdOutputAnchor());
         if (newRow != row) {
             sample.moveInto(newRow);
             cleanupUnintendedProducts(reaction);
@@ -139,18 +128,10 @@ class SetOutputSaltCodeHandler extends AbstractReactionOutputSampleMutationHandl
 class SetOutputSaltEQHandler extends AbstractReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputSaltEQ> {
 
     @Override
-    protected ReactionOutputSampleMutation.SetOutputSaltEQ doPrepareMutation(ExperimentEntity entity, ReactionOutputSampleMutation.SetOutputSaltEQ mutation, ExperimentMutationContext context) {
-        return new ReactionOutputSampleMutation.SetOutputSaltEQ(mutation.anchor()
-                , mutation.saltEQ()
-                , mutation.createdOutputAnchor() != null ? mutation.createdOutputAnchor() : OutputAnchor.create()
-        );
-    }
-
-    @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputSaltEQ mutation, ExperimentMutationContext context) {
         validate(sample.getRegistrationStatus() == null, CANNOT_MODIFY_REGISTERED_SAMPLE_COMPOUND);
         CompoundRef compound = doUpdateSaltEQ(row, mutation.saltEQ());
-        ReactionOutput newRow = findOrCreateOutputRow(reaction, compound, checkNotNull(mutation.createdOutputAnchor()));
+        ReactionOutput newRow = findOrCreateOutputRow(reaction, compound, mutation.createdOutputAnchor());
         if (newRow != row) {
             sample.moveInto(newRow);
             cleanupUnintendedProducts(reaction);
@@ -164,18 +145,10 @@ class SetOutputSaltEQHandler extends AbstractReactionOutputSampleMutationHandler
 class SetOutputStereoisomerCodeHandler extends AbstractReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputStereoisomerCode> {
 
     @Override
-    protected ReactionOutputSampleMutation.SetOutputStereoisomerCode doPrepareMutation(ExperimentEntity entity, ReactionOutputSampleMutation.SetOutputStereoisomerCode mutation, ExperimentMutationContext context) {
-        return new ReactionOutputSampleMutation.SetOutputStereoisomerCode(mutation.anchor()
-                , mutation.stereoisomerCode()
-                , mutation.createdOutputAnchor() != null ? mutation.createdOutputAnchor() : OutputAnchor.create()
-        );
-    }
-
-    @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputStereoisomerCode mutation, ExperimentMutationContext context) {
         validate(sample.getRegistrationStatus() == null, CANNOT_MODIFY_REGISTERED_SAMPLE_COMPOUND);
         CompoundRef compound = doUpdateStereoisomerCode(row, mutation.stereoisomerCode());
-        ReactionOutput newRow = findOrCreateOutputRow(reaction, compound, checkNotNull(mutation.createdOutputAnchor()));
+        ReactionOutput newRow = findOrCreateOutputRow(reaction, compound, mutation.createdOutputAnchor());
         if (newRow != row) {
             sample.moveInto(newRow);
             cleanupUnintendedProducts(reaction);
@@ -189,18 +162,10 @@ class SetOutputStereoisomerCodeHandler extends AbstractReactionOutputSampleMutat
 class SetOutputMolfileHandler extends AbstractReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputMolfile> {
 
     @Override
-    protected ReactionOutputSampleMutation.SetOutputMolfile doPrepareMutation(ExperimentEntity entity, ReactionOutputSampleMutation.SetOutputMolfile mutation, ExperimentMutationContext context) {
-        return new ReactionOutputSampleMutation.SetOutputMolfile(mutation.anchor()
-                , mutation.molfile()
-                , mutation.createdOutputAnchor() != null ? mutation.createdOutputAnchor() : OutputAnchor.create()
-        );
-    }
-
-    @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputMolfile mutation, ExperimentMutationContext context) {
         validate(sample.getRegistrationStatus() == null, CANNOT_MODIFY_REGISTERED_SAMPLE_COMPOUND);
         CompoundRef compound = doUpdateMolfile(row, mutation.molfile());
-        ReactionOutput newRow = findOrCreateOutputRow(reaction, compound, checkNotNull(mutation.createdOutputAnchor()));
+        ReactionOutput newRow = findOrCreateOutputRow(reaction, compound, mutation.createdOutputAnchor());
         if (newRow != row) {
             sample.moveInto(newRow);
             cleanupUnintendedProducts(reaction);

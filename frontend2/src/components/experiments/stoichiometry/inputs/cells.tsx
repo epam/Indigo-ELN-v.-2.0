@@ -7,7 +7,7 @@ import { REACTION_ROLE_LABELS } from '@/lib/types/reactions.ts';
 /**
  * The reaction-role picker: four values from a fixed enum, and `@NotNull` on the record.
  *
- * A `Select`, not a `Combobox`. The combobox's three affordances are all wrong here — its text
+ * A `Select`, not a combobox. A combobox's three affordances are all wrong here — its text
  * input invites typing into a field that only accepts four exact values, its ✕ offers to clear
  * one the backend will reject as absent, and its "no matches" state answers a question that
  * cannot be asked. Four options need no filtering.
@@ -26,20 +26,16 @@ export function RoleCell({
   onCommit: (next: ReactionRole) => void;
 }) {
   return (
-    <SavingOverlay pending={pending} spinner="center" className="mx-auto w-fit">
+    <SavingOverlay pending={pending} spinner="center" className="w-full">
       <Select<ReactionRole>
         aria-label="Reaction role"
         size="sm"
+        variant="cell"
         value={value}
         items={[...roles]}
         itemToKey={(role) => role}
         itemToLabel={(role) => REACTION_ROLE_LABELS[role]}
         disabled={!editable}
-        // Hugs its label instead of filling the cell, so the column can centre it — a `w-full`
-        // trigger pins its label to the left however the column is aligned. The shared minimum is
-        // what keeps a column of them one width rather than a ragged stack; `OutputTypeCell`
-        // picked the same number for the same reason.
-        className="w-auto min-w-[112px]"
         // No `emptyLabel`, so the list offers no way to reach null — but the prop allows one.
         onValueChange={(next) => next != null && next !== value && onCommit(next)}
       />

@@ -2,6 +2,7 @@ package com.epam.indigoeln.eln.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,5 +18,5 @@ public class RoleEditRequest {
 
     JsonNullable<String> name = JsonNullable.undefined();
 
-    JsonNullable<Set<ApplicationPermission>> permissions = JsonNullable.undefined();
+    JsonNullable<@NotNull Set<ApplicationPermission>> permissions = JsonNullable.undefined();
 }

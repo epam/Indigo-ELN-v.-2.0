@@ -8,10 +8,9 @@ import com.epam.indigoeln.eln.entity.TemplateEntity;
 import com.epam.indigoeln.eln.entity.TemplateEntity_;
 import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.mapper.TemplateMapper;
-import com.epam.indigoeln.eln.model.ELNEntityType;
 import com.epam.indigoeln.eln.model.TemplateDTO;
 import com.epam.indigoeln.eln.model.TemplateDetailsDTO;
-import com.epam.indigoeln.eln.util.CriteriaConditions;
+import com.epam.indigoeln.eln.util.ELNCriteriaConditions;
 import com.google.common.base.MoreObjects;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -31,10 +30,10 @@ public class TemplateRepository extends BaseRepository<TemplateEntity> {
     @Inject
     TemplateMapper templateMapper;
     @Inject
-    CriteriaConditions.Factory criteriaConditionsFactory;
+    ELNCriteriaConditions.Factory criteriaConditionsFactory;
 
     public TemplateRepository() {
-        super(ELNEntityType.TEMPLATE, TemplateEntity.class);
+        super(TemplateEntity.class);
     }
 
     public Page<TemplateDTO> findAll(

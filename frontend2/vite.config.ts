@@ -109,12 +109,6 @@ function contentSecurityPolicy(): string {
 }
 
 export default defineConfig({
-  // The app is deployed under /frontend2 on the CloudFront distribution it shares with the
-  // Angular app (CloudFrontStack.java). This rewrites every asset URL in index.html, sets
-  // `import.meta.env.BASE_URL` — which the router takes as its basepath, see src/main.tsx —
-  // and makes the dev and preview servers serve at the same prefix, so local and deployed
-  // URLs match. /api is unaffected: it is root-absolute everywhere in src/lib/api.
-  base: '/frontend2/',
   plugins: [
     tanstackRouter({
       target: 'react',
@@ -143,6 +137,13 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      // The deployed environment's Cognito pool (CloudFrontStack.java writes it), so the dev
+      // server always signs in against the same environment it sends /api to.
+      '/config.json': {
+        target: API_TARGET,
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
   preview: {
@@ -152,6 +153,13 @@ export default defineConfig({
     },
     proxy: {
       '/api': {
+        target: API_TARGET,
+        changeOrigin: true,
+        secure: false,
+      },
+      // The deployed environment's Cognito pool (CloudFrontStack.java writes it), so the dev
+      // server always signs in against the same environment it sends /api to.
+      '/config.json': {
         target: API_TARGET,
         changeOrigin: true,
         secure: false,

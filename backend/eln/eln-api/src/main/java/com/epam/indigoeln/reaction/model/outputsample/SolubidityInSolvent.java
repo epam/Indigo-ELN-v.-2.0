@@ -2,7 +2,7 @@ package com.epam.indigoeln.reaction.model.outputsample;
 
 import com.epam.indigoeln.eln.model.SolventRef;
 import com.epam.indigoeln.reaction.model.ComparisonOperator;
-import com.epam.indigoeln.reaction.model.units.DensityUnit;
+import com.epam.indigoeln.common.model.units.DensityUnit;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.validation.constraints.NotNull;

@@ -1,5 +1,5 @@
 import { ChevronDown, ChevronRight, Plus, SquarePlus } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 
 import { SavingOverlay } from '@/components/common/saving-overlay';
 import { AddMaterialDialog } from '@/components/experiments/samples/add-material-dialog';
@@ -22,7 +22,7 @@ import {
   alignOf,
 } from '@/components/experiments/stoichiometry/columns';
 import { LimitingCell, RoleCell } from '@/components/experiments/stoichiometry/inputs/cells';
-import type { InputColumn, SampleColumn } from '@/components/experiments/stoichiometry/inputs/columns';
+import type { InputColumn, SamplePart } from '@/components/experiments/stoichiometry/inputs/columns';
 import {
   COMPOUND_COLUMNS,
   SAMPLE_COLUMNS,
@@ -31,6 +31,7 @@ import {
 } from '@/components/experiments/stoichiometry/inputs/columns';
 import { NumericCell } from '@/components/experiments/stoichiometry/numeric-cell';
 import type { StoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
+import { equalWidth, useEqualWidths } from '@/lib/hooks/use-equal-widths';
 import { cellId, useStoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import { Button } from '@/components/ui/button';
 import { SearchInput } from '@/components/ui/search-input';
@@ -44,6 +45,11 @@ import { INPUT_ROLES, plainFormula } from '@/lib/types/reactions.ts';
 /** The values the backend accepts — `@Min(1) @Max(5)` on `SetExperimentSignificantFigures`. */
 const SIGNIFICANT_FIGURES = [1, 2, 3, 4, 5];
 
+/** The sample fields that share a cell and are held to one width by measuring — see `SampleGroup`. */
+const EQUAL_WIDTH_PARTS = SAMPLE_COLUMNS.flatMap((column) => (column.kind === 'group' ? column.parts : []))
+  .filter((part) => part.equalWidth)
+  .map((part) => part.id);
+
 /**
  * Every field the search box looks at.
  *
@@ -55,9 +61,9 @@ function inputHaystack(input: ReactionInput): string {
   return [
     input.chemicalName,
     compound.formula == null ? undefined : plainFormula(compound.formula),
-    compound.type === 'UNKNOWN' ? undefined : compound.compoundKey,
-    compound.type === 'UNKNOWN' ? undefined : compound.casNumber,
-    ...input.samples.map((sample) => shortBatchNumber(sample.nbkBatchNumber)),
+    compound.compoundKey,
+    compound.casNumber,
+    ...input.samples.map((sample) => sample.sampleKey),
   ]
     .filter((each) => each != null)
     .join(' ')
@@ -78,15 +84,21 @@ function inputHaystack(input: ReactionInput): string {
  * on a grid boundary or it does not, and the browser cannot render it half a pixel out:
  *
  * ```
- * HOST   | 1 | 2 |   3    |   4    |  5  |    6     |   7   |   8    |   9    | 10  | 11 |   12    |   13    |    14    |    15    | 16 |   17   | 18 | 19  |
- * OUTER  |[v]| # | CompID | Batch# | CAS | ChemName | MolWt | Weight | Volume | Mol | EQ | RxnRole | MolForm | Limiting | SaltCode | ~  | SaltEQ | ~  | del |
- * INNER  |    (indent)    |             Batch #                      | Weight | Volume | Mol | Density | Molarity | Purity |   Hazard Comments   |  Comments | del |
- *                         ^ Batch # aligns                                                                                                             aligns ^
+ * HOST   | 1 | 2 |   3    |   4    |   5    |  6  | 7  |    8    |    9    |  10   | 11  |    12    |    13    |    14    |   15   |   16   | 17 | 18  |
+ * OUTER  |[v]| # | CompID | Weight | Volume | Mol | EQ | RxnRole | MolForm | MolWt | CAS | ChemName | Limiting | SaltCode | SaltEQ | Stereo | ~  | del |
+ * INNER  |(indent)| Batch# | Weight | Volume | Mol | [Density][Molarity][Purity] Hazard Comments <-                           -> Comments | del |
+ *                 ^ Batch # under Compound ID                                                                                  aligns ^
  * ```
  *
- * The two `~` columns are **spacers**: host columns the compound row leaves empty, so the width
- * Hazard Comments and Comments need beyond the columns above them has somewhere to grow that
- * costs nothing. Without them a long comment would inflate Limiting — a radio button — instead.
+ * Up to Mol a sample's columns are the compound's own, so they share its grid lines. Past it the
+ * two levels have nothing in common, so the rest of a batch is **one** cell spanning every
+ * compound column from EQ on — see `SampleGroup`. Density, Molarity and Purity keep a common
+ * width across batches all the same, but by measurement (`useEqualWidths`) rather than by grid
+ * line, which is what stops them and the compound columns above from widening each other.
+ *
+ * The `~` column is a **spacer**: a host column the compound row leaves empty, so the width
+ * that cell needs beyond the columns above it has somewhere to grow that costs nothing. Without
+ * it a long comment would inflate those columns — Limiting, a radio button, among them — instead.
  *
  * Layout is `auto` and the table is `w-full`, so columns size to their content and the table
  * fills the panel; when the content genuinely needs more room it overflows and the wrapper
@@ -114,6 +126,9 @@ export function StoichiometryTable({ experiment, reaction }: { experiment: Exper
 
   const mutations = useStoichiometryMutations(experiment);
   const canEdit = canEditExperiment(experiment);
+
+  const table = useRef<HTMLTableElement>(null);
+  useEqualWidths(table, EQUAL_WIDTH_PARTS);
 
   const inputs = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -158,7 +173,7 @@ export function StoichiometryTable({ experiment, reaction }: { experiment: Exper
           borders, and the pinned Delete column would leave them behind as it moves. Nothing
           doubles up, because the cell classes carry horizontal borders only.
         */}
-        <table className="w-full border-separate border-spacing-0">
+        <table ref={table} className="w-full border-separate border-spacing-0">
           <caption className="sr-only">Reactants, reagents and solvents</caption>
           <thead>
             <tr>
@@ -166,7 +181,7 @@ export function StoichiometryTable({ experiment, reaction }: { experiment: Exper
               <th className={cn(HEADER_CELL_CLASS, ALIGN_CLASS.center)} />
               {COMPOUND_COLUMNS.map((column) =>
                 // A spacer names nothing, so it is a plain cell rather than an empty `<th>`.
-                // `px-0` because the shared padding would be a 34px floor under a column whose
+                // `px-0` because the shared padding would be a 26px floor under a column whose
                 // whole purpose is to have no minimum of its own.
                 column.kind === 'spacer' ? (
                   <td key={column.id} className={cn(HEADER_CELL_CLASS, 'px-0')} />
@@ -176,10 +191,10 @@ export function StoichiometryTable({ experiment, reaction }: { experiment: Exper
                     scope="col"
                     className={cn(
                       HEADER_CELL_CLASS,
-                      ALIGN_CLASS[column.align ?? alignOf(column.kind)],
+                      ALIGN_CLASS[alignOf(column.kind)],
                       column.kind === 'delete' && ACTIONS_CELL_CLASS,
                     )}
-                    style={{ minWidth: column.minWidth }}
+                    style={{ minWidth: column.minWidth, width: column.fitContent ? 1 : undefined }}
                   >
                     {column.header}
                   </th>
@@ -311,7 +326,14 @@ function Toolbar({
             aria-label="Add empty row"
             title="Add empty row"
             disabled={!canEdit}
-            onClick={() => mutations.save(addInputCell, { type: 'AddEmptyInput', anchor: reaction.anchor })}
+            onClick={() =>
+              mutations.save(addInputCell, {
+                type: 'AddEmptyInput',
+                anchor: reaction.anchor,
+                createdInputAnchor: crypto.randomUUID(),
+                createdSampleAnchor: crypto.randomUUID(),
+              })
+            }
           >
             <Plus />
           </Button>
@@ -353,11 +375,9 @@ function CompoundRow({
 }) {
   return (
     <tbody>
-      {/* No tint for an expanded row: with every row open by default that would colour the
-          whole table, and the hover is what the pointer needs to follow a row across it. */}
-      {/* `group/row` — the pinned Delete cell paints its own background, so it cannot inherit
-          this hover and follows it explicitly. */}
-      <tr className="group/row hover:bg-neutral-100">
+      {/* Always grey, expanded or not: the tint is what tells a compound from the batches under
+          it. No hover — that is the sample rows' alone, and lighter than this. */}
+      <tr className="bg-neutral-200">
         <td className={cn(CELL_CLASS, ALIGN_CLASS.center)}>
           <button
             type="button"
@@ -374,11 +394,12 @@ function CompoundRow({
             key={column.id}
             className={cn(
               CELL_CLASS,
-              ALIGN_CLASS[column.align ?? alignOf(column.kind)],
-              // Matching the header: an empty cell that still reserved `px-2` would floor the
-              // spacer at 16px instead of collapsing to nothing.
+              ALIGN_CLASS[alignOf(column.kind)],
+              // Matching the header: an empty cell that still reserved `px-1` would floor the
+              // spacer at 8px instead of collapsing to nothing.
               column.kind === 'spacer' && 'px-0',
-              column.kind === 'delete' && ACTIONS_CELL_CLASS,
+              // The pinned cell paints its own background, so it cannot inherit the row's tint.
+              column.kind === 'delete' && cn(ACTIONS_CELL_CLASS, 'bg-neutral-200'),
             )}
           >
             <CompoundCell column={column} input={input} index={index} canEdit={canEdit} mutations={mutations} />
@@ -392,7 +413,7 @@ function CompoundRow({
             The sample columns' own header, repeated inside every open compound — they are a
             different column set from the one in `<thead>`, and a batch's numbers are unreadable
             without it. Each cell spans the host columns it covers; the leading cell is the
-            indent that puts Batch # under Batch #.
+            indent that puts Batch # under Compound ID.
           */}
           <tr>
             <td colSpan={SAMPLE_INDENT_SPAN} />
@@ -403,18 +424,35 @@ function CompoundRow({
                 colSpan={column.span}
                 className={cn(
                   HEADER_CELL_CLASS,
-                  'border-t-0',
-                  ALIGN_CLASS[column.align ?? alignOf(column.kind)],
+                  // Smaller and greyer than `<thead>`'s: it is a sub-header, and it repeats once
+                  // per open compound.
+                  'border-t-0 py-1 text-[11px]/4 font-medium text-neutral-700',
+                  ALIGN_CLASS[alignOf(column.kind)],
                   column.kind === 'delete' && ACTIONS_CELL_CLASS,
+                  // A group's labels carry the header's inset themselves, one each.
+                  column.kind === 'group' && 'px-1',
                 )}
                 style={{ minWidth: column.minWidth }}
               >
-                {column.header}
+                {column.kind === 'group' ? (
+                  <div className="flex gap-2">
+                    {column.parts.map((part, partIndex) => (
+                      // `px-[9px]` is `CONTENT_BOX`'s inset, so a label starts where its values do.
+                      <span key={part.id} {...partSlot(part, partIndex === column.parts.length - 1, 'px-[9px]')}>
+                        {part.header}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  column.header
+                )}
               </th>
             ))}
           </tr>
 
-          {input.samples.map((sample) => (
+          {input.samples.map((sample, sampleIndex) => (
+            // `group/row` — the pinned Delete cell paints its own background, so it cannot
+            // inherit this hover and follows it explicitly.
             <tr key={sample.anchor} className="group/row hover:bg-neutral-100">
               <td colSpan={SAMPLE_INDENT_SPAN} />
               {SAMPLE_COLUMNS.map((column) => (
@@ -423,13 +461,27 @@ function CompoundRow({
                   colSpan={column.span}
                   className={cn(
                     CELL_CLASS,
-                    ALIGN_CLASS[column.align ?? alignOf(column.kind)],
+                    // No rule between one batch and the next — only under the last, where the
+                    // compound ends, with a little air before the next compound's row.
+                    sampleIndex < input.samples.length - 1 ? 'border-b-0' : 'pb-3',
+                    ALIGN_CLASS[alignOf(column.kind)],
                     // Both Delete columns take it: they occupy the same grid slot, so the pinned
                     // column has to look continuous across compound and sample rows.
                     column.kind === 'delete' && ACTIONS_CELL_CLASS,
                   )}
                 >
-                  <SampleCell column={column} sample={sample} canEdit={canEdit} mutations={mutations} />
+                  {column.kind === 'group' ? (
+                    // `gap-2` is the two `px-1`s that separate neighbouring cells of their own.
+                    <div className="flex items-center gap-2">
+                      {column.parts.map((part, partIndex) => (
+                        <div key={part.id} {...partSlot(part, partIndex === column.parts.length - 1)}>
+                          <SampleCell column={part} sample={sample} canEdit={canEdit} mutations={mutations} />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <SampleCell column={column} sample={sample} canEdit={canEdit} mutations={mutations} />
+                  )}
                 </td>
               ))}
             </tr>
@@ -438,6 +490,20 @@ function CompoundRow({
       )}
     </tbody>
   );
+}
+
+/**
+ * The box one part of a sample group sits in, the same for its label and for its values so the
+ * two line up. An `equalWidth` part is marked for `useEqualWidths` and takes the width that
+ * finds; any other is as wide as its own content. The last sits at the cell's right edge, which
+ * leaves the group's slack as a gap before it.
+ */
+function partSlot(part: SamplePart, last: boolean, className?: string) {
+  return {
+    className: cn('shrink-0', ALIGN_CLASS[alignOf(part.kind)], last && 'ml-auto', className),
+    'data-equal-width': part.equalWidth && part.id,
+    style: { minWidth: part.equalWidth ? equalWidth(part.id, part.minWidth) : part.minWidth },
+  };
 }
 
 function CompoundCell({
@@ -465,9 +531,22 @@ function CompoundCell({
         <span className={cn(CONTENT_BOX, 'block cursor-default text-[13px]/5 text-neutral-800')}>{index + 1}</span>
       );
     case 'readonly':
-      return <ReadonlyCell value={column.value(input)} />;
+      return <ReadonlyCell value={column.value(input)} fitContent />;
     case 'html':
-      return <FormulaCell value={column.value(input)} />;
+      return <FormulaCell value={column.value(input)} fitContent />;
+    case 'readonlyNumeric':
+      return (
+        <NumericCell
+          value={column.value(input)}
+          units={column.units}
+          updatedNodes={mutations.updatedNodes}
+          editable={false}
+          pending={false}
+          label={`${column.header}, row ${index + 1}`}
+          // Unreachable: `editable` is false, so the input never takes a value to commit.
+          onCommit={() => {}}
+        />
+      );
     case 'text':
       return (
         <TextCell
@@ -475,6 +554,7 @@ function CompoundCell({
           editable={canEdit}
           pending={pending}
           label={`${column.header}, row ${index + 1}`}
+          fitContent
           onCommit={(next) => mutations.save(cell, column.mutation(input, next))}
         />
       );
@@ -483,6 +563,7 @@ function CompoundCell({
         <NumericCell
           value={column.value(input)}
           units={column.units}
+          suffix={column.suffix}
           updatedNodes={mutations.updatedNodes}
           editable={canEdit && (column.editable?.(input) ?? true)}
           pending={pending}
@@ -554,7 +635,7 @@ function SampleCell({
   canEdit,
   mutations,
 }: {
-  column: SampleColumn;
+  column: SamplePart;
   sample: ReactionInputSample;
   canEdit: boolean;
   mutations: StoichiometryMutations;
@@ -566,15 +647,17 @@ function SampleCell({
 
   switch (column.kind) {
     // Declared on the shared `Cell` union but unused by the sample columns; a batch has no
-    // ordinal of its own to show, no formula, no role, no limiting flag, and no spacer.
+    // ordinal of its own to show, no formula, no role, no limiting flag, no spacer, and no
+    // calculated-only number.
     case 'spacer':
     case 'index':
     case 'html':
+    case 'readonlyNumeric':
     case 'role':
     case 'limiting':
       return <EmptyCell />;
     case 'readonly':
-      return <ReadonlyCell value={column.value(sample)} />;
+      return <ReadonlyCell value={column.value(sample)} fitContent />;
     case 'text':
       return (
         <TextCell
@@ -582,6 +665,7 @@ function SampleCell({
           editable={canEdit}
           pending={pending}
           label={label}
+          fitContent
           onCommit={(next) => mutations.save(cell, column.mutation(sample, next))}
         />
       );
@@ -590,6 +674,7 @@ function SampleCell({
         <NumericCell
           value={column.value(sample)}
           units={column.units}
+          suffix={column.suffix}
           updatedNodes={mutations.updatedNodes}
           editable={canEdit && (column.editable?.(sample) ?? true)}
           pending={pending}
@@ -624,6 +709,7 @@ function SampleCell({
         <RowActions>
           <DeleteCell
             label={`${column.label} ${batch}`}
+            title="Delete Sample"
             editable={canEdit}
             pending={pending}
             onCommit={() => mutations.save(cell, column.mutation(sample))}

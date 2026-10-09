@@ -1,28 +1,48 @@
 package com.epam.indigoeln.reaction.service.mutation.experiment;
 
+import com.epam.indigoeln.common.model.units.MeasurementUnit;
 import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
-import com.epam.indigoeln.compound.entity.SampleEntity;
+import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
+import com.epam.indigoeln.eln.indigowrapper.IndigoMolecule;
+import com.epam.indigoeln.eln.indigowrapper.IndigoReaction;
+import com.epam.indigoeln.eln.model.SampleSource;
 import com.epam.indigoeln.eln.service.ExperimentService;
-import com.epam.indigoeln.indigowrapper.IndigoMolecule;
-import com.epam.indigoeln.indigowrapper.IndigoReaction;
-import com.epam.indigoeln.reaction.model.*;
+import com.epam.indigoeln.reaction.model.CompoundRef;
+import com.epam.indigoeln.reaction.model.EnteredValue;
+import com.epam.indigoeln.reaction.model.ExperimentModel;
+import com.epam.indigoeln.reaction.model.InputAnchor;
+import com.epam.indigoeln.reaction.model.InputSampleAnchor;
+import com.epam.indigoeln.reaction.model.OutputAnchor;
+import com.epam.indigoeln.reaction.model.OutputSampleAnchor;
+import com.epam.indigoeln.reaction.model.Reaction;
+import com.epam.indigoeln.reaction.model.ReactionInput;
+import com.epam.indigoeln.reaction.model.ReactionInputSample;
+import com.epam.indigoeln.reaction.model.ReactionOutput;
+import com.epam.indigoeln.reaction.model.ReactionOutputSample;
+import com.epam.indigoeln.reaction.model.ReactionOutputType;
+import com.epam.indigoeln.reaction.model.ReactionRole;
+import com.epam.indigoeln.reaction.model.ReactionRow;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
-import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import com.google.common.base.Function;
+import com.google.common.base.MoreObjects;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
-import one.util.streamex.EntryStream;
 import one.util.streamex.IntStreamEx;
 import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Consumer;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
 
 @Slf4j
 @Dependent
@@ -48,6 +68,7 @@ class SetSchemeHandler extends AbstractReactionMutationHandler<ReactionMutation.
             catalystCount = (int) StreamEx.of(reaction.catalysts().iterator()).count();
             productCount = (int) StreamEx.of(reaction.products().iterator()).count();
         }
+        //noinspection ConstantValue
         return new ReactionMutation.SetScheme(
                 mutation.anchor(),
                 mutation.rxnFile(),
@@ -85,13 +106,21 @@ class SetSchemeHandler extends AbstractReactionMutationHandler<ReactionMutation.
             collectMoleculeLinks(indigoReaction.products(), productLinks, true);
         }
 
-        Iterator<InputAnchor> createdReactantAnchors = checkNotNull(mutation.createdReactantAnchors()).iterator();
-        Iterator<InputSampleAnchor> createdReactantSampleAnchors = checkNotNull(mutation.createdReactantSampleAnchors()).iterator();
-        Iterator<InputAnchor> createdCatalystAnchors = checkNotNull(mutation.createdCatalystAnchors()).iterator();
-        Iterator<InputSampleAnchor> createdCatalystSampleAnchors = checkNotNull(mutation.createdCatalystSampleAnchors()).iterator();
-        Iterator<OutputAnchor> createdProductAnchors = checkNotNull(mutation.createdProductAnchors()).iterator();
-        createRows(reactantLinks, link -> createInputLine(reaction, link.molecule, ReactionRole.REACTANT, createdReactantAnchors.next(), createdReactantSampleAnchors.next()));
-        createRows(catalystLinks, link -> createInputLine(reaction, link.molecule, ReactionRole.REAGENT, createdCatalystAnchors.next(), createdCatalystSampleAnchors.next()));
+        Iterator<InputAnchor> createdReactantAnchors = mutation.createdReactantAnchors().iterator();
+        Iterator<InputSampleAnchor> createdReactantSampleAnchors = mutation.createdReactantSampleAnchors().iterator();
+        Iterator<InputAnchor> createdCatalystAnchors = mutation.createdCatalystAnchors().iterator();
+        Iterator<InputSampleAnchor> createdCatalystSampleAnchors = mutation.createdCatalystSampleAnchors().iterator();
+        Iterator<OutputAnchor> createdProductAnchors = mutation.createdProductAnchors().iterator();
+        createRows(reactantLinks, link -> {
+            ReactionInput row = createInputLine(reaction, link.molecule, ReactionRole.REACTANT, createdReactantAnchors.next());
+            ReactionInputSample.create(row, createdReactantSampleAnchors.next(), SampleSource.VIRTUAL, null, EnteredValue.DEFAULT_ONE_HUNDRED);
+            return row;
+        });
+        createRows(catalystLinks, link -> {
+            ReactionInput row = createInputLine(reaction, link.molecule, ReactionRole.REAGENT, createdCatalystAnchors.next());
+            ReactionInputSample.create(row, createdCatalystSampleAnchors.next(), SampleSource.VIRTUAL, null, EnteredValue.DEFAULT_ONE_HUNDRED);
+            return row;
+        });
         createRows(productLinks, link -> createOutputLine(reaction, link.molecule, true, createdProductAnchors.next()));
 
         reaction.setInputs(StreamEx.of(reaction.getInputs()).sorted(INPUT_COMPARATOR).toImmutableList());
@@ -170,17 +199,9 @@ class SetSchemeHandler extends AbstractReactionMutationHandler<ReactionMutation.
 class AddEmptyInputHandler extends AbstractReactionMutationHandler<ReactionMutation.AddEmptyInput> {
 
     @Override
-    protected ReactionMutation.AddEmptyInput doPrepareMutation(ExperimentEntity entity, ReactionMutation.AddEmptyInput mutation, ExperimentMutationContext context) {
-        return new ReactionMutation.AddEmptyInput(
-                mutation.anchor(),
-                mutation.createdInputAnchor() != null ? mutation.createdInputAnchor() : InputAnchor.create(),
-                mutation.createdSampleAnchor() != null ? mutation.createdSampleAnchor() : InputSampleAnchor.create()
-        );
-    }
-
-    @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddEmptyInput mutation, ExperimentMutationContext context) {
-        createInputLine(reaction, null, ReactionRole.REACTANT, checkNotNull(mutation.createdInputAnchor()), checkNotNull(mutation.createdSampleAnchor()));
+        ReactionInput row = createInputLine(reaction, null, ReactionRole.REACTANT, mutation.createdInputAnchor());
+        ReactionInputSample.create(row, mutation.createdSampleAnchor(), SampleSource.VIRTUAL, null, EnteredValue.DEFAULT_ONE_HUNDRED);
         return "Add empty input";
     }
 }
@@ -190,22 +211,19 @@ class AddEmptyInputHandler extends AbstractReactionMutationHandler<ReactionMutat
 class AddInputHandler extends AbstractReactionMutationHandler<ReactionMutation.AddInput> {
 
     @Override
-    protected ReactionMutation.AddInput doPrepareMutation(ExperimentEntity entity, ReactionMutation.AddInput mutation, ExperimentMutationContext context) {
-        return new ReactionMutation.AddInput(
-                mutation.anchor(),
-                mutation.sampleId(),
-                mutation.createdInputAnchor() != null ? mutation.createdInputAnchor() : InputAnchor.create(),
-                mutation.createdSampleAnchor() != null ? mutation.createdSampleAnchor() : InputSampleAnchor.create()
-        );
-    }
-
-    @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddInput mutation, ExperimentMutationContext context) {
-        ReactionInput row = createInputLine(reaction, null, ReactionRole.REACTANT, checkNotNull(mutation.createdInputAnchor()), checkNotNull(mutation.createdSampleAnchor()));
-        SampleEntity sample = compoundService.getSample(mutation.sampleId());
-        setInputLineSample(row, sample, mutation.createdSampleAnchor(), context);
+        CompoundEntity compound = sampleSearchService.importCompound(mutation.sample());
+        CompoundRef compoundRef = compoundService.compoundRef(compound);
+        ReactionInput row = StreamEx.of(reaction.getInputs())
+                .findFirst(x -> x.getRole() == ReactionRole.REACTANT && x.getCompound().compoundKeyEquals(compoundRef))
+                .orElseGet(() -> {
+                    ReactionInput newRow = ReactionInput.create(reaction, ReactionRole.REACTANT, mutation.createdInputAnchor(), compoundRef);
+                    newRow.setEq(EnteredValue.DEFAULT_ONE);
+                    return newRow;
+                });
+        addInputSample(row, compound, mutation.sample(), mutation.createdSampleAnchor());
 
-        return "Add input sample: " + getSampleIdentifier(sample);
+        return "Add input sample: " + MoreObjects.firstNonNull(mutation.sample().getSampleKey(), mutation.sample().getNbkBatchNumber());
     }
 }
 
@@ -214,19 +232,10 @@ class AddInputHandler extends AbstractReactionMutationHandler<ReactionMutation.A
 class AddNoProductSampleHandler extends AbstractReactionMutationHandler<ReactionMutation.AddNoProductSample> {
 
     @Override
-    protected ReactionMutation.AddNoProductSample doPrepareMutation(ExperimentEntity entity, ReactionMutation.AddNoProductSample mutation, ExperimentMutationContext context) {
-        return new ReactionMutation.AddNoProductSample(
-                mutation.anchor(),
-                mutation.createdOutputAnchor() != null ? mutation.createdOutputAnchor() : OutputAnchor.create(),
-                mutation.createdSampleAnchor() != null ? mutation.createdSampleAnchor() : OutputSampleAnchor.create()
-        );
-    }
-
-    @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddNoProductSample mutation, ExperimentMutationContext context) {
         CompoundRef compoundRef = compoundService.unknownCompoundRef();
         ReactionOutput row = ReactionOutput.create(reaction, ReactionOutputType.BY_PRODUCT, false, reaction.generateNextProductName(), mutation.createdOutputAnchor(), compoundRef, EnteredValue.DEFAULT_ONE);
-        ReactionOutputSample.create(row, experiment.getName(), mutation.createdSampleAnchor(), EnteredValue.DEFAULT_ONE_HUNDRED);
+        ReactionOutputSample.create(row, experiment.getName(), mutation.createdSampleAnchor(), SampleSource.VIRTUAL, null, EnteredValue.DEFAULT_ONE_HUNDRED);
 
         return "Add empty batch";
     }
@@ -237,24 +246,62 @@ class AddNoProductSampleHandler extends AbstractReactionMutationHandler<Reaction
 class ResolveInputsHandler extends AbstractReactionMutationHandler<ReactionMutation.ResolveInputs> {
 
     @Override
-    protected ReactionMutation.ResolveInputs doPrepareMutation(ExperimentEntity entity, ReactionMutation.ResolveInputs mutation, ExperimentMutationContext context) {
-        return new ReactionMutation.ResolveInputs(
-                mutation.anchor(),
-                mutation.inputSamples(),
-                mutation.createdSampleAnchors() != null ? mutation.createdSampleAnchors() : EntryStream.of(mutation.inputSamples())
-                        .mapValues(k -> InputSampleAnchor.create())
-                        .toMap()
-        );
-    }
-
-    @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.ResolveInputs mutation, ExperimentMutationContext context) {
-        mutation.inputSamples().forEach((inputAnchor, sampleId) -> {
+        validate(mutation.createdSampleAnchors().keySet().equals(mutation.inputSamples().keySet()), "createdSampleAnchors must have the same keys as inputSamples");
+        mutation.inputSamples().forEach((inputAnchor, sample) -> {
             ReactionInput row = model.locate(inputAnchor);
-            SampleEntity sample = compoundService.getSample(sampleId);
-            setInputLineSample(row, sample, checkNotNull(mutation.createdSampleAnchors()).get(inputAnchor), context);
+            resolveInputSample(reaction, row, sample, mutation.createdSampleAnchors().get(inputAnchor));
         });
         return "Resolve input samples";
+    }
+
+    private void resolveInputSample(Reaction reaction, ReactionInput row, SampleDTO sample, InputSampleAnchor anchor) {
+        CompoundEntity compound = sampleSearchService.importCompound(sample);
+        CompoundRef compoundRef = compoundService.compoundRef(compound);
+        if (!row.getCompound().compoundKeyEquals(compoundRef)) {
+            ReactionInput existing = StreamEx.of(reaction.getInputs())
+                    .findFirst(x -> x != row && x.getRole() == row.getRole() && x.getCompound().compoundKeyEquals(compoundRef))
+                    .orElse(null);
+            if (existing != null) {
+                // the reaction already has a row for this compound: the sample joins it, as AddInput does,
+                // and this row stays as drawn - it is still a compound of the scheme, just not this one
+                addInputSample(existing, compound, sample, anchor);
+                return;
+            }
+        }
+
+        ReactionInputSample virtualSample = StreamEx.of(row.getSamples()).findFirst(s -> s.getSampleSource() == SampleSource.VIRTUAL).orElse(null);
+        row.setSamples(row.getSamples().stream().filter(s -> s.getSampleSource() != SampleSource.VIRTUAL).toList());
+
+        if (!row.getCompound().compoundKeyEquals(compoundRef)) {
+            row.updateCompound(compoundRef);
+        }
+
+        ReactionInputSample resolvedSample = addInputSample(row, compound, sample, anchor);
+        if (virtualSample != null) {
+            transferUserEnteredValues(virtualSample, resolvedSample);
+        }
+    }
+
+    private static void transferUserEnteredValues(ReactionInputSample from, ReactionInputSample to) {
+        transferUserEnteredValue(from.getMol(), to::setMol);
+        transferUserEnteredValue(from.getWeight(), to::setWeight);
+        transferUserEnteredValue(from.getVolume(), to::setVolume);
+        transferUserEnteredValue(from.getDensity(), to::setDensity);
+        transferUserEnteredValue(from.getMolarity(), to::setMolarity);
+        transferUserEnteredValue(from.getPurity(), to::setPurity);
+        if (!from.getHealthHazards().isEmpty()) {
+            to.setHealthHazards(from.getHealthHazards());
+        }
+        if (from.getComment() != null) {
+            to.setComment(from.getComment());
+        }
+    }
+
+    private static <U extends MeasurementUnit> void transferUserEnteredValue(EnteredValue<U> value, Consumer<EnteredValue<U>> setter) {
+        if (value.getSource().isUserEntered()) {
+            setter.accept(value);
+        }
     }
 }
 
@@ -264,11 +311,13 @@ class ImportSDFHandler extends AbstractReactionMutationHandler<ReactionMutation.
 
     @Override
     protected ReactionMutation.ImportSDF doPrepareMutation(ExperimentEntity entity, ReactionMutation.ImportSDF mutation, ExperimentMutationContext context) {
+        //noinspection ConstantValue
         return new ReactionMutation.ImportSDF(
                 mutation.anchor(),
                 mutation.compoundIDs(),
-                mutation.createdOutputAnchors() != null ? mutation.createdOutputAnchors() : mutation.compoundIDs().stream().map(x -> OutputAnchor.create()).toList(),
-                mutation.createdSampleAnchors() != null ? mutation.createdSampleAnchors() : mutation.compoundIDs().stream().map(x -> OutputSampleAnchor.create()).toList()
+                mutation.samples(),
+                mutation.createdOutputAnchors() != null ? mutation.createdOutputAnchors() : mutation.samples().stream().map(x -> OutputAnchor.create()).toList(),
+                mutation.createdSampleAnchors() != null ? mutation.createdSampleAnchors() : mutation.samples().stream().map(x -> OutputSampleAnchor.create()).toList()
         );
     }
 
@@ -276,17 +325,19 @@ class ImportSDFHandler extends AbstractReactionMutationHandler<ReactionMutation.
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.ImportSDF mutation, ExperimentMutationContext context) {
         Iterator<OutputAnchor> anchorIt = mutation.createdOutputAnchors().iterator();
         Iterator<OutputSampleAnchor> sampleAnchorIt = mutation.createdSampleAnchors().iterator();
-        for (UUID compoundID : mutation.compoundIDs()) {
-            CompoundEntity compound = compoundService.getCompound(compoundID);
-            ReactionOutput output = reaction.findOutput(compoundID);
+        Iterator<UUID> compoundIt = mutation.compoundIDs().iterator();
+        for (SampleDTO sample : mutation.samples()) {
+            CompoundEntity compound = compoundService.getCompound(compoundIt.next());
+            ReactionOutput output = reaction.findOutput(compound.getId());
             if (output == null) {
-                CompoundRef compound1 = compoundService.virtualCompoundRef(compound);
+                CompoundRef compound1 = compoundService.compoundRef(compound);
                 OutputAnchor anchor = anchorIt.next();
                 output = ReactionOutput.create(reaction, reaction.getFinalOutput() != null ? ReactionOutputType.BY_PRODUCT : ReactionOutputType.FINAL, false, reaction.generateNextProductName(), anchor, compound1, EnteredValue.DEFAULT_ONE);
             }
-            ReactionOutputSample.create(output, experiment.getName(), sampleAnchorIt.next(), EnteredValue.DEFAULT_ONE_HUNDRED);
+            ReactionOutputSample.create(output, experiment.getName(), sampleAnchorIt.next(), SampleSource.VIRTUAL, null, EnteredValue.DEFAULT_ONE_HUNDRED);
+            // TODO fill sample properties
         }
-        context.getResponse().getMessages().add(mutation.compoundIDs().size() + " samples imported from SDF");
-        return "Import SDF (" + mutation.compoundIDs().size() + " samples)";
+        context.getResponse().getMessages().add(mutation.samples().size() + " samples imported from SDF");
+        return "Import SDF (" + mutation.samples().size() + " samples)";
     }
 }

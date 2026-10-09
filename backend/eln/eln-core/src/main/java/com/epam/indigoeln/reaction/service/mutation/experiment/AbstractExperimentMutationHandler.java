@@ -10,7 +10,7 @@ import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.ExperimentService;
 import com.epam.indigoeln.eln.service.RevisionService;
 import com.epam.indigoeln.eln.service.UserService;
-import com.epam.indigoeln.indigowrapper.IndigoAPI;
+import com.epam.indigoeln.eln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
@@ -30,6 +30,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -113,12 +114,8 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
     @Override
     protected ExperimentRevisionEntity doCreateRevision(ExperimentEntity experiment, T mutation, String summary, Integer revisionNo, JsonNode patch, ExperimentMutationContext context, ExperimentSnapshot snapshotAfter) {
         ExperimentRevisionEntity revision = revisionService.addRevision(experiment, revisionNo, experiment.getModifiedAt(), summary, mutation, patch);
-        if (!context.getResponse().getMessages().isEmpty()) {
-            revision.setMessages(context.getResponse().getMessages().toArray(new String[0]));
-        }
-        if (!context.getResponse().getDebugMessages().isEmpty()) {
-            revision.setDebugMessages(context.getResponse().getDebugMessages().toArray(new String[0]));
-        }
+        revision.setMessages(new ArrayList<>(context.getResponse().getMessages()));
+        revision.setDebugMessages(new ArrayList<>(context.getResponse().getDebugMessages()));
         return revision;
     }
 

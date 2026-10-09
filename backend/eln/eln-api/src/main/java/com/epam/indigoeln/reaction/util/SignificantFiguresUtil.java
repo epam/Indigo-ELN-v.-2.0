@@ -48,6 +48,10 @@ public class SignificantFiguresUtil {
             return "0";
         }
         BigDecimal bd = BigDecimal.valueOf(value).round(new MathContext(significantFigures, RoundingMode.HALF_UP));
+        // pad trailing zeros so result shows all significant figures (100 @ 5 -> 100.00)
+        if (bd.precision() < significantFigures) {
+            bd = bd.setScale(bd.scale() + significantFigures - bd.precision(), RoundingMode.UNNECESSARY);
+        }
         return bd.toPlainString();
     }
 }

@@ -8,9 +8,8 @@ import type {
 import { OPERATOR_SYMBOLS, QUALITATIVE_LABELS, unitLabel } from '@/lib/types/reactions.ts';
 
 /**
- * How the batch detail panel writes the five composite value-objects it shows but cannot yet
- * edit — melting point, residual solvents, solubility, external supplier and purity
- * calculations.
+ * How the batch detail panel summarises its five composite value-objects — melting point,
+ * residual solvents, solubility, external supplier and purity calculations.
  *
  * They live here rather than in the panel so the component file exports only components and Fast
  * Refresh keeps working, the same split `project-form.ts` makes.
@@ -48,8 +47,8 @@ export function meltingPointLabel(meltingPoint: MeltingPoint | undefined): strin
 }
 
 /** One chip per solvent: `Toluene (1.2 eq)`. */
-export function residualSolventLabels(solvents: ResidualSolvent[] | undefined): string[] {
-  return (solvents ?? []).map((solvent) => `${solvent.solvent.name} (${solvent.eq} eq)`);
+export function residualSolventLabels(solvents: ResidualSolvent[]): string[] {
+  return solvents.map((solvent) => `${solvent.solvent.name} (${solvent.eq} eq)`);
 }
 
 /**
@@ -59,8 +58,8 @@ export function residualSolventLabels(solvents: ResidualSolvent[] | undefined): 
  * Both cases carry optional members — a `QUANTITATIVE` entry with no value yet, a `QUALITATIVE`
  * one with no verdict — so either can fall back to the solvent's name alone.
  */
-export function solubilityLabels(solvents: SolubidityInSolvent[] | undefined): string[] {
-  return (solvents ?? []).map((entry) => {
+export function solubilityLabels(solvents: SolubidityInSolvent[]): string[] {
+  return solvents.map((entry) => {
     const name = entry.solvent.name;
 
     if (entry.type === 'QUANTITATIVE') {
@@ -81,8 +80,8 @@ export function externalSupplierLabel(supplier: ExternalSupplier | undefined): s
 }
 
 /** One chip per measurement: `HPLC > 98`. */
-export function purityCalculationLabels(calculations: PurityCalculation[] | undefined): string[] {
-  return (calculations ?? []).map(
+export function purityCalculationLabels(calculations: PurityCalculation[]): string[] {
+  return calculations.map(
     (calculation) => `${calculation.type} ${OPERATOR_SYMBOLS[calculation.operator]} ${calculation.purity}`,
   );
 }

@@ -145,7 +145,7 @@ function RevisionRows({ experimentId, revision }: { experimentId: string; revisi
 
       {group &&
         expanded &&
-        revision.details?.map((child) => (
+        revision.details.map((child) => (
           <RevisionRow
             key={child.revision}
             experimentId={experimentId}

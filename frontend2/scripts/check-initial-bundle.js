@@ -33,8 +33,7 @@ const html = (() => {
 
 // The entry script plus everything the browser is told to preload alongside it: together,
 // the JavaScript a cold page load pays for before it can render.
-// The leading [^"]* absorbs Vite's `base` (/frontend2/), leaving the captured path relative
-// to dist/ either way.
+// The leading [^"]* absorbs Vite's `base`, leaving the captured path relative to dist/ either way.
 const paths = [...html.matchAll(/(?:src|href)="[^"]*\/(assets\/[^"]+\.js)"/g)].map((match) => match[1]);
 
 if (paths.length === 0) {

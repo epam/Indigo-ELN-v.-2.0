@@ -47,7 +47,7 @@ import type { ExperimentEditRequest, ExperimentRequest, ExperimentStatus } from 
 import type { ModelMutation, MutationResponse } from '@/lib/types/mutations.ts';
 import type { NotebookEditRequest, NotebookRequest } from '@/lib/types/notebooks.ts';
 import type { ProjectEditRequest } from '@/lib/types/projects.ts';
-import type { FindSamplesRequest, SampleDTO, SampleSearchResult, SearchCatalog } from '@/lib/types/samples.ts';
+import type { FindSamplesRequest, SampleDTO, SearchCatalog } from '@/lib/types/samples.ts';
 import type { SignatureDocument } from '@/lib/types/signatures.ts';
 
 // apiFetch sends the path verbatim, so handlers match the same full paths the
@@ -155,6 +155,9 @@ export const TAKEN_NOTEBOOK_NAME = '00000002';
 /** What `/notebooks/next-number` offers — one past the last of `NOTEBOOKS`, as the backend does. */
 export const NEXT_NOTEBOOK_NAME = '00000004';
 
+/** The members of a `MutationResponse` that are empty unless a handler has something to say. */
+const EMPTY_RESPONSE = { unresolvedInputs: {}, messages: [], debugMessages: [] };
+
 /**
  * What `/mutate` answers for a `SetScheme`: a diff, not a document. The real backend re-reads
  * the drawing and patches the input and output rows too — this only moves `rxnfile`, which is
@@ -164,70 +167,69 @@ export const NEXT_NOTEBOOK_NAME = '00000004';
  */
 function setSchemeResponse(mutation: ModelMutation): MutationResponse {
   if (mutation.type === 'ResolveInputs') return resolveInputsResponse(mutation);
-  if (mutation.type !== 'SetScheme') return { patch: {} };
+  if (mutation.type !== 'SetScheme') return { ...EMPTY_RESPONSE, patch: {} };
   return {
+    ...EMPTY_RESPONSE,
     patch: { model: { reactions: { '0': { rxnfile: { $old: REACTION_RXNFILE, $new: mutation.rxnFile } } } } },
     messages: ['Reaction scheme updated'],
   };
 }
 
 /**
- * What `/mutate` answers for a `ResolveInputs`: the bound sample id written onto the input row's
- * first sample. The real handler also fills in the compound, the batch number and everything the
- * calculator derives from them — this moves the one field the dialog reads back, which is what
- * makes an added row's Add button go disabled.
+ * What `/mutate` answers for a `ResolveInputs`: the bound sample's source and key written onto the
+ * input row's first sample. The real handler also fills in the compound, the batch number and
+ * everything the calculator derives from them — this moves the fields the dialog reads back, which
+ * is what makes an added row's Add button go disabled.
  *
  * Anchors are addressed by list index, so the row has to be looked up in the same fixture the
  * experiment detail was built from.
  */
 function resolveInputsResponse(mutation: Extract<ModelMutation, { type: 'ResolveInputs' }>): MutationResponse {
   const samples: Record<string, unknown> = {};
-  for (const [inputAnchor, sampleId] of Object.entries(mutation.inputSamples)) {
+  for (const [inputAnchor, sample] of Object.entries(mutation.inputSamples)) {
     const index = REACTION_INPUTS.findIndex((input) => input.anchor === inputAnchor);
     if (index === -1) continue;
-    samples[String(index)] = { samples: { '0': { sampleId: { $new: sampleId } } } };
+    samples[String(index)] = {
+      samples: { '0': { sampleSource: { $new: sample.source }, sampleKey: { $new: sample.sampleKey } } },
+    };
   }
-  return { patch: { model: { reactions: { '0': { inputs: samples } } } } };
-}
-
-/** The sample the mark endpoints answer with: the fixture, with the flag flipped. */
-function markedSample(sampleID: string | readonly string[] | undefined, marked: boolean): SampleDTO {
-  const sample = SAMPLE_RESULTS.find((each) => each.id === sampleID) ?? SAMPLE_RESULTS[0];
-  return { ...sample, marked };
+  return { ...EMPTY_RESPONSE, patch: { model: { reactions: { '0': { inputs: samples } } } } };
 }
 
 /**
- * Which fixtures a set of catalogs answers with. `MY_MATERIALS` filters on the mark rather than
- * on the source, as `MyMaterialsCatalogSearchProvider` does — its hits are ELN samples.
+ * Which fixtures a catalog answers with. `MY_MATERIALS` filters on the mark rather than on the
+ * catalog, as `MyMaterialsCatalogSearchProvider` does — its hits are the samples marked elsewhere.
  */
-function samplesFor(catalogs: SearchCatalog[]): SampleDTO[] {
+function samplesFor(catalog: SearchCatalog): SampleDTO[] {
   return SAMPLE_RESULTS.filter((sample) =>
-    catalogs.some((catalog) => (catalog === 'MY_MATERIALS' ? sample.marked === true : sample.source === catalog)),
-  );
+    catalog === 'MY_MATERIALS' ? sample.marked === true : sample.catalog === catalog,
+  ).map((sample) => ({ ...sample, catalog }));
 }
 
 /**
- * A page of catalog hits, paged by the cursor rather than by a page number.
+ * A page of catalog hits.
  *
- * `totalItems` is null when only PubChem can answer: it reports no count, and the real service
- * propagates that by adding null to whatever the countable catalogs contributed.
+ * `totalItems` is null for PubChem, which reports no count and answers page 0 only.
  *
  * `pageSize` overrides what the caller asked for, which is how `pagedSampleHandlers` makes a
  * second page reachable without a hundred fixtures.
  */
-async function sampleSearchResponse(request: Request, pageSize?: number): Promise<SampleSearchResult> {
+async function sampleSearchResponse(request: Request, pageSize?: number): Promise<Page<SampleDTO>> {
   const body = (await request.json()) as FindSamplesRequest;
-  const items = samplesFor(body.catalogs);
-  const size = pageSize ?? Number(new URL(request.url).searchParams.get('pageSize') ?? 100);
-  const pageNo = body.state?.pageNo ?? 0;
-  const countable = items.filter((sample) => sample.source !== 'PUBCHEM');
-  const page = items.slice(pageNo * size, (pageNo + 1) * size);
-  const hasNext = items.length > (pageNo + 1) * size;
+  const params = new URL(request.url).searchParams;
+  const items = samplesFor(body.catalog);
+  const size = pageSize ?? Number(params.get('pageSize') ?? 100);
+  const pageNo = Number(params.get('pageNo') ?? 0);
+  const counted = body.catalog !== 'PUBCHEM';
+  const hasMore = counted && items.length > (pageNo + 1) * size;
 
   return {
-    items: page,
-    totalItems: countable.length === 0 ? null : countable.length,
-    next: hasNext ? { catalogs: body.catalogs, pageNo: pageNo + 1, pageSize: size, oldCatalogsTotalItems: null } : null,
+    pageNo,
+    pageSize: size,
+    totalItems: counted ? items.length : null,
+    totalPages: counted ? Math.ceil(items.length / size) : null,
+    hasMore,
+    items: counted || pageNo === 0 ? items.slice(pageNo * size, (pageNo + 1) * size) : [],
   };
 }
 
@@ -291,8 +293,7 @@ export const handlers = [
     const name = new URL(request.url).searchParams.get('name') ?? '';
     return HttpResponse.json({ exists: name === TAKEN_NOTEBOOK_NAME });
   }),
-  // Text, not JSON: the endpoint returns a bare String, and `00000004` is not legal JSON.
-  http.get(`${ELN}/notebooks/next-number`, () => HttpResponse.text(NEXT_NOTEBOOK_NAME)),
+  http.get(`${ELN}/notebooks/next-number`, () => HttpResponse.json(NEXT_NOTEBOOK_NAME)),
   http.get(`${ELN}/notebooks/:id`, ({ params }) => HttpResponse.json(makeNotebookDetails({ id: String(params.id) }))),
   http.patch(`${ELN}/notebooks/:id`, async ({ params, request }) => {
     const { description, ...body } = (await request.json()) as NotebookEditRequest;
@@ -405,7 +406,7 @@ export const handlers = [
   // Multipart, and not a `/mutate` call: `ImportSDF` is the one model mutation the endpoint does
   // not accept. The response is the same `MutationResponse` shape.
   http.post(`${ELN}/experiments/:id/datamodel/reactions/:anchor/importSDF`, () =>
-    HttpResponse.json({ patch: {}, messages: ['Imported 1 compound'] } satisfies MutationResponse),
+    HttpResponse.json({ ...EMPTY_RESPONSE, patch: {}, messages: ['Imported 1 compound'] } satisfies MutationResponse),
   ),
   /*
    * The workflow transitions. Each answers the whole `ExperimentDetailsDTO` with the status the
@@ -491,6 +492,7 @@ export const handlers = [
       description: null,
       ordinal: DICTIONARY_ITEMS.length + 1,
       active: true,
+      defaultItem: false,
     };
     return HttpResponse.json(renumbered([...DICTIONARY_ITEMS, added]));
   }),
@@ -518,24 +520,18 @@ export const handlers = [
   http.get(`${ELN}/experiments/:id/picture`, () =>
     HttpResponse.text(REACTION_SCHEME_SVG, { headers: { 'Content-Type': 'image/svg+xml' } }),
   ),
-  // `CompoundAPI` — the Analyze RXN dialog. The three literal paths lead: MSW takes the first
-  // match, and `/samples/:sampleID/mark` would otherwise swallow `/samples/external/picture`.
+  // `CompoundAPI` — the two catalog sheets. Mark and unmark answer with the sample, flag flipped.
   http.post(`${ELN}/samples/search`, async ({ request }) => HttpResponse.json(await sampleSearchResponse(request))),
-  http.post(`${ELN}/samples/importFromSearch`, async ({ request }) => {
-    const sample = (await request.json()) as SampleDTO;
-    // Registering gives it an ELN identity: an id, a batch number, and a compound to draw.
-    return HttpResponse.json({
-      ...sample,
-      id: '55555555-5555-4555-8555-00000000000f',
-      nbkBatchNumber: '20260101-0002-001',
-      compoundID: 'c0000000-0000-4000-8000-00000000000f',
-    } satisfies SampleDTO);
-  }),
-  http.get(`${ELN}/samples/external/picture`, () =>
+  http.post(`${ELN}/samples/mark`, async ({ request }) =>
+    HttpResponse.json({ ...((await request.json()) as SampleDTO), marked: true }),
+  ),
+  http.post(`${ELN}/samples/unmark`, async ({ request }) =>
+    HttpResponse.json({ ...((await request.json()) as SampleDTO), marked: false }),
+  ),
+  // `getCatalogCompoundPicture` — a Sample Registration hit's structure.
+  http.get(`${ELN}/compounds/by-catalog/:catalog/:source/:compoundID/picture`, () =>
     HttpResponse.text(COMPOUND_STRUCTURE_SVG, { headers: { 'Content-Type': 'image/svg+xml' } }),
   ),
-  http.post(`${ELN}/samples/:sampleID/mark`, ({ params }) => HttpResponse.json(markedSample(params.sampleID, true))),
-  http.post(`${ELN}/samples/:sampleID/unmark`, ({ params }) => HttpResponse.json(markedSample(params.sampleID, false))),
   // `CompoundAPI.getCompoundPicture` — the batch detail panel's structure pane.
   http.get(`${ELN}/compounds/:id/picture`, () =>
     HttpResponse.text(COMPOUND_STRUCTURE_SVG, { headers: { 'Content-Type': 'image/svg+xml' } }),
@@ -615,7 +611,7 @@ export const createNotebookErrorHandlers = [
 export const initializingNotebookHandlers = [
   http.get(`${ELN}/notebooks/next-number`, async () => {
     await delay('infinite');
-    return HttpResponse.text('');
+    return HttpResponse.json('');
   }),
   ...handlers,
 ];
@@ -724,6 +720,7 @@ export const slowMutateHandlers = [
 export const recalculatingMutateHandlers = [
   http.post(`${ELN}/experiments/:id/mutate`, () =>
     HttpResponse.json({
+      ...EMPTY_RESPONSE,
       patch: {
         model: {
           reactions: {
@@ -823,9 +820,7 @@ export const failingSampleSearchHandlers = [
 
 /** The catalogs have nothing for this structure. */
 export const emptySampleSearchHandlers = [
-  http.post(`${ELN}/samples/search`, () =>
-    HttpResponse.json({ items: [], totalItems: 0, next: null } satisfies SampleSearchResult),
-  ),
+  http.post(`${ELN}/samples/search`, () => HttpResponse.json(page<SampleDTO>([]))),
   ...handlers,
 ];
 
@@ -856,22 +851,24 @@ export const loadingSampleSearchHandlers = [
 ];
 
 /**
- * A catalog that answers without a count and still has more to give — `totalItems: null` plus a
- * cursor. Page two never arrives, so the state stays put and the tab's count stays a lower bound
- * (`2+`) instead of flickering through it on the way to a total.
+ * A catalog that answers without a count and still has more to give — `totalItems: null` plus
+ * `hasMore`. Page two never arrives, so the tab's count stays a lower bound (`2+`) instead of
+ * flickering through it on the way to a total.
  */
 export const uncountedSampleHandlers = [
   http.post(`${ELN}/samples/search`, async ({ request }) => {
-    const body = (await request.json()) as FindSamplesRequest;
-    if (body.state != null) {
+    if (new URL(request.url).searchParams.get('pageNo') !== '0') {
       await delay('infinite');
       return HttpResponse.json(null);
     }
     return HttpResponse.json({
-      items: SAMPLE_RESULTS.slice(0, 2),
+      pageNo: 0,
+      pageSize: 2,
       totalItems: null,
-      next: { catalogs: body.catalogs, pageNo: 1, pageSize: 2, oldCatalogsTotalItems: null },
-    } satisfies SampleSearchResult);
+      totalPages: null,
+      hasMore: true,
+      items: SAMPLE_RESULTS.slice(0, 2),
+    } satisfies Page<SampleDTO>);
   }),
   ...handlers,
 ];

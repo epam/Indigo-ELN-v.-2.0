@@ -1,8 +1,11 @@
 package com.epam.indigoeln.eln.util;
 
+import com.epam.indigoeln.eln.model.BuiltInDictionary;
+import com.epam.indigoeln.eln.model.SaltCodeRef;
+import com.epam.indigoeln.eln.model.StereoisomerCodeRef;
 import com.epam.indigoeln.reaction.model.*;
-import com.epam.indigoeln.reaction.model.units.EnteredValue;
-import com.epam.indigoeln.reaction.model.units.MolUnit;
+import com.epam.indigoeln.reaction.model.EnteredValue;
+import com.epam.indigoeln.common.model.units.MolUnit;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -44,6 +47,13 @@ public class JSONPatcherTest {
     JSONPatcher JSON_PATCHER_LIST = new JSONPatcher(Map.of(), Map.of(List.of(), "anchor"), Set.of(), OBJECT_MAPPER);
     JSONPatcher JSON_PATCHER_LIST_INSIDE_LIST = new JSONPatcher(Map.of(), Map.of(List.of(), "key", List.of("#", "items"), "anchor"), Set.of(), OBJECT_MAPPER);
     JSONPatcher JSON_MODEL_PATCHER = new JSONPatcher(OBJECT_MAPPER);
+
+    static CompoundRef unknownCompound() {
+        return new CompoundRef(null,
+                new StereoisomerCodeRef(UUID.fromString("00000000-0000-0000-0000-000000000020"), "Achiral", true, false, BuiltInDictionary.STEREOISOMER_CODE.getId()),
+                new SaltCodeRef(UUID.fromString("00000000-0000-0000-0000-000000000021"), "00 - Parent Structure", true, false, BuiltInDictionary.SALT_CODE.getId(), "00", "", 0, 0),
+                null, null, null, null, null, null);
+    }
 
     @BeforeEach
     void setUp() {
@@ -401,9 +411,9 @@ public class JSONPatcherTest {
 
     @Test
     void testEnteredValueCreated() throws Exception {
-        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Unknown());
+        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, unknownCompound());
         baseReaction.setInputs(List.of(baseInput));
-        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Unknown());
+        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, unknownCompound());
         reaction.setInputs(List.of(input));
         input.setMol(EnteredValue.userEntered("10.0", MolUnit.MMOL, 1));
         verifyModel("""
@@ -413,9 +423,9 @@ public class JSONPatcherTest {
 
     @Test
     void testEnteredValueChanged() throws Exception {
-        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Unknown());
+        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, unknownCompound());
         baseReaction.setInputs(List.of(baseInput));
-        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Unknown());
+        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, unknownCompound());
         reaction.setInputs(List.of(input));
         baseInput.setMol(EnteredValue.userEntered("15.0", MolUnit.MMOL, 1));
         input.setMol(EnteredValue.userEntered("10.0", MolUnit.MMOL, 1));
@@ -426,9 +436,9 @@ public class JSONPatcherTest {
 
     @Test
     void testEnteredValueDeleted() throws Exception {
-        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Unknown());
+        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, unknownCompound());
         baseReaction.setInputs(List.of(baseInput));
-        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Unknown());
+        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, unknownCompound());
         reaction.setInputs(List.of(input));
         baseInput.setMol(EnteredValue.userEntered("15.0", MolUnit.MMOL, 1));
         verifyModel("""
@@ -438,9 +448,9 @@ public class JSONPatcherTest {
 
     @Test
     void testEnteredValueOverwritten() throws Exception {
-        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Unknown());
+        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, unknownCompound());
         baseReaction.setInputs(List.of(baseInput));
-        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Unknown());
+        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, unknownCompound());
         reaction.setInputs(List.of(input));
         baseInput.setMol(EnteredValue.userEntered("15.0", MolUnit.MMOL, 1));
         input.setMol(EnteredValue.userEntered("10.0", MolUnit.MMOL, 1).withOverwritten(true));
@@ -451,9 +461,9 @@ public class JSONPatcherTest {
 
     @Test
     void testEnteredValueOverwrittenWithEmpty() throws Exception {
-        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Unknown());
+        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, unknownCompound());
         baseReaction.setInputs(List.of(baseInput));
-        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, new CompoundRef.Unknown());
+        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, unknownCompound());
         reaction.setInputs(List.of(input));
         baseInput.setMol(EnteredValue.userEntered("15.0", MolUnit.MMOL, 1));
         input.setMol(EnteredValue.<MolUnit>empty().withOverwritten(true));

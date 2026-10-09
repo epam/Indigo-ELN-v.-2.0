@@ -70,9 +70,6 @@ public class ExperimentDetailsDTO extends BaseExperimentDTO {
     @NotNull
     String notebookName;
 
-    @Nullable
-    String signatureNumber;
-
     @Override
     public String toString() {
         return "ExperimentDetailsDTO{" +

@@ -25,6 +25,7 @@ export function StarButton({ experimentId, marked }: { experimentId: string; mar
       variant="ghost"
       size="icon-xs"
       aria-label={marked ? 'Remove from starred' : 'Add to starred'}
+      title={marked ? 'Remove from Starred Experiments' : 'Add to Starred Experiments'}
       aria-pressed={marked}
       loading={toggle.isPending}
       onClick={handleClick}

@@ -1,15 +1,20 @@
 package com.epam.indigoeln.reaction.model.mutation;
 
+import com.epam.indigoeln.common.model.units.DensityUnit;
+import com.epam.indigoeln.common.model.units.MolUnit;
+import com.epam.indigoeln.common.model.units.MolarityUnit;
+import com.epam.indigoeln.common.model.units.VolumeUnit;
+import com.epam.indigoeln.common.model.units.WeightUnit;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.OutputAnchor;
 import com.epam.indigoeln.reaction.model.OutputSampleAnchor;
 import com.epam.indigoeln.reaction.model.outputsample.*;
-import com.epam.indigoeln.reaction.model.units.*;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import org.jspecify.annotations.Nullable;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 
 public interface ReactionOutputSampleMutation extends ExperimentMutation {
 
@@ -49,7 +54,7 @@ public interface ReactionOutputSampleMutation extends ExperimentMutation {
 
     record SetOutputHealthHazards (
             @NotNull OutputSampleAnchor anchor,
-            @NotNull List<HealthHazardRef> healthHazards
+            @NotNull Set<HealthHazardRef> healthHazards
     ) implements ReactionOutputSampleMutation {
     }
 
@@ -74,31 +79,31 @@ public interface ReactionOutputSampleMutation extends ExperimentMutation {
 
     record SetOutputHandlingPrecautions (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable @Size(min = 1) List<HandlingPrecautionsRef> handlingPrecautions
+            @NotNull List<HandlingPrecautionsRef> handlingPrecautions
     ) implements ReactionOutputSampleMutation {
     }
 
     record SetOutputStorageInstructions (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable List<StorageInstructionsRef> storageInstructions
+            @NotNull List<StorageInstructionsRef> storageInstructions
     ) implements ReactionOutputSampleMutation {
     }
 
     record SetOutputCompoundProtection (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable List<CompoundProtectionRef> compoundProtection
+            @NotNull List<CompoundProtectionRef> compoundProtection
     ) implements ReactionOutputSampleMutation {
     }
 
     record SetOutputSolubilityInSolvents (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable List<SolubidityInSolvent> solubilityInSolvents
+            @NotNull List<SolubidityInSolvent> solubilityInSolvents
     ) implements ReactionOutputSampleMutation {
     }
 
     record SetOutputResidualSolvents (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable List<ResidualSolvent> residualSolvents
+            @NotNull List<ResidualSolvent> residualSolvents
     ) implements ReactionOutputSampleMutation {
     }
 
@@ -110,7 +115,7 @@ public interface ReactionOutputSampleMutation extends ExperimentMutation {
 
     record SetOutputPurityCalculations (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable List<PurityCalculation> purityCalculations
+            @NotNull List<PurityCalculation> purityCalculations
     ) implements ReactionOutputSampleMutation {
     }
 
@@ -157,41 +162,41 @@ public interface ReactionOutputSampleMutation extends ExperimentMutation {
 
     record SetOutputSaltCode (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable SaltCodeRef saltCode,
-            @Nullable OutputAnchor createdOutputAnchor
+            @NotNull SaltCodeRef saltCode,
+            @NotNull OutputAnchor createdOutputAnchor
     ) implements ReactionOutputSampleMutation {
-        public SetOutputSaltCode(@NotNull OutputSampleAnchor anchor, @Nullable SaltCodeRef saltCode) {
-            this(anchor, saltCode, null);
+        public SetOutputSaltCode(@NotNull OutputSampleAnchor anchor, @NotNull SaltCodeRef saltCode) {
+            this(anchor, saltCode, OutputAnchor.create());
         }
     }
 
     record SetOutputSaltEQ (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable Double saltEQ,
-            @Nullable OutputAnchor createdOutputAnchor
+            @Nullable BigDecimal saltEQ,
+            @NotNull OutputAnchor createdOutputAnchor
     ) implements ReactionOutputSampleMutation {
-        public SetOutputSaltEQ(@NotNull OutputSampleAnchor anchor, @Nullable Double saltEQ) {
-            this(anchor, saltEQ, null);
+        public SetOutputSaltEQ(@NotNull OutputSampleAnchor anchor, @Nullable BigDecimal saltEQ) {
+            this(anchor, saltEQ, OutputAnchor.create());
         }
     }
 
     record SetOutputStereoisomerCode (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable StereoisomerCodeRef stereoisomerCode,
-            @Nullable OutputAnchor createdOutputAnchor
+            @NotNull StereoisomerCodeRef stereoisomerCode,
+            @NotNull OutputAnchor createdOutputAnchor
     ) implements ReactionOutputSampleMutation {
-        public SetOutputStereoisomerCode(@NotNull OutputSampleAnchor anchor, @Nullable StereoisomerCodeRef stereoisomerCode) {
-            this(anchor, stereoisomerCode, null);
+        public SetOutputStereoisomerCode(@NotNull OutputSampleAnchor anchor, @NotNull StereoisomerCodeRef stereoisomerCode) {
+            this(anchor, stereoisomerCode, OutputAnchor.create());
         }
     }
 
     record SetOutputMolfile (
             @NotNull OutputSampleAnchor anchor,
             @NotNull String molfile,
-            @Nullable OutputAnchor createdOutputAnchor
+            @NotNull OutputAnchor createdOutputAnchor
     ) implements ReactionOutputSampleMutation {
         public SetOutputMolfile(@NotNull OutputSampleAnchor anchor, @NotNull String molfile) {
-            this(anchor, molfile, null);
+            this(anchor, molfile, OutputAnchor.create());
         }
 
         @Override

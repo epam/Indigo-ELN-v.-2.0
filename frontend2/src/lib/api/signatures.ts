@@ -3,6 +3,9 @@ import type { InfiniteData } from '@tanstack/react-query';
 
 import { apiDownload, apiFetch } from '@/lib/api';
 import { COLLECTION_PAGE_SIZE, getNextPageParam, useSettledSearch } from '@/lib/api/collections';
+import { experimentKeys } from '@/lib/api/experiments';
+import { notebookKeys } from '@/lib/api/notebooks';
+import { projectKeys } from '@/lib/api/projects';
 import { useDownload } from '@/lib/hooks/use-download';
 
 import type { Page, UUID } from '@/lib/types/common.ts';
@@ -77,14 +80,26 @@ export function useDownloadDocument(document: SignatureDocument) {
   };
 }
 
-export type SignatureDecision = 'sign' | 'reject';
+/** Signing takes the signer's own PKCS12 keystore and its password; rejecting takes nothing. */
+export type SignatureDecision = { decision: 'sign'; keystore: File; password: string } | { decision: 'reject' };
+
+function decisionBody(decision: SignatureDecision): { formData?: FormData } {
+  if (decision.decision === 'reject') return {};
+  const formData = new FormData();
+  formData.append('keystore', decision.keystore, decision.keystore.name);
+  formData.append('password', decision.password);
+  return { formData };
+}
 
 /**
  * Approve or reject one document, as the current user's block on it.
  *
- * `signDocument` is declared `@Consumes(MULTIPART_FORM_DATA)` on a body-less POST, so both send an
- * empty `FormData` — that is what makes the browser set the boundary-carrying content type the
- * annotation asks for.
+ * The two endpoints disagree on what they consume, and each answers 415 to the other's type.
+ * `signDocument` is `@Consumes(MULTIPART_FORM_DATA)` and reads a `SignForm` — the `keystore` file
+ * and its `password` — so `sign` sends both as `FormData`. The service keeps no key of its own; a
+ * wrong password or a file that is no keystore comes back as a 400. `rejectDocument` inherits the
+ * interface's `@Consumes(APPLICATION_JSON)`, so `reject` sends no body at all, and with it no
+ * `Content-Type` to be refused.
  *
  * The response is the whole updated document, and it is **patched into the cached pages** rather
  * than invalidating them. Acting moves `lastModifiedDate`, which is the sort key, so a refetch
@@ -97,9 +112,9 @@ export function useSignatureDecision(documentId: UUID) {
 
   return useMutation({
     mutationFn: (decision: SignatureDecision) =>
-      apiFetch<SignatureDocument>(`/api/signature/documents/${documentId}/${decision}`, {
+      apiFetch<SignatureDocument>(`/api/signature/documents/${documentId}/${decision.decision}`, {
         method: 'POST',
-        formData: new FormData(),
+        ...decisionBody(decision),
       }),
     onSuccess: (updated) => {
       queryClient.setQueriesData<InfiniteData<Page<SignatureDocument>>>(
@@ -113,6 +128,16 @@ export function useSignatureDecision(documentId: UUID) {
             })),
           },
       );
+      // The service has already told the ELN, which moved the experiment's status, revision and
+      // attachments — and with the status, the counts on both ancestors. The document names no
+      // experiment, so everything is invalidated by root; only what is mounted refetches now.
+      void queryClient.invalidateQueries({ queryKey: experimentKeys.all() });
+      void queryClient.invalidateQueries({ queryKey: experimentKeys.details() });
+      void queryClient.invalidateQueries({ queryKey: notebookKeys.all() });
+      void queryClient.invalidateQueries({ queryKey: notebookKeys.details() });
+      void queryClient.invalidateQueries({ queryKey: projectKeys.all() });
+      void queryClient.invalidateQueries({ queryKey: projectKeys.details() });
+      void queryClient.invalidateQueries({ queryKey: projectKeys.totalCounts() });
     },
   });
 }

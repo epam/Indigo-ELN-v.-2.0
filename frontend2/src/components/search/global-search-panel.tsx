@@ -168,7 +168,12 @@ function GlobalSearchPanel({ open, onOpenChange, query, onQueryChange, onSearch 
             <Button type="button" variant="secondary" size="lg" onClick={clearAll}>
               Clear All
             </Button>
-            <Button type="submit" size="lg" disabled={isEmpty(values)}>
+            <Button
+              type="submit"
+              size="lg"
+              disabled={isEmpty(values)}
+              title={isEmpty(values) ? 'Enter at least one search criterion' : undefined}
+            >
               Search
             </Button>
           </div>

@@ -167,10 +167,10 @@ class EditExperimentAttributesHandler extends ExperimentEditMutationHandlerBase<
         }
     }
 
-    private UUID[] idsFromRefs(Collection<ExperimentRef> refs) {
+    private Set<UUID> idsFromRefs(Collection<ExperimentRef> refs) {
         Set<UUID> ids = StreamEx.of(refs).map(ExperimentRef::getId).toSet();
         validate(ids.isEmpty() || experimentRepository.resolveRefs(ids).size() == ids.size(), "One or more referenced experiments do not exist");
-        return ids.toArray(UUID[]::new);
+        return ids;
     }
 }
 

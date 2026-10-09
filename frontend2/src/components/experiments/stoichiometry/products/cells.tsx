@@ -33,17 +33,18 @@ export function OutputTypeCell({
   onCommit: (next: ReactionOutputType) => void;
 }) {
   return (
-    <SavingOverlay pending={pending} spinner="center" className="mx-auto w-fit">
+    <SavingOverlay pending={pending} spinner="center" className="w-full">
       <Select<ReactionOutputType>
         aria-label={label}
         size="sm"
+        fitContent
         value={value}
         items={[...types]}
         itemToKey={(type) => type}
         itemToLabel={(type) => OUTPUT_TYPE_LABELS[type]}
         disabled={!editable}
         // `h-7` rather than the default `h-10`: this sits in a table row beside 20px-tall text.
-        className={cn('h-7 w-auto min-w-[112px] rounded-md pl-2', OUTPUT_TYPE_TRIGGER_CLASS[value])}
+        className={cn('h-7 rounded-md pl-2', OUTPUT_TYPE_TRIGGER_CLASS[value])}
         // No `emptyLabel` — `@NotNull`, so the list offers no way to reach null.
         onValueChange={(next) => next != null && next !== value && onCommit(next)}
       />
@@ -74,6 +75,7 @@ export function AddBatchCell({
       <button
         type="button"
         aria-label={label}
+        title="Add Batch"
         disabled={!editable}
         onClick={onCommit}
         className={cn(

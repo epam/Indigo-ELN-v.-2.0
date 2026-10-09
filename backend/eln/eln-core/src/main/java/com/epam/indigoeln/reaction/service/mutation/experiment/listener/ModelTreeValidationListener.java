@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
 import static com.google.common.base.Preconditions.checkState;
 
 @Dependent
@@ -21,6 +22,8 @@ public class ModelTreeValidationListener implements ExperimentMutationListener {
 
     @Override
     public void afterRecalculate(ExperimentEntity experiment, ExperimentMutationContext context) {
+        // anchors of created objects come from the client, so a clash is a bad request
+        validateAnchors(experiment.getModel());
         try {
             doValidate(experiment.getModel());
         } catch (Exception e) {
@@ -28,27 +31,43 @@ public class ModelTreeValidationListener implements ExperimentMutationListener {
         }
     }
 
-    private static void doValidate(ExperimentModel model) {
-        // validate all parent links are correct
-        // validate all anchors are unique
+    private static void validateAnchors(ExperimentModel model) {
         Set<Anchor> anchors = new HashSet<>();
         for (Reaction reaction : model.getReactions()) {
+            validateAnchor(anchors, reaction.getAnchor());
+            for (ReactionInput input : reaction.getInputs()) {
+                validateAnchor(anchors, input.getAnchor());
+                for (ReactionInputSample sample : input.getSamples()) {
+                    validateAnchor(anchors, sample.getAnchor());
+                }
+            }
+            for (ReactionOutput output : reaction.getOutputs()) {
+                validateAnchor(anchors, output.getAnchor());
+                for (ReactionOutputSample sample : output.getSamples()) {
+                    validateAnchor(anchors, sample.getAnchor());
+                }
+            }
+        }
+    }
+
+    private static void validateAnchor(Set<Anchor> anchors, Anchor anchor) {
+        validate(anchors.add(anchor), "Duplicate anchor " + anchor);
+    }
+
+    private static void doValidate(ExperimentModel model) {
+        // validate all parent links are correct
+        for (Reaction reaction : model.getReactions()) {
             checkState(reaction.getModel() == model);
-            checkState(anchors.add(reaction.getAnchor()));
             for (ReactionInput input : reaction.getInputs()) {
                 checkState(input.getReaction() == reaction);
-                checkState(anchors.add(input.getAnchor()));
                 for (ReactionInputSample sample : input.getSamples()) {
                     checkState(sample.getRow() == input);
-                    checkState(anchors.add(sample.getAnchor()));
                 }
             }
             for (ReactionOutput output : reaction.getOutputs()) {
                 checkState(output.getReaction() == reaction);
-                checkState(anchors.add(output.getAnchor()));
                 for (ReactionOutputSample sample : output.getSamples()) {
                     checkState(sample.getRow() == output);
-                    checkState(anchors.add(sample.getAnchor()));
                 }
             }
         }
@@ -69,10 +88,10 @@ public class ModelTreeValidationListener implements ExperimentMutationListener {
         }
         // validate input and output compounds are unique
         for (Reaction reaction : model.getReactions()) {
-            Set<UUID> inputCompoundIDs = new HashSet<>();
+            Set<Pair<ReactionRole, UUID>> inputCompoundIDs = new HashSet<>();
             for (ReactionInput input : reaction.getInputs()) {
                 if (input.getCompound().getCompoundID() != null) {
-                    checkState(inputCompoundIDs.add(input.getCompound().getCompoundID()));
+                    checkState(inputCompoundIDs.add(Pair.of(input.getRole(), input.getCompound().getCompoundID())));
                 }
             }
             Set<UUID> outputCompoundIDs = new HashSet<>();

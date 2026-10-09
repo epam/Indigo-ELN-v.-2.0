@@ -6,9 +6,9 @@ import type { DictionaryItemRef } from '@/lib/types/dictionaries.ts';
  * stored in `experiment.model` and diffed by every model mutation.
  *
  * Ported from the Java, deliberately **not** from indigo-frontend's `experiment.i.ts`: those
- * interfaces were generated from an older spec and have drifted from the wire in five places
- * (a `rxnVersion` field that does not exist, `STRCode*`/`NbkBatchNumber` modelled as objects
- * when `@JsonValue` makes them strings, `SolubidityInSolvent` flattened when it is a
+ * interfaces were generated from an older spec and have drifted from the wire
+ * (`NbkBatchNumber` modelled as an object
+ * when `@JsonValue` makes it a string, `SolubidityInSolvent` flattened when it is a
  * discriminated union, and an `EnteredValueSource` enum whose members are not what is sent).
  * Each one is noted again at the type it affects.
  *
@@ -61,6 +61,81 @@ const UNIT_LABELS: Record<MeasurementUnit, string> = {
  */
 export function unitLabel(unit: string | undefined): string {
   return unit === undefined ? '' : (UNIT_LABELS[unit as MeasurementUnit] ?? unit);
+}
+
+/**
+ * What each unit is worth in the base unit of its kind. The mirror of `getMultiplier()` on the
+ * backend's `MeasurementUnit` enums (`model/units/WeightUnit.java` and its siblings), which is
+ * the only reason the numbers here can be trusted — they are not derived from the names.
+ */
+const UNIT_MULTIPLIERS: Record<MeasurementUnit, number> = {
+  UMOL: 1e-6,
+  MMOL: 1e-3,
+  MOL: 1,
+  MG: 1e-3,
+  G: 1,
+  KG: 1e3,
+  ML: 1e-3,
+  L: 1,
+  MM: 1e-3,
+  M: 1,
+  G_ML: 1,
+  G_PER_MOL: 1,
+  NO_UNIT: 1,
+};
+
+/**
+ * The same quantity written in another unit — `676.5` mg is `0.6765` g.
+ *
+ * **It moves the decimal point rather than multiplying.** Every pair of units in this model is a
+ * power of ten apart, and the arithmetic is on values the user typed and will read back: `4.9`
+ * mmol as mol is `0.0049`, where `4.9 * 1e-3` is `0.0049000000000000002`. Shifting the string
+ * also makes the conversion reversible, so stepping mg → g → mg returns the digits it started
+ * with rather than a rounding of them.
+ *
+ * Returns the value untouched when there is nothing safe to do: a unit it does not know, a ratio
+ * that is not a power of ten, or anything but a plain decimal (`1e3` typed into the number input
+ * parses, but is not something to take apart).
+ */
+export function convertUnitValue(value: string, from: string, to: string): string {
+  const fromUnit = UNIT_MULTIPLIERS[from as MeasurementUnit];
+  const toUnit = UNIT_MULTIPLIERS[to as MeasurementUnit];
+  if (fromUnit === undefined || toUnit === undefined) return value;
+
+  const exponent = Math.log10(fromUnit / toUnit);
+  if (Math.abs(exponent - Math.round(exponent)) > 1e-9) return value;
+
+  return shiftDecimal(value, Math.round(exponent));
+}
+
+/** `('676.5', -3)` → `'0.6765'`. The digits are carried across; only the point moves. */
+function shiftDecimal(value: string, exponent: number): string {
+  const parsed = /^([+-]?)(\d*)(?:\.(\d*))?$/.exec(value.trim());
+  if (!parsed) return value;
+
+  const [, sign, whole, fraction = ''] = parsed;
+  if (whole === '' && fraction === '') return value;
+
+  const digits = whole + fraction;
+  // Where the point lands among those digits. Outside them at either end, it is zeros that close
+  // the gap — `0.0049` on the left, `5000` on the right.
+  const point = whole.length + exponent;
+  const shifted =
+    point <= 0
+      ? `0.${'0'.repeat(-point)}${digits}`
+      : point >= digits.length
+        ? digits + '0'.repeat(point - digits.length)
+        : `${digits.slice(0, point)}.${digits.slice(point)}`;
+
+  return sign + trim(shifted);
+}
+
+/** Drops the zeros the shift padded with but the reader has no use for: `0676.50` → `676.5`. */
+function trim(value: string): string {
+  const [whole, fraction] = value.split('.');
+  const trimmedWhole = whole.replace(/^0+(?=\d)/, '');
+  const trimmedFraction = fraction?.replace(/0+$/, '') ?? '';
+  return trimmedFraction === '' ? trimmedWhole : `${trimmedWhole}.${trimmedFraction}`;
 }
 
 /**
@@ -126,48 +201,50 @@ export function plainFormula(formula: MolFormula): string {
   return formula.replace(/<[^>]+>/g, '');
 }
 
-/** `STRCodeCompound`/`STRCodeSample` are `@JsonValue` strings: `STR-00000001-01[-003]`. */
-export type STRCode = string;
-
 /** `NbkBatchNumber` is a `@JsonValue` string: `20240101-0001-003`. */
 export type NbkBatchNumber = string;
 
-interface CompoundRefBase {
+/**
+ * One flat class, `NON_NULL`: a compound is either **known** — it has a `compoundID`, and every
+ * other field comes from the compound registry — or unknown, carrying at most a `formula` and a
+ * user-entered `molWeight`. `molWeight` and `exactMass` are `NON_EMPTY`, so absent when blank.
+ * `stereoisomerCode` and `saltCode` are always set, to the dictionaries' default items ("Achiral",
+ * "00 - Parent Structure") unless chosen otherwise; `saltEQ` is absent for the parent structure.
+ */
+export interface CompoundRef {
+  compoundID?: UUID;
+  stereoisomerCode: DictionaryItemRef;
+  saltCode: DictionaryItemRef;
+  saltEQ?: number;
+  /** The key in the compound's source system: an STR code for SRS, a CID for PubChem. */
+  compoundKey?: string;
   formula?: MolFormula;
   molWeight?: EnteredValue<MolWeightUnit>;
-}
-
-/** What `Stored` and `Virtual` share; `Unknown` `@JsonIgnore`s all of it. */
-interface IdentifiedCompoundRef extends CompoundRefBase {
-  compoundID: UUID;
-  formula: MolFormula;
-  molWeight: EnteredValue<MolWeightUnit>;
-  exactMass: EnteredValue<NoUnit>;
-  calculatedBatchMF: string;
-  compoundKey?: string;
+  exactMass?: EnteredValue<NoUnit>;
   casNumber?: string;
-  stereoisomerCode?: DictionaryItemRef;
-  saltCode?: DictionaryItemRef;
-  saltEQ?: number;
+  /** Read-only, derived: HTML, the formula plus the salt. Absent without a `formula`. */
+  calculatedBatchMF?: string;
 }
 
-/**
- * Polymorphic on `type` (`@JsonTypeInfo(Id.NAME)`). An `UNKNOWN` compound carries only
- * `formula` and `molWeight` — every other getter on it is `@JsonIgnore`d — which is why the
- * three cases cannot share one flat interface.
- */
-export type CompoundRef =
-  | ({ type: 'STORED' } & IdentifiedCompoundRef)
-  | ({ type: 'VIRTUAL' } & IdentifiedCompoundRef)
-  | ({ type: 'UNKNOWN' } & CompoundRefBase);
+/** Mirrors `CompoundRef.isKnown()`. Only an unknown compound takes a user-entered mol weight. */
+export function isKnownCompound(compound: CompoundRef): compound is CompoundRef & { compoundID: UUID } {
+  return compound.compoundID != null;
+}
 
 /* ── Enums ─────────────────────────────────────────────────────────────────────────────── */
+
+/**
+ * Where a reaction sample, or a catalog hit, comes from. `VIRTUAL` is an input sample with no
+ * real sample behind it, or an output batch that is not registered yet.
+ */
+export type SampleSource = 'VIRTUAL' | 'SRS' | 'PUBCHEM';
 
 export type ReactionRole = 'REACTANT' | 'REAGENT' | 'CATALYST' | 'SOLVENT' | 'OUTPUT';
 export type ReactionOutputType = 'FINAL' | 'BY_PRODUCT' | 'INTERMEDIATE';
 export type SampleRegistrationStatus = 'IN_PROGRESS' | 'FAILED' | 'REGISTERED';
 export type ComparisonOperator = 'GREATER_THAN' | 'LESS_THAN' | 'EQUALS' | 'APPROXIMATELY';
 export type PurityCalculationType = 'NMR' | 'HPLC' | 'LCMS' | 'CHN' | 'MS';
+export type SolubidityType = 'QUANTITATIVE' | 'QUALITATIVE';
 export type SolubidityQualitativeType = 'SOLUBLE' | 'UNSOLUBLE' | 'PRECIPITATE';
 
 /* ── Enum companion tables ─────────────────────────────────────────────────────────────── */
@@ -227,6 +304,13 @@ export const REGISTRATION_STATUS_LABELS: Record<SampleRegistrationStatus, string
   REGISTERED: 'Registered',
 };
 
+export const COMPARISON_OPERATORS: readonly ComparisonOperator[] = [
+  'GREATER_THAN',
+  'LESS_THAN',
+  'EQUALS',
+  'APPROXIMATELY',
+];
+
 /** `>`, `<`, `=`, `≈` — how each comparison reads in front of a number. */
 export const OPERATOR_SYMBOLS: Record<ComparisonOperator, string> = {
   GREATER_THAN: '>',
@@ -234,6 +318,19 @@ export const OPERATOR_SYMBOLS: Record<ComparisonOperator, string> = {
   EQUALS: '=',
   APPROXIMATELY: '≈',
 };
+
+export const SOLUBIDITY_TYPES: readonly SolubidityType[] = ['QUANTITATIVE', 'QUALITATIVE'];
+
+export const SOLUBIDITY_TYPE_LABELS: Record<SolubidityType, string> = {
+  QUANTITATIVE: 'Quantitative',
+  QUALITATIVE: 'Qualitative',
+};
+
+export const SOLUBIDITY_QUALITATIVE_TYPES: readonly SolubidityQualitativeType[] = [
+  'SOLUBLE',
+  'UNSOLUBLE',
+  'PRECIPITATE',
+];
 
 export const QUALITATIVE_LABELS: Record<SolubidityQualitativeType, string> = {
   SOLUBLE: 'Soluble',
@@ -293,13 +390,15 @@ interface ReactionSample {
   molarity?: EnteredValue<MolarityUnit>;
   volume?: EnteredValue<VolumeUnit>;
   purity: EnteredValue<NoUnit>;
-  strCode?: STRCode;
+  sampleSource: SampleSource;
+  /** The key in `sampleSource`'s system — an STR code for SRS, a CID for PubChem. None for `VIRTUAL`. */
+  sampleKey?: string;
+  /** A set server-side: no duplicates, no meaningful order. */
   healthHazards: DictionaryItemRef[];
 }
 
 export interface ReactionInputSample extends ReactionSample {
   anchor: UUID;
-  sampleId?: UUID;
   nbkBatchNumber?: NbkBatchNumber;
   mol?: EnteredValue<MolUnit>;
   weight?: EnteredValue<WeightUnit>;
@@ -317,14 +416,13 @@ export interface ReactionOutputSample extends ReactionSample {
   yield?: EnteredValue<NoUnit>;
   registrationStatus?: SampleRegistrationStatus;
   registrationStatusMessage?: string;
-  sampleId?: UUID;
-  handlingPrecautions?: DictionaryItemRef[];
-  storageInstructions?: DictionaryItemRef[];
-  compoundProtection?: DictionaryItemRef[];
-  solubilityInSolvents?: SolubidityInSolvent[];
-  residualSolvents?: ResidualSolvent[];
+  handlingPrecautions: DictionaryItemRef[];
+  storageInstructions: DictionaryItemRef[];
+  compoundProtection: DictionaryItemRef[];
+  solubilityInSolvents: SolubidityInSolvent[];
+  residualSolvents: ResidualSolvent[];
   meltingPoint?: MeltingPoint;
-  purityCalculations?: PurityCalculation[];
+  purityCalculations: PurityCalculation[];
   externalSupplier?: ExternalSupplier;
   source?: DictionaryItemRef;
   sourceDetails?: DictionaryItemRef;
@@ -337,6 +435,10 @@ export interface ReactionInput extends ReactionRow {
   anchor: UUID;
   role: ReactionRole;
   mol?: EnteredValue<MolUnit>;
+  /** Calculated, read-only: the sum of the samples' weights. */
+  weight?: EnteredValue<WeightUnit>;
+  /** Calculated, read-only: the sum of the samples' volumes. */
+  volume?: EnteredValue<VolumeUnit>;
   chemicalName?: string;
   samples: ReactionInputSample[];
   /**
@@ -369,8 +471,8 @@ export interface Reaction {
   /** Which input row is limiting; `ReactionInput.limiting` is derived from it. */
   limitingAnchor?: UUID;
   outputs: ReactionOutput[];
-  /** Read-only, derived: the STR code of every reactant sample that has one. */
-  precursorReactantIds: STRCode[];
+  /** Read-only, derived: the `sampleKey` of every reactant sample that has one. */
+  precursorReactantIds: string[];
 }
 
 /**

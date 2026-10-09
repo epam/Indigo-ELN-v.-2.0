@@ -1,9 +1,12 @@
 package com.epam.indigoeln.eln.api;
 
 import com.epam.indigoeln.common.model.DocumentStatus;
-import com.epam.indigoeln.common.model.UploadForm;
 import jakarta.validation.constraints.NotNull;
-import jakarta.ws.rs.*;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 
 import java.util.UUID;
@@ -17,6 +20,5 @@ public interface ELNInternalAPI extends BaseAPI {
 
     @POST
     @Path("/signatureUpdated")
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    void internalSignatureUpdated(@NotNull @QueryParam("documentId") UUID documentId, @NotNull @QueryParam("message") String message, @QueryParam("documentStatus") DocumentStatus updatedStatus, UploadForm form);
+    void internalSignatureUpdated(@NotNull @QueryParam("sourceId") UUID sourceId, @NotNull @QueryParam("message") String message, @QueryParam("documentStatus") DocumentStatus updatedStatus);
 }

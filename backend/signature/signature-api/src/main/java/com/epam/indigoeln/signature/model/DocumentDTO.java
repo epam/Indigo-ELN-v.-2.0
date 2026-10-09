@@ -24,6 +24,9 @@ public class DocumentDTO {
     private String name;
 
     @NotNull
+    private UUID sourceId;
+
+    @NotNull
     private DocumentStatus status;
 
     @NotNull

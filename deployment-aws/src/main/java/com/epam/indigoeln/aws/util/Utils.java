@@ -1,20 +1,5 @@
 package com.epam.indigoeln.aws.util;
 
-import com.epam.indigoeln.aws.ELNLambdaStack;
-import software.amazon.awscdk.Duration;
-import software.amazon.awscdk.RemovalPolicy;
-import software.amazon.awscdk.services.ec2.ISecurityGroup;
-import software.amazon.awscdk.services.ec2.SubnetFilter;
-import software.amazon.awscdk.services.ec2.SubnetSelection;
-import software.amazon.awscdk.services.ecr.IRepository;
-import software.amazon.awscdk.services.iam.ManagedPolicy;
-import software.amazon.awscdk.services.iam.Role;
-import software.amazon.awscdk.services.iam.ServicePrincipal;
-import software.amazon.awscdk.services.lambda.*;
-import software.amazon.awscdk.services.lambda.Runtime;
-import software.amazon.awscdk.services.logs.LogGroup;
-import software.amazon.awscdk.services.logs.RetentionDays;
-import software.constructs.Construct;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -45,44 +30,6 @@ public class Utils {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static Function createDockerFunction(Construct parent, ELNLambdaStack.Props props, String id, IRepository repository, String imageTag, ISecurityGroup securityGroup, Map<String, String> environment) {
-        return doCreateFunction(parent, props, id, repository, imageTag, securityGroup, environment);
-    }
-
-    public static Function doCreateFunction(Construct parent, ELNLambdaStack.Props props, String id, IRepository repository, String imageTag, ISecurityGroup securityGroup, Map<String, String> environment) {
-        LogGroup logGroup = LogGroup.Builder.create(parent, id + "-log-group")
-                .logGroupName("/aws/lambda/" + id)
-                .removalPolicy(RemovalPolicy.DESTROY)
-                .retention(RetentionDays.ONE_MONTH)
-                .build();
-        Function.Builder builder = Function.Builder.create(parent, id)
-                .vpc(props.vpc())
-                .vpcSubnets(SubnetSelection.builder()
-                        .subnetFilters(List.of(SubnetFilter.byIds(props.lambdaSubnets())))
-                        .build()
-                )
-                .ipv6AllowedForDualStack(true)
-                .securityGroups(List.of(securityGroup))
-                .role(Role.Builder.create(parent, id + "-role")
-                                .assumedBy(ServicePrincipal.fromStaticServicePrincipleName("lambda.amazonaws.com"))
-                                .managedPolicies(List.of(
-                                        ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaBasicExecutionRole"),
-                                        ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaVPCAccessExecutionRole")
-                                ))
-                                .build()
-                )
-                .environment(environment)
-                .memorySize(1024)
-                .timeout(Duration.seconds(120))
-                .currentVersionOptions(VersionOptions.builder().removalPolicy(RemovalPolicy.DESTROY).build())
-                .tracing(Tracing.ACTIVE)
-                .logGroup(logGroup)
-                .runtime(Runtime.FROM_IMAGE)
-                .handler(Handler.FROM_IMAGE)
-                .code(Code.fromEcrImage(repository, EcrImageCodeProps.builder().tagOrDigest(imageTag).build()));
-        return builder.build();
     }
 
     // Map.of(...) may mix the order of elements, forcing CloudFormation to do unnecessary updates; so stick to LinkedHashMap

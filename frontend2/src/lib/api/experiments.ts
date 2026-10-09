@@ -50,6 +50,7 @@ export const experimentKeys = {
   marked: () => ['experiments', 'marked'] as const,
   lists: () => ['experiments', 'list'] as const,
   list: (notebookId: string, filters: ExperimentFilters) => ['experiments', 'list', notebookId, filters] as const,
+  details: () => ['experimentDetails'] as const,
   detail: (id: string) => ['experimentDetails', id] as const,
   suggestions: (search: string) => ['experimentSuggestions', search] as const,
   signatureTemplates: () => ['signatureTemplates'] as const,
@@ -144,7 +145,8 @@ export function useCreateExperiment(notebookId: string) {
       // `experimentCount` on the notebook card, and the count strip in the notebook header.
       void queryClient.invalidateQueries({ queryKey: notebookKeys.all() });
       void queryClient.invalidateQueries({ queryKey: notebookKeys.detail(experiment.notebookId) });
-      // The same two numbers again on the project header, and the stat tile on /projects.
+      // The same two numbers again on the project card and header, and the stat tile on /projects.
+      void queryClient.invalidateQueries({ queryKey: projectKeys.all() });
       void queryClient.invalidateQueries({ queryKey: projectKeys.detail(experiment.projectId) });
       void queryClient.invalidateQueries({ queryKey: projectKeys.totalCounts() });
     },
@@ -260,7 +262,7 @@ function applyMutationResponse(
   // `response.unresolvedInputs` is deliberately not read here: it belongs to whoever sent the
   // mutation, not to every caller. `ReactionSchemePanel` reads it off `mutateAsync`'s result and
   // opens Analyze RXN on it — see the note there.
-  for (const message of response.messages ?? []) notifyInfo(message);
+  for (const message of response.messages) notifyInfo(message);
   // The write bumps modifiedAt, which every list card shows. `lists()` rather than `all()`:
   // the patch cannot move a name or a status, so the starred panel has nothing to refetch for.
   void queryClient.invalidateQueries({ queryKey: experimentKeys.lists() });
@@ -320,8 +322,9 @@ export function useImportSdf(
  *   mounted on every page, so invalidating it refetches immediately rather than on next mount.
  *   Completing an unstarred experiment has nothing to tell it, so `all()` would be a wasted round
  *   trip on the common path.
- * - both ancestors' details and the projects tile — `experimentCountByStatus` on each. The ids ride
- *   along on the response, the same way `useCreateExperiment` reads them.
+ * - both ancestors' lists and details and the projects tile — `experimentCountByStatus` on each
+ *   (the cards show the open count). The ids ride along on the response, the same way
+ *   `useCreateExperiment` reads them.
  */
 export function useExperimentWorkflow(id: string) {
   const queryClient = useQueryClient();
@@ -337,7 +340,9 @@ export function useExperimentWorkflow(id: string) {
       // only holds this experiment if it is starred. A transition cannot change `marked`, so the
       // response's flag is as good as the one from before the write.
       if (experiment.marked) void queryClient.invalidateQueries({ queryKey: experimentKeys.marked() });
+      void queryClient.invalidateQueries({ queryKey: notebookKeys.all() });
       void queryClient.invalidateQueries({ queryKey: notebookKeys.detail(experiment.notebookId) });
+      void queryClient.invalidateQueries({ queryKey: projectKeys.all() });
       void queryClient.invalidateQueries({ queryKey: projectKeys.detail(experiment.projectId) });
       void queryClient.invalidateQueries({ queryKey: projectKeys.totalCounts() });
     },
@@ -550,9 +555,7 @@ export function experimentPicturePath(id: string, revision: number | null): stri
  * word, but the project's `lib` is below es2023.)
  */
 function newestFirst(revisions: RevisionSummary[]): RevisionSummary[] {
-  const reversed = revisions.map((revision) =>
-    revision.details ? { ...revision, details: [...revision.details].reverse() } : revision,
-  );
+  const reversed = revisions.map((revision) => ({ ...revision, details: [...revision.details].reverse() }));
   return reversed.reverse();
 }
 

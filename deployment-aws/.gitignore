@@ -1,4 +1,3 @@
-.classpath.txt
 target
 .classpath
 .project
@@ -12,4 +11,3 @@ target
 cdk.out
 
 *.json
-*.sh

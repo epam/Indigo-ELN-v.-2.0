@@ -13,7 +13,7 @@ export const PENDING_SHOW_DELAY_MS = 300;
  *
  * **Down is immediate, deliberately.** This used to hold the flag for a minimum once shown, so a
  * spinner appearing at 300 ms would not blink out at 310 ms. The cost was paid in the wrong
- * currency: `SavingOverlay` drives `inert` from this flag, so an anti-flicker measure also froze
+ * currency: `SavingOverlay` drove `inert` from this flag then, so an anti-flicker measure also froze
  * the control — a 350 ms save left the field unusable for ~750 ms, nearly doubling the wait, and
  * the worst case sat just over the threshold. A brief spinner is a cosmetic complaint; a field
  * that will not accept typing after the server has already answered is a real one.
