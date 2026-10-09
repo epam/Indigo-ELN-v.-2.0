@@ -204,6 +204,11 @@ export function plainFormula(formula: MolFormula): string {
 /** `NbkBatchNumber` is a `@JsonValue` string: `20240101-0001-003`. */
 export type NbkBatchNumber = string;
 
+/** Mirrors `NbkBatchNumber.getShortForm()`: the ordinal alone, still zero-padded to three. */
+export function shortNbkBatchNumber(nbkBatchNumber: NbkBatchNumber): string {
+  return nbkBatchNumber.slice(nbkBatchNumber.lastIndexOf('-') + 1);
+}
+
 /**
  * One flat class, `NON_NULL`: a compound is either **known** — it has a `compoundID`, and every
  * other field comes from the compound registry — or unknown, carrying at most a `formula` and a
@@ -211,10 +216,16 @@ export type NbkBatchNumber = string;
  * `stereoisomerCode` and `saltCode` are always set, to the dictionaries' default items ("Achiral",
  * "00 - Parent Structure") unless chosen otherwise; `saltEQ` is absent for the parent structure.
  */
+/** `SaltCodeRef` — the one dictionary ref that serialises more than `id` and `name`. */
+export interface SaltCodeRef extends DictionaryItemRef {
+  /** Plain text, not HTML: `HCl`. Empty for the parent structure. */
+  formula: string;
+}
+
 export interface CompoundRef {
   compoundID?: UUID;
   stereoisomerCode: DictionaryItemRef;
-  saltCode: DictionaryItemRef;
+  saltCode: SaltCodeRef;
   saltEQ?: number;
   /** The key in the compound's source system: an STR code for SRS, a CID for PubChem. */
   compoundKey?: string;
@@ -222,8 +233,18 @@ export interface CompoundRef {
   molWeight?: EnteredValue<MolWeightUnit>;
   exactMass?: EnteredValue<NoUnit>;
   casNumber?: string;
-  /** Read-only, derived: HTML, the formula plus the salt. Absent without a `formula`. */
-  calculatedBatchMF?: string;
+}
+
+/**
+ * Mirrors `CompoundRef.getCalculatedBatchMF()`: HTML, the formula plus the salt. Absent without a
+ * `formula`. The salt's formula is dictionary text an admin typed, so it is escaped on the way in.
+ */
+export function calculatedBatchMF(compound: CompoundRef): string | undefined {
+  if (compound.formula == null) return undefined;
+  // `saltEQ` is absent for the default "parent structure" salt code.
+  if (compound.saltEQ == null) return compound.formula;
+  const saltFormula = compound.saltCode.formula.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  return `${compound.formula}&nbsp;*&nbsp;${compound.saltEQ} (${saltFormula})`;
 }
 
 /** Mirrors `CompoundRef.isKnown()`. Only an unknown compound takes a user-entered mol weight. */
@@ -408,8 +429,6 @@ export interface ReactionInputSample extends ReactionSample {
 export interface ReactionOutputSample extends ReactionSample {
   anchor: UUID;
   nbkBatchNumber: NbkBatchNumber;
-  /** Read-only, derived: the ordinal of `nbkBatchNumber` alone, zero-padded to three. */
-  shortNbkBatchNumber: string;
   actualMol?: EnteredValue<MolUnit>;
   actualWeight?: EnteredValue<WeightUnit>;
   /** Java field `yieldValue`, remapped to `yield` by `@JsonProperty`. */
@@ -471,8 +490,6 @@ export interface Reaction {
   /** Which input row is limiting; `ReactionInput.limiting` is derived from it. */
   limitingAnchor?: UUID;
   outputs: ReactionOutput[];
-  /** Read-only, derived: the `sampleKey` of every reactant sample that has one. */
-  precursorReactantIds: string[];
 }
 
 /**

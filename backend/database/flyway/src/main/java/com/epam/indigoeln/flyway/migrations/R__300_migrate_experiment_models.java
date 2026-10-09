@@ -73,6 +73,14 @@ public class R__300_migrate_experiment_models extends BaseJavaMigration {
                 }
                 input.remove("limiting");
             }
+            // derived properties, no longer part of the model
+            reaction.remove("precursorReactantIds");
+            for (ObjectNode sample : JsonLocator.findObjects(reaction, "outputs/*/samples/*")) {
+                sample.remove("shortNbkBatchNumber");
+            }
+            for (ObjectNode compound : JsonLocator.findObjects(reaction, "*/*/compound")) {
+                compound.remove("calculatedBatchMF");
+            }
         }
     }
 }

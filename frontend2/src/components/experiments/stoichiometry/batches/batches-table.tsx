@@ -29,7 +29,7 @@ import { canEditExperiment } from '@/lib/types/experiments.ts';
 
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
 import type { Reaction } from '@/lib/types/reactions.ts';
-import { isKnownCompound } from '@/lib/types/reactions.ts';
+import { isKnownCompound, shortNbkBatchNumber } from '@/lib/types/reactions.ts';
 
 /**
  * The Product Batch Summary.
@@ -75,7 +75,10 @@ export function ProductBatchSummaryTable({
       reaction.outputs
         .flatMap((output) => output.samples.map((sample) => ({ output, sample, step })))
         // Collected product by product, so without this the rows follow product order, not batch order.
-        .sort((a, b) => Number(a.sample.shortNbkBatchNumber) - Number(b.sample.shortNbkBatchNumber)),
+        .sort(
+          (a, b) =>
+            Number(shortNbkBatchNumber(a.sample.nbkBatchNumber)) - Number(shortNbkBatchNumber(b.sample.nbkBatchNumber)),
+        ),
     [reaction.outputs, step],
   );
 
@@ -274,14 +277,14 @@ function BatchRowGroup({
   mutations,
 }: {
   row: BatchRow;
-  /** Only the detail panel needs it, for the reaction-level `precursorReactantIds`. */
+  /** Only the detail panel needs it, for the precursors it derives from the reaction's inputs. */
   reaction: Reaction;
   expanded: boolean;
   onToggle: () => void;
   canEdit: boolean;
   mutations: StoichiometryMutations;
 }) {
-  const batch = row.sample.shortNbkBatchNumber;
+  const batch = shortNbkBatchNumber(row.sample.nbkBatchNumber);
 
   return (
     <tbody>
@@ -338,7 +341,7 @@ function BatchCell({
 }) {
   const cell = cellId(row.sample.anchor, column.id);
   const pending = mutations.savingCells.has(cell);
-  const batch = row.sample.shortNbkBatchNumber;
+  const batch = shortNbkBatchNumber(row.sample.nbkBatchNumber);
   // Names the cell for assistive tech by what the user sees. The batch number is unique across
   // the notebook, so it identifies the row better than an ordinal does.
   const label = `${column.header}, batch ${batch}`;
@@ -409,7 +412,7 @@ function BatchActionButton({
   const anchor = action.id === 'sync' ? row.output.anchor : row.sample.anchor;
   const cell = cellId(anchor, action.id);
   const pending = mutations.savingCells.has(cell);
-  const batch = row.sample.shortNbkBatchNumber;
+  const batch = shortNbkBatchNumber(row.sample.nbkBatchNumber);
   const protectedSample = isSampleProtected(row.sample);
   const save = () => mutations.save(cell, action.mutation(row));
 

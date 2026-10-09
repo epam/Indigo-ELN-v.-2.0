@@ -17,6 +17,7 @@ import com.epam.indigoeln.reaction.model.outputsample.PurityCalculation;
 import com.epam.indigoeln.reaction.model.outputsample.ResidualSolvent;
 import com.epam.indigoeln.reaction.model.outputsample.SolubidityInSolvent;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Preconditions;
 import jakarta.validation.Valid;
@@ -104,7 +105,7 @@ public final class ReactionOutputSample extends ReactionSample<ReactionOutput> {
     private String structureComment;
 
     @NotNull
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonIgnore
     public String getShortNbkBatchNumber() {
         return nbkBatchNumber.getShortForm();
     }

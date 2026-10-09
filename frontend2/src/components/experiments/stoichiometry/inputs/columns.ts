@@ -22,6 +22,7 @@ import {
   MOL_WEIGHT_UNITS,
   MOLARITY_UNITS,
   NO_UNITS,
+  shortNbkBatchNumber,
   VOLUME_UNITS,
   WEIGHT_UNITS,
 } from '@/lib/types/reactions.ts';
@@ -192,8 +193,7 @@ export const SAMPLE_INDENT_SPAN = 2;
  */
 export function shortBatchNumber(nbkBatchNumber: string | undefined): string | undefined {
   if (nbkBatchNumber == null) return undefined;
-  const ordinal = nbkBatchNumber.slice(nbkBatchNumber.lastIndexOf('-') + 1);
-  return String(Number(ordinal));
+  return String(Number(shortNbkBatchNumber(nbkBatchNumber)));
 }
 
 export const COMPOUND_COLUMNS: InputColumn[] = [

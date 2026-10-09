@@ -19,8 +19,7 @@ import type { StoichiometryMutations } from '@/lib/hooks/experiments/use-stoichi
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const EXPERIMENT = makeExperimentDetails();
-/** Given a precursor here rather than in the fixture: only this panel renders the field. */
-const REACTION = { ...EXPERIMENT.model.reactions[0], precursorReactantIds: ['STR-00000014-00'] };
+const REACTION = EXPERIMENT.model.reactions[0];
 
 function rowAt(outputIndex: number, sampleIndex: number): BatchRow {
   const output = REACTION.outputs[outputIndex];
@@ -92,8 +91,9 @@ export const Default: Story = {
     await expect(canvas.getByText(POPULATED.sample.nbkBatchNumber)).toBeInTheDocument();
     // Derived on the compound, shown without a box.
     await expect(canvas.getByText('180.16')).toBeInTheDocument();
-    // Derived on the reaction, not on the batch.
-    await expect(canvas.getByLabelText('Precursor/Reactant IDs')).toHaveValue('STR-00000014-00');
+    // Derived from the reaction's inputs, not from the batch: the one reactant's sample, and none
+    // of the solvent's or the catalyst's.
+    await expect(canvas.getByLabelText('Precursor/Reactant IDs')).toHaveValue('STR-00000000-89-001');
     // The STR code arrives on registration; this batch has not been registered.
     await expect(canvas.getByLabelText('Conversational Batch number')).toHaveValue('');
     // A derived quantity carries its unit into the read-only box.
@@ -103,9 +103,8 @@ export const Default: Story = {
 };
 
 /**
- * `calculatedBatchMF` arrives as HTML — `CompoundService.calculateBatchMF` builds it from
- * `MolFormula.toHTMLString()` — so the subscripts have to survive into the DOM rather than
- * being shown as tags.
+ * `calculatedBatchMF` is HTML, built on `formula` — which arrives as `MolFormula.toHTMLString()` —
+ * so the subscripts have to survive into the DOM rather than being shown as tags.
  */
 export const FormulaKeepsItsSubscripts: Story = {
   play: async ({ canvasElement }) => {

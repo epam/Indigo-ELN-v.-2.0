@@ -48,7 +48,6 @@ public class ReactionOutputSampleMetamodel {
     // ReactionInputSample
     public static final ModelProperty<ReactionOutputSample, OutputSampleAnchor> ANCHOR = property("anchor", ReactionOutputSample::getAnchor, null);
     public static final ModelProperty<ReactionOutputSample, NbkBatchNumber> NBK_BATCH_NUMBER = property("nbkBatchNumber", ReactionOutputSample::getNbkBatchNumber, null);
-    public static final ModelProperty<ReactionOutputSample, String> SHORT_NBK_BATCH_NUMBER = property("shortNbkBatchNumber", ReactionOutputSample::getShortNbkBatchNumber, null);
     public static final ModelProperty<ReactionOutputSample, EnteredValue<MolUnit>> ACTUAL_MOL = enteredValueProperty("actualMol", ReactionOutputSample::getActualMol, ReactionOutputSample::setActualMol);
     public static final ModelProperty<ReactionOutputSample, EnteredValue<WeightUnit>> ACTUAL_WEIGHT = enteredValueProperty("actualWeight", ReactionOutputSample::getActualWeight, ReactionOutputSample::setActualWeight);
     public static final ModelProperty<ReactionOutputSample, EnteredValue<NoUnit>> YIELD = enteredValueProperty("yield", ReactionOutputSample::getYieldValue, ReactionOutputSample::setYieldValue);
@@ -77,7 +76,6 @@ public class ReactionOutputSampleMetamodel {
             HEALTH_HAZARDS,
             ANCHOR,
             NBK_BATCH_NUMBER,
-            SHORT_NBK_BATCH_NUMBER,
             ACTUAL_MOL,
             ACTUAL_WEIGHT,
             YIELD,

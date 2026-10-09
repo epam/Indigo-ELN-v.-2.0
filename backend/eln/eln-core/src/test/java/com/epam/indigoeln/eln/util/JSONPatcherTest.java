@@ -375,7 +375,7 @@ public class JSONPatcherTest {
     void testReactionAdded() throws Exception {
         Reaction.create(model, REACTION_2);
         verifyModel("""
-                {"model":{"reactions":{">1":{"$new":{"anchor":"rxn00002","inputs":[],"outputs":[],"precursorReactantIds":[]}}}}}
+                {"model":{"reactions":{">1":{"$new":{"anchor":"rxn00002","inputs":[],"outputs":[]}}}}}
         """);
     }
 
@@ -392,7 +392,7 @@ public class JSONPatcherTest {
         Reaction.create(baseModel, REACTION_2);
         model.setReactions(List.of(reaction));
         verifyModel("""
-                {"model":{"reactions":{"1>":{"$old":{"anchor":"rxn00002","inputs":[],"outputs":[],"precursorReactantIds":[]}}}}}
+                {"model":{"reactions":{"1>":{"$old":{"anchor":"rxn00002","inputs":[],"outputs":[]}}}}}
         """);
     }
 

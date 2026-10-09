@@ -13,6 +13,7 @@ import type {
   ReactionInputSample,
   ReactionOutput,
   ReactionOutputSample,
+  SaltCodeRef,
 } from '@/lib/types/reactions.ts';
 import type { RevisionSummary } from '@/lib/types/revisions.ts';
 import type { SampleDTO } from '@/lib/types/samples.ts';
@@ -188,9 +189,10 @@ function makeDictionary(names: string[]): DictionaryItemRef[] {
 }
 
 /** The dictionaries' default items, which a compound's codes fall back to — see `CompoundRef`. */
-export const DEFAULT_SALT_CODE: DictionaryItemRef = {
+export const DEFAULT_SALT_CODE: SaltCodeRef = {
   id: 'd1c7defa-0000-4000-8000-000000000001',
   name: '00 - Parent Structure',
+  formula: '',
 };
 export const DEFAULT_STEREOISOMER_CODE: DictionaryItemRef = {
   id: 'd1c7defa-0000-4000-8000-000000000002',
@@ -315,7 +317,6 @@ function knownCompound(overrides: Partial<CompoundRef> = {}): CompoundRef {
     formula: 'C<sub>4</sub>H<sub>6</sub>O<sub>3</sub>',
     molWeight: entered('102.09', 'G_PER_MOL', 'fixed'),
     exactMass: entered('102.0317', 'NO_UNIT', 'fixed'),
-    calculatedBatchMF: 'C<sub>4</sub>H<sub>6</sub>O<sub>3</sub>',
     compoundKey: 'STR-00000000-89',
     casNumber: '108-24-7',
     ...overrides,
@@ -352,7 +353,7 @@ export function makeReactionInput(anchor: string, overrides: Partial<ReactionInp
   };
 }
 
-const SALT_CODE = DICTIONARIES.SALT_CODE?.[0] ?? DEFAULT_SALT_CODE;
+const SALT_CODE: SaltCodeRef = { ...(DICTIONARIES.SALT_CODE?.[0] ?? DEFAULT_SALT_CODE), formula: 'HCl' };
 const HAZARDS = DICTIONARIES.HEALTH_HAZARD ?? [];
 /** One item from each dictionary the batch detail panel reads, for the populated batch below. */
 const SOURCE = DICTIONARIES.SAMPLE_SOURCE?.[0];
@@ -451,7 +452,6 @@ export const REACTION_INPUTS: ReactionInput[] = [
       formula: 'C<sub>5</sub>H<sub>5</sub>N',
       molWeight: entered('79.1', 'G_PER_MOL', 'fixed'),
       exactMass: entered('79.0422', 'NO_UNIT', 'fixed'),
-      calculatedBatchMF: 'C<sub>5</sub>H<sub>5</sub>N',
       compoundKey: 'VIRT-000012',
       stereoisomerCode: DEFAULT_STEREOISOMER_CODE,
       saltCode: SALT_CODE,
@@ -499,19 +499,14 @@ export const REACTION_INPUTS: ReactionInput[] = [
   }),
 ];
 
-/**
- * One batch of a product. `shortNbkBatchNumber` is derived server-side from `nbkBatchNumber`, so
- * the two are kept in step here rather than being overridden independently.
- */
+/** One batch of a product. */
 export function makeReactionOutputSample(
   anchor: string,
   overrides: Partial<ReactionOutputSample> = {},
 ): ReactionOutputSample {
-  const nbkBatchNumber = overrides.nbkBatchNumber ?? '20260101-0001-001';
   return {
     anchor,
-    nbkBatchNumber,
-    shortNbkBatchNumber: nbkBatchNumber.slice(nbkBatchNumber.lastIndexOf('-') + 1),
+    nbkBatchNumber: '20260101-0001-001',
     // A new batch starts at 100 % purity, and virtual until registered — `AddProductSampleHandler`.
     purity: entered('100', 'NO_UNIT', 'default'),
     sampleSource: 'VIRTUAL',
@@ -564,7 +559,6 @@ export const REACTION_OUTPUTS: ReactionOutput[] = [
       compoundID: 'c0000000-0000-4000-8000-000000000010',
       compoundKey: 'STR-00000000-95',
       formula: 'C<sub>9</sub>H<sub>8</sub>O<sub>4</sub>',
-      calculatedBatchMF: 'C<sub>9</sub>H<sub>8</sub>O<sub>4</sub>',
       molWeight: entered('180.16', 'G_PER_MOL', 'fixed'),
       exactMass: entered('180.0423', 'NO_UNIT', 'fixed'),
     }),
@@ -612,7 +606,6 @@ export const REACTION_OUTPUTS: ReactionOutput[] = [
       formula: 'C<sub>2</sub>H<sub>4</sub>O<sub>2</sub>',
       molWeight: entered('60.052', 'G_PER_MOL', 'fixed'),
       exactMass: entered('60.0211', 'NO_UNIT', 'fixed'),
-      calculatedBatchMF: 'C<sub>2</sub>H<sub>4</sub>O<sub>2</sub>',
       compoundKey: 'VIRT-000031',
       stereoisomerCode: DEFAULT_STEREOISOMER_CODE,
       saltCode: SALT_CODE,
@@ -673,7 +666,6 @@ export function makeReaction(overrides: Partial<Reaction> = {}): Reaction {
     inputs: REACTION_INPUTS,
     limitingAnchor: 'inp00001',
     outputs: REACTION_OUTPUTS,
-    precursorReactantIds: [],
     ...overrides,
   };
 }

@@ -20,3 +20,11 @@ export function getAllInputSampleKeys(reaction: Reaction): ReadonlySet<string> {
   }
   return keys;
 }
+
+/** Mirrors `Reaction.getPrecursorReactantIds()`: the `sampleKey` of every reactant sample that has one. */
+export function getPrecursorReactantIds(reaction: Reaction): string[] {
+  return reaction.inputs
+    .filter((input) => input.role === 'REACTANT')
+    .flatMap((input) => input.samples)
+    .flatMap((sample) => sample.sampleKey ?? []);
+}

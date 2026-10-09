@@ -2,6 +2,7 @@ package com.epam.indigoeln.eln.config;
 
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.service.DictionaryService;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -27,6 +28,8 @@ public class DictionaryItemRefDeserializer extends StdDeserializer<DictionaryIte
         return dictionaryService.byId(representation.id());
     }
 
+    // subclasses may serialize more than the reference itself, e.g. SaltCodeRef.formula
+    @JsonIgnoreProperties(ignoreUnknown = true)
     @RegisterForReflection
     record Representation(
             UUID id,

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { getAllInputSampleKeys } from '@/lib/reactions';
+import { getAllInputSampleKeys, getPrecursorReactantIds } from '@/lib/reactions';
 import { makeReaction, makeReactionInput, makeReactionInputSample } from '@/mocks/fixtures';
 
 describe('getAllInputSampleKeys', () => {
@@ -48,5 +48,26 @@ describe('getAllInputSampleKeys', () => {
 
   it('has nothing to collect from a step with no inputs', () => {
     expect(getAllInputSampleKeys(makeReaction({ inputs: [] }))).toEqual(new Set());
+  });
+});
+
+describe('getPrecursorReactantIds', () => {
+  it('collects the keyed samples of reactant rows only', () => {
+    const reaction = makeReaction({
+      inputs: [
+        makeReactionInput('inp00001', {
+          samples: [
+            makeReactionInputSample('ins0000a', { sampleSource: 'SRS', sampleKey: 'STR-1' }),
+            makeReactionInputSample('ins0000b'),
+          ],
+        }),
+        makeReactionInput('inp00002', {
+          role: 'SOLVENT',
+          samples: [makeReactionInputSample('ins0000c', { sampleSource: 'SRS', sampleKey: 'STR-2' })],
+        }),
+      ],
+    });
+
+    expect(getPrecursorReactantIds(reaction)).toEqual(['STR-1']);
   });
 });
