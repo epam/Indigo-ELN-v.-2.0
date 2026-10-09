@@ -17,7 +17,10 @@ phases:
       - corepack enable
       - pnpm install --frozen-lockfile
       - pnpm run build
-      - pnpm run test:unit
+      - pnpm run test:unit --coverage
+      # Reads frontend2/sonar-project.properties; SONAR_HOST_URL and SONAR_TOKEN come from the
+      # CodeBuild project's environment (BuildStack.java).
+      - pnpm dlx @sonar/scan@5.0.0
 artifacts:
   files:
     - '**/*'
