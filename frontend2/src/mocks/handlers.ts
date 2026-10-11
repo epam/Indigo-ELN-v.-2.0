@@ -430,6 +430,7 @@ export const handlers = [
     HttpResponse.json(makeExperimentDetails({ status: 'SUBMITTED' })),
   ),
   http.get(`${ELN}/signatureTemplates`, () => HttpResponse.json(SIGNATURE_TEMPLATES)),
+  http.post(`${ELN}/incidents`, () => new HttpResponse(null, { status: 204 })),
   http.get(`${SIGNATURE}/documents`, ({ request }) => {
     const params = new URL(request.url).searchParams;
     const search = (params.get('search') ?? '').toLowerCase();

@@ -1,6 +1,9 @@
 import { Toast } from '@base-ui/react/toast';
 
 import { ApiError } from '@/lib/api';
+import { openReportError } from '@/lib/report-error';
+
+import type { ReportErrorContext } from '@/lib/report-error';
 
 /**
  * Created outside React so `apiFetch` can raise a toast without a hook. The provider
@@ -68,8 +71,11 @@ export function describeError(error: unknown, url?: string): [message: string, l
  * Toasts a failed request. Called from `apiFetch` so every endpoint reports failures
  * the same way, mirroring the Angular interceptor — which also re-throws, leaving
  * callers free to handle the error as well.
+ *
+ * `report` is the failed request, when there is one: it puts a Report Error action on the
+ * toast, which opens the dialog with the request attached — as the interceptor's does.
  */
-export function notifyError(error: unknown, url?: string, id?: string): void {
+export function notifyError(error: unknown, url?: string, id?: string, report?: ReportErrorContext): void {
   const [message, log] = describeError(error, url);
   console.error(log, error);
 
@@ -97,7 +103,24 @@ export function notifyError(error: unknown, url?: string, id?: string): void {
   }
 
   // With an `id`, repeats update the one toast in place — see the 401 note above.
-  toastManager.add({ id, title: message, type: 'error' });
+  const toastId = toastManager.add({
+    id,
+    title: message,
+    type: 'error',
+    ...(report && {
+      actionProps: {
+        children: 'Report Error',
+        onClick: () => {
+          toastManager.close(toastId);
+          openReportError({
+            title: `Backend error ${error instanceof ApiError ? error.status : 'unknown'}`,
+            problemDescription: message,
+            context: report,
+          });
+        },
+      },
+    }),
+  });
 }
 
 /**
