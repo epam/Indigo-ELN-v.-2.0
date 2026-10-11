@@ -3,6 +3,7 @@ package com.epam.indigoeln.reaction.model;
 import com.epam.indigoeln.common.model.MolFormula;
 import com.epam.indigoeln.common.model.units.MolWeightUnit;
 import com.epam.indigoeln.common.model.units.NoUnit;
+import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.model.SaltCodeRef;
 import com.epam.indigoeln.eln.model.StereoisomerCodeRef;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -60,7 +61,7 @@ public class CompoundRef {
         this.compoundID = compoundID;
         this.stereoisomerCode = stereoisomerCode;
         this.saltCode = saltCode;
-        this.saltEQ = saltEQ;
+        this.saltEQ = ModelUtil.stripTrailingZeros(saltEQ);
         this.compoundKey = compoundKey;
         this.formula = formula;
         this.molWeight = MoreObjects.firstNonNull(molWeight, EnteredValue.empty());

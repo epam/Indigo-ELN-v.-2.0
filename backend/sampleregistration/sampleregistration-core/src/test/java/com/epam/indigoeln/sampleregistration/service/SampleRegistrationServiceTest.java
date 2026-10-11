@@ -73,7 +73,7 @@ class SampleRegistrationServiceTest extends BaseTest {
                 .stereoisomerCode(stereoisomerCode)
                 .saltCode(saltCode)
                 .saltCodeNumeric(5)
-                .saltEQ(new BigDecimal("2"))
+                .saltEQ(new BigDecimal("2.0"))
                 .nbkBatchNumber(NbkBatchNumber.parse("12345678-1234-005"))
                 .molWeight(100.0)
                 .exactMass(150.0)
@@ -107,6 +107,7 @@ class SampleRegistrationServiceTest extends BaseTest {
                 softly.assertThat(s.getMolWeight()).isCloseTo(BigDecimal.valueOf(100.0), Percentage.withPercentage(0.01));
                 softly.assertThat(s.getName()).isEqualTo("chemicalName");
                 softly.assertThat(s.getSaltCode()).isEqualTo(saltCode);
+                softly.assertThat(s.getSaltEQ()).isEqualTo(new BigDecimal("2"));
             });
         });
     }

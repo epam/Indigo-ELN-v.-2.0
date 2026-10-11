@@ -465,6 +465,16 @@ public class MutationsTest extends MutationsTestBase {
     }
 
     @Test
+    void testSetInputRowSaltEQIsNormalized() {
+        experiment.mutateSetSchemeFromResource(REACTION_RXN);
+        experiment.mutate(new ReactionInputMutation.SetInputRowSaltCode(experiment.input(1).getAnchor(), saltCode));
+        experiment.mutate(new ReactionInputMutation.SetInputRowSaltEQ(experiment.input(1).getAnchor(), new BigDecimal("2.0")));
+        assertThat(experiment.input(1).getCompound().getSaltEQ()).isEqualTo(new BigDecimal("2"));
+        experiment.mutate(new ReactionInputMutation.SetInputRowSaltEQ(experiment.input(1).getAnchor(), new BigDecimal("0.50")));
+        assertThat(experiment.input(1).getCompound().getSaltEQ()).isEqualTo(new BigDecimal("0.5"));
+    }
+
+    @Test
     void testNewInputRowHasDefaultCodes() {
         experiment.mutateSetSchemeFromResource(REACTION_RXN);
         assertThat(experiment.input(1).getCompound().getSaltCode()).isEqualTo(defaultSaltCode);

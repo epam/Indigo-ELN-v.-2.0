@@ -1,6 +1,7 @@
 package com.epam.indigoeln.sampleregistration.entity;
 
 import com.epam.indigoeln.common.model.MolFormula;
+import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.sampleregistration.model.STRCodeCompound;
 import com.epam.indigoeln.eln.common.config.MolFormulaConverter;
 import com.epam.indigoeln.sampleregistration.config.STRCodeCompoundConverter;
@@ -13,7 +14,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,7 +26,6 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity(name = "SRSCompound")
 @Table(name = "SRS_Compound")
 @ToString(of = {"id", "chemicalName", "formula", "canSmiles", "strCode"})
@@ -72,4 +71,8 @@ public class SRSCompoundEntity extends IdentifiableEntity {
     @NotNull
     @Basic(fetch = FetchType.LAZY)
     private byte[] picture;
+
+    public void setSaltEQ(@Nullable BigDecimal saltEQ) {
+        this.saltEQ = ModelUtil.stripTrailingZeros(saltEQ);
+    }
 }
