@@ -44,6 +44,11 @@ public class BuildStack extends Stack {
         Repository reportsAwsRepo = createECRRepo("ecr-reports-aws", "indigoeln/reports-aws");
         Repository signatureAwsRepo = createECRRepo("ecr-signature-aws", "indigoeln/signature-aws");
         Repository sampleRegistrationAwsRepo = createECRRepo("ecr-sampleregistration-aws", "indigoeln/sampleregistration-aws");
+        // The `*-service` modules: the plain (non-AWS) services used by the local compose stack.
+        Repository elnServiceRepo = createECRRepo("ecr-eln-service", "indigoeln/eln-service");
+        Repository reportsServiceRepo = createECRRepo("ecr-reports-service", "indigoeln/reports-service");
+        Repository signatureServiceRepo = createECRRepo("ecr-signature-service", "indigoeln/signature-service");
+        Repository sampleRegistrationServiceRepo = createECRRepo("ecr-sampleregistration-service", "indigoeln/sampleregistration-service");
 
         Bucket buildLogsBucket = Bucket.Builder.create(this, "build-logs-bucket")
                 .build();
@@ -108,6 +113,14 @@ public class BuildStack extends Stack {
                         entry("REPORTS_AWS_REPO_URI", reportsAwsRepo.getRepositoryUri()),
                         entry("SIGNATURE_AWS_REPO_URI", signatureAwsRepo.getRepositoryUri()),
                         entry("SAMPLEREGISTRATION_AWS_REPO_URI", sampleRegistrationAwsRepo.getRepositoryUri()),
+                        entry("BUILD_ELN_SERVICE", "false"),
+                        entry("BUILD_REPORTS_SERVICE", "false"),
+                        entry("BUILD_SIGNATURE_SERVICE", "false"),
+                        entry("BUILD_SAMPLEREGISTRATION_SERVICE", "false"),
+                        entry("ELN_SERVICE_REPO_URI", elnServiceRepo.getRepositoryUri()),
+                        entry("REPORTS_SERVICE_REPO_URI", reportsServiceRepo.getRepositoryUri()),
+                        entry("SIGNATURE_SERVICE_REPO_URI", signatureServiceRepo.getRepositoryUri()),
+                        entry("SAMPLEREGISTRATION_SERVICE_REPO_URI", sampleRegistrationServiceRepo.getRepositoryUri()),
                         entry("S3_LOGS", buildLogsBucket.getBucketName()),
                         entry("SONAR_HOST_URL", sonarHostUrl)
                 )
@@ -121,6 +134,10 @@ public class BuildStack extends Stack {
         reportsAwsRepo.grantPullPush(elnBuild);
         signatureAwsRepo.grantPullPush(elnBuild);
         sampleRegistrationAwsRepo.grantPullPush(elnBuild);
+        elnServiceRepo.grantPullPush(elnBuild);
+        reportsServiceRepo.grantPullPush(elnBuild);
+        signatureServiceRepo.grantPullPush(elnBuild);
+        sampleRegistrationServiceRepo.grantPullPush(elnBuild);
         sonarTokenSecret.grantRead(elnBuild);
 
         Project frontendBuild = createBuild("frontend-build"
@@ -158,8 +175,8 @@ public class BuildStack extends Stack {
                 .environmentVariables(environmentVariables)
                 // The BuildSpec defines the commands to run during the build.
                 .buildSpec(BuildSpec.fromSourceFilename(buildSpecFile))
-                // The eln project runs the whole repo's unit tests, then up to eight Quarkus builds
-                // (four lambda, four aws) with a docker build and two pushes each.
+                // The eln project runs the whole repo's unit tests, then up to twelve Quarkus builds
+                // (four lambda, four aws, four service) with a docker build and two pushes each.
                 .timeout(Duration.minutes(60))
                 .logging(LoggingOptions.builder()
                         .cloudWatch(CloudWatchLoggingOptions.builder().enabled(false).build())
