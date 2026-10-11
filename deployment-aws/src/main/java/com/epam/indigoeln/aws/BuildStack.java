@@ -52,14 +52,6 @@ public class BuildStack extends Stack {
                 .effect(Effect.ALLOW)
                 .actions(Arrays.asList(
                         "ecr-public:GetAuthorizationToken",
-                        "ecr-public:BatchCheckLayerAvailability",
-                        "ecr-public:GetRepositoryPolicy",
-                        "ecr-public:DescribeRepositories",
-                        "ecr-public:DescribeImages",
-                        "ecr-public:InitiateLayerUpload",
-                        "ecr-public:UploadLayerPart",
-                        "ecr-public:CompleteLayerUpload",
-                        "ecr-public:PutImage",
                         "sts:GetServiceBearerToken"
                 ))
                 .resources(List.of("*")) // ECR Public GetAuthorizationToken requires resource "*"
@@ -84,9 +76,7 @@ public class BuildStack extends Stack {
                 , mapOf(
                         entry("REGISTRY_URI", postgresRepo.getRegistryUri()), // same registry for both repos
                         entry("REPO_URI", postgresRepo.getRepositoryUri()),
-                        entry("REPO_URI_PUBLIC", "public.ecr.aws/m5k0g6n7/indigoeln/postgres-base"),
-                        entry("COMBINED_REPO_URI", postgresCombinedRepo.getRepositoryUri()),
-                        entry("COMBINED_REPO_URI_PUBLIC", "public.ecr.aws/m5k0g6n7/indigoeln/postgres-combined")
+                        entry("COMBINED_REPO_URI", postgresCombinedRepo.getRepositoryUri())
                 )
                 , mapOf()
         );
