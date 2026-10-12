@@ -52,7 +52,7 @@ cd Indigo-ELN-v.-2.0/deployment-compose
 | `http://localhost:10020` | `eln-service` REST API |
 | `http://localhost:8088` | Keycloak admin console (admin / admin) |
 
-> **Important:** open the app at `http://localhost` (port 80), not `http://localhost:8080`. Port 8080 is the Angular dev server, whose `indigo-frontend/src/proxy.conf.js` forwards `/api` calls to the EPAM-hosted dev backend; local Keycloak tokens will not validate there and you will see `401 Unauthorized` on every API call.
+> **Important:** open the app at `http://localhost` (port 80), not `http://localhost:5173`. Port 5173 is the Vite dev server (`pnpm run dev`), whose proxy in `frontend/vite.config.ts` forwards `/api` calls to the EPAM-hosted dev backend; local Keycloak tokens will not validate there and you will see `401 Unauthorized` on every API call.
 
 ### Users and realm
 
