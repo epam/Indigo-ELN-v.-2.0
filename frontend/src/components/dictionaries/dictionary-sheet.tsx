@@ -15,8 +15,7 @@ function Section({ label, children }: { label: string; children: string }) {
 /**
  * One dictionary, opened over the list it was clicked in — `DialogContent side="right"`, the same
  * sheet Global Search and the experiment's Team panel use, which is why there is no `Sheet`
- * component in `ui/`. The transparent backdrop is what makes the list behind it stay legible, as
- * indigo-frontend's `hasBackdrop="false"` drawer does.
+ * component in `ui/`. The transparent backdrop is what makes the list behind it stay legible.
  *
  * The About card is read-only. `PATCH /dictionaries/{ref}` would let it rename the dictionary and
  * rewrite its description, but neither is part of this screen.

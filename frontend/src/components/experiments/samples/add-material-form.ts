@@ -110,7 +110,7 @@ const CRITERIA_KEYS = [
  * values, PubChem selected — from enabling a search that would carry none of them.
  *
  * The backend would accept the empty request (`FindSamplesRequest` has no `isEmpty` assertion,
- * unlike `GlobalSearchRequest`), and indigo-frontend does send it. It is refused here because a
+ * unlike `GlobalSearchRequest`). It is refused here because a
  * whole catalog is not an answer to any question the user asked, and the first page of one is a
  * PubChem round trip spent saying so.
  */

@@ -32,7 +32,6 @@ interface StructureEditorDialogProps {
 
 /**
  * Wraps the Ketcher sketcher in the app's modal, seeded with the current structure.
- * Port of indigo-frontend's StructureEditorModalComponent.
  */
 function StructureEditorDialog({ open, onOpenChange, value, onSave }: StructureEditorDialogProps) {
   const [ketcher, setKetcher] = useState<Ketcher | null>(null);

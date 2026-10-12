@@ -550,9 +550,8 @@ export function experimentPicturePath(id: string, revision: number | null): stri
 /**
  * The log newest first, groups included. Copies before reversing rather than calling
  * `Array.prototype.reverse` on the arrays themselves: what this runs on is the parsed response,
- * and it goes straight into the Query cache. indigo-frontend reverses both levels **in place**,
- * which is safe only because it has no cache to corrupt. (`toReversed` would say this in one
- * word, but the project's `lib` is below es2023.)
+ * and it goes straight into the Query cache, which reversing **in place** would
+ * corrupt. (`toReversed` would say this in one word, but the project's `lib` is below es2023.)
  */
 function newestFirst(revisions: RevisionSummary[]): RevisionSummary[] {
   const reversed = revisions.map((revision) => ({ ...revision, details: [...revision.details].reverse() }));
@@ -569,8 +568,7 @@ function fetchRevisions(id: string, signal?: AbortSignal): Promise<RevisionSumma
  * **Keyed on the experiment's current `revision`**, which is what makes the log refresh itself:
  * every write bumps that number, so an edit made on another tab moves the key and the log is
  * refetched the next time the panel is looked at — no `invalidateQueries` anywhere, and no way
- * for a write added later to forget one. indigo-frontend fetched once in `ngOnInit` and kept the
- * tab alive with `[hidden]`, so its log went stale the moment anything was edited.
+ * for a write added later to forget one.
  *
  * `?flatten=true` is deliberately not sent: the grouped answer — consecutive revisions by one
  * user collapsed into an expandable row — is what the panel draws.

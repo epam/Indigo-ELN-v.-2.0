@@ -10,7 +10,7 @@ import type { SignatureTemplateRef } from '@/lib/types/experiments.ts';
  * Picks the signature template a submission goes out under — the one thing
  * `POST /workflow/submit` and `/workflow/completeAndSubmit` need beyond the experiment id.
  *
- * Port of indigo-frontend's `SignDialogComponent`, minus Formly. The template list is
+ * The template list is
  * administered in the signature service and never here, so this is a read and a choice.
  *
  * It resolves the chosen id to the caller rather than posting anything itself: the same dialog

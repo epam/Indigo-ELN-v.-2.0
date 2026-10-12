@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
  * The experiment screen has no Save button — every field writes as it is left — so this is the
  * only signal that anything is happening, and it deliberately sits **on the control being saved**
  * rather than in a corner of the page. A page-level spinner is invisible when you are deep in a
- * table, which is the complaint against the Angular original.
+ * table.
  *
  * Scope it to the control, never to the whole panel: saving one field must leave the field the
  * user just tabbed *into* alive. The same component covers a page-level roll-up too — see the

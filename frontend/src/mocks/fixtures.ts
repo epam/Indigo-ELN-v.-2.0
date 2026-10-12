@@ -467,7 +467,7 @@ export const REACTION_INPUTS: ReactionInput[] = [
     ],
   }),
   // A registered sample on a compound *with* a salt code: both Salt Code and Salt EQ stay locked,
-  // because the registry owns them. indigo-frontend let this row's Salt EQ be edited.
+  // because the registry owns them.
   makeReactionInput('inp00004', {
     role: 'CATALYST',
     chemicalName: 'DMAP hydrochloride',

@@ -66,7 +66,7 @@ export function isEmpty(values: GlobalSearchFormValues): boolean {
 
 /**
  * Builds the request body. The drawn structure goes into whichever field matches what
- * Ketcher says it is, as in indigo-frontend's global-search.component.ts.
+ * Ketcher says it is.
  */
 export function toGlobalSearchRequest(values: GlobalSearchFormValues): GlobalSearchRequest {
   const query = values.query.trim();
@@ -97,9 +97,8 @@ export interface AdvancedSummaryItem {
 }
 
 /**
- * What Advanced Search currently holds, for the header to show while collapsed. Ports the
- * four cases from indigo-frontend's search.util.ts, except that those built `<b>` markup
- * strings and these are structured rows the panel renders as JSX.
+ * What Advanced Search currently holds, for the header to show while collapsed, as
+ * structured rows the panel renders as JSX.
  */
 export function summarizeAdvancedSearch(values: GlobalSearchFormValues): AdvancedSummaryItem[] {
   const items: AdvancedSummaryItem[] = [];

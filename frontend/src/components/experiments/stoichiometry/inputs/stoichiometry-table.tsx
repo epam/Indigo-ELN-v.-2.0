@@ -76,8 +76,8 @@ function inputHaystack(input: ReactionInput): string {
  * The model is a tree — a `ReactionInput` is a compound and owns one or more
  * `ReactionInputSample`s — and this shows it as one: compounds are the top-level rows, and a
  * chevron reveals that compound's batches as nested rows with their own, different columns.
- * indigo-frontend instead rendered one row per (compound × sample) pair with both levels'
- * columns side by side, which repeats every compound field once per batch.
+ * One row per (compound × sample) pair, with both levels' columns side by side, would repeat
+ * every compound field once per batch.
  *
  * **One `<table>`, one grid.** The compound row uses a host column per cell; a sample row spans
  * them, which is what makes the two levels line up without any arithmetic — a cell either starts

@@ -5,8 +5,7 @@ import { useHasPermission } from '@/lib/api/user';
 import type { ApplicationPermission } from '@/lib/types/user';
 
 /**
- * Gates a route on an application permission. Mirrors the Angular roleGuard
- * (indigo-frontend/src/app/role.guard.ts), which redirects to '/' rather than
+ * Gates a route on an application permission. Redirects to '/' rather than
  * showing a denial.
  */
 export function RequirePermission({

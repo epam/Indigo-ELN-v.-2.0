@@ -292,7 +292,7 @@ export function RowActions({ children }: { children: ReactNode }) {
  *
  * `title` as well as `aria-label` because a **disabled** action still has to explain itself:
  * "Already synced with Products", "Sample already registered". The button stays mounted and
- * faded rather than being hidden, matching indigo-frontend — an action that vanishes leaves the
+ * faded rather than being hidden — an action that vanishes leaves the
  * user wondering whether it was ever there.
  */
 export function IconActionCell({

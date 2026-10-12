@@ -39,8 +39,7 @@ const SHOW_STEP_SELECTOR = false;
  * two disabled placeholders used to sit. Both act on products and batches: `ImportSDFHandler`
  * creates outputs with `intended: false`, and the Reaction Products block below shows only
  * intended ones — so an import started here would look like it did nothing. Both live on the
- * Product Batch Summary toolbar (`batches-table.tsx`), wired to `useImportSdf` / `useExportSdf`,
- * which is also the only place indigo-frontend puts them.
+ * Product Batch Summary toolbar (`batches-table.tsx`), wired to `useImportSdf` / `useExportSdf`.
  */
 export function StoichiometryPanel({
   component,
@@ -107,9 +106,8 @@ export function StoichiometryPanel({
           )}
 
           {/*
-            The template flag is `intendedProducts` and the heading is "Reaction Products" — the
-            same pair indigo-frontend has. `intended` is what filters the rows; the block is the
-            products table.
+            The template flag is `intendedProducts` and the heading is "Reaction Products".
+            `intended` is what filters the rows; the block is the products table.
           */}
           {component.intendedProducts && (
             <section className="flex flex-col gap-2">

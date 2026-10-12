@@ -5,14 +5,13 @@ import { defaultStorage, sessionStorage } from 'aws-amplify/utils';
  * Where Amplify keeps the Cognito tokens, which is all "Remember me" means.
  *
  * `defaultStorage` is localStorage — the session survives closing the browser. `sessionStorage`
- * is per-tab, so it is gone the moment the tab is. Ported from indigo-frontend's
- * `app.component.ts`, which does the same swap around its own checkbox.
+ * is per-tab, so it is gone the moment the tab is.
  *
- * One deliberate divergence: the Angular original infers the preference on boot by probing
- * localStorage for a `CognitoIdentityServiceProvider`-prefixed key. An explicit flag is stored
- * here instead. It is the user's actual intent rather than a side effect of it, it survives an
- * expiry that cleared the token keys, and it does not depend on Amplify's internal key naming.
- * The flag is a preference, not a credential.
+ * The preference is stored as an explicit flag rather than inferred on boot by probing
+ * localStorage for a `CognitoIdentityServiceProvider`-prefixed key. It is the user's actual
+ * intent rather than a side effect of it, it survives an expiry that cleared the token keys,
+ * and it does not depend on Amplify's internal key naming. The flag is a preference, not a
+ * credential.
  *
  * `signOut()` only clears whichever store is active when it runs, so `clearStoredTokens()` below
  * sweeps both — otherwise turning Remember me off would leave the previous session's tokens

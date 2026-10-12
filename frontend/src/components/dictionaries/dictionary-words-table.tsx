@@ -26,8 +26,8 @@ const NAME_REQUIRED = 'Name is required.';
 const NAME_NOT_UNIQUE = 'Name must be unique. Please choose a different name.';
 
 /**
- * Ported from indigo-frontend's `nameUniqueValidator`, including its case-insensitive comparison
- * and its copy. `exceptId` is the row being edited: a word is allowed to keep its own name.
+ * Names are unique within a dictionary, compared case-insensitively. `exceptId` is the row
+ * being edited: a word is allowed to keep its own name.
  */
 function validateName(name: string | null, items: DictionaryItem[], exceptId?: string): string | undefined {
   if (name === null) return NAME_REQUIRED;
@@ -38,10 +38,8 @@ function validateName(name: string | null, items: DictionaryItem[], exceptId?: s
 /**
  * The words of one dictionary, with every column the backend lets an admin change.
  *
- * indigo-frontend's table is read-only apart from adding and deleting: its Rank and Description
- * are plain text and its Active checkbox is wired to nothing at all. `PATCH
- * /dictionaries/{ref}/{itemID}` has always accepted `name`, `description`, `ordinal` and
- * `active`, so all four are editable here.
+ * `PATCH /dictionaries/{ref}/{itemID}` accepts `name`, `description`, `ordinal` and `active`,
+ * so all four are editable here.
  *
  * The whole page is behind `MANAGE_DICTIONARIES`, which is the permission every one of those
  * writes needs — so nothing here checks a permission or reads `userEditable` (which only relaxes
@@ -58,12 +56,12 @@ export function DictionaryWordsTable({ dictionary }: { dictionary: Dictionary })
   const update = useUpdateDictionaryItem(dictionary);
   const remove = useRemoveDictionaryItem(dictionary);
 
-  // Derived at render rather than kept in a second array. indigo-frontend holds a filtered copy
-  // and re-pushes the whole list on every write, which silently drops whatever was typed here.
+  // Derived at render rather than kept in a second array: a filtered copy re-pushed on
+  // every write would silently drop whatever was typed here.
   const all = useMemo(() => items ?? [], [items]);
   const visible = useMemo(() => {
     const term = search.trim().toLowerCase();
-    // Name only, matching indigo-frontend's `applyFilter`.
+    // Name only.
     return term === '' ? all : all.filter((item) => item.name.toLowerCase().includes(term));
   }, [all, search]);
 
@@ -81,8 +79,8 @@ export function DictionaryWordsTable({ dictionary }: { dictionary: Dictionary })
       setDraftError(message);
       return;
     }
-    // Dropped before the request goes out, not after it resolves: indigo-frontend leaves the row
-    // in place until the response lands, so Enter followed by blur fires the POST twice.
+    // Dropped before the request goes out, not after it resolves: with the row left in place
+    // until the response lands, Enter followed by blur would fire the POST twice.
     setDraft(null);
     setDraftError(undefined);
     add.mutate(name);

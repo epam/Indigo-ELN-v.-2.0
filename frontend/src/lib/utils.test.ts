@@ -12,7 +12,7 @@ describe('formatBytes', () => {
     expect(formatBytes(1024 ** 3)).toBe('1.0GB');
   });
 
-  /** Steps are binary, matching what indigo-frontend has always shown for the same file. */
+  /** Steps are binary. */
   it('stays on the smaller unit just below a threshold', () => {
     expect(formatBytes(1023)).toBe('1023B');
     expect(formatBytes(1024 ** 2 - 1)).toBe('1024.0KB');

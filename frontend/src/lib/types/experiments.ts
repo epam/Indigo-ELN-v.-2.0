@@ -65,7 +65,7 @@ const EDITABLE_STATUSES: readonly ExperimentStatus[] = ['OPEN', 'REOPEN'];
  * to the other.
  *
  * The status lists are `ExperimentWorkflowHandlers.doValidateStatus` verbatim. Two of them are
- * worth stating outright, because indigo-frontend gets them wrong:
+ * worth stating outright, because they are easy to get wrong:
  *
  * - **Reopen excludes `SIGNING` and `SIGNED`.** `ReopenExperimentHandler` allows only the five
  *   listed here; offering it on the other two guarantees a 400. (`SIGNED` barely exists anyway —
@@ -190,7 +190,7 @@ export interface ExperimentEditRequest {
   description?: string | null;
   literature?: string | null;
   /**
-   * Sets the whole list. Never null — indigo-frontend sends `[]` to empty one, and the backend
+   * Sets the whole list. Never null — send `[]` to empty one; the backend
    * takes a `Set`, so order is not meaningful either way.
    */
   linkedExperiments?: ExperimentRef[];

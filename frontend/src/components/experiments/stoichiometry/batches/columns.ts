@@ -108,8 +108,8 @@ export type BatchAction =
 export type BatchColumn = ColumnBase & Cell;
 
 /**
- * A batch that is in flight or already registered — port of indigo-frontend's
- * `isSampleProtected`. `FAILED` is deliberately *not* protected: a failed registration is meant
+ * A batch that is in flight or already registered.
+ * `FAILED` is deliberately *not* protected: a failed registration is meant
  * to be retried, and the batch is still the user's to delete.
  *
  * This gates the Register and Delete actions only. It does **not** freeze the numeric cells:
@@ -141,8 +141,7 @@ export const BATCH_COLUMNS: BatchColumn[] = [
     id: 'reactionStep',
     header: 'Reaction Step',
     kind: 'readonly',
-    // Derived from the position in `model.reactions`; indigo-frontend returns a literal '1'. There is only ever one
-    // step today, so the two agree.
+    // Derived from the position in `model.reactions`. There is only ever one step today.
     value: (row) => String(row.step + 1),
   },
   {
@@ -157,8 +156,8 @@ export const BATCH_COLUMNS: BatchColumn[] = [
     kind: 'readonly',
     value: (row) =>
       row.sample.registrationStatus == null ? 'None' : REGISTRATION_STATUS_LABELS[row.sample.registrationStatus],
-    // The only place `registrationStatusMessage` is surfaced at all — indigo-frontend carries the
-    // field and shows it nowhere, which leaves a failed registration with no stated reason.
+    // The only place `registrationStatusMessage` is surfaced at all — without it a failed
+    // registration has no stated reason.
     title: (row) => row.sample.registrationStatusMessage,
   },
   {
@@ -194,8 +193,8 @@ export const BATCH_COLUMNS: BatchColumn[] = [
     header: 'Total Moles',
     minWidth: 130,
     kind: 'numeric',
-    // The whole `EnteredValue`, not `.value`: indigo-frontend passes the bare string here — and
-    // only here — so its unit picker never shows the saved unit.
+    // The whole `EnteredValue`, not `.value`: given the bare string, the unit picker would
+    // never show the saved unit.
     value: (row) => row.sample.actualMol,
     units: MOL_UNITS,
     mutation: (row, next) => ({

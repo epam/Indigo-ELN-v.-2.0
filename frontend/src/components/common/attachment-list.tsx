@@ -20,7 +20,6 @@ export interface AttachmentActions {
   download: (attachment: Attachment) => Promise<void>;
 }
 
-/** Same extension groups indigo-frontend's attachment component used. */
 function AttachmentIcon({ name }: { name: string }) {
   const className = 'size-4 shrink-0';
   switch (name.split('.').pop()?.toLowerCase()) {

@@ -39,7 +39,7 @@ export const Error: Story = {
   },
 };
 
-/** Name only, matching indigo-frontend's filter — and derived, so a write cannot reset it. */
+/** Name only — and derived, so a write cannot reset it. */
 export const Filtered: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -53,7 +53,7 @@ export const Filtered: Story = {
 };
 
 /**
- * The indigo-frontend gesture: a blank row appears with its name focused, and leaving the field
+ * The add gesture: a blank row appears with its name focused, and leaving the field
  * commits it. Asserts on the POST reaching the handler, not on the row that the cache round trip
  * eventually paints.
  */
@@ -103,7 +103,7 @@ export const AddWordCancelled: Story = {
   },
 };
 
-/** The column indigo-frontend renders and never wires up. */
+/** The Active checkbox writes through. */
 export const ToggleActive: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -115,7 +115,7 @@ export const ToggleActive: Story = {
   },
 };
 
-/** Renaming an existing word — the whole thing indigo-frontend's table cannot do. */
+/** Renaming an existing word. */
 export const RenameWord: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

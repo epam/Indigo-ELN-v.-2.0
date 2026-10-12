@@ -59,7 +59,7 @@ describe('workflowActionsFor', () => {
 
   /**
    * An experiment out for signature is the signature service's to move: `ReopenExperimentHandler`
-   * excludes both, and indigo-frontend offering Reopen there is a bug that 400s.
+   * excludes both, so offering Reopen there would only earn a 400.
    */
   it('offers nothing while a signature is outstanding', () => {
     expect(workflowActionsFor({ status: 'SIGNING' })).toEqual([]);

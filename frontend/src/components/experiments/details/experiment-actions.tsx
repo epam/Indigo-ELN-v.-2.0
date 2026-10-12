@@ -21,7 +21,7 @@ import { canEditExperiment, canRunWorkflow, workflowActionsFor } from '@/lib/typ
  * only the wording and the chrome.
  *
  * `done` is toasted on success. The backend answers with the experiment rather than a message, so
- * these are the client's own wording, carried over from indigo-frontend. Nothing here reports a
+ * these are the client's own wording. Nothing here reports a
  * *failure*: `apiFetch` toasts every one centrally.
  *
  * `confirm` is set only for Cancel — the one action that throws work away with no way back to it.

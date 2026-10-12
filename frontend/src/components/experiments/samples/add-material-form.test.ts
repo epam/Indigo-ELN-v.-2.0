@@ -91,7 +91,7 @@ describe('toFindSamplesRequest', () => {
   });
 
   /**
-   * The Angular original deletes these from the body before sending. Keeping them would have the
+   * These are deleted from the body before sending. Keeping them would have the
    * results answer a different question from the one the form appears to be asking.
    */
   it('drops the PubChem-disabled filters, keeping the formula, the term and the structure', () => {

@@ -91,8 +91,7 @@ interface SingleSelectProps<T> {
   onValueChange: (value: T | null) => void;
   /**
    * Adds a row that clears the selection, labelled with this. Set it for an optional field and
-   * leave it off for a required one — the same distinction indigo-frontend drew with the
-   * `required` flag on a column, which suppressed its blank `<mat-option>`.
+   * leave it off for a required one.
    *
    * Clearing has to be a row in the list because there is no ✕ here; the list is the only way in
    * or out of a value.

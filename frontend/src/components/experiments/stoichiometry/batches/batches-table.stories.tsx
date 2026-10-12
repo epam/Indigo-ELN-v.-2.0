@@ -173,9 +173,7 @@ export const EditsPurity: Story = {
     await userEvent.clear(input);
     await userEvent.type(input, '95{Enter}');
 
-    await waitFor(() =>
-      expect(sent).toEqual([{ type: 'SetOutputPurity', anchor: 'ous00002', purity: '95' }]),
-    );
+    await waitFor(() => expect(sent).toEqual([{ type: 'SetOutputPurity', anchor: 'ous00002', purity: '95' }]));
   },
 };
 
@@ -196,9 +194,7 @@ export const EditsMolarity: Story = {
     await userEvent.type(input, '0.5{Enter}');
 
     await waitFor(() =>
-      expect(sent).toEqual([
-        { type: 'SetOutputMolarity', anchor: 'ous00001', molarity: '0.5', unit: 'M' },
-      ]),
+      expect(sent).toEqual([{ type: 'SetOutputMolarity', anchor: 'ous00001', molarity: '0.5', unit: 'M' }]),
     );
   },
 };
@@ -229,11 +225,7 @@ export const SyncsWithProducts: Story = {
     ).toBeDisabled();
     await userEvent.click(canvas.getByRole('button', { name: 'Sync P3 with Products (batch 005)' }));
 
-    await waitFor(() =>
-      expect(sent).toEqual([
-        { type: 'SetOutputRowIntended', anchor: 'out00004', intended: true },
-      ]),
-    );
+    await waitFor(() => expect(sent).toEqual([{ type: 'SetOutputRowIntended', anchor: 'out00004', intended: true }]));
   },
 };
 
@@ -247,9 +239,7 @@ export const RegistersBatch: Story = {
 
     await userEvent.click(await canvas.findByRole('button', { name: 'Register batch 001' }));
 
-    await waitFor(() =>
-      expect(sent).toEqual([{ type: 'RegisterSample', anchor: 'ous00001' }]),
-    );
+    await waitFor(() => expect(sent).toEqual([{ type: 'RegisterSample', anchor: 'ous00001' }]));
   },
 };
 
@@ -270,7 +260,7 @@ export const RegisteredBatchIsProtected: Story = {
 
 /**
  * A failed registration is meant to be retried, so it is deliberately *not* protected — and the
- * reason it failed is surfaced on the status cell, which indigo-frontend never did.
+ * reason it failed is surfaced on the status cell.
  */
 export const FailedRegistrationCanBeRetried: Story = {
   play: async ({ canvasElement }) => {
@@ -291,9 +281,7 @@ export const DeletesBatch: Story = {
 
     await userEvent.click(await canvas.findByRole('button', { name: 'Delete batch 002' }));
 
-    await waitFor(() =>
-      expect(sent).toEqual([{ type: 'RemoveProductSample', anchor: 'ous00002' }]),
-    );
+    await waitFor(() => expect(sent).toEqual([{ type: 'RemoveProductSample', anchor: 'ous00002' }]));
   },
 };
 

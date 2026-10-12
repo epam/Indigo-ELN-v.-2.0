@@ -33,7 +33,6 @@ export interface NumericSearch {
 /** Display order for the operator picker. */
 export const NUMERIC_SEARCH_OPERATORS: readonly NumericSearchOperator[] = ['eq', 'le', 'ge'];
 
-/** As in indigo-frontend's NumericSearchTypeNames. */
 export const NUMERIC_SEARCH_OPERATOR_LABELS: Record<NumericSearchOperator, string> = {
   eq: '=',
   le: '≤',
@@ -51,7 +50,7 @@ export type TextSearchOperator = 'exact' | 'startsWith' | 'contains' | 'endsWith
 export type TextSearch =
   { type: Exclude<TextSearchOperator, 'between'>; value: string } | { type: 'between'; from: string; to: string };
 
-/** Display order for the operator picker, as in indigo-frontend's TextSearchTypeNames. */
+/** Display order for the operator picker. */
 export const TEXT_SEARCH_OPERATORS: readonly TextSearchOperator[] = [
   'exact',
   'startsWith',

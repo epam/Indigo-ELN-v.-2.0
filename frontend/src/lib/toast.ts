@@ -41,8 +41,7 @@ function errorDetail(body: unknown): string | undefined {
 }
 
 /**
- * Port of detectMessage() in indigo-frontend's error.interceptor.ts: returns the
- * message to show, and the line to log next to it.
+ * Returns the message to show, and the line to log next to it.
  */
 export function describeError(error: unknown, url?: string): [message: string, log: string] {
   if (error instanceof ApiError) {
@@ -69,11 +68,10 @@ export function describeError(error: unknown, url?: string): [message: string, l
 
 /**
  * Toasts a failed request. Called from `apiFetch` so every endpoint reports failures
- * the same way, mirroring the Angular interceptor — which also re-throws, leaving
- * callers free to handle the error as well.
+ * the same way; `apiFetch` still throws, leaving callers free to handle the error as well.
  *
  * `report` is the failed request, when there is one: it puts a Report Error action on the
- * toast, which opens the dialog with the request attached — as the interceptor's does.
+ * toast, which opens the dialog with the request attached.
  */
 export function notifyError(error: unknown, url?: string, id?: string, report?: ReportErrorContext): void {
   const [message, log] = describeError(error, url);
@@ -126,8 +124,8 @@ export function notifyError(error: unknown, url?: string, id?: string, report?: 
 /**
  * Toasts something the backend wants the user to know that is not a failure — the
  * `messages` a `MutationResponse` carries, explaining what a mutation did beyond what was
- * asked of it ("Reaction scheme updated, 2 reactants added"). indigo-frontend shows these
- * as inline info notifications; there is no inline surface here, so they are toasts.
+ * asked of it ("Reaction scheme updated, 2 reactants added"). There is no inline
+ * surface for these, so they are toasts.
  */
 export function notifyInfo(message: string): void {
   toastManager.add({ title: message });

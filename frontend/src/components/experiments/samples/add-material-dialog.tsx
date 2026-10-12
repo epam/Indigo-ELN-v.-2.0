@@ -106,7 +106,7 @@ export function AddMaterialDialog({
     event.preventDefault();
     setSubmitted(toFindSamplesRequest(values));
     // Collapsing hands the space back to the results and leaves the summary as the record of
-    // what was searched for, as in indigo-frontend.
+    // what was searched for.
     setAdvancedOpen(false);
   }
 

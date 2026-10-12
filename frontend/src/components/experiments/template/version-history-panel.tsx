@@ -19,10 +19,8 @@ const COLUMN_COUNT = 6;
  * The `versionHistory` template component — the experiment's revision log. Uncollapsible, for the
  * reason given in `BatchesPanel`.
  *
- * Ported from indigo-frontend's `AuditLogComponent`, which was written entity-agnostic for the
- * project and notebook revision endpoints and then only ever used by the experiment. This is the
- * experiment's, directly: nothing renders the other two, and only the experiment has a diff
- * endpoint at all.
+ * This is the experiment's log, directly, not an entity-agnostic one: nothing renders the
+ * project and notebook revision endpoints, and only the experiment has a diff endpoint at all.
  */
 export function VersionHistoryPanel({ experiment }: { experiment: ExperimentDetails }) {
   const { data: revisions, isPending, error } = useExperimentRevisions(experiment.id, experiment.revision);
@@ -104,8 +102,8 @@ export function VersionHistoryPanel({ experiment }: { experiment: ExperimentDeta
  * `SampleResults` uses.
  *
  * Both open sets are keyed by **revision number**, which is unique within an experiment.
- * indigo-frontend keys its diff map by the revision *object*, which silently loses every open
- * diff the moment the list is refetched.
+ * Keying by the revision *object* would silently lose every open diff the moment the list is
+ * refetched.
  */
 function RevisionRows({ experimentId, revision }: { experimentId: string; revision: RevisionSummary }) {
   const [expanded, setExpanded] = useState(false);
@@ -264,8 +262,7 @@ function RevisionDiff({ experimentId, revisionNo }: { experimentId: string; revi
   }
 
   // The HTML is built by `PatchFormatter` on our own backend out of stored model values — the
-  // same trust boundary every other field on this page sits behind, and the same reasoning
-  // indigo-frontend's `bypassSecurityTrustHtml` carries. `.patch-diff` in `styles.css` is what
-  // styles it: the fragment arrives with bare classes and no stylesheet of its own.
+  // same trust boundary every other field on this page sits behind. `.patch-diff` in `styles.css`
+  // is what styles it: the fragment arrives with bare classes and no stylesheet of its own.
   return <div className="patch-diff overflow-x-auto" dangerouslySetInnerHTML={{ __html: data }} />;
 }

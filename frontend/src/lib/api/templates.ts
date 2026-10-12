@@ -17,7 +17,7 @@ export const templateKeys = {
 /**
  * One page big enough to be the whole list. `/templates` is `@BeanParam Paging`, whose
  * `DEFAULT_PAGE_SIZE` is 10 — so a request that does not say silently offers only the ten most
- * recently modified templates, which is a live bug in indigo-frontend's Add Experiment dialog.
+ * recently modified templates.
  */
 const TEMPLATE_PAGE_SIZE = 100;
 

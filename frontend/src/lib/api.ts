@@ -38,7 +38,7 @@ type ApiRequestInit = Omit<RequestInit, 'body'> & {
 /**
  * The backend resolves the principal from the `username` claim, which only exists
  * on a Cognito *access* token (an ID token spells it `cognito:username`), so this
- * must stay accessToken. See UserHolder.java and indigo-frontend's jwt.interceptor.
+ * must stay accessToken. See UserHolder.java.
  */
 async function authHeader(): Promise<Record<string, string>> {
   const session = await fetchAuthSession();
@@ -95,7 +95,7 @@ async function apiRequest(path: string, init: ApiRequestInit = {}): Promise<Resp
 
   if (!response.ok) {
     const error = new ApiError(response.status, await parseErrorBody(response));
-    // Toasted here rather than per-caller, mirroring indigo-frontend's error.interceptor.ts.
+    // Toasted here rather than per-caller, so every failed request is reported once.
     // Still thrown, so TanStack Query and the InfiniteLoader error branch keep working.
     // The toast offers to report the failure — except a failed report, which would loop.
     const report =
@@ -126,7 +126,7 @@ export async function apiFetch(path: string, init: ApiRequestInit = {}): Promise
  *
  * `filename*` is preferred, as RFC 6266 requires and because it is the only form that survives a
  * non-ASCII name: the plain parameter carries raw UTF-8 bytes, which `Headers.get()` hands back
- * mis-decoded. No `content-disposition` package for this (indigo-frontend took the dependency) —
+ * mis-decoded. No `content-disposition` package for this —
  * three regexes against a header this same server generates is not worth one.
  *
  * Each pattern is anchored on `(?:^|;)\s*filename`, or the plain-`filename` one would also match
