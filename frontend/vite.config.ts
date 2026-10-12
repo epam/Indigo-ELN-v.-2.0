@@ -44,7 +44,7 @@ const MAX_WORKERS = Math.min(4, availableParallelism());
 //
 // The build writes the assembled policy into the `policy` field of the file below, and the
 // CDK stack reads that string verbatim to bake it into the CloudFront viewer-response
-// function (CloudFrontStack.java, frontend2ResponseFunctionCode). So the policy `vite
+// function (CloudFrontStack.java, frontendResponseFunctionCode). So the policy `vite
 // preview` enforces is the same string CloudFront sends — there is nowhere for the two to
 // drift apart.
 const CSP_HASHES_FILE = 'dist/csp-hashes.json';

@@ -164,7 +164,7 @@ public class CloudFrontStack {
         // nothing has to be minted per request, the app shell is a plain S3 object, and the only
         // edge code left is the SPA rewrite below. Response headers are declarative (see the two
         // ResponseHeadersPolicies), which is what makes them survive error responses.
-        File frontendCode = new File("../frontend2/dist");
+        File frontendCode = new File("../frontend/dist");
 
         Function frontendRequestFunction = Function.Builder.create(scope, "frontend-request-function")
                 .code(FunctionCode.fromInline(readFile("resources/cloudfront-viewer-request-function.js")))
@@ -306,7 +306,7 @@ public class CloudFrontStack {
                         .assetHash(Utils.calculateHashCode(frontendCode))
                         .exclude(List.of("mockServiceWorker.js", "csp-hashes.json"))
                         .build()),
-                        // Fetched by the app before it configures Amplify, see frontend2/src/lib/env.ts.
+                        // Fetched by the app before it configures Amplify, see frontend/src/lib/env.ts.
                         Source.jsonData("config.json", mapOf(
                                 entry("cognitoUserPoolId", props.userPool().getUserPoolId()),
                                 entry("cognitoClientId", props.userPoolClient().getUserPoolClientId())

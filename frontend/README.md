@@ -1,9 +1,7 @@
-# indigo-frontend2
+# frontend
 
 React SPA for Indigo ELN. Pure client-side: no SSR, no server runtime — built to static files and
 served from S3 behind CloudFront.
-
-Independent of `indigo-frontend/` (Angular); no shared code.
 
 ## Stack
 

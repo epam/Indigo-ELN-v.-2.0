@@ -2,13 +2,11 @@ glob_matcher: doublestar
 pre-commit:
   jobs:
     - name: prettier
-      glob:
-        - "indigo-frontend/src/**/*.{ts,html,scss,json,js}"
-        - "indigo-frontend/*.{json,js}"
-      root: "indigo-frontend/"
-      run: npx prettier --write {staged_files}
+      glob: "frontend/src/**/*.{ts,tsx,css}"
+      root: "frontend/"
+      run: pnpm exec prettier --write {staged_files}
       stage_fixed: true
 
     - name: typecheck
-      glob: "indigo-frontend/**/*.ts"
-      run: cd indigo-frontend && npx tsc --noEmit
+      glob: "frontend/**/*.{ts,tsx}"
+      run: cd frontend && pnpm run typecheck
