@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-Run from `frontend2/`:
+Run from ``:
 
 ```bash
 pnpm run dev                 # dev server at http://localhost:5173 — /api proxies to the remote dev backend
