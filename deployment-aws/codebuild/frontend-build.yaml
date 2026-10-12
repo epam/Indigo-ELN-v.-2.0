@@ -16,7 +16,10 @@ phases:
       # pnpm at the version package.json's `packageManager` pins.
       - corepack enable
       - pnpm install --frozen-lockfile
+      - pnpm run format:check
       - pnpm run build
+      # After the build: tsc needs the src/routeTree.gen.ts that only vite emits.
+      - pnpm run typecheck
       - pnpm run test:unit --coverage
       # Reads frontend/sonar-project.properties; SONAR_HOST_URL and SONAR_TOKEN come from the
       # CodeBuild project's environment (BuildStack.java).

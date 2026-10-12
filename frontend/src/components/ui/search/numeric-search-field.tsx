@@ -9,8 +9,7 @@ import { NUMERIC_SEARCH_OPERATOR_LABELS, NUMERIC_SEARCH_OPERATORS } from '@/lib/
  * An operator picker and a number, as one control: "≥ 90".
  *
  * A search with no number is no search at all, so the pair is emitted as `null` until the
- * box holds one — the same contract as indigo-frontend's NumericSearchComponent, which
- * emits null while `value == null`. The operator therefore has to survive locally in the
+ * box holds one. The operator therefore has to survive locally in the
  * meantime: picked on an empty box it changes nothing upstream, but the button must still
  * show what was picked.
  */

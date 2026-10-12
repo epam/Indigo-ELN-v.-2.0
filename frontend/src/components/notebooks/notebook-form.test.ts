@@ -19,7 +19,7 @@ describe('notebookNameSchema', () => {
     expect(notebookNameSchema.safeParse('0'.repeat(NOTEBOOK_NAME_LENGTH + 1)).success).toBe(false);
   });
 
-  /** A notebook is numbered, not named — the Angular form has always enforced digits only. */
+  /** A notebook is numbered, not named — digits only. */
   it('rejects a name of the right length that is not all digits', () => {
     expect(notebookNameSchema.safeParse('0000000a').success).toBe(false);
   });

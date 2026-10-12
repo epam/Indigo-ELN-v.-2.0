@@ -32,9 +32,7 @@ const TWO_STEPS = makeExperimentDetails({
       makeReaction(),
       makeReaction({
         anchor: 'rxn00002',
-        outputs: [
-          makeReactionOutput('out00021', { outputName: 'P4', chemicalName: 'Anhydride' }),
-        ],
+        outputs: [makeReactionOutput('out00021', { outputName: 'P4', chemicalName: 'Anhydride' })],
       }),
     ],
   },
@@ -126,9 +124,7 @@ export const EditsEQ: Story = {
     await userEvent.clear(input);
     await userEvent.type(input, '2{Enter}');
 
-    await waitFor(() =>
-      expect(sent).toEqual([{ type: 'SetOutputRowEQ', anchor: 'out00001', eq: '2' }]),
-    );
+    await waitFor(() => expect(sent).toEqual([{ type: 'SetOutputRowEQ', anchor: 'out00001', eq: '2' }]));
   },
 };
 
@@ -168,8 +164,8 @@ export const SaltIsRegistryOwned: Story = {
     // has nothing to be an equivalent of.
     await expect(canvas.getByLabelText('Salt Code, P0').tagName).toBe('BUTTON');
     await expect(canvas.getByLabelText('Salt EQ, P0')).toBeDisabled();
-    // P1's batch is registered *and* it carries a salt code — the case indigo-frontend let
-    // through. Both cells lock the same way: they keep their control and disable it, which for
+    // P1's batch is registered *and* it carries a salt code — the case a code-only gate
+    // would let through. Both cells lock the same way: they keep their control and disable it, which for
     // the select means its value as plain text.
     const p1 = canvas.getByRole('textbox', { name: 'Output Name, P1' }).closest('tr')!;
     await expect(within(p1).getByLabelText('Salt Code, P1')).toBeDisabled();
@@ -224,8 +220,8 @@ export const ShowAllSteps: Story = {
     await userEvent.click(canvas.getByRole('switch', { name: 'Show All Steps' }));
 
     await waitFor(async () => expect(canvas.getAllByRole('row')).toHaveLength(5));
-    // The step of the row it belongs to, 1-based — not the hardcoded '1' indigo-frontend
-    // returns. Scoped to P4's own row: '2' turns up in formula subscripts elsewhere.
+    // The step of the row it belongs to, 1-based — not a hardcoded '1'.
+    // Scoped to P4's own row: '2' turns up in formula subscripts elsewhere.
     const p4 = canvas.getByRole('textbox', { name: 'Output Name, P4' }).closest('tr')!;
     await expect(within(p4).getByText('2')).toBeInTheDocument();
   },

@@ -27,9 +27,8 @@ export const passwordSchema = z.string().min(1, 'Enter your Password');
  *
  * The password *policy* deliberately is not repeated here: it lives in `CognitoStack.java`
  * (minLength 6, no character-class rules) and Cognito enforces it itself, answering
- * `InvalidPasswordException` with a message that states the real rules. indigo-frontend's
- * `main.ts` advertises a stricter policy than the pool actually has, which is the mistake this
- * avoids — a client-side copy can only ever drift from the one that is enforced.
+ * `InvalidPasswordException` with a message that states the real rules. A client-side
+ * copy can only ever drift from the one that is enforced.
  */
 export const newPasswordSchema = z.string().min(1, 'Enter a new password');
 

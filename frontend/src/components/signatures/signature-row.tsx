@@ -22,8 +22,7 @@ const COLUMNS_CLASS = 'grid gap-4 grid-cols-1 md:grid-cols-[2fr_1fr_1fr]';
  * with Approve/Reject inline for the signer whose turn it is.
  *
  * An `<article>`, not a `<Link>` — `name` is `"<experiment name>, version <n>"` and there is no
- * endpoint that resolves it back to an experiment, so there is nowhere for a click to go. (The
- * Angular card is `cursor-pointer` with no handler; the cursor is dropped rather than copied.)
+ * endpoint that resolves it back to an experiment, so there is nowhere for a click to go.
  */
 export function SignatureRow({ item: document }: { item: SignatureDocument }) {
   const { downloadReport, downloading } = useDownloadDocument(document);
@@ -63,7 +62,7 @@ export function SignatureRow({ item: document }: { item: SignatureDocument }) {
  * One signer and their verdict.
  *
  * `canSignOrReject` is checked **before** the status, so the signer whose turn it is gets the two
- * buttons rather than the word "Pending" — the same branch order as the Angular template. The flag
+ * buttons rather than the word "Pending". The flag
  * is the backend's (`SignatureMapper.canSignOrReject`, which already knows the document status, the
  * current user and the block's own state), so nothing is re-derived here.
  *

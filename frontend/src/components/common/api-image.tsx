@@ -9,9 +9,8 @@ import { cn } from '@/lib/utils';
  * An image fetched from the ELN API, and only once it is scrolled near.
  *
  * A page of search results holds twenty rows; loading every scheme on mount meant twenty
- * requests for images most of which are never looked at. This is indigo-frontend's ApiImage
- * ported: the frame is observed, the fetch starts on first entry, and the observer is done
- * after that.
+ * requests for images most of which are never looked at. So the frame is
+ * observed, the fetch starts on first entry, and the observer is done after that.
  *
  * Any failed fetch marks its own frame — 401, 403, 404, 500 alike. `apiFetch` has already
  * raised a toast saying why, but a toast in the corner cannot say *which* of twenty rows
@@ -19,8 +18,8 @@ import { cn } from '@/lib/utils';
  * copy stays deliberately status-agnostic: the toast carries the reason, the frame only
  * says this picture is not coming.
  *
- * There is no retry: the Angular original re-armed its observer after a failure, which
- * quietly re-requested on every scroll past.
+ * There is no retry: re-arming the observer after a failure would quietly re-request on
+ * every scroll past.
  */
 function ApiImage({
   path,

@@ -26,8 +26,7 @@ export type TemplateComponentType = TemplateComponent['type'];
 
 /**
  * The collapsible card each component is wrapped in. Hard-coded rather than carried by the
- * template, matching indigo-frontend's `experiment-layout.component.html`, which names the titles
- * in its `@switch` for the same reason: the template data says *what* to show, not what to call it.
+ * template: the template data says *what* to show, not what to call it.
  *
  * `null` means the component frames itself and is rendered bare. Three do: `batches` and
  * `versionHistory` bring their own heading, and `stoichiometryTable` draws its own card because

@@ -44,8 +44,6 @@ import { isKnownCompound, shortNbkBatchNumber, unitLabel } from '@/lib/types/rea
  * What one batch of the Product Batch Summary holds, behind its chevron: the compound's structure
  * on the left, the batch's own fields on the right, and the rest under Additional Information.
  *
- * **It saves, which indigo-frontend's `BatchDetailPanelComponent` does not** — that one builds a
- * `FormGroup` and leaves handling its `valueChanges` as a TO DO, so every edit in it is discarded.
  * Each field here commits on its own gesture with no Save button, exactly as the table's cells and
  * `ExperimentDetailsPanel` do, and through the **table's** `useStoichiometryMutations` rather than
  * a hook of its own: one subscription covers every row, and a panel save then queues behind the
@@ -207,8 +205,7 @@ export function BatchDetailPanel({
             }
           />
           {/*
-            The STR code once registered. indigo-frontend models it as an object and interpolates
-            it straight into the template, which prints `[object Object]`.
+            The STR code once registered.
           */}
           <ReadonlyField id={id('sampleKey')} label="Conversational Batch number" value={sample.sampleKey} />
 

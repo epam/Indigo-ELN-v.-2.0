@@ -62,7 +62,7 @@ function GlobalSearchPanel({ open, onOpenChange, query, onQueryChange, onSearch 
     event.preventDefault();
     setSubmitted(toGlobalSearchRequest(values));
     // Collapsing hands the space back to the results and leaves the summary as the record
-    // of what was searched for, as in indigo-frontend.
+    // of what was searched for.
     setAdvancedOpen(false);
   }
 

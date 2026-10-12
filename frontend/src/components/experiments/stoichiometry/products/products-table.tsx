@@ -35,7 +35,7 @@ import { OUTPUT_TYPES } from '@/lib/types/reactions.ts';
  * output's samples are the *Product Batch Summary*'s subject rather than this table's. So there
  * is nothing to expand, no column spans, and no spacer columns.
  *
- * **Only `intended` products are listed**, which is what indigo-frontend does too. The flag says
+ * **Only `intended` products are listed.** The flag says
  * the product was drawn in the reaction scheme; an unintended output is something the reaction
  * threw off that a chemist recorded afterwards, and it belongs to the batch summary. It is not
  * the same thing as the Product Type column, which is `FINAL` / `BY_PRODUCT` / `INTERMEDIATE`

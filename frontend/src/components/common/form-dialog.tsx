@@ -37,7 +37,6 @@ interface FormDialogProps {
 
 /**
  * A modal wrapping a form, owning the submitting state so no caller has to repeat it.
- * Port of indigo-frontend's FormDialogComponent, minus Formly.
  */
 function FormDialog({
   open,

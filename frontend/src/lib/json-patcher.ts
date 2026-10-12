@@ -3,8 +3,7 @@ type JSONNode = null | boolean | number | string | JSONNode[] | { [key: string]:
 type JSONObject = { [key: string]: JSONNode };
 
 /**
- * Applies the diffs `POST /experiments/{id}/mutate` answers with. Port of
- * indigo-frontend's `src/core/utils/json-patcher.ts`, itself the apply-half of the
+ * Applies the diffs `POST /experiments/{id}/mutate` answers with. The apply-half of the
  * backend's `JSONPatcher.java` — see that class and its tests for the format.
  *
  * Three node kinds, told apart by the path rather than by the data:

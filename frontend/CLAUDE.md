@@ -101,7 +101,7 @@ Search params are the source of truth for filter state. Route files validate par
 - Attaches a Cognito **access token** (not ID token) as `Authorization: Bearer`. The backend reads the `username` claim which only exists on the access token.
 - **There is no `init.body`.** A request names the *kind* of payload it carries, and `RequestInit` is spread with `body` omitted so a leftover one is a type error rather than a third, unhandled path. `init.json` is an arbitrary value, serialised here, and is the sole source of `Content-Type: application/json`. `init.formData` is a `FormData` — the two attachment uploads and `importSDF` — handed to `fetch` untouched so the browser serialises it and sets its own type: only the browser knows the multipart boundary it generated, and naming the type without one makes the body unparseable. Since the header follows from *which field* was set, nothing inspects the value; a third payload kind becomes a third field rather than a `typeof` ladder. Eleven call sites used to write `body: JSON.stringify(x)` and rely on an `instanceof FormData` check to tell them apart.
 - `init.responseType` — `'json'` (default), `'text'`, or `'blob'` — decides how a successful body is read; there is no guessing and no fallback, so a malformed body in `json` mode throws. Overloads type the result, so `apiFetch(path, { responseType: 'text' })` is a `Promise<string>` without a generic. The default `Accept` follows from it: `application/json` for `json`, `*/*` otherwise — the image endpoints declare a concrete `@Produces` and answer 406 to a JSON-only `Accept`. Error bodies are always parsed as JSON-or-text whatever the mode, so `describeError` still gets the bean-validation shape.
-- Throws `ApiError(status, body)` on non-2xx, and first raises an error toast via `notifyError` in `src/lib/toast.ts`. That mirrors indigo-frontend's `error.interceptor.ts`: every failed request is reported once, centrally, and still thrown so callers can react. `describeError` there ports the interceptor's `detectMessage` (403 → permission copy, bean-validation array → one line per field, anything else → a generic message), plus a 401 branch the Angular original never had.
+- Throws `ApiError(status, body)` on non-2xx, and first raises an error toast via `notifyError` in `src/lib/toast.ts`. Every failed request is reported once, centrally, and still thrown so callers can react. `describeError` there picks the message (403 → permission copy, bean-validation array → one line per field, anything else → a generic message), plus a 401 branch.
 
 **401 is reported, not acted on.** Two very different things produce one here: API Gateway's
 user-pool authorizer answers `{"message":"Unauthorized"}` when the token is missing, expired
@@ -268,11 +268,10 @@ to queue behind the on-blur saves rather than race them.
 | `reactions.ts` | the `reaction/model` tree: `ExperimentModel`, `Reaction`, `ReactionInput`/`Output` and their samples, `CompoundRef`, `EnteredValue`, the unit unions, and the companion table of every enum in it — `REACTION_ROLE_LABELS`, `OUTPUT_TYPE_LABELS`, `unitLabel()`, the unit option arrays |
 | `mutations.ts` | `Mutation` (all 94 members of the backend's `@JsonSubTypes` list), `ModelMutation` (the subset `/mutate` accepts), `MutationResponse` |
 
-`reactions.ts` is ported from the **Java**, not from indigo-frontend's `experiment.i.ts`. Those
-copies were generated from an older spec and have drifted: `STRCode*`/`NbkBatchNumber` modelled as objects when `@JsonValue` makes them strings,
-`SolubidityInSolvent` flattened when it is a `type`-discriminated union, and an
-`EnteredValueSource` enum whose members are not what is sent. Each divergence is commented at the
-type it affects.
+`reactions.ts` is ported from the **Java**. The wire shapes that are easy to get wrong are commented at
+the type they affect: `STRCode*`/`NbkBatchNumber` are strings because of `@JsonValue`,
+`SolubidityInSolvent` is a `type`-discriminated union, and `EnteredValue.source` is not a named
+enum.
 
 **A UI declaration bound to an enum lives in the file that declares the enum**, not next to the
 component that renders it — the label map, the colour map, the display-order array, the subset a
@@ -317,7 +316,7 @@ Three properties of the diff, all easier to know than to rediscover:
   overlap on names, which is why applying it to the cached detail works, but it never touches
   `currentPermissions`, `marked`, the ancestor ids and names, or the `BaseDTO` audit fields.
 - **`apply` also returns a `newNode → oldNode` map.** Nothing reads it yet; it is what
-  indigo-frontend's `determineCellClasses` uses to flash a recalculated cell, and the
+  flashing a recalculated cell needs, and the
   stoichiometry table will want it.
 
 `response.messages` become toasts via `notifyInfo`. `unresolvedInputs` is **not** read by 
@@ -351,8 +350,7 @@ Four properties hold for both:
   it can see: `resultCountLabel` says `12+` while `hasMore`, and a plain `12` once not. PubChem
   also honours only the quick search, a structure and the formula, and 400s on the other filters.
 - **The catalog radio needs no refetch.** `catalog` is part of the request and the request is the
-  query key, so choosing a different catalog is a different query. indigo-frontend's own panel
-  searches only in `ngOnInit`, which is why its radio does nothing.
+  query key, so choosing a different catalog is a different query.
 - **A hit is `source` + `sampleKey`, never an ELN id.** `sampleRowKey` is exactly that — not the
   catalog, since My Materials answers with the same SRS or PubChem sample the other tab does — and
   it is what keys the row spinner, the My Materials patch, and the "already added" check. Mark,
@@ -411,8 +409,7 @@ the values, the request, the summary. Three things are particular to it:
   filter the catalog has disabled is dropped by `toFindSamplesRequest` and so does not enable
   Search either, which is what stops a form that looks filled in (nine boxes with values, PubChem
   selected) from running a whole-catalog browse. The gate is ours, not the server's:
-  `FindSamplesRequest` has no `isEmpty` assertion — unlike `GlobalSearchRequest`, which 400s —
-  and indigo-frontend does send the empty request.
+  `FindSamplesRequest` has no `isEmpty` assertion — unlike `GlobalSearchRequest`, which 400s.
 - **The catalog gates the form.** PubChem disables every filter but Molecular Formula, which its
   API does accept, and `toFindSamplesRequest` **drops** the disabled ones rather than sending them
   (the backend would 400) — a request has to say what was actually searched for. Values survive
@@ -575,11 +572,10 @@ back into view is simply rendered again. `handleSave` is one Indigo call lighter
 result. Don't reintroduce a cache here without a measurement showing the render is slow;
 the thing worth optimising is the cold start, and `prewarmKetcher` already does that.
 
-**CSP:** this app has its own policy, separate from the Angular app's — see *Deploying*
+**CSP:** see *Deploying*
 below. It allows `worker-src 'self' blob:` for the Indigo worker, which
 `ketcher-standalone` builds with `new Blob` + `createObjectURL`, and `img-src 'self'
-blob: data:` for both preview URL kinds. Two more entries are load-bearing here and are
-the reason the Angular policy could not simply be reused: `script-src` needs
+blob: data:` for both preview URL kinds. Two more entries are load-bearing here: `script-src` needs
 `'wasm-unsafe-eval'` or Indigo aborts (a nonce does not cover WASM compilation), and
 `style-src` needs the empty-string hash for emotion's `<style>` carrier or the editor
 renders unstyled. Headless rendering needs only the first of the two. A CSP-blocked worker

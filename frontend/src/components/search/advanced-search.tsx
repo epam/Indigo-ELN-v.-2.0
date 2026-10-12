@@ -30,8 +30,8 @@ interface AdvancedSearchProps {
  * The Advanced Search section: collapsed by default, showing what is selected next to its
  * title, and expanding to a two-column grid of filters.
  *
- * Reaction Role only appears for a drawn molecule — see `showReactionRole`. The Angular
- * original kept its slot with `invisible`; not rendering it is cleaner in a grid, and the
+ * Reaction Role only appears for a drawn molecule — see `showReactionRole`. Not rendering
+ * it, rather than keeping its slot with `invisible`, is cleaner in a grid, and the
  * summary applies the same predicate so the two can never disagree.
  */
 function AdvancedSearch({ values, onChange, open, onOpenChange }: AdvancedSearchProps) {

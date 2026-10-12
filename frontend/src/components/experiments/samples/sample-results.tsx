@@ -37,8 +37,7 @@ const DATA_COLUMNS: { header: string; align: Align }[] = [
  * There is no gesture to wait for and nothing to debounce: whoever renders this has already
  * decided there is a search to run. In Analyze RXN "already decided" also means *when the tab is
  * first opened*, because Base UI unmounts an inactive tab panel — so a step with five unresolved
- * reactants does not fire five substructure searches (and five PubChem round trips) at once, the
- * way indigo-frontend's `ngOnInit` does.
+ * reactants does not fire five substructure searches (and five PubChem round trips) at once.
  */
 export function SampleResults({
   request,

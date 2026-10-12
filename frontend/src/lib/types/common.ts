@@ -65,8 +65,8 @@ export interface CollectionFilters {
 }
 
 /**
- * Access levels as the UI speaks about them, ported from indigo-frontend's
- * `acl-levels.enum.ts`. `AUTHOR` is the creator's own entry: the backend never lets it change,
+ * Access levels as the UI speaks about them.
+ * `AUTHOR` is the creator's own entry: the backend never lets it change,
  * so it is shown but never offered.
  */
 export const ACL_LEVEL_LABELS: Record<AccessLevel, string> = {

@@ -34,9 +34,7 @@ export function formatDateTime(iso: DateString): string {
 }
 
 /**
- * Ports indigo-frontend's `bytesConverting` pipe: the largest unit the value reaches, to one
- * decimal. Binary steps (1024), matching what the Angular UI has always shown for the same
- * attachment sizes.
+ * The largest unit the value reaches, to one decimal. Binary steps (1024).
  */
 const BYTE_UNITS = [
   ['GB', 1024 ** 3],

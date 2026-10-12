@@ -41,8 +41,7 @@ function saltEditable(input: ReactionInput): boolean {
  *
  * Two lists, because the model is a tree and this table shows it as one: a `ReactionInput` is
  * a compound and owns one or more `ReactionInputSample`s, so compound fields and sample fields
- * are genuinely different column sets rather than one flattened row. (indigo-frontend flattened
- * them into one row per pair, which is why its header mixes `Mol. Weight` with `Density`.)
+ * are genuinely different column sets rather than one flattened row.
  *
  * `kind` is a discriminated union so the renderer's `switch` is exhaustive — a new kind is a
  * compile error rather than a blank cell, the same guarantee `TemplateComponentView` gets.
@@ -333,8 +332,7 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
     value: (input) => asEnteredValue(input.compound.saltEQ),
     units: NO_UNITS,
     // Both gates, not just the salt code: a real sample's salt EQ is fixed by the registry even
-    // when it has a code. (indigo-frontend checked only for the code, which let a registered
-    // compound's salt EQ be edited.) The salt EQ is absent exactly when the code is the default
+    // when it has a code. The salt EQ is absent exactly when the code is the default
     // "00 - Parent Structure", i.e. no salt.
     editable: (input) => saltEditable(input) && input.compound.saltEQ != null,
     mutation: (input, next) => ({ type: 'SetInputRowSaltEQ', anchor: input.anchor, saltEQ: next.value }),

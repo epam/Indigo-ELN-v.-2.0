@@ -10,8 +10,7 @@ export function isGroup(revision: RevisionSummary): boolean {
 /**
  * The revision number as the `#` column shows it — `12`, or `8–12` for a grouped edit session.
  *
- * indigo-frontend shows neither: it reads `revision` only to decide whether a diff button
- * belongs on the row, so a log of "Edited experiment" rows has nothing to tell them apart.
+ * Without it a log of "Edited experiment" rows has nothing to tell them apart.
  */
 export function revisionLabel(revision: RevisionSummary): string {
   return revision.revisionTo == null ? String(revision.revision) : `${revision.revision}–${revision.revisionTo}`;

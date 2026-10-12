@@ -84,7 +84,7 @@ export const Rejected: Story = {
 
 /**
  * Out for signature: nothing to offer anybody. `ReopenExperimentHandler` excludes `SIGNING` and
- * `SIGNED`, so the Reopen indigo-frontend shows here would only earn a 400.
+ * `SIGNED`, so a Reopen here would only earn a 400.
  */
 export const Signing: Story = {
   args: { experiment: makeExperimentDetails({ status: 'SIGNING', currentPermissions: ALLOWED }) },

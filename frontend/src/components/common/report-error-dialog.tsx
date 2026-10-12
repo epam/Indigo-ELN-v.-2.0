@@ -17,7 +17,7 @@ import type { ExperimentDetails } from '@/lib/types/experiments.ts';
 /**
  * The one Report Error dialog, mounted once in `AppHeader` and opened through
  * `openReportError` — by the header button with an empty draft, or by an error toast's action
- * with the failed request attached. Port of indigo-frontend's ReportErrorDialogComponent.
+ * with the failed request attached.
  */
 function ReportErrorDialog() {
   const { open, draft, seq } = useReportErrorState();
@@ -47,7 +47,7 @@ function ReportErrorForm({ open, draft }: { open: boolean; draft: ReportErrorDra
   });
 
   // Shown read-only so the user sees what is sent along — and only for a report raised from a
-  // failed request, as in indigo-frontend.
+  // failed request.
   const technicalDetails: [id: string, label: string, value: string | undefined, rows: number][] = context
     ? [
         ['currentUrl', 'Current URL', currentUrl, 2],

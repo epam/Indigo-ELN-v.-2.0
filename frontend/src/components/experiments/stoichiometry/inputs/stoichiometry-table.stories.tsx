@@ -253,11 +253,7 @@ export const PicksRxnRole: Story = {
     await userEvent.click(role);
     await userEvent.click(await screen.findByRole('option', { name: 'Catalyst' }));
 
-    await waitFor(() =>
-      expect(sent).toEqual([
-        { type: 'SetInputRowRole', anchor: 'inp00001', role: 'CATALYST' },
-      ]),
-    );
+    await waitFor(() => expect(sent).toEqual([{ type: 'SetInputRowRole', anchor: 'inp00001', role: 'CATALYST' }]));
   },
 };
 
@@ -503,8 +499,7 @@ export const FormulaSubscriptsAreNotClipped: Story = {
 
 /**
  * Once a registered sample is attached, the compound's salt code and salt EQ come from the
- * registry, so both stay locked even though the row has a salt code set. indigo-frontend gated
- * Salt EQ on the code alone and let this row be edited.
+ * registry, so both stay locked even though the row has a salt code set.
  */
 export const StoredCompoundSaltLocked: Story = {
   play: async ({ canvasElement }) => {
@@ -588,9 +583,7 @@ export const EditsSampleWeight: Story = {
     await userEvent.type(input, '750{Enter}');
 
     await waitFor(() =>
-      expect(sent).toEqual([
-        { type: 'SetInputWeight', anchor: 'ins0000a', weight: '750', unit: 'MG' },
-      ]),
+      expect(sent).toEqual([{ type: 'SetInputWeight', anchor: 'ins0000a', weight: '750', unit: 'MG' }]),
     );
   },
 };
@@ -615,9 +608,7 @@ export const BlurSavesAChangedValue: Story = {
     await userEvent.click(document.body);
 
     await waitFor(() =>
-      expect(sent).toEqual([
-        { type: 'SetInputWeight', anchor: 'ins0000a', weight: '700', unit: 'MG' },
-      ]),
+      expect(sent).toEqual([{ type: 'SetInputWeight', anchor: 'ins0000a', weight: '700', unit: 'MG' }]),
     );
   },
 };
@@ -635,9 +626,7 @@ export const ClearsCell: Story = {
     await userEvent.keyboard('{Enter}');
 
     await waitFor(() =>
-      expect(sent).toEqual([
-        { type: 'SetInputWeight', anchor: 'ins0000a', weight: null, unit: null },
-      ]),
+      expect(sent).toEqual([{ type: 'SetInputWeight', anchor: 'ins0000a', weight: null, unit: null }]),
     );
   },
 };
@@ -717,9 +706,7 @@ export const ArrowKeysPickTheUnit: Story = {
     await userEvent.tab();
     await expect(canvas.getByLabelText('Volume, batch 1')).toHaveFocus();
     await waitFor(() =>
-      expect(sent).toEqual([
-        { type: 'SetInputWeight', anchor: 'ins0000a', weight: '0.0025', unit: 'G' },
-      ]),
+      expect(sent).toEqual([{ type: 'SetInputWeight', anchor: 'ins0000a', weight: '0.0025', unit: 'G' }]),
     );
   },
 };
@@ -756,9 +743,7 @@ export const ChangingUnitConvertsTheValue: Story = {
     // One request for the lot, carrying the pair as it was left.
     await userEvent.keyboard('{ArrowDown}{Enter}');
     await waitFor(() =>
-      expect(sent).toEqual([
-        { type: 'SetInputWeight', anchor: 'ins0000a', weight: '0.6765', unit: 'G' },
-      ]),
+      expect(sent).toEqual([{ type: 'SetInputWeight', anchor: 'ins0000a', weight: '0.6765', unit: 'G' }]),
     );
   },
 };
@@ -787,9 +772,7 @@ export const UnsavedValueKeepsItsNumber: Story = {
 
     await userEvent.keyboard('{Enter}');
     await waitFor(() =>
-      expect(sent).toEqual([
-        { type: 'SetInputMolarity', anchor: 'ins0000b', molarity: '0.25', unit: 'M' },
-      ]),
+      expect(sent).toEqual([{ type: 'SetInputMolarity', anchor: 'ins0000b', molarity: '0.25', unit: 'M' }]),
     );
   },
 };
@@ -815,9 +798,7 @@ export const ClickingAUnitKeepsFocus: Story = {
 
     await userEvent.keyboard('{Enter}');
     await waitFor(() =>
-      expect(sent).toEqual([
-        { type: 'SetInputVolume', anchor: 'ins0000b', volume: '0.0045', unit: 'L' },
-      ]),
+      expect(sent).toEqual([{ type: 'SetInputVolume', anchor: 'ins0000b', volume: '0.0045', unit: 'L' }]),
     );
   },
 };
@@ -838,9 +819,7 @@ export const TabCommitsAndMovesOn: Story = {
 
     await expect(canvas.getByLabelText('Volume, batch 1')).toHaveFocus();
     await waitFor(() =>
-      expect(sent).toEqual([
-        { type: 'SetInputWeight', anchor: 'ins0000a', weight: '812', unit: 'MG' },
-      ]),
+      expect(sent).toEqual([{ type: 'SetInputWeight', anchor: 'ins0000a', weight: '812', unit: 'MG' }]),
     );
   },
 };
@@ -1290,14 +1269,10 @@ export const DeletesRowAndBatch: Story = {
     const canvas = within(canvasElement);
 
     await userEvent.click(await canvas.findByRole('button', { name: 'Delete batch 1' }));
-    await waitFor(() =>
-      expect(sent).toEqual([{ type: 'RemoveInput', anchor: 'ins0000a' }]),
-    );
+    await waitFor(() => expect(sent).toEqual([{ type: 'RemoveInput', anchor: 'ins0000a' }]));
 
     sent.length = 0;
     await userEvent.click(canvas.getByRole('button', { name: 'Delete compound 1' }));
-    await waitFor(() =>
-      expect(sent).toEqual([{ type: 'RemoveInputRow', anchor: 'inp00001' }]),
-    );
+    await waitFor(() => expect(sent).toEqual([{ type: 'RemoveInputRow', anchor: 'inp00001' }]));
   },
 };

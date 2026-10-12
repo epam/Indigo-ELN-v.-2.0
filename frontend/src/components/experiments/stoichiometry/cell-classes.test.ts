@@ -83,7 +83,7 @@ describe('determineCellClasses', () => {
 
     it('never animates a user-entered value, however the patch changed it', () => {
       // The user knows what they just typed; the flash exists to point out changes they did not
-      // make. This is the early return in the original, and dropping it would flash every cell
+      // make. This is the early return, and dropping it would flash every cell
       // the user is editing.
       const value: EnteredValue<string> = { value: '2', source: 9, overwritten: true };
       expect(determineCellClasses(value, patched(value, { value: '1', source: 4 }))).toEqual([

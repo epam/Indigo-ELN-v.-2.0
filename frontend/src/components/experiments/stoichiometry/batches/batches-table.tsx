@@ -194,8 +194,8 @@ function Toolbar({
           `intended: false`, `BY_PRODUCT`, on an unknown compound — plus one batch on it. That is
           why the new row lands here and not in the products table.
 
-          indigo-frontend puts this behind a menu whose second entry adds a batch to an existing
-          product. That entry is the per-row Add Batch button on the products table, so the menu
+          A plain button, not a menu with a second entry for adding a batch to an existing
+          product: that is the per-row Add Batch button on the products table, so the menu
           would be one indirection over a single action.
 
           Wrapped in `SavingOverlay` rather than given `Button`'s own `loading`, as the
@@ -451,7 +451,7 @@ function BatchActionButton({
         <DeleteCell
           // Says why when that is the reason, as Sync and Register do — the label is the tooltip.
           label={protectedSample ? 'Registered batch cannot be deleted' : `Delete batch ${batch}`}
-          // A registered batch is a registry record; indigo-frontend locks it the same way.
+          // A registered batch is a registry record, so it is locked.
           editable={canEdit && !protectedSample}
           pending={pending}
           onCommit={save}

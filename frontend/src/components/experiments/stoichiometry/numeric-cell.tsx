@@ -97,7 +97,7 @@ function isExternal(event: FocusEvent<HTMLElement>): boolean {
  * next control, and a save slow enough to freeze the cell hands focus back to the cell rather
  * than reopening the editor over a value already saved.
  *
- * Commit rules, from indigo-frontend's `editable-data-table.component.ts`: value and unit go
+ * Commit rules: value and unit go
  * together or not at all, clearing a set value sends `null` for both, and nothing is sent when
  * neither half changed — so tabbing across a row is silent. Choosing a unit only changes the
  * draft; the edit is sent when the input is left or Enter is pressed.

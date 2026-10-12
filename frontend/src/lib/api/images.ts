@@ -9,8 +9,7 @@ const imageKeys = {
 /**
  * An image served by the ELN API, as its source text.
  *
- * There is no blob and no object URL to own — indigo-frontend's ApiImage created one per
- * image and never revoked it. A binary endpoint such as the PNG avatar would need its own
+ * There is no blob and no object URL to own or revoke. A binary endpoint such as the PNG avatar would need its own
  * fetcher (`responseType: 'blob'`), since the consumer inlines the text as an SVG data URL.
  */
 function fetchApiImage(path: string, signal?: AbortSignal): Promise<string> {

@@ -18,9 +18,9 @@ import { OPERATOR_SYMBOLS, QUALITATIVE_LABELS, unitLabel } from '@/lib/types/rea
  * em-dash: the read-only field renders the dash itself, so a formatter that baked one in would
  * make an absent value indistinguishable from a value that formats to a dash.
  *
- * They are deliberately richer than indigo-frontend's, which prints the solvent names alone and
- * drops the equivalents, the operators and the qualitative type — the numbers are the point of
- * the record, and this is the only place they are shown at all.
+ * They deliberately carry more than the solvent names — the equivalents, the operators and the
+ * qualitative type too: the numbers are the point of the record, and this is the only place
+ * they are shown at all.
  */
 
 /**

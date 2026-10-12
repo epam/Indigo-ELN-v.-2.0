@@ -208,11 +208,7 @@ export const PicksSource: Story = {
     const option = DICTIONARIES.SAMPLE_SOURCE![1];
     await userEvent.click(await screen.findByRole('option', { name: option.name }));
 
-    await waitFor(() =>
-      expect(sent).toEqual([
-        { type: 'SetOutputSource', anchor: 'ous00002', source: option },
-      ]),
-    );
+    await waitFor(() => expect(sent).toEqual([{ type: 'SetOutputSource', anchor: 'ous00002', source: option }]));
   },
 };
 

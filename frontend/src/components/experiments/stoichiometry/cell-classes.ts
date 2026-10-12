@@ -9,15 +9,13 @@ export const USER_ENTERED_CLASSES = ['text-blue-400', 'font-semibold'];
 
 /**
  * What a numeric cell looks like, given where its value came from and what the last patch did
- * to it. Port of indigo-frontend's `ExperimentDetailService.determineCellClasses`.
+ * to it.
  *
  * Two independent things are encoded, which is why the result is a list rather than one class:
  *
  * - **Provenance**, a steady state. `EnteredValue.source` is `'fixed' | 'default' |
  *   'calculated'`, or a **number** — the revision a user entered the value in. So "was this
- *   typed by a person" is `typeof source === 'number'`, not a named enum member. (There *is* an
- *   `EnteredValueSource` enum in the old frontend with names like `USER_ENTERED`; it is dead
- *   code and is not what the wire carries.)
+ *   typed by a person" is `typeof source === 'number'`, not a named enum member.
  * - **What just happened to it**, a one-shot flash. Green when the backend recalculated the
  *   value, red when it overwrote one the user had entered.
  *
@@ -31,8 +29,7 @@ export function determineCellClasses(
   if (value == null) return [];
 
   // A user-entered value never animates: the user knows what they just typed, and the whole
-  // point of the flash is to point out a change they did *not* make. Returns early, exactly
-  // as the original does.
+  // point of the flash is to point out a change they did *not* make.
   if (typeof value.source === 'number') return USER_ENTERED_CLASSES;
 
   const previous = updatedNodes.get(value) as EnteredValue<unknown> | undefined;

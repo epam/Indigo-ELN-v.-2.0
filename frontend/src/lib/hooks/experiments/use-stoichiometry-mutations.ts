@@ -39,7 +39,7 @@ export interface StoichiometryMutations {
  * `mutate`: TanStack runs per-call callbacks only for the latest `mutate` on an instance, so
  * clicking Register down a column would leave every batch but the last spinning forever.
  *
- * No optimistic update, matching the Angular original and the rest of this screen — a cell
+ * No optimistic update, matching the rest of this screen — a cell
  * shows what the server last confirmed, and a failed save leaves it there. `apiFetch` has
  * already raised the error toast, so a rejection needs no handling beyond clearing the
  * spinner, which the `finally` does whichever way the mutation went.

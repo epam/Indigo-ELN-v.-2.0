@@ -8,9 +8,6 @@ import type { ExperimentRef } from '@/lib/types/experiments.ts';
  * — `null` meaning **send nothing**, so the field is left absent from the PATCH and cannot clobber
  * a value someone else changed meanwhile. A `value` of `null` inside the wrapper is the different,
  * deliberate thing: clear the column.
- *
- * The comparison rules are ported from indigo-frontend's `experiment-details.component.ts`, which
- * is the only place they were ever written down.
  */
 
 /**

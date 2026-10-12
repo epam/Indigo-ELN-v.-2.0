@@ -81,8 +81,8 @@ describe('the batch columns', () => {
   });
 
   /**
-   * Total Moles carries the whole `EnteredValue`, not its `value` — indigo-frontend passes the
-   * bare string here and only here, which is why its unit picker never shows the saved unit.
+   * Total Moles carries the whole `EnteredValue`, not its `value` — given the bare string, the
+   * unit picker would never show the saved unit.
    */
   it('gives Total Moles the whole entered value, unit included', () => {
     const column = BATCH_COLUMNS.find((each) => each.id === 'actualMol');

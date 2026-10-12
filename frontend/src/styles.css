@@ -223,12 +223,12 @@
   }
 
   /*
-   * The revision diff, ported from indigo-frontend's `audit-log.component.ts` styles. The
+   * The revision diff. The
    * backend answers `/revisions/{n}/diff` with a bare `<table class='patch-grid'>` carrying
    * these class names and no stylesheet of its own, so — as with `.tiptap-content` above — the
    * classes only mean anything because of this block.
    *
-   * The two tints are the tokens rather than the original's hard-coded #f8d7da / #d4edda: they
+   * The two tints are the tokens rather than hard-coded #f8d7da / #d4edda: they
    * are the same pair `flash-red` / `flash-green` already use on a stoichiometry cell, so an
    * overwritten value is the same red in the diff as it was in the table it came from.
    */
@@ -258,8 +258,7 @@
     @apply bg-red-200 font-semibold text-white italic;
   }
   /*
-   * `EnteredValue.source`. indigo-frontend colours these three differently here than it does in
-   * the stoichiometry table itself; this uses `determineCellClasses`' colours instead, so a
+   * `EnteredValue.source`. These use `determineCellClasses`' colours, so a
    * value's provenance reads the same in the diff as in the cell it came from. (`calculated` is
    * left unstyled in both.) The backend renames a numeric source — the revision it was typed
    * in — to `user-entered` before emitting the class.
@@ -284,11 +283,11 @@
 }
 
 /*
- * Stoichiometry cell flashes, ported from indigo-frontend's `_animations.scss`. Applied by
+ * Stoichiometry cell flashes. Applied by
  * `determineCellClasses` when a mutation's patch lands: green for a value the backend
  * recalculated, red for one it overwrote.
  *
- * The asymmetry is deliberate and matches the original — green pulses and clears, red lands
+ * The asymmetry is deliberate — green pulses and clears, red lands
  * and *holds*, so an overwritten value stays flagged until the next patch replaces the node.
  */
 @keyframes flash-green {

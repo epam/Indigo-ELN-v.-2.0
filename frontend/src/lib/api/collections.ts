@@ -12,7 +12,7 @@ export const COLLECTION_PAGE_SIZE = 10;
  * `/projects/{id}/notebooks` take the same four, so they build them the same way; the
  * experiments list appends its own to what this returns.
  *
- * Optional params are omitted when unset, matching indigo-frontend's client.
+ * Optional params are omitted when unset.
  */
 export function collectionQueryParams(filters: CollectionFilters, pageNo: number): URLSearchParams {
   const params = new URLSearchParams({

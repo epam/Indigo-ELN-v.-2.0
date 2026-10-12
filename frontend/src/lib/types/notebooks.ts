@@ -2,7 +2,7 @@ import type { ACLEntry, Attachment, BaseDTO, UUID } from '@/lib/types/common.ts'
 import type { ExperimentStatusCounts } from '@/lib/types/experiments.ts';
 import type { ApplicationPermission } from '@/lib/types/user.ts';
 
-/** `NOTEBOOK_NAME_LENGTH` in indigo-frontend: a notebook is numbered, never named. */
+/** A notebook is numbered, never named. */
 export const NOTEBOOK_NAME_LENGTH = 8;
 
 /** Mirrors BaseNotebookDTO. */

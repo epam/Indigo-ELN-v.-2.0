@@ -21,7 +21,6 @@ export interface ReportErrorFormValues {
   problemDescription: string;
 }
 
-/** Port of normalizeErrorBody() in indigo-frontend's error.interceptor.ts. */
 function normalizeBody(body: unknown): string | undefined {
   if (body == null) return undefined;
   return typeof body === 'string' ? body : JSON.stringify(body);
@@ -42,8 +41,7 @@ export function buildReportErrorContext(
 }
 
 /**
- * The multipart body `IncidentAPI` takes. Port of buildPayload() in indigo-frontend's
- * report-bug.service.ts: optional parts are left out rather than sent empty.
+ * The multipart body `IncidentAPI` takes: optional parts are left out rather than sent empty.
  */
 export function buildIncidentForm(
   values: ReportErrorFormValues,

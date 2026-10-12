@@ -5,12 +5,9 @@ import type { DictionaryItemRef } from '@/lib/types/dictionaries.ts';
  * `src/lib/types/reactions.ts` mirrors the backend `reaction/model` package — the JSON blob
  * stored in `experiment.model` and diffed by every model mutation.
  *
- * Ported from the Java, deliberately **not** from indigo-frontend's `experiment.i.ts`: those
- * interfaces were generated from an older spec and have drifted from the wire
- * (`NbkBatchNumber` modelled as an object
- * when `@JsonValue` makes it a string, `SolubidityInSolvent` flattened when it is a
- * discriminated union, and an `EnteredValueSource` enum whose members are not what is sent).
- * Each one is noted again at the type it affects.
+ * Ported from the Java. The wire shapes that are easy to get wrong — `NbkBatchNumber` is a
+ * string because of `@JsonValue`, `SolubidityInSolvent` is a discriminated union, and
+ * `EnteredValue.source` is not a named enum — are each noted again at the type they affect.
  *
  * Every `Anchor` subclass (`ReactionAnchor`, `InputAnchor`, …) wraps a single UUID and
  * serialises as a bare string, so they are all `UUID` here.
@@ -280,8 +277,7 @@ export const OUTPUT_TYPES: readonly ReactionOutputType[] = ['FINAL', 'BY_PRODUCT
  * latter. `ReactionOutput.intended` is a separate boolean saying the product was drawn in the
  * reaction scheme, and it is what decides membership of this table at all; every row here is
  * `intended` and any of the three types is reachable on it. Two adjacent concepts sharing one
- * word made the column unreadable. "Final" is also what indigo-frontend's batch summary writes
- * for this enum member.
+ * word made the column unreadable.
  */
 export const OUTPUT_TYPE_LABELS: Record<ReactionOutputType, string> = {
   FINAL: 'Final',
@@ -370,9 +366,8 @@ export interface ResidualSolvent {
 }
 
 /**
- * Polymorphic on `type`, like `CompoundRef`. indigo-frontend models this flat with a
- * `solubidityType` field; the discriminator on the wire is `type`, and the two cases carry
- * different fields.
+ * Polymorphic on `type`, like `CompoundRef`: the discriminator on the wire is `type`, and
+ * the two cases carry different fields.
  */
 export type SolubidityInSolvent = { solvent: DictionaryItemRef; comment?: string } & (
   | { type: 'QUANTITATIVE'; operator?: ComparisonOperator; value?: number; unit?: DensityUnit }

@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest';
 import { ApiError } from '@/lib/api';
 import { describeError } from '@/lib/toast';
 
-/** Cases lifted from detectMessage() in indigo-frontend's error.interceptor.ts. */
 describe('describeError', () => {
   it('names the missing permission on 403', () => {
     const [message] = describeError(new ApiError(403, null), '/api/eln/projects');

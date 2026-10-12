@@ -116,8 +116,8 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
     id: 'reactionStep',
     header: 'Reaction Step',
     kind: 'readonly',
-    // Derived from the position in `model.reactions`, not hardcoded — indigo-frontend's batch summary returns a literal
-    // '1'. There is only ever one step today, so the two agree; this one keeps agreeing once `AddReaction` exists.
+    // Derived from the position in `model.reactions`, not hardcoded. There is only ever one step today; this
+    // keeps being right once `AddReaction` exists.
     value: (row) => String(row.step + 1),
   },
   {
@@ -188,8 +188,7 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
     value: (row) => asEnteredValue(row.output.compound.saltEQ),
     units: NO_UNITS,
     // Both gates, matching the inputs table: a registered compound's salt EQ is fixed even when
-    // it has a code. (indigo-frontend's products table checked only for the code.) No salt EQ
-    // means the default "00 - Parent Structure".
+    // it has a code. No salt EQ means the default "00 - Parent Structure".
     editable: (row) => saltEditable(row.output) && row.output.compound.saltEQ != null,
     mutation: (row, next) => ({ type: 'SetOutputRowSaltEQ', anchor: row.output.anchor, saltEQ: next.value }),
   },

@@ -16,8 +16,8 @@ import type { TemplateComponent, TemplateTab } from '@/lib/types/templates.ts';
  * One template component, in the card its title asks for.
  *
  * The `switch` is exhaustive over the union rather than a lookup table, which is what makes a
- * seventh component type added to `templates.ts` a compile error here — indigo-frontend's
- * equivalent `@switch` would simply have rendered nothing.
+ * seventh component type added to `templates.ts` a compile error here rather than a card
+ * that silently renders nothing.
  *
  * Which components get a card and which frame themselves is `COMPONENT_TITLES`' business alone;
  * a `null` there is the whole signal.

@@ -42,11 +42,7 @@ export const MultipleSteps: Story = {
     experiment: makeExperimentDetails({
       model: {
         significantFigures: 5,
-        reactions: [
-          makeReaction(),
-          makeReaction({ anchor: 'rxn00002' }),
-          makeReaction({ anchor: 'rxn00003' }),
-        ],
+        reactions: [makeReaction(), makeReaction({ anchor: 'rxn00002' }), makeReaction({ anchor: 'rxn00003' })],
       },
     }),
   },
