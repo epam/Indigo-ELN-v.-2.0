@@ -49,7 +49,8 @@ REGISTRY=$(awk -F= '/^ELN_AWS_IMAGE=/{split($2,a,"/"); print a[1]}' "$APP_DIR/.e
 aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin "$REGISTRY"
 
 cd "$APP_DIR"
-# Fail loudly on a mangled .env rather than starting Postgres with an empty password.
+# Fail before anything starts if .env lacks a variable docker-compose.yml requires (x-required-env),
+# rather than bringing the stack up with a blank password or API secret.
 docker compose config >/dev/null
 docker compose up -d --pull always --remove-orphans --wait --wait-timeout 120
 docker compose ps

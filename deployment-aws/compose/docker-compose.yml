@@ -1,3 +1,19 @@
+# Compose turns an unset variable into a blank string with only a warning, so a missing secret would
+# still start the stack. Every variable this file uses is required here once, non-empty, which makes
+# `docker compose config` and `up` fail instead - the uses below can then stay plain ${VAR}.
+x-required-env:
+  - "${AWS_REGION:?}"
+  - "${AWS_LOG_GROUP:?}"
+  - "${POSTGRES_IMAGE:?}"
+  - "${ELN_AWS_IMAGE:?}"
+  - "${REPORTS_AWS_IMAGE:?}"
+  - "${SIGNATURE_AWS_IMAGE:?}"
+  - "${SAMPLEREGISTRATION_AWS_IMAGE:?}"
+  - "${ELN_COGNITO_USER_POOL_ID:?}"
+  - "${ELN_STORAGE_S3_BUCKET:?}"
+  - "${DB_PASSWORD:?}"
+  - "${ELN_API_SECRET:?}"
+
 x-service-defaults: &service-defaults
   restart: unless-stopped
   healthcheck:
