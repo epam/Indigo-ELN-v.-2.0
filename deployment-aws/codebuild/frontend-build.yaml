@@ -5,7 +5,8 @@ env:
 phases:
   install:
     runtime-versions:
-      nodejs: 22
+      # The major frontend/.nvmrc pins; CodeBuild takes a major only and picks the patch itself.
+      nodejs: 24
   build:
     commands:
       # Fail loudly if env.shell did not take effect: under dash `set -eo pipefail` errors but
@@ -18,9 +19,14 @@ phases:
       - pnpm install --frozen-lockfile
       - pnpm run format:check
       - pnpm run build
+      - pnpm run check:bundle
       # After the build: tsc needs the src/routeTree.gen.ts that only vite emits.
       - pnpm run typecheck
+      - pnpm run lint
       - pnpm run test:unit --coverage
+      # --with-deps installs Chromium's system libraries through apt, which needs root.
+      - pnpm exec playwright install --with-deps chromium
+      - pnpm run test:stories
       # Reads frontend/sonar-project.properties; SONAR_HOST_URL and SONAR_TOKEN come from the
       # CodeBuild project's environment (BuildStack.java).
       - pnpm dlx @sonar/scan@5.0.0
