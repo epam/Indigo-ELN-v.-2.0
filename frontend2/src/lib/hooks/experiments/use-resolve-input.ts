@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 
 import { useAddSample } from '@/lib/hooks/experiments/use-add-sample';
 import { notifyInfo } from '@/lib/toast';
+import { newAnchor } from '@/lib/utils';
 
 import type { UUID } from '@/lib/types/common.ts';
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
@@ -38,7 +39,7 @@ export function useResolveInput(experiment: ExperimentDetails, reaction: Reactio
         type: 'ResolveInputs',
         anchor: reactionAnchor,
         inputSamples: { [inputAnchor]: sample },
-        createdSampleAnchors: { [inputAnchor]: crypto.randomUUID() },
+        createdSampleAnchors: { [inputAnchor]: newAnchor() },
       }).then((added) => {
         if (!added) return;
         setAddedInputs((inputs) => new Set(inputs).add(inputAnchor));

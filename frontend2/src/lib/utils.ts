@@ -50,3 +50,15 @@ export function formatBytes(bytes: number): string {
   }
   return `${bytes}B`;
 }
+
+/**
+ * An anchor for a row or sample the client is about to create: 48 random bits as 8 base64url
+ * characters, the same form `Anchor.generate()` produces on the backend. An anchor only has to
+ * be unique within its experiment, and the backend answers a clash with a 400.
+ */
+export function newAnchor(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(6));
+  return btoa(String.fromCharCode(...bytes))
+    .replaceAll('+', '-')
+    .replaceAll('/', '_');
+}

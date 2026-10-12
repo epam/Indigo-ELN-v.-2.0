@@ -203,7 +203,7 @@ public class MutationsTest extends MutationsTestBase {
 
     @Test
     void testUnknownField() {
-        assertThatClientCall(() -> experimentClient.mutateExperimentModel4Raw(experiment.id(), 1, "{\"type\": \"AddEmptyInput\", \"anchor\": \"00000000-0000-0000-0000-000000000001\", \"unknownField\": 123}")).isBadRequest("Unrecognized field \"unknownField\"");
+        assertThatClientCall(() -> experimentClient.mutateExperimentModel4Raw(experiment.id(), 1, "{\"type\": \"AddEmptyInput\", \"anchor\": \"rxn00001\", \"unknownField\": 123}")).isBadRequest("Unrecognized field \"unknownField\"");
     }
 
     @Test
@@ -462,6 +462,16 @@ public class MutationsTest extends MutationsTestBase {
         experiment.mutate(new ReactionInputMutation.SetInputRowSaltEQ(experiment.input(1).getAnchor(), new BigDecimal("2")));
         assertThat(experiment.input(1).getCompound().getSaltCode()).isEqualTo(saltCode);
         assertThat(experiment.input(1).getCompound().getSaltEQ()).isEqualByComparingTo("2");
+    }
+
+    @Test
+    void testSetInputRowSaltEQIsNormalized() {
+        experiment.mutateSetSchemeFromResource(REACTION_RXN);
+        experiment.mutate(new ReactionInputMutation.SetInputRowSaltCode(experiment.input(1).getAnchor(), saltCode));
+        experiment.mutate(new ReactionInputMutation.SetInputRowSaltEQ(experiment.input(1).getAnchor(), new BigDecimal("2.0")));
+        assertThat(experiment.input(1).getCompound().getSaltEQ()).isEqualTo(new BigDecimal("2"));
+        experiment.mutate(new ReactionInputMutation.SetInputRowSaltEQ(experiment.input(1).getAnchor(), new BigDecimal("0.50")));
+        assertThat(experiment.input(1).getCompound().getSaltEQ()).isEqualTo(new BigDecimal("0.5"));
     }
 
     @Test

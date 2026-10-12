@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 
 import { useAddSample } from '@/lib/hooks/experiments/use-add-sample';
 import { notifyInfo } from '@/lib/toast';
+import { newAnchor } from '@/lib/utils';
 
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
 import type { Reaction } from '@/lib/types/reactions.ts';
@@ -33,8 +34,8 @@ export function useAddMaterial(experiment: ExperimentDetails, reaction: Reaction
         type: 'AddInput',
         anchor: reactionAnchor,
         sample,
-        createdInputAnchor: crypto.randomUUID(),
-        createdSampleAnchor: crypto.randomUUID(),
+        createdInputAnchor: newAnchor(),
+        createdSampleAnchor: newAnchor(),
       }).then((added) => {
         if (added) notifyInfo('Model updated with new sample');
       });

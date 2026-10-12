@@ -38,7 +38,7 @@ import { SearchInput } from '@/components/ui/search-input';
 import { Menu, MenuContent, MenuItem, MenuTrigger } from '@/components/ui/menu';
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
 import { canEditExperiment } from '@/lib/types/experiments.ts';
-import { cn } from '@/lib/utils';
+import { cn, newAnchor } from '@/lib/utils';
 import type { Reaction, ReactionInput, ReactionInputSample } from '@/lib/types/reactions.ts';
 import { INPUT_ROLES, plainFormula } from '@/lib/types/reactions.ts';
 
@@ -330,8 +330,8 @@ function Toolbar({
               mutations.save(addInputCell, {
                 type: 'AddEmptyInput',
                 anchor: reaction.anchor,
-                createdInputAnchor: crypto.randomUUID(),
-                createdSampleAnchor: crypto.randomUUID(),
+                createdInputAnchor: newAnchor(),
+                createdSampleAnchor: newAnchor(),
               })
             }
           >

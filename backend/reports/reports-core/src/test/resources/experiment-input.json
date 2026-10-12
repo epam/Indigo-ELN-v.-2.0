@@ -28,54 +28,628 @@
     "aclCount": 2
   },
   "experiment": {
-    "id": "373976fe-e7df-4fcf-a4a2-8575aa0386b5",
+    "id": "95adaf8f-c7a5-4bb0-90e9-f514cdf8dc0f",
     "createdBy": {
-      "username": "john",
-      "displayName": "John Doe"
+      "username": "admin",
+      "displayName": "Administrator"
     },
-    "createdAt": "2026-05-05T17:03:46.05Z",
+    "createdAt": "2026-10-04T16:34:54.540Z",
     "modifiedBy": {
-      "username": "john",
-      "displayName": "John Doe"
+      "username": "admin",
+      "displayName": "Administrator"
     },
-    "modifiedAt": "2026-05-05T17:03:46.142Z",
-    "name": "00000001-0002",
-    "status": "SUBMITTED",
-    "marked": false,
-    "revision": 4,
+    "modifiedAt": "2026-10-08T20:40:38.720Z",
+    "name": "88888888-0001",
+    "status": "REOPEN",
+    "marked": true,
+    "revision": 118,
+    "therapeuticArea": {
+      "id": "af10d9ba-31c0-457d-90d9-ba31c0357d28",
+      "name": "Cancer"
+    },
+    "projectCode": {
+      "id": "b1ed07fb-cf39-448d-ad07-fbcf39848dec",
+      "name": "Code 2"
+    },
+    "description": "Experiment with data",
+    "literature": "<p>literature</p>",
     "templateId": "8dd312ac-4211-4ed1-9312-ac42111ed101",
     "batchCreator": {
-      "username": "john",
-      "displayName": "John Doe"
+      "username": "admin",
+      "displayName": "Administrator"
     },
-    "linkedExperiments": [],
-    "continuedFrom": [],
-    "continuedTo": [],
-    "attachments": [],
-    "acl": [
+    "linkedExperiments": [
       {
-        "displayName": "John Doe",
-        "level": "AUTHOR",
-        "inherited": false,
-        "username": "john"
+        "id": "775b3164-1a55-4be6-b12d-3d0f154df29c",
+        "name": "00000002-0001"
       }
     ],
-    "currentPermissions": [],
+    "continuedFrom": [],
+    "continuedTo": [],
+    "attachments": [
+      {
+        "id": "439ee638-a8c3-404f-8638-60d898657443",
+        "createdBy": {
+          "username": "admin",
+          "displayName": "Administrator"
+        },
+        "createdAt": "2026-10-04T16:34:54.887Z",
+        "modifiedBy": {
+          "username": "admin",
+          "displayName": "Administrator"
+        },
+        "modifiedAt": "2026-10-04T16:34:54.887Z",
+        "name": "attachment.txt",
+        "size": 18
+      },
+      {
+        "id": "bd501c19-1680-43de-8fa4-1f39aef0c1a8",
+        "createdBy": {
+          "username": "admin",
+          "displayName": "Administrator"
+        },
+        "createdAt": "2026-10-04T16:35:19.655Z",
+        "modifiedBy": {
+          "username": "admin",
+          "displayName": "Administrator"
+        },
+        "modifiedAt": "2026-10-04T16:35:19.655Z",
+        "name": "Experiment 88888888-0001.pdf",
+        "size": 36402
+      },
+      {
+        "id": "a848cfdd-0d4a-47a3-adf3-324ec7d04211",
+        "createdBy": {
+          "username": "admin",
+          "displayName": "Administrator"
+        },
+        "createdAt": "2026-10-04T16:35:23.835Z",
+        "modifiedBy": {
+          "username": "admin",
+          "displayName": "Administrator"
+        },
+        "modifiedAt": "2026-10-04T16:35:23.835Z",
+        "name": "Experiment 88888888-0001.pdf",
+        "size": 36635
+      }
+    ],
+    "acl": [
+      {
+        "username": "admin",
+        "displayName": "Administrator",
+        "level": "AUTHOR",
+        "inherited": false
+      }
+    ],
+    "currentPermissions": [
+      "VIEW_EXPERIMENTS",
+      "EDIT_EXPERIMENTS",
+      "MANAGE_EXPERIMENT_ACCESS",
+      "DELETE_EXPERIMENTS",
+      "SUBMIT_EXPERIMENTS"
+    ],
     "model": {
       "reactions": [
         {
-          "anchor": "d60b4b63-bb9f-4a31-b6c1-805fbdec24af",
-          "inputs": [],
-          "outputs": [],
-          "precursorReactantIds": []
+          "anchor": "c21f4231-34ad-4489-ae86-25c4440fa505",
+          "rxnfile": "$RXN\n\n -INDIGO- 1008260826\n\n  3  2\n$MOL\n19\n  -INDIGO-10082608262D\n\n 17 17  0  0  0  0  0  0  0  0999 V2000\n    5.1350    1.3450    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n    6.8671    0.3450    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n    2.5369   -0.1550    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n    3.4030    1.3450    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n    4.2690   -0.1550    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    5.1350    0.3450    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    6.0010   -0.1550    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    4.2690   -1.1550    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    6.0010   -1.1550    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    5.1350   -1.6550    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    3.4030    0.3450    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    3.7320   -1.4650    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0\n    6.5380   -1.4650    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0\n    5.1350   -2.2750    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0\n    5.6720    1.6550    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0\n    7.4040    0.0350    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0\n    2.0000    0.1550    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0\n  1  6  1  0  0  0  0\n  1 15  1  0  0  0  0\n  2  7  1  0  0  0  0\n  2 16  1  0  0  0  0\n  3 11  1  0  0  0  0\n  3 17  1  0  0  0  0\n  4 11  2  0  0  0  0\n  5  6  2  0  0  0  0\n  5  8  1  0  0  0  0\n  5 11  1  0  0  0  0\n  6  7  1  0  0  0  0\n  7  9  2  0  0  0  0\n  8 10  2  0  0  0  0\n  8 12  1  0  0  0  0\n  9 10  1  0  0  0  0\n  9 13  1  0  0  0  0\n 10 14  1  0  0  0  0\nM  END\n$MOL\n\n  -INDIGO-10082608262D\n\n  7  6  0  0  0  0  0  0  0  0999 V2000\n    8.5000   -7.1250    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    9.3661   -6.6250    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    9.3661   -5.6250    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n   10.2322   -7.1250    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n   10.9393   -6.4179    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   11.8053   -6.9179    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   10.9393   -5.4179    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n  1  2  1  0  0  0  0\n  2  3  2  0  0  0  0\n  2  4  1  0  0  0  0\n  4  5  1  0  0  0  0\n  5  6  1  0  0  0  0\n  5  7  2  0  0  0  0\nM  END\n$MOL\n\n  -INDIGO-10082608262D\n\n  7  7  0  0  0  0  0  0  0  0999 V2000\n    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n  1  7  1  0  0  0  0\n  2  3  2  0  0  0  0\n  2  4  1  0  0  0  0\n  3  5  1  0  0  0  0\n  4  6  2  0  0  0  0\n  5  7  2  0  0  0  0\n  6  7  1  0  0  0  0\nM  END\n$MOL\n\n  -INDIGO-10082608262D\n\n 13 13  0  0  0  0  0  0  0  0999 V2000\n   19.3757   -6.0833    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   20.2417   -6.5833    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   20.2417   -7.5833    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   19.3757   -8.0833    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   18.5097   -7.5833    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   18.5097   -6.5833    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   21.1077   -6.0833    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   21.9738   -6.5833    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n   21.1077   -5.0833    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n   21.1077   -8.0833    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n   21.1077   -9.0833    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   20.2417   -9.5834    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n   21.8148   -9.7905    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n  1  2  1  0  0  0  0\n  2  3  2  0  0  0  0\n  3  4  1  0  0  0  0\n  4  5  2  0  0  0  0\n  5  6  1  0  0  0  0\n  6  1  2  0  0  0  0\n  2  7  1  0  0  0  0\n  7  8  1  0  0  0  0\n  7  9  2  0  0  0  0\n  3 10  1  0  0  0  0\n 10 11  1  0  0  0  0\n 11 12  2  0  0  0  0\n 11 13  1  0  0  0  0\nM  END\n$MOL\n\n  -INDIGO-10082608262D\n\n  4  3  0  0  0  0  0  0  0  0999 V2000\n   26.4003   -8.0833    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   27.2663   -7.5833    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   28.1324   -8.0833    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n   27.2663   -6.5833    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n  1  2  1  0  0  0  0\n  2  3  1  0  0  0  0\n  2  4  2  0  0  0  0\nM  END\n",
+          "inputs": [
+            {
+              "anchor": "f78376c7-54a7-47ba-9048-324ae434b9e8",
+              "compound": {
+                "compoundID": "1af9a6f3-1b91-45b5-9bf7-d3244e21ffa8",
+                "stereoisomerCode": {
+                  "id": "4ef07b76-142d-4f4b-bba6-302910a80ffa",
+                  "name": "Achiral"
+                },
+                "saltCode": {
+                  "id": "b171e924-3024-49c3-b88e-461a30bf9f93",
+                  "name": "00 - Parent Structure"
+                },
+                "compoundKey": "STR-00000018-00",
+                "formula": "C<sub>7</sub>H<sub>6</sub>O<sub>4</sub>",
+                "molWeight": {
+                  "value": "154.12",
+                  "exactValue": 154.12099623680115,
+                  "unit": "G_PER_MOL",
+                  "source": "fixed"
+                },
+                "exactMass": {
+                  "value": "154.03",
+                  "exactValue": 154.0266101360321,
+                  "unit": "NO_UNIT",
+                  "source": "fixed"
+                },
+                "calculatedBatchMF": "C<sub>7</sub>H<sub>6</sub>O<sub>4</sub>"
+              },
+              "eq": {
+                "value": "1",
+                "unit": "NO_UNIT",
+                "source": "default"
+              },
+              "rxnPosition": 0,
+              "role": "REACTANT",
+              "chemicalName": "2,3-dihydroxybenzoic acid",
+              "samples": [
+                {
+                  "anchor": "e7ae494e-0d76-4c99-a17e-d29c11098814",
+                  "density": {
+                    "value": "12",
+                    "unit": "G_ML",
+                    "source": 110
+                  },
+                  "volume": {
+                    "value": "6.6670",
+                    "unit": "ML",
+                    "source": "calculated"
+                  },
+                  "purity": {
+                    "value": "50",
+                    "unit": "NO_UNIT",
+                    "source": 103
+                  },
+                  "sampleSource": "SRS",
+                  "sampleKey": "STR-00000018-00-001",
+                  "healthHazards": [
+                    {
+                      "id": "3f6479a1-f41a-4896-a479-a1f41ac896bc",
+                      "name": "Mutagen"
+                    },
+                    {
+                      "id": "67da7174-dc9f-45ad-9a71-74dc9f95adb9",
+                      "name": "Carcinogen"
+                    },
+                    {
+                      "id": "e2f83539-d573-4384-b835-39d573f38437",
+                      "name": "Corrosive - Acid"
+                    }
+                  ],
+                  "mol": {
+                    "value": "0.25955",
+                    "unit": "MOL",
+                    "source": 101
+                  },
+                  "weight": {
+                    "value": "80.004",
+                    "unit": "G",
+                    "source": "calculated"
+                  }
+                },
+                {
+                  "anchor": "e52da743-f355-4ff9-a34d-81e30f0a3a54",
+                  "density": {
+                    "value": "1",
+                    "unit": "G_ML",
+                    "source": 52
+                  },
+                  "molarity": {
+                    "value": "15",
+                    "unit": "M",
+                    "source": 84
+                  },
+                  "purity": {
+                    "value": "100",
+                    "unit": "NO_UNIT",
+                    "source": "default"
+                  },
+                  "sampleSource": "SRS",
+                  "sampleKey": "STR-00000018-00-003",
+                  "healthHazards": [
+                    {
+                      "id": "f106518c-183d-4dae-8651-8c183dfdae16",
+                      "name": "Explosive"
+                    },
+                    {
+                      "id": "5f5c1646-2f01-4754-9c16-462f01b7540c",
+                      "name": "Flammable"
+                    },
+                    {
+                      "id": "e2f83539-d573-4384-b835-39d573f38437",
+                      "name": "Corrosive - Acid"
+                    }
+                  ],
+                  "nbkBatchNumber": "88888888-0004-018",
+                  "weight": {
+                    "overwritten": true
+                  },
+                  "comment": "loing long long loing long loing long long comment"
+                },
+                {
+                  "anchor": "8d3a6ff9-64bb-4ae4-ab1f-3dd0555afc93",
+                  "density": {
+                    "value": "27",
+                    "unit": "G_ML",
+                    "source": 118
+                  },
+                  "volume": {
+                    "value": "2.2833",
+                    "unit": "ML",
+                    "source": "calculated"
+                  },
+                  "purity": {
+                    "value": "100",
+                    "unit": "NO_UNIT",
+                    "source": "default"
+                  },
+                  "sampleSource": "SRS",
+                  "sampleKey": "STR-00000018-00-002",
+                  "healthHazards": [
+                    {
+                      "id": "5f5c1646-2f01-4754-9c16-462f01b7540c",
+                      "name": "Flammable"
+                    }
+                  ],
+                  "nbkBatchNumber": "88888888-0003-018",
+                  "mol": {
+                    "value": "0.4",
+                    "unit": "MOL",
+                    "source": 117
+                  },
+                  "weight": {
+                    "value": "61.648",
+                    "unit": "G",
+                    "source": "calculated"
+                  },
+                  "comment": "loing long long loing long long loing long comment"
+                }
+              ],
+              "limiting": true
+            },
+            {
+              "anchor": "ef47a62e-aa89-43ca-8e2d-292269ec4166",
+              "compound": {
+                "compoundID": "70aca3b8-3e8b-4d61-9f60-73c65fde1afa",
+                "stereoisomerCode": {
+                  "id": "4ef07b76-142d-4f4b-bba6-302910a80ffa",
+                  "name": "Achiral"
+                },
+                "saltCode": {
+                  "id": "b171e924-3024-49c3-b88e-461a30bf9f93",
+                  "name": "00 - Parent Structure"
+                },
+                "formula": "C<sub>4</sub>H<sub>6</sub>O<sub>3</sub>",
+                "molWeight": {
+                  "value": "102.09",
+                  "exactValue": 102.08899760246277,
+                  "unit": "G_PER_MOL",
+                  "source": "fixed"
+                },
+                "exactMass": {
+                  "value": "102.03",
+                  "exactValue": 102.03169512748718,
+                  "unit": "NO_UNIT",
+                  "source": "fixed"
+                },
+                "calculatedBatchMF": "C<sub>4</sub>H<sub>6</sub>O<sub>3</sub>"
+              },
+              "eq": {
+                "value": "0.5",
+                "unit": "NO_UNIT",
+                "source": 81
+              },
+              "rxnPosition": 1,
+              "role": "REACTANT",
+              "samples": [
+                {
+                  "anchor": "395eeeae-b854-4d8a-ac14-d3808afa33e5",
+                  "purity": {
+                    "value": "100",
+                    "unit": "NO_UNIT",
+                    "source": "default"
+                  },
+                  "sampleSource": "VIRTUAL",
+                  "healthHazards": []
+                }
+              ]
+            },
+            {
+              "anchor": "b939234e-aa47-42ab-88aa-f6c5b2b70a89",
+              "compound": {
+                "compoundID": "445cabbb-f90e-4063-9171-dd431e38bfa4",
+                "stereoisomerCode": {
+                  "id": "4ef07b76-142d-4f4b-bba6-302910a80ffa",
+                  "name": "Achiral"
+                },
+                "saltCode": {
+                  "id": "b171e924-3024-49c3-b88e-461a30bf9f93",
+                  "name": "00 - Parent Structure"
+                },
+                "compoundKey": "1140",
+                "formula": "C<sub>7</sub>H<sub>8</sub>",
+                "molWeight": {
+                  "value": "92.14",
+                  "exactValue": 92.14099788665771,
+                  "unit": "G_PER_MOL",
+                  "source": "fixed"
+                },
+                "exactMass": {
+                  "value": "92.06",
+                  "exactValue": 92.06260013580322,
+                  "unit": "NO_UNIT",
+                  "source": "fixed"
+                },
+                "calculatedBatchMF": "C<sub>7</sub>H<sub>8</sub>"
+              },
+              "eq": {
+                "value": "1",
+                "unit": "NO_UNIT",
+                "source": "default"
+              },
+              "rxnPosition": 2,
+              "role": "REACTANT",
+              "chemicalName": "toluene",
+              "samples": [
+                {
+                  "anchor": "2117d6e1-e438-4bc7-9b2d-2a17ef7675c5",
+                  "purity": {
+                    "value": "100",
+                    "unit": "NO_UNIT",
+                    "source": "default"
+                  },
+                  "sampleSource": "PUBCHEM",
+                  "sampleKey": "1140",
+                  "healthHazards": []
+                }
+              ]
+            }
+          ],
+          "limitingAnchor": "f78376c7-54a7-47ba-9048-324ae434b9e8",
+          "outputs": [
+            {
+              "anchor": "d4ec2728-172e-45d0-8577-2a969b0f1c1c",
+              "compound": {
+                "compoundID": "0d500f93-1630-4973-812f-ee4e36ef9e34",
+                "stereoisomerCode": {
+                  "id": "6114103f-0559-44ca-9410-3f055924ca70",
+                  "name": "ACHIR"
+                },
+                "saltCode": {
+                  "id": "64a88fe9-30b5-4d62-9aaa-61fe4e436d73",
+                  "name": "01 - Hydrochloride"
+                },
+                "saltEQ": 0.5,
+                "formula": "C<sub>9</sub>H<sub>8</sub>O<sub>4</sub>",
+                "molWeight": {
+                  "value": "396.78",
+                  "exactValue": 396.77799125671385,
+                  "unit": "G_PER_MOL",
+                  "source": "fixed"
+                },
+                "exactMass": {
+                  "value": "180.04",
+                  "exactValue": 180.0422601699829,
+                  "unit": "NO_UNIT",
+                  "source": "fixed"
+                },
+                "calculatedBatchMF": "C<sub>9</sub>H<sub>8</sub>O<sub>4</sub>&nbsp;*&nbsp;0.5 (HCl)"
+              },
+              "eq": {
+                "value": "1",
+                "unit": "NO_UNIT",
+                "source": "default"
+              },
+              "rxnPosition": 0,
+              "outputName": "P1",
+              "type": "BY_PRODUCT",
+              "intended": true,
+              "samples": []
+            },
+            {
+              "anchor": "40452f7a-28fc-4dba-9471-5b5340deb953",
+              "compound": {
+                "compoundID": "7bdf74f0-81a6-4465-86f2-7580a83b353d",
+                "stereoisomerCode": {
+                  "id": "4ef07b76-142d-4f4b-bba6-302910a80ffa",
+                  "name": "Achiral"
+                },
+                "saltCode": {
+                  "id": "b171e924-3024-49c3-b88e-461a30bf9f93",
+                  "name": "00 - Parent Structure"
+                },
+                "compoundKey": "STR-00000101-00",
+                "formula": "C<sub>2</sub>H<sub>4</sub>O<sub>2</sub>",
+                "molWeight": {
+                  "value": "60.05",
+                  "exactValue": 60.05199861526489,
+                  "unit": "G_PER_MOL",
+                  "source": "fixed"
+                },
+                "exactMass": {
+                  "value": "60.02",
+                  "exactValue": 60.021130084991455,
+                  "unit": "NO_UNIT",
+                  "source": "fixed"
+                },
+                "calculatedBatchMF": "C<sub>2</sub>H<sub>4</sub>O<sub>2</sub>"
+              },
+              "eq": {
+                "value": "1",
+                "unit": "NO_UNIT",
+                "source": "default"
+              },
+              "rxnPosition": 1,
+              "outputName": "P0",
+              "type": "FINAL",
+              "intended": true,
+              "samples": [
+                {
+                  "anchor": "baebf11e-4b84-4019-9688-fc9c58817963",
+                  "nbkBatchNumber": "88888888-0001-001",
+                  "purity": {
+                    "value": "0.5",
+                    "unit": "NO_UNIT",
+                    "source": 12
+                  },
+                  "sampleSource": "SRS",
+                  "sampleKey": "STR-00000101-00-001",
+                  "healthHazards": [
+                    {
+                      "id": "3f6479a1-f41a-4896-a479-a1f41ac896bc",
+                      "name": "Mutagen"
+                    },
+                    {
+                      "id": "67da7174-dc9f-45ad-9a71-74dc9f95adb9",
+                      "name": "Carcinogen"
+                    }
+                  ],
+                  "actualMol": {
+                    "value": "0.00084094",
+                    "unit": "MOL",
+                    "source": "calculated"
+                  },
+                  "actualWeight": {
+                    "value": "10.10",
+                    "unit": "G",
+                    "source": 107
+                  },
+                  "registrationStatus": "REGISTERED",
+                  "handlingPrecautions": [
+                    {
+                      "id": "c1e054d8-aaaa-4bf7-a054-d8aaaa0bf752",
+                      "name": "Air Sensitive"
+                    }
+                  ],
+                  "storageInstructions": [
+                    {
+                      "id": "95b9a0b2-e32a-4de1-b9a0-b2e32a0de1ad",
+                      "name": "Keep tightly sealed"
+                    }
+                  ],
+                  "compoundProtection": [
+                    {
+                      "id": "4eb8a431-b05a-4aa3-b8a4-31b05a9aa3ca",
+                      "name": "Compound Protection 1"
+                    }
+                  ],
+                  "solubilityInSolvents": [
+                    {
+                      "type": "QUALITATIVE",
+                      "solvent": {
+                        "id": "8041e6ed-c302-40e2-81e6-edc30220e2ea",
+                        "name": "Acetic acid"
+                      },
+                      "comment": "comment",
+                      "qualitativeType": "UNSOLUBLE"
+                    },
+                    {
+                      "type": "QUANTITATIVE",
+                      "solvent": {
+                        "id": "8041e6ed-c302-40e2-81e6-edc30220e2ea",
+                        "name": "Acetic acid"
+                      },
+                      "comment": "comment",
+                      "operator": "GREATER_THAN",
+                      "value": -0.5,
+                      "unit": "G_ML"
+                    }
+                  ],
+                  "residualSolvents": [
+                    {
+                      "solvent": {
+                        "id": "8041e6ed-c302-40e2-81e6-edc30220e2ea",
+                        "name": "Acetic acid"
+                      },
+                      "eq": 1.5,
+                      "comment": "comment"
+                    },
+                    {
+                      "solvent": {
+                        "id": "9e18436a-36ec-46ea-9843-6a36ec36eac7",
+                        "name": "Formaldehyde"
+                      },
+                      "eq": 10.0,
+                      "comment": "1112sdf"
+                    }
+                  ],
+                  "meltingPoint": {
+                    "lower": -102.0,
+                    "upper": 202.0,
+                    "comments": "comment11"
+                  },
+                  "purityCalculations": [],
+                  "externalSupplier": {
+                    "supplier": {
+                      "id": "7094c7f0-74ae-4d3b-94c7-f074ae7d3bca",
+                      "name": "External Supplier 1"
+                    },
+                    "registryNumber": "12345678"
+                  },
+                  "source": {
+                    "id": "8dd933f9-f0ea-4024-9933-f9f0ea40243c",
+                    "name": "Sample Source 2"
+                  },
+                  "sourceDetails": {
+                    "id": "81de8b5d-7d7e-4627-9e8b-5d7d7e8627e1",
+                    "name": "Sample Source Details 2"
+                  },
+                  "componentState": {
+                    "id": "838f90ad-0515-44e3-8f90-ad051554e3ae",
+                    "name": "Gas"
+                  },
+                  "batchComment": "batch comment",
+                  "structureComment": "structure comment"
+                },
+                {
+                  "anchor": "dfb7d0f2-5e4d-4cc1-a16d-3b989d543799",
+                  "nbkBatchNumber": "88888888-0001-002",
+                  "purity": {
+                    "value": "100",
+                    "unit": "NO_UNIT",
+                    "source": "default"
+                  },
+                  "sampleSource": "SRS",
+                  "sampleKey": "STR-00000101-00-002",
+                  "healthHazards": [],
+                  "registrationStatus": "REGISTERED",
+                  "handlingPrecautions": [],
+                  "storageInstructions": [],
+                  "compoundProtection": [],
+                  "solubilityInSolvents": [],
+                  "residualSolvents": [],
+                  "purityCalculations": []
+                },
+                {
+                  "anchor": "0388a5a3-734f-4d0a-ace8-38e24654ebc2",
+                  "nbkBatchNumber": "88888888-0001-003",
+                  "purity": {
+                    "value": "100",
+                    "unit": "NO_UNIT",
+                    "source": "default"
+                  },
+                  "sampleSource": "VIRTUAL",
+                  "healthHazards": [
+                    {
+                      "id": "5f5c1646-2f01-4754-9c16-462f01b7540c",
+                      "name": "Flammable"
+                    },
+                    {
+                      "id": "f106518c-183d-4dae-8651-8c183dfdae16",
+                      "name": "Explosive"
+                    }
+                  ],
+                  "handlingPrecautions": [],
+                  "storageInstructions": [],
+                  "compoundProtection": [
+                    {
+                      "id": "4eb8a431-b05a-4aa3-b8a4-31b05a9aa3ca",
+                      "name": "Compound Protection 1"
+                    }
+                  ],
+                  "solubilityInSolvents": [],
+                  "residualSolvents": [],
+                  "purityCalculations": []
+                }
+              ]
+            }
+          ]
         }
       ],
       "significantFigures": 5
     },
-    "projectId": "5c8e8b38-0c46-4898-a995-ab357df6df77",
-    "projectName": "ExperimentWorkflowServiceTest797402b6-1f62-4468-9974-c9ecc7bd2961",
-    "notebookId": "cbfd07a0-1efb-49ab-8038-8fa42695035b",
-    "notebookName": "00000001"
+    "projectId": "5bbc3da4-46b8-465d-a031-ec388f94590a",
+    "projectName": "ProjectWithData",
+    "notebookId": "55370df5-abfc-4034-9433-67277b5a09e6",
+    "notebookName": "88888888"
   },
-  "picture": null
+  "picture": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"500\" height=\"200\" viewBox=\"0 0 500 200\">\n<defs>\n<g>\n<g id=\"glyph-0-0\">\n<path d=\"M 0.390625 1.390625 L 0.390625 -5.515625 L 4.296875 -5.515625 L 4.296875 1.390625 Z M 0.828125 0.953125 L 3.875 0.953125 L 3.875 -5.078125 L 0.828125 -5.078125 Z M 0.828125 0.953125 \"/>\n</g>\n<g id=\"glyph-0-1\">\n<path d=\"M 3.078125 -5.1875 C 2.523438 -5.1875 2.082031 -4.972656 1.75 -4.546875 C 1.414062 -4.128906 1.25 -3.5625 1.25 -2.84375 C 1.25 -2.125 1.414062 -1.554688 1.75 -1.140625 C 2.082031 -0.722656 2.523438 -0.515625 3.078125 -0.515625 C 3.640625 -0.515625 4.082031 -0.722656 4.40625 -1.140625 C 4.738281 -1.554688 4.90625 -2.125 4.90625 -2.84375 C 4.90625 -3.5625 4.738281 -4.128906 4.40625 -4.546875 C 4.082031 -4.972656 3.640625 -5.1875 3.078125 -5.1875 Z M 3.078125 -5.8125 C 3.878906 -5.8125 4.519531 -5.539062 5 -5 C 5.476562 -4.46875 5.71875 -3.75 5.71875 -2.84375 C 5.71875 -1.945312 5.476562 -1.226562 5 -0.6875 C 4.519531 -0.15625 3.878906 0.109375 3.078125 0.109375 C 2.273438 0.109375 1.632812 -0.15625 1.15625 -0.6875 C 0.675781 -1.226562 0.4375 -1.945312 0.4375 -2.84375 C 0.4375 -3.75 0.675781 -4.46875 1.15625 -5 C 1.632812 -5.539062 2.273438 -5.8125 3.078125 -5.8125 Z M 3.078125 -5.8125 \"/>\n</g>\n<g id=\"glyph-0-2\">\n<path d=\"M 0.765625 -5.703125 L 1.546875 -5.703125 L 1.546875 -3.375 L 4.34375 -3.375 L 4.34375 -5.703125 L 5.125 -5.703125 L 5.125 0 L 4.34375 0 L 4.34375 -2.71875 L 1.546875 -2.71875 L 1.546875 0 L 0.765625 0 Z M 0.765625 -5.703125 \"/>\n</g>\n<g id=\"glyph-0-3\">\n<path d=\"M 5.046875 -5.265625 L 5.046875 -4.453125 C 4.785156 -4.691406 4.503906 -4.867188 4.203125 -4.984375 C 3.910156 -5.109375 3.597656 -5.171875 3.265625 -5.171875 C 2.617188 -5.171875 2.117188 -4.972656 1.765625 -4.578125 C 1.421875 -4.179688 1.25 -3.601562 1.25 -2.84375 C 1.25 -2.09375 1.421875 -1.519531 1.765625 -1.125 C 2.117188 -0.726562 2.617188 -0.53125 3.265625 -0.53125 C 3.597656 -0.53125 3.910156 -0.585938 4.203125 -0.703125 C 4.503906 -0.828125 4.785156 -1.007812 5.046875 -1.25 L 5.046875 -0.4375 C 4.773438 -0.257812 4.488281 -0.125 4.1875 -0.03125 C 3.882812 0.0625 3.5625 0.109375 3.21875 0.109375 C 2.363281 0.109375 1.6875 -0.148438 1.1875 -0.671875 C 0.6875 -1.203125 0.4375 -1.925781 0.4375 -2.84375 C 0.4375 -3.757812 0.6875 -4.484375 1.1875 -5.015625 C 1.6875 -5.546875 2.363281 -5.8125 3.21875 -5.8125 C 3.5625 -5.8125 3.882812 -5.765625 4.1875 -5.671875 C 4.488281 -5.578125 4.773438 -5.441406 5.046875 -5.265625 Z M 5.046875 -5.265625 \"/>\n</g>\n</g>\n</defs>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 3.298553 0.587345 L 3.298553 1.387952 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 5.024156, 59.519396)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 3.51681 0.200109 L 3.66125 0.116716 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 5.024156, 59.519396)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 4.845103 1.53758 L 4.201306 1.909255 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 5.024156, 59.519396)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 5.339273 1.504263 L 5.483514 1.587655 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 5.024156, 59.519396)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 0.840671 1.745263 L 1.484468 1.373588 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 5.024156, 59.519396)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 0.3467 1.77838 L 0.20226 1.694988 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 5.024156, 59.519396)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 1.392896 0.587345 L 1.392896 1.426456 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 5.024156, 59.519396)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 1.559482 0.587345 L 1.559482 1.426456 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 5.024156, 59.519396)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 2.387221 1.904467 L 3.298553 1.378376 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 5.024156, 59.519396)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 2.554006 2.000627 L 3.298553 1.570697 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 5.024156, 59.519396)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 2.387221 1.894691 L 2.387221 2.966224 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 5.024156, 59.519396)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 2.3956 1.909255 L 1.467909 1.373588 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 5.024156, 59.519396)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 3.290174 1.373588 L 4.217865 1.909255 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 5.024156, 59.519396)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 4.209685 1.904467 L 4.209685 2.956448 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 5.024156, 59.519396)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 4.0429 2.000627 L 4.0429 2.860287 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 5.024156, 59.519396)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 2.387221 2.956448 L 3.298553 3.482539 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 5.024156, 59.519396)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 2.554006 2.860287 L 3.298553 3.290217 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 5.024156, 59.519396)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 2.3956 2.95166 L 2.077791 3.135203 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 5.024156, 59.519396)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 4.217865 2.95166 L 3.290174 3.487327 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 5.024156, 59.519396)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 4.201306 2.95166 L 4.519115 3.135203 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 5.024156, 59.519396)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 3.298553 3.472962 L 3.298553 3.879151 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 5.024156, 59.519396)\"/>\n<g fill=\"rgb(100%, 5.1%, 5.1%)\" fill-opacity=\"1\">\n<use xlink:href=\"#glyph-0-1\" x=\"66.527344\" y=\"68.753906\"/>\n</g>\n<g fill=\"rgb(100%, 5.1%, 5.1%)\" fill-opacity=\"1\">\n<use xlink:href=\"#glyph-0-1\" x=\"102.210938\" y=\"89.355469\"/>\n</g>\n<g fill=\"rgb(100%, 5.1%, 5.1%)\" fill-opacity=\"1\">\n<use xlink:href=\"#glyph-0-1\" x=\"13.003906\" y=\"99.65625\"/>\n</g>\n<g fill=\"rgb(100%, 5.1%, 5.1%)\" fill-opacity=\"1\">\n<use xlink:href=\"#glyph-0-1\" x=\"30.847656\" y=\"68.753906\"/>\n</g>\n<g fill=\"rgb(0%, 0%, 0%)\" fill-opacity=\"1\">\n<use xlink:href=\"#glyph-0-2\" x=\"37.757812\" y=\"126.648437\"/>\n</g>\n<g fill=\"rgb(0%, 0%, 0%)\" fill-opacity=\"1\">\n<use xlink:href=\"#glyph-0-2\" x=\"95.5625\" y=\"126.648437\"/>\n</g>\n<g fill=\"rgb(0%, 0%, 0%)\" fill-opacity=\"1\">\n<use xlink:href=\"#glyph-0-2\" x=\"66.660156\" y=\"143.335938\"/>\n</g>\n<g fill=\"rgb(0%, 0%, 0%)\" fill-opacity=\"1\">\n<use xlink:href=\"#glyph-0-2\" x=\"77.722656\" y=\"62.375\"/>\n</g>\n<g fill=\"rgb(0%, 0%, 0%)\" fill-opacity=\"1\">\n<use xlink:href=\"#glyph-0-2\" x=\"113.40625\" y=\"95.75\"/>\n</g>\n<g fill=\"rgb(0%, 0%, 0%)\" fill-opacity=\"1\">\n<use xlink:href=\"#glyph-0-2\" x=\"2.078125\" y=\"93.277344\"/>\n</g>\n<path fill=\"none\" stroke-width=\"0.0625\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M -0.0000427402 -0.0000000778447 L 0.499913 -0.0000000778447 M 0.249935 -0.249978 L 0.249935 0.249978 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 127.207868, 100.000002)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 0.262764 1.644409 L 0.919529 1.265153 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 147.980115, 82.415982)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 0.994543 1.318221 L 0.994543 0.479109 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 147.980115, 82.415982)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 0.827957 1.318221 L 0.827957 0.479109 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 147.980115, 82.415982)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 0.902971 1.265153 L 1.546768 1.637027 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 147.980115, 82.415982)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 2.0561 1.562612 L 2.575607 1.043105 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 147.980115, 82.415982)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 2.555457 1.045699 L 3.215016 1.426551 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 147.980115, 82.415982)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 2.649823 1.100163 L 2.649823 0.261251 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 147.980115, 82.415982)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 2.483237 1.135475 L 2.483237 0.261251 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 147.980115, 82.415982)\"/>\n<g fill=\"rgb(0%, 0%, 0%)\" fill-opacity=\"1\">\n<use xlink:href=\"#glyph-0-3\" x=\"145.238281\" y=\"120.433594\"/>\n</g>\n<g fill=\"rgb(100%, 5.1%, 5.1%)\" fill-opacity=\"1\">\n<use xlink:href=\"#glyph-0-1\" x=\"162.742187\" y=\"89.53125\"/>\n</g>\n<g fill=\"rgb(100%, 5.1%, 5.1%)\" fill-opacity=\"1\">\n<use xlink:href=\"#glyph-0-1\" x=\"180.585938\" y=\"120.433594\"/>\n</g>\n<g fill=\"rgb(0%, 0%, 0%)\" fill-opacity=\"1\">\n<use xlink:href=\"#glyph-0-3\" x=\"213.332031\" y=\"116.167969\"/>\n</g>\n<g fill=\"rgb(100%, 5.1%, 5.1%)\" fill-opacity=\"1\">\n<use xlink:href=\"#glyph-0-1\" x=\"195.152344\" y=\"85.265625\"/>\n</g>\n<path fill=\"none\" stroke-width=\"0.0625\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 0.000011415 -0.0000000778447 L 0.499967 -0.0000000778447 M 0.249989 -0.249978 L 0.249989 0.249978 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 227.054464, 100.000002)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 0.227506 0.911191 L 1.061829 0.911191 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 247.826711, 82.158999)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 3.161204 0.902812 L 2.625537 1.830703 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 247.826711, 82.158999)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 2.968883 0.902812 L 2.529377 1.664117 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 247.826711, 82.158999)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 3.161204 0.91957 L 2.625537 -0.00832006 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 247.826711, 82.158999)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 2.639902 1.822323 L 1.568568 1.822323 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 247.826711, 82.158999)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 2.639902 0.0000590884 L 1.568568 0.0000590884 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 247.826711, 82.158999)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 2.543741 0.166644 L 1.664729 0.166644 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 247.826711, 82.158999)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 1.582932 1.830703 L 1.052054 0.911191 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 247.826711, 82.158999)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 1.679293 1.664117 L 1.244575 0.911191 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 247.826711, 82.158999)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 1.582932 -0.00832006 L 1.047266 0.91957 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 247.826711, 82.158999)\"/>\n<g fill=\"rgb(0%, 0%, 0%)\" fill-opacity=\"1\">\n<use xlink:href=\"#glyph-0-3\" x=\"245.085938\" y=\"102.851562\"/>\n</g>\n<path fill-rule=\"nonzero\" fill=\"rgb(0%, 0%, 0%)\" fill-opacity=\"1\" d=\"M 317.839844 100.613281 L 342.3125 100.613281 L 342.3125 102.449219 L 347.207031 100 L 342.3125 97.550781 L 342.3125 99.386719 L 317.839844 99.386719 \"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 0.902772 1.047285 L 1.830663 1.582952 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 355.366811, 51.513836)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 1.822283 1.578163 L 1.822283 2.630344 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 355.366811, 51.513836)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 1.655698 1.674524 L 1.655698 2.534184 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 355.366811, 51.513836)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 1.830663 2.625556 L 0.902772 3.161223 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 355.366811, 51.513836)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 0.91953 3.161223 L -0.00835994 2.625556 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 355.366811, 51.513836)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 0.91953 2.968702 L 0.158425 2.529396 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 355.366811, 51.513836)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 0.0000192058 2.639921 L 0.0000192058 1.568587 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 355.366811, 51.513836)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M -0.00835994 1.582952 L 0.91953 1.047285 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 355.366811, 51.513836)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 0.158425 1.679312 L 0.91953 1.239806 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 355.366811, 51.513836)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 1.813904 1.582952 L 2.741795 1.047285 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 355.366811, 51.513836)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 2.725036 1.047285 L 3.369034 1.41896 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 355.366811, 51.513836)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 2.816808 1.100153 L 2.816808 0.261241 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 355.366811, 51.513836)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 2.650223 1.100353 L 2.650223 0.261241 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 355.366811, 51.513836)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 1.813904 2.625556 L 2.457702 2.997231 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 355.366811, 51.513836)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 2.733416 3.417785 L 2.733416 4.215399 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 355.366811, 51.513836)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 2.733416 4.112256 L 2.056301 4.503283 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 355.366811, 51.513836)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 2.794464 4.269664 L 2.139693 4.647723 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 355.366811, 51.513836)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 2.728628 4.203628 L 3.252524 4.727724 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 355.366811, 51.513836)\"/>\n<g fill=\"rgb(100%, 5.1%, 5.1%)\" fill-opacity=\"1\">\n<use xlink:href=\"#glyph-0-1\" x=\"423.648438\" y=\"85.265625\"/>\n</g>\n<g fill=\"rgb(100%, 5.1%, 5.1%)\" fill-opacity=\"1\">\n<use xlink:href=\"#glyph-0-1\" x=\"405.808594\" y=\"54.363281\"/>\n</g>\n<g fill=\"rgb(100%, 5.1%, 5.1%)\" fill-opacity=\"1\">\n<use xlink:href=\"#glyph-0-1\" x=\"405.808594\" y=\"116.167969\"/>\n</g>\n<g fill=\"rgb(100%, 5.1%, 5.1%)\" fill-opacity=\"1\">\n<use xlink:href=\"#glyph-0-1\" x=\"387.964844\" y=\"147.070312\"/>\n</g>\n<g fill=\"rgb(0%, 0%, 0%)\" fill-opacity=\"1\">\n<use xlink:href=\"#glyph-0-3\" x=\"420.714844\" y=\"151.335938\"/>\n</g>\n<path fill=\"none\" stroke-width=\"0.0625\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 0.0000608187 -0.0000000778447 L 0.500016 -0.0000000778447 M 0.250039 -0.249978 L 0.250039 0.249978 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 438.053497, 100.000002)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 0.262668 1.426515 L 0.919433 1.047259 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 458.825744, 84.549499)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 0.902875 1.047259 L 1.546672 1.419133 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 458.825744, 84.549499)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 0.994447 1.100327 L 0.994447 0.261215 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 458.825744, 84.549499)\"/>\n<path fill=\"none\" stroke-width=\"0.0333333\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke=\"rgb(0%, 0%, 0%)\" stroke-opacity=\"1\" stroke-miterlimit=\"10\" d=\"M 0.827861 1.100327 L 0.827861 0.261215 \" transform=\"matrix(19.579865, 0, 0, 19.579865, 458.825744, 84.549499)\"/>\n<g fill=\"rgb(0%, 0%, 0%)\" fill-opacity=\"1\">\n<use xlink:href=\"#glyph-0-3\" x=\"456.085938\" y=\"118.300781\"/>\n</g>\n<g fill=\"rgb(100%, 5.1%, 5.1%)\" fill-opacity=\"1\">\n<use xlink:href=\"#glyph-0-1\" x=\"491.425781\" y=\"118.300781\"/>\n</g>\n<g fill=\"rgb(100%, 5.1%, 5.1%)\" fill-opacity=\"1\">\n<use xlink:href=\"#glyph-0-1\" x=\"473.585938\" y=\"87.398438\"/>\n</g>\n</svg>\n"
 }

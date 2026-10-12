@@ -255,7 +255,7 @@ export const PicksRxnRole: Story = {
 
     await waitFor(() =>
       expect(sent).toEqual([
-        { type: 'SetInputRowRole', anchor: 'd0000000-0000-4000-8000-000000000001', role: 'CATALYST' },
+        { type: 'SetInputRowRole', anchor: 'inp00001', role: 'CATALYST' },
       ]),
     );
   },
@@ -435,7 +435,7 @@ export const HazardsAreSentOnceWhenTheListCloses: Story = {
     await waitFor(() => expect(sent).toHaveLength(1));
     await expect(sent[0]).toMatchObject({
       type: 'SetInputHealthHazards',
-      anchor: 'e0000000-0000-4000-8000-00000000000a',
+      anchor: 'ins0000a',
       healthHazards: [{ name: 'Corrosive' }, { name: 'Flammable' }, { name: 'Irritant' }, { name: 'Toxic' }],
     });
 
@@ -589,7 +589,7 @@ export const EditsSampleWeight: Story = {
 
     await waitFor(() =>
       expect(sent).toEqual([
-        { type: 'SetInputWeight', anchor: 'e0000000-0000-4000-8000-00000000000a', weight: '750', unit: 'MG' },
+        { type: 'SetInputWeight', anchor: 'ins0000a', weight: '750', unit: 'MG' },
       ]),
     );
   },
@@ -616,7 +616,7 @@ export const BlurSavesAChangedValue: Story = {
 
     await waitFor(() =>
       expect(sent).toEqual([
-        { type: 'SetInputWeight', anchor: 'e0000000-0000-4000-8000-00000000000a', weight: '700', unit: 'MG' },
+        { type: 'SetInputWeight', anchor: 'ins0000a', weight: '700', unit: 'MG' },
       ]),
     );
   },
@@ -636,7 +636,7 @@ export const ClearsCell: Story = {
 
     await waitFor(() =>
       expect(sent).toEqual([
-        { type: 'SetInputWeight', anchor: 'e0000000-0000-4000-8000-00000000000a', weight: null, unit: null },
+        { type: 'SetInputWeight', anchor: 'ins0000a', weight: null, unit: null },
       ]),
     );
   },
@@ -718,7 +718,7 @@ export const ArrowKeysPickTheUnit: Story = {
     await expect(canvas.getByLabelText('Volume, batch 1')).toHaveFocus();
     await waitFor(() =>
       expect(sent).toEqual([
-        { type: 'SetInputWeight', anchor: 'e0000000-0000-4000-8000-00000000000a', weight: '0.0025', unit: 'G' },
+        { type: 'SetInputWeight', anchor: 'ins0000a', weight: '0.0025', unit: 'G' },
       ]),
     );
   },
@@ -757,7 +757,7 @@ export const ChangingUnitConvertsTheValue: Story = {
     await userEvent.keyboard('{ArrowDown}{Enter}');
     await waitFor(() =>
       expect(sent).toEqual([
-        { type: 'SetInputWeight', anchor: 'e0000000-0000-4000-8000-00000000000a', weight: '0.6765', unit: 'G' },
+        { type: 'SetInputWeight', anchor: 'ins0000a', weight: '0.6765', unit: 'G' },
       ]),
     );
   },
@@ -788,7 +788,7 @@ export const UnsavedValueKeepsItsNumber: Story = {
     await userEvent.keyboard('{Enter}');
     await waitFor(() =>
       expect(sent).toEqual([
-        { type: 'SetInputMolarity', anchor: 'e0000000-0000-4000-8000-00000000000b', molarity: '0.25', unit: 'M' },
+        { type: 'SetInputMolarity', anchor: 'ins0000b', molarity: '0.25', unit: 'M' },
       ]),
     );
   },
@@ -816,7 +816,7 @@ export const ClickingAUnitKeepsFocus: Story = {
     await userEvent.keyboard('{Enter}');
     await waitFor(() =>
       expect(sent).toEqual([
-        { type: 'SetInputVolume', anchor: 'e0000000-0000-4000-8000-00000000000b', volume: '0.0045', unit: 'L' },
+        { type: 'SetInputVolume', anchor: 'ins0000b', volume: '0.0045', unit: 'L' },
       ]),
     );
   },
@@ -839,7 +839,7 @@ export const TabCommitsAndMovesOn: Story = {
     await expect(canvas.getByLabelText('Volume, batch 1')).toHaveFocus();
     await waitFor(() =>
       expect(sent).toEqual([
-        { type: 'SetInputWeight', anchor: 'e0000000-0000-4000-8000-00000000000a', weight: '812', unit: 'MG' },
+        { type: 'SetInputWeight', anchor: 'ins0000a', weight: '812', unit: 'MG' },
       ]),
     );
   },
@@ -1269,7 +1269,7 @@ export const AddsEmptyRow: Story = {
       expect(sent).toEqual([
         {
           type: 'AddEmptyInput',
-          anchor: 'b0000000-0000-4000-8000-000000000001',
+          anchor: 'rxn00001',
           createdInputAnchor: expect.any(String),
           createdSampleAnchor: expect.any(String),
         },
@@ -1291,13 +1291,13 @@ export const DeletesRowAndBatch: Story = {
 
     await userEvent.click(await canvas.findByRole('button', { name: 'Delete batch 1' }));
     await waitFor(() =>
-      expect(sent).toEqual([{ type: 'RemoveInput', anchor: 'e0000000-0000-4000-8000-00000000000a' }]),
+      expect(sent).toEqual([{ type: 'RemoveInput', anchor: 'ins0000a' }]),
     );
 
     sent.length = 0;
     await userEvent.click(canvas.getByRole('button', { name: 'Delete compound 1' }));
     await waitFor(() =>
-      expect(sent).toEqual([{ type: 'RemoveInputRow', anchor: 'd0000000-0000-4000-8000-000000000001' }]),
+      expect(sent).toEqual([{ type: 'RemoveInputRow', anchor: 'inp00001' }]),
     );
   },
 };

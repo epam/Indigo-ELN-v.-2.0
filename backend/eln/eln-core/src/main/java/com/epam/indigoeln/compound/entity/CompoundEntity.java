@@ -1,6 +1,7 @@
 package com.epam.indigoeln.compound.entity;
 
 import com.epam.indigoeln.common.model.MolFormula;
+import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.common.config.MolFormulaConverter;
 import com.epam.indigoeln.eln.common.entity.IdentifiableEntity;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
@@ -85,6 +86,10 @@ public class CompoundEntity extends IdentifiableEntity {
         this.canSmiles = canSmiles;
         this.stereoisomerCode = stereoisomerCode;
         this.saltCode = saltCode;
-        this.saltEQ = saltEQ;
+        setSaltEQ(saltEQ);
+    }
+
+    public void setSaltEQ(@Nullable BigDecimal saltEQ) {
+        this.saltEQ = ModelUtil.stripTrailingZeros(saltEQ);
     }
 }

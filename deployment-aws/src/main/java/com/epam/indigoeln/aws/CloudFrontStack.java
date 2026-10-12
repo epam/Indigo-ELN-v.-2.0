@@ -70,7 +70,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Map;
 
 import static com.epam.indigoeln.aws.util.Utils.entry;
 import static com.epam.indigoeln.aws.util.Utils.mapOf;
@@ -125,9 +124,9 @@ public class CloudFrontStack {
                 .onUpdate(AwsSdkCall.builder()
                         .service("ec2")
                         .action("describeSecurityGroups")
-                        .parameters(Map.of("Filters", List.of(
-                                Map.of("Name", "vpc-id", "Values", List.of(props.vpc().getVpcId())),
-                                Map.of("Name", "group-name", "Values", List.of("CloudFront-VPCOrigins-Service-SG"))
+                        .parameters(mapOf("Filters", List.of(
+                                mapOf(entry("Name", "vpc-id"), entry("Values", List.of(props.vpc().getVpcId()))),
+                                mapOf(entry("Name", "group-name"), entry("Values", List.of("CloudFront-VPCOrigins-Service-SG")))
                         )))
                         .physicalResourceId(PhysicalResourceId.of("CloudFront-VPCOrigins-Service-SG"))
                         .build())
@@ -308,9 +307,9 @@ public class CloudFrontStack {
                         .exclude(List.of("mockServiceWorker.js", "csp-hashes.json"))
                         .build()),
                         // Fetched by the app before it configures Amplify, see frontend2/src/lib/env.ts.
-                        Source.jsonData("config.json", Map.of(
-                                "cognitoUserPoolId", props.userPool().getUserPoolId(),
-                                "cognitoClientId", props.userPoolClient().getUserPoolClientId()
+                        Source.jsonData("config.json", mapOf(
+                                entry("cognitoUserPoolId", props.userPool().getUserPoolId()),
+                                entry("cognitoClientId", props.userPoolClient().getUserPoolClientId())
                         ))))
                 .destinationBucket(frontendCodeS3)
                 .distribution(distribution) // invalidate distribution

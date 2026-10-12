@@ -10,6 +10,7 @@ import org.openapitools.jackson.nullable.JsonNullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -28,6 +29,16 @@ public class ModelUtil {
 
     public <T> T firstNotNull(@Nullable T first, T second) {
         return first != null ? first : second;
+    }
+
+    @Nullable
+    public BigDecimal stripTrailingZeros(@Nullable BigDecimal value) {
+        if (value == null) {
+            return null;
+        }
+        BigDecimal stripped = value.stripTrailingZeros();
+        // avoid scientific notation, e.g. 2E+1 for 20
+        return stripped.scale() < 0 ? stripped.setScale(0) : stripped;
     }
 
     public String formatUser(@Nullable String firstName, @Nullable String lastName, String username) {

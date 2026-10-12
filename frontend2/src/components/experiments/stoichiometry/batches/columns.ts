@@ -16,6 +16,7 @@ import {
   NO_UNITS,
   plainFormula,
   REGISTRATION_STATUS_LABELS,
+  shortNbkBatchNumber,
   VOLUME_UNITS,
   WEIGHT_UNITS,
 } from '@/lib/types/reactions.ts';
@@ -125,9 +126,8 @@ export const BATCH_COLUMNS: BatchColumn[] = [
     id: 'batchNo',
     header: 'Batch #',
     kind: 'readonly',
-    // The server's own derived field — `NbkBatchNumber.getShortForm()`, zero-padded to three.
-    // indigo-frontend re-split the full number by hand for the same result.
-    value: (row) => row.sample.shortNbkBatchNumber,
+    // Zero-padded to three, as `NbkBatchNumber.getShortForm()` has it.
+    value: (row) => shortNbkBatchNumber(row.sample.nbkBatchNumber),
   },
   {
     id: 'productName',
@@ -267,7 +267,7 @@ export const BATCH_COLUMNS: BatchColumn[] = [
 export function batchHaystack(row: BatchRow): string {
   const compound = row.output.compound;
   return [
-    row.sample.shortNbkBatchNumber,
+    shortNbkBatchNumber(row.sample.nbkBatchNumber),
     row.sample.nbkBatchNumber,
     row.output.outputName,
     row.output.chemicalName,

@@ -27,8 +27,11 @@ phases:
         if [ "$BUILD_REPORTS_AWS" = "true" ]; then TARGETS="$TARGETS :common:common-aws-service:build :reports:reports-api:build :reports:reports-core:build :reports:reports-aws:build"; fi
         if [ "$BUILD_SIGNATURE_AWS" = "true" ]; then TARGETS="$TARGETS :common:common-aws-service:build :signature:signature-api:build :signature:signature-core:build :signature:signature-aws:build"; fi
         if [ "$BUILD_SAMPLEREGISTRATION_AWS" = "true" ]; then TARGETS="$TARGETS :common:common-aws-service:build :sampleregistration:sampleregistration-api:build :sampleregistration:sampleregistration-core:build :sampleregistration:sampleregistration-aws:build"; fi
-#        ./gradlew test $TARGETS sonar -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.token=$SONAR_TOKEN
-        ./gradlew test $TARGETS
+        if [ "$BUILD_ELN_SERVICE" = "true" ]; then TARGETS="$TARGETS :common:common-service:build :eln:eln-api:build :eln:eln-core:build :eln:eln-service:build"; fi
+        if [ "$BUILD_REPORTS_SERVICE" = "true" ]; then TARGETS="$TARGETS :common:common-service:build :reports:reports-api:build :reports:reports-core:build :reports:reports-service:build"; fi
+        if [ "$BUILD_SIGNATURE_SERVICE" = "true" ]; then TARGETS="$TARGETS :common:common-service:build :signature:signature-api:build :signature:signature-core:build :signature:signature-service:build"; fi
+        if [ "$BUILD_SAMPLEREGISTRATION_SERVICE" = "true" ]; then TARGETS="$TARGETS :common:common-service:build :sampleregistration:sampleregistration-api:build :sampleregistration:sampleregistration-core:build :sampleregistration:sampleregistration-service:build"; fi
+        ./gradlew test $TARGETS sonar -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.token=$SONAR_TOKEN
   post_build:
     commands:
       # One command, so the login and the helper are in scope for every branch. That also means
@@ -37,7 +40,7 @@ phases:
       - |
         set -eo pipefail
 
-        # Every private repo lives in the account's single registry, so one login covers all eight.
+        # Every private repo lives in the account's single registry, so one login covers all twelve.
         # pipefail is what makes a failing get-login-password fail the build rather than being
         # masked by docker login's own exit status.
         aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin "$REGISTRY_URI"
@@ -62,6 +65,10 @@ phases:
         push_image "$BUILD_REPORTS_AWS"               indigoeln/reports-aws:built                "$REPORTS_AWS_REPO_URI"
         push_image "$BUILD_SIGNATURE_AWS"             indigoeln/signature-aws:built              "$SIGNATURE_AWS_REPO_URI"
         push_image "$BUILD_SAMPLEREGISTRATION_AWS"    indigoeln/sampleregistration-aws:built     "$SAMPLEREGISTRATION_AWS_REPO_URI"
+        push_image "$BUILD_ELN_SERVICE"                indigoeln/eln-service:built                "$ELN_SERVICE_REPO_URI"
+        push_image "$BUILD_REPORTS_SERVICE"            indigoeln/reports-service:built            "$REPORTS_SERVICE_REPO_URI"
+        push_image "$BUILD_SIGNATURE_SERVICE"          indigoeln/signature-service:built          "$SIGNATURE_SERVICE_REPO_URI"
+        push_image "$BUILD_SAMPLEREGISTRATION_SERVICE" indigoeln/sampleregistration-service:built "$SAMPLEREGISTRATION_SERVICE_REPO_URI"
 reports:
   unit_tests:
     files:

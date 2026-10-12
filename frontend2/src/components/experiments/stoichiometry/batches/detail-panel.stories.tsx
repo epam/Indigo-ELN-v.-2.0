@@ -19,8 +19,7 @@ import type { StoichiometryMutations } from '@/lib/hooks/experiments/use-stoichi
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const EXPERIMENT = makeExperimentDetails();
-/** Given a precursor here rather than in the fixture: only this panel renders the field. */
-const REACTION = { ...EXPERIMENT.model.reactions[0], precursorReactantIds: ['STR-00000014-00'] };
+const REACTION = EXPERIMENT.model.reactions[0];
 
 function rowAt(outputIndex: number, sampleIndex: number): BatchRow {
   const output = REACTION.outputs[outputIndex];
@@ -92,8 +91,9 @@ export const Default: Story = {
     await expect(canvas.getByText(POPULATED.sample.nbkBatchNumber)).toBeInTheDocument();
     // Derived on the compound, shown without a box.
     await expect(canvas.getByText('180.16')).toBeInTheDocument();
-    // Derived on the reaction, not on the batch.
-    await expect(canvas.getByLabelText('Precursor/Reactant IDs')).toHaveValue('STR-00000014-00');
+    // Derived from the reaction's inputs, not from the batch: the one reactant's sample, and none
+    // of the solvent's or the catalyst's.
+    await expect(canvas.getByLabelText('Precursor/Reactant IDs')).toHaveValue('STR-00000000-89-001');
     // The STR code arrives on registration; this batch has not been registered.
     await expect(canvas.getByLabelText('Conversational Batch number')).toHaveValue('');
     // A derived quantity carries its unit into the read-only box.
@@ -177,11 +177,11 @@ export const ReadOnlyExperiment: Story = {
 export const NoStructure: Story = {
   args: {
     row: {
-      output: makeReactionOutput('f0000000-0000-4000-8000-00000000000e', {
+      output: makeReactionOutput('out0000e', {
         compound: unknownCompound(),
         samples: [],
       }),
-      sample: makeReactionOutputSample('f1000000-0000-4000-8000-00000000000e'),
+      sample: makeReactionOutputSample('ous0000e'),
       step: 0,
     },
   },
@@ -210,7 +210,7 @@ export const PicksSource: Story = {
 
     await waitFor(() =>
       expect(sent).toEqual([
-        { type: 'SetOutputSource', anchor: 'f1000000-0000-4000-8000-000000000002', source: option },
+        { type: 'SetOutputSource', anchor: 'ous00002', source: option },
       ]),
     );
   },
@@ -232,7 +232,7 @@ export const SavesBatchCommentOnBlur: Story = {
       expect(sent).toEqual([
         {
           type: 'SetOutputBatchComment',
-          anchor: 'f1000000-0000-4000-8000-000000000002',
+          anchor: 'ous00002',
           batchComment: 'Repeat of 001',
         },
       ]),
@@ -309,7 +309,7 @@ export const ClearingAListSendsEmpty: Story = {
       expect(sent).toEqual([
         {
           type: 'SetOutputHealthHazards',
-          anchor: 'f1000000-0000-4000-8000-000000000001',
+          anchor: 'ous00001',
           healthHazards: [],
         },
       ]),
@@ -325,7 +325,7 @@ export const ClearingAListSendsEmpty: Story = {
     await waitFor(() =>
       expect(sent.at(-1)).toEqual({
         type: 'SetOutputCompoundProtection',
-        anchor: 'f1000000-0000-4000-8000-000000000001',
+        anchor: 'ous00001',
         compoundProtection: [],
       }),
     );
@@ -364,7 +364,7 @@ export const EditsMeltingPoint: Story = {
       expect(sent).toEqual([
         {
           type: 'SetOutputMeltingPoint',
-          anchor: 'f1000000-0000-4000-8000-000000000001',
+          anchor: 'ous00001',
           meltingPoint: { lower: 67, upper: 70 },
         },
       ]),
@@ -393,7 +393,7 @@ export const EditsResidualSolvents: Story = {
       expect(sent).toEqual([
         {
           type: 'SetOutputResidualSolvents',
-          anchor: 'f1000000-0000-4000-8000-000000000002',
+          anchor: 'ous00002',
           residualSolvents: [{ solvent, eq: 2 }],
         },
       ]),
@@ -419,7 +419,7 @@ export const EditsSolubility: Story = {
       expect(sent).toEqual([
         {
           type: 'SetOutputSolubilityInSolvents',
-          anchor: 'f1000000-0000-4000-8000-000000000001',
+          anchor: 'ous00001',
           solubilityInSolvents: [
             { type: 'QUALITATIVE', solvent: DICTIONARIES.SOLVENT![2], qualitativeType: 'SOLUBLE' },
           ],

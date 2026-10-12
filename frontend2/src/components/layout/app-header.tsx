@@ -1,10 +1,12 @@
-import { Search } from 'lucide-react';
+import { Search, TriangleAlert } from 'lucide-react';
 import { useState } from 'react';
 
 import logoUrl from '@/assets/indigo-logo.svg';
+import { ReportErrorDialog } from '@/components/common/report-error-dialog';
 import { UserMenu } from '@/components/layout/user-menu';
 import { GlobalSearchPanel } from '@/components/search/global-search-panel';
 import { Button } from '@/components/ui/button';
+import { openReportError } from '@/lib/report-error';
 
 export function AppHeader() {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -35,6 +37,16 @@ export function AppHeader() {
         <Button
           variant="ghost"
           size="icon"
+          aria-label="Report Error"
+          title="Report Error"
+          onClick={() => openReportError()}
+          className="text-white hover:bg-white/10 hover:text-white"
+        >
+          <TriangleAlert className="size-6" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
           aria-label="Search"
           title="Search"
           onClick={() => setSearchOpen(true)}
@@ -46,6 +58,7 @@ export function AppHeader() {
       </div>
 
       <GlobalSearchPanel open={searchOpen} onOpenChange={setSearchOpen} query={query} onQueryChange={setQuery} />
+      <ReportErrorDialog />
     </header>
   );
 }

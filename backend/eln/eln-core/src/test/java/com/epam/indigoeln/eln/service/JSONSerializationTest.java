@@ -62,11 +62,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class JSONSerializationTest {
 
-    ReactionAnchor REACTION = new ReactionAnchor(UUID.fromString("00000000-0000-0000-0000-000000000001"));
-    InputAnchor INPUT = new InputAnchor(UUID.fromString("00000000-0000-0000-0000-000000000010"));
-    InputSampleAnchor INPUT_SAMPLE = new InputSampleAnchor(UUID.fromString("00000000-0000-0000-0000-000000000011"));
-    OutputAnchor OUTPUT = new OutputAnchor(UUID.fromString("00000000-0000-0000-0000-000000000012"));
-    OutputSampleAnchor OUTPUT_SAMPLE = new OutputSampleAnchor(UUID.fromString("00000000-0000-0000-0000-000000000013"));
+    ReactionAnchor REACTION = new ReactionAnchor("rxn00001");
+    InputAnchor INPUT = new InputAnchor("inp00010");
+    InputSampleAnchor INPUT_SAMPLE = new InputSampleAnchor("ins00011");
+    OutputAnchor OUTPUT = new OutputAnchor("out00012");
+    OutputSampleAnchor OUTPUT_SAMPLE = new OutputSampleAnchor("ous00013");
 
     @Inject
     ObjectMapper quarkusObjectMapper;

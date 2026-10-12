@@ -204,6 +204,11 @@ export function plainFormula(formula: MolFormula): string {
 /** `NbkBatchNumber` is a `@JsonValue` string: `20240101-0001-003`. */
 export type NbkBatchNumber = string;
 
+/** Mirrors `NbkBatchNumber.getShortForm()`: the ordinal alone, still zero-padded to three. */
+export function shortNbkBatchNumber(nbkBatchNumber: NbkBatchNumber): string {
+  return nbkBatchNumber.slice(nbkBatchNumber.lastIndexOf('-') + 1);
+}
+
 /**
  * One flat class, `NON_NULL`: a compound is either **known** — it has a `compoundID`, and every
  * other field comes from the compound registry — or unknown, carrying at most a `formula` and a
@@ -408,8 +413,6 @@ export interface ReactionInputSample extends ReactionSample {
 export interface ReactionOutputSample extends ReactionSample {
   anchor: UUID;
   nbkBatchNumber: NbkBatchNumber;
-  /** Read-only, derived: the ordinal of `nbkBatchNumber` alone, zero-padded to three. */
-  shortNbkBatchNumber: string;
   actualMol?: EnteredValue<MolUnit>;
   actualWeight?: EnteredValue<WeightUnit>;
   /** Java field `yieldValue`, remapped to `yield` by `@JsonProperty`. */
@@ -471,8 +474,6 @@ export interface Reaction {
   /** Which input row is limiting; `ReactionInput.limiting` is derived from it. */
   limitingAnchor?: UUID;
   outputs: ReactionOutput[];
-  /** Read-only, derived: the `sampleKey` of every reactant sample that has one. */
-  precursorReactantIds: string[];
 }
 
 /**

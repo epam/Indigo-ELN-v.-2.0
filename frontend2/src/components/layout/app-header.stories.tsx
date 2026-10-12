@@ -1,6 +1,9 @@
-import { expect, screen, userEvent, within } from 'storybook/test';
+import { expect, screen, userEvent, waitFor, within } from 'storybook/test';
 
 import { AppHeader } from '@/components/layout/app-header';
+import { ApiError } from '@/lib/api';
+import { buildReportErrorContext } from '@/lib/report-error';
+import { notifyError } from '@/lib/toast';
 import { loadingHandlers } from '@/mocks/handlers';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
@@ -41,5 +44,40 @@ export const OpensGlobalSearch: Story = {
 
     const panel = await screen.findByRole('dialog', { name: 'Global Search' });
     await expect(within(panel).getByLabelText('Quick search')).toHaveValue('aspirin');
+  },
+};
+
+/** The header button opens an empty report; submitting it closes the dialog and confirms. */
+export const ReportsError: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole('button', { name: 'Report Error' }));
+
+    const dialog = await screen.findByRole('dialog', { name: 'Report Error' });
+    await userEvent.type(within(dialog).getByLabelText(/Title/), 'Save button does nothing');
+    await userEvent.type(within(dialog).getByLabelText(/Problem Description/), 'Clicked Save, nothing happened');
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Submit' }));
+
+    await expect(await screen.findByText('Error report submitted successfully.')).toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Report Error' })).not.toBeInTheDocument());
+  },
+};
+
+/** An error toast's action opens the same dialog, seeded with the failure and the request behind it. */
+export const ReportsErrorFromToast: Story = {
+  play: async () => {
+    const request = buildReportErrorContext('/api/eln/projects', 'POST', { name: 'x' }, 'Internal Server Error');
+    notifyError(new ApiError(500, 'Internal Server Error'), '/api/eln/projects', undefined, request);
+    // By text, not role: an unfocused toast's controls are outside the accessibility tree.
+    await userEvent.click(await screen.findByText('Report Error'));
+
+    const dialog = await screen.findByRole('dialog', { name: 'Report Error' });
+    await expect(within(dialog).getByLabelText(/Title/)).toHaveValue('Backend error 500');
+    await expect(within(dialog).getByLabelText(/Problem Description/)).toHaveValue(
+      'Server error. Please try again later',
+    );
+    await expect(within(dialog).getByLabelText('Request URL')).toHaveValue('/api/eln/projects');
+    await expect(within(dialog).getByLabelText('Request Body')).toHaveValue('{"name":"x"}');
+    await expect(within(dialog).getByLabelText('Response Body')).toHaveValue('Internal Server Error');
   },
 };

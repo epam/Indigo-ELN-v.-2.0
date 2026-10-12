@@ -22,7 +22,8 @@ import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsiblePanel, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
+import { getPrecursorReactantIds } from '@/lib/reactions';
+import { cn, newAnchor } from '@/lib/utils';
 
 import type { BatchRow } from '@/components/experiments/stoichiometry/batches/columns';
 import type { StoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
@@ -37,7 +38,7 @@ import type {
   ResidualSolvent,
   SolubidityInSolvent,
 } from '@/lib/types/reactions.ts';
-import { isKnownCompound, unitLabel } from '@/lib/types/reactions.ts';
+import { isKnownCompound, shortNbkBatchNumber, unitLabel } from '@/lib/types/reactions.ts';
 
 /**
  * What one batch of the Product Batch Summary holds, behind its chevron: the compound's structure
@@ -72,7 +73,7 @@ export function BatchDetailPanel({
   mutations,
 }: {
   row: BatchRow;
-  /** For `precursorReactantIds`, which is derived on the reaction rather than on the batch. */
+  /** For the precursors, which are derived from the reaction's inputs rather than from the batch. */
   reaction: Reaction;
   canEdit: boolean;
   /** The table's, not one of this panel's own — see the note above. */
@@ -100,7 +101,7 @@ export function BatchDetailPanel({
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
-      <Structure compound={output.compound} batch={sample.shortNbkBatchNumber} />
+      <Structure compound={output.compound} batch={shortNbkBatchNumber(sample.nbkBatchNumber)} />
 
       <div className="flex min-w-0 flex-col gap-4">
         <h3 className="text-[16px]/6 font-semibold text-neutral-1000">
@@ -150,7 +151,7 @@ export function BatchDetailPanel({
                 type: 'SetOutputSaltCode',
                 anchor,
                 saltCode: next,
-                createdOutputAnchor: crypto.randomUUID(),
+                createdOutputAnchor: newAnchor(),
               })
             }
           />
@@ -167,7 +168,7 @@ export function BatchDetailPanel({
                 type: 'SetOutputStereoisomerCode',
                 anchor,
                 stereoisomerCode: next,
-                createdOutputAnchor: crypto.randomUUID(),
+                createdOutputAnchor: newAnchor(),
               })
             }
           />
@@ -183,11 +184,11 @@ export function BatchDetailPanel({
               commit('sourceDetails', { type: 'SetOutputSourceDetails', anchor, sourceDetails: next })
             }
           />
-          {/* Derived on the reaction: the STR code of every reactant sample that has one. */}
+          {/* Derived from the reaction: the STR code of every reactant sample that has one. */}
           <ReadonlyField
             id={id('precursors')}
             label="Precursor/Reactant IDs"
-            value={reaction.precursorReactantIds.join(', ')}
+            value={getPrecursorReactantIds(reaction).join(', ')}
           />
 
           <NumberField
@@ -201,7 +202,7 @@ export function BatchDetailPanel({
                 type: 'SetOutputSaltEQ',
                 anchor,
                 saltEQ: next,
-                createdOutputAnchor: crypto.randomUUID(),
+                createdOutputAnchor: newAnchor(),
               })
             }
           />

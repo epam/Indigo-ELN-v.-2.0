@@ -1,5 +1,6 @@
 import { fetchAuthSession } from 'aws-amplify/auth';
 
+import { buildReportErrorContext, INCIDENTS_PATH } from '@/lib/report-error';
 import { notifyError } from '@/lib/toast';
 
 /** Thrown for any non-2xx response so TanStack Query can surface it. */
@@ -96,7 +97,12 @@ async function apiRequest(path: string, init: ApiRequestInit = {}): Promise<Resp
     const error = new ApiError(response.status, await parseErrorBody(response));
     // Toasted here rather than per-caller, mirroring indigo-frontend's error.interceptor.ts.
     // Still thrown, so TanStack Query and the InfiniteLoader error branch keep working.
-    notifyError(error, path);
+    // The toast offers to report the failure — except a failed report, which would loop.
+    const report =
+      path === INCIDENTS_PATH
+        ? undefined
+        : buildReportErrorContext(path, requestInit.method ?? 'GET', json, error.body);
+    notifyError(error, path, undefined, report);
     throw error;
   }
   return response;

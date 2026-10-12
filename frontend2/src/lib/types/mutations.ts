@@ -42,7 +42,7 @@ import type { SampleDTO } from '@/lib/types/samples.ts';
  *   endpoint accepts, and it is what the mutate hook takes; nothing outside this file should
  *   be typed on the full `Mutation`.
  * - **Mutations that create rows or samples carry `created*Anchor` members the client picks**
- *   with `crypto.randomUUID()`. The backend stores them with the revision, so an undo/redo replay
+ *   with `newAnchor()`. The backend stores them with the revision, so an undo/redo replay
  *   recreates the same anchors. `SetScheme` and `ImportSDF` are the exception: their counts
  *   depend on parsing the rxnfile or SDF, so the backend fills those in and the interfaces here
  *   omit them.
