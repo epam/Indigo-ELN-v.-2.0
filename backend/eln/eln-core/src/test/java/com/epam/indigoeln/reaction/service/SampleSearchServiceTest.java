@@ -31,7 +31,6 @@ import org.junit.jupiter.api.TestInfo;
 
 import java.io.File;
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -176,13 +175,14 @@ public class SampleSearchServiceTest extends MutationsTestBase {
     }
 
     @Test
-    void testCatalogCompoundPicture() {
+    void testCompoundMolfile() {
         SampleDTO sample = compoundClient.search(new FindSamplesRequest().withCatalog(SearchCatalog.SRS), Paging.DEFAULT).getItems().getFirst();
-        if (!integrationTest) {
-            doReturn("<svg/>".getBytes(StandardCharsets.UTF_8)).when(sampleRegistrationClient).getCompoundPicture(sample.getCompoundID());
-        }
-        byte[] picture = compoundClient.getCatalogCompoundPicture(SearchCatalog.SRS, sample.getSource(), checkNotNull(sample.getCompoundID()));
-        assertThat(new String(picture, StandardCharsets.UTF_8)).contains("<svg");
+        String molfile = compoundClient.getCatalogCompoundMolfile(SearchCatalog.SRS, sample.getSource(), checkNotNull(sample.getCompoundID()));
+        assertThat(molfile).contains("M  END");
+
+        compoundClient.markSample(sample);
+        SampleDTO mine = compoundClient.search(new FindSamplesRequest().withCatalog(SearchCatalog.MY_MATERIALS), Paging.DEFAULT).getItems().getFirst();
+        assertThat(compoundClient.getCompoundMolfile(checkNotNull(mine.getCompoundID()))).contains("M  END");
     }
 
     private void stubSRSSearch() {

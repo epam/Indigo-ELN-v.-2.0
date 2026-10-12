@@ -3,9 +3,9 @@ package com.epam.indigoeln.reaction.model;
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
-import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -28,10 +28,11 @@ public abstract class Anchor {
         this.value = str;
     }
 
-    // 48 random bits as 8 base64url chars; an anchor only has to be unique within its experiment
+    // 48 random bits as 8 base64url chars; an anchor only has to be unique within its experiment,
+    // not unpredictable, so a non-cryptographic generator is enough
     protected static String generate() {
         byte[] bytes = new byte[6];
-        new SecureRandom().nextBytes(bytes);
+        ThreadLocalRandom.current().nextBytes(bytes);
         return Base64.getUrlEncoder().encodeToString(bytes);
     }
 

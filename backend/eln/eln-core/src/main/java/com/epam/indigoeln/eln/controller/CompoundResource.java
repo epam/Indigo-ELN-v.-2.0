@@ -25,18 +25,13 @@ public class CompoundResource implements CompoundAPI {
     SampleSearchService sampleSearchService;
 
     @Override
-    public byte[] getCompoundPicture(UUID compoundID) {
-        return compoundService.getCompoundPicture(compoundID);
+    public String getCompoundMolfile(UUID compoundID) {
+        return compoundService.getCompoundMolfile(compoundID);
     }
 
     @Override
-    public byte[] getCatalogCompoundPicture(SearchCatalog catalog, SampleSource source, UUID compoundID) {
-        return sampleSearchService.getCompoundPicture(catalog, source, compoundID);
-    }
-
-    @Override
-    public byte[] getExternalPicture(String inchi) {
-        return compoundService.getExternalPicture(inchi);
+    public String getCatalogCompoundMolfile(SearchCatalog catalog, SampleSource source, UUID compoundID) {
+        return sampleSearchService.getCompoundMolfile(catalog, source, compoundID);
     }
 
     @Override

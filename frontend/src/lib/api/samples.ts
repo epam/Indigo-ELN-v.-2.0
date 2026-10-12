@@ -5,7 +5,7 @@ import { apiFetch } from '@/lib/api';
 import { getNextPageParam } from '@/lib/api/collections';
 import { sampleRowKey } from '@/lib/search';
 
-import type { Page } from '@/lib/types/common.ts';
+import type { Page, UUID } from '@/lib/types/common.ts';
 import type { FindSamplesRequest, SampleDTO } from '@/lib/types/samples.ts';
 
 /**
@@ -86,27 +86,33 @@ export function useMarkSample() {
   });
 }
 
-/** How to draw a catalog hit's structure: fetch it from an API path, or render its InChI locally. */
-export type SamplePicture = { path: string } | { inchi: string };
+/** Where an ELN compound's molfile is served from, for `StructureImage` to fetch and render. */
+export function compoundMolfilePath(compoundID: UUID): string {
+  return `/api/eln/compounds/${compoundID}/molfile`;
+}
+
+/** How to draw a catalog hit's structure: fetch its molfile from an API path, or use the InChI it carries. */
+export type SamplePicture = { path: string } | { structure: string };
 
 /**
- * Where a catalog hit's structure comes from, in order — or null when there is nowhere:
+ * Where a catalog hit's structure comes from, in order — or null when there is nowhere. Either
+ * way Ketcher renders it in the browser:
  *
- * - A My Materials hit's `compoundID` names an ELN compound, which has a picture endpoint of its own.
- * - A PubChem hit carries its InChI, which Ketcher renders in the browser.
+ * - A My Materials hit's `compoundID` names an ELN compound, which has a molfile endpoint of its own.
+ * - A PubChem hit carries its InChI.
  * - Any other hit with a `compoundID` has its id in `source`, which its catalog serves the
- *   picture by — an SRS hit's `compoundID` is an SRS id, meaningless to the ELN directly.
+ *   molfile by — an SRS hit's `compoundID` is an SRS id, meaningless to the ELN directly.
  *
  * Both paths are `@Cached(30, DAYS)` and neither takes a revision, so the path fully identifies
- * the bytes — which is what lets `ApiImage` cache on it forever.
+ * the molfile — which is what lets `StructureImage` cache on it forever.
  */
 export function samplePicture(sample: SampleDTO): SamplePicture | null {
   if (sample.catalog === 'MY_MATERIALS' && sample.compoundID != null) {
-    return { path: `/api/eln/compounds/${sample.compoundID}/picture` };
+    return { path: compoundMolfilePath(sample.compoundID) };
   }
-  if (sample.inchi != null) return { inchi: sample.inchi };
+  if (sample.inchi != null) return { structure: sample.inchi };
   if (sample.compoundID != null) {
-    return { path: `/api/eln/compounds/by-catalog/${sample.catalog}/${sample.source}/${sample.compoundID}/picture` };
+    return { path: `/api/eln/compounds/by-catalog/${sample.catalog}/${sample.source}/${sample.compoundID}/molfile` };
   }
   return null;
 }

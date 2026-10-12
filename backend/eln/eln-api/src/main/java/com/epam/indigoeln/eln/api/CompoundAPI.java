@@ -15,7 +15,6 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 
 import java.time.temporal.ChronoUnit;
@@ -27,26 +26,20 @@ import java.util.UUID;
 public interface CompoundAPI extends BaseAPI {
 
     @GET
-    @Path("/compounds/{compoundID}/picture")
-    @Produces("image/svg+xml")
+    @Path("/compounds/{compoundID}/molfile")
+    @Produces(MediaType.TEXT_PLAIN)
     @Cached(interval = 30, unit = ChronoUnit.DAYS)
-    byte[] getCompoundPicture(@PathParam("compoundID") UUID compoundID);
+    String getCompoundMolfile(@PathParam("compoundID") UUID compoundID);
 
     @GET
-    @Path("/compounds/by-catalog/{catalog}/{source}/{compoundID}/picture")
-    @Produces("image/svg+xml")
+    @Path("/compounds/by-catalog/{catalog}/{source}/{compoundID}/molfile")
+    @Produces(MediaType.TEXT_PLAIN)
     @Cached(interval = 30, unit = ChronoUnit.DAYS)
-    byte[] getCatalogCompoundPicture(@PathParam("catalog") SearchCatalog catalog, @PathParam("source") SampleSource source, @PathParam("compoundID") UUID compoundID);
+    String getCatalogCompoundMolfile(@PathParam("catalog") SearchCatalog catalog, @PathParam("source") SampleSource source, @PathParam("compoundID") UUID compoundID);
 
     @POST
     @Path("/samples/search")
     Page<@Valid SampleDTO> search(@Valid FindSamplesRequest request, @BeanParam Paging paging);
-
-    @GET
-    @Path("/samples/external/picture")
-    @Produces("image/svg+xml")
-    @Cached(interval = 30, unit = ChronoUnit.DAYS)
-    byte[] getExternalPicture(@QueryParam("inchi") String inchi);
 
     @POST
     @Valid
