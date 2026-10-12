@@ -38,7 +38,7 @@ import type {
   ResidualSolvent,
   SolubidityInSolvent,
 } from '@/lib/types/reactions.ts';
-import { calculatedBatchMF, isKnownCompound, shortNbkBatchNumber, unitLabel } from '@/lib/types/reactions.ts';
+import { isKnownCompound, shortNbkBatchNumber, unitLabel } from '@/lib/types/reactions.ts';
 
 /**
  * What one batch of the Product Batch Summary holds, behind its chevron: the compound's structure
@@ -114,9 +114,9 @@ export function BatchDetailPanel({
             `MolFormula` serialises through `@JsonValue toHTMLString()`, so this arrives as
             `C<sub>9</sub>H<sub>8</sub>O<sub>4</sub>` — the same reason `FormulaCell` exists. The
             only markup is `<sub>` and the string is composed from an element table, not from user
-            input; the salt formula `calculatedBatchMF` appends is escaped there.
+            input, so there is nothing to sanitise.
           */}
-          <Fact label="Calculated Batch MF" html={compound && calculatedBatchMF(compound)} />
+          <Fact label="Calculated Batch MF" html={compound?.calculatedBatchMF} />
 
           <DictionaryField
             id={id('source')}

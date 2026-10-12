@@ -216,16 +216,10 @@ export function shortNbkBatchNumber(nbkBatchNumber: NbkBatchNumber): string {
  * `stereoisomerCode` and `saltCode` are always set, to the dictionaries' default items ("Achiral",
  * "00 - Parent Structure") unless chosen otherwise; `saltEQ` is absent for the parent structure.
  */
-/** `SaltCodeRef` — the one dictionary ref that serialises more than `id` and `name`. */
-export interface SaltCodeRef extends DictionaryItemRef {
-  /** Plain text, not HTML: `HCl`. Empty for the parent structure. */
-  formula: string;
-}
-
 export interface CompoundRef {
   compoundID?: UUID;
   stereoisomerCode: DictionaryItemRef;
-  saltCode: SaltCodeRef;
+  saltCode: DictionaryItemRef;
   saltEQ?: number;
   /** The key in the compound's source system: an STR code for SRS, a CID for PubChem. */
   compoundKey?: string;
@@ -233,18 +227,8 @@ export interface CompoundRef {
   molWeight?: EnteredValue<MolWeightUnit>;
   exactMass?: EnteredValue<NoUnit>;
   casNumber?: string;
-}
-
-/**
- * Mirrors `CompoundRef.getCalculatedBatchMF()`: HTML, the formula plus the salt. Absent without a
- * `formula`. The salt's formula is dictionary text an admin typed, so it is escaped on the way in.
- */
-export function calculatedBatchMF(compound: CompoundRef): string | undefined {
-  if (compound.formula == null) return undefined;
-  // `saltEQ` is absent for the default "parent structure" salt code.
-  if (compound.saltEQ == null) return compound.formula;
-  const saltFormula = compound.saltCode.formula.replace(/&/g, '&amp;').replace(/</g, '&lt;');
-  return `${compound.formula}&nbsp;*&nbsp;${compound.saltEQ} (${saltFormula})`;
+  /** Read-only, derived: HTML, the formula plus the salt. Absent without a `formula`. */
+  calculatedBatchMF?: string;
 }
 
 /** Mirrors `CompoundRef.isKnown()`. Only an unknown compound takes a user-entered mol weight. */

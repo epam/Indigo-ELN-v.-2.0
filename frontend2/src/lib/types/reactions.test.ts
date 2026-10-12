@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  calculatedBatchMF,
   convertUnitValue,
   MOL_UNITS,
   MOLARITY_UNITS,
@@ -67,29 +66,5 @@ describe('convertUnitValue', () => {
         if (other) expect(convertUnitValue('1', unit, other), `${unitLabel(unit)} → ${unitLabel(other)}`).not.toBe('1');
       }
     }
-  });
-});
-
-describe('calculatedBatchMF', () => {
-  const ref = { id: 'x', name: 'x' };
-  const base = { stereoisomerCode: ref, saltCode: { ...ref, formula: 'HCl' } };
-
-  it('is the formula alone for the parent structure, which has no salt EQ', () => {
-    expect(calculatedBatchMF({ ...base, formula: 'C<sub>6</sub>H<sub>6</sub>' })).toBe('C<sub>6</sub>H<sub>6</sub>');
-  });
-
-  it('appends the salt, as the backend does', () => {
-    expect(calculatedBatchMF({ ...base, formula: 'C<sub>6</sub>H<sub>6</sub>', saltEQ: 0.5 })).toBe(
-      'C<sub>6</sub>H<sub>6</sub>&nbsp;*&nbsp;0.5 (HCl)',
-    );
-  });
-
-  it('escapes the salt formula, which is dictionary text', () => {
-    const saltCode = { ...ref, formula: '<b>&' };
-    expect(calculatedBatchMF({ ...base, saltCode, formula: 'C', saltEQ: 1 })).toBe('C&nbsp;*&nbsp;1 (&lt;b>&amp;)');
-  });
-
-  it('is absent without a formula', () => {
-    expect(calculatedBatchMF(base)).toBeUndefined();
   });
 });

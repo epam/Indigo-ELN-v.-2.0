@@ -9,6 +9,7 @@ import com.epam.indigoeln.eln.model.StereoisomerCodeRef;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -85,7 +86,8 @@ public class CompoundRef {
     }
 
     @Nullable
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @SuppressWarnings("unused") // used on frontend
     public String getCalculatedBatchMF() {
         if (formula == null) {
             return null;

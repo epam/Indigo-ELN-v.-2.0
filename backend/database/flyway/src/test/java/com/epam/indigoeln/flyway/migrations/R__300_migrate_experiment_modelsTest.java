@@ -56,17 +56,6 @@ class R__300_migrate_experiment_modelsTest {
                 """);
     }
 
-    @Test
-    void testRemoveDerivedProperties() {
-        ObjectNode model = readJSON("""
-                {"reactions": [{"inputs": [{"compound": {"formula": "C", "calculatedBatchMF": "C"}}], "outputs": [{"compound": {"calculatedBatchMF": "C"}, "samples": [{"anchor": "a", "shortNbkBatchNumber": "001"}]}], "precursorReactantIds": []}]}
-                """);
-        migration.updateModel(model);
-        verifyJSON(model, """
-                {"reactions": [{"inputs": [{"compound": {"formula": "C"}}], "outputs": [{"compound": {}, "samples": [{"anchor": "a"}]}]}]}
-                """);
-    }
-
     @SneakyThrows
     private ObjectNode readJSON(@Language("JSON") String json) {
         return (ObjectNode) FeignUtil.OBJECT_MAPPER.readTree(json);

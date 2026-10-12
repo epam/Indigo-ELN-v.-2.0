@@ -103,8 +103,9 @@ export const Default: Story = {
 };
 
 /**
- * `calculatedBatchMF` is HTML, built on `formula` — which arrives as `MolFormula.toHTMLString()` —
- * so the subscripts have to survive into the DOM rather than being shown as tags.
+ * `calculatedBatchMF` arrives as HTML — `CompoundService.calculateBatchMF` builds it from
+ * `MolFormula.toHTMLString()` — so the subscripts have to survive into the DOM rather than
+ * being shown as tags.
  */
 export const FormulaKeepsItsSubscripts: Story = {
   play: async ({ canvasElement }) => {

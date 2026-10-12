@@ -159,7 +159,8 @@
                   "exactValue": 154.0266101360321,
                   "unit": "NO_UNIT",
                   "source": "fixed"
-                }
+                },
+                "calculatedBatchMF": "C<sub>7</sub>H<sub>6</sub>O<sub>4</sub>"
               },
               "eq": {
                 "value": "1",
@@ -318,7 +319,8 @@
                   "exactValue": 102.03169512748718,
                   "unit": "NO_UNIT",
                   "source": "fixed"
-                }
+                },
+                "calculatedBatchMF": "C<sub>4</sub>H<sub>6</sub>O<sub>3</sub>"
               },
               "eq": {
                 "value": "0.5",
@@ -365,7 +367,8 @@
                   "exactValue": 92.06260013580322,
                   "unit": "NO_UNIT",
                   "source": "fixed"
-                }
+                },
+                "calculatedBatchMF": "C<sub>7</sub>H<sub>8</sub>"
               },
               "eq": {
                 "value": "1",
@@ -417,7 +420,8 @@
                   "exactValue": 180.0422601699829,
                   "unit": "NO_UNIT",
                   "source": "fixed"
-                }
+                },
+                "calculatedBatchMF": "C<sub>9</sub>H<sub>8</sub>O<sub>4</sub>&nbsp;*&nbsp;0.5 (HCl)"
               },
               "eq": {
                 "value": "1",
@@ -455,7 +459,8 @@
                   "exactValue": 60.021130084991455,
                   "unit": "NO_UNIT",
                   "source": "fixed"
-                }
+                },
+                "calculatedBatchMF": "C<sub>2</sub>H<sub>4</sub>O<sub>2</sub>"
               },
               "eq": {
                 "value": "1",

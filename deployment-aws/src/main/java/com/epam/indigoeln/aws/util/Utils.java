@@ -44,6 +44,13 @@ public class Utils {
         return map;
     }
 
+    // Without this, exactly two entries resolve to mapOf(K, V) - a map keyed by an entry
+    public static <K, V> Map<K, V> mapOf(Map.Entry<K, V> e1, Map.Entry<K, V> e2) {
+        Map<K, V> map = mapOf(e1.getKey(), e1.getValue());
+        map.put(e2.getKey(), e2.getValue());
+        return map;
+    }
+
     @SafeVarargs
     public static <K, V> Map<K, V> mapOf(Map.Entry<K, V>... entries) {
         Map<K, V> map = mapOf();

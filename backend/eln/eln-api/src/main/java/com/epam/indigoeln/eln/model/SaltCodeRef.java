@@ -11,6 +11,7 @@ public class SaltCodeRef extends DictionaryItemRef {
     @JsonIgnore
     private final String code;
 
+    @JsonIgnore
     private final String formula;
 
     @JsonIgnore
