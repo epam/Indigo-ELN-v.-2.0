@@ -262,6 +262,36 @@ class GlobalSearchServiceTest extends ELNBaseTest {
     // TODO test for EXACT and SIMILARITY molfile search types
 
     @Test
+    void testFindByMoleculeSubstructureAndQuery() {
+        // sorted by similarity, then by text rank
+        String molFile = loadResourceAsString("/ring-substructure.mol");
+        Page<GlobalSearchResultDTO> results = globalSearchClient.search(
+                new GlobalSearchRequest().withMoleculeStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, molFile)).withQuery("xx"),
+                Paging.DEFAULT
+        );
+        assertResults(results, tuple(ELNEntityType.EXPERIMENT, experiment2.name(), experiment2.id()));
+    }
+
+    @Test
+    void testSortsByNameWithoutQuery() {
+        Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withAuthor(Set.of(MAGGIE_USER_REF)), Paging.DEFAULT);
+        assertThat(results.getItems()).map(GlobalSearchResultDTO::getName)
+                .contains(project1.getName(), notebook1.getName(), experiment1.name(), experiment2.name())
+                .isSorted();
+    }
+
+    @Test
+    void testSortsByNameWithinEqualRank() {
+        withUser(JOHN_USERNAME, () -> {
+            // same text, so the same rank; created in reverse name order
+            ProjectDetailsDTO second = projectClient.createProject(new ProjectRequest("sortb", Set.of(), null, "zzs"));
+            ProjectDetailsDTO first = projectClient.createProject(new ProjectRequest("sorta", Set.of(), null, "zzs"));
+            Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withQuery("zzs"), Paging.DEFAULT);
+            assertThat(results.getItems()).map(GlobalSearchResultDTO::getId).containsExactly(first.getId(), second.getId());
+        });
+    }
+
+    @Test
     void testFindByReactionSubstructure() {
         String rxnFile = loadResourceAsString("/reaction-substructure.rxn");
         Page<GlobalSearchResultDTO> results = globalSearchClient.search(
@@ -367,7 +397,7 @@ class GlobalSearchServiceTest extends ELNBaseTest {
         assertThat(item.getExperimentCount()).isEqualTo(1);
     }
 
-    /** Paging must partition the result set: created_at alone is not a total order, t.id breaks the ties. */
+    /** Paging must partition the result set: rank, name and created_at are not a total order, id breaks the ties. */
     @Test
     void testPagingVisitsEveryResultExactlyOnce() {
         GlobalSearchRequest request = new GlobalSearchRequest().withQuery("xx");

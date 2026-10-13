@@ -3,6 +3,7 @@ package com.epam.indigoeln.reaction.service;
 import com.epam.indigoeln.common.model.NbkBatchNumber;
 import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.search.StructuralSearch;
 import com.epam.indigoeln.common.model.units.MolarityUnit;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.compound.model.SampleDTO;
@@ -40,6 +41,7 @@ import static com.epam.indigoeln.eln.test.ReactionInputSampleAssert.assertThat;
 import static com.epam.indigoeln.test.ClientUtil.uploadForm;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 
@@ -161,6 +163,27 @@ public class SampleSearchServiceTest extends MutationsTestBase {
         assertThat(foundUnmarked.getItems().getFirst().isMarked()).isFalse();
         Page<SampleDTO> found3 = compoundClient.search(new FindSamplesRequest().withCatalog(SearchCatalog.MY_MATERIALS), Paging.DEFAULT);
         assertThat(found3.getItems()).isEmpty();
+    }
+
+    @Test
+    void testMyMaterialsOrder() {
+        assumeFalse(integrationTest); // needs two samples of one compound, so the name and the compound key tie
+        SRSSampleDTO srsSample2 = new SRSSampleDTO(UUID.randomUUID(), srsSample.getCompoundID(), defaultSaltCode.getId(), new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 2), "C", BigDecimal.ONE);
+        srsSample2.setChemicalName("chemicalName");
+        doReturn(Page.of(Paging.DEFAULT, 2, List.of(srsSample, srsSample2))).when(sampleRegistrationClient).find(any(), any());
+        List<SampleDTO> found = compoundClient.search(new FindSamplesRequest().withCatalog(SearchCatalog.SRS), Paging.DEFAULT).getItems();
+        compoundClient.markSample(found.get(0));
+        compoundClient.markSample(found.get(1));
+
+        // equal name and compound key: newest first
+        String[] newestFirst = {new STRCodeSample(1, 1, 2).toString(), new STRCodeSample(1, 1, 1).toString()};
+        FindSamplesRequest request = new FindSamplesRequest().withCatalog(SearchCatalog.MY_MATERIALS);
+        assertThat(compoundClient.search(request, Paging.DEFAULT).getItems()).map(SampleDTO::getSampleKey).containsExactly(newestFirst);
+        // similarity and text rank tie as well
+        request = request.withQuickSearch("chemicalName").withStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, ModelUtil.loadResourceAsString(COMPOUND_SDF)));
+        assertThat(compoundClient.search(request, Paging.DEFAULT).getItems()).map(SampleDTO::getSampleKey).containsExactly(newestFirst);
+
+        found.forEach(compoundClient::unmarkSample);
     }
 
     @Test

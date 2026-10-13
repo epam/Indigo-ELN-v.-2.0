@@ -18,6 +18,7 @@ import com.epam.indigoeln.sampleregistration.util.SRSCriteriaConditions;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.Tuple;
+import jakarta.persistence.criteria.Order;
 import org.hibernate.query.NativeQuery;
 import org.hibernate.query.SynchronizeableQuery;
 import org.hibernate.query.criteria.CriteriaDefinition;
@@ -25,6 +26,9 @@ import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.hibernate.query.criteria.JpaJoin;
 import org.hibernate.query.criteria.JpaRoot;
 import org.jspecify.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @ApplicationScoped
 public class SRSSampleRepository extends BaseRepository<SRSSampleEntity> {
@@ -60,13 +64,23 @@ public class SRSSampleRepository extends BaseRepository<SRSSampleEntity> {
             JpaJoin<SRSSampleEntity, SRSCompoundEntity> compound = root.join(SRSSampleEntity_.compound); // will be optimized away if not used
             select(tuple(root.id(), count(literal(1), createWindow())));
             criteriaConditionsFactory.withConditions(this::where, conditions -> {
-                orderBy(asc(root.get(SRSSampleEntity_.id))); // default sort, can be overridden
-                conditions.fullTextSearch(root.get(SRSSampleEntity_.searchVector), request.getQuickSearch(), null);
+                List<Order> order = new ArrayList<>();
 
                 conditions.moleculeSearch(compound.get(SRSCompoundEntity_.molFile), request.getStructure());
                 if (request.getStructure() != null && request.getStructure().type() != StructuralSearch.Type.EXACT) {
-                    orderBy(desc(conditions.moleculeSimilarity(compound.get(SRSCompoundEntity_.molFile), request.getStructure().query())));
+                    order.add(desc(conditions.moleculeSimilarity(compound.get(SRSCompoundEntity_.molFile), request.getStructure().query())));
                 }
+
+                conditions.fullTextSearch(root.get(SRSSampleEntity_.searchVector), request.getQuickSearch(), null);
+                if (request.getQuickSearch() != null) {
+                    order.add(desc(conditions.fullTextRank(root.get(SRSSampleEntity_.searchVector), request.getQuickSearch(), null)));
+                }
+
+                order.add(asc(compound.get(SRSCompoundEntity_.chemicalName), false));
+                order.add(asc(compound.get(SRSCompoundEntity_.strCode)));
+                order.add(desc(root.get(SRSSampleEntity_.createdAt)));
+                order.add(asc(root.get(SRSSampleEntity_.id))); // makes the order total, so paging is stable
+                orderBy(order);
 
                 conditions.textSearch(root.get(SRSSampleEntity_.nbkBatchNumber).cast(String.class), request.getNbkBatchNumber());
                 conditions.textSearch(compound.get(SRSCompoundEntity_.strCode).cast(String.class), request.getStrCodeCompound());
