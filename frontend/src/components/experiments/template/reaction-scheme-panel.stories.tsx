@@ -1,7 +1,9 @@
 import { expect, screen, userEvent, waitFor, within } from 'storybook/test';
 
+import { __setKetcherBehavior } from '../../../../.storybook/mocks/ketcher-editor';
 import { ReactionSchemePanel } from '@/components/experiments/template/reaction-scheme-panel';
 import { makeExperimentDetails, makeReaction } from '@/mocks/fixtures';
+import { NOT_A_REACTION } from '@/lib/reactions';
 import { failingMutateHandlers, slowMutateHandlers } from '@/mocks/handlers';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
@@ -9,7 +11,8 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 /**
  * Ketcher is mocked in Storybook (`.storybook/mocks/`), so the sketcher is a placeholder that
  * always draws the same canned benzene and Save always hands back `mock-molfile`. What these
- * stories exercise is the round trip around it, not the chemistry.
+ * stories exercise is the round trip around it, not the chemistry. The canvas reads as a
+ * reaction unless a story says otherwise — a molecule is refused before any request.
  */
 const EXPERIMENT = makeExperimentDetails();
 
@@ -17,6 +20,9 @@ const meta = {
   title: 'Experiments/Template/ReactionSchemePanel',
   component: ReactionSchemePanel,
   args: { experiment: EXPERIMENT, reaction: EXPERIMENT.model.reactions[0], step: 0 },
+  beforeEach: () => {
+    __setKetcherBehavior({ isReaction: true });
+  },
   decorators: [
     (Story) => (
       <div className="w-[640px]">
@@ -96,6 +102,26 @@ export const FailedSaveKeepsTheDrawing: Story = {
 
     // The spinner stops, but the sketcher is still there with the work in it.
     await waitFor(() => expect(save).not.toHaveAttribute('aria-busy', 'true'));
+    await expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+  },
+};
+
+/**
+ * A single molecule is not a scheme. It is refused before any request, with a toast saying why,
+ * and the sketcher stays open with the drawing in it.
+ */
+export const RefusesAMolecule: Story = {
+  beforeEach: () => {
+    __setKetcherBehavior({ isReaction: false });
+  },
+  play: async ({ canvasElement }) => {
+    await userEvent.click(await within(canvasElement).findByRole('button', { name: 'Edit structure' }));
+
+    const save = await screen.findByRole('button', { name: 'Save' });
+    await waitFor(() => expect(save).toBeEnabled());
+    await userEvent.click(save);
+
+    await waitFor(() => expect(screen.getByText(NOT_A_REACTION)).toBeInTheDocument());
     await expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
   },
 };

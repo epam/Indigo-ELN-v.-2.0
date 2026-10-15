@@ -1,5 +1,7 @@
 package com.epam.indigoeln.reaction.service.mutation.experiment;
 
+import com.epam.indigo.IndigoException;
+import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.common.model.units.MeasurementUnit;
 import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
@@ -63,7 +65,11 @@ class SetSchemeHandler extends AbstractReactionMutationHandler<ReactionMutation.
     protected ReactionMutation.SetScheme doPrepareMutation(ExperimentEntity entity, ReactionMutation.SetScheme mutation, ExperimentMutationContext context) {
         int reactantCount = 0, catalystCount = 0, productCount = 0;
         if (mutation.rxnFile() != null) {
-            reaction = indigoAPI.loadReaction(mutation.rxnFile());
+            try {
+                reaction = indigoAPI.loadReaction(mutation.rxnFile());
+            } catch (IndigoException e) {
+                throw new InvalidRequestException("Invalid reaction file: " + e.getMessage());
+            }
             reactantCount = (int) StreamEx.of(reaction.reactants().iterator()).count();
             catalystCount = (int) StreamEx.of(reaction.catalysts().iterator()).count();
             productCount = (int) StreamEx.of(reaction.products().iterator()).count();

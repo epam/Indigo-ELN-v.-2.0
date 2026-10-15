@@ -609,7 +609,7 @@ nobody else reports it, while an `onSave` rejection is deliberately silent becau
 has already toasted it. Global Search returns nothing from `onChange`, so `await` resolves in a
 microtask and its sketcher closes immediately, exactly as before. A caller that refuses a drawing
 for its own reasons uses the same channel — it toasts and throws, since the silent branch assumes
-the rejector spoke; Add Material does that for a reaction.
+the rejector spoke; Add Material does that for a reaction, and `ReactionSchemePanel` for a molecule.
 
 **A canvas with no atoms never reaches `onSave`.** `handleSave` refuses it before it starts —
 `ketcher.editor.struct().atoms.size === 0`, which covers an empty save as well as a lone plus or

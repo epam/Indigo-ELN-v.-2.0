@@ -28,3 +28,6 @@ export function getPrecursorReactantIds(reaction: Reaction): string[] {
     .flatMap((input) => input.samples)
     .flatMap((sample) => sample.sampleKey ?? []);
 }
+
+/** Why the reaction scheme refuses a drawing with no arrow: `SetScheme` takes a rxnfile. */
+export const NOT_A_REACTION = 'Draw a reaction, not a single molecule';
