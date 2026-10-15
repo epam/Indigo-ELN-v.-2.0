@@ -632,10 +632,10 @@ export const ClearsCell: Story = {
 };
 
 /**
- * Value and unit go together or not at all, so a number typed into a cell that has no unit yet
- * sends nothing. The list with nothing picked in it is what asks for the missing half.
+ * A cell with no unit yet starts on the first one, so a number typed alone still saves — and the
+ * picked option shows that the unit can be changed.
  */
-export const NoRequestUntilAUnitIsChosen: Story = {
+export const NewValueStartsOnTheFirstUnit: Story = {
   parameters: { msw: { handlers: spyHandlers } },
   render: () => <TableFromCache />,
   play: async ({ canvasElement }) => {
@@ -645,16 +645,14 @@ export const NoRequestUntilAUnitIsChosen: Story = {
     // This batch has no molarity, so its unit is unset.
     const input = await canvas.findByLabelText('Molarity, batch 2');
     await userEvent.click(input);
-    await userEvent.type(input, '0.25');
-    // Nothing in the list is picked, which is what is missing.
     const list = await screen.findByRole('listbox', { name: 'Molarity, batch 2 unit' });
-    for (const option of within(list).getAllByRole('option')) {
-      await expect(option).toHaveAttribute('aria-selected', 'false');
-    }
+    await expect(within(list).getByRole('option', { name: 'mM' })).toHaveAttribute('aria-selected', 'true');
+    await userEvent.type(input, '0.25');
     await userEvent.click(document.body);
 
-    await new Promise((resolve) => setTimeout(resolve, 400));
-    await expect(sent).toEqual([]);
+    await waitFor(() =>
+      expect(sent).toEqual([{ type: 'SetInputMolarity', anchor: 'ins0000b', molarity: '0.25', unit: 'MM' }]),
+    );
   },
 };
 

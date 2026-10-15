@@ -131,8 +131,9 @@ export function NumericCell({
   // Room is kept for a unit only where there is one to show: a list to open, or a label to write.
   const hasUnitBox = !unitless || fixedUnit !== '';
 
-  // A unitless quantity has exactly one legal unit, so seeding it is not a guess.
-  const storedUnit = () => value?.unit ?? (unitless ? units[0] : null);
+  // A cell with no unit yet starts on the first one: a number typed alone still saves, and the
+  // picked option shows that the unit can be changed. A unitless quantity has no other choice.
+  const storedUnit = () => value?.unit ?? units[0];
   const [draft, setDraft] = useState(value?.value ?? '');
   const [draftUnit, setDraftUnit] = useState<string | null>(storedUnit);
   const [focused, setFocused] = useState(false);
