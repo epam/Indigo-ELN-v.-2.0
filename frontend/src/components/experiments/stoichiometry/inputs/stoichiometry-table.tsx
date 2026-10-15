@@ -107,7 +107,7 @@ function inputHaystack(input: ReactionInput): string {
  * **Every edit is one mutation and there is no Save button**, matching the rest of the
  * experiment screen. The response is a JSON diff rather than a document, so a one-cell edit
  * comes back as a patch touching only what the recalculation moved — and the cells it moved
- * flash, which is the whole reason `updatedNodes` is threaded down to every numeric cell.
+ * flash, which is the whole reason `mutations.patch` is threaded down to every numeric cell.
  *
  * Nothing here is optimistic: a cell shows what the server last confirmed, and a failed save
  * leaves it alone (`apiFetch` has already raised the toast).
@@ -539,7 +539,7 @@ function CompoundCell({
         <NumericCell
           value={column.value(input)}
           units={column.units}
-          updatedNodes={mutations.updatedNodes}
+          patch={mutations.patch}
           editable={false}
           pending={false}
           label={`${column.header}, row ${index + 1}`}
@@ -564,7 +564,7 @@ function CompoundCell({
           value={column.value(input)}
           units={column.units}
           suffix={column.suffix}
-          updatedNodes={mutations.updatedNodes}
+          patch={mutations.patch}
           editable={canEdit && (column.editable?.(input) ?? true)}
           pending={pending}
           label={`${column.header}, row ${index + 1}`}
@@ -675,7 +675,7 @@ function SampleCell({
           value={column.value(sample)}
           units={column.units}
           suffix={column.suffix}
-          updatedNodes={mutations.updatedNodes}
+          patch={mutations.patch}
           editable={canEdit && (column.editable?.(sample) ?? true)}
           pending={pending}
           label={label}

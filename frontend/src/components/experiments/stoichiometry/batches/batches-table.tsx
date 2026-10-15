@@ -357,7 +357,7 @@ function BatchCell({
           value={column.value(row)}
           units={column.units}
           suffix={column.suffix}
-          updatedNodes={mutations.updatedNodes}
+          patch={mutations.patch}
           editable={false}
           pending={false}
           label={label}
@@ -371,7 +371,7 @@ function BatchCell({
           value={column.value(row)}
           units={column.units}
           suffix={column.suffix}
-          updatedNodes={mutations.updatedNodes}
+          patch={mutations.patch}
           // Registration does not freeze these: the backend rejects a registered sample's
           // *compound* mutations only — see `isSampleProtected`.
           editable={canEdit}

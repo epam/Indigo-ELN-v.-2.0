@@ -49,6 +49,14 @@ describe('determineCellClasses', () => {
       ]);
     });
 
+    it('flashes green when a calculated value appears where there was none', () => {
+      // `JSON_PATCHER` records a node it created against `null`, the base it replaced.
+      const value: EnteredValue<string> = { value: '1', source: 'calculated' };
+      expect(determineCellClasses(value, new Map([[value, null]]))).toEqual([
+        'animate-[flash-green_500ms_ease-in-out]',
+      ]);
+    });
+
     it('does not flash a calculated value that came back unchanged', () => {
       const value: EnteredValue<string> = { value: '1', source: 'calculated' };
       expect(determineCellClasses(value, patched(value, { value: '1', source: 'calculated' }))).toEqual([]);
@@ -95,9 +103,13 @@ describe('determineCellClasses', () => {
     it('does not flash a node the patch left alone, even while other nodes changed', () => {
       const untouched: EnteredValue<string> = { value: '1', source: 'calculated' };
       const other: EnteredValue<string> = { value: '9', source: 'calculated' };
-      expect(determineCellClasses(untouched, patched(other, { value: '8', source: 'calculated' }))).toEqual([
-        'animate-[flash-green_500ms_ease-in-out]',
-      ]);
+      expect(determineCellClasses(untouched, patched(other, { value: '8', source: 'calculated' }))).toEqual([]);
+    });
+
+    it('does not flash an overwritten value the patch left alone', () => {
+      const untouched: EnteredValue<string> = { value: '1', source: 'calculated', overwritten: true };
+      const other: EnteredValue<string> = { value: '9', source: 'calculated' };
+      expect(determineCellClasses(untouched, patched(other, { value: '8', source: 'calculated' }))).toEqual([]);
     });
   });
 });

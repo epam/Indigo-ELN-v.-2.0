@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react';
 
-import { useMutateExperimentModel } from '@/lib/api/experiments';
+import { useModelPatch, useMutateExperimentModel } from '@/lib/api/experiments';
 
-import type { ExperimentDetails } from '@/lib/types/experiments.ts';
+import type { ExperimentDetails, ModelPatch } from '@/lib/types/experiments.ts';
 import type { ModelMutation } from '@/lib/types/mutations.ts';
 
 /** Addresses one cell for the purposes of its spinner: the row's anchor plus the column id. */
@@ -18,8 +18,11 @@ export interface StoichiometryMutations {
   save: (cell: string, mutation: ModelMutation) => Promise<boolean>;
   /** Which cells are mid-save — what each cell's `SavingOverlay` reads. */
   savingCells: ReadonlySet<string>;
-  /** `newNode -> oldNode` from the last patch; drives the recalculation flash. */
-  updatedNodes: ReadonlyMap<unknown, unknown>;
+  /**
+   * The last patch to this experiment, whoever sent it — undo, the scheme, another table — so
+   * every table flashes what it moved. Drives the recalculation flash.
+   */
+  patch: ModelPatch;
 }
 
 /**
@@ -46,9 +49,9 @@ export interface StoichiometryMutations {
  */
 export function useStoichiometryMutations(experiment: ExperimentDetails): StoichiometryMutations {
   const [savingCells, setSavingCells] = useState<ReadonlySet<string>>(() => new Set());
-  const [updatedNodes, setUpdatedNodes] = useState<ReadonlyMap<unknown, unknown>>(() => new Map());
+  const patch = useModelPatch(experiment.id);
 
-  const mutate = useMutateExperimentModel(experiment, setUpdatedNodes);
+  const mutate = useMutateExperimentModel(experiment);
   const { mutateAsync: run } = mutate;
 
   const save = useCallback(
@@ -71,5 +74,5 @@ export function useStoichiometryMutations(experiment: ExperimentDetails): Stoich
     [run],
   );
 
-  return { save, savingCells, updatedNodes };
+  return { save, savingCells, patch };
 }

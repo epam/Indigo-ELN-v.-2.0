@@ -201,7 +201,7 @@ function ProductCell({
           value={column.value(row)}
           units={column.units}
           suffix={column.suffix}
-          updatedNodes={mutations.updatedNodes}
+          patch={mutations.patch}
           editable={false}
           pending={false}
           label={label}
@@ -215,7 +215,7 @@ function ProductCell({
           value={column.value(row)}
           units={column.units}
           suffix={column.suffix}
-          updatedNodes={mutations.updatedNodes}
+          patch={mutations.patch}
           editable={canEdit && (column.editable?.(row) ?? true)}
           pending={pending}
           label={label}
