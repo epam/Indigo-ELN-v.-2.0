@@ -81,8 +81,8 @@ public class SampleSearchService {
         return page;
     }
 
-    public byte[] getCompoundPicture(SearchCatalog catalog, SampleSource source, UUID compoundID) {
-        return providers.get(catalog).getCompoundPicture(source, compoundID);
+    public String getCompoundMolfile(SearchCatalog catalog, SampleSource source, UUID compoundID) {
+        return providers.get(catalog).getCompoundMolfile(source, compoundID);
     }
 
     public CompoundEntity importCompound(SampleDTO sample) {

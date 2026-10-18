@@ -7,6 +7,7 @@ import { determineCellClasses, USER_ENTERED_CLASSES } from '@/components/experim
 import { CONTENT_BOX } from '@/components/experiments/stoichiometry/columns';
 import { convertUnitValue, unitLabel } from '@/lib/types/reactions.ts';
 import { cn } from '@/lib/utils';
+import type { ModelPatch } from '@/lib/types/experiments.ts';
 import type { EnteredValue } from '@/lib/types/reactions.ts';
 
 /** What a committed edit carries. `null` for both means the user cleared the cell. */
@@ -106,7 +107,7 @@ export function NumericCell({
   value,
   units,
   suffix,
-  updatedNodes,
+  patch,
   editable,
   pending,
   label,
@@ -117,7 +118,8 @@ export function NumericCell({
   units: readonly string[];
   /** The text of a single-unit quantity's unit. Defaults to that unit's label. */
   suffix?: string;
-  updatedNodes: ReadonlyMap<unknown, unknown>;
+  /** The last patch to the experiment — see `useModelPatch`. Drives the flash. */
+  patch: ModelPatch;
   editable: boolean;
   pending: boolean;
   /** Names the cell for assistive tech — the visible column header is not associated with it. */
@@ -129,8 +131,10 @@ export function NumericCell({
   // Room is kept for a unit only where there is one to show: a list to open, or a label to write.
   const hasUnitBox = !unitless || fixedUnit !== '';
 
-  // A unitless quantity has exactly one legal unit, so seeding it is not a guess.
-  const storedUnit = () => value?.unit ?? (unitless ? units[0] : null);
+  // A cell with no unit yet starts on the first one: a number typed alone still saves, and the
+  // picked option shows that the unit can be changed. A unitless quantity has no other choice.
+  // A value stored without a unit is not seeded, or merely tabbing through would save one.
+  const storedUnit = () => value?.unit ?? (unitless || value?.value == null ? units[0] : null);
   const [draft, setDraft] = useState(value?.value ?? '');
   const [draftUnit, setDraftUnit] = useState<string | null>(storedUnit);
   const [focused, setFocused] = useState(false);
@@ -154,7 +158,13 @@ export function NumericCell({
   const shownUnit = unitless ? fixedUnit : unitLabel((inFlight ? inFlight.unit : value?.unit) ?? undefined);
   const text = shownValue == null ? '—' : `${shownValue}${shownUnit && ` ${shownUnit}`}`;
   // A value on its way to the server is written as what it is: one the user entered.
-  const classes = inFlight ? USER_ENTERED_CLASSES : determineCellClasses(value, updatedNodes);
+  const classes = inFlight ? USER_ENTERED_CLASSES : determineCellClasses(value, patch.nodes);
+  /**
+   * A flash is a CSS animation, which plays only when its class is *added*. Undo then redo moves
+   * the same cells twice running, and the class would simply stay — so a cell this patch rebuilt
+   * remounts its value box, keyed by the patch, and the animation starts over.
+   */
+  const flashKey = patch.nodes.has(value) ? patch.generation : undefined;
   // Only a colour. An em-dash keeps the column's alignment, so an empty cell has the same edge as
   // the numbers above and below it — a column that half-centres itself has no edge to read at all.
   const emptyClass = shownValue == null ? 'text-neutral-700' : undefined;
@@ -252,6 +262,7 @@ export function NumericCell({
           it the cell would be announced twice.
         */}
         <span
+          key={flashKey}
           aria-hidden
           data-slot="numeric-cell-value"
           className={cn(

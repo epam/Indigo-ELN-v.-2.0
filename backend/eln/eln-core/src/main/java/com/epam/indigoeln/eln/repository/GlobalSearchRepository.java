@@ -4,6 +4,7 @@ import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.UserRef;
+import com.epam.indigoeln.common.model.search.StructuralSearch;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.entity.CompoundEntity_;
@@ -37,6 +38,7 @@ import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Selection;
 import one.util.streamex.EntryStream;
 import org.hibernate.query.criteria.CriteriaDefinition;
@@ -48,12 +50,16 @@ import org.hibernate.query.criteria.JpaJoin;
 import org.hibernate.query.criteria.JpaRoot;
 import org.hibernate.query.criteria.JpaSetJoin;
 import org.hibernate.query.criteria.JpaSubQuery;
+import org.jspecify.annotations.Nullable;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
 
 @ApplicationScoped
 public class GlobalSearchRepository {
@@ -82,6 +88,7 @@ public class GlobalSearchRepository {
                 || request.getBatchPurity() != null || request.getBatchYield() != null;
         boolean hasFullTextSearch = request.getQuery() != null;
         boolean hasRoles = request.getMoleculeStructure() != null;
+        boolean hasSimilarity = hasRoles && request.getMoleculeStructure().type() != StructuralSearch.Type.EXACT;
 
         // the total is only computed for the first page; later pages report null and rely on hasMore
         boolean withTotal = paging.getFirstResult() == 0;
@@ -99,7 +106,7 @@ public class GlobalSearchRepository {
             filteredQuery = cb.unionAll(experimentsQuery, projectsQuery, notebooksQuery);
         }
 
-        TypedQuery<Tuple> query = buildQuery(request, paging, filteredQuery, hasRoles, paging.getPageSizeOrDefault(), withTotal, onlyExperiments, hasFullTextSearch);
+        TypedQuery<Tuple> query = buildQuery(request, paging, filteredQuery, hasRoles, hasSimilarity, paging.getPageSizeOrDefault(), withTotal, onlyExperiments, hasFullTextSearch);
         List<Tuple> list = query.getResultList();
         boolean hasMore = list.size() > paging.getPageSizeOrDefault();
         List<GlobalSearchResultDTO> page = list.stream()
@@ -153,16 +160,13 @@ public class GlobalSearchRepository {
         new CriteriaDefinition<>(em, experimentsQuery) {{
             JpaRoot<ExperimentEntity> root = from(ExperimentEntity.class);
             criteriaConditionsFactory.withConditions(this::where, conditions -> {
-                Expression<?> rank = root.get(ExperimentEntity_.createdAt);
+                Expression<?> similarity = null;
                 Expression<ReactionRole[]> roles = null;
                 if (!userService.getCurrentUser().getPermissions().contains(ApplicationPermission.VIEW_EXPERIMENTS)) {
                     conditions.add(isNotNull(root.get(ExperimentEntity_.currentAccessOrNull)));
                 }
                 conditions.user(root.get(ExperimentEntity_.createdBy), request.getAuthor());
                 conditions.fullTextSearch(root.get(ExperimentEntity_.searchVector), request.getQuery(), root.get(ExperimentEntity_.name));
-                if (request.getQuery() != null) {
-                    rank = conditions.fullTextRank(root.get(ExperimentEntity_.searchVector), request.getQuery(), root.get(ExperimentEntity_.name));
-                }
                 conditions.dictionary(root.get(ExperimentEntity_.therapeuticArea), request.getTherapeuticArea());
                 conditions.dictionary(root.get(ExperimentEntity_.projectCode), request.getProjectCode());
                 if (ModelUtil.isNotEmpty(request.getExperimentStatus())) {
@@ -177,10 +181,14 @@ public class GlobalSearchRepository {
                         conditions.add(equal(experimentCompound.get(ExperimentSearchCompound_.reactionRole), request.getReactionRole()));
                     }
                     roles = arrayAgg(null, experimentCompound.get(ExperimentSearchCompound_.REACTION_ROLE));
-                    // best-matching compound ranks the experiment; the per-compound value is not grouped
-                    rank = max(conditions.moleculeSimilarity(compound.get(CompoundEntity_.molFile), request.getMoleculeStructure().query()));
+                    if (request.getMoleculeStructure().type() != StructuralSearch.Type.EXACT) {
+                        // best-matching compound ranks the experiment; the per-compound value is not grouped
+                        similarity = max(conditions.moleculeSimilarity(compound.get(CompoundEntity_.molFile), request.getMoleculeStructure().query()));
+                    }
                     groupBy(root.get(ExperimentEntity_.id));
                 }
+                Expression<?> textRank = request.getQuery() == null ? null : conditions.fullTextRank(root.get(ExperimentEntity_.searchVector), request.getQuery(), root.get(ExperimentEntity_.name));
+                Map<String, Expression<?>> columns = unitedColumns(TYPE_EXPERIMENT, root.get(ExperimentEntity_.id), similarity, textRank, root.get(ExperimentEntity_.name), root.get(ExperimentEntity_.createdAt));
                 // reaction search
                 if (request.getReactionStructure() != null) {
                     JpaSubQuery<Integer> subquery = subquery(Integer.class);
@@ -208,12 +216,11 @@ public class GlobalSearchRepository {
                     });
                     conditions.add(exists(subquery));
                 }
-                List<Selection<?>> columns = Lists.newArrayList(literal(TYPE_EXPERIMENT).alias("type"), root.get(ExperimentEntity_.id).alias("id"), rank.alias("rank"));
                 if (roles != null) {
-                    columns.add(roles.alias("roles"));
+                    columns.put("roles", roles);
                 }
-                select(tuple(columns));
-                orderBy(desc(rank), desc(root.get(ExperimentEntity_.id)));
+                select(tuple(aliased(columns)));
+                orderBy(sortOrder(columns::get, similarity != null, textRank != null));
                 fetch(filteredLimit + 1);
             });
         }};
@@ -228,14 +235,12 @@ public class GlobalSearchRepository {
                 if (!userService.getCurrentUser().getPermissions().contains(ApplicationPermission.VIEW_PROJECTS)) {
                     conditions.add(isNotNull(root.get(ProjectEntity_.currentAccessOrNull)));
                 }
-                Expression<?> rank = root.get(ExperimentEntity_.createdAt);
                 conditions.user(root.get(ProjectEntity_.createdBy), request.getAuthor());
                 conditions.fullTextSearch(root.get(ProjectEntity_.searchVector), request.getQuery(), root.get(ProjectEntity_.name));
-                if (request.getQuery() != null) {
-                    rank = conditions.fullTextRank(root.get(ProjectEntity_.searchVector), request.getQuery(), root.get(ProjectEntity_.name));
-                }
-                select(tuple(literal(TYPE_PROJECT), root.get(ProjectEntity_.id), rank));
-                orderBy(desc(rank), desc(root.get(ProjectEntity_.id)));
+                Expression<?> textRank = request.getQuery() == null ? null : conditions.fullTextRank(root.get(ProjectEntity_.searchVector), request.getQuery(), root.get(ProjectEntity_.name));
+                Map<String, Expression<?>> columns = unitedColumns(TYPE_PROJECT, root.get(ProjectEntity_.id), null, textRank, root.get(ProjectEntity_.name), root.get(ProjectEntity_.createdAt));
+                select(tuple(aliased(columns)));
+                orderBy(sortOrder(columns::get, false, textRank != null));
                 fetch(filteredLimit + 1);
             });
         }};
@@ -250,32 +255,39 @@ public class GlobalSearchRepository {
                 if (!userService.getCurrentUser().getPermissions().contains(ApplicationPermission.VIEW_NOTEBOOKS)) {
                     conditions.add(isNotNull(root.get(NotebookEntity_.currentAccessOrNull)));
                 }
-                Expression<?> rank = root.get(ExperimentEntity_.createdAt);
                 conditions.user(root.get(NotebookEntity_.createdBy), request.getAuthor());
                 conditions.fullTextSearch(root.get(NotebookEntity_.searchVector), request.getQuery(), root.get(NotebookEntity_.name));
-                if (request.getQuery() != null) {
-                    rank = conditions.fullTextRank(root.get(NotebookEntity_.searchVector), request.getQuery(), root.get(NotebookEntity_.name));
-                }
-                select(tuple(literal(TYPE_NOTEBOOK), root.get(NotebookEntity_.id), rank));
-                orderBy(desc(rank), desc(root.get(NotebookEntity_.id)));
+                Expression<?> textRank = request.getQuery() == null ? null : conditions.fullTextRank(root.get(NotebookEntity_.searchVector), request.getQuery(), root.get(NotebookEntity_.name));
+                Map<String, Expression<?>> columns = unitedColumns(TYPE_NOTEBOOK, root.get(NotebookEntity_.id), null, textRank, root.get(NotebookEntity_.name), root.get(NotebookEntity_.createdAt));
+                select(tuple(aliased(columns)));
+                orderBy(sortOrder(columns::get, false, textRank != null));
                 fetch(filteredLimit + 1);
             });
         }};
         return notebooksQuery;
     }
 
-    private TypedQuery<Tuple> buildQuery(GlobalSearchRequest request, Paging paging, CriteriaQuery<Tuple> filteredQuery, boolean hasRoles, int pageSize, boolean withTotal, boolean onlyExperiments, boolean hasFullTextSearch) {
+    private TypedQuery<Tuple> buildQuery(GlobalSearchRequest request, Paging paging, CriteriaQuery<Tuple> filteredQuery, boolean hasRoles, boolean hasSimilarity, int pageSize, boolean withTotal, boolean onlyExperiments, boolean hasFullTextSearch) {
         CriteriaDefinition<Tuple> criteria = new CriteriaDefinition<>(em, Tuple.class) {{
             JpaCteCriteria<Tuple> filtered = with("filtered", filteredQuery);
 
             JpaSubQuery<Tuple> pageQuery = subquery(Tuple.class);
             JpaRoot<Tuple> pageQueryRoot = pageQuery.from(filtered);
-            pageQuery.orderBy(desc(pageQueryRoot.get("rank")), desc(pageQueryRoot.get("id")));
-            List<Selection<?>> pageColumns = Lists.newArrayList(pageQueryRoot.get("type").alias("type"), pageQueryRoot.get("id").alias("id"), pageQueryRoot.get("rank").alias("rank"));
-            if (hasRoles) {
-                pageColumns.add(pageQueryRoot.get("roles").alias("roles"));
+            pageQuery.orderBy(sortOrder(pageQueryRoot::get, hasSimilarity, hasFullTextSearch));
+            Map<String, Expression<?>> pageColumns = new LinkedHashMap<>();
+            for (String column : List.of("type", "id", "name", "createdAt")) {
+                pageColumns.put(column, pageQueryRoot.get(column));
             }
-            pageQuery.multiselect(pageColumns);
+            if (hasSimilarity) {
+                pageColumns.put("similarity", pageQueryRoot.get("similarity"));
+            }
+            if (hasFullTextSearch) {
+                pageColumns.put("textRank", pageQueryRoot.get("textRank"));
+            }
+            if (hasRoles) {
+                pageColumns.put("roles", pageQueryRoot.get("roles"));
+            }
+            pageQuery.multiselect(aliased(pageColumns));
             pageQuery.offset(paging.getFirstResult());
             pageQuery.fetch(pageSize + 1);
 
@@ -352,8 +364,43 @@ public class GlobalSearchRepository {
             select(tuple(columns));
             // the joins above do not preserve the page subquery's order; without this, rows come back in any order
             // and dropping the extra (pageSize + 1)-th row would drop an arbitrary one
-            orderBy(desc(page.get("rank")), desc(page.get("id")));
+            orderBy(sortOrder(page::get, hasSimilarity, hasFullTextSearch));
         }};
         return criteria.createQuery(em);
+    }
+
+    /** What every branch selects, in the order they all select it, as they are united; experiments append roles. */
+    private Map<String, Expression<?>> unitedColumns(int type, Expression<?> id, @Nullable Expression<?> similarity, @Nullable Expression<?> textRank, Expression<?> name, Expression<?> createdAt) {
+        Map<String, Expression<?>> columns = new LinkedHashMap<>();
+        columns.put("type", cb.literal(type));
+        columns.put("id", id);
+        if (similarity != null) {
+            columns.put("similarity", similarity);
+        }
+        if (textRank != null) {
+            columns.put("textRank", textRank);
+        }
+        columns.put("name", name);
+        columns.put("createdAt", createdAt);
+        return columns;
+    }
+
+    private static List<Selection<?>> aliased(Map<String, Expression<?>> columns) {
+        return EntryStream.of(columns).<Selection<?>>mapKeyValue((alias, column) -> column.alias(alias)).toList();
+    }
+
+    /** similarity and text rank when searched by them, then name, then newest first; id makes the order total, so paging is stable */
+    private List<Order> sortOrder(Function<String, Expression<?>> column, boolean hasSimilarity, boolean hasFullTextSearch) {
+        List<Order> order = new ArrayList<>();
+        if (hasSimilarity) {
+            order.add(cb.desc(column.apply("similarity")));
+        }
+        if (hasFullTextSearch) {
+            order.add(cb.desc(column.apply("textRank")));
+        }
+        order.add(cb.asc(column.apply("name"), false));
+        order.add(cb.desc(column.apply("createdAt")));
+        order.add(cb.desc(column.apply("id")));
+        return order;
     }
 }

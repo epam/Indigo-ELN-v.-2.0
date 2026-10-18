@@ -240,3 +240,21 @@ export interface ExperimentDetails extends BaseExperiment {
   notebookId: UUID;
   notebookName: string;
 }
+
+/**
+ * The last JSON diff applied to an experiment's cached detail, as `useModelPatch` hands it out.
+ *
+ * `nodes` is `JSON_PATCHER.apply`'s `newNode -> oldNode` map: its keys are the objects that patch
+ * rebuilt, its values clones of what they replaced. `generation` counts patches, so a cell
+ * rebuilt by two in a row can tell the second from the first.
+ */
+export interface ModelPatch {
+  nodes: ReadonlyMap<unknown, unknown>;
+  /*
+   * TODO(model-patch-revision): replace with the experiment revision the patch produced, stored
+   * here rather than read off the detail. Needs `/mutate` (and `importSDF`) to return it — today
+   * `JSONPatcher` drops `revision` from the diff and `MutationResponse` has no such field, so the
+   * cached revision does not move. Would also fix the stale `revision` `/mutate` is sent with.
+   */
+  generation: number;
+}

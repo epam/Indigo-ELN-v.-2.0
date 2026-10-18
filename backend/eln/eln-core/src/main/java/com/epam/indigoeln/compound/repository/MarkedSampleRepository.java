@@ -18,12 +18,15 @@ import com.epam.indigoeln.eln.util.ELNCriteriaConditions;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.Tuple;
+import jakarta.persistence.criteria.Order;
 import org.hibernate.query.criteria.CriteriaDefinition;
 import org.hibernate.query.criteria.JpaJoin;
 import org.hibernate.query.criteria.JpaRoot;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import static com.epam.indigoeln.common.util.ModelUtil.map;
@@ -46,14 +49,24 @@ public class MarkedSampleRepository extends BaseRepository<MarkedSampleEntity> {
             JpaJoin<MarkedSampleEntity, CompoundEntity> compound = root.join(MarkedSampleEntity_.compound); // will be optimized away if not used
             select(tuple(root.id(), count(literal(1), createWindow())));
             criteriaConditionsFactory.withConditions(this::where, conditions -> {
-                orderBy(asc(root.get(MarkedSampleEntity_.id))); // default sort, can be overridden
+                List<Order> order = new ArrayList<>();
                 conditions.add(equal(root.get(MarkedSampleEntity_.user), user));
-                conditions.fullTextSearch(root.get(MarkedSampleEntity_.searchVector), request.getQuickSearch(), null);
 
                 conditions.moleculeSearch(compound.get(CompoundEntity_.molFile), request.getStructure());
                 if (request.getStructure() != null && request.getStructure().type() != StructuralSearch.Type.EXACT) {
-                    orderBy(desc(conditions.moleculeSimilarity(compound.get(CompoundEntity_.molFile), request.getStructure().query())));
+                    order.add(desc(conditions.moleculeSimilarity(compound.get(CompoundEntity_.molFile), request.getStructure().query())));
                 }
+
+                conditions.fullTextSearch(root.get(MarkedSampleEntity_.searchVector), request.getQuickSearch(), null);
+                if (request.getQuickSearch() != null) {
+                    order.add(desc(conditions.fullTextRank(root.get(MarkedSampleEntity_.searchVector), request.getQuickSearch(), null)));
+                }
+
+                order.add(asc(compound.get(CompoundEntity_.chemicalName), false));
+                order.add(asc(compound.get(CompoundEntity_.compoundKey), false));
+                order.add(desc(root.get(MarkedSampleEntity_.createdAt)));
+                order.add(asc(root.get(MarkedSampleEntity_.id))); // makes the order total, so paging is stable
+                orderBy(order);
 
                 conditions.textSearch(compound.get(CompoundEntity_.compoundKey), request.getCompoundKey());
                 conditions.textSearch(root.get(MarkedSampleEntity_.nbkBatchNumber).cast(String.class), request.getNbkBatchNumber());

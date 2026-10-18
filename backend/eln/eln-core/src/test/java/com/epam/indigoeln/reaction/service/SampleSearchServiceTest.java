@@ -3,6 +3,7 @@ package com.epam.indigoeln.reaction.service;
 import com.epam.indigoeln.common.model.NbkBatchNumber;
 import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.search.StructuralSearch;
 import com.epam.indigoeln.common.model.units.MolarityUnit;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.compound.model.SampleDTO;
@@ -31,7 +32,6 @@ import org.junit.jupiter.api.TestInfo;
 
 import java.io.File;
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,6 +41,7 @@ import static com.epam.indigoeln.eln.test.ReactionInputSampleAssert.assertThat;
 import static com.epam.indigoeln.test.ClientUtil.uploadForm;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 
@@ -165,6 +166,27 @@ public class SampleSearchServiceTest extends MutationsTestBase {
     }
 
     @Test
+    void testMyMaterialsOrder() {
+        assumeFalse(integrationTest); // needs two samples of one compound, so the name and the compound key tie
+        SRSSampleDTO srsSample2 = new SRSSampleDTO(UUID.randomUUID(), srsSample.getCompoundID(), defaultSaltCode.getId(), new STRCodeCompound(1, 1), new STRCodeSample(1, 1, 2), "C", BigDecimal.ONE);
+        srsSample2.setChemicalName("chemicalName");
+        doReturn(Page.of(Paging.DEFAULT, 2, List.of(srsSample, srsSample2))).when(sampleRegistrationClient).find(any(), any());
+        List<SampleDTO> found = compoundClient.search(new FindSamplesRequest().withCatalog(SearchCatalog.SRS), Paging.DEFAULT).getItems();
+        compoundClient.markSample(found.get(0));
+        compoundClient.markSample(found.get(1));
+
+        // equal name and compound key: newest first
+        String[] newestFirst = {new STRCodeSample(1, 1, 2).toString(), new STRCodeSample(1, 1, 1).toString()};
+        FindSamplesRequest request = new FindSamplesRequest().withCatalog(SearchCatalog.MY_MATERIALS);
+        assertThat(compoundClient.search(request, Paging.DEFAULT).getItems()).map(SampleDTO::getSampleKey).containsExactly(newestFirst);
+        // similarity and text rank tie as well
+        request = request.withQuickSearch("chemicalName").withStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, ModelUtil.loadResourceAsString(COMPOUND_SDF)));
+        assertThat(compoundClient.search(request, Paging.DEFAULT).getItems()).map(SampleDTO::getSampleKey).containsExactly(newestFirst);
+
+        found.forEach(compoundClient::unmarkSample);
+    }
+
+    @Test
     void testReindexMarkedSamples() {
         Page<SampleDTO> found = compoundClient.search(new FindSamplesRequest().withCatalog(SearchCatalog.SRS), Paging.DEFAULT);
         compoundClient.markSample(found.getItems().getFirst());
@@ -176,13 +198,14 @@ public class SampleSearchServiceTest extends MutationsTestBase {
     }
 
     @Test
-    void testCatalogCompoundPicture() {
+    void testCompoundMolfile() {
         SampleDTO sample = compoundClient.search(new FindSamplesRequest().withCatalog(SearchCatalog.SRS), Paging.DEFAULT).getItems().getFirst();
-        if (!integrationTest) {
-            doReturn("<svg/>".getBytes(StandardCharsets.UTF_8)).when(sampleRegistrationClient).getCompoundPicture(sample.getCompoundID());
-        }
-        byte[] picture = compoundClient.getCatalogCompoundPicture(SearchCatalog.SRS, sample.getSource(), checkNotNull(sample.getCompoundID()));
-        assertThat(new String(picture, StandardCharsets.UTF_8)).contains("<svg");
+        String molfile = compoundClient.getCatalogCompoundMolfile(SearchCatalog.SRS, sample.getSource(), checkNotNull(sample.getCompoundID()));
+        assertThat(molfile).contains("M  END");
+
+        compoundClient.markSample(sample);
+        SampleDTO mine = compoundClient.search(new FindSamplesRequest().withCatalog(SearchCatalog.MY_MATERIALS), Paging.DEFAULT).getItems().getFirst();
+        assertThat(compoundClient.getCompoundMolfile(checkNotNull(mine.getCompoundID()))).contains("M  END");
     }
 
     private void stubSRSSearch() {

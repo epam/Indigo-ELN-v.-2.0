@@ -18,9 +18,12 @@ const {
   experimentKeys,
   useCreateExperiment,
   useEditExperiment,
+  useExperiment,
   useExperimentAttachments,
   useExperimentWorkflow,
   useMarkedExperiments,
+  useModelPatch,
+  useMutateExperimentModel,
   useToggleMark,
   useUpdateExperimentAccess,
 } = await import('@/lib/api/experiments');
@@ -349,5 +352,95 @@ describe('starring', () => {
     await waitFor(() => expect(view.result.current.isSuccess).toBe(true));
 
     expect(client.getQueryData(experimentKeys.detail(ID))).toBeUndefined();
+  });
+});
+
+describe('model patch', () => {
+  beforeEach(() => apiFetch.mockReset());
+
+  /**
+   * Undo is sent from the page header, through a mutation instance no table owns. What it rebuilt
+   * must still reach every table, or nothing it moved flashes — and each patch must count, so a
+   * cell undo and redo move twice running can tell the second from the first.
+   *
+   * The detail is observed through `useExperiment`, as the page does: its options are what keep
+   * the rebuilt nodes the very objects the cache holds.
+   */
+  it('publishes the nodes any mutation rebuilt, counting each patch', async () => {
+    // `staleTime: Infinity` so the seeded detail is not refetched on mount.
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false, staleTime: Infinity }, mutations: { retry: false } },
+    });
+    const experiment = makeExperimentDetails({ id: ID });
+    client.setQueryData(experimentKeys.detail(ID), experiment);
+    apiFetch.mockResolvedValue({
+      patch: { model: { $old: null, $new: { reactions: [] } } },
+      unresolvedInputs: {},
+      messages: [],
+      debugMessages: [],
+    });
+
+    const view = renderHook(
+      () => ({
+        detail: useExperiment(ID),
+        undo: useMutateExperimentModel(experiment),
+        patch: useModelPatch(ID),
+      }),
+      { wrapper: ({ children }) => <QueryClientProvider client={client}>{children}</QueryClientProvider> },
+    );
+    expect(view.result.current.patch.generation).toBe(0);
+    expect(view.result.current.patch.nodes.size).toBe(0);
+
+    await act(() => view.result.current.undo.mutateAsync({ type: 'Undo' }));
+    await waitFor(() => expect(view.result.current.patch.generation).toBe(1));
+    expect(view.result.current.patch.nodes.has(view.result.current.detail.data?.model)).toBe(true);
+
+    await act(() => view.result.current.undo.mutateAsync({ type: 'Redo' }));
+    await waitFor(() => expect(view.result.current.patch.generation).toBe(2));
+    // Nothing was fetched for it: the store is written, never requested.
+    expect(apiFetch).toHaveBeenCalledTimes(2);
+  });
+
+  /**
+   * The cached patch outlives the tables. One mounting into it — the page reopened, the tab
+   * selected again — must not replay the last edit's flash, but must still see the next patch.
+   */
+  it('reports nothing that landed before the caller mounted', async () => {
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
+    client.setQueryData(experimentKeys.modelPatch(ID), { nodes: new Map([[{}, null]]), generation: 3 });
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={client}>{children}</QueryClientProvider>
+    );
+
+    const view = renderHook(() => useModelPatch(ID), { wrapper });
+    expect(view.result.current.generation).toBe(0);
+    expect(view.result.current.nodes.size).toBe(0);
+
+    const next = { nodes: new Map([[{}, null]]), generation: 4 };
+    act(() => client.setQueryData(experimentKeys.modelPatch(ID), next));
+    await waitFor(() => expect(view.result.current.generation).toBe(4));
+    expect(view.result.current.nodes).toBe(next.nodes);
+  });
+
+  /**
+   * The route keeps the tables mounted from one experiment to the next. Neither the last flash of
+   * the experiment arrived at, nor the generation of the one left, may decide what flashes.
+   */
+  it('starts over when the experiment changes under it', async () => {
+    const OTHER = '33333333-3333-3333-3333-333333333333';
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
+    client.setQueryData(experimentKeys.modelPatch(ID), { nodes: new Map([[{}, null]]), generation: 5 });
+    client.setQueryData(experimentKeys.modelPatch(OTHER), { nodes: new Map([[{}, null]]), generation: 2 });
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={client}>{children}</QueryClientProvider>
+    );
+
+    const view = renderHook(({ id }) => useModelPatch(id), { wrapper, initialProps: { id: ID } });
+    view.rerender({ id: OTHER });
+    expect(view.result.current.generation).toBe(0);
+
+    const next = { nodes: new Map([[{}, null]]), generation: 3 };
+    act(() => client.setQueryData(experimentKeys.modelPatch(OTHER), next));
+    await waitFor(() => expect(view.result.current.generation).toBe(3));
   });
 });

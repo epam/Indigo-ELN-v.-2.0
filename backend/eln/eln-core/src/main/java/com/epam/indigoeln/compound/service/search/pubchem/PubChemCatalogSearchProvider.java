@@ -3,6 +3,7 @@ package com.epam.indigoeln.compound.service.search.pubchem;
 import com.epam.indigoeln.common.model.MolFormula;
 import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.search.StructuralSearch;
 import com.epam.indigoeln.common.model.search.TextSearch;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.model.SampleDTO;
@@ -123,7 +124,14 @@ class PubChemCatalogSearchProvider implements CatalogSearchProvider {
         log.debug("Search: url={}, formParams={}, queryParams={}", url, formParams, queryParams);
         rateLimiter.acquire();
         List<PubChemResponse.Item> items = pubChemClient.search(url, queryParams, new MultivaluedHashMap<>(formParams)).propertyTable().items();
-        items.sort(Comparator.comparing(PubChemResponse.Item::molWeight));
+        Comparator<PubChemResponse.Item> order = Comparator
+                .comparing(PubChemResponse.Item::name, Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(PubChemResponse.Item::cid);
+        if (searchRequest.getStructure() != null && searchRequest.getStructure().type() != StructuralSearch.Type.EXACT) {
+            // PubChem returns no similarity, molecular weight stands in for it
+            order = Comparator.comparing(PubChemResponse.Item::molWeight).thenComparing(order);
+        }
+        items.sort(order);
         return pubChemMapper.mapSamples(items);
     }
 

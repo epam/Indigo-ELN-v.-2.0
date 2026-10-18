@@ -19,8 +19,8 @@ public interface CatalogSearchProvider {
 
     CompoundEntity importCompound(SampleDTO sample);
 
-    /** A compound's picture by its id in `source` — for a catalog whose compounds the ELN does not hold. */
-    default byte[] getCompoundPicture(SampleSource source, UUID compoundID) {
+    /** A compound's molfile by its id in `source` — for a catalog whose compounds the ELN does not hold. */
+    default String getCompoundMolfile(SampleSource source, UUID compoundID) {
         throw new EntityNotFoundException("Compound", compoundID);
     }
 }

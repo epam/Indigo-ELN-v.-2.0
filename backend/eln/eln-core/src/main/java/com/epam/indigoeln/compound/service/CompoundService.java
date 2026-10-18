@@ -129,10 +129,8 @@ public class CompoundService {
         return compoundRepository.get(compoundID).getPicture();
     }
 
-    public byte[] getExternalPicture(String inchi) {
-        IndigoMolecule molecule = indigo.loadMolecule(inchi);
-        indigoRenderer.setRenderOptions("svg", 300, 200);
-        return indigoRenderer.renderToBuffer(molecule);
+    public String getCompoundMolfile(UUID compoundID) {
+        return compoundRepository.get(compoundID).getMolFile();
     }
 
     public CompoundEntity getCompound(UUID id) {

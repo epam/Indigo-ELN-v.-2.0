@@ -950,7 +950,7 @@ export const REACTION_SCHEME_SVG =
   '<text x="70" y="48" text-anchor="middle" font-size="12" fill="#242424">A + B &#8594; C</text>' +
   '</svg>';
 
-/** The same idea for a compound: what the batch detail panel's structure pane renders. */
+/** The same idea for a compound: what the revision log inlines for a structure. */
 export const COMPOUND_STRUCTURE_SVG =
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">' +
   '<rect width="120" height="120" fill="#fff"/>' +
@@ -1120,6 +1120,17 @@ export function makeSample(overrides: Partial<SampleDTO> = {}): SampleDTO {
     ...overrides,
   };
 }
+
+/** A compound's molfile, as the molfile endpoints serve it for Ketcher to render: methane. */
+export const COMPOUND_MOLFILE = [
+  '',
+  '  -INDIGO-01000000002D',
+  '',
+  '  1  0  0  0  0  0  0  0  0  0999 V2000',
+  '    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0',
+  'M  END',
+  '',
+].join('\n');
 
 /**
  * What a catalog search answers with. The mix is the point: a Sample Registration hit with

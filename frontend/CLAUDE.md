@@ -315,9 +315,16 @@ Three properties of the diff, all easier to know than to rediscover:
 - **It is computed between two `ExperimentSnapshot`s**, not two `ExperimentDetailsDTO`s. They
   overlap on names, which is why applying it to the cached detail works, but it never touches
   `currentPermissions`, `marked`, the ancestor ids and names, or the `BaseDTO` audit fields.
-- **`apply` also returns a `newNode → oldNode` map.** Nothing reads it yet; it is what
-  flashing a recalculated cell needs, and the
-  stoichiometry table will want it.
+- **`apply` also returns a `newNode → oldNode` map**, which drives the stoichiometry flash.
+  `applyMutationResponse` publishes it to the query cache under `experimentKeys.modelPatch(id)`
+  whoever sent the mutation — a cell, undo/redo, the scheme, an SDF import — and every table
+  reads it through `useModelPatch`, so a recalculation flashes in every table it moved. The
+  hook reports only patches newer than its own mount — the cached one outlives the tables, and
+  a reopened page or reselected tab would otherwise replay the last flash. Two more things keep
+  it honest: `useExperiment` sets `structuralSharing: false`, or `replaceEqualDeep`
+  would store copies of the rebuilt nodes and no cell would find itself in the map; and a cell
+  flashes only if it is a **key** of the map, since `apply` clones the whole detail and an
+  untouched node is a fresh object too.
 
 `response.messages` become toasts via `notifyInfo`. `unresolvedInputs` is **not** read by 
 `applyMutationResponse` either, but it is not ignored: it belongs to whoever sent the mutation 
@@ -358,11 +365,11 @@ Four properties hold for both:
   imports the compound from its catalog. The mutation goes through `useMutateExperimentModel`, so
   it queues in `experimentWrite`'s scope and its patch fills in the row behind the dialog. Nothing
   is optimistic, which is why `useAddSample.run` resolves to whether it worked.
-- **The structure picture has three sources** (`samplePicture`): a My Materials hit's
-  `compoundID` is an ELN compound with its own picture endpoint; a PubChem hit carries an `inchi`,
-  rendered in the browser by `StructureImage` (Ketcher — both sheets `prewarmKetcher()` on open);
-  any other hit with a `compoundID` asks its catalog,
-  `/compounds/by-catalog/{catalog}/{source}/{compoundID}/picture`. An SRS hit's `compoundID` is an
+- **The structure picture has three sources** (`samplePicture`), all rendered in the browser by
+  `StructureImage` (Ketcher — both sheets `prewarmKetcher()` on open): a My Materials hit's
+  `compoundID` is an ELN compound with its own molfile endpoint; a PubChem hit carries an `inchi`;
+  any other hit with a `compoundID` asks its catalog for the molfile,
+  `/compounds/by-catalog/{catalog}/{source}/{compoundID}/molfile`. An SRS hit's `compoundID` is an
   **SRS** id, which is why the first branch is gated on the catalog. By `compoundID`, never
   `compoundKey`: an STR code names several SRS compounds that differ only in salt EQ.
 
@@ -602,7 +609,7 @@ nobody else reports it, while an `onSave` rejection is deliberately silent becau
 has already toasted it. Global Search returns nothing from `onChange`, so `await` resolves in a
 microtask and its sketcher closes immediately, exactly as before. A caller that refuses a drawing
 for its own reasons uses the same channel — it toasts and throws, since the silent branch assumes
-the rejector spoke; Add Material does that for a reaction.
+the rejector spoke; Add Material does that for a reaction, and `ReactionSchemePanel` for a molecule.
 
 **A canvas with no atoms never reaches `onSave`.** `handleSave` refuses it before it starts —
 `ketcher.editor.struct().atoms.size === 0`, which covers an empty save as well as a lone plus or

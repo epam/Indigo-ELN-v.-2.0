@@ -2,7 +2,6 @@ import { Bookmark, ChevronDown, ChevronRight, Plus } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 import { StructureImage } from '@/components/chemistry/structure-image';
-import { ApiImage } from '@/components/common/api-image';
 import { FormulaCell, IconActionCell, ReadonlyCell } from '@/components/experiments/stoichiometry/cells';
 import { ALIGN_CLASS, CELL_CLASS, HEADER_CELL_CLASS } from '@/components/experiments/stoichiometry/columns';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -316,10 +315,8 @@ function SampleDetail({ sample }: { sample: SampleDTO }) {
         <div className={cn(frame, 'flex items-center justify-center p-4 text-center text-[14px]/6 text-neutral-700')}>
           No structure available
         </div>
-      ) : 'inchi' in picture ? (
-        <StructureImage structure={picture.inchi} alt={alt} className={frame} />
       ) : (
-        <ApiImage path={picture.path} alt={alt} className={frame} />
+        <StructureImage {...picture} alt={alt} className={frame} />
       )}
     </div>
   );

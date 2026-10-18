@@ -41,11 +41,6 @@ public interface SampleRegistrationAPI {
     @Path("/compounds/{id}")
     SRSCompoundDTO getCompound(@PathParam("id") UUID id);
 
-    @GET
-    @Path("/compounds/{id}/picture")
-    @Produces("image/svg+xml")
-    byte[] getCompoundPicture(@PathParam("id") UUID id);
-
     @POST
     @Path("/compounds/loadFromFile")
     @Consumes(MediaType.MULTIPART_FORM_DATA)

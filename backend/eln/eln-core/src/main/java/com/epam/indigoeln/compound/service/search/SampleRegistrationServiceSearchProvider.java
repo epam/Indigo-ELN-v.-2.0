@@ -64,10 +64,10 @@ class SampleRegistrationServiceSearchProvider implements CatalogSearchProvider {
     }
 
     @Override
-    public byte[] getCompoundPicture(SampleSource source, UUID compoundID) {
+    public String getCompoundMolfile(SampleSource source, UUID compoundID) {
         if (source != SampleSource.SRS) {
-            return CatalogSearchProvider.super.getCompoundPicture(source, compoundID);
+            return CatalogSearchProvider.super.getCompoundMolfile(source, compoundID);
         }
-        return sampleRegistrationClient.getCompoundPicture(compoundID);
+        return sampleRegistrationClient.getCompound(compoundID).getMolFile();
     }
 }

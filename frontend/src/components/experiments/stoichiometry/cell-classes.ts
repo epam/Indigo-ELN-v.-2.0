@@ -19,8 +19,10 @@ export const USER_ENTERED_CLASSES = ['text-blue-400', 'font-semibold'];
  * - **What just happened to it**, a one-shot flash. Green when the backend recalculated the
  *   value, red when it overwrote one the user had entered.
  *
- * Both flashes are suppressed while `updatedNodes` is empty, which is what keeps the whole
- * table from flashing on first load — nothing has been patched yet.
+ * Both flashes are limited to nodes the last patch rebuilt — the keys of `updatedNodes`. That
+ * keeps the table still on first load, when nothing has been patched yet, and leaves alone every
+ * cell a patch did not touch: `JSON_PATCHER.apply` clones the whole detail, so an untouched node
+ * is a fresh object too, merely absent from the map.
  */
 export function determineCellClasses(
   value: EnteredValue<unknown> | undefined,
@@ -32,8 +34,9 @@ export function determineCellClasses(
   // point of the flash is to point out a change they did *not* make.
   if (typeof value.source === 'number') return USER_ENTERED_CLASSES;
 
-  const previous = updatedNodes.get(value) as EnteredValue<unknown> | undefined;
-  const hasAnyUpdates = updatedNodes.size !== 0;
+  const rebuilt = updatedNodes.has(value);
+  // Null for a node the patch created — a value appearing where there was none.
+  const previous = updatedNodes.get(value) as EnteredValue<unknown> | null | undefined;
   const classes: string[] = [];
 
   if (value.source === 'default') {
@@ -42,10 +45,10 @@ export function determineCellClasses(
     classes.push('text-violet-400');
   }
 
-  if (hasAnyUpdates && value.overwritten) {
+  if (rebuilt && value.overwritten) {
     classes.push('animate-[flash-red_500ms_ease-in-out]');
   } else if (
-    hasAnyUpdates &&
+    rebuilt &&
     value.source === 'calculated' &&
     (value.source !== previous?.source || value.value !== previous?.value)
   ) {

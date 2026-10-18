@@ -38,12 +38,4 @@ public class SampleSearchService {
         }
         return sampleMapper.compoundToDTO(compound);
     }
-
-    public byte[] getCompoundPicture(UUID id) {
-        SRSCompoundEntity compound = compoundRepository.getOrNull(id);
-        if (compound == null) {
-            throw new EntityNotFoundException(SRSCompoundEntity.class, id);
-        }
-        return compound.getPicture();
-    }
 }

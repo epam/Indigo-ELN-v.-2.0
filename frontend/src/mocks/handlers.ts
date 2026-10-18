@@ -2,7 +2,7 @@ import { delay, http, HttpResponse } from 'msw';
 
 import {
   ATTACHMENTS,
-  COMPOUND_STRUCTURE_SVG,
+  COMPOUND_MOLFILE,
   DICTIONARIES,
   DICTIONARY_ITEMS,
   DICTIONARY_LIST,
@@ -529,14 +529,12 @@ export const handlers = [
   http.post(`${ELN}/samples/unmark`, async ({ request }) =>
     HttpResponse.json({ ...((await request.json()) as SampleDTO), marked: false }),
   ),
-  // `getCatalogCompoundPicture` — a Sample Registration hit's structure.
-  http.get(`${ELN}/compounds/by-catalog/:catalog/:source/:compoundID/picture`, () =>
-    HttpResponse.text(COMPOUND_STRUCTURE_SVG, { headers: { 'Content-Type': 'image/svg+xml' } }),
+  // `getCatalogCompoundMolfile` — a Sample Registration hit's structure.
+  http.get(`${ELN}/compounds/by-catalog/:catalog/:source/:compoundID/molfile`, () =>
+    HttpResponse.text(COMPOUND_MOLFILE),
   ),
-  // `CompoundAPI.getCompoundPicture` — the batch detail panel's structure pane.
-  http.get(`${ELN}/compounds/:id/picture`, () =>
-    HttpResponse.text(COMPOUND_STRUCTURE_SVG, { headers: { 'Content-Type': 'image/svg+xml' } }),
-  ),
+  // `CompoundAPI.getCompoundMolfile` — the batch detail panel's structure pane.
+  http.get(`${ELN}/compounds/:id/molfile`, () => HttpResponse.text(COMPOUND_MOLFILE)),
 ];
 
 /**

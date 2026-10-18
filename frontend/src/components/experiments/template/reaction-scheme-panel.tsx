@@ -4,6 +4,8 @@ import { SchemeEditor } from '@/components/chemistry/scheme-editor';
 import { SavingOverlay } from '@/components/common/saving-overlay';
 import { AnalyzeRxnDialog } from '@/components/experiments/analyze-rxn/analyze-rxn-dialog';
 import { useMutateExperimentModel } from '@/lib/api/experiments';
+import { NOT_A_REACTION } from '@/lib/reactions';
+import { notifyError } from '@/lib/toast';
 import { canEditExperiment } from '@/lib/types/experiments.ts';
 
 import type { UUID } from '@/lib/types/common.ts';
@@ -61,6 +63,13 @@ export function ReactionSchemePanel({
         // rather than leaking as an unhandled one.
         onChange={async (next) => {
           if (!next) return;
+          // A molecule is refused, not stored as a scheme. Throwing is what holds the sketcher
+          // open with the drawing intact; the dialog stays silent on a rejection, so toast first.
+          if (!next.isReaction) {
+            const error = new Error(NOT_A_REACTION);
+            notifyError(error);
+            throw error;
+          }
           const response = await mutate.mutateAsync({
             type: 'SetScheme',
             anchor: reaction.anchor,

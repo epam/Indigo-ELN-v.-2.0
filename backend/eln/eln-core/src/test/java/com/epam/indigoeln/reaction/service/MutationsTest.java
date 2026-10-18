@@ -207,6 +207,12 @@ public class MutationsTest extends MutationsTestBase {
     }
 
     @Test
+    void testSetSchemeInvalidRxnfile() {
+        assertThatClientCall(() -> experiment.mutate(new ReactionMutation.SetScheme(experiment.reaction().getAnchor(), "not a rxnfile")))
+                .isBadRequest("Invalid reaction file: scanner: BufferScanner::read\\(\\) error");
+    }
+
+    @Test
     void testLoadReaction() {
         experiment.mutateSetSchemeFromResource(REACTION_RXN);
         Assertions.assertThat(experiment.input(1)).isNotNull();

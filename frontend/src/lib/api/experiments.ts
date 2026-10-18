@@ -1,5 +1,13 @@
-import { useInfiniteQuery, useIsMutating, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  skipToken,
+  useInfiniteQuery,
+  useIsMutating,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import type { QueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 
 import { apiDownload, apiFetch } from '@/lib/api';
 import { collectionQueryParams, getNextPageParam, SUGGEST_DEBOUNCE_MS, useSettledSearch } from '@/lib/api/collections';
@@ -18,6 +26,7 @@ import type {
   ExperimentFilters,
   ExperimentRef,
   ExperimentRequest,
+  ModelPatch,
   SignatureTemplateRef,
   WorkflowAction,
 } from '@/lib/types/experiments.ts';
@@ -52,6 +61,11 @@ export const experimentKeys = {
   list: (notebookId: string, filters: ExperimentFilters) => ['experiments', 'list', notebookId, filters] as const,
   details: () => ['experimentDetails'] as const,
   detail: (id: string) => ['experimentDetails', id] as const,
+  /**
+   * The last diff applied to a detail — see `useModelPatch`. Its own root rather than under
+   * `detail(id)`, so nothing aimed at the detail by prefix reaches it.
+   */
+  modelPatch: (id: string) => ['experimentModelPatch', id] as const,
   suggestions: (search: string) => ['experimentSuggestions', search] as const,
   signatureTemplates: () => ['signatureTemplates'] as const,
   revisions: (id: string, revision: number) => ['experimentRevisions', id, revision] as const,
@@ -102,10 +116,18 @@ function fetchExperiment(id: string, signal?: AbortSignal): Promise<ExperimentDe
   return apiFetch<ExperimentDetails>(`/api/eln/experiments/${id}`, { signal });
 }
 
+/**
+ * `structuralSharing: false` is load-bearing for the stoichiometry flash. With sharing on, every
+ * write to the detail goes through `replaceEqualDeep`, which stores a *copy* of each node the
+ * write changed — so the objects `JSON_PATCHER.apply` rebuilt, and that `useModelPatch` reports,
+ * would never be the ones a cell reads back out of the cache. The patcher already hands over a
+ * whole new tree, so sharing would buy nothing there anyway.
+ */
 export function useExperiment(id: string) {
   return useQuery({
     queryKey: experimentKeys.detail(id),
     queryFn: ({ signal }) => fetchExperiment(id, signal),
+    structuralSharing: false,
   });
 }
 
@@ -202,20 +224,9 @@ function mutateExperimentModel(id: string, revision: number, mutation: ModelMuta
  * Takes the experiment rather than its id because it needs the revision, and the caller
  * always has one in hand — a panel is rendering it. Nothing here refetches.
  *
- * `onPatched` receives `JSON_PATCHER.apply`'s second return value: a `newNode -> oldNode` map
- * covering every object the diff rebuilt. That is how the stoichiometry table tells a cell the
- * backend recalculated from one it left alone — a patch says which *nodes* changed, never
- * which cells, so the comparison has to happen against the node that was replaced.
- *
- * The map's **keys** are the objects written into the query cache, so a later render reading
- * `sample.weight` back out gets an identity hit. Its **values** are clones of the previous
- * state (`apply` starts from a `structuredClone`), so they are good for comparing fields and
- * useless for comparing identity.
+ * The nodes the diff rebuilt are published through `useModelPatch`, whoever sent the mutation.
  */
-export function useMutateExperimentModel(
-  experiment: ExperimentDetails,
-  onPatched?: (updatedNodes: ReadonlyMap<unknown, unknown>) => void,
-) {
+export function useMutateExperimentModel(experiment: ExperimentDetails) {
   const queryClient = useQueryClient();
   const id = experiment.id;
 
@@ -229,22 +240,49 @@ export function useMutateExperimentModel(
       const current = queryClient.getQueryData<ExperimentDetails>(experimentKeys.detail(id)) ?? experiment;
       return mutateExperimentModel(id, current.revision, mutation);
     },
-    onSuccess: (response) => applyMutationResponse(queryClient, id, response, onPatched),
+    onSuccess: (response) => applyMutationResponse(queryClient, id, response),
   });
+}
+
+const NO_PATCH: ModelPatch = { nodes: new Map(), generation: 0 };
+
+/**
+ * The last diff applied to this experiment's cached detail, from any sender — a cell edit, undo
+ * and redo, the scheme, an added sample, an SDF import. That is how every stoichiometry table
+ * tells a cell the backend recalculated from one it left alone: a patch says which *nodes*
+ * changed, never which cells, so the comparison happens against the node that was replaced.
+ *
+ * `nodes` maps each rebuilt object to the one it replaced. Its **keys** are the objects written
+ * into the query cache, so a later render reading `sample.weight` back out gets an identity hit.
+ * Its **values** are clones of the previous state (`apply` starts from a `structuredClone`), so
+ * they are good for comparing fields and useless for comparing identity — and for the same
+ * reason a node the diff did not touch is a fresh object that is simply absent from the map.
+ *
+ * Held in the query cache rather than a module variable, so each `QueryClient` — one per story
+ * and test — has its own, and signing out clears it with everything else. `skipToken`: written
+ * only by `applyMutationResponse`, never fetched.
+ *
+ * Only patches that land **after** the caller mounted are reported. The cached one outlives every
+ * table, so a table mounting into it — the page reopened within `gcTime`, or the stoichiometry tab
+ * selected again — would otherwise replay the last edit's flash as if it had just happened.
+ */
+export function useModelPatch(id: string): ModelPatch {
+  const { data } = useQuery<ModelPatch>({ queryKey: experimentKeys.modelPatch(id), queryFn: skipToken });
+  // Per experiment: the route keeps the tables mounted when `id` changes, and another
+  // experiment's generation says nothing about this one's.
+  const [seen, setSeen] = useState(() => ({ id, generation: data?.generation ?? 0 }));
+  if (seen.id !== id) setSeen({ id, generation: data?.generation ?? 0 });
+  const since = seen.id === id ? seen.generation : (data?.generation ?? 0);
+  return data && data.generation > since ? data : NO_PATCH;
 }
 
 /**
  * What every endpoint answering with a `MutationResponse` has to do with it: apply the diff to the
- * cached detail, report the nodes it rebuilt, toast whatever the backend said, and refresh the
+ * cached detail, publish the nodes it rebuilt, toast whatever the backend said, and refresh the
  * lists. Shared by `/mutate` and by the SDF import, which is a `MutationResponse` reached through
  * its own multipart endpoint.
  */
-function applyMutationResponse(
-  queryClient: QueryClient,
-  id: string,
-  response: MutationResponse,
-  onPatched?: (updatedNodes: ReadonlyMap<unknown, unknown>) => void,
-): void {
+function applyMutationResponse(queryClient: QueryClient, id: string, response: MutationResponse): void {
   // The diff is computed between two ExperimentSnapshots rather than two
   // ExperimentDetailsDTOs. They overlap on names, which is why applying it to the detail
   // works — but it never touches currentPermissions, marked, the ancestor ids and names,
@@ -257,8 +295,14 @@ function applyMutationResponse(
   });
   // After the cache write, so a subscriber re-rendering on the new data already has it.
   // Skipped entirely when the detail was not cached — `patchExperimentDetails` no-ops
-  // there, and reporting an empty map would read as "nothing changed".
-  if (updatedNodes.size > 0) onPatched?.(updatedNodes);
+  // there, and publishing an empty map would read as "nothing changed".
+  if (updatedNodes.size > 0) {
+    const nodes = updatedNodes;
+    queryClient.setQueryData<ModelPatch>(experimentKeys.modelPatch(id), (previous) => ({
+      nodes,
+      generation: (previous?.generation ?? 0) + 1,
+    }));
+  }
   // `response.unresolvedInputs` is deliberately not read here: it belongs to whoever sent the
   // mutation, not to every caller. `ReactionSchemePanel` reads it off `mutateAsync`'s result and
   // opens Analyze RXN on it — see the note there.
@@ -289,18 +333,14 @@ function importSdf(id: string, reactionAnchor: string, file: File): Promise<Muta
  * Joins `experimentWrite`'s scope so an import queues behind the on-blur cell saves instead of
  * racing them.
  */
-export function useImportSdf(
-  experiment: ExperimentDetails,
-  reactionAnchor: string,
-  onPatched?: (updatedNodes: ReadonlyMap<unknown, unknown>) => void,
-) {
+export function useImportSdf(experiment: ExperimentDetails, reactionAnchor: string) {
   const queryClient = useQueryClient();
   const id = experiment.id;
 
   return useMutation({
     ...experimentWrite(id),
     mutationFn: (file: File) => importSdf(id, reactionAnchor, file),
-    onSuccess: (response) => applyMutationResponse(queryClient, id, response, onPatched),
+    onSuccess: (response) => applyMutationResponse(queryClient, id, response),
   });
 }
 

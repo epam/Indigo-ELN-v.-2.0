@@ -2,7 +2,7 @@ import { ChevronDown, Pencil } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useState } from 'react';
 
-import { ApiImage } from '@/components/common/api-image';
+import { StructureImage } from '@/components/chemistry/structure-image';
 import { SavingOverlay } from '@/components/common/saving-overlay';
 import { DictionaryCombobox, MultiDictionaryCombobox } from '@/components/common/dictionary-combobox';
 import { isSampleProtected } from '@/components/experiments/stoichiometry/batches/columns';
@@ -16,6 +16,7 @@ import {
 import { MeltingPointDialog } from '@/components/experiments/stoichiometry/batches/melting-point-dialog';
 import { ResidualSolventsDialog } from '@/components/experiments/stoichiometry/batches/residual-solvents-dialog';
 import { SolubilityDialog } from '@/components/experiments/stoichiometry/batches/solubility-dialog';
+import { compoundMolfilePath } from '@/lib/api/samples';
 import { cellId } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import { useDraft } from '@/lib/hooks/use-draft';
 import { Button } from '@/components/ui/button';
@@ -336,12 +337,11 @@ function quantity(value: EnteredValue<string> | undefined): string | undefined {
 }
 
 /**
- * The compound's structure, from the ELN's own renderer.
+ * The compound's structure, rendered by Ketcher from the molfile the ELN serves for it.
  *
- * **Read-only, and deliberately without the design's pencil.** `CompoundRef` carries no molfile —
- * only a `compoundID` — so a sketcher opened from here would start empty and a Save would replace
- * the structure with whatever had been drawn from scratch. `SetOutputMolfile` is typed and waiting
- * for a molfile to seed it with.
+ * **Read-only, and still without the design's pencil.** `CompoundRef` carries no molfile, only a
+ * `compoundID`; the one fetched here is what a sketcher would be seeded with, and
+ * `SetOutputMolfile` is typed and waiting for it.
  */
 function Structure({ compound, batch }: { compound: CompoundRef; batch: string }) {
   const compoundID = compound.compoundID;
@@ -356,9 +356,9 @@ function Structure({ compound, batch }: { compound: CompoundRef; batch: string }
     );
   }
 
-  // `border-dashed` overrides ApiImage's own solid frame; the rest of its box is what we want.
+  // `border-dashed` overrides StructureImage's own solid frame; the rest of its box is what we want.
   return (
-    <ApiImage path={`/api/eln/compounds/${compoundID}/picture`} alt={`Structure of batch ${batch}`} className={frame} />
+    <StructureImage path={compoundMolfilePath(compoundID)} alt={`Structure of batch ${batch}`} className={frame} />
   );
 }
 

@@ -4,6 +4,7 @@ import com.epam.indigoeln.common.model.NbkBatchNumber;
 import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.search.NumericSearch;
+import com.epam.indigoeln.common.model.search.StructuralSearch;
 import com.epam.indigoeln.common.model.search.TextSearch;
 import com.epam.indigoeln.common.model.units.MolarityUnit;
 import com.epam.indigoeln.common.util.ModelUtil;
@@ -33,6 +34,7 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -113,13 +115,6 @@ class SampleRegistrationServiceTest extends BaseTest {
     }
 
     @Test
-    @Order(102)
-    void testGetCompoundPicture() {
-        SRSSampleDTO sample = sampleRegistrationClient.find(SRSFindSamplesRequest.builder().quickSearch("STR-00000001-05-001").build(), Paging.DEFAULT).getItems().getFirst();
-        assertThat(new String(sampleRegistrationClient.getCompoundPicture(sample.getCompoundID()))).contains("<svg");
-    }
-
-    @Test
     @Order(103)
     void testFindSampleTreatsLikeWildcardsLiterally() {
         assertThat(sampleRegistrationClient.find(SRSFindSamplesRequest.builder().chemicalName(new TextSearch.ContainsSearch("lName")).build(), Paging.DEFAULT).getItems()).hasSize(1);
@@ -159,6 +154,26 @@ class SampleRegistrationServiceTest extends BaseTest {
         Page<SRSSampleDTO> page = sampleRegistrationClient.find(SRSFindSamplesRequest.builder().quickSearch("C6H6O4").build(), Paging.DEFAULT);
         assertThat(page.getItems()).isNotEmpty().allSatisfy(s ->
                 assertThat(s.getMolFormula()).isEqualTo("C<sub>6</sub>H<sub>6</sub>O<sub>4</sub>"));
+    }
+
+    @Test
+    @Order(203)
+    void testFindSamplesSortedByChemicalName() {
+        Page<SRSSampleDTO> page = sampleRegistrationClient.find(SRSFindSamplesRequest.builder().chemicalName(new TextSearch.ContainsSearch("benzene")).build(), Paging.DEFAULT);
+        // the database collation ignores punctuation and case
+        assertThat(page.getItems()).extracting(SRSSampleDTO::getName).hasSizeGreaterThan(1)
+                .isSortedAccordingTo(Comparator.comparing(name -> name.replaceAll("[^A-Za-z0-9]", "").toLowerCase()));
+    }
+
+    @Test
+    @Order(204)
+    void testFindSampleByStructureAndQuickSearch() {
+        // sorted by similarity, then by text rank
+        Page<SRSSampleDTO> page = sampleRegistrationClient.find(SRSFindSamplesRequest.builder()
+                .structure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, molfile))
+                .quickSearch("chemicalName")
+                .build(), Paging.DEFAULT);
+        assertThat(page.getItems()).extracting(SRSSampleDTO::getName).containsExactly("chemicalName");
     }
 
     @Test

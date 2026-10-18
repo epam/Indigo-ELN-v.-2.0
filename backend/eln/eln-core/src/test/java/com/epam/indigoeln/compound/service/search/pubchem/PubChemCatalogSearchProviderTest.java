@@ -2,6 +2,7 @@ package com.epam.indigoeln.compound.service.search.pubchem;
 
 import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
+import com.epam.indigoeln.common.model.search.StructuralSearch;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.model.SampleDTO;
@@ -55,6 +56,19 @@ class PubChemCatalogSearchProviderTest extends ELNBaseTest {
                     assertThat(s.getChemicalName()).isNotNull();
                     assertThat(s.getInchi()).startsWith("InChI=");
                 });
+        assertThat(result.getItems()).map(SampleDTO::getChemicalName).isSorted();
+    }
+
+    @Test
+    void testSubstructureSearchSortsByMolWeight() {
+        // PubChem returns no similarity, molecular weight stands in for it
+        wireMock.register(WireMock.post(WireMock.urlPathEqualTo("/rest/pug/compound/fastsubstructure/sdf/property/MolecularFormula,MolecularWeight,IUPACName,InChI/JSON")).willReturn(WireMock.aResponse()
+                .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                .withBody(ModelUtil.loadResource("/com/epam/indigoeln/compound/service/search/pubchem-response.json"))
+        ));
+        StructuralSearch structure = new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, ModelUtil.loadResourceAsString("/ring-substructure.mol"));
+        Page<SampleDTO> result = sampleSearchService.search(new FindSamplesRequest().withCatalog(PUBCHEM).withStructure(structure), Paging.DEFAULT);
+        assertThat(result.getItems()).hasSize(10).map(SampleDTO::getMolWeight).isSorted();
     }
 
     @Test

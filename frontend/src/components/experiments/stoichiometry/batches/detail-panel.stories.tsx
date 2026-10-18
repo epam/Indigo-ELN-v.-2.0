@@ -34,7 +34,11 @@ const EMPTY = rowAt(0, 1);
 const REGISTERED = rowAt(1, 0);
 
 /** Nothing in flight and nothing to send: what the display-only stories pass. */
-const IDLE: StoichiometryMutations = { save: async () => true, savingCells: new Set(), updatedNodes: new Map() };
+const IDLE: StoichiometryMutations = {
+  save: async () => true,
+  savingCells: new Set(),
+  patch: { nodes: new Map(), generation: 0 },
+};
 
 /** Records the mutations that actually reached the wire, so a story can assert the payload. */
 const sent: unknown[] = [];
