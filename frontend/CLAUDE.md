@@ -365,11 +365,11 @@ Four properties hold for both:
   imports the compound from its catalog. The mutation goes through `useMutateExperimentModel`, so
   it queues in `experimentWrite`'s scope and its patch fills in the row behind the dialog. Nothing
   is optimistic, which is why `useAddSample.run` resolves to whether it worked.
-- **The structure picture has three sources** (`samplePicture`): a My Materials hit's
-  `compoundID` is an ELN compound with its own picture endpoint; a PubChem hit carries an `inchi`,
-  rendered in the browser by `StructureImage` (Ketcher — both sheets `prewarmKetcher()` on open);
-  any other hit with a `compoundID` asks its catalog,
-  `/compounds/by-catalog/{catalog}/{source}/{compoundID}/picture`. An SRS hit's `compoundID` is an
+- **The structure picture has three sources** (`samplePicture`), all rendered in the browser by
+  `StructureImage` (Ketcher — both sheets `prewarmKetcher()` on open): a My Materials hit's
+  `compoundID` is an ELN compound with its own molfile endpoint; a PubChem hit carries an `inchi`;
+  any other hit with a `compoundID` asks its catalog for the molfile,
+  `/compounds/by-catalog/{catalog}/{source}/{compoundID}/molfile`. An SRS hit's `compoundID` is an
   **SRS** id, which is why the first branch is gated on the catalog. By `compoundID`, never
   `compoundKey`: an STR code names several SRS compounds that differ only in salt EQ.
 

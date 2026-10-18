@@ -50,6 +50,7 @@ import org.hibernate.query.criteria.JpaJoin;
 import org.hibernate.query.criteria.JpaRoot;
 import org.hibernate.query.criteria.JpaSetJoin;
 import org.hibernate.query.criteria.JpaSubQuery;
+import org.jspecify.annotations.Nullable;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -159,10 +160,7 @@ public class GlobalSearchRepository {
         new CriteriaDefinition<>(em, experimentsQuery) {{
             JpaRoot<ExperimentEntity> root = from(ExperimentEntity.class);
             criteriaConditionsFactory.withConditions(this::where, conditions -> {
-                // every branch selects the same columns in the same order, as they are united
-                Map<String, Expression<?>> columns = new LinkedHashMap<>();
-                columns.put("type", literal(TYPE_EXPERIMENT));
-                columns.put("id", root.get(ExperimentEntity_.id));
+                Expression<?> similarity = null;
                 Expression<ReactionRole[]> roles = null;
                 if (!userService.getCurrentUser().getPermissions().contains(ApplicationPermission.VIEW_EXPERIMENTS)) {
                     conditions.add(isNotNull(root.get(ExperimentEntity_.currentAccessOrNull)));
@@ -185,15 +183,12 @@ public class GlobalSearchRepository {
                     roles = arrayAgg(null, experimentCompound.get(ExperimentSearchCompound_.REACTION_ROLE));
                     if (request.getMoleculeStructure().type() != StructuralSearch.Type.EXACT) {
                         // best-matching compound ranks the experiment; the per-compound value is not grouped
-                        columns.put("similarity", max(conditions.moleculeSimilarity(compound.get(CompoundEntity_.molFile), request.getMoleculeStructure().query())));
+                        similarity = max(conditions.moleculeSimilarity(compound.get(CompoundEntity_.molFile), request.getMoleculeStructure().query()));
                     }
                     groupBy(root.get(ExperimentEntity_.id));
                 }
-                if (request.getQuery() != null) {
-                    columns.put("textRank", conditions.fullTextRank(root.get(ExperimentEntity_.searchVector), request.getQuery(), root.get(ExperimentEntity_.name)));
-                }
-                columns.put("name", root.get(ExperimentEntity_.name));
-                columns.put("createdAt", root.get(ExperimentEntity_.createdAt));
+                Expression<?> textRank = request.getQuery() == null ? null : conditions.fullTextRank(root.get(ExperimentEntity_.searchVector), request.getQuery(), root.get(ExperimentEntity_.name));
+                Map<String, Expression<?>> columns = unitedColumns(TYPE_EXPERIMENT, root.get(ExperimentEntity_.id), similarity, textRank, root.get(ExperimentEntity_.name), root.get(ExperimentEntity_.createdAt));
                 // reaction search
                 if (request.getReactionStructure() != null) {
                     JpaSubQuery<Integer> subquery = subquery(Integer.class);
@@ -225,7 +220,7 @@ public class GlobalSearchRepository {
                     columns.put("roles", roles);
                 }
                 select(tuple(aliased(columns)));
-                orderBy(sortOrder(columns::get, columns.containsKey("similarity"), columns.containsKey("textRank")));
+                orderBy(sortOrder(columns::get, similarity != null, textRank != null));
                 fetch(filteredLimit + 1);
             });
         }};
@@ -240,18 +235,12 @@ public class GlobalSearchRepository {
                 if (!userService.getCurrentUser().getPermissions().contains(ApplicationPermission.VIEW_PROJECTS)) {
                     conditions.add(isNotNull(root.get(ProjectEntity_.currentAccessOrNull)));
                 }
-                Map<String, Expression<?>> columns = new LinkedHashMap<>();
-                columns.put("type", literal(TYPE_PROJECT));
-                columns.put("id", root.get(ProjectEntity_.id));
                 conditions.user(root.get(ProjectEntity_.createdBy), request.getAuthor());
                 conditions.fullTextSearch(root.get(ProjectEntity_.searchVector), request.getQuery(), root.get(ProjectEntity_.name));
-                if (request.getQuery() != null) {
-                    columns.put("textRank", conditions.fullTextRank(root.get(ProjectEntity_.searchVector), request.getQuery(), root.get(ProjectEntity_.name)));
-                }
-                columns.put("name", root.get(ProjectEntity_.name));
-                columns.put("createdAt", root.get(ProjectEntity_.createdAt));
+                Expression<?> textRank = request.getQuery() == null ? null : conditions.fullTextRank(root.get(ProjectEntity_.searchVector), request.getQuery(), root.get(ProjectEntity_.name));
+                Map<String, Expression<?>> columns = unitedColumns(TYPE_PROJECT, root.get(ProjectEntity_.id), null, textRank, root.get(ProjectEntity_.name), root.get(ProjectEntity_.createdAt));
                 select(tuple(aliased(columns)));
-                orderBy(sortOrder(columns::get, columns.containsKey("similarity"), columns.containsKey("textRank")));
+                orderBy(sortOrder(columns::get, false, textRank != null));
                 fetch(filteredLimit + 1);
             });
         }};
@@ -266,18 +255,12 @@ public class GlobalSearchRepository {
                 if (!userService.getCurrentUser().getPermissions().contains(ApplicationPermission.VIEW_NOTEBOOKS)) {
                     conditions.add(isNotNull(root.get(NotebookEntity_.currentAccessOrNull)));
                 }
-                Map<String, Expression<?>> columns = new LinkedHashMap<>();
-                columns.put("type", literal(TYPE_NOTEBOOK));
-                columns.put("id", root.get(NotebookEntity_.id));
                 conditions.user(root.get(NotebookEntity_.createdBy), request.getAuthor());
                 conditions.fullTextSearch(root.get(NotebookEntity_.searchVector), request.getQuery(), root.get(NotebookEntity_.name));
-                if (request.getQuery() != null) {
-                    columns.put("textRank", conditions.fullTextRank(root.get(NotebookEntity_.searchVector), request.getQuery(), root.get(NotebookEntity_.name)));
-                }
-                columns.put("name", root.get(NotebookEntity_.name));
-                columns.put("createdAt", root.get(NotebookEntity_.createdAt));
+                Expression<?> textRank = request.getQuery() == null ? null : conditions.fullTextRank(root.get(NotebookEntity_.searchVector), request.getQuery(), root.get(NotebookEntity_.name));
+                Map<String, Expression<?>> columns = unitedColumns(TYPE_NOTEBOOK, root.get(NotebookEntity_.id), null, textRank, root.get(NotebookEntity_.name), root.get(NotebookEntity_.createdAt));
                 select(tuple(aliased(columns)));
-                orderBy(sortOrder(columns::get, columns.containsKey("similarity"), columns.containsKey("textRank")));
+                orderBy(sortOrder(columns::get, false, textRank != null));
                 fetch(filteredLimit + 1);
             });
         }};
@@ -384,6 +367,22 @@ public class GlobalSearchRepository {
             orderBy(sortOrder(page::get, hasSimilarity, hasFullTextSearch));
         }};
         return criteria.createQuery(em);
+    }
+
+    /** What every branch selects, in the order they all select it, as they are united; experiments append roles. */
+    private Map<String, Expression<?>> unitedColumns(int type, Expression<?> id, @Nullable Expression<?> similarity, @Nullable Expression<?> textRank, Expression<?> name, Expression<?> createdAt) {
+        Map<String, Expression<?>> columns = new LinkedHashMap<>();
+        columns.put("type", cb.literal(type));
+        columns.put("id", id);
+        if (similarity != null) {
+            columns.put("similarity", similarity);
+        }
+        if (textRank != null) {
+            columns.put("textRank", textRank);
+        }
+        columns.put("name", name);
+        columns.put("createdAt", createdAt);
+        return columns;
     }
 
     private static List<Selection<?>> aliased(Map<String, Expression<?>> columns) {

@@ -421,4 +421,26 @@ describe('model patch', () => {
     await waitFor(() => expect(view.result.current.generation).toBe(4));
     expect(view.result.current.nodes).toBe(next.nodes);
   });
+
+  /**
+   * The route keeps the tables mounted from one experiment to the next. Neither the last flash of
+   * the experiment arrived at, nor the generation of the one left, may decide what flashes.
+   */
+  it('starts over when the experiment changes under it', async () => {
+    const OTHER = '33333333-3333-3333-3333-333333333333';
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
+    client.setQueryData(experimentKeys.modelPatch(ID), { nodes: new Map([[{}, null]]), generation: 5 });
+    client.setQueryData(experimentKeys.modelPatch(OTHER), { nodes: new Map([[{}, null]]), generation: 2 });
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={client}>{children}</QueryClientProvider>
+    );
+
+    const view = renderHook(({ id }) => useModelPatch(id), { wrapper, initialProps: { id: ID } });
+    view.rerender({ id: OTHER });
+    expect(view.result.current.generation).toBe(0);
+
+    const next = { nodes: new Map([[{}, null]]), generation: 3 };
+    act(() => client.setQueryData(experimentKeys.modelPatch(OTHER), next));
+    await waitFor(() => expect(view.result.current.generation).toBe(3));
+  });
 });

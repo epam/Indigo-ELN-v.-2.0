@@ -133,7 +133,8 @@ export function NumericCell({
 
   // A cell with no unit yet starts on the first one: a number typed alone still saves, and the
   // picked option shows that the unit can be changed. A unitless quantity has no other choice.
-  const storedUnit = () => value?.unit ?? units[0];
+  // A value stored without a unit is not seeded, or merely tabbing through would save one.
+  const storedUnit = () => value?.unit ?? (unitless || value?.value == null ? units[0] : null);
   const [draft, setDraft] = useState(value?.value ?? '');
   const [draftUnit, setDraftUnit] = useState<string | null>(storedUnit);
   const [focused, setFocused] = useState(false);

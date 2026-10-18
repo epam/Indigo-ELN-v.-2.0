@@ -268,8 +268,12 @@ const NO_PATCH: ModelPatch = { nodes: new Map(), generation: 0 };
  */
 export function useModelPatch(id: string): ModelPatch {
   const { data } = useQuery<ModelPatch>({ queryKey: experimentKeys.modelPatch(id), queryFn: skipToken });
-  const [seen] = useState(() => data?.generation ?? 0);
-  return data && data.generation > seen ? data : NO_PATCH;
+  // Per experiment: the route keeps the tables mounted when `id` changes, and another
+  // experiment's generation says nothing about this one's.
+  const [seen, setSeen] = useState(() => ({ id, generation: data?.generation ?? 0 }));
+  if (seen.id !== id) setSeen({ id, generation: data?.generation ?? 0 });
+  const since = seen.id === id ? seen.generation : (data?.generation ?? 0);
+  return data && data.generation > since ? data : NO_PATCH;
 }
 
 /**
