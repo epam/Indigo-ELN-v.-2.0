@@ -315,16 +315,15 @@ Three properties of the diff, all easier to know than to rediscover:
 - **It is computed between two `ExperimentSnapshot`s**, not two `ExperimentDetailsDTO`s. They
   overlap on names, which is why applying it to the cached detail works, but it never touches
   `currentPermissions`, `marked`, the ancestor ids and names, or the `BaseDTO` audit fields.
-- **`apply` also returns a `newNode → oldNode` map**, which drives the stoichiometry flash.
-  `applyMutationResponse` publishes it to the query cache under `experimentKeys.modelPatch(id)`
-  whoever sent the mutation — a cell, undo/redo, the scheme, an SDF import — and every table
-  reads it through `useModelPatch`, so a recalculation flashes in every table it moved. The
-  hook reports only patches newer than its own mount — the cached one outlives the tables, and
-  a reopened page or reselected tab would otherwise replay the last flash. Two more things keep
-  it honest: `useExperiment` sets `structuralSharing: false`, or `replaceEqualDeep`
-  would store copies of the rebuilt nodes and no cell would find itself in the map; and a cell
-  flashes only if it is a **key** of the map, since `apply` clones the whole detail and an
-  untouched node is a fresh object too.
+- **The model the diff replaced drives the stoichiometry flash.** `applyMutationResponse`
+  publishes it to the query cache under `experimentKeys.modelPatch(id)` whoever sent the
+  mutation — a cell, undo/redo, the scheme, an SDF import — and every table reads it through
+  `useModelPatch`, so a recalculation flashes in every table it moved. The hook reports only
+  patches newer than its own mount — the cached one outlives the tables, and a reopened page or
+  reselected tab would otherwise replay the last flash. Each table pairs every row with its
+  counterpart in that previous model **by anchor** (`findByAnchor`), down to each `NumericCell`,
+  which compares its `EnteredValue` with the previous one field by field (`hasChanged`). With no
+  patch since mount the current model stands in for the previous one, so nothing differs.
 
 `response.messages` become toasts via `notifyInfo`. `unresolvedInputs` is **not** read by 
 `applyMutationResponse` either, but it is not ignored: it belongs to whoever sent the mutation 

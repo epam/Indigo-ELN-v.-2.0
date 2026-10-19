@@ -359,14 +359,11 @@ describe('model patch', () => {
   beforeEach(() => apiFetch.mockReset());
 
   /**
-   * Undo is sent from the page header, through a mutation instance no table owns. What it rebuilt
-   * must still reach every table, or nothing it moved flashes — and each patch must count, so a
-   * cell undo and redo move twice running can tell the second from the first.
-   *
-   * The detail is observed through `useExperiment`, as the page does: its options are what keep
-   * the rebuilt nodes the very objects the cache holds.
+   * Undo is sent from the page header, through a mutation instance no table owns. The model it
+   * replaced must still reach every table, or nothing it moved flashes — and each patch must
+   * count, so a cell undo and redo move twice running can tell the second from the first.
    */
-  it('publishes the nodes any mutation rebuilt, counting each patch', async () => {
+  it('publishes the model any mutation replaced, counting each patch', async () => {
     // `staleTime: Infinity` so the seeded detail is not refetched on mount.
     const client = new QueryClient({
       defaultOptions: { queries: { retry: false, staleTime: Infinity }, mutations: { retry: false } },
@@ -389,14 +386,17 @@ describe('model patch', () => {
       { wrapper: ({ children }) => <QueryClientProvider client={client}>{children}</QueryClientProvider> },
     );
     expect(view.result.current.patch.generation).toBe(0);
-    expect(view.result.current.patch.nodes.size).toBe(0);
+    expect(view.result.current.patch.previous).toBeUndefined();
 
     await act(() => view.result.current.undo.mutateAsync({ type: 'Undo' }));
     await waitFor(() => expect(view.result.current.patch.generation).toBe(1));
-    expect(view.result.current.patch.nodes.has(view.result.current.detail.data?.model)).toBe(true);
+    expect(view.result.current.patch.previous).toEqual(experiment.model);
+    expect(view.result.current.detail.data?.model).toEqual({ reactions: [] });
 
     await act(() => view.result.current.undo.mutateAsync({ type: 'Redo' }));
     await waitFor(() => expect(view.result.current.patch.generation).toBe(2));
+    // The model the first patch produced — what the second one replaced.
+    expect(view.result.current.patch.previous).toEqual({ reactions: [] });
     // Nothing was fetched for it: the store is written, never requested.
     expect(apiFetch).toHaveBeenCalledTimes(2);
   });
@@ -407,19 +407,19 @@ describe('model patch', () => {
    */
   it('reports nothing that landed before the caller mounted', async () => {
     const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
-    client.setQueryData(experimentKeys.modelPatch(ID), { nodes: new Map([[{}, null]]), generation: 3 });
+    client.setQueryData(experimentKeys.modelPatch(ID), { previous: makeExperimentDetails().model, generation: 3 });
     const wrapper = ({ children }: { children: ReactNode }) => (
       <QueryClientProvider client={client}>{children}</QueryClientProvider>
     );
 
     const view = renderHook(() => useModelPatch(ID), { wrapper });
     expect(view.result.current.generation).toBe(0);
-    expect(view.result.current.nodes.size).toBe(0);
+    expect(view.result.current.previous).toBeUndefined();
 
-    const next = { nodes: new Map([[{}, null]]), generation: 4 };
+    const next = { previous: makeExperimentDetails().model, generation: 4 };
     act(() => client.setQueryData(experimentKeys.modelPatch(ID), next));
     await waitFor(() => expect(view.result.current.generation).toBe(4));
-    expect(view.result.current.nodes).toBe(next.nodes);
+    expect(view.result.current.previous).toEqual(next.previous);
   });
 
   /**
@@ -429,8 +429,8 @@ describe('model patch', () => {
   it('starts over when the experiment changes under it', async () => {
     const OTHER = '33333333-3333-3333-3333-333333333333';
     const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
-    client.setQueryData(experimentKeys.modelPatch(ID), { nodes: new Map([[{}, null]]), generation: 5 });
-    client.setQueryData(experimentKeys.modelPatch(OTHER), { nodes: new Map([[{}, null]]), generation: 2 });
+    client.setQueryData(experimentKeys.modelPatch(ID), { previous: makeExperimentDetails().model, generation: 5 });
+    client.setQueryData(experimentKeys.modelPatch(OTHER), { previous: makeExperimentDetails().model, generation: 2 });
     const wrapper = ({ children }: { children: ReactNode }) => (
       <QueryClientProvider client={client}>{children}</QueryClientProvider>
     );
@@ -439,7 +439,7 @@ describe('model patch', () => {
     view.rerender({ id: OTHER });
     expect(view.result.current.generation).toBe(0);
 
-    const next = { nodes: new Map([[{}, null]]), generation: 3 };
+    const next = { previous: makeExperimentDetails().model, generation: 3 };
     act(() => client.setQueryData(experimentKeys.modelPatch(OTHER), next));
     await waitFor(() => expect(view.result.current.generation).toBe(3));
   });

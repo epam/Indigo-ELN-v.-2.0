@@ -2,10 +2,13 @@ import type { FocusEvent } from 'react';
 import { useRef, useState } from 'react';
 
 import { SavingOverlay } from '@/components/common/saving-overlay';
-import { determineCellClasses, USER_ENTERED_CLASSES } from '@/components/experiments/stoichiometry/cell-classes';
+import {
+  determineCellClasses,
+  hasChanged,
+  USER_ENTERED_CLASSES,
+} from '@/components/experiments/stoichiometry/cell-classes';
 import { CONTENT_BOX } from '@/components/experiments/stoichiometry/columns';
 import { cn } from '@/lib/utils';
-import type { ModelPatch } from '@/lib/types/experiments.ts';
 import type { EnteredValue } from '@/lib/types/reactions.ts';
 
 /**
@@ -60,15 +63,21 @@ function isExternal(event: FocusEvent<HTMLElement>): boolean {
  */
 export function NumericCell({
   value,
-  patch,
+  previous,
+  generation,
   editable,
   pending,
   label,
   onCommit,
 }: {
   value: EnteredValue<string> | undefined;
-  /** The last patch to the experiment — see `useModelPatch`. Drives the flash. */
-  patch: ModelPatch;
+  /**
+   * The same cell in the model before the last patch, or `value` itself when there has been none
+   * — see `StoichiometryMutations.previousModel`. Drives the flash.
+   */
+  previous: EnteredValue<string> | undefined;
+  /** Counts patches — see `ModelPatch.generation`. */
+  generation: number;
   editable: boolean;
   pending: boolean;
   /** Names the cell for assistive tech — the visible column header is not associated with it. */
@@ -97,13 +106,13 @@ export function NumericCell({
   const shownValue = inFlight ? inFlight.value : (value?.value ?? null);
   const text = shownValue ?? '—';
   // A value on its way to the server is written as what it is: one the user entered.
-  const classes = inFlight ? USER_ENTERED_CLASSES : determineCellClasses(value, patch.nodes);
+  const classes = inFlight ? USER_ENTERED_CLASSES : determineCellClasses(value, previous);
   /**
    * A flash is a CSS animation, which plays only when its class is *added*. Undo then redo moves
-   * the same cells twice running, and the class would simply stay — so a cell this patch rebuilt
+   * the same cells twice running, and the class would simply stay — so a cell this patch changed
    * remounts its value box, keyed by the patch, and the animation starts over.
    */
-  const flashKey = patch.nodes.has(value) ? patch.generation : undefined;
+  const flashKey = value != null && hasChanged(value, previous) ? generation : undefined;
   // Only a colour. An em-dash keeps the column's alignment, so an empty cell has the same edge as
   // the numbers above and below it — a column that half-centres itself has no edge to read at all.
   const emptyClass = shownValue == null ? 'text-neutral-700' : undefined;

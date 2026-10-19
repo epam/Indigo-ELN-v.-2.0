@@ -22,6 +22,7 @@ import {
 import { NumericCell } from '@/components/experiments/stoichiometry/numeric-cell';
 import type { StoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import { cellId, useStoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
+import { findByAnchor } from '@/lib/reactions';
 import { cn, newAnchor } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { SearchInput } from '@/components/ui/search-input';
@@ -70,6 +71,7 @@ export function ProductBatchSummaryTable({
 
   const mutations = useStoichiometryMutations(experiment);
   const canEdit = canEditExperiment(experiment);
+  const previousReaction = findByAnchor(mutations.previousModel.reactions, reaction.anchor);
 
   const batches = useMemo<BatchRow[]>(
     () =>
@@ -141,6 +143,7 @@ export function ProductBatchSummaryTable({
             <BatchRowGroup
               key={row.sample.anchor}
               row={row}
+              previousRow={previousBatchRow(previousReaction, row)}
               reaction={reaction}
               expanded={expanded.has(row.sample.anchor)}
               onToggle={() => toggle(row.sample.anchor)}
@@ -266,11 +269,22 @@ function Toolbar({
 }
 
 /**
+ * The same row in the model before the last patch, found by anchor; undefined when the patch
+ * added it.
+ */
+function previousBatchRow(previousReaction: Reaction | undefined, row: BatchRow): BatchRow | undefined {
+  const output = findByAnchor(previousReaction?.outputs, row.output.anchor);
+  const sample = findByAnchor(output?.samples, row.sample.anchor);
+  return output && sample && { output, sample, step: row.step };
+}
+
+/**
  * One batch and, when open, its detail panel — a `<tbody>`, which is what keeps the two together
  * if anything ever reorders the rows.
  */
 function BatchRowGroup({
   row,
+  previousRow,
   reaction,
   expanded,
   onToggle,
@@ -278,6 +292,7 @@ function BatchRowGroup({
   mutations,
 }: {
   row: BatchRow;
+  previousRow: BatchRow | undefined;
   /** Only the detail panel needs it, for the precursors it derives from the reaction's inputs. */
   reaction: Reaction;
   expanded: boolean;
@@ -312,7 +327,7 @@ function BatchRowGroup({
               column.kind === 'actions' && ACTIONS_CELL_CLASS,
             )}
           >
-            <BatchCell column={column} row={row} canEdit={canEdit} mutations={mutations} />
+            <BatchCell column={column} row={row} previousRow={previousRow} canEdit={canEdit} mutations={mutations} />
           </td>
         ))}
       </tr>
@@ -332,11 +347,13 @@ function BatchRowGroup({
 function BatchCell({
   column,
   row,
+  previousRow,
   canEdit,
   mutations,
 }: {
   column: BatchColumn;
   row: BatchRow;
+  previousRow: BatchRow | undefined;
   canEdit: boolean;
   mutations: StoichiometryMutations;
 }) {
@@ -356,7 +373,8 @@ function BatchCell({
       return (
         <NumericCell
           value={column.value(row)}
-          patch={mutations.patch}
+          previous={previousRow && column.value(previousRow)}
+          generation={mutations.generation}
           editable={false}
           pending={false}
           label={label}
@@ -368,7 +386,8 @@ function BatchCell({
       return (
         <NumericCell
           value={column.value(row)}
-          patch={mutations.patch}
+          previous={previousRow && column.value(previousRow)}
+          generation={mutations.generation}
           // Registration does not freeze these: the backend rejects a registered sample's
           // *compound* mutations only — see `isSampleProtected`.
           editable={canEdit}

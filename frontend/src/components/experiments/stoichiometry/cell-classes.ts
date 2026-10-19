@@ -14,6 +14,17 @@ export const USER_ENTERED_CLASSES = ['text-blue-400', 'font-semibold'];
 const NON_POSITIVE_CLASSES = ['text-red-200'];
 
 /**
+ * Whether the last patch moved this value: `previous` is the same cell in the model before it,
+ * undefined when the cell did not exist there. With no patch the caller passes the value itself,
+ * so nothing has changed.
+ */
+export function hasChanged(value: EnteredValue<unknown>, previous: EnteredValue<unknown> | undefined): boolean {
+  return (
+    value.value !== previous?.value || value.source !== previous?.source || value.overwritten !== previous?.overwritten
+  );
+}
+
+/**
  * What a numeric cell looks like, given where its value came from and what the last patch did
  * to it.
  *
@@ -26,14 +37,13 @@ const NON_POSITIVE_CLASSES = ['text-red-200'];
  *   value, red when it overwrote one the user had entered.
  * - **Validity**: a value of zero or less is written in red.
  *
- * Both flashes are limited to nodes the last patch rebuilt — the keys of `updatedNodes`. That
- * keeps the table still on first load, when nothing has been patched yet, and leaves alone every
- * cell a patch did not touch: `JSON_PATCHER.apply` clones the whole detail, so an untouched node
- * is a fresh object too, merely absent from the map.
+ * Both flashes compare the value with `previous`, the same cell before the last patch — see
+ * `hasChanged`. That keeps the table still on first load, when there is no patch and the caller
+ * passes the value itself, and leaves alone every cell a patch did not move.
  */
 export function determineCellClasses(
   value: EnteredValue<unknown> | undefined,
-  updatedNodes: ReadonlyMap<unknown, unknown>,
+  previous: EnteredValue<unknown> | undefined,
 ): string[] {
   if (value == null) return [];
 
@@ -45,22 +55,15 @@ export function determineCellClasses(
     return nonPositive ? [...USER_ENTERED_CLASSES, ...NON_POSITIVE_CLASSES] : USER_ENTERED_CLASSES;
   }
 
-  const rebuilt = updatedNodes.has(value);
-  // Null for a node the patch created — a value appearing where there was none.
-  const previous = updatedNodes.get(value) as EnteredValue<unknown> | null | undefined;
   const classes: string[] = [];
 
   if (value.source === 'default') {
     classes.push('text-neutral-700', 'italic');
   }
 
-  if (rebuilt && value.overwritten) {
+  if (value.overwritten && hasChanged(value, previous)) {
     classes.push('animate-[flash-red_500ms_ease-in-out]');
-  } else if (
-    rebuilt &&
-    value.source === 'calculated' &&
-    (value.source !== previous?.source || value.value !== previous?.value)
-  ) {
+  } else if (value.source === 'calculated' && (value.source !== previous?.source || value.value !== previous?.value)) {
     classes.push('animate-[flash-green_500ms_ease-in-out]');
   }
 

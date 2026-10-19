@@ -713,8 +713,8 @@ export const slowMutateHandlers = [
  * The path spells out how the diff dialect addresses a nested row. `/model/reactions` and the
  * `inputs`/`samples` arrays under it are **list** paths in `JSON_PATCHER`, whose keys are
  * indices (`"0"`, or `"2>5"` for something that moved), while a leaf carrying `$old`/`$new`
- * replaces the node outright. Replacing the `mol` node is what puts it in `updatedNodes`,
- * which is what `determineCellClasses` compares against.
+ * replaces the node outright. The `mol` value then differs from the one in the model before
+ * the patch, which is what `determineCellClasses` compares against.
  */
 export const recalculatingMutateHandlers = [
   http.post(`${ELN}/experiments/:id/mutate`, () =>
