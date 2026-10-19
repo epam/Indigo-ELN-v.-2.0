@@ -580,6 +580,22 @@ public class MutationsTest extends MutationsTestBase {
     }
 
     @Test
+    void testSetInputMolarityClearsDensity() {
+        experiment.mutateAddEmptyInput();
+        experiment.mutateSetInputDensity(1, 1, "10.0");
+        experiment.mutateSetInputMolarity(1, 1, "0.01");
+        assertThat(experiment.inputSample(1, 1)).hasMolarity(0.01, M).hasNoDensity();
+    }
+
+    @Test
+    void testSetInputDensityClearsMolarity() {
+        experiment.mutateAddEmptyInput();
+        experiment.mutateSetInputMolarity(1, 1, "0.01");
+        experiment.mutateSetInputDensity(1, 1, "10.0");
+        assertThat(experiment.inputSample(1, 1)).hasDensity(10).hasNoMolarity();
+    }
+
+    @Test
     void testSetInputVolume() {
         experiment.mutateAddEmptyInput();
         experiment.mutateSetInputVolume(1, 1, "10.0");
@@ -866,6 +882,24 @@ public class MutationsTest extends MutationsTestBase {
         experiment.mutateAddProductSample(1);
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputMolarity(experiment.outputSample(1, 1).getAnchor(), "0.01"));
         assertThat(experiment.outputSample(1, 1)).hasMolarity(0.01, M);
+    }
+
+    @Test
+    void testSetOutputMolarityClearsDensity() {
+        experiment.mutateSetSchemeFromResource(REACTION_RXN);
+        experiment.mutateAddProductSample(1);
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputDensity(experiment.outputSample(1, 1).getAnchor(), "10.0"));
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputMolarity(experiment.outputSample(1, 1).getAnchor(), "0.01"));
+        assertThat(experiment.outputSample(1, 1)).hasMolarity(0.01, M).hasNoDensity();
+    }
+
+    @Test
+    void testSetOutputDensityClearsMolarity() {
+        experiment.mutateSetSchemeFromResource(REACTION_RXN);
+        experiment.mutateAddProductSample(1);
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputMolarity(experiment.outputSample(1, 1).getAnchor(), "0.01"));
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputDensity(experiment.outputSample(1, 1).getAnchor(), "10.0"));
+        assertThat(experiment.outputSample(1, 1)).hasDensity(10).hasNoMolarity();
     }
 
     @Test
