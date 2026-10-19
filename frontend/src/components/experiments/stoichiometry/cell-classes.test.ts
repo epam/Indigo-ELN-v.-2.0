@@ -25,8 +25,8 @@ describe('determineCellClasses', () => {
       expect(determineCellClasses({ value: '1', source: 'default' }, EMPTY)).toEqual(['text-neutral-700', 'italic']);
     });
 
-    it('marks a fixed value', () => {
-      expect(determineCellClasses({ value: '1', source: 'fixed' }, EMPTY)).toEqual(['text-violet-400']);
+    it('leaves a fixed value uncoloured, the same as a calculated one', () => {
+      expect(determineCellClasses({ value: '1', source: 'fixed' }, EMPTY)).toEqual([]);
     });
 
     it('leaves a calculated value uncoloured, so it reads as the table default', () => {

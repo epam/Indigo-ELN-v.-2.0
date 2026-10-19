@@ -259,13 +259,10 @@
   }
   /*
    * `EnteredValue.source`. These use `determineCellClasses`' colours, so a
-   * value's provenance reads the same in the diff as in the cell it came from. (`calculated` is
-   * left unstyled in both.) The backend renames a numeric source — the revision it was typed
+   * value's provenance reads the same in the diff as in the cell it came from. (`calculated` and
+   * `fixed` are left unstyled in both.) The backend renames a numeric source — the revision it was typed
    * in — to `user-entered` before emitting the class.
    */
-  .patch-diff .ev-fixed {
-    @apply text-violet-400;
-  }
   .patch-diff .ev-default {
     @apply text-neutral-700 italic;
   }

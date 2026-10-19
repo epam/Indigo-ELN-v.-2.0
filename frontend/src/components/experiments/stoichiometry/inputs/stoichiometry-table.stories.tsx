@@ -289,7 +289,7 @@ export const TabWalksThroughASelectCell: Story = {
  * not a named member.
  *
  * `calculated` is deliberately the *unstyled* case: it is the overwhelming majority of a
- * recalculated table, and colouring it would leave nothing standing out.
+ * recalculated table, and colouring it would leave nothing standing out. `fixed` reads the same.
  *
  * The last assertion is the one that earns its keep. Class names surviving is not the same as
  * the styles reaching the page — a token renamed in `styles.css`, or a utility Tailwind never
@@ -312,13 +312,14 @@ export const ValueSourcesAreColoured: Story = {
     const byDefault = display('Purity, batch 3');
 
     await expect(userEntered).toHaveClass('text-blue-400', 'font-semibold');
-    await expect(fixed).toHaveClass('text-violet-400');
     await expect(byDefault).toHaveClass('text-neutral-700', 'italic');
-    // Calculated carries no colour of its own and inherits the table's.
-    await expect(calculated.className).not.toMatch(/text-(blue|violet|neutral)-/);
+    // Calculated and fixed carry no colour of their own and inherit the table's.
+    await expect(calculated.className).not.toMatch(/text-(blue|neutral)-/);
+    await expect(fixed.className).not.toMatch(/text-(blue|neutral)-/);
 
-    const colours = [userEntered, calculated, fixed, byDefault].map((el) => getComputedStyle(el).color);
-    await expect(new Set(colours).size).toBe(4);
+    const colours = [userEntered, calculated, byDefault].map((el) => getComputedStyle(el).color);
+    await expect(new Set(colours).size).toBe(3);
+    await expect(getComputedStyle(fixed).color).toBe(getComputedStyle(calculated).color);
   },
 };
 

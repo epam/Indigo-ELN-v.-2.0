@@ -41,8 +41,6 @@ export function determineCellClasses(
 
   if (value.source === 'default') {
     classes.push('text-neutral-700', 'italic');
-  } else if (value.source === 'fixed') {
-    classes.push('text-violet-400');
   }
 
   if (rebuilt && value.overwritten) {
