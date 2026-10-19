@@ -84,6 +84,34 @@ describe('determineCellClasses', () => {
     });
   });
 
+  describe('validity', () => {
+    it.each(['0', '-1'])('writes %s in red', (number) => {
+      expect(determineCellClasses({ value: number, source: 'calculated' }, EMPTY)).toEqual(['text-red-200']);
+      expect(determineCellClasses({ value: number, source: 'fixed' }, EMPTY)).toEqual(['text-red-200']);
+    });
+
+    it('puts red after the provenance colour, so it wins', () => {
+      expect(determineCellClasses({ value: '0', source: 'default' }, EMPTY)).toEqual([
+        'text-neutral-700',
+        'italic',
+        'text-red-200',
+      ]);
+      expect(determineCellClasses({ value: '-2', source: 7 }, EMPTY)).toEqual([
+        'text-blue-400',
+        'font-semibold',
+        'text-red-200',
+      ]);
+    });
+
+    it('leaves a small positive value alone', () => {
+      expect(determineCellClasses({ value: '0.001', source: 'calculated' }, EMPTY)).toEqual([]);
+    });
+
+    it('does not mark an empty value', () => {
+      expect(determineCellClasses({ source: 'calculated' }, EMPTY)).toEqual([]);
+    });
+  });
+
   describe('suppression', () => {
     it('animates nothing on first load, when no patch has been applied yet', () => {
       expect(determineCellClasses({ value: '1', source: 'calculated', overwritten: true }, EMPTY)).toEqual([]);

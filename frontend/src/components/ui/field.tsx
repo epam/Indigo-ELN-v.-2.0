@@ -15,6 +15,7 @@ function Field({
   label,
   required,
   error,
+  size = 'md',
   className,
   children,
 }: {
@@ -23,12 +24,18 @@ function Field({
   label: string;
   required?: boolean;
   error?: string;
+  /** `sm` sets the label in a dense table's 12px, for fields that sit beside one. */
+  size?: 'sm' | 'md';
   className?: string;
   children: React.ReactNode;
 }) {
   return (
-    <div className={cn('flex flex-col gap-1.5', className)}>
-      <label id={`${id}-label`} htmlFor={id} className="text-[14px]/6 text-neutral-800">
+    <div className={cn('flex flex-col', size === 'sm' ? 'gap-1' : 'gap-1.5', className)}>
+      <label
+        id={`${id}-label`}
+        htmlFor={id}
+        className={cn(size === 'sm' ? 'text-[12px]/5' : 'text-[14px]/6', 'text-neutral-800')}
+      >
         {label}
         {required && <span className="text-red-200"> *</span>}
       </label>

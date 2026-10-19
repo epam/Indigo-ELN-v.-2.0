@@ -55,7 +55,8 @@ function isExternal(event: FocusEvent<HTMLElement>): boolean {
  * than reopening the editor over a value already saved.
  *
  * Commit rules: clearing a set value sends `null`, and nothing is sent when the value did not
- * change — so tabbing across a row is silent.
+ * change — so tabbing across a row is silent. Only positive numbers are accepted: a minus cannot
+ * be typed, and a zero (or a pasted negative) is reverted rather than sent.
  */
 export function NumericCell({
   value,
@@ -137,7 +138,9 @@ export function NumericCell({
 
   function commit() {
     const trimmed = draft.trim();
-    if (trimmed !== '' && trimmed !== value?.value) {
+    if (trimmed !== '' && !(Number(trimmed) > 0)) {
+      reseed();
+    } else if (trimmed !== '' && trimmed !== value?.value) {
       send(trimmed);
     } else if (trimmed === '' && value?.value != null) {
       send(null);
@@ -249,6 +252,9 @@ export function NumericCell({
                 // over a value the user has just abandoned.
                 reseed();
                 leave();
+              } else if (event.key === '-') {
+                // Only positive numbers are valid.
+                event.preventDefault();
               } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
                 // A stepped number is one nobody typed, and the blur would save it.
                 event.preventDefault();
