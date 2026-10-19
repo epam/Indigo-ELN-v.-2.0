@@ -4,7 +4,7 @@ import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.eln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.eln.indigowrapper.IndigoRendererAPI;
-import com.epam.indigoeln.common.model.units.MeasurementUnit;
+import com.epam.indigoeln.reaction.util.UnitUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
@@ -176,7 +176,7 @@ public class PatchFormatter {
         if (value == null || unit == null || source == null) {
             return "<span class='%s'>null</span>".formatted(newOrOld ? "new" : "old");
         }
-        unit = MeasurementUnit.ALL_UNITS.get(unit).getDisplayName();
+        unit = UnitUtils.ALL_UNITS.get(unit).getDisplayName();
         source = Character.isDigit(source.charAt(0)) ? "user-entered" : source;
         String exactValueStr = exactValue != null ? "&ensp;(exact value %s)".formatted(exactValue.doubleValue()) : "";
         return "<span class='%s ev-%s'>%s %s%s</span>&ensp;<span class='comment'>[%s]</span>".formatted(newOrOld ? "new" : "old", source, value, unit, exactValueStr, source);

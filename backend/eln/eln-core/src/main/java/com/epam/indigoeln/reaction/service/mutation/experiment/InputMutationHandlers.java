@@ -38,8 +38,8 @@ class SetInputRowMolHandler extends AbstractReactionInputMutationHandler<Reactio
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowMol mutation, ExperimentMutationContext context) {
-        setEnteredValue(row.getMol(), row::setMol, mutation.mol(), mutation.molUnit(), experiment.getRevision());
-        return formatSetterSummary("input mol", mutation.mol(), mutation.molUnit());
+        setEnteredValue(row.getMol(), row::setMol, mutation.mol(), model.getMolUnit(), experiment.getRevision());
+        return formatSetterSummary("input mol", mutation.mol(), model.getMolUnit());
     }
 }
 

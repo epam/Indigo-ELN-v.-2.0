@@ -7,10 +7,16 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum MolUnit implements MeasurementUnit {
 
-    UMOL(0.000001, "μmol"),
-    MMOL(0.001, "mmol"),
+    UMOL(1e-6, "μmol"),
+    MMOL(1e-3, "mmol"),
     MOL(1.0, "mol");
 
     private final double multiplier;
     private final String displayName;
+
+
+    @Override
+    public MeasurementUnit getBaseUnit() {
+        return MOL;
+    }
 }

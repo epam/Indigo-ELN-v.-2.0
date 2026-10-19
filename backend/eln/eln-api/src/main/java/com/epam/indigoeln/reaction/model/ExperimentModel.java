@@ -1,6 +1,14 @@
 package com.epam.indigoeln.reaction.model;
 
-import com.epam.indigoeln.reaction.model.mutation.*;
+import com.epam.indigoeln.common.model.units.MolUnit;
+import com.epam.indigoeln.common.model.units.MolarityUnit;
+import com.epam.indigoeln.common.model.units.VolumeUnit;
+import com.epam.indigoeln.common.model.units.WeightUnit;
+import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionInputSampleMutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.annotation.Nullable;
@@ -25,6 +33,18 @@ public final class ExperimentModel implements ExperimentNode {
 
     @NotNull
     private int significantFigures = DEFAULT_SIGNIFICANT_FIGURES;
+
+    @NotNull
+    private WeightUnit weightUnit = WeightUnit.G;
+
+    @NotNull
+    private VolumeUnit volumeUnit = VolumeUnit.ML;
+
+    @NotNull
+    private MolUnit molUnit = MolUnit.MOL;
+
+    @NotNull
+    private MolarityUnit molarityUnit = MolarityUnit.M;
 
     public int generateNextNbkBatchNumber() {
         int[] last = {0};

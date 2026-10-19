@@ -1,7 +1,5 @@
 package com.epam.indigoeln.reaction.service;
 
-import com.epam.indigoeln.common.model.units.VolumeUnit;
-import com.epam.indigoeln.common.model.units.WeightUnit;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.AccessLevel;
@@ -165,20 +163,20 @@ public class ExperimentUndoTest extends MutationsTestBase {
 
         // lisa: L1 (experiment.input(1), weight 10G)
         //     -> L1
-        withUser(LISA_USERNAME, () -> experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(1, 1).getAnchor(), "10", WeightUnit.G), false));
+        withUser(LISA_USERNAME, () -> experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(1, 1).getAnchor(), "10"), false));
         assertThat(getRevisions(4)).containsExactly(
                 "Set input sample weight to 10 G"
         );
         // lisa: L2 (experiment.input(1), volume 20ML)
         //     -> L1, L2
-        withUser(LISA_USERNAME, () -> experiment.mutate(new ReactionInputSampleMutation.SetInputVolume(experiment.inputSample(1, 1).getAnchor(), "20", VolumeUnit.ML), false));
+        withUser(LISA_USERNAME, () -> experiment.mutate(new ReactionInputSampleMutation.SetInputVolume(experiment.inputSample(1, 1).getAnchor(), "20"), false));
         assertThat(getRevisions(4)).containsExactly(
                 "Set input sample weight to 10 G",
                 "Set input sample volume to 20 ML"
         );
         // bart: B3 (experiment.input(2), weight 5G)
         //     -> L1, L2, B3
-        withUser(BART_USERNAME, () -> experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(2, 1).getAnchor(), "5", WeightUnit.G), false));
+        withUser(BART_USERNAME, () -> experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(2, 1).getAnchor(), "5"), false));
         assertThat(getRevisions(4)).containsExactly(
                 "Set input sample weight to 10 G",
                 "Set input sample volume to 20 ML",
@@ -186,7 +184,7 @@ public class ExperimentUndoTest extends MutationsTestBase {
         );
         // bart: B4 (experiment.input(2), volume 7.5ML)
         //     -> L1, L2, B3, B4
-        withUser(BART_USERNAME, () -> experiment.mutate(new ReactionInputSampleMutation.SetInputVolume(experiment.inputSample(2, 1).getAnchor(), "7.5", VolumeUnit.ML), false));
+        withUser(BART_USERNAME, () -> experiment.mutate(new ReactionInputSampleMutation.SetInputVolume(experiment.inputSample(2, 1).getAnchor(), "7.5"), false));
         assertThat(getRevisions(4)).containsExactly(
                 "Set input sample weight to 10 G",
                 "Set input sample volume to 20 ML",

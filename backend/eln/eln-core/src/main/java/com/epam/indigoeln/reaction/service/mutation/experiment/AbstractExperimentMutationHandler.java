@@ -3,6 +3,7 @@ package com.epam.indigoeln.reaction.service.mutation.experiment;
 import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
+import com.epam.indigoeln.eln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.eln.mapper.SnapshotMapper;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
@@ -10,7 +11,6 @@ import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.ExperimentService;
 import com.epam.indigoeln.eln.service.RevisionService;
 import com.epam.indigoeln.eln.service.UserService;
-import com.epam.indigoeln.eln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
-import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.runWithSignificantFigures;
+import static com.epam.indigoeln.reaction.util.UnitUtils.callWithUnitsAndSignificantFigures;
 
 @Slf4j
 public abstract class AbstractExperimentMutationHandler<T extends ExperimentMutation> extends MutationHandler<T, ExperimentEntity, ExperimentSnapshot, ExperimentRevisionEntity, ExperimentMutationContext, ExperimentMutationListener> {
@@ -80,7 +80,7 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
 
     @Override
     protected final JsonNode doUpdateEntity(ExperimentEntity experiment, ExperimentSnapshot snapshotBefore, ExperimentSnapshot snapshotAfter, ExperimentMutationContext context) {
-        return runWithSignificantFigures(experiment.getModel().getSignificantFigures(), () -> {
+        return callWithUnitsAndSignificantFigures(experiment.getModel(), () -> {
             JsonNode patch;
             doNotifyBeforeRecalculate(experiment, context);
             ReactionCalculator calculator = reactionCalculatorFactory.get();

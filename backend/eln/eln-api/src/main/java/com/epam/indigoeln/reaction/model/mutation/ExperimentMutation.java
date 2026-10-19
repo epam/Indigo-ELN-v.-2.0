@@ -2,6 +2,10 @@ package com.epam.indigoeln.reaction.model.mutation;
 
 import com.epam.indigoeln.common.model.DocumentStatus;
 import com.epam.indigoeln.common.model.UserRef;
+import com.epam.indigoeln.common.model.units.MolUnit;
+import com.epam.indigoeln.common.model.units.MolarityUnit;
+import com.epam.indigoeln.common.model.units.VolumeUnit;
+import com.epam.indigoeln.common.model.units.WeightUnit;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.ExperimentRef;
 import com.epam.indigoeln.eln.model.ProjectCodeRef;
@@ -45,6 +49,46 @@ public interface ExperimentMutation extends Mutation {
 
     record SetExperimentSignificantFigures(
             @NotNull @Min(1) @Max(5) Integer significantFigures
+    ) implements ExperimentMutation {
+
+        @Override
+        public boolean isApplicableToEditSession() {
+            return true;
+        }
+    }
+
+    record SetExperimentWeightUnit(
+            @NotNull WeightUnit weightUnit
+    ) implements ExperimentMutation {
+
+        @Override
+        public boolean isApplicableToEditSession() {
+            return true;
+        }
+    }
+
+    record SetExperimentVolumeUnit(
+            @NotNull VolumeUnit volumeUnit
+    ) implements ExperimentMutation {
+
+        @Override
+        public boolean isApplicableToEditSession() {
+            return true;
+        }
+    }
+
+    record SetExperimentMolUnit(
+            @NotNull MolUnit molUnit
+    ) implements ExperimentMutation {
+
+        @Override
+        public boolean isApplicableToEditSession() {
+            return true;
+        }
+    }
+
+    record SetExperimentMolarityUnit(
+            @NotNull MolarityUnit molarityUnit
     ) implements ExperimentMutation {
 
         @Override

@@ -5,10 +5,22 @@ import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.model.AccessLevel;
+import com.epam.indigoeln.eln.model.AttachmentDTO;
+import com.epam.indigoeln.eln.model.BuiltInDictionary;
+import com.epam.indigoeln.eln.model.ExperimentDTO;
+import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
+import com.epam.indigoeln.eln.model.ExperimentEditRequest;
+import com.epam.indigoeln.eln.model.ExperimentRequest;
+import com.epam.indigoeln.eln.model.ExperimentStatus;
+import com.epam.indigoeln.eln.model.HealthHazardRef;
+import com.epam.indigoeln.eln.model.NotebookDetailsDTO;
+import com.epam.indigoeln.eln.model.ProjectCodeRef;
+import com.epam.indigoeln.eln.model.ProjectDetailsDTO;
+import com.epam.indigoeln.eln.model.ProjectRequest;
+import com.epam.indigoeln.eln.model.TherapeuticAreaRef;
 import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
-import com.epam.indigoeln.common.model.units.WeightUnit;
 import com.epam.indigoeln.reaction.util.ExperimentObject;
 import com.epam.indigoeln.test.FeignUtil;
 import io.quarkus.test.junit.QuarkusTest;
@@ -30,7 +42,11 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ContentDispositionUtil.extractFilename;
-import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
+import static com.epam.indigoeln.eln.model.ApplicationPermission.DELETE_EXPERIMENTS;
+import static com.epam.indigoeln.eln.model.ApplicationPermission.EDIT_EXPERIMENTS;
+import static com.epam.indigoeln.eln.model.ApplicationPermission.MANAGE_EXPERIMENT_ACCESS;
+import static com.epam.indigoeln.eln.model.ApplicationPermission.SUBMIT_EXPERIMENTS;
+import static com.epam.indigoeln.eln.model.ApplicationPermission.VIEW_EXPERIMENTS;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static com.epam.indigoeln.test.ClientUtil.uploadForm;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -415,7 +431,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         experiment.mutateAddProductSample(1);
         experiment.mutateAddProductSample(2);
 
-        experiment.mutate(new ReactionOutputSampleMutation.SetOutputActualWeight(experiment.outputSample(1, 1).getAnchor(), "10.0", WeightUnit.G));
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputActualWeight(experiment.outputSample(1, 1).getAnchor(), "10.0"));
 
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputHealthHazards(experiment.outputSample(1, 1).getAnchor(),
                 Set.of(

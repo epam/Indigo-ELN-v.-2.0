@@ -7,10 +7,16 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum WeightUnit implements MeasurementUnit {
 
-    MG(0.001, "mg"),
+    MG(1e-3, "mg"),
     G(1.0, "g"),
-    KG(1000.0, "kg");
+    KG(1e+3, "kg");
 
     private final double multiplier;
     private final String displayName;
+
+
+    @Override
+    public MeasurementUnit getBaseUnit() {
+        return G;
+    }
 }

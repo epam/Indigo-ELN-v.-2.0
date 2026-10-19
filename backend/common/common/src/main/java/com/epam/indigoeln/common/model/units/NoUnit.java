@@ -7,8 +7,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum NoUnit implements MeasurementUnit {
 
-    NO_UNIT(1, "");
+    NO_UNIT(1.0, "");
 
     private final double multiplier;
     private final String displayName;
+
+    @Override
+    public MeasurementUnit getBaseUnit() {
+        return NO_UNIT;
+    }
 }
