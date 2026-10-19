@@ -17,6 +17,7 @@ import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.util.List;
 
+import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
@@ -185,6 +186,34 @@ public class DictionaryServiceTest extends ELNBaseTest {
         dictionaryClient.removeDictionary(dictionaryID);
         assertThat(dictionaryClient.getDictionaries()).extracting(DictionaryDTO::getCode).doesNotContain(DICTIONARY_CODE);
         dictionaryDeleted = true;
+    }
+
+    @Test
+    @Order(11)
+    void testDuplicates() {
+        DictionaryDTO first = dictionaryClient.createDictionary(new DictionaryRequest("DUP1", "Duplicates 1", false, null));
+        DictionaryDTO second = dictionaryClient.createDictionary(new DictionaryRequest("DUP2", "Duplicates 2", false, null));
+        try {
+            assertThatClientCall(() -> dictionaryClient.createDictionary(new DictionaryRequest("DUP1", "Duplicates 3", false, null)))
+                    .isBadRequest("Dictionary with this code already exists");
+            assertThatClientCall(() -> dictionaryClient.createDictionary(new DictionaryRequest("DUP3", "Duplicates 1", false, null)))
+                    .isBadRequest("Dictionary with this name already exists");
+            assertThatClientCall(() -> dictionaryClient.updateDictionary(second.getId().toString(), new DictionaryEditRequest(
+                    JsonNullable.of("DUP1"), JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.undefined())))
+                    .isBadRequest("Dictionary with this code already exists");
+
+            String firstID = first.getId().toString();
+            dictionaryClient.addDictionaryItem(firstID, new DictionaryItemRequest("X", null));
+            List<DictionaryItemDTO> list = dictionaryClient.addDictionaryItem(firstID, new DictionaryItemRequest("Y", null));
+            assertThatClientCall(() -> dictionaryClient.addDictionaryItem(firstID, new DictionaryItemRequest("X", null)))
+                    .isBadRequest("This word already exists in the dictionary");
+            assertThatClientCall(() -> dictionaryClient.updateDictionaryItem(firstID, list.getLast().getId(), new DictionaryItemEditRequest(
+                    JsonNullable.of("X"), JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.undefined())))
+                    .isBadRequest("This word already exists in the dictionary");
+        } finally {
+            dictionaryClient.removeDictionary(first.getId().toString());
+            dictionaryClient.removeDictionary(second.getId().toString());
+        }
     }
 
     private AbstractListAssert<?, List<? extends Tuple>, Tuple, ObjectAssert<Tuple>> verify(List<DictionaryItemDTO> items) {
