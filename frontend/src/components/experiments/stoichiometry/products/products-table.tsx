@@ -15,6 +15,7 @@ import {
   HEADER_CELL_CLASS,
   alignOf,
 } from '@/components/experiments/stoichiometry/columns';
+import { ColumnHeader } from '@/components/experiments/stoichiometry/column-header';
 import { NumericCell } from '@/components/experiments/stoichiometry/numeric-cell';
 import { AddBatchCell, OutputTypeCell } from '@/components/experiments/stoichiometry/products/cells';
 import type { ProductColumn, ProductRow } from '@/components/experiments/stoichiometry/products/columns';
@@ -118,7 +119,7 @@ export function ReactionProductsTable({ experiment, step }: { experiment: Experi
                   )}
                   style={{ minWidth: column.minWidth }}
                 >
-                  {column.header}
+                  <ColumnHeader header={column.header} unit={column.unit} model={experiment.model} />
                 </th>
               ))}
             </tr>
@@ -199,8 +200,6 @@ function ProductCell({
       return (
         <NumericCell
           value={column.value(row)}
-          units={column.units}
-          suffix={column.suffix}
           patch={mutations.patch}
           editable={false}
           pending={false}
@@ -213,8 +212,6 @@ function ProductCell({
       return (
         <NumericCell
           value={column.value(row)}
-          units={column.units}
-          suffix={column.suffix}
           patch={mutations.patch}
           editable={canEdit && (column.editable?.(row) ?? true)}
           pending={pending}

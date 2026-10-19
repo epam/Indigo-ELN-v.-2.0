@@ -266,7 +266,7 @@ to queue behind the on-blur saves rather than race them.
 | `notebooks.ts` | `BaseNotebook`, `Notebook`, `NOTEBOOK_NAME_LENGTH` |
 | `user.ts` | `CurrentUser`, `ApplicationPermission` |
 | `reactions.ts` | the `reaction/model` tree: `ExperimentModel`, `Reaction`, `ReactionInput`/`Output` and their samples, `CompoundRef`, `EnteredValue`, the unit unions, and the companion table of every enum in it — `REACTION_ROLE_LABELS`, `OUTPUT_TYPE_LABELS`, `unitLabel()`, the unit option arrays |
-| `mutations.ts` | `Mutation` (all 94 members of the backend's `@JsonSubTypes` list), `ModelMutation` (the subset `/mutate` accepts), `MutationResponse` |
+| `mutations.ts` | `Mutation` (all 98 members of the backend's `@JsonSubTypes` list), `ModelMutation` (the subset `/mutate` accepts), `MutationResponse` |
 
 `reactions.ts` is ported from the **Java**. The wire shapes that are easy to get wrong are commented at
 the type they affect: `STRCode*`/`NbkBatchNumber` are strings because of `@JsonValue`,
@@ -296,7 +296,7 @@ port of the backend's `JSONPatcher.java`, pinned by `json-patcher.test.ts` again
 own cases). It joins `experimentWrite`'s scope, so it queues behind the on-blur field saves
 rather than racing them.
 
-`mutations.ts` mirrors the backend's `@JsonSubTypes` list **in full** — all 94 members, in its
+`mutations.ts` mirrors the backend's `@JsonSubTypes` list **in full** — all 98 members, in its
 order, grouped into unions that follow the Java interface hierarchy. Most of them never travel
 over `/mutate`: the backend gates that with `isMutateMethodAllowed()`, and the rest answer
 through their own endpoints (a project is created by `POST /projects`, an experiment completed

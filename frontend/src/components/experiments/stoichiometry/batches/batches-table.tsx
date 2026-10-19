@@ -2,6 +2,7 @@ import { ChevronDown, ChevronRight, CircleCheck, Download, Plus, RefreshCw, Uplo
 import { useMemo, useRef, useState } from 'react';
 
 import { SavingOverlay } from '@/components/common/saving-overlay';
+import { ColumnHeader } from '@/components/experiments/stoichiometry/column-header';
 import { OutputTypeBadge } from '@/components/experiments/stoichiometry/batches/cells';
 import type { BatchAction, BatchColumn, BatchRow } from '@/components/experiments/stoichiometry/batches/columns';
 import {
@@ -131,7 +132,7 @@ export function ProductBatchSummaryTable({
                   )}
                   style={{ minWidth: column.minWidth }}
                 >
-                  {column.header}
+                  <ColumnHeader header={column.header} unit={column.unit} model={experiment.model} />
                 </th>
               ))}
             </tr>
@@ -355,8 +356,6 @@ function BatchCell({
       return (
         <NumericCell
           value={column.value(row)}
-          units={column.units}
-          suffix={column.suffix}
           patch={mutations.patch}
           editable={false}
           pending={false}
@@ -369,8 +368,6 @@ function BatchCell({
       return (
         <NumericCell
           value={column.value(row)}
-          units={column.units}
-          suffix={column.suffix}
           patch={mutations.patch}
           // Registration does not freeze these: the backend rejects a registered sample's
           // *compound* mutations only — see `isSampleProtected`.

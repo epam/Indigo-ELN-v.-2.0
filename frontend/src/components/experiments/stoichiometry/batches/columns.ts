@@ -1,25 +1,12 @@
-import type { NumericCellValue } from '@/components/experiments/stoichiometry/numeric-cell';
 import type { ModelMutation } from '@/lib/types/mutations.ts';
 import type {
+  ColumnUnit,
   EnteredValue,
-  MolarityUnit,
-  MolUnit,
   ReactionOutput,
   ReactionOutputSample,
   ReactionOutputType,
-  VolumeUnit,
-  WeightUnit,
 } from '@/lib/types/reactions.ts';
-import {
-  MOL_UNITS,
-  MOLARITY_UNITS,
-  NO_UNITS,
-  plainFormula,
-  REGISTRATION_STATUS_LABELS,
-  shortNbkBatchNumber,
-  VOLUME_UNITS,
-  WEIGHT_UNITS,
-} from '@/lib/types/reactions.ts';
+import { plainFormula, REGISTRATION_STATUS_LABELS, shortNbkBatchNumber } from '@/lib/types/reactions.ts';
 
 /**
  * The Product Batch Summary's columns, as data — the same shape `inputs/columns.ts` and
@@ -48,7 +35,12 @@ interface ColumnBase {
   id: string;
   header: string;
   /**
-   * A floor in pixels, stated only where the cell edits a number with a unit — see the note on
+   * What the column's values are measured in, written after the header — `Weight, g`. Read off
+   * the experiment, since every value of a quantity is in its one unit; no cell shows a unit.
+   */
+  unit?: ColumnUnit;
+  /**
+   * A floor in pixels, stated only where the cell edits a number — see the note on
    * the inputs table's own `minWidth`. Every other column is as wide as its content or header.
    */
   minWidth?: number;
@@ -66,18 +58,12 @@ type Cell =
   | {
       kind: 'readonlyNumeric';
       value: (row: BatchRow) => EnteredValue<string> | undefined;
-      units: readonly string[];
-      /** The fixed unit's text on a single-unit column, when `unitLabel` is not what to show. */
-      suffix?: string;
     }
-  /** An editable number with a unit, or a unitless one when `units` has a single member. */
+  /** An editable number, in the unit the column's header names. */
   | {
       kind: 'numeric';
       value: (row: BatchRow) => EnteredValue<string> | undefined;
-      units: readonly string[];
-      /** The fixed unit's text on a single-unit column, when `unitLabel` is not what to show. */
-      suffix?: string;
-      mutation: (row: BatchRow, next: NumericCellValue) => ModelMutation;
+      mutation: (row: BatchRow, next: string | null) => ModelMutation;
     }
   /** The row's icon buttons, as one column — see `BatchAction`. */
   | { kind: 'actions'; actions: BatchAction[] };
@@ -163,61 +149,55 @@ export const BATCH_COLUMNS: BatchColumn[] = [
   {
     id: 'actualWeight',
     header: 'Total Weight',
-    minWidth: 130,
+    minWidth: 100,
     kind: 'numeric',
     value: (row) => row.sample.actualWeight,
-    units: WEIGHT_UNITS,
+    unit: 'weight',
     mutation: (row, next) => ({
       type: 'SetOutputActualWeight',
       anchor: row.sample.anchor,
-      actualWeight: next.value,
-      unit: next.unit as WeightUnit | null,
+      actualWeight: next,
     }),
   },
   {
     id: 'volume',
     header: 'Total Volume',
-    minWidth: 130,
+    minWidth: 100,
     kind: 'numeric',
     value: (row) => row.sample.volume,
-    units: VOLUME_UNITS,
+    unit: 'volume',
     mutation: (row, next) => ({
       type: 'SetOutputVolume',
       anchor: row.sample.anchor,
-      volume: next.value,
-      unit: next.unit as VolumeUnit | null,
+      volume: next,
     }),
   },
   {
     id: 'actualMol',
     header: 'Total Moles',
-    minWidth: 130,
+    minWidth: 100,
     kind: 'numeric',
-    // The whole `EnteredValue`, not `.value`: given the bare string, the unit picker would
-    // never show the saved unit.
     value: (row) => row.sample.actualMol,
-    units: MOL_UNITS,
+    unit: 'mol',
     mutation: (row, next) => ({
       type: 'SetOutputActualMol',
       anchor: row.sample.anchor,
-      actualMol: next.value,
-      unit: next.unit as MolUnit | null,
+      actualMol: next,
     }),
   },
   {
     id: 'molarity',
     header: 'Molarity',
-    minWidth: 110,
+    minWidth: 100,
     kind: 'numeric',
     // Never calculated, like purity — it is an input to `actualMol = molarity * volume` (F4.4),
     // not an output. The backend used to derive it from the two columns beside it.
     value: (row) => row.sample.molarity,
-    units: MOLARITY_UNITS,
+    unit: 'molarity',
     mutation: (row, next) => ({
       type: 'SetOutputMolarity',
       anchor: row.sample.anchor,
-      molarity: next.value,
-      unit: next.unit as MolarityUnit | null,
+      molarity: next,
     }),
   },
   {
@@ -227,8 +207,7 @@ export const BATCH_COLUMNS: BatchColumn[] = [
     // the weights when those are what is known (F9.1). There is no mutation that sets it.
     kind: 'readonlyNumeric',
     value: (row) => row.sample.yield,
-    units: NO_UNITS,
-    suffix: '%',
+    unit: 'percent',
   },
   {
     id: 'purity',
@@ -237,9 +216,8 @@ export const BATCH_COLUMNS: BatchColumn[] = [
     // A percentage, defaulting to 100. Never calculated — it is an input to every other formula
     // on the row rather than an output of one.
     value: (row) => row.sample.purity,
-    units: NO_UNITS,
-    suffix: '%',
-    mutation: (row, next) => ({ type: 'SetOutputPurity', anchor: row.sample.anchor, purity: next.value }),
+    unit: 'percent',
+    mutation: (row, next) => ({ type: 'SetOutputPurity', anchor: row.sample.anchor, purity: next }),
   },
   /**
    * No `minWidth`: the column takes exactly the width of its buttons. See `ACTIONS_CELL_CLASS`

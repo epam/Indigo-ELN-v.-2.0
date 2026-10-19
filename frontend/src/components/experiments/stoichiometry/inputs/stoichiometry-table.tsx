@@ -21,6 +21,7 @@ import {
   HEADER_CELL_CLASS,
   alignOf,
 } from '@/components/experiments/stoichiometry/columns';
+import { ColumnHeader } from '@/components/experiments/stoichiometry/column-header';
 import { LimitingCell, RoleCell } from '@/components/experiments/stoichiometry/inputs/cells';
 import type { InputColumn, SamplePart } from '@/components/experiments/stoichiometry/inputs/columns';
 import {
@@ -39,7 +40,7 @@ import { Menu, MenuContent, MenuItem, MenuTrigger } from '@/components/ui/menu';
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
 import { canEditExperiment } from '@/lib/types/experiments.ts';
 import { cn, newAnchor } from '@/lib/utils';
-import type { Reaction, ReactionInput, ReactionInputSample } from '@/lib/types/reactions.ts';
+import type { ExperimentModel, Reaction, ReactionInput, ReactionInputSample } from '@/lib/types/reactions.ts';
 import { INPUT_ROLES, plainFormula } from '@/lib/types/reactions.ts';
 
 /** The values the backend accepts — `@Min(1) @Max(5)` on `SetExperimentSignificantFigures`. */
@@ -196,7 +197,12 @@ export function StoichiometryTable({ experiment, reaction }: { experiment: Exper
                     )}
                     style={{ minWidth: column.minWidth, width: column.fitContent ? 1 : undefined }}
                   >
-                    {column.header}
+                    <ColumnHeader
+                      header={column.header}
+                      unit={column.unit}
+                      model={experiment.model}
+                      mutations={canEdit ? mutations : undefined}
+                    />
                   </th>
                 ),
               )}
@@ -205,6 +211,7 @@ export function StoichiometryTable({ experiment, reaction }: { experiment: Exper
           {inputs.map((input, index) => (
             <CompoundRow
               key={input.anchor}
+              model={experiment.model}
               input={input}
               index={index}
               expanded={!collapsed.has(input.anchor)}
@@ -359,6 +366,7 @@ function Toolbar({
  * together and keeps the compound with its own batches when anything reorders.
  */
 function CompoundRow({
+  model,
   input,
   index,
   expanded,
@@ -366,6 +374,7 @@ function CompoundRow({
   canEdit,
   mutations,
 }: {
+  model: ExperimentModel;
   input: ReactionInput;
   index: number;
   expanded: boolean;
@@ -439,12 +448,13 @@ function CompoundRow({
                     {column.parts.map((part, partIndex) => (
                       // `px-[9px]` is `CONTENT_BOX`'s inset, so a label starts where its values do.
                       <span key={part.id} {...partSlot(part, partIndex === column.parts.length - 1, 'px-[9px]')}>
-                        {part.header}
+                        <ColumnHeader header={part.header} unit={part.unit} model={model} />
                       </span>
                     ))}
                   </div>
                 ) : (
-                  column.header
+                  // Read-only: the unit is picked once, in `<thead>`, not in every open compound.
+                  <ColumnHeader header={column.header} unit={column.unit} model={model} />
                 )}
               </th>
             ))}
@@ -538,7 +548,6 @@ function CompoundCell({
       return (
         <NumericCell
           value={column.value(input)}
-          units={column.units}
           patch={mutations.patch}
           editable={false}
           pending={false}
@@ -562,8 +571,6 @@ function CompoundCell({
       return (
         <NumericCell
           value={column.value(input)}
-          units={column.units}
-          suffix={column.suffix}
           patch={mutations.patch}
           editable={canEdit && (column.editable?.(input) ?? true)}
           pending={pending}
@@ -673,8 +680,6 @@ function SampleCell({
       return (
         <NumericCell
           value={column.value(sample)}
-          units={column.units}
-          suffix={column.suffix}
           patch={mutations.patch}
           editable={canEdit && (column.editable?.(sample) ?? true)}
           pending={pending}
