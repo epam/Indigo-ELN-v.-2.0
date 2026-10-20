@@ -74,6 +74,9 @@ importers:
       ketcher-standalone:
         specifier: ^3.17.2
         version: 3.17.2(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      keycloak-js:
+        specifier: ^26.2.4
+        version: 26.2.4
       lucide-react:
         specifier: ^1.33.0
         version: 1.37.0(react@19.2.8)
@@ -3706,6 +3709,9 @@ packages:
   ketcher-standalone@3.17.2:
     resolution: {integrity: sha512-n5o+p1hyjVh2rHTXSXUsa1rehUp3ZrD3mds9TnKmechVdPe44TOtcGgKI7+ZuXGukTd76TE/CiMlbCjpPtlpfA==}
     engines: {node: '>=24.14.1'}
+
+  keycloak-js@26.2.4:
+    resolution: {integrity: sha512-PnXpR3ubETGOt0B/Qt2lxmPbkZr5bc3vlQsOqDoTPPQsZRp7JjhTKxlJ187uWh8qJhvBab6Gsjb06a8ayOPfuw==}
 
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
@@ -9092,6 +9098,8 @@ snapshots:
     transitivePeerDependencies:
       - react
       - react-dom
+
+  keycloak-js@26.2.4: {}
 
   keyv@4.5.4:
     dependencies:

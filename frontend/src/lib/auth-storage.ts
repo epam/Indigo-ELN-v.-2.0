@@ -34,7 +34,8 @@ export function setSessionPersistence(remember: boolean): void {
 }
 
 /**
- * Applies the stored preference without changing it. Called from `configureAmplify()`, because
+ * Applies the stored preference without changing it. Called from the Cognito provider's
+ * factory (lib/auth/cognito.ts), because
  * `main.tsx` resolves a session before the first render and that read has to reach the store the
  * tokens were actually written to.
  */

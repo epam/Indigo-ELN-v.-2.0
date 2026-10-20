@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('aws-amplify/auth', () => ({
-  fetchAuthSession: vi.fn().mockResolvedValue({ tokens: { accessToken: { toString: () => 'test-token' } } }),
+vi.mock('@/lib/auth', () => ({
+  auth: { getAccessToken: vi.fn().mockResolvedValue('test-token') },
 }));
 
 const { ApiError, apiDownload, apiFetch, filenameFromContentDisposition } = await import('@/lib/api');
