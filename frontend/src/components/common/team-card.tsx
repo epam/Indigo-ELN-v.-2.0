@@ -1,9 +1,11 @@
 import { Check, ChevronDown, Copy, UserPlus } from 'lucide-react';
 import { useState } from 'react';
 
+import { FormDialog } from '@/components/common/form-dialog';
 import { MultiCombobox } from '@/components/ui/combobox';
 import { Avatar } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Menu, MenuContent, MenuItem, MenuTrigger } from '@/components/ui/menu';
 import { useUserSuggestions } from '@/lib/api/user';
 import { cn } from '@/lib/utils';
@@ -126,20 +128,29 @@ function MemberRow({
  * They are optional because `canManage: false` reaches neither: the add row is not rendered and
  * every level renders as locked text. A read-only surface should not have to invent a mutation
  * it will never fire.
+ *
+ * Picking None asks first. `nestedRemovalLabel` is for a project or notebook: it adds a checkbox,
+ * ticked by default, that sends `deleteNested` so the member also goes from everything below.
  */
 export function TeamMembers({
   acl,
   canManage,
   addMembers,
   changeLevel,
+  nestedRemovalLabel,
 }: {
   acl: ACLEntry[];
   canManage: boolean;
   addMembers?: AccessMutation;
   changeLevel?: AccessMutation;
+  nestedRemovalLabel?: string;
 }) {
   const [inputValue, setInputValue] = useState('');
   const [selected, setSelected] = useState<UserRef[]>([]);
+  // `removing` outlives `removeOpen` so the dialog keeps its content while it animates shut.
+  const [removeOpen, setRemoveOpen] = useState(false);
+  const [removing, setRemoving] = useState<ACLEntry>();
+  const [deleteNested, setDeleteNested] = useState(true);
   const suggestions = useUserSuggestions(inputValue);
 
   // Already-members are dropped from the list rather than shown and rejected on submit.
@@ -203,10 +214,42 @@ export function TeamMembers({
             member={member}
             canManage={canManage}
             updating={updatingUsername === member.username}
-            onLevelChange={(level) => changeLevel?.mutate([{ username: member.username, level }])}
+            onLevelChange={(level) => {
+              if (level === 'NONE') {
+                setRemoving(member);
+                setDeleteNested(true);
+                setRemoveOpen(true);
+              } else {
+                changeLevel?.mutate([{ username: member.username, level }]);
+              }
+            }}
           />
         ))}
       </ul>
+
+      <FormDialog
+        open={removeOpen}
+        onOpenChange={setRemoveOpen}
+        title="Remove Team Member"
+        submitLabel="Remove"
+        submitVariant="destructive"
+        onSubmit={async () => {
+          await changeLevel?.mutateAsync([
+            { username: removing!.username, level: 'NONE', ...(nestedRemovalLabel && { deleteNested }) },
+          ]);
+          setRemoveOpen(false);
+        }}
+      >
+        <p className="text-[14px]/6 text-neutral-800">
+          Are you sure you want to remove {removing?.displayName} from the team?
+        </p>
+        {nestedRemovalLabel && (
+          <label className="flex w-fit cursor-pointer items-center gap-2 text-[14px]/6 text-neutral-1000">
+            <Checkbox checked={deleteNested} onCheckedChange={setDeleteNested} />
+            {nestedRemovalLabel}
+          </label>
+        )}
+      </FormDialog>
     </>
   );
 }
@@ -220,6 +263,7 @@ export function TeamCard(props: {
   canManage: boolean;
   addMembers: AccessMutation;
   changeLevel: AccessMutation;
+  nestedRemovalLabel?: string;
 }) {
   return (
     <section className="flex flex-col gap-4 rounded-6 bg-card p-4 shadow-card">

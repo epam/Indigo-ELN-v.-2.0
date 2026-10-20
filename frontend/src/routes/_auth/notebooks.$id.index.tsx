@@ -34,6 +34,7 @@ function NotebookInfoTab() {
         canManage={notebook.currentPermissions.includes('MANAGE_NOTEBOOK_ACCESS')}
         addMembers={addMembers}
         changeLevel={changeLevel}
+        nestedRemovalLabel="Also remove this member from all Experiments in this Notebook."
       />
     </div>
   );

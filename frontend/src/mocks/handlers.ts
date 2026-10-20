@@ -127,13 +127,13 @@ function suggestedUsers(search: string): UserRef[] {
 
 /**
  * What `POST /access` answers with: the recomputed ACL for the whole entity — existing
- * entries re-levelled, new ones appended.
+ * entries re-levelled (or dropped, for NONE), new ones appended.
  */
 function recomputedAcl(existing: ACLEntry[], updates: AccessForm[]): ACLEntry[] {
   const changed = new Map(updates.map((update) => [update.username, update.level]));
-  const relevelled = existing.map((entry) =>
-    changed.has(entry.username) ? { ...entry, level: changed.get(entry.username)! } : entry,
-  );
+  const relevelled = existing
+    .filter((entry) => changed.get(entry.username) !== 'NONE')
+    .map((entry) => (changed.has(entry.username) ? { ...entry, level: changed.get(entry.username)! } : entry));
   const known = new Set(existing.map((entry) => entry.username));
   const added = updates
     .filter((update) => !known.has(update.username))
