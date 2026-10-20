@@ -109,20 +109,46 @@ export const WithoutPermission: Story = {
   },
 };
 
-/** Complete has no dialog in front of it — Reopen is its undo, so nothing is lost by firing. */
-export const CompletesImmediately: Story = {
+/**
+ * Complete asks first. The dialog's button shares the row button's label, so both are reached
+ * through the dialog itself — portalled, hence `screen` rather than the canvas.
+ */
+export const CompleteAsksFirst: Story = {
   play: async ({ canvasElement }) => {
     sent.length = 0;
-    await userEvent.click(within(canvasElement).getByRole('button', { name: 'Complete' }));
+    const canvas = within(canvasElement);
 
+    // Backing out sends nothing.
+    await userEvent.click(canvas.getByRole('button', { name: 'Complete' }));
+    let dialog = within(await screen.findByRole('dialog'));
+    await expect(dialog.getByText(/want to complete this experiment/)).toBeInTheDocument();
+    await userEvent.click(dialog.getByRole('button', { name: 'Cancel' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    await expect(sent).toEqual([]);
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Complete' }));
+    dialog = within(await screen.findByRole('dialog'));
+    await userEvent.click(dialog.getByRole('button', { name: 'Complete' }));
     await waitFor(() => expect(sent).toEqual(['complete']));
     await expect(await screen.findByText('Experiment marked as completed')).toBeInTheDocument();
   },
 };
 
+export const ReopenAsksFirst: Story = {
+  args: { experiment: makeExperimentDetails({ status: 'COMPLETED', currentPermissions: ALLOWED }) },
+  play: async ({ canvasElement }) => {
+    sent.length = 0;
+    await userEvent.click(within(canvasElement).getByRole('button', { name: 'Reopen' }));
+    const dialog = within(await screen.findByRole('dialog'));
+    await expect(sent).toEqual([]);
+    await userEvent.click(dialog.getByRole('button', { name: 'Reopen' }));
+    await waitFor(() => expect(sent).toEqual(['reopen']));
+  },
+};
+
 /**
- * Cancel is the one transition that asks first: it throws work away, and its own label makes the
- * dialog's buttons say what they do rather than the default Save/Cancel pair.
+ * Cancel's own label makes the dialog's buttons say what they do rather than the default
+ * Save/Cancel pair, and its confirm is the destructive one.
  */
 export const CancelAsksFirst: Story = {
   play: async ({ canvasElement }) => {
