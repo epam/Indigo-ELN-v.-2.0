@@ -31,3 +31,6 @@ export function getPrecursorReactantIds(reaction: Reaction): string[] {
 
 /** Why the reaction scheme refuses a drawing with no arrow: `SetScheme` takes a rxnfile. */
 export const NOT_A_REACTION = 'Draw a reaction, not a single molecule';
+
+/** Its mirror, for a batch: `SetOutputMolfile` takes one compound's molfile. */
+export const NOT_A_MOLECULE = 'Draw a single molecule, not a reaction';
