@@ -34,6 +34,8 @@ const POPULATED = rowAt(0, 0);
 const EMPTY = rowAt(0, 1);
 /** Batch 003 — `REGISTERED`, on a compound that carries a salt code and a salt EQ. */
 const REGISTERED = rowAt(1, 0);
+/** Batch 004 — `FAILED`: Register and Delete are live again, the compound is not. */
+const FAILED = rowAt(2, 0);
 
 /** Nothing in flight and nothing to send: what the display-only stories pass. */
 const IDLE: StoichiometryMutations = {
@@ -169,6 +171,39 @@ export const RegisteredBatchFreezesCompoundFields: Story = {
     await expect(canvas.getByLabelText('Source')).not.toHaveAttribute('readonly');
     // `SetOutputMolfile` is refused on a registered sample, like the three above.
     await expect(canvas.queryByRole('button', { name: 'Edit structure' })).not.toBeInTheDocument();
+  },
+};
+
+/**
+ * A failed registration still counts as sent: `CompoundHandlers` rejects compound edits on any
+ * sample with a registration status, so the structure and the compound fields stay frozen.
+ */
+export const FailedBatchFreezesCompound: Story = {
+  args: { row: FAILED },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.queryByRole('button', { name: 'Edit structure' })).not.toBeInTheDocument();
+    await expect(canvas.getByLabelText('Stereoisomer Code')).toHaveAttribute('readonly');
+    await expect(canvas.getByLabelText('Source')).not.toHaveAttribute('readonly');
+  },
+};
+
+/**
+ * When the molfile the sketcher would be seeded with cannot be fetched, the pencil is disabled:
+ * opening blank, Save would replace the structure with a drawing started from nothing.
+ */
+export const StructureFetchFailed: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        http.get('/api/eln/compounds/:id/molfile', () => new HttpResponse(null, { status: 500 })),
+        ...handlers,
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const edit = await within(canvasElement).findByRole('button', { name: 'Edit structure' });
+    await waitFor(() => expect(edit).toBeDisabled());
   },
 };
 
