@@ -75,6 +75,7 @@ export async function createKeycloakProvider(config: {
       await keycloak.logout({
         redirectUri: absoluteUri('/', window.location.origin, import.meta.env.BASE_URL),
       });
+      await new Promise<never>(() => {});
     },
 
     onAuthChange(listener: (event: AuthChange) => void) {

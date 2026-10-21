@@ -20,8 +20,9 @@ export function UserMenu() {
       notifyError(error);
       return;
     }
-    // Only reached under Cognito — Keycloak's logout has navigated away by now. The cached
-    // user data is dropped by QueryPersistenceProvider, reacting to the provider's event.
+    // Only reached under Cognito: the Keycloak provider deliberately never resolves signOut,
+    // so this navigation cannot race the logout redirect. The cached user data is dropped by
+    // QueryPersistenceProvider, reacting to the provider's event.
     await router.navigate({ to: '/login' });
   }
 
