@@ -31,6 +31,17 @@ interface StructureEditorDialogProps {
 }
 
 /**
+ * Whether every atom sits on the same point — a molfile with no 2D coordinates, which is how the
+ * ELN stores a compound's (`/compounds/{id}/molfile` answers all-zero coordinates). The preview
+ * lays it out on render, but the sketcher draws coordinates as given, so it would open as a dot.
+ */
+function hasNoLayout(ketcher: Ketcher): boolean {
+  const atoms = [...ketcher.editor.struct().atoms.values()];
+  const [first] = atoms;
+  return atoms.length > 1 && atoms.every((atom) => atom.pp.x === first.pp.x && atom.pp.y === first.pp.y);
+}
+
+/**
  * Wraps the Ketcher sketcher in the app's modal, seeded with the current structure.
  */
 function StructureEditorDialog({ open, onOpenChange, value, onSave }: StructureEditorDialogProps) {
@@ -42,6 +53,7 @@ function StructureEditorDialog({ open, onOpenChange, value, onSave }: StructureE
       try {
         instance.setSettings({ atomColoring: true });
         await instance.setMolecule(value);
+        if (hasNoLayout(instance)) await instance.layout();
       } catch (error) {
         notifyError(error);
       }

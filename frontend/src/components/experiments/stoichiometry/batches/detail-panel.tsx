@@ -1,7 +1,8 @@
-import { ChevronDown, Pencil } from 'lucide-react';
+import { ChevronDown, Pencil, PenLine } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useState } from 'react';
 
+import { StructureEditorDialog, type StructureEditorResult } from '@/components/chemistry/structure-editor-dialog';
 import { StructureImage } from '@/components/chemistry/structure-image';
 import { SavingOverlay } from '@/components/common/saving-overlay';
 import { DictionaryCombobox, MultiDictionaryCombobox } from '@/components/common/dictionary-combobox';
@@ -16,6 +17,7 @@ import {
 import { MeltingPointDialog } from '@/components/experiments/stoichiometry/batches/melting-point-dialog';
 import { ResidualSolventsDialog } from '@/components/experiments/stoichiometry/batches/residual-solvents-dialog';
 import { SolubilityDialog } from '@/components/experiments/stoichiometry/batches/solubility-dialog';
+import { useApiImage } from '@/lib/api/images';
 import { compoundMolfilePath } from '@/lib/api/samples';
 import { cellId } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import { useDraft } from '@/lib/hooks/use-draft';
@@ -23,7 +25,8 @@ import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsiblePanel, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { getPrecursorReactantIds } from '@/lib/reactions';
+import { getPrecursorReactantIds, NOT_A_MOLECULE } from '@/lib/reactions';
+import { notifyError } from '@/lib/toast';
 import { cn, newAnchor } from '@/lib/utils';
 
 import type { BatchRow } from '@/components/experiments/stoichiometry/batches/columns';
@@ -93,6 +96,11 @@ export function BatchDetailPanel({
    * stay live, the same split the table's numeric cells make.
    */
   const compoundEditable = canEdit && compound != null && !isSampleProtected(sample);
+  /**
+   * The same freeze, but an unknown compound is no obstacle: `SetOutputMolfile` on one builds
+   * the compound from the drawing, which is the way out of "No structure available".
+   */
+  const structureEditable = canEdit && !isSampleProtected(sample);
 
   const id = (name: string) => `batch-${anchor}-${name}`;
   const pending = (name: string) => mutations.savingCells.has(cellId(anchor, name));
@@ -100,7 +108,23 @@ export function BatchDetailPanel({
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
-      <Structure compound={output.compound} batch={shortNbkBatchNumber(sample.nbkBatchNumber)} />
+      <Structure
+        compound={output.compound}
+        batch={shortNbkBatchNumber(sample.nbkBatchNumber)}
+        editable={structureEditable}
+        onSave={async (molfile) => {
+          // A fresh output anchor, as for salt code and stereoisomer: a new structure is a new
+          // compound, and the backend moves the batch onto the product row for it.
+          const saved = await mutations.save(cellId(anchor, 'structure'), {
+            type: 'SetOutputMolfile',
+            anchor,
+            molfile,
+            createdOutputAnchor: newAnchor(),
+          });
+          // A rejection is what holds the sketcher open; `apiFetch` has already said why.
+          if (!saved) throw new Error('Structure not saved');
+        }}
+      />
 
       <div className="flex min-w-0 flex-col gap-4">
         <h3 className="text-[16px]/6 font-semibold text-neutral-1000">
@@ -337,28 +361,89 @@ function quantity(value: EnteredValue<string> | undefined): string | undefined {
 }
 
 /**
- * The compound's structure, rendered by Ketcher from the molfile the ELN serves for it.
+ * The compound's structure, rendered by Ketcher from the molfile the ELN serves for it, with the
+ * same way into the sketcher `SchemeEditor` offers: a pencil over a structure, Draw Structure
+ * where there is none.
  *
- * **Read-only, and still without the design's pencil.** `CompoundRef` carries no molfile, only a
- * `compoundID`; the one fetched here is what a sketcher would be seeded with, and
- * `SetOutputMolfile` is typed and waiting for it.
+ * `CompoundRef` carries no molfile, only a `compoundID`, so the sketcher is seeded from the same
+ * fetch the picture uses — one query key, so it is normally already cached. Edit waits for it,
+ * because `StructureEditorDialog` reads `value` once, when Ketcher is ready.
  */
-function Structure({ compound, batch }: { compound: CompoundRef; batch: string }) {
+function Structure({
+  compound,
+  batch,
+  editable,
+  onSave,
+}: {
+  compound: CompoundRef;
+  batch: string;
+  editable: boolean;
+  /** Rejects when the save did not land, which keeps the sketcher open with the drawing. */
+  onSave: (molfile: string) => Promise<void>;
+}) {
   const compoundID = compound.compoundID;
+  const path = compoundID == null ? null : compoundMolfilePath(compoundID);
+  const [editorOpen, setEditorOpen] = useState(false);
+  const molfile = useApiImage(path ?? '', editable && path != null);
 
   const frame = 'min-h-[260px] rounded-md border border-dashed border-neutral-300';
 
-  if (compoundID == null) {
-    return (
-      <div className={cn(frame, 'flex items-center justify-center p-4 text-center text-[14px]/6 text-neutral-700')}>
-        No structure available
-      </div>
-    );
+  async function handleSave({ structure, isReaction }: StructureEditorResult) {
+    // A batch is one compound. Throwing holds the sketcher open; it stays silent, so toast first.
+    if (isReaction) {
+      const error = new Error(NOT_A_MOLECULE);
+      notifyError(error);
+      throw error;
+    }
+    await onSave(structure);
   }
 
-  // `border-dashed` overrides StructureImage's own solid frame; the rest of its box is what we want.
   return (
-    <StructureImage path={compoundMolfilePath(compoundID)} alt={`Structure of batch ${batch}`} className={frame} />
+    // `relative` anchors the pencil to the picture's corner.
+    <div className="relative">
+      {path == null ? (
+        <div
+          className={cn(
+            frame,
+            'flex flex-col items-center justify-center gap-3 p-4 text-center text-[14px]/6 text-neutral-700',
+          )}
+        >
+          No structure available
+          {editable && (
+            <Button variant="secondary" size="lg" onClick={() => setEditorOpen(true)}>
+              <PenLine className="text-blue-400" />
+              Draw Structure
+            </Button>
+          )}
+        </div>
+      ) : (
+        <>
+          {/* `border-dashed` overrides StructureImage's own solid frame; the rest of its box is what we want. */}
+          <StructureImage path={path} alt={`Structure of batch ${batch}`} className={frame} />
+          {editable && (
+            <Button
+              variant="secondary"
+              size="icon-lg"
+              aria-label="Edit structure"
+              title="Edit structure"
+              loading={molfile.isPending}
+              onClick={() => setEditorOpen(true)}
+              className="absolute top-2 right-2 text-blue-400"
+            >
+              <Pencil />
+            </Button>
+          )}
+        </>
+      )}
+      {editable && (
+        <StructureEditorDialog
+          open={editorOpen}
+          onOpenChange={setEditorOpen}
+          value={molfile.data ?? null}
+          onSave={handleSave}
+        />
+      )}
+    </div>
   );
 }
 
