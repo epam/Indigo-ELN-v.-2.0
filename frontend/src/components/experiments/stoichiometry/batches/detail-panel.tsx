@@ -6,7 +6,7 @@ import { StructureFrame } from '@/components/chemistry/structure-frame';
 import { StructureImage } from '@/components/chemistry/structure-image';
 import { SavingOverlay } from '@/components/common/saving-overlay';
 import { DictionaryCombobox, MultiDictionaryCombobox } from '@/components/common/dictionary-combobox';
-import { isSampleProtected } from '@/components/experiments/stoichiometry/batches/columns';
+import { isCompoundFrozen } from '@/components/experiments/stoichiometry/batches/columns';
 import {
   externalSupplierLabel,
   meltingPointLabel,
@@ -91,16 +91,17 @@ export function BatchDetailPanel({
   const compound = isKnownCompound(output.compound) ? output.compound : undefined;
 
   /**
-   * Compound-level edits freeze once the batch has gone to the registry: `CompoundHandlers`
-   * rejects a registered sample's salt code, salt EQ and stereoisomer. The batch's own fields
-   * stay live, the same split the table's numeric cells make.
+   * Compound-level edits freeze once the batch has been sent to the registry, whatever came back:
+   * `CompoundHandlers` rejects salt code, salt EQ, stereoisomer and molfile on any sample with a
+   * registration status — `FAILED` included, see `isCompoundFrozen`. The batch's own fields stay
+   * live, the same split the table's numeric cells make.
    */
-  const compoundEditable = canEdit && compound != null && !isSampleProtected(sample);
+  const compoundEditable = canEdit && compound != null && !isCompoundFrozen(sample);
   /**
    * The same freeze, but an unknown compound is no obstacle: `SetOutputMolfile` on one builds
    * the compound from the drawing, which is the way out of "No structure available".
    */
-  const structureEditable = canEdit && !isSampleProtected(sample);
+  const structureEditable = canEdit && !isCompoundFrozen(sample);
 
   const id = (name: string) => `batch-${anchor}-${name}`;
   const pending = (name: string) => mutations.savingCells.has(cellId(anchor, name));
@@ -395,6 +396,9 @@ function Structure({
       emptyLabel="No structure available"
       editable={editable}
       editLoading={molfile.isPending}
+      // Without the molfile the sketcher would open blank, and its Save would replace the
+      // structure with whatever was drawn from scratch. The picture says the fetch failed too.
+      disabled={molfile.isError}
       className="h-[260px]"
     >
       {/* `border-0`: the frame is the dashed box around it. */}

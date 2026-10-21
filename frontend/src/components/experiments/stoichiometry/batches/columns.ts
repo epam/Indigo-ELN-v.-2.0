@@ -121,6 +121,16 @@ export function isSampleProtected(sample: ReactionOutputSample): boolean {
   return sample.registrationStatus != null && sample.registrationStatus !== 'FAILED';
 }
 
+/**
+ * Whether the batch's *compound* is frozen — salt code, salt EQ, stereoisomer and structure.
+ * Stricter than `isSampleProtected`: `CompoundHandlers.java` accepts those mutations only while
+ * `registrationStatus` is null, so a `FAILED` batch, which may still be re-registered or deleted,
+ * cannot have its compound changed.
+ */
+export function isCompoundFrozen(sample: ReactionOutputSample): boolean {
+  return sample.registrationStatus != null;
+}
+
 export const BATCH_COLUMNS: BatchColumn[] = [
   {
     id: 'batchNo',
