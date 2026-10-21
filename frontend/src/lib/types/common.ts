@@ -65,9 +65,8 @@ export interface CollectionFilters {
 }
 
 /**
- * Access levels as the UI speaks about them.
- * `AUTHOR` is the creator's own entry: the backend never lets it change,
- * so it is shown but never offered.
+ * Access levels as the UI speaks about them. Not every one is something a user can pick — see
+ * `isImmutableLevel` and `ELIGIBLE_ACL_LEVELS`.
  */
 export const ACL_LEVEL_LABELS: Record<AccessLevel, string> = {
   ADMIN: 'Admin',
@@ -78,12 +77,24 @@ export const ACL_LEVEL_LABELS: Record<AccessLevel, string> = {
   AUTHOR: 'Author',
 };
 
+/**
+ * Levels the backend owns rather than the team's manager, so they are shown but never edited:
+ *
+ * - `AUTHOR` is the creator's own entry, and `ACLService.applyAccess` rejects any change to it.
+ * - `IMPLICIT_VIEW` is derived, not granted: `recalculateACL` hands it to anyone with access to a
+ *   nested notebook or experiment, and drops it again once they have none. Re-levelling it here
+ *   would only fight that bookkeeping.
+ */
 export function isImmutableLevel(level: AccessLevel): boolean {
-  return level === 'AUTHOR';
+  return level === 'AUTHOR' || level === 'IMPLICIT_VIEW';
 }
 
+/**
+ * What the level menu offers. `NONE` is not a level a member is left at — the backend deletes the
+ * entry — so it is the menu's separate Remove Member action rather than one of the choices.
+ */
 export const ELIGIBLE_ACL_LEVELS = (Object.keys(ACL_LEVEL_LABELS) as AccessLevel[]).filter(
-  (level) => !isImmutableLevel(level),
+  (level) => !isImmutableLevel(level) && level !== 'NONE',
 );
 
 /**
