@@ -518,3 +518,44 @@ export const SAMPLE_COLUMNS: SampleColumn[] = [
     mutation: (sample) => ({ type: 'RemoveInput', anchor: sample.anchor }),
   },
 ];
+
+/**
+ * What the Column Selector may switch off. The rest — #, Compound ID, the amounts, Rxn Role,
+ * Limiting, a batch's Batch # and amounts, Delete — are what the table *is*, and stay.
+ *
+ * Compound and batch columns share one list because they share one menu; their ids do not collide
+ * among the hideable ones (`weight` and friends exist on both levels, but neither is hideable).
+ */
+export const HIDEABLE_INPUT_COLUMNS: readonly { id: string; header: string }[] = [
+  ...COMPOUND_COLUMNS.filter((column) =>
+    ['eq', 'formula', 'molWeight', 'casNumber', 'chemicalName', 'saltCode', 'saltEQ', 'stereoisomerCode'].includes(
+      column.id,
+    ),
+  ),
+  ...SAMPLE_COLUMNS.flatMap((column) => (column.kind === 'group' ? column.parts : [])),
+].map(({ id, header }) => ({ id, header }));
+
+export const HIDEABLE_INPUT_COLUMN_IDS = HIDEABLE_INPUT_COLUMNS.map((column) => column.id);
+
+/**
+ * The table's columns with `hidden` taken out, both levels at once.
+ *
+ * A batch row has to span exactly as many host columns as a compound row, or the rows fall out of
+ * line. So each compound column hidden takes one column off the details group's span — the one
+ * batch cell wide enough to give it up — and the group's own parts are filtered like any other.
+ * The group starts out spanning more host columns than there are hideable compound columns, so it
+ * never drops below one.
+ */
+export function visibleInputColumns(hidden: ReadonlySet<string>): {
+  compound: InputColumn[];
+  sample: SampleColumn[];
+} {
+  const compound = COMPOUND_COLUMNS.filter((column) => !hidden.has(column.id));
+  const removed = COMPOUND_COLUMNS.length - compound.length;
+  const sample = SAMPLE_COLUMNS.map((column) =>
+    column.kind === 'group'
+      ? { ...column, span: column.span - removed, parts: column.parts.filter((part) => !hidden.has(part.id)) }
+      : column,
+  );
+  return { compound, sample };
+}

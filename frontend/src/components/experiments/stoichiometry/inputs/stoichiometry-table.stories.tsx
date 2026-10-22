@@ -41,6 +41,11 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** The Column Selector remembers its choice in localStorage; a story that changes it starts and ends clean. */
+function clearColumnChoices() {
+  for (const key of Object.keys(localStorage)) if (key.endsWith('.hiddenColumns')) localStorage.removeItem(key);
+}
+
 /** Five compounds, every one of them open — the batches are what the table is for. */
 export const Default: Story = {
   play: async ({ canvasElement }) => {
@@ -1272,5 +1277,34 @@ export const DeletesRowAndBatch: Story = {
     sent.length = 0;
     await userEvent.click(canvas.getByRole('button', { name: 'Delete compound 1' }));
     await waitFor(() => expect(sent).toEqual([{ type: 'RemoveInputRow', anchor: 'inp00001' }]));
+  },
+};
+
+/**
+ * The Column Selector switches a compound column and a batch detail off at once — the batch row
+ * gives the compound row's lost column back through its details cell, so the two still line up —
+ * and Reset brings both back. A tick applies immediately; the menu stays open for the next one.
+ */
+export const HidesColumns: Story = {
+  beforeEach: () => {
+    clearColumnChoices();
+    return clearColumnChoices;
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(await canvas.findByRole('columnheader', { name: 'Chem. Name' })).toBeInTheDocument();
+    // A batch detail's label is a span inside its group's header, not a header of its own.
+    await expect(canvas.getAllByText('Hazard Comments').length).toBeGreaterThan(0);
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Choose columns' }));
+    await userEvent.click(await screen.findByRole('menuitemcheckbox', { name: 'Chem. Name' }));
+    await userEvent.click(screen.getByRole('menuitemcheckbox', { name: 'Hazard Comments' }));
+
+    await waitFor(() => expect(canvas.queryByRole('columnheader', { name: 'Chem. Name' })).not.toBeInTheDocument());
+    await expect(canvas.queryByText('Hazard Comments')).not.toBeInTheDocument();
+    await expect(screen.getByRole('menuitemcheckbox', { name: 'Chem. Name' })).toHaveAttribute('aria-checked', 'false');
+
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Reset to default' }));
+    await expect(await canvas.findByRole('columnheader', { name: 'Chem. Name' })).toBeInTheDocument();
   },
 };
