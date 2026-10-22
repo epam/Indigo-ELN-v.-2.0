@@ -57,6 +57,11 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** The Column Selector remembers its choice in localStorage; a story that changes it starts and ends clean. */
+function clearColumnChoices() {
+  for (const key of Object.keys(localStorage)) if (key.endsWith('.hiddenColumns')) localStorage.removeItem(key);
+}
+
 /**
  * Three products, and the fourth fixture row — the one with `intended: false` — deliberately
  * absent. That flag says the product was drawn in the reaction scheme; an unintended output
@@ -294,5 +299,26 @@ export const Failure: Story = {
 
     await waitFor(async () => expect(await canvas.findByLabelText('Product Type, P0')).toBeEnabled());
     await expect(canvas.getByLabelText('Product Type, P0')).toHaveTextContent('Final');
+  },
+};
+
+/** The issue's own steps: switch Exact Mass and Salt EQ off, and the table drops them at once. */
+export const HidesColumns: Story = {
+  beforeEach: () => {
+    clearColumnChoices();
+    return clearColumnChoices;
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(await canvas.findByRole('columnheader', { name: 'Exact Mass' })).toBeInTheDocument();
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Choose columns' }));
+    await userEvent.click(await screen.findByRole('menuitemcheckbox', { name: 'Exact Mass' }));
+    await userEvent.click(screen.getByRole('menuitemcheckbox', { name: 'Salt EQ' }));
+
+    await waitFor(() => expect(canvas.queryByRole('columnheader', { name: 'Exact Mass' })).not.toBeInTheDocument());
+    await expect(canvas.queryByRole('columnheader', { name: 'Salt EQ' })).not.toBeInTheDocument();
+    // The columns the table is built on are not on offer at all.
+    await expect(screen.queryByRole('menuitemcheckbox', { name: 'Output Name' })).not.toBeInTheDocument();
   },
 };

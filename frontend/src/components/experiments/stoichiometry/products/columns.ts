@@ -242,3 +242,10 @@ export function productHaystack(row: ProductRow): string {
     .join(' ')
     .toLowerCase();
 }
+
+/** What the Column Selector may switch off: everything but #, Output Name and Add Batch. */
+export const HIDEABLE_PRODUCT_COLUMNS: readonly { id: string; header: string }[] = PRODUCT_COLUMNS.filter(
+  (column) => !['index', 'outputName', 'addBatch'].includes(column.id),
+).map(({ id, header }) => ({ id, header }));
+
+export const HIDEABLE_PRODUCT_COLUMN_IDS = HIDEABLE_PRODUCT_COLUMNS.map((column) => column.id);
