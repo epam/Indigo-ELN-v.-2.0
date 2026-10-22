@@ -1,4 +1,5 @@
 import { useForm } from '@tanstack/react-form';
+import { useEffect } from 'react';
 
 import { FormDialog } from '@/components/common/form-dialog';
 import { projectNameValidators } from '@/components/projects/project-form';
@@ -36,17 +37,23 @@ function RenameProjectDialog({
     },
   });
 
+  /*
+    Every opening starts from the name as stored now — not the abandoned draft, and not the name
+    this dialog last saved or was mounted with: it stays mounted between openings, and the list
+    refetch, or someone else's rename, can change `project.name` under it. Resetting on open
+    rather than on close covers all of them, the close that follows a save included.
+  */
+  useEffect(() => {
+    if (open) form.reset({ name: project.name });
+  }, [open, project.name, form]);
+
   return (
     // Save stays disabled while the name is invalid or its uniqueness check is in flight.
     <form.Subscribe selector={(state) => !state.canSubmit || state.isValidating}>
       {(submitDisabled) => (
         <FormDialog
           open={open}
-          onOpenChange={(nextOpen) => {
-            // Reopening starts from the name as stored, not the abandoned draft.
-            if (!nextOpen) form.reset({ name: project.name });
-            onOpenChange(nextOpen);
-          }}
+          onOpenChange={onOpenChange}
           title="Rename Project"
           submitDisabled={submitDisabled}
           onSubmit={() => form.handleSubmit()}

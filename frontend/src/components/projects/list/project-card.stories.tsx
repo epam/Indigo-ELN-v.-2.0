@@ -52,6 +52,8 @@ export const ManyCollaborators: Story = {
 
 /** Records the PATCH bodies that reached the wire. */
 const patched: unknown[] = [];
+/** Counts the detail GETs the menu makes, so a story can wait on the answer rather than a clock. */
+let detailsServed = 0;
 
 const renameHandlers = [
   http.patch('/api/eln/projects/:id', async ({ params, request }) => {
@@ -74,7 +76,7 @@ export const Renames: Story = {
     await userEvent.click(within(canvasElement).getByRole('button', { name: /^Actions for / }));
 
     const rename = await screen.findByRole('menuitem', { name: 'Rename' });
-    await waitFor(() => expect(rename).not.toHaveAttribute('data-disabled'));
+    await waitFor(() => expect(rename).not.toHaveAttribute('aria-disabled', 'true'));
     await userEvent.click(rename);
 
     const dialog = await screen.findByRole('dialog', { name: 'Rename Project' });
@@ -91,24 +93,46 @@ export const Renames: Story = {
   },
 };
 
-/** Without `EDIT_PROJECTS` on this project the item is there but cannot be chosen. */
+/**
+ * Without `EDIT_PROJECTS` on this project the item is there but cannot be chosen, and says why
+ * on hover. Waits on the detail having been served, not on a timer.
+ */
 export const RenameNotAllowed: Story = {
   parameters: {
     msw: {
       handlers: [
-        http.get('/api/eln/projects/:id', ({ params }) =>
-          HttpResponse.json(makeProjectDetails({ id: String(params.id), currentPermissions: ['VIEW_PROJECTS'] })),
-        ),
+        http.get('/api/eln/projects/:id', ({ params }) => {
+          detailsServed += 1;
+          return HttpResponse.json(
+            makeProjectDetails({ id: String(params.id), currentPermissions: ['VIEW_PROJECTS'] }),
+          );
+        }),
         ...handlers,
       ],
     },
   },
   play: async ({ canvasElement }) => {
+    detailsServed = 0;
     await userEvent.click(within(canvasElement).getByRole('button', { name: /^Actions for / }));
     const rename = await screen.findByRole('menuitem', { name: 'Rename' });
-    // Disabled while the detail loads, and still disabled once it has answered.
-    await waitFor(() => expect(rename).toHaveAttribute('data-disabled'));
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    await expect(rename).toHaveAttribute('data-disabled');
+
+    await waitFor(() => expect(detailsServed).toBe(1));
+    await waitFor(() => expect(rename).toHaveAttribute('title', 'You do not have permission to rename this project'));
+    await expect(rename).toHaveAttribute('aria-disabled', 'true');
+  },
+};
+
+/** While the detail is on its way, Rename is disabled and its icon spins in place. */
+export const RenameWhilePermissionLoads: Story = {
+  parameters: {
+    msw: {
+      handlers: [http.get('/api/eln/projects/:id', () => new Promise(() => {})), ...handlers],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement).getByRole('button', { name: /^Actions for / }));
+    const rename = await screen.findByRole('menuitem', { name: 'Rename' });
+    await expect(rename).toHaveAttribute('aria-disabled', 'true');
+    await expect(rename.querySelector('.animate-spin')).not.toBeNull();
   },
 };
