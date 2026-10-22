@@ -12,7 +12,7 @@ export const projectNameSchema = z
   .max(PROJECT_NAME_MAX_LENGTH, `Use ${PROJECT_NAME_MAX_LENGTH} characters at most`);
 
 /** How long the name has to stop changing before its uniqueness is asked about. */
-export const NAME_CHECK_DEBOUNCE_MS = 300;
+const NAME_CHECK_DEBOUNCE_MS = 300;
 
 /**
  * The Project Name field's validators, for every dialog that edits one: the sync rules on each
